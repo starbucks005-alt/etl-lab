@@ -1,0 +1,1640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emerging Technologies Laboratory | Wright State University</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #07090a;
+    --dark: #0d1214;
+    --panel: #111618;
+    --border: #1e2628;
+    --gold: #FDB827;
+    --gold-dim: #c8930f;
+    --green: #285C4D;
+    --green-bright: #3dba7e;
+    --white: #f0f4f5;
+    --gray: #8a9ba0;
+    --scan: rgba(253,184,39,0.03);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+    line-height: 1.6;
+  }
+
+  /* Scan line overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      var(--scan) 2px,
+      var(--scan) 4px
+    );
+    pointer-events: none;
+    z-index: 1000;
+  }
+
+  /* Hex grid background */
+  .hex-bg {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='104' viewBox='0 0 60 104'%3E%3Cpath d='M30 2 L58 18 L58 50 L30 66 L2 50 L2 18 Z' fill='none' stroke='%23285C4D' stroke-width='0.4' opacity='0.3'/%3E%3Cpath d='M30 54 L58 70 L58 102 L30 118 L2 102 L2 70 Z' fill='none' stroke='%23285C4D' stroke-width='0.4' opacity='0.3'/%3E%3C/svg%3E");
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; width: 100%;
+    background: rgba(7,9,10,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--green);
+    z-index: 999;
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+  }
+
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .nav-badge {
+    width: 36px; height: 36px;
+    background: var(--green);
+    display: flex; align-items: center; justify-content: center;
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    font-family: 'Oswald', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 1px;
+  }
+
+  .nav-title {
+    font-family: 'Oswald', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--white);
+  }
+
+  .nav-title span {
+    color: var(--gold);
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 32px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: 'Oswald', sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gray);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--gold); }
+
+  .nav-wsu {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--green-bright);
+    letter-spacing: 1px;
+  }
+
+  /* ── HERO ── */
+  #hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    padding-top: 60px;
+  }
+
+  #hero .hex-bg { opacity: 0.6; }
+
+  .hero-gradient {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 60% at 20% 50%, rgba(40,92,77,0.25) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 80% 30%, rgba(253,184,39,0.08) 0%, transparent 60%),
+      linear-gradient(180deg, var(--black) 0%, var(--dark) 50%, var(--black) 100%);
+  }
+
+  .hero-grid-lines {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(40,92,77,0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(40,92,77,0.08) 1px, transparent 1px);
+    background-size: 80px 80px;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 60px;
+    width: 100%;
+  }
+
+  .hero-classification {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--gold);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .hero-classification::before {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 1px;
+    background: var(--gold);
+  }
+
+  .hero-main {
+    font-family: 'Oswald', sans-serif;
+    font-size: clamp(52px, 7vw, 96px);
+    font-weight: 700;
+    text-transform: uppercase;
+    line-height: 0.9;
+    letter-spacing: -1px;
+    margin-bottom: 8px;
+  }
+
+  .hero-main .line-gold { color: var(--gold); display: block; }
+  .hero-main .line-white { color: var(--white); display: block; }
+  .hero-main .line-dim { color: var(--gray); display: block; font-weight: 300; font-size: 0.55em; letter-spacing: 6px; margin-top: 10px; }
+
+  .hero-divider {
+    width: 80px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--gold), transparent);
+    margin: 30px 0;
+  }
+
+  .hero-sub {
+    font-size: 16px;
+    font-weight: 300;
+    color: var(--gray);
+    max-width: 540px;
+    line-height: 1.8;
+    margin-bottom: 40px;
+  }
+
+  .hero-sub strong {
+    color: var(--white);
+    font-weight: 500;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 48px;
+    margin-bottom: 50px;
+  }
+
+  .stat {
+    text-align: left;
+  }
+
+  .stat-num {
+    font-family: 'Oswald', sans-serif;
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--gold);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--gray);
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  .hero-cta {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    font-family: 'Oswald', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 14px 32px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-block;
+  }
+
+  .btn-primary {
+    background: var(--gold);
+    color: var(--black);
+  }
+
+  .btn-primary:hover {
+    background: #fff;
+    color: var(--black);
+  }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--white);
+    border: 1px solid var(--border);
+  }
+
+  .btn-outline:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+
+  .hero-location {
+    position: absolute;
+    right: 60px;
+    top: 50%;
+    transform: translateY(-50%);
+    text-align: right;
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  .location-label {
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: var(--green-bright);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .location-text {
+    font-size: 13px;
+    color: var(--gray);
+    line-height: 1.8;
+  }
+
+  .location-text strong {
+    color: var(--white);
+    display: block;
+    font-size: 15px;
+  }
+
+  .location-pulse {
+    display: inline-block;
+    width: 8px; height: 8px;
+    background: var(--green-bright);
+    border-radius: 50%;
+    margin-right: 8px;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(61,186,126,0.4); }
+    50% { opacity: 0.6; box-shadow: 0 0 0 6px rgba(61,186,126,0); }
+  }
+
+  /* ── SECTION BASE ── */
+  section {
+    position: relative;
+    padding: 100px 60px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-full {
+    max-width: 100%;
+    padding: 100px 0;
+    background: var(--panel);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-full-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 60px;
+  }
+
+  .section-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-tag::before {
+    content: '';
+    display: block;
+    width: 24px;
+    height: 1px;
+    background: var(--gold);
+  }
+
+  .section-title {
+    font-family: 'Oswald', sans-serif;
+    font-size: clamp(32px, 4vw, 52px);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: -0.5px;
+    line-height: 1;
+    margin-bottom: 16px;
+  }
+
+  .section-title span { color: var(--gold); }
+
+  .section-subtitle {
+    font-size: 15px;
+    color: var(--gray);
+    max-width: 600px;
+    font-weight: 300;
+    margin-bottom: 60px;
+  }
+
+  /* ── INTEL ALERT (Featured Forbes Article) ── */
+  #intel {
+    padding-top: 60px;
+  }
+
+  .intel-card {
+    background: linear-gradient(135deg, rgba(40,92,77,0.15), rgba(253,184,39,0.05));
+    border: 1px solid var(--green);
+    border-left: 4px solid var(--gold);
+    padding: 40px 48px;
+    position: relative;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 40px;
+    align-items: center;
+  }
+
+  .intel-card::before {
+    content: 'INTEL BRIEF';
+    position: absolute;
+    top: -1px; right: 40px;
+    background: var(--gold);
+    color: var(--black);
+    font-family: 'Oswald', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    padding: 4px 14px;
+  }
+
+  .intel-date {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--green-bright);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+
+  .intel-title {
+    font-family: 'Oswald', sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    text-transform: uppercase;
+    line-height: 1.05;
+    margin-bottom: 16px;
+  }
+
+  .intel-title span { color: var(--gold); }
+
+  .intel-body {
+    font-size: 14px;
+    color: var(--gray);
+    line-height: 1.8;
+    max-width: 600px;
+    font-weight: 300;
+  }
+
+  .intel-body strong {
+    color: var(--white);
+    font-weight: 500;
+  }
+
+  .intel-meta {
+    text-align: right;
+    min-width: 180px;
+  }
+
+  .intel-source {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .intel-outlet {
+    font-family: 'Oswald', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--white);
+    letter-spacing: -1px;
+  }
+
+  .intel-outlet em {
+    display: block;
+    font-style: normal;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--gray);
+    font-weight: 300;
+    margin-top: 4px;
+  }
+
+  .intel-duration {
+    margin-top: 20px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--green-bright);
+    letter-spacing: 1px;
+  }
+
+  /* ── RESEARCH DIRECTIVES ── */
+  .directives-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    margin-top: 20px;
+  }
+
+  .directive-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 36px 32px;
+    position: relative;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .directive-card:hover {
+    border-color: var(--gold);
+    background: rgba(253,184,39,0.03);
+  }
+
+  .directive-num {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--green-bright);
+    margin-bottom: 20px;
+  }
+
+  .directive-icon {
+    font-size: 28px;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .directive-title {
+    font-family: 'Oswald', sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+    color: var(--white);
+  }
+
+  .directive-body {
+    font-size: 13px;
+    color: var(--gray);
+    line-height: 1.7;
+    font-weight: 300;
+  }
+
+  .directive-tag {
+    margin-top: 20px;
+    display: inline-block;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--gold);
+    border: 1px solid rgba(253,184,39,0.3);
+    padding: 3px 10px;
+    text-transform: uppercase;
+  }
+
+  /* ── DIRECTOR DOSSIER ── */
+  .dossier {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 60px;
+    align-items: start;
+  }
+
+  .dossier-id {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 32px;
+    position: relative;
+  }
+
+  .dossier-id::before {
+    content: 'PERSONNEL FILE';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    background: var(--green);
+    font-family: 'Oswald', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-align: center;
+    padding: 8px;
+    color: var(--white);
+  }
+
+  .dossier-photo {
+    width: 100%;
+    aspect-ratio: 3/4;
+    background: linear-gradient(135deg, var(--dark), var(--panel));
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 36px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .dossier-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(30%) contrast(1.1);
+  }
+
+  .dossier-photo-placeholder {
+    font-family: 'Oswald', sans-serif;
+    font-size: 48px;
+    font-weight: 700;
+    color: var(--green);
+    letter-spacing: 4px;
+  }
+
+  .dossier-name {
+    font-family: 'Oswald', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+    text-align: center;
+  }
+
+  .dossier-rank {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--gold);
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .dossier-fields {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--gray);
+    line-height: 2.2;
+  }
+
+  .dossier-fields .f-label {
+    color: var(--green-bright);
+    letter-spacing: 1px;
+  }
+
+  .dossier-content h3 {
+    font-family: 'Oswald', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin: 28px 0 12px;
+  }
+
+  .dossier-content p {
+    font-size: 14px;
+    color: var(--gray);
+    line-height: 1.8;
+    font-weight: 300;
+  }
+
+  .dossier-content p strong {
+    color: var(--white);
+    font-weight: 500;
+  }
+
+  .expertise-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .expertise-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    padding: 5px 12px;
+    border: 1px solid var(--border);
+    color: var(--gray);
+    text-transform: uppercase;
+  }
+
+  .expertise-tag.gold {
+    border-color: rgba(253,184,39,0.4);
+    color: var(--gold);
+  }
+
+  /* ── PUBLICATIONS ── */
+  .pub-list {
+    display: grid;
+    gap: 2px;
+  }
+
+  .pub-item {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 28px 36px;
+    display: grid;
+    grid-template-columns: 60px 1fr auto;
+    gap: 24px;
+    align-items: start;
+    transition: border-color 0.2s;
+  }
+
+  .pub-item:hover { border-color: rgba(253,184,39,0.4); }
+
+  .pub-year {
+    font-family: 'Oswald', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--green);
+    line-height: 1;
+  }
+
+  .pub-year.new-year { color: var(--gold); }
+
+  .pub-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--white);
+    margin-bottom: 6px;
+    line-height: 1.4;
+  }
+
+  .pub-authors {
+    font-size: 12px;
+    color: var(--gray);
+    font-weight: 300;
+    margin-bottom: 4px;
+  }
+
+  .pub-journal {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--green-bright);
+    letter-spacing: 1px;
+  }
+
+  .pub-badge {
+    font-family: 'Oswald', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    padding: 4px 12px;
+    background: var(--gold);
+    color: var(--black);
+    white-space: nowrap;
+    align-self: center;
+  }
+
+  /* ── CONTACT ── */
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+  }
+
+  .contact-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 40px;
+  }
+
+  .contact-card h3 {
+    font-family: 'Oswald', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 24px;
+  }
+
+  .contact-line {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 16px;
+    font-size: 14px;
+  }
+
+  .contact-line .c-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--green-bright);
+    text-transform: uppercase;
+    min-width: 70px;
+    padding-top: 2px;
+  }
+
+  .contact-line .c-value {
+    color: var(--white);
+    font-weight: 300;
+    line-height: 1.5;
+  }
+
+  .contact-line .c-value a {
+    color: var(--gold);
+    text-decoration: none;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--dark);
+    border-top: 1px solid var(--border);
+    padding: 40px 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 100%;
+  }
+
+  .footer-left {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--gray);
+    line-height: 2;
+  }
+
+  .footer-right {
+    font-family: 'Oswald', sans-serif;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--green);
+  }
+
+  .footer-wsu {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--white);
+  }
+
+  /* ── TICKER ── */
+  .ticker-wrap {
+    background: var(--green);
+    overflow: hidden;
+    height: 36px;
+    display: flex;
+    align-items: center;
+  }
+
+  .ticker-content {
+    white-space: nowrap;
+    animation: ticker 40s linear infinite;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--white);
+    padding-left: 100%;
+  }
+
+  @keyframes ticker {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    nav { padding: 0 20px; }
+    .nav-links { display: none; }
+    section { padding: 70px 24px; }
+    .section-full-inner { padding: 0 24px; }
+    footer { padding: 30px 24px; }
+    .hero-content { padding: 0 24px; }
+    .hero-location { display: none; }
+    .directives-grid { grid-template-columns: 1fr; }
+    .dossier { grid-template-columns: 1fr; }
+    .contact-grid { grid-template-columns: 1fr; }
+    .intel-card { grid-template-columns: 1fr; }
+    .intel-meta { text-align: left; }
+    .hero-stats { gap: 24px; flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="nav-badge">ETL</div>
+    <div class="nav-title">Emerging <span>Technologies</span> Laboratory</div>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#intel">Intel</a></li>
+    <li><a href="#research">Research</a></li>
+    <li><a href="#team">Team</a></li>
+    <li><a href="#director">Director</a></li>
+    <li><a href="#publications">Publications</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <div class="nav-wsu">WRIGHT STATE UNIVERSITY · BSOM</div>
+</nav>
+
+<!-- HERO -->
+<div id="hero">
+  <div class="hex-bg"></div>
+  <div class="hero-gradient"></div>
+  <div class="hero-grid-lines"></div>
+
+  <div class="hero-content">
+    <div class="hero-classification">EST. 2025 · ACTIVE · WRIGHT STATE UNIVERSITY</div>
+    <h1 class="hero-main">
+      <span class="line-gold">Emerging</span>
+      <span class="line-white">Technologies</span>
+      <span class="line-white">Laboratory</span>
+      <span class="line-dim">Human-Centered Innovation</span>
+    </h1>
+    <div class="hero-divider"></div>
+    <p class="hero-sub">
+      Where <strong>artificial intelligence meets human judgment.</strong><br>
+      Researching the intersection of emerging technologies, biodefense, and the critical thinking skills that keep humans in control. Equipped with <strong>VR/XR immersive technology</strong> for simulation, training, and experiential learning.
+    </p>
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="stat-num">30+</div>
+        <div class="stat-label">Years Active</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">100+</div>
+        <div class="stat-label">Publications</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">22+</div>
+        <div class="stat-label">Classified Cases</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">5</div>
+        <div class="stat-label">Books</div>
+      </div>
+    </div>
+    <div class="hero-cta">
+      <a href="#research" class="btn btn-primary">View Research Directives</a>
+      <a href="#contact" class="btn btn-outline">Contact the Lab</a>
+    </div>
+  </div>
+
+  <div class="hero-location">
+    <div class="location-label">Lab Location</div>
+    <div class="location-text">
+      <strong><span class="location-pulse"></span>210 Health Sciences Bldg</strong>
+      Wright State University<br>
+      3640 Colonel Glenn Hwy<br>
+      Dayton, OH 45435
+    </div>
+  </div>
+</div>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker-content">
+    EMERGING TECHNOLOGIES LABORATORY &nbsp;·&nbsp; WRIGHT STATE UNIVERSITY BSOM &nbsp;·&nbsp; AI/ML INTEGRATION IN GRADUATE EDUCATION &nbsp;·&nbsp; BIODEFENSE &amp; CBRN DEFENSE RESEARCH &nbsp;·&nbsp; COMPUTATIONAL TOXICOLOGY &nbsp;·&nbsp; HUMAN-CENTERED TECHNOLOGY INNOVATION &nbsp;·&nbsp; FORBES TECHNOLOGY COUNCIL MEMBER &nbsp;·&nbsp; ESTABLISHED 2025 · 210 HEALTH SCIENCES BUILDING &nbsp;·&nbsp;
+  </div>
+</div>
+
+<!-- INTEL BRIEF: FEATURED ARTICLE -->
+<section id="intel">
+  <div class="section-tag">Latest Intel</div>
+  <h2 class="section-title">Featured <span>Intelligence</span></h2>
+  <p class="section-subtitle">Most recent public briefing from ETL Director Dr. Terry L. Oroszi</p>
+
+  <div class="intel-card">
+    <div class="intel-left">
+      <div class="intel-date">Presented: April 6, 2026 &nbsp;·&nbsp; 1 hr 18 min</div>
+      <h3 class="intel-title">The Architecture of<br><span>Uncritical Deference</span></h3>
+      <p class="intel-body">
+        What happens when institutions — and individuals — stop questioning the systems they defer to?
+        This briefing examines the structural conditions that produce <strong>uncritical deference to AI systems</strong>,
+        the psychological mechanisms that normalize it, and what academic institutions must do to
+        reverse the trend before it becomes embedded in professional culture.
+        <br><br>
+        Originally published via <strong>Forbes Technology Council</strong> and expanded into a full
+        academic presentation delivered April 6, 2026.
+      </p>
+      <div style="margin-top:28px; display:flex; gap:16px; flex-wrap:wrap;">
+        <a href="https://www.forbes.com/councils/forbestechcouncil/" target="_blank" class="btn btn-primary" style="font-size:11px; padding:10px 24px;">Read on Forbes</a>
+        <a href="#contact" class="btn btn-outline" style="font-size:11px; padding:10px 24px;">Request Recording Access</a>
+      </div>
+    </div>
+    <div class="intel-meta">
+      <div class="intel-source">Published in</div>
+      <div class="intel-outlet">Forbes<em>Technology Council</em></div>
+      <div class="intel-duration">▶ &nbsp;Recording: 1h 18m</div>
+    </div>
+  </div>
+</section>
+
+<!-- RESEARCH DIRECTIVES -->
+<div class="section-full" id="research">
+  <div class="section-full-inner">
+    <div class="section-tag">Active Operations</div>
+    <h2 class="section-title">Research <span>Directives</span></h2>
+    <p class="section-subtitle">Core research areas actively pursued within the ETL at 210 Health Sciences Building</p>
+
+    <div class="directives-grid">
+      <div class="directive-card">
+        <div class="directive-num">DIRECTIVE // 01</div>
+        <span class="directive-icon">🧠</span>
+        <div class="directive-title">AI Critical Thinking &amp; Human Deference</div>
+        <p class="directive-body">Investigating the conditions under which humans defer uncritically to AI systems — and developing frameworks for restoring human judgment in high-stakes academic, medical, and defense contexts.</p>
+        <span class="directive-tag">Forbes AI Series</span>
+      </div>
+
+      <div class="directive-card">
+        <div class="directive-num">DIRECTIVE // 02</div>
+        <span class="directive-icon">⚗️</span>
+        <div class="directive-title">Computational Toxicology &amp; Biodefense AI</div>
+        <p class="directive-body">Applying machine learning to CBRN threat detection, cardiometabolic risk modeling, and pharmacological data science. Includes DoD, DHS, and DTRA-funded projects.</p>
+        <span class="directive-tag">DoD · DHS · DTRA</span>
+      </div>
+
+      <div class="directive-card">
+        <div class="directive-num">DIRECTIVE // 03</div>
+        <span class="directive-icon">🎓</span>
+        <div class="directive-title">AI + VR/XR in Graduate Medical Education</div>
+        <p class="directive-body">Pioneering responsible AI/ML and immersive VR/XR integration in graduate health sciences — developing simulation environments, curriculum, and assessment tools for the AI-augmented, experience-driven classroom.</p>
+        <span class="directive-tag">BSOM · VR/XR · Graduate Programs</span>
+      </div>
+
+      <div class="directive-card">
+        <div class="directive-num">DIRECTIVE // 04</div>
+        <span class="directive-icon">🔬</span>
+        <div class="directive-title">Cardiometabolic &amp; Dietary Health Research</div>
+        <p class="directive-body">Molecular and clinical investigation of dietary interventions in cardiometabolic disease. Current focus: safflower oil, lipid metabolism, and AI-assisted clinical implications modeling.</p>
+        <span class="directive-tag">JIRMPS · 2026</span>
+      </div>
+
+      <div class="directive-card">
+        <div class="directive-num">DIRECTIVE // 05</div>
+        <span class="directive-icon">🌐</span>
+        <div class="directive-title">Public Health Data Science</div>
+        <p class="directive-body">Harnessing population-level datasets to model mass casualty scenarios, bioterrorism preparedness, and predictive surveillance. Data hosted on Harvard Dataverse.</p>
+        <span class="directive-tag">Harvard Dataverse</span>
+      </div>
+
+      <div class="directive-card">
+        <div class="directive-num">DIRECTIVE // 06</div>
+        <span class="directive-icon">🔐</span>
+        <div class="directive-title">Nonverbal Intelligence &amp; Behavioral Analysis</div>
+        <p class="directive-body">Technology-augmented behavioral threat assessment. Bridging psychology, AI pattern recognition, and law enforcement tradecraft for real-world threat identification and de-escalation.</p>
+        <span class="directive-tag">FBI WMD · InfraGard</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GRADUATE RESEARCH TEAM -->
+<section id="team">
+  <div class="section-tag">Research Operatives</div>
+  <h2 class="section-title">Graduate <span>Research Team</span></h2>
+  <p class="section-subtitle">ETL-affiliated graduate researchers — Celebration of Research Poster Symposium, April 1, 2026 · Wright State University</p>
+
+  <!-- KAVYA — THESIS STUDENT, POSTER + ORAL -->
+  <div style="background:linear-gradient(135deg, rgba(40,92,77,0.18), rgba(253,184,39,0.06)); border:1px solid var(--green); border-left:4px solid var(--gold); padding:40px 48px; margin-bottom:2px; position:relative;">
+    <div style="position:absolute; top:0; left:0; right:0; background:linear-gradient(90deg, var(--gold), var(--gold-dim)); font-family:'Oswald',sans-serif; font-size:10px; font-weight:700; letter-spacing:4px; text-align:center; padding:8px; color:var(--black);">THESIS STUDENT · POSTER + ORAL PRESENTATION · CELEBRATION OF RESEARCH · APRIL 1, 2026</div>
+    <div style="display:grid; grid-template-columns:1fr auto; gap:40px; align-items:start; margin-top:28px;">
+      <div>
+        <div style="font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--green-bright); margin-bottom:8px; text-transform:uppercase;">Thesis Research · Original Clinical Study · 702 Patients · 6 Months</div>
+        <div style="font-family:'Oswald',sans-serif; font-size:32px; font-weight:700; text-transform:uppercase; line-height:1.05; margin-bottom:4px;">Kavya Lekkala, PharmD</div>
+        <div style="font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--gold); letter-spacing:1px; margin-bottom:20px;">THESIS STUDENT · BSOM · PHARMACOLOGY &amp; TOXICOLOGY</div>
+
+        <div style="background:rgba(0,0,0,0.3); border-left:3px solid var(--gold); padding:16px 20px; margin-bottom:20px;">
+          <div style="font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--gold); margin-bottom:8px;">THESIS</div>
+          <div style="font-family:'Oswald',sans-serif; font-size:17px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:var(--white); line-height:1.3;">
+            Development of a Graph Neural Network Framework for Toxicity Prediction Using 3D Spatial and Electronic Features Integrated with ToxCast Data
+          </div>
+        </div>
+
+        <p style="font-size:13px; color:var(--gray); line-height:1.8; font-weight:300; margin-bottom:16px;">
+          Applying <strong style="color:var(--white)">graph neural networks (GNNs)</strong> to predict molecular toxicity by integrating
+          3D spatial and electronic molecular features with EPA ToxCast bioactivity data —
+          a cutting-edge intersection of computational chemistry, AI, and pharmacotoxicology
+          that directly advances the ETL's mission of human-centered emerging technology in medicine.
+        </p>
+
+        <div style="background:rgba(40,92,77,0.15); border:1px solid rgba(40,92,77,0.4); padding:14px 18px; margin-bottom:16px;">
+          <div style="font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--green-bright); margin-bottom:6px;">ALSO PRESENTED · CELEBRATION OF RESEARCH · APRIL 1, 2026</div>
+          <div style="font-size:12px; color:var(--gray); font-weight:300;">Poster + Oral: <span style="color:var(--white)">"Clinical Evidence of Association Between T2DM and Hypothyroidism with Therapeutic Relevance"</span> — prospective observational study, 702 patients, 6 months</div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;">
+          <div style="background:rgba(0,0,0,0.25); padding:14px 18px; border:1px solid var(--border);">
+            <div style="font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--gold); margin-bottom:6px;">FINDING 01</div>
+            <div style="font-size:12px; color:var(--white); line-height:1.6;">T2DM + hypothyroidism → <span style="color:#7dd3fc">reduced FBS/PLBS</span> — hypoglycemia trend</div>
+          </div>
+          <div style="background:rgba(0,0,0,0.25); padding:14px 18px; border:1px solid var(--border);">
+            <div style="font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--gold); margin-bottom:6px;">FINDING 02</div>
+            <div style="font-size:12px; color:var(--white); line-height:1.6;">Hypothyroidism + T2DM → <span style="color:#fca5a5">elevated FBS/PLBS</span> — hyperglycemia trend</div>
+          </div>
+          <div style="background:rgba(0,0,0,0.25); padding:14px 18px; border:1px solid var(--border);">
+            <div style="font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--gold); margin-bottom:6px;">FINDING 03</div>
+            <div style="font-size:12px; color:var(--white); line-height:1.6;">TSH &amp; T4 significantly altered in coexisting patients; T3 remained stable</div>
+          </div>
+          <div style="background:rgba(0,0,0,0.25); padding:14px 18px; border:1px solid var(--border);">
+            <div style="font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--gold); margin-bottom:6px;">CLINICAL IMPACT</div>
+            <div style="font-size:12px; color:var(--white); line-height:1.6;">Physicians must carefully adjust insulin, oral hypoglycemics &amp; levothyroxine in co-morbid patients</div>
+          </div>
+        </div>
+
+        <div style="display:flex; flex-wrap:wrap; gap:8px;">
+          <span style="font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:1px; padding:4px 10px; border:1px solid rgba(253,184,39,0.4); color:var(--gold); text-transform:uppercase;">Original Clinical Research</span>
+          <span style="font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:1px; padding:4px 10px; border:1px solid var(--border); color:var(--gray); text-transform:uppercase;">702 Patients</span>
+          <span style="font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:1px; padding:4px 10px; border:1px solid var(--border); color:var(--gray); text-transform:uppercase;">T2DM &amp; Hypothyroidism</span>
+          <span style="font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:1px; padding:4px 10px; border:1px solid var(--border); color:var(--gray); text-transform:uppercase;">Endocrinology</span>
+          <span style="font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:1px; padding:4px 10px; border:1px solid var(--border); color:var(--gray); text-transform:uppercase;">Bidirectional Interaction</span>
+        </div>
+      </div>
+
+      <div style="text-align:right; min-width:140px;">
+        <div style="font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--green-bright); margin-bottom:12px;">Study Scale</div>
+        <div style="font-family:'Oswald',sans-serif; font-size:64px; font-weight:700; color:var(--gold); line-height:1;">702</div>
+        <div style="font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--gray); letter-spacing:1px; margin-bottom:20px;">PATIENTS</div>
+        <div style="font-family:'Oswald',sans-serif; font-size:32px; font-weight:700; color:var(--white); line-height:1;">6</div>
+        <div style="font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--gray); letter-spacing:1px; margin-bottom:20px;">MONTHS</div>
+        <div style="font-family:'Oswald',sans-serif; font-size:20px; font-weight:700; color:var(--green-bright); line-height:1;">2×</div>
+        <div style="font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--gray); letter-spacing:1px;">POSTER + ORAL</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTC SECTION HEADER -->
+  <div style="margin-top:40px; margin-bottom:2px; display:flex; align-items:center; gap:16px;">
+    <div style="font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:4px; color:var(--green-bright); text-transform:uppercase;">Clinical Trials Coordination · MS Program · 11 Students</div>
+    <div style="flex:1; height:1px; background:var(--border);"></div>
+    <div style="font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--gray); letter-spacing:1px;">2025–2026 COHORT</div>
+  </div>
+
+  <!-- PUBLISHED: BATHINI + VALLAKATI -->
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:2px; margin-bottom:2px;">
+    <div style="background:linear-gradient(135deg,rgba(40,92,77,0.14),rgba(253,184,39,0.05)); border:1px solid var(--green); padding:28px; position:relative;">
+      <div style="position:absolute; top:0; left:0; right:0; background:var(--gold); font-family:'Oswald',sans-serif; font-size:9px; font-weight:700; letter-spacing:3px; text-align:center; padding:6px; color:var(--black);">CTC STUDENT · PEER-REVIEWED PUBLICATION · 2026</div>
+      <div style="margin-top:28px;">
+        <div style="font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--green-bright); margin-bottom:8px; letter-spacing:2px;">JIRMPS · 2026 · hal-05576866</div>
+        <div style="font-family:'Oswald',sans-serif; font-size:22px; font-weight:700; text-transform:uppercase; margin-bottom:14px;">Uday Kiran Bathini</div>
+        <div style="background:rgba(0,0,0,0.25); border-left:3px solid var(--gold); padding:12px 14px; margin-bottom:12px;">
+          <div style="font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--gold); margin-bottom:5px;">CO-AUTHOR · PUBLISHED</div>
+          <div style="font-size:12px; color:var(--white); line-height:1.4;">Dietary Safflower Oil and Cardiometabolic Health: From Molecular Mechanisms to Clinical Implications</div>
+          <div style="font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--gray); margin-top:5px;">Bathini · Vallakati · Oroszi · JIRMPS 21(2):45–74</div>
+        </div>
+        <div style="display:flex; gap:6px; flex-wrap:wrap;">
+          <span style="font-family:'Share Tech Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid rgba(253,184,39,0.4); color:var(--gold);">Published 2026</span>
+          <span style="font-family:'Share Tech Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid var(--border); color:var(--gray);">Cardiometabolic</span>
+          <span style="font-family:'Share Tech Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid var(--border); color:var(--gray);">Safflower Oil</span>
+        </div>
+      </div>
+    </div>
+    <div style="background:linear-gradient(135deg,rgba(40,92,77,0.14),rgba(253,184,39,0.05)); border:1px solid var(--green); padding:28px; position:relative;">
+      <div style="position:absolute; top:0; left:0; right:0; background:var(--gold); font-family:'Oswald',sans-serif; font-size:9px; font-weight:700; letter-spacing:3px; text-align:center; padding:6px; color:var(--black);">CTC STUDENT · PEER-REVIEWED PUBLICATION · 2026</div>
+      <div style="margin-top:28px;">
+        <div style="font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--green-bright); margin-bottom:8px; letter-spacing:2px;">JIRMPS · 2026 · hal-05576866</div>
+        <div style="font-family:'Oswald',sans-serif; font-size:22px; font-weight:700; text-transform:uppercase; margin-bottom:14px;">Naresh Vallakati</div>
+        <div style="background:rgba(0,0,0,0.25); border-left:3px solid var(--gold); padding:12px 14px; margin-bottom:12px;">
+          <div style="font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--gold); margin-bottom:5px;">CO-AUTHOR · PUBLISHED</div>
+          <div style="font-size:12px; color:var(--white); line-height:1.4;">Dietary Safflower Oil and Cardiometabolic Health: From Molecular Mechanisms to Clinical Implications</div>
+          <div style="font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--gray); margin-top:5px;">Bathini · Vallakati · Oroszi · JIRMPS 21(2):45–74</div>
+        </div>
+        <div style="display:flex; gap:6px; flex-wrap:wrap;">
+          <span style="font-family:'Share Tech Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid rgba(253,184,39,0.4); color:var(--gold);">Published 2026</span>
+          <span style="font-family:'Share Tech Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid var(--border); color:var(--gray);">Cardiometabolic</span>
+          <span style="font-family:'Share Tech Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid var(--border); color:var(--gray);">Safflower Oil</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POSTER PRESENTERS: SANTHOSH + KASHIF -->
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:2px; margin-bottom:2px;">
+    <div style="background:var(--panel); border:1px solid var(--border); padding:28px; position:relative; transition:border-color 0.2s;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
+      <div style="position:absolute; top:0; left:0; right:0; background:var(--green); font-family:'Oswald',sans-serif; font-size:9px; font-weight:600; letter-spacing:3px; text-align:center; padding:6px; color:var(--white);">CTC STUDENT · POSTER PRESENTER · CELEBRATION OF RESEARCH · APRIL 1, 2026</div>
+      <div style="margin-top:28px;">
+        <div style="font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--green-bright); margin-bottom:8px; letter-spacing:2px;">POSTER SYMPOSIUM · APRIL 1, 2026</div>
+        <div style="font-family:'Oswald',sans-serif; font-size:22px; font-weight:700; text-transform:uppercase; margin-bottom:14px;">Santhosh Azhagappan</div>
+        <div style="background:rgba(253,184,39,0.06); border-left:3px solid var(--gold); padding:12px 14px; margin-bottom:12px;">
+          <div style="font-family:'Oswald',sans-serif; font-size:13px; font-weight:600; text-transform:uppercase; color:var(--white); line-height:1.3;">AI in Pharmacological Cancer Diagnosis: Imaging, Pathology &amp; Biomarker-Driven Therapy Selection</div>
+        </div>
+        <p style="font-size:12px; color:var(--gray); line-height:1.7; font-weight:300;">AI integration of imaging, pathology, and multi-omics for PD-L1 and Mcl-1 biomarker identification. Radiomics models predict PD-L1 from CT, reducing invasive biopsies.</p>
+        <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:12px;">
+          <span style="font-family:'Share Tech Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid rgba(253,184,39,0.4); color:var(--gold);">AI Radiomics</span>
+          <span style="font-family:'Share Tech Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid var(--border); color:var(--gray);">PD-L1</span>
+          <span style="font-family:'Share Tech Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid var(--border); color:var(--gray);">Precision Oncology</span>
+        </div>
+      </div>
+    </div>
+    <div style="background:var(--panel); border:1px solid var(--border); padding:28px; position:relative; transition:border-color 0.2s;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
+      <div style="position:absolute; top:0; left:0; right:0; background:var(--green); font-family:'Oswald',sans-serif; font-size:9px; font-weight:600; letter-spacing:3px; text-align:center; padding:6px; color:var(--white);">CTC STUDENT · POSTER PRESENTER · CELEBRATION OF RESEARCH · APRIL 1, 2026</div>
+      <div style="margin-top:28px;">
+        <div style="font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--green-bright); margin-bottom:8px; letter-spacing:2px;">POSTER SYMPOSIUM · APRIL 1, 2026</div>
+        <div style="font-family:'Oswald',sans-serif; font-size:22px; font-weight:700; text-transform:uppercase; margin-bottom:14px;">Kashif Mohiuddin Syed</div>
+        <div style="background:rgba(253,184,39,0.06); border-left:3px solid var(--gold); padding:12px 14px; margin-bottom:12px;">
+          <div style="font-family:'Oswald',sans-serif; font-size:13px; font-weight:600; text-transform:uppercase; color:var(--white); line-height:1.3;">Emerging Technologies &amp; AI in STEM: Bridging Human Expertise with Machine Intelligence</div>
+        </div>
+        <p style="font-size:12px; color:var(--gray); line-height:1.7; font-weight:300;">Review of 17 studies (2020–2025) on ML, robotics, XR, and cognitive computing. Defines hybrid intelligence. Cites Oroszi (2023) as foundational reference.</p>
+        <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:12px;">
+          <span style="font-family:'Share Tech Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid rgba(253,184,39,0.4); color:var(--gold);">Hybrid Intelligence</span>
+          <span style="font-family:'Share Tech Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid var(--border); color:var(--gray);">XR</span>
+          <span style="font-family:'Share Tech Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid var(--border); color:var(--gray);">AI Ethics</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REMAINING 7 CTC STUDENTS: compact roster -->
+  <div style="background:var(--panel); border:1px solid var(--border); padding:24px 28px; margin-top:2px;">
+    <div style="font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:3px; color:var(--green-bright); margin-bottom:16px; text-transform:uppercase;">CTC Cohort · 2025–2026</div>
+    <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:2px; margin-bottom:2px;">
+      <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border); padding:16px 12px; text-align:center;">
+        <div style="font-family:'Oswald',sans-serif; font-size:22px; font-weight:700; color:var(--green); margin-bottom:6px;">TD</div>
+        <div style="font-family:'Oswald',sans-serif; font-size:12px; font-weight:600; text-transform:uppercase; color:var(--white); line-height:1.3;">Tina Davison</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border); padding:16px 12px; text-align:center;">
+        <div style="font-family:'Oswald',sans-serif; font-size:22px; font-weight:700; color:var(--green); margin-bottom:6px;">AG</div>
+        <div style="font-family:'Oswald',sans-serif; font-size:12px; font-weight:600; text-transform:uppercase; color:var(--white); line-height:1.3;">Anusha Garvandhula</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border); padding:16px 12px; text-align:center;">
+        <div style="font-family:'Oswald',sans-serif; font-size:22px; font-weight:700; color:var(--green); margin-bottom:6px;">PG</div>
+        <div style="font-family:'Oswald',sans-serif; font-size:12px; font-weight:600; text-transform:uppercase; color:var(--white); line-height:1.3;">Poojitha Gorla</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border); padding:16px 12px; text-align:center;">
+        <div style="font-family:'Oswald',sans-serif; font-size:22px; font-weight:700; color:var(--green); margin-bottom:6px;">BJ</div>
+        <div style="font-family:'Oswald',sans-serif; font-size:12px; font-weight:600; text-transform:uppercase; color:var(--white); line-height:1.3;">Brianne Jones</div>
+      </div>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:2px;">
+      <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border); padding:16px 12px; text-align:center;">
+        <div style="font-family:'Oswald',sans-serif; font-size:22px; font-weight:700; color:var(--green); margin-bottom:6px;">DK</div>
+        <div style="font-family:'Oswald',sans-serif; font-size:12px; font-weight:600; text-transform:uppercase; color:var(--white); line-height:1.3;">Dharani Karnayana</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border); padding:16px 12px; text-align:center;">
+        <div style="font-family:'Oswald',sans-serif; font-size:22px; font-weight:700; color:var(--green); margin-bottom:6px;">MS</div>
+        <div style="font-family:'Oswald',sans-serif; font-size:12px; font-weight:600; text-transform:uppercase; color:var(--white); line-height:1.3;">Maaz Abdul Munaf Shaikh</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border); padding:16px 12px; text-align:center;">
+        <div style="font-family:'Oswald',sans-serif; font-size:22px; font-weight:700; color:var(--green); margin-bottom:6px;">SK</div>
+        <div style="font-family:'Oswald',sans-serif; font-size:12px; font-weight:600; text-transform:uppercase; color:var(--white); line-height:1.3;">Sai Kiran Yerragunta</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Thesis students sub-header -->
+  <div style="margin-top:40px; margin-bottom:2px; display:flex; align-items:center; gap:16px;">
+    <div style="font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:4px; color:var(--green-bright); text-transform:uppercase;">MS Thesis Students · Pharmacology &amp; Toxicology</div>
+    <div style="flex:1; height:1px; background:var(--border);"></div>
+    <div style="font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--gray); letter-spacing:1px;">4 ACTIVE THESES · 2025–2026</div>
+  </div>
+
+  <!-- placeholder for the 3-col thesis grid that follows -->
+  <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:2px; margin-top:0px;">
+
+    <!-- SIREESHA -->
+    <div style="background:var(--panel); border:1px solid var(--border); padding:36px 28px; position:relative; transition:border-color 0.2s;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
+      <div style="position:absolute; top:0; left:0; right:0; background:var(--green); font-family:'Oswald',sans-serif; font-size:9px; font-weight:600; letter-spacing:3px; text-align:center; padding:6px; color:var(--white);">THESIS STUDENT · PHARMACOLOGY &amp; TOXICOLOGY · BSOM</div>
+      <div style="margin-top:28px;">
+        <div style="font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--green-bright); margin-bottom:8px;">ETL RESEARCHER · 2025–2026</div>
+        <div style="font-family:'Oswald',sans-serif; font-size:24px; font-weight:700; text-transform:uppercase; line-height:1.1; margin-bottom:4px;">Sireesha Akula<span style="font-size:14px; font-weight:300; color:var(--gray)">, PharmD</span></div>
+        <div style="font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--gold); letter-spacing:1px; margin-bottom:20px;">THESIS STUDENT · AI &amp; CLINICAL PHARMACOLOGY</div>
+        <div style="background:rgba(253,184,39,0.06); border-left:3px solid var(--gold); padding:14px 16px; margin-bottom:16px;">
+          <div style="font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:1px; color:var(--gold); margin-bottom:6px;">THESIS</div>
+          <div style="font-family:'Oswald',sans-serif; font-size:14px; font-weight:600; text-transform:uppercase; color:var(--white); line-height:1.3;">Using Language Models to Reliably Simplify Boxed Warnings</div>
+        </div>
+        <p style="font-size:12px; color:var(--gray); line-height:1.7; font-weight:300;">
+          Applying large language models (LLMs) to transform complex FDA Black Box Warning text into
+          <strong style="color:var(--white)">reliable, plain-language patient communications</strong> —
+          addressing a critical gap in drug safety literacy and informed consent.
+        </p>
+        <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:16px;">
+          <span style="font-family:'Share Tech Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid rgba(253,184,39,0.4); color:var(--gold);">LLMs</span>
+          <span style="font-family:'Share Tech Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid var(--border); color:var(--gray);">Drug Safety</span>
+          <span style="font-family:'Share Tech Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid var(--border); color:var(--gray);">FDA Black Box</span>
+          <span style="font-family:'Share Tech Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid var(--border); color:var(--gray);">Health Literacy</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- VAMSI -->
+    <div style="background:var(--panel); border:1px solid var(--border); padding:36px 28px; position:relative; transition:border-color 0.2s;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
+      <div style="position:absolute; top:0; left:0; right:0; background:var(--green); font-family:'Oswald',sans-serif; font-size:9px; font-weight:600; letter-spacing:3px; text-align:center; padding:6px; color:var(--white);">THESIS STUDENT · PHARMACOLOGY &amp; TOXICOLOGY · BSOM</div>
+      <div style="margin-top:28px;">
+        <div style="font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--green-bright); margin-bottom:8px;">ETL RESEARCHER · 2025–2026</div>
+        <div style="font-family:'Oswald',sans-serif; font-size:24px; font-weight:700; text-transform:uppercase; line-height:1.1; margin-bottom:4px;">Vamsi Mohan<span style="font-size:14px; font-weight:300; color:var(--gray)">, BPharm</span></div>
+        <div style="font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--gold); letter-spacing:1px; margin-bottom:20px;">THESIS STUDENT · DATA SCIENCE &amp; MEDICAL EDUCATION</div>
+        <div style="background:rgba(253,184,39,0.06); border-left:3px solid var(--gold); padding:14px 16px; margin-bottom:16px;">
+          <div style="font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:1px; color:var(--gold); margin-bottom:6px;">THESIS</div>
+          <div style="font-family:'Oswald',sans-serif; font-size:14px; font-weight:600; text-transform:uppercase; color:var(--white); line-height:1.3;">Orange As a Data Analysis and Education Tool for Medical Data</div>
+        </div>
+        <p style="font-size:12px; color:var(--gray); line-height:1.7; font-weight:300;">
+          Evaluating the open-source <strong style="color:var(--white)">Orange data mining platform</strong> as an accessible,
+          no-code AI/ML tool for medical data analysis and health sciences education —
+          lowering the barrier to data science for clinicians and students.
+        </p>
+        <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:16px;">
+          <span style="font-family:'Share Tech Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid rgba(253,184,39,0.4); color:var(--gold);">Orange Platform</span>
+          <span style="font-family:'Share Tech Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid var(--border); color:var(--gray);">Medical Data</span>
+          <span style="font-family:'Share Tech Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid var(--border); color:var(--gray);">No-Code ML</span>
+          <span style="font-family:'Share Tech Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid var(--border); color:var(--gray);">Health Education</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SAHINI -->
+    <div style="background:var(--panel); border:1px solid var(--border); padding:36px 28px; position:relative; transition:border-color 0.2s;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
+      <div style="position:absolute; top:0; left:0; right:0; background:var(--green); font-family:'Oswald',sans-serif; font-size:9px; font-weight:600; letter-spacing:3px; text-align:center; padding:6px; color:var(--white);">THESIS STUDENT · PHARMACOLOGY &amp; TOXICOLOGY · BSOM</div>
+      <div style="margin-top:28px;">
+        <div style="font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--green-bright); margin-bottom:8px;">ETL RESEARCHER · 2025–2026</div>
+        <div style="font-family:'Oswald',sans-serif; font-size:24px; font-weight:700; text-transform:uppercase; line-height:1.1; margin-bottom:4px;">Sahini Bingi<span style="font-size:14px; font-weight:300; color:var(--gray)">, PharmD</span></div>
+        <div style="font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--gold); letter-spacing:1px; margin-bottom:20px;">THESIS STUDENT · CLINICAL PHARMACOLOGY &amp; SAFETY</div>
+        <div style="background:rgba(253,184,39,0.06); border-left:3px solid var(--gold); padding:14px 16px; margin-bottom:16px;">
+          <div style="font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:1px; color:var(--gold); margin-bottom:6px;">THESIS</div>
+          <div style="font-family:'Oswald',sans-serif; font-size:14px; font-weight:600; text-transform:uppercase; color:var(--white); line-height:1.3;">Safety Profile of Long-Term Opioid Use in Chronic Non-Cancer Pain: A Meta-Analysis</div>
+        </div>
+        <p style="font-size:12px; color:var(--gray); line-height:1.7; font-weight:300;">
+          Systematic meta-analysis examining the <strong style="color:var(--white)">adverse event profile, dependency risk, and analgesic efficacy</strong>
+          of long-term opioid therapy in chronic non-cancer pain —
+          with direct implications for prescribing guidelines and opioid crisis policy.
+        </p>
+        <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:16px;">
+          <span style="font-family:'Share Tech Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid rgba(253,184,39,0.4); color:var(--gold);">Meta-Analysis</span>
+          <span style="font-family:'Share Tech Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid var(--border); color:var(--gray);">Opioid Safety</span>
+          <span style="font-family:'Share Tech Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid var(--border); color:var(--gray);">Chronic Pain</span>
+          <span style="font-family:'Share Tech Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid var(--border); color:var(--gray);">Drug Policy</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer badge -->
+  <div style="margin-top:2px; background:var(--panel); border:1px solid var(--border); padding:18px 28px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+    <div style="font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--gray); letter-spacing:2px;">
+      ALL AFFILIATED WITH: <span style="color:var(--white)">ETL · 210 HEALTH SCIENCES BUILDING · WRIGHT STATE UNIVERSITY · BSOM</span>
+    </div>
+    <div style="font-family:'Oswald',sans-serif; font-size:11px; letter-spacing:2px; color:var(--green-bright);">Director: Dr. Terry L. Oroszi</div>
+  </div>
+</section>
+
+<!-- DIRECTOR DOSSIER -->
+<section id="director">
+  <div class="section-tag">Personnel File</div>
+  <h2 class="section-title">Lab <span>Director</span></h2>
+  <p class="section-subtitle">Cleared for public release</p>
+
+  <div class="dossier">
+    <div class="dossier-id">
+      <div class="dossier-photo">
+        <div class="dossier-photo-placeholder">TLO</div>
+      </div>
+      <div class="dossier-name">Dr. Terry L. Oroszi</div>
+      <div class="dossier-rank">Director, ETL &nbsp;·&nbsp; Associate Professor &amp; Vice Chair</div>
+      <div class="dossier-fields">
+        <div><span class="f-label">DEPT:</span> &nbsp;Pharmacology &amp; Toxicology</div>
+        <div><span class="f-label">SCHOOL:</span> &nbsp;BSOM, Wright State Univ.</div>
+        <div><span class="f-label">LOCATION:</span> &nbsp;HSB 217 + ETL (210 HSB)</div>
+        <div><span class="f-label">CLEARANCE:</span> &nbsp;22 Classified Cases</div>
+        <div><span class="f-label">STATUS:</span> &nbsp;<span style="color:var(--green-bright)">● ACTIVE</span></div>
+        <div><span class="f-label">CONTACT:</span> &nbsp;terry.oroszi@wright.edu</div>
+      </div>
+    </div>
+
+    <div class="dossier-content">
+      <h3>Mission Briefing</h3>
+      <p>
+        Dr. Terry L. Oroszi is a <strong>transformational leader</strong> with 30 years of cross-sector innovation spanning academia, military, government, and nonprofit environments. As Director of the Emerging Technologies Laboratory and Vice Chair of Pharmacology &amp; Toxicology at Wright State University's Boonshoft School of Medicine, she is at the forefront of integrating AI and emerging technologies into health sciences education and biodefense research.
+      </p>
+
+      <h3>Operational Record</h3>
+      <p>
+        Expert witness in <strong>22 classified federal and state cases</strong>. Principal Investigator on contracts with the <strong>U.S. Department of Defense, DHS, DTRA, FBI WMD Directorate</strong>, and the Chemical and Biological Center at Edgewood, MD. Author of <strong>5 books</strong>, 100+ peer-reviewed publications, and a recurring columnist for the <strong>Forbes Technology Council</strong>.
+      </p>
+
+      <h3>Core Expertise</h3>
+      <div class="expertise-tags">
+        <span class="expertise-tag gold">AI/ML Integration</span>
+        <span class="expertise-tag gold">Biodefense &amp; CBRN</span>
+        <span class="expertise-tag">Computational Toxicology</span>
+        <span class="expertise-tag">Behavioral Threat Assessment</span>
+        <span class="expertise-tag">Emergency Management</span>
+        <span class="expertise-tag">Graduate Medical Education</span>
+        <span class="expertise-tag">Nonverbal Intelligence</span>
+        <span class="expertise-tag">Public Health Data Science</span>
+      </div>
+
+      <h3>External Affiliations</h3>
+      <p>
+        Forbes Technology Council · Society of Toxicology · American College of Clinical Pharmacology · Interagency Board (IAB) · InfraGard National Board Secretary · Gandhi-King Center for Nonviolence (CEO) · Mission Possible Spy Academy (Founder)
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- PUBLICATIONS -->
+<div class="section-full" id="publications">
+  <div class="section-full-inner">
+    <div class="section-tag">Research Output</div>
+    <h2 class="section-title">Selected <span>Publications</span></h2>
+    <p class="section-subtitle">Peer-reviewed research, books, and Forbes intelligence from the ETL</p>
+
+    <div class="pub-list">
+      <div class="pub-item">
+        <div class="pub-year new-year">2026</div>
+        <div>
+          <div class="pub-title">Dietary Safflower Oil and Cardiometabolic Health: From Molecular Mechanisms to Clinical Implications</div>
+          <div class="pub-authors">Bathini UK, Vallakati N, Oroszi TL</div>
+          <div class="pub-journal">Journal of International Research in Medical and Pharmaceutical Sciences · 21(2):45–74 · ⟨hal-05576866⟩</div>
+        </div>
+        <div class="pub-badge">NEW · 2026</div>
+      </div>
+
+      <div class="pub-item">
+        <div class="pub-year">2025</div>
+        <div>
+          <div class="pub-title">Why Academia Must Embrace Generative AI</div>
+          <div class="pub-authors">Oroszi TL</div>
+          <div class="pub-journal">Forbes Technology Council · December 2025</div>
+        </div>
+      </div>
+
+      <div class="pub-item">
+        <div class="pub-year">2025</div>
+        <div>
+          <div class="pub-title">The Architecture of Uncritical Deference</div>
+          <div class="pub-authors">Oroszi TL</div>
+          <div class="pub-journal">Forbes Technology Council · Presented April 6, 2026</div>
+        </div>
+        <div class="pub-badge">FEATURED</div>
+      </div>
+
+      <div class="pub-item">
+        <div class="pub-year">2024</div>
+        <div>
+          <div class="pub-title">Emerging Technologies and the Future of CBRN Defense: An AI Framework for Threat Assessment</div>
+          <div class="pub-authors">Oroszi TL et al.</div>
+          <div class="pub-journal">DoD/DTRA Technical Report</div>
+        </div>
+      </div>
+
+      <div class="pub-item">
+        <div class="pub-year">2019</div>
+        <div>
+          <div class="pub-title">The American Terrorist: Everything You Need to Know to be a Subject Matter Expert</div>
+          <div class="pub-authors">Oroszi TL</div>
+          <div class="pub-journal">Book · Washington Times Book Review Featured</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:32px; text-align:center;">
+      <a href="https://www.researchgate.net/profile/Terry-Oroszi" target="_blank" class="btn btn-outline" style="font-size:11px; letter-spacing:2px;">Full Publication List on ResearchGate →</a>
+    </div>
+  </div>
+</div>
+
+<!-- SLR TEACHING METHOD -->
+<div class="section-full" id="teaching">
+  <div class="section-full-inner">
+    <div class="section-tag">ETL Teaching Framework</div>
+    <h2 class="section-title">Systematic Literature Review <span>Workshop</span></h2>
+    <p class="section-subtitle">A structured, data-driven SLR methodology taught to graduate students and clinicians — designed to compress months of work into a publishable manuscript</p>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:2px; margin-bottom:2px;">
+
+      <!-- What it is -->
+      <div style="background:var(--dark); border:1px solid var(--border); border-left:4px solid var(--gold); padding:36px 32px;">
+        <div style="font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:3px; color:var(--gold); margin-bottom:14px;">THE METHOD</div>
+        <div style="font-family:'Oswald',sans-serif; font-size:22px; font-weight:700; text-transform:uppercase; margin-bottom:16px; color:var(--white);">Gold-Standard SLR<br><span style="color:var(--gold);">Accelerated</span></div>
+        <p style="font-size:13px; color:var(--gray); line-height:1.8; font-weight:300; margin-bottom:16px;">
+          A strategic workflow integrating the scientific rigor of the <strong style="color:var(--white);">Systematic Literature Review (SLR)</strong> with data-driven tools to accelerate the process from keyword search to publishable manuscript — without sacrificing rigor or reproducibility.
+        </p>
+        <p style="font-size:13px; color:var(--gray); line-height:1.8; font-weight:300;">
+          Taught as a <strong style="color:var(--white);">Grand Rounds workshop</strong> to graduate students, PharmD candidates, and physician researchers at BSOM. Uses live data from PubMed, pivot tables, and mind maps to teach argument structure, research gap identification, and journal targeting in a single session.
+        </p>
+      </div>
+
+      <!-- The 3-challenge framework -->
+      <div style="display:grid; gap:2px;">
+        <div style="background:var(--panel); border:1px solid var(--border); padding:20px 24px;">
+          <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; text-align:center;">
+            <div>
+              <div style="font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--gold); letter-spacing:2px; margin-bottom:6px;">CHALLENGE 01</div>
+              <div style="font-family:'Oswald',sans-serif; font-size:14px; font-weight:700; color:var(--white); text-transform:uppercase; margin-bottom:6px;">Time</div>
+              <div style="font-size:11px; color:var(--gray); line-height:1.5;">Focus-Driven Workflow identifies 25–35 Foundation Papers immediately — saves months</div>
+            </div>
+            <div>
+              <div style="font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--gold); letter-spacing:2px; margin-bottom:6px;">CHALLENGE 02</div>
+              <div style="font-family:'Oswald',sans-serif; font-size:14px; font-weight:700; color:var(--white); text-transform:uppercase; margin-bottom:6px;">Bias</div>
+              <div style="font-size:11px; color:var(--gray); line-height:1.5;">SLR Foundation uses explicit, reproducible criteria — makes the review scientifically defensible</div>
+            </div>
+            <div>
+              <div style="font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--gold); letter-spacing:2px; margin-bottom:6px;">CHALLENGE 03</div>
+              <div style="font-family:'Oswald',sans-serif; font-size:14px; font-weight:700; color:var(--white); text-transform:uppercase; margin-bottom:6px;">Expertise</div>
+              <div style="font-size:11px; color:var(--gray); line-height:1.5;">Quantitative Argument Mapping generates instant authority — pinpoints gaps typically found only after years of expertise</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="background:var(--panel); border:1px solid var(--border); padding:20px 24px;">
+          <div style="font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:3px; color:var(--green-bright); margin-bottom:14px;">5-STEP WORKFLOW</div>
+          <div style="display:flex; gap:0; align-items:center; flex-wrap:wrap;">
+            <div style="text-align:center; padding:10px 14px; background:rgba(253,184,39,0.08); border:1px solid rgba(253,184,39,0.2);">
+              <div style="font-family:'Oswald',sans-serif; font-size:11px; font-weight:700; color:var(--gold);">01</div>
+              <div style="font-size:10px; color:var(--white); margin-top:3px; line-height:1.3;">Keyword<br>Subgroups</div>
+            </div>
+            <div style="color:var(--border); padding:0 4px; font-size:16px;">→</div>
+            <div style="text-align:center; padding:10px 14px; background:rgba(253,184,39,0.08); border:1px solid rgba(253,184,39,0.2);">
+              <div style="font-family:'Oswald',sans-serif; font-size:11px; font-weight:700; color:var(--gold);">02</div>
+              <div style="font-size:10px; color:var(--white); margin-top:3px; line-height:1.3;">PubMed<br>Screening</div>
+            </div>
+            <div style="color:var(--border); padding:0 4px; font-size:16px;">→</div>
+            <div style="text-align:center; padding:10px 14px; background:rgba(253,184,39,0.08); border:1px solid rgba(253,184,39,0.2);">
+              <div style="font-family:'Oswald',sans-serif; font-size:11px; font-weight:700; color:var(--gold);">03</div>
+              <div style="font-size:10px; color:var(--white); margin-top:3px; line-height:1.3;">Pivot Table<br>Author Map</div>
+            </div>
+            <div style="color:var(--border); padding:0 4px; font-size:16px;">→</div>
+            <div style="text-align:center; padding:10px 14px; background:rgba(253,184,39,0.08); border:1px solid rgba(253,184,39,0.2);">
+              <div style="font-family:'Oswald',sans-serif; font-size:11px; font-weight:700; color:var(--gold);">04</div>
+              <div style="font-size:10px; color:var(--white); margin-top:3px; line-height:1.3;">Mind Map<br>Gaps</div>
+            </div>
+            <div style="color:var(--border); padding:0 4px; font-size:16px;">→</div>
+            <div style="text-align:center; padding:10px 14px; background:rgba(40,92,77,0.3); border:1px solid var(--green);">
+              <div style="font-family:'Oswald',sans-serif; font-size:11px; font-weight:700; color:var(--green-bright);">05</div>
+              <div style="font-size:10px; color:var(--white); margin-top:3px; line-height:1.3;">Target<br>Journal</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="background:var(--panel); border:1px solid var(--border); padding:16px 24px; display:flex; align-items:center; gap:24px; flex-wrap:wrap;">
+          <div style="font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--gray); letter-spacing:1px;">ALSO COVERS:</div>
+          <span style="font-family:'Share Tech Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid rgba(253,184,39,0.4); color:var(--gold);">Predatory Journal Avoidance</span>
+          <span style="font-family:'Share Tech Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid var(--border); color:var(--gray);">Authorship Ethics</span>
+          <span style="font-family:'Share Tech Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid var(--border); color:var(--gray);">Research Gap Analysis</span>
+          <span style="font-family:'Share Tech Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid var(--border); color:var(--gray);">Subgroup Overlap Detection</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- VR/XR callout -->
+    <div style="background:linear-gradient(135deg,rgba(40,92,77,0.18),rgba(253,184,39,0.05)); border:1px solid var(--green); padding:28px 36px; display:grid; grid-template-columns:auto 1fr; gap:32px; align-items:center; margin-top:2px;">
+      <div style="font-family:'Oswald',sans-serif; font-size:64px; font-weight:700; color:var(--green); line-height:1; opacity:0.7;">VR<br><span style="font-size:36px; color:var(--gold);">XR</span></div>
+      <div>
+        <div style="font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:3px; color:var(--green-bright); margin-bottom:10px;">ETL CAPABILITY · IMMERSIVE TECHNOLOGY</div>
+        <div style="font-family:'Oswald',sans-serif; font-size:20px; font-weight:700; text-transform:uppercase; color:var(--white); margin-bottom:10px;">Virtual &amp; Extended Reality Lab</div>
+        <p style="font-size:13px; color:var(--gray); line-height:1.7; font-weight:300; max-width:700px;">
+          The ETL houses <strong style="color:var(--white);">VR/XR immersive technology</strong> used for simulation-based learning, clinical decision-making training, and experiential research. Applications include crisis scenario simulations, high-stakes decision-making environments, and interactive STEM education experiences — directly bridging the human-AI interface work across all ETL research directives.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="section-tag">Reach the Lab</div>
+  <h2 class="section-title">Contact &amp; <span>Access</span></h2>
+  <p class="section-subtitle">Collaboration requests, research inquiries, and student applications</p>
+
+  <div class="contact-grid">
+    <div class="contact-card">
+      <h3>Lab Coordinates</h3>
+      <div class="contact-line">
+        <span class="c-label">Location</span>
+        <span class="c-value">Emerging Technologies Laboratory<br>210 Health Sciences Building<br>Wright State University<br>3640 Colonel Glenn Hwy, Dayton OH 45435</span>
+      </div>
+      <div class="contact-line">
+        <span class="c-label">Director</span>
+        <span class="c-value">Dr. Terry L. Oroszi, M.S., Ed.D.</span>
+      </div>
+      <div class="contact-line">
+        <span class="c-label">Email</span>
+        <span class="c-value"><a href="mailto:terry.oroszi@wright.edu">terry.oroszi@wright.edu</a></span>
+      </div>
+      <div class="contact-line">
+        <span class="c-label">Phone</span>
+        <span class="c-value">937-775-4832</span>
+      </div>
+      <div class="contact-line">
+        <span class="c-label">Office</span>
+        <span class="c-value">Health Sciences Building 217</span>
+      </div>
+    </div>
+
+    <div class="contact-card">
+      <h3>Intelligence Channels</h3>
+      <div class="contact-line">
+        <span class="c-label">Forbes</span>
+        <span class="c-value"><a href="https://www.forbes.com/councils/forbestechcouncil/" target="_blank">Forbes Technology Council — Articles &amp; Briefings</a></span>
+      </div>
+      <div class="contact-line">
+        <span class="c-label">Research</span>
+        <span class="c-value"><a href="https://www.researchgate.net/profile/Terry-Oroszi" target="_blank">ResearchGate Profile</a></span>
+      </div>
+      <div class="contact-line">
+        <span class="c-label">Faculty</span>
+        <span class="c-value"><a href="https://people.wright.edu/terry.oroszi" target="_blank">WSU Faculty Profile</a></span>
+      </div>
+      <div class="contact-line">
+        <span class="c-label">LinkedIn</span>
+        <span class="c-value"><a href="https://www.linkedin.com/in/dr-terry-l-oroszi/" target="_blank">Dr. Terry L. Oroszi</a></span>
+      </div>
+      <div class="contact-line">
+        <span class="c-label">MPSA</span>
+        <span class="c-value"><a href="https://www.missionpossibleacademy.org" target="_blank">Mission Possible Spy Academy</a></span>
+      </div>
+      <div style="margin-top:28px;">
+        <a href="mailto:terry.oroszi@wright.edu?subject=ETL Research Inquiry" class="btn btn-primary" style="font-size:11px; letter-spacing:2px; padding:12px 28px;">Send Secure Message</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-left">
+    EMERGING TECHNOLOGIES LABORATORY<br>
+    WRIGHT STATE UNIVERSITY · BOONSHOFT SCHOOL OF MEDICINE<br>
+    210 HEALTH SCIENCES BUILDING · DAYTON, OHIO 45435<br>
+    © 2026 DR. TERRY L. OROSZI · ALL RIGHTS RESERVED
+  </div>
+  <div class="footer-right">
+    <div style="font-size:10px; color:var(--gray); margin-bottom:4px;">Member of</div>
+    <div class="footer-wsu">WRIGHT STATE<br>UNIVERSITY</div>
+    <div style="margin-top:8px; font-size:10px; color:var(--gold);">BOONSHOFT SCHOOL OF MEDICINE</div>
+  </div>
+</footer>
+
+</body>
+</html>
