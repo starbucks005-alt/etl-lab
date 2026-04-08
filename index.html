@@ -585,6 +585,48 @@
     100% { transform: translateX(-100%); }
   }
 
+  /* ── HAMBURGER MENU ── */
+  .nav-hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 36px; height: 36px;
+    background: none; border: none; cursor: pointer; padding: 4px;
+    z-index: 1000;
+  }
+  .nav-hamburger span {
+    display: block; width: 22px; height: 2px;
+    background: var(--black);
+    transition: transform 0.25s, opacity 0.25s;
+  }
+  .nav-hamburger.is-open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .nav-hamburger.is-open span:nth-child(2) { opacity: 0; }
+  .nav-hamburger.is-open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  .nav-mobile-open {
+    display: flex !important;
+    flex-direction: column;
+    position: absolute;
+    top: 60px; left: 0; right: 0;
+    background: #ffffff;
+    border-bottom: 2px solid var(--black);
+    padding: 12px 0;
+    gap: 0;
+    z-index: 999;
+  }
+  .nav-mobile-open li { border-bottom: 1px solid #eee; }
+  .nav-mobile-open li a {
+    display: block;
+    padding: 14px 24px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--black);
+  }
+  .nav-mobile-open li a:hover { background: #f4f4f4; color: var(--green); }
+
   /* ── RESPONSIVE ── */
   @media (max-width: 900px) {
     nav { padding: 0 20px; }
@@ -601,6 +643,97 @@
     .intel-meta { text-align: left; }
     .hero-stats { gap: 24px; flex-wrap: wrap; }
   }
+
+  /* ── PHONE (≤640px) ── */
+  @media (max-width: 640px) {
+    /* Nav: hide WSU label, shrink title, show hamburger */
+    .nav-wsu { display: none; }
+    .nav-title { font-size: 11px; letter-spacing: 0; }
+    .nav-badge { width: 28px; height: 28px; font-size: 10px; }
+    .nav-hamburger { display: flex; }
+
+    /* Hero */
+    .hero-main { font-size: clamp(32px, 10vw, 48px) !important; }
+    .hero-sub { font-size: 13px !important; }
+    .hero-stats { flex-wrap: wrap; gap: 16px; }
+    .stat-num { font-size: 28px !important; }
+    .btn { font-size: 11px !important; padding: 12px 18px !important; }
+    .hero-cta { flex-direction: column; gap: 10px; }
+
+    /* Section headings */
+    .section-title { font-size: 30px !important; line-height: 1.1 !important; }
+
+    /* ALL sections: clamp horizontal padding */
+    section { padding: 48px 16px !important; }
+
+    /* Inline-style sections: override large paddings */
+    [style*="padding:80px 60px"] { padding: 40px 16px !important; }
+    [style*="padding:100px 60px"] { padding: 40px 16px !important; }
+    [style*="padding:48px 40px"] { padding: 28px 14px !important; }
+
+    /* Inner max-width wrapper: remove side padding */
+    [style*="max-width:1200px"][style*="padding:0 60px"],
+    [style*="max-width:1200px"][style*="padding: 0 60px"] { padding: 0 !important; }
+    [style*="margin:0 auto"][style*="padding:0 60px"] { padding: 0 !important; }
+
+    /* Collapse ALL inline multi-column grids to single column */
+    [style*="grid-template-columns:1fr 1fr 1fr"] { grid-template-columns: 1fr !important; }
+    [style*="grid-template-columns:1fr 1fr"] { grid-template-columns: 1fr !important; }
+    [style*="grid-template-columns:3fr 2fr"] { grid-template-columns: 1fr !important; gap: 24px !important; }
+    [style*="grid-template-columns:auto 1fr"] { grid-template-columns: 1fr !important; }
+    [style*="grid-template-columns:repeat(3"] { grid-template-columns: 1fr !important; }
+    [style*="grid-template-columns:repeat(4"] { grid-template-columns: 1fr 1fr !important; }
+    [style*="grid-template-columns:repeat(7"] { grid-template-columns: 1fr 1fr !important; }
+    [style*="grid-template-columns:repeat(5"] { grid-template-columns: 1fr !important; }
+    [style*="grid-template-columns:300px 1fr"] { grid-template-columns: 1fr !important; }
+
+    /* Inline font sizes: scale down */
+    [style*="font-size:96px"] { font-size: 48px !important; }
+    [style*="font-size:80px"] { font-size: 40px !important; }
+    [style*="font-size:64px"] { font-size: 32px !important; }
+    [style*="font-size:60px"] { font-size: 28px !important; }
+    [style*="font-size:48px"] { font-size: 26px !important; }
+    [style*="font-size:36px"] { font-size: 22px !important; }
+    [style*="font-size:26px"] { font-size: 20px !important; }
+
+    /* Cards: reduce internal padding */
+    [style*="padding:36px 28px"] { padding: 28px 14px !important; }
+    [style*="padding:28px 36px"] { padding: 20px 14px !important; }
+    [style*="padding:28px"] { padding: 20px 12px !important; }
+    [style*="padding:36px 32px"] { padding: 24px 14px !important; }
+    [style*="padding:48px 40px"] { padding: 24px 14px !important; }
+
+    /* Absolute label bars: allow text wrap */
+    [style*="position:absolute; top:0; left:0; right:0"] {
+      font-size: 7px !important;
+      letter-spacing: 1px !important;
+      white-space: normal !important;
+    }
+
+    /* Flex rows: allow wrapping */
+    [style*="display:flex"][style*="align-items:center"] { flex-wrap: wrap !important; }
+
+    /* Override position:absolute on lab stat bar */
+    .hero-location { display: none !important; }
+
+    /* Section stat bar */
+    .section-stat-bar { padding: 20px 16px !important; }
+
+    /* Prevent any single element wider than screen */
+    * { max-width: 100%; box-sizing: border-box; }
+    img, video, iframe { max-width: 100% !important; height: auto !important; }
+
+    /* Video embed height */
+    [style*="aspect-ratio"] { width: 100% !important; }
+    [style*="padding-bottom:56.25%"] { width: 100% !important; }
+
+    /* Timeline/ticker: allow natural scroll */
+    .ticker-track { animation-duration: 30s !important; }
+
+    /* Dossier photo: center on mobile */
+    .dossier-id { text-align: center; }
+    .dossier-photo { margin: 0 auto 20px; }
+  }
 </style>
 </head>
 <body>
@@ -611,18 +744,33 @@
     <div class="nav-badge">ETL</div>
     <div class="nav-title">Emerging <span>Technologies</span> Laboratory</div>
   </div>
-  <ul class="nav-links">
-    <li><a href="#ai-twin">Intro</a></li>
-    <li><a href="#intel">Intel</a></li>
-    <li><a href="#research">Research</a></li>
-    <li><a href="#team">Team</a></li>
-    <li><a href="#director">Director</a></li>
-    <li><a href="#publications">Publications</a></li>
-    <li><a href="#workshops">Workshops</a></li>
-    <li><a href="#contact">Contact</a></li>
+  <ul class="nav-links" id="nav-links">
+    <li><a href="#ai-twin" onclick="closeMenu()">Intro</a></li>
+    <li><a href="#intel" onclick="closeMenu()">Intel</a></li>
+    <li><a href="#research" onclick="closeMenu()">Research</a></li>
+    <li><a href="#team" onclick="closeMenu()">Team</a></li>
+    <li><a href="#director" onclick="closeMenu()">Director</a></li>
+    <li><a href="#publications" onclick="closeMenu()">Publications</a></li>
+    <li><a href="#workshops" onclick="closeMenu()">Workshops</a></li>
+    <li><a href="#contact" onclick="closeMenu()">Contact</a></li>
   </ul>
   <div class="nav-wsu">WRIGHT STATE UNIVERSITY · BSOM</div>
+  <button class="nav-hamburger" id="nav-hamburger" onclick="toggleMenu()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
+<script>
+  function toggleMenu() {
+    const links = document.getElementById('nav-links');
+    const btn = document.getElementById('nav-hamburger');
+    const open = links.classList.toggle('nav-mobile-open');
+    btn.classList.toggle('is-open', open);
+  }
+  function closeMenu() {
+    document.getElementById('nav-links').classList.remove('nav-mobile-open');
+    document.getElementById('nav-hamburger').classList.remove('is-open');
+  }
+</script>
 
 <!-- HERO -->
 <div id="hero">
