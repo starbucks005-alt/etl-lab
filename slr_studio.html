@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>SLR Studio · ETL Wright State</title>
+<title>SLR Studio · Dr. Terry L. Oroszi</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -1130,9 +1130,10 @@ textarea:focus, input:focus { border-color: var(--green-mid); }
 <!-- PANEL 0: TOPIC -->
 <div class="panel active" id="panel-0">
   <div class="hero">
-    <div class="hero-eyebrow">ETL · Wright State University · SLR Engine</div>
+    <div class="hero-eyebrow">The Oroszi Method · SLR Studio</div>
     <h1>Find your <em>field.</em><br>Find the <em>gaps.</em></h1>
     <p class="hero-sub">Describe your research topic. The system builds your entire literature architecture — subgroups, foundation papers, gaps, manuscript outline — from a single paragraph.</p>
+    <p style="font-size:12px;color:var(--ink-faint);margin-top:14px;line-height:1.8;">Based on <strong style="color:var(--ink-dim);">The Oroszi Method</strong> as published in <em>From Keyword to Publication: The 7-Day Academic Method</em> — Dr. Terry L. Oroszi (2025). <a href="https://www.amazon.com/s?k=from+keyword+to+publication+oroszi" target="_blank" style="color:var(--green-mid);text-decoration:none;">Available on Amazon →</a></p>
     <div class="hero-cards">
       <div class="hero-card" onclick="document.getElementById('topicInput').focus()">
         <div class="hero-card-icon">📖</div>
@@ -1219,11 +1220,6 @@ textarea:focus, input:focus { border-color: var(--green-mid); }
       <div class="tier-section">
         <div class="tier-label">Tier 2 — Secondary Anchors</div>
         <div class="tier-desc">The lens. Appear in most subgroups. Select 2–4.</div>
-        <div class="steer-section">
-          <span class="steer-label">Steer →</span>
-          <div class="steer-input"><input type="text" id="steerInput" placeholder="e.g. pharmacology, marine, neurotoxin" style="padding:10px 14px;font-size:14px;"></div>
-          <button class="btn btn-secondary steer-btn" onclick="steerModifiers()">Refresh Modifiers</button>
-        </div>
         <div class="chip-grid" id="tier2Grid"></div>
       </div>
 
@@ -1231,6 +1227,11 @@ textarea:focus, input:focus { border-color: var(--green-mid); }
       <div class="tier-section">
         <div class="tier-label">Tier 3 — Modifiers</div>
         <div class="tier-desc">Rotated across subgroups. Select all relevant terms. Lock terms to prevent deselection on refresh.</div>
+        <div class="steer-section">
+          <span class="steer-label">Steer modifiers →</span>
+          <div class="steer-input"><input type="text" id="steerInput" placeholder="e.g. pharmacology, marine, neurotoxin" style="padding:10px 14px;font-size:14px;"></div>
+          <button class="btn btn-secondary steer-btn" onclick="steerModifiers()">Refresh Modifiers</button>
+        </div>
         <div class="chip-grid" id="tier3Grid"></div>
         <div style="margin-top:10px;">
           <button class="chip chip-add" onclick="addCustomTerm()">+ Add custom term</button>
@@ -1388,7 +1389,7 @@ textarea:focus, input:focus { border-color: var(--green-mid); }
 
     <div class="spacer-lg"></div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;">
-      <button class="btn btn-secondary" style="flex:1;" onclick="goStep(5)">Mine Gaps →</button>
+      <button class="btn btn-secondary" style="flex:1;" onclick="goStep(5);switchOutputTab('gaps',null)">Mine Gaps →</button>
       <button class="btn btn-primary" style="flex:2;" onclick="goStep(5);switchOutputTab('outline',null)">Build Manuscript Outline →</button>
     </div>
   </div>
@@ -1623,22 +1624,33 @@ function extractKeywords(topic) {
   domainHits.forEach(h => { if(h.term !== anchor) tier2Candidates.add(h.term); });
   singles.filter(w => w !== anchor && !anchor.includes(w)).slice(0,5).forEach(w => tier2Candidates.add(w));
 
-  const tier2 = [...tier2Candidates].slice(0, 8).map(t => ({term:t, selected:false, locked:false}));
+  const tier2 = [...tier2Candidates].slice(0, 8).map((t, i) => ({term:t, selected: i < 3, locked:false}));
 
-  // 5. Modifier pool: domain expansions + methodological terms + contextual terms
+  // 5. Modifier pool: topic-driven, not generic
   const modifierPool = new Set();
 
-  // Add expansions from all domain hits
+  // Priority 1: domain expansion terms (most relevant)
   domainHits.forEach(h => h.expansions.forEach(e => modifierPool.add(e)));
 
-  // Add remaining singles as modifiers
-  singles.filter(w => w !== anchor && !tier2.some(t=>t.term===w)).slice(0,6).forEach(w => modifierPool.add(w));
+  // Priority 2: remaining content words from the topic itself
+  singles.filter(w => w !== anchor && !tier2.some(t=>t.term===w) && w.length > 3)
+    .slice(0, 8).forEach(w => modifierPool.add(w));
 
-  // Always add methodological context modifiers relevant to academic research
-  const methodModifiers = ['systematic review','clinical outcomes','mechanism','treatment','prevalence',
-    'risk factors','efficacy','safety','intervention','population','biomarkers','pathophysiology',
-    'epidemiology','therapeutics','drug target','molecular','in vivo','in vitro'];
-  methodModifiers.slice(0,6).forEach(m => modifierPool.add(m));
+  // Priority 3: domain-matched methodological modifiers only
+  const hasClinical = domainHits.some(h => ['decision','diagnosis','trauma','opioid','cancer','analgesic'].includes(h.term));
+  const hasBasicSci = domainHits.some(h => ['toxin','conotoxin','venom','neurotoxin','ion channel','pharmacology'].includes(h.term));
+  const hasPublicHealth = domainHits.some(h => ['pandemic','climate','crisis','leadership'].includes(h.term));
+  const hasMethod = domainHits.some(h => ['systematic review','meta-analysis','randomized'].includes(h.term));
+
+  if(hasClinical) ['clinical outcomes','efficacy','safety','intervention','patient outcomes','adverse effects','randomized controlled trial'].forEach(m => modifierPool.add(m));
+  if(hasBasicSci) ['mechanism','molecular','in vivo','in vitro','drug target','receptor binding','structure-activity'].forEach(m => modifierPool.add(m));
+  if(hasPublicHealth) ['population','epidemiology','prevalence','risk factors','public health','policy','preparedness'].forEach(m => modifierPool.add(m));
+  if(hasMethod) ['effect size','heterogeneity','bias','PRISMA','evidence synthesis','meta-regression'].forEach(m => modifierPool.add(m));
+
+  // Fallback only if no domain matched
+  if(!hasClinical && !hasBasicSci && !hasPublicHealth && !hasMethod) {
+    ['systematic review','prevalence','risk factors','outcomes','intervention','mechanism','population','evidence'].forEach(m => modifierPool.add(m));
+  }
 
   const tier3 = [...modifierPool].filter(t => t !== anchor && !tier2.some(x=>x.term===t))
     .slice(0, 20).map(t => ({term:t, selected:true, locked:false}));
@@ -1655,7 +1667,7 @@ async function generateWithAI(topic, apiKey) {
       'anthropic-version': '2023-06-01'
     },
     body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       max_tokens: 1000,
       messages: [{
         role: 'user',
@@ -1716,7 +1728,7 @@ async function generateKeywords() {
     if(S.apiKey && S.apiKey.startsWith('sk-ant')) {
       result = await generateWithAI(S.topic, S.apiKey);
       S.anchor = result.anchor;
-      S.tier2 = result.tier2.map(t => ({term:t, selected:false, locked:false}));
+      S.tier2 = result.tier2.map((t, i) => ({term:t, selected: i < 3, locked:false}));
       S.tier3 = result.tier3.map(t => ({term:t, selected:true, locked:false}));
     } else {
       await new Promise(r => setTimeout(r, 1200)); // brief pause for UX
@@ -1875,29 +1887,35 @@ function buildSubgroups() {
   const secondary = S.tier2.filter(t=>t.selected).map(t=>t.term);
   const modifiers = S.tier3.filter(t=>t.selected).map(t=>t.term);
 
+  // Guard: need at least some modifiers to build meaningful subgroups
+  if(modifiers.length === 0) {
+    showToast('Select at least a few modifiers before building subgroups');
+    S.subgroups = [];
+    return;
+  }
+
+  const MAX_SG = 20;
   const sgs = [];
   let sgNum = 1;
 
-  // Strategy: rotate through secondary anchors, pair with modifiers
-  // Aim for 25 unique combinations
-  const cycles = Math.ceil(25 / Math.max(secondary.length, 1));
-
-  for(let s=0; s<secondary.length && sgs.length<25; s++) {
-    for(let m=0; m<modifiers.length && sgs.length<25; m++) {
-      sgs.push({
-        num: sgNum++,
-        anchor: S.anchor,
-        secondary: secondary[s],
-        modifier: modifiers[m],
-        query: `${S.anchor} ${secondary[s]} ${modifiers[m]}`
-      });
+  if(secondary.length > 0) {
+    // Build anchor + secondary + modifier combos
+    outer:
+    for(let s=0; s<secondary.length; s++) {
+      for(let m=0; m<modifiers.length; m++) {
+        if(sgs.length >= MAX_SG) break outer;
+        sgs.push({
+          num: sgNum++,
+          anchor: S.anchor,
+          secondary: secondary[s],
+          modifier: modifiers[m],
+          query: `${S.anchor} ${secondary[s]} ${modifiers[m]}`
+        });
+      }
     }
-  }
-
-  // If we have fewer secondaries, fill with anchor+modifier combos
-  if(sgs.length < 25) {
-    for(let m=0; m<modifiers.length && sgs.length<25; m++) {
-      if(!sgs.some(s => !s.secondary && s.modifier===modifiers[m])) {
+    // Fill remaining slots with anchor + modifier only (no secondary)
+    for(let m=0; m<modifiers.length && sgs.length<MAX_SG; m++) {
+      if(!sgs.some(s => s.secondary==='' && s.modifier===modifiers[m])) {
         sgs.push({
           num: sgNum++,
           anchor: S.anchor,
@@ -1907,11 +1925,20 @@ function buildSubgroups() {
         });
       }
     }
+  } else {
+    // No secondary selected — anchor + modifier combos only
+    for(let m=0; m<modifiers.length && sgs.length<MAX_SG; m++) {
+      sgs.push({
+        num: sgNum++,
+        anchor: S.anchor,
+        secondary: '',
+        modifier: modifiers[m],
+        query: `${S.anchor} ${modifiers[m]}`
+      });
+    }
   }
 
-  // Trim to 25
-  S.subgroups = sgs.slice(0,25);
-  // Renumber
+  S.subgroups = sgs;
   S.subgroups.forEach((s,i) => s.num = i+1);
 }
 
@@ -1970,6 +1997,10 @@ async function searchEuropePMC(query) {
 
 async function launchBuild() {
   if(S.buildRunning) return;
+  if(!S.subgroups || S.subgroups.length === 0) {
+    showToast('No subgroups to search — go back and select keywords first');
+    return;
+  }
   S.buildRunning = true;
   S.allPapers = {};
   S.authorMap = {};
@@ -2078,17 +2109,19 @@ function buildFoundationData() {
   const gaps = S.results.filter(r=>r.papers.length===0);
 
   // Update summary stats
+  document.getElementById('statSG').textContent = S.subgroups.length;
   document.getElementById('statUniquePapers').textContent = unique;
   document.getElementById('statFoundation').textContent = foundation.length;
   document.getElementById('statGaps').textContent = gaps.length;
 
-  // Render foundation papers
+  // Render foundation papers (safe — targets panel-4 elements)
   renderFoundationPapers(foundation);
   renderAuthors();
   renderJournals();
   buildOutline(foundation);
-  buildGapAnalysis();
-  buildConnectivityMap();
+  // Gap analysis and connectivity map are deferred — they target panel-5 elements
+  // and will crash if called while that panel is hidden (clientWidth = 0)
+  // They fire in switchOutputTab when the user actually navigates there
 }
 
 function renderFoundationPapers(papers) {
@@ -2341,6 +2374,7 @@ function buildConnectivityMap() {
   svg.innerHTML = '';
 
   const papers = Object.values(S.allPapers);
+  if(!papers.length) { svg.innerHTML = '<text x="50%" y="50%" text-anchor="middle" fill="#888" font-size="14">No papers found — search returned 0 results</text>'; return; }
   const maxSGs = Math.max(...papers.map(p=>p.sgs.length), 1);
   const nodes = S.subgroups.map(sg => {
     const result = S.results.find(r=>r.sg===sg.num);
@@ -2413,7 +2447,11 @@ function switchOutputTab(tab, btn) {
   document.getElementById('outputHome').style.display = tab==='home'?'block':'none';
   document.getElementById('outputOutline').style.display = tab==='outline'?'block':'none';
   document.getElementById('outputGaps').style.display = tab==='gaps'?'block':'none';
-  if(tab==='gaps' && S.results.length > 0) buildGapAnalysis();
+  if(tab==='gaps' && S.results.length > 0) {
+    buildGapAnalysis();
+    // Small delay so the panel is visible before SVG measures clientWidth
+    setTimeout(buildConnectivityMap, 50);
+  }
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -2457,7 +2495,7 @@ function exportCSV(type) {
 function exportOutlineWord() {
   // Simple RTF-like export as .txt (Word-compatible)
   const papers = Object.values(S.allPapers).filter(p=>p.sgs.length>=2).sort((a,b)=>b.sgs.length-a.sgs.length);
-  let content = `MANUSCRIPT OUTLINE\nGenerated by SLR Studio · ETL Wright State University\n\nTopic: ${S.topic}\nAnchor Term: ${S.anchor}\n\n`;
+  let content = `MANUSCRIPT OUTLINE\nGenerated by SLR Studio — The Oroszi Method\nDr. Terry L. Oroszi · From Keyword to Publication: The 7-Day Academic Method (2025)\n\nTopic: ${S.topic}\nAnchor Term: ${S.anchor}\n\n`;
   content += `FOUNDATION PAPERS (${papers.length} papers appearing in 2+ subgroups):\n\n`;
   papers.forEach((p,i) => {
     content += `${i+1}. ${p.title}\n   ${p.authors} (${p.year}) — ${p.journal}\n${p.doi?'   DOI: https://doi.org/'+p.doi+'\n':''}\n`;
@@ -2483,5 +2521,9 @@ function showToast(msg) {
 // Init
 topicInput.focus();
 </script>
+<footer style="background:var(--ink);color:#555;font-size:11px;font-family:var(--font-mono);text-align:center;padding:24px 20px;letter-spacing:1px;line-height:2.2;margin-top:40px;">
+  THE OROSZI METHOD &nbsp;·&nbsp; <em style="color:#777;">From Keyword to Publication: The 7-Day Academic Method</em> &nbsp;·&nbsp; Dr. Terry L. Oroszi (2025)<br>
+  <span style="font-size:10px;color:#3a3a3a;">SLR Studio is a digital implementation of the Oroszi Method. &copy; Dr. Terry L. Oroszi. All rights reserved.</span>
+</footer>
 </body>
 </html>
