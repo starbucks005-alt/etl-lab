@@ -2858,6 +2858,10 @@ const state = {
 // ═══════════════════════════════════════════
 function goToScreen(n) {
   try {
+    // Hide grant nav indicator if present
+    const grantNav = document.getElementById('nav-grant-indicator');
+    if (grantNav) grantNav.style.display = 'none';
+
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     const target = document.getElementById('screen-' + n);
     if (!target) { console.error('Screen not found:', n); return; }
@@ -5564,6 +5568,25 @@ function goToGrantScreen() {
   });
   const s = document.getElementById('screen-9g');
   if (s) { s.style.display = 'block'; s.classList.add('active'); }
+
+  // Nav — highlight Foundation (05) as done, no active step since grant is off-sequence
+  document.querySelectorAll('.nav-step').forEach((el, i) => {
+    el.classList.remove('active', 'done');
+    if (i < 4) el.classList.add('done'); // 01-04 done
+  });
+  // Add a transient grant indicator to the nav
+  const existingGrantNav = document.getElementById('nav-grant-indicator');
+  if (!existingGrantNav) {
+    const grantNavItem = document.createElement('div');
+    grantNavItem.id = 'nav-grant-indicator';
+    grantNavItem.className = 'nav-step active';
+    grantNavItem.textContent = '🏛 Grant';
+    grantNavItem.style.cssText = 'color:var(--gold);border-color:rgba(201,144,58,0.3);';
+    document.querySelector('.nav-steps').appendChild(grantNavItem);
+  } else {
+    existingGrantNav.style.display = '';
+  }
+
   window.scrollTo(0, 0);
 
   // Populate topic label
