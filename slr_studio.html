@@ -4895,8 +4895,8 @@ async function generateSection(sectionId) {
     return '[' + (i+1) + '] ' + citationKey + ': "' + (p.title || '') + '" - ' + (p.journal || 'Unknown Journal') + ', ' + (p.year || 'n.d.');
   }).join('\n');
 
-  if (sec.prewritten && sec.id === 'methods') {
-    // Auto-generate methods from search data
+  // Prewritten sections
+  if (sec.prewritten && (sec.id === 'methods' || sec.id === 'poster-methods')) {
     const methodsText = generateMethodsSection();
     draftState.generatedText[sectionId] = methodsText;
     renderSectionNav();
@@ -4905,7 +4905,6 @@ async function generateSection(sectionId) {
   }
 
   if (!state.apiKey) {
-    // No API key — generate template scaffold
     const scaffold = generateScaffold(sec, selectedPapers);
     draftState.generatedText[sectionId] = scaffold;
     renderSectionNav();
@@ -4913,9 +4912,173 @@ async function generateSection(sectionId) {
     return;
   }
 
-  // Use Claude API to write the section
-  try {
-    const prompt = `You are writing a section of an academic systematic literature review manuscript.
+  // Build mode-appropriate prompt
+  const mode = state.mode || 'review';
+  let prompt;
+
+  if (mode === 'thesis') {
+    // Chapter-specific dissertation prompts
+    const chapterPrompts = {
+      'thesis-ch1': `You are writing Chapter 1 (Introduction) of a doctoral dissertation or master's thesis.
+
+TOPIC: ${state.topic}
+ANCHOR TERM: ${state.anchor}
+TARGET LENGTH: ${sec.wordTarget}
+GUIDANCE: ${sec.hint}
+
+PAPERS FOR CONTEXT (use ONLY these, cite as Author, Year in APA 7):
+${paperContext}
+
+Write Chapter 1 in formal academic prose appropriate for a graduate thesis. Structure it as follows:
+- Open with the problem statement: what is the issue or gap this study addresses?
+- State the purpose of the study clearly.
+- Articulate the research questions or objectives.
+- Establish significance: why does this matter to the field and to practice?
+- Define scope and key terms.
+- Close with a brief overview of the dissertation chapters.
+
+Use APA 7 in-text citations. Third person throughout. No bullet points. Flowing academic paragraphs. Do not fabricate findings not present in the paper metadata provided.`,
+
+      'thesis-ch2': `You are writing Chapter 2 (Literature Review) of a doctoral dissertation or master's thesis.
+
+TOPIC: ${state.topic}
+ANCHOR TERM: ${state.anchor}
+TARGET LENGTH: ${sec.wordTarget}
+GUIDANCE: ${sec.hint}
+
+PAPERS TO SYNTHESIZE (use ONLY these, cite as Author, Year in APA 7):
+${paperContext}
+
+Write Chapter 2 in formal academic prose appropriate for a graduate thesis. Structure it as follows:
+- Open with a brief introduction to the chapter's scope.
+- Present the theoretical or conceptual framework that anchors the study.
+- Synthesize what is known about the topic — group by theme, not chronology.
+- Show where scholars agree, where they disagree, and how the field has evolved.
+- Identify and name the specific gaps this study addresses.
+- Close with a paragraph positioning this study within the existing literature.
+
+Use APA 7 in-text citations. Synthesize — do not summarize paper by paper. Third person. No bullet points. Flowing academic paragraphs. Do not fabricate findings not present in the paper metadata provided.`,
+
+      'thesis-ch3': `You are writing Chapter 3 (Methodology) of a doctoral dissertation or master's thesis.
+
+TOPIC: ${state.topic}
+ANCHOR TERM: ${state.anchor}
+TARGET LENGTH: ${sec.wordTarget}
+GUIDANCE: ${sec.hint}
+
+METHODOLOGICAL PAPERS FOR CITATION (use ONLY these, cite as Author, Year in APA 7):
+${paperContext}
+
+Write Chapter 3 in formal academic prose appropriate for a graduate thesis. Structure it as follows:
+- State the research design and justify it with citations (e.g., why qualitative, quantitative, or mixed methods).
+- Describe the setting and participants or data sources.
+- Describe instruments or measures used and their validity/reliability.
+- Explain the data collection procedures.
+- Describe the data analysis approach with justification.
+- Address ethical considerations.
+- Note limitations of the methodology.
+
+Use APA 7 in-text citations. Third person. No bullet points. Flowing academic paragraphs. Do not fabricate methodological details not present in the paper metadata.`,
+
+      'thesis-ch4': `You are writing Chapter 4 (Results/Findings) of a doctoral dissertation or master's thesis.
+
+TOPIC: ${state.topic}
+ANCHOR TERM: ${state.anchor}
+TARGET LENGTH: ${sec.wordTarget}
+GUIDANCE: ${sec.hint}
+
+Note: Results chapters typically present data without interpretation. Since no raw data is available, generate a structured scaffold showing how results should be organized, with placeholder sections for the researcher to complete.
+
+Write Chapter 4 as a structured scaffold in formal academic prose. Include:
+- An opening paragraph describing what this chapter presents.
+- Organized sections by research question or theme (use the anchor term and topic to suggest likely categories).
+- Clear [DATA TO BE INSERTED] markers showing where tables, figures, or qualitative data should go.
+- Brief descriptive lead-ins for each finding section.
+
+Third person. No bullet points. No fabricated data or statistics.`,
+
+      'thesis-ch5': `You are writing Chapter 5 (Discussion) of a doctoral dissertation or master's thesis.
+
+TOPIC: ${state.topic}
+ANCHOR TERM: ${state.anchor}
+TARGET LENGTH: ${sec.wordTarget}
+GUIDANCE: ${sec.hint}
+
+LITERATURE FOR CONNECTING BACK (use ONLY these, cite as Author, Year in APA 7):
+${paperContext}
+
+Write Chapter 5 in formal academic prose appropriate for a graduate thesis. Structure it as follows:
+- Open by restating the purpose of the study.
+- Interpret the meaning of findings — what do they tell us?
+- Connect findings back to the literature reviewed in Chapter 2. Where do they confirm? Where do they challenge?
+- Address theoretical implications for the field.
+- Acknowledge limitations of the study.
+- Propose directions for future research.
+
+Use APA 7 in-text citations. Third person. No bullet points. Flowing academic paragraphs. Do not fabricate findings not present in the paper metadata provided.`,
+
+      'thesis-ch6': `You are writing Chapter 6 (Conclusion and Recommendations) of a doctoral dissertation or master's thesis.
+
+TOPIC: ${state.topic}
+ANCHOR TERM: ${state.anchor}
+TARGET LENGTH: ${sec.wordTarget}
+GUIDANCE: ${sec.hint}
+
+PAPERS FOR FINAL CITATIONS (use ONLY these, cite as Author, Year in APA 7):
+${paperContext}
+
+Write Chapter 6 in formal academic prose appropriate for a graduate thesis. Structure it as follows:
+- Briefly summarize the study and its central findings (without repeating the Discussion in full).
+- State the scholarly contribution of this work.
+- Offer practical recommendations for practitioners, policymakers, or educators.
+- Propose specific future research questions the field should pursue.
+- Close with a final statement on the significance of the work.
+
+Use APA 7 in-text citations sparingly — this chapter looks forward, not back. Third person. No bullet points. Flowing academic paragraphs.`,
+
+      'thesis-refs': `You are generating a References section for a doctoral dissertation or master's thesis.
+
+PAPERS TO FORMAT (format ALL of these in APA 7):
+${paperContext}
+
+Generate a complete APA 7 reference list. Rules:
+- Alphabetical by first author's last name.
+- Author, A. A., & Author, B. B. (Year). Title of article. Journal Name, volume(issue), pages. https://doi.org/xxxxx
+- If DOI is not available, omit the DOI line.
+- Double-space between entries (use blank line).
+- Do not number the entries.
+- Heading: REFERENCES (centered, bold).
+
+Format each entry precisely. Do not fabricate DOIs or page numbers not provided.`
+    };
+
+    prompt = chapterPrompts[sectionId] || `You are writing ${sec.title} of a doctoral dissertation.
+
+TOPIC: ${state.topic}
+TARGET LENGTH: ${sec.wordTarget}
+GUIDANCE: ${sec.hint}
+
+PAPERS (cite as Author, Year in APA 7):
+${paperContext}
+
+Write in formal academic prose appropriate for a graduate thesis. Third person. No bullet points. APA 7 in-text citations. Do not fabricate findings not present in the paper metadata.`;
+
+  } else if (mode === 'poster') {
+    prompt = `You are writing the "${sec.title}" section of an academic research poster.
+
+TOPIC: ${state.topic}
+ANCHOR TERM: ${state.anchor}
+TARGET LENGTH: ${sec.wordTarget}
+GUIDANCE: ${sec.hint}
+
+PAPERS TO CITE (use ONLY these, cite as Author, Year):
+${paperContext}
+
+Write concise, poster-appropriate content. Poster text must be scannable — short sentences, direct language, no jargon without definition. Use APA 7 in-text citations where relevant. No long paragraphs. Aim for impact over completeness. Do not fabricate findings not present in the paper metadata.`;
+
+  } else {
+    // Standard manuscript prompt
+    prompt = `You are writing a section of an academic systematic literature review manuscript.
 
 SECTION: ${sec.num}. ${sec.title}
 TOPIC: ${state.topic}
@@ -4931,7 +5094,10 @@ Do not fabricate any facts, statistics, or findings not present in the paper tit
 Base your synthesis on what can be reasonably inferred from the paper titles, authors, journals, and years.
 Write in third person. No bullet points. Flowing academic paragraphs.
 End with a transition sentence to the next section.`;
+  }
 
+  // Call Claude API
+  try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -4985,6 +5151,33 @@ function generateScaffold(sec, papers) {
     return `(${author}, ${p.year || '—'})`;
   }).join('; ');
 
+  const mode = state.mode || 'review';
+
+  if (mode === 'thesis') {
+    const thesisHints = {
+      'thesis-ch1': `[CHAPTER 1: INTRODUCTION]\n\nProblem Statement: [Describe the problem or gap this study addresses.]\n\nPurpose of the Study: [State clearly what this study does.]\n\nResearch Questions:\n  RQ1: [Insert research question]\n  RQ2: [Insert research question]\n\nSignificance: [Why does this study matter to the field and to practice?]\n\nDefinitions of Key Terms: [Define anchor term and related concepts.]\n\nOrganization of the Study: [Brief overview of dissertation chapters.]`,
+      'thesis-ch2': `[CHAPTER 2: LITERATURE REVIEW]\n\nIntroduction to Chapter: [Describe scope and organization of this review.]\n\nTheoretical/Conceptual Framework: [Name and describe the theory or framework grounding this study. Cite foundational works: ${cites}]\n\nTheme 1 — [Name first major theme from the literature]: [Synthesize here.]\n\nTheme 2 — [Name second major theme]: [Synthesize here.]\n\nTheme 3 — [Name third major theme]: [Synthesize here.]\n\nGaps in the Literature: [Identify what is missing or unresolved. Position your study here.]\n\nSummary: [Transition to Methodology chapter.]`,
+      'thesis-ch3': `[CHAPTER 3: METHODOLOGY]\n\nResearch Design: [Describe and justify the design — qualitative, quantitative, or mixed methods.]\n\nSetting and Participants: [Describe site, sample, and selection criteria.]\n\nInstruments/Measures: [Describe data collection tools and establish validity/reliability.]\n\nProcedures: [Describe step-by-step data collection process.]\n\nData Analysis: [Describe analytical approach and justify with citations.]\n\nEthical Considerations: [IRB approval, confidentiality, informed consent.]\n\nLimitations: [Acknowledge methodological constraints.]`,
+      'thesis-ch4': `[CHAPTER 4: RESULTS / FINDINGS]\n\nIntroduction: [Briefly describe what this chapter presents.]\n\nFinding 1 — [Theme/RQ label]: [DATA TO BE INSERTED — describe or present data here.]\n\nFinding 2 — [Theme/RQ label]: [DATA TO BE INSERTED]\n\nFinding 3 — [Theme/RQ label]: [DATA TO BE INSERTED]\n\nSummary of Findings: [Brief recap of what was found, without interpretation.]`,
+      'thesis-ch5': `[CHAPTER 5: DISCUSSION]\n\nRestatement of Purpose: [One sentence restating the study's purpose.]\n\nInterpretation of Findings:\n  Finding 1 — [What does this mean? Connect to literature: ${cites}]\n  Finding 2 — [What does this mean?]\n  Finding 3 — [What does this mean?]\n\nTheoretical Implications: [How do findings advance or challenge existing theory?]\n\nPractical Implications: [What should practitioners do differently?]\n\nLimitations: [Acknowledge study limitations honestly.]\n\nFuture Research: [What should the field study next?]`,
+      'thesis-ch6': `[CHAPTER 6: CONCLUSION AND RECOMMENDATIONS]\n\nSummary of the Study: [Concise summary of purpose, methods, and key findings.]\n\nScholarly Contribution: [What does this study add to the field?]\n\nRecommendations for Practice: [Specific, actionable recommendations.]\n\nRecommendations for Future Research: [Specific research questions the field should pursue.]\n\nFinal Statement: [Closing reflection on the significance of this work.]`,
+      'thesis-refs': `[REFERENCES]\n\n${papers.map(p => {
+        const author = p.author || 'Unknown, A.';
+        const year = p.year || 'n.d.';
+        const title = p.title || 'Untitled';
+        const journal = p.journal || 'Unknown Journal';
+        return `${author} (${year}). ${title}. ${journal}.`;
+      }).join('\n\n')}`
+    };
+
+    return thesisHints[sec.id] || `[${sec.title.toUpperCase()}]\n\nTarget: ${sec.wordTarget}\n\nGuidance: ${sec.hint}\n\n${papers.length > 0 ? `Key papers to draw from: ${cites}` : 'No papers selected yet.'}\n\n[Add an Anthropic API key on Screen 1 to generate this section automatically.]`;
+  }
+
+  if (mode === 'poster') {
+    return `[POSTER SECTION: ${sec.title.toUpperCase()}]\nTarget: ${sec.wordTarget}\n\n${sec.hint}\n\n${papers.length > 0 ? `Papers to cite: ${cites}` : 'No papers selected yet.'}\n\n[Keep text brief and scannable. Add an Anthropic API key on Screen 1 to generate automatically.]`;
+  }
+
+  // Standard manuscript scaffold
   return `[SECTION ${sec.num}: ${sec.title.toUpperCase()}]
 
 This section should be ${sec.wordTarget}. ${sec.hint}
