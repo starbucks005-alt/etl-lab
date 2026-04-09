@@ -2338,6 +2338,7 @@ body::after {
         <button onclick="openRubricPanel()" class="btn btn-ghost" style="width:100%;margin-top:8px;justify-content:center;color:rgba(245,243,238,0.5);border-color:rgba(255,255,255,0.1);font-size:10px;">
           🏅 View Rubric
         </button>
+        <div id="ribbon-badge-s6"></div>
         <button onclick="if(confirm('Start a new search? This will clear your current session.'))clearSession(),location.reload();" class="btn btn-ghost" style="width:100%;margin-top:8px;justify-content:center;color:rgba(245,243,238,0.25);border-color:rgba(255,255,255,0.06);font-size:10px;">
           ✕ New Search
         </button>
@@ -4424,68 +4425,164 @@ function setGradeLevel(level) {
 const RUBRIC_DEFS = {
   highschool: {
     label: 'High School (Grades 9–12)',
-    categories: [
-      { id: 'topic', label: 'Clarity of Topic', desc: 'Research question is clear, focused, and appropriate for the assignment.' },
-      { id: 'sources', label: 'Use of Credible Sources', desc: 'Sources are relevant, credible, and appropriately selected.' },
-      { id: 'summary', label: 'Accuracy of Summary', desc: 'Key ideas are accurately represented without distortion.' },
-      { id: 'organization', label: 'Basic Organization', desc: 'Work follows a logical structure with clear sections.' },
-      { id: 'visual', label: 'Visual Clarity', desc: 'Visuals (if applicable) are readable, labeled, and meaningful.' },
-      { id: 'attribution', label: 'Proper Attribution', desc: 'Sources are credited appropriately; no plagiarism.' }
+    paper: [
+      { id: 'topic',        label: 'Clarity of Topic',       desc: 'Research question is clear, focused, and appropriate.' },
+      { id: 'sources',      label: 'Credible Sources',       desc: 'Sources are relevant, credible, and appropriately selected.' },
+      { id: 'summary',      label: 'Accuracy of Summary',    desc: 'Key ideas are accurately represented without distortion.' },
+      { id: 'organization', label: 'Basic Organization',     desc: 'Work follows a logical structure with clear sections.' },
+      { id: 'attribution',  label: 'Proper Attribution',     desc: 'Sources are credited; no plagiarism.' },
+      { id: 'formatting',   label: 'Formatting',             desc: 'Citations follow the required style consistently.' }
+    ],
+    poster: [
+      { id: 'topic',        label: 'Clarity of Topic',       desc: 'Research question is visible and understandable at a glance.' },
+      { id: 'sources',      label: 'Credible Sources',       desc: 'At least 3 credible sources cited on the poster.' },
+      { id: 'visual',       label: 'Visual Clarity',         desc: 'Visuals are readable, labeled, and directly support the content.' },
+      { id: 'organization', label: 'Layout & Flow',          desc: 'Sections are clearly defined; viewer can follow the argument.' },
+      { id: 'summary',      label: 'Accuracy of Content',    desc: 'Key findings are accurately represented.' },
+      { id: 'attribution',  label: 'Proper Attribution',     desc: 'All sources credited; references section present.' }
+    ],
+    thesis: [
+      { id: 'topic',        label: 'Clarity of Topic',       desc: 'Research question is clear and appropriately scoped.' },
+      { id: 'sources',      label: 'Credible Sources',       desc: 'Sources are peer-reviewed and relevant.' },
+      { id: 'summary',      label: 'Accuracy of Summary',    desc: 'Literature is accurately represented.' },
+      { id: 'organization', label: 'Chapter Organization',   desc: 'Chapter structure is logical and consistent.' },
+      { id: 'attribution',  label: 'Proper Attribution',     desc: 'All sources cited; reference list complete.' },
+      { id: 'formatting',   label: 'Formatting',             desc: 'Citations follow required style throughout.' }
+    ],
+    gap: [
+      { id: 'topic',        label: 'Clarity of Topic',       desc: 'Research area is clearly defined.' },
+      { id: 'sources',      label: 'Evidence of Search',     desc: 'Student demonstrates a systematic search was conducted.' },
+      { id: 'gap',          label: 'Gap Identification',      desc: 'At least one gap in the literature is named.' },
+      { id: 'question',     label: 'Research Question',      desc: 'A follow-up research question is proposed.' },
+      { id: 'organization', label: 'Organization',           desc: 'Gap analysis is presented in a logical structure.' },
+      { id: 'attribution',  label: 'Attribution',            desc: 'Sources are credited appropriately.' }
     ]
   },
   undergrad: {
     label: 'Undergraduate',
-    categories: [
-      { id: 'problem', label: 'Problem Statement Clarity', desc: 'The research problem is clearly articulated and appropriately scoped.' },
-      { id: 'integration', label: 'Quality of Source Integration', desc: 'Sources are synthesized, not merely summarized; ideas are connected.' },
-      { id: 'flow', label: 'Logical Flow', desc: 'Arguments build progressively; transitions are effective.' },
-      { id: 'evidence', label: 'Evidence Use', desc: 'Claims are supported by specific evidence from the literature.' },
-      { id: 'gap', label: 'Basic Gap Identification', desc: 'At least one gap or limitation in the literature is identified.' },
-      { id: 'formatting', label: 'Formatting Accuracy', desc: 'Citations and references follow the required style consistently.' }
+    paper: [
+      { id: 'problem',      label: 'Problem Statement',      desc: 'The research problem is clearly articulated and scoped.' },
+      { id: 'integration',  label: 'Source Integration',     desc: 'Sources are synthesized, not merely summarized.' },
+      { id: 'flow',         label: 'Logical Flow',           desc: 'Arguments build progressively; transitions are effective.' },
+      { id: 'evidence',     label: 'Evidence Use',           desc: 'Claims are supported by specific evidence.' },
+      { id: 'gap',          label: 'Gap Identification',      desc: 'At least one gap or limitation is identified.' },
+      { id: 'formatting',   label: 'Formatting Accuracy',    desc: 'Citations follow required style consistently.' }
+    ],
+    poster: [
+      { id: 'problem',      label: 'Problem Statement',      desc: 'Research problem is clearly visible and scoped.' },
+      { id: 'evidence',     label: 'Evidence Use',           desc: 'Claims are backed by specific cited sources.' },
+      { id: 'visual',       label: 'Visual Communication',   desc: 'Figures, tables, or charts support the argument effectively.' },
+      { id: 'flow',         label: 'Layout & Flow',          desc: 'Poster guides the viewer through a clear logical sequence.' },
+      { id: 'gap',          label: 'Gap or Significance',    desc: 'Why this research matters is clearly stated.' },
+      { id: 'formatting',   label: 'Citations & Format',     desc: 'References present; formatting consistent.' }
+    ],
+    thesis: [
+      { id: 'problem',      label: 'Problem Statement',      desc: 'The research problem is clearly articulated.' },
+      { id: 'integration',  label: 'Literature Integration', desc: 'Sources are synthesized thematically, not listed.' },
+      { id: 'flow',         label: 'Chapter Flow',           desc: 'Each chapter section builds logically on the last.' },
+      { id: 'evidence',     label: 'Evidence Use',           desc: 'Every major claim is supported by a citation.' },
+      { id: 'gap',          label: 'Gap Identification',      desc: 'A specific gap is identified and positioned.' },
+      { id: 'formatting',   label: 'APA / Style Accuracy',   desc: 'Citations and references are correctly formatted.' }
+    ],
+    gap: [
+      { id: 'problem',      label: 'Problem Framing',        desc: 'The research area and its importance are established.' },
+      { id: 'evidence',     label: 'Search Evidence',        desc: 'Gap is supported by zero or near-zero yield data.' },
+      { id: 'gap',          label: 'Gap Specificity',        desc: 'Gap is named precisely, not vaguely.' },
+      { id: 'question',     label: 'Research Question',      desc: 'At least one viable research question is proposed.' },
+      { id: 'design',       label: 'Study Design',           desc: 'An appropriate research design is suggested.' },
+      { id: 'formatting',   label: 'Citation Accuracy',      desc: 'Sources are cited in the required format.' }
     ]
   },
   masters: {
-    label: 'Master\'s Level',
-    categories: [
-      { id: 'synthesis', label: 'Depth of Synthesis', desc: 'Literature is synthesized thematically, not paper-by-paper; patterns and contradictions are identified.' },
-      { id: 'framework', label: 'Conceptual Framework', desc: 'A theoretical or conceptual framework is identified, explained, and applied.' },
-      { id: 'gap', label: 'Gap Justification', desc: 'Gaps are confirmed, specific, and positioned as original contribution opportunities.' },
-      { id: 'method', label: 'Methodological Reasoning', desc: 'Methodological choices are justified with reference to the literature.' },
-      { id: 'coherence', label: 'Coherence and Flow', desc: 'The argument is internally consistent and builds toward a clear conclusion.' },
-      { id: 'scholarly', label: 'Scholarly Writing', desc: 'Tone, vocabulary, and sentence structure meet graduate-level expectations.' }
+    label: "Master's Level",
+    paper: [
+      { id: 'synthesis',    label: 'Depth of Synthesis',       desc: 'Literature synthesized thematically; patterns and contradictions identified.' },
+      { id: 'framework',    label: 'Conceptual Framework',     desc: 'Theoretical or conceptual framework identified, explained, and applied.' },
+      { id: 'gap',          label: 'Gap Justification',         desc: 'Gaps are confirmed, specific, and positioned as contribution opportunities.' },
+      { id: 'method',       label: 'Methodological Reasoning', desc: 'Methodological choices are justified with literature.' },
+      { id: 'coherence',    label: 'Coherence & Flow',         desc: 'Argument is internally consistent and builds to a conclusion.' },
+      { id: 'scholarly',    label: 'Scholarly Writing',        desc: 'Tone, vocabulary, and structure meet graduate-level expectations.' }
+    ],
+    poster: [
+      { id: 'synthesis',    label: 'Synthesis Quality',        desc: 'Background synthesizes multiple sources, not just lists them.' },
+      { id: 'gap',          label: 'Gap Positioning',           desc: 'Gap is confirmed, specific, and framed as a research opportunity.' },
+      { id: 'visual',       label: 'Visual Communication',     desc: 'Figures are publication-quality, labeled, and analytically meaningful.' },
+      { id: 'evidence',     label: 'Evidence Grounding',       desc: 'Every claim is traceable to a specific paper.' },
+      { id: 'coherence',    label: 'Narrative Coherence',      desc: 'Poster tells a logical, complete scholarly story.' },
+      { id: 'scholarly',    label: 'Scholarly Tone',           desc: 'Language is precise and appropriate for the discipline.' }
+    ],
+    thesis: [
+      { id: 'synthesis',    label: 'Depth of Synthesis',       desc: 'Each chapter synthesizes thematically; no paper-by-paper lists.' },
+      { id: 'framework',    label: 'Conceptual Framework',     desc: 'Framework is present, explained, and applied across chapters.' },
+      { id: 'gap',          label: 'Gap Justification',         desc: 'Gap is confirmed from search data; contribution is explicit.' },
+      { id: 'method',       label: 'Methodological Reasoning', desc: 'Chapter 3 justifies design with theoretical rationale.' },
+      { id: 'coherence',    label: 'Cross-Chapter Coherence',  desc: 'Chapters build on each other; argument is internally consistent.' },
+      { id: 'scholarly',    label: 'Scholarly Precision',      desc: 'Writing meets dissertation-level expectations throughout.' }
+    ],
+    gap: [
+      { id: 'synthesis',    label: 'Evidence of Synthesis',    desc: 'Gap emerges from thematic analysis, not just keyword failure.' },
+      { id: 'gap',          label: 'Gap Confirmation',          desc: 'Zero-yield or near-zero data explicitly cited as evidence.' },
+      { id: 'framework',    label: 'Theoretical Positioning',  desc: 'Gap is situated within a relevant theoretical framework.' },
+      { id: 'question',     label: 'Research Question Quality', desc: 'Questions are specific, answerable, and original.' },
+      { id: 'design',       label: 'Study Design Rationale',   desc: 'Recommended design is appropriate and briefly justified.' },
+      { id: 'scholarly',    label: 'Scholarly Tone',           desc: 'Gap analysis is written at graduate level.' }
     ]
   },
   doctoral: {
     label: 'Doctoral Level',
-    categories: [
-      { id: 'theory', label: 'Theoretical Alignment', desc: 'Theoretical grounding is sophisticated, defensible, and explicitly connected to the research.' },
-      { id: 'synthesis', label: 'Depth of Synthesis', desc: 'Synthesis is comprehensive, critical, and demonstrates mastery of the field.' },
-      { id: 'originality', label: 'Originality', desc: 'The work identifies a genuine contribution that advances knowledge, not merely describes it.' },
-      { id: 'method', label: 'Methodological Justification', desc: 'Design choices are theoretically grounded and defended against alternatives.' },
-      { id: 'contribution', label: 'Contribution Clarity', desc: 'The scholarly contribution is explicitly stated and defensible.' },
-      { id: 'precision', label: 'Scholarly Precision', desc: 'Language is precise, unambiguous, and demonstrates command of disciplinary discourse.' }
+    paper: [
+      { id: 'theory',       label: 'Theoretical Alignment',       desc: 'Theoretical grounding is sophisticated, defensible, and integrated.' },
+      { id: 'synthesis',    label: 'Depth of Synthesis',          desc: 'Synthesis is comprehensive, critical, and demonstrates field mastery.' },
+      { id: 'originality',  label: 'Originality',                 desc: 'Work identifies a genuine contribution that advances knowledge.' },
+      { id: 'method',       label: 'Methodological Justification', desc: 'Design choices are theoretically grounded and defended.' },
+      { id: 'contribution', label: 'Contribution Clarity',        desc: 'Scholarly contribution is explicitly stated and defensible.' },
+      { id: 'precision',    label: 'Scholarly Precision',         desc: 'Language is precise and demonstrates command of disciplinary discourse.' }
+    ],
+    poster: [
+      { id: 'theory',       label: 'Theoretical Grounding',       desc: 'Theoretical framework is visible and correctly applied.' },
+      { id: 'synthesis',    label: 'Synthesis Quality',           desc: 'Background reflects comprehensive, critical command of the field.' },
+      { id: 'originality',  label: 'Contribution Clarity',        desc: 'What is original about this work is explicitly stated.' },
+      { id: 'visual',       label: 'Visual Argumentation',        desc: 'Figures make an analytical argument, not just illustrate.' },
+      { id: 'precision',    label: 'Scholarly Precision',         desc: 'Every claim is precise; no vague or unsupported assertions.' },
+      { id: 'contribution', label: 'Scholarly Impact',            desc: 'Significance to the field is clearly and specifically articulated.' }
+    ],
+    thesis: [
+      { id: 'theory',       label: 'Theoretical Alignment',       desc: 'Framework is present, sophisticated, and integrated across chapters.' },
+      { id: 'synthesis',    label: 'Depth of Synthesis',          desc: 'Synthesis demonstrates comprehensive mastery; critical engagement throughout.' },
+      { id: 'originality',  label: 'Original Contribution',       desc: 'The gap addressed is confirmed and the contribution is novel.' },
+      { id: 'method',       label: 'Methodological Rigor',        desc: 'Design is theoretically justified and defended against alternatives.' },
+      { id: 'contribution', label: 'Contribution Statement',      desc: 'Scholarly contribution is explicitly stated in each chapter.' },
+      { id: 'precision',    label: 'Scholarly Precision',         desc: 'Dissertation-level precision throughout; no ambiguity.' }
+    ],
+    gap: [
+      { id: 'theory',       label: 'Theoretical Positioning',     desc: 'Gap is framed within a defensible theoretical context.' },
+      { id: 'synthesis',    label: 'Field Mastery Evidence',      desc: 'Gap emerges from comprehensive, critical engagement with the literature.' },
+      { id: 'originality',  label: 'Originality of Gap',          desc: 'Gap represents a genuinely unfilled space, not a minor variation.' },
+      { id: 'method',       label: 'Methodological Thinking',     desc: 'Recommended study design is theoretically grounded.' },
+      { id: 'contribution', label: 'Contribution Clarity',        desc: 'Why filling this gap advances the field is explicitly argued.' },
+      { id: 'precision',    label: 'Scholarly Precision',         desc: 'Gap analysis is written with doctoral-level rigor and precision.' }
     ]
   }
 };
 
-const RIBBON_LEVELS = [
-  { id: 'exemplary',   label: 'Exemplary',   color: '#c9903a', bg: 'rgba(201,144,58,0.15)',  border: '#c9903a', emoji: '🥇', minScore: 0.85 },
-  { id: 'proficient',  label: 'Proficient',  color: '#4a6fa5', bg: 'rgba(74,111,165,0.15)',  border: '#4a6fa5', emoji: '🎖️', minScore: 0.70 },
-  { id: 'developing',  label: 'Developing',  color: '#285C4D', bg: 'rgba(40,92,77,0.15)',    border: '#285C4D', emoji: '📗', minScore: 0.50 },
-  { id: 'beginning',   label: 'Beginning',   color: '#a82828', bg: 'rgba(168,40,40,0.15)',   border: '#a82828', emoji: '📕', minScore: 0 }
-];
-
-const PERFORMANCE_LEVELS = ['Exemplary', 'Proficient', 'Developing', 'Beginning'];
-const PERF_COLORS = {
-  'Exemplary':  { bg: 'rgba(201,144,58,0.12)', border: 'rgba(201,144,58,0.4)', text: '#c9903a' },
-  'Proficient': { bg: 'rgba(74,111,165,0.12)', border: 'rgba(74,111,165,0.4)', text: '#4a6fa5' },
-  'Developing': { bg: 'rgba(40,92,77,0.12)',   border: 'rgba(40,92,77,0.4)',   text: '#5a9e6f' },
-  'Beginning':  { bg: 'rgba(168,40,40,0.12)',  border: 'rgba(168,40,40,0.4)',  text: '#e05050' }
-};
+function getAssignmentType() {
+  const mode = state.mode || 'review';
+  if (mode === 'poster') return 'poster';
+  if (mode === 'thesis') return 'thesis';
+  if (mode === 'mine')   return 'gap';
+  return 'paper';
+}
 
 function getRubricDef() {
-  return RUBRIC_DEFS[gradeLevel] || RUBRIC_DEFS.masters;
+  const level = gradeLevel || 'masters';
+  const type  = getAssignmentType();
+  const levelDef = RUBRIC_DEFS[level] || RUBRIC_DEFS.masters;
+  return {
+    label:      levelDef.label,
+    categories: levelDef[type] || levelDef.paper
+  };
 }
+
 
 function getRibbonForScore(score) {
   return RIBBON_LEVELS.find(r => score >= r.minScore) || RIBBON_LEVELS[3];
@@ -4627,13 +4724,23 @@ Base scores on actual content quality, not effort. A short work with ${wordCount
 
 function displayEvaluationResults(scores) {
   const rubricDef = getRubricDef();
-
-  // Calculate overall score
   const scoreValues = rubricDef.categories.map(c => scores[c.id]?.score || 0);
   const avgScore = scoreValues.reduce((a,b) => a+b, 0) / scoreValues.length;
   const ribbon = getRibbonForScore(avgScore);
 
-  // Show ribbon
+  // Persist to session state
+  draftState.ribbonResult = {
+    ribbon,
+    avgScore,
+    scores,
+    rubricLabel: rubricDef.label,
+    assignmentType: getAssignmentType(),
+    gradeLevel,
+    evaluatedAt: new Date().toISOString()
+  };
+  saveSession();
+
+  // Show ribbon in modal
   const ribbonDisplay = document.getElementById('ribbon-display');
   ribbonDisplay.style.display = 'block';
   document.getElementById('ribbon-badge').textContent = ribbon.emoji;
@@ -4642,7 +4749,10 @@ function displayEvaluationResults(scores) {
   document.getElementById('ribbon-level-label').textContent = ribbon.label;
   document.getElementById('ribbon-level-label').style.color = ribbon.color;
   document.getElementById('ribbon-summary').textContent =
-    `Overall score: ${Math.round(avgScore * 100)}% · ${rubricDef.label}`;
+    `Overall score: ${Math.round(avgScore * 100)}% · ${rubricDef.label} · ${getAssignmentType() === 'poster' ? 'Poster' : getAssignmentType() === 'thesis' ? 'Thesis' : getAssignmentType() === 'gap' ? 'Gap Analysis' : 'Paper'}`;
+
+  // Update persistent ribbon badge in nav
+  renderRibbonBadge();
 
   // Re-render table with scores highlighted
   const catScores = {};
@@ -4668,8 +4778,90 @@ function displayEvaluationResults(scores) {
     </div>`;
   }).join('');
 
-  // Scroll to ribbon
   document.getElementById('ribbon-display').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function renderRibbonBadge() {
+  // Update ribbon badge in Screen 6 nav and Screen 8 left panel
+  const result = draftState.ribbonResult;
+  if (!result) return;
+  const { ribbon, avgScore } = result;
+  const html = `
+    <div onclick="openRubricPanel()" style="margin-top:8px;padding:10px 12px;border:1px solid ${ribbon.border};background:${ribbon.bg};cursor:pointer;display:flex;align-items:center;gap:10px;" title="Click to view full rubric">
+      <span style="font-size:20px;">${ribbon.emoji}</span>
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:${ribbon.color};">${ribbon.label}</div>
+        <div style="font-size:10px;color:rgba(245,243,238,0.4);margin-top:1px;">${Math.round(avgScore * 100)}% · click to review</div>
+      </div>
+    </div>`;
+  const s6badge = document.getElementById('ribbon-badge-s6');
+  if (s6badge) s6badge.innerHTML = html;
+  const s8badge = document.getElementById('ribbon-badge-s8');
+  if (s8badge) s8badge.innerHTML = html;
+}
+
+function renderPreWritingRubricStrip(sectionId) {
+  const workspace = document.getElementById('draft-section-content');
+  if (!workspace) return;
+  if (workspace.querySelector('.rubric-strip')) return; // already shown
+
+  const rubricDef = getRubricDef();
+  if (!rubricDef || !rubricDef.categories) return;
+
+  // Map section IDs to the most relevant rubric criterion for that section
+  const sectionCriterionMap = {
+    'introduction':    ['problem', 'topic'],
+    'thesis-ch1':      ['problem', 'topic', 'theory'],
+    'thesis-ch2':      ['synthesis', 'framework', 'gap', 'integration'],
+    'thesis-ch3':      ['method'],
+    'thesis-ch4':      ['originality'],
+    'thesis-ch5':      ['coherence', 'scholarly', 'precision'],
+    'thesis-ch6':      ['contribution', 'coherence'],
+    'thesis-refs':     ['formatting', 'attribution'],
+    'methods':         ['method', 'formatting'],
+    'results-1':       ['synthesis', 'integration', 'evidence'],
+    'results-2':       ['synthesis', 'evidence'],
+    'results-gaps':    ['gap', 'originality'],
+    'discussion':      ['coherence', 'framework', 'theory'],
+    'conclusion':      ['contribution', 'coherence'],
+    'references':      ['formatting', 'attribution'],
+    'background':      ['synthesis', 'integration', 'problem'],
+    'findings':        ['evidence', 'synthesis'],
+    'gaps':            ['gap', 'originality'],
+    'significance':    ['contribution', 'scholarly'],
+  };
+
+  const relevantIds = sectionCriterionMap[sectionId] || [];
+  const relevantCats = rubricDef.categories.filter(c => relevantIds.includes(c.id));
+  if (relevantCats.length === 0) return;
+
+  // Check if already evaluated — if so show score status
+  const scored = draftState.ribbonResult?.scores;
+
+  const strip = document.createElement('div');
+  strip.className = 'rubric-strip';
+  strip.style.cssText = 'border:1px solid rgba(255,255,255,0.08);border-left:3px solid rgba(201,144,58,0.4);padding:10px 14px;margin-bottom:16px;background:rgba(201,144,58,0.03);';
+
+  strip.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(201,144,58,0.7);">Rubric criteria for this section</div>
+      <button onclick="openRubricPanel()" style="font-family:'JetBrains Mono',monospace;font-size:8px;padding:2px 8px;background:transparent;border:1px solid rgba(201,144,58,0.3);color:rgba(201,144,58,0.6);cursor:pointer;letter-spacing:0.06em;text-transform:uppercase;">View full rubric</button>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;">
+      ${relevantCats.map(cat => {
+        const catScore = scored?.[cat.id];
+        const level = catScore?.level;
+        const pc = level ? PERF_COLORS[level] : null;
+        return `<div style="padding:5px 10px;border:1px solid ${pc ? pc.border : 'rgba(255,255,255,0.1)'};background:${pc ? pc.bg : 'transparent'};">
+          <div style="font-size:10px;color:${pc ? pc.text : 'rgba(245,243,238,0.7)'};font-weight:600;">${cat.label}${level ? ' · ' + level : ''}</div>
+          <div style="font-size:9px;color:rgba(245,243,238,0.4);margin-top:1px;line-height:1.4;">${cat.desc}</div>
+        </div>`;
+      }).join('')}
+    </div>`;
+
+  // Insert before the mode toggle or at the top of workspace
+  const firstChild = workspace.firstElementChild;
+  if (firstChild) workspace.insertBefore(strip, firstChild);
 }
 
 function showRubricMessage(msg) {
@@ -5701,6 +5893,9 @@ function openDraftSection(sectionId) {
 
   // Render paper checklist
   renderPaperChecklist(sectionId, sec);
+
+  // Pre-writing rubric strip — show relevant criteria before student writes
+  setTimeout(() => renderPreWritingRubricStrip(sectionId), 100);
 
   // Figure nudge — suggest generating a figure for data-rich sections
   if (state.mode !== 'poster') {
@@ -7569,7 +7764,8 @@ function saveSession() {
       authorCounts: state.authorCounts,
       gapFindings: state.gapFindings,
       slrLog: state.slrLog,
-      savedAt: new Date().toISOString()
+      savedAt: new Date().toISOString(),
+      ribbonResult: draftState.ribbonResult || null
     };
     localStorage.setItem(SESSION_KEY, JSON.stringify(session));
   } catch(e) {
@@ -7605,6 +7801,17 @@ function restoreSession() {
     const topicEl = document.getElementById('topic-input');
     if (topicEl && state.topic) topicEl.value = state.topic;
     updateTopicUI();
+
+    // Restore ribbon result if present
+    if (session.ribbonResult) {
+      draftState.ribbonResult = session.ribbonResult;
+      // Re-hydrate ribbon object from saved ID
+      const savedId = session.ribbonResult.ribbon?.id;
+      if (savedId) {
+        draftState.ribbonResult.ribbon = RIBBON_LEVELS.find(r => r.id === savedId) || session.ribbonResult.ribbon;
+      }
+      setTimeout(renderRibbonBadge, 500);
+    }
 
     // Show restore banner
     const paperCount = Object.keys(state.papers).length;
@@ -7771,7 +7978,9 @@ restoreSession();
       <div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:16px;">
         <button onclick="exportPosterPDF()" style="width:100%;padding:10px;background:var(--gold);color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;border:none;cursor:pointer;font-weight:700;margin-bottom:8px;">🖨 Print / Save PDF</button>
         <button onclick="exportPosterImage()" style="width:100%;padding:10px;background:transparent;color:var(--gold);border:1px solid rgba(201,144,58,0.4);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;margin-bottom:8px;">📸 Save as Image</button>
-        <button onclick="goToScreen(5)" style="width:100%;padding:8px;background:transparent;color:rgba(255,255,255,0.3);border:1px solid rgba(255,255,255,0.08);font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;">← Foundation</button>
+        <button onclick="openRubricPanel()" style="width:100%;padding:8px;background:transparent;color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.1);font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;margin-bottom:8px;">🏅 View Rubric</button>
+        <div id="ribbon-badge-s8"></div>
+        <button onclick="goToScreen(5)" style="width:100%;padding:8px;background:transparent;color:rgba(255,255,255,0.3);border:1px solid rgba(255,255,255,0.08);font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;margin-top:8px;">← Foundation</button>
       </div>
 
     </div>
