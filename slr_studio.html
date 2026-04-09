@@ -2250,17 +2250,30 @@ body::after {
         <div id="section-nav"></div>
       </div>
       <div style="padding:16px 20px;border-top:1px solid rgba(255,255,255,0.06);margin-top:16px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(245,243,238,0.3);margin-bottom:10px;">Citation Style</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:14px;">
+          <button onclick="setCitationStyle('apa7')" id="cite-apa7" style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.06em;padding:6px 4px;border:1px solid var(--gold);background:rgba(201,144,58,0.15);color:var(--gold);cursor:pointer;">APA 7</button>
+          <button onclick="setCitationStyle('ama')" id="cite-ama" style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.06em;padding:6px 4px;border:1px solid rgba(255,255,255,0.12);background:transparent;color:rgba(245,243,238,0.4);cursor:pointer;">AMA</button>
+          <button onclick="setCitationStyle('chicago')" id="cite-chicago" style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.06em;padding:6px 4px;border:1px solid rgba(255,255,255,0.12);background:transparent;color:rgba(245,243,238,0.4);cursor:pointer;">Chicago</button>
+          <button onclick="setCitationStyle('mla')" id="cite-mla" style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.06em;padding:6px 4px;border:1px solid rgba(255,255,255,0.12);background:transparent;color:rgba(245,243,238,0.4);cursor:pointer;">MLA</button>
+        </div>
         <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(245,243,238,0.3);margin-bottom:10px;">Reference List</div>
         <div id="ref-count" style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--gold);">0</div>
         <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(245,243,238,0.4);">citations selected</div>
         <button onclick="exportFullDraft()" class="btn btn-gold" style="width:100%;margin-top:16px;justify-content:center;">
-          Export Draft
+          📄 Export .txt
+        </button>
+        <button onclick="exportWordDraft()" class="btn btn-ghost" style="width:100%;margin-top:8px;justify-content:center;color:var(--gold);border-color:rgba(201,144,58,0.4);">
+          📝 Export .docx
         </button>
         <button id="poster-selfie-btn" onclick="openSelfieModal()" class="btn btn-ghost" style="width:100%;margin-top:8px;justify-content:center;display:none;color:var(--gold);border-color:rgba(201,144,58,0.4);">
           📸 Poster Day Photo
         </button>
         <button onclick="goToScreen(5)" class="btn btn-ghost" style="width:100%;margin-top:8px;justify-content:center;color:rgba(245,243,238,0.4);border-color:rgba(255,255,255,0.1);">
           ← Foundation
+        </button>
+        <button onclick="if(confirm('Start a new search? This will clear your current session.'))clearSession(),location.reload();" class="btn btn-ghost" style="width:100%;margin-top:8px;justify-content:center;color:rgba(245,243,238,0.25);border-color:rgba(255,255,255,0.06);font-size:10px;">
+          ✕ New Search
         </button>
       </div>
     </div>
@@ -2275,13 +2288,86 @@ body::after {
       </div>
     </div>
 
-    <!-- RIGHT: Paper Selection Panel -->
-    <div style="background:var(--cream);border-left:2px solid var(--border);overflow-y:auto;padding:24px;">
-      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border);">
-        Papers for This Section
+    <!-- RIGHT: Paper Selection Panel / Poster Assets Panel -->
+    <div style="background:var(--cream);border-left:2px solid var(--border);overflow-y:auto;padding:24px;" id="right-panel">
+      <!-- Paper checklist (manuscript/thesis mode) -->
+      <div id="paper-checklist-panel">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border);">
+          Papers for This Section
+        </div>
+        <div id="paper-checklist">
+          <div style="font-size:13px;color:var(--muted);font-style:italic;">Select a section to see relevant papers.</div>
+        </div>
       </div>
-      <div id="paper-checklist">
-        <div style="font-size:13px;color:var(--muted);font-style:italic;">Select a section to see relevant papers.</div>
+
+      <!-- Poster assets panel (poster mode only) -->
+      <div id="poster-assets-panel" style="display:none;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border);">
+          Poster Assets
+        </div>
+
+        <!-- Figures & Graphs -->
+        <div style="margin-bottom:20px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink);margin-bottom:8px;">Figures &amp; Graphs</div>
+          <div id="figure-list" style="margin-bottom:8px;"></div>
+          <label style="display:block;border:1.5px dashed var(--border);padding:12px;text-align:center;cursor:pointer;font-size:12px;color:var(--muted);transition:border-color 0.2s;"
+            onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
+            + Upload Figure / Graph
+            <input type="file" accept="image/*" multiple style="display:none;" onchange="handleFigureUpload(event)">
+          </label>
+          <div style="font-size:11px;color:var(--muted);margin-top:6px;line-height:1.5;">JPG, PNG, SVG. Each figure gets a caption field. Stored locally — nothing uploaded.</div>
+        </div>
+
+        <!-- Divider -->
+        <div style="border-top:1px solid var(--border);margin-bottom:20px;"></div>
+
+        <!-- Poster Metadata -->
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink);margin-bottom:12px;">Poster Metadata</div>
+
+        <div style="margin-bottom:12px;">
+          <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px;">Presenter Name(s)</label>
+          <input type="text" id="poster-meta-authors" placeholder="Jane Smith, John Doe" style="width:100%;padding:8px 10px;border:1px solid var(--border);font-size:13px;background:white;" oninput="savePosterMeta()">
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px;">Institution / Department</label>
+          <input type="text" id="poster-meta-institution" placeholder="Wright State University, BSOM" style="width:100%;padding:8px 10px;border:1px solid var(--border);font-size:13px;background:white;" oninput="savePosterMeta()">
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px;">Contact / Email</label>
+          <input type="text" id="poster-meta-contact" placeholder="name@wright.edu" style="width:100%;padding:8px 10px;border:1px solid var(--border);font-size:13px;background:white;" oninput="savePosterMeta()">
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px;">Grant / Funding</label>
+          <textarea id="poster-meta-grants" rows="2" placeholder="NIH R01-XXXXXX&#10;NSF Award #XXXXXXX" style="width:100%;padding:8px 10px;border:1px solid var(--border);font-size:12px;background:white;resize:vertical;" oninput="savePosterMeta()"></textarea>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px;">Acknowledgements</label>
+          <textarea id="poster-meta-acknowledgements" rows="3" placeholder="The authors thank..." style="width:100%;padding:8px 10px;border:1px solid var(--border);font-size:12px;background:white;resize:vertical;" oninput="savePosterMeta()"></textarea>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px;">Conference / Event</label>
+          <input type="text" id="poster-meta-conference" placeholder="Annual Research Symposium 2026" style="width:100%;padding:8px 10px;border:1px solid var(--border);font-size:13px;background:white;" oninput="savePosterMeta()">
+        </div>
+
+        <div style="margin-bottom:20px;">
+          <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px;">QR Code URL (optional)</label>
+          <input type="text" id="poster-meta-qr" placeholder="https://link-to-paper-or-repo" style="width:100%;padding:8px 10px;border:1px solid var(--border);font-size:13px;background:white;" oninput="savePosterMeta()">
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;">Will appear as a QR code placeholder on export.</div>
+        </div>
+
+        <!-- Also show paper checklist in poster mode -->
+        <div style="border-top:1px solid var(--border);padding-top:16px;margin-top:4px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink);margin-bottom:12px;">Papers for This Section</div>
+          <div id="paper-checklist-poster">
+            <div style="font-size:13px;color:var(--muted);font-style:italic;">Select a section to see relevant papers.</div>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -3366,6 +3452,22 @@ async function animateCount(el, target, duration, color) {
   }
 }
 
+// OpenAlex stores abstracts as an inverted index {word: [positions]}
+// Reconstruct into readable text
+function decodeAbstract(invertedIndex) {
+  if (!invertedIndex || typeof invertedIndex !== 'object') return '';
+  try {
+    const words = {};
+    Object.entries(invertedIndex).forEach(([word, positions]) => {
+      positions.forEach(pos => { words[pos] = word; });
+    });
+    const maxPos = Math.max(...Object.keys(words).map(Number));
+    return Array.from({length: maxPos + 1}, (_, i) => words[i] || '').join(' ').trim();
+  } catch(e) {
+    return '';
+  }
+}
+
 async function queryOpenAlex(terms, retrievePapers) {
   try {
     // Build a strict boolean AND query using OpenAlex's exact phrase syntax.
@@ -3399,7 +3501,7 @@ async function queryOpenAlex(terms, retrievePapers) {
     // Retrieve papers only when under threshold
     let papers = [];
     if (retrievePapers && count > 0 && count <= 20) {
-      const papersUrl = `${base}&per-page=20&select=id,doi,title,authorships,primary_location,publication_year`;
+      const papersUrl = `${base}&per-page=20&select=id,doi,title,authorships,primary_location,publication_year,abstract_inverted_index,cited_by_count,concepts`;
       const papersResp = await fetch(papersUrl);
       const papersData = await papersResp.json();
       papers = (papersData.results || []).map(w => ({
@@ -3407,9 +3509,13 @@ async function queryOpenAlex(terms, retrievePapers) {
         doi: w.doi,
         title: w.title || 'Untitled',
         author: w.authorships?.[0]?.author?.display_name || 'Unknown',
+        authors: (w.authorships || []).slice(0, 5).map(a => a.author?.display_name).filter(Boolean).join(', '),
         journal: w.primary_location?.source?.display_name || 'Unknown Journal',
         year: w.publication_year || '—',
-        url: w.doi ? `https://doi.org/${w.doi.replace('https://doi.org/','')}` : w.id
+        url: w.doi ? `https://doi.org/${w.doi.replace('https://doi.org/','')}` : w.id,
+        abstract: decodeAbstract(w.abstract_inverted_index),
+        citations: w.cited_by_count || 0,
+        concepts: (w.concepts || []).slice(0, 5).map(c => c.display_name).join(', ')
       }));
     }
 
@@ -3515,15 +3621,29 @@ function generateDemoPapers(n, terms) {
   const anchor = terms[0];
   const modifier = terms[terms.length - 1];
   const papers = [];
+
+  // Use deterministic seed based on anchor term so the same papers recur
+  // across subgroups — this allows foundation paper detection (2+ SGs) to work
+  const seedStr = anchor.toLowerCase().replace(/\s+/g, '');
+  const hashSeed = seedStr.split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 0);
+
   for (let i = 0; i < n; i++) {
-    const author = authors[Math.floor(Math.random() * authors.length)];
-    const year = 2016 + Math.floor(Math.random() * 9);
-    const template = titleTemplates[Math.floor(Math.random() * titleTemplates.length)];
+    // Mix anchor-seeded index with paper slot — same anchor produces same pool
+    const slot = (hashSeed + i * 7) % 1000;
+    const authorIdx = slot % authors.length;
+    const journalIdx = (slot * 3) % journals.length;
+    const year = 2016 + (slot % 9);
+    const templateIdx = (slot * 5) % titleTemplates.length;
+    const template = titleTemplates[templateIdx];
+
+    // Deterministic ID based on anchor + slot — same paper ID recurs across SGs
+    const pid = 'demo_' + seedStr + '_' + slot;
+
     papers.push({
-      id: 'demo_' + Math.random().toString(36).substr(2, 9),
+      id: pid,
       title: template(modifier, anchor),
-      author,
-      journal: journals[Math.floor(Math.random() * journals.length)],
+      author: authors[authorIdx],
+      journal: journals[journalIdx],
       year,
       url: '#'
     });
@@ -4487,6 +4607,15 @@ function initModule3() {
   const selfieBtn = document.getElementById('poster-selfie-btn');
   if (selfieBtn) selfieBtn.style.display = state.mode === 'poster' ? 'flex' : 'none';
 
+  // Switch right panel based on mode
+  const paperPanel = document.getElementById('paper-checklist-panel');
+  const posterPanel = document.getElementById('poster-assets-panel');
+  if (paperPanel) paperPanel.style.display = state.mode === 'poster' ? 'none' : 'block';
+  if (posterPanel) posterPanel.style.display = state.mode === 'poster' ? 'block' : 'none';
+
+  // Restore any saved poster metadata
+  if (state.mode === 'poster') restorePosterMeta();
+
   renderSectionNav();
   updateRefCount();
 
@@ -4818,7 +4947,8 @@ function openDraftSection(sectionId) {
 }
 
 function renderPaperChecklist(sectionId, sec) {
-  const checklist = document.getElementById('paper-checklist');
+  const checklistId = state.mode === 'poster' ? 'paper-checklist-poster' : 'paper-checklist';
+  const checklist = document.getElementById(checklistId);
   if (!checklist) return;
 
   const selectedPids = draftState.selectedPapers[sectionId] || [];
@@ -4854,6 +4984,7 @@ function renderPaperChecklist(sectionId, sec) {
     var bg = isSelected ? '#f0f4f8' : 'white';
     var safePid = pid.replace(/'/g, "\\'");
     var shortTitle = (paper.title || 'Untitled').substring(0, 80) + (paper.title && paper.title.length > 80 ? '...' : '');
+    var shortAbstract = paper.abstract ? paper.abstract.substring(0, 120) + (paper.abstract.length > 120 ? '...' : '') : '';
     html += '<div onclick="togglePaper(\'' + sectionId + '\',\'' + safePid + '\')" style="padding:10px 12px;margin-bottom:6px;border:1.5px solid ' + bc + ';background:' + bg + ';cursor:pointer;">';
     html += '<div style="display:flex;align-items:flex-start;gap:8px;">';
     html += '<div style="width:14px;height:14px;border:1.5px solid ' + bc + ';background:' + (isSelected ? 'var(--navy)' : 'white') + ';flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;">';
@@ -4861,7 +4992,10 @@ function renderPaperChecklist(sectionId, sec) {
     html += '</div><div style="flex:1;">';
     if (isSuggested) html += '<span style="' + mono + 'font-size:8px;background:var(--gold);color:var(--ink);padding:1px 5px;margin-bottom:4px;display:inline-block;">SUGGESTED</span><br>';
     html += '<div style="font-size:12px;font-weight:600;color:var(--ink);line-height:1.4;margin-bottom:3px;">' + shortTitle + '</div>';
-    html += '<div style="' + mono + 'font-size:10px;color:var(--muted);">' + (paper.author || 'Unknown') + ' &middot; ' + (paper.year || '&mdash;') + '</div>';
+    html += '<div style="' + mono + 'font-size:10px;color:var(--muted);">' + (paper.author || 'Unknown') + ' &middot; ' + (paper.year || '&mdash;');
+    if (paper.citations) html += ' &middot; ' + paper.citations + ' citations';
+    html += '</div>';
+    if (shortAbstract) html += '<div style="font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4;font-style:italic;">' + shortAbstract + '</div>';
     html += '</div></div></div>';
   });
 
@@ -4932,10 +5066,20 @@ async function generateSection(sectionId) {
     textDiv.innerHTML = '<div style="font-size:14px;color:var(--muted);font-style:italic;">Writing section<span class="loading-dots"></span></div>';
   }
 
-  // Build paper context for the prompt
+  // Build paper context for the prompt — include abstract when available
   const paperContext = selectedPapers.map(function(p, i) {
-    var citationKey = p.author ? p.author.split(';')[0].split(',')[0].trim() + ' (' + p.year + ')' : 'Unknown (' + (p.year || 'n.d.') + ')';
-    return '[' + (i+1) + '] ' + citationKey + ': "' + (p.title || '') + '" - ' + (p.journal || 'Unknown Journal') + ', ' + (p.year || 'n.d.');
+    var authorKey = p.author ? p.author.split(';')[0].split(',')[0].trim() : 'Unknown';
+    var citationKey = authorKey + ' (' + (p.year || 'n.d.') + ')';
+    var allAuthors = p.authors || p.author || 'Unknown';
+    var line = '[' + (i+1) + '] ' + citationKey + '\n';
+    line += '    Title: ' + (p.title || 'Untitled') + '\n';
+    line += '    Authors: ' + allAuthors + '\n';
+    line += '    Journal: ' + (p.journal || 'Unknown') + ', ' + (p.year || 'n.d.');
+    if (p.citations) line += ' (' + p.citations + ' citations)';
+    line += '\n';
+    if (p.abstract) line += '    Abstract: ' + p.abstract.slice(0, 400) + (p.abstract.length > 400 ? '...' : '') + '\n';
+    if (p.concepts) line += '    Key concepts: ' + p.concepts + '\n';
+    return line;
   }).join('\n');
 
   // Prewritten sections
@@ -4958,6 +5102,8 @@ async function generateSection(sectionId) {
   // Build mode-appropriate prompt
   const mode = state.mode || 'review';
   let prompt;
+  const citeRule = getCitationInstruction();
+  const citeStyleName = citationStyleLabels[citationStyle]?.name || 'APA 7';
 
   if (mode === 'thesis') {
     // Chapter-specific dissertation prompts
@@ -4969,7 +5115,7 @@ ANCHOR TERM: ${state.anchor}
 TARGET LENGTH: ${sec.wordTarget}
 GUIDANCE: ${sec.hint}
 
-PAPERS FOR CONTEXT (use ONLY these, cite as Author, Year in APA 7):
+PAPERS FOR CONTEXT (use ONLY these, cite using ${citeStyleName} style):
 ${paperContext}
 
 Write Chapter 1 in formal academic prose appropriate for a graduate thesis. Structure it as follows:
@@ -4980,7 +5126,7 @@ Write Chapter 1 in formal academic prose appropriate for a graduate thesis. Stru
 - Define scope and key terms.
 - Close with a brief overview of the dissertation chapters.
 
-Use APA 7 in-text citations. Third person throughout. No bullet points. Flowing academic paragraphs. Do not fabricate findings not present in the paper metadata provided.`,
+Use ${citeStyleName} citations. Third person throughout. No bullet points. Flowing academic paragraphs. Do not fabricate findings not present in the paper metadata provided.`,
 
       'thesis-ch2': `You are writing Chapter 2 (Literature Review) of a doctoral dissertation or master's thesis.
 
@@ -4989,7 +5135,7 @@ ANCHOR TERM: ${state.anchor}
 TARGET LENGTH: ${sec.wordTarget}
 GUIDANCE: ${sec.hint}
 
-PAPERS TO SYNTHESIZE (use ONLY these, cite as Author, Year in APA 7):
+PAPERS TO SYNTHESIZE (use ONLY these, cite using ${citeStyleName} style):
 ${paperContext}
 
 Write Chapter 2 in formal academic prose appropriate for a graduate thesis. Structure it as follows:
@@ -5000,7 +5146,7 @@ Write Chapter 2 in formal academic prose appropriate for a graduate thesis. Stru
 - Identify and name the specific gaps this study addresses.
 - Close with a paragraph positioning this study within the existing literature.
 
-Use APA 7 in-text citations. Synthesize — do not summarize paper by paper. Third person. No bullet points. Flowing academic paragraphs. Do not fabricate findings not present in the paper metadata provided.`,
+Use ${citeStyleName} citations. Synthesize — do not summarize paper by paper. Third person. No bullet points. Flowing academic paragraphs. Do not fabricate findings not present in the paper metadata provided.`,
 
       'thesis-ch3': `You are writing Chapter 3 (Methodology) of a doctoral dissertation or master's thesis.
 
@@ -5009,7 +5155,7 @@ ANCHOR TERM: ${state.anchor}
 TARGET LENGTH: ${sec.wordTarget}
 GUIDANCE: ${sec.hint}
 
-METHODOLOGICAL PAPERS FOR CITATION (use ONLY these, cite as Author, Year in APA 7):
+METHODOLOGICAL PAPERS FOR CITATION (use ONLY these, cite using ${citeStyleName} style):
 ${paperContext}
 
 Write Chapter 3 in formal academic prose appropriate for a graduate thesis. Structure it as follows:
@@ -5021,7 +5167,7 @@ Write Chapter 3 in formal academic prose appropriate for a graduate thesis. Stru
 - Address ethical considerations.
 - Note limitations of the methodology.
 
-Use APA 7 in-text citations. Third person. No bullet points. Flowing academic paragraphs. Do not fabricate methodological details not present in the paper metadata.`,
+Use ${citeStyleName} citations. Third person. No bullet points. Flowing academic paragraphs. Do not fabricate methodological details not present in the paper metadata.`,
 
       'thesis-ch4': `You are writing Chapter 4 (Results/Findings) of a doctoral dissertation or master's thesis.
 
@@ -5047,7 +5193,7 @@ ANCHOR TERM: ${state.anchor}
 TARGET LENGTH: ${sec.wordTarget}
 GUIDANCE: ${sec.hint}
 
-LITERATURE FOR CONNECTING BACK (use ONLY these, cite as Author, Year in APA 7):
+LITERATURE FOR CONNECTING BACK (use ONLY these, cite using ${citeStyleName} style):
 ${paperContext}
 
 Write Chapter 5 in formal academic prose appropriate for a graduate thesis. Structure it as follows:
@@ -5058,7 +5204,7 @@ Write Chapter 5 in formal academic prose appropriate for a graduate thesis. Stru
 - Acknowledge limitations of the study.
 - Propose directions for future research.
 
-Use APA 7 in-text citations. Third person. No bullet points. Flowing academic paragraphs. Do not fabricate findings not present in the paper metadata provided.`,
+Use ${citeStyleName} citations. Third person. No bullet points. Flowing academic paragraphs. Do not fabricate findings not present in the paper metadata provided.`,
 
       'thesis-ch6': `You are writing Chapter 6 (Conclusion and Recommendations) of a doctoral dissertation or master's thesis.
 
@@ -5067,7 +5213,7 @@ ANCHOR TERM: ${state.anchor}
 TARGET LENGTH: ${sec.wordTarget}
 GUIDANCE: ${sec.hint}
 
-PAPERS FOR FINAL CITATIONS (use ONLY these, cite as Author, Year in APA 7):
+PAPERS FOR FINAL CITATIONS (use ONLY these, cite using ${citeStyleName} style):
 ${paperContext}
 
 Write Chapter 6 in formal academic prose appropriate for a graduate thesis. Structure it as follows:
@@ -5077,20 +5223,18 @@ Write Chapter 6 in formal academic prose appropriate for a graduate thesis. Stru
 - Propose specific future research questions the field should pursue.
 - Close with a final statement on the significance of the work.
 
-Use APA 7 in-text citations sparingly — this chapter looks forward, not back. Third person. No bullet points. Flowing academic paragraphs.`,
+Use ${citeStyleName} citations sparingly — this chapter looks forward, not back. Third person. No bullet points. Flowing academic paragraphs.`,
 
-      'thesis-refs': `You are generating a References section for a doctoral dissertation or master's thesis.
+      'thesis-refs': `You are generating a ${getRefHeading()} section for a doctoral dissertation or master's thesis.
 
-PAPERS TO FORMAT (format ALL of these in APA 7):
+CITATION STYLE: ${citeStyleName}
+
+PAPERS TO FORMAT (format ALL of these in ${citeStyleName}):
 ${paperContext}
 
-Generate a complete APA 7 reference list. Rules:
-- Alphabetical by first author's last name.
-- Author, A. A., & Author, B. B. (Year). Title of article. Journal Name, volume(issue), pages. https://doi.org/xxxxx
-- If DOI is not available, omit the DOI line.
+Generate a complete ${citeStyleName} reference list. ${citeRule}
 - Double-space between entries (use blank line).
-- Do not number the entries.
-- Heading: REFERENCES (centered, bold).
+- Heading: ${getRefHeading().toUpperCase()} (centered, bold).
 
 Format each entry precisely. Do not fabricate DOIs or page numbers not provided.`
     };
@@ -5101,10 +5245,10 @@ TOPIC: ${state.topic}
 TARGET LENGTH: ${sec.wordTarget}
 GUIDANCE: ${sec.hint}
 
-PAPERS (cite as Author, Year in APA 7):
+PAPERS (cite using ${citeStyleName} style):
 ${paperContext}
 
-Write in formal academic prose appropriate for a graduate thesis. Third person. No bullet points. APA 7 in-text citations. Do not fabricate findings not present in the paper metadata.`;
+Write in formal academic prose appropriate for a graduate thesis. Third person. No bullet points. ${citeStyleName} citations. Do not fabricate findings not present in the paper metadata.`;
 
   } else if (mode === 'poster') {
     const posterPrompts = {
@@ -5178,15 +5322,15 @@ Write 2-3 sentences maximum:
 
 Direct. Actionable. No hedging. No citations needed here.`,
 
-      'poster-references': `Generate a Selected References list for an academic research poster.
+      'poster-references': `Generate a Selected ${getRefHeading()} list for an academic research poster.
 
-FORMAT: APA 7. Select the 5-8 most important papers from this list (those that appear across the most subgroups are highest priority):
+CITATION STYLE: ${citeStyleName}
+
+Select the 5-8 most important papers from this list (prioritize those appearing across the most subgroups):
 
 ${paperContext}
 
-Rules:
-- APA 7 format: Author, A. A. (Year). Title. Journal.
-- Alphabetical by first author's last name
+${citeRule}
 - 5-8 references maximum for a poster
 - Do not fabricate DOIs or page numbers not provided in the metadata`
     };
@@ -5215,7 +5359,7 @@ GUIDANCE: ${sec.hint}
 PAPERS TO CITE (use ONLY these papers, no others):
 ${paperContext}
 
-Write this section in formal academic prose. Use APA 7 in-text citations formatted as (Author, Year). 
+Write this section in formal academic prose. Use ${citeStyleName} citations. ${citeRule} 
 Do not fabricate any facts, statistics, or findings not present in the paper titles and metadata provided.
 Base your synthesis on what can be reasonably inferred from the paper titles, authors, journals, and years.
 Write in third person. No bullet points. Flowing academic paragraphs.
@@ -5326,6 +5470,134 @@ function clearSection(sectionId) {
   openDraftSection(sectionId);
 }
 
+// ═══════════════════════════════════════════
+// CITATION STYLES
+// ═══════════════════════════════════════════
+let citationStyle = 'apa7';
+
+const citationStyleLabels = {
+  apa7:    { name: 'APA 7',    intext: 'APA 7 (Author, Year)',           refs: 'References' },
+  ama:     { name: 'AMA',      intext: 'AMA superscript numbers (¹)',    refs: 'References' },
+  chicago: { name: 'Chicago',  intext: 'Chicago footnotes or (Author Year)', refs: 'Bibliography' },
+  mla:     { name: 'MLA',      intext: 'MLA (Author page)',              refs: 'Works Cited' }
+};
+
+function setCitationStyle(style) {
+  citationStyle = style;
+  ['apa7','ama','chicago','mla'].forEach(s => {
+    const btn = document.getElementById('cite-' + s);
+    if (!btn) return;
+    if (s === style) {
+      btn.style.borderColor = 'var(--gold)';
+      btn.style.background = 'rgba(201,144,58,0.15)';
+      btn.style.color = 'var(--gold)';
+    } else {
+      btn.style.borderColor = 'rgba(255,255,255,0.12)';
+      btn.style.background = 'transparent';
+      btn.style.color = 'rgba(245,243,238,0.4)';
+    }
+  });
+}
+
+function getCitationInstruction() {
+  const s = citationStyleLabels[citationStyle] || citationStyleLabels.apa7;
+  const rules = {
+    apa7:    'Use APA 7 in-text citations: (Author, Year). Reference list alphabetical by last name. Format: Author, A. A. (Year). Title. Journal, volume(issue), pages. https://doi.org/xxxxx',
+    ama:     'Use AMA citation style: superscript numbers in text (¹). Reference list numbered in order of appearance. Format: Author AA, Author BB. Title of article. Journal Abbrev. Year;volume(issue):pages. doi:xxxxx',
+    chicago: 'Use Chicago author-date style: (Author Year) in text. Bibliography alphabetical. Format: Author, First. Year. "Title." Journal Name volume (issue): pages. https://doi.org/xxxxx',
+    mla:     'Use MLA style: (Author page) in text. Works Cited alphabetical. Format: Author, First. "Title of Article." Journal Name, vol. X, no. X, Year, pp. XX-XX.'
+  };
+  return rules[citationStyle] || rules.apa7;
+}
+
+function formatReference(paper, index) {
+  const author = paper.author || 'Unknown';
+  const year = paper.year || 'n.d.';
+  const title = paper.title || 'Untitled';
+  const journal = paper.journal || '';
+  const doi = paper.url && paper.url !== '#' ? paper.url.replace('https://doi.org/','') : '';
+  const doiUrl = doi ? `https://doi.org/${doi}` : '';
+
+  switch(citationStyle) {
+    case 'ama':
+      return `${index}. ${author}. ${title}. ${journal}. ${year}.${doiUrl ? ' doi:' + doi : ''}`;
+    case 'chicago':
+      return `${author}. ${year}. "${title}." ${journal}.${doiUrl ? ' ' + doiUrl : ''}`;
+    case 'mla':
+      return `${author}. "${title}." ${journal}, ${year}.${doiUrl ? ' ' + doiUrl : ''}`;
+    case 'apa7':
+    default:
+      return `${author} (${year}). ${title}. ${journal}.${doiUrl ? ' ' + doiUrl : ''}`;
+  }
+}
+
+function getRefHeading() {
+  return citationStyleLabels[citationStyle]?.refs || 'References';
+}
+
+async function exportWordDraft() {
+  const btn = document.querySelector('[onclick="exportWordDraft()"]');
+  if (btn) { btn.textContent = '⏳ Building...'; btn.disabled = true; }
+
+  try {
+    const mode = state.mode || 'review';
+    const timestamp = new Date().toLocaleDateString('en-US', {year:'numeric',month:'short',day:'numeric'});
+    const styleLabel = citationStyleLabels[citationStyle]?.name || 'APA 7';
+
+    // Build sections payload
+    const sections = draftState.sections.map(sec => ({
+      id: sec.id,
+      num: sec.num,
+      title: sec.title,
+      hint: sec.hint || '',
+      text: draftState.generatedText[sec.id] || ''
+    }));
+
+    // Build reference list using selected style
+    const refs = Object.values(draftState.referenceList);
+    const sorted = citationStyle === 'ama' ? refs
+      : refs.sort((a, b) => (a.author||'').localeCompare(b.author||''));
+    const references = sorted.map((p, i) => formatReference(p, i + 1));
+
+    const payload = {
+      topic: state.topic || '',
+      mode,
+      citationStyle: styleLabel,
+      refHeading: getRefHeading(),
+      timestamp,
+      sections,
+      references,
+      posterMeta: mode === 'poster' ? (posterAssets.meta || null) : null
+    };
+
+    const resp = await fetch('http://127.0.0.1:7749/export', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!resp.ok && resp.status !== 0) throw new Error('Server returned ' + resp.status);
+
+    const blob = await resp.blob();
+    const filename = mode === 'thesis' ? 'Thesis_Draft.docx'
+                   : mode === 'poster' ? 'Poster_Draft.docx'
+                   : 'SLR_Draft.docx';
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+
+  } catch(e) {
+    // Server not running — fall back to instructions
+    alert('Word export requires the SLR Studio companion server.\n\nTo start it:\n1. Download slr_studio.html and docx_server.js\n2. Run: node docx_server.js\n3. Click Export .docx again\n\nFor now, use Export .txt to save your draft.');
+    console.warn('Word export error:', e.message);
+  } finally {
+    if (btn) { btn.textContent = '📝 Export .docx'; btn.disabled = false; }
+  }
+}
+
 function exportFullDraft() {
   try {
     const timestamp = new Date().toLocaleDateString('en-US', {year:'numeric',month:'short',day:'numeric'});
@@ -5357,25 +5629,45 @@ function exportFullDraft() {
       }
     });
 
-    // Add reference list
+    // Add reference list using selected citation style
     const refs = Object.values(draftState.referenceList);
     if (refs.length > 0) {
-      content += `\n${'═'.repeat(60)}\nREFERENCES\n${'─'.repeat(40)}\n`;
-      refs.sort((a, b) => {
-        const aName = (a.author || '').split(';')[0].split(',')[0].trim();
-        const bName = (b.author || '').split(';')[0].split(',')[0].trim();
-        return aName.localeCompare(bName);
-      }).forEach((p, i) => {
-        const author = p.author || 'Unknown';
-        const year = p.year || 'n.d.';
-        const title = p.title || 'Untitled';
-        const journal = p.journal || '';
-        const doi = p.url && p.url !== '#' ? ` https://doi.org/${p.url.replace('https://doi.org/','')}` : '';
-        content += `${author} (${year}). ${title}. ${journal}.${doi}\n\n`;
+      const heading = getRefHeading();
+      const sorted = citationStyle === 'ama'
+        ? refs // AMA: order of appearance (unsorted)
+        : refs.sort((a, b) => (a.author||'').localeCompare(b.author||''));
+      content += `\n${'═'.repeat(60)}\n${heading.toUpperCase()}\n${'─'.repeat(40)}\n`;
+      sorted.forEach((p, i) => {
+        content += formatReference(p, i + 1) + '\n\n';
       });
     }
 
     content += `\nGenerated by SLR Studio · Emerging Technologies Laboratory · Wright State University`;
+
+    // Append poster metadata and figures to poster export
+    if (mode === 'poster') {
+      const m = posterAssets.meta || {};
+      const hasMeta = Object.values(m).some(v => v && v.trim());
+      if (hasMeta) {
+        content += `\n\n${'═'.repeat(60)}\nPOSTER METADATA\n${'─'.repeat(40)}\n`;
+        if (m.authors)          content += `Presenter(s): ${m.authors}\n`;
+        if (m.institution)      content += `Institution: ${m.institution}\n`;
+        if (m.contact)          content += `Contact: ${m.contact}\n`;
+        if (m.conference)       content += `Conference: ${m.conference}\n`;
+        if (m.grants)           content += `\nGrant / Funding:\n${m.grants}\n`;
+        if (m.acknowledgements) content += `\nAcknowledgements:\n${m.acknowledgements}\n`;
+        if (m.qr)               content += `\nQR Code URL: ${m.qr}\n`;
+      }
+      if (posterAssets.figures && posterAssets.figures.length > 0) {
+        content += `\n${'═'.repeat(60)}\nFIGURES\n${'─'.repeat(40)}\n`;
+        posterAssets.figures.forEach((fig, i) => {
+          content += `Figure ${i+1}: ${fig.name}\n`;
+          if (fig.caption) content += `Caption: ${fig.caption}\n`;
+          content += '\n';
+        });
+        content += `[Note: Figure image files must be attached separately to the poster layout.]\n`;
+      }
+    }
     downloadFile(content, filename, 'text/plain');
 
   } catch(err) {
@@ -5437,6 +5729,119 @@ testOpenAlexConnection();
     }
   } catch(e) {}
 })();
+
+// ═══════════════════════════════════════════
+// SESSION PERSISTENCE
+// ═══════════════════════════════════════════
+const SESSION_KEY = 'slr_studio_session';
+
+function saveSession() {
+  try {
+    const session = {
+      topic: state.topic,
+      mode: state.mode,
+      anchor: state.anchor,
+      secondaryKeywords: state.secondaryKeywords,
+      modifierKeywords: state.modifierKeywords,
+      selectedSecondary: state.selectedSecondary,
+      selectedModifiers: state.selectedModifiers,
+      subgroups: state.subgroups,
+      papers: state.papers,
+      paperSGs: state.paperSGs,
+      authorCounts: state.authorCounts,
+      gapFindings: state.gapFindings,
+      slrLog: state.slrLog,
+      savedAt: new Date().toISOString()
+    };
+    localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+  } catch(e) {
+    console.warn('Session save failed (storage full?):', e.message);
+  }
+}
+
+function restoreSession() {
+  try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    if (!raw) return false;
+    const session = JSON.parse(raw);
+    if (!session.papers || Object.keys(session.papers).length === 0) return false;
+
+    // Restore state
+    Object.assign(state, {
+      topic: session.topic || '',
+      mode: session.mode || 'review',
+      anchor: session.anchor || '',
+      secondaryKeywords: session.secondaryKeywords || [],
+      modifierKeywords: session.modifierKeywords || [],
+      selectedSecondary: session.selectedSecondary || [],
+      selectedModifiers: session.selectedModifiers || [],
+      subgroups: session.subgroups || [],
+      papers: session.papers || {},
+      paperSGs: session.paperSGs || {},
+      authorCounts: session.authorCounts || {},
+      gapFindings: session.gapFindings || [],
+      slrLog: session.slrLog || []
+    });
+
+    // Restore topic input
+    const topicEl = document.getElementById('topic-input');
+    if (topicEl && state.topic) topicEl.value = state.topic;
+    updateTopicUI();
+
+    // Show restore banner
+    const paperCount = Object.keys(state.papers).length;
+    const mins = Math.round((Date.now() - new Date(session.savedAt)) / 60000);
+    const timeLabel = mins < 60 ? mins + 'm ago' : Math.round(mins/60) + 'h ago';
+    showRestoreBanner(paperCount, timeLabel, session.topic);
+    return true;
+  } catch(e) {
+    console.warn('Session restore failed:', e.message);
+    return false;
+  }
+}
+
+function showRestoreBanner(paperCount, timeLabel, topic) {
+  const banner = document.createElement('div');
+  banner.id = 'restore-banner';
+  banner.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);border:1px solid var(--gold);padding:16px 24px;z-index:1000;display:flex;align-items:center;gap:16px;box-shadow:0 8px 32px rgba(0,0,0,0.3);max-width:600px;width:90%;';
+  banner.innerHTML = `
+    <div style="flex:1;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px;">Previous session found — ${timeLabel}</div>
+      <div style="font-size:13px;color:var(--paper);line-height:1.4;">${paperCount} papers retrieved for: <em>${(topic||'').substring(0,60)}${topic&&topic.length>60?'...':''}</em></div>
+    </div>
+    <div style="display:flex;gap:8px;flex-shrink:0;">
+      <button onclick="resumeSession()" style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;padding:8px 14px;background:var(--gold);color:var(--ink);border:none;cursor:pointer;font-weight:700;">Resume</button>
+      <button onclick="dismissRestoreBanner()" style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;padding:8px 14px;background:transparent;color:rgba(245,243,238,0.4);border:1px solid rgba(255,255,255,0.1);cursor:pointer;">Dismiss</button>
+    </div>
+  `;
+  document.body.appendChild(banner);
+}
+
+function resumeSession() {
+  dismissRestoreBanner();
+  renderGongScreen();
+  goToScreen(5);
+  selectMode(state.mode || 'review');
+}
+
+function dismissRestoreBanner() {
+  const b = document.getElementById('restore-banner');
+  if (b) b.remove();
+}
+
+function clearSession() {
+  try { localStorage.removeItem(SESSION_KEY); } catch(e) {}
+}
+
+// Auto-save after each SG completes
+const _origUpdateExportCounts = updateExportCounts;
+updateExportCounts = function() {
+  _origUpdateExportCounts();
+  saveSession();
+};
+
+// Attempt restore on load
+restoreSession();
 </script>
 <!-- ═══ POSTER SELFIE MODAL ═══ -->
 <div id="poster-selfie-modal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(10,10,15,0.92);align-items:center;justify-content:center;">
@@ -5641,6 +6046,89 @@ function applyScene(idx) {
   if (topbar) topbar.style.background = cfg.topbar;
   if (deco) deco.innerHTML = cfg.deco;
   if (frame) frame.style.borderColor = cfg.border;
+}
+
+// ═══════════════════════════════════════════
+// POSTER ASSETS — Figures, Metadata
+// ═══════════════════════════════════════════
+
+const posterAssets = {
+  figures: [],   // [{id, name, dataUrl, caption}]
+  meta: {}       // {authors, institution, contact, grants, acknowledgements, conference, qr}
+};
+
+function handleFigureUpload(event) {
+  const files = Array.from(event.target.files);
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const fig = {
+        id: 'fig_' + Date.now() + '_' + Math.random().toString(36).substr(2,5),
+        name: file.name,
+        dataUrl: e.target.result,
+        caption: ''
+      };
+      posterAssets.figures.push(fig);
+      renderFigureList();
+    };
+    reader.readAsDataURL(file);
+  });
+  // Reset input so same file can be re-uploaded
+  event.target.value = '';
+}
+
+function renderFigureList() {
+  const list = document.getElementById('figure-list');
+  if (!list) return;
+  if (posterAssets.figures.length === 0) {
+    list.innerHTML = '';
+    return;
+  }
+  list.innerHTML = posterAssets.figures.map((fig, i) => `
+    <div style="border:1px solid var(--border);background:white;padding:10px;margin-bottom:8px;">
+      <img src="${fig.dataUrl}" alt="${fig.name}" style="width:100%;max-height:100px;object-fit:contain;margin-bottom:8px;background:#f9f9f9;">
+      <input type="text" placeholder="Figure caption..." value="${fig.caption.replace(/"/g,'&quot;')}"
+        style="width:100%;padding:5px 8px;border:1px solid var(--border);font-size:11px;"
+        oninput="updateFigureCaption(${i}, this.value)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
+        <span style="font-family:monospace;font-size:9px;color:var(--muted);">Figure ${i+1}</span>
+        <button onclick="removeFigure(${i})" style="font-size:10px;color:var(--red);background:none;border:none;cursor:pointer;">Remove</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function updateFigureCaption(idx, val) {
+  if (posterAssets.figures[idx]) posterAssets.figures[idx].caption = val;
+}
+
+function removeFigure(idx) {
+  posterAssets.figures.splice(idx, 1);
+  renderFigureList();
+}
+
+function savePosterMeta() {
+  posterAssets.meta = {
+    authors:          document.getElementById('poster-meta-authors')?.value || '',
+    institution:      document.getElementById('poster-meta-institution')?.value || '',
+    contact:          document.getElementById('poster-meta-contact')?.value || '',
+    grants:           document.getElementById('poster-meta-grants')?.value || '',
+    acknowledgements: document.getElementById('poster-meta-acknowledgements')?.value || '',
+    conference:       document.getElementById('poster-meta-conference')?.value || '',
+    qr:               document.getElementById('poster-meta-qr')?.value || ''
+  };
+}
+
+function restorePosterMeta() {
+  const m = posterAssets.meta;
+  const set = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
+  set('poster-meta-authors', m.authors);
+  set('poster-meta-institution', m.institution);
+  set('poster-meta-contact', m.contact);
+  set('poster-meta-grants', m.grants);
+  set('poster-meta-acknowledgements', m.acknowledgements);
+  set('poster-meta-conference', m.conference);
+  set('poster-meta-qr', m.qr);
 }
 
 function openSelfieModal() {
