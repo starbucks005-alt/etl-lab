@@ -1790,6 +1790,8 @@ body::after {
     <div class="nav-step" id="nav-4">04 Build</div>
     <div class="nav-step" id="nav-5">05 Foundation</div>
     <div class="nav-step" id="nav-6">06 Draft</div>
+    <div class="nav-step" id="nav-7">07 Gaps</div>
+    <div class="nav-step" id="nav-8">08 Poster</div>
   </nav>
 </header>
 
@@ -3869,8 +3871,8 @@ function goToOutput(type) {
     initModule3();
   } else if (type === 'poster') {
     state.mode = 'poster';
-    goToScreen(6);
-    initModule3();
+    goToScreen(8);
+    initPosterBuilder();
   }
 }
 
@@ -5901,6 +5903,184 @@ updateExportCounts = function() {
 // Attempt restore on load
 restoreSession();
 </script>
+<!-- ═══ SCREEN 8: POSTER BUILDER ═══ -->
+<div class="screen" id="screen-8">
+<div style="display:grid;grid-template-columns:280px 1fr 300px;min-height:calc(100vh - 60px);background:#1a1a1a;">
+
+  <!-- LEFT: Poster Controls -->
+  <div style="background:#0a0a0a;border-right:1px solid rgba(255,255,255,0.08);overflow-y:auto;display:flex;flex-direction:column;">
+    <div style="padding:20px;border-bottom:1px solid rgba(255,255,255,0.06);">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:4px;">SLR Studio</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,0.3);">Academic Poster Builder</div>
+    </div>
+
+    <div style="padding:20px;flex:1;overflow-y:auto;">
+
+      <!-- Poster Size -->
+      <div style="margin-bottom:24px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(245,243,238,0.4);margin-bottom:10px;">Poster Size</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;">
+          <button onclick="setPosterSize(36,48,'36×48 in')" id="psize-3648" class="psize-btn psize-active">36×48 in<br><span style="font-size:9px;opacity:0.6;">Portrait</span></button>
+          <button onclick="setPosterSize(48,36,'48×36 in')" id="psize-4836" class="psize-btn">48×36 in<br><span style="font-size:9px;opacity:0.6;">Landscape</span></button>
+          <button onclick="setPosterSize(24,36,'24×36 in')" id="psize-2436" class="psize-btn">24×36 in<br><span style="font-size:9px;opacity:0.6;">Portrait</span></button>
+          <button onclick="setPosterSize(36,24,'36×24 in')" id="psize-3624" class="psize-btn">36×24 in<br><span style="font-size:9px;opacity:0.6;">Landscape</span></button>
+        </div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(245,243,238,0.3);margin-bottom:6px;">Custom size (inches)</div>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <input type="number" id="poster-w" placeholder="W" min="12" max="72" style="width:60px;padding:6px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);color:white;font-size:12px;text-align:center;">
+          <span style="color:rgba(255,255,255,0.3);font-size:12px;">×</span>
+          <input type="number" id="poster-h" placeholder="H" min="12" max="72" style="width:60px;padding:6px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);color:white;font-size:12px;text-align:center;">
+          <button onclick="setCustomSize()" style="padding:6px 10px;background:rgba(201,144,58,0.2);border:1px solid var(--gold);color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:9px;cursor:pointer;">Set</button>
+        </div>
+      </div>
+
+      <!-- Logo -->
+      <div style="margin-bottom:24px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(245,243,238,0.4);margin-bottom:10px;">Logo</div>
+        <label style="display:block;border:1.5px dashed rgba(255,255,255,0.15);padding:12px;text-align:center;cursor:pointer;font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:8px;transition:border-color 0.2s;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)'">
+          + Upload Logo
+          <input type="file" accept="image/*" style="display:none;" onchange="handleLogoUpload(event)">
+        </label>
+        <div id="logo-preview" style="display:none;margin-bottom:8px;text-align:center;">
+          <img id="logo-img" style="max-height:50px;max-width:100%;object-fit:contain;">
+          <button onclick="clearLogo()" style="display:block;margin:4px auto 0;font-size:10px;color:rgba(255,255,255,0.4);background:none;border:none;cursor:pointer;">Remove</button>
+        </div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(245,243,238,0.3);margin-bottom:6px;">Placement</div>
+        <div style="display:flex;gap:6px;">
+          <button onclick="setLogoPlacement('left')" id="logo-left" class="logo-place-btn logo-place-active">Left</button>
+          <button onclick="setLogoPlacement('both')" id="logo-both" class="logo-place-btn">Both</button>
+          <button onclick="setLogoPlacement('right')" id="logo-right" class="logo-place-btn">Right</button>
+        </div>
+      </div>
+
+      <!-- Color Scheme -->
+      <div style="margin-bottom:24px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(245,243,238,0.4);margin-bottom:10px;">Color Scheme</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
+          <button onclick="setPosterTheme('etl')" id="theme-etl" class="theme-btn theme-active" title="ETL Dark">
+            <div style="height:20px;background:linear-gradient(135deg,#0a0a0f,#285C4D);border-radius:2px;margin-bottom:3px;"></div>
+            <span style="font-size:9px;">ETL</span>
+          </button>
+          <button onclick="setPosterTheme('navy')" id="theme-navy" class="theme-btn" title="Navy Gold">
+            <div style="height:20px;background:linear-gradient(135deg,#1a2744,#C6A667);border-radius:2px;margin-bottom:3px;"></div>
+            <span style="font-size:9px;">Navy</span>
+          </button>
+          <button onclick="setPosterTheme('white')" id="theme-white" class="theme-btn" title="Clean White">
+            <div style="height:20px;background:linear-gradient(135deg,#ffffff,#e8e8e8);border-radius:2px;margin-bottom:3px;border:1px solid #ccc;"></div>
+            <span style="font-size:9px;">Clean</span>
+          </button>
+          <button onclick="setPosterTheme('maroon')" id="theme-maroon" class="theme-btn" title="Maroon">
+            <div style="height:20px;background:linear-gradient(135deg,#6b0f1a,#c9903a);border-radius:2px;margin-bottom:3px;"></div>
+            <span style="font-size:9px;">Maroon</span>
+          </button>
+          <button onclick="setPosterTheme('blue')" id="theme-blue" class="theme-btn" title="Academic Blue">
+            <div style="height:20px;background:linear-gradient(135deg,#0a3060,#4a90d9);border-radius:2px;margin-bottom:3px;"></div>
+            <span style="font-size:9px;">Blue</span>
+          </button>
+          <button onclick="setPosterTheme('forest')" id="theme-forest" class="theme-btn" title="Forest">
+            <div style="height:20px;background:linear-gradient(135deg,#1a3320,#5a9e6f);border-radius:2px;margin-bottom:3px;"></div>
+            <span style="font-size:9px;">Forest</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Export -->
+      <div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:16px;">
+        <button onclick="exportPosterPDF()" style="width:100%;padding:10px;background:var(--gold);color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;border:none;cursor:pointer;font-weight:700;margin-bottom:8px;">🖨 Print / Save PDF</button>
+        <button onclick="exportPosterImage()" style="width:100%;padding:10px;background:transparent;color:var(--gold);border:1px solid rgba(201,144,58,0.4);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;margin-bottom:8px;">📸 Save as Image</button>
+        <button onclick="goToScreen(5)" style="width:100%;padding:8px;background:transparent;color:rgba(255,255,255,0.3);border:1px solid rgba(255,255,255,0.08);font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;">← Foundation</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CENTER: Poster Canvas -->
+  <div style="overflow:auto;background:#2a2a2a;display:flex;align-items:flex-start;justify-content:center;padding:32px;" id="poster-canvas-wrapper">
+    <div id="poster-canvas" style="background:white;box-shadow:0 8px 48px rgba(0,0,0,0.6);transform-origin:top center;position:relative;font-family:'Arial',sans-serif;">
+      <!-- Dynamically rendered by renderPosterCanvas() -->
+    </div>
+  </div>
+
+  <!-- RIGHT: Section Editor -->
+  <div style="background:#111;border-left:1px solid rgba(255,255,255,0.08);overflow-y:auto;" id="poster-section-panel">
+    <div style="padding:16px 20px;border-bottom:1px solid rgba(255,255,255,0.06);">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(245,243,238,0.4);margin-bottom:4px;">Section Editor</div>
+      <div style="font-size:12px;color:rgba(245,243,238,0.5);">Click a section on the poster to edit it.</div>
+    </div>
+    <div id="poster-section-list" style="padding:12px;"></div>
+  </div>
+
+</div>
+</div>
+
+<style>
+.psize-btn {
+  padding:8px 4px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.12);
+  color:rgba(245,243,238,0.5);
+  cursor:pointer;
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;
+  letter-spacing:0.04em;
+  line-height:1.4;
+  transition:all 0.15s;
+  text-align:center;
+}
+.psize-btn:hover { border-color:var(--gold); color:var(--gold); }
+.psize-active { border-color:var(--gold) !important; color:var(--gold) !important; background:rgba(201,144,58,0.1) !important; }
+
+.logo-place-btn {
+  flex:1;padding:6px 4px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.12);
+  color:rgba(245,243,238,0.5);
+  cursor:pointer;
+  font-family:'JetBrains Mono',monospace;font-size:9px;
+  transition:all 0.15s;
+}
+.logo-place-active { border-color:var(--gold) !important; color:var(--gold) !important; background:rgba(201,144,58,0.1) !important; }
+
+.theme-btn {
+  padding:6px 4px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.12);
+  color:rgba(245,243,238,0.5);
+  cursor:pointer;
+  font-family:'JetBrains Mono',monospace;
+  font-size:9px;
+  transition:all 0.15s;
+  text-align:center;
+}
+.theme-active { border-color:var(--gold) !important; }
+
+.poster-section-btn {
+  width:100%;
+  padding:10px 12px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.08);
+  color:rgba(245,243,238,0.7);
+  cursor:pointer;
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;
+  text-align:left;
+  margin-bottom:4px;
+  transition:all 0.15s;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.poster-section-btn:hover { border-color:var(--gold); color:var(--gold); }
+.poster-section-btn.has-content { border-color:rgba(40,92,77,0.5); }
+.poster-section-btn .section-status { width:8px;height:8px;border-radius:50%;flex-shrink:0; }
+
+@media print {
+  .header, #screen-8 > div > div:first-child, #screen-8 > div > div:last-child { display:none !important; }
+  #poster-canvas-wrapper { padding:0 !important; background:white !important; }
+  #poster-canvas { box-shadow:none !important; }
+}
+</style>
+
 <!-- ═══ POSTER SELFIE MODAL ═══ -->
 <div id="poster-selfie-modal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(10,10,15,0.92);align-items:center;justify-content:center;">
   <div style="background:var(--paper);max-width:860px;width:92%;max-height:92vh;overflow-y:auto;position:relative;">
@@ -6187,6 +6367,377 @@ function restorePosterMeta() {
   set('poster-meta-acknowledgements', m.acknowledgements);
   set('poster-meta-conference', m.conference);
   set('poster-meta-qr', m.qr);
+}
+
+// ═══════════════════════════════════════════
+// SCREEN 8: POSTER BUILDER
+// ═══════════════════════════════════════════
+
+const posterState = {
+  width: 36, height: 48, sizeLabel: '36×48 in',
+  logoUrl: null, logoPlacement: 'left',
+  theme: 'etl',
+  activeSection: null,
+  sections: {}  // sectionId -> { text, populated }
+};
+
+const posterThemes = {
+  etl:    { header: '#0a0a0f', headerText: '#ffffff', accent: '#285C4D', accentText: '#C6A667', body: '#f5f5f5', sectionBg: '#ffffff', sectionBorder: '#285C4D', bodyText: '#1a1a1a' },
+  navy:   { header: '#1a2744', headerText: '#ffffff', accent: '#1a2744', accentText: '#C6A667', body: '#f0f2f8', sectionBg: '#ffffff', sectionBorder: '#1a2744', bodyText: '#1a1a1a' },
+  white:  { header: '#333333', headerText: '#ffffff', accent: '#555555', accentText: '#ffffff', body: '#ffffff', sectionBg: '#f8f8f8', sectionBorder: '#cccccc', bodyText: '#1a1a1a' },
+  maroon: { header: '#6b0f1a', headerText: '#ffffff', accent: '#6b0f1a', accentText: '#c9903a', body: '#fdf5f5', sectionBg: '#ffffff', sectionBorder: '#6b0f1a', bodyText: '#1a1a1a' },
+  blue:   { header: '#0a3060', headerText: '#ffffff', accent: '#0a3060', accentText: '#4a90d9', body: '#f0f5ff', sectionBg: '#ffffff', sectionBorder: '#0a3060', bodyText: '#1a1a1a' },
+  forest: { header: '#1a3320', headerText: '#ffffff', accent: '#1a3320', accentText: '#5a9e6f', body: '#f0f7f0', sectionBg: '#ffffff', sectionBorder: '#1a3320', bodyText: '#1a1a1a' }
+};
+
+const posterSectionDefs = [
+  { id: 'title',   label: 'Title & Authors',     hint: 'Poster title (12 words max), author names, institution, date.',     span: 'full', height: 0.12 },
+  { id: 'background', label: 'Background',        hint: '2-3 sentences: What is the problem? Why does it matter?',           span: 'col',  height: 0.18 },
+  { id: 'methods',    label: 'Methods',           hint: 'Database, search strategy, number of subgroups and papers.',        span: 'col',  height: 0.18 },
+  { id: 'findings',   label: 'Key Findings',      hint: '3-5 bullet points. One finding + one citation per bullet.',         span: 'col',  height: 0.22 },
+  { id: 'gaps',       label: 'Gaps Identified',   hint: '2-4 confirmed gaps. Frame as research opportunities.',              span: 'col',  height: 0.22 },
+  { id: 'figures',    label: 'Figures / Graphs',  hint: 'Upload figures in the assets panel. They appear here.',             span: 'col',  height: 0.20 },
+  { id: 'significance', label: 'Significance',    hint: '2-3 sentences. Why does this matter? What should happen next?',    span: 'col',  height: 0.14 },
+  { id: 'references', label: 'References',        hint: '5-8 key references in your chosen citation style.',                 span: 'col',  height: 0.14 },
+  { id: 'acknowledgements', label: 'Acknowledgements & Funding', hint: 'Grants, collaborators, institutional support.',     span: 'full', height: 0.08 }
+];
+
+function initPosterBuilder() {
+  // Pre-populate from generated draft content and metadata
+  const genText = draftState.generatedText || {};
+  const meta = posterAssets.meta || {};
+
+  posterSectionDefs.forEach(def => {
+    if (!posterState.sections[def.id]) {
+      const existing = genText['poster-' + def.id] || '';
+      posterState.sections[def.id] = { text: existing, populated: !!existing };
+    }
+  });
+
+  // Pre-fill from metadata
+  if (meta.authors || meta.institution) {
+    const titleText = posterState.sections['title']?.text || state.topic || '';
+    if (!posterState.sections['title']?.populated) {
+      const titleBlock = [
+        state.topic || '[Poster Title]',
+        meta.authors ? '\n' + meta.authors : '',
+        meta.institution ? '\n' + meta.institution : '',
+        meta.conference ? '\n' + meta.conference : ''
+      ].filter(Boolean).join('');
+      posterState.sections['title'] = { text: titleBlock, populated: false };
+    }
+  }
+  if (meta.grants || meta.acknowledgements) {
+    const ackText = [meta.acknowledgements, meta.grants ? 'Funding: ' + meta.grants : ''].filter(Boolean).join('\n');
+    if (!posterState.sections['acknowledgements']?.populated) {
+      posterState.sections['acknowledgements'] = { text: ackText, populated: false };
+    }
+  }
+
+  renderPosterCanvas();
+  renderPosterSectionList();
+  setPosterSize(36, 48, '36×48 in');
+}
+
+function setPosterSize(w, h, label) {
+  posterState.width = w;
+  posterState.height = h;
+  posterState.sizeLabel = label;
+  document.querySelectorAll('.psize-btn').forEach(b => b.classList.remove('psize-active'));
+  const id = 'psize-' + w + '' + h;
+  const btn = document.getElementById(id);
+  if (btn) btn.classList.add('psize-active');
+  document.getElementById('poster-w').value = w;
+  document.getElementById('poster-h').value = h;
+  renderPosterCanvas();
+}
+
+function setCustomSize() {
+  const w = parseInt(document.getElementById('poster-w').value) || 36;
+  const h = parseInt(document.getElementById('poster-h').value) || 48;
+  posterState.width = Math.min(Math.max(w, 12), 72);
+  posterState.height = Math.min(Math.max(h, 12), 72);
+  posterState.sizeLabel = `${posterState.width}×${posterState.height} in`;
+  document.querySelectorAll('.psize-btn').forEach(b => b.classList.remove('psize-active'));
+  renderPosterCanvas();
+}
+
+function handleLogoUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    posterState.logoUrl = e.target.result;
+    const preview = document.getElementById('logo-preview');
+    const img = document.getElementById('logo-img');
+    if (preview) preview.style.display = 'block';
+    if (img) img.src = e.target.result;
+    renderPosterCanvas();
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearLogo() {
+  posterState.logoUrl = null;
+  const preview = document.getElementById('logo-preview');
+  if (preview) preview.style.display = 'none';
+  renderPosterCanvas();
+}
+
+function setLogoPlacement(placement) {
+  posterState.logoPlacement = placement;
+  document.querySelectorAll('.logo-place-btn').forEach(b => b.classList.remove('logo-place-active'));
+  document.getElementById('logo-' + placement)?.classList.add('logo-place-active');
+  renderPosterCanvas();
+}
+
+function setPosterTheme(theme) {
+  posterState.theme = theme;
+  document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('theme-active'));
+  document.getElementById('theme-' + theme)?.classList.add('theme-active');
+  renderPosterCanvas();
+}
+
+function renderPosterCanvas() {
+  const canvas = document.getElementById('poster-canvas');
+  const wrapper = document.getElementById('poster-canvas-wrapper');
+  if (!canvas || !wrapper) return;
+
+  const t = posterThemes[posterState.theme] || posterThemes.etl;
+  const { width, height, logoUrl, logoPlacement } = posterState;
+  const isLandscape = width > height;
+
+  // Scale canvas to fit the wrapper (max 700px wide or 600px tall)
+  const wrapperW = wrapper.clientWidth - 64;
+  const wrapperH = wrapper.clientHeight - 64;
+  const scaleW = wrapperW / width;
+  const scaleH = (wrapperH || 600) / height;
+  const scale = Math.min(scaleW, scaleH, 16); // 16px per inch max
+  const pxW = Math.round(width * scale);
+  const pxH = Math.round(height * scale);
+
+  canvas.style.width = pxW + 'px';
+  canvas.style.height = pxH + 'px';
+  canvas.style.background = t.body;
+
+  // Build poster HTML
+  const fs = s => Math.max(8, Math.round(s * scale / 16)); // font scale helper
+  const logoHtml = logoUrl ? `<img src="${logoUrl}" style="height:${fs(24)}px;max-width:${Math.round(pxW * 0.2)}px;object-fit:contain;">` : '';
+
+  // Header bar
+  let headerContent = '';
+  if (logoPlacement === 'both') {
+    headerContent = `<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+      ${logoHtml}<div style="flex:1;text-align:center;" id="pc-title-text"></div>${logoHtml}
+    </div>`;
+  } else if (logoPlacement === 'left') {
+    headerContent = `<div style="display:flex;align-items:center;gap:12px;">
+      ${logoHtml}<div style="flex:1;" id="pc-title-text"></div>
+    </div>`;
+  } else {
+    headerContent = `<div style="display:flex;align-items:center;gap:12px;">
+      <div style="flex:1;" id="pc-title-text"></div>${logoHtml}
+    </div>`;
+  }
+
+  // Section grid — two columns below header, acknowledgements full width at bottom
+  const colSections = posterSectionDefs.filter(d => d.span === 'col');
+  const leftCols  = colSections.filter((_, i) => i % 2 === 0);
+  const rightCols = colSections.filter((_, i) => i % 2 === 1);
+  const pad = Math.round(scale * 0.3);
+  const sectionFontSize = Math.max(7, Math.round(scale * 0.55));
+  const labelFontSize = Math.max(6, Math.round(scale * 0.45));
+
+  function renderSections(defs) {
+    return defs.map(def => {
+      const sec = posterState.sections[def.id] || { text: '', populated: false };
+      const isActive = posterState.activeSection === def.id;
+      const hasContent = sec.text && sec.text.trim();
+      const displayText = hasContent
+        ? sec.text.replace(/\n/g, '<br>')
+        : `<span style="color:#aaa;font-style:italic;">${def.hint}</span>`;
+      return `<div onclick="openPosterSection('${def.id}')" style="background:${t.sectionBg};border:${isActive ? '2px solid ' + t.accentText : '1px solid ' + t.sectionBorder};padding:${pad}px;margin-bottom:${pad}px;cursor:pointer;flex:${Math.round(def.height * 100)};min-height:${Math.round(def.height * pxH * 0.7)}px;overflow:hidden;position:relative;">
+        <div style="font-size:${labelFontSize}px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:${t.accent};margin-bottom:${Math.round(pad*0.5)}px;border-bottom:1px solid ${t.sectionBorder};padding-bottom:${Math.round(pad*0.3)}px;">${def.label}</div>
+        <div style="font-size:${sectionFontSize}px;color:${t.bodyText};line-height:1.4;">${displayText}</div>
+        ${!hasContent ? `<div style="position:absolute;bottom:${pad}px;right:${pad}px;font-size:${labelFontSize}px;color:${t.accentText};background:${t.accent};padding:2px 6px;cursor:pointer;" onclick="event.stopPropagation();populatePosterSection('${def.id}')">Populate →</div>` : ''}
+      </div>`;
+    }).join('');
+  }
+
+  const ackSec = posterState.sections['acknowledgements'] || { text: '' };
+  const ackText = ackSec.text ? ackSec.text.replace(/\n/g,'<br>') : `<span style="color:#aaa;font-style:italic;">Acknowledgements & Funding</span>`;
+
+  canvas.innerHTML = `
+    <div style="width:100%;height:100%;display:flex;flex-direction:column;box-sizing:border-box;">
+      <div style="background:${t.header};color:${t.headerText};padding:${pad*1.5}px ${pad*2}px;flex-shrink:0;" id="pc-header">
+        ${headerContent}
+      </div>
+      <div style="display:flex;flex:1;gap:${pad}px;padding:${pad}px;overflow:hidden;">
+        <div style="flex:1;display:flex;flex-direction:column;">${renderSections(leftCols)}</div>
+        <div style="flex:1;display:flex;flex-direction:column;">${renderSections(rightCols)}</div>
+      </div>
+      <div onclick="openPosterSection('acknowledgements')" style="background:${t.header};color:${t.headerText};padding:${pad}px ${pad*2}px;font-size:${labelFontSize}px;cursor:pointer;flex-shrink:0;opacity:0.85;">
+        <span style="font-weight:700;margin-right:8px;">Acknowledgements & Funding:</span>${ackText}
+      </div>
+      <div style="background:${t.accent};padding:${Math.round(pad*0.4)}px ${pad*2}px;font-size:${Math.max(6,Math.round(scale*0.3))}px;color:${t.accentText};text-align:center;flex-shrink:0;letter-spacing:1px;">
+        SLR Studio · Emerging Technologies Laboratory · Wright State University · ${posterState.sizeLabel}
+      </div>
+    </div>
+  `;
+
+  // Fill title text
+  const titleEl = canvas.querySelector('#pc-title-text');
+  if (titleEl) {
+    const titleSec = posterState.sections['title'] || { text: '' };
+    const lines = (titleSec.text || state.topic || '[Poster Title]').split('\n');
+    titleEl.innerHTML = `
+      <div style="font-size:${Math.max(9,Math.round(scale*0.7))}px;font-weight:700;line-height:1.2;margin-bottom:${Math.round(pad*0.3)}px;">${lines[0] || '[Title]'}</div>
+      ${lines.slice(1).map(l => `<div style="font-size:${Math.max(7,Math.round(scale*0.42))}px;opacity:0.85;margin-top:2px;">${l}</div>`).join('')}
+    `;
+  }
+}
+
+function renderPosterSectionList() {
+  const list = document.getElementById('poster-section-list');
+  if (!list) return;
+  list.innerHTML = posterSectionDefs.map(def => {
+    const sec = posterState.sections[def.id] || { text: '', populated: false };
+    const hasContent = sec.text && sec.text.trim();
+    const isActive = posterState.activeSection === def.id;
+    return `<button onclick="openPosterSection('${def.id}')" class="poster-section-btn ${hasContent ? 'has-content' : ''}" style="${isActive ? 'border-color:var(--gold);color:var(--gold);' : ''}">
+      <div class="section-status" style="background:${hasContent ? '#285C4D' : 'rgba(255,255,255,0.15)'};"></div>
+      <div>
+        <div style="font-size:10px;">${def.label}</div>
+        ${hasContent ? `<div style="font-size:9px;opacity:0.5;font-weight:400;margin-top:1px;">${sec.text.substring(0,40)}${sec.text.length>40?'...':''}</div>` : `<div style="font-size:9px;opacity:0.4;font-weight:400;margin-top:1px;">Empty — click to add</div>`}
+      </div>
+    </button>`;
+  }).join('');
+
+  // Show editor for active section
+  const active = posterState.activeSection;
+  if (active) {
+    const def = posterSectionDefs.find(d => d.id === active);
+    const sec = posterState.sections[active] || { text: '' };
+    if (def) {
+      const editorHtml = `
+        <div style="border-top:1px solid rgba(255,255,255,0.08);padding:12px;margin-top:8px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--gold);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.1em;">${def.label}</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:10px;line-height:1.5;">${def.hint}</div>
+          <textarea id="poster-section-textarea" style="width:100%;min-height:140px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);color:rgba(245,243,238,0.9);font-size:12px;line-height:1.6;padding:10px;resize:vertical;font-family:'Georgia',serif;" placeholder="${def.hint}" oninput="updatePosterSection('${active}', this.value)">${sec.text || ''}</textarea>
+          <div style="display:flex;gap:8px;margin-top:8px;">
+            <button onclick="populatePosterSection('${active}')" style="flex:1;padding:8px;background:rgba(40,92,77,0.3);border:1px solid rgba(40,92,77,0.6);color:#5a9e6f;font-family:'JetBrains Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer;">⚡ Populate from Papers</button>
+            <button onclick="clearPosterSection('${active}')" style="padding:8px 12px;background:transparent;border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.3);font-family:'JetBrains Mono',monospace;font-size:9px;cursor:pointer;">Clear</button>
+          </div>
+        </div>`;
+      list.insertAdjacentHTML('beforeend', editorHtml);
+    }
+  }
+}
+
+function openPosterSection(sectionId) {
+  posterState.activeSection = sectionId;
+  renderPosterCanvas();
+  renderPosterSectionList();
+  // Scroll editor into view
+  const ta = document.getElementById('poster-section-textarea');
+  if (ta) { ta.focus(); setTimeout(() => ta.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50); }
+}
+
+function updatePosterSection(sectionId, value) {
+  if (!posterState.sections[sectionId]) posterState.sections[sectionId] = {};
+  posterState.sections[sectionId].text = value;
+  posterState.sections[sectionId].populated = true;
+  renderPosterCanvas();
+  // Update sidebar status dots without full re-render (avoid losing focus)
+  renderPosterSectionList();
+}
+
+function clearPosterSection(sectionId) {
+  posterState.sections[sectionId] = { text: '', populated: false };
+  posterState.activeSection = sectionId;
+  renderPosterCanvas();
+  renderPosterSectionList();
+}
+
+async function populatePosterSection(sectionId) {
+  const def = posterSectionDefs.find(d => d.id === sectionId);
+  if (!def) return;
+
+  const btn = document.querySelector(`[onclick="populatePosterSection('${sectionId}')"]`);
+  if (btn) { btn.textContent = '⏳ Generating...'; btn.disabled = true; }
+
+  // Use already-generated draft text if available
+  const existing = draftState.generatedText['poster-' + sectionId];
+  if (existing) {
+    updatePosterSection(sectionId, existing);
+    const ta = document.getElementById('poster-section-textarea');
+    if (ta) ta.value = existing;
+    if (btn) { btn.textContent = '⚡ Populate from Papers'; btn.disabled = false; }
+    return;
+  }
+
+  // Generate via Claude API if key exists
+  if (!state.apiKey) {
+    const scaffold = `[${def.label}]\n\n${def.hint}\n\n[Add an Anthropic API key on Screen 1 to auto-generate this section.]`;
+    updatePosterSection(sectionId, scaffold);
+    const ta = document.getElementById('poster-section-textarea');
+    if (ta) ta.value = scaffold;
+    if (btn) { btn.textContent = '⚡ Populate from Papers'; btn.disabled = false; }
+    return;
+  }
+
+  try {
+    const topPapers = Object.entries(state.paperSGs || {})
+      .sort((a,b) => b[1].length - a[1].length)
+      .slice(0, 8)
+      .map(([pid]) => state.papers[pid])
+      .filter(Boolean);
+
+    const paperContext = topPapers.map((p,i) => {
+      const citeKey = (p.author||'Unknown').split(',')[0] + ' (' + (p.year||'n.d.') + ')';
+      return `[${i+1}] ${citeKey}: "${p.title}" — ${p.journal}${p.abstract ? '\n    Abstract: ' + p.abstract.slice(0,200) : ''}`;
+    }).join('\n');
+
+    // Section-specific prompts
+    const sectionPrompts = {
+      title: `Write a poster title block. Topic: "${state.topic}". Include: (1) a concise title under 12 words, (2) author placeholder line, (3) institution line. Separate each with a newline. No labels.`,
+      background: `Write a 2-3 sentence Background section for an academic poster about: "${state.topic}". State the problem, why it matters, and what gap this addresses. Cite 1-2 papers if available.\n\nPapers:\n${paperContext}`,
+      methods: `Write a brief Methods section for an academic poster. Topic: "${state.topic}". State: database used (OpenAlex), number of subgroups searched (${(state.subgroups||[]).length}), papers retrieved (${Object.keys(state.papers||{}).length}), and the keyword architecture approach. 3-4 sentences max.`,
+      findings: `Write 3-5 Key Findings bullet points for an academic poster about: "${state.topic}". Each bullet: one finding + one citation. Use the papers below.\n\nPapers:\n${paperContext}\n\n${getCitationInstruction()}`,
+      gaps: `Write 2-4 Gaps Identified bullet points for an academic poster about: "${state.topic}". Frame each gap as a specific research opportunity: "No studies examine X in Y context." Base on the literature search finding ${(state.gapFindings||[]).length} confirmed gaps.`,
+      significance: `Write 2-3 sentences for the Significance section of an academic poster about: "${state.topic}". Why does this review matter? What should practitioners or researchers do next? Direct and actionable.`,
+      references: `Generate a Selected References list (5-8 entries) for an academic poster about: "${state.topic}". Use ${citationStyleLabels[citationStyle]?.name || 'APA 7'} format.\n\nPapers to choose from:\n${paperContext}\n\n${getCitationInstruction()}`,
+      acknowledgements: `Write a brief Acknowledgements & Funding section for an academic poster. Include placeholder text for: grant numbers, institutional support, and collaborators. Keep to 2-3 lines.`
+    };
+
+    const prompt = sectionPrompts[sectionId] || `Write the ${def.label} section for an academic poster about: "${state.topic}". ${def.hint} Keep it concise and poster-appropriate.`;
+
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': state.apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 500, messages: [{ role: 'user', content: prompt }] })
+    });
+    const data = await response.json();
+    const text = data.content?.[0]?.text?.trim() || '';
+    updatePosterSection(sectionId, text);
+    const ta = document.getElementById('poster-section-textarea');
+    if (ta) ta.value = text;
+  } catch(e) {
+    console.error('Poster populate error:', e);
+  } finally {
+    if (btn) { btn.textContent = '⚡ Populate from Papers'; btn.disabled = false; }
+  }
+}
+
+function exportPosterPDF() {
+  // Set canvas to full size temporarily for print
+  const canvas = document.getElementById('poster-canvas');
+  if (!canvas) return;
+  window.print();
+}
+
+function exportPosterImage() {
+  alert('To save as image:\n\n1. Right-click the poster and choose "Save image as"\n   — OR —\n2. Take a screenshot of the poster area\n   — OR —\n3. Use Print → Save as PDF, then convert to image\n\nFull image export coming in the next version.');
 }
 
 function openSelfieModal() {
