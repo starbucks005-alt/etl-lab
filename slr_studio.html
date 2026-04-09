@@ -2110,6 +2110,10 @@ body::after {
         <div class="tier-header">
           <span class="tier-badge modifier">Tier 3 — Modifiers</span>
           <span class="tier-desc">Rotated across subgroups. Select all that are relevant to your topic.</span>
+          <div style="display:flex;gap:8px;margin-left:auto;">
+            <button onclick="selectAllModifiers()" style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;padding:4px 10px;background:transparent;border:1px solid rgba(0,0,0,0.15);color:var(--muted);cursor:pointer;transition:all 0.15s;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='rgba(0,0,0,0.15)';this.style.color='var(--muted)'">Select All</button>
+            <button onclick="deselectAllModifiers()" style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;padding:4px 10px;background:transparent;border:1px solid rgba(0,0,0,0.15);color:var(--muted);cursor:pointer;transition:all 0.15s;" onmouseover="this.style.borderColor='var(--red)';this.style.color='var(--red)'" onmouseout="this.style.borderColor='rgba(0,0,0,0.15)';this.style.color='var(--muted)'">Deselect All</button>
+          </div>
         </div>
         <div class="keyword-cloud" id="modifier-cloud"></div>
         <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-top:10px;margin-bottom:10px;">
@@ -3244,6 +3248,21 @@ function toggleModifier(i) {
     const lockIdx = state.lockedModifiers.indexOf(kw);
     if (lockIdx !== -1) state.lockedModifiers.splice(lockIdx, 1);
   }
+  renderModifiers();
+  updateSelectionSummary();
+}
+
+function selectAllModifiers() {
+  state.selectedModifiers = state.modifierKeywords.map((_, i) => i);
+  renderModifiers();
+  updateSelectionSummary();
+}
+
+function deselectAllModifiers() {
+  // Keep locked modifiers selected, deselect everything else
+  state.selectedModifiers = state.modifierKeywords
+    .map((kw, i) => state.lockedModifiers.includes(kw) ? i : null)
+    .filter(i => i !== null);
   renderModifiers();
   updateSelectionSummary();
 }
