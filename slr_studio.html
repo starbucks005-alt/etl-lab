@@ -120,16 +120,20 @@ body::after {
 ═══════════════════════════════ */
 .s1-layout {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 420px 1fr;
   min-height: calc(100vh - 60px);
 }
 
 .s1-left {
   background: var(--ink);
-  padding: 80px 60px;
+  padding: 60px 48px;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  position: sticky;
+  top: 60px;
+  height: calc(100vh - 60px);
+  overflow-y: auto;
 }
 
 .s1-eyebrow {
@@ -165,43 +169,46 @@ body::after {
 
 .s1-mode-toggle {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-top: 48px;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 0;
 }
 
 .mode-btn {
-  flex: 1;
-  padding: 16px 20px;
-  border: 1.5px solid rgba(255,255,255,0.15);
-  background: transparent;
-  color: rgba(245,243,238,0.6);
+  padding: 14px 16px;
+  border: 1.5px solid rgba(0,0,0,0.12);
+  background: white;
+  color: #555;
   font-family: 'Outfit', sans-serif;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
   text-align: left;
+  border-radius: 3px;
 }
 
-.mode-btn .mode-icon { font-size: 20px; display: block; margin-bottom: 8px; }
-.mode-btn .mode-label { display: block; color: var(--paper); font-weight: 600; margin-bottom: 4px; }
-.mode-btn .mode-desc { font-size: 11px; line-height: 1.5; }
+.mode-btn .mode-icon { font-size: 22px; display: block; margin-bottom: 8px; }
+.mode-btn .mode-label { display: block; color: #0a0a0f; font-weight: 700; margin-bottom: 4px; font-size: 15px; }
+.mode-btn .mode-desc { font-size: 12px; line-height: 1.5; color: #666; }
 
-.mode-btn:hover, .mode-btn.selected {
+.mode-btn:hover {
   border-color: var(--gold);
-  background: rgba(201,144,58,0.1);
-  color: var(--paper);
+  background: rgba(201,144,58,0.06);
+  color: #333;
 }
 
-.mode-btn.selected { border-color: var(--gold); }
+.mode-btn.selected {
+  border-color: var(--gold);
+  background: rgba(201,144,58,0.08);
+  color: #333;
+  border-width: 2px;
+}
 
 .s1-right {
   background: var(--paper);
-  padding: 80px 60px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  padding: 48px 52px;
+  overflow-y: auto;
 }
 
 .field-label {
@@ -1766,10 +1773,15 @@ body::after {
 ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
 
 /* RESPONSIVE */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .s1-layout { grid-template-columns: 1fr; }
-  .s1-left { padding: 60px 32px; }
-  .s1-right { padding: 40px 32px; }
+  .s1-left {
+    position: static;
+    height: auto;
+    padding: 48px 28px;
+    justify-content: flex-start;
+  }
+  .s1-right { padding: 36px 28px; }
   .s4-layout { grid-template-columns: 1fr; }
   .s4-sidebar { display: none; }
   .foundation-grid { grid-template-columns: 1fr; }
@@ -1806,97 +1818,138 @@ body::after {
 <!-- ═══ SCREEN 1: TOPIC ═══ -->
 <div class="screen active" id="screen-1">
   <div class="s1-layout">
+    <!-- LEFT: Hero brand panel -->
     <div class="s1-left">
-      <div class="s1-eyebrow">Systematic Literature Review Engine</div>
-      <h1 class="s1-headline">Find your <em>field.</em> Find the <em>gaps.</em></h1>
-      <p class="s1-body">Enter your topic on the right. Select your output mode below. Then generate keywords.</p>
+      <div class="s1-eyebrow">Research Engine · ETL · Wright State</div>
+      <h1 class="s1-headline">Find your <em>field.</em><br>Find the <em>gaps.</em></h1>
+      <p class="s1-body">A systematic literature review is the foundation of everything — your manuscript, your dissertation, your poster, your grant. Start here.</p>
 
-      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:rgba(245,243,238,0.35);margin-bottom:10px;margin-top:32px;">Step 1 — Select output mode</div>
-      <div class="s1-mode-toggle">
-        <button class="mode-btn selected" id="mode-review" onclick="selectMode('review')">
-          <span class="mode-icon">📖</span>
-          <span class="mode-label">Review the Literature</span>
-          <span class="mode-desc">Synthesize what exists. Find foundation papers. Build a publishable manuscript.</span>
-        </button>
-        <button class="mode-btn" id="mode-mine" onclick="selectMode('mine')">
-          <span class="mode-icon">⛏️</span>
-          <span class="mode-label">Mine the Gaps</span>
-          <span class="mode-desc">Find where the research isn't. Identify original contribution opportunities.</span>
-        </button>
-        <button class="mode-btn" id="mode-thesis" onclick="selectMode('thesis')">
-          <span class="mode-icon">🎓</span>
-          <span class="mode-label">Thesis &amp; Dissertation</span>
-          <span class="mode-desc">Build your literature foundation from the first search to a defensible argument.</span>
-        </button>
-        <button class="mode-btn" id="mode-poster" onclick="selectMode('poster')">
-          <span class="mode-icon">📋</span>
-          <span class="mode-label">Academic Poster</span>
-          <span class="mode-desc">Turn a literature search into a presentable, evidence-backed poster.</span>
-        </button>
-        <button class="mode-btn" id="mode-prisma" onclick="selectMode('prisma')" style="border-color:rgba(74,111,165,0.4);">
-          <span class="mode-icon">🔬</span>
-          <span class="mode-label" style="color:#85b7eb;">Systematic Review / Meta-Analysis</span>
-          <span class="mode-desc">PRISMA 2020-compliant. Full screening protocol, flow diagram, publishable methods section.</span>
-          <span style="display:inline-block;margin-top:6px;font-family:'JetBrains Mono',monospace;font-size:8px;padding:2px 8px;background:rgba(74,111,165,0.15);border:1px solid rgba(74,111,165,0.4);color:#85b7eb;letter-spacing:0.06em;">RESEARCHER TIER</span>
-        </button>
-      </div>
-
-      <!-- Grade Level Selector -->
-      <div style="margin-top:20px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:rgba(245,243,238,0.35);">Grade Level</div>
-          <div id="grade-level-locked-badge" style="display:none;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:0.08em;text-transform:uppercase;padding:2px 8px;background:rgba(74,111,165,0.15);border:1px solid rgba(74,111,165,0.3);color:#6a8fc5;">Set by instructor</div>
+      <div style="margin-top:40px;display:flex;flex-direction:column;gap:12px;">
+        <div style="display:flex;align-items:flex-start;gap:14px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:rgba(201,144,58,0.4);flex-shrink:0;line-height:1;">01</div>
+          <div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--gold);margin-bottom:3px;">Select your output</div>
+            <div style="font-size:12px;color:rgba(245,243,238,0.4);line-height:1.5;">Literature review, thesis, poster, grant, or systematic review</div>
+          </div>
         </div>
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;" id="grade-level-group">
-          <button onclick="setGradeLevel('highschool')" id="gl-highschool" class="gl-btn">
-            <span style="display:block;font-size:16px;margin-bottom:4px;">🏫</span>
-            <span style="display:block;font-size:9px;font-weight:600;letter-spacing:0.05em;">High School</span>
-            <span style="display:block;font-size:8px;opacity:0.6;margin-top:2px;">Grades 9–12</span>
-          </button>
-          <button onclick="setGradeLevel('undergrad')" id="gl-undergrad" class="gl-btn">
-            <span style="display:block;font-size:16px;margin-bottom:4px;">🎒</span>
-            <span style="display:block;font-size:9px;font-weight:600;letter-spacing:0.05em;">Undergraduate</span>
-            <span style="display:block;font-size:8px;opacity:0.6;margin-top:2px;">Bachelor's</span>
-          </button>
-          <button onclick="setGradeLevel('masters')" id="gl-masters" class="gl-btn gl-active">
-            <span style="display:block;font-size:16px;margin-bottom:4px;">📚</span>
-            <span style="display:block;font-size:9px;font-weight:600;letter-spacing:0.05em;">Master's</span>
-            <span style="display:block;font-size:8px;opacity:0.6;margin-top:2px;">Graduate</span>
-          </button>
-          <button onclick="setGradeLevel('doctoral')" id="gl-doctoral" class="gl-btn">
-            <span style="display:block;font-size:16px;margin-bottom:4px;">🎓</span>
-            <span style="display:block;font-size:9px;font-weight:600;letter-spacing:0.05em;">Doctoral</span>
-            <span style="display:block;font-size:8px;opacity:0.6;margin-top:2px;">PhD / EdD</span>
-          </button>
+        <div style="display:flex;align-items:flex-start;gap:14px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:rgba(201,144,58,0.4);flex-shrink:0;line-height:1;">02</div>
+          <div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--gold);margin-bottom:3px;">Describe your topic</div>
+            <div style="font-size:12px;color:rgba(245,243,238,0.4);line-height:1.5;">One or two sentences. The more specific, the better your keywords</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:14px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:rgba(201,144,58,0.4);flex-shrink:0;line-height:1;">03</div>
+          <div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--gold);margin-bottom:3px;">Generate keywords</div>
+            <div style="font-size:12px;color:rgba(245,243,238,0.4);line-height:1.5;">SLR Studio builds your keyword architecture and runs 25 subgroup searches</div>
+          </div>
         </div>
       </div>
-      <div style="margin-top:24px;padding:14px 16px;border:1px solid rgba(201,144,58,0.2);background:rgba(201,144,58,0.04);">
+
+      <div style="margin-top:40px;padding:14px 16px;border:1px solid rgba(201,144,58,0.15);background:rgba(201,144,58,0.03);">
         <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
           <div>
             <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:4px;">AI-Assisted · Not AI-Authored</div>
-            <div style="font-size:11px;color:rgba(245,243,238,0.5);line-height:1.6;">Students think, decide, interpret, and write. This tool provides structure, evidence, and learning scaffolds.</div>
+            <div style="font-size:11px;color:rgba(245,243,238,0.4);line-height:1.6;">Students think, decide, interpret, and write. This tool provides structure, evidence, and scaffolds.</div>
           </div>
-          <button onclick="document.getElementById('slr-faculty-modal').style.display='flex'" style="flex-shrink:0;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;padding:6px 12px;background:transparent;border:1px solid rgba(201,144,58,0.4);color:var(--gold);cursor:pointer;white-space:nowrap;">For Faculty</button>
+          <button onclick="document.getElementById('slr-faculty-modal').style.display='flex'" style="flex-shrink:0;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;padding:6px 12px;background:transparent;border:1px solid rgba(201,144,58,0.3);color:var(--gold);cursor:pointer;white-space:nowrap;">For Faculty</button>
         </div>
       </div>
     </div><!-- /s1-left -->
 
+    <!-- RIGHT: Steps 1 + 2 + 3 in vertical sequence -->
     <div class="s1-right">
-      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;">Step 2 — Describe your research topic</div>
-      <div id="mode-indicator" style="display:inline-flex;align-items:center;gap:8px;background:rgba(201,144,58,0.1);border:1px solid rgba(201,144,58,0.3);padding:6px 12px;margin-bottom:16px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.08em;color:var(--gold);">
-        <span id="mode-indicator-icon">📖</span>
-        <span id="mode-indicator-label">Mode: Review the Literature</span>
-      </div>
-      <div class="field-label">Your Research Topic</div>
-      <textarea class="topic-input" id="topic-input" rows="5"
-        placeholder="I am researching how physicians make high-stakes decisions during medical emergencies, particularly in crisis situations where time pressure and uncertainty are extreme."
-        oninput="updateTopicUI()"></textarea>
-      <div class="input-hint">
-        <strong>Write a sentence or two.</strong> Include your main subject, the context or domain, and any specific angle you are investigating. The more specific you are, the better your keywords will be.
+
+      <!-- STEP 1: Output mode -->
+      <div style="margin-bottom:28px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">Step 1 — Select output mode</div>
+        <div class="s1-mode-toggle">
+          <button class="mode-btn selected" id="mode-review" onclick="selectMode('review')">
+            <span class="mode-icon">📖</span>
+            <span class="mode-label">Review the Literature</span>
+            <span class="mode-desc">Synthesize what exists. Find foundation papers. Build a publishable manuscript.</span>
+          </button>
+          <button class="mode-btn" id="mode-mine" onclick="selectMode('mine')">
+            <span class="mode-icon">⛏️</span>
+            <span class="mode-label">Mine the Gaps</span>
+            <span class="mode-desc">Find where the research isn't. Identify original contribution opportunities.</span>
+          </button>
+          <button class="mode-btn" id="mode-thesis" onclick="selectMode('thesis')">
+            <span class="mode-icon">🎓</span>
+            <span class="mode-label">Thesis &amp; Dissertation</span>
+            <span class="mode-desc">Build your literature foundation from the first search to a defensible argument.</span>
+          </button>
+          <button class="mode-btn" id="mode-poster" onclick="selectMode('poster')">
+            <span class="mode-icon">📋</span>
+            <span class="mode-label">Academic Poster</span>
+            <span class="mode-desc">Turn a literature search into a presentable, evidence-backed poster.</span>
+          </button>
+          <button class="mode-btn" id="mode-prisma" onclick="selectMode('prisma')" style="border-color:rgba(74,111,165,0.3);">
+            <span class="mode-icon">🔬</span>
+            <span class="mode-label">Systematic Review / Meta-Analysis</span>
+            <span class="mode-desc">PRISMA 2020-compliant. Full screening protocol, flow diagram, publishable methods section.</span>
+            <span style="display:block;margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:8px;padding:2px 8px;background:rgba(74,111,165,0.1);border:1px solid rgba(74,111,165,0.3);color:#4a6fa5;letter-spacing:0.06em;width:fit-content;">RESEARCHER TIER</span>
+          </button>
+          <button class="mode-btn" id="mode-grant" onclick="selectMode('grant')" style="border-color:rgba(40,92,77,0.3);">
+            <span class="mode-icon">🏛️</span>
+            <span class="mode-label">Grant Significance &amp; Innovation</span>
+            <span class="mode-desc">Turn your gap analysis into NIH, NSF, or HRSA-ready Significance and Innovation sections.</span>
+            <span style="display:block;margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:8px;padding:2px 8px;background:rgba(40,92,77,0.1);border:1px solid rgba(40,92,77,0.3);color:#285C4D;letter-spacing:0.06em;width:fit-content;">GRANT TIER</span>
+          </button>
+        </div>
       </div>
 
+      <!-- STEP 1b: Grade Level (below mode buttons, same column) -->
+      <div style="margin-bottom:28px;padding:14px 16px;background:#f0ede8;border:1px solid rgba(0,0,0,0.08);border-radius:3px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:#888;">Grade Level</div>
+          <div id="grade-level-locked-badge" style="display:none;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:0.08em;text-transform:uppercase;padding:2px 8px;background:rgba(74,111,165,0.1);border:1px solid rgba(74,111,165,0.3);color:#4a6fa5;">Set by instructor</div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;" id="grade-level-group">
+          <button onclick="setGradeLevel('highschool')" id="gl-highschool" class="gl-btn">
+            <span style="display:block;font-size:14px;margin-bottom:3px;">🏫</span>
+            <span style="display:block;font-size:9px;font-weight:600;letter-spacing:0.05em;">High School</span>
+            <span style="display:block;font-size:8px;opacity:0.6;margin-top:1px;">Grades 9–12</span>
+          </button>
+          <button onclick="setGradeLevel('undergrad')" id="gl-undergrad" class="gl-btn">
+            <span style="display:block;font-size:14px;margin-bottom:3px;">🎒</span>
+            <span style="display:block;font-size:9px;font-weight:600;letter-spacing:0.05em;">Undergraduate</span>
+            <span style="display:block;font-size:8px;opacity:0.6;margin-top:1px;">Bachelor's</span>
+          </button>
+          <button onclick="setGradeLevel('masters')" id="gl-masters" class="gl-btn gl-active">
+            <span style="display:block;font-size:14px;margin-bottom:3px;">📚</span>
+            <span style="display:block;font-size:9px;font-weight:600;letter-spacing:0.05em;">Master's</span>
+            <span style="display:block;font-size:8px;opacity:0.6;margin-top:1px;">Graduate</span>
+          </button>
+          <button onclick="setGradeLevel('doctoral')" id="gl-doctoral" class="gl-btn">
+            <span style="display:block;font-size:14px;margin-bottom:3px;">🎓</span>
+            <span style="display:block;font-size:9px;font-weight:600;letter-spacing:0.05em;">Doctoral</span>
+            <span style="display:block;font-size:8px;opacity:0.6;margin-top:1px;">PhD / EdD</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 2: Topic input -->
+      <div style="margin-bottom:20px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">Step 2 — Describe your research topic</div>
+        <div id="mode-indicator" style="display:inline-flex;align-items:center;gap:8px;background:rgba(201,144,58,0.1);border:1px solid rgba(201,144,58,0.3);padding:5px 10px;margin-bottom:12px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.08em;color:var(--gold);">
+          <span id="mode-indicator-icon">📖</span>
+          <span id="mode-indicator-label">Mode: Review the Literature</span>
+        </div>
+        <div class="field-label">Your Research Topic</div>
+        <textarea class="topic-input" id="topic-input" rows="4"
+          placeholder="I am researching how physicians make high-stakes decisions during medical emergencies, particularly in crisis situations where time pressure and uncertainty are extreme."
+          oninput="updateTopicUI()"></textarea>
+        <div class="input-hint">
+          <strong>Write a sentence or two.</strong> Include your main subject, the context or domain, and any specific angle you are investigating. The more specific you are, the better your keywords will be.
+        </div>
+      </div>
+
+      <!-- STEP 2b: Examples -->
       <div class="s1-examples">
-        <div class="examples-label">Example Topics — click to use</div>
+        <div class="examples-label">Example topics — click to use</div>
         <div class="example-item" onclick="setTopic(this.textContent)">
           "I am researching high-stakes decision-making in crisis leadership across healthcare and homeland security contexts."
         </div>
@@ -1954,35 +2007,36 @@ body::after {
         </div>
       </div>
 
-      <div style="margin-top:28px;">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-          <div class="field-label" style="margin-bottom:0;">Anthropic API Key</div>
-          <button onclick="openApiModal()"
-            style="width:18px;height:18px;border-radius:50%;background:var(--border);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--muted);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s;"
-            onmouseover="this.style.background='var(--navy)';this.style.color='white'"
-            onmouseout="this.style.background='var(--border)';this.style.color='var(--muted)'"
-            title="How to get an API key">?</button>
-          <span style="font-size:11px;color:var(--muted);">optional — <button onclick="openApiModal()" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--gold);text-decoration:underline;padding:0;">what is this?</button></span>
-        </div>
-        <input type="password" id="api-key-input"
-          placeholder="sk-ant-..."
-          oninput="state.apiKey = this.value.trim(); try { localStorage.setItem('slr_studio_api_key', this.value.trim()); } catch(e) {}"
-          style="width:100%;font-family:'JetBrains Mono',monospace;font-size:13px;padding:12px 16px;border:1.5px solid var(--border);background:var(--white);outline:none;transition:border-color 0.2s;margin-bottom:6px;"
-          onfocus="this.style.borderColor='var(--navy)'" onblur="this.style.borderColor='var(--border)'">
-        <div style="font-size:11px;color:var(--muted);line-height:1.5;">Without a key, keywords are extracted locally. Works well for most topics. With a key, Claude reads your exact topic and generates precise field-specific terms.</div>
-      </div>
-
-      <div id="db-status" style="font-family:monospace;font-size:11px;color:var(--muted);margin-top:16px;margin-bottom:4px;">
-        ● Checking database connection...
-      </div>
-
-      <div class="s1-cta">
-        <button class="btn btn-gold btn-lg" id="btn-generate-kw" onclick="goToKeywords()" disabled>
-          Generate Keywords →
+      <!-- API Key — optional, collapsed by default -->
+      <div style="margin-top:20px;margin-bottom:24px;">
+        <button onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'" style="background:none;border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);padding:0;display:flex;align-items:center;gap:6px;">
+          <span>▸ Anthropic API Key</span>
+          <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:10px;color:var(--muted);opacity:0.7;">— optional, improves keyword quality</span>
         </button>
-        <span id="topic-status" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">
-          Enter your topic to continue
-        </span>
+        <div style="display:none;margin-top:10px;">
+          <input type="password" id="api-key-input"
+            placeholder="sk-ant-..."
+            oninput="state.apiKey = this.value.trim(); try { localStorage.setItem('slr_studio_api_key', this.value.trim()); } catch(e) {}"
+            style="width:100%;font-family:'JetBrains Mono',monospace;font-size:13px;padding:10px 14px;border:1.5px solid var(--border);background:var(--white);outline:none;transition:border-color 0.2s;margin-bottom:6px;"
+            onfocus="this.style.borderColor='var(--navy)'" onblur="this.style.borderColor='var(--border)'">
+          <div style="font-size:11px;color:var(--muted);line-height:1.6;">Without a key, keywords are extracted from your topic automatically and work well for most research areas. With a key, Claude reads your exact sentence and generates more precise, field-specific terms. <button onclick="openApiModal()" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--gold);text-decoration:underline;padding:0;">How do I get one?</button></div>
+        </div>
+      </div>
+
+      <!-- Step 3: Generate -->
+      <div style="margin-bottom:20px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;">Step 3 — Generate your keywords</div>
+        <div id="db-status" style="font-family:monospace;font-size:11px;color:var(--muted);margin-bottom:12px;">
+          ● Checking database connection...
+        </div>
+        <div class="s1-cta">
+          <button class="btn btn-gold btn-lg" id="btn-generate-kw" onclick="goToKeywords()" disabled>
+            Generate Keywords →
+          </button>
+          <span id="topic-status" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">
+            Describe your topic above to generate keywords
+          </span>
+        </div>
       </div>
     </div>
   </div>
@@ -2381,6 +2435,12 @@ body::after {
           <div class="choice-title">Academic Poster Creation</div>
           <div class="choice-desc">Turn your search into a structured, evidence-backed poster. Key papers, gap findings, and research significance organized into a presentable format.</div>
           <div class="choice-cta">Build poster →</div>
+        </div>
+        <div class="choice-card" id="grant-choice-card" onclick="goToOutput('grant')" style="border-color:rgba(40,92,77,0.3);background:rgba(40,92,77,0.04);">
+          <div class="choice-number" style="color:#5a9e6f;border-color:rgba(40,92,77,0.3);">5</div>
+          <div class="choice-title" style="color:#5a9e6f;">Grant Significance &amp; Innovation</div>
+          <div class="choice-desc">Convert your confirmed gaps and foundation papers into NIH, NSF, or HRSA-ready Significance and Innovation sections. Includes Specific Aims framing and prior work narrative.</div>
+          <div class="choice-cta" style="color:#5a9e6f;">Build grant sections →</div>
         </div>
       </div>
     </div>
@@ -2832,13 +2892,15 @@ function selectMode(mode) {
   document.getElementById('mode-thesis').classList.toggle('selected', mode === 'thesis');
   document.getElementById('mode-poster').classList.toggle('selected', mode === 'poster');
   document.getElementById('mode-prisma').classList.toggle('selected', mode === 'prisma');
+  document.getElementById('mode-grant').classList.toggle('selected', mode === 'grant');
 
   const modeLabels = {
     'review': ['📖', 'Mode: Review the Literature'],
     'mine':   ['⛏️', 'Mode: Mine the Gaps'],
     'thesis': ['🎓', 'Mode: Thesis & Dissertation'],
     'poster': ['📋', 'Mode: Academic Poster'],
-    'prisma': ['🔬', 'Mode: Systematic Review / Meta-Analysis']
+    'prisma': ['🔬', 'Mode: Systematic Review / Meta-Analysis'],
+    'grant':  ['🏛️', 'Mode: Grant Significance & Innovation']
   };
   const [icon, label] = modeLabels[mode] || modeLabels['review'];
   const iconEl = document.getElementById('mode-indicator-icon');
@@ -2863,11 +2925,15 @@ function updateTopicUI() {
   const status = document.getElementById('topic-status');
   if (val.length >= 20) {
     btn.disabled = false;
-    status.textContent = 'Ready to generate keywords';
+    status.textContent = '0 keywords generated — click to begin';
     status.style.color = 'var(--green)';
+  } else if (val.length > 0) {
+    btn.disabled = true;
+    status.textContent = 'Keep going — describe your topic in a full sentence';
+    status.style.color = 'var(--muted)';
   } else {
     btn.disabled = true;
-    status.textContent = val.length + ' characters — write more to continue';
+    status.textContent = 'Describe your topic above to generate keywords';
     status.style.color = 'var(--muted)';
   }
 }
@@ -4207,6 +4273,15 @@ function renderGongScreen() {
       }
       const label = document.querySelector('#output-choice-section .section-label');
       if (label) label.textContent = 'You chose Academic Poster — your evidence architecture is ready.';
+    } else if (state.mode === 'grant') {
+      const card = document.getElementById('grant-choice-card');
+      if (card) {
+        card.style.borderColor = '#285C4D';
+        card.style.transform = 'scale(1.02)';
+        card.style.boxShadow = '0 0 0 3px rgba(40,92,77,0.25)';
+      }
+      const label = document.querySelector('#output-choice-section .section-label');
+      if (label) label.textContent = 'You chose Grant Significance & Innovation — your gap evidence is ready to frame.';
     }
   }, 100);
 
@@ -4321,6 +4396,9 @@ function goToOutput(type) {
     state.mode = 'poster';
     goToScreen(8);
     initPosterBuilder();
+  } else if (type === 'grant') {
+    state.mode = 'grant';
+    goToGrantScreen();
   }
 }
 
@@ -5398,6 +5476,572 @@ function showRubricMessage(msg) {
     setTimeout(() => notice.remove(), 5000);
   }
 }
+// ═══════════════════════════════════════════
+// GRANT SIGNIFICANCE & INNOVATION ENGINE
+// ═══════════════════════════════════════════
+
+const grantState = {
+  agency:    'nih',
+  mechanism: '',
+  pi:        '',
+  question:  '',
+  approach:  '',
+  priorWork: '',
+  aims:      '',
+  sections: {
+    aims:         { text:'', edited:false },
+    significance: { text:'', edited:false },
+    innovation:   { text:'', edited:false },
+    prior:        { text:'', edited:false },
+  }
+};
+
+const AGENCY_LABELS = {
+  nih:     'NIH',
+  nsf:     'NSF',
+  hrsa:    'HRSA',
+  dod:     'DoD / DARPA',
+  dhs:     'DHS / FEMA',
+  private: 'Private Foundation',
+  other:   'Federal Agency'
+};
+
+const GRANT_SECTION_DEFS = [
+  {
+    id: 'aims',
+    label: 'Specific Aims',
+    badge: '1 page limit (NIH standard)',
+    wordTarget: 400,
+    description: 'The Specific Aims page is the most important page in any grant. It must establish the problem, the gap, your hypothesis, and your three aims in one page. Program officers read this first and decide whether to fund based on it alone.',
+  },
+  {
+    id: 'significance',
+    label: 'Significance',
+    badge: 'Research Strategy Section A',
+    wordTarget: 600,
+    description: 'Explain why the problem matters. Cite the literature gaps your SLR confirmed. Quantify the burden. Connect your research to the funder\'s stated priorities. This section must make the reviewer feel the urgency.',
+  },
+  {
+    id: 'innovation',
+    label: 'Innovation',
+    badge: 'Research Strategy Section B',
+    wordTarget: 400,
+    description: 'Explain what is new about your approach. What has no one done before? How does this advance the state of the science? Innovation is not just novelty — it is the specific scientific or methodological advance your work represents.',
+  },
+  {
+    id: 'prior',
+    label: 'Prior Work / Preliminary Data',
+    badge: 'Research Strategy Section C',
+    wordTarget: 500,
+    description: 'Establish your credibility. Summarize your relevant publications, pilot data, and institutional resources. Show the reviewer you are the right person to do this work and that you have already started.',
+  },
+];
+
+function goToGrantScreen() {
+  // Show Screen 9G
+  document.querySelectorAll('.screen').forEach(s => {
+    s.classList.remove('active');
+    s.style.display = '';
+  });
+  const s = document.getElementById('screen-9g');
+  if (s) { s.style.display = 'block'; s.classList.add('active'); }
+  window.scrollTo(0, 0);
+
+  // Populate topic label
+  const label = document.getElementById('g9-topic-label');
+  if (label) label.textContent = (state.anchor || state.topic || '').substring(0, 80);
+
+  // Restore saved grant state
+  const sel = document.getElementById('g-agency');
+  if (sel) sel.value = grantState.agency || 'nih';
+  const fields = { 'g-mechanism': 'mechanism', 'g-pi': 'pi', 'g-question': 'question', 'g-approach': 'approach', 'g-priorwork': 'priorWork', 'g-aims': 'aims' };
+  Object.entries(fields).forEach(([elId, key]) => {
+    const el = document.getElementById(elId);
+    if (el && grantState[key]) el.value = grantState[key];
+  });
+
+  // Render confirmed gaps in left panel
+  renderGrantGapList();
+
+  // Render any already-generated sections
+  GRANT_SECTION_DEFS.forEach(def => {
+    if (grantState.sections[def.id]?.text) {
+      renderGrantSection(def.id, grantState.sections[def.id].text);
+    } else {
+      renderGrantSectionEmpty(def.id);
+    }
+  });
+  renderGrantFullPackage();
+  switchGrantTab('aims');
+}
+
+function renderGrantGapList() {
+  const container = document.getElementById('g-gap-list');
+  if (!container) return;
+  const gaps = state.gapFindings || [];
+  if (gaps.length === 0) {
+    container.innerHTML = '<div style="font-size:11px;color:rgba(245,243,238,0.3);font-style:italic;">Run the SLR search to populate confirmed gaps.</div>';
+    return;
+  }
+  container.innerHTML = gaps.slice(0, 10).map((gap, i) => {
+    const severity = gap.type === 'confirmed' ? 'confirmed' : gap.count < 5 ? 'thin' : 'emerging';
+    const col = severity === 'confirmed' ? '#e05050' : severity === 'thin' ? '#c9903a' : '#5a9e6f';
+    return `<div style="padding:8px 10px;border-left:3px solid ${col};background:rgba(255,255,255,0.03);margin-bottom:4px;">
+      <div style="font-size:10px;font-weight:600;color:rgba(245,243,238,0.8);line-height:1.4;">${gap.terms?.join(' + ') || gap.finding || 'Gap ' + (i+1)}</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:${col};margin-top:2px;">${severity} · ${gap.count||0} papers</div>
+    </div>`;
+  }).join('');
+}
+
+function saveGrantState() {
+  grantState.agency    = document.getElementById('g-agency')?.value || 'nih';
+  grantState.mechanism = document.getElementById('g-mechanism')?.value || '';
+  grantState.pi        = document.getElementById('g-pi')?.value || '';
+  grantState.question  = document.getElementById('g-question')?.value || '';
+  grantState.approach  = document.getElementById('g-approach')?.value || '';
+  grantState.priorWork = document.getElementById('g-priorwork')?.value || '';
+  grantState.aims      = document.getElementById('g-aims')?.value || '';
+  saveSession();
+}
+
+function updateGrantUI() {
+  saveGrantState();
+}
+
+function switchGrantTab(tab) {
+  document.querySelectorAll('.g-tab').forEach(t => t.classList.remove('g-tab-active'));
+  document.querySelectorAll('.g-panel').forEach(p => p.style.display = 'none');
+  const tabEl = document.getElementById('gtab-' + tab);
+  const panelEl = document.getElementById('gpanel-' + tab);
+  if (tabEl) tabEl.classList.add('g-tab-active');
+  if (panelEl) panelEl.style.display = 'block';
+}
+
+function renderGrantSectionEmpty(sectionId) {
+  const def = GRANT_SECTION_DEFS.find(d => d.id === sectionId);
+  if (!def) return;
+  const panel = document.getElementById('gpanel-' + sectionId);
+  if (!panel) return;
+  panel.innerHTML = `
+    <div class="g-section-header">
+      <div>
+        <div class="g-section-title">${def.label}</div>
+        <div style="font-size:12px;color:#888;margin-top:4px;line-height:1.5;max-width:560px;">${def.description}</div>
+      </div>
+      <span class="g-section-badge">${def.badge}</span>
+    </div>
+    <div style="padding:40px 0;text-align:center;color:#bbb;font-family:'JetBrains Mono',monospace;font-size:11px;border:1px dashed rgba(0,0,0,0.1);">
+      Click "Generate All Sections" or
+      <button onclick="generateGrantSection('${sectionId}')" style="font-family:'JetBrains Mono',monospace;font-size:10px;padding:5px 12px;background:transparent;border:1px solid rgba(40,92,77,0.4);color:#285C4D;cursor:pointer;margin-left:6px;">Generate ${def.label} →</button>
+    </div>`;
+}
+
+function renderGrantSection(sectionId, text) {
+  const def = GRANT_SECTION_DEFS.find(d => d.id === sectionId);
+  if (!def) return;
+  const panel = document.getElementById('gpanel-' + sectionId);
+  if (!panel) return;
+  const wordCount = text.trim().split(/\s+/).length;
+  const pct = Math.min(100, Math.round(wordCount / def.wordTarget * 100));
+  const barColor = pct > 110 ? '#a82828' : pct >= 80 ? '#285C4D' : '#c9903a';
+
+  panel.innerHTML = `
+    <div class="g-section-header">
+      <div>
+        <div class="g-section-title">${def.label}</div>
+        <div style="display:flex;align-items:center;gap:12px;margin-top:6px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#888;">${wordCount} words · target ~${def.wordTarget}</div>
+          <div style="flex:1;max-width:120px;height:4px;background:rgba(0,0,0,0.08);border-radius:2px;">
+            <div style="height:100%;width:${pct}%;background:${barColor};border-radius:2px;transition:width 0.3s;"></div>
+          </div>
+        </div>
+      </div>
+      <span class="g-section-badge">${def.badge}</span>
+    </div>
+    <div class="g-body" id="g-body-${sectionId}">${escapeHtml(text)}</div>
+    <div class="g-actions">
+      <button class="g-action-btn" style="border-color:rgba(40,92,77,0.4);color:#285C4D;" onclick="editGrantSection('${sectionId}')">✎ Edit</button>
+      <button class="g-action-btn" style="border-color:rgba(74,111,165,0.4);color:#4a6fa5;" onclick="generateGrantSection('${sectionId}')">↺ Regenerate</button>
+      <button class="g-action-btn" style="border-color:rgba(0,0,0,0.15);color:#666;" onclick="copyGrantSection('${sectionId}')">⎘ Copy</button>
+      <button class="g-action-btn" style="border-color:rgba(0,0,0,0.15);color:#666;" onclick="downloadGrantSection('${sectionId}')">↓ Download .txt</button>
+    </div>`;
+}
+
+function renderGrantSectionGenerating(sectionId, label) {
+  const panel = document.getElementById('gpanel-' + sectionId);
+  if (!panel) return;
+  panel.innerHTML = `<div class="g-generating"><div class="g-spinner"></div>Generating ${label}...</div>`;
+}
+
+function editGrantSection(sectionId) {
+  const bodyEl = document.getElementById('g-body-' + sectionId);
+  if (!bodyEl) return;
+  const current = grantState.sections[sectionId]?.text || '';
+  const panel = document.getElementById('gpanel-' + sectionId);
+  const def = GRANT_SECTION_DEFS.find(d => d.id === sectionId);
+  panel.innerHTML = `
+    <div class="g-section-header">
+      <div class="g-section-title">${def.label} — Editing</div>
+      <span class="g-section-badge">${def.badge}</span>
+    </div>
+    <textarea class="g-edit-area" id="g-edit-${sectionId}">${escapeHtml(current)}</textarea>
+    <div class="g-actions">
+      <button class="g-action-btn" style="border-color:rgba(40,92,77,0.4);color:#285C4D;" onclick="saveGrantEdit('${sectionId}')">✓ Save</button>
+      <button class="g-action-btn" style="border-color:rgba(0,0,0,0.15);color:#888;" onclick="renderGrantSection('${sectionId}', grantState.sections['${sectionId}'].text)">✕ Cancel</button>
+    </div>`;
+}
+
+function saveGrantEdit(sectionId) {
+  const ta = document.getElementById('g-edit-' + sectionId);
+  if (!ta) return;
+  grantState.sections[sectionId].text = ta.value;
+  grantState.sections[sectionId].edited = true;
+  renderGrantSection(sectionId, ta.value);
+  renderGrantFullPackage();
+  saveSession();
+}
+
+function copyGrantSection(sectionId) {
+  const text = grantState.sections[sectionId]?.text || '';
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target;
+    btn.textContent = '✓ Copied';
+    setTimeout(() => { btn.textContent = '⎘ Copy'; }, 2000);
+  });
+}
+
+function downloadGrantSection(sectionId) {
+  const def = GRANT_SECTION_DEFS.find(d => d.id === sectionId);
+  const text = grantState.sections[sectionId]?.text || '';
+  const header = `${def.label.toUpperCase()}\n${AGENCY_LABELS[grantState.agency]} ${grantState.mechanism || 'Grant'}\nPI: ${grantState.pi || '—'}\nGenerated by SLR Studio · ETL · Wright State University\n${'='.repeat(60)}\n\n`;
+  const blob = new Blob([header + text], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `Grant_${def.label.replace(/\s+/g,'_')}.txt`;
+  a.click();
+}
+
+function renderGrantFullPackage() {
+  const panel = document.getElementById('gpanel-full');
+  if (!panel) return;
+
+  const hasAny = GRANT_SECTION_DEFS.some(d => grantState.sections[d.id]?.text);
+  if (!hasAny) {
+    panel.innerHTML = `<div style="padding:40px;text-align:center;color:#bbb;font-family:'JetBrains Mono',monospace;font-size:11px;">Generate sections first, then view the full package here.</div>`;
+    return;
+  }
+
+  const agencyLabel = AGENCY_LABELS[grantState.agency] || 'Grant';
+  const mechanism   = grantState.mechanism || '';
+
+  panel.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;padding-bottom:14px;border-bottom:2px solid #0a0a0f;">
+      <div>
+        <div style="font-size:18px;font-weight:700;color:#0a0a0f;">Grant Package — ${agencyLabel}${mechanism?' · '+mechanism:''}</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#888;margin-top:4px;">
+          ${state.topic ? state.topic.substring(0,80) : state.anchor || '—'}
+          ${grantState.pi ? ' · PI: ' + grantState.pi : ''}
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="copyFullGrantPackage()" class="g-action-btn" style="border-color:rgba(40,92,77,0.4);color:#285C4D;">⎘ Copy All</button>
+        <button onclick="downloadFullGrantPackage()" class="g-action-btn" style="border-color:#0a0a0f;color:#0a0a0f;font-weight:700;">↓ Download Package</button>
+      </div>
+    </div>
+    ${GRANT_SECTION_DEFS.map(def => {
+      const text = grantState.sections[def.id]?.text;
+      if (!text) return '';
+      return `<div style="margin-bottom:32px;padding-bottom:28px;border-bottom:1px solid rgba(0,0,0,0.08);">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:#285C4D;margin-bottom:4px;">${def.badge}</div>
+        <div style="font-size:17px;font-weight:700;color:#0a0a0f;margin-bottom:16px;">${def.label}</div>
+        <div style="font-size:14px;line-height:1.9;color:#1a1a1a;white-space:pre-wrap;">${escapeHtml(text)}</div>
+      </div>`;
+    }).join('')}
+    <div style="margin-top:16px;padding:14px;background:#f5f3ee;font-family:'JetBrains Mono',monospace;font-size:9px;color:#888;letter-spacing:0.04em;text-align:center;">
+      Generated by SLR Studio · Emerging Technologies Laboratory · Wright State University · AI-Assisted, Not AI-Authored
+    </div>`;
+}
+
+function copyFullGrantPackage() {
+  const lines = [];
+  const agencyLabel = AGENCY_LABELS[grantState.agency] || 'Grant';
+  lines.push(`GRANT PACKAGE — ${agencyLabel} ${grantState.mechanism || ''}`);
+  lines.push(`PI: ${grantState.pi || '—'}`);
+  lines.push(`Topic: ${state.topic || state.anchor || '—'}`);
+  lines.push('Generated by SLR Studio · ETL · Wright State University');
+  lines.push('='.repeat(60));
+  GRANT_SECTION_DEFS.forEach(def => {
+    const text = grantState.sections[def.id]?.text;
+    if (!text) return;
+    lines.push('', def.label.toUpperCase(), '-'.repeat(40), text);
+  });
+  navigator.clipboard.writeText(lines.join('\n')).then(() => {
+    const btn = event.target;
+    btn.textContent = '✓ Copied';
+    setTimeout(() => { btn.textContent = '⎘ Copy All'; }, 2500);
+  });
+}
+
+function downloadFullGrantPackage() {
+  const lines = [];
+  const agencyLabel = AGENCY_LABELS[grantState.agency] || 'Grant';
+  lines.push(`GRANT PACKAGE — ${agencyLabel} ${grantState.mechanism || ''}`);
+  lines.push(`PI: ${grantState.pi || '—'}`);
+  lines.push(`Topic: ${state.topic || state.anchor || '—'}`);
+  lines.push(`Generated by SLR Studio · Emerging Technologies Laboratory · Wright State University`);
+  lines.push('='.repeat(60));
+  GRANT_SECTION_DEFS.forEach(def => {
+    const text = grantState.sections[def.id]?.text;
+    if (!text) return;
+    lines.push('', '', def.label.toUpperCase(), '-'.repeat(40), text);
+  });
+  const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `Grant_Package_${(state.anchor||'SLR').replace(/\s+/g,'_')}.txt`;
+  a.click();
+}
+
+async function generateAllGrantSections() {
+  saveGrantState();
+  const btn = document.getElementById('g-generate-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Generating...'; }
+
+  for (const def of GRANT_SECTION_DEFS) {
+    switchGrantTab(def.id);
+    await generateGrantSection(def.id);
+  }
+
+  renderGrantFullPackage();
+  switchGrantTab('full');
+  if (btn) { btn.disabled = false; btn.textContent = 'Generate All Sections →'; }
+}
+
+async function generateGrantSection(sectionId) {
+  saveGrantState();
+  const def = GRANT_SECTION_DEFS.find(d => d.id === sectionId);
+  if (!def) return;
+
+  renderGrantSectionGenerating(sectionId, def.label);
+
+  const anchor      = state.anchor || state.topic || 'the research topic';
+  const agency      = AGENCY_LABELS[grantState.agency] || 'NIH';
+  const mechanism   = grantState.mechanism || 'research grant';
+  const pi          = grantState.pi || 'the PI';
+  const question    = grantState.question || '';
+  const approach    = grantState.approach || '';
+  const priorWork   = grantState.priorWork || '';
+  const aimsRaw     = grantState.aims || '';
+
+  // Build evidence context from actual SLR data
+  const foundationPapers = Object.entries(state.paperSGs || {})
+    .filter(([pid, sgs]) => sgs.length >= 2)
+    .sort((a, b) => b[1].length - a[1].length)
+    .slice(0, 5)
+    .map(([pid]) => state.papers[pid])
+    .filter(Boolean);
+
+  const confirmedGaps = (state.gapFindings || [])
+    .filter(g => g.type === 'confirmed' || g.count === 0)
+    .slice(0, 5);
+
+  const emergingGaps = (state.gapFindings || [])
+    .filter(g => g.count > 0 && g.count < 5)
+    .slice(0, 3);
+
+  const paperContext = foundationPapers.map(p =>
+    `${p.author} (${p.year}). ${p.title}. ${p.journal || ''}.`
+  ).join('\n');
+
+  const gapContext = confirmedGaps.map(g =>
+    `CONFIRMED GAP: ${g.terms?.join(' + ')} — zero published studies`
+  ).concat(emergingGaps.map(g =>
+    `THIN COVERAGE: ${g.terms?.join(' + ')} — only ${g.count} studies`
+  )).join('\n');
+
+  const prompts = {
+    aims: `You are a senior grant writer helping a researcher write the Specific Aims page for a ${agency} ${mechanism} application on: "${state.topic || anchor}".
+
+Research question: ${question || 'Not specified — infer from topic and gaps.'}
+PI: ${pi}
+Proposed approach/innovation: ${approach || 'Novel approach — infer from gap evidence.'}
+
+CONFIRMED LITERATURE GAPS FROM SYSTEMATIC REVIEW:
+${gapContext || 'Multiple confirmed gaps in the literature.'}
+
+FOUNDATION PAPERS:
+${paperContext || 'Literature search completed.'}
+
+RAW AIMS (refine these):
+${aimsRaw || 'Generate 3 specific, achievable aims based on the gaps.'}
+
+Write a complete, publication-ready ${agency} Specific Aims page (~${def.wordTarget} words). Structure:
+- Opening paragraph: the problem, burden, and what is missing (2-3 sentences, powerful)
+- Long-term goal statement
+- Central hypothesis
+- Brief rationale (1 sentence)
+- Aim 1, Aim 2, Aim 3 — each with a bold aim statement and 1-2 sentences of approach
+- Closing paragraph: expected outcomes and impact
+
+Use confident, scholarly, grant-appropriate language. Present tense. No hedging. Do not use bullet points outside the aims themselves. Do not include headers. Write as flowing grant prose.`,
+
+    significance: `You are a senior grant writer. Write the Significance section (Research Strategy Section A) for a ${agency} ${mechanism} application on: "${state.topic || anchor}".
+
+PI: ${pi}
+Mechanism: ${mechanism}
+
+CONFIRMED LITERATURE GAPS (from systematic review of ${Object.keys(state.papers||{}).length} papers across ${(state.subgroups||[]).length} subgroups):
+${gapContext || 'Multiple confirmed gaps exist.'}
+
+FOUNDATION PAPERS TO CITE:
+${paperContext || 'Key literature identified.'}
+
+Write ~${def.wordTarget} words. Structure:
+1. The problem and its significance — quantify the burden where possible
+2. What is known — synthesize the foundation papers
+3. What is missing — name each confirmed gap specifically, cite the zero-yield evidence
+4. Why this matters now — connect to ${agency} priorities and public health / scientific need
+5. How your research addresses the gap — 1-2 sentences bridging to Innovation
+
+Scholarly prose. No bullet points. Use in-text citation format: (Author, Year). Reference each foundation paper at least once. Be specific. Avoid vague language. Write as if a study section is reading it.`,
+
+    innovation: `You are a senior grant writer. Write the Innovation section (Research Strategy Section B) for a ${agency} ${mechanism} application on: "${state.topic || anchor}".
+
+PI: ${pi}
+What is novel: ${approach || 'Novel approach to a confirmed gap in the literature.'}
+
+CONFIRMED GAPS THAT MAKE THIS INNOVATIVE:
+${gapContext || 'Multiple confirmed gaps exist where no prior work has been done.'}
+
+Write ~${def.wordTarget} words. Structure:
+1. Open with the overarching innovation claim — what does this work advance beyond the current state of science?
+2. Methodological innovation (if applicable)
+3. Conceptual or theoretical innovation
+4. Innovation relative to prior work — explicitly contrast with what exists
+5. Close with impact: if successful, how does this change the field?
+
+Be specific and confident. Avoid phrases like "potentially" or "may contribute." Use present tense. No bullet points. Write for a skeptical study section reviewer who has seen many grant applications.`,
+
+    prior: `You are a senior grant writer. Write the Prior Work / Preliminary Data section (Research Strategy Section C) for a ${agency} ${mechanism} application on: "${state.topic || anchor}".
+
+PI: ${pi}
+Prior work provided: ${priorWork || 'No specific prior work described — synthesize from the literature foundation and establish credibility through the systematic review.'}
+
+FOUNDATION PAPERS (the PI's field expertise):
+${paperContext || 'Literature foundation established through systematic review.'}
+
+Write ~${def.wordTarget} words. Structure:
+1. Open by establishing the PI's expertise and relevant background
+2. Summarize relevant prior publications or pilot work
+3. Describe preliminary data or pilot findings (real or framed from the systematic review)
+4. Connect prior work directly to the proposed aims
+5. Close with a statement of readiness: the PI is uniquely positioned to conduct this work
+
+If no specific prior work was provided, frame the systematic literature review itself as preliminary work demonstrating the PI's mastery of the field. Be specific. Grant-appropriate scholarly language. No bullet points.`
+  };
+
+  // Try API generation first
+  if (state.apiKey) {
+    try {
+      const resp = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': state.apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1500,
+          messages: [{ role: 'user', content: prompts[sectionId] }]
+        })
+      });
+      const data = await resp.json();
+      const text = data.content?.[0]?.text?.trim();
+      if (text) {
+        grantState.sections[sectionId].text = text;
+        grantState.sections[sectionId].edited = false;
+        renderGrantSection(sectionId, text);
+        saveSession();
+        return;
+      }
+    } catch(e) { console.warn('Grant API error:', e); }
+  }
+
+  // Scaffold fallback — no API key
+  const scaffolds = {
+    aims: buildAimsScaffold(anchor, agency, mechanism, pi, question, aimsRaw, confirmedGaps),
+    significance: buildSignificanceScaffold(anchor, agency, foundationPapers, confirmedGaps),
+    innovation: buildInnovationScaffold(anchor, agency, approach, confirmedGaps),
+    prior: buildPriorWorkScaffold(anchor, agency, pi, priorWork, foundationPapers),
+  };
+
+  const scaffold = scaffolds[sectionId] || `[${def.label} — add your Anthropic API key for AI-generated content tailored to your specific research.]`;
+  grantState.sections[sectionId].text = scaffold;
+  grantState.sections[sectionId].edited = false;
+  renderGrantSection(sectionId, scaffold);
+  saveSession();
+}
+
+// ── Scaffold builders (no API key fallback) ───────────────────
+
+function buildAimsScaffold(anchor, agency, mechanism, pi, question, aimsRaw, gaps) {
+  const aims = aimsRaw ? aimsRaw.split('\n').filter(Boolean) : [
+    `Aim 1: Characterize the prevalence and distribution of ${anchor} across relevant populations.`,
+    `Aim 2: Examine the relationship between ${anchor} and key outcomes using a longitudinal design.`,
+    `Aim 3: Develop and pilot-test an evidence-based intervention informed by Aims 1 and 2.`
+  ];
+  const gap1 = gaps[0]?.terms?.join(' + ') || anchor + ' — unexplored intersection';
+  const gap2 = gaps[1]?.terms?.join(' + ') || null;
+
+  return `Despite decades of research, significant gaps remain in our understanding of ${anchor}. The literature has established foundational knowledge in adjacent domains, yet the specific intersection of ${gap1} has received virtually no systematic attention. This absence represents a critical barrier to progress: without understanding ${gap1}, researchers and practitioners cannot develop evidence-based approaches to address the problem at scale.
+
+The long-term goal of this research is to generate a comprehensive, empirically-grounded understanding of ${anchor} that informs both scientific theory and applied practice. The central hypothesis is that ${question || `systematically examining ${anchor} will reveal actionable patterns that have not previously been documented in the literature`}. This hypothesis is supported by our systematic literature review, which identified ${gaps.length} confirmed gaps — areas where zero published studies exist — and by our analysis of foundation papers across ${Object.keys(state.papers||{}).length || 'multiple'} peer-reviewed sources.
+
+${aims.map((aim, i) => `${aim}`).join('\n\n')}
+
+${gap2 ? `Notably, the gap in ${gap2} compounds the urgency of this work.` : ''} Successful completion of these aims will produce the first systematic body of evidence on ${anchor}, directly informing ${agency} priorities and establishing a foundation for future intervention research. The expected outcomes will have a positive impact by providing researchers, clinicians, and policymakers with the evidence base needed to address this confirmed gap in knowledge.`;
+}
+
+function buildSignificanceScaffold(anchor, agency, papers, gaps) {
+  const paperCites = papers.slice(0, 3).map(p => `${p.author} (${p.year})`).join('; ');
+  const gap1 = gaps[0]?.terms?.join(' + ') || anchor;
+  return `The study of ${anchor} represents a critical but systematically underexplored area of inquiry. ${paperCites ? `Foundational work by ${paperCites} has established important groundwork in related domains, yet` : 'While prior researchers have made important contributions,'} the literature contains significant and confirmed gaps that limit both scientific understanding and practical application.
+
+A systematic review of the literature — spanning ${Object.keys(state.papers||{}).length || 'multiple'} peer-reviewed publications across ${(state.subgroups||[]).length || 'numerous'} keyword subgroups — confirms that ${gap1} has not been studied. This is not a minor omission. The absence of evidence in this area means that researchers, clinicians, and policymakers are making decisions without the empirical foundation necessary to ensure effective, safe, and equitable outcomes.
+
+The significance of the proposed research lies in its potential to fill this confirmed gap with rigorous, systematic evidence. By addressing ${gap1} directly, this work will: (1) advance theoretical understanding of the mechanisms underlying ${anchor}; (2) provide the empirical foundation for evidence-based intervention development; and (3) position ${agency} to lead the field in this emerging area of inquiry.
+
+The proposed research is significant because it addresses a problem of demonstrated importance where no adequate solution currently exists. Successful completion will shift the current paradigm and establish new directions for future investigation.`;
+}
+
+function buildInnovationScaffold(anchor, agency, approach, gaps) {
+  const gap1 = gaps[0]?.terms?.join(' + ') || anchor;
+  return `The proposed research is innovative because it is the first systematic examination of ${gap1 || anchor} using a rigorous, evidence-grounded methodology. Existing studies have examined adjacent questions, but none has directly addressed this confirmed gap — a fact established by our systematic literature review, which found zero published studies at this specific intersection.
+
+${approach ? `The proposed approach is novel in the following ways: ${approach}` : `The innovation of this work is both conceptual and methodological. Conceptually, this research reframes the question of ${anchor} in a way that has not previously been attempted. Methodologically, the proposed design applies analytic techniques that have not been used in this literature.`}
+
+This work innovates beyond the current state of science in three specific ways. First, it addresses a confirmed knowledge gap where prior investigators have not ventured. Second, it applies a systematic, evidence-grounded approach that will produce replicable, cumulative findings. Third, it generates a framework that can be extended to related questions — creating a platform for future research that did not previously exist.
+
+If successful, this research will establish a new evidence base for ${anchor}, shift the current research paradigm, and open new avenues of inquiry that are currently foreclosed by the absence of foundational data.`;
+}
+
+function buildPriorWorkScaffold(anchor, agency, pi, priorWork, papers) {
+  const paperCites = papers.slice(0, 3).map(p => `${p.author} (${p.year})`).join('; ');
+  return `${pi || 'The PI'} brings extensive expertise in ${anchor} and related domains, establishing the research team as uniquely positioned to conduct the proposed work. ${priorWork || `The team has conducted a comprehensive systematic review of the literature on ${anchor}, establishing mastery of the field and confirming the gaps the proposed research will address.`}
+
+The research team's preliminary work confirms the feasibility of the proposed approach. Our systematic review identified ${Object.keys(state.papers||{}).length || 'a substantial body of'} peer-reviewed publications, analyzed ${(state.subgroups||[]).length || 'multiple'} distinct keyword subgroups, and confirmed the existence of the research gaps that motivate the proposed aims. This preparatory work demonstrates the team's capacity to conduct rigorous, systematic inquiry in this area.
+
+${paperCites ? `Key works that inform our approach include ${paperCites}, among others. Our engagement with this foundational literature positions the team to build meaningfully on existing work while advancing into the confirmed gaps identified through our preliminary research.` : ''}
+
+The proposed research is feasible, timely, and responsive to documented need. The team has the expertise, institutional resources, and preliminary evidence necessary to successfully complete the proposed aims within the project period. We are ready to begin.`;
+}
+
+function escapeHtml(str) {
+  return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
 // ═══════════════════════════════════════════
 // PRISMA 2020 ENGINE
 // ═══════════════════════════════════════════
@@ -9283,6 +9927,16 @@ function saveSession() {
       slrLog: state.slrLog,
       savedAt: new Date().toISOString(),
       ribbonResult: draftState.ribbonResult || null,
+      grantState: {
+        agency:    grantState.agency,
+        mechanism: grantState.mechanism,
+        pi:        grantState.pi,
+        question:  grantState.question,
+        approach:  grantState.approach,
+        priorWork: grantState.priorWork,
+        aims:      grantState.aims,
+        sections:  grantState.sections
+      },
       prismaState: {
         protocol:  prismaState.protocol,
         screening: prismaState.screening,
@@ -9340,6 +9994,20 @@ function restoreSession() {
         draftState.ribbonResult.ribbon = RIBBON_LEVELS.find(r => r.id === savedId) || session.ribbonResult.ribbon;
       }
       setTimeout(renderRibbonBadge, 500);
+    }
+
+    // Restore grant state
+    if (session.grantState) {
+      Object.assign(grantState, {
+        agency:    session.grantState.agency    || 'nih',
+        mechanism: session.grantState.mechanism || '',
+        pi:        session.grantState.pi        || '',
+        question:  session.grantState.question  || '',
+        approach:  session.grantState.approach  || '',
+        priorWork: session.grantState.priorWork || '',
+        aims:      session.grantState.aims      || '',
+        sections:  session.grantState.sections  || grantState.sections
+      });
     }
 
     // Restore PRISMA state
@@ -9616,9 +10284,9 @@ restoreSession();
 .ptype-btn { width:100%;padding:7px 10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(245,243,238,0.5);cursor:pointer;text-align:left;transition:all 0.15s;letter-spacing:0.04em; }
 .ptype-btn:hover { border-color:var(--gold);color:var(--gold); }
 .ptype-active { border-color:var(--gold) !important;color:var(--gold) !important;background:rgba(201,144,58,0.1) !important; }
-.gl-btn { padding:10px 6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:rgba(245,243,238,0.6);cursor:pointer;text-align:center;transition:all 0.15s;font-family:'JetBrains Mono',monospace; }
-.gl-btn:hover { border-color:var(--gold);color:var(--gold); }
-.gl-active { border-color:var(--gold) !important;color:var(--gold) !important;background:rgba(201,144,58,0.1) !important; }
+.gl-btn { padding:8px 4px;background:white;border:1.5px solid rgba(0,0,0,0.1);color:#555;cursor:pointer;text-align:center;transition:all 0.15s;font-family:'JetBrains Mono',monospace;border-radius:3px; }
+.gl-btn:hover { border-color:var(--gold);color:#a07820;background:rgba(201,144,58,0.06); }
+.gl-btn.gl-active { border-color:var(--gold);border-width:2px;background:rgba(201,144,58,0.08);color:#a07820; }
 
 /* PRISMA */
 .prisma-check { font-family:'JetBrains Mono',monospace;font-size:9px;padding:3px 8px;border:1px solid rgba(255,255,255,0.1);color:rgba(245,243,238,0.4);letter-spacing:0.06em; }
@@ -9775,6 +10443,131 @@ restoreSession();
     </div>
   </div>
 </div>
+
+<!-- ═══ SCREEN 9G: GRANT SIGNIFICANCE & INNOVATION ENGINE ═══ -->
+<div class="screen" id="screen-9g" style="display:none;background:#f5f3ee;min-height:calc(100vh - 60px);">
+
+  <!-- Top bar -->
+  <div style="background:#0a0a0f;padding:14px 32px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.06);">
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:#5a9e6f;margin-bottom:3px;">Grant Significance &amp; Innovation Engine</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(245,243,238,0.4);" id="g9-topic-label">Loading...</div>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button onclick="goToScreen(5)" style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;padding:7px 14px;background:transparent;border:1px solid rgba(255,255,255,0.1);color:rgba(245,243,238,0.4);cursor:pointer;">← Foundation</button>
+    </div>
+  </div>
+
+  <div style="max-width:1100px;margin:0 auto;padding:40px 32px;display:grid;grid-template-columns:300px 1fr;gap:32px;">
+
+    <!-- LEFT: Protocol inputs -->
+    <div>
+      <div style="background:#0a0a0f;padding:24px;margin-bottom:16px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:#5a9e6f;margin-bottom:16px;">Grant Protocol</div>
+
+        <div style="margin-bottom:14px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:rgba(245,243,238,0.35);margin-bottom:6px;">Funding Agency</div>
+          <select id="g-agency" onchange="updateGrantUI()" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:var(--paper);padding:8px 10px;font-family:'JetBrains Mono',monospace;font-size:11px;outline:none;cursor:pointer;">
+            <option value="nih">NIH (R01 / R21 / K-Award)</option>
+            <option value="nsf">NSF</option>
+            <option value="hrsa">HRSA</option>
+            <option value="dod">DoD / DARPA</option>
+            <option value="dhs">DHS / FEMA</option>
+            <option value="private">Private Foundation</option>
+            <option value="other">Other Federal</option>
+          </select>
+        </div>
+
+        <div style="margin-bottom:14px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:rgba(245,243,238,0.35);margin-bottom:6px;">Grant Mechanism / Type</div>
+          <input type="text" id="g-mechanism" placeholder="e.g., R01, R21, K23, NSF CAREER" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:var(--paper);padding:8px 10px;font-family:'JetBrains Mono',monospace;font-size:11px;outline:none;" oninput="saveGrantState()">
+        </div>
+
+        <div style="margin-bottom:14px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:rgba(245,243,238,0.35);margin-bottom:6px;">PI Name &amp; Credentials</div>
+          <input type="text" id="g-pi" placeholder="Dr. Jane Smith, PhD, RN" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:var(--paper);padding:8px 10px;font-family:'JetBrains Mono',monospace;font-size:11px;outline:none;" oninput="saveGrantState()">
+        </div>
+
+        <div style="margin-bottom:14px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:rgba(245,243,238,0.35);margin-bottom:6px;">Central Research Question</div>
+          <textarea id="g-question" rows="3" placeholder="What is the effect of X on Y in population Z?" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:var(--paper);padding:8px 10px;font-family:'Georgia',serif;font-size:12px;outline:none;resize:vertical;line-height:1.6;" oninput="saveGrantState()"></textarea>
+        </div>
+
+        <div style="margin-bottom:14px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:rgba(245,243,238,0.35);margin-bottom:6px;">Proposed Approach / Innovation</div>
+          <textarea id="g-approach" rows="3" placeholder="Briefly describe what you will do that no one has done. What is novel about your method or framework?" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:var(--paper);padding:8px 10px;font-family:'Georgia',serif;font-size:12px;outline:none;resize:vertical;line-height:1.6;" oninput="saveGrantState()"></textarea>
+        </div>
+
+        <div style="margin-bottom:14px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:rgba(245,243,238,0.35);margin-bottom:6px;">Prior Work / Preliminary Data (optional)</div>
+          <textarea id="g-priorwork" rows="3" placeholder="Describe any existing work, pilot data, or prior publications that establish your credibility in this area." style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:var(--paper);padding:8px 10px;font-family:'Georgia',serif;font-size:12px;outline:none;resize:vertical;line-height:1.6;" oninput="saveGrantState()"></textarea>
+        </div>
+
+        <div style="margin-bottom:20px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:rgba(245,243,238,0.35);margin-bottom:8px;">3 Specific Aims (one per line)</div>
+          <textarea id="g-aims" rows="5" placeholder="Aim 1: Characterize the prevalence of X&#10;Aim 2: Examine the relationship between X and Y&#10;Aim 3: Develop and pilot-test an intervention" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:var(--paper);padding:8px 10px;font-family:'Georgia',serif;font-size:12px;outline:none;resize:vertical;line-height:1.6;" oninput="saveGrantState()"></textarea>
+        </div>
+
+        <button onclick="generateAllGrantSections()" id="g-generate-btn" style="width:100%;padding:12px;background:#285C4D;color:white;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;border:none;cursor:pointer;font-weight:700;transition:background 0.15s;" onmouseover="this.style.background='#1a4a2e'" onmouseout="this.style.background='#285C4D'">
+          Generate All Sections →
+        </button>
+      </div>
+
+      <!-- Gap evidence panel -->
+      <div style="background:#0a0a0f;padding:20px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:#5a9e6f;margin-bottom:12px;">Your Confirmed Gaps</div>
+        <div id="g-gap-list" style="display:flex;flex-direction:column;gap:6px;max-height:300px;overflow-y:auto;"></div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Generated sections -->
+    <div style="display:flex;flex-direction:column;gap:20px;">
+
+      <!-- Section tabs -->
+      <div style="display:flex;gap:0;border-bottom:2px solid #0a0a0f;">
+        <button class="g-tab g-tab-active" id="gtab-aims" onclick="switchGrantTab('aims')">Specific Aims</button>
+        <button class="g-tab" id="gtab-significance" onclick="switchGrantTab('significance')">Significance</button>
+        <button class="g-tab" id="gtab-innovation" onclick="switchGrantTab('innovation')">Innovation</button>
+        <button class="g-tab" id="gtab-prior" onclick="switchGrantTab('prior')">Prior Work</button>
+        <button class="g-tab" id="gtab-full" onclick="switchGrantTab('full')">Full Package</button>
+      </div>
+
+      <!-- Section panels -->
+      <div id="gpanel-aims"         class="g-panel g-panel-active"></div>
+      <div id="gpanel-significance" class="g-panel" style="display:none;"></div>
+      <div id="gpanel-innovation"   class="g-panel" style="display:none;"></div>
+      <div id="gpanel-prior"        class="g-panel" style="display:none;"></div>
+      <div id="gpanel-full"         class="g-panel" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+
+<style>
+.g-tab {
+  font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:0.1em;
+  text-transform:uppercase; padding:10px 18px; background:transparent;
+  border:none; cursor:pointer; color:#888; border-bottom:2px solid transparent;
+  margin-bottom:-2px; transition:all 0.15s;
+}
+.g-tab:hover { color:#285C4D; }
+.g-tab-active { color:#285C4D; border-bottom-color:#285C4D; font-weight:700; }
+.g-panel { background:white; border:0.5px solid rgba(0,0,0,0.1); padding:28px 32px; }
+.g-section-header {
+  display:flex; align-items:flex-start; justify-content:space-between;
+  margin-bottom:16px; padding-bottom:12px;
+  border-bottom:2px solid #0a0a0f;
+}
+.g-section-title { font-size:18px; font-weight:700; color:#0a0a0f; }
+.g-section-badge { font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.1em; text-transform:uppercase; padding:3px 8px; background:rgba(40,92,77,0.1); border:1px solid rgba(40,92,77,0.3); color:#285C4D; }
+.g-body { font-size:14px; line-height:1.9; color:#1a1a1a; white-space:pre-wrap; }
+.g-actions { display:flex; gap:8px; margin-top:16px; padding-top:14px; border-top:1px solid rgba(0,0,0,0.06); flex-wrap:wrap; }
+.g-action-btn { font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:0.08em; text-transform:uppercase; padding:7px 14px; background:transparent; border:1px solid; cursor:pointer; transition:all 0.15s; }
+.g-edit-area { width:100%; font-size:14px; font-family:'Georgia',serif; line-height:1.9; color:#0a0a0f; border:1px solid rgba(40,92,77,0.3); padding:16px; outline:none; resize:vertical; min-height:200px; background:#faf9f7; }
+.g-generating { display:flex; align-items:center; gap:12px; padding:40px; color:#888; font-family:'JetBrains Mono',monospace; font-size:11px; }
+.g-spinner { width:20px; height:20px; border:2px solid rgba(40,92,77,0.2); border-top-color:#285C4D; border-radius:50%; animation:spin 0.8s linear infinite; }
+.g-evidence-chip { display:inline-block; padding:2px 8px; background:rgba(168,40,40,0.08); border:1px solid rgba(168,40,40,0.25); color:#a82828; font-family:'JetBrains Mono',monospace; font-size:9px; margin:2px; letter-spacing:0.04em; }
+.g-paper-chip { display:inline-block; padding:2px 8px; background:rgba(40,92,77,0.08); border:1px solid rgba(40,92,77,0.2); color:#285C4D; font-family:'JetBrains Mono',monospace; font-size:9px; margin:2px; letter-spacing:0.04em; }
+</style>
 
 <div id="poster-selfie-modal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(10,10,15,0.92);align-items:center;justify-content:center;">
   <div style="background:var(--paper);max-width:860px;width:92%;max-height:92vh;overflow-y:auto;position:relative;">
