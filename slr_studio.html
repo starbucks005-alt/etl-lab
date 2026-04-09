@@ -1777,6 +1777,7 @@ body::after {
   .gong-headline { font-size: 38px; }
 }
 </style>
+<script src="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
 </head>
 <body>
 
@@ -2234,6 +2235,21 @@ body::after {
       </div>
     </div>
 
+    <!-- PDF UPLOAD PANEL -->
+    <div class="authors-section" id="pdf-upload-section" style="border-top:2px solid rgba(201,144,58,0.3);margin-top:8px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
+        <div>
+          <div class="section-label" style="margin-bottom:4px;">Bring Your Own Papers</div>
+          <div style="font-size:13px;color:rgba(245,243,238,0.5);line-height:1.5;">Have papers the search didn't find? Upload PDFs directly. We extract the text and add them to your pool.</div>
+        </div>
+        <label style="display:flex;align-items:center;gap:10px;padding:12px 20px;background:rgba(201,144,58,0.12);border:1.5px solid var(--gold);color:var(--gold);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;flex-shrink:0;transition:all 0.2s;" onmouseover="this.style.background='rgba(201,144,58,0.2)'" onmouseout="this.style.background='rgba(201,144,58,0.12)'">
+          📄 Upload PDFs
+          <input type="file" accept=".pdf" multiple style="display:none;" onchange="handlePDFUpload(event)">
+        </label>
+      </div>
+      <div id="pdf-upload-status" style="display:none;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gold);margin-bottom:12px;"></div>
+      <div id="pdf-paper-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;"></div>
+    </div>
 
   </div>
 </div>
@@ -4635,11 +4651,18 @@ function initModule3() {
 function buildDraftSections() {
   const anchor = state.anchor || 'research topic';
   const secondary = (state.selectedSecondary || []).map(i => (state.secondaryKeywords || [])[i]).filter(Boolean);
-  const topPapers = Object.entries(state.paperSGs || {})
+  // Build top papers pool — uploaded papers always included, sorted by SG frequency
+  const uploadedPids = Object.keys(state.papers || {}).filter(pid => pid.startsWith('pdf_'));
+  const searchPapers = Object.entries(state.paperSGs || {})
+    .filter(([pid]) => !pid.startsWith('pdf_'))
     .sort((a, b) => b[1].length - a[1].length)
-    .slice(0, 20)
+    .slice(0, 20 - uploadedPids.length)
     .map(([pid]) => ({ pid, paper: (state.papers || {})[pid], sgs: (state.paperSGs || {})[pid] }))
     .filter(p => p.paper);
+  const uploadedPapers = uploadedPids
+    .map(pid => ({ pid, paper: (state.papers || {})[pid], sgs: [999] }))
+    .filter(p => p.paper);
+  const topPapers = [...uploadedPapers, ...searchPapers];
 
   // THESIS / DISSERTATION MODE
   if (state.mode === 'thesis') {
@@ -4870,9 +4893,9 @@ function renderSectionNav() {
       onmouseover="this.style.background='rgba(255,255,255,0.06)'"
       onmouseout="this.style.background=this.dataset.active==='1'?'rgba(201,144,58,0.15)':'transparent'">
       <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(245,243,238,0.3);width:24px;flex-shrink:0;">${sec.num}</span>
-      <span style="font-size:13px;color:${draftState.generatedText[sec.id] ? 'var(--gold-light)' : 'rgba(245,243,238,0.7)'};">
+      <span style="font-size:13px;color:${(draftState.generatedText[sec.id] || draftState.ownContent?.[sec.id]) ? 'var(--gold-light)' : 'rgba(245,243,238,0.7)'};">
         ${sec.title}
-        ${draftState.generatedText[sec.id] ? ' ✓' : ''}
+        ${(draftState.generatedText[sec.id] || draftState.ownContent?.[sec.id]) ? ' ✓' : ''}
       </span>
     </div>
   `).join('');
@@ -4905,23 +4928,82 @@ function openDraftSection(sectionId) {
     draftState.selectedPapers[sectionId] = selectedPids;
   }
 
+  // Determine default mode for this section
+  // user-owned = chapters where student has their own data
+  const userOwnedSections = ['thesis-ch3','thesis-ch4'];
+  const hybridSections    = ['thesis-ch5','thesis-ch6','thesis-refs'];
+  const isUserOwned   = userOwnedSections.includes(sectionId);
+  const isHybrid      = hybridSections.includes(sectionId);
+  const isThesis      = state.mode === 'thesis';
+
+  // Track editor mode per section — default to 'own' for user-owned chapters
+  if (!draftState.editorMode) draftState.editorMode = {};
+  if (draftState.editorMode[sectionId] === undefined) {
+    draftState.editorMode[sectionId] = isUserOwned ? 'own' : 'generate';
+  }
+  const editorMode = draftState.editorMode[sectionId];
+  const showOwnContent = editorMode === 'own';
+
+  // Chapter-specific ownership labels
+  const ownershipNote = {
+    'thesis-ch3': 'This chapter describes your research design. Enter your own methodology — the tool cannot generate this from the literature.',
+    'thesis-ch4': 'This chapter presents your findings. Paste or type your own results — only you have your data.',
+    'thesis-ch5': 'Discussion draws on both the literature and your findings. You can generate a framework from papers, then add your interpretation.',
+    'thesis-ch6': 'Conclusions synthesize your study. Generate a structure from the literature, then write your own scholarly contribution.',
+    'thesis-refs': 'Merge your own references with those from the literature search.'
+  };
+
+  const ownNote = ownershipNote[sectionId];
+  const ownContentValue = draftState.ownContent?.[sectionId] || '';
+
   workspace.innerHTML = `
-    <div style="background:var(--cream);border-left:3px solid var(--gold);padding:14px 18px;margin-bottom:24px;font-size:13px;color:var(--ink);line-height:1.6;">
+    <div style="background:var(--cream);border-left:3px solid var(--gold);padding:14px 18px;margin-bottom:16px;font-size:13px;color:var(--ink);line-height:1.6;">
       <strong>Section guidance:</strong> ${sec.hint}
       ${sec.note ? `<br><em style="color:var(--muted);">${sec.note}</em>` : ''}
       <br><span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);">Target: ${sec.wordTarget}</span>
     </div>
 
+    ${isThesis && ownNote ? `
+    <!-- Mode toggle -->
+    <div style="display:flex;gap:0;margin-bottom:20px;border:1px solid var(--border);">
+      <button onclick="setSectionEditorMode('${sectionId}','generate')"
+        style="flex:1;padding:10px 16px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.15s;background:${!showOwnContent ? 'var(--ink)' : 'transparent'};color:${!showOwnContent ? 'var(--gold)' : 'var(--muted)'};">
+        ✦ Generate from Literature
+      </button>
+      <button onclick="setSectionEditorMode('${sectionId}','own')"
+        style="flex:1;padding:10px 16px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;border:none;border-left:1px solid var(--border);cursor:pointer;transition:all 0.15s;background:${showOwnContent ? 'var(--ink)' : 'transparent'};color:${showOwnContent ? 'var(--gold)' : 'var(--muted)'};">
+        ✎ Enter My Own Content
+      </button>
+    </div>` : ''}
+
+    ${showOwnContent && ownNote ? `
+    <!-- Own content editor -->
+    <div style="background:#fff8f0;border:1px solid rgba(201,144,58,0.3);padding:12px 16px;margin-bottom:16px;font-size:13px;color:var(--ink);line-height:1.6;">
+      ${ownNote}
+      ${sectionId === 'thesis-refs' ? `<br><br><strong>Paste your references below.</strong> They will be merged with papers from your literature search when you export.` : ''}
+    </div>
+    <textarea id="own-content-${sectionId}"
+      style="width:100%;min-height:320px;font-family:'Playfair Display',serif;font-size:15px;line-height:1.8;color:var(--ink);border:2px solid var(--border);padding:20px;resize:vertical;outline:none;background:white;"
+      placeholder="${sectionId === 'thesis-ch3' ? 'Describe your research design, participants, instruments, procedures, data analysis approach, and ethical considerations...' : sectionId === 'thesis-ch4' ? 'Present your findings organized by research question or theme. Include tables, statistics, or qualitative themes as appropriate...' : sectionId === 'thesis-refs' ? 'Paste your reference list here (any format). These will be merged with the literature search references on export.' : 'Enter your content here...'}"
+      oninput="saveOwnContent('${sectionId}', this.value)">${ownContentValue}</textarea>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;align-items:center;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);" id="own-wordcount-${sectionId}">${ownContentValue ? ownContentValue.trim().split(/\s+/).filter(Boolean).length + ' words' : '0 words'}</div>
+      ${sectionId !== 'thesis-refs' ? `
+      <button onclick="importScaffoldToEditor('${sectionId}')" style="font-family:'Outfit',sans-serif;font-weight:600;font-size:12px;padding:8px 16px;background:transparent;color:var(--muted);border:1px solid var(--border);cursor:pointer;margin-left:auto;">
+        Import scaffold as starting point
+      </button>` : ''}
+    </div>` : `
+    <!-- Generate mode -->
     ${sec.prewritten ? `
     <div style="background:var(--green-light);border:1px solid var(--green);padding:14px 18px;margin-bottom:24px;font-size:13px;color:var(--green);">
-      ✓ The Methods section is pre-written from your search data. Click Generate to populate it.
+      ✓ This section is pre-written from your search data. Click Generate to populate it.
     </div>` : ''}
 
     <div id="generated-text-${sectionId}" style="min-height:200px;margin-bottom:24px;">
       ${existingText ? `
-        <div style="font-family:'Playfair Display',serif;font-size:16px;line-height:1.9;color:var(--ink);">${existingText}</div>
+        <div style="font-family:'Playfair Display',serif;font-size:16px;line-height:1.9;color:var(--ink);white-space:pre-wrap;">${existingText}</div>
         <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-top:12px;">
-          ${existingText.split(' ').length} words
+          ${existingText.split(/\s+/).filter(Boolean).length} words
         </div>
       ` : `
         <div style="font-size:14px;color:var(--muted);font-style:italic;padding:40px 0;">
@@ -4937,11 +5019,15 @@ function openDraftSection(sectionId) {
         ${existingText ? '↺ Regenerate' : '✦ Generate'} Section
       </button>
       ${existingText ? `
+      <button onclick="editGeneratedText('${sectionId}')"
+        style="font-family:'Outfit',sans-serif;font-weight:600;font-size:13px;letter-spacing:0.06em;text-transform:uppercase;padding:12px 24px;background:transparent;color:var(--navy);border:2px solid var(--navy);cursor:pointer;">
+        ✎ Edit
+      </button>
       <button onclick="clearSection('${sectionId}')"
         style="font-family:'Outfit',sans-serif;font-weight:600;font-size:13px;letter-spacing:0.06em;text-transform:uppercase;padding:12px 24px;background:transparent;color:var(--muted);border:2px solid var(--border);cursor:pointer;">
         Clear
       </button>` : ''}
-    </div>
+    </div>`}
   `;
 
   // Render paper checklist
@@ -4982,8 +5068,9 @@ function renderPaperChecklist(sectionId, sec) {
     var pid = entry[0]; var paper = entry[1];
     var isSelected = selectedPids.includes(pid);
     var isSuggested = suggested.includes(pid);
-    var bc = isSelected ? 'var(--navy)' : 'var(--border)';
-    var bg = isSelected ? '#f0f4f8' : 'white';
+    var isUploaded = pid.startsWith('pdf_');
+    var bc = isSelected ? 'var(--navy)' : isUploaded ? 'rgba(201,144,58,0.4)' : 'var(--border)';
+    var bg = isSelected ? '#f0f4f8' : isUploaded ? 'rgba(201,144,58,0.04)' : 'white';
     var safePid = pid.replace(/'/g, "\\'");
     var shortTitle = (paper.title || 'Untitled').substring(0, 80) + (paper.title && paper.title.length > 80 ? '...' : '');
     var shortAbstract = paper.abstract ? paper.abstract.substring(0, 120) + (paper.abstract.length > 120 ? '...' : '') : '';
@@ -4992,7 +5079,8 @@ function renderPaperChecklist(sectionId, sec) {
     html += '<div style="width:14px;height:14px;border:1.5px solid ' + bc + ';background:' + (isSelected ? 'var(--navy)' : 'white') + ';flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;">';
     html += isSelected ? '<span style="color:white;font-size:9px;">&#10003;</span>' : '';
     html += '</div><div style="flex:1;">';
-    if (isSuggested) html += '<span style="' + mono + 'font-size:8px;background:var(--gold);color:var(--ink);padding:1px 5px;margin-bottom:4px;display:inline-block;">SUGGESTED</span><br>';
+    if (isUploaded) html += '<span style="' + mono + 'font-size:8px;background:rgba(201,144,58,0.15);color:var(--gold);border:1px solid rgba(201,144,58,0.4);padding:1px 5px;margin-bottom:4px;display:inline-block;">UPLOADED</span><br>';
+    else if (isSuggested) html += '<span style="' + mono + 'font-size:8px;background:var(--gold);color:var(--ink);padding:1px 5px;margin-bottom:4px;display:inline-block;">SUGGESTED</span><br>';
     html += '<div style="font-size:12px;font-weight:600;color:var(--ink);line-height:1.4;margin-bottom:3px;">' + shortTitle + '</div>';
     html += '<div style="' + mono + 'font-size:10px;color:var(--muted);">' + (paper.author || 'Unknown') + ' &middot; ' + (paper.year || '&mdash;');
     if (paper.citations) html += ' &middot; ' + paper.citations + ' citations';
@@ -5079,7 +5167,9 @@ async function generateSection(sectionId) {
     line += '    Journal: ' + (p.journal || 'Unknown') + ', ' + (p.year || 'n.d.');
     if (p.citations) line += ' (' + p.citations + ' citations)';
     line += '\n';
-    if (p.abstract) line += '    Abstract: ' + p.abstract.slice(0, 400) + (p.abstract.length > 400 ? '...' : '') + '\n';
+    const abstractLimit = pid.startsWith('pdf_') ? 800 : 400;
+    if (p.abstract) line += '    Abstract: ' + p.abstract.slice(0, abstractLimit) + (p.abstract.length > abstractLimit ? '...' : '') + '\n';
+    if (p.source === 'upload') line += '    [UPLOADED PAPER — full text available]\n';
     if (p.concepts) line += '    Key concepts: ' + p.concepts + '\n';
     return line;
   }).join('\n');
@@ -5423,53 +5513,544 @@ Inclusion criteria required papers to be peer-reviewed scholarly works available
 }
 
 function generateScaffold(sec, papers) {
-  const cites = papers.slice(0, 3).map(p => {
-    const author = p.author ? p.author.split(';')[0].split(',')[0].trim() : 'Unknown';
-    return `(${author}, ${p.year || '—'})`;
-  }).join('; ');
-
   const mode = state.mode || 'review';
+  const anchor = state.anchor || 'the research topic';
+  const topic = state.topic || anchor;
+  const sgCount = (state.subgroups || []).length;
+  const paperCount = Object.keys(state.papers || {}).length;
+  const gapCount = (state.gapFindings || []).length;
+  const secondary = (state.selectedSecondary || []).map(i => (state.secondaryKeywords || [])[i]).filter(Boolean);
+
+  // Citation helpers
+  const cite = p => {
+    const author = p.author ? p.author.split(';')[0].split(',')[0].trim() : 'Unknown';
+    return `(${author}, ${p.year || 'n.d.'})`;
+  };
+  const fullCite = p => {
+    const author = p.author || 'Unknown';
+    const year = p.year || 'n.d.';
+    return `${author} (${year})`;
+  };
+  const paperLine = (p, i) => `${i+1}. ${fullCite(p)}: "${p.title}"${p.journal ? ', ' + p.journal : ''}${p.abstract ? ' — ' + p.abstract.slice(0, 120) + '...' : ''}`;
+
+  const top = papers.slice(0, 8);
+  const top3 = papers.slice(0, 3);
+  const top5 = papers.slice(0, 5);
 
   if (mode === 'thesis') {
-    const thesisHints = {
-      'thesis-ch1': `[CHAPTER 1: INTRODUCTION]\n\nProblem Statement: [Describe the problem or gap this study addresses.]\n\nPurpose of the Study: [State clearly what this study does.]\n\nResearch Questions:\n  RQ1: [Insert research question]\n  RQ2: [Insert research question]\n\nSignificance: [Why does this study matter to the field and to practice?]\n\nDefinitions of Key Terms: [Define anchor term and related concepts.]\n\nOrganization of the Study: [Brief overview of dissertation chapters.]`,
-      'thesis-ch2': `[CHAPTER 2: LITERATURE REVIEW]\n\nIntroduction to Chapter: [Describe scope and organization of this review.]\n\nTheoretical/Conceptual Framework: [Name and describe the theory or framework grounding this study. Cite foundational works: ${cites}]\n\nTheme 1 — [Name first major theme from the literature]: [Synthesize here.]\n\nTheme 2 — [Name second major theme]: [Synthesize here.]\n\nTheme 3 — [Name third major theme]: [Synthesize here.]\n\nGaps in the Literature: [Identify what is missing or unresolved. Position your study here.]\n\nSummary: [Transition to Methodology chapter.]`,
-      'thesis-ch3': `[CHAPTER 3: METHODOLOGY]\n\nResearch Design: [Describe and justify the design — qualitative, quantitative, or mixed methods.]\n\nSetting and Participants: [Describe site, sample, and selection criteria.]\n\nInstruments/Measures: [Describe data collection tools and establish validity/reliability.]\n\nProcedures: [Describe step-by-step data collection process.]\n\nData Analysis: [Describe analytical approach and justify with citations.]\n\nEthical Considerations: [IRB approval, confidentiality, informed consent.]\n\nLimitations: [Acknowledge methodological constraints.]`,
-      'thesis-ch4': `[CHAPTER 4: RESULTS / FINDINGS]\n\nIntroduction: [Briefly describe what this chapter presents.]\n\nFinding 1 — [Theme/RQ label]: [DATA TO BE INSERTED — describe or present data here.]\n\nFinding 2 — [Theme/RQ label]: [DATA TO BE INSERTED]\n\nFinding 3 — [Theme/RQ label]: [DATA TO BE INSERTED]\n\nSummary of Findings: [Brief recap of what was found, without interpretation.]`,
-      'thesis-ch5': `[CHAPTER 5: DISCUSSION]\n\nRestatement of Purpose: [One sentence restating the study's purpose.]\n\nInterpretation of Findings:\n  Finding 1 — [What does this mean? Connect to literature: ${cites}]\n  Finding 2 — [What does this mean?]\n  Finding 3 — [What does this mean?]\n\nTheoretical Implications: [How do findings advance or challenge existing theory?]\n\nPractical Implications: [What should practitioners do differently?]\n\nLimitations: [Acknowledge study limitations honestly.]\n\nFuture Research: [What should the field study next?]`,
-      'thesis-ch6': `[CHAPTER 6: CONCLUSION AND RECOMMENDATIONS]\n\nSummary of the Study: [Concise summary of purpose, methods, and key findings.]\n\nScholarly Contribution: [What does this study add to the field?]\n\nRecommendations for Practice: [Specific, actionable recommendations.]\n\nRecommendations for Future Research: [Specific research questions the field should pursue.]\n\nFinal Statement: [Closing reflection on the significance of this work.]`,
-      'thesis-refs': `[REFERENCES]\n\n${papers.map(p => {
-        const author = p.author || 'Unknown, A.';
-        const year = p.year || 'n.d.';
-        const title = p.title || 'Untitled';
-        const journal = p.journal || 'Unknown Journal';
-        return `${author} (${year}). ${title}. ${journal}.`;
-      }).join('\n\n')}`
-    };
+    switch(sec.id) {
+      case 'thesis-ch1':
+        return `CHAPTER 1: INTRODUCTION
 
-    return thesisHints[sec.id] || `[${sec.title.toUpperCase()}]\n\nTarget: ${sec.wordTarget}\n\nGuidance: ${sec.hint}\n\n${papers.length > 0 ? `Key papers to draw from: ${cites}` : 'No papers selected yet.'}\n\n[Add an Anthropic API key on Screen 1 to generate this section automatically.]`;
+Problem Statement
+
+${anchor.charAt(0).toUpperCase() + anchor.slice(1)} represents a critical area of inquiry with significant implications for ${secondary[0] || 'the field'}. Despite growing scholarly attention, critical gaps persist in the literature regarding ${secondary[1] || 'key aspects of this phenomenon'}. This study addresses those gaps through a systematic examination of the existing evidence base.
+
+Purpose of the Study
+
+The purpose of this study is to conduct a systematic literature review examining ${anchor} across ${secondary.length > 0 ? secondary.join(', ') : 'relevant contexts'}, with the aim of synthesizing existing findings, identifying gaps, and proposing directions for future research.
+
+Research Questions
+
+RQ1: What does the existing literature reveal about ${anchor} and its relationship to ${secondary[0] || 'key outcome variables'}?
+RQ2: What gaps exist in the current research on ${anchor} that warrant future investigation?
+${secondary[1] ? 'RQ3: How does ' + secondary[1] + ' intersect with ' + anchor + ' in the scholarly literature?' : ''}
+
+Significance of the Study
+
+This review is significant for several reasons. First, it synthesizes evidence from ${paperCount > 0 ? paperCount + ' retrieved scholarly works' : 'a broad corpus of scholarly literature'} to provide a comprehensive map of what is known about ${anchor}. Second, it identifies ${gapCount > 0 ? gapCount + ' confirmed gaps' : 'specific gaps'} in the literature — areas where research is absent or insufficient — which positions future researchers to make original contributions. Third, the findings have direct implications for practitioners, educators, and policymakers working in contexts related to ${anchor}.
+
+Definitions of Key Terms
+
+${anchor.charAt(0).toUpperCase() + anchor.slice(1)}: [Provide a formal definition drawn from the literature. Cite a foundational source: ${top3.length ? cite(top3[0]) : '(Author, Year)'}]
+${secondary[0] ? secondary[0].charAt(0).toUpperCase() + secondary[0].slice(1) + ': [Provide definition and citation]' : '[Key term 2]: [Define and cite]'}
+${secondary[1] ? secondary[1].charAt(0).toUpperCase() + secondary[1].slice(1) + ': [Provide definition and citation]' : '[Key term 3]: [Define and cite]'}
+
+Organization of the Study
+
+This dissertation is organized into six chapters. Chapter 1 introduces the research problem, purpose, and questions. Chapter 2 reviews the relevant literature and presents the theoretical framework. Chapter 3 describes the research methodology. Chapter 4 presents the results. Chapter 5 discusses the findings in relation to the literature. Chapter 6 offers conclusions and recommendations.
+
+[API key not set — this scaffold was generated from your search data. Add an Anthropic API key on Screen 1 to generate fully written prose using your actual papers.]`;
+
+      case 'thesis-ch2':
+        const themes = secondary.slice(0, 3);
+        const themeBlocks = themes.length > 0 ? themes.map((theme, i) => {
+          const themePapers = top5.filter((_, idx) => idx % themes.length === i);
+          return `Theme ${i+1}: ${theme.charAt(0).toUpperCase() + theme.slice(1)}
+
+The literature on ${theme} in relation to ${anchor} reveals several important patterns. ${themePapers.length > 0 ? themePapers.map(p => fullCite(p) + ' examined ' + (p.abstract ? p.abstract.slice(0, 100) + '...' : '"' + p.title + '"') + '.').join(' ') : '[Synthesize what scholars have found about this theme. Discuss agreements, contradictions, and evolution of ideas.]'}
+
+[Expand this section with your analysis. What do these studies collectively tell us? Where do they agree? Where do they conflict?]`;
+        }).join('\n\n') : `Theme 1: [Name first major theme]\n\n[Synthesize what the literature says about this theme.]\n\nTheme 2: [Name second major theme]\n\n[Synthesize here.]`;
+
+        const gapPapers = top.slice(5);
+        return `CHAPTER 2: LITERATURE REVIEW
+
+Introduction
+
+This chapter presents a systematic review of the scholarly literature on ${anchor}${secondary.length > 0 ? ', with particular attention to ' + secondary.slice(0,2).join(' and ') : ''}. The review draws on ${paperCount > 0 ? paperCount + ' works retrieved' : 'works retrieved'} through a structured search of the OpenAlex academic database using ${sgCount > 0 ? sgCount + ' keyword subgroups' : 'multiple keyword combinations'}. The chapter is organized thematically, beginning with the theoretical framework, proceeding through key themes in the literature, and concluding with an identification of gaps that this study addresses.
+
+Theoretical and Conceptual Framework
+
+The theoretical framework guiding this study draws on [name the theory or framework most relevant to your study]. ${top3.length > 0 ? top3.map(p => fullCite(p) + ' contributed foundational work establishing the relationship between ' + anchor + ' and ' + (secondary[0] || 'relevant outcomes') + '.').join(' ') : '[Identify and describe the theoretical lens you are using. What established theory explains or frames your research questions?]'}
+
+[Describe how this framework applies to your specific research context and why it was selected.]
+
+${themeBlocks}
+
+Gaps in the Literature
+
+Despite the body of work reviewed above, significant gaps remain. ${gapCount > 0 ? 'This systematic search confirmed ' + gapCount + ' instances where keyword combinations returned zero or near-zero results, indicating confirmed absence of research at specific intersections.' : 'The literature reveals several areas that have received insufficient scholarly attention.'} ${gapPapers.length > 0 ? 'Among the foundation papers retrieved — ' + gapPapers.slice(0,2).map(p => fullCite(p)).join(' and ') + ' — none directly addresses [your specific research gap].' : '[Identify specifically what is missing. What questions have not been asked? What populations have not been studied? What contexts have been overlooked?]'}
+
+This study addresses these gaps by [describe your specific contribution].
+
+Summary
+
+This chapter has reviewed the scholarly literature on ${anchor}, identifying key themes, foundational works, and critical gaps. The literature collectively demonstrates [summarize 1-2 key takeaways]. The gaps identified in this review establish the necessity and significance of the present study. Chapter 3 describes the methodology employed to address the research questions.
+
+[API key not set — this scaffold was generated from your search data. Add an Anthropic API key on Screen 1 to generate fully written academic prose.]`;
+
+      case 'thesis-ch3':
+        return `CHAPTER 3: METHODOLOGY
+
+Research Design
+
+This study employed a [qualitative / quantitative / mixed methods] research design. [Justify this choice — why is this design appropriate for your research questions?] This approach aligns with the recommendations of [cite a methodological authority: ${top3.length ? cite(top3[0]) : '(Author, Year)'}] for studies examining ${anchor} in [your context].
+
+Setting and Participants
+
+[Describe your research site or context. Who were your participants? How were they selected? What were the inclusion and exclusion criteria?]
+
+Sample: [n = X; describe characteristics]
+Selection method: [purposive / random / convenience / theoretical sampling]
+Rationale: [Why this sample? Why this size?]
+
+Instruments and Measures
+
+[Describe the tools used to collect data. If using a survey, describe it. If using interviews, describe the protocol. Establish validity and reliability.]
+
+Instrument: [Name and describe]
+Validity: [How was validity established?]
+Reliability: [Cronbach's alpha / inter-rater reliability / other measure]
+
+Data Collection Procedures
+
+Data were collected [describe the procedure step by step — how did you recruit, what did participants do, in what order, over what time period?].
+
+Data Analysis
+
+[Describe your analysis approach. What method? Why?]
+
+Analysis method: [thematic analysis / regression / content analysis / grounded theory / other]
+Software: [SPSS / NVivo / R / Atlas.ti / other]
+Procedure: [Step-by-step description of how you moved from raw data to findings]
+
+Ethical Considerations
+
+This study was conducted in accordance with [institutional review board / ethics committee] approval. Participants provided informed consent. Confidentiality was maintained through [anonymization procedures]. [Describe any additional ethical safeguards relevant to your study.]
+
+Limitations
+
+[Acknowledge the methodological constraints of your study honestly. What could not be controlled? What boundaries limit generalizability?]
+
+[API key not set — fill in the bracketed sections with your specific methodological choices. Add an Anthropic API key on Screen 1 for AI-assisted writing.]`;
+
+      case 'thesis-ch4':
+        return `CHAPTER 4: RESULTS / FINDINGS
+
+Introduction
+
+This chapter presents the findings of the study. Data were collected from [describe sample] and analyzed using [describe method]. The findings are organized around the research questions guiding this study.
+
+Results by Research Question
+
+RQ1: What does the existing literature reveal about ${anchor}?
+
+[DATA TO BE INSERTED — describe your findings here. What patterns emerged? What did participants say or what did the data show?]
+
+Table 4.1: [Descriptive statistics or theme frequency table — insert here]
+
+RQ2: What gaps exist in the current research on ${anchor}?
+
+[DATA TO BE INSERTED — describe gap-related findings]
+
+${secondary[0] ? 'RQ3: How does ' + secondary[0] + ' intersect with ' + anchor + '?\n\n[DATA TO BE INSERTED]' : ''}
+
+Summary of Findings
+
+The analysis revealed [summarize the key findings in 2-3 sentences without interpretation — save interpretation for Chapter 5]. [Describe the overall pattern of results.] These findings are discussed and interpreted in Chapter 5.
+
+[This chapter requires your actual data. The structure above matches standard dissertation formatting. Fill in the [DATA TO BE INSERTED] sections with your real findings.]`;
+
+      case 'thesis-ch5':
+        return `CHAPTER 5: DISCUSSION
+
+Restatement of Purpose
+
+The purpose of this study was to examine ${anchor}${secondary.length > 0 ? ' in relation to ' + secondary.slice(0,2).join(' and ') : ''} through a systematic review of the scholarly literature. This chapter interprets the findings presented in Chapter 4 in light of the theoretical framework and existing literature reviewed in Chapter 2.
+
+Interpretation of Findings
+
+Finding 1: [Restate finding 1 from Chapter 4]
+
+This finding is consistent with ${top3.length > 0 ? fullCite(top3[0]) + ', who found that [describe their finding]' : '[cite relevant prior work]'}. ${top3.length > 1 ? 'Similarly, ' + fullCite(top3[1]) + ' demonstrated [related finding]. ' : ''}[Explain what this finding means — not just what it is, but why it matters and what it tells us about the phenomenon.]
+
+Finding 2: [Restate finding 2]
+
+${top3.length > 2 ? 'This result extends the work of ' + fullCite(top3[2]) + ' by [describe how your finding adds to or challenges their work].' : '[Connect this finding to the literature reviewed in Chapter 2.]'} [What does this mean for theory? For practice?]
+
+Finding 3: [Restate finding 3]
+
+[Interpret finding 3 in relation to the theoretical framework. Does it confirm, challenge, or extend existing theory?]
+
+Theoretical Implications
+
+These findings contribute to the theoretical understanding of ${anchor} by [describe the theoretical contribution]. Specifically, the results suggest that [theoretical claim supported by your data]. This advances the work of [cite foundational theorist] by demonstrating [what is new or refined].
+
+Practical Implications
+
+The findings have direct implications for practitioners working in [field/context]. Specifically:
+
+1. [Practical implication 1 — what should practitioners do differently based on your findings?]
+2. [Practical implication 2]
+3. [Practical implication 3]
+
+Limitations
+
+This study has several limitations that should be considered when interpreting the findings. First, [limitation 1 — e.g., sample size, generalizability]. Second, [limitation 2]. Third, [limitation 3]. These limitations suggest directions for future research.
+
+Future Research
+
+Future studies should address the following:
+
+1. ${gapCount > 0 ? 'The ' + gapCount + ' confirmed literature gaps identified in this review represent specific intersections where no scholarship currently exists.' : '[Specific gap 1 that future researchers should address]'}
+2. Longitudinal studies examining ${anchor} over time would strengthen the evidence base.
+3. [Additional future research direction based on your findings]
+
+[API key not set — this scaffold uses your actual papers. Add an Anthropic API key to generate fully written prose.]`;
+
+      case 'thesis-ch6':
+        return `CHAPTER 6: CONCLUSION AND RECOMMENDATIONS
+
+Summary of the Study
+
+This study examined ${anchor}${secondary.length > 0 ? ' with particular attention to ' + secondary.slice(0,2).join(' and ') : ''} through a systematic review of the scholarly literature. A structured search of the OpenAlex database yielded ${paperCount > 0 ? paperCount + ' papers' : 'a substantial corpus'} across ${sgCount > 0 ? sgCount + ' keyword subgroups' : 'multiple search dimensions'}. ${gapCount > 0 ? gapCount + ' confirmed literature gaps were identified.' : 'Key gaps in the literature were identified.'} The findings reveal that [summarize your 2-3 most important findings here].
+
+Scholarly Contribution
+
+This study makes several contributions to the scholarship on ${anchor}. First, it provides a comprehensive and replicable map of the existing literature. Second, it confirms specific gaps — areas where research is absent — that establish clear priorities for future inquiry. Third, it applies [your theoretical framework] to [your context], extending our understanding of [how the framework applies].
+
+Recommendations for Practice
+
+Based on the findings of this study, the following recommendations are offered for practitioners:
+
+1. [Specific, actionable recommendation tied directly to a finding]
+2. [Second recommendation]
+3. [Third recommendation]
+
+Organizations and institutions working in [field] should consider [broader policy or structural recommendation].
+
+Recommendations for Future Research
+
+Future researchers should:
+
+1. Conduct empirical studies at the ${gapCount > 0 ? gapCount + ' confirmed gap intersections' : 'gap intersections'} identified in this review.
+2. Examine ${anchor} in [underrepresented population or context].
+3. Develop and test [intervention, framework, or model] based on the theoretical implications of these findings.
+4. Employ longitudinal designs to track changes in ${anchor} over time.
+
+Final Statement
+
+This systematic literature review demonstrates that ${anchor} is a domain of active and growing scholarly interest, yet one with significant unresolved questions. The gaps confirmed in this review are not failures of the field — they are the point. They represent the frontier where the next generation of researchers can make genuine, original contributions.
+
+[API key not set — this scaffold uses your actual search data. Add an Anthropic API key to generate fully written prose.]`;
+
+      case 'thesis-refs':
+        if (papers.length === 0) return `REFERENCES\n\n[No papers selected. Select papers from the checklist on the right, then click Generate.]`;
+        return `REFERENCES\n\n` + papers.map(p => formatReference(p, papers.indexOf(p) + 1)).join('\n\n');
+
+      default:
+        return `${sec.title.toUpperCase()}\n\nTarget: ${sec.wordTarget}\n\n${sec.hint}\n\n${papers.length > 0 ? 'Key papers: ' + top3.map(p => fullCite(p) + ': "' + p.title + '"').join('; ') : 'No papers selected.'}\n\n[Add an Anthropic API key on Screen 1 to generate this section automatically.]`;
+    }
   }
 
   if (mode === 'poster') {
-    return `[POSTER SECTION: ${sec.title.toUpperCase()}]\nTarget: ${sec.wordTarget}\n\n${sec.hint}\n\n${papers.length > 0 ? `Papers to cite: ${cites}` : 'No papers selected yet.'}\n\n[Keep text brief and scannable. Add an Anthropic API key on Screen 1 to generate automatically.]`;
+    return `[POSTER SECTION: ${sec.title.toUpperCase()}]\nTarget: ${sec.wordTarget}\n\n${sec.hint}\n\n${papers.length > 0 ? 'Papers: ' + top3.map(p => fullCite(p) + ': "' + p.title + '"').join('\n') : 'No papers selected.'}\n\n[Add an Anthropic API key on Screen 1 to generate automatically.]`;
   }
 
   // Standard manuscript scaffold
-  return `[SECTION ${sec.num}: ${sec.title.toUpperCase()}]
+  const top3Cites = top3.map(p => cite(p)).join('; ');
+  return `${sec.num ? sec.num + '. ' : ''}${sec.title.toUpperCase()}\nTarget: ${sec.wordTarget}\n\n${sec.hint}\n\n${papers.length > 0 ? 'Key papers to draw from:\n' + top5.map((p,i) => paperLine(p,i+1)).join('\n') : 'No papers selected for this section.'}\n\n[With an Anthropic API key entered on Screen 1, this section will be written automatically using only the papers you selected. Without a key, use the paper list above to write this section yourself.]\n\nTarget: ${sec.wordTarget}.`;
+}
 
-This section should be ${sec.wordTarget}. ${sec.hint}
+function setSectionEditorMode(sectionId, mode) {
+  if (!draftState.editorMode) draftState.editorMode = {};
+  draftState.editorMode[sectionId] = mode;
+  openDraftSection(sectionId);
+}
 
-${papers.length > 0 ? `Begin by citing the most relevant foundation papers: ${cites}.` : 'No papers selected for this section.'}
+function saveOwnContent(sectionId, value) {
+  if (!draftState.ownContent) draftState.ownContent = {};
+  draftState.ownContent[sectionId] = value;
+  // Update word count
+  const wc = document.getElementById('own-wordcount-' + sectionId);
+  if (wc) wc.textContent = value.trim().split(/\s+/).filter(Boolean).length + ' words';
+}
 
-[Add your analysis here. With an Anthropic API key entered on Screen 1, this section will be written automatically by Claude using only the papers you selected.]
+function importScaffoldToEditor(sectionId) {
+  // Generate the scaffold and put it in the own-content textarea
+  const sec = draftState.sections.find(s => s.id === sectionId);
+  if (!sec) return;
+  const selectedPids = draftState.selectedPapers[sectionId] || [];
+  const papers = selectedPids.map(pid => state.papers[pid]).filter(Boolean);
+  const scaffold = generateScaffold(sec, papers);
+  if (!draftState.ownContent) draftState.ownContent = {};
+  draftState.ownContent[sectionId] = scaffold;
+  const ta = document.getElementById('own-content-' + sectionId);
+  if (ta) {
+    ta.value = scaffold;
+    const wc = document.getElementById('own-wordcount-' + sectionId);
+    if (wc) wc.textContent = scaffold.trim().split(/\s+/).filter(Boolean).length + ' words';
+  }
+}
 
-Target: ${sec.wordTarget}.`;
+function editGeneratedText(sectionId) {
+  // Switch the generated text into an editable textarea
+  const textDiv = document.getElementById('generated-text-' + sectionId);
+  if (!textDiv) return;
+  const existing = draftState.generatedText[sectionId] || '';
+  textDiv.innerHTML = `
+    <textarea id="edit-generated-${sectionId}"
+      style="width:100%;min-height:320px;font-family:'Playfair Display',serif;font-size:15px;line-height:1.8;color:var(--ink);border:2px solid var(--navy);padding:20px;resize:vertical;outline:none;"
+      oninput="draftState.generatedText['${sectionId}']=this.value;renderSectionNav();">${existing}</textarea>
+    <div style="margin-top:8px;display:flex;gap:8px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);" id="edit-wc-${sectionId}">${existing.trim().split(/\s+/).filter(Boolean).length} words</div>
+    </div>`;
+  const ta = document.getElementById('edit-generated-' + sectionId);
+  if (ta) {
+    ta.addEventListener('input', () => {
+      const wc = document.getElementById('edit-wc-' + sectionId);
+      if (wc) wc.textContent = ta.value.trim().split(/\s+/).filter(Boolean).length + ' words';
+    });
+    ta.focus();
+  }
 }
 
 function clearSection(sectionId) {
   delete draftState.generatedText[sectionId];
+  if (draftState.ownContent) delete draftState.ownContent[sectionId];
   renderSectionNav();
   openDraftSection(sectionId);
+}
+
+// ═══════════════════════════════════════════
+// PDF UPLOAD — Bring Your Own Papers
+// ═══════════════════════════════════════════
+
+const PDF_SG_INDEX = 999; // Special SG index for uploaded papers
+
+async function extractPDFText(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const pdfjsLib = window['pdfjs-dist/build/pdf'] || window.pdfjsLib;
+        if (!pdfjsLib) throw new Error('PDF.js not loaded');
+
+        // Set worker
+        if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
+          pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+        }
+
+        const typedArray = new Uint8Array(e.target.result);
+        const pdf = await pdfjsLib.getDocument({ data: typedArray }).promise;
+
+        // Extract text from first 6 pages (title, abstract, intro, refs)
+        const maxPages = Math.min(pdf.numPages, 6);
+        let fullText = '';
+        for (let i = 1; i <= maxPages; i++) {
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          const pageText = content.items.map(item => item.str).join(' ');
+          fullText += pageText + '\n\n';
+        }
+        resolve({ text: fullText.slice(0, 6000), pageCount: pdf.numPages });
+      } catch(err) {
+        reject(err);
+      }
+    };
+    reader.onerror = reject;
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+async function parsePaperMetadata(text, filename, apiKey) {
+  // If no API key, use heuristic parsing
+  if (!apiKey) return heuristicParse(text, filename);
+
+  try {
+    const prompt = `Extract bibliographic metadata from this academic paper text. Return ONLY valid JSON, no other text.
+
+Paper text (first ~6000 chars):
+${text.slice(0, 4000)}
+
+Return this exact JSON structure:
+{
+  "title": "Full paper title",
+  "authors": "Last, F., Last, F. (all authors, semicolon-separated)",
+  "firstAuthor": "Last, F.",
+  "journal": "Journal name or conference name",
+  "year": "4-digit year as string",
+  "abstract": "Abstract text, max 300 words",
+  "doi": "DOI if found, else empty string",
+  "keywords": "key topic words comma-separated"
+}
+
+If a field cannot be found, use an empty string. Year must be 4 digits or empty.`;
+
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 400, messages: [{ role: 'user', content: prompt }] })
+    });
+    const data = await resp.json();
+    const raw = data.content?.[0]?.text?.trim() || '{}';
+    const clean = raw.replace(/```json|```/g, '').trim();
+    return JSON.parse(clean);
+  } catch(e) {
+    console.warn('API parse failed, using heuristic:', e.message);
+    return heuristicParse(text, filename);
+  }
+}
+
+function heuristicParse(text, filename) {
+  // Simple heuristic: first non-empty line is likely the title
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+  const title = lines[0] || filename.replace('.pdf','');
+  // Look for year pattern
+  const yearMatch = text.match(/\b(19|20)\d{2}\b/);
+  const year = yearMatch ? yearMatch[0] : '';
+  // Look for doi
+  const doiMatch = text.match(/10\.\d{4,}\/\S+/);
+  const doi = doiMatch ? doiMatch[0] : '';
+  // Abstract: text between "abstract" and "introduction" or "keywords"
+  const abstractMatch = text.match(/abstract[:\s]+(.{50,500}?)(?:introduction|keywords|1\.|background)/is);
+  const abstract = abstractMatch ? abstractMatch[1].trim() : lines.slice(1, 4).join(' ').slice(0, 300);
+
+  return { title, authors: '', firstAuthor: 'Unknown', journal: '', year, abstract, doi, keywords: '' };
+}
+
+async function handlePDFUpload(event) {
+  const files = Array.from(event.target.files);
+  if (!files.length) return;
+
+  const statusEl = document.getElementById('pdf-upload-status');
+  const listEl = document.getElementById('pdf-paper-list');
+  if (statusEl) { statusEl.style.display = 'block'; statusEl.textContent = `Processing ${files.length} file${files.length > 1 ? 's' : ''}...`; }
+
+  let processed = 0;
+  const results = [];
+
+  for (const file of files) {
+    if (statusEl) statusEl.textContent = `Extracting text: ${file.name} (${processed + 1}/${files.length})...`;
+
+    try {
+      const { text, pageCount } = await extractPDFText(file);
+      if (statusEl) statusEl.textContent = `Parsing metadata: ${file.name}...`;
+
+      const meta = await parsePaperMetadata(text, file.name, state.apiKey);
+
+      // Build paper object matching state.papers schema
+      const pid = 'pdf_' + file.name.replace(/\W/g,'_') + '_' + (meta.year || Date.now());
+      const paper = {
+        id: pid,
+        title: meta.title || file.name.replace('.pdf',''),
+        author: meta.firstAuthor || meta.authors?.split(';')[0]?.trim() || 'Unknown',
+        authors: meta.authors || '',
+        journal: meta.journal || 'Uploaded PDF',
+        year: meta.year || '',
+        abstract: meta.abstract || '',
+        doi: meta.doi || '',
+        url: meta.doi ? 'https://doi.org/' + meta.doi : '#',
+        concepts: meta.keywords || '',
+        citations: 0,
+        source: 'upload',
+        filename: file.name,
+        pageCount
+      };
+
+      // Inject into state
+      if (!state.papers[pid]) {
+        state.papers[pid] = { ...paper, sgs: [PDF_SG_INDEX] };
+        state.paperSGs[pid] = [PDF_SG_INDEX];
+        const author = paper.author || 'Unknown';
+        state.authorCounts[author] = (state.authorCounts[author] || 0) + 1;
+      }
+
+      results.push({ pid, paper, success: true });
+      processed++;
+    } catch(err) {
+      console.error('PDF processing error:', err);
+      results.push({ pid: null, paper: { title: file.name, error: err.message }, success: false });
+      processed++;
+    }
+  }
+
+  // Re-render the foundation screen with updated papers
+  renderGongScreen();
+  saveSession();
+
+  // Show results in the upload panel
+  renderPDFPaperList(results);
+  if (statusEl) statusEl.textContent = `✓ ${results.filter(r => r.success).length} paper${results.filter(r=>r.success).length !== 1 ? 's' : ''} added to your pool.`;
+
+  // Reset file input
+  event.target.value = '';
+}
+
+function renderPDFPaperList(results) {
+  const listEl = document.getElementById('pdf-paper-list');
+  if (!listEl) return;
+
+  const existingCards = listEl.querySelectorAll('.pdf-paper-card');
+  // Prepend new results
+  const newHtml = results.map(r => {
+    if (!r.success) {
+      return `<div class="pdf-paper-card" style="border:1px solid var(--red);background:var(--red-light);padding:14px;">
+        <div style="font-size:11px;font-weight:600;color:var(--red);margin-bottom:4px;">⚠ Failed: ${r.paper.title}</div>
+        <div style="font-size:11px;color:var(--red);">${r.paper.error}</div>
+      </div>`;
+    }
+    const p = r.paper;
+    return `<div class="pdf-paper-card" style="border:1px solid rgba(201,144,58,0.4);background:rgba(201,144,58,0.06);padding:14px;position:relative;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--gold);margin-bottom:6px;text-transform:uppercase;">Uploaded · ${p.pageCount ? p.pageCount + ' pages' : 'PDF'}</div>
+      <div style="font-size:13px;font-weight:600;color:var(--paper);line-height:1.3;margin-bottom:4px;">${p.title}</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(245,243,238,0.5);">${p.author || 'Unknown'} · ${p.journal || ''} ${p.year ? '· ' + p.year : ''}</div>
+      ${p.abstract ? `<div style="font-size:11px;color:rgba(245,243,238,0.4);margin-top:8px;line-height:1.5;font-style:italic;">${p.abstract.slice(0,120)}...</div>` : ''}
+      <button onclick="removePDFPaper('${r.pid}')" style="position:absolute;top:10px;right:10px;background:none;border:none;color:rgba(245,243,238,0.3);cursor:pointer;font-size:14px;">✕</button>
+    </div>`;
+  }).join('');
+
+  listEl.insertAdjacentHTML('afterbegin', newHtml);
+}
+
+function removePDFPaper(pid) {
+  delete state.papers[pid];
+  delete state.paperSGs[pid];
+  renderGongScreen();
+  saveSession();
+  // Remove card from DOM
+  const cards = document.querySelectorAll('.pdf-paper-card');
+  // Re-render list cleanly
+  const listEl = document.getElementById('pdf-paper-list');
+  if (listEl) {
+    // Filter out the removed paper's card by re-rendering uploaded papers
+    const uploaded = Object.entries(state.papers)
+      .filter(([id]) => id.startsWith('pdf_'))
+      .map(([pid, p]) => ({ pid, paper: p, success: true }));
+    listEl.innerHTML = '';
+    if (uploaded.length) renderPDFPaperList(uploaded);
+  }
 }
 
 // ═══════════════════════════════════════════
@@ -5591,22 +6172,32 @@ function exportWordDraft() {
 
     // Sections
     draftState.sections.forEach(sec => {
+      if (sec.id === 'thesis-refs') return; // handled separately
       const titleText = (sec.num !== '—' ? sec.num + '. ' : '') + sec.title;
       body += h1(titleText);
       if (sec.hint) body += guidanceNote(sec.hint);
-      body += textToRtf(draftState.generatedText[sec.id], true);
+      const ownText = draftState.ownContent?.[sec.id];
+      const genText = draftState.generatedText[sec.id];
+      body += textToRtf(ownText && ownText.trim() ? ownText : genText, true);
     });
 
-    // References
-    const refs = Object.values(draftState.referenceList);
-    if (refs.length > 0) {
-      const sorted = citationStyle === 'ama' ? refs
-        : [...refs].sort((a, b) => (a.author||'').localeCompare(b.author||''));
+    // References — merge own + search
+    const searchRefs = Object.values(draftState.referenceList);
+    const ownRefsText = draftState.ownContent?.['thesis-refs'] || '';
+    if (searchRefs.length > 0 || ownRefsText.trim()) {
       body += h1(getRefHeading());
-      sorted.forEach((p, i) => {
-        const refText = rtfEsc(formatReference(p, i + 1));
-        body += `{\\pard\\sa200\\li720\\fi-720 ${refText}\\par}\n`;
-      });
+      if (ownRefsText.trim()) {
+        body += textToRtf(ownRefsText, false);
+        if (searchRefs.length > 0) body += `{\\pard\\sa120\\i\\cf3 — References from Literature Search —\\par}\n`;
+      }
+      if (searchRefs.length > 0) {
+        const sorted = citationStyle === 'ama' ? searchRefs
+          : [...searchRefs].sort((a, b) => (a.author||'').localeCompare(b.author||''));
+        sorted.forEach((p, i) => {
+          const refText = rtfEsc(formatReference(p, i + 1));
+          body += `{\\pard\\sa200\\li720\\fi-720 ${refText}\\par}\n`;
+        });
+      }
     }
 
     // Poster metadata
@@ -5678,28 +6269,45 @@ function exportFullDraft() {
     let content = `${docTitle}\nGenerated by SLR Studio — ${timestamp}\nTopic: ${state.topic || ''}\n\n`;
     content += `${'═'.repeat(60)}\n\n`;
 
-    // Add each section
+    // Add each section — prefer own content over generated where user has written their own
     draftState.sections.forEach(sec => {
-      const text = draftState.generatedText[sec.id];
-      content += `${sec.num}. ${sec.title.toUpperCase()}\n${'─'.repeat(40)}\n`;
-      if (text) {
-        content += text + '\n\n';
+      const generatedText = draftState.generatedText[sec.id];
+      const ownText = draftState.ownContent?.[sec.id];
+      // For refs section, skip here — handled separately below with merge
+      if (sec.id === 'thesis-refs') return;
+      content += `${sec.num !== '—' ? sec.num + '. ' : ''}${sec.title.toUpperCase()}\n${'─'.repeat(40)}\n`;
+      if (ownText && ownText.trim()) {
+        content += ownText.trim() + '\n\n';
+      } else if (generatedText) {
+        content += generatedText + '\n\n';
       } else {
-        content += `[Not yet generated — ${sec.wordTarget}]\n\n`;
+        content += `[Not yet written — ${sec.wordTarget}]\n\n`;
       }
     });
 
-    // Add reference list using selected citation style
-    const refs = Object.values(draftState.referenceList);
-    if (refs.length > 0) {
+    // Reference list — merge search refs + own refs (from thesis-refs own content)
+    const searchRefs = Object.values(draftState.referenceList);
+    const ownRefsText = draftState.ownContent?.['thesis-refs'] || '';
+
+    if (searchRefs.length > 0 || ownRefsText.trim()) {
       const heading = getRefHeading();
-      const sorted = citationStyle === 'ama'
-        ? refs // AMA: order of appearance (unsorted)
-        : refs.sort((a, b) => (a.author||'').localeCompare(b.author||''));
       content += `\n${'═'.repeat(60)}\n${heading.toUpperCase()}\n${'─'.repeat(40)}\n`;
-      sorted.forEach((p, i) => {
-        content += formatReference(p, i + 1) + '\n\n';
-      });
+
+      // Own references first (pasted by user, any format)
+      if (ownRefsText.trim()) {
+        content += ownRefsText.trim() + '\n\n';
+        if (searchRefs.length > 0) content += `— References from Literature Search —\n\n`;
+      }
+
+      // Search-derived references
+      if (searchRefs.length > 0) {
+        const sorted = citationStyle === 'ama'
+          ? searchRefs
+          : [...searchRefs].sort((a, b) => (a.author||'').localeCompare(b.author||''));
+        sorted.forEach((p, i) => {
+          content += formatReference(p, i + 1) + '\n\n';
+        });
+      }
     }
 
     content += `\nGenerated by SLR Studio · Emerging Technologies Laboratory · Wright State University`;
@@ -6402,13 +7010,88 @@ const posterSectionDefs = [
   { id: 'acknowledgements', label: 'Acknowledgements & Funding', hint: 'Grants, collaborators, institutional support.',     span: 'full', height: 0.08 }
 ];
 
+function buildPosterScaffold(sectionId, def, papers) {
+  const topic = state.topic || 'this research topic';
+  const anchor = state.anchor || topic.split(' ').slice(0,3).join(' ');
+  const gaps = state.gapFindings || [];
+  const sgCount = (state.subgroups || []).length;
+  const paperCount = Object.keys(state.papers || {}).length;
+
+  // Format a citation key from a paper
+  const cite = p => {
+    const lastName = (p.author||'Unknown').split(',')[0].trim();
+    return `(${lastName}, ${p.year||'n.d.'})`;
+  };
+
+  // Top 3 papers by frequency
+  const top3 = papers.slice(0,3);
+  const top5 = papers.slice(0,5);
+
+  switch(sectionId) {
+    case 'title':
+      return [
+        anchor.charAt(0).toUpperCase() + anchor.slice(1) + ': A Systematic Literature Review',
+        '[Author Name(s)]',
+        '[Institution / Department]',
+        '[Conference or Symposium Name]'
+      ].join('\n');
+
+    case 'background':
+      return [
+        `${anchor.charAt(0).toUpperCase() + anchor.slice(1)} is an area of growing scholarly interest with significant implications for practice and policy.`,
+        top3.length ? `Key foundational work includes studies by ${top3.map(cite).join(', ')}.` : '',
+        `Despite existing literature, critical gaps remain in our understanding of ${anchor} across diverse contexts.`
+      ].filter(Boolean).join(' ');
+
+    case 'methods':
+      return `Systematic literature search conducted via OpenAlex (${new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})}). Anchor term: "${anchor}". ${sgCount} keyword subgroups searched using progressive Boolean AND narrowing. ${paperCount} papers retrieved. Foundation papers identified as those appearing across multiple subgroups.`;
+
+    case 'findings':
+      const findings = top5.map((p,i) =>
+        `• ${p.title ? p.title.charAt(0).toUpperCase() + p.title.slice(1,80) + (p.title.length > 80 ? '...' : '') : 'Key finding ' + (i+1)} ${cite(p)}`
+      );
+      return findings.length
+        ? findings.join('\n')
+        : `• [Finding 1 — describe what the literature shows]\n• [Finding 2 — another key theme]\n• [Finding 3 — a third pattern]`;
+
+    case 'gaps':
+      if (gaps.length > 0) {
+        return gaps.slice(0,4).map(g =>
+          `• ${g.terms ? 'No studies found at the intersection of: ' + g.terms.join(' AND ') : '[Gap identified in literature]'}`
+        ).join('\n');
+      }
+      return `• No studies found combining ${anchor} with [specific context]\n• Research does not address [population or setting]\n• Longitudinal studies on ${anchor} are absent from the literature`;
+
+    case 'significance':
+      return `This review advances understanding of ${anchor} by mapping the existing evidence base and identifying actionable research gaps. Practitioners and researchers should prioritize the intersections identified as absent in the literature. Future studies should address ${gaps.length > 0 ? 'the ' + gaps.length + ' confirmed gaps identified in this review' : 'the gaps outlined above'}.`;
+
+    case 'references':
+      return top5.map((p,i) => formatReference(p, i+1)).join('\n\n') ||
+        '[References will appear here — select papers in the paper checklist]';
+
+    case 'acknowledgements':
+      const meta = posterAssets.meta || {};
+      return [
+        meta.acknowledgements || 'The authors thank [collaborators and supporters].',
+        meta.grants ? 'Funding: ' + meta.grants : 'Funding: [Grant number and agency]'
+      ].join('\n');
+
+    default:
+      return `[${def.label}]\n\n${def.hint}`;
+  }
+}
+
 function initPosterBuilder() {
-  // Pre-populate from generated draft content and metadata
+  // Seed draftState with poster sections so paper checklist and generated text are available
+  state.mode = 'poster';
+  initModule3();
+
+  // Pre-populate poster sections from any already-generated draft content
   const genText = draftState.generatedText || {};
   const meta = posterAssets.meta || {};
 
   posterSectionDefs.forEach(def => {
-    if (!posterState.sections[def.id]) {
+    if (!posterState.sections[def.id] || !posterState.sections[def.id].populated) {
       const existing = genText['poster-' + def.id] || '';
       posterState.sections[def.id] = { text: existing, populated: !!existing };
     }
@@ -6676,9 +7359,15 @@ async function populatePosterSection(sectionId) {
     return;
   }
 
-  // Generate via Claude API if key exists
+  // Build from papers directly — no API key needed for scaffold
+  const topPapers = Object.entries(state.paperSGs || {})
+    .sort((a,b) => b[1].length - a[1].length)
+    .slice(0, 10)
+    .map(([pid]) => state.papers[pid])
+    .filter(Boolean);
+
   if (!state.apiKey) {
-    const scaffold = `[${def.label}]\n\n${def.hint}\n\n[Add an Anthropic API key on Screen 1 to auto-generate this section.]`;
+    const scaffold = buildPosterScaffold(sectionId, def, topPapers);
     updatePosterSection(sectionId, scaffold);
     const ta = document.getElementById('poster-section-textarea');
     if (ta) ta.value = scaffold;
@@ -6687,12 +7376,6 @@ async function populatePosterSection(sectionId) {
   }
 
   try {
-    const topPapers = Object.entries(state.paperSGs || {})
-      .sort((a,b) => b[1].length - a[1].length)
-      .slice(0, 8)
-      .map(([pid]) => state.papers[pid])
-      .filter(Boolean);
-
     const paperContext = topPapers.map((p,i) => {
       const citeKey = (p.author||'Unknown').split(',')[0] + ' (' + (p.year||'n.d.') + ')';
       return `[${i+1}] ${citeKey}: "${p.title}" — ${p.journal}${p.abstract ? '\n    Abstract: ' + p.abstract.slice(0,200) : ''}`;
