@@ -1771,156 +1771,6 @@ body::after {
   .s1-headline { font-size: 38px; }
   .gong-headline { font-size: 38px; }
 }
-
-/* ── GUIDED DRAFT (Screen 8) ───────────────────────────────── */
-.draft-card { border-color: var(--green) !important; }
-.draft-card:hover { border-color: var(--green) !important; box-shadow: 0 0 0 3px rgba(30,92,58,0.15); }
-.draft-card .choice-number { background: var(--green); }
-
-.s8-layout { display: grid; grid-template-columns: 1fr 340px; gap: 32px; max-width: 1200px; margin: 0 auto; padding: 40px 40px 80px; min-height: 100vh; }
-.s8-main { min-width: 0; }
-.s8-sidebar { position: sticky; top: 80px; height: calc(100vh - 120px); overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
-
-.draft-section-block {
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  margin-bottom: 24px;
-  overflow: hidden;
-  transition: box-shadow 0.2s;
-}
-.draft-section-block.generating { box-shadow: 0 0 0 2px var(--gold); }
-.draft-section-block.done { border-color: var(--green); }
-
-.draft-section-header {
-  background: var(--cream);
-  border-bottom: 1px solid var(--border);
-  padding: 14px 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  cursor: pointer;
-  user-select: none;
-}
-.draft-section-header:hover { background: #e8e4d8; }
-.draft-sec-label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  color: var(--muted);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  margin-bottom: 3px;
-}
-.draft-sec-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--ink);
-}
-.draft-sec-status {
-  font-size: 11px;
-  font-family: 'JetBrains Mono', monospace;
-  color: var(--muted);
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-.draft-sec-status.written { color: var(--green); font-weight: 600; }
-
-.draft-section-body { padding: 20px; display: none; }
-.draft-section-body.open { display: block; }
-
-.draft-paper-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-.draft-paper-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 10px 12px;
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
-}
-.draft-paper-item:hover { background: var(--cream); }
-.draft-paper-item.checked { background: rgba(30,92,58,0.06); border-color: var(--green); }
-.draft-paper-item input[type="checkbox"] { margin-top: 2px; flex-shrink: 0; accent-color: var(--green); width: 15px; height: 15px; cursor: pointer; }
-.draft-paper-info { flex: 1; min-width: 0; }
-.draft-paper-title { font-size: 12px; font-weight: 600; color: var(--ink); line-height: 1.4; margin-bottom: 3px; }
-.draft-paper-meta { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
-.draft-paper-sgs { font-size: 10px; color: var(--green); font-family: 'JetBrains Mono', monospace; margin-top: 2px; }
-
-.draft-generate-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  background: var(--ink);
-  color: var(--paper);
-  border: none;
-  border-radius: 3px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.15s;
-  letter-spacing: 0.04em;
-}
-.draft-generate-btn:hover { background: var(--navy); }
-.draft-generate-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-.draft-generate-btn.generating-state { background: var(--amber); color: var(--ink); }
-
-.draft-content-area {
-  margin-top: 16px;
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  min-height: 120px;
-  padding: 16px;
-  font-size: 14px;
-  line-height: 1.8;
-  color: var(--ink);
-  background: #fff;
-  font-family: 'Outfit', sans-serif;
-  outline: none;
-  white-space: pre-wrap;
-}
-.draft-content-area:focus { border-color: var(--navy); box-shadow: 0 0 0 2px rgba(26,39,68,0.1); }
-.draft-content-area.placeholder-text { color: var(--muted); font-style: italic; }
-.draft-content-area .cite-inline { background: rgba(201,144,58,0.12); color: var(--amber); font-family: 'JetBrains Mono', monospace; font-size: 12px; padding: 0 4px; border-radius: 2px; }
-
-.draft-prewritten-note {
-  background: rgba(30,92,58,0.06);
-  border: 1px solid rgba(30,92,58,0.2);
-  border-left: 3px solid var(--green);
-  padding: 12px 16px;
-  font-size: 13px;
-  color: var(--green);
-  font-family: 'JetBrains Mono', monospace;
-  margin-bottom: 12px;
-}
-
-.draft-ref-item {
-  font-size: 11px;
-  line-height: 1.6;
-  color: var(--ink);
-  padding: 8px 0;
-  border-bottom: 1px solid var(--border);
-}
-.draft-ref-item:last-child { border-bottom: none; }
-.draft-ref-num {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  color: var(--muted);
-  margin-bottom: 2px;
-}
-
-@media (max-width: 900px) {
-  .s8-layout { grid-template-columns: 1fr; }
-  .s8-sidebar { position: static; height: auto; }
-}
 </style>
 </head>
 <body>
@@ -1934,7 +1784,7 @@ body::after {
     <div class="nav-step" id="nav-3">03 Preview</div>
     <div class="nav-step" id="nav-4">04 Build</div>
     <div class="nav-step" id="nav-5">05 Foundation</div>
-    <div class="nav-step" id="nav-6">06 Output</div>
+    <div class="nav-step" id="nav-6">06 Draft</div>
   </nav>
 </header>
 
@@ -2233,12 +2083,12 @@ body::after {
       <div class="gong-divider"></div>
       <div class="gong-stat">
         <span class="gong-stat-num" id="stat-papers">—</span>
-        <span class="gong-stat-label">Unique Papers</span>
+        <span class="gong-stat-label">Papers Retrieved</span>
       </div>
       <div class="gong-divider"></div>
       <div class="gong-stat">
         <span class="gong-stat-num" id="stat-foundation">—</span>
-        <span class="gong-stat-label">Foundation Papers</span>
+        <span class="gong-stat-label">In Multiple SGs</span>
       </div>
       <div class="gong-divider"></div>
       <div class="gong-stat">
@@ -2291,12 +2141,6 @@ body::after {
           <div class="choice-desc">Explore every zero count and dramatic drop. Each gap becomes a research opportunity card with suggested questions, study designs, and adjacent literature.</div>
           <div class="choice-cta">Explore gaps →</div>
         </div>
-        <div class="choice-card draft-card" id="draft-choice-card" onclick="goToOutput('draft')">
-          <div class="choice-number">3</div>
-          <div class="choice-title">Guided Paper Draft</div>
-          <div class="choice-desc">Write each section with your papers. Check the papers you want to cite in each section, click Generate, and the section is written for you — with in-text citations. References auto-build as you go.</div>
-          <div class="choice-cta">Start writing →</div>
-        </div>
       </div>
     </div>
 
@@ -2304,29 +2148,52 @@ body::after {
   </div>
 </div>
 
-<!-- ═══ SCREEN 6: OUTLINE ═══ -->
+<!-- ═══ SCREEN 6: MODULE 3 — GUIDED PAPER DRAFT ═══ -->
 <div class="screen" id="screen-6">
-  <div class="s6-layout">
-    <div class="s6-main">
-      <div style="margin-bottom:40px;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:8px;letter-spacing:0.08em;text-transform:uppercase;">Manuscript Outline</div>
-        <h2 class="screen-title" id="outline-title">Loading<span class="loading-dots"></span></h2>
-        <div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;">
-          <button class="btn btn-primary" onclick="exportOutline()">Export as Word Document</button>
-          <button class="btn btn-ghost" onclick="goToScreen(5)">← Back to Foundation</button>
-        </div>
+  <div style="display:grid;grid-template-columns:260px 1fr 300px;min-height:calc(100vh - 60px);">
+
+    <!-- LEFT: Section Navigator -->
+    <div style="background:var(--ink);padding:24px 0;overflow-y:auto;border-right:1px solid rgba(255,255,255,0.06);">
+      <div style="padding:0 20px 16px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);border-bottom:1px solid rgba(255,255,255,0.06);margin-bottom:12px;">
+        SLR Studio
       </div>
-      <div id="outline-content"></div>
+      <div style="padding:0 20px 8px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(245,243,238,0.3);margin-bottom:8px;">Manuscript Sections</div>
+        <div id="section-nav"></div>
+      </div>
+      <div style="padding:16px 20px;border-top:1px solid rgba(255,255,255,0.06);margin-top:16px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(245,243,238,0.3);margin-bottom:10px;">Reference List</div>
+        <div id="ref-count" style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--gold);">0</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(245,243,238,0.4);">citations selected</div>
+        <button onclick="exportFullDraft()" class="btn btn-gold" style="width:100%;margin-top:16px;justify-content:center;">
+          Export Draft
+        </button>
+        <button onclick="goToScreen(5)" class="btn btn-ghost" style="width:100%;margin-top:8px;justify-content:center;color:rgba(245,243,238,0.4);border-color:rgba(255,255,255,0.1);">
+          ← Foundation
+        </button>
+      </div>
     </div>
-    <div class="s6-sidebar">
-      <div>
-        <div class="sidebar-section-title">Evidence Panel</div>
-        <div style="font-size:13px;color:var(--muted);line-height:1.6;">Click any section to see the foundation papers mapped to it.</div>
-      </div>
-      <div id="evidence-panel">
-        <div style="font-size:13px;color:var(--muted);font-style:italic;">Select a section from the outline.</div>
+
+    <!-- CENTER: Writing Workspace -->
+    <div style="overflow-y:auto;background:var(--paper);" id="draft-workspace">
+      <div style="padding:48px;max-width:720px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;">Module 3 — Guided Paper Draft</div>
+        <h2 class="screen-title" id="draft-title" style="margin-bottom:8px;">Select a section to begin</h2>
+        <p style="font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:32px;">Choose a section from the left navigator. Select the papers you want included. Click Generate to write that section with in-text citations.</p>
+        <div id="draft-section-content"></div>
       </div>
     </div>
+
+    <!-- RIGHT: Paper Selection Panel -->
+    <div style="background:var(--cream);border-left:2px solid var(--border);overflow-y:auto;padding:24px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border);">
+        Papers for This Section
+      </div>
+      <div id="paper-checklist">
+        <div style="font-size:13px;color:var(--muted);font-style:italic;">Select a section to see relevant papers.</div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -2387,35 +2254,6 @@ body::after {
         </thead>
         <tbody id="agenda-body"></tbody>
       </table>
-    </div>
-  </div>
-</div>
-
-
-<!-- ═══ SCREEN 8: GUIDED PAPER DRAFT ═══ -->
-<div class="screen" id="screen-8">
-  <div class="s8-layout">
-    <div class="s8-main">
-      <div style="margin-bottom:32px;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:8px;letter-spacing:0.08em;text-transform:uppercase;">Guided Paper Draft</div>
-        <h2 class="screen-title" id="draft-title">Writing <em>Your Paper</em></h2>
-        <p style="font-size:14px;color:var(--muted);line-height:1.6;margin-top:8px;max-width:620px;">Check the papers you want to cite in each section, then click <strong style="color:var(--ink);">Generate</strong>. The section is written for you with proper in-text citations. Your reference list builds automatically.</p>
-        <div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;">
-          <button class="btn btn-primary" onclick="exportDraft()">Export Full Draft</button>
-          <button class="btn btn-gold" onclick="generateAllSections()">Generate All Sections</button>
-          <button class="btn btn-ghost" onclick="goToScreen(5)">← Back to Foundation</button>
-        </div>
-      </div>
-      <div id="draft-sections-container"></div>
-    </div>
-    <div class="s8-sidebar">
-      <div>
-        <div class="sidebar-section-title">References</div>
-        <div style="font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:12px;">Auto-builds as you check papers. Formatted in APA 7.</div>
-      </div>
-      <div id="draft-references-panel">
-        <div style="font-size:13px;color:var(--muted);font-style:italic;">Check papers in each section to build your reference list.</div>
-      </div>
     </div>
   </div>
 </div>
@@ -3627,6 +3465,10 @@ function renderGongScreen() {
     }
   }, 100);
 
+  // Update foundation section label with accurate count
+  const totalRetrieved = Object.keys(state.papers).length;
+  const foundLabel = document.querySelector('#screen-5 .section-label:last-of-type');
+
   // Foundation papers
   const foundationPapersList = Object.entries(state.paperSGs)
     .filter(([pid, sgs]) => sgs.length >= 1)
@@ -3669,12 +3511,10 @@ function getAuthorPaper(author) {
 function goToOutput(type) {
   if (type === 'outline') {
     goToScreen(6);
-    generateOutline();
-  } else if (type === 'gaps') {
+    initModule3();
+  } else {
     goToScreen(7);
     generateGapAnalysis();
-  } else if (type === 'draft') {
-    goToDraft();
   }
 }
 
@@ -4360,6 +4200,483 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+// ═══════════════════════════════════════════
+// MODULE 3: GUIDED PAPER DRAFT
+// ═══════════════════════════════════════════
+
+// Module 3 state
+const draftState = {
+  sections: [],          // [{id, title, content, papers, generated, wordCount}]
+  activeSectionId: null,
+  selectedPapers: {},    // sectionId -> [pmids selected]
+  generatedText: {},     // sectionId -> generated text
+  referenceList: {},     // pmid -> paper — all papers selected across all sections
+};
+
+function initModule3() {
+  // Build sections from the outline structure
+  draftState.sections = buildDraftSections();
+  draftState.selectedPapers = {};
+  draftState.generatedText = {};
+  draftState.referenceList = {};
+
+  renderSectionNav();
+  updateRefCount();
+
+  // Auto-select first section
+  if (draftState.sections.length > 0) {
+    openDraftSection(draftState.sections[0].id);
+  }
+}
+
+function buildDraftSections() {
+  const anchor = state.anchor || 'research topic';
+  const secondary = state.selectedSecondary.map(i => state.secondaryKeywords[i]);
+  const topPapers = Object.entries(state.paperSGs)
+    .sort((a, b) => b[1].length - a[1].length)
+    .slice(0, 20)
+    .map(([pid]) => ({ pid, paper: state.papers[pid], sgs: state.paperSGs[pid] }))
+    .filter(p => p.paper);
+
+  // Build standard manuscript sections with paper suggestions
+  return [
+    {
+      id: 'abstract',
+      title: 'Abstract',
+      num: '—',
+      hint: 'Complete last. Summarize purpose, methods, key findings, and significance in 150-250 words.',
+      papers: [],
+      note: 'Write after all other sections are complete.',
+      generated: false,
+      wordTarget: '150-250 words'
+    },
+    {
+      id: 'introduction',
+      title: 'Introduction',
+      num: '1',
+      hint: `Establish the problem, why ${anchor} in ${secondary[0] || 'this context'} matters, and the objective of this review.`,
+      papers: topPapers.slice(0, 8).map(p => p.pid),
+      generated: false,
+      wordTarget: '400-600 words'
+    },
+    {
+      id: 'methods',
+      title: 'Methods',
+      num: '2',
+      hint: 'Describe the search strategy, databases used, subgroup structure, and inclusion criteria.',
+      papers: [],
+      generated: false,
+      wordTarget: '300-500 words',
+      prewritten: true
+    },
+    {
+      id: 'results-1',
+      title: `Results: ${capitalize(anchor)}`,
+      num: '3.1',
+      hint: `Synthesize what the literature says about ${anchor} across the retrieved papers.`,
+      papers: topPapers.slice(0, 10).map(p => p.pid),
+      generated: false,
+      wordTarget: '500-800 words'
+    },
+    {
+      id: 'results-2',
+      title: `Results: ${capitalize(secondary[0] || 'Secondary Theme')}`,
+      num: '3.2',
+      hint: `Synthesize the literature on ${secondary[0] || 'the secondary theme'} in relation to ${anchor}.`,
+      papers: topPapers.slice(2, 12).map(p => p.pid),
+      generated: false,
+      wordTarget: '400-700 words'
+    },
+    {
+      id: 'results-gaps',
+      title: 'Results: Gaps in the Literature',
+      num: '3.3',
+      hint: 'Report the confirmed gaps as findings, not limitations. Each zero or near-zero yield is a result.',
+      papers: topPapers.slice(0, 6).map(p => p.pid),
+      generated: false,
+      wordTarget: '200-400 words'
+    },
+    {
+      id: 'discussion',
+      title: 'Discussion',
+      num: '4',
+      hint: 'Synthesize across themes, address contradictions, explain implications, propose future research.',
+      papers: topPapers.slice(0, 12).map(p => p.pid),
+      generated: false,
+      wordTarget: '500-800 words'
+    },
+    {
+      id: 'conclusion',
+      title: 'Conclusion',
+      num: '5',
+      hint: 'Three paragraphs: what was found, what is missing, what should happen next.',
+      papers: topPapers.slice(0, 6).map(p => p.pid),
+      generated: false,
+      wordTarget: '200-300 words'
+    }
+  ];
+}
+
+function renderSectionNav() {
+  const nav = document.getElementById('section-nav');
+  if (!nav) return;
+  nav.innerHTML = draftState.sections.map(sec => `
+    <div onclick="openDraftSection('${sec.id}')"
+      id="nav-${sec.id}"
+      style="padding:10px 12px;cursor:pointer;border-radius:2px;margin-bottom:2px;transition:all 0.15s;display:flex;align-items:center;gap:10px;"
+      onmouseover="this.style.background='rgba(255,255,255,0.06)'"
+      onmouseout="this.style.background=this.dataset.active==='1'?'rgba(201,144,58,0.15)':'transparent'">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(245,243,238,0.3);width:24px;flex-shrink:0;">${sec.num}</span>
+      <span style="font-size:13px;color:${draftState.generatedText[sec.id] ? 'var(--gold-light)' : 'rgba(245,243,238,0.7)'};">
+        ${sec.title}
+        ${draftState.generatedText[sec.id] ? ' ✓' : ''}
+      </span>
+    </div>
+  `).join('');
+}
+
+function openDraftSection(sectionId) {
+  draftState.activeSectionId = sectionId;
+  const sec = draftState.sections.find(s => s.id === sectionId);
+  if (!sec) return;
+
+  // Update nav highlighting
+  document.querySelectorAll('#section-nav > div').forEach(el => {
+    el.style.background = 'transparent';
+    el.dataset.active = '0';
+  });
+  const activeNav = document.getElementById('nav-' + sectionId);
+  if (activeNav) {
+    activeNav.style.background = 'rgba(201,144,58,0.15)';
+    activeNav.dataset.active = '1';
+  }
+
+  // Update title
+  document.getElementById('draft-title').textContent = sec.num + '. ' + sec.title;
+
+  // Render the writing workspace for this section
+  const workspace = document.getElementById('draft-section-content');
+  const existingText = draftState.generatedText[sectionId];
+  const selectedPids = draftState.selectedPapers[sectionId] || [...(sec.papers || [])];
+  if (!draftState.selectedPapers[sectionId]) {
+    draftState.selectedPapers[sectionId] = selectedPids;
+  }
+
+  workspace.innerHTML = `
+    <div style="background:var(--cream);border-left:3px solid var(--gold);padding:14px 18px;margin-bottom:24px;font-size:13px;color:var(--ink);line-height:1.6;">
+      <strong>Section guidance:</strong> ${sec.hint}
+      ${sec.note ? `<br><em style="color:var(--muted);">${sec.note}</em>` : ''}
+      <br><span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);">Target: ${sec.wordTarget}</span>
+    </div>
+
+    ${sec.prewritten ? `
+    <div style="background:var(--green-light);border:1px solid var(--green);padding:14px 18px;margin-bottom:24px;font-size:13px;color:var(--green);">
+      ✓ The Methods section is pre-written from your search data. Click Generate to populate it.
+    </div>` : ''}
+
+    <div id="generated-text-${sectionId}" style="min-height:200px;margin-bottom:24px;">
+      ${existingText ? `
+        <div style="font-family:'Playfair Display',serif;font-size:16px;line-height:1.9;color:var(--ink);">${existingText}</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-top:12px;">
+          ${existingText.split(' ').length} words
+        </div>
+      ` : `
+        <div style="font-size:14px;color:var(--muted);font-style:italic;padding:40px 0;">
+          Select papers on the right, then click Generate to write this section.
+        </div>
+      `}
+    </div>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button onclick="generateSection('${sectionId}')"
+        style="font-family:'Outfit',sans-serif;font-weight:600;font-size:13px;letter-spacing:0.06em;text-transform:uppercase;padding:12px 24px;background:var(--ink);color:var(--paper);border:2px solid var(--ink);cursor:pointer;transition:all 0.18s;"
+        onmouseover="this.style.background='var(--navy)'" onmouseout="this.style.background='var(--ink)'">
+        ${existingText ? '↺ Regenerate' : '✦ Generate'} Section
+      </button>
+      ${existingText ? `
+      <button onclick="clearSection('${sectionId}')"
+        style="font-family:'Outfit',sans-serif;font-weight:600;font-size:13px;letter-spacing:0.06em;text-transform:uppercase;padding:12px 24px;background:transparent;color:var(--muted);border:2px solid var(--border);cursor:pointer;">
+        Clear
+      </button>` : ''}
+    </div>
+  `;
+
+  // Render paper checklist
+  renderPaperChecklist(sectionId, sec);
+}
+
+function renderPaperChecklist(sectionId, sec) {
+  const checklist = document.getElementById('paper-checklist');
+  if (!checklist) return;
+
+  const selectedPids = draftState.selectedPapers[sectionId] || [];
+  const allPapers = Object.entries(state.papers);
+
+  if (allPapers.length === 0) {
+    checklist.innerHTML = '<div style="font-size:13px;color:var(--muted);font-style:italic;">No papers retrieved. Run a search first.</div>';
+    return;
+  }
+
+  // Sort: suggested papers first (in sec.papers), then rest
+  const suggested = sec.papers || [];
+  const sortedPapers = [
+    ...allPapers.filter(([pid]) => suggested.includes(pid)),
+    ...allPapers.filter(([pid]) => !suggested.includes(pid))
+  ];
+
+  checklist.innerHTML = `
+    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;">
+      ${selectedPids.length} of ${allPapers.length} papers selected
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:16px;">
+      <button onclick="selectAllPapers('${sectionId}')" style="font-family:'JetBrains Mono',monospace;font-size:10px;padding:5px 10px;border:1px solid var(--border);background:white;cursor:pointer;">All</button>
+      <button onclick="selectSuggestedPapers('${sectionId}')" style="font-family:'JetBrains Mono',monospace;font-size:10px;padding:5px 10px;border:1px solid var(--gold);background:white;color:var(--gold);cursor:pointer;">Suggested</button>
+      <button onclick="clearAllPapers('${sectionId}')" style="font-family:'JetBrains Mono',monospace;font-size:10px;padding:5px 10px;border:1px solid var(--border);background:white;cursor:pointer;">None</button>
+    </div>
+    ${sortedPapers.map(([pid, paper]) => {
+      const isSelected = selectedPids.includes(pid);
+      const isSuggested = suggested.includes(pid);
+      return `
+        <div onclick="togglePaper('${sectionId}','${pid}')"
+          style="padding:10px 12px;margin-bottom:6px;border:1.5px solid ${isSelected ? 'var(--navy)' : 'var(--border)'};background:${isSelected ? '#f0f4f8' : 'white'};cursor:pointer;transition:all 0.15s;">
+          <div style="display:flex;align-items:flex-start;gap:8px;">
+            <div style="width:14px;height:14px;border:1.5px solid ${isSelected ? 'var(--navy)' : 'var(--border)'};background:${isSelected ? 'var(--navy)' : 'white'};flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;">
+              ${isSelected ? '<span style="color:white;font-size:9px;">✓</span>' : ''}
+            </div>
+            <div style="flex:1;">
+              ${isSuggested ? '<span style="font-family:'JetBrains Mono',monospace;font-size:8px;background:var(--gold);color:var(--ink);padding:1px 5px;margin-bottom:4px;display:inline-block;">SUGGESTED</span><br>' : ''}
+              <div style="font-size:12px;font-weight:600;color:var(--ink);line-height:1.4;margin-bottom:3px;">${(paper.title || 'Untitled').substring(0, 80)}${paper.title && paper.title.length > 80 ? '...' : ''}</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);">${paper.author || 'Unknown'} · ${paper.year || '—'}</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('')}
+  `;
+}
+
+function togglePaper(sectionId, pid) {
+  if (!draftState.selectedPapers[sectionId]) draftState.selectedPapers[sectionId] = [];
+  const idx = draftState.selectedPapers[sectionId].indexOf(pid);
+  if (idx === -1) {
+    draftState.selectedPapers[sectionId].push(pid);
+    draftState.referenceList[pid] = state.papers[pid];
+  } else {
+    draftState.selectedPapers[sectionId].splice(idx, 1);
+    // Remove from reference list if not used in any other section
+    const usedElsewhere = Object.entries(draftState.selectedPapers)
+      .some(([sid, pids]) => sid !== sectionId && pids.includes(pid));
+    if (!usedElsewhere) delete draftState.referenceList[pid];
+  }
+  updateRefCount();
+  const sec = draftState.sections.find(s => s.id === sectionId);
+  renderPaperChecklist(sectionId, sec);
+}
+
+function selectAllPapers(sectionId) {
+  draftState.selectedPapers[sectionId] = Object.keys(state.papers);
+  Object.keys(state.papers).forEach(pid => { draftState.referenceList[pid] = state.papers[pid]; });
+  updateRefCount();
+  const sec = draftState.sections.find(s => s.id === sectionId);
+  renderPaperChecklist(sectionId, sec);
+}
+
+function selectSuggestedPapers(sectionId) {
+  const sec = draftState.sections.find(s => s.id === sectionId);
+  draftState.selectedPapers[sectionId] = [...(sec.papers || [])];
+  (sec.papers || []).forEach(pid => { if (state.papers[pid]) draftState.referenceList[pid] = state.papers[pid]; });
+  updateRefCount();
+  renderPaperChecklist(sectionId, sec);
+}
+
+function clearAllPapers(sectionId) {
+  draftState.selectedPapers[sectionId] = [];
+  updateRefCount();
+  const sec = draftState.sections.find(s => s.id === sectionId);
+  renderPaperChecklist(sectionId, sec);
+}
+
+function updateRefCount() {
+  // Count unique papers selected across ALL sections
+  const allSelected = new Set();
+  Object.values(draftState.selectedPapers).forEach(pids => pids.forEach(p => allSelected.add(p)));
+  draftState.referenceList = {};
+  allSelected.forEach(pid => { if (state.papers[pid]) draftState.referenceList[pid] = state.papers[pid]; });
+  const el = document.getElementById('ref-count');
+  if (el) el.textContent = allSelected.size;
+}
+
+async function generateSection(sectionId) {
+  const sec = draftState.sections.find(s => s.id === sectionId);
+  if (!sec) return;
+
+  const selectedPids = draftState.selectedPapers[sectionId] || [];
+  const selectedPapers = selectedPids.map(pid => state.papers[pid]).filter(Boolean);
+
+  // Show loading state
+  const textDiv = document.getElementById('generated-text-' + sectionId);
+  if (textDiv) {
+    textDiv.innerHTML = '<div style="font-size:14px;color:var(--muted);font-style:italic;">Writing section<span class="loading-dots"></span></div>';
+  }
+
+  // Build paper context for the prompt
+  const paperContext = selectedPapers.map((p, i) => {
+    const citationKey = p.author ? p.author.split(';')[0].split(',')[0].trim() + ' (' + p.year + ')' : 'Unknown (' + (p.year || '—') + ')';
+    return `[${i+1}] ${citationKey}: "${p.title}" — ${p.journal || 'Unknown Journal'}, ${p.year || '—'}`;
+  }).join('
+');
+
+  if (sec.prewritten && sec.id === 'methods') {
+    // Auto-generate methods from search data
+    const methodsText = generateMethodsSection();
+    draftState.generatedText[sectionId] = methodsText;
+    renderSectionNav();
+    openDraftSection(sectionId);
+    return;
+  }
+
+  if (!state.apiKey) {
+    // No API key — generate template scaffold
+    const scaffold = generateScaffold(sec, selectedPapers);
+    draftState.generatedText[sectionId] = scaffold;
+    renderSectionNav();
+    openDraftSection(sectionId);
+    return;
+  }
+
+  // Use Claude API to write the section
+  try {
+    const prompt = `You are writing a section of an academic systematic literature review manuscript.
+
+SECTION: ${sec.num}. ${sec.title}
+TOPIC: ${state.topic}
+ANCHOR TERM: ${state.anchor}
+TARGET LENGTH: ${sec.wordTarget}
+GUIDANCE: ${sec.hint}
+
+PAPERS TO CITE (use ONLY these papers, no others):
+${paperContext}
+
+Write this section in formal academic prose. Use APA 7 in-text citations formatted as (Author, Year). 
+Do not fabricate any facts, statistics, or findings not present in the paper titles and metadata provided.
+Base your synthesis on what can be reasonably inferred from the paper titles, authors, journals, and years.
+Write in third person. No bullet points. Flowing academic paragraphs.
+End with a transition sentence to the next section.`;
+
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': state.apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 2000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    const data = await response.json();
+    const text = data.content[0].text.trim();
+    draftState.generatedText[sectionId] = text;
+
+  } catch (e) {
+    console.warn('API error, using scaffold:', e.message);
+    draftState.generatedText[sectionId] = generateScaffold(sec, selectedPapers);
+  }
+
+  renderSectionNav();
+  openDraftSection(sectionId);
+}
+
+function generateMethodsSection() {
+  const anchor = state.anchor || 'the topic';
+  const sgCount = state.subgroups.length;
+  const totalPapers = Object.keys(state.papers).length;
+  const gapCount = state.gapFindings.length;
+  const secondary = state.selectedSecondary.map(i => state.secondaryKeywords[i]);
+  const modifiers = state.selectedModifiers.map(i => state.modifierKeywords[i]);
+
+  return `A systematic search was conducted using the OpenAlex academic database, which indexes over 270 million scholarly works including content from PubMed, PubMed Central, Crossref, and other peer-reviewed sources. The search was conducted on ${new Date().toLocaleDateString('en-US', {year:'numeric', month:'long', day:'numeric'})}.
+
+The search employed a structured three-tier keyword architecture developed by the Emerging Technologies Laboratory at Wright State University. The anchor term "${anchor}" was used in all ${sgCount} subgroups. Secondary anchor terms included: ${secondary.join(', ')}. Domain-specific modifiers were rotated across subgroups to create thematic variation: ${modifiers.slice(0,8).join(', ')}, and others.
+
+Each subgroup applied progressive Boolean AND narrowing, adding terms sequentially until the yield fell below 20 papers. This threshold was selected to ensure that retrieved papers represented highly specific intersections of the search terms rather than broad topical overlap.
+
+A total of ${sgCount} subgroups were searched. ${totalPapers} unique papers were retrieved across all subgroups. ${gapCount > 0 ? `${gapCount} keyword combinations returned zero or near-zero results, representing confirmed gaps in the literature that are reported as findings in the Results section.` : ''} Papers appearing in multiple subgroups were identified as foundation papers, indicating cross-cutting relevance to the research topic.
+
+Inclusion criteria required papers to be peer-reviewed scholarly works available in the OpenAlex database with sufficient metadata for citation. No date restriction was applied. All languages were included, though the retrieved corpus was predominantly English-language.`;
+}
+
+function generateScaffold(sec, papers) {
+  const cites = papers.slice(0, 3).map(p => {
+    const author = p.author ? p.author.split(';')[0].split(',')[0].trim() : 'Unknown';
+    return `(${author}, ${p.year || '—'})`;
+  }).join('; ');
+
+  return `[SECTION ${sec.num}: ${sec.title.toUpperCase()}]
+
+This section should be ${sec.wordTarget}. ${sec.hint}
+
+${papers.length > 0 ? `Begin by citing the most relevant foundation papers: ${cites}.` : 'No papers selected for this section.'}
+
+[Add your analysis here. With an Anthropic API key entered on Screen 1, this section will be written automatically by Claude using only the papers you selected.]
+
+Target: ${sec.wordTarget}.`;
+}
+
+function clearSection(sectionId) {
+  delete draftState.generatedText[sectionId];
+  renderSectionNav();
+  openDraftSection(sectionId);
+}
+
+function exportFullDraft() {
+  try {
+    const timestamp = new Date().toLocaleDateString('en-US', {year:'numeric',month:'short',day:'numeric'});
+    let content = `MANUSCRIPT DRAFT\nGenerated by SLR Studio — ${timestamp}\nTopic: ${state.topic || ''}\n\n`;
+    content += `${'═'.repeat(60)}\n\n`;
+
+    // Add each section
+    draftState.sections.forEach(sec => {
+      const text = draftState.generatedText[sec.id];
+      content += `${sec.num}. ${sec.title.toUpperCase()}\n${'─'.repeat(40)}\n`;
+      if (text) {
+        content += text + '\n\n';
+      } else {
+        content += `[Not yet generated — ${sec.wordTarget}]\n\n`;
+      }
+    });
+
+    // Add reference list
+    const refs = Object.values(draftState.referenceList);
+    if (refs.length > 0) {
+      content += `\n${'═'.repeat(60)}\nREFERENCES\n${'─'.repeat(40)}\n`;
+      refs.sort((a, b) => {
+        const aName = (a.author || '').split(';')[0].split(',')[0].trim();
+        const bName = (b.author || '').split(';')[0].split(',')[0].trim();
+        return aName.localeCompare(bName);
+      }).forEach((p, i) => {
+        const author = p.author || 'Unknown';
+        const year = p.year || 'n.d.';
+        const title = p.title || 'Untitled';
+        const journal = p.journal || '';
+        const doi = p.url && p.url !== '#' ? ` https://doi.org/${p.url.replace('https://doi.org/','')}` : '';
+        content += `${author} (${year}). ${title}. ${journal}.${doi}\n\n`;
+      });
+    }
+
+    content += `\nGenerated by SLR Studio · Emerging Technologies Laboratory · Wright State University`;
+    downloadFile(content, 'Manuscript_Draft.txt', 'text/plain');
+
+  } catch(err) {
+    console.error('Export error:', err);
+    alert('Export failed: ' + err.message);
+  }
+}
+
 // Init
 updateTopicUI();
 
@@ -4374,398 +4691,6 @@ updateTopicUI();
     }
   } catch(e) {}
 })();
-
-// ═══════════════════════════════════════════
-// SCREEN 8: GUIDED PAPER DRAFT
-// ═══════════════════════════════════════════
-
-// Track which papers are checked per section and all generated content
-const draftState = {
-  sections: [],      // array of {id, title, label, papers, content, prewritten}
-  references: {},    // {pid: paper} for all checked papers across all sections
-};
-
-function goToDraft() {
-  goToScreen(8);
-  buildDraftSections();
-}
-
-function buildDraftSections() {
-  const anchor = state.anchor;
-  const secondary = state.selectedSecondary.map(i => state.secondaryKeywords[i]);
-  const totalPapers = Object.keys(state.papers).length;
-  const gapCount = state.gapFindings.length;
-
-  // All papers sorted by SG count (most cross-SG first)
-  const allPapers = Object.entries(state.paperSGs)
-    .sort((a, b) => b[1].length - a[1].length)
-    .map(([pid, sgs]) => ({ pid, sgs, paper: state.papers[pid] }))
-    .filter(x => x.paper);
-
-  // Score paper relevance to a set of keywords
-  function scorePaper(paper, keywords) {
-    const haystack = (paper.title + ' ' + (paper.abstract || '') + ' ' + paper.journal).toLowerCase();
-    return keywords.reduce((sum, kw) => sum + (haystack.includes(kw.toLowerCase()) ? 1 : 0), 0) + paper.sgs.length;
-  }
-
-  function getPapersFor(keywords, maxCount = 6) {
-    return allPapers
-      .map(p => ({ ...p, score: scorePaper(p.paper, keywords) }))
-      .sort((a, b) => b.score - a.score)
-      .slice(0, maxCount);
-  }
-
-  // Define sections with their relevant papers
-  const methodsContent = `A systematic search was conducted using ${state.subgroups.length} keyword subgroups across the OpenAlex academic database. Subgroups were constructed using a three-tier keyword architecture: one anchor term (${anchor}), ${secondary.length} secondary anchor terms (${secondary.join(', ')}), and domain-specific modifiers. Each subgroup applied progressive Boolean AND narrowing until yields fell below 20 papers per subgroup. ${totalPapers} unique papers were retrieved. Papers appearing in two or more subgroups (n = ${allPapers.filter(p => p.sgs.length >= 2).length}) were designated as foundation papers and prioritized for synthesis. ${gapCount} keyword combinations returned zero or near-zero results, indicating confirmed gaps in the literature. Date range: last 10 years. Language: English.`;
-
-  draftState.sections = [
-    {
-      id: 'intro',
-      label: 'Section 1',
-      title: 'Introduction',
-      keywords: [anchor, ...secondary],
-      papers: getPapersFor([anchor, ...secondary], 6),
-      content: '',
-      prewritten: false,
-      guidance: `Write 400–600 words. Open with the scale of the problem (cite the broad literature counts). Narrow to the specific intersection. State what the review does and why it matters. End with a clear statement of objectives.`,
-    },
-    {
-      id: 'methods',
-      label: 'Section 2',
-      title: 'Methods',
-      keywords: [],
-      papers: [],
-      content: methodsContent,
-      prewritten: true,
-      guidance: '',
-    },
-    ...secondary.map((sec, i) => ({
-      id: `results_${i}`,
-      label: `Section 3.${i+1}`,
-      title: `Results — ${capitalize(sec)} and ${capitalize(anchor)}`,
-      keywords: [anchor, sec],
-      papers: getPapersFor([anchor, sec], 6),
-      content: '',
-      prewritten: false,
-      guidance: `Write 400–600 words. Describe what the literature says about this intersection. Note the most cited frameworks, key empirical findings, and any patterns. Cite checked papers throughout.`,
-    })),
-    {
-      id: 'gaps_result',
-      label: `Section 3.${secondary.length + 1}`,
-      title: 'Results — Gaps in the Literature',
-      keywords: [anchor, ...secondary, 'gap'],
-      papers: getPapersFor([anchor, ...secondary], 4),
-      content: '',
-      prewritten: false,
-      guidance: `Write 200–350 words. Present the gaps as findings, not as limitations. Each zero-count or near-zero combination is a data point. Use specific keyword drop numbers as evidence.`,
-    },
-    {
-      id: 'discussion',
-      label: 'Section 4',
-      title: 'Discussion',
-      keywords: [anchor, ...secondary],
-      papers: getPapersFor([anchor, ...secondary], 6),
-      content: '',
-      prewritten: false,
-      guidance: `Write 500–800 words. Synthesize across the results sections. What do the connected SGs reveal together? Which foundation papers bridge the most themes? What are the implications for training, policy, and practice?`,
-    },
-    {
-      id: 'conclusion',
-      label: 'Section 5',
-      title: 'Conclusion',
-      keywords: [anchor, ...secondary],
-      papers: getPapersFor([anchor, ...secondary], 4),
-      content: '',
-      prewritten: false,
-      guidance: `Write 200–300 words. Restate the objective. Summarize key findings in 2–3 sentences. State the contribution. Name the next most important study that should be done.`,
-    },
-    {
-      id: 'abstract',
-      label: 'Abstract',
-      title: 'Abstract',
-      keywords: [anchor, ...secondary],
-      papers: [],
-      content: '',
-      prewritten: false,
-      guidance: `Complete last. 150–250 words. Purpose (1–2 sentences) · Methods (1–2 sentences) · Key findings (3–5 sentences) · Significance (1–2 sentences).`,
-    },
-  ];
-
-  document.getElementById('draft-title').innerHTML = `Writing <em>Your Paper</em>`;
-  const container = document.getElementById('draft-sections-container');
-  container.innerHTML = '';
-
-  draftState.sections.forEach((sec, idx) => {
-    const block = document.createElement('div');
-    block.className = 'draft-section-block';
-    block.id = `draft-block-${sec.id}`;
-
-    const paperRows = sec.papers.map(({ pid, sgs, paper }) => `
-      <label class="draft-paper-item" id="paper-item-${sec.id}-${pid}" onclick="toggleDraftPaper(event, '${sec.id}', '${pid}')">
-        <input type="checkbox" id="chk-${sec.id}-${pid}" checked onchange="onDraftCheck('${sec.id}', '${pid}')" onclick="event.stopPropagation()">
-        <div class="draft-paper-info">
-          <div class="draft-paper-title">${paper.title.substring(0, 90)}${paper.title.length > 90 ? '…' : ''}</div>
-          <div class="draft-paper-meta">${paper.author} · ${paper.journal} · ${paper.year}</div>
-          <div class="draft-paper-sgs">SG${sgs.join(', SG')}</div>
-        </div>
-      </label>
-    `).join('');
-
-    const contentArea = sec.prewritten
-      ? `<div class="draft-prewritten-note">✓ Pre-written from your search data — review and edit below.</div>
-         <div class="draft-content-area" id="content-${sec.id}" contenteditable="true">${sec.content}</div>`
-      : `<button class="draft-generate-btn" id="gen-btn-${sec.id}" onclick="generateOneSectionById('${sec.id}')">
-           ✦ Generate this section
-         </button>
-         <div class="draft-content-area placeholder-text" id="content-${sec.id}" contenteditable="true">Click Generate to write this section using the checked papers above…</div>`;
-
-    block.innerHTML = `
-      <div class="draft-section-header" onclick="toggleDraftBlock('${sec.id}')">
-        <div>
-          <div class="draft-sec-label">${sec.label}</div>
-          <div class="draft-sec-title">${sec.title}</div>
-        </div>
-        <div class="draft-sec-status" id="status-${sec.id}">${sec.prewritten ? '✓ Pre-written' : 'Not yet written'}</div>
-      </div>
-      <div class="draft-section-body ${idx === 0 ? 'open' : ''}" id="body-${sec.id}">
-        ${sec.guidance ? `<div class="input-hint" style="margin-bottom:14px;padding:10px 14px;background:var(--cream);border-left:3px solid var(--gold);font-size:12px;color:var(--muted);">📝 ${sec.guidance}</div>` : ''}
-        ${sec.papers.length > 0 ? `<div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:10px;">Papers to cite in this section</div>
-        <div class="draft-paper-list">${paperRows}</div>` : ''}
-        ${contentArea}
-      </div>
-    `;
-    container.appendChild(block);
-
-    // Pre-check all papers for this section + register them in references
-    sec.papers.forEach(({ pid, paper }) => {
-      draftState.references[pid] = paper;
-    });
-  });
-
-  updateDraftReferences();
-}
-
-function toggleDraftBlock(secId) {
-  const body = document.getElementById(`body-${secId}`);
-  if (body) body.classList.toggle('open');
-}
-
-function toggleDraftPaper(event, secId, pid) {
-  const chk = document.getElementById(`chk-${secId}-${pid}`);
-  if (event.target !== chk) {
-    chk.checked = !chk.checked;
-    onDraftCheck(secId, pid);
-  }
-}
-
-function onDraftCheck(secId, pid) {
-  const chk = document.getElementById(`chk-${secId}-${pid}`);
-  const item = document.getElementById(`paper-item-${secId}-${pid}`);
-  if (chk && item) {
-    if (chk.checked) {
-      item.classList.add('checked');
-      const paper = state.papers[pid];
-      if (paper) draftState.references[pid] = paper;
-    } else {
-      item.classList.remove('checked');
-      // Only remove from references if not checked in any other section
-      const stillChecked = draftState.sections.some(s =>
-        s.id !== secId && document.getElementById(`chk-${s.id}-${pid}`)?.checked
-      );
-      if (!stillChecked) delete draftState.references[pid];
-    }
-  }
-  updateDraftReferences();
-}
-
-function getCheckedPapersForSection(secId) {
-  const sec = draftState.sections.find(s => s.id === secId);
-  if (!sec) return [];
-  return sec.papers
-    .filter(({ pid }) => document.getElementById(`chk-${secId}-${pid}`)?.checked)
-    .map(({ pid, sgs, paper }) => ({ pid, sgs, paper }));
-}
-
-async function generateOneSectionById(secId) {
-  const sec = draftState.sections.find(s => s.id === secId);
-  if (!sec || sec.prewritten) return;
-
-  const checkedPapers = getCheckedPapersForSection(secId);
-  const btn = document.getElementById(`gen-btn-${secId}`);
-  const contentEl = document.getElementById(`content-${secId}`);
-  const statusEl = document.getElementById(`status-${secId}`);
-  const block = document.getElementById(`draft-block-${secId}`);
-
-  if (btn) { btn.disabled = true; btn.classList.add('generating-state'); btn.textContent = '✦ Writing…'; }
-  if (block) block.classList.add('generating');
-  if (contentEl) { contentEl.classList.remove('placeholder-text'); contentEl.textContent = 'Writing…'; }
-
-  const anchor = state.anchor;
-  const secondary = state.selectedSecondary.map(i => state.secondaryKeywords[i]);
-  const totalPapers = Object.keys(state.papers).length;
-  const gapCount = state.gapFindings.length;
-
-  const paperContext = checkedPapers.map(({ pid, paper }) =>
-    `- ${paper.author} (${paper.year}). "${paper.title}". ${paper.journal}.`
-  ).join('\n');
-
-  let generatedText = '';
-
-  if (state.apiKey) {
-    try {
-      const prompt = `You are writing a section of a systematic literature review manuscript about "${state.topic}".
-
-Section: ${sec.label} — ${sec.title}
-Writing guidance: ${sec.guidance}
-
-These are the papers available to cite (use author-year in-text citations):
-${paperContext || '(No specific papers — write from the search context)'}
-
-Search context:
-- Anchor keyword: ${anchor}
-- Secondary keywords: ${secondary.join(', ')}
-- Total papers retrieved: ${totalPapers}
-- Confirmed literature gaps: ${gapCount}
-
-Write the section now. Use in-text citations like (Author, Year). Write in academic prose. Do not use headers or bullet points. Output the section text only.`;
-
-      const resp = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-api-key': state.apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
-        body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 800, messages: [{ role: 'user', content: prompt }] })
-      });
-      if (resp.ok) {
-        const data = await resp.json();
-        generatedText = data.content?.[0]?.text || '';
-      }
-    } catch (e) {
-      console.warn('Claude API unavailable, using template generation.', e.message);
-    }
-  }
-
-  // Template fallback
-  if (!generatedText) {
-    generatedText = buildTemplateSectionContent(sec, checkedPapers, anchor, secondary, totalPapers, gapCount);
-  }
-
-  // Render with highlighted citations
-  const highlighted = generatedText.replace(/\(([A-Z][^)]+,\s*\d{4}[^)]*)\)/g, '<span class="cite-inline">($1)</span>');
-  if (contentEl) { contentEl.classList.remove('placeholder-text'); contentEl.innerHTML = highlighted; }
-  if (statusEl) { statusEl.textContent = '✓ Written'; statusEl.classList.add('written'); }
-  if (block) { block.classList.remove('generating'); block.classList.add('done'); }
-  if (btn) { btn.disabled = false; btn.classList.remove('generating-state'); btn.textContent = '↺ Regenerate'; }
-
-  sec.content = generatedText;
-}
-
-function buildTemplateSectionContent(sec, papers, anchor, secondary, totalPapers, gapCount) {
-  const cites = papers.map(p => `(${p.paper.author}, ${p.paper.year})`).join('; ');
-  const firstCite = papers[0] ? `(${papers[0].paper.author}, ${papers[0].paper.year})` : '';
-
-  const templates = {
-    intro: `The literature on ${anchor} is substantial, encompassing hundreds of thousands of indexed publications. Yet when this body of work is examined through the lens of ${secondary.join(', ')}, the overlap is remarkably thin. This disparity defines the core problem addressed by the present review: a field rich in general theoretical development that has not kept pace with the applied contexts in which ${anchor} decisions are made.
-
-Practitioners operating in ${secondary[0] || 'high-stakes'} environments must make ${anchor} decisions for which existing frameworks provide limited guidance. The gap between the scale of the general literature and the sparsity of context-specific synthesis is not merely academic — it has direct consequences for training design, clinical protocol development, and operational decision frameworks ${cites ? cites : ''}.
-
-This systematic review synthesizes the existing peer-reviewed literature at the intersection of ${anchor} and ${secondary.join(', ')}. Using a structured keyword subgroup methodology across ${state.subgroups.length} search groups, we identify the papers that bridge these domains, map the confirmed gaps, and propose a research agenda for the intersections that remain unstudied.`,
-
-    results_default: `The literature at the intersection of ${anchor} and ${sec.title.split('—')[1]?.trim() || secondary[0]} reveals a body of work organized primarily around definitional and framework-level inquiry ${firstCite}. Empirical studies are present but concentrated in specific subdisciplines, with limited cross-domain synthesis.
-
-Key themes emerging from this subgroup include: theoretical frameworks for understanding how ${anchor} operates under conditions of ${secondary[0] || 'stress'}; empirical studies of decision quality and outcomes; and applied models designed for specific professional contexts. Coverage varies considerably, with well-documented areas sitting adjacent to territory that has received almost no attention ${cites ? cites : ''}.
-
-Foundation papers that appear across multiple subgroups — those designated as must-reads in this review — tend to be the integrative works. They are the papers that declined to stay within one domain. The fact that they are few in number is itself a finding.`,
-
-    gaps_result: `${gapCount} keyword combinations across the ${state.subgroups.length} search subgroups returned zero or near-zero results. These are not failures of the search strategy. They are findings. The progressive narrowing methodology used in this review is specifically designed to surface the territory where the literature thins and disappears.
-
-When a combination of terms central to a practitioner's daily reality — the terms that cannot be separated in the field — returns no indexed studies, that absence constitutes direct evidence of a gap. The most significant confirmed gaps identified in this review occur at the intersections of ${secondary.slice(0, 2).join(' and ')} with specific applied ${anchor} contexts ${firstCite}.
-
-These gaps define the frontier. They are the questions the field has not yet asked in print.`,
-
-    discussion: `The results of this systematic review reveal a literature that has developed in parallel streams rather than in synthesis. General theory on ${anchor} is robust. Situational research on ${secondary.join(' and ')} is growing. But the integrative work — studies that treat these as inseparable, as practitioners must — remains sparse ${cites ? cites : ''}.
-
-Foundation papers that appeared across multiple subgroups share a common characteristic: they declined to stay within disciplinary boundaries. These works ${firstCite} did not separate what cannot be separated in practice. They are the models for what this literature needs more of.
-
-The ${gapCount} confirmed gaps identified in this review carry direct implications. For training program designers, they indicate where curricula are teaching frameworks that do not address the conditions learners will actually encounter. For policy developers, they identify the domains where evidence-based guidance cannot yet be written because the evidence does not yet exist.`,
-
-    conclusion: `This systematic review synthesized ${totalPapers} papers across ${state.subgroups.length} keyword subgroups on the topic of ${state.topic}. Foundation papers identified as cross-cutting across multiple subgroups represent the core of what is known at this intersection ${cites ? cites : ''}. The ${gapCount} confirmed gaps in this literature represent the frontier — territories that have been named but not yet studied.
-
-The literature has not kept pace with operational reality. Practitioners in ${secondary[0] || 'high-stakes'} environments operate daily at the intersections this review found empty. The most important next step is not another general review of ${anchor} theory. It is a purpose-built empirical study at one of the confirmed intersections identified here.`,
-
-    abstract: `Purpose: This systematic review maps the literature at the intersection of ${anchor} and ${secondary.join(', ')}, identifies confirmed gaps, and proposes a research agenda. Methods: A structured keyword subgroup methodology was applied across ${state.subgroups.length} subgroups using the OpenAlex database. Progressive Boolean narrowing was used until yields fell below 20 papers per subgroup. Results: ${totalPapers} unique papers were retrieved. ${gapCount} keyword combinations returned zero or near-zero results. Conclusion: The literature on ${anchor} has not integrated with applied ${secondary[0] || 'crisis'} contexts at the pace required by practitioners. The confirmed gaps identified represent the highest-priority targets for future empirical inquiry.`,
-  };
-
-  if (sec.id === 'intro') return templates.intro;
-  if (sec.id.startsWith('results_')) return templates.results_default;
-  if (sec.id === 'gaps_result') return templates.gaps_result;
-  if (sec.id === 'discussion') return templates.discussion;
-  if (sec.id === 'conclusion') return templates.conclusion;
-  if (sec.id === 'abstract') return templates.abstract;
-  return `[Section content for ${sec.title}. Check papers above and click Generate.]`;
-}
-
-async function generateAllSections() {
-  for (const sec of draftState.sections) {
-    if (!sec.prewritten && sec.id !== 'abstract') {
-      const body = document.getElementById(`body-${sec.id}`);
-      if (body && !body.classList.contains('open')) body.classList.add('open');
-      await generateOneSectionById(sec.id);
-      await sleep(200);
-    }
-  }
-}
-
-function updateDraftReferences() {
-  const panel = document.getElementById('draft-references-panel');
-  if (!panel) return;
-
-  const refs = Object.values(draftState.references);
-  if (refs.length === 0) {
-    panel.innerHTML = '<div style="font-size:13px;color:var(--muted);font-style:italic;">Check papers in each section to build your reference list.</div>';
-    return;
-  }
-
-  const sorted = refs.sort((a, b) => a.author.localeCompare(b.author));
-  panel.innerHTML = sorted.map((p, i) => {
-    const apa = `${p.author} (${p.year}). ${p.title}. <em>${p.journal}</em>${p.doi ? `. https://doi.org/${p.doi}` : ''}.`;
-    return `<div class="draft-ref-item"><div class="draft-ref-num">[${i+1}]</div>${apa}</div>`;
-  }).join('');
-}
-
-function exportDraft() {
-  const anchor = state.anchor;
-  const secondary = state.selectedSecondary.map(i => state.secondaryKeywords[i]);
-  const title = `${capitalize(anchor)} in ${capitalize(secondary[0] || 'Crisis')} Contexts: A Systematic Review`;
-
-  let text = title + '\n' + '='.repeat(title.length) + '\n\n';
-  text += `Generated by SLR Studio · ETL, Wright State University · ${new Date().toLocaleDateString()}\n\n`;
-
-  draftState.sections.forEach(sec => {
-    const contentEl = document.getElementById(`content-${sec.id}`);
-    const rawContent = contentEl ? (contentEl.innerText || contentEl.textContent || '') : sec.content;
-    if (!rawContent || rawContent.includes('Click Generate')) return;
-
-    text += `${sec.label}: ${sec.title}\n`;
-    text += '-'.repeat(40) + '\n';
-    text += rawContent.trim() + '\n\n';
-  });
-
-  const refs = Object.values(draftState.references).sort((a, b) => a.author.localeCompare(b.author));
-  if (refs.length > 0) {
-    text += 'References\n' + '-'.repeat(40) + '\n';
-    refs.forEach((p, i) => {
-      text += `[${i+1}] ${p.author} (${p.year}). ${p.title}. ${p.journal}${p.doi ? `. https://doi.org/${p.doi}` : ''}.\n`;
-    });
-  }
-
-  const blob = new Blob([text], { type: 'text/plain' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `SLR_Draft_${anchor.replace(/\s+/g,'_')}.txt`;
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
 </script>
 </body>
 </html>
