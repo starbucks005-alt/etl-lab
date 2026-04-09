@@ -4413,11 +4413,12 @@ const draftState = {
 };
 
 function initModule3() {
-  // Build sections from the outline structure
-  draftState.sections = buildDraftSections();
-  draftState.selectedPapers = {};
-  draftState.generatedText = {};
-  draftState.referenceList = {};
+  try {
+    // Build sections from the outline structure
+    draftState.sections = buildDraftSections();
+    draftState.selectedPapers = {};
+    draftState.generatedText = {};
+    draftState.referenceList = {};
 
   // Update screen 6 header based on mode
   const moduleLabel = document.querySelector('#draft-workspace .screen-title')?.previousElementSibling;
@@ -4456,15 +4457,20 @@ function initModule3() {
   if (draftState.sections.length > 0) {
     openDraftSection(draftState.sections[0].id);
   }
+  } catch(err) {
+    console.error('initModule3 error:', err);
+    const workspace = document.getElementById('draft-section-content');
+    if (workspace) workspace.innerHTML = '<div style="padding:32px;color:var(--red);font-family:monospace;">Error loading sections: ' + err.message + '</div>';
+  }
 }
 
 function buildDraftSections() {
   const anchor = state.anchor || 'research topic';
-  const secondary = state.selectedSecondary.map(i => state.secondaryKeywords[i]);
-  const topPapers = Object.entries(state.paperSGs)
+  const secondary = (state.selectedSecondary || []).map(i => (state.secondaryKeywords || [])[i]).filter(Boolean);
+  const topPapers = Object.entries(state.paperSGs || {})
     .sort((a, b) => b[1].length - a[1].length)
     .slice(0, 20)
-    .map(([pid]) => ({ pid, paper: state.papers[pid], sgs: state.paperSGs[pid] }))
+    .map(([pid]) => ({ pid, paper: (state.papers || {})[pid], sgs: (state.paperSGs || {})[pid] }))
     .filter(p => p.paper);
 
   // THESIS / DISSERTATION MODE
