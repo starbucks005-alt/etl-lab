@@ -1841,7 +1841,7 @@ body::after {
         <div class="field-label">Anthropic API Key <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;">(optional — enables AI keyword generation)</span></div>
         <input type="password" id="api-key-input"
           placeholder="sk-ant-..."
-          oninput="state.apiKey = this.value.trim()"
+          oninput="state.apiKey = this.value.trim(); try { localStorage.setItem('slr_studio_api_key', this.value.trim()); } catch(e) {}"
           style="width:100%;font-family:'JetBrains Mono',monospace;font-size:13px;padding:12px 16px;border:1.5px solid var(--border);background:var(--white);outline:none;transition:border-color 0.2s;margin-bottom:6px;"
           onfocus="this.style.borderColor='var(--navy)'" onblur="this.style.borderColor='var(--border)'">
         <div style="font-size:11px;color:var(--muted);line-height:1.5;">Without a key the system extracts keywords locally. Results are still good — the AI key makes them excellent.</div>
@@ -2071,8 +2071,8 @@ body::after {
       <button onclick="goToScreen(4)" style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;padding:8px 16px;background:transparent;border:1px solid rgba(255,255,255,0.2);color:rgba(245,243,238,0.5);cursor:pointer;transition:all 0.15s;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.2)';this.style.color='rgba(245,243,238,0.5)'">← View SLR Table</button>
     </div>
     <div class="gong-eyebrow">Search Complete — Your Field Has Spoken</div>
-      <h2 class="gong-headline">These are your <em>foundation papers.</em></h2>
-      <p class="gong-sub">The literature found these works across the most subgroups. They are the connective tissue of your field. Read these first.</p>
+      <h2 class="gong-headline" id="gong-headline">These are your <em>foundation papers.</em></h2>
+      <p class="gong-sub" id="gong-sub">The literature found these works across the most subgroups. They are the connective tissue of your field. Read these first.</p>
     </div>
 
     <div class="gong-stats">
@@ -2126,16 +2126,16 @@ body::after {
     </div>
 
     <!-- OUTPUT CHOICE -->
-    <div class="authors-section">
+    <div class="authors-section" id="output-choice-section">
       <div class="section-label">What would you like to do next?</div>
-      <div class="output-choice">
+      <div class="output-choice" id="output-choice-grid">
         <div class="choice-card" onclick="goToOutput('outline')">
           <div class="choice-number">1</div>
           <div class="choice-title">Build My Manuscript Outline</div>
           <div class="choice-desc">Generate a section-by-section outline with your foundation papers already mapped to each heading. Methods section pre-written. Exports as a Word document scaffold.</div>
           <div class="choice-cta">Generate outline →</div>
         </div>
-        <div class="choice-card mine-card" onclick="goToOutput('gaps')">
+        <div class="choice-card mine-card" id="gap-choice-card" onclick="goToOutput('gaps')">
           <div class="choice-number">2</div>
           <div class="choice-title">Mine the Gaps</div>
           <div class="choice-desc">Explore every zero count and dramatic drop. Each gap becomes a research opportunity card with suggested questions, study designs, and adjacent literature.</div>
@@ -2143,6 +2143,8 @@ body::after {
         </div>
       </div>
     </div>
+
+
   </div>
 </div>
 
@@ -2440,6 +2442,11 @@ function extractAnchor(topic) {
   if (t.includes('curriculum')) return 'curriculum design';
   if (t.includes('nursing')) return 'nursing practice';
   if (t.includes('surgery') || t.includes('surgical')) return 'surgical outcomes';
+  if (t.includes('conotox') || t.includes('cone snail')) return 'conotoxins';
+  if (t.includes('toxin') && (t.includes('snail') || t.includes('marine') || t.includes('venom'))) return 'marine toxins';
+  if (t.includes('neurotox')) return 'neurotoxins';
+  if (t.includes('venom') && !t.includes('snake')) return 'venom peptides';
+  if (t.includes('toxicol')) return 'toxicology';
   if (t.includes('crisis')) return 'crisis management';
   if (t.includes('emergency medicine') || t.includes('emergency department')) return 'emergency medicine';
   if (t.includes('patient safety')) return 'patient safety';
@@ -2466,6 +2473,10 @@ function extractAnchor(topic) {
 function extractSecondary(topic) {
   const t = topic.toLowerCase();
   const secondaries = [];
+  // Toxicology / pharmacology topics
+  if (t.includes('conotox') || t.includes('cone snail')) secondaries.push('peptide', 'neurotoxin', 'pharmacology');
+  if (t.includes('venom') || t.includes('toxin')) secondaries.push('bioactive', 'receptor', 'pharmacology');
+  if (t.includes('molecul') || t.includes('protein')) secondaries.push('mechanism', 'receptor', 'pathway');
   // AI / technology topics
   if (t.includes('defer') && t.includes('ai')) secondaries.push('automation bias', 'authority', 'trust');
   if (t.includes('llm') || t.includes('large language')) secondaries.push('trust', 'reliance');
@@ -2486,13 +2497,48 @@ function extractModifiers(topic, steer) {
   const t = topic.toLowerCase();
   const s = steer.toLowerCase();
 
+  // TOXICOLOGY / PHARMACOLOGY / VENOM / MARINE BIOLOGY
+  if (t.includes('toxin') || t.includes('venom') || t.includes('poison') ||
+      t.includes('conotox') || t.includes('cone snail') || t.includes('peptide') ||
+      t.includes('neurotox') || t.includes('pharmacolog') || t.includes('drug')) {
+    return ['neurotoxin', 'peptide', 'venom', 'analgesic', 'ion channel',
+      'nociception', 'pharmacology', 'marine biology', 'receptor', 'bioactive',
+      'drug discovery', 'pain', 'neuroscience', 'invertebrate', 'protein',
+      'mass spectrometry', 'proteomics', 'structure', 'synthesis', 'cytotoxicity',
+      'therapeutic', 'preclinical', 'animal model', 'electrophysiology', 'sequencing'];
+  }
+
+  // BIOLOGY / BIOCHEMISTRY / MOLECULAR
+  if (t.includes('molecul') || t.includes('protein') || t.includes('gene') ||
+      t.includes('cell') || t.includes('biochem') || t.includes('biology')) {
+    return ['protein', 'receptor', 'gene expression', 'molecular', 'pathway',
+      'mechanism', 'in vitro', 'in vivo', 'mouse model', 'assay',
+      'binding', 'inhibitor', 'synthesis', 'structure', 'function',
+      'biomarker', 'genomics', 'proteomics', 'cell line', 'cytotoxicity'];
+  }
+
+  // CANCER / ONCOLOGY
+  if (t.includes('cancer') || t.includes('tumor') || t.includes('oncol') ||
+      t.includes('carcinoma') || t.includes('neoplasm')) {
+    return ['chemotherapy', 'immunotherapy', 'biomarker', 'tumor', 'apoptosis',
+      'metastasis', 'clinical trial', 'survival', 'radiotherapy', 'mutation',
+      'targeted therapy', 'prognosis', 'resistance', 'angiogenesis', 'biopsy'];
+  }
+
   // AI deference / automation bias topic
   if (t.includes('defer') || t.includes('llm') || t.includes('algorithm aversion')) {
     return ['medicine', 'healthcare', 'psychology', 'education', 'compliance',
       'authority', 'cognition', 'bias', 'human factors', 'clinical',
-      'radiology', 'nursing', 'training', 'policy', 'workplace'];
+      'radiology', 'nursing', 'training', 'policy', 'workplace',
+      'trust', 'overreliance', 'automation', 'decision support', 'ethics'];
   }
-  // Steer overrides
+
+  // STEER OVERRIDES — user-directed
+  if (s.includes('toxicol') || s.includes('venom') || s.includes('pharmacol')) {
+    return ['toxicology', 'pharmacology', 'venom', 'peptide', 'receptor',
+      'neurotoxin', 'analgesic', 'drug discovery', 'bioactive', 'marine',
+      'mechanism', 'in vitro', 'in vivo', 'structure', 'synthesis'];
+  }
   if (s.includes('clinical') || s.includes('medicine')) {
     return ['medicine', 'healthcare', 'clinical', 'hospital', 'physician',
       'nursing', 'radiology', 'surgery', 'diagnosis', 'treatment',
@@ -2508,7 +2554,8 @@ function extractModifiers(topic, steer) {
       'leadership', 'crisis', 'disaster', 'homeland', 'emergency',
       'CBRN', 'training', 'decision', 'strategy', 'operations'];
   }
-  // Default — general academic
+
+  // DEFAULT — general academic
   return ['medicine', 'healthcare', 'policy', 'training', 'simulation',
     'models', 'psychology', 'international', 'disaster', 'emergency',
     'stress', 'education', 'technology', 'leadership', 'outcomes'];
@@ -2885,7 +2932,14 @@ async function runBuild() {
 
   await sleep(400);
   renderGongScreen();
-  goToScreen(5);
+
+  // If user chose Mine the Gaps mode, skip straight to gap analysis
+  if (state.mode === 'mine') {
+    goToScreen(7);
+    generateGapAnalysis();
+  } else {
+    goToScreen(5);
+  }
 }
 
 async function buildSG(sg, sgIndex) {
@@ -3311,12 +3365,26 @@ function updateExportCounts() {
 // SCREEN 5: GONG
 // ═══════════════════════════════════════════
 function renderGongScreen() {
-  // Stats
   const uniquePapers = Object.keys(state.papers).length;
   const foundationPapers = Object.values(state.paperSGs).filter(sgs => sgs.length >= 2).length;
-  document.getElementById('stat-papers').textContent = uniquePapers || '—';
-  document.getElementById('stat-foundation').textContent = foundationPapers || '—';
-  document.getElementById('stat-gaps').textContent = state.gapFindings.length;
+  const gapCount = state.gapFindings.length;
+
+  document.getElementById('stat-papers').textContent = uniquePapers || '0';
+  document.getElementById('stat-foundation').textContent = foundationPapers || '0';
+  document.getElementById('stat-gaps').textContent = gapCount;
+
+  // Update headline based on results
+  const headline = document.getElementById('gong-headline');
+  const sub = document.getElementById('gong-sub');
+  if (headline) {
+    if (uniquePapers === 0 && gapCount > 0) {
+      headline.innerHTML = 'Your search found <em>${gapCount} gaps.</em>';
+      if (sub) sub.textContent = 'No papers crossed the threshold — but the gaps tell the story. Select Gap Analysis below to explore what the literature is missing.';
+    } else if (state.mode === 'mine') {
+      headline.innerHTML = `Found <em>${uniquePapers} papers</em> and <em>${gapCount} gaps.</em>`;
+      if (sub) sub.textContent = 'Your gap register is ready. Select Mine the Gaps below to explore the research frontier.';
+    }
+  }
 
   // Authors — sorted by count
   const sortedAuthors = Object.entries(state.authorCounts)
@@ -3360,6 +3428,18 @@ function renderGongScreen() {
     document.querySelectorAll('.author-bar-fill').forEach(el => {
       el.style.width = el.dataset.width;
     });
+
+    // Highlight gap choice if in mine mode
+    if (state.mode === 'mine') {
+      const card = document.getElementById('gap-choice-card');
+      if (card) {
+        card.style.borderColor = '#e05050';
+        card.style.transform = 'scale(1.02)';
+        card.style.boxShadow = '0 0 0 3px rgba(224,80,80,0.2)';
+      }
+      const label = document.querySelector('#output-choice-section .section-label');
+      if (label) label.textContent = 'You chose Mine the Gaps — your gap register is ready.';
+    }
   }, 100);
 
   // Foundation papers
@@ -4095,6 +4175,18 @@ function sleep(ms) {
 
 // Init
 updateTopicUI();
+
+// Load saved API key from localStorage
+(function() {
+  try {
+    const saved = localStorage.getItem('slr_studio_api_key');
+    if (saved) {
+      state.apiKey = saved;
+      const input = document.getElementById('api-key-input');
+      if (input) input.value = saved;
+    }
+  } catch(e) {}
+})();
 </script>
 </body>
 </html>
