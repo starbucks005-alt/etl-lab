@@ -1898,6 +1898,10 @@ body::after {
         <div style="font-size:11px;color:var(--muted);line-height:1.5;">Without a key, keywords are extracted locally — works well for most topics. With a key, Claude reads your exact topic and generates precise field-specific terms.</div>
       </div>
 
+      <div id="db-status" style="font-family:monospace;font-size:11px;color:var(--muted);margin-top:16px;margin-bottom:4px;">
+        ● Checking database connection...
+      </div>
+
       <div class="s1-cta">
         <button class="btn btn-gold btn-lg" id="btn-generate-kw" onclick="goToKeywords()" disabled>
           Generate Keywords →
@@ -2381,7 +2385,12 @@ function selectMode(mode) {
 }
 
 function setTopic(text) {
-  document.getElementById('topic-input').value = text.trim();
+  // Strip surrounding quotation marks if present, trim whitespace
+  const clean = text.trim().replace(/^[""]|[""]$/g, '').trim();
+  const input = document.getElementById('topic-input');
+  input.value = clean;
+  input.focus();
+  input.scrollIntoView({ behavior: 'smooth', block: 'center' });
   updateTopicUI();
 }
 
@@ -2958,7 +2967,17 @@ async function runBuild() {
     await sleep(600);
   }
 
-  document.getElementById('progress-text').textContent = 'Search complete. Foundation papers identified.';
+  // Count how many SGs completed properly vs were too broad
+  const broadSGs = state.slrLog ? 
+    new Set(state.slrLog.filter(r => !r.isGap && r.count > 20).map(r => r.sg)).size : 0;
+
+  if (broadSGs > 5) {
+    document.getElementById('progress-text').innerHTML = 
+      '☂️ Search complete — but ' + broadSGs + ' subgroups were too broad. Consider adding more specific modifier keywords before reviewing results.';
+    document.getElementById('progress-text').style.color = 'var(--amber)';
+  } else {
+    document.getElementById('progress-text').textContent = 'Search complete. Foundation papers identified.';
+  }
   document.getElementById('progress-pct').textContent = `${state.subgroups.length} / ${state.subgroups.length}`;
 
   // Activate exports
@@ -3024,7 +3043,8 @@ async function buildSG(sg, sgIndex) {
   // Build the full modifier pool for this SG to draw from if count stays above 20
   // Start with the SG's own terms, then draw from the global modifier pool
   // Each SG gets its OWN copy of the full modifier pool so they do not deplete each other
-  const allModifiers = state.selectedModifiers.map(i => state.modifierKeywords[i]);
+  // Include ALL selected modifiers — both from the original list and any custom additions
+  const allModifiers = state.modifierKeywords.filter((kw, i) => state.selectedModifiers.includes(i));
   const sgTermsUsed = new Set(sg.terms);
   // Fresh copy per SG — shift() on this array only affects this SG
   const extraModifiers = [...allModifiers.filter(m => !sgTermsUsed.has(m))];
@@ -3051,19 +3071,23 @@ async function buildSG(sg, sgIndex) {
     const row = document.createElement('tr');
     row.className = isFirst ? 'sg-start' : '';
     row.id = `row-${sgIndex}-${termIdx}`;
-    row.innerHTML = `
-      <td class="td-sg">${isFirst ? `SG${sg.id}` : ''}</td>
-      <td class="td-kw ${termIdx === 0 ? 'anchor-kw' : ''}" style="color:var(--ink);">
-        ${termsSoFar.map((t,i) => i === 0 
-          ? `<strong>${t}</strong>` 
-          : `<span style="color:var(--muted);font-size:10px;"> AND </span>${t}`
-        ).join('')}
-      </td>
-      <td class="td-count" style="text-align:right;">
-        <span id="count-${sgIndex}-${termIdx}" style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--muted);font-style:italic;">querying...</span>
-      </td>
-      <td id="status-${sgIndex}-${termIdx}" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);"></td>
-    `;
+    // Build the keyword display with AND between terms
+    const kwDisplay = termsSoFar.map((t, i) => {
+      if (i === 0) return '<strong>' + t + '</strong>';
+      return '<span style="color:var(--muted);font-size:10px;font-family:sans-serif;"> AND </span>' + t;
+    }).join('');
+
+    const sgLabel = isFirst ? 'SG' + sg.id : '';
+    const anchorClass = termIdx === 0 ? 'anchor-kw' : '';
+    const kwClass = 'td-kw ' + anchorClass;
+
+    row.innerHTML =
+      '<td class="td-sg">' + sgLabel + '</td>' +
+      '<td class="' + kwClass + '" style="color:var(--ink);">' + kwDisplay + '</td>' +
+      '<td class="td-count" style="text-align:right;">' +
+        '<span id="count-' + sgIndex + '-' + termIdx + '" style="font-family:monospace;font-size:13px;color:var(--muted);font-style:italic;">querying...</span>' +
+      '</td>' +
+      '<td id="status-' + sgIndex + '-' + termIdx + '" style="font-family:monospace;font-size:10px;color:var(--muted);"></td>';
     tbody.appendChild(row);
 
     const container = document.querySelector('.s4-main');
@@ -3206,13 +3230,26 @@ async function buildSG(sg, sgIndex) {
   const summaryRow = document.createElement('tr');
   summaryRow.className = 'sg-summary-row';
   const paperCount = Object.values(state.paperSGs).filter(sgs => sgs.includes(sgIndex)).length;
-  const summaryText = hitZero
-    ? `SG${sg.id} complete — gap confirmed, 0 papers`
-    : reachedThreshold
-    ? `SG${sg.id} complete — ${paperCount} paper${paperCount !== 1 ? 's' : ''} retrieved`
-    : `SG${sg.id} complete — ${paperCount > 0 ? paperCount + ' papers retrieved' : 'above threshold, no papers retrieved'}`;
+  let summaryText = '';
+  let summaryStyle = 'font-family:monospace;font-size:10px;color:var(--muted);font-style:italic;padding:6px 16px;';
+  let umbrellaIcon = '';
 
-  summaryRow.innerHTML = `<td colspan="4">${summaryText}</td>`;
+  if (hitZero) {
+    summaryText = 'SG' + sg.id + ' complete — gap confirmed, 0 papers';
+    umbrellaIcon = '<span title="Confirmed gap — no papers at this intersection" style="margin-right:8px;font-size:14px;">⬤</span>';
+    summaryStyle += 'color:var(--red);';
+  } else if (reachedThreshold) {
+    summaryText = 'SG' + sg.id + ' complete — ' + paperCount + ' paper' + (paperCount !== 1 ? 's' : '') + ' retrieved';
+    umbrellaIcon = '<span title="Good yield — search narrowed successfully" style="margin-right:8px;font-size:14px;color:var(--green);">✓</span>';
+    summaryStyle += 'color:var(--green);';
+  } else {
+    // Never reached threshold — search too broad
+    summaryText = 'SG' + sg.id + ' — search too broad. Ran out of modifiers before reaching 20 papers. Add more specific keywords and try again.';
+    umbrellaIcon = '<span title="Too broad — add more specific keywords" style="margin-right:8px;font-size:18px;">☂️</span>';
+    summaryStyle += 'color:var(--amber);font-weight:600;background:var(--amber-light);';
+  }
+
+  summaryRow.innerHTML = '<td colspan="4" style="' + summaryStyle + '">' + umbrellaIcon + summaryText + '</td>';
   tbody.appendChild(summaryRow);
 
   const container = document.querySelector('.s4-main');
@@ -3255,9 +3292,10 @@ async function queryOpenAlex(terms, retrievePapers) {
     const query = buildQuery(terms);
     const encoded = encodeURIComponent(query);
 
-    // title_and_abstract.search = search title + abstract only (like PubMed)
-    // This is far more precise than full-text search
-    const base = `https://api.openalex.org/works?filter=title_and_abstract.search:${encoded}&mailto=slrstudio@research.io`;
+    // Use OpenAlex search parameter with title_and_abstract filter
+    // OpenAlex supports CORS from browsers natively
+    // We use the filter approach for precise title/abstract matching
+    const base = 'https://api.openalex.org/works?filter=title_and_abstract.search:' + encoded + '&mailto=slrstudio@research.io';
 
     // Count query — minimal data
     const countUrl = `${base}&per-page=1&select=id`;
@@ -3285,7 +3323,12 @@ async function queryOpenAlex(terms, retrievePapers) {
     return { count, papers };
 
   } catch (e) {
-    console.warn('OpenAlex query failed:', e.message);
+    const msg = e.message || '';
+    if (msg.includes('fetch') || msg.includes('CORS') || msg.includes('network')) {
+      console.warn('OpenAlex network error — using simulation:', msg);
+    } else {
+      console.warn('OpenAlex query failed:', msg);
+    }
     return simulateCount(terms, retrievePapers);
   }
 }
@@ -4076,7 +4119,7 @@ function renderMindMap(view) {
     }
 
     // Label
-    ctx.font = `${isHub ? '600 ' : ''}${isHub ? 10 : 9}px 'JetBrains Mono', monospace`;
+    ctx.font = (isHub ? '600 ' : '') + (isHub ? 10 : 9) + "px monospace";
     ctx.fillStyle = isHub ? '#0a0a0f' : 'rgba(245,243,238,0.8)';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -4498,35 +4541,36 @@ function renderPaperChecklist(sectionId, sec) {
     ...allPapers.filter(([pid]) => !suggested.includes(pid))
   ];
 
-  checklist.innerHTML = `
-    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;">
-      ${selectedPids.length} of ${allPapers.length} papers selected
-    </div>
-    <div style="display:flex;gap:8px;margin-bottom:16px;">
-      <button onclick="selectAllPapers('${sectionId}')" style="font-family:'JetBrains Mono',monospace;font-size:10px;padding:5px 10px;border:1px solid var(--border);background:white;cursor:pointer;">All</button>
-      <button onclick="selectSuggestedPapers('${sectionId}')" style="font-family:'JetBrains Mono',monospace;font-size:10px;padding:5px 10px;border:1px solid var(--gold);background:white;color:var(--gold);cursor:pointer;">Suggested</button>
-      <button onclick="clearAllPapers('${sectionId}')" style="font-family:'JetBrains Mono',monospace;font-size:10px;padding:5px 10px;border:1px solid var(--border);background:white;cursor:pointer;">None</button>
-    </div>
-    ${sortedPapers.map(([pid, paper]) => {
-      const isSelected = selectedPids.includes(pid);
-      const isSuggested = suggested.includes(pid);
-      return `
-        <div onclick="togglePaper('${sectionId}','${pid}')"
-          style="padding:10px 12px;margin-bottom:6px;border:1.5px solid ${isSelected ? 'var(--navy)' : 'var(--border)'};background:${isSelected ? '#f0f4f8' : 'white'};cursor:pointer;transition:all 0.15s;">
-          <div style="display:flex;align-items:flex-start;gap:8px;">
-            <div style="width:14px;height:14px;border:1.5px solid ${isSelected ? 'var(--navy)' : 'var(--border)'};background:${isSelected ? 'var(--navy)' : 'white'};flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;">
-              ${isSelected ? '<span style="color:white;font-size:9px;">✓</span>' : ''}
-            </div>
-            <div style="flex:1;">
-              ${isSuggested ? '<span style="font-family:'JetBrains Mono',monospace;font-size:8px;background:var(--gold);color:var(--ink);padding:1px 5px;margin-bottom:4px;display:inline-block;">SUGGESTED</span><br>' : ''}
-              <div style="font-size:12px;font-weight:600;color:var(--ink);line-height:1.4;margin-bottom:3px;">${(paper.title || 'Untitled').substring(0, 80)}${paper.title && paper.title.length > 80 ? '...' : ''}</div>
-              <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);">${paper.author || 'Unknown'} · ${paper.year || '—'}</div>
-            </div>
-          </div>
-        </div>
-      `;
-    }).join('')}
-  `;
+  // Build checklist HTML using concatenation to avoid quote conflicts
+  const mono = 'font-family:monospace;';
+  let html = '';
+  html += '<div style="' + mono + 'font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;">' + selectedPids.length + ' of ' + allPapers.length + ' papers selected</div>';
+  html += '<div style="display:flex;gap:8px;margin-bottom:16px;">';
+  html += '<button onclick="selectAllPapers(\'' + sectionId + '\')" style="' + mono + 'font-size:10px;padding:5px 10px;border:1px solid var(--border);background:white;cursor:pointer;">All</button>';
+  html += '<button onclick="selectSuggestedPapers(\'' + sectionId + '\')" style="' + mono + 'font-size:10px;padding:5px 10px;border:1px solid var(--gold);background:white;color:var(--gold);cursor:pointer;">Suggested</button>';
+  html += '<button onclick="clearAllPapers(\'' + sectionId + '\')" style="' + mono + 'font-size:10px;padding:5px 10px;border:1px solid var(--border);background:white;cursor:pointer;">None</button>';
+  html += '</div>';
+
+  sortedPapers.forEach(function(entry) {
+    var pid = entry[0]; var paper = entry[1];
+    var isSelected = selectedPids.includes(pid);
+    var isSuggested = suggested.includes(pid);
+    var bc = isSelected ? 'var(--navy)' : 'var(--border)';
+    var bg = isSelected ? '#f0f4f8' : 'white';
+    var safePid = pid.replace(/'/g, "\\'");
+    var shortTitle = (paper.title || 'Untitled').substring(0, 80) + (paper.title && paper.title.length > 80 ? '...' : '');
+    html += '<div onclick="togglePaper(\'' + sectionId + '\',\'' + safePid + '\')" style="padding:10px 12px;margin-bottom:6px;border:1.5px solid ' + bc + ';background:' + bg + ';cursor:pointer;">';
+    html += '<div style="display:flex;align-items:flex-start;gap:8px;">';
+    html += '<div style="width:14px;height:14px;border:1.5px solid ' + bc + ';background:' + (isSelected ? 'var(--navy)' : 'white') + ';flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;">';
+    html += isSelected ? '<span style="color:white;font-size:9px;">&#10003;</span>' : '';
+    html += '</div><div style="flex:1;">';
+    if (isSuggested) html += '<span style="' + mono + 'font-size:8px;background:var(--gold);color:var(--ink);padding:1px 5px;margin-bottom:4px;display:inline-block;">SUGGESTED</span><br>';
+    html += '<div style="font-size:12px;font-weight:600;color:var(--ink);line-height:1.4;margin-bottom:3px;">' + shortTitle + '</div>';
+    html += '<div style="' + mono + 'font-size:10px;color:var(--muted);">' + (paper.author || 'Unknown') + ' &middot; ' + (paper.year || '&mdash;') + '</div>';
+    html += '</div></div></div>';
+  });
+
+  checklist.innerHTML = html;
 }
 
 function togglePaper(sectionId, pid) {
@@ -4594,11 +4638,10 @@ async function generateSection(sectionId) {
   }
 
   // Build paper context for the prompt
-  const paperContext = selectedPapers.map((p, i) => {
-    const citationKey = p.author ? p.author.split(';')[0].split(',')[0].trim() + ' (' + p.year + ')' : 'Unknown (' + (p.year || '—') + ')';
-    return `[${i+1}] ${citationKey}: "${p.title}" — ${p.journal || 'Unknown Journal'}, ${p.year || '—'}`;
-  }).join('
-');
+  const paperContext = selectedPapers.map(function(p, i) {
+    var citationKey = p.author ? p.author.split(';')[0].split(',')[0].trim() + ' (' + p.year + ')' : 'Unknown (' + (p.year || 'n.d.') + ')';
+    return '[' + (i+1) + '] ' + citationKey + ': "' + (p.title || '') + '" - ' + (p.journal || 'Unknown Journal') + ', ' + (p.year || 'n.d.');
+  }).join('\n');
 
   if (sec.prewritten && sec.id === 'methods') {
     // Auto-generate methods from search data
@@ -4767,8 +4810,31 @@ document.addEventListener('click', function(e) {
   if (modal && e.target === modal) closeApiModal();
 });
 
+// Test OpenAlex connectivity on load
+async function testOpenAlexConnection() {
+  try {
+    const resp = await fetch('https://api.openalex.org/works?filter=title.search:test&per-page=1&select=id&mailto=slrstudio@research.io');
+    if (resp.ok) {
+      console.log('OpenAlex connection: OK');
+      // Show green indicator if element exists
+      const ind = document.getElementById('db-status');
+      if (ind) { ind.textContent = '● OpenAlex connected'; ind.style.color = 'var(--green)'; }
+    } else {
+      throw new Error('HTTP ' + resp.status);
+    }
+  } catch(e) {
+    console.warn('OpenAlex not reachable:', e.message);
+    const ind = document.getElementById('db-status');
+    if (ind) { 
+      ind.textContent = '● Database unreachable — using simulation mode'; 
+      ind.style.color = 'var(--amber)'; 
+    }
+  }
+}
+
 // Init
 updateTopicUI();
+testOpenAlexConnection();
 
 // Load saved API key from localStorage
 (function() {
