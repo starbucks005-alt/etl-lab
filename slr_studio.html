@@ -4229,7 +4229,7 @@ async function generateGapAnalysis() {
     const sevClass = `sev-${severity}`;
 
     const questions = generateResearchQuestions(gap.terms, state.anchor);
-    const designs = ['Systematic review', 'Mixed methods study', 'Survey of practitioners'];
+    const designs = suggestStudyDesigns(gap.terms, severity, state.anchor);
 
     const card = document.createElement('div');
     card.className = 'gap-analysis-card';
@@ -4275,7 +4275,7 @@ async function generateGapAnalysis() {
         <td class="${priorClass}">${priority}</td>
         <td>${gap.finding}</td>
         <td>${generateResearchQuestions(gap.terms, state.anchor)[0]}</td>
-        <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">Systematic review</td>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">${suggestStudyDesigns(gap.terms, i === 0 ? 'confirmed' : i < 3 ? 'thin' : 'emerging', state.anchor)[0]}</td>
       </tr>
     `;
   }).join('');
@@ -4333,6 +4333,63 @@ function generateSyntheticGaps() {
   }
 
   return gaps;
+}
+
+function suggestStudyDesigns(terms, severity, anchor) {
+  const termStr = (terms || []).join(' ').toLowerCase();
+  const anch = (anchor || '').toLowerCase();
+
+  // Keyword signals in the gap terms drive the design suggestion
+  const isClinical      = /patient|clinical|hospital|treatment|therapy|disease|health|medical|nurse|physician|drug|dose/.test(termStr + anch);
+  const isPolicy        = /policy|government|law|legislation|regulation|governance|public/.test(termStr + anch);
+  const isBehavioral    = /behavior|behaviour|attitude|perception|experience|lived|qualitative|interview/.test(termStr + anch);
+  const isEducational   = /student|education|learning|curriculum|pedagogy|classroom|training|teach/.test(termStr + anch);
+  const isOrganization  = /organization|leadership|management|workforce|employee|team|institution/.test(termStr + anch);
+  const isTechnology    = /technolog|ai|machine learning|algorithm|software|digital|cyber|data/.test(termStr + anch);
+  const isEpidemiology  = /prevalence|incidence|population|epidemiol|surveil|mortality|morbidity/.test(termStr + anch);
+  const isMeasurement   = /scale|instrument|measure|assessment|valid|reliab|psychometric/.test(termStr + anch);
+  const isIntervention  = /intervention|program|training|trial|experiment|randomiz|control/.test(termStr + anch);
+
+  // Severity also shapes the recommendation
+  const isConfirmed = severity === 'confirmed'; // zero papers — exploratory first
+  const isThin      = severity === 'thin';      // few papers — needs replication or expansion
+  const isEmerging  = severity === 'emerging';  // some papers — build on what exists
+
+  let designs = [];
+
+  if (isConfirmed) {
+    // No literature exists — need to establish a foundation
+    if (isClinical)      designs = ['Scoping review', 'Pilot observational study', 'Expert consensus (Delphi)'];
+    else if (isBehavioral) designs = ['Qualitative grounded theory', 'Phenomenological study', 'Scoping review'];
+    else if (isEducational) designs = ['Needs assessment', 'Qualitative case study', 'Scoping review'];
+    else if (isPolicy)   designs = ['Policy analysis', 'Comparative case study', 'Scoping review'];
+    else if (isTechnology) designs = ['Systematic review', 'Proof-of-concept study', 'Expert elicitation'];
+    else if (isOrganization) designs = ['Qualitative grounded theory', 'Multi-case study', 'Scoping review'];
+    else if (isEpidemiology) designs = ['Cross-sectional survey', 'Epidemiological study', 'Secondary data analysis'];
+    else                 designs = ['Scoping review', 'Exploratory qualitative study', 'Expert Delphi'];
+  } else if (isThin) {
+    // Very few papers — replicate, expand, or go deeper
+    if (isClinical && isIntervention) designs = ['Randomized controlled trial', 'Quasi-experimental study', 'Systematic review with meta-analysis'];
+    else if (isClinical)  designs = ['Systematic review', 'Cohort study', 'Survey of practitioners'];
+    else if (isMeasurement) designs = ['Psychometric validation study', 'Instrument development', 'Systematic review'];
+    else if (isEducational) designs = ['Quasi-experimental study', 'Mixed methods', 'Longitudinal survey'];
+    else if (isBehavioral) designs = ['Mixed methods', 'Cross-sectional survey', 'Grounded theory'];
+    else if (isPolicy)   designs = ['Systematic review', 'Comparative policy analysis', 'Survey of stakeholders'];
+    else if (isTechnology) designs = ['Empirical evaluation study', 'Mixed methods', 'Systematic review'];
+    else                 designs = ['Mixed methods study', 'Systematic review', 'Survey of practitioners'];
+  } else {
+    // Emerging — build, synthesize, or extend theory
+    if (isClinical && isIntervention) designs = ['Systematic review with meta-analysis', 'RCT', 'Implementation study'];
+    else if (isClinical)  designs = ['Systematic review with meta-analysis', 'Longitudinal cohort', 'Secondary data analysis'];
+    else if (isOrganization) designs = ['Mixed methods', 'Survey study', 'Longitudinal case study'];
+    else if (isEducational) designs = ['Longitudinal study', 'Quasi-experimental', 'Systematic review'];
+    else if (isEpidemiology) designs = ['Systematic review with meta-analysis', 'Prospective cohort', 'Population survey'];
+    else if (isMeasurement) designs = ['Systematic review', 'Multi-site validation', 'Meta-analysis'];
+    else if (isTechnology) designs = ['Comparative empirical study', 'Systematic review', 'Longitudinal evaluation'];
+    else                 designs = ['Systematic review', 'Survey study', 'Comparative case study'];
+  }
+
+  return designs.slice(0, 3);
 }
 
 function generateWhyMatters(terms, anchor, topic) {
