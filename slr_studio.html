@@ -1873,7 +1873,7 @@ body::after {
             ${[
               ['Go to <strong>console.anthropic.com</strong>', 'Create a free account or sign in. No subscription required.'],
               ['Click <strong>API Keys</strong> in the left sidebar', 'Then click <strong>Create Key</strong> and give it a name like "SLR Studio".'],
-              ['Copy the key', 'It starts with <strong>sk-ant-</strong>. Copy it immediately — Anthropic only shows it once.'],
+              ['Copy the key', 'It starts with <strong>sk-ant-</strong>. Copy it immediately. Anthropic only shows it once.'],
               ['Add credits', 'Go to <strong>Billing</strong> and add $5. This covers thousands of keyword generations at a fraction of a cent each.'],
               ['Paste it here', 'Paste the key into the API Key field on this screen. It saves automatically in your browser.']
             ].map(([title, desc], i) => `
@@ -1919,7 +1919,7 @@ body::after {
           oninput="state.apiKey = this.value.trim(); try { localStorage.setItem('slr_studio_api_key', this.value.trim()); } catch(e) {}"
           style="width:100%;font-family:'JetBrains Mono',monospace;font-size:13px;padding:12px 16px;border:1.5px solid var(--border);background:var(--white);outline:none;transition:border-color 0.2s;margin-bottom:6px;"
           onfocus="this.style.borderColor='var(--navy)'" onblur="this.style.borderColor='var(--border)'">
-        <div style="font-size:11px;color:var(--muted);line-height:1.5;">Without a key, keywords are extracted locally — works well for most topics. With a key, Claude reads your exact topic and generates precise field-specific terms.</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.5;">Without a key, keywords are extracted locally. Works well for most topics. With a key, Claude reads your exact topic and generates precise field-specific terms.</div>
       </div>
 
       <div id="db-status" style="font-family:monospace;font-size:11px;color:var(--muted);margin-top:16px;margin-bottom:4px;">
@@ -2333,7 +2333,7 @@ body::after {
             + Upload Figure / Graph
             <input type="file" accept="image/*" multiple style="display:none;" onchange="handleFigureUpload(event)">
           </label>
-          <div style="font-size:11px;color:var(--muted);margin-top:6px;line-height:1.5;">JPG, PNG, SVG. Each figure gets a caption field. Stored locally — nothing uploaded.</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:6px;line-height:1.5;">JPG, PNG, SVG. Each figure gets a caption field. Stored locally. Nothing is uploaded.</div>
         </div>
 
         <!-- Divider -->
@@ -4226,16 +4226,6 @@ function generateSyntheticGaps() {
     });
   }
   return gaps;
-}
-
-function generateResearchQuestions(terms, anchor) {
-  const t = terms[terms.length - 1];
-  const sec = terms[1] || anchor;
-  return [
-    `What ${anchor} frameworks exist specifically for ${t} environments, and how do they differ from general models?`,
-    `How does ${sec} alter ${anchor} processes in ${t} contexts?`,
-    `What interventions most effectively prepare practitioners for ${anchor} challenges in ${t} settings?`
-  ];
 }
 
 function generateWhyMatters(terms, anchor, topic) {
@@ -6758,7 +6748,7 @@ restoreSession();
         <label for="selfie-upload" style="display:block;border:2px dashed var(--border);padding:28px;text-align:center;cursor:pointer;transition:border-color 0.2s;margin-bottom:24px;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
           <div style="font-size:32px;margin-bottom:8px;">📷</div>
           <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;">Click to upload</div>
-          <div style="font-size:12px;color:var(--muted);">JPG or PNG — works best with a clear background</div>
+          <div style="font-size:12px;color:var(--muted);">JPG or PNG. Works best with a clear background</div>
           <input type="file" id="selfie-upload" accept="image/jpeg,image/png" style="display:none;" onchange="handleSelfieUpload(event)">
         </label>
       </div>
