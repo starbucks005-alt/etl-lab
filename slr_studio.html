@@ -1837,14 +1837,65 @@ body::after {
         </div>
       </div>
 
+      <!-- API KEY HELP MODAL -->
+      <div id="api-key-modal" style="display:none;position:fixed;inset:0;background:rgba(10,10,15,0.7);z-index:9998;align-items:center;justify-content:center;">
+        <div style="background:var(--white);max-width:520px;width:90%;padding:40px;position:relative;box-shadow:0 24px 64px rgba(0,0,0,0.3);">
+          <button onclick="closeApiModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);">×</button>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;">API Key Setup</div>
+          <h3 style="font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--ink);margin-bottom:16px;line-height:1.2;">How to get your Anthropic API key</h3>
+          <p style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:20px;">The API key enables AI-powered keyword generation. Without it, keywords are extracted locally and work well for common topics. With it, Claude reads your exact topic sentence and generates precise, field-specific keywords every time.</p>
+
+          <div style="counter-reset:steps;">
+            ${[
+              ['Go to <strong>console.anthropic.com</strong>', 'Create a free account or sign in. No subscription required.'],
+              ['Click <strong>API Keys</strong> in the left sidebar', 'Then click <strong>Create Key</strong> and give it a name like "SLR Studio".'],
+              ['Copy the key', 'It starts with <strong>sk-ant-</strong>. Copy it immediately — Anthropic only shows it once.'],
+              ['Add credits', 'Go to <strong>Billing</strong> and add $5. This covers thousands of keyword generations at a fraction of a cent each.'],
+              ['Paste it here', 'Paste the key into the API Key field on this screen. It saves automatically in your browser.']
+            ].map(([title, desc], i) => `
+              <div style="display:flex;gap:16px;margin-bottom:16px;align-items:flex-start;">
+                <div style="width:28px;height:28px;background:var(--ink);color:var(--paper);font-family:'Playfair Display',serif;font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${i+1}</div>
+                <div>
+                  <div style="font-size:14px;font-weight:600;color:var(--ink);margin-bottom:2px;">${title}</div>
+                  <div style="font-size:13px;color:var(--muted);line-height:1.5;">${desc}</div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+
+          <div style="background:var(--cream);border-left:3px solid var(--gold);padding:12px 16px;margin-top:8px;font-size:12px;color:var(--muted);line-height:1.6;">
+            <strong style="color:var(--ink);">Cost estimate:</strong> Each keyword generation call costs approximately $0.002. A typical session with 5-10 generations costs less than $0.02. Your key is stored only in your browser and never sent to any server other than Anthropic's.
+          </div>
+
+          <div style="margin-top:24px;display:flex;gap:12px;">
+            <a href="https://console.anthropic.com" target="_blank"
+              style="font-family:'Outfit',sans-serif;font-weight:600;font-size:13px;letter-spacing:0.06em;text-transform:uppercase;padding:12px 24px;background:var(--ink);color:var(--paper);text-decoration:none;display:inline-block;">
+              Open Anthropic Console →
+            </a>
+            <button onclick="closeApiModal()"
+              style="font-family:'Outfit',sans-serif;font-weight:600;font-size:13px;letter-spacing:0.06em;text-transform:uppercase;padding:12px 24px;background:transparent;color:var(--muted);border:2px solid var(--border);cursor:pointer;">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+
       <div style="margin-top:28px;">
-        <div class="field-label">Anthropic API Key <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;">(optional — enables AI keyword generation)</span></div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+          <div class="field-label" style="margin-bottom:0;">Anthropic API Key</div>
+          <button onclick="openApiModal()"
+            style="width:18px;height:18px;border-radius:50%;background:var(--border);border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--muted);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s;"
+            onmouseover="this.style.background='var(--navy)';this.style.color='white'"
+            onmouseout="this.style.background='var(--border)';this.style.color='var(--muted)'"
+            title="How to get an API key">?</button>
+          <span style="font-size:11px;color:var(--muted);">optional — <button onclick="openApiModal()" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--gold);text-decoration:underline;padding:0;">what is this?</button></span>
+        </div>
         <input type="password" id="api-key-input"
           placeholder="sk-ant-..."
           oninput="state.apiKey = this.value.trim(); try { localStorage.setItem('slr_studio_api_key', this.value.trim()); } catch(e) {}"
           style="width:100%;font-family:'JetBrains Mono',monospace;font-size:13px;padding:12px 16px;border:1.5px solid var(--border);background:var(--white);outline:none;transition:border-color 0.2s;margin-bottom:6px;"
           onfocus="this.style.borderColor='var(--navy)'" onblur="this.style.borderColor='var(--border)'">
-        <div style="font-size:11px;color:var(--muted);line-height:1.5;">Without a key the system extracts keywords locally. Results are still good — the AI key makes them excellent.</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.5;">Without a key, keywords are extracted locally — works well for most topics. With a key, Claude reads your exact topic and generates precise field-specific terms.</div>
       </div>
 
       <div class="s1-cta">
@@ -3002,7 +3053,12 @@ async function buildSG(sg, sgIndex) {
     row.id = `row-${sgIndex}-${termIdx}`;
     row.innerHTML = `
       <td class="td-sg">${isFirst ? `SG${sg.id}` : ''}</td>
-      <td class="td-kw ${termIdx === 0 ? 'anchor-kw' : ''}" style="color:var(--ink);">${termsSoFar.join(' + ')}</td>
+      <td class="td-kw ${termIdx === 0 ? 'anchor-kw' : ''}" style="color:var(--ink);">
+        ${termsSoFar.map((t,i) => i === 0 
+          ? `<strong>${t}</strong>` 
+          : `<span style="color:var(--muted);font-size:10px;"> AND </span>${t}`
+        ).join('')}
+      </td>
       <td class="td-count" style="text-align:right;">
         <span id="count-${sgIndex}-${termIdx}" style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--muted);font-style:italic;">querying...</span>
       </td>
@@ -3182,19 +3238,37 @@ async function animateCount(el, target, duration, color) {
 
 async function queryOpenAlex(terms, retrievePapers) {
   try {
-    const query = terms.join(' ');
+    // Build a strict boolean AND query using OpenAlex's exact phrase syntax.
+    // Rules from OpenAlex docs:
+    // - Multi-word phrases MUST be in double quotes for exact phrase match
+    // - AND must be uppercase to trigger boolean mode
+    // - All terms are required (AND = must include ALL terms)
+    // Example: "AI deference" AND "authority bias" AND trust
+    const buildQuery = (termList) => {
+      return termList.map(t => {
+        const trimmed = t.trim();
+        // Quote any term containing a space — required for phrase matching
+        return trimmed.includes(' ') ? `"${trimmed}"` : trimmed;
+      }).join(' AND '); // Uppercase AND = required boolean AND
+    };
+
+    const query = buildQuery(terms);
     const encoded = encodeURIComponent(query);
 
-    // Always get count first with minimal data
-    const countUrl = `https://api.openalex.org/works?search=${encoded}&per-page=1&select=id&mailto=slrstudio@research.io`;
+    // title_and_abstract.search = search title + abstract only (like PubMed)
+    // This is far more precise than full-text search
+    const base = `https://api.openalex.org/works?filter=title_and_abstract.search:${encoded}&mailto=slrstudio@research.io`;
+
+    // Count query — minimal data
+    const countUrl = `${base}&per-page=1&select=id`;
     const countResp = await fetch(countUrl);
     const countData = await countResp.json();
     const count = countData.meta?.count || 0;
 
-    // Only retrieve full paper records if count is under threshold
+    // Retrieve papers only when under threshold
     let papers = [];
     if (retrievePapers && count > 0 && count <= 20) {
-      const papersUrl = `https://api.openalex.org/works?search=${encoded}&per-page=20&select=id,doi,title,authorships,primary_location,publication_year&mailto=slrstudio@research.io`;
+      const papersUrl = `${base}&per-page=20&select=id,doi,title,authorships,primary_location,publication_year`;
       const papersResp = await fetch(papersUrl);
       const papersData = await papersResp.json();
       papers = (papersData.results || []).map(w => ({
@@ -3211,7 +3285,7 @@ async function queryOpenAlex(terms, retrievePapers) {
     return { count, papers };
 
   } catch (e) {
-    // Simulate realistic counts for demo
+    console.warn('OpenAlex query failed:', e.message);
     return simulateCount(terms, retrievePapers);
   }
 }
@@ -4676,6 +4750,22 @@ function exportFullDraft() {
     alert('Export failed: ' + err.message);
   }
 }
+
+function openApiModal() {
+  const modal = document.getElementById('api-key-modal');
+  if (modal) { modal.style.display = 'flex'; }
+}
+
+function closeApiModal() {
+  const modal = document.getElementById('api-key-modal');
+  if (modal) { modal.style.display = 'none'; }
+}
+
+// Close modal on background click
+document.addEventListener('click', function(e) {
+  const modal = document.getElementById('api-key-modal');
+  if (modal && e.target === modal) closeApiModal();
+});
 
 // Init
 updateTopicUI();
