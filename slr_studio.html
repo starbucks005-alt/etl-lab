@@ -1843,7 +1843,10 @@ body::after {
 
       <!-- Grade Level Selector -->
       <div style="margin-top:20px;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:rgba(245,243,238,0.35);margin-bottom:10px;">Grade Level</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:rgba(245,243,238,0.35);">Grade Level</div>
+          <div id="grade-level-locked-badge" style="display:none;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:0.08em;text-transform:uppercase;padding:2px 8px;background:rgba(74,111,165,0.15);border:1px solid rgba(74,111,165,0.3);color:#6a8fc5;">Set by instructor</div>
+        </div>
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;" id="grade-level-group">
           <button onclick="setGradeLevel('highschool')" id="gl-highschool" class="gl-btn">
             <span style="display:block;font-size:16px;margin-bottom:4px;">🏫</span>
@@ -1876,7 +1879,9 @@ body::after {
           <button onclick="document.getElementById('slr-faculty-modal').style.display='flex'" style="flex-shrink:0;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;padding:6px 12px;background:transparent;border:1px solid rgba(201,144,58,0.4);color:var(--gold);cursor:pointer;white-space:nowrap;">For Faculty</button>
         </div>
       </div>
-    </div>
+    </div><!-- /s1-left -->
+
+    <div class="s1-right">
       <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;">Step 2 — Describe your research topic</div>
       <div id="mode-indicator" style="display:inline-flex;align-items:center;gap:8px;background:rgba(201,144,58,0.1);border:1px solid rgba(201,144,58,0.3);padding:6px 12px;margin-bottom:16px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.08em;color:var(--gold);">
         <span id="mode-indicator-icon">📖</span>
@@ -4917,12 +4922,27 @@ function generateResearchQuestions(terms, anchor) {
 // ═══════════════════════════════════════════
 
 let gradeLevel = 'masters'; // default
+let gradeLevelLocked = false;
 
-function setGradeLevel(level) {
+function setGradeLevel(level, force) {
+  if (gradeLevelLocked && !force) return; // instructor-set — no override
   gradeLevel = level;
   document.querySelectorAll('.gl-btn').forEach(b => b.classList.remove('gl-active'));
   const btn = document.getElementById('gl-' + level);
   if (btn) btn.classList.add('gl-active');
+}
+
+function lockGradeLevel(level) {
+  setGradeLevel(level, true);
+  gradeLevelLocked = true;
+  // Dim the buttons so student knows they can't change it
+  document.querySelectorAll('.gl-btn').forEach(b => {
+    b.style.opacity = b.id === 'gl-' + level ? '1' : '0.25';
+    b.style.pointerEvents = 'none';
+    b.style.cursor = 'not-allowed';
+  });
+  const badge = document.getElementById('grade-level-locked-badge');
+  if (badge) badge.style.display = 'block';
 }
 
 // Rubric definitions per grade level and assignment type
@@ -9407,6 +9427,21 @@ updateExportCounts = function() {
 
 // Attempt restore on load
 restoreSession();
+
+// Apply grade level from account if set (deployed version with auth)
+(function applyAccountGradeLevel() {
+  const apply = () => {
+    if (!window.SLR_USER) { setTimeout(apply, 150); return; }
+    const gl = window.SLR_USER.gradeLevel || window.SLR_USER.cohortGrade;
+    if (gl && ['highschool','undergrad','masters','doctoral'].includes(gl)) {
+      lockGradeLevel(gl);
+    }
+  };
+  // Only run in deployed context (auth guard present)
+  if (document.querySelector('script[src*="supabase"]') || window.SLR_USER !== undefined) {
+    setTimeout(apply, 300);
+  }
+})();
 </script>
 <!-- ═══ SCREEN 8: POSTER BUILDER ═══ -->
 <div class="screen" id="screen-8">
