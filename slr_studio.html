@@ -1801,8 +1801,9 @@ body::after {
     <div class="s1-left">
       <div class="s1-eyebrow">Systematic Literature Review Engine</div>
       <h1 class="s1-headline">Find your <em>field.</em> Find the <em>gaps.</em></h1>
-      <p class="s1-body">Describe your research topic in one or two sentences. The system builds your entire literature architecture from there — subgroups, foundation papers, gaps, and manuscript outline.</p>
+      <p class="s1-body">Enter your topic on the right. Select your output mode below. Then generate keywords.</p>
 
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:rgba(245,243,238,0.35);margin-bottom:10px;margin-top:32px;">Step 1 — Select output mode</div>
       <div class="s1-mode-toggle">
         <button class="mode-btn selected" id="mode-review" onclick="selectMode('review')">
           <span class="mode-icon">📖</span>
@@ -1828,6 +1829,11 @@ body::after {
     </div>
 
     <div class="s1-right">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;">Step 2 — Describe your research topic</div>
+      <div id="mode-indicator" style="display:inline-flex;align-items:center;gap:8px;background:rgba(201,144,58,0.1);border:1px solid rgba(201,144,58,0.3);padding:6px 12px;margin-bottom:16px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.08em;color:var(--gold);">
+        <span id="mode-indicator-icon">📖</span>
+        <span id="mode-indicator-label">Mode: Review the Literature</span>
+      </div>
       <div class="field-label">Your Research Topic</div>
       <textarea class="topic-input" id="topic-input" rows="5"
         placeholder="I am researching how physicians make high-stakes decisions during medical emergencies, particularly in crisis situations where time pressure and uncertainty are extreme."
@@ -2414,6 +2420,19 @@ function selectMode(mode) {
   document.getElementById('mode-mine').classList.toggle('selected', mode === 'mine');
   document.getElementById('mode-thesis').classList.toggle('selected', mode === 'thesis');
   document.getElementById('mode-poster').classList.toggle('selected', mode === 'poster');
+
+  // Update mode indicator on right panel
+  const modeLabels = {
+    'review': ['📖', 'Mode: Review the Literature'],
+    'mine':   ['⛏️', 'Mode: Mine the Gaps'],
+    'thesis': ['🎓', 'Mode: Thesis & Dissertation'],
+    'poster': ['📋', 'Mode: Academic Poster']
+  };
+  const [icon, label] = modeLabels[mode] || modeLabels['review'];
+  const iconEl = document.getElementById('mode-indicator-icon');
+  const labelEl = document.getElementById('mode-indicator-label');
+  if (iconEl) iconEl.textContent = icon;
+  if (labelEl) labelEl.textContent = label;
 }
 
 function setTopic(text) {
@@ -2980,9 +2999,22 @@ async function runBuild() {
   state.gapFindings = [];
   state.currentSG = 0;
 
-  document.getElementById('slr-table-body').innerHTML = '';
+  // Restore single tbody, pre-insert a sentinel row per SG to reserve order
+  const table = document.querySelector('.slr-table');
+  table.querySelectorAll('tbody').forEach(tb => tb.remove());
+  const tbody = document.createElement('tbody');
+  tbody.id = 'slr-table-body';
+  table.appendChild(tbody);
 
-  // Run subgroups in parallel batches of 5 for ~50% speed gain
+  // Insert one invisible sentinel row per SG — real rows go before their sentinel
+  state.subgroups.forEach((sg, i) => {
+    const sentinel = document.createElement('tr');
+    sentinel.id = 'sentinel-' + i;
+    sentinel.style.display = 'none';
+    tbody.appendChild(sentinel);
+  });
+
+  // Run subgroups in parallel batches of 5 for speed
   const BATCH_SIZE = 5;
   const sgs = state.subgroups;
 
@@ -3044,7 +3076,7 @@ async function runBuild() {
       `<span style="color:var(--red);">⚠ No papers retrieved across all subgroups.</span> Try broader keywords or fewer secondary anchors.`;
 
     // Show a recovery message at bottom of table
-    const tbody = document.getElementById('slr-table-body');
+    const warningTbody = document.getElementById('slr-table-body');
     const warningRow = document.createElement('tr');
     warningRow.innerHTML = `
       <td colspan="4" style="padding:24px;background:var(--red-light);border-top:2px solid var(--red);">
@@ -3063,7 +3095,7 @@ async function runBuild() {
         </div>
       </td>
     `;
-    tbody.appendChild(warningRow);
+    warningTbody.appendChild(warningRow);
     const container = document.querySelector('.s4-main');
     container.scrollTop = container.scrollHeight;
     return; // Stay on build screen
@@ -3093,6 +3125,7 @@ async function runBuild() {
 
 async function buildSG(sg, sgIndex) {
   const tbody = document.getElementById('slr-table-body');
+  const sentinel = document.getElementById('sentinel-' + sgIndex);
   let previousCount = null;
   let termIdx = 0;
 
@@ -3144,7 +3177,8 @@ async function buildSG(sg, sgIndex) {
         '<span id="count-' + sgIndex + '-' + termIdx + '" style="font-family:monospace;font-size:13px;color:var(--muted);font-style:italic;">querying...</span>' +
       '</td>' +
       '<td id="status-' + sgIndex + '-' + termIdx + '" style="font-family:monospace;font-size:10px;color:var(--muted);"></td>';
-    tbody.appendChild(row);
+    // Insert before this SG's sentinel to preserve order during parallel execution
+    tbody.insertBefore(row, sentinel);
 
     const container = document.querySelector('.s4-main');
     container.scrollTop = container.scrollHeight;
@@ -3306,7 +3340,10 @@ async function buildSG(sg, sgIndex) {
   }
 
   summaryRow.innerHTML = '<td colspan="4" style="' + summaryStyle + '">' + umbrellaIcon + summaryText + '</td>';
-  tbody.appendChild(summaryRow);
+  tbody.insertBefore(summaryRow, sentinel);
+
+  // Remove sentinel — all rows for this SG are now inserted in the correct position
+  if (sentinel && sentinel.parentNode) sentinel.parentNode.removeChild(sentinel);
 
   const container = document.querySelector('.s4-main');
   container.scrollTop = container.scrollHeight;
@@ -5070,17 +5107,100 @@ ${paperContext}
 Write in formal academic prose appropriate for a graduate thesis. Third person. No bullet points. APA 7 in-text citations. Do not fabricate findings not present in the paper metadata.`;
 
   } else if (mode === 'poster') {
-    prompt = `You are writing the "${sec.title}" section of an academic research poster.
+    const posterPrompts = {
+      'poster-title': `Generate a poster title and author block for an academic research poster.
 
 TOPIC: ${state.topic}
 ANCHOR TERM: ${state.anchor}
+
+Write:
+1. A concise, informative title (12 words or fewer) that clearly states the topic and what was done.
+2. A placeholder author line: [Your Name], [Institution/Department]
+3. A one-line subtitle or tagline if appropriate.
+
+Do not fabricate author names. Keep it professional and direct.`,
+
+      'poster-background': `Write the Background/Introduction section of an academic research poster.
+
+TOPIC: ${state.topic}
+ANCHOR TERM: ${state.anchor}
+TARGET: ${sec.wordTarget}
+
+PAPERS FOR CONTEXT (cite as Author, Year):
+${paperContext}
+
+Write 2-3 short sentences only:
+- What is the problem or issue?
+- Why does it matter?
+- What gap does this review address?
+
+Poster text must be scannable. Direct language. No jargon without definition. APA 7 citations where relevant. Do not fabricate findings.`,
+
+      'poster-findings': `Write the Key Findings section of an academic research poster.
+
+TOPIC: ${state.topic}
+ANCHOR TERM: ${state.anchor}
+TARGET: ${sec.wordTarget}
+
+PAPERS TO DRAW FROM (cite as Author, Year):
+${paperContext}
+
+Write 3-5 bullet points. Each bullet:
+- One clear finding from the literature
+- One citation
+- Maximum 20 words per bullet
+
+Focus on what the literature actually shows. Do not fabricate findings not present in the paper metadata.`,
+
+      'poster-gaps': `Write the Gaps Identified section of an academic research poster.
+
+TOPIC: ${state.topic}
+TARGET: ${sec.wordTarget}
+
+PAPERS FOR CONTEXT:
+${paperContext}
+
+Write 2-4 bullet points identifying confirmed gaps in the literature. Frame each as:
+- A specific area where research is absent or insufficient
+- A direct statement, not a hedge
+
+Examples of good gap framing: "No studies examine X in Y context." "The relationship between A and B remains unstudied."
+Do not fabricate gaps. Base only on the search architecture and paper metadata.`,
+
+      'poster-significance': `Write the Significance and Next Steps section of an academic research poster.
+
+TOPIC: ${state.topic}
+TARGET: ${sec.wordTarget}
+
+Write 2-3 sentences maximum:
+- Why does this review matter to the field or to practice?
+- What specific next step should researchers or practitioners take?
+
+Direct. Actionable. No hedging. No citations needed here.`,
+
+      'poster-references': `Generate a Selected References list for an academic research poster.
+
+FORMAT: APA 7. Select the 5-8 most important papers from this list (those that appear across the most subgroups are highest priority):
+
+${paperContext}
+
+Rules:
+- APA 7 format: Author, A. A. (Year). Title. Journal.
+- Alphabetical by first author's last name
+- 5-8 references maximum for a poster
+- Do not fabricate DOIs or page numbers not provided in the metadata`
+    };
+
+    prompt = posterPrompts[sectionId] || `You are writing the "${sec.title}" section of an academic research poster.
+
+TOPIC: ${state.topic}
 TARGET LENGTH: ${sec.wordTarget}
 GUIDANCE: ${sec.hint}
 
 PAPERS TO CITE (use ONLY these, cite as Author, Year):
 ${paperContext}
 
-Write concise, poster-appropriate content. Poster text must be scannable — short sentences, direct language, no jargon without definition. Use APA 7 in-text citations where relevant. No long paragraphs. Aim for impact over completeness. Do not fabricate findings not present in the paper metadata.`;
+Write concise, poster-appropriate content. Scannable. Short sentences. Direct language. No long paragraphs. Do not fabricate findings not present in the paper metadata.`;
 
   } else {
     // Standard manuscript prompt
@@ -5134,11 +5254,16 @@ End with a transition sentence to the next section.`;
 
 function generateMethodsSection() {
   const anchor = state.anchor || 'the topic';
-  const sgCount = state.subgroups.length;
-  const totalPapers = Object.keys(state.papers).length;
-  const gapCount = state.gapFindings.length;
-  const secondary = state.selectedSecondary.map(i => state.secondaryKeywords[i]);
-  const modifiers = state.selectedModifiers.map(i => state.modifierKeywords[i]);
+  const sgCount = (state.subgroups || []).length;
+  const totalPapers = Object.keys(state.papers || {}).length;
+  const gapCount = (state.gapFindings || []).length;
+  const secondary = (state.selectedSecondary || []).map(i => (state.secondaryKeywords || [])[i]).filter(Boolean);
+  const modifiers = (state.selectedModifiers || []).map(i => (state.modifierKeywords || [])[i]).filter(Boolean);
+
+  // Poster gets a concise version
+  if (state.mode === 'poster') {
+    return `Systematic literature search conducted via OpenAlex (${new Date().toLocaleDateString('en-US', {year:'numeric', month:'short', day:'numeric'})}). Anchor term: "${anchor}". ${sgCount} keyword subgroups searched using progressive Boolean AND narrowing. ${totalPapers} papers retrieved. ${gapCount > 0 ? `${gapCount} confirmed literature gaps identified.` : ''} Foundation papers defined as those appearing across multiple subgroups.`;
+  }
 
   return `A systematic search was conducted using the OpenAlex academic database, which indexes over 270 million scholarly works including content from PubMed, PubMed Central, Crossref, and other peer-reviewed sources. The search was conducted on ${new Date().toLocaleDateString('en-US', {year:'numeric', month:'long', day:'numeric'})}.
 
