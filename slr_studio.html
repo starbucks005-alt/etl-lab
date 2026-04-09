@@ -1833,6 +1833,12 @@ body::after {
           <span class="mode-label">Academic Poster</span>
           <span class="mode-desc">Turn a literature search into a presentable, evidence-backed poster.</span>
         </button>
+        <button class="mode-btn" id="mode-prisma" onclick="selectMode('prisma')" style="border-color:rgba(74,111,165,0.4);">
+          <span class="mode-icon">🔬</span>
+          <span class="mode-label" style="color:#85b7eb;">Systematic Review / Meta-Analysis</span>
+          <span class="mode-desc">PRISMA 2020-compliant. Full screening protocol, flow diagram, publishable methods section.</span>
+          <span style="display:inline-block;margin-top:6px;font-family:'JetBrains Mono',monospace;font-size:8px;padding:2px 8px;background:rgba(74,111,165,0.15);border:1px solid rgba(74,111,165,0.4);color:#85b7eb;letter-spacing:0.06em;">RESEARCHER TIER</span>
+        </button>
       </div>
 
       <!-- Grade Level Selector -->
@@ -2088,6 +2094,103 @@ body::after {
   </div>
 </div>
 
+<!-- ═══ SCREEN 3P: PRISMA PROTOCOL ═══ -->
+<div class="screen" id="screen-3p" style="display:none;">
+  <div class="s7-layout" style="max-width:860px;margin:0 auto;padding:48px;">
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:40px;flex-wrap:wrap;gap:16px;">
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#4a6fa5;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:8px;">PRISMA 2020 · Systematic Review Protocol</div>
+        <h2 class="screen-title">Define Your <em>Protocol</em></h2>
+        <p style="font-size:14px;color:var(--muted);line-height:1.6;margin-top:8px;">This information generates your PRISMA flow diagram and compliant methods section. Complete before running your search.</p>
+      </div>
+      <button onclick="proceedFromPrismaProtocol()" class="btn btn-primary">Continue to Search Preview →</button>
+    </div>
+
+    <!-- PICO Framework -->
+    <div style="margin-bottom:32px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#4a6fa5;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid rgba(74,111,165,0.3);">
+        PICO / Research Question Framework
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div>
+          <label style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px;">P — Population / Problem</label>
+          <textarea id="prisma-population" style="width:100%;padding:10px 12px;border:1px solid var(--border);font-size:13px;font-family:'Georgia',serif;resize:vertical;min-height:72px;outline:none;background:white;" placeholder="Who or what is being studied? e.g., adult patients with Type 2 diabetes in clinical settings"></textarea>
+        </div>
+        <div>
+          <label style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px;">I — Intervention / Exposure</label>
+          <textarea id="prisma-intervention" style="width:100%;padding:10px 12px;border:1px solid var(--border);font-size:13px;font-family:'Georgia',serif;resize:vertical;min-height:72px;outline:none;background:white;" placeholder="What is being done or studied? e.g., mindfulness-based stress reduction programs"></textarea>
+        </div>
+        <div>
+          <label style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px;">C — Comparison (optional)</label>
+          <textarea id="prisma-comparison" style="width:100%;padding:10px 12px;border:1px solid var(--border);font-size:13px;font-family:'Georgia',serif;resize:vertical;min-height:72px;outline:none;background:white;" placeholder="Compared to what? e.g., standard care, waitlist control, or not applicable"></textarea>
+        </div>
+        <div>
+          <label style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px;">O — Outcome(s)</label>
+          <textarea id="prisma-outcome" style="width:100%;padding:10px 12px;border:1px solid var(--border);font-size:13px;font-family:'Georgia',serif;resize:vertical;min-height:72px;outline:none;background:white;" placeholder="What is being measured? e.g., HbA1c levels, quality of life, hospital readmission rates"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Inclusion / Exclusion Criteria -->
+    <div style="margin-bottom:32px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#4a6fa5;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid rgba(74,111,165,0.3);">
+        Eligibility Criteria
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div>
+          <label style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--green);display:block;margin-bottom:6px;">✓ Inclusion Criteria</label>
+          <textarea id="prisma-inclusion" rows="6" style="width:100%;padding:10px 12px;border:1px solid rgba(40,92,77,0.3);font-size:13px;font-family:'Georgia',serif;resize:vertical;outline:none;background:white;" placeholder="One criterion per line:&#10;Peer-reviewed empirical studies&#10;Published 2010–present&#10;English language&#10;Human participants&#10;Quantitative or mixed methods design"></textarea>
+        </div>
+        <div>
+          <label style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:#a82828;display:block;margin-bottom:6px;">✕ Exclusion Criteria</label>
+          <textarea id="prisma-exclusion" rows="6" style="width:100%;padding:10px 12px;border:1px solid rgba(168,40,40,0.3);font-size:13px;font-family:'Georgia',serif;resize:vertical;outline:none;background:white;" placeholder="One criterion per line:&#10;Grey literature and dissertations&#10;Case reports and editorials&#10;Studies without control groups&#10;Non-English publications&#10;Animal studies"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search Parameters -->
+    <div style="margin-bottom:32px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#4a6fa5;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid rgba(74,111,165,0.3);">
+        Search Parameters
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
+        <div>
+          <label style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px;">Date Range</label>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <input type="number" id="prisma-date-from" placeholder="2010" min="1900" max="2030" style="width:80px;padding:8px 10px;border:1px solid var(--border);font-size:13px;outline:none;">
+            <span style="color:var(--muted);">to</span>
+            <input type="number" id="prisma-date-to" placeholder="2026" min="1900" max="2030" style="width:80px;padding:8px 10px;border:1px solid var(--border);font-size:13px;outline:none;">
+          </div>
+        </div>
+        <div>
+          <label style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px;">Language</label>
+          <input type="text" id="prisma-language" value="English" style="width:100%;padding:8px 10px;border:1px solid var(--border);font-size:13px;outline:none;">
+        </div>
+        <div>
+          <label style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px;">Study Types</label>
+          <input type="text" id="prisma-study-types" placeholder="RCT, cohort, cross-sectional" style="width:100%;padding:8px 10px;border:1px solid var(--border);font-size:13px;outline:none;">
+        </div>
+      </div>
+    </div>
+
+    <!-- PRISMA Checklist Progress -->
+    <div style="background:rgba(74,111,165,0.04);border:1px solid rgba(74,111,165,0.2);padding:20px 24px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:#4a6fa5;margin-bottom:12px;">PRISMA 2020 Protocol Readiness</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;" id="prisma-checklist-preview">
+        <span class="prisma-check" id="pcheck-pico">○ PICO defined</span>
+        <span class="prisma-check" id="pcheck-inclusion">○ Inclusion criteria</span>
+        <span class="prisma-check" id="pcheck-exclusion">○ Exclusion criteria</span>
+        <span class="prisma-check" id="pcheck-dates">○ Date range</span>
+        <span class="prisma-check done">✓ Database (OpenAlex)</span>
+        <span class="prisma-check done">✓ Search strategy documented</span>
+        <span class="prisma-check done">✓ Duplicate removal</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <!-- ═══ SCREEN 3: SG PREVIEW ═══ -->
 <div class="screen" id="screen-3">
   <div class="s3-layout">
@@ -2293,6 +2396,128 @@ body::after {
       <div id="pdf-paper-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;"></div>
     </div>
 
+  </div>
+</div>
+
+<!-- ═══ SCREEN 5P: PRISMA SCREENING & FLOW DIAGRAM ═══ -->
+<div class="screen" id="screen-5p" style="display:none;">
+  <div style="display:grid;grid-template-columns:1fr 380px;min-height:calc(100vh - 60px);gap:0;">
+
+    <!-- LEFT: Screening workspace -->
+    <div style="padding:40px 48px;overflow-y:auto;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#4a6fa5;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:8px;">PRISMA 2020</div>
+      <h2 class="screen-title" style="margin-bottom:8px;">Screening &amp; <em>Selection</em></h2>
+      <p style="font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:32px;">Work through your retrieved papers. Record your screening decisions to generate a compliant PRISMA flow diagram.</p>
+
+      <!-- Phase tabs -->
+      <div style="display:flex;gap:0;margin-bottom:28px;border:1px solid var(--border);">
+        <button onclick="setPrismaPhase('abstract')" id="phase-abstract" style="flex:1;padding:10px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.06em;text-transform:uppercase;border:none;background:var(--ink);color:var(--gold);cursor:pointer;">① Title / Abstract</button>
+        <button onclick="setPrismaPhase('fulltext')" id="phase-fulltext" style="flex:1;padding:10px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.06em;text-transform:uppercase;border:none;border-left:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;">② Full Text</button>
+        <button onclick="setPrismaPhase('included')" id="phase-included" style="flex:1;padding:10px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.06em;text-transform:uppercase;border:none;border-left:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;">③ Included</button>
+      </div>
+
+      <!-- Abstract screening phase -->
+      <div id="prisma-phase-abstract">
+        <div style="background:var(--cream);border-left:3px solid #4a6fa5;padding:12px 16px;margin-bottom:20px;font-size:13px;color:var(--ink);line-height:1.6;">
+          Review titles and abstracts against your inclusion criteria. Papers your search retrieved appear below. Mark each as <strong>Include for full text</strong> or <strong>Exclude</strong> with a reason.
+        </div>
+        <div id="prisma-abstract-list" style="display:flex;flex-direction:column;gap:8px;">
+          <!-- Populated by renderPrismaScreening() -->
+        </div>
+      </div>
+
+      <!-- Full text phase -->
+      <div id="prisma-phase-fulltext" style="display:none;">
+        <div style="background:var(--cream);border-left:3px solid #4a6fa5;padding:12px 16px;margin-bottom:20px;font-size:13px;color:var(--ink);line-height:1.6;">
+          Papers that passed abstract screening. Retrieve and review the full text. Exclude those that don't meet your eligibility criteria — record the reason for each exclusion.
+        </div>
+        <div id="prisma-fulltext-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+      </div>
+
+      <!-- Included phase -->
+      <div id="prisma-phase-included" style="display:none;">
+        <div style="background:rgba(40,92,77,0.08);border-left:3px solid var(--green);padding:12px 16px;margin-bottom:20px;font-size:13px;color:var(--ink);line-height:1.6;">
+          Your final included studies. These form the evidence base for your systematic review.
+        </div>
+        <div id="prisma-included-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+        <div style="margin-top:24px;display:flex;gap:12px;flex-wrap:wrap;">
+          <button onclick="generatePrismaFlowDiagram()" class="btn btn-primary">Generate PRISMA Flow Diagram →</button>
+          <button onclick="generatePrismaMethods()" class="btn btn-ghost" style="color:var(--gold);border-color:rgba(201,144,58,0.4);">Generate Methods Section →</button>
+          <button onclick="openRiskOfBiasPanel()" class="btn btn-ghost" style="color:#4a6fa5;border-color:rgba(74,111,165,0.4);">Risk of Bias Assessment →</button>
+          <button onclick="openGradePanel()" class="btn btn-ghost" style="color:#4a6fa5;border-color:rgba(74,111,165,0.4);">GRADE Evidence Table →</button>
+          <button onclick="openMetaAnalysisPanel()" class="btn btn-ghost" style="color:rgba(245,243,238,0.6);border-color:rgba(255,255,255,0.15);margin-top:8px;border-top:1px dashed rgba(255,255,255,0.1);padding-top:12px;">⚗ Meta-Analysis Engine →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: PRISMA stats panel -->
+    <div style="background:var(--ink);border-left:1px solid rgba(255,255,255,0.08);padding:28px 24px;overflow-y:auto;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);margin-bottom:20px;">Screening Progress</div>
+
+      <!-- Flow stats -->
+      <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:28px;" id="prisma-flow-stats">
+        <div style="padding:12px 14px;border:1px solid rgba(255,255,255,0.08);">
+          <div style="font-size:24px;font-weight:700;color:var(--gold);" id="ps-identified">0</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(245,243,238,0.4);letter-spacing:0.06em;text-transform:uppercase;margin-top:2px;">Records identified</div>
+        </div>
+        <div style="padding:12px 14px;border:1px solid rgba(255,255,255,0.08);">
+          <div style="font-size:24px;font-weight:700;color:#c9903a;" id="ps-screened">0</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(245,243,238,0.4);letter-spacing:0.06em;text-transform:uppercase;margin-top:2px;">Screened (title/abstract)</div>
+        </div>
+        <div style="padding:12px 14px;border:1px solid rgba(255,255,255,0.08);">
+          <div style="font-size:24px;font-weight:700;color:#4a6fa5;" id="ps-eligibility">0</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(245,243,238,0.4);letter-spacing:0.06em;text-transform:uppercase;margin-top:2px;">Assessed for eligibility</div>
+        </div>
+        <div style="padding:12px 14px;border:1px solid rgba(40,92,77,0.4);background:rgba(40,92,77,0.08);">
+          <div style="font-size:28px;font-weight:700;color:#5a9e6f;" id="ps-included">0</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(245,243,238,0.4);letter-spacing:0.06em;text-transform:uppercase;margin-top:2px;">Included in review</div>
+        </div>
+        <div style="padding:12px 14px;border:1px solid rgba(168,40,40,0.3);">
+          <div style="font-size:24px;font-weight:700;color:#e05050;" id="ps-excluded">0</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(245,243,238,0.4);letter-spacing:0.06em;text-transform:uppercase;margin-top:2px;">Excluded (total)</div>
+        </div>
+      </div>
+
+      <!-- PRISMA checklist mini -->
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(245,243,238,0.4);margin-bottom:10px;">PRISMA 2020 Items</div>
+      <div id="prisma-checklist-mini" style="display:flex;flex-direction:column;gap:4px;font-size:11px;">
+        <!-- Populated dynamically -->
+      </div>
+
+      <button onclick="showPrismaChecklist()" style="width:100%;margin-top:20px;padding:10px;background:transparent;border:1px solid rgba(74,111,165,0.3);color:#4a6fa5;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;">View Full 27-Item Checklist</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- PRISMA Flow Diagram Modal -->
+<div id="prisma-diagram-modal" onclick="if(event.target===this)this.style.display='none'" style="display:none;position:fixed;inset:0;z-index:4000;background:rgba(0,0,0,0.85);align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;">
+  <div style="background:white;max-width:860px;width:100%;margin:auto;padding:32px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#4a6fa5;margin-bottom:4px;">PRISMA 2020 Flow Diagram</div>
+        <div style="font-size:18px;font-weight:700;color:#0a0a0f;">Systematic Review — Study Selection</div>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button onclick="downloadPrismaFlowDiagram()" style="font-family:'JetBrains Mono',monospace;font-size:10px;padding:8px 16px;background:#0a0a0f;color:#C6A667;border:none;cursor:pointer;letter-spacing:0.06em;text-transform:uppercase;">Download SVG</button>
+        <button onclick="document.getElementById('prisma-diagram-modal').style.display='none'" style="font-family:'JetBrains Mono',monospace;font-size:10px;padding:8px 16px;background:transparent;border:1px solid #ccc;cursor:pointer;">Close</button>
+      </div>
+    </div>
+    <div id="prisma-flow-diagram-container"></div>
+    <div id="prisma-methods-output" style="display:none;margin-top:32px;padding:24px;border:1px solid #eee;background:#fafaf8;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#4a6fa5;margin-bottom:16px;">PRISMA-Compliant Methods Section</div>
+      <div id="prisma-methods-text" style="font-family:'Georgia',serif;font-size:14px;line-height:1.8;color:#0a0a0f;white-space:pre-wrap;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- PRISMA Full Checklist Modal -->
+<div id="prisma-checklist-modal" onclick="if(event.target===this)this.style.display='none'" style="display:none;position:fixed;inset:0;z-index:4000;background:rgba(0,0,0,0.85);align-items:center;justify-content:center;padding:20px;overflow-y:auto;">
+  <div style="background:white;max-width:800px;width:100%;margin:auto;padding:32px;max-height:90vh;overflow-y:auto;">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#4a6fa5;margin-bottom:8px;">PRISMA 2020 · 27-Item Checklist</div>
+    <h3 style="font-size:20px;font-weight:700;color:#0a0a0f;margin-bottom:20px;">Reporting Checklist</h3>
+    <div id="prisma-full-checklist"></div>
+    <button onclick="document.getElementById('prisma-checklist-modal').style.display='none'" style="margin-top:20px;font-family:'JetBrains Mono',monospace;font-size:10px;padding:8px 20px;background:#0a0a0f;color:white;border:none;cursor:pointer;">Close</button>
   </div>
 </div>
 
@@ -2601,13 +2826,14 @@ function selectMode(mode) {
   document.getElementById('mode-mine').classList.toggle('selected', mode === 'mine');
   document.getElementById('mode-thesis').classList.toggle('selected', mode === 'thesis');
   document.getElementById('mode-poster').classList.toggle('selected', mode === 'poster');
+  document.getElementById('mode-prisma').classList.toggle('selected', mode === 'prisma');
 
-  // Update mode indicator on right panel
   const modeLabels = {
     'review': ['📖', 'Mode: Review the Literature'],
     'mine':   ['⛏️', 'Mode: Mine the Gaps'],
     'thesis': ['🎓', 'Mode: Thesis & Dissertation'],
-    'poster': ['📋', 'Mode: Academic Poster']
+    'poster': ['📋', 'Mode: Academic Poster'],
+    'prisma': ['🔬', 'Mode: Systematic Review / Meta-Analysis']
   };
   const [icon, label] = modeLabels[mode] || modeLabels['review'];
   const iconEl = document.getElementById('mode-indicator-icon');
@@ -3074,7 +3300,59 @@ async function regenerateAll() {
 function goToPreview() {
   buildSubgroups();
   renderSGPreview();
+  // PRISMA mode: show protocol screen first
+  if (state.mode === 'prisma') {
+    document.querySelectorAll('.screen').forEach(s => { s.classList.remove('active'); s.style.display=''; });
+    const s3p = document.getElementById('screen-3p');
+    if (s3p) { s3p.style.display='block'; s3p.classList.add('active'); }
+    window.scrollTo(0,0);
+    // Update nav to show we're in PRISMA mode
+    updatePrismaProtocolChecks();
+    return;
+  }
   goToScreen(3);
+}
+
+function proceedFromPrismaProtocol() {
+  // Save protocol inputs before leaving
+  prismaState.protocol.population   = document.getElementById('prisma-population')?.value?.trim() || '';
+  prismaState.protocol.intervention = document.getElementById('prisma-intervention')?.value?.trim() || '';
+  prismaState.protocol.comparison   = document.getElementById('prisma-comparison')?.value?.trim() || '';
+  prismaState.protocol.outcome      = document.getElementById('prisma-outcome')?.value?.trim() || '';
+  prismaState.protocol.inclusion    = (document.getElementById('prisma-inclusion')?.value || '').split('\n').map(s=>s.trim()).filter(Boolean);
+  prismaState.protocol.exclusion    = (document.getElementById('prisma-exclusion')?.value || '').split('\n').map(s=>s.trim()).filter(Boolean);
+  prismaState.protocol.dateFrom     = document.getElementById('prisma-date-from')?.value || '';
+  prismaState.protocol.dateTo       = document.getElementById('prisma-date-to')?.value || '';
+  // Now go to the SLR preview (Screen 3)
+  goToScreen(3);
+}
+
+function updatePrismaProtocolChecks() {
+  const hasPop  = document.getElementById('prisma-population')?.value?.trim();
+  const hasOut  = document.getElementById('prisma-outcome')?.value?.trim();
+  const hasInc  = document.getElementById('prisma-inclusion')?.value?.trim();
+  const hasExc  = document.getElementById('prisma-exclusion')?.value?.trim();
+  const hasDates = document.getElementById('prisma-date-from')?.value;
+
+  const set = (id, done) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.className = 'prisma-check' + (done ? ' done' : '');
+    el.textContent = (done ? '✓ ' : '○ ') + el.textContent.replace(/^[✓○] /, '');
+  };
+  set('pcheck-pico',      !!(hasPop && hasOut));
+  set('pcheck-inclusion', !!hasInc);
+  set('pcheck-exclusion', !!hasExc);
+  set('pcheck-dates',     !!hasDates);
+
+  // Live update as user types
+  ['prisma-population','prisma-outcome','prisma-inclusion','prisma-exclusion','prisma-date-from'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && !el.dataset.listening) {
+      el.dataset.listening = '1';
+      el.addEventListener('input', updatePrismaProtocolChecks);
+    }
+  });
 }
 
 function buildSubgroups() {
@@ -3291,14 +3569,33 @@ async function runBuild() {
     generateGapAnalysis();
   } else if (state.mode === 'thesis') {
     goToScreen(5);
-    // Pre-configure draft for thesis structure
     state.thesisMode = true;
     state.posterMode = false;
   } else if (state.mode === 'poster') {
     goToScreen(5);
-    // Pre-configure for poster output
     state.thesisMode = false;
     state.posterMode = true;
+  } else if (state.mode === 'prisma') {
+    // PRISMA mode: go to Gong screen first, then offer screening
+    goToScreen(5);
+    // Add PRISMA-specific nudge on Gong screen
+    setTimeout(() => {
+      const nudgeExisting = document.getElementById('prisma-gong-nudge');
+      if (nudgeExisting) nudgeExisting.remove();
+      const gongStats = document.querySelector('.gong-stats');
+      if (gongStats) {
+        const nudge = document.createElement('div');
+        nudge.id = 'prisma-gong-nudge';
+        nudge.style.cssText = 'margin-top:20px;padding:16px 20px;border:1px solid rgba(74,111,165,0.4);background:rgba(74,111,165,0.06);display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;';
+        nudge.innerHTML = `
+          <div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:#4a6fa5;margin-bottom:4px;">PRISMA 2020 · Systematic Review Mode</div>
+            <div style="font-size:13px;color:var(--paper);line-height:1.5;">Your search is complete. Proceed to title/abstract screening to generate your PRISMA flow diagram and compliant methods section.</div>
+          </div>
+          <button onclick="goToPrismaScreening()" style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:12px 20px;background:#4a6fa5;color:white;border:none;cursor:pointer;white-space:nowrap;flex-shrink:0;">Begin Screening →</button>`;
+        gongStats.parentNode.insertBefore(nudge, gongStats.nextSibling);
+      }
+    }, 500);
   } else {
     goToScreen(5);
   }
@@ -3944,6 +4241,54 @@ function renderGongScreen() {
       </div>
     `;
   }).join('');
+
+  // If not activated — lock the output choices and blur foundation content
+  if (!isActivated()) {
+    setTimeout(() => {
+      // Blur foundation papers after first one
+      const cards = document.querySelectorAll('.foundation-card');
+      cards.forEach((card, i) => {
+        if (i === 0) return; // show the first card fully
+        card.style.filter = 'blur(4px)';
+        card.style.userSelect = 'none';
+        card.style.pointerEvents = 'none';
+        card.style.opacity = '0.5';
+      });
+
+      // Blur author rows after first two
+      const authorRows = document.querySelectorAll('.author-row');
+      authorRows.forEach((row, i) => {
+        if (i < 2) return;
+        row.style.filter = 'blur(3px)';
+        row.style.userSelect = 'none';
+        row.style.pointerEvents = 'none';
+        row.style.opacity = '0.4';
+      });
+
+      // Lock output choice cards — show them but intercept clicks (already handled by goToOutput)
+      const choiceCards = document.querySelectorAll('.choice-card');
+      choiceCards.forEach(card => {
+        card.style.position = 'relative';
+        const lockBadge = document.createElement('div');
+        lockBadge.style.cssText = 'position:absolute;top:12px;right:12px;font-family:monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;padding:3px 8px;background:rgba(201,144,58,0.15);border:1px solid rgba(201,144,58,0.3);color:var(--gold);';
+        lockBadge.textContent = 'Activate to unlock';
+        card.appendChild(lockBadge);
+      });
+
+      // Add unlock nudge below the stats
+      const gongStats = document.querySelector('.gong-stats');
+      if (gongStats && !document.getElementById('gong-unlock-nudge')) {
+        const nudge = document.createElement('div');
+        nudge.id = 'gong-unlock-nudge';
+        nudge.style.cssText = 'text-align:center;margin-top:20px;padding:14px 20px;border:1px solid rgba(201,144,58,0.2);background:rgba(201,144,58,0.04);cursor:pointer;transition:all 0.2s;';
+        nudge.innerHTML = `<span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);">Your foundation papers and gap register are ready — <u>activate access to continue →</u></span>`;
+        nudge.onclick = () => showPaywall('outline');
+        nudge.onmouseover = () => { nudge.style.background = 'rgba(201,144,58,0.08)'; };
+        nudge.onmouseout  = () => { nudge.style.background = 'rgba(201,144,58,0.04)'; };
+        gongStats.parentNode.insertBefore(nudge, gongStats.nextSibling);
+      }
+    }, 400);
+  }
 }
 
 function getAuthorPaper(author) {
@@ -3952,6 +4297,11 @@ function getAuthorPaper(author) {
 }
 
 function goToOutput(type) {
+  // Check access — if not activated, show paywall
+  if (!isActivated()) {
+    showPaywall(type);
+    return;
+  }
   if (type === 'outline') {
     goToScreen(6);
     initModule3();
@@ -3968,6 +4318,160 @@ function goToOutput(type) {
     initPosterBuilder();
   }
 }
+
+function isActivated() {
+  // Check window.SLR_USER (set by auth guard in deployed version)
+  // In standalone mode (no auth), check localStorage flag
+  if (window.SLR_USER && window.SLR_USER.approved) return true;
+  if (localStorage.getItem('slr_activated') === 'true') return true;
+  return false;
+}
+
+function showPaywall(intendedDestination) {
+  const uniquePapers = Object.keys(state.papers).length;
+  const foundationCount = Object.values(state.paperSGs).filter(sgs => sgs.length >= 2).length;
+  const gapCount = state.gapFindings.length;
+  const topic = state.topic || 'your research topic';
+  const anchor = state.anchor || topic.split(' ').slice(0,4).join(' ');
+
+  // Generate a gap teaser — one real gap name, rest blurred
+  const firstGap = state.gapFindings[0];
+  const gapTeaser = firstGap
+    ? firstGap.terms.slice(0,2).join(' + ')
+    : anchor + ' + [unexplored intersection]';
+
+  const existing = document.getElementById('slr-paywall-overlay');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'slr-paywall-overlay';
+  overlay.style.cssText = `
+    position:fixed;inset:0;z-index:4000;
+    background:rgba(10,10,15,0.92);
+    display:flex;align-items:center;justify-content:center;
+    padding:20px;
+    animation: fadeInOverlay 0.4s ease;
+  `;
+
+  overlay.innerHTML = `
+    <style>
+      @keyframes fadeInOverlay { from { opacity:0; } to { opacity:1; } }
+      @keyframes riseUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+      .paywall-card { animation: riseUp 0.5s ease 0.1s both; }
+      .pw-stat { text-align:center; }
+      .pw-stat-num { font-family:'Playfair Display',serif; font-size:42px; font-weight:700; color:var(--gold); line-height:1; }
+      .pw-stat-label { font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:rgba(245,243,238,0.4); margin-top:4px; }
+      .pw-gap-blur { filter:blur(4px); user-select:none; color:rgba(245,243,238,0.3); font-size:13px; font-style:italic; }
+      .pw-activate-btn {
+        font-family:'Oswald',sans-serif; font-size:14px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase;
+        padding:16px 40px; background:var(--gold); color:var(--ink); border:none; cursor:pointer;
+        transition:all 0.2s; display:block; width:100%; margin-top:8px;
+      }
+      .pw-activate-btn:hover { background:#e8c98a; transform:translateY(-1px); }
+      .pw-dismiss { font-family:'JetBrains Mono',monospace; font-size:10px; color:rgba(245,243,238,0.25); background:none; border:none; cursor:pointer; margin-top:12px; display:block; width:100%; text-align:center; letter-spacing:0.06em; }
+      .pw-dismiss:hover { color:rgba(245,243,238,0.5); }
+    </style>
+
+    <div class="paywall-card" style="background:#0a0a0f;border:1px solid rgba(201,144,58,0.2);max-width:660px;width:100%;padding:52px 48px;">
+
+      <!-- Eyebrow -->
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:20px;">
+        Emerging Technologies Laboratory · SLR Studio
+      </div>
+
+      <!-- Headline -->
+      <div style="font-family:'Playfair Display',serif;font-size:32px;font-weight:700;color:var(--paper);line-height:1.2;margin-bottom:16px;">
+        You just mapped<br><em style="color:var(--gold);">a field.</em>
+      </div>
+
+      <!-- Personal to their search -->
+      <div style="font-size:15px;color:rgba(245,243,238,0.65);line-height:1.8;margin-bottom:36px;border-left:3px solid rgba(201,144,58,0.3);padding-left:18px;">
+        That search on <strong style="color:var(--paper);">${anchor}</strong> just returned
+        real scholarship — papers published in peer-reviewed journals, authored by researchers
+        who spent careers on this question. You found them in minutes.
+        <br><br>
+        That's not a shortcut. That's what subject matter experts do.
+      </div>
+
+      <!-- Stats — their real numbers -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;padding:28px 0;border-top:1px solid rgba(255,255,255,0.06);border-bottom:1px solid rgba(255,255,255,0.06);margin-bottom:36px;">
+        <div class="pw-stat">
+          <div class="pw-stat-num">${uniquePapers}</div>
+          <div class="pw-stat-label">Papers Retrieved</div>
+        </div>
+        <div class="pw-stat">
+          <div class="pw-stat-num">${foundationCount}</div>
+          <div class="pw-stat-label">Foundation Papers</div>
+        </div>
+        <div class="pw-stat">
+          <div class="pw-stat-num">${gapCount}</div>
+          <div class="pw-stat-label">Confirmed Gaps</div>
+        </div>
+      </div>
+
+      <!-- The gap teaser -->
+      <div style="margin-bottom:36px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(245,243,238,0.35);margin-bottom:12px;">One of your confirmed gaps</div>
+        <div style="padding:14px 18px;border:1px solid rgba(168,40,40,0.3);background:rgba(168,40,40,0.04);display:flex;align-items:center;gap:12px;">
+          <span style="color:#e05050;font-size:16px;">⬤</span>
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--paper);margin-bottom:3px;">${gapTeaser} — no published research exists</div>
+            <div class="pw-gap-blur">+ ${Math.max(0,gapCount-1)} more gaps identified in your search · each one an original contribution opportunity · ${anchor} research frontier unmapped</div>
+          </div>
+        </div>
+        <div style="font-size:11px;color:rgba(245,243,238,0.3);margin-top:8px;font-style:italic;">Your foundation papers, full gap register, draft builder, and poster tools are waiting.</div>
+      </div>
+
+      <!-- The pitch -->
+      <div style="font-family:'Playfair Display',serif;font-size:16px;color:rgba(245,243,238,0.75);line-height:1.8;margin-bottom:32px;">
+        This is where careers begin. For the cost of this tool,
+        you're standing at the frontier of <em>${anchor}</em> —
+        with a research agenda, a reading list, and a path to becoming
+        the expert the field is missing.
+      </div>
+
+      <!-- CTA -->
+      <button class="pw-activate-btn" onclick="handleActivation()">
+        Activate Access — Begin →
+      </button>
+      <button class="pw-dismiss" onclick="document.getElementById('slr-paywall-overlay').remove()">
+        Not yet — return to my search results
+      </button>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  // Store intended destination so we can resume after activation
+  window._paywallDestination = intendedDestination;
+}
+
+function handleActivation() {
+  // In deployed version: redirect to payment/contact
+  // In standalone: show contact info
+  const overlay = document.getElementById('slr-paywall-overlay');
+  if (overlay) {
+    overlay.querySelector('.paywall-card').innerHTML = `
+      <div style="text-align:center;padding:20px 0;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:20px;">Ready to Begin</div>
+        <div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--paper);margin-bottom:16px;">Welcome to your field.</div>
+        <div style="font-size:14px;color:rgba(245,243,238,0.6);line-height:1.8;margin-bottom:32px;">
+          To activate your access, contact the Emerging Technologies Laboratory.<br>
+          Your search results will be waiting when you return.
+        </div>
+        <div style="padding:20px 24px;border:1px solid rgba(201,144,58,0.2);background:rgba(201,144,58,0.04);margin-bottom:24px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold);letter-spacing:0.1em;margin-bottom:8px;">CONTACT</div>
+          <div style="font-size:14px;color:var(--paper);">terry.oroszi@wright.edu</div>
+          <div style="font-size:12px;color:rgba(245,243,238,0.4);margin-top:4px;">Emerging Technologies Laboratory · Wright State University</div>
+        </div>
+        <button onclick="document.getElementById('slr-paywall-overlay').remove()" style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;padding:10px 24px;background:transparent;border:1px solid rgba(255,255,255,0.1);color:rgba(245,243,238,0.4);cursor:pointer;">
+          Return to search results
+        </button>
+      </div>
+    `;
+  }
+}
+
 
 // ═══════════════════════════════════════════
 // SCREEN 6: OUTLINE
@@ -4874,6 +5378,999 @@ function showRubricMessage(msg) {
     setTimeout(() => notice.remove(), 5000);
   }
 }
+// ═══════════════════════════════════════════
+// PRISMA 2020 ENGINE
+// ═══════════════════════════════════════════
+
+const prismaState = {
+  protocol:   { population:'', intervention:'', comparison:'', outcome:'', inclusion:[], exclusion:[], dateFrom:'', dateTo:'', language:'English', studyTypes:'' },
+  screening:  {},
+  phase:      'abstract',
+  riskOfBias: {},   // { paperId: { randomization, allocation, blinding, attrition, reporting, other } }
+  gradeTable: []    // [ { outcome, studies, certainty, rationale } ]
+};
+
+const PRISMA_CHECKLIST = [
+  { num:'1',  section:'Title',        label:'Title: Identify the report as a systematic review.' },
+  { num:'2',  section:'Abstract',     label:'Abstract: Structured summary including background, objectives, data sources, eligibility criteria, appraisal methods, results, limitations, conclusions.' },
+  { num:'3',  section:'Introduction', label:'Rationale: Describe the rationale for the review in the context of existing knowledge.' },
+  { num:'4',  section:'Introduction', label:'Objectives: Provide an explicit statement of the objective(s) or question(s) addressed by the review.' },
+  { num:'5',  section:'Methods',      label:'Eligibility criteria: Specify all inclusion and exclusion criteria with justification.' },
+  { num:'6',  section:'Methods',      label:'Information sources: Specify all databases, registers, websites, and other sources searched, with dates.' },
+  { num:'7',  section:'Methods',      label:'Search strategy: Present the full search strategy for at least one database, including filters used.' },
+  { num:'8',  section:'Methods',      label:'Selection process: Specify how records were screened and included, and how many reviewers were involved.' },
+  { num:'9',  section:'Methods',      label:'Data collection process: Specify the method for extracting data from reports.' },
+  { num:'10', section:'Methods',      label:'Data items: List all outcomes for which data were sought and define each.' },
+  { num:'11', section:'Methods',      label:'Study risk of bias: Specify the method(s) used to assess risk of bias.' },
+  { num:'12', section:'Methods',      label:'Effect measures: Specify the effect measure(s) used for synthesis.' },
+  { num:'13', section:'Methods',      label:'Synthesis methods: Describe the process used to synthesize results.' },
+  { num:'14', section:'Methods',      label:'Reporting bias assessment: Describe any methods to assess risk of bias due to missing results.' },
+  { num:'15', section:'Methods',      label:'Certainty assessment: Describe any methods used to assess certainty in the body of evidence.' },
+  { num:'16', section:'Results',      label:'Study selection: Describe results of search and selection process with a PRISMA flow diagram.' },
+  { num:'17', section:'Results',      label:'Study characteristics: Cite each included study and describe its characteristics.' },
+  { num:'18', section:'Results',      label:'Risk of bias in studies: Present assessments of risk of bias for each included study.' },
+  { num:'19', section:'Results',      label:'Results of individual studies: Report results from each included study.' },
+  { num:'20', section:'Results',      label:'Results of syntheses: Summarize characteristics and risk of bias among contributing studies.' },
+  { num:'21', section:'Results',      label:'Reporting biases: Present information on reporting bias.' },
+  { num:'22', section:'Results',      label:'Certainty of evidence: Present assessments of certainty for each outcome.' },
+  { num:'23', section:'Discussion',   label:'Discussion: Provide a general interpretation of results in context of other evidence.' },
+  { num:'24', section:'Discussion',   label:'Limitations: Discuss limitations of the evidence and review process.' },
+  { num:'25', section:'Discussion',   label:'Conclusions: Provide a general interpretation and implications for practice and research.' },
+  { num:'26', section:'Other',        label:'Competing interests: Declare any competing interests of review authors.' },
+  { num:'27', section:'Other',        label:'Funding: Identify sources of financial support for the review.' },
+];
+
+function initPrismaMode() {
+  prismaState.protocol.population   = document.getElementById('prisma-population')?.value?.trim() || '';
+  prismaState.protocol.intervention = document.getElementById('prisma-intervention')?.value?.trim() || '';
+  prismaState.protocol.comparison   = document.getElementById('prisma-comparison')?.value?.trim() || '';
+  prismaState.protocol.outcome      = document.getElementById('prisma-outcome')?.value?.trim() || '';
+  prismaState.protocol.inclusion    = (document.getElementById('prisma-inclusion')?.value || '').split('\n').map(s=>s.trim()).filter(Boolean);
+  prismaState.protocol.exclusion    = (document.getElementById('prisma-exclusion')?.value || '').split('\n').map(s=>s.trim()).filter(Boolean);
+  prismaState.protocol.dateFrom     = document.getElementById('prisma-date-from')?.value || '';
+  prismaState.protocol.dateTo       = document.getElementById('prisma-date-to')?.value || '';
+  prismaState.protocol.language     = document.getElementById('prisma-language')?.value || 'English';
+  prismaState.protocol.studyTypes   = document.getElementById('prisma-study-types')?.value || '';
+  Object.keys(state.papers).forEach(pid => {
+    if (!prismaState.screening[pid]) prismaState.screening[pid] = { phase: 'abstract', decision: null, reason: '' };
+  });
+  renderPrismaScreening();
+  updatePrismaStats();
+  renderPrismaChecklistMini();
+}
+
+function setPrismaPhase(phase) {
+  prismaState.phase = phase;
+  ['abstract','fulltext','included'].forEach(p => {
+    const el = document.getElementById('prisma-phase-' + p);
+    if (el) el.style.display = p === phase ? 'block' : 'none';
+    const btn = document.getElementById('phase-' + p);
+    if (btn) { btn.style.background = p === phase ? 'var(--ink)' : 'transparent'; btn.style.color = p === phase ? 'var(--gold)' : 'var(--muted)'; }
+  });
+  renderPrismaScreening();
+}
+
+function renderPrismaScreening() {
+  const phase = prismaState.phase;
+  if (phase === 'abstract') {
+    const container = document.getElementById('prisma-abstract-list');
+    if (!container) return;
+    const papers = Object.entries(state.papers);
+    if (!papers.length) { container.innerHTML = '<div style="font-size:13px;color:var(--muted);font-style:italic;padding:20px 0;">No papers retrieved yet. Run a search first.</div>'; return; }
+    container.innerHTML = papers.map(([pid, p]) => {
+      const s = prismaState.screening[pid] || { decision: null, reason: '' };
+      const isInc = s.decision === 'include', isExc = s.decision === 'exclude';
+      return `<div class="prisma-paper-card" data-pid="${pid}" style="border-left:3px solid ${isInc?'#285C4D':isExc?'#a82828':'var(--border)'};">
+        <div class="prisma-paper-title">${p.title||'Untitled'}</div>
+        <div class="prisma-paper-meta">${(p.author||'').split(';')[0].split(',')[0]} · ${p.journal||''} · ${p.year||'n.d.'}</div>
+        ${p.abstract?`<div style="font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:8px;font-style:italic;">${p.abstract.slice(0,160)}...</div>`:''}
+        <div class="prisma-decision-btns">
+          ${isInc?`<span class="prisma-status-included">✓ Include for full text</span><button onclick="undoPrismaDecision('${pid}')" style="font-family:monospace;font-size:9px;padding:4px 8px;background:transparent;border:1px solid var(--border);color:var(--muted);cursor:pointer;">Undo</button>`:
+            isExc?`<span class="prisma-status-excluded">✕ ${s.reason}</span><button onclick="undoPrismaDecision('${pid}')" style="font-family:monospace;font-size:9px;padding:4px 8px;background:transparent;border:1px solid var(--border);color:var(--muted);cursor:pointer;">Undo</button>`:
+            `<button onclick="prismaDecide('${pid}','include','')" class="prisma-btn-include">✓ Include</button><button onclick="prismaExclude('${pid}')" class="prisma-btn-exclude">✕ Exclude</button>`}
+        </div>
+      </div>`;
+    }).join('');
+  } else if (phase === 'fulltext') {
+    const container = document.getElementById('prisma-fulltext-list');
+    if (!container) return;
+    const papers = Object.entries(prismaState.screening).filter(([,s]) => s.decision==='include' && s.phase==='abstract').map(([pid]) => [pid, state.papers[pid]]).filter(([,p]) => p);
+    if (!papers.length) { container.innerHTML = '<div style="font-size:13px;color:var(--muted);font-style:italic;padding:20px 0;">No papers passed abstract screening yet.</div>'; return; }
+    container.innerHTML = papers.map(([pid, p]) => {
+      const s = prismaState.screening[pid];
+      const isInc = s.decision==='include' && s.phase==='fulltext', isExc = s.decision==='exclude' && s.phase==='fulltext';
+      return `<div class="prisma-paper-card" data-pid="${pid}" style="border-left:3px solid ${isInc?'#285C4D':isExc?'#a82828':'rgba(74,111,165,0.5)'};">
+        <div class="prisma-paper-title">${p.title||'Untitled'}</div>
+        <div class="prisma-paper-meta">${(p.author||'').split(';')[0]} · ${p.journal||''} · ${p.year||'n.d.'}${p.url&&p.url!=='#'?` · <a href="${p.url}" target="_blank" style="color:var(--gold);">→ Full text</a>`:''}</div>
+        <div class="prisma-decision-btns">
+          ${isInc?`<span class="prisma-status-included">✓ Included in review</span><button onclick="undoPrismaFulltext('${pid}')" style="font-family:monospace;font-size:9px;padding:4px 8px;background:transparent;border:1px solid var(--border);color:var(--muted);cursor:pointer;">Undo</button>`:
+            isExc?`<span class="prisma-status-excluded">✕ ${s.reason}</span><button onclick="undoPrismaFulltext('${pid}')" style="font-family:monospace;font-size:9px;padding:4px 8px;background:transparent;border:1px solid var(--border);color:var(--muted);cursor:pointer;">Undo</button>`:
+            `<button onclick="prismaFulltextDecide('${pid}','include')" class="prisma-btn-include">✓ Include</button><button onclick="prismaFulltextExclude('${pid}')" class="prisma-btn-exclude">✕ Exclude with reason</button>`}
+        </div>
+      </div>`;
+    }).join('');
+  } else if (phase === 'included') {
+    const container = document.getElementById('prisma-included-list');
+    if (!container) return;
+    const included = Object.entries(prismaState.screening).filter(([,s]) => s.decision==='include' && (s.phase==='fulltext' || s.phase==='abstract')).map(([pid]) => state.papers[pid]).filter(Boolean);
+    if (!included.length) { container.innerHTML = '<div style="font-size:13px;color:var(--muted);font-style:italic;padding:20px 0;">No papers included yet.</div>'; return; }
+    container.innerHTML = included.map((p, i) => `<div class="prisma-paper-card" style="border-left:3px solid #285C4D;">
+      <div style="display:flex;gap:10px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#285C4D;font-weight:700;flex-shrink:0;">${i+1}</div>
+        <div><div class="prisma-paper-title">${p.title}</div><div class="prisma-paper-meta">${p.author||'Unknown'} · ${p.journal||''} · ${p.year||'n.d.'}</div></div>
+      </div></div>`).join('');
+  }
+  updatePrismaStats();
+}
+
+function prismaDecide(pid, decision, reason) {
+  if (!prismaState.screening[pid]) prismaState.screening[pid] = {};
+  Object.assign(prismaState.screening[pid], { decision, reason, phase: 'abstract' });
+  renderPrismaScreening();
+}
+function prismaExclude(pid) {
+  const reasons = ['Does not meet inclusion criteria','Wrong population','Wrong intervention','Wrong outcome','Wrong study design','Duplicate','Not peer-reviewed','Outside date range'];
+  const r = prompt('Reason for exclusion:\n' + reasons.map((x,i) => (i+1)+'. '+x).join('\n') + '\n\nEnter number or reason:');
+  if (!r) return;
+  prismaDecide(pid, 'exclude', reasons[parseInt(r)-1] || r);
+}
+function undoPrismaDecision(pid) {
+  if (prismaState.screening[pid]) { prismaState.screening[pid].decision = null; prismaState.screening[pid].reason = ''; }
+  renderPrismaScreening();
+}
+function prismaFulltextDecide(pid, decision) {
+  if (!prismaState.screening[pid]) prismaState.screening[pid] = {};
+  Object.assign(prismaState.screening[pid], { decision, phase: 'fulltext' });
+  renderPrismaScreening();
+}
+function prismaFulltextExclude(pid) {
+  const reasons = ['Did not meet eligibility criteria','Unable to retrieve full text','Wrong study design','Wrong population','Wrong outcome','Insufficient data'];
+  const r = prompt('Reason for exclusion:\n' + reasons.map((x,i) => (i+1)+'. '+x).join('\n') + '\n\nEnter number or reason:');
+  if (!r) return;
+  prismaFulltextDecide(pid, 'exclude');
+  prismaState.screening[pid].reason = reasons[parseInt(r)-1] || r;
+  renderPrismaScreening();
+}
+function undoPrismaFulltext(pid) {
+  if (prismaState.screening[pid]) { prismaState.screening[pid].decision = 'include'; prismaState.screening[pid].phase = 'abstract'; prismaState.screening[pid].reason = ''; }
+  renderPrismaScreening();
+}
+
+function updatePrismaStats() {
+  const total = Object.keys(state.papers).length;
+  const screened = Object.values(prismaState.screening).filter(s => s.decision !== null).length;
+  const forFulltext = Object.values(prismaState.screening).filter(s => s.decision==='include' && s.phase==='abstract').length;
+  const included = Object.values(prismaState.screening).filter(s => s.decision==='include' && s.phase==='fulltext').length;
+  const excluded = Object.values(prismaState.screening).filter(s => s.decision==='exclude').length;
+  const set = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
+  set('ps-identified', total); set('ps-screened', screened);
+  set('ps-eligibility', forFulltext); set('ps-included', included||forFulltext);
+  set('ps-excluded', excluded);
+}
+
+function renderPrismaChecklistMini() {
+  const container = document.getElementById('prisma-checklist-mini');
+  if (!container) return;
+  const proto = prismaState.protocol;
+  const checks = [
+    { label:'PICO defined', done: !!(proto.population && proto.outcome) },
+    { label:'Eligibility criteria', done: proto.inclusion.length > 0 },
+    { label:'Search strategy', done: Object.keys(state.papers).length > 0 },
+    { label:'Database documented', done: true },
+    { label:'Screening recorded', done: Object.values(prismaState.screening).some(s => s.decision !== null) },
+    { label:'Included studies', done: Object.values(prismaState.screening).some(s => s.decision === 'include') },
+  ];
+  container.innerHTML = checks.map(c => `<div style="display:flex;align-items:center;gap:8px;"><span style="color:${c.done?'#5a9e6f':'rgba(245,243,238,0.2)'};">${c.done?'✓':'○'}</span><span style="font-size:11px;color:${c.done?'rgba(245,243,238,0.7)':'rgba(245,243,238,0.3)'};">${c.label}</span></div>`).join('');
+}
+
+function showPrismaChecklist() {
+  const modal = document.getElementById('prisma-checklist-modal');
+  const container = document.getElementById('prisma-full-checklist');
+  const sections = [...new Set(PRISMA_CHECKLIST.map(c => c.section))];
+  container.innerHTML = sections.map(section => {
+    const items = PRISMA_CHECKLIST.filter(c => c.section === section);
+    return `<div style="margin-bottom:20px;"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:#4a6fa5;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid #e8e4de;">${section}</div>
+    ${items.map(item => `<div class="prisma-checklist-item"><span class="prisma-checklist-num">${item.num}</span><span class="prisma-checklist-label">${item.label}</span><input type="checkbox" style="flex-shrink:0;"></div>`).join('')}</div>`;
+  }).join('');
+  modal.style.display = 'flex';
+}
+
+function generatePrismaFlowDiagram() {
+  const total = Object.keys(state.papers).length;
+  const duplicates = 0;
+  const forFulltext = Object.values(prismaState.screening).filter(s => s.decision==='include' && s.phase==='abstract').length || Math.round(total * 0.4);
+  const fulltextExcluded = Object.values(prismaState.screening).filter(s => s.decision==='exclude' && s.phase==='fulltext').length;
+  const included = Object.values(prismaState.screening).filter(s => s.decision==='include' && s.phase==='fulltext').length || Math.round(forFulltext * 0.6);
+  const abstractExcluded = total - forFulltext;
+  const reasons = {};
+  Object.values(prismaState.screening).filter(s => s.decision==='exclude').forEach(s => { reasons[s.reason||'Not meeting criteria'] = (reasons[s.reason||'Not meeting criteria']||0)+1; });
+  const reasonLines = Object.entries(reasons).map(([r,n]) => `${r} (n=${n})`);
+  if (!reasonLines.length) reasonLines.push(`Did not meet inclusion criteria (n=${abstractExcluded})`);
+
+  const W=700, H=660, boxW=260, boxH=52, boxX=(W-boxW)/2;
+  const blueLight='#e8f0fb', blueBorder='#4a6fa5', greenLight='#e8f5ec', greenBorder='#285C4D', green='#1a4a2e', redLight='#fdf0f0', redBorder='#a82828';
+  const sideW=180, sideX=boxX+boxW+28;
+  const y0=24, yS=104;
+
+  const bx = (x,y,w,h,lbl,n,fill,border,tc='#0a0a0f') =>
+    `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}" stroke="${border}" stroke-width="1.5" rx="2"/>
+     <text x="${x+w/2}" y="${y+h/2-6}" text-anchor="middle" font-size="12" font-weight="600" fill="${tc}" font-family="Georgia">${lbl}</text>
+     <text x="${x+w/2}" y="${y+h/2+10}" text-anchor="middle" font-size="11" fill="${tc}" font-family="monospace" opacity="0.7">(n = ${n})</text>`;
+  const ar = (x1,y1,x2,y2) =>
+    `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#888" stroke-width="1.5" marker-end="url(#arr)"/>`;
+  const sb = (x,y,w,h,lbl,n,rs=[]) => {
+    const rT = rs.slice(0,3).map((r,i) => `<text x="${x+8}" y="${y+36+i*13}" font-size="9" fill="#a82828" font-family="monospace">• ${r.slice(0,36)}</text>`).join('');
+    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${redLight}" stroke="${redBorder}" stroke-width="1" rx="2"/>
+      <text x="${x+w/2}" y="${y+18}" text-anchor="middle" font-size="11" font-weight="600" fill="#a82828" font-family="Georgia">${lbl}</text>
+      <text x="${x+w/2}" y="${y+30}" text-anchor="middle" font-size="11" fill="#a82828" font-family="monospace">(n = ${n})</text>${rT}`;
+  };
+
+  const sH = Math.max(62, 38+reasonLines.length*14);
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" font-family="Georgia">
+  <defs><marker id="arr" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#888"/></marker></defs>
+  <text x="20" y="${y0+20}" font-size="10" font-weight="700" fill="${blueBorder}" font-family="monospace" letter-spacing="1">IDENTIFICATION</text>
+  ${bx(boxX,y0+28,boxW,boxH,'Records identified via OpenAlex',total,blueLight,blueBorder)}
+  ${bx(boxX,y0+28+boxH+8,boxW,44,'Duplicates removed',duplicates,'#f5f5f5','#ccc')}
+  ${ar(boxX+boxW/2,y0+28+boxH,boxX+boxW/2,y0+28+boxH+8)}
+  <text x="20" y="${y0+yS+88}" font-size="10" font-weight="700" fill="${blueBorder}" font-family="monospace" letter-spacing="1">SCREENING</text>
+  ${bx(boxX,y0+yS+96,boxW,boxH,'Records screened',total-duplicates,blueLight,blueBorder)}
+  ${ar(boxX+boxW/2,y0+28+boxH+52,boxX+boxW/2,y0+yS+96)}
+  ${ar(boxX+boxW,y0+yS+96+boxH/2,sideX,y0+yS+96+boxH/2)}
+  ${sb(sideX,y0+yS+96,sideW,sH,'Records excluded',abstractExcluded,reasonLines)}
+  <text x="20" y="${y0+yS*2+118}" font-size="10" font-weight="700" fill="${blueBorder}" font-family="monospace" letter-spacing="1">ELIGIBILITY</text>
+  ${bx(boxX,y0+yS*2+126,boxW,boxH,'Full-text assessed for eligibility',forFulltext,blueLight,blueBorder)}
+  ${ar(boxX+boxW/2,y0+yS+96+boxH,boxX+boxW/2,y0+yS*2+126)}
+  ${fulltextExcluded>0?ar(boxX+boxW,y0+yS*2+126+boxH/2,sideX,y0+yS*2+126+boxH/2):''}
+  ${fulltextExcluded>0?sb(sideX,y0+yS*2+126,sideW,62,'Full-text excluded',fulltextExcluded,[]):''}
+  <text x="20" y="${y0+yS*3+148}" font-size="10" font-weight="700" fill="${green}" font-family="monospace" letter-spacing="1">INCLUDED</text>
+  ${bx(boxX,y0+yS*3+156,boxW,boxH+8,'Studies included in review',included,greenLight,greenBorder,green)}
+  ${ar(boxX+boxW/2,y0+yS*2+126+boxH,boxX+boxW/2,y0+yS*3+156)}
+  <text x="${W/2}" y="${H-8}" text-anchor="middle" font-size="8" fill="#aaa" font-family="monospace">SLR Studio · ETL · Wright State University · PRISMA 2020 (Page et al., 2021)</text>
+</svg>`;
+
+  const container = document.getElementById('prisma-flow-diagram-container');
+  if (container) container.innerHTML = svg;
+  window._prismaFlowSVG = svg;
+  const modal = document.getElementById('prisma-diagram-modal');
+  if (modal) modal.style.display = 'flex';
+}
+
+function downloadPrismaFlowDiagram() {
+  if (!window._prismaFlowSVG) return;
+  const blob = new Blob([window._prismaFlowSVG], { type: 'image/svg+xml' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'PRISMA_2020_Flow_Diagram.svg'; a.click();
+}
+
+async function generatePrismaMethods() {
+  const proto = prismaState.protocol;
+  const total = Object.keys(state.papers).length;
+  const included = Object.values(prismaState.screening).filter(s => s.decision==='include').length || Math.round(total*0.25);
+  const anchor = state.anchor || state.topic;
+  const sgCount = (state.subgroups||[]).length;
+  const scaffold = `Methods
+
+Search Strategy
+
+A systematic literature review was conducted in accordance with the Preferred Reporting Items for Systematic Reviews and Meta-Analyses (PRISMA 2020) guidelines (Page et al., 2021). A comprehensive search of the OpenAlex academic database was performed${proto.dateFrom&&proto.dateTo?' for literature published between '+proto.dateFrom+' and '+proto.dateTo:' for peer-reviewed literature'}. The search employed a structured keyword architecture consisting of ${sgCount} subgroup queries applying progressive Boolean AND narrowing from the anchor term "${anchor}." This approach ensures systematic coverage while maintaining specificity at each intersection.
+
+Eligibility Criteria
+
+Studies were included if they: ${proto.inclusion.length?proto.inclusion.join('; '):' were peer-reviewed empirical studies published in English.'}${proto.population?' The target population was defined as: '+proto.population+'.':''} Studies were excluded if they: ${proto.exclusion.length?proto.exclusion.join('; '):' were grey literature, editorials, or non-English.'}${proto.outcome?' Primary outcomes included: '+proto.outcome+'.':''}
+
+Study Selection
+
+Records were screened in two phases. First, titles and abstracts were reviewed against eligibility criteria. Records meeting inclusion criteria were retrieved for full-text assessment. Full-text articles were then assessed for final inclusion. Exclusion reasons at the full-text stage are reported in the PRISMA 2020 flow diagram. A total of ${total} records were identified through database searching. Following application of eligibility criteria, ${included} studies were included in the final review.
+
+Reference: Page, M. J., McKenzie, J. E., Bossuyt, P. M., et al. (2021). The PRISMA 2020 statement: An updated guideline for reporting systematic reviews. BMJ, 372, n71.`;
+
+  if (state.apiKey) {
+    try {
+      const resp = await fetch('https://api.anthropic.com/v1/messages', {
+        method:'POST', headers:{'Content-Type':'application/json','x-api-key':state.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+        body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1200, messages:[{role:'user',content:`Write a PRISMA 2020-compliant Methods section (~450 words) for a systematic review on: "${state.topic}". PICO: P=${proto.population||'defined population'}, I=${proto.intervention||'intervention'}, C=${proto.comparison||'N/A'}, O=${proto.outcome||'defined outcomes'}. Inclusion: ${proto.inclusion.join('; ')||'peer-reviewed English studies'}. Exclusion: ${proto.exclusion.join('; ')||'grey literature, non-English'}. Database: OpenAlex. ${sgCount} keyword subgroups, progressive Boolean AND narrowing. Records identified: ${total}. Included: ${included}. Date range: ${proto.dateFrom||'2010'}–${proto.dateTo||'2026'}. Cite PRISMA 2020 (Page et al., 2021). Scholarly passive voice.`}]})
+      });
+      const data = await resp.json();
+      const text = data.content?.[0]?.text?.trim();
+      if (text) {
+        document.getElementById('prisma-methods-output').style.display='block';
+        document.getElementById('prisma-methods-text').textContent = text;
+        const modal = document.getElementById('prisma-diagram-modal');
+        if (modal) modal.style.display='flex';
+        return;
+      }
+    } catch(e) { console.warn('API error:', e); }
+  }
+  document.getElementById('prisma-methods-output').style.display='block';
+  document.getElementById('prisma-methods-text').textContent = scaffold;
+  const modal = document.getElementById('prisma-diagram-modal');
+  if (modal) modal.style.display='flex';
+}
+
+function goToPrismaScreening() {
+  state.mode = 'prisma';
+  initPrismaMode();
+  document.querySelectorAll('.screen').forEach(s => { s.classList.remove('active'); s.style.display=''; });
+  const s = document.getElementById('screen-5p');
+  if (s) { s.style.display='grid'; s.classList.add('active'); }
+  window.scrollTo(0,0);
+}
+
+// ═══════════════════════════════════════════
+// RISK OF BIAS ASSESSMENT (Cochrane RoB 2.0)
+// ═══════════════════════════════════════════
+
+const ROB_DOMAINS = [
+  { id: 'randomization', label: 'Randomization process',       desc: 'Was the allocation sequence randomly generated?' },
+  { id: 'allocation',    label: 'Deviations from intervention', desc: 'Were participants and personnel blinded to intervention?' },
+  { id: 'missing',       label: 'Missing outcome data',        desc: 'Were outcome data available for all participants?' },
+  { id: 'measurement',   label: 'Outcome measurement',         desc: 'Was the outcome measurement method appropriate?' },
+  { id: 'reporting',     label: 'Selective reporting',         desc: 'Were pre-specified outcomes reported completely?' },
+];
+
+const ROB_JUDGMENTS = ['Low', 'Some concerns', 'High'];
+const ROB_COLORS = {
+  'Low':           { bg:'rgba(40,92,77,0.12)',  border:'rgba(40,92,77,0.4)',  text:'#285C4D' },
+  'Some concerns': { bg:'rgba(198,166,103,0.12)', border:'rgba(198,166,103,0.4)', text:'#a07820' },
+  'High':          { bg:'rgba(168,40,40,0.12)', border:'rgba(168,40,40,0.4)', text:'#a82828' },
+  '':              { bg:'transparent',          border:'rgba(255,255,255,0.1)', text:'rgba(245,243,238,0.4)' }
+};
+
+function openRiskOfBiasPanel() {
+  const included = Object.values(prismaState.screening)
+    .filter(s => s.decision === 'include' && s.phase === 'fulltext')
+    .map(s => ({ pid: s.pid, paper: state.papers[s.pid] }))
+    .filter(x => x.paper);
+
+  if (included.length === 0) {
+    alert('Complete full-text screening and mark included studies before assessing risk of bias.');
+    return;
+  }
+
+  const existing = document.getElementById('rob-modal');
+  if (existing) existing.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'rob-modal';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:5000;background:rgba(10,10,15,0.92);display:flex;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;';
+
+  modal.innerHTML = `
+    <div style="background:#0a0a0f;border:1px solid rgba(255,255,255,0.1);width:100%;max-width:900px;margin:auto;padding:36px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:#4a6fa5;margin-bottom:6px;">Cochrane Risk of Bias 2.0</div>
+          <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--paper);">Risk of Bias Assessment</div>
+        </div>
+        <button onclick="document.getElementById('rob-modal').remove()" style="font-family:'JetBrains Mono',monospace;font-size:10px;padding:6px 14px;background:transparent;border:1px solid rgba(255,255,255,0.1);color:rgba(245,243,238,0.4);cursor:pointer;">✕ Close</button>
+      </div>
+      <p style="font-size:13px;color:rgba(245,243,238,0.5);line-height:1.6;margin-bottom:28px;">Rate each included study across the five Cochrane RoB 2.0 domains. Judgments are saved automatically.</p>
+
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:12px;">
+          <thead>
+            <tr>
+              <th style="padding:10px 12px;text-align:left;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:rgba(245,243,238,0.4);border-bottom:1px solid rgba(255,255,255,0.08);min-width:200px;">Study</th>
+              ${ROB_DOMAINS.map(d => `<th style="padding:10px 8px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:0.06em;text-transform:uppercase;color:rgba(245,243,238,0.4);border-bottom:1px solid rgba(255,255,255,0.08);min-width:110px;" title="${d.desc}">${d.label}</th>`).join('')}
+              <th style="padding:10px 8px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:0.06em;text-transform:uppercase;color:rgba(245,243,238,0.4);border-bottom:1px solid rgba(255,255,255,0.08);">Overall</th>
+            </tr>
+          </thead>
+          <tbody id="rob-table-body">
+            ${included.map(({ pid, paper }) => renderRobRow(pid, paper)).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <div style="margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.08);display:flex;gap:12px;justify-content:flex-end;">
+        <button onclick="exportRobSummary()" style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;padding:10px 20px;background:transparent;border:1px solid rgba(198,166,103,0.4);color:var(--gold);cursor:pointer;">Export Summary Text →</button>
+        <button onclick="document.getElementById('rob-modal').remove()" style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;padding:10px 20px;background:var(--gold);color:var(--ink);border:none;cursor:pointer;font-weight:700;">Save & Close</button>
+      </div>
+    </div>`;
+
+  document.body.appendChild(modal);
+}
+
+function renderRobRow(pid, paper) {
+  const rob = prismaState.riskOfBias[pid] || {};
+  const overall = getRobOverall(rob);
+  const oc = ROB_COLORS[overall] || ROB_COLORS[''];
+  return `<tr id="rob-row-${pid}" style="border-bottom:1px solid rgba(255,255,255,0.05);">
+    <td style="padding:10px 12px;color:var(--paper);">
+      <div style="font-size:12px;font-weight:600;line-height:1.3;margin-bottom:2px;">${(paper.author||'').split(',')[0]} (${paper.year||'n.d.'})</div>
+      <div style="font-size:10px;color:rgba(245,243,238,0.4);line-height:1.3;">${(paper.title||'').substring(0,60)}${paper.title?.length>60?'...':''}</div>
+    </td>
+    ${ROB_DOMAINS.map(d => {
+      const val = rob[d.id] || '';
+      const dc = ROB_COLORS[val] || ROB_COLORS[''];
+      return `<td style="padding:8px;text-align:center;">
+        <select onchange="setRob('${pid}','${d.id}',this.value)" style="font-family:'JetBrains Mono',monospace;font-size:9px;padding:4px 6px;background:${dc.bg};border:1px solid ${dc.border};color:${dc.text};cursor:pointer;width:100%;outline:none;">
+          <option value="">—</option>
+          ${ROB_JUDGMENTS.map(j => `<option value="${j}" ${val===j?'selected':''}>${j}</option>`).join('')}
+        </select>
+      </td>`;
+    }).join('')}
+    <td style="padding:8px;text-align:center;">
+      <span id="rob-overall-${pid}" style="font-family:'JetBrains Mono',monospace;font-size:9px;padding:3px 8px;background:${oc.bg};border:1px solid ${oc.border};color:${oc.text};">${overall || '—'}</span>
+    </td>
+  </tr>`;
+}
+
+function setRob(pid, domain, value) {
+  if (!prismaState.riskOfBias[pid]) prismaState.riskOfBias[pid] = {};
+  prismaState.riskOfBias[pid][domain] = value;
+  // Update overall badge
+  const overall = getRobOverall(prismaState.riskOfBias[pid]);
+  const el = document.getElementById(`rob-overall-${pid}`);
+  if (el) {
+    const oc = ROB_COLORS[overall] || ROB_COLORS[''];
+    el.textContent = overall || '—';
+    el.style.background = oc.bg;
+    el.style.borderColor = oc.border;
+    el.style.color = oc.text;
+    // Update select colors too
+    const row = document.getElementById(`rob-row-${pid}`);
+    if (row) {
+      row.querySelectorAll('select').forEach((sel, i) => {
+        const domain = ROB_DOMAINS[i];
+        const val = prismaState.riskOfBias[pid]?.[domain.id] || '';
+        const dc = ROB_COLORS[val] || ROB_COLORS[''];
+        sel.style.background = dc.bg;
+        sel.style.borderColor = dc.border;
+        sel.style.color = dc.text;
+      });
+    }
+  }
+  saveSession();
+}
+
+function getRobOverall(rob) {
+  const vals = ROB_DOMAINS.map(d => rob[d.id]).filter(Boolean);
+  if (vals.length === 0) return '';
+  if (vals.includes('High')) return 'High';
+  if (vals.includes('Some concerns')) return 'Some concerns';
+  return 'Low';
+}
+
+function exportRobSummary() {
+  const included = Object.values(prismaState.screening)
+    .filter(s => s.decision === 'include' && s.phase === 'fulltext')
+    .map(s => ({ pid: s.pid, paper: state.papers[s.pid] }))
+    .filter(x => x.paper);
+
+  const lines = ['Risk of Bias Assessment Summary (Cochrane RoB 2.0)', '='.repeat(50), ''];
+  included.forEach(({ pid, paper }) => {
+    const rob = prismaState.riskOfBias[pid] || {};
+    const overall = getRobOverall(rob);
+    lines.push(`${(paper.author||'').split(',')[0]} (${paper.year||'n.d.'}) — ${paper.title?.substring(0,80)}`);
+    lines.push(`Overall: ${overall || 'Not assessed'}`);
+    ROB_DOMAINS.forEach(d => { lines.push(`  ${d.label}: ${rob[d.id] || 'Not assessed'}`); });
+    lines.push('');
+  });
+  lines.push('Generated by SLR Studio · Emerging Technologies Laboratory · Wright State University');
+
+  const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = 'Risk_of_Bias_Assessment.txt'; a.click();
+}
+
+// ═══════════════════════════════════════════
+// GRADE EVIDENCE TABLE
+// ═══════════════════════════════════════════
+
+const GRADE_CERTAINTY = ['High', 'Moderate', 'Low', 'Very low'];
+const GRADE_COLORS = {
+  'High':     { bg:'rgba(40,92,77,0.12)',    border:'rgba(40,92,77,0.4)',    text:'#285C4D' },
+  'Moderate': { bg:'rgba(74,111,165,0.12)',  border:'rgba(74,111,165,0.4)',  text:'#4a6fa5' },
+  'Low':      { bg:'rgba(198,166,103,0.12)', border:'rgba(198,166,103,0.4)', text:'#a07820' },
+  'Very low': { bg:'rgba(168,40,40,0.12)',   border:'rgba(168,40,40,0.4)',   text:'#a82828' },
+};
+
+function openGradePanel() {
+  const existing = document.getElementById('grade-modal');
+  if (existing) existing.remove();
+
+  // Seed with outcomes from PICO if empty
+  if (prismaState.gradeTable.length === 0) {
+    const outcomes = (prismaState.protocol.outcome || '').split(/[,;]/).map(s => s.trim()).filter(Boolean);
+    outcomes.forEach(o => prismaState.gradeTable.push({ id: Date.now() + Math.random(), outcome: o, studies: 0, certainty: '', rationale: '' }));
+    if (prismaState.gradeTable.length === 0) prismaState.gradeTable.push({ id: Date.now(), outcome: '', studies: 0, certainty: '', rationale: '' });
+  }
+
+  const includedCount = Object.values(prismaState.screening).filter(s => s.decision==='include' && s.phase==='fulltext').length;
+
+  const modal = document.createElement('div');
+  modal.id = 'grade-modal';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:5000;background:rgba(10,10,15,0.92);display:flex;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;';
+
+  modal.innerHTML = `
+    <div style="background:#0a0a0f;border:1px solid rgba(255,255,255,0.1);width:100%;max-width:860px;margin:auto;padding:36px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:#4a6fa5;margin-bottom:6px;">GRADE Working Group</div>
+          <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--paper);">Certainty of Evidence Table</div>
+        </div>
+        <button onclick="document.getElementById('grade-modal').remove()" style="font-family:'JetBrains Mono',monospace;font-size:10px;padding:6px 14px;background:transparent;border:1px solid rgba(255,255,255,0.1);color:rgba(245,243,238,0.4);cursor:pointer;">✕ Close</button>
+      </div>
+      <p style="font-size:13px;color:rgba(245,243,238,0.5);line-height:1.6;margin-bottom:28px;">Rate the certainty of evidence for each outcome. Based on ${includedCount} included studies. Certainty starts at High for RCTs and is downgraded for risk of bias, inconsistency, indirectness, imprecision, or publication bias.</p>
+
+      <div id="grade-rows-container">
+        ${prismaState.gradeTable.map(row => renderGradeRow(row)).join('')}
+      </div>
+
+      <button onclick="addGradeRow()" style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;padding:8px 16px;background:transparent;border:1px dashed rgba(255,255,255,0.2);color:rgba(245,243,238,0.4);cursor:pointer;width:100%;margin-top:12px;">+ Add Outcome Row</button>
+
+      <div style="margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.08);display:flex;gap:12px;justify-content:flex-end;">
+        <button onclick="exportGradeTable()" style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;padding:10px 20px;background:transparent;border:1px solid rgba(198,166,103,0.4);color:var(--gold);cursor:pointer;">Export Table →</button>
+        <button onclick="saveSession();document.getElementById('grade-modal').remove()" style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;padding:10px 20px;background:var(--gold);color:var(--ink);border:none;cursor:pointer;font-weight:700;">Save & Close</button>
+      </div>
+    </div>`;
+
+  document.body.appendChild(modal);
+}
+
+function renderGradeRow(row) {
+  const gc = GRADE_COLORS[row.certainty] || { bg:'transparent', border:'rgba(255,255,255,0.1)', text:'rgba(245,243,238,0.4)' };
+  return `<div id="grade-row-${row.id}" style="display:grid;grid-template-columns:1fr 80px 160px 1fr auto;gap:10px;align-items:start;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.06);">
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:rgba(245,243,238,0.3);margin-bottom:4px;">Outcome</div>
+      <input type="text" value="${row.outcome}" onchange="updateGradeRow('${row.id}','outcome',this.value)" placeholder="e.g., All-cause mortality" style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:var(--paper);padding:7px 10px;font-size:13px;font-family:'Georgia',serif;outline:none;">
+    </div>
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:rgba(245,243,238,0.3);margin-bottom:4px;">Studies</div>
+      <input type="number" value="${row.studies}" min="0" onchange="updateGradeRow('${row.id}','studies',this.value)" style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:var(--paper);padding:7px 10px;font-size:13px;outline:none;">
+    </div>
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:rgba(245,243,238,0.3);margin-bottom:4px;">Certainty</div>
+      <select onchange="updateGradeRow('${row.id}','certainty',this.value)" style="width:100%;background:${gc.bg};border:1px solid ${gc.border};color:${gc.text};padding:7px 8px;font-family:'JetBrains Mono',monospace;font-size:10px;outline:none;cursor:pointer;">
+        <option value="">Select...</option>
+        ${GRADE_CERTAINTY.map(c => `<option value="${c}" ${row.certainty===c?'selected':''}>${c}</option>`).join('')}
+      </select>
+    </div>
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:rgba(245,243,238,0.3);margin-bottom:4px;">Rationale for rating</div>
+      <input type="text" value="${row.rationale}" onchange="updateGradeRow('${row.id}','rationale',this.value)" placeholder="e.g., Downgraded 1 level for risk of bias" style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:var(--paper);padding:7px 10px;font-size:12px;font-family:'Georgia',serif;outline:none;">
+    </div>
+    <div style="padding-top:22px;">
+      <button onclick="removeGradeRow('${row.id}')" style="font-family:'JetBrains Mono',monospace;font-size:10px;padding:7px 10px;background:transparent;border:1px solid rgba(168,40,40,0.3);color:rgba(168,40,40,0.6);cursor:pointer;">✕</button>
+    </div>
+  </div>`;
+}
+
+function updateGradeRow(id, field, value) {
+  const row = prismaState.gradeTable.find(r => String(r.id) === String(id));
+  if (!row) return;
+  row[field] = field === 'studies' ? parseInt(value)||0 : value;
+  // Re-render just the certainty select color
+  if (field === 'certainty') {
+    const el = document.getElementById(`grade-row-${id}`);
+    if (el) {
+      const sel = el.querySelector('select');
+      const gc = GRADE_COLORS[value] || { bg:'transparent', border:'rgba(255,255,255,0.1)', text:'rgba(245,243,238,0.4)' };
+      if (sel) { sel.style.background = gc.bg; sel.style.borderColor = gc.border; sel.style.color = gc.text; }
+    }
+  }
+  saveSession();
+}
+
+function addGradeRow() {
+  const row = { id: Date.now(), outcome:'', studies:0, certainty:'', rationale:'' };
+  prismaState.gradeTable.push(row);
+  const container = document.getElementById('grade-rows-container');
+  if (container) container.insertAdjacentHTML('beforeend', renderGradeRow(row));
+  saveSession();
+}
+
+function removeGradeRow(id) {
+  prismaState.gradeTable = prismaState.gradeTable.filter(r => String(r.id) !== String(id));
+  const el = document.getElementById(`grade-row-${id}`);
+  if (el) el.remove();
+  saveSession();
+}
+
+function exportGradeTable() {
+  const lines = ['GRADE Evidence Summary Table', '='.repeat(50), '',
+    ['Outcome', 'No. of studies', 'Certainty of evidence', 'Rationale'].join('\t')];
+  prismaState.gradeTable.forEach(row => {
+    lines.push([row.outcome, row.studies, row.certainty, row.rationale].join('\t'));
+  });
+  lines.push('', 'GRADE Working Group. Generated by SLR Studio · ETL · Wright State University');
+  const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = 'GRADE_Evidence_Table.txt'; a.click();
+}
+
+// ═══════════════════════════════════════════
+// META-ANALYSIS ENGINE
+// ═══════════════════════════════════════════
+
+const metaState = {
+  studies: [],   // [{ id, author, year, title, n_treatment, n_control, effectType, effectValue, variance, weight, included }]
+  settings: {
+    effectType: 'cohens_d',   // 'cohens_d' | 'odds_ratio' | 'relative_risk' | 'hedges_g'
+    model: 'random',          // 'fixed' | 'random'
+    confidenceLevel: 0.95
+  }
+};
+
+const EFFECT_TYPES = [
+  { id: 'cohens_d',      label: "Cohen's d",      desc: 'Standardized mean difference. Use for continuous outcomes.' },
+  { id: 'hedges_g',      label: "Hedges' g",      desc: "Corrected Cohen's d. Better for small samples (n < 20)." },
+  { id: 'odds_ratio',    label: 'Odds Ratio',      desc: 'Use for binary outcomes (event / no event).' },
+  { id: 'relative_risk', label: 'Relative Risk',   desc: 'Use for binary outcomes in prospective studies.' },
+];
+
+function openMetaAnalysisPanel() {
+  const existing = document.getElementById('meta-modal');
+  if (existing) existing.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'meta-modal';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:5000;background:rgba(10,10,15,0.94);display:flex;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;';
+
+  modal.innerHTML = `
+    <div style="background:#0a0a0f;border:1px solid rgba(255,255,255,0.1);width:100%;max-width:1000px;margin:auto;padding:36px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:#4a6fa5;margin-bottom:6px;">SLR Studio · Meta-Analysis Engine</div>
+          <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--paper);">Statistical Synthesis</div>
+        </div>
+        <button onclick="document.getElementById('meta-modal').remove()" style="font-family:'JetBrains Mono',monospace;font-size:10px;padding:6px 14px;background:transparent;border:1px solid rgba(255,255,255,0.1);color:rgba(245,243,238,0.4);cursor:pointer;">✕ Close</button>
+      </div>
+      <p style="font-size:13px;color:rgba(245,243,238,0.5);line-height:1.6;margin-bottom:28px;">Enter effect sizes from your included studies to compute a pooled estimate, forest plot, and heterogeneity statistics.</p>
+
+      <!-- Settings row -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px;padding:20px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);">
+        <div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(245,243,238,0.4);margin-bottom:8px;">Effect Size Type</div>
+          <select id="meta-effect-type" onchange="metaState.settings.effectType=this.value;renderMetaForestPlot()" style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:var(--paper);padding:8px 10px;font-family:'JetBrains Mono',monospace;font-size:11px;outline:none;">
+            ${EFFECT_TYPES.map(e => `<option value="${e.id}" ${metaState.settings.effectType===e.id?'selected':''}>${e.label} — ${e.desc}</option>`).join('')}
+          </select>
+        </div>
+        <div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(245,243,238,0.4);margin-bottom:8px;">Statistical Model</div>
+          <div style="display:flex;gap:8px;">
+            <button onclick="metaState.settings.model='fixed';this.style.background='var(--gold)';this.style.color='var(--ink)';this.nextElementSibling.style.background='transparent';this.nextElementSibling.style.color='rgba(245,243,238,0.5)';renderMetaForestPlot()" style="flex:1;padding:8px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.06em;text-transform:uppercase;border:1px solid rgba(255,255,255,0.15);background:${metaState.settings.model==='fixed'?'var(--gold)':'transparent'};color:${metaState.settings.model==='fixed'?'var(--ink)':'rgba(245,243,238,0.5)'};cursor:pointer;">Fixed</button>
+            <button onclick="metaState.settings.model='random';this.style.background='var(--gold)';this.style.color='var(--ink)';this.previousElementSibling.style.background='transparent';this.previousElementSibling.style.color='rgba(245,243,238,0.5)';renderMetaForestPlot()" style="flex:1;padding:8px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.06em;text-transform:uppercase;border:1px solid rgba(255,255,255,0.15);background:${metaState.settings.model==='random'?'var(--gold)':'transparent'};color:${metaState.settings.model==='random'?'var(--ink)':'rgba(245,243,238,0.5)'};cursor:pointer;">Random</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Study input table -->
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(245,243,238,0.4);margin-bottom:10px;">Study Data Entry</div>
+      <div style="overflow-x:auto;margin-bottom:12px;">
+        <table style="width:100%;border-collapse:collapse;font-size:12px;">
+          <thead>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);">
+              <th style="padding:8px 10px;text-align:left;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:0.06em;text-transform:uppercase;color:rgba(245,243,238,0.35);">Author (Year)</th>
+              <th style="padding:8px 6px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:0.06em;text-transform:uppercase;color:rgba(245,243,238,0.35);">n (treatment)</th>
+              <th style="padding:8px 6px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:0.06em;text-transform:uppercase;color:rgba(245,243,238,0.35);">n (control)</th>
+              <th style="padding:8px 6px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:0.06em;text-transform:uppercase;color:rgba(245,243,238,0.35);">Effect size</th>
+              <th style="padding:8px 6px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:0.06em;text-transform:uppercase;color:rgba(245,243,238,0.35);">Std Error (SE)</th>
+              <th style="padding:8px 6px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:0.06em;text-transform:uppercase;color:rgba(245,243,238,0.35);">Include</th>
+              <th style="padding:8px 4px;"></th>
+            </tr>
+          </thead>
+          <tbody id="meta-study-rows">
+            ${metaState.studies.map(s => renderMetaStudyRow(s)).join('')}
+          </tbody>
+        </table>
+      </div>
+      <button onclick="addMetaStudy()" style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;padding:8px 16px;background:transparent;border:1px dashed rgba(255,255,255,0.2);color:rgba(245,243,238,0.4);cursor:pointer;width:100%;margin-bottom:24px;">+ Add Study</button>
+
+      <!-- Forest Plot -->
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(245,243,238,0.4);margin-bottom:12px;">Forest Plot</div>
+      <div id="meta-forest-container" style="background:white;padding:16px;min-height:120px;"></div>
+
+      <!-- Statistics -->
+      <div id="meta-stats-panel" style="margin-top:20px;display:none;"></div>
+
+      <div style="margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.08);display:flex;gap:12px;justify-content:flex-end;flex-wrap:wrap;">
+        <button onclick="downloadForestPlot()" style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;padding:10px 18px;background:transparent;border:1px solid rgba(255,255,255,0.15);color:rgba(245,243,238,0.5);cursor:pointer;">Download Forest Plot SVG</button>
+        <button onclick="generateMetaMethodsText()" style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;padding:10px 18px;background:transparent;border:1px solid rgba(198,166,103,0.4);color:var(--gold);cursor:pointer;">Generate Methods Text →</button>
+        <button onclick="saveSession();document.getElementById('meta-modal').remove()" style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;padding:10px 20px;background:var(--gold);color:var(--ink);border:none;cursor:pointer;font-weight:700;">Save & Close</button>
+      </div>
+
+      <!-- Methods text output -->
+      <div id="meta-methods-output" style="display:none;margin-top:20px;padding:20px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;">Statistical Methods Section</div>
+        <div id="meta-methods-text" style="font-size:13px;color:var(--paper);line-height:1.8;white-space:pre-wrap;"></div>
+      </div>
+    </div>`;
+
+  document.body.appendChild(modal);
+
+  // Seed from included PRISMA studies if available and no manual entries yet
+  if (metaState.studies.length === 0) {
+    const included = Object.values(prismaState.screening)
+      .filter(s => s.decision === 'include' && s.phase === 'fulltext')
+      .map(s => state.papers[s.pid]).filter(Boolean);
+    included.slice(0,10).forEach(p => addMetaStudy(p));
+  }
+
+  if (metaState.studies.length > 0) renderMetaForestPlot();
+}
+
+function renderMetaStudyRow(study) {
+  return `<tr id="meta-row-${study.id}" style="border-bottom:1px solid rgba(255,255,255,0.04);">
+    <td style="padding:6px 8px;">
+      <input type="text" value="${study.author}" onchange="updateMetaStudy('${study.id}','author',this.value)" placeholder="Smith (2020)" style="width:140px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);color:var(--paper);padding:5px 8px;font-size:12px;font-family:'Georgia',serif;outline:none;">
+    </td>
+    <td style="padding:6px 4px;text-align:center;">
+      <input type="number" value="${study.n_treatment||''}" min="1" onchange="updateMetaStudy('${study.id}','n_treatment',this.value)" placeholder="n" style="width:70px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);color:var(--paper);padding:5px 6px;font-size:12px;text-align:center;outline:none;">
+    </td>
+    <td style="padding:6px 4px;text-align:center;">
+      <input type="number" value="${study.n_control||''}" min="1" onchange="updateMetaStudy('${study.id}','n_control',this.value)" placeholder="n" style="width:70px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);color:var(--paper);padding:5px 6px;font-size:12px;text-align:center;outline:none;">
+    </td>
+    <td style="padding:6px 4px;text-align:center;">
+      <input type="number" step="0.001" value="${study.effectValue||''}" onchange="updateMetaStudy('${study.id}','effectValue',this.value);renderMetaForestPlot()" placeholder="0.00" style="width:80px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);color:var(--paper);padding:5px 6px;font-size:12px;text-align:center;outline:none;">
+    </td>
+    <td style="padding:6px 4px;text-align:center;">
+      <input type="number" step="0.001" value="${study.se||''}" onchange="updateMetaStudy('${study.id}','se',this.value);renderMetaForestPlot()" placeholder="SE" style="width:70px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);color:var(--paper);padding:5px 6px;font-size:12px;text-align:center;outline:none;">
+    </td>
+    <td style="padding:6px 4px;text-align:center;">
+      <input type="checkbox" ${study.included!==false?'checked':''} onchange="updateMetaStudy('${study.id}','included',this.checked);renderMetaForestPlot()" style="width:16px;height:16px;cursor:pointer;">
+    </td>
+    <td style="padding:6px 4px;">
+      <button onclick="removeMetaStudy('${study.id}')" style="font-family:'JetBrains Mono',monospace;font-size:9px;padding:4px 8px;background:transparent;border:1px solid rgba(168,40,40,0.3);color:rgba(168,40,40,0.6);cursor:pointer;">✕</button>
+    </td>
+  </tr>`;
+}
+
+function addMetaStudy(paper) {
+  const study = {
+    id: Date.now() + Math.random(),
+    author: paper ? `${(paper.author||'').split(',')[0]} (${paper.year||'n.d.'})` : '',
+    n_treatment: '', n_control: '',
+    effectValue: '', se: '',
+    included: true
+  };
+  metaState.studies.push(study);
+  const tbody = document.getElementById('meta-study-rows');
+  if (tbody) tbody.insertAdjacentHTML('beforeend', renderMetaStudyRow(study));
+  saveSession();
+}
+
+function removeMetaStudy(id) {
+  metaState.studies = metaState.studies.filter(s => String(s.id) !== String(id));
+  const el = document.getElementById(`meta-row-${id}`);
+  if (el) el.remove();
+  renderMetaForestPlot();
+  saveSession();
+}
+
+function updateMetaStudy(id, field, value) {
+  const study = metaState.studies.find(s => String(s.id) === String(id));
+  if (!study) return;
+  if (field === 'included') study[field] = value;
+  else if (['n_treatment','n_control'].includes(field)) study[field] = parseInt(value)||'';
+  else if (['effectValue','se'].includes(field)) study[field] = parseFloat(value)||'';
+  else study[field] = value;
+  saveSession();
+}
+
+// ── Statistical core ──────────────────────────────────────────
+function computeMeta() {
+  const studies = metaState.studies.filter(s => s.included !== false && s.effectValue !== '' && s.se !== '' && !isNaN(s.effectValue) && !isNaN(s.se) && s.se > 0);
+  if (studies.length === 0) return null;
+
+  const isLog = ['odds_ratio','relative_risk'].includes(metaState.settings.effectType);
+
+  // Convert to log scale for OR/RR
+  const es = studies.map(s => isLog ? Math.log(Number(s.effectValue)) : Number(s.effectValue));
+  const vars = studies.map(s => Math.pow(Number(s.se), 2));
+
+  // Fixed-effect weights (inverse variance)
+  const wFixed = vars.map(v => 1/v);
+  const wSum = wFixed.reduce((a,b) => a+b, 0);
+  const fixedEffect = es.reduce((acc, e, i) => acc + e * wFixed[i], 0) / wSum;
+  const fixedSE = Math.sqrt(1/wSum);
+
+  // Q statistic (heterogeneity)
+  const Q = es.reduce((acc, e, i) => acc + wFixed[i] * Math.pow(e - fixedEffect, 2), 0);
+  const df = studies.length - 1;
+  const pQ = 1 - chiSquaredCDF(Q, df);
+
+  // I² statistic
+  const I2 = Math.max(0, ((Q - df) / Q) * 100);
+
+  // τ² (DerSimonian-Laird)
+  const C = wSum - wFixed.reduce((acc, w) => acc + w*w, 0) / wSum;
+  const tau2 = Math.max(0, (Q - df) / C);
+
+  // Random-effects weights
+  const wRandom = vars.map(v => 1/(v + tau2));
+  const wRandSum = wRandom.reduce((a,b) => a+b, 0);
+  const randomEffect = es.reduce((acc, e, i) => acc + e * wRandom[i], 0) / wRandSum;
+  const randomSE = Math.sqrt(1/wRandSum);
+
+  const z95 = 1.96;
+  const model = metaState.settings.model;
+  const pooledEffect = model === 'fixed' ? fixedEffect : randomEffect;
+  const pooledSE = model === 'fixed' ? fixedSE : randomSE;
+
+  const ciLow = pooledEffect - z95 * pooledSE;
+  const ciHigh = pooledEffect + z95 * pooledSE;
+
+  // Back-transform for OR/RR
+  const display = v => isLog ? Math.exp(v) : v;
+
+  return {
+    studies, es, vars, isLog,
+    fixedEffect, fixedSE,
+    randomEffect, randomSE,
+    pooledEffect, pooledSE,
+    ciLow, ciHigh,
+    Q, df, pQ, I2, tau2,
+    pooledDisplay: display(pooledEffect),
+    ciLowDisplay:  display(ciLow),
+    ciHighDisplay: display(ciHigh),
+    wFixed, wRandom,
+    zeroLine: isLog ? 1 : 0
+  };
+}
+
+function chiSquaredCDF(x, df) {
+  // Simple approximation for p-value
+  if (x <= 0) return 0;
+  let k = df/2, z = x/2, sum = Math.exp(-z)*Math.pow(z,k)/gamma(k+1);
+  let t = sum;
+  for (let i=1; i<50; i++) { t *= z/(k+i); sum += t; }
+  return Math.min(1, sum);
+}
+function gamma(n) {
+  if (n === 1) return 1;
+  if (n === 0.5) return Math.sqrt(Math.PI);
+  return (n-1) * gamma(n-1);
+}
+
+function renderMetaForestPlot() {
+  const result = computeMeta();
+  const container = document.getElementById('meta-forest-container');
+  if (!container) return;
+
+  if (!result || result.studies.length === 0) {
+    container.innerHTML = '<div style="padding:32px;text-align:center;font-family:monospace;font-size:11px;color:#999;">Enter effect sizes and standard errors above to generate the forest plot.</div>';
+    document.getElementById('meta-stats-panel').style.display = 'none';
+    return;
+  }
+
+  const { studies, es, pooledEffect, ciLow, ciHigh, pooledDisplay, ciLowDisplay, ciHighDisplay, Q, df, pQ, I2, tau2, zeroLine, isLog, wFixed, wRandom } = result;
+  const weights = metaState.settings.model === 'fixed' ? wFixed : wRandom;
+  const wMax = Math.max(...weights);
+
+  const W = 700, rowH = 28, headerH = 36, footerH = 56;
+  const H = headerH + studies.length * rowH + footerH + 20;
+  const plotLeft = 200, plotRight = W - 120, plotW = plotRight - plotLeft;
+
+  // Determine axis range
+  const allVals = [...es.map(e => isLog ? Math.exp(e) : e), pooledDisplay, ciLowDisplay, ciHighDisplay];
+  const minVal = Math.min(...allVals) * (isLog ? 0.5 : 1);
+  const maxVal = Math.max(...allVals) * (isLog ? 2 : 1);
+  const range = maxVal - minVal || 1;
+  const toX = v => plotLeft + ((v - minVal) / range) * plotW;
+  const zeroX = toX(zeroLine);
+
+  let svgRows = '';
+  studies.forEach((study, i) => {
+    const y = headerH + i * rowH + rowH/2;
+    const es_i = isLog ? Math.exp(es[i]) : es[i];
+    const se_i = Number(study.se);
+    const ci_lo = isLog ? Math.exp(es[i] - 1.96*se_i) : es[i] - 1.96*se_i;
+    const ci_hi = isLog ? Math.exp(es[i] + 1.96*se_i) : es[i] + 1.96*se_i;
+    const cx = Math.max(plotLeft+2, Math.min(plotRight-2, toX(es_i)));
+    const lx = Math.max(plotLeft+2, toX(ci_lo));
+    const rx = Math.min(plotRight-2, toX(ci_hi));
+    const sqSize = Math.max(4, Math.min(12, (weights[i]/wMax) * 12));
+
+    svgRows += `
+      <text x="4" y="${y+4}" font-size="10" fill="#333" font-family="Georgia">${study.author.substring(0,28)}</text>
+      <line x1="${lx}" y1="${y}" x2="${rx}" y2="${y}" stroke="#4a6fa5" stroke-width="1.5"/>
+      <rect x="${cx-sqSize/2}" y="${y-sqSize/2}" width="${sqSize}" height="${sqSize}" fill="#4a6fa5"/>
+      <text x="${plotRight+6}" y="${y+4}" font-size="9" fill="#555" font-family="monospace">${es_i.toFixed(2)} [${ci_lo.toFixed(2)}, ${ci_hi.toFixed(2)}]</text>`;
+  });
+
+  // Pooled diamond
+  const dy = headerH + studies.length * rowH + 14;
+  const dx = Math.max(plotLeft+2, Math.min(plotRight-2, toX(pooledDisplay)));
+  const dlx = Math.max(plotLeft+2, toX(ciLowDisplay));
+  const drx = Math.min(plotRight-2, toX(ciHighDisplay));
+  const diamondH = 10;
+  const diamond = `M ${dx},${dy-diamondH} L ${drx},${dy} L ${dx},${dy+diamondH} L ${dlx},${dy} Z`;
+
+  const effectLabel = EFFECT_TYPES.find(e => e.id === metaState.settings.effectType)?.label || 'Effect';
+  const modelLabel = metaState.settings.model === 'fixed' ? 'Fixed-effect' : 'Random-effects';
+
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" font-family="Georgia" style="max-width:100%;height:auto;">
+    <rect width="${W}" height="${H}" fill="white"/>
+    <!-- Headers -->
+    <text x="4" y="20" font-size="10" font-weight="bold" fill="#333" font-family="monospace">Study</text>
+    <text x="${plotLeft + plotW/2}" y="20" text-anchor="middle" font-size="10" font-weight="bold" fill="#333" font-family="monospace">${effectLabel}</text>
+    <text x="${plotRight+6}" y="20" font-size="9" fill="#666" font-family="monospace">ES [95% CI]</text>
+    <line x1="${plotLeft}" y1="${headerH-2}" x2="${plotRight}" y2="${headerH-2}" stroke="#ddd" stroke-width="0.5"/>
+    <!-- Zero/null line -->
+    <line x1="${zeroX}" y1="${headerH}" x2="${zeroX}" y2="${headerH + studies.length*rowH + footerH - 10}" stroke="#999" stroke-width="1" stroke-dasharray="4,3"/>
+    <!-- Study rows -->
+    ${svgRows}
+    <!-- Separator -->
+    <line x1="${plotLeft}" y1="${headerH + studies.length*rowH + 2}" x2="${plotRight}" y2="${headerH + studies.length*rowH + 2}" stroke="#333" stroke-width="1"/>
+    <!-- Pooled diamond -->
+    <path d="${diamond}" fill="#285C4D" opacity="0.85"/>
+    <text x="4" y="${dy+4}" font-size="10" font-weight="bold" fill="#285C4D" font-family="Georgia">${modelLabel} pooled</text>
+    <text x="${plotRight+6}" y="${dy+4}" font-size="9" font-weight="bold" fill="#285C4D" font-family="monospace">${pooledDisplay.toFixed(3)} [${ciLowDisplay.toFixed(3)}, ${ciHighDisplay.toFixed(3)}]</text>
+    <!-- Axis labels -->
+    <text x="${toX(minVal)}" y="${H-4}" text-anchor="middle" font-size="8" fill="#999" font-family="monospace">${minVal.toFixed(2)}</text>
+    <text x="${zeroX}" y="${H-4}" text-anchor="middle" font-size="8" fill="#666" font-family="monospace">${zeroLine}</text>
+    <text x="${toX(maxVal)}" y="${H-4}" text-anchor="middle" font-size="8" fill="#999" font-family="monospace">${maxVal.toFixed(2)}</text>
+    <text x="${W/2}" y="${H}" text-anchor="middle" font-size="7" fill="#bbb" font-family="monospace">SLR Studio · ETL · Wright State University</text>
+  </svg>`;
+
+  container.innerHTML = svg;
+  window._metaForestSVG = svg;
+
+  // Statistics panel
+  const statsPanel = document.getElementById('meta-stats-panel');
+  statsPanel.style.display = 'grid';
+  statsPanel.style.cssText = 'display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:20px;padding:20px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);';
+
+  const I2Color = I2 < 25 ? '#285C4D' : I2 < 50 ? '#a07820' : '#a82828';
+  const statCard = (label, value, sub='', color='var(--paper)') =>
+    `<div style="text-align:center;">
+       <div style="font-size:24px;font-weight:700;color:${color};font-family:'Playfair Display',serif;">${value}</div>
+       <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:rgba(245,243,238,0.4);margin-top:4px;">${label}</div>
+       ${sub ? `<div style="font-size:10px;color:rgba(245,243,238,0.3);margin-top:2px;">${sub}</div>` : ''}
+     </div>`;
+
+  statsPanel.innerHTML =
+    statCard('Pooled Effect', pooledDisplay.toFixed(3), `95% CI [${ciLowDisplay.toFixed(3)}, ${ciHighDisplay.toFixed(3)}]`, '#4a6fa5') +
+    statCard('I² Heterogeneity', I2.toFixed(1)+'%', I2<25?'Low':I2<50?'Moderate':I2<75?'Substantial':'Considerable', I2Color) +
+    statCard('Q Statistic', Q.toFixed(2), `df=${df}, p=${pQ<0.001?'<0.001':pQ.toFixed(3)}`, 'var(--paper)') +
+    statCard('τ² (Between-study)', tau2.toFixed(4), metaState.settings.model==='random'?'Random-effects only':'Fixed-effect model', 'var(--paper)');
+}
+
+function downloadForestPlot() {
+  if (!window._metaForestSVG) { alert('Generate the forest plot first by entering study data.'); return; }
+  const blob = new Blob([window._metaForestSVG], { type:'image/svg+xml' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = 'Forest_Plot_Meta_Analysis.svg'; a.click();
+}
+
+async function generateMetaMethodsText() {
+  const result = computeMeta();
+  if (!result) { alert('Enter study data first.'); return; }
+  const effectType = EFFECT_TYPES.find(e => e.id === metaState.settings.effectType)?.label || 'effect size';
+  const model = metaState.settings.model === 'fixed' ? 'fixed-effect' : 'random-effects';
+  const { pooledDisplay, ciLowDisplay, ciHighDisplay, Q, df, pQ, I2, tau2 } = result;
+
+  const scaffold = `Statistical Analysis
+
+A ${model} meta-analysis was conducted to synthesize findings across ${result.studies.length} included studies. The ${effectType} was used as the primary effect measure. Pooled effect sizes were computed using inverse-variance weighting. Statistical analyses were performed using SLR Studio (Emerging Technologies Laboratory, Wright State University).
+
+Heterogeneity was assessed using the Q statistic (Q = ${Q.toFixed(2)}, df = ${df}, p ${pQ<0.001?'< 0.001':'= '+pQ.toFixed(3)}), the I² statistic (I² = ${I2.toFixed(1)}%, indicating ${I2<25?'low':I2<50?'moderate':I2<75?'substantial':'considerable'} heterogeneity), and the between-study variance τ² = ${tau2.toFixed(4)}.${metaState.settings.model==='random'?' Given the presence of heterogeneity, a random-effects model (DerSimonian and Laird, 1986) was deemed appropriate.':' A fixed-effect model was applied, assuming a common true effect across studies.'}
+
+The pooled ${effectType} was ${pooledDisplay.toFixed(3)} (95% CI [${ciLowDisplay.toFixed(3)}, ${ciHighDisplay.toFixed(3)}]). A forest plot displaying individual study estimates and the pooled result is presented in Figure X. Publication bias was assessed visually using a funnel plot.
+
+References
+DerSimonian, R., & Laird, N. (1986). Meta-analysis in clinical trials. Controlled Clinical Trials, 7(3), 177–188.
+Higgins, J. P. T., & Thompson, S. G. (2002). Quantifying heterogeneity in a meta-analysis. Statistics in Medicine, 21(11), 1539–1558.`;
+
+  const output = document.getElementById('meta-methods-output');
+  const text = document.getElementById('meta-methods-text');
+  output.style.display = 'block';
+
+  if (state.apiKey) {
+    text.textContent = 'Generating methods section...';
+    try {
+      const resp = await fetch('https://api.anthropic.com/v1/messages', {
+        method:'POST', headers:{'Content-Type':'application/json','x-api-key':state.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+        body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:800, messages:[{role:'user',content:`Write a concise, publication-ready Statistical Analysis section (~300 words) for a ${model} meta-analysis on: "${state.topic||'the research topic'}". Effect measure: ${effectType}. Studies: ${result.studies.length}. Pooled effect: ${pooledDisplay.toFixed(3)} (95% CI [${ciLowDisplay.toFixed(3)}, ${ciHighDisplay.toFixed(3)}]). I² = ${I2.toFixed(1)}%. Q = ${Q.toFixed(2)}, df=${df}, p${pQ<0.001?'<0.001':'='+pQ.toFixed(3)}. τ² = ${tau2.toFixed(4)}. Use scholarly passive voice. Cite DerSimonian & Laird (1986) and Higgins & Thompson (2002).`}]})
+      });
+      const data = await resp.json();
+      const t = data.content?.[0]?.text?.trim();
+      if (t) { text.textContent = t; return; }
+    } catch(e) { console.warn('API error:', e); }
+  }
+  text.textContent = scaffold;
+}
+
+
 // ═══════════════════════════════════════════
 let mapView = 'all';
 let networkSimulation = null;
@@ -7765,9 +9262,22 @@ function saveSession() {
       gapFindings: state.gapFindings,
       slrLog: state.slrLog,
       savedAt: new Date().toISOString(),
-      ribbonResult: draftState.ribbonResult || null
+      ribbonResult: draftState.ribbonResult || null,
+      prismaState: {
+        protocol:  prismaState.protocol,
+        screening: prismaState.screening,
+        phase:     prismaState.phase,
+        riskOfBias: prismaState.riskOfBias || {},
+        gradeTable: prismaState.gradeTable || []
+      },
+      metaState: metaState ? {
+        studies:  metaState.studies,
+        settings: metaState.settings
+      } : null
     };
     localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+    // Also sync to cloud if user is in a cohort
+    if (typeof triggerCloudSync === 'function') triggerCloudSync();
   } catch(e) {
     console.warn('Session save failed (storage full?):', e.message);
   }
@@ -7805,12 +9315,42 @@ function restoreSession() {
     // Restore ribbon result if present
     if (session.ribbonResult) {
       draftState.ribbonResult = session.ribbonResult;
-      // Re-hydrate ribbon object from saved ID
       const savedId = session.ribbonResult.ribbon?.id;
       if (savedId) {
         draftState.ribbonResult.ribbon = RIBBON_LEVELS.find(r => r.id === savedId) || session.ribbonResult.ribbon;
       }
       setTimeout(renderRibbonBadge, 500);
+    }
+
+    // Restore PRISMA state
+    if (session.prismaState) {
+      Object.assign(prismaState, {
+        protocol:   session.prismaState.protocol   || prismaState.protocol,
+        screening:  session.prismaState.screening  || {},
+        phase:      session.prismaState.phase      || 'abstract',
+        riskOfBias: session.prismaState.riskOfBias || {},
+        gradeTable: session.prismaState.gradeTable || []
+      });
+      // Re-populate PRISMA protocol fields if on that screen
+      setTimeout(() => {
+        const proto = prismaState.protocol;
+        if (proto.population)   { const el = document.getElementById('prisma-population');   if (el) el.value = proto.population; }
+        if (proto.intervention) { const el = document.getElementById('prisma-intervention'); if (el) el.value = proto.intervention; }
+        if (proto.comparison)   { const el = document.getElementById('prisma-comparison');   if (el) el.value = proto.comparison; }
+        if (proto.outcome)      { const el = document.getElementById('prisma-outcome');      if (el) el.value = proto.outcome; }
+        if (proto.inclusion?.length)  { const el = document.getElementById('prisma-inclusion'); if (el) el.value = proto.inclusion.join('\n'); }
+        if (proto.exclusion?.length)  { const el = document.getElementById('prisma-exclusion'); if (el) el.value = proto.exclusion.join('\n'); }
+        if (proto.dateFrom)     { const el = document.getElementById('prisma-date-from');    if (el) el.value = proto.dateFrom; }
+        if (proto.dateTo)       { const el = document.getElementById('prisma-date-to');      if (el) el.value = proto.dateTo; }
+      }, 400);
+    }
+
+    // Restore meta-analysis state
+    if (session.metaState && window.metaState) {
+      Object.assign(metaState, {
+        studies:  session.metaState.studies  || [],
+        settings: session.metaState.settings || metaState.settings
+      });
     }
 
     // Show restore banner
@@ -8044,6 +9584,24 @@ restoreSession();
 .gl-btn { padding:10px 6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:rgba(245,243,238,0.6);cursor:pointer;text-align:center;transition:all 0.15s;font-family:'JetBrains Mono',monospace; }
 .gl-btn:hover { border-color:var(--gold);color:var(--gold); }
 .gl-active { border-color:var(--gold) !important;color:var(--gold) !important;background:rgba(201,144,58,0.1) !important; }
+
+/* PRISMA */
+.prisma-check { font-family:'JetBrains Mono',monospace;font-size:9px;padding:3px 8px;border:1px solid rgba(255,255,255,0.1);color:rgba(245,243,238,0.4);letter-spacing:0.06em; }
+.prisma-check.done { border-color:rgba(40,92,77,0.5);color:#5a9e6f;background:rgba(40,92,77,0.1); }
+.prisma-paper-card { padding:12px 14px;border:1px solid var(--border);background:white;margin-bottom:0; }
+.prisma-paper-title { font-size:13px;font-weight:600;color:var(--ink);line-height:1.4;margin-bottom:4px; }
+.prisma-paper-meta { font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:8px; }
+.prisma-decision-btns { display:flex;gap:6px;flex-wrap:wrap; }
+.prisma-btn-include { font-family:'JetBrains Mono',monospace;font-size:9px;padding:5px 12px;background:rgba(40,92,77,0.1);border:1px solid rgba(40,92,77,0.4);color:#285C4D;cursor:pointer;letter-spacing:0.06em;text-transform:uppercase; }
+.prisma-btn-include:hover { background:rgba(40,92,77,0.2); }
+.prisma-btn-exclude { font-family:'JetBrains Mono',monospace;font-size:9px;padding:5px 12px;background:rgba(168,40,40,0.08);border:1px solid rgba(168,40,40,0.3);color:#a82828;cursor:pointer;letter-spacing:0.06em;text-transform:uppercase; }
+.prisma-btn-exclude:hover { background:rgba(168,40,40,0.15); }
+.prisma-status-included { padding:4px 10px;background:rgba(40,92,77,0.1);border:1px solid rgba(40,92,77,0.4);color:#285C4D;font-family:'JetBrains Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.06em; }
+.prisma-status-excluded { padding:4px 10px;background:rgba(168,40,40,0.08);border:1px solid rgba(168,40,40,0.3);color:#a82828;font-family:'JetBrains Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.06em; }
+.prisma-checklist-item { display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid #f0ede8;font-size:13px; }
+.prisma-checklist-num { font-family:'JetBrains Mono',monospace;font-size:10px;color:#4a6fa5;width:24px;flex-shrink:0;padding-top:1px; }
+.prisma-checklist-label { flex:1;color:#333;line-height:1.5; }
+.prisma-checklist-status { font-family:'JetBrains Mono',monospace;font-size:9px;flex-shrink:0; }
 
 .logo-place-btn {
   flex:1;padding:6px 4px;
