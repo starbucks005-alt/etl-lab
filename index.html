@@ -1227,6 +1227,7 @@
         <p class="directive-body" style="margin-top:6px;"><strong>3. Thesis &amp; Dissertation Development</strong>. Builds the literature foundation from the first search to a defensible argument.</p>
         <p class="directive-body" style="margin-top:6px;"><strong>4. Academic Poster Creation</strong>. Turns a literature search into a presentable, evidence-backed poster.</p>
         <a href="slr_studio.html" target="_blank" style="display:inline-block; margin-top:16px; font-family:'Oswald',sans-serif; font-size:11px; font-weight:600; letter-spacing:2px; text-transform:uppercase; padding:8px 20px; background:var(--black); color:#fff; text-decoration:none;">Launch Studio →</a>
+        <button onclick="document.getElementById('faculty-modal').style.display='flex'" style="display:inline-block; margin-top:10px; margin-left:0; font-family:'Oswald',sans-serif; font-size:10px; font-weight:600; letter-spacing:2px; text-transform:uppercase; padding:7px 16px; background:transparent; color:var(--gold); border:1px solid var(--gold); cursor:pointer;">For Faculty →</button>
       </div>
 
       <div class="directive-card">
@@ -1929,3 +1930,60 @@
     WRIGHT STATE UNIVERSITY · BOONSHOFT SCHOOL OF MEDICINE<br>
     210 HEALTH SCIENCES BUILDING · DAYTON, OHIO 45435<br>
     © 2026 DR. TERRY L. OROSZI · A
+
+<!-- FACULTY MODAL -->
+<div id="faculty-modal" onclick="if(event.target===this)this.style.display='none'" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.82);z-index:9999;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#fff;max-width:780px;width:100%;max-height:88vh;overflow-y:auto;padding:48px 52px;position:relative;font-family:'Georgia',serif;">
+    <button onclick="document.getElementById('faculty-modal').style.display='none'" style="position:absolute;top:20px;right:24px;background:none;border:none;font-size:22px;cursor:pointer;color:#888;line-height:1;">✕</button>
+
+    <div style="font-family:'Oswald',sans-serif;font-size:10px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#C6A667;margin-bottom:12px;">For Faculty</div>
+    <h2 style="font-size:26px;font-weight:700;color:#0a0a0f;line-height:1.2;margin-bottom:8px;">SLR Studio Is AI&#8209;Assisted.<br>Not AI&#8209;Authored.</h2>
+    <p style="font-size:15px;color:#444;line-height:1.7;margin-bottom:32px;border-left:3px solid #C6A667;padding-left:16px;">Students still think, decide, interpret, and write. The system provides structure, evidence, and learning scaffolds. This is a teaching tool, not a writing shortcut.</p>
+
+    <div style="display:grid;gap:24px;">
+
+      <div>
+        <div style="font-family:'Oswald',sans-serif;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#0a0a0f;margin-bottom:8px;">1. Students Must Do the Intellectual Work</div>
+        <p style="font-size:13px;color:#555;line-height:1.7;margin-bottom:8px;">SLR Studio requires students to build a defensible keyword architecture, conduct a systematic search, examine subgroup patterns, identify foundation papers, interpret gaps in the literature, make decisions about relevance and inclusion, and understand how the literature fits together.</p>
+        <p style="font-size:13px;color:#555;line-height:1.7;">These are the core cognitive tasks faculty expect in graduate-level research. The tool does not bypass them. It forces them.</p>
+      </div>
+
+      <div style="border-top:1px solid #eee;padding-top:24px;">
+        <div style="font-family:'Oswald',sans-serif;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#0a0a0f;margin-bottom:8px;">2. All Writing Is Grounded in the Student's Actual Sources</div>
+        <p style="font-size:13px;color:#555;line-height:1.7;">Generic LLMs often hallucinate citations or invent findings. SLR Studio avoids this because students upload their own PDFs, the system extracts real metadata, the SLR table and author table are built from actual retrieved papers, and any generated text must cite from the student's evidence set. This ensures traceability, verifiability, and academic integrity.</p>
+      </div>
+
+      <div style="border-top:1px solid #eee;padding-top:24px;">
+        <div style="font-family:'Oswald',sans-serif;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#0a0a0f;margin-bottom:8px;">3. Writing Support Is Section-Based, Not "Write My Paper"</div>
+        <p style="font-size:13px;color:#555;line-height:1.7;margin-bottom:8px;">SLR Studio never produces a full literature review from a single prompt. It guides students through individual components: writing the problem statement, drafting the background section using specific papers, summarizing the gap identified in a particular subgroup. This is instructional scaffolding, not ghostwriting.</p>
+        <p style="font-size:13px;color:#555;line-height:1.7;">Students still read, interpret, select, synthesize, revise, and defend. The AI helps them express what they have already learned.</p>
+      </div>
+
+      <div style="border-top:1px solid #eee;padding-top:24px;">
+        <div style="font-family:'Oswald',sans-serif;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#0a0a0f;margin-bottom:8px;">4. The Tool Teaches Research Structure, Not Shortcuts</div>
+        <p style="font-size:13px;color:#555;line-height:1.7;">SLR Studio mirrors the way faculty teach: breaking the literature review into conceptual parts, showing examples of tone and structure, encouraging evidence-based writing, reinforcing the logic of scholarly argumentation. Students learn why each section exists and how it contributes to the whole. This is a pedagogical model, not a productivity hack.</p>
+      </div>
+
+      <div style="border-top:1px solid #eee;padding-top:24px;">
+        <div style="font-family:'Oswald',sans-serif;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#0a0a0f;margin-bottom:8px;">5. The Output Is a Draft, Not a Finished Product</div>
+        <p style="font-size:13px;color:#555;line-height:1.7;">Everything SLR Studio generates is editable, revisable, transparent, traceable, and based on the student's own sources. The student must refine, integrate, and defend the work. This aligns with the expectations of graduate committees and accreditation bodies.</p>
+      </div>
+
+      <div style="border-top:1px solid #eee;padding-top:24px;">
+        <div style="font-family:'Oswald',sans-serif;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#0a0a0f;margin-bottom:8px;">6. Faculty Retain Full Oversight</div>
+        <p style="font-size:13px;color:#555;line-height:1.7;">Because the system is structured and evidence-based, faculty can easily see what papers were used, how the student organized the literature, where the gaps came from, how the argument was constructed, and what the AI generated versus what the student wrote. This transparency is impossible with generic LLMs.</p>
+      </div>
+
+      <div style="background:#0a0a0f;padding:28px 32px;margin-top:8px;">
+        <div style="font-family:'Oswald',sans-serif;font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#C6A667;margin-bottom:10px;">The Bottom Line</div>
+        <p style="font-size:15px;color:#f5f3ee;line-height:1.7;margin:0;">SLR Studio is an AI-assisted learning environment, not an AI writing replacement. It strengthens research skills, reduces hallucinations, and keeps students grounded in real evidence. The student remains the thinker, the analyst, and the author. This is the distinction that matters.</p>
+      </div>
+
+    </div>
+
+    <div style="margin-top:32px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+      <div style="font-size:12px;color:#999;font-family:'Oswald',sans-serif;letter-spacing:1px;text-transform:uppercase;">Emerging Technologies Laboratory · Wright State University</div>
+      <button onclick="document.getElementById('faculty-modal').style.display='none'" style="font-family:'Oswald',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;padding:10px 24px;background:#0a0a0f;color:#fff;border:none;cursor:pointer;">Close</button>
+    </div>
+  </div>
+</div>

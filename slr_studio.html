@@ -1657,10 +1657,14 @@ body::after {
   color: var(--ink);
 }
 
-#mindmap-canvas {
+@keyframes spin { to { transform: rotate(360deg); } }
+
+#network-map-container {
   width: 100%;
-  height: 420px;
+  height: 520px;
   display: block;
+  background: rgba(0,0,0,0.2);
+  border-radius: 2px;
 }
 
 .mindmap-legend {
@@ -1778,12 +1782,13 @@ body::after {
 }
 </style>
 <script src="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
 </head>
 <body>
 
 <!-- HEADER -->
 <header class="header">
-  <div class="logo">SLR <span>Studio</span></div>
+  <div class="logo" onclick="goToScreen(1)" style="cursor:pointer;" title="SLR Studio Home">SLR <span>Studio</span></div>
   <nav class="nav-steps">
     <div class="nav-step active" id="nav-1">01 Topic</div>
     <div class="nav-step" id="nav-2">02 Keywords</div>
@@ -1829,9 +1834,43 @@ body::after {
           <span class="mode-desc">Turn a literature search into a presentable, evidence-backed poster.</span>
         </button>
       </div>
-    </div>
 
-    <div class="s1-right">
+      <!-- Grade Level Selector -->
+      <div style="margin-top:20px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:rgba(245,243,238,0.35);margin-bottom:10px;">Grade Level</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;" id="grade-level-group">
+          <button onclick="setGradeLevel('highschool')" id="gl-highschool" class="gl-btn">
+            <span style="display:block;font-size:16px;margin-bottom:4px;">🏫</span>
+            <span style="display:block;font-size:9px;font-weight:600;letter-spacing:0.05em;">High School</span>
+            <span style="display:block;font-size:8px;opacity:0.6;margin-top:2px;">Grades 9–12</span>
+          </button>
+          <button onclick="setGradeLevel('undergrad')" id="gl-undergrad" class="gl-btn">
+            <span style="display:block;font-size:16px;margin-bottom:4px;">🎒</span>
+            <span style="display:block;font-size:9px;font-weight:600;letter-spacing:0.05em;">Undergraduate</span>
+            <span style="display:block;font-size:8px;opacity:0.6;margin-top:2px;">Bachelor's</span>
+          </button>
+          <button onclick="setGradeLevel('masters')" id="gl-masters" class="gl-btn gl-active">
+            <span style="display:block;font-size:16px;margin-bottom:4px;">📚</span>
+            <span style="display:block;font-size:9px;font-weight:600;letter-spacing:0.05em;">Master's</span>
+            <span style="display:block;font-size:8px;opacity:0.6;margin-top:2px;">Graduate</span>
+          </button>
+          <button onclick="setGradeLevel('doctoral')" id="gl-doctoral" class="gl-btn">
+            <span style="display:block;font-size:16px;margin-bottom:4px;">🎓</span>
+            <span style="display:block;font-size:9px;font-weight:600;letter-spacing:0.05em;">Doctoral</span>
+            <span style="display:block;font-size:8px;opacity:0.6;margin-top:2px;">PhD / EdD</span>
+          </button>
+        </div>
+      </div>
+      <div style="margin-top:24px;padding:14px 16px;border:1px solid rgba(201,144,58,0.2);background:rgba(201,144,58,0.04);">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+          <div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:4px;">AI-Assisted · Not AI-Authored</div>
+            <div style="font-size:11px;color:rgba(245,243,238,0.5);line-height:1.6;">Students think, decide, interpret, and write. This tool provides structure, evidence, and learning scaffolds.</div>
+          </div>
+          <button onclick="document.getElementById('slr-faculty-modal').style.display='flex'" style="flex-shrink:0;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;padding:6px 12px;background:transparent;border:1px solid rgba(201,144,58,0.4);color:var(--gold);cursor:pointer;white-space:nowrap;">For Faculty</button>
+        </div>
+      </div>
+    </div>
       <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;">Step 2 — Describe your research topic</div>
       <div id="mode-indicator" style="display:inline-flex;align-items:center;gap:8px;background:rgba(201,144,58,0.1);border:1px solid rgba(201,144,58,0.3);padding:6px 12px;margin-bottom:16px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.08em;color:var(--gold);">
         <span id="mode-indicator-icon">📖</span>
@@ -2190,6 +2229,9 @@ body::after {
       <button class="gong-export-btn" onclick="exportData('journals')">
         <span class="export-icon">📰</span>Journal Options
       </button>
+      <button class="gong-export-btn" onclick="viewNetworkMap()" style="border-color:rgba(201,144,58,0.4);color:var(--gold);">
+        <span class="export-icon">🕸</span>Network Map
+      </button>
     </div>
 
     <!-- AUTHORS TABLE -->
@@ -2278,7 +2320,10 @@ body::after {
         <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(245,243,238,0.3);margin-bottom:10px;">Reference List</div>
         <div id="ref-count" style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--gold);">0</div>
         <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(245,243,238,0.4);">citations selected</div>
-        <button onclick="exportFullDraft()" class="btn btn-gold" style="width:100%;margin-top:16px;justify-content:center;">
+        <button onclick="generateAllSections()" id="btn-generate-all" class="btn btn-gold" style="width:100%;margin-top:16px;justify-content:center;">
+          ⚡ Generate All
+        </button>
+        <button onclick="exportFullDraft()" class="btn btn-ghost" style="width:100%;margin-top:8px;justify-content:center;color:rgba(245,243,238,0.6);border-color:rgba(255,255,255,0.15);">
           📄 Export .txt
         </button>
         <button onclick="exportWordDraft()" class="btn btn-ghost" style="width:100%;margin-top:8px;justify-content:center;color:var(--gold);border-color:rgba(201,144,58,0.4);">
@@ -2289,6 +2334,9 @@ body::after {
         </button>
         <button onclick="goToScreen(5)" class="btn btn-ghost" style="width:100%;margin-top:8px;justify-content:center;color:rgba(245,243,238,0.4);border-color:rgba(255,255,255,0.1);">
           ← Foundation
+        </button>
+        <button onclick="openRubricPanel()" class="btn btn-ghost" style="width:100%;margin-top:8px;justify-content:center;color:rgba(245,243,238,0.5);border-color:rgba(255,255,255,0.1);font-size:10px;">
+          🏅 View Rubric
         </button>
         <button onclick="if(confirm('Start a new search? This will clear your current session.'))clearSession(),location.reload();" class="btn btn-ghost" style="width:100%;margin-top:8px;justify-content:center;color:rgba(245,243,238,0.25);border-color:rgba(255,255,255,0.06);font-size:10px;">
           ✕ New Search
@@ -2328,9 +2376,30 @@ body::after {
         <div style="margin-bottom:20px;">
           <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink);margin-bottom:8px;">Figures &amp; Graphs</div>
           <div id="figure-list" style="margin-bottom:8px;"></div>
+
+          <!-- Import from SLR -->
+          <div style="background:var(--cream);border:1px solid var(--border);padding:10px;margin-bottom:8px;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Import from your search</div>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <button onclick="importSLRFigure('table')" style="width:100%;padding:7px 10px;background:white;border:1px solid var(--border);font-size:11px;color:var(--ink);cursor:pointer;text-align:left;transition:border-color 0.15s;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
+                📊 SLR Table (keyword search results)
+              </button>
+              <button onclick="importSLRFigure('authors')" style="width:100%;padding:7px 10px;background:white;border:1px solid var(--border);font-size:11px;color:var(--ink);cursor:pointer;text-align:left;transition:border-color 0.15s;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
+                👥 Top Authors Chart
+              </button>
+              <button onclick="importSLRFigure('network')" style="width:100%;padding:7px 10px;background:white;border:1px solid var(--border);font-size:11px;color:var(--ink);cursor:pointer;text-align:left;transition:border-color 0.15s;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
+                🕸 Literature Network Map
+              </button>
+              <button onclick="importSLRFigure('gaps')" style="width:100%;padding:7px 10px;background:white;border:1px solid var(--border);font-size:11px;color:var(--ink);cursor:pointer;text-align:left;transition:border-color 0.15s;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
+                ⬤ Gap Summary Chart
+              </button>
+            </div>
+            <div id="import-slr-status" style="font-size:10px;color:var(--green);margin-top:6px;display:none;"></div>
+          </div>
+
           <label style="display:block;border:1.5px dashed var(--border);padding:12px;text-align:center;cursor:pointer;font-size:12px;color:var(--muted);transition:border-color 0.2s;"
             onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
-            + Upload Figure / Graph
+            + Upload Your Own Figure
             <input type="file" accept="image/*" multiple style="display:none;" onchange="handleFigureUpload(event)">
           </label>
           <div style="font-size:11px;color:var(--muted);margin-top:6px;line-height:1.5;">JPG, PNG, SVG. Each figure gets a caption field. Stored locally. Nothing is uploaded.</div>
@@ -2378,10 +2447,10 @@ body::after {
           <div style="font-size:11px;color:var(--muted);margin-top:4px;">Will appear as a QR code placeholder on export.</div>
         </div>
 
-        <!-- Also show paper checklist in poster mode -->
+        <!-- Also show paper checklist in poster mode (Screen 6 fallback — poster now uses Screen 8) -->
         <div style="border-top:1px solid var(--border);padding-top:16px;margin-top:4px;">
           <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink);margin-bottom:12px;">Papers for This Section</div>
-          <div id="paper-checklist-poster">
+          <div id="paper-checklist-poster-s6">
             <div style="font-size:13px;color:var(--muted);font-style:italic;">Select a section to see relevant papers.</div>
           </div>
         </div>
@@ -2417,21 +2486,28 @@ body::after {
 
     <div id="gap-cards-output"></div>
 
-    <!-- MIND MAP -->
+    <!-- LITERATURE NETWORK MAP -->
     <div class="mindmap-section">
-      <div class="mindmap-title">Subgroup Connectivity Map</div>
-      <div class="mindmap-subtitle">Node size = connections. Gold = must-read hub. Red border = confirmed gap.</div>
+      <div class="mindmap-title">Literature Network Map</div>
+      <div class="mindmap-subtitle">Nodes sized by paper yield. Edge thickness = shared foundation papers. Click any node to inspect its papers.</div>
       <div class="mindmap-toggle">
-        <button class="map-toggle-btn active" onclick="setMapView('all', this)">Show Everything</button>
-        <button class="map-toggle-btn" onclick="setMapView('gaps', this)">Show Gaps Only</button>
-        <button class="map-toggle-btn" onclick="setMapView('hubs', this)">Show Hubs Only</button>
+        <button class="map-toggle-btn active" onclick="setMapView('all', this)">All Subgroups</button>
+        <button class="map-toggle-btn" onclick="setMapView('gaps', this)">Gaps Only</button>
+        <button class="map-toggle-btn" onclick="setMapView('hubs', this)">Hubs Only</button>
       </div>
-      <canvas id="mindmap-canvas"></canvas>
+      <div id="network-map-container" style="width:100%;height:540px;position:relative;cursor:grab;">
+        <svg id="network-svg" width="100%" height="540"></svg>
+        <div id="network-tooltip" style="display:none;position:fixed;background:#0a0a0f;border:1px solid rgba(201,144,58,0.4);padding:12px 16px;font-size:12px;color:#f5f3ee;max-width:260px;pointer-events:none;z-index:1000;line-height:1.6;"></div>
+        <!-- Node flyout — positions next to clicked node, stays inside map -->
+        <div id="node-flyout" style="display:none;position:absolute;width:340px;max-height:480px;overflow-y:auto;background:#0e1117;border:1px solid rgba(201,144,58,0.35);z-index:500;box-shadow:0 8px 32px rgba(0,0,0,0.6);">
+          <div id="node-flyout-content"></div>
+        </div>
+      </div>
       <div class="mindmap-legend">
-        <div class="legend-item"><div class="legend-dot" style="background:var(--gold);"></div> Hub (5+ connections) — Must-reads</div>
-        <div class="legend-item"><div class="legend-dot" style="background:var(--navy);"></div> Connected (2-4 connections)</div>
-        <div class="legend-item"><div class="legend-dot" style="background:rgba(255,255,255,0.15);border:2px solid var(--red);"></div> Isolated — Confirmed gap</div>
-        <div class="legend-item"><div class="legend-dot" style="background:var(--amber);"></div> Thin (1 connection)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#c9903a;"></div> Hub (high connectivity)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#1a2744;border:1px solid #4a6fa5;"></div> Connected</div>
+        <div class="legend-item"><div class="legend-dot" style="background:rgba(255,255,255,0.06);border:2px solid #a82828;"></div> Gap (isolated)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#c17a20;"></div> Thin coverage</div>
       </div>
     </div>
 
@@ -4204,27 +4280,58 @@ async function generateGapAnalysis() {
     `;
   }).join('');
 
-  // Render mind map
-  await sleep(300);
-  renderMindMap('all');
+  // Render network map — delay to let screen transition complete
+  await sleep(400);
+  renderNetworkMap();
+  // Retry after full render in case dimensions were zero
+  setTimeout(renderNetworkMap, 800);
 }
 
 function generateSyntheticGaps() {
   const secondary = state.selectedSecondary.map(i => state.secondaryKeywords[i]);
   const modifiers = state.selectedModifiers.map(i => state.modifierKeywords[i]);
+  const sgs = state.subgroups || [];
   const gaps = [];
-  for (let i = 0; i < Math.min(4, modifiers.length); i++) {
-    const terms = [state.anchor, secondary[0] || 'crisis', modifiers[i]];
-    gaps.push({
-      sg: i + 15,
-      sgIndex: i + 14,
-      terms,
-      count: i === 0 ? 0 : Math.floor(Math.random() * 4),
-      prevCount: 45 + Math.floor(Math.random() * 200),
-      type: i === 0 ? 'confirmed' : 'notable',
-      finding: `The intersection of "${terms.join(' + ')}" has ${i === 0 ? 'no published research' : 'extremely limited coverage'} in the literature.`
+
+  // Find SGs that actually returned zero or near-zero papers
+  const sgPaperCount = {};
+  Object.values(state.paperSGs || {}).forEach(sgList => {
+    sgList.forEach(idx => { sgPaperCount[idx] = (sgPaperCount[idx] || 0) + 1; });
+  });
+
+  // Use real SG indices for low-yield subgroups
+  sgs.forEach((sg, i) => {
+    if (gaps.length >= 4) return;
+    const count = sgPaperCount[i] || 0;
+    if (count < 5) {
+      gaps.push({
+        sg: sg.id,
+        sgIndex: i,
+        terms: sg.terms,
+        count,
+        prevCount: 50,
+        type: count === 0 ? 'confirmed' : 'notable',
+        finding: `The intersection of "${sg.terms.join(' + ')}" has ${count === 0 ? 'no published research' : 'extremely limited coverage'} in the literature.`
+      });
+    }
+  });
+
+  // If still no gaps found, create illustrative ones using last few SGs
+  if (gaps.length === 0 && sgs.length > 0) {
+    const lastSGs = sgs.slice(-Math.min(3, sgs.length));
+    lastSGs.forEach((sg, i) => {
+      gaps.push({
+        sg: sg.id,
+        sgIndex: sgs.length - lastSGs.length + i,
+        terms: sg.terms,
+        count: Math.floor(Math.random() * 3),
+        prevCount: 45,
+        type: 'notable',
+        finding: `Limited research exists at the intersection of "${sg.terms.join(' + ')}".`
+      });
     });
   }
+
   return gaps;
 }
 
@@ -4244,163 +4351,673 @@ function generateResearchQuestions(terms, anchor) {
 }
 
 // ═══════════════════════════════════════════
-// MIND MAP
+// RUBRIC & RIBBON SYSTEM
+// ═══════════════════════════════════════════
+
+let gradeLevel = 'masters'; // default
+
+function setGradeLevel(level) {
+  gradeLevel = level;
+  document.querySelectorAll('.gl-btn').forEach(b => b.classList.remove('gl-active'));
+  const btn = document.getElementById('gl-' + level);
+  if (btn) btn.classList.add('gl-active');
+}
+
+// Rubric definitions per grade level and assignment type
+const RUBRIC_DEFS = {
+  highschool: {
+    label: 'High School (Grades 9–12)',
+    categories: [
+      { id: 'topic', label: 'Clarity of Topic', desc: 'Research question is clear, focused, and appropriate for the assignment.' },
+      { id: 'sources', label: 'Use of Credible Sources', desc: 'Sources are relevant, credible, and appropriately selected.' },
+      { id: 'summary', label: 'Accuracy of Summary', desc: 'Key ideas are accurately represented without distortion.' },
+      { id: 'organization', label: 'Basic Organization', desc: 'Work follows a logical structure with clear sections.' },
+      { id: 'visual', label: 'Visual Clarity', desc: 'Visuals (if applicable) are readable, labeled, and meaningful.' },
+      { id: 'attribution', label: 'Proper Attribution', desc: 'Sources are credited appropriately; no plagiarism.' }
+    ]
+  },
+  undergrad: {
+    label: 'Undergraduate',
+    categories: [
+      { id: 'problem', label: 'Problem Statement Clarity', desc: 'The research problem is clearly articulated and appropriately scoped.' },
+      { id: 'integration', label: 'Quality of Source Integration', desc: 'Sources are synthesized, not merely summarized; ideas are connected.' },
+      { id: 'flow', label: 'Logical Flow', desc: 'Arguments build progressively; transitions are effective.' },
+      { id: 'evidence', label: 'Evidence Use', desc: 'Claims are supported by specific evidence from the literature.' },
+      { id: 'gap', label: 'Basic Gap Identification', desc: 'At least one gap or limitation in the literature is identified.' },
+      { id: 'formatting', label: 'Formatting Accuracy', desc: 'Citations and references follow the required style consistently.' }
+    ]
+  },
+  masters: {
+    label: 'Master\'s Level',
+    categories: [
+      { id: 'synthesis', label: 'Depth of Synthesis', desc: 'Literature is synthesized thematically, not paper-by-paper; patterns and contradictions are identified.' },
+      { id: 'framework', label: 'Conceptual Framework', desc: 'A theoretical or conceptual framework is identified, explained, and applied.' },
+      { id: 'gap', label: 'Gap Justification', desc: 'Gaps are confirmed, specific, and positioned as original contribution opportunities.' },
+      { id: 'method', label: 'Methodological Reasoning', desc: 'Methodological choices are justified with reference to the literature.' },
+      { id: 'coherence', label: 'Coherence and Flow', desc: 'The argument is internally consistent and builds toward a clear conclusion.' },
+      { id: 'scholarly', label: 'Scholarly Writing', desc: 'Tone, vocabulary, and sentence structure meet graduate-level expectations.' }
+    ]
+  },
+  doctoral: {
+    label: 'Doctoral Level',
+    categories: [
+      { id: 'theory', label: 'Theoretical Alignment', desc: 'Theoretical grounding is sophisticated, defensible, and explicitly connected to the research.' },
+      { id: 'synthesis', label: 'Depth of Synthesis', desc: 'Synthesis is comprehensive, critical, and demonstrates mastery of the field.' },
+      { id: 'originality', label: 'Originality', desc: 'The work identifies a genuine contribution that advances knowledge, not merely describes it.' },
+      { id: 'method', label: 'Methodological Justification', desc: 'Design choices are theoretically grounded and defended against alternatives.' },
+      { id: 'contribution', label: 'Contribution Clarity', desc: 'The scholarly contribution is explicitly stated and defensible.' },
+      { id: 'precision', label: 'Scholarly Precision', desc: 'Language is precise, unambiguous, and demonstrates command of disciplinary discourse.' }
+    ]
+  }
+};
+
+const RIBBON_LEVELS = [
+  { id: 'exemplary',   label: 'Exemplary',   color: '#c9903a', bg: 'rgba(201,144,58,0.15)',  border: '#c9903a', emoji: '🥇', minScore: 0.85 },
+  { id: 'proficient',  label: 'Proficient',  color: '#4a6fa5', bg: 'rgba(74,111,165,0.15)',  border: '#4a6fa5', emoji: '🎖️', minScore: 0.70 },
+  { id: 'developing',  label: 'Developing',  color: '#285C4D', bg: 'rgba(40,92,77,0.15)',    border: '#285C4D', emoji: '📗', minScore: 0.50 },
+  { id: 'beginning',   label: 'Beginning',   color: '#a82828', bg: 'rgba(168,40,40,0.15)',   border: '#a82828', emoji: '📕', minScore: 0 }
+];
+
+const PERFORMANCE_LEVELS = ['Exemplary', 'Proficient', 'Developing', 'Beginning'];
+const PERF_COLORS = {
+  'Exemplary':  { bg: 'rgba(201,144,58,0.12)', border: 'rgba(201,144,58,0.4)', text: '#c9903a' },
+  'Proficient': { bg: 'rgba(74,111,165,0.12)', border: 'rgba(74,111,165,0.4)', text: '#4a6fa5' },
+  'Developing': { bg: 'rgba(40,92,77,0.12)',   border: 'rgba(40,92,77,0.4)',   text: '#5a9e6f' },
+  'Beginning':  { bg: 'rgba(168,40,40,0.12)',  border: 'rgba(168,40,40,0.4)',  text: '#e05050' }
+};
+
+function getRubricDef() {
+  return RUBRIC_DEFS[gradeLevel] || RUBRIC_DEFS.masters;
+}
+
+function getRibbonForScore(score) {
+  return RIBBON_LEVELS.find(r => score >= r.minScore) || RIBBON_LEVELS[3];
+}
+
+function openRubricPanel() {
+  const modal = document.getElementById('rubric-modal');
+  const rubricDef = getRubricDef();
+  const mode = state.mode || 'review';
+  const modeLabel = { review: 'Literature Review', thesis: 'Thesis / Dissertation', poster: 'Academic Poster', mine: 'Gap Analysis' }[mode] || 'Research Paper';
+
+  document.getElementById('rubric-modal-eyebrow').textContent = rubricDef.label + ' · ' + modeLabel;
+  document.getElementById('rubric-modal-title').textContent = 'Assessment Rubric';
+
+  renderRubricTable();
+  modal.style.display = 'flex';
+}
+
+function renderRubricTable(scores) {
+  const rubricDef = getRubricDef();
+  const container = document.getElementById('rubric-table-container');
+
+  const tableRows = rubricDef.categories.map(cat => {
+    const catScore = scores?.[cat.id];
+    const scoredLevel = catScore ? PERFORMANCE_LEVELS[Math.max(0, 3 - Math.round(catScore * 3))] : null;
+    return `<tr>
+      <td style="padding:12px 14px;border-bottom:1px solid rgba(255,255,255,0.06);vertical-align:top;min-width:160px;">
+        <div style="font-size:12px;font-weight:600;color:var(--paper);margin-bottom:3px;">${cat.label}</div>
+        <div style="font-size:10px;color:rgba(245,243,238,0.4);line-height:1.5;">${cat.desc}</div>
+        ${catScore !== undefined ? `<div style="margin-top:6px;font-family:'JetBrains Mono',monospace;font-size:9px;padding:2px 8px;display:inline-block;background:${PERF_COLORS[scoredLevel].bg};border:1px solid ${PERF_COLORS[scoredLevel].border};color:${PERF_COLORS[scoredLevel].text};">${scoredLevel}</div>` : ''}
+      </td>
+      ${PERFORMANCE_LEVELS.map(level => {
+        const pc = PERF_COLORS[level];
+        const isScored = scoredLevel === level;
+        return `<td style="padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.06);border-left:1px solid rgba(255,255,255,0.04);vertical-align:top;background:${isScored ? pc.bg : 'transparent'};${isScored ? 'border:1px solid '+pc.border+';' : ''}">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:600;color:${pc.text};letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px;">${level}</div>
+          <div style="font-size:10px;color:rgba(245,243,238,${isScored ? '0.75' : '0.35'});line-height:1.5;">${getRubricDescriptor(cat.id, level, gradeLevel)}</div>
+        </td>`;
+      }).join('')}
+    </tr>`;
+  }).join('');
+
+  container.innerHTML = `
+    <table style="width:100%;border-collapse:collapse;font-family:'Georgia',serif;">
+      <thead>
+        <tr>
+          <th style="padding:10px 14px;text-align:left;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(245,243,238,0.4);border-bottom:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.02);">Criterion</th>
+          ${PERFORMANCE_LEVELS.map(l => `<th style="padding:10px 12px;text-align:left;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:${PERF_COLORS[l].text};border-bottom:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.02);">${l}</th>`).join('')}
+        </tr>
+      </thead>
+      <tbody>${tableRows}</tbody>
+    </table>`;
+}
+
+function getRubricDescriptor(catId, level, grade) {
+  // Per-category, per-level descriptors
+  const descriptors = {
+    topic:        { Exemplary:'Research question is precise, original, and well-bounded.', Proficient:'Question is clear and focused with minor ambiguity.', Developing:'Question is present but overly broad or vague.', Beginning:'No clear research question; topic is undefined.' },
+    sources:      { Exemplary:'All sources are peer-reviewed, current, and directly relevant.', Proficient:'Most sources credible; minor gaps in currency or relevance.', Developing:'Some unreliable sources; limited peer-reviewed work.', Beginning:'Sources are unreliable, missing, or not cited.' },
+    summary:      { Exemplary:'Key ideas captured accurately with nuance and precision.', Proficient:'Main ideas represented; minor misrepresentations.', Developing:'Partial accuracy; some ideas missing or distorted.', Beginning:'Significant inaccuracies or no meaningful summary.' },
+    organization: { Exemplary:'Structure is logical, intuitive, and enhances understanding.', Proficient:'Clear structure with minor organizational gaps.', Developing:'Some structure present but inconsistent.', Beginning:'No discernible organization.' },
+    visual:       { Exemplary:'Visuals are publication-ready, labeled, and directly support content.', Proficient:'Visuals are clear and relevant; minor polish needed.', Developing:'Visuals present but unclear or weakly connected.', Beginning:'No visuals or visuals are misleading.' },
+    attribution:  { Exemplary:'All sources cited correctly in required format throughout.', Proficient:'Most citations correct; minor formatting errors.', Developing:'Inconsistent citation; some sources missing.', Beginning:'No citations or systematic errors.' },
+    problem:      { Exemplary:'Problem is precisely stated, contextualized, and significant.', Proficient:'Problem is clear; significance could be stronger.', Developing:'Problem stated but vague or under-contextualized.', Beginning:'No problem statement or fundamentally unclear.' },
+    integration:  { Exemplary:'Sources synthesized thematically; tensions and patterns identified.', Proficient:'Sources connected with some synthesis beyond summary.', Developing:'Sources summarized individually with little synthesis.', Beginning:'No integration; sources listed or paraphrased only.' },
+    flow:         { Exemplary:'Argument builds consistently; transitions are seamless.', Proficient:'Logical progression with occasional gaps.', Developing:'Some logic present; frequent non-sequiturs.', Beginning:'No discernible logical flow.' },
+    evidence:     { Exemplary:'Every claim is supported by specific, relevant evidence with citation.', Proficient:'Most claims supported; occasional unsupported assertions.', Developing:'Evidence present but inconsistently tied to claims.', Beginning:'Claims unsupported or evidence misapplied.' },
+    gap:          { Exemplary:'Gap is confirmed, specific, and clearly positioned as original opportunity.', Proficient:'Gap identified; specificity or positioning could be stronger.', Developing:'Gap mentioned but not confirmed or positioned.', Beginning:'No gap identified.' },
+    formatting:   { Exemplary:'Citation style applied flawlessly throughout.', Proficient:'Consistent formatting with minor errors.', Developing:'Inconsistent; multiple formatting errors.', Beginning:'Formatting absent or systematically incorrect.' },
+    synthesis:    { Exemplary:'Synthesis is comprehensive, critical, and reveals mastery.', Proficient:'Strong synthesis with some depth; patterns identified.', Developing:'Synthesis attempted but superficial.', Beginning:'No synthesis; paper-by-paper description only.' },
+    framework:    { Exemplary:'Framework is sophisticated, explicitly applied, and defended.', Proficient:'Framework identified and applied with minor gaps.', Developing:'Framework mentioned but not applied to analysis.', Beginning:'No theoretical or conceptual framework.' },
+    method:       { Exemplary:'Methodology rigorously justified with reference to alternatives.', Proficient:'Method justified; alternatives not fully considered.', Developing:'Method described but justification is weak.', Beginning:'No methodological reasoning.' },
+    coherence:    { Exemplary:'Argument is internally consistent; conclusion flows from evidence.', Proficient:'Mostly coherent with minor contradictions.', Developing:'Some coherence; argument breaks down at points.', Beginning:'No coherent argument.' },
+    scholarly:    { Exemplary:'Tone, vocabulary, and precision meet publication standards.', Proficient:'Graduate-appropriate writing with minor lapses.', Developing:'Writing functional but inconsistent in tone.', Beginning:'Informal or imprecise; not graduate-level.' },
+    theory:       { Exemplary:'Theoretical grounding is sophisticated, original, and fully integrated.', Proficient:'Strong theoretical foundation; minor gaps in application.', Developing:'Theory identified but integration is shallow.', Beginning:'No theoretical grounding.' },
+    originality:  { Exemplary:'Contribution is genuinely novel; gap is confirmed and unfilled.', Proficient:'Contribution is clear; originality could be stronger.', Developing:'Contribution implied but not clearly original.', Beginning:'No identifiable original contribution.' },
+    contribution: { Exemplary:'Scholarly contribution is explicitly stated, specific, and defensible.', Proficient:'Contribution clear but could be more precisely stated.', Developing:'Contribution vague or implied rather than stated.', Beginning:'No contribution identified.' },
+    precision:    { Exemplary:'Language is unambiguous, precise, and demonstrates field mastery.', Proficient:'Precise writing with occasional ambiguity.', Developing:'Language imprecise or inconsistent.', Beginning:'Language does not meet doctoral standards.' }
+  };
+  return descriptors[catId]?.[level] || `${level} performance on this criterion.`;
+}
+
+async function evaluateCurrentWork() {
+  if (!state.apiKey) {
+    showRubricMessage('Add an Anthropic API key on Screen 1 to enable AI-assisted evaluation.');
+    return;
+  }
+
+  const btn = document.getElementById('btn-evaluate');
+  if (btn) { btn.textContent = '⏳ Evaluating...'; btn.disabled = true; }
+
+  const rubricDef = getRubricDef();
+
+  // Collect all generated text
+  const allText = Object.values(draftState.generatedText || {}).join('\n\n') +
+    '\n\n' + Object.values(draftState.ownContent || {}).join('\n\n') +
+    '\n\n' + Object.values(posterState?.sections || {}).map(s => s.text || '').join('\n\n');
+
+  const paperCount = Object.keys(state.papers || {}).length;
+  const gapCount = (state.gapFindings || []).length;
+  const hasCitations = /\([A-Z][a-z]+,?\s+\d{4}\)|\[\d+\]/.test(allText);
+  const wordCount = allText.trim().split(/\s+/).filter(Boolean).length;
+
+  const prompt = `You are evaluating a student's academic work for a ${rubricDef.label} ${state.mode || 'literature review'} on: "${state.topic || 'the research topic'}".
+
+The student's work contains approximately ${wordCount} words. They retrieved ${paperCount} papers from ${(state.subgroups||[]).length} keyword subgroups. They identified ${gapCount} research gaps. Citations present: ${hasCitations}.
+
+Work sample (first 1500 chars):
+${allText.slice(0, 1500)}
+
+Evaluate against these criteria and return ONLY a JSON object (no markdown, no explanation):
+{
+  ${rubricDef.categories.map(c => `"${c.id}": { "score": 0.0-1.0, "level": "Exemplary|Proficient|Developing|Beginning", "feedback": "one specific sentence of feedback" }`).join(',\n  ')}
+}
+
+Score strictly: 0.85+ = Exemplary, 0.70-0.84 = Proficient, 0.50-0.69 = Developing, below 0.50 = Beginning.
+Base scores on actual content quality, not effort. A short work with ${wordCount} words should not receive Exemplary unless the quality genuinely warrants it.`;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': state.apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, messages: [{ role: 'user', content: prompt }] })
+    });
+    const data = await resp.json();
+    const raw = data.content?.[0]?.text?.trim() || '';
+    const clean = raw.replace(/```json|```/g, '').trim();
+    const scores = JSON.parse(clean);
+
+    displayEvaluationResults(scores);
+
+  } catch(e) {
+    showRubricMessage('Evaluation error: ' + e.message);
+    console.error('Rubric eval error:', e);
+  } finally {
+    if (btn) { btn.textContent = '⚡ Evaluate My Work'; btn.disabled = false; }
+  }
+}
+
+function displayEvaluationResults(scores) {
+  const rubricDef = getRubricDef();
+
+  // Calculate overall score
+  const scoreValues = rubricDef.categories.map(c => scores[c.id]?.score || 0);
+  const avgScore = scoreValues.reduce((a,b) => a+b, 0) / scoreValues.length;
+  const ribbon = getRibbonForScore(avgScore);
+
+  // Show ribbon
+  const ribbonDisplay = document.getElementById('ribbon-display');
+  ribbonDisplay.style.display = 'block';
+  document.getElementById('ribbon-badge').textContent = ribbon.emoji;
+  document.getElementById('ribbon-badge').style.background = ribbon.bg;
+  document.getElementById('ribbon-badge').style.border = '3px solid ' + ribbon.border;
+  document.getElementById('ribbon-level-label').textContent = ribbon.label;
+  document.getElementById('ribbon-level-label').style.color = ribbon.color;
+  document.getElementById('ribbon-summary').textContent =
+    `Overall score: ${Math.round(avgScore * 100)}% · ${rubricDef.label}`;
+
+  // Re-render table with scores highlighted
+  const catScores = {};
+  rubricDef.categories.forEach(c => { catScores[c.id] = scores[c.id]?.score ?? null; });
+  renderRubricTable(catScores);
+
+  // Show feedback detail
+  const evalResults = document.getElementById('eval-results');
+  const evalContent = document.getElementById('eval-results-content');
+  evalResults.style.display = 'block';
+
+  evalContent.innerHTML = rubricDef.categories.map(cat => {
+    const result = scores[cat.id];
+    if (!result) return '';
+    const level = result.level || 'Developing';
+    const pc = PERF_COLORS[level] || PERF_COLORS['Developing'];
+    return `<div style="padding:10px 14px;margin-bottom:6px;border-left:3px solid ${pc.border};background:${pc.bg};">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+        <span style="font-size:12px;font-weight:600;color:var(--paper);">${cat.label}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:8px;padding:2px 7px;border:1px solid ${pc.border};color:${pc.text};">${level}</span>
+      </div>
+      <div style="font-size:11px;color:rgba(245,243,238,0.6);line-height:1.5;">${result.feedback || ''}</div>
+    </div>`;
+  }).join('');
+
+  // Scroll to ribbon
+  document.getElementById('ribbon-display').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function showRubricMessage(msg) {
+  const container = document.getElementById('rubric-table-container');
+  if (container) {
+    const notice = document.createElement('div');
+    notice.style.cssText = 'padding:16px;font-size:13px;color:rgba(245,243,238,0.5);text-align:center;';
+    notice.textContent = msg;
+    container.prepend(notice);
+    setTimeout(() => notice.remove(), 5000);
+  }
+}
 // ═══════════════════════════════════════════
 let mapView = 'all';
+let networkSimulation = null;
 
 function setMapView(view, btn) {
   mapView = view;
   document.querySelectorAll('.map-toggle-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  renderMindMap(view);
+  renderNetworkMap();
 }
 
-function renderMindMap(view) {
-  const canvas = document.getElementById('mindmap-canvas');
-  const ctx = canvas.getContext('2d');
-  canvas.width = canvas.offsetWidth || 800;
-  canvas.height = 420;
+function buildNetworkData() {
+  const sgs = state.subgroups || [];
+  const papers = state.papers || {};
+  const paperSGs = state.paperSGs || {};
+  const gapSGIndices = new Set((state.gapFindings || []).map(g => g.sgIndex));
 
-  const W = canvas.width;
-  const H = canvas.height;
-  const cx = W / 2;
-  const cy = H / 2;
-  const R = Math.min(W, H) * 0.36;
-  const n = state.subgroups.length;
+  // Count papers per SG
+  const sgPaperCount = {};
+  Object.entries(paperSGs).forEach(([pid, sgList]) => {
+    sgList.forEach(sgIdx => {
+      sgPaperCount[sgIdx] = (sgPaperCount[sgIdx] || 0) + 1;
+    });
+  });
 
-  // Build connection map from paper sharing
-  const connections = {};
-  Object.values(state.paperSGs).forEach(sgs => {
-    for (let i = 0; i < sgs.length; i++) {
-      for (let j = i + 1; j < sgs.length; j++) {
-        const key = `${Math.min(sgs[i],sgs[j])}_${Math.max(sgs[i],sgs[j])}`;
-        connections[key] = (connections[key] || 0) + 1;
+  // Build edge weights (shared papers between SGs)
+  const edgeMap = {};
+  Object.entries(paperSGs).forEach(([pid, sgList]) => {
+    for (let i = 0; i < sgList.length; i++) {
+      for (let j = i + 1; j < sgList.length; j++) {
+        const a = Math.min(sgList[i], sgList[j]);
+        const b = Math.max(sgList[i], sgList[j]);
+        const key = `${a}_${b}`;
+        edgeMap[key] = (edgeMap[key] || 0) + 1;
       }
     }
   });
 
-  const connectionCounts = {};
-  Object.keys(connections).forEach(key => {
+  // Degree per node (number of unique SG connections)
+  const degree = {};
+  Object.keys(edgeMap).forEach(key => {
     const [a, b] = key.split('_').map(Number);
-    connectionCounts[a] = (connectionCounts[a] || 0) + 1;
-    connectionCounts[b] = (connectionCounts[b] || 0) + 1;
+    degree[a] = (degree[a] || 0) + 1;
+    degree[b] = (degree[b] || 0) + 1;
   });
 
-  // Add gap SGs
-  const gapSGIndices = new Set(state.gapFindings.map(g => g.sgIndex));
+  // Nodes
+  const nodes = sgs.map((sg, i) => {
+    const paperCount = sgPaperCount[i] || 0;
+    const deg = degree[i] || 0;
+    const isGap = gapSGIndices.has(i) || (paperCount === 0 && deg === 0);
+    const isHub = deg >= 4;
+    const label = sg.terms.slice(0, 2).join(' + ');
+    const shortLabel = sg.terms[sg.terms.length - 1] || `SG${sg.id}`;
 
-  ctx.clearRect(0, 0, W, H);
-
-  // Node positions
-  const nodes = state.subgroups.map((sg, i) => {
-    const angle = (2 * Math.PI * i / n) - Math.PI / 2;
     return {
-      x: cx + R * Math.cos(angle),
-      y: cy + R * Math.sin(angle),
-      sg: sg.id,
-      idx: i,
-      conns: connectionCounts[i] || 0,
-      isGap: gapSGIndices.has(i) || connectionCounts[i] === undefined
+      id: i,
+      sgId: sg.id,
+      terms: sg.terms,
+      label,
+      shortLabel,
+      paperCount,
+      degree: deg,
+      isGap,
+      isHub,
+      type: isGap ? 'gap' : isHub ? 'hub' : deg === 1 ? 'thin' : 'connected'
     };
   });
 
-  // Draw connections
-  Object.keys(connections).forEach(key => {
-    const [a, b] = key.split('_').map(Number);
-    if (a >= nodes.length || b >= nodes.length) return;
-    const na = nodes[a];
-    const nb = nodes[b];
+  // Edges — only where shared papers exist
+  const links = Object.entries(edgeMap).map(([key, weight]) => {
+    const [source, target] = key.split('_').map(Number);
+    return { source, target, weight };
+  }).filter(l => l.source < nodes.length && l.target < nodes.length);
 
-    const dimA = (view === 'gaps' && !na.isGap) || (view === 'hubs' && na.conns < 4);
-    const dimB = (view === 'gaps' && !nb.isGap) || (view === 'hubs' && nb.conns < 4);
-    if (view !== 'all' && (dimA || dimB)) return;
+  return { nodes, links };
+}
 
-    ctx.beginPath();
-    ctx.moveTo(na.x, na.y);
-    ctx.lineTo(nb.x, nb.y);
-    ctx.strokeStyle = 'rgba(201,144,58,0.2)';
-    ctx.lineWidth = 1;
-    ctx.stroke();
+function renderNetworkMap() {
+  if (typeof d3 === 'undefined') {
+    console.warn('D3 not loaded yet — retrying');
+    setTimeout(renderNetworkMap, 500);
+    return;
+  }
+  const container = document.getElementById('network-map-container');
+  const svg = d3.select('#network-svg');
+  if (!container || !svg.node()) return;
+
+  svg.selectAll('*').remove();
+  if (networkSimulation) { networkSimulation.stop(); networkSimulation = null; }
+
+  // clientWidth is 0 if screen isn't visible yet — use offsetWidth or fallback
+  const W = container.offsetWidth || container.clientWidth || container.getBoundingClientRect().width || 800;
+  const H = 520;
+
+  if (W < 10) {
+    // Screen not rendered yet — retry once it is
+    setTimeout(renderNetworkMap, 200);
+    return;
+  }
+
+  svg.attr('width', W).attr('height', H);
+
+  const { nodes, links } = buildNetworkData();
+  if (nodes.length === 0) return;
+
+  // Adaptive hub threshold — top 20% by degree, minimum 2 connections
+  const maxDegree = Math.max(1, ...nodes.map(n => n.degree));
+  const hubThreshold = Math.max(2, Math.floor(maxDegree * 0.6));
+  nodes.forEach(n => { n.isHub = n.degree >= hubThreshold; });
+
+  // Filter for view — fall back to 'all' if filter yields nothing
+  let visibleNodeIds;
+  if (mapView === 'gaps') {
+    const gapNodes = nodes.filter(n => n.isGap);
+    visibleNodeIds = gapNodes.length > 0
+      ? new Set(gapNodes.map(n => n.id))
+      : new Set(nodes.map(n => n.id)); // fallback: show all with gap styling
+  } else if (mapView === 'hubs') {
+    const hubNodes = nodes.filter(n => n.isHub);
+    visibleNodeIds = hubNodes.length > 0
+      ? new Set(hubNodes.map(n => n.id))
+      : new Set(nodes.map(n => n.id));
+  } else {
+    visibleNodeIds = new Set(nodes.map(n => n.id));
+  }
+
+  const visNodes = nodes.filter(n => visibleNodeIds.has(n.id));
+  const visLinks = links.filter(l => {
+    const srcId = l.source.id ?? l.source;
+    const tgtId = l.target.id ?? l.target;
+    return visibleNodeIds.has(srcId) && visibleNodeIds.has(tgtId);
   });
 
-  // Draw nodes
-  nodes.forEach(node => {
-    const isDimmed = (view === 'gaps' && !node.isGap) || (view === 'hubs' && node.conns < 4);
-    if (isDimmed) {
-      // Draw faded
-      ctx.beginPath();
-      ctx.arc(node.x, node.y, 12, 0, 2 * Math.PI);
-      ctx.fillStyle = 'rgba(255,255,255,0.04)';
-      ctx.fill();
-      return;
-    }
+  // Scales
+  const maxDeg = Math.max(1, d3.max(nodes, d => d.degree));
+  const maxWeight = Math.max(1, d3.max(links, d => d.weight));
+  const rScale = d3.scaleSqrt().domain([0, maxDeg]).range([8, 28]);
+  const strokeScale = d3.scaleLinear().domain([1, maxWeight]).range([1, 6]);
 
-    const isHub = node.conns >= 4;
-    const radius = isHub ? 22 : node.isGap ? 14 : 14 + node.conns * 1.5;
+  const nodeColor = {
+    hub:       '#c9903a',
+    connected: '#1a2744',
+    thin:      '#c17a20',
+    gap:       'rgba(255,255,255,0.06)'
+  };
+  const nodeStroke = {
+    hub:       '#e8b86a',
+    connected: '#4a6fa5',
+    thin:      '#a06820',
+    gap:       '#a82828'
+  };
 
-    // Node fill
-    ctx.beginPath();
-    ctx.arc(node.x, node.y, radius, 0, 2 * Math.PI);
+  // SVG defs — arrow marker
+  svg.append('defs').append('marker')
+    .attr('id', 'arrow')
+    .attr('viewBox', '0 -5 10 10')
+    .attr('refX', 20).attr('refY', 0)
+    .attr('markerWidth', 6).attr('markerHeight', 6)
+    .attr('orient', 'auto')
+    .append('path')
+    .attr('d', 'M0,-5L10,0L0,5')
+    .attr('fill', 'rgba(201,144,58,0.3)');
 
-    if (isHub) {
-      const grad = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, radius);
-      grad.addColorStop(0, '#e8b86a');
-      grad.addColorStop(1, '#c9903a');
-      ctx.fillStyle = grad;
-    } else if (node.isGap) {
-      ctx.fillStyle = 'rgba(255,255,255,0.06)';
-    } else if (node.conns === 1) {
-      ctx.fillStyle = '#c17a20';
-    } else {
-      ctx.fillStyle = '#1a2744';
-    }
-    ctx.fill();
+  // Group for zoom
+  const g = svg.append('g');
 
-    // Gap border
-    if (node.isGap) {
-      ctx.beginPath();
-      ctx.arc(node.x, node.y, radius, 0, 2 * Math.PI);
-      ctx.strokeStyle = '#a82828';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    }
-
-    // Label
-    ctx.font = (isHub ? '600 ' : '') + (isHub ? 10 : 9) + "px monospace";
-    ctx.fillStyle = isHub ? '#0a0a0f' : 'rgba(245,243,238,0.8)';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(`SG${node.sg}`, node.x, node.y);
+  // Click SVG background to close flyout
+  svg.on('click', () => {
+    const flyout = document.getElementById('node-flyout');
+    if (flyout) flyout.style.display = 'none';
   });
 
-  // Canvas hover tooltip
-  canvas.onmousemove = function(e) {
-    const rect = canvas.getBoundingClientRect();
-    const mx = e.clientX - rect.left;
-    const my = e.clientY - rect.top;
-    const tooltip = document.getElementById('tooltip');
-    let found = false;
+  // Zoom behavior
+  const zoom = d3.zoom()
+    .scaleExtent([0.3, 4])
+    .on('zoom', e => g.attr('transform', e.transform));
+  svg.call(zoom);
 
-    nodes.forEach(node => {
-      const dx = mx - node.x;
-      const dy = my - node.y;
-      if (Math.sqrt(dx*dx + dy*dy) < 20) {
-        const sg = state.subgroups[node.idx];
-        tooltip.style.display = 'block';
-        tooltip.style.left = (e.clientX + 12) + 'px';
-        tooltip.style.top = (e.clientY - 20) + 'px';
-        tooltip.innerHTML = `<strong>SG${node.sg}</strong><br>${sg.terms.join(' + ')}<br><br>${node.isGap ? '⬤ Confirmed gap — no shared papers' : `${node.conns} connection${node.conns !== 1 ? 's' : ''}`}`;
-        found = true;
-      }
+  // Links
+  const link = g.append('g').selectAll('line')
+    .data(visLinks)
+    .join('line')
+    .attr('stroke', 'rgba(201,144,58,0.25)')
+    .attr('stroke-width', d => strokeScale(d.weight))
+    .attr('stroke-linecap', 'round');
+
+  // Node groups
+  const node = g.append('g').selectAll('g')
+    .data(visNodes)
+    .join('g')
+    .attr('cursor', 'pointer')
+    .call(d3.drag()
+      .on('start', (event, d) => {
+        if (!event.active) sim.alphaTarget(0.3).restart();
+        d.fx = d.x; d.fy = d.y;
+        container.style.cursor = 'grabbing';
+      })
+      .on('drag', (event, d) => { d.fx = event.x; d.fy = event.y; })
+      .on('end', (event, d) => {
+        if (!event.active) sim.alphaTarget(0);
+        d.fx = null; d.fy = null;
+        container.style.cursor = 'grab';
+      })
+    )
+    .on('click', (event, d) => {
+      event.stopPropagation();
+      showNodeDetail(d, event);
+    })
+    .on('mouseover', (event, d) => showNetworkTooltip(event, d))
+    .on('mousemove', (event, d) => moveNetworkTooltip(event))
+    .on('mouseleave', () => hideNetworkTooltip());
+
+  // Circle
+  node.append('circle')
+    .attr('r', d => rScale(d.degree))
+    .attr('fill', d => nodeColor[d.type])
+    .attr('stroke', d => nodeStroke[d.type])
+    .attr('stroke-width', d => d.isGap ? 2 : 1.5);
+
+  // Hub glow ring
+  node.filter(d => d.isHub)
+    .append('circle')
+    .attr('r', d => rScale(d.degree) + 5)
+    .attr('fill', 'none')
+    .attr('stroke', 'rgba(201,144,58,0.2)')
+    .attr('stroke-width', 3);
+
+  // Node label — short keyword
+  node.append('text')
+    .attr('text-anchor', 'middle')
+    .attr('dominant-baseline', 'middle')
+    .attr('font-family', 'JetBrains Mono, monospace')
+    .attr('font-size', d => d.isHub ? 9 : 8)
+    .attr('font-weight', d => d.isHub ? '600' : '400')
+    .attr('fill', d => d.isHub ? '#0a0a0f' : d.isGap ? 'rgba(245,243,238,0.4)' : 'rgba(245,243,238,0.85)')
+    .attr('pointer-events', 'none')
+    .text(d => {
+      const r = rScale(d.degree);
+      const maxChars = Math.floor(r * 1.6);
+      const lbl = d.shortLabel;
+      return lbl.length > maxChars ? lbl.slice(0, maxChars - 1) + '…' : lbl;
     });
 
-    if (!found) tooltip.style.display = 'none';
-  };
+  // Paper count badge on hubs
+  node.filter(d => d.isHub && d.paperCount > 0)
+    .append('text')
+    .attr('text-anchor', 'middle')
+    .attr('dy', d => rScale(d.degree) + 12)
+    .attr('font-family', 'JetBrains Mono, monospace')
+    .attr('font-size', 8)
+    .attr('fill', 'rgba(201,144,58,0.7)')
+    .attr('pointer-events', 'none')
+    .text(d => `${d.paperCount}p`);
 
-  canvas.onmouseleave = () => {
-    document.getElementById('tooltip').style.display = 'none';
-  };
+  // Force simulation
+  const sim = d3.forceSimulation(visNodes)
+    .force('link', d3.forceLink(visLinks).id(d => d.id).distance(d => 80 - d.weight * 3).strength(0.6))
+    .force('charge', d3.forceManyBody().strength(d => d.isHub ? -180 : -80))
+    .force('center', d3.forceCenter(W / 2, H / 2))
+    .force('collision', d3.forceCollide().radius(d => rScale(d.degree) + 10))
+    .on('tick', () => {
+      link
+        .attr('x1', d => d.source.x)
+        .attr('y1', d => d.source.y)
+        .attr('x2', d => d.target.x)
+        .attr('y2', d => d.target.y);
+      node.attr('transform', d => `translate(${d.x},${d.y})`);
+    });
+
+  networkSimulation = sim;
+
+  // Fit to view after settling
+  setTimeout(() => {
+    const bounds = g.node().getBBox();
+    if (bounds.width > 0) {
+      const scale = Math.min(0.9, Math.min(W / bounds.width, H / bounds.height) * 0.85);
+      const tx = W / 2 - scale * (bounds.x + bounds.width / 2);
+      const ty = H / 2 - scale * (bounds.y + bounds.height / 2);
+      svg.transition().duration(600).call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
+    }
+  }, 1200);
 }
+
+function showNetworkTooltip(event, d) {
+  const tip = document.getElementById('network-tooltip');
+  if (!tip) return;
+  const gapText = d.isGap ? '<br><span style="color:#e05050;">⬤ Confirmed gap — no shared papers</span>' : '';
+  const hubText = d.isHub ? '<br><span style="color:#c9903a;">★ Hub — high connectivity</span>' : '';
+  tip.innerHTML = `
+    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(245,243,238,0.4);margin-bottom:4px;">SG${d.sgId}</div>
+    <div style="font-weight:600;margin-bottom:6px;">${d.terms.join(' + ')}</div>
+    <div style="font-size:11px;color:rgba(245,243,238,0.6);">${d.paperCount} paper${d.paperCount !== 1 ? 's' : ''} · ${d.degree} connection${d.degree !== 1 ? 's' : ''}${gapText}${hubText}</div>
+  `;
+  tip.style.display = 'block';
+  moveNetworkTooltip(event);
+}
+
+function moveNetworkTooltip(event) {
+  const tip = document.getElementById('network-tooltip');
+  if (!tip) return;
+  tip.style.left = (event.clientX + 14) + 'px';
+  tip.style.top = (event.clientY - 10) + 'px';
+}
+
+function hideNetworkTooltip() {
+  const tip = document.getElementById('network-tooltip');
+  if (tip) tip.style.display = 'none';
+}
+
+function showNodeDetail(d, event) {
+  const flyout = document.getElementById('node-flyout');
+  const content = document.getElementById('node-flyout-content');
+  const container = document.getElementById('network-map-container');
+  if (!flyout || !content || !container) return;
+
+  const sgPapers = Object.entries(state.paperSGs || {})
+    .filter(([pid, sgs]) => sgs.includes(d.id))
+    .map(([pid, sgs]) => ({ p: state.papers[pid], pid, allSGs: sgs }))
+    .filter(item => item.p)
+    .sort((a, b) => (b.allSGs.length - a.allSGs.length) || ((b.p.citations||0) - (a.p.citations||0)))
+    .slice(0, 12);
+
+  const connectedSet = new Set();
+  sgPapers.forEach(({ allSGs }) => allSGs.forEach(i => { if (i !== d.id) connectedSet.add(i); }));
+  const connectedSGs = [...connectedSet].map(i => state.subgroups[i]).filter(Boolean).slice(0, 6);
+
+  const typeColor = d.isGap ? '#e05050' : d.isHub ? '#c9903a' : d.type === 'thin' ? '#c17a20' : '#4a6fa5';
+  const typeLabel = d.isGap ? '⬤ Gap' : d.isHub ? '★ Hub' : d.type === 'thin' ? '◑ Thin' : '● Connected';
+  const sgTerms = d.terms || [];
+
+  const keywordChain = sgTerms.map((term, i) =>
+    (i > 0 ? '<span style="font-size:8px;color:rgba(201,144,58,0.5);font-family:monospace;margin:0 2px;">AND</span>' : '') +
+    `<span style="font-family:monospace;font-size:9px;padding:2px 7px;border:1px solid ${i===0?'#c9903a':'rgba(255,255,255,0.15)'};color:${i===0?'#c9903a':'rgba(245,243,238,0.65)'};background:${i===0?'rgba(201,144,58,0.08)':'transparent'};">${term}</span>`
+  ).join('');
+
+  const paperCards = sgPapers.map(({ p, pid, allSGs }) => {
+    const isFoundation = allSGs.length >= 2;
+    const otherTerms = allSGs.filter(i => i !== d.id).map(i => state.subgroups[i]).filter(Boolean).map(sg => sg.terms.slice(-1)[0]).slice(0, 3);
+    const matchedBadges = sgTerms.map(t => `<span style="font-family:monospace;font-size:7px;padding:1px 5px;background:rgba(40,92,77,0.35);border:1px solid rgba(40,92,77,0.5);color:rgba(245,243,238,0.7);">${t}</span>`).join('');
+    const alsoBadges = otherTerms.map(t => `<span style="font-family:monospace;font-size:7px;padding:1px 5px;background:rgba(26,39,68,0.5);border:1px solid rgba(74,111,165,0.2);color:rgba(245,243,238,0.5);">${t}</span>`).join('');
+    return `<div data-pid="${pid}" style="padding:10px;margin-bottom:6px;border:1px solid ${isFoundation?'rgba(201,144,58,0.25)':'rgba(255,255,255,0.06)'};background:${isFoundation?'rgba(201,144,58,0.03)':'transparent'};">
+      ${isFoundation ? `<div style="font-family:monospace;font-size:7px;color:#c9903a;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;">★ Foundation · ${allSGs.length} subgroups</div>` : ''}
+      <div style="font-size:12px;color:#f5f3ee;font-weight:600;line-height:1.35;margin-bottom:3px;">${p.title}</div>
+      <div style="font-family:monospace;font-size:9px;color:rgba(245,243,238,0.45);margin-bottom:5px;">${(p.author||'Unknown').split(';')[0].split(',')[0]} · ${p.year||'n.d.'}${p.citations?' · '+p.citations+' citations':''}</div>
+      ${p.abstract?`<div style="font-size:10px;color:rgba(245,243,238,0.4);line-height:1.5;font-style:italic;margin-bottom:6px;">${p.abstract.slice(0,130)}...</div>`:''}
+      <div style="display:flex;flex-wrap:wrap;gap:3px;align-items:center;margin-bottom:3px;"><span style="font-family:monospace;font-size:7px;color:rgba(245,243,238,0.3);margin-right:2px;">Matched:</span>${matchedBadges}</div>
+      ${otherTerms.length>0?`<div style="display:flex;flex-wrap:wrap;gap:3px;align-items:center;margin-bottom:5px;"><span style="font-family:monospace;font-size:7px;color:rgba(245,243,238,0.3);margin-right:2px;">Also in:</span>${alsoBadges}</div>`:''}
+      ${p.url&&p.url!=='#'?`<a href="${p.url}" target="_blank" style="font-family:monospace;font-size:9px;color:#c9903a;text-decoration:none;">→ View paper</a>`:''}
+    </div>`;
+  }).join('');
+
+  const gapCard = `<div style="padding:20px 0;text-align:center;">
+    <div style="font-size:22px;margin-bottom:8px;opacity:0.5;">⬤</div>
+    <div style="font-family:monospace;font-size:9px;color:#e05050;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">Confirmed Research Gap</div>
+    <div style="font-size:12px;color:rgba(245,243,238,0.5);line-height:1.6;">${sgTerms.join(' AND ')}<br>returned zero papers.</div>
+    <div style="font-size:11px;color:rgba(245,243,238,0.35);margin-top:6px;">Original contribution opportunity.</div>
+  </div>`;
+
+  content.innerHTML = `
+    <div style="padding:12px 14px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
+      <div style="flex:1;min-width:0;">
+        <div style="font-family:monospace;font-size:8px;color:${typeColor};letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;">SG${d.sgId} · ${typeLabel} · ${d.paperCount} paper${d.paperCount!==1?'s':''}</div>
+        <div style="font-size:13px;font-weight:600;color:#f5f3ee;line-height:1.3;margin-bottom:6px;">${sgTerms.join(' + ')}</div>
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:4px;">${keywordChain}</div>
+      </div>
+      <button onclick="document.getElementById('node-flyout').style.display='none'" style="background:none;border:none;color:rgba(245,243,238,0.4);cursor:pointer;font-size:16px;padding:0;flex-shrink:0;line-height:1;">✕</button>
+    </div>
+    ${connectedSGs.length>0?`<div style="padding:8px 14px;border-bottom:1px solid rgba(255,255,255,0.06);"><div style="font-family:monospace;font-size:8px;color:rgba(245,243,238,0.35);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;">Shares papers with</div><div style="display:flex;flex-wrap:wrap;gap:4px;">${connectedSGs.map(sg=>`<span style="font-family:monospace;font-size:8px;padding:2px 7px;background:rgba(26,39,68,0.6);border:1px solid rgba(74,111,165,0.25);color:rgba(245,243,238,0.55);">SG${sg.id}: ${sg.terms.slice(-1)[0]}</span>`).join('')}</div></div>`:''}
+    <div style="padding:8px 14px;">${sgPapers.length>0?`<div style="font-family:monospace;font-size:8px;color:rgba(245,243,238,0.35);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">Papers retrieved by this search</div>${paperCards}`:gapCard}</div>`;
+
+  flyout.style.display = 'block';
+  const cRect = container.getBoundingClientRect();
+  const cx = event.clientX - cRect.left;
+  const cy = event.clientY - cRect.top;
+  const fw = 340, margin = 12;
+  let left = cx + margin;
+  let top = Math.max(0, cy - 60);
+  if (left + fw > container.offsetWidth - margin) left = cx - fw - margin;
+  if (top + 480 > container.offsetHeight) top = Math.max(0, container.offsetHeight - 480 - margin);
+  flyout.style.left = Math.max(0, left) + 'px';
+  flyout.style.top = top + 'px';
+}
+
+function highlightSharedPapers(sgIdxA, sgIdxB) {
+  const sharedPids = Object.entries(state.paperSGs || {})
+    .filter(([pid, sgs]) => sgs.includes(sgIdxA) && sgs.includes(sgIdxB))
+    .map(([pid]) => pid);
+  document.querySelectorAll('#node-flyout-content [data-pid]').forEach(el => {
+    el.style.outline = sharedPids.includes(el.dataset.pid) ? '2px solid #c9903a' : 'none';
+  });
+}
+
 
 function filterGaps(type, btn) {
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -4876,19 +5493,24 @@ function buildDraftSections() {
 function renderSectionNav() {
   const nav = document.getElementById('section-nav');
   if (!nav) return;
-  nav.innerHTML = draftState.sections.map(sec => `
+  nav.innerHTML = draftState.sections.map(sec => {
+    const isGenerating = generatingSet.has(sec.id);
+    const isDone = !!(draftState.generatedText[sec.id] || draftState.ownContent?.[sec.id]);
+    const textColor = isGenerating ? 'var(--gold)' : isDone ? 'var(--gold-light)' : 'rgba(245,243,238,0.7)';
+    const statusIcon = isGenerating ? '<span style="display:inline-block;width:8px;height:8px;border:1.5px solid var(--gold);border-top-color:transparent;border-radius:50%;animation:spin 0.7s linear infinite;margin-left:6px;vertical-align:middle;"></span>'
+                     : isDone ? ' ✓' : '';
+    return `
     <div onclick="openDraftSection('${sec.id}')"
       id="nav-${sec.id}"
       style="padding:10px 12px;cursor:pointer;border-radius:2px;margin-bottom:2px;transition:all 0.15s;display:flex;align-items:center;gap:10px;"
       onmouseover="this.style.background='rgba(255,255,255,0.06)'"
       onmouseout="this.style.background=this.dataset.active==='1'?'rgba(201,144,58,0.15)':'transparent'">
       <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(245,243,238,0.3);width:24px;flex-shrink:0;">${sec.num}</span>
-      <span style="font-size:13px;color:${(draftState.generatedText[sec.id] || draftState.ownContent?.[sec.id]) ? 'var(--gold-light)' : 'rgba(245,243,238,0.7)'};">
-        ${sec.title}
-        ${(draftState.generatedText[sec.id] || draftState.ownContent?.[sec.id]) ? ' ✓' : ''}
+      <span style="font-size:13px;color:${textColor};display:flex;align-items:center;">
+        ${sec.title}${statusIcon}
       </span>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
 function openDraftSection(sectionId) {
@@ -5022,36 +5644,50 @@ function openDraftSection(sectionId) {
 
   // Render paper checklist
   renderPaperChecklist(sectionId, sec);
+
+  // Figure nudge — suggest generating a figure for data-rich sections
+  if (state.mode !== 'poster') {
+    setTimeout(() => suggestFigureForSection(sectionId, sec), 200);
+  }
 }
 
 function renderPaperChecklist(sectionId, sec) {
+  // In poster mode, target the Screen 8 checklist; otherwise Screen 6
   const checklistId = state.mode === 'poster' ? 'paper-checklist-poster' : 'paper-checklist';
   const checklist = document.getElementById(checklistId);
   if (!checklist) return;
+
+  const isDark = state.mode === 'poster';
+  const textColor    = isDark ? 'rgba(245,243,238,0.8)'  : 'var(--ink)';
+  const mutedColor   = isDark ? 'rgba(245,243,238,0.4)'  : 'var(--muted)';
+  const bgCard       = isDark ? 'rgba(255,255,255,0.04)' : 'white';
+  const bgSelected   = isDark ? 'rgba(74,111,165,0.2)'   : '#f0f4f8';
+  const borderNorm   = isDark ? 'rgba(255,255,255,0.12)' : 'var(--border)';
+  const borderSel    = isDark ? '#4a6fa5'                : 'var(--navy)';
+  const btnBg        = isDark ? 'rgba(255,255,255,0.06)' : 'white';
+  const btnColor     = isDark ? 'rgba(245,243,238,0.6)'  : 'var(--ink)';
 
   const selectedPids = draftState.selectedPapers[sectionId] || [];
   const allPapers = Object.entries(state.papers);
 
   if (allPapers.length === 0) {
-    checklist.innerHTML = '<div style="font-size:13px;color:var(--muted);font-style:italic;">No papers retrieved. Run a search first.</div>';
+    checklist.innerHTML = `<div style="font-size:12px;color:${mutedColor};font-style:italic;">No papers retrieved. Run a search first.</div>`;
     return;
   }
 
-  // Sort: suggested papers first (in sec.papers), then rest
   const suggested = sec.papers || [];
   const sortedPapers = [
     ...allPapers.filter(([pid]) => suggested.includes(pid)),
     ...allPapers.filter(([pid]) => !suggested.includes(pid))
   ];
 
-  // Build checklist HTML using concatenation to avoid quote conflicts
   const mono = 'font-family:monospace;';
   let html = '';
-  html += '<div style="' + mono + 'font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;">' + selectedPids.length + ' of ' + allPapers.length + ' papers selected</div>';
+  html += `<div style="${mono}font-size:9px;color:${mutedColor};text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;">${selectedPids.length} of ${allPapers.length} papers selected</div>`;
   html += '<div style="display:flex;gap:8px;margin-bottom:16px;">';
-  html += '<button onclick="selectAllPapers(\'' + sectionId + '\')" style="' + mono + 'font-size:10px;padding:5px 10px;border:1px solid var(--border);background:white;cursor:pointer;">All</button>';
-  html += '<button onclick="selectSuggestedPapers(\'' + sectionId + '\')" style="' + mono + 'font-size:10px;padding:5px 10px;border:1px solid var(--gold);background:white;color:var(--gold);cursor:pointer;">Suggested</button>';
-  html += '<button onclick="clearAllPapers(\'' + sectionId + '\')" style="' + mono + 'font-size:10px;padding:5px 10px;border:1px solid var(--border);background:white;cursor:pointer;">None</button>';
+  html += `<button onclick="selectAllPapers('${sectionId}')" style="${mono}font-size:10px;padding:5px 10px;border:1px solid ${borderNorm};background:${btnBg};color:${btnColor};cursor:pointer;">All</button>`;
+  html += `<button onclick="selectSuggestedPapers('${sectionId}')" style="${mono}font-size:10px;padding:5px 10px;border:1px solid var(--gold);background:${btnBg};color:var(--gold);cursor:pointer;">Suggested</button>`;
+  html += `<button onclick="clearAllPapers('${sectionId}')" style="${mono}font-size:10px;padding:5px 10px;border:1px solid ${borderNorm};background:${btnBg};color:${btnColor};cursor:pointer;">None</button>`;
   html += '</div>';
 
   sortedPapers.forEach(function(entry) {
@@ -5059,23 +5695,23 @@ function renderPaperChecklist(sectionId, sec) {
     var isSelected = selectedPids.includes(pid);
     var isSuggested = suggested.includes(pid);
     var isUploaded = pid.startsWith('pdf_');
-    var bc = isSelected ? 'var(--navy)' : isUploaded ? 'rgba(201,144,58,0.4)' : 'var(--border)';
-    var bg = isSelected ? '#f0f4f8' : isUploaded ? 'rgba(201,144,58,0.04)' : 'white';
+    var bc = isSelected ? borderSel : isUploaded ? 'rgba(201,144,58,0.4)' : borderNorm;
+    var bg = isSelected ? bgSelected : isUploaded ? 'rgba(201,144,58,0.04)' : bgCard;
     var safePid = pid.replace(/'/g, "\\'");
     var shortTitle = (paper.title || 'Untitled').substring(0, 80) + (paper.title && paper.title.length > 80 ? '...' : '');
     var shortAbstract = paper.abstract ? paper.abstract.substring(0, 120) + (paper.abstract.length > 120 ? '...' : '') : '';
-    html += '<div onclick="togglePaper(\'' + sectionId + '\',\'' + safePid + '\')" style="padding:10px 12px;margin-bottom:6px;border:1.5px solid ' + bc + ';background:' + bg + ';cursor:pointer;">';
+    html += `<div onclick="togglePaper('${sectionId}','${safePid}')" style="padding:10px 12px;margin-bottom:6px;border:1.5px solid ${bc};background:${bg};cursor:pointer;">`;
     html += '<div style="display:flex;align-items:flex-start;gap:8px;">';
-    html += '<div style="width:14px;height:14px;border:1.5px solid ' + bc + ';background:' + (isSelected ? 'var(--navy)' : 'white') + ';flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;">';
+    html += `<div style="width:14px;height:14px;border:1.5px solid ${bc};background:${isSelected ? borderSel : 'transparent'};flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;">`;
     html += isSelected ? '<span style="color:white;font-size:9px;">&#10003;</span>' : '';
-    html += '</div><div style="flex:1;">';
-    if (isUploaded) html += '<span style="' + mono + 'font-size:8px;background:rgba(201,144,58,0.15);color:var(--gold);border:1px solid rgba(201,144,58,0.4);padding:1px 5px;margin-bottom:4px;display:inline-block;">UPLOADED</span><br>';
-    else if (isSuggested) html += '<span style="' + mono + 'font-size:8px;background:var(--gold);color:var(--ink);padding:1px 5px;margin-bottom:4px;display:inline-block;">SUGGESTED</span><br>';
-    html += '<div style="font-size:12px;font-weight:600;color:var(--ink);line-height:1.4;margin-bottom:3px;">' + shortTitle + '</div>';
-    html += '<div style="' + mono + 'font-size:10px;color:var(--muted);">' + (paper.author || 'Unknown') + ' &middot; ' + (paper.year || '&mdash;');
-    if (paper.citations) html += ' &middot; ' + paper.citations + ' citations';
+    html += `</div><div style="flex:1;">`;
+    if (isUploaded) html += `<span style="${mono}font-size:8px;background:rgba(201,144,58,0.15);color:var(--gold);border:1px solid rgba(201,144,58,0.4);padding:1px 5px;margin-bottom:4px;display:inline-block;">UPLOADED</span><br>`;
+    else if (isSuggested) html += `<span style="${mono}font-size:8px;background:var(--gold);color:var(--ink);padding:1px 5px;margin-bottom:4px;display:inline-block;">SUGGESTED</span><br>`;
+    html += `<div style="font-size:12px;font-weight:600;color:${textColor};line-height:1.4;margin-bottom:3px;">${shortTitle}</div>`;
+    html += `<div style="${mono}font-size:10px;color:${mutedColor};">${paper.author || 'Unknown'} &middot; ${paper.year || '&mdash;'}`;
+    if (paper.citations) html += ` &middot; ${paper.citations} citations`;
     html += '</div>';
-    if (shortAbstract) html += '<div style="font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4;font-style:italic;">' + shortAbstract + '</div>';
+    if (shortAbstract) html += `<div style="font-size:11px;color:${mutedColor};margin-top:4px;line-height:1.4;font-style:italic;">${shortAbstract}</div>`;
     html += '</div></div></div>';
   });
 
@@ -5133,18 +5769,50 @@ function updateRefCount() {
   if (el) el.textContent = allSelected.size;
 }
 
-async function generateSection(sectionId) {
+// Track which sections are currently generating
+const generatingSet = new Set();
+
+function generateSection(sectionId) {
+  // Non-async wrapper — fires background job and returns immediately
+  // Student can navigate away; nav updates when done
+  if (generatingSet.has(sectionId)) return; // already running
+  generatingSet.add(sectionId);
+
+  // Auto-select suggested papers if none chosen
+  if (!draftState.selectedPapers[sectionId] || draftState.selectedPapers[sectionId].length === 0) {
+    const sec = draftState.sections.find(s => s.id === sectionId);
+    if (sec?.papers?.length) {
+      draftState.selectedPapers[sectionId] = [...sec.papers];
+      sec.papers.forEach(pid => { if (state.papers[pid]) draftState.referenceList[pid] = state.papers[pid]; });
+    }
+  }
+
+  // Mark as generating in nav immediately
+  renderSectionNav();
+
+  // If currently viewing this section, show spinner
+  if (draftState.activeSectionId === sectionId) {
+    const textDiv = document.getElementById('generated-text-' + sectionId);
+    if (textDiv) textDiv.innerHTML = '<div style="font-size:14px;color:var(--muted);font-style:italic;padding:32px 0;">Writing section<span class="loading-dots"></span></div>';
+  }
+
+  // Fire and forget — _generateSectionAsync handles everything
+  _generateSectionAsync(sectionId).finally(() => {
+    generatingSet.delete(sectionId);
+    renderSectionNav();
+    // If user is still on this section, refresh the view
+    if (draftState.activeSectionId === sectionId) {
+      openDraftSection(sectionId);
+    }
+  });
+}
+
+async function _generateSectionAsync(sectionId) {
   const sec = draftState.sections.find(s => s.id === sectionId);
   if (!sec) return;
 
   const selectedPids = draftState.selectedPapers[sectionId] || [];
   const selectedPapers = selectedPids.map(pid => state.papers[pid]).filter(Boolean);
-
-  // Show loading state
-  const textDiv = document.getElementById('generated-text-' + sectionId);
-  if (textDiv) {
-    textDiv.innerHTML = '<div style="font-size:14px;color:var(--muted);font-style:italic;">Writing section<span class="loading-dots"></span></div>';
-  }
 
   // Build paper context for the prompt — include abstract when available
   const paperContext = selectedPapers.map(function(p, i) {
@@ -5157,7 +5825,7 @@ async function generateSection(sectionId) {
     line += '    Journal: ' + (p.journal || 'Unknown') + ', ' + (p.year || 'n.d.');
     if (p.citations) line += ' (' + p.citations + ' citations)';
     line += '\n';
-    const abstractLimit = pid.startsWith('pdf_') ? 800 : 400;
+    const abstractLimit = (p.id || '').startsWith('pdf_') ? 800 : 400;
     if (p.abstract) line += '    Abstract: ' + p.abstract.slice(0, abstractLimit) + (p.abstract.length > abstractLimit ? '...' : '') + '\n';
     if (p.source === 'upload') line += '    [UPLOADED PAPER — full text available]\n';
     if (p.concepts) line += '    Key concepts: ' + p.concepts + '\n';
@@ -5166,18 +5834,12 @@ async function generateSection(sectionId) {
 
   // Prewritten sections
   if (sec.prewritten && (sec.id === 'methods' || sec.id === 'poster-methods')) {
-    const methodsText = generateMethodsSection();
-    draftState.generatedText[sectionId] = methodsText;
-    renderSectionNav();
-    openDraftSection(sectionId);
+    draftState.generatedText[sectionId] = generateMethodsSection();
     return;
   }
 
   if (!state.apiKey) {
-    const scaffold = generateScaffold(sec, selectedPapers);
-    draftState.generatedText[sectionId] = scaffold;
-    renderSectionNav();
-    openDraftSection(sectionId);
+    draftState.generatedText[sectionId] = generateScaffold(sec, selectedPapers);
     return;
   }
 
@@ -5460,7 +6122,7 @@ End with a transition sentence to the next section.`;
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 2000,
+        max_tokens: mode === 'thesis' ? 3000 : 2000,
         messages: [{ role: 'user', content: prompt }]
       })
     });
@@ -5473,9 +6135,6 @@ End with a transition sentence to the next section.`;
     console.warn('API error, using scaffold:', e.message);
     draftState.generatedText[sectionId] = generateScaffold(sec, selectedPapers);
   }
-
-  renderSectionNav();
-  openDraftSection(sectionId);
 }
 
 function generateMethodsSection() {
@@ -5826,6 +6485,52 @@ function editGeneratedText(sectionId) {
   }
 }
 
+async function generateAllSections() {
+  if (!state.apiKey) {
+    // No API key — generate scaffolds for all sections instantly
+    draftState.sections.forEach(sec => {
+      if (draftState.generatedText[sec.id] || draftState.ownContent?.[sec.id]) return;
+      const pids = draftState.selectedPapers[sec.id] || sec.papers || [];
+      const papers = pids.map(pid => state.papers[pid]).filter(Boolean);
+      draftState.generatedText[sec.id] = generateScaffold(sec, papers);
+    });
+    renderSectionNav();
+    if (draftState.sections.length > 0) openDraftSection(draftState.sections[0].id);
+    return;
+  }
+
+  const userOwnedIds = ['thesis-ch3', 'thesis-ch4'];
+
+  const sectionsToFire = draftState.sections.filter(sec => {
+    if (draftState.generatedText[sec.id]) return false;
+    if (draftState.ownContent?.[sec.id]?.trim()) return false;
+    if (userOwnedIds.includes(sec.id)) return false;
+    if (generatingSet.has(sec.id)) return false;
+    return true;
+  });
+
+  if (sectionsToFire.length === 0) return;
+
+  const btn = document.getElementById('btn-generate-all');
+  if (btn) { btn.textContent = `⏳ ${sectionsToFire.length} generating...`; btn.disabled = true; }
+
+  // Fire all sections simultaneously — each runs independently in background
+  sectionsToFire.forEach(sec => generateSection(sec.id));
+
+  // Watch for completion to reset button
+  const checkDone = setInterval(() => {
+    const stillRunning = sectionsToFire.some(sec => generatingSet.has(sec.id));
+    if (!stillRunning) {
+      clearInterval(checkDone);
+      if (btn) { btn.disabled = false; btn.textContent = '✓ Done'; setTimeout(() => { btn.textContent = '⚡ Generate All'; }, 3000); }
+      updateRefCount();
+    } else {
+      const remaining = sectionsToFire.filter(sec => generatingSet.has(sec.id)).length;
+      if (btn) btn.textContent = `⏳ ${remaining} remaining...`;
+    }
+  }, 800);
+}
+
 function clearSection(sectionId) {
   delete draftState.generatedText[sectionId];
   if (draftState.ownContent) delete draftState.ownContent[sectionId];
@@ -5834,7 +6539,405 @@ function clearSection(sectionId) {
 }
 
 // ═══════════════════════════════════════════
-// PDF UPLOAD — Bring Your Own Papers
+// FIGURE SUGGESTIONS — "This would make a great figure"
+// ═══════════════════════════════════════════
+
+// ═══════════════════════════════════════════
+// CONTEXT-AWARE FIGURE INTELLIGENCE
+// ═══════════════════════════════════════════
+
+// Figure types with generators
+const FIGURE_TYPES = {
+  gap_chart:      { label: 'Gap Visualization',          icon: '⬤', desc: 'Confirmed research gaps as a visual chart' },
+  network_map:    { label: 'Literature Network Map',     icon: '🕸', desc: 'Subgroup connectivity showing how themes relate' },
+  author_chart:   { label: 'Author Frequency Chart',    icon: '👥', desc: 'Who dominates this field by cross-subgroup presence' },
+  slr_table:      { label: 'SLR Methodology Table',     icon: '📊', desc: 'Systematic search architecture as a publishable figure' },
+  flow_diagram:   { label: 'Flow Diagram',              icon: '→',  desc: 'Step-by-step process or methodology schematic' },
+  timeline:       { label: 'Timeline',                  icon: '📅', desc: 'Chronological progression of research or events' },
+  concept_map:    { label: 'Concept Map',               icon: '◈',  desc: 'Relationships between key concepts and themes' },
+  cluster_map:    { label: 'Cluster Map',               icon: '◉',  desc: 'Grouped themes showing how topics cluster together' },
+  variable_diagram: { label: 'Variable Relationship',  icon: '↔',  desc: 'How independent, dependent, and mediating variables relate' },
+  comparison_chart: { label: 'Comparison Chart',       icon: '≡',  desc: 'Side-by-side comparison of findings, methods, or frameworks' }
+};
+
+// Per-section: which figure types to offer + data-driven ones from search
+const SECTION_FIGURE_MAP = {
+  'introduction':    ['concept_map', 'timeline'],
+  'methods':         ['slr_table', 'flow_diagram'],
+  'results-1':       ['author_chart', 'cluster_map', 'network_map'],
+  'results-2':       ['cluster_map', 'comparison_chart'],
+  'results-gaps':    ['gap_chart', 'network_map'],
+  'discussion':      ['concept_map', 'variable_diagram', 'comparison_chart'],
+  'conclusion':      ['timeline', 'concept_map'],
+  'thesis-ch1':      ['concept_map', 'timeline'],
+  'thesis-ch2':      ['network_map', 'author_chart', 'cluster_map', 'concept_map'],
+  'thesis-ch3':      ['slr_table', 'flow_diagram', 'variable_diagram'],
+  'thesis-ch4':      ['comparison_chart', 'cluster_map'],
+  'thesis-ch5':      ['concept_map', 'variable_diagram', 'comparison_chart'],
+  'thesis-ch6':      ['timeline', 'concept_map'],
+  'poster-background': ['concept_map'],
+  'poster-methods':    ['slr_table', 'flow_diagram'],
+  'poster-findings':   ['author_chart', 'cluster_map'],
+  'poster-gaps':       ['gap_chart']
+};
+
+// Text-based detection — scan generated text for figure triggers
+const TEXT_TRIGGERS = [
+  { patterns: [/trend/i, /over time/i, /chronolog/i, /year.*year/i, /decade/i, /history/i, /evolv/i], types: ['timeline'] },
+  { patterns: [/cluster/i, /group/i, /categor/i, /theme/i, /domain/i, /area/i], types: ['cluster_map'] },
+  { patterns: [/gap/i, /missing/i, /absent/i, /no stud/i, /understudied/i, /future research/i], types: ['gap_chart'] },
+  { patterns: [/framework/i, /model/i, /theory/i, /concept/i, /relationship/i, /interact/i], types: ['concept_map'] },
+  { patterns: [/step/i, /process/i, /procedure/i, /method/i, /phase/i, /stage/i, /protocol/i], types: ['flow_diagram'] },
+  { patterns: [/variable/i, /predict/i, /mediat/i, /moderat/i, /correlat/i, /associat/i], types: ['variable_diagram'] },
+  { patterns: [/compar/i, /versus/i, /contrast/i, /differ/i, /similar/i, /both.*and/i], types: ['comparison_chart'] },
+];
+
+function detectFigureTypesFromText(text) {
+  if (!text || text.length < 100) return [];
+  const detected = new Set();
+  TEXT_TRIGGERS.forEach(trigger => {
+    if (trigger.patterns.some(p => p.test(text))) {
+      trigger.types.forEach(t => detected.add(t));
+    }
+  });
+  return [...detected];
+}
+
+function suggestFigureForSection(sectionId, sec) {
+  const dismissed = sessionStorage.getItem('fig-dismissed-' + sectionId);
+  if (dismissed) return;
+
+  const hasData = (state.gapFindings?.length > 0) ||
+                  (Object.keys(state.authorCounts || {}).length > 0) ||
+                  (Object.keys(state.papers || {}).length > 0);
+  if (!hasData) return;
+
+  const workspace = document.getElementById('draft-section-content');
+  if (!workspace || workspace.querySelector('.figure-nudge')) return;
+
+  // Get section-specific types + text-detected types
+  const sectionTypes = SECTION_FIGURE_MAP[sectionId] || [];
+  const generatedText = draftState.generatedText[sectionId] || '';
+  const textTypes = detectFigureTypesFromText(generatedText);
+
+  // Merge, section-specific first, deduplicated
+  const allTypes = [...new Set([...sectionTypes, ...textTypes])].slice(0, 5);
+  if (allTypes.length === 0) return;
+
+  // Build the nudge
+  const nudge = document.createElement('div');
+  nudge.className = 'figure-nudge';
+  nudge.style.cssText = 'background:rgba(40,92,77,0.06);border:1px solid rgba(40,92,77,0.25);border-left:3px solid #285C4D;padding:14px 16px;margin-bottom:20px;';
+
+  const typeButtons = allTypes.map(typeId => {
+    const t = FIGURE_TYPES[typeId];
+    if (!t) return '';
+    return `<button onclick="generateFigureFromSection('${sectionId}','${typeId}')"
+      style="padding:7px 12px;background:white;border:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink);cursor:pointer;text-align:left;transition:all 0.15s;display:flex;align-items:center;gap:6px;"
+      onmouseover="this.style.borderColor='#285C4D';this.style.background='rgba(40,92,77,0.06)'"
+      onmouseout="this.style.borderColor='var(--border)';this.style.background='white'">
+      <span style="font-size:12px;">${t.icon}</span>
+      <span>${t.label}</span>
+    </button>`;
+  }).join('');
+
+  nudge.innerHTML = `
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;">
+      <div>
+        <div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:3px;">This section contains information that would make a strong figure.</div>
+        <div style="font-size:12px;color:var(--muted);">Select a figure type to generate now, or dismiss.</div>
+      </div>
+      <button onclick="this.closest('.figure-nudge').remove();sessionStorage.setItem('fig-dismissed-${sectionId}','1')"
+        style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:0 0 0 12px;flex-shrink:0;">✕</button>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;">
+      ${typeButtons}
+    </div>
+    <div id="nudge-status-${sectionId}" style="margin-top:8px;font-size:11px;color:var(--green);display:none;"></div>
+  `;
+
+  const genDiv = workspace.querySelector(`#generated-text-${sectionId}`);
+  if (genDiv) genDiv.parentNode.insertBefore(nudge, genDiv);
+  else workspace.insertBefore(nudge, workspace.firstChild);
+}
+
+async function generateFigureFromSection(sectionId, typeId) {
+  const statusEl = document.getElementById('nudge-status-' + sectionId);
+  const clickedBtn = event?.target?.closest('button');
+  if (clickedBtn) { clickedBtn.style.background = 'rgba(40,92,77,0.1)'; clickedBtn.style.borderColor = '#285C4D'; }
+  if (statusEl) { statusEl.style.display = 'block'; statusEl.textContent = 'Generating figure...'; }
+
+  try {
+    const figType = FIGURE_TYPES[typeId];
+    let dataUrl, name, caption;
+
+    // Data-driven figures — built from search state
+    if (typeId === 'gap_chart') {
+      dataUrl = await generateGapSummarySVG();
+      name = 'Gap_Analysis_Figure.svg';
+      caption = `Research gap analysis: ${(state.gapFindings||[]).length} confirmed gaps across ${(state.subgroups||[]).length} subgroups. Zero-yield intersections represent original research opportunities in ${state.anchor || 'this field'}.`;
+
+    } else if (typeId === 'network_map') {
+      const svg = document.getElementById('network-svg');
+      if (svg && svg.innerHTML.trim().length > 200) {
+        const svgData = new XMLSerializer().serializeToString(svg);
+        const blob = new Blob([svgData], { type: 'image/svg+xml' });
+        dataUrl = await blobToDataUrl(blob);
+      } else {
+        dataUrl = await generateGapSummarySVG(); // fallback
+      }
+      name = 'Literature_Network_Map.svg';
+      caption = `Literature network map showing connectivity between ${(state.subgroups||[]).length} search subgroups. Nodes sized by connection degree. Gold = hub papers. Red = confirmed gaps.`;
+
+    } else if (typeId === 'author_chart') {
+      dataUrl = await generateAuthorChartSVG();
+      name = 'Author_Frequency_Chart.svg';
+      caption = `Top authors ranked by cross-subgroup frequency in ${state.anchor || 'the literature'}. Authors appearing across multiple subgroups represent foundational voices in the field.`;
+
+    } else if (typeId === 'slr_table') {
+      dataUrl = await generateSLRTableSVG();
+      name = 'SLR_Methodology_Table.svg';
+      caption = `Systematic literature review keyword architecture. ${(state.subgroups||[]).length} subgroups searched via OpenAlex. ${Object.keys(state.papers||{}).length} papers retrieved using progressive Boolean AND narrowing.`;
+
+    } else {
+      // AI-generated conceptual figures — use Claude API if available
+      dataUrl = await generateConceptualFigureSVG(typeId, sectionId);
+      name = typeId.replace(/_/g, '_') + '_Figure.svg';
+      caption = figType.desc + '. Generated by SLR Studio from section content.';
+    }
+
+    // Add to posterAssets
+    const fig = {
+      id: 'fig_' + typeId + '_' + Date.now(),
+      name,
+      dataUrl,
+      caption,
+      source: 'generated',
+      figType: typeId,
+      forSection: sectionId
+    };
+    posterAssets.figures.push(fig);
+
+    // Show inline preview
+    const nudge = document.querySelector('.figure-nudge');
+    if (nudge) {
+      const previewDiv = document.createElement('div');
+      previewDiv.style.cssText = 'margin-top:12px;border-top:1px solid rgba(40,92,77,0.2);padding-top:12px;';
+      previewDiv.innerHTML = `
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#285C4D;margin-bottom:8px;letter-spacing:0.1em;text-transform:uppercase;">✓ ${figType.label} generated</div>
+        <img src="${dataUrl}" alt="${name}" style="width:100%;max-height:180px;object-fit:contain;background:var(--ink);padding:8px;border:1px solid rgba(255,255,255,0.08);">
+        <div style="font-size:11px;color:var(--muted);margin-top:6px;font-style:italic;line-height:1.4;">${caption.slice(0, 120)}...</div>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <button onclick="downloadFigure('${dataUrl}','${name}')" style="font-family:'JetBrains Mono',monospace;font-size:9px;padding:5px 12px;background:transparent;color:#285C4D;border:1px solid rgba(40,92,77,0.4);cursor:pointer;text-transform:uppercase;letter-spacing:0.06em;">Download</button>
+          <span style="font-size:10px;color:var(--muted);align-self:center;">Also saved to Poster Assets</span>
+        </div>
+      `;
+      nudge.appendChild(previewDiv);
+    }
+
+    if (statusEl) statusEl.style.display = 'none';
+
+  } catch(e) {
+    if (statusEl) { statusEl.textContent = 'Error: ' + e.message; statusEl.style.color = 'var(--red)'; }
+    console.error('Figure generation error:', e);
+  }
+}
+
+async function generateConceptualFigureSVG(typeId, sectionId) {
+  // Generate conceptual figures from section content using Claude API
+  // For non-API mode, generate a structured placeholder SVG
+  const generatedText = draftState.generatedText[sectionId] || draftState.ownContent?.[sectionId] || '';
+  const anchor = state.anchor || 'research topic';
+
+  if (state.apiKey && generatedText.length > 100) {
+    try {
+      const figType = FIGURE_TYPES[typeId];
+      const prompt = `You are generating SVG code for an academic figure.
+
+Figure type: ${figType.label}
+Research topic: ${anchor}
+Section content (first 500 chars): ${generatedText.slice(0, 500)}
+
+Generate a clean, professional SVG figure (800x500px, dark background #0a0a0f). Extract 4-7 key concepts/steps/variables from the content and visualize them.
+
+Rules:
+- Dark background (#0a0a0f), white/gold text
+- Use #c9903a for highlights, #1a2744 for secondary nodes
+- Font: monospace for labels
+- Clean, publication-ready style
+- ${typeId === 'flow_diagram' ? 'Show boxes connected by arrows in a logical sequence' : ''}
+- ${typeId === 'concept_map' ? 'Show central concept with radiating connections to sub-concepts' : ''}
+- ${typeId === 'timeline' ? 'Show horizontal timeline with labeled events/phases' : ''}
+- ${typeId === 'cluster_map' ? 'Show grouped circles representing thematic clusters' : ''}
+- ${typeId === 'variable_diagram' ? 'Show IV → mediator → DV with labeled arrows' : ''}
+- ${typeId === 'comparison_chart' ? 'Show side-by-side columns comparing key dimensions' : ''}
+
+Return ONLY the SVG code, starting with <svg. No explanation.`;
+
+      const resp = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-api-key': state.apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+        body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 2000, messages: [{ role: 'user', content: prompt }] })
+      });
+      const data = await resp.json();
+      const svgText = data.content?.[0]?.text?.trim() || '';
+      if (svgText.startsWith('<svg')) {
+        const blob = new Blob([svgText], { type: 'image/svg+xml' });
+        return await blobToDataUrl(blob);
+      }
+    } catch(e) {
+      console.warn('API figure generation failed, using fallback:', e.message);
+    }
+  }
+
+  // Fallback: structured placeholder SVG based on type
+  return generatePlaceholderFigureSVG(typeId, sectionId, anchor);
+}
+
+function generatePlaceholderFigureSVG(typeId, sectionId, anchor) {
+  const sec = draftState.sections.find(s => s.id === sectionId);
+  const title = sec?.title || typeId.replace(/_/g, ' ');
+  const text = draftState.generatedText[sectionId] || draftState.ownContent?.[sectionId] || '';
+
+  // Extract key phrases from text for labels
+  const words = text.split(/\s+/).filter(w => w.length > 5 && !['which','their','these','those','there','would','should','could','about','after','before','during','while','where','through','between','within','without'].includes(w.toLowerCase()));
+  const uniqueWords = [...new Set(words.map(w => w.replace(/[^a-zA-Z]/g,'').toLowerCase()))].filter(Boolean);
+  const labels = uniqueWords.slice(0, 6).map(w => w.charAt(0).toUpperCase() + w.slice(1));
+  while (labels.length < 4) labels.push(['Theme ' + (labels.length+1), 'Concept', 'Variable', 'Category'][labels.length]);
+
+  const W = 800, H = 480;
+  let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" font-family="monospace">`;
+  svg += `<rect width="${W}" height="${H}" fill="#0a0a0f"/>`;
+  svg += `<text x="${W/2}" y="28" font-size="12" fill="#c9903a" text-anchor="middle" font-weight="bold" letter-spacing="2">${title.toUpperCase()} — ${anchor.toUpperCase()}</text>`;
+  svg += `<text x="${W/2}" y="46" font-size="9" fill="rgba(245,243,238,0.3)" text-anchor="middle">Add an Anthropic API key to generate this figure automatically from your content</text>`;
+
+  if (typeId === 'flow_diagram') {
+    const steps = labels.slice(0, 5);
+    const boxW = 120, boxH = 50, gap = 30;
+    const totalW = steps.length * boxW + (steps.length - 1) * gap;
+    const startX = (W - totalW) / 2;
+    const y = H / 2 - boxH / 2;
+    steps.forEach((step, i) => {
+      const x = startX + i * (boxW + gap);
+      svg += `<rect x="${x}" y="${y}" width="${boxW}" height="${boxH}" fill="#1a2744" stroke="#4a6fa5" stroke-width="1" rx="4"/>`;
+      svg += `<text x="${x + boxW/2}" y="${y + boxH/2 + 4}" font-size="11" fill="#f5f3ee" text-anchor="middle">${step.slice(0,12)}</text>`;
+      if (i < steps.length - 1) {
+        svg += `<line x1="${x + boxW}" y1="${y + boxH/2}" x2="${x + boxW + gap}" y2="${y + boxH/2}" stroke="#c9903a" stroke-width="2"/>`;
+        svg += `<polygon points="${x+boxW+gap},${y+boxH/2-5} ${x+boxW+gap+8},${y+boxH/2} ${x+boxW+gap},${y+boxH/2+5}" fill="#c9903a"/>`;
+      }
+    });
+
+  } else if (typeId === 'concept_map') {
+    const cx = W/2, cy = H/2;
+    svg += `<ellipse cx="${cx}" cy="${cy}" rx="80" ry="40" fill="#c9903a" stroke="#e8b86a" stroke-width="2"/>`;
+    svg += `<text x="${cx}" y="${cy+5}" font-size="12" fill="#0a0a0f" text-anchor="middle" font-weight="bold">${anchor.slice(0,14)}</text>`;
+    labels.slice(0, 5).forEach((lbl, i) => {
+      const angle = (i / 5) * Math.PI * 2 - Math.PI / 2;
+      const nx = cx + 180 * Math.cos(angle);
+      const ny = cy + 130 * Math.sin(angle);
+      svg += `<line x1="${cx}" y1="${cy}" x2="${nx}" y2="${ny}" stroke="rgba(201,144,58,0.4)" stroke-width="1.5"/>`;
+      svg += `<ellipse cx="${nx}" cy="${ny}" rx="65" ry="30" fill="#1a2744" stroke="#4a6fa5" stroke-width="1"/>`;
+      svg += `<text x="${nx}" y="${ny+5}" font-size="10" fill="#f5f3ee" text-anchor="middle">${lbl.slice(0,12)}</text>`;
+    });
+
+  } else if (typeId === 'cluster_map') {
+    const clusters = labels.slice(0, 4);
+    const positions = [{x:220,y:180},{x:580,y:180},{x:220,y:340},{x:580,y:340}];
+    const colors = ['#1a2744','#285C4D','#6b0f1a','#2d2d4e'];
+    clusters.forEach((lbl, i) => {
+      const p = positions[i];
+      svg += `<circle cx="${p.x}" cy="${p.y}" r="75" fill="${colors[i]}" stroke="rgba(201,144,58,0.3)" stroke-width="1.5"/>`;
+      svg += `<text x="${p.x}" y="${p.y-8}" font-size="11" fill="#c9903a" text-anchor="middle" font-weight="bold">Cluster ${i+1}</text>`;
+      svg += `<text x="${p.x}" y="${p.y+8}" font-size="10" fill="rgba(245,243,238,0.8)" text-anchor="middle">${lbl.slice(0,12)}</text>`;
+    });
+    svg += `<line x1="295" y1="215" x2="505" y2="215" stroke="rgba(201,144,58,0.2)" stroke-width="1" stroke-dasharray="4,4"/>`;
+    svg += `<line x1="400" y1="255" x2="400" y2="305" stroke="rgba(201,144,58,0.2)" stroke-width="1" stroke-dasharray="4,4"/>`;
+
+  } else if (typeId === 'timeline') {
+    const events = labels.slice(0, 5);
+    const lineY = H / 2;
+    svg += `<line x1="60" y1="${lineY}" x2="${W-60}" y2="${lineY}" stroke="#c9903a" stroke-width="2"/>`;
+    events.forEach((evt, i) => {
+      const x = 60 + (i / (events.length - 1)) * (W - 120);
+      const above = i % 2 === 0;
+      svg += `<circle cx="${x}" cy="${lineY}" r="8" fill="#c9903a"/>`;
+      svg += `<line x1="${x}" y1="${above ? lineY-8 : lineY+8}" x2="${x}" y2="${above ? lineY-50 : lineY+50}" stroke="rgba(201,144,58,0.5)" stroke-width="1"/>`;
+      svg += `<text x="${x}" y="${above ? lineY-60 : lineY+68}" font-size="10" fill="#f5f3ee" text-anchor="middle">${evt.slice(0,12)}</text>`;
+      svg += `<text x="${x}" y="${above ? lineY-46 : lineY+82}" font-size="9" fill="rgba(245,243,238,0.4)" text-anchor="middle">Phase ${i+1}</text>`;
+    });
+
+  } else {
+    // Generic: variable diagram or comparison
+    const items = labels.slice(0, 4);
+    items.forEach((item, i) => {
+      const x = 100 + i * 160;
+      const y = H / 2 - 30;
+      svg += `<rect x="${x}" y="${y}" width="120" height="60" fill="#1a2744" stroke="#4a6fa5" stroke-width="1" rx="4"/>`;
+      svg += `<text x="${x+60}" y="${y+35}" font-size="11" fill="#f5f3ee" text-anchor="middle">${item.slice(0,12)}</text>`;
+      if (i < items.length - 1) {
+        svg += `<line x1="${x+120}" y1="${y+30}" x2="${x+160}" y2="${y+30}" stroke="#c9903a" stroke-width="1.5"/>`;
+      }
+    });
+  }
+
+  svg += `<text x="${W/2}" y="${H-10}" font-size="8" fill="rgba(245,243,238,0.2)" text-anchor="middle">Generated by SLR Studio · ETL · Wright State University</text>`;
+  svg += `</svg>`;
+
+  const blob = new Blob([svg], { type: 'image/svg+xml' });
+  return blobToDataUrl(blob);
+}
+
+function downloadFigure(dataUrl, filename) {
+  const a = document.createElement('a');
+  a.href = dataUrl;
+  a.download = filename;
+  a.click();
+}
+
+// Auto-import all SLR figures when entering poster mode
+async function autoImportSLRFiguresForPoster() {
+  const hasData = Object.keys(state.papers || {}).length > 0;
+  if (!hasData) return;
+
+  // Only auto-import once per session
+  if (sessionStorage.getItem('slr-figures-imported')) return;
+  sessionStorage.setItem('slr-figures-imported', '1');
+
+  // Show a banner
+  const banner = document.createElement('div');
+  banner.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);border:1px solid rgba(40,92,77,0.5);padding:16px 24px;z-index:999;display:flex;align-items:center;gap:16px;max-width:560px;width:90%;';
+  banner.innerHTML = `
+    <div style="flex:1;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#285C4D;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px;">Poster Assets Available</div>
+      <div style="font-size:13px;color:var(--paper);">Your SLR table, author chart, network map, and gap summary are ready to import as poster figures.</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-shrink:0;">
+      <button onclick="importAllSLRFigures(this)" style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;padding:8px 14px;background:#285C4D;color:white;border:none;cursor:pointer;font-weight:700;">Import All</button>
+      <button onclick="this.closest('div[style]').remove()" style="font-family:'JetBrains Mono',monospace;font-size:10px;padding:8px 12px;background:transparent;color:rgba(245,243,238,0.4);border:1px solid rgba(255,255,255,0.1);cursor:pointer;">Later</button>
+    </div>
+  `;
+  document.body.appendChild(banner);
+  setTimeout(() => { if (banner.parentNode) banner.remove(); }, 12000);
+}
+
+async function importAllSLRFigures(btn) {
+  if (btn) { btn.textContent = 'Importing...'; btn.disabled = true; }
+  try {
+    await importSLRFigure('table');
+    await importSLRFigure('authors');
+    await importSLRFigure('network');
+    await importSLRFigure('gaps');
+    const banner = btn?.closest('div[style]');
+    if (banner) {
+      banner.innerHTML = `<div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#285C4D;letter-spacing:0.1em;">✓ 4 figures imported to Poster Assets. Check the right panel.</div>`;
+      setTimeout(() => banner.remove(), 3000);
+    }
+    renderFigureList();
+  } catch(e) {
+    console.error('Auto-import error:', e);
+    if (btn) { btn.textContent = 'Error'; }
+  }
+}
 // ═══════════════════════════════════════════
 
 const PDF_SG_INDEX = 999; // Special SG index for uploaded papers
@@ -6514,6 +7617,31 @@ restoreSession();
 
     <div style="padding:20px;flex:1;overflow-y:auto;">
 
+      <!-- Poster Type -->
+      <div style="margin-bottom:24px;padding:14px;background:rgba(201,144,58,0.06);border:1px solid rgba(201,144,58,0.2);">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;">What type of poster?</div>
+        <div style="display:flex;flex-direction:column;gap:6px;" id="poster-type-group">
+          <button onclick="setPosterType('lit-review')" id="ptype-lit-review" class="ptype-btn ptype-active">Literature Review</button>
+          <button onclick="setPosterType('primary')" id="ptype-primary" class="ptype-btn">Primary Research</button>
+          <button onclick="setPosterType('case-study')" id="ptype-case-study" class="ptype-btn">Case Study</button>
+          <button onclick="setPosterType('mixed')" id="ptype-mixed" class="ptype-btn">Mixed Methods</button>
+        </div>
+        <div style="font-size:10px;color:rgba(245,243,238,0.35);margin-top:8px;line-height:1.5;" id="poster-type-hint">Sections and paper suggestions adapt to your poster type.</div>
+      </div>
+
+      <!-- Import from SLR -->
+      <div style="margin-bottom:24px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(245,243,238,0.4);margin-bottom:10px;">Import from Search</div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <button onclick="importSLRFigure('network')" style="width:100%;padding:8px 10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(245,243,238,0.6);cursor:pointer;text-align:left;transition:all 0.15s;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)';this.style.color='rgba(245,243,238,0.6)'">🕸 Literature Network Map</button>
+          <button onclick="importSLRFigure('table')" style="width:100%;padding:8px 10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(245,243,238,0.6);cursor:pointer;text-align:left;transition:all 0.15s;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)';this.style.color='rgba(245,243,238,0.6)'">📊 SLR Keyword Table</button>
+          <button onclick="importSLRFigure('authors')" style="width:100%;padding:8px 10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(245,243,238,0.6);cursor:pointer;text-align:left;transition:all 0.15s;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)';this.style.color='rgba(245,243,238,0.6)'">👥 Author Chart</button>
+          <button onclick="importSLRFigure('gaps')" style="width:100%;padding:8px 10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(245,243,238,0.6);cursor:pointer;text-align:left;transition:all 0.15s;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)';this.style.color='rgba(245,243,238,0.6)'">⬤ Gap Summary Chart</button>
+          <button onclick="viewNetworkMap()" style="width:100%;padding:8px 10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(245,243,238,0.6);cursor:pointer;text-align:left;transition:all 0.15s;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)';this.style.color='rgba(245,243,238,0.6)'">↗ View Network Map (Screen 7)</button>
+        </div>
+        <div id="import-status-s8" style="font-size:10px;color:var(--gold);margin-top:6px;display:none;"></div>
+      </div>
+
       <!-- Poster Size -->
       <div style="margin-bottom:24px;">
         <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(245,243,238,0.4);margin-bottom:10px;">Poster Size</div>
@@ -6606,6 +7734,23 @@ restoreSession();
       <div style="font-size:12px;color:rgba(245,243,238,0.5);">Click a section on the poster to edit it.</div>
     </div>
     <div id="poster-section-list" style="padding:12px;"></div>
+
+    <!-- Paper checklist for poster populate -->
+    <div style="border-top:1px solid rgba(255,255,255,0.06);padding:12px 16px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(245,243,238,0.4);margin-bottom:10px;">Papers for This Section</div>
+      <div id="paper-checklist-poster">
+        <div style="font-size:12px;color:rgba(245,243,238,0.4);font-style:italic;">Click a section above to see relevant papers.</div>
+      </div>
+    </div>
+
+    <!-- Poster Day Photo -->
+    <div style="border-top:1px solid rgba(255,255,255,0.06);padding:12px 16px;">
+      <button onclick="openSelfieModal()" style="width:100%;padding:10px;background:transparent;border:1px solid rgba(201,144,58,0.4);color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+        📸 Poster Day Photo
+      </button>
+      <div style="font-size:10px;color:rgba(245,243,238,0.3);margin-top:6px;line-height:1.5;text-align:center;">Upload your photo. Pick a scene. See yourself at your poster presentation.</div>
+    </div>
+
   </div>
 
 </div>
@@ -6627,6 +7772,12 @@ restoreSession();
 }
 .psize-btn:hover { border-color:var(--gold); color:var(--gold); }
 .psize-active { border-color:var(--gold) !important; color:var(--gold) !important; background:rgba(201,144,58,0.1) !important; }
+.ptype-btn { width:100%;padding:7px 10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(245,243,238,0.5);cursor:pointer;text-align:left;transition:all 0.15s;letter-spacing:0.04em; }
+.ptype-btn:hover { border-color:var(--gold);color:var(--gold); }
+.ptype-active { border-color:var(--gold) !important;color:var(--gold) !important;background:rgba(201,144,58,0.1) !important; }
+.gl-btn { padding:10px 6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:rgba(245,243,238,0.6);cursor:pointer;text-align:center;transition:all 0.15s;font-family:'JetBrains Mono',monospace; }
+.gl-btn:hover { border-color:var(--gold);color:var(--gold); }
+.gl-active { border-color:var(--gold) !important;color:var(--gold) !important;background:rgba(201,144,58,0.1) !important; }
 
 .logo-place-btn {
   flex:1;padding:6px 4px;
@@ -6680,6 +7831,92 @@ restoreSession();
 </style>
 
 <!-- ═══ POSTER SELFIE MODAL ═══ -->
+<!-- RUBRIC MODAL -->
+<div id="rubric-modal" onclick="if(event.target===this)this.style.display='none'" style="display:none;position:fixed;inset:0;z-index:3000;background:rgba(0,0,0,0.85);align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;">
+  <div style="background:#0e1117;border:1px solid rgba(255,255,255,0.08);max-width:900px;width:100%;margin:auto;position:relative;">
+    <div style="background:#0a0a0f;padding:24px 32px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:flex-start;justify-content:space-between;gap:16px;">
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;" id="rubric-modal-eyebrow">Assessment Rubric</div>
+        <div style="font-family:'Playfair Display',serif;font-size:20px;color:var(--paper);" id="rubric-modal-title">Loading...</div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;flex-shrink:0;">
+        <button onclick="evaluateCurrentWork()" id="btn-evaluate" style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;padding:8px 16px;background:var(--gold);color:var(--ink);border:none;cursor:pointer;font-weight:700;">⚡ Evaluate My Work</button>
+        <button onclick="document.getElementById('rubric-modal').style.display='none'" style="background:none;border:none;color:rgba(245,243,238,0.4);cursor:pointer;font-size:20px;line-height:1;">✕</button>
+      </div>
+    </div>
+
+    <!-- Ribbon Award Display -->
+    <div id="ribbon-display" style="display:none;padding:20px 32px;border-bottom:1px solid rgba(255,255,255,0.06);">
+      <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
+        <div id="ribbon-badge" style="width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;"></div>
+        <div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(245,243,238,0.4);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;">Performance Level</div>
+          <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;" id="ribbon-level-label"></div>
+          <div style="font-size:12px;color:rgba(245,243,238,0.5);margin-top:3px;" id="ribbon-summary"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rubric Table -->
+    <div id="rubric-table-container" style="padding:24px 32px;overflow-x:auto;"></div>
+
+    <!-- Evaluation Results -->
+    <div id="eval-results" style="display:none;padding:0 32px 24px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(245,243,238,0.4);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;">Evaluation Detail</div>
+      <div id="eval-results-content"></div>
+      <div style="margin-top:16px;padding:14px 16px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
+        <div style="font-size:11px;color:rgba(245,243,238,0.4);line-height:1.6;">This evaluation is AI-assisted, not AI-graded. It checks for the presence and quality of required components based on your evidence. Faculty retain full authority over final grades.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FACULTY MODAL -->
+<div id="slr-faculty-modal" onclick="if(event.target===this)this.style.display='none'" style="display:none;position:fixed;inset:0;z-index:3000;background:rgba(0,0,0,0.85);align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#f5f3ee;max-width:720px;width:100%;max-height:90vh;overflow-y:auto;position:relative;">
+    <div style="background:#0a0a0f;padding:28px 36px 20px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;">For Faculty</div>
+      <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--paper);line-height:1.2;">SLR Studio Is AI&#8209;Assisted.<br>Not AI&#8209;Authored.</div>
+      <button onclick="document.getElementById('slr-faculty-modal').style.display='none'" style="position:absolute;top:20px;right:24px;background:none;border:none;font-size:20px;cursor:pointer;color:rgba(245,243,238,0.4);line-height:1;">✕</button>
+    </div>
+
+    <div style="padding:28px 36px;font-family:'Georgia',serif;">
+      <p style="font-size:14px;color:#333;line-height:1.75;border-left:3px solid #C6A667;padding-left:14px;margin-bottom:28px;">Students still think, decide, interpret, and write. SLR Studio provides structure, evidence, and learning scaffolds. It is a teaching tool, not a writing shortcut.</p>
+
+      <div style="display:grid;gap:20px;">
+        <div>
+          <div style="font-family:'Oswald',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#0a0a0f;margin-bottom:6px;">1. Students Do the Intellectual Work</div>
+          <p style="font-size:13px;color:#444;line-height:1.7;margin:0;">SLR Studio requires students to build a defensible keyword architecture, conduct a systematic search, examine subgroup patterns, identify foundation papers, interpret gaps, make decisions about relevance and inclusion, and understand how the literature fits together. These are the core cognitive tasks faculty expect at the graduate level. The tool forces them, not bypasses them.</p>
+        </div>
+        <div style="border-top:1px solid #ddd;padding-top:18px;">
+          <div style="font-family:'Oswald',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#0a0a0f;margin-bottom:6px;">2. Writing Is Grounded in the Student's Actual Sources</div>
+          <p style="font-size:13px;color:#444;line-height:1.7;margin:0;">Generic LLMs hallucinate citations. SLR Studio avoids this because students supply their own PDFs, the system extracts real metadata, all tables are built from actual retrieved papers, and any generated text must cite from the student's evidence set. This ensures traceability and academic integrity.</p>
+        </div>
+        <div style="border-top:1px solid #ddd;padding-top:18px;">
+          <div style="font-family:'Oswald',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#0a0a0f;margin-bottom:6px;">3. Section-Based Scaffolding, Not "Write My Paper"</div>
+          <p style="font-size:13px;color:#444;line-height:1.7;margin:0;">SLR Studio never produces a full paper from a single prompt. It guides students through individual components one at a time. Students still read, interpret, select, synthesize, revise, and defend. The AI helps them express what they have already learned.</p>
+        </div>
+        <div style="border-top:1px solid #ddd;padding-top:18px;">
+          <div style="font-family:'Oswald',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#0a0a0f;margin-bottom:6px;">4. The Output Is a Draft, Not a Finished Product</div>
+          <p style="font-size:13px;color:#444;line-height:1.7;margin:0;">Everything generated is editable, revisable, transparent, traceable, and based on the student's own sources. The student must refine, integrate, and defend the work. This aligns with the expectations of graduate committees and accreditation bodies.</p>
+        </div>
+        <div style="border-top:1px solid #ddd;padding-top:18px;">
+          <div style="font-family:'Oswald',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#0a0a0f;margin-bottom:6px;">5. Faculty Retain Full Oversight</div>
+          <p style="font-size:13px;color:#444;line-height:1.7;margin:0;">Because the system is structured and evidence-based, faculty can see what papers were used, how the student organized the literature, where the gaps came from, how the argument was constructed, and what the AI generated versus what the student wrote. This transparency is impossible with generic LLMs.</p>
+        </div>
+        <div style="background:#0a0a0f;padding:22px 26px;margin-top:4px;">
+          <p style="font-size:14px;color:#f5f3ee;line-height:1.75;margin:0;font-family:'Georgia',serif;">SLR Studio is an AI-assisted learning environment, not an AI writing replacement. It strengthens research skills, reduces hallucinations, and keeps students grounded in real evidence. <strong style="color:#C6A667;">The student remains the thinker, the analyst, and the author.</strong></p>
+        </div>
+      </div>
+
+      <div style="margin-top:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+        <div style="font-size:11px;color:#999;font-family:'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase;">Emerging Technologies Laboratory · Wright State University</div>
+        <button onclick="document.getElementById('slr-faculty-modal').style.display='none'" style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;padding:9px 22px;background:#0a0a0f;color:#fff;border:none;cursor:pointer;">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="poster-selfie-modal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(10,10,15,0.92);align-items:center;justify-content:center;">
   <div style="background:var(--paper);max-width:860px;width:92%;max-height:92vh;overflow-y:auto;position:relative;">
 
@@ -6913,6 +8150,206 @@ function handleFigureUpload(event) {
   event.target.value = '';
 }
 
+async function importSLRFigure(type) {
+  const statusEl = document.getElementById('import-slr-status');
+  const s8status = document.getElementById('import-status-s8');
+  const updateStatus = (msg, color) => {
+    [statusEl, s8status].forEach(el => {
+      if (!el) return;
+      el.style.display = 'block';
+      el.style.color = color || 'var(--green)';
+      el.textContent = msg;
+    });
+  };
+  updateStatus('Capturing...');
+
+  try {
+    let dataUrl, name, caption;
+
+    if (type === 'network') {
+      // Capture the D3 SVG network map
+      const svg = document.getElementById('network-svg');
+      if (!svg) throw new Error('Run a search first to generate the network map.');
+      const svgData = new XMLSerializer().serializeToString(svg);
+      const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+      dataUrl = await blobToDataUrl(svgBlob);
+      name = 'Literature_Network_Map.svg';
+      caption = `Literature network map showing connectivity between ${(state.subgroups||[]).length} search subgroups. Node size reflects connection degree. Gold nodes are hubs. Red-bordered nodes are confirmed research gaps.`;
+
+    } else if (type === 'table') {
+      // Capture SLR table as SVG summary
+      dataUrl = await generateSLRTableSVG();
+      name = 'SLR_Keyword_Table.svg';
+      caption = `Systematic literature review keyword architecture. ${(state.subgroups||[]).length} subgroups searched. ${Object.keys(state.papers||{}).length} papers retrieved. ${(state.gapFindings||[]).length} confirmed gaps.`;
+
+    } else if (type === 'authors') {
+      // Build author bar chart SVG from state.authorCounts
+      dataUrl = await generateAuthorChartSVG();
+      name = 'Top_Authors_Chart.svg';
+      caption = `Top authors by cross-subgroup frequency. Authors appearing in multiple subgroups represent foundational voices in ${state.anchor || 'this research area'}.`;
+
+    } else if (type === 'gaps') {
+      // Build gap summary SVG
+      dataUrl = await generateGapSummarySVG();
+      name = 'Gap_Analysis_Summary.svg';
+      caption = `Research gap summary. ${(state.gapFindings||[]).length} confirmed gaps identified across ${(state.subgroups||[]).length} subgroups. Each bar represents a keyword intersection returning zero papers.`;
+    }
+
+    const fig = {
+      id: 'slr_' + type + '_' + Date.now(),
+      name,
+      dataUrl,
+      caption,
+      source: 'slr'
+    };
+    posterAssets.figures.push(fig);
+    renderFigureList();
+    updateStatus(`✓ ${name.replace(/_/g,' ').replace('.svg','')} added.`);
+    setTimeout(() => { [statusEl, s8status].forEach(el => { if (el) el.style.display = 'none'; }); }, 3000);
+
+  } catch(e) {
+    updateStatus('Error: ' + e.message, 'var(--red)');
+    console.error('Import figure error:', e);
+  }
+}
+
+function blobToDataUrl(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => resolve(e.target.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+function generateSLRTableSVG() {
+  const sgs = state.subgroups || [];
+  const papers = state.papers || {};
+  const paperSGs = state.paperSGs || {};
+  const gapFindings = state.gapFindings || [];
+
+  const W = 800, ROW = 22, PAD = 12;
+  const rows = Math.min(sgs.length, 25);
+  const H = ROW * (rows + 2) + PAD * 4;
+
+  // Count papers per SG
+  const sgCount = {};
+  Object.entries(paperSGs).forEach(([pid, sgList]) => {
+    sgList.forEach(i => { sgCount[i] = (sgCount[i] || 0) + 1; });
+  });
+  const gapSet = new Set(gapFindings.map(g => g.sgIndex));
+  const maxCount = Math.max(1, ...Object.values(sgCount));
+
+  let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" font-family="monospace">`;
+  svg += `<rect width="${W}" height="${H}" fill="#0a0a0f"/>`;
+
+  // Header
+  svg += `<text x="${PAD}" y="${PAD + 14}" font-size="11" fill="#c9903a" font-weight="bold" letter-spacing="2">SYSTEMATIC LITERATURE REVIEW — KEYWORD SUBGROUPS</text>`;
+  svg += `<text x="${PAD}" y="${PAD + 28}" font-size="9" fill="rgba(245,243,238,0.4)">${sgs.length} subgroups · ${Object.keys(papers).length} papers · ${gapFindings.length} gaps confirmed</text>`;
+
+  const startY = PAD + 44;
+  const barMaxW = 200;
+  const col1 = PAD, col2 = 60, col3 = W - barMaxW - 80, col4 = W - 50;
+
+  sgs.slice(0, 25).forEach((sg, i) => {
+    const y = startY + i * ROW;
+    const count = sgCount[i] || 0;
+    const isGap = gapSet.has(i) || count === 0;
+    const barW = isGap ? 0 : Math.round((count / maxCount) * barMaxW);
+    const rowBg = i % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent';
+    const barColor = isGap ? '#a82828' : count > maxCount * 0.6 ? '#c9903a' : '#1a2744';
+    const terms = sg.terms.slice(0, 3).join(' + ');
+    const shortTerms = terms.length > 60 ? terms.slice(0, 58) + '…' : terms;
+
+    svg += `<rect x="0" y="${y}" width="${W}" height="${ROW}" fill="${rowBg}"/>`;
+    svg += `<text x="${col1}" y="${y + 14}" font-size="9" fill="rgba(245,243,238,0.4)">SG${sg.id}</text>`;
+    svg += `<text x="${col2}" y="${y + 14}" font-size="9" fill="${isGap ? '#e05050' : 'rgba(245,243,238,0.8)'}">${shortTerms}</text>`;
+
+    if (!isGap && barW > 0) {
+      svg += `<rect x="${col3}" y="${y + 5}" width="${barW}" height="${ROW - 10}" fill="${barColor}" rx="2"/>`;
+    }
+    if (isGap) {
+      svg += `<text x="${col3}" y="${y + 14}" font-size="9" fill="#a82828">● GAP</text>`;
+    }
+    svg += `<text x="${col4}" y="${y + 14}" font-size="9" fill="${isGap ? '#a82828' : '#c9903a'}" text-anchor="end">${count}</text>`;
+  });
+
+  svg += `</svg>`;
+  const blob = new Blob([svg], { type: 'image/svg+xml' });
+  return blobToDataUrl(blob);
+}
+
+function generateAuthorChartSVG() {
+  const authorCounts = state.authorCounts || {};
+  const sorted = Object.entries(authorCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 12);
+
+  if (sorted.length === 0) throw new Error('No author data. Run a search first.');
+
+  const W = 700, BAR_H = 28, PAD = 16, LABEL_W = 200;
+  const H = sorted.length * (BAR_H + 6) + PAD * 4 + 40;
+  const maxCount = sorted[0][1];
+  const barMaxW = W - LABEL_W - PAD * 2 - 40;
+
+  let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" font-family="monospace">`;
+  svg += `<rect width="${W}" height="${H}" fill="#0a0a0f"/>`;
+  svg += `<text x="${PAD}" y="${PAD + 14}" font-size="11" fill="#c9903a" font-weight="bold" letter-spacing="2">TOP AUTHORS — CROSS-SUBGROUP FREQUENCY</text>`;
+  svg += `<text x="${PAD}" y="${PAD + 28}" font-size="9" fill="rgba(245,243,238,0.4)">${state.anchor || 'Research'} · ${sorted.length} authors shown</text>`;
+
+  const startY = PAD + 44;
+  sorted.forEach(([author, count], i) => {
+    const y = startY + i * (BAR_H + 6);
+    const barW = Math.round((count / maxCount) * barMaxW);
+    const isTop = i < 3;
+    const barColor = isTop ? '#c9903a' : '#1a2744';
+    const shortName = author.length > 28 ? author.slice(0, 27) + '…' : author;
+
+    svg += `<text x="${PAD}" y="${y + BAR_H * 0.65}" font-size="10" fill="${isTop ? '#e8b86a' : 'rgba(245,243,238,0.7)'}" text-anchor="start">${shortName}</text>`;
+    svg += `<rect x="${LABEL_W}" y="${y + 4}" width="${barW}" height="${BAR_H - 8}" fill="${barColor}" rx="2"/>`;
+    svg += `<text x="${LABEL_W + barW + 6}" y="${y + BAR_H * 0.65}" font-size="10" fill="${isTop ? '#c9903a' : 'rgba(245,243,238,0.5)'}">${count}</text>`;
+  });
+
+  svg += `</svg>`;
+  const blob = new Blob([svg], { type: 'image/svg+xml' });
+  return blobToDataUrl(blob);
+}
+
+function generateGapSummarySVG() {
+  const gaps = state.gapFindings || [];
+  if (gaps.length === 0) throw new Error('No gaps found. Run a search first.');
+
+  const shown = gaps.slice(0, 15);
+  const W = 700, BAR_H = 26, PAD = 16, LABEL_W = 220;
+  const H = shown.length * (BAR_H + 6) + PAD * 4 + 50;
+
+  let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" font-family="monospace">`;
+  svg += `<rect width="${W}" height="${H}" fill="#0a0a0f"/>`;
+  svg += `<text x="${PAD}" y="${PAD + 14}" font-size="11" fill="#a82828" font-weight="bold" letter-spacing="2">CONFIRMED RESEARCH GAPS</text>`;
+  svg += `<text x="${PAD}" y="${PAD + 28}" font-size="9" fill="rgba(245,243,238,0.4)">${gaps.length} gaps confirmed · ${state.anchor || 'Research'}</text>`;
+  svg += `<text x="${PAD}" y="${PAD + 42}" font-size="9" fill="rgba(245,243,238,0.3)">Zero-yield intersections = original research opportunities</text>`;
+
+  const startY = PAD + 58;
+  shown.forEach((gap, i) => {
+    const y = startY + i * (BAR_H + 6);
+    const isConfirmed = gap.type === 'confirmed' || gap.count === 0;
+    const dotColor = isConfirmed ? '#a82828' : '#c17a20';
+    const terms = (gap.terms || []).slice(0, 3).join(' + ');
+    const shortTerms = terms.length > 36 ? terms.slice(0, 34) + '…' : terms;
+    const label = isConfirmed ? 'CONFIRMED GAP' : 'THIN';
+    const count = gap.count || 0;
+
+    svg += `<rect x="${PAD}" y="${y + 4}" width="8" height="${BAR_H - 8}" fill="${dotColor}" rx="1"/>`;
+    svg += `<text x="${PAD + 14}" y="${y + BAR_H * 0.65}" font-size="10" fill="rgba(245,243,238,0.8)">${shortTerms}</text>`;
+    svg += `<text x="${W - PAD - 80}" y="${y + BAR_H * 0.65}" font-size="9" fill="${dotColor}" text-anchor="start">${label}</text>`;
+    svg += `<text x="${W - PAD}" y="${y + BAR_H * 0.65}" font-size="10" fill="${dotColor}" text-anchor="end">${count === 0 ? '0 papers' : count + ' papers'}</text>`;
+  });
+
+  svg += `</svg>`;
+  const blob = new Blob([svg], { type: 'image/svg+xml' });
+  return blobToDataUrl(blob);
+}
+
 function renderFigureList() {
   const list = document.getElementById('figure-list');
   if (!list) return;
@@ -7071,6 +8508,98 @@ function buildPosterScaffold(sectionId, def, papers) {
   }
 }
 
+// Poster type — controls section guidance and paper suggestions
+let posterType = 'lit-review';
+
+const POSTER_TYPE_CONFIG = {
+  'lit-review': {
+    label: 'Literature Review',
+    hint: 'Your poster summarizes what the field knows and identifies gaps.',
+    sections: {
+      background:  { hasPapers: true,  guidance: 'Cite 2-3 papers establishing why this topic matters.' },
+      methods:     { hasPapers: false, guidance: 'Describe your search strategy: database, keywords, number of subgroups, papers retrieved. No citations needed — this is your methodology.' },
+      findings:    { hasPapers: true,  guidance: 'Synthesize what the literature found. Use your top foundation papers as evidence.' },
+      gaps:        { hasPapers: true,  guidance: 'Name confirmed zero-yield intersections. Cite papers that come closest to, but do not address, the gap.' },
+      significance:{ hasPapers: true,  guidance: 'Why does this gap matter? Cite practical or policy implications from the literature.' },
+      references:  { hasPapers: true,  guidance: 'All papers cited above, formatted in your citation style.' }
+    }
+  },
+  'primary': {
+    label: 'Primary Research',
+    hint: 'Your poster presents original data you collected.',
+    sections: {
+      background:  { hasPapers: true,  guidance: 'Situate your study in the literature. Cite 2-3 foundational works.' },
+      methods:     { hasPapers: false, guidance: 'Describe your participants, instruments, and procedures. This is your data — no papers belong here. Include: n=, design, IRB if applicable.' },
+      findings:    { hasPapers: false, guidance: 'Present your results: statistics, themes, or key findings. This is your data — do not cite others here.' },
+      gaps:        { hasPapers: true,  guidance: 'What does your study NOT address? What should future researchers examine?' },
+      significance:{ hasPapers: true,  guidance: 'How do your findings advance or challenge the existing literature?' },
+      references:  { hasPapers: true,  guidance: 'Background and significance citations only.' }
+    }
+  },
+  'case-study': {
+    label: 'Case Study',
+    hint: 'Your poster presents an in-depth examination of a specific case.',
+    sections: {
+      background:  { hasPapers: true,  guidance: 'Provide theoretical or contextual grounding. Cite relevant frameworks.' },
+      methods:     { hasPapers: false, guidance: 'Describe the case, your data sources, and analytical approach. No citations — this describes your specific process.' },
+      findings:    { hasPapers: false, guidance: 'Present case-specific findings. This is your unique contribution — no citations needed.' },
+      gaps:        { hasPapers: true,  guidance: 'What does this case reveal that the literature has not addressed?' },
+      significance:{ hasPapers: true,  guidance: 'What can others learn from this case? Connect back to the broader literature.' },
+      references:  { hasPapers: true,  guidance: 'All cited works, formatted consistently.' }
+    }
+  },
+  'mixed': {
+    label: 'Mixed Methods',
+    hint: 'Your poster combines literature review with original data collection.',
+    sections: {
+      background:  { hasPapers: true,  guidance: 'Establish the research problem using existing literature.' },
+      methods:     { hasPapers: false, guidance: 'Describe both your SLR methodology AND your primary data collection. Two distinct phases — no citations needed.' },
+      findings:    { hasPapers: true,  guidance: 'Present both literature synthesis AND your primary findings. Use citations only for the literature component.' },
+      gaps:        { hasPapers: true,  guidance: 'What does the combined evidence reveal that neither approach alone could show?' },
+      significance:{ hasPapers: true,  guidance: 'Implications for theory and practice.' },
+      references:  { hasPapers: true,  guidance: 'All cited works.' }
+    }
+  }
+};
+
+function setPosterType(type) {
+  posterType = type;
+  document.querySelectorAll('.ptype-btn').forEach(b => b.classList.remove('ptype-active'));
+  const btn = document.getElementById('ptype-' + type);
+  if (btn) btn.classList.add('ptype-active');
+  const config = POSTER_TYPE_CONFIG[type];
+  const hintEl = document.getElementById('poster-type-hint');
+  if (hintEl && config) hintEl.textContent = config.hint;
+  // Re-render section list to update guidance
+  renderPosterSectionList();
+}
+
+function viewNetworkMap() {
+  // Navigate to screen 7 and render the map
+  goToScreen(7);
+  setTimeout(() => {
+    if (state.gapFindings && state.gapFindings.length > 0) {
+      renderNetworkMap();
+    } else {
+      generateGapAnalysis();
+    }
+  }, 300);
+}
+
+function getPosterSectionConfig(sectionId) {
+  const config = POSTER_TYPE_CONFIG[posterType];
+  if (!config) return null;
+  const keyMap = {
+    'background': 'background',    'poster-background': 'background',
+    'methods': 'methods',          'poster-methods': 'methods',
+    'findings': 'findings',        'poster-findings': 'findings',
+    'gaps': 'gaps',                'poster-gaps': 'gaps',
+    'significance': 'significance','poster-significance': 'significance',
+    'references': 'references',    'poster-references': 'references'
+  };
+  return config.sections[keyMap[sectionId]] || null;
+}
+
 function initPosterBuilder() {
   // Seed draftState with poster sections so paper checklist and generated text are available
   state.mode = 'poster';
@@ -7110,6 +8639,9 @@ function initPosterBuilder() {
   renderPosterCanvas();
   renderPosterSectionList();
   setPosterSize(36, 48, '36×48 in');
+
+  // Offer to auto-import SLR figures
+  setTimeout(autoImportSLRFiguresForPoster, 800);
 }
 
 function setPosterSize(w, h, label) {
@@ -7277,11 +8809,15 @@ function renderPosterSectionList() {
     const sec = posterState.sections[def.id] || { text: '', populated: false };
     const hasContent = sec.text && sec.text.trim();
     const isActive = posterState.activeSection === def.id;
+    const config = getPosterSectionConfig(def.id);
+    const hasPapers = !config || config.hasPapers;
     return `<button onclick="openPosterSection('${def.id}')" class="poster-section-btn ${hasContent ? 'has-content' : ''}" style="${isActive ? 'border-color:var(--gold);color:var(--gold);' : ''}">
-      <div class="section-status" style="background:${hasContent ? '#285C4D' : 'rgba(255,255,255,0.15)'};"></div>
+      <div class="section-status" style="background:${hasContent ? '#285C4D' : hasPapers ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.06)'};"></div>
       <div>
         <div style="font-size:10px;">${def.label}</div>
-        ${hasContent ? `<div style="font-size:9px;opacity:0.5;font-weight:400;margin-top:1px;">${sec.text.substring(0,40)}${sec.text.length>40?'...':''}</div>` : `<div style="font-size:9px;opacity:0.4;font-weight:400;margin-top:1px;">Empty — click to add</div>`}
+        ${hasContent
+          ? `<div style="font-size:9px;opacity:0.5;font-weight:400;margin-top:1px;">${sec.text.substring(0,40)}${sec.text.length>40?'...':''}</div>`
+          : `<div style="font-size:9px;opacity:0.4;font-weight:400;margin-top:1px;">${hasPapers ? 'Empty — click to add' : 'Your content'}</div>`}
       </div>
     </button>`;
   }).join('');
@@ -7291,26 +8827,89 @@ function renderPosterSectionList() {
   if (active) {
     const def = posterSectionDefs.find(d => d.id === active);
     const sec = posterState.sections[active] || { text: '' };
+    const config = getPosterSectionConfig(active);
+    const hasPapers = !config || config.hasPapers;
+    const guidance = config?.guidance || def?.hint || '';
+
     if (def) {
+      // Paper suggestions for sections that support them
+      const topPaperPids = Object.entries(state.paperSGs || {})
+        .sort((a,b) => b[1].length - a[1].length)
+        .slice(0, 6)
+        .map(([pid]) => pid);
+      const suggestedPapers = topPaperPids.map(pid => state.papers[pid]).filter(Boolean);
+
+      const paperSuggestions = hasPapers && suggestedPapers.length > 0 ? `
+        <div style="border-top:1px solid rgba(255,255,255,0.06);padding:10px 0 4px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(245,243,238,0.35);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">Suggested papers for this section</div>
+          ${suggestedPapers.map((p, i) => {
+            const author = (p.author||'Unknown').split(';')[0].split(',')[0].trim();
+            return `<div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;align-items:flex-start;gap:8px;">
+              <input type="checkbox" id="ps-${i}" style="margin-top:2px;flex-shrink:0;" onchange="togglePosterPaper('${topPaperPids[i]}','${active}',this.checked)">
+              <label for="ps-${i}" style="cursor:pointer;">
+                <div style="font-size:10px;color:rgba(245,243,238,0.75);line-height:1.4;">${p.title.slice(0,60)}${p.title.length>60?'...':''}</div>
+                <div style="font-family:monospace;font-size:8px;color:rgba(245,243,238,0.35);margin-top:1px;">${author} · ${p.year||'n.d.'}${p.citations?' · '+p.citations+' citations':''}</div>
+              </label>
+            </div>`;
+          }).join('')}
+        </div>` : (!hasPapers ? `
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);padding:10px;margin-top:8px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(245,243,238,0.4);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;">This section is yours</div>
+          <div style="font-size:10px;color:rgba(245,243,238,0.45);line-height:1.5;">${guidance}</div>
+        </div>` : '');
+
       const editorHtml = `
         <div style="border-top:1px solid rgba(255,255,255,0.08);padding:12px;margin-top:8px;">
-          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--gold);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.1em;">${def.label}</div>
-          <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:10px;line-height:1.5;">${def.hint}</div>
-          <textarea id="poster-section-textarea" style="width:100%;min-height:140px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);color:rgba(245,243,238,0.9);font-size:12px;line-height:1.6;padding:10px;resize:vertical;font-family:'Georgia',serif;" placeholder="${def.hint}" oninput="updatePosterSection('${active}', this.value)">${sec.text || ''}</textarea>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--gold);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.1em;">${def.label}</div>
+          ${guidance ? `<div style="font-size:10px;color:rgba(255,255,255,0.4);margin-bottom:10px;line-height:1.5;border-left:2px solid rgba(201,144,58,0.3);padding-left:8px;">${guidance}</div>` : ''}
+          <textarea id="poster-section-textarea" style="width:100%;min-height:140px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);color:rgba(245,243,238,0.9);font-size:12px;line-height:1.6;padding:10px;resize:vertical;font-family:'Georgia',serif;" placeholder="${hasPapers ? 'Write or generate content for this section...' : guidance}" oninput="updatePosterSection('${active}', this.value)">${sec.text || ''}</textarea>
           <div style="display:flex;gap:8px;margin-top:8px;">
-            <button onclick="populatePosterSection('${active}')" style="flex:1;padding:8px;background:rgba(40,92,77,0.3);border:1px solid rgba(40,92,77,0.6);color:#5a9e6f;font-family:'JetBrains Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer;">⚡ Populate from Papers</button>
+            ${hasPapers ? `<button onclick="populatePosterSection('${active}')" style="flex:1;padding:8px;background:rgba(40,92,77,0.3);border:1px solid rgba(40,92,77,0.6);color:#5a9e6f;font-family:'JetBrains Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer;">⚡ Populate from Papers</button>` : `<div style="flex:1;font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(245,243,238,0.3);align-self:center;">Write your own content above</div>`}
             <button onclick="clearPosterSection('${active}')" style="padding:8px 12px;background:transparent;border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.3);font-family:'JetBrains Mono',monospace;font-size:9px;cursor:pointer;">Clear</button>
           </div>
+          ${paperSuggestions}
         </div>`;
       list.insertAdjacentHTML('beforeend', editorHtml);
     }
   }
 }
 
+function togglePosterPaper(pid, sectionId, checked) {
+  if (!draftState.selectedPapers) draftState.selectedPapers = {};
+  if (!draftState.selectedPapers[sectionId]) draftState.selectedPapers[sectionId] = [];
+  if (checked) {
+    if (!draftState.selectedPapers[sectionId].includes(pid)) {
+      draftState.selectedPapers[sectionId].push(pid);
+      draftState.referenceList[pid] = state.papers[pid];
+    }
+  } else {
+    draftState.selectedPapers[sectionId] = draftState.selectedPapers[sectionId].filter(p => p !== pid);
+  }
+  updateRefCount();
+}
+
 function openPosterSection(sectionId) {
   posterState.activeSection = sectionId;
   renderPosterCanvas();
   renderPosterSectionList();
+
+  // Populate paper checklist for this section on Screen 8
+  const sec = draftState.sections.find(s => s.id === 'poster-' + sectionId) ||
+              draftState.sections.find(s => s.id === sectionId);
+  if (sec) {
+    renderPaperChecklist(sectionId, sec);
+  } else {
+    // Build a minimal sec object from posterSectionDefs
+    const def = posterSectionDefs.find(d => d.id === sectionId);
+    if (def) {
+      const topPaperPids = Object.entries(state.paperSGs || {})
+        .sort((a,b) => b[1].length - a[1].length)
+        .slice(0, 8)
+        .map(([pid]) => pid);
+      renderPaperChecklist(sectionId, { papers: topPaperPids });
+    }
+  }
+
   // Scroll editor into view
   const ta = document.getElementById('poster-section-textarea');
   if (ta) { ta.focus(); setTimeout(() => ta.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50); }
@@ -7349,12 +8948,15 @@ async function populatePosterSection(sectionId) {
     return;
   }
 
-  // Build from papers directly — no API key needed for scaffold
-  const topPapers = Object.entries(state.paperSGs || {})
-    .sort((a,b) => b[1].length - a[1].length)
-    .slice(0, 10)
-    .map(([pid]) => state.papers[pid])
-    .filter(Boolean);
+  // Build from papers — prefer checklist-selected papers, fall back to top papers by frequency
+  const selectedPids = draftState.selectedPapers?.[sectionId] || [];
+  const topPapers = selectedPids.length > 0
+    ? selectedPids.map(pid => state.papers[pid]).filter(Boolean)
+    : Object.entries(state.paperSGs || {})
+        .sort((a,b) => b[1].length - a[1].length)
+        .slice(0, 10)
+        .map(([pid]) => state.papers[pid])
+        .filter(Boolean);
 
   if (!state.apiKey) {
     const scaffold = buildPosterScaffold(sectionId, def, topPapers);
