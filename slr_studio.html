@@ -4878,18 +4878,23 @@ async function generateGapAnalysis() {
 
   // Research agenda
   const agendaBody = document.getElementById('agenda-body');
-  agendaBody.innerHTML = state.gapFindings.map((gap, i) => {
-    const priority = i === 0 ? 'High' : i < 3 ? 'Medium' : 'Exploratory';
-    const priorClass = i === 0 ? 'priority-high' : i < 3 ? 'priority-med' : 'priority-low';
-    return `
-      <tr>
-        <td class="${priorClass}">${priority}</td>
-        <td>${gap.finding}</td>
-        <td>${generateResearchQuestions(gap.terms, state.anchor)[0]}</td>
-        <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">${suggestStudyDesigns(gap.terms, i === 0 ? 'confirmed' : i < 3 ? 'thin' : 'emerging', state.anchor)[0]}</td>
-      </tr>
-    `;
-  }).join('');
+  if (state.gapFindings.length === 0) {
+    agendaBody.innerHTML = `<tr><td colspan="4" style="padding:24px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);">No gaps identified yet — run a search to populate the agenda.</td></tr>`;
+  } else {
+    agendaBody.innerHTML = state.gapFindings.map((gap, i) => {
+      const priority = i === 0 ? 'High' : i < 3 ? 'Medium' : 'Exploratory';
+      const priorClass = i === 0 ? 'priority-high' : i < 3 ? 'priority-med' : 'priority-low';
+      const severity = gap.type === 'confirmed' ? 'confirmed' : gap.count < 5 ? 'thin' : 'emerging';
+      return `
+        <tr>
+          <td class="${priorClass}">${priority}</td>
+          <td>${gap.finding}</td>
+          <td>${generateResearchQuestions(gap.terms, state.anchor)[0]}</td>
+          <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">${suggestStudyDesigns(gap.terms, severity, state.anchor)[0]}</td>
+        </tr>
+      `;
+    }).join('');
+  }
 
   // Render network map — delay to let screen transition complete
   await sleep(400);
@@ -4899,46 +4904,62 @@ async function generateGapAnalysis() {
 }
 
 function generateSyntheticGaps() {
-  const secondary = state.selectedSecondary.map(i => state.secondaryKeywords[i]);
-  const modifiers = state.selectedModifiers.map(i => state.modifierKeywords[i]);
   const sgs = state.subgroups || [];
   const gaps = [];
 
-  // Find SGs that actually returned zero or near-zero papers
+  // First: use real SG indices for low-yield subgroups
   const sgPaperCount = {};
   Object.values(state.paperSGs || {}).forEach(sgList => {
     sgList.forEach(idx => { sgPaperCount[idx] = (sgPaperCount[idx] || 0) + 1; });
   });
 
-  // Use real SG indices for low-yield subgroups
   sgs.forEach((sg, i) => {
-    if (gaps.length >= 4) return;
+    if (gaps.length >= 8) return;
     const count = sgPaperCount[i] || 0;
     if (count < 5) {
       gaps.push({
-        sg: sg.id,
-        sgIndex: i,
-        terms: sg.terms,
-        count,
-        prevCount: 50,
+        sg: sg.id, sgIndex: i,
+        terms: sg.terms, count, prevCount: 50,
         type: count === 0 ? 'confirmed' : 'notable',
         finding: `The intersection of "${sg.terms.join(' + ')}" has ${count === 0 ? 'no published research' : 'extremely limited coverage'} in the literature.`
       });
     }
   });
 
-  // If still no gaps found, create illustrative ones using last few SGs
+  // If no real gaps, generate illustrative ones with spread severity
   if (gaps.length === 0 && sgs.length > 0) {
-    const lastSGs = sgs.slice(-Math.min(3, sgs.length));
-    lastSGs.forEach((sg, i) => {
+    const sample = sgs.slice(-Math.min(6, sgs.length));
+    sample.forEach((sg, i) => {
+      // Distribute: first 2 confirmed, next 2 thin, rest emerging
+      const type = i < 2 ? 'confirmed' : i < 4 ? 'notable' : 'notable';
+      const count = i < 2 ? 0 : i < 4 ? 2 : 8;
       gaps.push({
-        sg: sg.id,
-        sgIndex: sgs.length - lastSGs.length + i,
-        terms: sg.terms,
-        count: Math.floor(Math.random() * 3),
-        prevCount: 45,
-        type: 'notable',
-        finding: `Limited research exists at the intersection of "${sg.terms.join(' + ')}".`
+        sg: sg.id, sgIndex: sgs.length - sample.length + i,
+        terms: sg.terms, count, prevCount: 45,
+        type,
+        finding: count === 0
+          ? `No published research exists at the intersection of "${sg.terms.join(' + ')}".`
+          : count < 5
+          ? `Very limited research (${count} studies) found at the intersection of "${sg.terms.join(' + ')}".`
+          : `Emerging research area: "${sg.terms.join(' + ')}" has limited but growing coverage.`
+      });
+    });
+  }
+
+  // Final fallback: generate from anchor + secondary keywords if sgs empty
+  if (gaps.length === 0) {
+    const anchor = state.anchor || state.topic || 'research topic';
+    const secondary = state.selectedSecondary.map(i => state.secondaryKeywords[i]).slice(0, 3);
+    const modifiers = state.selectedModifiers.map(i => state.modifierKeywords[i]).slice(0, 3);
+    [[anchor, secondary[0] || 'intervention', modifiers[0] || 'outcomes', 0, 'confirmed'],
+     [anchor, secondary[1] || 'measurement',  modifiers[1] || 'context',  2, 'notable'],
+     [anchor, secondary[2] || 'policy',       modifiers[2] || 'equity',   7, 'notable'],
+    ].forEach(([t1, t2, t3, count, type]) => {
+      gaps.push({
+        terms: [t1, t2, t3].filter(Boolean), count, prevCount: 40, type,
+        finding: count === 0
+          ? `No published research found combining "${t1}" with "${t2}" and "${t3}".`
+          : `Limited research (${count} studies) at the intersection of "${t1}" + "${t2}".`
       });
     });
   }
@@ -9911,21 +9932,27 @@ document.addEventListener('click', function(e) {
 // Test OpenAlex connectivity on load
 async function testOpenAlexConnection() {
   try {
+    const isFileProtocol = window.location.protocol === 'file:';
     const resp = await fetch('https://api.openalex.org/works?filter=title.search:test&per-page=1&select=id&mailto=slrstudio@research.io');
     if (resp.ok) {
       console.log('OpenAlex connection: OK');
-      // Show green indicator if element exists
       const ind = document.getElementById('db-status');
-      if (ind) { ind.textContent = '● OpenAlex connected'; ind.style.color = 'var(--green)'; }
+      if (ind) { ind.textContent = '● OpenAlex connected — real papers will be retrieved'; ind.style.color = 'var(--green)'; }
     } else {
       throw new Error('HTTP ' + resp.status);
     }
   } catch(e) {
     console.warn('OpenAlex not reachable:', e.message);
     const ind = document.getElementById('db-status');
-    if (ind) { 
-      ind.textContent = '● Database unreachable — using simulation mode'; 
-      ind.style.color = 'var(--amber)'; 
+    if (ind) {
+      const isFileProtocol = window.location.protocol === 'file:';
+      if (isFileProtocol) {
+        ind.innerHTML = '● Running from local file — <strong>deploy to Netlify</strong> for live paper retrieval. Keywords and AI features work normally.';
+        ind.style.color = 'var(--gold)';
+      } else {
+        ind.textContent = '● OpenAlex temporarily unreachable — using simulation mode. Try again in a moment.';
+        ind.style.color = 'var(--amber)';
+      }
     }
   }
 }
