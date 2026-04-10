@@ -905,6 +905,201 @@ body::after {
   line-height: 1.4;
 }
 
+/* ── Cost-to-Execute Row ── */
+.gap-funding-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(245,243,238,0.08);
+  flex-wrap: wrap;
+}
+
+.gap-funding-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(245,243,238,0.35);
+  margin-right: 2px;
+}
+
+.gap-funding-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 2px;
+  font-weight: 600;
+}
+
+/* Tier: Free */
+.funding-free {
+  background: rgba(40,92,77,0.25);
+  border: 1px solid rgba(40,92,77,0.6);
+  color: #5ecf8a;
+}
+
+/* Tier: Low Cost */
+.funding-low {
+  background: rgba(90,158,111,0.15);
+  border: 1px solid rgba(90,158,111,0.45);
+  color: #8fd4a8;
+}
+
+/* Tier: Moderate */
+.funding-moderate {
+  background: rgba(201,144,58,0.15);
+  border: 1px solid rgba(201,144,58,0.5);
+  color: #e0aa50;
+}
+
+/* Tier: High Cost */
+.funding-high {
+  background: rgba(168,40,40,0.18);
+  border: 1px solid rgba(168,40,40,0.5);
+  color: #e87070;
+}
+
+/* Action buttons */
+.gap-action-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.gap-start-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  background: rgba(40,92,77,0.3);
+  border: 1px solid rgba(40,92,77,0.6);
+  color: #5ecf8a;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.gap-start-btn:hover { background: rgba(40,92,77,0.5); }
+
+.gap-microgrant-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  background: transparent;
+  border: 1px solid rgba(90,158,111,0.4);
+  color: #8fd4a8;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.gap-microgrant-btn:hover { background: rgba(90,158,111,0.1); }
+
+.gap-grant-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  background: transparent;
+  border: 1px solid rgba(201,144,58,0.5);
+  color: var(--gold);
+  cursor: pointer;
+  transition: background 0.15s;
+  text-decoration: none;
+  display: inline-block;
+}
+.gap-grant-btn:hover { background: rgba(201,144,58,0.12); }
+
+.gap-mechanisms-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  background: transparent;
+  border: 1px solid rgba(168,40,40,0.4);
+  color: #e87070;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.gap-mechanisms-btn:hover { background: rgba(168,40,40,0.12); }
+
+/* ── Grant-Ready Score ── */
+.grant-ready-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.grant-ready-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(245,243,238,0.35);
+}
+
+.grant-ready-bar-wrap {
+  flex: 1;
+  max-width: 120px;
+  background: rgba(245,243,238,0.07);
+  height: 5px;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.grant-ready-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.6s ease;
+}
+
+.grant-ready-score {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 32px;
+}
+
+/* ── Sort toggle / filter bar additions ── */
+.gap-sort-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(245,243,238,0.5);
+  margin-left: auto;
+}
+
+.sort-btn {
+  background: transparent;
+  border: 1px solid rgba(245,243,238,0.15);
+  color: rgba(245,243,238,0.5);
+  padding: 4px 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.sort-btn.active, .sort-btn:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: rgba(201,144,58,0.08);
+}
+
 /* ═══════════════════════════════
    SCREEN 5: GONG MOMENT
 ═══════════════════════════════ */
@@ -2780,6 +2975,16 @@ body::after {
       <button class="filter-btn" onclick="filterGaps('confirmed', this)">● Confirmed</button>
       <button class="filter-btn" onclick="filterGaps('thin', this)">● Thin Coverage</button>
       <button class="filter-btn" onclick="filterGaps('emerging', this)">● Emerging</button>
+      <span style="width:1px;height:18px;background:rgba(245,243,238,0.1);display:inline-block;margin:0 4px;"></span>
+      <button class="filter-btn" onclick="filterGapsByCost('free', this)" style="border-color:rgba(40,92,77,0.4);color:#5ecf8a;">Free</button>
+      <button class="filter-btn" onclick="filterGapsByCost('low', this)" style="border-color:rgba(90,158,111,0.35);color:#8fd4a8;">Low $</button>
+      <button class="filter-btn" onclick="filterGapsByCost('moderate', this)" style="border-color:rgba(201,144,58,0.4);color:#e0aa50;">Moderate $$</button>
+      <button class="filter-btn" onclick="filterGapsByCost('high', this)" style="border-color:rgba(168,40,40,0.4);color:#e87070;">High $$$</button>
+      <div class="gap-sort-toggle">
+        Sort:
+        <button class="sort-btn" id="sort-default" onclick="sortGapCards('default', this)">Discovery</button>
+        <button class="sort-btn active" id="sort-funding" onclick="sortGapCards('funding', this)">$ Low → High</button>
+      </div>
     </div>
 
     <div id="gap-cards-output"></div>
@@ -4423,6 +4628,50 @@ function goToOutput(type) {
   }
 }
 
+function launchGrantFromGap(gapText, action) {
+  action = action || 'grant';
+
+  // 'start' and 'microgrant' — go to grant screen but note intent
+  // 'grant' and 'mechanisms' — go to grant screen with full pre-fill
+  state.mode = 'grant';
+  state.grantGapContext = gapText || '';
+  state.grantLaunchAction = action;
+
+  goToGrantScreen();
+
+  setTimeout(() => {
+    const qField = document.getElementById('g-question');
+    const aField = document.getElementById('g-aims');
+
+    if (action === 'start') {
+      // Free/low: just navigate, no pre-fill pressure
+      if (qField && !qField.value) {
+        qField.value = gapText;
+        qField.dispatchEvent(new Event('input'));
+      }
+    } else if (action === 'microgrant') {
+      if (qField && !qField.value) {
+        qField.value = gapText;
+        qField.dispatchEvent(new Event('input'));
+      }
+    } else if (action === 'grant' || action === 'mechanisms') {
+      // Moderate/high: pre-populate research question and aims scaffold
+      if (qField && !qField.value) {
+        qField.value = gapText;
+        qField.dispatchEvent(new Event('input'));
+      }
+      if (aField && !aField.value) {
+        aField.value = 'Aim 1: Investigate the identified gap — ' + gapText + '\nAim 2: Determine the scope and impact of this gap in the literature.\nAim 3: Develop evidence-based recommendations or interventions.';
+        aField.dispatchEvent(new Event('input'));
+      }
+    }
+
+    // Scroll to the question field
+    const target = document.getElementById('g-question');
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 600);
+}
+
 function isActivated() {
   // Check window.SLR_USER (set by auth guard in deployed version)
   // In standalone mode (no auth), check localStorage flag
@@ -4801,6 +5050,136 @@ function showEvidence(sectionIdx, subIdx) {
 }
 
 // ═══════════════════════════════════════════
+// COST-TO-EXECUTE TIER SYSTEM (Four Tiers)
+// ═══════════════════════════════════════════
+
+function estimateFundingTier(designs, terms, anchor) {
+  const d = (designs || []).join(' ').toLowerCase();
+  const t = ((terms || []).join(' ') + ' ' + (anchor || '')).toLowerCase();
+
+  // FREE: systematic/scoping reviews, meta-analyses, secondary data — no budget needed
+  const isFree =
+    /scoping review|systematic review|meta.analy|secondary data|document analysis|narrative review|umbrella review/.test(d) &&
+    !/rct|randomiz|clinical trial|biomarker|wet.lab|animal|device|multi.site/.test(d + t);
+
+  // HIGH: wet lab, RCTs, clinical trials, devices, biomarkers, animal studies
+  const isHigh =
+    /randomized controlled trial|rct|randomis|clinical trial|multi.site|longitudinal cohort|prospective cohort|biomarker|imaging|wet.lab|animal study|device dev/.test(d) ||
+    /pharmacol|toxicol|genomic|proteom|biolog assay|animal model|fmri|mri|pet scan|electrophysiol/.test(t);
+
+  // MODERATE: multi-site surveys, grad RA, specialized software, paid datasets, fieldwork
+  const isModerate =
+    /mixed methods|quasi.experimental|longitudinal|psychometric|delphi|grounded theory|ethnograph/.test(d) ||
+    /paid dataset|fieldwork|graduate ra|specialized software/.test(t);
+
+  if (isFree)     return 'free';
+  if (isHigh)     return 'high';
+  if (isModerate) return 'moderate';
+  return 'low'; // default: surveys, simple observational, small incentives
+}
+
+function fundingTierOrder(tier) {
+  return { free: 0, low: 1, moderate: 2, high: 3 }[tier] ?? 1;
+}
+
+const TIER_META = {
+  free:     { label: 'Free — No Funding Needed',  range: '',                  badgeClass: 'funding-free',     description: 'Executable with existing institutional access: library, SLR Studio, open datasets, faculty time.' },
+  low:      { label: 'Low Cost',                  range: '$500 – $5,000',     badgeClass: 'funding-low',      description: 'Small incentives, minor software, undergraduate RA hours. Departmental or discretionary funds.' },
+  moderate: { label: 'Moderate Cost',             range: '$5,000 – $50,000',  badgeClass: 'funding-moderate', description: 'Multi-site surveys, specialized assays, paid datasets, graduate RA support, fieldwork. Seed or internal grants.' },
+  high:     { label: 'High Cost',                 range: '$50,000+',          badgeClass: 'funding-high',     description: 'Wet-lab work, clinical trials, device development, biomarker validation, animal studies. External grant required.' }
+};
+
+// Grant-Ready Score 0–100
+function calcGrantReadyScore(gap, designs, severity, terms, anchor) {
+  let score = 0;
+  const termLen = (terms || []).join(' ').length;
+  score += termLen > 30 ? 20 : termLen > 15 ? 12 : 6;
+  score += severity === 'confirmed' ? 25 : severity === 'thin' ? 15 : 8;
+  const tier = estimateFundingTier(designs, terms, anchor);
+  score += { free: 20, low: 16, moderate: 10, high: 5 }[tier] ?? 10;
+  const count = gap.count || 0;
+  score += count > 10 ? 20 : count > 3 ? 14 : count > 0 ? 8 : 3;
+  const t = ((terms || []).join(' ') + ' ' + (anchor || '')).toLowerCase();
+  score += /health|clinical|patient|disease|technolog|ai|machine learning|education|learning/.test(t) ? 15 : 5;
+  return Math.min(100, Math.round(score));
+}
+
+function grantReadyColor(s) {
+  return s >= 70 ? '#5ecf8a' : s >= 45 ? '#e0aa50' : '#e87070';
+}
+function grantReadyLabel(s) {
+  return s >= 70 ? 'Strong' : s >= 45 ? 'Developing' : 'Early Stage';
+}
+
+function escAttr(str) {
+  return (str || '').replace(/'/g, '&#39;').replace(/"/g, '&quot;').substring(0, 120);
+}
+
+function buildFundingRowHTML(tier, gap, designs, severity) {
+  const meta = TIER_META[tier] || TIER_META.low;
+  const score = calcGrantReadyScore(gap, designs, severity, gap.terms, state.anchor);
+  const scoreColor = grantReadyColor(score);
+  const f = escAttr(gap.finding);
+
+  const actionsByTier = {
+    free: `<div class="gap-action-row">
+      <button class="gap-start-btn" onclick="launchGrantFromGap('${f}','start')">▶ Start Now — No Funding Needed</button>
+    </div>`,
+    low: `<div class="gap-action-row">
+      <button class="gap-start-btn" onclick="launchGrantFromGap('${f}','start')">▶ Start Now</button>
+      <button class="gap-microgrant-btn" onclick="launchGrantFromGap('${f}','microgrant')">See Micro-Grant Options</button>
+    </div>`,
+    moderate: `<div class="gap-action-row">
+      <button class="gap-grant-btn" onclick="launchGrantFromGap('${f}','grant')">Open Grant Proposal Builder →</button>
+    </div>`,
+    high: `<div class="gap-action-row">
+      <button class="gap-grant-btn" onclick="launchGrantFromGap('${f}','grant')">Open Grant Proposal Builder →</button>
+      <button class="gap-mechanisms-btn" onclick="launchGrantFromGap('${f}','mechanisms')">See NIH / NSF / DoD Mechanisms</button>
+    </div>`
+  };
+
+  return `
+    <div class="gap-funding-row">
+      <span class="gap-funding-label">Cost to Execute:</span>
+      <span class="gap-funding-badge ${meta.badgeClass}" title="${meta.description}">${meta.label}${meta.range ? ' · ' + meta.range : ''}</span>
+    </div>
+    ${actionsByTier[tier] || ''}
+    <div class="grant-ready-row">
+      <span class="grant-ready-label">Grant-Ready Score:</span>
+      <div class="grant-ready-bar-wrap">
+        <div class="grant-ready-bar-fill" style="width:${score}%;background:${scoreColor};"></div>
+      </div>
+      <span class="grant-ready-score" style="color:${scoreColor};">${score}</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(245,243,238,0.4);">${grantReadyLabel(score)}</span>
+    </div>`;
+}
+
+let gapSortMode = 'funding';
+
+function sortGapCards(mode, btn) {
+  gapSortMode = mode;
+  document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const container = document.getElementById('gap-cards-output');
+  const cards = Array.from(container.querySelectorAll('.gap-analysis-card'));
+  if (!cards.length) return;
+  cards.sort((a, b) =>
+    mode === 'funding'
+      ? fundingTierOrder(a.dataset.fundingTier) - fundingTierOrder(b.dataset.fundingTier)
+      : parseInt(a.dataset.gapIndex || 0) - parseInt(b.dataset.gapIndex || 0)
+  );
+  cards.forEach(c => container.appendChild(c));
+}
+
+function filterGapsByCost(tier, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  document.querySelectorAll('.gap-analysis-card').forEach(card => {
+    card.style.display = (tier === 'all' || card.dataset.fundingTier === tier) ? '' : 'none';
+  });
+}
+
+// ═══════════════════════════════════════════
 // SCREEN 7: GAP ANALYSIS
 // ═══════════════════════════════════════════
 async function generateGapAnalysis() {
@@ -4839,10 +5218,13 @@ async function generateGapAnalysis() {
 
     const questions = generateResearchQuestions(gap.terms, state.anchor);
     const designs = suggestStudyDesigns(gap.terms, severity, state.anchor);
+    const fundingTier = estimateFundingTier(designs, gap.terms, state.anchor);
 
     const card = document.createElement('div');
     card.className = 'gap-analysis-card';
     card.dataset.severity = severity;
+    card.dataset.fundingTier = fundingTier;
+    card.dataset.gapIndex = i;
     card.style.animationDelay = (i * 0.1) + 's';
 
     card.innerHTML = `
@@ -4867,12 +5249,18 @@ async function generateGapAnalysis() {
         <div class="gap-designs">
           ${designs.map(d => `<span class="design-tag">${d}</span>`).join('')}
         </div>
+        ${buildFundingRowHTML(fundingTier, gap, designs, severity)}
       </div>
     `;
 
     container.appendChild(card);
     await sleep(80);
   }
+
+  // Auto-sort by funding (low → high) on initial render
+  await sleep(50);
+  const sortFundingBtn = document.getElementById('sort-funding');
+  if (sortFundingBtn) sortGapCards('funding', sortFundingBtn);
 
   // Research agenda
   const agendaBody = document.getElementById('agenda-body');
