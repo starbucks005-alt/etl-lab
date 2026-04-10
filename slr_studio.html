@@ -1811,6 +1811,9 @@ body::after {
     <div class="nav-step" id="nav-7">07 Gaps</div>
     <div class="nav-step" id="nav-8">08 Poster</div>
   </nav>
+  <div style="flex-shrink:0;margin-left:auto;">
+    <button onclick="goToToolsScreen()" style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;padding:7px 14px;background:rgba(201,144,58,0.15);border:1px solid rgba(201,144,58,0.4);color:var(--gold);cursor:pointer;transition:all 0.15s;" onmouseover="this.style.background='rgba(201,144,58,0.25)'" onmouseout="this.style.background='rgba(201,144,58,0.15)'">⚗ Tools</button>
+  </div>
 </header>
 
 <div class="app">
@@ -2695,7 +2698,7 @@ body::after {
           <label style="display:block;border:1.5px dashed var(--border);padding:12px;text-align:center;cursor:pointer;font-size:12px;color:var(--muted);transition:border-color 0.2s;"
             onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
             + Upload Your Own Figure
-            <input type="file" accept="image/*" multiple style="display:none;" onchange="handleFigureUpload(event)">
+            <input type="file" accept="image/*" multiple style="display:none;" onchange="handleToolFigureUpload(event)">
           </label>
           <div style="font-size:11px;color:var(--muted);margin-top:6px;line-height:1.5;">JPG, PNG, SVG. Each figure gets a caption field. Stored locally. Nothing is uploaded.</div>
         </div>
@@ -2823,8 +2826,6 @@ body::after {
     </div>
   </div>
 </div>
-
-</div><!-- /app -->
 
 <div class="tooltip" id="tooltip"></div>
 
@@ -3295,28 +3296,25 @@ function estimateSGs(sec, mod) {
 }
 
 async function steerModifiers() {
-  const steer = document.getElementById('steer-input').value.trim();
-  if (!steer) return;
+  const steer = document.getElementById('steer-input')?.value.trim() || '';
 
-  // Step 1: Snapshot ALL selected terms — selections survive refresh automatically
-  // Locked terms are a subset of selected that also survive deselection
+  // Snapshot selected and locked terms — they survive refresh
   const selectedTerms = state.selectedModifiers.map(i => state.modifierKeywords[i]).filter(Boolean);
   const lockedTerms = [...state.lockedModifiers].filter(Boolean);
 
-  // Step 2: Show loading in modifier cloud only
-  document.getElementById('modifier-cloud').innerHTML = '<div style="font-family:\'JetBrains Mono\',monospace;font-size:12px;color:var(--muted);padding:8px 0;">Steering modifiers<span class="loading-dots"></span></div>';
+  document.getElementById('modifier-cloud').innerHTML = '<div style="font-family:\'JetBrains Mono\',monospace;font-size:12px;color:var(--muted);padding:8px 0;">Refreshing modifiers<span class="loading-dots"></span></div>';
 
-  // Step 3: Get new modifier pool via API — anchor/secondary stay untouched
   try {
-    const excludeList = lockedTerms.length ? `Do NOT include: ${lockedTerms.join(', ')} (already locked by user).` : '';
-    const prompt = `You are a systematic literature review expert. Generate 12-15 modifier keywords biased toward this direction.
+    const excludeList = lockedTerms.length ? `Do NOT include: ${lockedTerms.join(', ')}.` : '';
+    const steerLine = steer ? `STEER DIRECTION: "${steer}"` : 'Generate a fresh varied set of modifiers — different from typical defaults.';
+    const prompt = `You are a systematic literature review expert. Generate 12-15 modifier keywords for this topic.
 
 TOPIC: "${state.topic}"
-STEER DIRECTION: "${steer}"
+${steerLine}
 ${excludeList}
 
 Return ONLY valid JSON: {"modifiers": ["term1", "term2", ...]}
-Keep terms concise (1-3 words). Make them realistic academic database search keywords.`;
+Keep terms concise (1-3 words). Realistic academic database search keywords.`;
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -3339,7 +3337,7 @@ Keep terms concise (1-3 words). Make them realistic academic database search key
       state.modifierKeywords = kw.modifiers;
     }
   } catch (e) {
-    state.modifierKeywords = extractModifiers(state.topic, steer);
+    state.modifierKeywords = extractModifiers(state.topic, steer || 'varied');
   }
 
   // Step 4: Inject ALL previously selected terms back at front
@@ -5521,6 +5519,845 @@ function showRubricMessage(msg) {
   }
 }
 // ═══════════════════════════════════════════
+// SUBSCRIPTION TOOLS ENGINE
+// ═══════════════════════════════════════════
+
+let _figureBase64 = null;
+let _figureMediaType = 'image/png';
+
+function goToToolsScreen() {
+  document.querySelectorAll('.screen').forEach(s => {
+    s.classList.remove('active');
+    s.style.display = '';
+  });
+  const s = document.getElementById('screen-10t');
+  if (s) { s.style.display = 'block'; s.classList.add('active'); }
+  // Hide grant nav indicator if present
+  const grantNav = document.getElementById('nav-grant-indicator');
+  if (grantNav) grantNav.style.display = 'none';
+  // Mark all nav steps as done
+  document.querySelectorAll('.nav-step').forEach(el => {
+    el.classList.remove('active', 'done');
+    el.classList.add('done');
+  });
+  window.scrollTo(0, 0);
+}
+
+function switchToolTab(tab) {
+  document.querySelectorAll('.t-tab').forEach(t => t.classList.remove('t-tab-active'));
+  document.querySelectorAll('.t-panel').forEach(p => p.style.display = 'none');
+  const tabEl = document.getElementById('ttab-' + tab);
+  const panelEl = document.getElementById('tpanel-' + tab);
+  if (tabEl) tabEl.classList.add('t-tab-active');
+  if (panelEl) panelEl.style.display = 'block';
+}
+
+// ── API helper ────────────────────────────────────────────────
+async function callToolAPI(prompt, systemPrompt, imageData) {
+  if (!state.apiKey) {
+    throw new Error('NO_KEY');
+  }
+  const messages = [{
+    role: 'user',
+    content: imageData
+      ? [
+          { type: 'image', source: { type: 'base64', media_type: imageData.type, data: imageData.data } },
+          { type: 'text', text: prompt }
+        ]
+      : prompt
+  }];
+  const body = {
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 1500,
+    messages
+  };
+  if (systemPrompt) body.system = systemPrompt;
+
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': state.apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify(body)
+  });
+  const data = await resp.json();
+  if (data.error) throw new Error(data.error.message);
+  return data.content?.[0]?.text?.trim() || '';
+}
+
+function showToolGenerating(outputId, message) {
+  const out = document.getElementById(outputId);
+  if (out) {
+    out.style.display = 'block';
+    out.querySelector('[id$="-result"]').innerHTML = `<div class="t-generating"><div class="t-spinner"></div>${message}</div>`;
+  }
+}
+
+function showToolResult(outputId, resultId, text) {
+  const out = document.getElementById(outputId);
+  if (out) {
+    out.style.display = 'block';
+    const el = document.getElementById(resultId);
+    if (el) el.innerHTML = formatToolResult(text);
+  }
+}
+
+function showToolError(resultId, error) {
+  const el = document.getElementById(resultId);
+  if (!el) return;
+  if (error.message === 'NO_KEY') {
+    el.innerHTML = '<div style="padding:16px;border:1px solid rgba(168,40,40,0.3);background:rgba(168,40,40,0.05);color:#a82828;font-size:13px;line-height:1.6;">No API key found. Enter your Anthropic API key on the Topic screen (Step 3) to use Tools.</div>';
+  } else {
+    el.innerHTML = `<div style="padding:16px;border:1px solid rgba(168,40,40,0.3);background:rgba(168,40,40,0.05);color:#a82828;font-size:13px;">Error: ${error.message}</div>`;
+  }
+}
+
+function formatToolResult(text) {
+  // Convert markdown-style headers to styled h3 tags
+  return text
+    .replace(/^#{1,3}\s+(.+)$/gm, '<h3>$1</h3>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/^/, '<p>').replace(/$/, '</p>')
+    .replace(/<p><h3>/g, '<h3>').replace(/<\/h3><\/p>/g, '</h3>');
+}
+
+function copyToolOutput(resultId) {
+  const el = document.getElementById(resultId);
+  if (!el) return;
+  const text = el.innerText || el.textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target;
+    btn.textContent = '✓ Copied';
+    setTimeout(() => { btn.textContent = '⎘ Copy'; }, 2000);
+  });
+}
+
+function downloadToolOutput(resultId, filename) {
+  const el = document.getElementById(resultId);
+  if (!el) return;
+  const text = el.innerText || el.textContent;
+  const blob = new Blob([text], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename + '.txt';
+  a.click();
+}
+
+// ── TOOL 1: METHODS COACH ─────────────────────────────────────
+async function runMethodsCoach() {
+  const design  = document.getElementById('methods-design')?.value.trim();
+  const topic   = document.getElementById('methods-topic')?.value.trim();
+  const section = document.getElementById('methods-section')?.value;
+
+  if (!design) { alert('Describe your research design first.'); return; }
+
+  const outputId = 'methods-output';
+  const resultId = 'methods-result';
+  showToolGenerating(outputId, 'Analyzing your research design...');
+
+  const sectionLabels = {
+    chapter3: 'Chapter 3 / Methods section of a dissertation or thesis',
+    grant: 'grant application research strategy',
+    proposal: 'research proposal',
+    defense: 'dissertation defense'
+  };
+
+  const prompt = `You are an expert research methodologist helping a scholar strengthen their methods section for a ${sectionLabels[section] || 'manuscript'}.
+
+RESEARCH DESIGN: "${design}"
+${topic ? `TOPIC / FIELD: "${topic}"` : ''}
+
+Provide a structured analysis with these exact sections:
+
+### Strengths
+List 3-4 genuine strengths of this design choice.
+
+### Weaknesses & Limitations
+List 3-4 honest weaknesses or limitations reviewers will notice.
+
+### Common Reviewer Criticisms
+List the 3-4 most common criticisms reviewers raise for this type of design. Be specific and realistic.
+
+### How to Defend Your Design
+Write 2-3 sentences the researcher can use to proactively address the weaknesses and justify their choices.
+
+### How to Write It Up
+Provide a model paragraph (~100 words) showing how to describe this design in the ${sectionLabels[section] || 'methods section'} using appropriate scholarly language.
+
+### Key References to Consider
+List 2-3 types of methodological references that would strengthen this section (general examples, not invented citations).
+
+Write in a collegial, mentor-like tone. Be honest but constructive.`;
+
+  try {
+    const result = await callToolAPI(prompt);
+    showToolResult(outputId, resultId, result);
+  } catch(e) {
+    showToolError(resultId, e);
+  }
+}
+
+// ── TOOL 2: REVIEWER RESPONSE ASSISTANT ──────────────────────
+async function runReviewerResponse() {
+  const comments = document.getElementById('reviewer-comments')?.value.trim();
+  const topic    = document.getElementById('reviewer-topic')?.value.trim();
+  const tone     = document.getElementById('reviewer-tone')?.value;
+
+  if (!comments) { alert('Paste reviewer comments first.'); return; }
+
+  const outputId = 'reviewer-output';
+  const resultId = 'reviewer-result';
+  showToolGenerating(outputId, 'Generating reviewer responses...');
+
+  const toneDescriptions = {
+    professional: 'professional and collegial — acknowledge the reviewer\'s expertise, be gracious, respond thoroughly',
+    assertive:    'assertive but respectful — disagree diplomatically where warranted, provide evidence-based counterarguments',
+    concise:      'concise and direct — brief, clear responses without excessive hedging',
+    detailed:     'detailed and thorough — comprehensive responses with specific revisions and rationale'
+  };
+
+  const prompt = `You are an expert academic editor helping a researcher respond to peer reviewer comments.
+
+MANUSCRIPT TOPIC: "${topic || 'Academic manuscript'}"
+TONE: ${toneDescriptions[tone] || toneDescriptions.professional}
+
+REVIEWER COMMENTS:
+${comments}
+
+Generate a complete point-by-point response letter. For each distinct comment:
+
+1. Quote or summarize the reviewer concern
+2. Write a polished response in the specified tone
+3. Describe the specific revision made (or explain why no change was needed)
+
+Use this structure:
+- Opening paragraph thanking the reviewers
+- "Reviewer 1, Comment 1:" followed by response
+- Continue for all comments
+- Closing paragraph
+
+Use standard academic response letter conventions. Be specific. Never be defensive. Where the reviewer is right, acknowledge it graciously. Where you disagree, explain why with evidence or logic.`;
+
+  try {
+    const result = await callToolAPI(prompt);
+    showToolResult(outputId, resultId, result);
+  } catch(e) {
+    showToolError(resultId, e);
+  }
+}
+
+// ── TOOL 3: ARGUMENT COHERENCE CHECKER ───────────────────────
+async function runCoherenceCheck() {
+  const text    = document.getElementById('coherence-text')?.value.trim();
+  const section = document.getElementById('coherence-section')?.value;
+  const level   = document.getElementById('coherence-level')?.value;
+
+  if (!text || text.length < 50) { alert('Paste a section of your manuscript first (at least a paragraph).'); return; }
+
+  const outputId = 'coherence-output';
+  const resultId = 'coherence-result';
+  showToolGenerating(outputId, 'Checking argument coherence...');
+
+  const levelDescriptions = {
+    undergraduate: 'undergraduate student paper',
+    masters:       "master's thesis or graduate seminar paper",
+    doctoral:      'doctoral dissertation',
+    faculty:       'faculty manuscript intended for peer-reviewed journal publication'
+  };
+
+  const sectionDescriptions = {
+    introduction: 'Introduction section',
+    literature:   'Literature Review',
+    methods:      'Methods section',
+    results:      'Results section',
+    discussion:   'Discussion section',
+    conclusion:   'Conclusion section',
+    any:          'manuscript section'
+  };
+
+  const prompt = `You are an expert academic editor reviewing a ${sectionDescriptions[section] || 'manuscript section'} written at the ${levelDescriptions[level] || "graduate"} level.
+
+SECTION TO ANALYZE:
+${text}
+
+Provide a structured coherence analysis with these exact sections:
+
+### Overall Coherence Assessment
+One paragraph summarizing the overall logical strength. Be honest and direct.
+
+### Logic Flow
+Identify where the argument progresses logically and where it breaks down. Number each issue.
+
+### Unsupported Claims
+List any specific claims that need citations or more evidence. Quote the exact phrase, then explain what support is needed.
+
+### Missing Steps
+Identify any logical leaps where the reader is expected to connect dots that aren't explicitly connected.
+
+### Contradictions or Inconsistencies
+Note any statements that contradict each other or are inconsistent with standard scholarly understanding.
+
+### Weak Transitions
+Identify specific transition points that feel abrupt or disconnected. Quote the transition and suggest an improvement.
+
+### Top 3 Priority Revisions
+The three most important changes that would most improve coherence and argument strength.
+
+Be specific. Quote the text directly when identifying problems. Write as a supportive but honest peer reviewer.`;
+
+  try {
+    const result = await callToolAPI(prompt);
+    showToolResult(outputId, resultId, result);
+  } catch(e) {
+    showToolError(resultId, e);
+  }
+}
+
+// ── TOOL 5: CITE-CHECK & REFERENCE FIXER ─────────────────────
+async function runCiteCheck() {
+  const refs   = document.getElementById('citecheck-refs')?.value.trim();
+  const style  = document.getElementById('citecheck-style')?.value || 'apa7';
+  const output = document.getElementById('citecheck-output-select')?.value || document.getElementById('citecheck-output-sel')?.value || 'both';
+  const outputMode = document.getElementById('citecheck-output')?.dataset.mode || 'both';
+
+  if (!refs || refs.length < 20) { alert('Paste your reference list first.'); return; }
+
+  const outputId = 'citecheck-output';
+  const resultId = 'citecheck-result';
+  showToolGenerating(outputId, 'Checking your references...');
+
+  const styleNames = {
+    apa7: 'APA 7th Edition', apa6: 'APA 6th Edition',
+    ama: 'AMA', mla: 'MLA 9th Edition',
+    chicago: 'Chicago 17th Edition (Author-Date)',
+    ieee: 'IEEE', vancouver: 'Vancouver'
+  };
+  const outputSel = document.getElementById('citecheck-output')?.previousElementSibling?.querySelector('#citecheck-output') || 'both';
+  const outMode = document.getElementById('citecheck-output-sel')?.value || 'both';
+
+  const prompt = `You are an expert academic editor and citation specialist. A researcher has provided their reference list and needs it checked and corrected in ${styleNames[style] || 'APA 7th Edition'} format.
+
+REFERENCE LIST TO CHECK:
+${refs}
+
+Perform a thorough citation audit. For each reference:
+
+1. Identify formatting errors (punctuation, italics notation, capitalization, order of elements)
+2. Identify missing required elements (DOI, volume, issue, pages, publisher, etc.)
+3. Identify inconsistencies between references
+4. Correct the reference to proper ${styleNames[style]} format
+
+Provide your response in two parts:
+
+### Issues Found
+List each problem reference by number, quote the original, explain the specific errors, and provide the corrected version. Format:
+
+Reference [N]: [original]
+Problems: [list specific errors]
+Corrected: [fixed version]
+
+### Corrected Reference List
+The complete corrected reference list in proper ${styleNames[style]} format, ready to paste into a manuscript. Alphabetical order (or numbered for IEEE/Vancouver). Include all references, corrected or not.
+
+### Summary
+Brief summary: total references checked, number with errors, most common error types.
+
+Be precise and specific about what rule each error violates. Do not invent DOIs or missing information — flag what is missing instead.`;
+
+  try {
+    const result = await callToolAPI(prompt);
+    showToolResult(outputId, resultId, result);
+  } catch(e) {
+    showToolError(resultId, e);
+  }
+}
+
+// ── TOOL 6: POSTER → PAPER CONVERTER ─────────────────────────
+async function runPosterToPaper() {
+  const title       = document.getElementById('p2paper-title')?.value.trim() || '';
+  const field       = document.getElementById('p2paper-field')?.value.trim() || '';
+  const background  = document.getElementById('p2paper-background')?.value.trim() || '';
+  const methods     = document.getElementById('p2paper-methods')?.value.trim() || '';
+  const results     = document.getElementById('p2paper-results')?.value.trim() || '';
+  const conclusions = document.getElementById('p2paper-conclusions')?.value.trim() || '';
+  const type        = document.getElementById('p2paper-type')?.value || 'original';
+  const style       = document.getElementById('p2paper-style')?.value || 'apa7';
+
+  if (!background && !results) { alert('Paste at least your background and results sections.'); return; }
+
+  const outputId = 'p2paper-output';
+  const resultId = 'p2paper-result';
+  showToolGenerating(outputId, 'Converting poster to manuscript...');
+
+  const typeNames = {
+    original: 'Original Research Article', brief: 'Brief Communication',
+    review: 'Review Article', casestudy: 'Case Study / Report'
+  };
+  const styleNames = {
+    apa7: 'APA 7th Edition', ama: 'AMA', vancouver: 'Vancouver', ieee: 'IEEE'
+  };
+
+  const prompt = `You are an expert academic editor helping a researcher convert a conference poster into a full manuscript.
+
+POSTER CONTENT:
+Title: ${title || '[Not provided — infer from content]'}
+Field: ${field || '[Infer from content]'}
+Background/Introduction: ${background || '[Not provided]'}
+Methods: ${methods || '[Not provided]'}
+Results/Findings: ${results || '[Not provided]'}
+Conclusions: ${conclusions || '[Not provided]'}
+
+TARGET: ${typeNames[type] || 'Original Research Article'} in ${styleNames[style] || 'APA 7th Edition'} style.
+
+Generate a complete manuscript expansion with these sections:
+
+### Title
+A publication-ready manuscript title (more detailed than a poster title).
+
+### Abstract (250 words)
+Structured abstract with Background, Objective, Methods, Results, Conclusions.
+
+### Introduction (Expanded)
+Expand the poster background into a full Introduction section (~400 words). Include: problem statement, significance, gap in literature, study purpose, and research questions/hypotheses. Note where citations should be added with [CITE: topic] placeholders.
+
+### Methods (Expanded)
+Expand poster methods into a complete Methods section (~300 words). Include: design, participants/sample, procedures, instruments/measures, analysis plan. Flag any missing methodological details.
+
+### Results (Expanded)
+Expand poster results into a full Results section (~300 words). Describe findings systematically. Note where tables and figures should be inserted.
+
+### Discussion (New)
+Generate a Discussion section (~400 words) interpreting the results, connecting to existing literature, explaining implications, and acknowledging limitations.
+
+### Conclusion (New)
+Generate a Conclusion section (~150 words) summarizing key findings and significance.
+
+### Journal Suggestions
+Recommend 3-4 specific journals by name appropriate for this field and study type, with a one-sentence rationale for each.
+
+### What's Still Needed
+A checklist of what the author must add before submission (missing data, citations needed, tables to create, etc.).
+
+Write in formal scholarly voice. Use [CITE: topic] where references are needed.`;
+
+  try {
+    const result = await callToolAPI(prompt);
+    showToolResult(outputId, resultId, result);
+  } catch(e) {
+    showToolError(resultId, e);
+  }
+}
+
+// ── TOOL 7: PAPER → POSTER CONVERTER ─────────────────────────
+async function runPaperToPoster() {
+  const text     = document.getElementById('p2poster-text')?.value.trim();
+  const purpose  = document.getElementById('p2poster-purpose')?.value || 'conference';
+  const audience = document.getElementById('p2poster-audience')?.value || 'academic';
+  const size     = document.getElementById('p2poster-size')?.value || '36x48';
+
+  if (!text || text.length < 100) { alert('Paste your manuscript or abstract first.'); return; }
+
+  const outputId = 'p2poster-output';
+  const resultId = 'p2poster-result';
+  showToolGenerating(outputId, 'Converting manuscript to poster...');
+
+  const purposeNames = {
+    conference: 'academic conference', defense: 'dissertation defense',
+    class: 'class or seminar', grant: 'grant presentation'
+  };
+  const audienceNames = {
+    expert: 'expert specialists in this field',
+    academic: 'academic audience from mixed fields',
+    general: 'general or lay audience'
+  };
+
+  const prompt = `You are an expert academic poster designer and editor. Convert this manuscript content into a complete academic poster.
+
+MANUSCRIPT CONTENT:
+${text.substring(0, 4000)}${text.length > 4000 ? '\n[... additional content truncated for processing ...]' : ''}
+
+POSTER CONTEXT:
+- Purpose: ${purposeNames[purpose] || 'academic conference'}
+- Audience: ${audienceNames[audience] || 'academic'}
+- Size: ${size} inches
+
+Generate complete poster content for each section:
+
+### Title
+A punchy, clear poster title (12 words or fewer). Include a subtitle if needed.
+
+### Authors & Affiliations
+Template: [Author Names] | [Institution] | [Contact Email]
+
+### Background / Introduction
+3-4 bullet points establishing the problem and why it matters. Each bullet 1-2 sentences max.
+
+### Research Question / Objective
+One clear sentence stating exactly what this study examined.
+
+### Methods
+4-6 bullet points covering design, sample, procedures, and analysis. Concise and specific.
+
+### Results / Key Findings
+4-6 bullet points with the most important findings. Lead with the numbers. Use active, direct language.
+
+### Discussion / Implications
+3-4 bullet points interpreting what the findings mean and why they matter for this audience.
+
+### Conclusions
+2-3 sentences maximum. What do we now know that we didn't before?
+
+### Visual Suggestions
+Recommend 3-4 specific figures, tables, or diagrams that would strengthen this poster. Describe exactly what each should show.
+
+### Layout Recommendation
+Describe the recommended column layout, visual hierarchy, and which sections should be most prominent for a ${size} poster at a ${purposeNames[purpose]}.
+
+### Take-Home Message
+One sentence — the single thing the audience should remember walking away.
+
+Write all content at the right level for ${audienceNames[audience]}. Poster language should be scannable, not dense prose.`;
+
+  try {
+    const result = await callToolAPI(prompt);
+    showToolResult(outputId, resultId, result);
+  } catch(e) {
+    showToolError(resultId, e);
+  }
+}
+
+// ── TOOL 8: RESEARCH PRESENTATION BUILDER ────────────────────
+async function runPresentationBuilder() {
+  const text     = document.getElementById('pres-text')?.value.trim();
+  const type     = document.getElementById('pres-type')?.value || 'conference';
+  const time     = document.getElementById('pres-time')?.value || '20';
+  const audience = document.getElementById('pres-audience')?.value || 'academic';
+
+  if (!text || text.length < 50) { alert('Paste your manuscript or key points first.'); return; }
+
+  const outputId = 'pres-output';
+  const resultId = 'pres-result';
+  showToolGenerating(outputId, 'Building your presentation...');
+
+  const typeNames = {
+    defense: 'dissertation defense', conference: 'academic conference presentation',
+    lab: 'lab or group meeting', class: 'class presentation', faculty: 'faculty job talk'
+  };
+  const audienceNames = {
+    expert: 'expert committee or specialists', academic: 'mixed academic audience', general: 'general audience'
+  };
+
+  // Calculate slides: roughly 1.5-2 min per slide
+  const slideCount = Math.round(parseInt(time) / 1.75);
+
+  const prompt = `You are an expert academic presentation coach. Build a complete ${time}-minute ${typeNames[type] || 'presentation'} from this research content.
+
+RESEARCH CONTENT:
+${text.substring(0, 4000)}
+
+AUDIENCE: ${audienceNames[audience]}
+TOTAL SLIDES: approximately ${slideCount} slides
+TIME: ${time} minutes
+
+Generate a complete presentation package:
+
+### Slide-by-Slide Outline
+
+For each slide provide:
+**Slide [N]: [Title]** (~[X] minutes)
+- Bullet point 1
+- Bullet point 2
+- Bullet point 3
+Speaker note: [What to say, key points to emphasize, transitions to next slide]
+Visual: [Specific recommendation for what image, chart, or diagram to use]
+
+Structure the slides as: Opening hook → Background → Gap/Problem → Research question → Methods → Key findings → Discussion → Implications → Conclusions → Questions
+
+### 5-Minute Elevator Version
+A condensed script (~750 words) covering the essential story for someone who only has 5 minutes. Write as natural spoken language, not bullet points.
+
+### Anticipated Questions
+List 5-7 questions this audience is likely to ask, with suggested response approaches for each.
+
+### Opening Hook
+Write the exact first 3 sentences to open this presentation — something that immediately engages the audience and frames why this matters.
+
+Write speaker notes as natural spoken language. Keep bullet points to 5 words or fewer per bullet — they are memory cues, not text to be read.`;
+
+  try {
+    const result = await callToolAPI(prompt);
+    showToolResult(outputId, resultId, result);
+  } catch(e) {
+    showToolError(resultId, e);
+  }
+}
+
+// ── TOOL 9: FIGURE FROM TEXT ──────────────────────────────────
+async function runFigureFromText() {
+  const desc    = document.getElementById('figtext-desc')?.value.trim();
+  const type    = document.getElementById('figtext-type')?.value || 'conceptual';
+  const color   = document.getElementById('figtext-color')?.value || 'bw';
+  const caption = document.getElementById('figtext-caption')?.value.trim() || '';
+
+  if (!desc || desc.length < 10) { alert('Describe the figure you need first.'); return; }
+
+  const container = document.getElementById('figtext-output');
+  const svgBox    = document.getElementById('figtext-svg-container');
+  const capOut    = document.getElementById('figtext-caption-out');
+  if (container) container.style.display = 'none';
+  if (svgBox) svgBox.innerHTML = '<div style="padding:32px;font-family:monospace;font-size:11px;color:#888;text-align:center;">Generating figure<span class="loading-dots"></span></div>';
+  if (container) container.style.display = 'block';
+
+  const palettes = {
+    bw:    { box:'#ffffff', boxBorder:'#0a0a0f', boxText:'#0a0a0f', arrow:'#0a0a0f', bg:'#ffffff', accent:'#555555' },
+    blue:  { box:'#e8f0fb', boxBorder:'#4a6fa5', boxText:'#1a3a6a', arrow:'#4a6fa5', bg:'#ffffff', accent:'#4a6fa5' },
+    gold:  { box:'#fdf6e8', boxBorder:'#C6A667', boxText:'#0a0a0f', arrow:'#C6A667', bg:'#0a0a0f', accent:'#C6A667' },
+    color: { box:'#e8f5ec', boxBorder:'#285C4D', boxText:'#0a0a0f', arrow:'#4a6fa5', bg:'#ffffff', accent:'#285C4D' },
+  };
+  const p = palettes[color] || palettes.bw;
+
+  const typeInstructions = {
+    conceptual: 'a conceptual model with boxes for constructs and arrows showing relationships. Use rectangles for main constructs and diamonds for mediators/moderators.',
+    flowchart:  'a flowchart with rectangles for process steps, diamonds for decisions, and arrows showing flow direction.',
+    causal:     'a path model with rectangles for variables and directional arrows showing causal paths. Label arrows with relationship type.',
+    variables:  'a variable map grouping independent, mediating, moderating, and dependent variables in clearly labeled columns.',
+    framework:  'a theoretical framework with layered or nested components showing relationships between levels.',
+    timeline:   'a horizontal timeline with labeled nodes for key events or stages in sequence.'
+  };
+
+  const prompt = `You are an SVG diagram specialist. Generate a clean, publication-ready academic SVG figure.
+
+DESCRIPTION: "${desc}"
+TYPE: ${typeInstructions[type] || typeInstructions.conceptual}
+COLORS: boxes fill="${p.box}" stroke="${p.boxBorder}" text="${p.boxText}" | arrows stroke="${p.arrow}" | background="${p.bg}"
+
+Rules:
+- SVG viewBox="0 0 800 500" width="800" height="500"
+- Use <rect> for boxes with rx="4", <text> for labels, <line> or <path> for arrows, <polygon> for arrowheads
+- Font: font-family="Georgia, serif" for labels, font-family="monospace" for annotations
+- All text must fit inside boxes — wrap long labels across two <text> lines using dy offsets
+- Arrow markers: define a <marker id="arr"> arrowhead in <defs>
+- NO external fonts, NO images, NO scripts — pure SVG only
+- Background: <rect width="800" height="500" fill="${p.bg}"/>
+- Add a small caption area at bottom if caption provided
+
+Generate ONLY the SVG code. No explanation, no markdown fences. Start with <svg and end with </svg>.`;
+
+  try {
+    const result = await callToolAPI(prompt);
+    // Extract SVG from response
+    const svgMatch = result.match(/<svg[\s\S]*<\/svg>/i);
+    const svgContent = svgMatch ? svgMatch[0] : null;
+
+    if (svgContent) {
+      window._lastFigureSVG = svgContent;
+      if (svgBox) svgBox.innerHTML = svgContent;
+      if (capOut && caption) capOut.textContent = caption;
+      if (container) container.style.display = 'block';
+    } else {
+      // Fallback — show text description of what to draw
+      if (svgBox) svgBox.innerHTML = `<div style="padding:24px;font-size:13px;color:#555;line-height:1.8;text-align:left;">${result.replace(/\n/g,'<br>')}</div>`;
+    }
+  } catch(e) {
+    if (svgBox) svgBox.innerHTML = `<div style="padding:16px;color:#a82828;font-size:13px;">Error: ${e.message === 'NO_KEY' ? 'Enter your Anthropic API key on the Topic screen.' : e.message}</div>`;
+  }
+}
+
+function downloadFigureSVG() {
+  if (!window._lastFigureSVG) { alert('Generate a figure first.'); return; }
+  const blob = new Blob([window._lastFigureSVG], { type: 'image/svg+xml' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'Figure_' + Date.now() + '.svg';
+  a.click();
+}
+
+// ── TOOL 10: JOURNAL FINDER ───────────────────────────────────
+async function runJournalFinder() {
+  const title    = document.getElementById('jf-title')?.value.trim() || '';
+  const abstract = document.getElementById('jf-abstract')?.value.trim() || '';
+  const type     = document.getElementById('jf-type')?.value || 'empirical';
+  const impact   = document.getElementById('jf-impact')?.value || 'mid';
+  const words    = document.getElementById('jf-words')?.value || '5000-8000';
+  const field    = document.getElementById('jf-field')?.value.trim() || '';
+
+  if (!abstract || abstract.length < 50) { alert('Paste your abstract or manuscript summary first.'); return; }
+
+  const outputId = 'jf-output';
+  const resultId = 'jf-result';
+  showToolGenerating(outputId, 'Finding journal matches...');
+
+  const typeNames = {
+    empirical: 'empirical original research', review: 'systematic review or meta-analysis',
+    theoretical: 'theoretical or conceptual paper', qualitative: 'qualitative study',
+    mixed: 'mixed methods study', casestudy: 'case study', brief: 'brief report'
+  };
+  const impactNames = {
+    high: 'high-impact Q1 or Q2 journals', mid: 'mid-tier Q2 or Q3 journals',
+    accessible: 'accessible journals suitable for a first publication', open: 'open-access journals'
+  };
+
+  const prompt = `You are an expert academic publishing consultant with deep knowledge of journals across all academic fields. Help this researcher identify the best journals for their manuscript.
+
+MANUSCRIPT:
+Title: ${title || '[Not provided]'}
+Field: ${field || '[Infer from abstract]'}
+Type: ${typeNames[type]}
+Abstract/Summary: ${abstract}
+Word count range: ${words} words
+Target: ${impactNames[impact]}
+
+Recommend exactly 6 journals. For each provide:
+
+### [Journal Name] — Fit Score: [X/10]
+
+**Publisher:** [Publisher name]
+**Scope match:** [2-3 sentences on why this journal is a good fit for this specific manuscript]
+**Impact Factor / Quartile:** [Current approximate IF and quartile — note if approximate]
+**Typical word limit:** [X,XXX words]
+**Turnaround:** [Typical first decision timeline]
+**Open access:** [Yes / No / Hybrid / Optional]
+**Submission notes:** [1-2 specific tips for submitting to this journal — what they look for, what to emphasize in the cover letter, any known preferences]
+**Caution:** [Any reason this might not be the best fit or a known rejection pattern]
+
+After the 6 journals:
+
+### Submission Strategy
+Recommend a submission sequence — which journal to try first, second, third, and why. How long to wait before moving to the next journal.
+
+### Cover Letter Hook
+Write the first paragraph of a cover letter that would work for the top recommended journal — specific to this manuscript.
+
+Base recommendations on real journals you know well. If you are uncertain about current impact factors, note that clearly rather than guessing. Prioritize fit over prestige.`;
+
+  try {
+    const result = await callToolAPI(prompt);
+    showToolResult(outputId, resultId, result);
+  } catch(e) {
+    showToolError(resultId, e);
+  }
+}
+
+// ── TOOL 4: FIGURE STUDIO ─────────────────────────────────────
+function handleToolFigureUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  loadFigureFile(file);
+}
+
+function handleFigureDrop(event) {
+  event.preventDefault();
+  document.getElementById('figure-drop-zone').style.borderColor = 'rgba(0,0,0,0.15)';
+  const file = event.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) loadFigureFile(file);
+}
+
+function loadFigureFile(file) {
+  _figureMediaType = file.type || 'image/png';
+  const reader = new FileReader();
+  reader.onload = e => {
+    const dataUrl = e.target.result;
+    _figureBase64 = dataUrl.split(',')[1];
+    const preview = document.getElementById('figure-preview');
+    const wrap    = document.getElementById('figure-preview-wrap');
+    const drop    = document.getElementById('figure-drop-zone');
+    if (preview) preview.src = dataUrl;
+    if (wrap)  wrap.style.display = 'block';
+    if (drop)  drop.style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearFigure() {
+  _figureBase64 = null;
+  document.getElementById('figure-preview').src = '';
+  document.getElementById('figure-preview-wrap').style.display = 'none';
+  document.getElementById('figure-drop-zone').style.display = 'block';
+  document.getElementById('figure-upload').value = '';
+  document.getElementById('figure-output').style.display = 'none';
+}
+
+async function runFigureStudio(mode) {
+  if (!_figureBase64) { alert('Upload a figure first.'); return; }
+
+  const figNum  = document.getElementById('figure-number')?.value.trim() || '1';
+  const style   = document.getElementById('figure-style')?.value || 'apa';
+  const context = document.getElementById('figure-context')?.value.trim() || '';
+  const outputId = 'figure-output';
+  const resultId = 'figure-result';
+
+  showToolGenerating(outputId, 'Analyzing your figure...');
+
+  const styleGuides = {
+    apa:     'APA 7th Edition',
+    ama:     'AMA (American Medical Association)',
+    ieee:    'IEEE',
+    chicago: 'Chicago 17th Edition',
+    mla:     'MLA 9th Edition'
+  };
+
+  const captionPrompt = `You are an expert academic editor. Examine this figure carefully and generate journal-ready caption content in ${styleGuides[style] || 'APA 7th Edition'} format.
+
+Figure number: ${figNum}
+${context ? `Additional context: ${context}` : ''}
+
+Generate:
+
+### Caption (${styleGuides[style] || 'APA'})
+Complete formatted caption starting with "Figure ${figNum}." describing what the figure shows, patterns, scales, and notable features.
+
+### Alt Text (Accessibility)
+A complete alt-text description for screen reader accessibility conveying all visible information.
+
+### "This figure illustrates..." sentence
+One sentence beginning with "This figure illustrates..." suitable for in-text reference.
+
+### "The data demonstrate..." sentence
+One sentence beginning with "The data demonstrate..." suitable for a results section.
+
+### Key visual elements
+List 3-4 specific elements a reader should notice first.`;
+
+  const interpretPrompt = `You are an expert academic editor. Examine this figure carefully and write scholarly interpretive text.
+
+Figure number: ${figNum}
+${context ? `Additional context: ${context}` : ''}
+
+Generate:
+
+### Results Paragraph
+3-4 sentences describing results shown in this figure for a Results section. Past tense, scholarly voice, reference specific values or patterns.
+
+### Discussion Paragraph
+3-4 sentences interpreting meaning and implications for a Discussion section.
+
+### Limitations Note
+1-2 sentences acknowledging what this figure cannot show.
+
+### "What This Means" Summary
+2-3 plain-language sentences suitable for a presentation, poster, or lay summary.`;
+
+  const promptToUse = mode === 'captions' ? captionPrompt
+    : mode === 'interpret' ? interpretPrompt
+    : captionPrompt + '\n\n---\n\n' + interpretPrompt;
+
+  try {
+    const result = await callToolAPI(
+      promptToUse,
+      'You are an expert academic editor specializing in figure description and scientific writing. Analyze the provided figure carefully and respond with precise, publication-ready content.',
+      { type: _figureMediaType, data: _figureBase64 }
+    );
+    showToolResult(outputId, resultId, result);
+  } catch(e) {
+    showToolError(resultId, e);
+  }
+}
+
+// ═══════════════════════════════════════════
 // GRANT SIGNIFICANCE & INNOVATION ENGINE
 // ═══════════════════════════════════════════
 
@@ -5582,6 +6419,18 @@ const GRANT_SECTION_DEFS = [
 ];
 
 function goToGrantScreen() {
+  // Clear stale rendered sections if topic has changed
+  const currentTopic = state.topic || '';
+  if (grantState._lastTopic && grantState._lastTopic !== currentTopic) {
+    // New search — reset generated sections but keep protocol inputs
+    grantState.sections = {
+      aims:         { text:'', edited:false },
+      significance: { text:'', edited:false },
+      innovation:   { text:'', edited:false },
+      prior:        { text:'', edited:false },
+    };
+  }
+  grantState._lastTopic = currentTopic;
   // Show Screen 9G
   document.querySelectorAll('.screen').forEach(s => {
     s.classList.remove('active');
@@ -5614,9 +6463,9 @@ function goToGrantScreen() {
   const label = document.getElementById('g9-topic-label');
   if (label) label.textContent = (state.anchor || state.topic || '').substring(0, 80);
 
-  // Restore saved grant state
+  // Restore saved grant state — only set values if they exist, don't overwrite user choices
   const sel = document.getElementById('g-agency');
-  if (sel) sel.value = grantState.agency || 'nih';
+  if (sel && grantState.agency) sel.value = grantState.agency;
   const fields = { 'g-mechanism': 'mechanism', 'g-pi': 'pi', 'g-question': 'question', 'g-approach': 'approach', 'g-priorwork': 'priorWork', 'g-aims': 'aims' };
   Object.entries(fields).forEach(([elId, key]) => {
     const el = document.getElementById(elId);
@@ -10536,7 +11385,7 @@ restoreSession();
 
         <div style="margin-bottom:14px;">
           <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:rgba(245,243,238,0.35);margin-bottom:6px;">Funding Agency</div>
-          <select id="g-agency" onchange="updateGrantUI()" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:var(--paper);padding:8px 10px;font-family:'JetBrains Mono',monospace;font-size:11px;outline:none;cursor:pointer;">
+          <select id="g-agency" onchange="saveGrantState()" style="width:100%;background:white;border:1px solid rgba(255,255,255,0.2);color:#0a0a0f;padding:8px 10px;font-family:'JetBrains Mono',monospace;font-size:11px;outline:none;cursor:pointer;">
             <option value="nih">NIH (R01 / R21 / K-Award)</option>
             <option value="nsf">NSF</option>
             <option value="hrsa">HRSA</option>
@@ -10549,32 +11398,32 @@ restoreSession();
 
         <div style="margin-bottom:14px;">
           <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:rgba(245,243,238,0.35);margin-bottom:6px;">Grant Mechanism / Type</div>
-          <input type="text" id="g-mechanism" placeholder="e.g., R01, R21, K23, NSF CAREER" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:var(--paper);padding:8px 10px;font-family:'JetBrains Mono',monospace;font-size:11px;outline:none;" oninput="saveGrantState()">
+          <input type="text" id="g-mechanism" placeholder="e.g., R01, R21, K23, NSF CAREER" style="width:100%;background:white;border:1px solid rgba(255,255,255,0.2);color:#0a0a0f;padding:8px 10px;font-family:'JetBrains Mono',monospace;font-size:11px;outline:none;" oninput="saveGrantState()">
         </div>
 
         <div style="margin-bottom:14px;">
           <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:rgba(245,243,238,0.35);margin-bottom:6px;">PI Name &amp; Credentials</div>
-          <input type="text" id="g-pi" placeholder="Dr. Jane Smith, PhD, RN" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:var(--paper);padding:8px 10px;font-family:'JetBrains Mono',monospace;font-size:11px;outline:none;" oninput="saveGrantState()">
+          <input type="text" id="g-pi" placeholder="Dr. Jane Smith, PhD, RN" style="width:100%;background:white;border:1px solid rgba(255,255,255,0.2);color:#0a0a0f;padding:8px 10px;font-family:'JetBrains Mono',monospace;font-size:11px;outline:none;" oninput="saveGrantState()">
         </div>
 
         <div style="margin-bottom:14px;">
           <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:rgba(245,243,238,0.35);margin-bottom:6px;">Central Research Question</div>
-          <textarea id="g-question" rows="3" placeholder="What is the effect of X on Y in population Z?" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:var(--paper);padding:8px 10px;font-family:'Georgia',serif;font-size:12px;outline:none;resize:vertical;line-height:1.6;" oninput="saveGrantState()"></textarea>
+          <textarea id="g-question" rows="3" placeholder="What is the effect of X on Y in population Z?" style="width:100%;background:white;border:1px solid rgba(255,255,255,0.2);color:#0a0a0f;padding:8px 10px;font-family:'Georgia',serif;font-size:12px;outline:none;resize:vertical;line-height:1.6;" oninput="saveGrantState()"></textarea>
         </div>
 
         <div style="margin-bottom:14px;">
           <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:rgba(245,243,238,0.35);margin-bottom:6px;">Proposed Approach / Innovation</div>
-          <textarea id="g-approach" rows="3" placeholder="Briefly describe what you will do that no one has done. What is novel about your method or framework?" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:var(--paper);padding:8px 10px;font-family:'Georgia',serif;font-size:12px;outline:none;resize:vertical;line-height:1.6;" oninput="saveGrantState()"></textarea>
+          <textarea id="g-approach" rows="3" placeholder="Briefly describe what you will do that no one has done. What is novel about your method or framework?" style="width:100%;background:white;border:1px solid rgba(255,255,255,0.2);color:#0a0a0f;padding:8px 10px;font-family:'Georgia',serif;font-size:12px;outline:none;resize:vertical;line-height:1.6;" oninput="saveGrantState()"></textarea>
         </div>
 
         <div style="margin-bottom:14px;">
           <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:rgba(245,243,238,0.35);margin-bottom:6px;">Prior Work / Preliminary Data (optional)</div>
-          <textarea id="g-priorwork" rows="3" placeholder="Describe any existing work, pilot data, or prior publications that establish your credibility in this area." style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:var(--paper);padding:8px 10px;font-family:'Georgia',serif;font-size:12px;outline:none;resize:vertical;line-height:1.6;" oninput="saveGrantState()"></textarea>
+          <textarea id="g-priorwork" rows="3" placeholder="Describe any existing work, pilot data, or prior publications that establish your credibility in this area." style="width:100%;background:white;border:1px solid rgba(255,255,255,0.2);color:#0a0a0f;padding:8px 10px;font-family:'Georgia',serif;font-size:12px;outline:none;resize:vertical;line-height:1.6;" oninput="saveGrantState()"></textarea>
         </div>
 
         <div style="margin-bottom:20px;">
           <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:rgba(245,243,238,0.35);margin-bottom:8px;">3 Specific Aims (one per line)</div>
-          <textarea id="g-aims" rows="5" placeholder="Aim 1: Characterize the prevalence of X&#10;Aim 2: Examine the relationship between X and Y&#10;Aim 3: Develop and pilot-test an intervention" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:var(--paper);padding:8px 10px;font-family:'Georgia',serif;font-size:12px;outline:none;resize:vertical;line-height:1.6;" oninput="saveGrantState()"></textarea>
+          <textarea id="g-aims" rows="5" placeholder="Aim 1: Characterize the prevalence of X&#10;Aim 2: Examine the relationship between X and Y&#10;Aim 3: Develop and pilot-test an intervention" style="width:100%;background:white;border:1px solid rgba(255,255,255,0.2);color:#0a0a0f;padding:8px 10px;font-family:'Georgia',serif;font-size:12px;outline:none;resize:vertical;line-height:1.6;" oninput="saveGrantState()"></textarea>
         </div>
 
         <button onclick="generateAllGrantSections()" id="g-generate-btn" style="width:100%;padding:12px;background:#285C4D;color:white;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;border:none;cursor:pointer;font-weight:700;transition:background 0.15s;" onmouseover="this.style.background='#1a4a2e'" onmouseout="this.style.background='#285C4D'">
@@ -10609,7 +11458,556 @@ restoreSession();
       <div id="gpanel-full"         class="g-panel" style="display:none;"></div>
     </div>
   </div>
-</div>
+</div><!-- /screen-9g -->
+
+<!-- ═══ SCREEN 10T: SUBSCRIPTION TOOLS ═══ -->
+<div class="screen" id="screen-10t" style="background:#f5f3ee;min-height:calc(100vh - 60px);">
+  <div style="max-width:900px;margin:0 auto;padding:48px 40px;">
+
+    <!-- Header -->
+    <div style="margin-bottom:40px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;">SLR Studio · Research Tools</div>
+      <h2 style="font-family:'Playfair Display',serif;font-size:34px;font-weight:700;color:#0a0a0f;margin-bottom:8px;">Research <em style="color:var(--gold);">Tools</em></h2>
+      <p style="font-size:14px;color:#666;line-height:1.7;">Standalone tools for every stage of the research process. No search required.</p>
+    </div>
+
+    <!-- Tool tabs -->
+    <div style="display:flex;gap:0;border-bottom:2px solid #0a0a0f;margin-bottom:32px;">
+      <button class="t-tab t-tab-active" id="ttab-methods"    onclick="switchToolTab('methods')">Methods Coach</button>
+      <button class="t-tab" id="ttab-reviewer"  onclick="switchToolTab('reviewer')">Reviewer Response</button>
+      <button class="t-tab" id="ttab-coherence" onclick="switchToolTab('coherence')">Coherence Check</button>
+      <button class="t-tab" id="ttab-figure"    onclick="switchToolTab('figure')">Figure Studio</button>
+      <button class="t-tab" id="ttab-citecheck" onclick="switchToolTab('citecheck')">Cite-Check</button>
+      <button class="t-tab" id="ttab-p2paper"   onclick="switchToolTab('p2paper')">Poster → Paper</button>
+      <button class="t-tab" id="ttab-p2poster"  onclick="switchToolTab('p2poster')">Paper → Poster</button>
+      <button class="t-tab" id="ttab-presentation" onclick="switchToolTab('presentation')">Presentation Builder</button>
+      <button class="t-tab" id="ttab-figtext"   onclick="switchToolTab('figtext')">Figure from Text</button>
+      <button class="t-tab" id="ttab-journals"  onclick="switchToolTab('journals')">Journal Finder</button>
+    </div>
+
+    <!-- ── TOOL 1: METHODS COACH ── -->
+    <div id="tpanel-methods" class="t-panel">
+      <div class="t-tool-header">
+        <div>
+          <div class="t-tool-title">Methods Coach</div>
+          <div class="t-tool-desc">Describe your research design. Get strengths, weaknesses, common reviewer criticisms, how to defend it, and how to write it up.</div>
+        </div>
+      </div>
+
+      <div class="t-field">
+        <label class="t-label">Your Research Design</label>
+        <textarea id="methods-design" class="t-textarea" rows="3" placeholder="e.g., I am using a cross-sectional survey design with convenience sampling of 150 undergraduate students..."></textarea>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+        <div class="t-field">
+          <label class="t-label">Research Topic / Field</label>
+          <input type="text" id="methods-topic" class="t-input" placeholder="e.g., burnout in emergency nursing">
+        </div>
+        <div class="t-field">
+          <label class="t-label">Manuscript Section</label>
+          <select id="methods-section" class="t-select">
+            <option value="chapter3">Chapter 3 / Methods Section</option>
+            <option value="grant">Grant Application</option>
+            <option value="proposal">Research Proposal</option>
+            <option value="defense">Dissertation Defense</option>
+          </select>
+        </div>
+      </div>
+      <button class="t-btn-primary" onclick="runMethodsCoach()">Analyze My Design →</button>
+
+      <div id="methods-output" class="t-output" style="display:none;">
+        <div class="t-output-actions">
+          <button class="t-action" onclick="copyToolOutput('methods-result')">⎘ Copy</button>
+          <button class="t-action" onclick="downloadToolOutput('methods-result','Methods_Analysis')">↓ Download</button>
+        </div>
+        <div id="methods-result" class="t-result"></div>
+      </div>
+    </div>
+
+    <!-- ── TOOL 2: REVIEWER RESPONSE ASSISTANT ── -->
+    <div id="tpanel-reviewer" class="t-panel" style="display:none;">
+      <div class="t-tool-header">
+        <div>
+          <div class="t-tool-title">Reviewer Response Assistant</div>
+          <div class="t-tool-desc">Paste reviewer comments. Get point-by-point responses, polite rebuttals, suggested revisions, and tone-appropriate language.</div>
+        </div>
+      </div>
+
+      <div class="t-field">
+        <label class="t-label">Reviewer Comments</label>
+        <textarea id="reviewer-comments" class="t-textarea" rows="6" placeholder="Paste the full reviewer comments here. Include Reviewer 1, Reviewer 2, etc. if multiple reviewers."></textarea>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+        <div class="t-field">
+          <label class="t-label">Manuscript Title / Topic</label>
+          <input type="text" id="reviewer-topic" class="t-input" placeholder="e.g., Crisis decision-making in emergency medicine">
+        </div>
+        <div class="t-field">
+          <label class="t-label">Response Tone</label>
+          <select id="reviewer-tone" class="t-select">
+            <option value="professional">Professional & Collegial</option>
+            <option value="assertive">Assertive (Disagree diplomatically)</option>
+            <option value="concise">Concise & Direct</option>
+            <option value="detailed">Detailed & Thorough</option>
+          </select>
+        </div>
+      </div>
+      <button class="t-btn-primary" onclick="runReviewerResponse()">Generate Response →</button>
+
+      <div id="reviewer-output" class="t-output" style="display:none;">
+        <div class="t-output-actions">
+          <button class="t-action" onclick="copyToolOutput('reviewer-result')">⎘ Copy</button>
+          <button class="t-action" onclick="downloadToolOutput('reviewer-result','Reviewer_Response')">↓ Download</button>
+        </div>
+        <div id="reviewer-result" class="t-result"></div>
+      </div>
+    </div>
+
+    <!-- ── TOOL 3: ARGUMENT COHERENCE CHECKER ── -->
+    <div id="tpanel-coherence" class="t-panel" style="display:none;">
+      <div class="t-tool-header">
+        <div>
+          <div class="t-tool-title">Argument Coherence Checker</div>
+          <div class="t-tool-desc">Paste any section of your manuscript. Get a structured analysis of logic flow, missing steps, unsupported claims, contradictions, and weak transitions.</div>
+        </div>
+      </div>
+
+      <div class="t-field">
+        <label class="t-label">Manuscript Section</label>
+        <textarea id="coherence-text" class="t-textarea" rows="8" placeholder="Paste the section you want analyzed — Introduction, Literature Review, Discussion, or any paragraph cluster..."></textarea>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+        <div class="t-field">
+          <label class="t-label">Section Type</label>
+          <select id="coherence-section" class="t-select">
+            <option value="introduction">Introduction</option>
+            <option value="literature">Literature Review</option>
+            <option value="methods">Methods</option>
+            <option value="results">Results</option>
+            <option value="discussion">Discussion</option>
+            <option value="conclusion">Conclusion</option>
+            <option value="any">Other / Full Draft</option>
+          </select>
+        </div>
+        <div class="t-field">
+          <label class="t-label">Grade Level</label>
+          <select id="coherence-level" class="t-select">
+            <option value="undergraduate">Undergraduate</option>
+            <option value="masters">Master's</option>
+            <option value="doctoral">Doctoral</option>
+            <option value="faculty">Faculty / Publication</option>
+          </select>
+        </div>
+      </div>
+      <button class="t-btn-primary" onclick="runCoherenceCheck()">Check Coherence →</button>
+
+      <div id="coherence-output" class="t-output" style="display:none;">
+        <div class="t-output-actions">
+          <button class="t-action" onclick="copyToolOutput('coherence-result')">⎘ Copy</button>
+          <button class="t-action" onclick="downloadToolOutput('coherence-result','Coherence_Analysis')">↓ Download</button>
+        </div>
+        <div id="coherence-result" class="t-result"></div>
+      </div>
+    </div>
+
+    <!-- ── TOOL 4: FIGURE STUDIO ── -->
+    <div id="tpanel-figure" class="t-panel" style="display:none;">
+      <div class="t-tool-header">
+        <div>
+          <div class="t-tool-title">Figure Studio</div>
+          <div class="t-tool-desc">Upload a figure or graph. Get APA/AMA/IEEE captions, a results paragraph, a discussion paragraph, a limitations note, and accessibility alt-text.</div>
+        </div>
+      </div>
+
+      <!-- Upload area -->
+      <div id="figure-drop-zone" style="border:2px dashed rgba(0,0,0,0.15);padding:40px;text-align:center;margin-bottom:16px;cursor:pointer;transition:all 0.2s;border-radius:3px;background:white;" onclick="document.getElementById('figure-upload').click()" ondragover="event.preventDefault();this.style.borderColor='var(--gold)'" ondragleave="this.style.borderColor='rgba(0,0,0,0.15)'" ondrop="handleFigureDrop(event)">
+        <div style="font-size:32px;margin-bottom:8px;">📊</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#888;margin-bottom:4px;">Drop figure here or click to upload</div>
+        <div style="font-size:11px;color:#aaa;">PNG, JPG, GIF, WEBP — any chart, graph, diagram, or figure</div>
+        <input type="file" id="figure-upload" accept="image/*" style="display:none;" onchange="handleToolFigureUpload(event)">
+      </div>
+
+      <div id="figure-preview-wrap" style="display:none;margin-bottom:16px;">
+        <img id="figure-preview" style="max-width:100%;max-height:300px;border:1px solid rgba(0,0,0,0.1);display:block;margin:0 auto;">
+        <div style="text-align:center;margin-top:8px;">
+          <button onclick="clearFigure()" style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;padding:4px 10px;background:transparent;border:1px solid rgba(0,0,0,0.15);color:#888;cursor:pointer;">✕ Remove</button>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+        <div class="t-field">
+          <label class="t-label">Figure Number</label>
+          <input type="text" id="figure-number" class="t-input" placeholder="e.g., 1, 2, A1">
+        </div>
+        <div class="t-field">
+          <label class="t-label">Citation Style</label>
+          <select id="figure-style" class="t-select">
+            <option value="apa">APA 7th Edition</option>
+            <option value="ama">AMA</option>
+            <option value="ieee">IEEE</option>
+            <option value="chicago">Chicago</option>
+            <option value="mla">MLA</option>
+          </select>
+        </div>
+      </div>
+      <div class="t-field">
+        <label class="t-label">Context (optional)</label>
+        <input type="text" id="figure-context" class="t-input" placeholder="e.g., This shows survey results from 150 nurses on burnout frequency by department">
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:16px;">
+        <button class="t-btn-primary" onclick="runFigureStudio('captions')">Generate Captions →</button>
+        <button class="t-btn-secondary" onclick="runFigureStudio('interpret')">Interpret Figure →</button>
+        <button class="t-btn-secondary" onclick="runFigureStudio('both')">Full Package →</button>
+      </div>
+
+      <div id="figure-output" class="t-output" style="display:none;">
+        <div class="t-output-actions">
+          <button class="t-action" onclick="copyToolOutput('figure-result')">⎘ Copy</button>
+          <button class="t-action" onclick="downloadToolOutput('figure-result','Figure_Studio')">↓ Download</button>
+        </div>
+        <div id="figure-result" class="t-result"></div>
+      </div>
+    </div>
+
+    <!-- ── TOOL 5: CITE-CHECK & REFERENCE FIXER ── -->
+    <div id="tpanel-citecheck" class="t-panel" style="display:none;">
+      <div class="t-tool-header">
+        <div>
+          <div class="t-tool-title">Cite-Check &amp; Reference Fixer</div>
+          <div class="t-tool-desc">Paste your reference list. SLR Studio checks formatting, flags inconsistencies, fixes style errors, and identifies missing information — in your chosen citation style.</div>
+        </div>
+      </div>
+
+      <div class="t-field">
+        <label class="t-label">Your Reference List</label>
+        <textarea id="citecheck-refs" class="t-textarea" rows="10" placeholder="Paste your full reference list here. One reference per line or standard format.&#10;&#10;Example:&#10;Smith, J., &amp; Jones, A. (2021). Crisis leadership in emergency settings. Journal of Emergency Management, 14(2), 45-67.&#10;Brown K (2020) Decision making under pressure Springer&#10;Williams, T. (no date). Healthcare outcomes. Unknown journal."></textarea>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+        <div class="t-field">
+          <label class="t-label">Citation Style</label>
+          <select id="citecheck-style" class="t-select">
+            <option value="apa7">APA 7th Edition</option>
+            <option value="apa6">APA 6th Edition</option>
+            <option value="ama">AMA</option>
+            <option value="mla">MLA 9th</option>
+            <option value="chicago">Chicago 17th (Author-Date)</option>
+            <option value="ieee">IEEE</option>
+            <option value="vancouver">Vancouver</option>
+          </select>
+        </div>
+        <div class="t-field">
+          <label class="t-label">Output Format</label>
+          <select id="citecheck-output" class="t-select">
+            <option value="fixedlist">Fixed reference list</option>
+            <option value="annotated">Annotated — show each issue</option>
+            <option value="both">Both</option>
+          </select>
+        </div>
+      </div>
+      <button class="t-btn-primary" onclick="runCiteCheck()">Check &amp; Fix References →</button>
+
+      <div id="citecheck-output" class="t-output" style="display:none;">
+        <div class="t-output-actions">
+          <button class="t-action" onclick="copyToolOutput('citecheck-result')">⎘ Copy</button>
+          <button class="t-action" onclick="downloadToolOutput('citecheck-result','Reference_List_Fixed')">↓ Download</button>
+        </div>
+        <div id="citecheck-result" class="t-result"></div>
+      </div>
+    </div>
+
+    <!-- ── TOOL 6: POSTER → PAPER CONVERTER ── -->
+    <div id="tpanel-p2paper" class="t-panel" style="display:none;">
+      <div class="t-tool-header">
+        <div>
+          <div class="t-tool-title">Poster → Paper Converter</div>
+          <div class="t-tool-desc">Paste your poster content section by section. SLR Studio expands each section, adds citation scaffolds, builds a full manuscript outline, and suggests appropriate journals.</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+        <div class="t-field">
+          <label class="t-label">Title</label>
+          <input type="text" id="p2paper-title" class="t-input" placeholder="Your poster/paper title">
+        </div>
+        <div class="t-field">
+          <label class="t-label">Field / Discipline</label>
+          <input type="text" id="p2paper-field" class="t-input" placeholder="e.g., Public health, Nursing, Education">
+        </div>
+      </div>
+      <div class="t-field">
+        <label class="t-label">Background / Introduction (from poster)</label>
+        <textarea id="p2paper-background" class="t-textarea" rows="3" placeholder="Paste your poster background or introduction section..."></textarea>
+      </div>
+      <div class="t-field">
+        <label class="t-label">Methods (from poster)</label>
+        <textarea id="p2paper-methods" class="t-textarea" rows="3" placeholder="Paste your poster methods section..."></textarea>
+      </div>
+      <div class="t-field">
+        <label class="t-label">Results / Findings (from poster)</label>
+        <textarea id="p2paper-results" class="t-textarea" rows="3" placeholder="Paste your poster results or findings..."></textarea>
+      </div>
+      <div class="t-field">
+        <label class="t-label">Conclusions / Significance (from poster)</label>
+        <textarea id="p2paper-conclusions" class="t-textarea" rows="3" placeholder="Paste your poster conclusions or significance statement..."></textarea>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+        <div class="t-field">
+          <label class="t-label">Target Manuscript Type</label>
+          <select id="p2paper-type" class="t-select">
+            <option value="original">Original Research Article</option>
+            <option value="brief">Brief Communication</option>
+            <option value="review">Review Article</option>
+            <option value="casestudy">Case Study / Report</option>
+          </select>
+        </div>
+        <div class="t-field">
+          <label class="t-label">Citation Style</label>
+          <select id="p2paper-style" class="t-select">
+            <option value="apa7">APA 7th</option>
+            <option value="ama">AMA</option>
+            <option value="vancouver">Vancouver</option>
+            <option value="ieee">IEEE</option>
+          </select>
+        </div>
+      </div>
+      <button class="t-btn-primary" onclick="runPosterToPaper()">Convert to Manuscript →</button>
+
+      <div id="p2paper-output" class="t-output" style="display:none;">
+        <div class="t-output-actions">
+          <button class="t-action" onclick="copyToolOutput('p2paper-result')">⎘ Copy</button>
+          <button class="t-action" onclick="downloadToolOutput('p2paper-result','Poster_to_Paper')">↓ Download</button>
+        </div>
+        <div id="p2paper-result" class="t-result"></div>
+      </div>
+    </div>
+
+    <!-- ── TOOL 7: PAPER → POSTER CONVERTER ── -->
+    <div id="tpanel-p2poster" class="t-panel" style="display:none;">
+      <div class="t-tool-header">
+        <div>
+          <div class="t-tool-title">Paper → Poster Converter</div>
+          <div class="t-tool-desc">Paste your manuscript or abstract. SLR Studio extracts key points, generates each poster section, suggests visuals, and provides a layout recommendation.</div>
+        </div>
+      </div>
+
+      <div class="t-field">
+        <label class="t-label">Paste Your Manuscript or Abstract</label>
+        <textarea id="p2poster-text" class="t-textarea" rows="10" placeholder="Paste your full manuscript, abstract, or any combination of sections. The more you provide, the better the poster content."></textarea>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;">
+        <div class="t-field">
+          <label class="t-label">Poster Purpose</label>
+          <select id="p2poster-purpose" class="t-select">
+            <option value="conference">Academic Conference</option>
+            <option value="defense">Dissertation Defense</option>
+            <option value="class">Class / Seminar</option>
+            <option value="grant">Grant Presentation</option>
+          </select>
+        </div>
+        <div class="t-field">
+          <label class="t-label">Audience Level</label>
+          <select id="p2poster-audience" class="t-select">
+            <option value="expert">Expert / Specialists</option>
+            <option value="academic">Academic (mixed fields)</option>
+            <option value="general">General / Lay audience</option>
+          </select>
+        </div>
+        <div class="t-field">
+          <label class="t-label">Poster Size</label>
+          <select id="p2poster-size" class="t-select">
+            <option value="36x48">36" × 48" (standard)</option>
+            <option value="24x36">24" × 36" (small)</option>
+            <option value="48x36">48" × 36" (landscape)</option>
+          </select>
+        </div>
+      </div>
+      <button class="t-btn-primary" onclick="runPaperToPoster()">Convert to Poster →</button>
+
+      <div id="p2poster-output" class="t-output" style="display:none;">
+        <div class="t-output-actions">
+          <button class="t-action" onclick="copyToolOutput('p2poster-result')">⎘ Copy</button>
+          <button class="t-action" onclick="downloadToolOutput('p2poster-result','Paper_to_Poster')">↓ Download</button>
+        </div>
+        <div id="p2poster-result" class="t-result"></div>
+      </div>
+    </div>
+
+    <!-- ── TOOL 8: RESEARCH PRESENTATION BUILDER ── -->
+    <div id="tpanel-presentation" class="t-panel" style="display:none;">
+      <div class="t-tool-header">
+        <div>
+          <div class="t-tool-title">Research Presentation Builder</div>
+          <div class="t-tool-desc">Paste your manuscript or abstract. Get a complete slide deck outline with speaker notes, suggested visuals, and a timed oral summary — ready for your defense, conference, or lab meeting.</div>
+        </div>
+      </div>
+
+      <div class="t-field">
+        <label class="t-label">Manuscript / Abstract / Key Points</label>
+        <textarea id="pres-text" class="t-textarea" rows="8" placeholder="Paste your manuscript, abstract, or a summary of key findings and methods..."></textarea>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;">
+        <div class="t-field">
+          <label class="t-label">Presentation Type</label>
+          <select id="pres-type" class="t-select">
+            <option value="defense">Dissertation Defense</option>
+            <option value="conference">Conference Presentation</option>
+            <option value="lab">Lab / Group Meeting</option>
+            <option value="class">Class Presentation</option>
+            <option value="faculty">Faculty Job Talk</option>
+          </select>
+        </div>
+        <div class="t-field">
+          <label class="t-label">Time Limit</label>
+          <select id="pres-time" class="t-select">
+            <option value="5">5 minutes</option>
+            <option value="10">10 minutes</option>
+            <option value="15">15 minutes</option>
+            <option value="20" selected>20 minutes</option>
+            <option value="30">30 minutes</option>
+            <option value="45">45 minutes</option>
+            <option value="60">60 minutes</option>
+          </select>
+        </div>
+        <div class="t-field">
+          <label class="t-label">Audience</label>
+          <select id="pres-audience" class="t-select">
+            <option value="expert">Expert / Committee</option>
+            <option value="academic">Academic (mixed)</option>
+            <option value="general">General audience</option>
+          </select>
+        </div>
+      </div>
+      <button class="t-btn-primary" onclick="runPresentationBuilder()">Build Presentation →</button>
+
+      <div id="pres-output" class="t-output" style="display:none;">
+        <div class="t-output-actions">
+          <button class="t-action" onclick="copyToolOutput('pres-result')">⎘ Copy</button>
+          <button class="t-action" onclick="downloadToolOutput('pres-result','Presentation_Outline')">↓ Download</button>
+        </div>
+        <div id="pres-result" class="t-result"></div>
+      </div>
+    </div>
+
+    <!-- ── TOOL 9: AI FIGURE FROM TEXT ── -->
+    <div id="tpanel-figtext" class="t-panel" style="display:none;">
+      <div class="t-tool-header">
+        <div>
+          <div class="t-tool-title">Figure from Text</div>
+          <div class="t-tool-desc">Describe the conceptual model, flowchart, causal diagram, or variable map you need. SLR Studio generates a clean SVG figure ready to download and use in your manuscript or poster.</div>
+        </div>
+      </div>
+
+      <div class="t-field">
+        <label class="t-label">Describe Your Figure</label>
+        <textarea id="figtext-desc" class="t-textarea" rows="4" placeholder="e.g., I need a conceptual model showing that stress leads to burnout through two mediators: emotional exhaustion and depersonalization. Burnout then leads to intent to leave and reduced patient care quality."></textarea>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+        <div class="t-field">
+          <label class="t-label">Figure Type</label>
+          <select id="figtext-type" class="t-select">
+            <option value="conceptual">Conceptual Model</option>
+            <option value="flowchart">Flowchart / Process Diagram</option>
+            <option value="causal">Causal / Path Model</option>
+            <option value="variables">Variable Map</option>
+            <option value="framework">Theoretical Framework</option>
+            <option value="timeline">Timeline / Sequence</option>
+          </select>
+        </div>
+        <div class="t-field">
+          <label class="t-label">Color Style</label>
+          <select id="figtext-color" class="t-select">
+            <option value="bw">Black &amp; White (publication-ready)</option>
+            <option value="blue">Blue &amp; White (academic)</option>
+            <option value="gold">Gold &amp; Black (ETL branded)</option>
+            <option value="color">Full color</option>
+          </select>
+        </div>
+      </div>
+      <div class="t-field">
+        <label class="t-label">Figure Number &amp; Caption (optional)</label>
+        <input type="text" id="figtext-caption" class="t-input" placeholder="e.g., Figure 2. Conceptual model of stress and burnout.">
+      </div>
+      <button class="t-btn-primary" onclick="runFigureFromText()">Generate Figure →</button>
+
+      <div id="figtext-output" style="display:none;margin-top:24px;padding-top:20px;border-top:2px solid #0a0a0f;">
+        <div class="t-output-actions">
+          <button class="t-action" onclick="downloadFigureSVG()">↓ Download SVG</button>
+          <button class="t-action" onclick="copyToolOutput('figtext-caption-out')">⎘ Copy Caption</button>
+        </div>
+        <div id="figtext-svg-container" style="background:white;border:1px solid rgba(0,0,0,0.1);padding:24px;margin-top:12px;text-align:center;overflow:auto;"></div>
+        <div id="figtext-caption-out" class="t-result" style="margin-top:12px;font-size:13px;color:#555;"></div>
+      </div>
+    </div>
+
+    <!-- ── TOOL 10: JOURNAL FINDER ── -->
+    <div id="tpanel-journals" class="t-panel" style="display:none;">
+      <div class="t-tool-header">
+        <div>
+          <div class="t-tool-title">Journal Finder + Fit Score</div>
+          <div class="t-tool-desc">Describe your manuscript. SLR Studio recommends journals with fit scores, scope match, typical word count, and submission strategy — so you target the right outlet the first time.</div>
+        </div>
+      </div>
+
+      <div class="t-field">
+        <label class="t-label">Manuscript Title</label>
+        <input type="text" id="jf-title" class="t-input" placeholder="Your manuscript title">
+      </div>
+      <div class="t-field">
+        <label class="t-label">Abstract or Summary</label>
+        <textarea id="jf-abstract" class="t-textarea" rows="5" placeholder="Paste your abstract or a brief summary of your manuscript — topic, methods, findings, and implications..."></textarea>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;">
+        <div class="t-field">
+          <label class="t-label">Study Type</label>
+          <select id="jf-type" class="t-select">
+            <option value="empirical">Empirical / Original Research</option>
+            <option value="review">Systematic Review / Meta-Analysis</option>
+            <option value="theoretical">Theoretical / Conceptual</option>
+            <option value="qualitative">Qualitative</option>
+            <option value="mixed">Mixed Methods</option>
+            <option value="casestudy">Case Study</option>
+            <option value="brief">Brief Report</option>
+          </select>
+        </div>
+        <div class="t-field">
+          <label class="t-label">Target Impact</label>
+          <select id="jf-impact" class="t-select">
+            <option value="high">High impact (Q1/Q2)</option>
+            <option value="mid">Mid-tier (Q2/Q3)</option>
+            <option value="accessible">Accessible / First publication</option>
+            <option value="open">Open access preferred</option>
+          </select>
+        </div>
+        <div class="t-field">
+          <label class="t-label">Approx. Word Count</label>
+          <select id="jf-words" class="t-select">
+            <option value="under3000">Under 3,000</option>
+            <option value="3000-5000">3,000–5,000</option>
+            <option value="5000-8000" selected>5,000–8,000</option>
+            <option value="over8000">Over 8,000</option>
+          </select>
+        </div>
+      </div>
+      <div class="t-field">
+        <label class="t-label">Field / Discipline</label>
+        <input type="text" id="jf-field" class="t-input" placeholder="e.g., Emergency nursing, Public health, Educational psychology, Homeland security">
+      </div>
+      <button class="t-btn-primary" onclick="runJournalFinder()">Find Journals →</button>
+
+      <div id="jf-output" class="t-output" style="display:none;">
+        <div class="t-output-actions">
+          <button class="t-action" onclick="copyToolOutput('jf-result')">⎘ Copy</button>
+          <button class="t-action" onclick="downloadToolOutput('jf-result','Journal_Recommendations')">↓ Download</button>
+        </div>
+        <div id="jf-result" class="t-result"></div>
+      </div>
+    </div>
+
+  </div>
+</div><!-- /screen-10t -->
+
+</div><!-- /app -->
 
 <style>
 .g-tab {
@@ -10636,6 +12034,36 @@ restoreSession();
 .g-spinner { width:20px; height:20px; border:2px solid rgba(40,92,77,0.2); border-top-color:#285C4D; border-radius:50%; animation:spin 0.8s linear infinite; }
 .g-evidence-chip { display:inline-block; padding:2px 8px; background:rgba(168,40,40,0.08); border:1px solid rgba(168,40,40,0.25); color:#a82828; font-family:'JetBrains Mono',monospace; font-size:9px; margin:2px; letter-spacing:0.04em; }
 .g-paper-chip { display:inline-block; padding:2px 8px; background:rgba(40,92,77,0.08); border:1px solid rgba(40,92,77,0.2); color:#285C4D; font-family:'JetBrains Mono',monospace; font-size:9px; margin:2px; letter-spacing:0.04em; }
+
+/* ── TOOLS SCREEN ── */
+.t-tab { font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:0.1em; text-transform:uppercase; padding:10px 18px; background:transparent; border:none; cursor:pointer; color:#888; border-bottom:2px solid transparent; margin-bottom:-2px; transition:all 0.15s; }
+.t-tab:hover { color:#0a0a0f; }
+.t-tab-active { color:#0a0a0f; border-bottom-color:#0a0a0f; font-weight:700; }
+.t-panel { }
+.t-tool-header { margin-bottom:24px; padding-bottom:16px; border-bottom:1px solid rgba(0,0,0,0.08); }
+.t-tool-title { font-family:'Playfair Display',serif; font-size:22px; font-weight:700; color:#0a0a0f; margin-bottom:6px; }
+.t-tool-desc { font-size:13px; color:#666; line-height:1.6; max-width:600px; }
+.t-field { display:flex; flex-direction:column; gap:6px; margin-bottom:14px; }
+.t-label { font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:0.1em; text-transform:uppercase; color:#888; }
+.t-textarea { border:1.5px solid rgba(0,0,0,0.12); padding:12px 14px; font-size:13px; font-family:'Georgia',serif; outline:none; resize:vertical; line-height:1.7; background:white; transition:border-color 0.15s; border-radius:2px; }
+.t-textarea:focus { border-color:var(--gold); }
+.t-input { border:1.5px solid rgba(0,0,0,0.12); padding:10px 14px; font-size:13px; font-family:'Georgia',serif; outline:none; background:white; transition:border-color 0.15s; border-radius:2px; width:100%; }
+.t-input:focus { border-color:var(--gold); }
+.t-select { border:1.5px solid rgba(0,0,0,0.12); padding:10px 14px; font-size:13px; font-family:'JetBrains Mono',monospace; outline:none; background:white; cursor:pointer; border-radius:2px; width:100%; color:#0a0a0f; }
+.t-btn-primary { font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; padding:13px 24px; background:#0a0a0f; color:var(--gold); border:none; cursor:pointer; transition:background 0.15s; border-radius:2px; }
+.t-btn-primary:hover { background:#1a1a2a; }
+.t-btn-primary:disabled { opacity:0.4; cursor:not-allowed; }
+.t-btn-secondary { font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.1em; text-transform:uppercase; padding:13px 20px; background:transparent; color:#0a0a0f; border:1.5px solid rgba(0,0,0,0.2); cursor:pointer; transition:all 0.15s; border-radius:2px; }
+.t-btn-secondary:hover { border-color:#0a0a0f; }
+.t-output { margin-top:24px; padding-top:20px; border-top:2px solid #0a0a0f; }
+.t-output-actions { display:flex; gap:8px; margin-bottom:16px; }
+.t-action { font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:0.08em; text-transform:uppercase; padding:6px 12px; background:transparent; border:1px solid rgba(0,0,0,0.15); color:#666; cursor:pointer; transition:all 0.15s; }
+.t-action:hover { border-color:#0a0a0f; color:#0a0a0f; }
+.t-result { font-size:14px; line-height:1.9; color:#1a1a1a; white-space:pre-wrap; }
+.t-result h3 { font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:var(--gold); margin:20px 0 8px; padding-bottom:6px; border-bottom:1px solid rgba(0,0,0,0.08); }
+.t-result h3:first-child { margin-top:0; }
+.t-generating { display:flex; align-items:center; gap:12px; padding:32px 0; color:#888; font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.06em; }
+.t-spinner { width:18px; height:18px; border:2px solid rgba(0,0,0,0.1); border-top-color:#0a0a0f; border-radius:50%; animation:spin 0.8s linear infinite; }
 </style>
 
 <div id="poster-selfie-modal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(10,10,15,0.92);align-items:center;justify-content:center;">
