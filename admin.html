@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — SLR Studio</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/Oroszi/slr-studio-assets/main/W%20Logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --ink:#1a1a18; --paper:#f5f3ee; --gold:#c9903a; --muted:#6b6b65; --green:#2d6a4f; }
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Outfit',sans-serif; background:#0f0f0d; color:var(--paper); min-height:100vh; }
+
+  /* Guard */
+  #guard { position:fixed;inset:0;z-index:9999;background:#0f0f0d;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px; }
+  .g-logo { font-family:'Playfair Display',serif;font-size:22px; }
+  .g-logo span { color:var(--gold); }
+  .g-spin { width:22px;height:22px;border:2px solid rgba(201,144,58,0.2);border-top-color:var(--gold);border-radius:50%;animation:spin 0.7s linear infinite; }
+  .g-msg { font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(245,243,238,0.35); }
+  @keyframes spin { to{transform:rotate(360deg);} }
+
+  /* Layout */
+  header { background:var(--ink);border-bottom:1px solid rgba(255,255,255,0.07);padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between; }
+  .header-logo { font-family:'Playfair Display',serif;font-size:18px; }
+  .header-logo span { color:var(--gold); }
+  .header-right { display:flex;align-items:center;gap:16px; }
+  .admin-badge { font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;background:rgba(201,144,58,0.15);border:1px solid rgba(201,144,58,0.3);color:var(--gold);padding:4px 10px; }
+  .btn-ghost-sm { background:transparent;border:1px solid rgba(255,255,255,0.12);color:rgba(245,243,238,0.5);font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;padding:6px 14px;cursor:pointer;transition:all 0.2s; }
+  .btn-ghost-sm:hover { border-color:var(--gold);color:var(--gold); }
+
+  main { max-width:1200px;margin:0 auto;padding:40px 32px; }
+  h1 { font-family:'Playfair Display',serif;font-size:32px;margin-bottom:6px; }
+  .page-sub { color:rgba(245,243,238,0.45);font-size:14px;margin-bottom:40px; }
+
+  /* Summary cards */
+  .summary { display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;margin-bottom:48px; }
+  .stat-card { background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);padding:24px 20px; }
+  .stat-num { font-family:'Playfair Display',serif;font-size:36px;color:var(--gold);margin-bottom:4px; }
+  .stat-label { font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(245,243,238,0.4); }
+
+  /* Toolbar */
+  .toolbar { display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:20px; }
+  .search-input { flex:1;min-width:200px;padding:10px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:var(--paper);font-family:'Outfit',sans-serif;font-size:14px;outline:none; }
+  .search-input:focus { border-color:var(--gold); }
+  .filter-select { padding:10px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:rgba(245,243,238,0.7);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.06em;text-transform:uppercase;outline:none;cursor:pointer; }
+  .btn-action { padding:10px 20px;font-family:'Outfit',sans-serif;font-weight:600;font-size:13px;cursor:pointer;border:none;transition:opacity 0.2s; }
+  .btn-gold { background:var(--gold);color:var(--ink); }
+  .btn-gold:hover { opacity:0.88; }
+
+  /* Table */
+  .table-wrap { overflow-x:auto; }
+  table { width:100%;border-collapse:collapse;font-size:13px; }
+  th { font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(245,243,238,0.4);padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.08);text-align:left;white-space:nowrap; }
+  td { padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:middle; }
+  tr:hover td { background:rgba(255,255,255,0.02); }
+  .email-cell { color:var(--paper);font-weight:500; }
+  .tier-badge { display:inline-block;padding:3px 8px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;border:1px solid; }
+  .tier-individual { background:rgba(201,144,58,0.1);border-color:rgba(201,144,58,0.3);color:var(--gold); }
+  .tier-team       { background:rgba(45,106,79,0.1);border-color:rgba(45,106,79,0.4);color:#6fcf97; }
+  .tier-institution{ background:rgba(59,130,246,0.1);border-color:rgba(59,130,246,0.3);color:#93c5fd; }
+  .tier-gift       { background:rgba(167,139,250,0.1);border-color:rgba(167,139,250,0.3);color:#c4b5fd; }
+  .status-badge { display:inline-block;padding:3px 8px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase; }
+  .status-active   { color:#6fcf97; }
+  .status-canceled { color:#f08080; }
+  .status-past_due { color:#fbbf24; }
+  .action-btn { background:transparent;border:1px solid rgba(255,255,255,0.1);color:rgba(245,243,238,0.4);font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.06em;text-transform:uppercase;padding:5px 10px;cursor:pointer;margin-right:4px;transition:all 0.15s; }
+  .action-btn:hover { border-color:var(--gold);color:var(--gold); }
+  .action-btn.danger:hover { border-color:#f08080;color:#f08080; }
+
+  /* Gift modal */
+  .modal-overlay { display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.7);align-items:center;justify-content:center; }
+  .modal-overlay.open { display:flex; }
+  .modal { background:var(--ink);border:1px solid rgba(255,255,255,0.1);padding:40px;width:100%;max-width:440px; }
+  .modal h3 { font-family:'Playfair Display',serif;font-size:22px;margin-bottom:6px; }
+  .modal p { font-size:13px;color:rgba(245,243,238,0.5);margin-bottom:24px; }
+  .modal label { display:block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(245,243,238,0.4);margin-bottom:6px; }
+  .modal input, .modal select { width:100%;padding:11px 13px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:var(--paper);font-family:'Outfit',sans-serif;font-size:14px;outline:none;margin-bottom:16px; }
+  .modal input:focus, .modal select:focus { border-color:var(--gold); }
+  .modal-actions { display:flex;gap:12px;margin-top:8px; }
+  .btn-cancel { flex:1;padding:12px;background:transparent;border:1px solid rgba(255,255,255,0.12);color:rgba(245,243,238,0.5);font-family:'Outfit',sans-serif;font-weight:500;cursor:pointer; }
+  .btn-confirm { flex:1;padding:12px;background:var(--gold);color:var(--ink);font-family:'Outfit',sans-serif;font-weight:600;border:none;cursor:pointer; }
+
+  .msg-bar { padding:12px 16px;font-size:13px;margin-bottom:20px;display:none; }
+  .msg-bar.success { background:rgba(45,106,79,0.2);border:1px solid rgba(45,106,79,0.4);color:#6fcf97;display:block; }
+  .msg-bar.error   { background:rgba(192,57,43,0.15);border:1px solid rgba(192,57,43,0.3);color:#f08080;display:block; }
+  #loading-row td { text-align:center;padding:48px;color:rgba(245,243,238,0.3);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.08em;text-transform:uppercase; }
+</style>
+</head>
+<body>
+
+<div id="guard">
+  <div class="g-logo">SLR <span>Studio</span></div>
+  <div class="g-spin"></div>
+  <div class="g-msg">Verifying admin access…</div>
+</div>
+
+<header>
+  <div class="header-logo">SLR <span>Studio</span> <span class="admin-badge">Admin</span></div>
+  <div class="header-right">
+    <span id="admin-email" style="font-size:13px;color:rgba(245,243,238,0.4);"></span>
+    <a href="/app.html" class="btn-ghost-sm">→ Open App</a>
+    <button class="btn-ghost-sm" onclick="doLogout()">Sign Out</button>
+  </div>
+</header>
+
+<main>
+  <h1>User Management</h1>
+  <p class="page-sub">All subscribers and gift users. Stripe handles billing — this dashboard manages access.</p>
+
+  <div id="msg-bar" class="msg-bar"></div>
+
+  <!-- Summary stats -->
+  <div class="summary">
+    <div class="stat-card"><div class="stat-num" id="s-total">—</div><div class="stat-label">Total Users</div></div>
+    <div class="stat-card"><div class="stat-num" id="s-active">—</div><div class="stat-label">Active</div></div>
+    <div class="stat-card"><div class="stat-num" id="s-individual">—</div><div class="stat-label">Individual</div></div>
+    <div class="stat-card"><div class="stat-num" id="s-team">—</div><div class="stat-label">Team</div></div>
+    <div class="stat-card"><div class="stat-num" id="s-institution">—</div><div class="stat-label">Institution</div></div>
+    <div class="stat-card"><div class="stat-num" id="s-gift">—</div><div class="stat-label">Gift</div></div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <input class="search-input" type="text" id="search" placeholder="Search by email…" oninput="filterTable()">
+    <select class="filter-select" id="filter-tier" onchange="filterTable()">
+      <option value="">All Tiers</option>
+      <option value="individual">Individual</option>
+      <option value="team">Team</option>
+      <option value="institution">Institution</option>
+      <option value="gift">Gift</option>
+    </select>
+    <select class="filter-select" id="filter-status" onchange="filterTable()">
+      <option value="">All Status</option>
+      <option value="active">Active</option>
+      <option value="canceled">Canceled</option>
+      <option value="past_due">Past Due</option>
+    </select>
+    <button class="btn-action btn-gold" onclick="openGiftModal()">+ Gift Access</button>
+    <button class="btn-ghost-sm" onclick="loadUsers()" style="padding:10px 16px;">⟳ Refresh</button>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Email</th>
+          <th>Tier</th>
+          <th>Period</th>
+          <th>Status</th>
+          <th>Joined</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="users-tbody">
+        <tr id="loading-row"><td colspan="6">Loading users…</td></tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<!-- Gift / Grant Access Modal -->
+<div class="modal-overlay" id="gift-modal">
+  <div class="modal">
+    <h3>Grant Access</h3>
+    <p>Creates an account (or activates an existing one) and sends the user a password setup email.</p>
+    <label for="gift-email">Email Address</label>
+    <input type="email" id="gift-email" placeholder="student@university.edu">
+    <label for="gift-tier">Access Tier</label>
+    <select id="gift-tier">
+      <option value="gift">🎁 Gift (graduating student)</option>
+      <option value="individual">Individual</option>
+      <option value="team">Team</option>
+      <option value="institution">Institution</option>
+    </select>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeGiftModal()">Cancel</button>
+      <button class="btn-confirm" onclick="doGrantAccess()">Grant Access →</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  const SUPABASE_URL  = '%%SUPABASE_URL%%';
+  const SUPABASE_ANON = '%%SUPABASE_ANON_KEY%%';
+
+  let supabase, currentToken, allUsers = [];
+
+  async function init() {
+    if (SUPABASE_URL.startsWith('%%')) {
+      document.getElementById('guard').remove();
+      showMsg('error', '⚠ Supabase not configured yet — see SETUP.md.');
+      return;
+    }
+    const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+    supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { window.location.replace('/login.html'); return; }
+
+    currentToken = session.access_token;
+    document.getElementById('admin-email').textContent = session.user.email;
+
+    // Verify admin
+    const res = await fetch('/.netlify/functions/get-user', {
+      headers: { Authorization: 'Bearer ' + currentToken }
+    });
+    if (!res.ok) { window.location.replace('/login.html'); return; }
+    const user = await res.json();
+    if (!user.isAdmin) {
+      document.getElementById('guard').innerHTML = '<div class="g-logo">SLR <span>Studio</span></div><div class="g-msg" style="color:#f08080">Access denied — admin only</div>';
+      return;
+    }
+
+    document.getElementById('guard').remove();
+    window.loadUsers = loadUsers;
+    await loadUsers();
+  }
+
+  window.loadUsers = async function() {
+    document.getElementById('users-tbody').innerHTML = '<tr id="loading-row"><td colspan="6">Loading…</td></tr>';
+    const res = await fetch('/.netlify/functions/admin-users', {
+      headers: { Authorization: 'Bearer ' + currentToken }
+    });
+    if (!res.ok) { showMsg('error', 'Failed to load users: ' + await res.text()); return; }
+    const data = await res.json();
+    allUsers = data.users;
+
+    // Summary
+    const s = data.summary;
+    document.getElementById('s-total').textContent      = s.total;
+    document.getElementById('s-active').textContent     = s.active;
+    document.getElementById('s-individual').textContent = s.byTier.individual || 0;
+    document.getElementById('s-team').textContent       = s.byTier.team || 0;
+    document.getElementById('s-institution').textContent= s.byTier.institution || 0;
+    document.getElementById('s-gift').textContent       = s.byTier.gift || 0;
+
+    renderTable(allUsers);
+  };
+
+  function renderTable(users) {
+    const tbody = document.getElementById('users-tbody');
+    if (!users.length) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:48px;color:rgba(245,243,238,0.3);">No users found</td></tr>';
+      return;
+    }
+    tbody.innerHTML = users.map(u => {
+      const joined = u.created_at ? new Date(u.created_at).toLocaleDateString() : '—';
+      return `<tr>
+        <td class="email-cell">${esc(u.email)}</td>
+        <td><span class="tier-badge tier-${u.subscription_tier}">${u.subscription_tier}</span></td>
+        <td style="color:rgba(245,243,238,0.5);font-size:12px;">${u.billing_period || '—'}</td>
+        <td><span class="status-badge status-${u.subscription_status}">${u.subscription_status}</span></td>
+        <td style="color:rgba(245,243,238,0.5);font-size:12px;">${joined}</td>
+        <td>
+          ${u.subscription_status !== 'active'
+            ? `<button class="action-btn" onclick="grantUser('${esc(u.email)}','${u.subscription_tier}')">Reactivate</button>`
+            : `<button class="action-btn danger" onclick="revokeUser('${esc(u.email)}')">Revoke</button>`
+          }
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  window.filterTable = function() {
+    const q      = document.getElementById('search').value.toLowerCase();
+    const tier   = document.getElementById('filter-tier').value;
+    const status = document.getElementById('filter-status').value;
+    const filtered = allUsers.filter(u =>
+      (!q      || u.email.toLowerCase().includes(q)) &&
+      (!tier   || u.subscription_tier === tier) &&
+      (!status || u.subscription_status === status)
+    );
+    renderTable(filtered);
+  };
+
+  window.openGiftModal = () => document.getElementById('gift-modal').classList.add('open');
+  window.closeGiftModal = () => { document.getElementById('gift-modal').classList.remove('open'); };
+
+  window.doGrantAccess = async function() {
+    const email = document.getElementById('gift-email').value.trim();
+    const tier  = document.getElementById('gift-tier').value;
+    if (!email) { showMsg('error', 'Enter an email address.'); closeGiftModal(); return; }
+
+    const res = await fetch('/.netlify/functions/grant-access', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + currentToken },
+      body: JSON.stringify({ action: 'create_gift', email, tier }),
+    });
+    const data = await res.json();
+    closeGiftModal();
+    if (res.ok) { showMsg('success', `✓ Access granted to ${email}. A password setup email has been sent.`); loadUsers(); }
+    else { showMsg('error', data.error || 'Failed to grant access'); }
+  };
+
+  window.revokeUser = async function(email) {
+    if (!confirm(`Revoke access for ${email}?`)) return;
+    const res = await fetch('/.netlify/functions/grant-access', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + currentToken },
+      body: JSON.stringify({ action: 'revoke', email }),
+    });
+    const data = await res.json();
+    if (res.ok) { showMsg('success', `✓ Access revoked for ${email}.`); loadUsers(); }
+    else { showMsg('error', data.error || 'Failed'); }
+  };
+
+  window.grantUser = async function(email, tier) {
+    const res = await fetch('/.netlify/functions/grant-access', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + currentToken },
+      body: JSON.stringify({ action: 'grant', email, tier }),
+    });
+    const data = await res.json();
+    if (res.ok) { showMsg('success', `✓ Access reactivated for ${email}.`); loadUsers(); }
+    else { showMsg('error', data.error || 'Failed'); }
+  };
+
+  window.doLogout = async function() {
+    await supabase.auth.signOut();
+    window.location.replace('/login.html');
+  };
+
+  function showMsg(type, text) {
+    const bar = document.getElementById('msg-bar');
+    bar.className = 'msg-bar ' + type;
+    bar.textContent = text;
+    clearTimeout(window._msgTimer);
+    window._msgTimer = setTimeout(() => { bar.className = 'msg-bar'; }, 6000);
+  }
+
+  function esc(s) { return (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  init();
+</script>
+</body>
+</html>

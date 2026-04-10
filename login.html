@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign In — SLR Studio</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/Oroszi/slr-studio-assets/main/W%20Logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --ink:#1a1a18; --paper:#f5f3ee; --gold:#c9903a; --muted:#6b6b65; --green:#2d6a4f; --red-soft:#c0392b; }
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Outfit',sans-serif; background:var(--ink); color:var(--paper); min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px; }
+
+  .brand { margin-bottom:40px; text-align:center; }
+  .brand-logo { font-family:'Playfair Display',serif; font-size:26px; text-decoration:none; color:var(--paper); }
+  .brand-logo span { color:var(--gold); }
+  .brand-sub { font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:rgba(245,243,238,0.35); margin-top:6px; }
+
+  .card {
+    width:100%; max-width:400px;
+    background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.09);
+    padding:40px 36px;
+  }
+  .card-title { font-family:'Playfair Display',serif; font-size:24px; margin-bottom:6px; }
+  .card-sub { font-size:14px; color:rgba(245,243,238,0.5); margin-bottom:32px; }
+
+  /* Tabs */
+  .tabs { display:flex; border-bottom:1px solid rgba(255,255,255,0.08); margin-bottom:28px; }
+  .tab { flex:1; padding:10px; text-align:center; font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:rgba(245,243,238,0.4); cursor:pointer; border-bottom:2px solid transparent; transition:all 0.2s; background:none; border-left:none; border-right:none; border-top:none; }
+  .tab.active { color:var(--gold); border-bottom-color:var(--gold); }
+
+  .tab-panel { display:none; }
+  .tab-panel.active { display:block; }
+
+  label { display:block; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:rgba(245,243,238,0.5); margin-bottom:6px; }
+  .field { margin-bottom:20px; }
+  input[type=email], input[type=password] {
+    width:100%; padding:12px 14px; background:rgba(255,255,255,0.04);
+    border:1px solid rgba(255,255,255,0.12); color:var(--paper);
+    font-family:'Outfit',sans-serif; font-size:15px; outline:none;
+    transition:border-color 0.2s;
+  }
+  input:focus { border-color:var(--gold); }
+  input::placeholder { color:rgba(245,243,238,0.2); }
+
+  .btn-submit {
+    width:100%; padding:14px; background:var(--gold); color:var(--ink);
+    font-family:'Outfit',sans-serif; font-weight:600; font-size:15px;
+    border:none; cursor:pointer; transition:opacity 0.2s; letter-spacing:0.04em;
+    margin-top:4px;
+  }
+  .btn-submit:hover { opacity:0.88; }
+  .btn-submit:disabled { opacity:0.5; cursor:not-allowed; }
+
+  .divider { text-align:center; margin:20px 0; color:rgba(245,243,238,0.2); font-size:12px; }
+
+  .link-btn { background:none; border:none; color:var(--gold); cursor:pointer; font-size:13px; text-decoration:underline; }
+
+  .msg { padding:12px 14px; font-size:13px; margin-bottom:16px; display:none; }
+  .msg.success { background:rgba(45,106,79,0.2); border:1px solid rgba(45,106,79,0.4); color:#6fcf97; display:block; }
+  .msg.error   { background:rgba(192,57,43,0.15); border:1px solid rgba(192,57,43,0.35); color:#f08080; display:block; }
+
+  .back-link { margin-top:24px; text-align:center; font-size:13px; color:rgba(245,243,238,0.35); }
+  .back-link a { color:rgba(245,243,238,0.5); text-decoration:none; }
+  .back-link a:hover { color:var(--paper); }
+
+  /* Welcome banner */
+  #welcome-banner {
+    display:none; width:100%; max-width:400px;
+    background:rgba(45,106,79,0.2); border:1px solid rgba(45,106,79,0.4);
+    padding:16px 20px; margin-bottom:20px; text-align:center;
+  }
+  #welcome-banner h3 { color:#6fcf97; font-size:16px; margin-bottom:6px; }
+  #welcome-banner p { font-size:13px; color:rgba(245,243,238,0.7); }
+
+  /* Loading spinner */
+  .spinner { display:inline-block; width:16px; height:16px; border:2px solid rgba(26,26,24,0.4); border-top-color:var(--ink); border-radius:50%; animation:spin 0.6s linear infinite; vertical-align:middle; margin-right:8px; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="brand">
+  <a href="/" class="brand-logo">SLR <span>Studio</span></a>
+  <div class="brand-sub">Systematic Literature Review Platform</div>
+</div>
+
+<div id="welcome-banner">
+  <h3>🎉 Payment Successful!</h3>
+  <p>Your account is being set up. Check your email for a link to set your password, then sign in below.</p>
+</div>
+
+<div class="card">
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('login')">Sign In</button>
+    <button class="tab" onclick="switchTab('reset')">Forgot Password</button>
+  </div>
+
+  <!-- LOGIN PANEL -->
+  <div class="tab-panel active" id="panel-login">
+    <div id="msg-login" class="msg"></div>
+    <div class="field">
+      <label for="login-email">Email Address</label>
+      <input type="email" id="login-email" placeholder="you@university.edu" autocomplete="email">
+    </div>
+    <div class="field">
+      <label for="login-password">Password</label>
+      <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="btn-submit" id="btn-login" onclick="doLogin()">Sign In →</button>
+    <div class="divider">or</div>
+    <button class="link-btn" onclick="switchTab('reset')" style="width:100%;text-align:center;padding:8px;">Forgot your password?</button>
+  </div>
+
+  <!-- PASSWORD RESET PANEL -->
+  <div class="tab-panel" id="panel-reset">
+    <div id="msg-reset" class="msg"></div>
+    <p style="font-size:14px;color:rgba(245,243,238,0.6);margin-bottom:20px;">Enter your email and we'll send you a link to set or reset your password.</p>
+    <div class="field">
+      <label for="reset-email">Email Address</label>
+      <input type="email" id="reset-email" placeholder="you@university.edu">
+    </div>
+    <button class="btn-submit" id="btn-reset" onclick="doReset()">Send Reset Link →</button>
+  </div>
+</div>
+
+<div class="back-link">
+  <a href="/">← Back to slrstudio.online</a>
+</div>
+
+<script type="module">
+  // ── Supabase config — replaced during deploy ──
+  const SUPABASE_URL  = '%%SUPABASE_URL%%';
+  const SUPABASE_ANON = '%%SUPABASE_ANON_KEY%%';
+
+  // Dynamically import Supabase ESM
+  let supabase;
+  async function getSupabase() {
+    if (supabase) return supabase;
+    const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+    supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
+    return supabase;
+  }
+
+  // ── Welcome banner ──
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('welcome') === '1') {
+    document.getElementById('welcome-banner').style.display = 'block';
+  }
+
+  // ── If already logged in, redirect ──
+  (async () => {
+    try {
+      const sb = await getSupabase();
+      const { data: { session } } = await sb.auth.getSession();
+      if (session) {
+        const redirect = params.get('redirect') || 'app';
+        window.location.replace('/' + redirect + '.html');
+      }
+    } catch(_) {}
+  })();
+
+  // Expose functions to inline onclick handlers
+  window.doLogin = async function() {
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+    const btn = document.getElementById('btn-login');
+    const msg = document.getElementById('msg-login');
+
+    if (!email || !password) { showMsg(msg, 'error', 'Please enter your email and password.'); return; }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Signing in…';
+
+    try {
+      const sb = await getSupabase();
+      const { data, error } = await sb.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+
+      // Check subscription status
+      const { data: profile } = await sb
+        .from('profiles')
+        .select('subscription_status, subscription_tier')
+        .eq('id', data.session.user.id)
+        .single();
+
+      if (!profile || profile.subscription_status === 'canceled') {
+        await sb.auth.signOut();
+        showMsg(msg, 'error', 'Your subscription has been canceled. Visit the pricing page to reactivate.');
+        btn.disabled = false; btn.textContent = 'Sign In →'; return;
+      }
+
+      if (profile.subscription_status === 'past_due') {
+        showMsg(msg, 'error', 'Your payment is past due. Please update your billing details.');
+        btn.disabled = false; btn.textContent = 'Sign In →'; return;
+      }
+
+      window.location.replace('/app.html');
+    } catch(err) {
+      showMsg(msg, 'error', err.message === 'Invalid login credentials'
+        ? 'Incorrect email or password.'
+        : err.message);
+      btn.disabled = false; btn.textContent = 'Sign In →';
+    }
+  };
+
+  window.doReset = async function() {
+    const email = document.getElementById('reset-email').value.trim();
+    const btn = document.getElementById('btn-reset');
+    const msg = document.getElementById('msg-reset');
+
+    if (!email) { showMsg(msg, 'error', 'Please enter your email address.'); return; }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Sending…';
+
+    try {
+      const sb = await getSupabase();
+      const { error } = await sb.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + '/login.html',
+      });
+      if (error) throw error;
+      showMsg(msg, 'success', 'Check your email — a password link has been sent.');
+    } catch(err) {
+      showMsg(msg, 'error', err.message);
+    } finally {
+      btn.disabled = false; btn.textContent = 'Send Reset Link →';
+    }
+  };
+
+  window.switchTab = function(tab) {
+    document.querySelectorAll('.tab').forEach((t, i) => {
+      const names = ['login','reset'];
+      t.classList.toggle('active', names[i] === tab);
+    });
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + tab).classList.add('active');
+  };
+
+  function showMsg(el, type, text) {
+    el.className = 'msg ' + type;
+    el.textContent = text;
+  }
+
+  // Enter key support
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      const activePanel = document.querySelector('.tab-panel.active');
+      if (activePanel.id === 'panel-login') window.doLogin();
+      else if (activePanel.id === 'panel-reset') window.doReset();
+    }
+  });
+</script>
+</body>
+</html>
