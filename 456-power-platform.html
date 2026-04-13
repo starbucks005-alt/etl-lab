@@ -1,0 +1,2415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>4/5/6 Power Platform — Dr. Oroszi's Leadership Diagnostic</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   BRAND SYSTEM — DR. OROSZI UNIFIED
+   Gold: #b8922a | Teal: #4A9B8E | Ink: #13100c
+   Fonts: Playfair Display · Cormorant Garamond · DM Mono
+   ============================================================ */
+
+:root {
+  --bg-ink: #13100c;
+  --bg-ink-soft: #1a1612;
+  --bg-card: #1e1a14;
+  --bg-card-hover: #252118;
+  --bg-light: #f4ede0;
+
+  --gold: #b8922a;
+  --gold-light: #d4aa4a;
+  --gold-rule: rgba(184,146,42,0.3);
+  --gold-glow: rgba(184,146,42,0.06);
+
+  --teal: #4A9B8E;
+  --teal-light: #5BB5A6;
+
+  --text-cream: #f4ede0;
+  --text-body: #e8dece;
+  --text-dim: #9a8e7e;
+  --text-ink: #13100c;
+
+  --frames-color: var(--teal);
+  --power-color: var(--gold);
+  --styles-color: #E0E0E0;
+
+  --card-width: 280px;
+  --card-height: 490px;
+  --card-radius: 6px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Cormorant Garamond', serif;
+  background: var(--bg-ink);
+  color: var(--text-body);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ---- TEXTURE ---- */
+.dark-section {
+  position: relative;
+}
+.dark-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+}
+.dark-section > * { position: relative; z-index: 1; }
+
+/* ---- ANIMATIONS ---- */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+@keyframes shimmer {
+  from { width: 0; }
+  to   { width: 100%; }
+}
+@keyframes cardFlip {
+  from { transform: rotateY(0deg); }
+  to   { transform: rotateY(180deg); }
+}
+
+.animate-1 { animation: fadeUp 1s 0.0s ease both; }
+.animate-2 { animation: fadeUp 1s 0.15s ease both; }
+.animate-3 { animation: fadeUp 1s 0.3s ease both; }
+.animate-4 { animation: fadeUp 1s 0.45s ease both; }
+.animate-5 { animation: fadeUp 1s 0.6s ease both; }
+.animate-6 { animation: fadeUp 1s 0.75s ease both; }
+
+/* ---- NAVIGATION ---- */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.2rem 4rem;
+  background: rgba(19,16,12,0.92);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--gold-rule);
+}
+.nav-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.15em;
+  color: var(--gold-light);
+  text-decoration: none;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.nav-bolt {
+  color: var(--gold);
+  font-size: 1.1rem;
+}
+.nav-link {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.nav-link:hover { color: var(--gold-light); }
+
+/* ---- TYPOGRAPHY UTILITIES ---- */
+em { font-style: italic; color: var(--gold-light); }
+
+.section-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 1rem;
+}
+.section-label::before { content: '— '; color: var(--gold); }
+
+.divider {
+  width: 60px;
+  height: 1px;
+  background: var(--gold);
+  margin: 1.5rem auto;
+}
+
+/* ---- BUTTONS ---- */
+.btn-primary {
+  background: var(--gold);
+  color: var(--bg-ink);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 1rem 2.5rem;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+  text-decoration: none;
+  display: inline-block;
+  min-height: 44px;
+}
+.btn-primary:hover {
+  background: var(--gold-light);
+  transform: translateY(-2px);
+}
+.btn-primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+.btn-ghost {
+  border: 1px solid var(--gold-rule);
+  color: var(--text-dim);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 1rem 2.5rem;
+  background: none;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+  text-decoration: none;
+  display: inline-block;
+  min-height: 44px;
+}
+.btn-ghost:hover {
+  border-color: var(--gold);
+  color: var(--gold-light);
+}
+
+/* ============================================================
+   SCREENS — ALL HIDDEN BY DEFAULT, SHOWN VIA JS
+   ============================================================ */
+.screen {
+  display: none;
+  min-height: 100vh;
+  padding-top: 72px;
+}
+.screen.active { display: block; }
+
+/* ============================================================
+   SCREEN 0: LANDING
+   ============================================================ */
+#screen-landing {
+  background: var(--bg-ink);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 120px 2rem 4rem;
+  position: relative;
+}
+#screen-landing.active {
+  display: flex;
+}
+
+.hero-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 2rem;
+}
+.hero-eyebrow::before { content: '— '; }
+
+.hero-number {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.2rem, 3vw, 1.8rem);
+  font-weight: 400;
+  color: var(--text-dim);
+  letter-spacing: 0.3em;
+  margin-bottom: 0.25rem;
+}
+
+.hero-headline {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(3.5rem, 9vw, 7rem);
+  font-weight: 900;
+  line-height: 1;
+  color: var(--text-cream);
+  margin-bottom: 0.1em;
+}
+.hero-headline .teal { color: var(--teal); }
+
+.hero-sub {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.5rem, 6vw, 5rem);
+  font-weight: 700;
+  color: var(--text-cream);
+  margin-bottom: 2.5rem;
+}
+
+.gold-rule-animated {
+  width: 120px;
+  height: 2px;
+  background: var(--gold);
+  margin: 0 auto 2.5rem;
+  position: relative;
+  overflow: hidden;
+}
+.gold-rule-animated::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  height: 100%;
+  background: var(--gold-light);
+  animation: shimmer 2s 0.8s ease forwards;
+  width: 0;
+}
+
+.hero-quote {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  font-weight: 300;
+  font-style: italic;
+  color: var(--text-body);
+  max-width: 600px;
+  line-height: 1.8;
+  margin-bottom: 3rem;
+}
+
+.hero-pillars {
+  display: flex;
+  gap: 3rem;
+  margin-bottom: 3rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.pillar {
+  text-align: center;
+}
+.pillar-number {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: var(--teal);
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+.pillar-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.hero-byline {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-top: 2rem;
+}
+
+/* ============================================================
+   SCREEN 1: COLUMN INTRO
+   ============================================================ */
+#screen-col-intro {
+  background: var(--bg-ink);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 120px 2rem 4rem;
+  min-height: 100vh;
+}
+#screen-col-intro.active {
+  display: flex;
+}
+
+.col-intro-counter {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 2rem;
+}
+
+.col-intro-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.5rem, 6vw, 5rem);
+  font-weight: 900;
+  color: var(--text-cream);
+  margin-bottom: 1rem;
+}
+
+.col-intro-rule {
+  height: 2px;
+  width: 80px;
+  margin: 0 auto 2rem;
+}
+
+.col-intro-body {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.2rem;
+  font-weight: 300;
+  color: var(--text-body);
+  max-width: 540px;
+  line-height: 1.9;
+  margin-bottom: 3rem;
+}
+
+/* ============================================================
+   PROGRESS BAR
+   ============================================================ */
+.progress-bar {
+  position: fixed;
+  top: 72px;
+  left: 0;
+  right: 0;
+  z-index: 90;
+  background: var(--bg-ink-soft);
+  border-bottom: 1px solid var(--gold-rule);
+  padding: 0.75rem 2rem;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.progress-bar.visible { display: flex; }
+
+.progress-step {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.progress-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #3a3530;
+  border: 1px solid #4a4540;
+  flex-shrink: 0;
+}
+.progress-step.completed .progress-dot {
+  background: var(--gold);
+  border-color: var(--gold);
+}
+.progress-step.current .progress-dot {
+  background: var(--gold);
+  border-color: var(--gold);
+  animation: pulse 1.5s infinite;
+}
+.progress-step.current { color: var(--gold-light); }
+.progress-step.completed { color: var(--text-dim); }
+
+.progress-arrow {
+  color: var(--text-dim);
+  font-size: 0.6rem;
+  margin: 0 0.25rem;
+}
+
+/* ============================================================
+   SCREEN 2: CARD SELECTION
+   ============================================================ */
+#screen-cards {
+  background: var(--bg-ink);
+  min-height: 100vh;
+  padding: 140px 2rem 4rem;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+}
+#screen-cards.active { display: flex; }
+
+/* Selected tray at top */
+.selected-tray {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  min-height: 48px;
+  margin-bottom: 2rem;
+  max-width: 700px;
+  width: 100%;
+}
+.tray-card {
+  width: 48px;
+  height: 84px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.35rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 4px;
+  position: relative;
+  overflow: hidden;
+  animation: fadeUp 0.4s ease both;
+}
+.tray-card.frames { border: 1px solid var(--teal); color: var(--teal); }
+.tray-card.power  { border: 1px solid var(--gold); color: var(--gold); }
+.tray-card.styles { border: 1px solid #E0E0E0; color: #E0E0E0; }
+.tray-card-glow {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  animation: trayGlow 1s ease forwards;
+}
+@keyframes trayGlow {
+  0% { opacity: 0.5; }
+  100% { opacity: 0; }
+}
+.tray-card.frames .tray-card-glow { background: rgba(74,155,142,0.3); }
+.tray-card.power  .tray-card-glow { background: rgba(184,146,42,0.3); }
+.tray-card.styles .tray-card-glow { background: rgba(224,224,224,0.15); }
+
+/* Card flip container */
+.card-stage {
+  width: var(--card-width);
+  perspective: 1000px;
+  margin-bottom: 2rem;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.card-flipper {
+  width: var(--card-width);
+  height: var(--card-height);
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.6s ease;
+}
+.card-flipper.flipped { transform: rotateY(180deg); }
+
+.card-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: var(--card-radius);
+  overflow: hidden;
+}
+.card-face-back {
+  background: var(--bg-card);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem;
+  border: 1px solid var(--gold-rule);
+}
+.card-face-front {
+  background: var(--bg-card);
+  transform: rotateY(180deg);
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  border: 1px solid var(--gold-rule);
+}
+
+/* Back face styling */
+.card-back-category {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  align-self: flex-start;
+}
+.card-back-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-cream);
+  text-align: center;
+  line-height: 1.3;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.card-back-footer {
+  text-align: center;
+  width: 100%;
+}
+.card-bolt {
+  font-size: 1.5rem;
+  margin-bottom: 0.25rem;
+  display: block;
+}
+.card-back-brand {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.5rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.card-back-hint {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.5rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-top: 0.5rem;
+}
+
+/* Front face styling */
+.card-front-category {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.52rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+.card-front-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-cream);
+  margin-bottom: 1rem;
+  line-height: 1.3;
+}
+.card-front-pro-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.5rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 0.25rem;
+}
+.card-front-pro-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.88rem;
+  font-weight: 400;
+  color: var(--text-body);
+  margin-bottom: 0.75rem;
+  line-height: 1.5;
+}
+.card-front-con-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.5rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 0.25rem;
+}
+.card-front-con-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.88rem;
+  font-weight: 400;
+  color: var(--text-dim);
+  margin-bottom: auto;
+  line-height: 1.5;
+}
+.card-front-tagline {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.95rem;
+  font-style: italic;
+  color: var(--gold-light);
+  text-align: center;
+  margin: 0.75rem 0 0.5rem;
+  line-height: 1.4;
+}
+.card-front-descriptor {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+/* Card border colors by category */
+.card-stage[data-category="frames"] .card-face { border-color: var(--teal); }
+.card-stage[data-category="power"]  .card-face { border-color: var(--gold); }
+.card-stage[data-category="styles"] .card-face { border-color: #4a4a4a; }
+
+.card-stage[data-category="frames"] .card-back-category { color: var(--teal); }
+.card-stage[data-category="power"]  .card-back-category { color: var(--gold); }
+.card-stage[data-category="styles"] .card-back-category { color: #E0E0E0; }
+
+.card-stage[data-category="frames"] .card-front-category { color: var(--teal); }
+.card-stage[data-category="power"]  .card-front-category { color: var(--gold); }
+.card-stage[data-category="styles"] .card-front-category { color: #E0E0E0; }
+
+.card-stage[data-category="frames"] .card-front-descriptor { color: var(--teal); }
+.card-stage[data-category="power"]  .card-front-descriptor { color: var(--gold); }
+.card-stage[data-category="styles"] .card-front-descriptor { color: #E0E0E0; }
+
+/* Description area below card */
+.card-description-area {
+  max-width: 600px;
+  width: 100%;
+  text-align: center;
+  margin-bottom: 2rem;
+  min-height: 200px;
+}
+.card-description-prompt {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  font-weight: 300;
+  font-style: italic;
+  color: var(--text-dim);
+  line-height: 1.7;
+}
+.card-description-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.05rem;
+  font-weight: 300;
+  color: var(--text-body);
+  line-height: 1.9;
+  text-align: left;
+  display: none;
+}
+.card-description-text.visible { display: block; }
+
+/* Action buttons */
+.card-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+.card-counter {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-top: 1rem;
+}
+
+/* Column pause overlay */
+.column-pause {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(19,16,12,0.95);
+  z-index: 200;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.column-pause.visible { display: flex; }
+
+.pause-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.2rem, 3vw, 1.8rem);
+  font-style: italic;
+  color: var(--text-body);
+  line-height: 2;
+  max-width: 500px;
+}
+
+/* ============================================================
+   SCREEN 3: SCENARIO
+   ============================================================ */
+#screen-scenario {
+  background: var(--bg-ink);
+  min-height: 100vh;
+  padding: 120px 2rem 4rem;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+#screen-scenario.active { display: flex; }
+
+.scenario-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 2rem;
+}
+.scenario-eyebrow::before { content: '— '; }
+
+.scenario-question {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-weight: 700;
+  color: var(--text-cream);
+  max-width: 540px;
+  line-height: 1.4;
+  margin-bottom: 3rem;
+}
+
+.scenario-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  max-width: 680px;
+  width: 100%;
+  margin-bottom: 3rem;
+}
+
+.scenario-option {
+  background: var(--bg-card);
+  border: 1px solid var(--gold-rule);
+  padding: 1.75rem;
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.15s;
+  border-radius: 4px;
+  text-align: left;
+  position: relative;
+  min-height: 140px;
+  display: flex;
+  align-items: center;
+}
+.scenario-option:hover {
+  border-color: var(--gold);
+  transform: translateY(-2px);
+}
+.scenario-option.selected {
+  border-color: var(--gold);
+  background: var(--gold-glow);
+}
+.scenario-option-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.05rem;
+  font-weight: 400;
+  color: var(--text-body);
+  line-height: 1.7;
+  font-style: italic;
+}
+.scenario-option-letter {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.15em;
+  color: var(--text-dim);
+}
+.scenario-option.selected .scenario-option-letter { color: var(--gold); }
+
+/* ============================================================
+   SCREEN 4: REVIEW
+   ============================================================ */
+#screen-review {
+  background: var(--bg-ink);
+  min-height: 100vh;
+  padding: 120px 2rem 4rem;
+  display: none;
+}
+#screen-review.active { display: block; }
+
+.review-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.review-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 900;
+  color: var(--text-cream);
+  margin-bottom: 1rem;
+}
+
+.review-sub {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+  font-weight: 300;
+  font-style: italic;
+  color: var(--text-dim);
+  line-height: 1.8;
+}
+
+.review-columns {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  max-width: 960px;
+  margin: 0 auto 3rem;
+}
+
+.review-col-header {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--gold-rule);
+  margin-bottom: 1rem;
+}
+.review-col-header.frames { color: var(--teal); border-color: var(--teal); }
+.review-col-header.power  { color: var(--gold); border-color: var(--gold); }
+.review-col-header.styles { color: #E0E0E0; border-color: #4a4a4a; }
+
+.review-selected-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.review-card-thumb {
+  background: var(--bg-card);
+  border: 1px solid var(--gold-rule);
+  padding: 0.75rem 1rem;
+  border-radius: 3px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.95rem;
+  color: var(--text-cream);
+  transition: opacity 0.3s;
+}
+.review-card-thumb.frames { border-left: 2px solid var(--teal); }
+.review-card-thumb.power  { border-left: 2px solid var(--gold); }
+.review-card-thumb.styles { border-left: 2px solid #E0E0E0; }
+.review-card-thumb.removed { opacity: 0.3; text-decoration: line-through; }
+
+.review-remove-btn {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 0.8rem;
+  padding: 0 0.25rem;
+  transition: color 0.2s;
+  font-family: 'DM Mono', monospace;
+  min-width: 24px;
+  min-height: 24px;
+}
+.review-remove-btn:hover { color: var(--gold-light); }
+
+.review-not-selected {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.52rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  line-height: 1.8;
+}
+.review-not-selected-label {
+  color: var(--text-dim);
+  opacity: 0.6;
+}
+
+.review-proceed {
+  text-align: center;
+}
+
+/* ============================================================
+   SCREEN 5: READING
+   ============================================================ */
+#screen-reading {
+  background: var(--bg-ink);
+  min-height: 100vh;
+  padding: 120px 2rem 4rem;
+  display: none;
+}
+#screen-reading.active { display: block; }
+
+.reading-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+.reading-loader-line {
+  width: 200px;
+  height: 1px;
+  background: var(--gold-rule);
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+.reading-loader-line::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  height: 100%;
+  background: var(--gold);
+  animation: shimmer 2s ease forwards;
+  width: 0;
+}
+.reading-loader-text {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.reading-content {
+  max-width: 720px;
+  margin: 0 auto;
+  display: none;
+}
+.reading-content.visible { display: block; }
+
+.reading-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 1.5rem;
+}
+.reading-eyebrow::before { content: '— '; }
+
+.reading-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 900;
+  color: var(--text-cream);
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+
+.reading-divider {
+  width: 60px;
+  height: 1px;
+  background: var(--gold);
+  margin-bottom: 2rem;
+}
+
+.reading-body {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.12rem;
+  font-weight: 300;
+  color: var(--text-body);
+  line-height: 1.95;
+  margin-bottom: 3rem;
+}
+.reading-body p {
+  margin-bottom: 1.25rem;
+}
+
+.reading-section-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 1.25rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--gold-rule);
+}
+
+.reading-selected-cols {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.reading-col-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.52rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid;
+}
+.reading-col-label.frames { color: var(--teal); border-color: var(--teal); }
+.reading-col-label.power  { color: var(--gold); border-color: var(--gold); }
+.reading-col-label.styles { color: #E0E0E0; border-color: #4a4a4a; }
+
+.reading-col-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.reading-col-card {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.9rem;
+  color: var(--text-cream);
+  line-height: 1.5;
+}
+
+.reading-absence-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.05rem;
+  font-weight: 300;
+  font-style: italic;
+  color: var(--text-body);
+  line-height: 1.9;
+  border-left: 2px solid var(--teal);
+  padding-left: 1.5rem;
+  margin: 2rem 0;
+}
+
+.reading-caveat {
+  background: var(--bg-card);
+  border: 1px solid var(--gold-rule);
+  padding: 2rem;
+  margin: 3rem 0;
+  border-radius: 4px;
+}
+.reading-caveat-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  font-weight: 300;
+  font-style: italic;
+  color: var(--text-dim);
+  line-height: 1.9;
+}
+.reading-caveat-text p { margin-bottom: 0.75rem; }
+.reading-caveat-text p:last-child { margin-bottom: 0; }
+
+/* ============================================================
+   CONTACT FORM
+   ============================================================ */
+.contact-section {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 3rem 0;
+  border-top: 1px solid var(--gold-rule);
+}
+
+.contact-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 900;
+  color: var(--text-cream);
+  margin-bottom: 0.5rem;
+}
+.contact-teal-rule {
+  width: 40px;
+  height: 2px;
+  background: var(--teal);
+  margin-bottom: 1.5rem;
+}
+.contact-body {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.05rem;
+  font-weight: 300;
+  color: var(--text-body);
+  line-height: 1.9;
+  margin-bottom: 2rem;
+}
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.contact-form input,
+.contact-form textarea {
+  background: var(--bg-card);
+  border: 1px solid var(--gold-rule);
+  color: var(--text-cream);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 2px;
+  outline: none;
+  transition: border-color 0.2s;
+  width: 100%;
+}
+.contact-form input::placeholder,
+.contact-form textarea::placeholder {
+  color: var(--text-dim);
+  font-style: italic;
+}
+.contact-form input:focus,
+.contact-form textarea:focus {
+  border-color: var(--gold);
+}
+.contact-form textarea { resize: vertical; min-height: 80px; }
+
+.form-confirm {
+  display: none;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+  font-style: italic;
+  color: var(--text-body);
+  line-height: 1.9;
+  padding: 2rem;
+  background: var(--bg-card);
+  border: 1px solid var(--gold-rule);
+  border-left: 2px solid var(--teal);
+  border-radius: 2px;
+}
+.form-confirm.visible { display: block; }
+
+/* ============================================================
+   PRINT SECTION
+   ============================================================ */
+.print-section {
+  max-width: 720px;
+  margin: 0 auto 4rem;
+  padding: 2rem 0;
+  border-top: 1px solid var(--gold-rule);
+  text-align: center;
+}
+.print-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-cream);
+  margin-bottom: 0.5rem;
+}
+.print-body {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  font-style: italic;
+  color: var(--text-dim);
+  line-height: 1.8;
+  margin-bottom: 1.5rem;
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+footer {
+  background: var(--bg-ink-soft);
+  border-top: 1px solid var(--gold-rule);
+  padding: 3rem 2rem;
+  text-align: center;
+}
+.footer-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: var(--text-cream);
+  margin-bottom: 0.5rem;
+}
+.footer-meta {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 1.5rem;
+}
+.footer-ecosystem {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+.footer-ecosystem a {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.footer-ecosystem a:hover { color: var(--gold-light); }
+.ecosystem-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.52rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  opacity: 0.5;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+/* ============================================================
+   PRINT STYLES
+   ============================================================ */
+@media print {
+  nav, .progress-bar, .screen:not(#screen-reading), #screen-reading .reading-loader,
+  .contact-section, .print-section, footer, .reading-title, .reading-body,
+  .reading-section-title, .reading-absence-text, .reading-caveat, .reading-eyebrow,
+  .reading-divider, .reading-selected-cols { display: none !important; }
+
+  #screen-reading { display: block !important; padding: 0 !important; }
+  body { background: #fff !important; color: #000 !important; }
+
+  .print-cards-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 2in);
+    gap: 0.25in;
+    padding: 0.25in;
+  }
+  .print-card {
+    width: 2in;
+    height: 3.5in;
+    background: #0F0F0F !important;
+    border: 1px solid #b8922a;
+    border-radius: 4px;
+    padding: 0.15in;
+    display: flex;
+    flex-direction: column;
+    page-break-inside: avoid;
+    color: #fff !important;
+  }
+  .print-card-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 10pt;
+    font-weight: 700;
+    color: #b8922a !important;
+    margin-bottom: 8pt;
+    line-height: 1.3;
+  }
+  .print-card-pro { font-size: 7pt; color: #aaa !important; margin-bottom: 4pt; line-height: 1.4; }
+  .print-card-con { font-size: 7pt; color: #888 !important; margin-bottom: auto; line-height: 1.4; }
+  .print-card-tagline { font-size: 7pt; font-style: italic; color: #b8922a !important; text-align: center; margin-bottom: 4pt; }
+  .print-card-descriptor { font-size: 6pt; letter-spacing: 2pt; text-transform: uppercase; text-align: center; color: #ccc !important; }
+  .print-footer { font-size: 7pt; text-align: center; margin-top: 0.2in; color: #555 !important; }
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 768px) {
+  nav { padding: 1rem 1.5rem; }
+  .hero-pillars { gap: 2rem; }
+  .scenario-grid { grid-template-columns: 1fr; }
+  .review-columns { grid-template-columns: 1fr; }
+  .reading-selected-cols { grid-template-columns: 1fr; }
+  .card-actions { flex-direction: column; align-items: center; }
+  .card-actions .btn-primary,
+  .card-actions .btn-ghost { width: 280px; text-align: center; }
+  :root { --card-width: 260px; --card-height: 455px; }
+}
+
+@media (max-width: 480px) {
+  :root { --card-width: 240px; --card-height: 420px; }
+  nav { padding: 1rem; }
+  .nav-logo span.nav-full { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAVIGATION -->
+<nav>
+  <a href="https://starbucks005-alt.github.io/etl-lab" class="nav-logo">
+    <span class="nav-bolt">⚡</span>
+    <span>Emerging Technologies Laboratory</span>
+  </a>
+  <a href="https://starbucks005-alt.github.io/etl-lab" class="nav-link">← Back to ETL Lab</a>
+</nav>
+
+<!-- PROGRESS BAR (hidden on landing) -->
+<div class="progress-bar" id="progress-bar">
+  <div class="progress-step" id="prog-frames">
+    <span class="progress-dot"></span>
+    <span>Frames (4)</span>
+  </div>
+  <span class="progress-arrow">→</span>
+  <div class="progress-step" id="prog-power">
+    <span class="progress-dot"></span>
+    <span>Power Bases (5)</span>
+  </div>
+  <span class="progress-arrow">→</span>
+  <div class="progress-step" id="prog-styles">
+    <span class="progress-dot"></span>
+    <span>Styles (6)</span>
+  </div>
+  <span class="progress-arrow">→</span>
+  <div class="progress-step" id="prog-scenario">
+    <span class="progress-dot"></span>
+    <span>Scenario</span>
+  </div>
+  <span class="progress-arrow">→</span>
+  <div class="progress-step" id="prog-reading">
+    <span class="progress-dot"></span>
+    <span>Reading</span>
+  </div>
+</div>
+
+<!-- COLUMN PAUSE OVERLAY -->
+<div class="column-pause dark-section" id="column-pause">
+  <div class="pause-text" id="pause-text"></div>
+</div>
+
+<!-- ============================================================
+     SCREEN 0: LANDING
+     ============================================================ -->
+<section class="screen dark-section" id="screen-landing">
+  <div class="hero-eyebrow animate-1">Leadership Diagnostic</div>
+  <div class="hero-number animate-2">DR. OROSZI'S</div>
+  <h1 class="animate-3">
+    <div class="hero-headline">4/5/6 <span class="teal">POWER</span></div>
+    <div class="hero-sub">PLATFORM</div>
+  </h1>
+  <div class="gold-rule-animated animate-3"></div>
+  <p class="hero-quote animate-4">
+    "Most leadership tools ask you to rate yourself.<br>
+    This one asks you to choose. The cards you select —<br>
+    and the ones you leave behind — will tell us everything."
+  </p>
+  <div class="hero-pillars animate-5">
+    <div class="pillar">
+      <div class="pillar-number">4</div>
+      <div class="pillar-label">Frames</div>
+    </div>
+    <div class="pillar">
+      <div class="pillar-number">5</div>
+      <div class="pillar-label">Power Bases</div>
+    </div>
+    <div class="pillar">
+      <div class="pillar-number">6</div>
+      <div class="pillar-label">Leadership Styles</div>
+    </div>
+  </div>
+  <button class="btn-primary animate-5" onclick="startAssessment()">Begin the Assessment →</button>
+  <p class="hero-byline animate-6">Developed by Dr. Terry L. Oroszi · Wright State University ETL · Free · No signup required</p>
+</section>
+
+<!-- ============================================================
+     SCREEN 1: COLUMN INTRO
+     ============================================================ -->
+<section class="screen dark-section" id="screen-col-intro">
+  <div class="col-intro-counter animate-1" id="col-intro-counter">Column 01 of 03</div>
+  <h2 class="col-intro-title animate-2" id="col-intro-title">The 4 Frames</h2>
+  <div class="col-intro-rule animate-2" id="col-intro-rule"></div>
+  <p class="col-intro-body animate-3" id="col-intro-body">
+    How you see the world at work determines everything about how you lead in it.
+  </p>
+  <p class="col-intro-body animate-4" style="font-size:0.9rem; font-style:italic; color:var(--text-dim);">
+    You will see the cards one at a time. Flip each one to read the description.<br>Keep the ones that fit you. Leave the rest.
+  </p>
+  <button class="btn-primary animate-5" id="col-intro-btn" onclick="revealCards()">Reveal the Cards →</button>
+</section>
+
+<!-- ============================================================
+     SCREEN 2: CARD SELECTION
+     ============================================================ -->
+<section class="screen dark-section" id="screen-cards">
+  <!-- Selected tray at top -->
+  <div class="selected-tray" id="selected-tray"></div>
+
+  <!-- Card flip stage -->
+  <div class="card-stage" id="card-stage" onclick="flipCard()">
+    <div class="card-flipper" id="card-flipper">
+      <!-- BACK (face-down — what user sees first) -->
+      <div class="card-face card-face-back" id="card-back">
+        <div class="card-back-category" id="back-category">Frames</div>
+        <div class="card-back-name" id="back-name">Card Name</div>
+        <div class="card-back-footer">
+          <span class="card-bolt">⚡</span>
+          <div class="card-back-brand">4/5/6 Power Platform</div>
+          <div class="card-back-hint">Click to reveal</div>
+        </div>
+      </div>
+      <!-- FRONT (face-up — after flip) -->
+      <div class="card-face card-face-front" id="card-front">
+        <div class="card-front-category" id="front-category">Frames</div>
+        <div class="card-front-name" id="front-name">Card Name</div>
+        <div class="card-front-pro-label">Pro</div>
+        <div class="card-front-pro-text" id="front-pro">Pro text</div>
+        <div class="card-front-con-label">Con</div>
+        <div class="card-front-con-text" id="front-con">Con text</div>
+        <div class="card-front-tagline" id="front-tagline"></div>
+        <div class="card-front-descriptor" id="front-descriptor">Descriptor</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Description below card -->
+  <div class="card-description-area" id="card-description-area">
+    <p class="card-description-prompt" id="card-prompt">Click the card to reveal it.</p>
+    <p class="card-description-text" id="card-description"></p>
+  </div>
+
+  <!-- Action buttons (shown after flip) -->
+  <div class="card-actions" id="card-actions" style="display:none;">
+    <button class="btn-primary" onclick="selectCard('keep')">This Is Me</button>
+    <button class="btn-ghost" onclick="selectCard('discard')">Not Me</button>
+  </div>
+
+  <div class="card-counter" id="card-counter">Card 1 of 4</div>
+</section>
+
+<!-- ============================================================
+     SCREEN 3: SCENARIO
+     ============================================================ -->
+<section class="screen dark-section" id="screen-scenario">
+  <div class="scenario-eyebrow animate-1">One Question</div>
+  <h2 class="scenario-question animate-2">
+    Your teammate asks for a day off<br>that technically violates policy.<br><br>What do you do?
+  </h2>
+  <div class="scenario-grid animate-3">
+    <div class="scenario-option" id="scenario-A" onclick="selectScenario('A')">
+      <span class="scenario-option-letter">A</span>
+      <p class="scenario-option-text">"I point to the policy. Rules exist for a reason and apply equally to everyone."</p>
+    </div>
+    <div class="scenario-option" id="scenario-B" onclick="selectScenario('B')">
+      <span class="scenario-option-letter">B</span>
+      <p class="scenario-option-text">"I find a way to make it work. This person matters more to me than the rulebook."</p>
+    </div>
+    <div class="scenario-option" id="scenario-C" onclick="selectScenario('C')">
+      <span class="scenario-option-letter">C</span>
+      <p class="scenario-option-text">"I hold the line. The policy protects everyone and compromising it compromises the whole."</p>
+    </div>
+    <div class="scenario-option" id="scenario-D" onclick="selectScenario('D')">
+      <span class="scenario-option-letter">D</span>
+      <p class="scenario-option-text">"Depends. What is the broader context and what does saying yes get me?"</p>
+    </div>
+  </div>
+  <button class="btn-primary animate-4" id="scenario-continue-btn" disabled onclick="continueToReview()">Continue to Review →</button>
+</section>
+
+<!-- ============================================================
+     SCREEN 4: REVIEW
+     ============================================================ -->
+<section class="screen dark-section" id="screen-review">
+  <div class="review-header">
+    <div class="section-label animate-1">Your Selections</div>
+    <h2 class="review-title animate-2">Look at what you chose.</h2>
+    <div class="divider"></div>
+    <p class="review-sub animate-3">These are the cards you kept. On reflection — are any of them not quite right?<br>Use the × to remove a card before your reading is generated.</p>
+  </div>
+  <div class="review-columns animate-4" id="review-columns"></div>
+  <div class="review-proceed animate-5">
+    <button class="btn-primary" onclick="generateReading()">I Am Ready for My Reading →</button>
+  </div>
+</section>
+
+<!-- ============================================================
+     SCREEN 5: READING
+     ============================================================ -->
+<section class="screen dark-section" id="screen-reading">
+  <!-- Loading state -->
+  <div class="reading-loader" id="reading-loader">
+    <div class="reading-loader-line"></div>
+    <div class="reading-loader-text">Generating your reading</div>
+  </div>
+
+  <!-- Reading content -->
+  <div class="reading-content" id="reading-content">
+    <div class="reading-eyebrow">Your Leadership Profile</div>
+    <h2 class="reading-title" id="reading-title"></h2>
+    <div class="reading-divider"></div>
+    <div class="reading-body" id="reading-body"></div>
+
+    <div class="reading-section-title">Your Selected Cards</div>
+    <div class="reading-selected-cols" id="reading-selected-cols"></div>
+
+    <div class="reading-section-title" style="color:var(--teal);">What You Left Behind</div>
+    <div class="reading-absence-text" id="reading-absence"></div>
+
+    <div class="reading-caveat">
+      <div class="reading-caveat-text">
+        <p>This reading was generated from your card selections by an algorithm.
+        It is meant to be illuminating — and occasionally uncomfortable.
+        It is not a substitute for a human reading.</p>
+        <p>Dr. Oroszi reads people in person with a level of accuracy no digital
+        tool can replicate. She has done this for ten years. She has told people
+        things that made them tear up because they were finally true.</p>
+        <p>If this reading resonated — imagine what the real version feels like.</p>
+      </div>
+    </div>
+
+    <!-- CONTACT FORM -->
+    <div class="contact-section">
+      <h3 class="contact-title">Want the Real Thing?</h3>
+      <div class="contact-teal-rule"></div>
+      <p class="contact-body">
+        This reading was generated from your card selections alone.<br><br>
+        A personal reading from Dr. Oroszi incorporates what you cannot put into a form —
+        the hesitation before you chose, the card you almost picked, the thing your body said
+        before your mind decided.<br><br>
+        If this resonated, the live version goes considerably further.
+      </p>
+      <form class="contact-form" name="456-coaching" data-netlify="true" onsubmit="handleFormSubmit(event)">
+        <input type="text" name="name" placeholder="Your name" required>
+        <input type="email" name="email" placeholder="Your email" required>
+        <textarea name="message" placeholder="What brought you here today? (optional)" rows="3"></textarea>
+        <input type="hidden" name="form-name" value="456-coaching">
+        <button type="submit" class="btn-primary">Request a Coaching Session →</button>
+      </form>
+      <div class="form-confirm" id="form-confirm">
+        <p>Received.</p>
+        <p>Dr. Oroszi will be in touch.<br>Your reading is still at the top of this page.</p>
+      </div>
+    </div>
+
+    <!-- PRINT SECTION -->
+    <div class="print-section">
+      <h3 class="print-title">Your Selected Cards</h3>
+      <p class="print-body">Some people print these and put them on their mirror.<br>A daily reminder of who they are choosing to be.</p>
+      <button class="btn-ghost" onclick="printCards()">Print My Cards →</button>
+    </div>
+
+    <!-- Print-only cards grid -->
+    <div id="print-cards-grid" class="print-cards-grid" style="display:none;"></div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer id="main-footer" style="display:none;">
+  <div class="footer-logo">4/5/6 Power Platform</div>
+  <div class="footer-meta">Dr. Terry L. Oroszi · Emerging Technologies Laboratory · Wright State University</div>
+  <div class="footer-ecosystem">
+    <span class="ecosystem-label">Dr. Oroszi Ecosystem</span>
+    <a href="https://starbucks005-alt.github.io/etl-lab">Emerging Technologies Laboratory</a>
+    <a href="https://slrstudio.online">SLR Studio</a>
+    <a href="https://starbucks005-alt.github.io/etl-lab/456-power-platform.html">4/5/6 Power Platform</a>
+  </div>
+</footer>
+
+<script>
+// ============================================================
+//  STATE
+// ============================================================
+const state = {
+  selectedCards: [],
+  rejectedCards: [],
+  scenarioAnswer: null,
+  currentColumn: 0,   // 0=frames, 1=power, 2=styles
+  currentCardIndex: 0,
+  isFlipped: false,
+  isAnimating: false,
+  buckets: { confidence: [], lowConfidence: [], human: [] },
+  flags: { affiliativeWithoutHR: false, authoritativeWithoutSymbolic: false, coachingAsshole: false },
+  selectionCount: 0,
+  reading: ''
+};
+
+// ============================================================
+//  CARD DATA
+// ============================================================
+const CARDS = {
+  frames: [
+    {
+      id: 'structural',
+      name: 'Structural Frame',
+      category: 'frames',
+      categoryLabel: 'The 4 Frames',
+      descriptor: 'BY THE BOOK',
+      tagline: '',
+      pro: 'You love rules, policies and procedures.',
+      con: 'You may hide behind the rules.',
+      description: 'You love rules. Not because you are rigid, but because rules create clarity and clarity creates safety. You are the person others come to when they need to know what the policy says. You either love that role, you have been burned before and rules protect you now, or you are simply a facts-based thinker and rules are just how the world is organized. Here is the test: when someone asks you to bend a rule, your first instinct is to reach for the policy manual. The rule made the decision — not you. That is your strength and sometimes your shelter.'
+    },
+    {
+      id: 'hr',
+      name: 'Human Resource Frame',
+      category: 'frames',
+      categoryLabel: 'The 4 Frames',
+      descriptor: 'CARING',
+      tagline: '',
+      pro: 'You care about your coworkers.',
+      con: 'Sometimes you put their needs above your own and have trouble saying no.',
+      description: 'You like people. More than the rules. More than the mission sometimes. When someone needs something, you find a way. When someone is struggling, you feel it. If a teammate asks for a day off that technically violates policy, you find a way to make it work — because this person matters more to you than the rulebook. That is your greatest strength. It is also the thing most likely to exhaust you. You are carrying things that are not yours to carry, and you have been calling it kindness.'
+    },
+    {
+      id: 'symbolic',
+      name: 'Symbolic Frame',
+      category: 'frames',
+      categoryLabel: 'The 4 Frames',
+      descriptor: 'CHEERLEADER',
+      tagline: '',
+      pro: 'You communicate the vision of the organization.',
+      con: 'You may think too big scale.',
+      description: 'This is the veteran. The educator. The first responder. The person who did not take this job for the money or the title. They took it because it means something. The work IS the identity. If someone asks you to bend a rule, you hold the line — not because you love rules like the Structural person, but because the rule exists to protect the mission and the mission is sacred. When the work feels meaningless, you feel it in your bones. You think in terms of legacy, purpose, and what you are building.'
+    },
+    {
+      id: 'political',
+      name: 'Political Frame',
+      category: 'frames',
+      categoryLabel: 'The 4 Frames',
+      descriptor: 'READ OTHERS',
+      tagline: '',
+      pro: 'You know how to read others and use that information to influence them.',
+      con: 'You may not always use this for good.',
+      description: 'You love the game. Not in a sinister way — though it can go there. You are energized by complexity. You read rooms. You understand who has power, who wants what, and how information moves. You think three moves ahead. If someone asks you to bend a rule, your answer depends entirely on what you get out of saying yes. You are not motivated by the rule, the person, or the mission. You are motivated by the strategic landscape. That makes you extraordinarily useful and occasionally dangerous.'
+    }
+  ],
+  power: [
+    {
+      id: 'coercive',
+      name: 'Coercive Power Base',
+      category: 'power',
+      categoryLabel: 'The 5 Power Bases',
+      descriptor: 'COMPLIANCE',
+      tagline: '',
+      pro: 'You will use force to make an employee comply.',
+      con: 'The recipient may begrudgingly do what you ask but will not have job satisfaction.',
+      description: 'Here is the scenario. Mr. X has been late to work three days in a row. You pull him aside: if you are late tomorrow, you are fired. Will Mr. X be late tomorrow? Probably not. Problem solved on the surface. But notice what happened in the room. Everyone saw that interaction. The threat is now in the air for everyone, not just Mr. X. Coercive power is a scalpel. Precise and effective when used correctly. Destructive when used routinely. It belongs in the crisis, not in the culture.'
+    },
+    {
+      id: 'reward',
+      name: 'Reward Power Base',
+      category: 'power',
+      categoryLabel: 'The 5 Power Bases',
+      descriptor: 'INCENTIVE',
+      tagline: '',
+      pro: 'You will use a reward system to make an employee comply.',
+      con: 'The one receiving the reward will be more engaged now, but at the cost of the others.',
+      description: 'Same scenario. Mr. X has been late three days. You say: if you are on time from now on, I will give you an extra five minutes at lunch. Mr. X is happy. You feel good — this feels kind, feels humane. But look at the room. Your team has never been late. They get nothing. You just rewarded bad behavior and called it leadership. Reward power feels better to use than coercive power. That feeling is the trap. Easy to administer. Creates collateral damage in everyone who was already doing the right thing.'
+    },
+    {
+      id: 'legitimate',
+      name: 'Legitimate Power Base',
+      category: 'power',
+      categoryLabel: 'The 5 Power Bases',
+      descriptor: 'THE CHAIR',
+      tagline: '',
+      pro: 'You have the position therefore you have the right to give orders.',
+      con: 'Not everyone may feel you deserve the role. That may include you.',
+      description: 'Throw this one away on its own. Everyone has worked for someone who had the title and nothing else. The position was real. The person was not. Nepotism. That gets a nod in every room I have ever been in. Legitimate power comes with the job. It is issued to you like a badge. It is not yours — it belongs to the chair. Alone, it produces compliance without commitment. But paired with Referent or Expert power? Now you have something real. The title plus the person becomes actual leadership.'
+    },
+    {
+      id: 'referent',
+      name: 'Referent Power Base',
+      category: 'power',
+      categoryLabel: 'The 5 Power Bases',
+      descriptor: 'TRUST',
+      tagline: '',
+      pro: 'People like you so they will work harder to please you.',
+      con: 'Friendships can make decision-making difficult. They may blindly follow you.',
+      description: 'People do things for you not because they have to, not because there is a reward, not because of your title. They do it because they want to be in your circle. They want your approval. They want to be associated with you. That is extraordinarily powerful. And it comes with a story I have to tell. I had a colleague — a friend — who asked me to lie about her qualifications. She was trading on our relationship. On Referent power. And I had to say no. Because there has to be a line. The moment you use this power to ask someone to cross a line for you, you are no longer leading. You are manipulating.'
+    },
+    {
+      id: 'expert',
+      name: 'Expert Power Base',
+      category: 'power',
+      categoryLabel: 'The 5 Power Bases',
+      descriptor: 'KNOWLEDGE',
+      tagline: '',
+      pro: 'You are an individual with a high level of knowledge/skill.',
+      con: 'Likely an expert at one thing, not all. As a leader you must know your limitations.',
+      description: 'If I am the computer expert and I tell you to press Control Alt Delete, you do it. No questions. That is real power. But here is the catch: no one is an expert at everything. The moment you step outside your lane and try to project expertise you do not have, people know. They always know. And when they catch you, you lose credibility not just for that moment but retroactively. Now here is the other side: if you have a master\'s degree or you are working toward one, you are likely an expert at something. Own it. Do not perform false humility. Know your lane, own it completely, and stop clearly at the edge.'
+    }
+  ],
+  styles: [
+    {
+      id: 'commanding',
+      name: 'Commanding Style',
+      category: 'styles',
+      categoryLabel: 'The 6 Leadership Styles',
+      descriptor: 'DIRECTIVE',
+      tagline: '\'Do what I tell you\'',
+      pro: 'You tell people what to do, freeing them up from questioning.',
+      con: 'Few people respond to this in a positive way.',
+      description: 'Most people walk in assuming Commanding is bad leadership. Military. Aggressive. The style you use when you do not know how to lead any other way. That assumption is wrong. There are two types of people at work. The 9 to 5er — seventy-five percent of the workforce — does not want to be empowered. They do not want their input solicited on a decision they do not care about. They want clarity. Tell me what you need, let me deliver it, and respect my time. Commanding is a gift to that person. Then there is the dangerous third type: the person who knows they belong at the top but lacks what it takes to get there legitimately. They will lie, cheat, steal, and feel zero remorse — because in their mind they are correcting an injustice. Commanding is a crisis tool. Once the department is fixed, you better transition out of it or you will fail.'
+    },
+    {
+      id: 'pacesetter',
+      name: 'Pacesetter Style',
+      category: 'styles',
+      categoryLabel: 'The 6 Leadership Styles',
+      descriptor: 'EXAMPLE',
+      tagline: '\'Do as I do\'',
+      pro: 'You like to lead by example.',
+      con: 'You do not like telling people they have to work without you.',
+      description: 'Here is the scenario. You have dinner reservations — hard to get. Leadership just imposed a project deadline for tomorrow. You have a choice. You cancel your plans and stay late with the team. That is Pacesetting from strength. You make the team stay and go to dinner. That is not Pacesetting. Or you stay — not because the team needs you, but because you lack the confidence to tell them you have plans you cannot break. That looks identical to the first option from the outside. Same behavior. Completely opposite motivation. The cards around this one will tell me which version you are.'
+    },
+    {
+      id: 'affiliative',
+      name: 'Affiliative Style',
+      category: 'styles',
+      categoryLabel: 'The 6 Leadership Styles',
+      descriptor: 'CONNECTION',
+      tagline: '\'People come first\'',
+      pro: 'You value and create bonds with others.',
+      con: 'You may break organizational rules to accommodate your team.',
+      description: 'You cannot pick this card without also picking Human Resource Frame. If you did, go back. The Affiliative leader likes people too much to be honest with them. Here is the scenario: you are hiring one person and two candidates show up separately. You cannot bring yourself to tell either one they did not get the job. So you tell them both they are equally qualified and let them walk away believing they are your choice. That is not kindness. That is cruelty with a smile. Or you spend your day helping others do their work because you cannot say no. How do you live with the stress? I ask that in every room. And sometimes someone tears up. Because they own it. They know.'
+    },
+    {
+      id: 'authoritative',
+      name: 'Authoritative Style',
+      category: 'styles',
+      categoryLabel: 'The 6 Leadership Styles',
+      descriptor: 'VISION',
+      tagline: '\'Come with me\'',
+      pro: 'Lead people, encourage them to follow you.',
+      con: 'You may not know how to handle everyday issues.',
+      description: 'You cannot pick this card without also picking Symbolic Frame. If you did, go back. The Authoritative leader is the garage inventor. The speaker at an insurance convention who somehow gets even the most bored room excited about something. That is a rare and extraordinary gift. You can move people to quit their jobs and follow you. That is real. But here is the warning: when they show up wanting their paychecks and you have no idea how payroll works — because you were busy with the vision — the excitement that brought them there becomes the betrayal that defines you. Vision without infrastructure is not leadership. It is inspiration without a floor.'
+    },
+    {
+      id: 'coaching',
+      name: 'Coaching Style',
+      category: 'styles',
+      categoryLabel: 'The 6 Leadership Styles',
+      descriptor: 'DEVELOP',
+      tagline: '\'Try it\'',
+      pro: 'You like to help people develop.',
+      con: 'You use it as a tool to not tell bad news, or to encourage followers.',
+      description: 'Three types of people pick this card. The first uses coaching to collect admirers — people at their feet telling them how transformative they are. That is not coaching. That is an audience. The second uses coaching to avoid delivering bad news. I did this. I had an assistant whose behavior was unacceptable. I thought I would coach her through it. I called it development. HR eventually told me my avoidance was causing distress for the entire team, not just me. That was a light bulb moment. I was not coaching. I was hiding. The third type genuinely wants to help people grow and has the skill to do so. Which one are you?'
+    },
+    {
+      id: 'democratic',
+      name: 'Democratic Style',
+      category: 'styles',
+      categoryLabel: 'The 6 Leadership Styles',
+      descriptor: 'CONSENSUS',
+      tagline: '\'What do you think?\'',
+      pro: 'You appreciate everyone\'s input.',
+      con: 'Do you have a fear of making a bad decision? Are you spreading the blame?',
+      description: 'Here is what I believe about Democratic leadership: if the decision made at the table succeeds, the table gets the credit. If the decision fails, I get the blame. I called the meeting. I set the parameters. I accepted the outcome. That is on me. But most leaders who call themselves democratic want the credit when it works and the distributed blame when it does not. That is not Democratic leadership. That is blame diffusion wearing democratic clothes. True Democratic leadership requires more confidence than almost any other style. You have to be secure enough to give away the win and strong enough to absorb the loss alone. Are you?'
+    }
+  ]
+};
+
+const COLUMN_KEYS = ['frames', 'power', 'styles'];
+const COLUMN_META = {
+  frames: { title: 'The 4 Frames', accentColor: '#4A9B8E', body: 'How you see the world at work determines everything about how you lead in it.' },
+  power:  { title: 'The 5 Power Bases', accentColor: '#b8922a', body: 'Where does your influence actually come from? Not where you think it should. Where it actually does.' },
+  styles: { title: 'The 6 Leadership Styles', accentColor: '#E0E0E0', body: 'How do you show up when it matters? And why.' }
+};
+
+// ============================================================
+//  SCREEN MANAGEMENT
+// ============================================================
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function updateProgress(step) {
+  const bar = document.getElementById('progress-bar');
+  const steps = ['prog-frames','prog-power','prog-styles','prog-scenario','prog-reading'];
+  const stepMap = { frames:0, power:1, styles:2, scenario:3, reading:4 };
+
+  bar.classList.add('visible');
+
+  const idx = stepMap[step];
+  steps.forEach((s, i) => {
+    const el = document.getElementById(s);
+    el.classList.remove('completed','current');
+    if (i < idx) el.classList.add('completed');
+    else if (i === idx) el.classList.add('current');
+  });
+}
+
+// ============================================================
+//  FLOW: START
+// ============================================================
+function startAssessment() {
+  showColumnIntro(0);
+}
+
+function showColumnIntro(colIndex) {
+  state.currentColumn = colIndex;
+  const key = COLUMN_KEYS[colIndex];
+  const meta = COLUMN_META[key];
+  const num = colIndex + 1;
+
+  document.getElementById('col-intro-counter').textContent = `Column 0${num} of 03`;
+  document.getElementById('col-intro-title').textContent = meta.title;
+  document.getElementById('col-intro-body').textContent = meta.body;
+
+  const rule = document.getElementById('col-intro-rule');
+  rule.style.background = meta.accentColor;
+
+  showScreen('screen-col-intro');
+  updateProgress(key);
+}
+
+function revealCards() {
+  state.currentCardIndex = 0;
+  showScreen('screen-cards');
+  loadCard();
+}
+
+// ============================================================
+//  CARD RENDERING
+// ============================================================
+function loadCard() {
+  const key = COLUMN_KEYS[state.currentColumn];
+  const cards = CARDS[key];
+  const card = cards[state.currentCardIndex];
+  const total = cards.length;
+
+  // Reset flip state
+  state.isFlipped = false;
+  const flipper = document.getElementById('card-flipper');
+  flipper.classList.remove('flipped');
+
+  // Set card stage category
+  const stage = document.getElementById('card-stage');
+  stage.setAttribute('data-category', card.category);
+
+  // Back face
+  document.getElementById('back-category').textContent = card.categoryLabel;
+  document.getElementById('back-name').textContent = card.name;
+
+  // Front face
+  document.getElementById('front-category').textContent = card.categoryLabel;
+  document.getElementById('front-name').textContent = card.name;
+  document.getElementById('front-pro').textContent = card.pro;
+  document.getElementById('front-con').textContent = card.con;
+  document.getElementById('front-tagline').textContent = card.tagline || '';
+  document.getElementById('front-tagline').style.display = card.tagline ? 'block' : 'none';
+  document.getElementById('front-descriptor').textContent = card.descriptor;
+
+  // Description area
+  document.getElementById('card-prompt').textContent = `${card.name} is next. Click the card to reveal it.`;
+  const descEl = document.getElementById('card-description');
+  descEl.textContent = card.description;
+  descEl.classList.remove('visible');
+  document.getElementById('card-prompt').style.display = 'block';
+
+  // Hide action buttons
+  document.getElementById('card-actions').style.display = 'none';
+
+  // Counter
+  document.getElementById('card-counter').textContent = `Card ${state.currentCardIndex + 1} of ${total}`;
+
+  // Fade in animation
+  stage.style.animation = 'none';
+  stage.offsetHeight; // reflow
+  stage.style.animation = 'fadeUp 0.5s ease both';
+}
+
+function flipCard() {
+  if (state.isAnimating || state.isFlipped) return;
+  state.isAnimating = true;
+
+  const flipper = document.getElementById('card-flipper');
+  flipper.classList.add('flipped');
+  state.isFlipped = true;
+
+  // Show description and buttons after flip
+  setTimeout(() => {
+    const key = COLUMN_KEYS[state.currentColumn];
+    const card = CARDS[key][state.currentCardIndex];
+
+    document.getElementById('card-prompt').style.display = 'none';
+    const descEl = document.getElementById('card-description');
+    descEl.classList.add('visible');
+
+    document.getElementById('card-actions').style.display = 'flex';
+    state.isAnimating = false;
+  }, 650);
+}
+
+function selectCard(choice) {
+  if (state.isAnimating) return;
+  state.isAnimating = true;
+
+  const key = COLUMN_KEYS[state.currentColumn];
+  const card = CARDS[key][state.currentCardIndex];
+  const stage = document.getElementById('card-stage');
+
+  if (choice === 'keep') {
+    state.selectedCards.push(card.id);
+
+    // Animate card to tray
+    stage.style.transition = 'transform 0.4s ease, opacity 0.4s ease';
+    stage.style.transform = 'translateY(-40px) scale(0.15)';
+    stage.style.opacity = '0';
+
+    addToTray(card);
+  } else {
+    state.rejectedCards.push(card.id);
+
+    // Dismiss animation
+    stage.style.transition = 'transform 0.4s ease, opacity 0.4s ease';
+    stage.style.transform = 'translateY(30px)';
+    stage.style.opacity = '0';
+  }
+
+  setTimeout(() => {
+    stage.style.transition = '';
+    stage.style.transform = '';
+    stage.style.opacity = '';
+    advanceCard();
+  }, 500);
+}
+
+function addToTray(card) {
+  const tray = document.getElementById('selected-tray');
+  const thumb = document.createElement('div');
+  thumb.className = `tray-card ${card.category}`;
+  thumb.id = `tray-${card.id}`;
+  thumb.innerHTML = `<span>${card.name}</span><div class="tray-card-glow"></div>`;
+  tray.appendChild(thumb);
+}
+
+function advanceCard() {
+  const key = COLUMN_KEYS[state.currentColumn];
+  const total = CARDS[key].length;
+  state.currentCardIndex++;
+
+  if (state.currentCardIndex >= total) {
+    // End of column
+    showColumnPause();
+  } else {
+    setTimeout(() => {
+      loadCard();
+      state.isAnimating = false;
+    }, 300);
+  }
+}
+
+function showColumnPause() {
+  const pause = document.getElementById('column-pause');
+  const text = document.getElementById('pause-text');
+  text.innerHTML = 'Take a moment.<br>Look at what you chose.<br>Look at what you left behind.';
+  pause.classList.add('visible');
+
+  setTimeout(() => {
+    pause.classList.remove('visible');
+    state.isAnimating = false;
+
+    if (state.currentColumn < 2) {
+      showColumnIntro(state.currentColumn + 1);
+    } else {
+      showScenario();
+    }
+  }, 5000);
+}
+
+// ============================================================
+//  SCREEN 3: SCENARIO
+// ============================================================
+function showScenario() {
+  showScreen('screen-scenario');
+  updateProgress('scenario');
+  // Reset selections
+  document.querySelectorAll('.scenario-option').forEach(o => o.classList.remove('selected'));
+  document.getElementById('scenario-continue-btn').disabled = true;
+  state.scenarioAnswer = null;
+}
+
+function selectScenario(letter) {
+  document.querySelectorAll('.scenario-option').forEach(o => o.classList.remove('selected'));
+  document.getElementById(`scenario-${letter}`).classList.add('selected');
+  state.scenarioAnswer = letter;
+  document.getElementById('scenario-continue-btn').disabled = false;
+}
+
+function continueToReview() {
+  buildReviewScreen();
+  showScreen('screen-review');
+}
+
+// ============================================================
+//  SCREEN 4: REVIEW
+// ============================================================
+function buildReviewScreen() {
+  const container = document.getElementById('review-columns');
+  container.innerHTML = '';
+
+  COLUMN_KEYS.forEach(key => {
+    const colDiv = document.createElement('div');
+
+    const header = document.createElement('div');
+    header.className = `review-col-header ${key}`;
+    header.textContent = COLUMN_META[key].title;
+    colDiv.appendChild(header);
+
+    const selectedList = document.createElement('div');
+    selectedList.className = 'review-selected-list';
+
+    const notSelectedNames = [];
+
+    CARDS[key].forEach(card => {
+      if (state.selectedCards.includes(card.id)) {
+        const thumb = document.createElement('div');
+        thumb.className = `review-card-thumb ${key}`;
+        thumb.id = `review-${card.id}`;
+        thumb.innerHTML = `
+          <span>${card.name}</span>
+          <button class="review-remove-btn" onclick="removeCard('${card.id}', '${key}')" title="Remove">×</button>
+        `;
+        selectedList.appendChild(thumb);
+      } else {
+        notSelectedNames.push(card.name);
+      }
+    });
+
+    colDiv.appendChild(selectedList);
+
+    if (notSelectedNames.length) {
+      const notSelected = document.createElement('div');
+      notSelected.className = 'review-not-selected';
+      notSelected.innerHTML = `<span class="review-not-selected-label">Not selected:</span><br>${notSelectedNames.join(' · ')}`;
+      colDiv.appendChild(notSelected);
+    }
+
+    container.appendChild(colDiv);
+  });
+}
+
+function removeCard(cardId, category) {
+  const thumb = document.getElementById(`review-${cardId}`);
+  if (thumb) {
+    thumb.classList.add('removed');
+    setTimeout(() => {
+      // Show "trust your instinct" message briefly
+      thumb.style.height = thumb.offsetHeight + 'px';
+      thumb.innerHTML = '<em style="font-family:\'Cormorant Garamond\',serif;font-size:0.85rem;color:var(--text-dim);font-style:italic;">Removed. Trust your instinct.</em>';
+      setTimeout(() => {
+        thumb.style.display = 'none';
+      }, 1800);
+    }, 300);
+  }
+
+  // Remove from state
+  state.selectedCards = state.selectedCards.filter(id => id !== cardId);
+  state.rejectedCards.push(cardId);
+
+  // Also remove from tray
+  const trayThumb = document.getElementById(`tray-${cardId}`);
+  if (trayThumb) trayThumb.style.opacity = '0.3';
+}
+
+// ============================================================
+//  READING GENERATION ENGINE
+// ============================================================
+function generateReading() {
+  showScreen('screen-reading');
+  updateProgress('reading');
+  document.getElementById('reading-loader').style.display = 'flex';
+  document.getElementById('reading-content').classList.remove('visible');
+  document.getElementById('main-footer').style.display = '';
+
+  // 2-second dramatic pause
+  setTimeout(() => {
+    buildReading();
+    document.getElementById('reading-loader').style.display = 'none';
+    document.getElementById('reading-content').classList.add('visible');
+  }, 2200);
+}
+
+function getCardById(id) {
+  for (const key of COLUMN_KEYS) {
+    const found = CARDS[key].find(c => c.id === id);
+    if (found) return found;
+  }
+  return null;
+}
+
+function buildReading() {
+  const sel = state.selectedCards;
+  state.selectionCount = sel.length;
+
+  // --- BUCKET SORTING ---
+  const confidence = [];
+  const lowConfidence = [];
+  const human = [];
+
+  const has = (id) => sel.includes(id);
+
+  // Pacesetter: context-dependent
+  const pacesetterIsConfidence = has('pacesetter') && (has('symbolic') || has('expert'));
+  const democraticIsHuman = has('democratic') && (has('referent') || has('expert'));
+
+  sel.forEach(id => {
+    if (['political','coercive','expert','commanding','authoritative'].includes(id)) {
+      confidence.push(id);
+    } else if (id === 'pacesetter') {
+      if (pacesetterIsConfidence) confidence.push(id);
+      else lowConfidence.push(id);
+    } else if (['structural','reward','legitimate'].includes(id)) {
+      lowConfidence.push(id);
+    } else if (id === 'democratic') {
+      if (democraticIsHuman) human.push(id);
+      else lowConfidence.push(id);
+    } else if (['hr','referent','affiliative'].includes(id)) {
+      human.push(id);
+    } else if (id === 'coaching') {
+      if (has('hr') || has('referent')) human.push(id);
+      else confidence.push(id); // neutral/edge — goes confidence by default
+    }
+  });
+
+  state.buckets = { confidence, lowConfidence, human };
+
+  // --- FLAGS ---
+  state.flags.affiliativeWithoutHR = has('affiliative') && !has('hr');
+  state.flags.authoritativeWithoutSymbolic = has('authoritative') && !has('symbolic');
+  state.flags.coachingAsshole = has('coaching') && has('political') && has('expert') && !has('hr') && !has('referent');
+
+  // --- COUNT LINE ---
+  let countLine = '';
+  const count = sel.length;
+  if (count === 0) {
+    countLine = 'You left the table empty. That is a choice worth examining.';
+  } else if (count <= 3) {
+    countLine = 'You are either early in your leadership journey or showing me who you aspire to be. Either is valid and worth examining.';
+  } else if (count <= 7) {
+    countLine = 'A focused profile. You know what you are and you are not pretending otherwise.';
+  } else if (count <= 12) {
+    countLine = 'An experienced leader with real range. You have been in enough situations to know one tool is never enough.';
+  } else {
+    countLine = 'You have seen some things. This profile reflects a leader who has operated across many contexts and developed accordingly.';
+  }
+
+  // --- OPENING LINE ---
+  const heavyConfidence = confidence.length > human.length && confidence.length > lowConfidence.length;
+  const heavyHuman = human.length > confidence.length && human.length > lowConfidence.length;
+  const heavyLow = lowConfidence.length > confidence.length && lowConfidence.length > human.length;
+  const mixedConfHuman = confidence.length > 0 && human.length > 0 && lowConfidence.length === 0;
+  const mixedConfLow = confidence.length > 0 && lowConfidence.length > 0;
+  const balanced = confidence.length > 0 && human.length > 0 && lowConfidence.length > 0;
+
+  let openingLine = '';
+  if (count === 0) {
+    openingLine = 'You showed me nothing. Or you showed me everything.';
+  } else if (count === 1) {
+    openingLine = 'You showed me one card. That tells me you are either very early in this, or this is who you want to become. Either answer is the right place to start.';
+  } else if (balanced) {
+    openingLine = 'You have developed real range. You are not locked into one way of seeing the world or leading in it.';
+  } else if (mixedConfHuman && !heavyLow) {
+    openingLine = 'You are a rare combination. You can read the room and you genuinely care about the people in it.';
+  } else if (mixedConfLow && !heavyHuman) {
+    openingLine = 'You have the instincts of a high-confidence leader and the habits of someone who still sometimes hides. The tension between those two things is where your growth lives.';
+  } else if (heavyConfidence) {
+    openingLine = 'You play to win. The game energizes you and you are good at it.';
+  } else if (heavyHuman) {
+    openingLine = 'You lead with your whole heart and everyone in the room knows it.';
+  } else if (heavyLow) {
+    openingLine = 'You lead from structure and caution. There is real wisdom in that — and real limitation.';
+  } else {
+    openingLine = 'You have developed real range. You are not locked into one way of seeing the world or leading in it.';
+  }
+
+  // --- WHAT YOU SELECTED ---
+  let selectedText = '';
+  if (sel.length === 0) {
+    selectedText = 'You did not keep a single card.';
+  } else {
+    const names = sel.map(id => getCardById(id)?.name).filter(Boolean);
+    selectedText = `You selected: ${names.join(', ')}. `;
+
+    if (confidence.length > 0 && human.length > 0) {
+      selectedText += 'That combination tells me you can be strategic without losing the person in front of you. ';
+    }
+    if (confidence.length > 0 && lowConfidence.length > 0 && human.length === 0) {
+      selectedText += 'You move between structure and edge — sometimes by choice, sometimes by circumstance. ';
+    }
+    if (lowConfidence.length > 0 && human.length > 0 && confidence.length === 0) {
+      selectedText += 'You are grounded in rules and people. The question is whether the rules are protecting you or limiting you. ';
+    }
+    if (has('legitimate') && !has('referent') && !has('expert')) {
+      selectedText += 'Legitimate Power Base alone is worth noting. The title without the person is a starting point, not an ending. ';
+    }
+    if (has('pacesetter') && !pacesetterIsConfidence) {
+      selectedText += 'Your Pacesetter without the supporting cards suggests the behavior may be driven by something other than confidence. ';
+    }
+  }
+
+  // --- ABSENCE READING ---
+  let absenceText = '';
+  if (human.length === 0 && sel.length > 0) {
+    absenceText = 'You did not select a single human card. Not one. I am not saying you do not like people. I am saying people are not your primary data point when you are leading. They are variables. If you are leading a team, you need someone at your table who is the human card. And you need to protect that person.';
+  } else if (confidence.length === 0 && sel.length > 0) {
+    absenceText = 'You left behind all of the confidence cards. That is not weakness — it is honesty. The question is whether you are operating from genuine humility or from fear of owning your power.';
+  } else if (lowConfidence.length === 0 && sel.length > 0) {
+    absenceText = 'You left behind the structure cards, the rules, the position-based power. Either you have genuinely moved past needing them as a safety net, or you have not yet needed them. High confidence profiles have blind spots in stability and process.';
+  } else if (sel.length === 0) {
+    absenceText = 'Every card was left behind. That is unusual. It may mean this moment is not the right moment for this instrument. Or it may mean you are more observant of yourself than you are willing to admit.';
+  }
+
+  // --- PAIRED FLAGS ---
+  let flagText = '';
+  if (state.flags.affiliativeWithoutHR) {
+    flagText += 'You selected Affiliative without Human Resource Frame. That combination suggests the people-focus may be performance rather than instinct. Worth sitting with. ';
+  }
+  if (state.flags.authoritativeWithoutSymbolic) {
+    flagText += 'You selected Authoritative without Symbolic Frame. Vision without mission can become noise. Something to consider. ';
+  }
+  if (state.flags.coachingAsshole) {
+    flagText += 'The way you have combined Coaching with Political Frame and Expert Power tells me something specific. You may be using development as a display of your own capabilities rather than genuine investment in others. Only you know if that is true. ';
+  }
+
+  // --- SCENARIO LINE ---
+  let scenarioText = '';
+  const scenarioMap = { A: 'structural', B: 'hr', C: 'symbolic', D: 'political' };
+  if (state.scenarioAnswer) {
+    const primaryFrameId = scenarioMap[state.scenarioAnswer];
+    const primaryFrame = CARDS.frames.find(c => c.id === primaryFrameId);
+
+    // Find dominant selected frame
+    const selectedFrames = CARDS.frames.filter(c => sel.includes(c.id));
+    const primarySelected = selectedFrames.length > 0 ? selectedFrames[0] : null;
+
+    if (primarySelected && primarySelected.id === primaryFrameId) {
+      scenarioText = 'Your instinct under pressure confirms this profile.';
+    } else {
+      scenarioText = `Interesting. Your scenario answer pointed toward ${primaryFrame ? primaryFrame.name : 'a different frame'} while your card selections told a different story. That gap is worth sitting with.`;
+    }
+  }
+
+  // --- DEVELOPMENT NOTE ---
+  let devNote = '';
+  if (count === 0) {
+    devNote = 'The most useful thing you can do with this moment is ask yourself why every card felt like a no.';
+  } else if (heavyConfidence && human.length === 0) {
+    devNote = 'The growth edge in this profile is relational. Not because you need to be liked — but because the most durable influence is built on trust, not tactics.';
+  } else if (heavyHuman && confidence.length === 0) {
+    devNote = 'The growth edge in this profile is strategic. There are rooms you will need to walk into with more than your heart. Learning to read the landscape does not make you less human.';
+  } else if (heavyLow) {
+    devNote = 'The growth edge here is ownership. Structure and rules will carry you until they do not. The moment the rulebook does not have an answer, you will need to trust yourself.';
+  } else if (balanced || mixedConfHuman) {
+    devNote = 'Profiles with real range tend to struggle with consistency — not skill. The question is whether the people around you can predict which version of you will show up.';
+  } else {
+    devNote = 'Every profile has an edge. Yours is worth naming out loud in a room where someone can hear it and push back.';
+  }
+
+  // --- READING TITLE ---
+  let title = '';
+  if (count === 0) title = 'The Empty Hand';
+  else if (heavyConfidence) title = 'The Strategic Leader';
+  else if (heavyHuman) title = 'The Human-Centered Leader';
+  else if (heavyLow) title = 'The Structured Leader';
+  else if (balanced) title = 'The Range Leader';
+  else if (mixedConfHuman) title = 'The Rare Combination';
+  else title = 'The Complex Leader';
+
+  // --- ASSEMBLE ---
+  document.getElementById('reading-title').textContent = title;
+
+  const bodyEl = document.getElementById('reading-body');
+  bodyEl.innerHTML = [
+    `<p>${countLine}</p>`,
+    `<p>${openingLine}</p>`,
+    `<p>${selectedText}</p>`,
+    flagText ? `<p>${flagText}</p>` : '',
+    scenarioText ? `<p>${scenarioText}</p>` : '',
+    devNote ? `<p>${devNote}</p>` : ''
+  ].filter(Boolean).join('');
+
+  // Absence
+  document.getElementById('reading-absence').textContent = absenceText || 'Your profile shows selections across all three buckets. There are no significant absences to flag.';
+
+  // Selected cards mini-columns
+  buildReadingSelectedCols();
+
+  // Build print grid
+  buildPrintGrid();
+}
+
+function buildReadingSelectedCols() {
+  const container = document.getElementById('reading-selected-cols');
+  container.innerHTML = '';
+
+  COLUMN_KEYS.forEach(key => {
+    const col = document.createElement('div');
+
+    const label = document.createElement('div');
+    label.className = `reading-col-label ${key}`;
+    label.textContent = COLUMN_META[key].title;
+    col.appendChild(label);
+
+    const cards = document.createElement('div');
+    cards.className = 'reading-col-cards';
+
+    const selectedInCol = CARDS[key].filter(c => state.selectedCards.includes(c.id));
+    if (selectedInCol.length === 0) {
+      const none = document.createElement('div');
+      none.className = 'reading-col-card';
+      none.style.color = 'var(--text-dim)';
+      none.style.fontStyle = 'italic';
+      none.textContent = 'None selected';
+      cards.appendChild(none);
+    } else {
+      selectedInCol.forEach(card => {
+        const c = document.createElement('div');
+        c.className = 'reading-col-card';
+        c.textContent = card.name;
+        cards.appendChild(c);
+      });
+    }
+
+    col.appendChild(cards);
+    container.appendChild(col);
+  });
+}
+
+function buildPrintGrid() {
+  const grid = document.getElementById('print-cards-grid');
+  grid.innerHTML = '';
+
+  state.selectedCards.forEach(id => {
+    const card = getCardById(id);
+    if (!card) return;
+    const div = document.createElement('div');
+    div.className = 'print-card';
+    div.innerHTML = `
+      <div class="print-card-name">${card.name}</div>
+      <div class="print-card-pro"><strong>PRO:</strong> ${card.pro}</div>
+      <div class="print-card-con"><strong>CON:</strong> ${card.con}</div>
+      ${card.tagline ? `<div class="print-card-tagline">${card.tagline}</div>` : ''}
+      <div class="print-card-descriptor">${card.descriptor}</div>
+    `;
+    grid.appendChild(div);
+  });
+
+  const footer = document.createElement('div');
+  footer.className = 'print-footer';
+  footer.textContent = "Dr. Oroszi's 4/5/6 Power Platform | ETL Wright State University";
+  grid.appendChild(footer);
+}
+
+// ============================================================
+//  CONTACT FORM
+// ============================================================
+function handleFormSubmit(e) {
+  e.preventDefault();
+  const form = e.target;
+  const data = new FormData(form);
+
+  fetch('/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams(data).toString()
+  })
+  .then(() => {
+    form.style.display = 'none';
+    document.getElementById('form-confirm').classList.add('visible');
+  })
+  .catch(() => {
+    // Fallback: just show confirmation
+    form.style.display = 'none';
+    document.getElementById('form-confirm').classList.add('visible');
+  });
+}
+
+// ============================================================
+//  PRINT
+// ============================================================
+function printCards() {
+  document.getElementById('print-cards-grid').style.display = 'grid';
+  window.print();
+  setTimeout(() => {
+    document.getElementById('print-cards-grid').style.display = 'none';
+  }, 1000);
+}
+
+// ============================================================
+//  INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  showScreen('screen-landing');
+  // Hide footer until reading
+  document.getElementById('main-footer').style.display = 'none';
+});
+</script>
+</body>
+</html>
