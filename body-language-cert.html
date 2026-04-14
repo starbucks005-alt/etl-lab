@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Body Language Certification | ETL Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #b8922a;
+    --gold-light: #d4a843;
+    --gold-dim: rgba(184,146,42,0.15);
+    --black: #0a0a0a;
+    --surface: #111111;
+    --surface2: #1a1a1a;
+    --text: #e8e0d0;
+    --text-dim: #8a8070;
+    --border: rgba(184,146,42,0.2);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--black);
+    color: var(--text);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── NAV ── */
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 48px;
+    border-bottom: 1px solid var(--border);
+    background: var(--black);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    color: var(--gold);
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+  .nav-right {
+    display: flex; gap: 8px;
+  }
+  .nav-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    padding: 8px 18px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+  .nav-btn:hover, .nav-btn.active {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+
+  /* ── SCREENS ── */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ── HERO ── */
+  .hero {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 100px 48px 80px;
+    text-align: center;
+  }
+  .hero-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 28px;
+  }
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(36px, 5vw, 58px);
+    font-weight: 400;
+    line-height: 1.15;
+    margin-bottom: 28px;
+    color: var(--text);
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--gold);
+  }
+  .hero p {
+    font-size: 19px;
+    color: var(--text-dim);
+    max-width: 560px;
+    margin: 0 auto 52px;
+    line-height: 1.7;
+    font-weight: 300;
+  }
+  .hero-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .btn-primary {
+    background: var(--gold);
+    color: var(--black);
+    border: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 16px 36px;
+    cursor: pointer;
+    font-weight: 400;
+    transition: all 0.2s;
+  }
+  .btn-primary:hover { background: var(--gold-light); }
+  .btn-secondary {
+    background: none;
+    color: var(--gold);
+    border: 1px solid var(--gold);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 16px 36px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover { background: var(--gold-dim); }
+
+  .stats-row {
+    display: flex;
+    justify-content: center;
+    gap: 60px;
+    margin-top: 72px;
+    padding-top: 48px;
+    border-top: 1px solid var(--border);
+  }
+  .stat { text-align: center; }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 38px;
+    color: var(--gold);
+    display: block;
+    font-weight: 600;
+  }
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-top: 6px;
+    display: block;
+  }
+
+  /* ── STUDY MODE ── */
+  .study-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 60px 48px;
+  }
+  .study-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 48px;
+  }
+  .study-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 400;
+  }
+  .category-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 36px;
+    flex-wrap: wrap;
+  }
+  .cat-tab {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    padding: 8px 18px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+  .cat-tab:hover, .cat-tab.active {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: var(--gold-dim);
+  }
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+  }
+  .flash-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 28px 24px;
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+    min-height: 160px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .flash-card:hover {
+    border-color: var(--gold);
+    background: var(--surface2);
+    transform: translateY(-2px);
+  }
+  .flash-card.flipped .card-front { display: none; }
+  .flash-card:not(.flipped) .card-back { display: none; }
+  .card-front-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  .card-signal-badge {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 0;
+    margin-top: auto;
+  }
+  .badge-confident { background: rgba(184,146,42,0.15); color: var(--gold); border: 1px solid rgba(184,146,42,0.3); }
+  .badge-uncomfortable { background: rgba(100,100,120,0.2); color: #9090b0; border: 1px solid rgba(100,100,120,0.3); }
+  .badge-aggressive { background: rgba(160,60,60,0.2); color: #c07070; border: 1px solid rgba(160,60,60,0.3); }
+  .badge-deception { background: rgba(80,120,160,0.2); color: #7090c0; border: 1px solid rgba(80,120,160,0.3); }
+  .badge-other { background: rgba(80,160,100,0.15); color: #70c090; border: 1px solid rgba(80,160,100,0.25); }
+  .card-flip-hint {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-top: 12px;
+  }
+  .card-back-text {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-dim);
+    font-style: italic;
+    margin-bottom: 12px;
+  }
+  .card-back-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: var(--gold);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .progress-bar-wrap {
+    background: var(--surface);
+    height: 2px;
+    margin-bottom: 32px;
+    border: none;
+  }
+  .progress-bar-fill {
+    height: 2px;
+    background: var(--gold);
+    transition: width 0.4s ease;
+  }
+
+  /* ── PRACTICE MODE ── */
+  .practice-container {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 60px 48px;
+  }
+  .practice-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 48px;
+  }
+  .q-counter {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+  }
+  .q-score-live {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--gold);
+  }
+  .question-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 40px;
+    margin-bottom: 28px;
+  }
+  .question-category-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    display: block;
+  }
+  .question-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 21px;
+    font-weight: 400;
+    line-height: 1.45;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+  .question-context {
+    font-size: 15px;
+    color: var(--text-dim);
+    font-style: italic;
+    margin-top: 12px;
+  }
+  .choices {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .choice-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px;
+    text-align: left;
+    padding: 16px 22px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    line-height: 1.4;
+  }
+  .choice-btn:hover:not(:disabled) {
+    border-color: var(--gold);
+    background: var(--gold-dim);
+    color: var(--gold);
+  }
+  .choice-btn.correct {
+    border-color: #4a9060;
+    background: rgba(74,144,96,0.15);
+    color: #7ac090;
+  }
+  .choice-btn.wrong {
+    border-color: #904040;
+    background: rgba(144,64,64,0.15);
+    color: #c07070;
+  }
+  .choice-letter {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    min-width: 20px;
+    letter-spacing: 0.05em;
+  }
+  .feedback-box {
+    background: var(--surface2);
+    border-left: 2px solid var(--gold);
+    padding: 18px 22px;
+    margin-bottom: 24px;
+    display: none;
+    font-size: 15px;
+    color: var(--text-dim);
+    font-style: italic;
+    line-height: 1.6;
+  }
+  .feedback-box.show { display: block; }
+  .next-btn {
+    background: var(--gold);
+    color: var(--black);
+    border: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 14px 32px;
+    cursor: pointer;
+    display: none;
+    transition: all 0.2s;
+  }
+  .next-btn:hover { background: var(--gold-light); }
+  .next-btn.show { display: inline-block; }
+
+  /* ── ASSESSMENT ── */
+  .cert-name-screen {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 100px 48px;
+    text-align: center;
+  }
+  .cert-name-screen h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    font-weight: 400;
+    margin-bottom: 16px;
+  }
+  .cert-name-screen p {
+    color: var(--text-dim);
+    margin-bottom: 48px;
+    font-size: 17px;
+  }
+  .name-input {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    padding: 18px 24px;
+    width: 100%;
+    margin-bottom: 20px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .name-input:focus { border-color: var(--gold); }
+  .name-input::placeholder { color: var(--text-dim); font-style: italic; }
+
+  /* ── RESULTS ── */
+  .results-screen {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 80px 48px;
+    text-align: center;
+  }
+  .result-score-big {
+    font-family: 'Playfair Display', serif;
+    font-size: 80px;
+    font-weight: 600;
+    line-height: 1;
+    margin-bottom: 12px;
+  }
+  .result-score-big.pass { color: var(--gold); }
+  .result-score-big.fail { color: #904040; }
+  .result-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 40px;
+  }
+  .result-msg {
+    font-size: 19px;
+    line-height: 1.7;
+    color: var(--text-dim);
+    font-style: italic;
+    max-width: 480px;
+    margin: 0 auto 48px;
+  }
+  .result-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+  /* ── CERTIFICATE ── */
+  .cert-container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 60px 48px;
+  }
+  #cert-canvas {
+    display: block;
+    max-width: 100%;
+    border: 1px solid var(--border);
+    box-shadow: 0 8px 60px rgba(0,0,0,0.6);
+  }
+  .cert-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 28px;
+  }
+
+  /* ── SCORE REVIEW ── */
+  .review-list {
+    text-align: left;
+    max-width: 640px;
+    margin: 0 auto 48px;
+  }
+  .review-item {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  .review-icon {
+    font-size: 16px;
+    min-width: 20px;
+    margin-top: 2px;
+  }
+  .review-q { color: var(--text); }
+  .review-answer { color: var(--text-dim); font-style: italic; font-size: 13px; margin-top: 3px; }
+
+  /* ── SECTION HEADERS ── */
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  /* animations */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .screen.active { animation: fadeIn 0.35s ease; }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 60px 0;
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#" class="nav-brand">ETL Lab &mdash; Dr. Terry L. Oroszi</a>
+  <div class="nav-right">
+    <button class="nav-btn" onclick="showScreen('home')">Home</button>
+    <button class="nav-btn" onclick="showScreen('study')">Study Cards</button>
+    <button class="nav-btn" onclick="showScreen('practice')">Practice</button>
+    <button class="nav-btn active" onclick="showScreen('cert-name')">Get Certified</button>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════ HOME ═══════════════════════════════════ -->
+<div id="screen-home" class="screen active">
+  <div class="hero">
+    <p class="hero-label">Wright State University &middot; Boonshoft School of Medicine &middot; Emerging Technologies Laboratory</p>
+    <h1>Body Language<br><em>Certification Program</em></h1>
+    <p>Master the silent language of human behavior. Study 105 nonverbal signals across five body regions, practice interpretation, and earn your certificate.</p>
+    <div class="hero-actions">
+      <button class="btn-primary" onclick="showScreen('study')">Begin Study</button>
+      <button class="btn-secondary" onclick="showScreen('cert-name')">Take Assessment</button>
+    </div>
+    <div class="stats-row">
+      <div class="stat">
+        <span class="stat-num">105</span>
+        <span class="stat-label">Nonverbal Signals</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">5</span>
+        <span class="stat-label">Body Regions</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">10</span>
+        <span class="stat-label">Assessment Questions</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">80%</span>
+        <span class="stat-label">Passing Score</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ STUDY ═══════════════════════════════════ -->
+<div id="screen-study" class="screen">
+  <div class="study-container">
+    <div class="study-header">
+      <div>
+        <span class="section-label">Study Mode</span>
+        <h2>105 Body Language Cards</h2>
+      </div>
+      <button class="btn-secondary" onclick="showScreen('practice')">Practice Mode &rarr;</button>
+    </div>
+    <p style="color:var(--text-dim);margin-bottom:36px;font-style:italic;">Click any card to reveal its interpretation. Filter by body region below.</p>
+    <div class="category-tabs" id="category-tabs"></div>
+    <div class="cards-grid" id="cards-grid"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ PRACTICE ═══════════════════════════════════ -->
+<div id="screen-practice" class="screen">
+  <div class="practice-container">
+    <div class="practice-header">
+      <div>
+        <span class="section-label">Practice Mode</span>
+        <h2 style="font-family:'Playfair Display',serif;font-size:26px;font-weight:400;">Signal Identification</h2>
+      </div>
+      <div>
+        <span class="q-counter" id="prac-counter">Question 1 / 20</span>
+      </div>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="prac-progress" style="width:0%"></div>
+    </div>
+    <div class="question-card">
+      <span class="question-category-tag" id="prac-cat"></span>
+      <div class="question-text" id="prac-q"></div>
+    </div>
+    <div class="choices" id="prac-choices"></div>
+    <div class="feedback-box" id="prac-feedback"></div>
+    <div style="display:flex;gap:12px;align-items:center;">
+      <button class="next-btn" id="prac-next" onclick="nextPracticeQ()">Next &rarr;</button>
+      <button class="btn-secondary" onclick="resetPractice()" style="font-size:10px;padding:10px 18px;">Restart</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ CERT NAME ═══════════════════════════════════ -->
+<div id="screen-cert-name" class="screen">
+  <div class="cert-name-screen">
+    <span class="section-label">Certification Assessment</span>
+    <h2>Body Language Fundamentals</h2>
+    <p>Complete the 10-question assessment to earn your Certificate of Completion in Nonverbal Communication, issued by the Wright State University Boonshoft School of Medicine Emerging Technologies Laboratory.</p>
+    <p style="color:var(--gold);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.1em;margin-bottom:28px;">PASSING SCORE: 80% (8 of 10 correct)</p>
+    <input type="text" id="cert-name-input" class="name-input" placeholder="Your full name (as it will appear on the certificate)" />
+    <button class="btn-primary" style="width:100%;" onclick="startAssessment()">Begin Assessment &rarr;</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ ASSESSMENT ═══════════════════════════════════ -->
+<div id="screen-assessment" class="screen">
+  <div class="practice-container">
+    <div class="practice-header">
+      <div>
+        <span class="section-label">Certification Assessment</span>
+        <h2 style="font-family:'Playfair Display',serif;font-size:26px;font-weight:400;">Body Language Fundamentals</h2>
+      </div>
+      <div>
+        <span class="q-counter" id="assess-counter">Question 1 / 10</span>
+      </div>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="assess-progress" style="width:0%"></div>
+    </div>
+    <div class="question-card">
+      <span class="question-category-tag" id="assess-cat"></span>
+      <div class="question-text" id="assess-q"></div>
+      <div class="question-context" id="assess-context"></div>
+    </div>
+    <div class="choices" id="assess-choices"></div>
+    <div class="feedback-box" id="assess-feedback"></div>
+    <button class="next-btn" id="assess-next" onclick="nextAssessQ()">Next &rarr;</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ RESULTS ═══════════════════════════════════ -->
+<div id="screen-results" class="screen">
+  <div class="results-screen">
+    <span class="section-label">Assessment Complete</span>
+    <div class="result-score-big" id="result-score-big"></div>
+    <div class="result-label" id="result-label"></div>
+    <p class="result-msg" id="result-msg"></p>
+    <div class="review-list" id="review-list"></div>
+    <div class="result-actions" id="result-actions"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ CERTIFICATE ═══════════════════════════════════ -->
+<div id="screen-certificate" class="screen">
+  <div class="cert-container">
+    <span class="section-label" style="text-align:center;display:block;margin-bottom:32px;">Certificate of Completion</span>
+    <canvas id="cert-canvas" width="1100" height="780"></canvas>
+    <div class="cert-actions">
+      <button class="btn-primary" onclick="downloadCert()">Download Certificate</button>
+      <button class="btn-secondary" onclick="showScreen('home')">Return Home</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// DATA: 105 Body Language Cards
+// ═══════════════════════════════════════════════
+const CARDS = [
+  // FACE (1-27)
+  {id:1, cat:'FACE', name:'Head Tilt', signal:'Comfortable/Confident', desc:'A head tilt can convey interest, attentiveness, and a willingness to listen.'},
+  {id:2, cat:'FACE', name:'Eye Blocking', signal:'Uncomfortable/Low Confidence', desc:'Eye blocking is a nonverbal signal that can indicate discomfort, disapproval, or a desire to avoid something.'},
+  {id:3, cat:'FACE', name:'Lower Eyebrows', signal:'Uncomfortable/Low Confidence', desc:'Lowering eyebrows can convey a range of emotions, including anger, sadness, disappointment, or concentration.'},
+  {id:4, cat:'FACE', name:'Arched Eyebrows', signal:'Comfortable/Confident', desc:'Arched eyebrows typically express surprise, but they can also express interest, curiosity, or disbelief.'},
+  {id:5, cat:'FACE', name:'Chin Up', signal:'Comfortable/Confident', desc:'A raised chin can convey confidence, defiance, or a casual greeting.'},
+  {id:6, cat:'FACE', name:'Chin Down', signal:'Uncomfortable/Low Confidence', desc:'The position of the chin can convey various nonverbal cues, including submission, sadness, thoughtfulness, or boredom.'},
+  {id:7, cat:'FACE', name:'Lower Eyebrow and Squint Eye', signal:'Aggressive', desc:'Lowering an eyebrow and squinting an eye can express suspicion, disapproval, or concentration.'},
+  {id:8, cat:'FACE', name:'Tongue Rub', signal:'Uncomfortable/Low Confidence', desc:'A tongue rub can indicate nervousness, anxiety, or anticipation.'},
+  {id:9, cat:'FACE', name:'Disappearing Lips (Discomfort)', signal:'Uncomfortable/Low Confidence', desc:'Disappearing lips is a nonverbal cue that can indicate negative emotions such as doubt, stress, or deception.'},
+  {id:10, cat:'FACE', name:'Lack of Eye Contact', signal:'Uncomfortable/Low Confidence', desc:'Avoiding eye contact can signal disinterest, nervousness, or disrespect.'},
+  {id:11, cat:'FACE', name:'Sneer', signal:'Aggressive', desc:'A sneer is a facial expression that conveys contempt, disgust, or superiority.'},
+  {id:12, cat:'FACE', name:'Gaze', signal:'Aggressive', desc:'A powerful nonverbal cue that can convey a variety of emotions, including interest, affection, and hostility.'},
+  {id:13, cat:'FACE', name:'Disappearing Lips (Deception)', signal:'Possible Deception', desc:'Disappearing lips can signal doubt, deception, or emotional suppression.'},
+  {id:14, cat:'FACE', name:'Nose and Left Side of Mouth Lifted', signal:'Aggressive', desc:'Scrunching the nose and lifting one side of the mouth is often associated with disgust or disapproval.'},
+  {id:15, cat:'FACE', name:'Tongue Jutting', signal:'Possible Deception', desc:'Sticking the tongue out between the teeth is a gesture often used to show playfulness, mischievousness, or that one has gotten away with something.'},
+  {id:16, cat:'FACE', name:'Increased Eye Blink', signal:'Possible Deception', desc:'Increased eye blinking can signal nervousness, deception, or cognitive load.'},
+  {id:17, cat:'FACE', name:'Compressed Lip', signal:'Possible Deception', desc:'Compressed lips nonverbally convey disapproval, discomfort, or an attempt to suppress negative feelings.'},
+  {id:18, cat:'FACE', name:'Nose Flaring', signal:'Aggressive', desc:'Nose flaring can indicate a variety of emotions, including anger, aggression, fear, and arousal.'},
+  {id:19, cat:'FACE', name:'Inappropriate Eye Contact', signal:'Possible Deception', desc:'Unwanted, prolonged, or intense eye contact that makes the other person feel uncomfortable or threatened.'},
+  {id:20, cat:'FACE', name:'Facial Fidgeting', signal:'Possible Deception', desc:'Facial fidgeting involves repetitive, non-purposeful movements of the face, such as touching, rubbing, or stroking the face, hair, or neck.'},
+  {id:21, cat:'FACE', name:'Head Movement', signal:'Possible Deception', desc:'Head movements, including nodding, shaking, tilting, and raising, convey a wide range of emotions, attitudes, and intentions.'},
+  {id:22, cat:'FACE', name:'Eye Blinking', signal:'Possible Deception', desc:'Eye blinking serves as a subtle yet crucial nonverbal cue that conveys a range of emotions, thoughts, and cognitive states.'},
+  {id:23, cat:'FACE', name:'Pupils Dilate', signal:'Like What They See', desc:'Pupil dilation is a nonverbal cue that can indicate interest, arousal, or surprise.'},
+  {id:24, cat:'FACE', name:'Cocking the Head to the Side', signal:'Possible Deception', desc:'Cocking the head to the side is a nonverbal cue that can signal interest, curiosity, or confusion.'},
+  {id:25, cat:'FACE', name:'Open Wide and Dilated Eyes', signal:'Aroused/Surprised', desc:'Wide, dilated eyes indicate surprise, fear, or arousal.'},
+  {id:26, cat:'FACE', name:'Pupils Constrict', signal:'Uncomfortable/Low Confidence', desc:'Constricted pupils can signal disinterest, skepticism, or even hostility.'},
+  {id:27, cat:'FACE', name:'Furrowed Forehead/Brow', signal:'Uncomfortable/Low Confidence', desc:'Furrowed brow is a nonverbal cue that can indicate concentration, confusion, or anger. Also seen with anxiety, sadness, or bewilderment.'},
+  // LEGS (28-46)
+  {id:28, cat:'LEGS', name:'Standing Feet Together', signal:'Uncomfortable/Low Confidence', desc:'Standing with feet together can indicate formality, attention, nervousness, or low confidence.'},
+  {id:29, cat:'LEGS', name:'Leg Splay', signal:'Comfortable/Confident', desc:'Leg splay is a nonverbal signal that can convey confidence, dominance, comfort, or relaxation.'},
+  {id:30, cat:'LEGS', name:'Legs Crossing', signal:'Comfortable/Confident', desc:'A relaxed and confident posture with legs crossed at the ankles or knees, suggesting composure and ease.'},
+  {id:31, cat:'LEGS', name:'Clasp Knees', signal:'Ready To Go', desc:'Clasping one\'s knee communicates a readiness to go. It is often used with other cues, such as leaning forward and making eye contact.'},
+  {id:32, cat:'LEGS', name:'Posing, Not Reposing', signal:'Aggressive', desc:'Aggressive posing conveys hostility, intimidation, or dominance through physical postures.'},
+  {id:33, cat:'LEGS', name:'Constant Leg Movement (Discomfort)', signal:'Uncomfortable/Low Confidence', desc:'Constant leg movement can signal nervousness, anxiety, or boredom.'},
+  {id:34, cat:'LEGS', name:'Jiggling', signal:'Uncomfortable/Low Confidence', desc:'Legs jiggle can be a nonverbal communication that conveys nervousness, excitement, or boredom.'},
+  {id:35, cat:'LEGS', name:'Jiggle to Kick', signal:'Uncomfortable/Low Confidence', desc:'Restless leg movements may indicate a readiness to move or act.'},
+  {id:36, cat:'LEGS', name:'Constant Leg Movement (Deception)', signal:'Possible Deception', desc:'Constant leg movement can be a sign of nervousness, anxiety, or boredom when deception is present.'},
+  {id:37, cat:'LEGS', name:'Closed Legs', signal:'Comfortable/Confident', desc:'Crossing one\'s legs can signal comfort, relaxation, and a sense of self-possession in intimate settings.'},
+  {id:38, cat:'LEGS', name:'Feet Movement Restricted', signal:'Uncomfortable/Low Confidence', desc:'The person is unable to move their feet freely, which could indicate discomfort, injury, or restraint.'},
+  {id:39, cat:'LEGS', name:'Shuffling Feet', signal:'Possible Deception', desc:'Shuffling feet often conveys nervousness, discomfort, or a desire to leave the situation.'},
+  {id:40, cat:'LEGS', name:'Feet Freeze', signal:'Uncomfortable/Low Confidence', desc:'Feet freezing is a nonverbal cue that can indicate discomfort, uncertainty, or a desire to flee.'},
+  {id:41, cat:'LEGS', name:'Hiding Feet', signal:'Uncomfortable/Low Confidence', desc:'Hiding feet can suggest discomfort, nervousness, or a desire to distance oneself from a situation or person.'},
+  {id:42, cat:'LEGS', name:'Feet/Ankle Touching', signal:'Comfortable/Confident', desc:'Feet/ankle touching can be a sign of flirtation, intimacy, or simply comfort.'},
+  {id:43, cat:'LEGS', name:'Happy Feet/Toe in Air', signal:'Comfortable/Confident', desc:'A playful and carefree gesture that expresses joy and lightheartedness.'},
+  {id:44, cat:'LEGS', name:'Feet Shifting - Need to Leave', signal:'Uncomfortable/Low Confidence', desc:'Shifting feet indicate a desire to leave or disengage from the current situation.'},
+  {id:45, cat:'LEGS', name:'Dangle Toes', signal:'Comfortable/Confident', desc:'Dangling toes can signal boredom, restlessness, or comfort.'},
+  {id:46, cat:'LEGS', name:'Mirroring Feet', signal:'Comfortable/Confident', desc:'Mirroring feet is a nonverbal cue used to build rapport with others.'},
+  // HANDS (47-68)
+  {id:47, cat:'HANDS', name:'Modified Steeples', signal:'Comfortable/Confident', desc:'Fingertips of both hands placed together and arched. Signifies confidence, power, and assertiveness.'},
+  {id:48, cat:'HANDS', name:'Steepling', signal:'Comfortable/Confident', desc:'Steepling is formed by placing the fingertips of both hands together so that the tips look like a church steeple. Conveys confidence and authority.'},
+  {id:49, cat:'HANDS', name:'Handshakes', signal:'Comfortable/Confident', desc:'A handshake is a nonverbal greeting that conveys confidence, respect, and warmth.'},
+  {id:50, cat:'HANDS', name:'Preening with Hands', signal:'Comfortable/Confident', desc:'Preening with hands is a nonverbal communication gesture that suggests self-importance or vanity.'},
+  {id:51, cat:'HANDS', name:'Hands in Ready/Active Position', signal:'Comfortable/Confident', desc:'Hands in a ready or active position can convey openness, confidence, or engagement.'},
+  {id:52, cat:'HANDS', name:'Sweaty Hands', signal:'Uncomfortable/Low Confidence', desc:'Sweaty hands can be a nonverbal cue indicating nervousness, anxiety, or discomfort.'},
+  {id:53, cat:'HANDS', name:'Nervous Hands', signal:'Uncomfortable/Low Confidence', desc:'Nervous hands are a common nonverbal cue that can indicate anxiety, excitement, or discomfort.'},
+  {id:54, cat:'HANDS', name:'Ring Playing', signal:'Uncomfortable/Low Confidence', desc:'The repetitive motion of playing with a ring can convey nervousness, anxiety, or boredom.'},
+  {id:55, cat:'HANDS', name:'Genital Framing', signal:'Comfortable/Confident', desc:'Positioning of the hands to draw attention to the midsection. Often done unconsciously and may signal sexual interest or dominance.'},
+  {id:56, cat:'HANDS', name:'High Thumbs', signal:'Comfortable/Confident', desc:'A "high thumbs" gesture conveys approval, agreement, or enthusiasm.'},
+  {id:57, cat:'HANDS', name:'Hidden Hands', signal:'Uncomfortable/Low Confidence', desc:'Hidden hands can convey a sense of deception, discomfort, or a lack of openness.'},
+  {id:58, cat:'HANDS', name:'Palms-Up Display', signal:'Uncomfortable/Low Confidence', desc:'Palms-up display (rogatory position) is a nonverbal gesture that conveys openness, honesty, submission, or a plea for help.'},
+  {id:59, cat:'HANDS', name:'Fingers Interlaced (Nervous)', signal:'Uncomfortable/Low Confidence', desc:'Fingers interlaced can convey nervousness and anxiety depending on context.'},
+  {id:60, cat:'HANDS', name:'Fidgeting', signal:'Possible Deception', desc:'Fidgeting hands, such as tapping fingers or rubbing palms, can be a sign of nervousness, anxiety, or boredom.'},
+  {id:61, cat:'HANDS', name:'Thumbs in Pocket', signal:'Uncomfortable/Low Confidence', desc:'Having thumbs in pockets while exhibiting discomfort can indicate nervousness, anxiety, or a lack of self-assurance.'},
+  {id:62, cat:'HANDS', name:'Protect Other Body Parts', signal:'Uncomfortable/Low Confidence', desc:'This nonverbal communication conveys a sense of vulnerability and self-protection.'},
+  {id:63, cat:'HANDS', name:'Playing with Objects', signal:'Uncomfortable/Low Confidence', desc:'Playing with objects is a nonverbal communication cue that can indicate nervousness, boredom, or a desire to self-soothe.'},
+  {id:64, cat:'HANDS', name:'Fingers Interlaced (Self-Soothe)', signal:'Uncomfortable/Low Confidence', desc:'Fingers interlaced can convey self-soothing or romantic interest depending on the context.'},
+  {id:65, cat:'HANDS', name:'Neck Touching', signal:'Uncomfortable/Low Confidence', desc:'Neck touching is a nonverbal communication that can signal nervousness, insecurity, and stress.'},
+  {id:66, cat:'HANDS', name:'Hand Wringing', signal:'Uncomfortable/Low Confidence', desc:'Hand wringing is associated with nervousness, anxiety, or discomfort. Can also express indecisiveness or helplessness.'},
+  {id:67, cat:'HANDS', name:'Palms-Down Fingers Spread', signal:'Aggressive', desc:'Palms-down fingers spread conveys a sense of dominance, control, and assertiveness.'},
+  {id:68, cat:'HANDS', name:'Palms-Down', signal:'Aggressive', desc:'Palms-down nonverbal communication conveys dominance, authority, and assertiveness.'},
+  // ARMS (69-90)
+  {id:69, cat:'ARMS', name:'Arms Against Waist or Between Legs', signal:'Uncomfortable/Low Confidence', desc:'The person expresses discomfort by holding their arms against their waist or between their legs.'},
+  {id:70, cat:'ARMS', name:'Restricted, Unmoving Arms', signal:'Uncomfortable/Low Confidence', desc:'Restricted, unmoving arms convey helplessness, despair, and resignation.'},
+  {id:71, cat:'ARMS', name:'Arm Crossing', signal:'Uncomfortable/Low Confidence', desc:'Arms crossed tightly across the chest signal feelings of discomfort, self-protection, or disengagement.'},
+  {id:72, cat:'ARMS', name:'Lean Away', signal:'Uncomfortable/Low Confidence', desc:'Leaning away is a nonverbal cue that can communicate discomfort, disinterest, or a desire to create distance.'},
+  {id:73, cat:'ARMS', name:'Arms Crossed Holding Wrist', signal:'Uncomfortable/Low Confidence', desc:'Crossing arms and holding the wrist can convey self-comfort, anxiety, or defensiveness.'},
+  {id:74, cat:'ARMS', name:'Reverse Akimbo', signal:'Comfortable/Confident', desc:'Hands on hips with thumbs forward and fingers backward. This pose can invigorate the chest and back muscles.'},
+  {id:75, cat:'ARMS', name:'Arm Around Person (Aggressive)', signal:'Aggressive', desc:'Wrapping arms tightly around a person\'s waist exudes an aura of possessiveness and control.'},
+  {id:76, cat:'ARMS', name:'Arms Spread', signal:'Comfortable/Confident', desc:'Spreading arms is a nonverbal gesture conveying openness, confidence, and friendliness.'},
+  {id:77, cat:'ARMS', name:'Arms Behind Back', signal:'Comfortable/Confident', desc:'Placing hands behind one\'s back can project confidence, authority, and power.'},
+  {id:78, cat:'ARMS', name:'Animated Gestures', signal:'Comfortable/Confident', desc:'Animated gestures use hand and arm movements to convey emotions, ideas, and emphasis.'},
+  {id:79, cat:'ARMS', name:'Hooding', signal:'Comfortable/Confident', desc:'Hooding (arms behind the head) conveys confidence, comfort, and power.'},
+  {id:80, cat:'ARMS', name:'Half Shrug', signal:'Comfortable/Confident', desc:'A half shrug conveys uncertainty, indifference, or a lack of full commitment.'},
+  {id:81, cat:'ARMS', name:'Elbow Flexing', signal:'Comfortable/Confident', desc:'Elbow flexing conveys tension, discomfort, nervousness, or preparation for action.'},
+  {id:82, cat:'ARMS', name:'Arms Near Another', signal:'Comfortable/Confident', desc:'Arms positioned near another person can signal comfort, closeness, or a desire for connection.'},
+  {id:83, cat:'ARMS', name:'Arm Around Person (Supportive)', signal:'Comfortable/Confident', desc:'Putting an arm around someone expresses affection, comfort, or support.'},
+  {id:84, cat:'ARMS', name:'Elbow Interlocking', signal:'Comfortable/Confident', desc:'Elbow interlocking can convey comfort, intimacy, and confidence.'},
+  {id:85, cat:'ARMS', name:'Wrist Exposed Underside', signal:'Comfortable/Confident', desc:'Exposing the underside of the wrist is a gesture conveying openness, vulnerability, and trust.'},
+  {id:86, cat:'ARMS', name:'Shrug', signal:'Uncomfortable/Low Confidence', desc:'A shrug expresses indifference, uncertainty, or a lack of knowledge.'},
+  {id:87, cat:'ARMS', name:'Elbow Narrowing', signal:'Uncomfortable/Low Confidence', desc:'Elbow narrowing signals discomfort, self-protection, or a desire to conserve personal space.'},
+  {id:88, cat:'ARMS', name:'Reactive and Defend', signal:'Uncomfortable/Low Confidence', desc:'A person who is both reactive and defensive may cross arms, furrow their brow, or clench their jaw.'},
+  {id:89, cat:'ARMS', name:'Arms Akimbo', signal:'Comfortable/Confident', desc:'Arms akimbo (hands on hips, elbows out) is interpreted as confidence, power, or assertiveness.'},
+  {id:90, cat:'ARMS', name:'Leaning Away', signal:'Uncomfortable/Low Confidence', desc:'Leaning away suggests discomfort, disinterest, or a desire for more personal space.'},
+  // TORSO (91-105)
+  {id:91, cat:'TORSO', name:'Preening', signal:'Uncomfortable/Low Confidence', desc:'Preening body language (adjusting clothing, fixing hair, touching face) can convey nervousness, insecurity, or attraction.'},
+  {id:92, cat:'TORSO', name:'Ventral Denial', signal:'Uncomfortable/Low Confidence', desc:'Ventral denial denotes discomfort or disinterest by turning the abdomen away from someone.'},
+  {id:93, cat:'TORSO', name:'Turtle', signal:'Uncomfortable/Low Confidence', desc:'"Turtle" signals withdrawal, protection, or discomfort. Raising shoulders turtle-like.'},
+  {id:94, cat:'TORSO', name:'Arms Crossing as Massaging (1)', signal:'Uncomfortable/Low Confidence', desc:'Crossing arms can be interpreted as a self-soothing gesture that mimics the physical sensation of a massage.'},
+  {id:95, cat:'TORSO', name:'Arms Crossing as Massaging (2)', signal:'Uncomfortable/Low Confidence', desc:'Crossing arms is a nonverbal gesture conveying self-comfort, anxiety, or protectiveness.'},
+  {id:96, cat:'TORSO', name:'Baring the Torso', signal:'Aggressive', desc:'Shirtless aggression can convey dominance, threat, or challenge.'},
+  {id:97, cat:'TORSO', name:'Crossing Arms (Aggressive)', signal:'Aggressive', desc:'Crossing arms tightly across the chest can be a signal of defensiveness and hostility.'},
+  {id:98, cat:'TORSO', name:'Dressing the Torso', signal:'Comfortable/Confident', desc:'The way people dress their torso can send signals about personality, social status, and cultural background.'},
+  {id:99, cat:'TORSO', name:'Crossing Arms (Discomfort)', signal:'Uncomfortable/Low Confidence', desc:'Crossed arms can signal discomfort, defensiveness, or a desire for personal space.'},
+  {id:100, cat:'TORSO', name:'Bowing', signal:'Uncomfortable/Low Confidence', desc:'Bowing is a traditional gesture of respect and deference, commonly used in Japan and some East Asian cultures.'},
+  {id:101, cat:'TORSO', name:'Puffing Up the Chest', signal:'Aggressive', desc:'Puffing up the chest conveys confidence, dominance, or aggression.'},
+  {id:102, cat:'TORSO', name:'Body Posture Changes', signal:'Uncomfortable/Low Confidence', desc:'Slumped posture can convey insecurity and lack of self-assurance. A powerful cue communicating discomfort or pain.'},
+  {id:103, cat:'TORSO', name:'Ventral Fronting', signal:'Comfortable/Confident', desc:'Ventral fronting turns the torso toward another person to show interest and a desire to be close.'},
+  {id:104, cat:'TORSO', name:'Both Shoulder Shrug', signal:'Comfortable/Confident', desc:'A shoulder shrug conveys uncertainty, lack of knowledge, or indifference.'},
+  {id:105, cat:'TORSO', name:'Leaning Away', signal:'Uncomfortable/Low Confidence', desc:'Leaning away suggests discomfort, disinterest, or a desire for more personal space.'},
+];
+
+// ═══════════════════════════════════════════════
+// ASSESSMENT QUESTIONS (10 curated)
+// ═══════════════════════════════════════════════
+const ASSESSMENT_QUESTIONS = [
+  {
+    cat: 'FACE',
+    q: 'During a conversation, a person tilts their head slightly toward you and maintains natural eye contact. What signal does this Head Tilt most likely communicate?',
+    context: '',
+    choices: ['Possible Deception', 'Comfortable/Confident — interest and attentiveness', 'Aggressive — challenge or hostility', 'Uncomfortable/Low Confidence — submission'],
+    correct: 1,
+    explain: 'Head Tilt is categorized as Comfortable/Confident. It conveys interest, attentiveness, and a willingness to listen. This is one of the clearest engagement signals in the face category.'
+  },
+  {
+    cat: 'FACE',
+    q: 'Which facial behavior is classified as "Possible Deception" in the body language card system?',
+    context: '',
+    choices: ['Arched Eyebrows', 'Chin Up', 'Tongue Jutting', 'Head Tilt'],
+    correct: 2,
+    explain: 'Tongue Jutting is classified as Possible Deception. It is associated with getting away with something, playfulness, or mischievousness. Arched Eyebrows and Head Tilt are Comfortable/Confident; Chin Up is also Comfortable/Confident.'
+  },
+  {
+    cat: 'LEGS',
+    q: 'A job candidate begins clasping their knees while leaning forward at the end of your explanation. What does this "Clasp Knees" signal indicate?',
+    context: 'Context: You have just finished outlining the role requirements and salary range.',
+    choices: ['Uncomfortable/Low Confidence — anxiety', 'Aggressive — challenge to your authority', 'Ready To Go — readiness to act or engage', 'Possible Deception — evasiveness'],
+    correct: 2,
+    explain: 'Clasp Knees is uniquely categorized as "Ready To Go." It communicates readiness to act and is often paired with leaning forward and eye contact. It is not a stress signal in this context.'
+  },
+  {
+    cat: 'HANDS',
+    q: 'A presenter brings their fingertips together in an arched configuration during their pitch. What does Steepling typically communicate?',
+    context: '',
+    choices: ['Nervousness and self-soothing', 'Confidence, power, and assertiveness', 'Discomfort and a desire to withdraw', 'Possible deception through perception management'],
+    correct: 1,
+    explain: 'Steepling is one of the strongest Comfortable/Confident signals in the Hands category. It conveys confidence and authority. It is important not to confuse it with fidgeting or self-soothing gestures, which signal the opposite.'
+  },
+  {
+    cat: 'TORSO',
+    q: 'During a tense meeting, a colleague crosses their arms tightly across the chest and the overall cluster suggests hostility rather than coldness. Which Torso card applies, and what does it signal?',
+    context: '',
+    choices: ['Crossing Arms (Discomfort) — personal space need', 'Ventral Denial — disinterest', 'Crossing Arms (Aggressive) — defensiveness and hostility', 'Turtle — withdrawal and protection'],
+    correct: 2,
+    explain: 'The card system distinguishes between Crossing Arms (Discomfort), which is Uncomfortable/Low Confidence, and Crossing Arms (Aggressive), which signals defensiveness and hostility. Cluster context tells you which applies.'
+  },
+  {
+    cat: 'TORSO',
+    q: 'A person turns their torso directly toward you during a conversation, creating a face-to-face orientation. What is this behavior called and what does it signal?',
+    context: '',
+    choices: ['Ventral Denial — disinterest and distance', 'Bowing — cultural deference', 'Ventral Fronting — interest and desire for connection', 'Dressing the Torso — social signaling'],
+    correct: 2,
+    explain: 'Ventral Fronting is categorized as Comfortable/Confident. Turning the torso toward another person signals interest and a desire to be close. Its opposite, Ventral Denial, involves turning the abdomen away and signals discomfort or disinterest.'
+  },
+  {
+    cat: 'LEGS',
+    q: 'Shuffling feet is listed in the Legs category. What is its signal classification?',
+    context: '',
+    choices: ['Comfortable/Confident', 'Aggressive', 'Possible Deception', 'Ready To Go'],
+    correct: 2,
+    explain: 'Shuffling Feet is classified as Possible Deception in the card system. It conveys nervousness, discomfort, or a desire to leave the situation and is tracked as a potential deception indicator when part of a cluster.'
+  },
+  {
+    cat: 'TORSO',
+    q: 'A person under emotional stress hunches their shoulders up toward their ears in a protective posture. What is this Torso signal called?',
+    context: '',
+    choices: ['Ventral Denial', 'Preening', 'Turtle', 'Body Posture Changes'],
+    correct: 2,
+    explain: 'The Turtle signal specifically describes raising the shoulders in a turtle-like manner to signal withdrawal, protection, or discomfort. It is a limbic-driven protective response and is categorized as Uncomfortable/Low Confidence.'
+  },
+  {
+    cat: 'LEGS',
+    q: 'Someone receives good news and you observe their toes bouncing upward rhythmically. What does this "Happy Feet/Toe in Air" signal communicate, and how is it classified?',
+    context: '',
+    choices: ['Legs, Possible Deception — masked emotion', 'Legs, Uncomfortable/Low Confidence — restlessness', 'Arms, Comfortable/Confident — animated expression', 'Legs, Comfortable/Confident — joy and lightheartedness'],
+    correct: 3,
+    explain: 'Happy Feet is in the Legs category and classified as Comfortable/Confident. It is a playful, carefree gesture expressing joy and lightheartedness. Because feet are farthest from conscious control, this signal is particularly reliable.'
+  },
+  {
+    cat: 'FACE',
+    q: 'A witness maintains unusually prolonged, intense eye contact during questioning in a way that creates discomfort rather than trust. What card applies, and how is it classified?',
+    context: 'Context: The eye contact feels forced and is making others at the table uneasy.',
+    choices: ['Gaze — Aggressive', 'Inappropriate Eye Contact — Possible Deception', 'Lack of Eye Contact — Uncomfortable/Low Confidence', 'Open Wide and Dilated — Aroused/Surprised'],
+    correct: 1,
+    explain: 'Inappropriate Eye Contact is classified as Possible Deception. It refers specifically to unwanted, prolonged, or intense eye contact that makes others uncomfortable. It differs from the Gaze card (Aggressive) in that the intent is perception management rather than dominance.'
+  }
+];
+
+// ═══════════════════════════════════════════════
+// PRACTICE QUESTIONS (20 random-ish from cards)
+// ═══════════════════════════════════════════════
+function buildPracticeQuestions() {
+  const signalTypes = ['Comfortable/Confident', 'Uncomfortable/Low Confidence', 'Aggressive', 'Possible Deception'];
+  const allTypes = ['Comfortable/Confident', 'Uncomfortable/Low Confidence', 'Aggressive', 'Possible Deception', 'Like What They See', 'Ready To Go', 'Aroused/Surprised'];
+  const shuffled = [...CARDS].sort(() => Math.random() - 0.5).slice(0, 20);
+  return shuffled.map(card => {
+    const correct = card.signal;
+    const wrongPool = allTypes.filter(t => t !== correct);
+    const wrongs = wrongPool.sort(() => Math.random() - 0.5).slice(0, 3);
+    const choices = [correct, ...wrongs].sort(() => Math.random() - 0.5);
+    return {
+      cat: card.cat,
+      q: `"${card.desc}" — What signal type does this describe?`,
+      cardName: card.name,
+      correct: choices.indexOf(correct),
+      choices,
+      explain: `This is the ${card.cat} card: ${card.name}. It is classified as ${card.signal}.`
+    };
+  });
+}
+
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+let practiceQs = [];
+let pracIdx = 0;
+let pracScore = 0;
+let pracAnswered = false;
+
+let assessIdx = 0;
+let assessScore = 0;
+let assessAnswered = false;
+let assessResults = [];
+let certName = '';
+
+// ═══════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  if (id === 'study') buildStudyMode();
+  if (id === 'practice') { practiceQs = buildPracticeQuestions(); pracIdx = 0; pracScore = 0; renderPracticeQ(); }
+}
+
+// ═══════════════════════════════════════════════
+// STUDY MODE
+// ═══════════════════════════════════════════════
+const CATEGORIES = ['ALL', 'FACE', 'LEGS', 'HANDS', 'ARMS', 'TORSO'];
+let activeCat = 'ALL';
+
+function buildStudyMode() {
+  const tabsEl = document.getElementById('category-tabs');
+  tabsEl.innerHTML = '';
+  CATEGORIES.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'cat-tab' + (c === activeCat ? ' active' : '');
+    const count = c === 'ALL' ? CARDS.length : CARDS.filter(x => x.cat === c).length;
+    btn.textContent = `${c} (${count})`;
+    btn.onclick = () => { activeCat = c; buildStudyMode(); };
+    tabsEl.appendChild(btn);
+  });
+  const filtered = activeCat === 'ALL' ? CARDS : CARDS.filter(c => c.cat === activeCat);
+  const grid = document.getElementById('cards-grid');
+  grid.innerHTML = '';
+  filtered.forEach(card => {
+    const div = document.createElement('div');
+    div.className = 'flash-card';
+    div.id = 'card-' + card.id;
+    const badgeClass = getBadgeClass(card.signal);
+    div.innerHTML = `
+      <div class="card-front">
+        <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">${card.cat}</div>
+        <div class="card-front-name">${card.name}</div>
+        <span class="card-signal-badge ${badgeClass}">${card.signal}</span>
+        <div class="card-flip-hint" style="margin-top:14px;">Click to read &rarr;</div>
+      </div>
+      <div class="card-back">
+        <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">${card.cat} &middot; ${card.id}</div>
+        <div class="card-back-text">"${card.desc}"</div>
+        <span class="card-signal-badge ${badgeClass}">${card.signal}</span>
+      </div>
+    `;
+    div.onclick = () => div.classList.toggle('flipped');
+    grid.appendChild(div);
+  });
+}
+
+function getBadgeClass(signal) {
+  if (signal.includes('Confident')) return 'badge-confident';
+  if (signal.includes('Uncomfortable') || signal.includes('Low')) return 'badge-uncomfortable';
+  if (signal === 'Aggressive') return 'badge-aggressive';
+  if (signal.includes('Deception')) return 'badge-deception';
+  return 'badge-other';
+}
+
+// ═══════════════════════════════════════════════
+// PRACTICE MODE
+// ═══════════════════════════════════════════════
+function renderPracticeQ() {
+  if (pracIdx >= practiceQs.length) {
+    // Done
+    document.getElementById('prac-q').textContent = `Practice complete. Score: ${pracScore} / ${practiceQs.length}`;
+    document.getElementById('prac-choices').innerHTML = '';
+    document.getElementById('prac-counter').textContent = 'Complete';
+    document.getElementById('prac-feedback').textContent = '';
+    document.getElementById('prac-feedback').classList.remove('show');
+    document.getElementById('prac-next').classList.remove('show');
+    document.getElementById('prac-progress').style.width = '100%';
+    document.getElementById('prac-cat').textContent = 'Well done!';
+    return;
+  }
+  pracAnswered = false;
+  const q = practiceQs[pracIdx];
+  document.getElementById('prac-cat').textContent = q.cat;
+  document.getElementById('prac-q').textContent = q.q;
+  document.getElementById('prac-counter').textContent = `Question ${pracIdx + 1} / ${practiceQs.length}`;
+  document.getElementById('prac-progress').style.width = `${(pracIdx / practiceQs.length) * 100}%`;
+  document.getElementById('prac-feedback').classList.remove('show');
+  document.getElementById('prac-next').classList.remove('show');
+
+  const choicesEl = document.getElementById('prac-choices');
+  choicesEl.innerHTML = '';
+  q.choices.forEach((ch, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.innerHTML = `<span class="choice-letter">${String.fromCharCode(65 + i)}</span>${ch}`;
+    btn.onclick = () => selectPracticeAnswer(i, btn);
+    choicesEl.appendChild(btn);
+  });
+}
+
+function selectPracticeAnswer(i, btn) {
+  if (pracAnswered) return;
+  pracAnswered = true;
+  const q = practiceQs[pracIdx];
+  const allBtns = document.querySelectorAll('#prac-choices .choice-btn');
+  allBtns.forEach(b => b.disabled = true);
+  if (i === q.correct) {
+    btn.classList.add('correct');
+    pracScore++;
+    document.getElementById('prac-feedback').textContent = 'Correct. ' + q.explain;
+  } else {
+    btn.classList.add('wrong');
+    allBtns[q.correct].classList.add('correct');
+    document.getElementById('prac-feedback').textContent = 'Incorrect. ' + q.explain;
+  }
+  document.getElementById('prac-feedback').classList.add('show');
+  document.getElementById('prac-next').classList.add('show');
+}
+
+function nextPracticeQ() {
+  pracIdx++;
+  renderPracticeQ();
+}
+
+function resetPractice() {
+  practiceQs = buildPracticeQuestions();
+  pracIdx = 0;
+  pracScore = 0;
+  renderPracticeQ();
+}
+
+// ═══════════════════════════════════════════════
+// ASSESSMENT
+// ═══════════════════════════════════════════════
+function startAssessment() {
+  certName = document.getElementById('cert-name-input').value.trim();
+  if (!certName) {
+    document.getElementById('cert-name-input').style.borderColor = 'var(--gold)';
+    document.getElementById('cert-name-input').placeholder = 'Please enter your name to continue';
+    return;
+  }
+  assessIdx = 0;
+  assessScore = 0;
+  assessAnswered = false;
+  assessResults = [];
+  showScreen('assessment');
+  renderAssessQ();
+}
+
+function renderAssessQ() {
+  const q = ASSESSMENT_QUESTIONS[assessIdx];
+  assessAnswered = false;
+  document.getElementById('assess-cat').textContent = `Question ${assessIdx + 1} of 10 — ${q.cat}`;
+  document.getElementById('assess-q').textContent = q.q;
+  document.getElementById('assess-context').textContent = q.context || '';
+  document.getElementById('assess-counter').textContent = `Question ${assessIdx + 1} / 10`;
+  document.getElementById('assess-progress').style.width = `${(assessIdx / 10) * 100}%`;
+  document.getElementById('assess-feedback').classList.remove('show');
+  document.getElementById('assess-next').classList.remove('show');
+
+  const choicesEl = document.getElementById('assess-choices');
+  choicesEl.innerHTML = '';
+  q.choices.forEach((ch, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.innerHTML = `<span class="choice-letter">${String.fromCharCode(65 + i)}</span>${ch}`;
+    btn.onclick = () => selectAssessAnswer(i, btn);
+    choicesEl.appendChild(btn);
+  });
+}
+
+function selectAssessAnswer(i, btn) {
+  if (assessAnswered) return;
+  assessAnswered = true;
+  const q = ASSESSMENT_QUESTIONS[assessIdx];
+  const allBtns = document.querySelectorAll('#assess-choices .choice-btn');
+  allBtns.forEach(b => b.disabled = true);
+  const isCorrect = (i === q.correct);
+  if (isCorrect) {
+    btn.classList.add('correct');
+    assessScore++;
+  } else {
+    btn.classList.add('wrong');
+    allBtns[q.correct].classList.add('correct');
+  }
+  assessResults.push({ q: q.q, correct: isCorrect, yourAnswer: q.choices[i], rightAnswer: q.choices[q.correct] });
+  document.getElementById('assess-feedback').textContent = (isCorrect ? 'Correct. ' : 'Incorrect. ') + q.explain;
+  document.getElementById('assess-feedback').classList.add('show');
+  const isLast = assessIdx === 9;
+  document.getElementById('assess-next').textContent = isLast ? 'View Results' : 'Next';
+  document.getElementById('assess-next').classList.add('show');
+}
+
+function nextAssessQ() {
+  if (assessIdx < 9) {
+    assessIdx++;
+    renderAssessQ();
+  } else {
+    showResults();
+  }
+}
+
+function showResults() {
+  showScreen('results');
+  const pct = Math.round((assessScore / 10) * 100);
+  const pass = assessScore >= 8;
+  const scoreEl = document.getElementById('result-score-big');
+  scoreEl.textContent = `${assessScore}/10`;
+  scoreEl.className = 'result-score-big ' + (pass ? 'pass' : 'fail');
+  document.getElementById('result-label').textContent = pass ? 'Certification Passed' : 'Not Yet Certified';
+  document.getElementById('result-msg').textContent = pass
+    ? `Excellent work, ${certName}. You demonstrated proficiency in nonverbal communication fundamentals. Your certificate is ready to download.`
+    : `You scored ${pct}%. A score of 80% or higher (8 of 10) is required for certification. Review the study cards and try again.`;
+
+  const reviewList = document.getElementById('review-list');
+  reviewList.innerHTML = '';
+  assessResults.forEach((r, i) => {
+    const item = document.createElement('div');
+    item.className = 'review-item';
+    item.innerHTML = `
+      <div class="review-icon">${r.correct ? '✓' : '✗'}</div>
+      <div>
+        <div class="review-q">${i + 1}. ${r.q.substring(0, 80)}${r.q.length > 80 ? '...' : ''}</div>
+        ${!r.correct ? `<div class="review-answer">Your answer: ${r.yourAnswer}</div><div class="review-answer" style="color:var(--gold)">Correct: ${r.rightAnswer}</div>` : ''}
+      </div>
+    `;
+    reviewList.appendChild(item);
+  });
+
+  const actionsEl = document.getElementById('result-actions');
+  actionsEl.innerHTML = '';
+  if (pass) {
+    const certBtn = document.createElement('button');
+    certBtn.className = 'btn-primary';
+    certBtn.textContent = 'View Certificate';
+    certBtn.onclick = () => { showScreen('certificate'); generateCert(); };
+    actionsEl.appendChild(certBtn);
+  }
+  const retryBtn = document.createElement('button');
+  retryBtn.className = 'btn-secondary';
+  retryBtn.textContent = pass ? 'Take Again' : 'Retry Assessment';
+  retryBtn.onclick = () => { assessIdx = 0; assessScore = 0; assessResults = []; showScreen('assessment'); renderAssessQ(); };
+  actionsEl.appendChild(retryBtn);
+  const studyBtn = document.createElement('button');
+  studyBtn.className = 'btn-secondary';
+  studyBtn.textContent = 'Return to Study';
+  studyBtn.onclick = () => showScreen('study');
+  actionsEl.appendChild(studyBtn);
+}
+
+// ═══════════════════════════════════════════════
+// CERTIFICATE GENERATION
+// ═══════════════════════════════════════════════
+function generateCert() {
+  const canvas = document.getElementById('cert-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  // Background
+  ctx.fillStyle = '#0a0a0a';
+  ctx.fillRect(0, 0, W, H);
+
+  // Outer gold border
+  ctx.strokeStyle = '#b8922a';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(30, 30, W - 60, H - 60);
+
+  // Inner border (thin)
+  ctx.strokeStyle = 'rgba(184,146,42,0.3)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(44, 44, W - 88, H - 88);
+
+  // Corner ornaments
+  drawCornerOrnament(ctx, 30, 30, 1, 1);
+  drawCornerOrnament(ctx, W - 30, 30, -1, 1);
+  drawCornerOrnament(ctx, 30, H - 30, 1, -1);
+  drawCornerOrnament(ctx, W - 30, H - 30, -1, -1);
+
+  // Institution name
+  ctx.fillStyle = 'rgba(184,146,42,0.6)';
+  ctx.font = '500 13px "DM Mono", monospace';
+  ctx.textAlign = 'center';
+  ctx.letterSpacing = '0.2em';
+  ctx.fillText('WRIGHT STATE UNIVERSITY  ·  BOONSHOFT SCHOOL OF MEDICINE', W / 2, 100);
+  ctx.fillText('EMERGING TECHNOLOGIES LABORATORY', W / 2, 122);
+
+  // Divider line
+  ctx.strokeStyle = 'rgba(184,146,42,0.4)';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(120, 145); ctx.lineTo(W - 120, 145); ctx.stroke();
+
+  // "Certificate of Completion"
+  ctx.fillStyle = '#b8922a';
+  ctx.font = 'italic 22px "Cormorant Garamond", serif';
+  ctx.fillText('Certificate of Completion', W / 2, 195);
+
+  // Main title
+  ctx.fillStyle = '#e8e0d0';
+  ctx.font = '400 52px "Playfair Display", serif';
+  ctx.fillText('Body Language', W / 2, 270);
+  ctx.font = 'italic 400 52px "Playfair Display", serif';
+  ctx.fillStyle = '#b8922a';
+  ctx.fillText('Fundamentals', W / 2, 330);
+
+  // "awarded to"
+  ctx.fillStyle = 'rgba(184,146,42,0.55)';
+  ctx.font = '300 14px "Cormorant Garamond", serif';
+  ctx.letterSpacing = '0.15em';
+  ctx.fillText('A W A R D E D   T O', W / 2, 385);
+
+  // Recipient name
+  ctx.fillStyle = '#e8e0d0';
+  ctx.font = '400 40px "Playfair Display", serif';
+  ctx.fillText(certName, W / 2, 445);
+
+  // Name underline
+  const nameW = ctx.measureText(certName).width;
+  ctx.strokeStyle = 'rgba(184,146,42,0.5)';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(W/2 - nameW/2, 460); ctx.lineTo(W/2 + nameW/2, 460); ctx.stroke();
+
+  // Description
+  ctx.fillStyle = '#8a8070';
+  ctx.font = '300 16px "Cormorant Garamond", serif';
+  ctx.letterSpacing = '0em';
+  ctx.fillText('has successfully completed the assessment in Nonverbal Communication,', W / 2, 510);
+  ctx.fillText('demonstrating proficiency in the 105-card Body Language framework.', W / 2, 534);
+
+  // Date + score line
+  const today = new Date();
+  const dateStr = today.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  ctx.strokeStyle = 'rgba(184,146,42,0.25)';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(120, 580); ctx.lineTo(W - 120, 580); ctx.stroke();
+
+  // Three columns: date / seal / authority
+  ctx.fillStyle = '#b8922a';
+  ctx.font = '500 11px "DM Mono", monospace';
+  ctx.textAlign = 'left';
+  ctx.fillText(dateStr.toUpperCase(), 140, 628);
+  ctx.fillStyle = '#8a8070';
+  ctx.font = '300 12px "Cormorant Garamond", serif';
+  ctx.fillText('Date of Completion', 140, 648);
+
+  ctx.textAlign = 'right';
+  ctx.fillStyle = '#b8922a';
+  ctx.font = '500 11px "DM Mono", monospace';
+  ctx.fillText('DR. TERRY L. OROSZI', W - 140, 628);
+  ctx.fillStyle = '#8a8070';
+  ctx.font = '300 12px "Cormorant Garamond", serif';
+  ctx.fillText('Program Director, ETL Lab', W - 140, 648);
+
+  // Center emblem
+  ctx.textAlign = 'center';
+  ctx.strokeStyle = '#b8922a';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.arc(W / 2, 622, 28, 0, Math.PI * 2); ctx.stroke();
+  ctx.beginPath(); ctx.arc(W / 2, 622, 22, 0, Math.PI * 2); ctx.stroke();
+  ctx.fillStyle = '#b8922a';
+  ctx.font = '700 18px "Playfair Display", serif';
+  ctx.fillText('ETL', W / 2, 628);
+
+  // Footer
+  ctx.fillStyle = 'rgba(138,128,112,0.4)';
+  ctx.font = '300 11px "DM Mono", monospace';
+  ctx.fillText('Nonverbal Communication · Wright State University · Dayton, Ohio', W / 2, 730);
+}
+
+function drawCornerOrnament(ctx, x, y, sx, sy) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.strokeStyle = '#b8922a';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(sx * 14, 0);
+  ctx.lineTo(0, 0);
+  ctx.lineTo(0, sy * 14);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function downloadCert() {
+  const canvas = document.getElementById('cert-canvas');
+  const link = document.createElement('a');
+  link.download = `ETL_BL_Certificate_${certName.replace(/\s+/g, '_')}.png`;
+  link.href = canvas.toDataURL('image/png', 1.0);
+  link.click();
+}
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+buildStudyMode();
+</script>
+</body>
+</html>
