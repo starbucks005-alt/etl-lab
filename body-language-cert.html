@@ -1189,6 +1189,13 @@ function generateCert() {
   const canvas = document.getElementById('cert-canvas');
   const ctx = canvas.getContext('2d');
   const W = canvas.width, H = canvas.height;
+  const sigImg = new Image();
+  sigImg.onload  = () => drawCertCanvas(ctx, W, H, sigImg);
+  sigImg.onerror = () => drawCertCanvas(ctx, W, H, null);
+  sigImg.src = 'signature-oroszi.png';
+}
+
+function drawCertCanvas(ctx, W, H, sigImg) {
 
   // Background
   ctx.fillStyle = '#0a0a0a';
@@ -1278,12 +1285,18 @@ function generateCert() {
   ctx.fillText('Date of Completion', 140, 648);
 
   ctx.textAlign = 'right';
+  // Signature image above name — proportional height 44px, right-aligned
+  if (sigImg) {
+    const sigH = 44;
+    const sigW = Math.round((3313 / 966) * sigH); // ~151px
+    ctx.drawImage(sigImg, W - 140 - sigW, 582, sigW, sigH);
+  }
   ctx.fillStyle = '#b8922a';
   ctx.font = '500 11px "DM Mono", monospace';
-  ctx.fillText('DR. TERRY L. OROSZI', W - 140, 628);
+  ctx.fillText('DR. TERRY L. OROSZI', W - 140, 640);
   ctx.fillStyle = '#8a8070';
   ctx.font = '300 12px "Cormorant Garamond", serif';
-  ctx.fillText('Program Director, ETL Lab', W - 140, 648);
+  ctx.fillText('Program Director, ETL Lab', W - 140, 660);
 
   // Center emblem
   ctx.textAlign = 'center';
