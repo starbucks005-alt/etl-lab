@@ -705,17 +705,16 @@ em { font-style: italic; color: var(--gold-light); }
   margin-top: 1rem;
 }
 
-/* Column pause overlay */
+/* Column pause — in-flow, replaces card stage below tray */
 .column-pause {
   display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(19,16,12,0.95);
-  z-index: 200;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
+  padding: 80px 24px;
+  width: 100%;
+  flex: 1;
 }
 .column-pause.visible { display: flex; }
 
@@ -1346,11 +1345,6 @@ footer {
   </div>
 </div>
 
-<!-- COLUMN PAUSE OVERLAY -->
-<div class="column-pause dark-section" id="column-pause">
-  <div class="pause-text" id="pause-text"></div>
-</div>
-
 <!-- ============================================================
      SCREEN 0: LANDING
      ============================================================ -->
@@ -1407,6 +1401,11 @@ footer {
 <section class="screen dark-section" id="screen-cards">
   <!-- Selected tray at top -->
   <div class="selected-tray" id="selected-tray"></div>
+
+  <!-- Column pause — shown in place of card elements at end of each column -->
+  <div class="column-pause" id="column-pause">
+    <div class="pause-text" id="pause-text"></div>
+  </div>
 
   <!-- Card flip stage -->
   <div class="card-stage" id="card-stage" onclick="flipCard()">
@@ -1966,13 +1965,30 @@ function advanceCard() {
 }
 
 function showColumnPause() {
+  // Hide card-interaction elements so the pause message takes their place.
+  // The selected-tray above remains visible — users can see what they kept.
+  ['card-stage', 'card-description-area', 'card-actions', 'card-counter'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+
   const pause = document.getElementById('column-pause');
-  const text = document.getElementById('pause-text');
+  const text  = document.getElementById('pause-text');
   text.innerHTML = 'Take a moment.<br>Look at what you chose.<br>Look at what you left behind.';
   pause.classList.add('visible');
 
   setTimeout(() => {
     pause.classList.remove('visible');
+
+    // Restore card elements for the next column
+    const stage = document.getElementById('card-stage');
+    const descArea = document.getElementById('card-description-area');
+    const counter  = document.getElementById('card-counter');
+    if (stage)   stage.style.display   = '';
+    if (descArea) descArea.style.display = '';
+    if (counter) counter.style.display  = '';
+    // card-actions stays hidden; loadCard() will show it after flip
+
     state.isAnimating = false;
 
     if (state.currentColumn < 2) {
