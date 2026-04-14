@@ -1368,14 +1368,7 @@
           <div class="directive-09-right">
             <div class="module-progress" id="cert-progress-grid">
 
-              <a href="elevator-speech.html" class="module-item" <div class="cert-new-callout">
-  <div class="cert-new-badge">New</div>
-  <div class="cert-new-body">
-    <div class="cert-new-headline">Module 6: Job Fair now includes an AI-powered opportunity scanner</div>
-    <div class="cert-new-sub">Upload your CV or resume. Find internships, fellowships, co-ops, and full-time roles near you, matched to your skills. <strong>OPT / CPT students: covered.</strong> We've got you.</div>
-    <a href="job-fair.html" class="cert-new-link">Launch Job Fair &rarr;</a>
-  </div>
-</div>>
+              <a href="elevator-speech.html" class="module-item" id="prog-elevator"
                 <span class="module-check">○</span>
                 <span class="module-name">MODULE 1 &mdash; ELEVATOR SPEECH</span>
                 <span class="module-arrow">&rarr;</span>
@@ -2319,7 +2312,14 @@
   } else if (completed > 0) {
     statusEl.innerHTML = '<span style="font-family:\'DM Mono\',monospace;font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:#9a8e7e;">' + completed + ' OF 6 MODULES COMPLETE</span>';
   } else {
-    statusEl.innerHTML = '<span style="font-family:\'DM Mono\',monospace;font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:#b8922a;border:1px solid rgba(184,146,42,0.4);padding:0.4rem 1.1rem;background:rgba(184,146,42,0.06);">COMPLETE ANY MODULE TO BEGIN</span>';
+<div style="display:flex;gap:1.25rem;align-items:flex-start;border:1px solid rgba(184,146,42,0.3);border-left:3px solid #b8922a;padding:1.25rem 1.5rem;margin:1.5rem 0;background:rgba(184,146,42,0.06);">
+  <div style="font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.25em;text-transform:uppercase;background:#4A9B8E;color:#fff;padding:3px 8px;white-space:nowrap;flex-shrink:0;margin-top:3px;">New</div>
+  <div>
+    <div style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:#f4ede0;margin-bottom:8px;line-height:1.3;">Module 6: Job Fair now includes an AI-powered opportunity scanner</div>
+    <div style="font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:300;color:#9a8e7e;line-height:1.7;margin-bottom:0.75rem;">Upload your CV or resume. Find internships, fellowships, co-ops, and full-time roles near you, matched to your skills. <strong style="color:#d4aa4a;font-weight:400;">OPT / CPT students: covered.</strong> We've got you.</div>
+    <a href="job-fair.html" style="font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:#b8922a;text-decoration:none;border-bottom:1px solid rgba(184,146,42,0.3);padding-bottom:2px;">Launch Job Fair &rarr;</a>
+  </div>
+</div>   statusEl.innerHTML = '<span style="font-family:\'DM Mono\',monospace;font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:#b8922a;border:1px solid rgba(184,146,42,0.4);padding:0.4rem 1.1rem;background:rgba(184,146,42,0.06);">COMPLETE ANY MODULE TO BEGIN</span>';
   }
 })();
 </script>
