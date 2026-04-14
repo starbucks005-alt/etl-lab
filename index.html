@@ -1357,7 +1357,7 @@
           <div class="directive-09-left">
             <div class="directive-icon">🏆</div>
             <h3 style="font-family:'Oswald',sans-serif; font-size:20px; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin-bottom:12px; color:var(--black);">ETL LEADERSHIP CERTIFICATE</h3>
-            <p class="directive-body">A credential earned — not given. Complete all five modules to demonstrate mastery of the communication and behavioral skills that define effective leadership. Developed by Dr. Oroszi from two decades of graduate curriculum, national security training, and human behavior research.</p>
+            <p class="directive-body">A credential earned — not given. Complete all six modules to demonstrate mastery of the communication and behavioral skills that define effective leadership. Developed by Dr. Oroszi from two decades of graduate curriculum, national security training, and human behavior research.</p>
           </div>
 
           <div class="directive-09-right">
@@ -1378,9 +1378,13 @@
                 <span class="module-check">○</span>
                 <span class="module-name">MODULE 4 &mdash; 4/5/6 POWER PLATFORM</span>
               </div>
-              <div class="module-item module-item--dim" id="prog-poster">
+              <div class="module-item" id="prog-poster">
                 <span class="module-check">○</span>
-                <span class="module-name">MODULE 5 &mdash; ACADEMIC POSTER <em>(coming soon)</em></span>
+                <span class="module-name">MODULE 5 &mdash; ACADEMIC POSTER</span>
+              </div>
+              <div class="module-item" id="prog-jobfair">
+                <span class="module-check">○</span>
+                <span class="module-name">MODULE 6 &mdash; JOB FAIR MASTERY</span>
               </div>
             </div>
 
@@ -2271,7 +2275,9 @@
     'etl_elevator_done': 'prog-elevator',
     'etl_egos_done':     'prog-egos',
     'etl_bodylang_done': 'prog-bodylang',
-    'etl_power456_done': 'prog-power'
+    'etl_power456_done': 'prog-power',
+    'etl_poster_done':   'prog-poster',
+    'etl_jobfair_done':  'prog-jobfair'
   };
   var completed = 0;
   for (var key in keys) {
@@ -2286,7 +2292,7 @@
       }
     } catch(e) {}
   }
-  if (completed >= 4) {
+  if (completed >= 6) {
     document.getElementById('cert-locked').style.display = 'none';
     document.getElementById('cert-unlocked').style.display = 'block';
   } else if (completed > 0) {
@@ -2294,7 +2300,9 @@
       0: 'elevator-speech.html',
       1: 'egos-at-the-table.html',
       2: 'body-language-cert.html',
-      3: '456-power-platform.html'
+      3: '456-power-platform.html',
+      4: 'academic-poster.html',
+      5: 'job-fair.html'
     };
     var btn = document.getElementById('cert-locked').querySelector('a');
     if (btn) {

@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Job Fair Mastery | ETL Leadership Certificate Module 6</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-ink: #13100c;
+    --bg-ink-soft: #1a1612;
+    --bg-card: #1e1a14;
+    --gold: #b8922a;
+    --gold-light: #d4aa4a;
+    --gold-rule: rgba(184,146,42,0.3);
+    --gold-glow: rgba(184,146,42,0.06);
+    --text-cream: #f4ede0;
+    --text-body: #e8dece;
+    --text-dim: #9a8e7e;
+    --teal: #4A9B8E;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; overflow-y: auto; }
+
+  body {
+    background: var(--bg-ink);
+    color: var(--text-body);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px;
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.1rem 2.5rem;
+    background: rgba(19,16,12,0.94);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--gold-rule);
+  }
+  .nav-logo {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-cream);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-logo .nav-accent { color: var(--gold); }
+  .nav-logo:hover { color: var(--gold-light); }
+  .nav-back {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    text-decoration: none;
+    border: 1px solid var(--gold-rule);
+    padding: 0.4rem 0.9rem;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .nav-back:hover { color: var(--gold); border-color: var(--gold); }
+
+  /* PHASES */
+  .phase {
+    display: none;
+    min-height: 100vh;
+    padding: 120px 2.5rem 6rem;
+    max-width: 1040px;
+    margin: 0 auto;
+  }
+
+  /* TYPOGRAPHY */
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1.75rem;
+  }
+  .phase-headline {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: 700;
+    color: var(--text-cream);
+    line-height: 1.2;
+    margin-bottom: 0.75rem;
+  }
+  .phase-sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.05rem;
+    color: var(--text-dim);
+    line-height: 1.7;
+    margin-bottom: 2.5rem;
+  }
+  .col-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1rem;
+  }
+  .col-body {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.05rem;
+    font-weight: 300;
+    color: var(--text-body);
+    line-height: 1.9;
+  }
+  .gold-divider {
+    width: 60px;
+    height: 1px;
+    background: var(--gold);
+    margin-bottom: 3rem;
+  }
+
+  /* BUTTONS */
+  .btn-primary, .btn-ghost {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 0.8rem 1.75rem;
+    cursor: pointer;
+    display: inline-block;
+    transition: all 0.2s;
+    border: 1px solid var(--gold);
+    background: none;
+  }
+  .btn-primary {
+    background: var(--gold);
+    color: var(--bg-ink);
+  }
+  .btn-primary:hover {
+    background: var(--gold-light);
+    border-color: var(--gold-light);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-dim);
+    border-color: var(--gold-rule);
+  }
+  .btn-ghost:hover { color: var(--gold); border-color: var(--gold); }
+  .btn-disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+  .btn-row {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 2rem;
+  }
+
+  /* TWO COLUMN */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    margin-bottom: 3rem;
+  }
+
+  /* INSIGHT BOX */
+  .insight-box {
+    background: var(--bg-card);
+    border-left: 3px solid var(--gold);
+    padding: 1.75rem 2rem;
+    margin-bottom: 2.5rem;
+  }
+  .insight-box p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.05rem;
+    font-style: italic;
+    color: var(--text-body);
+    line-height: 1.85;
+  }
+
+  /* PREP CHECKLIST */
+  .prep-checklist {
+    list-style: none;
+    margin-bottom: 2rem;
+  }
+  .prep-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.9rem 1.25rem;
+    border: 1px solid var(--gold-rule);
+    background: var(--bg-card);
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+    user-select: none;
+  }
+  .prep-item:hover { border-color: var(--gold); background: var(--gold-glow); }
+  .prep-item.checked { border-color: var(--gold); background: var(--gold-glow); }
+  .prep-check {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    flex-shrink: 0;
+    width: 1.2em;
+    transition: color 0.2s;
+  }
+  .prep-item.checked .prep-check { color: var(--gold); }
+  .prep-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+    color: var(--text-body);
+    line-height: 1.5;
+  }
+
+  /* BEAT CARDS */
+  .beat-cards {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .beat-card {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1.5rem;
+    align-items: start;
+    background: var(--bg-card);
+    border: 1px solid var(--gold-rule);
+    padding: 1.5rem 1.75rem;
+  }
+  .beat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--gold-rule);
+    line-height: 1;
+  }
+  .beat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.52rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.4rem;
+  }
+  .beat-timing {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.48rem;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+    margin-bottom: 0.6rem;
+  }
+  .beat-body {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+    color: var(--text-body);
+    line-height: 1.75;
+  }
+
+  /* SIGNAL LISTS */
+  .signal-col-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.52rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--gold-rule);
+  }
+  .signal-list {
+    list-style: none;
+  }
+  .signal-list li {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.98rem;
+    color: var(--text-body);
+    line-height: 1.6;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid rgba(184,146,42,0.1);
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+  .signal-list li:last-child { border-bottom: none; }
+  .signal-dot {
+    color: var(--gold);
+    flex-shrink: 0;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    padding-top: 0.3em;
+  }
+
+  /* SCENARIO CARD */
+  .scenario-card {
+    border: 1px solid var(--gold);
+    background: var(--gold-glow);
+    padding: 1.75rem 2rem;
+    margin-top: 2.5rem;
+    margin-bottom: 2rem;
+  }
+  .scenario-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.52rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1rem;
+  }
+  .scenario-body {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+    font-style: italic;
+    color: var(--text-body);
+    line-height: 1.8;
+    margin-bottom: 1.25rem;
+  }
+  .scenario-prompt {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.48rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 0.75rem;
+  }
+  .scenario-textarea {
+    width: 100%;
+    min-height: 100px;
+    background: var(--bg-ink-soft);
+    border: 1px solid var(--gold-rule);
+    color: var(--text-cream);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.05rem;
+    line-height: 1.8;
+    padding: 1rem 1.25rem;
+    outline: none;
+    resize: vertical;
+    transition: border-color 0.2s;
+  }
+  .scenario-textarea:focus { border-color: var(--gold); }
+  .scenario-textarea::placeholder { color: var(--text-dim); font-style: italic; }
+
+  /* CV BUILDER */
+  .cv-builder {
+    background: var(--bg-card);
+    border: 1px solid var(--gold-rule);
+    padding: 2.5rem 2.5rem;
+    margin-bottom: 2rem;
+  }
+  .cv-section-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.52rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--gold-rule);
+  }
+  .cv-section {
+    margin-bottom: 2.5rem;
+  }
+  .cv-field-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  .cv-field-group.single { grid-template-columns: 1fr; }
+  .cv-field-group.triple { grid-template-columns: 1fr 1fr 1fr; }
+  .cv-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .cv-field label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.45rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+  .cv-input {
+    background: var(--bg-ink-soft);
+    border: 1px solid var(--gold-rule);
+    color: var(--text-cream);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+    padding: 0.65rem 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+  .cv-input:focus { border-color: var(--gold); }
+  .cv-input::placeholder { color: var(--text-dim); font-style: italic; }
+  .cv-textarea {
+    background: var(--bg-ink-soft);
+    border: 1px solid var(--gold-rule);
+    color: var(--text-cream);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+    line-height: 1.7;
+    padding: 0.8rem 1rem;
+    outline: none;
+    resize: vertical;
+    transition: border-color 0.2s;
+    width: 100%;
+    min-height: 90px;
+  }
+  .cv-textarea:focus { border-color: var(--gold); }
+  .cv-textarea::placeholder { color: var(--text-dim); font-style: italic; }
+
+  /* EXPERIENCE ENTRY */
+  .exp-entry {
+    border: 1px solid var(--gold-rule);
+    padding: 1.5rem;
+    margin-bottom: 1.25rem;
+    background: var(--bg-ink-soft);
+  }
+  .exp-entry-header {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.48rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 1rem;
+  }
+
+  /* TAG CHIPS */
+  .tag-input-wrap {
+    margin-top: 0.75rem;
+  }
+  .tag-input-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.45rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 0.4rem;
+  }
+  .tag-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 0.5rem;
+    min-height: 1.5rem;
+  }
+  .tag-chip {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.45rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold);
+    border: 1px solid var(--gold);
+    padding: 0.25rem 0.6rem;
+    cursor: pointer;
+    transition: background 0.15s;
+    user-select: none;
+  }
+  .tag-chip:hover { background: var(--gold-glow); }
+  .tag-input-field {
+    background: var(--bg-ink);
+    border: 1px solid var(--gold-rule);
+    color: var(--text-cream);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.52rem;
+    padding: 0.5rem 0.75rem;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+  .tag-input-field:focus { border-color: var(--gold); }
+  .tag-input-field::placeholder { color: var(--text-dim); font-style: normal; }
+
+  /* KEY COMPETENCIES SUMMARY */
+  .competency-summary {
+    background: var(--bg-ink);
+    border: 1px solid var(--gold-rule);
+    padding: 1rem 1.25rem;
+    min-height: 3rem;
+  }
+  .competency-chips-display {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+  .competency-chip-display {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.45rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold-light);
+    border: 1px solid var(--gold-rule);
+    padding: 0.25rem 0.6rem;
+    background: var(--gold-glow);
+  }
+
+  /* CV DOWNLOAD BUTTONS */
+  .cv-download-row {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+  }
+
+  /* SUCCESS SCREEN */
+  .success-screen {
+    display: none;
+    text-align: center;
+    padding: 3rem 2rem;
+    border: 1px solid var(--gold);
+    background: var(--gold-glow);
+    margin-top: 2rem;
+  }
+  .success-screen.visible { display: block; }
+  .success-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 1rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1rem;
+  }
+  .success-sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.1rem;
+    color: var(--text-dim);
+    margin-bottom: 2rem;
+  }
+
+  @media (max-width: 720px) {
+    .two-col { grid-template-columns: 1fr; }
+    .cv-field-group, .cv-field-group.triple { grid-template-columns: 1fr; }
+    nav { padding: 1rem 1.25rem; }
+    .phase { padding: 100px 1.25rem 4rem; }
+    .cv-builder { padding: 1.5rem 1.25rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo"><span class="nav-accent">ETL</span> &nbsp;·&nbsp; Leadership Certificate</a>
+  <a href="index.html" class="nav-back">&larr; Home</a>
+</nav>
+
+<!-- PHASE 0: PREPARING YOUR PRESENCE -->
+<div class="phase" id="phase-0">
+  <div class="section-label">MODULE 6 // PHASE 1 OF 4</div>
+  <h1 class="phase-headline">The Job Fair Is a Performance</h1>
+  <p class="phase-sub">You will have 90 seconds with a recruiter who has spoken to 200 people today. Everything about how you enter, stand, speak, and leave will be evaluated before you finish your opening sentence.</p>
+
+  <div class="two-col">
+    <div>
+      <div class="col-label">What Recruiters See First</div>
+      <p class="col-body">Posture and pace of approach. Eye contact before you reach the table. Whether you reach for a handshake or wait to be invited. How you hold your materials. What you do with your hands.</p>
+    </div>
+    <div>
+      <div class="col-label">What Most Candidates Get Wrong</div>
+      <p class="col-body">They rehearse what they will say instead of how they will arrive. They treat the job fair as a passive experience. They approach from behind other candidates and wait. They confuse a job fair with a job interview.</p>
+    </div>
+  </div>
+
+  <div class="insight-box">
+    <p>The recruiters who matter are watching the room. They notice who navigates confidently and who hesitates. Your approach is your first application.</p>
+  </div>
+
+  <div class="col-label" style="margin-bottom: 1rem;">Preparation Checklist &mdash; Complete All to Continue</div>
+  <ul class="prep-checklist" id="prep-checklist-0">
+    <li class="prep-item" onclick="togglePrep(this, 'prep-0')">
+      <span class="prep-check">○</span>
+      <span class="prep-text">I have researched at least three companies attending this fair</span>
+    </li>
+    <li class="prep-item" onclick="togglePrep(this, 'prep-0')">
+      <span class="prep-check">○</span>
+      <span class="prep-text">I know my one-sentence professional summary</span>
+    </li>
+    <li class="prep-item" onclick="togglePrep(this, 'prep-0')">
+      <span class="prep-check">○</span>
+      <span class="prep-text">My materials (CV, portfolio) are organized and accessible</span>
+    </li>
+    <li class="prep-item" onclick="togglePrep(this, 'prep-0')">
+      <span class="prep-check">○</span>
+      <span class="prep-text">I have practiced my opening approach with another person</span>
+    </li>
+    <li class="prep-item" onclick="togglePrep(this, 'prep-0')">
+      <span class="prep-check">○</span>
+      <span class="prep-text">I know which table I am approaching first and why</span>
+    </li>
+  </ul>
+
+  <div class="btn-row">
+    <button class="btn-primary btn-disabled" id="next-btn-0" onclick="showPhase(1)">NEXT: THE OPENING SEQUENCE &rarr;</button>
+  </div>
+</div>
+
+<!-- PHASE 1: THE OPENING SEQUENCE -->
+<div class="phase" id="phase-1">
+  <div class="section-label">MODULE 6 // PHASE 2 OF 4</div>
+  <h1 class="phase-headline">You Have 90 Seconds</h1>
+  <p class="phase-sub">A job fair interaction is not a conversation. It is a structured performance with a defined arc. Know the arc.</p>
+
+  <div class="beat-cards">
+    <div class="beat-card">
+      <div class="beat-num">1</div>
+      <div>
+        <div class="beat-label">The Approach</div>
+        <div class="beat-timing">0&ndash;5 seconds</div>
+        <p class="beat-body">Make eye contact at 10 feet. Smile at 6 feet. Offer your hand at 3 feet. Do not speak until you are within comfortable conversation distance.</p>
+      </div>
+    </div>
+    <div class="beat-card">
+      <div class="beat-num">2</div>
+      <div>
+        <div class="beat-label">The Hook</div>
+        <div class="beat-timing">5&ndash;20 seconds</div>
+        <p class="beat-body">&ldquo;I am [Name]. I came specifically because [specific reason tied to their work].&rdquo; The specific reason is what separates you from the 200 others.</p>
+      </div>
+    </div>
+    <div class="beat-card">
+      <div class="beat-num">3</div>
+      <div>
+        <div class="beat-label">The Bridge</div>
+        <div class="beat-timing">20&ndash;60 seconds</div>
+        <p class="beat-body">Connect your experience to their stated need. This is not your full biography. It is one relevant story, under 40 seconds.</p>
+      </div>
+    </div>
+    <div class="beat-card">
+      <div class="beat-num">4</div>
+      <div>
+        <div class="beat-label">The Ask</div>
+        <div class="beat-timing">60&ndash;90 seconds</div>
+        <p class="beat-body">&ldquo;What is the best next step from here?&rdquo; Always close with a specific ask. Never end with &ldquo;I just wanted to introduce myself.&rdquo;</p>
+      </div>
+    </div>
+  </div>
+
+  <p class="col-body" style="margin-bottom: 2rem;">Recruiters remember the candidates who gave them something to write down. Make sure there is something worth writing.</p>
+
+  <div class="btn-row">
+    <button class="btn-ghost" onclick="showPhase(0)">&larr; BACK</button>
+    <button class="btn-primary" onclick="showPhase(2)">NEXT: READING THE ROOM &rarr;</button>
+  </div>
+</div>
+
+<!-- PHASE 2: READING THE ROOM -->
+<div class="phase" id="phase-2">
+  <div class="section-label">MODULE 6 // PHASE 3 OF 4</div>
+  <h1 class="phase-headline">The Room Has Information</h1>
+  <p class="phase-sub">A skilled candidate reads recruiter signals before, during, and after the conversation.</p>
+
+  <div class="two-col">
+    <div>
+      <div class="signal-col-label">Before You Approach</div>
+      <ul class="signal-list">
+        <li><span class="signal-dot">&#x25B8;</span><span>Recruiter is leaning forward, engaged with current candidate &mdash; wait</span></li>
+        <li><span class="signal-dot">&#x25B8;</span><span>Recruiter is scanning the room &mdash; make eye contact now, approach next</span></li>
+        <li><span class="signal-dot">&#x25B8;</span><span>Recruiter has a long queue &mdash; consider returning later or adjusting your opener</span></li>
+        <li><span class="signal-dot">&#x25B8;</span><span>Two or more recruiters at the table &mdash; address the one who makes eye contact first</span></li>
+      </ul>
+    </div>
+    <div>
+      <div class="signal-col-label">During the Conversation</div>
+      <ul class="signal-list">
+        <li><span class="signal-dot">&#x25B8;</span><span>They write something down &mdash; you said something worth keeping, continue</span></li>
+        <li><span class="signal-dot">&#x25B8;</span><span>They glance at your materials &mdash; offer them; do not wait to be asked</span></li>
+        <li><span class="signal-dot">&#x25B8;</span><span>They check their watch or phone &mdash; you have 20 seconds to close</span></li>
+        <li><span class="signal-dot">&#x25B8;</span><span>They introduce you to a colleague at the table &mdash; you are being evaluated at a higher level; adjust your register</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-label">Scenario</div>
+    <p class="scenario-body">You approach a table. The recruiter smiles but immediately says &ldquo;We&rsquo;re actually looking for someone with more technical experience.&rdquo; What do you do?</p>
+    <div class="scenario-prompt">Write your response. There is no single right answer &mdash; the goal is preparation.</div>
+    <textarea class="scenario-textarea" placeholder="Write your response here&hellip;"></textarea>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn-ghost" onclick="showPhase(1)">&larr; BACK</button>
+    <button class="btn-primary" onclick="showPhase(3)">NEXT: BUILD YOUR CV &rarr;</button>
+  </div>
+</div>
+
+<!-- PHASE 3: CV BUILDER -->
+<div class="phase" id="phase-3">
+  <div class="section-label">MODULE 6 // PHASE 4 OF 4</div>
+  <h1 class="phase-headline">Build Your Job Fair CV</h1>
+  <p class="phase-sub">A job fair CV is not your full r&eacute;sum&eacute;. It is a one-page argument for a specific opportunity. Build it here.</p>
+
+  <div class="cv-builder">
+
+    <!-- PERSONAL HEADER -->
+    <div class="cv-section">
+      <div class="cv-section-title">Personal Header</div>
+      <div class="cv-field-group">
+        <div class="cv-field">
+          <label>Full Name</label>
+          <input type="text" class="cv-input" id="cv-name" placeholder="Your full name">
+        </div>
+        <div class="cv-field">
+          <label>Professional Title</label>
+          <input type="text" class="cv-input" id="cv-title" placeholder="One-line professional title">
+        </div>
+      </div>
+      <div class="cv-field-group triple">
+        <div class="cv-field">
+          <label>Email</label>
+          <input type="email" class="cv-input" id="cv-email" placeholder="email@example.com">
+        </div>
+        <div class="cv-field">
+          <label>Phone</label>
+          <input type="tel" class="cv-input" id="cv-phone" placeholder="(555) 000-0000">
+        </div>
+        <div class="cv-field">
+          <label>LinkedIn URL (Optional)</label>
+          <input type="url" class="cv-input" id="cv-linkedin" placeholder="linkedin.com/in/yourprofile">
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFESSIONAL SUMMARY -->
+    <div class="cv-section">
+      <div class="cv-section-title">Professional Summary</div>
+      <div class="cv-field-group single">
+        <div class="cv-field">
+          <label>Max 3 Sentences</label>
+          <textarea class="cv-textarea" id="cv-summary" placeholder="One sentence on who you are. One sentence on what you have done. One sentence on what you are looking for."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXPERIENCE ENTRIES -->
+    <div class="cv-section">
+      <div class="cv-section-title">Experience</div>
+      <div id="exp-entries-container"></div>
+      <button class="btn-ghost" id="add-exp-btn" onclick="addExpEntry()" style="margin-top: 0.5rem; font-size: 0.5rem;">+ ADD EXPERIENCE ENTRY</button>
+    </div>
+
+    <!-- EDUCATION -->
+    <div class="cv-section">
+      <div class="cv-section-title">Education</div>
+      <div class="cv-field-group triple">
+        <div class="cv-field">
+          <label>Degree</label>
+          <input type="text" class="cv-input" id="cv-degree" placeholder="e.g. M.S. Cybersecurity">
+        </div>
+        <div class="cv-field">
+          <label>Institution</label>
+          <input type="text" class="cv-input" id="cv-institution" placeholder="University name">
+        </div>
+        <div class="cv-field">
+          <label>Year</label>
+          <input type="text" class="cv-input" id="cv-edu-year" placeholder="e.g. 2024">
+        </div>
+      </div>
+    </div>
+
+    <!-- KEY COMPETENCIES SUMMARY -->
+    <div class="cv-section">
+      <div class="cv-section-title">Key Competencies Summary</div>
+      <p style="font-family: 'Cormorant Garamond', serif; font-size: 0.9rem; color: var(--text-dim); margin-bottom: 0.75rem; font-style: italic;">Auto-generated from all competency tags across experience entries.</p>
+      <div class="competency-summary">
+        <div class="competency-chips-display" id="competency-summary-display"></div>
+      </div>
+    </div>
+
+    <!-- TARGET ROLE -->
+    <div class="cv-section">
+      <div class="cv-section-title">Target Role</div>
+      <div class="cv-field-group single">
+        <div class="cv-field">
+          <label>The Role I Am Seeking</label>
+          <input type="text" class="cv-input" id="cv-target-role" placeholder="e.g. Senior Intelligence Analyst, Federal Agency">
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end cv-builder -->
+
+  <div class="cv-download-row">
+    <button class="btn-ghost" onclick="downloadPDF()" style="border-color: var(--gold); color: var(--gold);">DOWNLOAD AS PDF &rarr;</button>
+    <button class="btn-ghost" onclick="downloadWord()">DOWNLOAD AS WORD &rarr;</button>
+  </div>
+
+  <div class="success-screen" id="success-screen-6">
+    <div class="success-label">Module 6 Complete &mdash; Your Leadership Certificate Is Ready</div>
+    <div class="success-sub">You have completed all six modules of the ETL Leadership Certificate program.</div>
+    <a href="leadership-cert.html" class="btn-primary" style="text-decoration: none;">VIEW YOUR CERTIFICATE &rarr;</a>
+  </div>
+
+  <div class="btn-row" id="complete-row-6">
+    <button class="btn-ghost" onclick="showPhase(2)">&larr; BACK</button>
+    <button class="btn-primary" onclick="completeModule6()">MARK MODULE 6 COMPLETE &rarr;</button>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// PHASE NAVIGATION
+// ============================================================
+function showPhase(n) {
+  document.querySelectorAll('.phase').forEach(function(p) { p.style.display = 'none'; });
+  var el = document.getElementById('phase-' + n);
+  if (el) { el.style.display = 'block'; window.scrollTo(0, 0); }
+}
+
+// ============================================================
+// PREP CHECKLIST
+// ============================================================
+function togglePrep(item, listId) {
+  item.classList.toggle('checked');
+  var check = item.querySelector('.prep-check');
+  check.textContent = item.classList.contains('checked') ? '✓' : '○';
+  updatePrepNextBtn();
+}
+
+function updatePrepNextBtn() {
+  var items = document.querySelectorAll('#prep-checklist-0 .prep-item');
+  var allChecked = true;
+  items.forEach(function(item) {
+    if (!item.classList.contains('checked')) allChecked = false;
+  });
+  var btn = document.getElementById('next-btn-0');
+  if (allChecked) {
+    btn.classList.remove('btn-disabled');
+  } else {
+    btn.classList.add('btn-disabled');
+  }
+}
+
+// ============================================================
+// EXPERIENCE ENTRIES
+// ============================================================
+var expCount = 0;
+
+function addExpEntry() {
+  if (expCount >= 3) return;
+  expCount++;
+  var idx = expCount;
+  var container = document.getElementById('exp-entries-container');
+  var div = document.createElement('div');
+  div.className = 'exp-entry';
+  div.id = 'exp-entry-' + idx;
+  div.innerHTML = '<div class="exp-entry-header">EXPERIENCE ENTRY ' + idx + '</div>' +
+    '<div class="cv-field-group"><div class="cv-field"><label>Role / Title</label><input type="text" class="cv-input" id="exp-role-' + idx + '" placeholder="Job title or role"></div>' +
+    '<div class="cv-field"><label>Organization</label><input type="text" class="cv-input" id="exp-org-' + idx + '" placeholder="Organization name"></div></div>' +
+    '<div class="cv-field-group single"><div class="cv-field"><label>Dates</label><input type="text" class="cv-input" id="exp-dates-' + idx + '" placeholder="e.g. 2021 &ndash; Present"></div></div>' +
+    '<div class="cv-field-group single"><div class="cv-field"><label>Achievement Bullet 1 (start with action verb)</label><textarea class="cv-textarea" id="exp-ach1-' + idx + '" placeholder="Led development of..." style="min-height: 60px;"></textarea></div></div>' +
+    '<div class="cv-field-group single"><div class="cv-field"><label>Achievement Bullet 2</label><textarea class="cv-textarea" id="exp-ach2-' + idx + '" placeholder="Developed, managed, or achieved..." style="min-height: 60px;"></textarea></div></div>' +
+    '<div class="tag-input-wrap"><div class="tag-input-label">Competency Tags (press Enter or comma to add)</div><div class="tag-chips" id="comp-chips-' + idx + '"></div><input type="text" class="tag-input-field" id="comp-input-' + idx + '" placeholder="Add competency tag..." onkeydown="handleTagInput(event, \'comp\', ' + idx + ')"></div>' +
+    '<div class="tag-input-wrap"><div class="tag-input-label">Equipment / Tools Tags (press Enter or comma to add)</div><div class="tag-chips" id="equip-chips-' + idx + '"></div><input type="text" class="tag-input-field" id="equip-input-' + idx + '" placeholder="Add tool or equipment..." onkeydown="handleTagInput(event, \'equip\', ' + idx + ')"></div>';
+  container.appendChild(div);
+  if (expCount >= 3) {
+    document.getElementById('add-exp-btn').style.display = 'none';
+  }
+}
+
+function handleTagInput(e, type, idx) {
+  if (e.key === 'Enter' || e.key === ',') {
+    e.preventDefault();
+    var input = document.getElementById(type + '-input-' + idx);
+    var val = input.value.replace(/,/g, '').trim();
+    if (val) {
+      addTag(type, idx, val);
+      input.value = '';
+    }
+  }
+}
+
+function addTag(type, idx, val) {
+  var container = document.getElementById(type + '-chips-' + idx);
+  var chip = document.createElement('span');
+  chip.className = 'tag-chip';
+  chip.textContent = val;
+  chip.onclick = function() {
+    container.removeChild(chip);
+    if (type === 'comp') updateCompetencySummary();
+  };
+  container.appendChild(chip);
+  if (type === 'comp') updateCompetencySummary();
+}
+
+function updateCompetencySummary() {
+  var display = document.getElementById('competency-summary-display');
+  display.innerHTML = '';
+  for (var i = 1; i <= 3; i++) {
+    var chips = document.querySelectorAll('#comp-chips-' + i + ' .tag-chip');
+    chips.forEach(function(chip) {
+      var span = document.createElement('span');
+      span.className = 'competency-chip-display';
+      span.textContent = chip.textContent;
+      display.appendChild(span);
+    });
+  }
+}
+
+// ============================================================
+// CV BUILD HTML
+// ============================================================
+function buildCVHTML() {
+  var name = document.getElementById('cv-name').value || 'Your Name';
+  var title = document.getElementById('cv-title').value || '';
+  var email = document.getElementById('cv-email').value || '';
+  var phone = document.getElementById('cv-phone').value || '';
+  var linkedin = document.getElementById('cv-linkedin').value || '';
+  var summary = document.getElementById('cv-summary').value || '';
+  var degree = document.getElementById('cv-degree').value || '';
+  var institution = document.getElementById('cv-institution').value || '';
+  var eduYear = document.getElementById('cv-edu-year').value || '';
+  var targetRole = document.getElementById('cv-target-role').value || '';
+
+  var expHTML = '';
+  for (var i = 1; i <= expCount; i++) {
+    var role = (document.getElementById('exp-role-' + i) || {}).value || '';
+    var org = (document.getElementById('exp-org-' + i) || {}).value || '';
+    var dates = (document.getElementById('exp-dates-' + i) || {}).value || '';
+    var ach1 = (document.getElementById('exp-ach1-' + i) || {}).value || '';
+    var ach2 = (document.getElementById('exp-ach2-' + i) || {}).value || '';
+    var compChips = document.querySelectorAll('#comp-chips-' + i + ' .tag-chip');
+    var equipChips = document.querySelectorAll('#equip-chips-' + i + ' .tag-chip');
+    var comps = Array.from(compChips).map(function(c) { return c.textContent; }).join(', ');
+    var equips = Array.from(equipChips).map(function(c) { return c.textContent; }).join(', ');
+    expHTML += '<div style="margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid #ccc;">' +
+      '<div style="display:flex;justify-content:space-between;align-items:baseline;">' +
+      '<strong style="font-size:13px;">' + escHTML(role) + '</strong>' +
+      '<span style="font-size:11px;color:#555;">' + escHTML(dates) + '</span></div>' +
+      '<div style="font-size:12px;color:#555;margin-bottom:6px;">' + escHTML(org) + '</div>' +
+      (ach1 ? '<div style="font-size:12px;margin-bottom:4px;">&bull; ' + escHTML(ach1) + '</div>' : '') +
+      (ach2 ? '<div style="font-size:12px;margin-bottom:4px;">&bull; ' + escHTML(ach2) + '</div>' : '') +
+      (comps ? '<div style="font-size:11px;color:#777;margin-top:4px;"><em>Competencies:</em> ' + escHTML(comps) + '</div>' : '') +
+      (equips ? '<div style="font-size:11px;color:#777;"><em>Tools:</em> ' + escHTML(equips) + '</div>' : '') +
+      '</div>';
+  }
+
+  var allComps = [];
+  for (var j = 1; j <= 3; j++) {
+    var chips = document.querySelectorAll('#comp-chips-' + j + ' .tag-chip');
+    chips.forEach(function(c) { allComps.push(c.textContent); });
+  }
+  var compsStr = allComps.join(' &nbsp;&middot;&nbsp; ');
+
+  return '<!DOCTYPE html><html><head><meta charset="UTF-8">' +
+    '<style>body{font-family:Georgia,serif;max-width:750px;margin:40px auto;padding:0 30px;color:#222;}' +
+    'h1{font-size:22px;margin-bottom:2px;} .title-line{font-size:14px;color:#555;margin-bottom:10px;}' +
+    '.contact-line{font-size:12px;color:#555;margin-bottom:18px;border-bottom:2px solid #222;padding-bottom:12px;}' +
+    'h2{font-size:12px;text-transform:uppercase;letter-spacing:0.12em;border-bottom:1px solid #ccc;padding-bottom:4px;margin-top:20px;margin-bottom:10px;}' +
+    'p{font-size:12px;line-height:1.6;margin-bottom:12px;}' +
+    '.target{font-size:12px;background:#f5f5f5;padding:8px 12px;border-left:3px solid #b8922a;margin-top:18px;}' +
+    '@media print{body{margin:20px;padding:0;}}' +
+    '</style></head><body>' +
+    '<h1>' + escHTML(name) + '</h1>' +
+    (title ? '<div class="title-line">' + escHTML(title) + '</div>' : '') +
+    '<div class="contact-line">' + escHTML(email) + (phone ? ' &nbsp;&middot;&nbsp; ' + escHTML(phone) : '') + (linkedin ? ' &nbsp;&middot;&nbsp; ' + escHTML(linkedin) : '') + '</div>' +
+    (summary ? '<h2>Professional Summary</h2><p>' + escHTML(summary).replace(/\n/g, '<br>') + '</p>' : '') +
+    (expHTML ? '<h2>Experience</h2>' + expHTML : '') +
+    ((degree || institution) ? '<h2>Education</h2><div style="font-size:12px;"><strong>' + escHTML(degree) + '</strong>' + (institution ? ' &mdash; ' + escHTML(institution) : '') + (eduYear ? ', ' + escHTML(eduYear) : '') + '</div>' : '') +
+    (compsStr ? '<h2>Key Competencies</h2><p>' + compsStr + '</p>' : '') +
+    (targetRole ? '<div class="target"><strong>Target Role:</strong> ' + escHTML(targetRole) + '</div>' : '') +
+    '</body></html>';
+}
+
+function escHTML(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ============================================================
+// DOWNLOAD
+// ============================================================
+function downloadPDF() {
+  var cvHTML = buildCVHTML();
+  var w = window.open('', '_blank');
+  w.document.write(cvHTML);
+  w.document.close();
+  w.focus();
+  setTimeout(function() { w.print(); }, 500);
+}
+
+function downloadWord() {
+  var cvHTML = buildCVHTML();
+  var blob = new Blob([cvHTML], {type: 'application/msword'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'job-fair-cv.doc';
+  a.click();
+}
+
+// ============================================================
+// COMPLETE MODULE 6
+// ============================================================
+function completeModule6() {
+  localStorage.setItem('etl_jobfair_done', 'true');
+  document.getElementById('complete-row-6').style.display = 'none';
+  document.getElementById('success-screen-6').classList.add('visible');
+  window.scrollTo(0, 0);
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  showPhase(0);
+  addExpEntry(); // Start with one experience entry
+});
+</script>
+</body>
+</html>

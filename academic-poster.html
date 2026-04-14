@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Academic Poster Presentation | ETL Leadership Certificate Module 5</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-ink: #13100c;
+    --bg-ink-soft: #1a1612;
+    --bg-card: #1e1a14;
+    --gold: #b8922a;
+    --gold-light: #d4aa4a;
+    --gold-rule: rgba(184,146,42,0.3);
+    --gold-glow: rgba(184,146,42,0.06);
+    --text-cream: #f4ede0;
+    --text-body: #e8dece;
+    --text-dim: #9a8e7e;
+    --teal: #4A9B8E;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; overflow-y: auto; }
+
+  body {
+    background: var(--bg-ink);
+    color: var(--text-body);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px;
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.1rem 2.5rem;
+    background: rgba(19,16,12,0.94);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--gold-rule);
+  }
+  .nav-logo {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-cream);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-logo .nav-accent { color: var(--gold); }
+  .nav-logo:hover { color: var(--gold-light); }
+  .nav-back {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    text-decoration: none;
+    border: 1px solid var(--gold-rule);
+    padding: 0.4rem 0.9rem;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .nav-back:hover { color: var(--gold); border-color: var(--gold); }
+
+  /* PHASES */
+  .phase {
+    display: none;
+    min-height: 100vh;
+    padding: 120px 2.5rem 6rem;
+    max-width: 1040px;
+    margin: 0 auto;
+  }
+
+  /* TYPOGRAPHY */
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1.75rem;
+  }
+  .phase-headline {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: 700;
+    color: var(--text-cream);
+    line-height: 1.2;
+    margin-bottom: 0.75rem;
+  }
+  .phase-sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.05rem;
+    color: var(--text-dim);
+    line-height: 1.7;
+    margin-bottom: 2.5rem;
+  }
+  .col-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1rem;
+  }
+  .col-body {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.05rem;
+    font-weight: 300;
+    color: var(--text-body);
+    line-height: 1.9;
+  }
+  .gold-divider {
+    width: 60px;
+    height: 1px;
+    background: var(--gold);
+    margin-bottom: 3rem;
+  }
+
+  /* BUTTONS */
+  .btn-primary, .btn-ghost {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 0.8rem 1.75rem;
+    cursor: pointer;
+    display: inline-block;
+    transition: all 0.2s;
+    border: 1px solid var(--gold);
+    background: none;
+  }
+  .btn-primary {
+    background: var(--gold);
+    color: var(--bg-ink);
+  }
+  .btn-primary:hover {
+    background: var(--gold-light);
+    border-color: var(--gold-light);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-dim);
+    border-color: var(--gold-rule);
+  }
+  .btn-ghost:hover { color: var(--gold); border-color: var(--gold); }
+  .btn-disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+  .btn-row {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 2rem;
+  }
+
+  /* TWO COLUMN */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    margin-bottom: 3rem;
+  }
+
+  /* INSIGHT BOX */
+  .insight-box {
+    background: var(--bg-card);
+    border-left: 3px solid var(--gold);
+    padding: 1.75rem 2rem;
+    margin-bottom: 2.5rem;
+  }
+  .insight-box p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.05rem;
+    font-style: italic;
+    color: var(--text-body);
+    line-height: 1.85;
+  }
+
+  /* CARDS GRID */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+  }
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--gold-rule);
+    padding: 1.5rem 1.25rem;
+  }
+  .card-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.52rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.75rem;
+  }
+  .card-body {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.95rem;
+    color: var(--text-body);
+    line-height: 1.75;
+  }
+
+  /* VISITOR TYPES */
+  .visitor-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+  }
+  .visitor-card {
+    background: var(--bg-card);
+    border: 1px solid var(--gold-rule);
+    padding: 1.75rem 1.5rem;
+    border-top: 3px solid;
+  }
+  .visitor-card--teal { border-top-color: var(--teal); }
+  .visitor-card--gold { border-top-color: var(--gold); }
+  .visitor-card--dim { border-top-color: var(--text-dim); }
+  .visitor-card-type {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.52rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+  }
+  .visitor-card--teal .visitor-card-type { color: var(--teal); }
+  .visitor-card--gold .visitor-card-type { color: var(--gold); }
+  .visitor-card--dim .visitor-card-type { color: var(--text-dim); }
+  .visitor-card-signal {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.92rem;
+    font-style: italic;
+    color: var(--text-dim);
+    margin-bottom: 0.75rem;
+    line-height: 1.5;
+  }
+  .visitor-card-body {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.95rem;
+    color: var(--text-body);
+    line-height: 1.75;
+  }
+
+  /* PRACTICE PROMPT */
+  .practice-prompt {
+    border: 1px solid var(--gold-rule);
+    background: var(--bg-card);
+    padding: 1.75rem 2rem;
+    margin-bottom: 2rem;
+  }
+  .practice-prompt-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.52rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1rem;
+  }
+  .practice-prompt p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+    color: var(--text-body);
+    line-height: 1.8;
+    margin-bottom: 1.25rem;
+  }
+  .practice-textarea {
+    width: 100%;
+    min-height: 100px;
+    background: var(--bg-ink-soft);
+    border: 1px solid var(--gold-rule);
+    color: var(--text-cream);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.05rem;
+    line-height: 1.8;
+    padding: 1rem 1.25rem;
+    outline: none;
+    resize: vertical;
+    transition: border-color 0.2s;
+  }
+  .practice-textarea:focus { border-color: var(--gold); }
+  .practice-textarea::placeholder { color: var(--text-dim); font-style: italic; }
+
+  /* EXIT SIGNALS CHECKLIST */
+  .signals-instruction {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.52rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1.25rem;
+  }
+  .signals-list {
+    list-style: none;
+    margin-bottom: 2rem;
+  }
+  .signal-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.9rem 1.25rem;
+    border: 1px solid var(--gold-rule);
+    background: var(--bg-card);
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+    user-select: none;
+  }
+  .signal-item:hover { border-color: var(--gold); background: var(--gold-glow); }
+  .signal-item.learned { border-color: var(--gold); background: var(--gold-glow); }
+  .signal-check {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    flex-shrink: 0;
+    width: 1.2em;
+    transition: color 0.2s;
+  }
+  .signal-item.learned .signal-check { color: var(--gold); }
+  .signal-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+    color: var(--text-body);
+    line-height: 1.5;
+  }
+
+  /* CLOSE FRAMEWORK */
+  .close-steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+    margin-bottom: 2.5rem;
+  }
+  .close-step {
+    background: var(--bg-card);
+    border: 1px solid var(--gold-rule);
+    padding: 1.75rem 1.5rem;
+  }
+  .close-step-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 2rem;
+    font-weight: 300;
+    color: var(--gold-rule);
+    line-height: 1;
+    margin-bottom: 0.75rem;
+  }
+  .close-step-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.52rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.75rem;
+  }
+  .close-step-body {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.95rem;
+    color: var(--text-body);
+    line-height: 1.75;
+  }
+
+  /* SELF-ASSESSMENT */
+  .assessment-section {
+    border: 1px solid var(--gold-rule);
+    background: var(--bg-card);
+    padding: 2rem 2.25rem;
+    margin-bottom: 2rem;
+  }
+  .assessment-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1.5rem;
+  }
+  .assessment-list {
+    list-style: none;
+  }
+  .assessment-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--gold-rule);
+    cursor: pointer;
+    transition: color 0.15s;
+    user-select: none;
+  }
+  .assessment-item:last-child { border-bottom: none; }
+  .assessment-check {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    flex-shrink: 0;
+    width: 1.2em;
+    transition: color 0.2s;
+  }
+  .assessment-item.checked .assessment-check { color: var(--gold); }
+  .assessment-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+    color: var(--text-body);
+    line-height: 1.5;
+  }
+  .assessment-item.checked .assessment-text { color: var(--text-cream); }
+
+  /* SUCCESS SCREEN */
+  .success-screen {
+    display: none;
+    text-align: center;
+    padding: 3rem 2rem;
+    border: 1px solid var(--gold);
+    background: var(--gold-glow);
+    margin-top: 2rem;
+  }
+  .success-screen.visible { display: block; }
+  .success-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 1rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1rem;
+  }
+  .success-sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.1rem;
+    color: var(--text-dim);
+    margin-bottom: 2rem;
+  }
+
+  @media (max-width: 720px) {
+    .two-col, .cards-grid, .visitor-cards, .close-steps { grid-template-columns: 1fr; }
+    nav { padding: 1rem 1.25rem; }
+    .phase { padding: 100px 1.25rem 4rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo"><span class="nav-accent">ETL</span> &nbsp;·&nbsp; Leadership Certificate</a>
+  <a href="index.html" class="nav-back">&larr; Home</a>
+</nav>
+
+<!-- PHASE 0: WHAT IS A POSTER SESSION -->
+<div class="phase" id="phase-0">
+  <div class="section-label">MODULE 5 // PHASE 1 OF 5</div>
+  <h1 class="phase-headline">The Poster Is Not the Presentation</h1>
+  <p class="phase-sub">Most presenters stand next to their poster and read it aloud. That is the single biggest mistake you can make at an academic conference.</p>
+
+  <div class="two-col">
+    <div>
+      <div class="col-label">What a Poster Session Is</div>
+      <p class="col-body">A poster session is a live research conversation. You have 3&ndash;5 minutes per visitor, often repeated 10&ndash;20 times in a single hour. The poster is your backdrop &mdash; not your script. Your job is to guide, engage, and convert.</p>
+    </div>
+    <div>
+      <div class="col-label">What Most People Get Wrong</div>
+      <p class="col-body">They over-design the poster and under-prepare the talk. They wait for visitors to approach rather than opening conversation. They deliver a monologue instead of a dialogue. They miss exit signals and hold people too long.</p>
+    </div>
+  </div>
+
+  <div class="gold-divider"></div>
+
+  <div class="insight-box">
+    <p>Dr. Oroszi has evaluated hundreds of poster sessions at national conferences. The presenters who succeed share one trait: they treat every visitor interaction as a structured conversation with a beginning, middle, and end.</p>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn-primary" onclick="showPhase(1)">NEXT: THE OPENING PROTOCOL &rarr;</button>
+  </div>
+</div>
+
+<!-- PHASE 1: THE OPENING PROTOCOL -->
+<div class="phase" id="phase-1">
+  <div class="section-label">MODULE 5 // PHASE 2 OF 5</div>
+  <h1 class="phase-headline">Your First 15 Seconds</h1>
+  <p class="phase-sub">Before a visitor can read a single word on your poster, you have already made an impression. Make it count.</p>
+
+  <div class="cards-grid">
+    <div class="card">
+      <div class="card-label">The Question Hook</div>
+      <p class="card-body">&ldquo;What would you do if you had 30 seconds with a federal program officer?&rdquo; Open with a genuine research question, not a greeting.</p>
+    </div>
+    <div class="card">
+      <div class="card-label">The Challenge Frame</div>
+      <p class="card-body">&ldquo;Most people assume the solution to X is Y. Our data suggests otherwise.&rdquo; Creates immediate intellectual tension.</p>
+    </div>
+    <div class="card">
+      <div class="card-label">The Result Lead</div>
+      <p class="card-body">&ldquo;We found something unexpected.&rdquo; Start with your most surprising finding. Let curiosity do the work.</p>
+    </div>
+  </div>
+
+  <p class="col-body" style="margin-bottom: 2rem;">The opening must do three things simultaneously: establish your credibility, surface a question the visitor already has, and create a reason to stay for the full explanation.</p>
+
+  <div class="practice-prompt">
+    <div class="practice-prompt-label">Practice Prompt</div>
+    <p>Write your opening line below. It should be one sentence, under 20 words, and end with either a question mark or an implied invitation to respond.</p>
+    <textarea class="practice-textarea" placeholder="Write your opening line here&hellip;"></textarea>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn-ghost" onclick="showPhase(0)">&larr; BACK</button>
+    <button class="btn-primary" onclick="showPhase(2)">NEXT: THREE VISITOR TYPES &rarr;</button>
+  </div>
+</div>
+
+<!-- PHASE 2: THREE VISITOR TYPES -->
+<div class="phase" id="phase-2">
+  <div class="section-label">MODULE 5 // PHASE 3 OF 5</div>
+  <h1 class="phase-headline">Read Your Audience Before You Speak</h1>
+  <p class="phase-sub">Not every person who stops at your poster wants the same thing. Identifying visitor type in the first 10 seconds changes your entire approach.</p>
+
+  <div class="visitor-cards">
+    <div class="visitor-card visitor-card--teal">
+      <div class="visitor-card-type">The Explorer</div>
+      <div class="visitor-card-signal">Scans broadly, makes eye contact, leans in slightly.</div>
+      <div class="visitor-card-body">They are genuinely curious. Give them the full narrative. Invite questions. This is your best-case visitor.</div>
+    </div>
+    <div class="visitor-card visitor-card--gold">
+      <div class="visitor-card-type">The Evaluator</div>
+      <div class="visitor-card-signal">Reads the methodology section first. Checks your sample size. Crosses arms.</div>
+      <div class="visitor-card-body">They are assessing rigor. Lead with your design decisions, not your conclusions.</div>
+    </div>
+    <div class="visitor-card visitor-card--dim">
+      <div class="visitor-card-type">The Obligated Passer</div>
+      <div class="visitor-card-signal">Walking by because they feel they should stop. Limited eye contact. Turned slightly toward the exit.</div>
+      <div class="visitor-card-body">Give them one compelling sentence and a business card. Do not perform the full presentation.</div>
+    </div>
+  </div>
+
+  <p class="col-body" style="margin-bottom: 2rem;">"The mistake is treating every visitor like an Explorer. You will exhaust yourself and lose the Evaluators who needed a different entry point."</p>
+
+  <div class="btn-row">
+    <button class="btn-ghost" onclick="showPhase(1)">&larr; BACK</button>
+    <button class="btn-primary" onclick="showPhase(3)">NEXT: EXIT SIGNALS &rarr;</button>
+  </div>
+</div>
+
+<!-- PHASE 3: READING EXIT SIGNALS -->
+<div class="phase" id="phase-3">
+  <div class="section-label">MODULE 5 // PHASE 4 OF 5</div>
+  <h1 class="phase-headline">Know When to Close</h1>
+  <p class="phase-sub">Overstaying your welcome at your own poster is more common than you think. The visitor who got away was the one you held too long.</p>
+
+  <div class="signals-instruction">Click Each Signal As You Learn It</div>
+
+  <ul class="signals-list" id="signals-list">
+    <li class="signal-item" onclick="toggleSignal(this)">
+      <span class="signal-check">○</span>
+      <span class="signal-text">Weight shift toward the aisle</span>
+    </li>
+    <li class="signal-item" onclick="toggleSignal(this)">
+      <span class="signal-check">○</span>
+      <span class="signal-text">Eyes scanning the room past your shoulder</span>
+    </li>
+    <li class="signal-item" onclick="toggleSignal(this)">
+      <span class="signal-check">○</span>
+      <span class="signal-text">Polite nod without verbal engagement</span>
+    </li>
+    <li class="signal-item" onclick="toggleSignal(this)">
+      <span class="signal-check">○</span>
+      <span class="signal-text">Checking phone or watch</span>
+    </li>
+    <li class="signal-item" onclick="toggleSignal(this)">
+      <span class="signal-check">○</span>
+      <span class="signal-text">&ldquo;That&rsquo;s really interesting&rdquo; with no follow-up question</span>
+    </li>
+    <li class="signal-item" onclick="toggleSignal(this)">
+      <span class="signal-check">○</span>
+      <span class="signal-text">Backing up more than one step</span>
+    </li>
+    <li class="signal-item" onclick="toggleSignal(this)">
+      <span class="signal-check">○</span>
+      <span class="signal-text">Breaking eye contact for more than 3 seconds</span>
+    </li>
+  </ul>
+
+  <p class="col-body" style="margin-bottom: 2rem;">When you see two or more of these signals simultaneously, it is time to close. A graceful close preserves the relationship: &ldquo;Here is my card &mdash; I would love to continue this conversation if you have questions later.&rdquo;</p>
+
+  <div class="btn-row">
+    <button class="btn-ghost" onclick="showPhase(2)">&larr; BACK</button>
+    <button class="btn-primary" onclick="showPhase(4)">NEXT: CLOSE &amp; COMPLETE &rarr;</button>
+  </div>
+</div>
+
+<!-- PHASE 4: CLOSE & COMPLETE -->
+<div class="phase" id="phase-4">
+  <div class="section-label">MODULE 5 // PHASE 5 OF 5</div>
+  <h1 class="phase-headline">The Structured Close</h1>
+  <p class="phase-sub">How you end the conversation determines whether the visitor remembers you or your poster.</p>
+
+  <div class="close-steps">
+    <div class="close-step">
+      <div class="close-step-num">01</div>
+      <div class="close-step-label">Summary Sentence</div>
+      <p class="close-step-body">Restate your key finding in one sentence. &ldquo;So the core finding is X.&rdquo;</p>
+    </div>
+    <div class="close-step">
+      <div class="close-step-num">02</div>
+      <div class="close-step-label">Invitation</div>
+      <p class="close-step-body">&ldquo;If you&rsquo;re working on something related, I&rsquo;d love to hear your perspective.&rdquo; Never just hand a card; create a reason for follow-up.</p>
+    </div>
+    <div class="close-step">
+      <div class="close-step-num">03</div>
+      <div class="close-step-label">Release</div>
+      <p class="close-step-body">Step back. Physically signal that the conversation is complete. Do not wait for them to leave first.</p>
+    </div>
+  </div>
+
+  <div class="assessment-section" id="assessment-section">
+    <div class="assessment-label">Before You Go</div>
+    <ul class="assessment-list" id="assessment-list">
+      <li class="assessment-item" onclick="toggleAssessment(this)">
+        <span class="assessment-check">○</span>
+        <span class="assessment-text">I have written an opening line under 20 words</span>
+      </li>
+      <li class="assessment-item" onclick="toggleAssessment(this)">
+        <span class="assessment-check">○</span>
+        <span class="assessment-text">I can identify all three visitor types within 10 seconds</span>
+      </li>
+      <li class="assessment-item" onclick="toggleAssessment(this)">
+        <span class="assessment-check">○</span>
+        <span class="assessment-text">I know at least four exit signals by name</span>
+      </li>
+      <li class="assessment-item" onclick="toggleAssessment(this)">
+        <span class="assessment-check">○</span>
+        <span class="assessment-text">I have a practiced close that takes under 30 seconds</span>
+      </li>
+      <li class="assessment-item" onclick="toggleAssessment(this)">
+        <span class="assessment-check">○</span>
+        <span class="assessment-text">My poster is a backdrop, not a script</span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="success-screen" id="success-screen">
+    <div class="success-label">Module 5 Complete</div>
+    <div class="success-sub">You have mastered the academic poster presentation framework.</div>
+    <a href="index.html" class="btn-primary" style="text-decoration:none;">BACK TO HOME &rarr;</a>
+  </div>
+
+  <div class="btn-row" id="complete-btn-row">
+    <button class="btn-ghost" onclick="showPhase(3)">&larr; BACK</button>
+    <button class="btn-primary btn-disabled" id="complete-btn" onclick="completeModule()">MARK MODULE 5 COMPLETE &rarr;</button>
+  </div>
+</div>
+
+<script>
+function showPhase(n) {
+  document.querySelectorAll('.phase').forEach(function(p) { p.style.display = 'none'; });
+  var el = document.getElementById('phase-' + n);
+  if (el) { el.style.display = 'block'; window.scrollTo(0, 0); }
+}
+
+function toggleSignal(item) {
+  item.classList.toggle('learned');
+  var check = item.querySelector('.signal-check');
+  check.textContent = item.classList.contains('learned') ? '✓' : '○';
+}
+
+function toggleAssessment(item) {
+  item.classList.toggle('checked');
+  var check = item.querySelector('.assessment-check');
+  check.textContent = item.classList.contains('checked') ? '✓' : '○';
+  updateCompleteButton();
+}
+
+function updateCompleteButton() {
+  var items = document.querySelectorAll('#assessment-list .assessment-item');
+  var allChecked = true;
+  items.forEach(function(item) {
+    if (!item.classList.contains('checked')) allChecked = false;
+  });
+  var btn = document.getElementById('complete-btn');
+  if (allChecked) {
+    btn.classList.remove('btn-disabled');
+  } else {
+    btn.classList.add('btn-disabled');
+  }
+}
+
+function completeModule() {
+  localStorage.setItem('etl_poster_done', 'true');
+  document.getElementById('assessment-section').style.display = 'none';
+  document.getElementById('complete-btn-row').style.display = 'none';
+  document.getElementById('success-screen').classList.add('visible');
+  window.scrollTo(0, 0);
+}
+
+window.addEventListener('DOMContentLoaded', function() { showPhase(0); });
+</script>
+</body>
+</html>
