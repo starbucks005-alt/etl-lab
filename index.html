@@ -357,6 +357,11 @@
 
   .directive-card:hover { background: var(--light); }
 
+  /* Gold accent at the top of every row after the first */
+  .directives-grid .directive-card:nth-child(n+4) {
+    border-top: 3px solid #b8922a;
+  }
+
   .directive-num {
     font-family: 'Oswald', sans-serif;
     font-size: 10px; letter-spacing: 2px;
@@ -1284,6 +1289,7 @@
         <div class="directive-title">Nonverbal Intelligence &amp; Behavioral Analysis</div>
         <p class="directive-body">Technology-augmented behavioral threat assessment. Bridging psychology, AI pattern recognition, and law enforcement tradecraft for real-world threat identification and de-escalation.</p>
         <span class="directive-tag">FBI WMD · InfraGard</span>
+        <a href="body-language-cert.html" style="display:inline-block; margin-top:16px; font-family:'Oswald',sans-serif; font-size:11px; font-weight:600; letter-spacing:2px; text-transform:uppercase; padding:8px 20px; background:var(--black); color:#fff; text-decoration:none;">Body Language Certification →</a>
       </div>
 
       <div class="directive-card">
