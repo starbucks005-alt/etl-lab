@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elevator Speech | ETL Leadership Certificate Module 1</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-ink: #13100c;
+    --bg-ink-soft: #1a1612;
+    --bg-card: #1e1a14;
+    --gold: #b8922a;
+    --gold-light: #d4aa4a;
+    --gold-rule: rgba(184,146,42,0.3);
+    --gold-glow: rgba(184,146,42,0.06);
+    --text-cream: #f4ede0;
+    --text-body: #e8dece;
+    --text-dim: #9a8e7e;
+    --teal: #4A9B8E;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; overflow-y: auto; }
+
+  body {
+    background: var(--bg-ink);
+    color: var(--text-body);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px;
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ============================================================
+     NAV
+  ============================================================ */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.1rem 2.5rem;
+    background: rgba(19,16,12,0.94);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--gold-rule);
+  }
+  .nav-logo {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-cream);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-logo .nav-accent { color: var(--gold); }
+  .nav-logo:hover { color: var(--gold-light); }
+  .nav-back {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    text-decoration: none;
+    border: 1px solid var(--gold-rule);
+    padding: 0.4rem 0.9rem;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .nav-back:hover {
+    color: var(--gold);
+    border-color: var(--gold);
+  }
+
+  /* ============================================================
+     PHASES
+  ============================================================ */
+  .phase {
+    display: none;
+    min-height: 100vh;
+    padding: 120px 2.5rem 6rem;
+    max-width: 1040px;
+    margin: 0 auto;
+  }
+  .phase.active { display: block; }
+
+  /* ============================================================
+     SHARED TYPOGRAPHY
+  ============================================================ */
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1.75rem;
+  }
+
+  .phase-headline {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: 700;
+    color: var(--text-cream);
+    line-height: 1.2;
+    margin-bottom: 0.75rem;
+  }
+
+  .phase-sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.05rem;
+    color: var(--text-dim);
+    line-height: 1.7;
+    margin-bottom: 2.5rem;
+  }
+
+  .col-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1rem;
+  }
+
+  .col-body {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.05rem;
+    font-weight: 300;
+    color: var(--text-body);
+    line-height: 1.9;
+  }
+
+  .gold-divider {
+    width: 60px;
+    height: 1px;
+    background: var(--gold);
+    margin-bottom: 3rem;
+  }
+
+  /* ============================================================
+     BUTTONS
+  ============================================================ */
+  .btn-primary, .btn-ghost {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 0.8rem 1.75rem;
+    cursor: pointer;
+    display: inline-block;
+    transition: all 0.2s;
+    border: 1px solid var(--gold);
+    background: none;
+  }
+  .btn-primary {
+    background: var(--gold);
+    color: var(--bg-ink);
+  }
+  .btn-primary:hover {
+    background: var(--gold-light);
+    border-color: var(--gold-light);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-dim);
+    border-color: var(--gold-rule);
+  }
+  .btn-ghost:hover {
+    color: var(--gold);
+    border-color: var(--gold);
+  }
+  .btn-disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+  .btn-center { text-align: center; margin-top: 1.5rem; }
+  .btn-row {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  /* ============================================================
+     RETAKE BANNER
+  ============================================================ */
+  .retake-banner {
+    display: none;
+    background: rgba(184,146,42,0.07);
+    border: 1px solid var(--gold-rule);
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 2rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.52rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .retake-banner.visible { display: block; }
+
+  /* ============================================================
+     PHASE 0 -- WHAT & WHY
+  ============================================================ */
+  .hero-headline {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3rem, 8vw, 6rem);
+    font-weight: 900;
+    color: var(--text-cream);
+    line-height: 1.0;
+    margin-bottom: 1.5rem;
+  }
+  .hero-headline em {
+    color: var(--gold);
+    font-style: italic;
+  }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    margin-bottom: 3rem;
+  }
+
+  .rules-card {
+    border: 1px solid var(--gold-rule);
+    background: var(--bg-card);
+    padding: 2rem 2.25rem;
+    margin-bottom: 2.5rem;
+  }
+  .rules-list {
+    list-style: none;
+    margin-top: 1.5rem;
+  }
+  .rules-list li {
+    display: flex;
+    gap: 1.25rem;
+    align-items: flex-start;
+    margin-bottom: 1.1rem;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.05rem;
+    color: var(--text-cream);
+    line-height: 1.6;
+  }
+  .rules-list li:last-child { margin-bottom: 0; }
+  .rule-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.58rem;
+    color: var(--gold);
+    letter-spacing: 0.1em;
+    flex-shrink: 0;
+    padding-top: 0.2em;
+  }
+
+  /* ============================================================
+     PHASE 1 -- CONTEXT
+  ============================================================ */
+  .context-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.9rem;
+    margin-bottom: 1.5rem;
+  }
+  .context-card {
+    border: 1px solid var(--gold-rule);
+    background: var(--bg-card);
+    padding: 1.25rem 1rem 1rem;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    position: relative;
+    user-select: none;
+  }
+  .context-card:hover {
+    border-color: var(--gold);
+    background: var(--gold-glow);
+  }
+  .context-card.selected {
+    border-color: var(--gold);
+    background: var(--gold-glow);
+  }
+  .context-check {
+    display: none;
+    position: absolute;
+    top: 0.7rem;
+    right: 0.8rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--gold);
+  }
+  .context-card.selected .context-check { display: block; }
+  .context-emoji {
+    font-size: 1.4rem;
+    display: block;
+    margin-bottom: 0.6rem;
+  }
+  .context-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-cream);
+    margin-bottom: 0.4rem;
+  }
+  .context-desc {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.88rem;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+  .custom-input-wrap {
+    display: none;
+    margin-bottom: 1.25rem;
+  }
+  .custom-input-wrap.visible { display: block; }
+  .custom-input {
+    width: 100%;
+    background: var(--bg-card);
+    border: 1px solid var(--gold-rule);
+    color: var(--text-cream);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+    padding: 0.8rem 1.1rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .custom-input:focus { border-color: var(--gold); }
+  .custom-input::placeholder { color: var(--text-dim); font-style: italic; }
+
+  /* ============================================================
+     PHASE 2 -- DRAFT
+  ============================================================ */
+  .draft-layout {
+    display: grid;
+    grid-template-columns: 35% 65%;
+    gap: 3rem;
+    align-items: start;
+  }
+  .draft-sidebar {
+    position: sticky;
+    top: 90px;
+  }
+  .context-badge {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.52rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--teal);
+    background: rgba(74,155,142,0.1);
+    border: 1px solid rgba(74,155,142,0.35);
+    padding: 0.4rem 0.8rem;
+    margin-bottom: 1.75rem;
+  }
+  .checklist {
+    list-style: none;
+    margin-bottom: 1.75rem;
+  }
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.7rem;
+    margin-bottom: 0.9rem;
+    cursor: pointer;
+    transition: color 0.15s;
+  }
+  .check-box {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    flex-shrink: 0;
+    transition: color 0.15s;
+    user-select: none;
+    line-height: 1.3;
+  }
+  .check-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.52rem;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    flex-shrink: 0;
+    padding-top: 0.15em;
+    transition: color 0.15s;
+  }
+  .check-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.92rem;
+    color: var(--text-dim);
+    line-height: 1.5;
+    transition: color 0.15s;
+  }
+  .checklist li.checked .check-box,
+  .checklist li.checked .check-num,
+  .checklist li.checked .check-text {
+    color: var(--gold);
+  }
+  .hook-block {
+    border-top: 1px solid var(--gold-rule);
+    padding-top: 1.25rem;
+  }
+  .hook-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.92rem;
+    font-style: italic;
+    color: var(--text-dim);
+    line-height: 1.75;
+    margin-top: 0.75rem;
+  }
+  .draft-area-label { margin-bottom: 0.5rem; }
+  .draft-textarea {
+    width: 100%;
+    min-height: 220px;
+    background: var(--bg-card);
+    border: 1px solid var(--gold-rule);
+    color: var(--text-cream);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    line-height: 1.8;
+    padding: 1.5rem;
+    outline: none;
+    resize: vertical;
+    transition: border-color 0.2s;
+    margin-top: 0.75rem;
+    margin-bottom: 0.75rem;
+    display: block;
+  }
+  .draft-textarea:focus { border-color: var(--gold); }
+  .draft-textarea::placeholder {
+    color: var(--text-dim);
+    font-style: italic;
+  }
+  .pace-indicator {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.52rem;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    margin-bottom: 1.5rem;
+    min-height: 1.2em;
+    transition: color 0.3s;
+  }
+
+  /* ============================================================
+     PHASE 3 -- TIMER
+  ============================================================ */
+  .timer-layout {
+    display: grid;
+    grid-template-columns: 45% 55%;
+    gap: 3rem;
+    align-items: start;
+  }
+  .timer-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .timer-wrap {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin-bottom: 1.75rem;
+    flex-shrink: 0;
+  }
+  .timer-center-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    pointer-events: none;
+  }
+  .timer-digits {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    font-weight: 900;
+    color: var(--text-cream);
+    line-height: 1;
+    display: block;
+    transition: color 0.3s;
+  }
+  .timer-unit {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.45rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    display: block;
+    margin-top: 0.3rem;
+  }
+  .timer-controls {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1.75rem;
+  }
+  .timer-done {
+    display: none;
+    text-align: center;
+    width: 100%;
+  }
+  .timer-done.visible { display: block; }
+  .timer-done-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.52rem;
+    letter-spacing: 0.25em;
+    color: var(--gold);
+    margin-bottom: 1rem;
+  }
+  .timer-done-btns {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .speech-col-label { margin-bottom: 0.5rem; }
+  .speech-card {
+    border: 1px solid var(--gold-rule);
+    background: var(--bg-card);
+    padding: 1.75rem 2rem;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.15rem;
+    line-height: 2;
+    color: var(--text-cream);
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin-top: 0.75rem;
+    margin-bottom: 1rem;
+  }
+  .speech-note {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 0.92rem;
+    color: var(--text-dim);
+    line-height: 1.65;
+  }
+
+  /* ============================================================
+     SUCCESS SCREEN
+  ============================================================ */
+  #success-screen {
+    display: none;
+    text-align: center;
+    padding: 130px 2.5rem 6rem;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  #success-screen.active { display: block; }
+  .success-headline {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.5rem, 7vw, 4.5rem);
+    font-weight: 900;
+    color: var(--gold);
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+  }
+  .success-body {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: 1.1rem;
+    color: var(--text-body);
+    line-height: 1.9;
+    max-width: 600px;
+    margin: 0 auto 2.5rem;
+  }
+  .success-divider {
+    width: 60px;
+    height: 1px;
+    background: var(--gold);
+    margin: 0 auto 2.5rem;
+  }
+  .module-list {
+    list-style: none;
+    max-width: 580px;
+    margin: 0 auto 2.5rem;
+    text-align: left;
+  }
+  .module-list li {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    padding: 0.9rem 0;
+    border-bottom: 1px solid var(--gold-rule);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    line-height: 1.5;
+  }
+  .module-list li:last-child { border-bottom: none; }
+  .mod-marker {
+    flex-shrink: 0;
+    font-size: 0.65rem;
+    width: 1.1rem;
+    text-align: center;
+  }
+  .mod-done { color: var(--gold); }
+  .mod-pending { color: var(--text-dim); }
+  .mod-link {
+    color: var(--text-dim);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .mod-link:hover { color: var(--gold-light); }
+  .mod-soon {
+    color: var(--text-dim);
+    opacity: 0.45;
+  }
+  .success-btns {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  /* ============================================================
+     ANIMATIONS
+  ============================================================ */
+  @keyframes pulse-mild {
+    0%, 100% { transform: translate(-50%,-50%) scale(1); }
+    50%       { transform: translate(-50%,-50%) scale(1.07); }
+  }
+  @keyframes pulse-fast {
+    0%, 100% { transform: translate(-50%,-50%) scale(1); }
+    50%       { transform: translate(-50%,-50%) scale(1.12); }
+  }
+  @keyframes gold-flash {
+    0%   { background: transparent; }
+    25%  { background: rgba(184,146,42,0.18); }
+    100% { background: transparent; }
+  }
+  .timer-center-text.pulse      { animation: pulse-mild 1s ease infinite; }
+  .timer-center-text.pulse-fast { animation: pulse-fast 0.45s ease infinite; }
+  .timer-wrap.flash             { animation: gold-flash 1.1s ease forwards; }
+
+  /* ============================================================
+     RESPONSIVE
+  ============================================================ */
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.25rem; }
+    .phase { padding: 96px 1.25rem 4rem; }
+    .two-col { grid-template-columns: 1fr; gap: 2rem; }
+    .context-grid { grid-template-columns: repeat(2, 1fr); }
+    .draft-layout { grid-template-columns: 1fr; }
+    .draft-sidebar { position: static; }
+    .timer-layout { grid-template-columns: 1fr; }
+    #success-screen { padding: 96px 1.25rem 4rem; }
+  }
+  @media (max-width: 480px) {
+    .context-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     NAV
+============================================================ -->
+<nav>
+  <a href="index.html" class="nav-logo">
+    ETL Lab <span class="nav-accent">&mdash;</span> Dr. Terry L. Oroszi
+  </a>
+  <a href="index.html" class="nav-back">&larr; Back to ETL Lab</a>
+</nav>
+
+<!-- ============================================================
+     SUCCESS SCREEN
+============================================================ -->
+<div id="success-screen">
+  <div class="section-label">-- Module Complete</div>
+  <h2 class="success-headline">The Elevator is Yours.</h2>
+  <p class="success-body">
+    You have completed Module 1 of the ETL Leadership Certificate. Your elevator speech is drafted, practiced, and delivered. This skill compounds. Every context you enter from here is an opportunity to refine it.
+  </p>
+  <div class="success-divider"></div>
+  <ul class="module-list">
+    <li>
+      <span class="mod-marker mod-done">&#10003;</span>
+      <span class="mod-done">Module 1 &middot; Elevator Speech &nbsp;&mdash;&nbsp; Complete</span>
+    </li>
+    <li>
+      <span class="mod-marker mod-pending">&#9675;</span>
+      <a href="egos-at-the-table.html" class="mod-link">Module 2 &middot; Egos at the Table</a>
+    </li>
+    <li>
+      <span class="mod-marker mod-pending">&#9675;</span>
+      <a href="body-language-cert.html" class="mod-link">Module 3 &middot; Body Language</a>
+    </li>
+    <li>
+      <span class="mod-marker mod-pending">&#9675;</span>
+      <a href="456-power-platform.html" class="mod-link">Module 4 &middot; 4/5/6 Power Platform</a>
+    </li>
+    <li>
+      <span class="mod-marker mod-soon">&#9675;</span>
+      <span class="mod-soon">Module 5 &middot; Academic Poster &nbsp;&mdash;&nbsp; Coming Soon</span>
+    </li>
+  </ul>
+  <div class="success-btns">
+    <a href="egos-at-the-table.html" class="btn-primary">Continue to Module 2 &rarr;</a>
+    <a href="index.html" class="btn-ghost">Return to ETL Lab</a>
+  </div>
+</div>
+
+<!-- ============================================================
+     PHASE 0 -- WHAT & WHY
+============================================================ -->
+<div class="phase active" id="phase-0">
+  <div class="retake-banner" id="retake-banner">
+    -- You have already completed this module &middot; Retake to practice
+  </div>
+  <div class="section-label">-- Leadership Certificate &middot; Module 1</div>
+  <h1 class="hero-headline">The Elevator<br><em>Speech</em></h1>
+  <div class="gold-divider"></div>
+
+  <div class="two-col">
+    <div>
+      <div class="col-label">-- What It Is</div>
+      <p class="col-body">
+        An elevator speech is a 30-second scripted introduction designed to generate interest, not information. You are not explaining yourself. You are creating a reason for the other person to lean in and ask to hear more.
+      </p>
+    </div>
+    <div>
+      <div class="col-label">-- Why It Matters</div>
+      <p class="col-body">
+        You have approximately 30 seconds before someone's attention moves on. Most people waste it by reciting their CV. The elevator speech is a precision tool. Used correctly, it opens doors that a resume never reaches.
+      </p>
+    </div>
+  </div>
+
+  <div class="rules-card">
+    <div class="col-label">-- The Four Rules</div>
+    <ul class="rules-list">
+      <li><span class="rule-num">01</span><span>Never start with your name.</span></li>
+      <li><span class="rule-num">02</span><span>Lead with a hook &mdash; something that makes them want to stop the elevator.</span></li>
+      <li><span class="rule-num">03</span><span>Tailor it to this specific context. Every room is different.</span></li>
+      <li><span class="rule-num">04</span><span>Your name and a question come last.</span></li>
+    </ul>
+  </div>
+
+  <div class="btn-center">
+    <button class="btn-primary" onclick="showPhase(1)">I'm Ready to Draft Mine &rarr;</button>
+  </div>
+</div>
+
+<!-- ============================================================
+     PHASE 1 -- CONTEXT
+============================================================ -->
+<div class="phase" id="phase-1">
+  <div class="section-label">-- Step 1 of 3 &middot; Set Your Context</div>
+  <h2 class="phase-headline">Where are you, and who are you talking to?</h2>
+  <p class="phase-sub">Your speech should fit the room. Select the context that best matches your situation.</p>
+
+  <div class="context-grid" id="context-grid">
+    <div class="context-card" data-ctx="ACADEMIC CONFERENCE" onclick="selectContext(this)">
+      <span class="context-check">&#10003;</span>
+      <span class="context-emoji">&#127979;</span>
+      <div class="context-name">Academic Conference</div>
+      <div class="context-desc">Researchers, faculty, peer reviewers</div>
+    </div>
+    <div class="context-card" data-ctx="NETWORKING EVENT" onclick="selectContext(this)">
+      <span class="context-check">&#10003;</span>
+      <span class="context-emoji">&#129309;</span>
+      <div class="context-name">Networking Event</div>
+      <div class="context-desc">Professionals, recruiters, potential collaborators</div>
+    </div>
+    <div class="context-card" data-ctx="CORPORATE MEETING" onclick="selectContext(this)">
+      <span class="context-check">&#10003;</span>
+      <span class="context-emoji">&#127970;</span>
+      <div class="context-name">Corporate Meeting</div>
+      <div class="context-desc">Executives, clients, decision-makers</div>
+    </div>
+    <div class="context-card" data-ctx="INTERVIEW" onclick="selectContext(this)">
+      <span class="context-check">&#10003;</span>
+      <span class="context-emoji">&#127908;</span>
+      <div class="context-name">Interview</div>
+      <div class="context-desc">Hiring managers, search committees</div>
+    </div>
+    <div class="context-card" data-ctx="COMMUNITY / PUBLIC" onclick="selectContext(this)">
+      <span class="context-check">&#10003;</span>
+      <span class="context-emoji">&#127963;</span>
+      <div class="context-name">Community / Public</div>
+      <div class="context-desc">Mixed audience, non-specialists</div>
+    </div>
+    <div class="context-card" data-ctx="CUSTOM" onclick="selectContext(this)">
+      <span class="context-check">&#10003;</span>
+      <span class="context-emoji">&#9998;</span>
+      <div class="context-name">Custom</div>
+      <div class="context-desc">I'll describe my own context</div>
+    </div>
+  </div>
+
+  <div class="custom-input-wrap" id="custom-input-wrap">
+    <input
+      type="text"
+      class="custom-input"
+      id="custom-ctx-input"
+      placeholder="Describe your context -- who is in the room and why are you there?"
+    >
+  </div>
+
+  <div class="btn-center">
+    <button class="btn-primary btn-disabled" id="phase1-btn" onclick="goToDraft()">
+      Continue to Drafting &rarr;
+    </button>
+  </div>
+</div>
+
+<!-- ============================================================
+     PHASE 2 -- DRAFT
+============================================================ -->
+<div class="phase" id="phase-2">
+  <div class="section-label">-- Step 2 of 3 &middot; Draft Your Speech</div>
+  <div class="draft-layout">
+
+    <!-- SIDEBAR -->
+    <div class="draft-sidebar">
+      <div class="context-badge" id="ctx-badge">Context: Academic Conference</div>
+
+      <div class="col-label">-- Rules Checklist</div>
+      <ul class="checklist" id="checklist">
+        <li data-idx="0" onclick="toggleCheck(this)">
+          <span class="check-box">&#9744;</span>
+          <span class="check-num">01</span>
+          <span class="check-text">No name at the start</span>
+        </li>
+        <li data-idx="1" onclick="toggleCheck(this)">
+          <span class="check-box">&#9744;</span>
+          <span class="check-num">02</span>
+          <span class="check-text">Hook that stops the elevator</span>
+        </li>
+        <li data-idx="2" onclick="toggleCheck(this)">
+          <span class="check-box">&#9744;</span>
+          <span class="check-num">03</span>
+          <span class="check-text">Tailored to your context</span>
+        </li>
+        <li data-idx="3" onclick="toggleCheck(this)">
+          <span class="check-box">&#9744;</span>
+          <span class="check-num">04</span>
+          <span class="check-text">Name and question at the end</span>
+        </li>
+      </ul>
+
+      <div class="hook-block">
+        <div class="col-label">-- Hook Ideas for This Context</div>
+        <p class="hook-text" id="hook-text">
+          Start with a finding that surprises. A number, a contradiction, or a gap that shouldn't exist.
+        </p>
+      </div>
+    </div>
+
+    <!-- DRAFT AREA -->
+    <div>
+      <div class="col-label draft-area-label">-- Write Your Speech</div>
+      <textarea
+        class="draft-textarea"
+        id="draft-ta"
+        placeholder="Begin with your hook. Not your name. Not your title. The thing that makes them want to hear more..."
+        oninput="onDraftInput()"
+      ></textarea>
+      <div class="pace-indicator" id="pace-ind">0 words &middot; 0 seconds at conversational pace</div>
+      <button class="btn-primary btn-disabled" id="phase2-btn" onclick="goToTimer()">
+        Take It to the Timer &rarr;
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================
+     PHASE 3 -- PRACTICE TIMER
+============================================================ -->
+<div class="phase" id="phase-3">
+  <div class="section-label">-- Step 3 of 3 &middot; Deliver It</div>
+  <div class="timer-layout">
+
+    <!-- TIMER COLUMN -->
+    <div class="timer-col">
+      <div class="timer-wrap" id="timer-wrap">
+        <svg width="200" height="200" viewBox="0 0 200 200" aria-hidden="true">
+          <circle
+            cx="100" cy="100" r="80"
+            fill="none"
+            stroke="rgba(184,146,42,0.25)"
+            stroke-width="6"
+          />
+          <circle
+            id="timer-arc"
+            cx="100" cy="100" r="80"
+            fill="none"
+            stroke="#b8922a"
+            stroke-width="6"
+            stroke-linecap="round"
+            stroke-dasharray="502.655"
+            stroke-dashoffset="0"
+            transform="rotate(-90 100 100)"
+          />
+        </svg>
+        <div class="timer-center-text" id="timer-ct">
+          <span class="timer-digits" id="timer-digits">30</span>
+          <span class="timer-unit">Seconds</span>
+        </div>
+      </div>
+
+      <div class="timer-controls">
+        <button class="btn-primary" id="timer-toggle" onclick="timerToggle()">Start</button>
+        <button class="btn-ghost" onclick="timerReset()">Reset</button>
+      </div>
+
+      <div class="timer-done" id="timer-done">
+        <div class="timer-done-label">-- Did They Want to Hear More?</div>
+        <div class="timer-done-btns">
+          <button class="btn-primary" onclick="handleSuccess()">Yes &mdash; They Leaned In</button>
+          <button class="btn-ghost" onclick="showPhase(2)">Not Yet &mdash; Revise</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SPEECH DISPLAY -->
+    <div>
+      <div class="col-label speech-col-label">-- Your Speech</div>
+      <div class="speech-card" id="speech-card"></div>
+      <p class="speech-note">Deliver this from memory. The goal is eye contact, not reading.</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================
+     JAVASCRIPT
+============================================================ -->
+<script>
+(function () {
+  'use strict';
+
+  /* ---- constants ---- */
+  var CIRCUMFERENCE = 2 * Math.PI * 80; // 502.655
+
+  var HOOKS = {
+    'ACADEMIC CONFERENCE': 'Start with a finding that surprises. A number, a contradiction, or a gap that shouldn\'t exist.',
+    'NETWORKING EVENT':    'Start with a problem your work solves -- one the listener has probably felt personally.',
+    'CORPORATE MEETING':   'Start with a cost, a risk, or an outcome. What does this change for the organization?',
+    'INTERVIEW':           'Start with the result you are most proud of -- not what you did, but what changed because of it.',
+    'COMMUNITY / PUBLIC':  'Start with a story -- one sentence, human scale, something anyone can picture.',
+    'CUSTOM':              'Start with whatever would make someone in your specific room stop and ask a question.'
+  };
+
+  /* ---- state ---- */
+  var state = {
+    ctx: null,
+    checkedCount: 0,
+    timerRunning: false,
+    timerMs: 30000,
+    timerInterval: null
+  };
+
+  /* ==============================================================
+     PHASE NAVIGATION
+  ============================================================== */
+  window.showPhase = function (n) {
+    document.querySelectorAll('.phase').forEach(function (p) {
+      p.classList.remove('active');
+    });
+    var target = document.getElementById('phase-' + n);
+    if (target) target.classList.add('active');
+    document.getElementById('success-screen').classList.remove('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  /* ==============================================================
+     PHASE 1 -- CONTEXT
+  ============================================================== */
+  window.selectContext = function (card) {
+    document.querySelectorAll('.context-card').forEach(function (c) {
+      c.classList.remove('selected');
+    });
+    card.classList.add('selected');
+    state.ctx = card.getAttribute('data-ctx');
+
+    var wrap = document.getElementById('custom-input-wrap');
+    if (state.ctx === 'CUSTOM') {
+      wrap.classList.add('visible');
+    } else {
+      wrap.classList.remove('visible');
+    }
+
+    enableBtn('phase1-btn');
+  };
+
+  window.goToDraft = function () {
+    if (!state.ctx) return;
+
+    /* update context badge */
+    var displayCtx = state.ctx;
+    if (state.ctx === 'CUSTOM') {
+      var customVal = document.getElementById('custom-ctx-input').value.trim();
+      if (customVal) displayCtx = customVal;
+    }
+    document.getElementById('ctx-badge').textContent = 'Context: ' + cap(displayCtx);
+
+    /* update hook text */
+    document.getElementById('hook-text').textContent =
+      HOOKS[state.ctx] || HOOKS['CUSTOM'];
+
+    /* reset checklist */
+    document.querySelectorAll('#checklist li').forEach(function (li) {
+      li.classList.remove('checked');
+      li.querySelector('.check-box').innerHTML = '&#9744;';
+    });
+    state.checkedCount = 0;
+    updatePhase2Btn();
+    updatePaceDisplay('', 0, 0);
+
+    showPhase(2);
+  };
+
+  /* ==============================================================
+     PHASE 2 -- DRAFT
+  ============================================================== */
+  window.toggleCheck = function (li) {
+    var box = li.querySelector('.check-box');
+    if (li.classList.contains('checked')) {
+      li.classList.remove('checked');
+      box.innerHTML = '&#9744;';
+      state.checkedCount = Math.max(0, state.checkedCount - 1);
+    } else {
+      li.classList.add('checked');
+      box.innerHTML = '&#10003;';
+      state.checkedCount++;
+    }
+    updatePhase2Btn();
+  };
+
+  window.onDraftInput = function () {
+    var text = document.getElementById('draft-ta').value;
+    var words = countWords(text);
+    var secs  = Math.round(words / 130 * 60);
+    updatePaceDisplay(text, words, secs);
+    updatePhase2Btn();
+  };
+
+  function countWords(text) {
+    var t = text.trim();
+    if (!t) return 0;
+    return t.split(/\s+/).filter(function (w) { return w.length > 0; }).length;
+  }
+
+  function updatePaceDisplay(text, words, secs) {
+    var el = document.getElementById('pace-ind');
+    if (words === 0) {
+      el.textContent = '0 words \u00B7 0 seconds at conversational pace';
+      el.style.color = 'var(--text-dim)';
+      return;
+    }
+    var msg = words + ' words \u00B7 ~' + secs + ' seconds at conversational pace';
+    if (secs < 20) {
+      el.textContent = msg;
+      el.style.color = 'var(--gold)';
+    } else if (secs <= 35) {
+      el.textContent = msg;
+      el.style.color = '#4A9B8E';
+    } else {
+      el.textContent = msg + ' \u2014 Consider tightening';
+      el.style.color = '#9B4A4A';
+    }
+  }
+
+  function updatePhase2Btn() {
+    var text  = document.getElementById('draft-ta').value.trim();
+    var ready = text.length > 0 && state.checkedCount >= 2;
+    if (ready) {
+      enableBtn('phase2-btn');
+    } else {
+      disableBtn('phase2-btn');
+    }
+  }
+
+  window.goToTimer = function () {
+    var text = document.getElementById('draft-ta').value.trim();
+    if (!text || state.checkedCount < 2) return;
+    document.getElementById('speech-card').textContent = text;
+    timerReset();
+    showPhase(3);
+  };
+
+  /* ==============================================================
+     PHASE 3 -- TIMER
+  ============================================================== */
+  window.timerToggle = function () {
+    if (state.timerRunning) {
+      pauseTimer();
+    } else {
+      startTimer();
+    }
+  };
+
+  function startTimer() {
+    if (state.timerMs <= 0) { timerReset(); return; }
+    state.timerRunning = true;
+    document.getElementById('timer-toggle').textContent = 'Pause';
+    document.getElementById('timer-done').classList.remove('visible');
+
+    var startWall = Date.now();
+    var startMs   = state.timerMs;
+
+    state.timerInterval = setInterval(function () {
+      var elapsed   = Date.now() - startWall;
+      var remaining = startWall + startMs - Date.now();
+      if (remaining <= 0) {
+        remaining = 0;
+        renderTimer(0);
+        clearInterval(state.timerInterval);
+        state.timerRunning = false;
+        state.timerMs = 0;
+        onTimerComplete();
+        return;
+      }
+      state.timerMs = startMs - elapsed;
+      renderTimer(state.timerMs);
+    }, 100);
+  }
+
+  function pauseTimer() {
+    clearInterval(state.timerInterval);
+    state.timerRunning = false;
+    document.getElementById('timer-toggle').textContent = 'Start';
+  }
+
+  window.timerReset = function () {
+    clearInterval(state.timerInterval);
+    state.timerRunning = false;
+    state.timerMs = 30000;
+    document.getElementById('timer-toggle').textContent = 'Start';
+    document.getElementById('timer-done').classList.remove('visible');
+    document.getElementById('timer-wrap').classList.remove('flash');
+
+    var digits = document.getElementById('timer-digits');
+    digits.textContent = '30';
+    digits.style.color = 'var(--text-cream)';
+
+    var arc = document.getElementById('timer-arc');
+    arc.setAttribute('stroke', '#b8922a');
+    arc.setAttribute('stroke-dashoffset', '0');
+
+    var ct = document.getElementById('timer-ct');
+    ct.classList.remove('pulse', 'pulse-fast');
+  };
+
+  function renderTimer(ms) {
+    var secDisplay = Math.round(ms / 1000);
+    var secCeil    = Math.ceil(ms / 1000);
+    var fraction   = ms / 30000;
+    var offset     = CIRCUMFERENCE * (1 - fraction);
+
+    var arc    = document.getElementById('timer-arc');
+    var digits = document.getElementById('timer-digits');
+    var ct     = document.getElementById('timer-ct');
+
+    digits.textContent = secDisplay;
+    arc.setAttribute('stroke-dashoffset', offset.toFixed(2));
+
+    if (secCeil > 10) {
+      arc.setAttribute('stroke', '#b8922a');
+      digits.style.color = 'var(--text-cream)';
+      ct.classList.remove('pulse', 'pulse-fast');
+    } else if (secCeil > 3) {
+      arc.setAttribute('stroke', '#d4aa4a');
+      digits.style.color = '#d4aa4a';
+      ct.classList.remove('pulse-fast');
+      if (!ct.classList.contains('pulse')) ct.classList.add('pulse');
+    } else {
+      arc.setAttribute('stroke', '#9B4A4A');
+      digits.style.color = '#9B4A4A';
+      ct.classList.remove('pulse');
+      if (!ct.classList.contains('pulse-fast')) ct.classList.add('pulse-fast');
+    }
+  }
+
+  function onTimerComplete() {
+    document.getElementById('timer-toggle').textContent = 'Start';
+    var wrap = document.getElementById('timer-wrap');
+    wrap.classList.add('flash');
+    setTimeout(function () {
+      wrap.classList.remove('flash');
+      document.getElementById('timer-done').classList.add('visible');
+    }, 1100);
+  }
+
+  /* ==============================================================
+     SUCCESS
+  ============================================================== */
+  window.handleSuccess = function () {
+    try { localStorage.setItem('etl_elevator_done', 'true'); } catch (e) {}
+    document.querySelectorAll('.phase').forEach(function (p) {
+      p.classList.remove('active');
+    });
+    document.getElementById('success-screen').classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  /* ==============================================================
+     HELPERS
+  ============================================================== */
+  function enableBtn(id) {
+    var btn = document.getElementById(id);
+    if (!btn) return;
+    btn.classList.remove('btn-disabled');
+  }
+
+  function disableBtn(id) {
+    var btn = document.getElementById(id);
+    if (!btn) return;
+    btn.classList.add('btn-disabled');
+  }
+
+  function cap(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  }
+
+  /* ==============================================================
+     INIT
+  ============================================================== */
+  (function init() {
+    try {
+      if (localStorage.getItem('etl_elevator_done') === 'true') {
+        document.getElementById('retake-banner').classList.add('visible');
+      }
+    } catch (e) {}
+  }());
+
+}());
+</script>
+</body>
+</html>
