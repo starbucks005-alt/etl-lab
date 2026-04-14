@@ -746,7 +746,46 @@
     /* Dossier photo: center on mobile */
     .dossier-id { text-align: center; }
     .dossier-photo { margin: 0 auto 20px; }
+    .directive-09-inner { grid-template-columns: 1fr; }
   }
+
+  /* ── DIRECTIVE 09 LEADERSHIP CERTIFICATE ── */
+  .directive-label {
+    font-family: 'Oswald', sans-serif;
+    font-size: 10px; letter-spacing: 2px;
+    color: var(--green); margin-bottom: 20px;
+    text-transform: uppercase;
+  }
+  .directive-card--featured {
+    grid-column: 1 / -1;
+    border-top: 3px solid #b8922a;
+  }
+  .directive-09-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    margin-top: 1.5rem;
+  }
+  .module-progress {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .module-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #9a8e7e;
+    transition: color 0.2s;
+  }
+  .module-item.complete .module-check { color: #b8922a; }
+  .module-item.complete .module-name  { color: #f4ede0; }
+  .module-check { font-size: 0.9rem; min-width: 1.2rem; }
+  .module-item--dim { opacity: 0.4; }
 </style>
 </head>
 <body>
@@ -1307,6 +1346,55 @@
         <p class="directive-body">"Tarot cards for leadership" meets meeting science. A behavioral observation and facilitation game developed by Dr. Oroszi that teaches you to identify the 12 meeting personality types sabotaging your productivity. Unproductive meetings cost U.S. organizations $37 billion annually. Learn to read the room, decode power plays, and manage ego-driven behaviors before they derail your next meeting. Includes a live Meeting Bingo card, character profiles, a simulation game with secret role assignment, and a body language reading guide grounded in Dr. Oroszi's behavioral research. Available for ETL visitors, faculty, corporate training, and team development.</p>
         <a href="egos-at-the-table.html" style="display:inline-block; margin-top:16px; font-family:'Oswald',sans-serif; font-size:11px; font-weight:600; letter-spacing:2px; text-transform:uppercase; padding:8px 20px; background:var(--black); color:#fff; text-decoration:none;">Play the Game →</a>
         <a href="egos-at-the-table.html#certification" style="display:inline-block; margin-top:8px; font-family:'Oswald',sans-serif; font-size:11px; font-weight:600; letter-spacing:2px; text-transform:uppercase; padding:8px 20px; background:transparent; color:var(--black); border:1px solid var(--black); text-decoration:none;">Get Facilitator Certification →</a>
+      </div>
+
+      <div class="directive-card directive-card--featured" id="directive-09">
+
+        <div class="directive-label">DIRECTIVE // 09</div>
+
+        <div class="directive-09-inner">
+
+          <div class="directive-09-left">
+            <div class="directive-icon">🏆</div>
+            <h3 style="font-family:'Oswald',sans-serif; font-size:20px; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin-bottom:12px; color:var(--black);">ETL LEADERSHIP CERTIFICATE</h3>
+            <p class="directive-body">A credential earned — not given. Complete all five modules to demonstrate mastery of the communication and behavioral skills that define effective leadership. Developed by Dr. Oroszi from two decades of graduate curriculum, national security training, and human behavior research.</p>
+          </div>
+
+          <div class="directive-09-right">
+            <div class="module-progress" id="cert-progress-grid">
+              <div class="module-item" id="prog-elevator">
+                <span class="module-check">○</span>
+                <span class="module-name">MODULE 1 &mdash; ELEVATOR SPEECH</span>
+              </div>
+              <div class="module-item" id="prog-egos">
+                <span class="module-check">○</span>
+                <span class="module-name">MODULE 2 &mdash; EGOS AT THE TABLE</span>
+              </div>
+              <div class="module-item" id="prog-bodylang">
+                <span class="module-check">○</span>
+                <span class="module-name">MODULE 3 &mdash; BODY LANGUAGE</span>
+              </div>
+              <div class="module-item" id="prog-power">
+                <span class="module-check">○</span>
+                <span class="module-name">MODULE 4 &mdash; 4/5/6 POWER PLATFORM</span>
+              </div>
+              <div class="module-item module-item--dim" id="prog-poster">
+                <span class="module-check">○</span>
+                <span class="module-name">MODULE 5 &mdash; ACADEMIC POSTER <em>(coming soon)</em></span>
+              </div>
+            </div>
+
+            <div id="cert-locked" style="margin-top: 1.5rem;">
+              <a href="elevator-speech.html" class="btn btn-primary">BEGIN MODULE 1 &rarr;</a>
+            </div>
+
+            <div id="cert-unlocked" style="display:none; margin-top: 1.5rem;">
+              <a href="leadership-cert.html" class="btn btn-primary">CLAIM YOUR CERTIFICATE &rarr;</a>
+            </div>
+          </div>
+
+        </div>
+
       </div>
     </div>
   </div>
@@ -2176,3 +2264,43 @@
     </div>
   </div>
 </div>
+
+<script>
+(function() {
+  var keys = {
+    'etl_elevator_done': 'prog-elevator',
+    'etl_egos_done':     'prog-egos',
+    'etl_bodylang_done': 'prog-bodylang',
+    'etl_power456_done': 'prog-power'
+  };
+  var completed = 0;
+  for (var key in keys) {
+    try {
+      if (localStorage.getItem(key) === 'true') {
+        var el = document.getElementById(keys[key]);
+        if (el) {
+          el.classList.add('complete');
+          el.querySelector('.module-check').textContent = '\u2713';
+          completed++;
+        }
+      }
+    } catch(e) {}
+  }
+  if (completed >= 4) {
+    document.getElementById('cert-locked').style.display = 'none';
+    document.getElementById('cert-unlocked').style.display = 'block';
+  } else if (completed > 0) {
+    var nextLinks = {
+      0: 'elevator-speech.html',
+      1: 'egos-at-the-table.html',
+      2: 'body-language-cert.html',
+      3: '456-power-platform.html'
+    };
+    var btn = document.getElementById('cert-locked').querySelector('a');
+    if (btn) {
+      btn.textContent = 'CONTINUE WHERE YOU LEFT OFF \u2192';
+      btn.href = nextLinks[completed] || 'elevator-speech.html';
+    }
+  }
+})();
+</script>

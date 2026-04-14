@@ -1137,6 +1137,7 @@ function showResults() {
   showScreen('results');
   const pct = Math.round((assessScore / 10) * 100);
   const pass = assessScore >= 8;
+  if (pass) { try { localStorage.setItem('etl_bodylang_done', 'true'); } catch(e) {} }
   const scoreEl = document.getElementById('result-score-big');
   scoreEl.textContent = `${assessScore}/10`;
   scoreEl.className = 'result-score-big ' + (pass ? 'pass' : 'fail');

@@ -2102,6 +2102,7 @@ function removeCard(cardId, category) {
 function generateReading() {
   showScreen('screen-reading');
   updateProgress('reading');
+  try { localStorage.setItem('etl_power456_done', 'true'); } catch(e) {}
   document.getElementById('reading-loader').style.display = 'flex';
   document.getElementById('reading-content').classList.remove('visible');
   document.getElementById('main-footer').style.display = '';
