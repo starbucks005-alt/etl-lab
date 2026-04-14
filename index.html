@@ -780,12 +780,17 @@
     letter-spacing: 0.2em;
     text-transform: uppercase;
     color: #9a8e7e;
+    text-decoration: none;
+    padding: 0.4rem 0;
     transition: color 0.2s;
+    cursor: pointer;
   }
+  .module-item:hover { color: #d4aa4a; }
+  .module-item:hover .module-arrow { color: #d4aa4a; }
   .module-item.complete .module-check { color: #b8922a; }
   .module-item.complete .module-name  { color: #f4ede0; }
   .module-check { font-size: 0.9rem; min-width: 1.2rem; }
-  .module-item--dim { opacity: 0.4; }
+  .module-arrow { margin-left: auto; color: #9a8e7e; transition: color 0.2s; }
 </style>
 </head>
 <body>
@@ -1362,39 +1367,46 @@
 
           <div class="directive-09-right">
             <div class="module-progress" id="cert-progress-grid">
-              <div class="module-item" id="prog-elevator">
+
+              <a href="elevator-speech.html" class="module-item" id="prog-elevator">
                 <span class="module-check">○</span>
                 <span class="module-name">MODULE 1 &mdash; ELEVATOR SPEECH</span>
-              </div>
-              <div class="module-item" id="prog-egos">
+                <span class="module-arrow">&rarr;</span>
+              </a>
+
+              <a href="egos-at-the-table.html" class="module-item" id="prog-egos">
                 <span class="module-check">○</span>
                 <span class="module-name">MODULE 2 &mdash; EGOS AT THE TABLE</span>
-              </div>
-              <div class="module-item" id="prog-bodylang">
+                <span class="module-arrow">&rarr;</span>
+              </a>
+
+              <a href="body-language-cert.html" class="module-item" id="prog-bodylang">
                 <span class="module-check">○</span>
                 <span class="module-name">MODULE 3 &mdash; BODY LANGUAGE</span>
-              </div>
-              <div class="module-item" id="prog-power">
+                <span class="module-arrow">&rarr;</span>
+              </a>
+
+              <a href="456-power-platform.html" class="module-item" id="prog-power">
                 <span class="module-check">○</span>
                 <span class="module-name">MODULE 4 &mdash; 4/5/6 POWER PLATFORM</span>
-              </div>
-              <div class="module-item" id="prog-poster">
+                <span class="module-arrow">&rarr;</span>
+              </a>
+
+              <a href="academic-poster.html" class="module-item" id="prog-poster">
                 <span class="module-check">○</span>
                 <span class="module-name">MODULE 5 &mdash; ACADEMIC POSTER</span>
-              </div>
-              <div class="module-item" id="prog-jobfair">
+                <span class="module-arrow">&rarr;</span>
+              </a>
+
+              <a href="job-fair.html" class="module-item" id="prog-jobfair">
                 <span class="module-check">○</span>
-                <span class="module-name">MODULE 6 &mdash; JOB FAIR MASTERY</span>
-              </div>
+                <span class="module-name">MODULE 6 &mdash; JOB FAIR</span>
+                <span class="module-arrow">&rarr;</span>
+              </a>
+
             </div>
 
-            <div id="cert-locked" style="margin-top: 1.5rem;">
-              <a href="elevator-speech.html" class="btn btn-primary">BEGIN MODULE 1 &rarr;</a>
-            </div>
-
-            <div id="cert-unlocked" style="display:none; margin-top: 1.5rem;">
-              <a href="leadership-cert.html" class="btn btn-primary">CLAIM YOUR CERTIFICATE &rarr;</a>
-            </div>
+            <div style="margin-top: 1.5rem;" id="cert-status"></div>
           </div>
 
         </div>
@@ -2279,36 +2291,28 @@
     'etl_poster_done':   'prog-poster',
     'etl_jobfair_done':  'prog-jobfair'
   };
+
   var completed = 0;
+
   for (var key in keys) {
-    try {
-      if (localStorage.getItem(key) === 'true') {
-        var el = document.getElementById(keys[key]);
-        if (el) {
-          el.classList.add('complete');
-          el.querySelector('.module-check').textContent = '\u2713';
-          completed++;
-        }
+    if (localStorage.getItem(key) === 'true') {
+      var el = document.getElementById(keys[key]);
+      if (el) {
+        el.classList.add('complete');
+        el.querySelector('.module-check').textContent = '\u2713';
+        completed++;
       }
-    } catch(e) {}
-  }
-  if (completed >= 6) {
-    document.getElementById('cert-locked').style.display = 'none';
-    document.getElementById('cert-unlocked').style.display = 'block';
-  } else if (completed > 0) {
-    var nextLinks = {
-      0: 'elevator-speech.html',
-      1: 'egos-at-the-table.html',
-      2: 'body-language-cert.html',
-      3: '456-power-platform.html',
-      4: 'academic-poster.html',
-      5: 'job-fair.html'
-    };
-    var btn = document.getElementById('cert-locked').querySelector('a');
-    if (btn) {
-      btn.textContent = 'CONTINUE WHERE YOU LEFT OFF \u2192';
-      btn.href = nextLinks[completed] || 'elevator-speech.html';
     }
+  }
+
+  var statusEl = document.getElementById('cert-status');
+
+  if (completed === 6) {
+    statusEl.innerHTML = '<a href="leadership-cert.html" class="btn-primary">CLAIM YOUR CERTIFICATE &rarr;</a>';
+  } else if (completed > 0) {
+    statusEl.innerHTML = '<span style="font-family:\'DM Mono\',monospace;font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:#9a8e7e;">' + completed + ' OF 6 MODULES COMPLETE</span>';
+  } else {
+    statusEl.innerHTML = '<span style="font-family:\'DM Mono\',monospace;font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:#9a8e7e;">COMPLETE ANY MODULE TO BEGIN</span>';
   }
 })();
 </script>
