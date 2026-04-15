@@ -445,6 +445,20 @@
   @media (max-width: 480px) {
     .scanner-grid { grid-template-columns: 1fr; }
   }
+
+  /* OPT/CPT callout + Skip to Job Search */
+  .jf-top-bar { max-width: 820px; margin: 80px auto 0; padding: 0 2.5rem; display: flex; flex-direction: column; gap: 12px; }
+  .jf-callout { background: var(--bg-card); border: 1px solid var(--gold-rule); border-left: 3px solid var(--teal); padding: 1rem 1.5rem; display: flex; align-items: center; gap: 14px; }
+  .jf-callout-badge { font-family: 'DM Mono', monospace; font-size: 0.5rem; letter-spacing: 0.14em; text-transform: uppercase; background: var(--teal); color: var(--bg-ink); padding: 3px 8px; font-weight: 600; flex-shrink: 0; }
+  .jf-callout-title { font-family: 'Playfair Display', serif; font-size: 0.95rem; color: var(--text-cream); font-weight: 700; }
+  .jf-callout-text { font-family: 'Cormorant Garamond', serif; font-size: 0.9rem; color: var(--text-dim); line-height: 1.5; margin-top: 2px; }
+  .jf-skip-bar { background: var(--bg-card); border: 1px solid var(--gold-rule); border-left: 3px solid var(--gold); padding: 1rem 1.5rem; display: none; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+  .jf-skip-bar.show { display: flex; }
+  .jf-skip-label { font-family: 'DM Mono', monospace; font-size: 0.55rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); }
+  .jf-skip-label strong { color: var(--gold-light); }
+  .jf-skip-btn { font-family: 'DM Mono', monospace; font-size: 0.52rem; letter-spacing: 0.12em; text-transform: uppercase; padding: 8px 18px; background: rgba(184,146,42,0.15); border: 1px solid var(--gold-rule); color: var(--gold-light); cursor: pointer; transition: all 0.2s; text-decoration: none; flex-shrink: 0; }
+  .jf-skip-btn:hover { background: rgba(184,146,42,0.28); border-color: var(--gold); color: var(--text-cream); }
+  @media (max-width: 640px) { .jf-top-bar { padding: 0 1.25rem; } }
 </style>
 </head>
 <body>
@@ -453,6 +467,20 @@
   <a href="index.html" class="nav-logo"><span class="nav-accent">ETL</span> &nbsp;&middot;&nbsp; Leadership Certificate</a>
   <a href="index.html" class="nav-back">&larr; Home</a>
 </nav>
+
+<div class="jf-top-bar">
+  <div class="jf-callout">
+    <span class="jf-callout-badge">NEW</span>
+    <div>
+      <div class="jf-callout-title">OPT/CPT &mdash; We have your back.</div>
+      <div class="jf-callout-text">International students: this tool filters job results by OPT and CPT eligibility so you only see positions you can legally take.</div>
+    </div>
+  </div>
+  <div class="jf-skip-bar" id="jf-skip-bar">
+    <div class="jf-skip-label"><strong>Module complete.</strong> You can review the phases or jump straight to the search tool.</div>
+    <a class="jf-skip-btn" onclick="showPhase(4);this.parentElement.style.display='none';">Skip to Job Search &rarr;</a>
+  </div>
+</div>
 
 <!-- PHASE 0 -->
 <div class="phase" id="phase-0">
@@ -485,7 +513,7 @@
   <div class="insight-box">
     <p>The recruiters who matter are watching the room. They notice who navigates confidently and who hesitates. Your approach is your first application.</p>
   </div>
-  <div class="col-label" style="margin-bottom: 1rem;">Preparation Checklist &mdash; Complete All to Continue</div>
+  <div class="col-label" style="margin-bottom: 1rem;">Preparation Checklist</div>
   <ul class="prep-checklist" id="prep-checklist-0">
     <li class="prep-item" onclick="togglePrep(this)"><span class="prep-check">&#9675;</span><span class="prep-text">I have researched at least three companies attending this fair</span></li>
     <li class="prep-item" onclick="togglePrep(this)"><span class="prep-check">&#9675;</span><span class="prep-text">I know my one-sentence professional summary</span></li>
@@ -499,7 +527,7 @@
     <p class="tactic-body">Bring two versions of your CV. A short one, two pages, and a long one, six pages. When you reach the table, hand both to the recruiter and ask which they would prefer. Their answer tells you everything before you say another word. If they take the longer one, they are interested. If they reach for the shorter one, they are not looking to invest time in you. You have just gathered real intelligence in under five seconds. Prepare both before you walk in.</p>
   </div>
   <div class="btn-row">
-    <button class="btn-primary btn-disabled" id="next-btn-0" onclick="showPhase(1)">NEXT: THE OPENING SEQUENCE &rarr;</button>
+    <button class="btn-primary" id="next-btn-0" onclick="showPhase(1)">NEXT: THE OPENING SEQUENCE &rarr;</button>
   </div>
 </div>
 
@@ -716,11 +744,6 @@ function showPhase(n) {
 function togglePrep(item) {
   item.classList.toggle('checked');
   item.querySelector('.prep-check').textContent = item.classList.contains('checked') ? '\u2713' : '\u25CB';
-  var items = document.querySelectorAll('#prep-checklist-0 .prep-item');
-  var allChecked = true;
-  items.forEach(function(i) { if (!i.classList.contains('checked')) allChecked = false; });
-  var btn = document.getElementById('next-btn-0');
-  allChecked ? btn.classList.remove('btn-disabled') : btn.classList.add('btn-disabled');
 }
 
 // EXPERIENCE ENTRIES
@@ -829,6 +852,8 @@ var sCvBase64 = null, sCvMediaType = null, sCvFileName = null;
 
 document.addEventListener('DOMContentLoaded', function() {
   showPhase(0);
+  // Show skip button if module already completed
+  try { if (localStorage.getItem('etl_jobfair_done') === 'true') { document.getElementById('jf-skip-bar').classList.add('show'); } } catch(e) {}
   addExpEntry();
   var uz = document.getElementById('s-uploadZone');
   uz.addEventListener('dragover', function(e){e.preventDefault();uz.classList.add('drag');});
