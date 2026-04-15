@@ -379,7 +379,10 @@
     gap: 5px;
     flex-shrink: 0;
     opacity: 0.35;
+    cursor: pointer;
+    transition: opacity 0.2s;
   }
+  .roadmap-item:hover { opacity: 0.8; }
   .roadmap-item.active { opacity: 1; }
   .roadmap-item.roadmap-scanner { opacity: 0.9; }
   .roadmap-num {
@@ -483,21 +486,23 @@
   </div>
 </div>
 
+<div class="jf-top-bar" style="margin-top:12px;">
+  <div class="module-roadmap" id="phase-roadmap">
+    <div class="roadmap-item active" onclick="showPhase(0)"><div class="roadmap-num">1</div><div class="roadmap-label">The Performance</div></div>
+    <div class="roadmap-connector"></div>
+    <div class="roadmap-item" onclick="showPhase(1)"><div class="roadmap-num">2</div><div class="roadmap-label">90 Seconds</div></div>
+    <div class="roadmap-connector"></div>
+    <div class="roadmap-item" onclick="showPhase(2)"><div class="roadmap-num">3</div><div class="roadmap-label">Read the Room</div></div>
+    <div class="roadmap-connector"></div>
+    <div class="roadmap-item" onclick="showPhase(3)"><div class="roadmap-num">4</div><div class="roadmap-label">Build Your CV</div></div>
+    <div class="roadmap-connector"></div>
+    <div class="roadmap-item roadmap-scanner" onclick="showPhase(4)"><div class="roadmap-num">5</div><div class="roadmap-label">Opportunity Scanner</div><div class="roadmap-scanner-tag">AI-Powered</div></div>
+  </div>
+</div>
+
 <!-- PHASE 0 -->
 <div class="phase" id="phase-0">
   <div class="section-label">MODULE 6 // PHASE 1 OF 5</div>
-
-  <div class="module-roadmap">
-    <div class="roadmap-item active"><div class="roadmap-num">1</div><div class="roadmap-label">The Performance</div></div>
-    <div class="roadmap-connector"></div>
-    <div class="roadmap-item"><div class="roadmap-num">2</div><div class="roadmap-label">90 Seconds</div></div>
-    <div class="roadmap-connector"></div>
-    <div class="roadmap-item"><div class="roadmap-num">3</div><div class="roadmap-label">Read the Room</div></div>
-    <div class="roadmap-connector"></div>
-    <div class="roadmap-item"><div class="roadmap-num">4</div><div class="roadmap-label">Build Your CV</div></div>
-    <div class="roadmap-connector"></div>
-    <div class="roadmap-item roadmap-scanner"><div class="roadmap-num">5</div><div class="roadmap-label">Opportunity Scanner</div><div class="roadmap-scanner-tag">AI-Powered</div></div>
-  </div>
 
   <h1 class="phase-headline">The Job Fair Is a Performance</h1>
   <p class="phase-sub">You will have 90 seconds with a recruiter who has spoken to 200 people today. Everything about how you enter, stand, speak, and leave will be evaluated before you finish your opening sentence.</p>
@@ -739,6 +744,13 @@ function showPhase(n) {
   document.querySelectorAll('.phase').forEach(function(p) { p.style.display = 'none'; });
   var el = document.getElementById('phase-' + n);
   if (el) { el.style.display = 'block'; window.scrollTo(0, 0); }
+  // Update roadmap active state
+  var items = document.querySelectorAll('#phase-roadmap .roadmap-item');
+  var idx = 0;
+  items.forEach(function(item) {
+    item.classList.toggle('active', idx === n);
+    idx++;
+  });
 }
 
 // PREP CHECKLIST
