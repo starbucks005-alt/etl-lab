@@ -890,7 +890,7 @@ function sExtractJSON(text) {
 }
 
 async function sCallAPI(body) {
-  var r = await fetch('https://api.anthropic.com/v1/messages', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
+  var r = await fetch('/.netlify/functions/proxy-ai', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
   var d = await r.json();
   if (d.error) throw new Error(d.error.message || 'API error');
   return d;
