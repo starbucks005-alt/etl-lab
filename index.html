@@ -784,9 +784,13 @@
   }
   a.module-item { text-decoration: none; cursor: pointer; }
   a.module-item:hover .module-name { color: #d4aa4a; }
-  .module-item.complete { background: rgba(184,146,42,0.1); padding: 6px 10px; margin: -6px -10px; border-left: 2px solid #b8922a; }
-  .module-item.complete .module-check { color: #b8922a; }
-  .module-item.complete .module-name  { color: #8a7a3a; font-weight: 600; }
+  .module-item.complete { background: #f7f3e8; padding: 6px 10px; margin: -6px -10px; border-left: 3px solid #b8922a; }
+  .module-item.complete .module-check { color: #b8922a; font-weight: 700; }
+  .module-item.complete .module-name  { color: #5a4e2a; font-weight: 600; }
+  .opt-callout { margin-top: 1.25rem; padding: 14px 18px; background: #eef8f6; border: 1px solid #b0d9d1; border-left: 4px solid #2a8c7a; display: flex; align-items: center; gap: 12px; }
+  .opt-callout-badge { font-family: 'DM Mono', monospace; font-size: 0.55rem; letter-spacing: 0.12em; text-transform: uppercase; background: #2a8c7a; color: #fff; padding: 3px 10px; font-weight: 700; flex-shrink: 0; }
+  .opt-callout-text { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.04em; color: #1a5c50; line-height: 1.5; }
+  .opt-callout-text strong { font-weight: 700; color: #0e3d34; }
   .module-check { font-size: 0.9rem; min-width: 1.2rem; }
   .module-item--dim { opacity: 0.4; }
 </style>
@@ -1388,8 +1392,11 @@
               <a href="job-fair.html" class="module-item" id="prog-jobfair">
                 <span class="module-check">○</span>
                 <span class="module-name">MODULE 6 &mdash; JOB FAIR MASTERY</span>
-                <span style="font-size:0.45rem;letter-spacing:0.08em;color:#4A9B8E;background:rgba(74,155,142,0.12);border:1px solid rgba(74,155,142,0.25);padding:2px 7px;margin-left:6px;">OPT/CPT eligible &mdash; filters for international students</span>
               </a>
+            </div>
+            <div class="opt-callout">
+              <span class="opt-callout-badge">NEW</span>
+              <div class="opt-callout-text"><strong>OPT/CPT &mdash; We have your back.</strong> International students: Module 6 filters job results by OPT and CPT eligibility so you only see positions you can legally take.</div>
             </div>
 
             <div id="cert-locked" style="margin-top: 1.5rem;">
