@@ -891,8 +891,14 @@ function sExtractJSON(text) {
 
 async function sCallAPI(body) {
   var r = await fetch('/.netlify/functions/proxy-ai', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
+  console.log('[scanner] proxy response status:', r.status);
   var d = await r.json();
-  if (d.error) throw new Error(d.error.message || 'API error');
+  console.log('[scanner] proxy response body:', d);
+  if (d.error) {
+    var msg = typeof d.error === 'string' ? d.error : (d.error.message || JSON.stringify(d.error));
+    console.error('[scanner] API error:', msg);
+    throw new Error(msg);
+  }
   return d;
 }
 
