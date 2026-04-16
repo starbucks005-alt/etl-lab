@@ -904,7 +904,13 @@ function sExtractJSON(text) {
 async function sCallAPI(body) {
   var r = await fetch('/.netlify/functions/proxy-ai', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
   console.log('[scanner] proxy response status:', r.status);
-  var d = await r.json();
+  if (r.status === 504) throw new Error('Search timed out. Try again with fewer keywords or a more specific location.');
+  var text = await r.text();
+  var d;
+  try { d = JSON.parse(text); } catch(e) {
+    console.error('[scanner] non-JSON response:', text.substring(0, 200));
+    throw new Error('Server returned an unexpected response. Please try again.');
+  }
   console.log('[scanner] proxy response body:', d);
   if (d.error) {
     var msg = typeof d.error === 'string' ? d.error : (d.error.message || JSON.stringify(d.error));
