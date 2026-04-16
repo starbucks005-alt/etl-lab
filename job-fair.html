@@ -672,9 +672,9 @@
       <path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 4v12M8 8l4-4 4 4" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
     <div class="scanner-upload-main">Upload your CV or Resume</div>
-    <div class="scanner-upload-sub">PDF preferred &middot; DOCX accepted</div>
+    <div class="scanner-upload-sub">PDF only &mdash; save your document as PDF before uploading</div>
     <div class="scanner-upload-name" id="s-fileName"></div>
-    <input type="file" id="s-cvFile" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onchange="sHandleFile(this)">
+    <input type="file" id="s-cvFile" accept=".pdf,application/pdf" onchange="sHandleFile(this)">
   </div>
 
   <div class="scanner-grid">
@@ -924,7 +924,8 @@ async function sRunScan() {
   var outEl = document.getElementById('s-output');
   var btn = document.getElementById('s-scanBtn');
 
-  if (!sCvBase64) { document.getElementById('s-formError').innerHTML = '<div class="s-error">Upload your CV or resume first.</div>'; return; }
+  if (!sCvBase64) { document.getElementById('s-formError').innerHTML = '<div class="s-error">Upload your CV or resume first (PDF only).</div>'; return; }
+  if (sCvMediaType !== 'application/pdf') { document.getElementById('s-formError').innerHTML = '<div class="s-error">Please upload a PDF file. Save your document as PDF before uploading.</div>'; return; }
   if (!location && distance !== 'any') { document.getElementById('s-formError').innerHTML = '<div class="s-error">Enter a city, state, or ZIP code (or select Any distance / Remote).</div>'; return; }
   document.getElementById('s-formError').innerHTML = '';
   btn.disabled = true; btn.textContent = 'Scanning...';
