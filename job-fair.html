@@ -679,8 +679,8 @@
 
   <div class="scanner-grid">
     <div class="scanner-field-group">
-      <div class="scanner-label">City / ZIP code</div>
-      <input type="text" id="s-location" class="scanner-input" placeholder="e.g. Dayton, OH" />
+      <div class="scanner-label">City, State or ZIP code</div>
+      <input type="text" id="s-location" class="scanner-input" placeholder="e.g. Dayton, OH or 45435" />
     </div>
     <div class="scanner-field-group">
       <div class="scanner-label">Position type</div>
@@ -925,7 +925,7 @@ async function sRunScan() {
   var btn = document.getElementById('s-scanBtn');
 
   if (!sCvBase64) { document.getElementById('s-formError').innerHTML = '<div class="s-error">Upload your CV or resume first.</div>'; return; }
-  if (!location) { document.getElementById('s-formError').innerHTML = '<div class="s-error">Enter a city or ZIP code.</div>'; return; }
+  if (!location && distance !== 'any') { document.getElementById('s-formError').innerHTML = '<div class="s-error">Enter a city, state, or ZIP code (or select Any distance / Remote).</div>'; return; }
   document.getElementById('s-formError').innerHTML = '';
   btn.disabled = true; btn.textContent = 'Scanning...';
 

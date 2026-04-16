@@ -1,6 +1,12 @@
 [build]
   functions = "netlify/functions"
 
+[functions]
+  external_node_modules = ["@supabase/supabase-js"]
+
+[functions."proxy-ai"]
+  timeout = 60
+
 [[redirects]]
   from = "/app"
   to = "/app.html"
