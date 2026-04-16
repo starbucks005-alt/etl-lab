@@ -38,13 +38,13 @@
   --styles-color: #E0E0E0;
 
   --card-width: 280px;
-  --card-height: 420px;
+  --card-height: 490px;
   --card-radius: 6px;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-html { scroll-behavior: smooth; overflow-y: auto; }
+html { scroll-behavior: smooth; }
 
 body {
   font-family: 'Cormorant Garamond', serif;
@@ -448,31 +448,30 @@ em { font-style: italic; color: var(--gold-light); }
 /* Selected tray at top */
 .selected-tray {
   display: flex;
-  gap: 0.75rem;
+  gap: 0.5rem;
   flex-wrap: wrap;
   justify-content: center;
-  min-height: 170px;
+  min-height: 48px;
   margin-bottom: 2rem;
-  max-width: 900px;
+  max-width: 700px;
   width: 100%;
 }
 .tray-card {
-  width: 130px;
-  height: 170px;
-  border-radius: 4px;
+  width: 48px;
+  height: 84px;
+  border-radius: 3px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: 'DM Mono', monospace;
-  font-size: 11px;
-  letter-spacing: 0.08em;
+  font-size: 0.35rem;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   text-align: center;
-  padding: 10px 8px;
+  padding: 4px;
   position: relative;
   overflow: hidden;
   animation: fadeUp 0.4s ease both;
-  line-height: 1.4;
 }
 .tray-card.frames { border: 1px solid var(--teal); color: var(--teal); }
 .tray-card.power  { border: 1px solid var(--gold); color: var(--gold); }
@@ -530,7 +529,6 @@ em { font-style: italic; color: var(--gold-light); }
   transform: rotateY(180deg);
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   padding: 1.5rem;
   border: 1px solid var(--gold-rule);
 }
@@ -625,7 +623,7 @@ em { font-style: italic; color: var(--gold-light); }
   font-size: 0.88rem;
   font-weight: 400;
   color: var(--text-dim);
-  margin-bottom: 0;
+  margin-bottom: auto;
   line-height: 1.5;
 }
 .card-front-tagline {
@@ -668,7 +666,7 @@ em { font-style: italic; color: var(--gold-light); }
   width: 100%;
   text-align: center;
   margin-bottom: 2rem;
-  overflow: visible;
+  min-height: 200px;
 }
 .card-description-prompt {
   font-family: 'Cormorant Garamond', serif;
@@ -707,16 +705,17 @@ em { font-style: italic; color: var(--gold-light); }
   margin-top: 1rem;
 }
 
-/* Column pause — in-flow, replaces card stage below tray */
+/* Column pause overlay */
 .column-pause {
   display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(19,16,12,0.95);
+  z-index: 200;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 80px 24px;
-  width: 100%;
-  flex: 1;
 }
 .column-pause.visible { display: flex; }
 
@@ -1298,11 +1297,11 @@ footer {
   .card-actions { flex-direction: column; align-items: center; }
   .card-actions .btn-primary,
   .card-actions .btn-ghost { width: 280px; text-align: center; }
-  :root { --card-width: 260px; --card-height: 390px; }
+  :root { --card-width: 260px; --card-height: 455px; }
 }
 
 @media (max-width: 480px) {
-  :root { --card-width: 240px; --card-height: 360px; }
+  :root { --card-width: 240px; --card-height: 420px; }
   nav { padding: 1rem; }
   .nav-logo span.nav-full { display: none; }
 }
@@ -1314,7 +1313,7 @@ footer {
 <nav>
   <a href="https://starbucks005-alt.github.io/etl-lab" class="nav-logo">
     <span class="nav-bolt">⚡</span>
-    <span>Emerging Technologies Laboratory</span>
+    <span>Emerging Technologies Core Laboratory</span>
   </a>
   <a href="https://starbucks005-alt.github.io/etl-lab" class="nav-link">← Back to ETL Lab</a>
 </nav>
@@ -1345,6 +1344,11 @@ footer {
     <span class="progress-dot"></span>
     <span>Reading</span>
   </div>
+</div>
+
+<!-- COLUMN PAUSE OVERLAY -->
+<div class="column-pause dark-section" id="column-pause">
+  <div class="pause-text" id="pause-text"></div>
 </div>
 
 <!-- ============================================================
@@ -1403,11 +1407,6 @@ footer {
 <section class="screen dark-section" id="screen-cards">
   <!-- Selected tray at top -->
   <div class="selected-tray" id="selected-tray"></div>
-
-  <!-- Column pause — shown in place of card elements at end of each column -->
-  <div class="column-pause" id="column-pause">
-    <div class="pause-text" id="pause-text"></div>
-  </div>
 
   <!-- Card flip stage -->
   <div class="card-stage" id="card-stage" onclick="flipCard()">
@@ -1570,10 +1569,10 @@ footer {
 <!-- FOOTER -->
 <footer id="main-footer" style="display:none;">
   <div class="footer-logo">4/5/6 Power Platform</div>
-  <div class="footer-meta">Dr. Terry L. Oroszi · Emerging Technologies Laboratory · Wright State University</div>
+  <div class="footer-meta">Dr. Terry L. Oroszi · Emerging Technologies Core Laboratory · Wright State University</div>
   <div class="footer-ecosystem">
     <span class="ecosystem-label">Dr. Oroszi Ecosystem</span>
-    <a href="https://starbucks005-alt.github.io/etl-lab">Emerging Technologies Laboratory</a>
+    <a href="https://starbucks005-alt.github.io/etl-lab">Emerging Technologies Core Laboratory</a>
     <a href="https://slrstudio.online">SLR Studio</a>
     <a href="https://starbucks005-alt.github.io/etl-lab/456-power-platform.html">4/5/6 Power Platform</a>
   </div>
@@ -1967,30 +1966,13 @@ function advanceCard() {
 }
 
 function showColumnPause() {
-  // Hide card-interaction elements so the pause message takes their place.
-  // The selected-tray above remains visible — users can see what they kept.
-  ['card-stage', 'card-description-area', 'card-actions', 'card-counter'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.style.display = 'none';
-  });
-
   const pause = document.getElementById('column-pause');
-  const text  = document.getElementById('pause-text');
+  const text = document.getElementById('pause-text');
   text.innerHTML = 'Take a moment.<br>Look at what you chose.<br>Look at what you left behind.';
   pause.classList.add('visible');
 
   setTimeout(() => {
     pause.classList.remove('visible');
-
-    // Restore card elements for the next column
-    const stage = document.getElementById('card-stage');
-    const descArea = document.getElementById('card-description-area');
-    const counter  = document.getElementById('card-counter');
-    if (stage)   stage.style.display   = '';
-    if (descArea) descArea.style.display = '';
-    if (counter) counter.style.display  = '';
-    // card-actions stays hidden; loadCard() will show it after flip
-
     state.isAnimating = false;
 
     if (state.currentColumn < 2) {
@@ -2102,7 +2084,6 @@ function removeCard(cardId, category) {
 function generateReading() {
   showScreen('screen-reading');
   updateProgress('reading');
-  try { localStorage.setItem('etl_power456_done', 'true'); } catch(e) {}
   document.getElementById('reading-loader').style.display = 'flex';
   document.getElementById('reading-content').classList.remove('visible');
   document.getElementById('main-footer').style.display = '';

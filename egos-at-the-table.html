@@ -236,13 +236,14 @@
     <button class="tab-btn" onclick="showScreen('characters')">🃏 Characters</button>
     <button class="tab-btn" onclick="showScreen('game')">🎮 Game Setup</button>
     <button class="tab-btn" onclick="showScreen('bodylang')">👁 Body Language</button>
+    <button class="tab-btn" onclick="showScreen('certify')">🎓 Get Certified</button>
   </div>
 </div>
 
 <!-- LANDING -->
 <div id="screen-landing" class="screen active">
   <div class="landing">
-    <div class="sec-tag">Dr. Terry L. Oroszi &bull; Emerging Technologies Laboratory</div>
+    <div class="sec-tag">Dr. Terry L. Oroszi &bull; Emerging Technologies Core Laboratory</div>
     <h1>Egos at the <span>Table</span></h1>
     <p class="sub">Ever wonder why your meetings feel like battlegrounds instead of brainstorms? The answer lies in the hidden power dynamics and ego-driven behaviors controlling every interaction. Learn to identify them. Name them. Manage them.</p>
     <div class="mode-cards">
@@ -578,7 +579,7 @@ function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('screen-' + id).classList.add('active');
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  const tabs = ['landing','bingo','characters','game','bodylang'];
+  const tabs = ['landing','bingo','characters','game','bodylang','certify'];
   const idx = tabs.indexOf(id);
   if (idx >= 0) document.querySelectorAll('.tab-btn')[idx].classList.add('active');
   window.scrollTo(0, 0);
@@ -806,8 +807,276 @@ function renderBodyLang() {
 // INIT
 initBingo();
 buildPlayerList();
+</script>
 
-// TODO: localStorage.setItem('etl_egos_done', 'true'); — fire when facilitator cert is earned
+<!-- CERTIFY SCREEN -->
+<div id="screen-certify" class="screen">
+  <div class="sec-tag">Certification</div>
+  <div class="sec-title">Facilitator Certification</div>
+  <div class="sec-desc">Complete the 10-question assessment to earn your Certificate of Completion in Meeting Facilitation, issued by the Wright State University Boonshoft School of Medicine Emerging Technologies Core Laboratory.</div>
+
+  <div id="cert-quiz-wrap">
+    <div id="cert-name-step">
+      <div style="max-width:480px;margin-bottom:32px">
+        <label class="form-label">Your Full Name (as it will appear on the certificate)</label>
+        <input type="text" class="form-input" id="cert-name" placeholder="e.g. Jane A. Smith" style="margin-top:8px">
+        <button class="btn-primary" style="margin-top:16px" onclick="startQuiz()">Begin Assessment &rarr;</button>
+      </div>
+    </div>
+
+    <div id="cert-quiz-step" style="display:none;max-width:680px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+        <div class="sec-tag" style="margin:0" id="q-counter">Question 1 of 10</div>
+        <div class="progress-bar" style="width:200px"><div class="progress-fill" id="q-progress" style="width:10%"></div></div>
+      </div>
+      <div id="quiz-question-block"></div>
+      <div style="margin-top:20px;display:flex;justify-content:space-between;align-items:center">
+        <span id="quiz-feedback" style="font-size:13px"></span>
+        <button class="btn-primary" id="quiz-next-btn" onclick="nextQuestion()" style="display:none">Next &rarr;</button>
+      </div>
+    </div>
+
+    <div id="cert-result-step" style="display:none;text-align:center;max-width:640px;margin:0 auto">
+      <div id="cert-result-msg"></div>
+      <button class="btn-primary" style="margin-top:20px" onclick="retakeQuiz()">Retake Quiz</button>
+    </div>
+  </div>
+
+  <!-- CERTIFICATE -->
+  <div id="cert-display" style="display:none;max-width:760px;margin:0 auto">
+    <div style="text-align:center;margin-bottom:24px">
+      <button class="btn-primary" onclick="printCert()">Print Certificate</button>
+      <button class="btn-secondary" style="margin-left:12px" onclick="retakeQuiz()">Retake Quiz</button>
+    </div>
+    <div id="cert-paper" style="
+      background:#fff;color:#1a1a1a;
+      border:3px solid #C9A84C;
+      padding:60px 64px;
+      font-family:Georgia,serif;
+      position:relative;
+      box-shadow:0 8px 40px rgba(0,0,0,0.4);
+    ">
+      <!-- corner decorations -->
+      <div style="position:absolute;top:16px;left:16px;width:40px;height:40px;border-top:2px solid #C9A84C;border-left:2px solid #C9A84C"></div>
+      <div style="position:absolute;top:16px;right:16px;width:40px;height:40px;border-top:2px solid #C9A84C;border-right:2px solid #C9A84C"></div>
+      <div style="position:absolute;bottom:16px;left:16px;width:40px;height:40px;border-bottom:2px solid #C9A84C;border-left:2px solid #C9A84C"></div>
+      <div style="position:absolute;bottom:16px;right:16px;width:40px;height:40px;border-bottom:2px solid #C9A84C;border-right:2px solid #C9A84C"></div>
+
+      <div style="text-align:center;border-bottom:1px solid #C9A84C;padding-bottom:24px;margin-bottom:28px">
+        <div style="font-size:11px;letter-spacing:4px;color:#888;text-transform:uppercase;margin-bottom:8px">Wright State University</div>
+        <div style="font-size:13px;letter-spacing:3px;color:#555;text-transform:uppercase;margin-bottom:4px">Boonshoft School of Medicine</div>
+        <div style="font-size:11px;letter-spacing:3px;color:#C9A84C;text-transform:uppercase">Emerging Technologies Core Laboratory</div>
+      </div>
+
+      <div style="text-align:center;margin-bottom:28px">
+        <div style="font-size:11px;letter-spacing:4px;color:#888;text-transform:uppercase;margin-bottom:16px">Certificate of Completion</div>
+        <div style="font-size:36px;color:#1a1a1a;margin-bottom:8px;font-weight:bold;letter-spacing:1px">Meeting Facilitation</div>
+        <div style="font-size:13px;color:#555;letter-spacing:2px;text-transform:uppercase">Egos at the Table Facilitator Training</div>
+      </div>
+
+      <div style="text-align:center;margin-bottom:32px">
+        <div style="font-size:12px;color:#888;margin-bottom:12px">This certifies that</div>
+        <div id="cert-name-display" style="font-size:30px;color:#C9A84C;border-bottom:1px solid #C9A84C;display:inline-block;padding:0 40px 8px;margin-bottom:12px;font-style:italic"></div>
+        <div style="font-size:13px;color:#555;line-height:1.8;max-width:500px;margin:0 auto">
+          has successfully completed the Egos at the Table Facilitator Training, demonstrating proficiency in identifying meeting personality types, decoding nonverbal communication, applying evidence-based facilitation techniques, and managing ego-driven meeting behaviors.
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:40px;padding-top:24px;border-top:1px solid #eee">
+        <div style="text-align:center">
+          <div style="font-size:13px;color:#1a1a1a;font-style:italic;margin-bottom:4px">Dr. Terry L. Oroszi</div>
+          <div style="width:180px;border-top:1px solid #999;padding-top:6px">
+            <div style="font-size:10px;color:#888;letter-spacing:1px;text-transform:uppercase">Director, ETL &bull; Associate Professor</div>
+            <div style="font-size:10px;color:#888;letter-spacing:1px">Dept. of Pharmacology & Toxicology</div>
+          </div>
+        </div>
+        <div style="text-align:center">
+          <div id="cert-date-display" style="font-size:13px;color:#1a1a1a;margin-bottom:4px"></div>
+          <div style="width:160px;border-top:1px solid #999;padding-top:6px">
+            <div style="font-size:10px;color:#888;letter-spacing:1px;text-transform:uppercase">Date of Completion</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align:center;margin-top:32px;padding-top:16px;border-top:1px solid #eee">
+        <div style="font-size:10px;color:#aaa;letter-spacing:1px;line-height:1.8">
+          This certificate is issued for self-paced completion of the Egos at the Table online training program.<br>
+          Corporate licensing and in-person facilitation workshops with Dr. Oroszi are available through the ETL.<br>
+          etl.wright.edu &bull; terry.oroszi@wright.edu
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const QUIZ = [
+  {
+    q: "Mr./Ms. Nevershtup is in your meeting. Which is the BEST facilitation response?",
+    options: ["Interrupt them directly and ask them to stop", "Use Strategic Redirect: 'Thank you for those insights — I'd like to hear from others who haven't had a chance to speak yet'", "End the meeting early", "Ignore the behavior and hope it stops"],
+    answer: 1,
+    explain: "Strategic Redirect is the evidence-based technique: acknowledge the speaker, then shift the floor to others without direct confrontation."
+  },
+  {
+    q: "You notice a participant crossing their arms, avoiding eye contact, and sighing loudly. According to the Clusters rule, what does this most likely indicate?",
+    options: ["They are cold", "They are engaged but shy", "They are experiencing discomfort or passive disagreement", "They are the meeting facilitator"],
+    answer: 2,
+    explain: "Three or more nonverbal cues together form a cluster. This cluster strongly signals passive resistance or discomfort. Always look for clusters, not single cues."
+  },
+  {
+    q: "Which meeting personality is most likely to say 'we need more research before we can decide'?",
+    options: ["Manager Domb", "Mr./Ms. Procrass Tinator", "Mr./Ms. Betafesh", "Director Dee Nigh"],
+    answer: 1,
+    explain: "Mr./Ms. Procrass Tinator consistently delays decisions by calling for more research, more committees, and more information — even when sufficient information already exists."
+  },
+  {
+    q: "Micro-expressions are significant because they:",
+    options: ["Last several seconds and are easy to observe", "Reveal genuine emotion before conscious control can suppress them", "Only occur in deceptive people", "Are always signs of anger"],
+    answer: 1,
+    explain: "Micro-expressions last just 1/25 of a second and are involuntary. They reveal true emotion before the person can consciously manage their expression — making them highly reliable signals."
+  },
+  {
+    q: "Which facilitation technique is best for preventing Mr./Ms. Nevershtup from dominating while also drawing out Mr./Ms. Deadlee?",
+    options: ["Timed Speaking", "Round Robin", "Strategic Redirect", "Written Contributions"],
+    answer: 1,
+    explain: "Round Robin gives each participant a structured timed turn, preventing monologuing while ensuring quieter participants must contribute. It addresses both problems simultaneously."
+  },
+  {
+    q: "A participant's feet are pointing toward the door during a critical discussion. This most likely signals:",
+    options: ["They are comfortable and relaxed", "They are paying close attention", "They want to leave or disengage", "They are the most powerful person in the room"],
+    answer: 2,
+    explain: "Feet are the least consciously controlled part of the body. They point toward what we genuinely want. Feet pointing toward exits signal the desire to leave — even when the face appears engaged."
+  },
+  {
+    q: "Mr./Ms. Rocket has arms crossed, is head-shaking, and using dismissive gestures. As facilitator, your first step should be:",
+    options: ["Publicly call out the behavior", "Ask them to leave", "Acknowledge their nonverbal cues privately if possible and invite their perspective", "Ignore it completely"],
+    answer: 2,
+    explain: "Silent aggressors are difficult to address directly because their resistance is nonverbal. Inviting their perspective gives them a legitimate outlet and can de-escalate the behavior."
+  },
+  {
+    q: "The 'Surprise Check' body language principle means:",
+    options: ["Checking if people are surprised by the agenda", "Watching where people glance immediately after a surprising statement is made", "Asking participants to express surprise", "Reviewing meeting notes for unexpected items"],
+    answer: 1,
+    explain: "When something surprising is said, people briefly and involuntarily glance toward the person they are most concerned about or allied with. This micro-gaze reveals relationships and threat perceptions."
+  },
+  {
+    q: "Which of the following BEST describes the role of the Meeting Facilitator?",
+    options: ["Controls the agenda and represents organizational goals", "Sets high performance standards and leads by example", "Maintains time, ensures all voices are heard, and stays neutral on content", "Uses expertise to guide and influence the meeting outcome"],
+    answer: 2,
+    explain: "The Facilitator is a neutral process manager. They do not advocate for outcomes but instead ensure the process is fair, inclusive, and productive. Content belongs to the group."
+  },
+  {
+    q: "An organization wants to use the Egos at the Table framework for team development. According to Dr. Oroszi's model, what is the primary value for organizations?",
+    options: ["It identifies who should be fired", "It creates a shared language for meeting behaviors, builds self-awareness, and gives facilitators tools to manage power dynamics constructively", "It replaces the need for HR policies", "It ranks employees by leadership quality"],
+    answer: 1,
+    explain: "The framework's organizational value is building a common vocabulary for discussing behaviors, developing facilitation skills, and improving meeting culture — not evaluating or ranking individuals."
+  }
+];
+
+let quizIdx = 0;
+let quizScore = 0;
+let quizAnswered = false;
+let certUserName = '';
+
+function startQuiz() {
+  const name = document.getElementById('cert-name').value.trim();
+  if (!name) { alert('Please enter your name first.'); return; }
+  certUserName = name;
+  quizIdx = 0;
+  quizScore = 0;
+  document.getElementById('cert-name-step').style.display = 'none';
+  document.getElementById('cert-quiz-step').style.display = 'block';
+  document.getElementById('cert-result-step').style.display = 'none';
+  document.getElementById('cert-display').style.display = 'none';
+  renderQuestion();
+}
+
+function renderQuestion() {
+  quizAnswered = false;
+  const q = QUIZ[quizIdx];
+  document.getElementById('q-counter').textContent = 'Question ' + (quizIdx+1) + ' of ' + QUIZ.length;
+  document.getElementById('q-progress').style.width = ((quizIdx+1)/QUIZ.length*100) + '%';
+  document.getElementById('quiz-feedback').textContent = '';
+  document.getElementById('quiz-next-btn').style.display = 'none';
+
+  let html = '<div style="font-size:16px;color:#fff;line-height:1.6;margin-bottom:20px;font-weight:bold">' + q.q + '</div>';
+  q.options.forEach((opt, i) => {
+    html += '<div class="quiz-opt" id="opt-' + i + '" onclick="selectAnswer(' + i + ')" style="background:var(--card-bg);border:1px solid var(--border);border-radius:3px;padding:14px 16px;margin-bottom:10px;cursor:pointer;font-size:13px;color:var(--text-dim);transition:all 0.15s;line-height:1.5">' + opt + '</div>';
+  });
+  document.getElementById('quiz-question-block').innerHTML = html;
+}
+
+function selectAnswer(idx) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+  const q = QUIZ[quizIdx];
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach((o, i) => {
+    o.style.cursor = 'default';
+    if (i === q.answer) { o.style.borderColor = '#27ae60'; o.style.background = 'rgba(39,174,96,0.1)'; o.style.color = '#2ecc71'; }
+    if (i === idx && idx !== q.answer) { o.style.borderColor = '#c0392b'; o.style.background = 'rgba(192,57,43,0.1)'; o.style.color = '#e74c3c'; }
+  });
+  if (idx === q.answer) {
+    quizScore++;
+    document.getElementById('quiz-feedback').innerHTML = '<span style="color:#2ecc71">✓ Correct.</span> ' + q.explain;
+  } else {
+    document.getElementById('quiz-feedback').innerHTML = '<span style="color:#e74c3c">✗ Incorrect.</span> ' + q.explain;
+  }
+  document.getElementById('quiz-next-btn').style.display = 'inline-block';
+  document.getElementById('quiz-next-btn').textContent = quizIdx < QUIZ.length - 1 ? 'Next →' : 'See Results →';
+}
+
+function nextQuestion() {
+  quizIdx++;
+  if (quizIdx >= QUIZ.length) { showResult(); return; }
+  renderQuestion();
+}
+
+function showResult() {
+  document.getElementById('cert-quiz-step').style.display = 'none';
+  document.getElementById('cert-result-step').style.display = 'block';
+  const pct = Math.round(quizScore / QUIZ.length * 100);
+  const passed = pct >= 70;
+  let msg = '';
+  if (passed) {
+    msg = '<div style="font-size:48px;margin-bottom:16px">🎓</div>' +
+      '<div style="font-size:28px;color:var(--gold);margin-bottom:8px">Congratulations, ' + certUserName.split(' ')[0] + '!</div>' +
+      '<div style="font-size:16px;color:var(--text);margin-bottom:8px">You scored ' + quizScore + ' out of ' + QUIZ.length + ' (' + pct + '%)</div>' +
+      '<div style="font-size:14px;color:var(--text-dim);margin-bottom:24px">You have passed the Egos at the Table Facilitator Assessment.</div>' +
+      '<button class="btn-primary" onclick="generateCert()">Generate My Certificate →</button>';
+  } else {
+    msg = '<div style="font-size:48px;margin-bottom:16px">📋</div>' +
+      '<div style="font-size:24px;color:#e74c3c;margin-bottom:8px">Not quite there yet</div>' +
+      '<div style="font-size:16px;color:var(--text);margin-bottom:8px">You scored ' + quizScore + ' out of ' + QUIZ.length + ' (' + pct + '%)</div>' +
+      '<div style="font-size:14px;color:var(--text-dim);margin-bottom:24px">A score of 70% or higher is required. Review the character cards and body language guide, then try again.</div>';
+  }
+  document.getElementById('cert-result-msg').innerHTML = msg;
+}
+
+function generateCert() {
+  document.getElementById('cert-result-step').style.display = 'none';
+  document.getElementById('cert-display').style.display = 'block';
+  document.getElementById('cert-name-display').textContent = certUserName;
+  const now = new Date();
+  document.getElementById('cert-date-display').textContent = now.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+  document.getElementById('cert-display').scrollIntoView({ behavior: 'smooth' });
+}
+
+function printCert() {
+  const certHTML = document.getElementById('cert-paper').outerHTML;
+  const win = window.open('', '_blank');
+  win.document.write('<html><head><title>Certificate of Completion</title><style>body{margin:0;padding:40px;background:#fff;font-family:Georgia,serif} @media print{body{padding:0}}</style></head><body>' + certHTML + '<script>window.onload=function(){window.print()}</' + 'script></body></html>');
+  win.document.close();
+}
+
+function retakeQuiz() {
+  quizIdx = 0;
+  quizScore = 0;
+  document.getElementById('cert-name-step').style.display = 'block';
+  document.getElementById('cert-quiz-step').style.display = 'none';
+  document.getElementById('cert-result-step').style.display = 'none';
+  document.getElementById('cert-display').style.display = 'none';
+}
 </script>
 </body>
 </html>
