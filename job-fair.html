@@ -964,7 +964,9 @@ async function sRunScan() {
       messages:[{role:'user', content:'Position type: '+positionType+'. Field: '+profile.field+'. Roles: '+(profile.targetRoles||[]).join(', ')+'. Skills: '+(profile.skills||[]).join(', ')+(keywords?'. Also requires: '+keywords:'')+'. Find positions '+distText+'. Return ONLY the JSON array.'}]
     });
     var raw2 = (d2.content.find(function(b){return b.type==='text';})||{}).text||'';
+    console.log('[scanner] raw2 text:', raw2.substring(0, 500));
     var jobs = sExtractJSON(raw2);
+    console.log('[scanner] parsed jobs:', jobs);
 
     if (!jobs || !Array.isArray(jobs)) {
       statusEl.innerHTML = '<div class="s-status-box">' + bar + '<div class="s-status-title">Formatting results</div><div class="s-status-sub">Structuring search output&hellip;</div></div>';
