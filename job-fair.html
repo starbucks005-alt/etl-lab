@@ -1032,55 +1032,54 @@ function sRenderResults(profile, jobs, bar, visaType, isIntl, positionType) {
 }
 
 function sComputeATS(profile, job) {
-  // Build keyword set from the job posting — use multi-word phrases too
   var jobText = ((job.description||'') + ' ' + (job.role||'') + ' ' + (job.matchReason||'')).toLowerCase();
-  var stopWords = ['the','and','for','with','that','this','from','are','was','will','have','has','been','not','but','all','can','had','her','one','our','out','you','its','also','than','them','then','into','some','could','other','which','their','would','about','each','make','like','over','such','after','should','these','only','many','most','where','while','being','through','between','during','before','those','both','same','more','very','when','what','your','just','because','they','work','working','experience','strong','ability','team','required','preferred','including','must','using','role','position','within','across','related','based','well','new','high','key','ensure','join','help','need','open','lead','apply','year','years','plus','least','per','use','may','take','good','best','part','full','time','day','field','level','current','provide','support','manage','develop','seeking','looking','ideal','candidate','qualifications','responsibilities','requirements','description','company','opportunities'];
-  var stopSet = {};
-  stopWords.forEach(function(w) { stopSet[w] = true; });
-
-  // Extract meaningful words (4+ chars to skip noise, deduplicate)
-  var jobWords = jobText.match(/[a-z]{4,}/g) || [];
-  var jobKeywords = {};
-  jobWords.forEach(function(w) { if (!stopSet[w]) jobKeywords[w] = true; });
-  var jobKwList = Object.keys(jobKeywords);
-  if (jobKwList.length === 0) return { score: 70, label: 'Good', color: '#d4aa4a', missingKeywords: [] };
-
-  // Build profile text for matching
   var profileText = ((profile.skills||[]).join(' ') + ' ' + (profile.experience||'') + ' ' + (profile.degree||'') + ' ' + (profile.field||'') + ' ' + (profile.targetRoles||[]).join(' ')).toLowerCase();
 
-  // Stem matching: truncate both job keyword and profile words to first 5 chars
-  // so "toxicology" matches "toxicologist", "regulatory" matches "regulation", etc.
-  function stem(w) { return w.length > 5 ? w.substring(0, Math.min(w.length - 1, 6)) : w; }
+  function stem(w) { return w.length > 5 ? w.substring(0, 6) : w; }
 
-  var profileStems = {};
-  var profileWords = profileText.match(/[a-z]{4,}/g) || [];
-  profileWords.forEach(function(w) { profileStems[stem(w)] = true; });
+  // Use profile skills as the primary keywords to check against job text
+  var profileSkills = (profile.skills||[]).map(function(s){return s.toLowerCase();});
+  var profileRoles = (profile.targetRoles||[]).map(function(s){return s.toLowerCase();});
+  var profileField = (profile.field||'').toLowerCase();
 
-  // Score: how many job keywords have a stem match in the profile
-  var matched = 0;
-  var missing = [];
-  jobKwList.forEach(function(kw) {
-    if (profileStems[stem(kw)] || profileText.indexOf(kw) !== -1) {
-      matched++;
-    } else {
-      missing.push(kw);
-    }
+  // Score 1: How many of the candidate's skills appear in the job (stem match)
+  var jobStems = {};
+  (jobText.match(/[a-z]{4,}/g)||[]).forEach(function(w){ jobStems[stem(w)] = true; });
+
+  var skillHits = 0;
+  profileSkills.forEach(function(skill) {
+    var words = skill.match(/[a-z]{4,}/g)||[];
+    var hit = words.some(function(w){ return jobStems[stem(w)] || jobText.indexOf(w) !== -1; });
+    if (hit) skillHits++;
   });
+  var skillScore = profileSkills.length > 0 ? (skillHits / profileSkills.length) * 100 : 50;
 
-  // Deduplicate similar missing keywords by stem, pick top 3 longest (most specific)
-  missing.sort(function(a, b) { return b.length - a.length; });
-  var seen = {};
-  var topMissing = [];
-  for (var i = 0; i < missing.length && topMissing.length < 3; i++) {
-    var s = stem(missing[i]);
-    if (!seen[s]) {
-      seen[s] = true;
-      topMissing.push(missing[i]);
-    }
-  }
+  // Score 2: Does the job role/field overlap with target roles or field
+  var roleHit = profileRoles.some(function(r) {
+    var words = r.match(/[a-z]{4,}/g)||[];
+    return words.some(function(w){ return jobStems[stem(w)]; });
+  });
+  var fieldWords = (profileField.match(/[a-z]{4,}/g)||[]);
+  var fieldHit = fieldWords.some(function(w){ return jobStems[stem(w)]; });
+  var roleBonus = (roleHit ? 15 : 0) + (fieldHit ? 10 : 0);
 
-  var raw = Math.round((matched / jobKwList.length) * 100);
-  var score = Math.min(99, Math.max(25, raw));
+  // Score 3: CV match from the search (already computed by AI)
+  var aiMatch = Math.min(99, Math.max(0, parseInt(job.matchScore)||70));
+
+  // Blend: 40% skill overlap + 25% role/field bonus + 35% AI match
+  var blended = Math.round(skillScore * 0.4 + roleBonus + aiMatch * 0.35);
+  var score = Math.min(99, Math.max(25, blended));
+
+  // Find missing skills — profile skills NOT in job text
+  var missing = [];
+  profileSkills.forEach(function(skill) {
+    var words = skill.match(/[a-z]{4,}/g)||[];
+    var hit = words.some(function(w){ return jobStems[stem(w)] || jobText.indexOf(w) !== -1; });
+    if (!hit) missing.push(skill);
+  });
+  // Pick top 3 most specific missing skills
+  missing.sort(function(a,b){ return b.length - a.length; });
+  var topMissing = missing.slice(0, 3);
 
   var label, color;
   if (score >= 80) { label = 'Excellent'; color = '#4A9B8E'; }
