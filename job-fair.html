@@ -958,9 +958,9 @@ async function sRunScan() {
       ? 'Student requires ' + visaType + ' work authorization. Prioritize postings mentioning CPT, OPT, visa sponsorship, or international students.'
       : 'Domestic applicant. No visa filtering needed.';
 
-    var d2 = await sCallAPI({model:'claude-sonnet-4-20250514', max_tokens:1000,
+    var d2 = await sCallAPI({model:'claude-haiku-4-5-20251001', max_tokens:1000,
       tools:[{type:'web_search_20250305', name:'web_search'}],
-      system:'Find current ' + positionType + ' postings. ' + visaInstr + ' Respond ONLY with a raw JSON array starting with [ and ending with ]. No prose. No markdown. Each object: {"company":string,"role":string,"location":string,"visaStatus":string,"matchScore":integer 60-99,"matchReason":string,"deadline":string,"description":string,"url":string}. Return 5-7 real results.',
+      system:'Find current ' + positionType + ' postings. ' + visaInstr + ' Respond ONLY with a raw JSON array starting with [ and ending with ]. No prose. No markdown. Each object: {"company":string,"role":string,"location":string,"visaStatus":string,"matchScore":integer 60-99,"matchReason":string,"deadline":string,"description":string,"url":string}. Return 4-5 real results.',
       messages:[{role:'user', content:'Position type: '+positionType+'. Field: '+profile.field+'. Roles: '+(profile.targetRoles||[]).join(', ')+'. Skills: '+(profile.skills||[]).join(', ')+(keywords?'. Also requires: '+keywords:'')+'. Find positions '+distText+'. Return ONLY the JSON array.'}]
     });
     var raw2 = (d2.content.find(function(b){return b.type==='text';})||{}).text||'';
