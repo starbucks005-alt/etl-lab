@@ -1032,14 +1032,14 @@ function sRenderResults(profile, jobs, bar, visaType, isIntl, positionType) {
 }
 
 function sComputeATS(profile, job) {
-  // Build keyword set from the job posting
+  // Build keyword set from the job posting — use multi-word phrases too
   var jobText = ((job.description||'') + ' ' + (job.role||'') + ' ' + (job.matchReason||'')).toLowerCase();
-  // Extract meaningful words (3+ chars, skip common stop words)
-  var stopWords = ['the','and','for','with','that','this','from','are','was','will','have','has','been','not','but','all','can','had','her','one','our','out','you','its','also','than','them','then','into','some','could','other','which','their','would','about','each','make','like','over','such','after','should','these','only','many','most','where','while','being','through','between','during','before','those','both','same','more','very','when','what','your','just','because','they','work','working','experience','strong','ability','team','required','preferred','including','must','using','role','position','within','across','related'];
+  var stopWords = ['the','and','for','with','that','this','from','are','was','will','have','has','been','not','but','all','can','had','her','one','our','out','you','its','also','than','them','then','into','some','could','other','which','their','would','about','each','make','like','over','such','after','should','these','only','many','most','where','while','being','through','between','during','before','those','both','same','more','very','when','what','your','just','because','they','work','working','experience','strong','ability','team','required','preferred','including','must','using','role','position','within','across','related','based','well','new','high','key','ensure','join','help','need','open','lead','apply','year','years','plus','least','per','use','may','take','good','best','part','full','time','day','field','level','current','provide','support','manage','develop','seeking','looking','ideal','candidate','qualifications','responsibilities','requirements','description','company','opportunities'];
   var stopSet = {};
   stopWords.forEach(function(w) { stopSet[w] = true; });
 
-  var jobWords = jobText.match(/[a-z]{3,}/g) || [];
+  // Extract meaningful words (4+ chars to skip noise, deduplicate)
+  var jobWords = jobText.match(/[a-z]{4,}/g) || [];
   var jobKeywords = {};
   jobWords.forEach(function(w) { if (!stopSet[w]) jobKeywords[w] = true; });
   var jobKwList = Object.keys(jobKeywords);
@@ -1048,31 +1048,39 @@ function sComputeATS(profile, job) {
   // Build profile text for matching
   var profileText = ((profile.skills||[]).join(' ') + ' ' + (profile.experience||'') + ' ' + (profile.degree||'') + ' ' + (profile.field||'') + ' ' + (profile.targetRoles||[]).join(' ')).toLowerCase();
 
-  // Score: how many job keywords appear in profile
+  // Stem matching: truncate both job keyword and profile words to first 5 chars
+  // so "toxicology" matches "toxicologist", "regulatory" matches "regulation", etc.
+  function stem(w) { return w.length > 5 ? w.substring(0, Math.min(w.length - 1, 6)) : w; }
+
+  var profileStems = {};
+  var profileWords = profileText.match(/[a-z]{4,}/g) || [];
+  profileWords.forEach(function(w) { profileStems[stem(w)] = true; });
+
+  // Score: how many job keywords have a stem match in the profile
   var matched = 0;
   var missing = [];
   jobKwList.forEach(function(kw) {
-    if (profileText.indexOf(kw) !== -1) {
+    if (profileStems[stem(kw)] || profileText.indexOf(kw) !== -1) {
       matched++;
     } else {
       missing.push(kw);
     }
   });
 
-  // Deduplicate similar missing keywords and pick top 3 by length (longer = more specific)
+  // Deduplicate similar missing keywords by stem, pick top 3 longest (most specific)
   missing.sort(function(a, b) { return b.length - a.length; });
   var seen = {};
   var topMissing = [];
   for (var i = 0; i < missing.length && topMissing.length < 3; i++) {
-    var stem = missing[i].substring(0, 4);
-    if (!seen[stem]) {
-      seen[stem] = true;
+    var s = stem(missing[i]);
+    if (!seen[s]) {
+      seen[s] = true;
       topMissing.push(missing[i]);
     }
   }
 
   var raw = Math.round((matched / jobKwList.length) * 100);
-  var score = Math.min(99, Math.max(20, raw));
+  var score = Math.min(99, Math.max(25, raw));
 
   var label, color;
   if (score >= 80) { label = 'Excellent'; color = '#4A9B8E'; }
