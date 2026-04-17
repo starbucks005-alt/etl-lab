@@ -229,9 +229,8 @@
   /* ── SECTION BASE ── */
   section {
     position: relative;
-    padding: 100px 60px;
-    max-width: 1200px;
-    margin: 0 auto;
+    padding: 100px max(60px, calc((100% - 1200px) / 2));
+    width: 100%;
   }
 
   .section-full {
@@ -242,7 +241,7 @@
   }
 
   .section-full-inner {
-    max-width: 1200px; margin: 0 auto; padding: 0 60px;
+    max-width: 1200px; margin: 0 auto; padding: 0 60px; width: 100%;
   }
 
   .section-tag {
@@ -1533,7 +1532,7 @@
 </section>
 
 <!-- RECOGNITION & AFFILIATIONS -->
-<section id="recognition" style="padding:80px 2.5rem;max-width:900px;margin:0 auto;">
+<section id="recognition" style="padding:80px max(2.5rem, calc((100% - 900px) / 2));width:100%;">
   <div class="section-tag">Dossier</div>
   <h2 class="section-title">Recognition &amp; <span>Affiliations</span></h2>
 
@@ -1567,7 +1566,7 @@
 </section>
 
 <!-- SPECIALIZED TRAINING & CERTIFICATIONS -->
-<section id="training" style="padding:80px 2.5rem;max-width:900px;margin:0 auto;">
+<section id="training" style="padding:80px max(2.5rem, calc((100% - 900px) / 2));width:100%;">
   <div class="section-tag">Credentials</div>
   <h2 class="section-title">Specialized <span>Training</span></h2>
 
