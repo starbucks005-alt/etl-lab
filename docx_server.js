@@ -101,7 +101,7 @@ function buildDoc(input) {
   }
 
   const footerPara = new Paragraph({
-    children: [new TextRun({ text: 'SLR Studio · ETL · Wright State University · Page ', font: FONT, size: 18, color: '888888' }), new TextRun({ children: [new PageNumberElement()], font: FONT, size: 18, color: '888888' })],
+    children: [new TextRun({ text: 'SLR Studio · ETL · Page ', font: FONT, size: 18, color: '888888' }), new TextRun({ children: [new PageNumberElement()], font: FONT, size: 18, color: '888888' })],
     alignment: AlignmentType.CENTER
   });
 
