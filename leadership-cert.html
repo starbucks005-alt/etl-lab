@@ -371,6 +371,12 @@ function downloadCert() {
 }
 
 window.addEventListener('DOMContentLoaded', function() {
+  // PREVIEW BYPASS — remove before launch
+  document.getElementById('cert-locked').style.display = 'none';
+  document.getElementById('cert-unlocked').style.display = 'block';
+  document.getElementById('cert-name').value = 'Dr. Terry Oroszi';
+  generateCert();
+
   var moduleKeys = {
     'etl_elevator_done': 'lock-check-elevator',
     'etl_egos_done'    : 'lock-check-egos',
