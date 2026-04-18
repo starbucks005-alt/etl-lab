@@ -383,7 +383,17 @@ function generateCert() {
   var logo = new Image();
   logo.onload = function() {
     var lh = 52, lw = Math.round(logo.naturalWidth * lh / logo.naturalHeight);
-    ctx.drawImage(logo, 50, 42, lw, lh);
+    // Strip near-white background so logo floats on dark or light cert
+    var off = document.createElement('canvas');
+    off.width = lw; off.height = lh;
+    var octx = off.getContext('2d');
+    octx.drawImage(logo, 0, 0, lw, lh);
+    var d = octx.getImageData(0, 0, lw, lh);
+    for (var i = 0; i < d.data.length; i += 4) {
+      if ((d.data[i] + d.data[i+1] + d.data[i+2]) / 3 > 200) d.data[i+3] = 0;
+    }
+    octx.putImageData(d, 0, 0);
+    ctx.drawImage(off, 50, 42);
   };
   logo.onerror = function() {};
   logo.src = 'etl-logo-trans.png';
@@ -405,12 +415,6 @@ function downloadCert() {
 }
 
 window.addEventListener('DOMContentLoaded', function() {
-  // PREVIEW BYPASS — remove before launch
-  document.getElementById('cert-locked').style.display = 'none';
-  document.getElementById('cert-unlocked').style.display = 'block';
-  document.getElementById('cert-name').value = 'Dr. Terry Oroszi';
-  generateCert();
-
   var moduleKeys = {
     'etl_elevator_done': 'lock-check-elevator',
     'etl_egos_done'    : 'lock-check-egos',
