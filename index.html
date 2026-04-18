@@ -2275,7 +2275,7 @@
       </div>
       <div class="contact-line">
         <span class="c-label">Email</span>
-        <span class="c-value"><a href="/cdn-cgi/l/email-protection#3e4a5b4c4c4710514c514d44577e494c5759564a105b5a4b"><span class="__cf_email__" data-cfemail="22564750505b0c4d504d51584b6255504b454a560c474657">[email&#160;protected]</span></a></span>
+        <span class="c-value"><a href="mailto:terry.oroszi@wright.edu">terry.oroszi@wright.edu</a></span>
       </div>
       <div class="contact-line">
         <span class="c-label">Phone</span>
@@ -2306,7 +2306,28 @@
         <span class="c-value"><a href="https://www.linkedin.com/in/dr-terry-l-oroszi/" target="_blank">Dr. Terry L. Oroszi</a></span>
       </div>
       <div style="margin-top:28px;">
-        <a href="/cdn-cgi/l/email-protection#88fcedfafaf1a6e7fae7fbf2e1c8fffae1efe0fca6edecfdb7fbfdeae2edebfcb5cddcc4a8daedfbede9faebe0a8c1e6f9fde1faf1" class="btn btn-primary" style="font-size:11px; letter-spacing:2px; padding:12px 28px;">Send Secure Message</a>
+        <form name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field"
+              style="display:flex;flex-direction:column;gap:12px;max-width:480px;">
+          <input type="hidden" name="form-name" value="contact">
+          <p style="display:none;"><label>Don't fill this out: <input name="bot-field"></label></p>
+          <div>
+            <label style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gray);display:block;margin-bottom:4px;">Name</label>
+            <input type="text" name="name" required style="width:100%;padding:8px 10px;border:1px solid var(--border);font-size:13px;background:white;box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gray);display:block;margin-bottom:4px;">Email</label>
+            <input type="email" name="email" required style="width:100%;padding:8px 10px;border:1px solid var(--border);font-size:13px;background:white;box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gray);display:block;margin-bottom:4px;">Subject</label>
+            <input type="text" name="subject" required style="width:100%;padding:8px 10px;border:1px solid var(--border);font-size:13px;background:white;box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gray);display:block;margin-bottom:4px;">Message</label>
+            <textarea name="message" rows="5" required style="width:100%;padding:8px 10px;border:1px solid var(--border);font-size:13px;background:white;box-sizing:border-box;resize:vertical;"></textarea>
+          </div>
+          <button type="submit" style="font-family:'Oswald',sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;padding:12px 28px;background:#111111;color:#ffffff;border:none;cursor:pointer;align-self:flex-start;">SEND SECURE MESSAGE</button>
+        </form>
       </div>
     </div>
   </div>
