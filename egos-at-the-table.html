@@ -989,6 +989,13 @@ let quizScore = 0;
 let quizAnswered = false;
 let certUserName = '';
 
+// PREVIEW BYPASS — remove before launch
+window.addEventListener('DOMContentLoaded', function() {
+  showScreen('certify');
+  certUserName = 'Dr. Terry Oroszi';
+  generateCert();
+});
+
 function startQuiz() {
   const name = document.getElementById('cert-name').value.trim();
   if (!name) { alert('Please enter your name first.'); return; }
