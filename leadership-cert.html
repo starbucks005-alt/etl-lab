@@ -230,7 +230,11 @@
   <h1 class="page-headline">ETL Leadership Certificate</h1>
   <p class="page-sub">You have completed all six modules of the Emerging Technologies Core Laboratory Leadership Certificate program.</p>
 
-  <canvas id="cert-canvas" width="1100" height="780" style="max-width:100%; border: 1px solid rgba(184,146,42,0.3); display:block; margin: 2rem auto;"></canvas>
+  <div id="theme-row" style="display:none; text-align:center; margin-bottom:0.75rem;">
+    <button class="btn-ghost" id="theme-toggle" onclick="toggleTheme()" style="border-color:var(--gold);color:var(--gold);">LIGHT VERSION &#9728;</button>
+  </div>
+
+  <canvas id="cert-canvas" width="1100" height="780" style="max-width:100%; border: 1px solid rgba(184,146,42,0.3); display:block; margin: 0 auto 2rem;"></canvas>
 
   <div class="cert-controls">
     <input type="text" id="cert-name" class="cert-name-input" placeholder="Enter your full name">
@@ -239,7 +243,6 @@
 
   <div class="download-row" id="download-row">
     <button class="btn-ghost" onclick="downloadCert()" style="border-color:var(--gold);color:var(--gold);">DOWNLOAD CERTIFICATE &rarr;</button>
-    <button class="btn-ghost" id="theme-toggle" onclick="toggleTheme()" style="border-color:var(--gold);color:var(--gold);">LIGHT VERSION &#9728;</button>
   </div>
 </div>
 
@@ -357,6 +360,9 @@ function drawSignatureSection(ctx, W, H, sigImg, theme) {
   ctx.font = '300 11px "DM Mono"';
   ctx.fillStyle = mutedCol;
   ctx.fillText('Program Director, ETL Leadership Certificate', W - 140, 658);
+  ctx.fillStyle = mutedCol;
+  ctx.font = '300 10px "DM Mono"';
+  ctx.fillText('Emerging Technologies Core Laboratory \u00B7 Dayton, OH 45402', W - 140, 673);
 }
 
 var certTheme = 'dark';
@@ -387,6 +393,7 @@ function generateCert() {
   sig.onerror = function() { drawSignatureSection(ctx, W, H, null, certTheme); };
   sig.src = 'data:image/png;base64,' + SIG_B64;
   document.getElementById('download-row').classList.add('visible');
+  document.getElementById('theme-row').style.display = 'block';
 }
 
 function downloadCert() {
