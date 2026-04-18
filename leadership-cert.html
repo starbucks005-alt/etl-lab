@@ -262,7 +262,7 @@ function drawCertBackground(ctx, W, H, name) {
   ctx.fillStyle = '#b8922a';
   ctx.font = '300 12px "DM Mono"';
   ctx.textAlign = 'center';
-  ctx.fillText('EMERGING TECHNOLOGIES LABORATORY \u00B7 WRIGHT STATE UNIVERSITY', W/2, 80);
+  ctx.fillText('EMERGING TECHNOLOGIES LABORATORY', W/2, 80);
 
   ctx.strokeStyle = 'rgba(184,146,42,0.5)';
   ctx.lineWidth = 1;
@@ -331,7 +331,7 @@ function drawCertBackground(ctx, W, H, name) {
   ctx.fillStyle = '#9a8e7e';
   ctx.font = '300 9px "DM Mono"';
   ctx.textAlign = 'center';
-  ctx.fillText('EMERGING TECHNOLOGIES LABORATORY \u00B7 DIRECTIVE // 09 \u00B7 WRIGHT STATE UNIVERSITY', W/2, 745);
+  ctx.fillText('EMERGING TECHNOLOGIES LABORATORY \u00B7 DIRECTIVE // 09', W/2, 745);
 }
 
 function drawSignatureSection(ctx, W, H, sigImg) {
@@ -355,6 +355,14 @@ function generateCert() {
   var ctx = canvas.getContext('2d');
   var W = canvas.width, H = canvas.height;
   drawCertBackground(ctx, W, H, name);
+  var logo = new Image();
+  logo.onload = function() {
+    var lh = 52, lw = Math.round(logo.naturalWidth * lh / logo.naturalHeight);
+    ctx.drawImage(logo, 50, 42, lw, lh);
+  };
+  logo.onerror = function() {};
+  logo.src = 'favicon_etl_512.png';
+
   var sig = new Image();
   sig.onload = function() { drawSignatureSection(ctx, W, H, sig); };
   sig.onerror = function() { drawSignatureSection(ctx, W, H, null); };
