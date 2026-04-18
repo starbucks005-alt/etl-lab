@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3GQ2KLSGX4"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-3GQ2KLSGX4');
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Egos at the Table — Dr. Terry L. Oroszi</title>
@@ -1065,7 +1073,15 @@ function generateCert() {
 function printCert() {
   const certHTML = document.getElementById('cert-paper').outerHTML;
   const win = window.open('', '_blank');
-  win.document.write('<html><head><title>Certificate of Completion</title><style>body{margin:0;padding:40px;background:#fff;font-family:Georgia,serif} @media print{body{padding:0}}</style></head><body>' + certHTML + '<script>window.onload=function(){window.print()}</' + 'script></body></html>');
+  win.document.write('<html><head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3GQ2KLSGX4"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-3GQ2KLSGX4');
+</script><title>Certificate of Completion</title><style>body{margin:0;padding:40px;background:#fff;font-family:Georgia,serif} @media print{body{padding:0}}</style></head><body>' + certHTML + '<script>window.onload=function(){window.print()}</' + 'script></body></html>');
   win.document.close();
 }
 
