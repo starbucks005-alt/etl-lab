@@ -464,12 +464,18 @@
   .jf-callout-badge { font-family: 'DM Mono', monospace; font-size: 0.5rem; letter-spacing: 0.14em; text-transform: uppercase; background: var(--teal); color: var(--bg-ink); padding: 3px 8px; font-weight: 600; flex-shrink: 0; }
   .jf-callout-title { font-family: 'Playfair Display', serif; font-size: 0.95rem; color: var(--text-cream); font-weight: 700; }
   .jf-callout-text { font-family: 'Cormorant Garamond', serif; font-size: 0.9rem; color: var(--text-dim); line-height: 1.5; margin-top: 2px; }
-  .jf-skip-bar { background: var(--bg-card); border: 1px solid var(--gold-rule); border-left: 3px solid var(--gold); padding: 1rem 1.5rem; display: none; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
-  .jf-skip-bar.show { display: flex; }
-  .jf-skip-label { font-family: 'DM Mono', monospace; font-size: 0.55rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); }
-  .jf-skip-label strong { color: var(--gold-light); }
-  .jf-skip-btn { font-family: 'DM Mono', monospace; font-size: 0.52rem; letter-spacing: 0.12em; text-transform: uppercase; padding: 8px 18px; background: rgba(184,146,42,0.15); border: 1px solid var(--gold-rule); color: var(--gold-light); cursor: pointer; transition: all 0.2s; text-decoration: none; flex-shrink: 0; }
-  .jf-skip-btn:hover { background: rgba(184,146,42,0.28); border-color: var(--gold); color: var(--text-cream); }
+  .jf-skip-bar { background: linear-gradient(90deg, rgba(184,146,42,0.18) 0%, rgba(184,146,42,0.10) 100%); border: 2px solid var(--gold); padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin-bottom: 12px; box-shadow: 0 0 0 1px rgba(184,146,42,0.15), 0 6px 18px rgba(0,0,0,0.18); }
+  .jf-skip-label { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-cream); line-height: 1.5; }
+  .jf-skip-label strong { color: var(--gold-light); display:block; font-size: 0.78rem; letter-spacing: 0.22em; margin-bottom: 2px; }
+  .jf-skip-btn { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.16em; text-transform: uppercase; padding: 12px 22px; background: var(--gold); border: 2px solid var(--gold); color: #111; cursor: pointer; transition: all 0.2s; text-decoration: none; flex-shrink: 0; font-weight: 700; animation: jf-skip-pulse 2.4s ease-in-out infinite; }
+  .jf-skip-btn:hover { background: var(--gold-light); border-color: var(--gold-light); color: #111; transform: translateY(-1px); }
+  @keyframes jf-skip-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(184,146,42,0.6); } 50% { box-shadow: 0 0 0 8px rgba(184,146,42,0); } }
+
+  /* Visually scream at step 5 in the roadmap so people know it's clickable */
+  .roadmap-item.roadmap-scanner { animation: jf-scanner-glow 2.6s ease-in-out infinite; cursor: pointer; }
+  @keyframes jf-scanner-glow { 0%, 100% { filter: drop-shadow(0 0 0 rgba(184,146,42,0)); } 50% { filter: drop-shadow(0 0 8px rgba(184,146,42,0.7)); } }
+  .roadmap-item.roadmap-scanner::after { content: '← click to open'; position: absolute; bottom: -22px; left: 50%; transform: translateX(-50%); font-family: 'DM Mono', monospace; font-size: 0.5rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold-light); white-space: nowrap; opacity: 0.85; }
+  .roadmap-item.roadmap-scanner { position: relative; }
   @media (max-width: 640px) { .jf-top-bar { padding: 0 1.25rem; } }
 </style>
 </head>
@@ -480,6 +486,17 @@
   <a href="index.html" class="nav-back">&larr; Home</a>
 </nav>
 
+<!-- TOP-OF-PAGE skip directly to the Job Search. Always visible, not gated on completion. -->
+<div class="jf-top-bar">
+  <div class="jf-skip-bar" id="jf-skip-bar">
+    <div class="jf-skip-label">
+      <strong>🎓 Just need the Job Search?</strong>
+      Graduating, looking for an internship, OPT/CPT, or volunteer work? Skip the module and go straight to the AI scanner that searches Indeed, LinkedIn, Handshake, USAJobs, and volunteer boards.
+    </div>
+    <a class="jf-skip-btn" onclick="showPhase(4);">Open the Job Search →</a>
+  </div>
+</div>
+
 <div class="jf-top-bar">
   <div class="jf-callout">
     <span class="jf-callout-badge">NEW</span>
@@ -487,10 +504,6 @@
       <div class="jf-callout-title">OPT/CPT &mdash; We have your back.</div>
       <div class="jf-callout-text">International students: this tool filters job results by OPT and CPT eligibility so you only see positions you can legally take.</div>
     </div>
-  </div>
-  <div class="jf-skip-bar" id="jf-skip-bar">
-    <div class="jf-skip-label"><strong>Module complete.</strong> You can review the phases or jump straight to the search tool.</div>
-    <a class="jf-skip-btn" onclick="showPhase(4);this.parentElement.style.display='none';">Skip to Job Search &rarr;</a>
   </div>
 </div>
 
@@ -698,7 +711,8 @@
         <option value="fellowship">Fellowship</option>
         <option value="research position">Research position</option>
         <option value="part-time">Part-time</option>
-        <option value="any position">Any type</option>
+        <option value="volunteer or service">Volunteer / Service</option>
+        <option value="any position including volunteer">Any type (incl. volunteer)</option>
       </select>
     </div>
     <div class="scanner-field-group">
@@ -759,7 +773,32 @@ function showPhase(n) {
     item.classList.toggle('active', idx === n);
     idx++;
   });
+  // Hide the skip-to-job-search bar once you're already on the Job Search.
+  var skip = document.getElementById('jf-skip-bar');
+  if (skip) skip.style.display = (n === 4) ? 'none' : 'flex';
 }
+
+// Default landing is the Job Search (phase 5 / index 4). The cert-module flow
+// is opt-in via ?go=module. Reasoning: 99% of visitors want the search tool;
+// people doing the certificate module enter via the cert page Module 6 link.
+(function () {
+  function pickLandingPhase() {
+    var go = (new URLSearchParams(window.location.search).get('go') || '').toLowerCase();
+    var hash = (window.location.hash || '').toLowerCase();
+    // Cert-module path: walk through phases 1..5 in order
+    if (go === 'module' || hash === '#module' || hash === '#start') {
+      showPhase(0);
+      return;
+    }
+    // Anything else: drop straight into the Job Search.
+    showPhase(4);
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', pickLandingPhase);
+  } else {
+    pickLandingPhase();
+  }
+})();
 
 // PREP CHECKLIST
 function togglePrep(item) {
@@ -909,23 +948,55 @@ function sExtractJSON(text) {
   return null;
 }
 
-async function sCallAPI(body) {
-  var r = await fetch('/.netlify/functions/proxy-ai', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
-  console.log('[scanner] proxy response status:', r.status);
-  if (r.status === 504) throw new Error('Search timed out. Try again with fewer keywords or a more specific location.');
-  var text = await r.text();
-  var d;
-  try { d = JSON.parse(text); } catch(e) {
-    console.error('[scanner] non-JSON response:', text.substring(0, 200));
-    throw new Error('Server returned an unexpected response. Please try again.');
+async function sCallAPI(body, opts) {
+  opts = opts || {};
+  var attempts = 0;
+  var maxAttempts = opts.retries != null ? (opts.retries + 1) : 2; // default: 1 try + 1 retry
+  var lastErr;
+  while (attempts < maxAttempts) {
+    attempts++;
+    try {
+      var r = await fetch('/.netlify/functions/proxy-ai', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
+      console.log('[scanner] attempt', attempts, 'status:', r.status);
+      if (r.status === 504 || r.status === 502) {
+        // Timeout or upstream error: retry once with a tighter request
+        if (attempts < maxAttempts) {
+          console.log('[scanner] retrying after', r.status);
+          if (typeof opts.onRetry === 'function') opts.onRetry();
+          continue;
+        }
+        throw new Error(r.status === 504
+          ? 'Search timed out. Try again with a more specific location, fewer keywords, or a narrower position type.'
+          : 'Upstream search service error. Try again in a moment.');
+      }
+      var text = await r.text();
+      var d;
+      try { d = JSON.parse(text); } catch(e) {
+        console.error('[scanner] non-JSON response:', text.substring(0, 200));
+        throw new Error('Server returned an unexpected response. Please try again.');
+      }
+      if (d.error) {
+        var msg = typeof d.error === 'string' ? d.error : (d.error.message || JSON.stringify(d.error));
+        console.error('[scanner] API error:', msg);
+        // 529 overloaded → retry once
+        if (/529|overloaded/i.test(msg) && attempts < maxAttempts) {
+          if (typeof opts.onRetry === 'function') opts.onRetry();
+          continue;
+        }
+        throw new Error(msg);
+      }
+      return d;
+    } catch (err) {
+      lastErr = err;
+      // Network-level error (fetch threw) — retry once
+      if (attempts < maxAttempts && !/timed out|unexpected response|529/i.test(err.message)) {
+        if (typeof opts.onRetry === 'function') opts.onRetry();
+        continue;
+      }
+      throw err;
+    }
   }
-  console.log('[scanner] proxy response body:', d);
-  if (d.error) {
-    var msg = typeof d.error === 'string' ? d.error : (d.error.message || JSON.stringify(d.error));
-    console.error('[scanner] API error:', msg);
-    throw new Error(msg);
-  }
-  return d;
+  throw lastErr || new Error('Search failed after multiple attempts.');
 }
 
 async function sRunScan() {
@@ -973,10 +1044,27 @@ async function sRunScan() {
       ? 'Student requires ' + visaType + ' work authorization. Prioritize postings mentioning CPT, OPT, visa sponsorship, or international students.'
       : 'Domestic applicant. No visa filtering needed.';
 
-    var d2 = await sCallAPI({model:'claude-sonnet-4-20250514', max_tokens:800,
-      tools:[{type:'web_search_20250305', name:'web_search'}],
-      system:'Search for real, currently open ' + positionType + ' job postings. ' + visaInstr + ' Return ONLY a JSON array. No prose. Each object: {"company":string,"role":string,"location":string,"visaStatus":string,"matchScore":60-99,"matchReason":string,"deadline":string,"description":string,"url":string}. Return 3-4 results.',
-      messages:[{role:'user', content:profile.field+'. Target: '+(profile.targetRoles||[]).slice(0,3).join(', ')+'. Key skills: '+(profile.skills||[]).slice(0,5).join(', ')+(keywords?'. '+keywords:'')+'. Location: '+(location||'anywhere')+' '+distText+'. Find real open positions now.'}]
+    var includesVolunteer = /volunteer|service/i.test(positionType);
+    var sourceList = includesVolunteer
+      ? 'Search across Indeed, LinkedIn, Handshake, USAJobs, company career pages, AND volunteer / service-position boards (VolunteerMatch, Idealist, Catchafire, AmeriCorps, JustServe, university service-learning boards, hospital and museum volunteer pages).'
+      : 'Search across Indeed, LinkedIn, Handshake, USAJobs, and company career pages.';
+    var roleNote = includesVolunteer
+      ? ' For each result, set "visaStatus" to "Volunteer / no work auth required" if it is a volunteer or unpaid service position.'
+      : '';
+
+    var d2 = await sCallAPI({
+      model:'claude-sonnet-4-20250514',
+      max_tokens:600,
+      // Cap the web search at 2 calls so the model commits faster instead of
+      // running 5 searches and timing out the function.
+      tools:[{type:'web_search_20250305', name:'web_search', max_uses: 2}],
+      system:'You are a fast job-search agent. Run at most 2 web searches, then commit. ' + sourceList + ' ' + visaInstr + roleNote + ' Return EXACTLY 3 results as a raw JSON array. No prose, no markdown. Each object: {"company":string,"role":string,"location":string,"visaStatus":string,"matchScore":60-99,"matchReason":string,"deadline":string,"description":string,"url":string}. Be decisive. Do not run extra searches.',
+      messages:[{role:'user', content:'Find ' + positionType + ' for: ' + profile.field + '. Target roles: ' + (profile.targetRoles||[]).slice(0,3).join(', ') + '. Skills: ' + (profile.skills||[]).slice(0,5).join(', ') + (keywords ? '. Also: ' + keywords : '') + '. Location: ' + (location||'anywhere') + ' ' + distText + '. Return 3 results, JSON only.'}]
+    }, {
+      retries: 1,
+      onRetry: function () {
+        statusEl.innerHTML = '<div class="s-status-box">' + bar + '<div class="s-status-title">Retrying search</div><div class="s-status-sub">First attempt timed out, trying again with a tighter query&hellip;</div></div>';
+      }
     });
     var textBlocks = d2.content.filter(function(b){return b.type==='text';});
     var raw2 = textBlocks.map(function(b){return b.text;}).join('\n');

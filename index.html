@@ -54,7 +54,7 @@
 
   /* ── NAV ── */
   nav {
-    position: fixed;
+    position: sticky;
     top: 0; width: 100%;
     background: #ffffff;
     border-bottom: 2px solid var(--black);
@@ -673,7 +673,12 @@
     .nav-badge { width: 28px; height: 28px; font-size: 10px; }
     .nav-hamburger { display: flex; }
 
-    /* Hero */
+    /* Graduation banner: tighten on phone so it doesn't eat the screen */
+    #grad-bar { padding: 8px 14px !important; font-size: 11px !important; gap: 8px !important; letter-spacing: 1px !important; }
+    #grad-bar > span:nth-child(2) { display: none !important; }
+
+    /* Hero — let height be content-sized on phones so the page below is visible without scrolling past a near-full-screen block */
+    #hero { min-height: 0 !important; padding: 32px 0 40px !important; }
     .hero-main { font-size: clamp(32px, 10vw, 48px) !important; }
     .hero-sub { font-size: 13px !important; }
     .hero-stats { flex-wrap: wrap; gap: 16px; }
@@ -805,6 +810,13 @@
 </head>
 <body>
 
+<!-- GRADUATION JOB-SEARCH ANNOUNCEMENT BAR (top of page, above nav) -->
+<a href="job-fair.html?go=search" id="grad-bar" style="display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;background:linear-gradient(90deg,#FDB827 0%,#e0a020 100%);color:#111;padding:10px 20px;font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;font-weight:700;text-decoration:none;border-bottom:2px solid #111;line-height:1.3;text-align:center;">
+  <span style="font-size:18px;line-height:1;">🎓</span>
+  <span><strong>Graduating?</strong> The ETL Job Search scans live postings (Indeed, LinkedIn, Handshake, USAJobs) for openings matched to your CV.</span>
+  <span style="background:#111;color:#FDB827;padding:5px 14px;letter-spacing:3px;font-size:11px;font-weight:700;border-radius:2px;white-space:nowrap;">Find a Job →</span>
+</a>
+
 <!-- NAV -->
 <nav>
   <div class="nav-logo">
@@ -877,6 +889,7 @@
       </div>
     </div>
     <div class="hero-cta">
+      <a href="job-fair.html?go=search" class="btn btn-primary" style="background:#FDB827;color:#111;border-color:#FDB827;">🎓 Find a Job</a>
       <a href="#research" class="btn btn-primary">View Research Directives</a>
       <a href="#contact" class="btn btn-outline">Contact the Lab</a>
     </div>
@@ -1356,6 +1369,24 @@
         <a href="egos-at-the-table.html#certification" style="display:inline-block; margin-top:8px; font-family:'Oswald',sans-serif; font-size:11px; font-weight:600; letter-spacing:2px; text-transform:uppercase; padding:8px 20px; background:transparent; color:var(--black); border:1px solid var(--black); text-decoration:none;">Get Facilitator Certification →</a>
       </div>
 
+      <!-- DIRECTIVE 08.5 — Standalone Job Search card. Sits ABOVE the certificate as a high-visibility shortcut for graduating students who don't want to walk through the full module. -->
+      <a href="job-fair.html?go=search" class="directive-card directive-card--featured" id="directive-jobsearch" style="text-decoration:none;color:inherit;display:block;background:linear-gradient(135deg,rgba(253,184,39,0.10) 0%,rgba(253,184,39,0.04) 100%);border:2px solid #FDB827;position:relative;overflow:hidden;">
+        <div style="position:absolute;top:14px;right:14px;background:#FDB827;color:#111;font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:2px;font-weight:700;padding:4px 10px;text-transform:uppercase;">🎓 For Graduating Students</div>
+        <div class="directive-label" style="color:#FDB827;">JOB SEARCH // OPEN ACCESS</div>
+        <div style="display:grid;grid-template-columns:auto 1fr auto;gap:24px;align-items:center;margin-top:16px;flex-wrap:wrap;">
+          <div class="directive-icon" style="font-size:48px;">🔎</div>
+          <div>
+            <h3 style="font-family:'Oswald',sans-serif;font-size:24px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;color:#FDB827;">Find a Job, Internship, or Volunteer Position</h3>
+            <p class="directive-body" style="margin-bottom:8px;color:#e8e8e8;">Upload your CV. The AI scanner searches live postings on <strong style="color:#ffffff;">Indeed, LinkedIn, Handshake, USAJobs, VolunteerMatch, Idealist, AmeriCorps</strong>, and company career pages, then matches them to your skills, location, and visa status. <strong style="color:#ffffff;">OPT and CPT eligibility</strong> filtered automatically for international students.</p>
+            <div style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1.5px;color:#5fd4a8;text-transform:uppercase;margin-top:8px;">No certificate required · No login · No credit card</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-end;flex-shrink:0;">
+            <span class="btn btn-primary" style="background:#FDB827;color:#111;border-color:#FDB827;font-weight:700;letter-spacing:2px;">OPEN JOB SEARCH →</span>
+            <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;color:#888;text-transform:uppercase;">Internships · Full-time · OPT/CPT · Volunteer</div>
+          </div>
+        </div>
+      </a>
+
       <div class="directive-card directive-card--featured" id="directive-09">
 
         <div class="directive-label">DIRECTIVE // 09</div>
@@ -1390,7 +1421,7 @@
                 <span class="module-check">○</span>
                 <span class="module-name">MODULE 5 &mdash; ACADEMIC POSTER</span>
               </a>
-              <a href="job-fair.html" class="module-item" id="prog-jobfair">
+              <a href="job-fair.html?go=module" class="module-item" id="prog-jobfair">
                 <span class="module-check">○</span>
                 <span class="module-name">MODULE 6 &mdash; JOB FAIR MASTERY</span>
               </a>
