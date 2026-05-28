@@ -824,6 +824,7 @@
     <div class="nav-title">Dr. Terry Oroszi's Emerging <span>Technologies</span> Laboratory</div>
   </div>
   <ul class="nav-links" id="nav-links">
+    <li><a href="#network" onclick="closeMenu()">Network</a></li>
     <li><a href="#ai-twin" onclick="closeMenu()">Lab PI</a></li>
     <li><a href="#team" onclick="closeMenu()">Research Team</a></li>
     <li><a href="#research" onclick="closeMenu()">Research</a></li>
@@ -831,6 +832,7 @@
     <li><a href="#intel" onclick="closeMenu()">Intel</a></li>
     <li><a href="#publications" onclick="closeMenu()">Publications</a></li>
     <li><a href="#teaching" onclick="closeMenu()">Workshops</a></li>
+    <li><a href="/agents/" onclick="closeMenu()">Agents</a></li>
     <li><a href="#contact" onclick="closeMenu()">Contact</a></li>
   </ul>
   <div class="nav-wsu" style="display:none;"></div>
@@ -903,6 +905,222 @@
     EMERGING TECHNOLOGIES LABORATORY &nbsp;·&nbsp; DR. TERRY OROSZI &nbsp;·&nbsp; AI/ML INTEGRATION IN GRADUATE EDUCATION &nbsp;·&nbsp; BIODEFENSE &amp; CBRN DEFENSE RESEARCH &nbsp;·&nbsp; COMPUTATIONAL TOXICOLOGY &nbsp;·&nbsp; HUMAN-CENTERED TECHNOLOGY INNOVATION &nbsp;·&nbsp; FORBES TECHNOLOGY COUNCIL MEMBER &nbsp;·&nbsp; ESTABLISHED 2025 &nbsp;·&nbsp;
   </div>
 </div>
+
+
+<!-- THE ETL NETWORK -->
+<style>
+  .etl-network .etl-net-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 1px;
+    margin-top: 28px;
+    background: var(--black);
+    border: 1px solid var(--black);
+  }
+  .etl-network .etl-net-card {
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    transition: background 0.2s;
+  }
+  .etl-network .etl-net-card:hover { background: var(--light); }
+  .etl-network .etl-net-video {
+    position: relative;
+    width: 100%;
+    padding-top: 56.25%;
+    background: var(--black);
+    overflow: hidden;
+  }
+  .etl-network .etl-net-video iframe {
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 100%; border: 0;
+  }
+  .etl-network .etl-net-placeholder {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 12px;
+    background: radial-gradient(circle at 50% 40%, #1c1c1c 0%, #111 100%);
+  }
+  .etl-network .etl-net-placeholder .play {
+    width: 0; height: 0;
+    border-top: 14px solid transparent;
+    border-bottom: 14px solid transparent;
+    border-left: 22px solid var(--gold);
+    margin-left: 6px;
+  }
+  .etl-network .etl-net-placeholder .play-ring {
+    width: 64px; height: 64px;
+    border: 2px solid var(--gold);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .etl-network .etl-net-placeholder span {
+    font-family: 'Oswald', sans-serif;
+    font-size: 10px; letter-spacing: 3px;
+    text-transform: uppercase; color: #888;
+  }
+  .etl-network .etl-net-body { padding: 28px 30px 32px; flex: 1; display: flex; flex-direction: column; }
+  .etl-network .etl-net-num {
+    font-family: 'Oswald', sans-serif;
+    font-size: 10px; letter-spacing: 3px;
+    text-transform: uppercase; color: var(--gold);
+    margin-bottom: 10px;
+  }
+  .etl-network .etl-net-title {
+    font-family: 'Oswald', sans-serif;
+    font-size: 24px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: -0.5px;
+    color: var(--black); line-height: 1.05; margin-bottom: 6px;
+  }
+  .etl-network .etl-net-tagline {
+    font-family: 'Oswald', sans-serif;
+    font-size: 12px; font-weight: 400; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--green-bright);
+    margin-bottom: 14px;
+  }
+  .etl-network .etl-net-desc {
+    font-size: 13px; line-height: 1.75; color: var(--gray);
+    font-weight: 300; margin-bottom: 20px;
+  }
+  .etl-network .etl-net-launch {
+    margin-top: auto;
+    align-self: flex-start;
+    font-family: 'Oswald', sans-serif;
+    font-size: 11px; font-weight: 600; letter-spacing: 2px;
+    text-transform: uppercase; text-decoration: none;
+    padding: 9px 22px; background: var(--black); color: #fff;
+    border: 2px solid var(--black);
+  }
+  .etl-network .etl-net-launch:hover { background: var(--gold); color: var(--black); border-color: var(--gold); }
+  .etl-network .etl-net-card--agents .etl-net-video { padding-top: 0; height: auto; }
+  .etl-network .etl-net-roster {
+    display: flex; align-items: center; justify-content: center;
+    gap: 0; padding: 36px 0; background: radial-gradient(circle at 50% 40%, #1c1c1c 0%, #111 100%);
+  }
+  .etl-network .etl-net-roster img {
+    width: 56px; height: 56px; border-radius: 50%;
+    object-fit: cover; object-position: top;
+    border: 2px solid #111; margin-left: -14px;
+    box-shadow: 0 0 0 1px #333;
+  }
+  .etl-network .etl-net-roster img:first-child { margin-left: 0; }
+  .etl-network .etl-net-footer { margin-top: auto; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .etl-network .etl-net-footer .etl-net-launch { margin-top: 0; }
+  .etl-network .etl-net-link2 {
+    font-family: 'Oswald', sans-serif;
+    font-size: 10px; font-weight: 600; letter-spacing: 1.5px;
+    text-transform: uppercase; text-decoration: none;
+    padding: 8px 16px; background: transparent; color: var(--black);
+    border: 1px solid var(--black); display: inline-flex; align-items: center; gap: 6px;
+  }
+  .etl-network .etl-net-link2:hover { background: var(--green-bright); color: #fff; border-color: var(--green-bright); }
+</style>
+<section class="section-full etl-network" id="network">
+  <div class="section-full-inner">
+    <div class="section-tag">The ETL Network</div>
+    <h2 class="section-title">Live <span>Platforms</span></h2>
+    <p class="section-subtitle">The working products built inside the Emerging Technologies Laboratory. Each is live, and each is staffed by its own team of AI agents.</p>
+
+    <div class="etl-net-grid">
+
+      <!-- The Gauntlet -->
+      <div class="etl-net-card">
+        <!-- VIDEO: replace the placeholder div below with the Vimeo embed:
+        <div class="etl-net-video"><iframe src="https://player.vimeo.com/video/VIMEO_ID" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div> -->
+        <div class="etl-net-video"><div class="etl-net-placeholder"><div class="play-ring"><span class="play"></span></div><span>Walkthrough coming soon</span></div></div>
+        <div class="etl-net-body">
+          <div class="etl-net-num">Platform // 01</div>
+          <div class="etl-net-title">The Gauntlet</div>
+          <div class="etl-net-tagline">Idea stress-testing &amp; pitch review</div>
+          <p class="etl-net-desc">Submit an idea, a pitch, or a manuscript and watch a panel of AI judges put it through a live review. Every judge brings a different lens, from AI and emerging tech to law, finance, and behavioral science. They score on the merits, argue across domains, and hand back a verdict you can act on.</p>
+          <a class="etl-net-launch" href="https://the-gauntlet.netlify.app/" target="_blank" rel="noopener">Enter the Gauntlet &rarr;</a>
+        </div>
+      </div>
+
+      <!-- The Dose -->
+      <div class="etl-net-card">
+        <!-- VIDEO: replace the placeholder div below with the Vimeo embed:
+        <div class="etl-net-video"><iframe src="https://player.vimeo.com/video/VIMEO_ID" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div> -->
+        <div class="etl-net-video"><div class="etl-net-placeholder"><div class="play-ring"><span class="play"></span></div><span>Walkthrough coming soon</span></div></div>
+        <div class="etl-net-body">
+          <div class="etl-net-num">Platform // 02</div>
+          <div class="etl-net-title">The Dose</div>
+          <div class="etl-net-tagline">Health &amp; wellness, verified</div>
+          <p class="etl-net-desc">A team of agents that answers everyday health and wellness questions with real, source-cited information delivered through games and puzzles. Educational content only, never medical advice. The Dose gives you a knowledgeable friend before you trust the ad.</p>
+          <div class="etl-net-footer">
+            <a class="etl-net-launch" href="https://the-dose.netlify.app/" target="_blank" rel="noopener">Open The Dose &rarr;</a>
+            <a class="etl-net-link2" href="https://the-dose.netlify.app/#dd-section" target="_blank" rel="noopener"><span aria-hidden="true">&#9654;</span> Listen: Your Daily Dose</a>
+            <a class="etl-net-link2" href="https://the-dose.netlify.app/newsletter.html" target="_blank" rel="noopener"><span aria-hidden="true">&#128240;</span> Weekly Newsletter</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- SLR Studio -->
+      <div class="etl-net-card">
+        <!-- VIDEO: replace the placeholder div below with the Vimeo embed:
+        <div class="etl-net-video"><iframe src="https://player.vimeo.com/video/VIMEO_ID" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div> -->
+        <div class="etl-net-video"><div class="etl-net-placeholder"><div class="play-ring"><span class="play"></span></div><span>Walkthrough coming soon</span></div></div>
+        <div class="etl-net-body">
+          <div class="etl-net-num">Platform // 03</div>
+          <div class="etl-net-title">SLR Studio</div>
+          <div class="etl-net-tagline">AI-assisted research intelligence</div>
+          <p class="etl-net-desc">A systematic literature review engine that takes researchers from keyword architecture to a publishable manuscript. Six output modes and ten research tools, with AI assistance at every stage and human judgment at every decision. AI-assisted, not AI-authored.</p>
+          <a class="etl-net-launch" href="https://slrstudio.online/" target="_blank" rel="noopener">Launch SLR Studio &rarr;</a>
+        </div>
+      </div>
+
+      <!-- Greylander Press -->
+      <div class="etl-net-card">
+        <!-- VIDEO: replace the placeholder div below with the Vimeo embed:
+        <div class="etl-net-video"><iframe src="https://player.vimeo.com/video/VIMEO_ID" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div> -->
+        <div class="etl-net-video"><div class="etl-net-placeholder"><div class="play-ring"><span class="play"></span></div><span>Walkthrough coming soon</span></div></div>
+        <div class="etl-net-body">
+          <div class="etl-net-num">Platform // 04</div>
+          <div class="etl-net-title">Greylander Press</div>
+          <div class="etl-net-tagline">Serious work deserves a serious publisher</div>
+          <p class="etl-net-desc">An independent press based in Dayton, Ohio. Greylander pairs authors with a full editorial team, from ghostwriting and developmental editing to copy editing and cover art, taking a manuscript from rough draft to published book.</p>
+          <a class="etl-net-launch" href="https://greylanderpress.com/" target="_blank" rel="noopener">Visit Greylander &rarr;</a>
+        </div>
+      </div>
+
+      <!-- Intel Dashboard -->
+      <div class="etl-net-card">
+        <!-- VIDEO: replace the placeholder div below with the Vimeo embed:
+        <div class="etl-net-video"><iframe src="https://player.vimeo.com/video/VIMEO_ID" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div> -->
+        <div class="etl-net-video"><div class="etl-net-placeholder"><div class="play-ring"><span class="play"></span></div><span>Walkthrough coming soon</span></div></div>
+        <div class="etl-net-body">
+          <div class="etl-net-num">Platform // 05</div>
+          <div class="etl-net-title">Intel Dashboard</div>
+          <div class="etl-net-tagline">The lab's intelligence, in one place</div>
+          <p class="etl-net-desc">A live intelligence dashboard tracking the lab's research, media coverage, and emerging-technology signals. Dr. Oroszi's working view of what matters now, pulled together into a single command center.</p>
+          <a class="etl-net-launch" href="https://inteldashboard.netlify.app/" target="_blank" rel="noopener">Open the Dashboard &rarr;</a>
+        </div>
+      </div>
+
+      <!-- Agents Roster -->
+      <div class="etl-net-card etl-net-card--agents">
+        <div class="etl-net-video">
+          <div class="etl-net-roster">
+            <img src="agents/margaret_call_listening.png" alt="Margaret">
+            <img src="agents/EIC_Eyes_Open.png" alt="Dr. O.">
+            <img src="agents/Selene_eyes_open.jpg" alt="Selene">
+            <img src="agents/Wren_eyes_open.jpg" alt="Wren">
+            <img src="agents/Margo.png" alt="Margo">
+          </div>
+        </div>
+        <div class="etl-net-body">
+          <div class="etl-net-num">The Cast</div>
+          <div class="etl-net-title">AI Agents</div>
+          <div class="etl-net-tagline">Meet the team behind every platform</div>
+          <p class="etl-net-desc">The master reference for every AI character across The Dose, Greylander Press, and The Gauntlet. Hosts, editors, judges, and producers, each with a face, a name, and a role, all in one place.</p>
+          <a class="etl-net-launch" href="/agents/" target="_blank" rel="noopener">View the Roster &rarr;</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
 
 
 <!-- AI TWIN INTRODUCTION -->
