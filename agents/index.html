@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Agent Characters — Master Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #ffffff;
+    color: #1a1a1a;
+    padding: 40px;
+  }
+
+  .doc-header {
+    text-align: center;
+    margin-bottom: 56px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  .doc-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+    color: #1a1a1a;
+    margin-bottom: 6px;
+  }
+
+  .doc-header p {
+    font-size: 14px;
+    color: #888;
+    font-weight: 300;
+  }
+
+  .platform-section {
+    margin-bottom: 64px;
+  }
+
+  .platform-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 32px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #1a1a1a;
+  }
+
+  .platform-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: #1a1a1a;
+  }
+
+  .platform-desc {
+    font-size: 13px;
+    color: #888;
+    font-weight: 300;
+    margin-left: auto;
+    font-style: italic;
+  }
+
+  .subsection-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #aaa;
+    margin-bottom: 20px;
+    margin-top: 36px;
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 24px;
+  }
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .card-img-wrap {
+    width: 140px;
+    height: 160px;
+    overflow: hidden;
+    border-radius: 4px;
+    background: #f4f4f4;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .card-img-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+    display: block;
+  }
+
+  .placeholder-avatar {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    color: #ccc;
+    background: #f7f7f7;
+  }
+
+  .card-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 3px;
+    line-height: 1.3;
+  }
+
+  .card-role {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: #999;
+  }
+
+  .divider {
+    height: 1px;
+    background: #ebebeb;
+    margin: 40px 0;
+  }
+
+  @media print {
+    body { padding: 20px; }
+    .platform-section { page-break-inside: avoid; }
+    .card-grid { grid-template-columns: repeat(5, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="doc-header">
+  <h1>AI Agent Characters — Master Reference</h1>
+  <p>Dr. Terry L. Oroszi &nbsp;·&nbsp; Emerging Technologies Laboratory, Wright State University</p>
+</div>
+
+
+<!-- THE DOSE -->
+<div class="platform-section">
+  <div class="platform-header">
+    <span class="platform-name">The Dose</span>
+    <span class="platform-desc">Health &amp; wellness agent team</span>
+  </div>
+
+  <div class="card-grid">
+
+     <div class="card">
+      <div class="card-img-wrap">
+         <img src="margaret_call_listening.png" alt="Margaret">
+      </div>
+      <div class="card-name">Margaret</div>
+      <div class="card-role">The Dose Host</div>
+    </div>
+
+    <div class="card">
+      <div class="card-img-wrap">
+        <img src="nutritionist_eyes_open.png" alt="Nadia">
+      </div>
+      <div class="card-name">Nadia</div>
+      <div class="card-role">The Nutritionist</div>
+    </div>
+
+<div class="card">
+      <div class="card-img-wrap">
+        <img src="Henry_eyes_open.png" alt="Dr. Henry">
+      </div>
+      <div class="card-name">Dr. Henry</div>
+      <div class="card-role">The Pharmacist</div>
+    </div>
+
+    <div class="card">
+      <div class="card-img-wrap">
+        <img src="gardner_eyes_open.png" alt="Maeve">
+      </div>
+      <div class="card-name">Maeve (MJ)</div>
+      <div class="card-role">The Gardener</div>
+    </div>
+
+    <div class="card">
+      <div class="card-img-wrap">
+        <img src="mixologist_eyes_open.png" alt="Wyatt">
+      </div>
+      <div class="card-name">Wyatt</div>
+      <div class="card-role">The Mixologist</div>
+    </div>
+
+    <div class="card">
+      <div class="card-img-wrap">
+          <img src="herbalist_eyes_open.png" alt="Amara">
+      </div>
+      <div class="card-name">Amara</div>
+      <div class="card-role">The Herbalist</div>
+    </div>
+
+    <div class="card">
+      <div class="card-img-wrap">
+          <img src="dr_eyes_open.png" alt="Dr. Claire">
+      </div>
+      <div class="card-name">Dr. Claire</div>
+      <div class="card-role">The Family Doctor</div>
+    </div>
+
+    <div class="card">
+      <div class="card-img-wrap">
+          <img src="forager_eyes_open.png" alt="Silas">
+      </div>
+      <div class="card-name">Silas</div>
+      <div class="card-role">The Forager</div>
+    </div>
+
+    <div class="card">
+      <div class="card-img-wrap">
+          <img src="fact_checker_eyes_open.png" alt="Eli">
+      </div>
+      <div class="card-name">Eli</div>
+      <div class="card-role">The Fact-Checker</div>
+    </div>
+
+    <div class="card">
+      <div class="card-img-wrap">
+          <img src="Jaque_Open.png" alt="Jaque">
+      </div>
+      <div class="card-name">Jaque</div>
+      <div class="card-role">The Fitness Guy</div>
+    </div>
+
+    <div class="card">
+      <div class="card-img-wrap">
+          <img src="Reece_eyes_open.png" alt="Reece">
+      </div>
+      <div class="card-name">Reece</div>
+      <div class="card-role">The PT Intern</div>
+    </div>
+
+    <div class="card">
+      <div class="card-img-wrap">
+          <img src="Arun_eyes_open.png" alt="Arun">
+      </div>
+      <div class="card-name">Arun</div>
+      <div class="card-role">The Nurse</div>
+    </div>
+
+    <div class="card">
+      <div class="card-img-wrap">
+         <img src="ivy_eyes-open.png" alt="Ms. Ivy">
+      </div>
+      <div class="card-name">Ms. Ivy</div>
+      <div class="card-role">Health Sciences Librarian</div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- GREYLANDER PRESS -->
+<div class="platform-section">
+  <div class="platform-header">
+    <span class="platform-name">Greylander Press</span>
+    <span class="platform-desc">Publishing &amp; writing agent team</span>
+  </div>
+
+  <div class="card-grid">
+
+    <div class="card">
+      <div class="card-img-wrap">
+          <img src="EIC_Eyes_Open.png" alt="EIC">
+      </div>
+      <div class="card-name">Dr. O.</div>
+      <div class="card-role">Editor in Charge </div>
+    </div>
+
+<div class="card">
+      <div class="card-img-wrap">
+        <img src="Mun_Eyes_open.png" alt="Mun">
+      </div>
+      <div class="card-name">Mun</div>
+      <div class="card-role">Planning Architect</div>
+    </div>
+
+    <div class="card">
+      <div class="card-img-wrap">
+         <img src="Grey_Open.png" alt="Grey">
+      </div>
+      <div class="card-name">Grey</div>
+      <div class="card-role">The Ghostwriter</div>
+    </div>
+
+    <div class="card">
+      <div class="card-img-wrap">
+      <img src="Professor_eyes_open.png" alt="The Professor">
+      </div>
+      <div class="card-name">The Professor</div>
+      <div class="card-role">Research &amp; Fact-Checker</div>
+    </div>
+
+    <div class="card">
+      <div class="card-img-wrap">
+          <img src="Jules-Eyes-Open.png" alt="Jules">
+      </div>
+      <div class="card-name">Jules</div>
+      <div class="card-role">The Rewrite Partner</div>
+    </div>
+
+    <div class="card">
+      <div class="card-img-wrap">
+          <img src="Bea_Open.png" alt="Bea">
+      </div>
+      <div class="card-name">Bea</div>
+      <div class="card-role">The Copy Editor</div>
+    </div>
+
+    <div class="card">
+      <div class="card-img-wrap">
+          <img src="Margo.png" alt="Margo">
+      </div>
+      <div class="card-name">Margo</div>
+      <div class="card-role">The Beta Reader</div>
+    </div>
+
+    <div class="card">
+      <div class="card-img-wrap">
+       <img src="Chris_DIGArtist_Eyes3_Open.png" alt="Chris">
+      </div>
+      <div class="card-name">Chris</div>
+      <div class="card-role">Comps &amp; Character Artist</div>
+    </div>
+
+    <div class="card">
+      <div class="card-img-wrap">
+          <img src="Jaque_Open.png" alt="Jaque">
+      </div>
+      <div class="card-name">Jaque</div>
+      <div class="card-role">The Query Coach</div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- THE GAUNTLET — JUDGES -->
+<div class="platform-section">
+  <div class="platform-header">
+    <span class="platform-name">The Gauntlet</span>
+    <span class="platform-desc">Idea stress-testing &amp; pitch review agent team</span>
+  </div>
+
+  <div class="subsection-label">The Judges</div>
+  <div class="card-grid">
+
+    <div class="card">
+      <div class="card-img-wrap">
+         <img src="Selene_eyes_open.jpg" alt="Selene">
+      </div>
+      <div class="card-name">Selene Voss</div>
+      <div class="card-role">AI &amp; Emerging Tech</div>
+    </div>
+
+    <div class="card">
+      <div class="card-img-wrap">
+         <img src="Marcus_eyes_open.jpg" alt="Marcus">
+      </div>
+      <div class="card-name">Marcus Holt</div>
+      <div class="card-role">Crypto, PE &amp; Alt Finance</div>
+    </div>
+
+    <div class="card">
+      <div class="card-img-wrap">
+         <img src="Priya_eyes_open.jpg" alt="Dr. Priya">
+      </div>
+      <div class="card-name">Dr. Priya Anand</div>
+      <div class="card-role">Health &amp; Life Sciences</div>
+    </div>
+
+    <div class="card">
+      <div class="card-img-wrap">
+         <img src="Raymond_eyes_open.jpg" alt="Raymond">
+      </div>
+      <div class="card-name">Raymond Chen</div>
+      <div class="card-role">Business &amp; Operations</div>
+    </div>
+
+    <div class="card">
+      <div class="card-img-wrap">
+         <img src="Astrid_eyes_open.jpg" alt="Astrid">
+      </div>
+      <div class="card-name">Astrid Lund</div>
+      <div class="card-role">Law &amp; Intellectual Property</div>
+    </div>
+
+    <div class="card">
+      <div class="card-img-wrap">
+         <img src="Osei_eyes_open.jpg" alt="Dr. Osei">
+      </div>
+      <div class="card-name">Dr. Osei Mensah</div>
+      <div class="card-role">Science &amp; Research</div>
+    </div>
+
+    <div class="card">
+      <div class="card-img-wrap">
+         <img src="Grace_eyes_open.jpg" alt="Admiral Nakamura">
+      </div>
+      <div class="card-name">Admiral Nakamura</div>
+      <div class="card-role">Gov, Policy &amp; Nat. Security</div>
+    </div>
+
+    <div class="card">
+      <div class="card-img-wrap">
+         <img src="Devon_eyes_open.jpg" alt="Devon">
+      </div>
+      <div class="card-name">Devon Sloane</div>
+      <div class="card-role">Media &amp; Entertainment</div>
+    </div>
+
+    <div class="card">
+      <div class="card-img-wrap">
+         <img src="Cassidy_eyes_open.jpg" alt="Dr. Cassidy">
+      </div>
+      <div class="card-name">Dr. Cassidy Mercer</div>
+      <div class="card-role">Behavioral Science &amp; Psych</div>
+    </div>
+
+  </div>
+
+  <div class="subsection-label">The Executive Producers</div>
+  <div class="card-grid">
+
+    <div class="card">
+      <div class="card-img-wrap">
+         <img src="ivy_eyes-open.png" alt="Ms. Ivy">
+      </div>
+      <div class="card-name">Ms. Ivy</div>
+      <div class="card-role">Librarian </div>
+    </div>
+
+<div class="card">
+      <div class="card-img-wrap">
+       <img src="Wren_eyes_open.jpg" alt="Wren">
+      </div>
+      <div class="card-name">Wren Calloway</div>
+      <div class="card-role">The Scout</div>
+    </div>
+
+    <div class="card">
+      <div class="card-img-wrap">
+        <img src="Carol_eyes_open.jpg" alt="Carol">
+      </div>
+      <div class="card-name">Carol Haynes</div>
+      <div class="card-role">The Screener</div>
+    </div>
+
+    <div class="card">
+      <div class="card-img-wrap">
+         <img src="Matthew_eyes_open.jpg" alt="Matthew">
+      </div>
+      <div class="card-name">Matthew Vance</div>
+      <div class="card-role">The Behaviorist</div>
+    </div>
+
+    <div class="card">
+      <div class="card-img-wrap">
+        <img src="Arjun_eyes_open.jpg" alt="Arjun">
+      </div>
+      <div class="card-name">Arjun Mehta</div>
+      <div class="card-role">The Delivery Expert</div>
+    </div>
+
+    <div class="card">
+      <div class="card-img-wrap">
+        <img src="Zara_eyes_open.jpg" alt="Zara">
+      </div>
+      <div class="card-name">Zara Cole</div>
+      <div class="card-role">The Influencer</div>
+    </div>
+
+    <div class="card">
+      <div class="card-img-wrap">
+        <img src="Reid_eyes_open.jpg" alt="Reid">
+      </div>
+      <div class="card-name">Reid Callum</div>
+      <div class="card-role">The Marketing Expert</div>
+    </div>
+
+    <div class="card">
+      <div class="card-img-wrap">
+        <img src="Jules_eyes_open.jpg" alt="Jules">
+      </div>
+      <div class="card-name">Jules</div>
+      <div class="card-role">The Rewrite Partner</div>
+    </div>
+
+    <div class="card">
+      <div class="card-img-wrap">
+        <img src="Grant_eyes_open.jpg" alt="Coach">
+      </div>
+      <div class="card-name">Grant Ellis</div>
+      <div class="card-role">The Coach</div>
+    </div>
+
+  </div>
+</div>
+
+<div style="text-align:center; padding-top: 40px; border-top: 1px solid #e0e0e0; font-size: 12px; color: #bbb; font-weight: 300;">
+  Dr. Terry L. Oroszi &nbsp;·&nbsp; Emerging Technologies Laboratory &nbsp;·&nbsp; Wright State University Boonshoft School of Medicine
+</div>
+
+</body>
+</html>
