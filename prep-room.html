@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Prep Room — Defense Practice | Emerging Technologies Laboratory</title>
+<meta name="description" content="Practice your thesis or dissertation defense against an AI committee. Pick your panel, set the difficulty, and get a readiness card.">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1a1d24; --muted:#5a6072; --line:#e2e1dc; --paper:#f7f6f2;
+    --card:#ffffff; --gold:#b8922a; --gold-dim:#8f7220; --navy:#243049;
+    --green:#285C4D; --danger:#a3402f; --soft:#f0eee7;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);line-height:1.6;}
+  a{color:var(--gold-dim);}
+  .wrap{max-width:920px;margin:0 auto;padding:0 20px;}
+
+  /* Header */
+  header{background:var(--navy);color:#fff;padding:14px 0;border-bottom:3px solid var(--gold);}
+  header .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+  .brand{font-family:'Oswald',sans-serif;font-weight:700;letter-spacing:3px;text-transform:uppercase;font-size:15px;}
+  .brand span{color:var(--gold);}
+  .home-link{font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#cdd3e0;text-decoration:none;}
+  .home-link:hover{color:#fff;}
+
+  .hero{padding:48px 0 8px;text-align:center;}
+  .hero h1{font-family:'Playfair Display',serif;font-size:clamp(30px,5vw,46px);font-weight:700;letter-spacing:-0.5px;line-height:1.05;}
+  .hero h1 em{font-style:italic;color:var(--gold-dim);}
+  .hero p{max-width:600px;margin:14px auto 0;color:var(--muted);font-size:16px;font-weight:300;}
+  .kicker{font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--gold-dim);margin-bottom:10px;}
+
+  /* Mode toggle */
+  .modes{display:flex;gap:10px;justify-content:center;margin:28px 0 8px;flex-wrap:wrap;}
+  .mode{font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;padding:10px 22px;border:2px solid var(--navy);background:var(--navy);color:#fff;border-radius:2px;cursor:pointer;}
+  .mode.secondary{background:transparent;color:var(--navy);opacity:.55;cursor:not-allowed;}
+  .mode .tag{display:block;font-size:9px;letter-spacing:1px;color:var(--gold);margin-top:2px;}
+
+  /* Steps */
+  .step{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:30px;margin:22px 0;box-shadow:0 1px 3px rgba(0,0,0,.03);}
+  .step.locked{opacity:.45;pointer-events:none;}
+  .step-num{font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--gold-dim);margin-bottom:6px;}
+  .step h2{font-family:'Playfair Display',serif;font-size:23px;font-weight:600;margin-bottom:6px;}
+  .step .hint{color:var(--muted);font-size:14px;font-weight:300;margin-bottom:18px;}
+
+  /* Upload */
+  .drop{border:2px dashed #cfcdc4;border-radius:6px;padding:34px 20px;text-align:center;background:var(--soft);cursor:pointer;transition:border-color .15s,background .15s;}
+  .drop:hover{border-color:var(--gold);background:#fbfaf6;}
+  .drop.has{border-style:solid;border-color:var(--green);background:#f1f6f3;}
+  .drop .big{font-family:'Oswald',sans-serif;font-size:14px;letter-spacing:1px;text-transform:uppercase;color:var(--navy);}
+  .drop .sub{font-size:13px;color:var(--muted);margin-top:6px;}
+  .filename{font-weight:500;color:var(--green);}
+
+  /* Panel grid */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;}
+  .prof{border:1.5px solid var(--line);border-radius:6px;padding:16px;cursor:pointer;background:#fff;transition:border-color .15s,box-shadow .15s;position:relative;}
+  .prof:hover{border-color:var(--gold);}
+  .prof.sel{border-color:var(--green);box-shadow:0 0 0 1px var(--green) inset;background:#f6faf8;}
+  .prof .pname{font-family:'Playfair Display',serif;font-size:17px;font-weight:600;}
+  .prof .prole{font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold-dim);margin:2px 0 8px;}
+  .prof .pdesc{font-size:12.5px;color:var(--muted);line-height:1.5;}
+  .prof .check{position:absolute;top:12px;right:12px;width:20px;height:20px;border-radius:50%;border:1.5px solid #cfcdc4;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;}
+  .prof.sel .check{background:var(--green);border-color:var(--green);}
+  .selnote{font-size:13px;color:var(--muted);margin-top:14px;}
+  .selnote b{color:var(--ink);}
+
+  /* Difficulty */
+  .diff-row{display:flex;align-items:center;gap:14px;margin-top:8px;flex-wrap:wrap;}
+  .diff-btns{display:flex;gap:6px;}
+  .diff-btn{font-family:'Oswald',sans-serif;width:42px;height:42px;border:1.5px solid var(--line);background:#fff;border-radius:6px;font-size:16px;cursor:pointer;color:var(--navy);}
+  .diff-btn.sel{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .diff-label{font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--gold-dim);}
+  .diff-desc{font-size:13px;color:var(--muted);margin-top:10px;min-height:20px;}
+
+  /* Buttons */
+  .btn{font-family:'Oswald',sans-serif;font-size:13px;font-weight:600;letter-spacing:2px;text-transform:uppercase;padding:13px 28px;background:var(--gold);color:#1a1a1a;border:2px solid var(--gold);border-radius:3px;cursor:pointer;display:inline-block;text-decoration:none;}
+  .btn:hover{background:var(--gold-dim);border-color:var(--gold-dim);color:#fff;}
+  .btn:disabled{opacity:.4;cursor:not-allowed;}
+  .btn.ghost{background:transparent;color:var(--navy);border-color:var(--navy);}
+  .btn.ghost:hover{background:var(--navy);color:#fff;}
+  .btn-row{margin-top:20px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;}
+
+  /* Drill / chat */
+  #drill{display:none;}
+  .turnbar{display:flex;justify-content:space-between;align-items:center;font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;}
+  .chat{display:flex;flex-direction:column;gap:16px;margin-bottom:18px;}
+  .msg{max-width:88%;}
+  .msg .who{font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;}
+  .msg.prof .who{color:var(--gold-dim);}
+  .msg.you{align-self:flex-end;text-align:right;}
+  .msg.you .who{color:var(--green);}
+  .bubble{padding:13px 16px;border-radius:8px;font-size:15px;line-height:1.55;}
+  .msg.prof .bubble{background:#fff;border:1px solid var(--line);border-left:3px solid var(--gold);}
+  .msg.you .bubble{background:var(--navy);color:#fff;display:inline-block;text-align:left;}
+  .answer-area{display:flex;gap:10px;align-items:flex-end;}
+  .answer-area textarea{flex:1;resize:vertical;min-height:70px;font-family:'DM Sans',sans-serif;font-size:15px;padding:12px 14px;border:1.5px solid var(--line);border-radius:6px;background:#fff;}
+  .answer-area textarea:focus{outline:none;border-color:var(--gold);}
+  .thinking{font-style:italic;color:var(--muted);font-size:14px;}
+  .dots::after{content:'';animation:dots 1.4s steps(4,end) infinite;}
+  @keyframes dots{0%{content:'';}25%{content:'.';}50%{content:'..';}75%{content:'...';}}
+
+  /* Readiness card */
+  #card{display:none;}
+  .rc-head{text-align:center;margin-bottom:24px;}
+  .rc-head .verdict{font-family:'Playfair Display',serif;font-size:30px;font-weight:700;}
+  .rc-overall{font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--gold-dim);}
+  .rubric{display:flex;flex-direction:column;gap:14px;margin:18px 0;}
+  .rb{border:1px solid var(--line);border-radius:6px;padding:14px 16px;background:#fff;}
+  .rb-top{display:flex;justify-content:space-between;align-items:center;gap:10px;}
+  .rb-name{font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--navy);}
+  .rb-score{font-family:'Playfair Display',serif;font-weight:700;font-size:20px;}
+  .rb-bar{height:6px;background:var(--soft);border-radius:3px;margin:8px 0;overflow:hidden;}
+  .rb-fill{height:100%;background:var(--gold);}
+  .rb-note{font-size:13.5px;color:var(--muted);}
+  .drill-list{background:var(--soft);border-radius:6px;padding:18px 20px;margin-top:6px;}
+  .drill-list h3{font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--gold-dim);margin-bottom:10px;}
+  .drill-list li{margin:0 0 8px 18px;font-size:14.5px;}
+
+  .err{background:#fbeeea;border:1px solid #e3b9ae;color:var(--danger);padding:12px 14px;border-radius:6px;font-size:14px;margin-top:14px;display:none;}
+  .foot{text-align:center;padding:40px 0;color:#9a9a93;font-size:12px;}
+  .disclaimer{font-size:12px;color:#9a9a93;text-align:center;margin-top:8px;}
+  @media(max-width:600px){ .step{padding:22px 16px;} .msg{max-width:96%;} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="brand">The Prep <span>Room</span></div>
+    <a class="home-link" href="/">&larr; ETL Home</a>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div class="kicker">Emerging Technologies Laboratory</div>
+    <h1>Practice the defense <em>before</em> it counts.</h1>
+    <p>Upload your thesis or dissertation, choose your committee, set how hard they push, and get drilled. End with a readiness card that tells you exactly what to shore up.</p>
+  </div>
+
+  <div class="modes">
+    <button class="mode" id="mode-defense">Thesis / Dissertation Defense</button>
+    <button class="mode secondary" title="Coming soon">Job Interview<span class="tag">Coming soon</span></button>
+  </div>
+
+  <!-- STEP 1: Upload -->
+  <div class="step" id="step-upload">
+    <div class="step-num">Step 01</div>
+    <h2>Upload your document</h2>
+    <p class="hint">A PDF of your thesis, dissertation, or a substantial chapter. It stays in your browser; we send only a short brief to the committee.</p>
+    <div class="drop" id="drop">
+      <div class="big" id="drop-big">Click to choose a PDF</div>
+      <div class="sub" id="drop-sub">or drag it here</div>
+    </div>
+    <input type="file" id="file" accept="application/pdf" style="display:none;">
+    <div class="err" id="upload-err"></div>
+    <div class="btn-row">
+      <button class="btn" id="analyze-btn" disabled>Read my document &rarr;</button>
+      <span class="thinking" id="analyze-status"></span>
+    </div>
+  </div>
+
+  <!-- STEP 2: Panel + difficulty -->
+  <div class="step locked" id="step-panel">
+    <div class="step-num">Step 02</div>
+    <h2>Build your committee</h2>
+    <p class="hint">Pick three or four. Each brings a different line of attack.</p>
+    <div class="grid" id="prof-grid"></div>
+    <div class="selnote" id="selnote">Selected: <b>0</b> (choose 3 or 4)</div>
+
+    <div style="margin-top:26px;">
+      <h2 style="font-size:19px;">Set the difficulty</h2>
+      <p class="hint">Start where you are. You can come back and climb.</p>
+      <div class="diff-row">
+        <div class="diff-btns" id="diff-btns"></div>
+        <span class="diff-label" id="diff-name"></span>
+      </div>
+      <div class="diff-desc" id="diff-desc"></div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn" id="start-btn" disabled>Enter the room &rarr;</button>
+    </div>
+  </div>
+
+  <!-- DRILL -->
+  <div class="step" id="drill">
+    <div class="turnbar">
+      <span id="drill-meta"></span>
+      <span id="drill-count"></span>
+    </div>
+    <div class="chat" id="chat"></div>
+    <div class="answer-area" id="answer-area">
+      <textarea id="answer" placeholder="Type your answer. Be specific."></textarea>
+      <button class="btn" id="send-btn">Answer</button>
+    </div>
+    <div class="err" id="drill-err"></div>
+    <div class="btn-row">
+      <button class="btn ghost" id="end-btn">End &amp; get my readiness card</button>
+    </div>
+  </div>
+
+  <!-- READINESS CARD -->
+  <div class="step" id="card">
+    <div class="rc-head">
+      <div class="rc-overall">Readiness Card</div>
+      <div class="verdict" id="rc-verdict">&mdash;</div>
+    </div>
+    <div class="rubric" id="rc-rubric"></div>
+    <div class="drill-list" id="rc-drill"></div>
+    <div class="btn-row">
+      <button class="btn ghost" id="restart-btn">Run another session</button>
+    </div>
+    <p class="disclaimer">Practice tool only. A simulated committee is not your real committee. Use this to rehearse, not to predict your outcome.</p>
+  </div>
+
+</div>
+
+<div class="foot">The Prep Room &middot; Emerging Technologies Laboratory &middot; Dr. Terry L. Oroszi</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+  var MODEL = 'claude-sonnet-4-20250514';
+  var TURN_CAP = 12;
+
+  // ---- Professor roster ----
+  var PROFESSORS = [
+    {id:'method', name:'Dr. Reyes',  role:'The Methodologist', desc:'Research design, sampling, validity, reliability. Will pull on any thread in how you built the study.',
+      prompt:'You are Dr. Reyes, a methodologist. You care about research design, sampling, internal and external validity, reliability, and whether the methods actually answer the question. Probe study design choices and threats to validity.'},
+    {id:'domain', name:'Dr. Okafor', role:'The Domain Expert', desc:'Deep in your field and its literature. Challenges how you position the work against prior research.',
+      prompt:'You are Dr. Okafor, a senior expert in the candidate\'s subject area. You know the literature. Challenge how the work is positioned against prior research, whether key sources are missing, and whether claims are supported by the field.'},
+    {id:'theory', name:'Dr. Lindqvist', role:'The Theorist', desc:'Conceptual framework, definitions, and the theoretical contribution. Wants the ideas airtight.',
+      prompt:'You are Dr. Lindqvist, a theorist. You press on the conceptual framework, definitions of key constructs, internal logical consistency, and what the genuine theoretical contribution is.'},
+    {id:'skeptic', name:'Dr. Vance', role:'The Skeptic', desc:'The "so what?" voice. Questions novelty, significance, and whether the contribution matters.',
+      prompt:'You are Dr. Vance, a skeptic. Your recurring question is "so what?" You press on novelty, significance, and why this contribution matters to anyone. You are unimpressed by effort alone.'},
+    {id:'chair', name:'Dr. Brennan', role:'The Supportive Chair', desc:'Fair and steadying, keeps things on track, but still asks real questions.',
+      prompt:'You are Dr. Brennan, the committee chair. You are fair and encouraging and keep the defense on track, but you still ask substantive questions and expect real answers.'},
+    {id:'stats', name:'Dr. Naidu', role:'The Stats Hardliner', desc:'Quantitative analysis, assumptions, and interpretation of results. No hand-waving on numbers.',
+      prompt:'You are Dr. Naidu, a quantitative methods specialist. You drill on statistical choices, assumptions, effect sizes, interpretation of results, and whether the analysis supports the conclusions. No hand-waving on numbers.'},
+    {id:'outside', name:'Dr. Whitfield', role:'The Outside Member', desc:'From another field. Asks clarifying, big-picture, and accessibility questions.',
+      prompt:'You are Dr. Whitfield, the outside committee member from a different discipline. You ask clarifying and big-picture questions, push for plain-language explanations, and test whether the work makes sense beyond its niche.'}
+  ];
+
+  var DIFFICULTY = [
+    {n:1, name:'Warm-up',  desc:'One question at a time, your answers are accepted, gentle clarifying follow-ups, no traps. Build confidence.',
+      prompt:'DIFFICULTY 1 (Warm-up): Ask one clear question at a time. Accept the candidate\'s answer graciously. At most one gentle clarifying follow-up. No traps, no pile-ons. Encouraging tone.'},
+    {n:2, name:'Coaching', desc:'A follow-up on each answer, nudges you toward gaps without pouncing.',
+      prompt:'DIFFICULTY 2 (Coaching): Ask a follow-up on each answer. Gently point toward gaps and hint at what is missing without pouncing. Constructive, mentor-like tone.'},
+    {n:3, name:'Realistic',desc:'Probes your methods and evidence, follows up on vague answers, fair pushback. A normal committee.',
+      prompt:'DIFFICULTY 3 (Realistic): Probe methods and evidence. Follow up on vague or incomplete answers. Offer fair, measured pushback. This is a normal, fair committee.'},
+    {n:4, name:'Tough',    desc:'Chains follow-ups on weak spots, challenges assumptions, asks the question you hoped to dodge.',
+      prompt:'DIFFICULTY 4 (Tough): Chain follow-ups on weak spots until they are resolved. Challenge assumptions directly. Ask the question the candidate clearly hoped to avoid. Do not let vague answers slide.'},
+    {n:5, name:'Brutal',   desc:'Relentless and adversarial, exposes every hole, demands precision. Worst-case committee.',
+      prompt:'DIFFICULTY 5 (Brutal): Be relentless and adversarial but never abusive. Expose every hole. Demand precision. If an answer is weak, say so plainly ("that is not an answer") and press harder. Worst-case committee.'}
+  ];
+
+  // ---- State ----
+  var state = { fileName:'', docText:'', brief:'', panel:[], difficulty:3, transcript:[], turn:0, order:[], orderIdx:0 };
+
+  function $(id){return document.getElementById(id);}
+  function showErr(el,msg){ el.textContent = msg; el.style.display='block'; }
+  function hideErr(el){ el.style.display='none'; }
+
+  // ---- API ----
+  async function callAPI(body){
+    var r = await fetch('/.netlify/functions/proxy-ai', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
+    var text = await r.text(); var d;
+    try{ d = JSON.parse(text); }catch(e){ throw new Error('Server returned an unexpected response.'); }
+    if(d.error){ throw new Error(typeof d.error==='string'?d.error:(d.error.message||'API error')); }
+    if(!d.content || !d.content[0]){ throw new Error('Empty response from the committee.'); }
+    return d.content[0].text;
+  }
+
+  // ---- Step 1: upload + extract ----
+  var fileInput = $('file'), drop = $('drop');
+  drop.addEventListener('click', function(){ fileInput.click(); });
+  ['dragover','dragenter'].forEach(function(ev){ drop.addEventListener(ev,function(e){e.preventDefault();drop.classList.add('has');}); });
+  ['dragleave','drop'].forEach(function(ev){ drop.addEventListener(ev,function(e){e.preventDefault();}); });
+  drop.addEventListener('drop', function(e){ e.preventDefault(); if(e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); });
+  fileInput.addEventListener('change', function(){ if(fileInput.files[0]) handleFile(fileInput.files[0]); });
+
+  function handleFile(file){
+    hideErr($('upload-err'));
+    if(file.type !== 'application/pdf'){ showErr($('upload-err'),'Please upload a PDF.'); return; }
+    state.fileName = file.name;
+    drop.classList.add('has');
+    $('drop-big').innerHTML = '<span class="filename">'+file.name+'</span>';
+    $('drop-sub').textContent = 'Reading pages...';
+    var reader = new FileReader();
+    reader.onload = function(){ extractPdf(new Uint8Array(reader.result)); };
+    reader.readAsArrayBuffer(file);
+  }
+
+  async function extractPdf(data){
+    try{
+      var pdf = await pdfjsLib.getDocument({data:data}).promise;
+      var maxPages = Math.min(pdf.numPages, 60);
+      var out = '';
+      for(var i=1;i<=maxPages;i++){
+        var page = await pdf.getPage(i);
+        var content = await page.getTextContent();
+        out += content.items.map(function(it){return it.str;}).join(' ') + '\n';
+      }
+      state.docText = out.replace(/\s+/g,' ').trim();
+      if(state.docText.length < 200){ showErr($('upload-err'),'Could not read text from this PDF (it may be scanned images). Try a text-based PDF.'); return; }
+      $('drop-sub').innerHTML = 'Ready &middot; '+pdf.numPages+' pages';
+      $('analyze-btn').disabled = false;
+    }catch(e){ showErr($('upload-err'),'Could not read this PDF: '+e.message); }
+  }
+
+  $('analyze-btn').addEventListener('click', analyzeDoc);
+  async function analyzeDoc(){
+    hideErr($('upload-err'));
+    $('analyze-btn').disabled = true;
+    $('analyze-status').innerHTML = 'The committee is reading your work<span class="dots"></span>';
+    var excerpt = state.docText.slice(0, 14000);
+    var sys = 'You are an academic committee\'s research assistant. Read the excerpt from a thesis/dissertation and produce a TIGHT brief for the examiners. Output PLAIN TEXT with these labeled sections and nothing else: TITLE/TOPIC; FIELD; RESEARCH QUESTION; METHODS; KEY CLAIMS (3-6 bullets); CONTRIBUTION; LIKELY WEAK POINTS (3-6 bullets the committee should probe). Be concrete and specific to this document. Keep under 350 words.';
+    try{
+      var brief = await callAPI({ model:MODEL, max_tokens:1200, system:sys,
+        messages:[{role:'user', content:'Document excerpt:\n\n'+excerpt}] });
+      state.brief = brief;
+      $('analyze-status').textContent = '';
+      buildPanelStep();
+    }catch(e){
+      $('analyze-status').textContent='';
+      showErr($('upload-err'), e.message);
+      $('analyze-btn').disabled = false;
+    }
+  }
+
+  // ---- Step 2: panel + difficulty ----
+  function buildPanelStep(){
+    var grid = $('prof-grid'); grid.innerHTML='';
+    PROFESSORS.forEach(function(p){
+      var el = document.createElement('div');
+      el.className='prof'; el.dataset.id=p.id;
+      el.innerHTML = '<div class="check">&#10003;</div><div class="pname">'+p.name+'</div><div class="prole">'+p.role+'</div><div class="pdesc">'+p.desc+'</div>';
+      el.addEventListener('click', function(){ toggleProf(p.id, el); });
+      grid.appendChild(el);
+    });
+    var db = $('diff-btns'); db.innerHTML='';
+    DIFFICULTY.forEach(function(d){
+      var b=document.createElement('button'); b.className='diff-btn'; b.textContent=d.n;
+      b.addEventListener('click', function(){ setDifficulty(d.n); });
+      db.appendChild(b);
+    });
+    setDifficulty(3);
+    $('step-panel').classList.remove('locked');
+    $('step-panel').scrollIntoView({behavior:'smooth', block:'start'});
+  }
+
+  function toggleProf(id, el){
+    var i = state.panel.indexOf(id);
+    if(i>=0){ state.panel.splice(i,1); el.classList.remove('sel'); }
+    else { if(state.panel.length>=4){ return; } state.panel.push(id); el.classList.add('sel'); }
+    $('selnote').innerHTML = 'Selected: <b>'+state.panel.length+'</b> (choose 3 or 4)';
+    $('start-btn').disabled = !(state.panel.length>=3 && state.panel.length<=4);
+  }
+
+  function setDifficulty(n){
+    state.difficulty = n;
+    var d = DIFFICULTY[n-1];
+    [].forEach.call($('diff-btns').children, function(b){ b.classList.toggle('sel', parseInt(b.textContent,10)===n); });
+    $('diff-name').textContent = 'Level '+n+' · '+d.name;
+    $('diff-desc').textContent = d.desc;
+  }
+
+  // ---- Drill ----
+  $('start-btn').addEventListener('click', startDrill);
+  async function startDrill(){
+    $('step-upload').classList.add('locked');
+    $('step-panel').classList.add('locked');
+    $('drill').style.display='block';
+    var names = state.panel.map(function(id){return profById(id).name;}).join(', ');
+    $('drill-meta').textContent = 'Committee: '+names+'  ·  Level '+state.difficulty;
+    // randomize speaking order
+    state.order = state.panel.slice().sort(function(){return Math.random()-0.5;});
+    state.orderIdx = 0; state.turn = 0; state.transcript = [];
+    $('drill').scrollIntoView({behavior:'smooth', block:'start'});
+    await nextQuestion(true);
+  }
+
+  function profById(id){ return PROFESSORS.filter(function(p){return p.id===id;})[0]; }
+  function updateCount(){ $('drill-count').textContent = 'Question '+Math.min(state.turn+1,TURN_CAP)+' of '+TURN_CAP; }
+
+  function transcriptText(){
+    return state.transcript.map(function(t){
+      return (t.role==='prof' ? (t.name+' ('+t.roleName+')') : 'CANDIDATE') + ': ' + t.text;
+    }).join('\n\n');
+  }
+
+  function addMsg(cls, who, text){
+    var m = document.createElement('div'); m.className='msg '+cls;
+    m.innerHTML = '<div class="who">'+who+'</div><div class="bubble"></div>';
+    m.querySelector('.bubble').textContent = text;
+    $('chat').appendChild(m); m.scrollIntoView({behavior:'smooth', block:'end'});
+    return m;
+  }
+
+  async function nextQuestion(isFirst){
+    hideErr($('drill-err'));
+    updateCount();
+    var prof = profById(state.order[state.orderIdx % state.order.length]);
+    var thinking = addMsg('prof', prof.name+' — '+prof.role, '');
+    thinking.querySelector('.bubble').innerHTML = '<span class="thinking">thinking<span class="dots"></span></span>';
+
+    var diff = DIFFICULTY[state.difficulty-1];
+    var sys = prof.prompt + '\n\n' + diff.prompt +
+      '\n\nYou are examining a candidate in their thesis/dissertation defense. Here is the committee brief on the work:\n\n' + state.brief +
+      '\n\nRULES: Speak only as yourself, in the first person, as one examiner. Ask exactly ONE question per turn (a short reaction to the previous answer plus your question is fine). Ground questions in THIS candidate\'s work. Keep it under 80 words. Do not answer for the candidate. Do not break character or mention being an AI.';
+
+    var userContent = isFirst
+      ? 'Open your portion of the defense. Greet briefly and ask your first question.'
+      : 'Defense transcript so far:\n\n' + transcriptText() + '\n\nAs ' + prof.name + ', react briefly to the candidate\'s last answer and ask your next question.';
+
+    try{
+      var q = await callAPI({ model:MODEL, max_tokens:350, system:sys, messages:[{role:'user', content:userContent}] });
+      thinking.querySelector('.bubble').textContent = q;
+      state.transcript.push({role:'prof', name:prof.name, roleName:prof.role, text:q});
+      $('answer-area').style.display='flex';
+      $('answer').focus();
+    }catch(e){
+      thinking.remove();
+      showErr($('drill-err'), e.message);
+    }
+  }
+
+  $('send-btn').addEventListener('click', sendAnswer);
+  $('answer').addEventListener('keydown', function(e){ if(e.key==='Enter' && (e.ctrlKey||e.metaKey)) sendAnswer(); });
+  async function sendAnswer(){
+    var val = $('answer').value.trim();
+    if(!val) return;
+    addMsg('you','You', val);
+    state.transcript.push({role:'candidate', text:val});
+    $('answer').value='';
+    state.turn++;
+    state.orderIdx++;
+    $('answer-area').style.display='none';
+    if(state.turn >= TURN_CAP){ endSession(); return; }
+    await nextQuestion(false);
+  }
+
+  // ---- Readiness card ----
+  $('end-btn').addEventListener('click', endSession);
+  async function endSession(){
+    if(state.transcript.length===0){ return; }
+    $('drill').classList.add('locked');
+    $('answer-area').style.display='none';
+    $('card').style.display='block';
+    $('rc-verdict').textContent = 'Scoring your defense...';
+    $('card').scrollIntoView({behavior:'smooth', block:'start'});
+
+    var sys = 'You are an examination committee producing a formative READINESS CARD after a practice defense. Be honest and specific. No flattery, no praise that is not earned. Score five categories from 1 to 5 (1=not ready, 5=ready). Categories: COMMAND OF THE MATERIAL; METHODOLOGY DEFENSE; HANDLING OF GAPS & LIMITATIONS; CLARITY UNDER PRESSURE; SIGNIFICANCE & CONTRIBUTION. Also give an overall one-line verdict and 3-5 concrete things to drill before the real defense. ' +
+      'Return ONLY valid JSON, no markdown, in this exact shape: {"verdict":"string","categories":[{"name":"string","score":1-5,"note":"one specific sentence"}],"drill":["string","string","string"]}';
+    var user = 'Committee brief:\n\n'+state.brief+'\n\nDefense transcript:\n\n'+transcriptText();
+    try{
+      var raw = await callAPI({ model:MODEL, max_tokens:1500, system:sys, messages:[{role:'user', content:user}] });
+      var json = raw.replace(/```json|```/g,'').trim();
+      var data = JSON.parse(json);
+      renderCard(data);
+    }catch(e){
+      $('rc-verdict').textContent = 'Could not score the session.';
+      showErr($('drill-err'), e.message);
+    }
+  }
+
+  function renderCard(d){
+    $('rc-verdict').textContent = d.verdict || 'Session complete.';
+    var rub = $('rc-rubric'); rub.innerHTML='';
+    (d.categories||[]).forEach(function(c){
+      var pct = (Math.max(1,Math.min(5,c.score))/5)*100;
+      var el = document.createElement('div'); el.className='rb';
+      el.innerHTML = '<div class="rb-top"><span class="rb-name">'+c.name+'</span><span class="rb-score">'+c.score+'<span style="font-size:13px;color:#9a9a93;">/5</span></span></div>'+
+        '<div class="rb-bar"><div class="rb-fill" style="width:'+pct+'%"></div></div>'+
+        '<div class="rb-note">'+(c.note||'')+'</div>';
+      rub.appendChild(el);
+    });
+    var dl = $('rc-drill');
+    dl.innerHTML = '<h3>Drill these before the real thing</h3><ul>'+ (d.drill||[]).map(function(x){return '<li>'+x+'</li>';}).join('') +'</ul>';
+  }
+
+  $('restart-btn').addEventListener('click', function(){ location.reload(); });
+</script>
+</body>
+</html>

@@ -8,6 +8,11 @@
   timeout = 60
 
 [[redirects]]
+  from = "/prep-room"
+  to = "/prep-room.html"
+  status = 200
+
+[[redirects]]
   from = "/app"
   to = "/app.html"
   status = 200
