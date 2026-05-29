@@ -652,6 +652,8 @@
   @media (max-width: 900px) {
     nav { padding: 0 20px; }
     .nav-links { display: none; }
+    /* Hero: content-sized from here down so it never centers inside a tall block (no big black gap on phones/tablets in the 641-900 range) */
+    #hero { min-height: 0; align-items: flex-start; padding-top: 40px; }
     section { padding: 70px 24px; }
     .section-full-inner { padding: 0 24px; }
     footer { padding: 30px 24px; }
@@ -933,7 +935,7 @@
   }
   .etl-network .etl-net-video iframe {
     position: absolute; top: 0; left: 0;
-    width: 100%; height: 100%; border: 0;
+    width: 100% !important; height: 100% !important; max-width: 100% !important; border: 0;
   }
   .etl-network .etl-net-placeholder {
     position: absolute; inset: 0;
