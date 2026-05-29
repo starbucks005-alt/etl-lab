@@ -125,7 +125,15 @@
   .dl{font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:1px;text-transform:uppercase;text-decoration:none;color:var(--navy);border:1px solid var(--line);padding:7px 10px;border-radius:4px;}
   .dl:hover{border-color:var(--gold);color:var(--gold-dim);}
   .caveat{font-size:11.5px;color:#9a9a93;margin-top:10px;line-height:1.5;}
-  @media(max-width:600px){ .step{padding:22px 16px;} .msg{max-width:96%;} }
+  .prof-card{width:100%;border-radius:6px;display:block;margin-bottom:10px;}
+  .gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px;}
+  .zg{position:relative;border-radius:8px;overflow:hidden;background:#0c0f16;border:2px solid transparent;opacity:.45;transition:opacity .25s,border-color .25s,transform .25s;}
+  .zg img{width:100%;display:block;aspect-ratio:1/1;object-fit:cover;object-position:center 20%;}
+  .zg .zg-name{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(transparent,rgba(0,0,0,.78));color:#fff;font-family:'Oswald',sans-serif;font-size:9.5px;letter-spacing:1px;padding:14px 6px 5px;text-transform:uppercase;}
+  .zg.active{opacity:1;border-color:var(--gold);transform:translateY(-2px);}
+  .zg.ap{border-color:var(--green);}
+  .zg.ap.active{border-color:var(--gold);}
+  @media(max-width:600px){ .step{padding:22px 16px;} .msg{max-width:96%;} .gallery{grid-template-columns:repeat(3,1fr);gap:5px;} .zg .zg-name{font-size:8px;} }
 </style>
 </head>
 <body>
@@ -209,6 +217,7 @@
       <span id="drill-meta"></span>
       <span id="drill-count"></span>
     </div>
+    <div class="gallery" id="gallery"></div>
     <div class="chat" id="chat"></div>
     <div class="answer-area" id="answer-area">
       <textarea id="answer" placeholder="Type your answer. Be specific."></textarea>
@@ -247,22 +256,37 @@
   var TURN_CAP = 12;
 
   // ---- Rosters (placeholder personas; Dr. Oroszi will replace names/voices/backgrounds) ----
+  var IMG = '/prep-room-assets/';
   var PROFESSORS = [
-    {id:'method', name:'Dr. Reyes',  role:'The Methodologist', desc:'Research design, sampling, validity, reliability. Will pull on any thread in how you built the study.',
-      prompt:'You are Dr. Reyes, a methodologist. You care about research design, sampling, internal and external validity, reliability, and whether the methods actually answer the question. Probe study design choices and threats to validity.'},
-    {id:'domain', name:'Dr. Okafor', role:'The Domain Expert', desc:'Deep in your field and its literature. Challenges how you position the work against prior research.',
-      prompt:'You are Dr. Okafor, a senior expert in the candidate\'s subject area. You know the literature. Challenge how the work is positioned against prior research, whether key sources are missing, and whether claims are supported by the field.'},
-    {id:'theory', name:'Dr. Lindqvist', role:'The Theorist', desc:'Conceptual framework, definitions, and the theoretical contribution. Wants the ideas airtight.',
-      prompt:'You are Dr. Lindqvist, a theorist. You press on the conceptual framework, definitions of key constructs, internal logical consistency, and what the genuine theoretical contribution is.'},
-    {id:'skeptic', name:'Dr. Vance', role:'The Skeptic', desc:'The "so what?" voice. Questions novelty, significance, and whether the contribution matters.',
-      prompt:'You are Dr. Vance, a skeptic. Your recurring question is "so what?" You press on novelty, significance, and why this contribution matters to anyone. You are unimpressed by effort alone.'},
-    {id:'chair', name:'Dr. Brennan', role:'The Supportive Chair', desc:'Fair and steadying, keeps things on track, but still asks real questions.',
-      prompt:'You are Dr. Brennan, the committee chair. You are fair and encouraging and keep the defense on track, but you still ask substantive questions and expect real answers.'},
-    {id:'stats', name:'Dr. Naidu', role:'The Stats Hardliner', desc:'Quantitative analysis, assumptions, and interpretation of results. No hand-waving on numbers.',
-      prompt:'You are Dr. Naidu, a quantitative methods specialist. You drill on statistical choices, assumptions, effect sizes, interpretation of results, and whether the analysis supports the conclusions. No hand-waving on numbers.'},
-    {id:'outside', name:'Dr. Whitfield', role:'The Outside Member', desc:'From another field. Asks clarifying, big-picture, and accessibility questions.',
-      prompt:'You are Dr. Whitfield, the outside committee member from a different discipline. You ask clarifying and big-picture questions, push for plain-language explanations, and test whether the work makes sense beyond its niche.'}
+    {id:'vv', name:'Dr. Victoria Vance', role:'The Methodologist', desc:'Research design, variables, controls, and bias. If one gear is misaligned, the machine fails.',
+      open:IMG+'vv_open.jpg', closed:IMG+'vv_closed.jpg', card:IMG+'vv_card.jpg',
+      prompt:'You are Dr. Victoria Vance, the Methodologist. You view a research project as a machine: if one gear is misaligned, the whole thing fails, and you have zero interest in a beautiful theory built on a flawed execution framework. Aggressively scrutinize research design, variables, controls, sampling, and potential biases. Precise, exacting, unsentimental.'},
+    {id:'lc', name:'Dr. Lawrence Cole', role:'The Domain Expert', desc:'Knows every major study and competing school. Tests whether you can contribute, not just summarize.',
+      open:IMG+'lc_open.jpg', closed:IMG+'lc_closed.jpg', card:IMG+'lc_card.jpg',
+      prompt:'You are Dr. Lawrence Cole, the Domain Expert, fully embedded in this topic and its literature. You are testing whether the candidate is ready to contribute to the field or is merely summarizing it. Probe nuances, hidden complexities, competing schools of thought, and any conflicting evidence in the literature. Warm but exacting.'},
+    {id:'mt', name:'Dr. Marcus Thorne', role:'The Theorist', desc:'An intellectual disruptor. Challenges your foundational assumptions to see if your logic holds.',
+      open:IMG+'mt_open.jpg', closed:IMG+'mt_closed.jpg', card:IMG+'mt_card.jpg',
+      prompt:'You are Dr. Marcus Thorne, the Theorist, an intellectual disruptor who despises safe, predictable conclusions. You care about paradigm shifts and abstract reasoning. Deliberately challenge the candidate\'s foundational assumptions to see if their logic holds when the ground shifts. Provocative and philosophical.'},
+    {id:'mp', name:'Dr. Maya Patel', role:'The Skeptic', desc:'No patience for jargon or inflated claims. What is the real, scalable utility, and who benefits?',
+      open:IMG+'mp_open.jpg', closed:IMG+'mp_closed.jpg', card:IMG+'mp_card.jpg',
+      prompt:'You are Dr. Maya Patel, the Skeptic: a pragmatic, cross-sector realist with no patience for academic fluff, circular jargon, or inflated claims. Cut through nomenclature to expose actual substance and real-world utility. Blunt, efficiency-driven, focused on value and exactly who benefits.'},
+    {id:'cs', name:'Dr. Charles Sterling', role:'The Supportive Chair', desc:'Your advisor. Keeps decorum and throws a lifeline, but still expects a rigorous defense.',
+      open:IMG+'cs_open.jpg', closed:IMG+'cs_closed.jpg', card:IMG+'cs_card.jpg',
+      prompt:'You are Dr. Charles Sterling, the committee Chair and the candidate\'s advisor. You facilitate, keep decorum, and keep the defense on track, but you still expect a rigorous defense. Ask structured, framing questions that let the candidate reset, clarify their core thesis, and reconnect conclusions to their original research questions. If the candidate is clearly drowning, throw them a lifeline.'},
+    {id:'az', name:'Dr. Alan Zhao', role:'The Stats Hardliner', desc:'A quantitative purist. Statistical power, sample size, error rates, p-values. No hand-waving.',
+      open:IMG+'az_open.jpg', closed:IMG+'az_closed.jpg', card:IMG+'az_card.jpg',
+      prompt:'You are Dr. Alan Zhao, the Stats Hardliner, a pure quantitative purist: if it cannot be measured, modeled, and verified, it is anecdotal. Focus on statistical power, sample size, error rates, p-values, and any over-extrapolation of the data. Granular, logical, and unforgiving on numbers.'},
+    {id:'mvg', name:'Dr. Meredith Vance-Giles', role:'The Outside Member', desc:'From another discipline, with fresh eyes. Can you explain the value in plain terms?',
+      open:IMG+'mvg_open.jpg', closed:IMG+'mvg_closed.jpg', card:IMG+'mvg_card.jpg',
+      prompt:'You are Dr. Meredith Vance-Giles, the Outside Member from another discipline, present to ensure impartial standards. You look with fresh, objective eyes, free of the field\'s biases. Test whether the work communicates its value to an educated audience outside its niche. Broad, structural, and focused on clarity in plain language.'},
+    {id:'tk', name:'Dr. Tariq Khan', role:'The Interdisciplinary Bridge', desc:'A polymath. Is your thesis trapped in a silo, or do you see its broader ecosystem?',
+      open:IMG+'tk_open.jpg', closed:IMG+'tk_closed.jpg', card:IMG+'tk_card.jpg',
+      prompt:'You are Dr. Tariq Khan, the Interdisciplinary Bridge, a polymath who connects seemingly unrelated fields. Look for cross-pollination and systems-level thinking, and challenge the candidate to look sideways: is the thesis trapped in an academic silo, or do they understand its broader ecosystem? Lateral and comparative.'}
   ];
+
+  var PENDLETON = {id:'ap', name:'Dr. Arthur Pendelton', role:'The Crisis Interventionist',
+    poses:[IMG+'ap_1.jpg', IMG+'ap_2.jpg', IMG+'ap_3.jpg'],
+    prompt:'You are Dr. Arthur Pendelton, an influential senior institutional figure who steps in ONLY when a candidate is clearly struggling, fatigued, or trapped. You use your gravitas to halt a hostile line of questioning, ground the candidate, and strip away defensive posturing. Deconstructive, grounding, and anchoring; warm but commanding. Pause the cross-examination, then help them name the single undeniable truth their work actually proved before handing control back.'};
 
   var INTERVIEWERS = [
     {id:'hm', name:'Dana Cole', role:'The Hiring Manager', desc:'Owns the role. Cares whether you can actually do the job and deliver impact.',
@@ -343,7 +367,7 @@
   function roster(){ return MODE === 'defense' ? PROFESSORS : INTERVIEWERS; }
 
   // ---- State ----
-  var state = { fileName:'', docText:'', jdText:'', brief:'', panel:[], difficulty:3, transcript:[], turn:0, order:[], orderIdx:0 };
+  var state = { fileName:'', docText:'', jdText:'', brief:'', panel:[], difficulty:3, transcript:[], turn:0, order:[], orderIdx:0, apUsed:0, apPending:false, currentIsAP:false };
 
   function $(id){return document.getElementById(id);}
   function showErr(el,msg){ el.textContent = msg; el.style.display='block'; }
@@ -434,7 +458,8 @@
       var el = document.createElement('div');
       el.className='prof'; el.dataset.id=p.id;
       if(state.panel.indexOf(p.id)>=0) el.classList.add('sel');
-      el.innerHTML = '<div class="check">&#10003;</div><div class="pname">'+p.name+'</div><div class="prole">'+p.role+'</div><div class="pdesc">'+p.desc+'</div>';
+      var head = p.card ? ('<img class="prof-card" src="'+p.card+'" alt="'+p.name+'">') : ('<div class="pname">'+p.name+'</div><div class="prole">'+p.role+'</div>');
+      el.innerHTML = '<div class="check">&#10003;</div>'+head+'<div class="pdesc">'+p.desc+'</div>';
       el.addEventListener('click', function(){ toggleProf(p.id, el); });
       grid.appendChild(el);
     });
@@ -474,8 +499,10 @@
     var names = state.panel.map(function(id){return profById(id).name;}).join(', ');
     $('drill-meta').textContent = cfg().metaLabel + ': '+names+'  ·  Level '+state.difficulty;
     state.order = state.panel.slice().sort(function(){return Math.random()-0.5;});
-    state.orderIdx = 0; state.turn = 0; state.transcript = [];
+    state.orderIdx = 0; state.turn = 0; state.transcript = []; state.apUsed = 0; state.apPending = false; state.currentIsAP = false;
     $('chat').innerHTML='';
+    buildGallery();
+    startBlink();
     $('drill').scrollIntoView({behavior:'smooth', block:'start'});
     await nextQuestion(true);
   }
@@ -498,16 +525,58 @@
     return m;
   }
 
+  // ---- Zoom-style gallery + blink (defense only) ----
+  var galleryEls = {}; var blinkTimer = null;
+  function shortName(n){ return n.replace('Dr. ',''); }
+  function buildGallery(){
+    var g = $('gallery'); g.innerHTML=''; galleryEls={};
+    if(MODE!=='defense'){ g.style.display='none'; return; }
+    g.style.display='grid';
+    state.panel.forEach(function(id){
+      var p = profById(id); if(!p || !p.open) return;
+      var t = document.createElement('div'); t.className='zg'; t.dataset.id=id;
+      t.innerHTML = '<img src="'+p.open+'" alt="'+p.name+'"><div class="zg-name">'+shortName(p.name)+'</div>';
+      g.appendChild(t);
+      galleryEls[id] = { el:t, img:t.querySelector('img'), open:p.open, closed:p.closed };
+    });
+  }
+  function ensureAPTile(){
+    if(galleryEls['ap']) return;
+    var g = $('gallery'); var t = document.createElement('div'); t.className='zg ap'; t.dataset.id='ap';
+    t.innerHTML = '<img src="'+PENDLETON.poses[0]+'" alt="Dr. Pendelton"><div class="zg-name">'+shortName(PENDLETON.name)+'</div>';
+    g.appendChild(t);
+    galleryEls['ap'] = { el:t, img:t.querySelector('img'), poses:PENDLETON.poses };
+  }
+  function setActiveTile(id){
+    Object.keys(galleryEls).forEach(function(k){ galleryEls[k].el.classList.toggle('active', k===id); });
+    if(id==='ap' && galleryEls['ap']){ galleryEls['ap'].img.src = PENDLETON.poses[2]; } // warm pose when he steps in
+  }
+  function startBlink(){
+    if(blinkTimer) clearInterval(blinkTimer);
+    blinkTimer = setInterval(function(){
+      var active = document.querySelector('.zg.active'); if(!active) return;
+      var id = active.dataset.id; var ref = galleryEls[id]; if(!ref || !ref.closed) return;
+      ref.img.src = ref.closed; setTimeout(function(){ if(ref.img) ref.img.src = ref.open; }, 150);
+    }, 3300);
+  }
+  function weakAnswer(v){ return v.length < 60 || /(i\s*(don'?t|do not)\s*know|not sure|no idea|i\s*guess|honestly)/i.test(v); }
+
   async function nextQuestion(isFirst){
     hideErr($('drill-err'));
     updateCount();
-    var prof = profById(state.order[state.orderIdx % state.order.length]);
+    var isAP = state.apPending; state.apPending = false; state.currentIsAP = isAP;
+    var prof = isAP ? PENDLETON : profById(state.order[state.orderIdx % state.order.length]);
+    if(MODE==='defense'){ if(isAP) ensureAPTile(); setActiveTile(prof.id); }
     var thinking = addMsg('prof', prof.name+' — '+prof.role, '');
     thinking.querySelector('.bubble').innerHTML = '<span class="thinking">thinking<span class="dots"></span></span>';
 
     var diff = DIFFICULTY[state.difficulty-1];
     var sys, userContent;
-    if(MODE==='interview'){
+    if(isAP){
+      sys = PENDLETON.prompt + '\n\nHere is the committee brief on the candidate\'s work:\n\n' + state.brief +
+        '\n\nThe candidate is struggling. RULES: Speak only as yourself, in the first person. Briefly halt the hostile questioning, steady the candidate, and ask ONE calm, anchoring question that helps them reconnect to the core truth of their work. Under 80 words. Do not break character or mention being an AI.';
+      userContent = 'Defense transcript so far:\n\n' + transcriptText() + '\n\nAs Dr. Pendelton, step in now, steady the candidate, and ask one grounding question.';
+    } else if(MODE==='interview'){
       sys = prof.prompt + '\n\n' + diff.prompt +
         '\n\nYou are interviewing a candidate for a job. Here is the panel brief:\n\n' + state.brief +
         '\n\nRULES: Speak only as yourself, in the first person, as one interviewer. Ask exactly ONE question per turn (a short reaction to the previous answer plus your question is fine). Ground questions in THIS candidate\'s CV and THIS role. Keep it under 80 words. Do not answer for the candidate. Do not break character or mention being an AI.';
@@ -543,10 +612,14 @@
     addMsg('you','You', val);
     state.transcript.push({role:'candidate', text:val});
     $('answer').value='';
+    var wasAP = state.currentIsAP;
+    if(!wasAP){ state.orderIdx++; }
     state.turn++;
-    state.orderIdx++;
     $('answer-area').style.display='none';
     if(state.turn >= TURN_CAP){ endSession(); return; }
+    if(MODE==='defense' && !wasAP && state.difficulty>=4 && state.apUsed<2 && state.turn>=2 && state.turn<TURN_CAP-1){
+      if(weakAnswer(val) || Math.random()<0.2){ state.apPending = true; state.apUsed++; }
+    }
     await nextQuestion(false);
   }
 
@@ -672,7 +745,7 @@
     $('mode-defense').classList.toggle('inactive', m!=='defense');
     $('mode-interview').classList.toggle('inactive', m!=='interview');
     // reset state
-    state = { fileName:'', docText:'', jdText:'', brief:'', panel:[], difficulty:state.difficulty||3, transcript:[], turn:0, order:[], orderIdx:0 };
+    state = { fileName:'', docText:'', jdText:'', brief:'', panel:[], difficulty:state.difficulty||3, transcript:[], turn:0, order:[], orderIdx:0, apUsed:0, apPending:false, currentIsAP:false };
     // step 1 copy
     $('step1-h').textContent = c.step1h;
     $('step1-hint').textContent = c.step1hint;
