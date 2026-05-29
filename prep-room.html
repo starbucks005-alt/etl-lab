@@ -286,24 +286,42 @@
 
   var PENDLETON = {id:'ap', name:'Dr. Arthur Pendelton', role:'The Crisis Interventionist',
     poses:[IMG+'ap_1.jpg', IMG+'ap_2.jpg', IMG+'ap_3.jpg'],
+    tile:IMG+'ap_1.jpg', warm:IMG+'ap_3.jpg',
     prompt:'You are Dr. Arthur Pendelton, an influential senior institutional figure who steps in ONLY when a candidate is clearly struggling, fatigued, or trapped. You use your gravitas to halt a hostile line of questioning, ground the candidate, and strip away defensive posturing. Deconstructive, grounding, and anchoring; warm but commanding. Pause the cross-examination, then help them name the single undeniable truth their work actually proved before handing control back.'};
 
   var INTERVIEWERS = [
-    {id:'hm', name:'Dana Cole', role:'The Hiring Manager', desc:'Owns the role. Cares whether you can actually do the job and deliver impact.',
-      prompt:'You are Dana Cole, the hiring manager who owns this role. You care about whether the candidate can do the job, deliver results, and fit the team. Probe real ownership and measurable impact.'},
-    {id:'tech', name:'Sam Ortega', role:'The Technical Screener', desc:'Tests your hard skills and domain depth. Pushes past buzzwords to how you actually work.',
-      prompt:'You are Sam Ortega, a senior practitioner running the technical screen. Test the candidate\'s hard skills and domain depth with specific, practical questions. Push past buzzwords to how they actually work.'},
-    {id:'hr', name:'Priya Shah', role:'The Behavioral Interviewer', desc:'STAR stories, teamwork, conflict, culture. Wants concrete examples, not generalities.',
-      prompt:'You are Priya Shah from People and Culture. You run behavioral questions ("tell me about a time..."). You want concrete examples covering teamwork, conflict, failure, and culture fit, not generalities.'},
-    {id:'peer', name:'Marcus Lee', role:'The Skeptical Peer', desc:'Your would-be teammate. Quietly tests whether you would really pull your weight.',
-      prompt:'You are Marcus Lee, a prospective teammate. You are politely skeptical and test whether the candidate would actually pull their weight, collaborate well, and hold up under real workload.'},
-    {id:'dir', name:'Elena Park', role:'The Director', desc:'Big-picture and strategic. Why this role, why now, and where you are headed.',
-      prompt:'You are Elena Park, a director two levels up. You ask big-picture and strategic questions: why this role, why this company, judgment under ambiguity, and where the candidate is headed.'},
-    {id:'recruiter', name:'Jordan Ellis', role:'The Recruiter', desc:'Motivation, your story, logistics, and the close. Keeps it human.',
-      prompt:'You are Jordan Ellis, the recruiter. You cover motivation, the candidate\'s story, and closing questions (why this role, what they are looking for, how they handle the offer conversation). Keep it human and conversational.'},
-    {id:'exec', name:'Dr. Adeyemi', role:'The Skip-Level Exec', desc:'Vision and judgment. Tests how you think, not just what you have done.',
-      prompt:'You are Dr. Adeyemi, a senior executive in a skip-level conversation. You test how the candidate thinks and their judgment under ambiguity, not just their resume. Ask broad, probing questions.'}
+    {id:'rc', name:'Robert Chen', role:'The Hiring Manager', desc:'Your direct supervisor. Needs someone who can solve immediate team problems and blend in.',
+      open:IMG+'rc_open.jpg', closed:IMG+'rc_closed.jpg', card:IMG+'rc_card.jpg',
+      prompt:'You are Robert Chen, the Managing Director and direct hiring manager for this role. You need someone who can solve immediate team problems, lighten your workload, and blend into the existing structure. Structural, collaborative, and highly practical, focused on the core job requirements and the candidate\'s first ninety days.'},
+    {id:'ds', name:'Dev Srinivasan', role:'The CTO / Technical Auditor', desc:'A hands-on technologist. Despises buzzwords and spots exaggerated technical claims.',
+      open:IMG+'ds_open.jpg', closed:IMG+'ds_closed.jpg', card:IMG+'ds_card.jpg',
+      prompt:'You are Dev Srinivasan, the CTO. A hands-on technologist evaluating hard skills, systems architecture, and technical scalability. You despise buzzword compliance and quickly spot exaggerated technical contributions. Deep technical drills, architectural trade-offs, and spot-checks of direct engineering claims.'},
+    {id:'dj', name:'Deidre Jenkins', role:'The HR Director (Gatekeeper)', desc:'Cultural alignment, EQ, retention risk. Looks for collaboration patterns and team loyalty.',
+      open:IMG+'dj_open.jpg', closed:IMG+'dj_closed.jpg', card:IMG+'dj_card.jpg',
+      prompt:'You are Deidre Jenkins, HR Director. You focus on cultural alignment, emotional intelligence, and retention risk. You read a resume as a blueprint of human behavior, seeking consistency and team loyalty. Behavioral and competency-based: look for patterns of collaboration and conflict resolution.'},
+    {id:'bcs', name:'Bradley Cooper-Smith', role:'The CFO (Bottom-Line Realist)', desc:'Every hire is a capital expenditure. Where is the ROI, what is the timeline, what breaks?',
+      open:IMG+'bcs_open.jpg', closed:IMG+'bcs_closed.jpg', card:IMG+'bcs_card.jpg',
+      prompt:'You are Bradley Cooper-Smith, CFO. A ruthless pragmatist: every hire is a capital expenditure that must deliver a clear ROI. Evaluate fiscal acumen and resource allocation. Fiscal cross-examination focused on budget management, cost reduction, value creation, timelines, and fiscal vulnerabilities.'},
+    {id:'kk', name:'Karen Kowalski', role:'The VP Operations (Efficiency Hawk)', desc:'Execution, workflow, scale, crisis. Can you triage operational chaos under pressure?',
+      open:IMG+'kk_open.jpg', closed:IMG+'kk_closed.jpg', card:IMG+'kk_card.jpg',
+      prompt:'You are Karen Kowalski, VP of Operations. A battle-tested executive focused on execution, workflow optimization, scale, and crisis management. Test whether the candidate can handle daily operational chaos. Direct, fast-paced situational stress testing of how they triage operational failures.'},
+    {id:'fg', name:'Fiona Gallagher', role:'The Compliance & Legal Counsel', desc:'Risk, governance, and ethical grey areas. Probes data privacy and liability mitigation.',
+      open:IMG+'fg_open.jpg', closed:IMG+'fg_closed.jpg', card:IMG+'fg_card.jpg',
+      prompt:'You are Fiona Gallagher, Compliance and Legal Counsel. Evaluate risk management, regulatory compliance, corporate governance, and ethical decision-making. Look for deep understanding of data privacy and liability mitigation. Methodical, logical auditing of ethical grey areas and compliance knowledge.'},
+    {id:'am', name:'Alistair Montgomery', role:'The Strategy & Market Analyst', desc:'An intellectual disruptor. Are you forward-looking, or trapped in outdated models?',
+      open:IMG+'am_open.jpg', closed:IMG+'am_closed.jpg', card:IMG+'am_card.jpg',
+      prompt:'You are Alistair Montgomery, the Strategy and Market Analyst. An intellectual disruptor evaluating macro-trends, competitive intelligence, and long-term strategic agility. Test whether the candidate looks forward or is trapped in outdated business models. Broad, speculative, conceptual; challenge understanding of industry disruption.'},
+    {id:'er', name:'Elena Rostova', role:'The Cross-Functional Peer', desc:'Adjacent departments. Empathy, cross-team communication, and navigating org politics.',
+      open:IMG+'er_open.jpg', closed:IMG+'er_closed.jpg', card:IMG+'er_card.jpg',
+      prompt:'You are Elena Rostova, a Cross-Functional Peer representing adjacent departments. Evaluate empathy, cross-departmental communication, and how the candidate manages internal organizational politics. Lateral, interpersonal, consensus-driven.'}
   ];
+
+  var HARRISON = {id:'ap', name:'Harrison Vance-Giles III', role:'The CEO / Executive Lifeline',
+    open:IMG+'hvg_open.jpg', closed:IMG+'hvg_closed.jpg', card:IMG+'hvg_card.jpg',
+    tile:IMG+'hvg_open.jpg', warm:IMG+'hvg_card.jpg',
+    prompt:'You are Harrison Vance-Giles III, the CEO. The ultimate corporate authority. You stay quiet in lower tiers; when the candidate freezes or loses command of the room, you step in aggressively and force them to speak with raw executive clarity. Grounding, commanding, macro-focused. Cut through buzzwords and resume talking points and demand the single, undeniable value they bring to this enterprise right now.'};
+
+  function lifeline(){ return MODE === 'defense' ? PENDLETON : HARRISON; }
 
   var DIFFICULTY = [
     {n:1, name:'Warm-up',  desc:'One question at a time, your answers are accepted, gentle clarifying follow-ups, no traps. Build confidence.',
@@ -530,7 +548,8 @@
   function shortName(n){ return n.replace('Dr. ',''); }
   function buildGallery(){
     var g = $('gallery'); g.innerHTML=''; galleryEls={};
-    if(MODE!=='defense'){ g.style.display='none'; return; }
+    var any = state.panel.some(function(id){ var p = profById(id); return p && p.open; });
+    if(!any){ g.style.display='none'; return; }
     g.style.display='grid';
     state.panel.forEach(function(id){
       var p = profById(id); if(!p || !p.open) return;
@@ -542,14 +561,15 @@
   }
   function ensureAPTile(){
     if(galleryEls['ap']) return;
+    var L = lifeline();
     var g = $('gallery'); var t = document.createElement('div'); t.className='zg ap'; t.dataset.id='ap';
-    t.innerHTML = '<img src="'+PENDLETON.poses[0]+'" alt="Dr. Pendelton"><div class="zg-name">'+shortName(PENDLETON.name)+'</div>';
+    t.innerHTML = '<img src="'+L.tile+'" alt="'+L.name+'"><div class="zg-name">'+shortName(L.name)+'</div>';
     g.appendChild(t);
-    galleryEls['ap'] = { el:t, img:t.querySelector('img'), poses:PENDLETON.poses };
+    galleryEls['ap'] = { el:t, img:t.querySelector('img'), tile:L.tile, warm:L.warm };
   }
   function setActiveTile(id){
     Object.keys(galleryEls).forEach(function(k){ galleryEls[k].el.classList.toggle('active', k===id); });
-    if(id==='ap' && galleryEls['ap']){ galleryEls['ap'].img.src = PENDLETON.poses[2]; } // warm pose when he steps in
+    if(id==='ap' && galleryEls['ap']){ galleryEls['ap'].img.src = galleryEls['ap'].warm || lifeline().warm; }
   }
   function startBlink(){
     if(blinkTimer) clearInterval(blinkTimer);
@@ -565,17 +585,18 @@
     hideErr($('drill-err'));
     updateCount();
     var isAP = state.apPending; state.apPending = false; state.currentIsAP = isAP;
-    var prof = isAP ? PENDLETON : profById(state.order[state.orderIdx % state.order.length]);
-    if(MODE==='defense'){ if(isAP) ensureAPTile(); setActiveTile(prof.id); }
+    var prof = isAP ? lifeline() : profById(state.order[state.orderIdx % state.order.length]);
+    if(Object.keys(galleryEls).length){ if(isAP) ensureAPTile(); setActiveTile(prof.id); }
     var thinking = addMsg('prof', prof.name+' — '+prof.role, '');
     thinking.querySelector('.bubble').innerHTML = '<span class="thinking">thinking<span class="dots"></span></span>';
 
     var diff = DIFFICULTY[state.difficulty-1];
     var sys, userContent;
     if(isAP){
-      sys = PENDLETON.prompt + '\n\nHere is the committee brief on the candidate\'s work:\n\n' + state.brief +
-        '\n\nThe candidate is struggling. RULES: Speak only as yourself, in the first person. Briefly halt the hostile questioning, steady the candidate, and ask ONE calm, anchoring question that helps them reconnect to the core truth of their work. Under 80 words. Do not break character or mention being an AI.';
-      userContent = 'Defense transcript so far:\n\n' + transcriptText() + '\n\nAs Dr. Pendelton, step in now, steady the candidate, and ask one grounding question.';
+      var L = lifeline();
+      sys = L.prompt + '\n\nHere is the brief on the candidate:\n\n' + state.brief +
+        '\n\nThe candidate is struggling. RULES: Speak only as yourself, in the first person. Step in now, take command of the room, and ask ONE pointed question that forces them to recover and state the single, undeniable core of their work or value. Under 80 words. Do not break character or mention being an AI.';
+      userContent = (MODE==='interview' ? 'Interview' : 'Defense') + ' transcript so far:\n\n' + transcriptText() + '\n\nAs ' + L.name + ', step in now and ask one grounding question.';
     } else if(MODE==='interview'){
       sys = prof.prompt + '\n\n' + diff.prompt +
         '\n\nYou are interviewing a candidate for a job. Here is the panel brief:\n\n' + state.brief +
@@ -617,7 +638,7 @@
     state.turn++;
     $('answer-area').style.display='none';
     if(state.turn >= TURN_CAP){ endSession(); return; }
-    if(MODE==='defense' && !wasAP && state.difficulty>=4 && state.apUsed<2 && state.turn>=2 && state.turn<TURN_CAP-1){
+    if(!wasAP && state.difficulty>=4 && state.apUsed<2 && state.turn>=2 && state.turn<TURN_CAP-1){
       if(weakAnswer(val) || Math.random()<0.2){ state.apPending = true; state.apUsed++; }
     }
     await nextQuestion(false);
