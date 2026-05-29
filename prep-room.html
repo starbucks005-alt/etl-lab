@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Prep Room — Defense Practice | Emerging Technologies Laboratory</title>
-<meta name="description" content="Practice your thesis or dissertation defense against an AI committee. Pick your panel, set the difficulty, and get a readiness card.">
+<title>The Prep Room — Defense &amp; Interview Practice | Emerging Technologies Laboratory</title>
+<meta name="description" content="Practice your thesis defense or a job interview against an AI panel. Pick your panel, set the difficulty, and get a readiness card.">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -17,7 +17,6 @@
   a{color:var(--gold-dim);}
   .wrap{max-width:920px;margin:0 auto;padding:0 20px;}
 
-  /* Header */
   header{background:var(--navy);color:#fff;padding:14px 0;border-bottom:3px solid var(--gold);}
   header .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
   .brand{font-family:'Oswald',sans-serif;font-weight:700;letter-spacing:3px;text-transform:uppercase;font-size:15px;}
@@ -28,23 +27,20 @@
   .hero{padding:48px 0 8px;text-align:center;}
   .hero h1{font-family:'Playfair Display',serif;font-size:clamp(30px,5vw,46px);font-weight:700;letter-spacing:-0.5px;line-height:1.05;}
   .hero h1 em{font-style:italic;color:var(--gold-dim);}
-  .hero p{max-width:600px;margin:14px auto 0;color:var(--muted);font-size:16px;font-weight:300;}
+  .hero p{max-width:620px;margin:14px auto 0;color:var(--muted);font-size:16px;font-weight:300;}
   .kicker{font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--gold-dim);margin-bottom:10px;}
 
-  /* Mode toggle */
   .modes{display:flex;gap:10px;justify-content:center;margin:28px 0 8px;flex-wrap:wrap;}
-  .mode{font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;padding:10px 22px;border:2px solid var(--navy);background:var(--navy);color:#fff;border-radius:2px;cursor:pointer;}
-  .mode.secondary{background:transparent;color:var(--navy);opacity:.55;cursor:not-allowed;}
-  .mode .tag{display:block;font-size:9px;letter-spacing:1px;color:var(--gold);margin-top:2px;}
+  .mode{font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;padding:11px 22px;border:2px solid var(--navy);background:var(--navy);color:#fff;border-radius:2px;cursor:pointer;}
+  .mode.inactive{background:transparent;color:var(--navy);opacity:.65;}
+  .mode.inactive:hover{opacity:1;}
 
-  /* Steps */
   .step{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:30px;margin:22px 0;box-shadow:0 1px 3px rgba(0,0,0,.03);}
   .step.locked{opacity:.45;pointer-events:none;}
   .step-num{font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--gold-dim);margin-bottom:6px;}
   .step h2{font-family:'Playfair Display',serif;font-size:23px;font-weight:600;margin-bottom:6px;}
   .step .hint{color:var(--muted);font-size:14px;font-weight:300;margin-bottom:18px;}
 
-  /* Upload */
   .drop{border:2px dashed #cfcdc4;border-radius:6px;padding:34px 20px;text-align:center;background:var(--soft);cursor:pointer;transition:border-color .15s,background .15s;}
   .drop:hover{border-color:var(--gold);background:#fbfaf6;}
   .drop.has{border-style:solid;border-color:var(--green);background:#f1f6f3;}
@@ -52,7 +48,10 @@
   .drop .sub{font-size:13px;color:var(--muted);margin-top:6px;}
   .filename{font-weight:500;color:var(--green);}
 
-  /* Panel grid */
+  .jd-label{font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--navy);margin:18px 0 8px;}
+  .jd-ta{width:100%;min-height:130px;resize:vertical;font-family:'DM Sans',sans-serif;font-size:14px;padding:12px 14px;border:1.5px solid var(--line);border-radius:6px;background:#fff;}
+  .jd-ta:focus{outline:none;border-color:var(--gold);}
+
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;}
   .prof{border:1.5px solid var(--line);border-radius:6px;padding:16px;cursor:pointer;background:#fff;transition:border-color .15s,box-shadow .15s;position:relative;}
   .prof:hover{border-color:var(--gold);}
@@ -65,7 +64,6 @@
   .selnote{font-size:13px;color:var(--muted);margin-top:14px;}
   .selnote b{color:var(--ink);}
 
-  /* Difficulty */
   .diff-row{display:flex;align-items:center;gap:14px;margin-top:8px;flex-wrap:wrap;}
   .diff-btns{display:flex;gap:6px;}
   .diff-btn{font-family:'Oswald',sans-serif;width:42px;height:42px;border:1.5px solid var(--line);background:#fff;border-radius:6px;font-size:16px;cursor:pointer;color:var(--navy);}
@@ -73,7 +71,6 @@
   .diff-label{font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--gold-dim);}
   .diff-desc{font-size:13px;color:var(--muted);margin-top:10px;min-height:20px;}
 
-  /* Buttons */
   .btn{font-family:'Oswald',sans-serif;font-size:13px;font-weight:600;letter-spacing:2px;text-transform:uppercase;padding:13px 28px;background:var(--gold);color:#1a1a1a;border:2px solid var(--gold);border-radius:3px;cursor:pointer;display:inline-block;text-decoration:none;}
   .btn:hover{background:var(--gold-dim);border-color:var(--gold-dim);color:#fff;}
   .btn:disabled{opacity:.4;cursor:not-allowed;}
@@ -81,7 +78,6 @@
   .btn.ghost:hover{background:var(--navy);color:#fff;}
   .btn-row{margin-top:20px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;}
 
-  /* Drill / chat */
   #drill{display:none;}
   .turnbar{display:flex;justify-content:space-between;align-items:center;font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;}
   .chat{display:flex;flex-direction:column;gap:16px;margin-bottom:18px;}
@@ -100,7 +96,6 @@
   .dots::after{content:'';animation:dots 1.4s steps(4,end) infinite;}
   @keyframes dots{0%{content:'';}25%{content:'.';}50%{content:'..';}75%{content:'...';}}
 
-  /* Readiness card */
   #card{display:none;}
   .rc-head{text-align:center;margin-bottom:24px;}
   .rc-head .verdict{font-family:'Playfair Display',serif;font-size:30px;font-weight:700;}
@@ -146,29 +141,35 @@
 
   <div class="hero">
     <div class="kicker">Emerging Technologies Laboratory</div>
-    <h1>Practice the defense <em>before</em> it counts.</h1>
-    <p>Upload your thesis or dissertation, choose your committee, set how hard they push, and get drilled. End with a readiness card that tells you exactly what to shore up.</p>
+    <h1>Practice the hard part <em>before</em> it counts.</h1>
+    <p id="hero-sub">Face a panel that pushes back. Pick who's in the room, set how hard they go, and walk out with a readiness card that tells you exactly what to shore up.</p>
   </div>
 
   <div class="modes">
     <button class="mode" id="mode-defense">Thesis / Dissertation Defense</button>
-    <button class="mode secondary" title="Coming soon">Job Interview<span class="tag">Coming soon</span></button>
+    <button class="mode" id="mode-interview">Job Interview</button>
   </div>
 
-  <!-- STEP 1: Upload -->
+  <!-- STEP 1: Inputs -->
   <div class="step" id="step-upload">
     <div class="step-num">Step 01</div>
-    <h2>Upload your document</h2>
-    <p class="hint">A PDF of your thesis, dissertation, or a substantial chapter. It stays in your browser; we send only a short brief to the committee.</p>
+    <h2 id="step1-h">Upload your document</h2>
+    <p class="hint" id="step1-hint">A PDF of your thesis, dissertation, or a substantial chapter. It stays in your browser; we send only a short brief to the committee.</p>
     <div class="drop" id="drop">
       <div class="big" id="drop-big">Click to choose a PDF</div>
       <div class="sub" id="drop-sub">or drag it here</div>
     </div>
     <input type="file" id="file" accept="application/pdf" style="display:none;">
+
+    <div id="jd-block" style="display:none;">
+      <div class="jd-label">Paste the job description</div>
+      <textarea class="jd-ta" id="jd-text" placeholder="Paste the full job posting here: title, responsibilities, and requirements."></textarea>
+    </div>
+
     <div class="err" id="upload-err"></div>
 
     <div class="samples">
-      <div class="samples-h">No document yet? Practice with a sample, or download one to model your own.</div>
+      <div class="samples-h" id="samples-h">No document yet? Practice with a sample, or download one to model your own.</div>
       <div id="sample-list"></div>
       <p class="caveat" id="sample-caveat"></p>
     </div>
@@ -182,8 +183,8 @@
   <!-- STEP 2: Panel + difficulty -->
   <div class="step locked" id="step-panel">
     <div class="step-num">Step 02</div>
-    <h2>Build your committee</h2>
-    <p class="hint">Pick three or four. Each brings a different line of attack.</p>
+    <h2 id="panel-h">Build your committee</h2>
+    <p class="hint" id="panel-hint">Pick three or four. Each brings a different line of attack.</p>
     <div class="grid" id="prof-grid"></div>
     <div class="selnote" id="selnote">Selected: <b>0</b> (choose 3 or 4)</div>
 
@@ -230,7 +231,7 @@
     <div class="btn-row">
       <button class="btn ghost" id="restart-btn">Run another session</button>
     </div>
-    <p class="disclaimer">Practice tool only. A simulated committee is not your real committee. Use this to rehearse, not to predict your outcome.</p>
+    <p class="disclaimer" id="disclaimer">Practice tool only. A simulated committee is not your real committee. Use this to rehearse, not to predict your outcome.</p>
   </div>
 
 </div>
@@ -245,7 +246,7 @@
   var MODEL = 'claude-sonnet-4-20250514';
   var TURN_CAP = 12;
 
-  // ---- Professor roster ----
+  // ---- Rosters (placeholder personas; Dr. Oroszi will replace names/voices/backgrounds) ----
   var PROFESSORS = [
     {id:'method', name:'Dr. Reyes',  role:'The Methodologist', desc:'Research design, sampling, validity, reliability. Will pull on any thread in how you built the study.',
       prompt:'You are Dr. Reyes, a methodologist. You care about research design, sampling, internal and external validity, reliability, and whether the methods actually answer the question. Probe study design choices and threats to validity.'},
@@ -263,21 +264,86 @@
       prompt:'You are Dr. Whitfield, the outside committee member from a different discipline. You ask clarifying and big-picture questions, push for plain-language explanations, and test whether the work makes sense beyond its niche.'}
   ];
 
+  var INTERVIEWERS = [
+    {id:'hm', name:'Dana Cole', role:'The Hiring Manager', desc:'Owns the role. Cares whether you can actually do the job and deliver impact.',
+      prompt:'You are Dana Cole, the hiring manager who owns this role. You care about whether the candidate can do the job, deliver results, and fit the team. Probe real ownership and measurable impact.'},
+    {id:'tech', name:'Sam Ortega', role:'The Technical Screener', desc:'Tests your hard skills and domain depth. Pushes past buzzwords to how you actually work.',
+      prompt:'You are Sam Ortega, a senior practitioner running the technical screen. Test the candidate\'s hard skills and domain depth with specific, practical questions. Push past buzzwords to how they actually work.'},
+    {id:'hr', name:'Priya Shah', role:'The Behavioral Interviewer', desc:'STAR stories, teamwork, conflict, culture. Wants concrete examples, not generalities.',
+      prompt:'You are Priya Shah from People and Culture. You run behavioral questions ("tell me about a time..."). You want concrete examples covering teamwork, conflict, failure, and culture fit, not generalities.'},
+    {id:'peer', name:'Marcus Lee', role:'The Skeptical Peer', desc:'Your would-be teammate. Quietly tests whether you would really pull your weight.',
+      prompt:'You are Marcus Lee, a prospective teammate. You are politely skeptical and test whether the candidate would actually pull their weight, collaborate well, and hold up under real workload.'},
+    {id:'dir', name:'Elena Park', role:'The Director', desc:'Big-picture and strategic. Why this role, why now, and where you are headed.',
+      prompt:'You are Elena Park, a director two levels up. You ask big-picture and strategic questions: why this role, why this company, judgment under ambiguity, and where the candidate is headed.'},
+    {id:'recruiter', name:'Jordan Ellis', role:'The Recruiter', desc:'Motivation, your story, logistics, and the close. Keeps it human.',
+      prompt:'You are Jordan Ellis, the recruiter. You cover motivation, the candidate\'s story, and closing questions (why this role, what they are looking for, how they handle the offer conversation). Keep it human and conversational.'},
+    {id:'exec', name:'Dr. Adeyemi', role:'The Skip-Level Exec', desc:'Vision and judgment. Tests how you think, not just what you have done.',
+      prompt:'You are Dr. Adeyemi, a senior executive in a skip-level conversation. You test how the candidate thinks and their judgment under ambiguity, not just their resume. Ask broad, probing questions.'}
+  ];
+
   var DIFFICULTY = [
     {n:1, name:'Warm-up',  desc:'One question at a time, your answers are accepted, gentle clarifying follow-ups, no traps. Build confidence.',
       prompt:'DIFFICULTY 1 (Warm-up): Ask one clear question at a time. Accept the candidate\'s answer graciously. At most one gentle clarifying follow-up. No traps, no pile-ons. Encouraging tone.'},
     {n:2, name:'Coaching', desc:'A follow-up on each answer, nudges you toward gaps without pouncing.',
       prompt:'DIFFICULTY 2 (Coaching): Ask a follow-up on each answer. Gently point toward gaps and hint at what is missing without pouncing. Constructive, mentor-like tone.'},
-    {n:3, name:'Realistic',desc:'Probes your methods and evidence, follows up on vague answers, fair pushback. A normal committee.',
-      prompt:'DIFFICULTY 3 (Realistic): Probe methods and evidence. Follow up on vague or incomplete answers. Offer fair, measured pushback. This is a normal, fair committee.'},
+    {n:3, name:'Realistic',desc:'Probes your evidence, follows up on vague answers, fair pushback. A normal panel.',
+      prompt:'DIFFICULTY 3 (Realistic): Probe claims and evidence. Follow up on vague or incomplete answers. Offer fair, measured pushback. This is a normal, fair panel.'},
     {n:4, name:'Tough',    desc:'Chains follow-ups on weak spots, challenges assumptions, asks the question you hoped to dodge.',
       prompt:'DIFFICULTY 4 (Tough): Chain follow-ups on weak spots until they are resolved. Challenge assumptions directly. Ask the question the candidate clearly hoped to avoid. Do not let vague answers slide.'},
-    {n:5, name:'Brutal',   desc:'Relentless and adversarial, exposes every hole, demands precision. Worst-case committee.',
-      prompt:'DIFFICULTY 5 (Brutal): Be relentless and adversarial but never abusive. Expose every hole. Demand precision. If an answer is weak, say so plainly ("that is not an answer") and press harder. Worst-case committee.'}
+    {n:5, name:'Brutal',   desc:'Relentless and adversarial, exposes every hole, demands precision. Worst-case panel.',
+      prompt:'DIFFICULTY 5 (Brutal): Be relentless and adversarial but never abusive. Expose every hole. Demand precision. If an answer is weak, say so plainly ("that is not an answer") and press harder. Worst-case panel.'}
   ];
 
+  // ---- Interview try-samples (CV + job description pairs) ----
+  var INTERVIEW_SAMPLES = [
+    {
+      id:'swe', field:'Software Engineer (New Grad)', level:'Entry level',
+      cv:'A. CANDIDATE — Software Engineer\nB.S. Computer Science, State University, 2026 (GPA 3.6).\nExperience: Software Engineering Intern, a mid-size SaaS company (Summer 2025) — built REST API endpoints in Python, added test coverage, shipped a caching layer that cut a slow endpoint from 1.2s to 300ms. Teaching Assistant, Data Structures (2 years).\nProjects: Open-source contributor to a CLI tool (merged 4 PRs). Capstone: a full-stack study-group matching app (React, Node, PostgreSQL) used by 200 classmates.\nSkills: Python, JavaScript, SQL, Git, basic AWS. Coursework in algorithms, databases, operating systems.',
+      jd:'Junior Software Engineer. We are hiring a new-grad engineer to join a backend team building APIs for a payments platform. Responsibilities: write and review backend services, add tests, debug production issues, collaborate in code review. Requirements: a CS degree or equivalent, fluency in at least one of Python/Java/Go, understanding of data structures and databases, willingness to learn our stack. Nice to have: internship experience, exposure to cloud infrastructure, and an interest in reliability and performance.'
+    },
+    {
+      id:'crc', field:'Clinical Research Coordinator', level:'Early career',
+      cv:'A. CANDIDATE — Clinical Research Coordinator\nB.S. Biology, State University, 2024. CITI Human Subjects certified.\nExperience: Research Assistant, university cardiology lab (2 years) — consented participants, maintained regulatory binders, entered data into REDCap, scheduled study visits for a 120-participant trial. Volunteer EMT (1 year).\nSkills: IRB submissions, informed consent, REDCap, basic phlebotomy, scheduling, attention to regulatory detail. Comfortable with patients.',
+      jd:'Clinical Research Coordinator. An academic medical center seeks a coordinator to manage day-to-day operations of clinical trials. Responsibilities: participant recruitment and consent, regulatory compliance and IRB documentation, data entry and quality control, coordination with PIs and sponsors, scheduling study visits. Requirements: bachelor\'s in a health or science field, strong organization and attention to detail, familiarity with human-subjects regulations. Preferred: prior research experience, REDCap, and direct patient interaction.'
+    },
+    {
+      id:'analyst', field:'Data Analyst', level:'Early career',
+      cv:'A. CANDIDATE — Data Analyst\nB.A. Economics, minor in Statistics, State University, 2025.\nExperience: Analytics Intern, a retail company (8 months) — built weekly sales dashboards in Tableau, wrote SQL to pull and clean data, automated a manual report that saved ~5 hours/week. Course project: regression analysis of public health data presented to faculty.\nSkills: SQL, Excel (advanced), Tableau, some Python (pandas), basic statistics and A/B testing concepts. Clear written communication.',
+      jd:'Data Analyst. A growing operations team needs an analyst to turn data into decisions. Responsibilities: write SQL to answer business questions, build and maintain dashboards, run basic analyses (trends, segmentation, simple experiments), and present findings to non-technical stakeholders. Requirements: strong SQL, comfort with a BI tool, sound statistical intuition, and the ability to explain results clearly. Nice to have: Python, experiment design, and experience working with stakeholders.'
+    }
+  ];
+
+  var COPY = {
+    defense: {
+      step1h:'Upload your document',
+      step1hint:'A PDF of your thesis, dissertation, or a substantial chapter. It stays in your browser; we send only a short brief to the committee.',
+      dropBig:'Click to choose a PDF', dropSub:'or drag it here',
+      analyzeBtn:'Read my document →', analyzeStatus:'The committee is reading your work',
+      panelh:'Build your committee', panelhint:'Pick three or four. Each brings a different line of attack.',
+      heroSub:'Face a committee that pushes back. Pick who is in the room, set how hard they go, and walk out with a readiness card that tells you exactly what to shore up.',
+      samplesH:'No document yet? Practice with a sample, or download one to model your own.',
+      metaLabel:'Committee', scoring:'Scoring your defense...',
+      disclaimer:'Practice tool only. A simulated committee is not your real committee. Use this to rehearse, not to predict your outcome.'
+    },
+    interview: {
+      step1h:'Upload your CV and the job',
+      step1hint:'A PDF of your CV or résumé, plus the job description pasted below. Everything stays in your browser; we send only a short brief to the panel.',
+      dropBig:'Click to choose your CV (PDF)', dropSub:'or drag it here',
+      analyzeBtn:'Brief the panel →', analyzeStatus:'The panel is reviewing your CV and the role',
+      panelh:'Build your interview panel', panelhint:'Pick three or four. Each interviews from a different angle.',
+      heroSub:'Face a panel that pushes back. Pick who is in the room, set how hard they go, and walk out with a readiness card that tells you exactly what to shore up.',
+      samplesH:'No CV handy? Practice with a sample candidate and role.',
+      metaLabel:'Panel', scoring:'Scoring your interview...',
+      disclaimer:'Practice tool only. A simulated panel is not a real employer. Use this to rehearse, not to predict an outcome.'
+    }
+  };
+
+  var MODE = 'defense';
+  function cfg(){ return COPY[MODE]; }
+  function roster(){ return MODE === 'defense' ? PROFESSORS : INTERVIEWERS; }
+
   // ---- State ----
-  var state = { fileName:'', docText:'', brief:'', panel:[], difficulty:3, transcript:[], turn:0, order:[], orderIdx:0 };
+  var state = { fileName:'', docText:'', jdText:'', brief:'', panel:[], difficulty:3, transcript:[], turn:0, order:[], orderIdx:0 };
 
   function $(id){return document.getElementById(id);}
   function showErr(el,msg){ el.textContent = msg; el.style.display='block'; }
@@ -289,7 +355,7 @@
     var text = await r.text(); var d;
     try{ d = JSON.parse(text); }catch(e){ throw new Error('Server returned an unexpected response.'); }
     if(d.error){ throw new Error(typeof d.error==='string'?d.error:(d.error.message||'API error')); }
-    if(!d.content || !d.content[0]){ throw new Error('Empty response from the committee.'); }
+    if(!d.content || !d.content[0]){ throw new Error('Empty response from the panel.'); }
     return d.content[0].text;
   }
 
@@ -324,7 +390,7 @@
         out += content.items.map(function(it){return it.str;}).join(' ') + '\n';
       }
       state.docText = out.replace(/\s+/g,' ').trim();
-      if(state.docText.length < 200){ showErr($('upload-err'),'Could not read text from this PDF (it may be scanned images). Try a text-based PDF.'); return; }
+      if(state.docText.length < 150){ showErr($('upload-err'),'Could not read text from this PDF (it may be scanned images). Try a text-based PDF.'); return; }
       $('drop-sub').innerHTML = 'Ready &middot; '+pdf.numPages+' pages';
       $('analyze-btn').disabled = false;
     }catch(e){ showErr($('upload-err'),'Could not read this PDF: '+e.message); }
@@ -333,13 +399,24 @@
   $('analyze-btn').addEventListener('click', analyzeDoc);
   async function analyzeDoc(){
     hideErr($('upload-err'));
+    if(!state.docText){ showErr($('upload-err'), MODE==='interview' ? 'Upload your CV first.' : 'Upload your document first.'); return; }
+    if(MODE==='interview'){
+      state.jdText = $('jd-text').value.trim();
+      if(!state.jdText){ showErr($('upload-err'),'Paste the job description so the panel can interview you for the role.'); return; }
+    }
     $('analyze-btn').disabled = true;
-    $('analyze-status').innerHTML = 'The committee is reading your work<span class="dots"></span>';
-    var excerpt = state.docText.slice(0, 14000);
-    var sys = 'You are an academic committee\'s research assistant. Read the excerpt from a thesis/dissertation and produce a TIGHT brief for the examiners. Output PLAIN TEXT with these labeled sections and nothing else: TITLE/TOPIC; FIELD; RESEARCH QUESTION; METHODS; KEY CLAIMS (3-6 bullets); CONTRIBUTION; LIKELY WEAK POINTS (3-6 bullets the committee should probe). Be concrete and specific to this document. Keep under 350 words.';
+    $('analyze-status').innerHTML = cfg().analyzeStatus + '<span class="dots"></span>';
+
+    var sys, user;
+    if(MODE==='interview'){
+      sys = 'You are a hiring panel\'s assistant. You receive a candidate\'s CV/resume and a job description. Produce a TIGHT brief for the interviewers. Output PLAIN TEXT with these labeled sections and nothing else: CANDIDATE SNAPSHOT; TARGET ROLE; KEY REQUIREMENTS (from the posting); STRENGTHS (where the CV matches the role); GAPS & RISKS (3-6 bullets the panel should probe); LIKELY TOUGH QUESTIONS (3-5). Be concrete and specific to THIS candidate and THIS role. Keep under 350 words.';
+      user = 'CANDIDATE CV:\n\n'+state.docText.slice(0,9000)+'\n\nJOB DESCRIPTION:\n\n'+state.jdText.slice(0,5000);
+    } else {
+      sys = 'You are an academic committee\'s research assistant. Read the excerpt from a thesis/dissertation and produce a TIGHT brief for the examiners. Output PLAIN TEXT with these labeled sections and nothing else: TITLE/TOPIC; FIELD; RESEARCH QUESTION; METHODS; KEY CLAIMS (3-6 bullets); CONTRIBUTION; LIKELY WEAK POINTS (3-6 bullets the committee should probe). Be concrete and specific to this document. Keep under 350 words.';
+      user = 'Document excerpt:\n\n'+state.docText.slice(0,14000);
+    }
     try{
-      var brief = await callAPI({ model:MODEL, max_tokens:1200, system:sys,
-        messages:[{role:'user', content:'Document excerpt:\n\n'+excerpt}] });
+      var brief = await callAPI({ model:MODEL, max_tokens:1200, system:sys, messages:[{role:'user', content:user}] });
       state.brief = brief;
       $('analyze-status').textContent = '';
       buildPanelStep();
@@ -353,9 +430,10 @@
   // ---- Step 2: panel + difficulty ----
   function buildPanelStep(){
     var grid = $('prof-grid'); grid.innerHTML='';
-    PROFESSORS.forEach(function(p){
+    roster().forEach(function(p){
       var el = document.createElement('div');
       el.className='prof'; el.dataset.id=p.id;
+      if(state.panel.indexOf(p.id)>=0) el.classList.add('sel');
       el.innerHTML = '<div class="check">&#10003;</div><div class="pname">'+p.name+'</div><div class="prole">'+p.role+'</div><div class="pdesc">'+p.desc+'</div>';
       el.addEventListener('click', function(){ toggleProf(p.id, el); });
       grid.appendChild(el);
@@ -366,7 +444,7 @@
       b.addEventListener('click', function(){ setDifficulty(d.n); });
       db.appendChild(b);
     });
-    setDifficulty(3);
+    setDifficulty(state.difficulty);
     $('step-panel').classList.remove('locked');
     $('step-panel').scrollIntoView({behavior:'smooth', block:'start'});
   }
@@ -394,15 +472,15 @@
     $('step-panel').classList.add('locked');
     $('drill').style.display='block';
     var names = state.panel.map(function(id){return profById(id).name;}).join(', ');
-    $('drill-meta').textContent = 'Committee: '+names+'  ·  Level '+state.difficulty;
-    // randomize speaking order
+    $('drill-meta').textContent = cfg().metaLabel + ': '+names+'  ·  Level '+state.difficulty;
     state.order = state.panel.slice().sort(function(){return Math.random()-0.5;});
     state.orderIdx = 0; state.turn = 0; state.transcript = [];
+    $('chat').innerHTML='';
     $('drill').scrollIntoView({behavior:'smooth', block:'start'});
     await nextQuestion(true);
   }
 
-  function profById(id){ return PROFESSORS.filter(function(p){return p.id===id;})[0]; }
+  function profById(id){ return roster().filter(function(p){return p.id===id;})[0]; }
   function updateCount(){ $('drill-count').textContent = 'Question '+Math.min(state.turn+1,TURN_CAP)+' of '+TURN_CAP; }
 
   function transcriptText(){
@@ -413,7 +491,8 @@
 
   function addMsg(cls, who, text){
     var m = document.createElement('div'); m.className='msg '+cls;
-    m.innerHTML = '<div class="who">'+who+'</div><div class="bubble"></div>';
+    m.innerHTML = '<div class="who"></div><div class="bubble"></div>';
+    m.querySelector('.who').textContent = who;
     m.querySelector('.bubble').textContent = text;
     $('chat').appendChild(m); m.scrollIntoView({behavior:'smooth', block:'end'});
     return m;
@@ -427,13 +506,22 @@
     thinking.querySelector('.bubble').innerHTML = '<span class="thinking">thinking<span class="dots"></span></span>';
 
     var diff = DIFFICULTY[state.difficulty-1];
-    var sys = prof.prompt + '\n\n' + diff.prompt +
-      '\n\nYou are examining a candidate in their thesis/dissertation defense. Here is the committee brief on the work:\n\n' + state.brief +
-      '\n\nRULES: Speak only as yourself, in the first person, as one examiner. Ask exactly ONE question per turn (a short reaction to the previous answer plus your question is fine). Ground questions in THIS candidate\'s work. Keep it under 80 words. Do not answer for the candidate. Do not break character or mention being an AI.';
-
-    var userContent = isFirst
-      ? 'Open your portion of the defense. Greet briefly and ask your first question.'
-      : 'Defense transcript so far:\n\n' + transcriptText() + '\n\nAs ' + prof.name + ', react briefly to the candidate\'s last answer and ask your next question.';
+    var sys, userContent;
+    if(MODE==='interview'){
+      sys = prof.prompt + '\n\n' + diff.prompt +
+        '\n\nYou are interviewing a candidate for a job. Here is the panel brief:\n\n' + state.brief +
+        '\n\nRULES: Speak only as yourself, in the first person, as one interviewer. Ask exactly ONE question per turn (a short reaction to the previous answer plus your question is fine). Ground questions in THIS candidate\'s CV and THIS role. Keep it under 80 words. Do not answer for the candidate. Do not break character or mention being an AI.';
+      userContent = isFirst
+        ? 'Open your part of the interview. Greet briefly and ask your first question.'
+        : 'Interview transcript so far:\n\n' + transcriptText() + '\n\nAs ' + prof.name + ', react briefly to the candidate\'s last answer and ask your next question.';
+    } else {
+      sys = prof.prompt + '\n\n' + diff.prompt +
+        '\n\nYou are examining a candidate in their thesis/dissertation defense. Here is the committee brief on the work:\n\n' + state.brief +
+        '\n\nRULES: Speak only as yourself, in the first person, as one examiner. Ask exactly ONE question per turn (a short reaction to the previous answer plus your question is fine). Ground questions in THIS candidate\'s work. Keep it under 80 words. Do not answer for the candidate. Do not break character or mention being an AI.';
+      userContent = isFirst
+        ? 'Open your portion of the defense. Greet briefly and ask your first question.'
+        : 'Defense transcript so far:\n\n' + transcriptText() + '\n\nAs ' + prof.name + ', react briefly to the candidate\'s last answer and ask your next question.';
+    }
 
     try{
       var q = await callAPI({ model:MODEL, max_tokens:350, system:sys, messages:[{role:'user', content:userContent}] });
@@ -469,12 +557,19 @@
     $('drill').classList.add('locked');
     $('answer-area').style.display='none';
     $('card').style.display='block';
-    $('rc-verdict').textContent = 'Scoring your defense...';
+    $('rc-verdict').textContent = cfg().scoring;
     $('card').scrollIntoView({behavior:'smooth', block:'start'});
 
-    var sys = 'You are an examination committee producing a formative READINESS CARD after a practice defense. Be honest and specific. No flattery, no praise that is not earned. Score five categories from 1 to 5 (1=not ready, 5=ready). Categories: COMMAND OF THE MATERIAL; METHODOLOGY DEFENSE; HANDLING OF GAPS & LIMITATIONS; CLARITY UNDER PRESSURE; SIGNIFICANCE & CONTRIBUTION. Also give an overall one-line verdict and 3-5 concrete things to drill before the real defense. ' +
-      'Return ONLY valid JSON, no markdown, in this exact shape: {"verdict":"string","categories":[{"name":"string","score":1-5,"note":"one specific sentence"}],"drill":["string","string","string"]}';
-    var user = 'Committee brief:\n\n'+state.brief+'\n\nDefense transcript:\n\n'+transcriptText();
+    var sys, user;
+    if(MODE==='interview'){
+      sys = 'You are an interview panel producing a formative READINESS CARD after a practice job interview. Be honest and specific. No flattery, no praise that is not earned. Score five categories from 1 to 5 (1=not ready, 5=ready). Categories: FIT TO THE ROLE; EVIDENCE OF IMPACT; COMMUNICATION & CLARITY; HANDLING TOUGH QUESTIONS; MOTIVATION & CLOSE. Also give an overall one-line verdict and 3-5 concrete things to drill before the real interview. ' +
+        'Return ONLY valid JSON, no markdown, in this exact shape: {"verdict":"string","categories":[{"name":"string","score":1-5,"note":"one specific sentence"}],"drill":["string","string","string"]}';
+      user = 'Panel brief:\n\n'+state.brief+'\n\nInterview transcript:\n\n'+transcriptText();
+    } else {
+      sys = 'You are an examination committee producing a formative READINESS CARD after a practice defense. Be honest and specific. No flattery, no praise that is not earned. Score five categories from 1 to 5 (1=not ready, 5=ready). Categories: COMMAND OF THE MATERIAL; METHODOLOGY DEFENSE; HANDLING OF GAPS & LIMITATIONS; CLARITY UNDER PRESSURE; SIGNIFICANCE & CONTRIBUTION. Also give an overall one-line verdict and 3-5 concrete things to drill before the real defense. ' +
+        'Return ONLY valid JSON, no markdown, in this exact shape: {"verdict":"string","categories":[{"name":"string","score":1-5,"note":"one specific sentence"}],"drill":["string","string","string"]}';
+      user = 'Committee brief:\n\n'+state.brief+'\n\nDefense transcript:\n\n'+transcriptText();
+    }
     try{
       var raw = await callAPI({ model:MODEL, max_tokens:1500, system:sys, messages:[{role:'user', content:user}] });
       var json = raw.replace(/```json|```/g,'').trim();
@@ -490,54 +585,126 @@
     $('rc-verdict').textContent = d.verdict || 'Session complete.';
     var rub = $('rc-rubric'); rub.innerHTML='';
     (d.categories||[]).forEach(function(c){
-      var pct = (Math.max(1,Math.min(5,c.score))/5)*100;
+      var sc = Math.max(1,Math.min(5, parseInt(c.score,10)||1));
+      var pct = (sc/5)*100;
       var el = document.createElement('div'); el.className='rb';
-      el.innerHTML = '<div class="rb-top"><span class="rb-name">'+c.name+'</span><span class="rb-score">'+c.score+'<span style="font-size:13px;color:#9a9a93;">/5</span></span></div>'+
+      el.innerHTML = '<div class="rb-top"><span class="rb-name"></span><span class="rb-score">'+sc+'<span style="font-size:13px;color:#9a9a93;">/5</span></span></div>'+
         '<div class="rb-bar"><div class="rb-fill" style="width:'+pct+'%"></div></div>'+
-        '<div class="rb-note">'+(c.note||'')+'</div>';
+        '<div class="rb-note"></div>';
+      el.querySelector('.rb-name').textContent = c.name || '';
+      el.querySelector('.rb-note').textContent = c.note || '';
       rub.appendChild(el);
     });
     var dl = $('rc-drill');
-    dl.innerHTML = '<h3>Drill these before the real thing</h3><ul>'+ (d.drill||[]).map(function(x){return '<li>'+x+'</li>';}).join('') +'</ul>';
+    var ul = document.createElement('ul');
+    (d.drill||[]).forEach(function(x){ var li=document.createElement('li'); li.textContent=x; ul.appendChild(li); });
+    dl.innerHTML = '<h3>Drill these before the real thing</h3>';
+    dl.appendChild(ul);
   }
 
   $('restart-btn').addEventListener('click', function(){ location.reload(); });
 
-  // ---- Sample documents (try in-app + downloads) ----
-  function sampleToText(t){
+  // ---- Samples (mode-aware) ----
+  function thesisToText(t){
     var parts = [t.title, '', t.abstract];
     t.sections.forEach(function(s){ parts.push('', s.h, s.p.join(' ')); });
     parts.push('', 'References', t.references.join(' '));
     return parts.join('\n');
   }
   function buildSamples(){
+    var list = $('sample-list'); list.innerHTML=''; $('sample-caveat').textContent='';
+    if(MODE==='interview'){
+      INTERVIEW_SAMPLES.forEach(function(s){
+        var row = document.createElement('div'); row.className='sample-row';
+        row.innerHTML = '<div><div class="s-title">'+s.field+'</div><div class="s-sub">'+s.level+' · sample CV + job description</div></div>'+
+          '<div class="s-actions"><button class="btn small" data-tryi="'+s.id+'">Try this &rarr;</button></div>';
+        list.appendChild(row);
+      });
+      [].forEach.call(list.querySelectorAll('[data-tryi]'), function(b){
+        b.addEventListener('click', function(){ loadInterviewSample(b.getAttribute('data-tryi')); });
+      });
+      $('sample-caveat').textContent = 'Sample candidate and role for practice only. Fictional; not real people or postings.';
+      return;
+    }
     if(typeof window.THESES === 'undefined'){ return; }
-    var list = $('sample-list'); list.innerHTML='';
     window.THESES.forEach(function(t){
       var title = t.title.length>62 ? t.title.slice(0,62)+'…' : t.title;
       var row = document.createElement('div'); row.className='sample-row';
       row.innerHTML = '<div><div class="s-title">'+t.field+'</div><div class="s-sub">'+t.level+' &middot; "'+title+'"</div></div>'+
-        '<div class="s-actions"><button class="btn small" data-try="'+t.id+'">Try this &rarr;</button>'+
+        '<div class="s-actions"><button class="btn small" data-tryt="'+t.id+'">Try this &rarr;</button>'+
         '<a class="dl" href="/samples/'+t.id+'.docx" download>Word</a>'+
         '<a class="dl" href="/samples/'+t.id+'.pdf" target="_blank" rel="noopener">PDF</a></div>';
       list.appendChild(row);
     });
-    [].forEach.call(list.querySelectorAll('[data-try]'), function(b){
-      b.addEventListener('click', function(){ loadSample(b.getAttribute('data-try')); });
+    [].forEach.call(list.querySelectorAll('[data-tryt]'), function(b){
+      b.addEventListener('click', function(){ loadThesisSample(b.getAttribute('data-tryt')); });
     });
     if(window.THESES_CAVEAT){ $('sample-caveat').textContent = window.THESES_CAVEAT; }
   }
-  function loadSample(id){
+  function loadThesisSample(id){
     var t = window.THESES.filter(function(x){return x.id===id;})[0]; if(!t) return;
     hideErr($('upload-err'));
-    state.fileName = t.title; state.docText = sampleToText(t);
+    state.fileName = t.title; state.docText = thesisToText(t);
     drop.classList.add('has');
     $('drop-big').innerHTML = '<span class="filename">Sample: '+t.field+'</span>';
     $('drop-sub').textContent = 'Loaded · ready';
     $('analyze-btn').disabled = false;
     analyzeDoc();
   }
-  buildSamples();
+  function loadInterviewSample(id){
+    var s = INTERVIEW_SAMPLES.filter(function(x){return x.id===id;})[0]; if(!s) return;
+    hideErr($('upload-err'));
+    state.fileName = s.field; state.docText = s.cv;
+    $('jd-text').value = s.jd;
+    drop.classList.add('has');
+    $('drop-big').innerHTML = '<span class="filename">Sample CV: '+s.field+'</span>';
+    $('drop-sub').textContent = 'Loaded · job description filled in below';
+    $('analyze-btn').disabled = false;
+    analyzeDoc();
+  }
+
+  // ---- Mode switching ----
+  function setMode(m){
+    MODE = m;
+    var c = cfg();
+    $('mode-defense').classList.toggle('inactive', m!=='defense');
+    $('mode-interview').classList.toggle('inactive', m!=='interview');
+    // reset state
+    state = { fileName:'', docText:'', jdText:'', brief:'', panel:[], difficulty:state.difficulty||3, transcript:[], turn:0, order:[], orderIdx:0 };
+    // step 1 copy
+    $('step1-h').textContent = c.step1h;
+    $('step1-hint').textContent = c.step1hint;
+    $('drop-big').textContent = c.dropBig;
+    $('drop-sub').textContent = c.dropSub;
+    $('analyze-btn').innerHTML = c.analyzeBtn;
+    $('analyze-btn').disabled = true;
+    $('analyze-status').textContent = '';
+    $('hero-sub').textContent = c.heroSub;
+    $('samples-h').textContent = c.samplesH;
+    $('jd-block').style.display = (m==='interview') ? 'block' : 'none';
+    $('jd-text').value = '';
+    drop.classList.remove('has');
+    fileInput.value = '';
+    hideErr($('upload-err'));
+    // step 2 copy
+    $('panel-h').textContent = c.panelh;
+    $('panel-hint').textContent = c.panelhint;
+    $('selnote').innerHTML = 'Selected: <b>0</b> (choose 3 or 4)';
+    $('start-btn').disabled = true;
+    $('disclaimer').textContent = c.disclaimer;
+    // reset UI flow
+    $('step-upload').classList.remove('locked');
+    $('step-panel').classList.add('locked');
+    $('prof-grid').innerHTML = '';
+    $('drill').style.display = 'none'; $('drill').classList.remove('locked');
+    $('card').style.display = 'none';
+    $('chat').innerHTML = '';
+    buildSamples();
+  }
+  $('mode-defense').addEventListener('click', function(){ setMode('defense'); });
+  $('mode-interview').addEventListener('click', function(){ setMode('interview'); });
+
+  setMode('defense');
 </script>
 </body>
 </html>
