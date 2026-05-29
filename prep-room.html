@@ -120,6 +120,16 @@
   .err{background:#fbeeea;border:1px solid #e3b9ae;color:var(--danger);padding:12px 14px;border-radius:6px;font-size:14px;margin-top:14px;display:none;}
   .foot{text-align:center;padding:40px 0;color:#9a9a93;font-size:12px;}
   .disclaimer{font-size:12px;color:#9a9a93;text-align:center;margin-top:8px;}
+  .samples{margin-top:22px;border-top:1px dashed var(--line);padding-top:18px;}
+  .samples-h{font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--navy);margin-bottom:12px;}
+  .sample-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--line);border-radius:6px;margin-bottom:8px;background:#fff;flex-wrap:wrap;}
+  .sample-row .s-title{font-family:'Playfair Display',serif;font-size:15px;font-weight:600;}
+  .sample-row .s-sub{font-size:12px;color:var(--muted);}
+  .s-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .btn.small{padding:8px 14px;font-size:11px;}
+  .dl{font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:1px;text-transform:uppercase;text-decoration:none;color:var(--navy);border:1px solid var(--line);padding:7px 10px;border-radius:4px;}
+  .dl:hover{border-color:var(--gold);color:var(--gold-dim);}
+  .caveat{font-size:11.5px;color:#9a9a93;margin-top:10px;line-height:1.5;}
   @media(max-width:600px){ .step{padding:22px 16px;} .msg{max-width:96%;} }
 </style>
 </head>
@@ -156,6 +166,13 @@
     </div>
     <input type="file" id="file" accept="application/pdf" style="display:none;">
     <div class="err" id="upload-err"></div>
+
+    <div class="samples">
+      <div class="samples-h">No document yet? Practice with a sample, or download one to model your own.</div>
+      <div id="sample-list"></div>
+      <p class="caveat" id="sample-caveat"></p>
+    </div>
+
     <div class="btn-row">
       <button class="btn" id="analyze-btn" disabled>Read my document &rarr;</button>
       <span class="thinking" id="analyze-status"></span>
@@ -220,6 +237,7 @@
 
 <div class="foot">The Prep Room &middot; Emerging Technologies Laboratory &middot; Dr. Terry L. Oroszi</div>
 
+<script src="/samples/theses.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
   pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -484,6 +502,42 @@
   }
 
   $('restart-btn').addEventListener('click', function(){ location.reload(); });
+
+  // ---- Sample documents (try in-app + downloads) ----
+  function sampleToText(t){
+    var parts = [t.title, '', t.abstract];
+    t.sections.forEach(function(s){ parts.push('', s.h, s.p.join(' ')); });
+    parts.push('', 'References', t.references.join(' '));
+    return parts.join('\n');
+  }
+  function buildSamples(){
+    if(typeof window.THESES === 'undefined'){ return; }
+    var list = $('sample-list'); list.innerHTML='';
+    window.THESES.forEach(function(t){
+      var title = t.title.length>62 ? t.title.slice(0,62)+'…' : t.title;
+      var row = document.createElement('div'); row.className='sample-row';
+      row.innerHTML = '<div><div class="s-title">'+t.field+'</div><div class="s-sub">'+t.level+' &middot; "'+title+'"</div></div>'+
+        '<div class="s-actions"><button class="btn small" data-try="'+t.id+'">Try this &rarr;</button>'+
+        '<a class="dl" href="/samples/'+t.id+'.docx" download>Word</a>'+
+        '<a class="dl" href="/samples/'+t.id+'.pdf" target="_blank" rel="noopener">PDF</a></div>';
+      list.appendChild(row);
+    });
+    [].forEach.call(list.querySelectorAll('[data-try]'), function(b){
+      b.addEventListener('click', function(){ loadSample(b.getAttribute('data-try')); });
+    });
+    if(window.THESES_CAVEAT){ $('sample-caveat').textContent = window.THESES_CAVEAT; }
+  }
+  function loadSample(id){
+    var t = window.THESES.filter(function(x){return x.id===id;})[0]; if(!t) return;
+    hideErr($('upload-err'));
+    state.fileName = t.title; state.docText = sampleToText(t);
+    drop.classList.add('has');
+    $('drop-big').innerHTML = '<span class="filename">Sample: '+t.field+'</span>';
+    $('drop-sub').textContent = 'Loaded · ready';
+    $('analyze-btn').disabled = false;
+    analyzeDoc();
+  }
+  buildSamples();
 </script>
 </body>
 </html>
