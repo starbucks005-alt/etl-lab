@@ -125,6 +125,12 @@
   .dl{font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:1px;text-transform:uppercase;text-decoration:none;color:var(--navy);border:1px solid var(--line);padding:7px 10px;border-radius:4px;}
   .dl:hover{border-color:var(--gold);color:var(--gold-dim);}
   .caveat{font-size:11.5px;color:#9a9a93;margin-top:10px;line-height:1.5;}
+  .rec{margin-top:18px;border:1px solid var(--line);border-left:4px solid var(--gold);background:#fdfaf1;border-radius:6px;padding:14px 16px;}
+  .rec.fit{border-left-color:var(--green);background:#f4f9f6;}
+  .rec .rec-h{font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold-dim);margin-bottom:6px;}
+  .rec.fit .rec-h{color:var(--green);}
+  .rec .rec-body{font-size:14px;color:var(--ink);line-height:1.55;}
+  .rec .rec-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
   .prof-card{width:100%;border-radius:6px;display:block;margin-bottom:10px;}
   .gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px;}
   .zg{position:relative;border-radius:8px;overflow:hidden;background:#0c0f16;border:2px solid transparent;opacity:.45;transition:opacity .25s,border-color .25s,transform .25s;}
@@ -158,9 +164,28 @@
     <button class="mode" id="mode-interview">Job Interview</button>
   </div>
 
-  <!-- STEP 1: Inputs -->
-  <div class="step" id="step-upload">
+  <!-- STEP 1: Panel + difficulty -->
+  <div class="step" id="step-panel">
     <div class="step-num">Step 01</div>
+    <h2 id="panel-h">Build your committee</h2>
+    <p class="hint" id="panel-hint">Pick three or four. Each brings a different line of attack.</p>
+    <div class="grid" id="prof-grid"></div>
+    <div class="selnote" id="selnote">Selected: <b>0</b> (choose 3 or 4)</div>
+
+    <div style="margin-top:26px;">
+      <h2 style="font-size:19px;">Set the difficulty</h2>
+      <p class="hint">Start where you are. You can come back and climb.</p>
+      <div class="diff-row">
+        <div class="diff-btns" id="diff-btns"></div>
+        <span class="diff-label" id="diff-name"></span>
+      </div>
+      <div class="diff-desc" id="diff-desc"></div>
+    </div>
+  </div>
+
+  <!-- STEP 2: Inputs -->
+  <div class="step locked" id="step-upload">
+    <div class="step-num">Step 02</div>
     <h2 id="step1-h">Upload your document</h2>
     <p class="hint" id="step1-hint">A PDF of your thesis, dissertation, or a substantial chapter. It stays in your browser; we send only a short brief to the committee.</p>
     <div class="drop" id="drop">
@@ -186,25 +211,8 @@
       <button class="btn" id="analyze-btn" disabled>Read my document &rarr;</button>
       <span class="thinking" id="analyze-status"></span>
     </div>
-  </div>
 
-  <!-- STEP 2: Panel + difficulty -->
-  <div class="step locked" id="step-panel">
-    <div class="step-num">Step 02</div>
-    <h2 id="panel-h">Build your committee</h2>
-    <p class="hint" id="panel-hint">Pick three or four. Each brings a different line of attack.</p>
-    <div class="grid" id="prof-grid"></div>
-    <div class="selnote" id="selnote">Selected: <b>0</b> (choose 3 or 4)</div>
-
-    <div style="margin-top:26px;">
-      <h2 style="font-size:19px;">Set the difficulty</h2>
-      <p class="hint">Start where you are. You can come back and climb.</p>
-      <div class="diff-row">
-        <div class="diff-btns" id="diff-btns"></div>
-        <span class="diff-label" id="diff-name"></span>
-      </div>
-      <div class="diff-desc" id="diff-desc"></div>
-    </div>
+    <div class="rec" id="rec-block" style="display:none;"></div>
 
     <div class="btn-row">
       <button class="btn" id="start-btn" disabled>Enter the room &rarr;</button>
@@ -461,12 +469,60 @@
       var brief = await callAPI({ model:MODEL, max_tokens:1200, system:sys, messages:[{role:'user', content:user}] });
       state.brief = brief;
       $('analyze-status').textContent = '';
-      buildPanelStep();
+      var valid = state.panel.length>=3 && state.panel.length<=4;
+      $('start-btn').disabled = !valid;
+      if(valid){ recommendPanel().catch(function(e){ console.warn('rec failed', e); }); }
+      $('start-btn').scrollIntoView({behavior:'smooth', block:'center'});
     }catch(e){
       $('analyze-status').textContent='';
       showErr($('upload-err'), e.message);
       $('analyze-btn').disabled = false;
     }
+  }
+
+  // ---- Recommended panel swap (runs after analyze) ----
+  async function recommendPanel(){
+    $('rec-block').style.display='none'; $('rec-block').innerHTML='';
+    var r = roster();
+    var byId = function(id){ return r.filter(function(x){return x.id===id;})[0]; };
+    var selectedDesc = state.panel.map(function(id){var p=byId(id); return p?(p.id+' = '+p.name+' ('+p.role+')'):id;}).join('; ');
+    var fullDesc = r.map(function(p){return p.id+' = '+p.name+' ('+p.role+')';}).join('; ');
+    var sys = 'You are a panel-composition advisor. Given a brief and the candidate\'s currently selected panel, recommend AT MOST ONE swap that would better match the document. You may recommend keeping the panel as-is if it already fits. Use only the ids provided. Output ONLY valid JSON, no markdown, in this exact shape: {"action":"swap" or "keep","out_id":"id or null","in_id":"id or null","reason":"one short, specific sentence"}.';
+    var user = 'BRIEF:\n\n'+state.brief+'\n\nSELECTED PANEL: '+selectedDesc+'\n\nFULL ROSTER: '+fullDesc+'\n\nRecommend at most one swap, or keep. Be specific about why this candidate\'s work needs the proposed substitution.';
+    var raw = await callAPI({model:MODEL, max_tokens:400, system:sys, messages:[{role:'user', content:user}]});
+    var json = raw.replace(/```json|```/g,'').trim();
+    var rec = JSON.parse(json);
+    renderRec(rec);
+  }
+  function renderRec(rec){
+    var rb = $('rec-block'); rb.innerHTML=''; rb.classList.remove('fit');
+    var r = roster(); var byId = function(id){ return r.filter(function(x){return x.id===id;})[0]; };
+    var validSwap = rec && rec.action === 'swap' && rec.out_id && rec.in_id && byId(rec.out_id) && byId(rec.in_id) && state.panel.indexOf(rec.out_id)>=0 && state.panel.indexOf(rec.in_id)<0;
+    if(!validSwap){
+      rb.classList.add('fit');
+      rb.innerHTML = '<div class="rec-h">Panel fit</div><div class="rec-body">'+((rec && rec.reason) ? rec.reason : 'Your panel fits this document well.')+'</div>';
+      rb.style.display='block'; return;
+    }
+    var outP = byId(rec.out_id), inP = byId(rec.in_id);
+    rb.innerHTML = '<div class="rec-h">Recommended adjustment</div>'+
+      '<div class="rec-body">Consider swapping <b>'+outP.name+'</b> ('+outP.role+') for <b>'+inP.name+'</b> ('+inP.role+'). '+(rec.reason||'')+'</div>'+
+      '<div class="rec-actions"><button class="btn small" id="rec-apply">Apply swap</button><button class="btn small ghost" id="rec-keep">Keep my pick</button></div>';
+    rb.style.display='block';
+    $('rec-apply').addEventListener('click', function(){ applyRec(rec.out_id, rec.in_id); });
+    $('rec-keep').addEventListener('click', function(){
+      $('rec-block').innerHTML='<div class="rec-h">Panel locked</div><div class="rec-body">Keeping your original panel.</div>';
+      $('rec-block').classList.add('fit');
+    });
+  }
+  function applyRec(outId, inId){
+    var i = state.panel.indexOf(outId); if(i<0) return;
+    state.panel.splice(i, 1, inId);
+    [].forEach.call(document.querySelectorAll('#prof-grid .prof'), function(el){
+      el.classList.toggle('sel', state.panel.indexOf(el.dataset.id)>=0);
+    });
+    $('selnote').innerHTML = 'Selected: <b>'+state.panel.length+'</b> (choose 3 or 4)';
+    $('rec-block').innerHTML='<div class="rec-h">Panel updated</div><div class="rec-body">Swap applied. Ready when you are.</div>';
+    $('rec-block').classList.add('fit');
   }
 
   // ---- Step 2: panel + difficulty ----
@@ -488,16 +544,16 @@
       db.appendChild(b);
     });
     setDifficulty(state.difficulty);
-    $('step-panel').classList.remove('locked');
-    $('step-panel').scrollIntoView({behavior:'smooth', block:'start'});
   }
 
   function toggleProf(id, el){
     var i = state.panel.indexOf(id);
     if(i>=0){ state.panel.splice(i,1); el.classList.remove('sel'); }
     else { if(state.panel.length>=4){ return; } state.panel.push(id); el.classList.add('sel'); }
+    var valid = state.panel.length>=3 && state.panel.length<=4;
     $('selnote').innerHTML = 'Selected: <b>'+state.panel.length+'</b> (choose 3 or 4)';
-    $('start-btn').disabled = !(state.panel.length>=3 && state.panel.length<=4);
+    $('step-upload').classList.toggle('locked', !valid);
+    $('start-btn').disabled = !(valid && !!state.brief);
   }
 
   function setDifficulty(n){
@@ -788,14 +844,16 @@
     $('selnote').innerHTML = 'Selected: <b>0</b> (choose 3 or 4)';
     $('start-btn').disabled = true;
     $('disclaimer').textContent = c.disclaimer;
-    // reset UI flow
-    $('step-upload').classList.remove('locked');
-    $('step-panel').classList.add('locked');
+    // reset UI flow: panel is Step 01 (always available), upload is Step 02 (locked until panel chosen)
+    $('step-panel').classList.remove('locked');
+    $('step-upload').classList.add('locked');
+    $('rec-block').style.display='none'; $('rec-block').innerHTML='';
     $('prof-grid').innerHTML = '';
     $('drill').style.display = 'none'; $('drill').classList.remove('locked');
     $('card').style.display = 'none';
     $('chat').innerHTML = '';
     buildSamples();
+    buildPanelStep();
   }
   $('mode-defense').addEventListener('click', function(){ setMode('defense'); });
   $('mode-interview').addEventListener('click', function(){ setMode('interview'); });
