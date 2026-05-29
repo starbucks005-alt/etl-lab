@@ -617,13 +617,15 @@
       INTERVIEW_SAMPLES.forEach(function(s){
         var row = document.createElement('div'); row.className='sample-row';
         row.innerHTML = '<div><div class="s-title">'+s.field+'</div><div class="s-sub">'+s.level+' · sample CV + job description</div></div>'+
-          '<div class="s-actions"><button class="btn small" data-tryi="'+s.id+'">Try this &rarr;</button></div>';
+          '<div class="s-actions"><button class="btn small" data-tryi="'+s.id+'">Try this &rarr;</button>'+
+          '<a class="dl" href="/samples/'+s.id+'-cv.docx" download>CV · Word</a>'+
+          '<a class="dl" href="/samples/'+s.id+'-cv.pdf" target="_blank" rel="noopener">CV · PDF</a></div>';
         list.appendChild(row);
       });
       [].forEach.call(list.querySelectorAll('[data-tryi]'), function(b){
         b.addEventListener('click', function(){ loadInterviewSample(b.getAttribute('data-tryi')); });
       });
-      $('sample-caveat').textContent = 'Sample candidate and role for practice only. Fictional; not real people or postings.';
+      $('sample-caveat').textContent = 'Sample candidate, role, and resume for practice only. Fictional; not real people or postings. Download a CV to use as a template for your own.';
       return;
     }
     if(typeof window.THESES === 'undefined'){ return; }
