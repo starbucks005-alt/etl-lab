@@ -1002,18 +1002,25 @@
     border: 2px solid var(--black);
   }
   .etl-network .etl-net-launch:hover { background: var(--gold); color: var(--black); border-color: var(--gold); }
-  .etl-network .etl-net-card--agents .etl-net-video { padding-top: 0; height: auto; }
+  .etl-network .etl-net-card--agents .etl-net-video { padding-top: 75%; }
   .etl-network .etl-net-roster {
-    display: flex; align-items: center; justify-content: center;
-    gap: 0; padding: 36px 0; background: radial-gradient(circle at 50% 40%, #1c1c1c 0%, #111 100%);
+    position: absolute; inset: 0;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    gap: 6px; padding: 10px;
+    background: radial-gradient(circle at 50% 40%, #1c1c1c 0%, #0c0c0c 100%);
   }
   .etl-network .etl-net-roster img {
-    width: 56px; height: 56px; border-radius: 50%;
+    width: 100%; height: 100%;
+    border-radius: 50%;
     object-fit: cover; object-position: top;
-    border: 2px solid #111; margin-left: -14px;
-    box-shadow: 0 0 0 1px #333;
+    border: 2px solid #1a1a1a;
+    box-shadow: 0 0 0 1px #2a2a2a, 0 2px 8px rgba(0,0,0,0.4);
   }
-  .etl-network .etl-net-roster img:first-child { margin-left: 0; }
+  @media (max-width: 640px) {
+    .etl-network .etl-net-roster { grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(4, 1fr); gap: 4px; padding: 8px; }
+  }
   .etl-network .etl-net-footer { margin-top: auto; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
   .etl-network .etl-net-footer .etl-net-launch { margin-top: 0; }
   .etl-network .etl-net-link2 {
@@ -1129,18 +1136,41 @@
       <div class="etl-net-card etl-net-card--agents">
         <div class="etl-net-video">
           <div class="etl-net-roster">
+            <!-- The Dose -->
             <img src="agents/margaret_call_listening.png" alt="Margaret">
+            <img src="agents/nutritionist_eyes_open.png" alt="Nadia">
+            <img src="agents/Henry_eyes_open.png" alt="Dr. Henry">
+            <img src="agents/herbalist_eyes_open.png" alt="Amara">
+            <img src="agents/dr_eyes_open.png" alt="Dr. Claire">
+            <img src="agents/Arun_eyes_open.png" alt="Arun">
+            <!-- Greylander Press -->
             <img src="agents/EIC_Eyes_Open.png" alt="Dr. O.">
-            <img src="agents/Selene_eyes_open.jpg" alt="Selene">
-            <img src="agents/Wren_eyes_open.jpg" alt="Wren">
+            <img src="agents/Mun_Eyes_open.png" alt="Mun">
+            <img src="agents/Grey_Open.png" alt="Grey">
+            <img src="agents/Bea_Open.png" alt="Bea">
             <img src="agents/Margo.png" alt="Margo">
+            <img src="agents/Chris_DIGArtist_Eyes3_Open.png" alt="Chris">
+            <!-- The Gauntlet -->
+            <img src="agents/Selene_eyes_open.jpg" alt="Selene">
+            <img src="agents/Marcus_eyes_open.jpg" alt="Marcus">
+            <img src="agents/Priya_eyes_open.jpg" alt="Dr. Priya">
+            <img src="agents/Astrid_eyes_open.jpg" alt="Astrid">
+            <img src="agents/Grace_eyes_open.jpg" alt="Admiral Nakamura">
+            <img src="agents/Cassidy_eyes_open.jpg" alt="Dr. Cassidy">
+            <!-- The Panel Room -->
+            <img src="prep-room-assets/vv_card.jpg" alt="Victoria Vance">
+            <img src="prep-room-assets/cs_card.jpg" alt="Charles Sterling">
+            <img src="prep-room-assets/tk_card.jpg" alt="Tariq Khan">
+            <img src="prep-room-assets/rc_card.jpg" alt="Robert Chen">
+            <img src="prep-room-assets/dj_card.jpg" alt="Deidre Jenkins">
+            <img src="prep-room-assets/cm_card.jpg" alt="Charles Monroe">
           </div>
         </div>
         <div class="etl-net-body">
           <div class="etl-net-num">The Cast</div>
           <div class="etl-net-title">AI Agents</div>
           <div class="etl-net-tagline">Meet the team behind every platform</div>
-          <p class="etl-net-desc">The master reference for every AI character across The Dose, Greylander Press, and The Gauntlet. Hosts, editors, judges, and producers, each with a face, a name, and a role, all in one place.</p>
+          <p class="etl-net-desc">The master reference for every AI character across The Dose, Greylander Press, The Gauntlet, and The Panel Room. Hosts, editors, judges, coaches, examiners, and interviewers, each with a face, a name, and a role, all in one place.</p>
           <a class="etl-net-launch" href="/agents/" target="_blank" rel="noopener">View the Roster &rarr;</a>
         </div>
       </div>
