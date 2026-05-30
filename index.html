@@ -816,13 +816,13 @@
 </head>
 <body>
 
-<!-- Move Publications section to right below ETL Network / AI Agents (Forbes is paying the bills) -->
+<!-- Move Publications section to right after the AI Governance talk (#intel) -->
 <script>
 document.addEventListener('DOMContentLoaded', function(){
   var pub = document.getElementById('publications');
-  var net = document.getElementById('network');
-  if (pub && net && net.parentNode) {
-    net.parentNode.insertBefore(pub, net.nextSibling);
+  var anchor = document.getElementById('intel');
+  if (pub && anchor && anchor.parentNode) {
+    anchor.parentNode.insertBefore(pub, anchor.nextSibling);
   }
 });
 </script>
