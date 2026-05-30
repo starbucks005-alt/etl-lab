@@ -920,7 +920,7 @@
   .etl-network .section-full-inner { max-width: 1600px; padding: 0 32px; }
   .etl-network .etl-net-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(460px, 1fr));
     gap: 1px;
     margin-top: 28px;
     background: var(--black);
@@ -936,7 +936,7 @@
   .etl-network .etl-net-video {
     position: relative;
     width: 100%;
-    padding-top: 56.25%;
+    padding-top: 75%; /* unified 4:3 frame so all cards align in their rows; Vimeo letterboxes the 16:10 videos */
     background: var(--black);
     overflow: hidden;
   }
@@ -1063,7 +1063,7 @@
 
       <!-- SLR Studio -->
       <div class="etl-net-card">
-        <div class="etl-net-video" style="padding-top:62.5%;"><iframe src="https://player.vimeo.com/video/1196496233?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" title="SLR STUDIO"></iframe></div>
+        <div class="etl-net-video" style="padding-top:75%;"><iframe src="https://player.vimeo.com/video/1196496233?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" title="SLR STUDIO"></iframe></div>
         <div class="etl-net-body">
           <div class="etl-net-num">Platform // 03</div>
           <div class="etl-net-title">SLR Studio</div>
@@ -1075,7 +1075,7 @@
 
       <!-- Greylander Press -->
       <div class="etl-net-card">
-        <div class="etl-net-video" style="padding-top:62.5%;"><iframe src="https://player.vimeo.com/video/1196488438?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" title="Greylander Press"></iframe></div>
+        <div class="etl-net-video" style="padding-top:75%;"><iframe src="https://player.vimeo.com/video/1196488438?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" title="Greylander Press"></iframe></div>
         <div class="etl-net-body">
           <div class="etl-net-num">Platform // 04</div>
           <div class="etl-net-title">Greylander Press</div>
