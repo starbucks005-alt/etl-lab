@@ -162,6 +162,7 @@
   <div class="modes">
     <button class="mode" id="mode-defense">Thesis / Dissertation Defense</button>
     <button class="mode" id="mode-interview">Job Interview</button>
+    <button class="mode" id="mode-resume">Résumé Coach</button>
   </div>
 
   <!-- STEP 1: Panel + difficulty -->
@@ -195,8 +196,13 @@
     <input type="file" id="file" accept="application/pdf" style="display:none;">
 
     <div id="jd-block" style="display:none;">
-      <div class="jd-label">Paste the job description</div>
+      <div class="jd-label" id="jd-label">Paste the job description</div>
       <textarea class="jd-ta" id="jd-text" placeholder="Paste the full job posting here: title, responsibilities, and requirements."></textarea>
+    </div>
+
+    <div id="cl-block" style="display:none;">
+      <div class="jd-label">Paste your cover letter (optional)</div>
+      <textarea class="jd-ta" id="cl-text" placeholder="Paste your cover letter here. Optional. If you have one, your coach will read it alongside the CV."></textarea>
     </div>
 
     <div class="err" id="upload-err"></div>
@@ -329,7 +335,17 @@
     tile:IMG+'hvg_open.jpg', warm:IMG+'hvg_card.jpg',
     prompt:'You are Harrison Vance-Giles III, the CEO and ultimate corporate authority. You come from generations of industrial leadership in Philadelphia; your late wife was a corporate law professor, and you have the gravitas of a man who has run rooms for forty years. You restore historical properties and fly-fish alone, and you have learned exactly when silence costs the room and when it commands it. In lower tiers of the interview, you stay quiet and evaluate presence. When the candidate freezes or loses command of the room, you step in aggressively. Strip away buzzwords and resume talking points. Demand they speak with raw executive clarity about the single, undeniable value they bring to this enterprise right now.'};
 
-  function lifeline(){ return MODE === 'defense' ? PENDLETON : HARRISON; }
+  function lifeline(){ return MODE === 'defense' ? PENDLETON : (MODE === 'interview' ? HARRISON : null); }
+
+  // ---- Résumé Coach (single character, placeholder name; Dr. Oroszi's CV philosophy from job-fair.html) ----
+  var RESUME_COACH = {
+    id:'coach',
+    name:'Marian Hollis',
+    role:'The Résumé Coach',
+    desc:'Reads your CV, cover letter, and target role. Asks first what role you are arguing for. Honest, specific, no flattery.',
+    open:null, closed:null, card:null,
+    prompt:'You are Marian Hollis, the Résumé Coach. You operate on Dr. Oroszi\'s CV philosophy as stated on the ETL site. Your operating principles, in order: (1) A CV is an argument for a specific role, not a catalog of everything someone has done; you always ask what role the document is arguing for. (2) Length is the wrong question. The right frame is the Two-CV Tactic: bring both a short two-page version and a long six-page version, hand both to the recruiter, and let the recruiter\'s pick tell you everything in under five seconds. (3) The Professional Summary is exactly three sentences: who you are, what you have done, what you are looking for. Anything else is cut. (4) Every competency must be earned by evidence in the experience section, not claimed in isolation. (5) The document must give the reader something worth writing down. Substance over fluff, specific over generic. (6) You are warm and direct: no flattery, no praise for what has not earned it. You name what the document is actually saying versus what the student probably meant it to say. (7) You do NOT draft their bullets for them. You show them the gap between intent and evidence, and you trust the student to write the fix themselves. Speak in the first person. Keep each turn under 120 words. Do not break character or mention being an AI.'
+  };
 
   var DIFFICULTY = [
     {n:1, name:'Warm-up',  desc:'One question at a time, your answers are accepted, gentle clarifying follow-ups, no traps. Build confidence.',
@@ -400,15 +416,26 @@
       samplesH:'No CV handy? Practice with a sample candidate and role.',
       metaLabel:'Panel', scoring:'Scoring your interview...',
       disclaimer:'Practice tool only. A simulated panel is not a real employer. Use this to rehearse, not to predict an outcome.'
+    },
+    resume: {
+      step1h:'Upload your CV (and optional cover letter and target role)',
+      step1hint:'A PDF of your CV or résumé is required. Cover letter and target role are optional but make the review sharper. Everything stays in your browser; only a short brief goes to the coach.',
+      dropBig:'Click to choose your CV (PDF)', dropSub:'or drag it here',
+      analyzeBtn:'Get my review →', analyzeStatus:'Your coach is reading the document',
+      panelh:'Meet your coach', panelhint:'One coach. Set how direct she should be. Default is honest.',
+      heroSub:'Bring your CV, your cover letter, and the role you are aiming for. Your coach will name what the document is actually saying, what it is missing, and what to fix. She will not write it for you.',
+      samplesH:'No CV handy? Try one of the candidate samples below.',
+      metaLabel:'Coach', scoring:'Building your fix list...',
+      disclaimer:'Practice tool only. Your coach reads what you give her; she does not draft your bullets. You write the fix.'
     }
   };
 
   var MODE = 'defense';
   function cfg(){ return COPY[MODE]; }
-  function roster(){ return MODE === 'defense' ? PROFESSORS : INTERVIEWERS; }
+  function roster(){ return MODE === 'defense' ? PROFESSORS : (MODE === 'interview' ? INTERVIEWERS : [RESUME_COACH]); }
 
   // ---- State ----
-  var state = { fileName:'', docText:'', jdText:'', brief:'', panel:[], difficulty:3, transcript:[], turn:0, order:[], orderIdx:0, apUsed:0, apPending:false, currentIsAP:false };
+  var state = { fileName:'', docText:'', jdText:'', clText:'', brief:'', panel:[], difficulty:3, transcript:[], turn:0, order:[], orderIdx:0, apUsed:0, apPending:false, currentIsAP:false };
 
   function $(id){return document.getElementById(id);}
   function showErr(el,msg){ el.textContent = msg; el.style.display='block'; }
@@ -464,10 +491,14 @@
   $('analyze-btn').addEventListener('click', analyzeDoc);
   async function analyzeDoc(){
     hideErr($('upload-err'));
-    if(!state.docText){ showErr($('upload-err'), MODE==='interview' ? 'Upload your CV first.' : 'Upload your document first.'); return; }
+    if(!state.docText){ showErr($('upload-err'), (MODE==='interview' || MODE==='resume') ? 'Upload your CV first.' : 'Upload your document first.'); return; }
     if(MODE==='interview'){
       state.jdText = $('jd-text').value.trim();
       if(!state.jdText){ showErr($('upload-err'),'Paste the job description so the panel can interview you for the role.'); return; }
+    }
+    if(MODE==='resume'){
+      state.jdText = $('jd-text').value.trim(); // optional target role
+      state.clText = $('cl-text').value.trim(); // optional cover letter
     }
     $('analyze-btn').disabled = true;
     $('analyze-status').innerHTML = cfg().analyzeStatus + '<span class="dots"></span>';
@@ -476,17 +507,27 @@
     if(MODE==='interview'){
       sys = 'You are a hiring panel\'s assistant. You receive a candidate\'s CV/resume and a job description. Produce a TIGHT brief for the interviewers. Output PLAIN TEXT with these labeled sections and nothing else: CANDIDATE SNAPSHOT; TARGET ROLE; ROLE LEVEL (one of: Individual Contributor, Manager, Senior Leader, Executive, Cabinet/C-Suite); ROLE FOCUS (one or two of: technical execution, people leadership, strategy and vision, mission alignment, operations, fiscal stewardship, ethics and compliance, change management, external partnerships); KEY REQUIREMENTS (from the posting, with emphasis on what the role actually needs vs. nice-to-haves); STRENGTHS (where the CV matches the role); GAPS & RISKS (3-6 bullets the panel should probe); LIKELY TOUGH QUESTIONS (3-5, fit to the role level and focus). Be concrete and specific to THIS candidate and THIS role. Keep under 400 words.';
       user = 'CANDIDATE CV:\n\n'+state.docText.slice(0,9000)+'\n\nJOB DESCRIPTION:\n\n'+state.jdText.slice(0,5000);
+    } else if(MODE==='resume'){
+      sys = 'You are the Résumé Coach\'s reading assistant. You receive a CV, optionally a cover letter, and optionally a target role or job description. Produce a TIGHT brief that the coach will speak from. Honest, specific, no flattery, anchored on Dr. Oroszi\'s CV philosophy: a CV is an argument for a specific role; length is the wrong question (Two-CV Tactic: short and long); the Professional Summary is exactly three sentences (who you are, what you have done, what you are looking for); competencies must be earned by evidence; the document must give the reader something worth writing down; substance over fluff, specific over generic. Output PLAIN TEXT with these labeled sections and nothing else: CURRENT ARGUMENT (one sentence: what role this document is actually arguing for, regardless of what the candidate said); TARGET ROLE (from the student\'s input, or "not specified"); FIT (gap between current argument and target, if any); LENGTH STANCE (your read, anchored on the Two-CV Tactic); PROFESSIONAL SUMMARY (one short verdict: does it follow the three-sentence rule, and what to do); EVIDENCE GAPS (3-6 bullets: specific competencies or claims not backed by evidence); CUTS (3-6 bullets: what to remove or compress); AMPLIFY (3-6 bullets: what to make sharper, more specific, or evidence-led); COVER LETTER NOTES (if provided: 2-4 bullets); OPEN QUESTION (one short prompt the coach will speak to the student, inviting them to pick what to work on first). Keep under 500 words.';
+      user = 'CANDIDATE CV:\n\n'+state.docText.slice(0,12000)+(state.clText?'\n\nCOVER LETTER:\n\n'+state.clText.slice(0,4000):'')+(state.jdText?'\n\nTARGET ROLE / JOB DESCRIPTION:\n\n'+state.jdText.slice(0,4000):'');
     } else {
       sys = 'You are an academic committee\'s research assistant. Read the excerpt from a thesis/dissertation and produce a TIGHT brief for the examiners. Output PLAIN TEXT with these labeled sections and nothing else: TITLE/TOPIC; FIELD; RESEARCH QUESTION; METHODS; KEY CLAIMS (3-6 bullets); CONTRIBUTION; LIKELY WEAK POINTS (3-6 bullets the committee should probe). Be concrete and specific to this document. Keep under 350 words.';
       user = 'Document excerpt:\n\n'+state.docText.slice(0,14000);
     }
     try{
-      var brief = await callAPI({ model:MODEL, max_tokens:1200, system:sys, messages:[{role:'user', content:user}] });
+      var brief = await callAPI({ model:MODEL, max_tokens:1600, system:sys, messages:[{role:'user', content:user}] });
       state.brief = brief;
       $('analyze-status').textContent = '';
-      var valid = state.panel.length>=3 && state.panel.length<=4;
-      $('start-btn').disabled = !valid;
-      if(valid){ recommendPanel().catch(function(e){ console.warn('rec failed', e); }); }
+      var valid;
+      if(MODE==='resume'){
+        valid = true; // coach is always selected
+        $('start-btn').disabled = false;
+        // Skip the panel-swap recommendation; the coach is the panel.
+      } else {
+        valid = state.panel.length>=3 && state.panel.length<=4;
+        $('start-btn').disabled = !valid;
+        if(valid){ recommendPanel().catch(function(e){ console.warn('rec failed', e); }); }
+      }
       $('start-btn').scrollIntoView({behavior:'smooth', block:'center'});
     }catch(e){
       $('analyze-status').textContent='';
@@ -543,15 +584,25 @@
   // ---- Step 2: panel + difficulty ----
   function buildPanelStep(){
     var grid = $('prof-grid'); grid.innerHTML='';
-    roster().forEach(function(p){
+    if(MODE === 'resume'){
+      // Single coach, always selected, no click toggling.
+      var p = RESUME_COACH;
       var el = document.createElement('div');
-      el.className='prof'; el.dataset.id=p.id;
-      if(state.panel.indexOf(p.id)>=0) el.classList.add('sel');
-      var head = p.card ? ('<img class="prof-card" src="'+p.card+'" alt="'+p.name+'">') : ('<div class="pname">'+p.name+'</div><div class="prole">'+p.role+'</div>');
+      el.className='prof sel'; el.dataset.id=p.id; el.style.cursor='default';
+      var head = '<div class="pname">'+p.name+'</div><div class="prole">'+p.role+'</div>';
       el.innerHTML = '<div class="check">&#10003;</div>'+head+'<div class="pdesc">'+p.desc+'</div>';
-      el.addEventListener('click', function(){ toggleProf(p.id, el); });
       grid.appendChild(el);
-    });
+    } else {
+      roster().forEach(function(p){
+        var el = document.createElement('div');
+        el.className='prof'; el.dataset.id=p.id;
+        if(state.panel.indexOf(p.id)>=0) el.classList.add('sel');
+        var head = p.card ? ('<img class="prof-card" src="'+p.card+'" alt="'+p.name+'">') : ('<div class="pname">'+p.name+'</div><div class="prole">'+p.role+'</div>');
+        el.innerHTML = '<div class="check">&#10003;</div>'+head+'<div class="pdesc">'+p.desc+'</div>';
+        el.addEventListener('click', function(){ toggleProf(p.id, el); });
+        grid.appendChild(el);
+      });
+    }
     var db = $('diff-btns'); db.innerHTML='';
     DIFFICULTY.forEach(function(d){
       var b=document.createElement('button'); b.className='diff-btn'; b.textContent=d.n;
@@ -658,12 +709,27 @@
     var isAP = state.apPending; state.apPending = false; state.currentIsAP = isAP;
     var prof = isAP ? lifeline() : profById(state.order[state.orderIdx % state.order.length]);
     if(Object.keys(galleryEls).length){ if(isAP) ensureAPTile(); setActiveTile(prof.id); }
+
+    // Résumé mode, first turn: speak the structured brief as the coach's opener (no API call).
+    if(MODE === 'resume' && isFirst){
+      var m = addMsg('prof', prof.name+' — '+prof.role, state.brief);
+      state.transcript.push({role:'prof', name:prof.name, roleName:prof.role, text:state.brief});
+      $('answer-area').style.display='flex';
+      $('answer').focus();
+      return;
+    }
+
     var thinking = addMsg('prof', prof.name+' — '+prof.role, '');
     thinking.querySelector('.bubble').innerHTML = '<span class="thinking">thinking<span class="dots"></span></span>';
 
     var diff = DIFFICULTY[state.difficulty-1];
     var sys, userContent;
-    if(isAP){
+    if(MODE === 'resume'){
+      sys = prof.prompt + '\n\n' + diff.prompt +
+        '\n\nHere is the structured review you already delivered (use it as your reference, do not repeat it verbatim):\n\n' + state.brief +
+        '\n\nRULES: Speak only as yourself, in the first person. Answer the student\'s last question or comment on its merits, applied to THIS document. Be specific and concrete. If the student asks a classic question ("Should I include every job?", "Is two pages OK?", "How do I improve mine if I am just starting?"), answer it using Dr. Oroszi\'s philosophy: argument over catalog, Two-CV Tactic, three-sentence summary, evidence-earned competencies, substance over fluff, something worth writing down. NEVER draft their bullets for them. Show the gap and let them write the fix. Under 120 words. Do not break character or mention being an AI.';
+      userContent = 'Session transcript so far:\n\n' + transcriptText() + '\n\nRespond as Marian to the student\'s last message.';
+    } else if(isAP){
       var L = lifeline();
       sys = L.prompt + '\n\nHere is the brief on the candidate:\n\n' + state.brief +
         '\n\nThe candidate is struggling. RULES: Speak only as yourself, in the first person. Step in now, take command of the room, and ask ONE pointed question that forces them to recover and state the single, undeniable core of their work or value. Under 80 words. Do not break character or mention being an AI.';
@@ -709,7 +775,8 @@
     state.turn++;
     $('answer-area').style.display='none';
     if(state.turn >= TURN_CAP){ endSession(); return; }
-    if(!wasAP && state.difficulty>=4 && state.apUsed<2 && state.turn>=2 && state.turn<TURN_CAP-1){
+    // AP lifeline only fires for defense + interview (not resume — there is no lifeline coach).
+    if(MODE !== 'resume' && !wasAP && state.difficulty>=4 && state.apUsed<2 && state.turn>=2 && state.turn<TURN_CAP-1){
       if(weakAnswer(val) || Math.random()<0.2){ state.apPending = true; state.apUsed++; }
     }
     await nextQuestion(false);
@@ -726,7 +793,12 @@
     $('card').scrollIntoView({behavior:'smooth', block:'start'});
 
     var sys, user;
-    if(MODE==='interview'){
+    if(MODE==='resume'){
+      sys = 'You are Marian Hollis, the Résumé Coach, closing out a coaching session. The student has had a structured review and a follow-up chat. Produce a PRIORITIZED FIX LIST: a short verdict on the document\'s current argument, then five categories with a 1-5 score (5=already strong) showing where the document stands today, plus 3-6 concrete fix-list items the student should work on next, in priority order. Be honest and specific. No flattery. Anchor on Dr. Oroszi\'s philosophy: argument over catalog, Two-CV Tactic, three-sentence summary, evidence-earned competencies, substance over fluff. ' +
+        'Categories: CLARITY OF ARGUMENT; EVIDENCE BEHIND CLAIMS; LENGTH & SHAPE; PROFESSIONAL SUMMARY; SUBSTANCE OVER FLUFF. ' +
+        'Return ONLY valid JSON, no markdown, in this exact shape: {"verdict":"string","categories":[{"name":"string","score":1-5,"note":"one specific sentence"}],"drill":["string","string","string"]}';
+      user = 'Coaching brief:\n\n'+state.brief+'\n\nSession transcript:\n\n'+transcriptText();
+    } else if(MODE==='interview'){
       sys = 'You are an interview panel producing a formative READINESS CARD after a practice job interview. Be honest and specific. No flattery, no praise that is not earned. Score five categories from 1 to 5 (1=not ready, 5=ready). Categories: FIT TO THE ROLE; EVIDENCE OF IMPACT; COMMUNICATION & CLARITY; HANDLING TOUGH QUESTIONS; MOTIVATION & CLOSE. Also give an overall one-line verdict and 3-5 concrete things to drill before the real interview. ' +
         'Return ONLY valid JSON, no markdown, in this exact shape: {"verdict":"string","categories":[{"name":"string","score":1-5,"note":"one specific sentence"}],"drill":["string","string","string"]}';
       user = 'Panel brief:\n\n'+state.brief+'\n\nInterview transcript:\n\n'+transcriptText();
@@ -763,7 +835,7 @@
     var dl = $('rc-drill');
     var ul = document.createElement('ul');
     (d.drill||[]).forEach(function(x){ var li=document.createElement('li'); li.textContent=x; ul.appendChild(li); });
-    dl.innerHTML = '<h3>Drill these before the real thing</h3>';
+    dl.innerHTML = '<h3>'+(MODE === 'resume' ? 'Fix these next, in this order' : 'Drill these before the real thing')+'</h3>';
     dl.appendChild(ul);
   }
 
@@ -778,10 +850,11 @@
   }
   function buildSamples(){
     var list = $('sample-list'); list.innerHTML=''; $('sample-caveat').textContent='';
-    if(MODE==='interview'){
+    if(MODE==='interview' || MODE==='resume'){
+      var subSuffix = (MODE==='resume') ? ' · sample CV (job description optional)' : ' · sample CV + job description';
       INTERVIEW_SAMPLES.forEach(function(s){
         var row = document.createElement('div'); row.className='sample-row';
-        row.innerHTML = '<div><div class="s-title">'+s.field+'</div><div class="s-sub">'+s.level+' · sample CV + job description</div></div>'+
+        row.innerHTML = '<div><div class="s-title">'+s.field+'</div><div class="s-sub">'+s.level+subSuffix+'</div></div>'+
           '<div class="s-actions"><button class="btn small" data-tryi="'+s.id+'">Try this &rarr;</button>'+
           '<a class="dl" href="/samples/'+s.id+'-cv.docx" download>CV · Word</a>'+
           '<a class="dl" href="/samples/'+s.id+'-cv.pdf" target="_blank" rel="noopener">CV · PDF</a></div>';
@@ -825,7 +898,7 @@
     $('jd-text').value = s.jd;
     drop.classList.add('has');
     $('drop-big').innerHTML = '<span class="filename">Sample CV: '+s.field+'</span>';
-    $('drop-sub').textContent = 'Loaded · job description filled in below';
+    $('drop-sub').textContent = (MODE==='resume') ? 'Loaded · target role filled in below (you can edit or clear it)' : 'Loaded · job description filled in below';
     $('analyze-btn').disabled = false;
     analyzeDoc();
   }
@@ -836,8 +909,9 @@
     var c = cfg();
     $('mode-defense').classList.toggle('inactive', m!=='defense');
     $('mode-interview').classList.toggle('inactive', m!=='interview');
+    $('mode-resume').classList.toggle('inactive', m!=='resume');
     // reset state
-    state = { fileName:'', docText:'', jdText:'', brief:'', panel:[], difficulty:state.difficulty||3, transcript:[], turn:0, order:[], orderIdx:0, apUsed:0, apPending:false, currentIsAP:false };
+    state = { fileName:'', docText:'', jdText:'', clText:'', brief:'', panel:[], difficulty:state.difficulty||3, transcript:[], turn:0, order:[], orderIdx:0, apUsed:0, apPending:false, currentIsAP:false };
     // step 1 copy
     $('step1-h').textContent = c.step1h;
     $('step1-hint').textContent = c.step1hint;
@@ -848,20 +922,44 @@
     $('analyze-status').textContent = '';
     $('hero-sub').textContent = c.heroSub;
     $('samples-h').textContent = c.samplesH;
-    $('jd-block').style.display = (m==='interview') ? 'block' : 'none';
+    // JD / cover-letter inputs vary by mode
+    if(m === 'interview'){
+      $('jd-block').style.display='block';
+      $('jd-label').textContent = 'Paste the job description';
+      $('jd-text').placeholder = 'Paste the full job posting here: title, responsibilities, and requirements.';
+      $('cl-block').style.display='none';
+    } else if(m === 'resume'){
+      $('jd-block').style.display='block';
+      $('jd-label').textContent = 'Paste the target role or job description (optional but recommended)';
+      $('jd-text').placeholder = 'Paste the role you are aiming for. Even a job title or one paragraph helps your coach assess fit.';
+      $('cl-block').style.display='block';
+    } else {
+      $('jd-block').style.display='none';
+      $('cl-block').style.display='none';
+    }
     $('jd-text').value = '';
+    $('cl-text').value = '';
     drop.classList.remove('has');
     fileInput.value = '';
     hideErr($('upload-err'));
     // step 2 copy
     $('panel-h').textContent = c.panelh;
     $('panel-hint').textContent = c.panelhint;
-    $('selnote').innerHTML = 'Selected: <b>0</b> (choose 3 or 4)';
+    if(m === 'resume'){
+      // No panel selection: the coach is implicit. Pre-set state.panel and unlock upload immediately.
+      state.panel = ['coach'];
+      $('selnote').innerHTML = 'Your coach: <b>'+RESUME_COACH.name+'</b>';
+      $('step-upload').classList.remove('locked');
+    } else {
+      $('selnote').innerHTML = 'Selected: <b>0</b> (choose 3 or 4)';
+      $('step-upload').classList.add('locked');
+    }
+    $('start-btn').textContent = (m === 'resume' ? 'Start the review →' : 'Enter the room →');
     $('start-btn').disabled = true;
+    $('end-btn').textContent = (m === 'resume' ? 'End & get my fix list' : 'End & get my readiness card');
     $('disclaimer').textContent = c.disclaimer;
-    // reset UI flow: panel is Step 01 (always available), upload is Step 02 (locked until panel chosen)
+    // reset UI flow: panel is Step 01 (always available)
     $('step-panel').classList.remove('locked');
-    $('step-upload').classList.add('locked');
     $('rec-block').style.display='none'; $('rec-block').innerHTML='';
     $('prof-grid').innerHTML = '';
     $('drill').style.display = 'none'; $('drill').classList.remove('locked');
@@ -872,6 +970,7 @@
   }
   $('mode-defense').addEventListener('click', function(){ setMode('defense'); });
   $('mode-interview').addEventListener('click', function(){ setMode('interview'); });
+  $('mode-resume').addEventListener('click', function(){ setMode('resume'); });
 
   setMode('defense');
 </script>
