@@ -246,7 +246,7 @@
   <!-- READINESS CARD -->
   <div class="step" id="card">
     <div class="rc-head">
-      <div class="rc-overall">Readiness Card</div>
+      <div class="rc-overall" id="rc-overall">Readiness Card</div>
       <div class="verdict" id="rc-verdict">&mdash;</div>
     </div>
     <div class="rubric" id="rc-rubric"></div>
@@ -365,32 +365,38 @@
     {
       id:'swe', field:'Software Engineer (New Grad)', level:'Entry level',
       cv:'A. CANDIDATE — Software Engineer\nB.S. Computer Science, State University, 2026 (GPA 3.6).\nExperience: Software Engineering Intern, a mid-size SaaS company (Summer 2025) — built REST API endpoints in Python, added test coverage, shipped a caching layer that cut a slow endpoint from 1.2s to 300ms. Teaching Assistant, Data Structures (2 years).\nProjects: Open-source contributor to a CLI tool (merged 4 PRs). Capstone: a full-stack study-group matching app (React, Node, PostgreSQL) used by 200 classmates.\nSkills: Python, JavaScript, SQL, Git, basic AWS. Coursework in algorithms, databases, operating systems.',
-      jd:'Junior Software Engineer. We are hiring a new-grad engineer to join a backend team building APIs for a payments platform. Responsibilities: write and review backend services, add tests, debug production issues, collaborate in code review. Requirements: a CS degree or equivalent, fluency in at least one of Python/Java/Go, understanding of data structures and databases, willingness to learn our stack. Nice to have: internship experience, exposure to cloud infrastructure, and an interest in reliability and performance.'
+      jd:'Junior Software Engineer. We are hiring a new-grad engineer to join a backend team building APIs for a payments platform. Responsibilities: write and review backend services, add tests, debug production issues, collaborate in code review. Requirements: a CS degree or equivalent, fluency in at least one of Python/Java/Go, understanding of data structures and databases, willingness to learn our stack. Nice to have: internship experience, exposure to cloud infrastructure, and an interest in reliability and performance.',
+      cl:'Dear Hiring Manager,\n\nI am writing to apply for the Junior Software Engineer role on your backend team. My summer internship at a mid-size SaaS company gave me hands-on experience writing Python REST endpoints, adding test coverage, and shipping a caching layer that cut a slow endpoint from 1.2 seconds to 300 milliseconds. That is the kind of measurable performance work I would like to bring to your payments platform.\n\nWhat draws me to this role is the focus on reliability and code review culture. As a two-year teaching assistant for Data Structures, I learned that the strongest engineers can explain their reasoning clearly, and I look forward to growing in a team that values both rigor and craft.\n\nI would welcome the chance to discuss how I can contribute.\n\nSincerely,\nA. Candidate'
     },
     {
       id:'crc', field:'Clinical Research Coordinator', level:'Early career',
       cv:'A. CANDIDATE — Clinical Research Coordinator\nB.S. Biology, State University, 2024. CITI Human Subjects certified.\nExperience: Research Assistant, university cardiology lab (2 years) — consented participants, maintained regulatory binders, entered data into REDCap, scheduled study visits for a 120-participant trial. Volunteer EMT (1 year).\nSkills: IRB submissions, informed consent, REDCap, basic phlebotomy, scheduling, attention to regulatory detail. Comfortable with patients.',
-      jd:'Clinical Research Coordinator. An academic medical center seeks a coordinator to manage day-to-day operations of clinical trials. Responsibilities: participant recruitment and consent, regulatory compliance and IRB documentation, data entry and quality control, coordination with PIs and sponsors, scheduling study visits. Requirements: bachelor\'s in a health or science field, strong organization and attention to detail, familiarity with human-subjects regulations. Preferred: prior research experience, REDCap, and direct patient interaction.'
+      jd:'Clinical Research Coordinator. An academic medical center seeks a coordinator to manage day-to-day operations of clinical trials. Responsibilities: participant recruitment and consent, regulatory compliance and IRB documentation, data entry and quality control, coordination with PIs and sponsors, scheduling study visits. Requirements: bachelor\'s in a health or science field, strong organization and attention to detail, familiarity with human-subjects regulations. Preferred: prior research experience, REDCap, and direct patient interaction.',
+      cl:'Dear Hiring Manager,\n\nI am writing to apply for the Clinical Research Coordinator position at your academic medical center. Over the past two years as a Research Assistant in a university cardiology lab, I have consented participants, maintained regulatory binders, entered data into REDCap, and scheduled study visits for a 120-participant trial. I am CITI Human Subjects certified.\n\nYour role emphasizes regulatory compliance and direct coordination with principal investigators, which matches the work I most enjoy: precise, patient-facing, and accountable to the integrity of the data. My background in biology and prior EMT volunteering have prepared me to remain calm and detail-oriented under pressure.\n\nI would welcome the opportunity to discuss how I can support your trials.\n\nSincerely,\nA. Candidate'
     },
     {
       id:'analyst', field:'Data Analyst', level:'Early career',
       cv:'A. CANDIDATE — Data Analyst\nB.A. Economics, minor in Statistics, State University, 2025.\nExperience: Analytics Intern, a retail company (8 months) — built weekly sales dashboards in Tableau, wrote SQL to pull and clean data, automated a manual report that saved ~5 hours/week. Course project: regression analysis of public health data presented to faculty.\nSkills: SQL, Excel (advanced), Tableau, some Python (pandas), basic statistics and A/B testing concepts. Clear written communication.',
-      jd:'Data Analyst. A growing operations team needs an analyst to turn data into decisions. Responsibilities: write SQL to answer business questions, build and maintain dashboards, run basic analyses (trends, segmentation, simple experiments), and present findings to non-technical stakeholders. Requirements: strong SQL, comfort with a BI tool, sound statistical intuition, and the ability to explain results clearly. Nice to have: Python, experiment design, and experience working with stakeholders.'
+      jd:'Data Analyst. A growing operations team needs an analyst to turn data into decisions. Responsibilities: write SQL to answer business questions, build and maintain dashboards, run basic analyses (trends, segmentation, simple experiments), and present findings to non-technical stakeholders. Requirements: strong SQL, comfort with a BI tool, sound statistical intuition, and the ability to explain results clearly. Nice to have: Python, experiment design, and experience working with stakeholders.',
+      cl:'Dear Hiring Manager,\n\nI am applying for the Data Analyst position on your operations team. As an Analytics Intern at a retail company, I wrote SQL to clean and pull data for weekly reporting, built and maintained Tableau dashboards, and automated a manual report that saved roughly five hours per week. Small but measurable wins that compounded across the team.\n\nWhat attracts me to your role is the emphasis on translating data into decisions and presenting findings clearly to non-technical stakeholders. My economics and statistics background gave me strong intuition for what numbers can and cannot tell you, and I work hard to make that intuition useful to others.\n\nI would welcome the chance to discuss how I can contribute.\n\nSincerely,\nA. Candidate'
     },
     {
       id:'pm', field:'Senior Program Manager', level:'Mid-career',
       cv:'A. CANDIDATE — Senior Program Manager\nB.S. Industrial Engineering, State University, 2017. PMP certified.\nExperience: Senior Program Manager, mid-size SaaS company (2022 to present) — led a cross-functional product launch across 4 engineering teams, 2 design teams, and a vendor, delivered on time. Reduced quarterly program cycle time by 18 percent through staged release and dependency mapping. Coordinated a weekly VP-level steering committee. Mentored 3 junior PMs and standardized a lightweight risk-register template now used org-wide.\nProgram Manager, growth-stage tech company (2018 to 2022) — drove a vendor consolidation that saved roughly $400K per year. Ran the annual portfolio review for 12 initiatives.\nSkills: program management, stakeholder management, OKRs, vendor management, risk management, Jira / Confluence, executive communication. PMP.'
       ,jd:'Senior Program Manager, Operations. A mid-size company seeks a Senior Program Manager to lead cross-functional programs from concept to launch. Responsibilities: own multi-team program timelines and risks, coordinate engineering, design, marketing, and external vendors, drive process improvement, and mentor a small team of junior PMs. Requirements: five or more years of program management experience, a track record of delivering multi-team programs on time, strong written and verbal communication, comfort presenting to senior stakeholders. PMP or equivalent helpful. Nice to have: experience in a SaaS or product organization, and prior people-management experience.'
+      ,cl:'Dear Hiring Manager,\n\nI am writing to apply for the Senior Program Manager role on your operations team. Over the past seven years, I have led cross-functional programs from concept to launch, most recently coordinating four engineering teams, two design teams, and one external vendor through an on-time product launch that reduced our quarterly cycle time by 18 percent.\n\nYour role combines multi-team timeline ownership, vendor coordination, and PM mentoring, which matches the work I most want to do. At my current company I have mentored three junior PMs and standardized a lightweight risk-register template now used across the organization.\n\nI would welcome the chance to discuss how my approach to program leadership can serve your team.\n\nSincerely,\nA. Candidate'
     },
     {
       id:'dirres', field:'Director of Faculty Development', level:'Senior leader (Academic)',
       cv:'A. CANDIDATE — Director of Faculty Development\nEd.D. in Higher Education Leadership, State University, 2018. M.A. in Curriculum and Instruction, 2012.\nExperience: Director of Faculty Development, private liberal arts college (2020 to present) — designed and launched a new-faculty onboarding program now reaching 100 percent of incoming faculty with 95 percent completion. Led a cross-college teaching effectiveness initiative associated with a 12 percent improvement in second-year retention. Co-chaired the campus DEI-in-the-classroom committee and authored equity-minded pedagogy guidelines. Steward of a $1.2M annual operating budget; supervises a team of four staff.\nAssociate Director, Center for Teaching and Learning, regional state university (2015 to 2020) — built faculty learning communities across STEM, humanities, and professional schools. Supported a $600K Title III grant focused on student success.\nService and scholarship: faculty senate liaison; presentations at POD Network and AAHE; publications in faculty development journals.\nSkills: faculty development, program design, budget stewardship, change leadership, assessment, relationship-building across academic units, equity-minded pedagogy.'
       ,jd:'Director of Faculty Development. A private university with undergraduate and graduate enrollment of approximately 4,500 seeks an experienced academic leader to direct campus-wide faculty development. Reports to the Provost. Responsibilities: design and lead programs in new-faculty onboarding, teaching effectiveness, scholarly support, and equity-minded pedagogy; partner with deans, department chairs, and the faculty senate; steward an annual $1.5M operating budget; supervise a team of four professional staff. Requirements: seven or more years of progressive higher-education leadership including direct faculty-development experience; doctorate strongly preferred; demonstrated ability to lead change through influence; experience supporting faculty across disciplines.'
+      ,cl:'Dear Provost and Search Committee,\n\nI am writing to apply for the Director of Faculty Development role at your institution. Over the past five years I have led faculty development at a private liberal arts college, designing a new-faculty onboarding program that now reaches every incoming faculty member with 95 percent completion and leading a teaching effectiveness initiative associated with a 12 percent improvement in second-year retention. I steward a $1.2M annual budget and lead a team of four staff.\n\nWhat draws me to this role is the chance to do this work at a larger scale and in close partnership with deans and the faculty senate. My doctorate is in higher education leadership, and my scholarship and presentations have focused on equity-minded pedagogy and the structural conditions that retain faculty across disciplines.\n\nI would welcome the opportunity to discuss how my experience can serve your campus.\n\nSincerely,\nA. Candidate'
     },
     {
       id:'vpinnov', field:'Vice President for Innovation', level:'Executive / Cabinet',
       cv:'A. CANDIDATE — Vice President for Innovation\nPh.D. in Strategy and Leadership, State University, 2010. M.B.A., 2004.\nExperience: Vice President for Innovation, regional mission-driven nonprofit (2019 to present) — cabinet-level role reporting to the CEO and reporting regularly to the Board. Launched an enterprise AI working group that delivered an organization-wide AI policy and three pilots in nine months. Co-led the $50M five-year strategic planning process. Built external partnerships generating $20M in new investment. Convened cross-functional executive teams on emerging technology and mission alignment.\nAssociate Vice President for Strategy, mid-size healthcare nonprofit (2014 to 2019) — led a multi-year operational transformation that improved on-mission service delivery while holding costs flat. Member of the executive team and the AI / data governance committee.\nEarlier: Director-level roles in strategy consulting and operations. Board service: two community-foundation boards.\nSelected publications and talks on AI governance in mission-driven institutions.\nSkills: enterprise strategy, change leadership, AI and emerging-technology governance, board engagement, partnership development, fiscal stewardship, executive communication.'
       ,jd:'Vice President for Innovation. A mission-driven nonprofit with 1,200 staff and a $300M annual budget seeks a Vice President for Innovation. Cabinet-level role reporting to the CEO and a regular participant on the Board\'s Programs and Innovation committees. Responsibilities: lead an organization-wide innovation strategy across programs, technology, and partnerships; co-lead AI integration with the Chief Information Officer; steward fiscal responsibility on innovation investments; ensure mission alignment in every initiative; build external partnerships with technology firms, peer institutions, and funders; convene and chair cross-functional teams. Required: 10+ years of senior leadership in a mission-driven setting; a track record of large-scale change through influence; strategic communication to executives and the board. Preferred: experience in a values-driven institution and applied work in technology governance or innovation.'
+      ,cl:'Dear Search Committee,\n\nI am writing to apply for the Vice President for Innovation role. As a cabinet-level VP for Innovation at a regional mission-driven nonprofit, I led an enterprise AI working group that delivered an organization-wide AI policy and three pilots in nine months, co-led a $50M five-year strategic planning process, and built external partnerships generating $20M in new investment.\n\nWhat draws me to your organization is its mission-anchored approach to innovation and the cross-functional partnership the role requires with the Chief Information Officer. My doctorate is in strategy and leadership, my MBA is in management, and I have spent fifteen years translating mission and strategy into change that holds.\n\nI would welcome the chance to discuss how I can partner with the CEO, the Board, and the leadership team.\n\nSincerely,\nA. Candidate'
     }
   ];
 
@@ -794,10 +800,10 @@
 
     var sys, user;
     if(MODE==='resume'){
-      sys = 'You are Marian Hollis, the Résumé Coach, closing out a coaching session. The student has had a structured review and a follow-up chat. Produce a PRIORITIZED FIX LIST: a short verdict on the document\'s current argument, then five categories with a 1-5 score (5=already strong) showing where the document stands today, plus 3-6 concrete fix-list items the student should work on next, in priority order. Be honest and specific. No flattery. Anchor on Dr. Oroszi\'s philosophy: argument over catalog, Two-CV Tactic, three-sentence summary, evidence-earned competencies, substance over fluff. ' +
-        'Categories: CLARITY OF ARGUMENT; EVIDENCE BEHIND CLAIMS; LENGTH & SHAPE; PROFESSIONAL SUMMARY; SUBSTANCE OVER FLUFF. ' +
-        'Return ONLY valid JSON, no markdown, in this exact shape: {"verdict":"string","categories":[{"name":"string","score":1-5,"note":"one specific sentence"}],"drill":["string","string","string"]}';
-      user = 'Coaching brief:\n\n'+state.brief+'\n\nSession transcript:\n\n'+transcriptText();
+      sys = 'You are Charles Monroe, Associate Director of Career Services, closing out a coaching session with a student. You have already delivered a structured review and had a chat. Now produce: (1) a short verdict on the document\'s current argument; (2) a 5-category scorecard (1=needs work, 5=strong) covering CLARITY OF ARGUMENT, EVIDENCE BEHIND CLAIMS, LENGTH & SHAPE, PROFESSIONAL SUMMARY, SUBSTANCE OVER FLUFF; (3) a 3-6 item prioritized fix list in order; (4) an UPDATED CV restructuring the student\'s material into a sharper, more argument-focused document; (5) if the student provided a cover letter, an UPDATED cover letter. ' +
+        'HARD RULES on the updated CV and cover letter: Use ONLY what the student stated in the original CV, the original cover letter, the chat transcript, and the brief. DO NOT invent employers, dates, titles, numbers, schools, accomplishments, or claims that are not present in their own words. If a quantifiable detail is not present, leave it general rather than fabricating a number. Preserve the student as the author; you are organizing their own words. The Professional Summary in the updated CV must be EXACTLY three sentences: who you are, what you have done, what you are looking for. Anchor everything on Dr. Oroszi\'s CV philosophy: argument over catalog, Two-CV Tactic, three-sentence summary, evidence-earned competencies, substance over fluff, no flattery. ' +
+        'Return ONLY valid JSON, no markdown, in this exact shape: {"verdict":"string","categories":[{"name":"string","score":1-5,"note":"one specific sentence"}],"drill":["string","string","string"],"updated_cv":{"name":"string","contact":"string","summary":"three sentences","education":["string"],"experience":[{"title":"string","org":"string","dates":"string","bullets":["string"]}],"projects":["string"],"skills":["string"]},"updated_cover_letter":"string with paragraphs separated by \\n\\n, or empty string if none was provided"}';
+      user = 'Original CV:\n\n'+state.docText.slice(0,12000)+(state.clText?'\n\nOriginal cover letter:\n\n'+state.clText.slice(0,4000):'')+(state.jdText?'\n\nTarget role / job description:\n\n'+state.jdText.slice(0,4000):'')+'\n\nCoaching brief:\n\n'+state.brief+'\n\nSession transcript (use any new specifics the student stated here):\n\n'+transcriptText();
     } else if(MODE==='interview'){
       sys = 'You are an interview panel producing a formative READINESS CARD after a practice job interview. Be honest and specific. No flattery, no praise that is not earned. Score five categories from 1 to 5 (1=not ready, 5=ready). Categories: FIT TO THE ROLE; EVIDENCE OF IMPACT; COMMUNICATION & CLARITY; HANDLING TOUGH QUESTIONS; MOTIVATION & CLOSE. Also give an overall one-line verdict and 3-5 concrete things to drill before the real interview. ' +
         'Return ONLY valid JSON, no markdown, in this exact shape: {"verdict":"string","categories":[{"name":"string","score":1-5,"note":"one specific sentence"}],"drill":["string","string","string"]}';
@@ -808,7 +814,8 @@
       user = 'Committee brief:\n\n'+state.brief+'\n\nDefense transcript:\n\n'+transcriptText();
     }
     try{
-      var raw = await callAPI({ model:MODEL, max_tokens:1500, system:sys, messages:[{role:'user', content:user}] });
+      var maxTok = (MODE==='resume') ? 6000 : 1500;
+      var raw = await callAPI({ model:MODEL, max_tokens:maxTok, system:sys, messages:[{role:'user', content:user}] });
       var json = raw.replace(/```json|```/g,'').trim();
       var data = JSON.parse(json);
       renderCard(data);
@@ -818,8 +825,58 @@
     }
   }
 
+  // ---- Helpers for rendering and downloading the generated CV + cover letter (resume mode) ----
+  function escHtml(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function previewCvHtml(cv){
+    var h = '';
+    h += '<div style="text-align:center;"><div style="font-size:20px;font-weight:700;">'+escHtml(cv.name)+'</div>';
+    h += '<div style="font-size:11px;color:#666;margin-top:4px;">'+escHtml(cv.contact)+'</div></div>';
+    var sect = function(title){ return '<div style="margin-top:14px;font-family:\'Oswald\',sans-serif;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#243049;border-bottom:1px solid #ddd;padding-bottom:2px;">'+title+'</div>'; };
+    if(cv.summary){ h += sect('Summary')+'<p style="font-size:13px;margin-top:6px;">'+escHtml(cv.summary)+'</p>'; }
+    if(cv.education && cv.education.length){ h += sect('Education'); cv.education.forEach(function(e){ h += '<div style="font-size:13px;margin-top:4px;">'+escHtml(e)+'</div>'; }); }
+    if(cv.experience && cv.experience.length){
+      h += sect('Experience');
+      cv.experience.forEach(function(x){
+        h += '<div style="margin-top:8px;"><b style="font-size:13px;">'+escHtml(x.title)+', '+escHtml(x.org)+'</b> <i style="font-size:11px;color:#666;">'+escHtml(x.dates)+'</i></div>';
+        if(x.bullets && x.bullets.length){ h += '<ul style="font-size:13px;margin:4px 0 0 20px;">'; x.bullets.forEach(function(b){ h += '<li>'+escHtml(b)+'</li>'; }); h += '</ul>'; }
+      });
+    }
+    if(cv.projects && cv.projects.length){ h += sect('Projects')+'<ul style="font-size:13px;margin:6px 0 0 20px;">'+cv.projects.map(function(p){return '<li>'+escHtml(p)+'</li>';}).join('')+'</ul>'; }
+    if(cv.skills && cv.skills.length){ h += sect('Skills')+'<p style="font-size:13px;margin-top:6px;">'+escHtml(cv.skills.join('  ·  '))+'</p>'; }
+    return h;
+  }
+  function fullCvHtml(cv){
+    return '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+escHtml(cv.name||'Resume')+'</title><style>body{font-family:Georgia,serif;max-width:7.5in;margin:0.75in auto;color:#222;line-height:1.4;font-size:11pt;}h1{text-align:center;font-size:20pt;margin:0;}.contact{text-align:center;color:#555;font-size:9pt;margin-top:4px;}h2{font-size:11pt;letter-spacing:1px;text-transform:uppercase;color:#243049;border-bottom:1px solid #ddd;margin-top:18pt;padding-bottom:2pt;}ul{margin:6pt 0 6pt 22pt;padding:0;}li{margin-bottom:3pt;}p{margin:6pt 0;}.dates{color:#666;font-style:italic;font-size:10pt;}</style></head><body>'+
+      '<h1>'+escHtml(cv.name)+'</h1><div class="contact">'+escHtml(cv.contact)+'</div>'+
+      (cv.summary?'<h2>Summary</h2><p>'+escHtml(cv.summary)+'</p>':'')+
+      (cv.education&&cv.education.length?'<h2>Education</h2>'+cv.education.map(function(e){return '<p>'+escHtml(e)+'</p>';}).join(''):'')+
+      (cv.experience&&cv.experience.length?'<h2>Experience</h2>'+cv.experience.map(function(x){return '<p><b>'+escHtml(x.title)+', '+escHtml(x.org)+'</b> <span class="dates">'+escHtml(x.dates)+'</span></p>'+(x.bullets&&x.bullets.length?'<ul>'+x.bullets.map(function(b){return '<li>'+escHtml(b)+'</li>';}).join('')+'</ul>':'');}).join(''):'')+
+      (cv.projects&&cv.projects.length?'<h2>Projects</h2><ul>'+cv.projects.map(function(p){return '<li>'+escHtml(p)+'</li>';}).join('')+'</ul>':'')+
+      (cv.skills&&cv.skills.length?'<h2>Skills</h2><p>'+escHtml(cv.skills.join('  ·  '))+'</p>':'')+
+      '</body></html>';
+  }
+  function fullClHtml(cl){
+    var paragraphs = String(cl||'').split(/\n\n+/).filter(function(p){return p.trim();});
+    return '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Cover Letter</title><style>body{font-family:Georgia,serif;max-width:7.5in;margin:1in auto;color:#222;line-height:1.5;font-size:11pt;}p{margin:0 0 12pt 0;}</style></head><body>'+paragraphs.map(function(p){return '<p>'+escHtml(p).replace(/\n/g,'<br>')+'</p>';}).join('')+'</body></html>';
+  }
+  function downloadDoc(html, filename){
+    var blob = new Blob(['﻿'+html], { type: 'application/msword' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a'); a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1500);
+  }
+  function printToPdf(html){
+    var w = window.open('', '_blank'); if(!w){ alert('Please allow pop-ups to save as PDF.'); return; }
+    w.document.write(html); w.document.close(); w.focus();
+    setTimeout(function(){ try{ w.print(); }catch(e){} }, 350);
+  }
+
   function renderCard(d){
+    $('rc-overall').textContent = (MODE === 'resume') ? 'Charles\'s review + updated drafts' : 'Readiness Card';
     $('rc-verdict').textContent = d.verdict || 'Session complete.';
+    // Clear any prior generated-block from a previous session.
+    var prevGen = document.getElementById('rc-generated'); if(prevGen) prevGen.remove();
     var rub = $('rc-rubric'); rub.innerHTML='';
     (d.categories||[]).forEach(function(c){
       var sc = Math.max(1,Math.min(5, parseInt(c.score,10)||1));
@@ -837,6 +894,45 @@
     (d.drill||[]).forEach(function(x){ var li=document.createElement('li'); li.textContent=x; ul.appendChild(li); });
     dl.innerHTML = '<h3>'+(MODE === 'resume' ? 'Fix these next, in this order' : 'Drill these before the real thing')+'</h3>';
     dl.appendChild(ul);
+
+    // Résumé mode: render the updated CV and updated cover letter, with download buttons.
+    if(MODE === 'resume' && (d.updated_cv || d.updated_cover_letter)){
+      var gen = document.createElement('div'); gen.id = 'rc-generated'; gen.style.marginTop = '22px';
+      if(d.updated_cv){
+        var cvCard = document.createElement('div');
+        cvCard.className = 'rec'; cvCard.classList.remove('fit'); cvCard.style.marginTop = '0';
+        cvCard.innerHTML = '<div class="rec-h">Updated CV · built from your own words</div>'+
+          '<div id="cv-preview" style="background:#fff;border:1px solid var(--line);border-radius:4px;padding:18px 20px;margin-top:10px;font-family:Georgia,serif;line-height:1.45;color:#222;"></div>'+
+          '<div class="rec-actions" style="margin-top:12px;">'+
+            '<button class="btn small" id="dl-cv-word">Download CV · Word</button>'+
+            '<button class="btn small ghost" id="dl-cv-pdf">Save CV as PDF</button>'+
+          '</div>';
+        gen.appendChild(cvCard);
+      }
+      if(d.updated_cover_letter && String(d.updated_cover_letter).trim()){
+        var clCard = document.createElement('div');
+        clCard.className = 'rec'; clCard.classList.remove('fit'); clCard.style.marginTop = '14px';
+        clCard.innerHTML = '<div class="rec-h">Updated cover letter · built from your own words</div>'+
+          '<div id="cl-preview" style="background:#fff;border:1px solid var(--line);border-radius:4px;padding:18px 20px;margin-top:10px;font-family:Georgia,serif;line-height:1.55;color:#222;white-space:pre-wrap;"></div>'+
+          '<div class="rec-actions" style="margin-top:12px;">'+
+            '<button class="btn small" id="dl-cl-word">Download letter · Word</button>'+
+            '<button class="btn small ghost" id="dl-cl-pdf">Save letter as PDF</button>'+
+          '</div>';
+        gen.appendChild(clCard);
+      }
+      // Insert before the btn-row that contains restart.
+      $('rc-drill').parentNode.insertBefore(gen, $('rc-drill').nextSibling);
+      if(d.updated_cv){
+        document.getElementById('cv-preview').innerHTML = previewCvHtml(d.updated_cv);
+        document.getElementById('dl-cv-word').addEventListener('click', function(){ downloadDoc(fullCvHtml(d.updated_cv), 'updated_cv.doc'); });
+        document.getElementById('dl-cv-pdf').addEventListener('click', function(){ printToPdf(fullCvHtml(d.updated_cv)); });
+      }
+      if(d.updated_cover_letter && String(d.updated_cover_letter).trim()){
+        document.getElementById('cl-preview').textContent = d.updated_cover_letter;
+        document.getElementById('dl-cl-word').addEventListener('click', function(){ downloadDoc(fullClHtml(d.updated_cover_letter), 'updated_cover_letter.doc'); });
+        document.getElementById('dl-cl-pdf').addEventListener('click', function(){ printToPdf(fullClHtml(d.updated_cover_letter)); });
+      }
+    }
   }
 
   $('restart-btn').addEventListener('click', function(){ location.reload(); });
@@ -896,9 +992,10 @@
     hideErr($('upload-err'));
     state.fileName = s.field; state.docText = s.cv;
     $('jd-text').value = s.jd;
+    if(MODE === 'resume' && s.cl){ $('cl-text').value = s.cl; }
     drop.classList.add('has');
     $('drop-big').innerHTML = '<span class="filename">Sample CV: '+s.field+'</span>';
-    $('drop-sub').textContent = (MODE==='resume') ? 'Loaded · target role filled in below (you can edit or clear it)' : 'Loaded · job description filled in below';
+    $('drop-sub').textContent = (MODE==='resume') ? 'Loaded · cover letter and target role filled in below (edit or clear as you like)' : 'Loaded · job description filled in below';
     $('analyze-btn').disabled = false;
     analyzeDoc();
   }
