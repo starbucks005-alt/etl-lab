@@ -1002,13 +1002,21 @@
     border: 2px solid var(--black);
   }
   .etl-network .etl-net-launch:hover { background: var(--gold); color: var(--black); border-color: var(--gold); }
-  .etl-network .etl-net-card--agents .etl-net-video { padding-top: 75%; }
+  .etl-network .etl-net-card--agents {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    align-items: stretch;
+  }
+  .etl-network .etl-net-card--agents .etl-net-video {
+    padding-top: 0; height: 100%; min-height: 380px;
+  }
   .etl-network .etl-net-roster {
     position: absolute; inset: 0;
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(10, 1fr);
     grid-template-rows: repeat(4, 1fr);
-    gap: 6px; padding: 10px;
+    gap: 6px; padding: 12px;
     background: radial-gradient(circle at 50% 40%, #1c1c1c 0%, #0c0c0c 100%);
   }
   .etl-network .etl-net-roster img {
@@ -1018,8 +1026,13 @@
     border: 2px solid #1a1a1a;
     box-shadow: 0 0 0 1px #2a2a2a, 0 2px 8px rgba(0,0,0,0.4);
   }
+  @media (max-width: 1100px) {
+    .etl-network .etl-net-card--agents { grid-template-columns: 1fr; }
+    .etl-network .etl-net-card--agents .etl-net-video { min-height: 300px; }
+    .etl-network .etl-net-roster { grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(4, 1fr); }
+  }
   @media (max-width: 640px) {
-    .etl-network .etl-net-roster { grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(4, 1fr); gap: 4px; padding: 8px; }
+    .etl-network .etl-net-roster { grid-template-columns: repeat(6, 1fr); grid-template-rows: repeat(5, 1fr); gap: 4px; padding: 8px; }
   }
   .etl-network .etl-net-footer { margin-top: auto; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
   .etl-network .etl-net-footer .etl-net-launch { margin-top: 0; }
@@ -1136,33 +1149,49 @@
       <div class="etl-net-card etl-net-card--agents">
         <div class="etl-net-video">
           <div class="etl-net-roster">
-            <!-- The Dose -->
+            <!-- The Dose (10) -->
             <img src="agents/margaret_call_listening.png" alt="Margaret">
             <img src="agents/nutritionist_eyes_open.png" alt="Nadia">
             <img src="agents/Henry_eyes_open.png" alt="Dr. Henry">
+            <img src="agents/gardner_eyes_open.png" alt="Maeve">
+            <img src="agents/mixologist_eyes_open.png" alt="Wyatt">
             <img src="agents/herbalist_eyes_open.png" alt="Amara">
             <img src="agents/dr_eyes_open.png" alt="Dr. Claire">
+            <img src="agents/forager_eyes_open.png" alt="Silas">
             <img src="agents/Arun_eyes_open.png" alt="Arun">
-            <!-- Greylander Press -->
+            <img src="agents/Reece_eyes_open.png" alt="Reece">
+            <!-- Greylander Press (7) -->
             <img src="agents/EIC_Eyes_Open.png" alt="Dr. O.">
             <img src="agents/Mun_Eyes_open.png" alt="Mun">
             <img src="agents/Grey_Open.png" alt="Grey">
+            <img src="agents/Professor_eyes_open.png" alt="The Professor">
             <img src="agents/Bea_Open.png" alt="Bea">
             <img src="agents/Margo.png" alt="Margo">
             <img src="agents/Chris_DIGArtist_Eyes3_Open.png" alt="Chris">
-            <!-- The Gauntlet -->
+            <!-- The Gauntlet (12) -->
             <img src="agents/Selene_eyes_open.jpg" alt="Selene">
             <img src="agents/Marcus_eyes_open.jpg" alt="Marcus">
             <img src="agents/Priya_eyes_open.jpg" alt="Dr. Priya">
+            <img src="agents/Raymond_eyes_open.jpg" alt="Raymond">
             <img src="agents/Astrid_eyes_open.jpg" alt="Astrid">
+            <img src="agents/Osei_eyes_open.jpg" alt="Dr. Osei">
             <img src="agents/Grace_eyes_open.jpg" alt="Admiral Nakamura">
             <img src="agents/Cassidy_eyes_open.jpg" alt="Dr. Cassidy">
-            <!-- The Panel Room -->
+            <img src="agents/Wren_eyes_open.jpg" alt="Wren">
+            <img src="agents/Arjun_eyes_open.jpg" alt="Arjun">
+            <img src="agents/Zara_eyes_open.jpg" alt="Zara">
+            <img src="agents/Grant_eyes_open.jpg" alt="Grant">
+            <!-- The Panel Room (11) -->
             <img src="prep-room-assets/vv_card.jpg" alt="Victoria Vance">
+            <img src="prep-room-assets/lc_card.jpg" alt="Lawrence Cole">
+            <img src="prep-room-assets/mp_card.jpg" alt="Maya Patel">
             <img src="prep-room-assets/cs_card.jpg" alt="Charles Sterling">
             <img src="prep-room-assets/tk_card.jpg" alt="Tariq Khan">
             <img src="prep-room-assets/rc_card.jpg" alt="Robert Chen">
+            <img src="prep-room-assets/ds_card.jpg" alt="Dev Srinivasan">
             <img src="prep-room-assets/dj_card.jpg" alt="Deidre Jenkins">
+            <img src="prep-room-assets/kk_card.jpg" alt="Karen Kowalski">
+            <img src="prep-room-assets/hvg_card.jpg" alt="Harrison Vance-Giles III">
             <img src="prep-room-assets/cm_card.jpg" alt="Charles Monroe">
           </div>
         </div>
