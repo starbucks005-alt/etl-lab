@@ -1085,7 +1085,17 @@
   $('mode-interview').addEventListener('click', function(){ setMode('interview'); });
   $('mode-resume').addEventListener('click', function(){ setMode('resume'); });
 
-  setMode('defense');
+  // Honor an initial mode hash (#defense / #interview / #resume) so the ETL Network cards
+  // can deep-link to a specific mode.
+  function modeFromHash(){
+    var h = (window.location.hash || '').replace('#','').toLowerCase();
+    return (h === 'interview' || h === 'resume' || h === 'defense') ? h : null;
+  }
+  var initialMode = modeFromHash() || 'defense';
+  setMode(initialMode);
+  window.addEventListener('hashchange', function(){
+    var m = modeFromHash(); if(m && m !== MODE) setMode(m);
+  });
 </script>
 </body>
 </html>
