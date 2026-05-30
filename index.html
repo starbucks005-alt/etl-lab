@@ -1022,31 +1022,33 @@
     .etl-network .etl-net-card--wide { grid-template-columns: 1fr; }
   }
   .etl-network .etl-net-card--agents .etl-net-video {
-    padding-top: 50%; /* 10 cols x 5 rows of square cells */
-    height: 0; min-height: 0;
+    padding-top: 0; height: auto;
+    min-height: 520px; /* fits all 50 faces with cushion */
   }
   .etl-network .etl-net-roster {
     position: absolute; inset: 0;
-    display: grid;
-    grid-template-columns: repeat(10, 1fr);
-    grid-template-rows: repeat(5, 1fr);
-    gap: 7px; padding: 12px;
+    display: flex; flex-wrap: wrap;
+    gap: 8px; padding: 16px;
+    align-content: center; justify-content: center;
     background: radial-gradient(circle at 50% 40%, #1c1c1c 0%, #0c0c0c 100%);
   }
   .etl-network .etl-net-roster img {
-    width: 100%; height: 100%;
+    width: 84px; height: 84px;
     border-radius: 50%;
     object-fit: cover; object-position: top;
     border: 2px solid #1a1a1a;
     box-shadow: 0 0 0 1px #2a2a2a, 0 2px 8px rgba(0,0,0,0.4);
+    flex-shrink: 0;
   }
   @media (max-width: 1100px) {
     .etl-network .etl-net-card--agents { grid-template-columns: 1fr; }
-    .etl-network .etl-net-card--agents .etl-net-video { padding-top: 70%; }
-    .etl-network .etl-net-roster { grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(7, 1fr); }
+    .etl-network .etl-net-card--agents .etl-net-video { min-height: 460px; }
+    .etl-network .etl-net-roster img { width: 72px; height: 72px; }
   }
   @media (max-width: 640px) {
-    .etl-network .etl-net-roster { grid-template-columns: repeat(6, 1fr); grid-template-rows: repeat(9, 1fr); gap: 4px; padding: 8px; }
+    .etl-network .etl-net-card--agents .etl-net-video { min-height: 420px; }
+    .etl-network .etl-net-roster { gap: 6px; padding: 10px; }
+    .etl-network .etl-net-roster img { width: 56px; height: 56px; border-width: 1.5px; }
   }
   .etl-network .etl-net-footer { margin-top: auto; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
   .etl-network .etl-net-footer .etl-net-launch { margin-top: 0; }
