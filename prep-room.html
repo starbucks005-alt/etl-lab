@@ -598,21 +598,26 @@
   // ---- Step 2: panel + difficulty ----
   function buildPanelStep(){
     var grid = $('prof-grid'); grid.innerHTML='';
+    // Always show the name + role under the card image, since most card images
+    // do not have nameplates baked in (only the defense profs do, and the
+    // duplicate label below their card is harmless).
+    function profCardHtml(p){
+      var img = p.card ? ('<img class="prof-card" src="'+p.card+'" alt="'+p.name+'">') : '';
+      return img + '<div class="pname">'+p.name+'</div><div class="prole">'+p.role+'</div>';
+    }
     if(MODE === 'resume'){
       // Single coach, always selected, no click toggling.
       var p = RESUME_COACH;
       var el = document.createElement('div');
       el.className='prof sel'; el.dataset.id=p.id; el.style.cursor='default';
-      var head = p.card ? ('<img class="prof-card" src="'+p.card+'" alt="'+p.name+'">') : ('<div class="pname">'+p.name+'</div><div class="prole">'+p.role+'</div>');
-      el.innerHTML = '<div class="check">&#10003;</div>'+head+'<div class="pdesc">'+p.desc+'</div>';
+      el.innerHTML = '<div class="check">&#10003;</div>'+profCardHtml(p)+'<div class="pdesc">'+p.desc+'</div>';
       grid.appendChild(el);
     } else {
       roster().forEach(function(p){
         var el = document.createElement('div');
         el.className='prof'; el.dataset.id=p.id;
         if(state.panel.indexOf(p.id)>=0) el.classList.add('sel');
-        var head = p.card ? ('<img class="prof-card" src="'+p.card+'" alt="'+p.name+'">') : ('<div class="pname">'+p.name+'</div><div class="prole">'+p.role+'</div>');
-        el.innerHTML = '<div class="check">&#10003;</div>'+head+'<div class="pdesc">'+p.desc+'</div>';
+        el.innerHTML = '<div class="check">&#10003;</div>'+profCardHtml(p)+'<div class="pdesc">'+p.desc+'</div>';
         el.addEventListener('click', function(){ toggleProf(p.id, el); });
         grid.appendChild(el);
       });
