@@ -916,9 +916,11 @@
 
 <!-- THE ETL NETWORK -->
 <style>
+  /* Network section uses more screen width so the walkthrough videos do not feel small on desktop. */
+  .etl-network .section-full-inner { max-width: 1600px; padding: 0 32px; }
   .etl-network .etl-net-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
     gap: 1px;
     margin-top: 28px;
     background: var(--black);
