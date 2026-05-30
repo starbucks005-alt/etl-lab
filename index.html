@@ -1002,6 +1002,15 @@
     border: 2px solid var(--black);
   }
   .etl-network .etl-net-launch:hover { background: var(--gold); color: var(--black); border-color: var(--gold); }
+  .etl-network .etl-net-row-pair {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+  }
+  @media (max-width: 900px) {
+    .etl-network .etl-net-row-pair { grid-template-columns: 1fr; }
+  }
   .etl-network .etl-net-card--agents {
     grid-column: 1 / -1;
     display: grid;
@@ -1093,6 +1102,9 @@
         </div>
       </div>
 
+      <!-- Greylander + Intel pair -->
+      <div class="etl-net-row-pair">
+
       <!-- Greylander Press -->
       <div class="etl-net-card">
         <div class="etl-net-video" style="padding-top:75%;"><iframe src="https://player.vimeo.com/video/1196488438?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" title="Greylander Press"></iframe></div>
@@ -1116,6 +1128,12 @@
           <a class="etl-net-launch" href="https://inteldashboard.netlify.app/" target="_blank" rel="noopener">Open the Dashboard &rarr;</a>
         </div>
       </div>
+
+      </div>
+      <!-- /Greylander + Intel pair -->
+
+      <!-- Panel Room pair -->
+      <div class="etl-net-row-pair">
 
       <!-- The Panel Room — Thesis / Dissertation Defenses -->
       <div class="etl-net-card">
@@ -1144,6 +1162,9 @@
           <a class="etl-net-launch" href="/prep-room#interview" target="_blank" rel="noopener">Enter the Panel Room &rarr;</a>
         </div>
       </div>
+
+      </div>
+      <!-- /Panel Room pair -->
 
       <!-- Agents Roster -->
       <div class="etl-net-card etl-net-card--agents">
