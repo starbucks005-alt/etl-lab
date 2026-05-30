@@ -750,6 +750,8 @@
     /* Prevent any single element wider than screen */
     * { max-width: 100%; box-sizing: border-box; }
     img, video, iframe { max-width: 100% !important; height: auto !important; }
+    /* But the nav logo carries an inline height that must win on mobile, or the favicon blows up to fill the viewport */
+    .nav-logo img { height: 40px !important; width: auto !important; }
 
     /* Video embed height */
     [style*="aspect-ratio"] { width: 100% !important; }
