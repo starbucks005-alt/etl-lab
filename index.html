@@ -816,14 +816,26 @@
 </head>
 <body>
 
-<!-- Move Publications section to right after the AI Governance talk (#intel) -->
+<!-- Reorder top of page on load:
+     1. Meet the Lab PI (#ai-twin)
+     2. Live Platforms / AI Agents (#network)
+     3. AI Governance talk (#intel)
+     4. Forbes Publications (#publications)
+     Hero + ticker stay on top; this just chains the four key sections after them. -->
 <script>
 document.addEventListener('DOMContentLoaded', function(){
+  var ticker = document.querySelector('.ticker-wrap');
+  var aitwin = document.getElementById('ai-twin');
+  var network = document.getElementById('network');
+  var intel = document.getElementById('intel');
   var pub = document.getElementById('publications');
-  var anchor = document.getElementById('intel');
-  if (pub && anchor && anchor.parentNode) {
-    anchor.parentNode.insertBefore(pub, anchor.nextSibling);
-  }
+  var anchor = ticker;
+  [aitwin, network, intel, pub].forEach(function(node){
+    if (anchor && node) {
+      anchor.insertAdjacentElement('afterend', node);
+      anchor = node;
+    }
+  });
 });
 </script>
 
