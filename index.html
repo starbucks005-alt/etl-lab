@@ -816,13 +816,13 @@
 </head>
 <body>
 
-<!-- Move Publications section above ETL Network on load (Forbes is paying the bills) -->
+<!-- Move Publications section to right below ETL Network / AI Agents (Forbes is paying the bills) -->
 <script>
 document.addEventListener('DOMContentLoaded', function(){
   var pub = document.getElementById('publications');
   var net = document.getElementById('network');
   if (pub && net && net.parentNode) {
-    net.parentNode.insertBefore(pub, net);
+    net.parentNode.insertBefore(pub, net.nextSibling);
   }
 });
 </script>
