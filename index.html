@@ -67,6 +67,8 @@
   }
 
   .nav-logo { display: flex; align-items: center; gap: 14px; }
+  /* Hard clamp on the nav logo so no global rule (e.g. mobile img{height:auto}) can ever blow it up. */
+  .nav-logo img { height: 44px !important; width: auto !important; max-height: 44px !important; max-width: 60px !important; }
 
   .nav-badge {
     width: 36px; height: 36px;
