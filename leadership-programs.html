@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leadership Programs — Emerging Technologies Laboratory</title>
+<meta name="description" content="Four leadership and communication programs by Dr. Terry Oroszi: Nonverbal Intelligence, 4/5/6 Power Platform Assessment, Egos at the Table, and the six-module ETL Leadership Certificate.">
+<link rel="icon" href="img/etl-favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #111111;
+    --navy: #0e2438;
+    --gold: #b8922a;
+    --gold-bright: #d4a832;
+    --green: #285C4D;
+    --paper: #f5f1e8;
+    --text: #2a2a2a;
+    --muted: #6a6e74;
+    --border: #d8d4c8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Cormorant Garamond', serif; background: #fafaf7; color: var(--text); line-height: 1.6; }
+
+  /* Header */
+  header { background: var(--black); color: #fff; padding: 14px 0; border-bottom: 2px solid var(--gold); }
+  header .wrap { max-width: 1200px; margin: 0 auto; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+  .brand { font-family: 'Oswald', sans-serif; font-size: 18px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: #fff; }
+  .brand span { color: var(--gold); }
+  .home-link { font-family: 'Oswald', sans-serif; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #fff; text-decoration: none; opacity: .8; }
+  .home-link:hover { opacity: 1; color: var(--gold); }
+
+  /* Hero */
+  .hero { max-width: 1100px; margin: 0 auto; padding: 56px 32px 28px; text-align: center; }
+  .kicker { font-family: 'Share Tech Mono', monospace; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; }
+  .audience-badge { display: inline-block; font-family: 'Share Tech Mono', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; padding: 3px 10px; border: 1px solid var(--gold); color: var(--gold); margin-left: 8px; vertical-align: middle; }
+  h1 { font-family: 'Oswald', sans-serif; font-size: 42px; font-weight: 700; line-height: 1.1; color: var(--black); margin-bottom: 14px; letter-spacing: -0.5px; }
+  h1 em { font-style: italic; color: var(--gold); font-weight: 500; }
+  .hero p { font-size: 17px; color: var(--muted); max-width: 720px; margin: 0 auto; }
+
+  /* Cards grid */
+  .programs { max-width: 1100px; margin: 0 auto; padding: 32px 32px 80px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
+  .card { background: #fff; border: 1px solid var(--border); border-radius: 4px; padding: 28px 30px; display: flex; flex-direction: column; transition: border-color .15s, box-shadow .15s; }
+  .card:hover { border-color: var(--gold); box-shadow: 0 4px 14px rgba(0,0,0,0.06); }
+  .card-num { font-family: 'Share Tech Mono', monospace; font-size: 10px; letter-spacing: 2px; color: var(--gold); margin-bottom: 10px; }
+  .card-title { font-family: 'Oswald', sans-serif; font-size: 22px; font-weight: 700; text-transform: uppercase; line-height: 1.2; color: var(--black); margin-bottom: 8px; }
+  .card-tagline { font-size: 14px; color: var(--gold); font-style: italic; margin-bottom: 14px; }
+  .card-body { font-size: 15px; color: var(--text); margin-bottom: 18px; flex: 1; }
+  .card-meta { font-family: 'Share Tech Mono', monospace; font-size: 10px; letter-spacing: 1.5px; color: var(--muted); text-transform: uppercase; margin-bottom: 14px; }
+  .card-cta { display: inline-block; align-self: flex-start; font-family: 'Oswald', sans-serif; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; padding: 10px 18px; background: var(--black); color: #fff; text-decoration: none; border: 2px solid var(--black); border-radius: 2px; }
+  .card-cta:hover { background: var(--gold); color: var(--black); border-color: var(--gold); }
+
+  /* Back-to-Panel link */
+  .return { text-align: center; margin-top: 36px; padding-top: 28px; border-top: 1px solid var(--border); }
+  .return a { font-family: 'Oswald', sans-serif; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--navy); text-decoration: none; }
+  .return a:hover { color: var(--gold); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="brand">Leadership <span>Programs</span></div>
+    <a class="home-link" href="/">&larr; ETL Home</a>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="kicker">Emerging Technologies Laboratory<span class="audience-badge" id="aud-badge">For Students</span></div>
+  <h1>Four programs in <em>leadership and communication.</em></h1>
+  <p id="hero-sub">Developed by Dr. Terry Oroszi from two decades of graduate curriculum, national-security training, and human-behavior research. Each is a credential earned, not given.</p>
+</div>
+
+<div class="programs">
+  <div class="grid">
+
+    <!-- 1. Nonverbal Intelligence -->
+    <div class="card">
+      <div class="card-num">PROGRAM 01</div>
+      <div class="card-title">Nonverbal Intelligence &amp; Behavioral Analysis</div>
+      <div class="card-tagline">Body language as evidence, not opinion.</div>
+      <p class="card-body">Technology-augmented behavioral threat assessment. Bridges psychology, AI pattern recognition, and law-enforcement tradecraft for real-world threat identification and de-escalation. Used by FBI WMD and InfraGard practitioners.</p>
+      <div class="card-meta">Certification &middot; Self-paced</div>
+      <a class="card-cta" href="/body-language-cert.html">Body Language Certification &rarr;</a>
+    </div>
+
+    <!-- 2. 4/5/6 Power Platform -->
+    <div class="card">
+      <div class="card-num">PROGRAM 02</div>
+      <div class="card-title">4 / 5 / 6 Power Platform Leadership Assessment</div>
+      <div class="card-tagline">Pick your cards. The pattern reveals everything.</div>
+      <p class="card-body">A card-based leadership diagnostic developed by Dr. Oroszi. Select your cards and the pattern shows where you lead from, where your power actually comes from, and which styles you reach for under pressure. Used in hiring, onboarding, team development, and coaching.</p>
+      <div class="card-meta">Assessment &middot; ~15 minutes</div>
+      <a class="card-cta" href="/power-platform.html">Take the Assessment &rarr;</a>
+    </div>
+
+    <!-- 3. Egos at the Table -->
+    <div class="card">
+      <div class="card-num">PROGRAM 03</div>
+      <div class="card-title">Egos at the Table</div>
+      <div class="card-tagline">Read the room. Manage the ego. Save the meeting.</div>
+      <p class="card-body">A behavioral observation and facilitation game that teaches you to identify the twelve meeting-personality types that quietly sabotage productivity. Live Meeting Bingo card, character profiles, a simulation game with secret role assignment, and a body-language reading guide grounded in Dr. Oroszi's research.</p>
+      <div class="card-meta">Game + Facilitator Certification</div>
+      <a class="card-cta" href="/egos-at-the-table.html">Play the Game &rarr;</a>
+    </div>
+
+    <!-- 4. ETL Leadership Certificate -->
+    <div class="card">
+      <div class="card-num">PROGRAM 04</div>
+      <div class="card-title">ETL Leadership Certificate</div>
+      <div class="card-tagline">A credential earned, not given.</div>
+      <p class="card-body">Complete all six modules to demonstrate mastery of the communication and behavioral skills that define effective leadership. Modules: Elevator Speech, Egos at the Table, Body Language, 4/5/6 Power Platform, Academic Poster, Job Fair Mastery. Developed by Dr. Oroszi from two decades of graduate curriculum, national security training, and human behavior research.</p>
+      <div class="card-meta">6 modules &middot; Earn the certificate</div>
+      <a class="card-cta" href="/leadership-cert.html">Begin the Certificate &rarr;</a>
+    </div>
+
+  </div>
+
+  <div class="return">
+    <a href="/prep-room" id="back-to-panel">&larr; Back to the Panel Room</a>
+  </div>
+</div>
+
+<script>
+  // Read the audience from ?audience=students|pros and surface it in the
+  // hero badge + the back-to-Panel-Room link so the visitor stays in the
+  // right product context as they bounce between Panel Room and these
+  // programs. No content varies per audience here yet (the programs are
+  // useful to both populations), but the back-link round-trips them home.
+  (function(){
+    var qs = new URLSearchParams(window.location.search);
+    var aud = (qs.get('audience') || '').toLowerCase();
+    if (aud !== 'students' && aud !== 'pros') aud = 'students';
+    var badge = document.getElementById('aud-badge');
+    if (badge) badge.textContent = (aud === 'pros') ? 'For Professionals' : 'For Students';
+    var back = document.getElementById('back-to-panel');
+    if (back) back.href = '/prep-room#' + aud;
+  })();
+</script>
+
+</body>
+</html>

@@ -40,6 +40,16 @@
   .mode{font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;padding:11px 22px;border:2px solid var(--navy);background:var(--navy);color:#fff;border-radius:2px;cursor:pointer;}
   .mode.inactive{background:transparent;color:var(--navy);opacity:.65;}
   .mode.inactive:hover{opacity:1;}
+  .more-tools{margin:18px auto 8px;max-width:980px;}
+  .more-tools-label{font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#888;text-align:center;margin-bottom:10px;}
+  .link-tiles{display:grid;grid-template-columns:repeat(3, 1fr);gap:10px;}
+  @media (max-width:760px){.link-tiles{grid-template-columns:1fr;}}
+  .link-tile{display:flex;flex-direction:column;justify-content:space-between;padding:16px 18px;border:1px solid #d0d4d9;background:#fafbfc;color:var(--navy);text-decoration:none;border-radius:2px;transition:border-color .12s, background .12s;min-height:88px;position:relative;}
+  .link-tile:hover{border-color:var(--navy);background:#fff;}
+  .link-tile-name{font-family:'Oswald',sans-serif;font-size:14px;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;}
+  .link-tile-sub{font-size:11px;color:#777;margin-top:4px;font-style:italic;}
+  .link-tile-arrow{position:absolute;top:14px;right:16px;font-size:18px;color:#aaa;}
+  .link-tile:hover .link-tile-arrow{color:var(--navy);}
 
   .step{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:30px;margin:22px 0;box-shadow:0 1px 3px rgba(0,0,0,.03);}
   .step.locked{opacity:.45;pointer-events:none;}
@@ -177,6 +187,30 @@
     <button class="mode" id="mode-defense">Thesis / Dissertation Defense</button>
     <button class="mode" id="mode-interview">Job Interview</button>
     <button class="mode" id="mode-resume">Résumé Coach</button>
+  </div>
+
+  <!-- Link-out tiles. These tools live elsewhere on ETL but belong to the
+       Panel Room product surface. URLs are rewritten when audience changes
+       so each tool gets pre-filtered context (?audience=students|pros). -->
+  <div class="more-tools">
+    <div class="more-tools-label">More from the Panel Room</div>
+    <div class="link-tiles">
+      <a class="link-tile" id="tile-job-fair"   href="/leadership-cert.html?audience=students">
+        <span class="link-tile-name">Job Fair Mastery</span>
+        <span class="link-tile-sub">Curriculum &middot; Module 6 of ETL Leadership Cert</span>
+        <span class="link-tile-arrow">&rarr;</span>
+      </a>
+      <a class="link-tile" id="tile-job-search" href="/job-fair.html?audience=students">
+        <span class="link-tile-name">Job Search</span>
+        <span class="link-tile-sub">Live scanner &middot; CV-to-postings matcher</span>
+        <span class="link-tile-arrow">&rarr;</span>
+      </a>
+      <a class="link-tile" id="tile-leadership" href="/leadership-programs.html?audience=students">
+        <span class="link-tile-name">Leadership Certificates</span>
+        <span class="link-tile-sub">Four programs by Dr. Oroszi</span>
+        <span class="link-tile-arrow">&rarr;</span>
+      </a>
+    </div>
   </div>
 
   <!-- STEP 1: Panel + difficulty -->
@@ -1155,6 +1189,11 @@
     var sTab = $('aud-students'), pTab = $('aud-pros');
     if (sTab) sTab.classList.toggle('active', AUDIENCE === 'students');
     if (pTab) pTab.classList.toggle('active', AUDIENCE === 'pros');
+    // Link-out tiles pre-filter their target by audience.
+    var jfTile = $('tile-job-fair'),   jsTile = $('tile-job-search'),   ldTile = $('tile-leadership');
+    if (jfTile) jfTile.href = '/leadership-cert.html?audience=' + AUDIENCE;
+    if (jsTile) jsTile.href = '/job-fair.html?audience=' + AUDIENCE;
+    if (ldTile) ldTile.href = '/leadership-programs.html?audience=' + AUDIENCE;
   }
 
   function setAudience(a, keepMode){

@@ -708,6 +708,10 @@
       <select id="s-positionType" class="scanner-input scanner-select">
         <option value="internship or co-op">Internship / Co-op</option>
         <option value="full-time entry-level">Full-time (entry level)</option>
+        <option value="full-time mid-career">Full-time (mid-career)</option>
+        <option value="full-time senior or director">Full-time (senior / director)</option>
+        <option value="executive or C-suite">Executive / C-suite</option>
+        <option value="contract or consulting">Contract / Consulting</option>
         <option value="fellowship">Fellowship</option>
         <option value="research position">Research position</option>
         <option value="part-time">Part-time</option>
@@ -1221,6 +1225,28 @@ function sIsScamLike(j) {
 }
 
 function sEsc(s) { if (!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// Audience pre-fill. Panel Room link-out tiles pass ?audience=students or
+// ?audience=pros so the scanner opens with sensible defaults for who's
+// actually using it. Students default to internship/CPT-OPT; professionals
+// default to mid-career full-time, domestic visa. Does not lock anything;
+// the visitor can still change every field.
+(function applyAudienceDefaults(){
+  try {
+    var qs = new URLSearchParams(window.location.search);
+    var aud = (qs.get('audience') || '').toLowerCase();
+    if (aud !== 'students' && aud !== 'pros') return;
+    var posSel  = document.getElementById('s-positionType');
+    var visaSel = document.getElementById('s-visaType');
+    if (aud === 'pros') {
+      if (posSel)  posSel.value  = 'full-time mid-career';
+      if (visaSel) visaSel.value = 'none';
+    } else {
+      if (posSel)  posSel.value  = 'internship or co-op';
+      // visa default stays as page default (none / CPT/OPT pickable)
+    }
+  } catch (_) { /* malformed query string is harmless */ }
+})();
 </script>
 </body>
 </html>
