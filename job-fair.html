@@ -1058,7 +1058,7 @@ async function sRunScan() {
       // Cap the web search at 2 calls so the model commits faster instead of
       // running 5 searches and timing out the function.
       tools:[{type:'web_search_20250305', name:'web_search', max_uses: 2}],
-      system:'You are a fast job-search agent. Run at most 2 web searches, then commit. ' + sourceList + ' ' + visaInstr + roleNote + ' Return EXACTLY 3 results as a raw JSON array. No prose, no markdown. Each object: {"company":string,"role":string,"location":string,"visaStatus":string,"matchScore":60-99,"matchReason":string,"deadline":string,"description":string,"url":string}. Be decisive. Do not run extra searches.',
+      system:'You are a fast job-search agent. Run at most 2 web searches, then commit. ' + sourceList + ' ' + visaInstr + roleNote + ' EXCLUDE postings matching scam patterns: MLM/pyramid (be your own boss, unlimited income, lifestyle/wellness/insurance with quotas); recruiters who only contact via WhatsApp/Telegram/Signal/DM with no real company; pay-to-apply (application fees, mandatory paid certification, equipment fees); vague employer (Confidential Hiring, Private Employer, no company name); crypto/NFT/Web3 from unknown entities; postings dated more than 60 days ago when a date is available. Return EXACTLY 3 results as a raw JSON array. No prose, no markdown. Each object: {"company":string,"role":string,"location":string,"visaStatus":string,"matchScore":60-99,"matchReason":string,"deadline":string,"description":string,"url":string}. Be decisive. Do not run extra searches.',
       messages:[{role:'user', content:'Find ' + positionType + ' for: ' + profile.field + '. Target roles: ' + (profile.targetRoles||[]).slice(0,3).join(', ') + '. Skills: ' + (profile.skills||[]).slice(0,5).join(', ') + (keywords ? '. Also: ' + keywords : '') + '. Location: ' + (location||'anywhere') + ' ' + distText + '. Return 3 results, JSON only.'}]
     }, {
       retries: 1,
@@ -1083,8 +1083,15 @@ async function sRunScan() {
     }
 
     if (!jobs || !Array.isArray(jobs) || jobs.length === 0) throw new Error('No results returned. Try a broader search or different location.');
+    // Second-pass scam filter (Claude is told to skip these upstream; this
+    // catches anything that slips through). Count removed so the renderer
+    // can surface "N results removed due to suspicion of scam."
+    var rawCount = jobs.length;
+    var cleanJobs = jobs.filter(function(j){ return !sIsScamLike(j); });
+    var removedCount = rawCount - cleanJobs.length;
+    if (cleanJobs.length === 0) throw new Error('Results were filtered as suspected scams. Try a different keyword or location.');
     statusEl.innerHTML = '';
-    sRenderResults(profile, jobs, bar, visaType, isIntl, positionType);
+    sRenderResults(profile, cleanJobs, bar, visaType, isIntl, positionType, removedCount);
 
   } catch(err) {
     statusEl.innerHTML = '';
@@ -1094,7 +1101,7 @@ async function sRunScan() {
   }
 }
 
-function sRenderResults(profile, jobs, bar, visaType, isIntl, positionType) {
+function sRenderResults(profile, jobs, bar, visaType, isIntl, positionType, removedCount) {
   var outEl = document.getElementById('s-output');
   var sorted = jobs.slice().sort(function(a,b){return(b.matchScore||0)-(a.matchScore||0);});
   var skillTags = (profile.skills||[]).map(function(s){return '<span class="s-skill-tag">'+sEsc(s)+'</span>';}).join('');
@@ -1129,6 +1136,7 @@ function sRenderResults(profile, jobs, bar, visaType, isIntl, positionType) {
       + '<div class="s-skill-tags">'+skillTags+'</div>'
     + '</div>'
     + '<div class="s-results-head">'+sorted.length+' results found</div>'
+    + (removedCount > 0 ? '<p class="s-removed-note" style="color:#888;font-size:13px;font-style:italic;margin:6px 0 14px;">'+removedCount+' result'+(removedCount===1?'':'s')+' removed due to suspicion of scam.</p>' : '')
     + '<div class="s-cards">'+cards+'</div>'
     + '<p class="s-disclaimer">Source: live web search (Indeed, LinkedIn, Handshake, USAJobs, company career pages). Match scores are AI estimates based on skill overlap, not employer assessments. '+(isIntl?sEsc(visaType)+' eligibility is inferred from postings. Confirm with HR before applying. ':'')+'Verify all details with employers before applying.</p>';
 }
@@ -1190,6 +1198,26 @@ function sComputeATS(profile, job) {
   else { label = 'Poor'; color = '#c47a7a'; }
 
   return { score: score, label: label, color: color, missingKeywords: topMissing };
+}
+
+// Belt-and-suspenders scam filter. The Claude prompt already tells the
+// model to exclude these, but pattern-match the returned jobs anyway so
+// nothing slips through. Returns true if the posting looks like an MLM,
+// scam recruiter, pay-to-apply, vague-employer, or shady crypto pitch.
+function sIsScamLike(j) {
+  var text = ((j.company||'') + ' ' + (j.role||'') + ' ' + (j.description||'') + ' ' + (j.matchReason||'')).toLowerCase();
+  // MLM / pyramid / lifestyle-income tells.
+  if (/\b(be your own boss|unlimited income|financial freedom|residual income|passive income|change your life|join my team|set your own hours and earn)\b/.test(text)) return true;
+  // Recruiter wants to talk on a messaging app instead of a real ATS.
+  if (/\b(whatsapp|telegram|signal|wechat|dm me|message me on|contact me on)\b/.test(text)) return true;
+  // Pay-to-apply / mandatory-paid-onboarding patterns.
+  if (/\b(application fee|training fee|certification fee|registration fee|pay to apply|investment required|equipment fee|upfront cost|starter kit)\b/.test(text)) return true;
+  // Vague or missing employer name.
+  var company = (j.company||'').trim().toLowerCase();
+  if (!company || /^(confidential|undisclosed|private employer|company name withheld|n\/a|not specified)/.test(company)) return true;
+  // Crypto / NFT / Web3 paired with low-bar "anyone can do it" language.
+  if (/\b(crypto|nft|web3|defi|metaverse)\b/.test(text) && /\b(no experience|easy money|earn from home|passive|anyone can)\b/.test(text)) return true;
+  return false;
 }
 
 function sEsc(s) { if (!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
