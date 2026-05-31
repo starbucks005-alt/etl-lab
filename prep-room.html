@@ -511,6 +511,73 @@
            'register. Honest about gaps without being crushing. ';
   }
 
+  // Mode-specific audience rules. These run on top of audiencePrefix() and
+  // shape what the persona actually does inside that mode: question depth,
+  // length expectations, sector standards, coaching beats. The prefix sets
+  // the register; these rules set the content. Both layers needed.
+  function resumeAudienceRules(){
+    if (AUDIENCE === 'pros') {
+      return 'PROFESSIONAL CV RULES: this is a mid-career or senior candidate. ' +
+             'Length expectations vary by sector: corporate (2-3 pages), academic ' +
+             '(10-25 pages is normal for full CVs), nonprofit (2-4 pages), government ' +
+             '(5+ pages for federal-style). Do NOT default to "2 pages max." When ' +
+             'they push back about length or content, re-read what is actually in the ' +
+             'document; do not invent. Skip teaching the basics - they know what a ' +
+             'Professional Summary is. Focus on the gap they cannot see in themselves: ' +
+             'undersold leadership scope, missing P&L numbers, board service buried in ' +
+             'bullet form, institutional transformations reduced to a verb. Hold them to ' +
+             'the right sector standard, not corporate-by-default. Classic professional ' +
+             'questions to answer well: handling employment gaps, sector switches, ' +
+             'reduction in title, the long-tenured single-employer CV, when to drop ' +
+             'early-career roles, what to do when AI summarizes you wrong on LinkedIn.';
+    }
+    return 'STUDENT CV RULES: this is a student or early-career learner. ' +
+           'Length expectations: 1-2 pages for most early-career formats; graduate ' +
+           'students may stretch to 3 with publications. Teach the principles AS you ' +
+           'review - argument over catalog, Two-CV Tactic, three-sentence Professional ' +
+           'Summary (who you are / what you have done / what you are looking for), ' +
+           'competencies must be earned by evidence. Be honest about gaps without ' +
+           'crushing them. Beginner questions are teaching moments: "How do I improve ' +
+           'mine if I am just starting?", "Should I include high school?", "Is GPA ' +
+           'required?", "What goes in if I have no internships yet?"';
+  }
+
+  function interviewAudienceRules(){
+    if (AUDIENCE === 'pros') {
+      return 'PROFESSIONAL INTERVIEW RULES: this is a candidate for a mid-career, ' +
+             'senior, director, or executive role - NOT entry-level. Calibrate every ' +
+             'question to the role level identified in the brief. Ask about strategic ' +
+             'judgment, change leadership, P&L stewardship, governance, organizational ' +
+             'scale, board engagement, ethics, what they would do in the first 90 days. ' +
+             'Skip basics like "tell me about a project you led" unless the answer is ' +
+             'suspiciously thin. Push on outcomes, trade-offs, and what they would do ' +
+             'differently. Peer-to-peer register: respect their experience while testing ' +
+             'the depth of it. No teaching of interview basics. Do not say "good ' +
+             'question" or affirm before challenging. Be the interviewer they wish ' +
+             'they had a year ago.';
+    }
+    return 'STUDENT / EARLY-CAREER INTERVIEW RULES: this is an entry-level or ' +
+           'early-career candidate. Calibrate to evaluating potential and fit, not a ' +
+           '20-year track record. Ask about projects, internships, coursework, ' +
+           'transferable skills, learning agility, why this role. When a question ' +
+           'lands hard, you may briefly frame WHY the question matters or what a ' +
+           'strong answer would look like - they are learning the interview as much ' +
+           'as the role. Scaffolded register: real interview, with the teaching ' +
+           'moment available when needed.';
+  }
+
+  function defenseAudienceRules(){
+    // Defense is student-only (pros deep-linking #pros/defense are coerced to
+    // interview in parseHash). Keeping this here so the helper exists if we
+    // ever add a Professional Research Defense variant.
+    return 'DEFENSE RULES: this is a graduate student defending their thesis or ' +
+           'dissertation. Push hard on methods, evidence, scope, contribution, and ' +
+           'gaps - this is what a real committee does. When a question lands hard, ' +
+           'you may briefly frame what a strong defense response would look like ' +
+           '(a scaffolded teaching moment, not a giveaway). Formative tone, not ' +
+           'crushing. Honest about weak points without dismissing the work.';
+  }
+
   // ---- State ----
   var state = { fileName:'', docText:'', jdText:'', clText:'', brief:'', panel:[], difficulty:3, transcript:[], turn:0, order:[], orderIdx:0, apUsed:0, apPending:false, currentIsAP:false };
 
@@ -815,7 +882,7 @@
     var diff = DIFFICULTY[state.difficulty-1];
     var sys, userContent;
     if(MODE === 'resume'){
-      sys = audiencePrefix() + '\n\n' + prof.prompt + '\n\n' + diff.prompt +
+      sys = audiencePrefix() + '\n\n' + resumeAudienceRules() + '\n\n' + prof.prompt + '\n\n' + diff.prompt +
         '\n\nHere is the structured review you already delivered (use it as your reference, do not repeat it verbatim):\n\n' + state.brief +
         '\n\nRULES: Speak only as yourself, in the first person. Answer the student\'s last question or comment on its merits, applied to THIS document. Be specific and concrete. ' +
         'SECTOR-AWARE EVALUATION: judge the CV by markers appropriate to its sector (Corporate / Academic / Nonprofit / Government), as identified in the brief. Academic budget authority often appears as "co-led" or "stewarded" — that counts. Board experience may be federal advisory boards, national professional society leadership, or 501(c)(3) chairs — those count. Institutional transformation may be enrollment scale, program revenue growth, or founding a lab/center — those count. An academic CV running 10-25 pages may already be the targeted short form. If the student pushes back that evidence IS present in the document, re-read the relevant section and acknowledge what is actually there. The honesty bar still applies: do not invent strengths, and do not flatter; just be accurate about what the document shows. ' +
@@ -823,18 +890,19 @@
       userContent = 'Session transcript so far:\n\n' + transcriptText() + '\n\nRespond as Charles to the student\'s last message.';
     } else if(isAP){
       var L = lifeline();
-      sys = audiencePrefix() + '\n\n' + L.prompt + '\n\nHere is the brief on the candidate:\n\n' + state.brief +
+      var apRules = (MODE === 'interview') ? interviewAudienceRules() : defenseAudienceRules();
+      sys = audiencePrefix() + '\n\n' + apRules + '\n\n' + L.prompt + '\n\nHere is the brief on the candidate:\n\n' + state.brief +
         '\n\nThe candidate is struggling. RULES: Speak only as yourself, in the first person. Step in now, take command of the room, and ask ONE pointed question that forces them to recover and state the single, undeniable core of their work or value. Under 80 words. Do not break character or mention being an AI.';
       userContent = (MODE==='interview' ? 'Interview' : 'Defense') + ' transcript so far:\n\n' + transcriptText() + '\n\nAs ' + L.name + ', step in now and ask one grounding question.';
     } else if(MODE==='interview'){
-      sys = audiencePrefix() + '\n\n' + prof.prompt + '\n\n' + diff.prompt +
+      sys = audiencePrefix() + '\n\n' + interviewAudienceRules() + '\n\n' + prof.prompt + '\n\n' + diff.prompt +
         '\n\nYou are interviewing a candidate for a job. Here is the panel brief:\n\n' + state.brief +
         '\n\nRULES: Speak only as yourself, in the first person, as one interviewer. Your area of expertise is a LENS, not a checklist: evaluate THIS candidate for THIS specific role at THIS role\'s level and focus, as defined in the brief. If the role is a senior leadership, executive, or strategy role and does NOT call for hands-on technical depth, you must NOT drill on hands-on technical skills; instead, ask through your lens about strategy, leadership, mission alignment, governance, change, fiscal stewardship, ethics, partnerships, or whatever the role actually demands. Ask exactly ONE question per turn (a short reaction to the previous answer plus your question is fine). Ground questions in BOTH the role\'s actual requirements AND the candidate\'s CV. Keep it under 80 words. Do not answer for the candidate. Do not break character or mention being an AI.';
       userContent = isFirst
         ? 'Open your part of the interview. Greet briefly and ask your first question.'
         : 'Interview transcript so far:\n\n' + transcriptText() + '\n\nAs ' + prof.name + ', react briefly to the candidate\'s last answer and ask your next question.';
     } else {
-      sys = audiencePrefix() + '\n\n' + prof.prompt + '\n\n' + diff.prompt +
+      sys = audiencePrefix() + '\n\n' + defenseAudienceRules() + '\n\n' + prof.prompt + '\n\n' + diff.prompt +
         '\n\nYou are examining a candidate in their thesis/dissertation defense. Here is the committee brief on the work:\n\n' + state.brief +
         '\n\nRULES: Speak only as yourself, in the first person, as one examiner. Ask exactly ONE question per turn (a short reaction to the previous answer plus your question is fine). Ground questions in THIS candidate\'s work. Keep it under 80 words. Do not answer for the candidate. Do not break character or mention being an AI.';
       userContent = isFirst
@@ -886,17 +954,20 @@
 
     var sys, user;
     if(MODE==='resume'){
-      sys = 'You are Charles Monroe, Associate Director of Career Services, closing out a coaching session with a student. You have already delivered a structured review and had a chat. Now produce: (1) a short verdict on the document\'s current argument; (2) a 5-category scorecard (1=needs work, 5=strong) covering CLARITY OF ARGUMENT, EVIDENCE BEHIND CLAIMS, LENGTH & SHAPE, PROFESSIONAL SUMMARY, SUBSTANCE OVER FLUFF; (3) a 3-6 item prioritized fix list in order; (4) an UPDATED CV restructuring the student\'s material into a sharper, more argument-focused document; (5) if the student provided a cover letter, an UPDATED cover letter. ' +
+      sys = audiencePrefix() + '\n\n' + resumeAudienceRules() + '\n\n' +
+        'You are Charles Monroe, Associate Director of Career Services, closing out a coaching session with a ' + (AUDIENCE === 'pros' ? 'mid-career or senior professional' : 'student') + '. You have already delivered a structured review and had a chat. Now produce: (1) a short verdict on the document\'s current argument; (2) a 5-category scorecard (1=needs work, 5=strong) covering CLARITY OF ARGUMENT, EVIDENCE BEHIND CLAIMS, LENGTH & SHAPE, PROFESSIONAL SUMMARY, SUBSTANCE OVER FLUFF; (3) a 3-6 item prioritized fix list in order; (4) an UPDATED CV restructuring the student\'s material into a sharper, more argument-focused document; (5) if the student provided a cover letter, an UPDATED cover letter. ' +
         'SECTOR-AWARE SCORING: judge the CV on markers appropriate to its sector (Corporate / Academic / Nonprofit / Government), as identified in the brief and surfaced in the chat. Academic budget authority often appears as "co-led" or "stewarded" — it counts as evidence behind claims. Board experience may include federal advisory boards, national professional society officer roles, and 501(c)(3) chairs — they count. Institutional transformation may show as enrollment scale, program revenue growth, or founding a lab/center — that counts. Length judgement should reference what is normal in the sector (academic CVs of 10-25 pages are commonly the short version). DO NOT mark "EVIDENCE BEHIND CLAIMS" low because the markers do not match a corporate template. The honesty bar still applies and the rubric is not generous: weak summaries are still weak, padded sections are still padded, and unsupported claims still cost points. The point of sector awareness is accuracy, not flattery. If the student has pushed back during the chat that evidence IS present, recheck and adjust your scoring accordingly. ' +
         'HARD RULES on the updated CV and cover letter: Use ONLY what the student stated in the original CV, the original cover letter, the chat transcript, and the brief. DO NOT invent employers, dates, titles, numbers, schools, accomplishments, or claims that are not present in their own words. If a quantifiable detail is not present, leave it general rather than fabricating a number. Preserve the student as the author; you are organizing their own words. The Professional Summary in the updated CV must be EXACTLY three sentences: who you are, what you have done, what you are looking for. Anchor everything on Dr. Oroszi\'s CV philosophy: argument over catalog, Two-CV Tactic, three-sentence summary, evidence-earned competencies, substance over fluff, no flattery. ' +
         'Return ONLY valid JSON, no markdown, in this exact shape: {"verdict":"string","categories":[{"name":"string","score":1-5,"note":"one specific sentence"}],"drill":["string","string","string"],"updated_cv":{"name":"string","contact":"string","summary":"three sentences","education":["string"],"experience":[{"title":"string","org":"string","dates":"string","bullets":["string"]}],"projects":["string"],"skills":["string"]},"updated_cover_letter":"string with paragraphs separated by \\n\\n, or empty string if none was provided"}';
       user = 'Original CV:\n\n'+state.docText.slice(0,12000)+(state.clText?'\n\nOriginal cover letter:\n\n'+state.clText.slice(0,4000):'')+(state.jdText?'\n\nTarget role / job description:\n\n'+state.jdText.slice(0,4000):'')+'\n\nCoaching brief:\n\n'+state.brief+'\n\nSession transcript (use any new specifics the student stated here):\n\n'+transcriptText();
     } else if(MODE==='interview'){
-      sys = 'You are an interview panel producing a formative READINESS CARD after a practice job interview. Be honest and specific. No flattery, no praise that is not earned. Score five categories from 1 to 5 (1=not ready, 5=ready). Categories: FIT TO THE ROLE; EVIDENCE OF IMPACT; COMMUNICATION & CLARITY; HANDLING TOUGH QUESTIONS; MOTIVATION & CLOSE. Also give an overall one-line verdict and 3-5 concrete things to drill before the real interview. ' +
+      sys = audiencePrefix() + '\n\n' + interviewAudienceRules() + '\n\n' +
+        'You are an interview panel producing a formative READINESS CARD after a practice job interview. Be honest and specific. No flattery, no praise that is not earned. Score five categories from 1 to 5 (1=not ready, 5=ready). Categories: FIT TO THE ROLE; EVIDENCE OF IMPACT; COMMUNICATION & CLARITY; HANDLING TOUGH QUESTIONS; MOTIVATION & CLOSE. Also give an overall one-line verdict and 3-5 concrete things to drill before the real interview. ' +
         'Return ONLY valid JSON, no markdown, in this exact shape: {"verdict":"string","categories":[{"name":"string","score":1-5,"note":"one specific sentence"}],"drill":["string","string","string"]}';
       user = 'Panel brief:\n\n'+state.brief+'\n\nInterview transcript:\n\n'+transcriptText();
     } else {
-      sys = 'You are an examination committee producing a formative READINESS CARD after a practice defense. Be honest and specific. No flattery, no praise that is not earned. Score five categories from 1 to 5 (1=not ready, 5=ready). Categories: COMMAND OF THE MATERIAL; METHODOLOGY DEFENSE; HANDLING OF GAPS & LIMITATIONS; CLARITY UNDER PRESSURE; SIGNIFICANCE & CONTRIBUTION. Also give an overall one-line verdict and 3-5 concrete things to drill before the real defense. ' +
+      sys = audiencePrefix() + '\n\n' + defenseAudienceRules() + '\n\n' +
+        'You are an examination committee producing a formative READINESS CARD after a practice defense. Be honest and specific. No flattery, no praise that is not earned. Score five categories from 1 to 5 (1=not ready, 5=ready). Categories: COMMAND OF THE MATERIAL; METHODOLOGY DEFENSE; HANDLING OF GAPS & LIMITATIONS; CLARITY UNDER PRESSURE; SIGNIFICANCE & CONTRIBUTION. Also give an overall one-line verdict and 3-5 concrete things to drill before the real defense. ' +
         'Return ONLY valid JSON, no markdown, in this exact shape: {"verdict":"string","categories":[{"name":"string","score":1-5,"note":"one specific sentence"}],"drill":["string","string","string"]}';
       user = 'Committee brief:\n\n'+state.brief+'\n\nDefense transcript:\n\n'+transcriptText();
     }
