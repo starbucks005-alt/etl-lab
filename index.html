@@ -1287,7 +1287,18 @@ document.addEventListener('DOMContentLoaded', function(){
           >
             Your browser does not support HTML5 video.
           </video>
-          <div style="position:absolute; top:12px; left:12px; background:rgba(17,17,17,0.85); font-family:'Oswald',sans-serif; font-size:10px; letter-spacing:3px; color:#FDB827; padding:4px 10px; text-transform:uppercase;">▶ AI Twin · Dr. Terry L. Oroszi</div>
+          <div class="etl-twin-label" style="position:absolute; top:12px; left:12px; background:rgba(17,17,17,0.85); font-family:'Oswald',sans-serif; font-size:10px; letter-spacing:3px; color:#FDB827; padding:4px 10px; text-transform:uppercase;">▶ AI Twin · Dr. Terry L. Oroszi</div>
+          <style>
+            /* On phone widths the video reframes Terry's face into the
+               top of the crop, where the top-anchored label was sitting.
+               Drop the label to the bottom so it stops covering her. */
+            @media (max-width: 768px) {
+              .etl-twin-label {
+                top: auto !important;
+                bottom: 12px !important;
+              }
+            }
+          </style>
         </div>
         <div style="font-family:'Share Tech Mono',monospace; font-size:9px; color:#888; letter-spacing:1.5px; margin-top:8px;">Your Likeness &middot; Your Voice Cloned &middot; Your Creative Control</div>
         <div style="font-family:'Cormorant Garamond',serif; font-size:12px; color:#777; margin-top:4px;">ADA-compliant, engaging, and always available. AI Twins are the future of course delivery. <a href="#contact" style="color:#b8922a; text-decoration:none;">Schedule a session with Dr. O to learn more &rarr;</a></div>
