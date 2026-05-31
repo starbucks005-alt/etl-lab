@@ -30,7 +30,13 @@
   .hero p{max-width:620px;margin:14px auto 0;color:var(--muted);font-size:16px;font-weight:300;}
   .kicker{font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--gold-dim);margin-bottom:10px;}
 
-  .modes{display:flex;gap:10px;justify-content:center;margin:28px 0 8px;flex-wrap:wrap;}
+  .audience-tabs{display:flex;gap:0;justify-content:center;margin:24px 0 0;flex-wrap:wrap;}
+  .aud-tab{font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;padding:10px 28px;border:1px solid var(--navy);background:transparent;color:var(--navy);cursor:pointer;opacity:.6;}
+  .aud-tab:first-child{border-right:none;border-radius:2px 0 0 2px;}
+  .aud-tab:last-child{border-radius:0 2px 2px 0;}
+  .aud-tab:hover{opacity:1;}
+  .aud-tab.active{background:var(--navy);color:#fff;opacity:1;}
+  .modes{display:flex;gap:10px;justify-content:center;margin:14px 0 8px;flex-wrap:wrap;}
   .mode{font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;padding:11px 22px;border:2px solid var(--navy);background:var(--navy);color:#fff;border-radius:2px;cursor:pointer;}
   .mode.inactive{background:transparent;color:var(--navy);opacity:.65;}
   .mode.inactive:hover{opacity:1;}
@@ -157,6 +163,14 @@
     <div class="kicker">Emerging Technologies Laboratory</div>
     <h1>Practice the hard part <em>before</em> it counts.</h1>
     <p id="hero-sub">Face a panel that pushes back. Pick who's in the room, set how hard they go, and walk out with a readiness card that tells you exactly what to shore up.</p>
+  </div>
+
+  <!-- Audience tabs. Drives which modes show + the tone scaffolding the
+       panel uses. Students see Defense; pros do not. Tools are the same;
+       framing differs. -->
+  <div class="audience-tabs" role="tablist" aria-label="Choose your panel">
+    <button class="aud-tab" id="aud-students" role="tab">For Students</button>
+    <button class="aud-tab" id="aud-pros" role="tab">For Professionals</button>
   </div>
 
   <div class="modes">
@@ -437,8 +451,31 @@
   };
 
   var MODE = 'defense';
+  // AUDIENCE drives tone scaffolding (peer-to-peer for pros, scaffolded for
+  // students) and gates which modes are visible (Defense is student-only).
+  // Persisted in URL hash as #students/<mode> or #pros/<mode>.
+  var AUDIENCE = 'students';
   function cfg(){ return COPY[MODE]; }
   function roster(){ return MODE === 'defense' ? PROFESSORS : (MODE === 'interview' ? INTERVIEWERS : [RESUME_COACH]); }
+
+  // Per-audience prompt prefix injected into every API system message so
+  // panel feedback and coach feedback actually differ by audience. The
+  // engines (judges, interviewers, Charles) stay the same; only register
+  // changes. Terry's product insight: tools are good enough for both, but
+  // a 40-something exec won't enter a product positioned at thesis defenders.
+  function audiencePrefix(){
+    if (AUDIENCE === 'pros') {
+      return 'AUDIENCE CONTEXT: this user is a mid-career or senior professional ' +
+             '(not a student). Speak peer to peer. Skip the teaching framing. Be ' +
+             'direct, no hand-holding, no "good question" affirmations. Assume ' +
+             'they understand the basics and are here for the gap you can name ' +
+             'that they cannot see in themselves. Executive-coach register. ';
+    }
+    return 'AUDIENCE CONTEXT: this user is a student or early-career learner. ' +
+           'Teach as you push back. Frame what a strong answer looks like before ' +
+           'or after a hard question lands. Scaffolded, formative, committee-chair ' +
+           'register. Honest about gaps without being crushing. ';
+  }
 
   // ---- State ----
   var state = { fileName:'', docText:'', jdText:'', clText:'', brief:'', panel:[], difficulty:3, transcript:[], turn:0, order:[], orderIdx:0, apUsed:0, apPending:false, currentIsAP:false };
@@ -744,7 +781,7 @@
     var diff = DIFFICULTY[state.difficulty-1];
     var sys, userContent;
     if(MODE === 'resume'){
-      sys = prof.prompt + '\n\n' + diff.prompt +
+      sys = audiencePrefix() + '\n\n' + prof.prompt + '\n\n' + diff.prompt +
         '\n\nHere is the structured review you already delivered (use it as your reference, do not repeat it verbatim):\n\n' + state.brief +
         '\n\nRULES: Speak only as yourself, in the first person. Answer the student\'s last question or comment on its merits, applied to THIS document. Be specific and concrete. ' +
         'SECTOR-AWARE EVALUATION: judge the CV by markers appropriate to its sector (Corporate / Academic / Nonprofit / Government), as identified in the brief. Academic budget authority often appears as "co-led" or "stewarded" — that counts. Board experience may be federal advisory boards, national professional society leadership, or 501(c)(3) chairs — those count. Institutional transformation may be enrollment scale, program revenue growth, or founding a lab/center — those count. An academic CV running 10-25 pages may already be the targeted short form. If the student pushes back that evidence IS present in the document, re-read the relevant section and acknowledge what is actually there. The honesty bar still applies: do not invent strengths, and do not flatter; just be accurate about what the document shows. ' +
@@ -752,18 +789,18 @@
       userContent = 'Session transcript so far:\n\n' + transcriptText() + '\n\nRespond as Charles to the student\'s last message.';
     } else if(isAP){
       var L = lifeline();
-      sys = L.prompt + '\n\nHere is the brief on the candidate:\n\n' + state.brief +
+      sys = audiencePrefix() + '\n\n' + L.prompt + '\n\nHere is the brief on the candidate:\n\n' + state.brief +
         '\n\nThe candidate is struggling. RULES: Speak only as yourself, in the first person. Step in now, take command of the room, and ask ONE pointed question that forces them to recover and state the single, undeniable core of their work or value. Under 80 words. Do not break character or mention being an AI.';
       userContent = (MODE==='interview' ? 'Interview' : 'Defense') + ' transcript so far:\n\n' + transcriptText() + '\n\nAs ' + L.name + ', step in now and ask one grounding question.';
     } else if(MODE==='interview'){
-      sys = prof.prompt + '\n\n' + diff.prompt +
+      sys = audiencePrefix() + '\n\n' + prof.prompt + '\n\n' + diff.prompt +
         '\n\nYou are interviewing a candidate for a job. Here is the panel brief:\n\n' + state.brief +
         '\n\nRULES: Speak only as yourself, in the first person, as one interviewer. Your area of expertise is a LENS, not a checklist: evaluate THIS candidate for THIS specific role at THIS role\'s level and focus, as defined in the brief. If the role is a senior leadership, executive, or strategy role and does NOT call for hands-on technical depth, you must NOT drill on hands-on technical skills; instead, ask through your lens about strategy, leadership, mission alignment, governance, change, fiscal stewardship, ethics, partnerships, or whatever the role actually demands. Ask exactly ONE question per turn (a short reaction to the previous answer plus your question is fine). Ground questions in BOTH the role\'s actual requirements AND the candidate\'s CV. Keep it under 80 words. Do not answer for the candidate. Do not break character or mention being an AI.';
       userContent = isFirst
         ? 'Open your part of the interview. Greet briefly and ask your first question.'
         : 'Interview transcript so far:\n\n' + transcriptText() + '\n\nAs ' + prof.name + ', react briefly to the candidate\'s last answer and ask your next question.';
     } else {
-      sys = prof.prompt + '\n\n' + diff.prompt +
+      sys = audiencePrefix() + '\n\n' + prof.prompt + '\n\n' + diff.prompt +
         '\n\nYou are examining a candidate in their thesis/dissertation defense. Here is the committee brief on the work:\n\n' + state.brief +
         '\n\nRULES: Speak only as yourself, in the first person, as one examiner. Ask exactly ONE question per turn (a short reaction to the previous answer plus your question is fine). Ground questions in THIS candidate\'s work. Keep it under 80 words. Do not answer for the candidate. Do not break character or mention being an AI.';
       userContent = isFirst
@@ -1085,16 +1122,64 @@
   $('mode-interview').addEventListener('click', function(){ setMode('interview'); });
   $('mode-resume').addEventListener('click', function(){ setMode('resume'); });
 
-  // Honor an initial mode hash (#defense / #interview / #resume) so the ETL Network cards
-  // can deep-link to a specific mode.
-  function modeFromHash(){
-    var h = (window.location.hash || '').replace('#','').toLowerCase();
-    return (h === 'interview' || h === 'resume' || h === 'defense') ? h : null;
+  // Hash routing supports both legacy (#defense, #interview, #resume) and the
+  // new audience-prefixed form (#students/defense, #pros/interview). Bare mode
+  // hashes default audience to 'students' so older deep-links keep working.
+  function parseHash(){
+    var h = (window.location.hash || '').replace('#','').toLowerCase().replace(/^\/+|\/+$/g,'');
+    var parts = h.split('/').filter(Boolean);
+    var validModes = { defense:1, interview:1, resume:1 };
+    var validAuds  = { students:1, pros:1 };
+    var aud = 'students', mode = null;
+    if (parts.length === 2 && validAuds[parts[0]] && validModes[parts[1]]) {
+      aud = parts[0]; mode = parts[1];
+    } else if (parts.length === 1) {
+      if (validAuds[parts[0]]) {
+        aud = parts[0];
+        // Audience-only hash: pick the first mode available to that audience.
+        mode = (aud === 'pros') ? 'interview' : 'defense';
+      } else if (validModes[parts[0]]) {
+        mode = parts[0];
+      }
+    }
+    // Pros never get Defense; coerce to Interview if they deep-linked oddly.
+    if (aud === 'pros' && mode === 'defense') mode = 'interview';
+    return { audience: aud, mode: mode || (aud === 'pros' ? 'interview' : 'defense') };
   }
-  var initialMode = modeFromHash() || 'defense';
-  setMode(initialMode);
+
+  function applyAudienceVisibility(){
+    // Defense is student-only. Hide its button when audience is pros.
+    var dBtn = $('mode-defense');
+    if (dBtn) dBtn.style.display = (AUDIENCE === 'pros') ? 'none' : '';
+    // Audience tabs reflect current state.
+    var sTab = $('aud-students'), pTab = $('aud-pros');
+    if (sTab) sTab.classList.toggle('active', AUDIENCE === 'students');
+    if (pTab) pTab.classList.toggle('active', AUDIENCE === 'pros');
+  }
+
+  function setAudience(a, keepMode){
+    if (a !== 'students' && a !== 'pros') a = 'students';
+    AUDIENCE = a;
+    applyAudienceVisibility();
+    // Update URL hash to reflect both audience and mode.
+    var newMode = keepMode ? MODE : ((AUDIENCE === 'pros' && MODE === 'defense') ? 'interview' : MODE);
+    try { history.replaceState(null, '', '#' + AUDIENCE + '/' + newMode); } catch(_){}
+    if (newMode !== MODE) setMode(newMode);
+  }
+
+  var aSBtn = $('aud-students'), aPBtn = $('aud-pros');
+  if (aSBtn) aSBtn.addEventListener('click', function(){ setAudience('students', false); });
+  if (aPBtn) aPBtn.addEventListener('click', function(){ setAudience('pros', false); });
+
+  var initial = parseHash();
+  AUDIENCE = initial.audience;
+  applyAudienceVisibility();
+  setMode(initial.mode);
+
   window.addEventListener('hashchange', function(){
-    var m = modeFromHash(); if(m && m !== MODE) setMode(m);
+    var h = parseHash();
+    if (h.audience !== AUDIENCE) { AUDIENCE = h.audience; applyAudienceVisibility(); }
+    if (h.mode !== MODE) setMode(h.mode);
   });
 </script>
 </body>
