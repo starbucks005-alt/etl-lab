@@ -188,7 +188,13 @@ async function synthSegment(text, speakerId) {
     }
   }
 
-  const url = `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`;
+  // output_format=mp3_44100_64 cuts file size in half vs default 128kbps
+  // while sounding identical for spoken-word voice. Also keeps encoding
+  // consistent across segments so byte-concat produces a playable file.
+  // Critical: Netlify function responses are capped at 6 MB. At default
+  // 128kbps the multi-voice briefing exceeded this and crashed the audio
+  // endpoint with ResponseSizeTooLarge.
+  const url = `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?output_format=mp3_44100_64`;
   const res = await fetch(url, {
     method: 'POST',
     headers: {
