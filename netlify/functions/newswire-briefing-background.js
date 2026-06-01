@@ -88,6 +88,12 @@ function loadReporters() {
 function buildScriptSystemPrompt() {
   return `You are writing the script for "Above the Fold," a daily audio briefing on ETL Newswire. The script will be read aloud by ${ANCHOR.name}, ${ANCHOR.role}, via text-to-speech. The name "Above the Fold" is the newspaper tradition: the stories an editor judges important enough to land on the top half of the front page. Treat this as editorial judgment, not a checklist.
 
+CRITICAL EMPLOYMENT RULE
+  Every reporter named in the input is a STAFF reporter for ETL Newswire. They are NOT employees of any other outlet. The "Underlying story source" field on each story is the outlet that ORIGINALLY broke or covered the story (NYT, Reuters, NBC News, etc.) - it is NOT the reporter's employer. Our reporter is covering or analyzing what that outlet reported.
+  - DO say: "Correspondent Karen Bishop reports..." or "Senior Correspondent Elke Vogel files..."
+  - DO NOT say: "Karen Bishop files for NBC News" or "Elke Vogel reports for Reuters." That misrepresents employment.
+  - If you must reference the underlying source, frame it as coverage: "covering a New York Times investigation..." or "in a story first reported by NBC News, our health desk has..."
+
 VOICE
   ${ANCHOR.voiceRider}
 
@@ -102,7 +108,7 @@ FORMAT
   - Story blocks in the order given. Each block:
       1. Brief transition or desk cue. "Leading the wire..." "From the world desk..." "On business..." "On technology..." "From the security desk..." "On science..." "On health..." "From entertainment..." "On sports..." Vary it.
       2. The headline news in one or two clean sentences.
-      3. The reporter byline by name and tier ("Senior Correspondent Elke Vogel reports..." or "Correspondent Sasha Park files...").
+      3. The reporter byline ALWAYS uses the tier and name only ("Senior Correspondent Elke Vogel reports..." or "Correspondent Sasha Park files..."). NEVER append the underlying source outlet to a reporter's byline.
       4. Optional: ONE sentence of the most important detail from the dek. Skip this if the headline already conveys it.
   - Close (1 sentence): "That's Above the Fold from ETL Newswire. I'm ${ANCHOR.name}. Back to the wire."
 
@@ -122,15 +128,18 @@ function buildScriptUserMessage(pieces) {
   const reporters = loadReporters();
   const lines = pieces.map((p, i) => {
     const r = (p.byline_kind === 'reporter' && p.reporter_id) ? reporters[p.reporter_id] : null;
-    const reporterLine = r ? `${r.tier_label || 'Reporter'} ${r.name}` : (p.author || p.source_label || 'Wire staff');
+    const reporterLine = r ? `${r.tier_label || 'Reporter'} ${r.name} (ETL Newswire ${DESK_LABELS[p.desk] || ''} desk)` : (p.author || 'Wire staff');
     const desk = DESK_LABELS[p.desk] || 'Wire';
+    const underlying = p.source_label
+      ? `Underlying story originally covered by: ${p.source_label} (this is NOT the reporter's employer; do not say the reporter "files for" or "reports for" this outlet)`
+      : 'Underlying story originally covered by: (not specified)';
     return `[Story ${i + 1}] ${desk} desk
   Headline: ${p.title}
   Dek: ${p.dek || '(no dek)'}
-  Byline: ${reporterLine}
-  Source/Outlet: ${p.source_label || ''}`;
+  Our reporter (ETL Newswire staff): ${reporterLine}
+  ${underlying}`;
   });
-  return `Here are the five stories for today's briefing, in order:\n\n${lines.join('\n\n')}\n\nWrite the script.`;
+  return `Here are the stories for today's briefing, in order:\n\n${lines.join('\n\n')}\n\nWrite the script. Remember: every "Our reporter" is on ETL Newswire's staff. The "Underlying story" outlet is what they are covering, NOT where they work.`;
 }
 
 async function generateMp3(scriptText) {

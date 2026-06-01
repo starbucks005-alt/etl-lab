@@ -886,6 +886,13 @@ document.addEventListener('DOMContentLoaded', function(){
   }
 </script>
 
+<!-- TICKER (sits directly under the nav, above the hero) -->
+<div class="ticker-wrap">
+  <div class="ticker-content">
+    EMERGING TECHNOLOGIES LABORATORY &nbsp;·&nbsp; DR. TERRY OROSZI &nbsp;·&nbsp; AI/ML INTEGRATION IN GRADUATE EDUCATION &nbsp;·&nbsp; BIODEFENSE &amp; CBRN DEFENSE RESEARCH &nbsp;·&nbsp; COMPUTATIONAL TOXICOLOGY &nbsp;·&nbsp; HUMAN-CENTERED TECHNOLOGY INNOVATION &nbsp;·&nbsp; FORBES TECHNOLOGY COUNCIL MEMBER &nbsp;·&nbsp; ESTABLISHED 2025 &nbsp;·&nbsp;
+  </div>
+</div>
+
 <!-- HERO -->
 <div id="hero">
   <div class="hex-bg"></div>
@@ -923,20 +930,8 @@ document.addEventListener('DOMContentLoaded', function(){
         <div class="stat-label">Books</div>
       </div>
     </div>
-    <div class="hero-cta">
-      <a href="job-fair.html?go=search" class="btn btn-primary" style="background:#FDB827;color:#111;border-color:#FDB827;">🎓 Find a Job</a>
-      <a href="#research" class="btn btn-primary">View Research Directives</a>
-      <a href="#contact" class="btn btn-outline">Contact the Lab</a>
-    </div>
   </div>
 
-</div>
-
-<!-- TICKER -->
-<div class="ticker-wrap">
-  <div class="ticker-content">
-    EMERGING TECHNOLOGIES LABORATORY &nbsp;·&nbsp; DR. TERRY OROSZI &nbsp;·&nbsp; AI/ML INTEGRATION IN GRADUATE EDUCATION &nbsp;·&nbsp; BIODEFENSE &amp; CBRN DEFENSE RESEARCH &nbsp;·&nbsp; COMPUTATIONAL TOXICOLOGY &nbsp;·&nbsp; HUMAN-CENTERED TECHNOLOGY INNOVATION &nbsp;·&nbsp; FORBES TECHNOLOGY COUNCIL MEMBER &nbsp;·&nbsp; ESTABLISHED 2025 &nbsp;·&nbsp;
-  </div>
 </div>
 
 <!-- 5 IN UNDER 5 - top-of-page audio briefing, hidden until generated -->
@@ -964,6 +959,26 @@ document.addEventListener('DOMContentLoaded', function(){
     </div>
   </div>
 </section>
+<script>
+(function(){
+  fetch('/.netlify/functions/newswire-briefing-latest', { credentials: 'omit' })
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(meta){
+      if (!meta || !meta.available || !meta.audio_url) return;
+      var card = document.getElementById('briefing-card');
+      var audio = document.getElementById('briefing-audio');
+      var sub = document.getElementById('briefing-sub');
+      if (!card || !audio) return;
+      audio.src = meta.audio_url;
+      if (sub && meta.generated_at) {
+        var dt = new Date(meta.generated_at);
+        sub.textContent = isNaN(+dt) ? '' : 'Recorded ' + dt.toLocaleDateString('en-US',{weekday:'long', month:'long', day:'numeric'}) + ' at ' + dt.toLocaleTimeString('en-US',{hour:'numeric', minute:'2-digit'});
+      }
+      card.classList.add('is-ready');
+    })
+    .catch(function(){});
+})();
+</script>
 
 
 <!-- THE ETL NETWORK -->
@@ -1459,117 +1474,7 @@ document.addEventListener('DOMContentLoaded', function(){
     border: 1px solid var(--black); display: inline-flex; align-items: center; gap: 6px;
   }
   .etl-network .etl-net-link2:hover { background: var(--green-bright); color: #fff; border-color: var(--green-bright); }
-
-  /* ─── Latest from ETL Newswire (homepage strip above platforms) ─── */
-  .newswire-strip { background: #f4ebd6; padding: 36px 0 44px; border-top: 1px solid rgba(14,12,8,0.12); border-bottom: 1px solid rgba(14,12,8,0.12); display: none; }
-  .newswire-strip.is-ready { display: block; }
-  .newswire-strip-inner { max-width: 1180px; margin: 0 auto; padding: 0 32px; }
-  .newswire-strip-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; margin-bottom: 22px; border-bottom: 2px solid #0e0c08; padding-bottom: 10px; }
-  .newswire-strip-title { font-family: 'Playfair Display', Georgia, serif; font-size: 28px; font-weight: 700; color: #0e0c08; line-height: 1; margin: 0; }
-  .newswire-strip-sub { font-family: 'DM Mono', 'Courier New', monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: #5a5240; }
-  .newswire-strip-sub a { color: #5a5240; text-decoration: underline; }
-  .newswire-strip-sub a:hover { color: #0e0c08; }
-  .newswire-strip-five { display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; }
-  @media (max-width: 1100px) { .newswire-strip-five { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 620px) { .newswire-strip-five { grid-template-columns: 1fr; } }
-  .newswire-card { background: #fdfbf5; border: 1px solid rgba(14,12,8,0.14); padding: 16px 16px 18px; display: flex; flex-direction: column; gap: 8px; text-decoration: none; color: inherit; transition: border-color 0.15s, transform 0.15s; }
-  .newswire-card:hover { border-color: #b8922a; transform: translateY(-2px); }
-  .newswire-card-head { display: flex; align-items: center; gap: 10px; }
-  .newswire-card-avatar { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 1px solid rgba(184,146,42,0.5); flex: 0 0 44px; background: #2a2418; }
-  .newswire-card-desk { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: #b8922a; }
-  .newswire-card-title { font-family: 'Playfair Display', Georgia, serif; font-size: 17px; font-weight: 700; line-height: 1.25; color: #0e0c08; }
-  .newswire-card-dek { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 14px; line-height: 1.4; color: #3a3424; flex: 1; }
-  .newswire-card-meta { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: #5a5240; }
-  .newswire-strip-cta { margin-top: 22px; display: flex; justify-content: flex-end; }
-  .newswire-strip-cta a { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: #0e0c08; text-decoration: none; border-bottom: 1px solid #b8922a; padding-bottom: 3px; }
-  .newswire-strip-cta a:hover { color: #b8922a; }
-
-  /* 5 in Under 5 audio briefing block */
-  .briefing-card { background: #0e0c08; color: #f4ebd6; padding: 22px 28px; margin-bottom: 28px; display: none; }
-  .briefing-card.is-ready { display: block; }
-  .briefing-row { display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: center; }
-  @media (max-width: 720px) { .briefing-row { grid-template-columns: 1fr; } }
-  .briefing-eyebrow { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase; color: #d4aa4a; margin-bottom: 6px; }
-  .briefing-title { font-family: 'Playfair Display', Georgia, serif; font-size: 26px; font-weight: 700; color: #f4ebd6; line-height: 1.15; margin-bottom: 6px; }
-  .briefing-sub { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 15px; color: #c8bea4; font-style: italic; }
-  .briefing-audio { display: flex; align-items: center; gap: 14px; }
-  .briefing-audio audio { width: 320px; max-width: 100%; }
-  @media (max-width: 720px) { .briefing-audio audio { width: 100%; } }
 </style>
-<section class="newswire-strip" id="newswire-strip" aria-labelledby="newswire-strip-title">
-  <div class="newswire-strip-inner">
-    <div class="newswire-strip-head">
-      <h2 class="newswire-strip-title" id="newswire-strip-title">Latest from ETL Newswire</h2>
-      <div class="newswire-strip-sub">Live wire &middot; <a href="/press">/press</a> &middot; <a href="/press.rss">RSS</a></div>
-    </div>
-
-    <div class="newswire-strip-five" id="newswire-strip-five"></div>
-    <div class="newswire-strip-cta"><a href="/press">See the full wire &rarr;</a></div>
-  </div>
-</section>
-<script>
-(function(){
-  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
-  function shortDate(iso){
-    try { var d = new Date(iso); if (isNaN(+d)) return ''; return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }
-    catch(_) { return ''; }
-  }
-  // Try to mount the "5 in Under 5" audio briefing card. Hidden if no
-  // briefing has been generated yet (admin must click Regenerate in
-  // /press-admin to create one).
-  fetch('/.netlify/functions/newswire-briefing-latest', { credentials: 'omit' })
-    .then(function(r){ return r.ok ? r.json() : null; })
-    .then(function(meta){
-      if (!meta || !meta.available || !meta.audio_url) return;
-      var card = document.getElementById('briefing-card');
-      var audio = document.getElementById('briefing-audio');
-      var sub = document.getElementById('briefing-sub');
-      if (!card || !audio) return;
-      audio.src = meta.audio_url;
-      if (sub && meta.generated_at) {
-        var dt = new Date(meta.generated_at);
-        sub.textContent = isNaN(+dt) ? '' : 'Recorded ' + dt.toLocaleDateString('en-US',{weekday:'long', month:'long', day:'numeric'}) + ' at ' + dt.toLocaleTimeString('en-US',{hour:'numeric', minute:'2-digit'});
-      }
-      card.classList.add('is-ready');
-    })
-    .catch(function(){ /* silent: hide briefing on failure */ });
-
-  fetch('/.netlify/functions/newswire-latest?limit=5', { credentials: 'omit' })
-    .then(function(r){ return r.ok ? r.json() : null; })
-    .then(function(data){
-      if (!data || !data.items || !data.items.length) return;
-      var container = document.getElementById('newswire-strip-five');
-      var strip = document.getElementById('newswire-strip');
-      if (!container || !strip) return;
-      container.innerHTML = data.items.map(function(p){
-        var byline = '';
-        if (p.byline_kind === 'reporter' && p.author) {
-          var nameHtml = p.reporter_profile_url
-            ? 'By <a href="' + esc(p.reporter_profile_url) + '" style="color:inherit;border-bottom:1px solid #b8922a;text-decoration:none;" onclick="event.stopPropagation();">' + esc(p.author) + '</a>'
-            : 'By ' + esc(p.author);
-          byline = nameHtml + (p.reporter_tier ? ', ' + esc(p.reporter_tier) : '');
-        } else if (p.source_label) {
-          byline = esc(p.source_label);
-        }
-        var date = shortDate(p.published_at);
-        var avatar = p.reporter_avatar_url
-          ? '<img class="newswire-card-avatar" src="' + esc(p.reporter_avatar_url) + '" alt="' + esc(p.author || '') + '" loading="lazy">'
-          : '';
-        var head = avatar
-          ? '<div class="newswire-card-head">' + avatar + (p.desk_label ? '<div class="newswire-card-desk">' + esc(p.desk_label) + '</div>' : '') + '</div>'
-          : (p.desk_label ? '<div class="newswire-card-desk">' + esc(p.desk_label) + '</div>' : '');
-        return '<a class="newswire-card" href="' + esc(p.url) + '">'
-          + head
-          + '<div class="newswire-card-title">' + esc(p.title) + '</div>'
-          + (p.dek ? '<div class="newswire-card-dek">' + esc(p.dek) + '</div>' : '')
-          + '<div class="newswire-card-meta">' + [byline, date].filter(Boolean).join(' &middot; ') + '</div>'
-          + '</a>';
-      }).join('');
-      strip.classList.add('is-ready');
-    })
-    .catch(function(){ /* silent: hide strip on failure */ });
-})();
-</script>
 <section class="section-full etl-network" id="network">
   <div class="section-full-inner">
     <div class="section-tag">The ETL Network</div>
