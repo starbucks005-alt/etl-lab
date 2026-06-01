@@ -205,6 +205,16 @@ function renderNewsroom(pieces, activeDesk) {
   .masthead-title{font-family:'Playfair Display',serif;font-size:clamp(2.6rem, 8vw, 5.2rem);font-weight:900;line-height:1;color:#0e0c08;letter-spacing:-0.02em;margin-bottom:0.5rem;text-transform:uppercase;}
   .masthead-tag{font-family:'Cormorant Garamond',serif;font-style:italic;color:#5a5240;font-size:1.1rem;}
   .masthead-rule{max-width:1180px;margin:0 auto;border-top:3px double #0e0c08;height:6px;}
+  /* 5 in Under 5 audio band, hidden until populated by JS */
+  .briefing-band{background:#0e0c08;color:#f4ebd6;padding:1.6rem 0;display:none;}
+  .briefing-band.is-ready{display:block;}
+  .briefing-band-inner{max-width:1180px;margin:0 auto;padding:0 2rem;display:grid;grid-template-columns:1fr auto;gap:1.6rem;align-items:center;}
+  @media (max-width:720px){.briefing-band-inner{grid-template-columns:1fr;}}
+  .briefing-band-eyebrow{font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.24em;text-transform:uppercase;color:#d4aa4a;margin-bottom:0.4rem;}
+  .briefing-band-title{font-family:'Playfair Display',serif;font-size:1.55rem;font-weight:700;color:#f4ebd6;line-height:1.15;margin-bottom:0.3rem;}
+  .briefing-band-sub{font-family:'Cormorant Garamond',serif;font-style:italic;color:#c8bea4;font-size:0.95rem;}
+  .briefing-band-audio audio{width:340px;max-width:100%;}
+  @media (max-width:720px){.briefing-band-audio audio{width:100%;}}
 
   /* Desk nav strip */
   .desk-nav{max-width:1180px;margin:0 auto;padding:0.9rem 2rem;display:flex;flex-wrap:wrap;gap:0.4rem 1.4rem;align-items:center;justify-content:center;border-bottom:1px solid rgba(14,12,8,0.18);font-family:'DM Mono',monospace;font-size:0.62rem;letter-spacing:0.22em;text-transform:uppercase;}
@@ -289,6 +299,39 @@ function renderNewsroom(pieces, activeDesk) {
   <p class="masthead-tag">${NEWSROOM_TAGLINE}${activeDesk ? ' &middot; <strong>' + esc(DESK_LABEL[activeDesk]) + '</strong> desk' : ''}</p>
 </header>
 <div class="masthead-rule"></div>
+
+<section class="briefing-band" id="briefing-card" aria-label="5 in Under 5 audio briefing">
+  <div class="briefing-band-inner">
+    <div>
+      <div class="briefing-band-eyebrow">5 in Under 5 &middot; with Margaret Applewood</div>
+      <div class="briefing-band-title">Today's wire, briefed in under five minutes.</div>
+      <div class="briefing-band-sub" id="briefing-sub"></div>
+    </div>
+    <div class="briefing-band-audio">
+      <audio id="briefing-audio" controls preload="none"></audio>
+    </div>
+  </div>
+</section>
+<script>
+(function(){
+  fetch('/.netlify/functions/newswire-briefing-latest', { credentials: 'omit' })
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(meta){
+      if (!meta || !meta.available || !meta.audio_url) return;
+      var card = document.getElementById('briefing-card');
+      var audio = document.getElementById('briefing-audio');
+      var sub = document.getElementById('briefing-sub');
+      if (!card || !audio) return;
+      audio.src = meta.audio_url;
+      if (sub && meta.generated_at) {
+        var dt = new Date(meta.generated_at);
+        sub.textContent = isNaN(+dt) ? '' : 'Recorded ' + dt.toLocaleDateString('en-US',{weekday:'long', month:'long', day:'numeric'}) + ' at ' + dt.toLocaleTimeString('en-US',{hour:'numeric', minute:'2-digit'});
+      }
+      card.classList.add('is-ready');
+    })
+    .catch(function(){});
+})();
+</script>
 
 ${renderDeskNav(activeDesk)}
 

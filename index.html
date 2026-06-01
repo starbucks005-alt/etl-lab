@@ -936,6 +936,31 @@ document.addEventListener('DOMContentLoaded', function(){
   </div>
 </div>
 
+<!-- 5 IN UNDER 5 - top-of-page audio briefing, hidden until generated -->
+<style>
+  .briefing-band { background: #0e0c08; color: #f4ebd6; padding: 28px 0; display: none; border-bottom: 1px solid rgba(212,170,74,0.25); }
+  .briefing-band.is-ready { display: block; }
+  .briefing-band-inner { max-width: 1180px; margin: 0 auto; padding: 0 32px; display: grid; grid-template-columns: 1fr auto; gap: 28px; align-items: center; }
+  @media (max-width: 720px) { .briefing-band-inner { grid-template-columns: 1fr; } }
+  .briefing-band-eyebrow { font-family: 'DM Mono', 'Courier New', monospace; font-size: 11px; letter-spacing: 0.26em; text-transform: uppercase; color: #d4aa4a; margin-bottom: 8px; }
+  .briefing-band-title { font-family: 'Playfair Display', Georgia, serif; font-size: 30px; font-weight: 700; color: #f4ebd6; line-height: 1.15; margin-bottom: 6px; }
+  .briefing-band-sub { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 16px; color: #c8bea4; font-style: italic; }
+  .briefing-band-audio audio { width: 360px; max-width: 100%; }
+  @media (max-width: 720px) { .briefing-band-audio audio { width: 100%; } }
+</style>
+<section class="briefing-band" id="briefing-card" aria-label="5 in Under 5 audio briefing">
+  <div class="briefing-band-inner">
+    <div>
+      <div class="briefing-band-eyebrow">5 in Under 5 &middot; with Margaret Applewood &middot; <a href="/press" style="color:#d4aa4a;text-decoration:underline;">ETL Newswire</a></div>
+      <div class="briefing-band-title">Today's wire, briefed in under five minutes.</div>
+      <div class="briefing-band-sub" id="briefing-sub"></div>
+    </div>
+    <div class="briefing-band-audio">
+      <audio id="briefing-audio" controls preload="none"></audio>
+    </div>
+  </div>
+</section>
+
 
 <!-- THE ETL NETWORK -->
 <style>
@@ -1472,19 +1497,6 @@ document.addEventListener('DOMContentLoaded', function(){
       <div class="newswire-strip-sub">Live wire &middot; <a href="/press">/press</a> &middot; <a href="/press.rss">RSS</a></div>
     </div>
 
-    <div class="briefing-card" id="briefing-card" aria-label="5 in Under 5 audio briefing">
-      <div class="briefing-row">
-        <div>
-          <div class="briefing-eyebrow">5 in Under 5 &middot; with Margaret Applewood</div>
-          <div class="briefing-title" id="briefing-title">Today's wire, briefed in under five minutes.</div>
-          <div class="briefing-sub" id="briefing-sub"></div>
-        </div>
-        <div class="briefing-audio">
-          <audio id="briefing-audio" controls preload="none"></audio>
-        </div>
-      </div>
-    </div>
-
     <div class="newswire-strip-five" id="newswire-strip-five"></div>
     <div class="newswire-strip-cta"><a href="/press">See the full wire &rarr;</a></div>
   </div>
@@ -1742,15 +1754,15 @@ document.addEventListener('DOMContentLoaded', function(){
             <!-- Resume Coach -->
             <img src="prep-room-assets/cm_card.jpg" alt="Charles Monroe">
             <!-- ETL Newswire (9) -->
-            <img src="agents/Marcus_Reyes_placeholder.svg" alt="Marcus Reyes">
-            <img src="agents/Elke_Vogel_placeholder.svg" alt="Elke Vogel">
-            <img src="agents/Sasha_Park_placeholder.svg" alt="Sasha Park">
-            <img src="agents/Theo_Okafor_placeholder.svg" alt="Theo Okafor">
-            <img src="agents/Renee_Kovac_placeholder.svg" alt="Ren&eacute;e Kovac">
-            <img src="agents/Maya_Iyer_placeholder.svg" alt="Dr. Maya Iyer">
-            <img src="agents/Karen_Bishop_placeholder.svg" alt="Karen Bishop">
-            <img src="agents/Jules_Rivera_placeholder.svg" alt="Jules Rivera">
-            <img src="agents/Frank_Donovan_placeholder.svg" alt="Frank Donovan">
+            <img src="agents/Marcus_Reyes.png" alt="Marcus Reyes" loading="lazy">
+            <img src="agents/Elke_Vogel.png" alt="Elke Vogel" loading="lazy">
+            <img src="agents/Sasha_Park.png" alt="Sasha Park" loading="lazy">
+            <img src="agents/Theo_Okafor.png" alt="Theo Okafor" loading="lazy">
+            <img src="agents/Renee_Kovac.png" alt="Ren&eacute;e Kovac" loading="lazy">
+            <img src="agents/Maya_Iyer.png" alt="Dr. Maya Iyer" loading="lazy">
+            <img src="agents/Karen_Bishop.png" alt="Karen Bishop" loading="lazy">
+            <img src="agents/Jules_Rivera.png" alt="Jules Rivera" loading="lazy">
+            <img src="agents/Frank_Donovan.png" alt="Frank Donovan" loading="lazy">
           </div>
         </div>
         <div class="etl-net-body">
