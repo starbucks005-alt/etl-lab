@@ -825,15 +825,17 @@
 <script>
 document.addEventListener('DOMContentLoaded', function(){
   var ticker = document.querySelector('.ticker-wrap');
+  var hero = document.getElementById('hero');
   var briefing = document.getElementById('briefing-card');
   var aitwin = document.getElementById('ai-twin');
   var network = document.getElementById('network');
   var intel = document.getElementById('intel');
   var pub = document.getElementById('publications');
-  // briefing-card goes FIRST after ticker so it stays top-of-page.
-  // The other sections chain after it in fixed order.
+  // Final top-of-page chain: ticker -> hero -> briefing -> ai twin -> network
+  // -> intel -> publications. Reorder script inserts each AFTER the previous
+  // anchor so they end up in this exact sequence regardless of source order.
   var anchor = ticker;
-  [briefing, aitwin, network, intel, pub].forEach(function(node){
+  [hero, briefing, aitwin, network, intel, pub].forEach(function(node){
     if (anchor && node) {
       anchor.insertAdjacentElement('afterend', node);
       anchor = node;
