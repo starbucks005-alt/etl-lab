@@ -30,7 +30,11 @@
   .hero p{max-width:620px;margin:14px auto 0;color:var(--muted);font-size:16px;font-weight:300;}
   .kicker{font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--gold-dim);margin-bottom:10px;}
 
-  .audience-tabs{display:flex;gap:0;justify-content:center;margin:24px 0 0;flex-wrap:wrap;}
+  /* Toggle hidden by design: each audience (students vs pros) is its own
+     product. The URL hash determines what you see. Visitors never see the
+     other audience exists. Keep the markup + state machine intact so deep
+     links continue to route correctly. */
+  .audience-tabs{display:none !important;}
   .aud-tab{font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;padding:10px 28px;border:1px solid var(--navy);background:transparent;color:var(--navy);cursor:pointer;opacity:.6;}
   .aud-tab:first-child{border-right:none;border-radius:2px 0 0 2px;}
   .aud-tab:last-child{border-radius:0 2px 2px 0;}

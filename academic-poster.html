@@ -469,7 +469,9 @@
      phase arc, same skill, different artifact. Module completion still
      writes to the single localStorage key etl_poster_done so the cert
      unlocks correctly on either track.                                   */
-  .audience-tabs { max-width: 820px; margin: 80px auto 0; padding: 0 2.5rem; display: flex; gap: 8px; }
+  /* Toggle hidden: Academic Poster and Executive Briefing are presented
+     as two products. URL hash determines which one renders. */
+  .audience-tabs { display: none !important; }
   .aud-tab {
     flex: 1;
     font-family: 'DM Mono', monospace;

@@ -484,7 +484,9 @@
      The page DOM contains both variants; body class controls visibility.
      parseHash() reads #students or #pros from the URL; setAudience() flips
      the body class and rewrites the hash.                                     */
-  .audience-tabs { max-width: 820px; margin: 14px auto 0; padding: 0 2.5rem; display: flex; gap: 8px; }
+  /* Toggle hidden: Job Fair Mastery and Networking Mastery are presented
+     as two products. URL hash determines which one renders. */
+  .audience-tabs { display: none !important; }
   .aud-tab {
     flex: 1;
     font-family: 'DM Mono', monospace;
