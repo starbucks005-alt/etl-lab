@@ -1006,6 +1006,52 @@ document.addEventListener('DOMContentLoaded', function(){
     text-transform: uppercase; color: var(--gold);
     margin-bottom: 10px;
   }
+  /* Inline duration badge next to the platform number. Sets visitor
+     expectation for video length before they hit play. */
+  .etl-network .etl-net-duration {
+    color: var(--gray);
+    font-weight: 400;
+    margin-left: 4px;
+  }
+  .etl-network .etl-net-duration::before {
+    content: "\00b7";
+    margin-right: 8px;
+    color: var(--gold);
+  }
+  /* "What you'll see" label + 3-bullet list. Sits between the hook and
+     the CTA, filling the right-column white space with a scannable
+     anchor of expectations for what the video covers. */
+  .etl-network .etl-net-bullets-label {
+    font-family: 'Oswald', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--green-bright);
+    margin: 6px 0 10px;
+  }
+  .etl-network .etl-net-bullets {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 20px;
+  }
+  .etl-network .etl-net-bullets li {
+    position: relative;
+    padding-left: 18px;
+    margin-bottom: 6px;
+    font-size: 13px;
+    line-height: 1.65;
+    color: var(--gray);
+    font-weight: 300;
+  }
+  .etl-network .etl-net-bullets li::before {
+    content: "\25b8";
+    position: absolute;
+    left: 0;
+    top: 1px;
+    color: var(--gold);
+    font-size: 11px;
+  }
   .etl-network .etl-net-title {
     font-family: 'Oswald', sans-serif;
     font-size: 24px; font-weight: 700;
@@ -1103,19 +1149,21 @@ document.addEventListener('DOMContentLoaded', function(){
 
     <div class="etl-net-grid">
 
-      <!-- The Dose (full-width feature row) -->
+      <!-- SLR Studio (lead position; shortest legible tour) -->
       <div class="etl-net-card etl-net-card--wide">
-        <div class="etl-net-video" style="padding-top:56.25%;"><iframe src="https://player.vimeo.com/video/1196471292?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" title="THE DOSE WEBSITE"></iframe></div>
+        <div class="etl-net-video" style="padding-top:56.25%;"><iframe src="https://player.vimeo.com/video/1196496233?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" title="SLR STUDIO"></iframe></div>
         <div class="etl-net-body">
-          <div class="etl-net-num">Platform // 01</div>
-          <div class="etl-net-title">The Dose</div>
-          <div class="etl-net-tagline">Health &amp; wellness, verified</div>
-          <p class="etl-net-desc">A team of agents that answers everyday health and wellness questions with real, source-cited information delivered through games and puzzles. Educational content only, never medical advice. The Dose gives you a knowledgeable friend before you trust the ad.</p>
-          <div class="etl-net-footer">
-            <a class="etl-net-launch" href="https://thedose.net/" target="_blank" rel="noopener">Open The Dose &rarr;</a>
-            <a class="etl-net-link2" href="https://thedose.net/#dd-section" target="_blank" rel="noopener"><span aria-hidden="true">&#9654;</span> Listen: Your Daily Dose</a>
-            <a class="etl-net-link2" href="https://thedose.net/newsletter.html" target="_blank" rel="noopener"><span aria-hidden="true">&#128240;</span> Weekly Newsletter</a>
-          </div>
+          <div class="etl-net-num">Platform // 01 <span class="etl-net-duration">3:44 walkthrough</span></div>
+          <div class="etl-net-title">SLR Studio</div>
+          <div class="etl-net-tagline">AI-assisted, not AI-authored</div>
+          <p class="etl-net-desc">No grant funds, no problem. SLR Studio runs Dr. Oroszi's proprietary research pipeline. Six output modes, ten research tools, MCP-connected literature search across PubMed and the trial registry. Keeps your grad students productive, your research agenda alive, and your manuscripts moving. Hours instead of months. You will not find this stack elsewhere.</p>
+          <div class="etl-net-bullets-label">What you'll see</div>
+          <ul class="etl-net-bullets">
+            <li>A keyword become a structured review live</li>
+            <li>Live MCP search across PubMed and the trial registry</li>
+            <li>Where the human still has to say yes</li>
+          </ul>
+          <a class="etl-net-launch" href="https://slrstudio.online/" target="_blank" rel="noopener">Launch SLR Studio &rarr;</a>
         </div>
       </div>
 
@@ -1123,23 +1171,17 @@ document.addEventListener('DOMContentLoaded', function(){
       <div class="etl-net-card etl-net-card--wide">
         <div class="etl-net-video" style="padding-top:56.25%;"><iframe src="https://player.vimeo.com/video/1196488437?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" title="The Gauntlet"></iframe></div>
         <div class="etl-net-body">
-          <div class="etl-net-num">Platform // 02</div>
+          <div class="etl-net-num">Platform // 02 <span class="etl-net-duration">2:13 walkthrough</span></div>
           <div class="etl-net-title">The Gauntlet</div>
           <div class="etl-net-tagline">Idea stress-testing &amp; pitch review</div>
-          <p class="etl-net-desc">Submit an idea, a pitch, or a manuscript and watch a panel of AI judges put it through a live review. Every judge brings a different lens, from AI and emerging tech to law, finance, and behavioral science. They score on the merits, argue across domains, and hand back a verdict you can act on.</p>
+          <p class="etl-net-desc">No idea, no problem, we have the answer for that too. From blank page to actionable verdict. Helper cast on the way in. Nine AI judges in the chamber. Next steps on the way out.</p>
+          <div class="etl-net-bullets-label">What you'll see</div>
+          <ul class="etl-net-bullets">
+            <li>Ms. Ivy helps you find an idea if you don't have one yet</li>
+            <li>Nine AI judges stress-test it across nine domains, live</li>
+            <li>A verdict with the math, the dissent, and where to take it next</li>
+          </ul>
           <a class="etl-net-launch" href="https://thegauntlet.studio/" target="_blank" rel="noopener">Enter the Gauntlet &rarr;</a>
-        </div>
-      </div>
-
-      <!-- SLR Studio -->
-      <div class="etl-net-card etl-net-card--wide">
-        <div class="etl-net-video" style="padding-top:56.25%;"><iframe src="https://player.vimeo.com/video/1196496233?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" title="SLR STUDIO"></iframe></div>
-        <div class="etl-net-body">
-          <div class="etl-net-num">Platform // 03</div>
-          <div class="etl-net-title">SLR Studio</div>
-          <div class="etl-net-tagline">AI-assisted research intelligence</div>
-          <p class="etl-net-desc">A systematic literature review engine that takes researchers from keyword architecture to a publishable manuscript. Six output modes and ten research tools, with AI assistance at every stage and human judgment at every decision. AI-assisted, not AI-authored.</p>
-          <a class="etl-net-launch" href="https://slrstudio.online/" target="_blank" rel="noopener">Launch SLR Studio &rarr;</a>
         </div>
       </div>
 
@@ -1147,10 +1189,16 @@ document.addEventListener('DOMContentLoaded', function(){
       <div class="etl-net-card etl-net-card--wide">
         <div class="etl-net-video" style="padding-top:56.25%;"><iframe src="https://player.vimeo.com/video/1196488438?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" title="Greylander Press"></iframe></div>
         <div class="etl-net-body">
-          <div class="etl-net-num">Platform // 04</div>
+          <div class="etl-net-num">Platform // 03 <span class="etl-net-duration">3:45 walkthrough</span></div>
           <div class="etl-net-title">Greylander Press</div>
           <div class="etl-net-tagline">Serious work deserves a serious publisher</div>
-          <p class="etl-net-desc">An independent press based in Dayton, Ohio. Greylander pairs authors with a full editorial team, from ghostwriting and developmental editing to copy editing and cover art, taking a manuscript from rough draft to published book.</p>
+          <p class="etl-net-desc">We take you from &ldquo;I think I want to write a book&rdquo; to &ldquo;I wrote a book.&rdquo; A full editorial team holds your hand through the whole process. And a lot more.</p>
+          <div class="etl-net-bullets-label">What you'll see</div>
+          <ul class="etl-net-bullets">
+            <li>The editorial team that handles every phase</li>
+            <li>Ghostwriting through cover art, rough draft through bound book</li>
+            <li>Where the humans still hold the line on AI</li>
+          </ul>
           <a class="etl-net-launch" href="https://greylanderpress.com/" target="_blank" rel="noopener">Visit Greylander &rarr;</a>
         </div>
       </div>
@@ -1159,11 +1207,39 @@ document.addEventListener('DOMContentLoaded', function(){
       <div class="etl-net-card etl-net-card--wide">
         <div class="etl-net-video" style="padding-top:56.25%;"><iframe src="https://player.vimeo.com/video/1196518465?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" title="INTEL DASHBOARD-for ETL"></iframe></div>
         <div class="etl-net-body">
-          <div class="etl-net-num">Platform // 05</div>
+          <div class="etl-net-num">Platform // 04 <span class="etl-net-duration">3:28 walkthrough</span></div>
           <div class="etl-net-title">Intel Dashboard</div>
           <div class="etl-net-tagline">The lab's intelligence, in one place</div>
-          <p class="etl-net-desc">A live intelligence dashboard tracking the lab's research, media coverage, and emerging-technology signals. Dr. Oroszi's working view of what matters now, pulled together into a single command center.</p>
+          <p class="etl-net-desc">The gaps are where the interesting stuff happens. Intel Dashboard runs Dr. Oroszi's proprietary signal-gap engine, MCP-connected to live media, research, and emerging-tech feeds. Branded deliverables ready to send to your superiors. One live view. Built in-house, used in-house, not available elsewhere.</p>
+          <div class="etl-net-bullets-label">What you'll see</div>
+          <ul class="etl-net-bullets">
+            <li>Where the conversation is going quiet</li>
+            <li>Live media, research, and emerging-tech signals in one feed</li>
+            <li>Branded deliverables ready to send up the chain</li>
+          </ul>
           <a class="etl-net-launch" href="https://inteldashboard.org/" target="_blank" rel="noopener">Open the Dashboard &rarr;</a>
+        </div>
+      </div>
+
+      <!-- The Dose (anchor position; longest tour, depth justified) -->
+      <div class="etl-net-card etl-net-card--wide">
+        <div class="etl-net-video" style="padding-top:56.25%;"><iframe src="https://player.vimeo.com/video/1196471292?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" title="THE DOSE WEBSITE"></iframe></div>
+        <div class="etl-net-body">
+          <div class="etl-net-num">Platform // 05 <span class="etl-net-duration">8:28 full tour</span></div>
+          <div class="etl-net-title">The Dose</div>
+          <div class="etl-net-tagline">Health &amp; wellness, verified</div>
+          <p class="etl-net-desc">The characters become your best friends. You come back to find out if Henry's grandchild is a boy or girl, to check on MJ's grandfather, for the weekly Daily Dose, and for the puzzles. The Stoplight runs Dr. Oroszi's proprietary multi-source MCP engine: PubMed, FDA, the trial registry, and the NIH supplement database, classified per claim and verified live. Three-minute meditation when the day gets loud. Educational only, never medical. No other consumer health site is built this way. It's all here for you.</p>
+          <div class="etl-net-bullets-label">What you'll see</div>
+          <ul class="etl-net-bullets">
+            <li>The characters you will come back for</li>
+            <li>The Stoplight pulling PubMed, FDA, and the trial registry live</li>
+            <li>Daily Dose, puzzles, meditation when you need it</li>
+          </ul>
+          <div class="etl-net-footer">
+            <a class="etl-net-launch" href="https://thedose.net/" target="_blank" rel="noopener">Open The Dose &rarr;</a>
+            <a class="etl-net-link2" href="https://thedose.net/#dd-section" target="_blank" rel="noopener"><span aria-hidden="true">&#9654;</span> Listen: Your Daily Dose</a>
+            <a class="etl-net-link2" href="https://thedose.net/newsletter.html" target="_blank" rel="noopener"><span aria-hidden="true">&#128240;</span> Weekly Newsletter</a>
+          </div>
         </div>
       </div>
 
@@ -1723,106 +1799,10 @@ document.addEventListener('DOMContentLoaded', function(){
         <span class="directive-tag"><a href="https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/A1CAXG" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">Female US Citizens &middot; Harvard Dataverse</a></span>
       </div>
 
-      <div class="directive-card">
-        <div class="directive-num">DIRECTIVE // 06</div>
-        <span class="directive-icon">🔐</span>
-        <div class="directive-title">Nonverbal Intelligence &amp; Behavioral Analysis</div>
-        <p class="directive-body">Technology-augmented behavioral threat assessment. Bridging psychology, AI pattern recognition, and law enforcement tradecraft for real-world threat identification and de-escalation.</p>
-        <span class="directive-tag">FBI WMD · InfraGard</span>
-        <a href="body-language-cert.html" style="display:inline-block; margin-top:16px; font-family:'Oswald',sans-serif; font-size:11px; font-weight:600; letter-spacing:2px; text-transform:uppercase; padding:8px 20px; background:var(--black); color:#fff; text-decoration:none;">Body Language Certification →</a>
-      </div>
+      <!-- Directives 06-09 + Job Search bar removed; their content now lives
+           behind the Panel Room flow via leadership-programs.html and
+           job-fair.html (audience-tabbed for students vs. professionals). -->
 
-      <div class="directive-card">
-        <div class="directive-num">DIRECTIVE // 07</div>
-        <span class="directive-icon">🎯</span>
-        <div class="directive-title">4/5/6 Power Platform Leadership Assessment</div>
-        <p class="directive-body">A card-based leadership diagnostic developed by Dr. Oroszi. Select your cards. The pattern reveals everything — which frames you lead from, where your power actually comes from, and which styles you reach for under pressure.<br><br>In the hands of a trained analyst, it goes further. Dr. Oroszi has identified behavioral patterns in people she has never met, including whether someone will do anything to close a deal.<br><br>Used in hiring, onboarding, team development, and leadership coaching.</p>
-        <a href="power-platform.html" style="display:inline-block; margin-top:16px; font-family:'Oswald',sans-serif; font-size:11px; font-weight:600; letter-spacing:2px; text-transform:uppercase; padding:8px 20px; background:var(--black); color:#fff; text-decoration:none;">Take the Assessment →</a>
-      </div>
-
-      <div class="directive-card">
-        <div class="directive-num">DIRECTIVE // 08</div>
-        <span class="directive-icon">🎭</span>
-        <div class="directive-title">Egos at the Table</div>
-        <p class="directive-body">A behavioral observation and facilitation game developed by Dr. Oroszi that teaches you to identify the 12 meeting personality types sabotaging your productivity. Unproductive meetings cost U.S. organizations $37 billion annually. Learn to read the room, decode power plays, and manage ego-driven behaviors before they derail your next meeting. Includes a live Meeting Bingo card, character profiles, a simulation game with secret role assignment, and a body language reading guide grounded in Dr. Oroszi's behavioral research. Available for ETL visitors, faculty, corporate training, and team development.</p>
-        <a href="egos-at-the-table.html" style="display:inline-block; margin-top:16px; font-family:'Oswald',sans-serif; font-size:11px; font-weight:600; letter-spacing:2px; text-transform:uppercase; padding:8px 20px; background:var(--black); color:#fff; text-decoration:none;">Play the Game →</a>
-        <a href="egos-at-the-table.html#certification" style="display:inline-block; margin-top:8px; font-family:'Oswald',sans-serif; font-size:11px; font-weight:600; letter-spacing:2px; text-transform:uppercase; padding:8px 20px; background:transparent; color:var(--black); border:1px solid var(--black); text-decoration:none;">Get Facilitator Certification →</a>
-      </div>
-
-      <!-- DIRECTIVE 08.5 — Standalone Job Search card. Sits ABOVE the certificate as a high-visibility shortcut for graduating students who don't want to walk through the full module. -->
-      <a href="job-fair.html?go=search" class="directive-card directive-card--featured" id="directive-jobsearch" style="text-decoration:none;color:inherit;display:block;background:linear-gradient(135deg,rgba(253,184,39,0.10) 0%,rgba(253,184,39,0.04) 100%);border:2px solid #FDB827;position:relative;overflow:hidden;">
-        <div style="position:absolute;top:14px;right:14px;background:#FDB827;color:#111;font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:2px;font-weight:700;padding:4px 10px;text-transform:uppercase;">🎓 For Graduating Students</div>
-        <div class="directive-label" style="color:#FDB827;">JOB SEARCH // OPEN ACCESS</div>
-        <div style="display:grid;grid-template-columns:auto 1fr auto;gap:24px;align-items:center;margin-top:16px;flex-wrap:wrap;">
-          <div class="directive-icon" style="font-size:48px;">🔎</div>
-          <div>
-            <h3 style="font-family:'Oswald',sans-serif;font-size:24px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;color:#FDB827;">Find a Job, Internship, or Volunteer Position</h3>
-            <p class="directive-body" style="margin-bottom:8px;color:#e8e8e8;">Upload your CV. The AI scanner searches live postings on <strong style="color:#ffffff;">Indeed, LinkedIn, Handshake, USAJobs, VolunteerMatch, Idealist, AmeriCorps</strong>, and company career pages, then matches them to your skills, location, and visa status. <strong style="color:#ffffff;">OPT and CPT eligibility</strong> filtered automatically for international students.</p>
-            <div style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1.5px;color:#5fd4a8;text-transform:uppercase;margin-top:8px;">No certificate required · No login · No credit card</div>
-          </div>
-          <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-end;flex-shrink:0;">
-            <span class="btn btn-primary" style="background:#FDB827;color:#111;border-color:#FDB827;font-weight:700;letter-spacing:2px;">OPEN JOB SEARCH →</span>
-            <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;color:#888;text-transform:uppercase;">Internships · Full-time · OPT/CPT · Volunteer</div>
-          </div>
-        </div>
-      </a>
-
-      <div class="directive-card directive-card--featured" id="directive-09">
-
-        <div class="directive-label">DIRECTIVE // 09</div>
-
-        <div class="directive-09-inner">
-
-          <div class="directive-09-left">
-            <div class="directive-icon">🏆</div>
-            <h3 style="font-family:'Oswald',sans-serif; font-size:20px; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin-bottom:12px; color:var(--black);">ETL LEADERSHIP CERTIFICATE</h3>
-            <p class="directive-body">A credential earned — not given. Complete all six modules to demonstrate mastery of the communication and behavioral skills that define effective leadership. Developed by Dr. Oroszi from two decades of graduate curriculum, national security training, and human behavior research.</p>
-          </div>
-
-          <div class="directive-09-right">
-            <div class="module-progress" id="cert-progress-grid">
-              <a href="elevator-speech.html" class="module-item" id="prog-elevator">
-                <span class="module-check">○</span>
-                <span class="module-name">MODULE 1 &mdash; ELEVATOR SPEECH</span>
-              </a>
-              <a href="egos-at-the-table.html" class="module-item" id="prog-egos">
-                <span class="module-check">○</span>
-                <span class="module-name">MODULE 2 &mdash; EGOS AT THE TABLE</span>
-              </a>
-              <a href="body-language-cert.html" class="module-item" id="prog-bodylang">
-                <span class="module-check">○</span>
-                <span class="module-name">MODULE 3 &mdash; BODY LANGUAGE</span>
-              </a>
-              <a href="456-power-platform.html" class="module-item" id="prog-power">
-                <span class="module-check">○</span>
-                <span class="module-name">MODULE 4 &mdash; 4/5/6 POWER PLATFORM</span>
-              </a>
-              <a href="academic-poster.html" class="module-item" id="prog-poster">
-                <span class="module-check">○</span>
-                <span class="module-name">MODULE 5 &mdash; ACADEMIC POSTER</span>
-              </a>
-              <a href="job-fair.html?go=module" class="module-item" id="prog-jobfair">
-                <span class="module-check">○</span>
-                <span class="module-name">MODULE 6 &mdash; JOB FAIR MASTERY</span>
-              </a>
-            </div>
-            <div class="opt-callout">
-              <span class="opt-callout-badge">NEW</span>
-              <div class="opt-callout-text"><strong>ATS Scoring + OPT/CPT Filtering.</strong> Module 6 scores every job posting against your CV using ATS keyword matching &mdash; see your score, what&rsquo;s missing, and exactly what to add. International students: results are filtered by OPT and CPT eligibility so you only see positions you can legally take.</div>
-            </div>
-
-            <div id="cert-locked" style="margin-top: 1.5rem;">
-              <a href="elevator-speech.html" class="btn btn-primary">BEGIN MODULE 1 &rarr;</a>
-            </div>
-
-            <div id="cert-unlocked" style="display:none; margin-top: 1.5rem;">
-              <a href="leadership-cert.html" class="btn btn-primary">CLAIM YOUR CERTIFICATE &rarr;</a>
-            </div>
-          </div>
-
-        </div>
-
-      </div>
     </div>
   </div>
 </div>
@@ -2686,46 +2666,7 @@ document.addEventListener('DOMContentLoaded', function(){
   </div>
 </div>
 
-<script>
-(function() {
-  var keys = {
-    'etl_elevator_done': 'prog-elevator',
-    'etl_egos_done':     'prog-egos',
-    'etl_bodylang_done': 'prog-bodylang',
-    'etl_power456_done': 'prog-power',
-    'etl_poster_done':   'prog-poster',
-    'etl_jobfair_done':  'prog-jobfair'
-  };
-  var completed = 0;
-  for (var key in keys) {
-    try {
-      if (localStorage.getItem(key) === 'true') {
-        var el = document.getElementById(keys[key]);
-        if (el) {
-          el.classList.add('complete');
-          el.querySelector('.module-check').textContent = '\u2713';
-          completed++;
-        }
-      }
-    } catch(e) {}
-  }
-  if (completed >= 6) {
-    document.getElementById('cert-locked').style.display = 'none';
-    document.getElementById('cert-unlocked').style.display = 'block';
-  } else if (completed > 0) {
-    var nextLinks = {
-      0: 'elevator-speech.html',
-      1: 'egos-at-the-table.html',
-      2: 'body-language-cert.html',
-      3: '456-power-platform.html',
-      4: 'academic-poster.html',
-      5: 'job-fair.html'
-    };
-    var btn = document.getElementById('cert-locked').querySelector('a');
-    if (btn) {
-      btn.textContent = 'CONTINUE WHERE YOU LEFT OFF \u2192';
-      btn.href = nextLinks[completed] || 'elevator-speech.html';
-    }
-  }
-})();
-</script>
+<!-- Cert progress JS removed alongside Directive 09. Progress tracking
+     still lives on leadership-cert.html itself, which is reachable from
+     the Panel Room -> Leadership Programs flow. -->
+
