@@ -91,6 +91,12 @@ exports.handler = async (event) => {
   const profileUrl = `${SITE_BASE}/press/reporter/${reporter.id.replace(/_/g, '-')}`;
   const deskLabel = DESK_LABELS[reporter.desk] || '';
   const tierLabel = reporter.tier_label || 'Reporter';
+  // Portrait filename matches the face wall convention: capitalize each
+  // underscore-separated id segment, append .png. e.g. marcus_reyes ->
+  // Marcus_Reyes.png. Falls back to initials if the image fails to load.
+  const portraitFile = reporter.id.split('_').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join('_');
+  const portraitUrl = `/agents/${portraitFile}.png`;
+  const initials = reporter.portrait_placeholder || reporter.name.split(' ').map(s => s[0]).join('').slice(0, 2);
 
   const piecesHtml = byReporter.length
     ? byReporter.map(p => `
@@ -155,7 +161,8 @@ footer a{color:#5a5240;text-decoration:underline;}
 <div class="crumb"><a href="/press">All desks</a> &nbsp;/&nbsp; <a href="/press?desk=${esc(reporter.desk)}">${esc(deskLabel)}</a> &nbsp;/&nbsp; ${esc(reporter.name)}</div>
 <header class="profile-head">
   <div class="portrait">
-    <span class="portrait-placeholder">${esc(reporter.portrait_placeholder || reporter.name.split(' ').map(s => s[0]).join('').slice(0, 2))}</span>
+    <img src="${esc(portraitUrl)}" alt="${esc(reporter.name)}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+    <span class="portrait-placeholder" style="display:none;">${esc(initials)}</span>
   </div>
   <div>
     <h1 class="profile-name">${esc(reporter.name)}</h1>
