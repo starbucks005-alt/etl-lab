@@ -33,7 +33,14 @@ const TITLE_MIN = 8, TITLE_MAX = 200;
 const DEK_MAX = 300;
 const BODY_MIN = 200, BODY_MAX = 10000;
 const SLUG_MAX = 80;
-const PLATFORMS = new Set(['gauntlet', 'greylander', 'lab']);
+const PLATFORMS = new Set(['gauntlet', 'greylander', 'lab', 'newswire']);
+// Desks for the ETL Newswire. 'lab' platform pieces and Gauntlet / Greylander
+// client releases all sit on one of these eight desks. Reporters write to a
+// fixed desk. Client releases get a sensible default based on platform but
+// the publisher can override.
+const DESKS = new Set(['us', 'world', 'business', 'technology', 'science', 'health', 'entertainment', 'sports']);
+const BYLINE_KINDS = new Set(['client', 'reporter']);
+const DEFAULT_DESK_BY_PLATFORM = { gauntlet: 'business', greylander: 'entertainment', lab: 'technology', newswire: 'technology' };
 
 const PRESS_BASE_URL = 'https://emerging-tech-lab.com';
 
@@ -89,13 +96,25 @@ exports.handler = async (event) => {
   const platform     = String(body.platform || 'lab').trim().toLowerCase();
   const userSlug     = String(body.slug || '').trim();
   const heroRaw      = body.hero_image_url == null ? '' : String(body.hero_image_url).trim();
+  // Newswire schema additions:
+  const deskRaw       = String(body.desk || '').trim().toLowerCase();
+  const desk          = DESKS.has(deskRaw) ? deskRaw : (DEFAULT_DESK_BY_PLATFORM[platform] || 'business');
+  const byline_kind   = BYLINE_KINDS.has(String(body.byline_kind || '').toLowerCase()) ? String(body.byline_kind).toLowerCase() : 'client';
+  const reporter_id   = byline_kind === 'reporter' ? String(body.reporter_id || '').trim().slice(0, 80) : '';
+  // Admin-only override for backdating (used by the seed function). Gated on
+  // PRESS_PUBLISH_TOKEN: only honored if the request authenticated with the
+  // token, because otherwise anyone could backdate spam.
+  const publishedAtOverride = String(body.published_at || '').trim();
 
   if (title.length < TITLE_MIN || title.length > TITLE_MAX) return json(400, { error: `title must be ${TITLE_MIN}-${TITLE_MAX} characters` });
   if (pieceBody.length < BODY_MIN || pieceBody.length > BODY_MAX) return json(400, { error: `body must be ${BODY_MIN}-${BODY_MAX} characters` });
   if (!isValidUrl(source_url)) return json(400, { error: 'source_url must be a valid http(s) URL' });
-  if (!PLATFORMS.has(platform)) return json(400, { error: 'platform must be gauntlet | greylander | lab' });
+  if (!PLATFORMS.has(platform)) return json(400, { error: 'platform must be gauntlet | greylander | lab | newswire' });
   if (heroRaw && !(heroRaw.startsWith('/press-image/') || heroRaw.startsWith('http://') || heroRaw.startsWith('https://'))) {
     return json(400, { error: 'hero_image_url must be empty, an /press-image/<slug> path, or an http(s) URL' });
+  }
+  if (byline_kind === 'reporter' && !reporter_id) {
+    return json(400, { error: 'reporter_id is required when byline_kind is reporter' });
   }
 
   // Connect Blobs and pick the slug
@@ -112,6 +131,14 @@ exports.handler = async (event) => {
     if (existing) slug = slug + '-' + shortHash(title + Date.now());
   } catch (_) {}
 
+  // Resolve published_at. Token-authenticated callers may backdate
+  // (the seed function uses this). Everyone else gets the current ISO.
+  let published_at = new Date().toISOString();
+  if (publishedAtOverride && expectedToken) {
+    const parsed = new Date(publishedAtOverride);
+    if (!isNaN(parsed.getTime())) published_at = parsed.toISOString();
+  }
+
   const piece = {
     slug,
     title,
@@ -121,19 +148,35 @@ exports.handler = async (event) => {
     source_label: source_label || (() => { try { return new URL(source_url).hostname.replace(/^www\./, ''); } catch { return ''; } })(),
     author,
     platform,
-    published_at: new Date().toISOString(),
+    desk,
+    byline_kind,
+    reporter_id: reporter_id || null,
+    published_at,
     hero_image_url: heroRaw || null,
   };
 
   try {
     await store.setJSON(slug, piece);
-    // Also append to a flat index so press-index can list pieces in order.
+    // Also append to the flat index so press-index can list pieces in order.
+    // Insert in chronological position (most recent first) so backdated pieces
+    // land in the right slot rather than at the head.
     const indexStore = getStore('press_index');
     let order = [];
     try { const existing = await indexStore.get('order', { type: 'json' }); if (Array.isArray(existing)) order = existing; } catch (_) {}
-    const indexEntry = { slug, title, dek, platform, source_label: piece.source_label, published_at: piece.published_at };
+    const indexEntry = {
+      slug, title, dek, platform, source_label: piece.source_label,
+      published_at: piece.published_at, desk, byline_kind,
+    };
+    if (piece.reporter_id) indexEntry.reporter_id = piece.reporter_id;
     if (piece.hero_image_url) indexEntry.hero_image_url = piece.hero_image_url;
-    order.unshift(indexEntry);
+    // Insertion: scan for the first entry older than this one and insert before it.
+    let inserted = false;
+    for (let i = 0; i < order.length; i++) {
+      if (new Date(order[i].published_at) <= new Date(indexEntry.published_at)) {
+        order.splice(i, 0, indexEntry); inserted = true; break;
+      }
+    }
+    if (!inserted) order.push(indexEntry);
     await indexStore.setJSON('order', order.slice(0, 500));
   } catch (err) {
     console.error('[press-publish] blob write failed', err && err.message);

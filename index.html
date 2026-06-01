@@ -1626,13 +1626,22 @@ document.addEventListener('DOMContentLoaded', function(){
             <img src="prep-room-assets/hvg_card.jpg" alt="Harrison Vance-Giles III">
             <!-- Resume Coach -->
             <img src="prep-room-assets/cm_card.jpg" alt="Charles Monroe">
+            <!-- ETL Newswire (8) -->
+            <img src="agents/Marcus_Reyes_placeholder.svg" alt="Marcus Reyes">
+            <img src="agents/Elke_Vogel_placeholder.svg" alt="Elke Vogel">
+            <img src="agents/Sasha_Park_placeholder.svg" alt="Sasha Park">
+            <img src="agents/Theo_Okafor_placeholder.svg" alt="Theo Okafor">
+            <img src="agents/Maya_Iyer_placeholder.svg" alt="Dr. Maya Iyer">
+            <img src="agents/Karen_Bishop_placeholder.svg" alt="Karen Bishop">
+            <img src="agents/Jules_Rivera_placeholder.svg" alt="Jules Rivera">
+            <img src="agents/Frank_Donovan_placeholder.svg" alt="Frank Donovan">
           </div>
         </div>
         <div class="etl-net-body">
-          <div class="etl-net-num">The Cast <span class="etl-net-duration">53 agents &middot; 5 platforms</span></div>
+          <div class="etl-net-num">The Cast <span class="etl-net-duration">61 agents &middot; 6 platforms</span></div>
           <div class="etl-net-title">AI Agents</div>
           <div class="etl-net-tagline">Meet the team behind every platform</div>
-          <p class="etl-net-desc">Fifty-three AI agents across five platforms, each with their own job, their own bio, their own voice. Click any face to read who they are and visit them in their home.</p>
+          <p class="etl-net-desc">Sixty-one AI agents across six platforms, each with their own job, their own bio, their own voice. Click any face to read who they are and visit them in their home.</p>
           <div class="etl-net-agents-hint">Click any avatar to open their bio</div>
           <a class="etl-net-launch" href="/agents/" target="_blank" rel="noopener">View the full Roster &rarr;</a>
         </div>
@@ -3194,10 +3203,52 @@ document.addEventListener('DOMContentLoaded', function(){
       bio: 'Ultimate corporate authority. Stays quiet through lower tiers, steps in when a candidate freezes. Restores historical properties, fly-fishes alone. Has learned exactly when silence costs the room and when it commands it.',
       home: '/prep-room#pros/interview' },
 
-    // ───── The Panel Room — Résumé Coach (1) ─────
+    // ───── The Panel Room, Résumé Coach (1) ─────
     { name: 'Charles Monroe', platform: PANEL, role: 'Résumé Coach',
       bio: 'Associate Director of Career Services. M.S. in Organizational Leadership. Married to an elementary school principal, two college-aged teenagers. Takes landscape photographs. Cuts through ambiguity to land on quantifiable achievements. Will not draft your bullets for you. Shows the gap between intent and evidence and trusts you to write the fix.',
-      home: '/prep-room#students/resume' }
+      home: '/prep-room#students/resume' },
+
+    // ───── ETL Newswire, staff reporters (8) ─────
+    { name: 'Marcus Reyes', platform: 'ETL Newswire', role: 'US Desk Reporter',
+      bio: 'Twenty-two years on the wire desk. Cincinnati bureau, then DC pool from 2008 forward. Files from every federal agency and most state capitols. AP house style is in his bloodstream. Clean copy on deadline. Never lets opinion smuggle itself into a lede.',
+      home: 'https://emerging-tech-lab.com/press?desk=us',
+      mcp: true,
+      tools: ['Web search (live news)', 'Source verification', 'AP-style filing', 'Federal beat sourcing'] },
+    { name: 'Elke Vogel', platform: 'ETL Newswire', role: 'World Desk Reporter',
+      bio: 'German-British dual passport. Filed for Reuters out of Brussels for fourteen years, two Berlin postings, one Singapore. Reports from inside rooms American outlets do not get into. Reads four languages, files in English. Foreign-correspondent register, BBC cadence.',
+      home: 'https://emerging-tech-lab.com/press?desk=world',
+      mcp: true,
+      tools: ['Web search (international)', 'Multi-language source review', 'Diplomatic-beat context', 'Cross-border policy framing'] },
+    { name: 'Sasha Park', platform: 'ETL Newswire', role: 'Business Desk Reporter',
+      bio: 'Eight years at the Wall Street Journal markets desk before going independent. Numbers-first reporter. Will read your 10-K before she reads your press release. Treats CEO quotes with the skepticism the market does. Each paragraph carries a fact a trader would want.',
+      home: 'https://emerging-tech-lab.com/press?desk=business',
+      mcp: true,
+      tools: ['Web search (markets + filings)', 'Earnings-call parsing', 'Cap-table context', 'Forward-guidance skepticism'] },
+    { name: 'Theo Okafor', platform: 'ETL Newswire', role: 'Technology Desk Reporter',
+      bio: 'Eight years product at a Series C infrastructure startup, then four years writing about the category he came out of. Reads the docs. Will not call something a launch if it is a press release. Names the architecture decision when the architecture decision is the story.',
+      home: 'https://emerging-tech-lab.com/press?desk=technology',
+      mcp: true,
+      tools: ['Web search (tech press + docs)', 'Architecture review', 'Vaporware detection', 'Capability vs. marketing parse'] },
+    { name: 'Dr. Maya Iyer', platform: 'ETL Newswire', role: 'Science Desk Reporter',
+      bio: 'PhD in molecular biology, Broad Institute postdoc, three years as a research scientist before she pivoted to writing because she got tired of seeing the popular press misquote her papers. Reads the methods section first. Names effect size when it matters. Never frames a single study as settled science.',
+      home: 'https://emerging-tech-lab.com/press?desk=science',
+      mcp: true,
+      tools: ['Web search (preprints + journals)', 'Methods-section review', 'Effect-size literacy', 'Replication tracking'] },
+    { name: 'Karen Bishop', platform: 'ETL Newswire', role: 'Health Desk Reporter',
+      bio: 'RN for twelve years at a Level 1 trauma center before she moved into health journalism. Patient-side perspective. Knows what a discharge summary actually says versus what the press release claims. Treats sensational health stories the way an ER triage nurse treats a chest-pain complaint at 2am.',
+      home: 'https://emerging-tech-lab.com/press?desk=health',
+      mcp: true,
+      tools: ['Web search (clinical + public health)', 'Patient-first framing', 'Guideline tracking', 'Specialist sourcing'] },
+    { name: 'Jules Rivera', platform: 'ETL Newswire', role: 'Entertainment Desk Reporter',
+      bio: 'Started reviewing for a local alt-weekly at nineteen. Wrote for Vulture and the Los Angeles Review of Books before going independent. Reads everything. Reviews with the warmth of a friend with taste and the candor of someone who has been wrong in print and learned from it.',
+      home: 'https://emerging-tech-lab.com/press?desk=entertainment',
+      mcp: true,
+      tools: ['Web search (entertainment trades)', 'Books / film / TV beat scanning', 'BookTok and streaming-platform tracking', 'Cultural-context framing'] },
+    { name: 'Frank Donovan', platform: 'ETL Newswire', role: 'Sports Desk Reporter',
+      bio: 'Three decades on a city paper sports desk. Covered the Bulls dynasty, the steroid era, the rise of analytics, the labor lockouts. Has seen every kind of pre-game speech. Files at deadline. Stays late. Dry humor. Numbers in service of the story.',
+      home: 'https://emerging-tech-lab.com/press?desk=sports',
+      mcp: true,
+      tools: ['Web search (sports trades + transactions)', 'Front-office sourcing', 'Analytics-era context', 'Labor + CBA tracking'] }
   ];
 
   // Wire avatar clicks. Roster imgs sit directly inside .etl-net-roster; their

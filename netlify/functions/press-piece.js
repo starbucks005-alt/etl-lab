@@ -26,7 +26,24 @@ const PLATFORM_LABELS = {
   gauntlet:   { label: 'The Gauntlet',     url: 'https://thegauntlet.studio/' },
   greylander: { label: 'Greylander Press', url: 'https://greylanderpress.com/' },
   lab:        { label: 'Emerging Technologies Laboratory', url: 'https://emerging-tech-lab.com/' },
+  newswire:   { label: 'ETL Newswire',     url: 'https://emerging-tech-lab.com/press' },
 };
+
+const DESK_LABELS = {
+  us: 'US', world: 'World', business: 'Business', technology: 'Technology',
+  science: 'Science', health: 'Health', entertainment: 'Entertainment', sports: 'Sports',
+};
+
+// Lazy-loaded reporters list for byline rendering. Read once per cold start.
+let REPORTERS = null;
+function getReporters() {
+  if (REPORTERS) return REPORTERS;
+  try {
+    const data = require('../../config/newswire-reporters.json');
+    REPORTERS = (data.reporters || []).reduce((acc, r) => { acc[r.id] = r; return acc; }, {});
+  } catch (_) { REPORTERS = {}; }
+  return REPORTERS;
+}
 
 const esc = (s) => String(s == null ? '' : s)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -154,9 +171,9 @@ ${heroImage ? `<meta name="twitter:image" content="${esc(heroImage)}">` : ''}
 
 <article>
   <div class="meta-line">
+    ${piece.desk ? `<a href="/press?desk=${esc(piece.desk)}" style="margin-right:0.6rem;">${esc(DESK_LABELS[piece.desk] || piece.desk)}</a>&middot;&nbsp;` : ''}
     <time datetime="${esc(date)}">${esc(dateHuman)}</time>
-    &nbsp;&middot;&nbsp;
-    <a href="${esc(piece.source_url)}" rel="noopener">${esc(sourceLabel)}</a>
+    ${piece.byline_kind !== 'reporter' ? `&nbsp;&middot;&nbsp;<a href="${esc(piece.source_url)}" rel="noopener">${esc(sourceLabel)}</a>` : ''}
   </div>
 
   ${heroImage ? `<img class="hero-image" src="${esc(heroImage)}" alt="${esc(piece.title)}" loading="eager" style="width:100%;max-height:420px;object-fit:cover;display:block;margin-bottom:1.4rem;">` : ''}
@@ -164,13 +181,28 @@ ${heroImage ? `<meta name="twitter:image" content="${esc(heroImage)}">` : ''}
   <h1>${esc(piece.title)}</h1>
   ${piece.dek ? `<p class="dek">${esc(piece.dek)}</p>` : ''}
 
+  ${(() => {
+    if (piece.byline_kind === 'reporter' && piece.reporter_id) {
+      const r = getReporters()[piece.reporter_id];
+      if (r) {
+        return `<div class="byline" style="margin-top:0;margin-bottom:1.6rem;padding-top:0;border-top:0;">By <strong style="color:#0e0c08;">${esc(r.name)}</strong>, ${esc(r.desk_label)} Desk</div>`;
+      }
+    }
+    return '';
+  })()}
+
   <div class="body">
     ${renderBody(piece.body)}
   </div>
 
   <div class="byline">
-    ${piece.author ? `By ${esc(piece.author)} &middot; ` : ''}
-    Source: <a href="${esc(piece.source_url)}" rel="noopener">${esc(sourceLabel)}</a>
+    ${(() => {
+      if (piece.byline_kind === 'reporter' && piece.reporter_id) {
+        const r = getReporters()[piece.reporter_id];
+        if (r) return `Reporting by ${esc(r.name)} for the ${esc(r.desk_label)} desk &middot; ETL Newswire staff`;
+      }
+      return (piece.author ? `By ${esc(piece.author)} &middot; ` : '') + 'Source: <a href="' + esc(piece.source_url) + '" rel="noopener">' + esc(sourceLabel) + '</a>';
+    })()}
   </div>
 
   <div class="source-cta">

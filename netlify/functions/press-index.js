@@ -1,140 +1,310 @@
 /* ─────────────────────────────────────────────────────────────────────────────
-   press-index — render the ETL Press Hub homepage at /press.
+   press-index — render the ETL Newswire homepage at /press.
 
-   Lists every published press piece in reverse chronological order, grouped
-   by platform of origin. Reads from press_index blob 'order'.
+   Newsroom-shaped surface, not a directory. Masthead, desk nav strip
+   (US / World / Business / Technology / Science / Health / Entertainment /
+   Sports), hero featured story, main chronological feed, sidebar with
+   latest-per-desk mini-lists. Filterable by query string ?desk=<desk_id>.
 
-   This is the page Google crawls to discover all the pieces, and the page a
-   client sees when they share "the press hub" with their team.
+   Data: reads press_index 'order' (most-recent first, with desk/byline_kind/
+   reporter_id additions).
    ───────────────────────────────────────────────────────────────────────────── */
 
 const { getStore, connectLambda } = require('@netlify/blobs');
 
 const SITE_BASE = 'https://emerging-tech-lab.com';
+const NEWSROOM_NAME = 'ETL Newswire';
+const NEWSROOM_TAGLINE = 'Releases, reporting, and analysis from the ETL network';
 
-const PLATFORM_LABELS = {
-  gauntlet:   'The Gauntlet',
-  greylander: 'Greylander Press',
-  lab:        'Emerging Technologies Laboratory',
-};
+const DESKS = [
+  { id: 'us',            label: 'US'            },
+  { id: 'world',         label: 'World'         },
+  { id: 'business',      label: 'Business'      },
+  { id: 'technology',    label: 'Technology'    },
+  { id: 'science',       label: 'Science'       },
+  { id: 'health',        label: 'Health'        },
+  { id: 'entertainment', label: 'Entertainment' },
+  { id: 'sports',        label: 'Sports'        },
+];
+const DESK_LABEL = DESKS.reduce((acc, d) => { acc[d.id] = d.label; return acc; }, {});
+const DESK_IDS = new Set(DESKS.map(d => d.id));
+
+let REPORTERS = null;
+function getReporters() {
+  if (REPORTERS) return REPORTERS;
+  try {
+    const data = require('../../config/newswire-reporters.json');
+    REPORTERS = (data.reporters || []).reduce((acc, r) => { acc[r.id] = r; return acc; }, {});
+  } catch (_) { REPORTERS = {}; }
+  return REPORTERS;
+}
 
 const esc = (s) => String(s == null ? '' : s)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
   .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
-function renderHub(pieces) {
-  const total = pieces.length;
-  const groups = { gauntlet: [], greylander: [], lab: [] };
-  pieces.forEach(p => { (groups[p.platform] || groups.lab).push(p); });
+function fmtDateLong(iso) {
+  if (!iso) return '';
+  try { return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }); }
+  catch { return ''; }
+}
+function fmtDateShort(iso) {
+  if (!iso) return '';
+  try { return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }); }
+  catch { return ''; }
+}
+function fmtMasthead() {
+  return new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+}
 
-  function section(platformKey) {
-    const items = groups[platformKey] || [];
-    if (!items.length) return '';
-    const sectionHasImages = items.some(p => p && p.hero_image_url);
-    return `<section class="group">
-      <h2 class="group-h">${esc(PLATFORM_LABELS[platformKey])}</h2>
-      <ul class="feed">
-        ${items.map(p => {
-          const date = p.published_at ? new Date(p.published_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '';
-          const thumb = sectionHasImages
-            ? (p.hero_image_url
-                ? `<span class="feed-thumb" style="background-image:url('${esc(p.hero_image_url)}');"></span>`
-                : `<span class="feed-thumb feed-thumb-empty"></span>`)
-            : '';
-          return `<li class="feed-item${sectionHasImages ? ' feed-item-thumbed' : ''}">
-            <a class="feed-link" href="/press/${esc(p.slug)}">
-              ${thumb}
-              <span class="feed-text">
-                <span class="feed-meta"><time>${esc(date)}</time>${p.source_label ? ' &middot; ' + esc(p.source_label) : ''}</span>
-                <span class="feed-title">${esc(p.title)}</span>
-                ${p.dek ? `<span class="feed-dek">${esc(p.dek)}</span>` : ''}
-              </span>
+function bylineText(p) {
+  if (p.byline_kind === 'reporter' && p.reporter_id) {
+    const r = getReporters()[p.reporter_id];
+    if (r) return `By ${r.name}`;
+  }
+  return p.source_label ? `Source: ${p.source_label}` : '';
+}
+
+function renderDeskNav(activeDesk) {
+  return `
+  <nav class="desk-nav" aria-label="Desks">
+    <a href="/press" class="desk-link${!activeDesk ? ' active' : ''}">All</a>
+    ${DESKS.map(d => `<a href="/press?desk=${d.id}" class="desk-link${activeDesk === d.id ? ' active' : ''}">${esc(d.label)}</a>`).join('')}
+  </nav>`;
+}
+
+function renderHero(p) {
+  if (!p) return '';
+  const hero = p.hero_image_url ? esc(p.hero_image_url) : '';
+  const date = fmtDateLong(p.published_at);
+  const byline = bylineText(p);
+  const deskLabel = p.desk ? (DESK_LABEL[p.desk] || p.desk) : '';
+  return `
+  <article class="hero">
+    ${hero ? `<a class="hero-image" href="/press/${esc(p.slug)}" style="background-image:url('${hero}');" aria-label="${esc(p.title)}"></a>` : ''}
+    <div class="hero-body">
+      <div class="hero-eyebrow">
+        ${deskLabel ? `<a class="hero-desk" href="/press?desk=${esc(p.desk)}">${esc(deskLabel)}</a>` : ''}
+        <span class="hero-date">${esc(date)}</span>
+      </div>
+      <h2 class="hero-title"><a href="/press/${esc(p.slug)}">${esc(p.title)}</a></h2>
+      ${p.dek ? `<p class="hero-dek">${esc(p.dek)}</p>` : ''}
+      <div class="hero-foot">
+        ${byline ? `<span class="hero-byline">${esc(byline)}</span>` : ''}
+        <a class="hero-cta" href="/press/${esc(p.slug)}">Read the story &rarr;</a>
+      </div>
+    </div>
+  </article>`;
+}
+
+function renderFeedCard(p) {
+  const date = fmtDateShort(p.published_at);
+  const byline = bylineText(p);
+  const deskLabel = p.desk ? (DESK_LABEL[p.desk] || p.desk) : '';
+  const hero = p.hero_image_url ? esc(p.hero_image_url) : '';
+  return `
+    <li class="feed-card">
+      <a class="feed-link" href="/press/${esc(p.slug)}">
+        ${hero ? `<span class="feed-thumb" style="background-image:url('${hero}');"></span>` : '<span class="feed-thumb feed-thumb-empty"></span>'}
+        <span class="feed-text">
+          <span class="feed-meta">
+            ${deskLabel ? `<span class="feed-desk">${esc(deskLabel)}</span>` : ''}
+            <time>${esc(date)}</time>
+          </span>
+          <span class="feed-title">${esc(p.title)}</span>
+          ${p.dek ? `<span class="feed-dek">${esc(p.dek)}</span>` : ''}
+          ${byline ? `<span class="feed-byline">${esc(byline)}</span>` : ''}
+        </span>
+      </a>
+    </li>`;
+}
+
+function renderSidebarBlock(label, deskId, pieces) {
+  const items = (pieces || []).slice(0, 4);
+  if (!items.length) return `<section class="side-block"><h3 class="side-h"><a href="/press?desk=${esc(deskId)}">${esc(label)}</a></h3><p class="side-empty">Quiet on this desk.</p></section>`;
+  return `
+    <section class="side-block">
+      <h3 class="side-h"><a href="/press?desk=${esc(deskId)}">${esc(label)}</a></h3>
+      <ul class="side-list">
+        ${items.map(p => `
+          <li class="side-item">
+            <a href="/press/${esc(p.slug)}">
+              <span class="side-date">${esc(fmtDateShort(p.published_at))}</span>
+              <span class="side-title">${esc(p.title)}</span>
             </a>
-          </li>`;
-        }).join('\n')}
+          </li>
+        `).join('')}
       </ul>
     </section>`;
-  }
+}
+
+function renderNewsroom(pieces, activeDesk) {
+  const total = pieces.length;
+  const filtered = activeDesk ? pieces.filter(p => p.desk === activeDesk) : pieces;
+  const hero = filtered[0] || null;
+  const rest = filtered.slice(1);
+
+  // Sidebar shows latest from a rotation of desks, pulled from the FULL list
+  // not the filtered list, so visitors browsing a single desk still see what
+  // is happening elsewhere.
+  const sidebar = ['business', 'technology', 'science', 'health', 'world']
+    .filter(d => d !== activeDesk)
+    .slice(0, 3)
+    .map(d => ({ id: d, label: DESK_LABEL[d], items: pieces.filter(p => p.desk === d) }));
+
+  const masthead = fmtMasthead();
+  const filterLabel = activeDesk ? ` &middot; ${esc(DESK_LABEL[activeDesk])} desk` : '';
+  const pageTitle = activeDesk ? `${esc(DESK_LABEL[activeDesk])} | ${NEWSROOM_NAME}` : `${NEWSROOM_NAME} | Emerging Technologies Laboratory`;
+  const pageDesc = activeDesk
+    ? `${esc(DESK_LABEL[activeDesk])} desk reporting, releases, and analysis from the Emerging Technologies Laboratory network.`
+    : `${NEWSROOM_NAME}. ${NEWSROOM_TAGLINE}. The Gauntlet, Greylander Press, the lab itself.`;
 
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ETL Press Hub | Emerging Technologies Laboratory</title>
-<meta name="description" content="Press releases and announcements from companies and authors connected to the Emerging Technologies Laboratory, The Gauntlet, and Greylander Press.">
-<link rel="canonical" href="${SITE_BASE}/press">
+<title>${pageTitle}</title>
+<meta name="description" content="${pageDesc}">
+<link rel="canonical" href="${SITE_BASE}/press${activeDesk ? '?desk=' + activeDesk : ''}">
+<link rel="alternate" type="application/rss+xml" title="${NEWSROOM_NAME} RSS" href="${SITE_BASE}/press.rss">
 <link rel="icon" href="/img/etl-favicon.png">
-<meta property="og:title" content="ETL Press Hub">
-<meta property="og:description" content="Press releases and announcements from companies and authors in the ETL network.">
-<meta property="og:url" content="${SITE_BASE}/press">
+<meta property="og:title" content="${NEWSROOM_NAME}${filterLabel}">
+<meta property="og:description" content="${pageDesc}">
+<meta property="og:url" content="${SITE_BASE}/press${activeDesk ? '?desk=' + activeDesk : ''}">
 <meta property="og:type" content="website">
+<meta property="og:site_name" content="${NEWSROOM_NAME}">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="${NEWSROOM_NAME}${filterLabel}">
+<meta name="twitter:description" content="${pageDesc}">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Mono:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 <style>
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:#f7f3ea;color:#1a1a1a;font-family:'Cormorant Garamond',Georgia,serif;font-size:1.05rem;line-height:1.65;min-height:100vh;}
-  .nav{background:#0e0c08;padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;}
-  .nav-logo{font-family:'Playfair Display',serif;font-size:1rem;letter-spacing:0.1em;color:#b8922a;text-decoration:none;}
-  .nav-logo strong{color:#f4ede0;font-weight:400;}
-  .nav-back{font-family:'DM Mono',monospace;font-size:0.62rem;letter-spacing:0.22em;text-transform:uppercase;color:#a89c88;text-decoration:none;}
-  .nav-back:hover{color:#d4aa4a;}
+  a{color:inherit;}
 
-  header.hub-head{max-width:960px;margin:0 auto;padding:3rem 2rem 1.5rem;}
-  .eyebrow{font-family:'DM Mono',monospace;font-size:0.62rem;letter-spacing:0.22em;text-transform:uppercase;color:#a3811c;margin-bottom:0.85rem;}
-  .hub-h1{font-family:'Playfair Display',serif;font-size:clamp(2rem, 5vw, 3rem);font-weight:700;line-height:1.1;color:#0e0c08;margin-bottom:0.6rem;}
-  .hub-h1 em{font-style:italic;color:#b8922a;}
-  .hub-lede{font-family:'Cormorant Garamond',serif;font-style:italic;color:#5a5240;max-width:680px;font-size:1.15rem;line-height:1.6;margin-bottom:1rem;}
-  .hub-stat{font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:#5a5240;}
-  .hub-stat strong{color:#b8922a;}
+  .topbar{background:#0e0c08;padding:0.85rem 2rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(184,146,42,0.25);}
+  .topbar-logo{font-family:'Playfair Display',serif;font-size:0.95rem;letter-spacing:0.08em;color:#b8922a;text-decoration:none;}
+  .topbar-logo strong{color:#f4ede0;font-weight:400;}
+  .topbar-back{font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.22em;text-transform:uppercase;color:#a89c88;text-decoration:none;}
+  .topbar-back:hover{color:#d4aa4a;}
 
-  main.hub-body{max-width:960px;margin:0 auto;padding:1rem 2rem 4rem;}
-  .group{margin-bottom:3rem;}
-  .group-h{font-family:'DM Mono',monospace;font-size:0.7rem;letter-spacing:0.25em;text-transform:uppercase;color:#a3811c;border-bottom:1px solid rgba(184,146,42,0.4);padding-bottom:0.5rem;margin-bottom:1.4rem;}
+  .masthead{max-width:1180px;margin:0 auto;padding:2.6rem 2rem 1.2rem;text-align:center;border-bottom:1px solid #0e0c08;}
+  .masthead-meta-top{font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.22em;text-transform:uppercase;color:#5a5240;margin-bottom:1.4rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;}
+  .masthead-meta-top a{color:#5a5240;text-decoration:none;border-bottom:1px solid rgba(90,82,64,0.25);}
+  .masthead-meta-top a:hover{color:#0e0c08;border-bottom-color:#0e0c08;}
+  .masthead-title{font-family:'Playfair Display',serif;font-size:clamp(2.6rem, 8vw, 5.2rem);font-weight:900;line-height:1;color:#0e0c08;letter-spacing:-0.02em;margin-bottom:0.5rem;text-transform:uppercase;}
+  .masthead-tag{font-family:'Cormorant Garamond',serif;font-style:italic;color:#5a5240;font-size:1.1rem;}
+  .masthead-rule{max-width:1180px;margin:0 auto;border-top:3px double #0e0c08;height:6px;}
+
+  /* Desk nav strip */
+  .desk-nav{max-width:1180px;margin:0 auto;padding:0.9rem 2rem;display:flex;flex-wrap:wrap;gap:0.4rem 1.4rem;align-items:center;justify-content:center;border-bottom:1px solid rgba(14,12,8,0.18);font-family:'DM Mono',monospace;font-size:0.62rem;letter-spacing:0.22em;text-transform:uppercase;}
+  .desk-link{color:#5a5240;text-decoration:none;padding:0.35rem 0.1rem;border-bottom:2px solid transparent;}
+  .desk-link:hover{color:#0e0c08;}
+  .desk-link.active{color:#0e0c08;border-bottom-color:#b8922a;}
+
+  /* Hero */
+  .hero-band{max-width:1180px;margin:0 auto;padding:2rem 2rem 1rem;}
+  .hero{background:#fff;border:1px solid rgba(184,146,42,0.4);padding:0;position:relative;display:flex;flex-direction:column;}
+  .hero-image{display:block;width:100%;aspect-ratio:16 / 9;background-color:#e9dfc6;background-size:cover;background-position:center;text-decoration:none;}
+  .hero-body{padding:2rem 2.2rem;display:flex;flex-direction:column;}
+  .hero-eyebrow{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.8rem;margin-bottom:0.9rem;font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.22em;text-transform:uppercase;color:#5a5240;}
+  .hero-desk{color:#a3811c;text-decoration:none;background:rgba(184,146,42,0.08);padding:0.3rem 0.55rem;border:1px solid rgba(184,146,42,0.35);}
+  .hero-desk:hover{background:#b8922a;color:#fff;}
+  .hero-date{color:#5a5240;}
+  .hero-title{font-family:'Playfair Display',serif;font-size:clamp(1.8rem, 4.5vw, 2.9rem);font-weight:700;line-height:1.1;margin-bottom:0.7rem;}
+  .hero-title a{text-decoration:none;color:#0e0c08;border-bottom:0;}
+  .hero-title a:hover{color:#a3811c;}
+  .hero-dek{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1.2rem;color:#5a5240;line-height:1.5;margin-bottom:1.4rem;max-width:680px;}
+  .hero-foot{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;}
+  .hero-byline{font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:#5a5240;}
+  .hero-cta{display:inline-block;font-family:'DM Mono',monospace;font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:#fff;background:#0e0c08;padding:0.7rem 1.4rem;text-decoration:none;border:1px solid #0e0c08;font-weight:600;}
+  .hero-cta:hover{background:#b8922a;border-color:#b8922a;color:#0e0c08;}
+
+  /* Main content split */
+  .news-body{max-width:1180px;margin:0 auto;padding:1.2rem 2rem 4rem;display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:2.6rem;}
+  @media (max-width:880px){ .news-body{grid-template-columns:1fr;gap:2rem;} }
+
+  .feed-h{font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.25em;text-transform:uppercase;color:#0e0c08;border-bottom:1px solid #0e0c08;padding-bottom:0.55rem;margin-bottom:1.2rem;}
   .feed{list-style:none;}
-  .feed-item{margin-bottom:1.1rem;border:1px solid rgba(184,146,42,0.25);background:#fff;}
-  .feed-link{display:block;padding:1.2rem 1.5rem;text-decoration:none;color:inherit;transition:background 0.15s,border-color 0.15s;}
-  .feed-item:hover{border-color:#b8922a;}
-  .feed-link:hover{background:rgba(184,146,42,0.06);}
-  .feed-item-thumbed .feed-link{display:flex;align-items:flex-start;gap:1.1rem;}
-  .feed-thumb{flex:0 0 auto;display:block;width:72px;height:72px;background-color:#e9dfc6;background-size:cover;background-position:center;border:1px solid rgba(184,146,42,0.3);}
-  .feed-thumb-empty{background-color:#e9dfc6;}
-  .feed-text{display:block;flex:1 1 auto;min-width:0;}
-  .feed-meta{display:block;font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.16em;text-transform:uppercase;color:#5a5240;margin-bottom:0.45rem;}
-  .feed-title{display:block;font-family:'Playfair Display',serif;font-size:1.35rem;font-weight:700;line-height:1.25;color:#0e0c08;margin-bottom:0.4rem;}
-  .feed-dek{display:block;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1rem;color:#5a5240;line-height:1.55;}
+  .feed-card{margin-bottom:1.2rem;background:#fff;border:1px solid rgba(184,146,42,0.25);transition:border-color 0.15s;}
+  .feed-card:hover{border-color:#b8922a;}
+  .feed-link{display:flex;gap:1.1rem;align-items:flex-start;padding:1.1rem 1.3rem;text-decoration:none;color:inherit;}
+  .feed-thumb{flex:0 0 auto;display:block;width:110px;height:82px;background-color:#e9dfc6;background-size:cover;background-position:center;border:1px solid rgba(184,146,42,0.3);}
+  .feed-thumb-empty{background-image:linear-gradient(135deg, rgba(184,146,42,0.10), rgba(184,146,42,0.02));}
+  .feed-text{display:flex;flex-direction:column;flex:1 1 auto;min-width:0;}
+  .feed-meta{display:flex;flex-wrap:wrap;gap:0.6rem;align-items:center;font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.18em;text-transform:uppercase;color:#5a5240;margin-bottom:0.45rem;}
+  .feed-desk{color:#a3811c;}
+  .feed-title{font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:700;line-height:1.25;color:#0e0c08;margin-bottom:0.35rem;}
+  .feed-dek{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.98rem;color:#5a5240;line-height:1.5;margin-bottom:0.4rem;}
+  .feed-byline{font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.18em;text-transform:uppercase;color:#7a6f5a;}
+  @media (max-width:520px){ .feed-link{flex-direction:column;} .feed-thumb{width:100%;height:140px;} }
 
-  .empty{padding:2rem;text-align:center;color:#5a5240;font-style:italic;}
+  .sidebar{display:flex;flex-direction:column;gap:1.6rem;}
+  .side-block{background:#fff;border:1px solid rgba(184,146,42,0.25);padding:1.3rem 1.4rem;}
+  .side-h{font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.24em;text-transform:uppercase;color:#a3811c;border-bottom:1px solid rgba(184,146,42,0.3);padding-bottom:0.55rem;margin-bottom:0.9rem;}
+  .side-h a{color:inherit;text-decoration:none;}
+  .side-h a:hover{color:#0e0c08;}
+  .side-list{list-style:none;}
+  .side-item{padding:0.55rem 0;border-bottom:1px solid rgba(184,146,42,0.18);}
+  .side-item:last-child{border-bottom:none;}
+  .side-item a{display:flex;flex-direction:column;gap:0.2rem;text-decoration:none;color:inherit;}
+  .side-item a:hover .side-title{color:#a3811c;}
+  .side-date{font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.18em;text-transform:uppercase;color:#5a5240;}
+  .side-title{font-family:'Playfair Display',serif;font-size:0.98rem;font-weight:600;line-height:1.3;color:#0e0c08;transition:color 0.15s;}
+  .side-empty{font-family:'Cormorant Garamond',serif;font-style:italic;color:#5a5240;font-size:0.95rem;}
 
-  footer{max-width:960px;margin:0 auto;padding:2rem;border-top:1px solid rgba(184,146,42,0.25);font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;color:#5a5240;display:flex;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
-  footer a{color:#a3811c;text-decoration:none;}
+  .empty{padding:3rem 2rem;text-align:center;color:#5a5240;font-style:italic;font-size:1.1rem;background:#fff;border:1px solid rgba(184,146,42,0.25);}
+  .empty strong{color:#0e0c08;font-style:normal;font-weight:600;display:block;font-family:'Playfair Display',serif;font-size:1.4rem;margin-bottom:0.6rem;}
+
+  footer.newsroom-foot{max-width:1180px;margin:0 auto;padding:1.6rem 2rem 3rem;border-top:1px solid rgba(14,12,8,0.2);font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.18em;text-transform:uppercase;color:#5a5240;display:flex;justify-content:space-between;flex-wrap:wrap;gap:1rem;align-items:center;}
+  footer.newsroom-foot a{color:#5a5240;text-decoration:none;border-bottom:1px solid rgba(90,82,64,0.25);}
+  footer.newsroom-foot a:hover{color:#0e0c08;border-bottom-color:#0e0c08;}
+  footer.newsroom-foot .foot-right{display:flex;gap:1rem;flex-wrap:wrap;}
+  footer.newsroom-foot .foot-admin{opacity:0.55;}
 </style>
 </head>
 <body>
 
-<nav class="nav">
-  <a class="nav-logo" href="/"><strong>ETL</strong> &middot; PRESS HUB</a>
-  <a class="nav-back" href="/">&larr; Home</a>
+<nav class="topbar">
+  <a class="topbar-logo" href="/"><strong>ETL</strong> &middot; ${NEWSROOM_NAME}</a>
+  <a class="topbar-back" href="/">&larr; ETL Home</a>
 </nav>
 
-<header class="hub-head">
-  <div class="eyebrow">Emerging Technologies Laboratory</div>
-  <h1 class="hub-h1">Press <em>Hub</em></h1>
-  <p class="hub-lede">Releases and announcements from companies and authors connected to the ETL network. Every piece links back to its source. Browse by platform of origin below.</p>
-  <div class="hub-stat"><strong>${total}</strong> release${total === 1 ? '' : 's'} published</div>
+<header class="masthead">
+  <div class="masthead-meta-top">
+    <span>${esc(masthead)}${total ? ` &middot; ${total} on file` : ''}</span>
+    <span><a href="/press-about">About this newsroom</a> &middot; <a href="/press.rss">RSS</a></span>
+  </div>
+  <h1 class="masthead-title">${NEWSROOM_NAME}</h1>
+  <p class="masthead-tag">${NEWSROOM_TAGLINE}${activeDesk ? ' &middot; <strong>' + esc(DESK_LABEL[activeDesk]) + '</strong> desk' : ''}</p>
 </header>
+<div class="masthead-rule"></div>
 
-<main class="hub-body">
-  ${total === 0 ? '<div class="empty">No releases published yet. Imani and Jess are warming up.</div>' : ''}
-  ${section('gauntlet')}
-  ${section('greylander')}
-  ${section('lab')}
-</main>
+${renderDeskNav(activeDesk)}
 
-<footer>
-  <span>ETL Press Hub &middot; Emerging Technologies Laboratory</span>
-  <span><a href="/press-sitemap.xml">Sitemap</a> &middot; <a href="/press-admin" rel="nofollow noindex">Admin</a></span>
+${hero ? `<section class="hero-band">${renderHero(hero)}</section>` : ''}
+
+<div class="news-body">
+  <main>
+    ${rest.length ? `<h2 class="feed-h">${activeDesk ? 'More on the ' + esc(DESK_LABEL[activeDesk]) + ' desk' : 'More from the wire'}</h2><ul class="feed">${rest.map(renderFeedCard).join('\n')}</ul>` : (filtered.length === 0 ? `<div class="empty"><strong>Quiet on the wire.</strong>${activeDesk ? 'No pieces on the ' + esc(DESK_LABEL[activeDesk]) + ' desk yet. The reporter is on it.' : 'No releases on file yet. Imani and Jess are warming up.'}</div>` : '')}
+  </main>
+
+  <aside class="sidebar">
+    ${sidebar.map(s => renderSidebarBlock(s.label, s.id, s.items)).join('\n')}
+  </aside>
+</div>
+
+<footer class="newsroom-foot">
+  <span>${NEWSROOM_NAME} &middot; A publication of the Emerging Technologies Laboratory</span>
+  <span class="foot-right">
+    <a href="/press-about">About</a>
+    <a href="/press.rss">RSS</a>
+    <a href="/press-sitemap.xml">Sitemap</a>
+    <a class="foot-admin" href="/press-admin" rel="nofollow noindex">Admin</a>
+  </span>
 </footer>
 
 </body>
@@ -151,12 +321,14 @@ exports.handler = async (event) => {
   } catch (err) {
     console.error('[press-index] blob read failed', err && err.message);
   }
+  const deskQ = (event.queryStringParameters && event.queryStringParameters.desk) || '';
+  const activeDesk = DESK_IDS.has(deskQ.toLowerCase()) ? deskQ.toLowerCase() : '';
   return {
     statusCode: 200,
     headers: {
       'Content-Type': 'text/html; charset=utf-8',
       'Cache-Control': 'public, max-age=300, stale-while-revalidate=3600',
     },
-    body: renderHub(pieces),
+    body: renderNewsroom(pieces, activeDesk),
   };
 };

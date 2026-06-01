@@ -37,6 +37,16 @@
   status = 200
 
 [[redirects]]
+  from = "/press.rss"
+  to = "/.netlify/functions/press-rss"
+  status = 200
+
+[[redirects]]
+  from = "/press-about"
+  to = "/.netlify/functions/press-about"
+  status = 200
+
+[[redirects]]
   from = "/prep-room"
   to = "/prep-room.html"
   status = 200

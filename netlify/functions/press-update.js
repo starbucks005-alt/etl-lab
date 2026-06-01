@@ -149,6 +149,21 @@ exports.handler = async (event) => {
       return json(400, { error: 'hero_image_url must be a valid URL, empty string, or null' });
     }
   }
+  // Newswire schema edits
+  const DESKS = new Set(['us', 'world', 'business', 'technology', 'science', 'health', 'entertainment', 'sports']);
+  if (Object.prototype.hasOwnProperty.call(body, 'desk')) {
+    const v = String(body.desk || '').trim().toLowerCase();
+    if (!DESKS.has(v)) return json(400, { error: 'desk must be one of: ' + Array.from(DESKS).join(', ') });
+    merged.desk = v;
+  }
+  if (Object.prototype.hasOwnProperty.call(body, 'byline_kind')) {
+    const v = String(body.byline_kind || '').trim().toLowerCase();
+    if (v !== 'client' && v !== 'reporter') return json(400, { error: 'byline_kind must be client | reporter' });
+    merged.byline_kind = v;
+  }
+  if (Object.prototype.hasOwnProperty.call(body, 'reporter_id')) {
+    merged.reporter_id = String(body.reporter_id || '').trim().slice(0, 80) || null;
+  }
 
   // Immutable fields: enforce by reverting to existing values.
   merged.slug = existing.slug;
@@ -182,6 +197,10 @@ exports.handler = async (event) => {
           if (merged.hero_image_url) order[i].hero_image_url = merged.hero_image_url;
           else delete order[i].hero_image_url;
         }
+        if (merged.desk) order[i].desk = merged.desk;
+        if (merged.byline_kind) order[i].byline_kind = merged.byline_kind;
+        if (merged.reporter_id) order[i].reporter_id = merged.reporter_id;
+        else if (merged.byline_kind === 'client') delete order[i].reporter_id;
         touched = true;
         break;
       }
