@@ -139,6 +139,16 @@
     if (badge) badge.textContent = (aud === 'pros') ? 'For Professionals' : 'For Students';
     var back = document.getElementById('back-to-panel');
     if (back) back.href = '/prep-room#' + aud;
+    // Round-trip audience to every program card so the next page lands on
+    // the matching variant. Currently the cert program (card 4) is the
+    // only downstream surface that is audience-aware; the others ignore
+    // the query string and behave identically.
+    document.querySelectorAll('.card-cta').forEach(function(a){
+      var href = a.getAttribute('href') || '';
+      if (!href || href.indexOf('://') >= 0) return; // skip external links
+      var sep = href.indexOf('?') >= 0 ? '&' : '?';
+      a.href = href + sep + 'audience=' + aud;
+    });
   })();
 </script>
 

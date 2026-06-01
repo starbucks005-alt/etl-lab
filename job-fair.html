@@ -477,6 +477,38 @@
   .roadmap-item.roadmap-scanner::after { content: '← click to open'; position: absolute; bottom: -22px; left: 50%; transform: translateX(-50%); font-family: 'DM Mono', monospace; font-size: 0.5rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold-light); white-space: nowrap; opacity: 0.85; }
   .roadmap-item.roadmap-scanner { position: relative; }
   @media (max-width: 640px) { .jf-top-bar { padding: 0 1.25rem; } }
+
+  /* AUDIENCE TABS + AUDIENCE-AWARE BLOCK TOGGLES
+     This module ships in two audiences: students (default, original career-fair
+     framing) and pros (mid-career to executive, networking/recruiter framing).
+     The page DOM contains both variants; body class controls visibility.
+     parseHash() reads #students or #pros from the URL; setAudience() flips
+     the body class and rewrites the hash.                                     */
+  .audience-tabs { max-width: 820px; margin: 14px auto 0; padding: 0 2.5rem; display: flex; gap: 8px; }
+  .aud-tab {
+    flex: 1;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 0.85rem 1rem;
+    background: var(--bg-card);
+    border: 1px solid var(--gold-rule);
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s, background 0.2s;
+    user-select: none;
+  }
+  .aud-tab:hover { color: var(--gold); border-color: var(--gold); }
+  .aud-tab.active { color: var(--bg-ink); background: var(--gold); border-color: var(--gold); font-weight: 600; }
+  @media (max-width: 640px) { .audience-tabs { padding: 0 1.25rem; } .aud-tab { font-size: 0.55rem; padding: 0.7rem 0.6rem; } }
+
+  /* Show/hide variants based on body class. Default (no class) shows students. */
+  body .aud-pros { display: none; }
+  body.aud-pros .aud-students { display: none; }
+  body.aud-pros .aud-pros { display: block; }
+  /* Inline use inside flex/grid containers still respects display:none above; no extra rules needed. */
 </style>
 </head>
 <body>
@@ -486,8 +518,14 @@
   <a href="index.html" class="nav-back">&larr; Home</a>
 </nav>
 
-<!-- TOP-OF-PAGE skip directly to the Job Search. Always visible, not gated on completion. -->
-<div class="jf-top-bar">
+<!-- AUDIENCE TABS — same module, two framings. Default is students. -->
+<div class="audience-tabs">
+  <div class="aud-tab" id="aud-tab-students" onclick="setAudience('students')">For Students</div>
+  <div class="aud-tab" id="aud-tab-pros" onclick="setAudience('pros')">For Professionals</div>
+</div>
+
+<!-- STUDENT-only top-of-page skip directly to the Job Search. -->
+<div class="jf-top-bar aud-students">
   <div class="jf-skip-bar" id="jf-skip-bar">
     <div class="jf-skip-label">
       <strong>🎓 Just need the Job Search?</strong>
@@ -497,7 +535,19 @@
   </div>
 </div>
 
-<div class="jf-top-bar">
+<!-- PRO-only top-of-page skip directly to the Job Search. -->
+<div class="jf-top-bar aud-pros">
+  <div class="jf-skip-bar">
+    <div class="jf-skip-label">
+      <strong>⚡ Just need the search?</strong>
+      Already know how to network. Skip the module and go straight to the AI scanner — pre-filtered for director, senior, and executive roles across LinkedIn, Indeed, USAJobs, and corporate career pages.
+    </div>
+    <a class="jf-skip-btn" onclick="showPhase(4);">Open the Search →</a>
+  </div>
+</div>
+
+<!-- STUDENT-only OPT/CPT callout. -->
+<div class="jf-top-bar aud-students">
   <div class="jf-callout">
     <span class="jf-callout-badge">NEW</span>
     <div>
@@ -525,34 +575,70 @@
 <div class="phase" id="phase-0">
   <div class="section-label">MODULE 6 // PHASE 1 OF 5</div>
 
-  <h1 class="phase-headline">The Job Fair Is a Performance</h1>
-  <p class="phase-sub">You will have 90 seconds with a recruiter who has spoken to 200 people today. Everything about how you enter, stand, speak, and leave will be evaluated before you finish your opening sentence.</p>
-  <div class="two-col">
-    <div>
-      <div class="col-label">What Recruiters See First</div>
-      <p class="col-body">Posture and pace of approach. Eye contact before you reach the table. Whether you reach for a handshake or wait to be invited. How you hold your materials. What you do with your hands.</p>
+  <!-- STUDENT VARIANT -->
+  <div class="aud-students">
+    <h1 class="phase-headline">The Job Fair Is a Performance</h1>
+    <p class="phase-sub">You will have 90 seconds with a recruiter who has spoken to 200 people today. Everything about how you enter, stand, speak, and leave will be evaluated before you finish your opening sentence.</p>
+    <div class="two-col">
+      <div>
+        <div class="col-label">What Recruiters See First</div>
+        <p class="col-body">Posture and pace of approach. Eye contact before you reach the table. Whether you reach for a handshake or wait to be invited. How you hold your materials. What you do with your hands.</p>
+      </div>
+      <div>
+        <div class="col-label">What Most Candidates Get Wrong</div>
+        <p class="col-body">They rehearse what they will say instead of how they will arrive. They treat the job fair as a passive experience. They approach from behind other candidates and wait. They confuse a job fair with a job interview.</p>
+      </div>
     </div>
-    <div>
-      <div class="col-label">What Most Candidates Get Wrong</div>
-      <p class="col-body">They rehearse what they will say instead of how they will arrive. They treat the job fair as a passive experience. They approach from behind other candidates and wait. They confuse a job fair with a job interview.</p>
+    <div class="insight-box">
+      <p>The recruiters who matter are watching the room. They notice who navigates confidently and who hesitates. Your approach is your first application.</p>
     </div>
-  </div>
-  <div class="insight-box">
-    <p>The recruiters who matter are watching the room. They notice who navigates confidently and who hesitates. Your approach is your first application.</p>
-  </div>
-  <div class="col-label" style="margin-bottom: 1rem;">Preparation Checklist</div>
-  <ul class="prep-checklist" id="prep-checklist-0">
-    <li class="prep-item" onclick="togglePrep(this)"><span class="prep-check">&#9675;</span><span class="prep-text">I have researched at least three companies attending this fair</span></li>
-    <li class="prep-item" onclick="togglePrep(this)"><span class="prep-check">&#9675;</span><span class="prep-text">I know my one-sentence professional summary</span></li>
-    <li class="prep-item" onclick="togglePrep(this)"><span class="prep-check">&#9675;</span><span class="prep-text">My materials (CV, portfolio) are organized and accessible</span></li>
-    <li class="prep-item" onclick="togglePrep(this)"><span class="prep-check">&#9675;</span><span class="prep-text">I have practiced my opening approach with another person</span></li>
-    <li class="prep-item" onclick="togglePrep(this)"><span class="prep-check">&#9675;</span><span class="prep-text">I know which table I am approaching first and why</span></li>
-  </ul>
+    <div class="col-label" style="margin-bottom: 1rem;">Preparation Checklist</div>
+    <ul class="prep-checklist" id="prep-checklist-0">
+      <li class="prep-item" onclick="togglePrep(this)"><span class="prep-check">&#9675;</span><span class="prep-text">I have researched at least three companies attending this fair</span></li>
+      <li class="prep-item" onclick="togglePrep(this)"><span class="prep-check">&#9675;</span><span class="prep-text">I know my one-sentence professional summary</span></li>
+      <li class="prep-item" onclick="togglePrep(this)"><span class="prep-check">&#9675;</span><span class="prep-text">My materials (CV, portfolio) are organized and accessible</span></li>
+      <li class="prep-item" onclick="togglePrep(this)"><span class="prep-check">&#9675;</span><span class="prep-text">I have practiced my opening approach with another person</span></li>
+      <li class="prep-item" onclick="togglePrep(this)"><span class="prep-check">&#9675;</span><span class="prep-text">I know which table I am approaching first and why</span></li>
+    </ul>
 
-  <div class="tactic-box">
-    <div class="tactic-label">The Two-CV Tactic</div>
-    <p class="tactic-body">Bring two versions of your CV. A short one, two pages, and a long one, six pages. When you reach the table, hand both to the recruiter and ask which they would prefer. Their answer tells you everything before you say another word. If they take the longer one, they are interested. If they reach for the shorter one, they are not looking to invest time in you. You have just gathered real intelligence in under five seconds. Prepare both before you walk in.</p>
+    <div class="tactic-box">
+      <div class="tactic-label">The Two-CV Tactic</div>
+      <p class="tactic-body">Bring two versions of your CV. A short one, two pages, and a long one, six pages. When you reach the table, hand both to the recruiter and ask which they would prefer. Their answer tells you everything before you say another word. If they take the longer one, they are interested. If they reach for the shorter one, they are not looking to invest time in you. You have just gathered real intelligence in under five seconds. Prepare both before you walk in.</p>
+    </div>
   </div>
+
+  <!-- PRO VARIANT -->
+  <div class="aud-pros">
+    <h1 class="phase-headline">The Networking Room Is a Performance</h1>
+    <p class="phase-sub">There is no executive job fair. There is the conference reception, the recruiter coffee, the introduction lunch, the hallway after a panel. You will have five minutes with someone who has already met a dozen candidates this week. Everything about how you arrive, hold the room, and close is being evaluated before your opening sentence lands.</p>
+    <div class="two-col">
+      <div>
+        <div class="col-label">What Decision-Makers See First</div>
+        <p class="col-body">How you walk into a room you were not invited to. Whether you scan for the person who matters or wait to be found. The pace of your handshake. The first sentence: warm but specific, or generic. Whether you are carrying your phone in your hand.</p>
+      </div>
+      <div>
+        <div class="col-label">What Most Mid-Career Candidates Get Wrong</div>
+        <p class="col-body">They overprepare the credentials and underprepare the entry. They treat the introduction as the conversation. They lead with title and tenure when the room already knows. They confuse a networking moment with a job interview, and waste both.</p>
+      </div>
+    </div>
+    <div class="insight-box">
+      <p>The people who matter are watching who works the room and who waits to be approached. At your level, waiting reads as either contentment or disinterest. Neither helps you. Your entry is your first move.</p>
+    </div>
+    <div class="col-label" style="margin-bottom: 1rem;">Preparation Checklist</div>
+    <ul class="prep-checklist" id="prep-checklist-0-pros">
+      <li class="prep-item" onclick="togglePrep(this)"><span class="prep-check">&#9675;</span><span class="prep-text">I know the three people in this room who would change my next year if I met them</span></li>
+      <li class="prep-item" onclick="togglePrep(this)"><span class="prep-check">&#9675;</span><span class="prep-text">My three-sentence introduction names who I am, what I have built, and what I am moving toward</span></li>
+      <li class="prep-item" onclick="togglePrep(this)"><span class="prep-check">&#9675;</span><span class="prep-text">My leadership bio and full CV are accessible from my phone in under ten seconds</span></li>
+      <li class="prep-item" onclick="togglePrep(this)"><span class="prep-check">&#9675;</span><span class="prep-text">I have a clean reason for being in this room — not "looking" — that I can say out loud</span></li>
+      <li class="prep-item" onclick="togglePrep(this)"><span class="prep-check">&#9675;</span><span class="prep-text">I have one specific ask ready if the right opening appears</span></li>
+    </ul>
+
+    <div class="tactic-box">
+      <div class="tactic-label">The Two-CV Tactic, Executive Form</div>
+      <p class="tactic-body">Carry two documents and know when to surface each. The leadership bio is a tight three-hundred-word narrative — who you are, what you have led, what you are known for, what you are pursuing. The full CV is everything: P&amp;L scope, governance, transformations, publications, board service, awards. When someone asks "what do you do" you answer the bio out loud. When they ask "send me something" you send the bio in the body of the email and the full CV as the attachment. Two artifacts, one argument. Prepare both before you walk into the room.</p>
+    </div>
+  </div>
+
   <div class="btn-row">
     <button class="btn-primary" id="next-btn-0" onclick="showPhase(1)">NEXT: THE OPENING SEQUENCE &rarr;</button>
   </div>
@@ -561,20 +647,43 @@
 <!-- PHASE 1 -->
 <div class="phase" id="phase-1">
   <div class="section-label">MODULE 6 // PHASE 2 OF 5</div>
-  <h1 class="phase-headline">You Have 90 Seconds</h1>
-  <p class="phase-sub">A job fair interaction is not a conversation. It is a structured performance with a defined arc. Know the arc.</p>
-  <div class="beat-cards">
-    <div class="beat-card"><div class="beat-num">1</div><div><div class="beat-label">The Approach</div><div class="beat-timing">0&ndash;5 seconds</div><p class="beat-body">Make eye contact at 10 feet. Smile at 6 feet. Offer your hand at 3 feet. Do not speak until you are within comfortable conversation distance.</p></div></div>
-    <div class="beat-card"><div class="beat-num">2</div><div><div class="beat-label">The Hook</div><div class="beat-timing">5&ndash;20 seconds</div><p class="beat-body">&ldquo;I am [Name]. I came specifically because [specific reason tied to their work].&rdquo; The specific reason is what separates you from the 200 others.</p></div></div>
-    <div class="beat-card"><div class="beat-num">3</div><div><div class="beat-label">The Bridge</div><div class="beat-timing">20&ndash;60 seconds</div><p class="beat-body">Connect your experience to their stated need. This is not your full biography. It is one relevant story, under 40 seconds.</p></div></div>
-    <div class="beat-card"><div class="beat-num">4</div><div><div class="beat-label">The Ask</div><div class="beat-timing">60&ndash;90 seconds</div><p class="beat-body">&ldquo;What is the best next step from here?&rdquo; Always close with a specific ask. Never end with &ldquo;I just wanted to introduce myself.&rdquo;</p></div></div>
-  </div>
-  <p class="col-body" style="margin-bottom: 2rem;">Recruiters remember the candidates who gave them something to write down. Make sure there is something worth writing.</p>
 
-  <div class="tactic-box">
-    <div class="tactic-label">Reading the Room Before You Speak</div>
-    <p class="tactic-body">When you offer both CVs, watch which one they reach for. The long version means they want depth. They are already invested. The short version means they are managing the queue and you are part of it. This is not rejection. It is information. Adjust your approach accordingly. If they take the short one, your hook needs to be sharper and your bridge faster. You have less runway than you thought.</p>
+  <!-- STUDENT VARIANT -->
+  <div class="aud-students">
+    <h1 class="phase-headline">You Have 90 Seconds</h1>
+    <p class="phase-sub">A job fair interaction is not a conversation. It is a structured performance with a defined arc. Know the arc.</p>
+    <div class="beat-cards">
+      <div class="beat-card"><div class="beat-num">1</div><div><div class="beat-label">The Approach</div><div class="beat-timing">0&ndash;5 seconds</div><p class="beat-body">Make eye contact at 10 feet. Smile at 6 feet. Offer your hand at 3 feet. Do not speak until you are within comfortable conversation distance.</p></div></div>
+      <div class="beat-card"><div class="beat-num">2</div><div><div class="beat-label">The Hook</div><div class="beat-timing">5&ndash;20 seconds</div><p class="beat-body">&ldquo;I am [Name]. I came specifically because [specific reason tied to their work].&rdquo; The specific reason is what separates you from the 200 others.</p></div></div>
+      <div class="beat-card"><div class="beat-num">3</div><div><div class="beat-label">The Bridge</div><div class="beat-timing">20&ndash;60 seconds</div><p class="beat-body">Connect your experience to their stated need. This is not your full biography. It is one relevant story, under 40 seconds.</p></div></div>
+      <div class="beat-card"><div class="beat-num">4</div><div><div class="beat-label">The Ask</div><div class="beat-timing">60&ndash;90 seconds</div><p class="beat-body">&ldquo;What is the best next step from here?&rdquo; Always close with a specific ask. Never end with &ldquo;I just wanted to introduce myself.&rdquo;</p></div></div>
+    </div>
+    <p class="col-body" style="margin-bottom: 2rem;">Recruiters remember the candidates who gave them something to write down. Make sure there is something worth writing.</p>
+
+    <div class="tactic-box">
+      <div class="tactic-label">Reading the Room Before You Speak</div>
+      <p class="tactic-body">When you offer both CVs, watch which one they reach for. The long version means they want depth. They are already invested. The short version means they are managing the queue and you are part of it. This is not rejection. It is information. Adjust your approach accordingly. If they take the short one, your hook needs to be sharper and your bridge faster. You have less runway than you thought.</p>
+    </div>
   </div>
+
+  <!-- PRO VARIANT -->
+  <div class="aud-pros">
+    <h1 class="phase-headline">You Have Five Minutes</h1>
+    <p class="phase-sub">The executive recruiter intro call. The hosted dinner across the table. The hallway after a panel. The conference reception where you finally got close. These are five-minute conversations with a defined arc. Know it cold or lose it.</p>
+    <div class="beat-cards">
+      <div class="beat-card"><div class="beat-num">1</div><div><div class="beat-label">The Entry</div><div class="beat-timing">0&ndash;30 seconds</div><p class="beat-body">Warm, named, specific. &ldquo;[Name] — I saw your remarks on [specific thing]. I have been thinking about it since.&rdquo; You are signaling that you did the work to get here. No "nice to meet you, finally."</p></div></div>
+      <div class="beat-card"><div class="beat-num">2</div><div><div class="beat-label">The Hook</div><div class="beat-timing">30 sec &ndash; 1.5 min</div><p class="beat-body">Three sentences. Who you are at this stage of your career. What you have led that maps to their world. What you are moving toward. Not your résumé. The argument your résumé is for.</p></div></div>
+      <div class="beat-card"><div class="beat-num">3</div><div><div class="beat-label">The Bridge</div><div class="beat-timing">1.5 &ndash; 4 min</div><p class="beat-body">One story. Specific scope, specific outcome, specific trade-off you made. Not the case study you tell in interviews. The version you tell a peer who already understands the industry.</p></div></div>
+      <div class="beat-card"><div class="beat-num">4</div><div><div class="beat-label">The Ask</div><div class="beat-timing">4 &ndash; 5 min</div><p class="beat-body">Specific and named. &ldquo;Who in your network should I be talking to about this?&rdquo; or &ldquo;Would you be open to a thirty-minute follow-up next week?&rdquo; Never &ldquo;let me know if anything opens up.&rdquo; That is the language of waiting.</p></div></div>
+    </div>
+    <p class="col-body" style="margin-bottom: 2rem;">The people who matter remember candidates who gave them something specific to do next. Make the next step easy for them to take.</p>
+
+    <div class="tactic-box">
+      <div class="tactic-label">Reading the Room Before You Speak</div>
+      <p class="tactic-body">Watch what they ask for. If they ask for the bio, they are placing you in a network they already manage. If they ask for the full CV, they are evaluating you for something specific. If they ask &ldquo;what are you looking for&rdquo; before you have given them the hook, you led with the wrong sentence. Recalibrate inside the conversation. Five minutes is enough to recover once. Twice is too many.</p>
+    </div>
+  </div>
+
   <div class="btn-row">
     <button class="btn-ghost" onclick="showPhase(0)">&larr; BACK</button>
     <button class="btn-primary" onclick="showPhase(2)">NEXT: READING THE ROOM &rarr;</button>
@@ -584,34 +693,71 @@
 <!-- PHASE 2 -->
 <div class="phase" id="phase-2">
   <div class="section-label">MODULE 6 // PHASE 3 OF 5</div>
-  <h1 class="phase-headline">The Room Has Information</h1>
-  <p class="phase-sub">A skilled candidate reads recruiter signals before, during, and after the conversation.</p>
-  <div class="two-col">
-    <div>
-      <div class="signal-col-label">Before You Approach</div>
-      <ul class="signal-list">
-        <li><span class="signal-dot">&#x25B8;</span><span>Recruiter is leaning forward, engaged with current candidate. Wait.</span></li>
-        <li><span class="signal-dot">&#x25B8;</span><span>Recruiter is scanning the room. Make eye contact now, approach next.</span></li>
-        <li><span class="signal-dot">&#x25B8;</span><span>Recruiter has a long queue. Consider returning later or adjusting your opener.</span></li>
-        <li><span class="signal-dot">&#x25B8;</span><span>Two or more recruiters at the table. Address the one who makes eye contact first.</span></li>
-      </ul>
+
+  <!-- STUDENT VARIANT -->
+  <div class="aud-students">
+    <h1 class="phase-headline">The Room Has Information</h1>
+    <p class="phase-sub">A skilled candidate reads recruiter signals before, during, and after the conversation.</p>
+    <div class="two-col">
+      <div>
+        <div class="signal-col-label">Before You Approach</div>
+        <ul class="signal-list">
+          <li><span class="signal-dot">&#x25B8;</span><span>Recruiter is leaning forward, engaged with current candidate. Wait.</span></li>
+          <li><span class="signal-dot">&#x25B8;</span><span>Recruiter is scanning the room. Make eye contact now, approach next.</span></li>
+          <li><span class="signal-dot">&#x25B8;</span><span>Recruiter has a long queue. Consider returning later or adjusting your opener.</span></li>
+          <li><span class="signal-dot">&#x25B8;</span><span>Two or more recruiters at the table. Address the one who makes eye contact first.</span></li>
+        </ul>
+      </div>
+      <div>
+        <div class="signal-col-label">During the Conversation</div>
+        <ul class="signal-list">
+          <li><span class="signal-dot">&#x25B8;</span><span>They write something down. You said something worth keeping. Continue.</span></li>
+          <li><span class="signal-dot">&#x25B8;</span><span>They glance at your materials. Offer them. Do not wait to be asked.</span></li>
+          <li><span class="signal-dot">&#x25B8;</span><span>They check their watch or phone. You have 20 seconds to close.</span></li>
+          <li><span class="signal-dot">&#x25B8;</span><span>They introduce you to a colleague at the table. You are being evaluated at a higher level. Adjust your register.</span></li>
+        </ul>
+      </div>
     </div>
-    <div>
-      <div class="signal-col-label">During the Conversation</div>
-      <ul class="signal-list">
-        <li><span class="signal-dot">&#x25B8;</span><span>They write something down. You said something worth keeping. Continue.</span></li>
-        <li><span class="signal-dot">&#x25B8;</span><span>They glance at your materials. Offer them. Do not wait to be asked.</span></li>
-        <li><span class="signal-dot">&#x25B8;</span><span>They check their watch or phone. You have 20 seconds to close.</span></li>
-        <li><span class="signal-dot">&#x25B8;</span><span>They introduce you to a colleague at the table. You are being evaluated at a higher level. Adjust your register.</span></li>
-      </ul>
+    <div class="scenario-card">
+      <div class="scenario-label">Scenario</div>
+      <p class="scenario-body">You approach a table. The recruiter smiles but immediately says &ldquo;We&rsquo;re actually looking for someone with more technical experience.&rdquo; What do you do?</p>
+      <div class="scenario-prompt">Write your response. There is no single right answer. The goal is preparation.</div>
+      <textarea class="scenario-textarea" placeholder="Write your response here&hellip;"></textarea>
     </div>
   </div>
-  <div class="scenario-card">
-    <div class="scenario-label">Scenario</div>
-    <p class="scenario-body">You approach a table. The recruiter smiles but immediately says &ldquo;We&rsquo;re actually looking for someone with more technical experience.&rdquo; What do you do?</p>
-    <div class="scenario-prompt">Write your response. There is no single right answer. The goal is preparation.</div>
-    <textarea class="scenario-textarea" placeholder="Write your response here&hellip;"></textarea>
+
+  <!-- PRO VARIANT -->
+  <div class="aud-pros">
+    <h1 class="phase-headline">The Room Has Information</h1>
+    <p class="phase-sub">Executive recruiters, hiring partners, and board chairs leak signals constantly. Reading them in real time is the difference between a candidate who advances and one who is courteously placed in the file.</p>
+    <div class="two-col">
+      <div>
+        <div class="signal-col-label">Before the Conversation Starts</div>
+        <ul class="signal-list">
+          <li><span class="signal-dot">&#x25B8;</span><span>They opened the meeting earlier than scheduled — they want runway. Use it.</span></li>
+          <li><span class="signal-dot">&#x25B8;</span><span>They have a one-line bio on their notepad. They already framed you. Confirm or recalibrate.</span></li>
+          <li><span class="signal-dot">&#x25B8;</span><span>The room is set for a conversation, not an interview. Lower your register. This is informal evaluation.</span></li>
+          <li><span class="signal-dot">&#x25B8;</span><span>They mention a current search by name. They are testing whether you would fit it without saying so.</span></li>
+        </ul>
+      </div>
+      <div>
+        <div class="signal-col-label">During the Conversation</div>
+        <ul class="signal-list">
+          <li><span class="signal-dot">&#x25B8;</span><span>They ask about compensation early. They are screening you out, not in. Hold ground without anchoring.</span></li>
+          <li><span class="signal-dot">&#x25B8;</span><span>They name a board member, peer, or competitor and watch your face. The reaction is the answer.</span></li>
+          <li><span class="signal-dot">&#x25B8;</span><span>They ask &ldquo;what would your first ninety days look like.&rdquo; You have moved into the short list. Treat the question that way.</span></li>
+          <li><span class="signal-dot">&#x25B8;</span><span>They pivot to &ldquo;tell me about your family&rdquo; or relocation. They are evaluating life-fit, which means role-fit is provisionally cleared.</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="scenario-card">
+      <div class="scenario-label">Scenario</div>
+      <p class="scenario-body">A retained search partner says, twelve minutes in, &ldquo;Honestly, I think you may be too senior for this seat. But I have something else cooking that I cannot name yet.&rdquo; What do you do?</p>
+      <div class="scenario-prompt">Write your response. There is no single right answer. The goal is to know the move before you need it.</div>
+      <textarea class="scenario-textarea" placeholder="Write your response here&hellip;"></textarea>
+    </div>
   </div>
+
   <div class="btn-row">
     <button class="btn-ghost" onclick="showPhase(1)">&larr; BACK</button>
     <button class="btn-primary" onclick="showPhase(3)">NEXT: BUILD YOUR CV &rarr;</button>
@@ -621,8 +767,18 @@
 <!-- PHASE 3 -->
 <div class="phase" id="phase-3">
   <div class="section-label">MODULE 6 // PHASE 4 OF 5</div>
-  <h1 class="phase-headline">Build Your Job Fair CV</h1>
-  <p class="phase-sub">A job fair CV is not your full r&eacute;sum&eacute;. It is a one-page argument for a specific opportunity. Build it here.</p>
+
+  <!-- STUDENT VARIANT — headline + sub. Form below is shared. -->
+  <div class="aud-students">
+    <h1 class="phase-headline">Build Your Job Fair CV</h1>
+    <p class="phase-sub">A job fair CV is not your full r&eacute;sum&eacute;. It is a one-page argument for a specific opportunity. Build it here.</p>
+  </div>
+
+  <!-- PRO VARIANT — headline + sub. Form below is shared. -->
+  <div class="aud-pros">
+    <h1 class="phase-headline">Build Your Leadership CV</h1>
+    <p class="phase-sub">This is your full executive CV — the document you send when someone in the room asks &ldquo;send me something.&rdquo; Build the long form here. The three-hundred-word leadership bio gets drafted separately (the Résumé Coach in the Panel Room will help you write it from this). Two artifacts, one argument.</p>
+  </div>
   <div class="cv-builder">
     <div class="cv-section">
       <div class="cv-section-title">Personal Header</div>
@@ -680,8 +836,18 @@
 <!-- PHASE 4: OPPORTUNITY SCANNER -->
 <div class="phase" id="phase-4">
   <div class="section-label">MODULE 6 // PHASE 5 OF 5</div>
-  <h1 class="phase-headline">Find Your <em>Opportunities</em></h1>
-  <p class="phase-sub">You have your CV. You know the room. Now find where to take it. Upload your CV or resume and the scanner searches live job postings matched to your skills, location, and position type.</p>
+
+  <!-- STUDENT VARIANT — headline + sub. Scanner below is shared. -->
+  <div class="aud-students">
+    <h1 class="phase-headline">Find Your <em>Opportunities</em></h1>
+    <p class="phase-sub">You have your CV. You know the room. Now find where to take it. Upload your CV or resume and the scanner searches live job postings matched to your skills, location, and position type.</p>
+  </div>
+
+  <!-- PRO VARIANT — headline + sub. Scanner below is shared and pre-filtered for senior roles. -->
+  <div class="aud-pros">
+    <h1 class="phase-headline">Find the <em>Right Seats</em></h1>
+    <p class="phase-sub">You have the bio. You have the network. Now scope what is actually open. Upload your CV and the scanner searches live postings filtered for director, senior, and executive roles across LinkedIn, Indeed, USAJobs, and corporate career pages. The position-type field is pre-set for mid-career; adjust if you are pushing higher or laterally.</p>
+  </div>
 
   <div class="scanner-source-note">
     <span class="scanner-source-label">Data source</span>
@@ -1226,27 +1392,70 @@ function sIsScamLike(j) {
 
 function sEsc(s) { if (!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-// Audience pre-fill. Panel Room link-out tiles pass ?audience=students or
-// ?audience=pros so the scanner opens with sensible defaults for who's
-// actually using it. Students default to internship/CPT-OPT; professionals
-// default to mid-career full-time, domestic visa. Does not lock anything;
-// the visitor can still change every field.
-(function applyAudienceDefaults(){
+// ─── AUDIENCE CONTROLLER ─────────────────────────────────────────────────
+// Module 6 ships in two audiences: students (default, original career-fair
+// framing) and pros (mid-career to exec, networking/recruiter framing). State
+// lives in the URL: prefer #students or #pros (matches Panel Room hash style),
+// fall back to ?audience= (legacy, still respected for backward compat from
+// link-outs that set the query string before this controller existed).
+// setAudience() flips body class, rewrites the hash, updates tab styling, and
+// re-runs the scanner pre-fill so it tracks the active audience.
+function parseAudience(){
+  var h = (window.location.hash || '').toLowerCase().replace(/^#/, '').replace(/^\/+|\/+$/g, '');
+  if (h === 'pros' || h === 'students') return h;
   try {
     var qs = new URLSearchParams(window.location.search);
-    var aud = (qs.get('audience') || '').toLowerCase();
-    if (aud !== 'students' && aud !== 'pros') return;
-    var posSel  = document.getElementById('s-positionType');
-    var visaSel = document.getElementById('s-visaType');
-    if (aud === 'pros') {
-      if (posSel)  posSel.value  = 'full-time mid-career';
-      if (visaSel) visaSel.value = 'none';
-    } else {
-      if (posSel)  posSel.value  = 'internship or co-op';
-      // visa default stays as page default (none / CPT/OPT pickable)
-    }
-  } catch (_) { /* malformed query string is harmless */ }
+    var q = (qs.get('audience') || '').toLowerCase();
+    if (q === 'pros' || q === 'students') return q;
+  } catch (_) {}
+  return 'students';
+}
+
+function applyScannerDefaults(aud){
+  // Pre-fills the scanner so the visitor lands on sensible defaults. Does
+  // not lock anything; everything stays user-editable.
+  var posSel  = document.getElementById('s-positionType');
+  var visaSel = document.getElementById('s-visaType');
+  if (aud === 'pros') {
+    if (posSel)  posSel.value  = 'full-time mid-career';
+    if (visaSel) visaSel.value = 'none';
+  } else {
+    if (posSel)  posSel.value  = 'internship or co-op';
+    // visa default stays as page default (none / CPT/OPT pickable)
+  }
+}
+
+function setAudience(aud){
+  if (aud !== 'students' && aud !== 'pros') aud = 'students';
+  // body class toggles which .aud-* blocks render
+  document.body.classList.toggle('aud-pros', aud === 'pros');
+  document.body.classList.toggle('aud-students', aud === 'students');
+  // tab visual state
+  var ts = document.getElementById('aud-tab-students');
+  var tp = document.getElementById('aud-tab-pros');
+  if (ts) ts.classList.toggle('active', aud === 'students');
+  if (tp) tp.classList.toggle('active', aud === 'pros');
+  // URL hash, without triggering hashchange re-entry
+  if (parseAudience() !== aud) {
+    try { history.replaceState(null, '', '#' + aud); } catch (_) { window.location.hash = '#' + aud; }
+  }
+  // page title reflects audience so browser tab + back-button label make sense
+  document.title = (aud === 'pros')
+    ? 'Networking Mastery | ETL Leadership Certificate Module 6'
+    : 'Job Fair Mastery | ETL Leadership Certificate Module 6';
+  // scanner defaults track the active audience
+  applyScannerDefaults(aud);
+}
+
+// initial paint
+(function initAudience(){
+  try { setAudience(parseAudience()); } catch (_) { setAudience('students'); }
 })();
+
+// react to forward/back navigation between #students and #pros
+window.addEventListener('hashchange', function(){
+  try { setAudience(parseAudience()); } catch (_) {}
+});
 </script>
 </body>
 </html>

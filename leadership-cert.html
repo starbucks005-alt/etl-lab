@@ -445,6 +445,23 @@ window.addEventListener('DOMContentLoaded', function() {
       btn.href = nextLinks[count] || 'elevator-speech.html';
     }
   }
+
+  // Round-trip audience to module pages. If we arrived here with ?audience=
+  // (set by leadership-programs.html or any Panel Room link-out), append it
+  // to the BEGIN/CONTINUE button so the visitor lands on the correct
+  // variant of the next module (currently Module 6 = job-fair.html is the
+  // only audience-aware module, but appending to all is harmless).
+  try {
+    var qs = new URLSearchParams(window.location.search);
+    var aud = (qs.get('audience') || '').toLowerCase();
+    if (aud === 'students' || aud === 'pros') {
+      var cta = document.getElementById('locked-cta-btn');
+      if (cta && cta.href) {
+        var sep = cta.getAttribute('href').indexOf('?') >= 0 ? '&' : '?';
+        cta.href = cta.getAttribute('href') + sep + 'audience=' + aud;
+      }
+    }
+  } catch (_) { /* malformed query string is harmless */ }
 });
 
 </script>
