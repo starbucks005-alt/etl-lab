@@ -2,10 +2,29 @@
   functions = "netlify/functions"
 
 [functions]
-  external_node_modules = ["@supabase/supabase-js"]
+  external_node_modules = ["@supabase/supabase-js", "@netlify/blobs"]
 
 [functions."proxy-ai"]
   timeout = 60
+
+# ─── Press Hub redirects ──────────────────────────────────────────────────
+# Pretty URLs over the Netlify Functions that render the press hub.
+# Order matters within this file: more specific rules first. The sitemap
+# rule and the per-slug rule both come before /press itself.
+[[redirects]]
+  from = "/press-sitemap.xml"
+  to = "/.netlify/functions/press-sitemap"
+  status = 200
+
+[[redirects]]
+  from = "/press/:slug"
+  to = "/.netlify/functions/press-piece?slug=:slug"
+  status = 200
+
+[[redirects]]
+  from = "/press"
+  to = "/.netlify/functions/press-index"
+  status = 200
 
 [[redirects]]
   from = "/prep-room"
