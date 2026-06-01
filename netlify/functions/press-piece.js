@@ -186,7 +186,9 @@ ${heroImage ? `<meta name="twitter:image" content="${esc(heroImage)}">` : ''}
     if (piece.byline_kind === 'reporter' && piece.reporter_id) {
       const r = getReporters()[piece.reporter_id];
       if (r) {
-        return `<div class="byline" style="margin-top:0;margin-bottom:1.6rem;padding-top:0;border-top:0;">By <strong style="color:#0e0c08;">${esc(r.name)}</strong>, ${esc(r.desk_label)} Desk</div>`;
+        const profileSlug = r.id.replace(/_/g, '-');
+        const tier = r.tier_label ? `<span style="color:#b8922a;">${esc(r.tier_label)}</span> &middot; ` : '';
+        return `<div class="byline" style="margin-top:0;margin-bottom:1.6rem;padding-top:0;border-top:0;">By <a href="/press/reporter/${esc(profileSlug)}" style="color:#0e0c08;text-decoration:none;border-bottom:1px solid #b8922a;"><strong>${esc(r.name)}</strong></a>, ${tier}${esc(r.desk_label)} Desk</div>`;
       }
     }
     return '';
@@ -200,7 +202,11 @@ ${heroImage ? `<meta name="twitter:image" content="${esc(heroImage)}">` : ''}
     ${(() => {
       if (piece.byline_kind === 'reporter' && piece.reporter_id) {
         const r = getReporters()[piece.reporter_id];
-        if (r) return `Reporting by ${esc(r.name)} for the ${esc(r.desk_label)} desk &middot; ETL Newswire staff`;
+        if (r) {
+          const profileSlug = r.id.replace(/_/g, '-');
+          const tier = r.tier_label || 'Reporter';
+          return `Reporting by <a href="/press/reporter/${esc(profileSlug)}" style="color:inherit;border-bottom:1px solid #b8922a;">${esc(r.name)}</a>, ${esc(tier)}, for the ${esc(r.desk_label)} desk &middot; ETL Newswire staff`;
+        }
       }
       return (piece.author ? `By ${esc(piece.author)} &middot; ` : '') + 'Source: <a href="' + esc(piece.source_url) + '" rel="noopener">' + esc(sourceLabel) + '</a>';
     })()}

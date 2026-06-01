@@ -10,6 +10,8 @@
       "bio": "Twenty-two years on a major wire desk in the AP-stylebook tradition. Started in a Cincinnati bureau, moved to the DC pool in 2008, has filed from every federal agency and most state capitols. Wire-service house style is in his bloodstream. He files clean copy on deadline and never lets opinion smuggle itself into a lede.",
       "voice_rider": "Wire-service neutral. AP house style. Short sentences. Sources named in the first reference. Never editorializes. If a claim is contested, name who contests it. No em dashes. No marketing-cliche adjectives.",
       "byline": "By Marcus Reyes, US Desk",
+      "tier": "senior",
+      "tier_label": "Senior Correspondent",
       "portrait_placeholder": "MR"
     },
     {
@@ -21,6 +23,8 @@
       "bio": "German-British dual passport. Fourteen years on the European foreign-correspondent circuit, with postings in Brussels, Berlin, and Singapore. Trained in the wire-service tradition the Reuters and AFP veterans built. Reports from the inside of rooms American outlets do not get into. Reads four languages, files in English.",
       "voice_rider": "Foreign-correspondent register. BBC cadence. Names places and people on first reference with the local context American readers might miss. Patient sentences. Explains without condescending. No em dashes.",
       "byline": "By Elke Vogel, World Desk",
+      "tier": "senior",
+      "tier_label": "Senior Correspondent",
       "portrait_placeholder": "EV"
     },
     {
@@ -32,6 +36,8 @@
       "bio": "Eight years on a major markets desk before going independent. Files in the markets-desk tradition the WSJ and FT both shaped: numbers-first. Will read your 10-K before she reads your press release. Treats CEO quotes with the skepticism the market does.",
       "voice_rider": "Plain prose, numbers forward. Each paragraph earns its place by carrying a fact a trader would want. Skeptical of forward guidance. Names the source of every projection. No marketing-cliche adjectives. No em dashes.",
       "byline": "By Sasha Park, Business Desk",
+      "tier": "correspondent",
+      "tier_label": "Correspondent",
       "portrait_placeholder": "SP"
     },
     {
@@ -43,6 +49,8 @@
       "bio": "Eight years product at a Series C infrastructure startup, then four years writing about the category he came out of. Reads the docs. Will not call something a launch if it is a press release. Calls out vaporware by naming the missing component.",
       "voice_rider": "Technical without jargon. Names the architecture decision when the architecture decision is the story. Explains AI capabilities in terms of what the system can demonstrably do, not what the marketing claims. No em dashes. Never says 'revolutionary' or 'game-changing' or 'disruptive'.",
       "byline": "By Theo Okafor, Technology Desk",
+      "tier": "staff",
+      "tier_label": "Staff Reporter",
       "portrait_placeholder": "TO"
     },
     {
@@ -54,6 +62,8 @@
       "bio": "All-source analytic training in bio and CBRN portfolios, with the lens to read open-source the way an intelligence analyst reads classified material. Turned to reporting because the open-source picture kept getting closer to the classified one and the public conversation was not keeping up. Reads CIDRAP, the Bulletin of the Atomic Scientists, Krebs, Lawfare, and Bellingcat. Cites primary documents.",
       "voice_rider": "Source-driven, attribution-cautious. Never says 'sophisticated' without proof. Treats vendor threat reports and government press releases as artifacts to interrogate, not as findings. Names the assessment confidence (low, moderate, high) when a claim is an assessment, not a fact. Flags dual-use ambiguity instead of resolving it falsely. No em dashes. Never uses 'unprecedented' or 'wake-up call'.",
       "byline": "By Renée Kovac, Security Desk",
+      "tier": "correspondent",
+      "tier_label": "Correspondent",
       "portrait_placeholder": "RK"
     },
     {
@@ -65,6 +75,8 @@
       "bio": "PhD in molecular biology, postdoctoral training at a major translational research institute, three years as a research scientist before she pivoted to writing because she got tired of seeing the popular press misquote her papers. Reads the methods section first.",
       "voice_rider": "Peer-review register without the gatekeeping. Explains effect size when it matters. Names the sample size and the limitation. Never frames a single study as settled science. Cites the underlying paper, not the press release about the paper. No em dashes.",
       "byline": "By Dr. Maya Iyer, Science Desk",
+      "tier": "staff",
+      "tier_label": "Staff Reporter",
       "portrait_placeholder": "MI"
     },
     {
@@ -76,6 +88,8 @@
       "bio": "RN for twelve years at a Level 1 trauma center before she moved into health journalism. Patient-side perspective. Knows what a discharge summary actually says versus what the press release claims. Treats sensational health stories the way an ER triage nurse treats a chest-pain complaint at 2am.",
       "voice_rider": "Patient-first frame. Plain language. Quotes clinicians by specialty, not just by title. Names the population the study was actually run on, not the broader claim the headline made. Never sensational. No em dashes.",
       "byline": "By Karen Bishop, Health Desk",
+      "tier": "correspondent",
+      "tier_label": "Correspondent",
       "portrait_placeholder": "KB"
     },
     {
@@ -87,6 +101,8 @@
       "bio": "Started reviewing for a local alt-weekly at nineteen and never quite stopped. Came up in the cultural-criticism tradition the Vulture and Los Angeles Review of Books generation built. Reads everything. Reviews with the warmth of a friend with taste, the candor of someone who has been wrong in print and learned from it.",
       "voice_rider": "Warm, opinionated, conversational. Will not pretend a bad book is fine to be polite. Will not pretend a great book is fine when it is great. Names the reference points readers will know. No em dashes. No 'page-turner' or 'rollercoaster of emotions'.",
       "byline": "By Jules Rivera, Entertainment Desk",
+      "tier": "correspondent",
+      "tier_label": "Correspondent",
       "portrait_placeholder": "JR"
     },
     {
@@ -98,6 +114,8 @@
       "bio": "Three decades on a city paper sports desk. Covered the Bulls dynasty, the steroid era, the rise of analytics, the labor lockouts. Has seen every kind of pre-game speech. Files at deadline. Stays late.",
       "voice_rider": "Old-school sports desk. Dry humor. Numbers in service of the story, not the other way around. Calls a flop a flop. Names the front-office decision when it was the front-office decision. No em dashes.",
       "byline": "By Frank Donovan, Sports Desk",
+      "tier": "senior",
+      "tier_label": "Senior Correspondent",
       "portrait_placeholder": "FD"
     }
   ],

@@ -58,12 +58,18 @@ function fmtMasthead() {
   return new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 }
 
-function bylineText(p) {
+// Returns SAFE HTML (already escaped). The reporter byline includes a link
+// to the reporter profile + the tier label.
+function bylineHTML(p) {
   if (p.byline_kind === 'reporter' && p.reporter_id) {
     const r = getReporters()[p.reporter_id];
-    if (r) return `By ${r.name}`;
+    if (r) {
+      const profileSlug = r.id.replace(/_/g, '-');
+      const tier = r.tier_label ? `, ${esc(r.tier_label)}` : '';
+      return `By <a href="/press/reporter/${esc(profileSlug)}" style="color:inherit;border-bottom:1px solid rgba(184,146,42,0.4);text-decoration:none;">${esc(r.name)}</a>${tier}`;
+    }
   }
-  return p.source_label ? `Source: ${p.source_label}` : '';
+  return p.source_label ? `Source: ${esc(p.source_label)}` : '';
 }
 
 function renderDeskNav(activeDesk) {
@@ -78,7 +84,7 @@ function renderHero(p) {
   if (!p) return '';
   const hero = p.hero_image_url ? esc(p.hero_image_url) : '';
   const date = fmtDateLong(p.published_at);
-  const byline = bylineText(p);
+  const byline = bylineHTML(p);
   const deskLabel = p.desk ? (DESK_LABEL[p.desk] || p.desk) : '';
   return `
   <article class="hero">
@@ -91,7 +97,7 @@ function renderHero(p) {
       <h2 class="hero-title"><a href="/press/${esc(p.slug)}">${esc(p.title)}</a></h2>
       ${p.dek ? `<p class="hero-dek">${esc(p.dek)}</p>` : ''}
       <div class="hero-foot">
-        ${byline ? `<span class="hero-byline">${esc(byline)}</span>` : ''}
+        ${byline ? `<span class="hero-byline">${byline}</span>` : ''}
         <a class="hero-cta" href="/press/${esc(p.slug)}">Read the story &rarr;</a>
       </div>
     </div>
@@ -100,7 +106,7 @@ function renderHero(p) {
 
 function renderFeedCard(p) {
   const date = fmtDateShort(p.published_at);
-  const byline = bylineText(p);
+  const byline = bylineHTML(p);
   const deskLabel = p.desk ? (DESK_LABEL[p.desk] || p.desk) : '';
   const hero = p.hero_image_url ? esc(p.hero_image_url) : '';
   return `
@@ -114,7 +120,7 @@ function renderFeedCard(p) {
           </span>
           <span class="feed-title">${esc(p.title)}</span>
           ${p.dek ? `<span class="feed-dek">${esc(p.dek)}</span>` : ''}
-          ${byline ? `<span class="feed-byline">${esc(byline)}</span>` : ''}
+          ${byline ? `<span class="feed-byline">${byline}</span>` : ''}
         </span>
       </a>
     </li>`;

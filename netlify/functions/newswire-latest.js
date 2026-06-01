@@ -19,6 +19,16 @@ const DESK_LABELS = {
   entertainment: 'Entertainment', sports: 'Sports',
 };
 
+let REPORTERS_CACHE = null;
+function loadReporters() {
+  if (REPORTERS_CACHE) return REPORTERS_CACHE;
+  try {
+    const data = require('../../config/newswire-reporters.json');
+    REPORTERS_CACHE = (data.reporters || []).reduce((acc, r) => { acc[r.id] = r; return acc; }, {});
+  } catch (_) { REPORTERS_CACHE = {}; }
+  return REPORTERS_CACHE;
+}
+
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, OPTIONS',
@@ -46,24 +56,31 @@ exports.handler = async (event) => {
     console.error('[newswire-latest] index read failed', err && err.message);
   }
 
+  const reporters = loadReporters();
+
   // order is stored most-recent-first; take the first `limit`. Filter out
   // entries with no title (defensive — should not exist but cheap to guard).
   const items = order
     .filter(p => p && p.title && p.slug)
     .slice(0, limit)
-    .map(p => ({
-      slug: p.slug,
-      title: p.title,
-      dek: p.dek || '',
-      desk: p.desk || '',
-      desk_label: DESK_LABELS[p.desk] || '',
-      byline_kind: p.byline_kind || 'client',
-      reporter_id: p.reporter_id || null,
-      author: p.author || '',
-      source_label: p.source_label || '',
-      published_at: p.published_at || '',
-      url: PRESS_BASE_URL + '/press/' + p.slug,
-    }));
+    .map(p => {
+      const r = (p.byline_kind === 'reporter' && p.reporter_id) ? reporters[p.reporter_id] : null;
+      return {
+        slug: p.slug,
+        title: p.title,
+        dek: p.dek || '',
+        desk: p.desk || '',
+        desk_label: DESK_LABELS[p.desk] || '',
+        byline_kind: p.byline_kind || 'client',
+        reporter_id: p.reporter_id || null,
+        reporter_tier: r ? (r.tier_label || '') : '',
+        reporter_profile_url: r ? `/press/reporter/${r.id.replace(/_/g, '-')}` : '',
+        author: p.author || (r ? r.name : ''),
+        source_label: p.source_label || '',
+        published_at: p.published_at || '',
+        url: PRESS_BASE_URL + '/press/' + p.slug,
+      };
+    });
 
   return {
     statusCode: 200,

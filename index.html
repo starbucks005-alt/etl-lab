@@ -1478,7 +1478,15 @@ document.addEventListener('DOMContentLoaded', function(){
       var strip = document.getElementById('newswire-strip');
       if (!container || !strip) return;
       container.innerHTML = data.items.map(function(p){
-        var byline = p.byline_kind === 'reporter' && p.author ? 'By ' + esc(p.author) : (p.source_label ? esc(p.source_label) : '');
+        var byline = '';
+        if (p.byline_kind === 'reporter' && p.author) {
+          var nameHtml = p.reporter_profile_url
+            ? 'By <a href="' + esc(p.reporter_profile_url) + '" style="color:inherit;border-bottom:1px solid #b8922a;text-decoration:none;" onclick="event.stopPropagation();">' + esc(p.author) + '</a>'
+            : 'By ' + esc(p.author);
+          byline = nameHtml + (p.reporter_tier ? ', ' + esc(p.reporter_tier) : '');
+        } else if (p.source_label) {
+          byline = esc(p.source_label);
+        }
         var date = shortDate(p.published_at);
         return '<a class="newswire-card" href="' + esc(p.url) + '">'
           + (p.desk_label ? '<div class="newswire-card-desk">' + esc(p.desk_label) + '</div>' : '')
