@@ -1059,7 +1059,7 @@ document.addEventListener('DOMContentLoaded', function(){
     position: absolute; inset: 0;
     display: flex; flex-wrap: wrap;
     gap: 8px; padding: 16px;
-    align-content: center; justify-content: center;
+    align-content: flex-start; justify-content: center;
     background: radial-gradient(circle at 50% 40%, #1c1c1c 0%, #0c0c0c 100%);
   }
   .etl-network .etl-net-roster img {
@@ -1076,7 +1076,11 @@ document.addEventListener('DOMContentLoaded', function(){
     .etl-network .etl-net-roster img { width: 72px; height: 72px; }
   }
   @media (max-width: 640px) {
-    .etl-network .etl-net-card--agents .etl-net-video { min-height: 420px; }
+    /* 50 avatars wrap to 7-per-row on a phone, which is 8 rows. At 56px
+       per circle + 6px gap + 20px padding the wall needs ~540px of vertical
+       room. The previous 420px floor cut the top row off because content
+       overflowed the container and the parent has overflow:hidden. */
+    .etl-network .etl-net-card--agents .etl-net-video { min-height: 540px; }
     .etl-network .etl-net-roster { gap: 6px; padding: 10px; }
     .etl-network .etl-net-roster img { width: 56px; height: 56px; border-width: 1.5px; }
   }
