@@ -1130,6 +1130,249 @@ document.addEventListener('DOMContentLoaded', function(){
     .etl-network .etl-net-roster { gap: 6px; padding: 10px; }
     .etl-network .etl-net-roster img { width: 56px; height: 56px; border-width: 1.5px; }
   }
+
+  /* AGENTS CARD INTERACTIVITY
+     Each face-wall avatar is clickable. Click opens a modal with the agent's
+     bio, role, platform, and a "visit them" link. Built as emerging-tech
+     surface: subtle hover-magnify on the roster, status dot pulse on each
+     avatar, scanline sweep when the modal opens, monospace agent counter
+     ("Agent 04 of 50"), prev/next arrows that walk the full roster, esc
+     and click-outside to close. The data lives in a single AGENTS array
+     declared inline at the end of body; the array index matches the
+     face-wall img order so the click handler does not need IDs or
+     data attributes. */
+  .etl-network .etl-net-roster img {
+    cursor: pointer;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  }
+  .etl-network .etl-net-roster img:hover,
+  .etl-network .etl-net-roster img:focus {
+    transform: scale(1.18);
+    z-index: 3;
+    position: relative;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 1px var(--gold), 0 0 22px rgba(184,146,42,0.55), 0 4px 14px rgba(0,0,0,0.55);
+    outline: none;
+  }
+  /* Status dot in the corner of every avatar. Pulses to signal "agent online".
+     CSS-only — no JS needed. Slight stagger via :nth-child so the wall
+     does not blink in unison. */
+  .etl-network .etl-net-roster img { position: relative; }
+  .etl-network .etl-net-roster { position: absolute; inset: 0; }
+  /* The dots use a sibling pseudo on a wrapper; since the imgs sit directly
+     in the flex container, we paint dots via a CSS background overlay using
+     a custom indicator layer. Use the simplest approach: a small absolutely
+     positioned green dot bound to each img via ::after on the parent... but
+     because the imgs are siblings inside a flex parent (not wrapped), we
+     instead overlay a fixed green-dot SVG using box-shadow on the img
+     itself. A small inset box-shadow on the bottom-right corner gives a
+     status-light effect that respects the circular border-radius. */
+  .etl-network .etl-net-roster img {
+    box-shadow: 0 0 0 1px #2a2a2a, 0 2px 8px rgba(0,0,0,0.4),
+                inset -5px -5px 0 -3px #4caf50,
+                inset -5px -5px 0 -2px rgba(76,175,80,0.35);
+  }
+  .etl-network .etl-net-roster img:hover,
+  .etl-network .etl-net-roster img:focus {
+    box-shadow: 0 0 0 1px var(--gold), 0 0 22px rgba(184,146,42,0.55), 0 4px 14px rgba(0,0,0,0.55),
+                inset -5px -5px 0 -3px #4caf50,
+                inset -5px -5px 0 -2px rgba(76,175,80,0.55);
+  }
+
+  /* ─── AGENTS MODAL ─────────────────────────────────────────────────── */
+  .agents-modal {
+    position: fixed; inset: 0;
+    display: none;
+    z-index: 9000;
+    align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .agents-modal.open { display: flex; }
+  .agents-modal-overlay {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+  .agents-modal-card {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 560px;
+    max-height: calc(100vh - 40px);
+    overflow: auto;
+    background: linear-gradient(180deg, #0c0c0c 0%, #131313 100%);
+    border: 1px solid var(--gold);
+    box-shadow: 0 0 0 1px rgba(184,146,42,0.25), 0 30px 70px rgba(0,0,0,0.75), 0 0 90px rgba(184,146,42,0.18);
+    color: #f0e8d6;
+    font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+    padding: 28px 30px 24px;
+  }
+  /* Scanline sweep that runs once on open — gold horizontal line that drops
+     down the card and fades. Pure CSS animation. */
+  .agents-modal-card::before {
+    content: "";
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent 0%, var(--gold) 50%, transparent 100%);
+    box-shadow: 0 0 18px rgba(184,146,42,0.7);
+    transform: translateY(0);
+    animation: agentScan 0.7s ease-out 1 forwards;
+    pointer-events: none;
+    z-index: 5;
+  }
+  @keyframes agentScan {
+    0%   { transform: translateY(0);             opacity: 1; }
+    90%  { transform: translateY(420px);         opacity: 0.4; }
+    100% { transform: translateY(440px);         opacity: 0; }
+  }
+  .agents-modal-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: 'DM Mono', 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 14px;
+  }
+  .agents-modal-num { color: var(--gold); }
+  .agents-modal-status {
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .agents-modal-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #4caf50;
+    box-shadow: 0 0 8px #4caf50, 0 0 14px rgba(76,175,80,0.5);
+    animation: agentDotPulse 1.6s ease-in-out infinite;
+  }
+  @keyframes agentDotPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.55; transform: scale(0.85); }
+  }
+  .agents-modal-close {
+    position: absolute;
+    top: 14px; right: 14px;
+    width: 30px; height: 30px;
+    border: 1px solid rgba(184,146,42,0.4);
+    background: transparent;
+    color: var(--gold);
+    font-family: 'DM Mono', monospace;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+  }
+  .agents-modal-close:hover { background: var(--gold); color: #111; border-color: var(--gold); }
+  .agents-modal-portrait {
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin: 6px auto 18px;
+    border: 2px solid var(--gold);
+    box-shadow: 0 0 0 1px rgba(184,146,42,0.4), 0 0 28px rgba(184,146,42,0.32);
+    background: #1a1a1a;
+  }
+  .agents-modal-portrait img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: top;
+    display: block;
+  }
+  .agents-modal-name {
+    font-family: 'Oswald', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-align: center;
+    color: #f4ecd6;
+    margin-bottom: 4px;
+    line-height: 1.15;
+  }
+  .agents-modal-role {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 16px;
+    color: var(--gold);
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  .agents-modal-platform {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    text-align: center;
+    color: #6a6a6a;
+    margin-bottom: 18px;
+  }
+  .agents-modal-bio {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15.5px;
+    line-height: 1.7;
+    color: #d4cdb9;
+    margin-bottom: 22px;
+    text-align: center;
+  }
+  .agents-modal-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    border-top: 1px solid rgba(184,146,42,0.25);
+    padding-top: 18px;
+  }
+  .agents-modal-nav, .agents-modal-home {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 9px 14px;
+    background: transparent;
+    color: #c9c0a8;
+    border: 1px solid rgba(184,146,42,0.35);
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .agents-modal-nav:hover,
+  .agents-modal-nav:focus { color: var(--gold); border-color: var(--gold); }
+  .agents-modal-home {
+    background: var(--gold);
+    color: #111;
+    border-color: var(--gold);
+    font-weight: 600;
+    flex: 1;
+    text-align: center;
+  }
+  .agents-modal-home:hover { background: #d4aa4a; border-color: #d4aa4a; }
+  @media (max-width: 640px) {
+    .agents-modal-card { padding: 22px 20px 18px; }
+    .agents-modal-name { font-size: 22px; }
+    .agents-modal-bio { font-size: 14.5px; }
+    .agents-modal-actions { flex-direction: column; }
+    .agents-modal-home { width: 100%; }
+    .agents-modal-nav { width: 100%; }
+  }
+  /* Hint label below the roster on the agents card so visitors know
+     the avatars are interactive. Lives inside the etl-net-body of that
+     card; styled to look like an inline system message. */
+  .etl-net-card--agents .etl-net-agents-hint {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin: 4px 0 10px;
+  }
+  .etl-net-card--agents .etl-net-agents-hint::before {
+    content: "▸";
+    margin-right: 8px;
+    opacity: 0.7;
+  }
   .etl-network .etl-net-footer { margin-top: auto; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
   .etl-network .etl-net-footer .etl-net-launch { margin-top: 0; }
   .etl-network .etl-net-link2 {
@@ -1336,11 +1579,12 @@ document.addEventListener('DOMContentLoaded', function(){
           </div>
         </div>
         <div class="etl-net-body">
-          <div class="etl-net-num">The Cast</div>
+          <div class="etl-net-num">The Cast <span class="etl-net-duration">50 agents &middot; 5 platforms</span></div>
           <div class="etl-net-title">AI Agents</div>
           <div class="etl-net-tagline">Meet the team behind every platform</div>
-          <p class="etl-net-desc">The master reference for every AI character across The Dose, Greylander Press, The Gauntlet, and The Panel Room. Hosts, editors, judges, coaches, examiners, and interviewers, each with a face, a name, and a role, all in one place.</p>
-          <a class="etl-net-launch" href="/agents/" target="_blank" rel="noopener">View the Roster &rarr;</a>
+          <p class="etl-net-desc">Fifty AI agents across five platforms, each with their own job, their own bio, their own voice. Click any face to read who they are and visit them in their home.</p>
+          <div class="etl-net-agents-hint">Click any avatar to open their bio</div>
+          <a class="etl-net-launch" href="/agents/" target="_blank" rel="noopener">View the full Roster &rarr;</a>
         </div>
       </div>
 
@@ -2669,4 +2913,325 @@ document.addEventListener('DOMContentLoaded', function(){
 <!-- Cert progress JS removed alongside Directive 09. Progress tracking
      still lives on leadership-cert.html itself, which is reachable from
      the Panel Room -> Leadership Programs flow. -->
+
+<!-- ─── AGENTS MODAL ─────────────────────────────────────────────────── -->
+<div class="agents-modal" id="agents-modal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="agents-modal-name">
+  <div class="agents-modal-overlay" id="agents-modal-overlay"></div>
+  <div class="agents-modal-card">
+    <button class="agents-modal-close" id="agents-modal-close" type="button" aria-label="Close">&times;</button>
+    <div class="agents-modal-meta">
+      <span class="agents-modal-num" id="agents-modal-num">Agent 01 of 50</span>
+      <span class="agents-modal-status"><span class="agents-modal-dot" aria-hidden="true"></span> Online</span>
+    </div>
+    <div class="agents-modal-portrait">
+      <img id="agents-modal-portrait-img" src="" alt="">
+    </div>
+    <div class="agents-modal-name" id="agents-modal-name"></div>
+    <div class="agents-modal-role" id="agents-modal-role"></div>
+    <div class="agents-modal-platform" id="agents-modal-platform"></div>
+    <p class="agents-modal-bio" id="agents-modal-bio"></p>
+    <div class="agents-modal-actions">
+      <button class="agents-modal-nav" id="agents-modal-prev" type="button" aria-label="Previous agent">&larr; Prev</button>
+      <a class="agents-modal-home" id="agents-modal-home" target="_blank" rel="noopener">Visit them &rarr;</a>
+      <button class="agents-modal-nav" id="agents-modal-next" type="button" aria-label="Next agent">Next &rarr;</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ─── AGENTS CARD ───────────────────────────────────────────────────────
+   Click any face on the wall, modal opens with that agent's bio + role +
+   platform + "Visit them" link to their home page. Arrow keys walk the
+   roster prev/next, Esc closes, click outside closes. Order of AGENTS
+   below matches the face-wall img order exactly so the click handler
+   uses each img's index in the NodeList as the agent index.
+
+   Bios sourced from:
+     The Dose 10:    THE_DOSE/js/modules/character.js + _hosts.js (Margaret)
+     Greylander 7:   GLP/greylanderpress-site/index.html team-grid + EIC hero
+     Gauntlet 14:    THE-GAUNTLET/config/judges_master.json (9 judges)
+                     + THE-GAUNTLET/Helpers/*.html (5 EPs)
+     Panel Room 19:  the profs and business people.docx (18) + prep-room.html
+                     (Charles Monroe)
+   ─────────────────────────────────────────────────────────────────────── */
+(function(){
+  var DOSE   = 'The Dose';
+  var GP     = 'Greylander Press';
+  var GAUNT  = 'The Gauntlet';
+  var PANEL  = 'The Panel Room';
+
+  var AGENTS = [
+    // ───── The Dose (10) ─────
+    { name: 'Margaret Applewood', platform: DOSE, role: 'Anchor host of The Dose',
+      bio: 'The voice you associate with the cast. Warm, calm, NPR-ish. Reads the material carefully then tells you about it like a friend over coffee. Hosts the weekly Daily Dose podcast and keeps the room together.',
+      home: 'https://thedose.net/' },
+    { name: 'Nadia', platform: DOSE, role: 'The Nutritionist',
+      bio: 'Registered dietitian. Food first, and honest about what food can and cannot do.',
+      home: 'https://thedose.net/food-as-medicine.html' },
+    { name: 'Dr. Henry Chen, RPh', platform: DOSE, role: 'The Pharmacist',
+      bio: 'Registered pharmacist, thirty-five years behind the counter. If it has an Rx or a Supplement Facts panel, ask him first. Born in Guangzhou, came to the US at eighteen, built a life in a second language. Keeps a puzzle book in his bag for breaks.',
+      home: 'https://thedose.net/ingredient-lookup.html' },
+    { name: 'Maeve "MJ" Johnson', platform: DOSE, role: 'The Gardener',
+      bio: 'Grew up with dirt under her nails. Tell her your zone, your season, and your sun, and she will tell you what will actually come up. Three generations in the same Nebraska farmhouse, plant biology degree, hands on a trowel.',
+      home: 'https://thedose.net/garden.html' },
+    { name: 'Wyatt E. Cooper', platform: DOSE, role: 'The Mixologist',
+      bio: 'Behind the bar a decade. South Dakota distillery family, business school graduate, botanist at heart. Tells you what is actually in the bottle. Does not drink alcohol himself. Clean head, clean life.',
+      home: 'https://thedose.net/wines-and-spirits.html' },
+    { name: 'Amara', platform: DOSE, role: 'The Herbalist',
+      bio: 'The apothecary has been in her family three generations. She reads the tradition AND the trial data. Holds folk practice next to evidence and lets you see both.',
+      home: 'https://thedose.net/medicinal-plants.html' },
+    { name: 'Dr. Claire', platform: DOSE, role: 'The Doctor',
+      bio: 'Family practice doctor, twenty years in the same town. She has seen what "I read it online" looks like in the exam room. Let her save you that conversation.',
+      home: 'https://thedose.net/body-map.html' },
+    { name: 'Silas', platform: DOSE, role: 'The Forager',
+      bio: 'Most foragers learn the hard way. Let him save you the trip to poison control. Knows the woods, the season, and the lookalikes.',
+      home: 'https://thedose.net/wild-foraging.html' },
+    { name: 'Arun', platform: DOSE, role: 'The Nurse',
+      bio: 'Cambodian nurse. Spa starts at the kitchen counter. Face masks, bath salts, herbal compresses. Ingredient-first and cross-checked by the team.',
+      home: 'https://thedose.net/home-spa.html' },
+    { name: 'Reece', platform: DOSE, role: 'Movement',
+      bio: 'DPT student, interning on the team. He will not prescribe an exercise, but he will tell you if that viral reel actually does what the creator says.',
+      home: 'https://thedose.net/movement.html' },
+
+    // ───── Greylander Press (7) ─────
+    { name: 'Dr. O.', platform: GP, role: 'Editor-in-Chief',
+      bio: 'Dr. Terry Oroszi, EdD. Founder and Editor-in-Chief. She runs the place. Built Greylander as a real independent press where authors get a full editorial team and a published book.',
+      home: 'https://greylanderpress.com/' },
+    { name: 'Mun', platform: GP, role: 'The Planning Architect',
+      bio: 'From Singapore. Middle child of a nurse and an elevator repairman. Studied information systems, found his way to outlining novels and scripts on the side. Now he architects your book before it gets written.',
+      home: 'https://greylanderpress.com/#meet-the-team' },
+    { name: 'Grey', platform: GP, role: 'The Ghostwriter',
+      bio: 'From a Florida trailer park. Smoothed the edges by choice. English and Communications major who learned how to disappear into someone else\'s voice.',
+      home: 'https://greylanderpress.com/#meet-the-team' },
+    { name: 'The Professor', platform: GP, role: 'Research and Fact-Checking',
+      bio: 'Southern, from a strict family of eight. Raised on "yes sir, yes ma\'am" and old TV reruns. Loves facts. Will not tell you his real name.',
+      home: 'https://greylanderpress.com/#meet-the-team' },
+    { name: 'Bea', platform: GP, role: 'The Copy Editor',
+      bio: 'Born in Mexico, retired schoolteacher from New Mexico. Family of teachers. Widow who writes children\'s books under a pseudonym. Catches what everyone else missed.',
+      home: 'https://greylanderpress.com/#meet-the-team' },
+    { name: 'Margo', platform: GP, role: 'The Beta Reader',
+      bio: 'Late teens, on a gap year before college. Voracious reader. Parents want her to be a lawyer. She is not interested. She is the reader you wish your last draft had.',
+      home: 'https://greylanderpress.com/#meet-the-team' },
+    { name: 'Chris', platform: GP, role: 'Cover and Character Artist',
+      bio: 'Nonbinary, from a Sioux City farm family who never once asked them to be anything else. Iowa grad. Does the covers and the character art that make a book feel like itself.',
+      home: 'https://greylanderpress.com/#meet-the-team' },
+
+    // ───── The Gauntlet, Judges (9) ─────
+    { name: 'Selene Voss', platform: GAUNT, role: 'AI and Emerging Tech',
+      bio: 'Former deep learning researcher turned venture partner. Backed 14 AI companies, two unicorns. Has taken companies from prototype to Series B. Minimalist in everything. Spots the long-dash AI fingerprint in the first sentence and notes it once, flatly.',
+      home: 'https://thegauntlet.studio/' },
+    { name: 'Marcus Holt', platform: GAUNT, role: 'Crypto, PE and Alternative Finance',
+      bio: 'Ex-Goldman, moved to crypto early, now runs a web3 fund. Walks in like he owns the room because in most rooms he does. Three assistants trail him everywhere. Will ask who the exit is for before he asks what the product does.',
+      home: 'https://thegauntlet.studio/' },
+    { name: 'Dr. Priya Anand', platform: GAUNT, role: 'Health and Life Sciences',
+      bio: 'MD/PhD from Johns Hopkins. Clinical trials veteran. Has taken two digital health companies through FDA clearance. Her father died of a cancer the first three doctors missed. That is the engine under everything she does.',
+      home: 'https://thegauntlet.studio/' },
+    { name: 'Raymond Chen', platform: GAUNT, role: 'Business and Operations',
+      bio: 'Built and sold three companies. Now advises Series B and C founders on execution, unit economics, and market fit. The father figure of the panel. The kind who shows love through impossibly high standards.',
+      home: 'https://thegauntlet.studio/' },
+    { name: 'Astrid Lund', platform: GAUNT, role: 'Law and IP',
+      bio: 'IP and startup attorney. Twenty years at the intersection of innovation and litigation. Walks in dressed better than everyone else and knows it. The law is a game to her, a complex high-stakes game she has been winning for two decades.',
+      home: 'https://thegauntlet.studio/' },
+    { name: 'Dr. Osei Mensah', platform: GAUNT, role: 'Science and Research',
+      bio: 'Computational biologist. NSF-funded researcher. Has peer-reviewed more grant applications than he can count. He does not talk much. When he does, the room shifts. His evaluations are the ones people remember longest.',
+      home: 'https://thegauntlet.studio/' },
+    { name: 'Admiral Grace Nakamura (Ret.)', platform: GAUNT, role: 'Government and National Security',
+      bio: 'Former naval intelligence officer. Consults for DHS. Advises defense-tech startups on regulatory navigation and dual-use risk. Joined the military to prove something that should never have needed proving. Every promotion was a correction.',
+      home: 'https://thegauntlet.studio/' },
+    { name: 'Devon Sloane', platform: GAUNT, role: 'Media and Entertainment',
+      bio: 'Showrunner turned content strategist. Has greenlit and killed more pilots than most people have watched. The one who notices when someone is nervous and makes the joke that lands. The reason the panel functions as a group instead of nine brilliant people talking past each other.',
+      home: 'https://thegauntlet.studio/' },
+    { name: 'Dr. Cassidy Mercer', platform: GAUNT, role: 'Behavioral Science',
+      bio: 'PhD in behavioral economics. Decade in consumer research before moving into product design consulting. Always reading the room, never weaponizing it. Tells you what your customer actually wants versus what your submission claims they want.',
+      home: 'https://thegauntlet.studio/' },
+
+    // ───── The Gauntlet, Executive Producers (5) ─────
+    { name: 'Wren Calloway', platform: GAUNT, role: 'The Scout',
+      bio: 'CS and information science double major. Two summers at the USPTO learning to search patent databases. The gap between what you think is original and what is actually out there is enormous. That gap is where she lives.',
+      home: 'https://thegauntlet.studio/Helpers/wren-scout.html' },
+    { name: 'Carol Haynes', platform: GAUNT, role: 'The Screener',
+      bio: 'Twenty years in talent assessment, intake evaluation, and pre-production screening. The first person on the platform who tells you the truth about where your idea actually is, before anyone with scoring power sees it.',
+      home: 'https://thegauntlet.studio/Helpers/carol-screener.html' },
+    { name: 'Arjun Mehta', platform: GAUNT, role: 'The Delivery Expert',
+      bio: 'Eight years on factory floors. Five more in sourcing for three startups. One product made it to shelves, one cleared a pilot, one died in tooling. Now he teaches ops so other founders have the map he did not have at twenty-five.',
+      home: 'https://thegauntlet.studio/Helpers/arjun-delivery.html' },
+    { name: 'Zara Cole', platform: GAUNT, role: 'The Influencer',
+      bio: 'Built an audience of 340,000 across platforms over four years without a media budget or a PR team. Her growth came from one thing. She sounds like herself. Tells you whether your message can land with an actual audience.',
+      home: 'https://thegauntlet.studio/Helpers/zara-influencer.html' },
+    { name: 'Grant Ellis', platform: GAUNT, role: 'The Coach',
+      bio: 'Sixteen years coaching. High school, college, then semi-pro. The last office before the Chamber. Tells you which three of the nine judges to put you in front of, and what those three will ask before you ever sit down.',
+      home: 'https://thegauntlet.studio/Helpers/grant-coach.html' },
+
+    // ───── The Panel Room, Defense Committee (9, includes Pendelton) ─────
+    { name: 'Dr. Victoria Vance', platform: PANEL, role: 'The Methodologist',
+      bio: 'Research design and operational structure. She views a project as a machine. If one gear is misaligned, the entire mechanism fails. Spends weekends calibrating antique drafting tools and mid-century mechanical clocks.',
+      home: '/prep-room#students/defense' },
+    { name: 'Dr. Lawrence Cole', platform: PANEL, role: 'The Domain Expert',
+      bio: 'Knows every major study and competing school. Tests whether you can contribute or are just summarizing. Open-water rower, coastal birdwatcher, keeps a handwritten field journal of seasonal migrations.',
+      home: '/prep-room#students/defense' },
+    { name: 'Dr. Marcus Thorne', platform: PANEL, role: 'The Theorist',
+      bio: 'An intellectual disruptor who despises predictable conclusions. Cares about paradigm shifts, conceptual sovereignty, and abstract reasoning. Mountaineers hostile terrain because comfort breeds intellectual rot.',
+      home: '/prep-room#students/defense' },
+    { name: 'Dr. Maya Patel', platform: PANEL, role: 'The Skeptic',
+      bio: 'A pragmatic realist with no patience for academic fluff. Cuts through nomenclature to expose actual substance. Trains champion-bred rottweilers, runs a hyper-efficient hydroponic greenhouse. Spots a wasted square foot in either an argument or a garden bed.',
+      home: '/prep-room#students/defense' },
+    { name: 'Dr. Charles Sterling', platform: PANEL, role: 'The Supportive Chair',
+      bio: 'The institutional guide and the student\'s primary advisor. Keeps decorum, throws a lifeline when the room needs to reset, still expects a rigorous defense. Plays cello in a community chamber orchestra.',
+      home: '/prep-room#students/defense' },
+    { name: 'Dr. Alan Zhao', platform: PANEL, role: 'The Stats Hardliner',
+      bio: 'Pure quantitative purist. If it cannot be measured, modeled, and mathematically verified, it is anecdotal. Statistical power, sample sizes, error rates, p-values. Competitive chess player, runs custom predictive models on soccer leagues for amusement.',
+      home: '/prep-room#students/defense' },
+    { name: 'Dr. Meredith Vance-Giles', platform: PANEL, role: 'The Outside Member',
+      bio: 'From an entirely different department, brought in to ensure impartial standards. Fresh eyes, no domain bias. Tests whether the work communicates its value to an educated audience outside the niche. Career diplomats\' daughter who moved countries every three years.',
+      home: '/prep-room#students/defense' },
+    { name: 'Dr. Tariq Khan', platform: PANEL, role: 'The Interdisciplinary Bridge',
+      bio: 'A polymath who connects unrelated fields. Looks for cross-pollination, systems-level thinking, and how your research touches the world outside its silo. Jazz saxophonist, amateur astronomer, cycles geological fault lines for fun.',
+      home: '/prep-room#students/defense' },
+    { name: 'Dr. Arthur Pendelton', platform: PANEL, role: 'The Crisis Interventionist',
+      bio: 'Senior institutional figure who steps in ONLY when a candidate is clearly struggling. Old New England academic gravitas. Constitutional law professor father, university dean mother. Restores first-edition biographies, fly-fishes alone.',
+      home: '/prep-room#students/defense' },
+
+    // ───── The Panel Room, Interview Panel (9, includes Harrison) ─────
+    { name: 'Robert Chen', platform: PANEL, role: 'The Hiring Manager',
+      bio: 'Your direct supervisor for the role. Needs someone who can solve immediate team problems and blend into the existing structure. Taiwanese immigrant family, business school. Designs automated drip-irrigation for his rooftop greenhouse.',
+      home: '/prep-room#students/interview' },
+    { name: 'Dev Srinivasan', platform: PANEL, role: 'The CTO',
+      bio: 'Hands-on technologist. Despises buzzword compliance and spots an exaggerated technical claim the way he tastes a poorly-extracted shot. Roasts his own coffee on a modified fluid-bed rig with digital temperature probes.',
+      home: '/prep-room#students/interview' },
+    { name: 'Deidre Jenkins', platform: PANEL, role: 'The HR Director',
+      bio: 'Cultural alignment, EQ, retention risk. Reads a resume as a blueprint of human behavior. Sundays feeding a large family. Cultivated her sourdough starter for months until it was right.',
+      home: '/prep-room#students/interview' },
+    { name: 'Bradley Cooper-Smith', platform: PANEL, role: 'The CFO',
+      bio: 'Ruthless pragmatist. Every hire is a capital expenditure that must deliver a clear return on investment. Rebuilds carburetors on a 1972 Porsche 911 because he understands machines that must deliver.',
+      home: '/prep-room#students/interview' },
+    { name: 'Karen Kowalski', platform: PANEL, role: 'The VP of Operations',
+      bio: 'Execution, workflow optimization, scale, and crisis. Trains working German Shepherds for search-and-rescue. Calm execution when something has gone wrong is the lens she brings.',
+      home: '/prep-room#students/interview' },
+    { name: 'Fiona Gallagher', platform: PANEL, role: 'The Compliance and Legal Counsel',
+      bio: 'Risk, governance, ethics. No patience for shortcuts dressed up as judgment calls. Competes in dressage. Respects precision and patience under tension.',
+      home: '/prep-room#students/interview' },
+    { name: 'Alistair Montgomery', platform: PANEL, role: 'The Strategy and Market Analyst',
+      bio: 'Macro-trends, competitive intelligence, strategic agility. Tests whether you look forward or are trapped in outdated models. Climbs hostile mountains and paints abstracts. Finds market chaos interesting.',
+      home: '/prep-room#students/interview' },
+    { name: 'Elena Rostova', platform: PANEL, role: 'The Cross-Functional Peer',
+      bio: 'Adjacent departments. Empathy, cross-team communication, and how you manage internal politics. Parents were political dissidents who fled Prague. Carries their habit of patient negotiation across hard lines.',
+      home: '/prep-room#students/interview' },
+    { name: 'Harrison Vance-Giles III', platform: PANEL, role: 'The CEO / Executive Lifeline',
+      bio: 'Ultimate corporate authority. Stays quiet through lower tiers, steps in when a candidate freezes. Restores historical properties, fly-fishes alone. Has learned exactly when silence costs the room and when it commands it.',
+      home: '/prep-room#pros/interview' },
+
+    // ───── The Panel Room — Résumé Coach (1) ─────
+    { name: 'Charles Monroe', platform: PANEL, role: 'Résumé Coach',
+      bio: 'Associate Director of Career Services. M.S. in Organizational Leadership. Married to an elementary school principal, two college-aged teenagers. Takes landscape photographs. Cuts through ambiguity to land on quantifiable achievements. Will not draft your bullets for you. Shows the gap between intent and evidence and trusts you to write the fix.',
+      home: '/prep-room#students/resume' }
+  ];
+
+  // Wire avatar clicks. Roster imgs sit directly inside .etl-net-roster; their
+  // NodeList order matches the AGENTS array index above. If a future change
+  // reorders the wall, update AGENTS in lockstep.
+  var roster = document.querySelectorAll('.etl-net-roster img');
+  var modal = document.getElementById('agents-modal');
+  if (!modal || !roster.length) return;
+
+  var elName     = document.getElementById('agents-modal-name');
+  var elRole     = document.getElementById('agents-modal-role');
+  var elPlatform = document.getElementById('agents-modal-platform');
+  var elBio      = document.getElementById('agents-modal-bio');
+  var elPortrait = document.getElementById('agents-modal-portrait-img');
+  var elNum      = document.getElementById('agents-modal-num');
+  var elHome     = document.getElementById('agents-modal-home');
+  var btnClose   = document.getElementById('agents-modal-close');
+  var btnPrev    = document.getElementById('agents-modal-prev');
+  var btnNext    = document.getElementById('agents-modal-next');
+  var overlay    = document.getElementById('agents-modal-overlay');
+
+  var currentIdx = 0;
+  var lastFocused = null;
+
+  function pad(n){ return n < 10 ? '0' + n : '' + n; }
+
+  function openAgent(idx){
+    if (idx < 0 || idx >= AGENTS.length) return;
+    var a = AGENTS[idx];
+    if (!a) return;
+    currentIdx = idx;
+    var rosterImg = roster[idx];
+    elPortrait.src = rosterImg ? rosterImg.getAttribute('src') : '';
+    elPortrait.alt = a.name;
+    elName.textContent = a.name;
+    elRole.textContent = a.role;
+    elPlatform.textContent = a.platform;
+    elBio.textContent = a.bio;
+    elNum.textContent = 'Agent ' + pad(idx + 1) + ' of ' + pad(AGENTS.length);
+    elHome.href = a.home;
+    elHome.textContent = 'Visit them at ' + a.platform + ' →';
+    // Re-trigger the scanline animation on every open by toggling the class
+    var card = modal.querySelector('.agents-modal-card');
+    if (card) {
+      card.style.animation = 'none';
+      // force reflow so the animation restarts next paint
+      void card.offsetWidth;
+      card.style.animation = '';
+    }
+    if (!modal.classList.contains('open')) {
+      lastFocused = document.activeElement;
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+    // Focus close button so esc/enter work immediately
+    setTimeout(function(){ btnClose.focus(); }, 30);
+  }
+
+  function closeModal(){
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    if (lastFocused && typeof lastFocused.focus === 'function') {
+      try { lastFocused.focus(); } catch(_) {}
+    }
+  }
+
+  function step(delta){
+    var n = AGENTS.length;
+    var next = ((currentIdx + delta) % n + n) % n;
+    openAgent(next);
+  }
+
+  roster.forEach(function(img, i){
+    img.setAttribute('tabindex', '0');
+    img.setAttribute('role', 'button');
+    img.setAttribute('aria-label', 'Open bio for ' + (AGENTS[i] ? AGENTS[i].name : ('agent ' + (i+1))));
+    img.addEventListener('click', function(){ openAgent(i); });
+    img.addEventListener('keydown', function(e){
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openAgent(i); }
+    });
+  });
+
+  btnClose.addEventListener('click', closeModal);
+  overlay.addEventListener('click', closeModal);
+  btnPrev.addEventListener('click', function(){ step(-1); });
+  btnNext.addEventListener('click', function(){ step(1); });
+
+  document.addEventListener('keydown', function(e){
+    if (!modal.classList.contains('open')) return;
+    if (e.key === 'Escape')     { e.preventDefault(); closeModal(); }
+    else if (e.key === 'ArrowLeft')  { e.preventDefault(); step(-1); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); step(1); }
+  });
+
+  // Deep-link support: #agents/<idx> opens that agent on page load. Useful
+  // for sharing a specific agent's bio externally.
+  (function maybeOpenFromHash(){
+    var m = (window.location.hash || '').match(/^#agents\/(\d+)$/i);
+    if (m) {
+      var i = parseInt(m[1], 10);
+      if (i >= 0 && i < AGENTS.length) {
+        setTimeout(function(){ openAgent(i); }, 200);
+      }
+    }
+  })();
+})();
+</script>
+
 
