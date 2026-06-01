@@ -1471,8 +1471,10 @@ document.addEventListener('DOMContentLoaded', function(){
   .newswire-strip-five { display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; }
   @media (max-width: 1100px) { .newswire-strip-five { grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 620px) { .newswire-strip-five { grid-template-columns: 1fr; } }
-  .newswire-card { background: #fdfbf5; border: 1px solid rgba(14,12,8,0.14); padding: 16px 16px 18px; display: flex; flex-direction: column; gap: 10px; text-decoration: none; color: inherit; transition: border-color 0.15s, transform 0.15s; }
+  .newswire-card { background: #fdfbf5; border: 1px solid rgba(14,12,8,0.14); padding: 16px 16px 18px; display: flex; flex-direction: column; gap: 8px; text-decoration: none; color: inherit; transition: border-color 0.15s, transform 0.15s; }
   .newswire-card:hover { border-color: #b8922a; transform: translateY(-2px); }
+  .newswire-card-head { display: flex; align-items: center; gap: 10px; }
+  .newswire-card-avatar { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 1px solid rgba(184,146,42,0.5); flex: 0 0 44px; background: #2a2418; }
   .newswire-card-desk { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: #b8922a; }
   .newswire-card-title { font-family: 'Playfair Display', Georgia, serif; font-size: 17px; font-weight: 700; line-height: 1.25; color: #0e0c08; }
   .newswire-card-dek { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 14px; line-height: 1.4; color: #3a3424; flex: 1; }
@@ -1549,8 +1551,14 @@ document.addEventListener('DOMContentLoaded', function(){
           byline = esc(p.source_label);
         }
         var date = shortDate(p.published_at);
+        var avatar = p.reporter_avatar_url
+          ? '<img class="newswire-card-avatar" src="' + esc(p.reporter_avatar_url) + '" alt="' + esc(p.author || '') + '" loading="lazy">'
+          : '';
+        var head = avatar
+          ? '<div class="newswire-card-head">' + avatar + (p.desk_label ? '<div class="newswire-card-desk">' + esc(p.desk_label) + '</div>' : '') + '</div>'
+          : (p.desk_label ? '<div class="newswire-card-desk">' + esc(p.desk_label) + '</div>' : '');
         return '<a class="newswire-card" href="' + esc(p.url) + '">'
-          + (p.desk_label ? '<div class="newswire-card-desk">' + esc(p.desk_label) + '</div>' : '')
+          + head
           + '<div class="newswire-card-title">' + esc(p.title) + '</div>'
           + (p.dek ? '<div class="newswire-card-dek">' + esc(p.dek) + '</div>' : '')
           + '<div class="newswire-card-meta">' + [byline, date].filter(Boolean).join(' &middot; ') + '</div>'

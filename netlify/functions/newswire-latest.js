@@ -29,6 +29,14 @@ function loadReporters() {
   return REPORTERS_CACHE;
 }
 
+// Convert reporter id ("marcus_reyes") into the avatar filename in /agents/
+// ("Marcus_Reyes.png"). Capitalize each underscore-separated segment.
+function avatarUrlFor(id) {
+  if (!id) return '';
+  const file = id.split('_').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join('_');
+  return `/agents/${file}.png`;
+}
+
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, OPTIONS',
@@ -75,6 +83,7 @@ exports.handler = async (event) => {
         reporter_id: p.reporter_id || null,
         reporter_tier: r ? (r.tier_label || '') : '',
         reporter_profile_url: r ? `/press/reporter/${r.id.replace(/_/g, '-')}` : '',
+        reporter_avatar_url: r ? avatarUrlFor(r.id) : '',
         author: p.author || (r ? r.name : ''),
         source_label: p.source_label || '',
         published_at: p.published_at || '',
