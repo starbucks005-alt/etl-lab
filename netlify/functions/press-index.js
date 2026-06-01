@@ -134,7 +134,7 @@ function renderHub(pieces) {
 
 <footer>
   <span>ETL Press Hub &middot; Emerging Technologies Laboratory</span>
-  <a href="/press-sitemap.xml">Sitemap</a>
+  <span><a href="/press-sitemap.xml">Sitemap</a> &middot; <a href="/press-admin" rel="nofollow noindex">Admin</a></span>
 </footer>
 
 </body>
