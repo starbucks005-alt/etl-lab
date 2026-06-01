@@ -84,23 +84,24 @@ exports.handler = async (event) => {
   }
 
   const piecesStore = getStore('press_pieces');
-  let existing;
+  let existing = null;
   try {
     existing = await piecesStore.get(slug, { type: 'json' });
   } catch (err) {
     console.error('[press-delete] blob read failed', err && err.message);
-    return json(500, { error: 'blob read failed' });
+    // Continue: maybe the index can still be cleaned up.
   }
 
-  // Best-effort delete the piece blob. If it does not exist (orphan index
-  // entry from a crashed seed run) we still want to clean the index below.
-  if (existing) {
-    try {
-      await piecesStore.delete(slug);
-    } catch (err) {
-      console.error('[press-delete] piece delete failed', err && err.message);
-      return json(500, { error: 'blob delete failed' });
-    }
+  // Always attempt the blob delete - idempotent for missing keys. This also
+  // clears "zombie" blob keys that exist with empty/null values, which the
+  // admin lists from piecesStore.list() and we need to remove.
+  try {
+    await piecesStore.delete(slug);
+  } catch (err) {
+    // Netlify Blobs delete on a missing key is supposed to succeed silently.
+    // If we hit an error here, log it but continue - the index cleanup below
+    // is still worth attempting.
+    console.warn('[press-delete] piece delete error (continuing)', err && err.message);
   }
 
   // Best-effort delete of the matching hero image.
@@ -128,11 +129,13 @@ exports.handler = async (event) => {
     // Non-fatal: piece itself is gone.
   }
 
-  // If neither the piece blob existed NOR the index had a row for this slug,
-  // the slug really is unknown.
-  if (!existing && !indexRemoved) {
-    return json(404, { error: 'slug not found' });
-  }
-
-  return json(200, { ok: true, slug, was_orphan: !existing });
+  // Always return 200. Delete is idempotent: if nothing was actually present
+  // to clean up, that is fine. The admin list will refresh and the row goes
+  // away. Surface what we did via the response for debugging.
+  return json(200, {
+    ok: true,
+    slug,
+    was_orphan: !existing,
+    index_cleaned: indexRemoved,
+  });
 };
