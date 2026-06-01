@@ -35,10 +35,10 @@ const BODY_MIN = 200, BODY_MAX = 10000;
 const SLUG_MAX = 80;
 const PLATFORMS = new Set(['gauntlet', 'greylander', 'lab', 'newswire']);
 // Desks for the ETL Newswire. 'lab' platform pieces and Gauntlet / Greylander
-// client releases all sit on one of these eight desks. Reporters write to a
+// client releases all sit on one of these nine desks. Reporters write to a
 // fixed desk. Client releases get a sensible default based on platform but
 // the publisher can override.
-const DESKS = new Set(['us', 'world', 'business', 'technology', 'science', 'health', 'entertainment', 'sports']);
+const DESKS = new Set(['us', 'world', 'business', 'technology', 'security', 'science', 'health', 'entertainment', 'sports']);
 const BYLINE_KINDS = new Set(['client', 'reporter']);
 const DEFAULT_DESK_BY_PLATFORM = { gauntlet: 'business', greylander: 'entertainment', lab: 'technology', newswire: 'technology' };
 

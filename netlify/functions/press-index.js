@@ -21,6 +21,7 @@ const DESKS = [
   { id: 'world',         label: 'World'         },
   { id: 'business',      label: 'Business'      },
   { id: 'technology',    label: 'Technology'    },
+  { id: 'security',      label: 'Security'      },
   { id: 'science',       label: 'Science'       },
   { id: 'health',        label: 'Health'        },
   { id: 'entertainment', label: 'Entertainment' },

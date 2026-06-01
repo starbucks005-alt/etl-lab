@@ -31,7 +31,8 @@ const PLATFORM_LABELS = {
 
 const DESK_LABELS = {
   us: 'US', world: 'World', business: 'Business', technology: 'Technology',
-  science: 'Science', health: 'Health', entertainment: 'Entertainment', sports: 'Sports',
+  security: 'Security', science: 'Science', health: 'Health',
+  entertainment: 'Entertainment', sports: 'Sports',
 };
 
 // Lazy-loaded reporters list for byline rendering. Read once per cold start.

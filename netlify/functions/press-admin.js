@@ -253,6 +253,7 @@ function renderDashboard(pieces) {
               <option value="elke_vogel">Elke Vogel &middot; World</option>
               <option value="sasha_park">Sasha Park &middot; Business</option>
               <option value="theo_okafor">Theo Okafor &middot; Technology</option>
+              <option value="renee_kovac">Ren&eacute;e Kovac &middot; Security</option>
               <option value="maya_iyer">Dr. Maya Iyer &middot; Science</option>
               <option value="karen_bishop">Karen Bishop &middot; Health</option>
               <option value="jules_rivera">Jules Rivera &middot; Entertainment</option>
@@ -279,6 +280,7 @@ function renderDashboard(pieces) {
           <button type="button" class="btn btn-seed" data-rid="elke_vogel">Seed Elke Vogel</button>
           <button type="button" class="btn btn-seed" data-rid="sasha_park">Seed Sasha Park</button>
           <button type="button" class="btn btn-seed" data-rid="theo_okafor">Seed Theo Okafor</button>
+          <button type="button" class="btn btn-seed" data-rid="renee_kovac">Seed Ren&eacute;e Kovac</button>
           <button type="button" class="btn btn-seed" data-rid="maya_iyer">Seed Maya Iyer</button>
           <button type="button" class="btn btn-seed" data-rid="karen_bishop">Seed Karen Bishop</button>
           <button type="button" class="btn btn-seed" data-rid="jules_rivera">Seed Jules Rivera</button>
@@ -300,6 +302,7 @@ function renderDashboard(pieces) {
             <option value="world">World</option>
             <option value="business">Business</option>
             <option value="technology">Technology</option>
+            <option value="security">Security</option>
             <option value="science">Science</option>
             <option value="health">Health</option>
             <option value="entertainment">Entertainment</option>

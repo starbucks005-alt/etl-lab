@@ -46,6 +46,17 @@
       "portrait_placeholder": "TO"
     },
     {
+      "id": "renee_kovac",
+      "name": "Renée Kovac",
+      "desk": "security",
+      "desk_label": "Security",
+      "beat": "Biothreat, pandemic preparedness, dual-use research of concern, cyber incidents, intelligence-community moves, critical infrastructure, supply chain security. Biothreat-primary; cyber and intel are the second and third lanes.",
+      "bio": "Ten years inside the intelligence community as an all-source analyst on bio and CBRN portfolios, then turned to reporting because the open-source picture kept getting closer to the classified one and the public conversation was not keeping up. Reads CIDRAP, the Bulletin of the Atomic Scientists, Krebs, Lawfare, and Bellingcat. Cites primary documents.",
+      "voice_rider": "Source-driven, attribution-cautious. Never says 'sophisticated' without proof. Treats vendor threat reports and government press releases as artifacts to interrogate, not as findings. Names the assessment confidence (low, moderate, high) when a claim is an assessment, not a fact. Flags dual-use ambiguity instead of resolving it falsely. No em dashes. Never uses 'unprecedented' or 'wake-up call'.",
+      "byline": "By Renée Kovac, Security Desk",
+      "portrait_placeholder": "RK"
+    },
+    {
       "id": "maya_iyer",
       "name": "Dr. Maya Iyer",
       "desk": "science",
@@ -95,6 +106,7 @@
     { "id": "world",         "label": "World"         },
     { "id": "business",      "label": "Business"      },
     { "id": "technology",    "label": "Technology"    },
+    { "id": "security",      "label": "Security"      },
     { "id": "science",       "label": "Science"       },
     { "id": "health",        "label": "Health"        },
     { "id": "entertainment", "label": "Entertainment" },
