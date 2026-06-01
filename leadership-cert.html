@@ -180,6 +180,41 @@
     .page-wrap { padding: 100px 1.25rem 4rem; }
     .cert-controls { flex-direction: column; align-items: stretch; }
   }
+
+  /* AUDIENCE TABS + BODY-CLASS TOGGLE
+     The cert is offered on two tracks: Student Track (default, original
+     framing) and Professional Track (mid-career to executive). The page
+     DOM contains both variants for any audience-flavored copy; body
+     class controls visibility. parseAudience reads #students or #pros
+     from the hash; setAudience flips body class, hash, title, and
+     re-renders the cert canvas (so Module 5/6 names and track label
+     match the active audience).                                         */
+  .audience-tabs { max-width: 820px; margin: 80px auto 0; padding: 0 2.5rem 0; display: flex; gap: 8px; }
+  .aud-tab {
+    flex: 1;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 0.85rem 1rem;
+    background: var(--bg-card);
+    border: 1px solid var(--gold-rule);
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s, background 0.2s;
+    user-select: none;
+  }
+  .aud-tab:hover { color: var(--gold); border-color: var(--gold); }
+  .aud-tab.active { color: var(--bg-ink); background: var(--gold); border-color: var(--gold); font-weight: 600; }
+  /* When tabs sit below the fixed nav, reduce page-wrap top padding so they don't double-pad. */
+  body.has-aud-tabs .page-wrap { padding-top: 40px; }
+  @media (max-width: 640px) { .audience-tabs { padding: 0 1.25rem; } .aud-tab { font-size: 0.55rem; padding: 0.7rem 0.6rem; } }
+
+  /* Default (no class) shows students. */
+  body .aud-pros { display: none; }
+  body.aud-pros .aud-students { display: none; }
+  body.aud-pros .aud-pros { display: block; }
 </style>
 </head>
 <body>
@@ -188,11 +223,20 @@
   <a href="index.html" class="nav-back">&larr; Home</a>
 </nav>
 
+<!-- AUDIENCE TABS — Student Track vs Professional Track. Default students. -->
+<div class="audience-tabs">
+  <div class="aud-tab" id="aud-tab-students" onclick="setAudience('students')">Student Track</div>
+  <div class="aud-tab" id="aud-tab-pros" onclick="setAudience('pros')">Professional Track</div>
+</div>
+
 <!-- LOCKED STATE -->
 <div id="cert-locked" class="page-wrap">
   <div class="section-label">DIRECTIVE // 09 &mdash; CERTIFICATION</div>
   <h1 class="page-headline">Certificate Locked</h1>
-  <p class="page-sub">Complete all six modules to unlock your ETL Leadership Certificate.</p>
+  <!-- Audience-aware lead. The six-module structure is the same on both tracks;
+       Module 5 and Module 6 are reframed inside their own pages per audience.   -->
+  <p class="page-sub aud-students">Complete all six modules to unlock your ETL Leadership Certificate. The Student Track frames the modules around early-career and academic settings — the job fair table, the academic conference poster.</p>
+  <p class="page-sub aud-pros">Complete all six modules to unlock your ETL Leadership Certificate. The Professional Track frames the same skills around mid-career and executive settings — the networking room, the executive briefing deck.</p>
 
   <ul class="progress-list">
     <li class="progress-item">
@@ -213,11 +257,13 @@
     </li>
     <li class="progress-item">
       <span class="progress-check" id="lock-check-poster">&#x25CB;</span>
-      <span>MODULE 5 &mdash; ACADEMIC POSTER</span>
+      <span class="aud-students">MODULE 5 &mdash; ACADEMIC POSTER</span>
+      <span class="aud-pros">MODULE 5 &mdash; EXECUTIVE BRIEFING</span>
     </li>
     <li class="progress-item">
       <span class="progress-check" id="lock-check-jobfair">&#x25CB;</span>
-      <span>MODULE 6 &mdash; JOB FAIR MASTERY</span>
+      <span class="aud-students">MODULE 6 &mdash; JOB FAIR MASTERY</span>
+      <span class="aud-pros">MODULE 6 &mdash; NETWORKING MASTERY</span>
     </li>
   </ul>
 
@@ -226,9 +272,11 @@
 
 <!-- UNLOCKED STATE -->
 <div id="cert-unlocked" class="page-wrap" style="display:none;">
-  <div class="section-label">CERTIFICATION COMPLETE</div>
+  <div class="section-label aud-students">CERTIFICATION COMPLETE &middot; STUDENT TRACK</div>
+  <div class="section-label aud-pros">CERTIFICATION COMPLETE &middot; PROFESSIONAL TRACK</div>
   <h1 class="page-headline">ETL Leadership Certificate</h1>
-  <p class="page-sub">You have completed all six modules of the Emerging Technologies Core Laboratory Leadership Certificate program.</p>
+  <p class="page-sub aud-students">You have completed all six modules of the Emerging Technologies Core Laboratory Leadership Certificate program on the Student Track.</p>
+  <p class="page-sub aud-pros">You have completed all six modules of the Emerging Technologies Core Laboratory Leadership Certificate program on the Professional Track.</p>
 
   <div id="theme-row" style="display:none; text-align:center; margin-bottom:0.75rem;">
     <button class="btn-ghost" id="theme-toggle" onclick="toggleTheme()" style="border-color:var(--gold);color:var(--gold);">LIGHT VERSION &#9728;</button>
@@ -309,10 +357,25 @@ function drawCertBackground(ctx, W, H, name, theme) {
   ctx.textAlign = 'center';
   ctx.fillText('ETL LEADERSHIP CERTIFICATE PROGRAM', W/2, 340);
 
+  // Track label: Student Track or Professional Track, set from the active audience.
+  // Reads document.body class so the cert reflects whichever tab is selected
+  // when GENERATE CERTIFICATE is pressed.
+  var trackLabel = (document.body && document.body.classList.contains('aud-pros'))
+    ? 'PROFESSIONAL TRACK'
+    : 'STUDENT TRACK';
+  ctx.fillStyle = P.muted;
+  ctx.font = '300 11px "DM Mono"';
+  ctx.textAlign = 'center';
+  ctx.fillText(trackLabel, W/2, 362);
+
   ctx.fillStyle = P.muted;
   ctx.font = 'italic 15px "Cormorant Garamond"';
   ctx.textAlign = 'center';
-  ctx.fillText('Developed by Dr. Terry L. Oroszi \u00B7 Emerging Technologies Core Laboratory', W/2, 375);
+  ctx.fillText('Developed by Dr. Terry L. Oroszi \u00B7 Emerging Technologies Core Laboratory', W/2, 388);
+
+  // Module 5 and 6 names flip per track. Modules 1-4 are universal.
+  var mod5Name = (trackLabel === 'PROFESSIONAL TRACK') ? 'EXECUTIVE BRIEFING'  : 'ACADEMIC POSTER';
+  var mod6Name = (trackLabel === 'PROFESSIONAL TRACK') ? 'NETWORKING MASTERY'  : 'JOB FAIR MASTERY';
 
   ctx.fillStyle = '#b8922a';
   ctx.font = '300 10px "DM Mono"';
@@ -321,8 +384,8 @@ function drawCertBackground(ctx, W, H, name, theme) {
   ctx.fillText('\u2713  MODULE 2 \u2014 EGOS AT THE TABLE', 200, 445);
   ctx.fillText('\u2713  MODULE 3 \u2014 BODY LANGUAGE', 200, 470);
   ctx.fillText('\u2713  MODULE 4 \u2014 4/5/6 POWER PLATFORM', 600, 420);
-  ctx.fillText('\u2713  MODULE 5 \u2014 ACADEMIC POSTER', 600, 445);
-  ctx.fillText('\u2713  MODULE 6 \u2014 JOB FAIR MASTERY', 600, 470);
+  ctx.fillText('\u2713  MODULE 5 \u2014 ' + mod5Name, 600, 445);
+  ctx.fillText('\u2713  MODULE 6 \u2014 ' + mod6Name, 600, 470);
 
   ctx.strokeStyle = 'rgba(184,146,42,0.5)';
   ctx.lineWidth = 1;
@@ -414,6 +477,66 @@ function downloadCert() {
   link.click();
 }
 
+// \u2500\u2500\u2500 AUDIENCE CONTROLLER \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+// Two tracks for the cert: Student Track (default) and Professional Track.
+// State is in the URL hash (#students / #pros) to match Panel Room and
+// Job Fair Mastery; ?audience= still works for backward compatibility from
+// any older link-out. setAudience() flips body class, hash, page title,
+// and re-runs the CTA + canvas update so the cert reflects the active track.
+function parseAudience(){
+  var h = (window.location.hash || '').toLowerCase().replace(/^#/, '').replace(/^\/+|\/+$/g, '');
+  if (h === 'pros' || h === 'students') return h;
+  try {
+    var qs = new URLSearchParams(window.location.search);
+    var q = (qs.get('audience') || '').toLowerCase();
+    if (q === 'pros' || q === 'students') return q;
+  } catch (_) {}
+  return 'students';
+}
+
+function applyAudienceToCta(aud){
+  // CTA button (BEGIN MODULE 1 / CONTINUE YOUR PROGRESS) round-trips
+  // the audience so the next module page loads its matching variant.
+  var cta = document.getElementById('locked-cta-btn');
+  if (!cta) return;
+  var raw = cta.getAttribute('href') || '';
+  // strip any prior ?audience= or &audience= to avoid double-appending
+  raw = raw.replace(/([?&])audience=(students|pros)(&|$)/i, function(_, pre, _v, suf){
+    return suf === '&' ? pre : (pre === '?' ? '' : '');
+  });
+  // tidy a trailing '?' if we removed the only query
+  if (raw.charAt(raw.length - 1) === '?') raw = raw.slice(0, -1);
+  var sep = raw.indexOf('?') >= 0 ? '&' : '?';
+  cta.href = raw + sep + 'audience=' + aud;
+}
+
+function setAudience(aud){
+  if (aud !== 'students' && aud !== 'pros') aud = 'students';
+  document.body.classList.add('has-aud-tabs');
+  document.body.classList.toggle('aud-pros', aud === 'pros');
+  document.body.classList.toggle('aud-students', aud === 'students');
+  var ts = document.getElementById('aud-tab-students');
+  var tp = document.getElementById('aud-tab-pros');
+  if (ts) ts.classList.toggle('active', aud === 'students');
+  if (tp) tp.classList.toggle('active', aud === 'pros');
+  if (parseAudience() !== aud) {
+    try { history.replaceState(null, '', '#' + aud); } catch (_) { window.location.hash = '#' + aud; }
+  }
+  document.title = (aud === 'pros')
+    ? 'ETL Leadership Certificate \u00b7 Professional Track'
+    : 'ETL Leadership Certificate \u00b7 Student Track';
+  applyAudienceToCta(aud);
+  // If the cert canvas has been rendered already, re-render it so the
+  // track label + Module 5/6 names update without forcing the visitor
+  // to re-type their name and click again.
+  try {
+    var nameInput = document.getElementById('cert-name');
+    if (nameInput && nameInput.value && document.getElementById('cert-unlocked').style.display !== 'none') {
+      generateCert();
+    }
+  } catch (_) {}
+}
+
 window.addEventListener('DOMContentLoaded', function() {
   var moduleKeys = {
     'etl_elevator_done': 'lock-check-elevator',
@@ -446,22 +569,13 @@ window.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  // Round-trip audience to module pages. If we arrived here with ?audience=
-  // (set by leadership-programs.html or any Panel Room link-out), append it
-  // to the BEGIN/CONTINUE button so the visitor lands on the correct
-  // variant of the next module (currently Module 6 = job-fair.html is the
-  // only audience-aware module, but appending to all is harmless).
-  try {
-    var qs = new URLSearchParams(window.location.search);
-    var aud = (qs.get('audience') || '').toLowerCase();
-    if (aud === 'students' || aud === 'pros') {
-      var cta = document.getElementById('locked-cta-btn');
-      if (cta && cta.href) {
-        var sep = cta.getAttribute('href').indexOf('?') >= 0 ? '&' : '?';
-        cta.href = cta.getAttribute('href') + sep + 'audience=' + aud;
-      }
-    }
-  } catch (_) { /* malformed query string is harmless */ }
+  // initial audience paint (also wires CTA href with audience param)
+  try { setAudience(parseAudience()); } catch (_) { setAudience('students'); }
+});
+
+// react to forward/back navigation between #students and #pros
+window.addEventListener('hashchange', function(){
+  try { setAudience(parseAudience()); } catch (_) {}
 });
 
 </script>

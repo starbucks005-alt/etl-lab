@@ -461,6 +461,38 @@
     nav { padding: 1rem 1.25rem; }
     .phase { padding: 100px 1.25rem 4rem; }
   }
+
+  /* AUDIENCE TABS + BODY-CLASS TOGGLE
+     Module 5 ships in two audiences. Students: Academic Poster Presentation
+     (original framing kept verbatim). Professionals: Executive Briefing
+     (board memo / all-hands slide / conference keynote setup). Same five-
+     phase arc, same skill, different artifact. Module completion still
+     writes to the single localStorage key etl_poster_done so the cert
+     unlocks correctly on either track.                                   */
+  .audience-tabs { max-width: 820px; margin: 80px auto 0; padding: 0 2.5rem; display: flex; gap: 8px; }
+  .aud-tab {
+    flex: 1;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 0.85rem 1rem;
+    background: var(--bg-card);
+    border: 1px solid var(--gold-rule);
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s, background 0.2s;
+    user-select: none;
+  }
+  .aud-tab:hover { color: var(--gold); border-color: var(--gold); }
+  .aud-tab.active { color: var(--bg-ink); background: var(--gold); border-color: var(--gold); font-weight: 600; }
+  body.has-aud-tabs .phase { padding-top: 40px; }
+  @media (max-width: 640px) { .audience-tabs { padding: 0 1.25rem; } .aud-tab { font-size: 0.55rem; padding: 0.7rem 0.6rem; } }
+
+  body .aud-pros { display: none; }
+  body.aud-pros .aud-students { display: none; }
+  body.aud-pros .aud-pros { display: block; }
 </style>
 </head>
 <body>
@@ -470,27 +502,60 @@
   <a href="index.html" class="nav-back">&larr; Home</a>
 </nav>
 
+<!-- AUDIENCE TABS — Student Track (Academic Poster) vs Professional Track (Executive Briefing). -->
+<div class="audience-tabs">
+  <div class="aud-tab" id="aud-tab-students" onclick="setAudience('students')">Academic Poster</div>
+  <div class="aud-tab" id="aud-tab-pros" onclick="setAudience('pros')">Executive Briefing</div>
+</div>
+
 <!-- PHASE 0: WHAT IS A POSTER SESSION -->
 <div class="phase" id="phase-0">
   <div class="section-label">MODULE 5 // PHASE 1 OF 5</div>
-  <h1 class="phase-headline">The Poster Is Not the Presentation</h1>
-  <p class="phase-sub">Most presenters stand next to their poster and read it aloud. That is the single biggest mistake you can make at an academic conference.</p>
 
-  <div class="two-col">
-    <div>
-      <div class="col-label">What a Poster Session Is</div>
-      <p class="col-body">A poster session is a live research conversation. You have 3&ndash;5 minutes per visitor, often repeated 10&ndash;20 times in a single hour. The poster is your backdrop &mdash; not your script. Your job is to guide, engage, and convert.</p>
+  <!-- STUDENT VARIANT — Academic Poster -->
+  <div class="aud-students">
+    <h1 class="phase-headline">The Poster Is Not the Presentation</h1>
+    <p class="phase-sub">Most presenters stand next to their poster and read it aloud. That is the single biggest mistake you can make at an academic conference.</p>
+
+    <div class="two-col">
+      <div>
+        <div class="col-label">What a Poster Session Is</div>
+        <p class="col-body">A poster session is a live research conversation. You have 3&ndash;5 minutes per visitor, often repeated 10&ndash;20 times in a single hour. The poster is your backdrop &mdash; not your script. Your job is to guide, engage, and convert.</p>
+      </div>
+      <div>
+        <div class="col-label">What Most People Get Wrong</div>
+        <p class="col-body">They over-design the poster and under-prepare the talk. They wait for visitors to approach rather than opening conversation. They deliver a monologue instead of a dialogue. They miss exit signals and hold people too long.</p>
+      </div>
     </div>
-    <div>
-      <div class="col-label">What Most People Get Wrong</div>
-      <p class="col-body">They over-design the poster and under-prepare the talk. They wait for visitors to approach rather than opening conversation. They deliver a monologue instead of a dialogue. They miss exit signals and hold people too long.</p>
+
+    <div class="gold-divider"></div>
+
+    <div class="insight-box">
+      <p>Dr. Oroszi has evaluated hundreds of poster sessions at national conferences. The presenters who succeed share one trait: they treat every visitor interaction as a structured conversation with a beginning, middle, and end.</p>
     </div>
   </div>
 
-  <div class="gold-divider"></div>
+  <!-- PRO VARIANT — Executive Briefing -->
+  <div class="aud-pros">
+    <h1 class="phase-headline">The Deck Is Not the Talk</h1>
+    <p class="phase-sub">Most executives stand next to their slides and read them aloud. That is the single biggest mistake you can make in a board meeting, an all-hands, or a conference keynote.</p>
 
-  <div class="insight-box">
-    <p>Dr. Oroszi has evaluated hundreds of poster sessions at national conferences. The presenters who succeed share one trait: they treat every visitor interaction as a structured conversation with a beginning, middle, and end.</p>
+    <div class="two-col">
+      <div>
+        <div class="col-label">What an Executive Briefing Is</div>
+        <p class="col-body">A briefing is a structured conversation defended in person. You have 10&ndash;30 minutes including Q&amp;A &mdash; the slides are your backdrop, not your script. Your job is to frame the decision, surface the evidence, and answer the question the room actually has, which is rarely the question on the agenda.</p>
+      </div>
+      <div>
+        <div class="col-label">What Most Senior Presenters Get Wrong</div>
+        <p class="col-body">They over-engineer the deck and under-prepare the read of the room. They present what they prepared instead of what the audience needs. They miss the moment a board member checks out, a sidebar starts, or the chair begins composing the close in their head.</p>
+      </div>
+    </div>
+
+    <div class="gold-divider"></div>
+
+    <div class="insight-box">
+      <p>The executives who hold the room share one trait: they treat every briefing as a live conversation with a clear opening, a defended middle, and a structured close. The deck supports the conversation. It does not replace it.</p>
+    </div>
   </div>
 
   <div class="btn-row">
@@ -501,63 +566,126 @@
 <!-- PHASE 1: THE OPENING PROTOCOL -->
 <div class="phase" id="phase-1">
   <div class="section-label">MODULE 5 // PHASE 2 OF 5</div>
-  <h1 class="phase-headline">Your First 15 Seconds</h1>
-  <p class="phase-sub">Before a visitor can read a single word on your poster, you have already made an impression. Make it count.</p>
 
-  <div class="cards-grid">
-    <div class="card">
-      <div class="card-label">The Question Hook</div>
-      <p class="card-body">&ldquo;What would you do if you had 30 seconds with a federal program officer?&rdquo; Open with a genuine research question, not a greeting.</p>
+  <!-- STUDENT VARIANT -->
+  <div class="aud-students">
+    <h1 class="phase-headline">Your First 15 Seconds</h1>
+    <p class="phase-sub">Before a visitor can read a single word on your poster, you have already made an impression. Make it count.</p>
+
+    <div class="cards-grid">
+      <div class="card">
+        <div class="card-label">The Question Hook</div>
+        <p class="card-body">&ldquo;What would you do if you had 30 seconds with a federal program officer?&rdquo; Open with a genuine research question, not a greeting.</p>
+      </div>
+      <div class="card">
+        <div class="card-label">The Challenge Frame</div>
+        <p class="card-body">&ldquo;Most people assume the solution to X is Y. Our data suggests otherwise.&rdquo; Creates immediate intellectual tension.</p>
+      </div>
+      <div class="card">
+        <div class="card-label">The Result Lead</div>
+        <p class="card-body">&ldquo;We found something unexpected.&rdquo; Start with your most surprising finding. Let curiosity do the work.</p>
+      </div>
     </div>
-    <div class="card">
-      <div class="card-label">The Challenge Frame</div>
-      <p class="card-body">&ldquo;Most people assume the solution to X is Y. Our data suggests otherwise.&rdquo; Creates immediate intellectual tension.</p>
-    </div>
-    <div class="card">
-      <div class="card-label">The Result Lead</div>
-      <p class="card-body">&ldquo;We found something unexpected.&rdquo; Start with your most surprising finding. Let curiosity do the work.</p>
+
+    <p class="col-body" style="margin-bottom: 2rem;">The opening must do three things simultaneously: establish your credibility, surface a question the visitor already has, and create a reason to stay for the full explanation.</p>
+
+    <div class="practice-prompt">
+      <div class="practice-prompt-label">Practice Prompt</div>
+      <p>Write your opening line below. It should be one sentence, under 20 words, and end with either a question mark or an implied invitation to respond.</p>
+      <textarea class="practice-textarea" placeholder="Write your opening line here&hellip;"></textarea>
     </div>
   </div>
 
-  <p class="col-body" style="margin-bottom: 2rem;">The opening must do three things simultaneously: establish your credibility, surface a question the visitor already has, and create a reason to stay for the full explanation.</p>
+  <!-- PRO VARIANT -->
+  <div class="aud-pros">
+    <h1 class="phase-headline">Your First 60 Seconds</h1>
+    <p class="phase-sub">Before anyone has read a slide, you have already framed the room. The opening minute decides whether the meeting is a briefing you control or a Q&amp;A you survive.</p>
 
-  <div class="practice-prompt">
-    <div class="practice-prompt-label">Practice Prompt</div>
-    <p>Write your opening line below. It should be one sentence, under 20 words, and end with either a question mark or an implied invitation to respond.</p>
-    <textarea class="practice-textarea" placeholder="Write your opening line here&hellip;"></textarea>
+    <div class="cards-grid">
+      <div class="card">
+        <div class="card-label">The Decision Frame</div>
+        <p class="card-body">&ldquo;I&rsquo;m here to surface the decision we need to make before next quarter.&rdquo; Names the purpose in one sentence. The room knows what it is for.</p>
+      </div>
+      <div class="card">
+        <div class="card-label">The Tension Frame</div>
+        <p class="card-body">&ldquo;The default assumption inside the company is X. The data we&rsquo;re going to walk through suggests Y.&rdquo; Creates the gap. The middle of the briefing closes it.</p>
+      </div>
+      <div class="card">
+        <div class="card-label">The Headline Lead</div>
+        <p class="card-body">&ldquo;Three things changed this quarter. Two are good. One needs your attention now.&rdquo; The CFO opener. Earns the next twenty minutes.</p>
+      </div>
+    </div>
+
+    <p class="col-body" style="margin-bottom: 2rem;">The opening minute must do three things at once: name what the room is here for, surface the question the senior leader actually has, and earn the airspace for the rest of the briefing. Skip the agenda slide. Lead with the frame.</p>
+
+    <div class="practice-prompt">
+      <div class="practice-prompt-label">Practice Prompt</div>
+      <p>Write your opening sentence below. Under 25 words. It should name either a decision, a tension, or a headline. Not a greeting. Not the agenda.</p>
+      <textarea class="practice-textarea" placeholder="Write your opening sentence here&hellip;"></textarea>
+    </div>
   </div>
 
   <div class="btn-row">
     <button class="btn-ghost" onclick="showPhase(0)">&larr; BACK</button>
-    <button class="btn-primary" onclick="showPhase(2)">NEXT: THREE VISITOR TYPES &rarr;</button>
+    <button class="btn-primary" onclick="showPhase(2)">NEXT: THREE STAKEHOLDER TYPES &rarr;</button>
   </div>
 </div>
 
-<!-- PHASE 2: THREE VISITOR TYPES -->
+<!-- PHASE 2: THREE STAKEHOLDER TYPES -->
 <div class="phase" id="phase-2">
   <div class="section-label">MODULE 5 // PHASE 3 OF 5</div>
-  <h1 class="phase-headline">Read Your Audience Before You Speak</h1>
-  <p class="phase-sub">Not every person who stops at your poster wants the same thing. Identifying visitor type in the first 10 seconds changes your entire approach.</p>
 
-  <div class="visitor-cards">
-    <div class="visitor-card visitor-card--teal">
-      <div class="visitor-card-type">The Explorer</div>
-      <div class="visitor-card-signal">Scans broadly, makes eye contact, leans in slightly.</div>
-      <div class="visitor-card-body">They are genuinely curious. Give them the full narrative. Invite questions. This is your best-case visitor.</div>
+  <!-- STUDENT VARIANT -->
+  <div class="aud-students">
+    <h1 class="phase-headline">Read Your Audience Before You Speak</h1>
+    <p class="phase-sub">Not every person who stops at your poster wants the same thing. Identifying visitor type in the first 10 seconds changes your entire approach.</p>
+
+    <div class="visitor-cards">
+      <div class="visitor-card visitor-card--teal">
+        <div class="visitor-card-type">The Explorer</div>
+        <div class="visitor-card-signal">Scans broadly, makes eye contact, leans in slightly.</div>
+        <div class="visitor-card-body">They are genuinely curious. Give them the full narrative. Invite questions. This is your best-case visitor.</div>
+      </div>
+      <div class="visitor-card visitor-card--gold">
+        <div class="visitor-card-type">The Evaluator</div>
+        <div class="visitor-card-signal">Reads the methodology section first. Checks your sample size. Crosses arms.</div>
+        <div class="visitor-card-body">They are assessing rigor. Lead with your design decisions, not your conclusions.</div>
+      </div>
+      <div class="visitor-card visitor-card--dim">
+        <div class="visitor-card-type">The Obligated Passer</div>
+        <div class="visitor-card-signal">Walking by because they feel they should stop. Limited eye contact. Turned slightly toward the exit.</div>
+        <div class="visitor-card-body">Give them one compelling sentence and a business card. Do not perform the full presentation.</div>
+      </div>
     </div>
-    <div class="visitor-card visitor-card--gold">
-      <div class="visitor-card-type">The Evaluator</div>
-      <div class="visitor-card-signal">Reads the methodology section first. Checks your sample size. Crosses arms.</div>
-      <div class="visitor-card-body">They are assessing rigor. Lead with your design decisions, not your conclusions.</div>
-    </div>
-    <div class="visitor-card visitor-card--dim">
-      <div class="visitor-card-type">The Obligated Passer</div>
-      <div class="visitor-card-signal">Walking by because they feel they should stop. Limited eye contact. Turned slightly toward the exit.</div>
-      <div class="visitor-card-body">Give them one compelling sentence and a business card. Do not perform the full presentation.</div>
-    </div>
+
+    <p class="col-body" style="margin-bottom: 2rem;">"The mistake is treating every visitor like an Explorer. You will exhaust yourself and lose the Evaluators who needed a different entry point."</p>
   </div>
 
-  <p class="col-body" style="margin-bottom: 2rem;">"The mistake is treating every visitor like an Explorer. You will exhaust yourself and lose the Evaluators who needed a different entry point."</p>
+  <!-- PRO VARIANT -->
+  <div class="aud-pros">
+    <h1 class="phase-headline">Read Your Room Before You Speak</h1>
+    <p class="phase-sub">Every senior briefing has the same three roles in the chairs, regardless of title. Identify which person in the room is which inside the first sixty seconds. It changes which slide you linger on, which you skip, and which question you take first.</p>
+
+    <div class="visitor-cards">
+      <div class="visitor-card visitor-card--teal">
+        <div class="visitor-card-type">The Sponsor</div>
+        <div class="visitor-card-signal">Already bought in. May have prepped the room before you arrived. Nods at your frame. Wants you to win.</div>
+        <div class="visitor-card-body">Do not over-sell them. Use the time to surface the strongest evidence so they can defend you when you leave the room. Hand them the close, not the sale.</div>
+      </div>
+      <div class="visitor-card visitor-card--gold">
+        <div class="visitor-card-type">The Skeptic</div>
+        <div class="visitor-card-signal">Reads ahead in the deck. Asks the methods question early. Will quote one number back to you to test if you know it cold.</div>
+        <div class="visitor-card-body">Lead with the decision the data is asking them to make and the trade-off you considered first. Name the weakness in your own work before they do.</div>
+      </div>
+      <div class="visitor-card visitor-card--dim">
+        <div class="visitor-card-type">The Required Attendee</div>
+        <div class="visitor-card-signal">Looking at their phone or laptop. Will not ask a question. Will speak privately to the chair afterward, which is when their vote is cast.</div>
+        <div class="visitor-card-body">Do not chase them in the room. Make one of the headline slides land cleanly for them &mdash; the one a non-expert could repeat from memory &mdash; and send a one-page follow-up.</div>
+      </div>
+    </div>
+
+    <p class="col-body" style="margin-bottom: 2rem;">"The mistake is briefing every room as if it were one Sponsor. You will lose the Skeptic on methods and the Required Attendee on relevance, and neither will tell you."</p>
+  </div>
 
   <div class="btn-row">
     <button class="btn-ghost" onclick="showPhase(1)">&larr; BACK</button>
@@ -568,43 +696,88 @@
 <!-- PHASE 3: READING EXIT SIGNALS -->
 <div class="phase" id="phase-3">
   <div class="section-label">MODULE 5 // PHASE 4 OF 5</div>
-  <h1 class="phase-headline">Know When to Close</h1>
-  <p class="phase-sub">Overstaying your welcome at your own poster is more common than you think. The visitor who got away was the one you held too long.</p>
 
-  <div class="signals-instruction">Click Each Signal As You Learn It</div>
+  <!-- STUDENT VARIANT -->
+  <div class="aud-students">
+    <h1 class="phase-headline">Know When to Close</h1>
+    <p class="phase-sub">Overstaying your welcome at your own poster is more common than you think. The visitor who got away was the one you held too long.</p>
 
-  <ul class="signals-list" id="signals-list">
-    <li class="signal-item" onclick="toggleSignal(this)">
-      <span class="signal-check">○</span>
-      <span class="signal-text">Weight shift toward the aisle</span>
-    </li>
-    <li class="signal-item" onclick="toggleSignal(this)">
-      <span class="signal-check">○</span>
-      <span class="signal-text">Eyes scanning the room past your shoulder</span>
-    </li>
-    <li class="signal-item" onclick="toggleSignal(this)">
-      <span class="signal-check">○</span>
-      <span class="signal-text">Polite nod without verbal engagement</span>
-    </li>
-    <li class="signal-item" onclick="toggleSignal(this)">
-      <span class="signal-check">○</span>
-      <span class="signal-text">Checking phone or watch</span>
-    </li>
-    <li class="signal-item" onclick="toggleSignal(this)">
-      <span class="signal-check">○</span>
-      <span class="signal-text">&ldquo;That&rsquo;s really interesting&rdquo; with no follow-up question</span>
-    </li>
-    <li class="signal-item" onclick="toggleSignal(this)">
-      <span class="signal-check">○</span>
-      <span class="signal-text">Backing up more than one step</span>
-    </li>
-    <li class="signal-item" onclick="toggleSignal(this)">
-      <span class="signal-check">○</span>
-      <span class="signal-text">Breaking eye contact for more than 3 seconds</span>
-    </li>
-  </ul>
+    <div class="signals-instruction">Click Each Signal As You Learn It</div>
 
-  <p class="col-body" style="margin-bottom: 2rem;">When you see two or more of these signals simultaneously, it is time to close. A graceful close preserves the relationship: &ldquo;Here is my card &mdash; I would love to continue this conversation if you have questions later.&rdquo;</p>
+    <ul class="signals-list" id="signals-list">
+      <li class="signal-item" onclick="toggleSignal(this)">
+        <span class="signal-check">○</span>
+        <span class="signal-text">Weight shift toward the aisle</span>
+      </li>
+      <li class="signal-item" onclick="toggleSignal(this)">
+        <span class="signal-check">○</span>
+        <span class="signal-text">Eyes scanning the room past your shoulder</span>
+      </li>
+      <li class="signal-item" onclick="toggleSignal(this)">
+        <span class="signal-check">○</span>
+        <span class="signal-text">Polite nod without verbal engagement</span>
+      </li>
+      <li class="signal-item" onclick="toggleSignal(this)">
+        <span class="signal-check">○</span>
+        <span class="signal-text">Checking phone or watch</span>
+      </li>
+      <li class="signal-item" onclick="toggleSignal(this)">
+        <span class="signal-check">○</span>
+        <span class="signal-text">&ldquo;That&rsquo;s really interesting&rdquo; with no follow-up question</span>
+      </li>
+      <li class="signal-item" onclick="toggleSignal(this)">
+        <span class="signal-check">○</span>
+        <span class="signal-text">Backing up more than one step</span>
+      </li>
+      <li class="signal-item" onclick="toggleSignal(this)">
+        <span class="signal-check">○</span>
+        <span class="signal-text">Breaking eye contact for more than 3 seconds</span>
+      </li>
+    </ul>
+
+    <p class="col-body" style="margin-bottom: 2rem;">When you see two or more of these signals simultaneously, it is time to close. A graceful close preserves the relationship: &ldquo;Here is my card &mdash; I would love to continue this conversation if you have questions later.&rdquo;</p>
+  </div>
+
+  <!-- PRO VARIANT -->
+  <div class="aud-pros">
+    <h1 class="phase-headline">Know When You Have Lost the Room</h1>
+    <p class="phase-sub">Senior leaders rarely walk out of a briefing they have lost. They stay in their chairs and disengage in place. Learn to read the signals in real time so you can recover the room before the close.</p>
+
+    <div class="signals-instruction">Click Each Signal As You Learn It</div>
+
+    <ul class="signals-list" id="signals-list">
+      <li class="signal-item" onclick="toggleSignal(this)">
+        <span class="signal-check">○</span>
+        <span class="signal-text">The chair starts composing their close in front of the room</span>
+      </li>
+      <li class="signal-item" onclick="toggleSignal(this)">
+        <span class="signal-check">○</span>
+        <span class="signal-text">Two attendees start a sidebar conversation</span>
+      </li>
+      <li class="signal-item" onclick="toggleSignal(this)">
+        <span class="signal-check">○</span>
+        <span class="signal-text">A senior leader has not asked a question in the last five minutes</span>
+      </li>
+      <li class="signal-item" onclick="toggleSignal(this)">
+        <span class="signal-check">○</span>
+        <span class="signal-text">Laptops have closed (good sign earlier; loss-of-attention sign now)</span>
+      </li>
+      <li class="signal-item" onclick="toggleSignal(this)">
+        <span class="signal-check">○</span>
+        <span class="signal-text">&ldquo;Let&rsquo;s take this offline&rdquo; said to someone other than you</span>
+      </li>
+      <li class="signal-item" onclick="toggleSignal(this)">
+        <span class="signal-check">○</span>
+        <span class="signal-text">The CFO or budget owner has gone quiet</span>
+      </li>
+      <li class="signal-item" onclick="toggleSignal(this)">
+        <span class="signal-check">○</span>
+        <span class="signal-text">A question is being asked of a colleague in the room, not of you</span>
+      </li>
+    </ul>
+
+    <p class="col-body" style="margin-bottom: 2rem;">When you see two or more of these in the same minute, stop. Skip ahead to your single most decision-relevant slide and say: &ldquo;Before we go further, the question I think the room actually has is X. Let me speak to that directly.&rdquo; You have one recovery in a briefing. Use it well.</p>
+  </div>
 
   <div class="btn-row">
     <button class="btn-ghost" onclick="showPhase(2)">&larr; BACK</button>
@@ -615,28 +788,57 @@
 <!-- PHASE 4: CLOSE & COMPLETE -->
 <div class="phase" id="phase-4">
   <div class="section-label">MODULE 5 // PHASE 5 OF 5</div>
-  <h1 class="phase-headline">The Structured Close</h1>
-  <p class="phase-sub">How you end the conversation determines whether the visitor remembers you or your poster.</p>
 
-  <div class="close-steps">
-    <div class="close-step">
-      <div class="close-step-num">01</div>
-      <div class="close-step-label">Summary Sentence</div>
-      <p class="close-step-body">Restate your key finding in one sentence. &ldquo;So the core finding is X.&rdquo;</p>
-    </div>
-    <div class="close-step">
-      <div class="close-step-num">02</div>
-      <div class="close-step-label">Invitation</div>
-      <p class="close-step-body">&ldquo;If you&rsquo;re working on something related, I&rsquo;d love to hear your perspective.&rdquo; Never just hand a card; create a reason for follow-up.</p>
-    </div>
-    <div class="close-step">
-      <div class="close-step-num">03</div>
-      <div class="close-step-label">Release</div>
-      <p class="close-step-body">Step back. Physically signal that the conversation is complete. Do not wait for them to leave first.</p>
+  <!-- STUDENT VARIANT -->
+  <div class="aud-students">
+    <h1 class="phase-headline">The Structured Close</h1>
+    <p class="phase-sub">How you end the conversation determines whether the visitor remembers you or your poster.</p>
+
+    <div class="close-steps">
+      <div class="close-step">
+        <div class="close-step-num">01</div>
+        <div class="close-step-label">Summary Sentence</div>
+        <p class="close-step-body">Restate your key finding in one sentence. &ldquo;So the core finding is X.&rdquo;</p>
+      </div>
+      <div class="close-step">
+        <div class="close-step-num">02</div>
+        <div class="close-step-label">Invitation</div>
+        <p class="close-step-body">&ldquo;If you&rsquo;re working on something related, I&rsquo;d love to hear your perspective.&rdquo; Never just hand a card; create a reason for follow-up.</p>
+      </div>
+      <div class="close-step">
+        <div class="close-step-num">03</div>
+        <div class="close-step-label">Release</div>
+        <p class="close-step-body">Step back. Physically signal that the conversation is complete. Do not wait for them to leave first.</p>
+      </div>
     </div>
   </div>
 
-  <div class="assessment-section" id="assessment-section">
+  <!-- PRO VARIANT -->
+  <div class="aud-pros">
+    <h1 class="phase-headline">The Structured Close</h1>
+    <p class="phase-sub">How you end the briefing determines whether the room leaves with a decision, an action, or a vague intention to "circle back" &mdash; which means the meeting did not happen.</p>
+
+    <div class="close-steps">
+      <div class="close-step">
+        <div class="close-step-num">01</div>
+        <div class="close-step-label">The One-Line Restate</div>
+        <p class="close-step-body">Name the decision you came to surface, in one sentence. &ldquo;The decision in front of us is whether to fund the pilot before end of Q3.&rdquo; Do not summarize the deck. Name the call.</p>
+      </div>
+      <div class="close-step">
+        <div class="close-step-num">02</div>
+        <div class="close-step-label">The Named Ask</div>
+        <p class="close-step-body">Direct the close at the decision-maker by role, not by name. &ldquo;What I need from the CFO is a yes or no on the funding envelope. What I need from product is alignment on the timeline.&rdquo; Specific people. Specific asks.</p>
+      </div>
+      <div class="close-step">
+        <div class="close-step-num">03</div>
+        <div class="close-step-label">The Calendar</div>
+        <p class="close-step-body">Name the next checkpoint and who owns it. &ldquo;I will send a one-page recap by end of day Friday and we will reconvene on the fifteenth.&rdquo; Never end a briefing with &ldquo;let me know if you have questions.&rdquo; That is the language of waiting.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ASSESSMENT — student variant -->
+  <div class="assessment-section aud-students" id="assessment-section">
     <div class="assessment-label">Before You Go</div>
     <ul class="assessment-list" id="assessment-list">
       <li class="assessment-item" onclick="toggleAssessment(this)">
@@ -662,9 +864,38 @@
     </ul>
   </div>
 
+  <!-- ASSESSMENT — pro variant. Uses a parallel id (assessment-list-pros) so
+       updateCompleteButton() can find whichever list is visible.            -->
+  <div class="assessment-section aud-pros" id="assessment-section-pros">
+    <div class="assessment-label">Before You Go</div>
+    <ul class="assessment-list" id="assessment-list-pros">
+      <li class="assessment-item" onclick="toggleAssessment(this)">
+        <span class="assessment-check">○</span>
+        <span class="assessment-text">I have written an opening sentence that names a decision, a tension, or a headline &mdash; not the agenda</span>
+      </li>
+      <li class="assessment-item" onclick="toggleAssessment(this)">
+        <span class="assessment-check">○</span>
+        <span class="assessment-text">I can identify the Sponsor, the Skeptic, and the Required Attendee in the first sixty seconds of a briefing</span>
+      </li>
+      <li class="assessment-item" onclick="toggleAssessment(this)">
+        <span class="assessment-check">○</span>
+        <span class="assessment-text">I know at least four loss-of-room signals and the single recovery move</span>
+      </li>
+      <li class="assessment-item" onclick="toggleAssessment(this)">
+        <span class="assessment-check">○</span>
+        <span class="assessment-text">My close names the decision, the named ask by role, and the next checkpoint</span>
+      </li>
+      <li class="assessment-item" onclick="toggleAssessment(this)">
+        <span class="assessment-check">○</span>
+        <span class="assessment-text">My deck supports the briefing; it does not replace it</span>
+      </li>
+    </ul>
+  </div>
+
   <div class="success-screen" id="success-screen">
     <div class="success-label">Module 5 Complete</div>
-    <div class="success-sub">You have mastered the academic poster presentation framework.</div>
+    <div class="success-sub aud-students">You have mastered the academic poster presentation framework.</div>
+    <div class="success-sub aud-pros">You have mastered the executive briefing framework.</div>
     <a href="index.html" class="btn-primary" style="text-decoration:none;">BACK TO HOME &rarr;</a>
   </div>
 
@@ -694,13 +925,22 @@ function toggleAssessment(item) {
   updateCompleteButton();
 }
 
+function activeAssessmentListId(){
+  // Pro variant has its own list (assessment-list-pros); student variant uses
+  // the original (assessment-list). Whichever section is visible per body
+  // class is the one we evaluate for the MARK COMPLETE gate.
+  return document.body.classList.contains('aud-pros') ? 'assessment-list-pros' : 'assessment-list';
+}
+
 function updateCompleteButton() {
-  var items = document.querySelectorAll('#assessment-list .assessment-item');
-  var allChecked = true;
+  var listId = activeAssessmentListId();
+  var items = document.querySelectorAll('#' + listId + ' .assessment-item');
+  var allChecked = items.length > 0;
   items.forEach(function(item) {
     if (!item.classList.contains('checked')) allChecked = false;
   });
   var btn = document.getElementById('complete-btn');
+  if (!btn) return;
   if (allChecked) {
     btn.classList.remove('btn-disabled');
   } else {
@@ -709,14 +949,58 @@ function updateCompleteButton() {
 }
 
 function completeModule() {
+  // Single localStorage key for either track. The cert page reads
+  // etl_poster_done regardless of which audience finished the module.
   localStorage.setItem('etl_poster_done', 'true');
-  document.getElementById('assessment-section').style.display = 'none';
+  var s1 = document.getElementById('assessment-section');
+  var s2 = document.getElementById('assessment-section-pros');
+  if (s1) s1.style.display = 'none';
+  if (s2) s2.style.display = 'none';
   document.getElementById('complete-btn-row').style.display = 'none';
   document.getElementById('success-screen').classList.add('visible');
   window.scrollTo(0, 0);
 }
 
-window.addEventListener('DOMContentLoaded', function() { showPhase(0); });
+// ─── AUDIENCE CONTROLLER ─────────────────────────────────────────────────
+function parseAudience(){
+  var h = (window.location.hash || '').toLowerCase().replace(/^#/, '').replace(/^\/+|\/+$/g, '');
+  if (h === 'pros' || h === 'students') return h;
+  try {
+    var qs = new URLSearchParams(window.location.search);
+    var q = (qs.get('audience') || '').toLowerCase();
+    if (q === 'pros' || q === 'students') return q;
+  } catch (_) {}
+  return 'students';
+}
+
+function setAudience(aud){
+  if (aud !== 'students' && aud !== 'pros') aud = 'students';
+  document.body.classList.add('has-aud-tabs');
+  document.body.classList.toggle('aud-pros', aud === 'pros');
+  document.body.classList.toggle('aud-students', aud === 'students');
+  var ts = document.getElementById('aud-tab-students');
+  var tp = document.getElementById('aud-tab-pros');
+  if (ts) ts.classList.toggle('active', aud === 'students');
+  if (tp) tp.classList.toggle('active', aud === 'pros');
+  if (parseAudience() !== aud) {
+    try { history.replaceState(null, '', '#' + aud); } catch (_) { window.location.hash = '#' + aud; }
+  }
+  document.title = (aud === 'pros')
+    ? 'Executive Briefing | ETL Leadership Certificate Module 5'
+    : 'Academic Poster Presentation | ETL Leadership Certificate Module 5';
+  // Re-evaluate the complete-button gate because the active assessment list
+  // just swapped.
+  try { updateCompleteButton(); } catch (_) {}
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  showPhase(0);
+  try { setAudience(parseAudience()); } catch (_) { setAudience('students'); }
+});
+
+window.addEventListener('hashchange', function(){
+  try { setAudience(parseAudience()); } catch (_) {}
+});
 </script>
 </body>
 </html>
