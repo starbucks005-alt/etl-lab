@@ -578,6 +578,68 @@
            'crushing. Honest about weak points without dismissing the work.';
   }
 
+  // Brief-generator audience rules. The brief is produced ONCE at session
+  // start by a reading-assistant call and is then read by every persona on
+  // every turn. Framing the brief itself for the audience means the panel
+  // walks in already calibrated - role level inferred correctly, evidence
+  // gaps named in the right register, open question pitched right.
+  function resumeBriefAudienceRules(){
+    if (AUDIENCE === 'pros') {
+      return 'AUDIENCE: this candidate is a mid-career or senior professional. ' +
+             'When inferring SECTOR and assessing LENGTH STANCE, apply executive ' +
+             'norms for the inferred sector (academic 10-25pg can be the targeted ' +
+             'short version; corporate 2-3pg; nonprofit 2-4pg; federal-style ' +
+             'government 5+pg). EVIDENCE GAPS should focus on what an executive CV ' +
+             'often undersells: leadership scope, P&L or budget authority, ' +
+             'governance and board service buried in bullets, institutional ' +
+             'transformations reduced to a single verb, sector-switch translation. ' +
+             'OPEN QUESTION should be peer-to-peer ("where do you want me to push ' +
+             'first - the argument, the evidence weight, or the close?"), never a ' +
+             'teaching prompt.';
+    }
+    return 'AUDIENCE: this candidate is a student or early-career learner. ' +
+           'Default length norms are 1-2 pages (3 with publications for graduate ' +
+           'students). EVIDENCE GAPS should focus on what an early-career CV often ' +
+           'misses: argument vs catalog, generic skills sections, missing project ' +
+           'specificity, a Professional Summary that does not follow the three- ' +
+           'sentence rule, transferable-skills framing for first internships. ' +
+           'OPEN QUESTION should invite the learner to pick one principle to apply ' +
+           'first ("which of these do you want to tackle first - the summary, the ' +
+           'evidence behind your top claim, or the structure?").';
+  }
+
+  function interviewBriefAudienceRules(){
+    if (AUDIENCE === 'pros') {
+      return 'AUDIENCE: this candidate is a mid-career or senior professional. ' +
+             'Calibrate ROLE LEVEL toward Manager, Senior Leader, Executive, or ' +
+             'Cabinet/C-Suite unless the CV is clearly junior. ROLE FOCUS should ' +
+             'emphasize strategy and vision, fiscal stewardship, change management, ' +
+             'external partnerships, ethics and compliance, governance - not ' +
+             'individual technical execution unless the role explicitly calls for ' +
+             'it. LIKELY TOUGH QUESTIONS should be strategic, governance, P&L, ' +
+             'change leadership, ethics, first-90-days, board relationships, ' +
+             'sector-switch credibility. Do NOT bias toward entry-level ' +
+             'behavioral questions.';
+    }
+    return 'AUDIENCE: this is an entry-level or early-career candidate. ' +
+           'Calibrate ROLE LEVEL toward Individual Contributor unless the CV ' +
+           'clearly says otherwise. ROLE FOCUS should emphasize technical ' +
+           'execution, learning agility, project ownership, fit. LIKELY TOUGH ' +
+           'QUESTIONS should be classic early-career: behavioral with STAR, ' +
+           'project ownership, transferable skills, why this role, gaps in ' +
+           'experience, what they would do in their first 30 days.';
+  }
+
+  function defenseBriefAudienceRules(){
+    // Student-only defense; the brief is informational to the committee.
+    return 'AUDIENCE: graduate student defending thesis or dissertation. ' +
+           'LIKELY WEAK POINTS should flag what a real committee would probe: ' +
+           'methods rigor, sample or scope limits, alternative explanations the ' +
+           'work has not addressed, contribution beyond restatement of prior ' +
+           'literature, fit to the field, generalizability claims that outrun ' +
+           'the data.';
+  }
+
   // ---- State ----
   var state = { fileName:'', docText:'', jdText:'', clText:'', brief:'', panel:[], difficulty:3, transcript:[], turn:0, order:[], orderIdx:0, apUsed:0, apPending:false, currentIsAP:false };
 
@@ -649,10 +711,12 @@
 
     var sys, user;
     if(MODE==='interview'){
-      sys = 'You are a hiring panel\'s assistant. You receive a candidate\'s CV/resume and a job description. Produce a TIGHT brief for the interviewers. Output PLAIN TEXT with these labeled sections and nothing else: CANDIDATE SNAPSHOT; TARGET ROLE; ROLE LEVEL (one of: Individual Contributor, Manager, Senior Leader, Executive, Cabinet/C-Suite); ROLE FOCUS (one or two of: technical execution, people leadership, strategy and vision, mission alignment, operations, fiscal stewardship, ethics and compliance, change management, external partnerships); KEY REQUIREMENTS (from the posting, with emphasis on what the role actually needs vs. nice-to-haves); STRENGTHS (where the CV matches the role); GAPS & RISKS (3-6 bullets the panel should probe); LIKELY TOUGH QUESTIONS (3-5, fit to the role level and focus). Be concrete and specific to THIS candidate and THIS role. Keep under 400 words.';
+      sys = interviewBriefAudienceRules() + '\n\n' +
+        'You are a hiring panel\'s assistant. You receive a candidate\'s CV/resume and a job description. Produce a TIGHT brief for the interviewers. Output PLAIN TEXT with these labeled sections and nothing else: CANDIDATE SNAPSHOT; TARGET ROLE; ROLE LEVEL (one of: Individual Contributor, Manager, Senior Leader, Executive, Cabinet/C-Suite); ROLE FOCUS (one or two of: technical execution, people leadership, strategy and vision, mission alignment, operations, fiscal stewardship, ethics and compliance, change management, external partnerships); KEY REQUIREMENTS (from the posting, with emphasis on what the role actually needs vs. nice-to-haves); STRENGTHS (where the CV matches the role); GAPS & RISKS (3-6 bullets the panel should probe); LIKELY TOUGH QUESTIONS (3-5, fit to the role level and focus). Be concrete and specific to THIS candidate and THIS role. Keep under 400 words.';
       user = 'CANDIDATE CV:\n\n'+state.docText.slice(0,9000)+'\n\nJOB DESCRIPTION:\n\n'+state.jdText.slice(0,5000);
     } else if(MODE==='resume'){
-      sys = 'You are the Résumé Coach\'s reading assistant. You receive a CV, optionally a cover letter, and optionally a target role or job description. Produce a TIGHT brief that the coach will speak from. Honest, specific, no flattery, anchored on Dr. Oroszi\'s CV philosophy: a CV is an argument for a specific role; length is the wrong question (Two-CV Tactic: short and long); the Professional Summary is exactly three sentences (who you are, what you have done, what you are looking for); competencies must be earned by evidence; the document must give the reader something worth writing down; substance over fluff, specific over generic. ' +
+      sys = resumeBriefAudienceRules() + '\n\n' +
+        'You are the Résumé Coach\'s reading assistant. You receive a CV, optionally a cover letter, and optionally a target role or job description. Produce a TIGHT brief that the coach will speak from. Honest, specific, no flattery, anchored on Dr. Oroszi\'s CV philosophy: a CV is an argument for a specific role; length is the wrong question (Two-CV Tactic: short and long); the Professional Summary is exactly three sentences (who you are, what you have done, what you are looking for); competencies must be earned by evidence; the document must give the reader something worth writing down; substance over fluff, specific over generic. ' +
         'SECTOR-AWARE RUBRIC (this is critical). Executive evidence looks different across sectors and the honesty bar does NOT change in any of them. Do NOT mark something missing if it is present in its sector-appropriate form on the page. ' +
         'CORPORATE executive markers include: P&L authority, board-of-directors reporting, multi-million-dollar operating budget, cross-functional executive leadership, named C-suite peer relationships. ' +
         'ACADEMIC executive markers (Provost, Dean, Vice Chair, cabinet VP) include: faculty governance roles (Senate, Provost-level or Cabinet committees, chair of standing committees), departmental or program BUDGET authority (often "co-led" or "stewarded" — that still counts), grants-as-revenue (NSF, NIH, DoD totals, classified contracts), accreditation work, doctoral mentorship and program transformation (enrollment, revenue, market position changes), federal advisory boards (FBI JTTF, DHS, JCS consortia), national professional society or interagency leadership, peer-reviewed publications and books as substance evidence, named partnerships with federal agencies. An academic CV that runs 10-25 pages may already be the targeted short version, not a long one. ' +
@@ -663,7 +727,8 @@
         'Sections, in this exact order and with these exact labels: CURRENT ARGUMENT: (one sentence — what role this document is actually arguing for, regardless of what the candidate said). TARGET ROLE: (from the student\'s input, or "not specified"). SECTOR: (one of: Corporate, Academic, Nonprofit/Mission-Driven, Government/Public-Sector, Hybrid). FIT: (one to three sentences — gap between current argument and target, if any, judged on SECTOR-APPROPRIATE markers). LENGTH STANCE: (one to three sentences — your read, anchored on the Two-CV Tactic and on what is normal length in this sector). PROFESSIONAL SUMMARY: (one to three sentences — does it follow the three-sentence rule, and what to do). EVIDENCE GAPS: (3-6 bullets, one per line — only list things that are ACTUALLY MISSING for the role, not items present in academic/nonprofit form a corporate eye might overlook). CUTS: (3-6 bullets, one per line). AMPLIFY: (3-6 bullets, one per line). COVER LETTER NOTES: (if a cover letter was provided: 2-4 bullets, one per line. If no cover letter was provided, write "Not provided." on a single line). OPEN QUESTION: (one short prompt the coach will speak to the student, inviting them to pick what to work on first). Keep under 550 words total.';
       user = 'CANDIDATE CV:\n\n'+state.docText.slice(0,12000)+(state.clText?'\n\nCOVER LETTER:\n\n'+state.clText.slice(0,4000):'')+(state.jdText?'\n\nTARGET ROLE / JOB DESCRIPTION:\n\n'+state.jdText.slice(0,4000):'');
     } else {
-      sys = 'You are an academic committee\'s research assistant. Read the excerpt from a thesis/dissertation and produce a TIGHT brief for the examiners. Output PLAIN TEXT with these labeled sections and nothing else: TITLE/TOPIC; FIELD; RESEARCH QUESTION; METHODS; KEY CLAIMS (3-6 bullets); CONTRIBUTION; LIKELY WEAK POINTS (3-6 bullets the committee should probe). Be concrete and specific to this document. Keep under 350 words.';
+      sys = defenseBriefAudienceRules() + '\n\n' +
+        'You are an academic committee\'s research assistant. Read the excerpt from a thesis/dissertation and produce a TIGHT brief for the examiners. Output PLAIN TEXT with these labeled sections and nothing else: TITLE/TOPIC; FIELD; RESEARCH QUESTION; METHODS; KEY CLAIMS (3-6 bullets); CONTRIBUTION; LIKELY WEAK POINTS (3-6 bullets the committee should probe). Be concrete and specific to this document. Keep under 350 words.';
       user = 'Document excerpt:\n\n'+state.docText.slice(0,14000);
     }
     try{
