@@ -205,15 +205,15 @@ function renderNewsroom(pieces, activeDesk) {
   .masthead-title{font-family:'Playfair Display',serif;font-size:clamp(2.6rem, 8vw, 5.2rem);font-weight:900;line-height:1;color:#0e0c08;letter-spacing:-0.02em;margin-bottom:0.5rem;text-transform:uppercase;}
   .masthead-tag{font-family:'Cormorant Garamond',serif;font-style:italic;color:#5a5240;font-size:1.1rem;}
   .masthead-rule{max-width:1180px;margin:0 auto;border-top:3px double #0e0c08;height:6px;}
-  /* 5 in Under 5 audio band, hidden until populated by JS */
-  .briefing-band{background:#0e0c08;color:#f4ebd6;padding:1.6rem 0;display:none;}
+  /* Above the Fold audio band, hidden until populated by JS */
+  .briefing-band{background:#f4ebd6;color:#0e0c08;padding:1rem 0;display:none;border-top:1px solid #b8922a;border-bottom:1px solid #b8922a;}
   .briefing-band.is-ready{display:block;}
-  .briefing-band-inner{max-width:1180px;margin:0 auto;padding:0 2rem;display:grid;grid-template-columns:1fr auto;gap:1.6rem;align-items:center;}
+  .briefing-band-inner{max-width:1180px;margin:0 auto;padding:0 2rem;display:grid;grid-template-columns:1fr auto;gap:1.4rem;align-items:center;}
   @media (max-width:720px){.briefing-band-inner{grid-template-columns:1fr;}}
-  .briefing-band-eyebrow{font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.24em;text-transform:uppercase;color:#d4aa4a;margin-bottom:0.4rem;}
-  .briefing-band-title{font-family:'Playfair Display',serif;font-size:1.55rem;font-weight:700;color:#f4ebd6;line-height:1.15;margin-bottom:0.3rem;}
-  .briefing-band-sub{font-family:'Cormorant Garamond',serif;font-style:italic;color:#c8bea4;font-size:0.95rem;}
-  .briefing-band-audio audio{width:340px;max-width:100%;}
+  .briefing-band-eyebrow{font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.22em;text-transform:uppercase;color:#8a6a1c;margin-bottom:0.25rem;}
+  .briefing-band-title{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:#0e0c08;line-height:1.15;margin-bottom:0.15rem;}
+  .briefing-band-sub{font-family:'Cormorant Garamond',serif;font-style:italic;color:#5a5240;font-size:0.88rem;}
+  .briefing-band-audio audio{width:300px;max-width:100%;height:36px;}
   @media (max-width:720px){.briefing-band-audio audio{width:100%;}}
 
   /* Desk nav strip */

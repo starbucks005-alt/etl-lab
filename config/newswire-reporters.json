@@ -12,7 +12,9 @@
       "byline": "By Marcus Reyes, US Desk",
       "tier": "senior",
       "tier_label": "Senior Correspondent",
-      "portrait_placeholder": "MR"
+      "portrait_placeholder": "MR",
+      "voice_id": "pqHfZKP75CvOlQylNhV4",
+      "voice_label": "Bill"
     },
     {
       "id": "elke_vogel",
@@ -25,7 +27,9 @@
       "byline": "By Elke Vogel, World Desk",
       "tier": "senior",
       "tier_label": "Senior Correspondent",
-      "portrait_placeholder": "EV"
+      "portrait_placeholder": "EV",
+      "voice_id": "XB0fDUnXU5powFXDhCwa",
+      "voice_label": "Charlotte"
     },
     {
       "id": "sasha_park",
