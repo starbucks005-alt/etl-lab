@@ -82,7 +82,15 @@ function renderDeskNav(activeDesk) {
 
 function renderHero(p) {
   if (!p) return '';
-  const hero = p.hero_image_url ? esc(p.hero_image_url) : '';
+  // Same fallback chain as feed cards: explicit hero -> reporter portrait
+  // -> none. Lets the hero panel show the reporter's face when the AI
+  // reporter did not attach a hero image.
+  let hero = p.hero_image_url || '';
+  if (!hero && p.byline_kind === 'reporter' && p.reporter_id) {
+    const file = p.reporter_id.split('_').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join('_');
+    hero = `/agents/${file}.png`;
+  }
+  hero = hero ? esc(hero) : '';
   const date = fmtDateLong(p.published_at);
   const byline = bylineHTML(p);
   const deskLabel = p.desk ? (DESK_LABEL[p.desk] || p.desk) : '';
@@ -108,11 +116,19 @@ function renderFeedCard(p) {
   const date = fmtDateShort(p.published_at);
   const byline = bylineHTML(p);
   const deskLabel = p.desk ? (DESK_LABEL[p.desk] || p.desk) : '';
-  const hero = p.hero_image_url ? esc(p.hero_image_url) : '';
+  // Thumb fallback chain: explicit hero_image_url -> reporter portrait (if a
+  // staff reporter wrote it) -> beige placeholder. AI reporters do not
+  // attach hero photos to pieces, so without this fallback every wire card
+  // was empty.
+  let thumbUrl = p.hero_image_url || '';
+  if (!thumbUrl && p.byline_kind === 'reporter' && p.reporter_id) {
+    const file = p.reporter_id.split('_').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join('_');
+    thumbUrl = `/agents/${file}.png`;
+  }
   return `
     <li class="feed-card">
       <a class="feed-link" href="/press/${esc(p.slug)}">
-        ${hero ? `<span class="feed-thumb" style="background-image:url('${hero}');"></span>` : '<span class="feed-thumb feed-thumb-empty"></span>'}
+        ${thumbUrl ? `<span class="feed-thumb" style="background-image:url('${esc(thumbUrl)}');"></span>` : '<span class="feed-thumb feed-thumb-empty"></span>'}
         <span class="feed-text">
           <span class="feed-meta">
             ${deskLabel ? `<span class="feed-desk">${esc(deskLabel)}</span>` : ''}
