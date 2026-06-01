@@ -194,6 +194,30 @@ const TOPIC_SEEDS_BY_DESK = {
     'why the AI hardware market looks like the early cloud market', 'how copilots changed enterprise software pricing',
     'the unsung importance of evaluation harnesses', 'why model context length matters less than retrieval quality',
   ],
+  security: [
+    'why the BWC verification gap remains the bioweapons-control story no one writes about',
+    'how dual-use research of concern actually gets reviewed in 2026',
+    'the case for and against gain-of-function research moratoria',
+    'why pandemic preparedness funding cycles undermine the work they fund',
+    'how genomic surveillance changed outbreak detection at the public-health level',
+    'the long shadow of the 2001 anthrax letters on US biosecurity policy',
+    'why the next biothreat is more likely accidental than intentional',
+    'how DIY biology communities self-regulate and where the gaps are',
+    'the structural problem with the Select Agent Program',
+    'why attribution claims travel further than the evidence behind them',
+    'how zero-day disclosure economics actually work',
+    'the case against the word sophisticated in incident reporting',
+    'why the cyber insurance market keeps producing perverse incentives',
+    'how ransomware groups rebrand and what that tells you about deterrence',
+    'the long arc of the SBOM mandate and what changed at the vendor level',
+    'why open-source intelligence rebuilt the war-reporting toolkit',
+    'how the intelligence community transition to cloud reshaped analyst workflows',
+    'the under-discussed problem of analytic confidence calibration',
+    'why some intelligence failures repeat and others do not',
+    'why water utility cybersecurity is a decade behind power utility cybersecurity',
+    'the structural risk in single-source rare-earth supply chains',
+    'how the chip-fabrication geography problem is also a national security problem',
+  ],
   science: [
     'what a real preregistration looks like in a clinical trial', 'why effect sizes matter more than p-values',
     'how the replication crisis changed funding agency priorities', 'the case for and against the impact factor',
@@ -265,13 +289,16 @@ exports.handler = async (event) => {
   const reporter = loadReporter(String(body.reporter_id || '').trim());
   if (!reporter) return json(400, { error: 'unknown reporter_id' });
 
-  // Background work: kick off and return 202 so the admin UI does not hang.
-  // The work continues for up to 15 minutes after this return.
-  setTimeout(() => runSeed(reporter, apiKey, publishToken).catch(err => {
+  // Netlify routes -background functions asynchronously and returns 202 to
+  // the caller automatically. We await the work inline so the lambda
+  // container stays alive for the full duration (up to 15 minutes).
+  try {
+    await runSeed(reporter, apiKey, publishToken);
+    return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ok: true, reporter_id: reporter.id, complete: true }) };
+  } catch (err) {
     console.error('[press-seed-background] runSeed error', err && err.message);
-  }), 0);
-
-  return { statusCode: 202, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ok: true, reporter_id: reporter.id, queued: true }) };
+    return { statusCode: 500, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ok: false, error: err && err.message }) };
+  }
 };
 
 async function runSeed(reporter, apiKey, publishToken) {

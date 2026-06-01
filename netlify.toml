@@ -47,6 +47,11 @@
   status = 200
 
 [[redirects]]
+  from = "/newswire-latest"
+  to = "/.netlify/functions/newswire-latest"
+  status = 200
+
+[[redirects]]
   from = "/prep-room"
   to = "/prep-room.html"
   status = 200

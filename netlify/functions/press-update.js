@@ -17,7 +17,7 @@ const { getStore, connectLambda } = require('@netlify/blobs');
 
 const TITLE_MIN = 8, TITLE_MAX = 200;
 const DEK_MAX = 300;
-const BODY_MIN = 200, BODY_MAX = 10000;
+const BODY_MIN = 40, BODY_MAX = 10000;
 const LABEL_MAX = 140;
 const AUTHOR_MAX = 140;
 
@@ -150,7 +150,7 @@ exports.handler = async (event) => {
     }
   }
   // Newswire schema edits
-  const DESKS = new Set(['us', 'world', 'business', 'technology', 'science', 'health', 'entertainment', 'sports']);
+  const DESKS = new Set(['us', 'world', 'business', 'technology', 'security', 'science', 'health', 'entertainment', 'sports']);
   if (Object.prototype.hasOwnProperty.call(body, 'desk')) {
     const v = String(body.desk || '').trim().toLowerCase();
     if (!DESKS.has(v)) return json(400, { error: 'desk must be one of: ' + Array.from(DESKS).join(', ') });

@@ -1430,7 +1430,68 @@ document.addEventListener('DOMContentLoaded', function(){
     border: 1px solid var(--black); display: inline-flex; align-items: center; gap: 6px;
   }
   .etl-network .etl-net-link2:hover { background: var(--green-bright); color: #fff; border-color: var(--green-bright); }
+
+  /* ─── Latest from ETL Newswire (homepage strip above platforms) ─── */
+  .newswire-strip { background: #f4ebd6; padding: 36px 0 44px; border-top: 1px solid rgba(14,12,8,0.12); border-bottom: 1px solid rgba(14,12,8,0.12); display: none; }
+  .newswire-strip.is-ready { display: block; }
+  .newswire-strip-inner { max-width: 1180px; margin: 0 auto; padding: 0 32px; }
+  .newswire-strip-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; margin-bottom: 22px; border-bottom: 2px solid #0e0c08; padding-bottom: 10px; }
+  .newswire-strip-title { font-family: 'Playfair Display', Georgia, serif; font-size: 28px; font-weight: 700; color: #0e0c08; line-height: 1; margin: 0; }
+  .newswire-strip-sub { font-family: 'DM Mono', 'Courier New', monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: #5a5240; }
+  .newswire-strip-sub a { color: #5a5240; text-decoration: underline; }
+  .newswire-strip-sub a:hover { color: #0e0c08; }
+  .newswire-strip-five { display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; }
+  @media (max-width: 1100px) { .newswire-strip-five { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 620px) { .newswire-strip-five { grid-template-columns: 1fr; } }
+  .newswire-card { background: #fdfbf5; border: 1px solid rgba(14,12,8,0.14); padding: 16px 16px 18px; display: flex; flex-direction: column; gap: 10px; text-decoration: none; color: inherit; transition: border-color 0.15s, transform 0.15s; }
+  .newswire-card:hover { border-color: #b8922a; transform: translateY(-2px); }
+  .newswire-card-desk { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: #b8922a; }
+  .newswire-card-title { font-family: 'Playfair Display', Georgia, serif; font-size: 17px; font-weight: 700; line-height: 1.25; color: #0e0c08; }
+  .newswire-card-dek { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 14px; line-height: 1.4; color: #3a3424; flex: 1; }
+  .newswire-card-meta { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: #5a5240; }
+  .newswire-strip-cta { margin-top: 22px; display: flex; justify-content: flex-end; }
+  .newswire-strip-cta a { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: #0e0c08; text-decoration: none; border-bottom: 1px solid #b8922a; padding-bottom: 3px; }
+  .newswire-strip-cta a:hover { color: #b8922a; }
 </style>
+<section class="newswire-strip" id="newswire-strip" aria-labelledby="newswire-strip-title">
+  <div class="newswire-strip-inner">
+    <div class="newswire-strip-head">
+      <h2 class="newswire-strip-title" id="newswire-strip-title">Latest from ETL Newswire</h2>
+      <div class="newswire-strip-sub">Live wire &middot; <a href="/press">/press</a> &middot; coming soon: <em>5 in Under 5</em> with Margaret</div>
+    </div>
+    <div class="newswire-strip-five" id="newswire-strip-five"></div>
+    <div class="newswire-strip-cta"><a href="/press">See the full wire &rarr;</a></div>
+  </div>
+</section>
+<script>
+(function(){
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  function shortDate(iso){
+    try { var d = new Date(iso); if (isNaN(+d)) return ''; return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }
+    catch(_) { return ''; }
+  }
+  fetch('/.netlify/functions/newswire-latest?limit=5', { credentials: 'omit' })
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(data){
+      if (!data || !data.items || !data.items.length) return;
+      var container = document.getElementById('newswire-strip-five');
+      var strip = document.getElementById('newswire-strip');
+      if (!container || !strip) return;
+      container.innerHTML = data.items.map(function(p){
+        var byline = p.byline_kind === 'reporter' && p.author ? 'By ' + esc(p.author) : (p.source_label ? esc(p.source_label) : '');
+        var date = shortDate(p.published_at);
+        return '<a class="newswire-card" href="' + esc(p.url) + '">'
+          + (p.desk_label ? '<div class="newswire-card-desk">' + esc(p.desk_label) + '</div>' : '')
+          + '<div class="newswire-card-title">' + esc(p.title) + '</div>'
+          + (p.dek ? '<div class="newswire-card-dek">' + esc(p.dek) + '</div>' : '')
+          + '<div class="newswire-card-meta">' + [byline, date].filter(Boolean).join(' &middot; ') + '</div>'
+          + '</a>';
+      }).join('');
+      strip.classList.add('is-ready');
+    })
+    .catch(function(){ /* silent: hide strip on failure */ });
+})();
+</script>
 <section class="section-full etl-network" id="network">
   <div class="section-full-inner">
     <div class="section-tag">The ETL Network</div>
@@ -1626,11 +1687,12 @@ document.addEventListener('DOMContentLoaded', function(){
             <img src="prep-room-assets/hvg_card.jpg" alt="Harrison Vance-Giles III">
             <!-- Resume Coach -->
             <img src="prep-room-assets/cm_card.jpg" alt="Charles Monroe">
-            <!-- ETL Newswire (8) -->
+            <!-- ETL Newswire (9) -->
             <img src="agents/Marcus_Reyes_placeholder.svg" alt="Marcus Reyes">
             <img src="agents/Elke_Vogel_placeholder.svg" alt="Elke Vogel">
             <img src="agents/Sasha_Park_placeholder.svg" alt="Sasha Park">
             <img src="agents/Theo_Okafor_placeholder.svg" alt="Theo Okafor">
+            <img src="agents/Renee_Kovac_placeholder.svg" alt="Ren&eacute;e Kovac">
             <img src="agents/Maya_Iyer_placeholder.svg" alt="Dr. Maya Iyer">
             <img src="agents/Karen_Bishop_placeholder.svg" alt="Karen Bishop">
             <img src="agents/Jules_Rivera_placeholder.svg" alt="Jules Rivera">
@@ -1638,10 +1700,10 @@ document.addEventListener('DOMContentLoaded', function(){
           </div>
         </div>
         <div class="etl-net-body">
-          <div class="etl-net-num">The Cast <span class="etl-net-duration">61 agents &middot; 6 platforms</span></div>
+          <div class="etl-net-num">The Cast <span class="etl-net-duration">62 agents &middot; 6 platforms</span></div>
           <div class="etl-net-title">AI Agents</div>
           <div class="etl-net-tagline">Meet the team behind every platform</div>
-          <p class="etl-net-desc">Sixty-one AI agents across six platforms, each with their own job, their own bio, their own voice. Click any face to read who they are and visit them in their home.</p>
+          <p class="etl-net-desc">Sixty-two AI agents across six platforms, each with their own job, their own bio, their own voice. Click any face to read who they are and visit them in their home.</p>
           <div class="etl-net-agents-hint">Click any avatar to open their bio</div>
           <a class="etl-net-launch" href="/agents/" target="_blank" rel="noopener">View the full Roster &rarr;</a>
         </div>
@@ -3229,6 +3291,11 @@ document.addEventListener('DOMContentLoaded', function(){
       home: 'https://emerging-tech-lab.com/press?desk=technology',
       mcp: true,
       tools: ['Web search (tech press + docs)', 'Architecture review', 'Vaporware detection', 'Capability vs. marketing parse'] },
+    { name: 'Renée Kovac', platform: 'ETL Newswire', role: 'Security Desk Reporter',
+      bio: 'Ten years inside the intelligence community as an all-source analyst on bio and CBRN portfolios, then turned to reporting because the open-source picture kept getting closer to the classified one. Biothreat primary, with cyber and intel as second and third lanes. Cites primary documents. Names assessment confidence when a claim is an assessment, not a fact.',
+      home: 'https://emerging-tech-lab.com/press?desk=security',
+      mcp: true,
+      tools: ['Web search (CIDRAP, Bulletin, Krebs, Lawfare, Bellingcat)', 'Biothreat + dual-use research framing', 'Attribution-cautious cyber sourcing', 'IC-grade confidence calibration'] },
     { name: 'Dr. Maya Iyer', platform: 'ETL Newswire', role: 'Science Desk Reporter',
       bio: 'PhD in molecular biology, Broad Institute postdoc, three years as a research scientist before she pivoted to writing because she got tired of seeing the popular press misquote her papers. Reads the methods section first. Names effect size when it matters. Never frames a single study as settled science.',
       home: 'https://emerging-tech-lab.com/press?desk=science',

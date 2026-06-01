@@ -113,7 +113,7 @@ function renderDashboard(pieces) {
           <button type="button" class="btn btn-danger" data-action="delete">Delete</button>
         </div>
       </div>
-      <form class="row-edit" hidden>
+      <form class="row-edit" novalidate hidden>
         <label>Title <input name="title" value="${title}" minlength="8" maxlength="200" required></label>
         <label>Dek <input name="dek" value="${dek}" maxlength="300"></label>
         <label>Body <textarea name="body" rows="10" minlength="200" maxlength="10000" required>${body}</textarea></label>
