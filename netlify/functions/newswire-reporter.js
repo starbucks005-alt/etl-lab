@@ -63,7 +63,11 @@ function notFound(slug) {
 exports.handler = async (event) => {
   const slugRaw = (event.queryStringParameters && event.queryStringParameters.slug) || '';
   const slug = String(slugRaw).trim();
-  if (!slug) return notFound(slug);
+  // Empty slug = someone landed on /press/reporter/ without a name. Send
+  // them to the main wire instead of dead-ending in a 404.
+  if (!slug) {
+    return { statusCode: 302, headers: { Location: '/press' }, body: '' };
+  }
 
   const reporters = loadReporters();
   const reporter = reporters[slug] || reporters[slug.replace(/-/g, '_')];

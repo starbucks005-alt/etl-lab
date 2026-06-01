@@ -291,7 +291,7 @@ function renderDashboard(pieces) {
 
       <div class="tool-card">
         <h3 class="tool-title">5 in Under 5 audio briefing</h3>
-        <p class="tool-sub">Generate Margaret's NPR-style daily briefing of the top 5 pieces on the wire. Renders the script via Anthropic, then renders mp3 via ElevenLabs. Audio appears on the ETL homepage strip. Takes about 30-60 seconds total.</p>
+        <p class="tool-sub">Generate Marcus Reyes's wire-service-style daily briefing of the top 5 pieces on the wire. Renders the script via Anthropic, then renders mp3 via ElevenLabs. Audio appears on the ETL homepage AND on /press. Takes about 30-60 seconds total.</p>
         <div class="tool-actions" style="margin-top:0.8rem;">
           <span class="tool-status" id="briefing-status"></span>
           <button type="button" id="btn-regenerate-briefing" class="btn btn-primary">Regenerate today's briefing &rarr;</button>
@@ -504,7 +504,7 @@ function renderDashboard(pieces) {
       var status = document.getElementById('briefing-status');
       var result = document.getElementById('briefing-result');
       result.innerHTML = '';
-      setStatus(status, 'Margaret is writing the script (~10s) and recording (~20-40s)...', 'busy');
+      setStatus(status, 'Marcus is writing the script (~10s) and recording (~20-40s)...', 'busy');
       briefBtn.disabled = true;
       fetch('/.netlify/functions/newswire-briefing-background', {
         method: 'POST', credentials: 'include',
@@ -516,7 +516,7 @@ function renderDashboard(pieces) {
             briefBtn.disabled = false;
             setStatus(status, 'Briefing generated.', 'success');
             var pieces = (j && j.pieces) ? j.pieces : '5';
-            result.innerHTML = '<p>Margaret recorded a ' + escapeHTML(String(j.word_count || '~600')) + '-word briefing over ' + escapeHTML(String(pieces)) + ' pieces. Audio is now live on the ETL homepage. <a href="https://emerging-tech-lab.com/" target="_blank" rel="noopener">Visit the homepage to listen &rarr;</a></p>';
+            result.innerHTML = '<p>Marcus recorded a ' + escapeHTML(String(j.word_count || '~600')) + '-word briefing over ' + escapeHTML(String(pieces)) + ' pieces. Audio is now live on the ETL homepage AND on /press. <a href="https://emerging-tech-lab.com/" target="_blank" rel="noopener">Visit the homepage to listen &rarr;</a></p>';
           });
         }
         return r.json().catch(function(){ return { error: 'unknown' }; }).then(function(j){

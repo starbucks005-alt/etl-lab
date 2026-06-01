@@ -25,13 +25,19 @@ const MODEL = 'claude-sonnet-4-6';
 const MAX_TOKENS = 1400;
 const SITE_BASE = 'https://emerging-tech-lab.com';
 
-const MARGARET = {
-  voiceId: '4EIVsml57Z1OVvJ8DK6f',
+// ETL Newswire briefing anchor. Distinct from Margaret Applewood (who hosts
+// The Dose) to avoid cross-platform listener confusion. The anchor is
+// Marcus Reyes, US Desk Senior Correspondent. Voice = ElevenLabs "Bill"
+// (strong late-middle-aged American male, news-report register).
+const ANCHOR = {
+  name: 'Marcus Reyes',
+  role: 'US Desk Senior Correspondent',
+  voiceId: 'pqHfZKP75CvOlQylNhV4', // ElevenLabs "Bill"
   model: 'eleven_turbo_v2_5',
-  settings: { stability: 0.75, similarity_boost: 0.75, style: 0.0, use_speaker_boost: false },
+  settings: { stability: 0.65, similarity_boost: 0.75, style: 0.0, use_speaker_boost: false },
   voiceRider:
-    "Warm, calm, NPR Morning Edition cadence. Reads as if telling a friend about the morning's stories over coffee. " +
-    "Trusted, measured, never breathless. Names reporters with their tier when they have one. Plain pronunciation. " +
+    "Wire-service news anchor. Trusted, measured, AP-style neutral. Reads like the top of an NPR Morning Edition " +
+    "newscast: short sentences, sources named, no editorial color. Plain pronunciation. " +
     "Reads numbers naturally (write '50 million' not '50,000,000'). Includes commas and periods for natural pause. " +
     "No em dashes (the synthesizer reads them awkwardly). Use periods and commas instead.",
 };
@@ -80,20 +86,22 @@ function loadReporters() {
 }
 
 function buildScriptSystemPrompt() {
-  return `You are writing the script for "5 in Under 5," a daily audio briefing on ETL Newswire. The script will be read aloud by Margaret Applewood (the ETL Newswire anchor) via text-to-speech.
+  return `You are writing the script for "5 in Under 5," a daily audio briefing on ETL Newswire. The script will be read aloud by ${ANCHOR.name}, ${ANCHOR.role}, via text-to-speech.
 
 VOICE
-  ${MARGARET.voiceRider}
+  ${ANCHOR.voiceRider}
 
 FORMAT
-  - 500-650 words total. Reads in about 4-5 minutes at NPR cadence.
-  - Open: "From ETL Newswire, this is Five in Under Five. I'm Margaret Applewood." Then one sentence framing the day's beat.
+  - 500-650 words total. Reads in about 4-5 minutes at wire-service cadence.
+  - Open: "From ETL Newswire, this is Five in Under Five. I'm ${ANCHOR.name} at the ${ANCHOR.role.replace(' Senior Correspondent', '').replace(' Correspondent', '')} desk." Then one sentence framing the day's wire.
   - Body: walk through the 5 stories in the order given. For each story, deliver:
       1. The headline news in one or two clean sentences.
-      2. The reporter byline by name and tier (e.g. "Senior Correspondent Marcus Reyes reports..." or "Correspondent Sasha Park files...").
+      2. The reporter byline by name and tier (e.g. "Senior Correspondent Elke Vogel reports..." or "Correspondent Sasha Park files...").
       3. One or two sentences of context or the most important detail from the dek.
   - Transitions between stories: short, varied. "Turning to the world desk..." "On the technology beat..." "From our health desk..."
-  - Close: "That's Five in Under Five from ETL Newswire. I'm Margaret Applewood. Back to the wire." Or a similar warm sign-off.
+  - Close: "That's Five in Under Five from ETL Newswire. I'm ${ANCHOR.name}. Back to the wire."
+
+  When you reach a story written by ${ANCHOR.name}, do NOT introduce it with his own name as the reporter. Frame it as "our US desk has..." or "on the US beat..." so he is not introducing himself in third person.
 
 VOICE GUARDRAILS
   - No em dashes. The TTS will read them awkwardly. Use periods or commas.
@@ -123,7 +131,7 @@ function buildScriptUserMessage(pieces) {
 async function generateMp3(scriptText) {
   const apiKey = process.env.ELEVENLABS_API_KEY;
   if (!apiKey) throw new Error('ELEVENLABS_API_KEY not configured');
-  const url = `https://api.elevenlabs.io/v1/text-to-speech/${MARGARET.voiceId}`;
+  const url = `https://api.elevenlabs.io/v1/text-to-speech/${ANCHOR.voiceId}`;
   const res = await fetch(url, {
     method: 'POST',
     headers: {
@@ -133,8 +141,8 @@ async function generateMp3(scriptText) {
     },
     body: JSON.stringify({
       text: scriptText,
-      model_id: MARGARET.model,
-      voice_settings: MARGARET.settings,
+      model_id: ANCHOR.model,
+      voice_settings: ANCHOR.settings,
     }),
   });
   if (!res.ok) {
