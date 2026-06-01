@@ -303,8 +303,8 @@ function renderNewsroom(pieces, activeDesk) {
 <section class="briefing-band" id="briefing-card" aria-label="5 in Under 5 audio briefing">
   <div class="briefing-band-inner">
     <div>
-      <div class="briefing-band-eyebrow">5 in Under 5 &middot; Morning briefing from the wire desk</div>
-      <div class="briefing-band-title">Today's wire, briefed in under five minutes.</div>
+      <div class="briefing-band-eyebrow">Above the Fold &middot; Morning briefing from the wire desk</div>
+      <div class="briefing-band-title">Today's top stories, above the fold.</div>
       <div class="briefing-band-sub" id="briefing-sub"></div>
     </div>
     <div class="briefing-band-audio">

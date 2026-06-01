@@ -290,8 +290,8 @@ function renderDashboard(pieces) {
       </div>
 
       <div class="tool-card">
-        <h3 class="tool-title">5 in Under 5 audio briefing</h3>
-        <p class="tool-sub">Generate Marcus Reyes's wire-service-style daily briefing of the top 5 pieces on the wire. Renders the script via Anthropic, then renders mp3 via ElevenLabs. Audio appears on the ETL homepage AND on /press. Takes about 30-60 seconds total.</p>
+        <h3 class="tool-title">Above the Fold audio briefing</h3>
+        <p class="tool-sub">Generate Marcus Reyes's wire-service-style daily briefing of today's top stories above the fold. Pulls up to 7 most-recent pieces. Renders the script via Anthropic, then renders mp3 via ElevenLabs. Audio appears on the ETL homepage AND on /press. Takes about 30-60 seconds total.</p>
         <div class="tool-actions" style="margin-top:0.8rem;">
           <span class="tool-status" id="briefing-status"></span>
           <button type="button" id="btn-regenerate-briefing" class="btn btn-primary">Regenerate today's briefing &rarr;</button>

@@ -86,20 +86,25 @@ function loadReporters() {
 }
 
 function buildScriptSystemPrompt() {
-  return `You are writing the script for "5 in Under 5," a daily audio briefing on ETL Newswire. The script will be read aloud by ${ANCHOR.name}, ${ANCHOR.role}, via text-to-speech.
+  return `You are writing the script for "Above the Fold," a daily audio briefing on ETL Newswire. The script will be read aloud by ${ANCHOR.name}, ${ANCHOR.role}, via text-to-speech. The name "Above the Fold" is the newspaper tradition: the stories an editor judges important enough to land on the top half of the front page. Treat this as editorial judgment, not a checklist.
 
 VOICE
   ${ANCHOR.voiceRider}
 
+HARD CONSTRAINTS - DO NOT VIOLATE
+  - Cover EVERY story in the input list. Do not skip any.
+  - Do not reference other news events, other stories, "in other news," "elsewhere on the wire," follow-up coverage, or any story not in the input list.
+  - Each story gets 2 to 5 sentences. The more important stories get more sentences; the weaker ones get fewer.
+  - Total word count: 320 to 600 words. Runtime 3 to 6 minutes spoken at wire-service cadence.
+
 FORMAT
-  - 500-650 words total. Reads in about 4-5 minutes at wire-service cadence.
-  - Open: "From ETL Newswire, this is Five in Under Five. I'm ${ANCHOR.name} at the ${ANCHOR.role.replace(' Senior Correspondent', '').replace(' Correspondent', '')} desk." Then one sentence framing the day's wire.
-  - Body: walk through the 5 stories in the order given. For each story, deliver:
-      1. The headline news in one or two clean sentences.
-      2. The reporter byline by name and tier (e.g. "Senior Correspondent Elke Vogel reports..." or "Correspondent Sasha Park files...").
-      3. One or two sentences of context or the most important detail from the dek.
-  - Transitions between stories: short, varied. "Turning to the world desk..." "On the technology beat..." "From our health desk..."
-  - Close: "That's Five in Under Five from ETL Newswire. I'm ${ANCHOR.name}. Back to the wire."
+  - Open (1-2 sentences): "From ETL Newswire, this is Above the Fold. I'm ${ANCHOR.name} at the US desk." Then one sentence framing the day's wire.
+  - Story blocks in the order given. Each block:
+      1. Brief transition or desk cue. "Leading the wire..." "From the world desk..." "On business..." "On technology..." "From the security desk..." "On science..." "On health..." "From entertainment..." "On sports..." Vary it.
+      2. The headline news in one or two clean sentences.
+      3. The reporter byline by name and tier ("Senior Correspondent Elke Vogel reports..." or "Correspondent Sasha Park files...").
+      4. Optional: ONE sentence of the most important detail from the dek. Skip this if the headline already conveys it.
+  - Close (1 sentence): "That's Above the Fold from ETL Newswire. I'm ${ANCHOR.name}. Back to the wire."
 
   When you reach a story written by ${ANCHOR.name}, do NOT introduce it with his own name as the reporter. Frame it as "our US desk has..." or "on the US beat..." so he is not introducing himself in third person.
 
@@ -176,8 +181,11 @@ exports.handler = async (event) => {
     console.error('[briefing] index read failed', err && err.message);
     return json(500, { error: 'index read failed' });
   }
-  const top5 = order.filter(p => p && p.title && p.slug).slice(0, 5);
-  if (!top5.length) return json(400, { error: 'no pieces on the wire to brief on yet' });
+  // "Above the fold" - editor judgment, not a fixed count. Pull up to 7 most
+  // recent pieces; the prompt tells the model to cover every story in the
+  // input. Adjust the slice if you want a tighter or wider window.
+  const top = order.filter(p => p && p.title && p.slug).slice(0, 7);
+  if (!top.length) return json(400, { error: 'no pieces on the wire to brief on yet' });
 
   // Generate the script.
   const client = new Anthropic({ apiKey });
@@ -187,7 +195,7 @@ exports.handler = async (event) => {
       model: MODEL,
       max_tokens: MAX_TOKENS,
       system: buildScriptSystemPrompt(),
-      messages: [{ role: 'user', content: buildScriptUserMessage(top5) }],
+      messages: [{ role: 'user', content: buildScriptUserMessage(top) }],
     });
     scriptText = (resp.content || [])
       .filter(b => b.type === 'text')
@@ -226,7 +234,7 @@ exports.handler = async (event) => {
     generated_at: generatedAt,
     script: scriptText,
     word_count: scriptText.split(/\s+/).length,
-    pieces: top5.map(p => ({
+    pieces: top.map(p => ({
       slug: p.slug,
       title: p.title,
       desk: p.desk || '',
