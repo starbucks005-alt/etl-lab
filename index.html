@@ -1565,8 +1565,9 @@ document.addEventListener('DOMContentLoaded', function(){
       <div class="etl-net-card etl-net-card--agents">
         <div class="etl-net-video">
           <div class="etl-net-roster">
-            <!-- The Dose (10) -->
+            <!-- The Dose (11) -->
             <img src="agents/margaret_call_listening.png" alt="Margaret">
+            <img src="agents/fact_checker_eyes_open.png" alt="Eli">
             <img src="agents/nutritionist_eyes_open.png" alt="Nadia">
             <img src="agents/Henry_eyes_open.png" alt="Dr. Henry">
             <img src="agents/gardner_eyes_open.png" alt="Maeve">
@@ -1628,10 +1629,10 @@ document.addEventListener('DOMContentLoaded', function(){
           </div>
         </div>
         <div class="etl-net-body">
-          <div class="etl-net-num">The Cast <span class="etl-net-duration">52 agents &middot; 5 platforms</span></div>
+          <div class="etl-net-num">The Cast <span class="etl-net-duration">53 agents &middot; 5 platforms</span></div>
           <div class="etl-net-title">AI Agents</div>
           <div class="etl-net-tagline">Meet the team behind every platform</div>
-          <p class="etl-net-desc">Fifty-two AI agents across five platforms, each with their own job, their own bio, their own voice. Click any face to read who they are and visit them in their home.</p>
+          <p class="etl-net-desc">Fifty-three AI agents across five platforms, each with their own job, their own bio, their own voice. Click any face to read who they are and visit them in their home.</p>
           <div class="etl-net-agents-hint">Click any avatar to open their bio</div>
           <a class="etl-net-launch" href="/agents/" target="_blank" rel="noopener">View the full Roster &rarr;</a>
         </div>
@@ -3019,6 +3020,11 @@ document.addEventListener('DOMContentLoaded', function(){
     { name: 'Margaret Applewood', platform: DOSE, role: 'Anchor host of The Dose',
       bio: 'The voice you associate with the cast. Warm, calm, NPR-ish. Reads the material carefully then tells you about it like a friend over coffee. Hosts the weekly Daily Dose podcast and keeps the room together.',
       home: 'https://thedose.net/' },
+    { name: 'Eli', platform: DOSE, role: 'The Fact-Checker',
+      bio: 'I pull the binder so you don\'t have to. NCI, FDA, NCCIH, Cochrane, named, not paraphrased. The methodical archivist who runs the Stoplight: live searches across PubMed, ClinicalTrials.gov, NIH DSLD, and openFDA drug labels, reads what comes back, and only then writes the verdict with citations you can click through and read yourself.',
+      home: 'https://thedose.net/ask-eli.html',
+      mcp: true,
+      tools: ['PubMed search', 'PubMed fetch abstract', 'ClinicalTrials.gov', 'NIH DSLD search', 'NIH DSLD label fetch', 'openFDA drug labels'] },
     { name: 'Nadia', platform: DOSE, role: 'The Nutritionist',
       bio: 'Registered dietitian. Food first, and honest about what food can and cannot do.',
       home: 'https://thedose.net/food-as-medicine.html' },
