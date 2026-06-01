@@ -57,6 +57,16 @@
   status = 200
 
 [[redirects]]
+  from = "/newswire-briefing-latest"
+  to = "/.netlify/functions/newswire-briefing-latest"
+  status = 200
+
+[[redirects]]
+  from = "/newswire-briefing-audio"
+  to = "/.netlify/functions/newswire-briefing-audio"
+  status = 200
+
+[[redirects]]
   from = "/prep-room"
   to = "/prep-room.html"
   status = 200

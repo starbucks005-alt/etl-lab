@@ -1452,13 +1452,39 @@ document.addEventListener('DOMContentLoaded', function(){
   .newswire-strip-cta { margin-top: 22px; display: flex; justify-content: flex-end; }
   .newswire-strip-cta a { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: #0e0c08; text-decoration: none; border-bottom: 1px solid #b8922a; padding-bottom: 3px; }
   .newswire-strip-cta a:hover { color: #b8922a; }
+
+  /* 5 in Under 5 audio briefing block */
+  .briefing-card { background: #0e0c08; color: #f4ebd6; padding: 22px 28px; margin-bottom: 28px; display: none; }
+  .briefing-card.is-ready { display: block; }
+  .briefing-row { display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: center; }
+  @media (max-width: 720px) { .briefing-row { grid-template-columns: 1fr; } }
+  .briefing-eyebrow { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase; color: #d4aa4a; margin-bottom: 6px; }
+  .briefing-title { font-family: 'Playfair Display', Georgia, serif; font-size: 26px; font-weight: 700; color: #f4ebd6; line-height: 1.15; margin-bottom: 6px; }
+  .briefing-sub { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 15px; color: #c8bea4; font-style: italic; }
+  .briefing-audio { display: flex; align-items: center; gap: 14px; }
+  .briefing-audio audio { width: 320px; max-width: 100%; }
+  @media (max-width: 720px) { .briefing-audio audio { width: 100%; } }
 </style>
 <section class="newswire-strip" id="newswire-strip" aria-labelledby="newswire-strip-title">
   <div class="newswire-strip-inner">
     <div class="newswire-strip-head">
       <h2 class="newswire-strip-title" id="newswire-strip-title">Latest from ETL Newswire</h2>
-      <div class="newswire-strip-sub">Live wire &middot; <a href="/press">/press</a> &middot; coming soon: <em>5 in Under 5</em> with Margaret</div>
+      <div class="newswire-strip-sub">Live wire &middot; <a href="/press">/press</a> &middot; <a href="/press.rss">RSS</a></div>
     </div>
+
+    <div class="briefing-card" id="briefing-card" aria-label="5 in Under 5 audio briefing">
+      <div class="briefing-row">
+        <div>
+          <div class="briefing-eyebrow">5 in Under 5 &middot; with Margaret Applewood</div>
+          <div class="briefing-title" id="briefing-title">Today's wire, briefed in under five minutes.</div>
+          <div class="briefing-sub" id="briefing-sub"></div>
+        </div>
+        <div class="briefing-audio">
+          <audio id="briefing-audio" controls preload="none"></audio>
+        </div>
+      </div>
+    </div>
+
     <div class="newswire-strip-five" id="newswire-strip-five"></div>
     <div class="newswire-strip-cta"><a href="/press">See the full wire &rarr;</a></div>
   </div>
@@ -1470,6 +1496,26 @@ document.addEventListener('DOMContentLoaded', function(){
     try { var d = new Date(iso); if (isNaN(+d)) return ''; return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }
     catch(_) { return ''; }
   }
+  // Try to mount the "5 in Under 5" audio briefing card. Hidden if no
+  // briefing has been generated yet (admin must click Regenerate in
+  // /press-admin to create one).
+  fetch('/.netlify/functions/newswire-briefing-latest', { credentials: 'omit' })
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(meta){
+      if (!meta || !meta.available || !meta.audio_url) return;
+      var card = document.getElementById('briefing-card');
+      var audio = document.getElementById('briefing-audio');
+      var sub = document.getElementById('briefing-sub');
+      if (!card || !audio) return;
+      audio.src = meta.audio_url;
+      if (sub && meta.generated_at) {
+        var dt = new Date(meta.generated_at);
+        sub.textContent = isNaN(+dt) ? '' : 'Recorded ' + dt.toLocaleDateString('en-US',{weekday:'long', month:'long', day:'numeric'}) + ' at ' + dt.toLocaleTimeString('en-US',{hour:'numeric', minute:'2-digit'});
+      }
+      card.classList.add('is-ready');
+    })
+    .catch(function(){ /* silent: hide briefing on failure */ });
+
   fetch('/.netlify/functions/newswire-latest?limit=5', { credentials: 'omit' })
     .then(function(r){ return r.ok ? r.json() : null; })
     .then(function(data){
