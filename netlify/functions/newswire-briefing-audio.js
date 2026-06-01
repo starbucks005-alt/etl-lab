@@ -34,12 +34,16 @@ exports.handler = async (event) => {
   }
 
   const bytes = Buffer.from(buffer);
+  // Note: we deliberately do NOT advertise Accept-Ranges. We do not honor
+  // Range requests (Netlify functions can't easily slice a response), and
+  // claiming Range support without honoring it makes some browsers refuse
+  // to load the audio in an HTML5 <audio> element even though direct-URL
+  // navigation works fine. Force full-download by omitting that header.
   return {
     statusCode: 200,
     headers: {
       'Content-Type': 'audio/mpeg',
       'Content-Length': String(bytes.length),
-      'Accept-Ranges': 'bytes',
       'Cache-Control': 'public, max-age=600, s-maxage=600, stale-while-revalidate=3600',
     },
     body: bytes.toString('base64'),
