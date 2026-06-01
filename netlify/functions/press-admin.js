@@ -402,7 +402,8 @@ function renderDashboard(pieces) {
   function setStatus(el, msg, kind) { if (!el) return; el.textContent = msg || ''; el.className = 'tool-status' + (kind ? ' ' + kind : ''); }
   function escapeHTML(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
 
-  // Commission a piece
+  // Commission a piece. Background function: returns 202 immediately, then
+  // the reporter runs for 1-3 minutes and the piece appears in the list.
   var commForm = document.getElementById('form-commission');
   if (commForm) {
     commForm.addEventListener('submit', function(ev){
@@ -410,7 +411,7 @@ function renderDashboard(pieces) {
       var status = document.getElementById('commission-status');
       var result = document.getElementById('commission-result');
       result.innerHTML = '';
-      setStatus(status, 'Reporter is working (this can take 60-120 seconds)...', 'busy');
+      setStatus(status, 'Queueing reporter...', 'busy');
       var btn = commForm.querySelector('button[type=submit]');
       btn.disabled = true;
       var fd = new FormData(commForm);
@@ -419,29 +420,28 @@ function renderDashboard(pieces) {
         topic_seed: String(fd.get('topic_seed') || ''),
         auto_publish: fd.get('auto_publish') === 'on' || fd.get('auto_publish') === 'true',
       };
-      fetch('/.netlify/functions/newswire-write', {
+      var reporterLabel = (commForm.querySelector('select[name="reporter_id"] option:checked') || {}).textContent || payload.reporter_id;
+      fetch('/.netlify/functions/newswire-write-background', {
         method: 'POST', credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
-      }).then(function(r){ return r.json().then(function(j){ return { ok: r.ok, j: j }; }); })
-        .then(function(res){
+      }).then(function(r){
+        // Netlify background functions return 202 immediately with no body
+        // (or a tiny one). Accept any 2xx as "queued".
+        if (r.status >= 200 && r.status < 300) {
           btn.disabled = false;
-          if (!res.ok) { setStatus(status, (res.j && res.j.error) || 'Failed', 'error'); return; }
-          var d = res.j;
-          var html = '<h4>' + escapeHTML(d.title || '') + '</h4>';
-          if (d.dek) html += '<p><em>' + escapeHTML(d.dek) + '</em></p>';
-          if (d.published && d.url) html += '<p><strong>Published:</strong> <a href="' + escapeHTML(d.url) + '" target="_blank" rel="noopener">' + escapeHTML(d.url) + '</a></p>';
-          else html += '<p><em>Draft only (auto_publish was off).</em></p>';
-          if (d.citations && d.citations.length) {
-            html += '<p><strong>Cited sources:</strong></p><ul>';
-            d.citations.forEach(function(c){ html += '<li><a href="' + escapeHTML(c.url) + '" target="_blank" rel="noopener">' + escapeHTML(c.label || c.url) + '</a></li>'; });
-            html += '</ul>';
-          }
-          result.innerHTML = html;
-          setStatus(status, 'Done.', 'success');
-          // Refresh after a successful publish so the new piece appears in the list.
-          if (d.published) setTimeout(function(){ window.location.reload(); }, 2500);
-        }).catch(function(err){ btn.disabled = false; setStatus(status, err.message || 'error', 'error'); });
+          setStatus(status, 'Queued.', 'success');
+          result.innerHTML =
+            '<p><strong>' + escapeHTML(reporterLabel) + '</strong> is on it. The reporter takes 1-3 minutes to find a story, write it, and file. ' +
+            'The piece will appear in the All Pieces list and on /press when ready. ' +
+            '<a href="javascript:void(0)" onclick="window.location.reload()">Refresh the page</a> in a couple minutes to see it.</p>';
+        } else {
+          return r.json().catch(function(){ return { error: 'queue failed (status ' + r.status + ')' }; }).then(function(j){
+            btn.disabled = false;
+            setStatus(status, (j && j.error) || 'Failed to queue', 'error');
+          });
+        }
+      }).catch(function(err){ btn.disabled = false; setStatus(status, err.message || 'network error', 'error'); });
     });
   }
 

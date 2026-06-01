@@ -91,13 +91,16 @@ exports.handler = async (event) => {
     console.error('[press-delete] blob read failed', err && err.message);
     return json(500, { error: 'blob read failed' });
   }
-  if (!existing) return json(404, { error: 'slug not found' });
 
-  try {
-    await piecesStore.delete(slug);
-  } catch (err) {
-    console.error('[press-delete] piece delete failed', err && err.message);
-    return json(500, { error: 'blob delete failed' });
+  // Best-effort delete the piece blob. If it does not exist (orphan index
+  // entry from a crashed seed run) we still want to clean the index below.
+  if (existing) {
+    try {
+      await piecesStore.delete(slug);
+    } catch (err) {
+      console.error('[press-delete] piece delete failed', err && err.message);
+      return json(500, { error: 'blob delete failed' });
+    }
   }
 
   // Best-effort delete of the matching hero image.
@@ -110,6 +113,7 @@ exports.handler = async (event) => {
   }
 
   // Patch the index.
+  let indexRemoved = false;
   try {
     const indexStore = getStore('press_index');
     let order = [];
@@ -117,11 +121,18 @@ exports.handler = async (event) => {
     const filtered = order.filter(o => o && o.slug !== slug);
     if (filtered.length !== order.length) {
       await indexStore.setJSON('order', filtered);
+      indexRemoved = true;
     }
   } catch (err) {
     console.error('[press-delete] press_index patch failed', err && err.message);
     // Non-fatal: piece itself is gone.
   }
 
-  return json(200, { ok: true, slug });
+  // If neither the piece blob existed NOR the index had a row for this slug,
+  // the slug really is unknown.
+  if (!existing && !indexRemoved) {
+    return json(404, { error: 'slug not found' });
+  }
+
+  return json(200, { ok: true, slug, was_orphan: !existing });
 };
