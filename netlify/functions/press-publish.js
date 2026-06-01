@@ -88,11 +88,15 @@ exports.handler = async (event) => {
   const author       = String(body.author || '').trim().slice(0, 140);
   const platform     = String(body.platform || 'lab').trim().toLowerCase();
   const userSlug     = String(body.slug || '').trim();
+  const heroRaw      = body.hero_image_url == null ? '' : String(body.hero_image_url).trim();
 
   if (title.length < TITLE_MIN || title.length > TITLE_MAX) return json(400, { error: `title must be ${TITLE_MIN}-${TITLE_MAX} characters` });
   if (pieceBody.length < BODY_MIN || pieceBody.length > BODY_MAX) return json(400, { error: `body must be ${BODY_MIN}-${BODY_MAX} characters` });
   if (!isValidUrl(source_url)) return json(400, { error: 'source_url must be a valid http(s) URL' });
   if (!PLATFORMS.has(platform)) return json(400, { error: 'platform must be gauntlet | greylander | lab' });
+  if (heroRaw && !(heroRaw.startsWith('/press-image/') || heroRaw.startsWith('http://') || heroRaw.startsWith('https://'))) {
+    return json(400, { error: 'hero_image_url must be empty, an /press-image/<slug> path, or an http(s) URL' });
+  }
 
   // Connect Blobs and pick the slug
   try { connectLambda(event); } catch (err) {
@@ -118,6 +122,7 @@ exports.handler = async (event) => {
     author,
     platform,
     published_at: new Date().toISOString(),
+    hero_image_url: heroRaw || null,
   };
 
   try {
@@ -126,7 +131,9 @@ exports.handler = async (event) => {
     const indexStore = getStore('press_index');
     let order = [];
     try { const existing = await indexStore.get('order', { type: 'json' }); if (Array.isArray(existing)) order = existing; } catch (_) {}
-    order.unshift({ slug, title, dek, platform, source_label: piece.source_label, published_at: piece.published_at });
+    const indexEntry = { slug, title, dek, platform, source_label: piece.source_label, published_at: piece.published_at };
+    if (piece.hero_image_url) indexEntry.hero_image_url = piece.hero_image_url;
+    order.unshift(indexEntry);
     await indexStore.setJSON('order', order.slice(0, 500));
   } catch (err) {
     console.error('[press-publish] blob write failed', err && err.message);

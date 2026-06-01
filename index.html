@@ -1317,6 +1317,53 @@ document.addEventListener('DOMContentLoaded', function(){
     margin-bottom: 22px;
     text-align: center;
   }
+  /* MCP signal: only renders when an agent has a tools[] list. Surfaces
+     that this agent actually queries live data sources / has tool-using
+     superpowers, not just LLM persona output. */
+  .agents-modal-mcp {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin: -8px auto 18px;
+    max-width: 420px;
+    text-align: center;
+  }
+  .agents-modal-mcp-badge {
+    font-family: 'DM Mono', 'Share Tech Mono', monospace;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    color: #0a0a0a;
+    background: var(--gold);
+    padding: 3px 8px;
+    border-radius: 2px;
+    text-transform: uppercase;
+  }
+  .agents-modal-mcp-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #888;
+  }
+  .agents-modal-mcp-tools {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    justify-content: center;
+  }
+  .agents-modal-mcp-tools .tool-chip {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #d4aa4a;
+    border: 1px solid rgba(184,146,42,0.4);
+    padding: 2px 6px;
+    border-radius: 2px;
+  }
   .agents-modal-actions {
     display: flex;
     align-items: center;
@@ -2931,6 +2978,11 @@ document.addEventListener('DOMContentLoaded', function(){
     <div class="agents-modal-name" id="agents-modal-name"></div>
     <div class="agents-modal-role" id="agents-modal-role"></div>
     <div class="agents-modal-platform" id="agents-modal-platform"></div>
+    <div class="agents-modal-mcp" id="agents-modal-mcp" hidden>
+      <span class="agents-modal-mcp-badge">MCP</span>
+      <span class="agents-modal-mcp-label">Live tools:</span>
+      <span class="agents-modal-mcp-tools" id="agents-modal-mcp-tools"></span>
+    </div>
     <p class="agents-modal-bio" id="agents-modal-bio"></p>
     <div class="agents-modal-actions">
       <button class="agents-modal-nav" id="agents-modal-prev" type="button" aria-label="Previous agent">&larr; Prev</button>
@@ -2972,7 +3024,9 @@ document.addEventListener('DOMContentLoaded', function(){
       home: 'https://thedose.net/food-as-medicine.html' },
     { name: 'Dr. Henry Chen, RPh', platform: DOSE, role: 'The Pharmacist',
       bio: 'Registered pharmacist, thirty-five years behind the counter. If it has an Rx or a Supplement Facts panel, ask him first. Born in Guangzhou, came to the US at eighteen, built a life in a second language. Keeps a puzzle book in his bag for breaks.',
-      home: 'https://thedose.net/ingredient-lookup.html' },
+      home: 'https://thedose.net/ingredient-lookup.html',
+      mcp: true,
+      tools: ['PubMed', 'ClinicalTrials.gov', 'openFDA drug labels', 'NIH DSLD', 'PubChem', 'Drug interactions'] },
     { name: 'Maeve "MJ" Johnson', platform: DOSE, role: 'The Gardener',
       bio: 'Grew up with dirt under her nails. Tell her your zone, your season, and your sun, and she will tell you what will actually come up. Three generations in the same Nebraska farmhouse, plant biology degree, hands on a trowel.',
       home: 'https://thedose.net/garden.html' },
@@ -3019,7 +3073,9 @@ document.addEventListener('DOMContentLoaded', function(){
       home: 'https://greylanderpress.com/#meet-the-team' },
     { name: 'Jess Ramirez', platform: GP, role: 'The Publicist',
       bio: 'Bilingual Texan, Latin-American press circuit. Ran indie bookstore events in San Antonio and Austin for five years before going freelance. Books your signings, drafts your BookTok hooks, gets you on the right podcast, runs your ARC campaign. The whole post-publication runway. Refuses to pitch a podcast whose listener would not read the book.',
-      home: 'https://greylanderpress.com/jess-publicist.html' },
+      home: 'https://greylanderpress.com/jess-publicist.html',
+      mcp: true,
+      tools: ['BookTok campaign generator', 'B&N signing event package', 'Podcast tour list', 'ARC outreach + NetGalley', 'ETL Press Hub publishing'] },
 
     // ───── The Gauntlet, Judges (9) ─────
     { name: 'Selene Voss', platform: GAUNT, role: 'AI and Emerging Tech',
@@ -3068,7 +3124,9 @@ document.addEventListener('DOMContentLoaded', function(){
       home: 'https://thegauntlet.studio/Helpers/grant-coach.html' },
     { name: 'Imani Brooks', platform: GAUNT, role: 'The Wire',
       bio: 'Fifteen years in corporate communications. Started at a wire service, moved client-side, went solo because she got tired of pitching stories her clients had not earned. Post-chamber. Picks the wire that reaches your beat, builds the journalist list, drafts the op-ed when a release is the wrong tool, sets the embargo and tells you the exact moment to hit send. Reid drafts. Imani distributes.',
-      home: 'https://thegauntlet.studio/Helpers/imani-wire.html' },
+      home: 'https://thegauntlet.studio/Helpers/imani-wire.html',
+      mcp: true,
+      tools: ['Wire service picker', 'Targeted media list', 'Bylined op-ed angler', 'Embargo + timing strategy', 'ETL Press Hub publishing'] },
 
     // ───── The Panel Room, Defense Committee (9, includes Pendelton) ─────
     { name: 'Dr. Victoria Vance', platform: PANEL, role: 'The Methodologist',
@@ -3169,6 +3227,22 @@ document.addEventListener('DOMContentLoaded', function(){
     elName.textContent = a.name;
     elRole.textContent = a.role;
     elPlatform.textContent = a.platform;
+    // MCP tools row: only shown when the agent has tools[]. Lists each tool
+    // as a chip. The MCP badge signals "this agent queries live data, not
+    // just LLM persona output."
+    var elMcp      = document.getElementById('agents-modal-mcp');
+    var elMcpTools = document.getElementById('agents-modal-mcp-tools');
+    if (elMcp && elMcpTools) {
+      if (Array.isArray(a.tools) && a.tools.length) {
+        elMcpTools.innerHTML = a.tools.map(function(t){
+          return '<span class="tool-chip">' + String(t).replace(/[&<>"']/g, function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}) + '</span>';
+        }).join('');
+        elMcp.hidden = false;
+      } else {
+        elMcp.hidden = true;
+        elMcpTools.innerHTML = '';
+      }
+    }
     elBio.textContent = a.bio;
     elNum.textContent = 'Agent ' + pad(idx + 1) + ' of ' + pad(AGENTS.length);
     elHome.href = a.home;

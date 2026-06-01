@@ -17,6 +17,11 @@
   status = 200
 
 [[redirects]]
+  from = "/press-image/:slug"
+  to = "/.netlify/functions/press-image?slug=:slug"
+  status = 200
+
+[[redirects]]
   from = "/press/:slug"
   to = "/.netlify/functions/press-piece?slug=:slug"
   status = 200
@@ -24,6 +29,11 @@
 [[redirects]]
   from = "/press"
   to = "/.netlify/functions/press-index"
+  status = 200
+
+[[redirects]]
+  from = "/press-admin"
+  to = "/.netlify/functions/press-admin"
   status = 200
 
 [[redirects]]

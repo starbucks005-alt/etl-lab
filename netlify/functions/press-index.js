@@ -30,16 +30,25 @@ function renderHub(pieces) {
   function section(platformKey) {
     const items = groups[platformKey] || [];
     if (!items.length) return '';
+    const sectionHasImages = items.some(p => p && p.hero_image_url);
     return `<section class="group">
       <h2 class="group-h">${esc(PLATFORM_LABELS[platformKey])}</h2>
       <ul class="feed">
         ${items.map(p => {
           const date = p.published_at ? new Date(p.published_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '';
-          return `<li class="feed-item">
+          const thumb = sectionHasImages
+            ? (p.hero_image_url
+                ? `<span class="feed-thumb" style="background-image:url('${esc(p.hero_image_url)}');"></span>`
+                : `<span class="feed-thumb feed-thumb-empty"></span>`)
+            : '';
+          return `<li class="feed-item${sectionHasImages ? ' feed-item-thumbed' : ''}">
             <a class="feed-link" href="/press/${esc(p.slug)}">
-              <div class="feed-meta"><time>${esc(date)}</time>${p.source_label ? ' &middot; ' + esc(p.source_label) : ''}</div>
-              <div class="feed-title">${esc(p.title)}</div>
-              ${p.dek ? `<div class="feed-dek">${esc(p.dek)}</div>` : ''}
+              ${thumb}
+              <span class="feed-text">
+                <span class="feed-meta"><time>${esc(date)}</time>${p.source_label ? ' &middot; ' + esc(p.source_label) : ''}</span>
+                <span class="feed-title">${esc(p.title)}</span>
+                ${p.dek ? `<span class="feed-dek">${esc(p.dek)}</span>` : ''}
+              </span>
             </a>
           </li>`;
         }).join('\n')}
@@ -88,9 +97,13 @@ function renderHub(pieces) {
   .feed-link{display:block;padding:1.2rem 1.5rem;text-decoration:none;color:inherit;transition:background 0.15s,border-color 0.15s;}
   .feed-item:hover{border-color:#b8922a;}
   .feed-link:hover{background:rgba(184,146,42,0.06);}
-  .feed-meta{font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.16em;text-transform:uppercase;color:#5a5240;margin-bottom:0.45rem;}
-  .feed-title{font-family:'Playfair Display',serif;font-size:1.35rem;font-weight:700;line-height:1.25;color:#0e0c08;margin-bottom:0.4rem;}
-  .feed-dek{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1rem;color:#5a5240;line-height:1.55;}
+  .feed-item-thumbed .feed-link{display:flex;align-items:flex-start;gap:1.1rem;}
+  .feed-thumb{flex:0 0 auto;display:block;width:72px;height:72px;background-color:#e9dfc6;background-size:cover;background-position:center;border:1px solid rgba(184,146,42,0.3);}
+  .feed-thumb-empty{background-color:#e9dfc6;}
+  .feed-text{display:block;flex:1 1 auto;min-width:0;}
+  .feed-meta{display:block;font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.16em;text-transform:uppercase;color:#5a5240;margin-bottom:0.45rem;}
+  .feed-title{display:block;font-family:'Playfair Display',serif;font-size:1.35rem;font-weight:700;line-height:1.25;color:#0e0c08;margin-bottom:0.4rem;}
+  .feed-dek{display:block;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1rem;color:#5a5240;line-height:1.55;}
 
   .empty{padding:2rem;text-align:center;color:#5a5240;font-style:italic;}
 

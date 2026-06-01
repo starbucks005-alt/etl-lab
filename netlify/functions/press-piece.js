@@ -48,6 +48,8 @@ function renderPiece(piece) {
   const dateHuman = new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
   const description = piece.dek || piece.body.slice(0, 220).replace(/\s+/g, ' ').trim() + (piece.body.length > 220 ? '...' : '');
 
+  const heroImage = piece.hero_image_url ? String(piece.hero_image_url) : '';
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -66,6 +68,7 @@ function renderPiece(piece) {
     "url": url,
     "isBasedOn": piece.source_url
   };
+  if (heroImage) jsonLd.image = heroImage;
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -82,12 +85,14 @@ function renderPiece(piece) {
 <meta property="og:description" content="${esc(description)}">
 <meta property="og:url" content="${esc(url)}">
 <meta property="og:site_name" content="ETL Press Hub">
+${heroImage ? `<meta property="og:image" content="${esc(heroImage)}">` : ''}
 <meta property="article:published_time" content="${esc(date)}">
 <meta property="article:author" content="${esc(piece.author || sourceLabel)}">
 
-<meta name="twitter:card" content="summary">
+<meta name="twitter:card" content="${heroImage ? 'summary_large_image' : 'summary'}">
 <meta name="twitter:title" content="${esc(piece.title)}">
 <meta name="twitter:description" content="${esc(description)}">
+${heroImage ? `<meta name="twitter:image" content="${esc(heroImage)}">` : ''}
 
 <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
 
@@ -153,6 +158,8 @@ function renderPiece(piece) {
     &nbsp;&middot;&nbsp;
     <a href="${esc(piece.source_url)}" rel="noopener">${esc(sourceLabel)}</a>
   </div>
+
+  ${heroImage ? `<img class="hero-image" src="${esc(heroImage)}" alt="${esc(piece.title)}" loading="eager" style="width:100%;max-height:420px;object-fit:cover;display:block;margin-bottom:1.4rem;">` : ''}
 
   <h1>${esc(piece.title)}</h1>
   ${piece.dek ? `<p class="dek">${esc(piece.dek)}</p>` : ''}
