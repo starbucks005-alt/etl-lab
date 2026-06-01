@@ -42,7 +42,9 @@
       "byline": "By Sasha Park, Business Desk",
       "tier": "correspondent",
       "tier_label": "Correspondent",
-      "portrait_placeholder": "SP"
+      "portrait_placeholder": "SP",
+      "voice_id": "9BWtsMINqrJLrRacOk9x",
+      "voice_label": "Aria"
     },
     {
       "id": "theo_okafor",
@@ -55,7 +57,9 @@
       "byline": "By Theo Okafor, Technology Desk",
       "tier": "staff",
       "tier_label": "Staff Reporter",
-      "portrait_placeholder": "TO"
+      "portrait_placeholder": "TO",
+      "voice_id": "nPczCjzI2devNBz1zQrb",
+      "voice_label": "Brian"
     },
     {
       "id": "renee_kovac",
@@ -68,7 +72,9 @@
       "byline": "By Renée Kovac, Security Desk",
       "tier": "correspondent",
       "tier_label": "Correspondent",
-      "portrait_placeholder": "RK"
+      "portrait_placeholder": "RK",
+      "voice_id": "21m00Tcm4TlvDq8ikWAM",
+      "voice_label": "Rachel"
     },
     {
       "id": "maya_iyer",
@@ -81,7 +87,9 @@
       "byline": "By Dr. Maya Iyer, Science Desk",
       "tier": "staff",
       "tier_label": "Staff Reporter",
-      "portrait_placeholder": "MI"
+      "portrait_placeholder": "MI",
+      "voice_id": "EXAVITQu4vr4xnSDxMaL",
+      "voice_label": "Sarah"
     },
     {
       "id": "karen_bishop",
@@ -94,7 +102,9 @@
       "byline": "By Karen Bishop, Health Desk",
       "tier": "correspondent",
       "tier_label": "Correspondent",
-      "portrait_placeholder": "KB"
+      "portrait_placeholder": "KB",
+      "voice_id": "ThT5KcBeYPX3keUQqHPh",
+      "voice_label": "Dorothy"
     },
     {
       "id": "jules_rivera",
@@ -107,7 +117,9 @@
       "byline": "By Jules Rivera, Entertainment Desk",
       "tier": "correspondent",
       "tier_label": "Correspondent",
-      "portrait_placeholder": "JR"
+      "portrait_placeholder": "JR",
+      "voice_id": "pFZP5JQG7iQjIQuC4Bku",
+      "voice_label": "Lily"
     },
     {
       "id": "frank_donovan",
@@ -120,7 +132,9 @@
       "byline": "By Frank Donovan, Sports Desk",
       "tier": "senior",
       "tier_label": "Senior Correspondent",
-      "portrait_placeholder": "FD"
+      "portrait_placeholder": "FD",
+      "voice_id": "VR6AewLTigWG4xSOukaG",
+      "voice_label": "Arnold"
     }
   ],
   "desks": [
