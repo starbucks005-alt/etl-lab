@@ -829,13 +829,16 @@ document.addEventListener('DOMContentLoaded', function(){
   var briefing = document.getElementById('briefing-card');
   var aitwin = document.getElementById('ai-twin');
   var network = document.getElementById('network');
+  var talks = document.getElementById('talks');
   var intel = document.getElementById('intel');
   var pub = document.getElementById('publications');
   // Final top-of-page chain: ticker -> hero -> briefing -> ai twin -> network
-  // -> intel -> publications. Reorder script inserts each AFTER the previous
-  // anchor so they end up in this exact sequence regardless of source order.
+  // -> talks -> intel -> publications. Reorder script inserts each AFTER the
+  // previous anchor so they end up in this exact sequence regardless of
+  // source order. Talks sits between Network and Intel: upcoming speaking
+  // engagements followed by the most recent recorded briefing.
   var anchor = ticker;
-  [hero, briefing, aitwin, network, intel, pub].forEach(function(node){
+  [hero, briefing, aitwin, network, talks, intel, pub].forEach(function(node){
     if (anchor && node) {
       anchor.insertAdjacentElement('afterend', node);
       anchor = node;
