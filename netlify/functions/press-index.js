@@ -284,6 +284,12 @@ function renderNewsroom(pieces, activeDesk) {
   .briefing-share a, .briefing-share button{font-family:inherit;font-size:inherit;letter-spacing:inherit;text-transform:inherit;color:#8a6a1c;background:transparent;border:1px solid #b8922a;padding:0.2rem 0.5rem;cursor:pointer;text-decoration:none;}
   .briefing-share a:hover, .briefing-share button:hover{background:#b8922a;color:#fff;}
   .briefing-share .copied{color:#3a6a2a;border-color:#3a6a2a;}
+  /* Deskline promo strip - sits right under the briefing band, before the
+     desk nav, so it's the first thing a visitor sees after the audio. */
+  .deskline-promo{background:#0e0c08;color:#f4ebd6;padding:0.7rem 2rem;text-align:center;font-family:'DM Mono',monospace;font-size:0.7rem;letter-spacing:0.18em;text-transform:uppercase;}
+  .deskline-promo a{color:#d4aa4a;text-decoration:none;border-bottom:1px solid #d4aa4a;padding-bottom:2px;font-weight:700;}
+  .deskline-promo a:hover{color:#fff;border-bottom-color:#fff;}
+  .deskline-promo .pill{display:inline-block;background:#d4aa4a;color:#0e0c08;padding:0.15rem 0.5rem;margin-right:0.5rem;font-weight:700;letter-spacing:0.16em;}
   /* Meet the Newsroom panel - fills the empty left-column space below
      the feed when a desk filter limits visible pieces. Drives clicks to
      reporter profile pages and to the Careers application. */
@@ -413,6 +419,10 @@ function renderNewsroom(pieces, activeDesk) {
     </div>
   </div>
 </section>
+<aside class="deskline-promo" aria-label="Deskline daily puzzle">
+  <span class="pill">DAILY</span>
+  Today's puzzle is live &mdash; <a href="/press/deskline">Play Deskline &rarr;</a>
+</aside>
 <script>
 (function(){
   var share = document.getElementById('briefing-share');
