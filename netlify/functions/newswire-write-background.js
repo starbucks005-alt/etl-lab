@@ -27,6 +27,13 @@ const MAX_TOKENS = 2400;
 const MAX_WEB_SEARCHES = 5;
 const SITE_BASE = 'https://emerging-tech-lab.com';
 
+// Valid desk IDs. Reporters self-classify their piece's desk from this set
+// based on the story's actual content (not on their own reporter desk). This
+// is the fix for the bug where a Tech reporter writing about an Iran cease-
+// fire would publish under the Technology desk and break Deskline + desk
+// navigation.
+const VALID_DESKS = new Set(['us', 'world', 'business', 'technology', 'security', 'science', 'health', 'entertainment', 'sports']);
+
 const json = (statusCode, body) => ({
   statusCode,
   headers: { 'Content-Type': 'application/json' },
@@ -90,10 +97,25 @@ OUTPUT FORMAT
     "title": "<headline, 8-200 chars, AP-style, news-first not feature-y. Use ONE main verb per headline. Do not stack verbs like 'Mulls Threatens' or 'Plans Considers'>",
     "dek": "<one-sentence subtitle under 300 chars summarizing the news>",
     "body": "<400-700 word piece in your voice, paragraphs separated by blank lines, plain text>",
+    "desk": "<one of: us, world, business, technology, security, science, health, entertainment, sports — classify by the STORY'S subject, not by your own desk assignment>",
     "citations": [
       { "label": "<outlet or document name>", "url": "<the URL>" }
     ]
   }
+
+DESK CLASSIFICATION (the "desk" field above)
+  Your job is to tag the piece with the desk it actually belongs on. Pick from the 9 IDs above based on the STORY'S content, not based on your reporter identity. Examples:
+  - A story about an Iran ceasefire ⇒ "world", even if a tech reporter found it.
+  - A story about a state legislature stadium vote ⇒ "us" (politics) or "sports" depending on framing — never "technology".
+  - A story about an Alzheimer's drug trial ⇒ "health" or "science", not "business" just because Pfizer is involved.
+  - A story about pharma earnings ⇒ "business", because the news is the financial result.
+  The Deskline puzzle and the desk-nav UI depend on this being correct. Pick the desk a literate reader would pick if they saw only the headline.
+
+BEAT DISCIPLINE
+  You ARE the ${reporter.desk_label} desk reporter. Stay on your beat. Your beat (above) is what you cover.
+  - If your first web_search returns a story not clearly on your beat (${reporter.desk_label}), refine the query and search again.
+  - Adjacent-beat stories are acceptable only when the angle squarely fits your beat. A health reporter covering a pharma earnings story for its health-system implications: OK. A health reporter covering a stadium bill: not OK.
+  - If after ${MAX_WEB_SEARCHES} searches you cannot find a real, recent, on-beat story, return a piece anyway with your best on-beat angle on a structural development in your beat (NOT a fake recent event). Still tag the desk field correctly.
 
 RULES
   - No em dashes. Plain hyphens or restructure.
@@ -179,6 +201,21 @@ async function runReporter(reporter, topic_seed, auto_publish, apiKey) {
   }
 
   const primaryCitation = (parsed.citations && parsed.citations[0]) || { label: reporter.name, url: SITE_BASE + '/press' };
+
+  // Reporter self-classified the desk based on the story's content. Validate
+  // against the known set; if invalid (missing, typo, or hallucinated value),
+  // fall back to the reporter's assigned desk so we never publish a piece
+  // with a bogus desk. Log the divergence so we can audit how often a
+  // reporter drifts off their assigned desk.
+  let classifiedDesk = String(parsed.desk || '').trim().toLowerCase();
+  if (!VALID_DESKS.has(classifiedDesk)) {
+    if (classifiedDesk) console.warn('[newswire-write-background] invalid parsed.desk', classifiedDesk, 'falling back to', reporter.desk);
+    classifiedDesk = reporter.desk;
+  }
+  if (classifiedDesk !== reporter.desk) {
+    console.log('[newswire-write-background] off-beat publish', reporter.id, 'reporter_desk=' + reporter.desk, 'story_desk=' + classifiedDesk, 'title=' + parsed.title.slice(0, 80));
+  }
+
   const publishBody = {
     title: parsed.title,
     dek: parsed.dek,
@@ -189,7 +226,7 @@ async function runReporter(reporter, topic_seed, auto_publish, apiKey) {
     source_label: primaryCitation.label,
     author: reporter.name,
     platform: 'newswire',
-    desk: reporter.desk,
+    desk: classifiedDesk,
     byline_kind: 'reporter',
     reporter_id: reporter.id,
   };
