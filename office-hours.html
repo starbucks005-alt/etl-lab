@@ -317,7 +317,7 @@
         <div>
           <label class="field">
             <span class="label-text">University logo (PNG / JPG)</span>
-            <span class="label-note">Appears top-left of your exports. Stays in your browser.</span>
+            <span class="label-note">Used in the assembled letterhead when no full letterhead strip is uploaded.</span>
             <input type="file" id="profile-logo" accept="image/png,image/jpeg">
           </label>
           <div class="logo-preview empty" id="profile-logo-preview">No logo loaded.</div>
@@ -325,7 +325,7 @@
         <div>
           <label class="field">
             <span class="label-text">Signature</span>
-            <span class="label-note">Draw with your mouse or trackpad, or upload a PNG.</span>
+            <span class="label-note">Draw or upload a PNG. Used when no full sig block is uploaded.</span>
           </label>
           <div class="sig-tabs">
             <button type="button" class="sig-tab active" data-sig="draw">Draw</button>
@@ -342,6 +342,31 @@
             <input type="file" id="sig-upload" accept="image/png,image/jpeg">
           </div>
           <div class="sig-preview empty" id="sig-preview">No signature saved.</div>
+        </div>
+      </div>
+
+      <div style="margin-top: 1.4rem; padding-top: 1.2rem; border-top: 1px solid var(--line);">
+        <p class="card-sub" style="margin: 0 0 1rem;">
+          <strong style="color: var(--ink); font-style: normal;">Pre-designed letterhead (optional, takes priority).</strong>
+          If your institution has a designed letterhead and signature-block image, upload them here. When present, exports use these as-is and skip the fields above. Most users without designed assets can ignore this section.
+        </p>
+        <div class="profile-grid">
+          <div>
+            <label class="field">
+              <span class="label-text">Full letterhead strip (image)</span>
+              <span class="label-note">Wide PNG/JPG. Embedded full-width at the top of LOR exports.</span>
+              <input type="file" id="profile-letterhead" accept="image/png,image/jpeg">
+            </label>
+            <div class="logo-preview empty" id="profile-letterhead-preview">No letterhead loaded.</div>
+          </div>
+          <div>
+            <label class="field">
+              <span class="label-text">Full signature block (image)</span>
+              <span class="label-note">Your signature + name + title + contact, designed as one image.</span>
+              <input type="file" id="profile-sigblock" accept="image/png,image/jpeg">
+            </label>
+            <div class="logo-preview empty" id="profile-sigblock-preview">No sig block loaded.</div>
+          </div>
         </div>
       </div>
 
@@ -482,11 +507,10 @@
         <textarea class="output-area" id="email-output" placeholder="Your draft will appear here. The whole thing is editable."></textarea>
         <div class="output-meta" id="email-output-meta"></div>
         <div class="actions">
-          <button type="button" class="btn ghost" id="email-copy">Copy to clipboard</button>
-          <button type="button" class="btn" id="email-export-pdf">Export PDF</button>
-          <button type="button" class="btn" id="email-export-docx">Export DOCX</button>
+          <button type="button" class="btn" id="email-copy">Copy to clipboard</button>
           <button type="button" class="btn ghost" id="email-clear-output">Clear draft</button>
         </div>
+        <p class="card-sub" style="margin: 0.6rem 0 0; font-size: 0.85rem;">Email replies are best pasted into your email client, which adds your signature automatically. For formal letters use the Letter of Rec tab.</p>
       </div>
     </div>
   </div>
@@ -829,6 +853,14 @@
     var arr = new Uint8Array(raw.length);
     for (var i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
     return arr;
+  }
+  function imageDimensions(dataUrl){
+    return new Promise(function(resolve){
+      var img = new Image();
+      img.onload = function(){ resolve({ w: img.naturalWidth, h: img.naturalHeight }); };
+      img.onerror = function(){ resolve({ w: 1, h: 1 }); };
+      img.src = dataUrl;
+    });
   }
   function readFileAsDataUrl(file){
     return new Promise(function(resolve, reject){
@@ -1232,6 +1264,18 @@
       $('sig-preview').classList.remove('empty');
       $('sig-preview').setAttribute('data-img', p.signature);
     }
+    if (p.letterhead_image) {
+      var lhBox = $('profile-letterhead-preview');
+      lhBox.innerHTML = '<img src="' + p.letterhead_image + '" alt="Letterhead" style="max-height:120px;">';
+      lhBox.classList.remove('empty');
+      lhBox.setAttribute('data-img', p.letterhead_image);
+    }
+    if (p.sig_block_image) {
+      var sbBox = $('profile-sigblock-preview');
+      sbBox.innerHTML = '<img src="' + p.sig_block_image + '" alt="Sig block" style="max-height:160px;">';
+      sbBox.classList.remove('empty');
+      sbBox.setAttribute('data-img', p.sig_block_image);
+    }
     updateProfileSummary(p);
     setProfileCollapsed(true);
   }
@@ -1251,6 +1295,30 @@
     $('profile-logo-preview').innerHTML = '<img src="' + dataUrl + '" alt="Logo">';
     $('profile-logo-preview').classList.remove('empty');
     $('profile-logo-preview').setAttribute('data-img', dataUrl);
+  });
+
+  // Pre-designed letterhead strip (optional, full-width image)
+  var letterheadInput = $('profile-letterhead');
+  if (letterheadInput) letterheadInput.addEventListener('change', async function(){
+    var f = this.files && this.files[0];
+    if (!f) return;
+    var dataUrl = await readFileAsDataUrl(f);
+    var box = $('profile-letterhead-preview');
+    box.innerHTML = '<img src="' + dataUrl + '" alt="Letterhead" style="max-height:120px;">';
+    box.classList.remove('empty');
+    box.setAttribute('data-img', dataUrl);
+  });
+
+  // Pre-designed signature block (optional, full image)
+  var sigBlockInput = $('profile-sigblock');
+  if (sigBlockInput) sigBlockInput.addEventListener('change', async function(){
+    var f = this.files && this.files[0];
+    if (!f) return;
+    var dataUrl = await readFileAsDataUrl(f);
+    var box = $('profile-sigblock-preview');
+    box.innerHTML = '<img src="' + dataUrl + '" alt="Sig block" style="max-height:160px;">';
+    box.classList.remove('empty');
+    box.setAttribute('data-img', dataUrl);
   });
 
   // Signature: canvas drawing
@@ -1326,7 +1394,9 @@
       website: $('profile-website').value.trim(),
       address: $('profile-address').value.trim(),
       logo: $('profile-logo-preview').getAttribute('data-img') || null,
-      signature: $('sig-preview').getAttribute('data-img') || null
+      signature: $('sig-preview').getAttribute('data-img') || null,
+      letterhead_image: $('profile-letterhead-preview').getAttribute('data-img') || null,
+      sig_block_image: $('profile-sigblock-preview').getAttribute('data-img') || null
     };
     if (!p.name) { setStatus($('profile-state'), 'Full name is required.', 'error'); return; }
     if (saveProfileObj(p)) {
@@ -1350,8 +1420,16 @@
     $('sig-preview').innerHTML = 'No signature saved.';
     $('sig-preview').classList.add('empty');
     $('sig-preview').removeAttribute('data-img');
+    $('profile-letterhead-preview').innerHTML = 'No letterhead loaded.';
+    $('profile-letterhead-preview').classList.add('empty');
+    $('profile-letterhead-preview').removeAttribute('data-img');
+    $('profile-sigblock-preview').innerHTML = 'No sig block loaded.';
+    $('profile-sigblock-preview').classList.add('empty');
+    $('profile-sigblock-preview').removeAttribute('data-img');
     $('profile-logo').value = '';
     $('sig-upload').value = '';
+    $('profile-letterhead').value = '';
+    $('profile-sigblock').value = '';
     var c = $('sig-canvas'); if (c) c.getContext('2d').clearRect(0, 0, c.width, c.height);
     updateProfileSummary(null);
     setStatus($('profile-state'), 'Letterhead cleared.', 'success');
@@ -1438,35 +1516,55 @@
       var margin = 54;
       var y = margin;
 
-      // Letterhead
-      var logoH = 0;
-      if (profile.logo) {
-        try { doc.addImage(profile.logo, 'PNG', margin, y, 68, 68); logoH = 68; } catch(e){ console.warn('[pdf] logo failed', e); }
-      }
-      var headX = (profile.logo ? margin + 84 : margin);
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(13);
-      doc.text(profile.name, headX, y + 14);
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
-      var lineY = y + 28;
-      if (profile.title) { doc.text(profile.title, headX, lineY); lineY += 12; }
-      if (profile.dept) { doc.text(profile.dept, headX, lineY); lineY += 12; }
-      if (profile.university) { doc.text(profile.university, headX, lineY); lineY += 12; }
-      var contactBits = [];
-      if (profile.email) contactBits.push(profile.email);
-      if (profile.phone) contactBits.push(profile.phone);
-      if (profile.website) contactBits.push(profile.website);
-      if (contactBits.length) {
-        doc.setFontSize(9); doc.setTextColor(100);
-        doc.text(contactBits.join('  ·  '), headX, lineY);
-        doc.setTextColor(0);
+      // Letterhead. Pre-designed strip image wins if present (perfect
+      // institutional fidelity). Otherwise we assemble one from fields.
+      if (profile.letterhead_image) {
+        try {
+          var dim = await imageDimensions(profile.letterhead_image);
+          var stripW = pageW - 2 * margin;
+          var stripH = stripW * (dim.h / dim.w);
+          // Cap at ~25% of page height so the letterhead doesn't dominate.
+          var maxStripH = pageH * 0.22;
+          if (stripH > maxStripH) { stripH = maxStripH; stripW = stripH * (dim.w / dim.h); }
+          doc.addImage(profile.letterhead_image, 'PNG', margin, y, stripW, stripH);
+          y += stripH + 18;
+        } catch(e) {
+          console.warn('[pdf] letterhead strip failed, falling back to assembled', e);
+        }
+      } else {
+        // Assembled letterhead fallback (logo + name + title + dept + uni + contact line)
+        var logoH = 0;
+        if (profile.logo) {
+          try { doc.addImage(profile.logo, 'PNG', margin, y, 68, 68); logoH = 68; } catch(e){ console.warn('[pdf] logo failed', e); }
+        }
+        var headX = (profile.logo ? margin + 84 : margin);
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(13);
+        doc.text(profile.name, headX, y + 14);
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
+        var lineY = y + 28;
+        if (profile.title) { doc.text(profile.title, headX, lineY); lineY += 12; }
+        if (profile.dept) { doc.text(profile.dept, headX, lineY); lineY += 12; }
+        if (profile.university) { doc.text(profile.university, headX, lineY); lineY += 12; }
+        var contactBits = [];
+        if (profile.email) contactBits.push(profile.email);
+        if (profile.phone) contactBits.push(profile.phone);
+        if (profile.website) contactBits.push(profile.website);
+        if (contactBits.length) {
+          doc.setFontSize(9); doc.setTextColor(100);
+          doc.text(contactBits.join('  ·  '), headX, lineY);
+          doc.setTextColor(0);
+        }
+        y = Math.max(y + logoH + 12, lineY + 18);
       }
 
-      y = Math.max(y + logoH + 12, lineY + 18);
       doc.setLineWidth(0.6); doc.line(margin, y, pageW - margin, y); y += 22;
 
-      // Body
+      // Body. For LOR with EITHER a sig block image OR a signature, strip
+      // the AI's trailing "[Your name] / [Your title]" placeholder block
+      // so the export doesn't show the prof's name twice.
       doc.setFont('helvetica', 'normal'); doc.setFontSize(11);
-      var rawDraft = (mode === 'lor' && profile.signature) ? stripTrailingPlaceholderBlock(draftText) : draftText;
+      var hasSigArtifact = mode === 'lor' && (profile.sig_block_image || profile.signature);
+      var rawDraft = hasSigArtifact ? stripTrailingPlaceholderBlock(draftText) : draftText;
       var bodyText = fillPlaceholders(rawDraft, profile);
       var bodyWidth = pageW - 2 * margin;
       var paragraphs = bodyText.split(/\n\s*\n/);
@@ -1479,17 +1577,29 @@
         y += 9;
       });
 
-      // Signature block (LOR only — emails carry sign-off in body)
-      if (mode === 'lor' && profile.signature) {
-        if (y > pageH - margin - 110) { doc.addPage(); y = margin; }
-        try { doc.addImage(profile.signature, 'PNG', margin, y, 130, 46); } catch(e){}
-        y += 52;
-        doc.setFont('helvetica', 'bold'); doc.setFontSize(11);
-        doc.text(profile.name, margin, y); y += 13;
-        doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
-        if (profile.title) { doc.text(profile.title, margin, y); y += 12; }
-        if (profile.dept) { doc.text(profile.dept, margin, y); y += 12; }
-        if (profile.university) { doc.text(profile.university, margin, y); }
+      // Signature block (LOR only). Pre-designed sig block image wins;
+      // otherwise we draw a signature image + assembled name block.
+      if (mode === 'lor') {
+        if (profile.sig_block_image) {
+          try {
+            var sdim = await imageDimensions(profile.sig_block_image);
+            var sbW = Math.min(360, pageW - 2 * margin);
+            var sbH = sbW * (sdim.h / sdim.w);
+            if (y > pageH - margin - sbH - 16) { doc.addPage(); y = margin; }
+            y += 8;
+            doc.addImage(profile.sig_block_image, 'PNG', margin, y, sbW, sbH);
+          } catch(e) { console.warn('[pdf] sig block image failed', e); }
+        } else if (profile.signature) {
+          if (y > pageH - margin - 110) { doc.addPage(); y = margin; }
+          try { doc.addImage(profile.signature, 'PNG', margin, y, 130, 46); } catch(e){}
+          y += 52;
+          doc.setFont('helvetica', 'bold'); doc.setFontSize(11);
+          doc.text(profile.name, margin, y); y += 13;
+          doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
+          if (profile.title) { doc.text(profile.title, margin, y); y += 12; }
+          if (profile.dept) { doc.text(profile.dept, margin, y); y += 12; }
+          if (profile.university) { doc.text(profile.university, margin, y); }
+        }
       }
 
       doc.save(fileNameForMode(mode, intake, 'pdf'));
@@ -1512,7 +1622,19 @@
       var Paragraph = d.Paragraph, TextRun = d.TextRun, ImageRun = d.ImageRun, AlignmentType = d.AlignmentType, Document = d.Document, Packer = d.Packer;
 
       var headerChildren = [];
-      // Letterhead block
+      // Letterhead. Pre-designed strip image wins; otherwise assemble.
+      if (profile.letterhead_image) {
+        try {
+          var lhDim = await imageDimensions(profile.letterhead_image);
+          var maxWpx = 832;
+          var widthPx = Math.min(maxWpx, lhDim.w);
+          var heightPx = widthPx * (lhDim.h / lhDim.w);
+          headerChildren.push(new Paragraph({ children: [
+            new ImageRun({ data: dataUrlToUint8Array(profile.letterhead_image), transformation: { width: widthPx, height: heightPx } })
+          ]}));
+          headerChildren.push(new Paragraph({ children: [new TextRun({ text: '' })] }));
+        } catch (e) { console.warn('[docx] letterhead strip failed', e); }
+      } else {
       if (profile.logo) {
         try {
           headerChildren.push(new Paragraph({ children: [
@@ -1532,27 +1654,41 @@
         headerChildren.push(new Paragraph({ children: [new TextRun({ text: contactBits.join('  ·  '), size: 18, color: '666666' })] }));
       }
       headerChildren.push(new Paragraph({ children: [new TextRun({ text: '' })] }));
+      } // end assembled-letterhead else branch
 
-      // Body
-      var rawDraft = (mode === 'lor' && profile.signature) ? stripTrailingPlaceholderBlock(draftText) : draftText;
+      // Body. Strip trailing placeholder block when ANY sig artifact is set.
+      var hasSigArtifact = mode === 'lor' && (profile.sig_block_image || profile.signature);
+      var rawDraft = hasSigArtifact ? stripTrailingPlaceholderBlock(draftText) : draftText;
       var bodyText = fillPlaceholders(rawDraft, profile);
       var paragraphs = bodyText.split(/\n\s*\n/);
       var bodyChildren = paragraphs.map(function(p){
         return new Paragraph({ children: [new TextRun({ text: p.replace(/\n/g, ' '), size: 22 })], spacing: { after: 180 } });
       });
 
-      // Signature block (LOR)
+      // Signature block (LOR only). Pre-designed image wins; otherwise
+      // assemble from signature image + name lines.
       var sigChildren = [];
-      if (mode === 'lor' && profile.signature) {
-        try {
-          sigChildren.push(new Paragraph({ children: [
-            new ImageRun({ data: dataUrlToUint8Array(profile.signature), transformation: { width: 140, height: 50 } })
-          ]}));
-        } catch (e) { console.warn('[docx] signature failed', e); }
-        sigChildren.push(new Paragraph({ children: [new TextRun({ text: profile.name, bold: true, size: 22 })] }));
-        if (profile.title) sigChildren.push(new Paragraph({ children: [new TextRun({ text: profile.title, size: 20 })] }));
-        if (profile.dept) sigChildren.push(new Paragraph({ children: [new TextRun({ text: profile.dept, size: 20 })] }));
-        if (profile.university) sigChildren.push(new Paragraph({ children: [new TextRun({ text: profile.university, size: 20 })] }));
+      if (mode === 'lor') {
+        if (profile.sig_block_image) {
+          try {
+            var sbDim = await imageDimensions(profile.sig_block_image);
+            var sbWidthPx = Math.min(480, sbDim.w);
+            var sbHeightPx = sbWidthPx * (sbDim.h / sbDim.w);
+            sigChildren.push(new Paragraph({ children: [
+              new ImageRun({ data: dataUrlToUint8Array(profile.sig_block_image), transformation: { width: sbWidthPx, height: sbHeightPx } })
+            ]}));
+          } catch (e) { console.warn('[docx] sig block image failed', e); }
+        } else if (profile.signature) {
+          try {
+            sigChildren.push(new Paragraph({ children: [
+              new ImageRun({ data: dataUrlToUint8Array(profile.signature), transformation: { width: 140, height: 50 } })
+            ]}));
+          } catch (e) { console.warn('[docx] signature failed', e); }
+          sigChildren.push(new Paragraph({ children: [new TextRun({ text: profile.name, bold: true, size: 22 })] }));
+          if (profile.title) sigChildren.push(new Paragraph({ children: [new TextRun({ text: profile.title, size: 20 })] }));
+          if (profile.dept) sigChildren.push(new Paragraph({ children: [new TextRun({ text: profile.dept, size: 20 })] }));
+          if (profile.university) sigChildren.push(new Paragraph({ children: [new TextRun({ text: profile.university, size: 20 })] }));
+        }
       }
 
       var docFile = new Document({
@@ -1575,17 +1711,9 @@
     }
   }
 
-  // Wire export buttons — email mode
-  var emailPdfBtn = $('email-export-pdf');
-  if (emailPdfBtn) emailPdfBtn.addEventListener('click', function(){
-    exportPDF('email-reply', { student_name: $('email-student-name').value.trim() }, $('email-output').value, $('email-status'));
-  });
-  var emailDocxBtn = $('email-export-docx');
-  if (emailDocxBtn) emailDocxBtn.addEventListener('click', function(){
-    exportDOCX('email-reply', { student_name: $('email-student-name').value.trim() }, $('email-output').value, $('email-status'));
-  });
-
-  // Wire export buttons — LOR mode
+  // Wire export buttons — LOR mode only. Email replies are best pasted
+  // into the faculty's own email client (which adds their signature), so
+  // they don't need formal-document exports.
   var lorPdfBtn = $('lor-export-pdf');
   if (lorPdfBtn) lorPdfBtn.addEventListener('click', function(){
     exportPDF('lor', { student_name: $('lor-student-name').value.trim(), target_program: $('lor-target').value.trim() }, $('lor-output').value, $('lor-status'));
