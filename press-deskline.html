@@ -226,8 +226,13 @@
     };
     $('btn-tweet').href = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(share);
 
-    // Mark as played in localStorage so we can show "Already played today" on next visit.
-    try { localStorage.setItem('deskline:played:' + STATE.puzzle_id, JSON.stringify({ score: data.score, total: data.total, percentile: data.percentile, share_grid: data.share_grid, day_number: data.day_number, correct: data.correct })); }
+    // Mark as played in localStorage so we can show "Already played today" on
+    // next visit. The key is composed of (puzzle_id, frozen_at) so that if an
+    // admin invalidates the day's frozen puzzle (e.g. after a reclassify), a
+    // returning user gets a different localStorage key on the next visit and
+    // is allowed to replay automatically — no "clear your browser data"
+    // instructions required.
+    try { localStorage.setItem('deskline:played:' + STATE.puzzle_id + ':' + (STATE.frozen_at || ''), JSON.stringify({ score: data.score, total: data.total, percentile: data.percentile, share_grid: data.share_grid, day_number: data.day_number, correct: data.correct })); }
     catch(_) {}
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -262,18 +267,35 @@
         return;
       }
       STATE.puzzle_id = data.puzzle_id;
+      STATE.frozen_at = data.frozen_at || '';
       STATE.questions = data.questions;
       STATE.deskOptions = data.desk_options;
       STATE.answers = new Array(data.questions.length).fill(null);
 
-      // Already played today? Show saved results instead of letting them replay.
+      // Already played THIS frozen instance of today's puzzle? Show saved
+      // results. If the puzzle has been re-frozen since (admin reclassify),
+      // STATE.frozen_at differs from the saved key, the composite lookup
+      // fails, and the user gets a fresh play.
+      //
+      // Backwards-compat: the legacy key (no frozen_at suffix) is only
+      // honored when the server did NOT return a frozen_at — i.e., during
+      // a brief window when this code is deployed but the server still
+      // runs the old puzzle endpoint. Once frozen_at is present in the
+      // response, the composite key is authoritative and the legacy key
+      // is ignored (and pruned, so it doesn't linger forever).
       try {
-        var saved = localStorage.getItem('deskline:played:' + STATE.puzzle_id);
+        var saved = localStorage.getItem('deskline:played:' + STATE.puzzle_id + ':' + STATE.frozen_at);
+        if (!saved && !STATE.frozen_at) {
+          saved = localStorage.getItem('deskline:played:' + STATE.puzzle_id); // legacy
+        }
         if (saved) {
           var parsed = JSON.parse(saved);
           showResults(parsed);
           return;
         }
+        // No saved result under the composite key. If a stale legacy entry
+        // exists, prune it so we don't carry orphan storage forever.
+        if (STATE.frozen_at) { try { localStorage.removeItem('deskline:played:' + STATE.puzzle_id); } catch(_) {} }
       } catch(_) {}
 
       $('state-playing').hidden = false;

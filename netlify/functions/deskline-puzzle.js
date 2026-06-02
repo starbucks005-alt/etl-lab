@@ -131,18 +131,20 @@ async function pickPuzzle(puzzle_id) {
     return { title: p.title, slug: p.slug, desk: p.desk, dek: p.dek || '' };
   });
 
-  // 4. Freeze for the rest of the day. Best-effort; if blob write fails
-  //    we still return the picks (next request will try to freeze again).
+  // 4. Freeze for the rest of the day. The frozen_at timestamp doubles as
+  //    a version marker — the client uses it as part of the localStorage
+  //    key so that if we ever invalidate the frozen puzzle (e.g. after a
+  //    reclassify), the next visit re-freezes with a NEW timestamp,
+  //    producing a NEW localStorage key, and the user automatically gets
+  //    a fresh playable puzzle without having to clear browser data.
+  const frozen_at = new Date().toISOString();
   try {
-    await puzzleStore.setJSON(puzzle_id, { picks, frozen_at: new Date(0).toISOString() });
-    // Note: new Date(0) is a placeholder; the date(0)+ISO trick avoids
-    // running afoul of any sandboxed-time restriction. We don't actually
-    // need a real timestamp here, just a stable marker.
+    await puzzleStore.setJSON(puzzle_id, { picks, frozen_at });
   } catch (err) {
     console.error('[deskline] freeze write failed', err && err.message);
   }
 
-  return { ready: true, picks };
+  return { ready: true, picks, frozen_at };
 }
 
 exports.handler = async (event) => {
@@ -175,7 +177,11 @@ exports.handler = async (event) => {
     statusCode: 200,
     headers: {
       'Content-Type': 'application/json',
-      'Cache-Control': 'public, max-age=600, s-maxage=600, stale-while-revalidate=3600',
+      // Short cache so an admin-triggered reclassify invalidation reaches
+      // visitors within seconds, not 10 minutes. The puzzle is still
+      // immutable for the day; the cache window just bounds how long a
+      // stale frozen_at could linger after invalidation.
+      'Cache-Control': 'public, max-age=30, s-maxage=30, stale-while-revalidate=300',
     },
     body: JSON.stringify({
       puzzle_id,
@@ -184,6 +190,7 @@ exports.handler = async (event) => {
       questions,
       desk_options: DESK_OPTIONS,
       total_questions: questions.length,
+      frozen_at: result.frozen_at || '',
     }),
   };
 };
