@@ -56,18 +56,21 @@
   to = "/.netlify/functions/newswire-reporter?slug=:slug"
   status = 200
 
-# Catch-all for individual pieces. Splat (*) is more reliable than :slug
-# placeholder when the slug needs to be interpolated into a query string.
-# Order matters: this MUST come after every more-specific /press/* rule
-# above, otherwise the splat eats them.
-[[redirects]]
-  from = "/press/*"
-  to = "/.netlify/functions/press-piece?slug=:splat"
-  status = 200
-
+# /press exact-match goes to the wire index. This MUST come BEFORE the
+# splat catch-all below, or the splat eats /press itself and routes the
+# wire to press-piece with an empty slug.
 [[redirects]]
   from = "/press"
   to = "/.netlify/functions/press-index"
+  status = 200
+
+# Catch-all for individual pieces. Splat (*) is more reliable than :slug
+# placeholder when the slug needs to be interpolated into a query string.
+# Comes AFTER /press and AFTER every more-specific /press/X rule above,
+# so those win first.
+[[redirects]]
+  from = "/press/*"
+  to = "/.netlify/functions/press-piece?slug=:splat"
   status = 200
 
 [[redirects]]
