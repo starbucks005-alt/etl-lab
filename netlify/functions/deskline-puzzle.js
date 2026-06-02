@@ -42,15 +42,18 @@ function mulberry32(seed) {
   };
 }
 
-// Today's puzzle id = UTC date. All visitors on the same day get the same
-// puzzle. Tomorrow they get a new one without us doing anything.
-function todayUTC() {
-  const d = new Date();
-  const y = d.getUTCFullYear();
-  const m = String(d.getUTCMonth() + 1).padStart(2, '0');
-  const day = String(d.getUTCDate()).padStart(2, '0');
-  return `${y}-${m}-${day}`;
+// Today's puzzle id = US Eastern date. Rotates at midnight ET so American
+// players wake up to a new puzzle. Using UTC would rotate at 8 PM ET which
+// is wrong for the "daily morning ritual" use case.
+function todayET() {
+  const formatter = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/New_York',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+  });
+  return formatter.format(new Date()); // YYYY-MM-DD
 }
+// Keep the old name as an alias so deskline-submit.js's require still works.
+const todayUTC = todayET;
 
 // Seed from a date string (e.g. "2026-06-02") deterministically.
 function seedFromDate(dateStr) {
