@@ -80,7 +80,7 @@ function renderPiece(piece) {
       "@type": "Organization",
       "name": "Emerging Technologies Laboratory",
       "url": SITE_BASE,
-      "logo": { "@type": "ImageObject", "url": SITE_BASE + "/img/etl-favicon.png" }
+      "logo": { "@type": "ImageObject", "url": SITE_BASE + "/favicon.png" }
     },
     "mainEntityOfPage": { "@type": "WebPage", "@id": url },
     "url": url,
@@ -96,7 +96,7 @@ function renderPiece(piece) {
 <title>${esc(piece.title)} | ETL Press Hub</title>
 <meta name="description" content="${esc(description)}">
 <link rel="canonical" href="${esc(url)}">
-<link rel="icon" href="/img/etl-favicon.png">
+<link rel="icon" type="image/png" href="/press-favicon.png">
 
 <meta property="og:type" content="article">
 <meta property="og:title" content="${esc(piece.title)}">

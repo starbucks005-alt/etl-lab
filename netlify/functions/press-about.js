@@ -17,7 +17,7 @@ exports.handler = async () => {
 <title>About ETL Newswire | Emerging Technologies Laboratory</title>
 <meta name="description" content="About ETL Newswire. Who publishes here, the editorial relationship to the lab, and how founders and authors can get a release on the wire.">
 <link rel="canonical" href="${SITE_BASE}/press-about">
-<link rel="icon" href="/img/etl-favicon.png">
+<link rel="icon" type="image/png" href="/press-favicon.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">

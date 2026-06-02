@@ -172,7 +172,7 @@ function renderDashboard(pieces) {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ETL Press Admin</title>
 <meta name="robots" content="noindex, nofollow">
-<link rel="icon" href="/img/etl-favicon.png">
+<link rel="icon" type="image/png" href="/press-favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700&family=DM+Mono:wght@300;400&family=Cormorant+Garamond:ital,wght@0,400;0,600&display=swap" rel="stylesheet">
 <style>

@@ -237,7 +237,7 @@ function renderNewsroom(pieces, activeDesk) {
 <meta name="description" content="${pageDesc}">
 <link rel="canonical" href="${SITE_BASE}/press${activeDesk ? '?desk=' + activeDesk : ''}">
 <link rel="alternate" type="application/rss+xml" title="${NEWSROOM_NAME} RSS" href="${SITE_BASE}/press.rss">
-<link rel="icon" href="/img/etl-favicon.png">
+<link rel="icon" type="image/png" href="/press-favicon.png">
 <meta property="og:title" content="${NEWSROOM_NAME}${filterLabel}">
 <meta property="og:description" content="${pageDesc}">
 <meta property="og:url" content="${SITE_BASE}/press${activeDesk ? '?desk=' + activeDesk : ''}">
