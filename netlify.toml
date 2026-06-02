@@ -7,6 +7,15 @@
 [functions."proxy-ai"]
   timeout = 60
 
+# Scheduled functions. The exports.config.schedule syntax inside the function
+# files does not always register; declaring the schedule here is the reliable
+# pattern. Cron in UTC.
+[functions."newswire-daily-news-cron"]
+  schedule = "0 9 * * *"
+
+[functions."newswire-briefing-cron"]
+  schedule = "0 10 * * *"
+
 # ─── Press Hub redirects ──────────────────────────────────────────────────
 # Pretty URLs over the Netlify Functions that render the press hub.
 # Order matters within this file: more specific rules first. The sitemap

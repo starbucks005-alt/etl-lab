@@ -43,7 +43,10 @@ exports.handler = async (event) => {
     headers: {
       ...CORS,
       'Content-Type': 'application/json',
-      'Cache-Control': 'public, max-age=60, s-maxage=60, stale-while-revalidate=300',
+      // Short cache so freshly regenerated briefings appear within seconds,
+      // not minutes. The audio file itself is still cached aggressively
+      // (10-min) - this is just the metadata pointer.
+      'Cache-Control': 'public, max-age=5, s-maxage=5, stale-while-revalidate=60',
     },
     body: JSON.stringify({ available: true, ...meta }),
   };
