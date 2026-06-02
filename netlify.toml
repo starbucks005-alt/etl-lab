@@ -32,6 +32,21 @@
   status = 200
 
 [[redirects]]
+  from = "/press/deskline"
+  to = "/press-deskline.html"
+  status = 200
+
+[[redirects]]
+  from = "/deskline-puzzle"
+  to = "/.netlify/functions/deskline-puzzle"
+  status = 200
+
+[[redirects]]
+  from = "/deskline-submit"
+  to = "/.netlify/functions/deskline-submit"
+  status = 200
+
+[[redirects]]
   from = "/press/above-the-fold.xml"
   to = "/.netlify/functions/newswire-podcast-rss"
   status = 200

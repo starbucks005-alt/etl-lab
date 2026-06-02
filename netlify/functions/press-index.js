@@ -31,13 +31,52 @@ const DESK_LABEL = DESKS.reduce((acc, d) => { acc[d.id] = d.label; return acc; }
 const DESK_IDS = new Set(DESKS.map(d => d.id));
 
 let REPORTERS = null;
+let REPORTERS_LIST = null;
 function getReporters() {
   if (REPORTERS) return REPORTERS;
   try {
     const data = require('../../config/newswire-reporters.json');
     REPORTERS = (data.reporters || []).reduce((acc, r) => { acc[r.id] = r; return acc; }, {});
-  } catch (_) { REPORTERS = {}; }
+    REPORTERS_LIST = data.reporters || [];
+  } catch (_) { REPORTERS = {}; REPORTERS_LIST = []; }
   return REPORTERS;
+}
+function getReportersList() {
+  if (REPORTERS_LIST) return REPORTERS_LIST;
+  getReporters();
+  return REPORTERS_LIST || [];
+}
+
+// Newsroom panel: a grid of every staff reporter + a Join the Newswire
+// CTA below. Renders inside the main column below the feed, so on
+// desk-filtered views with few pieces the empty space gets filled with
+// editorial-team visibility + a recruiting hook.
+function renderNewsroomPanel(activeDesk) {
+  const reporters = getReportersList();
+  if (!reporters.length) return '';
+  const cards = reporters.map(r => {
+    const profileSlug = r.id.replace(/_/g, '-');
+    const file = r.id.split('_').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join('_');
+    const avatarUrl = `/agents/${file}.png`;
+    const deskLabel = r.desk_label || r.desk || '';
+    const isActiveDesk = activeDesk && r.desk === activeDesk;
+    return `<a class="newsroom-card${isActiveDesk ? ' is-on-desk' : ''}" href="/press/reporter/${esc(profileSlug)}">
+      <img class="newsroom-card-avatar" src="${esc(avatarUrl)}" alt="${esc(r.name)}" loading="lazy">
+      <div class="newsroom-card-text">
+        <div class="newsroom-card-name">${esc(r.name)}</div>
+        <div class="newsroom-card-desk">${esc(deskLabel)} desk</div>
+      </div>
+    </a>`;
+  }).join('');
+  return `<section class="newsroom-panel">
+    <h2 class="newsroom-panel-h">Meet the newsroom</h2>
+    <p class="newsroom-panel-sub">Nine staff reporters, one per desk. Click any name to see their bio, read their pieces, or send the desk a tip.</p>
+    <div class="newsroom-grid">${cards}</div>
+    <a class="newsroom-cta" href="/press/careers">
+      <span>Volunteer / internship seats now open &mdash; <strong>Join the Newswire</strong></span>
+      <span>Apply &rarr;</span>
+    </a>
+  </section>`;
 }
 
 const esc = (s) => String(s == null ? '' : s)
@@ -245,6 +284,24 @@ function renderNewsroom(pieces, activeDesk) {
   .briefing-share a, .briefing-share button{font-family:inherit;font-size:inherit;letter-spacing:inherit;text-transform:inherit;color:#8a6a1c;background:transparent;border:1px solid #b8922a;padding:0.2rem 0.5rem;cursor:pointer;text-decoration:none;}
   .briefing-share a:hover, .briefing-share button:hover{background:#b8922a;color:#fff;}
   .briefing-share .copied{color:#3a6a2a;border-color:#3a6a2a;}
+  /* Meet the Newsroom panel - fills the empty left-column space below
+     the feed when a desk filter limits visible pieces. Drives clicks to
+     reporter profile pages and to the Careers application. */
+  .newsroom-panel{margin-top:2.4rem;padding:1.8rem 0 1.6rem;border-top:1px solid rgba(14,12,8,0.15);}
+  .newsroom-panel-h{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:#0e0c08;margin-bottom:0.3rem;}
+  .newsroom-panel-sub{font-family:'Cormorant Garamond',serif;font-style:italic;color:#5a5240;font-size:1.02rem;margin-bottom:1.4rem;}
+  .newsroom-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.6rem;}
+  @media (max-width:720px){.newsroom-grid{grid-template-columns:repeat(2,1fr);}}
+  .newsroom-card{background:#fdfbf5;border:1px solid rgba(184,146,42,0.3);padding:0.85rem 0.95rem;display:flex;gap:0.7rem;align-items:center;text-decoration:none;color:inherit;transition:border-color 0.15s,transform 0.15s;}
+  .newsroom-card:hover{border-color:#b8922a;transform:translateY(-1px);}
+  .newsroom-card-avatar{width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid rgba(184,146,42,0.4);flex:0 0 44px;background:#2a2418;}
+  .newsroom-card-text{flex:1;min-width:0;}
+  .newsroom-card-name{font-family:'Playfair Display',serif;font-size:0.98rem;font-weight:700;color:#0e0c08;line-height:1.15;}
+  .newsroom-card-desk{font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.22em;text-transform:uppercase;color:#a3811c;margin-top:0.18rem;}
+  .newsroom-cta{display:flex;justify-content:space-between;align-items:center;background:#0e0c08;color:#d4aa4a;padding:1rem 1.3rem;font-family:'DM Mono',monospace;font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;text-decoration:none;border:0;flex-wrap:wrap;gap:0.6rem;}
+  .newsroom-cta span{color:#d4aa4a;}
+  .newsroom-cta strong{color:#f4ebd6;font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;letter-spacing:0;text-transform:none;}
+  .newsroom-cta:hover{background:#1a1410;}
   /* Piece type tags - rendered for everything except 'news' so readers always know what they are reading. */
   .piece-type-tag{display:inline-block;font-family:'DM Mono',monospace;font-size:0.52rem;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;padding:0.18rem 0.45rem;border-radius:2px;}
   .piece-type-opinion{background:#3a6a8a;color:#fff;}
@@ -401,7 +458,8 @@ ${hero ? `<section class="hero-band">${renderHero(hero)}</section>` : ''}
 
 <div class="news-body">
   <main>
-    ${rest.length ? `<h2 class="feed-h">${activeDesk ? 'More on the ' + esc(DESK_LABEL[activeDesk]) + ' desk' : 'More from the wire'}</h2><ul class="feed">${rest.map(renderFeedCard).join('\n')}</ul>` : (filtered.length === 0 ? `<div class="empty"><strong>Quiet on the wire.</strong>${activeDesk ? 'No pieces on the ' + esc(DESK_LABEL[activeDesk]) + ' desk yet. The reporter is on it.' : 'No releases on file yet. Imani and Jess are warming up.'}</div>` : '')}
+    ${rest.length ? `<h2 class="feed-h">${activeDesk ? 'More on the ' + esc(DESK_LABEL[activeDesk]) + ' desk' : 'More from the wire'}</h2><ul class="feed">${rest.map(renderFeedCard).join('\n')}</ul>` : (filtered.length === 0 ? `<div class="empty"><strong>Quiet on the wire.</strong>${activeDesk ? 'No pieces on the ' + esc(DESK_LABEL[activeDesk]) + ' desk yet. The reporter is on it.' : 'No releases on file yet.'}</div>` : '')}
+    ${renderNewsroomPanel(activeDesk)}
   </main>
 
   <aside class="sidebar">
@@ -414,6 +472,7 @@ ${hero ? `<section class="hero-band">${renderHero(hero)}</section>` : ''}
   <span class="foot-right">
     <a href="/press-about">About</a>
     <a href="/press/careers">Careers</a>
+    <a href="/press/deskline">Deskline</a>
     <a href="/press.rss">RSS</a>
     <a href="/press-sitemap.xml">Sitemap</a>
     <a class="foot-admin" href="/press-admin" rel="nofollow noindex">Admin</a>

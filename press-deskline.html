@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deskline | ETL Newswire</title>
+<meta name="description" content="The daily news-classification puzzle. Match seven headlines to the right desk. Score, percentile, share your grid.">
+<link rel="canonical" href="https://emerging-tech-lab.com/press/deskline">
+<link rel="icon" href="/img/etl-favicon.png">
+
+<meta property="og:title" content="Deskline - the daily ETL Newswire puzzle">
+<meta property="og:description" content="Match seven headlines to the right desk. Score yourself against today's players.">
+<meta property="og:url" content="https://emerging-tech-lab.com/press/deskline">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://emerging-tech-lab.com/agents/newswire_logo.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:#f7f3ea;color:#0e0c08;font-family:'Cormorant Garamond',Georgia,serif;font-size:1.05rem;line-height:1.5;}
+  .nav{background:#0e0c08;padding:0.85rem 2rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(184,146,42,0.25);}
+  .nav-logo{font-family:'Playfair Display',serif;font-size:0.95rem;letter-spacing:0.08em;color:#b8922a;text-decoration:none;}
+  .nav-logo strong{color:#f4ede0;font-weight:400;}
+  .nav-back{font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.22em;text-transform:uppercase;color:#a89c88;text-decoration:none;}
+  .nav-back:hover{color:#d4aa4a;}
+
+  .wrap{max-width:760px;margin:0 auto;padding:2.4rem 1.6rem 4rem;}
+  .head{text-align:center;margin-bottom:2rem;}
+  .eyebrow{font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.24em;text-transform:uppercase;color:#a3811c;margin-bottom:0.5rem;}
+  h1{font-family:'Playfair Display',serif;font-size:clamp(2.6rem,7vw,4.2rem);font-weight:900;line-height:0.95;color:#0e0c08;margin-bottom:0.4rem;letter-spacing:-0.01em;}
+  .tagline{font-family:'Cormorant Garamond',serif;font-style:italic;color:#5a5240;font-size:1.1rem;}
+  .day{font-family:'DM Mono',monospace;font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:#5a5240;margin-top:0.6rem;}
+
+  .progress{display:flex;justify-content:center;gap:0.45rem;margin-bottom:1.6rem;}
+  .progress-cell{width:1.2rem;height:0.4rem;background:rgba(14,12,8,0.15);border-radius:1px;}
+  .progress-cell.done{background:#b8922a;}
+  .progress-cell.current{background:#0e0c08;}
+
+  .question{background:#fdfbf5;border:1px solid rgba(184,146,42,0.3);padding:1.6rem 1.7rem 1.7rem;margin-bottom:1.4rem;}
+  .question-num{font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.22em;text-transform:uppercase;color:#a3811c;margin-bottom:0.7rem;}
+  .question-title{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;line-height:1.2;color:#0e0c08;margin-bottom:0.5rem;}
+  .question-dek{font-family:'Cormorant Garamond',serif;font-style:italic;color:#5a5240;font-size:1rem;line-height:1.5;margin-bottom:1.1rem;}
+
+  .desks{display:grid;grid-template-columns:repeat(3,1fr);gap:0.55rem;}
+  @media (max-width:520px){.desks{grid-template-columns:repeat(2,1fr);}}
+  .desk-btn{background:#fff;border:1px solid rgba(184,146,42,0.4);padding:0.7rem 0.4rem 0.6rem;cursor:pointer;font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;color:#5a5240;display:flex;flex-direction:column;align-items:center;gap:0.25rem;transition:background 0.12s,border-color 0.12s,color 0.12s;}
+  .desk-btn:hover{background:rgba(184,146,42,0.1);border-color:#b8922a;color:#0e0c08;}
+  .desk-btn.selected{background:#0e0c08;color:#d4aa4a;border-color:#0e0c08;}
+  .desk-glyph{font-size:1.4rem;letter-spacing:0;line-height:1;}
+
+  .actions{display:flex;justify-content:center;margin-top:1.6rem;}
+  .submit{font-family:'DM Mono',monospace;font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;background:#0e0c08;color:#d4aa4a;border:0;padding:0.95rem 1.8rem;cursor:pointer;font-weight:700;}
+  .submit:hover:not(:disabled){background:#1a1410;}
+  .submit:disabled{opacity:0.4;cursor:not-allowed;}
+
+  /* Results */
+  .results{background:#0e0c08;color:#f4ebd6;padding:2rem 1.8rem;margin:1rem 0 2rem;display:none;}
+  .results.visible{display:block;}
+  .results-eyebrow{font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.24em;text-transform:uppercase;color:#d4aa4a;margin-bottom:0.4rem;}
+  .results-score{font-family:'Playfair Display',serif;font-size:3.6rem;font-weight:900;color:#f4ebd6;line-height:1;margin-bottom:0.4rem;}
+  .results-rank{font-family:'Cormorant Garamond',serif;font-style:italic;color:#c8bea4;font-size:1.2rem;margin-bottom:1.2rem;}
+  .grid-emoji{font-family:'Courier New',monospace;font-size:1.5rem;letter-spacing:0.2rem;color:#f4ebd6;margin:0.6rem 0 1.2rem;line-height:1.4;}
+  .results-share{display:flex;gap:0.5rem;flex-wrap:wrap;}
+  .results-share button, .results-share a{font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;background:transparent;color:#d4aa4a;border:1px solid #d4aa4a;padding:0.5rem 0.9rem;cursor:pointer;text-decoration:none;}
+  .results-share button:hover, .results-share a:hover{background:#d4aa4a;color:#0e0c08;}
+  .results-share .copied{background:#3a6a2a;border-color:#3a6a2a;color:#fff;}
+
+  .review{margin-top:2rem;}
+  .review-h{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:#0e0c08;margin-bottom:0.8rem;border-bottom:1px solid #0e0c08;padding-bottom:0.4rem;}
+  .review-item{padding:0.9rem 0;border-bottom:1px solid rgba(14,12,8,0.1);}
+  .review-item:last-child{border-bottom:0;}
+  .review-title{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;color:#0e0c08;margin-bottom:0.35rem;}
+  .review-row{display:flex;flex-wrap:wrap;align-items:center;gap:0.55rem;font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;color:#5a5240;}
+  .review-tag{padding:0.2rem 0.55rem;border:1px solid rgba(184,146,42,0.4);}
+  .review-tag.hit{background:#3a6a2a;color:#fff;border-color:#3a6a2a;}
+  .review-tag.near{background:#b8922a;color:#0e0c08;border-color:#b8922a;}
+  .review-tag.miss{background:#9a2a2a;color:#fff;border-color:#9a2a2a;}
+
+  .pending{padding:3rem 1.5rem;text-align:center;color:#5a5240;font-style:italic;background:#fff;border:1px dashed rgba(184,146,42,0.3);}
+
+  footer{max-width:760px;margin:0 auto;padding:1.6rem 1.6rem 3rem;border-top:1px solid rgba(14,12,8,0.15);font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.18em;text-transform:uppercase;color:#5a5240;display:flex;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
+  footer a{color:#5a5240;text-decoration:none;border-bottom:1px solid rgba(90,82,64,0.25);}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-logo" href="/"><strong>ETL</strong> &middot; ETL NEWSWIRE</a>
+  <a class="nav-back" href="/press">&larr; Wire</a>
+</nav>
+
+<main class="wrap">
+  <header class="head">
+    <div class="eyebrow">A daily ETL Newswire puzzle</div>
+    <h1>DESKLINE</h1>
+    <p class="tagline">Match the headline to the desk. Seven a day, scored against the room.</p>
+    <div class="day" id="day-label"></div>
+  </header>
+
+  <div id="state-loading" class="pending">Loading today's puzzle&hellip;</div>
+  <div id="state-not-ready" class="pending" hidden></div>
+
+  <div id="state-playing" hidden>
+    <div class="progress" id="progress" aria-label="Progress"></div>
+    <div id="questions"></div>
+    <div class="actions">
+      <button id="btn-submit" class="submit" type="button" disabled>Submit answers &rarr;</button>
+    </div>
+  </div>
+
+  <section id="state-results" class="results">
+    <div class="results-eyebrow" id="results-day"></div>
+    <div class="results-score" id="results-score"></div>
+    <div class="results-rank" id="results-rank"></div>
+    <div class="grid-emoji" id="grid-emoji" aria-label="Score grid"></div>
+    <div class="results-share">
+      <button type="button" id="btn-copy-grid">Copy grid</button>
+      <a id="btn-tweet" href="#" target="_blank" rel="noopener">Tweet</a>
+      <a href="/press">Read the wire &rarr;</a>
+    </div>
+  </section>
+
+  <section id="state-review" class="review" hidden>
+    <h2 class="review-h">The answer key</h2>
+    <div id="review-list"></div>
+  </section>
+</main>
+
+<footer>
+  <span>Deskline &middot; ETL Newswire daily puzzle</span>
+  <span><a href="/press">Wire</a> &middot; <a href="/press-about">About</a> &middot; <a href="/press/above-the-fold.xml">Podcast</a></span>
+</footer>
+
+<script>
+(function(){
+  var STATE = { puzzle_id: null, questions: [], deskOptions: [], answers: [] };
+
+  function $(id){ return document.getElementById(id); }
+
+  function fmtDay(iso){
+    try { var d = new Date(iso + 'T00:00:00Z'); return d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' }); }
+    catch(_) { return iso; }
+  }
+
+  function renderProgress(){
+    var bar = $('progress'); bar.innerHTML = '';
+    for (var i = 0; i < STATE.questions.length; i++) {
+      var cell = document.createElement('span');
+      cell.className = 'progress-cell' + (STATE.answers[i] ? ' done' : '');
+      bar.appendChild(cell);
+    }
+  }
+
+  function renderQuestions(){
+    var container = $('questions'); container.innerHTML = '';
+    STATE.questions.forEach(function(q, idx){
+      var card = document.createElement('div');
+      card.className = 'question';
+      card.setAttribute('data-idx', idx);
+      var num = '<div class="question-num">Headline ' + (idx+1) + ' of ' + STATE.questions.length + '</div>';
+      var title = '<div class="question-title">' + escapeHTML(q.title) + '</div>';
+      var dek = q.dek ? '<div class="question-dek">' + escapeHTML(q.dek) + '</div>' : '';
+      var desks = '<div class="desks">' + STATE.deskOptions.map(function(d){
+        return '<button type="button" class="desk-btn" data-desk="' + d.id + '"><span class="desk-glyph">' + d.glyph + '</span><span>' + escapeHTML(d.label) + '</span></button>';
+      }).join('') + '</div>';
+      card.innerHTML = num + title + dek + desks;
+      card.querySelectorAll('.desk-btn').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          STATE.answers[idx] = btn.getAttribute('data-desk');
+          card.querySelectorAll('.desk-btn').forEach(function(b){ b.classList.remove('selected'); });
+          btn.classList.add('selected');
+          renderProgress();
+          $('btn-submit').disabled = STATE.answers.filter(Boolean).length !== STATE.questions.length;
+        });
+      });
+      container.appendChild(card);
+    });
+  }
+
+  function escapeHTML(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+
+  function showResults(data){
+    $('state-playing').hidden = true;
+    $('state-results').classList.add('visible');
+    $('state-review').hidden = false;
+    $('results-day').textContent = 'Deskline #' + String(data.day_number).padStart(3, '0') + ' &middot; ' + fmtDay(STATE.puzzle_id);
+    $('results-day').innerHTML = 'Deskline #' + String(data.day_number).padStart(3, '0') + ' &middot; ' + fmtDay(STATE.puzzle_id);
+    $('results-score').textContent = data.score + ' / ' + data.total;
+    var msg;
+    if (data.score === data.total) msg = 'Perfect. You can read the wire blindfolded. Top ' + Math.max(1, 100 - data.percentile) + '% today.';
+    else if (data.percentile >= 70) msg = 'You beat ' + data.percentile + '% of today\'s players.';
+    else if (data.percentile >= 40) msg = 'Solid. Right in the middle of today\'s players.';
+    else msg = 'The wire is sneakier than it looks. Try again tomorrow.';
+    $('results-rank').textContent = msg;
+    $('grid-emoji').textContent = data.correct.map(function(c){ return c.hit ? '✅' : c.near_miss ? '🟨' : '⛔'; }).join(' ');
+
+    // Review list
+    var review = $('review-list'); review.innerHTML = '';
+    data.correct.forEach(function(c, idx){
+      var tagClass = c.hit ? 'hit' : c.near_miss ? 'near' : 'miss';
+      var tagText = c.hit ? 'Correct' : c.near_miss ? 'Adjacent desk' : 'Missed';
+      var item = document.createElement('div');
+      item.className = 'review-item';
+      var title = STATE.questions[idx] && STATE.questions[idx].title;
+      var your = c.your_desk ? c.your_glyph + ' ' + c.your_label : 'No answer';
+      var corr = c.correct_glyph + ' ' + c.correct_label;
+      item.innerHTML =
+        '<div class="review-title">' + escapeHTML(title || '') + '</div>' +
+        '<div class="review-row">' +
+          '<span class="review-tag ' + tagClass + '">' + tagText + '</span>' +
+          '<span>Your pick: ' + escapeHTML(your) + '</span>' +
+          '<span>Correct: ' + escapeHTML(corr) + '</span>' +
+        '</div>';
+      review.appendChild(item);
+    });
+
+    // Share buttons
+    var share = data.share_grid;
+    $('btn-copy-grid').onclick = function(){
+      var btn = $('btn-copy-grid'); var orig = btn.textContent;
+      var p = navigator.clipboard ? navigator.clipboard.writeText(share) : Promise.reject();
+      p.then(function(){ btn.textContent = 'Copied'; btn.classList.add('copied'); setTimeout(function(){ btn.textContent = orig; btn.classList.remove('copied'); }, 1800); })
+       .catch(function(){ window.prompt('Copy this:', share); });
+    };
+    $('btn-tweet').href = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(share);
+
+    // Mark as played in localStorage so we can show "Already played today" on next visit.
+    try { localStorage.setItem('deskline:played:' + STATE.puzzle_id, JSON.stringify({ score: data.score, total: data.total, percentile: data.percentile, share_grid: data.share_grid, day_number: data.day_number, correct: data.correct })); }
+    catch(_) {}
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function submit(){
+    $('btn-submit').disabled = true;
+    $('btn-submit').textContent = 'Scoring...';
+    fetch('/.netlify/functions/deskline-submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ puzzle_id: STATE.puzzle_id, answers: STATE.answers }),
+    }).then(function(r){ return r.json().then(function(j){ return { ok: r.ok, j: j }; }); })
+      .then(function(res){
+        if (res.ok && res.j && typeof res.j.score === 'number') showResults(res.j);
+        else { $('btn-submit').disabled = false; $('btn-submit').textContent = 'Submit answers →'; alert('Could not score: ' + ((res.j && res.j.error) || 'unknown')); }
+      })
+      .catch(function(err){
+        $('btn-submit').disabled = false; $('btn-submit').textContent = 'Submit answers →';
+        alert('Network error: ' + (err.message || ''));
+      });
+  }
+
+  // Boot
+  fetch('/.netlify/functions/deskline-puzzle', { credentials: 'omit' })
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      $('state-loading').hidden = true;
+      $('day-label').textContent = fmtDay(data.puzzle_id);
+      if (!data.ready) {
+        var nr = $('state-not-ready'); nr.hidden = false; nr.textContent = data.reason || 'Puzzle not ready yet.';
+        return;
+      }
+      STATE.puzzle_id = data.puzzle_id;
+      STATE.questions = data.questions;
+      STATE.deskOptions = data.desk_options;
+      STATE.answers = new Array(data.questions.length).fill(null);
+
+      // Already played today? Show saved results instead of letting them replay.
+      try {
+        var saved = localStorage.getItem('deskline:played:' + STATE.puzzle_id);
+        if (saved) {
+          var parsed = JSON.parse(saved);
+          showResults(parsed);
+          return;
+        }
+      } catch(_) {}
+
+      $('state-playing').hidden = false;
+      renderProgress();
+      renderQuestions();
+      $('btn-submit').addEventListener('click', submit);
+    })
+    .catch(function(err){
+      $('state-loading').hidden = true;
+      var nr = $('state-not-ready'); nr.hidden = false; nr.textContent = 'Could not load the puzzle. ' + (err.message || '');
+    });
+})();
+</script>
+
+</body>
+</html>
