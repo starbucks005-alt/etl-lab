@@ -99,13 +99,17 @@ exports.handler = async (event) => {
   }
   const picked = indices.slice(0, 7).map(i => pool[i]);
 
-  // Score
+  // Score. Half-point for adjacent (near-miss) guesses. Possible per-Q
+  // values: 1 (exact), 0.5 (near miss), 0 (miss). Possible totals out of 7:
+  // 0, 0.5, 1, 1.5, ..., 7. Tracked in a 15-bucket histogram indexed by
+  // score*2 (so index 11 = 5.5/7, index 14 = 7/7).
   let score = 0;
   const correct = picked.map((p, idx) => {
     const guess = answers[idx] || '';
     const hit = guess === p.desk;
-    if (hit) score++;
     const near = !hit && isNearMiss(guess, p.desk);
+    if (hit) score += 1;
+    else if (near) score += 0.5;
     const cd = DESK_BY_ID[p.desk];
     const gd = DESK_BY_ID[guess];
     return {
@@ -122,47 +126,68 @@ exports.handler = async (event) => {
     };
   });
 
-  // Update per-puzzle stats: total plays, score histogram [0..7].
-  let stats = { total: 0, histogram: [0, 0, 0, 0, 0, 0, 0, 0] };
+  // Pretty score string: integer if whole (e.g. "6"), one-decimal if half
+  // (e.g. "5.5"). Used in the share grid and response. Score itself stays
+  // numeric for percentile math.
+  const scoreLabel = (score % 1 === 0) ? String(score) : score.toFixed(1);
+  const scoreIdx = Math.round(score * 2); // 0..14
+
+  // Update per-puzzle stats: total plays, 15-bucket score histogram.
+  //   Index 0  = 0   correct
+  //   Index 1  = 0.5
+  //   Index 2  = 1
+  //   ...
+  //   Index 14 = 7
+  // Migrate legacy 8-bucket integer-only histograms by expanding into the
+  // 15-bucket form: old[i] becomes new[i*2]. Old halves never existed so
+  // the in-between slots start at zero.
+  let stats = { total: 0, histogram: new Array(15).fill(0) };
   try {
     const statsStore = getStore('deskline_stats');
     const existing = await statsStore.get(puzzle_id, { type: 'json' });
-    if (existing && Array.isArray(existing.histogram) && existing.histogram.length === 8) {
-      stats = existing;
+    if (existing && Array.isArray(existing.histogram)) {
+      if (existing.histogram.length === 15) {
+        stats = existing;
+      } else if (existing.histogram.length === 8) {
+        // Migrate 8-bucket integer histogram into 15-bucket half-step.
+        const migrated = new Array(15).fill(0);
+        for (let i = 0; i < 8; i++) migrated[i * 2] = existing.histogram[i] || 0;
+        stats = { total: existing.total || 0, histogram: migrated };
+      }
     }
     stats.total = (stats.total || 0) + 1;
-    stats.histogram[score] = (stats.histogram[score] || 0) + 1;
+    stats.histogram[scoreIdx] = (stats.histogram[scoreIdx] || 0) + 1;
     await statsStore.setJSON(puzzle_id, stats);
   } catch (err) {
     console.error('[deskline-submit] stats write failed', err && err.message);
     // Non-fatal: scoring still works without stats.
   }
 
-  // Percentile: % of plays that scored at or below this score.
-  let at_or_below = 0;
-  for (let s = 0; s <= score; s++) at_or_below += stats.histogram[s] || 0;
-  const percentile = stats.total > 0 ? Math.round((at_or_below / stats.total) * 100) : 50;
-  // Percentile is "scored as well or better than X% of players today."
-  const beat_percent = 100 - percentile + Math.round((stats.histogram[score] || 0) / Math.max(1, stats.total) * 100);
-  // Simpler narrative: just "score at or above" framing.
+  // Percentile: "you scored at or above X% of today's players."
+  // Count plays that scored STRICTLY HIGHER than this user; the rest are
+  // <= and form the user's beat-percent.
   let above = 0;
-  for (let s = score + 1; s < 8; s++) above += stats.histogram[s] || 0;
-  const better_than_percent = stats.total > 0 ? Math.max(0, Math.round(((stats.total - above) / stats.total) * 100) - 1) : 50;
+  for (let s = scoreIdx + 1; s < 15; s++) above += stats.histogram[s] || 0;
+  const better_than_percent = stats.total > 0
+    ? Math.max(0, Math.round(((stats.total - above) / stats.total) * 100) - 1)
+    : 50;
 
   // Puzzle number: days since launch (June 2 2026 = day 1).
   const launchUtc = new Date('2026-06-02T00:00:00Z');
   const todayUtc = new Date(puzzle_id + 'T00:00:00Z');
   const dayNumber = Math.max(1, Math.round((todayUtc - launchUtc) / 86400000) + 1);
 
-  // Share grid: spoiler-free emoji line + score + ranking.
+  // Share grid: spoiler-free emoji line + score + ranking. Score is the
+  // pretty label so half-points render as "5.5" not "5.5000001".
   const grid = correct.map(c => c.hit ? '✅' : c.near_miss ? '🟨' : '⛔').join('');
-  const share_grid = `DESKLINE #${String(dayNumber).padStart(3, '0')} · ${score}/${picked.length}\n\n${grid}\nTop ${Math.max(1, 100 - better_than_percent)}%\netl-newswire.com/press/deskline`;
+  const share_grid = `DESKLINE #${String(dayNumber).padStart(3, '0')} · ${scoreLabel}/${picked.length}\n\n${grid}\nTop ${Math.max(1, 100 - better_than_percent)}%\netl-newswire.com/press/deskline`;
 
   return {
     statusCode: 200,
     headers: { ...CORS, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
     body: JSON.stringify({
       score,
+      score_label: scoreLabel,
       total: picked.length,
       percentile: better_than_percent,
       play_count: stats.total,

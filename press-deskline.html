@@ -187,7 +187,11 @@
     $('state-review').hidden = false;
     $('results-day').textContent = 'Deskline #' + String(data.day_number).padStart(3, '0') + ' &middot; ' + fmtDay(STATE.puzzle_id);
     $('results-day').innerHTML = 'Deskline #' + String(data.day_number).padStart(3, '0') + ' &middot; ' + fmtDay(STATE.puzzle_id);
-    $('results-score').textContent = data.score + ' / ' + data.total;
+    // Use the server-formatted score_label when present so half-points
+     // render as "5.5" not "5.5000000001". Fall back to the numeric score
+     // for legacy saved results that predate score_label.
+    var scoreText = data.score_label || (data.score % 1 === 0 ? String(data.score) : data.score.toFixed(1));
+    $('results-score').textContent = scoreText + ' / ' + data.total;
     var msg;
     if (data.score === data.total) msg = 'Perfect. You can read the wire blindfolded. Top ' + Math.max(1, 100 - data.percentile) + '% today.';
     else if (data.percentile >= 70) msg = 'You beat ' + data.percentile + '% of today\'s players.';
@@ -232,7 +236,7 @@
     // returning user gets a different localStorage key on the next visit and
     // is allowed to replay automatically — no "clear your browser data"
     // instructions required.
-    try { localStorage.setItem('deskline:played:' + STATE.puzzle_id + ':' + (STATE.frozen_at || ''), JSON.stringify({ score: data.score, total: data.total, percentile: data.percentile, share_grid: data.share_grid, day_number: data.day_number, correct: data.correct })); }
+    try { localStorage.setItem('deskline:played:' + STATE.puzzle_id + ':' + (STATE.frozen_at || ''), JSON.stringify({ score: data.score, score_label: data.score_label, total: data.total, percentile: data.percentile, share_grid: data.share_grid, day_number: data.day_number, correct: data.correct })); }
     catch(_) {}
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
