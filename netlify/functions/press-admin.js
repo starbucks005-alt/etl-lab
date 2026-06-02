@@ -500,18 +500,19 @@ function renderDashboard(pieces) {
         body: JSON.stringify(payload),
       }).then(function(r){
         // Netlify background functions return 202 immediately with no body
-        // (or a tiny one). Accept any 2xx as "queued".
+        // (or a tiny one). Accept any 2xx as "running" — the work is
+        // executing async in the lambda, not waiting in a FIFO queue.
         if (r.status >= 200 && r.status < 300) {
           btn.disabled = false;
-          setStatus(status, 'Queued.', 'success');
+          setStatus(status, 'Running. Reporter is writing.', 'success');
           result.innerHTML =
             '<p><strong>' + escapeHTML(reporterLabel) + '</strong> is on it. The reporter takes 1-3 minutes to find a story, write it, and file. ' +
             'The piece will appear in the All Pieces list and on /press when ready. ' +
             '<a href="javascript:void(0)" onclick="window.location.reload()">Refresh the page</a> in a couple minutes to see it.</p>';
         } else {
-          return r.json().catch(function(){ return { error: 'queue failed (status ' + r.status + ')' }; }).then(function(j){
+          return r.json().catch(function(){ return { error: 'start failed (status ' + r.status + ')' }; }).then(function(j){
             btn.disabled = false;
-            setStatus(status, (j && j.error) || 'Failed to queue', 'error');
+            setStatus(status, (j && j.error) || 'Failed to start', 'error');
           });
         }
       }).catch(function(err){ btn.disabled = false; setStatus(status, err.message || 'network error', 'error'); });
@@ -524,7 +525,7 @@ function renderDashboard(pieces) {
       var rid = btn.getAttribute('data-rid');
       if (!window.confirm('Seed 22 historical pieces for ' + (btn.textContent || rid).replace('Seed ','') + '? This takes a few minutes to run in the background.')) return;
       btn.disabled = true;
-      btn.textContent = 'Queued...';
+      btn.textContent = 'Running...';
       var result = document.getElementById('seed-result');
       fetch('/.netlify/functions/press-seed-background', {
         method: 'POST', credentials: 'include',
@@ -533,8 +534,8 @@ function renderDashboard(pieces) {
       }).then(function(r){ return r.json().catch(function(){ return { ok: r.ok }; }).then(function(j){ return { ok: r.ok, j: j }; }); })
         .then(function(res){
           if (res.ok) {
-            btn.textContent = 'Queued. Pieces will appear over the next few minutes. Refresh.';
-            if (result) result.innerHTML += '<p>Queued <strong>' + escapeHTML(rid) + '</strong>. The reporter will write 22 pieces dated Jan-May 2026. Refresh the page in 5-10 minutes to see them appear.</p>';
+            btn.textContent = 'Running. Pieces will appear over the next 5-10 min. Refresh.';
+            if (result) result.innerHTML += '<p><strong>' + escapeHTML(rid) + '</strong> is running. The reporter is writing 22 pieces dated Jan-May 2026. Refresh the page in 5-10 minutes to see them appear.</p>';
           } else {
             btn.disabled = false;
             btn.textContent = 'Retry: ' + (btn.getAttribute('data-rid'));
@@ -654,12 +655,13 @@ function renderDashboard(pieces) {
         body: JSON.stringify({}),
       }).then(function(r){
         if (r.status >= 200 && r.status < 300) {
-          return r.json().catch(function(){ return {}; }).then(function(j){
-            briefBtn.disabled = false;
-            setStatus(status, 'Briefing generated.', 'success');
-            var pieces = (j && j.pieces) ? j.pieces : '5';
-            result.innerHTML = '<p>Marcus recorded a ' + escapeHTML(String(j.word_count || '~600')) + '-word briefing over ' + escapeHTML(String(pieces)) + ' pieces. Audio is now live on the ETL homepage AND on /press. <a href="https://emerging-tech-lab.com/" target="_blank" rel="noopener">Visit the homepage to listen &rarr;</a></p>';
-          });
+          // Background function returned 202. The actual render takes
+          // ~60-90s (10s script + 30-60s multi-voice TTS + concat + Xing
+          // injection + blob write). Don't lie to the user that it's done.
+          briefBtn.disabled = false;
+          setStatus(status, 'Running. Marcus is recording (~60-90s).', 'success');
+          result.innerHTML = '<p>Marcus is writing the script and recording the multi-voice briefing now. Total time is usually 60-90 seconds. <a href="https://emerging-tech-lab.com/press" target="_blank" rel="noopener">Refresh /press in ~2 minutes &rarr;</a> to hear the new briefing.</p>';
+          return;
         }
         return r.json().catch(function(){ return { error: 'unknown' }; }).then(function(j){
           briefBtn.disabled = false;
