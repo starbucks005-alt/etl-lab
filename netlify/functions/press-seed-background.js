@@ -338,7 +338,7 @@ exports.handler = async (event) => {
   // the caller automatically. We await the work inline so the lambda
   // container stays alive for the full duration (up to 15 minutes).
   try {
-    const stats = await runSeed(reporter, apiKey, publishToken);
+    const stats = await runSeed(reporter, apiKey, publishToken, event);
     return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ok: true, reporter_id: reporter.id, complete: true, stats }) };
   } catch (err) {
     console.error('[press-seed-background] runSeed error', err && err.message);
@@ -346,8 +346,15 @@ exports.handler = async (event) => {
   }
 };
 
-async function runSeed(reporter, apiKey, publishToken) {
-  try { connectLambda({}); } catch (_) {}
+async function runSeed(reporter, apiKey, publishToken, event) {
+  // CRITICAL: connectLambda needs the real Lambda event, not an empty
+  // object. Without it, @netlify/blobs cannot read siteID + token from
+  // context and every getStore() call throws "environment not configured".
+  // Earlier versions of this file called connectLambda({}) which silently
+  // disabled the blob layer for the entire run.
+  try { connectLambda(event); } catch (err) {
+    console.error('[press-seed] connectLambda failed', err && err.message);
+  }
   const client = new Anthropic({ apiKey });
   const dates = weeklyDates();
   const seeds = TOPIC_SEEDS_BY_DESK[reporter.desk] || [];
