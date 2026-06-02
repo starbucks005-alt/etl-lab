@@ -188,7 +188,12 @@ ${heroImage ? `<meta name="twitter:image" content="${esc(heroImage)}">` : ''}
       if (r) {
         const profileSlug = r.id.replace(/_/g, '-');
         const tier = r.tier_label ? `<span style="color:#b8922a;">${esc(r.tier_label)}</span> &middot; ` : '';
-        return `<div class="byline" style="margin-top:0;margin-bottom:1.6rem;padding-top:0;border-top:0;">By <a href="/press/reporter/${esc(profileSlug)}" style="color:#0e0c08;text-decoration:none;border-bottom:1px solid #b8922a;"><strong>${esc(r.name)}</strong></a>, ${tier}${esc(r.desk_label)} Desk</div>`;
+        // Byline name → opens the rich agent modal on the ETL homepage. The
+        // ?agent=slug query param is read on page load (see maybeOpenFromQuery
+        // in index.html), the modal opens, and the user sees the full bio +
+        // MCP tool list + portrait. The #agents hash also scrolls them to
+        // the agents grid so the modal lands in context.
+        return `<div class="byline" style="margin-top:0;margin-bottom:1.6rem;padding-top:0;border-top:0;">By <a href="/?agent=${esc(profileSlug)}#agents" style="color:#0e0c08;text-decoration:none;border-bottom:1px solid #b8922a;"><strong>${esc(r.name)}</strong></a>, ${tier}${esc(r.desk_label)} Desk</div>`;
       }
     }
     return '';
@@ -205,7 +210,7 @@ ${heroImage ? `<meta name="twitter:image" content="${esc(heroImage)}">` : ''}
         if (r) {
           const profileSlug = r.id.replace(/_/g, '-');
           const tier = r.tier_label || 'Reporter';
-          return `Reporting by <a href="/press/reporter/${esc(profileSlug)}" style="color:inherit;border-bottom:1px solid #b8922a;">${esc(r.name)}</a>, ${esc(tier)}, for the ${esc(r.desk_label)} desk &middot; ETL Newswire staff`;
+          return `Reporting by <a href="/?agent=${esc(profileSlug)}#agents" style="color:inherit;border-bottom:1px solid #b8922a;">${esc(r.name)}</a>, ${esc(tier)}, for the ${esc(r.desk_label)} desk &middot; ETL Newswire staff`;
         }
       }
       return (piece.author ? `By ${esc(piece.author)} &middot; ` : '') + 'Source: <a href="' + esc(piece.source_url) + '" rel="noopener">' + esc(sourceLabel) + '</a>';

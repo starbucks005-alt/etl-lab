@@ -3574,6 +3574,30 @@ document.addEventListener('DOMContentLoaded', function(){
       }
     }
   })();
+
+  // Named-agent deep link: ?agent=frank-donovan#agents opens that agent
+  // by name slug. Used by wire bylines (press-piece.js) so clicking a
+  // reporter name lands the reader on the rich agent modal with portrait,
+  // MCP tool list, and bio — the same content the homepage shows when you
+  // click the face wall. Match by slugified name so reordering AGENTS
+  // doesn't break links.
+  (function maybeOpenFromQuery(){
+    function slugifyName(s){ return String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''); }
+    var qs = new URLSearchParams(window.location.search);
+    var want = qs.get('agent');
+    if (!want) return;
+    var wantSlug = slugifyName(want);
+    for (var i = 0; i < AGENTS.length; i++) {
+      if (slugifyName(AGENTS[i].name) === wantSlug) {
+        // Scroll the agents card into view, then open the modal.
+        var agentsCard = document.querySelector('.etl-net-card--agents');
+        if (agentsCard) agentsCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        var idx = i;
+        setTimeout(function(){ openAgent(idx); }, 500);
+        break;
+      }
+    }
+  })();
 })();
 </script>
 
