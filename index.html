@@ -1070,6 +1070,11 @@ document.addEventListener('DOMContentLoaded', function(){
     padding-top: 75%; /* unified 4:3 frame so all cards align in their rows; Vimeo letterboxes the 16:10 videos */
     background: var(--black);
     overflow: hidden;
+    /* Frame each video as a discrete piece of media (a "movie") so it
+       reads visually distinct from the surrounding tile and the dark page
+       background. Gold rule + soft shadow underneath. */
+    border: 2px solid #b8922a;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(184, 146, 42, 0.15);
   }
   .etl-network .etl-net-video iframe {
     position: absolute; top: 0; left: 0;
