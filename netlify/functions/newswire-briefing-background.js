@@ -212,6 +212,136 @@ async function synthSegment(text, speakerId) {
   return Buffer.from(arrayBuf);
 }
 
+/* ──────────────────────────────────────────────────────────────────────────
+   prependXingInfoHeader — inject a Xing/Info VBR header frame at the start
+   of a concatenated mp3 so HTML5 audio elements show the correct total
+   duration BEFORE playback starts.
+
+   The Problem: byte-concatenating mp3 segments produces a valid playable
+   file, but no top-level metadata declares the total length. The browser
+   reads the first frame's MPEG header, divides "this frame's bitrate" into
+   "the bytes I can see so far," and shows that as the duration. Result:
+   the audio bar shows the length of segment 1 only, then jumps to the
+   real total mid-playback. Users can't tell up front how long the
+   briefing is, which kills the use case ("I have 5 minutes, will this
+   fit?").
+
+   The Fix: prepend a single synthetic MPEG audio frame whose data area
+   contains a Xing/Info tag declaring the real total frame count and total
+   byte count. Browsers (and all standard players) read this and show the
+   correct duration immediately.
+
+   The synthetic frame's audio payload is all zeros, which decodes to ~26
+   ms of silence. Imperceptible at the start of a multi-minute briefing.
+
+   We match the synthetic frame's MPEG profile (version/layer/bitrate/
+   samplerate/channel mode) to the actual first frame in the buffer, so
+   the prepended frame is fully compatible with whatever ElevenLabs gave
+   us — no assumptions about mono vs stereo, etc.
+
+   Returns a new Buffer. On any parse failure, returns the input unchanged
+   (zero risk to existing behavior).
+   ────────────────────────────────────────────────────────────────────── */
+function prependXingInfoHeader(mp3Buffer) {
+  try {
+    // Find first MPEG sync frame. Skip ID3v2 if present.
+    let frameStart = 0;
+    if (mp3Buffer[0] === 0x49 && mp3Buffer[1] === 0x44 && mp3Buffer[2] === 0x33) {
+      // ID3v2 header: 10 bytes + sync-safe 28-bit size
+      const size = ((mp3Buffer[6] & 0x7F) << 21) | ((mp3Buffer[7] & 0x7F) << 14)
+                 | ((mp3Buffer[8] & 0x7F) << 7)  |  (mp3Buffer[9] & 0x7F);
+      frameStart = 10 + size;
+    }
+    while (frameStart < mp3Buffer.length - 4) {
+      if (mp3Buffer[frameStart] === 0xFF && (mp3Buffer[frameStart + 1] & 0xE0) === 0xE0) break;
+      frameStart++;
+    }
+    if (frameStart >= mp3Buffer.length - 4) return mp3Buffer;
+
+    const b1 = mp3Buffer[frameStart + 1];
+    const b2 = mp3Buffer[frameStart + 2];
+    const b3 = mp3Buffer[frameStart + 3];
+
+    // Decode MPEG header bits.
+    const versionBits = (b1 >> 3) & 0x03;  // 11=V1, 10=V2, 00=V2.5
+    const layerBits   = (b1 >> 1) & 0x03;  // 01=Layer III
+    const bitrateIdx  = (b2 >> 4) & 0x0F;
+    const sampleIdx   = (b2 >> 2) & 0x03;
+    const channelMode = (b3 >> 6) & 0x03;  // 11=mono
+
+    if (layerBits !== 0x01) return mp3Buffer; // not Layer III, bail
+
+    const isV1 = versionBits === 3;
+    const isMono = channelMode === 3;
+
+    // Bitrate tables (kbps). Layer III only.
+    const V1L3 = [0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320, 0];
+    const V2L3 = [0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160, 0];
+    const bitrate = (isV1 ? V1L3[bitrateIdx] : V2L3[bitrateIdx]) * 1000;
+    if (!bitrate) return mp3Buffer;
+
+    // Sample rate tables (Hz).
+    const SR_V1   = [44100, 48000, 32000, 0];
+    const SR_V2   = [22050, 24000, 16000, 0];
+    const SR_V25  = [11025, 12000, 8000, 0];
+    const sampleRate = isV1 ? SR_V1[sampleIdx]
+                     : (versionBits === 2 ? SR_V2[sampleIdx] : SR_V25[sampleIdx]);
+    if (!sampleRate) return mp3Buffer;
+
+    // Frame size formula for Layer III.
+    // V1: 144 * bitrate / sampleRate
+    // V2/V2.5: 72 * bitrate / sampleRate
+    const frameSize = Math.floor((isV1 ? 144 : 72) * bitrate / sampleRate);
+    if (frameSize < 24) return mp3Buffer; // too small to fit Xing payload
+
+    // Side info size for Layer III.
+    //   MPEG-1:   mono = 17, stereo/dual/JS = 32
+    //   MPEG-2/2.5: mono = 9, stereo/dual/JS = 17
+    const sideInfoSize = isV1 ? (isMono ? 17 : 32) : (isMono ? 9 : 17);
+
+    // Samples per frame (Layer III): V1=1152, V2/V2.5=576.
+    const samplesPerFrame = isV1 ? 1152 : 576;
+
+    // Audio frame count in the original buffer. ElevenLabs returns CBR so
+    // a simple division is accurate to within a frame or two. Padding
+    // bytes (when padding bit is set) skew this slightly but not enough
+    // to matter for the duration display.
+    const audioFrameCount = Math.round(mp3Buffer.length / frameSize);
+
+    // Build the synthetic Info frame.
+    const xingFrame = Buffer.alloc(frameSize);
+    xingFrame[0] = 0xFF;
+    xingFrame[1] = b1;
+    // Zero out the padding bit (bit 1 of b2) since our synthetic frame
+    // has no padding. Bit pattern: PPPPpriv where padding=bit 1.
+    xingFrame[2] = b2 & 0xFD;
+    xingFrame[3] = b3;
+    // Side info area (bytes 4 .. 4+sideInfoSize-1) is all zeros, which
+    // decodes to silence. Buffer.alloc already zero-fills.
+
+    // Write Xing/Info payload starting just after side info.
+    let pos = 4 + sideInfoSize;
+    xingFrame.write('Info', pos, 'ascii'); pos += 4;
+    // Flags: bit 0 = frames, bit 1 = bytes, bit 2 = TOC.
+    xingFrame.writeUInt32BE(0x00000007, pos); pos += 4;
+    // Total frame count (includes this Info frame, per LAME convention).
+    xingFrame.writeUInt32BE(audioFrameCount + 1, pos); pos += 4;
+    // Total byte count (the entire final file, including this Info frame).
+    xingFrame.writeUInt32BE(mp3Buffer.length + frameSize, pos); pos += 4;
+    // Linear TOC: each byte i represents the byte offset (scaled 0-255)
+    // at the i% playback point. Linear distribution works for CBR.
+    for (let i = 0; i < 100; i++) {
+      xingFrame[pos + i] = Math.min(255, Math.floor(i * 256 / 100));
+    }
+    // Remaining bytes of the frame stay zero.
+
+    return Buffer.concat([xingFrame, mp3Buffer]);
+  } catch (err) {
+    console.error('[briefing] Xing header injection failed, falling back to raw concat:', err && err.message);
+    return mp3Buffer;
+  }
+}
+
 // Render the full multi-voice briefing. Each segment becomes its own mp3,
 // then byte-concatenated into a single audio file. ElevenLabs returns
 // consistent encoding (turbo_v2_5), so concatenated mp3s play correctly in
@@ -305,14 +435,17 @@ exports.handler = async (event) => {
   // Compute the real duration from byte count. ElevenLabs returns CBR mp3
   // at 64 kbps (we forced output_format=mp3_44100_64 above), so
   //   seconds = bytes * 8 / 64000
-  // is exact. We surface this in the UI as the authoritative length
-  // because the HTML5 audio element auto-detects duration from the FIRST
-  // mp3 frame's metadata, which is wrong for byte-concatenated files:
-  // the browser shows the duration of segment 1 only, then jumps to the
-  // real total mid-playback. Showing a server-computed label up front
-  // means users know the real length BEFORE they hit play.
+  // is exact. Compute BEFORE Xing injection so we measure only audio
+  // content, not the prepended silent info frame.
   const durationSeconds = Math.max(1, Math.round(mp3Buffer.length * 8 / 64000));
   const durationLabel = Math.floor(durationSeconds / 60) + ':' + String(durationSeconds % 60).padStart(2, '0');
+
+  // Inject a Xing/Info VBR header at the start of the concatenated stream
+  // so the HTML5 audio element shows the correct total duration BEFORE
+  // playback starts (not after — see prependXingInfoHeader comment block
+  // for the full rationale). Safe: on any parse failure it returns the
+  // input unchanged.
+  mp3Buffer = prependXingInfoHeader(mp3Buffer);
 
   // Build a plain-text version of the script for the metadata (for reference,
   // RSS, transcript display). One blank line between segments.
