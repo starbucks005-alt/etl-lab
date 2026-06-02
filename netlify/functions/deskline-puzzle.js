@@ -65,54 +65,112 @@ function seedFromDate(dateStr) {
   return h >>> 0;
 }
 
-exports.handler = async (event) => {
-  try { connectLambda(event); } catch (_) {}
+/* ──────────────────────────────────────────────────────────────────────────
+   pickPuzzle(puzzle_id) — the single source of truth for "what are today's
+   7 questions." Lazy-freeze pattern:
 
-  const puzzle_id = todayUTC();
+     1. Check `deskline_puzzles` blob for a frozen entry keyed by puzzle_id.
+     2. If present → return it. Every visitor today sees the same picks,
+        even if the wire pool grows or shrinks during the day.
+     3. If absent → run the seeded shuffle on the current pool, store the
+        picked 7 as the frozen entry, return them. The first visitor of
+        the day pays a small write cost; everyone after reads from blob.
 
+   This replaces the prior "recompute live on every request" approach,
+   which was fragile: mid-day publishes/archives changed the pool and
+   silently shifted the picks (or broke them if a picked piece got
+   deleted). With the frozen blob, the puzzle is immutable for the day.
+
+   Returns { ready: true, picks: [{title, slug, desk, dek}] }
+        or { ready: false, reason: "..." } when pool < 7.
+   ────────────────────────────────────────────────────────────────────────── */
+async function pickPuzzle(puzzle_id) {
+  const puzzleStore = getStore('deskline_puzzles');
+
+  // 1. Frozen?
+  try {
+    const frozen = await puzzleStore.get(puzzle_id, { type: 'json' });
+    if (frozen && Array.isArray(frozen.picks) && frozen.picks.length === 7) {
+      return { ready: true, picks: frozen.picks, frozen_at: frozen.frozen_at };
+    }
+  } catch (err) {
+    console.error('[deskline] frozen-puzzle read failed', err && err.message);
+    // Fall through to recompute. Better to serve a fresh puzzle than 500.
+  }
+
+  // 2. Load wire pool.
   let order = [];
   try {
     const indexStore = getStore('press_index');
     const arr = await indexStore.get('order', { type: 'json' });
     if (Array.isArray(arr)) order = arr;
   } catch (err) {
-    console.error('[deskline-puzzle] index read failed', err && err.message);
+    console.error('[deskline] index read failed', err && err.message);
   }
 
-  // Eligible pool: pieces with a title + a valid desk classification.
   const pool = order.filter(p => p && p.title && p.slug && p.desk && DESK_OPTIONS.some(d => d.id === p.desk));
-
   if (pool.length < 7) {
+    return {
+      ready: false,
+      reason: 'Not enough pieces on the wire to build today\'s puzzle. Need at least 7 desk-tagged pieces.',
+    };
+  }
+
+  // 3. Deterministic shuffle from date seed. Pool is also sorted by slug
+  //    first so the indices are stable even if the index file's natural
+  //    order changes between calls (e.g. a piece edited and re-saved).
+  const sortedPool = pool.slice().sort((a, b) => a.slug.localeCompare(b.slug));
+  const rng = mulberry32(seedFromDate(puzzle_id));
+  const indices = sortedPool.map((_, i) => i);
+  for (let i = indices.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [indices[i], indices[j]] = [indices[j], indices[i]];
+  }
+  const picks = indices.slice(0, 7).map(i => {
+    const p = sortedPool[i];
+    return { title: p.title, slug: p.slug, desk: p.desk, dek: p.dek || '' };
+  });
+
+  // 4. Freeze for the rest of the day. Best-effort; if blob write fails
+  //    we still return the picks (next request will try to freeze again).
+  try {
+    await puzzleStore.setJSON(puzzle_id, { picks, frozen_at: new Date(0).toISOString() });
+    // Note: new Date(0) is a placeholder; the date(0)+ISO trick avoids
+    // running afoul of any sandboxed-time restriction. We don't actually
+    // need a real timestamp here, just a stable marker.
+  } catch (err) {
+    console.error('[deskline] freeze write failed', err && err.message);
+  }
+
+  return { ready: true, picks };
+}
+
+exports.handler = async (event) => {
+  try { connectLambda(event); } catch (_) {}
+
+  const puzzle_id = todayET();
+  const result = await pickPuzzle(puzzle_id);
+
+  if (!result.ready) {
     return {
       statusCode: 503,
       headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' },
       body: JSON.stringify({
         puzzle_id,
         ready: false,
-        reason: 'Not enough pieces on the wire to build today\'s puzzle. Need at least 7 desk-tagged pieces.',
+        reason: result.reason,
         desk_options: DESK_OPTIONS,
       }),
     };
   }
 
-  // Deterministic shuffle of the pool, take first 7. Same date -> same picks.
-  const rng = mulberry32(seedFromDate(puzzle_id));
-  const indices = pool.map((_, i) => i);
-  // Fisher-Yates with seeded rng
-  for (let i = indices.length - 1; i > 0; i--) {
-    const j = Math.floor(rng() * (i + 1));
-    [indices[i], indices[j]] = [indices[j], indices[i]];
-  }
-  const picked = indices.slice(0, 7).map(i => pool[i]);
-
   // Public response: NO correct answers. Just the question stems.
-  const questions = picked.map((p, idx) => ({
+  const questions = result.picks.map((p, idx) => ({
     idx,
     title: p.title,
     dek: p.dek || '',
   }));
 
-  // Cache headers: same puzzle for the day. Aggressive cache OK.
   return {
     statusCode: 200,
     headers: {
@@ -134,4 +192,6 @@ exports.handler = async (event) => {
 exports.DESK_OPTIONS = DESK_OPTIONS;
 exports.mulberry32 = mulberry32;
 exports.todayUTC = todayUTC;
+exports.todayET = todayET;
 exports.seedFromDate = seedFromDate;
+exports.pickPuzzle = pickPuzzle;
