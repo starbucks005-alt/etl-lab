@@ -1630,31 +1630,31 @@ document.addEventListener('DOMContentLoaded', function(){
         </div>
       </div>
 
-      <!-- The Panel Room — For Students -->
+      <!-- The Prep Room — For Students -->
       <div class="etl-net-card etl-net-card--wide">
         <!-- VIDEO: replace the placeholder div below with the Vimeo embed:
         <div class="etl-net-video" style="padding-top:56.25%;"><iframe src="https://player.vimeo.com/video/VIMEO_ID" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div> -->
         <div class="etl-net-video" style="padding-top:56.25%;"><div class="etl-net-placeholder"><div class="play-ring"><span class="play"></span></div><span>Walkthrough coming soon</span></div></div>
         <div class="etl-net-body">
           <div class="etl-net-num">Platform // 06</div>
-          <div class="etl-net-title">The Panel Room</div>
+          <div class="etl-net-title">The Prep Room</div>
           <div class="etl-net-tagline">For Students</div>
           <p class="etl-net-desc">Practice the hard parts of school and the job hunt against an AI panel. Defend your thesis or dissertation against a committee of nine, sit a mock interview with a panel of business leaders, get a real CV review from Charles Monroe, and walk out with a readiness card that names what to shore up. Teaching tone — the panel pushes back, but it also teaches.</p>
-          <a class="etl-net-launch" href="/prep-room#students" target="_blank" rel="noopener">Enter the Panel Room &rarr;</a>
+          <a class="etl-net-launch" href="/prep-room#students" target="_blank" rel="noopener">Enter the Prep Room &rarr;</a>
         </div>
       </div>
 
-      <!-- The Panel Room — For Professionals -->
+      <!-- The Boardroom — For Professionals -->
       <div class="etl-net-card etl-net-card--wide">
         <!-- VIDEO: replace the placeholder div below with the Vimeo embed:
         <div class="etl-net-video" style="padding-top:56.25%;"><iframe src="https://player.vimeo.com/video/VIMEO_ID" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div> -->
         <div class="etl-net-video" style="padding-top:56.25%;"><div class="etl-net-placeholder"><div class="play-ring"><span class="play"></span></div><span>Walkthrough coming soon</span></div></div>
         <div class="etl-net-body">
           <div class="etl-net-num">Platform // 07</div>
-          <div class="etl-net-title">The Panel Room</div>
+          <div class="etl-net-title">The Boardroom</div>
           <div class="etl-net-tagline">For Professionals</div>
           <p class="etl-net-desc">Same engine, executive register. Sit a mock interview for a real role you are aiming at, get a CV review that holds your background to the right sector's standards (corporate, academic, nonprofit, government), and walk out with a fix list. Peer to peer. No hand-holding. The kind of practice you wish someone had given you before the last hard interview.</p>
-          <a class="etl-net-launch" href="/prep-room#pros" target="_blank" rel="noopener">Enter the Panel Room &rarr;</a>
+          <a class="etl-net-launch" href="/prep-room#pros" target="_blank" rel="noopener">Enter the Boardroom &rarr;</a>
         </div>
       </div>
 
@@ -1711,7 +1711,7 @@ document.addEventListener('DOMContentLoaded', function(){
             <img src="agents/Zara_eyes_open.jpg" alt="Zara">
             <img src="agents/Grant_eyes_open.jpg" alt="Grant">
             <img src="agents/Imani_Brooks.png" alt="Imani Brooks" loading="lazy">
-            <!-- The Panel Room - Defense Committee (8) -->
+            <!-- The Prep Room - Defense Committee (8) -->
             <img src="prep-room-assets/vv_card.jpg" alt="Victoria Vance">
             <img src="prep-room-assets/lc_card.jpg" alt="Lawrence Cole">
             <img src="prep-room-assets/mt_card.jpg" alt="Marcus Thorne">
@@ -1722,7 +1722,7 @@ document.addEventListener('DOMContentLoaded', function(){
             <img src="prep-room-assets/tk_card.jpg" alt="Tariq Khan">
             <!-- Defense Lifeline -->
             <img src="prep-room-assets/ap_1.jpg" alt="Arthur Pendelton">
-            <!-- The Panel Room - Interview Panel (8) -->
+            <!-- The Prep Room / Boardroom - Interview Panel (8) -->
             <img src="prep-room-assets/rc_card.jpg" alt="Robert Chen">
             <img src="prep-room-assets/ds_card.jpg" alt="Dev Srinivasan">
             <img src="prep-room-assets/dj_card.jpg" alt="Deidre Jenkins">
@@ -2213,7 +2213,7 @@ document.addEventListener('DOMContentLoaded', function(){
       </div>
 
       <!-- Directives 06-09 + Job Search bar removed; their content now lives
-           behind the Panel Room flow via leadership-programs.html and
+           behind the Prep Room / Boardroom flow via leadership-programs.html and
            job-fair.html (audience-tabbed for students vs. professionals). -->
 
     </div>
@@ -3083,7 +3083,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
 <!-- Cert progress JS removed alongside Directive 09. Progress tracking
      still lives on leadership-cert.html itself, which is reachable from
-     the Panel Room -> Leadership Programs flow. -->
+     the Prep Room / Boardroom -> Leadership Programs flow. -->
 
 <!-- ─── AGENTS MODAL ─────────────────────────────────────────────────── -->
 <div class="agents-modal" id="agents-modal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="agents-modal-name">
@@ -3127,14 +3127,14 @@ document.addEventListener('DOMContentLoaded', function(){
      Greylander 7:   GLP/greylanderpress-site/index.html team-grid + EIC hero
      Gauntlet 14:    THE-GAUNTLET/config/judges_master.json (9 judges)
                      + THE-GAUNTLET/Helpers/*.html (5 EPs)
-     Panel Room 19:  the profs and business people.docx (18) + prep-room.html
+     Prep Room 19:   the profs and business people.docx (18) + prep-room.html
                      (Charles Monroe)
    ─────────────────────────────────────────────────────────────────────── */
 (function(){
   var DOSE   = 'The Dose';
   var GP     = 'Greylander Press';
   var GAUNT  = 'The Gauntlet';
-  var PANEL  = 'The Panel Room';
+  var PREP   = 'The Prep Room'; // internal platform tag; also frames as "The Boardroom" for the pro audience on the homepage tile
 
   var AGENTS = [
     // ───── The Dose (10) ─────
@@ -3255,66 +3255,66 @@ document.addEventListener('DOMContentLoaded', function(){
       mcp: true,
       tools: ['Wire service picker', 'Targeted media list', 'Bylined op-ed angler', 'Embargo + timing strategy', 'ETL Press Hub publishing'] },
 
-    // ───── The Panel Room, Defense Committee (9, includes Pendelton) ─────
-    { name: 'Dr. Victoria Vance', platform: PANEL, role: 'The Methodologist',
+    // ───── The Prep Room,Defense Committee (9, includes Pendelton) ─────
+    { name: 'Dr. Victoria Vance', platform: PREP, role: 'The Methodologist',
       bio: 'Research design and operational structure. She views a project as a machine. If one gear is misaligned, the entire mechanism fails. Spends weekends calibrating antique drafting tools and mid-century mechanical clocks.',
       home: '/prep-room#students/defense' },
-    { name: 'Dr. Lawrence Cole', platform: PANEL, role: 'The Domain Expert',
+    { name: 'Dr. Lawrence Cole', platform: PREP, role: 'The Domain Expert',
       bio: 'Knows every major study and competing school. Tests whether you can contribute or are just summarizing. Open-water rower, coastal birdwatcher, keeps a handwritten field journal of seasonal migrations.',
       home: '/prep-room#students/defense' },
-    { name: 'Dr. Marcus Thorne', platform: PANEL, role: 'The Theorist',
+    { name: 'Dr. Marcus Thorne', platform: PREP, role: 'The Theorist',
       bio: 'An intellectual disruptor who despises predictable conclusions. Cares about paradigm shifts, conceptual sovereignty, and abstract reasoning. Mountaineers hostile terrain because comfort breeds intellectual rot.',
       home: '/prep-room#students/defense' },
-    { name: 'Dr. Maya Patel', platform: PANEL, role: 'The Skeptic',
+    { name: 'Dr. Maya Patel', platform: PREP, role: 'The Skeptic',
       bio: 'A pragmatic realist with no patience for academic fluff. Cuts through nomenclature to expose actual substance. Trains champion-bred rottweilers, runs a hyper-efficient hydroponic greenhouse. Spots a wasted square foot in either an argument or a garden bed.',
       home: '/prep-room#students/defense' },
-    { name: 'Dr. Charles Sterling', platform: PANEL, role: 'The Supportive Chair',
+    { name: 'Dr. Charles Sterling', platform: PREP, role: 'The Supportive Chair',
       bio: 'The institutional guide and the student\'s primary advisor. Keeps decorum, throws a lifeline when the room needs to reset, still expects a rigorous defense. Plays cello in a community chamber orchestra.',
       home: '/prep-room#students/defense' },
-    { name: 'Dr. Alan Zhao', platform: PANEL, role: 'The Stats Hardliner',
+    { name: 'Dr. Alan Zhao', platform: PREP, role: 'The Stats Hardliner',
       bio: 'Pure quantitative purist. If it cannot be measured, modeled, and mathematically verified, it is anecdotal. Statistical power, sample sizes, error rates, p-values. Competitive chess player, runs custom predictive models on soccer leagues for amusement.',
       home: '/prep-room#students/defense' },
-    { name: 'Dr. Meredith Vance-Giles', platform: PANEL, role: 'The Outside Member',
+    { name: 'Dr. Meredith Vance-Giles', platform: PREP, role: 'The Outside Member',
       bio: 'From an entirely different department, brought in to ensure impartial standards. Fresh eyes, no domain bias. Tests whether the work communicates its value to an educated audience outside the niche. Career diplomats\' daughter who moved countries every three years.',
       home: '/prep-room#students/defense' },
-    { name: 'Dr. Tariq Khan', platform: PANEL, role: 'The Interdisciplinary Bridge',
+    { name: 'Dr. Tariq Khan', platform: PREP, role: 'The Interdisciplinary Bridge',
       bio: 'A polymath who connects unrelated fields. Looks for cross-pollination, systems-level thinking, and how your research touches the world outside its silo. Jazz saxophonist, amateur astronomer, cycles geological fault lines for fun.',
       home: '/prep-room#students/defense' },
-    { name: 'Dr. Arthur Pendelton', platform: PANEL, role: 'The Crisis Interventionist',
+    { name: 'Dr. Arthur Pendelton', platform: PREP, role: 'The Crisis Interventionist',
       bio: 'Senior institutional figure who steps in ONLY when a candidate is clearly struggling. Old New England academic gravitas. Constitutional law professor father, university dean mother. Restores first-edition biographies, fly-fishes alone.',
       home: '/prep-room#students/defense' },
 
-    // ───── The Panel Room, Interview Panel (9, includes Harrison) ─────
-    { name: 'Robert Chen', platform: PANEL, role: 'The Hiring Manager',
+    // ───── The Prep Room,Interview Panel (9, includes Harrison) ─────
+    { name: 'Robert Chen', platform: PREP, role: 'The Hiring Manager',
       bio: 'Your direct supervisor for the role. Needs someone who can solve immediate team problems and blend into the existing structure. Taiwanese immigrant family, business school. Designs automated drip-irrigation for his rooftop greenhouse.',
       home: '/prep-room#students/interview' },
-    { name: 'Dev Srinivasan', platform: PANEL, role: 'The CTO',
+    { name: 'Dev Srinivasan', platform: PREP, role: 'The CTO',
       bio: 'Hands-on technologist. Despises buzzword compliance and spots an exaggerated technical claim the way he tastes a poorly-extracted shot. Roasts his own coffee on a modified fluid-bed rig with digital temperature probes.',
       home: '/prep-room#students/interview' },
-    { name: 'Deidre Jenkins', platform: PANEL, role: 'The HR Director',
+    { name: 'Deidre Jenkins', platform: PREP, role: 'The HR Director',
       bio: 'Cultural alignment, EQ, retention risk. Reads a resume as a blueprint of human behavior. Sundays feeding a large family. Cultivated her sourdough starter for months until it was right.',
       home: '/prep-room#students/interview' },
-    { name: 'Bradley Cooper-Smith', platform: PANEL, role: 'The CFO',
+    { name: 'Bradley Cooper-Smith', platform: PREP, role: 'The CFO',
       bio: 'Ruthless pragmatist. Every hire is a capital expenditure that must deliver a clear return on investment. Rebuilds carburetors on a 1972 Porsche 911 because he understands machines that must deliver.',
       home: '/prep-room#students/interview' },
-    { name: 'Karen Kowalski', platform: PANEL, role: 'The VP of Operations',
+    { name: 'Karen Kowalski', platform: PREP, role: 'The VP of Operations',
       bio: 'Execution, workflow optimization, scale, and crisis. Trains working German Shepherds for search-and-rescue. Calm execution when something has gone wrong is the lens she brings.',
       home: '/prep-room#students/interview' },
-    { name: 'Fiona Gallagher', platform: PANEL, role: 'The Compliance and Legal Counsel',
+    { name: 'Fiona Gallagher', platform: PREP, role: 'The Compliance and Legal Counsel',
       bio: 'Risk, governance, ethics. No patience for shortcuts dressed up as judgment calls. Competes in dressage. Respects precision and patience under tension.',
       home: '/prep-room#students/interview' },
-    { name: 'Alistair Montgomery', platform: PANEL, role: 'The Strategy and Market Analyst',
+    { name: 'Alistair Montgomery', platform: PREP, role: 'The Strategy and Market Analyst',
       bio: 'Macro-trends, competitive intelligence, strategic agility. Tests whether you look forward or are trapped in outdated models. Climbs hostile mountains and paints abstracts. Finds market chaos interesting.',
       home: '/prep-room#students/interview' },
-    { name: 'Elena Rostova', platform: PANEL, role: 'The Cross-Functional Peer',
+    { name: 'Elena Rostova', platform: PREP, role: 'The Cross-Functional Peer',
       bio: 'Adjacent departments. Empathy, cross-team communication, and how you manage internal politics. Parents were political dissidents who fled Prague. Carries their habit of patient negotiation across hard lines.',
       home: '/prep-room#students/interview' },
-    { name: 'Harrison Vance-Giles III', platform: PANEL, role: 'The CEO / Executive Lifeline',
+    { name: 'Harrison Vance-Giles III', platform: PREP, role: 'The CEO / Executive Lifeline',
       bio: 'Ultimate corporate authority. Stays quiet through lower tiers, steps in when a candidate freezes. Restores historical properties, fly-fishes alone. Has learned exactly when silence costs the room and when it commands it.',
       home: '/prep-room#pros/interview' },
 
-    // ───── The Panel Room, Résumé Coach (1) ─────
-    { name: 'Charles Monroe', platform: PANEL, role: 'Résumé Coach',
+    // ───── The Prep Room,Résumé Coach (1) ─────
+    { name: 'Charles Monroe', platform: PREP, role: 'Résumé Coach',
       bio: 'Associate Director of Career Services. M.S. in Organizational Leadership. Married to an elementary school principal, two college-aged teenagers. Takes landscape photographs. Cuts through ambiguity to land on quantifiable achievements. Will not draft your bullets for you. Shows the gap between intent and evidence and trusts you to write the fix.',
       home: '/prep-room#students/resume' },
 

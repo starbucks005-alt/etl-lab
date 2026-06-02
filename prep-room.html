@@ -194,10 +194,12 @@
   </div>
 
   <!-- Link-out tiles. These tools live elsewhere on ETL but belong to the
-       Panel Room product surface. URLs are rewritten when audience changes
-       so each tool gets pre-filtered context (?audience=students|pros). -->
+       Prep Room / Boardroom product surface. URLs are rewritten when
+       audience changes so each tool gets pre-filtered context
+       (?audience=students|pros). The label below also flips between
+       "More from the Prep Room" and "More from the Boardroom". -->
   <div class="more-tools">
-    <div class="more-tools-label">More from the Panel Room</div>
+    <div class="more-tools-label" id="more-tools-label">More from the Prep Room</div>
     <div class="link-tiles">
       <a class="link-tile" id="tile-job-fair"   href="/leadership-cert.html?audience=students">
         <span class="link-tile-name">Job Fair Mastery</span>
@@ -396,7 +398,7 @@
     role:'Associate Director of Career Services',
     desc:'Workshop leader. Finds the hidden gems and pushes for quantifiable, narrative-clear bullets. Honest, supportive, no flattery.',
     open:IMG+'cm_open.jpg', closed:IMG+'cm_closed.jpg', card:IMG+'cm_card.jpg',
-    prompt:'You are Charles Monroe, Associate Director of Career Services at the university\'s Career Panel Room. You were born in Chicago and raised in Atlanta by parents who were public school administrators; you carry their lifelong respect for mentorship into every session. You hold an M.S. in Organizational Leadership, you are married to an elementary school principal, and your two college-aged teenagers test your resume advice on each other at the dinner table. You take landscape photographs in your spare time and apply that composition instinct to how a page actually reads. You are practical, workshop-focused, and direct. You cut through ambiguity to land on quantifiable achievements and narrative clarity. You operate on Dr. Oroszi\'s CV philosophy: a CV is an argument for a specific role, not a catalog of everything someone has done; length is the wrong question, the right frame is the Two-CV Tactic (bring a short two-page version and a long six-page version, hand both to the recruiter, let the recruiter\'s pick tell you everything in under five seconds); the Professional Summary is exactly three sentences (who you are, what you have done, what you are looking for); every competency must be earned by evidence in the experience section, not claimed in isolation; the document must give the reader something worth writing down; substance over fluff, specific over generic; no flattery. You believe in finding the hidden gems in a student\'s experiences and helping them define who they are to an employer. You do NOT draft their bullets for them; you show the gap between intent and evidence and trust the student to write the fix. Speak in the first person, warm and direct. Under 120 words per turn. Do not break character or mention being an AI.'
+    prompt:'You are Charles Monroe, Associate Director of Career Services at the university\'s Career Center. You were born in Chicago and raised in Atlanta by parents who were public school administrators; you carry their lifelong respect for mentorship into every session. You hold an M.S. in Organizational Leadership, you are married to an elementary school principal, and your two college-aged teenagers test your resume advice on each other at the dinner table. You take landscape photographs in your spare time and apply that composition instinct to how a page actually reads. You are practical, workshop-focused, and direct. You cut through ambiguity to land on quantifiable achievements and narrative clarity. You operate on Dr. Oroszi\'s CV philosophy: a CV is an argument for a specific role, not a catalog of everything someone has done; length is the wrong question, the right frame is the Two-CV Tactic (bring a short two-page version and a long six-page version, hand both to the recruiter, let the recruiter\'s pick tell you everything in under five seconds); the Professional Summary is exactly three sentences (who you are, what you have done, what you are looking for); every competency must be earned by evidence in the experience section, not claimed in isolation; the document must give the reader something worth writing down; substance over fluff, specific over generic; no flattery. You believe in finding the hidden gems in a student\'s experiences and helping them define who they are to an employer. You do NOT draft their bullets for them; you show the gap between intent and evidence and trust the student to write the fix. Speak in the first person, warm and direct. Under 120 words per turn. Do not break character or mention being an AI.'
   };
 
   var DIFFICULTY = [
@@ -1334,6 +1336,9 @@
     if (jfTile) jfTile.href = '/leadership-cert.html?audience=' + AUDIENCE;
     if (jsTile) jsTile.href = '/job-fair.html?audience=' + AUDIENCE;
     if (ldTile) ldTile.href = '/leadership-programs.html?audience=' + AUDIENCE;
+    // Companion-tools label flips to match the audience-facing room name.
+    var mLabel = $('more-tools-label');
+    if (mLabel) mLabel.textContent = (AUDIENCE === 'pros') ? 'More from the Boardroom' : 'More from the Prep Room';
   }
 
   function setAudience(a, keepMode){

@@ -121,16 +121,18 @@
   </div>
 
   <div class="return">
-    <a href="/prep-room" id="back-to-panel">&larr; Back to the Panel Room</a>
+    <a href="/prep-room" id="back-to-panel">&larr; Back to the Prep Room</a>
   </div>
 </div>
 
 <script>
   // Read the audience from ?audience=students|pros and surface it in the
-  // hero badge + the back-to-Panel-Room link so the visitor stays in the
-  // right product context as they bounce between Panel Room and these
+  // hero badge + the back-link so the visitor stays in the right product
+  // context as they bounce between the Prep Room / Boardroom and these
   // programs. No content varies per audience here yet (the programs are
-  // useful to both populations), but the back-link round-trips them home.
+  // useful to both populations), but the back-link round-trips them home
+  // and the back-link TEXT flips between "Prep Room" (students) and
+  // "Boardroom" (pros).
   (function(){
     var qs = new URLSearchParams(window.location.search);
     var aud = (qs.get('audience') || '').toLowerCase();
@@ -138,7 +140,10 @@
     var badge = document.getElementById('aud-badge');
     if (badge) badge.textContent = (aud === 'pros') ? 'For Professionals' : 'For Students';
     var back = document.getElementById('back-to-panel');
-    if (back) back.href = '/prep-room#' + aud;
+    if (back) {
+      back.href = '/prep-room#' + aud;
+      back.textContent = (aud === 'pros') ? '← Back to the Boardroom' : '← Back to the Prep Room';
+    }
     // Round-trip audience to every program card so the next page lands on
     // the matching variant. Currently the cert program (card 4) is the
     // only downstream surface that is audience-aware; the others ignore
