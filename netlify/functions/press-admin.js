@@ -703,7 +703,7 @@ function renderDashboard(pieces) {
         if (r.status >= 200 && r.status < 300) {
           reclassifyBtn.disabled = false;
           setStatus(status, 'Running in background. Refresh /press in ~2 min.', 'success');
-          result.innerHTML = '<p>Reclassification is running. Every piece on the wire is being re-tagged based on story content. Today\'s Deskline puzzle will refresh from corrected data on the next visit. <a href="/press" target="_blank" rel="noopener">Refresh /press in 2 minutes &rarr;</a></p>';
+          result.innerHTML = '<p>Reclassification is running. Every piece on the wire is being re-tagged based on story content. The Deskline puzzle will refresh from corrected data on the next visit. <a href="/press" target="_blank" rel="noopener">Refresh /press in 2 minutes &rarr;</a></p>';
           return;
         }
         return r.json().catch(function(){ return { error: 'unknown' }; }).then(function(j){
