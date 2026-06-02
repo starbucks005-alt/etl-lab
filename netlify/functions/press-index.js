@@ -454,7 +454,9 @@ function renderNewsroom(pieces, activeDesk) {
       audio.src = meta.audio_url;
       if (sub && meta.generated_at) {
         var dt = new Date(meta.generated_at);
-        sub.textContent = isNaN(+dt) ? '' : 'Recorded ' + dt.toLocaleDateString('en-US',{weekday:'long', month:'long', day:'numeric'}) + ' at ' + dt.toLocaleTimeString('en-US',{hour:'numeric', minute:'2-digit'});
+        var label = isNaN(+dt) ? '' : 'Recorded ' + dt.toLocaleDateString('en-US',{weekday:'long', month:'long', day:'numeric'}) + ' at ' + dt.toLocaleTimeString('en-US',{hour:'numeric', minute:'2-digit'});
+        if (label && meta.duration_label) label += ' · ' + meta.duration_label;
+        sub.textContent = label;
       }
       card.classList.add('is-ready');
     })

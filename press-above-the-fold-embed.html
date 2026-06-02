@@ -53,7 +53,9 @@
       if (meta.generated_at) {
         try {
           var dt = new Date(meta.generated_at);
-          sub.textContent = 'Recorded ' + dt.toLocaleDateString('en-US',{weekday:'long', month:'long', day:'numeric'}) + ' at ' + dt.toLocaleTimeString('en-US',{hour:'numeric', minute:'2-digit'});
+          var label = 'Recorded ' + dt.toLocaleDateString('en-US',{weekday:'long', month:'long', day:'numeric'}) + ' at ' + dt.toLocaleTimeString('en-US',{hour:'numeric', minute:'2-digit'});
+          if (meta.duration_label) label += ' · ' + meta.duration_label;
+          sub.textContent = label;
         } catch(_) { sub.textContent = ''; }
       }
     })

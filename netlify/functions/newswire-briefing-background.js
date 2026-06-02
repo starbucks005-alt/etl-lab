@@ -302,6 +302,18 @@ exports.handler = async (event) => {
     return json(502, { error: 'audio generation failed', detail: err && err.message });
   }
 
+  // Compute the real duration from byte count. ElevenLabs returns CBR mp3
+  // at 64 kbps (we forced output_format=mp3_44100_64 above), so
+  //   seconds = bytes * 8 / 64000
+  // is exact. We surface this in the UI as the authoritative length
+  // because the HTML5 audio element auto-detects duration from the FIRST
+  // mp3 frame's metadata, which is wrong for byte-concatenated files:
+  // the browser shows the duration of segment 1 only, then jumps to the
+  // real total mid-playback. Showing a server-computed label up front
+  // means users know the real length BEFORE they hit play.
+  const durationSeconds = Math.max(1, Math.round(mp3Buffer.length * 8 / 64000));
+  const durationLabel = Math.floor(durationSeconds / 60) + ':' + String(durationSeconds % 60).padStart(2, '0');
+
   // Build a plain-text version of the script for the metadata (for reference,
   // RSS, transcript display). One blank line between segments.
   const scriptText = segments
@@ -325,6 +337,9 @@ exports.handler = async (event) => {
     word_count: scriptText.split(/\s+/).length,
     segment_count: segments.length,
     voices_used: Array.from(new Set(segments.map(s => s.speaker || 'anchor'))),
+    duration_seconds: durationSeconds,
+    duration_label: durationLabel,
+    byte_size: mp3Buffer.length,
     pieces: top.map(p => ({
       slug: p.slug,
       title: p.title,
