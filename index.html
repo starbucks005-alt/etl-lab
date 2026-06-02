@@ -1196,7 +1196,7 @@ document.addEventListener('DOMContentLoaded', function(){
   }
   .etl-network .etl-net-card--agents .etl-net-video {
     padding-top: 0; height: auto;
-    min-height: 520px; /* fits all 50 faces with cushion */
+    min-height: 740px; /* fits all 62 faces with cushion (was 520 sized for 50) */
   }
   .etl-network .etl-net-roster {
     position: absolute; inset: 0;
@@ -1215,15 +1215,14 @@ document.addEventListener('DOMContentLoaded', function(){
   }
   @media (max-width: 1100px) {
     .etl-network .etl-net-card--agents { grid-template-columns: 1fr; }
-    .etl-network .etl-net-card--agents .etl-net-video { min-height: 460px; }
+    .etl-network .etl-net-card--agents .etl-net-video { min-height: 620px; }
     .etl-network .etl-net-roster img { width: 72px; height: 72px; }
   }
   @media (max-width: 640px) {
-    /* 50 avatars wrap to 7-per-row on a phone, which is 8 rows. At 56px
-       per circle + 6px gap + 20px padding the wall needs ~540px of vertical
-       room. The previous 420px floor cut the top row off because content
-       overflowed the container and the parent has overflow:hidden. */
-    .etl-network .etl-net-card--agents .etl-net-video { min-height: 540px; }
+    /* 62 avatars wrap to 7-per-row on a phone, which is 9 rows. At 56px
+       per circle + 6px gap + 20px padding the wall needs ~660px of vertical
+       room. (Was 540px when the cast was 50 — the wire reporters added 12.) */
+    .etl-network .etl-net-card--agents .etl-net-video { min-height: 680px; }
     .etl-network .etl-net-roster { gap: 6px; padding: 10px; }
     .etl-network .etl-net-roster img { width: 56px; height: 56px; border-width: 1.5px; }
   }
