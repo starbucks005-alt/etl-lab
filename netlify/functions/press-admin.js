@@ -23,7 +23,25 @@ const PLATFORM_LABELS = {
   gauntlet:   'The Gauntlet',
   greylander: 'Greylander Press',
   lab:        'Emerging Technologies Laboratory',
+  newswire:   'ETL Newswire',
 };
+
+const DESK_LABELS = {
+  us: 'US', world: 'World', business: 'Business', technology: 'Technology',
+  security: 'Security', science: 'Science', health: 'Health',
+  entertainment: 'Entertainment', sports: 'Sports',
+};
+
+// Lazy-loaded reporters map for byline name rendering. Read once per cold start.
+let REPORTERS_CACHE = null;
+function loadReporters() {
+  if (REPORTERS_CACHE) return REPORTERS_CACHE;
+  try {
+    const data = require('../../config/newswire-reporters.json');
+    REPORTERS_CACHE = (data.reporters || []).reduce((acc, r) => { acc[r.id] = r; return acc; }, {});
+  } catch (_) { REPORTERS_CACHE = {}; }
+  return REPORTERS_CACHE;
+}
 
 const esc = (s) => String(s == null ? '' : s)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -96,19 +114,37 @@ function renderDashboard(pieces) {
       ? `<img class="row-thumb" src="${hero}" alt="" loading="lazy">`
       : `<div class="row-thumb row-thumb-placeholder" aria-hidden="true"></div>`;
     const desk = esc(p.desk || '');
-    const deskLabel = p.desk ? esc({us:'US',world:'World',business:'Business',technology:'Technology',science:'Science',health:'Health',entertainment:'Entertainment',sports:'Sports'}[p.desk] || p.desk) : '';
+    const deskLabel = p.desk ? esc(DESK_LABELS[p.desk] || p.desk) : '';
     const bylineKind = esc(p.byline_kind || 'client');
     const reporterId = esc(p.reporter_id || '');
+    const archived = p.archived === true;
+    // Render the reporter name as a link to their profile when the piece is
+    // a staff reporter byline. Falls back to italic 'reporter byline' when
+    // we cannot resolve the reporter id (legacy pieces, deleted reporters).
+    let bylineFragment = '';
+    if (bylineKind === 'reporter' && reporterId) {
+      const r = loadReporters()[p.reporter_id];
+      if (r) {
+        const profileSlug = r.id.replace(/_/g, '-');
+        bylineFragment = ` &middot; By <a href="/press/reporter/${esc(profileSlug)}" target="_blank" rel="noopener" style="color:#a3811c;border-bottom:1px solid rgba(184,146,42,0.4);text-decoration:none;">${esc(r.name)}</a>`;
+      } else {
+        bylineFragment = ' &middot; <em>reporter byline</em>';
+      }
+    } else if (author) {
+      bylineFragment = ` &middot; By ${author}`;
+    }
     return `
-    <li class="row" data-slug="${slug}" data-desk="${desk}">
+    <li class="row${archived ? ' row-archived' : ''}" data-slug="${slug}" data-desk="${desk}" data-archived="${archived ? '1' : '0'}">
       <div class="row-main">
         ${thumb}
         <div class="row-meta">
-          <div class="row-tag">${platformLabel}${deskLabel ? ' &middot; ' + deskLabel : ''}${bylineKind === 'reporter' ? ' &middot; <em>reporter byline</em>' : ''} &middot; <time>${esc(date)}</time></div>
+          <div class="row-tag">${platformLabel}${deskLabel ? ' &middot; ' + deskLabel : ''}${bylineFragment} &middot; <time>${esc(date)}</time></div>
           <div class="row-title">${title}</div>
           <div class="row-sub">${source_label ? source_label + ' &middot; ' : ''}<a href="/press/${slug}" target="_blank" rel="noopener">/press/${slug}</a></div>
         </div>
         <div class="row-actions">
+          <button type="button" class="btn btn-approve" data-action="approve" ${archived ? 'hidden' : ''}>Approve</button>
+          <button type="button" class="btn btn-ghost" data-action="unarchive" ${archived ? '' : 'hidden'}>Unapprove</button>
           <button type="button" class="btn btn-ghost" data-action="toggle-edit">Edit</button>
           <button type="button" class="btn btn-danger" data-action="delete">Delete</button>
         </div>
@@ -175,6 +211,18 @@ function renderDashboard(pieces) {
   .btn-danger:hover{background:rgba(154,42,42,0.1);}
   .btn-ghost{background:transparent;}
   .btn[disabled]{opacity:0.5;cursor:not-allowed;}
+  /* Approve button: subtle green to signal positive action. */
+  .btn-approve{border-color:#3a6a2a;color:#3a6a2a;}
+  .btn-approve:hover{background:#3a6a2a;color:#fff;}
+  /* Approved rows fade slightly so unapproved ones stand out. */
+  .row-archived{opacity:0.55;}
+  /* Review-queue tabs at top of pieces list. */
+  .review-tabs{display:flex;gap:0.4rem;font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;margin-right:1rem;}
+  .review-tab{padding:0.4rem 0.75rem;border:1px solid #b8922a;background:transparent;color:#5a5240;cursor:pointer;}
+  .review-tab.active{background:#0e0c08;color:#d4aa4a;border-color:#0e0c08;}
+  .review-tab:hover:not(.active){background:rgba(184,146,42,0.1);}
+  .bulk-bar{display:flex;align-items:center;gap:0.8rem;padding:0.6rem 0.9rem;background:#fff;border:1px solid rgba(184,146,42,0.4);margin-bottom:1rem;font-family:'DM Mono',monospace;font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;color:#5a5240;}
+  .bulk-bar strong{color:#0e0c08;}
 
   .row-edit{padding:0 1.25rem 1.25rem;border-top:1px dashed rgba(184,146,42,0.3);margin-top:0.5rem;display:flex;flex-direction:column;gap:0.75rem;}
   .row-edit label{display:flex;flex-direction:column;gap:0.3rem;font-family:'DM Mono',monospace;font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;color:#5a5240;}
@@ -308,8 +356,13 @@ function renderDashboard(pieces) {
 
   <section class="pieces-list">
     <div class="list-head">
-      <h2 class="list-h">All pieces</h2>
-      <div class="list-filter">
+      <h2 class="list-h">Pieces</h2>
+      <div class="list-filter" style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+        <div class="review-tabs" role="tablist">
+          <button type="button" class="review-tab active" data-review="pending">Pending</button>
+          <button type="button" class="review-tab" data-review="archived">Approved</button>
+          <button type="button" class="review-tab" data-review="all">All</button>
+        </div>
         <label>Filter by desk
           <select id="desk-filter">
             <option value="">All desks</option>
@@ -325,6 +378,11 @@ function renderDashboard(pieces) {
           </select>
         </label>
       </div>
+    </div>
+    <div class="bulk-bar">
+      <span><strong id="visible-count">${total}</strong> visible</span>
+      <button type="button" class="btn btn-approve" id="bulk-approve">Approve all visible</button>
+      <span style="font-style:italic;text-transform:none;letter-spacing:0;color:#5a5240;font-family:'Cormorant Garamond',serif;font-size:0.9rem;">Approved pieces stay public on /press; they only hide from this review queue.</span>
     </div>
     ${total === 0 ? '<div class="empty">No press pieces yet.</div>' : `<ul class="rows">${rows}</ul>`}
   </section>
@@ -494,13 +552,92 @@ function renderDashboard(pieces) {
   var deskFilter = document.getElementById('desk-filter');
   if (deskFilter) {
     deskFilter.addEventListener('change', function(){
-      var v = deskFilter.value;
-      $$('.row').forEach(function(row){
-        var d = row.getAttribute('data-desk') || '';
-        row.style.display = (!v || d === v) ? '' : 'none';
-      });
+      applyFilters();
     });
   }
+
+  // ─── Review queue tabs (Pending / Approved / All) + bulk approve ───
+  var currentReview = 'pending';
+  function applyFilters() {
+    var deskVal = (deskFilter && deskFilter.value) || '';
+    var visible = 0;
+    $$('.row').forEach(function(row){
+      var d = row.getAttribute('data-desk') || '';
+      var archived = row.getAttribute('data-archived') === '1';
+      var passDesk = !deskVal || d === deskVal;
+      var passReview = currentReview === 'all' || (currentReview === 'pending' && !archived) || (currentReview === 'archived' && archived);
+      var show = passDesk && passReview;
+      row.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+    var vc = document.getElementById('visible-count');
+    if (vc) vc.textContent = String(visible);
+  }
+  $$('.review-tab').forEach(function(tab){
+    tab.addEventListener('click', function(){
+      $$('.review-tab').forEach(function(t){ t.classList.remove('active'); });
+      tab.classList.add('active');
+      currentReview = tab.getAttribute('data-review') || 'pending';
+      applyFilters();
+    });
+  });
+  applyFilters();
+
+  // Approve / Unapprove single row
+  function setArchived(row, archived) {
+    var slug = row.getAttribute('data-slug');
+    return fetch('/.netlify/functions/press-update', {
+      method: 'POST', credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slug: slug, archived: archived }),
+    }).then(function(r){ return r.json().then(function(j){ return { ok: r.ok && j && j.ok, j: j }; }); })
+      .then(function(res){
+        if (!res.ok) return res;
+        row.setAttribute('data-archived', archived ? '1' : '0');
+        row.classList.toggle('row-archived', archived);
+        var approveBtn = row.querySelector('button[data-action="approve"]');
+        var unarchiveBtn = row.querySelector('button[data-action="unarchive"]');
+        if (approveBtn) approveBtn.hidden = archived;
+        if (unarchiveBtn) unarchiveBtn.hidden = !archived;
+        applyFilters();
+        return res;
+      });
+  }
+  $$('.row').forEach(function(row){
+    var approveBtn = row.querySelector('button[data-action="approve"]');
+    if (approveBtn) approveBtn.addEventListener('click', function(){
+      approveBtn.disabled = true;
+      setArchived(row, true).then(function(res){
+        approveBtn.disabled = false;
+        if (!res.ok) window.alert('Approve failed: ' + ((res.j && res.j.error) || 'unknown'));
+      });
+    });
+    var unarchiveBtn = row.querySelector('button[data-action="unarchive"]');
+    if (unarchiveBtn) unarchiveBtn.addEventListener('click', function(){
+      unarchiveBtn.disabled = true;
+      setArchived(row, false).then(function(res){
+        unarchiveBtn.disabled = false;
+        if (!res.ok) window.alert('Unapprove failed: ' + ((res.j && res.j.error) || 'unknown'));
+      });
+    });
+  });
+
+  // Bulk: approve all visible (only when on Pending tab; bulk-approves nothing if you are on Approved tab)
+  var bulkBtn = document.getElementById('bulk-approve');
+  if (bulkBtn) bulkBtn.addEventListener('click', function(){
+    var pending = $$('.row').filter(function(r){
+      return r.style.display !== 'none' && r.getAttribute('data-archived') !== '1';
+    });
+    if (!pending.length) { window.alert('Nothing to approve in the current view.'); return; }
+    if (!window.confirm('Approve ' + pending.length + ' visible piece' + (pending.length === 1 ? '' : 's') + '? They stay public on /press; this only hides them from the review queue.')) return;
+    bulkBtn.disabled = true;
+    var done = 0;
+    Promise.all(pending.map(function(row){ return setArchived(row, true); })).then(function(results){
+      bulkBtn.disabled = false;
+      var fails = results.filter(function(r){ return !r.ok; }).length;
+      if (fails) window.alert('Approved ' + (results.length - fails) + ' of ' + results.length + '. ' + fails + ' failed.');
+    });
+  });
 
   // 5 in Under 5 audio briefing regenerate
   var briefBtn = document.getElementById('btn-regenerate-briefing');

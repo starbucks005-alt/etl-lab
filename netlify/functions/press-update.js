@@ -164,6 +164,13 @@ exports.handler = async (event) => {
   if (Object.prototype.hasOwnProperty.call(body, 'reporter_id')) {
     merged.reporter_id = String(body.reporter_id || '').trim().slice(0, 80) || null;
   }
+  // Archive toggle: when admin approves a piece, archived=true hides it from
+  // the /press-admin review queue (but the piece stays public on /press).
+  // Defaults to false for backwards-compat; legacy pieces with no field are
+  // treated as pending.
+  if (Object.prototype.hasOwnProperty.call(body, 'archived')) {
+    merged.archived = body.archived === true || body.archived === 'true';
+  }
 
   // Immutable fields: enforce by reverting to existing values.
   merged.slug = existing.slug;

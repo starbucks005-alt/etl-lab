@@ -126,6 +126,11 @@ function renderFeedCard(p) {
     const file = p.reporter_id.split('_').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join('_');
     thumbUrl = `/agents/${file}.png`;
   }
+  // Card structure: the thumb/title/dek are wrapped in the piece-link
+  // anchor (clicks go to the full piece). The byline lives OUTSIDE that
+  // anchor as a sibling, so its inner reporter-profile <a> can be clicked
+  // independently. (Nested <a> tags are invalid HTML and break click
+  // routing - browsers split them and the inner click stops navigating.)
   return `
     <li class="feed-card">
       <a class="feed-link" href="/press/${esc(p.slug)}">
@@ -138,9 +143,9 @@ function renderFeedCard(p) {
           </span>
           <span class="feed-title">${esc(p.title)}</span>
           ${p.dek ? `<span class="feed-dek">${esc(p.dek)}</span>` : ''}
-          ${byline ? `<span class="feed-byline">${byline}</span>` : ''}
         </span>
       </a>
+      ${byline ? `<div class="feed-byline">${byline}</div>` : ''}
     </li>`;
 }
 
@@ -236,6 +241,10 @@ function renderNewsroom(pieces, activeDesk) {
   .briefing-band-sub{font-family:'Cormorant Garamond',serif;font-style:italic;color:#5a5240;font-size:0.88rem;}
   .briefing-band-audio audio{width:300px;max-width:100%;height:36px;}
   @media (max-width:720px){.briefing-band-audio audio{width:100%;}}
+  .briefing-share{display:flex;align-items:center;gap:0.5rem;margin-top:0.4rem;font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.16em;text-transform:uppercase;color:#8a6a1c;flex-wrap:wrap;}
+  .briefing-share a, .briefing-share button{font-family:inherit;font-size:inherit;letter-spacing:inherit;text-transform:inherit;color:#8a6a1c;background:transparent;border:1px solid #b8922a;padding:0.2rem 0.5rem;cursor:pointer;text-decoration:none;}
+  .briefing-share a:hover, .briefing-share button:hover{background:#b8922a;color:#fff;}
+  .briefing-share .copied{color:#3a6a2a;border-color:#3a6a2a;}
   /* Piece type tags - rendered for everything except 'news' so readers always know what they are reading. */
   .piece-type-tag{display:inline-block;font-family:'DM Mono',monospace;font-size:0.52rem;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;padding:0.18rem 0.45rem;border-radius:2px;}
   .piece-type-opinion{background:#3a6a8a;color:#fff;}
@@ -337,11 +346,36 @@ function renderNewsroom(pieces, activeDesk) {
     </div>
     <div class="briefing-band-audio">
       <audio id="briefing-audio" controls preload="none"></audio>
+      <div class="briefing-share" id="briefing-share">
+        <span>Share:</span>
+        <button type="button" data-share="link">Copy link</button>
+        <button type="button" data-share="embed">Copy embed</button>
+        <a href="https://twitter.com/intent/tweet?text=Today%27s%20wire%2C%20above%20the%20fold.&url=https%3A%2F%2Femerging-tech-lab.com%2Fpress" target="_blank" rel="noopener">Tweet</a>
+        <a href="/press/above-the-fold.xml" target="_blank" rel="noopener">Podcast RSS</a>
+      </div>
     </div>
   </div>
 </section>
 <script>
 (function(){
+  var share = document.getElementById('briefing-share');
+  if (share) {
+    share.addEventListener('click', function(ev){
+      var btn = ev.target.closest('button[data-share]');
+      if (!btn) return;
+      var mode = btn.getAttribute('data-share');
+      var text = mode === 'embed'
+        ? '<iframe src="https://emerging-tech-lab.com/press/above-the-fold/embed" width="680" height="120" style="border:0;" loading="lazy" title="Above the Fold from ETL Newswire"></iframe>'
+        : 'https://emerging-tech-lab.com/press';
+      var orig = btn.textContent;
+      var copy = navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject();
+      copy.then(function(){
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(function(){ btn.textContent = orig; btn.classList.remove('copied'); }, 1800);
+      }).catch(function(){ window.prompt('Copy this:', text); });
+    });
+  }
   fetch('/.netlify/functions/newswire-briefing-latest', { credentials: 'omit' })
     .then(function(r){ return r.ok ? r.json() : null; })
     .then(function(meta){
