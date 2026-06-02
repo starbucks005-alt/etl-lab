@@ -39,7 +39,11 @@ const PLATFORMS = new Set(['gauntlet', 'greylander', 'lab', 'newswire']);
 // fixed desk. Client releases get a sensible default based on platform but
 // the publisher can override.
 const DESKS = new Set(['us', 'world', 'business', 'technology', 'security', 'science', 'health', 'entertainment', 'sports']);
-const BYLINE_KINDS = new Set(['client', 'reporter']);
+const BYLINE_KINDS = new Set(['client', 'reporter', 'contributor']);
+// Editorial classification: what KIND of piece is this. Defaults to 'news'.
+// Reader-facing tags are rendered for everything except 'news' so readers
+// always know when they are reading opinion, satire, etc.
+const PIECE_TYPES = new Set(['news', 'opinion', 'satire', 'community', 'feature', 'analysis']);
 const DEFAULT_DESK_BY_PLATFORM = { gauntlet: 'business', greylander: 'entertainment', lab: 'technology', newswire: 'technology' };
 
 const PRESS_BASE_URL = 'https://emerging-tech-lab.com';
@@ -101,6 +105,9 @@ exports.handler = async (event) => {
   const desk          = DESKS.has(deskRaw) ? deskRaw : (DEFAULT_DESK_BY_PLATFORM[platform] || 'business');
   const byline_kind   = BYLINE_KINDS.has(String(body.byline_kind || '').toLowerCase()) ? String(body.byline_kind).toLowerCase() : 'client';
   const reporter_id   = byline_kind === 'reporter' ? String(body.reporter_id || '').trim().slice(0, 80) : '';
+  const contributor_id = byline_kind === 'contributor' ? String(body.contributor_id || '').trim().slice(0, 80) : '';
+  const pieceTypeRaw  = String(body.piece_type || '').trim().toLowerCase();
+  const piece_type    = PIECE_TYPES.has(pieceTypeRaw) ? pieceTypeRaw : 'news';
   // Admin-only override for backdating (used by the seed function). Gated on
   // PRESS_PUBLISH_TOKEN: only honored if the request authenticated with the
   // token, because otherwise anyone could backdate spam.
@@ -151,6 +158,8 @@ exports.handler = async (event) => {
     desk,
     byline_kind,
     reporter_id: reporter_id || null,
+    contributor_id: contributor_id || null,
+    piece_type,
     published_at,
     hero_image_url: heroRaw || null,
   };
@@ -165,9 +174,10 @@ exports.handler = async (event) => {
     try { const existing = await indexStore.get('order', { type: 'json' }); if (Array.isArray(existing)) order = existing; } catch (_) {}
     const indexEntry = {
       slug, title, dek, platform, source_label: piece.source_label,
-      published_at: piece.published_at, desk, byline_kind,
+      published_at: piece.published_at, desk, byline_kind, piece_type,
     };
     if (piece.reporter_id) indexEntry.reporter_id = piece.reporter_id;
+    if (piece.contributor_id) indexEntry.contributor_id = piece.contributor_id;
     if (piece.hero_image_url) indexEntry.hero_image_url = piece.hero_image_url;
     // Insertion: scan for the first entry older than this one and insert before it.
     let inserted = false;

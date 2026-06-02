@@ -242,6 +242,11 @@ function renderDashboard(pieces) {
   <section class="newsroom-tools">
     <h2 class="tools-h">Newsroom tools</h2>
 
+    <p style="font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.18em;text-transform:uppercase;color:#5a5240;margin-bottom:1rem;">
+      &raquo; <a href="/press-admin/submissions" style="color:#0e0c08;border-bottom:1px solid #b8922a;text-decoration:none;">Submissions inbox</a>
+      &middot; contributor applications &rarr; Netlify dashboard / Forms
+    </p>
+
     <div class="tools-grid">
       <div class="tool-card">
         <h3 class="tool-title">Commission a piece</h3>

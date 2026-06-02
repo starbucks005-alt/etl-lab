@@ -151,6 +151,24 @@ body{font-family:'Cormorant Garamond',Georgia,serif;background:#f4ebd6;color:#0e
 .piece-meta a{color:#5a5240;text-decoration:none;border-bottom:1px solid rgba(184,146,42,0.4);}
 .piece-meta a:hover{color:#b8922a;border-bottom-color:#b8922a;}
 .empty{font-style:italic;color:#5a5240;padding:1rem 0;}
+.contact-card{background:#fdfbf5;border:1px solid rgba(184,146,42,0.3);padding:1.5rem 1.6rem;margin-top:2.4rem;}
+.contact-h{font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:700;color:#0e0c08;margin-bottom:0.3rem;}
+.contact-sub{font-family:'Cormorant Garamond',serif;font-style:italic;color:#5a5240;font-size:1rem;margin-bottom:1rem;}
+.contact-form{display:grid;grid-template-columns:1fr 1fr;gap:0.9rem;}
+@media (max-width:620px){.contact-form{grid-template-columns:1fr;}}
+.contact-field{display:flex;flex-direction:column;gap:0.3rem;}
+.contact-field.full{grid-column:1 / -1;}
+.contact-field label{font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.2em;text-transform:uppercase;color:#5a5240;}
+.contact-field input,.contact-field textarea{font-family:'Cormorant Garamond',serif;font-size:1rem;color:#0e0c08;background:#fff;border:1px solid rgba(184,146,42,0.4);padding:0.55rem 0.7rem;outline:none;}
+.contact-field textarea{min-height:120px;resize:vertical;}
+.contact-field input:focus,.contact-field textarea:focus{border-color:#b8922a;}
+.contact-actions{grid-column:1 / -1;display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-top:0.3rem;}
+.contact-status{font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;color:#5a5240;flex:1;}
+.contact-status.ok{color:#3a6a2a;}
+.contact-status.err{color:#9a2a2a;}
+.contact-submit{font-family:'DM Mono',monospace;font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;background:#0e0c08;color:#d4aa4a;border:0;padding:0.7rem 1.3rem;cursor:pointer;font-weight:700;}
+.contact-submit:hover{background:#3a3424;}
+.contact-honey{position:absolute;left:-9999px;}
 footer{max-width:1080px;margin:0 auto;padding:2rem;border-top:1px solid rgba(184,146,42,0.25);font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;color:#5a5240;display:flex;justify-content:space-between;flex-wrap:wrap;gap:0.6rem;}
 footer a{color:#5a5240;text-decoration:underline;}
 </style>
@@ -173,6 +191,78 @@ footer a{color:#5a5240;text-decoration:underline;}
 </header>
 <h2 class="section-h">Recent reporting from ${esc(reporter.name.split(' ').slice(-1)[0])}</h2>
 <ul class="pieces-list">${piecesHtml}</ul>
+
+<section class="contact-card" id="contact-${esc(reporter.id)}">
+  <h3 class="contact-h">Contact ${esc(reporter.name)}</h3>
+  <p class="contact-sub">Tips, corrections, pitches, follow-ups. Messages route to the editorial desk and the reporter is briefed.</p>
+  <form class="contact-form" id="contact-form" data-reporter="${esc(reporter.id)}">
+    <div class="contact-field">
+      <label for="cf-name">Your name</label>
+      <input id="cf-name" name="sender_name" type="text" maxlength="140" required>
+    </div>
+    <div class="contact-field">
+      <label for="cf-email">Your email</label>
+      <input id="cf-email" name="sender_email" type="email" maxlength="200" required>
+    </div>
+    <div class="contact-field full">
+      <label for="cf-subject">Subject (optional)</label>
+      <input id="cf-subject" name="subject" type="text" maxlength="200">
+    </div>
+    <div class="contact-field full">
+      <label for="cf-message">Message</label>
+      <textarea id="cf-message" name="message" maxlength="5000" minlength="10" required></textarea>
+    </div>
+    <div class="contact-honey"><label>Do not fill: <input name="website" tabindex="-1" autocomplete="off"></label></div>
+    <div class="contact-actions">
+      <span class="contact-status" id="contact-status"></span>
+      <button class="contact-submit" type="submit">Send to the desk &rarr;</button>
+    </div>
+  </form>
+</section>
+
+<script>
+(function(){
+  var form = document.getElementById('contact-form');
+  if (!form) return;
+  form.addEventListener('submit', function(ev){
+    ev.preventDefault();
+    var status = document.getElementById('contact-status');
+    var btn = form.querySelector('.contact-submit');
+    var reporterId = form.getAttribute('data-reporter') || '';
+    var payload = {
+      reporter_id: reporterId,
+      sender_name: form.elements.sender_name.value,
+      sender_email: form.elements.sender_email.value,
+      subject: form.elements.subject.value,
+      message: form.elements.message.value,
+      website: form.elements.website ? form.elements.website.value : '',
+    };
+    btn.disabled = true;
+    status.textContent = 'Sending...';
+    status.className = 'contact-status';
+    fetch('/.netlify/functions/press-contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    }).then(function(r){ return r.json().then(function(j){ return {ok:r.ok, j:j}; }); })
+      .then(function(res){
+        if (res.ok && res.j && res.j.ok) {
+          status.textContent = 'Sent. The editorial desk will route this.';
+          status.className = 'contact-status ok';
+          form.reset();
+        } else {
+          status.textContent = 'Error: ' + ((res.j && res.j.error) || 'unable to send');
+          status.className = 'contact-status err';
+          btn.disabled = false;
+        }
+      }).catch(function(err){
+        status.textContent = 'Network error: ' + (err.message || 'unknown');
+        status.className = 'contact-status err';
+        btn.disabled = false;
+      });
+  });
+})();
+</script>
 </main>
 <footer>
   <span>ETL Newswire &middot; A publication of the Emerging Technologies Laboratory</span>

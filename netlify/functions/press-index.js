@@ -100,6 +100,7 @@ function renderHero(p) {
     <div class="hero-body">
       <div class="hero-eyebrow">
         ${deskLabel ? `<a class="hero-desk" href="/press?desk=${esc(p.desk)}">${esc(deskLabel)}</a>` : ''}
+        ${p.piece_type && p.piece_type !== 'news' ? `<span class="piece-type-tag piece-type-${esc(p.piece_type)}">${esc(p.piece_type.toUpperCase())}</span>` : ''}
         <span class="hero-date">${esc(date)}</span>
       </div>
       <h2 class="hero-title"><a href="/press/${esc(p.slug)}">${esc(p.title)}</a></h2>
@@ -132,6 +133,7 @@ function renderFeedCard(p) {
         <span class="feed-text">
           <span class="feed-meta">
             ${deskLabel ? `<span class="feed-desk">${esc(deskLabel)}</span>` : ''}
+            ${p.piece_type && p.piece_type !== 'news' ? `<span class="piece-type-tag piece-type-${esc(p.piece_type)}">${esc(p.piece_type.toUpperCase())}</span>` : ''}
             <time>${esc(date)}</time>
           </span>
           <span class="feed-title">${esc(p.title)}</span>
@@ -231,6 +233,13 @@ function renderNewsroom(pieces, activeDesk) {
   .briefing-band-sub{font-family:'Cormorant Garamond',serif;font-style:italic;color:#5a5240;font-size:0.88rem;}
   .briefing-band-audio audio{width:300px;max-width:100%;height:36px;}
   @media (max-width:720px){.briefing-band-audio audio{width:100%;}}
+  /* Piece type tags - rendered for everything except 'news' so readers always know what they are reading. */
+  .piece-type-tag{display:inline-block;font-family:'DM Mono',monospace;font-size:0.52rem;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;padding:0.18rem 0.45rem;border-radius:2px;}
+  .piece-type-opinion{background:#3a6a8a;color:#fff;}
+  .piece-type-satire{background:#8a3a6a;color:#fff;}
+  .piece-type-community{background:#3a8a4a;color:#fff;}
+  .piece-type-feature{background:#8a6a3a;color:#fff;}
+  .piece-type-analysis{background:#5a5240;color:#fff;}
 
   /* Desk nav strip */
   .desk-nav{max-width:1180px;margin:0 auto;padding:0.9rem 2rem;display:flex;flex-wrap:wrap;gap:0.4rem 1.4rem;align-items:center;justify-content:center;border-bottom:1px solid rgba(14,12,8,0.18);font-family:'DM Mono',monospace;font-size:0.62rem;letter-spacing:0.22em;text-transform:uppercase;}
@@ -367,6 +376,7 @@ ${hero ? `<section class="hero-band">${renderHero(hero)}</section>` : ''}
   <span>${NEWSROOM_NAME} &middot; A publication of the Emerging Technologies Laboratory</span>
   <span class="foot-right">
     <a href="/press-about">About</a>
+    <a href="/press/careers">Careers</a>
     <a href="/press.rss">RSS</a>
     <a href="/press-sitemap.xml">Sitemap</a>
     <a class="foot-admin" href="/press-admin" rel="nofollow noindex">Admin</a>
