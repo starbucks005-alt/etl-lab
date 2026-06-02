@@ -166,7 +166,7 @@
 
 <header>
   <div class="wrap">
-    <div class="brand">The Prep <span>Room</span></div>
+    <div class="brand" id="room-brand">The Prep <span>Room</span></div>
     <a class="home-link" href="/">&larr; ETL Home</a>
   </div>
 </header>
@@ -1339,6 +1339,15 @@
     // Companion-tools label flips to match the audience-facing room name.
     var mLabel = $('more-tools-label');
     if (mLabel) mLabel.textContent = (AUDIENCE === 'pros') ? 'More from the Boardroom' : 'More from the Prep Room';
+    // Flip the top-strip brand to match audience-facing room name.
+    var brand = document.getElementById('room-brand');
+    if (brand) brand.innerHTML = (AUDIENCE === 'pros') ? 'The <span>Boardroom</span>' : 'The Prep <span>Room</span>';
+    // Flip the browser tab title too.
+    try {
+      document.title = (AUDIENCE === 'pros')
+        ? 'The Boardroom — Executive Interview & CV Practice | Emerging Technologies Laboratory'
+        : 'The Prep Room — Defense & Interview Practice | Emerging Technologies Laboratory';
+    } catch (_) {}
   }
 
   function setAudience(a, keepMode){
