@@ -235,7 +235,20 @@ function notFoundHtml(slug) {
 }
 
 exports.handler = async (event) => {
-  const slug = (event.queryStringParameters && event.queryStringParameters.slug) || '';
+  // Slug can arrive three ways depending on the redirect Netlify ends up
+  // using. Read all three so the function works regardless.
+  //   (1) query string ?slug=foo  (when the redirect uses ?slug=:splat AND
+  //       Netlify successfully interpolates the splat - which it often
+  //       does NOT, hence this fallback)
+  //   (2) original public path /press/<slug>  (Netlify functions typically
+  //       receive the original URL path in event.path even after a rewrite)
+  //   (3) function path /.netlify/functions/press-piece/<slug>  (if the
+  //       redirect rewrites with the slug appended to the function path)
+  const path = event.path || '';
+  const pressMatch = path.match(/^\/press\/(.+?)\/?$/);
+  const fnMatch = path.match(/^\/\.netlify\/functions\/press-piece\/(.+?)\/?$/);
+  const querySlug = (event.queryStringParameters && event.queryStringParameters.slug) || '';
+  const slug = querySlug || (pressMatch && pressMatch[1]) || (fnMatch && fnMatch[1]) || '';
   if (!slug) {
     return { statusCode: 400, headers: { 'Content-Type': 'text/html; charset=utf-8' }, body: notFoundHtml('(no slug provided)') };
   }
