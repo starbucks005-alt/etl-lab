@@ -182,6 +182,65 @@
     padding: 1.4rem; text-align: center; color: var(--ink-soft); font-style: italic;
   }
 
+  /* Profile / letterhead card. Collapsible — open when no saved profile,
+     collapses to a one-line summary once saved. */
+  .profile-card {
+    background: #fcf6e8; border: 1px solid var(--line);
+    margin-bottom: 1.6rem;
+  }
+  .profile-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0.9rem 1.2rem; cursor: pointer; user-select: none;
+  }
+  .profile-header h2 {
+    font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.2rem;
+    margin: 0;
+  }
+  .profile-summary {
+    font-family: 'Cormorant Garamond', serif; color: var(--ink-soft);
+    font-size: 0.95rem; font-style: italic; margin: 0.2rem 0 0;
+  }
+  .profile-header .toggle {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--gold-deep);
+  }
+  .profile-body { padding: 0 1.2rem 1.4rem; }
+  .profile-body[hidden] { display: none; }
+  .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 700px) { .profile-grid { grid-template-columns: 1fr; } }
+
+  .sig-tabs { display: flex; gap: 0.4rem; margin: 0 0 0.6rem; }
+  .sig-tabs button {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.12em;
+    text-transform: uppercase; padding: 0.4rem 0.8rem; cursor: pointer;
+    background: transparent; border: 1px solid var(--line); color: var(--ink-soft);
+  }
+  .sig-tabs button.active { background: var(--ink); color: #f3ecdc; border-color: var(--ink); }
+  .sig-pane { display: none; }
+  .sig-pane.active { display: block; }
+
+  .sig-canvas {
+    background: #fffbef; border: 1px solid var(--line);
+    width: 100%; max-width: 420px; height: 110px;
+    touch-action: none; cursor: crosshair; display: block;
+  }
+  .sig-preview {
+    margin-top: 0.4rem; padding: 0.4rem; max-width: 420px; background: #fffbef;
+    border: 1px dashed var(--line);
+  }
+  .sig-preview img { max-width: 100%; max-height: 80px; }
+  .sig-preview.empty { color: var(--ink-soft); font-style: italic; font-size: 0.9rem; }
+
+  .logo-preview {
+    margin-top: 0.4rem; padding: 0.4rem; max-width: 260px; background: #fffbef;
+    border: 1px dashed var(--line);
+  }
+  .logo-preview img { max-width: 100%; max-height: 80px; display: block; }
+  .logo-preview.empty { color: var(--ink-soft); font-style: italic; font-size: 0.9rem; }
+
+  .profile-actions { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 1rem; }
+  .profile-state { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--good); text-transform: uppercase; letter-spacing: 0.12em; margin-top: 0.6rem; min-height: 1em; }
+
   footer {
     margin-top: 4rem; padding-top: 1.4rem; border-top: 1px solid var(--line);
     font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.14em;
@@ -207,6 +266,91 @@
 
   <div class="privacy-banner">
     <strong>Privacy:</strong> Your inputs are sent to Anthropic's Claude API to generate the draft. Anthropic does not train on or retain API content. We do not log, store, or retain anything on our servers. Uploaded files are parsed in your browser, and only the extracted text travels with the draft request. Your draft, signature, and letterhead stay on your computer.
+  </div>
+
+  <!-- ─── Profile / Letterhead (saved in localStorage, never leaves your browser) ─── -->
+  <div class="profile-card">
+    <div class="profile-header" id="profile-toggle">
+      <div>
+        <h2>Your letterhead</h2>
+        <p class="profile-summary" id="profile-summary">Saved in your browser, never sent to our servers. Used to format your PDF and DOCX exports.</p>
+      </div>
+      <span class="toggle" id="profile-toggle-label">Open</span>
+    </div>
+    <div class="profile-body" id="profile-body">
+      <div class="profile-grid">
+        <label class="field">
+          <span class="label-text">Full name</span>
+          <input type="text" id="profile-name" placeholder="e.g. Terry Oroszi, EdD">
+        </label>
+        <label class="field">
+          <span class="label-text">Academic title</span>
+          <input type="text" id="profile-title" placeholder="e.g. Associate Professor; Director, ETL Lab">
+        </label>
+        <label class="field">
+          <span class="label-text">Department</span>
+          <input type="text" id="profile-dept" placeholder="e.g. Pharmacology and Toxicology">
+        </label>
+        <label class="field">
+          <span class="label-text">University / institution</span>
+          <input type="text" id="profile-university" placeholder="e.g. Wright State University">
+        </label>
+        <label class="field">
+          <span class="label-text">Email</span>
+          <input type="text" id="profile-email" placeholder="e.g. terry.oroszi@example.edu">
+        </label>
+        <label class="field">
+          <span class="label-text">Phone (optional)</span>
+          <input type="text" id="profile-phone" placeholder="e.g. (937) 555-0100">
+        </label>
+        <label class="field">
+          <span class="label-text">Website / ORCID (optional)</span>
+          <input type="text" id="profile-website" placeholder="e.g. orcid.org/0000-0000-0000-0000">
+        </label>
+        <label class="field">
+          <span class="label-text">Mailing address (optional)</span>
+          <input type="text" id="profile-address" placeholder="e.g. 3640 Colonel Glenn Hwy, Dayton, OH 45435">
+        </label>
+      </div>
+
+      <div class="profile-grid" style="margin-top:0.8rem;">
+        <div>
+          <label class="field">
+            <span class="label-text">University logo (PNG / JPG)</span>
+            <span class="label-note">Appears top-left of your exports. Stays in your browser.</span>
+            <input type="file" id="profile-logo" accept="image/png,image/jpeg">
+          </label>
+          <div class="logo-preview empty" id="profile-logo-preview">No logo loaded.</div>
+        </div>
+        <div>
+          <label class="field">
+            <span class="label-text">Signature</span>
+            <span class="label-note">Draw with your mouse or trackpad, or upload a PNG.</span>
+          </label>
+          <div class="sig-tabs">
+            <button type="button" class="sig-tab active" data-sig="draw">Draw</button>
+            <button type="button" class="sig-tab" data-sig="upload">Upload PNG</button>
+          </div>
+          <div class="sig-pane active" data-sig-pane="draw">
+            <canvas id="sig-canvas" class="sig-canvas" width="420" height="110"></canvas>
+            <div class="actions" style="margin-top:0.4rem;">
+              <button type="button" class="btn ghost" id="sig-clear" style="padding:0.4rem 0.8rem;">Clear signature</button>
+              <button type="button" class="btn ghost" id="sig-save-drawn" style="padding:0.4rem 0.8rem;">Use this signature</button>
+            </div>
+          </div>
+          <div class="sig-pane" data-sig-pane="upload">
+            <input type="file" id="sig-upload" accept="image/png,image/jpeg">
+          </div>
+          <div class="sig-preview empty" id="sig-preview">No signature saved.</div>
+        </div>
+      </div>
+
+      <div class="profile-actions">
+        <button type="button" class="btn" id="profile-save">Save letterhead</button>
+        <button type="button" class="btn ghost" id="profile-clear">Clear letterhead</button>
+      </div>
+      <div class="profile-state" id="profile-state"></div>
+    </div>
   </div>
 
   <div class="mode-tabs" role="tablist">
@@ -339,6 +483,8 @@
         <div class="output-meta" id="email-output-meta"></div>
         <div class="actions">
           <button type="button" class="btn ghost" id="email-copy">Copy to clipboard</button>
+          <button type="button" class="btn" id="email-export-pdf">Export PDF</button>
+          <button type="button" class="btn" id="email-export-docx">Export DOCX</button>
           <button type="button" class="btn ghost" id="email-clear-output">Clear draft</button>
         </div>
       </div>
@@ -502,6 +648,8 @@
         <div class="output-meta" id="lor-output-meta"></div>
         <div class="actions">
           <button type="button" class="btn ghost" id="lor-copy">Copy to clipboard</button>
+          <button type="button" class="btn" id="lor-export-pdf">Export PDF</button>
+          <button type="button" class="btn" id="lor-export-docx">Export DOCX</button>
           <button type="button" class="btn ghost" id="lor-clear-output">Clear draft</button>
         </div>
       </div>
@@ -630,29 +778,121 @@
     setStatus($('email-status'), 'Cleared.', 'success');
   });
 
+  // ─── Lazy-loaded libraries (CDN) ─────────────────────────────────────
+  // We don't pay the page-weight cost of pdf.js / mammoth / jsPDF / docx
+  // until the user actually uses a feature that needs them.
+  function loadScript(src){
+    return new Promise(function(resolve, reject){
+      if (document.querySelector('script[data-loaded="' + src + '"]')) return resolve();
+      var s = document.createElement('script');
+      s.src = src;
+      s.setAttribute('data-loaded', src);
+      s.onload = resolve;
+      s.onerror = function(){ reject(new Error('Failed to load: ' + src)); };
+      document.head.appendChild(s);
+    });
+  }
+  var _pdfJsReady = null;
+  function ensurePdfJs(){
+    if (_pdfJsReady) return _pdfJsReady;
+    _pdfJsReady = loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js').then(function(){
+      var lib = window.pdfjsLib || window['pdfjs-dist/build/pdf'];
+      window.pdfjsLib = lib;
+      if (lib && lib.GlobalWorkerOptions) {
+        lib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      }
+    });
+    return _pdfJsReady;
+  }
+  var _mammothReady = null;
+  function ensureMammoth(){
+    if (_mammothReady) return _mammothReady;
+    _mammothReady = loadScript('https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js');
+    return _mammothReady;
+  }
+  var _jsPdfReady = null;
+  function ensureJsPdf(){
+    if (_jsPdfReady) return _jsPdfReady;
+    _jsPdfReady = loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+    return _jsPdfReady;
+  }
+  var _docxReady = null;
+  function ensureDocxLib(){
+    if (_docxReady) return _docxReady;
+    _docxReady = loadScript('https://unpkg.com/docx@8.5.0/build/index.umd.js');
+    return _docxReady;
+  }
+
+  function dataUrlToUint8Array(dataUrl){
+    var base64 = String(dataUrl || '').split(',')[1] || '';
+    var raw = atob(base64);
+    var arr = new Uint8Array(raw.length);
+    for (var i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
+    return arr;
+  }
+  function readFileAsDataUrl(file){
+    return new Promise(function(resolve, reject){
+      var r = new FileReader();
+      r.onload = function(){ resolve(String(r.result || '')); };
+      r.onerror = reject;
+      r.readAsDataURL(file);
+    });
+  }
+  async function extractPdfText(file){
+    await ensurePdfJs();
+    var arrayBuffer = await file.arrayBuffer();
+    var pdf = await window.pdfjsLib.getDocument({data: arrayBuffer}).promise;
+    var fullText = '';
+    for (var i = 1; i <= pdf.numPages; i++) {
+      var page = await pdf.getPage(i);
+      var content = await page.getTextContent();
+      fullText += content.items.map(function(it){ return it.str; }).join(' ') + '\n';
+    }
+    return fullText;
+  }
+  async function extractDocxText(file){
+    await ensureMammoth();
+    var arrayBuffer = await file.arrayBuffer();
+    var result = await window.mammoth.extractRawText({arrayBuffer: arrayBuffer});
+    return result.value;
+  }
+
   // ─── File parsing (client-side, no server upload) ─────────────────────
-  // Phase 1: read .txt directly; PDF/DOCX parsing wired in Phase 3. For now
-  // we show a "(file noted, text extraction in next phase)" placeholder so
-  // the field is functional but not yet feeding the AI.
+  // Now wired to real PDF and DOCX text extraction via pdf.js and mammoth.
+  // The raw file bytes never leave the browser; only the extracted text is
+  // included in the draft-generation request to Anthropic.
   function attachFileReader(inputId, metaId, stateKey){
     var input = $(inputId), meta = $(metaId);
     if (!input || !meta) return;
-    input.addEventListener('change', function(){
+    input.addEventListener('change', async function(){
       var f = input.files && input.files[0];
       if (!f) { meta.textContent = ''; window['__' + stateKey] = ''; return; }
       var name = f.name; var size = (f.size / 1024).toFixed(1) + ' KB';
-      if (/\.txt$/i.test(name)) {
-        var r = new FileReader();
-        r.onload = function(){
-          window['__' + stateKey] = String(r.result || '').slice(0, 8000);
-          meta.textContent = name + ' (' + size + ', text extracted)';
-        };
-        r.readAsText(f);
-      } else {
-        // PDF/DOCX: we store the filename for now. Phase 3 wires pdf.js +
-        // a docx parser so the extracted text actually feeds the AI.
+      meta.textContent = name + ' (' + size + ', parsing in your browser...)';
+      try {
+        var text = '';
+        if (/\.pdf$/i.test(name)) {
+          text = await extractPdfText(f);
+        } else if (/\.docx$/i.test(name)) {
+          text = await extractDocxText(f);
+        } else if (/\.txt$/i.test(name)) {
+          text = await new Promise(function(resolve, reject){
+            var r = new FileReader();
+            r.onload = function(){ resolve(String(r.result || '')); };
+            r.onerror = reject;
+            r.readAsText(f);
+          });
+        } else {
+          meta.textContent = name + ' (' + size + ', unsupported file type — use PDF, DOCX, or TXT)';
+          window['__' + stateKey] = '';
+          return;
+        }
+        window['__' + stateKey] = String(text || '').slice(0, 8000);
+        meta.textContent = name + ' (' + size + ', ' + window['__' + stateKey].length + ' chars extracted)';
+      } catch (err) {
+        console.error('[file-parse]', err);
+        meta.textContent = name + ' (' + size + ', parse failed: ' + (err.message || 'unknown') + ')';
         window['__' + stateKey] = '';
-        meta.textContent = name + ' (' + size + ', PDF/DOCX text extraction in Phase 3)';
       }
     });
   }
@@ -944,6 +1184,415 @@
     $('lor-output').value = '';
     $('lor-output-meta').textContent = '';
     setStatus($('lor-status'), 'Draft cleared.', 'success');
+  });
+
+  // ════════════════════════════════════════════════════════════════════
+  //  PROFILE / LETTERHEAD (saved in localStorage, never leaves browser)
+  // ════════════════════════════════════════════════════════════════════
+  var PROFILE_KEY = 'office-hours:profile-v1';
+
+  function loadProfile(){
+    try { var raw = localStorage.getItem(PROFILE_KEY); return raw ? JSON.parse(raw) : null; }
+    catch(_){ return null; }
+  }
+  function saveProfileObj(p){
+    try { localStorage.setItem(PROFILE_KEY, JSON.stringify(p)); return true; }
+    catch(err){ console.error('[profile] save failed', err); return false; }
+  }
+  function setProfileCollapsed(collapsed){
+    $('profile-body').hidden = collapsed;
+    $('profile-toggle-label').textContent = collapsed ? 'Edit' : 'Close';
+  }
+  function updateProfileSummary(p){
+    var el = $('profile-summary');
+    if (!p || !p.name) { el.textContent = 'Saved in your browser, never sent to our servers. Used to format your PDF and DOCX exports.'; return; }
+    var parts = [p.name];
+    if (p.title) parts.push(p.title);
+    if (p.university) parts.push(p.university);
+    el.textContent = parts.join(' · ');
+  }
+  function hydrateProfile(){
+    var p = loadProfile();
+    if (!p) { setProfileCollapsed(false); return; }
+    $('profile-name').value = p.name || '';
+    $('profile-title').value = p.title || '';
+    $('profile-dept').value = p.dept || '';
+    $('profile-university').value = p.university || '';
+    $('profile-email').value = p.email || '';
+    $('profile-phone').value = p.phone || '';
+    $('profile-website').value = p.website || '';
+    $('profile-address').value = p.address || '';
+    if (p.logo) {
+      $('profile-logo-preview').innerHTML = '<img src="' + p.logo + '" alt="Logo">';
+      $('profile-logo-preview').classList.remove('empty');
+      $('profile-logo-preview').setAttribute('data-img', p.logo);
+    }
+    if (p.signature) {
+      $('sig-preview').innerHTML = '<img src="' + p.signature + '" alt="Signature">';
+      $('sig-preview').classList.remove('empty');
+      $('sig-preview').setAttribute('data-img', p.signature);
+    }
+    updateProfileSummary(p);
+    setProfileCollapsed(true);
+  }
+
+  // Toggle profile open/close
+  var profileToggle = $('profile-toggle');
+  if (profileToggle) profileToggle.addEventListener('click', function(){
+    setProfileCollapsed(!$('profile-body').hidden);
+  });
+
+  // Logo upload preview
+  var profileLogoInput = $('profile-logo');
+  if (profileLogoInput) profileLogoInput.addEventListener('change', async function(){
+    var f = this.files && this.files[0];
+    if (!f) return;
+    var dataUrl = await readFileAsDataUrl(f);
+    $('profile-logo-preview').innerHTML = '<img src="' + dataUrl + '" alt="Logo">';
+    $('profile-logo-preview').classList.remove('empty');
+    $('profile-logo-preview').setAttribute('data-img', dataUrl);
+  });
+
+  // Signature: canvas drawing
+  (function initSigCanvas(){
+    var canvas = $('sig-canvas');
+    if (!canvas) return;
+    var ctx = canvas.getContext('2d');
+    ctx.strokeStyle = '#161310';
+    ctx.lineWidth = 2.2;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    var drawing = false;
+    function pos(ev){
+      var rect = canvas.getBoundingClientRect();
+      var cx = ev.touches ? ev.touches[0].clientX : ev.clientX;
+      var cy = ev.touches ? ev.touches[0].clientY : ev.clientY;
+      return { x: (cx - rect.left) * (canvas.width / rect.width), y: (cy - rect.top) * (canvas.height / rect.height) };
+    }
+    function start(ev){ ev.preventDefault(); drawing = true; var p = pos(ev); ctx.beginPath(); ctx.moveTo(p.x, p.y); }
+    function move(ev){ if (!drawing) return; ev.preventDefault(); var p = pos(ev); ctx.lineTo(p.x, p.y); ctx.stroke(); }
+    function end(){ drawing = false; }
+    canvas.addEventListener('mousedown', start); canvas.addEventListener('mousemove', move);
+    canvas.addEventListener('mouseup', end); canvas.addEventListener('mouseleave', end);
+    canvas.addEventListener('touchstart', start, {passive: false});
+    canvas.addEventListener('touchmove', move, {passive: false});
+    canvas.addEventListener('touchend', end);
+    $('sig-clear').addEventListener('click', function(){ ctx.clearRect(0, 0, canvas.width, canvas.height); });
+    $('sig-save-drawn').addEventListener('click', function(){
+      // Verify canvas isn't blank
+      var pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+      var hasInk = false;
+      for (var i = 3; i < pixels.length; i += 4) { if (pixels[i] > 0) { hasInk = true; break; } }
+      if (!hasInk) { setStatus($('profile-state'), 'Sign on the canvas first, then click Use this signature.', 'error'); return; }
+      var dataUrl = canvas.toDataURL('image/png');
+      $('sig-preview').innerHTML = '<img src="' + dataUrl + '" alt="Signature">';
+      $('sig-preview').classList.remove('empty');
+      $('sig-preview').setAttribute('data-img', dataUrl);
+      setStatus($('profile-state'), 'Signature captured. Click Save letterhead to persist.', 'success');
+    });
+  })();
+
+  // Signature: tab switching
+  document.querySelectorAll('.sig-tab').forEach(function(t){
+    t.addEventListener('click', function(){
+      var pane = t.getAttribute('data-sig');
+      document.querySelectorAll('.sig-tab').forEach(function(x){ x.classList.toggle('active', x === t); });
+      document.querySelectorAll('.sig-pane').forEach(function(p){ p.classList.toggle('active', p.getAttribute('data-sig-pane') === pane); });
+    });
+  });
+
+  // Signature: upload PNG
+  var sigUpload = $('sig-upload');
+  if (sigUpload) sigUpload.addEventListener('change', async function(){
+    var f = this.files && this.files[0];
+    if (!f) return;
+    var dataUrl = await readFileAsDataUrl(f);
+    $('sig-preview').innerHTML = '<img src="' + dataUrl + '" alt="Signature">';
+    $('sig-preview').classList.remove('empty');
+    $('sig-preview').setAttribute('data-img', dataUrl);
+    setStatus($('profile-state'), 'Signature loaded. Click Save letterhead to persist.', 'success');
+  });
+
+  // Save profile to localStorage
+  var profileSave = $('profile-save');
+  if (profileSave) profileSave.addEventListener('click', function(){
+    var p = {
+      name: $('profile-name').value.trim(),
+      title: $('profile-title').value.trim(),
+      dept: $('profile-dept').value.trim(),
+      university: $('profile-university').value.trim(),
+      email: $('profile-email').value.trim(),
+      phone: $('profile-phone').value.trim(),
+      website: $('profile-website').value.trim(),
+      address: $('profile-address').value.trim(),
+      logo: $('profile-logo-preview').getAttribute('data-img') || null,
+      signature: $('sig-preview').getAttribute('data-img') || null
+    };
+    if (!p.name) { setStatus($('profile-state'), 'Full name is required.', 'error'); return; }
+    if (saveProfileObj(p)) {
+      updateProfileSummary(p);
+      setStatus($('profile-state'), 'Letterhead saved to this browser.', 'success');
+      setTimeout(function(){ setProfileCollapsed(true); }, 900);
+    } else {
+      setStatus($('profile-state'), 'Could not save to browser storage.', 'error');
+    }
+  });
+
+  // Clear profile
+  var profileClear = $('profile-clear');
+  if (profileClear) profileClear.addEventListener('click', function(){
+    if (!window.confirm('Clear your saved letterhead?')) return;
+    try { localStorage.removeItem(PROFILE_KEY); } catch(_){}
+    ['profile-name','profile-title','profile-dept','profile-university','profile-email','profile-phone','profile-website','profile-address'].forEach(function(id){ $(id).value = ''; });
+    $('profile-logo-preview').innerHTML = 'No logo loaded.';
+    $('profile-logo-preview').classList.add('empty');
+    $('profile-logo-preview').removeAttribute('data-img');
+    $('sig-preview').innerHTML = 'No signature saved.';
+    $('sig-preview').classList.add('empty');
+    $('sig-preview').removeAttribute('data-img');
+    $('profile-logo').value = '';
+    $('sig-upload').value = '';
+    var c = $('sig-canvas'); if (c) c.getContext('2d').clearRect(0, 0, c.width, c.height);
+    updateProfileSummary(null);
+    setStatus($('profile-state'), 'Letterhead cleared.', 'success');
+  });
+
+  hydrateProfile();
+
+  // ════════════════════════════════════════════════════════════════════
+  //  EXPORTS (PDF + DOCX)
+  // ════════════════════════════════════════════════════════════════════
+  function todayStr(){
+    var d = new Date();
+    return d.toLocaleDateString('en-US', {year:'numeric', month:'long', day:'numeric'});
+  }
+  function todaySlug(){
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  }
+  function lastNameOf(full){
+    var parts = String(full || '').trim().split(/\s+/);
+    if (!parts.length) return 'Student';
+    return parts[parts.length - 1].replace(/[^A-Za-z0-9]/g, '') || 'Student';
+  }
+  function shortProgram(target){
+    var s = String(target || '').replace(/[^A-Za-z0-9 ]/g, ' ').trim();
+    if (!s) return 'Program';
+    var words = s.split(/\s+/).slice(0, 3);
+    return words.join('').slice(0, 24);
+  }
+  function fileNameForMode(mode, intake, ext){
+    if (mode === 'lor') {
+      var ln = lastNameOf(intake.student_name);
+      var sp = shortProgram(intake.target_program);
+      return 'LOR-' + ln + '-' + sp + '-' + todaySlug() + '.' + ext;
+    }
+    return 'Reply-' + (intake.student_name || 'Student').replace(/\s+/g, '_') + '-' + todaySlug() + '.' + ext;
+  }
+
+  function fillPlaceholders(text, profile){
+    var today = todayStr();
+    return String(text || '')
+      .replace(/\[Today.{0,3}s? date\]/gi, today)
+      .replace(/\[Your name\]/gi, profile.name || '')
+      .replace(/\[Your title\]/gi, profile.title || '')
+      .replace(/\[Your department\]/gi, profile.dept || '')
+      .replace(/\[Your university\]/gi, profile.university || '')
+      .replace(/\[Your email\]/gi, profile.email || '');
+  }
+
+  // For LOR exports WITH a signature image, the AI's trailing "[Your name]
+  // / [Your title] / [Your department]" placeholder block becomes
+  // redundant (the export draws an image-backed signature block of its
+  // own). Strip the trailing block so the exported letter doesn't show
+  // the prof's name twice. Without a signature image, leave the block in
+  // and let fillPlaceholders fill it.
+  function stripTrailingPlaceholderBlock(text){
+    return String(text || '').replace(/(\s*\[Your[^\]\n]*\]\s*\n?)+\s*$/g, '\n');
+  }
+
+  function requireProfile(){
+    var p = loadProfile();
+    if (!p || !p.name) {
+      alert('Fill in your letterhead first (Full name minimum). The export uses it to format the letterhead and signature block.');
+      setProfileCollapsed(false);
+      document.querySelector('.profile-card').scrollIntoView({behavior:'smooth', block:'start'});
+      return null;
+    }
+    return p;
+  }
+
+  // ─── PDF export via jsPDF ────────────────────────────────────────────
+  async function exportPDF(mode, intake, draftText, statusEl){
+    var profile = requireProfile(); if (!profile) return;
+    if (!draftText || !draftText.trim()) { setStatus(statusEl, 'No draft to export.', 'error'); return; }
+    setStatus(statusEl, 'Building PDF...', 'busy');
+    try {
+      await ensureJsPdf();
+      var jspdfNs = window.jspdf || {};
+      var JsPDF = jspdfNs.jsPDF;
+      if (!JsPDF) throw new Error('jsPDF failed to load');
+      var doc = new JsPDF({unit: 'pt', format: 'letter'});
+      var pageW = doc.internal.pageSize.getWidth();
+      var pageH = doc.internal.pageSize.getHeight();
+      var margin = 54;
+      var y = margin;
+
+      // Letterhead
+      var logoH = 0;
+      if (profile.logo) {
+        try { doc.addImage(profile.logo, 'PNG', margin, y, 68, 68); logoH = 68; } catch(e){ console.warn('[pdf] logo failed', e); }
+      }
+      var headX = (profile.logo ? margin + 84 : margin);
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(13);
+      doc.text(profile.name, headX, y + 14);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
+      var lineY = y + 28;
+      if (profile.title) { doc.text(profile.title, headX, lineY); lineY += 12; }
+      if (profile.dept) { doc.text(profile.dept, headX, lineY); lineY += 12; }
+      if (profile.university) { doc.text(profile.university, headX, lineY); lineY += 12; }
+      var contactBits = [];
+      if (profile.email) contactBits.push(profile.email);
+      if (profile.phone) contactBits.push(profile.phone);
+      if (profile.website) contactBits.push(profile.website);
+      if (contactBits.length) {
+        doc.setFontSize(9); doc.setTextColor(100);
+        doc.text(contactBits.join('  ·  '), headX, lineY);
+        doc.setTextColor(0);
+      }
+
+      y = Math.max(y + logoH + 12, lineY + 18);
+      doc.setLineWidth(0.6); doc.line(margin, y, pageW - margin, y); y += 22;
+
+      // Body
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(11);
+      var rawDraft = (mode === 'lor' && profile.signature) ? stripTrailingPlaceholderBlock(draftText) : draftText;
+      var bodyText = fillPlaceholders(rawDraft, profile);
+      var bodyWidth = pageW - 2 * margin;
+      var paragraphs = bodyText.split(/\n\s*\n/);
+      paragraphs.forEach(function(p){
+        var lines = doc.splitTextToSize(p.replace(/\n/g, ' '), bodyWidth);
+        lines.forEach(function(line){
+          if (y > pageH - margin - 110) { doc.addPage(); y = margin; }
+          doc.text(line, margin, y); y += 14;
+        });
+        y += 9;
+      });
+
+      // Signature block (LOR only — emails carry sign-off in body)
+      if (mode === 'lor' && profile.signature) {
+        if (y > pageH - margin - 110) { doc.addPage(); y = margin; }
+        try { doc.addImage(profile.signature, 'PNG', margin, y, 130, 46); } catch(e){}
+        y += 52;
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(11);
+        doc.text(profile.name, margin, y); y += 13;
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
+        if (profile.title) { doc.text(profile.title, margin, y); y += 12; }
+        if (profile.dept) { doc.text(profile.dept, margin, y); y += 12; }
+        if (profile.university) { doc.text(profile.university, margin, y); }
+      }
+
+      doc.save(fileNameForMode(mode, intake, 'pdf'));
+      setStatus(statusEl, 'PDF exported.', 'success');
+    } catch (err) {
+      console.error('[pdf-export]', err);
+      setStatus(statusEl, 'PDF export failed: ' + (err.message || 'unknown'), 'error');
+    }
+  }
+
+  // ─── DOCX export via docx library ────────────────────────────────────
+  async function exportDOCX(mode, intake, draftText, statusEl){
+    var profile = requireProfile(); if (!profile) return;
+    if (!draftText || !draftText.trim()) { setStatus(statusEl, 'No draft to export.', 'error'); return; }
+    setStatus(statusEl, 'Building DOCX...', 'busy');
+    try {
+      await ensureDocxLib();
+      var d = window.docx;
+      if (!d) throw new Error('docx library failed to load');
+      var Paragraph = d.Paragraph, TextRun = d.TextRun, ImageRun = d.ImageRun, AlignmentType = d.AlignmentType, Document = d.Document, Packer = d.Packer;
+
+      var headerChildren = [];
+      // Letterhead block
+      if (profile.logo) {
+        try {
+          headerChildren.push(new Paragraph({ children: [
+            new ImageRun({ data: dataUrlToUint8Array(profile.logo), transformation: { width: 68, height: 68 } })
+          ]}));
+        } catch (e) { console.warn('[docx] logo failed', e); }
+      }
+      headerChildren.push(new Paragraph({ children: [new TextRun({ text: profile.name, bold: true, size: 26 })] }));
+      if (profile.title) headerChildren.push(new Paragraph({ children: [new TextRun({ text: profile.title, size: 20 })] }));
+      if (profile.dept) headerChildren.push(new Paragraph({ children: [new TextRun({ text: profile.dept, size: 20 })] }));
+      if (profile.university) headerChildren.push(new Paragraph({ children: [new TextRun({ text: profile.university, size: 20 })] }));
+      var contactBits = [];
+      if (profile.email) contactBits.push(profile.email);
+      if (profile.phone) contactBits.push(profile.phone);
+      if (profile.website) contactBits.push(profile.website);
+      if (contactBits.length) {
+        headerChildren.push(new Paragraph({ children: [new TextRun({ text: contactBits.join('  ·  '), size: 18, color: '666666' })] }));
+      }
+      headerChildren.push(new Paragraph({ children: [new TextRun({ text: '' })] }));
+
+      // Body
+      var rawDraft = (mode === 'lor' && profile.signature) ? stripTrailingPlaceholderBlock(draftText) : draftText;
+      var bodyText = fillPlaceholders(rawDraft, profile);
+      var paragraphs = bodyText.split(/\n\s*\n/);
+      var bodyChildren = paragraphs.map(function(p){
+        return new Paragraph({ children: [new TextRun({ text: p.replace(/\n/g, ' '), size: 22 })], spacing: { after: 180 } });
+      });
+
+      // Signature block (LOR)
+      var sigChildren = [];
+      if (mode === 'lor' && profile.signature) {
+        try {
+          sigChildren.push(new Paragraph({ children: [
+            new ImageRun({ data: dataUrlToUint8Array(profile.signature), transformation: { width: 140, height: 50 } })
+          ]}));
+        } catch (e) { console.warn('[docx] signature failed', e); }
+        sigChildren.push(new Paragraph({ children: [new TextRun({ text: profile.name, bold: true, size: 22 })] }));
+        if (profile.title) sigChildren.push(new Paragraph({ children: [new TextRun({ text: profile.title, size: 20 })] }));
+        if (profile.dept) sigChildren.push(new Paragraph({ children: [new TextRun({ text: profile.dept, size: 20 })] }));
+        if (profile.university) sigChildren.push(new Paragraph({ children: [new TextRun({ text: profile.university, size: 20 })] }));
+      }
+
+      var docFile = new Document({
+        sections: [{
+          properties: {},
+          children: headerChildren.concat(bodyChildren).concat(sigChildren)
+        }]
+      });
+
+      var blob = await Packer.toBlob(docFile);
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url; a.download = fileNameForMode(mode, intake, 'docx');
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+      setStatus(statusEl, 'DOCX exported.', 'success');
+    } catch (err) {
+      console.error('[docx-export]', err);
+      setStatus(statusEl, 'DOCX export failed: ' + (err.message || 'unknown'), 'error');
+    }
+  }
+
+  // Wire export buttons — email mode
+  var emailPdfBtn = $('email-export-pdf');
+  if (emailPdfBtn) emailPdfBtn.addEventListener('click', function(){
+    exportPDF('email-reply', { student_name: $('email-student-name').value.trim() }, $('email-output').value, $('email-status'));
+  });
+  var emailDocxBtn = $('email-export-docx');
+  if (emailDocxBtn) emailDocxBtn.addEventListener('click', function(){
+    exportDOCX('email-reply', { student_name: $('email-student-name').value.trim() }, $('email-output').value, $('email-status'));
+  });
+
+  // Wire export buttons — LOR mode
+  var lorPdfBtn = $('lor-export-pdf');
+  if (lorPdfBtn) lorPdfBtn.addEventListener('click', function(){
+    exportPDF('lor', { student_name: $('lor-student-name').value.trim(), target_program: $('lor-target').value.trim() }, $('lor-output').value, $('lor-status'));
+  });
+  var lorDocxBtn = $('lor-export-docx');
+  if (lorDocxBtn) lorDocxBtn.addEventListener('click', function(){
+    exportDOCX('lor', { student_name: $('lor-student-name').value.trim(), target_program: $('lor-target').value.trim() }, $('lor-output').value, $('lor-status'));
   });
 
 })();
