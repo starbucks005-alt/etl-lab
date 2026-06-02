@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Office Hours — Faculty drafting tools | Emerging Technologies Laboratory</title>
+<meta name="description" content="Faculty tool for drafting student email replies and letters of recommendation. Process-and-forget privacy. Sample scenarios built in. No login required.">
+<link rel="canonical" href="https://emerging-tech-lab.com/office-hours">
+<link rel="icon" type="image/png" href="/favicon.png">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Office Hours — Faculty drafting tools">
+<meta property="og:description" content="Faculty tool for drafting student email replies and letters of recommendation. Process-and-forget privacy.">
+<meta property="og:url" content="https://emerging-tech-lab.com/office-hours">
+<meta property="og:image" content="https://emerging-tech-lab.com/favicon.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --paper: #f3ecdc;
+    --paper-deep: #e8dec8;
+    --ink: #161310;
+    --ink-soft: #4a443a;
+    --gold: #b8922a;
+    --gold-deep: #8a6c1a;
+    --line: #c8bba0;
+    --bad: #8a2a2a;
+    --good: #3a6a2a;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--paper); color: var(--ink);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 18px; line-height: 1.55;
+  }
+  a { color: var(--gold-deep); text-decoration: underline; text-underline-offset: 3px; }
+  a:hover { color: var(--ink); }
+
+  .top-strip {
+    background: #161310; color: #d4aa4a;
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 0.6rem 1.5rem; display: flex; justify-content: space-between; align-items: center;
+  }
+  .top-strip a { color: #d4aa4a; text-decoration: none; }
+  .top-strip a:hover { color: #fff; }
+
+  .shell { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+  .masthead { text-align: center; padding: 1.5rem 0 0.8rem; border-bottom: 1px solid var(--line); }
+  .masthead .eyebrow {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--gold-deep);
+  }
+  .masthead h1 {
+    font-family: 'Playfair Display', Georgia, serif; font-weight: 900;
+    font-size: clamp(2.2rem, 5vw, 3.6rem); margin: 0.2rem 0 0.2rem; letter-spacing: -0.01em;
+  }
+  .masthead .sub {
+    font-style: italic; color: var(--ink-soft); margin: 0; font-size: 1.1rem;
+  }
+
+  .privacy-banner {
+    margin: 1.4rem 0 1.8rem;
+    padding: 0.9rem 1.2rem;
+    background: #ece1c8; border-left: 3px solid var(--gold);
+    font-size: 0.95rem; color: var(--ink-soft);
+  }
+  .privacy-banner strong { color: var(--ink); }
+
+  .mode-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .mode-tabs button {
+    font-family: 'DM Mono', monospace; font-size: 0.75rem; letter-spacing: 0.14em;
+    text-transform: uppercase;
+    background: transparent; border: 1px solid var(--line); color: var(--ink-soft);
+    padding: 0.6rem 1.2rem; cursor: pointer; transition: 0.15s;
+  }
+  .mode-tabs button.active {
+    background: var(--ink); color: #f3ecdc; border-color: var(--ink);
+  }
+  .mode-tabs button:not(.active):hover { background: var(--paper-deep); color: var(--ink); }
+
+  .pane { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
+  @media (min-width: 880px) { .pane { grid-template-columns: 1fr 1fr; } }
+
+  .card {
+    background: #fcf6e8; border: 1px solid var(--line);
+    padding: 1.4rem 1.4rem 1.6rem; box-shadow: 0 1px 0 rgba(0,0,0,0.03);
+  }
+  .card h2 {
+    font-family: 'Playfair Display', Georgia, serif; font-weight: 700;
+    font-size: 1.5rem; margin: 0 0 0.3rem;
+  }
+  .card .card-sub {
+    font-style: italic; color: var(--ink-soft); font-size: 0.95rem;
+    margin: 0 0 1.2rem;
+  }
+
+  label.field {
+    display: block; margin-bottom: 1rem;
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--gold-deep);
+  }
+  label.field > .label-text { display: block; margin-bottom: 0.35rem; }
+  label.field > .label-note {
+    display: block; font-family: 'Cormorant Garamond', serif; text-transform: none;
+    letter-spacing: 0; color: var(--ink-soft); font-style: italic;
+    font-size: 0.9rem; margin-bottom: 0.35rem; letter-spacing: 0;
+  }
+  label.field input[type=text], label.field input[type=file], label.field select, label.field textarea {
+    width: 100%; padding: 0.55rem 0.7rem;
+    font-family: 'Cormorant Garamond', serif; font-size: 1rem;
+    background: #fffbef; border: 1px solid var(--line);
+    color: var(--ink); border-radius: 0;
+  }
+  label.field textarea { font-family: 'DM Mono', monospace; font-size: 0.85rem; line-height: 1.5; min-height: 100px; resize: vertical; }
+  label.field input:focus, label.field textarea:focus, label.field select:focus {
+    outline: 2px solid var(--gold); outline-offset: -1px;
+  }
+
+  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 700px) { .row-2 { grid-template-columns: 1fr; } }
+
+  .sample-bar {
+    margin: 0 0 1.2rem; padding: 0.7rem 0.9rem;
+    background: #ece1c8; border: 1px dashed var(--gold);
+    display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap;
+  }
+  .sample-bar label {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--gold-deep);
+  }
+  .sample-bar select {
+    padding: 0.4rem 0.6rem; font-family: 'Cormorant Garamond', serif; font-size: 0.95rem;
+    background: #fffbef; border: 1px solid var(--line);
+  }
+  .sample-bar button.link {
+    background: transparent; border: 0; color: var(--gold-deep); cursor: pointer;
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em;
+    text-transform: uppercase; text-decoration: underline;
+  }
+
+  .actions { display: flex; gap: 0.7rem; flex-wrap: wrap; margin-top: 0.6rem; }
+  button.btn {
+    font-family: 'DM Mono', monospace; font-size: 0.75rem; letter-spacing: 0.18em;
+    text-transform: uppercase; cursor: pointer; padding: 0.7rem 1.2rem;
+    border: 1px solid var(--gold-deep); background: var(--gold); color: #fff;
+    transition: 0.15s;
+  }
+  button.btn:hover:not(:disabled) { background: var(--gold-deep); }
+  button.btn:disabled { opacity: 0.5; cursor: wait; }
+  button.btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+  button.btn.ghost:hover { background: var(--paper-deep); }
+
+  .output-area {
+    width: 100%; min-height: 360px;
+    font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; line-height: 1.6;
+    padding: 1rem 1.1rem; background: #fffbef; border: 1px solid var(--line);
+    color: var(--ink); resize: vertical;
+  }
+  .output-area:focus { outline: 2px solid var(--gold); outline-offset: -1px; }
+  .output-meta {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.12em;
+    color: var(--ink-soft); margin-top: 0.5rem; text-transform: uppercase;
+  }
+  .status {
+    font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.12em;
+    text-transform: uppercase; padding: 0.5rem 0; min-height: 1.4em;
+  }
+  .status.busy { color: var(--gold-deep); }
+  .status.success { color: var(--good); }
+  .status.error { color: var(--bad); }
+  .file-meta { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--ink-soft); margin-top: 0.3rem; }
+  .placeholder-soft { color: var(--ink-soft); font-style: italic; }
+
+  .coming-soon-card {
+    background: #fcf6e8; border: 1px dashed var(--line);
+    padding: 1.4rem; text-align: center; color: var(--ink-soft); font-style: italic;
+  }
+
+  footer {
+    margin-top: 4rem; padding-top: 1.4rem; border-top: 1px solid var(--line);
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--ink-soft); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+  }
+  footer a { color: var(--ink-soft); }
+</style>
+</head>
+<body>
+
+<div class="top-strip">
+  <span>ETL &middot; Office Hours</span>
+  <a href="/">&larr; ETL Home</a>
+</div>
+
+<div class="shell">
+
+  <div class="masthead">
+    <div class="eyebrow">A drafting tool for faculty</div>
+    <h1>Office Hours</h1>
+    <p class="sub">Email replies and letters of recommendation, drafted in your voice. Edit and export. Nothing stored.</p>
+  </div>
+
+  <div class="privacy-banner">
+    <strong>Privacy:</strong> Your inputs are sent to Anthropic's Claude API to generate the draft. Anthropic does not train on or retain API content. We do not log, store, or retain anything on our servers. Uploaded files are parsed in your browser, and only the extracted text travels with the draft request. Your draft, signature, and letterhead stay on your computer.
+  </div>
+
+  <div class="mode-tabs" role="tablist">
+    <button type="button" class="mode-tab active" data-mode="email-reply" role="tab">Email Reply</button>
+    <button type="button" class="mode-tab" data-mode="lor" role="tab">Letter of Rec</button>
+  </div>
+
+  <!-- ─── EMAIL REPLY MODE ───────────────────────────────────────────── -->
+  <div class="mode-panel" data-mode="email-reply">
+
+    <div class="sample-bar">
+      <label for="email-sample">Try a sample:</label>
+      <select id="email-sample">
+        <option value="">— choose a scenario —</option>
+        <option value="ra-funding">Grad student asking about fall RA openings</option>
+        <option value="course-override">Undergrad wants into a closed grad seminar</option>
+        <option value="prospective-phd">Prospective doctoral student cold email</option>
+        <option value="postdoc-k99">Postdoc needs a K99 grant support letter</option>
+        <option value="missed-deadline">Student asking for deadline extension</option>
+      </select>
+      <button type="button" class="link" id="email-clear">Clear form</button>
+    </div>
+
+    <div class="pane">
+      <div class="card">
+        <h2>Intake</h2>
+        <p class="card-sub">Fill these in, or load a sample above to see how the form is shaped.</p>
+
+        <label class="field">
+          <span class="label-text">Inbound student email</span>
+          <span class="label-note">Paste the message you are replying to. The whole thing.</span>
+          <textarea id="email-inbound" rows="7" placeholder="Dear Professor, I am writing to ask about..."></textarea>
+        </label>
+
+        <div class="row-2">
+          <label class="field">
+            <span class="label-text">Student name</span>
+            <input type="text" id="email-student-name" placeholder="e.g. Maya Chen">
+          </label>
+          <label class="field">
+            <span class="label-text">Student level</span>
+            <select id="email-student-level">
+              <option value="undergrad">Undergrad</option>
+              <option value="grad">Grad student</option>
+              <option value="doctoral">Doctoral student</option>
+              <option value="postdoc">Postdoc</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="row-2">
+          <label class="field">
+            <span class="label-text">What they are asking for</span>
+            <select id="email-ask-type">
+              <option value="track or concentration">Track or concentration</option>
+              <option value="research assistantship (RA)">RA position</option>
+              <option value="teaching assistantship (TA)">TA position</option>
+              <option value="funding / fellowship">Funding / fellowship</option>
+              <option value="letter of recommendation">Letter of recommendation</option>
+              <option value="general advising question">General advising</option>
+            </select>
+          </label>
+          <label class="field">
+            <span class="label-text">Your relationship</span>
+            <select id="email-relationship">
+              <option value="taught them in a recent class">Taught them in class</option>
+              <option value="advised them on a project / thesis">Advised on a project / thesis</option>
+              <option value="brief interaction (one meeting or email)">Brief interaction</option>
+              <option value="never met this student">Never met them</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="row-2">
+          <label class="field">
+            <span class="label-text">Tone</span>
+            <select id="email-tone">
+              <option value="warm">Warm</option>
+              <option value="formal">Formal</option>
+              <option value="direct">Direct</option>
+              <option value="letting them down gently">Letting them down gently</option>
+            </select>
+          </label>
+          <label class="field">
+            <span class="label-text">Length</span>
+            <select id="email-length">
+              <option value="one paragraph">One paragraph</option>
+              <option value="full reply" selected>Full reply</option>
+              <option value="two versions">Two versions to pick from</option>
+            </select>
+          </label>
+        </div>
+
+        <label class="field">
+          <span class="label-text">Deadline / urgency</span>
+          <span class="label-note">Optional. If the student needs a reply by a date.</span>
+          <input type="text" id="email-deadline" placeholder="e.g. Friday, or before fall registration closes">
+        </label>
+
+        <label class="field">
+          <span class="label-text">Resume (PDF or DOCX)</span>
+          <span class="label-note">Optional. Parsed in your browser, never uploaded.</span>
+          <input type="file" id="email-resume" accept=".pdf,.docx,.txt">
+          <div class="file-meta" id="email-resume-meta"></div>
+        </label>
+
+        <label class="field">
+          <span class="label-text">Transcript (unofficial OK)</span>
+          <span class="label-note">Optional. Parsed in your browser, never uploaded.</span>
+          <input type="file" id="email-transcript" accept=".pdf,.docx,.txt">
+          <div class="file-meta" id="email-transcript-meta"></div>
+        </label>
+
+        <label class="field">
+          <span class="label-text">Your voice / special notes</span>
+          <span class="label-note">Anything that should shape the reply. Phrases you use, topics to avoid, your own context.</span>
+          <textarea id="email-notes" rows="4" placeholder="e.g. I prefer 'best regards' as a sign-off; mention that office hours are Tuesdays 2-4."></textarea>
+        </label>
+
+        <div class="status" id="email-status"></div>
+        <div class="actions">
+          <button type="button" class="btn" id="email-generate">Draft my reply &rarr;</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Draft</h2>
+        <p class="card-sub">Editable. Edit directly, then copy.</p>
+        <textarea class="output-area" id="email-output" placeholder="Your draft will appear here. The whole thing is editable."></textarea>
+        <div class="output-meta" id="email-output-meta"></div>
+        <div class="actions">
+          <button type="button" class="btn ghost" id="email-copy">Copy to clipboard</button>
+          <button type="button" class="btn ghost" id="email-clear-output">Clear draft</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── LETTER OF REC MODE (placeholder for Phase 2) ────────────────── -->
+  <div class="mode-panel" data-mode="lor" hidden>
+    <div class="coming-soon-card">
+      <h2 style="font-family:'Playfair Display',serif;font-weight:700;margin:0 0 0.5rem;">Letter of Rec mode is coming next.</h2>
+      <p style="margin:0;">Phase 2 adds the full LOR intake: target program, addressee, length cap, recommendation tier (4 levels), how-well-you-know scale, percentile + cohort, anecdotes box, strengths to emphasize, FERPA waiver, weaknesses to address (waiver-gated), resume + transcript uploads. Same privacy posture. PDF + DOCX export with your signature and university letterhead in Phase 3.</p>
+    </div>
+  </div>
+
+  <footer>
+    <div>Office Hours &middot; ETL drafting tool for faculty</div>
+    <div><a href="/">Emerging Technologies Laboratory</a></div>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  function $(id){ return document.getElementById(id); }
+  function setStatus(el, msg, kind){
+    if (!el) return;
+    el.textContent = msg || '';
+    el.className = 'status' + (kind ? ' ' + kind : '');
+  }
+
+  // ─── Mode tab switching ─────────────────────────────────────────────
+  var modeTabs = document.querySelectorAll('.mode-tab');
+  var modePanels = document.querySelectorAll('.mode-panel');
+  modeTabs.forEach(function(tab){
+    tab.addEventListener('click', function(){
+      var m = tab.getAttribute('data-mode');
+      modeTabs.forEach(function(t){ t.classList.toggle('active', t === tab); });
+      modePanels.forEach(function(p){ p.hidden = p.getAttribute('data-mode') !== m; });
+    });
+  });
+
+  // ─── Email Reply samples ─────────────────────────────────────────────
+  var EMAIL_SAMPLES = {
+    'ra-funding': {
+      inbound: "Dear Professor,\n\nI am a second-year graduate student in your department and I have been following your lab's work on biothreat surveillance. I would like to ask if you are taking on any RA positions for the fall semester. I have a background in genomic epidemiology from my undergrad at UC Davis and would be very excited to contribute.\n\nI have attached my CV and unofficial transcript. I am happy to set up a meeting to discuss this further.\n\nThank you for your time.\n\nBest,\nMaya Chen",
+      student_name: 'Maya Chen',
+      level: 'grad',
+      ask: 'research assistantship (RA)',
+      relationship: 'brief interaction (one meeting or email)',
+      tone: 'warm',
+      length: 'full reply',
+      deadline: 'before fall registration closes in early August',
+      notes: "I have one RA slot opening if my pending NIH grant lands; final word late July. Encourage her to apply and offer to meet briefly during office hours (Tue 2-4)."
+    },
+    'course-override': {
+      inbound: "Hi Professor,\n\nI'm a senior undergrad in chemistry and I'd really like to take your graduate-level seminar on cellular bioenergetics this fall. I see it's restricted to PhD students. I've already taken biochem I and II, and I did a capstone last year on mitochondrial ROS signaling.\n\nWould you be willing to sign me into the course? I know I'd have to work hard but I'm committed.\n\nThanks,\nJordan Park",
+      student_name: 'Jordan Park',
+      level: 'undergrad',
+      ask: 'track or concentration',
+      relationship: 'never met this student',
+      tone: 'direct',
+      length: 'full reply',
+      deadline: 'add/drop closes Sept 4',
+      notes: "I do sometimes admit advanced undergrads into the seminar but I require a 15-minute meeting first AND a one-page reading of a paper I assign before deciding. Suggest the meeting and the test paper (Mitchell 1961 on chemiosmosis)."
+    },
+    'prospective-phd': {
+      inbound: "Dear Professor,\n\nI am completing my master's in Public Health at Emory and am applying to doctoral programs for fall 2027. Your work on dual-use research of concern is exactly the area I want to build my dissertation around. I would deeply appreciate the chance to discuss whether your lab is recruiting and what skills you would expect from an incoming student.\n\nI've attached my CV. Thank you for any time you can spare.\n\nWith respect,\nDevon Mwangi",
+      student_name: 'Devon Mwangi',
+      level: 'doctoral',
+      ask: 'general advising question',
+      relationship: 'never met this student',
+      tone: 'warm',
+      length: 'two versions',
+      deadline: 'applications open Sept 15',
+      notes: "I am taking 1 doctoral student this cycle. Be encouraging but realistic: I want strong stats coursework AND policy interest. Mention the recommended methods sequence at his current MPH program. Offer a 20-min Zoom in late July."
+    },
+    'postdoc-k99': {
+      inbound: "Hi Dr. [Last Name],\n\nThank you again for the chance to work in your group this past year. I'm preparing my K99/R00 application and I wanted to ask if you'd be willing to write a strong support letter for the mentored phase. The deadline is October 12 and the institutional internal deadline is September 30.\n\nI've drafted a one-page summary of my proposed research aims and a list of bullet points you might find useful. Happy to send them when you have a moment.\n\nGratefully,\nAarav Bhatt",
+      student_name: 'Aarav Bhatt',
+      level: 'postdoc',
+      ask: 'letter of recommendation',
+      relationship: 'advised them on a project / thesis',
+      tone: 'warm',
+      length: 'full reply',
+      deadline: 'internal Sept 30, NIH Oct 12',
+      notes: "Yes I'll write it. Ask him to send the one-pager and bullet points by Sept 1 so I have time. Reaffirm strong belief in his work on aerosol detection."
+    },
+    'missed-deadline': {
+      inbound: "Professor,\n\nI know the final paper was due Friday and I missed the deadline. I had a really hard week with family stuff and I didn't manage my time. I would deeply appreciate it if you would let me submit by next Monday. I understand if you can't.\n\nThank you,\nRiley Khoury",
+      student_name: 'Riley Khoury',
+      level: 'undergrad',
+      ask: 'general advising question',
+      relationship: 'taught them in a recent class',
+      tone: 'letting them down gently',
+      length: 'one paragraph',
+      deadline: 'final grades due in 2 weeks',
+      notes: "I do grant extensions but I want students to learn to ask BEFORE the deadline. Grant the Monday extension this once, but be clear this is a one-time exception and frame it as a learning moment. No need to ask for documentation."
+    }
+  };
+
+  var emailSampleSelect = $('email-sample');
+  if (emailSampleSelect) {
+    emailSampleSelect.addEventListener('change', function(){
+      var key = emailSampleSelect.value;
+      if (!key) return;
+      var s = EMAIL_SAMPLES[key];
+      if (!s) return;
+      $('email-inbound').value = s.inbound;
+      $('email-student-name').value = s.student_name;
+      $('email-student-level').value = s.level;
+      $('email-ask-type').value = s.ask;
+      $('email-relationship').value = s.relationship;
+      $('email-tone').value = s.tone;
+      $('email-length').value = s.length;
+      $('email-deadline').value = s.deadline;
+      $('email-notes').value = s.notes;
+      setStatus($('email-status'), 'Sample loaded. Edit anything before generating.', 'success');
+    });
+  }
+
+  var emailClear = $('email-clear');
+  if (emailClear) emailClear.addEventListener('click', function(){
+    ['email-inbound','email-student-name','email-deadline','email-notes'].forEach(function(id){ var el = $(id); if (el) el.value = ''; });
+    $('email-student-level').value = 'undergrad';
+    $('email-ask-type').value = 'track or concentration';
+    $('email-relationship').value = 'taught them in a recent class';
+    $('email-tone').value = 'warm';
+    $('email-length').value = 'full reply';
+    $('email-resume').value = '';
+    $('email-transcript').value = '';
+    $('email-resume-meta').textContent = '';
+    $('email-transcript-meta').textContent = '';
+    emailSampleSelect.value = '';
+    setStatus($('email-status'), 'Cleared.', 'success');
+  });
+
+  // ─── File parsing (client-side, no server upload) ─────────────────────
+  // Phase 1: read .txt directly; PDF/DOCX parsing wired in Phase 3. For now
+  // we show a "(file noted, text extraction in next phase)" placeholder so
+  // the field is functional but not yet feeding the AI.
+  function attachFileReader(inputId, metaId, stateKey){
+    var input = $(inputId), meta = $(metaId);
+    if (!input || !meta) return;
+    input.addEventListener('change', function(){
+      var f = input.files && input.files[0];
+      if (!f) { meta.textContent = ''; window['__' + stateKey] = ''; return; }
+      var name = f.name; var size = (f.size / 1024).toFixed(1) + ' KB';
+      if (/\.txt$/i.test(name)) {
+        var r = new FileReader();
+        r.onload = function(){
+          window['__' + stateKey] = String(r.result || '').slice(0, 8000);
+          meta.textContent = name + ' (' + size + ', text extracted)';
+        };
+        r.readAsText(f);
+      } else {
+        // PDF/DOCX: we store the filename for now. Phase 3 wires pdf.js +
+        // a docx parser so the extracted text actually feeds the AI.
+        window['__' + stateKey] = '';
+        meta.textContent = name + ' (' + size + ', PDF/DOCX text extraction in Phase 3)';
+      }
+    });
+  }
+  attachFileReader('email-resume', 'email-resume-meta', 'email_resume_text');
+  attachFileReader('email-transcript', 'email-transcript-meta', 'email_transcript_text');
+
+  // ─── Generate draft ──────────────────────────────────────────────────
+  var generateBtn = $('email-generate');
+  if (generateBtn) generateBtn.addEventListener('click', function(){
+    var inbound = $('email-inbound').value.trim();
+    if (!inbound) { setStatus($('email-status'), 'Paste the student email you are replying to.', 'error'); return; }
+    var intake = {
+      inbound_email: inbound,
+      student_name: $('email-student-name').value.trim(),
+      student_level: $('email-student-level').value,
+      ask_type: $('email-ask-type').value,
+      relationship: $('email-relationship').value,
+      tone: $('email-tone').value,
+      length: $('email-length').value,
+      deadline: $('email-deadline').value.trim(),
+      special_notes: $('email-notes').value.trim(),
+      resume_text: window.__email_resume_text || '',
+      transcript_text: window.__email_transcript_text || ''
+    };
+    setStatus($('email-status'), 'Drafting (10-20s)...', 'busy');
+    generateBtn.disabled = true;
+    fetch('/.netlify/functions/office-hours-draft', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: 'email-reply', intake: intake })
+    }).then(function(r){ return r.json().then(function(j){ return { status: r.status, body: j }; }); })
+      .then(function(res){
+        generateBtn.disabled = false;
+        if (res.status === 200 && res.body && res.body.draft) {
+          $('email-output').value = res.body.draft;
+          $('email-output-meta').textContent = res.body.word_count + ' words. Edit directly, then copy.';
+          setStatus($('email-status'), 'Draft ready. Edit in the right panel before sending.', 'success');
+          $('email-output').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+          setStatus($('email-status'), (res.body && res.body.error) || ('Draft failed (status ' + res.status + ')'), 'error');
+        }
+      })
+      .catch(function(err){
+        generateBtn.disabled = false;
+        setStatus($('email-status'), 'Network error: ' + (err && err.message), 'error');
+      });
+  });
+
+  // ─── Output controls ─────────────────────────────────────────────────
+  var copyBtn = $('email-copy');
+  if (copyBtn) copyBtn.addEventListener('click', function(){
+    var text = $('email-output').value;
+    if (!text) { setStatus($('email-status'), 'Nothing to copy yet.', 'error'); return; }
+    var write = navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject();
+    write.then(function(){ setStatus($('email-status'), 'Copied to clipboard.', 'success'); })
+      .catch(function(){ window.prompt('Copy this:', text); });
+  });
+  var clearOutput = $('email-clear-output');
+  if (clearOutput) clearOutput.addEventListener('click', function(){
+    $('email-output').value = '';
+    $('email-output-meta').textContent = '';
+    setStatus($('email-status'), 'Draft cleared.', 'success');
+  });
+
+})();
+</script>
+
+</body>
+</html>
