@@ -29,16 +29,21 @@ const DESK_BY_ID = DESK_OPTIONS.reduce((acc, d) => { acc[d.id] = d; return acc; 
 
 // Desks that read as adjacent for the "near miss" yellow square. Same
 // editorial neighborhoods that would plausibly cover the same story.
+// Expanded after Deskline launch revealed too many flat-miss scorings on
+// stories that span obvious editorial overlaps (Ebola in Kenya = world OR
+// health OR security depending on lens; AI medical imaging = science OR
+// health; pharma earnings = business OR health). Now health, science,
+// security, world, and business have wider adjacency rings.
 const ADJACENT = {
-  us: ['world'],
-  world: ['us', 'security'],
-  business: ['technology'],
-  technology: ['business', 'science'],
-  security: ['world', 'us', 'technology'],
-  science: ['technology', 'health'],
-  health: ['science'],
+  us:            ['world', 'business', 'security'],
+  world:         ['us', 'security', 'health'],
+  business:      ['technology', 'us', 'health', 'science'],
+  technology:    ['business', 'science', 'security'],
+  security:      ['world', 'us', 'technology', 'health', 'science'],
+  science:       ['technology', 'health', 'security'],
+  health:        ['science', 'security', 'world', 'business'],
   entertainment: [],
-  sports: [],
+  sports:        ['business'],
 };
 
 function isNearMiss(guess, correct) {

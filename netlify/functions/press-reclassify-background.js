@@ -70,10 +70,19 @@ DESKS
   business      - corporate earnings, M&A, finance, banking, markets, private equity, VC, business strategy
   technology    - software, hardware, AI products, dev tools, infrastructure, semiconductors, tech industry
   security      - national security, biosecurity, cybersecurity, intelligence, defense, biothreats
-  science       - basic research, clinical trials, methodology, scientific institutions, drug discovery, peer review
-  health        - clinical practice, public health, health systems, insurance, care delivery, pharmacy benefits
+  science       - basic research, peer-reviewed findings, lab discoveries, Nature/Science papers, clinical trial results, methodology, drug discovery science
+  health        - clinical practice, public health policy, health systems, insurance, care delivery, pharmacy benefits, hospital operations
   entertainment - film, TV, music, publishing, books, theater, celebrity, the arts
   sports        - athletes, leagues, teams, sports business, college sports, training, broadcast rights
+
+DISAMBIGUATION RULES (read these BEFORE picking)
+  - Research findings, peer-reviewed papers, "study finds", "researchers find", "Nature paper", "clinical trial reports" => almost always SCIENCE, even when the topic is medical or biological. Science is about discovery; health is about delivery.
+  - Pharma earnings, drug pricing as a market story, M&A in healthcare, health-system stock moves => BUSINESS.
+  - Drug approval by FDA, public health rules, hospital staffing, insurance coverage decisions => HEALTH.
+  - Disease outbreaks abroad (Ebola in Congo, dengue in Brazil) => WORLD if the news IS the foreign event; HEALTH if the news is the US public-health response.
+  - Biosecurity, bioweapons, biothreat preparedness, pandemic preparedness as a national-security topic => SECURITY.
+  - State legislatures, congressional bills, governors, federal agency moves => US, even if the topic touches another desk.
+  - When a story touches multiple desks, pick the desk that the headline's MAIN VERB / MAIN NEWS belongs to. ("Court Blocks Facility" => the news is the court ruling; "Court" + the country determines whether it is US or WORLD.)
 
 HEADLINE
   ${title}
@@ -82,13 +91,17 @@ SUBTITLE
   ${dek || '(none)'}
 
 INSTRUCTIONS
-  Return ONLY the single desk ID (lowercase, no quotes, no punctuation, no explanation). Pick the desk a literate reader would pick if they only saw this headline. Examples:
-  - "Iran Halts US Ceasefire Talks" → world
-  - "Illinois House Punts on Bears Stadium Bill" → us
-  - "GitHub Copilot Drops Flat Subscription Pricing" → technology
-  - "Cochrane Review Finds Anti-Amyloid Alzheimer's Drugs Offer No Benefit" → health
-  - "AI Scans of Chest Organ Predict Longevity" → science
-  - "Kenya Court Blocks U.S. Ebola Quarantine Facility" → world
+  Return ONLY the single desk ID (lowercase, no quotes, no punctuation, no explanation). Examples:
+  - "Iran Halts US Ceasefire Talks" => world
+  - "Illinois House Punts on Bears Stadium Bill" => us
+  - "GitHub Copilot Drops Flat Subscription Pricing" => technology
+  - "Pfizer Q2 Earnings Beat on Vaccine Demand" => business
+  - "FDA Approves New Alzheimer Drug for Early-Stage Patients" => health
+  - "Cochrane Review Finds Anti-Amyloid Drugs Offer No Cognitive Benefit" => science (research synthesis)
+  - "AI Scans of Chest Organ Predict Longevity, Nature Papers Find" => science (research finding in Nature)
+  - "Kenya Court Blocks U.S. Ebola Quarantine Site" => world (Kenyan judiciary ruling)
+  - "CDC Updates Quarantine Guidelines After Ebola Cases" => health (US public-health policy)
+  - "Pentagon Names Biothreats a Top National-Security Priority" => security
 
 Output:`;
 }
