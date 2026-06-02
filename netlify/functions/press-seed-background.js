@@ -71,6 +71,51 @@ function shortHash(s) {
   return Math.abs(h).toString(36).slice(0, 4);
 }
 
+/* ──────────────────────────────────────────────────────────────────────────
+   extractJSON — robust JSON extraction from a model response.
+
+   Prior behavior used a greedy regex /\{[\s\S]*\}/ which would silently
+   fail when the response had ANY brace in preamble or commentary. That
+   was the root cause of the seed-stops-early bug (Sasha generated 1 of
+   22 pieces) — most responses parsed fine, but the few with preamble
+   brackets killed the whole iteration with no retry and no log.
+
+   New approach:
+     1. Strip markdown code fences (```json ... ``` and ``` ... ```)
+     2. Try direct JSON.parse of the cleaned string
+     3. If that fails, balance-brace from the first { to its matching }
+        accounting for strings and escapes
+     4. Return null on total failure so the caller can retry or log
+   ────────────────────────────────────────────────────────────────────── */
+function extractJSON(text) {
+  if (!text || typeof text !== 'string') return null;
+  // Strip markdown fences.
+  let s = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+  // Try direct parse.
+  try { return JSON.parse(s); } catch (_) {}
+  // Balance-brace extraction.
+  const start = s.indexOf('{');
+  if (start === -1) return null;
+  let depth = 0, inString = false, escape = false;
+  for (let i = start; i < s.length; i++) {
+    const c = s[i];
+    if (escape) { escape = false; continue; }
+    if (c === '\\' && inString) { escape = true; continue; }
+    if (c === '"') { inString = !inString; continue; }
+    if (inString) continue;
+    if (c === '{') depth++;
+    else if (c === '}') {
+      depth--;
+      if (depth === 0) {
+        try { return JSON.parse(s.slice(start, i + 1)); } catch (_) { return null; }
+      }
+    }
+  }
+  return null;
+}
+
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
 function slugify(s, seed) {
   const base = String(s || '')
     .toLowerCase()
@@ -293,8 +338,8 @@ exports.handler = async (event) => {
   // the caller automatically. We await the work inline so the lambda
   // container stays alive for the full duration (up to 15 minutes).
   try {
-    await runSeed(reporter, apiKey, publishToken);
-    return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ok: true, reporter_id: reporter.id, complete: true }) };
+    const stats = await runSeed(reporter, apiKey, publishToken);
+    return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ok: true, reporter_id: reporter.id, complete: true, stats }) };
   } catch (err) {
     console.error('[press-seed-background] runSeed error', err && err.message);
     return { statusCode: 500, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ok: false, error: err && err.message }) };
@@ -314,34 +359,79 @@ async function runSeed(reporter, apiKey, publishToken) {
   const piecesStore = getStore('press_pieces');
   const indexStore = getStore('press_index');
 
+  // Per-iteration outcome counters. Returned to the caller and logged at
+  // the end so the silent-fail mode that produced the original bug (most
+  // iterations skipped, no telemetry) cannot recur unnoticed.
+  const stats = {
+    total: dates.length,
+    generated: 0,         // wrote a piece successfully
+    parse_failed: 0,      // model output couldn't be parsed even after retry
+    parse_retried: 0,     // model output parsed only after a retry
+    empty: 0,             // parsed but missing title/body
+    blob_failed: 0,       // blob write threw
+    anthropic_error: 0,   // model API call threw
+  };
+
   for (let i = 0; i < dates.length; i++) {
     const published_at = dates[i];
     const topic = orderedSeeds[i % orderedSeeds.length] || '';
-    let parsed;
-    try {
-      const resp = await client.messages.create({
-        model: MODEL,
-        max_tokens: MAX_TOKENS,
-        system: buildSystemPrompt(reporter),
-        messages: [{ role: 'user', content: `Write an evergreen piece for the archive. Topic seed: ${topic}. Date stamp will be ${new Date(published_at).toDateString()}. JSON only.` }],
-      });
-      const raw = (resp.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n').trim();
-      const match = raw.match(/\{[\s\S]*\}/);
-      parsed = JSON.parse(match ? match[0] : raw);
-    } catch (err) {
-      console.error('[press-seed] generation failed for', reporter.id, i, err && err.message);
+
+    // Step 1 — call the model with up to one retry on parse failure.
+    let parsed = null;
+    let lastRaw = '';
+    for (let attempt = 0; attempt < 2; attempt++) {
+      let raw;
+      try {
+        const userMsg = attempt === 0
+          ? `Write an evergreen piece for the archive. Topic seed: ${topic}. Date stamp will be ${new Date(published_at).toDateString()}. JSON only.`
+          : `Your previous response was not valid JSON. Return ONLY the JSON object specified in the system prompt. NO markdown code fences. NO preamble. NO commentary after. The first character of your response must be { and the last must be }. Topic seed: ${topic}.`;
+        const resp = await client.messages.create({
+          model: MODEL,
+          max_tokens: MAX_TOKENS,
+          system: buildSystemPrompt(reporter),
+          messages: [{ role: 'user', content: userMsg }],
+        });
+        raw = (resp.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n').trim();
+        lastRaw = raw;
+      } catch (err) {
+        console.error('[press-seed] anthropic error', reporter.id, i, 'attempt', attempt, '-', err && err.message);
+        // On a hard API error, don't retry — the next iteration may succeed.
+        break;
+      }
+      parsed = extractJSON(raw);
+      if (parsed) {
+        if (attempt > 0) stats.parse_retried++;
+        break;
+      }
+    }
+
+    if (!parsed) {
+      // Either two anthropic_errors or two parse_faileds. Distinguish by
+      // whether we got raw text back at all.
+      if (lastRaw) {
+        stats.parse_failed++;
+        console.error('[press-seed] parse_failed', reporter.id, 'idx', i, 'topic', topic.slice(0, 60), 'raw:', lastRaw.slice(0, 200));
+      } else {
+        stats.anthropic_error++;
+      }
+      await sleep(300);
       continue;
     }
 
+    // Step 2 — validate parsed content.
     const scrub = (s) => String(s || '').replace(/—/g, '-').replace(/–/g, '-');
     const title = scrub(parsed.title);
     const dek = scrub(parsed.dek);
     const body = scrub(parsed.body);
-    if (!title || !body) continue;
+    if (!title || !body) {
+      stats.empty++;
+      console.error('[press-seed] empty title or body', reporter.id, 'idx', i, 'title_len', title.length, 'body_len', body.length);
+      await sleep(300);
+      continue;
+    }
 
-    // Direct blob write (skipping press-publish so we can backdate without a
-    // round trip). press-publish would also work via the token override but
-    // direct is faster.
+    // Step 3 — write to blob. Direct blob write (skipping press-publish so
+    // we can backdate without a round trip).
     let slug = slugify(title, shortHash(reporter.id + published_at));
     try {
       const existing = await piecesStore.get(slug, { type: 'json' });
@@ -377,9 +467,34 @@ async function runSeed(reporter, apiKey, publishToken) {
       }
       if (!inserted) order.push(indexEntry);
       await indexStore.setJSON('order', order.slice(0, 500));
+      stats.generated++;
     } catch (err) {
-      console.error('[press-seed] blob write failed', err && err.message);
+      stats.blob_failed++;
+      console.error('[press-seed] blob write failed', reporter.id, 'idx', i, '-', err && err.message);
     }
+
+    // Pace requests so 22 sequential Anthropic calls don't tripwire a
+    // burst rate limit on the API. 300 ms between iterations adds ~7
+    // seconds of total wall-clock — negligible against the per-call
+    // generation time and well inside the 15-min function ceiling.
+    await sleep(300);
   }
-  console.log('[press-seed] reporter complete', reporter.id, dates.length, 'pieces');
+
+  // Persist a per-reporter status record so admin can see results without
+  // having to read function logs. Keyed by reporter so subsequent runs
+  // overwrite the prior summary cleanly.
+  try {
+    const statusStore = getStore('press_seed_status');
+    await statusStore.setJSON(reporter.id, {
+      reporter_id: reporter.id,
+      reporter_name: reporter.name,
+      finished_at: new Date().toISOString(),
+      stats,
+    });
+  } catch (err) {
+    console.error('[press-seed] status write failed', reporter.id, err && err.message);
+  }
+
+  console.log('[press-seed] reporter complete', reporter.id, JSON.stringify(stats));
+  return stats;
 }
