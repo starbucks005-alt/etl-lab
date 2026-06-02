@@ -345,11 +345,166 @@
     </div>
   </div>
 
-  <!-- ─── LETTER OF REC MODE (placeholder for Phase 2) ────────────────── -->
+  <!-- ─── LETTER OF REC MODE ──────────────────────────────────────────── -->
   <div class="mode-panel" data-mode="lor" hidden>
-    <div class="coming-soon-card">
-      <h2 style="font-family:'Playfair Display',serif;font-weight:700;margin:0 0 0.5rem;">Letter of Rec mode is coming next.</h2>
-      <p style="margin:0;">Phase 2 adds the full LOR intake: target program, addressee, length cap, recommendation tier (4 levels), how-well-you-know scale, percentile + cohort, anecdotes box, strengths to emphasize, FERPA waiver, weaknesses to address (waiver-gated), resume + transcript uploads. Same privacy posture. PDF + DOCX export with your signature and university letterhead in Phase 3.</p>
+
+    <div class="sample-bar">
+      <label for="lor-sample">Try a sample:</label>
+      <select id="lor-sample">
+        <option value="">— choose a scenario —</option>
+        <option value="top-undergrad-ms">Top undergrad applying to MS in same field</option>
+        <option value="avg-grad-industry">Average grad student applying to industry job</option>
+        <option value="postdoc-faculty">Postdoc applying for tenure-track position</option>
+        <option value="lukewarm-grfp">Lukewarm student applying for NSF GRFP</option>
+        <option value="excellent-with-caveat">Excellent student, one weakness to address</option>
+      </select>
+      <button type="button" class="link" id="lor-clear">Clear form</button>
+    </div>
+
+    <div class="pane">
+      <div class="card">
+        <h2>Intake</h2>
+        <p class="card-sub">Fill these in, or load a sample to see the shape of a strong intake.</p>
+
+        <div class="row-2">
+          <label class="field">
+            <span class="label-text">Student name</span>
+            <input type="text" id="lor-student-name" placeholder="e.g. Alex Reyes">
+          </label>
+          <label class="field">
+            <span class="label-text">Student level</span>
+            <select id="lor-student-level">
+              <option value="undergrad">Undergrad</option>
+              <option value="grad">Grad student</option>
+              <option value="doctoral">Doctoral student</option>
+              <option value="postdoc">Postdoc</option>
+            </select>
+          </label>
+        </div>
+
+        <label class="field">
+          <span class="label-text">Target program or role</span>
+          <span class="label-note">What they are applying TO. The letter speaks to this.</span>
+          <input type="text" id="lor-target" placeholder="e.g. MS in Public Health at Johns Hopkins; NSF Graduate Research Fellowship; Assistant Professor at Michigan">
+        </label>
+
+        <div class="row-2">
+          <label class="field">
+            <span class="label-text">Addressee</span>
+            <span class="label-note">Specific reader or "To Whom It May Concern."</span>
+            <input type="text" id="lor-addressee" placeholder="e.g. Admissions Committee; Dr. Chen, Chair">
+          </label>
+          <label class="field">
+            <span class="label-text">Application deadline</span>
+            <input type="text" id="lor-deadline" placeholder="e.g. December 15, 2026">
+          </label>
+        </div>
+
+        <div class="row-2">
+          <label class="field">
+            <span class="label-text">Length cap from program</span>
+            <span class="label-note">If specified. Otherwise the letter targets 400-600 words.</span>
+            <input type="text" id="lor-length-cap" placeholder="e.g. 1 page; 500 words max">
+          </label>
+          <label class="field">
+            <span class="label-text">Recommendation tier</span>
+            <span class="label-note">Calibrates the letter's confidence and language.</span>
+            <select id="lor-tier">
+              <option value="cannot recommend without reservation">Cannot recommend without reservation</option>
+              <option value="i recommend">I recommend</option>
+              <option value="i strongly recommend" selected>I strongly recommend</option>
+              <option value="i enthusiastically recommend">I enthusiastically recommend</option>
+            </select>
+          </label>
+        </div>
+
+        <label class="field">
+          <span class="label-text">How well do you know this student (1-5)</span>
+          <span class="label-note">1 = met them briefly. 5 = supervised them directly over years. Drives credibility.</span>
+          <select id="lor-know-level">
+            <option value="1">1 — met briefly</option>
+            <option value="2">2 — one class or one short interaction</option>
+            <option value="3" selected>3 — one full semester or one project</option>
+            <option value="4">4 — multiple courses or one substantial advised project</option>
+            <option value="5">5 — direct long-term supervision</option>
+          </select>
+        </label>
+
+        <div class="row-2">
+          <label class="field">
+            <span class="label-text">Percentile rank (optional)</span>
+            <span class="label-note">If you can credibly claim one. Numerical claims are the letter's strongest evidence.</span>
+            <input type="text" id="lor-percentile" placeholder="e.g. 3 (for top 3%)">
+          </label>
+          <label class="field">
+            <span class="label-text">Cohort the percentile is drawn from</span>
+            <span class="label-note">Required if percentile is set. Without context, a percentile is meaningless.</span>
+            <input type="text" id="lor-cohort" placeholder="e.g. 60 students in my Methods course over the last 6 years">
+          </label>
+        </div>
+
+        <label class="field" style="display:flex;align-items:flex-start;gap:0.7rem;">
+          <input type="checkbox" id="lor-ferpa" style="width:auto;margin-top:0.25rem;">
+          <span style="flex:1;">
+            <span class="label-text" style="display:inline;">Student WAIVED their FERPA right to view this letter</span>
+            <span class="label-note" style="display:block;">Check if the student waived. A confidential letter (waived) can be more candid about weaknesses; a non-confidential letter (not waived) should stay measured.</span>
+          </span>
+        </label>
+
+        <label class="field">
+          <span class="label-text">Strengths to emphasize</span>
+          <span class="label-note">Specific. "Rigorous thinker" is generic; "designed her own Bayesian model when the published packages didn't fit" lands.</span>
+          <textarea id="lor-strengths" rows="3" placeholder="e.g. Rigorous statistical training; leads the peer study group; asks the next-order question; ships work on time."></textarea>
+        </label>
+
+        <label class="field" id="lor-weaknesses-field">
+          <span class="label-text">Weaknesses to address honestly</span>
+          <span class="label-note">FERPA-waiver-gated. Address tactfully; framed as growth area rather than deal-breaker.</span>
+          <textarea id="lor-weaknesses" rows="3" placeholder="e.g. Scientific writing lags technical skill, but has improved markedly with focused work."></textarea>
+        </label>
+
+        <label class="field">
+          <span class="label-text">Specific anecdotes and evidence (the differentiator)</span>
+          <span class="label-note">Your raw notes. Drop everything you can remember. The model rewrites into prose.</span>
+          <textarea id="lor-anecdotes" rows="5" placeholder="e.g. Took over the aerosol detection project when our lead researcher left. Within 6 months had restarted and improved the method. Her K99 application got a 12 score on first submission."></textarea>
+        </label>
+
+        <label class="field">
+          <span class="label-text">Resume / CV (PDF, DOCX, or TXT)</span>
+          <span class="label-note">Optional. Parsed in your browser, never uploaded.</span>
+          <input type="file" id="lor-resume" accept=".pdf,.docx,.txt">
+          <div class="file-meta" id="lor-resume-meta"></div>
+        </label>
+
+        <label class="field">
+          <span class="label-text">Transcript (unofficial OK)</span>
+          <span class="label-note">Optional. Parsed in your browser, never uploaded.</span>
+          <input type="file" id="lor-transcript" accept=".pdf,.docx,.txt">
+          <div class="file-meta" id="lor-transcript-meta"></div>
+        </label>
+
+        <label class="field">
+          <span class="label-text">Your voice / special notes</span>
+          <span class="label-note">Phrases you use, framings to avoid, context for the assistant.</span>
+          <textarea id="lor-notes" rows="3" placeholder="e.g. Want this to feel genuinely enthusiastic, not formulaic. Make it specific. Avoid the word 'impactful.'"></textarea>
+        </label>
+
+        <div class="status" id="lor-status"></div>
+        <div class="actions">
+          <button type="button" class="btn" id="lor-generate">Draft the letter &rarr;</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Draft</h2>
+        <p class="card-sub">Editable. Edit directly, then copy. PDF and DOCX export with your letterhead and signature come in Phase 3.</p>
+        <textarea class="output-area" id="lor-output" placeholder="Your draft letter will appear here. The whole thing is editable."></textarea>
+        <div class="output-meta" id="lor-output-meta"></div>
+        <div class="actions">
+          <button type="button" class="btn ghost" id="lor-copy">Copy to clipboard</button>
+          <button type="button" class="btn ghost" id="lor-clear-output">Clear draft</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -560,6 +715,235 @@
     $('email-output').value = '';
     $('email-output-meta').textContent = '';
     setStatus($('email-status'), 'Draft cleared.', 'success');
+  });
+
+  // ─── Letter of Rec mode ──────────────────────────────────────────────
+  //
+  // FERPA-waiver toggle controls visibility of the weaknesses field.
+  // Without a waiver the student can read the letter, so candor about
+  // weaknesses is risky; the form hides the field and the AI prompt
+  // omits any weakness instructions in that case.
+  function syncFerpaState(){
+    var waived = $('lor-ferpa').checked;
+    var wField = $('lor-weaknesses-field');
+    if (wField) wField.style.display = waived ? '' : 'none';
+  }
+  var ferpaCheck = $('lor-ferpa');
+  if (ferpaCheck) {
+    ferpaCheck.addEventListener('change', syncFerpaState);
+    syncFerpaState(); // initial state: unchecked, weakness hidden
+  }
+
+  // 5 LOR sample scenarios. Each pre-fills the full intake including
+  // anecdotes — the differentiator. These were chosen to cover the four
+  // tiers (cannot recommend, recommend, strongly, enthusiastically) plus
+  // the awkward "I do not know this student well" case.
+  var LOR_SAMPLES = {
+    'top-undergrad-ms': {
+      student_name: 'Alex Reyes',
+      level: 'undergrad',
+      target: 'MS in Public Health, Johns Hopkins Bloomberg School',
+      addressee: 'Admissions Committee',
+      deadline: 'December 15, 2026',
+      length_cap: '1 page',
+      tier: 'i enthusiastically recommend',
+      know_level: '5',
+      percentile: '3',
+      cohort: '60 students in my undergraduate Methods course over the last 6 years',
+      ferpa: true,
+      strengths: 'Rigorous statistical training. Leads the peer study group informally. Asks the next-order question in every seminar. Writes cleanly under pressure.',
+      weaknesses: 'Tends to take on too much at once; learning to scope.',
+      anecdotes: "Did her senior thesis on antimicrobial resistance under my supervision. Coded her own Bayesian model from scratch when the published packages did not fit her data. Presented a poster at ASTMH 2025 - the only undergrad on that panel. TAed for my methods course as a senior; her review average was 4.8/5.",
+      notes: 'Want this to feel genuinely enthusiastic, not formulaic. Make it specific. Avoid the word "impactful."'
+    },
+    'avg-grad-industry': {
+      student_name: 'Marcus Liu',
+      level: 'grad',
+      target: 'Data Engineer role at Stripe',
+      addressee: 'Hiring Manager',
+      deadline: 'rolling',
+      length_cap: '1 page',
+      tier: 'i recommend',
+      know_level: '3',
+      percentile: '',
+      cohort: '',
+      ferpa: true,
+      strengths: 'Reliable. Good with people. Ships work on time. Learns from feedback without defensiveness.',
+      weaknesses: '',
+      anecdotes: "TAed for my data structures class last fall - student reviews were strong, particularly on his patience explaining concepts. Picked up Rust in a week when I asked the team to prototype something in it. Not a research superstar but a solid engineer.",
+      notes: 'Honest support without overselling. Industry will see he is not a research superstar but that is not what they need. Frame the value he actually brings.'
+    },
+    'postdoc-faculty': {
+      student_name: 'Dr. Priya Bhatt',
+      level: 'postdoc',
+      target: 'Assistant Professor of Public Health, University of Michigan School of Public Health',
+      addressee: 'Dr. Sarah Chen, Search Committee Chair',
+      deadline: 'January 20, 2027',
+      length_cap: '2 pages max',
+      tier: 'i enthusiastically recommend',
+      know_level: '5',
+      percentile: '',
+      cohort: '',
+      ferpa: true,
+      strengths: 'Independent investigator already. Two first-author publications. Mentors junior researchers well. Secured K99 funding on first submission. Excellent scientific communicator.',
+      weaknesses: 'Could grow her grant-writing portfolio beyond NIH mechanisms.',
+      anecdotes: "Took over the aerosol biothreat detection project when our lead researcher left mid-experiment. Within 6 months had not only restarted the work but improved the assay sensitivity by an order of magnitude. K99 application scored 12 on first submission (top 3%). She mentors two of my graduate students more effectively than I do. Two papers in Nature Microbiology, both first author. She is one of the top 2 postdocs I have supervised in 18 years.",
+      notes: 'This is the most important letter she will get. Make it stand out from the standard "she is excellent" letters. Specific evidence throughout. Tie strengths to what an R1 search committee actually evaluates.'
+    },
+    'lukewarm-grfp': {
+      student_name: 'Jamie Carter',
+      level: 'doctoral',
+      target: 'NSF Graduate Research Fellowship Program (GRFP)',
+      addressee: 'NSF GRFP Review Panel',
+      deadline: 'October 21, 2026',
+      length_cap: '2 pages',
+      tier: 'i recommend',
+      know_level: '2',
+      percentile: '',
+      cohort: '',
+      ferpa: true,
+      strengths: 'Thoughtful in seminar discussions. Chose a difficult final paper topic when easier options were available. Shows real intellectual curiosity.',
+      weaknesses: '',
+      anecdotes: "In my fall doctoral seminar on epidemiology methods, Jamie chose to write about mixed-methods evaluation of community health workers - a methodologically demanding topic. Her final paper showed she had read deeply, including literature outside the assigned reading. She asked the kind of questions that move the discussion forward rather than performing them. No research interaction yet; we expect to begin advising in spring.",
+      notes: 'This is the "I do not know this student that well yet" case. I want to honestly support without overstating. Frame what I CAN say honestly. Be okay being a less-superlative letter than GRFP usually gets. Tier is "I recommend" not "I strongly recommend" deliberately.'
+    },
+    'excellent-with-caveat': {
+      student_name: 'David Park',
+      level: 'doctoral',
+      target: 'NIH F31 Predoctoral Fellowship',
+      addressee: 'NIH Study Section',
+      deadline: 'December 8, 2026',
+      length_cap: 'no cap specified',
+      tier: 'i strongly recommend',
+      know_level: '5',
+      percentile: '5',
+      cohort: 'doctoral students I have advised over 12 years',
+      ferpa: true,
+      strengths: 'Deep technical skill. Exceptional bench work. Two publications by his second year. Identifies experimental problems senior people miss.',
+      weaknesses: 'Scientific writing lags his technical skill. Has improved markedly with focused work but still needs more cycles before he is a confident scientific writer.',
+      anecdotes: "David ran our most complex perfusion experiments single-handedly in his second year. Identified a contamination issue that two senior people in the lab had missed; saved us weeks of work. Has presented at three national conferences (SfN, GRC, Cold Spring Harbor). We worked together weekly on his F31 narrative; the current version is substantially stronger than his first draft and he has internalized the rewriting cycle. Two publications in Cell Reports and Journal of Neuroscience, both first author.",
+      notes: 'I want to be honest about the writing without it sinking the letter. Frame it as a focused area of growth he is actively addressing. The technical work justifies the strong recommendation. Reviewers will respect candor over silence.'
+    }
+  };
+
+  var lorSampleSelect = $('lor-sample');
+  if (lorSampleSelect) {
+    lorSampleSelect.addEventListener('change', function(){
+      var key = lorSampleSelect.value;
+      if (!key) return;
+      var s = LOR_SAMPLES[key];
+      if (!s) return;
+      $('lor-student-name').value = s.student_name;
+      $('lor-student-level').value = s.level;
+      $('lor-target').value = s.target;
+      $('lor-addressee').value = s.addressee;
+      $('lor-deadline').value = s.deadline;
+      $('lor-length-cap').value = s.length_cap;
+      $('lor-tier').value = s.tier;
+      $('lor-know-level').value = s.know_level;
+      $('lor-percentile').value = s.percentile;
+      $('lor-cohort').value = s.cohort;
+      $('lor-ferpa').checked = !!s.ferpa;
+      syncFerpaState();
+      $('lor-strengths').value = s.strengths;
+      $('lor-weaknesses').value = s.weaknesses;
+      $('lor-anecdotes').value = s.anecdotes;
+      $('lor-notes').value = s.notes;
+      setStatus($('lor-status'), 'Sample loaded. Edit anything before generating.', 'success');
+    });
+  }
+
+  var lorClear = $('lor-clear');
+  if (lorClear) lorClear.addEventListener('click', function(){
+    ['lor-student-name','lor-target','lor-addressee','lor-deadline','lor-length-cap','lor-percentile','lor-cohort','lor-strengths','lor-weaknesses','lor-anecdotes','lor-notes'].forEach(function(id){ var el = $(id); if (el) el.value = ''; });
+    $('lor-student-level').value = 'undergrad';
+    $('lor-tier').value = 'i strongly recommend';
+    $('lor-know-level').value = '3';
+    $('lor-ferpa').checked = false;
+    syncFerpaState();
+    $('lor-resume').value = '';
+    $('lor-transcript').value = '';
+    $('lor-resume-meta').textContent = '';
+    $('lor-transcript-meta').textContent = '';
+    lorSampleSelect.value = '';
+    setStatus($('lor-status'), 'Cleared.', 'success');
+  });
+
+  attachFileReader('lor-resume', 'lor-resume-meta', 'lor_resume_text');
+  attachFileReader('lor-transcript', 'lor-transcript-meta', 'lor_transcript_text');
+
+  var lorGenerate = $('lor-generate');
+  if (lorGenerate) lorGenerate.addEventListener('click', function(){
+    var studentName = $('lor-student-name').value.trim();
+    var target = $('lor-target').value.trim();
+    var anecdotes = $('lor-anecdotes').value.trim();
+    if (!studentName) { setStatus($('lor-status'), 'Student name is required.', 'error'); return; }
+    if (!target) { setStatus($('lor-status'), 'Target program or role is required.', 'error'); return; }
+    if (!anecdotes) { setStatus($('lor-status'), 'Specific anecdotes are this letter’s strongest material. Add at least a few sentences.', 'error'); return; }
+
+    // Validate percentile pairing: if percentile filled, cohort must be too.
+    var percentile = $('lor-percentile').value.trim();
+    var cohort = $('lor-cohort').value.trim();
+    if (percentile && !cohort) { setStatus($('lor-status'), 'A percentile claim needs a cohort. Without context "top X%" is meaningless.', 'error'); return; }
+
+    var ferpaWaived = $('lor-ferpa').checked;
+    var intake = {
+      student_name: studentName,
+      student_level: $('lor-student-level').value,
+      target_program: target,
+      addressee: $('lor-addressee').value.trim() || 'To Whom It May Concern',
+      deadline: $('lor-deadline').value.trim(),
+      length_cap: $('lor-length-cap').value.trim(),
+      tier: $('lor-tier').value,
+      know_level: $('lor-know-level').value,
+      percentile: percentile,
+      cohort: cohort,
+      ferpa_waived: ferpaWaived,
+      strengths: $('lor-strengths').value.trim(),
+      weaknesses: ferpaWaived ? $('lor-weaknesses').value.trim() : '',
+      anecdotes: anecdotes,
+      special_notes: $('lor-notes').value.trim(),
+      resume_text: window.__lor_resume_text || '',
+      transcript_text: window.__lor_transcript_text || ''
+    };
+    setStatus($('lor-status'), 'Drafting (20-40s)...', 'busy');
+    lorGenerate.disabled = true;
+    fetch('/.netlify/functions/office-hours-draft', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: 'lor', intake: intake })
+    }).then(function(r){ return r.json().then(function(j){ return { status: r.status, body: j }; }); })
+      .then(function(res){
+        lorGenerate.disabled = false;
+        if (res.status === 200 && res.body && res.body.draft) {
+          $('lor-output').value = res.body.draft;
+          $('lor-output-meta').textContent = res.body.word_count + ' words. Edit directly, then copy.';
+          setStatus($('lor-status'), 'Draft ready. Edit in the right panel before sending.', 'success');
+          $('lor-output').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+          setStatus($('lor-status'), (res.body && res.body.error) || ('Draft failed (status ' + res.status + ')'), 'error');
+        }
+      })
+      .catch(function(err){
+        lorGenerate.disabled = false;
+        setStatus($('lor-status'), 'Network error: ' + (err && err.message), 'error');
+      });
+  });
+
+  var lorCopy = $('lor-copy');
+  if (lorCopy) lorCopy.addEventListener('click', function(){
+    var text = $('lor-output').value;
+    if (!text) { setStatus($('lor-status'), 'Nothing to copy yet.', 'error'); return; }
+    var write = navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject();
+    write.then(function(){ setStatus($('lor-status'), 'Copied to clipboard.', 'success'); })
+      .catch(function(){ window.prompt('Copy this:', text); });
+  });
+
+  var lorClearOutput = $('lor-clear-output');
+  if (lorClearOutput) lorClearOutput.addEventListener('click', function(){
+    $('lor-output').value = '';
+    $('lor-output-meta').textContent = '';
+    setStatus($('lor-status'), 'Draft cleared.', 'success');
   });
 
 })();
