@@ -56,9 +56,13 @@
   to = "/.netlify/functions/newswire-reporter?slug=:slug"
   status = 200
 
+# Catch-all for individual pieces. Splat (*) is more reliable than :slug
+# placeholder when the slug needs to be interpolated into a query string.
+# Order matters: this MUST come after every more-specific /press/* rule
+# above, otherwise the splat eats them.
 [[redirects]]
-  from = "/press/:slug"
-  to = "/.netlify/functions/press-piece?slug=:slug"
+  from = "/press/*"
+  to = "/.netlify/functions/press-piece?slug=:splat"
   status = 200
 
 [[redirects]]
