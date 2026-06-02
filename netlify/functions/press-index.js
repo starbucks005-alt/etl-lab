@@ -280,6 +280,9 @@ function renderNewsroom(pieces, activeDesk) {
   .briefing-band-sub{font-family:'Cormorant Garamond',serif;font-style:italic;color:#5a5240;font-size:0.88rem;}
   .briefing-band-audio audio{width:300px;max-width:100%;height:36px;}
   @media (max-width:720px){.briefing-band-audio audio{width:100%;}}
+  .briefing-audio-row{display:flex;align-items:center;gap:0.7rem;flex-wrap:wrap;}
+  .briefing-length{display:inline-flex;align-items:center;gap:0.35rem;font-family:'DM Mono',monospace;font-size:0.7rem;letter-spacing:0.16em;text-transform:uppercase;color:#8a6a1c;background:rgba(184,146,42,0.10);border:1px solid #b8922a;padding:0.35rem 0.7rem;white-space:nowrap;}
+  .briefing-length::before{content:'';display:inline-block;width:5px;height:5px;background:#b8922a;border-radius:50%;}
   .briefing-share{display:flex;align-items:center;gap:0.5rem;margin-top:0.4rem;font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.16em;text-transform:uppercase;color:#8a6a1c;flex-wrap:wrap;}
   .briefing-share a, .briefing-share button{font-family:inherit;font-size:inherit;letter-spacing:inherit;text-transform:inherit;color:#8a6a1c;background:transparent;border:1px solid #b8922a;padding:0.2rem 0.5rem;cursor:pointer;text-decoration:none;}
   .briefing-share a:hover, .briefing-share button:hover{background:#b8922a;color:#fff;}
@@ -408,7 +411,10 @@ function renderNewsroom(pieces, activeDesk) {
       <div class="briefing-band-sub" id="briefing-sub"></div>
     </div>
     <div class="briefing-band-audio">
-      <audio id="briefing-audio" controls preload="none"></audio>
+      <div class="briefing-audio-row">
+        <audio id="briefing-audio" controls preload="none"></audio>
+        <span class="briefing-length" id="briefing-length" hidden></span>
+      </div>
       <div class="briefing-share" id="briefing-share">
         <span>Share:</span>
         <button type="button" data-share="link">Copy link</button>
@@ -454,9 +460,16 @@ function renderNewsroom(pieces, activeDesk) {
       audio.src = meta.audio_url;
       if (sub && meta.generated_at) {
         var dt = new Date(meta.generated_at);
-        var label = isNaN(+dt) ? '' : 'Recorded ' + dt.toLocaleDateString('en-US',{weekday:'long', month:'long', day:'numeric'}) + ' at ' + dt.toLocaleTimeString('en-US',{hour:'numeric', minute:'2-digit'});
-        if (label && meta.duration_label) label += ' · ' + meta.duration_label;
-        sub.textContent = label;
+        sub.textContent = isNaN(+dt) ? '' : 'Recorded ' + dt.toLocaleDateString('en-US',{weekday:'long', month:'long', day:'numeric'}) + ' at ' + dt.toLocaleTimeString('en-US',{hour:'numeric', minute:'2-digit'});
+      }
+      // Prominent length badge inline with the audio player. The native
+      // HTML5 audio element shows 0:00 / 0:00 until playback starts (it
+      // can't compute duration from byte-concatenated mp3), so we surface
+      // the server-computed length up front where visitors can see it.
+      var lenBadge = document.getElementById('briefing-length');
+      if (lenBadge && meta.duration_label) {
+        lenBadge.textContent = 'Length ' + meta.duration_label;
+        lenBadge.hidden = false;
       }
       card.classList.add('is-ready');
     })

@@ -19,7 +19,10 @@
   .embed-eyebrow a{color:#8a6a1c;text-decoration:underline;}
   .embed-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;line-height:1.15;color:#0e0c08;margin-bottom:2px;}
   .embed-sub{font-family:'Cormorant Garamond',serif;font-style:italic;color:#5a5240;font-size:13px;}
+  .embed-audio{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
   .embed-audio audio{width:300px;max-width:100%;height:36px;}
+  .embed-length{display:inline-flex;align-items:center;gap:6px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:#8a6a1c;background:rgba(184,146,42,0.10);border:1px solid #b8922a;padding:5px 10px;white-space:nowrap;}
+  .embed-length::before{content:'';display:inline-block;width:5px;height:5px;background:#b8922a;border-radius:50%;}
   .embed-pending{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#5a5240;text-align:center;padding:18px 8px;}
   .credit{position:fixed;right:8px;bottom:6px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:#a89c88;}
   .credit a{color:#a89c88;text-decoration:none;border-bottom:1px solid rgba(168,156,136,0.4);}
@@ -34,6 +37,7 @@
   </div>
   <div class="embed-audio">
     <audio id="embed-audio" controls preload="none"></audio>
+    <span class="embed-length" id="embed-length" hidden></span>
   </div>
 </section>
 <div class="credit"><a href="https://emerging-tech-lab.com/press" target="_blank" rel="noopener">emerging-tech-lab.com/press</a></div>
@@ -53,10 +57,13 @@
       if (meta.generated_at) {
         try {
           var dt = new Date(meta.generated_at);
-          var label = 'Recorded ' + dt.toLocaleDateString('en-US',{weekday:'long', month:'long', day:'numeric'}) + ' at ' + dt.toLocaleTimeString('en-US',{hour:'numeric', minute:'2-digit'});
-          if (meta.duration_label) label += ' · ' + meta.duration_label;
-          sub.textContent = label;
+          sub.textContent = 'Recorded ' + dt.toLocaleDateString('en-US',{weekday:'long', month:'long', day:'numeric'}) + ' at ' + dt.toLocaleTimeString('en-US',{hour:'numeric', minute:'2-digit'});
         } catch(_) { sub.textContent = ''; }
+      }
+      var lenBadge = document.getElementById('embed-length');
+      if (lenBadge && meta.duration_label) {
+        lenBadge.textContent = 'Length ' + meta.duration_label;
+        lenBadge.hidden = false;
       }
     })
     .catch(function(){ var sub = document.getElementById('embed-sub'); if (sub) sub.textContent = 'Unable to load the briefing right now.'; });
