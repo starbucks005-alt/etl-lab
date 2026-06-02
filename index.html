@@ -863,6 +863,7 @@ document.addEventListener('DOMContentLoaded', function(){
     <li><a href="#team" onclick="closeMenu()">Research Team</a></li>
     <li><a href="#research" onclick="closeMenu()">Research</a></li>
     <li><a href="#director" onclick="closeMenu()">Bio</a></li>
+    <li><a href="#talks" onclick="closeMenu()">Talks</a></li>
     <li><a href="#intel" onclick="closeMenu()">Intel</a></li>
     <li><a href="#publications" onclick="closeMenu()">Publications</a></li>
     <li><a href="#teaching" onclick="closeMenu()">Workshops</a></li>
@@ -2396,6 +2397,93 @@ document.addEventListener('DOMContentLoaded', function(){
       <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:#999;letter-spacing:1px;margin-left:8px;">COUNTER-TERRORISM WATCH/NFCA · 2020–2024</span>
     </li>
   </ul>
+</section>
+
+<!-- TALKS & KEYNOTES: upcoming public speaking, with SJA Chicago Jul 2026
+     as the hero card. Placed before Featured Intelligence so the page
+     reads: upcoming talks → past briefing with recording. -->
+<style>
+  #talks { padding: 60px 40px 30px; max-width: 1280px; margin: 0 auto; }
+  #talks .section-tag { font-family: 'Oswald', sans-serif; font-size: 11px; letter-spacing: 4px; color: #285c4d; text-transform: uppercase; display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  #talks .section-tag::before { content: ''; width: 30px; height: 2px; background: #285c4d; display: inline-block; }
+  #talks .section-title { font-family: 'Oswald', sans-serif; font-size: 56px; font-weight: 700; line-height: 0.95; color: #111; margin: 0 0 6px; text-transform: uppercase; letter-spacing: -1px; }
+  #talks .section-title span { color: #285c4d; }
+  #talks .section-subtitle { font-family: 'Source Sans 3', sans-serif; font-size: 14px; color: #666; margin: 0 0 28px; }
+
+  .talks-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .talks-grid .talk-hero { grid-column: 1 / -1; }
+  @media (max-width: 980px) { .talks-grid { grid-template-columns: 1fr; } }
+
+  .talk-card { background: #111; color: #ededed; padding: 22px 24px 24px; border-left: 4px solid #FDB827; display: flex; flex-direction: column; gap: 8px; min-height: 220px; }
+  .talk-date { font-family: 'Oswald', sans-serif; font-size: 11px; letter-spacing: 3px; color: #FDB827; text-transform: uppercase; }
+  .talk-role { font-family: 'Oswald', sans-serif; font-size: 10px; letter-spacing: 2.5px; color: #888; text-transform: uppercase; }
+  .talk-card--keynote .talk-role { color: #FDB827; font-weight: 700; }
+  .talk-title { font-family: 'Oswald', sans-serif; font-size: 24px; line-height: 1.05; font-weight: 700; color: #fff; margin: 4px 0 2px; text-transform: uppercase; letter-spacing: -0.4px; }
+  .talk-org { font-family: 'Source Sans 3', sans-serif; font-size: 13px; color: #d4d4d4; }
+  .talk-loc { font-family: 'Source Sans 3', sans-serif; font-size: 12px; color: #888; }
+  .talk-blurb { font-family: 'Source Sans 3', sans-serif; font-size: 13.5px; line-height: 1.55; color: #c8c8c8; margin-top: 8px; }
+  .talk-link { font-family: 'Oswald', sans-serif; font-size: 11px; letter-spacing: 2px; color: #FDB827; text-transform: uppercase; text-decoration: none; margin-top: auto; padding-top: 12px; display: inline-block; border-bottom: 1px solid transparent; align-self: flex-start; }
+  .talk-link:hover { border-bottom-color: #FDB827; }
+
+  /* Hero card: SJA Keynote spans full width, image left, content right. */
+  .talk-hero { padding: 0; flex-direction: row; align-items: stretch; min-height: 320px; background: linear-gradient(180deg, #1a1a1a 0%, #0c0c0c 100%); }
+  .talk-hero .talk-hero-image { flex: 0 0 42%; background: #000; display: flex; align-items: center; justify-content: center; min-height: 280px; }
+  .talk-hero .talk-hero-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .talk-hero .talk-hero-image-placeholder { font-family: 'Oswald', sans-serif; font-size: 12px; letter-spacing: 3px; color: #444; text-transform: uppercase; text-align: center; padding: 20px; }
+  .talk-hero .talk-hero-body { flex: 1; padding: 28px 32px; display: flex; flex-direction: column; gap: 10px; border-left: 4px solid #FDB827; }
+  .talk-hero .talk-title { font-size: 32px; }
+  @media (max-width: 880px) {
+    .talk-hero { flex-direction: column; }
+    .talk-hero .talk-hero-image { flex: 0 0 auto; height: 240px; }
+    .talk-hero .talk-hero-body { padding: 22px 24px; }
+  }
+
+  .talk-pull-quote { font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-size: 15px; color: #d4d4d4; border-left: 2px solid #FDB827; padding-left: 14px; margin: 4px 0; }
+</style>
+<section id="talks">
+  <div class="section-tag">On the Circuit</div>
+  <h2 class="section-title">Talks &amp; <span>Keynotes</span></h2>
+  <p class="section-subtitle">Selected public speaking on AI agents, security, emerging technology, and crisis leadership.</p>
+
+  <div class="talks-grid">
+
+    <!-- Card 1: Middletown Chamber -->
+    <article class="talk-card">
+      <div class="talk-date">Jun 4, 2026 &nbsp;·&nbsp; 11:30 AM – 1:15 PM EDT</div>
+      <div class="talk-role">Featured Speaker</div>
+      <h3 class="talk-title">AI Agents</h3>
+      <div class="talk-org">Middletown Chamber</div>
+      <div class="talk-loc">The Event Center of Middletown · 3907 Central Ave, Middletown, OH 45044</div>
+      <p class="talk-blurb">What AI agents actually do in production, where they break, and what a small business should pilot first.</p>
+    </article>
+
+    <!-- Card 2: AI Breakfast Club -->
+    <article class="talk-card">
+      <div class="talk-date">Jun 10, 2026 &nbsp;·&nbsp; release</div>
+      <div class="talk-role">Featured Guest</div>
+      <h3 class="talk-title">The AI Breakfast Club</h3>
+      <div class="talk-org">RedShort &times; Red Sky Alliance</div>
+      <div class="talk-loc">Recorded video · Distributed Jun 10</div>
+      <p class="talk-blurb">A working session on agentic AI in security operations and what mid-market teams should be evaluating now.</p>
+    </article>
+
+    <!-- Card 3: SJA Keynote (hero) -->
+    <article class="talk-card talk-hero talk-card--keynote">
+      <div class="talk-hero-image">
+        <img src="agents/sja-2026-keynote.png" alt="SJA Leaders in Security 2026 — Keynote: Dr. Terry L. Oroszi" onerror="this.parentElement.innerHTML='<div class=\&quot;talk-hero-image-placeholder\&quot;>SJA Keynote · Chicago<br>2026 promo art</div>';">
+      </div>
+      <div class="talk-hero-body">
+        <div class="talk-date">Jul 16, 2026</div>
+        <div class="talk-role">Keynote</div>
+        <h3 class="talk-title">SJA Leaders in Security 2026</h3>
+        <div class="talk-org">In association with Security Innovation Hub</div>
+        <div class="talk-loc">Embassy Suites by Hilton Chicago Downtown · Magnificent Mile, Chicago, IL</div>
+        <p class="talk-pull-quote">"Nationally recognized security strategist, researcher and educator."</p>
+        <p class="talk-blurb">A multidisciplinary lens on emerging technology, terrorism, and crisis leadership. 30+ years across academia, military, federal law enforcement, and national defense. Harvard Kennedy School alumna. Forbes Technology Council member. Director, ETL.</p>
+      </div>
+    </article>
+
+  </div>
 </section>
 
 <!-- INTEL BRIEF: FEATURED ARTICLE -->
