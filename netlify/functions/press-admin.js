@@ -351,6 +351,16 @@ function renderDashboard(pieces) {
         </div>
         <div class="tool-result" id="briefing-result"></div>
       </div>
+
+      <div class="tool-card">
+        <h3 class="tool-title">Reclassify all desks</h3>
+        <p class="tool-sub">One-time cleanup. Walks every piece on the wire and re-tags its desk based on the story's actual content (not the reporter's assigned desk). Fixes the early bug where a reporter writing off-beat would publish under their own desk. Also invalidates today's Deskline puzzle so the next play uses corrected tags. Sequential, ~2 seconds per piece.</p>
+        <div class="tool-actions" style="margin-top:0.8rem;">
+          <span class="tool-status" id="reclassify-status"></span>
+          <button type="button" id="btn-reclassify" class="btn btn-primary">Reclassify all pieces &rarr;</button>
+        </div>
+        <div class="tool-result" id="reclassify-result"></div>
+      </div>
     </div>
   </section>
 
@@ -670,6 +680,38 @@ function renderDashboard(pieces) {
         });
       }).catch(function(err){
         briefBtn.disabled = false;
+        setStatus(status, err.message || 'network error', 'error');
+      });
+    });
+  }
+
+  // Reclassify all desks (one-shot data cleanup)
+  var reclassifyBtn = document.getElementById('btn-reclassify');
+  if (reclassifyBtn) {
+    reclassifyBtn.addEventListener('click', function(){
+      if (!window.confirm('Re-tag every piece on the wire based on story content? This takes 60-90 seconds in the background.')) return;
+      var status = document.getElementById('reclassify-status');
+      var result = document.getElementById('reclassify-result');
+      result.innerHTML = '';
+      setStatus(status, 'Running. Re-classifying ~33 pieces (~60-90s).', 'busy');
+      reclassifyBtn.disabled = true;
+      fetch('/.netlify/functions/press-reclassify-background', {
+        method: 'POST', credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      }).then(function(r){
+        if (r.status >= 200 && r.status < 300) {
+          reclassifyBtn.disabled = false;
+          setStatus(status, 'Running in background. Refresh /press in ~2 min.', 'success');
+          result.innerHTML = '<p>Reclassification is running. Every piece on the wire is being re-tagged based on story content. Today\'s Deskline puzzle will refresh from corrected data on the next visit. <a href="/press" target="_blank" rel="noopener">Refresh /press in 2 minutes &rarr;</a></p>';
+          return;
+        }
+        return r.json().catch(function(){ return { error: 'unknown' }; }).then(function(j){
+          reclassifyBtn.disabled = false;
+          setStatus(status, (j && j.error) || 'Reclassification failed', 'error');
+        });
+      }).catch(function(err){
+        reclassifyBtn.disabled = false;
         setStatus(status, err.message || 'network error', 'error');
       });
     });
