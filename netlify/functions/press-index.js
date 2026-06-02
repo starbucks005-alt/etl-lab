@@ -199,9 +199,12 @@ function renderNewsroom(pieces, activeDesk) {
 <meta property="og:url" content="${SITE_BASE}/press${activeDesk ? '?desk=' + activeDesk : ''}">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="${NEWSROOM_NAME}">
-<meta name="twitter:card" content="summary">
+<meta property="og:image" content="${SITE_BASE}/agents/newswire_logo.png">
+<meta property="og:image:alt" content="ETL Newswire">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${NEWSROOM_NAME}${filterLabel}">
 <meta name="twitter:description" content="${pageDesc}">
+<meta name="twitter:image" content="${SITE_BASE}/agents/newswire_logo.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Mono:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">

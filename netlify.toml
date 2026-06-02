@@ -27,6 +27,16 @@
   status = 200
 
 [[redirects]]
+  from = "/press/above-the-fold/embed"
+  to = "/press-above-the-fold-embed.html"
+  status = 200
+
+[[redirects]]
+  from = "/press/above-the-fold.xml"
+  to = "/.netlify/functions/newswire-podcast-rss"
+  status = 200
+
+[[redirects]]
   from = "/press/reporter/:slug"
   to = "/.netlify/functions/newswire-reporter?slug=:slug"
   status = 200
