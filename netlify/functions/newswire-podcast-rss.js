@@ -4,9 +4,9 @@
 
    GET /press/above-the-fold.xml
 
-   For now we expose the LATEST briefing as a single episode. Future work:
-   store a rolling history of briefings (mp3 + metadata) and list multiple
-   episodes in the feed.
+   Enumerates the rolling episode index (newswire_briefings_meta/index)
+   and emits one <item> per episode, newest first. Each <item>'s audio
+   URL resolves to the per-episode blob via ?episode=<key>.
 
    Submit this URL to:
    - Spotify for Podcasters: https://podcasters.spotify.com/
@@ -15,6 +15,7 @@
    ───────────────────────────────────────────────────────────────────────────── */
 
 const { getStore, connectLambda } = require('@netlify/blobs');
+const { readEpisodeIndex } = require('./_briefing-helpers');
 
 const SITE = 'https://emerging-tech-lab.com';
 const SHOW = {
@@ -47,44 +48,93 @@ function rfc2822(iso) {
   } catch (_) { return new Date(0).toUTCString(); }
 }
 
-exports.handler = async (event) => {
-  try { connectLambda(event); } catch (_) {}
+function buildItemXml(meta) {
+  if (!meta || !meta.episode_key || !meta.generated_at) return '';
+  const episodeTitle = `Above the Fold - ${new Date(meta.generated_at).toLocaleDateString('en-US', {
+    weekday: 'long', month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC',
+  })}`;
+  const audioFull = SITE + (meta.audio_url || `/.netlify/functions/newswire-briefing-audio?episode=${encodeURIComponent(meta.episode_key)}`);
+  const guid = `etl-newswire-atf-${meta.episode_key}`;
+  const piecesList = (meta.pieces || [])
+    .map(p => `- ${(p.desk_label || p.desk || '').toString()}: ${p.title}`)
+    .join('\n');
+  const episodeDescription = `Today's top stories on the ETL Newswire, briefed in under five minutes by Marcus Reyes and the desk reporters.\n\nIn this briefing:\n${piecesList}\n\nMore at ${SITE}/press`;
+  const durationStr = meta.duration_label
+    ? `<itunes:duration>${esc(meta.duration_label)}</itunes:duration>`
+    : '';
+  // length attribute on enclosure: byte size if we know it, else 0. Apple
+  // Podcasts uses this for download progress estimates. 0 is allowed.
+  const byteSize = meta.byte_size ? String(meta.byte_size) : '0';
 
-  let meta = null;
-  try {
-    const store = getStore('newswire_briefings_meta');
-    meta = await store.get('latest', { type: 'json' });
-  } catch (err) {
-    console.error('[podcast-rss] meta read failed', err && err.message);
-  }
-
-  const lastBuild = meta && meta.generated_at ? rfc2822(meta.generated_at) : new Date().toUTCString();
-
-  let items = '';
-  if (meta && meta.audio_url && meta.generated_at) {
-    const episodeTitle = `Above the Fold - ${new Date(meta.generated_at).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}`;
-    const audioFull = SITE + meta.audio_url;
-    // GUID has to be stable per episode. Use generated_at timestamp.
-    const guid = `etl-newswire-atf-${meta.generated_at}`;
-    const piecesList = (meta.pieces || [])
-      .map(p => `- ${(p.desk_label || p.desk || '').toString()}: ${p.title}`)
-      .join('\n');
-    const episodeDescription = `Today's top stories on the ETL Newswire, briefed in under five minutes by Marcus Reyes and the desk reporters.\n\nIn this briefing:\n${piecesList}\n\nMore at ${SITE}/press`;
-
-    items = `
+  return `
     <item>
       <title>${esc(episodeTitle)}</title>
       <description>${esc(episodeDescription)}</description>
       <pubDate>${rfc2822(meta.generated_at)}</pubDate>
-      <enclosure url="${esc(audioFull)}" type="audio/mpeg" length="0"/>
+      <enclosure url="${esc(audioFull)}" type="audio/mpeg" length="${byteSize}"/>
       <guid isPermaLink="false">${esc(guid)}</guid>
       <link>${esc(SITE + '/press')}</link>
       <itunes:author>${esc(SHOW.author)}</itunes:author>
       <itunes:summary>${esc(episodeDescription)}</itunes:summary>
       <itunes:explicit>${SHOW.explicit}</itunes:explicit>
       <itunes:episodeType>full</itunes:episodeType>
+      ${durationStr}
     </item>`;
+}
+
+exports.handler = async (event) => {
+  try { connectLambda(event); } catch (_) {}
+
+  const metaStore = getStore('newswire_briefings_meta');
+
+  // Read the index. Fall back to legacy 'latest'-only behavior if the
+  // index is missing or empty (e.g. very first deploy before any
+  // backdate run, but after the live cron has fired).
+  let index = [];
+  try {
+    index = await readEpisodeIndex();
+  } catch (err) {
+    console.error('[podcast-rss] index read failed', err && err.message);
   }
+
+  let items = '';
+  let lastBuild = null;
+
+  if (index.length) {
+    // Fetch each episode's meta in parallel. The index is capped at 60
+    // entries (INDEX_MAX in _briefing-helpers), so worst case ~60 blob
+    // reads per RSS request. Aggressive Cache-Control below keeps actual
+    // requests rare.
+    const metas = await Promise.all(index.map(entry =>
+      metaStore.get(entry.key, { type: 'json' }).catch(err => {
+        console.error('[podcast-rss] meta read failed for', entry.key, err && err.message);
+        return null;
+      })
+    ));
+    const itemXmls = metas.filter(Boolean).map(buildItemXml).filter(Boolean);
+    items = itemXmls.join('');
+    // Most-recent episode timestamp is the channel-level lastBuild.
+    const newest = metas.find(Boolean);
+    if (newest && newest.generated_at) lastBuild = rfc2822(newest.generated_at);
+  } else {
+    // Legacy fallback: pre-index meta only had 'latest'. Keep the feed
+    // alive with one item rather than empty.
+    try {
+      const latest = await metaStore.get('latest', { type: 'json' });
+      if (latest) {
+        // Older 'latest' entries may not have episode_key. Synthesize one.
+        if (!latest.episode_key && latest.generated_at) {
+          latest.episode_key = 'latest';
+        }
+        items = buildItemXml(latest);
+        if (latest.generated_at) lastBuild = rfc2822(latest.generated_at);
+      }
+    } catch (err) {
+      console.error('[podcast-rss] legacy latest read failed', err && err.message);
+    }
+  }
+
+  if (!lastBuild) lastBuild = new Date().toUTCString();
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0"

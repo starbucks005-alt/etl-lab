@@ -353,6 +353,19 @@ function renderDashboard(pieces) {
       </div>
 
       <div class="tool-card">
+        <h3 class="tool-title">Backfill ATF historical episodes</h3>
+        <p class="tool-sub">Generate N historical Above the Fold episodes (one per past calendar day) so the podcast RSS feed has a back catalogue to submit to Spotify and Apple. Each historical episode uses the wire pieces that existed as of that date. Skips dates that already have an episode (re-runs are safe). Takes ~60-90 sec per episode in the background.</p>
+        <div class="tool-actions" style="margin-top:0.8rem;display:flex;gap:0.6rem;align-items:center;flex-wrap:wrap;">
+          <label style="font-size:0.7rem;letter-spacing:0.05em;text-transform:uppercase;color:#5a5651;">Episodes
+            <input type="number" id="backfill-count" min="1" max="30" value="14" style="width:5rem;margin-left:0.4rem;padding:0.3rem;font-family:'DM Mono',monospace;">
+          </label>
+          <span class="tool-status" id="backfill-status"></span>
+          <button type="button" id="btn-backfill-atf" class="btn btn-primary">Backfill ATF &rarr;</button>
+        </div>
+        <div class="tool-result" id="backfill-result"></div>
+      </div>
+
+      <div class="tool-card">
         <h3 class="tool-title">Reclassify all desks</h3>
         <p class="tool-sub">One-time cleanup. Walks every piece on the wire and re-tags its desk based on the story's actual content (not the reporter's assigned desk). Fixes the early bug where a reporter writing off-beat would publish under their own desk. Also invalidates today's Deskline puzzle so the next play uses corrected tags. Sequential, ~2 seconds per piece.</p>
         <div class="tool-actions" style="margin-top:0.8rem;">
@@ -680,6 +693,43 @@ function renderDashboard(pieces) {
         });
       }).catch(function(err){
         briefBtn.disabled = false;
+        setStatus(status, err.message || 'network error', 'error');
+      });
+    });
+  }
+
+  // Backfill ATF historical episodes (Spotify/Apple submission prep)
+  var backfillBtn = document.getElementById('btn-backfill-atf');
+  if (backfillBtn) {
+    backfillBtn.addEventListener('click', function(){
+      var countInput = document.getElementById('backfill-count');
+      var n = parseInt(countInput && countInput.value, 10) || 14;
+      if (n < 1 || n > 30) { alert('Episode count must be between 1 and 30.'); return; }
+      if (!window.confirm('Generate ' + n + ' historical ATF episodes? This runs in the background and takes ~' + Math.ceil(n * 1.2) + ' minutes. Existing episodes will be skipped.')) return;
+      var status = document.getElementById('backfill-status');
+      var result = document.getElementById('backfill-result');
+      result.innerHTML = '';
+      setStatus(status, 'Firing backfill (background)...', 'busy');
+      backfillBtn.disabled = true;
+      fetch('/.netlify/functions/newswire-briefing-backdate-background', {
+        method: 'POST', credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ count: n }),
+      }).then(function(r){
+        if (r.status >= 200 && r.status < 300) {
+          setStatus(status, 'Backfill running. ~' + Math.ceil(n * 1.2) + ' min to complete.', 'success');
+          result.innerHTML = '<p>Backfill of <strong>' + n + ' historical ATF episodes</strong> is running in the background. Each episode takes 60-90 seconds. Refresh <a href="https://emerging-tech-lab.com/press/above-the-fold.xml" target="_blank" rel="noopener">the RSS feed</a> in 10-20 minutes to see the new items, or check the Netlify function logs for per-episode progress.</p>';
+          // Re-enable after a short delay so the user can fire again if needed.
+          setTimeout(function(){ backfillBtn.disabled = false; }, 4000);
+          return;
+        }
+        return r.json().catch(function(){ return { error: 'unknown' }; }).then(function(j){
+          backfillBtn.disabled = false;
+          setStatus(status, (j && j.error) || 'Backfill failed to start', 'error');
+          if (j && j.detail) result.innerHTML = '<p>Detail: ' + escapeHTML(String(j.detail)) + '</p>';
+        });
+      }).catch(function(err){
+        backfillBtn.disabled = false;
         setStatus(status, err.message || 'network error', 'error');
       });
     });
