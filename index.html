@@ -1105,6 +1105,33 @@ document.addEventListener('DOMContentLoaded', function(){
     font-size: 10px; letter-spacing: 3px;
     text-transform: uppercase; color: #888;
   }
+  /* Blink animation for the ETL Newswire tile: two stacked portraits
+     (eyes-open base + eyes-closed overlay), the overlay flashes for a
+     brief instant every ~5 seconds. Reads as a living agent, not a
+     static avatar. Stand-in until a real walkthrough video is recorded. */
+  .etl-network .etl-net-blink {
+    position: absolute; inset: 0;
+    background: #111;
+  }
+  .etl-network .etl-net-blink img {
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    display: block;
+  }
+  .etl-network .etl-net-blink-closed {
+    opacity: 0;
+    animation: etl-newswire-blink 5.2s infinite;
+  }
+  @keyframes etl-newswire-blink {
+    0%, 92%   { opacity: 0; }
+    94%, 96%  { opacity: 1; }
+    98%, 100% { opacity: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .etl-network .etl-net-blink-closed { animation: none; opacity: 0; }
+  }
   .etl-network .etl-net-body { padding: 28px 30px 32px; flex: 1; display: flex; flex-direction: column; }
   .etl-network .etl-net-num {
     font-family: 'Oswald', sans-serif;
@@ -1676,7 +1703,10 @@ document.addEventListener('DOMContentLoaded', function(){
 
       <!-- ETL Newswire -->
       <div class="etl-net-card etl-net-card--wide">
-        <div class="etl-net-video" style="padding-top:56.25%;"><div class="etl-net-placeholder"><div class="play-ring"><span class="play"></span></div><span>Walkthrough coming soon</span></div></div>
+        <div class="etl-net-video"><div class="etl-net-blink">
+          <img class="etl-net-blink-base"   src="/agents/ETL_Newswire_HP_Eyes_Open.png"   alt="ETL Newswire anchor at her desk" loading="lazy">
+          <img class="etl-net-blink-closed" src="/agents/ETL_Newswire_HP_Eyes_Closed.png" alt="" aria-hidden="true" loading="lazy">
+        </div></div>
         <div class="etl-net-body">
           <div class="etl-net-num">Platform // 09</div>
           <div class="etl-net-title">ETL Newswire</div>
