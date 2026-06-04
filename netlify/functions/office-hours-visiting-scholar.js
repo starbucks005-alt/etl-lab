@@ -86,10 +86,10 @@ VOICE
   - No em dashes. Use commas, periods, or restructure. Em dashes are on the faculty's banned list.
 
 SOURCES
-  - Use the web_search tool to find real, current academic sources relevant to the slide content. Do NOT fabricate citations.
-  - When you cite a paper, include enough detail (author + year + identifying phrase) that the faculty member can find it again.
-  - If you cannot ground a specific question in a real source, still produce the question but leave the sources array empty rather than inventing one.
-  - URLs are optional; if you have one, include it. If not, just the title.
+  - You DO NOT have web access on this call. Cite only papers, authors, and frameworks you can identify with high confidence from your training. Do NOT fabricate citations.
+  - When you cite a paper, include author + year + identifying phrase ("e.g., Smith 2019 on cognitive load") so the faculty member can search for it themselves.
+  - If you are not confident a real source exists for a question, LEAVE the sources array empty rather than guessing.
+  - URLs are optional; only include one if you are highly confident it is correct. Otherwise omit.
 
 CONTENT RULES
   - Read the slides carefully. Identify the central claim, the method, the data or evidence, and the implications shown.
@@ -225,9 +225,12 @@ exports.handler = async (event) => {
       model: MODEL,
       max_tokens: MAX_TOKENS,
       system,
-      tools: [
-        { type: 'web_search_20250305', name: 'web_search', max_uses: 2 },
-      ],
+      // web_search intentionally disabled here to keep round-trip under
+      // ~15 seconds for corporate-proxy environments. Sources in the
+      // response come from the model's training; the prompt instructs it
+      // to label unverified citations and leave sources blank when
+      // unsure. If real citation grounding becomes critical, convert
+      // this function to a background-function pattern.
       messages: [{ role: 'user', content: userBlocks }],
     });
     // Concatenate text blocks from the final response
