@@ -1726,6 +1726,26 @@ document.addEventListener('DOMContentLoaded', function(){
         </div>
       </div>
 
+      <!-- Gandhi-King Center for Nonviolence -->
+      <div class="etl-net-card etl-net-card--wide">
+        <div class="etl-net-video" style="padding-top:56.25%;position:relative;">
+          <img src="/agents/Gandhi_King_Composite.jpg" alt="Mahatma Gandhi and Dr. Martin Luther King Jr. composite, assembled from two original Library of Congress photographs" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;" loading="lazy">
+        </div>
+        <div class="etl-net-body">
+          <div class="etl-net-num">Platform // 10</div>
+          <div class="etl-net-title">Gandhi-King Center for Nonviolence</div>
+          <div class="etl-net-tagline">Dayton, Ohio &middot; A 501(c)(3) foundation, staffed by AI</div>
+          <p class="etl-net-desc">A private foundation carrying forward Mahatma Gandhi&rsquo;s and Dr. Martin Luther King Jr.&rsquo;s living legacies through the people who actually inherited them: <strong>Tushar Gandhi</strong> (Mahatma&rsquo;s great-grandson), <strong>Rev. Joel King</strong> (Dr. King&rsquo;s first cousin, raised in the same house), and the Foster cousins of Coretta Scott King. With <strong>Baroness Harris of Richmond DL</strong> (UK House of Lords) as Patron. Two AI staff do the daily comms and peace-news work &mdash; the model that lets a small foundation operate like a big one.</p>
+          <div class="etl-net-bullets-label">What you'll see</div>
+          <ul class="etl-net-bullets">
+            <li>A board held together by lived family, not just hired expertise</li>
+            <li>Ayanna, Director of Communications, drafts platform-specific social posts for X, LinkedIn, Instagram, Facebook in 30 seconds</li>
+            <li>Sneha, Peace News Correspondent, files weekly dispatches from her desk in Porbandar (Gandhi&rsquo;s birthplace) using live web research</li>
+          </ul>
+          <a class="etl-net-launch" href="https://www.gandhi-king-center-for-nonviolence.org/" target="_blank" rel="noopener">Visit the Gandhi-King Center &rarr;</a>
+        </div>
+      </div>
+
       <!-- Agents Roster -->
       <div class="etl-net-card etl-net-card--agents">
         <div class="etl-net-video">
@@ -1801,10 +1821,13 @@ document.addEventListener('DOMContentLoaded', function(){
             <img src="agents/Karen_Bishop.png" alt="Karen Bishop" loading="lazy">
             <img src="agents/Jules_Rivera.png" alt="Jules Rivera" loading="lazy">
             <img src="agents/Frank_Donovan.png" alt="Frank Donovan" loading="lazy">
+            <!-- Gandhi-King Center (2) -->
+            <img src="agents/Sneha_Desai_eyes_open.jpg" alt="Sneha Desai" loading="lazy">
+            <img src="agents/Ayanna_Cole_eyes_open.jpg" alt="Ayanna Cole" loading="lazy">
           </div>
         </div>
         <div class="etl-net-body">
-          <div class="etl-net-num">The Cast <span class="etl-net-duration">62 agents &middot; 6 platforms</span></div>
+          <div class="etl-net-num">The Cast <span class="etl-net-duration">64 agents &middot; 7 platforms</span></div>
           <div class="etl-net-title">AI Agents</div>
           <div class="etl-net-tagline">Meet the team behind every platform</div>
           <p class="etl-net-desc">Sixty-two AI agents across six platforms, each with their own job, their own bio, their own voice. Click any face to read who they are and visit them in their home.</p>
@@ -3278,6 +3301,7 @@ document.addEventListener('DOMContentLoaded', function(){
   var GP     = 'Greylander Press';
   var GAUNT  = 'The Gauntlet';
   var PREP   = 'The Prep Room'; // internal platform tag; also frames as "The Boardroom" for the pro audience on the homepage tile
+  var GK     = 'Gandhi-King Center';
 
   var AGENTS = [
     // ───── The Dose (10) ─────
@@ -3506,7 +3530,16 @@ document.addEventListener('DOMContentLoaded', function(){
       bio: 'Three decades on a city paper sports desk. Covered the Bulls dynasty, the steroid era, the rise of analytics, the labor lockouts. Has seen every kind of pre-game speech. Files at deadline. Stays late. Dry humor. Numbers in service of the story.',
       home: 'https://emerging-tech-lab.com/press?desk=sports',
       mcp: true,
-      tools: ['Web search (sports trades + transactions)', 'Front-office sourcing', 'Analytics-era context', 'Labor + CBA tracking'] }
+      tools: ['Web search (sports trades + transactions)', 'Front-office sourcing', 'Analytics-era context', 'Labor + CBA tracking'] },
+    // ───── Gandhi-King Center for Nonviolence (2) ─────
+    { name: 'Sneha Desai', platform: GK, role: 'Peace News Correspondent',
+      bio: 'Born in Porbandar, Gujarat — the birthplace of Mahatma Gandhi and Kasturba. Trained at the Asian College of Journalism in Chennai. Files the center’s weekly Peace News dispatches with live web research on contemporary nonviolent movements. Wire-service neutral, AP-style, named sources by community and specialty.',
+      home: 'https://www.gandhi-king-center-for-nonviolence.org/staff/sneha-desai',
+      mcp: true,
+      tools: ['Web search (peace + civil resistance beat)', 'Source verification', 'Historical claim fact-checking'] },
+    { name: 'Ayanna Cole', platform: GK, role: 'Director of Communications',
+      bio: 'Nonprofit communications veteran out of the SCLC and The King Center tradition. Runs social media, press, donor communications, event copy, and Season for Nonviolence daily content. Drafts ready-to-post copy for X, LinkedIn, Instagram, and Facebook in under thirty seconds, with character counts checked against each platform’s limit. Quiet, deliberate, ferociously effective.',
+      home: 'https://www.gandhi-king-center-for-nonviolence.org/staff/ayanna-cole' }
   ];
 
   // Wire avatar clicks. Roster imgs sit directly inside .etl-net-roster; their
