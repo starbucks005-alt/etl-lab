@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paper Reviewer Assistant &mdash; Office Hours | Emerging Technologies Laboratory</title>
+<meta name="description" content="A journal asked you to review a paper. Paste it, get a structured draft review you can edit and submit. Recommendation, strengths, major/minor concerns, line-level comments. Faculty drafting tool.">
+<link rel="canonical" href="https://emerging-tech-lab.com/office-hours/paper-reviewer-assistant">
+<link rel="icon" type="image/png" href="/favicon.png">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Paper Reviewer Assistant &mdash; Office Hours">
+<meta property="og:description" content="A journal asked you to review a paper. Paste it, get a structured draft review.">
+<meta property="og:url" content="https://emerging-tech-lab.com/office-hours/paper-reviewer-assistant">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --paper: #f3ecdc;
+    --paper-deep: #e8dec8;
+    --ink: #161310;
+    --ink-soft: #4a443a;
+    --gold: #b8922a;
+    --gold-deep: #8a6c1a;
+    --line: #c8bba0;
+    --bad: #8a2a2a;
+    --good: #3a6a2a;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--paper); color: var(--ink);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 18px; line-height: 1.55;
+  }
+  a { color: var(--gold-deep); text-decoration: underline; text-underline-offset: 3px; }
+  a:hover { color: var(--ink); }
+
+  .top-strip {
+    background: #161310; color: #d4aa4a;
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 0.6rem 1.5rem; display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 0.5rem;
+  }
+  .top-strip a { color: #d4aa4a; text-decoration: none; }
+  .top-strip a:hover { color: #fff; }
+  .top-strip__crumbs a { margin-right: 0.6rem; }
+  .top-strip__crumbs .sep { color: #8a6c1a; margin-right: 0.6rem; }
+
+  .shell { max-width: 980px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+  .masthead { text-align: center; padding: 1.5rem 0 0.8rem; border-bottom: 1px solid var(--line); }
+  .masthead .eyebrow {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--gold-deep);
+  }
+  .masthead h1 {
+    font-family: 'Playfair Display', Georgia, serif; font-weight: 900;
+    font-size: clamp(2rem, 4.5vw, 3.2rem); margin: 0.2rem 0 0.2rem; letter-spacing: -0.01em;
+  }
+  .masthead .sub {
+    font-style: italic; color: var(--ink-soft); margin: 0; font-size: 1.1rem;
+    max-width: 720px; margin-left: auto; margin-right: auto;
+  }
+
+  .privacy-banner {
+    margin: 1.4rem 0 1.8rem;
+    padding: 0.9rem 1.2rem;
+    background: #ece1c8; border-left: 3px solid var(--gold);
+    font-size: 0.95rem; color: var(--ink-soft);
+  }
+  .privacy-banner strong { color: var(--ink); }
+
+  .card {
+    background: #fcf6e8; border: 1px solid var(--line);
+    padding: 1.4rem 1.4rem 1.6rem; box-shadow: 0 1px 0 rgba(0,0,0,0.03);
+    margin-bottom: 1.4rem;
+  }
+  .card h2 {
+    font-family: 'Playfair Display', Georgia, serif; font-weight: 700;
+    font-size: 1.4rem; margin: 0 0 0.3rem;
+  }
+  .card .card-sub {
+    font-style: italic; color: var(--ink-soft); font-size: 0.95rem;
+    margin: 0 0 1.2rem;
+  }
+
+  label.field {
+    display: block; margin-bottom: 1rem;
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--gold-deep);
+  }
+  label.field > .label-text { display: block; margin-bottom: 0.35rem; }
+  label.field > .label-note {
+    display: block; font-family: 'Cormorant Garamond', serif; text-transform: none;
+    letter-spacing: 0; color: var(--ink-soft); font-style: italic;
+    font-size: 0.9rem; margin-bottom: 0.35rem;
+  }
+  label.field input[type=text], label.field select, label.field textarea {
+    width: 100%; padding: 0.55rem 0.7rem;
+    font-family: 'Cormorant Garamond', serif; font-size: 1rem;
+    background: #fffbef; border: 1px solid var(--line);
+    color: var(--ink); border-radius: 0;
+  }
+  label.field textarea { font-family: 'DM Mono', monospace; font-size: 0.86rem; line-height: 1.5; min-height: 280px; resize: vertical; }
+  label.field input:focus, label.field textarea:focus, label.field select:focus {
+    outline: 2px solid var(--gold); outline-offset: -1px;
+  }
+
+  .row-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 700px) {
+    .row-3, .row-2 { grid-template-columns: 1fr; }
+  }
+
+  .sample-bar {
+    margin: 0 0 1.2rem; padding: 0.7rem 0.9rem;
+    background: #ece1c8; border: 1px dashed var(--gold);
+    display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap;
+  }
+  .sample-bar label {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--gold-deep);
+  }
+  .sample-bar select {
+    padding: 0.4rem 0.6rem; font-family: 'Cormorant Garamond', serif; font-size: 0.95rem;
+    background: #fffbef; border: 1px solid var(--line);
+  }
+  .sample-bar button.link {
+    background: transparent; border: 0; color: var(--gold-deep); cursor: pointer;
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em;
+    text-transform: uppercase; text-decoration: underline;
+  }
+
+  .actions { display: flex; gap: 0.7rem; flex-wrap: wrap; margin-top: 0.6rem; align-items: center; }
+  button.btn {
+    font-family: 'DM Mono', monospace; font-size: 0.75rem; letter-spacing: 0.18em;
+    text-transform: uppercase; cursor: pointer; padding: 0.8rem 1.4rem;
+    border: 1px solid var(--gold-deep); background: var(--gold); color: #fff;
+    transition: 0.15s;
+  }
+  button.btn:hover:not(:disabled) { background: var(--gold-deep); }
+  button.btn:disabled { opacity: 0.5; cursor: wait; }
+  button.btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+  button.btn.ghost:hover { background: var(--paper-deep); }
+
+  .status {
+    font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.12em;
+    text-transform: uppercase; padding: 0.5rem 0; min-height: 1.4em;
+    color: var(--ink-soft);
+  }
+  .status.busy { color: var(--gold-deep); }
+  .status.success { color: var(--good); }
+  .status.error { color: var(--bad); }
+
+  /* Results */
+  .results { margin-top: 1rem; }
+  .result-block { margin-bottom: 1.8rem; }
+  .result-block h3 {
+    font-family: 'Playfair Display', Georgia, serif; font-weight: 700;
+    font-size: 1.2rem; margin: 0 0 0.5rem;
+    padding-bottom: 0.3rem; border-bottom: 1px solid var(--line);
+  }
+  .result-block h3 .count {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem;
+    letter-spacing: 0.16em; color: var(--ink-soft); font-weight: 400;
+    margin-left: 0.4rem;
+  }
+
+  .recommendation-card {
+    padding: 1.1rem 1.2rem; margin-bottom: 0.6rem;
+    font-family: 'Cormorant Garamond', serif; font-size: 1.05rem;
+  }
+  .recommendation-card__label {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem;
+    letter-spacing: 0.16em; text-transform: uppercase; font-weight: 700;
+    margin-bottom: 0.3rem;
+  }
+  .recommendation-card__verdict {
+    font-family: 'Playfair Display', Georgia, serif; font-weight: 700;
+    font-size: 1.5rem; margin: 0 0 0.5rem;
+  }
+  .recommendation-card.accept { background: #e3edd9; border-left: 4px solid var(--good); }
+  .recommendation-card.accept .recommendation-card__label { color: var(--good); }
+  .recommendation-card.minor { background: #f5ecc8; border-left: 4px solid var(--gold); }
+  .recommendation-card.minor .recommendation-card__label { color: var(--gold-deep); }
+  .recommendation-card.major { background: #f5dec8; border-left: 4px solid #c97a2a; }
+  .recommendation-card.major .recommendation-card__label { color: #8a4c1a; }
+  .recommendation-card.reject { background: #f5d8d8; border-left: 4px solid var(--bad); }
+  .recommendation-card.reject .recommendation-card__label { color: var(--bad); }
+
+  .result-list { list-style: none; padding: 0; margin: 0; }
+  .result-list li {
+    padding: 0.7rem 0.9rem 0.7rem 1.6rem;
+    border-bottom: 1px dotted var(--line);
+    position: relative;
+    font-family: 'Cormorant Garamond', serif; font-size: 1rem;
+    line-height: 1.5;
+  }
+  .result-list li::before {
+    position: absolute; left: 0.3rem; top: 0.7rem;
+    font-family: 'DM Mono', monospace; font-size: 0.85rem;
+    font-weight: 700;
+  }
+  .result-list.strengths li::before { content: '+'; color: var(--good); }
+  .result-list.minor li::before { content: '\B7'; color: var(--gold-deep); font-size: 1.4rem; top: 0.35rem; }
+  .result-list li:last-child { border-bottom: 0; }
+
+  .concern-card {
+    background: #fffbef; border-left: 3px solid var(--bad);
+    padding: 0.9rem 1.1rem; margin-bottom: 0.7rem;
+  }
+  .concern-card__num {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem;
+    letter-spacing: 0.16em; text-transform: uppercase; color: var(--bad);
+    font-weight: 700; margin-bottom: 0.3rem;
+  }
+  .concern-card__text {
+    font-family: 'Cormorant Garamond', serif; font-size: 1rem;
+    line-height: 1.55; margin: 0;
+  }
+
+  .comment-card {
+    background: #fffbef; border: 1px solid var(--line);
+    padding: 0.8rem 1rem; margin-bottom: 0.5rem;
+  }
+  .comment-card__section {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-deep);
+    font-weight: 700; margin-bottom: 0.25rem;
+  }
+  .comment-card__text {
+    font-family: 'Cormorant Garamond', serif; font-size: 0.96rem;
+    line-height: 1.5; margin: 0;
+  }
+
+  footer {
+    margin-top: 4rem; padding-top: 1.4rem; border-top: 1px solid var(--line);
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--ink-soft); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+  }
+  footer a { color: var(--ink-soft); }
+</style>
+</head>
+<body>
+
+<div class="top-strip">
+  <span class="top-strip__crumbs">
+    <a href="/">ETL</a><span class="sep">/</span><a href="/office-hours">Office Hours</a><span class="sep">/</span>Paper Reviewer Assistant
+  </span>
+  <a href="/office-hours">&larr; Back to Office Hours</a>
+</div>
+
+<div class="shell">
+
+  <div class="masthead">
+    <div class="eyebrow">A faculty toolkit &middot; Office Hours</div>
+    <h1>Paper Reviewer Assistant</h1>
+    <p class="sub">A journal asked you to review a paper. Paste it, get a structured draft review with a recommendation, strengths, major and minor concerns, and specific section comments. Edit and submit.</p>
+  </div>
+
+  <div class="privacy-banner">
+    <strong>Privacy:</strong> Your inputs are sent to Anthropic's Claude API for analysis. Anthropic does not train on or retain API content. We do not log, store, or retain anything on our servers. Drafts render in your browser only. Confidentiality of unpublished manuscripts remains your responsibility under your journal's reviewer agreement.
+  </div>
+
+  <!-- ─── INTAKE CARD ─── -->
+  <div class="card">
+
+    <div class="sample-bar">
+      <label for="sample">Try a sample:</label>
+      <select id="sample">
+        <option value="">&mdash; choose a scenario &mdash;</option>
+        <option value="weak-rct">Underpowered RCT submitted to a top medical journal</option>
+        <option value="strong-qual">Strong qualitative study with weak literature engagement</option>
+        <option value="mid-quant">Mid-tier quantitative study with overstated conclusions</option>
+        <option value="meta-analysis">Meta-analysis with methodological gaps</option>
+      </select>
+      <button type="button" class="link" id="clear-btn">Clear form</button>
+    </div>
+
+    <label class="field">
+      <span class="label-text">Paper (abstract, key sections, or full text)</span>
+      <span class="label-note">Paste as much as you have. Even just the abstract + methods + results table is enough to generate a substantive draft review.</span>
+      <textarea id="paper" placeholder="Paste the manuscript here. Abstract, introduction, methods, results, and discussion are most useful. If you only have the abstract, that is fine too."></textarea>
+    </label>
+
+    <div class="row-3">
+      <label class="field">
+        <span class="label-text">Paper title (optional)</span>
+        <input type="text" id="title" placeholder="e.g. Effects of digital mindfulness on test anxiety">
+      </label>
+      <label class="field">
+        <span class="label-text">Journal tier</span>
+        <select id="tier">
+          <option value="top-specialty">Top-tier specialty journal (NEJM, Nature, Cell, JPSP, top-5 econ)</option>
+          <option value="strong-specialty" selected>Strong specialty journal (JAMA Network, Psych Science, AJPM)</option>
+          <option value="mid-tier">Mid-tier specialty journal</option>
+          <option value="broad-open">Broad / open-access (PLoS ONE, BMC, F1000)</option>
+          <option value="society">Society journal / regional</option>
+        </select>
+      </label>
+      <label class="field">
+        <span class="label-text">Manuscript type</span>
+        <select id="type">
+          <option value="research-article" selected>Research article</option>
+          <option value="review">Review article</option>
+          <option value="systematic-review">Systematic review / meta-analysis</option>
+          <option value="brief-report">Brief report / letter</option>
+          <option value="perspective">Perspective / commentary</option>
+          <option value="qualitative">Qualitative study</option>
+          <option value="case-study">Case study</option>
+        </select>
+      </label>
+    </div>
+
+    <label class="field">
+      <span class="label-text">Your context as reviewer (optional)</span>
+      <span class="label-note">Anything that should shape the review. Conflicts to be careful about, your stance on the field, what's already on your mind.</span>
+      <textarea id="context" style="min-height: 80px;" placeholder="e.g. I have prior critical positions on this lab's earlier work; want to be scrupulously fair. Or: this is in a subfield I know well, want the criticism to land at the right level of specificity."></textarea>
+    </label>
+
+    <div class="actions">
+      <button type="button" class="btn" id="review-btn">Generate review</button>
+      <span class="status" id="status"></span>
+    </div>
+  </div>
+
+  <!-- ─── RESULTS CARD ─── -->
+  <div class="card" id="results-card" style="display: none;">
+    <h2>Draft review</h2>
+    <p class="card-sub">Edit, restructure, and put it in your own voice before submitting to the journal. Concerns and comments are starting points, not final verdicts.</p>
+    <div class="results" id="results"></div>
+  </div>
+
+</div>
+
+<footer>
+  <span>ETL &middot; Office Hours &middot; Paper Reviewer Assistant</span>
+  <span><a href="/office-hours">Back to Office Hours</a> &middot; <a href="/">ETL Home</a></span>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  const SAMPLES = {
+    'weak-rct': {
+      paper: 'TITLE: A novel digital mindfulness intervention reduces depressive symptoms in middle-aged adults: a randomized controlled trial.\n\nABSTRACT: Background. Depression affects 300M adults globally. We tested a 4-week mobile-app delivered mindfulness intervention. Methods. We randomized 48 community-dwelling adults aged 40-60 with elevated PHQ-9 scores to intervention (n=24) or waitlist control (n=24). Primary outcome: PHQ-9 at week 4. Analysis: t-test comparing groups at follow-up. Results. Intervention showed significant reduction in PHQ-9 (mean change -3.2 vs -0.8 in control, p=.04). No adverse events. Conclusions. Brief app-delivered mindfulness is effective for adult depression and should be considered as a first-line digital therapeutic.\n\nMETHODS (excerpt). Participants recruited via Facebook ads in three U.S. metros. Eligibility: age 40-60, PHQ-9 ≥ 8, smartphone access, English proficient. Randomization via Excel RAND function by first author. No blinding. Intervention arm asked to use app daily for 4 weeks; control arm received no intervention but kept on waitlist. Outcome assessed via PHQ-9 self-report at baseline and week 4. Per-protocol analysis only (n=39 retained).\n\nRESULTS (excerpt). Per-protocol analysis on 39 completers showed PHQ-9 reduction of 3.2 points in intervention arm vs 0.8 in control (p=.04, independent t-test). Attrition: 19% overall (5 intervention, 4 control). No subgroup analyses presented. No effect on secondary outcomes (GAD-7, WHO-5).\n\nDISCUSSION (excerpt). This study demonstrates that brief mobile-delivered mindfulness can produce clinically meaningful reductions in depressive symptoms. The 3.2-point change exceeds the published MCID of 2.5. Limitations include modest sample size and single-site recruitment.',
+      title: 'Brief digital mindfulness for adult depression: RCT',
+      tier: 'strong-specialty',
+      type: 'research-article',
+      context: ''
+    },
+    'strong-qual': {
+      paper: 'TITLE: "We make the rules as we go": A grounded-theory study of informal labor arrangements in U.S. dairy farming.\n\nABSTRACT: U.S. dairy farms increasingly rely on undocumented migrant labor in regulatory grey zones. We conducted a constructivist grounded-theory study of how labor arrangements are negotiated on small-to-mid-size farms. We conducted 38 semi-structured interviews with farmers and workers across four states. Three core processes emerged: trust-banking, contingent silence, and exit theatrics. We discuss implications for labor policy and immigration enforcement.\n\nMETHODS (excerpt). 38 semi-structured interviews (22 farmers, 16 workers) across NY, PA, OH, WI. Theoretical sampling after initial 14. Interviews in English or Spanish per participant preference. Coded in NVivo using constant comparative method. Member-checking with 8 participants. Author memo-writing throughout. IRB-approved with appropriate worker protections.\n\nRESULTS (excerpt). Three core categories: TRUST-BANKING (incremental verification through shared meals, family contact, recommendation networks before formal hiring); CONTINGENT SILENCE (mutual non-disclosure on immigration status; farmer signals via wage practices, not direct questions); EXIT THEATRICS (when relationships end, ritual disengagement preserves the network for both parties). Rich quotes throughout.\n\nDISCUSSION (excerpt). Findings challenge transactional models of farm labor. The arrangements function as something closer to an informal mutual-aid economy. Policy implications discussed.\n\nLITERATURE: Cites primarily older labor sociology (1980s-90s). Limited engagement with recent immigration enforcement literature or with critical race scholarship in agricultural labor.',
+      title: 'Informal labor arrangements in U.S. dairy farming: grounded theory',
+      tier: 'strong-specialty',
+      type: 'qualitative',
+      context: 'I do qualitative work in adjacent field, will probably know who the author is. Want the criticism to be specific to the work, not the author.'
+    },
+    'mid-quant': {
+      paper: 'TITLE: Leadership coaching dramatically improves remote team productivity: a multi-organization study.\n\nABSTRACT: Remote work has transformed organizations. We surveyed 1,200 employees across 8 organizations to examine how leadership coaching affects remote team productivity. Coached teams reported productivity 28% higher than non-coached teams. We conclude that coaching dramatically improves remote team outcomes and recommend universal adoption.\n\nMETHODS (excerpt). Convenience sample of 8 organizations identified through a coaching firm partnership. Within each organization, half of teams received 6 sessions of leadership coaching from the partner firm; other half did not. Survey at end of 6-month period assessed self-reported productivity, team cohesion, and job satisfaction. Comparison via t-test, no adjustment for clustering.\n\nRESULTS. Coached teams reported 28% higher self-rated productivity (p<.001). Effects also seen on cohesion and satisfaction. No effects examined by demographic subgroup. No objective productivity measure collected.\n\nDISCUSSION. The dramatic effect of coaching on remote team productivity suggests organizations should universally adopt structured leadership coaching for remote teams. Limitations: self-report measures, single time-point.',
+      title: 'Leadership coaching dramatically improves remote team productivity',
+      tier: 'mid-tier',
+      type: 'research-article',
+      context: 'The "dramatically" language and the conflict with the coaching firm are red flags. Be fair but precise.'
+    },
+    'meta-analysis': {
+      paper: 'TITLE: A meta-analysis of remote learning vs in-person instruction in K-12 mathematics during COVID.\n\nABSTRACT: We systematically reviewed studies comparing remote and in-person K-12 mathematics learning outcomes during the COVID-19 pandemic. We included 47 studies (N=210,438 students). Random-effects meta-analysis showed a small overall negative effect of remote learning on standardized assessment scores (Hedges g = -0.21, 95% CI -0.29 to -0.13). Effects were larger in lower grades and for students from lower-SES backgrounds.\n\nMETHODS (excerpt). Searched PubMed, ERIC, PsycINFO, and Google Scholar through December 2024. Inclusion: empirical studies comparing remote vs in-person K-12 math outcomes during 2020-2023. Two independent reviewers screened titles/abstracts. Risk of bias assessed using a custom rubric. Random-effects meta-analysis with subgroup analyses by grade band, SES, and country.\n\nRESULTS (excerpt). 47 studies, k=63 effect sizes. Overall pooled g = -0.21 (-0.29 to -0.13). Subgroup: K-3 g = -0.35; 4-8 g = -0.22; 9-12 g = -0.08. Lower-SES g = -0.34; higher-SES g = -0.12. Heterogeneity I² = 78%. No formal publication-bias assessment beyond funnel plot inspection.\n\nDISCUSSION. Remote learning during COVID was associated with modest math learning loss, with larger effects for younger students and lower-SES students. Limitations: heterogeneity in remote-learning operationalizations across studies; missing data on intervention duration in 22% of included studies.',
+      title: 'Meta-analysis: remote vs in-person K-12 math during COVID',
+      tier: 'strong-specialty',
+      type: 'systematic-review',
+      context: ''
+    }
+  };
+
+  const els = {
+    sample: document.getElementById('sample'),
+    paper: document.getElementById('paper'),
+    title: document.getElementById('title'),
+    tier: document.getElementById('tier'),
+    type: document.getElementById('type'),
+    context: document.getElementById('context'),
+    reviewBtn: document.getElementById('review-btn'),
+    clearBtn: document.getElementById('clear-btn'),
+    status: document.getElementById('status'),
+    resultsCard: document.getElementById('results-card'),
+    results: document.getElementById('results'),
+  };
+
+  function setStatus(msg, cls) {
+    els.status.textContent = msg || '';
+    els.status.className = 'status' + (cls ? ' ' + cls : '');
+  }
+  function escHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  els.sample.addEventListener('change', function () {
+    const key = els.sample.value;
+    if (!key) return;
+    const s = SAMPLES[key];
+    if (!s) return;
+    els.paper.value = s.paper;
+    els.title.value = s.title;
+    els.tier.value = s.tier;
+    els.type.value = s.type;
+    els.context.value = s.context;
+    setStatus('Sample loaded. Click Generate review.', 'success');
+  });
+
+  els.clearBtn.addEventListener('click', function () {
+    els.paper.value = '';
+    els.title.value = '';
+    els.tier.value = 'strong-specialty';
+    els.type.value = 'research-article';
+    els.context.value = '';
+    els.sample.value = '';
+    setStatus('');
+    els.resultsCard.style.display = 'none';
+    els.results.innerHTML = '';
+  });
+
+  els.reviewBtn.addEventListener('click', async function () {
+    const paper = els.paper.value.trim();
+    if (!paper) {
+      setStatus('Paste the paper text first.', 'error');
+      els.paper.focus();
+      return;
+    }
+    els.reviewBtn.disabled = true;
+    setStatus('Drafting review. This usually takes 25 to 40 seconds (with literature lookup).', 'busy');
+    els.resultsCard.style.display = 'none';
+    els.results.innerHTML = '';
+
+    const payload = {
+      paper: paper,
+      title: els.title.value.trim(),
+      tier: els.tier.value,
+      type: els.type.value,
+      context: els.context.value.trim(),
+    };
+
+    try {
+      const resp = await fetch('/.netlify/functions/office-hours-paper-reviewer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await resp.json().catch(function () { return {}; });
+      if (!resp.ok || !data.ok) {
+        const detail = (data && (data.detail || data.error)) || ('HTTP ' + resp.status);
+        throw new Error(detail);
+      }
+      renderResults(data.review || {});
+      setStatus('Done.', 'success');
+    } catch (err) {
+      console.error(err);
+      setStatus('Error: ' + (err && err.message ? err.message : 'unknown'), 'error');
+    } finally {
+      els.reviewBtn.disabled = false;
+    }
+  });
+
+  function recommendationClass(rec) {
+    if (!rec) return '';
+    const r = String(rec).toLowerCase();
+    if (r.indexOf('accept') === 0) return 'accept';
+    if (r.indexOf('minor') === 0) return 'minor';
+    if (r.indexOf('major') === 0) return 'major';
+    if (r.indexOf('reject') === 0) return 'reject';
+    return '';
+  }
+
+  function renderResults(r) {
+    const parts = [];
+
+    if (r.summary) {
+      parts.push(
+        '<div class="result-block">'
+        + '<h3>Summary of the paper</h3>'
+        + '<p style="font-family:\'Cormorant Garamond\',serif;font-size:1rem;line-height:1.5;margin:0.5rem 0 0;color:var(--ink-soft);font-style:italic;">'
+        + escHtml(r.summary)
+        + '</p></div>'
+      );
+    }
+
+    if (r.recommendation || r.recommendation_rationale) {
+      const cls = recommendationClass(r.recommendation);
+      parts.push(
+        '<div class="result-block">'
+        + '<h3>Recommendation</h3>'
+        + '<div class="recommendation-card ' + cls + '">'
+        + '  <div class="recommendation-card__label">Reviewer recommendation</div>'
+        + '  <p class="recommendation-card__verdict">' + escHtml(r.recommendation || '') + '</p>'
+        + (r.recommendation_rationale ? '  <p style="margin:0;">' + escHtml(r.recommendation_rationale) + '</p>' : '')
+        + '</div>'
+        + '</div>'
+      );
+    }
+
+    const strengths = Array.isArray(r.strengths) ? r.strengths : [];
+    if (strengths.length) {
+      parts.push(
+        '<div class="result-block">'
+        + '<h3>Strengths <span class="count">' + strengths.length + '</span></h3>'
+        + '<ul class="result-list strengths">'
+        + strengths.map(function (s) { return '<li>' + escHtml(s) + '</li>'; }).join('')
+        + '</ul></div>'
+      );
+    }
+
+    const major = Array.isArray(r.major_concerns) ? r.major_concerns : [];
+    if (major.length) {
+      parts.push(
+        '<div class="result-block">'
+        + '<h3>Major concerns <span class="count">' + major.length + '</span></h3>'
+        + major.map(function (m, i) {
+            const num = String(i + 1).padStart(2, '0');
+            return '<div class="concern-card">'
+              + '<div class="concern-card__num">Major concern ' + num + '</div>'
+              + '<p class="concern-card__text">' + escHtml(m) + '</p>'
+              + '</div>';
+          }).join('')
+        + '</div>'
+      );
+    }
+
+    const minor = Array.isArray(r.minor_concerns) ? r.minor_concerns : [];
+    if (minor.length) {
+      parts.push(
+        '<div class="result-block">'
+        + '<h3>Minor concerns <span class="count">' + minor.length + '</span></h3>'
+        + '<ul class="result-list minor">'
+        + minor.map(function (m) { return '<li>' + escHtml(m) + '</li>'; }).join('')
+        + '</ul></div>'
+      );
+    }
+
+    const comments = Array.isArray(r.specific_comments) ? r.specific_comments : [];
+    if (comments.length) {
+      parts.push(
+        '<div class="result-block">'
+        + '<h3>Specific section comments <span class="count">' + comments.length + '</span></h3>'
+        + comments.map(function (c) {
+            const section = c.section || '';
+            const text = c.comment || c.text || '';
+            return '<div class="comment-card">'
+              + (section ? '<div class="comment-card__section">' + escHtml(section) + '</div>' : '')
+              + '<p class="comment-card__text">' + escHtml(text) + '</p>'
+              + '</div>';
+          }).join('')
+        + '</div>'
+      );
+    }
+
+    els.results.innerHTML = parts.join('') || '<p>No review returned.</p>';
+    els.resultsCard.style.display = '';
+    els.resultsCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+})();
+</script>
+</body>
+</html>
