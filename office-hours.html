@@ -182,6 +182,60 @@
     padding: 1.4rem; text-align: center; color: var(--ink-soft); font-style: italic;
   }
 
+  /* ─── Faculty Toolkit grid (above the live tools) ─── */
+  .toolkit-section {
+    margin: 1.6rem 0 1.4rem;
+    padding: 1.4rem 1.4rem 1rem;
+    background: #fcf6e8;
+    border: 1px solid var(--line);
+  }
+  .toolkit-h2 {
+    font-family: 'Playfair Display', Georgia, serif; font-weight: 700;
+    font-size: 1.4rem; margin: 0 0 0.3rem;
+  }
+  .toolkit-intro {
+    font-family: 'Cormorant Garamond', serif; color: var(--ink-soft);
+    font-style: italic; font-size: 1rem; margin: 0 0 1.1rem;
+  }
+  .toolkit-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 0.8rem;
+  }
+  .toolkit-card {
+    background: var(--paper); border: 1px solid var(--line);
+    padding: 1rem 1.1rem 1.1rem;
+    text-decoration: none; color: var(--ink);
+    display: flex; flex-direction: column; gap: 0.4rem;
+    transition: 0.15s;
+    position: relative;
+  }
+  a.toolkit-card:hover { border-color: var(--gold); background: #fffbef; }
+  .toolkit-card__badge {
+    font-family: 'DM Mono', monospace; font-size: 0.62rem;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    padding: 0.18rem 0.5rem; align-self: flex-start;
+    border-radius: 2px; font-weight: 700;
+  }
+  .toolkit-card__badge.live { background: var(--good); color: #fff; }
+  .toolkit-card__badge.new { background: var(--gold); color: #fff; }
+  .toolkit-card__badge.coming { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); }
+  .toolkit-card h3 {
+    font-family: 'Playfair Display', Georgia, serif; font-weight: 700;
+    font-size: 1.05rem; margin: 0.1rem 0 0;
+  }
+  .toolkit-card p {
+    font-family: 'Cormorant Garamond', serif; font-size: 0.92rem;
+    color: var(--ink-soft); margin: 0; line-height: 1.45;
+  }
+  .toolkit-card.coming { opacity: 0.78; }
+  .toolkit-card.coming p { color: var(--ink-soft); }
+  .toolkit-card__cta {
+    font-family: 'DM Mono', monospace; font-size: 0.65rem;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--gold-deep); font-weight: 600; margin-top: 0.4rem;
+  }
+
   /* Profile / letterhead card. Collapsible — open when no saved profile,
      collapses to a one-line summary once saved. */
   .profile-card {
@@ -259,10 +313,71 @@
 <div class="shell">
 
   <div class="masthead">
-    <div class="eyebrow">A drafting tool for faculty</div>
+    <div class="eyebrow">A faculty toolkit</div>
     <h1>Office Hours</h1>
-    <p class="sub">Email replies and letters of recommendation, drafted in your voice. Edit and export. Nothing stored.</p>
+    <p class="sub">Tools that respect FERPA, fit in a busy week, and don't store anything.</p>
   </div>
+
+  <!-- ─── Faculty Toolkit overview ─── -->
+  <section class="toolkit-section">
+    <h2 class="toolkit-h2">The toolkit</h2>
+    <p class="toolkit-intro">Live tools below the privacy notice. Click any "coming next" card to see what's on the roadmap. If you have a fourth or fifth tool you wish existed, tell us.</p>
+
+    <div class="toolkit-grid">
+
+      <a class="toolkit-card" href="#tab-email-reply">
+        <span class="toolkit-card__badge live">Live</span>
+        <h3>Email Replies</h3>
+        <p>Paste a student email, get a draft reply in your voice. Resume and transcript optional.</p>
+        <span class="toolkit-card__cta">Use it &rarr;</span>
+      </a>
+
+      <a class="toolkit-card" href="#tab-lor">
+        <span class="toolkit-card__badge live">Live</span>
+        <h3>Letters of Rec</h3>
+        <p>Full intake (tier, percentile, anecdotes), FERPA-aware framing, export to DOCX/PDF.</p>
+        <span class="toolkit-card__cta">Use it &rarr;</span>
+      </a>
+
+      <a class="toolkit-card" href="/office-hours/visiting-scholar">
+        <span class="toolkit-card__badge new">New</span>
+        <h3>The Visiting Scholar</h3>
+        <p>You're at a seminar or defense outside your field. Photo the slide, get 3-5 substantive questions with real sources. Two modes: Visiting Scholar (accessible) or Committee Member (depth).</p>
+        <span class="toolkit-card__cta">Open the tool &rarr;</span>
+      </a>
+
+      <div class="toolkit-card coming">
+        <span class="toolkit-card__badge coming">Coming next</span>
+        <h3>Paper Reviewer Assistant</h3>
+        <p>Paste an article a journal asked you to review. Get a structured draft review (strengths, weaknesses, specific comments) ready to edit.</p>
+      </div>
+
+      <div class="toolkit-card coming">
+        <span class="toolkit-card__badge coming">Coming next</span>
+        <h3>Conference Q&amp;A Prep</h3>
+        <p>Paste your talk abstract. Get the 5 most likely audience questions, suggested answers, and the one question you don't want to be asked.</p>
+      </div>
+
+      <div class="toolkit-card coming">
+        <span class="toolkit-card__badge coming">Coming next</span>
+        <h3>Grant Rejection Triage</h3>
+        <p>Paste the reviewer comments and your application. Get a structured response plan and a revised intro paragraph for resubmission.</p>
+      </div>
+
+      <div class="toolkit-card coming">
+        <span class="toolkit-card__badge coming">Coming next</span>
+        <h3>Tenure Dossier Helper</h3>
+        <p>Input a CV and a few prompts. Get draft narratives for teaching, research, and service sections, tuned to R1 or teaching-focused norms.</p>
+      </div>
+
+      <div class="toolkit-card coming">
+        <span class="toolkit-card__badge coming">Coming next</span>
+        <h3>Inbox Sweeper</h3>
+        <p>Paste 10 student emails (when's the test, what's the rubric, can I have an extension). Get 10 polite tailored replies in 30 seconds. FERPA-aware. Recovers Sunday nights.</p>
+      </div>
+
+    </div>
+  </section>
 
   <div class="privacy-banner">
     <strong>Privacy:</strong> Your inputs are sent to Anthropic's Claude API to generate the draft. Anthropic does not train on or retain API content. We do not log, store, or retain anything on our servers. Uploaded files are parsed in your browser, and only the extracted text travels with the draft request. Your draft, signature, and letterhead stay on your computer.
