@@ -66,7 +66,7 @@ function audienceFraming(audience) {
     case 'policy':
       return 'Audience is policy people, government staff, or think-tank scholars. Expect questions about implementation feasibility, distributional consequences, political acceptability, and the comparison to existing policy. Some questioners will be skeptical of the entire premise.';
     case 'mixed':
-      return 'Audience is a mix of academics, practitioners, and interested public. Expect a wide spectrum of question types, including one or two that come from outside the speaker\\'s expected frame entirely.';
+      return "Audience is a mix of academics, practitioners, and interested public. Expect a wide spectrum of question types, including one or two that come from outside the speaker's expected frame entirely.";
     case 'invited-lecture':
       return 'Audience is an invited department lecture. Expect deferential but probing questions from faculty and graduate students. The host department has chosen this talk for a reason; questioners may push to make sure the talk earns the slot.';
     default:
