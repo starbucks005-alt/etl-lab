@@ -198,7 +198,7 @@ exports.handler = async (event) => {
       max_tokens: MAX_TOKENS,
       system,
       tools: [
-        { type: 'web_search_20250305', name: 'web_search', max_uses: 3 },
+        { type: 'web_search_20250305', name: 'web_search', max_uses: 2 },
       ],
       messages: [{ role: 'user', content: userMsg }],
     });
