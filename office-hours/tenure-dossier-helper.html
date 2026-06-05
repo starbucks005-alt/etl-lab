@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tenure Dossier Helper &mdash; Office Hours | Emerging Technologies Laboratory</title>
+<meta name="description" content="Paste your CV plus a few prompts. Get draft narratives for your tenure dossier teaching, research, and service statements, tuned to your institution's norms. Faculty drafting tool.">
+<link rel="canonical" href="https://emerging-tech-lab.com/office-hours/tenure-dossier-helper">
+<link rel="icon" type="image/png" href="/favicon.png">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Tenure Dossier Helper &mdash; Office Hours">
+<meta property="og:description" content="Paste your CV. Get draft narratives for tenure dossier teaching, research, and service statements.">
+<meta property="og:url" content="https://emerging-tech-lab.com/office-hours/tenure-dossier-helper">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --paper: #f3ecdc;
+    --paper-deep: #e8dec8;
+    --ink: #161310;
+    --ink-soft: #4a443a;
+    --gold: #b8922a;
+    --gold-deep: #8a6c1a;
+    --line: #c8bba0;
+    --bad: #8a2a2a;
+    --good: #3a6a2a;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--paper); color: var(--ink);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 18px; line-height: 1.55;
+  }
+  a { color: var(--gold-deep); text-decoration: underline; text-underline-offset: 3px; }
+  a:hover { color: var(--ink); }
+
+  .top-strip {
+    background: #161310; color: #d4aa4a;
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 0.6rem 1.5rem; display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 0.5rem;
+  }
+  .top-strip a { color: #d4aa4a; text-decoration: none; }
+  .top-strip a:hover { color: #fff; }
+  .top-strip__crumbs a { margin-right: 0.6rem; }
+  .top-strip__crumbs .sep { color: #8a6c1a; margin-right: 0.6rem; }
+
+  .shell { max-width: 980px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+  .masthead { text-align: center; padding: 1.5rem 0 0.8rem; border-bottom: 1px solid var(--line); }
+  .masthead .eyebrow {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--gold-deep);
+  }
+  .masthead h1 {
+    font-family: 'Playfair Display', Georgia, serif; font-weight: 900;
+    font-size: clamp(2rem, 4.5vw, 3.2rem); margin: 0.2rem 0 0.2rem; letter-spacing: -0.01em;
+  }
+  .masthead .sub {
+    font-style: italic; color: var(--ink-soft); margin: 0; font-size: 1.1rem;
+    max-width: 720px; margin-left: auto; margin-right: auto;
+  }
+
+  .privacy-banner {
+    margin: 1.4rem 0 1.8rem;
+    padding: 0.9rem 1.2rem;
+    background: #ece1c8; border-left: 3px solid var(--gold);
+    font-size: 0.95rem; color: var(--ink-soft);
+  }
+  .privacy-banner strong { color: var(--ink); }
+
+  .card {
+    background: #fcf6e8; border: 1px solid var(--line);
+    padding: 1.4rem 1.4rem 1.6rem; box-shadow: 0 1px 0 rgba(0,0,0,0.03);
+    margin-bottom: 1.4rem;
+  }
+  .card h2 {
+    font-family: 'Playfair Display', Georgia, serif; font-weight: 700;
+    font-size: 1.4rem; margin: 0 0 0.3rem;
+  }
+  .card .card-sub {
+    font-style: italic; color: var(--ink-soft); font-size: 0.95rem;
+    margin: 0 0 1.2rem;
+  }
+
+  label.field {
+    display: block; margin-bottom: 1rem;
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--gold-deep);
+  }
+  label.field > .label-text { display: block; margin-bottom: 0.35rem; }
+  label.field > .label-note {
+    display: block; font-family: 'Cormorant Garamond', serif; text-transform: none;
+    letter-spacing: 0; color: var(--ink-soft); font-style: italic;
+    font-size: 0.9rem; margin-bottom: 0.35rem;
+  }
+  label.field input[type=text], label.field select, label.field textarea {
+    width: 100%; padding: 0.55rem 0.7rem;
+    font-family: 'Cormorant Garamond', serif; font-size: 1rem;
+    background: #fffbef; border: 1px solid var(--line);
+    color: var(--ink); border-radius: 0;
+  }
+  label.field textarea { font-family: 'DM Mono', monospace; font-size: 0.86rem; line-height: 1.5; min-height: 240px; resize: vertical; }
+  label.field input:focus, label.field textarea:focus, label.field select:focus {
+    outline: 2px solid var(--gold); outline-offset: -1px;
+  }
+
+  .row-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 700px) {
+    .row-3, .row-2 { grid-template-columns: 1fr; }
+  }
+
+  .sample-bar {
+    margin: 0 0 1.2rem; padding: 0.7rem 0.9rem;
+    background: #ece1c8; border: 1px dashed var(--gold);
+    display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap;
+  }
+  .sample-bar label {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--gold-deep);
+  }
+  .sample-bar select {
+    padding: 0.4rem 0.6rem; font-family: 'Cormorant Garamond', serif; font-size: 0.95rem;
+    background: #fffbef; border: 1px solid var(--line); flex: 1; min-width: 280px;
+  }
+  .sample-bar button.link {
+    background: transparent; border: 0; color: var(--gold-deep); cursor: pointer;
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em;
+    text-transform: uppercase; text-decoration: underline;
+  }
+
+  .actions { display: flex; gap: 0.7rem; flex-wrap: wrap; margin-top: 0.6rem; align-items: center; }
+  button.btn {
+    font-family: 'DM Mono', monospace; font-size: 0.75rem; letter-spacing: 0.18em;
+    text-transform: uppercase; cursor: pointer; padding: 0.8rem 1.4rem;
+    border: 1px solid var(--gold-deep); background: var(--gold); color: #fff;
+    transition: 0.15s;
+  }
+  button.btn:hover:not(:disabled) { background: var(--gold-deep); }
+  button.btn:disabled { opacity: 0.5; cursor: wait; }
+  button.btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+  button.btn.ghost:hover { background: var(--paper-deep); }
+
+  .status {
+    font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.12em;
+    text-transform: uppercase; padding: 0.5rem 0; min-height: 1.4em;
+    color: var(--ink-soft);
+  }
+  .status.busy { color: var(--gold-deep); }
+  .status.success { color: var(--good); }
+  .status.error { color: var(--bad); }
+
+  /* Results: three narrative blocks */
+  .results { margin-top: 1rem; }
+  .narrative-block {
+    background: #fffbef; border: 1px solid var(--line);
+    padding: 1.2rem 1.4rem; margin-bottom: 1.4rem;
+  }
+  .narrative-block__eyebrow {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem;
+    letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold-deep);
+    font-weight: 700; margin-bottom: 0.4rem;
+  }
+  .narrative-block__title {
+    font-family: 'Playfair Display', Georgia, serif; font-weight: 700;
+    font-size: 1.3rem; margin: 0 0 0.8rem; line-height: 1.25;
+  }
+  .narrative-block__draft {
+    font-family: 'Cormorant Garamond', serif; font-size: 1.04rem;
+    line-height: 1.65; white-space: pre-wrap; color: var(--ink);
+    margin: 0 0 1rem;
+  }
+  .narrative-block__draft[contenteditable="true"]:focus { outline: 2px solid var(--gold); outline-offset: -1px; }
+  .narrative-block__points-label {
+    font-family: 'DM Mono', monospace; font-size: 0.65rem;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft);
+    margin: 0.8rem 0 0.3rem; font-weight: 700;
+  }
+  .narrative-block__points {
+    list-style: none; padding: 0; margin: 0;
+  }
+  .narrative-block__points li {
+    padding: 0.4rem 0.6rem 0.4rem 1.4rem;
+    border-bottom: 1px dotted var(--line);
+    position: relative;
+    font-family: 'Cormorant Garamond', serif; font-size: 0.96rem;
+    line-height: 1.5;
+  }
+  .narrative-block__points li::before {
+    content: '\2192'; position: absolute; left: 0.3rem; top: 0.4rem;
+    color: var(--gold-deep); font-family: 'DM Mono', monospace; font-weight: 700;
+  }
+  .narrative-block__points li:last-child { border-bottom: 0; }
+  .narrative-block__actions {
+    margin-top: 0.8rem; display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;
+  }
+  .narrative-block__copy {
+    font-family: 'DM Mono', monospace; font-size: 0.66rem;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    padding: 0.4rem 0.8rem; background: transparent; border: 1px solid var(--line); color: var(--ink-soft);
+    cursor: pointer;
+  }
+  .narrative-block__copy:hover { background: var(--paper-deep); color: var(--ink); }
+  .narrative-block__copy.copied { color: var(--good); border-color: var(--good); }
+  .narrative-block__count {
+    font-family: 'DM Mono', monospace; font-size: 0.65rem;
+    color: var(--ink-soft); letter-spacing: 0.1em;
+  }
+
+  .summary-block {
+    background: #ece1c8; border-left: 3px solid var(--gold);
+    padding: 0.9rem 1.1rem; margin-bottom: 1.4rem;
+    font-family: 'Cormorant Garamond', serif; font-size: 1rem;
+    line-height: 1.55;
+  }
+  .summary-block strong { color: var(--ink); }
+  .guidance-block {
+    background: #ece1c8; border-left: 3px solid var(--gold);
+    padding: 0.9rem 1.1rem; margin-top: 0.8rem;
+    font-family: 'Cormorant Garamond', serif; font-size: 1rem;
+    line-height: 1.6;
+    font-style: italic;
+  }
+
+  footer {
+    margin-top: 4rem; padding-top: 1.4rem; border-top: 1px solid var(--line);
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--ink-soft); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+  }
+  footer a { color: var(--ink-soft); }
+</style>
+</head>
+<body>
+
+<div class="top-strip">
+  <span class="top-strip__crumbs">
+    <a href="/">ETL</a><span class="sep">/</span><a href="/office-hours">Office Hours</a><span class="sep">/</span>Tenure Dossier Helper
+  </span>
+  <a href="/office-hours">&larr; Back to Office Hours</a>
+</div>
+
+<div class="shell">
+
+  <div class="masthead">
+    <div class="eyebrow">A faculty toolkit &middot; Office Hours</div>
+    <h1>Tenure Dossier Helper</h1>
+    <p class="sub">Paste your CV and tell the tool a few things about your institution and your case. Get draft narratives for the teaching, research, and service statements your dossier will require, tuned to your institution's norms.</p>
+  </div>
+
+  <div class="privacy-banner">
+    <strong>Privacy:</strong> Your CV and inputs are sent to Anthropic's Claude API for drafting. Anthropic does not train on or retain API content. We do not log, store, or retain anything on our servers. Drafts render in your browser only. Your dossier remains your own document.
+  </div>
+
+  <!-- ─── INTAKE CARD ─── -->
+  <div class="card">
+
+    <div class="sample-bar">
+      <label for="sample">Try a sample candidate:</label>
+      <select id="sample">
+        <option value="">&mdash; pick a profile &mdash;</option>
+        <option value="r1-stem">R1 STEM &mdash; mid-career microbiologist, 2 years to tenure</option>
+        <option value="slac-humanities">SLAC humanities &mdash; English Lit, going up next year</option>
+        <option value="med-physician-scientist">Medical school &mdash; physician-scientist, clinical track</option>
+        <option value="teaching-focused-public-health">Teaching-focused public health &mdash; cumulative case, last chance</option>
+      </select>
+      <button type="button" class="link" id="clear-btn">Clear form</button>
+    </div>
+
+    <label class="field">
+      <span class="label-text">Your CV (paste as text)</span>
+      <span class="label-note">Education, positions, publications, grants, teaching, service, awards. Plain text is fine. The tool reads the structure, you don't have to reformat.</span>
+      <textarea id="cv" placeholder="Asha Mendoza, PhD&#10;Associate Professor (going up for tenure), Department of Microbiology&#10;Boonshoft School of Medicine, Wright State University&#10;&#10;EDUCATION&#10;PhD Microbiology, University of Michigan, 2014&#10;BS Biology, UC Berkeley, 2008&#10;&#10;POSITIONS&#10;Assistant Professor, Wright State, 2018-present&#10;Postdoctoral Fellow, Stanford Bass Lab, 2015-2018&#10;&#10;PUBLICATIONS (selected, since 2018)&#10;..."></textarea>
+    </label>
+
+    <div class="row-3">
+      <label class="field">
+        <span class="label-text">Institution type</span>
+        <select id="institution">
+          <option value="r1">R1 research university</option>
+          <option value="r2">R2 research university</option>
+          <option value="slac">Selective liberal arts college (SLAC)</option>
+          <option value="teaching-focused">Teaching-focused 4-year (regional comprehensive)</option>
+          <option value="medical-school">Medical school / academic health center</option>
+          <option value="professional-school">Professional school (business, law, engineering)</option>
+          <option value="community-college">Community college</option>
+        </select>
+      </label>
+      <label class="field">
+        <span class="label-text">Discipline / field</span>
+        <input type="text" id="discipline" placeholder="e.g. molecular microbiology; English literature; mechanical engineering">
+      </label>
+      <label class="field">
+        <span class="label-text">Stage</span>
+        <select id="stage">
+          <option value="early">Early (3+ years out)</option>
+          <option value="mid" selected>Mid (1-2 years out)</option>
+          <option value="final">Final-year (going up this cycle)</option>
+          <option value="reappointment">Reappointment / pre-tenure review</option>
+        </select>
+      </label>
+    </div>
+
+    <label class="field">
+      <span class="label-text">Strengths to emphasize</span>
+      <span class="label-note">Specific. "Grant funding" is too generic; "secured first R01 in year 4 while still in postdoc transition" lands.</span>
+      <textarea id="strengths" style="min-height: 100px;" placeholder="e.g. R01 in year 4; co-PI on a P30; named to study section; created the methods curriculum for the PhD program; my undergrad lab class is over-subscribed every term and the evaluations have been on a steady upward trajectory; serve on the IRB."></textarea>
+    </label>
+
+    <label class="field">
+      <span class="label-text">Concerns or gaps to address</span>
+      <span class="label-note">What's the weakness you know reviewers will find? Be honest with the tool; it can frame around it candidly.</span>
+      <textarea id="concerns" style="min-height: 100px;" placeholder="e.g. publication rate slowed in 2023 due to lab move; one of my PhD students left without completing; service load is uneven (heavy department, light university); I have not yet led a high-impact paper."></textarea>
+    </label>
+
+    <div class="actions">
+      <button type="button" class="btn" id="draft-btn">Draft my narratives</button>
+      <span class="status" id="status"></span>
+    </div>
+  </div>
+
+  <!-- ─── RESULTS CARD ─── -->
+  <div class="card" id="results-card" style="display: none;">
+    <h2>Draft narratives</h2>
+    <p class="card-sub">Each narrative is editable in place. Click Copy to put it on your clipboard. These are starting points; rewrite in your own voice before submitting to the committee.</p>
+    <div class="results" id="results"></div>
+  </div>
+
+</div>
+
+<footer>
+  <span>ETL &middot; Office Hours &middot; Tenure Dossier Helper</span>
+  <span><a href="/office-hours">Back to Office Hours</a> &middot; <a href="/">ETL Home</a></span>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  const SAMPLES = {
+    'r1-stem': {
+      cv: `Asha Mendoza, PhD\nAssociate Professor (going up for tenure), Department of Microbiology\n\nEDUCATION\nPhD Microbiology, University of Michigan, 2014\nBS Biology, UC Berkeley, 2008\n\nPOSITIONS\nAssistant Professor, [R1 university], 2018-present\nPostdoctoral Fellow, Stanford Bass Lab, 2015-2018\n\nFUNDING (since 2018)\nR01 AI-XXXXXX, 2022-2027, $1.84M direct, PI\nR21 AI-XXXXXX, 2020-2022, $275K, PI\nNSF CAREER 2021-2026, $750K, PI\nP30 Center pilot, 2019, $50K\n\nPUBLICATIONS (selected, since 2018)\n22 peer-reviewed; 14 as senior or co-senior author\n2024 Cell Host & Microbe (senior author)\n2023 PNAS (co-senior author)\n2022 Nature Microbiology (senior author)\n3 papers in mBio; 4 in JBC; remainder in society journals\n\nTEACHING\nMICRO 510 Advanced Bacterial Pathogenesis (annual, 18-22 grads); evals 4.6-4.8/5\nMICRO 320 Microbial Genetics (annual, 60 undergrads); evals 3.9-4.4 with steady improvement\nCo-developed methods sequence for the PhD program (2020)\nAdvised 4 PhD students (2 graduated, 2 in progress); 6 MS students; 11 undergrad researchers\n\nSERVICE\nDepartmental: search committee chair 2023; PhD admissions cmte 2019-22; seminar series organizer 2021-present\nUniversity: IRB ad hoc reviewer; faculty senate 2022-24\nProfessional: ASM Division F program committee 2023-25; ad hoc reviewer for 12 journals; grant reviewer NIH study section ad hoc 2x\n\nAWARDS\nDepartmental teaching award 2022\nNIH Director's New Innovator finalist 2021\nAAAS Mass Media Fellow 2014`,
+      institution: 'r1',
+      discipline: 'molecular microbiology',
+      stage: 'mid',
+      strengths: 'R01 secured in year 4 with strong score; CAREER in year 3; senior-author paper in Cell Host & Microbe; departmental teaching award; co-developed the methods curriculum for the PhD program; placement on NIH study section (ad hoc twice).',
+      concerns: 'Publication rate dipped in 2023 because of a lab move and a key postdoc leaving; one PhD student transferred out without completing; service load is uneven (heavy departmental, lighter at university level); have not yet led a paper in Cell or Nature itself, only specialty top-tier.'
+    },
+    'slac-humanities': {
+      cv: `Marcus Hale, PhD\nAssociate Professor (going up for tenure), Department of English\n\nEDUCATION\nPhD English Literature, Brown University, 2017\nMA English, University of Virginia, 2011\nBA English, Williams College, 2009\n\nPOSITIONS\nAssistant Professor, [SLAC name], 2018-present\nVisiting Assistant Professor, [SLAC name], 2017-2018\n\nBOOK\nThe Fugitive Voice: African American Diary Writing, 1830-1880 (Princeton UP, 2023). Reviewed in American Literature, J. American History, AAR; positive reception.\n\nARTICLES (selected)\nAmerican Literature (2024); J. American History (2022); ESQ: J. of Nineteenth-Century American Literature (2021); two book chapters in edited volumes.\n\nGRANTS / FELLOWSHIPS\nNEH Summer Stipend 2021\nACLS Fellowship 2020-21 (one year of leave for book completion)\nMellon Foundation small grant 2019\n\nTEACHING\nENGL 110 Introduction to Literary Study (annual, 18 students); ENGL 240 Major American Writers (annual, 20-25); ENGL 360 Race and Nineteenth-Century American Literature (biennial seminar, 12-14); senior thesis tutorials (4-6/year).\nEvals consistently strong; awarded the Bromberg Teaching Prize 2022\nLed three Bromberg Fellows projects with students\n\nADVISING\n22 senior thesis advisees over six years; 6 supervised honors theses; 3 published joint articles with student co-authors\n\nSERVICE\nDept: curriculum cmte 2019-22; First-Year Seminar director 2021-present\nCollege: First-Generation Mentoring Network co-founder; faculty governance executive cmte 2022-24\nProfessional: book reviews for 4 journals; conference panel chair MLA 2022 and C19 2023`,
+      institution: 'slac',
+      discipline: 'nineteenth-century American literature, African American studies',
+      stage: 'mid',
+      strengths: 'Princeton UP book with positive reviews; ACLS year of leave; teaching prize; First-Year Seminar director role; co-founded First-Generation Mentoring Network; joint published work with student co-authors.',
+      concerns: 'Only one solo article since book release; my fellowship year reduced my teaching load and may read as light service that year; no national service committee work yet; book sales modest.'
+    },
+    'med-physician-scientist': {
+      cv: `Lena Park, MD, PhD\nAssociate Professor (going up for tenure), Department of Medicine, Division of Cardiology\n\nEDUCATION\nMD/PhD University of Washington, 2010\nBA Biology, Pomona College, 2002\n\nPOSITIONS\nAssistant Professor (tenure track), [Medical school], 2017-present\nCardiology Fellowship, UCSF, 2014-2017\nIM Residency, Brigham & Women's, 2010-2013\n\nCLINICAL\n0.4 FTE clinical effort: cardiac CT clinic + inpatient consult service\nDirector, Advanced Imaging Fellowship Track, 2021-present\nBoard certified in IM, Cardiovascular Disease, Adv. Cardiac Imaging\n\nRESEARCH FUNDING\nR01 HL-XXXXXX, 2022-2027, $1.6M direct, PI\nK08, 2017-2022, completed; converted to R01\nAHA Career Development Award, 2017-2020\n\nPUBLICATIONS (since 2017)\n31 peer-reviewed; 11 first or senior author\nCirculation Research (senior 2024)\nCirculation: Cardiovascular Imaging (senior 2023, x2)\nJAMA Cardiology (first 2021)\nJ. of the American College of Cardiology (multiple author 2020-2024)\n\nTEACHING\nFellow-level seminar: Advanced Cardiac Imaging, annual, 6-8 fellows; evals 4.7/5\nResident teaching attending rounds, 4 weeks/year\nMentored 5 fellows on independent research projects (3 papers from those projects)\n\nSERVICE\nDept: clinical effectiveness cmte 2020-23; cardiology fellowship interview cmte 2018-present\nMedical school: Promotion & Tenure cmte (junior rep) 2022-24; D&I task force 2021-23\nProfessional: AHA Council on Clinical Cardiology junior leadership 2022-present; ad hoc reviewer for 8 journals; NIH study section participant 2x\n\nAWARDS\nDivision Outstanding Junior Faculty 2022\nAHA Council Early Career Award 2021`,
+      institution: 'medical-school',
+      discipline: 'cardiovascular imaging, clinical research',
+      stage: 'final',
+      strengths: 'K08 converted cleanly to R01; senior-author paper in Circulation Research; directing the imaging fellowship track; consistent strong evals; AHA Early Career Award; placement on study section; clinical effort below threshold so research time is real.',
+      concerns: 'Clinical effort is at the lower end of expected for the rank; have not led a JACC first-author paper yet; only 5 mentees and one of those left academia; service load on the medical-school side has been heavier than national.'
+    },
+    'teaching-focused-public-health': {
+      cv: `Rosa Aguilar, MPH, DrPH\nAssociate Professor (going up for tenure - last cycle), Department of Public Health\n\nEDUCATION\nDrPH Public Health, Johns Hopkins, 2013\nMPH Health Behavior, UNC Chapel Hill, 2008\nBA Sociology, Smith College, 2005\n\nPOSITIONS\nAssistant Professor, [Teaching-focused university], 2014-present\nProgram Officer, [Local health department], 2008-2013 (concurrent with DrPH)\n\nTEACHING (the central case)\nPUBH 101 Foundations of Public Health (annual, 75-90 students; service learning component); evals 4.5-4.7/5\nPUBH 310 Health Equity (annual, 35-40 students); originated this course in 2017; evals 4.6/5\nPUBH 470 Capstone (annual, 18-22 students); supervise community-partnered projects; placed 38 students into community-based field work\nDeveloped fully online versions of all three courses during COVID; design now used as the model in the department\nWon two teaching awards (College 2019, University-wide 2023)\nServed as undergraduate program director 2020-present (5 years, two reaccreditation cycles successfully completed under leadership)\n\nRESEARCH\n7 peer-reviewed publications since 2014; 4 first or senior author\nAJPH (first 2021)\nHealth Equity (senior 2022)\nFour additional society journals\nOne community-partnered evaluation report cited in state health department policy decision\n\nGRANTS / EXTERNAL FUNDING\nLocal foundation grant, $80K, 2019 (community health worker evaluation)\nState DPH contract, $135K, 2021-2023 (curriculum evaluation)\nNo federal funding\n\nSERVICE\nDept: undergrad program director (5 years); accreditation lead 2018 and 2023; faculty search committees x4\nUniversity: General Education committee 2019-2021; College Faculty Council 2021-23\nCommunity: board member [local nonprofit] 2017-present; advisory board [city health equity initiative] 2019-present\nProfessional: ad hoc reviewer for AJPH and Health Education Research; APHA Community-Based PH Education section officer 2022-24\n\nAWARDS\nUniversity Excellence in Teaching Award 2023\nCollege Distinguished Teaching Award 2019`,
+      institution: 'teaching-focused',
+      discipline: 'public health practice and pedagogy',
+      stage: 'final',
+      strengths: 'Two teaching awards including university-wide; originated a course that has become a department signature; built the online versions during COVID that are now the department model; ran undergrad program for 5 years through 2 reaccreditation cycles; community-partnered evaluation cited in state policy.',
+      concerns: 'No federal funding. Modest publication count (7 papers in 10 years). One previous reappointment review flagged the research record; this is the last tenure cycle. Need the case to land on teaching and service excellence given the research will not carry it alone.'
+    }
+  };
+
+  const els = {
+    sample: document.getElementById('sample'),
+    cv: document.getElementById('cv'),
+    institution: document.getElementById('institution'),
+    discipline: document.getElementById('discipline'),
+    stage: document.getElementById('stage'),
+    strengths: document.getElementById('strengths'),
+    concerns: document.getElementById('concerns'),
+    draftBtn: document.getElementById('draft-btn'),
+    clearBtn: document.getElementById('clear-btn'),
+    status: document.getElementById('status'),
+    resultsCard: document.getElementById('results-card'),
+    results: document.getElementById('results'),
+  };
+
+  function setStatus(msg, cls) {
+    els.status.textContent = msg || '';
+    els.status.className = 'status' + (cls ? ' ' + cls : '');
+  }
+  function escHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  els.sample.addEventListener('change', function () {
+    const key = els.sample.value;
+    if (!key) return;
+    const s = SAMPLES[key];
+    if (!s) return;
+    els.cv.value = s.cv;
+    els.institution.value = s.institution;
+    els.discipline.value = s.discipline;
+    els.stage.value = s.stage;
+    els.strengths.value = s.strengths;
+    els.concerns.value = s.concerns;
+    setStatus('Sample loaded. Click Draft.', 'success');
+  });
+
+  els.clearBtn.addEventListener('click', function () {
+    els.cv.value = '';
+    els.institution.value = 'r1';
+    els.discipline.value = '';
+    els.stage.value = 'mid';
+    els.strengths.value = '';
+    els.concerns.value = '';
+    els.sample.value = '';
+    setStatus('');
+    els.resultsCard.style.display = 'none';
+    els.results.innerHTML = '';
+  });
+
+  els.draftBtn.addEventListener('click', async function () {
+    const cv = els.cv.value.trim();
+    if (!cv) {
+      setStatus('Paste your CV first.', 'error');
+      els.cv.focus();
+      return;
+    }
+    els.draftBtn.disabled = true;
+    setStatus('Drafting three narratives. This usually takes 30 to 50 seconds.', 'busy');
+    els.resultsCard.style.display = 'none';
+    els.results.innerHTML = '';
+
+    const payload = {
+      cv: cv,
+      institution: els.institution.value,
+      discipline: els.discipline.value.trim(),
+      stage: els.stage.value,
+      strengths: els.strengths.value.trim(),
+      concerns: els.concerns.value.trim(),
+    };
+
+    try {
+      const resp = await fetch('/.netlify/functions/office-hours-tenure-dossier', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await resp.json().catch(function () { return {}; });
+      if (!resp.ok || !data.ok) {
+        const detail = (data && (data.detail || data.error)) || ('HTTP ' + resp.status);
+        throw new Error(detail);
+      }
+      renderResults(data.dossier || {});
+      setStatus('Done.', 'success');
+    } catch (err) {
+      console.error(err);
+      setStatus('Error: ' + (err && err.message ? err.message : 'unknown'), 'error');
+    } finally {
+      els.draftBtn.disabled = false;
+    }
+  });
+
+  function wordCount(s) {
+    return String(s || '').split(/\s+/).filter(Boolean).length;
+  }
+
+  function renderNarrative(name, eyebrowLabel, n) {
+    if (!n) return '';
+    const title = n.title || (eyebrowLabel + ' statement');
+    const draft = n.draft || '';
+    const points = Array.isArray(n.key_points) ? n.key_points : [];
+    return ''
+      + '<div class="narrative-block" data-name="' + escHtml(name) + '">'
+      + '  <div class="narrative-block__eyebrow">' + escHtml(eyebrowLabel) + '</div>'
+      + '  <h3 class="narrative-block__title">' + escHtml(title) + '</h3>'
+      + '  <div class="narrative-block__draft" contenteditable="true">' + escHtml(draft) + '</div>'
+      + (points.length
+          ? '  <div class="narrative-block__points-label">Talking points for your committee</div>'
+            + '  <ul class="narrative-block__points">'
+            + points.map(function (p) { return '<li>' + escHtml(p) + '</li>'; }).join('')
+            + '  </ul>'
+          : '')
+      + '  <div class="narrative-block__actions">'
+      + '    <button type="button" class="narrative-block__copy" data-name="' + escHtml(name) + '">Copy draft</button>'
+      + '    <span class="narrative-block__count">' + wordCount(draft) + ' words</span>'
+      + '  </div>'
+      + '</div>';
+  }
+
+  function renderResults(d) {
+    const parts = [];
+
+    if (d.summary) {
+      parts.push(
+        '<div class="summary-block"><strong>How the tool reads your case:</strong> '
+        + escHtml(d.summary)
+        + '</div>'
+      );
+    }
+
+    if (d.teaching_narrative)  parts.push(renderNarrative('teaching',  'Teaching statement',  d.teaching_narrative));
+    if (d.research_narrative)  parts.push(renderNarrative('research',  'Research statement',  d.research_narrative));
+    if (d.service_narrative)   parts.push(renderNarrative('service',   'Service statement',   d.service_narrative));
+
+    if (d.overall_guidance) {
+      parts.push(
+        '<div class="guidance-block"><strong style="font-style:normal;">Strategic guidance:</strong> '
+        + escHtml(d.overall_guidance)
+        + '</div>'
+      );
+    }
+
+    els.results.innerHTML = parts.join('') || '<p>No dossier returned.</p>';
+    els.resultsCard.style.display = '';
+    els.resultsCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // Copy button delegation
+  els.results.addEventListener('click', function (e) {
+    const btn = e.target.closest('.narrative-block__copy');
+    if (!btn) return;
+    const block = btn.closest('.narrative-block');
+    if (!block) return;
+    const draftEl = block.querySelector('.narrative-block__draft');
+    if (!draftEl) return;
+    const text = draftEl.innerText;
+    navigator.clipboard.writeText(text).then(function () {
+      btn.textContent = 'Copied';
+      btn.classList.add('copied');
+      setTimeout(function () {
+        btn.textContent = 'Copy draft';
+        btn.classList.remove('copied');
+      }, 1800);
+    }).catch(function () {
+      btn.textContent = 'Copy failed';
+      setTimeout(function () { btn.textContent = 'Copy draft'; }, 1800);
+    });
+  });
+})();
+</script>
+</body>
+</html>

@@ -113,7 +113,8 @@ CONTENT RULES
   - The opening_disarmer is OPTIONAL. If no good one exists, return an empty string.
 
 SOURCES
-  - You may use web_search to ground a question or answer in a real recent paper or news event the audience may be thinking about, but it's not required. Most of the value here is psychological, not bibliographic.`;
+  - You may use web_search to ground a question or answer in a real recent paper or news event the audience may be thinking about, but it's not required. Most of the value here is psychological, not bibliographic.
+  - When you DO cite, prefer work from the last 5 years (2021 onward). The audience is more likely to be thinking about recent papers and recent news.`;
 }
 
 function buildUserMessage(payload) {

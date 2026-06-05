@@ -453,8 +453,18 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
+      const contentType = (resp.headers.get('content-type') || '').toLowerCase();
+      if (!contentType.includes('application/json')) {
+        if (resp.status === 504 || resp.status === 408 || resp.status === 502) {
+          throw new Error('The request timed out before the review finished. Try Generate again. If it keeps happening, your network (e.g., a campus proxy) may be cutting the connection early; try from a phone hotspot.');
+        }
+        throw new Error('The request was interrupted before a response came back (often a network proxy timeout). Try Generate again, or switch to a phone hotspot.');
+      }
       const data = await resp.json().catch(function () { return {}; });
       if (!resp.ok || !data.ok) {
+        if (resp.status === 504 || resp.status === 408 || resp.status === 502) {
+          throw new Error('The request timed out before the review finished. Try Generate again. If it keeps happening, switch to a phone hotspot.');
+        }
         const detail = (data && (data.detail || data.error)) || ('HTTP ' + resp.status);
         throw new Error(detail);
       }
@@ -462,7 +472,11 @@
       setStatus('Done.', 'success');
     } catch (err) {
       console.error(err);
-      setStatus('Error: ' + (err && err.message ? err.message : 'unknown'), 'error');
+      if (err && (err.name === 'TypeError' || /failed to fetch|network/i.test(err.message || ''))) {
+        setStatus('Network interrupted (often a campus proxy timing out a slow request). Try Generate again, or switch to a phone hotspot.', 'error');
+      } else {
+        setStatus('Error: ' + (err && err.message ? err.message : 'unknown') + ' (try clicking Generate again)', 'error');
+      }
     } finally {
       els.reviewBtn.disabled = false;
     }
