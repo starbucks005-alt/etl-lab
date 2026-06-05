@@ -369,11 +369,22 @@
       <label for="sample" style="font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold-deep);">Try a sample literature review:</label>
       <select id="sample" style="padding: 0.4rem 0.6rem; font-family: 'Cormorant Garamond', serif; font-size: 0.95rem; background: #fffbef; border: 1px solid var(--line); flex: 1; min-width: 280px;">
         <option value="">&mdash; pick a sample &mdash;</option>
-        <option value="glp1">PharmD / clinical &mdash; GLP-1 agonists for T2DM weight management</option>
-        <option value="raasdiabetes">PharmD / preclinical &mdash; RAAS modulators for pediatric diabetes (narrative review)</option>
-        <option value="jakderm">Translational dermatology &mdash; topical JAK inhibitors for atopic dermatitis (human studies)</option>
-        <option value="naloxone">Public health &mdash; community naloxone distribution &amp; overdose mortality</option>
-        <option value="activelearning">Education &mdash; active learning in STEM undergraduate courses</option>
+        <optgroup label="Literature reviews">
+          <option value="glp1">PharmD / clinical &mdash; GLP-1 agonists for T2DM weight management (systematic review)</option>
+          <option value="raasdiabetes">PharmD / preclinical &mdash; RAAS modulators for pediatric diabetes (narrative review)</option>
+          <option value="jakderm">Translational dermatology &mdash; topical JAK inhibitors for atopic dermatitis (narrative review)</option>
+          <option value="naloxone">Public health &mdash; community naloxone distribution &amp; overdose mortality (scoping review)</option>
+          <option value="activelearning">Education &mdash; active learning in STEM undergraduate courses (narrative review)</option>
+        </optgroup>
+        <optgroup label="Primary empirical research">
+          <option value="nursestaffing">Health services research &mdash; nurse staffing &amp; 30-day heart failure readmission (retrospective cohort)</option>
+        </optgroup>
+        <optgroup label="Qualitative research">
+          <option value="moralinjury">Medical education &mdash; moral injury among PGY-2 internal medicine residents (focus groups)</option>
+        </optgroup>
+        <optgroup label="Case reports">
+          <option value="kawasaki">Pediatric rheumatology &mdash; atypical Kawasaki disease with isolated coronary aneurysm</option>
+        </optgroup>
       </select>
       <button type="button" class="link" id="clear-btn" style="background: transparent; border: 0; color: var(--gold-deep); cursor: pointer; font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; text-decoration: underline;">Clear</button>
     </div>
@@ -642,6 +653,138 @@ Limitations of this review include the restriction to two databases and English-
 CONCLUSIONS
 Community-based naloxone distribution programs are consistently associated with reductions in opioid overdose mortality across diverse populations and program models. Future research priorities include long-term cost-effectiveness analysis, non-US implementation evaluations, and rigorous quasi-experimental designs to strengthen causal inference.`,
     },
+    nursestaffing: {
+      paper_type: 'primary',
+      sme: 'Health services research, nursing workforce, cardiovascular outcomes',
+      journal: 'Health Services Research',
+      reviewers: ['vv', 'az', 'cs'],
+      text: `TITLE: Nurse Staffing Intensity and 30-Day Readmission Rates in Patients with Heart Failure: A Retrospective Multi-Hospital Cohort Study
+
+ABSTRACT
+Background. Lower nurse staffing has been associated with adverse inpatient outcomes, but the relationship to 30-day readmission for heart failure patients is incompletely characterized at the multi-hospital level.
+Objective. To evaluate the association between hospital-level nurse staffing intensity and 30-day all-cause readmission for adult patients hospitalized for heart failure.
+Design. Retrospective cohort study.
+Setting. Fourteen acute care hospitals in one integrated health system, 2019 to 2023.
+Participants. 8,712 adult admissions with a primary discharge diagnosis of heart failure (ICD-10 I50.x).
+Exposure. Hospital-level monthly RN hours per patient-day (HPPD), calculated from payroll-based productive nursing hours divided by adult medical-surgical patient-days.
+Main outcome. Unplanned 30-day all-cause readmission to any hospital in the system.
+Methods. Mixed-effects logistic regression with hospital random intercept; adjusted for age, sex, race, Elixhauser comorbidity index, prior 6-month admissions, primary insurance, and index length of stay. Sensitivity analyses included nurse skill-mix adjustment and case-mix index adjustment.
+Results. Median HPPD was 8.4 (IQR 7.2 to 9.6). Crude 30-day readmission rate was 22.1%. Each 1-unit increase in HPPD was associated with adjusted OR 0.92 (95% CI 0.86 to 0.98, p=.012). Sensitivity analyses produced consistent estimates.
+Conclusions. Higher RN staffing intensity is independently associated with lower 30-day readmission for heart failure patients in this multi-hospital cohort, supporting policy attention to nursing as a modifiable system factor.
+
+INTRODUCTION
+Readmission within 30 days of hospital discharge for heart failure is a closely watched quality metric and a target of federal payment penalties under the Hospital Readmissions Reduction Program. Multiple hospital-level factors influence readmission risk, including discharge planning, post-discharge outpatient follow-up, and inpatient care quality. The contribution of nurse staffing intensity to readmission has received less attention than its contribution to inpatient mortality or failure-to-rescue events.
+A substantial body of work has linked nurse staffing to inpatient outcomes including mortality (Aiken and colleagues, multiple studies), failure-to-rescue, and selected nurse-sensitive outcomes such as pressure injury and catheter-associated urinary tract infection. Whether the same dose-response applies to a post-discharge outcome like 30-day readmission for a specific clinical population (heart failure) is the focus of this study.
+
+METHODS
+Study design and setting. Retrospective cohort using electronic health record data from 14 acute care hospitals in one Midwestern integrated health system, January 1, 2019 through December 31, 2023.
+Participants. Adults aged 18 or older with primary discharge diagnosis of heart failure (ICD-10 I50.x). Excluded if died during the index admission, transferred to another acute care hospital, or enrolled in hospice at discharge.
+Exposure. Primary exposure was hospital-month RN-hours per patient-day (HPPD), calculated from payroll-based productive nursing hours divided by hospital-month adult medical-surgical patient-days. Each index admission was assigned the HPPD value for the hospital-month of admission.
+Outcome. Primary outcome was unplanned 30-day all-cause readmission to any acute care hospital in the system. Index admissions ending in death, hospice discharge, or transfer were excluded from the denominator.
+Covariates. Age (continuous), sex, race/ethnicity (NH White / NH Black / Hispanic / Other), Elixhauser comorbidity index (van Walraven weighted score), count of admissions in prior 6 months, primary insurance (Medicare / Medicaid / Commercial / Other), and index length of stay.
+Statistical analysis. Mixed-effects logistic regression with hospital as a random intercept estimated the association between HPPD and 30-day readmission, adjusted for covariates. Sensitivity analyses (1) added nurse skill-mix (proportion of RNs with BSN credentialing) and (2) added hospital case-mix index. Analyses were intent-to-treat. Missing covariate data (under 3% for all variables) were handled by complete-case analysis. All analyses performed in R 4.3.
+
+RESULTS
+Cohort. 8,712 admissions met inclusion criteria. The cohort was 52% female, 31% non-Hispanic Black, mean age 71.2 years (SD 13.4). Median Elixhauser score was 8 (IQR 5 to 12). Median index length of stay was 4 days (IQR 3 to 7). Primary insurance distribution: 71% Medicare, 14% Medicaid, 12% Commercial, 3% Other.
+Staffing variation. Median hospital-month HPPD was 8.4 (IQR 7.2 to 9.6, range 5.1 to 12.8). Variation existed both within and between hospitals across the 60-month observation period.
+Primary outcome. Crude 30-day readmission rate was 22.1% (1,925 readmissions among 8,712 index admissions). In the fully adjusted mixed-effects model, each 1-unit increase in HPPD was associated with an adjusted odds ratio of 0.92 for 30-day readmission (95% CI 0.86 to 0.98, p=.012).
+Sensitivity analyses. Adding nurse skill-mix produced a comparable estimate (adjusted OR 0.93, 95% CI 0.87 to 0.99). Adding hospital case-mix index attenuated the estimate slightly (adjusted OR 0.94, 95% CI 0.88 to 0.99). Both sensitivity models remained statistically significant.
+
+DISCUSSION
+This study extends a substantial body of nurse staffing research to a federally tracked outcome (30-day readmission) in a specific clinical population (heart failure) across a multi-hospital integrated health system. The magnitude of the association we observe is consistent with prior single-hospital and registry-based work on nurse-sensitive inpatient outcomes.
+Several mechanisms may underlie the observed association. Higher nurse staffing intensity may enable more comprehensive discharge education, better identification of patients at risk for early decompensation, and more thorough medication reconciliation. These mechanisms are not directly tested in this study and warrant further investigation.
+Limitations include the single-system scope, which limits generalizability to hospitals with different organizational structures or patient populations. The exposure measure (hospital-month HPPD from payroll data) is averaged across the hospital month and may not capture variation in patient-day-level staffing intensity at the time of the index admission. We did not have access to patient-reported outcomes such as functional status at readmission. Finally, observational design limits causal inference; unmeasured hospital-level factors correlated with both staffing and readmission could bias the estimate.
+
+CONCLUSIONS
+Higher RN staffing intensity is independently associated with lower 30-day readmission for heart failure patients in this multi-hospital cohort. The magnitude is clinically meaningful given baseline readmission rates. These findings support policy attention to nursing intensity as a modifiable system factor for readmission reduction.`,
+    },
+
+    moralinjury: {
+      paper_type: 'primary',
+      sme: 'Medical education, qualitative health services research, physician well-being',
+      journal: 'Academic Medicine',
+      reviewers: ['mvg', 'mt', 'tk'],
+      text: `TITLE: "It's Not Burnout, It's Something Else": A Qualitative Study of Moral Injury Among Second-Year Internal Medicine Residents
+
+ABSTRACT
+Background. Moral injury (the experience of perpetrating, failing to prevent, or witnessing acts that transgress one's moral beliefs) has been increasingly invoked to describe physician distress that is qualitatively distinct from burnout. Limited qualitative work has explored how residents themselves articulate this distinction.
+Objective. To explore the lived experience of moral injury among second-year (PGY-2) internal medicine residents at a single academic medical center.
+Design. Qualitative descriptive study using semi-structured focus groups, analyzed with reflexive thematic analysis.
+Participants. Twenty-two PGY-2 internal medicine residents recruited via purposive sampling.
+Findings. Four themes emerged: (1) the prior authorization encounter as a recurring moral injury site; (2) discharging patients to unsafe situations; (3) the gap between learned medicine and practiced medicine; (4) the inadequacy of available institutional vocabulary for naming what they experienced.
+Implications. Residents in this study described experiences consistent with the moral injury construct as distinct from burnout. Institutional responses framed exclusively around resilience and self-care may miss the structural sources of distress that participants identified.
+
+INTRODUCTION
+The construct of moral injury, developed in military psychology to describe psychological harm following events that transgress moral beliefs, has been increasingly applied to physicians experiencing institutional or systemic constraints on their professional values. Talbot and Dean (2018) catalyzed interest by arguing that what is typically described as physician burnout is often more accurately characterized as moral injury, with implications for how interventions should be designed.
+Quantitative work has begun to characterize moral injury in physician populations, but qualitative exploration of how physicians themselves articulate the distinction between burnout and moral injury has been limited. Resident trainees may be a particularly informative population: they encounter the gap between institutional constraints and patient needs on a daily basis, and they have not yet developed the long-term coping strategies (or moral disengagement) that some attending physicians describe.
+This study explored the lived experience of moral injury among second-year internal medicine residents at a single academic medical center, with attention to how participants distinguished moral injury from burnout and what institutional contexts they identified as central to the experience.
+
+METHODS
+Design. Qualitative descriptive study using focus group methodology, analyzed via reflexive thematic analysis (Braun and Clarke).
+Setting and participants. Internal medicine residency program at a 600-bed academic medical center in the upper Midwest. PGY-2 internal medicine residents (n=37 total in program) were invited via email; 22 participated. Recruitment was purposive with attention to including residents across the three intern-year cohort tracks (categorical, primary care, hospitalist).
+Data collection. Four focus groups (5 to 6 participants each) were conducted between September and November 2024 in a private conference room outside the residents' usual workspace. Each focus group lasted 75 to 90 minutes. A semi-structured guide opened with the question "Tell me about a time at work when you felt like you couldn't be the doctor you wanted to be" and proceeded through probes about the distinction between burnout and other forms of distress. Sessions were audio-recorded and transcribed verbatim.
+Analysis. Two researchers (a physician investigator and a qualitative methodologist from outside the institution) independently coded the first two transcripts using inductive open coding. The team met to develop a preliminary coding framework, which was applied to the remaining transcripts. Codes were iteratively refined and grouped into candidate themes. Final themes were developed through team discussion until consensus was reached.
+Reflexivity. The lead investigator is an internal medicine attending at the study institution and has prior relationships with several participants. The qualitative methodologist is an outside-institution PhD with no prior relationship to participants. Reflexive memos were maintained throughout analysis.
+Ethics. The institutional IRB approved the study. All participants provided written informed consent. Quotations are presented without identifying details.
+
+FINDINGS
+Twenty-two PGY-2 residents participated (12 female, 10 male; 14 categorical, 4 primary care, 4 hospitalist track). Four themes emerged from the analysis.
+
+Theme 1: Prior authorization as recurring moral injury site
+Participants returned repeatedly to encounters with insurance prior authorization as a recurring source of moral injury. The structure of the encounter (recommending a treatment, having it denied by a non-clinician reviewer, being unable to provide what the patient needed) was experienced as not just frustrating but as a violation of the participant's professional values. One participant described it as "being asked to be a small con artist for the system every single day."
+
+Theme 2: Discharging patients to unsafe situations
+Participants described moral distress when discharging patients to housing insecurity, family situations they assessed as unsafe, or post-discharge follow-up they did not believe would actually occur. The distinction from burnout in participants' accounts was the persistence of the distress beyond the work shift and its location in the perceived gap between what they could provide and what the patient needed.
+
+Theme 3: The gap between learned medicine and practiced medicine
+Participants articulated a recurring tension between the evidence-based, patient-centered medicine they were taught and the constraints of how care was actually delivered in their institutional context. The tension manifested in time pressure during patient encounters, formulary constraints that prevented first-line treatment selection, and documentation burden that participants perceived as displacing direct patient care.
+
+Theme 4: Inadequacy of institutional vocabulary
+Across all four focus groups, participants described a gap between the language their institution offered to describe their distress ("burnout," "wellness deficit," "resilience opportunity") and what they actually experienced. Several participants explicitly named moral injury as a more accurate construct.
+
+DISCUSSION
+The findings suggest that the moral injury construct, as articulated by Talbot and Dean and elaborated in subsequent literature, has descriptive validity for residents in this setting. Participants distinguished moral injury from burnout in ways consistent with the conceptual literature, locating moral injury in specific institutional structures (prior authorization, discharge planning, documentation burden) rather than in individual resilience deficits.
+Limitations of this study include the single-institution scope and the participation rate of 59%; participants who experience greater moral distress may have self-selected into the study. The investigator's dual role as attending physician and researcher may have shaped what participants felt able to disclose, although the focus groups were conducted by the qualitative methodologist from outside the institution.
+
+CONCLUSIONS
+Resident trainees in this study described experiences consistent with the moral injury construct and distinct from burnout. Institutional responses framed exclusively around individual resilience and self-care may miss the structural sources of distress that participants identified. Future work should examine institutional interventions that address the structural features participants named.`,
+    },
+
+    kawasaki: {
+      paper_type: 'case-report',
+      sme: 'Pediatric rheumatology, cardiology, atypical presentations of inflammatory disease',
+      journal: 'Pediatric Rheumatology',
+      reviewers: ['cs', 'lc', 'mp'],
+      text: `TITLE: Atypical Kawasaki Disease Presenting With Isolated Coronary Artery Aneurysm in an 18-Month-Old Without Classical Diagnostic Criteria: A Case Report
+
+ABSTRACT
+We report the case of an 18-month-old previously healthy male who presented with persistent fever, irritability, and refusal to bear weight, but without the classical mucocutaneous findings required for the diagnosis of Kawasaki disease (KD). Initial laboratory evaluation showed elevated inflammatory markers without a clear infectious etiology. Echocardiography performed on day 8 of fever revealed a fusiform aneurysm of the proximal left anterior descending artery (z-score 4.2). Intravenous immunoglobulin and high-dose aspirin were initiated immediately. Fever defervesced within 36 hours, inflammatory markers normalized over the subsequent two weeks, and serial echocardiography at 4 weeks showed partial regression of the aneurysm. This case highlights the diagnostic challenge of atypical KD presentations, where coronary artery findings may be the only objective diagnostic feature, and underscores the importance of early echocardiographic evaluation in children with prolonged fever of unknown origin.
+
+INTRODUCTION
+Kawasaki disease is a self-limited febrile vasculitis of childhood and the leading cause of acquired heart disease in children in industrialized countries. The American Heart Association diagnostic criteria require fever of at least 5 days plus four of five mucocutaneous principal features: bilateral non-exudative conjunctivitis, oral cavity changes, polymorphous exanthem, peripheral extremity changes, and cervical lymphadenopathy. Atypical or incomplete KD is increasingly recognized, particularly in patients under 12 months and over 5 years of age, where presentations may lack sufficient mucocutaneous features for classical diagnosis. The diagnostic algorithm for incomplete KD relies on laboratory criteria and echocardiographic findings.
+The case described here illustrates the challenge of identifying KD in a patient whose presentation lacked any of the principal mucocutaneous features at any point during the illness, and where the coronary artery aneurysm seen on echocardiography became the decisive diagnostic finding.
+
+CASE PRESENTATION
+An 18-month-old previously healthy male presented to the emergency department with seven days of persistent fever (peak 39.8°C, antipyretic-responsive), increasing irritability, and refusal to bear weight on his lower extremities for the prior 48 hours. There was no rash, conjunctivitis, oral mucosal change, extremity swelling, or cervical lymphadenopathy noted by the family or on examination.
+Past medical history was unremarkable; vaccinations were current. There was no recent travel, no known sick contacts, and no recent antibiotic exposure. Family history was negative for rheumatologic disease or early cardiac events.
+On admission, vital signs included temperature 39.4°C, heart rate 158, blood pressure 92/54, respiratory rate 32, and oxygen saturation 98% on room air. Physical examination was notable for an ill-appearing, irritable toddler with no rash, no conjunctival injection, normal oropharynx, and refusal to bear weight on either lower extremity. Joint examination demonstrated no warmth, erythema, or effusion. The remainder of the examination was unremarkable.
+Initial laboratory studies showed leukocytosis (WBC 18,400/μL with 78% neutrophils), elevated C-reactive protein (CRP 14.2 mg/dL), elevated erythrocyte sedimentation rate (ESR 68 mm/hr), platelet count 412,000/μL, and mild normocytic anemia (Hgb 10.4 g/dL). Liver function and renal function were normal. Blood and urine cultures were obtained; both were negative at 48 hours. SARS-CoV-2 PCR was negative. Respiratory viral panel was negative.
+On hospital day 2 (fever day 8), echocardiography was performed to evaluate possible incomplete KD. The study demonstrated a fusiform aneurysm of the proximal left anterior descending coronary artery (LAD) measuring 4.1 mm in maximal internal diameter (z-score 4.2 for body surface area). No other coronary or cardiac abnormalities were identified. Left ventricular function was normal.
+
+DIAGNOSIS AND MANAGEMENT
+A diagnosis of atypical Kawasaki disease with coronary artery aneurysm was made based on the coronary artery finding in the context of prolonged fever, elevated inflammatory markers, and exclusion of infectious causes. Treatment was initiated immediately with intravenous immunoglobulin (IVIG) 2 g/kg as a single infusion over 12 hours and high-dose aspirin 80 mg/kg/day divided every 6 hours.
+The patient defervesced within 36 hours of IVIG administration. Irritability resolved over the subsequent 48 hours, and weight-bearing returned by hospital day 5. CRP decreased to 4.1 mg/dL by day 5 and was within normal limits by day 14. Aspirin was transitioned to low-dose (5 mg/kg/day) after 5 afebrile days and continued for ongoing antiplatelet therapy.
+The patient was discharged on hospital day 6 with cardiology follow-up arranged. Repeat echocardiography at 4 weeks showed partial regression of the LAD aneurysm (maximal internal diameter 3.4 mm, z-score 2.8). Low-dose aspirin was continued, with planned serial echocardiography at 6 weeks, 3 months, 6 months, and annually thereafter.
+
+DISCUSSION
+This case demonstrates that atypical or incomplete Kawasaki disease may present without any of the classical mucocutaneous diagnostic features, with the coronary artery aneurysm serving as the decisive diagnostic finding. The patient in this case met no principal mucocutaneous criteria at any point during the illness. Without the day-8 echocardiogram, the diagnosis would likely have been delayed, potentially leading to higher risk of aneurysm progression.
+Several aspects of this case warrant emphasis for clinicians evaluating children with prolonged fever of unknown origin. First, the refusal to bear weight, attributable in retrospect to arthritis or arthralgia, was an early non-classical clinical clue. Second, the elevation of inflammatory markers in the absence of a clear infectious etiology should prompt consideration of vasculitis. Third, the American Heart Association algorithm for incomplete KD supports earlier echocardiography in young children with prolonged unexplained fever, even in the absence of classical features.
+Limitations of this single case report include the inability to generalize from one patient, the absence of long-term cardiac outcome data, and the possibility that earlier echocardiography might have detected the aneurysm at an earlier stage.
+
+CONCLUSION
+Atypical Kawasaki disease can present without classical mucocutaneous features. Early echocardiography should be considered in young children with prolonged unexplained fever and elevated inflammatory markers, even when classical KD criteria are not met. Coronary artery aneurysm may be the first or only objective diagnostic finding in such cases.`,
+    },
+
     activelearning: {
       paper_type: 'review',
       sme: 'Higher education, STEM pedagogy, undergraduate learning',
