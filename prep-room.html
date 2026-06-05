@@ -247,7 +247,7 @@
       <div class="big" id="drop-big">Click to choose a PDF</div>
       <div class="sub" id="drop-sub">or drag it here</div>
     </div>
-    <input type="file" id="file" accept="application/pdf" style="display:none;">
+    <input type="file" id="file" accept="application/pdf,.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none;">
 
     <div id="jd-block" style="display:none;">
       <div class="jd-label" id="jd-label">Paste the job description</div>
@@ -317,6 +317,7 @@
 
 <script src="/samples/theses.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 <script>
   pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
@@ -479,8 +480,8 @@
     },
     resume: {
       step1h:'Upload your CV (and optional cover letter and target role)',
-      step1hint:'A PDF of your CV or résumé is required. Cover letter and target role are optional but make the review sharper. Everything stays in your browser; only a short brief goes to the coach.',
-      dropBig:'Click to choose your CV (PDF)', dropSub:'or drag it here',
+      step1hint:'Your CV or résumé is required (PDF or .docx Word file). Cover letter and target role are optional but make the review sharper. Everything stays in your browser; only a short brief goes to the coach.',
+      dropBig:'Click to choose your CV (PDF or Word)', dropSub:'or drag it here',
       analyzeBtn:'Get my review →', analyzeStatus:'Your coach is reading the document',
       panelh:'Meet your coach', panelhint:'One coach. Set how direct she should be. Default is honest.',
       heroSub:'Bring your CV, your cover letter, and the role you are aiming for. Your coach will name what the document is actually saying, what it is missing, and what to fix. She will not write it for you.',
@@ -673,13 +674,19 @@
 
   function handleFile(file){
     hideErr($('upload-err'));
-    if(file.type !== 'application/pdf'){ showErr($('upload-err'),'Please upload a PDF.'); return; }
+    var name = (file.name || '').toLowerCase();
+    var isPdf = file.type === 'application/pdf' || name.endsWith('.pdf');
+    var isDocx = name.endsWith('.docx') || file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+    if(!isPdf && !isDocx){ showErr($('upload-err'),'Please upload a PDF or .docx Word file.'); return; }
     state.fileName = file.name;
     drop.classList.add('has');
     $('drop-big').innerHTML = '<span class="filename">'+file.name+'</span>';
-    $('drop-sub').textContent = 'Reading pages...';
+    $('drop-sub').textContent = isPdf ? 'Reading pages...' : 'Reading Word doc...';
     var reader = new FileReader();
-    reader.onload = function(){ extractPdf(new Uint8Array(reader.result)); };
+    reader.onload = function(){
+      if(isPdf){ extractPdf(new Uint8Array(reader.result)); }
+      else { extractDocx(reader.result); }
+    };
     reader.readAsArrayBuffer(file);
   }
 
@@ -698,6 +705,19 @@
       $('drop-sub').innerHTML = 'Ready &middot; '+pdf.numPages+' pages';
       $('analyze-btn').disabled = false;
     }catch(e){ showErr($('upload-err'),'Could not read this PDF: '+e.message); }
+  }
+
+  async function extractDocx(arrayBuffer){
+    try{
+      if(typeof mammoth === 'undefined'){ showErr($('upload-err'),'Word reader is still loading. Try again in a moment.'); return; }
+      var result = await mammoth.extractRawText({arrayBuffer: arrayBuffer});
+      var text = (result && result.value) ? result.value : '';
+      state.docText = text.replace(/\r\n/g,'\n').replace(/[ \t]+/g,' ').replace(/\n{3,}/g,'\n\n').trim();
+      if(state.docText.length < 150){ showErr($('upload-err'),'Could not read text from this Word doc. Try saving it as PDF and uploading that.'); return; }
+      var wordCount = state.docText.split(/\s+/).length;
+      $('drop-sub').innerHTML = 'Ready &middot; '+wordCount.toLocaleString()+' words';
+      $('analyze-btn').disabled = false;
+    }catch(e){ showErr($('upload-err'),'Could not read this Word doc: '+e.message); }
   }
 
   $('analyze-btn').addEventListener('click', analyzeDoc);
