@@ -804,7 +804,8 @@
     if(MODE==='interview'){
       sys = interviewBriefAudienceRules() + '\n\n' +
         'You are a hiring panel\'s assistant. You receive a candidate\'s CV/resume and a job description. Produce a TIGHT brief for the interviewers. Output PLAIN TEXT with these labeled sections and nothing else: CANDIDATE SNAPSHOT; TARGET ROLE; ROLE LEVEL (one of: Individual Contributor, Manager, Senior Leader, Executive, Cabinet/C-Suite); ROLE FOCUS (one or two of: technical execution, people leadership, strategy and vision, mission alignment, operations, fiscal stewardship, ethics and compliance, change management, external partnerships); KEY REQUIREMENTS (from the posting, with emphasis on what the role actually needs vs. nice-to-haves); STRENGTHS (where the CV matches the role); GAPS & RISKS (3-6 bullets the panel should probe); LIKELY TOUGH QUESTIONS (3-5, fit to the role level and focus). Be concrete and specific to THIS candidate and THIS role. Keep under 400 words.';
-      user = 'CANDIDATE CV:\n\n'+state.docText.slice(0,9000)+'\n\nJOB DESCRIPTION:\n\n'+state.jdText.slice(0,5000);
+      if(state.docText.length > 30000){ try{ console.warn('Interview brief: CV exceeded 30,000 chars (' + state.docText.length + ') — sending first 30k.'); }catch(_){} }
+      user = 'CANDIDATE CV:\n\n'+state.docText.slice(0,30000)+'\n\nJOB DESCRIPTION:\n\n'+state.jdText.slice(0,8000);
     } else if(MODE==='resume'){
       // Build a focus directive sentence the coach reads BEFORE the rubric.
       var focusDirective;
@@ -826,9 +827,14 @@
         'Read the CV carefully BEFORE calling anything missing. If the candidate has board roles, name them. If they have budget authority in academic form, name it. If they have institutional transformation in academic form (revenue growth on a program, enrollment scale, founding of a new lab/center), name it. The honesty bar still applies: every claim must still be earned by evidence in the document; numbers must be specific; the Professional Summary still follows the three-sentence rule; substance over fluff; no praise that is not earned. The point of the sector-aware rubric is accuracy, not generosity. ' +
         'FORMATTING RULES: Output PLAIN TEXT only. Each labeled section must begin on its own line with the label in ALL CAPS followed by a colon. Put ONE BLANK LINE between sections. For sections that take bullets, put each bullet on its own line starting with "• " (bullet + space). Do NOT run sections together as a single paragraph. ' +
         'Sections, in this exact order and with these exact labels: CURRENT ARGUMENT: (one sentence — what role this document is actually arguing for, regardless of what the candidate said). TARGET ROLE: (from the student\'s input, or "not specified"). SECTOR: (one of: Corporate, Academic, Nonprofit/Mission-Driven, Government/Public-Sector, Hybrid). FIT: (one to three sentences — gap between current argument and target, if any, judged on SECTOR-APPROPRIATE markers). LENGTH STANCE: (one to three sentences — your read, anchored on the Two-CV Tactic and on what is normal length in this sector). PROFESSIONAL SUMMARY: (one to three sentences — does it follow the three-sentence rule, and what to do). EVIDENCE GAPS: (3-6 bullets, one per line — only list things that are ACTUALLY MISSING for the role, not items present in academic/nonprofit form a corporate eye might overlook). CUTS: (3-6 bullets, one per line). AMPLIFY: (3-6 bullets, one per line). COVER LETTER NOTES: (if a cover letter was provided: 2-4 bullets, one per line. If no cover letter was provided, write "Not provided." on a single line). OPEN QUESTION: (one short prompt the coach will speak to the student, inviting them to pick what to work on first). Keep under 550 words total.';
-      user = 'CANDIDATE CV:\n\n'+state.docText.slice(0,12000)
-        + (state.clText?'\n\nCOVER LETTER:\n\n'+state.clText.slice(0,4000):'')
-        + (state.focusMode === 'job' && state.jdText ? '\n\nJOB DESCRIPTION:\n\n'+state.jdText.slice(0,4000) : '')
+      // CV cap raised to 60k chars (~30 pages dense academic CV). Was 12k,
+      // which silently truncated multi-page CVs and gave Charles a partial
+      // view. Warn in console if we still hit the cap so we never ship
+      // another silent truncation.
+      if(state.docText.length > 60000){ try{ console.warn('Résumé Coach: CV exceeded 60,000 chars (' + state.docText.length + ') — sending first 60k to brief generator.'); }catch(_){} }
+      user = 'CANDIDATE CV:\n\n'+state.docText.slice(0,60000)
+        + (state.clText?'\n\nCOVER LETTER:\n\n'+state.clText.slice(0,8000):'')
+        + (state.focusMode === 'job' && state.jdText ? '\n\nJOB DESCRIPTION:\n\n'+state.jdText.slice(0,8000) : '')
         + (state.focusMode === 'focus' && state.focusValue ? '\n\nFOCUS / AUDIENCE FOR THIS REVIEW:\n\n'+state.focusValue : '')
         + (state.focusMode === 'general' ? '\n\nNo specific job or focus — general cleanup.' : '');
     } else {
@@ -1133,9 +1139,11 @@
       if(state.focusMode === 'job' && state.jdText){ purposeLine = '\n\nReview purpose: tailored to a specific job (description below).'; }
       else if(state.focusMode === 'focus' && state.focusValue){ purposeLine = '\n\nReview purpose: positioning for a specific audience — "' + state.focusValue + '". Restructure the CV so it speaks to that audience: foreground aligned content, soften off-focus content, never invent.'; }
       else { purposeLine = '\n\nReview purpose: general cleanup, no specific job or audience.'; }
-      user = 'Original CV:\n\n'+state.docText.slice(0,12000)
-        + (state.clText?'\n\nOriginal cover letter:\n\n'+state.clText.slice(0,4000):'')
-        + (state.focusMode === 'job' && state.jdText ? '\n\nTarget role / job description:\n\n'+state.jdText.slice(0,4000) : '')
+      // CV cap raised to 60k chars (~30 pages dense academic CV). Was 12k.
+      if(state.docText.length > 60000){ try{ console.warn('Résumé Coach (endSession): CV exceeded 60,000 chars (' + state.docText.length + ') — sending first 60k to the rewriter.'); }catch(_){} }
+      user = 'Original CV:\n\n'+state.docText.slice(0,60000)
+        + (state.clText?'\n\nOriginal cover letter:\n\n'+state.clText.slice(0,8000):'')
+        + (state.focusMode === 'job' && state.jdText ? '\n\nTarget role / job description:\n\n'+state.jdText.slice(0,8000) : '')
         + (state.focusMode === 'focus' && state.focusValue ? '\n\nFocus / audience for this review:\n\n'+state.focusValue : '')
         + purposeLine
         + '\n\nCoaching brief:\n\n'+state.brief
