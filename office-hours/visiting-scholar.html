@@ -272,6 +272,26 @@
   <!-- ─── INTAKE CARD ─── -->
   <div class="card">
 
+    <!-- Try-a-sample loader (loads pre-made defense slides from the catalog) -->
+    <div style="margin: 0 0 1.2rem; padding: 0.7rem 0.9rem; background: #ece1c8; border: 1px dashed var(--gold); display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap;">
+      <label for="sample-defense" style="font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold-deep);">Try a sample defense:</label>
+      <select id="sample-defense" style="padding: 0.4rem 0.6rem; font-family: 'Cormorant Garamond', serif; font-size: 0.95rem; background: #fffbef; border: 1px solid var(--line); flex: 1; min-width: 280px;">
+        <option value="">&mdash; pick a discipline &mdash;</option>
+        <option value="airborne-particulate">Environmental epidemiology &mdash; Airborne PM2.5 &amp; cardiometabolic risk</option>
+        <option value="antibiotic-resistance">Microbiology &mdash; Antibiotic resistance in P. aeruginosa</option>
+        <option value="active-learning-stem">STEM education &mdash; Active learning &amp; first-year retention</option>
+        <option value="urbanization-pollinators">Ecology &mdash; Urbanization &amp; pollinator diversity</option>
+        <option value="leadership-remote-teams">Organizational behavior &mdash; Leadership style &amp; remote teams</option>
+        <option value="fibromyalgia-pain">Neuroscience &mdash; Neural correlates of chronic pain in fibromyalgia</option>
+        <option value="heat-exchangers">Mechanical engineering &mdash; Heat transfer in compact heat exchangers</option>
+        <option value="warfarin-cyp2c9">Clinical pharmacology &mdash; Warfarin PK &amp; CYP2C9 polymorphisms</option>
+        <option value="pcr-vs-culture-mrsa">Clinical microbiology &mdash; Rapid PCR vs culture for MRSA detection</option>
+        <option value="microrna-145">Molecular biology &mdash; Gene regulation by microRNA-145</option>
+        <option value="working-memory-decision">Cognitive psychology &mdash; Working memory load &amp; decision accuracy</option>
+      </select>
+      <button type="button" class="link" id="sample-load-status" style="background: transparent; border: 0; color: var(--gold-deep); font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase;"></button>
+    </div>
+
     <!-- Mode selector -->
     <label class="field">
       <span class="label-text">Mode</span>
@@ -376,6 +396,69 @@
       b.classList.toggle('active', b === btn);
     });
   });
+
+  // ─── Sample-defense loader ────────────────────────────────────────────
+  const SAMPLES = {
+    'airborne-particulate':     { context: 'environmental epidemiology dissertation defense; PM2.5 cardiometabolic risk',     slides: ['airborne-particulate-p2.jpg','airborne-particulate-p6.jpg','airborne-particulate-p9.jpg'] },
+    'antibiotic-resistance':    { context: 'microbiology dissertation defense; antibiotic resistance in Pseudomonas aeruginosa', slides: ['antibiotic-resistance-p2.jpg','antibiotic-resistance-p6.jpg','antibiotic-resistance-p9.jpg'] },
+    'active-learning-stem':     { context: 'STEM education research defense; active learning and first-year retention',       slides: ['active-learning-stem-p2.jpg','active-learning-stem-p6.jpg','active-learning-stem-p9.jpg'] },
+    'urbanization-pollinators': { context: 'ecology / conservation biology defense; urbanization and pollinator diversity',   slides: ['urbanization-pollinators-p2.jpg','urbanization-pollinators-p6.jpg','urbanization-pollinators-p9.jpg'] },
+    'leadership-remote-teams':  { context: 'organizational behavior defense; leadership style and remote team productivity',  slides: ['leadership-remote-teams-p2.jpg','leadership-remote-teams-p6.jpg','leadership-remote-teams-p9.jpg'] },
+    'fibromyalgia-pain':        { context: 'neuroscience / pain research defense; neural correlates of chronic pain in fibromyalgia', slides: ['fibromyalgia-pain-p2.jpg','fibromyalgia-pain-p6.jpg','fibromyalgia-pain-p9.jpg'] },
+    'heat-exchangers':          { context: 'mechanical engineering defense; heat transfer in compact heat exchangers',        slides: ['heat-exchangers-p2.jpg','heat-exchangers-p6.jpg','heat-exchangers-p9.jpg'] },
+    'warfarin-cyp2c9':          { context: 'clinical pharmacology / pharmacogenomics defense; warfarin PK in CYP2C9 polymorphisms', slides: ['warfarin-cyp2c9-p2.jpg','warfarin-cyp2c9-p5.jpg','warfarin-cyp2c9-p8.jpg'] },
+    'pcr-vs-culture-mrsa':      { context: 'clinical microbiology defense; rapid PCR vs culture for early MRSA detection',    slides: ['pcr-vs-culture-mrsa-p2.jpg','pcr-vs-culture-mrsa-p6.jpg','pcr-vs-culture-mrsa-p9.jpg'] },
+    'microrna-145':             { context: 'molecular biology defense; gene regulation by microRNA-145',                      slides: ['microrna-145-p2.jpg','microrna-145-p6.jpg','microrna-145-p9.jpg'] },
+    'working-memory-decision':  { context: 'cognitive psychology defense; working memory load and decision accuracy under stress', slides: ['working-memory-decision-p2.jpg','working-memory-decision-p6.jpg','working-memory-decision-p9.jpg'] },
+  };
+
+  const sampleSelect = document.getElementById('sample-defense');
+  const sampleStatus = document.getElementById('sample-load-status');
+  if (sampleSelect) {
+    sampleSelect.addEventListener('change', async function () {
+      const key = sampleSelect.value;
+      if (!key || !SAMPLES[key]) return;
+      const sample = SAMPLES[key];
+      sampleStatus.textContent = 'Loading slides...';
+      // Reset state
+      state.files = [];
+      renderThumbs();
+      try {
+        for (const filename of sample.slides) {
+          const url = '/office-hours/sample-slides/' + filename;
+          const resp = await fetch(url);
+          if (!resp.ok) throw new Error('Could not fetch ' + filename);
+          const blob = await resp.blob();
+          const enc = await new Promise(function (resolve, reject) {
+            const reader = new FileReader();
+            reader.onload = function () {
+              const result = String(reader.result);
+              const comma = result.indexOf(',');
+              const base64 = comma >= 0 ? result.slice(comma + 1) : result;
+              resolve({ dataUrl: result, base64: base64 });
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+          });
+          state.files.push({
+            name: filename,
+            type: blob.type || 'image/jpeg',
+            dataUrl: enc.dataUrl,
+            base64: enc.base64,
+          });
+        }
+        contextInput.value = sample.context;
+        renderThumbs();
+        refreshGenerateBtn();
+        sampleStatus.textContent = 'Loaded. Pick a mode and click Generate.';
+        setStatus('Sample loaded: ' + state.files.length + ' slides, context set.', 'success');
+      } catch (err) {
+        console.error(err);
+        sampleStatus.textContent = '';
+        setStatus('Error loading sample: ' + (err && err.message ? err.message : 'unknown'), 'error');
+      }
+    });
+  }
 
   // ─── File handling ────────────────────────────────────────────────────
   function readFileAsBase64(file) {
