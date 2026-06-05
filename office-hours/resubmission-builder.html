@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resubmission Builder &mdash; Office Hours | Emerging Technologies Laboratory</title>
+<meta name="description" content="Paste the Summary Statement from your rejected federal grant. Get critique-by-critique response drafts in your mechanism's expected convention, a draft Introduction to Resubmission page, and a revision plan. Supports VA, NIH, NSF, DoD CDMRP, AHRQ, HRSA, PCORI, and foundation mechanisms.">
+<link rel="canonical" href="https://emerging-tech-lab.com/office-hours/resubmission-builder">
+<link rel="icon" type="image/png" href="/favicon.png">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Resubmission Builder &mdash; Office Hours">
+<meta property="og:description" content="Turn a rejected grant Summary Statement into a structured resubmission response.">
+<meta property="og:url" content="https://emerging-tech-lab.com/office-hours/resubmission-builder">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --paper: #f3ecdc;
+    --paper-deep: #e8dec8;
+    --ink: #161310;
+    --ink-soft: #4a443a;
+    --gold: #b8922a;
+    --gold-deep: #8a6c1a;
+    --line: #c8bba0;
+    --bad: #8a2a2a;
+    --good: #3a6a2a;
+    --warn: #c47a1a;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--paper); color: var(--ink);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 18px; line-height: 1.55;
+  }
+  a { color: var(--gold-deep); text-decoration: underline; text-underline-offset: 3px; }
+  a:hover { color: var(--ink); }
+
+  .top-strip {
+    background: #161310; color: #d4aa4a;
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 0.6rem 1.5rem; display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 0.5rem;
+  }
+  .top-strip a { color: #d4aa4a; text-decoration: none; }
+  .top-strip a:hover { color: #fff; }
+  .top-strip__crumbs a { margin-right: 0.6rem; }
+  .top-strip__crumbs .sep { color: #8a6c1a; margin-right: 0.6rem; }
+
+  .shell { max-width: 1020px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+  .masthead { text-align: center; padding: 1.5rem 0 0.8rem; border-bottom: 1px solid var(--line); }
+  .masthead .eyebrow {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--gold-deep);
+  }
+  .masthead h1 {
+    font-family: 'Playfair Display', Georgia, serif; font-weight: 900;
+    font-size: clamp(2rem, 4.5vw, 3.2rem); margin: 0.2rem 0 0.2rem; letter-spacing: -0.01em;
+  }
+  .masthead .sub {
+    font-style: italic; color: var(--ink-soft); margin: 0; font-size: 1.1rem;
+    max-width: 760px; margin-left: auto; margin-right: auto;
+  }
+
+  .privacy-banner {
+    margin: 1.4rem 0 1.2rem;
+    padding: 0.9rem 1.2rem;
+    background: #f5d8d8; border-left: 4px solid var(--bad);
+    font-size: 0.95rem; color: var(--ink);
+  }
+  .privacy-banner strong { color: var(--bad); }
+
+  .card {
+    background: #fcf6e8; border: 1px solid var(--line);
+    padding: 1.4rem 1.4rem 1.6rem; box-shadow: 0 1px 0 rgba(0,0,0,0.03);
+    margin-bottom: 1.4rem;
+  }
+  .card h2 {
+    font-family: 'Playfair Display', Georgia, serif; font-weight: 700;
+    font-size: 1.4rem; margin: 0 0 0.3rem;
+  }
+  .card .card-sub {
+    font-style: italic; color: var(--ink-soft); font-size: 0.95rem;
+    margin: 0 0 1.2rem;
+  }
+
+  label.field {
+    display: block; margin-bottom: 1rem;
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--gold-deep);
+  }
+  label.field > .label-text { display: block; margin-bottom: 0.35rem; }
+  label.field > .label-note {
+    display: block; font-family: 'Cormorant Garamond', serif; text-transform: none;
+    letter-spacing: 0; color: var(--ink-soft); font-style: italic;
+    font-size: 0.9rem; margin-bottom: 0.35rem;
+  }
+  label.field input[type=text], label.field input[type=number], label.field select, label.field textarea {
+    width: 100%; padding: 0.55rem 0.7rem;
+    font-family: 'Cormorant Garamond', serif; font-size: 1rem;
+    background: #fffbef; border: 1px solid var(--line);
+    color: var(--ink); border-radius: 0;
+  }
+  label.field textarea { font-family: 'DM Mono', monospace; font-size: 0.84rem; line-height: 1.5; min-height: 280px; resize: vertical; }
+  label.field input:focus, label.field textarea:focus, label.field select:focus {
+    outline: 2px solid var(--gold); outline-offset: -1px;
+  }
+
+  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 600px) { .row-2 { grid-template-columns: 1fr; } }
+
+  .mechanism-note {
+    background: #ece1c8; border-left: 3px solid var(--gold);
+    padding: 0.6rem 0.9rem; margin: -0.5rem 0 1rem;
+    font-family: 'Cormorant Garamond', serif; font-size: 0.92rem;
+    font-style: italic; color: var(--ink-soft);
+    display: none;
+  }
+  .mechanism-note strong { color: var(--ink); font-style: normal; }
+
+  .sample-bar {
+    margin: 0 0 1.2rem; padding: 0.7rem 0.9rem;
+    background: #ece1c8; border: 1px dashed var(--gold);
+    display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap;
+  }
+  .sample-bar label {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--gold-deep);
+  }
+  .sample-bar select {
+    padding: 0.4rem 0.6rem; font-family: 'Cormorant Garamond', serif; font-size: 0.95rem;
+    background: #fffbef; border: 1px solid var(--line); flex: 1; min-width: 260px;
+  }
+  .sample-bar button.link {
+    background: transparent; border: 0; color: var(--gold-deep); cursor: pointer;
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em;
+    text-transform: uppercase; text-decoration: underline;
+  }
+
+  .actions { display: flex; gap: 0.7rem; flex-wrap: wrap; margin-top: 0.6rem; align-items: center; }
+  button.btn {
+    font-family: 'DM Mono', monospace; font-size: 0.75rem; letter-spacing: 0.18em;
+    text-transform: uppercase; cursor: pointer; padding: 0.8rem 1.4rem;
+    border: 1px solid var(--gold-deep); background: var(--gold); color: #fff;
+    transition: 0.15s;
+  }
+  button.btn:hover:not(:disabled) { background: var(--gold-deep); }
+  button.btn:disabled { opacity: 0.5; cursor: wait; }
+  button.btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+  button.btn.ghost:hover { background: var(--paper-deep); }
+
+  .status {
+    font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.12em;
+    text-transform: uppercase; padding: 0.5rem 0; min-height: 1.4em;
+    color: var(--ink-soft);
+  }
+  .status.busy { color: var(--gold-deep); }
+  .status.success { color: var(--good); }
+  .status.error { color: var(--bad); }
+
+  /* Results */
+  .result-block { margin-bottom: 1.8rem; }
+  .result-block h3 {
+    font-family: 'Playfair Display', Georgia, serif; font-weight: 700;
+    font-size: 1.2rem; margin: 0 0 0.5rem;
+    padding-bottom: 0.3rem; border-bottom: 1px solid var(--line);
+  }
+  .result-block h3 .count {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem;
+    letter-spacing: 0.16em; color: var(--ink-soft); font-weight: 400;
+    margin-left: 0.4rem;
+  }
+
+  /* Overall assessment card */
+  .assess-card {
+    padding: 1rem 1.2rem;
+    font-family: 'Cormorant Garamond', serif; font-size: 1.04rem;
+  }
+  .assess-card.yes  { background: #e3edd9; border-left: 4px solid var(--good); }
+  .assess-card.rework  { background: #f5ecc8; border-left: 4px solid var(--gold); }
+  .assess-card.new-sub { background: #f5d8d8; border-left: 4px solid var(--bad); }
+  .assess-card__verdict {
+    font-family: 'Playfair Display', serif; font-weight: 700;
+    font-size: 1.3rem; margin: 0 0 0.4rem;
+  }
+  .assess-card.yes .assess-card__verdict { color: var(--good); }
+  .assess-card.rework .assess-card__verdict { color: var(--gold-deep); }
+  .assess-card.new-sub .assess-card__verdict { color: var(--bad); }
+  .assess-card__risk {
+    font-style: italic; color: var(--ink-soft);
+    margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px dotted var(--line);
+  }
+  .assess-card__risk strong {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--bad);
+    font-style: normal;
+  }
+
+  /* Attempt strategy banner */
+  .strategy-banner {
+    background: #fffbef; border-left: 4px solid var(--gold-deep);
+    padding: 0.9rem 1.1rem;
+    font-family: 'Cormorant Garamond', serif; font-size: 1rem;
+    line-height: 1.55; margin-bottom: 1rem;
+  }
+  .strategy-banner strong {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-deep);
+    display: block; margin-bottom: 0.3rem;
+  }
+  .strategy-banner.final {
+    background: #f5d8d8; border-left-color: var(--bad);
+  }
+  .strategy-banner.final strong { color: var(--bad); }
+
+  /* Critique cards */
+  .critique-card {
+    background: #fffbef; border-left: 3px solid var(--gold);
+    padding: 0.9rem 1.1rem; margin-bottom: 0.8rem;
+  }
+  .critique-card.showstopper { border-left-color: var(--bad); background: #fdf3f3; }
+  .critique-card.major { border-left-color: var(--warn); }
+  .critique-card.minor { border-left-color: var(--ink-soft); opacity: 0.92; }
+  .critique-card__head {
+    display: flex; gap: 0.6rem; flex-wrap: wrap;
+    align-items: baseline; margin-bottom: 0.4rem;
+  }
+  .critique-card__reviewer, .critique-card__category, .critique-card__severity, .critique-card__action {
+    font-family: 'DM Mono', monospace; font-size: 0.62rem;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    padding: 0.2rem 0.5rem; border: 1px solid var(--line);
+  }
+  .critique-card__reviewer { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .critique-card__category { color: var(--ink); }
+  .critique-card__severity.showstopper { background: var(--bad); color: #fff; border-color: var(--bad); }
+  .critique-card__severity.major { background: var(--warn); color: #fff; border-color: var(--warn); }
+  .critique-card__severity.minor { color: var(--ink-soft); }
+  .critique-card__action { color: var(--gold-deep); border-color: var(--gold-deep); }
+  .critique-card__text {
+    font-family: 'Cormorant Garamond', serif; font-size: 1rem;
+    line-height: 1.55; margin: 0.4rem 0 0.6rem; font-weight: 600;
+  }
+  .critique-card__response-label {
+    font-family: 'DM Mono', monospace; font-size: 0.62rem;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--good);
+    font-weight: 700; margin-top: 0.3rem;
+  }
+  .critique-card__response {
+    background: #f0f5e8; border-left: 2px solid var(--good);
+    padding: 0.5rem 0.7rem; margin: 0.3rem 0;
+    font-family: 'Cormorant Garamond', serif; font-size: 0.98rem;
+    line-height: 1.55; color: var(--ink);
+  }
+  .critique-card__response[contenteditable="true"]:focus { outline: 2px solid var(--gold); outline-offset: -1px; }
+
+  /* Intro page */
+  .intro-block {
+    background: #fffbef; border: 1px solid var(--line);
+    padding: 1.2rem 1.4rem;
+  }
+  .intro-block__meta {
+    font-family: 'DM Mono', monospace; font-size: 0.68rem;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-deep);
+    margin-bottom: 0.6rem; padding-bottom: 0.4rem; border-bottom: 1px dotted var(--line);
+  }
+  .intro-block__draft {
+    font-family: 'Cormorant Garamond', serif; font-size: 1.02rem;
+    line-height: 1.7; white-space: pre-wrap; color: var(--ink);
+    margin: 0 0 0.8rem;
+  }
+  .intro-block__draft[contenteditable="true"]:focus { outline: 2px solid var(--gold); outline-offset: -1px; }
+
+  .copy-btn {
+    font-family: 'DM Mono', monospace; font-size: 0.66rem;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    padding: 0.4rem 0.8rem; background: transparent; border: 1px solid var(--line); color: var(--ink-soft);
+    cursor: pointer;
+  }
+  .copy-btn:hover { background: var(--paper-deep); color: var(--ink); }
+  .copy-btn.copied { color: var(--good); border-color: var(--good); }
+
+  /* Revision plan */
+  .plan-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem;
+  }
+  @media (max-width: 700px) { .plan-grid { grid-template-columns: 1fr; } }
+  .plan-cell {
+    background: #fffbef; border: 1px solid var(--line);
+    padding: 0.8rem 1rem;
+  }
+  .plan-cell__label {
+    font-family: 'DM Mono', monospace; font-size: 0.66rem;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-deep);
+    font-weight: 700; margin-bottom: 0.4rem;
+  }
+  .plan-cell ul { margin: 0; padding-left: 1.2rem; font-family: 'Cormorant Garamond', serif; font-size: 0.96rem; line-height: 1.5; }
+  .plan-cell li { margin-bottom: 0.2rem; }
+
+  footer {
+    margin-top: 4rem; padding-top: 1.4rem; border-top: 1px solid var(--line);
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--ink-soft); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+  }
+  footer a { color: var(--ink-soft); }
+</style>
+</head>
+<body>
+
+<div class="top-strip">
+  <span class="top-strip__crumbs">
+    <a href="/">ETL</a><span class="sep">/</span><a href="/office-hours">Office Hours</a><span class="sep">/</span>Resubmission Builder
+  </span>
+  <a href="/office-hours">&larr; Back to Office Hours</a>
+</div>
+
+<div class="shell">
+
+  <div class="masthead">
+    <div class="eyebrow">Office Hours &middot; Resubmission Builder</div>
+    <h1>Turn a Summary Statement into a resubmission.</h1>
+    <p class="sub">Paste the reviewer Summary Statement from your rejected federal grant. Get a critique-by-critique response plan in your mechanism's expected convention, a draft Introduction page, and a clear-eyed read on whether the resubmission is winnable. Supports VA, NIH, NSF, DoD CDMRP, AHRQ, HRSA, PCORI, and private foundations.</p>
+  </div>
+
+  <div class="privacy-banner">
+    <strong>Read this first:</strong> Summary Statements often contain identifiable subject data, pilot study details, or unpublished aims. Your paste is sent to Anthropic's Claude API for analysis. Anthropic does not train on or retain API content. We do not log, store, or retain anything on our servers. <strong>If your statement names patients, sites, or unpublished collaborators, redact those first.</strong>
+  </div>
+
+  <!-- ─── INTAKE CARD ─── -->
+  <div class="card">
+
+    <div class="sample-bar">
+      <label for="sample">Try a sample Summary Statement:</label>
+      <select id="sample">
+        <option value="">&mdash; pick a sample &mdash;</option>
+        <option value="va-merit">VA Merit Review &mdash; HSR&amp;D nurse staffing study</option>
+        <option value="nih-r01">NIH R01 &mdash; behavioral intervention trial</option>
+        <option value="cdmrp">DoD CDMRP &mdash; veteran TBI cohort study</option>
+      </select>
+      <button type="button" class="link" id="clear-btn">Clear form</button>
+    </div>
+
+    <div class="row-2">
+      <label class="field">
+        <span class="label-text">Funding mechanism</span>
+        <span class="label-note">Drives the response convention and the Introduction page format.</span>
+        <select id="mechanism"></select>
+      </label>
+      <label class="field">
+        <span class="label-text">Which attempt is this?</span>
+        <span class="label-note">1 = first resubmission. 3 = third try (VA only).</span>
+        <select id="attempt-number">
+          <option value="1">1 (first resubmission)</option>
+          <option value="2">2 (second resubmission)</option>
+          <option value="3">3 (third / final, VA only)</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="mechanism-note" id="mechanism-note"></div>
+
+    <label class="field">
+      <span class="label-text">Reviewer Summary Statement (paste in full)</span>
+      <span class="label-note">The agency's reviewer feedback document. R1, R2, R3 critiques, Significance/Approach/etc. scores, study section comments. Redact patient identifiers first.</span>
+      <textarea id="summary-statement" placeholder="Paste the full Summary Statement here. Includes Resume of Discussion, individual reviewer critiques, and any study section commentary."></textarea>
+    </label>
+
+    <label class="field">
+      <span class="label-text">Original application excerpt (optional)</span>
+      <span class="label-note">Specific Aims, Approach section, or other sections under critique. Helps the response stay grounded in what you actually proposed.</span>
+      <textarea id="application-excerpt" style="min-height:160px;" placeholder="Paste relevant sections of the original application here. Specific Aims is usually the most useful single section."></textarea>
+    </label>
+
+    <label class="field">
+      <span class="label-text">Your concerns / priorities (optional)</span>
+      <span class="label-note">What you suspect the real problem was. What you're not willing to give up. What new data you can produce before the resubmission deadline.</span>
+      <textarea id="pi-concerns" style="min-height:90px;" placeholder="e.g. I think the real problem was R2's confusion about my dependent variable. I have new pilot data from 40 additional subjects that addresses the Approach concern. I won't drop Aim 3 even if reviewers push back."></textarea>
+    </label>
+
+    <div class="actions">
+      <button type="button" class="btn" id="build-btn">Build resubmission package</button>
+      <span class="status" id="status"></span>
+    </div>
+  </div>
+
+  <!-- ─── RESULTS CARD ─── -->
+  <div class="card" id="results-card" style="display: none;">
+    <h2>Resubmission package</h2>
+    <p class="card-sub">Critique responses and the Introduction page are editable in place. Copy individual sections with the buttons.</p>
+    <div id="results"></div>
+  </div>
+
+</div>
+
+<footer>
+  <span>ETL &middot; Office Hours &middot; Resubmission Builder</span>
+  <span><a href="/office-hours">Back to Office Hours</a> &middot; <a href="/">ETL Home</a></span>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  // Sample data set (Summary Statements are FAKE / synthetic; do not name real reviewers, real PIs, or real protocols).
+  const SAMPLES = {
+    'va-merit': {
+      mechanism: 'va-merit',
+      attempt_number: '1',
+      summary_statement: `RESUME OF DISCUSSION
+The application proposes a multi-site retrospective cohort study examining the relationship between nurse staffing intensity and 30-day readmission in Veterans hospitalized for heart failure across 14 VA facilities. Significance was rated as Highly Likely, Investigators as Likely, Innovation as Possibly, Approach as Possibly, and Environment as Highly Likely. The overall priority score was 38. The application has merit but reviewers raised substantial concerns regarding the proposed exposure measurement, the case-mix adjustment strategy, and the interpretability of findings for VA policy.
+
+REVIEWER 1 (Methods Reviewer)
+Significance: Highly Likely. The investigator addresses a clear gap in VA care quality measurement.
+Approach: Possibly. The proposed exposure measure (payroll-based RN hours per patient-day at the hospital-month level) is too coarse to capture the actual staffing intensity at the time of the index admission. The relationship between hospital-month averages and patient-day exposure is not justified. Additionally, the case-mix adjustment relies on the Elixhauser comorbidity index without adjusting for VA-specific factors such as service-connected disability rating or post-deployment mental health diagnoses, which are known to predict readmission in this population. The proposed mixed-effects models do not adequately handle the nested structure when one hospital contributes 4 years of patient-months.
+Innovation: Possibly. Multi-hospital nurse staffing analyses exist; the VA framing is the contribution but the analytic approach does not advance the methodology.
+Investigators: Likely. The PI has relevant publications but limited prior work in VA data.
+
+REVIEWER 2 (Content Reviewer)
+Significance: Highly Likely. Nursing as a modifiable system factor is a high-priority area for VA leadership.
+Approach: Possibly. The proposed sample (8,712 admissions) is large but the lack of patient-reported outcomes is a limitation. The investigator does not engage with the VA Nursing Outcomes Database or the VA Office of Nursing Services strategic priorities. The translation pathway from findings to VA policy is unclear; will VISN leadership use these results?
+Environment: Highly Likely. Investigator's site has strong VA infrastructure.
+
+REVIEWER 3 (Statistical Reviewer)
+Approach: Possibly. The mixed-effects logistic regression specification is reasonable but the investigator does not adequately justify the choice of a random intercept vs. random slope model, given that staffing intensity may have differential effects across facilities. Sensitivity analyses for missing data are not described. The proposed minimum detectable effect size of OR 0.92 is plausible but the power calculation does not account for clustering.
+Innovation: Not addressed.
+
+STUDY SECTION DISCUSSION
+The Section discussed whether the exposure misclassification was addressable. Multiple reviewers felt the patient-day-level exposure could be approximated using shift-level staffing data if available, but the investigator did not propose this. The Section also raised concern about whether the analytic plan was adequately powered to detect facility-level moderation.`,
+      application_excerpt: `SPECIFIC AIMS
+Aim 1. Quantify the association between hospital-month RN-HPPD and 30-day all-cause readmission for Veterans hospitalized for heart failure.
+Aim 2. Examine whether the association varies by VA facility characteristics including teaching status, complexity level, and case-mix index.
+Aim 3. Estimate the policy-relevant counterfactual: what readmission rates would be expected if all VA facilities staffed at the 75th percentile of observed RN-HPPD.
+
+APPROACH (excerpt)
+We will use VA Corporate Data Warehouse (CDW) data from 2019-2023. Primary exposure is hospital-month RN-HPPD calculated from payroll-based productive nursing hours divided by hospital-month adult medical-surgical patient-days. Primary outcome is unplanned 30-day all-cause readmission to any VA facility. Mixed-effects logistic regression with hospital random intercept will adjust for age, sex, race, Elixhauser comorbidity index, prior 6-month admissions, primary insurance, and index LOS.`,
+      pi_concerns: `R1's exposure-measurement critique is the killer. I think we can address it with shift-level data from the VA Nursing Outcomes Database, which I have not yet pulled but can. R2's translation concern can be addressed with a letter from the VA Office of Nursing Services and an explicit policy-translation aim. I am not willing to drop Aim 3.`,
+    },
+    'nih-r01': {
+      mechanism: 'nih-r01',
+      attempt_number: '1',
+      summary_statement: `RESUME OF DISCUSSION
+This R01 application proposes a cluster-randomized trial of a structured phonics intervention (Reading Foundations Plus, RFP) versus business-as-usual in 18 Title I elementary schools. Overall Impact: 35. Significance was scored 2 (strong), Investigators 2, Innovation 4 (moderate), Approach 4 (moderate), Environment 2. Reviewers were enthusiastic about the topic and team but had substantive concerns about the analytic plan, the planned subgroup analyses, and the generalizability of the proposed two-district scope.
+
+REVIEWER 1
+Significance (2): The application addresses a high-priority area in early literacy. Federal investment in the science of reading makes this timely.
+Innovation (4): The proposed intervention is well-established. The novel contribution is the focus on Title I context and English learner subgroup, but the EL subgroup analysis is not pre-registered as a primary aim.
+Approach (4): The multilevel modeling approach is appropriate but the investigator does not adequately handle attrition. Twelve percent attrition over 2 years, non-random across districts, is not addressed in the analytic plan. The proposed sensitivity analyses are insufficient.
+
+REVIEWER 2
+Approach (4): The EL subgroup analysis is statistically problematic. The investigator proposes to test for moderation but the sample is not powered for the interaction test. Reviewer would prefer this be framed explicitly as exploratory. The investigator also does not justify the choice of DIBELS Composite over individual subtest analyses.
+Significance (2): Strong.
+Environment (2): Excellent. PI has long-standing relationships with both districts.
+
+REVIEWER 3
+Innovation (4): The intervention itself is not novel; the contribution is the implementation context.
+Approach (4): The implementation fidelity measurement is underspecified. How will the investigator distinguish high-fidelity from low-fidelity sites? What is the planned use of fidelity data in the primary analysis (intent-to-treat only)?
+Investigators (2): Strong team.
+
+STUDY SECTION
+The Section discussed whether the EL subgroup result would be the headline finding regardless of the primary outcome and whether this represented an analytical contortion. Section also questioned whether 18 schools across 2 districts could support claims about generalizability.`,
+      application_excerpt: `SPECIFIC AIMS
+Aim 1. Test the effect of RFP versus business-as-usual on end-of-grade-2 DIBELS Composite Score (primary outcome) in 18 Title I elementary schools.
+Aim 2. Examine differential effects of RFP for English learners and students entering K below benchmark.
+Aim 3. Identify school-level implementation conditions associated with larger treatment effects.`,
+      pi_concerns: `The attrition concern is fair and I can address it with multiple imputation and selection models. The EL subgroup issue is harder. I do not want to drop it but I will reframe as exploratory and add a power statement that names the limitation. The generalizability concern is fundamental and I am not sure how to address it without expanding scope.`,
+    },
+    'cdmrp': {
+      mechanism: 'dod-cdmrp',
+      attempt_number: '1',
+      summary_statement: `OVERALL RECOMMENDATION
+This application to the CDMRP Traumatic Brain Injury Research Program is recommended for further consideration with substantial revisions. Scientific Merit was rated as Good. Military Relevance and Impact was rated as Good. Consumer Reviewer comments raised significant concerns about the accessibility of the proposed protocol for Veterans with moderate TBI.
+
+PEER REVIEWER 1
+Scientific Merit: Good. The proposed prospective cohort design is appropriate for the research question (long-term cognitive trajectory in Veterans with blast-related mTBI). The 5-year follow-up is ambitious but feasible given the team's prior work.
+Methodology: Concerns. The proposed neuropsychological battery is comprehensive but the in-person assessment burden (4-hour session, in-person, every 6 months) will limit retention. Reviewer suggests considering hybrid in-person / telehealth assessment. The recruitment plan relies heavily on a single VA polytrauma center; multi-site recruitment would strengthen generalizability.
+Military Relevance: Excellent. The veteran population focus is clear.
+
+PEER REVIEWER 2
+Scientific Merit: Good. The conceptual framework is sound.
+Methodology: Concerns. The proposed sample size of 250 Veterans is justified for the primary aim but is underpowered for the planned analyses of military-occupation-specific exposure patterns. The blast exposure characterization protocol does not distinguish between primary blast injury and secondary mechanisms; this matters for the cognitive trajectory hypothesis.
+Statistical Approach: Reasonable but reviewer would like to see a planned approach to handling participant attrition and missing assessments.
+
+CONSUMER REVIEWER (Veteran with TBI, family member of Veteran with TBI)
+Scientific Merit: Cannot evaluate at this level.
+Patient Burden: The 4-hour in-person assessment every 6 months for 5 years is too much. Many Veterans with moderate TBI will not be able to sustain that. The application does not describe what supports are available to participants (transportation, fatigue accommodations, family support).
+Translation to Veterans: The Public Abstract is too technical. As a Veteran I could not tell what the actual benefit to the Veteran community would be. The Statement of Work also reads like it is written for scientists, not for the Veterans participating.
+
+PROGRAMMATIC REVIEW
+The application is responsive to the program announcement. Consumer reviewer concerns are substantive and must be addressed in any resubmission.`,
+      application_excerpt: `Aim 1. Characterize the trajectory of cognitive change over 5 years in Veterans with blast-related mild and moderate TBI compared with matched non-TBI Veterans.
+Aim 2. Identify pre-injury and peri-injury factors that predict cognitive trajectory.
+Aim 3. Examine the relationship between cognitive trajectory and functional outcomes (employment, relationship, community integration).`,
+      pi_concerns: `The consumer reviewer feedback is the make-or-break here. I genuinely did not realize the Public Abstract and SOW read as technical; I will rewrite both with patient partner input. The 4-hour assessment burden is harder; I could split into two 2-hour sessions and offer telehealth for some components but that changes the analytic comparability. I cannot expand to multi-site within the timeline.`,
+    },
+  };
+
+  const els = {
+    sample: document.getElementById('sample'),
+    mechanism: document.getElementById('mechanism'),
+    mechanismNote: document.getElementById('mechanism-note'),
+    attemptNumber: document.getElementById('attempt-number'),
+    summaryStatement: document.getElementById('summary-statement'),
+    applicationExcerpt: document.getElementById('application-excerpt'),
+    piConcerns: document.getElementById('pi-concerns'),
+    buildBtn: document.getElementById('build-btn'),
+    clearBtn: document.getElementById('clear-btn'),
+    status: document.getElementById('status'),
+    resultsCard: document.getElementById('results-card'),
+    results: document.getElementById('results'),
+  };
+
+  let mechanismMap = {};
+
+  function setStatus(msg, cls) {
+    els.status.textContent = msg || '';
+    els.status.className = 'status' + (cls ? ' ' + cls : '');
+  }
+  function escHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  // Load mechanism list from the function via GET, build the dropdown.
+  async function loadMechanisms() {
+    try {
+      const resp = await fetch('/.netlify/functions/office-hours-resubmission-builder', { method: 'GET' });
+      if (!resp.ok) throw new Error('mechanism load failed');
+      const data = await resp.json();
+      const list = Array.isArray(data.mechanisms) ? data.mechanisms : [];
+      els.mechanism.innerHTML = '';
+      list.forEach(function (m) {
+        mechanismMap[m.key] = m;
+        const opt = document.createElement('option');
+        opt.value = m.key;
+        opt.textContent = m.label;
+        els.mechanism.appendChild(opt);
+      });
+      els.mechanism.value = 'va-merit';
+      renderMechanismNote();
+      renderAttemptOptions();
+    } catch (err) {
+      // Fall back to a minimal hardcoded list if the function isn't reachable yet
+      const fallback = [
+        { key: 'va-merit', label: 'VA Merit Review', max_attempts: 3 },
+        { key: 'va-cda', label: 'VA CDA', max_attempts: 2 },
+        { key: 'nih-r01', label: 'NIH R01', max_attempts: 2 },
+        { key: 'nih-r21', label: 'NIH R21', max_attempts: 2 },
+        { key: 'nih-k', label: 'NIH K award', max_attempts: 2 },
+        { key: 'nih-f', label: 'NIH F award', max_attempts: 2 },
+        { key: 'nih-sbir-sttr', label: 'NIH SBIR / STTR', max_attempts: 2 },
+        { key: 'nsf-standard', label: 'NSF (standard)', max_attempts: 99 },
+        { key: 'dod-cdmrp', label: 'DoD CDMRP', max_attempts: 2 },
+        { key: 'ahrq-r01', label: 'AHRQ R01 / R18', max_attempts: 2 },
+        { key: 'hrsa', label: 'HRSA program', max_attempts: 99 },
+        { key: 'pcori', label: 'PCORI', max_attempts: 2 },
+        { key: 'foundation', label: 'Private foundation', max_attempts: 99 },
+        { key: 'other-federal', label: 'Other federal', max_attempts: 2 },
+      ];
+      fallback.forEach(function (m) {
+        mechanismMap[m.key] = m;
+        const opt = document.createElement('option');
+        opt.value = m.key; opt.textContent = m.label;
+        els.mechanism.appendChild(opt);
+      });
+      els.mechanism.value = 'va-merit';
+      renderMechanismNote();
+      renderAttemptOptions();
+    }
+  }
+
+  function renderAttemptOptions() {
+    const mech = mechanismMap[els.mechanism.value];
+    if (!mech) return;
+    const max = mech.max_attempts;
+    const opts = [];
+    if (max >= 99) {
+      opts.push({ v: '1', t: '1 (first resubmission)' });
+      opts.push({ v: '2', t: '2 (second resubmission)' });
+      opts.push({ v: '3', t: '3 (third resubmission)' });
+    } else {
+      for (let i = 1; i <= max - 1; i++) {
+        const label = i + ' (resubmission ' + i + ' of ' + (max - 1) + ')';
+        opts.push({ v: String(i), t: label });
+      }
+    }
+    const prev = els.attemptNumber.value;
+    els.attemptNumber.innerHTML = '';
+    opts.forEach(function (o) {
+      const opt = document.createElement('option');
+      opt.value = o.v; opt.textContent = o.t;
+      els.attemptNumber.appendChild(opt);
+    });
+    if (opts.find(function (o) { return o.v === prev; })) els.attemptNumber.value = prev;
+  }
+
+  function renderMechanismNote() {
+    const mech = mechanismMap[els.mechanism.value];
+    if (!mech) { els.mechanismNote.style.display = 'none'; return; }
+    const max = mech.max_attempts;
+    let note;
+    if (max >= 99) {
+      note = '<strong>' + escHtml(mech.label) + '</strong> has no formal cap on resubmissions, but program-officer signaling matters. Always call your PO before resubmitting.';
+    } else {
+      note = '<strong>' + escHtml(mech.label) + '</strong> allows <strong>' + max + ' total submissions</strong> (initial + ' + (max - 1) + ' resubmission' + (max - 1 === 1 ? '' : 's') + ').';
+    }
+    els.mechanismNote.innerHTML = note;
+    els.mechanismNote.style.display = 'block';
+  }
+
+  els.mechanism.addEventListener('change', function () {
+    renderMechanismNote();
+    renderAttemptOptions();
+  });
+
+  els.sample.addEventListener('change', function () {
+    const k = els.sample.value; if (!k) return;
+    const s = SAMPLES[k]; if (!s) return;
+    els.mechanism.value = s.mechanism;
+    renderMechanismNote();
+    renderAttemptOptions();
+    els.attemptNumber.value = s.attempt_number;
+    els.summaryStatement.value = s.summary_statement;
+    els.applicationExcerpt.value = s.application_excerpt || '';
+    els.piConcerns.value = s.pi_concerns || '';
+    setStatus('Sample loaded.', 'success');
+  });
+
+  els.clearBtn.addEventListener('click', function () {
+    els.summaryStatement.value = '';
+    els.applicationExcerpt.value = '';
+    els.piConcerns.value = '';
+    els.sample.value = '';
+    els.mechanism.value = 'va-merit';
+    renderMechanismNote();
+    renderAttemptOptions();
+    setStatus('');
+    els.resultsCard.style.display = 'none';
+    els.results.innerHTML = '';
+  });
+
+  els.buildBtn.addEventListener('click', async function () {
+    const summary = els.summaryStatement.value.trim();
+    if (!summary || summary.length < 100) {
+      setStatus('Paste the Summary Statement first (the full reviewer document).', 'error');
+      els.summaryStatement.focus();
+      return;
+    }
+    els.buildBtn.disabled = true;
+    setStatus('Building the resubmission package. Usually 60 to 120 seconds.', 'busy');
+    els.resultsCard.style.display = 'none';
+    els.results.innerHTML = '';
+
+    const payload = {
+      summary_statement: summary,
+      application_excerpt: els.applicationExcerpt.value.trim(),
+      mechanism: els.mechanism.value,
+      attempt_number: parseInt(els.attemptNumber.value, 10),
+      pi_concerns: els.piConcerns.value.trim(),
+    };
+
+    try {
+      const resp = await fetch('/.netlify/functions/office-hours-resubmission-builder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!resp.ok) {
+        const text = await resp.text();
+        let detail = '';
+        try { const j = JSON.parse(text); detail = j.detail || j.error || ''; } catch { detail = text.slice(0, 200); }
+        if (resp.status === 504 || resp.status === 408 || resp.status === 502) {
+          setStatus('Connection timed out. Try again, or switch to a phone hotspot.', 'error');
+        } else {
+          setStatus('Something went wrong: ' + (detail || resp.status), 'error');
+        }
+        return;
+      }
+      const data = await resp.json();
+      renderResult(data.result || {});
+      setStatus('Done. Resubmission package ready.', 'success');
+    } catch (err) {
+      if (err instanceof TypeError) {
+        setStatus('Network hiccup. Try again, or switch to a phone hotspot.', 'error');
+      } else {
+        setStatus('Error: ' + (err && err.message), 'error');
+      }
+    } finally {
+      els.buildBtn.disabled = false;
+    }
+  });
+
+  function rescuableClass(r) {
+    if (r === 'yes') return 'yes';
+    if (r === 'consider-new-submission') return 'new-sub';
+    return 'rework';
+  }
+  function rescuableVerdict(r) {
+    if (r === 'yes') return 'Rescuable';
+    if (r === 'consider-new-submission') return 'Consider new submission instead';
+    return 'Rescuable with major rework';
+  }
+
+  function renderResult(r) {
+    const parts = [];
+
+    // Overall assessment
+    if (r.overall_assessment) {
+      const oa = r.overall_assessment;
+      const cls = rescuableClass(oa.rescuable);
+      parts.push('<div class="result-block">');
+      parts.push('<h3>Overall assessment</h3>');
+      parts.push('<div class="assess-card ' + cls + '">');
+      parts.push('<div class="assess-card__verdict">' + escHtml(rescuableVerdict(oa.rescuable)) + '</div>');
+      parts.push('<div>' + escHtml(oa.headline) + '</div>');
+      if (oa.biggest_risk) {
+        parts.push('<div class="assess-card__risk"><strong>Biggest risk</strong><br>' + escHtml(oa.biggest_risk) + '</div>');
+      }
+      parts.push('</div></div>');
+    }
+
+    // Attempt strategy banner
+    if (r.attempt_strategy) {
+      const isFinal = (r.attempts_remaining === 0);
+      parts.push('<div class="strategy-banner ' + (isFinal ? 'final' : '') + '">');
+      parts.push('<strong>Attempt ' + r.attempt_number + (r.attempts_remaining === null ? '' : ' of ' + (r.attempt_number + r.attempts_remaining)) + ' &middot; strategy</strong>');
+      parts.push(escHtml(r.attempt_strategy));
+      parts.push('</div>');
+    }
+
+    // Critiques
+    const critiques = Array.isArray(r.critiques) ? r.critiques : [];
+    if (critiques.length) {
+      parts.push('<div class="result-block">');
+      parts.push('<h3>Critiques and response drafts <span class="count">' + critiques.length + '</span></h3>');
+      // Sort by severity: showstopper first, then major, then minor
+      const sev = { showstopper: 0, major: 1, minor: 2 };
+      const sorted = critiques.slice().sort(function (a, b) { return (sev[a.severity] || 1) - (sev[b.severity] || 1); });
+      sorted.forEach(function (c, i) {
+        parts.push('<div class="critique-card ' + c.severity + '">');
+        parts.push('<div class="critique-card__head">');
+        parts.push('<span class="critique-card__reviewer">' + escHtml(c.reviewer) + '</span>');
+        parts.push('<span class="critique-card__category">' + escHtml(c.category) + '</span>');
+        parts.push('<span class="critique-card__severity ' + c.severity + '">' + escHtml(c.severity) + '</span>');
+        if (c.action_required) parts.push('<span class="critique-card__action">' + escHtml(c.action_required) + '</span>');
+        parts.push('</div>');
+        parts.push('<p class="critique-card__text">' + escHtml(c.critique) + '</p>');
+        if (c.response_draft) {
+          parts.push('<div class="critique-card__response-label">Response draft</div>');
+          parts.push('<div class="critique-card__response" contenteditable="true" id="resp-' + i + '">' + escHtml(c.response_draft) + '</div>');
+        }
+        parts.push('</div>');
+      });
+      parts.push('</div>');
+    }
+
+    // Intro page
+    if (r.intro_page && r.intro_page.draft) {
+      parts.push('<div class="result-block">');
+      parts.push('<h3>' + escHtml(r.intro_page.label || 'Introduction to Resubmission') + '</h3>');
+      parts.push('<div class="intro-block">');
+      parts.push('<div class="intro-block__meta">Target length: ' + escHtml(r.intro_page.target_length || '1 page') + '</div>');
+      parts.push('<div class="intro-block__draft" contenteditable="true" id="intro-draft">' + escHtml(r.intro_page.draft) + '</div>');
+      parts.push('<button type="button" class="copy-btn" id="intro-copy">Copy Introduction page</button>');
+      parts.push('</div></div>');
+    }
+
+    // Revision plan
+    if (r.revision_plan) {
+      const rp = r.revision_plan;
+      const any = (rp.new_data_needed && rp.new_data_needed.length) || (rp.reframe && rp.reframe.length) ||
+                  (rp.deemphasize_or_concede && rp.deemphasize_or_concede.length) || (rp.letters_of_support_needed && rp.letters_of_support_needed.length);
+      if (any) {
+        parts.push('<div class="result-block"><h3>Revision plan</h3>');
+        parts.push('<div class="plan-grid">');
+        function cell(label, arr) {
+          if (!arr || !arr.length) return '';
+          return '<div class="plan-cell"><div class="plan-cell__label">' + escHtml(label) + '</div><ul>' +
+            arr.map(function (s) { return '<li>' + escHtml(s) + '</li>'; }).join('') + '</ul></div>';
+        }
+        parts.push(cell('New data needed', rp.new_data_needed));
+        parts.push(cell('Reframe these sections', rp.reframe));
+        parts.push(cell('Deemphasize or concede', rp.deemphasize_or_concede));
+        parts.push(cell('Letters of support to add', rp.letters_of_support_needed));
+        parts.push('</div></div>');
+      }
+    }
+
+    els.results.innerHTML = parts.join('');
+    els.resultsCard.style.display = 'block';
+
+    const introBtn = document.getElementById('intro-copy');
+    const introEl = document.getElementById('intro-draft');
+    if (introBtn && introEl) {
+      introBtn.addEventListener('click', function () {
+        const t = introEl.innerText || introEl.textContent || '';
+        navigator.clipboard.writeText(t).then(function () {
+          introBtn.classList.add('copied');
+          introBtn.textContent = 'Copied';
+          setTimeout(function () { introBtn.classList.remove('copied'); introBtn.textContent = 'Copy Introduction page'; }, 1800);
+        });
+      });
+    }
+
+    els.resultsCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  loadMechanisms();
+})();
+</script>
+</body>
+</html>
