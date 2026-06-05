@@ -36,7 +36,7 @@
     <div class="embed-sub" id="embed-sub">Loading the briefing...</div>
   </div>
   <div class="embed-audio">
-    <audio id="embed-audio" controls preload="none"></audio>
+    <audio id="embed-audio" controls preload="metadata"></audio>
     <span class="embed-length" id="embed-length" hidden></span>
   </div>
 </section>
@@ -54,6 +54,7 @@
         return;
       }
       audio.src = 'https://emerging-tech-lab.com' + meta.audio_url;
+      try { audio.load(); } catch (_) {}
       if (meta.generated_at) {
         try {
           var dt = new Date(meta.generated_at);

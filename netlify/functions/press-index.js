@@ -412,7 +412,7 @@ function renderNewsroom(pieces, activeDesk) {
     </div>
     <div class="briefing-band-audio">
       <div class="briefing-audio-row">
-        <audio id="briefing-audio" controls preload="none"></audio>
+        <audio id="briefing-audio" controls preload="metadata"></audio>
         <span class="briefing-length" id="briefing-length" hidden></span>
       </div>
       <div class="briefing-share" id="briefing-share">
@@ -458,6 +458,11 @@ function renderNewsroom(pieces, activeDesk) {
       var sub = document.getElementById('briefing-sub');
       if (!card || !audio) return;
       audio.src = meta.audio_url;
+      // Without an explicit .load(), the audio element does not pull metadata
+      // after a JS-assigned src change. Result: 0:00 / 0:00 and a play button
+      // that does nothing until the visitor refreshes the page. .load() forces
+      // the browser to fetch metadata immediately, so play works on first click.
+      try { audio.load(); } catch (_) {}
       if (sub && meta.generated_at) {
         var dt = new Date(meta.generated_at);
         sub.textContent = isNaN(+dt) ? '' : 'Recorded ' + dt.toLocaleDateString('en-US',{weekday:'long', month:'long', day:'numeric'}) + ' at ' + dt.toLocaleTimeString('en-US',{hour:'numeric', minute:'2-digit'});
