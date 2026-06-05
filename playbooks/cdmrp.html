@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CDMRP Application Playbook &mdash; Emerging Technologies Laboratory</title>
+<meta name="description" content="How to use the ETL platform stack to draft, polish, submit, and resubmit a DoD CDMRP application. Currently featuring FY26 TERP Translational Research Award. Cross-platform playbook spanning The Gauntlet, SLR Studio, Office Hours.">
+<link rel="canonical" href="https://emerging-tech-lab.com/playbooks/cdmrp">
+<link rel="icon" type="image/png" href="/favicon.png">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="CDMRP Application Playbook &mdash; ETL">
+<meta property="og:description" content="A faculty playbook for winning DoD CDMRP awards using the ETL stack.">
+<meta property="og:url" content="https://emerging-tech-lab.com/playbooks/cdmrp">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --paper: #f3ecdc;
+    --paper-deep: #e8dec8;
+    --ink: #161310;
+    --ink-soft: #4a443a;
+    --gold: #b8922a;
+    --gold-deep: #8a6c1a;
+    --line: #c8bba0;
+    --good: #3a6a2a;
+    --bad: #8a2a2a;
+    --military: #3a4a2a;
+    --military-wash: #ecf0e3;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--paper); color: var(--ink);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 18px; line-height: 1.6;
+  }
+  a { color: var(--gold-deep); text-decoration: underline; text-underline-offset: 3px; }
+  a:hover { color: var(--ink); }
+
+  .top-strip {
+    background: #161310; color: #d4aa4a;
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 0.6rem 1.5rem; display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 0.5rem;
+  }
+  .top-strip a { color: #d4aa4a; text-decoration: none; }
+  .top-strip a:hover { color: #fff; }
+  .top-strip__crumbs a { margin-right: 0.6rem; }
+  .top-strip__crumbs .sep { color: #8a6c1a; margin-right: 0.6rem; }
+
+  .shell { max-width: 1080px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+  .masthead { text-align: center; padding: 1.5rem 0 0.8rem; border-bottom: 1px solid var(--line); margin-bottom: 1.4rem; }
+  .masthead .eyebrow {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--gold-deep);
+  }
+  .masthead h1 {
+    font-family: 'Playfair Display', Georgia, serif; font-weight: 900;
+    font-size: clamp(2.2rem, 5vw, 3.4rem); margin: 0.3rem 0 0.3rem; letter-spacing: -0.01em;
+  }
+  .masthead .sub {
+    font-style: italic; color: var(--ink-soft); margin: 0; font-size: 1.1rem;
+    max-width: 760px; margin-left: auto; margin-right: auto;
+  }
+  .masthead .meta {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.14em;
+    color: var(--gold-deep); margin-top: 0.6rem; text-transform: uppercase;
+  }
+
+  .featured {
+    background: var(--military-wash); border: 1px solid var(--military);
+    border-left: 6px solid var(--military);
+    padding: 1.4rem 1.6rem;
+    margin-bottom: 1.6rem;
+  }
+  .featured__label {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--military); font-weight: 700;
+  }
+  .featured__title {
+    font-family: 'Playfair Display', serif; font-weight: 700;
+    font-size: 1.5rem; margin: 0.3rem 0 0.5rem; color: var(--ink);
+  }
+  .featured__body {
+    font-family: 'Cormorant Garamond', serif; font-size: 1.05rem;
+    line-height: 1.55; margin: 0;
+  }
+  .featured__meta {
+    margin-top: 0.8rem; padding-top: 0.8rem; border-top: 1px dotted var(--military);
+    font-family: 'DM Mono', monospace; font-size: 0.78rem; color: var(--ink);
+    display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem;
+  }
+  .featured__meta strong { color: var(--military); font-weight: 700; }
+
+  section.block {
+    margin-bottom: 2rem;
+  }
+  section.block h2 {
+    font-family: 'Playfair Display', serif; font-weight: 700;
+    font-size: 1.6rem; margin: 0 0 0.7rem; letter-spacing: -0.01em;
+    border-bottom: 2px solid var(--gold); padding-bottom: 0.3rem;
+  }
+  section.block h3 {
+    font-family: 'Playfair Display', serif; font-weight: 700;
+    font-size: 1.2rem; margin: 1.2rem 0 0.4rem;
+  }
+  section.block p {
+    margin: 0 0 0.9rem; font-size: 1.04rem;
+  }
+
+  /* Pipeline visual */
+  .pipeline {
+    background: #fffbef; border: 1px solid var(--line);
+    padding: 1.2rem 1.4rem;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.4rem;
+    margin: 1rem 0 1.4rem;
+  }
+  @media (max-width: 900px) { .pipeline { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 540px) { .pipeline { grid-template-columns: repeat(2, 1fr); } }
+  .pipeline__step {
+    background: var(--paper-deep);
+    border-left: 3px solid var(--gold);
+    padding: 0.6rem 0.7rem;
+    font-family: 'DM Mono', monospace; font-size: 0.66rem;
+    letter-spacing: 0.08em; color: var(--ink);
+    display: flex; flex-direction: column; justify-content: space-between;
+    min-height: 90px;
+  }
+  .pipeline__step__num {
+    font-size: 0.62rem; color: var(--gold-deep); letter-spacing: 0.16em;
+    text-transform: uppercase; font-weight: 700;
+  }
+  .pipeline__step__name {
+    font-family: 'Playfair Display', serif; font-weight: 700;
+    font-size: 0.95rem; letter-spacing: 0;
+    margin-top: 0.3rem; color: var(--ink);
+  }
+  .pipeline__step__tool {
+    font-family: 'Cormorant Garamond', serif; font-size: 0.85rem;
+    font-style: italic; color: var(--ink-soft); margin-top: 0.4rem;
+    text-transform: none; letter-spacing: 0;
+  }
+
+  /* Stage table */
+  .stage-table {
+    width: 100%; border-collapse: collapse; margin: 1rem 0;
+    background: #fffbef; border: 1px solid var(--line);
+  }
+  .stage-table th, .stage-table td {
+    padding: 0.7rem 0.9rem; text-align: left;
+    border-bottom: 1px solid var(--line);
+    font-family: 'Cormorant Garamond', serif; font-size: 0.98rem; line-height: 1.5;
+    vertical-align: top;
+  }
+  .stage-table th {
+    background: var(--ink); color: #fff;
+    font-family: 'DM Mono', monospace; font-size: 0.7rem;
+    letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700;
+  }
+  .stage-table td:first-child {
+    font-family: 'Playfair Display', serif; font-weight: 700;
+    color: var(--ink); width: 28%;
+  }
+  .stage-table td:nth-child(2) { width: 22%; }
+  .stage-table tr:last-child td { border-bottom: 0; }
+  .stage-table a {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--gold-deep); font-weight: 600;
+  }
+
+  /* Diff box: CDMRP vs NIH */
+  .diff-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin: 1rem 0;
+  }
+  @media (max-width: 700px) { .diff-grid { grid-template-columns: 1fr; } }
+  .diff-cell {
+    background: #fffbef; border: 1px solid var(--line);
+    border-left: 4px solid var(--gold-deep);
+    padding: 0.9rem 1.1rem;
+  }
+  .diff-cell.cdmrp { border-left-color: var(--military); }
+  .diff-cell__label {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--ink-soft); font-weight: 700; margin-bottom: 0.4rem;
+  }
+  .diff-cell.cdmrp .diff-cell__label { color: var(--military); }
+  .diff-cell ul { margin: 0.3rem 0; padding-left: 1.1rem; font-size: 0.96rem; line-height: 1.55; }
+  .diff-cell li { margin-bottom: 0.3rem; }
+
+  /* Timeline */
+  .timeline {
+    display: grid; grid-template-columns: 200px 1fr; gap: 0.4rem 1rem;
+    margin: 0.8rem 0;
+  }
+  @media (max-width: 600px) { .timeline { grid-template-columns: 1fr; } }
+  .timeline__label {
+    font-family: 'DM Mono', monospace; font-size: 0.72rem;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--gold-deep); font-weight: 700;
+    padding: 0.4rem 0.6rem; background: var(--paper-deep); align-self: flex-start;
+  }
+  .timeline__body {
+    font-family: 'Cormorant Garamond', serif; font-size: 1rem; line-height: 1.55;
+    padding: 0.4rem 0;
+  }
+
+  /* Goals list (TERP-specific) */
+  .goals-row {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.8rem; margin: 1rem 0;
+  }
+  @media (max-width: 800px) { .goals-row { grid-template-columns: 1fr; } }
+  .goal-card {
+    background: #fffbef; border-top: 4px solid var(--military);
+    border: 1px solid var(--line); padding: 0.9rem 1.1rem;
+  }
+  .goal-card__name {
+    font-family: 'Playfair Display', serif; font-weight: 700;
+    font-size: 1.15rem; color: var(--military); margin-bottom: 0.4rem;
+  }
+  .goal-card__desc {
+    font-family: 'Cormorant Garamond', serif; font-size: 0.95rem; line-height: 1.5;
+  }
+
+  /* CTA */
+  .cta {
+    background: var(--ink); color: #f3ecdc;
+    padding: 1.4rem 1.6rem; margin-top: 2rem;
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 1rem;
+  }
+  .cta__text {
+    font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-style: italic;
+  }
+  .cta__btn {
+    font-family: 'DM Mono', monospace; font-size: 0.78rem;
+    letter-spacing: 0.18em; text-transform: uppercase; font-weight: 700;
+    padding: 0.85rem 1.5rem; background: var(--gold); color: #fff;
+    text-decoration: none; border: 1px solid var(--gold-deep);
+    white-space: nowrap;
+  }
+  .cta__btn:hover { background: var(--gold-deep); color: #fff; }
+
+  footer {
+    margin-top: 3rem; padding-top: 1.4rem; border-top: 1px solid var(--line);
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--ink-soft); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+  }
+  footer a { color: var(--ink-soft); }
+</style>
+</head>
+<body>
+
+<div class="top-strip">
+  <span class="top-strip__crumbs">
+    <a href="/">ETL</a><span class="sep">/</span><a href="/playbooks/">Playbooks</a><span class="sep">/</span>CDMRP
+  </span>
+  <a href="/">&larr; ETL Home</a>
+</div>
+
+<div class="shell">
+
+  <div class="masthead">
+    <div class="eyebrow">ETL Playbook &middot; 01</div>
+    <h1>CDMRP Application Playbook</h1>
+    <p class="sub">How to use the ETL platform stack to draft, polish, submit, and resubmit a DoD Congressionally Directed Medical Research Program application. The pipeline compresses a 3 to 4 month writing cycle to 6 to 8 weeks of focused work.</p>
+    <div class="meta">Cross-platform &middot; uses Gauntlet, SLR Studio, Office Hours</div>
+  </div>
+
+  <!-- ─── FEATURED OPPORTUNITY ─── -->
+  <div class="featured">
+    <div class="featured__label">Current opportunity</div>
+    <div class="featured__title">FY26 TERP Translational Research Award</div>
+    <p class="featured__body">The FY26 Toxic Exposures Research Program (TERP) is open. The Translational Research Award supports work that bridges basic science to clinical application for military-related toxic exposures. Goals span Predict and Prevent, Diagnose, and Treat. Preliminary data required. Partnering PI option (clinician + research scientist) is the structural feature that fits Wright State well.</p>
+    <div class="featured__meta">
+      <span><strong>Mechanism:</strong> Translational Research Award (TRA)</span>
+      <span><strong>Resubmissions allowed:</strong> 1 (2 total submissions)</span>
+      <span><strong>Forwarded by:</strong> Saber Hussain, 711 HPW/RH, AFRL (saber.hussain@us.af.mil)</span>
+    </div>
+
+    <div class="goals-row">
+      <div class="goal-card">
+        <div class="goal-card__name">Predict &amp; Prevent</div>
+        <div class="goal-card__desc">Strategies to anticipate, identify, monitor, and prevent adverse effects of toxic exposure. Includes multigenerational effects, reproductive health impacts, biomarker monitoring, personal devices.</div>
+      </div>
+      <div class="goal-card">
+        <div class="goal-card__name">Diagnose</div>
+        <div class="goal-card__desc">Clinical signs, symptoms, and outcomes of exposure. Multi-exposure combinations with physiological stressors. Behavioral and comorbidity factors. Diagnostic screens, assays, devices.</div>
+      </div>
+      <div class="goal-card">
+        <div class="goal-card__name">Treat</div>
+        <div class="goal-card__desc">Therapeutic development and advancement. Preclinical models that capture the adverse outcomes of human toxic exposure.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── PIPELINE ─── -->
+  <section class="block">
+    <h2>The pipeline</h2>
+    <p>The same seven stages serve every CDMRP application, whether TERP, BCRP (Breast Cancer), PRCRP (Peer Reviewed Cancer), or the other thirty-plus programs under the CDMRP umbrella. The pipeline is mechanism-general; the program-specific framing changes the prompts you pass to each tool.</p>
+
+    <div class="pipeline">
+      <div class="pipeline__step">
+        <span class="pipeline__step__num">01</span>
+        <span class="pipeline__step__name">Test the idea</span>
+        <span class="pipeline__step__tool">The Gauntlet</span>
+      </div>
+      <div class="pipeline__step">
+        <span class="pipeline__step__num">02</span>
+        <span class="pipeline__step__name">Build the literature</span>
+        <span class="pipeline__step__tool">SLR Studio</span>
+      </div>
+      <div class="pipeline__step">
+        <span class="pipeline__step__num">03</span>
+        <span class="pipeline__step__name">Refine the design</span>
+        <span class="pipeline__step__tool">Methods Coach</span>
+      </div>
+      <div class="pipeline__step">
+        <span class="pipeline__step__num">04</span>
+        <span class="pipeline__step__name">Pre-submission review</span>
+        <span class="pipeline__step__tool">Reviewer Panel</span>
+      </div>
+      <div class="pipeline__step">
+        <span class="pipeline__step__num">05</span>
+        <span class="pipeline__step__name">Editorial polish</span>
+        <span class="pipeline__step__tool">Jules (Pre-submission Check)</span>
+      </div>
+      <div class="pipeline__step">
+        <span class="pipeline__step__num">06</span>
+        <span class="pipeline__step__name">Submit</span>
+        <span class="pipeline__step__tool">eBRAP / Grants.gov</span>
+      </div>
+      <div class="pipeline__step">
+        <span class="pipeline__step__num">07</span>
+        <span class="pipeline__step__name">Resubmit (if needed)</span>
+        <span class="pipeline__step__tool">Resubmission Builder</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── STAGE TABLE ─── -->
+  <section class="block">
+    <h2>Stage by stage</h2>
+
+    <table class="stage-table">
+      <thead>
+        <tr><th>Stage</th><th>Tool</th><th>What you get</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1. Test the central idea</td>
+          <td><a href="/the-gauntlet" target="_blank">The Gauntlet &rarr;</a></td>
+          <td>Eight AI-simulated judges score your idea across eight dimensions (Structure, Viability, Risk, Narrative, Evidence, Cultural, Psych, Compliance). Catches fatal premise problems before you spend six weeks writing.</td>
+        </tr>
+        <tr>
+          <td>2. Build the "where the field is now" literature</td>
+          <td><a href="https://slr-studio.netlify.app/" target="_blank">SLR Studio &rarr;</a></td>
+          <td>Systematic review on prior toxic-exposure work, with documented PubMed/Excel-equivalent rigor. The literature foundation that anchors your Background and Significance section.</td>
+        </tr>
+        <tr>
+          <td>3. Refine the research design (where TRA reviewers savage)</td>
+          <td><a href="/office-hours/methods-coach" target="_blank">Methods Coach &rarr;</a></td>
+          <td>Strengths, weaknesses, anticipated reviewer criticisms grounded in real literature, defense strategies. Tightens the Approach section before reviewers see it.</td>
+        </tr>
+        <tr>
+          <td>4. Pre-submission peer review</td>
+          <td><a href="/office-hours/journal-reviewer-panel" target="_blank">Reviewer Panel &rarr;</a></td>
+          <td>Three AI-simulated reviewers read your draft independently. Pick Methodologist + Stats Hardliner + Domain Expert for CDMRP. Editor decision computed from the panel. Catches what real reviewers would catch.</td>
+        </tr>
+        <tr>
+          <td>5. Editorial last-look</td>
+          <td><a href="/office-hours/pre-submission-check" target="_blank">Pre-submission Check with Jules &rarr;</a></td>
+          <td>Journal-fit check (TRA scope alignment), reviewer-bait flags, citation hygiene, structural compliance, voice and clarity. Final polish before submission.</td>
+        </tr>
+        <tr>
+          <td>6. Submit</td>
+          <td>External</td>
+          <td>eBRAP for CDMRP pre-applications; Grants.gov for full applications. Watch the deadlines for FY26 TERP specifically.</td>
+        </tr>
+        <tr>
+          <td>7. Respond to the Summary Statement</td>
+          <td><a href="/office-hours/resubmission-builder" target="_blank">Resubmission Builder &rarr;</a></td>
+          <td>CDMRP is one of the 14 mechanisms in the matrix. Consumer-reviewer awareness baked in. Critique-by-critique response drafts, draft Introduction to the Resubmission page, attempt-cycle strategy (CDMRP allows 1 resubmission).</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ─── CDMRP vs NIH ─── -->
+  <section class="block">
+    <h2>What's different about CDMRP vs NIH</h2>
+    <p>CDMRP reviewers, criteria, and conventions diverge from NIH in three ways that matter for how you write the application:</p>
+
+    <div class="diff-grid">
+      <div class="diff-cell">
+        <div class="diff-cell__label">NIH (R01, R21, K, etc.)</div>
+        <ul>
+          <li>Scientific peer-review only</li>
+          <li>1 resubmission allowed (A1)</li>
+          <li>1-page Introduction to Resubmission</li>
+          <li>Significance / Investigators / Innovation / Approach / Environment scored separately</li>
+          <li>Approach score drives outcomes</li>
+        </ul>
+      </div>
+      <div class="diff-cell cdmrp">
+        <div class="diff-cell__label">CDMRP (TERP, BCRP, PRCRP, etc.)</div>
+        <ul>
+          <li>Scientific peer-review PLUS consumer reviewer (patient, caregiver, advocate)</li>
+          <li>1 resubmission allowed for most programs (2 total)</li>
+          <li>Up to 2-page Resubmission Introduction</li>
+          <li>Military relevance and impact on the eligible population must be explicit</li>
+          <li>Consumer reviewer can sink an application; Public Abstract and Statement of Work must work for the lay reader</li>
+          <li>Partnering PI option encourages clinician + research scientist collaboration</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>The Partnering PI option matters here</h3>
+    <p>The Initiating PI handles administrative submission; the Partnering PI brings complementary expertise. Each PI is named on a separate award if recommended for funding. For TERP specifically, the structural fit is a clinician (Wright State's clinical faculty) plus a basic scientist (AFRL/711 HPW or similar). Each contributes irreplaceable expertise; together they address the research question better than either would alone.</p>
+  </section>
+
+  <!-- ─── TIMELINE ─── -->
+  <section class="block">
+    <h2>Realistic timeline (using the pipeline)</h2>
+    <p>The standard CDMRP application timeline assumes 3 to 4 months of focused writing. Using the ETL stack compresses each phase substantially. The numbers below are for a faculty member with the science already in hand and a Partnering PI confirmed.</p>
+
+    <div class="timeline">
+      <div class="timeline__label">Week 1</div>
+      <div class="timeline__body">Run the idea through The Gauntlet. Read the editor decision. If "consider new submission," seriously consider that. If "rescuable with major rework," act on the panel's biggest_structural_risk finding before proceeding.</div>
+
+      <div class="timeline__label">Weeks 2-3</div>
+      <div class="timeline__body">SLR Studio for the literature foundation. Generate the systematic search, the body sections, and the gap analysis. This is the section that traditionally eats 6-8 weeks; SLR Studio compresses it to 2-3.</div>
+
+      <div class="timeline__label">Weeks 3-5</div>
+      <div class="timeline__body">Draft the application sections. Use Methods Coach iteratively on the Approach section, which is what CDMRP reviewers savage hardest. Each iteration: paste current Approach, get critique, revise, re-run.</div>
+
+      <div class="timeline__label">Week 6</div>
+      <div class="timeline__body">Reviewer Panel for pre-submission peer review of the complete draft. Pick Stats Hardliner + Methodologist + Domain Expert (or include the Outside Reader if the consumer-reviewer angle is the worry). Address the major findings. Re-run if substantial changes are made.</div>
+
+      <div class="timeline__label">Week 7</div>
+      <div class="timeline__body">Jules for editorial polish. Tighten Public Abstract and Statement of Work specifically for the consumer reviewer. Verify CDMRP-specific structural compliance.</div>
+
+      <div class="timeline__label">Week 8</div>
+      <div class="timeline__body">Submit through eBRAP / Grants.gov. Notify your Partnering PI's institution; they have separate submission requirements.</div>
+
+      <div class="timeline__label">3-5 months later</div>
+      <div class="timeline__body">Summary Statement arrives. Run it through the Resubmission Builder with mechanism set to "DoD CDMRP." Address every substantive critique; the consumer-reviewer comments are not optional; strengthen Public Abstract and Statement of Work between submissions. CDMRP allows one resubmission.</div>
+    </div>
+  </section>
+
+  <!-- ─── PRACTICAL NOTES ─── -->
+  <section class="block">
+    <h2>Practical notes for Wright State applicants</h2>
+    <p>WSU has a structural fit for CDMRP programs that other institutions don't: clinical faculty (Boonshoft School of Medicine, the VA Dayton system) plus basic-science partners at AFRL / 711 HPW just up the road. The Partnering PI option is built for this pairing.</p>
+    <p>Saber Hussain (AFRL/711 HPW/RH, Senior International Focal Point Lead) has offered to assist WSU faculty interested in the FY26 TERP. He is the right starting point for the AFRL side of a Partnering PI arrangement.</p>
+    <p>Courtney has been successful with this mechanism after multiple attempts. That's the normal CDMRP trajectory; the Resubmission Builder is exactly the tool for that learning curve.</p>
+  </section>
+
+  <!-- ─── CTA ─── -->
+  <a href="/the-gauntlet" class="cta">
+    <span class="cta__text">Start with stage 1: stress-test your idea before you commit weeks to a proposal.</span>
+    <span class="cta__btn">Begin at The Gauntlet &rarr;</span>
+  </a>
+
+</div>
+
+<footer>
+  <span>ETL &middot; Playbook 01 &middot; CDMRP</span>
+  <span><a href="/">Emerging Technologies Laboratory</a></span>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ETL Playbooks &mdash; Emerging Technologies Laboratory</title>
+<meta name="description" content="Cross-platform playbooks for using the ETL stack to win grants, publish papers, and run programs. Each playbook spans multiple ETL platforms (Gauntlet, SLR Studio, Office Hours, etc.) and walks a faculty member from idea to submission to resubmission.">
+<link rel="canonical" href="https://emerging-tech-lab.com/playbooks/">
+<link rel="icon" type="image/png" href="/favicon.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --paper: #f3ecdc;
+    --paper-deep: #e8dec8;
+    --ink: #161310;
+    --ink-soft: #4a443a;
+    --gold: #b8922a;
+    --gold-deep: #8a6c1a;
+    --line: #c8bba0;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--paper); color: var(--ink); font-family: 'Cormorant Garamond', Georgia, serif; font-size: 18px; line-height: 1.55; }
+  a { color: var(--gold-deep); text-decoration: underline; text-underline-offset: 3px; }
+  a:hover { color: var(--ink); }
+  .top-strip { background: #161310; color: #d4aa4a; font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase; padding: 0.6rem 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+  .top-strip a { color: #d4aa4a; text-decoration: none; }
+  .top-strip a:hover { color: #fff; }
+  .top-strip__crumbs a { margin-right: 0.6rem; }
+  .top-strip__crumbs .sep { color: #8a6c1a; margin-right: 0.6rem; }
+  .shell { max-width: 980px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+  .masthead { text-align: center; padding: 1.5rem 0 0.8rem; border-bottom: 1px solid var(--line); margin-bottom: 1.6rem; }
+  .masthead .eyebrow { font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold-deep); }
+  .masthead h1 { font-family: 'Playfair Display', Georgia, serif; font-weight: 900; font-size: clamp(2.2rem, 5vw, 3.4rem); margin: 0.3rem 0 0.3rem; letter-spacing: -0.01em; }
+  .masthead .sub { font-style: italic; color: var(--ink-soft); margin: 0; font-size: 1.1rem; max-width: 700px; margin-left: auto; margin-right: auto; }
+  .intro { background: #fcf6e8; border-left: 3px solid var(--gold); padding: 1rem 1.2rem; margin-bottom: 1.8rem; font-size: 1rem; line-height: 1.6; color: var(--ink); }
+  .pb-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+  .pb-card { background: #fffbef; border: 1px solid var(--line); border-left: 5px solid var(--gold); padding: 1.2rem 1.4rem 1.3rem; text-decoration: none; color: var(--ink); display: flex; flex-direction: column; gap: 0.4rem; transition: 0.15s; }
+  a.pb-card:hover { background: #fdf4dc; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.06); }
+  .pb-card__num { font-family: 'DM Mono', monospace; font-size: 0.66rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold-deep); font-weight: 700; }
+  .pb-card__title { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.3rem; margin: 0.2rem 0 0.3rem; }
+  .pb-card__desc { font-size: 0.98rem; color: var(--ink-soft); line-height: 1.5; margin: 0 0 0.6rem; }
+  .pb-card__meta { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.14em; color: var(--ink-soft); text-transform: uppercase; }
+  .pb-card.coming { opacity: 0.6; background: var(--paper); border-left-color: var(--line); }
+  .pb-card.coming .pb-card__num { color: var(--ink-soft); }
+  footer { margin-top: 3rem; padding-top: 1.4rem; border-top: 1px solid var(--line); font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+  footer a { color: var(--ink-soft); }
+</style>
+</head>
+<body>
+
+<div class="top-strip">
+  <span class="top-strip__crumbs">
+    <a href="/">ETL</a><span class="sep">/</span>Playbooks
+  </span>
+  <a href="/">&larr; ETL Home</a>
+</div>
+
+<div class="shell">
+
+  <div class="masthead">
+    <div class="eyebrow">ETL &middot; Cross-platform playbooks</div>
+    <h1>Playbooks</h1>
+    <p class="sub">Step-by-step pipelines that use multiple ETL platforms together to win grants, publish papers, and run programs.</p>
+  </div>
+
+  <div class="intro">
+    Playbooks live at the ETL hub (not inside any one platform) because they cross platforms. Each one walks a faculty member from idea through submission and resubmission, naming the ETL tool that fits each stage and what to expect at each step.
+  </div>
+
+  <div class="pb-grid">
+
+    <a class="pb-card" href="/playbooks/cdmrp">
+      <span class="pb-card__num">Playbook // 01</span>
+      <h2 class="pb-card__title">CDMRP Application Playbook</h2>
+      <p class="pb-card__desc">How to use the ETL stack to draft, polish, submit, and resubmit a DoD Congressionally Directed Medical Research Program application. Currently featuring the FY26 TERP Translational Research Award. Compresses a 3 to 4 month writing cycle to 6 to 8 weeks.</p>
+      <span class="pb-card__meta">Uses: Gauntlet &middot; SLR Studio &middot; Office Hours</span>
+    </a>
+
+    <div class="pb-card coming">
+      <span class="pb-card__num">Playbook // 02 &middot; Coming next</span>
+      <h2 class="pb-card__title">NIH R01 Application Playbook</h2>
+      <p class="pb-card__desc">The same pipeline tuned for NIH conventions: A1 resubmission rules, Approach-score weighting, the 1-page Introduction to Resubmission format, and what NIH study sections care about that CDMRP doesn't.</p>
+      <span class="pb-card__meta">Uses: Gauntlet &middot; SLR Studio &middot; Office Hours</span>
+    </div>
+
+    <div class="pb-card coming">
+      <span class="pb-card__num">Playbook // 03 &middot; Coming next</span>
+      <h2 class="pb-card__title">VA Merit Review Playbook</h2>
+      <p class="pb-card__desc">VA-specific workflow for Merit Review applications (HSR&amp;D, RR&amp;D, BLR&amp;D, CSR&amp;D). Three-attempt cycle planning, Veteran-relevance framing, and the VA Introduction to Resubmission convention.</p>
+      <span class="pb-card__meta">Uses: Gauntlet &middot; SLR Studio &middot; Office Hours</span>
+    </div>
+
+  </div>
+
+</div>
+
+<footer>
+  <span>ETL &middot; Playbooks</span>
+  <span><a href="/">Emerging Technologies Laboratory</a></span>
+</footer>
+
+</body>
+</html>
