@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pre-submission Check with Jules &mdash; Office Hours | Emerging Technologies Laboratory</title>
+<meta name="description" content="Editorial last-look on your manuscript before you send it to a journal. Jules reads journal fit, reviewer-bait, citation hygiene, structural compliance, and voice. Drafts a cover letter to match. Not AI writing; editorial scrutiny on what you already wrote.">
+<link rel="canonical" href="https://emerging-tech-lab.com/office-hours/pre-submission-check">
+<link rel="icon" type="image/png" href="/favicon.png">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Pre-submission Check with Jules &mdash; Office Hours">
+<meta property="og:description" content="Editorial last-look on your manuscript before you submit to a journal.">
+<meta property="og:url" content="https://emerging-tech-lab.com/office-hours/pre-submission-check">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --paper: #f3ecdc;
+    --paper-deep: #e8dec8;
+    --ink: #161310;
+    --ink-soft: #4a443a;
+    --gold: #b8922a;
+    --gold-deep: #8a6c1a;
+    --line: #c8bba0;
+    --bad: #8a2a2a;
+    --good: #3a6a2a;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--paper); color: var(--ink);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 18px; line-height: 1.55;
+  }
+  a { color: var(--gold-deep); text-decoration: underline; text-underline-offset: 3px; }
+  a:hover { color: var(--ink); }
+
+  .top-strip {
+    background: #161310; color: #d4aa4a;
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 0.6rem 1.5rem; display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 0.5rem;
+  }
+  .top-strip a { color: #d4aa4a; text-decoration: none; }
+  .top-strip a:hover { color: #fff; }
+  .top-strip__crumbs a { margin-right: 0.6rem; }
+  .top-strip__crumbs .sep { color: #8a6c1a; margin-right: 0.6rem; }
+
+  .shell { max-width: 980px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+  /* Jules-branded masthead with portrait */
+  .masthead-jules {
+    display: grid;
+    grid-template-columns: 130px 1fr;
+    gap: 1.5rem;
+    align-items: center;
+    padding: 1.5rem 0 1rem;
+    border-bottom: 1px solid var(--line);
+  }
+  @media (max-width: 600px) {
+    .masthead-jules { grid-template-columns: 1fr; text-align: center; justify-items: center; }
+  }
+  .jules-portrait {
+    width: 130px; height: 130px;
+    border-radius: 50%;
+    background: var(--paper-deep);
+    overflow: hidden;
+    position: relative;
+    border: 3px solid var(--line);
+  }
+  .jules-portrait img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: center top;
+  }
+  .jules-portrait__closed {
+    opacity: 0;
+    animation: jules-blink 6s infinite;
+  }
+  @keyframes jules-blink {
+    0%, 92%, 96%, 100% { opacity: 0; }
+    93%, 95% { opacity: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .jules-portrait__closed { animation: none; }
+  }
+  .masthead-jules__text { }
+  .masthead-jules .eyebrow {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--gold-deep);
+  }
+  .masthead-jules h1 {
+    font-family: 'Playfair Display', Georgia, serif; font-weight: 900;
+    font-size: clamp(1.8rem, 4vw, 2.6rem); margin: 0.2rem 0 0.4rem; letter-spacing: -0.01em;
+  }
+  .masthead-jules h1 em { font-style: italic; color: var(--gold-deep); }
+  .masthead-jules .sub {
+    font-style: italic; color: var(--ink-soft); margin: 0; font-size: 1.05rem;
+  }
+
+  .jules-intro {
+    background: #fcf6e8; border-left: 4px solid var(--gold);
+    padding: 1rem 1.2rem; margin: 1.4rem 0 1.2rem;
+    font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; line-height: 1.6;
+    color: var(--ink);
+  }
+  .jules-intro strong { color: var(--ink); }
+
+  .privacy-banner {
+    margin: 0 0 1.8rem;
+    padding: 0.9rem 1.2rem;
+    background: #ece1c8; border-left: 3px solid var(--gold);
+    font-size: 0.95rem; color: var(--ink-soft);
+  }
+  .privacy-banner strong { color: var(--ink); }
+
+  .card {
+    background: #fcf6e8; border: 1px solid var(--line);
+    padding: 1.4rem 1.4rem 1.6rem; box-shadow: 0 1px 0 rgba(0,0,0,0.03);
+    margin-bottom: 1.4rem;
+  }
+  .card h2 {
+    font-family: 'Playfair Display', Georgia, serif; font-weight: 700;
+    font-size: 1.4rem; margin: 0 0 0.3rem;
+  }
+  .card .card-sub {
+    font-style: italic; color: var(--ink-soft); font-size: 0.95rem;
+    margin: 0 0 1.2rem;
+  }
+
+  label.field {
+    display: block; margin-bottom: 1rem;
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--gold-deep);
+  }
+  label.field > .label-text { display: block; margin-bottom: 0.35rem; }
+  label.field > .label-note {
+    display: block; font-family: 'Cormorant Garamond', serif; text-transform: none;
+    letter-spacing: 0; color: var(--ink-soft); font-style: italic;
+    font-size: 0.9rem; margin-bottom: 0.35rem;
+  }
+  label.field input[type=text], label.field select, label.field textarea {
+    width: 100%; padding: 0.55rem 0.7rem;
+    font-family: 'Cormorant Garamond', serif; font-size: 1rem;
+    background: #fffbef; border: 1px solid var(--line);
+    color: var(--ink); border-radius: 0;
+  }
+  label.field textarea { font-family: 'DM Mono', monospace; font-size: 0.84rem; line-height: 1.5; min-height: 320px; resize: vertical; }
+  label.field input:focus, label.field textarea:focus, label.field select:focus {
+    outline: 2px solid var(--gold); outline-offset: -1px;
+  }
+
+  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 700px) { .row-2 { grid-template-columns: 1fr; } }
+
+  .sample-bar {
+    margin: 0 0 1.2rem; padding: 0.7rem 0.9rem;
+    background: #ece1c8; border: 1px dashed var(--gold);
+    display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap;
+  }
+  .sample-bar label {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--gold-deep);
+  }
+  .sample-bar select {
+    padding: 0.4rem 0.6rem; font-family: 'Cormorant Garamond', serif; font-size: 0.95rem;
+    background: #fffbef; border: 1px solid var(--line); flex: 1; min-width: 280px;
+  }
+  .sample-bar button.link {
+    background: transparent; border: 0; color: var(--gold-deep); cursor: pointer;
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em;
+    text-transform: uppercase; text-decoration: underline;
+  }
+
+  .actions { display: flex; gap: 0.7rem; flex-wrap: wrap; margin-top: 0.6rem; align-items: center; }
+  button.btn {
+    font-family: 'DM Mono', monospace; font-size: 0.75rem; letter-spacing: 0.18em;
+    text-transform: uppercase; cursor: pointer; padding: 0.8rem 1.4rem;
+    border: 1px solid var(--gold-deep); background: var(--gold); color: #fff;
+    transition: 0.15s;
+  }
+  button.btn:hover:not(:disabled) { background: var(--gold-deep); }
+  button.btn:disabled { opacity: 0.5; cursor: wait; }
+  button.btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+  button.btn.ghost:hover { background: var(--paper-deep); }
+
+  .status {
+    font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.12em;
+    text-transform: uppercase; padding: 0.5rem 0; min-height: 1.4em;
+    color: var(--ink-soft);
+  }
+  .status.busy { color: var(--gold-deep); }
+  .status.success { color: var(--good); }
+  .status.error { color: var(--bad); }
+
+  /* Results blocks */
+  .results { margin-top: 1rem; }
+  .result-block { margin-bottom: 1.8rem; }
+  .result-block h3 {
+    font-family: 'Playfair Display', Georgia, serif; font-weight: 700;
+    font-size: 1.2rem; margin: 0 0 0.5rem;
+    padding-bottom: 0.3rem; border-bottom: 1px solid var(--line);
+  }
+  .result-block h3 .count {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem;
+    letter-spacing: 0.16em; color: var(--ink-soft); font-weight: 400;
+    margin-left: 0.4rem;
+  }
+
+  .fit-card {
+    padding: 1rem 1.2rem;
+    font-family: 'Cormorant Garamond', serif; font-size: 1.04rem;
+  }
+  .fit-card__label {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem;
+    letter-spacing: 0.16em; text-transform: uppercase; font-weight: 700;
+    margin-bottom: 0.3rem;
+  }
+  .fit-card__verdict {
+    font-family: 'Playfair Display', Georgia, serif; font-weight: 700;
+    font-size: 1.4rem; margin: 0 0 0.5rem;
+  }
+  .fit-card.strong  { background: #e3edd9; border-left: 4px solid var(--good); }
+  .fit-card.strong  .fit-card__label { color: var(--good); }
+  .fit-card.adequate { background: #f5ecc8; border-left: 4px solid var(--gold); }
+  .fit-card.adequate .fit-card__label { color: var(--gold-deep); }
+  .fit-card.mismatch { background: #f5d8d8; border-left: 4px solid var(--bad); }
+  .fit-card.mismatch .fit-card__label { color: var(--bad); }
+
+  .flag-card {
+    background: #fffbef; border-left: 3px solid var(--bad);
+    padding: 0.9rem 1.1rem; margin-bottom: 0.7rem;
+  }
+  .flag-card.minor { border-left-color: var(--gold); }
+  .flag-card__location {
+    font-family: 'DM Mono', monospace; font-size: 0.65rem;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft);
+    margin-bottom: 0.3rem; font-weight: 700;
+  }
+  .flag-card__text {
+    font-family: 'Cormorant Garamond', serif; font-size: 1rem;
+    line-height: 1.55; margin: 0 0 0.4rem;
+  }
+  .flag-card__fix {
+    font-family: 'Cormorant Garamond', serif; font-size: 0.95rem;
+    font-style: italic; color: var(--ink-soft);
+    margin: 0.3rem 0 0; padding-left: 0.8rem; border-left: 2px solid var(--line);
+  }
+
+  .compliance-list { list-style: none; padding: 0; margin: 0; }
+  .compliance-list li {
+    padding: 0.5rem 0.8rem 0.5rem 2rem;
+    border-bottom: 1px dotted var(--line);
+    position: relative;
+    font-family: 'Cormorant Garamond', serif; font-size: 1rem;
+  }
+  .compliance-list li:last-child { border-bottom: 0; }
+  .compliance-list li::before {
+    position: absolute; left: 0.4rem; top: 0.55rem;
+    font-family: 'DM Mono', monospace; font-weight: 700;
+  }
+  .compliance-list li.ok::before { content: '✓'; color: var(--good); }
+  .compliance-list li.missing::before { content: '✗'; color: var(--bad); }
+  .compliance-list li.unknown::before { content: '?'; color: var(--gold-deep); }
+
+  .cover-letter-block {
+    background: #fffbef; border: 1px solid var(--line);
+    padding: 1.2rem 1.4rem;
+  }
+  .cover-letter-block__draft {
+    font-family: 'Cormorant Garamond', serif; font-size: 1.02rem;
+    line-height: 1.65; white-space: pre-wrap; color: var(--ink);
+    margin: 0 0 0.8rem;
+  }
+  .cover-letter-block__draft[contenteditable="true"]:focus { outline: 2px solid var(--gold); outline-offset: -1px; }
+  .cover-letter-block__copy {
+    font-family: 'DM Mono', monospace; font-size: 0.66rem;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    padding: 0.4rem 0.8rem; background: transparent; border: 1px solid var(--line); color: var(--ink-soft);
+    cursor: pointer;
+  }
+  .cover-letter-block__copy:hover { background: var(--paper-deep); color: var(--ink); }
+  .cover-letter-block__copy.copied { color: var(--good); border-color: var(--good); }
+
+  .summary-block {
+    background: #ece1c8; border-left: 3px solid var(--gold);
+    padding: 0.9rem 1.1rem; margin-bottom: 1.4rem;
+    font-family: 'Cormorant Garamond', serif; font-size: 1rem;
+    line-height: 1.55;
+  }
+  .summary-block strong { color: var(--ink); }
+
+  footer {
+    margin-top: 4rem; padding-top: 1.4rem; border-top: 1px solid var(--line);
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--ink-soft); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+  }
+  footer a { color: var(--ink-soft); }
+</style>
+</head>
+<body>
+
+<div class="top-strip">
+  <span class="top-strip__crumbs">
+    <a href="/">ETL</a><span class="sep">/</span><a href="/office-hours">Office Hours</a><span class="sep">/</span>Pre-submission Check
+  </span>
+  <a href="/office-hours">&larr; Back to Office Hours</a>
+</div>
+
+<div class="shell">
+
+  <div class="masthead-jules">
+    <div class="jules-portrait">
+      <img class="jules-portrait__open" src="/agents/Jules-Eyes-Open.png" alt="Jules, pre-submission editor">
+      <img class="jules-portrait__closed" src="/agents/Jules-Eyes-Closed.png" alt="" aria-hidden="true">
+    </div>
+    <div class="masthead-jules__text">
+      <div class="eyebrow">Office Hours &middot; with Jules</div>
+      <h1>Pre-submission Check.</h1>
+      <p class="sub">Editorial last-look on your manuscript before you send it to a journal. Jules reads the draft you already wrote and tells you where reviewers will trip.</p>
+    </div>
+  </div>
+
+  <div class="jules-intro">
+    <strong>This is editorial scrutiny, not AI writing.</strong> Paste a manuscript you already wrote. Jules reads it the way a senior colleague would, the night before you submit. She flags reviewer-bait, checks fit against your target journal, looks for missing citations, runs the structural checklist, and drafts a cover letter you can edit. Nothing she returns is meant to replace your prose; everything is meant to make your prose harder to reject.
+  </div>
+
+  <div class="privacy-banner">
+    <strong>Privacy:</strong> Your manuscript is sent to Anthropic's Claude API for analysis. Anthropic does not train on or retain API content. We do not log, store, or retain anything on our servers. Nothing is saved after the response comes back. Your unpublished manuscript stays your unpublished manuscript.
+  </div>
+
+  <!-- ─── INTAKE CARD ─── -->
+  <div class="card">
+
+    <div class="sample-bar">
+      <label for="sample">Try a sample manuscript:</label>
+      <select id="sample">
+        <option value="">&mdash; pick a sample &mdash;</option>
+        <option value="health-services">Health services research &mdash; nurse staffing &amp; readmissions</option>
+        <option value="education-rct">Education RCT &mdash; reading intervention in K-2</option>
+        <option value="environmental-engineering">Environmental engineering &mdash; greywater treatment performance</option>
+      </select>
+      <button type="button" class="link" id="clear-btn">Clear form</button>
+    </div>
+
+    <label class="field">
+      <span class="label-text">Your manuscript (paste the full text, or at minimum abstract + intro + methods + results + discussion)</span>
+      <span class="label-note">Jules reads what you give her. More text = more useful check. Skip references list and supplementary materials.</span>
+      <textarea id="manuscript" placeholder="Paste your full manuscript here. The more sections, the better Jules can check. Abstract, Introduction, Methods, Results, Discussion at minimum."></textarea>
+    </label>
+
+    <div class="row-2">
+      <label class="field">
+        <span class="label-text">Target journal</span>
+        <span class="label-note">The journal you intend to submit to. Jules uses this to check fit.</span>
+        <input type="text" id="journal" placeholder="e.g. Health Services Research; American Journal of Education; Water Research">
+      </label>
+      <label class="field">
+        <span class="label-text">Manuscript type</span>
+        <select id="type">
+          <option value="research-article" selected>Original research article</option>
+          <option value="brief-report">Brief report / short communication</option>
+          <option value="review">Review article</option>
+          <option value="systematic-review">Systematic review / meta-analysis</option>
+          <option value="case-report">Case report / case series</option>
+          <option value="perspective">Perspective / commentary</option>
+          <option value="qualitative">Qualitative study</option>
+          <option value="methods">Methods paper</option>
+        </select>
+      </label>
+    </div>
+
+    <label class="field">
+      <span class="label-text">Known concerns (optional)</span>
+      <span class="label-note">What you suspect a reviewer will flag. Jules pays special attention to these.</span>
+      <textarea id="concerns" style="min-height: 80px;" placeholder="e.g. Sample size on the secondary outcome is borderline; we didn't pre-register the secondary analysis; one of our cited authors has been retracted recently but the paper we cite is unaffected."></textarea>
+    </label>
+
+    <div class="actions">
+      <button type="button" class="btn" id="check-btn">Have Jules read it</button>
+      <span class="status" id="status"></span>
+    </div>
+  </div>
+
+  <!-- ─── RESULTS CARD ─── -->
+  <div class="card" id="results-card" style="display: none;">
+    <h2>Jules's read</h2>
+    <p class="card-sub">Skim, fix what you agree with, ignore what you don't. The cover letter at the bottom is editable in place.</p>
+    <div class="results" id="results"></div>
+  </div>
+
+</div>
+
+<footer>
+  <span>ETL &middot; Office Hours &middot; Pre-submission Check with Jules</span>
+  <span><a href="/office-hours">Back to Office Hours</a> &middot; <a href="/">ETL Home</a></span>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  const SAMPLES = {
+    'health-services': {
+      manuscript: `TITLE: Hospital nurse staffing intensity and 30-day readmission rates in patients with heart failure: a retrospective cohort study.\n\nABSTRACT\nBackground. Lower nurse staffing has been associated with adverse outcomes, but the relationship to 30-day readmission for heart failure patients is incompletely characterized.\nMethods. Retrospective cohort of 8,712 adult heart failure admissions across 14 hospitals in one health system, 2019-2023. Primary exposure: hospital-level RN-hours per patient-day (HPPD). Primary outcome: 30-day all-cause readmission. Mixed-effects logistic regression with hospital random intercept; adjusted for age, sex, race, comorbidity index, prior 6-month admissions, primary insurance, and index LOS.\nResults. Median HPPD was 8.4 (IQR 7.2-9.6). 30-day readmission was 22.1%. Each 1-unit increase in HPPD associated with adjusted OR 0.92 (95% CI 0.86-0.98, p=.012). Effect attenuated but persisted after additional adjustment for hospital case-mix index.\nConclusions. Higher RN staffing intensity is independently associated with lower 30-day readmission for heart failure patients in this multi-hospital cohort, supporting policy attention to nursing as a modifiable system factor.\n\nINTRODUCTION (excerpt)\nReadmission for heart failure is a closely watched quality metric and a target of federal payment penalties. Hospital factors that drive readmission rates have received substantial attention, but the role of nurse staffing in this specific outcome remains less well established than for in-hospital mortality. Prior work has linked nurse staffing to inpatient mortality (Aiken et al. early studies), failure-to-rescue, and selected nurse-sensitive outcomes. Whether the same dose-response applies to a post-discharge outcome like 30-day readmission is the focus of this study.\n\nMETHODS (excerpt)\nWe included adult (≥18) patients with a primary discharge diagnosis of heart failure (ICD-10 I50.x) admitted to one of 14 acute care hospitals in a single integrated health system between January 1, 2019 and December 31, 2023. Patients who died during the index admission or were transferred to another acute care hospital were excluded. The primary exposure was hospital-month RN hours per patient-day, calculated from payroll-based productive nursing hours divided by hospital-month adult medical-surgical patient-days. Primary outcome was unplanned all-cause 30-day readmission to any hospital in the system. Mixed-effects logistic regression with hospital random intercept estimated the association.\n\nRESULTS (excerpt)\n8,712 admissions met inclusion criteria. The cohort was 52% female, 31% non-Hispanic Black, with mean age 71.2 (SD 13.4). Crude 30-day readmission rate was 22.1%. In the fully adjusted model, each 1-unit increase in HPPD was associated with an adjusted odds ratio of 0.92 for 30-day readmission (95% CI 0.86-0.98, p=.012). Sensitivity analyses using nurse skill-mix and adjusting for hospital case-mix index produced consistent estimates.\n\nDISCUSSION (excerpt)\nThis study extends a substantial body of nurse staffing work to a federally tracked outcome. The magnitude of effect is consistent with prior single-hospital and registry-based work. Limitations include single-system design, payroll-based exposure measurement (which may understate point-of-care intensity), and lack of patient-reported outcomes such as functional status at readmission.`,
+      journal: 'Health Services Research',
+      type: 'research-article',
+      concerns: 'Single-system data may limit generalizability. We did not adjust for outpatient cardiology follow-up density, which a reviewer will likely raise. The HPPD exposure is hospital-month-level, not patient-level.'
+    },
+    'education-rct': {
+      manuscript: `TITLE: A whole-classroom phonics intervention in kindergarten through second grade: results from a cluster-randomized trial in 18 Title I schools.\n\nABSTRACT\nWe report findings from a two-year cluster-randomized trial of a structured phonics intervention (Reading Foundations Plus, RFP) versus business-as-usual in 18 Title I elementary schools (N=2,134 students). Schools were randomized to RFP or control. Primary outcome: DIBELS Composite Score at end of grade 2. We find a 0.18-SD effect favoring RFP (95% CI 0.07-0.29). Effects were larger for English learners (0.31 SD) and for students entering kindergarten below benchmark. We discuss implementation conditions that predicted gains.\n\nINTRODUCTION (excerpt)\nThe science of reading and the federal investment in early literacy have together produced renewed attention to phonics-rich curriculum at the early elementary level. Effects of structured literacy approaches have been documented in studies of varying rigor; meta-analyses suggest small-to-moderate average effects. Whether these effects extend to high-poverty contexts at scale is the question we address.\n\nMETHODS (excerpt)\nWe randomized 18 elementary schools in two urban districts (matched on prior reading performance, district, and percent free-and-reduced lunch) to RFP or business-as-usual. RFP consists of a 90-minute daily literacy block with structured phonics, fluency, and connected text components, delivered by classroom teachers after a 4-day summer training. The control condition continued the district's existing literacy curriculum. We followed two cohorts (entering K in fall 2021 and fall 2022) through the end of second grade.\nPrimary outcome was the DIBELS Composite Score at the end of second grade. Secondary outcomes included individual DIBELS subtests and the state ELA assessment in second grade.\nAnalysis: multilevel models with students nested in schools, with school as random effect. Adjusted for kindergarten baseline DIBELS. Intent-to-treat. We pre-registered the primary outcome and analysis approach (OSF link in supplementary).\n\nRESULTS (excerpt)\nWe analyzed 2,134 students with end-of-grade-2 outcomes. Adjusted treatment effect on DIBELS Composite was 0.18 SD favoring RFP (95% CI 0.07-0.29, p=.001). Effects on individual DIBELS subtests ranged from 0.12 to 0.24 SD. Effect on the state ELA assessment was 0.14 SD (95% CI 0.04-0.24). Subgroup: English learners showed 0.31 SD (95% CI 0.16-0.46) effect on Composite; students entering K below benchmark showed 0.27 SD.\n\nDISCUSSION (excerpt)\nThe effect we observe is consistent with the upper end of effect sizes documented for whole-classroom structured-literacy interventions in prior work. The differential effect for English learners is the contribution of this work to the broader evidence base. Limitations include two-district scope, teacher training intensity that may be infeasible at larger scale, and attrition (12% of randomized students moved before end of grade 2).`,
+      journal: 'American Educational Research Journal',
+      type: 'research-article',
+      concerns: 'EL effect is a subgroup analysis, not pre-registered as primary, and a reviewer will want to know we tested whether it represented a true interaction. Attrition was non-random (more in lower-income blocks) and we didn\\'t address selection adequately.'
+    },
+    'environmental-engineering': {
+      manuscript: `TITLE: A novel membrane-bioreactor configuration for residential greywater treatment: performance over 12 months in real-world conditions.\n\nABSTRACT\nWe report a 12-month performance evaluation of a novel membrane-bioreactor (MBR) configuration for residential greywater treatment. The system was installed at three single-family homes in a temperate climate and operated with minimal user intervention. Mean COD removal was 94.2% (SD 3.1%), turbidity reduction 99.1%, and BOD5 reduction 96.8%. The system met state non-potable reuse standards for toilet flushing in 98% of weekly samples. Membrane fouling was managed by automated air-scour cycles; no chemical cleaning was required during the study period. We discuss implications for residential greywater reuse and identify scale and cost barriers to wider deployment.\n\nINTRODUCTION (excerpt)\nResidential greywater reuse for non-potable applications is an underutilized strategy for reducing potable water demand. Membrane bioreactors offer high-quality treatment but face cost, footprint, and operational complexity barriers when scaled down to single-home applications. We describe a novel low-energy MBR configuration designed specifically for the residential scale and report 12-month performance data from real-world installations.\n\nMETHODS (excerpt)\nThe MBR system uses a hollow-fiber UF membrane with automated air-scour and integrated solenoid backflush. Three identical units were installed at single-family homes in [region], collecting bathroom-sink, shower, and laundry greywater (excluding kitchen and toilet). Treated effluent was used for toilet flushing within the same home. Sampling was weekly at the membrane permeate for the first 6 months and biweekly thereafter. Analytes: COD, BOD5, TSS, turbidity, fecal coliform, E. coli. Energy consumption was logged continuously.\n\nRESULTS (excerpt)\nOver 12 months we collected 156 weekly samples. Mean COD was 38 mg/L (95% removal); BOD5 mean 4.1 mg/L; turbidity <1.0 NTU; fecal coliform consistently undetectable. The system met all state non-potable reuse standards in 153 of 156 samples (98%). Energy consumption averaged 1.4 kWh per cubic meter treated. Membrane fouling was managed by automated air-scour; no chemical cleaning was required.\n\nDISCUSSION (excerpt)\nThe performance reported here approaches or exceeds previously published MBR greywater systems while requiring less operational complexity. The 1.4 kWh/m3 energy intensity is within the range reported for centralized membrane treatment, suggesting the residential scale need not impose a large energy penalty. Limitations include the three-home sample, the temperate climate, and the 12-month observation window which may not capture longer-term fouling dynamics.`,
+      journal: 'Water Research',
+      type: 'research-article',
+      concerns: 'N=3 homes will get flagged. We didn\\'t cost the system explicitly, which Water Research reviewers want for applied work. The "novel" claim in the title is overreach; the configuration is incrementally novel.'
+    }
+  };
+
+  const els = {
+    sample: document.getElementById('sample'),
+    manuscript: document.getElementById('manuscript'),
+    journal: document.getElementById('journal'),
+    type: document.getElementById('type'),
+    concerns: document.getElementById('concerns'),
+    checkBtn: document.getElementById('check-btn'),
+    clearBtn: document.getElementById('clear-btn'),
+    status: document.getElementById('status'),
+    resultsCard: document.getElementById('results-card'),
+    results: document.getElementById('results'),
+  };
+
+  function setStatus(msg, cls) {
+    els.status.textContent = msg || '';
+    els.status.className = 'status' + (cls ? ' ' + cls : '');
+  }
+  function escHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  els.sample.addEventListener('change', function () {
+    const key = els.sample.value;
+    if (!key) return;
+    const s = SAMPLES[key];
+    if (!s) return;
+    els.manuscript.value = s.manuscript;
+    els.journal.value = s.journal;
+    els.type.value = s.type;
+    els.concerns.value = s.concerns;
+    setStatus('Sample loaded. Hand it to Jules.', 'success');
+  });
+
+  els.clearBtn.addEventListener('click', function () {
+    els.manuscript.value = '';
+    els.journal.value = '';
+    els.type.value = 'research-article';
+    els.concerns.value = '';
+    els.sample.value = '';
+    setStatus('');
+    els.resultsCard.style.display = 'none';
+    els.results.innerHTML = '';
+  });
+
+  els.checkBtn.addEventListener('click', async function () {
+    const manuscript = els.manuscript.value.trim();
+    const journal = els.journal.value.trim();
+    if (!manuscript) {
+      setStatus('Paste your manuscript first.', 'error');
+      els.manuscript.focus();
+      return;
+    }
+    if (!journal) {
+      setStatus('Tell Jules the target journal.', 'error');
+      els.journal.focus();
+      return;
+    }
+    els.checkBtn.disabled = true;
+    setStatus('Jules is reading the manuscript. This usually takes 30 to 50 seconds.', 'busy');
+    els.resultsCard.style.display = 'none';
+    els.results.innerHTML = '';
+
+    const payload = {
+      manuscript: manuscript,
+      journal: journal,
+      type: els.type.value,
+      concerns: els.concerns.value.trim(),
+    };
+
+    try {
+      const resp = await fetch('/.netlify/functions/office-hours-pre-submission-check', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const contentType = (resp.headers.get('content-type') || '').toLowerCase();
+      if (!contentType.includes('application/json')) {
+        if (resp.status === 504 || resp.status === 408 || resp.status === 502) {
+          throw new Error('The request timed out before Jules finished reading. Try again. If it keeps happening, your network (e.g., a campus proxy) may be cutting the connection early; try from a phone hotspot.');
+        }
+        throw new Error('The request was interrupted before a response came back (often a network proxy timeout). Try again, or switch to a phone hotspot.');
+      }
+      const data = await resp.json().catch(function () { return {}; });
+      if (!resp.ok || !data.ok) {
+        if (resp.status === 504 || resp.status === 408 || resp.status === 502) {
+          throw new Error('The request timed out before Jules finished. Try again. If it keeps happening, switch to a phone hotspot.');
+        }
+        const detail = (data && (data.detail || data.error)) || ('HTTP ' + resp.status);
+        throw new Error(detail);
+      }
+      renderResults(data.check || {});
+      setStatus('Jules is done. Skim and edit.', 'success');
+    } catch (err) {
+      console.error(err);
+      if (err && (err.name === 'TypeError' || /failed to fetch|network/i.test(err.message || ''))) {
+        setStatus('Network interrupted (often a campus proxy timing out a slow request). Try again, or switch to a phone hotspot.', 'error');
+      } else {
+        setStatus('Error: ' + (err && err.message ? err.message : 'unknown') + ' (try again)', 'error');
+      }
+    } finally {
+      els.checkBtn.disabled = false;
+    }
+  });
+
+  function fitClass(rating) {
+    const r = String(rating || '').toLowerCase();
+    if (r.indexOf('strong') >= 0) return 'strong';
+    if (r.indexOf('adequate') >= 0 || r.indexOf('moderate') >= 0) return 'adequate';
+    if (r.indexOf('mismatch') >= 0 || r.indexOf('wrong') >= 0 || r.indexOf('poor') >= 0) return 'mismatch';
+    return 'adequate';
+  }
+
+  function renderFlagList(label, items, severityDefault) {
+    if (!Array.isArray(items) || !items.length) return '';
+    return ''
+      + '<div class="result-block">'
+      + '<h3>' + escHtml(label) + ' <span class="count">' + items.length + '</span></h3>'
+      + items.map(function (f) {
+          if (typeof f === 'string') {
+            return '<div class="flag-card ' + escHtml(severityDefault) + '"><p class="flag-card__text">' + escHtml(f) + '</p></div>';
+          }
+          const sev = f.severity || severityDefault;
+          const loc = f.location || '';
+          const text = f.issue || f.text || f.comment || '';
+          const fix = f.fix || f.suggestion || '';
+          return '<div class="flag-card ' + escHtml(sev) + '">'
+            + (loc ? '<div class="flag-card__location">' + escHtml(loc) + '</div>' : '')
+            + '<p class="flag-card__text">' + escHtml(text) + '</p>'
+            + (fix ? '<p class="flag-card__fix">' + escHtml(fix) + '</p>' : '')
+            + '</div>';
+        }).join('')
+      + '</div>';
+  }
+
+  function renderResults(c) {
+    const parts = [];
+
+    if (c.summary) {
+      parts.push('<div class="summary-block"><strong>Jules\\'s overall read:</strong> ' + escHtml(c.summary) + '</div>');
+    }
+
+    // Journal fit
+    if (c.journal_fit) {
+      const f = c.journal_fit;
+      const cls = fitClass(f.rating);
+      parts.push(
+        '<div class="result-block">'
+        + '<h3>Journal fit</h3>'
+        + '<div class="fit-card ' + cls + '">'
+        + '  <div class="fit-card__label">Fit assessment</div>'
+        + '  <p class="fit-card__verdict">' + escHtml(f.rating || '') + '</p>'
+        + (f.rationale ? '  <p style="margin:0;">' + escHtml(f.rationale) + '</p>' : '')
+        + (Array.isArray(f.mismatch_areas) && f.mismatch_areas.length
+            ? '  <p style="margin:0.6rem 0 0;"><strong>Mismatch areas:</strong> ' + f.mismatch_areas.map(escHtml).join('; ') + '</p>'
+            : '')
+        + '</div>'
+        + '</div>'
+      );
+    }
+
+    parts.push(renderFlagList('Reviewer-bait', c.reviewer_bait, 'minor'));
+    parts.push(renderFlagList('Citation hygiene', c.citation_hygiene, 'minor'));
+    parts.push(renderFlagList('Voice and clarity', c.voice_clarity, 'minor'));
+
+    // Structural compliance
+    if (Array.isArray(c.structural_compliance) && c.structural_compliance.length) {
+      parts.push(
+        '<div class="result-block">'
+        + '<h3>Structural compliance <span class="count">' + c.structural_compliance.length + '</span></h3>'
+        + '<ul class="compliance-list">'
+        + c.structural_compliance.map(function (item) {
+            const status = String(item.status || 'unknown').toLowerCase();
+            const cls = (status === 'present' || status === 'ok') ? 'ok'
+                     : (status === 'missing' || status === 'absent') ? 'missing'
+                     : 'unknown';
+            const label = item.requirement || item.item || '';
+            const note = item.note ? ' <em style="color:var(--ink-soft);">(' + escHtml(item.note) + ')</em>' : '';
+            return '<li class="' + cls + '">' + escHtml(label) + note + '</li>';
+          }).join('')
+        + '</ul>'
+        + '</div>'
+      );
+    }
+
+    // Cover letter
+    if (c.cover_letter) {
+      parts.push(
+        '<div class="result-block">'
+        + '<h3>Cover letter draft</h3>'
+        + '<div class="cover-letter-block">'
+        + '  <div class="cover-letter-block__draft" contenteditable="true">' + escHtml(c.cover_letter) + '</div>'
+        + '  <button type="button" class="cover-letter-block__copy" id="cover-copy">Copy cover letter</button>'
+        + '</div>'
+        + '</div>'
+      );
+    }
+
+    els.results.innerHTML = parts.join('') || '<p>No check returned.</p>';
+    els.resultsCard.style.display = '';
+    els.resultsCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    // Copy button for cover letter
+    const copyBtn = document.getElementById('cover-copy');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', function () {
+        const draftEl = document.querySelector('.cover-letter-block__draft');
+        if (!draftEl) return;
+        const text = draftEl.innerText;
+        navigator.clipboard.writeText(text).then(function () {
+          copyBtn.textContent = 'Copied';
+          copyBtn.classList.add('copied');
+          setTimeout(function () {
+            copyBtn.textContent = 'Copy cover letter';
+            copyBtn.classList.remove('copied');
+          }, 1800);
+        });
+      });
+    }
+  }
+})();
+</script>
+</body>
+</html>
