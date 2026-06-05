@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paper to Poster &mdash; Office Hours | Emerging Technologies Laboratory</title>
+<meta name="description" content="Paste your paper or abstract. Get a complete academic poster outline: title, background, research question, methods, results, discussion, conclusions, visual suggestions, layout, and take-home message, in poster voice.">
+<link rel="canonical" href="https://emerging-tech-lab.com/office-hours/paper-to-poster">
+<link rel="icon" type="image/png" href="/favicon.png">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Paper to Poster &mdash; Office Hours">
+<meta property="og:description" content="Complete academic poster outline from your manuscript or abstract.">
+<meta property="og:url" content="https://emerging-tech-lab.com/office-hours/paper-to-poster">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --paper: #f3ecdc;
+    --paper-deep: #e8dec8;
+    --ink: #161310;
+    --ink-soft: #4a443a;
+    --gold: #b8922a;
+    --gold-deep: #8a6c1a;
+    --line: #c8bba0;
+    --bad: #8a2a2a;
+    --good: #3a6a2a;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--paper); color: var(--ink);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 18px; line-height: 1.55;
+  }
+  a { color: var(--gold-deep); text-decoration: underline; text-underline-offset: 3px; }
+  a:hover { color: var(--ink); }
+
+  .top-strip {
+    background: #161310; color: #d4aa4a;
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 0.6rem 1.5rem; display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 0.5rem;
+  }
+  .top-strip a { color: #d4aa4a; text-decoration: none; }
+  .top-strip a:hover { color: #fff; }
+  .top-strip__crumbs a { margin-right: 0.6rem; }
+  .top-strip__crumbs .sep { color: #8a6c1a; margin-right: 0.6rem; }
+
+  .shell { max-width: 980px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+  .masthead { text-align: center; padding: 1.5rem 0 0.8rem; border-bottom: 1px solid var(--line); }
+  .masthead .eyebrow {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--gold-deep);
+  }
+  .masthead h1 {
+    font-family: 'Playfair Display', Georgia, serif; font-weight: 900;
+    font-size: clamp(2rem, 4.5vw, 3.2rem); margin: 0.2rem 0 0.2rem; letter-spacing: -0.01em;
+  }
+  .masthead .sub {
+    font-style: italic; color: var(--ink-soft); margin: 0; font-size: 1.1rem;
+    max-width: 720px; margin-left: auto; margin-right: auto;
+  }
+
+  .privacy-banner {
+    margin: 1.4rem 0 1.8rem;
+    padding: 0.9rem 1.2rem;
+    background: #ece1c8; border-left: 3px solid var(--gold);
+    font-size: 0.95rem; color: var(--ink-soft);
+  }
+  .privacy-banner strong { color: var(--ink); }
+
+  .card {
+    background: #fcf6e8; border: 1px solid var(--line);
+    padding: 1.4rem 1.4rem 1.6rem; box-shadow: 0 1px 0 rgba(0,0,0,0.03);
+    margin-bottom: 1.4rem;
+  }
+  .card h2 {
+    font-family: 'Playfair Display', Georgia, serif; font-weight: 700;
+    font-size: 1.4rem; margin: 0 0 0.3rem;
+  }
+  .card .card-sub {
+    font-style: italic; color: var(--ink-soft); font-size: 0.95rem;
+    margin: 0 0 1.2rem;
+  }
+
+  label.field {
+    display: block; margin-bottom: 1rem;
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--gold-deep);
+  }
+  label.field > .label-text { display: block; margin-bottom: 0.35rem; }
+  label.field > .label-note {
+    display: block; font-family: 'Cormorant Garamond', serif; text-transform: none;
+    letter-spacing: 0; color: var(--ink-soft); font-style: italic;
+    font-size: 0.9rem; margin-bottom: 0.35rem;
+  }
+  label.field input[type=text], label.field select, label.field textarea {
+    width: 100%; padding: 0.55rem 0.7rem;
+    font-family: 'Cormorant Garamond', serif; font-size: 1rem;
+    background: #fffbef; border: 1px solid var(--line);
+    color: var(--ink); border-radius: 0;
+  }
+  label.field textarea { font-family: 'DM Mono', monospace; font-size: 0.84rem; line-height: 1.5; min-height: 280px; resize: vertical; }
+  label.field input:focus, label.field textarea:focus, label.field select:focus {
+    outline: 2px solid var(--gold); outline-offset: -1px;
+  }
+
+  .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+  @media (max-width: 780px) { .row-3 { grid-template-columns: 1fr; } }
+
+  .sample-bar {
+    margin: 0 0 1.2rem; padding: 0.7rem 0.9rem;
+    background: #ece1c8; border: 1px dashed var(--gold);
+    display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap;
+  }
+  .sample-bar label {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--gold-deep);
+  }
+  .sample-bar select {
+    padding: 0.4rem 0.6rem; font-family: 'Cormorant Garamond', serif; font-size: 0.95rem;
+    background: #fffbef; border: 1px solid var(--line); flex: 1; min-width: 260px;
+  }
+  .sample-bar button.link {
+    background: transparent; border: 0; color: var(--gold-deep); cursor: pointer;
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em;
+    text-transform: uppercase; text-decoration: underline;
+  }
+
+  .actions { display: flex; gap: 0.7rem; flex-wrap: wrap; margin-top: 0.6rem; align-items: center; }
+  button.btn {
+    font-family: 'DM Mono', monospace; font-size: 0.75rem; letter-spacing: 0.18em;
+    text-transform: uppercase; cursor: pointer; padding: 0.8rem 1.4rem;
+    border: 1px solid var(--gold-deep); background: var(--gold); color: #fff;
+    transition: 0.15s;
+  }
+  button.btn:hover:not(:disabled) { background: var(--gold-deep); }
+  button.btn:disabled { opacity: 0.5; cursor: wait; }
+  button.btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+  button.btn.ghost:hover { background: var(--paper-deep); }
+
+  .status {
+    font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.12em;
+    text-transform: uppercase; padding: 0.5rem 0; min-height: 1.4em;
+    color: var(--ink-soft);
+  }
+  .status.busy { color: var(--gold-deep); }
+  .status.success { color: var(--good); }
+  .status.error { color: var(--bad); }
+
+  /* Poster preview */
+  .poster-shell {
+    background: #fffbef; border: 1px solid var(--line);
+    padding: 1.4rem 1.6rem;
+    margin-bottom: 1.4rem;
+  }
+  .poster-title {
+    font-family: 'Playfair Display', Georgia, serif; font-weight: 900;
+    font-size: 1.7rem; line-height: 1.25; color: var(--ink);
+    margin: 0 0 0.3rem; padding-bottom: 0.6rem;
+    border-bottom: 2px solid var(--gold);
+  }
+  .poster-subtitle {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    color: var(--ink-soft); font-size: 1.1rem; margin: 0.3rem 0 0.4rem;
+  }
+  .poster-authors {
+    font-family: 'DM Mono', monospace; font-size: 0.78rem;
+    color: var(--ink-soft); letter-spacing: 0.06em;
+    margin: 0.4rem 0 1rem; padding-bottom: 0.6rem; border-bottom: 1px dotted var(--line);
+  }
+
+  .poster-section { margin-bottom: 1rem; }
+  .poster-section__label {
+    font-family: 'DM Mono', monospace; font-size: 0.68rem;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--gold-deep); font-weight: 700; margin-bottom: 0.35rem;
+  }
+  .poster-section__rq, .poster-section__concl, .poster-section__layout {
+    font-family: 'Cormorant Garamond', serif; font-size: 1.02rem;
+    line-height: 1.55; margin: 0;
+  }
+  .poster-section__rq {
+    background: #f7faef; border-left: 3px solid var(--good);
+    padding: 0.6rem 0.9rem; font-weight: 500;
+  }
+  .poster-section ul {
+    margin: 0; padding-left: 1.4rem;
+    font-family: 'Cormorant Garamond', serif; font-size: 1rem;
+    line-height: 1.55;
+  }
+  .poster-section ul li { margin-bottom: 0.3rem; }
+
+  .visual-card {
+    background: var(--paper); border: 1px solid var(--line);
+    padding: 0.6rem 0.9rem; margin-bottom: 0.5rem;
+  }
+  .visual-card__name {
+    font-family: 'DM Mono', monospace; font-size: 0.75rem;
+    letter-spacing: 0.06em; color: var(--ink); font-weight: 500;
+    margin-bottom: 0.2rem;
+  }
+  .visual-card__what {
+    font-family: 'Cormorant Garamond', serif; font-size: 0.96rem;
+    color: var(--ink-soft); margin: 0; line-height: 1.5;
+  }
+
+  .takehome {
+    background: #f5ecc8; border-left: 4px solid var(--gold-deep);
+    padding: 0.9rem 1.1rem; margin-top: 1rem;
+    font-family: 'Playfair Display', Georgia, serif; font-weight: 700;
+    font-size: 1.2rem; line-height: 1.35;
+  }
+  .takehome__label {
+    font-family: 'DM Mono', monospace; font-size: 0.62rem;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--gold-deep); font-weight: 700;
+    margin-bottom: 0.3rem; display: block;
+  }
+
+  .copy-row { margin-top: 0.6rem; }
+  .copy-btn {
+    font-family: 'DM Mono', monospace; font-size: 0.66rem;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    padding: 0.4rem 0.8rem; background: transparent; border: 1px solid var(--line); color: var(--ink-soft);
+    cursor: pointer;
+  }
+  .copy-btn:hover { background: var(--paper-deep); color: var(--ink); }
+  .copy-btn.copied { color: var(--good); border-color: var(--good); }
+
+  footer {
+    margin-top: 4rem; padding-top: 1.4rem; border-top: 1px solid var(--line);
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--ink-soft); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+  }
+  footer a { color: var(--ink-soft); }
+</style>
+</head>
+<body>
+
+<div class="top-strip">
+  <span class="top-strip__crumbs">
+    <a href="/">ETL</a><span class="sep">/</span><a href="/office-hours">Office Hours</a><span class="sep">/</span>Paper to Poster
+  </span>
+  <a href="/office-hours">&larr; Back to Office Hours</a>
+</div>
+
+<div class="shell">
+
+  <div class="masthead">
+    <div class="eyebrow">Office Hours &middot; Paper to Poster</div>
+    <h1>Turn your paper into a poster.</h1>
+    <p class="sub">Paste your manuscript or abstract. Get a complete academic poster outline: every section in poster voice, suggested visuals, layout recommendation tuned to your size and venue, and the one take-home line your audience should walk away with.</p>
+  </div>
+
+  <div class="privacy-banner">
+    <strong>Privacy:</strong> Your manuscript is sent to Anthropic's Claude API for analysis. Anthropic does not train on or retain API content. We do not log, store, or retain anything on our servers.
+  </div>
+
+  <!-- ─── INTAKE CARD ─── -->
+  <div class="card">
+
+    <div class="sample-bar">
+      <label for="sample">Try a sample manuscript:</label>
+      <select id="sample">
+        <option value="">&mdash; pick a sample &mdash;</option>
+        <option value="nursing">Nursing &mdash; ICU staffing &amp; readmissions</option>
+        <option value="education">Education &mdash; phonics RCT</option>
+        <option value="environmental">Environmental engineering &mdash; greywater treatment</option>
+      </select>
+      <button type="button" class="link" id="clear-btn">Clear form</button>
+    </div>
+
+    <label class="field">
+      <span class="label-text">Your manuscript or abstract</span>
+      <span class="label-note">More you give, sharper the poster. Abstract + intro + methods + results + discussion is enough.</span>
+      <textarea id="manuscript" placeholder="Paste your manuscript text here. Abstract alone works; abstract + sections works better."></textarea>
+    </label>
+
+    <div class="row-3">
+      <label class="field">
+        <span class="label-text">Poster purpose</span>
+        <select id="purpose">
+          <option value="conference" selected>Academic conference</option>
+          <option value="defense">Dissertation defense</option>
+          <option value="class">Class / seminar</option>
+          <option value="grant">Grant presentation</option>
+        </select>
+      </label>
+      <label class="field">
+        <span class="label-text">Audience level</span>
+        <select id="audience">
+          <option value="expert">Expert / specialists</option>
+          <option value="academic" selected>Academic (mixed fields)</option>
+          <option value="general">General / lay audience</option>
+        </select>
+      </label>
+      <label class="field">
+        <span class="label-text">Poster size</span>
+        <select id="size">
+          <option value="36x48" selected>36" &times; 48" (portrait)</option>
+          <option value="24x36">24" &times; 36" (small)</option>
+          <option value="48x36">48" &times; 36" (landscape)</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn" id="convert-btn">Convert to poster</button>
+      <span class="status" id="status"></span>
+    </div>
+  </div>
+
+  <!-- ─── RESULTS CARD ─── -->
+  <div class="card" id="results-card" style="display: none;">
+    <h2>Poster outline</h2>
+    <p class="card-sub">Edit any block in place. Use the Copy buttons to grab full poster text or a single section.</p>
+    <div id="results"></div>
+  </div>
+
+</div>
+
+<footer>
+  <span>ETL &middot; Office Hours &middot; Paper to Poster</span>
+  <span><a href="/office-hours">Back to Office Hours</a> &middot; <a href="/">ETL Home</a></span>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  const SAMPLES = {
+    nursing: {
+      manuscript: `TITLE: Nurse staffing intensity and 30-day readmission rates in patients with heart failure: a retrospective cohort study.\n\nABSTRACT. Lower nurse staffing has been associated with adverse outcomes, but the relationship to 30-day readmission for heart failure patients is incompletely characterized. We conducted a retrospective cohort of 8,712 adult heart failure admissions across 14 hospitals in one health system, 2019 to 2023. Primary exposure was hospital-level RN-hours per patient-day; primary outcome was 30-day all-cause readmission. Mixed-effects logistic regression with hospital random intercept; adjusted for age, sex, race, comorbidity index, prior 6-month admissions, primary insurance, and index length of stay. Median RN-HPPD was 8.4. 30-day readmission was 22.1%. Each 1-unit increase in HPPD associated with adjusted OR 0.92 (95% CI 0.86 to 0.98, p=.012). Higher RN staffing intensity is independently associated with lower 30-day readmission for heart failure patients in this multi-hospital cohort.\n\nMETHODS. Adult (>=18) patients with primary discharge diagnosis of heart failure (ICD-10 I50.x) across 14 acute-care hospitals, 2019-2023. Excluded if died during index admission or transferred. Exposure: hospital-month RN-HPPD from payroll-based productive nursing hours / hospital-month adult med-surg patient-days. Outcome: unplanned all-cause 30-day readmission to any hospital in the system.\n\nRESULTS. 8,712 admissions. Cohort 52% female, 31% non-Hispanic Black, mean age 71.2. Crude readmission 22.1%. Adjusted OR per 1-unit HPPD increase: 0.92 (95% CI 0.86-0.98, p=.012). Sensitivity analyses with nurse skill-mix and case-mix-adjusted models produced consistent estimates.\n\nDISCUSSION. Findings consistent with prior single-hospital and registry work. Magnitude clinically meaningful given baseline readmission rate. Limitations: single-system, payroll-based exposure measure (may understate point-of-care intensity), no patient-reported outcomes.`,
+      purpose: 'conference',
+      audience: 'academic',
+      size: '36x48'
+    },
+    education: {
+      manuscript: `TITLE: A whole-classroom phonics intervention in kindergarten through second grade: cluster-randomized trial in 18 Title I schools.\n\nABSTRACT. Two-year cluster-randomized trial of structured phonics intervention (Reading Foundations Plus, RFP) versus business-as-usual in 18 Title I schools (N=2,134). Schools randomized to RFP or control. Primary outcome: DIBELS Composite at end of grade 2. 0.18-SD effect favoring RFP (95% CI 0.07-0.29). Larger effects for English learners (0.31 SD) and students entering K below benchmark.\n\nMETHODS. 18 elementary schools in two urban districts randomized (matched on prior reading performance, district, %FRL) to RFP or business-as-usual. RFP: 90-min daily literacy block with structured phonics, fluency, connected text, after 4-day summer teacher training. Two cohorts followed K through grade 2. Multilevel models, students nested in schools, adjusted for kindergarten baseline. Pre-registered (OSF link in supp).\n\nRESULTS. N=2,134 with end-of-grade-2 outcomes. Adjusted effect on DIBELS Composite: 0.18 SD favoring RFP. Individual subtests: 0.12 to 0.24 SD. State ELA: 0.14 SD. EL subgroup: 0.31 SD. Below-benchmark entrants: 0.27 SD.\n\nDISCUSSION. Effect at upper end of structured-literacy interventions in prior work. EL differential is the contribution. Limitations: two-district scope, intensive teacher training, 12% attrition non-random.`,
+      purpose: 'defense',
+      audience: 'expert',
+      size: '36x48'
+    },
+    environmental: {
+      manuscript: `TITLE: A novel membrane-bioreactor configuration for residential greywater treatment: 12-month performance in real-world conditions.\n\nABSTRACT. 12-month evaluation of MBR for residential greywater treatment installed at three single-family homes. Hollow-fiber UF membrane with automated air-scour and integrated solenoid backflush. Mean COD removal 94.2% (SD 3.1%), turbidity reduction 99.1%, BOD5 reduction 96.8%. Met state non-potable reuse standards in 98% of weekly samples. No chemical cleaning required. Energy: 1.4 kWh/m3.\n\nMETHODS. Three identical MBR units at single-family homes, collecting bathroom-sink, shower, laundry greywater (no kitchen, no toilet). Treated effluent used for toilet flushing within same home. Weekly sampling at membrane permeate first 6 months, biweekly thereafter. Analytes: COD, BOD5, TSS, turbidity, fecal coliform, E. coli. Energy logged continuously.\n\nRESULTS. 156 weekly samples over 12 months. Mean COD 38 mg/L (95% removal). BOD5 mean 4.1 mg/L. Turbidity <1.0 NTU. Fecal coliform consistently undetectable. Met state standards 153/156 samples (98%). Energy: 1.4 kWh/m3 treated. No chemical cleaning required.\n\nDISCUSSION. Performance approaches or exceeds prior MBR greywater systems with less operational complexity. 1.4 kWh/m3 within range of centralized treatment. Limitations: 3-home sample, temperate climate, 12-month window may not capture long-term fouling.`,
+      purpose: 'conference',
+      audience: 'expert',
+      size: '48x36'
+    }
+  };
+
+  const els = {
+    sample: document.getElementById('sample'),
+    manuscript: document.getElementById('manuscript'),
+    purpose: document.getElementById('purpose'),
+    audience: document.getElementById('audience'),
+    size: document.getElementById('size'),
+    convertBtn: document.getElementById('convert-btn'),
+    clearBtn: document.getElementById('clear-btn'),
+    status: document.getElementById('status'),
+    resultsCard: document.getElementById('results-card'),
+    results: document.getElementById('results'),
+  };
+
+  function setStatus(msg, cls) {
+    els.status.textContent = msg || '';
+    els.status.className = 'status' + (cls ? ' ' + cls : '');
+  }
+  function escHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  els.sample.addEventListener('change', function () {
+    const key = els.sample.value;
+    if (!key) return;
+    const s = SAMPLES[key];
+    if (!s) return;
+    els.manuscript.value = s.manuscript;
+    els.purpose.value = s.purpose;
+    els.audience.value = s.audience;
+    els.size.value = s.size;
+    setStatus('Sample loaded.', 'success');
+  });
+
+  els.clearBtn.addEventListener('click', function () {
+    els.manuscript.value = '';
+    els.purpose.value = 'conference';
+    els.audience.value = 'academic';
+    els.size.value = '36x48';
+    els.sample.value = '';
+    setStatus('');
+    els.resultsCard.style.display = 'none';
+    els.results.innerHTML = '';
+  });
+
+  els.convertBtn.addEventListener('click', async function () {
+    const manuscript = els.manuscript.value.trim();
+    if (!manuscript || manuscript.length < 100) {
+      setStatus('Paste your manuscript or abstract first (a paragraph at minimum).', 'error');
+      els.manuscript.focus();
+      return;
+    }
+    els.convertBtn.disabled = true;
+    setStatus('Converting to poster. Usually 30 to 60 seconds.', 'busy');
+    els.resultsCard.style.display = 'none';
+    els.results.innerHTML = '';
+
+    const payload = {
+      manuscript: manuscript,
+      purpose: els.purpose.value,
+      audience: els.audience.value,
+      size: els.size.value,
+    };
+
+    try {
+      const resp = await fetch('/.netlify/functions/office-hours-paper-to-poster', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!resp.ok) {
+        const text = await resp.text();
+        let detail = '';
+        try { const j = JSON.parse(text); detail = j.detail || j.error || ''; } catch { detail = text.slice(0, 200); }
+        if (resp.status === 504 || resp.status === 408 || resp.status === 502) {
+          setStatus('Connection timed out. Try again, or switch to a phone hotspot.', 'error');
+        } else {
+          setStatus('Something went wrong: ' + (detail || resp.status), 'error');
+        }
+        els.convertBtn.disabled = false;
+        return;
+      }
+      const data = await resp.json();
+      renderPoster(data.poster || {});
+      setStatus('Done. Poster outline ready.', 'success');
+    } catch (err) {
+      if (err instanceof TypeError) {
+        setStatus('Network hiccup. Try again, or switch to a phone hotspot.', 'error');
+      } else {
+        setStatus('Error: ' + (err && err.message), 'error');
+      }
+    } finally {
+      els.convertBtn.disabled = false;
+    }
+  });
+
+  function bullets(arr) {
+    if (!Array.isArray(arr) || !arr.length) return '';
+    return '<ul>' + arr.map(function (b) { return '<li>' + escHtml(b) + '</li>'; }).join('') + '</ul>';
+  }
+  function section(label, html) {
+    return '<div class="poster-section"><div class="poster-section__label">' + escHtml(label) + '</div>' + html + '</div>';
+  }
+
+  function renderPoster(p) {
+    const parts = [];
+    parts.push('<div class="poster-shell" id="poster-shell">');
+    if (p.title) parts.push('<h2 class="poster-title" contenteditable="true">' + escHtml(p.title) + '</h2>');
+    if (p.subtitle) parts.push('<div class="poster-subtitle" contenteditable="true">' + escHtml(p.subtitle) + '</div>');
+    if (p.authors_template) parts.push('<div class="poster-authors" contenteditable="true">' + escHtml(p.authors_template) + '</div>');
+    if (Array.isArray(p.background) && p.background.length) parts.push(section('Background', bullets(p.background)));
+    if (p.research_question) parts.push(section('Research question', '<p class="poster-section__rq" contenteditable="true">' + escHtml(p.research_question) + '</p>'));
+    if (Array.isArray(p.methods) && p.methods.length) parts.push(section('Methods', bullets(p.methods)));
+    if (Array.isArray(p.results) && p.results.length) parts.push(section('Results', bullets(p.results)));
+    if (Array.isArray(p.discussion) && p.discussion.length) parts.push(section('Discussion', bullets(p.discussion)));
+    if (p.conclusions) parts.push(section('Conclusions', '<p class="poster-section__concl" contenteditable="true">' + escHtml(p.conclusions) + '</p>'));
+    if (Array.isArray(p.visual_suggestions) && p.visual_suggestions.length) {
+      const vis = p.visual_suggestions.map(function (v) {
+        return '<div class="visual-card"><div class="visual-card__name">' + escHtml(v.name) + '</div><p class="visual-card__what">' + escHtml(v.what) + '</p></div>';
+      }).join('');
+      parts.push(section('Visual suggestions', vis));
+    }
+    if (p.layout) parts.push(section('Layout recommendation', '<p class="poster-section__layout" contenteditable="true">' + escHtml(p.layout) + '</p>'));
+    if (p.take_home) parts.push('<div class="takehome"><span class="takehome__label">Take-home</span><span contenteditable="true">' + escHtml(p.take_home) + '</span></div>');
+    parts.push('<div class="copy-row"><button type="button" class="copy-btn" id="poster-copy">Copy poster text</button></div>');
+    parts.push('</div>');
+
+    els.results.innerHTML = parts.join('');
+    els.resultsCard.style.display = 'block';
+
+    const copyBtn = document.getElementById('poster-copy');
+    const shell = document.getElementById('poster-shell');
+    if (copyBtn && shell) {
+      copyBtn.addEventListener('click', function () {
+        const text = shell.innerText || shell.textContent || '';
+        navigator.clipboard.writeText(text).then(function () {
+          copyBtn.classList.add('copied');
+          copyBtn.textContent = 'Copied';
+          setTimeout(function () { copyBtn.classList.remove('copied'); copyBtn.textContent = 'Copy poster text'; }, 1800);
+        });
+      });
+    }
+
+    els.resultsCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+})();
+</script>
+</body>
+</html>
