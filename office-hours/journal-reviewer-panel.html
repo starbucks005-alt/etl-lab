@@ -478,6 +478,7 @@
       paper_type: 'systematic-review',
       sme: 'Clinical pharmacy, endocrinology, weight management in type 2 diabetes',
       journal: 'Annals of Pharmacotherapy',
+      reviewers: ['vv', 'lc', 'az'],
       text: `TITLE: Efficacy of GLP-1 Receptor Agonists for Weight Management in Patients with Type 2 Diabetes: A Systematic Review of Recent Trials
 
 ABSTRACT
@@ -519,6 +520,7 @@ GLP-1 receptor agonists produce clinically meaningful weight loss in adults with
       paper_type: 'review',
       sme: 'Pediatric clinical pharmacology, endocrinology, RAAS modulators in diabetes',
       journal: 'Journal of Pediatric Pharmacology and Therapeutics',
+      reviewers: ['mt', 'tk', 'az'],
       text: `TITLE: Renin-Angiotensin System Modulators as Pharmacologic Adjuncts in Pediatric Diabetes: A Narrative Review of Preclinical Evidence and Translational Implications
 
 ABSTRACT
@@ -562,6 +564,7 @@ Preclinical evidence supports a role for RAAS modulators in improving insulin se
       paper_type: 'review',
       sme: 'Translational dermatology, clinical pharmacology, immunology, atopic dermatitis',
       journal: 'Journal of the American Academy of Dermatology',
+      reviewers: ['lc', 'cs', 'mp'],
       text: `TITLE: Topical Janus Kinase Inhibitors for Moderate-to-Severe Atopic Dermatitis: A Translational Review of Clinical Evidence from Adult and Pediatric Human Studies
 
 ABSTRACT
@@ -605,6 +608,7 @@ Topical JAK inhibitors represent a meaningful translational advance for moderate
       paper_type: 'review',
       sme: 'Public health, harm reduction, opioid use disorder',
       journal: 'American Journal of Public Health',
+      reviewers: ['mvg', 'mp', 'lc'],
       text: `TITLE: Community-Based Naloxone Distribution Programs and Overdose Mortality: A Scoping Review
 
 ABSTRACT
@@ -642,6 +646,7 @@ Community-based naloxone distribution programs are consistently associated with 
       paper_type: 'review',
       sme: 'Higher education, STEM pedagogy, undergraduate learning',
       journal: 'Journal of College Science Teaching',
+      reviewers: ['mt', 'tk', 'mvg'],
       text: `TITLE: Active Learning Interventions in STEM Undergraduate Courses: A Narrative Review of Recent Evidence
 
 ABSTRACT
@@ -792,7 +797,13 @@ Active learning interventions in introductory STEM courses generally improve stu
     els.sme.value = s.sme || '';
     els.journal.value = s.journal || '';
     switchToTextSource();
-    seedSelectionFromPaperType();
+    if (Array.isArray(s.reviewers) && s.reviewers.length >= 2) {
+      // Sample-author chose specific reviewers for this paper; honor that.
+      selectedIds = new Set(s.reviewers);
+    } else {
+      // Fall back to paper-type defaults.
+      seedSelectionFromPaperType();
+    }
     renderRoster();
     setStatus('Sample loaded. Pick reviewers and send.', 'success');
   });
