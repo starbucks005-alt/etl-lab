@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Office Hours — Faculty drafting tools | Emerging Technologies Laboratory</title>
-<meta name="description" content="Faculty tool for drafting student email replies and letters of recommendation. Process-and-forget privacy. Sample scenarios built in. No login required.">
+<title>Office Hours — Faculty toolkit | Emerging Technologies Laboratory</title>
+<meta name="description" content="A 20-tool faculty toolkit. Reviewer Panel for pre-submission peer review, Pre-submission Check with Jules, drafting tools for student communications, talk-prep, manuscript conversion, journal selection, and resubmission help. FERPA-aware. Nothing stored.">
 <link rel="canonical" href="https://emerging-tech-lab.com/office-hours">
 <link rel="icon" type="image/png" href="/favicon.png">
 
 <meta property="og:type" content="website">
-<meta property="og:title" content="Office Hours — Faculty drafting tools">
-<meta property="og:description" content="Faculty tool for drafting student email replies and letters of recommendation. Process-and-forget privacy.">
+<meta property="og:title" content="Office Hours — Faculty toolkit">
+<meta property="og:description" content="Twenty tools for faculty. Pre-submission peer review, drafting, talk-prep, manuscript conversion, and more.">
 <meta property="og:url" content="https://emerging-tech-lab.com/office-hours">
 <meta property="og:image" content="https://emerging-tech-lab.com/favicon.png">
 
@@ -27,8 +27,17 @@
     --gold: #b8922a;
     --gold-deep: #8a6c1a;
     --line: #c8bba0;
-    --bad: #8a2a2a;
     --good: #3a6a2a;
+    --bad: #8a2a2a;
+
+    /* Section accent palette */
+    --sect-flag:    #b8922a;   --sect-flag-wash:   #fdf4dc;   /* Flagship gold */
+    --sect-review:  #8a2a3a;   --sect-review-wash: #fdeff1;   /* Manuscript review burgundy */
+    --sect-comms:   #2a6a4a;   --sect-comms-wash:  #ecf4ee;   /* Communications forest */
+    --sect-talk:    #2a4a7a;   --sect-talk-wash:   #ecf0f6;   /* Talks steel blue */
+    --sect-write:   #6a2a6a;   --sect-write-wash:  #f4eaf4;   /* Writing plum */
+    --sect-format:  #a05a18;   --sect-format-wash: #fbeed8;   /* Format bronze */
+    --sect-pub:     #1a6a6a;   --sect-pub-wash:    #e6f3f3;   /* Publishing teal */
   }
   * { box-sizing: border-box; }
   html, body {
@@ -49,9 +58,9 @@
   .top-strip a { color: #d4aa4a; text-decoration: none; }
   .top-strip a:hover { color: #fff; }
 
-  .shell { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+  .shell { max-width: 1180px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
 
-  .masthead { text-align: center; padding: 1.5rem 0 0.8rem; border-bottom: 1px solid var(--line); }
+  .masthead { text-align: center; padding: 1.5rem 0 0.8rem; border-bottom: 1px solid var(--line); margin-bottom: 1.4rem; }
   .masthead .eyebrow {
     font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.22em;
     text-transform: uppercase; color: var(--gold-deep);
@@ -63,225 +72,233 @@
   .masthead .sub {
     font-style: italic; color: var(--ink-soft); margin: 0; font-size: 1.1rem;
   }
+  .masthead .count {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.16em;
+    color: var(--gold-deep); margin-top: 0.6rem; text-transform: uppercase;
+  }
 
   .privacy-banner {
-    margin: 1.4rem 0 1.8rem;
+    margin: 0 0 1.6rem;
     padding: 0.9rem 1.2rem;
     background: #ece1c8; border-left: 3px solid var(--gold);
     font-size: 0.95rem; color: var(--ink-soft);
   }
   .privacy-banner strong { color: var(--ink); }
 
-  .mode-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
-  .mode-tabs button {
-    font-family: 'DM Mono', monospace; font-size: 0.75rem; letter-spacing: 0.14em;
-    text-transform: uppercase;
-    background: transparent; border: 1px solid var(--line); color: var(--ink-soft);
-    padding: 0.6rem 1.2rem; cursor: pointer; transition: 0.15s;
+  /* ─── Section structure ─── */
+  .section {
+    margin: 0 0 1.6rem;
   }
-  .mode-tabs button.active {
-    background: var(--ink); color: #f3ecdc; border-color: var(--ink);
+  .section__header {
+    display: flex; align-items: baseline; gap: 0.8rem;
+    padding: 0.7rem 1rem;
+    background: var(--sect-bg, var(--paper-deep));
+    border-left: 5px solid var(--sect, var(--gold));
+    margin-bottom: 0.8rem;
   }
-  .mode-tabs button:not(.active):hover { background: var(--paper-deep); color: var(--ink); }
-
-  .pane { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
-  @media (min-width: 880px) { .pane { grid-template-columns: 1fr 1fr; } }
-
-  .card {
-    background: #fcf6e8; border: 1px solid var(--line);
-    padding: 1.4rem 1.4rem 1.6rem; box-shadow: 0 1px 0 rgba(0,0,0,0.03);
+  .section__icon {
+    width: 22px; height: 22px;
+    color: var(--sect, var(--gold));
+    flex-shrink: 0;
+    align-self: center;
   }
-  .card h2 {
+  .section__title {
     font-family: 'Playfair Display', Georgia, serif; font-weight: 700;
-    font-size: 1.5rem; margin: 0 0 0.3rem;
+    font-size: 1.2rem; color: var(--ink); margin: 0;
+    line-height: 1.2;
   }
-  .card .card-sub {
-    font-style: italic; color: var(--ink-soft); font-size: 0.95rem;
-    margin: 0 0 1.2rem;
+  .section__sub {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    color: var(--ink-soft); font-size: 0.95rem; margin-left: auto;
   }
-
-  label.field {
-    display: block; margin-bottom: 1rem;
-    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em;
-    text-transform: uppercase; color: var(--gold-deep);
-  }
-  label.field > .label-text { display: block; margin-bottom: 0.35rem; }
-  label.field > .label-note {
-    display: block; font-family: 'Cormorant Garamond', serif; text-transform: none;
-    letter-spacing: 0; color: var(--ink-soft); font-style: italic;
-    font-size: 0.9rem; margin-bottom: 0.35rem; letter-spacing: 0;
-  }
-  label.field input[type=text], label.field input[type=file], label.field select, label.field textarea {
-    width: 100%; padding: 0.55rem 0.7rem;
-    font-family: 'Cormorant Garamond', serif; font-size: 1rem;
-    background: #fffbef; border: 1px solid var(--line);
-    color: var(--ink); border-radius: 0;
-  }
-  label.field textarea { font-family: 'DM Mono', monospace; font-size: 0.85rem; line-height: 1.5; min-height: 100px; resize: vertical; }
-  label.field input:focus, label.field textarea:focus, label.field select:focus {
-    outline: 2px solid var(--gold); outline-offset: -1px;
+  @media (max-width: 600px) {
+    .section__sub { display: none; }
   }
 
-  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-  @media (max-width: 700px) { .row-2 { grid-template-columns: 1fr; } }
+  /* Section color presets — apply on .section to set the accent for all children. */
+  .section.is-flag    { --sect: var(--sect-flag);    --sect-bg: var(--sect-flag-wash); }
+  .section.is-review  { --sect: var(--sect-review);  --sect-bg: var(--sect-review-wash); }
+  .section.is-comms   { --sect: var(--sect-comms);   --sect-bg: var(--sect-comms-wash); }
+  .section.is-talk    { --sect: var(--sect-talk);    --sect-bg: var(--sect-talk-wash); }
+  .section.is-write   { --sect: var(--sect-write);   --sect-bg: var(--sect-write-wash); }
+  .section.is-format  { --sect: var(--sect-format);  --sect-bg: var(--sect-format-wash); }
+  .section.is-pub     { --sect: var(--sect-pub);     --sect-bg: var(--sect-pub-wash); }
 
-  .sample-bar {
-    margin: 0 0 1.2rem; padding: 0.7rem 0.9rem;
-    background: #ece1c8; border: 1px dashed var(--gold);
-    display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap;
-  }
-  .sample-bar label {
-    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em;
-    text-transform: uppercase; color: var(--gold-deep);
-  }
-  .sample-bar select {
-    padding: 0.4rem 0.6rem; font-family: 'Cormorant Garamond', serif; font-size: 0.95rem;
-    background: #fffbef; border: 1px solid var(--line);
-  }
-  .sample-bar button.link {
-    background: transparent; border: 0; color: var(--gold-deep); cursor: pointer;
-    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em;
-    text-transform: uppercase; text-decoration: underline;
-  }
-
-  .actions { display: flex; gap: 0.7rem; flex-wrap: wrap; margin-top: 0.6rem; }
-  button.btn {
-    font-family: 'DM Mono', monospace; font-size: 0.75rem; letter-spacing: 0.18em;
-    text-transform: uppercase; cursor: pointer; padding: 0.7rem 1.2rem;
-    border: 1px solid var(--gold-deep); background: var(--gold); color: #fff;
-    transition: 0.15s;
-  }
-  button.btn:hover:not(:disabled) { background: var(--gold-deep); }
-  button.btn:disabled { opacity: 0.5; cursor: wait; }
-  button.btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
-  button.btn.ghost:hover { background: var(--paper-deep); }
-
-  .output-area {
-    width: 100%; min-height: 360px;
-    font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; line-height: 1.6;
-    padding: 1rem 1.1rem; background: #fffbef; border: 1px solid var(--line);
-    color: var(--ink); resize: vertical;
-  }
-  .output-area:focus { outline: 2px solid var(--gold); outline-offset: -1px; }
-  .output-meta {
-    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.12em;
-    color: var(--ink-soft); margin-top: 0.5rem; text-transform: uppercase;
-  }
-  .status {
-    font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.12em;
-    text-transform: uppercase; padding: 0.5rem 0; min-height: 1.4em;
-  }
-  .status.busy { color: var(--gold-deep); }
-  .status.success { color: var(--good); }
-  .status.error { color: var(--bad); }
-  .file-meta { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--ink-soft); margin-top: 0.3rem; }
-  .placeholder-soft { color: var(--ink-soft); font-style: italic; }
-
-  .coming-soon-card {
-    background: #fcf6e8; border: 1px dashed var(--line);
-    padding: 1.4rem; text-align: center; color: var(--ink-soft); font-style: italic;
-  }
-
-  /* ─── Faculty Toolkit grid (above the live tools) ─── */
-  .toolkit-section {
-    margin: 1.6rem 0 1.4rem;
-    padding: 1.4rem 1.4rem 1rem;
-    background: #fcf6e8;
-    border: 1px solid var(--line);
-  }
-  .toolkit-h2 {
-    font-family: 'Playfair Display', Georgia, serif; font-weight: 700;
-    font-size: 1.4rem; margin: 0 0 0.3rem;
-  }
-  .toolkit-intro {
-    font-family: 'Cormorant Garamond', serif; color: var(--ink-soft);
-    font-style: italic; font-size: 1rem; margin: 0 0 1.1rem;
-  }
-  .toolkit-grid {
+  /* ─── Card grid + base card ─── */
+  .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 0.8rem;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 0.9rem;
   }
-  .toolkit-card {
-    background: var(--paper); border: 1px solid var(--line);
-    padding: 1rem 1.1rem 1.1rem;
+  .card {
+    background: #fffbef;
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--sect, var(--gold));
+    padding: 0.95rem 1.05rem 1.05rem;
     text-decoration: none; color: var(--ink);
-    display: flex; flex-direction: column; gap: 0.4rem;
+    display: flex; flex-direction: column; gap: 0.35rem;
     transition: 0.15s;
     position: relative;
   }
-  a.toolkit-card:hover { border-color: var(--gold); background: #fffbef; }
-  .toolkit-card__badge {
-    font-family: 'DM Mono', monospace; font-size: 0.62rem;
-    letter-spacing: 0.18em; text-transform: uppercase;
-    padding: 0.18rem 0.5rem; align-self: flex-start;
-    border-radius: 2px; font-weight: 700;
+  a.card:hover {
+    background: var(--sect-bg, #fffbef);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.06);
   }
-  .toolkit-card__badge.live { background: var(--good); color: #fff; }
-  .toolkit-card__badge.new { background: var(--gold); color: #fff; }
-  .toolkit-card__badge.coming { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); }
-  .toolkit-card h3 {
+  .card__row {
+    display: flex; align-items: center; gap: 0.5rem;
+    margin-bottom: 0.1rem;
+  }
+  .card__icon {
+    width: 22px; height: 22px;
+    color: var(--sect, var(--gold));
+    flex-shrink: 0;
+  }
+  .card__badge {
+    font-family: 'DM Mono', monospace; font-size: 0.6rem;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    padding: 0.15rem 0.45rem;
+    border-radius: 2px; font-weight: 700;
+    margin-left: auto;
+  }
+  .card__badge.live    { background: var(--good); color: #fff; }
+  .card__badge.new     { background: var(--sect, var(--gold)); color: #fff; }
+  .card__badge.coming  { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); }
+  .card h3 {
     font-family: 'Playfair Display', Georgia, serif; font-weight: 700;
     font-size: 1.05rem; margin: 0.1rem 0 0;
-  }
-  .toolkit-card p {
-    font-family: 'Cormorant Garamond', serif; font-size: 0.92rem;
-    color: var(--ink-soft); margin: 0; line-height: 1.45;
-  }
-  .toolkit-card.coming { opacity: 0.78; }
-  .toolkit-card.coming p { color: var(--ink-soft); }
-  .toolkit-card__cta {
-    font-family: 'DM Mono', monospace; font-size: 0.65rem;
-    letter-spacing: 0.14em; text-transform: uppercase;
-    color: var(--gold-deep); font-weight: 600; margin-top: 0.4rem;
-  }
-
-  /* Primary (hero) card: spans the full grid row, larger type, distinct treatment. */
-  .toolkit-card.primary {
-    grid-column: 1 / -1;
-    background: #fffbef;
-    border-left: 6px solid var(--gold);
-    padding: 1.6rem 1.8rem 1.8rem;
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 1rem 2rem;
-    align-items: center;
-  }
-  @media (max-width: 760px) {
-    .toolkit-card.primary { grid-template-columns: 1fr; }
-  }
-  a.toolkit-card.primary:hover { background: #fdf4dc; border-color: var(--gold); border-left-color: var(--gold-deep); }
-  .toolkit-card.primary .toolkit-card__badge { grid-column: 1; grid-row: 1; }
-  .toolkit-card.primary h3 {
-    grid-column: 1; grid-row: 2;
-    font-size: clamp(1.6rem, 3vw, 2rem);
-    margin: 0.2rem 0 0.3rem;
-    letter-spacing: -0.01em;
-  }
-  .toolkit-card.primary p {
-    grid-column: 1; grid-row: 3;
-    font-size: 1.05rem; line-height: 1.55;
     color: var(--ink);
   }
-  .toolkit-card.primary .toolkit-card__cta {
-    grid-column: 2; grid-row: 1 / -1;
-    align-self: center;
-    font-size: 0.78rem; letter-spacing: 0.18em;
-    padding: 0.8rem 1.4rem;
-    background: var(--gold); color: #fff;
-    border: 1px solid var(--gold-deep);
-    margin-top: 0;
-    white-space: nowrap;
+  .card h3 em {
+    font-style: italic; font-weight: 400;
+    color: var(--ink-soft);
   }
-  a.toolkit-card.primary:hover .toolkit-card__cta { background: var(--gold-deep); }
-  @media (max-width: 760px) {
-    .toolkit-card.primary .toolkit-card__cta {
-      grid-column: 1; grid-row: 4; align-self: start; justify-self: start;
-    }
+  .card p {
+    font-family: 'Cormorant Garamond', serif; font-size: 0.93rem;
+    color: var(--ink-soft); margin: 0; line-height: 1.45;
+  }
+  .card.coming { opacity: 0.7; background: var(--paper); }
+  .card__cta {
+    font-family: 'DM Mono', monospace; font-size: 0.65rem;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--sect, var(--gold-deep)); font-weight: 600;
+    margin-top: 0.5rem;
   }
 
-  /* Profile / letterhead card. Collapsible — open when no saved profile,
-     collapses to a one-line summary once saved. */
+  /* ─── Flagship hero (Reviewer Panel) ─── */
+  .hero {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, #fffbef 0%, #fdf4dc 100%);
+    border: 1px solid var(--line);
+    border-left: 6px solid var(--sect-flag);
+    padding: 1.6rem 1.8rem 1.4rem;
+    text-decoration: none; color: var(--ink);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto auto;
+    gap: 0.6rem 1.6rem;
+    transition: 0.18s;
+    position: relative;
+  }
+  a.hero:hover {
+    background: linear-gradient(135deg, #fdf4dc 0%, #fbecc6 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(184,146,42,0.18);
+  }
+  .hero__badge {
+    grid-column: 1; grid-row: 1;
+    font-family: 'DM Mono', monospace; font-size: 0.66rem;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    background: var(--sect-flag); color: #fff;
+    padding: 0.2rem 0.55rem; border-radius: 2px; font-weight: 700;
+    align-self: flex-start; justify-self: flex-start;
+  }
+  .hero__title {
+    grid-column: 1; grid-row: 2;
+    font-family: 'Playfair Display', serif; font-weight: 900;
+    font-size: clamp(1.6rem, 3vw, 2.1rem);
+    margin: 0; letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+  .hero__desc {
+    grid-column: 1; grid-row: 3;
+    font-family: 'Cormorant Garamond', serif; font-size: 1.05rem;
+    line-height: 1.55; color: var(--ink); margin: 0;
+  }
+  .hero__cta {
+    grid-column: 2; grid-row: 1 / span 3;
+    align-self: center;
+    font-family: 'DM Mono', monospace; font-size: 0.78rem;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    padding: 0.85rem 1.5rem;
+    background: var(--sect-flag); color: #fff;
+    border: 1px solid var(--gold-deep);
+    white-space: nowrap;
+  }
+  a.hero:hover .hero__cta { background: var(--gold-deep); }
+  @media (max-width: 760px) {
+    .hero { grid-template-columns: 1fr; }
+    .hero__cta { grid-column: 1; grid-row: 4; justify-self: flex-start; }
+  }
+
+  /* Reviewer portrait strip on the hero card */
+  .hero__panel {
+    grid-column: 1 / -1; grid-row: 4;
+    margin-top: 0.6rem; padding-top: 0.8rem;
+    border-top: 1px dashed var(--line);
+    display: flex; align-items: center; gap: 0.6rem;
+    flex-wrap: wrap;
+  }
+  .hero__panel-label {
+    font-family: 'DM Mono', monospace; font-size: 0.62rem;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--ink-soft); flex-shrink: 0;
+  }
+  .hero__panel-strip {
+    display: flex; gap: 0.3rem; flex-wrap: wrap;
+  }
+  .panel-portrait {
+    width: 38px; height: 38px;
+    border-radius: 50%; overflow: hidden;
+    border: 2px solid #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    background: var(--paper-deep);
+  }
+  .panel-portrait img {
+    width: 100%; height: 100%;
+    object-fit: cover; object-position: center top;
+    display: block;
+  }
+
+  /* ─── Jules card variant ─── */
+  .card.has-portrait {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0 0.8rem;
+  }
+  .card.has-portrait .card__portrait {
+    grid-column: 1; grid-row: 1 / span 4;
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid var(--sect, var(--gold));
+    background: var(--paper-deep);
+    align-self: flex-start;
+    margin-top: 0.15rem;
+  }
+  .card.has-portrait .card__portrait img {
+    width: 100%; height: 100%;
+    object-fit: cover; object-position: center top;
+    display: block;
+  }
+  .card.has-portrait .card__row,
+  .card.has-portrait h3,
+  .card.has-portrait p,
+  .card.has-portrait .card__cta {
+    grid-column: 2;
+  }
+
+  /* ─── Profile / letterhead card (collapsed by default) ─── */
   .profile-card {
     background: #fcf6e8; border: 1px solid var(--line);
     margin-bottom: 1.6rem;
@@ -304,40 +321,6 @@
   }
   .profile-body { padding: 0 1.2rem 1.4rem; }
   .profile-body[hidden] { display: none; }
-  .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-  @media (max-width: 700px) { .profile-grid { grid-template-columns: 1fr; } }
-
-  .sig-tabs { display: flex; gap: 0.4rem; margin: 0 0 0.6rem; }
-  .sig-tabs button {
-    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.12em;
-    text-transform: uppercase; padding: 0.4rem 0.8rem; cursor: pointer;
-    background: transparent; border: 1px solid var(--line); color: var(--ink-soft);
-  }
-  .sig-tabs button.active { background: var(--ink); color: #f3ecdc; border-color: var(--ink); }
-  .sig-pane { display: none; }
-  .sig-pane.active { display: block; }
-
-  .sig-canvas {
-    background: #fffbef; border: 1px solid var(--line);
-    width: 100%; max-width: 420px; height: 110px;
-    touch-action: none; cursor: crosshair; display: block;
-  }
-  .sig-preview {
-    margin-top: 0.4rem; padding: 0.4rem; max-width: 420px; background: #fffbef;
-    border: 1px dashed var(--line);
-  }
-  .sig-preview img { max-width: 100%; max-height: 80px; }
-  .sig-preview.empty { color: var(--ink-soft); font-style: italic; font-size: 0.9rem; }
-
-  .logo-preview {
-    margin-top: 0.4rem; padding: 0.4rem; max-width: 260px; background: #fffbef;
-    border: 1px dashed var(--line);
-  }
-  .logo-preview img { max-width: 100%; max-height: 80px; display: block; }
-  .logo-preview.empty { color: var(--ink-soft); font-style: italic; font-size: 0.9rem; }
-
-  .profile-actions { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 1rem; }
-  .profile-state { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--good); text-transform: uppercase; letter-spacing: 0.12em; margin-top: 0.6rem; min-height: 1em; }
 
   footer {
     margin-top: 4rem; padding-top: 1.4rem; border-top: 1px solid var(--line);
@@ -359,170 +342,318 @@
   <div class="masthead">
     <div class="eyebrow">A faculty toolkit</div>
     <h1>Office Hours</h1>
-    <p class="sub">Tools that respect FERPA, fit in a busy week, and don't store anything.</p>
+    <p class="sub">Twenty tools for faculty. FERPA-aware. Nothing stored.</p>
+    <div class="count">20 tools live &middot; 2 in development</div>
   </div>
 
-  <!-- ─── Faculty Toolkit overview ─── -->
-  <section class="toolkit-section">
-    <h2 class="toolkit-h2">The toolkit</h2>
-    <p class="toolkit-intro">Live tools below the privacy notice. Click any "coming next" card to see what's on the roadmap. If you have a fourth or fifth tool you wish existed, tell us.</p>
+  <div class="privacy-banner">
+    <strong>Privacy:</strong> Every tool sends your inputs to Anthropic&rsquo;s Claude API. Anthropic does not train on or retain API content. We do not log, store, or retain anything on our servers. Files (resumes, transcripts, slide photos, PDFs) are parsed in your browser; only the extracted text or base64-encoded data travels with the request.
+  </div>
 
-    <div class="toolkit-grid">
+  <!-- ═══ FLAGSHIP ═══ -->
+  <section class="section is-flag">
+    <div class="section__header">
+      <svg class="section__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+      <h2 class="section__title">Flagship</h2>
+      <span class="section__sub">Eight AI-simulated peer reviewers read your manuscript</span>
+    </div>
 
-      <a class="toolkit-card primary" href="/office-hours/journal-reviewer-panel">
-        <span class="toolkit-card__badge new">Flagship</span>
-        <h3>Reviewer Panel &mdash; AI-simulated peer review for student and faculty manuscripts</h3>
-        <p>Upload a paper (or pick one of three sample literature reviews to demo). Three reviewers from the ETL roster read it independently and write their own reports, each in their own voice and lens: Methodologist, Domain Expert, Skeptic, Theorist, Stats Hardliner, Outside Reader, Interdisciplinary Bridge, Supportive Editor. Editor decision computed from the panel. Built so every student paper gets pre-submission peer review before it leaves the lab.</p>
-        <span class="toolkit-card__cta">Send to panel &rarr;</span>
+    <a class="hero" href="/office-hours/journal-reviewer-panel">
+      <span class="hero__badge">Flagship</span>
+      <h3 class="hero__title">Reviewer Panel &mdash; AI-simulated peer review</h3>
+      <p class="hero__desc">Upload your manuscript. Eight academic personas (Methodologist, Domain Expert, Skeptic, Theorist, Stats Hardliner, Outside Reader, Interdisciplinary Bridge, Supportive Editor) on your faculty bench. Three read independently and write their own reports in their own voice. Editor decision computed from the panel. Built so every student paper gets pre-submission peer review before it leaves the lab.</p>
+      <span class="hero__cta">Send to panel &rarr;</span>
+      <div class="hero__panel">
+        <span class="hero__panel-label">Your panel:</span>
+        <div class="hero__panel-strip">
+          <div class="panel-portrait" title="Dr. Victoria Vance, The Methodologist"><img src="/prep-room-assets/vv_open.jpg" alt="Vance"></div>
+          <div class="panel-portrait" title="Dr. Lawrence Cole, The Domain Expert"><img src="/prep-room-assets/lc_open.jpg" alt="Cole"></div>
+          <div class="panel-portrait" title="Dr. Marcus Thorne, The Theorist"><img src="/prep-room-assets/mt_open.jpg" alt="Thorne"></div>
+          <div class="panel-portrait" title="Dr. Maya Patel, The Skeptic"><img src="/prep-room-assets/mp_open.jpg" alt="Patel"></div>
+          <div class="panel-portrait" title="Dr. Charles Sterling, The Supportive Editor"><img src="/prep-room-assets/cs_open.jpg" alt="Sterling"></div>
+          <div class="panel-portrait" title="Dr. Alan Zhao, The Stats Hardliner"><img src="/prep-room-assets/az_open.jpg" alt="Zhao"></div>
+          <div class="panel-portrait" title="Dr. Meredith Vance-Giles, The Outside Reader"><img src="/prep-room-assets/mvg_open.jpg" alt="Vance-Giles"></div>
+          <div class="panel-portrait" title="Dr. Tariq Khan, The Interdisciplinary Bridge"><img src="/prep-room-assets/tk_open.jpg" alt="Khan"></div>
+        </div>
+      </div>
+    </a>
+  </section>
+
+  <!-- ═══ MANUSCRIPT CRITIQUE ═══ -->
+  <section class="section is-review">
+    <div class="section__header">
+      <svg class="section__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="9" y1="15" x2="15" y2="15"></line><line x1="9" y1="11" x2="15" y2="11"></line></svg>
+      <h2 class="section__title">Manuscript critique</h2>
+      <span class="section__sub">Editorial scrutiny before and after submission</span>
+    </div>
+    <div class="grid">
+
+      <a class="card has-portrait" href="/office-hours/pre-submission-check">
+        <div class="card__portrait">
+          <img src="/agents/Jules-Eyes-Open.png" alt="Jules">
+        </div>
+        <div class="card__row">
+          <svg class="card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <span class="card__badge new">Live</span>
+        </div>
+        <h3>Pre-submission Check <em>with Jules</em></h3>
+        <p>Editorial last-look before you submit. Jules reads what you wrote and flags journal fit, reviewer-bait, citation gaps, structural compliance, voice. Drafts a cover letter. Not AI writing; editorial scrutiny.</p>
+        <span class="card__cta">Hand it to Jules &rarr;</span>
       </a>
 
-      <a class="toolkit-card" href="/office-hours/email-replies">
-        <span class="toolkit-card__badge live">Live</span>
-        <h3>Email Replies</h3>
-        <p>Paste a student email, get a draft reply in your voice. Resume and transcript optional.</p>
-        <span class="toolkit-card__cta">Use it &rarr;</span>
-      </a>
-
-      <a class="toolkit-card" href="/office-hours/letters-of-rec">
-        <span class="toolkit-card__badge live">Live</span>
-        <h3>Letters of Rec</h3>
-        <p>Full intake (tier, percentile, anecdotes), FERPA-aware framing, export to DOCX/PDF.</p>
-        <span class="toolkit-card__cta">Use it &rarr;</span>
-      </a>
-
-      <a class="toolkit-card" href="/office-hours/visiting-scholar">
-        <span class="toolkit-card__badge new">New</span>
-        <h3>The Visiting Scholar</h3>
-        <p>You're at a seminar or defense outside your field. Photo the slide, get 3-5 substantive questions with real sources. Two modes: Visiting Scholar (accessible) or Committee Member (depth).</p>
-        <span class="toolkit-card__cta">Open the tool &rarr;</span>
-      </a>
-
-      <a class="toolkit-card" href="/office-hours/paper-reviewer-assistant">
-        <span class="toolkit-card__badge new">New</span>
+      <a class="card" href="/office-hours/paper-reviewer-assistant">
+        <div class="card__row">
+          <svg class="card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+          <span class="card__badge new">Live</span>
+        </div>
         <h3>Paper Reviewer Assistant</h3>
         <p>A journal asked you to review a paper. Paste it, get a structured draft review (recommendation, strengths, major and minor concerns, specific section comments) ready to edit and submit.</p>
-        <span class="toolkit-card__cta">Open the tool &rarr;</span>
+        <span class="card__cta">Open the tool &rarr;</span>
       </a>
 
-      <a class="toolkit-card" href="/office-hours/pre-submission-check">
-        <span class="toolkit-card__badge new">New</span>
-        <h3>Pre-submission Check <em style="font-style:italic;font-weight:400;color:var(--ink-soft);">with Jules</em></h3>
-        <p>Editorial last-look on your manuscript before you submit to a journal. Jules reads what you already wrote and flags journal fit, reviewer-bait, citation gaps, structural compliance, and voice. Drafts a cover letter to match. Not AI writing, editorial scrutiny.</p>
-        <span class="toolkit-card__cta">Hand it to Jules &rarr;</span>
-      </a>
-
-      <a class="toolkit-card" href="/office-hours/conference-qa-prep">
-        <span class="toolkit-card__badge new">New</span>
-        <h3>Conference Q&amp;A Prep</h3>
-        <p>Paste your talk abstract. Get the 5 most likely audience questions with suggested answers, the one question you don't want to be asked with a defense, and an opening line that disarms it.</p>
-        <span class="toolkit-card__cta">Open the tool &rarr;</span>
-      </a>
-
-      <a class="toolkit-card" href="/office-hours/resubmission-builder">
-        <span class="toolkit-card__badge new">New</span>
-        <h3>Resubmission Builder</h3>
-        <p>Paste the reviewer Summary Statement from your rejected federal grant. Get critique-by-critique response drafts in your mechanism's expected convention, a draft Introduction page, and a clear-eyed read on whether the resubmission is winnable. VA, NIH, NSF, DoD CDMRP, AHRQ, HRSA, PCORI, foundations.</p>
-        <span class="toolkit-card__cta">Build resubmission &rarr;</span>
-      </a>
-
-      <a class="toolkit-card" href="/office-hours/tenure-dossier-helper">
-        <span class="toolkit-card__badge new">New</span>
-        <h3>Tenure Dossier Helper</h3>
-        <p>Paste your CV and a few prompts. Get draft narratives for the teaching, research, and service statements your dossier will require, tuned to your institution's norms (R1 / SLAC / teaching-focused / medical / community college).</p>
-        <span class="toolkit-card__cta">Open the tool &rarr;</span>
-      </a>
-
-      <a class="toolkit-card" href="/office-hours/inbox-sweeper">
-        <span class="toolkit-card__badge new">New</span>
-        <h3>Inbox Sweeper</h3>
-        <p>Paste a batch of student emails. Get tailored draft replies for each in 30 seconds. Recovers Sunday nights. FERPA-aware.</p>
-        <span class="toolkit-card__cta">Open the tool &rarr;</span>
-      </a>
-
-      <a class="toolkit-card" href="/office-hours/methods-coach">
-        <span class="toolkit-card__badge new">New</span>
+      <a class="card" href="/office-hours/methods-coach">
+        <div class="card__row">
+          <svg class="card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          <span class="card__badge new">Live</span>
+        </div>
         <h3>Methods Coach</h3>
         <p>Describe your research design (or a colleague's, or a student's). Get strengths, weaknesses, common reviewer criticisms grounded in real literature, defense strategies, and writing guidance.</p>
-        <span class="toolkit-card__cta">Open the tool &rarr;</span>
+        <span class="card__cta">Open the tool &rarr;</span>
       </a>
 
-      <div class="toolkit-card coming">
-        <span class="toolkit-card__badge coming">Coming next</span>
+      <div class="card coming">
+        <div class="card__row">
+          <svg class="card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+          <span class="card__badge coming">Coming next</span>
+        </div>
         <h3>Reviewer Response</h3>
         <p>Reviewer comments came back? Paste them and your manuscript section. Get a structured response with revised text ready to paste.</p>
       </div>
 
-      <div class="toolkit-card coming">
-        <span class="toolkit-card__badge coming">Coming next</span>
+      <div class="card coming">
+        <div class="card__row">
+          <svg class="card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="6" r="2"></circle><circle cx="19" cy="6" r="2"></circle><circle cx="5" cy="18" r="2"></circle><circle cx="19" cy="18" r="2"></circle><line x1="7" y1="6" x2="17" y2="6"></line><line x1="5" y1="8" x2="5" y2="16"></line><line x1="19" y1="8" x2="19" y2="16"></line><line x1="7" y1="18" x2="17" y2="18"></line></svg>
+          <span class="card__badge coming">Coming next</span>
+        </div>
         <h3>Coherence Check</h3>
         <p>Does your paper's argument actually hang together? Paste the abstract and key sections. Get a structural review flagging gaps, contradictions, and weak transitions.</p>
       </div>
 
-      <a class="toolkit-card" href="/office-hours/figure-studio">
-        <span class="toolkit-card__badge new">New</span>
-        <h3>Figure Studio</h3>
-        <p>Upload a figure or chart. Get a publication-ready caption in your chosen style, accessibility alt-text, Results paragraph, Discussion paragraph, limitations note, and plain-language summary.</p>
-        <span class="toolkit-card__cta">Analyze figure &rarr;</span>
+    </div>
+  </section>
+
+  <!-- ═══ STUDENT COMMUNICATIONS ═══ -->
+  <section class="section is-comms">
+    <div class="section__header">
+      <svg class="section__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+      <h2 class="section__title">Student communications</h2>
+      <span class="section__sub">Recover your Sunday nights, recover your inbox</span>
+    </div>
+    <div class="grid">
+
+      <a class="card" href="/office-hours/email-replies">
+        <div class="card__row">
+          <svg class="card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+          <span class="card__badge live">Live</span>
+        </div>
+        <h3>Email Replies</h3>
+        <p>Paste a student email, get a draft reply in your voice. Resume and transcript optional. Process-and-forget.</p>
+        <span class="card__cta">Use it &rarr;</span>
       </a>
 
-      <a class="toolkit-card" href="/office-hours/cite-check">
-        <span class="toolkit-card__badge new">New</span>
-        <h3>Cite-Check &amp; Reference Fixer</h3>
-        <p>Paste your reference list, pick a style (APA, AMA, MLA, Chicago, IEEE, Vancouver). Get per-reference issues, named missing data, and a corrected list ready to paste. Never invents a DOI.</p>
-        <span class="toolkit-card__cta">Fix references &rarr;</span>
+      <a class="card" href="/office-hours/letters-of-rec">
+        <div class="card__row">
+          <svg class="card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          <span class="card__badge live">Live</span>
+        </div>
+        <h3>Letters of Rec</h3>
+        <p>Full intake (tier, percentile, anecdotes), FERPA-aware framing, export to DOCX or PDF with your letterhead.</p>
+        <span class="card__cta">Use it &rarr;</span>
       </a>
 
-      <a class="toolkit-card" href="/office-hours/poster-to-paper">
-        <span class="toolkit-card__badge new">New</span>
-        <h3>Poster &rarr; Paper</h3>
-        <p>Paste your poster sections. Get a paper-format draft with structured abstract, expanded Intro / Methods / Results / Discussion / Conclusion, journal suggestions, and a checklist of what's still needed.</p>
-        <span class="toolkit-card__cta">Convert to manuscript &rarr;</span>
-      </a>
-
-      <a class="toolkit-card" href="/office-hours/paper-to-poster">
-        <span class="toolkit-card__badge new">New</span>
-        <h3>Paper &rarr; Poster</h3>
-        <p>Paste your paper or abstract. Get a complete academic poster outline in poster voice: every section, suggested visuals, layout recommendation tuned to your size and venue, and the take-home line.</p>
-        <span class="toolkit-card__cta">Convert to poster &rarr;</span>
-      </a>
-
-      <a class="toolkit-card" href="/office-hours/presentation-builder">
-        <span class="toolkit-card__badge new">New</span>
-        <h3>Presentation Builder</h3>
-        <p>Paste a paper, abstract, or chapter. Get slide-by-slide titles, 5-word bullets, spoken speaker notes, recommended visuals, plus an opening hook, 5-min elevator version, and anticipated Q&amp;A.</p>
-        <span class="toolkit-card__cta">Build deck &rarr;</span>
-      </a>
-
-      <a class="toolkit-card" href="/office-hours/figure-from-text">
-        <span class="toolkit-card__badge new">New</span>
-        <h3>Figure from Text</h3>
-        <p>Describe the diagram you need (concept map, flowchart, causal path, variable map, framework, timeline). Get a clean publication-ready SVG you can download and refine in Illustrator or PowerPoint.</p>
-        <span class="toolkit-card__cta">Generate figure &rarr;</span>
-      </a>
-
-      <a class="toolkit-card" href="/office-hours/journal-finder">
-        <span class="toolkit-card__badge new">New</span>
-        <h3>Journal Finder</h3>
-        <p>Paste your abstract and target tier. Get six ranked journal matches with fit score, scope rationale, word limit, turnaround, open-access status, and a cover-letter opening for the top pick.</p>
-        <span class="toolkit-card__cta">Find journals &rarr;</span>
-      </a>
-
-      <a class="toolkit-card" href="/office-hours/journal-access">
-        <span class="toolkit-card__badge new">New</span>
-        <h3>Journal Access (no APC)</h3>
-        <p>Where you can publish open access for free. Featured: Wright State + OhioLINK Read &amp; Publish agreements (Cambridge, Elsevier, Wiley, Springer Nature, PLOS, MDPI, more). Plus DOAJ, PMC for NIH-funded work, other US consortia, and journal-checker tools.</p>
-        <span class="toolkit-card__cta">Open the directory &rarr;</span>
+      <a class="card" href="/office-hours/inbox-sweeper">
+        <div class="card__row">
+          <svg class="card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+          <span class="card__badge new">Live</span>
+        </div>
+        <h3>Inbox Sweeper</h3>
+        <p>Paste a batch of student emails. Get tailored draft replies for each in 30 seconds. Recovers Sunday nights. FERPA-aware.</p>
+        <span class="card__cta">Open the tool &rarr;</span>
       </a>
 
     </div>
   </section>
 
-  <div class="privacy-banner">
-    <strong>Privacy:</strong> Every tool below sends your inputs to Anthropic&rsquo;s Claude API. Anthropic does not train on or retain API content. We do not log, store, or retain anything on our servers. Files (resumes, transcripts, slide photos) are parsed in your browser; only the extracted text or base64-encoded image travels with the request. Your draft, signature, and letterhead stay on your computer.
-  </div>
+  <!-- ═══ TALKS, CONFERENCES, DEFENSES ═══ -->
+  <section class="section is-talk">
+    <div class="section__header">
+      <svg class="section__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h18v18H3z"></path><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+      <h2 class="section__title">Talks, conferences &amp; defenses</h2>
+      <span class="section__sub">Be the smart question, give the smart talk</span>
+    </div>
+    <div class="grid">
+
+      <a class="card" href="/office-hours/visiting-scholar">
+        <div class="card__row">
+          <svg class="card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+          <span class="card__badge new">Live</span>
+        </div>
+        <h3>The Visiting Scholar</h3>
+        <p>You're at a seminar or defense outside your field. Photo the slide, get 3-5 substantive questions with real sources. Two modes: Visiting Scholar (accessible) or Committee Member (depth).</p>
+        <span class="card__cta">Open the tool &rarr;</span>
+      </a>
+
+      <a class="card" href="/office-hours/conference-qa-prep">
+        <div class="card__row">
+          <svg class="card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+          <span class="card__badge new">Live</span>
+        </div>
+        <h3>Conference Q&amp;A Prep</h3>
+        <p>Paste your talk abstract. Get the 5 most likely audience questions with suggested answers, the one question you don't want to be asked with a defense, and an opening line that disarms it.</p>
+        <span class="card__cta">Open the tool &rarr;</span>
+      </a>
+
+      <a class="card" href="/office-hours/presentation-builder">
+        <div class="card__row">
+          <svg class="card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+          <span class="card__badge new">Live</span>
+        </div>
+        <h3>Presentation Builder</h3>
+        <p>Paste a paper, abstract, or chapter. Get slide-by-slide titles, 5-word bullets, spoken speaker notes, recommended visuals, plus an opening hook, 5-min elevator version, and anticipated Q&amp;A.</p>
+        <span class="card__cta">Build deck &rarr;</span>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ═══ WRITING & REFERENCES ═══ -->
+  <section class="section is-write">
+    <div class="section__header">
+      <svg class="section__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"></path><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path><path d="M2 2l7.586 7.586"></path><circle cx="11" cy="11" r="2"></circle></svg>
+      <h2 class="section__title">References &amp; citations</h2>
+      <span class="section__sub">Fix the bibliography, check the citation, ready the list</span>
+    </div>
+    <div class="grid">
+
+      <a class="card" href="/office-hours/cite-check">
+        <div class="card__row">
+          <svg class="card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><polyline points="3 6 4 7 6 5"></polyline><polyline points="3 12 4 13 6 11"></polyline><polyline points="3 18 4 19 6 17"></polyline></svg>
+          <span class="card__badge new">Live</span>
+        </div>
+        <h3>Cite-Check &amp; Reference Fixer</h3>
+        <p>Paste your reference list, pick a style (APA, AMA, MLA, Chicago, IEEE, Vancouver). Get per-reference issues, named missing data, and a corrected list ready to paste. Never invents a DOI.</p>
+        <span class="card__cta">Fix references &rarr;</span>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ═══ FORMAT & CONVERSION ═══ -->
+  <section class="section is-format">
+    <div class="section__header">
+      <svg class="section__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+      <h2 class="section__title">Format conversion</h2>
+      <span class="section__sub">Paper to poster, poster to paper, figure to caption</span>
+    </div>
+    <div class="grid">
+
+      <a class="card" href="/office-hours/paper-to-poster">
+        <div class="card__row">
+          <svg class="card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="9" x2="9" y2="21"></line></svg>
+          <span class="card__badge new">Live</span>
+        </div>
+        <h3>Paper &rarr; Poster</h3>
+        <p>Paste your paper or abstract. Get a complete academic poster outline in poster voice: every section, suggested visuals, layout recommendation tuned to your size and venue, and the take-home line.</p>
+        <span class="card__cta">Convert to poster &rarr;</span>
+      </a>
+
+      <a class="card" href="/office-hours/poster-to-paper">
+        <div class="card__row">
+          <svg class="card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="8" y1="13" x2="16" y2="13"></line><line x1="8" y1="17" x2="13" y2="17"></line></svg>
+          <span class="card__badge new">Live</span>
+        </div>
+        <h3>Poster &rarr; Paper</h3>
+        <p>Paste your poster sections. Get a paper-format draft with structured abstract, expanded Intro / Methods / Results / Discussion / Conclusion, journal suggestions, and a checklist of what's still needed.</p>
+        <span class="card__cta">Convert to manuscript &rarr;</span>
+      </a>
+
+      <a class="card" href="/office-hours/figure-studio">
+        <div class="card__row">
+          <svg class="card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line><line x1="3" y1="20" x2="21" y2="20"></line></svg>
+          <span class="card__badge new">Live</span>
+        </div>
+        <h3>Figure Studio</h3>
+        <p>Upload a figure or chart. Get a publication-ready caption in your chosen style, accessibility alt-text, Results paragraph, Discussion paragraph, limitations note, and plain-language summary.</p>
+        <span class="card__cta">Analyze figure &rarr;</span>
+      </a>
+
+      <a class="card" href="/office-hours/figure-from-text">
+        <div class="card__row">
+          <svg class="card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"></circle><circle cx="18" cy="6" r="3"></circle><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="18" r="3"></circle><line x1="9" y1="6" x2="15" y2="6"></line><line x1="6" y1="9" x2="6" y2="15"></line><line x1="18" y1="9" x2="18" y2="15"></line><line x1="9" y1="18" x2="15" y2="18"></line></svg>
+          <span class="card__badge new">Live</span>
+        </div>
+        <h3>Figure from Text</h3>
+        <p>Describe the diagram you need (concept map, flowchart, causal path, variable map, framework, timeline). Get a clean publication-ready SVG you can download and refine in Illustrator or PowerPoint.</p>
+        <span class="card__cta">Generate figure &rarr;</span>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ═══ JOURNALS, PUBLISHING & PROMOTION ═══ -->
+  <section class="section is-pub">
+    <div class="section__header">
+      <svg class="section__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+      <h2 class="section__title">Journals, publishing &amp; promotion</h2>
+      <span class="section__sub">Where to send it, how to get there, what to do when it bounces</span>
+    </div>
+    <div class="grid">
+
+      <a class="card" href="/office-hours/journal-finder">
+        <div class="card__row">
+          <svg class="card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+          <span class="card__badge new">Live</span>
+        </div>
+        <h3>Journal Finder</h3>
+        <p>Paste your abstract and target tier. Get six ranked journal matches with fit score, scope rationale, word limit, turnaround, open-access status, and a cover-letter opening for the top pick.</p>
+        <span class="card__cta">Find journals &rarr;</span>
+      </a>
+
+      <a class="card" href="/office-hours/journal-access">
+        <div class="card__row">
+          <svg class="card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+          <span class="card__badge new">Live</span>
+        </div>
+        <h3>Journal Access (no APC)</h3>
+        <p>Where you can publish open access for free. Featured: Wright State + OhioLINK Read &amp; Publish agreements (Cambridge, Elsevier, Wiley, Springer Nature, PLOS, MDPI, more). Plus DOAJ, PMC for NIH-funded work, other US consortia, and journal-checker tools.</p>
+        <span class="card__cta">Open the directory &rarr;</span>
+      </a>
+
+      <a class="card" href="/office-hours/resubmission-builder">
+        <div class="card__row">
+          <svg class="card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><polyline points="23 20 23 14 17 14"></polyline><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path></svg>
+          <span class="card__badge new">Live</span>
+        </div>
+        <h3>Resubmission Builder</h3>
+        <p>Paste the reviewer Summary Statement from your rejected federal grant. Get critique-by-critique response drafts in your mechanism's expected convention, a draft Introduction page, and a clear-eyed read on whether the resubmission is winnable. VA, NIH, NSF, DoD CDMRP, AHRQ, HRSA, PCORI, foundations.</p>
+        <span class="card__cta">Build resubmission &rarr;</span>
+      </a>
+
+      <a class="card" href="/office-hours/tenure-dossier-helper">
+        <div class="card__row">
+          <svg class="card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+          <span class="card__badge new">Live</span>
+        </div>
+        <h3>Tenure Dossier Helper</h3>
+        <p>Paste your CV and a few prompts. Get draft narratives for the teaching, research, and service statements your dossier will require, tuned to your institution's norms (R1 / SLAC / teaching-focused / medical / community college).</p>
+        <span class="card__cta">Open the tool &rarr;</span>
+      </a>
+
+    </div>
+  </section>
 
   <footer>
-    <div>Office Hours &middot; ETL drafting tool for faculty</div>
+    <div>Office Hours &middot; ETL faculty toolkit</div>
     <div><a href="/">Emerging Technologies Laboratory</a></div>
   </footer>
 
