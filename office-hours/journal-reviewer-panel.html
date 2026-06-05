@@ -554,25 +554,19 @@
 </footer>
 
 <script>
-// Ethics modal: first-visit (per browser) requires acknowledgment; "Ethics &
-// disclosure" link in header reopens it anytime.
+// Ethics modal: shows on EVERY page load. AI-ethics reminders for peer
+// review are the kind of thing where the friction is the feature.
+// Acknowledgment dismisses for the current view only; reload re-shows.
 (function () {
   'use strict';
-  var ACK_KEY = 'reviewer-panel-ethics-ack-v1';
   var overlay = document.getElementById('ethics-overlay');
   var ackBtn = document.getElementById('ethics-ack');
   var reopenBtn = document.getElementById('ethics-reopen');
   function show() { overlay.classList.add('open'); document.body.style.overflow = 'hidden'; }
   function hide() { overlay.classList.remove('open'); document.body.style.overflow = ''; }
-  try {
-    if (!localStorage.getItem(ACK_KEY)) show();
-  } catch (e) { show(); /* if localStorage blocked, show every visit */ }
-  ackBtn.addEventListener('click', function () {
-    try { localStorage.setItem(ACK_KEY, String(Date.now())); } catch (e) {}
-    hide();
-  });
+  show(); // every visit
+  ackBtn.addEventListener('click', hide);
   reopenBtn.addEventListener('click', show);
-  // Block accidental dismiss via clicking outside; user MUST click the button.
 })();
 </script>
 
