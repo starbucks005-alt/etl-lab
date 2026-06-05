@@ -249,6 +249,39 @@
     </div>
     <input type="file" id="file" accept="application/pdf,.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none;">
 
+    <div id="resume-focus-block" style="display:none;">
+      <div class="jd-label">What is this review for?</div>
+      <div class="focus-radios" style="display:flex;flex-direction:column;gap:8px;margin:8px 0 14px;">
+        <label style="cursor:pointer;"><input type="radio" name="focus-mode" value="general" checked> Just a general cleanup</label>
+        <label style="cursor:pointer;"><input type="radio" name="focus-mode" value="job"> A specific job <span style="opacity:.7;">(paste the description)</span></label>
+        <label style="cursor:pointer;"><input type="radio" name="focus-mode" value="focus"> A focus or audience <span style="opacity:.7;">(pick from the list)</span></label>
+      </div>
+
+      <div id="focus-job-input" style="display:none;">
+        <div class="jd-label">Paste the job description</div>
+        <textarea class="jd-ta" id="focus-jd-text" placeholder="Paste the full job posting: title, responsibilities, requirements."></textarea>
+      </div>
+
+      <div id="focus-pick-input" style="display:none;">
+        <div class="jd-label">Pick the focus</div>
+        <select id="focus-select" class="jd-ta" style="height:auto;padding:10px;">
+          <option value="">— pick one —</option>
+          <option value="AI/IT keynote audience">AI/IT keynote audience</option>
+          <option value="Board service or governance role">Board service or governance role</option>
+          <option value="Federal grant submission">Federal grant submission</option>
+          <option value="Industry or consulting">Industry or consulting</option>
+          <option value="Speaking circuit (conferences, keynotes)">Speaking circuit (conferences, keynotes)</option>
+          <option value="Reposition from research track to operator track">Reposition from research track to operator track</option>
+          <option value="Reposition from operator track to research track">Reposition from operator track to research track</option>
+          <option value="Academic promotion or tenure">Academic promotion or tenure</option>
+          <option value="__other__">Other (describe below)</option>
+        </select>
+        <div id="focus-other-input" style="display:none;margin-top:10px;">
+          <textarea class="jd-ta" id="focus-other-text" placeholder="Describe the focus: who will read this CV, and what should it foreground? Example: 'pitching as an AI-in-education keynote speaker; foreground the platform-building work and methodological IP, soften clinical service detail.'"></textarea>
+        </div>
+      </div>
+    </div>
+
     <div id="jd-block" style="display:none;">
       <div class="jd-label" id="jd-label">Paste the job description</div>
       <textarea class="jd-ta" id="jd-text" placeholder="Paste the full job posting here: title, responsibilities, and requirements."></textarea>
@@ -479,8 +512,8 @@
       disclaimer:'Practice tool only. A simulated panel is not a real employer. Use this to rehearse, not to predict an outcome.'
     },
     resume: {
-      step1h:'Upload your CV (and optional cover letter and target role)',
-      step1hint:'Your CV or résumé is required (PDF or .docx Word file). Cover letter and target role are optional but make the review sharper. Everything stays in your browser; only a short brief goes to the coach.',
+      step1h:'Upload your CV and pick what this review is for',
+      step1hint:'Your CV or résumé is required (PDF or .docx Word file). Pick the purpose of the review: general cleanup, a specific job, or a focus (e.g., AI/IT keynote, board service, federal grant). Cover letter is optional. Everything stays in your browser; only a short brief goes to the coach.',
       dropBig:'Click to choose your CV (PDF or Word)', dropSub:'or drag it here',
       analyzeBtn:'Get my review →', analyzeStatus:'Your coach is reading the document',
       panelh:'Meet your coach', panelhint:'One coach. Set how direct she should be. Default is honest.',
@@ -648,7 +681,7 @@
   }
 
   // ---- State ----
-  var state = { fileName:'', docText:'', jdText:'', clText:'', brief:'', panel:[], difficulty:3, transcript:[], turn:0, order:[], orderIdx:0, apUsed:0, apPending:false, currentIsAP:false };
+  var state = { fileName:'', docText:'', jdText:'', clText:'', focusMode:'general', focusValue:'', brief:'', panel:[], difficulty:3, transcript:[], turn:0, order:[], orderIdx:0, apUsed:0, apPending:false, currentIsAP:false };
 
   function $(id){return document.getElementById(id);}
   function showErr(el,msg){ el.textContent = msg; el.style.display='block'; }
@@ -671,6 +704,20 @@
   ['dragleave','drop'].forEach(function(ev){ drop.addEventListener(ev,function(e){e.preventDefault();}); });
   drop.addEventListener('drop', function(e){ e.preventDefault(); if(e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); });
   fileInput.addEventListener('change', function(){ if(fileInput.files[0]) handleFile(fileInput.files[0]); });
+
+  // Résumé Coach: focus-mode radios show/hide the conditional inputs.
+  document.querySelectorAll('input[name="focus-mode"]').forEach(function(r){
+    r.addEventListener('change', function(){
+      var v = r.value;
+      $('focus-job-input').style.display = (v === 'job') ? 'block' : 'none';
+      $('focus-pick-input').style.display = (v === 'focus') ? 'block' : 'none';
+      if(v !== 'focus'){ $('focus-other-input').style.display = 'none'; }
+    });
+  });
+  // Focus dropdown: show "Other" textbox only when __other__ is picked.
+  $('focus-select').addEventListener('change', function(){
+    $('focus-other-input').style.display = ($('focus-select').value === '__other__') ? 'block' : 'none';
+  });
 
   function handleFile(file){
     hideErr($('upload-err'));
@@ -729,7 +776,25 @@
       if(!state.jdText){ showErr($('upload-err'),'Paste the job description so the panel can interview you for the role.'); return; }
     }
     if(MODE==='resume'){
-      state.jdText = $('jd-text').value.trim(); // optional target role
+      // Read focus mode from radios
+      var fm = document.querySelector('input[name="focus-mode"]:checked');
+      state.focusMode = fm ? fm.value : 'general';
+      state.jdText = '';
+      state.focusValue = '';
+      if(state.focusMode === 'job'){
+        state.jdText = $('focus-jd-text').value.trim();
+        if(!state.jdText){ showErr($('upload-err'),'Paste the job description, or switch to General cleanup or Focus.'); $('analyze-btn').disabled=false; return; }
+      } else if(state.focusMode === 'focus'){
+        var pick = $('focus-select').value;
+        if(pick === '__other__'){
+          state.focusValue = $('focus-other-text').value.trim();
+          if(!state.focusValue){ showErr($('upload-err'),'Describe the focus, or pick a preset.'); $('analyze-btn').disabled=false; return; }
+        } else if(pick){
+          state.focusValue = pick;
+        } else {
+          showErr($('upload-err'),'Pick a focus from the list, or switch to General cleanup.'); $('analyze-btn').disabled=false; return;
+        }
+      }
       state.clText = $('cl-text').value.trim(); // optional cover letter
     }
     $('analyze-btn').disabled = true;
@@ -741,8 +806,18 @@
         'You are a hiring panel\'s assistant. You receive a candidate\'s CV/resume and a job description. Produce a TIGHT brief for the interviewers. Output PLAIN TEXT with these labeled sections and nothing else: CANDIDATE SNAPSHOT; TARGET ROLE; ROLE LEVEL (one of: Individual Contributor, Manager, Senior Leader, Executive, Cabinet/C-Suite); ROLE FOCUS (one or two of: technical execution, people leadership, strategy and vision, mission alignment, operations, fiscal stewardship, ethics and compliance, change management, external partnerships); KEY REQUIREMENTS (from the posting, with emphasis on what the role actually needs vs. nice-to-haves); STRENGTHS (where the CV matches the role); GAPS & RISKS (3-6 bullets the panel should probe); LIKELY TOUGH QUESTIONS (3-5, fit to the role level and focus). Be concrete and specific to THIS candidate and THIS role. Keep under 400 words.';
       user = 'CANDIDATE CV:\n\n'+state.docText.slice(0,9000)+'\n\nJOB DESCRIPTION:\n\n'+state.jdText.slice(0,5000);
     } else if(MODE==='resume'){
+      // Build a focus directive sentence the coach reads BEFORE the rubric.
+      var focusDirective;
+      if(state.focusMode === 'job' && state.jdText){
+        focusDirective = 'REVIEW PURPOSE: this review is for a SPECIFIC JOB. A job description has been provided. Judge the CV by FIT to that role: what the document is arguing vs. what the role needs, what to elevate, what to cut, what to add. ';
+      } else if(state.focusMode === 'focus' && state.focusValue){
+        focusDirective = 'REVIEW PURPOSE: this review is for a SPECIFIC AUDIENCE OR POSITIONING — "' + state.focusValue + '". The CV is not being matched to a posted job. Judge the document by how well it currently SPEAKS TO that audience: which sections lead, which sections support, which content should be foregrounded, which should be softened or moved later, what gaps an audience-aware reader would notice. Do NOT invent content. If the document is missing something the focus would call for, name it as a gap; never fabricate. ';
+      } else {
+        focusDirective = 'REVIEW PURPOSE: this is a GENERAL CLEANUP, no specific job and no specific focus. Judge the CV on its own merits: argument clarity, evidence quality, length appropriate to sector, three-sentence Professional Summary, substance over fluff. Recommend cuts, amplifications, and structural fixes that improve the document for any audience. ';
+      }
       sys = resumeBriefAudienceRules() + '\n\n' +
-        'You are the Résumé Coach\'s reading assistant. You receive a CV, optionally a cover letter, and optionally a target role or job description. Produce a TIGHT brief that the coach will speak from. Honest, specific, no flattery, anchored on Dr. Oroszi\'s CV philosophy: a CV is an argument for a specific role; length is the wrong question (Two-CV Tactic: short and long); the Professional Summary is exactly three sentences (who you are, what you have done, what you are looking for); competencies must be earned by evidence; the document must give the reader something worth writing down; substance over fluff, specific over generic. ' +
+        focusDirective + '\n\n' +
+        'You are the Résumé Coach\'s reading assistant. You receive a CV, optionally a cover letter, and either a job description, a focus statement, or neither (general cleanup). Produce a TIGHT brief that the coach will speak from. Honest, specific, no flattery, anchored on Dr. Oroszi\'s CV philosophy: a CV is an argument for a specific role; length is the wrong question (Two-CV Tactic: short and long); the Professional Summary is exactly three sentences (who you are, what you have done, what you are looking for); competencies must be earned by evidence; the document must give the reader something worth writing down; substance over fluff, specific over generic. ' +
         'SECTOR-AWARE RUBRIC (this is critical). Executive evidence looks different across sectors and the honesty bar does NOT change in any of them. Do NOT mark something missing if it is present in its sector-appropriate form on the page. ' +
         'CORPORATE executive markers include: P&L authority, board-of-directors reporting, multi-million-dollar operating budget, cross-functional executive leadership, named C-suite peer relationships. ' +
         'ACADEMIC executive markers (Provost, Dean, Vice Chair, cabinet VP) include: faculty governance roles (Senate, Provost-level or Cabinet committees, chair of standing committees), departmental or program BUDGET authority (often "co-led" or "stewarded" — that still counts), grants-as-revenue (NSF, NIH, DoD totals, classified contracts), accreditation work, doctoral mentorship and program transformation (enrollment, revenue, market position changes), federal advisory boards (FBI JTTF, DHS, JCS consortia), national professional society or interagency leadership, peer-reviewed publications and books as substance evidence, named partnerships with federal agencies. An academic CV that runs 10-25 pages may already be the targeted short version, not a long one. ' +
@@ -751,7 +826,11 @@
         'Read the CV carefully BEFORE calling anything missing. If the candidate has board roles, name them. If they have budget authority in academic form, name it. If they have institutional transformation in academic form (revenue growth on a program, enrollment scale, founding of a new lab/center), name it. The honesty bar still applies: every claim must still be earned by evidence in the document; numbers must be specific; the Professional Summary still follows the three-sentence rule; substance over fluff; no praise that is not earned. The point of the sector-aware rubric is accuracy, not generosity. ' +
         'FORMATTING RULES: Output PLAIN TEXT only. Each labeled section must begin on its own line with the label in ALL CAPS followed by a colon. Put ONE BLANK LINE between sections. For sections that take bullets, put each bullet on its own line starting with "• " (bullet + space). Do NOT run sections together as a single paragraph. ' +
         'Sections, in this exact order and with these exact labels: CURRENT ARGUMENT: (one sentence — what role this document is actually arguing for, regardless of what the candidate said). TARGET ROLE: (from the student\'s input, or "not specified"). SECTOR: (one of: Corporate, Academic, Nonprofit/Mission-Driven, Government/Public-Sector, Hybrid). FIT: (one to three sentences — gap between current argument and target, if any, judged on SECTOR-APPROPRIATE markers). LENGTH STANCE: (one to three sentences — your read, anchored on the Two-CV Tactic and on what is normal length in this sector). PROFESSIONAL SUMMARY: (one to three sentences — does it follow the three-sentence rule, and what to do). EVIDENCE GAPS: (3-6 bullets, one per line — only list things that are ACTUALLY MISSING for the role, not items present in academic/nonprofit form a corporate eye might overlook). CUTS: (3-6 bullets, one per line). AMPLIFY: (3-6 bullets, one per line). COVER LETTER NOTES: (if a cover letter was provided: 2-4 bullets, one per line. If no cover letter was provided, write "Not provided." on a single line). OPEN QUESTION: (one short prompt the coach will speak to the student, inviting them to pick what to work on first). Keep under 550 words total.';
-      user = 'CANDIDATE CV:\n\n'+state.docText.slice(0,12000)+(state.clText?'\n\nCOVER LETTER:\n\n'+state.clText.slice(0,4000):'')+(state.jdText?'\n\nTARGET ROLE / JOB DESCRIPTION:\n\n'+state.jdText.slice(0,4000):'');
+      user = 'CANDIDATE CV:\n\n'+state.docText.slice(0,12000)
+        + (state.clText?'\n\nCOVER LETTER:\n\n'+state.clText.slice(0,4000):'')
+        + (state.focusMode === 'job' && state.jdText ? '\n\nJOB DESCRIPTION:\n\n'+state.jdText.slice(0,4000) : '')
+        + (state.focusMode === 'focus' && state.focusValue ? '\n\nFOCUS / AUDIENCE FOR THIS REVIEW:\n\n'+state.focusValue : '')
+        + (state.focusMode === 'general' ? '\n\nNo specific job or focus — general cleanup.' : '');
     } else {
       sys = defenseBriefAudienceRules() + '\n\n' +
         'You are an academic committee\'s research assistant. Read the excerpt from a thesis/dissertation and produce a TIGHT brief for the examiners. Output PLAIN TEXT with these labeled sections and nothing else: TITLE/TOPIC; FIELD; RESEARCH QUESTION; METHODS; KEY CLAIMS (3-6 bullets); CONTRIBUTION; LIKELY WEAK POINTS (3-6 bullets the committee should probe). Be concrete and specific to this document. Keep under 350 words.';
@@ -1050,7 +1129,17 @@
         'SECTOR-AWARE SCORING: judge the CV on markers appropriate to its sector (Corporate / Academic / Nonprofit / Government), as identified in the brief and surfaced in the chat. Academic budget authority often appears as "co-led" or "stewarded" — it counts as evidence behind claims. Board experience may include federal advisory boards, national professional society officer roles, and 501(c)(3) chairs — they count. Institutional transformation may show as enrollment scale, program revenue growth, or founding a lab/center — that counts. Length judgement should reference what is normal in the sector (academic CVs of 10-25 pages are commonly the short version). DO NOT mark "EVIDENCE BEHIND CLAIMS" low because the markers do not match a corporate template. The honesty bar still applies and the rubric is not generous: weak summaries are still weak, padded sections are still padded, and unsupported claims still cost points. The point of sector awareness is accuracy, not flattery. If the student has pushed back during the chat that evidence IS present, recheck and adjust your scoring accordingly. ' +
         'HARD RULES on the updated CV and cover letter: Use ONLY what the student stated in the original CV, the original cover letter, the chat transcript, and the brief. DO NOT invent employers, dates, titles, numbers, schools, accomplishments, or claims that are not present in their own words. If a quantifiable detail is not present, leave it general rather than fabricating a number. Preserve the student as the author; you are organizing their own words. The Professional Summary in the updated CV must be EXACTLY three sentences: who you are, what you have done, what you are looking for. Anchor everything on Dr. Oroszi\'s CV philosophy: argument over catalog, Two-CV Tactic, three-sentence summary, evidence-earned competencies, substance over fluff, no flattery. ' +
         'Return ONLY valid JSON, no markdown, in this exact shape: {"verdict":"string","categories":[{"name":"string","score":1-5,"note":"one specific sentence"}],"drill":["string","string","string"],"updated_cv":{"name":"string","contact":"string","summary":"three sentences","education":["string"],"experience":[{"title":"string","org":"string","dates":"string","bullets":["string"]}],"projects":["string"],"skills":["string"]},"updated_cover_letter":"string with paragraphs separated by \\n\\n, or empty string if none was provided"}';
-      user = 'Original CV:\n\n'+state.docText.slice(0,12000)+(state.clText?'\n\nOriginal cover letter:\n\n'+state.clText.slice(0,4000):'')+(state.jdText?'\n\nTarget role / job description:\n\n'+state.jdText.slice(0,4000):'')+'\n\nCoaching brief:\n\n'+state.brief+'\n\nSession transcript (use any new specifics the student stated here):\n\n'+transcriptText();
+      var purposeLine;
+      if(state.focusMode === 'job' && state.jdText){ purposeLine = '\n\nReview purpose: tailored to a specific job (description below).'; }
+      else if(state.focusMode === 'focus' && state.focusValue){ purposeLine = '\n\nReview purpose: positioning for a specific audience — "' + state.focusValue + '". Restructure the CV so it speaks to that audience: foreground aligned content, soften off-focus content, never invent.'; }
+      else { purposeLine = '\n\nReview purpose: general cleanup, no specific job or audience.'; }
+      user = 'Original CV:\n\n'+state.docText.slice(0,12000)
+        + (state.clText?'\n\nOriginal cover letter:\n\n'+state.clText.slice(0,4000):'')
+        + (state.focusMode === 'job' && state.jdText ? '\n\nTarget role / job description:\n\n'+state.jdText.slice(0,4000) : '')
+        + (state.focusMode === 'focus' && state.focusValue ? '\n\nFocus / audience for this review:\n\n'+state.focusValue : '')
+        + purposeLine
+        + '\n\nCoaching brief:\n\n'+state.brief
+        + '\n\nSession transcript (use any new specifics the student stated here):\n\n'+transcriptText();
     } else if(MODE==='interview'){
       sys = audiencePrefix() + '\n\n' + interviewAudienceRules() + '\n\n' +
         'You are an interview panel producing a formative READINESS CARD after a practice job interview. Be honest and specific. No flattery, no praise that is not earned. Score five categories from 1 to 5 (1=not ready, 5=ready). Categories: FIT TO THE ROLE; EVIDENCE OF IMPACT; COMMUNICATION & CLARITY; HANDLING TOUGH QUESTIONS; MOTIVATION & CLOSE. Also give an overall one-line verdict and 3-5 concrete things to drill before the real interview. ' +
@@ -1240,11 +1329,20 @@
     var s = INTERVIEW_SAMPLES.filter(function(x){return x.id===id;})[0]; if(!s) return;
     hideErr($('upload-err'));
     state.fileName = s.field; state.docText = s.cv;
-    $('jd-text').value = s.jd;
-    if(MODE === 'resume' && s.cl){ $('cl-text').value = s.cl; }
+    if(MODE === 'resume'){
+      // Sample includes a JD — pre-select the "specific job" radio and load it
+      if(s.jd){
+        var jobRadio = document.querySelector('input[name="focus-mode"][value="job"]');
+        if(jobRadio){ jobRadio.checked = true; jobRadio.dispatchEvent(new Event('change')); }
+        $('focus-jd-text').value = s.jd;
+      }
+      if(s.cl){ $('cl-text').value = s.cl; }
+    } else {
+      $('jd-text').value = s.jd;
+    }
     drop.classList.add('has');
     $('drop-big').innerHTML = '<span class="filename">Sample CV: '+s.field+'</span>';
-    $('drop-sub').textContent = (MODE==='resume') ? 'Loaded · cover letter and target role filled in below (edit or clear as you like)' : 'Loaded · job description filled in below';
+    $('drop-sub').textContent = (MODE==='resume') ? 'Loaded · review purpose set to "specific job" with sample JD (change as you like)' : 'Loaded · job description filled in below';
     $('analyze-btn').disabled = false;
     analyzeDoc();
   }
@@ -1257,7 +1355,7 @@
     $('mode-interview').classList.toggle('inactive', m!=='interview');
     $('mode-resume').classList.toggle('inactive', m!=='resume');
     // reset state
-    state = { fileName:'', docText:'', jdText:'', clText:'', brief:'', panel:[], difficulty:state.difficulty||3, transcript:[], turn:0, order:[], orderIdx:0, apUsed:0, apPending:false, currentIsAP:false };
+    state = { fileName:'', docText:'', jdText:'', clText:'', focusMode:'general', focusValue:'', brief:'', panel:[], difficulty:state.difficulty||3, transcript:[], turn:0, order:[], orderIdx:0, apUsed:0, apPending:false, currentIsAP:false };
     // step 1 copy
     $('step1-h').textContent = c.step1h;
     $('step1-hint').textContent = c.step1hint;
@@ -1275,12 +1373,21 @@
       $('jd-text').placeholder = 'Paste the full job posting here: title, responsibilities, and requirements.';
       $('cl-block').style.display='none';
     } else if(m === 'resume'){
-      $('jd-block').style.display='block';
-      $('jd-label').textContent = 'Paste the target role or job description (optional but recommended)';
-      $('jd-text').placeholder = 'Paste the role you are aiming for. Even a job title or one paragraph helps your coach assess fit.';
+      $('jd-block').style.display='none';
+      $('resume-focus-block').style.display='block';
       $('cl-block').style.display='block';
+      // Reset focus radios to "general"
+      var radios = document.querySelectorAll('input[name="focus-mode"]');
+      radios.forEach(function(r){ r.checked = (r.value === 'general'); });
+      $('focus-job-input').style.display='none';
+      $('focus-pick-input').style.display='none';
+      $('focus-other-input').style.display='none';
+      $('focus-jd-text').value = '';
+      $('focus-select').value = '';
+      $('focus-other-text').value = '';
     } else {
       $('jd-block').style.display='none';
+      $('resume-focus-block').style.display='none';
       $('cl-block').style.display='none';
     }
     $('jd-text').value = '';
