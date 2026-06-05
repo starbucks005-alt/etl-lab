@@ -728,7 +728,7 @@ Active learning interventions in introductory STEM courses generally improve stu
   // ─── Roster ───────────────────────────────────────────
   async function loadRoster() {
     try {
-      const resp = await fetch('/.netlify/functions/office-hours-journal-reviewer-panel', { method: 'GET' });
+      const resp = await fetch('/.netlify/functions/office-hours-reviewer-panel-roster', { method: 'GET' });
       if (!resp.ok) throw new Error('roster load failed');
       const data = await resp.json();
       roster = Array.isArray(data.reviewers) ? data.reviewers : [];
@@ -793,39 +793,84 @@ Active learning interventions in introductory STEM courses generally improve stu
 
     if (selectedIds.size < 2) { setStatus('Pick at least 2 reviewers.', 'error'); return; }
 
+    // Generate job_id client-side; background function reads it from the POST body.
+    function genJobId() {
+      if (window.crypto && window.crypto.randomUUID) return 'rp_' + window.crypto.randomUUID().replace(/-/g, '');
+      return 'rp_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
+    }
+    const job_id = genJobId();
+    payload.job_id = job_id;
+
     els.sendBtn.disabled = true;
-    setStatus('Reviewers are reading the paper. Usually 60 to 120 seconds (3 reviewers in parallel).', 'busy');
+    setStatus('Sending paper to reviewers. They run in the background, usually 60 to 120 seconds.', 'busy');
     els.resultsCard.style.display = 'none';
     els.results.innerHTML = '';
 
+    // 1) Kick off the background function. Returns 202 immediately.
     try {
-      const resp = await fetch('/.netlify/functions/office-hours-journal-reviewer-panel', {
+      const startResp = await fetch('/.netlify/functions/office-hours-reviewer-panel-run-background', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-      if (!resp.ok) {
-        const text = await resp.text();
+      // Background functions return 202 on success; treat anything 2xx as kicked off.
+      if (!startResp.ok && startResp.status !== 202) {
+        const text = await startResp.text();
         let detail = '';
         try { const j = JSON.parse(text); detail = j.detail || j.error || ''; } catch { detail = text.slice(0, 200); }
-        if (resp.status === 504 || resp.status === 408 || resp.status === 502) {
-          setStatus('Connection timed out. Try again with fewer reviewers, or switch to a phone hotspot.', 'error');
-        } else {
-          setStatus('Something went wrong: ' + (detail || resp.status), 'error');
-        }
+        setStatus('Could not start the panel: ' + (detail || startResp.status), 'error');
+        els.sendBtn.disabled = false;
         return;
       }
-      const data = await resp.json();
-      renderPanel(data.panel || {});
-      setStatus('Done. Editor decision rendered above the reviews.', 'success');
     } catch (err) {
-      if (err instanceof TypeError) {
-        setStatus('Network hiccup. Try again, or switch to a phone hotspot.', 'error');
-      } else {
-        setStatus('Error: ' + (err && err.message), 'error');
-      }
-    } finally {
+      setStatus('Network hiccup starting the panel: ' + (err && err.message), 'error');
       els.sendBtn.disabled = false;
+      return;
+    }
+
+    // 2) Poll status endpoint until done or timed out.
+    const POLL_MS = 4000;
+    const MAX_WAIT_MS = 5 * 60 * 1000; // 5 minutes max
+    const startedAt = Date.now();
+    let pollCount = 0;
+    while (true) {
+      pollCount++;
+      const elapsedSec = Math.round((Date.now() - startedAt) / 1000);
+      setStatus('Reviewers working in the background... ' + elapsedSec + 's elapsed. Safe to keep this tab open.', 'busy');
+
+      if (Date.now() - startedAt > MAX_WAIT_MS) {
+        setStatus('Timed out after 5 minutes. Try again with fewer reviewers or a shorter paper.', 'error');
+        els.sendBtn.disabled = false;
+        return;
+      }
+
+      await new Promise(function (r) { setTimeout(r, POLL_MS); });
+
+      let statusJson;
+      try {
+        const statusResp = await fetch('/.netlify/functions/office-hours-reviewer-panel-status?job_id=' + encodeURIComponent(job_id));
+        if (!statusResp.ok) {
+          // Transient errors on polling: keep retrying up to the timeout.
+          continue;
+        }
+        statusJson = await statusResp.json();
+      } catch (err) {
+        // Network hiccup mid-poll: keep retrying.
+        continue;
+      }
+
+      if (statusJson.status === 'done' && statusJson.panel) {
+        renderPanel(statusJson.panel);
+        setStatus('Done. Editor decision rendered above the reviews.', 'success');
+        els.sendBtn.disabled = false;
+        return;
+      }
+      if (statusJson.status === 'failed') {
+        setStatus('Panel failed: ' + (statusJson.error || 'unknown error'), 'error');
+        els.sendBtn.disabled = false;
+        return;
+      }
+      // status === 'pending' or 'running': loop again
     }
   });
 

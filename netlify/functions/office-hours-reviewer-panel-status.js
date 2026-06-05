@@ -1,0 +1,44 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   office-hours-reviewer-panel-status
+
+   Polled by the frontend to check on a reviewer-panel job. Returns the blob
+   stored under the job_id by office-hours-reviewer-panel-run-background.
+
+   GET /.netlify/functions/office-hours-reviewer-panel-status?job_id=<id>
+   ───────────────────────────────────────────────────────────────────────────── */
+
+const { getStore, connectLambda } = require('@netlify/blobs');
+
+const CORS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+};
+const json = (statusCode, body) => ({
+  statusCode,
+  headers: { ...CORS, 'Content-Type': 'application/json' },
+  body: JSON.stringify(body),
+});
+
+exports.handler = async (event) => {
+  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: CORS, body: '' };
+  if (event.httpMethod !== 'GET') return json(405, { error: 'method not allowed' });
+
+  const job_id = String((event.queryStringParameters || {}).job_id || '').trim();
+  if (!job_id || !/^[a-zA-Z0-9_-]{8,64}$/.test(job_id)) return json(400, { error: 'invalid job_id' });
+
+  try { connectLambda(event); } catch (err) {
+    console.error('[reviewer-panel-status] connectLambda failed', err && err.message);
+    return json(500, { error: 'blobs connect failed' });
+  }
+
+  try {
+    const store = getStore('reviewer_panel_jobs');
+    const record = await store.get(job_id, { type: 'json' });
+    if (!record) return json(200, { status: 'pending', job_id });
+    return json(200, { ...record, job_id });
+  } catch (err) {
+    console.error('[reviewer-panel-status] read failed', err && err.message);
+    return json(500, { error: 'status read failed', detail: err && err.message });
+  }
+};
