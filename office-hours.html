@@ -236,6 +236,50 @@
     color: var(--gold-deep); font-weight: 600; margin-top: 0.4rem;
   }
 
+  /* Primary (hero) card: spans the full grid row, larger type, distinct treatment. */
+  .toolkit-card.primary {
+    grid-column: 1 / -1;
+    background: #fffbef;
+    border-left: 6px solid var(--gold);
+    padding: 1.6rem 1.8rem 1.8rem;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1rem 2rem;
+    align-items: center;
+  }
+  @media (max-width: 760px) {
+    .toolkit-card.primary { grid-template-columns: 1fr; }
+  }
+  a.toolkit-card.primary:hover { background: #fdf4dc; border-color: var(--gold); border-left-color: var(--gold-deep); }
+  .toolkit-card.primary .toolkit-card__badge { grid-column: 1; grid-row: 1; }
+  .toolkit-card.primary h3 {
+    grid-column: 1; grid-row: 2;
+    font-size: clamp(1.6rem, 3vw, 2rem);
+    margin: 0.2rem 0 0.3rem;
+    letter-spacing: -0.01em;
+  }
+  .toolkit-card.primary p {
+    grid-column: 1; grid-row: 3;
+    font-size: 1.05rem; line-height: 1.55;
+    color: var(--ink);
+  }
+  .toolkit-card.primary .toolkit-card__cta {
+    grid-column: 2; grid-row: 1 / -1;
+    align-self: center;
+    font-size: 0.78rem; letter-spacing: 0.18em;
+    padding: 0.8rem 1.4rem;
+    background: var(--gold); color: #fff;
+    border: 1px solid var(--gold-deep);
+    margin-top: 0;
+    white-space: nowrap;
+  }
+  a.toolkit-card.primary:hover .toolkit-card__cta { background: var(--gold-deep); }
+  @media (max-width: 760px) {
+    .toolkit-card.primary .toolkit-card__cta {
+      grid-column: 1; grid-row: 4; align-self: start; justify-self: start;
+    }
+  }
+
   /* Profile / letterhead card. Collapsible — open when no saved profile,
      collapses to a one-line summary once saved. */
   .profile-card {
@@ -325,10 +369,10 @@
 
     <div class="toolkit-grid">
 
-      <a class="toolkit-card" href="/office-hours/journal-reviewer-panel">
-        <span class="toolkit-card__badge new">New</span>
-        <h3>Reviewer Panel</h3>
-        <p>Upload your paper. Three reviewers from the ETL faculty roster read it independently and write their own reports, each in their own voice. Methodologist, Domain Expert, Skeptic, Theorist, Stats Hardliner, Outside Reader. Editor decision from the panel.</p>
+      <a class="toolkit-card primary" href="/office-hours/journal-reviewer-panel">
+        <span class="toolkit-card__badge new">Flagship</span>
+        <h3>Reviewer Panel &mdash; AI-simulated peer review for student and faculty manuscripts</h3>
+        <p>Upload a paper (or pick one of three sample literature reviews to demo). Three reviewers from the ETL roster read it independently and write their own reports, each in their own voice and lens: Methodologist, Domain Expert, Skeptic, Theorist, Stats Hardliner, Outside Reader, Interdisciplinary Bridge, Supportive Editor. Editor decision computed from the panel. Built so every student paper gets pre-submission peer review before it leaves the lab.</p>
         <span class="toolkit-card__cta">Send to panel &rarr;</span>
       </a>
 

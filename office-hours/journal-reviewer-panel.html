@@ -354,16 +354,27 @@
 
   <div class="masthead">
     <div class="eyebrow">Office Hours &middot; Reviewer Panel</div>
-    <h1>Send your paper to a reviewer panel.</h1>
-    <p class="sub">Upload your manuscript. Three reviewers from the ETL faculty roster will read it independently and write their own reports, each in their own voice and lens. The Methodologist, the Domain Expert, the Skeptic, the Theorist, the Stats Hardliner, the Outside Reader. Editor decision computed from the panel.</p>
+    <h1>AI-simulated reviewer panel.</h1>
+    <p class="sub">Upload your manuscript. Three reviewers (each an AI persona modeled on a distinct academic lens) will read it independently and write their own reports in their own voice. Methodologist, Domain Expert, Skeptic, Theorist, Stats Hardliner, Outside Reader, Interdisciplinary Bridge, Supportive Editor. Editor decision computed from the panel. Built as a pre-submission rigor check, not a replacement for real peer review.</p>
   </div>
 
   <div class="privacy-banner">
-    <strong>Privacy:</strong> Your paper is sent to Anthropic's Claude API for analysis. Anthropic does not train on or retain API content. We do not log, store, or retain anything on our servers. Use a redacted draft if it includes patient identifiers or sensitive collaborators.
+    <strong>What this is:</strong> Each reviewer is an AI persona running on Anthropic&rsquo;s Claude API. The personas are fictional academic archetypes; the reviews they write are AI-generated. This tool is for pre-submission rigor and rehearsal; journal peer review remains the authoritative process. Anthropic does not train on or retain API content. We do not log or store anything on our servers. Use a redacted draft if it includes patient identifiers or sensitive collaborators.
   </div>
 
   <!-- ─── INTAKE CARD ─── -->
   <div class="card">
+
+    <div class="sample-bar" style="margin: 0 0 1.2rem; padding: 0.7rem 0.9rem; background: #ece1c8; border: 1px dashed var(--gold); display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap;">
+      <label for="sample" style="font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold-deep);">Try a sample literature review:</label>
+      <select id="sample" style="padding: 0.4rem 0.6rem; font-family: 'Cormorant Garamond', serif; font-size: 0.95rem; background: #fffbef; border: 1px solid var(--line); flex: 1; min-width: 280px;">
+        <option value="">&mdash; pick a sample &mdash;</option>
+        <option value="glp1">PharmD / clinical &mdash; GLP-1 agonists for T2DM weight management</option>
+        <option value="naloxone">Public health &mdash; community naloxone distribution &amp; overdose mortality</option>
+        <option value="activelearning">Education &mdash; active learning in STEM undergraduate courses</option>
+      </select>
+      <button type="button" class="link" id="clear-btn" style="background: transparent; border: 0; color: var(--gold-deep); cursor: pointer; font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; text-decoration: underline;">Clear</button>
+    </div>
 
     <!-- Paper source -->
     <div class="source-tabs">
@@ -457,7 +468,124 @@
     'methods':           ['vv', 'az', 'tk'],
   };
 
+  // Sample literature reviews for live demos. Substantive enough that reviewers
+  // will find real things to critique; not so polished that everyone returns "accept".
+  // All synthetic. None are real student work.
+  const SAMPLES = {
+    glp1: {
+      paper_type: 'systematic-review',
+      sme: 'Clinical pharmacy, endocrinology, weight management in type 2 diabetes',
+      journal: 'Annals of Pharmacotherapy',
+      text: `TITLE: Efficacy of GLP-1 Receptor Agonists for Weight Management in Patients with Type 2 Diabetes: A Systematic Review of Recent Trials
+
+ABSTRACT
+Background. GLP-1 receptor agonists (GLP-1 RAs) have emerged as a major pharmacotherapeutic class for type 2 diabetes mellitus (T2DM) with secondary weight-reduction benefits. The relative magnitude of weight loss across agents, doses, and patient subgroups remains incompletely characterized in clinical practice.
+Objective. To systematically review trials published 2021 to 2024 evaluating weight outcomes of GLP-1 RAs in adults with T2DM.
+Methods. We searched PubMed and Google Scholar using terms "GLP-1 receptor agonist" combined with "weight loss," "T2DM," and individual drug names (semaglutide, liraglutide, dulaglutide, tirzepatide). We included randomized controlled trials of 12 weeks or longer with at least 50 participants per arm. Two reviewers screened titles and abstracts; disagreements resolved by discussion. Quality assessment was performed informally.
+Results. Twelve trials met inclusion criteria (total N=14,802). Mean weight loss ranged from 2.1 kg (low-dose liraglutide) to 15.7 kg (high-dose tirzepatide) over 26 to 72 weeks. Higher doses produced greater weight loss across all agents. Subgroup analyses suggested larger effects in patients with baseline BMI greater than 35 kg/m^2. Gastrointestinal adverse events were common but typically resolved by week 8.
+Conclusions. GLP-1 RAs produce clinically meaningful weight reduction in patients with T2DM, with dose-response patterns evident across agents. Tirzepatide demonstrates the greatest absolute weight reduction. These findings support GLP-1 RA selection based on weight-loss priority and patient tolerability.
+
+INTRODUCTION
+Type 2 diabetes mellitus affects over 37 million Americans, with obesity as both a major risk factor and frequent comorbidity. Excess adiposity drives insulin resistance, accelerates beta-cell dysfunction, and complicates glycemic control. Pharmacotherapy that addresses both glycemia and weight is therefore of considerable clinical interest.
+GLP-1 receptor agonists were originally developed for glycemic control. Over the past decade, weight-reduction effects have moved from secondary observation to primary clinical target, culminating in the FDA approval of semaglutide 2.4 mg for chronic weight management. The class now includes daily and weekly agents, oral and injectable formulations, and the dual GIP/GLP-1 agonist tirzepatide.
+The objective of this review is to characterize the magnitude of weight loss achieved by GLP-1 RAs in adults with T2DM across recent trials, and to identify factors that moderate response.
+
+METHODS
+Search strategy. We searched PubMed and Google Scholar in March 2024 using the following terms: "GLP-1 receptor agonist" AND ("weight loss" OR "weight reduction" OR "body weight") AND ("type 2 diabetes" OR "T2DM"). Drug-specific searches were also conducted for semaglutide, liraglutide, dulaglutide, exenatide, and tirzepatide. Date limits were 2021 to 2024.
+Inclusion criteria. (1) Randomized controlled trials. (2) Adult participants (>=18 years) with confirmed T2DM. (3) GLP-1 RA versus placebo, active comparator, or alternative dose. (4) Duration >=12 weeks. (5) >=50 participants per arm. (6) Reported weight outcomes.
+Exclusion criteria. Non-RCT designs, pediatric populations, type 1 diabetes, post-bariatric surgery populations, single-arm studies.
+Screening. Titles and abstracts were screened by the lead author. Full texts of potentially eligible studies were reviewed by both authors. Disagreements were resolved by discussion.
+Data extraction. Extracted variables: study identifier, agent, dose, duration, sample size, baseline characteristics (age, BMI, HbA1c, baseline weight), weight outcomes (mean change, percent change), adverse events.
+Quality assessment. Quality was assessed informally for each included study.
+
+RESULTS
+Study selection. Initial searches returned 1,247 records. After de-duplication and title/abstract screening, 89 full-text articles were assessed. Twelve studies met all inclusion criteria.
+Study characteristics. Total enrollment across included studies was 14,802 participants. Trials evaluated semaglutide (n=5), tirzepatide (n=3), liraglutide (n=2), and dulaglutide (n=2). Trial durations ranged from 26 to 72 weeks. Mean baseline BMI ranged from 31.2 to 38.4 kg/m^2.
+Weight outcomes. Pooled estimates were not produced due to heterogeneity in dosing and outcome reporting. Narratively, mean weight loss ranged from 2.1 kg (liraglutide 1.2 mg) to 15.7 kg (tirzepatide 15 mg). Within-agent dose-response was consistent: higher doses produced greater weight reduction across all four agents reviewed.
+Subgroup patterns. Two trials reported subgroup analyses by baseline BMI. Both showed larger weight reductions in participants with BMI >=35 kg/m^2 (mean additional 2.3 kg loss). No trials reported subgroup analyses by race or ethnicity.
+Adverse events. Nausea, vomiting, and diarrhea were the most frequently reported adverse events across all agents. Discontinuation rates due to GI adverse events ranged from 3.2% (low-dose dulaglutide) to 9.8% (high-dose tirzepatide). Most GI symptoms resolved by week 8.
+
+DISCUSSION
+This review supports the use of GLP-1 RAs as effective pharmacotherapy for weight reduction in adults with T2DM. The magnitude of weight loss observed is clinically meaningful and exceeds that typically achieved with metformin or sulfonylureas. Tirzepatide produces the greatest absolute weight reduction in this class.
+The dose-response patterns observed across agents suggest that initial agent selection should be informed by patient weight-reduction priorities and tolerability. Patients with higher baseline BMI may achieve greater absolute weight loss, consistent with broader obesity-pharmacotherapy patterns.
+This review has several limitations. The search was restricted to two databases and to English-language publications. Quality assessment was informal. We did not produce pooled estimates due to dosing heterogeneity. Long-term durability of weight loss beyond 72 weeks remains uncertain. Cost considerations, which substantially influence real-world access, were outside the scope of this review.
+
+CONCLUSIONS
+GLP-1 receptor agonists produce clinically meaningful weight loss in adults with T2DM, with dose-response patterns across agents. These findings support evidence-based pharmacotherapy selection in clinical practice.`,
+    },
+    naloxone: {
+      paper_type: 'review',
+      sme: 'Public health, harm reduction, opioid use disorder',
+      journal: 'American Journal of Public Health',
+      text: `TITLE: Community-Based Naloxone Distribution Programs and Overdose Mortality: A Scoping Review
+
+ABSTRACT
+The opioid overdose crisis has prompted widespread implementation of community-based naloxone distribution (CBND) programs in North America. This scoping review summarizes evidence from 2018 to 2024 on the relationship between CBND programs and overdose mortality outcomes. We identified 34 eligible studies through PubMed and CINAHL searches. Studies generally reported reductions in overdose mortality in communities with active CBND programs, though effect sizes varied. Most studies were observational. Implementation factors associated with greater impact included paired training, mobile distribution, and integration with peer-led outreach. Further research is needed in non-US settings and on long-term cost-effectiveness.
+
+INTRODUCTION
+Opioid overdose deaths in the United States exceeded 80,000 in 2023, with synthetic opioids (primarily illicitly manufactured fentanyl) responsible for the majority. Community-based naloxone distribution (CBND) has emerged as a leading harm-reduction intervention, predicated on the premise that the lay public can safely and effectively reverse opioid overdose when equipped with intranasal or injectable naloxone.
+CBND programs differ in structure: some are pharmacy-based, some operate through syringe service programs or harm-reduction organizations, and others are integrated with emergency department or law enforcement encounters. Evidence on the comparative effectiveness of these models is fragmented across program types, populations, and methodological approaches.
+The objective of this scoping review is to summarize empirical evidence from 2018 to 2024 on the relationship between CBND programs and overdose mortality outcomes, with attention to implementation factors that may modify impact.
+
+METHODS
+Approach. We followed the scoping review framework articulated by Arksey and O'Malley. We did not register the protocol.
+Search strategy. We searched PubMed and CINAHL in February 2024 using combinations of "naloxone," "community distribution," "harm reduction," "opioid overdose," and "mortality." Date limits were 2018 to 2024. We limited to English-language publications.
+Inclusion criteria. (1) Empirical studies evaluating CBND programs. (2) Reported quantitative outcomes on overdose mortality, hospitalization, or naloxone administration events. (3) Community settings (not in-hospital or clinical-only distribution).
+Exclusion criteria. Editorials, opinion pieces, simulation studies, case reports.
+Screening. Titles and abstracts were screened by the lead author. Full texts were reviewed by the lead author. A second reviewer was consulted on uncertain cases.
+Data extraction. Extracted variables: study location, program model, study design, population, sample size, outcomes, key findings.
+
+RESULTS
+Study identification. Initial searches returned 412 records. After title/abstract screening, 68 full-text articles were assessed. Thirty-four studies met inclusion criteria.
+Study characteristics. The majority of studies (n=28) were conducted in the United States, with smaller numbers from Canada (n=4) and the United Kingdom (n=2). Study designs were predominantly observational: 18 retrospective cohort studies, 8 ecological analyses, 6 cross-sectional studies, and 2 quasi-experimental evaluations.
+Program models. Pharmacy-based distribution (n=14), syringe service program integration (n=11), peer-led outreach (n=6), and other models (n=3) were represented.
+Mortality outcomes. Of 22 studies reporting mortality outcomes, 19 found reductions in overdose mortality in communities with active CBND programs. Reductions ranged from 9% to 46%. Three studies found no statistically significant association. No study found an increase in overdose mortality associated with CBND.
+Implementation factors. Studies that examined implementation factors identified the following as associated with greater impact: (1) Pairing naloxone distribution with brief training on overdose recognition and response. (2) Mobile or street-based distribution rather than fixed-site only. (3) Integration with peer outreach workers with lived experience. (4) Co-distribution with fentanyl test strips and other harm-reduction supplies.
+
+DISCUSSION
+Available evidence supports community-based naloxone distribution as an effective intervention to reduce opioid overdose mortality. The consistency of findings across study designs and program models strengthens this conclusion. However, the predominance of observational designs limits causal inference, and ecological-fallacy concerns apply to several of the included analyses.
+Implementation factors associated with greater impact suggest that simple "drop-and-go" distribution is less effective than distribution paired with training, peer engagement, and integrated harm-reduction services. Public-health practitioners designing CBND programs should consider these factors in resource allocation.
+Limitations of this review include the restriction to two databases and English-language publications, the predominance of US studies (limiting generalizability to other contexts), and the absence of formal risk-of-bias assessment. We did not produce quantitative synthesis given the heterogeneity of designs and outcomes.
+
+CONCLUSIONS
+Community-based naloxone distribution programs are consistently associated with reductions in opioid overdose mortality across diverse populations and program models. Future research priorities include long-term cost-effectiveness analysis, non-US implementation evaluations, and rigorous quasi-experimental designs to strengthen causal inference.`,
+    },
+    activelearning: {
+      paper_type: 'review',
+      sme: 'Higher education, STEM pedagogy, undergraduate learning',
+      journal: 'Journal of College Science Teaching',
+      text: `TITLE: Active Learning Interventions in STEM Undergraduate Courses: A Narrative Review of Recent Evidence
+
+ABSTRACT
+Active learning has been broadly advocated as a more effective pedagogical approach than traditional lecture in STEM undergraduate education. This narrative review summarizes evidence from 2019 to 2024 on the effectiveness of active learning interventions in introductory STEM courses. Studies generally report improvements in student outcomes, including exam performance, course pass rates, and engagement measures. The magnitude of effects varies considerably across interventions and contexts. Implementation challenges include faculty training requirements and student resistance. We discuss implications for departmental adoption.
+
+INTRODUCTION
+The case for active learning in STEM education has been built over the past two decades, anchored by Freeman and colleagues' 2014 meta-analysis showing significant improvements in exam scores and reductions in failure rates. Subsequent work has examined finer-grained questions: which active learning interventions are most effective, in which contexts, and for which students.
+"Active learning" is a broad term encompassing peer instruction, problem-based learning, flipped classrooms, group work, in-class polling, and other techniques. Definitions vary across studies, complicating comparisons.
+This narrative review summarizes evidence from 2019 to 2024 on active learning interventions in introductory STEM undergraduate courses. We focus on outcomes including academic performance, student engagement, and equity considerations.
+
+METHODS
+This is a narrative review. We did not follow a formal systematic-review protocol. We searched ERIC and Google Scholar using terms including "active learning," "STEM education," "undergraduate," and "introductory." We selected studies based on relevance and methodological strength as judged by the lead author. No formal inclusion or exclusion criteria were applied. Approximately 50 studies were considered.
+
+RESULTS
+Performance outcomes. The majority of reviewed studies reported positive effects of active learning on academic performance metrics including exam scores, course grades, and pass rates. Effect sizes ranged from negligible to substantial. A 2022 study of introductory biology at a large public university reported a 12% increase in pass rates following adoption of peer instruction. A 2023 chemistry study found a 0.4 grade-point improvement in students enrolled in flipped sections. A few studies reported no significant differences, particularly when active learning was added to but did not displace traditional lecture content.
+Engagement and persistence. Several studies examined non-academic outcomes. Self-reported engagement, sense of belonging, and intention to persist in STEM majors were generally elevated in active-learning conditions. One large multi-site study found that the engagement gap between first-generation and continuing-generation students narrowed under active learning conditions.
+Equity considerations. Increasing attention has been paid to whether active learning differentially benefits underrepresented students. Mixed findings have emerged: some studies report larger gains for women and underrepresented minority students, others report similar gains across groups, and a small number report potentially negative effects when active learning is implemented poorly (e.g., when group dynamics enable disengagement or marginalization).
+Implementation factors. Successful active learning implementation appears to require sustained faculty professional development, departmental cultural support, classroom infrastructure (flexible seating, response technology), and student preparation through clear communication about course design. Studies of failed or weak implementations frequently cite student resistance, particularly in highly competitive pre-professional pathways, and faculty time pressures.
+
+DISCUSSION
+Evidence accumulated since 2019 continues to support active learning as a generally more effective pedagogical approach than traditional lecture in STEM undergraduate courses. The strength of effects varies considerably with implementation quality, intervention specifics, and contextual factors. Departmental decisions to adopt active learning should be informed by realistic expectations about the resources required.
+The equity story remains complex. Active learning is not automatically equity-advancing; poorly implemented active learning can recreate or exacerbate existing inequities through group dynamics and participation patterns. Intentional design and ongoing assessment appear necessary to realize equity benefits.
+Future research priorities include identifying the active ingredients within "active learning" (which specific techniques drive effects), longitudinal outcomes (retention in STEM majors, persistence to graduation), and comparative effectiveness across intervention types.
+
+CONCLUSIONS
+Active learning interventions in introductory STEM courses generally improve student outcomes, with effect sizes that depend on implementation quality and context. Departmental adoption should be paired with faculty development and ongoing assessment.`,
+    },
+  };
+
   const els = {
+    sample: document.getElementById('sample'),
+    clearBtn: document.getElementById('clear-btn'),
     sourceTabs: document.querySelector('.source-tabs'),
     panePdf: document.getElementById('pane-pdf'),
     paneText: document.getElementById('pane-text'),
@@ -559,6 +687,42 @@
     els.dropZone.style.display = 'block';
     els.fileInput.value = '';
     setStatus('');
+  });
+
+  // ─── Sample loader ────────────────────────────────────
+  function switchToTextSource() {
+    sourceMode = 'text';
+    els.sourceTabs.querySelectorAll('button').forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-source') === 'text'); });
+    els.panePdf.classList.remove('active');
+    els.paneText.classList.add('active');
+  }
+  els.sample.addEventListener('change', function () {
+    const key = els.sample.value; if (!key) return;
+    const s = SAMPLES[key]; if (!s) return;
+    els.paperText.value = s.text;
+    els.paperType.value = s.paper_type;
+    els.sme.value = s.sme || '';
+    els.journal.value = s.journal || '';
+    switchToTextSource();
+    seedSelectionFromPaperType();
+    renderRoster();
+    setStatus('Sample loaded. Pick reviewers and send.', 'success');
+  });
+  els.clearBtn.addEventListener('click', function () {
+    els.paperText.value = '';
+    els.sme.value = '';
+    els.journal.value = '';
+    els.paperType.value = 'primary';
+    els.sample.value = '';
+    pdfBase64 = null; pdfName = ''; pdfSizeBytes = 0;
+    els.fileInfo.style.display = 'none';
+    els.dropZone.style.display = 'block';
+    els.fileInput.value = '';
+    seedSelectionFromPaperType();
+    renderRoster();
+    setStatus('');
+    els.resultsCard.style.display = 'none';
+    els.results.innerHTML = '';
   });
 
   // ─── Roster ───────────────────────────────────────────
