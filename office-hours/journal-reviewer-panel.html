@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reviewer Panel &mdash; Office Hours | Emerging Technologies Laboratory</title>
+<meta name="description" content="Upload your paper. Get three independent journal reviewer reports written in three different academic voices, with major/minor issues, questions for authors, and an editor decision. The Methodologist, the Domain Expert, the Skeptic, the Theorist, the Stats Hardliner, the Outside Reader.">
+<link rel="canonical" href="https://emerging-tech-lab.com/office-hours/journal-reviewer-panel">
+<link rel="icon" type="image/png" href="/favicon.png">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Reviewer Panel &mdash; Office Hours">
+<meta property="og:description" content="Three simulated journal reviewers read your paper. Each writes their own report from their own lens. Editor decision computed from the panel.">
+<meta property="og:url" content="https://emerging-tech-lab.com/office-hours/journal-reviewer-panel">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --paper: #f3ecdc;
+    --paper-deep: #e8dec8;
+    --ink: #161310;
+    --ink-soft: #4a443a;
+    --gold: #b8922a;
+    --gold-deep: #8a6c1a;
+    --line: #c8bba0;
+    --bad: #8a2a2a;
+    --warn: #c47a1a;
+    --good: #3a6a2a;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--paper); color: var(--ink);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 18px; line-height: 1.55;
+  }
+  a { color: var(--gold-deep); text-decoration: underline; text-underline-offset: 3px; }
+  a:hover { color: var(--ink); }
+
+  .top-strip {
+    background: #161310; color: #d4aa4a;
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 0.6rem 1.5rem; display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 0.5rem;
+  }
+  .top-strip a { color: #d4aa4a; text-decoration: none; }
+  .top-strip a:hover { color: #fff; }
+  .top-strip__crumbs a { margin-right: 0.6rem; }
+  .top-strip__crumbs .sep { color: #8a6c1a; margin-right: 0.6rem; }
+
+  .shell { max-width: 1080px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+  .masthead { text-align: center; padding: 1.5rem 0 0.8rem; border-bottom: 1px solid var(--line); }
+  .masthead .eyebrow {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--gold-deep);
+  }
+  .masthead h1 {
+    font-family: 'Playfair Display', Georgia, serif; font-weight: 900;
+    font-size: clamp(2rem, 4.5vw, 3.2rem); margin: 0.2rem 0 0.2rem; letter-spacing: -0.01em;
+  }
+  .masthead .sub {
+    font-style: italic; color: var(--ink-soft); margin: 0; font-size: 1.1rem;
+    max-width: 760px; margin-left: auto; margin-right: auto;
+  }
+
+  .privacy-banner {
+    margin: 1.4rem 0 1.2rem;
+    padding: 0.9rem 1.2rem;
+    background: #ece1c8; border-left: 3px solid var(--gold);
+    font-size: 0.95rem; color: var(--ink-soft);
+  }
+  .privacy-banner strong { color: var(--ink); }
+
+  .card {
+    background: #fcf6e8; border: 1px solid var(--line);
+    padding: 1.4rem 1.4rem 1.6rem; box-shadow: 0 1px 0 rgba(0,0,0,0.03);
+    margin-bottom: 1.4rem;
+  }
+  .card h2 {
+    font-family: 'Playfair Display', Georgia, serif; font-weight: 700;
+    font-size: 1.4rem; margin: 0 0 0.3rem;
+  }
+  .card .card-sub {
+    font-style: italic; color: var(--ink-soft); font-size: 0.95rem;
+    margin: 0 0 1.2rem;
+  }
+
+  label.field {
+    display: block; margin-bottom: 1rem;
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--gold-deep);
+  }
+  label.field > .label-text { display: block; margin-bottom: 0.35rem; }
+  label.field > .label-note {
+    display: block; font-family: 'Cormorant Garamond', serif; text-transform: none;
+    letter-spacing: 0; color: var(--ink-soft); font-style: italic;
+    font-size: 0.9rem; margin-bottom: 0.35rem;
+  }
+  label.field input[type=text], label.field select, label.field textarea {
+    width: 100%; padding: 0.55rem 0.7rem;
+    font-family: 'Cormorant Garamond', serif; font-size: 1rem;
+    background: #fffbef; border: 1px solid var(--line);
+    color: var(--ink); border-radius: 0;
+  }
+  label.field textarea { font-family: 'DM Mono', monospace; font-size: 0.84rem; line-height: 1.5; min-height: 200px; resize: vertical; }
+  label.field input:focus, label.field textarea:focus, label.field select:focus {
+    outline: 2px solid var(--gold); outline-offset: -1px;
+  }
+  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 600px) { .row-2 { grid-template-columns: 1fr; } }
+
+  /* Upload + paste tabs */
+  .source-tabs { display: flex; gap: 0; margin-bottom: 0.8rem; border-bottom: 1px solid var(--line); }
+  .source-tabs button {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    background: transparent; border: 0; padding: 0.6rem 1rem;
+    cursor: pointer; color: var(--ink-soft);
+    border-bottom: 2px solid transparent;
+  }
+  .source-tabs button.active { color: var(--ink); border-bottom-color: var(--gold); }
+  .source-pane { display: none; }
+  .source-pane.active { display: block; }
+
+  .drop-zone {
+    border: 2px dashed var(--line); background: #fffbef;
+    padding: 2rem 1rem; text-align: center;
+    margin-bottom: 1rem; cursor: pointer; transition: all 0.18s;
+    font-family: 'DM Mono', monospace; font-size: 0.7rem;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft);
+  }
+  .drop-zone:hover, .drop-zone.over {
+    border-color: var(--gold); background: #fdf4dc; color: var(--gold-deep);
+  }
+  .drop-zone__hint {
+    font-family: 'Cormorant Garamond', serif; font-size: 0.92rem;
+    font-style: italic; color: var(--ink-soft); text-transform: none;
+    letter-spacing: 0; margin-top: 0.4rem;
+  }
+  .file-info {
+    background: #f5ecc8; border-left: 3px solid var(--gold);
+    padding: 0.6rem 0.9rem; margin-bottom: 1rem;
+    font-family: 'DM Mono', monospace; font-size: 0.78rem;
+    color: var(--ink); display: none;
+  }
+  .file-info strong { color: var(--gold-deep); }
+  .file-info button {
+    margin-left: 0.8rem; font-family: 'DM Mono', monospace; font-size: 0.66rem;
+    background: transparent; border: 1px solid var(--line); color: var(--ink-soft);
+    padding: 0.2rem 0.6rem; cursor: pointer; letter-spacing: 0.12em; text-transform: uppercase;
+  }
+  .file-info button:hover { background: var(--paper-deep); color: var(--ink); }
+
+  /* Reviewer roster picker */
+  .roster-row {
+    display: flex; flex-wrap: wrap; gap: 0.6rem;
+    margin: 0.5rem 0 1rem;
+  }
+  .roster-chip {
+    display: flex; align-items: center; gap: 0.4rem;
+    padding: 0.35rem 0.6rem 0.35rem 0.35rem;
+    border: 1px solid var(--line); background: #fffbef;
+    cursor: pointer; transition: all 0.15s;
+    font-family: 'DM Mono', monospace; font-size: 0.66rem;
+    letter-spacing: 0.08em; color: var(--ink-soft);
+  }
+  .roster-chip:hover { border-color: var(--gold); }
+  .roster-chip.selected {
+    background: var(--paper-deep); border-color: var(--gold-deep); color: var(--ink);
+  }
+  .roster-chip img {
+    width: 28px; height: 28px; border-radius: 50%; object-fit: cover;
+    object-position: center top; background: var(--paper);
+  }
+  .roster-chip__role {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    color: var(--ink-soft); margin-left: 0.3rem;
+    text-transform: none; letter-spacing: 0; font-size: 0.85rem;
+  }
+  .roster-help {
+    font-family: 'Cormorant Garamond', serif; font-size: 0.92rem;
+    font-style: italic; color: var(--ink-soft); margin: 0 0 0.6rem;
+  }
+
+  .actions { display: flex; gap: 0.7rem; flex-wrap: wrap; margin-top: 0.6rem; align-items: center; }
+  button.btn {
+    font-family: 'DM Mono', monospace; font-size: 0.75rem; letter-spacing: 0.18em;
+    text-transform: uppercase; cursor: pointer; padding: 0.8rem 1.4rem;
+    border: 1px solid var(--gold-deep); background: var(--gold); color: #fff;
+    transition: 0.15s;
+  }
+  button.btn:hover:not(:disabled) { background: var(--gold-deep); }
+  button.btn:disabled { opacity: 0.5; cursor: wait; }
+  button.btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+  button.btn.ghost:hover { background: var(--paper-deep); }
+
+  .status {
+    font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.12em;
+    text-transform: uppercase; padding: 0.5rem 0; min-height: 1.4em;
+    color: var(--ink-soft);
+  }
+  .status.busy { color: var(--gold-deep); }
+  .status.success { color: var(--good); }
+  .status.error { color: var(--bad); }
+
+  /* Editor decision */
+  .editor-card {
+    padding: 1.1rem 1.3rem; margin-bottom: 1.4rem;
+    font-family: 'Cormorant Garamond', serif; font-size: 1.05rem;
+  }
+  .editor-card.accept    { background: #e3edd9; border-left: 4px solid var(--good); }
+  .editor-card.minor     { background: #f5ecc8; border-left: 4px solid var(--gold); }
+  .editor-card.major     { background: #f5d8d8; border-left: 4px solid var(--warn); }
+  .editor-card.reject    { background: #f5d8d8; border-left: 4px solid var(--bad); }
+  .editor-card__label {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--ink-soft); font-weight: 700; margin-bottom: 0.4rem;
+  }
+  .editor-card__verdict {
+    font-family: 'Playfair Display', serif; font-weight: 900;
+    font-size: 1.6rem; letter-spacing: -0.01em; margin: 0 0 0.3rem;
+  }
+  .editor-card.accept .editor-card__verdict { color: var(--good); }
+  .editor-card.minor  .editor-card__verdict { color: var(--gold-deep); }
+  .editor-card.major  .editor-card__verdict { color: var(--warn); }
+  .editor-card.reject .editor-card__verdict { color: var(--bad); }
+  .editor-card__basis {
+    font-family: 'DM Mono', monospace; font-size: 0.72rem;
+    letter-spacing: 0.1em; color: var(--ink-soft);
+  }
+
+  /* Per-reviewer report card */
+  .reviewer-block { margin-bottom: 1.6rem; }
+  .reviewer-block__head {
+    display: grid; grid-template-columns: 80px 1fr auto; gap: 1rem;
+    align-items: center;
+    background: #fffbef; border: 1px solid var(--line); border-bottom: 0;
+    padding: 0.9rem 1.1rem;
+  }
+  .reviewer-portrait {
+    width: 64px; height: 64px; border-radius: 50%;
+    background: var(--paper-deep); overflow: hidden;
+    position: relative; border: 2px solid var(--line);
+  }
+  .reviewer-portrait img {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; object-position: center top;
+  }
+  .reviewer-portrait__closed {
+    opacity: 0; animation: rp-blink 6s infinite;
+  }
+  @keyframes rp-blink {
+    0%, 92%, 96%, 100% { opacity: 0; }
+    93%, 95%           { opacity: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .reviewer-portrait__closed { animation: none; }
+  }
+  .reviewer-meta__name {
+    font-family: 'Playfair Display', serif; font-weight: 700;
+    font-size: 1.15rem; color: var(--ink);
+  }
+  .reviewer-meta__role {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    color: var(--ink-soft); font-size: 0.95rem;
+  }
+  .reviewer-decision {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    padding: 0.3rem 0.7rem; border: 1px solid var(--line);
+    white-space: nowrap;
+  }
+  .reviewer-decision.accept { background: var(--good); color: #fff; border-color: var(--good); }
+  .reviewer-decision.minor  { background: var(--gold); color: #fff; border-color: var(--gold-deep); }
+  .reviewer-decision.major  { background: var(--warn); color: #fff; border-color: var(--warn); }
+  .reviewer-decision.reject { background: var(--bad); color: #fff; border-color: var(--bad); }
+
+  .reviewer-body {
+    background: #fffbef; border: 1px solid var(--line);
+    padding: 1rem 1.2rem 1.2rem;
+  }
+  .reviewer-section { margin-bottom: 1rem; }
+  .reviewer-section__label {
+    font-family: 'DM Mono', monospace; font-size: 0.66rem;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--gold-deep); font-weight: 700; margin-bottom: 0.3rem;
+  }
+  .reviewer-section__text {
+    font-family: 'Cormorant Garamond', serif; font-size: 1rem;
+    line-height: 1.55; margin: 0;
+  }
+  .reviewer-section__text[contenteditable="true"]:focus { outline: 2px solid var(--gold); outline-offset: -1px; }
+  .reviewer-issues { list-style: none; padding: 0; margin: 0; }
+  .reviewer-issue {
+    background: #fdf4dc; border-left: 3px solid var(--gold);
+    padding: 0.6rem 0.9rem; margin-bottom: 0.5rem;
+  }
+  .reviewer-issue.major { border-left-color: var(--bad); background: #fdf3f3; }
+  .reviewer-issue__title {
+    font-family: 'Playfair Display', serif; font-weight: 700;
+    font-size: 1rem; color: var(--ink); margin-bottom: 0.2rem;
+  }
+  .reviewer-issue__detail {
+    font-family: 'Cormorant Garamond', serif; font-size: 0.96rem;
+    line-height: 1.5; color: var(--ink); margin: 0;
+  }
+  .reviewer-issue__actionable {
+    font-family: 'Cormorant Garamond', serif; font-size: 0.92rem;
+    font-style: italic; color: var(--ink-soft); margin-top: 0.3rem;
+    padding-left: 0.6rem; border-left: 2px solid var(--line);
+  }
+  .reviewer-strengths, .reviewer-questions {
+    margin: 0; padding-left: 1.2rem;
+    font-family: 'Cormorant Garamond', serif; font-size: 0.98rem;
+    line-height: 1.5;
+  }
+  .reviewer-strengths li, .reviewer-questions li { margin-bottom: 0.2rem; }
+  .reviewer-confidential {
+    background: #ece1c8; border-left: 3px solid var(--gold-deep);
+    padding: 0.6rem 0.9rem;
+    font-family: 'Cormorant Garamond', serif; font-size: 0.95rem;
+    line-height: 1.5; color: var(--ink); font-style: italic;
+  }
+  .reviewer-confidential__label {
+    font-family: 'DM Mono', monospace; font-size: 0.62rem;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-deep);
+    font-weight: 700; margin-bottom: 0.2rem; font-style: normal; display: block;
+  }
+
+  footer {
+    margin-top: 4rem; padding-top: 1.4rem; border-top: 1px solid var(--line);
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--ink-soft); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+  }
+  footer a { color: var(--ink-soft); }
+</style>
+</head>
+<body>
+
+<div class="top-strip">
+  <span class="top-strip__crumbs">
+    <a href="/">ETL</a><span class="sep">/</span><a href="/office-hours">Office Hours</a><span class="sep">/</span>Reviewer Panel
+  </span>
+  <a href="/office-hours">&larr; Back to Office Hours</a>
+</div>
+
+<div class="shell">
+
+  <div class="masthead">
+    <div class="eyebrow">Office Hours &middot; Reviewer Panel</div>
+    <h1>Send your paper to a reviewer panel.</h1>
+    <p class="sub">Upload your manuscript. Three reviewers from the ETL faculty roster will read it independently and write their own reports, each in their own voice and lens. The Methodologist, the Domain Expert, the Skeptic, the Theorist, the Stats Hardliner, the Outside Reader. Editor decision computed from the panel.</p>
+  </div>
+
+  <div class="privacy-banner">
+    <strong>Privacy:</strong> Your paper is sent to Anthropic's Claude API for analysis. Anthropic does not train on or retain API content. We do not log, store, or retain anything on our servers. Use a redacted draft if it includes patient identifiers or sensitive collaborators.
+  </div>
+
+  <!-- ─── INTAKE CARD ─── -->
+  <div class="card">
+
+    <!-- Paper source -->
+    <div class="source-tabs">
+      <button type="button" data-source="pdf" class="active">PDF upload</button>
+      <button type="button" data-source="text">Paste text</button>
+    </div>
+
+    <div class="source-pane active" id="pane-pdf">
+      <div class="drop-zone" id="drop-zone">
+        <div>Drop your paper PDF here, or click to upload</div>
+        <div class="drop-zone__hint">Under 4 MB. Single PDF, up to ~100 pages. Anthropic reads the document directly.</div>
+        <input type="file" id="file-input" accept="application/pdf" style="display:none;">
+      </div>
+      <div class="file-info" id="file-info">
+        <strong id="file-name">file</strong> <span id="file-size"></span>
+        <button type="button" id="file-remove">Remove</button>
+      </div>
+    </div>
+
+    <div class="source-pane" id="pane-text">
+      <label class="field">
+        <span class="label-text">Paste your paper (or the sections you want reviewed)</span>
+        <span class="label-note">Abstract + introduction + methods + results + discussion is enough. Skip the references list.</span>
+        <textarea id="paper-text" placeholder="Paste the manuscript text here. Reviewers will read what you give them."></textarea>
+      </label>
+    </div>
+
+    <div class="row-2">
+      <label class="field">
+        <span class="label-text">Paper type</span>
+        <select id="paper-type">
+          <option value="primary" selected>Primary research / original empirical</option>
+          <option value="review">Narrative review</option>
+          <option value="systematic-review">Systematic review / meta-analysis</option>
+          <option value="brief-report">Brief report / short communication</option>
+          <option value="case-report">Case report / case series</option>
+          <option value="perspective">Perspective / commentary</option>
+          <option value="methods">Methods paper</option>
+        </select>
+      </label>
+      <label class="field">
+        <span class="label-text">Target journal (optional)</span>
+        <input type="text" id="journal" placeholder="e.g. Health Services Research; American Journal of Education">
+      </label>
+    </div>
+
+    <label class="field">
+      <span class="label-text">Subject matter / discipline</span>
+      <span class="label-note">A short description of the paper's field. Helps the reviewers ground their critique.</span>
+      <input type="text" id="sme" placeholder="e.g. Health services research, nursing workforce; Educational psychology, early literacy; Homeland security, sensor systems">
+    </label>
+
+    <!-- Reviewer roster picker -->
+    <div class="field">
+      <span class="label-text" style="display:block;margin-bottom:0.35rem;">Pick your reviewers</span>
+      <p class="roster-help">Three are pre-selected based on your paper type. Click a portrait to swap in or out. Pick 2 to 5 total.</p>
+      <div class="roster-row" id="roster-row"></div>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn" id="send-btn">Send to reviewer panel</button>
+      <span class="status" id="status"></span>
+    </div>
+  </div>
+
+  <!-- ─── RESULTS CARD ─── -->
+  <div class="card" id="results-card" style="display: none;">
+    <h2>Reviewer panel report</h2>
+    <p class="card-sub">Editor decision is computed from the panel. Each reviewer's report is editable in place.</p>
+    <div id="results"></div>
+  </div>
+
+</div>
+
+<footer>
+  <span>ETL &middot; Office Hours &middot; Reviewer Panel</span>
+  <span><a href="/office-hours">Back to Office Hours</a> &middot; <a href="/">ETL Home</a></span>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  const PAPER_TYPE_DEFAULTS = {
+    'primary':           ['vv', 'lc', 'az'],
+    'systematic-review': ['az', 'lc', 'cs'],
+    'review':            ['lc', 'tk', 'mt'],
+    'brief-report':      ['vv', 'az', 'mp'],
+    'case-report':       ['cs', 'mvg', 'lc'],
+    'perspective':       ['mt', 'mp', 'mvg'],
+    'methods':           ['vv', 'az', 'tk'],
+  };
+
+  const els = {
+    sourceTabs: document.querySelector('.source-tabs'),
+    panePdf: document.getElementById('pane-pdf'),
+    paneText: document.getElementById('pane-text'),
+    dropZone: document.getElementById('drop-zone'),
+    fileInput: document.getElementById('file-input'),
+    fileInfo: document.getElementById('file-info'),
+    fileName: document.getElementById('file-name'),
+    fileSize: document.getElementById('file-size'),
+    fileRemove: document.getElementById('file-remove'),
+    paperText: document.getElementById('paper-text'),
+    paperType: document.getElementById('paper-type'),
+    journal: document.getElementById('journal'),
+    sme: document.getElementById('sme'),
+    rosterRow: document.getElementById('roster-row'),
+    sendBtn: document.getElementById('send-btn'),
+    status: document.getElementById('status'),
+    resultsCard: document.getElementById('results-card'),
+    results: document.getElementById('results'),
+  };
+
+  let pdfBase64 = null;
+  let pdfName = '';
+  let pdfSizeBytes = 0;
+  let sourceMode = 'pdf';
+  let roster = [];                   // [{id, name, role, desc, portrait_open, portrait_closed, best_for}, ...]
+  let selectedIds = new Set();
+
+  function setStatus(msg, cls) {
+    els.status.textContent = msg || '';
+    els.status.className = 'status' + (cls ? ' ' + cls : '');
+  }
+  function escHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+  function decisionCssClass(d) {
+    if (d === 'accept') return 'accept';
+    if (d === 'minor-revisions') return 'minor';
+    if (d === 'major-revisions') return 'major';
+    if (d === 'reject') return 'reject';
+    return 'major';
+  }
+  function decisionLabel(d) {
+    if (d === 'accept') return 'Accept';
+    if (d === 'minor-revisions') return 'Minor revisions';
+    if (d === 'major-revisions') return 'Major revisions';
+    if (d === 'reject') return 'Reject';
+    return d || 'Pending';
+  }
+
+  // ─── Tabs ─────────────────────────────────────────────
+  els.sourceTabs.addEventListener('click', function (e) {
+    const btn = e.target.closest('button[data-source]'); if (!btn) return;
+    const src = btn.getAttribute('data-source');
+    sourceMode = src;
+    els.sourceTabs.querySelectorAll('button').forEach(function (b) { b.classList.toggle('active', b === btn); });
+    els.panePdf.classList.toggle('active', src === 'pdf');
+    els.paneText.classList.toggle('active', src === 'text');
+  });
+
+  // ─── PDF upload ───────────────────────────────────────
+  function loadPdf(file) {
+    if (!file || file.type !== 'application/pdf') {
+      setStatus('Please upload a PDF file.', 'error');
+      return;
+    }
+    if (file.size > 4_000_000) {
+      setStatus('PDF over 4 MB. Compress and try again.', 'error');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const dataUrl = e.target.result;
+      pdfBase64 = dataUrl.split(',')[1];
+      pdfName = file.name || 'manuscript.pdf';
+      pdfSizeBytes = file.size;
+      els.fileName.textContent = pdfName;
+      els.fileSize.textContent = '(' + Math.round(file.size / 1024) + ' KB)';
+      els.fileInfo.style.display = 'block';
+      els.dropZone.style.display = 'none';
+      setStatus('PDF loaded. Pick reviewers and send.', 'success');
+    };
+    reader.onerror = function () { setStatus('Could not read file.', 'error'); };
+    reader.readAsDataURL(file);
+  }
+
+  els.dropZone.addEventListener('click', function () { els.fileInput.click(); });
+  els.fileInput.addEventListener('change', function (e) { if (e.target.files && e.target.files[0]) loadPdf(e.target.files[0]); });
+  els.dropZone.addEventListener('dragover', function (e) { e.preventDefault(); els.dropZone.classList.add('over'); });
+  els.dropZone.addEventListener('dragleave', function () { els.dropZone.classList.remove('over'); });
+  els.dropZone.addEventListener('drop', function (e) {
+    e.preventDefault(); els.dropZone.classList.remove('over');
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) loadPdf(e.dataTransfer.files[0]);
+  });
+  els.fileRemove.addEventListener('click', function () {
+    pdfBase64 = null; pdfName = ''; pdfSizeBytes = 0;
+    els.fileInfo.style.display = 'none';
+    els.dropZone.style.display = 'block';
+    els.fileInput.value = '';
+    setStatus('');
+  });
+
+  // ─── Roster ───────────────────────────────────────────
+  async function loadRoster() {
+    try {
+      const resp = await fetch('/.netlify/functions/office-hours-journal-reviewer-panel', { method: 'GET' });
+      if (!resp.ok) throw new Error('roster load failed');
+      const data = await resp.json();
+      roster = Array.isArray(data.reviewers) ? data.reviewers : [];
+      seedSelectionFromPaperType();
+      renderRoster();
+    } catch (err) {
+      setStatus('Could not load reviewer roster: ' + (err && err.message), 'error');
+    }
+  }
+
+  function seedSelectionFromPaperType() {
+    const defaults = PAPER_TYPE_DEFAULTS[els.paperType.value] || ['vv', 'lc', 'mvg'];
+    selectedIds = new Set(defaults);
+  }
+
+  function renderRoster() {
+    els.rosterRow.innerHTML = '';
+    roster.forEach(function (r) {
+      const chip = document.createElement('div');
+      chip.className = 'roster-chip' + (selectedIds.has(r.id) ? ' selected' : '');
+      chip.setAttribute('data-id', r.id);
+      chip.title = r.desc;
+      chip.innerHTML = '<img src="' + escHtml(r.portrait_open) + '" alt="' + escHtml(r.name) + '">' +
+        '<span>' + escHtml(r.name.replace(/^Dr\.\s*/, '')) + '</span>' +
+        '<span class="roster-chip__role">' + escHtml(r.role) + '</span>';
+      chip.addEventListener('click', function () {
+        if (selectedIds.has(r.id)) {
+          if (selectedIds.size <= 2) return; // keep at least 2
+          selectedIds.delete(r.id);
+        } else {
+          if (selectedIds.size >= 5) return; // cap at 5
+          selectedIds.add(r.id);
+        }
+        renderRoster();
+      });
+      els.rosterRow.appendChild(chip);
+    });
+  }
+
+  els.paperType.addEventListener('change', function () {
+    seedSelectionFromPaperType();
+    renderRoster();
+  });
+
+  // ─── Submit ───────────────────────────────────────────
+  els.sendBtn.addEventListener('click', async function () {
+    let payload = {
+      paper_type: els.paperType.value,
+      sme: els.sme.value.trim(),
+      journal: els.journal.value.trim(),
+      reviewers: Array.from(selectedIds),
+    };
+
+    if (sourceMode === 'pdf') {
+      if (!pdfBase64) { setStatus('Upload a PDF first, or switch to paste-text.', 'error'); return; }
+      payload.paper_pdf = { type: 'application/pdf', data: pdfBase64 };
+    } else {
+      const t = els.paperText.value.trim();
+      if (!t || t.length < 200) { setStatus('Paste at least a paragraph (200 chars) or switch to PDF upload.', 'error'); return; }
+      payload.paper_text = t;
+    }
+
+    if (selectedIds.size < 2) { setStatus('Pick at least 2 reviewers.', 'error'); return; }
+
+    els.sendBtn.disabled = true;
+    setStatus('Reviewers are reading the paper. Usually 60 to 120 seconds (3 reviewers in parallel).', 'busy');
+    els.resultsCard.style.display = 'none';
+    els.results.innerHTML = '';
+
+    try {
+      const resp = await fetch('/.netlify/functions/office-hours-journal-reviewer-panel', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!resp.ok) {
+        const text = await resp.text();
+        let detail = '';
+        try { const j = JSON.parse(text); detail = j.detail || j.error || ''; } catch { detail = text.slice(0, 200); }
+        if (resp.status === 504 || resp.status === 408 || resp.status === 502) {
+          setStatus('Connection timed out. Try again with fewer reviewers, or switch to a phone hotspot.', 'error');
+        } else {
+          setStatus('Something went wrong: ' + (detail || resp.status), 'error');
+        }
+        return;
+      }
+      const data = await resp.json();
+      renderPanel(data.panel || {});
+      setStatus('Done. Editor decision rendered above the reviews.', 'success');
+    } catch (err) {
+      if (err instanceof TypeError) {
+        setStatus('Network hiccup. Try again, or switch to a phone hotspot.', 'error');
+      } else {
+        setStatus('Error: ' + (err && err.message), 'error');
+      }
+    } finally {
+      els.sendBtn.disabled = false;
+    }
+  });
+
+  function renderPanel(p) {
+    const parts = [];
+
+    // Editor decision
+    if (p.editor_decision) {
+      const ed = p.editor_decision;
+      const cls = decisionCssClass(ed.consensus);
+      parts.push('<div class="editor-card ' + cls + '">');
+      parts.push('<div class="editor-card__label">Editor decision</div>');
+      parts.push('<div class="editor-card__verdict">' + escHtml(decisionLabel(ed.consensus)) + '</div>');
+      parts.push('<div class="editor-card__basis">Panel breakdown: ' + escHtml(ed.consensus_basis || '') + ' &middot; avg score ' + escHtml(String(ed.avg_score || '-')) + ' / 10</div>');
+      parts.push('</div>');
+    }
+
+    // Per-reviewer
+    const reviewers = Array.isArray(p.reviewers) ? p.reviewers : [];
+    reviewers.forEach(function (r, idx) {
+      const dcls = decisionCssClass(r.decision);
+      parts.push('<div class="reviewer-block">');
+      parts.push('<div class="reviewer-block__head">');
+      parts.push('<div class="reviewer-portrait">');
+      parts.push('<img class="reviewer-portrait__open" src="' + escHtml(r.portrait_open) + '" alt="' + escHtml(r.name) + '">');
+      if (r.portrait_closed) parts.push('<img class="reviewer-portrait__closed" src="' + escHtml(r.portrait_closed) + '" alt="" aria-hidden="true">');
+      parts.push('</div>');
+      parts.push('<div><div class="reviewer-meta__name">Reviewer ' + (idx + 1) + ': ' + escHtml(r.name) + '</div>');
+      parts.push('<div class="reviewer-meta__role">' + escHtml(r.role) + '</div></div>');
+      parts.push('<div class="reviewer-decision ' + dcls + '">' + escHtml(decisionLabel(r.decision)) + (r.score ? ' &middot; ' + r.score + '/10' : '') + '</div>');
+      parts.push('</div>');
+
+      parts.push('<div class="reviewer-body">');
+
+      if (r.summary) {
+        parts.push('<div class="reviewer-section">');
+        parts.push('<div class="reviewer-section__label">Reviewer summary</div>');
+        parts.push('<p class="reviewer-section__text" contenteditable="true">' + escHtml(r.summary) + '</p>');
+        parts.push('</div>');
+      }
+
+      if (Array.isArray(r.strengths) && r.strengths.length) {
+        parts.push('<div class="reviewer-section">');
+        parts.push('<div class="reviewer-section__label">Strengths</div>');
+        parts.push('<ul class="reviewer-strengths">');
+        r.strengths.forEach(function (s) { parts.push('<li>' + escHtml(s) + '</li>'); });
+        parts.push('</ul></div>');
+      }
+
+      if (Array.isArray(r.major_issues) && r.major_issues.length) {
+        parts.push('<div class="reviewer-section">');
+        parts.push('<div class="reviewer-section__label">Major issues</div>');
+        parts.push('<ul class="reviewer-issues">');
+        r.major_issues.forEach(function (it) {
+          parts.push('<li class="reviewer-issue major">');
+          parts.push('<div class="reviewer-issue__title">' + escHtml(it.title) + '</div>');
+          if (it.detail) parts.push('<p class="reviewer-issue__detail">' + escHtml(it.detail) + '</p>');
+          if (it.actionable) parts.push('<div class="reviewer-issue__actionable">Suggested action: ' + escHtml(it.actionable) + '</div>');
+          parts.push('</li>');
+        });
+        parts.push('</ul></div>');
+      }
+
+      if (Array.isArray(r.minor_issues) && r.minor_issues.length) {
+        parts.push('<div class="reviewer-section">');
+        parts.push('<div class="reviewer-section__label">Minor issues</div>');
+        parts.push('<ul class="reviewer-issues">');
+        r.minor_issues.forEach(function (it) {
+          parts.push('<li class="reviewer-issue">');
+          parts.push('<div class="reviewer-issue__title">' + escHtml(it.title) + '</div>');
+          if (it.detail) parts.push('<p class="reviewer-issue__detail">' + escHtml(it.detail) + '</p>');
+          parts.push('</li>');
+        });
+        parts.push('</ul></div>');
+      }
+
+      if (Array.isArray(r.questions_for_authors) && r.questions_for_authors.length) {
+        parts.push('<div class="reviewer-section">');
+        parts.push('<div class="reviewer-section__label">Questions for authors</div>');
+        parts.push('<ul class="reviewer-questions">');
+        r.questions_for_authors.forEach(function (q) { parts.push('<li>' + escHtml(q) + '</li>'); });
+        parts.push('</ul></div>');
+      }
+
+      if (r.confidential_comments_to_editor) {
+        parts.push('<div class="reviewer-section">');
+        parts.push('<div class="reviewer-confidential">');
+        parts.push('<span class="reviewer-confidential__label">Confidential to editor</span>');
+        parts.push(escHtml(r.confidential_comments_to_editor));
+        parts.push('</div></div>');
+      }
+
+      parts.push('</div></div>');
+    });
+
+    els.results.innerHTML = parts.join('');
+    els.resultsCard.style.display = 'block';
+    els.resultsCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  loadRoster();
+})();
+</script>
+</body>
+</html>
