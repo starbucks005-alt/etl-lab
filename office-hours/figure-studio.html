@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure Studio &mdash; Office Hours | Emerging Technologies Laboratory</title>
+<meta name="description" content="Upload a figure or graph. Get a publication-ready caption in your chosen style, accessibility alt-text, a Results paragraph, a Discussion paragraph, a limitations note, and a plain-language summary.">
+<link rel="canonical" href="https://emerging-tech-lab.com/office-hours/figure-studio">
+<link rel="icon" type="image/png" href="/favicon.png">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Figure Studio &mdash; Office Hours">
+<meta property="og:description" content="Upload a figure. Get caption, alt-text, Results paragraph, Discussion paragraph, limitations note, plain summary.">
+<meta property="og:url" content="https://emerging-tech-lab.com/office-hours/figure-studio">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --paper: #f3ecdc;
+    --paper-deep: #e8dec8;
+    --ink: #161310;
+    --ink-soft: #4a443a;
+    --gold: #b8922a;
+    --gold-deep: #8a6c1a;
+    --line: #c8bba0;
+    --bad: #8a2a2a;
+    --good: #3a6a2a;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--paper); color: var(--ink);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 18px; line-height: 1.55;
+  }
+  a { color: var(--gold-deep); text-decoration: underline; text-underline-offset: 3px; }
+  a:hover { color: var(--ink); }
+
+  .top-strip {
+    background: #161310; color: #d4aa4a;
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 0.6rem 1.5rem; display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 0.5rem;
+  }
+  .top-strip a { color: #d4aa4a; text-decoration: none; }
+  .top-strip a:hover { color: #fff; }
+  .top-strip__crumbs a { margin-right: 0.6rem; }
+  .top-strip__crumbs .sep { color: #8a6c1a; margin-right: 0.6rem; }
+
+  .shell { max-width: 980px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+  .masthead { text-align: center; padding: 1.5rem 0 0.8rem; border-bottom: 1px solid var(--line); }
+  .masthead .eyebrow {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--gold-deep);
+  }
+  .masthead h1 {
+    font-family: 'Playfair Display', Georgia, serif; font-weight: 900;
+    font-size: clamp(2rem, 4.5vw, 3.2rem); margin: 0.2rem 0 0.2rem; letter-spacing: -0.01em;
+  }
+  .masthead .sub {
+    font-style: italic; color: var(--ink-soft); margin: 0; font-size: 1.1rem;
+    max-width: 720px; margin-left: auto; margin-right: auto;
+  }
+
+  .privacy-banner {
+    margin: 1.4rem 0 1.8rem;
+    padding: 0.9rem 1.2rem;
+    background: #ece1c8; border-left: 3px solid var(--gold);
+    font-size: 0.95rem; color: var(--ink-soft);
+  }
+  .privacy-banner strong { color: var(--ink); }
+
+  .card {
+    background: #fcf6e8; border: 1px solid var(--line);
+    padding: 1.4rem 1.4rem 1.6rem; box-shadow: 0 1px 0 rgba(0,0,0,0.03);
+    margin-bottom: 1.4rem;
+  }
+  .card h2 {
+    font-family: 'Playfair Display', Georgia, serif; font-weight: 700;
+    font-size: 1.4rem; margin: 0 0 0.3rem;
+  }
+  .card .card-sub {
+    font-style: italic; color: var(--ink-soft); font-size: 0.95rem;
+    margin: 0 0 1.2rem;
+  }
+
+  label.field {
+    display: block; margin-bottom: 1rem;
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--gold-deep);
+  }
+  label.field > .label-text { display: block; margin-bottom: 0.35rem; }
+  label.field > .label-note {
+    display: block; font-family: 'Cormorant Garamond', serif; text-transform: none;
+    letter-spacing: 0; color: var(--ink-soft); font-style: italic;
+    font-size: 0.9rem; margin-bottom: 0.35rem;
+  }
+  label.field input[type=text], label.field select, label.field textarea {
+    width: 100%; padding: 0.55rem 0.7rem;
+    font-family: 'Cormorant Garamond', serif; font-size: 1rem;
+    background: #fffbef; border: 1px solid var(--line);
+    color: var(--ink); border-radius: 0;
+  }
+  label.field input:focus, label.field textarea:focus, label.field select:focus {
+    outline: 2px solid var(--gold); outline-offset: -1px;
+  }
+
+  .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+  @media (max-width: 780px) { .row-3 { grid-template-columns: 1fr; } }
+
+  /* Upload */
+  .drop-zone {
+    border: 2px dashed var(--line);
+    background: #fffbef;
+    padding: 2rem 1rem; text-align: center;
+    margin-bottom: 1rem; cursor: pointer;
+    transition: all 0.18s;
+    font-family: 'DM Mono', monospace; font-size: 0.7rem;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft);
+  }
+  .drop-zone:hover, .drop-zone.over {
+    border-color: var(--gold);
+    background: #fdf4dc;
+    color: var(--gold-deep);
+  }
+  .drop-zone__hint {
+    font-family: 'Cormorant Garamond', serif; font-size: 0.92rem;
+    font-style: italic; color: var(--ink-soft); text-transform: none;
+    letter-spacing: 0; margin-top: 0.4rem;
+  }
+  .preview-wrap {
+    text-align: center; margin-bottom: 1rem; display: none;
+  }
+  .preview-wrap img {
+    max-width: 100%; max-height: 320px;
+    border: 1px solid var(--line); background: #fff;
+  }
+  .preview-wrap__actions {
+    margin-top: 0.5rem;
+  }
+  .preview-wrap__remove {
+    font-family: 'DM Mono', monospace; font-size: 0.66rem;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    padding: 0.35rem 0.7rem; background: transparent; border: 1px solid var(--line); color: var(--ink-soft);
+    cursor: pointer;
+  }
+  .preview-wrap__remove:hover { background: var(--paper-deep); color: var(--ink); }
+
+  .actions { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 0.6rem; align-items: center; }
+  button.btn {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.16em;
+    text-transform: uppercase; cursor: pointer; padding: 0.7rem 1.2rem;
+    border: 1px solid var(--gold-deep); background: var(--gold); color: #fff;
+    transition: 0.15s;
+  }
+  button.btn:hover:not(:disabled) { background: var(--gold-deep); }
+  button.btn:disabled { opacity: 0.5; cursor: wait; }
+  button.btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+  button.btn.ghost:hover { background: var(--paper-deep); }
+
+  .status {
+    font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.12em;
+    text-transform: uppercase; padding: 0.5rem 0; min-height: 1.4em;
+    color: var(--ink-soft);
+  }
+  .status.busy { color: var(--gold-deep); }
+  .status.success { color: var(--good); }
+  .status.error { color: var(--bad); }
+
+  /* Results */
+  .result-block { margin-bottom: 1.6rem; }
+  .result-block h3 {
+    font-family: 'Playfair Display', serif; font-weight: 700;
+    font-size: 1.2rem; margin: 0 0 0.5rem;
+    padding-bottom: 0.3rem; border-bottom: 1px solid var(--line);
+  }
+  .out-box {
+    background: #fffbef; border: 1px solid var(--line);
+    padding: 0.9rem 1.1rem;
+    font-family: 'Cormorant Garamond', serif; font-size: 1rem;
+    line-height: 1.6; white-space: pre-wrap;
+  }
+  .out-box[contenteditable="true"]:focus { outline: 2px solid var(--gold); outline-offset: -1px; }
+  .out-row {
+    display: grid; grid-template-columns: 130px 1fr; gap: 0.6rem 0.9rem;
+    margin-bottom: 0.7rem;
+  }
+  @media (max-width: 700px) { .out-row { grid-template-columns: 1fr; } }
+  .out-row__label {
+    font-family: 'DM Mono', monospace; font-size: 0.66rem;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-deep);
+    font-weight: 700; padding-top: 0.15rem;
+  }
+  .key-elements {
+    list-style: none; padding: 0; margin: 0;
+    background: #fffbef; border: 1px solid var(--line);
+    padding: 0.8rem 1.1rem;
+  }
+  .key-elements li {
+    padding: 0.35rem 0 0.35rem 1.4rem;
+    position: relative; border-bottom: 1px dotted var(--line);
+    font-family: 'Cormorant Garamond', serif; font-size: 0.98rem;
+    line-height: 1.5;
+  }
+  .key-elements li:last-child { border-bottom: 0; }
+  .key-elements li::before {
+    content: '▸'; position: absolute; left: 0.3rem; top: 0.45rem;
+    color: var(--gold); font-size: 0.8rem;
+  }
+
+  .copy-row { margin-top: 0.4rem; }
+  .copy-btn {
+    font-family: 'DM Mono', monospace; font-size: 0.62rem;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    padding: 0.3rem 0.7rem; background: transparent; border: 1px solid var(--line); color: var(--ink-soft);
+    cursor: pointer;
+  }
+  .copy-btn:hover { background: var(--paper-deep); color: var(--ink); }
+  .copy-btn.copied { color: var(--good); border-color: var(--good); }
+
+  footer {
+    margin-top: 4rem; padding-top: 1.4rem; border-top: 1px solid var(--line);
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--ink-soft); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+  }
+  footer a { color: var(--ink-soft); }
+</style>
+</head>
+<body>
+
+<div class="top-strip">
+  <span class="top-strip__crumbs">
+    <a href="/">ETL</a><span class="sep">/</span><a href="/office-hours">Office Hours</a><span class="sep">/</span>Figure Studio
+  </span>
+  <a href="/office-hours">&larr; Back to Office Hours</a>
+</div>
+
+<div class="shell">
+
+  <div class="masthead">
+    <div class="eyebrow">Office Hours &middot; Figure Studio</div>
+    <h1>Caption and interpret a figure.</h1>
+    <p class="sub">Upload a figure or graph. Get a journal-style caption in your chosen citation style, accessibility alt-text, a Results paragraph, a Discussion paragraph, a limitations note, and a plain-language summary you can paste into a talk.</p>
+  </div>
+
+  <div class="privacy-banner">
+    <strong>Privacy:</strong> Your figure is base64-encoded in your browser and sent to Anthropic's Claude API for analysis. Anthropic does not train on or retain API content. We do not log, store, or retain anything on our servers. Use a redacted figure if it includes identifiable patient or participant data.
+  </div>
+
+  <!-- ─── INTAKE CARD ─── -->
+  <div class="card">
+
+    <div class="drop-zone" id="drop-zone">
+      <div>Drop a figure here, or click to upload</div>
+      <div class="drop-zone__hint">PNG, JPG, GIF, or WEBP. Any chart, graph, diagram, or photo. Under 3 MB.</div>
+      <input type="file" id="file-input" accept="image/*" style="display:none;">
+    </div>
+
+    <div class="preview-wrap" id="preview-wrap">
+      <img id="preview" alt="Figure preview">
+      <div class="preview-wrap__actions">
+        <button type="button" class="preview-wrap__remove" id="remove-btn">&times; Remove</button>
+      </div>
+    </div>
+
+    <div class="row-3">
+      <label class="field">
+        <span class="label-text">Figure number</span>
+        <input type="text" id="fignum" placeholder="e.g. 1, 2, A1" value="1">
+      </label>
+      <label class="field">
+        <span class="label-text">Citation style</span>
+        <select id="style">
+          <option value="apa" selected>APA 7th Edition</option>
+          <option value="ama">AMA</option>
+          <option value="ieee">IEEE</option>
+          <option value="chicago">Chicago 17th</option>
+          <option value="mla">MLA 9th</option>
+        </select>
+      </label>
+      <label class="field">
+        <span class="label-text">Mode</span>
+        <select id="mode">
+          <option value="both" selected>Full package (caption + interpret)</option>
+          <option value="captions">Captions only</option>
+          <option value="interpret">Interpretation only</option>
+        </select>
+      </label>
+    </div>
+
+    <label class="field">
+      <span class="label-text">Context (optional)</span>
+      <span class="label-note">Helps Jules disambiguate axes or unfamiliar conventions.</span>
+      <input type="text" id="context" placeholder="e.g. Survey of 150 nurses on burnout frequency by department, Likert 1-5">
+    </label>
+
+    <div class="actions">
+      <button type="button" class="btn" id="analyze-btn">Analyze figure</button>
+      <span class="status" id="status"></span>
+    </div>
+  </div>
+
+  <!-- ─── RESULTS CARD ─── -->
+  <div class="card" id="results-card" style="display: none;">
+    <h2>Figure Studio output</h2>
+    <p class="card-sub">All text blocks are editable in place. Copy individual blocks with the buttons.</p>
+    <div id="results"></div>
+  </div>
+
+</div>
+
+<footer>
+  <span>ETL &middot; Office Hours &middot; Figure Studio</span>
+  <span><a href="/office-hours">Back to Office Hours</a> &middot; <a href="/">ETL Home</a></span>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  const els = {
+    dropZone: document.getElementById('drop-zone'),
+    fileInput: document.getElementById('file-input'),
+    previewWrap: document.getElementById('preview-wrap'),
+    preview: document.getElementById('preview'),
+    removeBtn: document.getElementById('remove-btn'),
+    fignum: document.getElementById('fignum'),
+    style: document.getElementById('style'),
+    mode: document.getElementById('mode'),
+    context: document.getElementById('context'),
+    analyzeBtn: document.getElementById('analyze-btn'),
+    status: document.getElementById('status'),
+    resultsCard: document.getElementById('results-card'),
+    results: document.getElementById('results'),
+  };
+
+  let imageData = null;     // base64 (no data: prefix)
+  let imageMediaType = null;
+
+  function setStatus(msg, cls) {
+    els.status.textContent = msg || '';
+    els.status.className = 'status' + (cls ? ' ' + cls : '');
+  }
+  function escHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  function loadFile(file) {
+    if (!file || !file.type.startsWith('image/')) {
+      setStatus('Please upload an image file (PNG, JPG, GIF, WEBP).', 'error');
+      return;
+    }
+    if (file.size > 3_500_000) {
+      setStatus('Image larger than 3.5 MB. Downscale and try again.', 'error');
+      return;
+    }
+    imageMediaType = file.type === 'image/jpg' ? 'image/jpeg' : file.type;
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const dataUrl = e.target.result;
+      imageData = dataUrl.split(',')[1];
+      els.preview.src = dataUrl;
+      els.previewWrap.style.display = 'block';
+      els.dropZone.style.display = 'none';
+      setStatus('Image loaded. Set figure number and analyze.', 'success');
+    };
+    reader.onerror = function () { setStatus('Could not read file.', 'error'); };
+    reader.readAsDataURL(file);
+  }
+
+  els.dropZone.addEventListener('click', function () { els.fileInput.click(); });
+  els.fileInput.addEventListener('change', function (e) { if (e.target.files && e.target.files[0]) loadFile(e.target.files[0]); });
+  els.dropZone.addEventListener('dragover', function (e) { e.preventDefault(); els.dropZone.classList.add('over'); });
+  els.dropZone.addEventListener('dragleave', function () { els.dropZone.classList.remove('over'); });
+  els.dropZone.addEventListener('drop', function (e) {
+    e.preventDefault();
+    els.dropZone.classList.remove('over');
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
+  });
+
+  els.removeBtn.addEventListener('click', function () {
+    imageData = null; imageMediaType = null;
+    els.preview.src = '';
+    els.previewWrap.style.display = 'none';
+    els.dropZone.style.display = 'block';
+    els.fileInput.value = '';
+    els.resultsCard.style.display = 'none';
+    els.results.innerHTML = '';
+    setStatus('');
+  });
+
+  els.analyzeBtn.addEventListener('click', async function () {
+    if (!imageData) {
+      setStatus('Upload a figure first.', 'error');
+      return;
+    }
+    els.analyzeBtn.disabled = true;
+    setStatus('Analyzing figure. Usually 20 to 50 seconds.', 'busy');
+    els.resultsCard.style.display = 'none';
+    els.results.innerHTML = '';
+
+    const payload = {
+      image: { type: imageMediaType, data: imageData },
+      figure_number: els.fignum.value.trim() || '1',
+      style: els.style.value,
+      mode: els.mode.value,
+      context: els.context.value.trim(),
+    };
+
+    try {
+      const resp = await fetch('/.netlify/functions/office-hours-figure-studio', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!resp.ok) {
+        const text = await resp.text();
+        let detail = '';
+        try { const j = JSON.parse(text); detail = j.detail || j.error || ''; } catch { detail = text.slice(0, 200); }
+        if (resp.status === 504 || resp.status === 408 || resp.status === 502) {
+          setStatus('Connection timed out. Try again, or switch to a phone hotspot.', 'error');
+        } else {
+          setStatus('Something went wrong: ' + (detail || resp.status), 'error');
+        }
+        return;
+      }
+      const data = await resp.json();
+      renderResult(data.result || {});
+      setStatus('Done.', 'success');
+    } catch (err) {
+      if (err instanceof TypeError) {
+        setStatus('Network hiccup. Try again, or switch to a phone hotspot.', 'error');
+      } else {
+        setStatus('Error: ' + (err && err.message), 'error');
+      }
+    } finally {
+      els.analyzeBtn.disabled = false;
+    }
+  });
+
+  function block(label, text, id) {
+    return '<div class="result-block">' +
+      '<h3>' + escHtml(label) + '</h3>' +
+      '<div class="out-box" contenteditable="true" id="' + id + '">' + escHtml(text) + '</div>' +
+      '<div class="copy-row"><button type="button" class="copy-btn" data-copy="' + id + '">Copy</button></div>' +
+    '</div>';
+  }
+
+  function renderResult(r) {
+    const parts = [];
+
+    if (r.captions) {
+      const c = r.captions;
+      parts.push('<div class="result-block"><h3>Captions <span style="font-family:DM Mono,monospace;font-size:0.7rem;letter-spacing:0.12em;color:var(--ink-soft);font-weight:400;margin-left:0.4rem;">(' + escHtml(r.style) + ')</span></h3>');
+
+      if (c.caption) {
+        parts.push('<div class="out-row">');
+        parts.push('<div class="out-row__label">Caption</div>');
+        parts.push('<div><div class="out-box" contenteditable="true" id="cap-text">' + escHtml(c.caption) + '</div><div class="copy-row"><button type="button" class="copy-btn" data-copy="cap-text">Copy</button></div></div>');
+        parts.push('</div>');
+      }
+      if (c.alt_text) {
+        parts.push('<div class="out-row">');
+        parts.push('<div class="out-row__label">Alt text</div>');
+        parts.push('<div><div class="out-box" contenteditable="true" id="alt-text">' + escHtml(c.alt_text) + '</div><div class="copy-row"><button type="button" class="copy-btn" data-copy="alt-text">Copy</button></div></div>');
+        parts.push('</div>');
+      }
+      if (c.illustrates_sentence) {
+        parts.push('<div class="out-row">');
+        parts.push('<div class="out-row__label">In-text ref</div>');
+        parts.push('<div><div class="out-box" contenteditable="true" id="illus-text">' + escHtml(c.illustrates_sentence) + '</div><div class="copy-row"><button type="button" class="copy-btn" data-copy="illus-text">Copy</button></div></div>');
+        parts.push('</div>');
+      }
+      if (c.data_demonstrate_sentence) {
+        parts.push('<div class="out-row">');
+        parts.push('<div class="out-row__label">Results sentence</div>');
+        parts.push('<div><div class="out-box" contenteditable="true" id="data-text">' + escHtml(c.data_demonstrate_sentence) + '</div><div class="copy-row"><button type="button" class="copy-btn" data-copy="data-text">Copy</button></div></div>');
+        parts.push('</div>');
+      }
+      if (Array.isArray(c.key_elements) && c.key_elements.length) {
+        parts.push('<div class="out-row">');
+        parts.push('<div class="out-row__label">Key elements</div>');
+        parts.push('<ul class="key-elements">');
+        c.key_elements.forEach(function (e) { parts.push('<li>' + escHtml(e) + '</li>'); });
+        parts.push('</ul></div>');
+      }
+      parts.push('</div>');
+    }
+
+    if (r.interpretation) {
+      const i = r.interpretation;
+      parts.push('<div class="result-block"><h3>Interpretation</h3>');
+      if (i.results_paragraph) parts.push(block('Results paragraph', i.results_paragraph, 'res-text'));
+      if (i.discussion_paragraph) parts.push(block('Discussion paragraph', i.discussion_paragraph, 'disc-text'));
+      if (i.limitations_note) parts.push(block('Limitations note', i.limitations_note, 'lim-text'));
+      if (i.what_this_means) parts.push(block('What this means (plain language)', i.what_this_means, 'wtm-text'));
+      parts.push('</div>');
+    }
+
+    els.results.innerHTML = parts.join('');
+    els.resultsCard.style.display = 'block';
+
+    const copyBtns = els.results.querySelectorAll('.copy-btn[data-copy]');
+    copyBtns.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        const target = document.getElementById(btn.getAttribute('data-copy'));
+        if (!target) return;
+        const text = target.innerText || target.textContent || '';
+        navigator.clipboard.writeText(text).then(function () {
+          btn.classList.add('copied');
+          const orig = btn.textContent;
+          btn.textContent = 'Copied';
+          setTimeout(function () { btn.classList.remove('copied'); btn.textContent = orig; }, 1500);
+        });
+      });
+    });
+
+    els.resultsCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+})();
+</script>
+</body>
+</html>
