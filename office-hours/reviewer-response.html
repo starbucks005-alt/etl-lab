@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reviewer Response &mdash; Office Hours | Emerging Technologies Laboratory</title>
+<meta name="description" content="Reviewer comments came back? Paste them and your manuscript section. Get a point-by-point response letter in journal convention plus revised manuscript text ready to paste.">
+<link rel="canonical" href="https://emerging-tech-lab.com/office-hours/reviewer-response">
+<link rel="icon" type="image/png" href="/favicon.png">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Reviewer Response &mdash; Office Hours">
+<meta property="og:description" content="Point-by-point response letter and revised manuscript text from reviewer comments.">
+<meta property="og:url" content="https://emerging-tech-lab.com/office-hours/reviewer-response">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --paper: #f3ecdc;
+    --paper-deep: #e8dec8;
+    --ink: #161310;
+    --ink-soft: #4a443a;
+    --gold: #b8922a;
+    --gold-deep: #8a6c1a;
+    --line: #c8bba0;
+    --bad: #8a2a2a;
+    --good: #3a6a2a;
+    --warn: #c47a1a;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--paper); color: var(--ink);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 18px; line-height: 1.55;
+  }
+  a { color: var(--gold-deep); text-decoration: underline; text-underline-offset: 3px; }
+  a:hover { color: var(--ink); }
+  .top-strip {
+    background: #161310; color: #d4aa4a;
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 0.6rem 1.5rem; display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 0.5rem;
+  }
+  .top-strip a { color: #d4aa4a; text-decoration: none; }
+  .top-strip a:hover { color: #fff; }
+  .top-strip__crumbs a { margin-right: 0.6rem; }
+  .top-strip__crumbs .sep { color: #8a6c1a; margin-right: 0.6rem; }
+  .shell { max-width: 1020px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+  .masthead { text-align: center; padding: 1.5rem 0 0.8rem; border-bottom: 1px solid var(--line); }
+  .masthead .eyebrow {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--gold-deep);
+  }
+  .masthead h1 {
+    font-family: 'Playfair Display', Georgia, serif; font-weight: 900;
+    font-size: clamp(2rem, 4.5vw, 3.2rem); margin: 0.2rem 0 0.2rem; letter-spacing: -0.01em;
+  }
+  .masthead .sub {
+    font-style: italic; color: var(--ink-soft); margin: 0; font-size: 1.1rem;
+    max-width: 760px; margin-left: auto; margin-right: auto;
+  }
+  .privacy-banner {
+    margin: 1.4rem 0 1.8rem;
+    padding: 0.9rem 1.2rem;
+    background: #ece1c8; border-left: 3px solid var(--gold);
+    font-size: 0.95rem; color: var(--ink-soft);
+  }
+  .privacy-banner strong { color: var(--ink); }
+  .card {
+    background: #fcf6e8; border: 1px solid var(--line);
+    padding: 1.4rem 1.4rem 1.6rem; box-shadow: 0 1px 0 rgba(0,0,0,0.03);
+    margin-bottom: 1.4rem;
+  }
+  .card h2 {
+    font-family: 'Playfair Display', Georgia, serif; font-weight: 700;
+    font-size: 1.4rem; margin: 0 0 0.3rem;
+  }
+  .card .card-sub {
+    font-style: italic; color: var(--ink-soft); font-size: 0.95rem;
+    margin: 0 0 1.2rem;
+  }
+  label.field {
+    display: block; margin-bottom: 1rem;
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--gold-deep);
+  }
+  label.field > .label-text { display: block; margin-bottom: 0.35rem; }
+  label.field > .label-note {
+    display: block; font-family: 'Cormorant Garamond', serif; text-transform: none;
+    letter-spacing: 0; color: var(--ink-soft); font-style: italic;
+    font-size: 0.9rem; margin-bottom: 0.35rem;
+  }
+  label.field input[type=text], label.field select, label.field textarea {
+    width: 100%; padding: 0.55rem 0.7rem;
+    font-family: 'Cormorant Garamond', serif; font-size: 1rem;
+    background: #fffbef; border: 1px solid var(--line);
+    color: var(--ink); border-radius: 0;
+  }
+  label.field textarea { font-family: 'DM Mono', monospace; font-size: 0.84rem; line-height: 1.5; min-height: 240px; resize: vertical; }
+  label.field input:focus, label.field textarea:focus, label.field select:focus {
+    outline: 2px solid var(--gold); outline-offset: -1px;
+  }
+  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 600px) { .row-2 { grid-template-columns: 1fr; } }
+  .sample-bar {
+    margin: 0 0 1.2rem; padding: 0.7rem 0.9rem;
+    background: #ece1c8; border: 1px dashed var(--gold);
+    display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap;
+  }
+  .sample-bar label {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--gold-deep);
+  }
+  .sample-bar select {
+    padding: 0.4rem 0.6rem; font-family: 'Cormorant Garamond', serif; font-size: 0.95rem;
+    background: #fffbef; border: 1px solid var(--line); flex: 1; min-width: 280px;
+  }
+  .sample-bar button.link {
+    background: transparent; border: 0; color: var(--gold-deep); cursor: pointer;
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em;
+    text-transform: uppercase; text-decoration: underline;
+  }
+  .actions { display: flex; gap: 0.7rem; flex-wrap: wrap; margin-top: 0.6rem; align-items: center; }
+  button.btn {
+    font-family: 'DM Mono', monospace; font-size: 0.75rem; letter-spacing: 0.18em;
+    text-transform: uppercase; cursor: pointer; padding: 0.8rem 1.4rem;
+    border: 1px solid var(--gold-deep); background: var(--gold); color: #fff;
+    transition: 0.15s;
+  }
+  button.btn:hover:not(:disabled) { background: var(--gold-deep); }
+  button.btn:disabled { opacity: 0.5; cursor: wait; }
+  .status {
+    font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.12em;
+    text-transform: uppercase; padding: 0.5rem 0; min-height: 1.4em;
+    color: var(--ink-soft);
+  }
+  .status.busy { color: var(--gold-deep); }
+  .status.success { color: var(--good); }
+  .status.error { color: var(--bad); }
+  .result-block { margin-bottom: 1.6rem; }
+  .result-block h3 {
+    font-family: 'Playfair Display', Georgia, serif; font-weight: 700;
+    font-size: 1.2rem; margin: 0 0 0.5rem;
+    padding-bottom: 0.3rem; border-bottom: 1px solid var(--line);
+  }
+  .result-block h3 .count {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem;
+    letter-spacing: 0.14em; color: var(--ink-soft); font-weight: 400;
+    margin-left: 0.4rem;
+  }
+  .letter-block {
+    background: #fffbef; border: 1px solid var(--line);
+    padding: 1rem 1.2rem; margin-bottom: 1rem;
+    font-family: 'Cormorant Garamond', serif; font-size: 1.02rem;
+    line-height: 1.65;
+  }
+  .letter-block[contenteditable="true"]:focus { outline: 2px solid var(--gold); outline-offset: -1px; }
+  .response-card {
+    background: #fffbef; border-left: 3px solid var(--gold);
+    padding: 0.9rem 1.1rem; margin-bottom: 0.8rem;
+  }
+  .response-card.disagree { border-left-color: var(--bad); background: #fdf3f3; }
+  .response-card__head {
+    display: flex; align-items: baseline; gap: 0.5rem;
+    flex-wrap: wrap; margin-bottom: 0.4rem;
+  }
+  .response-card__reviewer, .response-card__action {
+    font-family: 'DM Mono', monospace; font-size: 0.62rem;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    padding: 0.18rem 0.5rem; border: 1px solid var(--line);
+  }
+  .response-card__reviewer { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .response-card__action { color: var(--gold-deep); border-color: var(--gold-deep); }
+  .response-card__disagree {
+    font-family: 'DM Mono', monospace; font-size: 0.62rem;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    padding: 0.18rem 0.5rem; background: var(--bad); color: #fff;
+  }
+  .response-card__comment {
+    font-family: 'Cormorant Garamond', serif; font-size: 0.98rem;
+    font-style: italic; color: var(--ink-soft);
+    margin: 0.3rem 0; padding-left: 0.7rem; border-left: 2px solid var(--line);
+  }
+  .response-card__response {
+    background: #f0f5e8; border-left: 2px solid var(--good);
+    padding: 0.5rem 0.7rem; margin-top: 0.4rem;
+    font-family: 'Cormorant Garamond', serif; font-size: 1rem;
+    line-height: 1.55;
+  }
+  .response-card__response[contenteditable="true"]:focus { outline: 2px solid var(--gold); outline-offset: -1px; }
+  .revised-block {
+    background: #fffbef; border: 1px solid var(--line);
+    padding: 1.2rem 1.4rem;
+    font-family: 'Cormorant Garamond', serif; font-size: 1.02rem;
+    line-height: 1.7; white-space: pre-wrap;
+  }
+  .revised-block[contenteditable="true"]:focus { outline: 2px solid var(--gold); outline-offset: -1px; }
+  .copy-btn {
+    font-family: 'DM Mono', monospace; font-size: 0.66rem;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    padding: 0.4rem 0.8rem; background: transparent; border: 1px solid var(--line); color: var(--ink-soft);
+    cursor: pointer; margin-top: 0.4rem;
+  }
+  .copy-btn:hover { background: var(--paper-deep); color: var(--ink); }
+  .copy-btn.copied { color: var(--good); border-color: var(--good); }
+  .diff-list { list-style: none; padding: 0; margin: 0; background: #fffbef; border: 1px solid var(--line); }
+  .diff-list li {
+    padding: 0.5rem 1rem; border-bottom: 1px dotted var(--line);
+    font-family: 'Cormorant Garamond', serif; font-size: 0.96rem;
+  }
+  .diff-list li:last-child { border-bottom: 0; }
+  footer {
+    margin-top: 4rem; padding-top: 1.4rem; border-top: 1px solid var(--line);
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--ink-soft); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+  }
+  footer a { color: var(--ink-soft); }
+</style>
+</head>
+<body>
+
+<div class="top-strip">
+  <span class="top-strip__crumbs">
+    <a href="/">ETL</a><span class="sep">/</span><a href="/office-hours">Office Hours</a><span class="sep">/</span>Reviewer Response
+  </span>
+  <a href="/office-hours">&larr; Back to Office Hours</a>
+</div>
+
+<div class="shell">
+
+  <div class="masthead">
+    <div class="eyebrow">Office Hours &middot; Reviewer Response</div>
+    <h1>Respond to a journal review.</h1>
+    <p class="sub">Reviewer comments came back from a journal. Paste them and the manuscript section under critique. Get a point-by-point response letter in journal convention, revised manuscript text ready to paste back in, and diff notes summarizing what changed.</p>
+  </div>
+
+  <div class="privacy-banner">
+    <strong>Privacy:</strong> Your reviewer comments and manuscript section are sent to Anthropic's Claude API for analysis. Anthropic does not train on or retain API content. We do not log or store anything on our servers. This tool is for FACULTY responding to peer review of THEIR OWN manuscripts. For federal grant resubmissions (Summary Statement, Introduction page), use Resubmission Builder instead.
+  </div>
+
+  <div class="card">
+
+    <div class="sample-bar">
+      <label for="sample">Try a sample:</label>
+      <select id="sample">
+        <option value="">&mdash; pick a sample &mdash;</option>
+        <option value="nursing-major">Health services &mdash; major revisions on nurse staffing study</option>
+        <option value="education-minor">Education &mdash; minor revisions on phonics RCT</option>
+      </select>
+      <button type="button" class="link" id="clear-btn">Clear form</button>
+    </div>
+
+    <div class="row-2">
+      <label class="field">
+        <span class="label-text">Decision</span>
+        <select id="decision">
+          <option value="minor-revisions">Minor revisions</option>
+          <option value="major-revisions" selected>Major revisions</option>
+          <option value="reject-and-resubmit">Reject and resubmit</option>
+        </select>
+      </label>
+      <label class="field">
+        <span class="label-text">Target journal (optional)</span>
+        <input type="text" id="journal" placeholder="e.g. Health Services Research">
+      </label>
+    </div>
+
+    <label class="field">
+      <span class="label-text">Reviewer comments (paste the full review)</span>
+      <span class="label-note">All reviewer blocks. Include the editor's note and reviewer numbers (R1, R2, R3) if labeled in the original.</span>
+      <textarea id="reviewer-comments" placeholder="Paste the full reviewer feedback document here. Include R1, R2, R3 sections, editor note, and any specific section comments."></textarea>
+    </label>
+
+    <label class="field">
+      <span class="label-text">Manuscript section under critique</span>
+      <span class="label-note">The section the reviewers are commenting on. Methods is usually the most critiqued; could also be Discussion, Results, or full manuscript.</span>
+      <textarea id="manuscript-section" placeholder="Paste the manuscript section under critique. The tool will produce a revised version of this section that addresses the substantive comments."></textarea>
+    </label>
+
+    <label class="field">
+      <span class="label-text">Your concerns / what you want flagged (optional)</span>
+      <span class="label-note">Where you disagree with a reviewer, what new data you have available, what you refuse to drop.</span>
+      <textarea id="author-concerns" style="min-height:90px;" placeholder="e.g. R2's critique of my dependent variable is wrong; I have additional pilot data; I will not drop Aim 3."></textarea>
+    </label>
+
+    <div class="actions">
+      <button type="button" class="btn" id="build-btn">Build response</button>
+      <span class="status" id="status"></span>
+    </div>
+  </div>
+
+  <div class="card" id="results-card" style="display: none;">
+    <h2>Response package</h2>
+    <p class="card-sub">Letter and revised text are editable in place. Copy individual blocks with the buttons.</p>
+    <div id="results"></div>
+  </div>
+
+</div>
+
+<footer>
+  <span>ETL &middot; Office Hours &middot; Reviewer Response</span>
+  <span><a href="/office-hours">Back to Office Hours</a> &middot; <a href="/">ETL Home</a></span>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  const SAMPLES = {
+    'nursing-major': {
+      decision: 'major-revisions',
+      journal: 'Health Services Research',
+      reviewer_comments: `EDITOR'S DECISION: Major Revisions
+
+REVIEWER 1
+1. The hospital-month HPPD exposure measure is too coarse. The authors should consider using shift-level staffing data if available.
+2. The Elixhauser adjustment is reasonable but the authors should also adjust for outpatient cardiology follow-up density, which is a known confounder of heart failure readmission.
+3. The 14-hospital sample is described as a "multi-hospital cohort" but is from a single integrated health system. The authors should be more explicit about the limits this places on generalizability.
+
+REVIEWER 2
+1. The discussion does not adequately address competing literature. Specifically, the 2023 meta-analysis by [reference] found no significant association between nurse staffing and HF readmission across 23 studies. The authors must engage with this.
+2. The mixed-effects logistic regression is fine but the authors should report ICC for hospital and consider whether a three-level model (patient within hospital within year) is more appropriate given the 5-year observation window.
+3. Effect sizes are reported only as odds ratios. Please add risk ratios and number-needed-to-staff for practical interpretation.
+
+EDITOR
+We are particularly interested in your response to R2's concern about the conflicting meta-analysis. This is a key issue.`,
+      manuscript_section: `METHODS
+We used Corporate Data Warehouse data from 14 acute care hospitals in one integrated health system between 2019 and 2023. Adult patients (>=18) with primary discharge diagnosis of heart failure (ICD-10 I50.x) were included. Patients who died during the index admission or were transferred to another acute care hospital were excluded.
+
+The primary exposure was hospital-month RN-hours per patient-day (HPPD), calculated from payroll-based productive nursing hours divided by hospital-month adult medical-surgical patient-days. Each index admission was assigned the HPPD value for the hospital-month of admission.
+
+The primary outcome was unplanned 30-day all-cause readmission to any hospital in the system. Covariates included age, sex, race/ethnicity, Elixhauser comorbidity index, count of admissions in prior 6 months, primary insurance, and index length of stay. Mixed-effects logistic regression with hospital random intercept estimated the association.
+
+DISCUSSION
+This study extends the substantial body of nurse staffing literature to a federally tracked outcome (30-day readmission) in a specific clinical population (heart failure) across a multi-hospital integrated health system. The magnitude of the association we observe is consistent with prior single-hospital and registry-based work. Higher RN staffing intensity is independently associated with lower 30-day readmission in this cohort.
+
+Limitations include single-system scope, payroll-based exposure measurement, and observational design.`,
+      author_concerns: `I have shift-level staffing data available from the VA Nursing Outcomes Database that I can pull for the resubmission. I have NOT measured outpatient cardiology follow-up density and cannot easily get this without significant additional work. I am willing to engage with the 2023 meta-analysis but I think my findings are reconcilable with it given differences in study design.`,
+    },
+    'education-minor': {
+      decision: 'minor-revisions',
+      journal: 'American Educational Research Journal',
+      reviewer_comments: `EDITOR: Minor revisions, accept conditional on addressing reviewers' points.
+
+REVIEWER 1
+1. The English-learner subgroup analysis is interesting but is not pre-registered as primary. Please add a paragraph explicitly framing it as exploratory.
+2. Sample sizes per school vary considerably. Add a sensitivity analysis weighting by school enrollment.
+3. The 0.18 SD effect size on DIBELS Composite is consistent with prior phonics-intervention literature, but a brief comparison to the Hanford 2022 meta-analysis would help.
+
+REVIEWER 2
+1. Attrition was 12%. Please clarify whether this differed by treatment arm. If yes, address as a robustness check.
+2. The implementation-fidelity scale is undescribed in the manuscript text (only in the supplement). Add 1-2 sentences in Methods.
+
+EDITOR
+Both reviewers are positive. Please address the comments and we will move forward.`,
+      manuscript_section: `RESULTS
+We analyzed 2,134 students with end-of-grade-2 outcomes. Adjusted treatment effect on DIBELS Composite was 0.18 SD favoring RFP (95% CI 0.07-0.29, p=.001). Effects on individual DIBELS subtests ranged from 0.12 to 0.24 SD. Effect on the state ELA assessment was 0.14 SD (95% CI 0.04-0.24). Subgroup analysis showed English learners gained 0.31 SD on the Composite (95% CI 0.16-0.46); students entering K below benchmark gained 0.27 SD.
+
+DISCUSSION
+The effect we observe is consistent with the upper end of effect sizes documented for whole-classroom structured-literacy interventions in prior work. The differential effect for English learners is the contribution of this work to the broader evidence base. Limitations include two-district scope and 12% attrition.`,
+      author_concerns: `EL subgroup framing is sensitive — I want it kept prominent. Attrition was 13% in treatment and 11% in control, so essentially balanced; I can add that clearly.`,
+    },
+  };
+
+  const els = {
+    sample: document.getElementById('sample'),
+    clearBtn: document.getElementById('clear-btn'),
+    decision: document.getElementById('decision'),
+    journal: document.getElementById('journal'),
+    reviewerComments: document.getElementById('reviewer-comments'),
+    manuscriptSection: document.getElementById('manuscript-section'),
+    authorConcerns: document.getElementById('author-concerns'),
+    buildBtn: document.getElementById('build-btn'),
+    status: document.getElementById('status'),
+    resultsCard: document.getElementById('results-card'),
+    results: document.getElementById('results'),
+  };
+
+  function setStatus(msg, cls) {
+    els.status.textContent = msg || '';
+    els.status.className = 'status' + (cls ? ' ' + cls : '');
+  }
+  function escHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  els.sample.addEventListener('change', function () {
+    const k = els.sample.value; if (!k) return;
+    const s = SAMPLES[k]; if (!s) return;
+    els.decision.value = s.decision;
+    els.journal.value = s.journal || '';
+    els.reviewerComments.value = s.reviewer_comments;
+    els.manuscriptSection.value = s.manuscript_section;
+    els.authorConcerns.value = s.author_concerns || '';
+    setStatus('Sample loaded.', 'success');
+  });
+
+  els.clearBtn.addEventListener('click', function () {
+    els.reviewerComments.value = '';
+    els.manuscriptSection.value = '';
+    els.authorConcerns.value = '';
+    els.journal.value = '';
+    els.decision.value = 'major-revisions';
+    els.sample.value = '';
+    setStatus('');
+    els.resultsCard.style.display = 'none';
+    els.results.innerHTML = '';
+  });
+
+  els.buildBtn.addEventListener('click', async function () {
+    const rc = els.reviewerComments.value.trim();
+    const ms = els.manuscriptSection.value.trim();
+    if (!rc || rc.length < 50) { setStatus('Paste the reviewer comments first.', 'error'); return; }
+    if (!ms || ms.length < 100) { setStatus('Paste the manuscript section under critique.', 'error'); return; }
+
+    els.buildBtn.disabled = true;
+    setStatus('Building response. Usually 30 to 60 seconds.', 'busy');
+    els.resultsCard.style.display = 'none';
+    els.results.innerHTML = '';
+
+    const payload = {
+      reviewer_comments: rc,
+      manuscript_section: ms,
+      journal: els.journal.value.trim(),
+      decision: els.decision.value,
+      author_concerns: els.authorConcerns.value.trim(),
+    };
+
+    try {
+      const resp = await fetch('/.netlify/functions/office-hours-reviewer-response', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!resp.ok) {
+        const t = await resp.text();
+        let detail = '';
+        try { const j = JSON.parse(t); detail = j.detail || j.error || ''; } catch { detail = t.slice(0, 200); }
+        if (resp.status === 504 || resp.status === 408 || resp.status === 502) {
+          setStatus('Connection timed out. Try again, or switch to a phone hotspot.', 'error');
+        } else {
+          setStatus('Something went wrong: ' + (detail || resp.status), 'error');
+        }
+        return;
+      }
+      const data = await resp.json();
+      renderResult(data.result || {});
+      setStatus('Done.', 'success');
+    } catch (err) {
+      setStatus('Error: ' + (err && err.message), 'error');
+    } finally {
+      els.buildBtn.disabled = false;
+    }
+  });
+
+  function renderResult(r) {
+    const parts = [];
+
+    if (r.letter_opening) {
+      parts.push('<div class="result-block">');
+      parts.push('<h3>Response letter to the editor</h3>');
+      parts.push('<div class="letter-block" contenteditable="true" id="letter-open">' + escHtml(r.letter_opening) + '</div>');
+      parts.push('</div>');
+    }
+
+    if (Array.isArray(r.responses) && r.responses.length) {
+      parts.push('<div class="result-block">');
+      parts.push('<h3>Point-by-point responses <span class="count">' + r.responses.length + '</span></h3>');
+      r.responses.forEach(function (c, i) {
+        parts.push('<div class="response-card' + (c.disagree ? ' disagree' : '') + '">');
+        parts.push('<div class="response-card__head">');
+        parts.push('<span class="response-card__reviewer">' + escHtml(c.reviewer) + (c.comment_number ? ' &middot; ' + c.comment_number : '') + '</span>');
+        if (c.action_taken) parts.push('<span class="response-card__action">' + escHtml(c.action_taken) + '</span>');
+        if (c.disagree) parts.push('<span class="response-card__disagree">Respectful disagreement</span>');
+        parts.push('</div>');
+        if (c.comment_summary) parts.push('<p class="response-card__comment">' + escHtml(c.comment_summary) + '</p>');
+        if (c.response) parts.push('<div class="response-card__response" contenteditable="true">' + escHtml(c.response) + '</div>');
+        parts.push('</div>');
+      });
+      parts.push('</div>');
+    }
+
+    if (r.letter_closing) {
+      parts.push('<div class="result-block">');
+      parts.push('<h3>Closing</h3>');
+      parts.push('<div class="letter-block" contenteditable="true" id="letter-close">' + escHtml(r.letter_closing) + '</div>');
+      parts.push('</div>');
+    }
+
+    if (r.revised_section) {
+      parts.push('<div class="result-block">');
+      parts.push('<h3>Revised manuscript section</h3>');
+      parts.push('<div class="revised-block" contenteditable="true" id="revised">' + escHtml(r.revised_section) + '</div>');
+      parts.push('<button type="button" class="copy-btn" id="copy-revised">Copy revised section</button>');
+      parts.push('</div>');
+    }
+
+    if (Array.isArray(r.diff_notes) && r.diff_notes.length) {
+      parts.push('<div class="result-block">');
+      parts.push('<h3>What changed</h3>');
+      parts.push('<ul class="diff-list">');
+      r.diff_notes.forEach(function (n) { parts.push('<li>' + escHtml(n) + '</li>'); });
+      parts.push('</ul></div>');
+    }
+
+    els.results.innerHTML = parts.join('');
+    els.resultsCard.style.display = 'block';
+
+    const copyBtn = document.getElementById('copy-revised');
+    const revisedEl = document.getElementById('revised');
+    if (copyBtn && revisedEl) {
+      copyBtn.addEventListener('click', function () {
+        const t = revisedEl.innerText || revisedEl.textContent || '';
+        navigator.clipboard.writeText(t).then(function () {
+          copyBtn.classList.add('copied'); copyBtn.textContent = 'Copied';
+          setTimeout(function () { copyBtn.classList.remove('copied'); copyBtn.textContent = 'Copy revised section'; }, 1800);
+        });
+      });
+    }
+
+    els.resultsCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+})();
+</script>
+</body>
+</html>

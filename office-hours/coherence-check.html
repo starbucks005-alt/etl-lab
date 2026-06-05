@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coherence Check &mdash; Office Hours | Emerging Technologies Laboratory</title>
+<meta name="description" content="Does your paper's argument actually hang together? Paste abstract + key sections. Get a structural review flagging thesis drift, logical gaps, contradictions, and weak transitions.">
+<link rel="canonical" href="https://emerging-tech-lab.com/office-hours/coherence-check">
+<link rel="icon" type="image/png" href="/favicon.png">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Coherence Check &mdash; Office Hours">
+<meta property="og:description" content="Structural review of your paper's argument: thesis, gaps, contradictions, transitions.">
+<meta property="og:url" content="https://emerging-tech-lab.com/office-hours/coherence-check">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --paper: #f3ecdc;
+    --paper-deep: #e8dec8;
+    --ink: #161310;
+    --ink-soft: #4a443a;
+    --gold: #b8922a;
+    --gold-deep: #8a6c1a;
+    --line: #c8bba0;
+    --bad: #8a2a2a;
+    --good: #3a6a2a;
+    --warn: #c47a1a;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--paper); color: var(--ink);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 18px; line-height: 1.55;
+  }
+  a { color: var(--gold-deep); text-decoration: underline; text-underline-offset: 3px; }
+  a:hover { color: var(--ink); }
+  .top-strip {
+    background: #161310; color: #d4aa4a;
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 0.6rem 1.5rem; display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 0.5rem;
+  }
+  .top-strip a { color: #d4aa4a; text-decoration: none; }
+  .top-strip a:hover { color: #fff; }
+  .top-strip__crumbs a { margin-right: 0.6rem; }
+  .top-strip__crumbs .sep { color: #8a6c1a; margin-right: 0.6rem; }
+  .shell { max-width: 1020px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+  .masthead { text-align: center; padding: 1.5rem 0 0.8rem; border-bottom: 1px solid var(--line); }
+  .masthead .eyebrow {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--gold-deep);
+  }
+  .masthead h1 {
+    font-family: 'Playfair Display', Georgia, serif; font-weight: 900;
+    font-size: clamp(2rem, 4.5vw, 3.2rem); margin: 0.2rem 0 0.2rem; letter-spacing: -0.01em;
+  }
+  .masthead .sub {
+    font-style: italic; color: var(--ink-soft); margin: 0; font-size: 1.1rem;
+    max-width: 760px; margin-left: auto; margin-right: auto;
+  }
+  .privacy-banner {
+    margin: 1.4rem 0 1.8rem;
+    padding: 0.9rem 1.2rem;
+    background: #ece1c8; border-left: 3px solid var(--gold);
+    font-size: 0.95rem; color: var(--ink-soft);
+  }
+  .privacy-banner strong { color: var(--ink); }
+  .card {
+    background: #fcf6e8; border: 1px solid var(--line);
+    padding: 1.4rem 1.4rem 1.6rem; box-shadow: 0 1px 0 rgba(0,0,0,0.03);
+    margin-bottom: 1.4rem;
+  }
+  .card h2 {
+    font-family: 'Playfair Display', Georgia, serif; font-weight: 700;
+    font-size: 1.4rem; margin: 0 0 0.3rem;
+  }
+  .card .card-sub {
+    font-style: italic; color: var(--ink-soft); font-size: 0.95rem;
+    margin: 0 0 1.2rem;
+  }
+  label.field {
+    display: block; margin-bottom: 1rem;
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--gold-deep);
+  }
+  label.field > .label-text { display: block; margin-bottom: 0.35rem; }
+  label.field > .label-note {
+    display: block; font-family: 'Cormorant Garamond', serif; text-transform: none;
+    letter-spacing: 0; color: var(--ink-soft); font-style: italic;
+    font-size: 0.9rem; margin-bottom: 0.35rem;
+  }
+  label.field input[type=text], label.field select, label.field textarea {
+    width: 100%; padding: 0.55rem 0.7rem;
+    font-family: 'Cormorant Garamond', serif; font-size: 1rem;
+    background: #fffbef; border: 1px solid var(--line);
+    color: var(--ink); border-radius: 0;
+  }
+  label.field textarea { font-family: 'DM Mono', monospace; font-size: 0.84rem; line-height: 1.5; min-height: 240px; resize: vertical; }
+  label.field input:focus, label.field textarea:focus, label.field select:focus {
+    outline: 2px solid var(--gold); outline-offset: -1px;
+  }
+  .sample-bar {
+    margin: 0 0 1.2rem; padding: 0.7rem 0.9rem;
+    background: #ece1c8; border: 1px dashed var(--gold);
+    display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap;
+  }
+  .sample-bar label {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--gold-deep);
+  }
+  .sample-bar select {
+    padding: 0.4rem 0.6rem; font-family: 'Cormorant Garamond', serif; font-size: 0.95rem;
+    background: #fffbef; border: 1px solid var(--line); flex: 1; min-width: 280px;
+  }
+  .sample-bar button.link {
+    background: transparent; border: 0; color: var(--gold-deep); cursor: pointer;
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em;
+    text-transform: uppercase; text-decoration: underline;
+  }
+  .actions { display: flex; gap: 0.7rem; flex-wrap: wrap; margin-top: 0.6rem; align-items: center; }
+  button.btn {
+    font-family: 'DM Mono', monospace; font-size: 0.75rem; letter-spacing: 0.18em;
+    text-transform: uppercase; cursor: pointer; padding: 0.8rem 1.4rem;
+    border: 1px solid var(--gold-deep); background: var(--gold); color: #fff;
+    transition: 0.15s;
+  }
+  button.btn:hover:not(:disabled) { background: var(--gold-deep); }
+  button.btn:disabled { opacity: 0.5; cursor: wait; }
+  .status {
+    font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.12em;
+    text-transform: uppercase; padding: 0.5rem 0; min-height: 1.4em;
+    color: var(--ink-soft);
+  }
+  .status.busy { color: var(--gold-deep); }
+  .status.success { color: var(--good); }
+  .status.error { color: var(--bad); }
+
+  /* Results */
+  .result-block { margin-bottom: 1.8rem; }
+  .result-block h3 {
+    font-family: 'Playfair Display', Georgia, serif; font-weight: 700;
+    font-size: 1.2rem; margin: 0 0 0.5rem;
+    padding-bottom: 0.3rem; border-bottom: 1px solid var(--line);
+  }
+  .result-block h3 .count {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem;
+    letter-spacing: 0.14em; color: var(--ink-soft); font-weight: 400;
+    margin-left: 0.4rem;
+  }
+  .summary-block {
+    background: #ece1c8; border-left: 3px solid var(--gold-deep);
+    padding: 0.9rem 1.1rem; margin-bottom: 1.4rem;
+    font-family: 'Cormorant Garamond', serif; font-size: 1.04rem;
+    line-height: 1.55;
+  }
+  .risk-block {
+    background: #f5d8d8; border-left: 4px solid var(--bad);
+    padding: 0.9rem 1.1rem; margin-bottom: 1.4rem;
+  }
+  .risk-block__label {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--bad); font-weight: 700; margin-bottom: 0.3rem;
+  }
+  .risk-block__body {
+    font-family: 'Cormorant Garamond', serif; font-size: 1.04rem; line-height: 1.55;
+  }
+  .thesis-card {
+    padding: 1rem 1.2rem; margin-bottom: 1.4rem;
+    font-family: 'Cormorant Garamond', serif; font-size: 1rem;
+  }
+  .thesis-card.clear     { background: #e3edd9; border-left: 4px solid var(--good); }
+  .thesis-card.ambiguous { background: #f5ecc8; border-left: 4px solid var(--gold); }
+  .thesis-card.drifts    { background: #f5ecc8; border-left: 4px solid var(--warn); }
+  .thesis-card.missing   { background: #f5d8d8; border-left: 4px solid var(--bad); }
+  .thesis-card__label {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem;
+    letter-spacing: 0.16em; text-transform: uppercase; font-weight: 700;
+    margin-bottom: 0.4rem;
+  }
+  .thesis-card.clear     .thesis-card__label { color: var(--good); }
+  .thesis-card.ambiguous .thesis-card__label { color: var(--gold-deep); }
+  .thesis-card.drifts    .thesis-card__label { color: var(--warn); }
+  .thesis-card.missing   .thesis-card__label { color: var(--bad); }
+  .thesis-card__rating {
+    font-family: 'Playfair Display', serif; font-weight: 700;
+    font-size: 1.3rem; margin-bottom: 0.3rem;
+  }
+  .thesis-card__quoted {
+    font-style: italic; color: var(--ink-soft);
+    border-left: 2px solid var(--line); padding-left: 0.7rem;
+    margin: 0.5rem 0;
+  }
+  .issue-card {
+    background: #fffbef; border-left: 3px solid var(--warn);
+    padding: 0.7rem 1rem; margin-bottom: 0.5rem;
+  }
+  .issue-card.major { border-left-color: var(--bad); background: #fdf3f3; }
+  .issue-card__location {
+    font-family: 'DM Mono', monospace; font-size: 0.66rem;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft);
+    font-weight: 700; margin-bottom: 0.3rem;
+  }
+  .issue-card__issue {
+    font-family: 'Cormorant Garamond', serif; font-size: 1rem;
+    line-height: 1.55; margin: 0;
+  }
+  .issue-card__fix {
+    font-family: 'Cormorant Garamond', serif; font-size: 0.95rem;
+    font-style: italic; color: var(--ink-soft);
+    margin: 0.3rem 0 0; padding-left: 0.7rem; border-left: 2px solid var(--good);
+  }
+  .contra-card {
+    background: #fdf3f3; border: 1px solid var(--bad);
+    padding: 0.8rem 1rem; margin-bottom: 0.6rem;
+  }
+  .contra-card__pair {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem 0.8rem;
+    margin-bottom: 0.4rem;
+  }
+  @media (max-width: 700px) { .contra-card__pair { grid-template-columns: 1fr; } }
+  .contra-card__side {
+    padding: 0.4rem 0.6rem; background: #fffbef; border-left: 2px solid var(--bad);
+  }
+  .contra-card__loc {
+    font-family: 'DM Mono', monospace; font-size: 0.66rem;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft);
+  }
+  .contra-card__claim {
+    font-family: 'Cormorant Garamond', serif; font-size: 0.96rem;
+    margin: 0.2rem 0 0;
+  }
+  .alignment-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0.6rem; margin-bottom: 1rem;
+  }
+  .alignment-cell {
+    background: #fffbef; border: 1px solid var(--line);
+    padding: 0.7rem 0.9rem;
+  }
+  .alignment-cell__label {
+    font-family: 'DM Mono', monospace; font-size: 0.66rem;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft);
+    margin-bottom: 0.3rem;
+  }
+  .alignment-cell__value {
+    font-family: 'Playfair Display', serif; font-weight: 700;
+    font-size: 1.05rem; text-transform: capitalize;
+  }
+  .alignment-cell.tight  .alignment-cell__value { color: var(--good); }
+  .alignment-cell.loose  .alignment-cell__value { color: var(--gold-deep); }
+  .alignment-cell.broken .alignment-cell__value { color: var(--bad); }
+
+  footer {
+    margin-top: 4rem; padding-top: 1.4rem; border-top: 1px solid var(--line);
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--ink-soft); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+  }
+  footer a { color: var(--ink-soft); }
+</style>
+</head>
+<body>
+
+<div class="top-strip">
+  <span class="top-strip__crumbs">
+    <a href="/">ETL</a><span class="sep">/</span><a href="/office-hours">Office Hours</a><span class="sep">/</span>Coherence Check
+  </span>
+  <a href="/office-hours">&larr; Back to Office Hours</a>
+</div>
+
+<div class="shell">
+
+  <div class="masthead">
+    <div class="eyebrow">Office Hours &middot; Coherence Check</div>
+    <h1>Does the argument hang together?</h1>
+    <p class="sub">Paste your abstract and key sections. Get a structural review: thesis clarity, logical gaps, contradictions between sections, weak transitions, and the biggest structural risk to your paper's chances.</p>
+  </div>
+
+  <div class="privacy-banner">
+    <strong>Privacy:</strong> Your manuscript text is sent to Anthropic's Claude API for analysis. Anthropic does not train on or retain API content. We do not log or store anything on our servers. This tool focuses narrowly on STRUCTURE. For journal-fit + reviewer-bait + citation hygiene + voice, use Pre-submission Check (Jules) instead.
+  </div>
+
+  <div class="card">
+
+    <div class="sample-bar">
+      <label for="sample">Try a sample:</label>
+      <select id="sample">
+        <option value="">&mdash; pick a sample &mdash;</option>
+        <option value="drift">Empirical paper with thesis drift &mdash; staffing study</option>
+        <option value="review-loose">Narrative review with loose transitions &mdash; active learning</option>
+      </select>
+      <button type="button" class="link" id="clear-btn">Clear form</button>
+    </div>
+
+    <label class="field">
+      <span class="label-text">Paper type</span>
+      <select id="paper-type">
+        <option value="primary" selected>Primary empirical research</option>
+        <option value="review">Narrative review</option>
+        <option value="systematic-review">Systematic review / meta-analysis</option>
+        <option value="perspective">Perspective / commentary</option>
+        <option value="methods">Methods paper</option>
+      </select>
+    </label>
+
+    <label class="field">
+      <span class="label-text">Abstract</span>
+      <span class="label-note">The abstract sets the thesis the paper has to deliver on. Coherence is partly measured by whether the body actually delivers.</span>
+      <textarea id="abstract" style="min-height: 140px;" placeholder="Paste your abstract here."></textarea>
+    </label>
+
+    <label class="field">
+      <span class="label-text">Key sections (intro + methods + results + discussion)</span>
+      <span class="label-note">Paste the body. Sections labeled (INTRODUCTION, METHODS, RESULTS, DISCUSSION) help the tool anchor its findings.</span>
+      <textarea id="sections" placeholder="Paste the body sections. The tool will flag gaps between sections, contradictions across them, weak transitions, and overall structural drift."></textarea>
+    </label>
+
+    <label class="field">
+      <span class="label-text">Your concerns (optional)</span>
+      <span class="label-note">What you suspect doesn't hang together. The tool addresses these specifically.</span>
+      <textarea id="author-concerns" style="min-height: 80px;" placeholder="e.g. I think the Discussion drifts away from the original research question. The Methods don't quite measure what the Intro claims."></textarea>
+    </label>
+
+    <div class="actions">
+      <button type="button" class="btn" id="check-btn">Run coherence check</button>
+      <span class="status" id="status"></span>
+    </div>
+  </div>
+
+  <div class="card" id="results-card" style="display: none;">
+    <h2>Coherence check</h2>
+    <p class="card-sub">Structural review only. Each finding ties to a specific location in the paper.</p>
+    <div id="results"></div>
+  </div>
+
+</div>
+
+<footer>
+  <span>ETL &middot; Office Hours &middot; Coherence Check</span>
+  <span><a href="/office-hours">Back to Office Hours</a> &middot; <a href="/">ETL Home</a></span>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  const SAMPLES = {
+    'drift': {
+      paper_type: 'primary',
+      abstract: `Background. Lower nurse staffing has been associated with adverse outcomes, but the relationship to 30-day readmission for heart failure patients is incompletely characterized. Methods. Retrospective cohort of 8,712 adult heart failure admissions across 14 hospitals in one health system, 2019-2023. Mixed-effects logistic regression adjusting for age, sex, race, comorbidity index, prior admissions, primary insurance, and index LOS. Results. Adjusted OR 0.92 per HPPD unit (95% CI 0.86-0.98, p=.012). Conclusions. Higher RN staffing intensity is independently associated with lower 30-day readmission for heart failure patients, supporting policy attention to nursing as a modifiable system factor.`,
+      sections: `INTRODUCTION
+Readmission for heart failure is a closely watched quality metric. Hospital factors driving readmission have received substantial attention but the role of nurse staffing in this specific outcome remains less established than for inpatient mortality. The aim of this study is to characterize the relationship between hospital-month RN hours per patient day and 30-day all-cause readmission for heart failure patients.
+
+METHODS
+We used data from 14 hospitals in one integrated health system. Adult heart failure admissions were identified by primary discharge diagnosis (ICD-10 I50.x). Exposure: hospital-month payroll-based RN-HPPD. Outcome: 30-day all-cause readmission. Mixed-effects logistic regression with hospital random intercept; adjusted for age, sex, race, Elixhauser, prior 6-month admissions, insurance, and index LOS.
+
+RESULTS
+We analyzed 8,712 admissions. Crude readmission was 22.1%. Each 1-unit increase in HPPD: adjusted OR 0.92 (95% CI 0.86-0.98). Sensitivity analyses produced consistent estimates.
+
+DISCUSSION
+This study contributes to the literature on nurse workforce policy. Workforce shortages have been a major focus of health policy debate, and our findings underscore the centrality of staffing investments to system-level quality outcomes. The broader policy implications extend to nursing education pipelines, retention strategies, and the urgent need for federal investment in nursing infrastructure. Limitations include single-system scope and observational design.`,
+      author_concerns: `The Discussion drifts. I started with a focused question and ended on a policy editorial. Reviewers will catch this.`,
+    },
+    'review-loose': {
+      paper_type: 'review',
+      abstract: `Active learning has been broadly advocated as a more effective pedagogical approach than traditional lecture in STEM undergraduate education. This narrative review summarizes evidence from 2019 to 2024 on the effectiveness of active learning interventions in introductory STEM courses. Studies generally report improvements in student outcomes, including exam performance, course pass rates, and engagement measures. The magnitude of effects varies considerably across interventions and contexts. We discuss implications for departmental adoption.`,
+      sections: `INTRODUCTION
+The case for active learning in STEM has been built over decades. Recent meta-analyses suggest small-to-moderate average effects. Whether these extend to high-poverty contexts at scale is the question we address.
+
+METHODS
+This is a narrative review. We searched ERIC and Google Scholar. We selected studies based on relevance and methodological strength as judged by the lead author. No formal inclusion criteria were applied. Approximately 50 studies were considered.
+
+RESULTS
+Performance outcomes were generally positive. Engagement and persistence outcomes were generally positive. Equity considerations were mixed.
+
+DISCUSSION
+Active learning works. Departmental adoption is essential. Faculty professional development is critical. Future research priorities include identifying active ingredients within active learning, longitudinal outcomes, and comparative effectiveness across intervention types.`,
+      author_concerns: `Transitions between sections feel abrupt. The Results section is too terse. The Discussion makes claims the Methods/Results don't actually support.`,
+    },
+  };
+
+  const els = {
+    sample: document.getElementById('sample'),
+    clearBtn: document.getElementById('clear-btn'),
+    paperType: document.getElementById('paper-type'),
+    abstractEl: document.getElementById('abstract'),
+    sections: document.getElementById('sections'),
+    authorConcerns: document.getElementById('author-concerns'),
+    checkBtn: document.getElementById('check-btn'),
+    status: document.getElementById('status'),
+    resultsCard: document.getElementById('results-card'),
+    results: document.getElementById('results'),
+  };
+
+  function setStatus(msg, cls) {
+    els.status.textContent = msg || '';
+    els.status.className = 'status' + (cls ? ' ' + cls : '');
+  }
+  function escHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  els.sample.addEventListener('change', function () {
+    const k = els.sample.value; if (!k) return;
+    const s = SAMPLES[k]; if (!s) return;
+    els.paperType.value = s.paper_type;
+    els.abstractEl.value = s.abstract;
+    els.sections.value = s.sections;
+    els.authorConcerns.value = s.author_concerns || '';
+    setStatus('Sample loaded.', 'success');
+  });
+
+  els.clearBtn.addEventListener('click', function () {
+    els.abstractEl.value = '';
+    els.sections.value = '';
+    els.authorConcerns.value = '';
+    els.paperType.value = 'primary';
+    els.sample.value = '';
+    setStatus('');
+    els.resultsCard.style.display = 'none';
+    els.results.innerHTML = '';
+  });
+
+  els.checkBtn.addEventListener('click', async function () {
+    const ab = els.abstractEl.value.trim();
+    const sec = els.sections.value.trim();
+    if (!ab || ab.length < 50) { setStatus('Paste the abstract first.', 'error'); return; }
+    if (!sec || sec.length < 200) { setStatus('Paste at least one body section (intro+methods+results+discussion is ideal).', 'error'); return; }
+
+    els.checkBtn.disabled = true;
+    setStatus('Running coherence check. Usually 30 to 50 seconds.', 'busy');
+    els.resultsCard.style.display = 'none';
+    els.results.innerHTML = '';
+
+    const payload = {
+      abstract: ab,
+      sections: sec,
+      paper_type: els.paperType.value,
+      author_concerns: els.authorConcerns.value.trim(),
+    };
+
+    try {
+      const resp = await fetch('/.netlify/functions/office-hours-coherence-check', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!resp.ok) {
+        const t = await resp.text();
+        let detail = '';
+        try { const j = JSON.parse(t); detail = j.detail || j.error || ''; } catch { detail = t.slice(0, 200); }
+        if (resp.status === 504 || resp.status === 408 || resp.status === 502) {
+          setStatus('Connection timed out. Try again, or switch to a phone hotspot.', 'error');
+        } else {
+          setStatus('Something went wrong: ' + (detail || resp.status), 'error');
+        }
+        return;
+      }
+      const data = await resp.json();
+      renderResult(data.result || {});
+      setStatus('Done.', 'success');
+    } catch (err) {
+      setStatus('Error: ' + (err && err.message), 'error');
+    } finally {
+      els.checkBtn.disabled = false;
+    }
+  });
+
+  function thesisClass(rating) {
+    if (rating === 'clear') return 'clear';
+    if (rating === 'drifts') return 'drifts';
+    if (rating === 'missing') return 'missing';
+    return 'ambiguous';
+  }
+
+  function renderResult(r) {
+    const parts = [];
+
+    if (r.structural_summary) {
+      parts.push('<div class="summary-block">' + escHtml(r.structural_summary) + '</div>');
+    }
+
+    if (r.biggest_structural_risk) {
+      parts.push('<div class="risk-block">');
+      parts.push('<div class="risk-block__label">Biggest structural risk</div>');
+      parts.push('<div class="risk-block__body">' + escHtml(r.biggest_structural_risk) + '</div>');
+      parts.push('</div>');
+    }
+
+    if (r.thesis_clarity) {
+      const tc = r.thesis_clarity;
+      const cls = thesisClass(tc.rating);
+      parts.push('<div class="result-block"><h3>Thesis</h3>');
+      parts.push('<div class="thesis-card ' + cls + '">');
+      parts.push('<div class="thesis-card__label">Rating</div>');
+      parts.push('<div class="thesis-card__rating">' + escHtml(tc.rating) + '</div>');
+      if (tc.stated_thesis) parts.push('<div class="thesis-card__quoted">' + escHtml(tc.stated_thesis) + '</div>');
+      if (tc.detail) parts.push('<div>' + escHtml(tc.detail) + '</div>');
+      parts.push('</div></div>');
+    }
+
+    if (r.section_alignment) {
+      const sa = r.section_alignment;
+      parts.push('<div class="result-block"><h3>Section flow</h3>');
+      if (!sa.abstract_matches_paper && sa.abstract_drift_note) {
+        parts.push('<div class="risk-block"><div class="risk-block__label">Abstract / paper drift</div><div class="risk-block__body">' + escHtml(sa.abstract_drift_note) + '</div></div>');
+      }
+      parts.push('<div class="alignment-grid">');
+      var pairs = [
+        ['Intro → Methods', sa.intro_to_methods],
+        ['Methods → Results', sa.methods_to_results],
+        ['Results → Discussion', sa.results_to_discussion],
+        ['Discussion → Conclusion', sa.discussion_to_conclusion],
+      ];
+      pairs.forEach(function (p) {
+        var label = p[0]; var v = p[1] || 'loose';
+        parts.push('<div class="alignment-cell ' + v + '">');
+        parts.push('<div class="alignment-cell__label">' + label + '</div>');
+        parts.push('<div class="alignment-cell__value">' + escHtml(v) + '</div>');
+        parts.push('</div>');
+      });
+      parts.push('</div></div>');
+    }
+
+    if (Array.isArray(r.gaps) && r.gaps.length) {
+      parts.push('<div class="result-block"><h3>Logical gaps <span class="count">' + r.gaps.length + '</span></h3>');
+      r.gaps.forEach(function (g) {
+        parts.push('<div class="issue-card major">');
+        if (g.location) parts.push('<div class="issue-card__location">' + escHtml(g.location) + '</div>');
+        parts.push('<p class="issue-card__issue">' + escHtml(g.issue) + '</p>');
+        if (g.fix) parts.push('<p class="issue-card__fix">Fix: ' + escHtml(g.fix) + '</p>');
+        parts.push('</div>');
+      });
+      parts.push('</div>');
+    }
+
+    if (Array.isArray(r.contradictions) && r.contradictions.length) {
+      parts.push('<div class="result-block"><h3>Contradictions <span class="count">' + r.contradictions.length + '</span></h3>');
+      r.contradictions.forEach(function (c) {
+        parts.push('<div class="contra-card">');
+        parts.push('<div class="contra-card__pair">');
+        parts.push('<div class="contra-card__side"><div class="contra-card__loc">' + escHtml(c.location_a) + '</div><p class="contra-card__claim">' + escHtml(c.claim_a) + '</p></div>');
+        parts.push('<div class="contra-card__side"><div class="contra-card__loc">' + escHtml(c.location_b) + '</div><p class="contra-card__claim">' + escHtml(c.claim_b) + '</p></div>');
+        parts.push('</div>');
+        if (c.fix) parts.push('<p class="issue-card__fix">Fix: ' + escHtml(c.fix) + '</p>');
+        parts.push('</div>');
+      });
+      parts.push('</div>');
+    }
+
+    if (Array.isArray(r.weak_transitions) && r.weak_transitions.length) {
+      parts.push('<div class="result-block"><h3>Weak transitions <span class="count">' + r.weak_transitions.length + '</span></h3>');
+      r.weak_transitions.forEach(function (t) {
+        parts.push('<div class="issue-card">');
+        if (t.location) parts.push('<div class="issue-card__location">' + escHtml(t.location) + '</div>');
+        parts.push('<p class="issue-card__issue">' + escHtml(t.issue) + '</p>');
+        if (t.suggested_bridge) parts.push('<p class="issue-card__fix">Bridge: ' + escHtml(t.suggested_bridge) + '</p>');
+        parts.push('</div>');
+      });
+      parts.push('</div>');
+    }
+
+    els.results.innerHTML = parts.join('');
+    els.resultsCard.style.display = 'block';
+    els.resultsCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+})();
+</script>
+</body>
+</html>
