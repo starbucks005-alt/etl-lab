@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figure from Text &mdash; Office Hours | Emerging Technologies Laboratory</title>
+<meta name="description" content="Describe a diagram you need (concept map, flow chart, causal model, variable map, theoretical framework, timeline). Get a clean publication-ready SVG figure you can download and refine.">
+<link rel="canonical" href="https://emerging-tech-lab.com/office-hours/figure-from-text">
+<link rel="icon" type="image/png" href="/favicon.png">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Figure from Text &mdash; Office Hours">
+<meta property="og:description" content="Generate a publication-ready SVG diagram from a text description.">
+<meta property="og:url" content="https://emerging-tech-lab.com/office-hours/figure-from-text">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --paper: #f3ecdc;
+    --paper-deep: #e8dec8;
+    --ink: #161310;
+    --ink-soft: #4a443a;
+    --gold: #b8922a;
+    --gold-deep: #8a6c1a;
+    --line: #c8bba0;
+    --bad: #8a2a2a;
+    --good: #3a6a2a;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--paper); color: var(--ink);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 18px; line-height: 1.55;
+  }
+  a { color: var(--gold-deep); text-decoration: underline; text-underline-offset: 3px; }
+  a:hover { color: var(--ink); }
+
+  .top-strip {
+    background: #161310; color: #d4aa4a;
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 0.6rem 1.5rem; display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 0.5rem;
+  }
+  .top-strip a { color: #d4aa4a; text-decoration: none; }
+  .top-strip a:hover { color: #fff; }
+  .top-strip__crumbs a { margin-right: 0.6rem; }
+  .top-strip__crumbs .sep { color: #8a6c1a; margin-right: 0.6rem; }
+
+  .shell { max-width: 980px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+  .masthead { text-align: center; padding: 1.5rem 0 0.8rem; border-bottom: 1px solid var(--line); }
+  .masthead .eyebrow {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--gold-deep);
+  }
+  .masthead h1 {
+    font-family: 'Playfair Display', Georgia, serif; font-weight: 900;
+    font-size: clamp(2rem, 4.5vw, 3.2rem); margin: 0.2rem 0 0.2rem; letter-spacing: -0.01em;
+  }
+  .masthead .sub {
+    font-style: italic; color: var(--ink-soft); margin: 0; font-size: 1.1rem;
+    max-width: 720px; margin-left: auto; margin-right: auto;
+  }
+
+  .privacy-banner {
+    margin: 1.4rem 0 1.8rem;
+    padding: 0.9rem 1.2rem;
+    background: #ece1c8; border-left: 3px solid var(--gold);
+    font-size: 0.95rem; color: var(--ink-soft);
+  }
+  .privacy-banner strong { color: var(--ink); }
+
+  .card {
+    background: #fcf6e8; border: 1px solid var(--line);
+    padding: 1.4rem 1.4rem 1.6rem; box-shadow: 0 1px 0 rgba(0,0,0,0.03);
+    margin-bottom: 1.4rem;
+  }
+  .card h2 {
+    font-family: 'Playfair Display', Georgia, serif; font-weight: 700;
+    font-size: 1.4rem; margin: 0 0 0.3rem;
+  }
+  .card .card-sub {
+    font-style: italic; color: var(--ink-soft); font-size: 0.95rem;
+    margin: 0 0 1.2rem;
+  }
+
+  label.field {
+    display: block; margin-bottom: 1rem;
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--gold-deep);
+  }
+  label.field > .label-text { display: block; margin-bottom: 0.35rem; }
+  label.field > .label-note {
+    display: block; font-family: 'Cormorant Garamond', serif; text-transform: none;
+    letter-spacing: 0; color: var(--ink-soft); font-style: italic;
+    font-size: 0.9rem; margin-bottom: 0.35rem;
+  }
+  label.field input[type=text], label.field select, label.field textarea {
+    width: 100%; padding: 0.55rem 0.7rem;
+    font-family: 'Cormorant Garamond', serif; font-size: 1rem;
+    background: #fffbef; border: 1px solid var(--line);
+    color: var(--ink); border-radius: 0;
+  }
+  label.field textarea { font-family: 'DM Mono', monospace; font-size: 0.84rem; line-height: 1.5; min-height: 150px; resize: vertical; }
+  label.field input:focus, label.field textarea:focus, label.field select:focus {
+    outline: 2px solid var(--gold); outline-offset: -1px;
+  }
+
+  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 600px) { .row-2 { grid-template-columns: 1fr; } }
+
+  .sample-bar {
+    margin: 0 0 1.2rem; padding: 0.7rem 0.9rem;
+    background: #ece1c8; border: 1px dashed var(--gold);
+    display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap;
+  }
+  .sample-bar label {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--gold-deep);
+  }
+  .sample-bar select {
+    padding: 0.4rem 0.6rem; font-family: 'Cormorant Garamond', serif; font-size: 0.95rem;
+    background: #fffbef; border: 1px solid var(--line); flex: 1; min-width: 260px;
+  }
+  .sample-bar button.link {
+    background: transparent; border: 0; color: var(--gold-deep); cursor: pointer;
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em;
+    text-transform: uppercase; text-decoration: underline;
+  }
+
+  .actions { display: flex; gap: 0.7rem; flex-wrap: wrap; margin-top: 0.6rem; align-items: center; }
+  button.btn {
+    font-family: 'DM Mono', monospace; font-size: 0.75rem; letter-spacing: 0.18em;
+    text-transform: uppercase; cursor: pointer; padding: 0.8rem 1.4rem;
+    border: 1px solid var(--gold-deep); background: var(--gold); color: #fff;
+    transition: 0.15s;
+  }
+  button.btn:hover:not(:disabled) { background: var(--gold-deep); }
+  button.btn:disabled { opacity: 0.5; cursor: wait; }
+  button.btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+  button.btn.ghost:hover { background: var(--paper-deep); }
+
+  .status {
+    font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.12em;
+    text-transform: uppercase; padding: 0.5rem 0; min-height: 1.4em;
+    color: var(--ink-soft);
+  }
+  .status.busy { color: var(--gold-deep); }
+  .status.success { color: var(--good); }
+  .status.error { color: var(--bad); }
+
+  /* SVG figure preview */
+  .figure-wrap {
+    background: #ffffff; border: 1px solid var(--line);
+    padding: 1.2rem; text-align: center;
+    margin-bottom: 1rem;
+  }
+  .figure-wrap svg { max-width: 100%; height: auto; }
+
+  .download-row {
+    display: flex; gap: 0.7rem; flex-wrap: wrap; align-items: center;
+  }
+  .download-btn {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    padding: 0.5rem 0.9rem; background: var(--ink); color: #fff; border: 0;
+    cursor: pointer;
+  }
+  .download-btn:hover { background: var(--gold-deep); }
+  .copy-btn {
+    font-family: 'DM Mono', monospace; font-size: 0.64rem;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    padding: 0.5rem 0.8rem; background: transparent; border: 1px solid var(--line); color: var(--ink-soft);
+    cursor: pointer;
+  }
+  .copy-btn:hover { background: var(--paper-deep); color: var(--ink); }
+  .copy-btn.copied { color: var(--good); border-color: var(--good); }
+
+  .svg-source-row {
+    margin-top: 1rem;
+  }
+  .svg-source-row summary {
+    cursor: pointer;
+    font-family: 'DM Mono', monospace; font-size: 0.68rem;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-deep);
+  }
+  .svg-source-row pre {
+    margin-top: 0.5rem; background: #1a1a1a; color: #d4aa4a;
+    padding: 0.8rem; font-family: 'DM Mono', monospace;
+    font-size: 0.7rem; line-height: 1.5; overflow-x: auto;
+    max-height: 280px;
+  }
+
+  footer {
+    margin-top: 4rem; padding-top: 1.4rem; border-top: 1px solid var(--line);
+    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--ink-soft); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+  }
+  footer a { color: var(--ink-soft); }
+</style>
+</head>
+<body>
+
+<div class="top-strip">
+  <span class="top-strip__crumbs">
+    <a href="/">ETL</a><span class="sep">/</span><a href="/office-hours">Office Hours</a><span class="sep">/</span>Figure from Text
+  </span>
+  <a href="/office-hours">&larr; Back to Office Hours</a>
+</div>
+
+<div class="shell">
+
+  <div class="masthead">
+    <div class="eyebrow">Office Hours &middot; Figure from Text</div>
+    <h1>Generate a figure from a description.</h1>
+    <p class="sub">Describe the diagram you need. Get a clean publication-ready SVG figure you can download, drop into your manuscript or poster, and refine in Illustrator, Inkscape, or PowerPoint.</p>
+  </div>
+
+  <div class="privacy-banner">
+    <strong>Privacy:</strong> Your description is sent to Anthropic's Claude API. Anthropic does not train on or retain API content. We do not log, store, or retain anything on our servers.
+  </div>
+
+  <!-- ─── INTAKE CARD ─── -->
+  <div class="card">
+
+    <div class="sample-bar">
+      <label for="sample">Try a sample description:</label>
+      <select id="sample">
+        <option value="">&mdash; pick a sample &mdash;</option>
+        <option value="staffing">Conceptual model &mdash; nurse staffing &rarr; readmission</option>
+        <option value="screening">Flowchart &mdash; PRISMA-style study screening</option>
+        <option value="path">Causal path &mdash; mediator/moderator model</option>
+      </select>
+      <button type="button" class="link" id="clear-btn">Clear form</button>
+    </div>
+
+    <label class="field">
+      <span class="label-text">Describe the figure you need</span>
+      <span class="label-note">Name the boxes, the arrows, the relationships. More specific = sharper figure.</span>
+      <textarea id="description" placeholder="Example: A conceptual model with three constructs. Box on the left: Nurse Staffing Intensity. Arrow to box in the middle: Care Process Quality (mediator). Arrow to box on the right: 30-Day Readmission. Add a moderator (Hospital Case-Mix Complexity) as a diamond above the middle arrow, with an arrow pointing into it."></textarea>
+    </label>
+
+    <div class="row-2">
+      <label class="field">
+        <span class="label-text">Diagram type</span>
+        <select id="type">
+          <option value="conceptual" selected>Conceptual model (boxes + arrows)</option>
+          <option value="flowchart">Flowchart (steps + decisions)</option>
+          <option value="causal">Causal path model (variables + paths)</option>
+          <option value="variables">Variable map (IV / med / mod / DV)</option>
+          <option value="framework">Theoretical framework (layered/nested)</option>
+          <option value="timeline">Timeline (horizontal, dated nodes)</option>
+        </select>
+      </label>
+      <label class="field">
+        <span class="label-text">Color palette</span>
+        <select id="palette">
+          <option value="bw" selected>Black &amp; white (publication-safe)</option>
+          <option value="blue">Blue (academic)</option>
+          <option value="gold">ETL gold</option>
+          <option value="color">Multi-color (color publication)</option>
+        </select>
+      </label>
+    </div>
+
+    <label class="field">
+      <span class="label-text">Caption (optional)</span>
+      <span class="label-note">Renders inside the figure if provided. Leave blank if you'll add it in the manuscript.</span>
+      <input type="text" id="caption" placeholder="Figure 1 caption text, no leading 'Figure 1.' prefix">
+    </label>
+
+    <div class="actions">
+      <button type="button" class="btn" id="generate-btn">Generate figure</button>
+      <span class="status" id="status"></span>
+    </div>
+  </div>
+
+  <!-- ─── RESULTS CARD ─── -->
+  <div class="card" id="results-card" style="display: none;">
+    <h2>Your figure</h2>
+    <p class="card-sub">SVG renders below. Download as .svg to refine in Illustrator/Inkscape, or copy the source.</p>
+
+    <div class="figure-wrap" id="figure-wrap"></div>
+
+    <div class="download-row">
+      <button type="button" class="download-btn" id="download-btn">&darr; Download .svg</button>
+      <button type="button" class="copy-btn" id="copy-svg-btn">Copy SVG source</button>
+      <button type="button" class="btn ghost" id="regen-btn">Regenerate</button>
+    </div>
+
+    <details class="svg-source-row">
+      <summary>View raw SVG source</summary>
+      <pre id="svg-source"></pre>
+    </details>
+  </div>
+
+</div>
+
+<footer>
+  <span>ETL &middot; Office Hours &middot; Figure from Text</span>
+  <span><a href="/office-hours">Back to Office Hours</a> &middot; <a href="/">ETL Home</a></span>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  const SAMPLES = {
+    staffing: {
+      description: 'A conceptual model with three rectangular constructs in a horizontal row. Left: "Nurse Staffing Intensity (HPPD)". Middle: "Care Process Quality" (labeled as MEDIATOR). Right: "30-Day Readmission". A diamond above the middle, labeled "Hospital Case-Mix Complexity" (labeled MODERATOR), with an arrow pointing down into the line between Staffing and Care Process Quality. Arrows: left-to-middle labeled "+", middle-to-right labeled ",", moderator arrow dashed. All boxes the same size, evenly spaced.',
+      type: 'conceptual',
+      palette: 'bw',
+      caption: 'Conceptual model of nurse staffing intensity, care process quality, and 30-day readmission, with hospital case-mix complexity as a moderator.'
+    },
+    screening: {
+      description: 'A PRISMA-style four-stage screening flowchart in a single vertical column. Top: "Records identified through database searching (n = 1,247)". Arrow down to "Records after duplicates removed (n = 982)". Arrow down to "Records screened (n = 982)". Off the right side, an "Excluded (n = 723)" box with an arrow pointing out from screening. Continue: "Full-text articles assessed (n = 259)". Off right: "Full-text excluded with reasons (n = 211)". Bottom: "Studies included in synthesis (n = 48)". Use clean rectangles with thin borders.',
+      type: 'flowchart',
+      palette: 'blue',
+      caption: 'PRISMA-style flow diagram of study screening, identification, and inclusion.'
+    },
+    path: {
+      description: 'A causal path model with five variables. On the left: "Maternal Education" and "Household Income" stacked vertically. Both have arrows pointing to a center box "Home Literacy Environment" (mediator). From "Home Literacy Environment", an arrow points to "Reading Readiness at K Entry" (outcome). A moderator diamond above the mediator-to-outcome arrow labeled "Childcare Quality". Label each arrow with a beta coefficient placeholder (b = 0.XX).',
+      type: 'causal',
+      palette: 'gold',
+      caption: 'Hypothesized path model of family socioeconomic factors, home literacy environment, and reading readiness, with childcare quality as a moderator.'
+    }
+  };
+
+  const els = {
+    sample: document.getElementById('sample'),
+    description: document.getElementById('description'),
+    type: document.getElementById('type'),
+    palette: document.getElementById('palette'),
+    caption: document.getElementById('caption'),
+    generateBtn: document.getElementById('generate-btn'),
+    clearBtn: document.getElementById('clear-btn'),
+    status: document.getElementById('status'),
+    resultsCard: document.getElementById('results-card'),
+    figureWrap: document.getElementById('figure-wrap'),
+    downloadBtn: document.getElementById('download-btn'),
+    copySvgBtn: document.getElementById('copy-svg-btn'),
+    regenBtn: document.getElementById('regen-btn'),
+    svgSource: document.getElementById('svg-source'),
+  };
+
+  let lastSvg = '';
+
+  function setStatus(msg, cls) {
+    els.status.textContent = msg || '';
+    els.status.className = 'status' + (cls ? ' ' + cls : '');
+  }
+
+  els.sample.addEventListener('change', function () {
+    const k = els.sample.value; if (!k) return;
+    const s = SAMPLES[k]; if (!s) return;
+    els.description.value = s.description;
+    els.type.value = s.type;
+    els.palette.value = s.palette;
+    els.caption.value = s.caption;
+    setStatus('Sample loaded.', 'success');
+  });
+
+  els.clearBtn.addEventListener('click', function () {
+    els.description.value = '';
+    els.type.value = 'conceptual';
+    els.palette.value = 'bw';
+    els.caption.value = '';
+    els.sample.value = '';
+    setStatus('');
+    els.resultsCard.style.display = 'none';
+    els.figureWrap.innerHTML = '';
+    els.svgSource.textContent = '';
+    lastSvg = '';
+  });
+
+  async function generate() {
+    const description = els.description.value.trim();
+    if (!description || description.length < 10) {
+      setStatus('Describe the figure first.', 'error');
+      els.description.focus();
+      return;
+    }
+    els.generateBtn.disabled = true;
+    els.regenBtn.disabled = true;
+    setStatus('Generating SVG. Usually 20 to 60 seconds.', 'busy');
+    els.figureWrap.innerHTML = '<div style="padding:32px;font-family:DM Mono, monospace;font-size:12px;color:#888;">Drawing...</div>';
+    els.resultsCard.style.display = 'block';
+
+    const payload = {
+      description: description,
+      type: els.type.value,
+      palette: els.palette.value,
+      caption: els.caption.value.trim(),
+    };
+
+    try {
+      const resp = await fetch('/.netlify/functions/office-hours-figure-from-text', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!resp.ok) {
+        const text = await resp.text();
+        let detail = '';
+        try { const j = JSON.parse(text); detail = j.detail || j.error || ''; } catch { detail = text.slice(0, 200); }
+        if (resp.status === 504 || resp.status === 408 || resp.status === 502) {
+          setStatus('Connection timed out. Try again, or switch to a phone hotspot.', 'error');
+        } else {
+          setStatus('Something went wrong: ' + (detail || resp.status), 'error');
+        }
+        els.figureWrap.innerHTML = '';
+        return;
+      }
+      const data = await resp.json();
+      lastSvg = data.svg || '';
+      els.figureWrap.innerHTML = lastSvg;
+      els.svgSource.textContent = lastSvg;
+      setStatus('Done. Download the SVG or refine in your editor.', 'success');
+      els.resultsCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (err) {
+      if (err instanceof TypeError) {
+        setStatus('Network hiccup. Try again, or switch to a phone hotspot.', 'error');
+      } else {
+        setStatus('Error: ' + (err && err.message), 'error');
+      }
+      els.figureWrap.innerHTML = '';
+    } finally {
+      els.generateBtn.disabled = false;
+      els.regenBtn.disabled = false;
+    }
+  }
+
+  els.generateBtn.addEventListener('click', generate);
+  els.regenBtn.addEventListener('click', generate);
+
+  els.downloadBtn.addEventListener('click', function () {
+    if (!lastSvg) return;
+    const blob = new Blob([lastSvg], { type: 'image/svg+xml' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'Figure_' + Date.now() + '.svg';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1500);
+  });
+
+  els.copySvgBtn.addEventListener('click', function () {
+    if (!lastSvg) return;
+    navigator.clipboard.writeText(lastSvg).then(function () {
+      els.copySvgBtn.classList.add('copied');
+      const orig = els.copySvgBtn.textContent;
+      els.copySvgBtn.textContent = 'Copied';
+      setTimeout(function () { els.copySvgBtn.classList.remove('copied'); els.copySvgBtn.textContent = orig; }, 1800);
+    });
+  });
+})();
+</script>
+</body>
+</html>
