@@ -104,7 +104,7 @@ function buildRewritePrompts({ audience, focusMode, focusValue, docText, clText,
     + '\n\nCoaching brief:\n\n' + brief
     + '\n\nSession transcript:\n\n' + (transcript || '(no chat turns)');
 
-  return { sys, user, max_tokens: 8000 };
+  return { sys, user, max_tokens: 24000 };
 }
 
 /* ─── prompts: POLISH (Bea) ─── */
@@ -120,7 +120,7 @@ function buildPolishPrompts({ docText }) {
 
   const user = 'CV to polish:\n\n' + docText.slice(0, 60000);
 
-  return { sys, user, max_tokens: 8000 };
+  return { sys, user, max_tokens: 24000 };
 }
 
 /* ─── tolerant JSON extraction ─── */
