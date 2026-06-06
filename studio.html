@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dr. O's Studio | Emerging Technologies Laboratory</title>
+<meta name="description" content="Dr. Terry Oroszi's private workspace where the AI staff works on her books, manuscripts, ideas, and outreach.">
+<meta name="robots" content="noindex,nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --linen: #ffffff;
+    --linen-light: #fafafa;
+    --linen-edge: #e5e5e5;
+    --navy: #14233a;
+    --navy-mid: #1f3559;
+    --navy-soft: #36465e;
+    --brass: #b8922a;
+    --brass-light: #d4a843;
+    --ink: #1a1a1a;
+    --ink-soft: #4a4a4a;
+    --ink-quiet: #707070;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--linen);
+    color: var(--ink);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    line-height: 1.55;
+    min-height: 100vh;
+  }
+  a { color: var(--navy-mid); text-decoration: none; }
+  a:hover { color: var(--brass); }
+
+  /* NAVY HEADER BAND (matches Prep Room) */
+  header.studio-top {
+    background: var(--navy);
+    color: var(--linen);
+    border-bottom: 3px solid var(--brass);
+    padding: 18px 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .studio-brand {
+    font-family: 'Oswald', 'Playfair Display', serif;
+    font-size: 14px; font-weight: 600;
+    letter-spacing: 3px; text-transform: uppercase;
+    color: var(--linen);
+  }
+  .studio-brand em {
+    color: var(--brass-light);
+    font-style: normal; font-weight: 600;
+  }
+  .studio-top-right {
+    display: flex; align-items: center; gap: 24px;
+  }
+  .studio-top-right a {
+    font-family: 'DM Mono', monospace; font-size: 11px;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--linen);
+  }
+  .studio-top-right a:hover { color: var(--brass-light); }
+  .session-pill {
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--brass-light); padding: 5px 12px;
+    border: 1px solid var(--brass);
+  }
+
+  /* LOGIN WALL (shown before sign-in; auth wiring in next pass) */
+  .login-wall {
+    max-width: 460px; margin: 100px auto 60px;
+    padding: 50px 44px; text-align: center;
+    background: var(--linen-light);
+    border: 1px solid var(--linen-edge);
+    border-top: 3px solid var(--brass);
+  }
+  .login-eyebrow {
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    letter-spacing: 0.22em; color: var(--brass);
+    text-transform: uppercase; margin-bottom: 22px;
+  }
+  .login-h {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px; font-weight: 700;
+    color: var(--ink); margin-bottom: 12px;
+  }
+  .login-h em { color: var(--brass); font-style: italic; font-weight: 400; }
+  .login-sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px; font-style: italic;
+    color: var(--ink-soft); margin-bottom: 30px;
+  }
+  .login-btn {
+    display: inline-block;
+    font-family: 'DM Mono', monospace; font-size: 11px;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--linen); background: var(--navy);
+    padding: 14px 32px; cursor: pointer; border: none;
+  }
+  .login-btn:hover { background: var(--navy-mid); color: var(--brass-light); }
+  .login-preview-toggle {
+    margin-top: 18px;
+    font-family: 'DM Mono', monospace; font-size: 9px;
+    letter-spacing: 0.16em; color: var(--ink-quiet);
+    text-transform: uppercase; cursor: pointer;
+    background: none; border: none;
+  }
+  .login-preview-toggle:hover { color: var(--brass); }
+
+  /* WORKSPACE (hidden until login or preview toggle) */
+  .workspace { display: none; }
+  .workspace.is-visible { display: block; }
+
+  /* HERO inside workspace */
+  .ws-hero {
+    max-width: 1100px; margin: 0 auto;
+    padding: 70px 40px 50px;
+  }
+  .ws-eyebrow {
+    font-family: 'DM Mono', monospace; font-size: 11px;
+    letter-spacing: 0.22em; color: var(--brass);
+    text-transform: uppercase; margin-bottom: 18px;
+  }
+  .ws-h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(40px, 6vw, 64px);
+    font-weight: 700; line-height: 1.05;
+    color: var(--ink); margin-bottom: 20px;
+  }
+  .ws-h1 em { color: var(--brass); font-style: italic; font-weight: 400; }
+  .ws-sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 21px; font-style: italic;
+    color: var(--ink-soft); max-width: 700px;
+  }
+
+  /* SECTIONS */
+  section.ws-section {
+    max-width: 1180px; margin: 0 auto;
+    padding: 50px 40px;
+    border-top: 1px solid var(--linen-edge);
+  }
+  .ws-section-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: 34px; flex-wrap: wrap; gap: 14px;
+  }
+  .ws-section-h {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(26px, 3vw, 32px); font-weight: 700;
+    color: var(--ink);
+  }
+  .ws-section-h em { color: var(--brass); font-style: italic; font-weight: 400; }
+  .ws-section-tag {
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    letter-spacing: 0.2em; color: var(--ink-quiet);
+    text-transform: uppercase;
+  }
+
+  /* ACTIVITY FEED */
+  .activity-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 18px;
+  }
+  .activity-card {
+    background: var(--linen-light);
+    border: 1px solid var(--linen-edge);
+    border-left: 3px solid var(--brass);
+    padding: 22px 24px;
+  }
+  .activity-status {
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--brass); display: inline-flex; align-items: center;
+    gap: 8px; margin-bottom: 14px;
+  }
+  .activity-status::before {
+    content: ''; width: 7px; height: 7px;
+    background: var(--brass); border-radius: 50%;
+    box-shadow: 0 0 8px rgba(184,146,42,0.6);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+  .activity-agent {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px; font-weight: 600;
+    color: var(--ink); margin-bottom: 4px;
+  }
+  .activity-task {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px; color: var(--ink-soft);
+    font-style: italic;
+  }
+  .activity-meta {
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    letter-spacing: 0.1em; color: var(--ink-quiet);
+    margin-top: 12px;
+  }
+
+  /* STAFF GRID — COLOR PORTRAITS DO THE WORK */
+  .staff-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 24px;
+  }
+  .staff-card {
+    background: var(--linen-light);
+    border: 1px solid var(--linen-edge);
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+  }
+  .staff-card:hover {
+    border-color: var(--brass);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(20,35,58,0.08);
+  }
+  .staff-portrait {
+    width: 100%; aspect-ratio: 1 / 1;
+    background: var(--linen-edge);
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden; position: relative;
+  }
+  .staff-portrait img {
+    width: 100%; height: 100%; object-fit: cover;
+    object-position: center top;
+  }
+  .staff-portrait-placeholder {
+    font-family: 'Playfair Display', serif;
+    font-size: 52px; color: var(--navy-mid);
+  }
+  .staff-body { padding: 16px 18px 20px; background: var(--linen-light); }
+  .staff-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px; font-weight: 700;
+    color: var(--ink); margin-bottom: 3px;
+  }
+  .staff-role {
+    font-family: 'DM Mono', monospace; font-size: 9px;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--brass); margin-bottom: 10px;
+  }
+  .staff-current {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 14px; color: var(--ink-soft);
+    font-style: italic; line-height: 1.45;
+  }
+  .staff-current strong {
+    color: var(--ink); font-style: normal; font-weight: 600;
+  }
+
+  /* RECENT DELIVERIES */
+  .shipped-list { list-style: none; }
+  .shipped-row {
+    display: grid;
+    grid-template-columns: 110px 1fr auto;
+    gap: 24px; align-items: baseline;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--linen-edge);
+  }
+  .shipped-row:last-child { border-bottom: none; }
+  .shipped-when {
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    letter-spacing: 0.14em; color: var(--ink-quiet);
+    text-transform: uppercase;
+  }
+  .shipped-what {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px; color: var(--ink);
+  }
+  .shipped-what strong { color: var(--navy); font-weight: 700; }
+  .shipped-by {
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    letter-spacing: 0.14em; color: var(--brass);
+    text-transform: uppercase;
+  }
+
+  /* COMMAND CENTER (placeholder for next pass) */
+  .command-block {
+    background: var(--navy);
+    color: var(--linen);
+    padding: 40px 44px;
+    border-left: 4px solid var(--brass);
+  }
+  .command-eyebrow {
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    letter-spacing: 0.22em; color: var(--brass-light);
+    text-transform: uppercase; margin-bottom: 14px;
+  }
+  .command-h {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(22px, 2.6vw, 28px); font-weight: 600;
+    color: var(--linen); margin-bottom: 14px;
+  }
+  .command-body {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px; color: rgba(244,236,216,0.78);
+    font-style: italic;
+    max-width: 620px; margin-bottom: 22px;
+  }
+  .command-btn {
+    display: inline-block;
+    font-family: 'DM Mono', monospace; font-size: 11px;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--linen); padding: 12px 26px;
+    border: 1px solid var(--brass);
+    cursor: not-allowed; opacity: 0.65;
+  }
+
+  /* FOOTER */
+  footer.studio-foot {
+    text-align: center; padding: 50px 40px 60px;
+    border-top: 1px solid var(--linen-edge);
+    color: var(--ink-quiet);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px; font-style: italic;
+  }
+  footer.studio-foot a { color: var(--navy-mid); }
+
+  @media (max-width: 720px) {
+    header.studio-top { padding: 14px 22px; }
+    .ws-hero { padding: 50px 22px 36px; }
+    section.ws-section { padding: 40px 22px; }
+    .shipped-row { grid-template-columns: 1fr; gap: 6px; }
+    .login-wall { margin: 60px 22px; padding: 40px 28px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAVY HEADER BAND -->
+<header class="studio-top">
+  <a href="/" class="studio-brand">Dr. O's <em>Studio</em></a>
+  <div class="studio-top-right">
+    <span class="session-pill" id="session-pill">Not signed in</span>
+    <a href="/">&larr; ETL Home</a>
+  </div>
+</header>
+
+<!-- LOGIN WALL (default visible) -->
+<div class="login-wall" id="login-wall">
+  <div class="login-eyebrow">Private workspace</div>
+  <h1 class="login-h">Sign in to <em>the studio</em></h1>
+  <p class="login-sub">
+    This is Dr. Oroszi's personal workspace, where her AI staff works on her
+    books, manuscripts, ideas, and outreach. Access is restricted.
+  </p>
+  <button class="login-btn" onclick="alert('Authentication coming in the next build pass. For now, use the preview link below to see what is inside.');">Sign in</button>
+  <div style="margin-top: 20px;">
+    <button class="login-preview-toggle" onclick="togglePreview(true);">[ Preview the inside &middot; for the build ]</button>
+  </div>
+</div>
+
+
+<!-- WORKSPACE (the post-login state) -->
+<div class="workspace" id="workspace">
+
+  <header class="ws-hero">
+    <div class="ws-eyebrow">A working studio. The staff is at the bench.</div>
+    <h1 class="ws-h1">Dr. O's <em>Studio</em></h1>
+    <p class="ws-sub">
+      The artist's workshop. The AI staff works here on Dr. Oroszi's own
+      books, manuscripts, ideas, and outreach. What is below is what is on
+      the floor right now.
+    </p>
+  </header>
+
+  <!-- ON THE FLOOR RIGHT NOW -->
+  <section class="ws-section">
+    <div class="ws-section-head">
+      <div class="ws-section-h">On the floor <em>right now</em></div>
+      <div class="ws-section-tag">Live activity</div>
+    </div>
+    <div class="activity-grid">
+      <div class="activity-card">
+        <div class="activity-status">In flight</div>
+        <div class="activity-agent">Charles Monroe</div>
+        <div class="activity-task">Reviewing the latest CV revision for the UD application, foregrounding operator credentials at the top.</div>
+        <div class="activity-meta">Career Services &middot; started 14 min ago</div>
+      </div>
+      <div class="activity-card">
+        <div class="activity-status">In flight</div>
+        <div class="activity-agent">Bea Reyes</div>
+        <div class="activity-task">Line-editing chapter 3 of the next Greylander Press title. CMOS pass, parallel-bullet pass, date-format consistency.</div>
+        <div class="activity-meta">Greylander Press &middot; started 38 min ago</div>
+      </div>
+      <div class="activity-card">
+        <div class="activity-status">In flight</div>
+        <div class="activity-agent">Ms. Ivy</div>
+        <div class="activity-task">Cross-referencing the workshops catalog against the civilian-SME platform concept. Looking for the natsec hooks that are not named yet.</div>
+        <div class="activity-meta">Gauntlet Helpers &middot; started 1 hr ago</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- THE STAFF -->
+  <section class="ws-section">
+    <div class="ws-section-head">
+      <div class="ws-section-h">The <em>staff</em></div>
+      <div class="ws-section-tag">Currently on assignment</div>
+    </div>
+    <div class="staff-grid">
+
+      <div class="staff-card">
+        <div class="staff-portrait">
+          <img src="/prep-room-assets/cm_open.jpg" alt="Charles Monroe" onerror="this.outerHTML='<div class=&quot;staff-portrait-placeholder&quot;>CM</div>'">
+        </div>
+        <div class="staff-body">
+          <div class="staff-name">Charles Monroe</div>
+          <div class="staff-role">CV Coach</div>
+          <div class="staff-current">Reviewing and restructuring Dr. O's CV for the <strong>UD application</strong>.</div>
+        </div>
+      </div>
+
+      <div class="staff-card">
+        <div class="staff-portrait">
+          <img src="/prep-room-assets/bea_open.png" alt="Beatriz Reyes" onerror="this.outerHTML='<div class=&quot;staff-portrait-placeholder&quot;>B</div>'">
+        </div>
+        <div class="staff-body">
+          <div class="staff-name">Beatriz "Bea" Reyes</div>
+          <div class="staff-role">Senior Copy Editor</div>
+          <div class="staff-current">Line-editing the <strong>next Greylander Press manuscript</strong>. Voice preserved, mechanics fixed.</div>
+        </div>
+      </div>
+
+      <div class="staff-card">
+        <div class="staff-portrait">
+          <img src="/agents/Ivy_eyes_open.jpg" alt="Ms. Ivy" onerror="this.outerHTML='<div class=&quot;staff-portrait-placeholder&quot;>I</div>'">
+        </div>
+        <div class="staff-body">
+          <div class="staff-name">Ms. Ivy</div>
+          <div class="staff-role">Librarian &middot; Idea Generator</div>
+          <div class="staff-current">Mapping <strong>Dr. O's catalog</strong> against the new civilian-SME concept.</div>
+        </div>
+      </div>
+
+      <div class="staff-card">
+        <div class="staff-portrait">
+          <img src="/agents/Jules_eyes_open.jpg" alt="Jules" onerror="this.outerHTML='<div class=&quot;staff-portrait-placeholder&quot;>J</div>'">
+        </div>
+        <div class="staff-body">
+          <div class="staff-name">Jules</div>
+          <div class="staff-role">Pre-Submission Editor</div>
+          <div class="staff-current">Holding for the next manuscript handoff from <strong>Bea</strong>.</div>
+        </div>
+      </div>
+
+      <div class="staff-card">
+        <div class="staff-portrait">
+          <img src="/agents/Jess_Ramirez_eyes_open.jpg" alt="Jess Ramirez" onerror="this.outerHTML='<div class=&quot;staff-portrait-placeholder&quot;>JR</div>'">
+        </div>
+        <div class="staff-body">
+          <div class="staff-name">Jess Ramirez</div>
+          <div class="staff-role">Publicist</div>
+          <div class="staff-current">Drafting the launch piece for the <strong>workshops catalog</strong> when it goes live.</div>
+        </div>
+      </div>
+
+      <div class="staff-card">
+        <div class="staff-portrait">
+          <img src="/agents/Imani_Brooks_eyes_open.jpg" alt="Imani Brooks" onerror="this.outerHTML='<div class=&quot;staff-portrait-placeholder&quot;>IB</div>'">
+        </div>
+        <div class="staff-body">
+          <div class="staff-name">Imani Brooks</div>
+          <div class="staff-role">Newswire Correspondent</div>
+          <div class="staff-current">Filing the <strong>ETL Newswire</strong> piece on the Studio launch.</div>
+        </div>
+      </div>
+
+      <div class="staff-card">
+        <div class="staff-portrait">
+          <img src="/agents/Reid_eyes_open.jpg" alt="Reid" onerror="this.outerHTML='<div class=&quot;staff-portrait-placeholder&quot;>R</div>'">
+        </div>
+        <div class="staff-body">
+          <div class="staff-name">Reid Callum</div>
+          <div class="staff-role">Marketing &middot; Positioning</div>
+          <div class="staff-current">Sharpening positioning for the <strong>civilian-SME platform</strong> before name lock.</div>
+        </div>
+      </div>
+
+      <div class="staff-card">
+        <div class="staff-portrait">
+          <img src="/agents/Wren_eyes_open.jpg" alt="Wren Calloway" onerror="this.outerHTML='<div class=&quot;staff-portrait-placeholder&quot;>W</div>'">
+        </div>
+        <div class="staff-body">
+          <div class="staff-name">Wren Calloway</div>
+          <div class="staff-role">Scout</div>
+          <div class="staff-current">Watching for <strong>federal opportunities</strong> in dual-use civic engagement.</div>
+        </div>
+      </div>
+
+      <div class="staff-card">
+        <div class="staff-portrait">
+          <img src="/agents/Carol_eyes_open.jpg" alt="Carol Haynes" onerror="this.outerHTML='<div class=&quot;staff-portrait-placeholder&quot;>C</div>'">
+        </div>
+        <div class="staff-body">
+          <div class="staff-name">Carol Haynes</div>
+          <div class="staff-role">Screener</div>
+          <div class="staff-current">Triaging new ideas before they reach <strong>Ms. Ivy</strong>.</div>
+        </div>
+      </div>
+
+      <div class="staff-card">
+        <div class="staff-portrait">
+          <img src="/agents/Ayanna_Cole_eyes_open.jpg" alt="Ayanna Cole" onerror="this.outerHTML='<div class=&quot;staff-portrait-placeholder&quot;>AC</div>'">
+        </div>
+        <div class="staff-body">
+          <div class="staff-name">Ayanna Cole</div>
+          <div class="staff-role">Director of Communications</div>
+          <div class="staff-current">Drafting cross-platform social posts for the <strong>Gandhi-King Center</strong>.</div>
+        </div>
+      </div>
+
+      <div class="staff-card">
+        <div class="staff-portrait">
+          <img src="/agents/Sneha_Desai_eyes_open.jpg" alt="Sneha Desai" onerror="this.outerHTML='<div class=&quot;staff-portrait-placeholder&quot;>SD</div>'">
+        </div>
+        <div class="staff-body">
+          <div class="staff-name">Sneha Desai</div>
+          <div class="staff-role">Peace News Correspondent</div>
+          <div class="staff-current">Filing this week's dispatch from <strong>Porbandar</strong>.</div>
+        </div>
+      </div>
+
+      <div class="staff-card">
+        <div class="staff-portrait">
+          <img src="/agents/Arjun_eyes_open.jpg" alt="Arjun Mehta" onerror="this.outerHTML='<div class=&quot;staff-portrait-placeholder&quot;>A</div>'">
+        </div>
+        <div class="staff-body">
+          <div class="staff-name">Arjun Mehta</div>
+          <div class="staff-role">Operations &middot; Delivery</div>
+          <div class="staff-current">Tracking deploys across the <strong>ETL platforms</strong>.</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- RECENTLY SHIPPED -->
+  <section class="ws-section">
+    <div class="ws-section-head">
+      <div class="ws-section-h">Recently <em>shipped</em></div>
+      <div class="ws-section-tag">Last 48 hours</div>
+    </div>
+    <ul class="shipped-list">
+      <li class="shipped-row">
+        <span class="shipped-when">Today &middot; AM</span>
+        <span class="shipped-what">Hero rebuilt around the <strong>five-identity thesis</strong> on the ETL homepage.</span>
+        <span class="shipped-by">Studio</span>
+      </li>
+      <li class="shipped-row">
+        <span class="shipped-when">Today &middot; AM</span>
+        <span class="shipped-what">Six-item dropdown nav shipped to <strong>emerging-tech-lab.com</strong>.</span>
+        <span class="shipped-by">Studio</span>
+      </li>
+      <li class="shipped-row">
+        <span class="shipped-when">Yesterday</span>
+        <span class="shipped-what">Charles credential-evaluation prompt fixed so operator credentials are no longer dismissed as padding.</span>
+        <span class="shipped-by">Charles</span>
+      </li>
+      <li class="shipped-row">
+        <span class="shipped-when">Yesterday</span>
+        <span class="shipped-what">Bea added to the Prep Room as the second coach. Charles repositions, Bea cleans up.</span>
+        <span class="shipped-by">Bea</span>
+      </li>
+      <li class="shipped-row">
+        <span class="shipped-when">Yesterday</span>
+        <span class="shipped-what">Charles and Bea moved to background functions with Blobs polling. No more 26-second timeouts on long CVs.</span>
+        <span class="shipped-by">Studio</span>
+      </li>
+      <li class="shipped-row">
+        <span class="shipped-when">Yesterday</span>
+        <span class="shipped-what">Ms. Ivy CV-upload added to the Gauntlet so ideas can be grounded in real expertise.</span>
+        <span class="shipped-by">Ms. Ivy</span>
+      </li>
+      <li class="shipped-row">
+        <span class="shipped-when">This week</span>
+        <span class="shipped-what">Workshops catalog spec filed. Seven verticals, one brand, no live sessions.</span>
+        <span class="shipped-by">Studio</span>
+      </li>
+    </ul>
+  </section>
+
+  <!-- COMMAND CENTER (placeholder for next pass) -->
+  <section class="ws-section">
+    <div class="command-block">
+      <div class="command-eyebrow">Command the staff</div>
+      <div class="command-h">Send a new task to the floor.</div>
+      <p class="command-body">
+        Drop a brief here and route it to the agent who should handle it.
+        Track status. Pick up the finished work. Coming in the next build pass.
+      </p>
+      <span class="command-btn">New task &middot; coming soon</span>
+    </div>
+  </section>
+
+  <footer class="studio-foot">
+    Dr. O's Studio is part of the <a href="/">Emerging Technologies Laboratory</a>.
+    The same staff serve visitors through the public platforms.
+    Find them in the <a href="/agents/">Agents Directory</a>.
+  </footer>
+
+</div>
+
+
+<script>
+  // Preview toggle: lets you see the inside without auth, for the build pass.
+  // Once Supabase auth is wired, this toggle goes away and the workspace
+  // only renders when the visitor is signed in.
+  function togglePreview(show) {
+    var wall = document.getElementById('login-wall');
+    var ws = document.getElementById('workspace');
+    var pill = document.getElementById('session-pill');
+    if (show) {
+      wall.style.display = 'none';
+      ws.classList.add('is-visible');
+      pill.textContent = 'Preview mode';
+    } else {
+      wall.style.display = '';
+      ws.classList.remove('is-visible');
+      pill.textContent = 'Not signed in';
+    }
+  }
+</script>
+
+</body>
+</html>
