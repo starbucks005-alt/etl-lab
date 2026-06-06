@@ -337,22 +337,30 @@
   <a href="/" class="studio-brand">Dr. O's <em>Studio</em></a>
   <div class="studio-top-right">
     <span class="session-pill" id="session-pill">Not signed in</span>
+    <a href="#" id="signout-btn" style="display:none;" onclick="event.preventDefault(); signOut();">Sign out</a>
     <a href="/">&larr; ETL Home</a>
   </div>
 </header>
 
-<!-- LOGIN WALL (default visible) -->
+<!-- LOGIN WALL (default visible; hidden when authenticated) -->
 <div class="login-wall" id="login-wall">
   <div class="login-eyebrow">Private workspace</div>
   <h1 class="login-h">Sign in to <em>the studio</em></h1>
   <p class="login-sub">
-    This is Dr. Oroszi's personal workspace, where her AI staff works on her
+    Dr. Oroszi's personal workspace. The AI staff works here on her
     books, manuscripts, ideas, and outreach. Access is restricted.
   </p>
-  <button class="login-btn" onclick="alert('Authentication coming in the next build pass. For now, use the preview link below to see what is inside.');">Sign in</button>
-  <div style="margin-top: 20px;">
-    <button class="login-preview-toggle" onclick="togglePreview(true);">[ Preview the inside &middot; for the build ]</button>
-  </div>
+  <form id="login-form" onsubmit="event.preventDefault(); requestMagicLink();" style="display:flex;flex-direction:column;gap:12px;">
+    <input
+      type="email"
+      id="login-email"
+      placeholder="your email"
+      autocomplete="email"
+      required
+      style="font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.05em;padding:14px 16px;border:1px solid var(--linen-edge);background:#fff;color:var(--ink);text-align:center;">
+    <button type="submit" class="login-btn" id="login-submit">Send sign-in link</button>
+  </form>
+  <p id="login-status" style="margin-top:18px;font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;color:var(--ink-soft);min-height:1.5em;"></p>
 </div>
 
 
@@ -607,24 +615,89 @@
 </div>
 
 
+<!-- Supabase auth: magic-link sign-in, single user, signup disabled in Supabase dashboard -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  // Preview toggle: lets you see the inside without auth, for the build pass.
-  // Once Supabase auth is wired, this toggle goes away and the workspace
-  // only renders when the visitor is signed in.
-  function togglePreview(show) {
-    var wall = document.getElementById('login-wall');
-    var ws = document.getElementById('workspace');
-    var pill = document.getElementById('session-pill');
-    if (show) {
-      wall.style.display = 'none';
-      ws.classList.add('is-visible');
-      pill.textContent = 'Preview mode';
-    } else {
-      wall.style.display = '';
-      ws.classList.remove('is-visible');
-      pill.textContent = 'Not signed in';
+  // Public Supabase credentials. The anon key is designed to be safe in
+  // client-side code; row-level security and the disabled-signup setting
+  // in the Supabase dashboard prevent unauthorized access.
+  var SUPABASE_URL = 'https://ulvrnermyuvzanxhxoib.supabase.co';
+  var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsdnJuZXJteXV2emFueGh4b2liIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3MzYyMDEsImV4cCI6MjA5NjMxMjIwMX0.tAaXhm_pb-DxrYsXYw1DvvYENDJ_y3jlt2nGWSp2lbA';
+
+  var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
+    auth: {
+      persistSession: true,
+      detectSessionInUrl: true,
+      autoRefreshToken: true,
+    }
+  });
+
+  function showWorkspace() {
+    document.getElementById('login-wall').style.display = 'none';
+    document.getElementById('workspace').classList.add('is-visible');
+    document.getElementById('session-pill').textContent = 'Signed in';
+    document.getElementById('signout-btn').style.display = 'inline';
+  }
+  function showLoginWall() {
+    document.getElementById('login-wall').style.display = '';
+    document.getElementById('workspace').classList.remove('is-visible');
+    document.getElementById('session-pill').textContent = 'Not signed in';
+    document.getElementById('signout-btn').style.display = 'none';
+  }
+
+  async function requestMagicLink() {
+    var email = document.getElementById('login-email').value.trim();
+    var status = document.getElementById('login-status');
+    var btn = document.getElementById('login-submit');
+    if (!email) { status.textContent = 'Enter your email first.'; return; }
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+    try {
+      var result = await sb.auth.signInWithOtp({
+        email: email,
+        options: {
+          emailRedirectTo: window.location.origin + '/studio',
+          shouldCreateUser: false,
+        }
+      });
+      // Intentionally vague to avoid leaking whether email is registered.
+      status.textContent = 'If your email is on file, a sign-in link has been sent. Check your inbox.';
+    } catch (e) {
+      status.textContent = 'If your email is on file, a sign-in link has been sent. Check your inbox.';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Send sign-in link';
     }
   }
+
+  async function signOut() {
+    try { await sb.auth.signOut(); } catch (_) {}
+    showLoginWall();
+  }
+
+  // On load, check existing session and react.
+  document.addEventListener('DOMContentLoaded', async function() {
+    try {
+      var s = await sb.auth.getSession();
+      if (s && s.data && s.data.session) {
+        showWorkspace();
+      } else {
+        showLoginWall();
+      }
+    } catch (_) {
+      showLoginWall();
+    }
+  });
+
+  // Auth state listener: fires when magic link returns and creates session,
+  // and when sign-out wipes it. Single source of truth for UI state.
+  sb.auth.onAuthStateChange(function(event, session) {
+    if (session) {
+      showWorkspace();
+    } else {
+      showLoginWall();
+    }
+  });
 </script>
 
 </body>
