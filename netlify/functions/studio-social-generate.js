@@ -1,0 +1,197 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   studio-social-generate
+
+   Backend for Dr. O's Studio Social Posts tool. Takes a site + agent + platform
+   + subject matter and returns a single platform-formatted social post with
+   character count and a suggested best posting time.
+
+   POST body: { site, agent, platform, subject }
+   Returns: { post, hashtags, notes, charCount, charLimit, platform, agent, suggestedTime }
+
+   Auth: this endpoint is called from the Studio (which is already auth-gated
+   by Supabase). No additional auth layer here yet; relies on the Studio's
+   client-side login wall. When abuse becomes a concern, add a server-side
+   JWT check against the Supabase project.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+const Anthropic = require('@anthropic-ai/sdk').default;
+
+const MODEL = 'claude-sonnet-4-6';
+
+/* Dr. Oroszi's platforms. Each entry seeds the agent with what the site IS,
+   so posts have grounded context even when the subject matter is broad. */
+const SITES = {
+  etl:          { name: 'Emerging Technologies Laboratory', url: 'https://emerging-tech-lab.com',
+                  context: 'Dr. Terry Oroszi\'s research lab. Five-platform ecosystem covering research, evaluation, intelligence, and education. Founded 2025.' },
+  greylander:   { name: 'Greylander Press', url: 'https://greylanderpress.com',
+                  context: 'Independent press founded by Dr. Oroszi in 2008 to preserve editorial control over operator-grade nonfiction. Publishes counter-terrorism research, body language, behavioral analysis.' },
+  dose:         { name: 'The Dose', url: 'https://the-dose.netlify.app',
+                  context: 'Health-literacy education platform. Clinical-trial-aware, multi-source verified (PubMed + DSLD + OpenFDA + ClinicalTrials.gov). Educational only, never diagnostic.' },
+  gauntlet:     { name: 'The Gauntlet', url: 'https://thegauntlet.studio',
+                  context: 'Diagnostic critique engine for early-stage ideas. Nine AI judge personas, panel-style evaluation. Creative/business audience.' },
+  opsec:        { name: 'OPSEC Gauntlet', url: 'https://opsec-gauntlet.netlify.app',
+                  context: 'Civilian-SME intelligence triage platform. Routes vetted ideas from US civilians to the US Intelligence Community. Uses Dr. Oroszi\'s proprietary SLR method.' },
+  gk:           { name: 'Gandhi-King Center for Nonviolence', url: 'https://gandhi-king.netlify.app',
+                  context: '501(c)(3) foundation. Board includes Tushar Gandhi (Mahatma\'s great-grandson), Rev. Joel King (Dr. King\'s cousin), and Gregory Foster (Coretta Scott King\'s cousin). Baroness Harris of Richmond is patron.' },
+  newswire:     { name: 'ETL Newswire', url: 'https://emerging-tech-lab.com/press',
+                  context: 'Eight-reporter AI newsroom with desk specialization. Daily Above-the-Fold audio briefings. Covers emerging tech, biodefense, federal partnerships, AI in academia.' },
+  officeHours:  { name: 'Office Hours', url: 'https://emerging-tech-lab.com/office-hours',
+                  context: 'Faculty toolkit, 22 tools for the manuscript and grant lifecycle. Reviewer Panel, Pre-submission Check with Jules, Methods Coach, Resubmission Builder.' },
+  prepRoom:     { name: 'Prep Room', url: 'https://emerging-tech-lab.com/prep-room',
+                  context: 'Thesis defense, job interview, and résumé coaching with AI-simulated panels. Nine professor personas, eight business interviewers, Charles Monroe résumé coach, Bea Reyes copy editor.' },
+  slr:          { name: 'SLR Studio', url: 'https://slrstudio.online',
+                  context: 'Systematic literature review platform. Six output modes including PRISMA 2020 and Grant Significance & Innovation. The canonical SLR engine, Stripe-monetized.' },
+  studio:       { name: 'Dr. O\'s Studio', url: 'https://emerging-tech-lab.com/studio',
+                  context: 'Dr. Oroszi\'s private workspace where her AI staff works on her books, manuscripts, ideas, and outreach. Mostly private; the public layer shows what is on the floor.' },
+};
+
+const AGENTS = {
+  zara: {
+    name: 'Zara',
+    fullName: 'Zara Cole',
+    voice: 'Fun / influencer',
+    prompt: 'You are Zara Cole, writing in a fun, hooky, personality-forward voice. Lead with a hook that makes the scroll stop. Conversational, slightly off-script. Use casual contractions. Punch the punchline. Hashtags should read like inside jokes, not marketing categories. The kind of post a reader screenshots and sends to a friend. Never write like an institution. Write like a smart friend who happens to know things.',
+  },
+  sneha: {
+    name: 'Sneha',
+    fullName: 'Sneha Desai',
+    voice: 'SME / inside the field',
+    prompt: 'You are Sneha Desai, writing as a subject-matter expert inside this field. Lead with the insight an outsider would not have. Use the actual vocabulary of the work, do not simplify for a general audience. Reference what you have seen on the ground. Credibility first, engagement is the byproduct. Hashtags should be what practitioners actually use, not what algorithms reward.',
+  },
+  ayanna: {
+    name: 'Ayanna',
+    fullName: 'Ayanna Cole',
+    voice: 'Informed / educational',
+    prompt: 'You are Ayanna Cole, writing in an informed, educational voice. Each post teaches the reader something specific. Lead with the takeaway, then explain why it matters. Professional register but accessible, assume a reader who is smart but new to this domain. Hashtags should be searchable categories, not vibes.',
+  },
+};
+
+const PLATFORMS = {
+  x: {
+    name: 'X (Twitter)', charLimit: 280, idealLength: 240,
+    format: '280 character hard maximum. Single post, no threads. Conversational. 1 to 3 hashtags maximum, fitted to the post.',
+    bestTime: { day: 'Tuesday through Thursday', window: '8 to 10am OR 6 to 9pm local time', reason: 'peak X engagement windows are morning commute and after-dinner scroll' },
+  },
+  bluesky: {
+    name: 'Bluesky', charLimit: 300, idealLength: 260,
+    format: '300 character hard maximum. Single post. More substantive than X, Bluesky audience reads carefully. 0 to 2 hashtags only (Bluesky uses them less). No threading.',
+    bestTime: { day: 'Weekdays', window: '9 to 11am local time', reason: 'Bluesky audience is most active mornings; algorithm is less aggressive so timing matters less than on commercial platforms' },
+  },
+  linkedin: {
+    name: 'LinkedIn', charLimit: 3000, idealLength: 1300,
+    format: 'Long-form professional. 1300 characters ideal. Lead with a hook line that earns the click-to-expand. Use line breaks for breathability, every 1 or 2 sentences. End with a question or invitation to engage. 3 to 5 hashtags at the bottom, professional categories not vibes.',
+    bestTime: { day: 'Tuesday through Thursday', window: '8 to 10am OR 12pm local time', reason: 'professionals check LinkedIn during morning coffee or lunch breaks; B2B engagement peaks midweek' },
+  },
+  facebook: {
+    name: 'Facebook', charLimit: 5000, idealLength: 250,
+    format: 'Conversational. 80 characters gets best engagement but 250 is ideal for substance. Friendly tone, Facebook audience is broader and less professional than LinkedIn. 0 to 2 hashtags. A question or invitation at the end works well.',
+    bestTime: { day: 'Wednesday or Thursday', window: '1 to 4pm local time', reason: 'Facebook engagement peaks midweek afternoons; mornings get buried in the algorithm' },
+  },
+  instagram: {
+    name: 'Instagram', charLimit: 2200, idealLength: 150,
+    format: 'Caption-style. First 125 characters show in feed without a "more" tap, so put the hook there. Hashtags are critical: 5 to 15, mix broad and niche. Line breaks help. Emojis acceptable where they fit the voice.',
+    bestTime: { day: 'Tuesday through Friday', window: '11am to 1pm OR 7 to 9pm local time', reason: 'Instagram peak engagement at lunch break and after-dinner scroll' },
+  },
+  threads: {
+    name: 'Threads', charLimit: 500, idealLength: 400,
+    format: '500 character hard maximum. Casual, conversation-starter tone. Hashtags less critical than IG, use 0 to 3. Threads audience leans toward discussion, end with a hook for replies.',
+    bestTime: { day: 'Tuesday through Friday', window: '11am to 1pm OR 7 to 9pm local time', reason: 'Threads audience mirrors Instagram timing; mid-day and evening are peak' },
+  },
+};
+
+function extractJson(raw) {
+  let s = (raw || '').trim().replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/, '').trim();
+  try { return JSON.parse(s); } catch (_) {}
+  const first = s.indexOf('{'); const last = s.lastIndexOf('}');
+  if (first >= 0 && last > first) {
+    try { return JSON.parse(s.slice(first, last + 1)); } catch (_) {}
+  }
+  throw new Error('Could not parse model response as JSON');
+}
+
+const CORS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+};
+
+exports.handler = async (event) => {
+  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: CORS, body: '' };
+  if (event.httpMethod !== 'POST') return { statusCode: 405, headers: CORS, body: 'method not allowed' };
+
+  let body;
+  try { body = JSON.parse(event.body || '{}'); }
+  catch (e) { return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'invalid json' }) }; }
+
+  const { site, agent, platform, subject } = body;
+  const siteData = SITES[site];
+  const agentData = AGENTS[agent];
+  const platformData = PLATFORMS[platform];
+
+  if (!siteData || !agentData || !platformData) {
+    return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'missing or invalid: site, agent, or platform' }) };
+  }
+  if (!subject || typeof subject !== 'string' || subject.trim().length === 0) {
+    return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'subject is required' }) };
+  }
+
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
+    return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: 'ANTHROPIC_API_KEY not set' }) };
+  }
+  const client = new Anthropic({ apiKey });
+
+  const sys = agentData.prompt + '\n\n' +
+    'CONTEXT, the platform this post is about:\n' +
+    siteData.name + ' (' + siteData.url + ')\n' +
+    siteData.context + '\n\n' +
+    'PLATFORM RULES, write for ' + platformData.name + ':\n' +
+    platformData.format + '\n' +
+    'Character limit: ' + platformData.charLimit + ' hard max, ' + platformData.idealLength + ' target.\n\n' +
+    'EM-DASH RULE: do not use em dashes or en dashes anywhere in the post or hashtags. Use commas or periods instead. This is a hard rule across all of Dr. Oroszi\'s public surfaces.\n\n' +
+    'Return ONLY valid JSON, no markdown, no prose around it, in this exact shape: {"post": "the post text without hashtags", "hashtags": "the hashtags as a single space-separated string or empty string if none fit the voice or platform", "notes": "one short sentence on why this post works for this platform and this audience"}';
+
+  const user = 'SUBJECT MATTER: ' + subject.trim() + '\n\nWrite the post for ' + platformData.name + ' in your voice.';
+
+  try {
+    const resp = await client.messages.create({
+      model: MODEL, max_tokens: 1500, system: sys,
+      messages: [{ role: 'user', content: user }],
+    });
+    const raw = (resp.content || []).filter(b => b && b.type === 'text').map(b => b.text).join('\n').trim();
+    let data;
+    try { data = extractJson(raw); }
+    catch (e) {
+      return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: 'Could not parse model response as JSON', raw: raw.slice(0, 500) }) };
+    }
+
+    const post = (data.post || '').trim();
+    const hashtags = (data.hashtags || '').trim();
+    const fullText = hashtags ? (post + '\n\n' + hashtags) : post;
+    const charCount = fullText.length;
+
+    return {
+      statusCode: 200,
+      headers: { ...CORS, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        post: post,
+        hashtags: hashtags,
+        notes: data.notes || '',
+        charCount: charCount,
+        charLimit: platformData.charLimit,
+        platform: platformData.name,
+        agent: agentData.fullName,
+        agentVoice: agentData.voice,
+        suggestedTime: platformData.bestTime,
+        site: siteData.name,
+      }),
+    };
+  } catch (err) {
+    console.error('[studio-social-generate] failed', err && err.message);
+    return {
+      statusCode: 500,
+      headers: { ...CORS, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ error: (err && err.message) || 'generation failed' }),
+    };
+  }
+};

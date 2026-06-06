@@ -593,18 +593,234 @@
     </ul>
   </section>
 
-  <!-- COMMAND CENTER (placeholder for next pass) -->
+  <!-- COMMAND CENTER -->
   <section class="ws-section">
-    <div class="command-block">
-      <div class="command-eyebrow">Command the staff</div>
-      <div class="command-h">Send a new task to the floor.</div>
-      <p class="command-body">
-        Drop a brief here and route it to the agent who should handle it.
-        Track status. Pick up the finished work. Coming in the next build pass.
+    <div class="ws-section-head">
+      <div class="ws-section-h">Command <em>the staff</em></div>
+      <div class="ws-section-tag">Tools online</div>
+    </div>
+
+    <!-- Tool: Social Posts -->
+    <div id="cc-social" style="background:var(--linen-light);border:1px solid var(--linen-edge);border-left:3px solid var(--brass);padding:28px 32px;">
+      <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.18em;color:var(--brass);text-transform:uppercase;margin-bottom:10px;">Social Posts</div>
+      <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:600;color:var(--ink);margin-bottom:6px;">Hand it to the girls.</div>
+      <p style="font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--ink-soft);font-size:16px;margin-bottom:22px;max-width:640px;">
+        Zara, Sneha, or Ayanna will ask you four things and write the post.
+        Copy and paste it to your account.
       </p>
-      <span class="command-btn">New task &middot; coming soon</span>
+
+      <!-- The wizard: four questions, progressive disclosure -->
+      <div id="sp-wizard" style="display:flex;flex-direction:column;gap:18px;max-width:640px;">
+
+        <!-- Q1: site -->
+        <div class="sp-step" data-step="1">
+          <label class="sp-q">1. Which site?</label>
+          <select id="sp-site" class="sp-input">
+            <option value="">Pick one...</option>
+            <option value="etl">Emerging Technologies Laboratory</option>
+            <option value="greylander">Greylander Press</option>
+            <option value="dose">The Dose</option>
+            <option value="gauntlet">The Gauntlet</option>
+            <option value="opsec">OPSEC Gauntlet</option>
+            <option value="gk">Gandhi-King Center</option>
+            <option value="newswire">ETL Newswire</option>
+            <option value="officeHours">Office Hours</option>
+            <option value="prepRoom">Prep Room</option>
+            <option value="slr">SLR Studio</option>
+            <option value="studio">Dr. O's Studio</option>
+          </select>
+        </div>
+
+        <!-- Q2: tone (agent) -->
+        <div class="sp-step" data-step="2" style="display:none;">
+          <label class="sp-q">2. What tone?</label>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+            <button type="button" class="sp-agent" data-agent="zara">
+              <div class="sp-agent-name">Zara</div>
+              <div class="sp-agent-vibe">Fun. Hooky. Scroll-stopper.</div>
+            </button>
+            <button type="button" class="sp-agent" data-agent="sneha">
+              <div class="sp-agent-name">Sneha</div>
+              <div class="sp-agent-vibe">SME. Inside the field.</div>
+            </button>
+            <button type="button" class="sp-agent" data-agent="ayanna">
+              <div class="sp-agent-name">Ayanna</div>
+              <div class="sp-agent-vibe">Informed. Teaches the reader.</div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Q3: platform -->
+        <div class="sp-step" data-step="3" style="display:none;">
+          <label class="sp-q">3. Which SM?</label>
+          <select id="sp-platform" class="sp-input">
+            <option value="">Pick one...</option>
+            <option value="x">X (Twitter)</option>
+            <option value="bluesky">Bluesky</option>
+            <option value="linkedin">LinkedIn</option>
+            <option value="facebook">Facebook</option>
+            <option value="instagram">Instagram</option>
+            <option value="threads">Threads</option>
+          </select>
+        </div>
+
+        <!-- Q4: subject -->
+        <div class="sp-step" data-step="4" style="display:none;">
+          <label class="sp-q">4. Subject matter?</label>
+          <textarea id="sp-subject" class="sp-input" rows="3" placeholder="What's the angle? A specific piece of news, a launch, a behind-the-scenes moment, a teaching point, an invitation..."></textarea>
+          <button type="button" id="sp-generate" class="sp-cta">Write the post →</button>
+        </div>
+
+      </div>
+
+      <!-- Results -->
+      <div id="sp-result" style="display:none;margin-top:28px;padding-top:24px;border-top:1px solid var(--linen-edge);">
+        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;color:var(--brass);text-transform:uppercase;margin-bottom:10px;" id="sp-result-meta"></div>
+        <pre id="sp-result-post" style="font-family:'Cormorant Garamond',serif;font-size:17px;line-height:1.55;color:var(--ink);white-space:pre-wrap;background:#fff;padding:18px 20px;border:1px solid var(--linen-edge);margin:0 0 12px;"></pre>
+        <div id="sp-result-hashtags" style="font-family:'DM Mono',monospace;font-size:13px;color:var(--navy-mid);margin-bottom:14px;"></div>
+        <div id="sp-result-chars" style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.12em;color:var(--ink-quiet);text-transform:uppercase;margin-bottom:18px;"></div>
+        <div style="background:#fbf4e0;border:1px solid var(--linen-edge);padding:14px 18px;margin-bottom:18px;">
+          <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;color:var(--brass);text-transform:uppercase;margin-bottom:6px;">Suggested time to post</div>
+          <div id="sp-result-time" style="font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--ink-soft);font-style:italic;"></div>
+        </div>
+        <div id="sp-result-notes" style="font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--ink-quiet);font-style:italic;margin-bottom:18px;"></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button type="button" id="sp-copy" class="sp-cta sp-cta-sm">Copy post</button>
+          <button type="button" id="sp-copy-all" class="sp-cta sp-cta-sm">Copy post + hashtags</button>
+          <button type="button" id="sp-again" class="sp-cta sp-cta-sm sp-cta-ghost">Run again</button>
+        </div>
+      </div>
+
+      <div id="sp-error" style="display:none;margin-top:18px;padding:14px 18px;background:#f8e8e8;border:1px solid #d4a8a8;color:#7d2828;font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;"></div>
     </div>
   </section>
+
+  <style>
+    .sp-q { display:block; font-family:'Playfair Display',serif; font-size:17px; font-weight:600; color:var(--ink); margin-bottom:8px; }
+    .sp-input { width:100%; padding:12px 14px; font-family:'Cormorant Garamond',serif; font-size:16px; color:var(--ink); background:#fff; border:1px solid var(--linen-edge); }
+    .sp-input:focus { outline:none; border-color:var(--brass); }
+    select.sp-input { cursor:pointer; }
+    textarea.sp-input { resize:vertical; min-height:80px; }
+    .sp-agent { padding:14px 16px; background:#fff; border:1px solid var(--linen-edge); cursor:pointer; text-align:left; transition:border-color 0.15s, transform 0.15s; }
+    .sp-agent:hover { border-color:var(--brass); transform:translateY(-1px); }
+    .sp-agent.is-picked { border-color:var(--brass); background:#fbf4e0; }
+    .sp-agent-name { font-family:'Playfair Display',serif; font-size:16px; font-weight:700; color:var(--ink); margin-bottom:3px; }
+    .sp-agent-vibe { font-family:'Cormorant Garamond',serif; font-size:13px; color:var(--ink-soft); font-style:italic; }
+    .sp-cta { display:inline-block; margin-top:14px; padding:12px 24px; font-family:'DM Mono',monospace; font-size:11px; letter-spacing:0.16em; text-transform:uppercase; color:var(--linen); background:var(--navy); border:none; cursor:pointer; }
+    .sp-cta:hover { background:var(--navy-mid); }
+    .sp-cta-sm { padding:9px 18px; font-size:10px; margin-top:0; }
+    .sp-cta-ghost { background:transparent; color:var(--ink-soft); border:1px solid var(--linen-edge); }
+    .sp-cta-ghost:hover { background:var(--linen-light); color:var(--ink); border-color:var(--brass); }
+    .sp-cta:disabled { opacity:0.5; cursor:wait; }
+  </style>
+
+  <script>
+    (function(){
+      var state = { site:'', agent:'', platform:'', subject:'' };
+
+      function showStep(n){
+        document.querySelectorAll('.sp-step').forEach(function(el){
+          var s = parseInt(el.getAttribute('data-step'), 10);
+          el.style.display = (s <= n) ? '' : 'none';
+        });
+      }
+
+      var siteSel = document.getElementById('sp-site');
+      siteSel.addEventListener('change', function(){
+        state.site = siteSel.value;
+        if (state.site) showStep(2);
+      });
+
+      document.querySelectorAll('.sp-agent').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          document.querySelectorAll('.sp-agent').forEach(function(b){ b.classList.remove('is-picked'); });
+          btn.classList.add('is-picked');
+          state.agent = btn.getAttribute('data-agent');
+          showStep(3);
+        });
+      });
+
+      var platSel = document.getElementById('sp-platform');
+      platSel.addEventListener('change', function(){
+        state.platform = platSel.value;
+        if (state.platform) showStep(4);
+      });
+
+      var subjText = document.getElementById('sp-subject');
+      var gen = document.getElementById('sp-generate');
+      var result = document.getElementById('sp-result');
+      var errBox = document.getElementById('sp-error');
+
+      gen.addEventListener('click', async function(){
+        state.subject = subjText.value.trim();
+        if (!state.subject){ subjText.focus(); return; }
+        errBox.style.display = 'none';
+        gen.disabled = true;
+        gen.textContent = 'Writing...';
+        try {
+          var r = await fetch('/.netlify/functions/studio-social-generate', {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify(state),
+          });
+          var data = await r.json();
+          if (!r.ok || data.error) {
+            errBox.textContent = data.error || ('Generation failed (HTTP ' + r.status + ')');
+            errBox.style.display = '';
+            return;
+          }
+
+          // Render results
+          document.getElementById('sp-result-meta').textContent =
+            data.agent + ' · ' + data.platform + ' · ' + data.site;
+          document.getElementById('sp-result-post').textContent = data.post || '';
+          document.getElementById('sp-result-hashtags').textContent = data.hashtags || '';
+          var over = (data.charCount > data.charLimit);
+          document.getElementById('sp-result-chars').innerHTML =
+            data.charCount + ' / ' + data.charLimit + ' characters' +
+            (over ? ' · <span style="color:#7d2828;">over limit</span>' : '');
+          var t = data.suggestedTime || {};
+          document.getElementById('sp-result-time').textContent =
+            t.day + ' · ' + t.window + '. ' + t.reason + '.';
+          document.getElementById('sp-result-notes').textContent =
+            data.notes ? ('Why this works: ' + data.notes) : '';
+          result.style.display = '';
+          result.scrollIntoView({behavior:'smooth', block:'nearest'});
+
+          // Copy handlers
+          var post = data.post || '';
+          var hashtags = data.hashtags || '';
+          document.getElementById('sp-copy').onclick = function(){
+            navigator.clipboard.writeText(post).then(function(){
+              var b = document.getElementById('sp-copy');
+              var orig = b.textContent;
+              b.textContent = 'Copied';
+              setTimeout(function(){ b.textContent = orig; }, 1500);
+            });
+          };
+          document.getElementById('sp-copy-all').onclick = function(){
+            var combined = hashtags ? (post + '\n\n' + hashtags) : post;
+            navigator.clipboard.writeText(combined).then(function(){
+              var b = document.getElementById('sp-copy-all');
+              var orig = b.textContent;
+              b.textContent = 'Copied';
+              setTimeout(function(){ b.textContent = orig; }, 1500);
+            });
+          };
+          document.getElementById('sp-again').onclick = function(){
+            result.style.display = 'none';
+            subjText.value = '';
+            subjText.focus();
+          };
+        } catch(e){
+          errBox.textContent = 'Network error: ' + (e && e.message ? e.message : 'unknown');
+          errBox.style.display = '';
+        } finally {
+          gen.disabled = false;
+          gen.textContent = 'Write the post →';
+        }
+      });
+    })();
+  </script>
 
   <footer class="studio-foot">
     Dr. O's Studio is part of the <a href="/">Emerging Technologies Laboratory</a>.
