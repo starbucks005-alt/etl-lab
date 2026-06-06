@@ -427,12 +427,25 @@
 
   // ---- Résumé Coach (Charles Monroe; Dr. Oroszi's CV philosophy from job-fair.html) ----
   var RESUME_COACH = {
-    id:'coach',
+    id:'charles',
     name:'Charles Monroe',
     role:'Associate Director of Career Services',
-    desc:'Workshop leader. Finds the hidden gems and pushes for quantifiable, narrative-clear bullets. Honest, supportive, no flattery.',
+    desc:'Reposition and restructure your CV. Finds hidden gems, pushes for quantifiable bullets, decides what leads. Honest, supportive, no flattery.',
     open:IMG+'cm_open.jpg', closed:IMG+'cm_closed.jpg', card:IMG+'cm_card.jpg',
     prompt:'You are Charles Monroe, Associate Director of Career Services at the university\'s Career Center. You were born in Chicago and raised in Atlanta by parents who were public school administrators; you carry their lifelong respect for mentorship into every session. You hold an M.S. in Organizational Leadership, you are married to an elementary school principal, and your two college-aged teenagers test your resume advice on each other at the dinner table. You take landscape photographs in your spare time and apply that composition instinct to how a page actually reads. You are practical, workshop-focused, and direct. You cut through ambiguity to land on quantifiable achievements and narrative clarity. You operate on Dr. Oroszi\'s CV philosophy: a CV is an argument for a specific role, not a catalog of everything someone has done; length is the wrong question, the right frame is the Two-CV Tactic (bring a short two-page version and a long six-page version, hand both to the recruiter, let the recruiter\'s pick tell you everything in under five seconds); the Professional Summary is exactly three sentences (who you are, what you have done, what you are looking for); every competency must be earned by evidence in the experience section, not claimed in isolation; the document must give the reader something worth writing down; substance over fluff, specific over generic; no flattery. You believe in finding the hidden gems in a student\'s experiences and helping them define who they are to an employer. You do NOT draft their bullets for them; you show the gap between intent and evidence and trust the student to write the fix. Speak in the first person, warm and direct. Under 120 words per turn. Do not break character or mention being an AI.'
+  };
+
+  // Second coach option for Résumé mode. Bea = Beatriz, senior copy editor on
+  // loan from Greylander Press. Where Charles repositions content, Bea line-
+  // edits: extra spaces, punctuation consistency, parallel bullet structure,
+  // em-dash hygiene, date format consistency. She does not restructure or
+  // invent. Reuses her GP portrait assets copied into prep-room-assets/.
+  var BEA_COACH = {
+    id:'bea',
+    name:'Beatriz "Bea" Reyes',
+    role:'Senior Copy Editor (on loan from Greylander Press)',
+    desc:'Line-edit and clean up. Fixes extra spaces, punctuation, capitalization, parallel structure, em-dash and date hygiene. Preserves your voice. Never invents.',
+    open:IMG+'bea_open.png', closed:IMG+'bea_closed.png', card:IMG+'bea_card.png'
   };
 
   var DIFFICULTY = [
@@ -515,8 +528,8 @@
       step1h:'Upload your CV and pick what this review is for',
       step1hint:'Your CV or résumé is required (PDF or .docx Word file). Pick the purpose of the review: general cleanup, a specific job, or a focus (e.g., AI/IT keynote, board service, federal grant). Cover letter is optional. Everything stays in your browser; only a short brief goes to the coach.',
       dropBig:'Click to choose your CV (PDF or Word)', dropSub:'or drag it here',
-      analyzeBtn:'Get my review →', analyzeStatus:'Your coach is reading the document',
-      panelh:'Meet your coach', panelhint:'One coach. Set how direct she should be. Default is honest.',
+      analyzeBtn:'Read my CV →', analyzeStatus:'Your coach is reading the document',
+      panelh:'Pick your coach', panelhint:'Two coaches. Charles repositions and restructures; Bea line-edits and cleans up. Click one to pick. Default is Charles.',
       heroSub:'Bring your CV, your cover letter, and the role you are aiming for. Your coach will name what the document is actually saying, what it is missing, and what to fix. She will not write it for you.',
       samplesH:'No CV handy? Try one of the candidate samples below.',
       metaLabel:'Coach', scoring:'Building your fix list...',
@@ -681,7 +694,7 @@
   }
 
   // ---- State ----
-  var state = { fileName:'', docText:'', jdText:'', clText:'', focusMode:'general', focusValue:'', brief:'', panel:[], difficulty:3, transcript:[], turn:0, order:[], orderIdx:0, apUsed:0, apPending:false, currentIsAP:false };
+  var state = { fileName:'', docText:'', jdText:'', clText:'', focusMode:'general', focusValue:'', coach:'charles', brief:'', panel:[], difficulty:3, transcript:[], turn:0, order:[], orderIdx:0, apUsed:0, apPending:false, currentIsAP:false };
 
   function $(id){return document.getElementById(id);}
   function showErr(el,msg){ el.textContent = msg; el.style.display='block'; }
@@ -695,6 +708,51 @@
     if(d.error){ throw new Error(typeof d.error==='string'?d.error:(d.error.message||'API error')); }
     if(!d.content || !d.content[0]){ throw new Error('Empty response from the panel.'); }
     return d.content[0].text;
+  }
+
+  // Résumé Coach background-job helper. Defeats Netlify's 26s sync timeout
+  // by routing brief / rewrite / polish calls through a background function
+  // with Blobs polling. Same pattern as the Reviewer Panel.
+  //   kind: 'brief' | 'rewrite' | 'polish'
+  //   payload: kind-specific (see office-hours-resume-coach-background.js)
+  //   onProgress: optional fn(elapsedSec) called every poll
+  // Resolves to: {brief:string}  for kind='brief'
+  //              {data:object}   for kind='rewrite' or 'polish'
+  async function callResumeCoachJob(kind, payload, onProgress){
+    var job_id = 'rc_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,10);
+    // Fire-and-poll. Netlify returns 202 immediately on background functions.
+    var fire = await fetch('/.netlify/functions/office-hours-resume-coach-background', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ job_id: job_id, kind: kind, payload: payload })
+    });
+    // 202 = accepted (background), 200 = ok. Anything else is a real error.
+    if(fire.status !== 202 && fire.status !== 200){
+      var t = '';
+      try{ t = await fire.text(); }catch(_){}
+      throw new Error('Could not start the job ('+fire.status+'): '+(t||'no body'));
+    }
+    // Poll every 3 seconds for up to 8 minutes.
+    var started = Date.now();
+    var MAX_MS = 8 * 60 * 1000;
+    var SLEEP_MS = 3000;
+    while(true){
+      await new Promise(function(res){ setTimeout(res, SLEEP_MS); });
+      var elapsedSec = Math.round((Date.now()-started)/1000);
+      if(typeof onProgress === 'function'){ try{ onProgress(elapsedSec); }catch(_){} }
+      var rs = await fetch('/.netlify/functions/office-hours-resume-coach-status?job_id='+encodeURIComponent(job_id));
+      var rec = null;
+      try{ rec = await rs.json(); }catch(_){}
+      if(rec && rec.status === 'done'){
+        if(kind === 'brief') return { brief: rec.brief || '' };
+        return { data: rec.data || null };
+      }
+      if(rec && rec.status === 'error'){
+        throw new Error(rec.error || 'Job failed on the server');
+      }
+      if(Date.now()-started > MAX_MS){
+        throw new Error('Job timed out after 8 minutes. Try a shorter CV or try again.');
+      }
+    }
   }
 
   // ---- Step 1: upload + extract ----
@@ -799,6 +857,74 @@
     }
     $('analyze-btn').disabled = true;
     $('analyze-status').innerHTML = cfg().analyzeStatus + '<span class="dots"></span>';
+
+    // Résumé Coach uses background functions with Blobs polling to defeat
+    // Netlify's 26s sync-function timeout. Full-length academic CVs reliably
+    // exceed that limit; the background path can run up to 15 minutes.
+    if(MODE === 'resume'){
+      // Bea has no chat phase. Clicking analyze fires her polish job directly
+      // and renders the card. Charles uses the existing brief → chat → rewrite flow.
+      if(state.coach === 'bea'){
+        try {
+          $('analyze-status').innerHTML = 'Bea is polishing your CV<span class="dots"></span>';
+          var polishResult = await callResumeCoachJob('polish', {
+            docText: state.docText
+          }, function(elapsedSec){
+            $('analyze-status').innerHTML = 'Bea is polishing your CV (' + elapsedSec + 's)<span class="dots"></span>';
+          });
+          $('analyze-status').textContent = '';
+          // Normalize Bea's polish schema to the shape renderCard expects.
+          var p = polishResult.data || {};
+          var fixCount = (typeof p.fix_count === 'number') ? p.fix_count : (Array.isArray(p.notable_fixes) ? p.notable_fixes.length : 0);
+          var asCard = {
+            verdict: p.summary || ('Bea polished your CV: ' + fixCount + ' mechanical fixes applied.'),
+            categories: [{
+              name: 'MECHANICAL FIXES',
+              score: 5,
+              note: fixCount + ' fix' + (fixCount === 1 ? '' : 'es') + ' applied. Voice, structure, and content untouched.'
+            }],
+            drill: (Array.isArray(p.notable_fixes) ? p.notable_fixes : []).slice(0, 6),
+            open_questions: Array.isArray(p.open_questions) ? p.open_questions : [],
+            updated_cv: p.polished_cv || null,
+            updated_cover_letter: ''
+          };
+          // Skip the drill step entirely for Bea; jump straight to the card.
+          $('drill').classList.add('locked');
+          $('answer-area').style.display='none';
+          $('card').style.display='block';
+          $('card').scrollIntoView({behavior:'smooth', block:'start'});
+          renderCard(asCard);
+          $('analyze-btn').disabled = false;
+        } catch(e){
+          $('analyze-status').textContent='';
+          showErr($('upload-err'), e.message);
+          $('analyze-btn').disabled = false;
+        }
+        return;
+      }
+      // Charles: brief generation (chat phase follows).
+      try {
+        var briefResult = await callResumeCoachJob('brief', {
+          audience: AUDIENCE,
+          focusMode: state.focusMode,
+          focusValue: state.focusValue,
+          docText: state.docText,
+          clText: state.clText,
+          jdText: state.jdText
+        }, function(elapsedSec){
+          $('analyze-status').innerHTML = cfg().analyzeStatus + ' (' + elapsedSec + 's)<span class="dots"></span>';
+        });
+        state.brief = briefResult.brief;
+        $('analyze-status').textContent = '';
+        $('start-btn').disabled = false;
+        $('start-btn').scrollIntoView({behavior:'smooth', block:'center'});
+      } catch(e){
+        $('analyze-status').textContent='';
+        showErr($('upload-err'), e.message);
+        $('analyze-btn').disabled = false;
+      }
+      return;
+    }
 
     var sys, user;
     if(MODE==='interview'){
@@ -920,12 +1046,16 @@
       return img + '<div class="pname">'+p.name+'</div><div class="prole">'+p.role+'</div>';
     }
     if(MODE === 'resume'){
-      // Single coach, always selected, no click toggling.
-      var p = RESUME_COACH;
-      var el = document.createElement('div');
-      el.className='prof sel'; el.dataset.id=p.id; el.style.cursor='default';
-      el.innerHTML = '<div class="check">&#10003;</div>'+profCardHtml(p)+'<div class="pdesc">'+p.desc+'</div>';
-      grid.appendChild(el);
+      // Two coaches. Single-select: clicking one picks that coach as state.coach.
+      // Default: Charles. State drives the 'sel' visual.
+      [RESUME_COACH, BEA_COACH].forEach(function(p){
+        var el = document.createElement('div');
+        el.className='prof'; el.dataset.id=p.id;
+        if(state.coach === p.id) el.classList.add('sel');
+        el.innerHTML = '<div class="check">&#10003;</div>'+profCardHtml(p)+'<div class="pdesc">'+p.desc+'</div>';
+        el.addEventListener('click', function(){ pickResumeCoach(p.id); });
+        grid.appendChild(el);
+      });
     } else {
       roster().forEach(function(p){
         var el = document.createElement('div');
@@ -943,6 +1073,30 @@
       db.appendChild(b);
     });
     setDifficulty(state.difficulty);
+  }
+
+  // Résumé Coach single-select: pick Charles or Bea. Different downstream flow.
+  // Bea has no chat phase (line-edit, no back-and-forth) — Start button is
+  // relabeled accordingly when she is picked.
+  function pickResumeCoach(id){
+    state.coach = id;
+    document.querySelectorAll('#panel-list .prof').forEach(function(el){
+      el.classList.toggle('sel', el.dataset.id === id);
+    });
+    var coach = (id === 'bea') ? BEA_COACH : RESUME_COACH;
+    $('selnote').innerHTML = 'Your coach: <b>'+coach.name+'</b>';
+    // Relabel the action buttons to match the chosen coach's flow.
+    //   Charles → Read my CV (brief) → Talk to Charles (chat) → End & get my fix list
+    //   Bea     → Run Bea's polish (jumps straight to result, no chat)
+    if(id === 'bea'){
+      $('analyze-btn').innerHTML = 'Run Bea\'s polish &rarr;';
+      $('start-btn').textContent = '(not used in Bea\'s flow)';
+      $('end-btn').textContent   = 'End';
+    } else {
+      $('analyze-btn').innerHTML = 'Read my CV &rarr;';
+      $('start-btn').textContent = 'Talk to Charles &rarr;';
+      $('end-btn').textContent   = 'End & get my fix list';
+    }
   }
 
   function toggleProf(id, el){
@@ -1128,27 +1282,35 @@
     $('rc-verdict').textContent = cfg().scoring;
     $('card').scrollIntoView({behavior:'smooth', block:'start'});
 
+    // Résumé Coach end-of-session uses the background function. Same timeout
+    // reason as analyzeDoc: the rewriter is even longer (max_tokens 8000)
+    // and reliably exceeds Netlify's 26s sync ceiling.
+    if(MODE === 'resume'){
+      // Route by coach: Charles → rewrite (restructured CV); Bea → polish (line-edit).
+      var kind = (state.coach === 'bea') ? 'polish' : 'rewrite';
+      try {
+        var result = await callResumeCoachJob(kind, {
+          audience: AUDIENCE,
+          focusMode: state.focusMode,
+          focusValue: state.focusValue,
+          docText: state.docText,
+          clText: state.clText,
+          jdText: state.jdText,
+          brief: state.brief,
+          transcript: transcriptText()
+        }, function(elapsedSec){
+          $('rc-verdict').textContent = cfg().scoring + ' (' + elapsedSec + 's)';
+        });
+        renderCard(result.data || {});
+      } catch(e){
+        $('rc-verdict').textContent = 'Could not score the session.';
+        showErr($('drill-err'), e.message);
+      }
+      return;
+    }
+
     var sys, user;
-    if(MODE==='resume'){
-      sys = audiencePrefix() + '\n\n' + resumeAudienceRules() + '\n\n' +
-        'You are Charles Monroe, Associate Director of Career Services, closing out a coaching session with a ' + (AUDIENCE === 'pros' ? 'mid-career or senior professional' : 'student') + '. You have already delivered a structured review and had a chat. Now produce: (1) a short verdict on the document\'s current argument; (2) a 5-category scorecard (1=needs work, 5=strong) covering CLARITY OF ARGUMENT, EVIDENCE BEHIND CLAIMS, LENGTH & SHAPE, PROFESSIONAL SUMMARY, SUBSTANCE OVER FLUFF; (3) a 3-6 item prioritized fix list in order; (4) an UPDATED CV restructuring the student\'s material into a sharper, more argument-focused document; (5) if the student provided a cover letter, an UPDATED cover letter. ' +
-        'SECTOR-AWARE SCORING: judge the CV on markers appropriate to its sector (Corporate / Academic / Nonprofit / Government), as identified in the brief and surfaced in the chat. Academic budget authority often appears as "co-led" or "stewarded" — it counts as evidence behind claims. Board experience may include federal advisory boards, national professional society officer roles, and 501(c)(3) chairs — they count. Institutional transformation may show as enrollment scale, program revenue growth, or founding a lab/center — that counts. Length judgement should reference what is normal in the sector (academic CVs of 10-25 pages are commonly the short version). DO NOT mark "EVIDENCE BEHIND CLAIMS" low because the markers do not match a corporate template. The honesty bar still applies and the rubric is not generous: weak summaries are still weak, padded sections are still padded, and unsupported claims still cost points. The point of sector awareness is accuracy, not flattery. If the student has pushed back during the chat that evidence IS present, recheck and adjust your scoring accordingly. ' +
-        'HARD RULES on the updated CV and cover letter: Use ONLY what the student stated in the original CV, the original cover letter, the chat transcript, and the brief. DO NOT invent employers, dates, titles, numbers, schools, accomplishments, or claims that are not present in their own words. If a quantifiable detail is not present, leave it general rather than fabricating a number. Preserve the student as the author; you are organizing their own words. The Professional Summary in the updated CV must be EXACTLY three sentences: who you are, what you have done, what you are looking for. Anchor everything on Dr. Oroszi\'s CV philosophy: argument over catalog, Two-CV Tactic, three-sentence summary, evidence-earned competencies, substance over fluff, no flattery. ' +
-        'Return ONLY valid JSON, no markdown, in this exact shape: {"verdict":"string","categories":[{"name":"string","score":1-5,"note":"one specific sentence"}],"drill":["string","string","string"],"updated_cv":{"name":"string","contact":"string","summary":"three sentences","education":["string"],"experience":[{"title":"string","org":"string","dates":"string","bullets":["string"]}],"projects":["string"],"skills":["string"]},"updated_cover_letter":"string with paragraphs separated by \\n\\n, or empty string if none was provided"}';
-      var purposeLine;
-      if(state.focusMode === 'job' && state.jdText){ purposeLine = '\n\nReview purpose: tailored to a specific job (description below).'; }
-      else if(state.focusMode === 'focus' && state.focusValue){ purposeLine = '\n\nReview purpose: positioning for a specific audience — "' + state.focusValue + '". Restructure the CV so it speaks to that audience: foreground aligned content, soften off-focus content, never invent.'; }
-      else { purposeLine = '\n\nReview purpose: general cleanup, no specific job or audience.'; }
-      // CV cap raised to 60k chars (~30 pages dense academic CV). Was 12k.
-      if(state.docText.length > 60000){ try{ console.warn('Résumé Coach (endSession): CV exceeded 60,000 chars (' + state.docText.length + ') — sending first 60k to the rewriter.'); }catch(_){} }
-      user = 'Original CV:\n\n'+state.docText.slice(0,60000)
-        + (state.clText?'\n\nOriginal cover letter:\n\n'+state.clText.slice(0,8000):'')
-        + (state.focusMode === 'job' && state.jdText ? '\n\nTarget role / job description:\n\n'+state.jdText.slice(0,8000) : '')
-        + (state.focusMode === 'focus' && state.focusValue ? '\n\nFocus / audience for this review:\n\n'+state.focusValue : '')
-        + purposeLine
-        + '\n\nCoaching brief:\n\n'+state.brief
-        + '\n\nSession transcript (use any new specifics the student stated here):\n\n'+transcriptText();
-    } else if(MODE==='interview'){
+    if(MODE==='interview'){
       sys = audiencePrefix() + '\n\n' + interviewAudienceRules() + '\n\n' +
         'You are an interview panel producing a formative READINESS CARD after a practice job interview. Be honest and specific. No flattery, no praise that is not earned. Score five categories from 1 to 5 (1=not ready, 5=ready). Categories: FIT TO THE ROLE; EVIDENCE OF IMPACT; COMMUNICATION & CLARITY; HANDLING TOUGH QUESTIONS; MOTIVATION & CLOSE. Also give an overall one-line verdict and 3-5 concrete things to drill before the real interview. ' +
         'Return ONLY valid JSON, no markdown, in this exact shape: {"verdict":"string","categories":[{"name":"string","score":1-5,"note":"one specific sentence"}],"drill":["string","string","string"]}';
@@ -1219,7 +1381,14 @@
   }
 
   function renderCard(d){
-    $('rc-overall').textContent = (MODE === 'resume') ? 'Charles\'s review + updated drafts' : 'Readiness Card';
+    var resumeHeader;
+    if(MODE === 'resume'){
+      if(state.coach === 'bea'){ resumeHeader = 'Bea\'s polish + cleaned CV'; }
+      else { resumeHeader = 'Charles\'s review + updated drafts'; }
+    } else {
+      resumeHeader = 'Readiness Card';
+    }
+    $('rc-overall').textContent = resumeHeader;
     $('rc-verdict').textContent = d.verdict || 'Session complete.';
     // Clear any prior generated-block from a previous session.
     var prevGen = document.getElementById('rc-generated'); if(prevGen) prevGen.remove();
@@ -1238,8 +1407,25 @@
     var dl = $('rc-drill');
     var ul = document.createElement('ul');
     (d.drill||[]).forEach(function(x){ var li=document.createElement('li'); li.textContent=x; ul.appendChild(li); });
-    dl.innerHTML = '<h3>'+(MODE === 'resume' ? 'Fix these next, in this order' : 'Drill these before the real thing')+'</h3>';
+    var drillHeader;
+    if(MODE === 'resume'){
+      drillHeader = (state.coach === 'bea') ? 'Notable fixes Bea applied' : 'Fix these next, in this order';
+    } else {
+      drillHeader = 'Drill these before the real thing';
+    }
+    dl.innerHTML = '<h3>'+drillHeader+'</h3>';
     dl.appendChild(ul);
+
+    // Bea's open questions: things she flagged but did not change because they
+    // might be intentional craft choices. Show only when present.
+    if(MODE === 'resume' && state.coach === 'bea' && Array.isArray(d.open_questions) && d.open_questions.length){
+      var oq = document.createElement('div'); oq.style.marginTop = '14px';
+      oq.innerHTML = '<h3 style="margin-top:14px;">Things Bea flagged but did not change</h3><p style="font-size:13px;color:var(--muted);margin:4px 0 8px;">She left these alone because they might be intentional craft choices. Decide and confirm.</p>';
+      var oqUl = document.createElement('ul');
+      d.open_questions.forEach(function(x){ var li=document.createElement('li'); li.textContent=x; oqUl.appendChild(li); });
+      oq.appendChild(oqUl);
+      dl.appendChild(oq);
+    }
 
     // Résumé mode: render the updated CV and updated cover letter, with download buttons.
     if(MODE === 'resume' && (d.updated_cv || d.updated_cover_letter)){
@@ -1363,7 +1549,7 @@
     $('mode-interview').classList.toggle('inactive', m!=='interview');
     $('mode-resume').classList.toggle('inactive', m!=='resume');
     // reset state
-    state = { fileName:'', docText:'', jdText:'', clText:'', focusMode:'general', focusValue:'', brief:'', panel:[], difficulty:state.difficulty||3, transcript:[], turn:0, order:[], orderIdx:0, apUsed:0, apPending:false, currentIsAP:false };
+    state = { fileName:'', docText:'', jdText:'', clText:'', focusMode:'general', focusValue:'', coach:'charles', brief:'', panel:[], difficulty:state.difficulty||3, transcript:[], turn:0, order:[], orderIdx:0, apUsed:0, apPending:false, currentIsAP:false };
     // step 1 copy
     $('step1-h').textContent = c.step1h;
     $('step1-hint').textContent = c.step1hint;
@@ -1407,9 +1593,12 @@
     $('panel-h').textContent = c.panelh;
     $('panel-hint').textContent = c.panelhint;
     if(m === 'resume'){
-      // No panel selection: the coach is implicit. Pre-set state.panel and unlock upload immediately.
-      state.panel = ['coach'];
-      $('selnote').innerHTML = 'Your coach: <b>'+RESUME_COACH.name+'</b>';
+      // Two coaches, single-select. Default is Charles. State.panel kept as
+      // a single-element array for compatibility with the existing flow.
+      state.coach = state.coach || 'charles';
+      state.panel = [state.coach];
+      var defaultCoach = (state.coach === 'bea') ? BEA_COACH : RESUME_COACH;
+      $('selnote').innerHTML = 'Your coach: <b>'+defaultCoach.name+'</b> &middot; <span style="opacity:.7;">click the other to switch</span>';
       $('step-upload').classList.remove('locked');
     } else {
       $('selnote').innerHTML = 'Selected: <b>0</b> (choose 3 or 4)';
