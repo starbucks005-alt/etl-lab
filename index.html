@@ -845,24 +845,145 @@ document.addEventListener('DOMContentLoaded', function(){
 </script>
 
 <!-- NAV -->
+<style>
+  /* Dropdown nav additions (inherits the existing nav / nav-links palette) */
+  .nav-dropdown { position: relative; }
+  .nav-dropdown > a::after {
+    content: ' \25BE';
+    font-size: 9px;
+    opacity: 0.5;
+    margin-left: 2px;
+  }
+  .nav-submenu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ffffff;
+    border: 1px solid #e6e6e6;
+    border-top: 2px solid var(--gold);
+    min-width: 240px;
+    padding: 8px 0;
+    list-style: none;
+    box-shadow: 0 12px 28px rgba(0,0,0,0.10);
+    z-index: 1001;
+  }
+  .nav-dropdown:hover > .nav-submenu,
+  .nav-dropdown.is-open > .nav-submenu { display: block; }
+  .nav-submenu li { display: block; padding: 0; }
+  .nav-submenu li a {
+    display: block;
+    padding: 10px 20px;
+    font-family: 'Oswald', sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 1.6px;
+    text-transform: uppercase;
+    color: var(--black);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background 0.15s, color 0.15s;
+  }
+  .nav-submenu li a:hover { background: #f4ebd6; color: var(--gold); }
+  .nav-submenu li.nav-submenu-divider {
+    height: 1px;
+    background: #e6e6e6;
+    margin: 6px 12px;
+    padding: 0;
+  }
+  .nav-submenu li.nav-submenu-divider a { display: none; }
+  .nav-submenu li.nav-submenu-header {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: #999;
+    text-transform: uppercase;
+    padding: 8px 20px 4px;
+  }
+  /* Mobile: submenus go inline + indented when nav-mobile-open is active */
+  .nav-mobile-open .nav-dropdown > a::after { content: ''; }
+  .nav-mobile-open .nav-submenu {
+    display: block;
+    position: static;
+    transform: none;
+    border: none;
+    border-top: 1px solid #eee;
+    box-shadow: none;
+    min-width: 0;
+    padding: 0;
+    background: #fafafa;
+  }
+  .nav-mobile-open .nav-submenu li a {
+    padding: 12px 32px 12px 56px;
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    color: #555;
+    border-bottom: 1px solid #eee;
+  }
+  .nav-mobile-open .nav-submenu li.nav-submenu-header {
+    background: #f0f0f0;
+    padding: 10px 56px 6px;
+  }
+</style>
 <nav>
   <div class="nav-logo">
     <img src="/favicon_etl_512.png" alt="ETL" style="height:44px;width:auto;">
     <div class="nav-title">Dr. Terry Oroszi's Emerging <span>Technologies</span> Laboratory</div>
   </div>
   <ul class="nav-links" id="nav-links">
-    <li><a href="#network" onclick="closeMenu()">Network</a></li>
-    <li><a href="#ai-twin" onclick="closeMenu()">Lab PI</a></li>
-    <li><a href="#team" onclick="closeMenu()">Research Team</a></li>
-    <li><a href="#research" onclick="closeMenu()">Research</a></li>
-    <li><a href="#director" onclick="closeMenu()">Bio</a></li>
-    <li><a href="#talks" onclick="closeMenu()">Talks</a></li>
-    <li><a href="#intel" onclick="closeMenu()">Intel</a></li>
-    <li><a href="#publications" onclick="closeMenu()">Publications</a></li>
-    <li><a href="#teaching" onclick="closeMenu()">Workshops</a></li>
-    <li><a href="/agents/" onclick="closeMenu()">Agents</a></li>
-    <li><a href="/prep-room" onclick="closeMenu()">Prep Room</a></li>
-    <li><a href="/office-hours" onclick="closeMenu()">Office Hours</a></li>
+    <li class="nav-dropdown">
+      <a href="#network" onclick="closeMenu()">Platforms</a>
+      <ul class="nav-submenu">
+        <li><a href="#network" onclick="closeMenu()">All Platforms</a></li>
+        <li class="nav-submenu-divider"><a>.</a></li>
+        <li><a href="https://thegauntlet.studio" target="_blank" rel="noopener">The Gauntlet</a></li>
+        <li><a href="https://the-dose.netlify.app" target="_blank" rel="noopener">The Dose</a></li>
+        <li><a href="https://slrstudio.online" target="_blank" rel="noopener">SLR Studio</a></li>
+        <li><a href="/office-hours" onclick="closeMenu()">Office Hours</a></li>
+        <li><a href="/prep-room" onclick="closeMenu()">Prep Room</a></li>
+        <li><a href="https://greylanderpress.com" target="_blank" rel="noopener">Greylander Press</a></li>
+        <li><a href="/press" onclick="closeMenu()">ETL Newswire</a></li>
+        <li><a href="https://gandhi-king.netlify.app" target="_blank" rel="noopener">Gandhi-King Center</a></li>
+        <li class="nav-submenu-divider"><a>.</a></li>
+        <li><a href="/agents/" onclick="closeMenu()">Agents Directory</a></li>
+      </ul>
+    </li>
+    <li class="nav-dropdown">
+      <a href="/body-language-cert" onclick="closeMenu()">Workshops</a>
+      <ul class="nav-submenu">
+        <li><a href="/body-language-cert" onclick="closeMenu()">Body Language Cert</a></li>
+        <li><a href="/egos-at-the-table" onclick="closeMenu()">Egos at the Table</a></li>
+        <li><a href="/power-platform" onclick="closeMenu()">4/5/6 Power Platform</a></li>
+        <li><a href="/leadership-cert" onclick="closeMenu()">Leadership Certificates</a></li>
+        <li><a href="/academic-poster" onclick="closeMenu()">Academic Poster</a></li>
+        <li class="nav-submenu-divider"><a>.</a></li>
+        <li class="nav-submenu-header">In development</li>
+        <li><a href="#network" onclick="closeMenu()">NVBL · OSINT · Crisis · American Terrorist · From Keyword to Publication</a></li>
+      </ul>
+    </li>
+    <li><a href="https://www.amazon.com/s?k=Terry+Oroszi&i=stripbooks" target="_blank" rel="noopener">Books</a></li>
+    <li class="nav-dropdown">
+      <a href="#director" onclick="closeMenu()">About</a>
+      <ul class="nav-submenu">
+        <li><a href="#director" onclick="closeMenu()">Principal Investigator</a></li>
+        <li><a href="#ai-twin" onclick="closeMenu()">Lab PI</a></li>
+        <li><a href="#recognition" onclick="closeMenu()">Recognition &amp; Affiliations</a></li>
+        <li><a href="#training" onclick="closeMenu()">Specialized Training</a></li>
+        <li><a href="#team" onclick="closeMenu()">Graduate Research Team</a></li>
+      </ul>
+    </li>
+    <li class="nav-dropdown">
+      <a href="#talks" onclick="closeMenu()">Speaking &amp; Press</a>
+      <ul class="nav-submenu">
+        <li><a href="#talks" onclick="closeMenu()">Talks &amp; Keynotes</a></li>
+        <li><a href="#intel" onclick="closeMenu()">Featured Intelligence</a></li>
+        <li><a href="#publications" onclick="closeMenu()">Publications &amp; Forbes</a></li>
+        <li class="nav-submenu-divider"><a>.</a></li>
+        <li><a href="/press" onclick="closeMenu()">ETL Newswire</a></li>
+        <li><a href="#briefing-card" onclick="closeMenu()">Above the Fold</a></li>
+      </ul>
+    </li>
     <li><a href="#contact" onclick="closeMenu()">Contact</a></li>
   </ul>
   <div class="nav-wsu" style="display:none;"></div>
@@ -880,7 +1001,29 @@ document.addEventListener('DOMContentLoaded', function(){
   function closeMenu() {
     document.getElementById('nav-links').classList.remove('nav-mobile-open');
     document.getElementById('nav-hamburger').classList.remove('is-open');
+    document.querySelectorAll('.nav-dropdown.is-open').forEach(function(el){ el.classList.remove('is-open'); });
   }
+  // Touch / mobile: tapping a dropdown parent toggles its submenu visibility
+  // (CSS :hover is unreliable on touch). Clicking the parent link still
+  // navigates to its href on second tap; first tap opens submenu.
+  document.addEventListener('DOMContentLoaded', function(){
+    document.querySelectorAll('.nav-dropdown > a').forEach(function(parentLink){
+      parentLink.addEventListener('click', function(ev){
+        var parent = parentLink.parentElement;
+        // Only intercept on small screens where :hover is unreliable
+        if (window.matchMedia && window.matchMedia('(max-width: 900px)').matches) {
+          if (!parent.classList.contains('is-open')) {
+            ev.preventDefault();
+            // Close other open dropdowns
+            document.querySelectorAll('.nav-dropdown.is-open').forEach(function(el){
+              if (el !== parent) el.classList.remove('is-open');
+            });
+            parent.classList.add('is-open');
+          }
+        }
+      });
+    });
+  });
 </script>
 
 <!-- TICKER (sits directly under the nav, above the hero) -->
