@@ -543,7 +543,7 @@
   // Persisted in URL hash as #students/<mode> or #pros/<mode>.
   var AUDIENCE = 'students';
   function cfg(){ return COPY[MODE]; }
-  function roster(){ return MODE === 'defense' ? PROFESSORS : (MODE === 'interview' ? INTERVIEWERS : [RESUME_COACH]); }
+  function roster(){ return MODE === 'defense' ? PROFESSORS : (MODE === 'interview' ? INTERVIEWERS : [RESUME_COACH, BEA_COACH]); }
 
   // Per-audience prompt prefix injected into every API system message so
   // panel feedback and coach feedback actually differ by audience. The
@@ -1088,13 +1088,15 @@
     // Relabel the action buttons to match the chosen coach's flow.
     //   Charles → Read my CV (brief) → Talk to Charles (chat) → End & get my fix list
     //   Bea     → Run Bea's polish (jumps straight to result, no chat)
+    // Use the unicode arrow character directly. textContent does NOT decode
+    // HTML entities, which is why &rarr; was rendering literally.
     if(id === 'bea'){
-      $('analyze-btn').innerHTML = 'Run Bea\'s polish &rarr;';
-      $('start-btn').textContent = '(not used in Bea\'s flow)';
+      $('analyze-btn').textContent = 'Run Bea’s polish →';
+      $('start-btn').textContent = '(not used in Bea’s flow)';
       $('end-btn').textContent   = 'End';
     } else {
-      $('analyze-btn').innerHTML = 'Read my CV &rarr;';
-      $('start-btn').textContent = 'Talk to Charles &rarr;';
+      $('analyze-btn').textContent = 'Read my CV →';
+      $('start-btn').textContent = 'Talk to Charles →';
       $('end-btn').textContent   = 'End & get my fix list';
     }
   }
