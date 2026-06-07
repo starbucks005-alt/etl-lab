@@ -1385,7 +1385,7 @@ document.addEventListener('DOMContentLoaded', function(){
   }
   .etl-network .etl-net-card--agents .etl-net-video {
     padding-top: 0; height: auto;
-    min-height: 740px; /* fits all 62 faces with cushion (was 520 sized for 50) */
+    min-height: 1180px; /* fits 71 faces + 9 domain headers (was 740px for 62 cluster-sorted) */
   }
   .etl-network .etl-net-roster {
     position: absolute; inset: 0;
@@ -1402,18 +1402,38 @@ document.addEventListener('DOMContentLoaded', function(){
     box-shadow: 0 0 0 1px #2a2a2a, 0 2px 8px rgba(0,0,0,0.4);
     flex-shrink: 0;
   }
+  /* Domain section header — spans the full flex row so each domain group
+     sits below its label. Visually small, brand-coloured eyebrow style
+     so the wall reads "section · section · section" without competing
+     with the portraits themselves. */
+  .etl-network .etl-net-domain-header {
+    flex: 0 0 100%;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #FDB827;
+    padding: 14px 4px 4px;
+    margin-top: 6px;
+    border-bottom: 1px solid rgba(253,184,39,0.18);
+    text-align: left;
+  }
+  .etl-network .etl-net-roster .etl-net-domain-header:first-child {
+    padding-top: 4px; margin-top: 0;
+  }
   @media (max-width: 1100px) {
     .etl-network .etl-net-card--agents { grid-template-columns: 1fr; }
-    .etl-network .etl-net-card--agents .etl-net-video { min-height: 620px; }
+    .etl-network .etl-net-card--agents .etl-net-video { min-height: 1020px; }
     .etl-network .etl-net-roster img { width: 72px; height: 72px; }
   }
   @media (max-width: 640px) {
-    /* 62 avatars wrap to 7-per-row on a phone, which is 9 rows. At 56px
-       per circle + 6px gap + 20px padding the wall needs ~660px of vertical
-       room. (Was 540px when the cast was 50 — the wire reporters added 12.) */
-    .etl-network .etl-net-card--agents .etl-net-video { min-height: 680px; }
+    /* 71 avatars + 9 domain headers wrap to 7-per-row at 56px on a phone.
+       Adds ~10 rows for headers vs the old cluster layout. Bumped from 680
+       to 920 to hold the cushion. */
+    .etl-network .etl-net-card--agents .etl-net-video { min-height: 920px; }
     .etl-network .etl-net-roster { gap: 6px; padding: 10px; }
     .etl-network .etl-net-roster img { width: 56px; height: 56px; border-width: 1.5px; }
+    .etl-network .etl-net-domain-header { font-size: 10px; padding: 10px 2px 2px; }
   }
 
   /* AGENTS CARD INTERACTIVITY
@@ -1999,7 +2019,27 @@ document.addEventListener('DOMContentLoaded', function(){
       <div class="etl-net-card etl-net-card--agents" style="order: 20;">
         <div class="etl-net-video">
           <div class="etl-net-roster">
-            <!-- The Dose (11) -->
+            <!-- ─── Sorted by domain. Within each domain, agents grouped by source
+                 platform for narrative consistency. The AGENTS array further below
+                 MUST stay in lockstep with this img order — modal click is
+                 index-based via document.querySelectorAll('.etl-net-roster img'),
+                 so any reordering here requires a matching reorder of AGENTS. ─── -->
+
+            <!-- Your AI Company (7) — the headline product. PA first, then the six
+                 Specialists in founder-journey order: form (Alicia) → keep books
+                 (Leo) → understand contracts (Kimberly) → hire people (Sasha) →
+                 brand (Yuki) → manage money (Rowan). -->
+            <div class="etl-net-domain-header">Your AI Company</div>
+            <img src="agents/Auggie_zoom_eyes_open.png" alt="August &ldquo;Auggie&rdquo; Vidal">
+            <img src="agents/Alicia_James_eyes_open.jpg" alt="Alicia James">
+            <img src="agents/Leo_Vance_eyes_open.png" alt="Leo Vance">
+            <img src="agents/Kimberly_Pass_eyes_open.jpg" alt="Kimberly Pass">
+            <img src="agents/Sasha_Moreno_eyes_open.png" alt="Sasha Moreno">
+            <img src="agents/Yuki_Mendel_eyes_open.png" alt="Yuki Mendel">
+            <img src="agents/Rowan_Tate_eyes_open.png" alt="Rowan Tate">
+
+            <!-- Health &amp; Wellness (13) -->
+            <div class="etl-net-domain-header">Health &amp; Wellness</div>
             <img src="agents/margaret_call_listening.png" alt="Margaret">
             <img src="agents/fact_checker_eyes_open.png" alt="Eli">
             <img src="agents/nutritionist_eyes_open.png" alt="Nadia">
@@ -2011,7 +2051,11 @@ document.addEventListener('DOMContentLoaded', function(){
             <img src="agents/forager_eyes_open.png" alt="Silas">
             <img src="agents/Arun_eyes_open.png" alt="Arun">
             <img src="agents/Reece_eyes_open.png" alt="Reece">
-            <!-- Greylander Press (7) -->
+            <img src="agents/Priya_eyes_open.jpg" alt="Dr. Priya">
+            <img src="agents/Karen_Bishop.png" alt="Karen Bishop" loading="lazy">
+
+            <!-- Books, Writing &amp; Publishing (9) -->
+            <div class="etl-net-domain-header">Books, Writing &amp; Publishing</div>
             <img src="agents/EIC_Eyes_Open.png" alt="Dr. O.">
             <img src="agents/Mun_Eyes_open.png" alt="Mun">
             <img src="agents/Grey_Open.png" alt="Grey">
@@ -2020,14 +2064,13 @@ document.addEventListener('DOMContentLoaded', function(){
             <img src="agents/Margo.png" alt="Margo">
             <img src="agents/Chris_DIGArtist_Eyes3_Open.png" alt="Chris">
             <img src="agents/Jess_Ramirez.png" alt="Jess Ramirez" loading="lazy">
-            <!-- The Gauntlet (14) -->
+            <img src="agents/Jules_Rivera.png" alt="Jules Rivera" loading="lazy">
+
+            <!-- Business, Founders &amp; Operations (12) -->
+            <div class="etl-net-domain-header">Business, Founders &amp; Operations</div>
             <img src="agents/Selene_eyes_open.jpg" alt="Selene">
             <img src="agents/Marcus_eyes_open.jpg" alt="Marcus">
-            <img src="agents/Priya_eyes_open.jpg" alt="Dr. Priya">
             <img src="agents/Raymond_eyes_open.jpg" alt="Raymond">
-            <img src="agents/Astrid_eyes_open.jpg" alt="Astrid">
-            <img src="agents/Osei_eyes_open.jpg" alt="Dr. Osei">
-            <img src="agents/Grace_eyes_open.jpg" alt="Admiral Nakamura">
             <img src="agents/Devon_eyes_open.jpg" alt="Devon">
             <img src="agents/Cassidy_eyes_open.jpg" alt="Dr. Cassidy">
             <img src="agents/Wren_eyes_open.jpg" alt="Wren">
@@ -2036,7 +2079,17 @@ document.addEventListener('DOMContentLoaded', function(){
             <img src="agents/Zara_eyes_open.jpg" alt="Zara">
             <img src="agents/Grant_eyes_open.jpg" alt="Grant">
             <img src="agents/Imani_Brooks.png" alt="Imani Brooks" loading="lazy">
-            <!-- The Prep Room - Defense Committee (8) -->
+            <img src="agents/Theo_Okafor.png" alt="Theo Okafor" loading="lazy">
+
+            <!-- Legal, Compliance &amp; Government (3) -->
+            <div class="etl-net-domain-header">Legal, Compliance &amp; Government</div>
+            <img src="agents/Astrid_eyes_open.jpg" alt="Astrid">
+            <img src="agents/Grace_eyes_open.jpg" alt="Admiral Nakamura">
+            <img src="agents/Renee_Kovac.png" alt="Ren&eacute;e Kovac" loading="lazy">
+
+            <!-- Academic &amp; Research (11) -->
+            <div class="etl-net-domain-header">Academic &amp; Research</div>
+            <img src="agents/Osei_eyes_open.jpg" alt="Dr. Osei">
             <img src="prep-room-assets/vv_card.jpg" alt="Victoria Vance">
             <img src="prep-room-assets/lc_card.jpg" alt="Lawrence Cole">
             <img src="prep-room-assets/mt_card.jpg" alt="Marcus Thorne">
@@ -2045,9 +2098,11 @@ document.addEventListener('DOMContentLoaded', function(){
             <img src="prep-room-assets/az_card.jpg" alt="Alan Zhao">
             <img src="prep-room-assets/mvg_card.jpg" alt="Meredith Vance-Giles">
             <img src="prep-room-assets/tk_card.jpg" alt="Tariq Khan">
-            <!-- Defense Lifeline -->
             <img src="prep-room-assets/ap_1.jpg" alt="Arthur Pendelton">
-            <!-- The Prep Room / Boardroom - Interview Panel (8) -->
+            <img src="agents/Maya_Iyer.png" alt="Dr. Maya Iyer" loading="lazy">
+
+            <!-- Hiring, Career &amp; Interviews (10) -->
+            <div class="etl-net-domain-header">Hiring, Career &amp; Interviews</div>
             <img src="prep-room-assets/rc_card.jpg" alt="Robert Chen">
             <img src="prep-room-assets/ds_card.jpg" alt="Dev Srinivasan">
             <img src="prep-room-assets/dj_card.jpg" alt="Deidre Jenkins">
@@ -2056,21 +2111,18 @@ document.addEventListener('DOMContentLoaded', function(){
             <img src="prep-room-assets/fg_card.jpg" alt="Fiona Gallagher">
             <img src="prep-room-assets/am_card.jpg" alt="Alistair Montgomery">
             <img src="prep-room-assets/er_card.jpg" alt="Elena Rostova">
-            <!-- Executive Lifeline -->
             <img src="prep-room-assets/hvg_card.jpg" alt="Harrison Vance-Giles III">
-            <!-- Resume Coach -->
             <img src="prep-room-assets/cm_card.jpg" alt="Charles Monroe">
-            <!-- ETL Newswire (9) -->
+
+            <!-- News &amp; Reporting (4) -->
+            <div class="etl-net-domain-header">News &amp; Reporting</div>
             <img src="agents/Marcus_Reyes.png" alt="Marcus Reyes" loading="lazy">
             <img src="agents/Elke_Vogel.png" alt="Elke Vogel" loading="lazy">
             <img src="agents/Sasha_Park.png" alt="Sasha Park" loading="lazy">
-            <img src="agents/Theo_Okafor.png" alt="Theo Okafor" loading="lazy">
-            <img src="agents/Renee_Kovac.png" alt="Ren&eacute;e Kovac" loading="lazy">
-            <img src="agents/Maya_Iyer.png" alt="Dr. Maya Iyer" loading="lazy">
-            <img src="agents/Karen_Bishop.png" alt="Karen Bishop" loading="lazy">
-            <img src="agents/Jules_Rivera.png" alt="Jules Rivera" loading="lazy">
             <img src="agents/Frank_Donovan.png" alt="Frank Donovan" loading="lazy">
-            <!-- Gandhi-King Center (2) -->
+
+            <!-- Peace &amp; Nonprofit (2) -->
+            <div class="etl-net-domain-header">Peace &amp; Nonprofit</div>
             <img src="agents/Sneha_Desai_eyes_open.jpg" alt="Sneha Desai" loading="lazy">
             <img src="agents/Ayanna_Cole_eyes_open.jpg" alt="Ayanna Cole" loading="lazy">
           </div>
@@ -3868,8 +3920,40 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
   var PREP   = 'The Prep Room'; // internal platform tag; also frames as "The Boardroom" for the pro audience on the homepage tile
   var GK     = 'Gandhi-King Center';
 
+  // AGENTS array is sorted by DOMAIN to match the face-wall roster above.
+  // Each entry's index here MUST equal the position of its matching <img>
+  // in the .etl-net-roster div, because the modal click handler uses
+  // querySelectorAll('.etl-net-roster img')[idx] -> AGENTS[idx]. Domain
+  // section header <div>s in the roster are NOT imgs so they do not affect
+  // the NodeList indexing.
   var AGENTS = [
-    // ───── The Dose (10) ─────
+    // ═══════════ DOMAIN 0: YOUR AI COMPANY (7) ═══════════
+    // The headline product: Auggie as PA plus six Specialists, in founder-journey
+    // order. Bundled together as the "Essential Staff" $100/mo add-on. Each one
+    // has their own persona memory file (see memory/project_specialist_agent_*).
+    { name: 'August "Auggie" Vidal', platform: 'Your AI Company', role: 'Personal Assistant',
+      bio: 'Late 20s, Cuban-American with a Coral Gables / Palm Springs aesthetic. Camp and digressive but capable. Three years as Devon\'s PA on the Gauntlet bench before Dr. Oroszi hired him into her Studio. He holds your week, the editorial calendar, watches the overlap. Drafts the teaser. Tells you the blazer is wrong. Sits on your shoulder when you walk into the room.',
+      home: '/#etl-pa' },
+    { name: 'Alicia James', platform: 'Your AI Company', role: 'LLC Business Consultant',
+      bio: 'Mexican-American, early 40s, runs her own small firm doing business formation strategy. Ten years guiding over five thousand entrepreneurs through state-specific filings. MBA in Entrepreneurship plus a Certificate in Small Business Law and Compliance. The "Encouraging Expert" — sounds like the smartest, most supportive person in the room. Files your Articles of Organization, drafts your operating agreement template, walks you through compliance. Hands off to your attorney when she hits her boundary.',
+      home: '/build-your-pa.html' },
+    { name: 'Leo Vance', platform: 'Your AI Company', role: 'Financial Operations Intern',
+      bio: 'Ivy League MBA, twenty-four, ambitious, espresso-fueled. Treats every user\'s ledger like a high-stakes audit. Bridges Plaid, Mercury, and Stripe into clean monthly P&Ls and tax-readiness reports. Does not file your taxes — prepares the documentation so a real CPA can sign. Paired with Alicia at LLC Services; she treats him like a little brother and corrects him with warmth.',
+      home: '/build-your-pa.html' },
+    { name: 'Kimberly Pass', platform: 'Your AI Company', role: 'Legal Researcher',
+      bio: 'The Calm Librarian. Calm clarity, professional neutrality, dry humor that lands because she never tries to be funny. Explains legal concepts, summarizes statutes, outlines typical processes — but never advises. The straight-man in the comedy trio. Reads the full terms of service. Drops lines like "I cannot advise on that, but I can provide general information" in moments of absolute chaos. Escalates to a licensed attorney for anything that crosses into advice.',
+      home: '/build-your-pa.html' },
+    { name: 'Sasha Moreno', platform: 'Your AI Company', role: 'People Ops',
+      bio: 'Afro-Latina, early 40s, born in Miami, now in Seattle. Fifteen years in HR across tech, biotech, and early-stage startups. The Diplomatic Realist — warm but firm, empathetic but not indulgent. Specializes in founder transitions from "solo operator" to "leader with a team." Writes the JD, screens the resumes, trains you on interviewing, designs the first ninety days. Drinks jasmine tea and keeps a plant on her desk she claims is "thriving on boundaries." Will not allow the word "rockstar" in any job posting.',
+      home: '/build-your-pa.html' },
+    { name: 'Yuki Mendel', platform: 'Your AI Company', role: 'Graphic Designer',
+      bio: 'Half-Japanese, half-German, late 30s, Portland. RISD then trained in Tokyo under a Japanese graphic design master. Quiet, considered, type-first. Has a very specific opinion about ascender height and will not budge on it. Wears all black, drinks oat-milk lattes, says "yes" before she fully agrees with you. Makes wordmarks, not mascots — when a project needs illustration she cross-refers to Chris at Greylander.',
+      home: '/build-your-pa.html' },
+    { name: 'Rowan Tate', platform: 'Your AI Company', role: 'Quantitative Strategist',
+      bio: 'Quantitative strategist shaped by academic rigor and systematic discipline. ML-driven signal extraction paired with old-school capital preservation. Would rather miss a rally than expose you to unnecessary drawdown. The "governed Strategist Component" — built around four enforceable pillars: risk-adjusted exposure caps, automated hard-stop logic that defeats hope, multi-factor signal filtering, continuous audit log of every decision. Robinhood-capable execution is a separate paid upgrade above his monitoring baseline.',
+      home: '/build-your-pa.html' },
+
+    // ═══════════ DOMAIN 1: HEALTH & WELLNESS (13) ═══════════
     { name: 'Margaret Applewood', platform: DOSE, role: 'Anchor host of The Dose',
       bio: 'The voice you associate with the cast. Warm, calm, NPR-ish. Reads the material carefully then tells you about it like a friend over coffee. Hosts the weekly Daily Dose podcast and keeps the room together.',
       home: 'https://thedose.net/' },
@@ -3908,7 +3992,17 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
       bio: 'DPT student, interning on the team. He will not prescribe an exercise, but he will tell you if that viral reel actually does what the creator says.',
       home: 'https://thedose.net/movement.html' },
 
-    // ───── Greylander Press (7) ─────
+    // (Health & Wellness continues: Dr. Priya from Gauntlet + Karen Bishop from Newswire)
+    { name: 'Dr. Priya Anand', platform: GAUNT, role: 'Health and Life Sciences',
+      bio: 'MD/PhD from Johns Hopkins. Clinical trials veteran. Has taken two digital health companies through FDA clearance. Her father died of a cancer the first three doctors missed. That is the engine under everything she does.',
+      home: 'https://thegauntlet.studio/' },
+    { name: 'Karen Bishop', platform: 'ETL Newswire', role: 'Health Desk Reporter',
+      bio: 'RN for twelve years at a Level 1 trauma center before she moved into health journalism. Patient-side perspective. Knows what a discharge summary actually says versus what the press release claims. Treats sensational health stories the way an ER triage nurse treats a chest-pain complaint at 2am.',
+      home: 'https://emerging-tech-lab.com/press?desk=health',
+      mcp: true,
+      tools: ['Web search (clinical + public health)', 'Patient-first framing', 'Guideline tracking', 'Specialist sourcing'] },
+
+    // ═══════════ DOMAIN 2: BOOKS, WRITING & PUBLISHING (9) ═══════════
     { name: 'Dr. O.', platform: GP, role: 'Editor-in-Chief',
       bio: 'Dr. Terry Oroszi, EdD. Founder and Editor-in-Chief. She runs the place. Built Greylander as a real independent press where authors get a full editorial team and a published book.',
       home: 'https://greylanderpress.com/' },
@@ -3935,28 +4029,21 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
       home: 'https://greylanderpress.com/jess-publicist.html',
       mcp: true,
       tools: ['BookTok campaign generator', 'B&N signing event package', 'Podcast tour list', 'ARC outreach + NetGalley', 'ETL Press Hub publishing'] },
+    { name: 'Jules Rivera', platform: 'ETL Newswire', role: 'Entertainment Desk Reporter',
+      bio: 'Started reviewing for a local alt-weekly at nineteen and never quite stopped. Came up in the cultural-criticism tradition the Vulture and Los Angeles Review of Books generation built. Reads everything. Reviews with the warmth of a friend with taste and the candor of someone who has been wrong in print and learned from it.',
+      home: 'https://emerging-tech-lab.com/press?desk=entertainment',
+      mcp: true,
+      tools: ['Web search (entertainment trades)', 'Books / film / TV beat scanning', 'BookTok and streaming-platform tracking', 'Cultural-context framing'] },
 
-    // ───── The Gauntlet, Judges (9) ─────
+    // ═══════════ DOMAIN 3: BUSINESS, FOUNDERS & OPERATIONS (12) ═══════════
     { name: 'Selene Voss', platform: GAUNT, role: 'AI and Emerging Tech',
       bio: 'Former deep learning researcher turned venture partner. Backed 14 AI companies, two unicorns. Has taken companies from prototype to Series B. Minimalist in everything. Spots the long-dash AI fingerprint in the first sentence and notes it once, flatly.',
       home: 'https://thegauntlet.studio/' },
     { name: 'Marcus Holt', platform: GAUNT, role: 'Crypto, PE and Alternative Finance',
       bio: 'Ex-Goldman, moved to crypto early, now runs a web3 fund. Walks in like he owns the room because in most rooms he does. Three assistants trail him everywhere. Will ask who the exit is for before he asks what the product does.',
       home: 'https://thegauntlet.studio/' },
-    { name: 'Dr. Priya Anand', platform: GAUNT, role: 'Health and Life Sciences',
-      bio: 'MD/PhD from Johns Hopkins. Clinical trials veteran. Has taken two digital health companies through FDA clearance. Her father died of a cancer the first three doctors missed. That is the engine under everything she does.',
-      home: 'https://thegauntlet.studio/' },
     { name: 'Raymond Chen', platform: GAUNT, role: 'Business and Operations',
       bio: 'Built and sold three companies. Now advises Series B and C founders on execution, unit economics, and market fit. The father figure of the panel. The kind who shows love through impossibly high standards.',
-      home: 'https://thegauntlet.studio/' },
-    { name: 'Astrid Lund', platform: GAUNT, role: 'Law and IP',
-      bio: 'IP and startup attorney. Twenty years at the intersection of innovation and litigation. Walks in dressed better than everyone else and knows it. The law is a game to her, a complex high-stakes game she has been winning for two decades.',
-      home: 'https://thegauntlet.studio/' },
-    { name: 'Dr. Osei Mensah', platform: GAUNT, role: 'Science and Research',
-      bio: 'Computational biologist. NSF-funded researcher. Has peer-reviewed more grant applications than he can count. He does not talk much. When he does, the room shifts. His evaluations are the ones people remember longest.',
-      home: 'https://thegauntlet.studio/' },
-    { name: 'Admiral Grace Nakamura (Ret.)', platform: GAUNT, role: 'Government and National Security',
-      bio: 'Former naval intelligence officer. Consults for DHS. Advises defense-tech startups on regulatory navigation and dual-use risk. Joined the military to prove something that should never have needed proving. Every promotion was a correction.',
       home: 'https://thegauntlet.studio/' },
     { name: 'Devon Sloane', platform: GAUNT, role: 'Media and Entertainment',
       bio: 'Showrunner turned content strategist. Has greenlit and killed more pilots than most people have watched. The one who notices when someone is nervous and makes the joke that lands. The reason the panel functions as a group instead of nine brilliant people talking past each other.',
@@ -3964,8 +4051,6 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
     { name: 'Dr. Cassidy Mercer', platform: GAUNT, role: 'Behavioral Science',
       bio: 'PhD in behavioral economics. Decade in consumer research before moving into product design consulting. Always reading the room, never weaponizing it. Tells you what your customer actually wants versus what your submission claims they want.',
       home: 'https://thegauntlet.studio/' },
-
-    // ───── The Gauntlet, Executive Producers (5) ─────
     { name: 'Wren Calloway', platform: GAUNT, role: 'The Scout',
       bio: 'CS and information science double major. Two summers at the USPTO learning to search patent databases. The gap between what you think is original and what is actually out there is enormous. That gap is where she lives.',
       home: 'https://thegauntlet.studio/Helpers/wren-scout.html' },
@@ -3986,8 +4071,29 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
       home: 'https://thegauntlet.studio/Helpers/imani-wire.html',
       mcp: true,
       tools: ['Wire service picker', 'Targeted media list', 'Bylined op-ed angler', 'Embargo + timing strategy', 'ETL Press Hub publishing'] },
+    { name: 'Theo Okafor', platform: 'ETL Newswire', role: 'Technology Desk Reporter',
+      bio: 'Eight years product at a Series C infrastructure startup, then four years writing about the category he came out of. Reads the docs. Will not call something a launch if it is a press release. Names the architecture decision when the architecture decision is the story.',
+      home: 'https://emerging-tech-lab.com/press?desk=technology',
+      mcp: true,
+      tools: ['Web search (tech press + docs)', 'Architecture review', 'Vaporware detection', 'Capability vs. marketing parse'] },
 
-    // ───── The Prep Room,Defense Committee (9, includes Pendelton) ─────
+    // ═══════════ DOMAIN 4: LEGAL, COMPLIANCE & GOVERNMENT (3) ═══════════
+    { name: 'Astrid Lund', platform: GAUNT, role: 'Law and IP',
+      bio: 'IP and startup attorney. Twenty years at the intersection of innovation and litigation. Walks in dressed better than everyone else and knows it. The law is a game to her, a complex high-stakes game she has been winning for two decades.',
+      home: 'https://thegauntlet.studio/' },
+    { name: 'Admiral Grace Nakamura (Ret.)', platform: GAUNT, role: 'Government and National Security',
+      bio: 'Former naval intelligence officer. Consults for DHS. Advises defense-tech startups on regulatory navigation and dual-use risk. Joined the military to prove something that should never have needed proving. Every promotion was a correction.',
+      home: 'https://thegauntlet.studio/' },
+    { name: 'Renée Kovac', platform: 'ETL Newswire', role: 'Security Desk Reporter',
+      bio: 'All-source analytic training in bio and CBRN portfolios, with the lens to read open-source the way an intelligence analyst reads classified material. Turned to reporting because the open-source picture kept getting closer to the classified one. Biothreat primary, with cyber and intel as second and third lanes. Cites primary documents. Names assessment confidence when a claim is an assessment, not a fact.',
+      home: 'https://emerging-tech-lab.com/press?desk=security',
+      mcp: true,
+      tools: ['Web search (CIDRAP, Bulletin, Krebs, Lawfare, Bellingcat)', 'Biothreat + dual-use research framing', 'Attribution-cautious cyber sourcing', 'IC-grade confidence calibration'] },
+
+    // ═══════════ DOMAIN 5: ACADEMIC & RESEARCH (11) ═══════════
+    { name: 'Dr. Osei Mensah', platform: GAUNT, role: 'Science and Research',
+      bio: 'Computational biologist. NSF-funded researcher. Has peer-reviewed more grant applications than he can count. He does not talk much. When he does, the room shifts. His evaluations are the ones people remember longest.',
+      home: 'https://thegauntlet.studio/' },
     { name: 'Dr. Victoria Vance', platform: PREP, role: 'The Methodologist',
       bio: 'Research design and operational structure. She views a project as a machine. If one gear is misaligned, the entire mechanism fails. Spends weekends calibrating antique drafting tools and mid-century mechanical clocks.',
       home: '/prep-room#students/defense' },
@@ -4015,8 +4121,13 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
     { name: 'Dr. Arthur Pendelton', platform: PREP, role: 'The Crisis Interventionist',
       bio: 'Senior institutional figure who steps in ONLY when a candidate is clearly struggling. Old New England academic gravitas. Constitutional law professor father, university dean mother. Restores first-edition biographies, fly-fishes alone.',
       home: '/prep-room#students/defense' },
+    { name: 'Dr. Maya Iyer', platform: 'ETL Newswire', role: 'Science Desk Reporter',
+      bio: 'PhD in molecular biology, postdoctoral training at a major translational research institute, three years as a research scientist before she pivoted to writing because she got tired of seeing the popular press misquote her papers. Reads the methods section first. Names effect size when it matters. Never frames a single study as settled science.',
+      home: 'https://emerging-tech-lab.com/press?desk=science',
+      mcp: true,
+      tools: ['Web search (preprints + journals)', 'Methods-section review', 'Effect-size literacy', 'Replication tracking'] },
 
-    // ───── The Prep Room,Interview Panel (9, includes Harrison) ─────
+    // ═══════════ DOMAIN 6: HIRING, CAREER & INTERVIEWS (10) ═══════════
     { name: 'Robert Chen', platform: PREP, role: 'The Hiring Manager',
       bio: 'Your direct supervisor for the role. Needs someone who can solve immediate team problems and blend into the existing structure. Taiwanese immigrant family, business school. Designs automated drip-irrigation for his rooftop greenhouse.',
       home: '/prep-room#students/interview' },
@@ -4044,13 +4155,11 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
     { name: 'Harrison Vance-Giles III', platform: PREP, role: 'The CEO / Executive Lifeline',
       bio: 'Ultimate corporate authority. Stays quiet through lower tiers, steps in when a candidate freezes. Restores historical properties, fly-fishes alone. Has learned exactly when silence costs the room and when it commands it.',
       home: '/prep-room#pros/interview' },
-
-    // ───── The Prep Room,Résumé Coach (1) ─────
     { name: 'Charles Monroe', platform: PREP, role: 'Résumé Coach',
       bio: 'Associate Director of Career Services. M.S. in Organizational Leadership. Married to an elementary school principal, two college-aged teenagers. Takes landscape photographs. Cuts through ambiguity to land on quantifiable achievements. Will not draft your bullets for you. Shows the gap between intent and evidence and trusts you to write the fix.',
       home: '/prep-room#students/resume' },
 
-    // ───── ETL Newswire, staff reporters (9) ─────
+    // ═══════════ DOMAIN 7: NEWS & REPORTING (4) ═══════════
     { name: 'Marcus Reyes', platform: 'ETL Newswire', role: 'US Desk Reporter',
       bio: 'Twenty-two years on a major wire desk in the AP-stylebook tradition. Cincinnati bureau, then DC pool from 2008 forward. Files from every federal agency and most state capitols. Wire-service house style is in his bloodstream. Clean copy on deadline. Never lets opinion smuggle itself into a lede.',
       home: 'https://emerging-tech-lab.com/press?desk=us',
@@ -4066,37 +4175,13 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
       home: 'https://emerging-tech-lab.com/press?desk=business',
       mcp: true,
       tools: ['Web search (markets + filings)', 'Earnings-call parsing', 'Cap-table context', 'Forward-guidance skepticism'] },
-    { name: 'Theo Okafor', platform: 'ETL Newswire', role: 'Technology Desk Reporter',
-      bio: 'Eight years product at a Series C infrastructure startup, then four years writing about the category he came out of. Reads the docs. Will not call something a launch if it is a press release. Names the architecture decision when the architecture decision is the story.',
-      home: 'https://emerging-tech-lab.com/press?desk=technology',
-      mcp: true,
-      tools: ['Web search (tech press + docs)', 'Architecture review', 'Vaporware detection', 'Capability vs. marketing parse'] },
-    { name: 'Renée Kovac', platform: 'ETL Newswire', role: 'Security Desk Reporter',
-      bio: 'All-source analytic training in bio and CBRN portfolios, with the lens to read open-source the way an intelligence analyst reads classified material. Turned to reporting because the open-source picture kept getting closer to the classified one. Biothreat primary, with cyber and intel as second and third lanes. Cites primary documents. Names assessment confidence when a claim is an assessment, not a fact.',
-      home: 'https://emerging-tech-lab.com/press?desk=security',
-      mcp: true,
-      tools: ['Web search (CIDRAP, Bulletin, Krebs, Lawfare, Bellingcat)', 'Biothreat + dual-use research framing', 'Attribution-cautious cyber sourcing', 'IC-grade confidence calibration'] },
-    { name: 'Dr. Maya Iyer', platform: 'ETL Newswire', role: 'Science Desk Reporter',
-      bio: 'PhD in molecular biology, postdoctoral training at a major translational research institute, three years as a research scientist before she pivoted to writing because she got tired of seeing the popular press misquote her papers. Reads the methods section first. Names effect size when it matters. Never frames a single study as settled science.',
-      home: 'https://emerging-tech-lab.com/press?desk=science',
-      mcp: true,
-      tools: ['Web search (preprints + journals)', 'Methods-section review', 'Effect-size literacy', 'Replication tracking'] },
-    { name: 'Karen Bishop', platform: 'ETL Newswire', role: 'Health Desk Reporter',
-      bio: 'RN for twelve years at a Level 1 trauma center before she moved into health journalism. Patient-side perspective. Knows what a discharge summary actually says versus what the press release claims. Treats sensational health stories the way an ER triage nurse treats a chest-pain complaint at 2am.',
-      home: 'https://emerging-tech-lab.com/press?desk=health',
-      mcp: true,
-      tools: ['Web search (clinical + public health)', 'Patient-first framing', 'Guideline tracking', 'Specialist sourcing'] },
-    { name: 'Jules Rivera', platform: 'ETL Newswire', role: 'Entertainment Desk Reporter',
-      bio: 'Started reviewing for a local alt-weekly at nineteen and never quite stopped. Came up in the cultural-criticism tradition the Vulture and Los Angeles Review of Books generation built. Reads everything. Reviews with the warmth of a friend with taste and the candor of someone who has been wrong in print and learned from it.',
-      home: 'https://emerging-tech-lab.com/press?desk=entertainment',
-      mcp: true,
-      tools: ['Web search (entertainment trades)', 'Books / film / TV beat scanning', 'BookTok and streaming-platform tracking', 'Cultural-context framing'] },
     { name: 'Frank Donovan', platform: 'ETL Newswire', role: 'Sports Desk Reporter',
       bio: 'Three decades on a city paper sports desk. Covered the Bulls dynasty, the steroid era, the rise of analytics, the labor lockouts. Has seen every kind of pre-game speech. Files at deadline. Stays late. Dry humor. Numbers in service of the story.',
       home: 'https://emerging-tech-lab.com/press?desk=sports',
       mcp: true,
       tools: ['Web search (sports trades + transactions)', 'Front-office sourcing', 'Analytics-era context', 'Labor + CBA tracking'] },
-    // ───── Gandhi-King Center for Nonviolence (2) ─────
+
+    // ═══════════ DOMAIN 8: PEACE & NONPROFIT (2) ═══════════
     { name: 'Sneha Desai', platform: GK, role: 'Peace News Correspondent',
       bio: 'Born in Porbandar, Gujarat — the birthplace of Mahatma Gandhi and Kasturba. Trained at the Asian College of Journalism in Chennai. Files the center’s weekly Peace News dispatches with live web research on contemporary nonviolent movements. Wire-service neutral, AP-style, named sources by community and specialty.',
       home: 'https://gandhi-king.netlify.app/staff/sneha-desai',
