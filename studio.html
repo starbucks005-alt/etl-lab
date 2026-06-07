@@ -405,12 +405,16 @@
 
     <div style="display:grid; grid-template-columns: minmax(220px, 280px) 1fr; gap:32px; align-items:start;">
 
-      <!-- Auggie's portrait + tiny bio -->
+      <!-- Auggie's portrait + tiny bio.
+           Uses the Zoom-frame blink pair (camel suede blazer, palm fronds,
+           "August Vidal (Auggie) (he/him)" caption) so when Terry opens the
+           Studio it reads as Auggie is on a video call with her right now.
+           Slow blink every 8.4 seconds, same animation pattern Imani uses
+           on the homepage Live Platforms card. -->
       <div>
-        <div style="position:relative; overflow:hidden; border:1px solid var(--linen-edge); background:#fff;">
-          <img id="auggie-portrait" src="/agents/Auggie_profile.png" alt="August Vidal, chief of staff"
-               style="width:100%; height:auto; display:block;"
-               onerror="this.outerHTML='<div style=&quot;padding:60px;text-align:center;font-family:serif;font-style:italic;color:#888;&quot;>AV</div>'">
+        <div class="auggie-blink" style="position:relative; overflow:hidden; border:1px solid var(--linen-edge); background:#111;">
+          <img class="auggie-blink-base"   src="/agents/Auggie_zoom_eyes_open.png"   alt="August Vidal on a video call, eyes open" style="display:block; width:100%; height:auto;">
+          <img class="auggie-blink-closed" src="/agents/Auggie_zoom_eyes_closed.png" alt="" aria-hidden="true" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0;">
         </div>
         <div style="font-family:'Playfair Display',serif; font-size:18px; font-weight:700; color:var(--ink); margin-top:14px;">August "Auggie" Vidal</div>
         <div style="font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.18em; color:var(--brass); text-transform:uppercase; margin-top:4px;">Chief of staff</div>
@@ -425,17 +429,28 @@
              style="background:#fff; border:1px solid var(--linen-edge); padding:18px 22px; min-height:240px; max-height:480px; overflow-y:auto; font-family:'Cormorant Garamond',serif; font-size:16px; line-height:1.55; color:var(--ink);">
           <div class="auggie-bubble auggie-bubble--his" style="margin-bottom:14px;">
             <div style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.18em; color:var(--brass); text-transform:uppercase; margin-bottom:4px;">Auggie</div>
-            <div>hi love. what is on your mind.</div>
+            <div>hi Ms. Terry. what are we doing today.</div>
           </div>
         </div>
 
         <form id="auggie-chat-form" style="display:flex; gap:10px; margin-top:14px; align-items:flex-end;">
           <textarea id="auggie-chat-input" rows="2"
-                    placeholder="ask auggie. paste your week. ask him what to wear friday. tell him what to queue."
+                    placeholder="ask auggie. paste your week. ask him to search for new mentions of your name. tell him what to queue."
                     style="flex:1; padding:12px 14px; border:1px solid var(--linen-edge); font-family:'Cormorant Garamond',serif; font-size:16px; line-height:1.5; color:var(--ink); background:#fff; resize:vertical; box-sizing:border-box;"></textarea>
           <button type="submit" id="auggie-chat-send"
                   style="padding:12px 22px; font-family:'DM Mono',monospace; font-size:11px; letter-spacing:0.18em; text-transform:uppercase; background:var(--ink); color:var(--linen); border:none; cursor:pointer; align-self:stretch;">Send</button>
         </form>
+
+        <!-- Quick-search presets. Click a chip to drop a starter search
+             into the input. Auggie has live web search (Anthropic's
+             web_search tool) so he can actually look these up. -->
+        <div class="auggie-preset-row">
+          <button type="button" class="auggie-preset-chip" data-preset="search the web for new mentions of Dr. Terry Oroszi or Dr. Terry L. Oroszi in the last 14 days. tell me anything new.">New mentions of me</button>
+          <button type="button" class="auggie-preset-chip" data-preset="search for any new Forbes Technology Council pieces under my byline or commentary I am quoted in.">New Forbes pieces</button>
+          <button type="button" class="auggie-preset-chip" data-preset="search for any upcoming speaking engagements, conference appearances, or panels where I am listed as a speaker in the next 90 days.">Upcoming speaking</button>
+          <button type="button" class="auggie-preset-chip" data-preset="search for news in AI governance, federal AI policy, or research security in the last 7 days that I should be aware of for the lab.">Field news this week</button>
+        </div>
+
         <div id="auggie-chat-error" style="display:none; margin-top:10px; padding:10px 14px; background:#fdecec; border:1px solid #f0b8b8; color:#7d2828; font-family:'DM Mono',monospace; font-size:11px;"></div>
       </div>
     </div>
@@ -448,6 +463,29 @@
     .auggie-bubble-meta   { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.18em; color:var(--brass); text-transform:uppercase; margin-bottom:4px; }
     .auggie-bubble--mine .auggie-bubble-meta { color: var(--navy-mid); }
     #auggie-chat-input:focus { outline:1px solid var(--brass); }
+    /* Slow blink on the Zoom portrait. Same 8.4-second cycle the Newswire
+       anchor uses on the homepage. Eyes close at 94-96% of the cycle, so
+       Auggie holds open about 7.9 seconds and blinks for roughly 170ms. */
+    .auggie-blink-closed { animation: auggie-blink 8.4s infinite; }
+    @keyframes auggie-blink {
+      0%, 92%   { opacity: 0; }
+      94%, 96%  { opacity: 1; }
+      98%, 100% { opacity: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .auggie-blink-closed { animation: none; opacity: 0; }
+    }
+    /* Quick-search preset chips. Tap a chip to drop a starter search into
+       the chat input. Terry asked for these so she can ask Auggie to scan
+       for her name on demand. */
+    .auggie-preset-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+    .auggie-preset-chip {
+      font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.12em;
+      text-transform:uppercase; color:var(--brass);
+      background:#fbf4e0; border:1px solid var(--brass); padding:6px 12px;
+      cursor:pointer;
+    }
+    .auggie-preset-chip:hover { background:var(--brass); color:#fff; }
   </style>
 
   <!-- THE STAFF -->
@@ -1324,6 +1362,20 @@
       ev.preventDefault();
       form.dispatchEvent(new Event('submit', { cancelable: true }));
     }
+  });
+
+  // Quick-search preset chips. Drop the starter query into the input so
+  // Terry can adjust before sending. (Does not auto-send; she stays in
+  // control of every search Auggie runs.)
+  document.querySelectorAll('.auggie-preset-chip').forEach(function(chip){
+    chip.addEventListener('click', function(){
+      var q = chip.getAttribute('data-preset') || '';
+      if (!q) return;
+      input.value = q;
+      input.focus();
+      // Move cursor to end so she can refine without retyping.
+      input.setSelectionRange(input.value.length, input.value.length);
+    });
   });
 })();
 </script>
