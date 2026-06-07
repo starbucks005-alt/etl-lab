@@ -1465,154 +1465,597 @@
 </script>
 
 <!-- ─────────────────────────────────────────────────────────────────────────
-     AUGGIE ZOOM MODAL. Click his portrait, this opens. Larger Zoom-frame
-     blink + auto-playing audio of him introducing his job as an ETL PA.
-     Audio renders on demand via /studio-auggie-voice (JWT-gated). The
-     intro script lives here as a constant so Auggie says the same thing
-     every time (and we can tune the words without redeploying his chat
-     persona).
+     AUGGIE CALL — full-bleed, fullscreen voice-chat interface.
+     Click his portrait, this opens. Mirrors the Margaret/Dr. O pattern from
+     The Dose and Greylander Press: status pill at top, portrait dominant,
+     transcript panel on the right, bottom input bar (speak / type / send /
+     voice toggle). Push-to-speak via Web Speech API; reuses
+     studio-auggie-chat and studio-auggie-voice backends (both JWT-gated).
      ───────────────────────────────────────────────────────────────────── -->
-<div id="auggie-zoom-modal" role="dialog" aria-modal="true" aria-hidden="true"
-     style="display:none; position:fixed; inset:0; z-index:9998; background:rgba(0,0,0,0.85); padding:24px; align-items:center; justify-content:center;">
-  <div style="max-width:760px; width:100%; background:#0e0c08; color:#f4ebd6; border:1px solid #FDB827; max-height:90vh; overflow-y:auto;">
-    <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 22px; border-bottom:1px solid rgba(253,184,39,0.25); background:#000;">
-      <div style="font-family:'DM Mono',monospace; font-size:11px; letter-spacing:0.18em; color:#FDB827; text-transform:uppercase;">
-        <span style="display:inline-block; width:8px; height:8px; background:#1f8a3a; border-radius:50%; margin-right:8px; vertical-align:middle;"></span>
-        Auggie &middot; Live
-      </div>
-      <button type="button" id="auggie-zoom-close" aria-label="End call"
-              style="font-family:'DM Mono',monospace; font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:#f4ebd6; background:#a02525; border:1px solid #a02525; padding:6px 14px; cursor:pointer;">End call</button>
+<div id="auggie-call" role="dialog" aria-modal="true" aria-hidden="true"
+     style="display:none; position:fixed; inset:0; z-index:9998; background:#0a0a0a; color:#f4ebd6; flex-direction:column;">
+
+  <!-- Top bar: brand + persona name + connected indicator + leave call -->
+  <div class="auggie-call-top">
+    <div class="auggie-call-top-left">
+      <div class="auggie-call-brand">DR. O&rsquo;S STUDIO</div>
+      <button type="button" id="auggie-call-leave" class="auggie-call-leave" aria-label="Leave call">&larr; Leave call</button>
     </div>
-    <div class="auggie-zoom-blink" style="position:relative; overflow:hidden; background:#111;">
-      <img class="auggie-zoom-blink-base"     src="/agents/Auggie_zoom_eyes_open.png"     alt="August Vidal on a Zoom call" style="display:block; width:100%; height:auto;">
-      <img class="auggie-zoom-blink-closed"   src="/agents/Auggie_zoom_eyes_closed.png"   alt="" aria-hidden="true" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0;">
-      <img class="auggie-zoom-blink-thinking" src="/agents/Auggie_zoom_eyes_thinking.png" alt="" aria-hidden="true" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0;">
+    <div class="auggie-call-top-center">
+      <div class="auggie-call-persona-name">August &ldquo;Auggie&rdquo; Vidal</div>
+      <div class="auggie-call-persona-role">Chief of staff</div>
     </div>
-    <div style="padding:22px 24px;">
-      <div style="font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.18em; color:#FDB827; text-transform:uppercase; margin-bottom:6px;">August &ldquo;Auggie&rdquo; Vidal &middot; chief of staff</div>
-      <div style="font-family:'Cormorant Garamond',serif; font-size:15px; font-style:italic; color:#d6cfc0; margin-bottom:14px;">on what it is actually like to be an ETL personal assistant.</div>
-      <audio id="auggie-zoom-audio" controls preload="none" style="width:100%; height:40px;"></audio>
-      <div id="auggie-zoom-status" style="font-family:'Cormorant Garamond',serif; font-size:13px; font-style:italic; color:#d6cfc0; margin-top:10px;">connecting&hellip;</div>
-      <details style="margin-top:18px;">
-        <summary style="font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.18em; color:#FDB827; text-transform:uppercase; cursor:pointer;">Transcript</summary>
-        <div id="auggie-zoom-transcript" style="font-family:'Cormorant Garamond',serif; font-size:15px; line-height:1.7; color:#f4ebd6; white-space:pre-wrap; margin-top:12px;"></div>
-      </details>
+    <div class="auggie-call-top-right">
+      <span class="auggie-call-connected">
+        <span class="auggie-call-signal">▮▮▮</span> Connected
+      </span>
     </div>
   </div>
+
+  <!-- Status pill -->
+  <div class="auggie-call-status-row">
+    <div id="auggie-call-status" class="auggie-call-status" data-kind="ready">
+      <span class="auggie-call-status-dot"></span>
+      <span class="auggie-call-status-text">Auggie is on. Ma&rsquo;am.</span>
+    </div>
+  </div>
+
+  <!-- Stage: portrait left, transcript right -->
+  <div class="auggie-call-stage">
+    <div class="auggie-call-portrait-wrap">
+      <div id="auggie-call-portrait" class="auggie-call-portrait">
+        <img class="auggie-call-portrait-base"     src="/agents/Auggie_zoom_eyes_open.png"     alt="August Vidal on a video call" style="display:block; width:100%; height:auto;">
+        <img class="auggie-call-portrait-closed"   src="/agents/Auggie_zoom_eyes_closed.png"   alt="" aria-hidden="true">
+        <img class="auggie-call-portrait-thinking" src="/agents/Auggie_zoom_eyes_thinking.png" alt="" aria-hidden="true">
+      </div>
+    </div>
+    <aside id="auggie-call-transcript-wrap" class="auggie-call-transcript-wrap">
+      <div class="auggie-call-transcript-head">
+        <span class="auggie-call-transcript-label">Transcript</span>
+        <button type="button" id="auggie-call-transcript-toggle" class="auggie-call-transcript-toggle" aria-label="Hide transcript">−</button>
+      </div>
+      <div id="auggie-call-transcript" class="auggie-call-transcript">
+        <div class="auggie-call-empty">Say hello, or ask anything. Auggie is listening.</div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Bottom input bar: speak + text + send + voice toggle -->
+  <form id="auggie-call-form" class="auggie-call-form">
+    <button type="button" id="auggie-call-mic" class="auggie-call-mic" hidden>
+      <span aria-hidden="true">🎙</span><span class="auggie-call-btn-label">Speak</span>
+    </button>
+    <input type="text" id="auggie-call-input" class="auggie-call-input"
+           placeholder="Type your question, or press the mic to speak"
+           autocomplete="off">
+    <button type="submit" id="auggie-call-send" class="auggie-call-send">Send</button>
+    <button type="button" id="auggie-call-mute" class="auggie-call-mute" aria-pressed="false">
+      <span aria-hidden="true">🔊</span><span class="auggie-call-btn-label">Voice</span>
+    </button>
+  </form>
+
   <style>
-    .auggie-zoom-blink-closed { animation: auggie-blink 8.4s infinite; }
-    /* Thinking glance: longer hold than a blink, slower cycle. Auggie
-       looks up while listening every ~26s, holds for ~1.5s. Async to the
-       blink so they do not collide visually. */
-    .auggie-zoom-blink-thinking { animation: auggie-think 25.7s infinite; }
-    @keyframes auggie-think {
-      0%, 88%   { opacity: 0; }
-      90%, 94%  { opacity: 1; }
-      96%, 100% { opacity: 0; }
+    #auggie-call.is-open { display:flex !important; }
+    .auggie-call-top {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 22px;
+      border-bottom:1px solid rgba(184,146,42,0.25);
+      background:#000;
+    }
+    .auggie-call-top-left, .auggie-call-top-right {
+      display:flex; align-items:center; gap:14px;
+      flex:1;
+    }
+    .auggie-call-top-right { justify-content:flex-end; }
+    .auggie-call-top-center {
+      flex:1; text-align:center;
+    }
+    .auggie-call-brand {
+      font-family:'DM Mono',monospace; font-size:11px; letter-spacing:0.22em;
+      color:#FDB827; text-transform:uppercase;
+    }
+    .auggie-call-leave {
+      font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.15em;
+      text-transform:uppercase; color:#d6cfc0;
+      background:transparent; border:1px solid rgba(214,207,192,0.3);
+      padding:5px 10px; cursor:pointer;
+    }
+    .auggie-call-leave:hover { color:#fff; border-color:#fff; }
+    .auggie-call-persona-name {
+      font-family:'Playfair Display',serif; font-size:18px; font-weight:700;
+      color:#fff;
+    }
+    .auggie-call-persona-role {
+      font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.18em;
+      color:#d6cfc0; text-transform:uppercase; margin-top:2px;
+    }
+    .auggie-call-connected {
+      font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.15em;
+      color:#d6cfc0; text-transform:uppercase;
+      display:flex; align-items:center; gap:6px;
+    }
+    .auggie-call-signal { color:#1f8a3a; letter-spacing:1px; }
+
+    .auggie-call-status-row {
+      display:flex; justify-content:center;
+      padding:14px 22px 0;
+    }
+    .auggie-call-status {
+      display:inline-flex; align-items:center; gap:8px;
+      padding:7px 14px;
+      background:rgba(184,146,42,0.08);
+      border:1px solid rgba(184,146,42,0.3);
+      border-radius:18px;
+      font-family:'DM Mono',monospace; font-size:11px; letter-spacing:0.1em;
+      color:#f4ebd6;
+    }
+    .auggie-call-status-dot {
+      display:inline-block; width:8px; height:8px; border-radius:50%;
+      background:#1f8a3a;
+    }
+    .auggie-call-status[data-kind="listening"] .auggie-call-status-dot {
+      background:#FDB827; animation:auggie-call-pulse 1.2s ease-in-out infinite;
+    }
+    .auggie-call-status[data-kind="thinking"] .auggie-call-status-dot { background:#d6cfc0; }
+    .auggie-call-status[data-kind="speaking"] .auggie-call-status-dot {
+      background:#FDB827; animation:auggie-call-pulse 0.5s ease-in-out infinite;
+    }
+    .auggie-call-status[data-kind="error"]    .auggie-call-status-dot { background:#a02525; }
+    @keyframes auggie-call-pulse {
+      0%, 100% { opacity:1; transform:scale(1); }
+      50%      { opacity:0.5; transform:scale(0.75); }
+    }
+
+    .auggie-call-stage {
+      flex:1;
+      display:grid;
+      grid-template-columns: 1fr minmax(280px, 360px);
+      gap:24px;
+      padding:22px;
+      min-height:0;
+    }
+    .auggie-call-portrait-wrap {
+      display:flex; align-items:center; justify-content:center;
+      min-height:0;
+    }
+    .auggie-call-portrait {
+      position:relative;
+      max-height:100%;
+      max-width:100%;
+      border:1px solid rgba(184,146,42,0.4);
+      background:#111;
+      overflow:hidden;
+    }
+    .auggie-call-portrait img {
+      display:block; max-width:100%; max-height:75vh; width:auto; height:auto;
+    }
+    .auggie-call-portrait-closed, .auggie-call-portrait-thinking {
+      position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0;
+    }
+    /* Blink only during ready/listening states. Thinking/speaking suppress
+       the blink so the state animations don't fight each other. */
+    .auggie-call-portrait.is-idle .auggie-call-portrait-closed {
+      animation: auggie-call-blink 8.4s infinite;
+    }
+    .auggie-call-portrait.is-thinking .auggie-call-portrait-thinking { opacity:1; }
+    @keyframes auggie-call-blink {
+      0%, 92%   { opacity:0; }
+      94%, 96%  { opacity:1; }
+      98%, 100% { opacity:0; }
     }
     @media (prefers-reduced-motion: reduce) {
-      .auggie-zoom-blink-thinking { animation: none; opacity: 0; }
+      .auggie-call-portrait-closed, .auggie-call-portrait-thinking { animation:none !important; opacity:0; }
+    }
+
+    .auggie-call-transcript-wrap {
+      background:rgba(184,146,42,0.04);
+      border:1px solid rgba(184,146,42,0.2);
+      padding:14px;
+      display:flex; flex-direction:column;
+      min-height:0;
+    }
+    .auggie-call-transcript-head {
+      display:flex; justify-content:space-between; align-items:center;
+      padding-bottom:10px;
+      border-bottom:1px solid rgba(184,146,42,0.2);
+      margin-bottom:10px;
+    }
+    .auggie-call-transcript-label {
+      font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.2em;
+      color:#FDB827; text-transform:uppercase;
+    }
+    .auggie-call-transcript-toggle {
+      background:transparent; border:1px solid rgba(184,146,42,0.3);
+      color:#d6cfc0; cursor:pointer;
+      font-family:'DM Mono',monospace; font-size:14px;
+      width:22px; height:22px; padding:0; line-height:1;
+    }
+    .auggie-call-transcript {
+      flex:1;
+      overflow-y:auto;
+      font-family:'Cormorant Garamond',serif; font-size:15px; line-height:1.55;
+    }
+    .auggie-call-empty {
+      font-style:italic; color:#9a8e7e; padding:8px 4px;
+    }
+    .auggie-call-bubble {
+      padding:8px 12px; margin-bottom:10px;
+      border-left:3px solid transparent;
+    }
+    .auggie-call-bubble--mine {
+      border-left-color:#d6cfc0; background:rgba(214,207,192,0.06); color:#f4ebd6;
+    }
+    .auggie-call-bubble--his {
+      border-left-color:#FDB827; background:rgba(184,146,42,0.08); color:#f4ebd6;
+    }
+    .auggie-call-bubble-meta {
+      font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.18em;
+      text-transform:uppercase; margin-bottom:3px; color:#FDB827;
+    }
+    .auggie-call-bubble--mine .auggie-call-bubble-meta { color:#d6cfc0; }
+
+    .auggie-call-form {
+      display:flex; align-items:center; gap:10px;
+      padding:14px 22px;
+      border-top:1px solid rgba(184,146,42,0.25);
+      background:#000;
+    }
+    .auggie-call-mic, .auggie-call-send, .auggie-call-mute {
+      font-family:'DM Mono',monospace; font-size:11px; letter-spacing:0.12em;
+      text-transform:uppercase;
+      padding:10px 16px; cursor:pointer;
+      border:1px solid rgba(184,146,42,0.5);
+      display:inline-flex; align-items:center; gap:8px;
+    }
+    .auggie-call-mic {
+      background:#1f8a3a; color:#fff; border-color:#1f8a3a;
+    }
+    .auggie-call-mic.is-active {
+      background:#FDB827; color:#0e0c08; border-color:#FDB827;
+      animation:auggie-call-pulse 1.2s ease-in-out infinite;
+    }
+    .auggie-call-mic.is-blocked { background:#444; border-color:#444; cursor:not-allowed; }
+    .auggie-call-send {
+      background:#FDB827; color:#0e0c08; border-color:#FDB827;
+    }
+    .auggie-call-send:disabled { opacity:0.5; cursor:not-allowed; }
+    .auggie-call-mute {
+      background:transparent; color:#d6cfc0;
+    }
+    .auggie-call-mute[aria-pressed="true"] {
+      color:#a02525; border-color:#a02525;
+    }
+    .auggie-call-input {
+      flex:1; padding:11px 14px;
+      font-family:'Cormorant Garamond',serif; font-size:15px;
+      background:#0e0c08; color:#f4ebd6;
+      border:1px solid rgba(184,146,42,0.35);
+    }
+    .auggie-call-input:focus { outline:1px solid #FDB827; border-color:#FDB827; }
+    .auggie-call-input:disabled { opacity:0.6; }
+
+    .auggie-call-mic-note {
+      background:#5a1818; color:#f4ebd6; padding:10px 14px;
+      margin:0 22px 10px; font-family:'Cormorant Garamond',serif; font-size:13px;
+      border-left:3px solid #a02525;
+    }
+
+    /* Stack stage vertically on narrow screens; transcript drops below portrait */
+    @media (max-width: 880px) {
+      .auggie-call-stage { grid-template-columns: 1fr; }
+      .auggie-call-portrait img { max-height:50vh; }
+      .auggie-call-top-center { display:none; }
     }
   </style>
 </div>
 
 <script>
-/* Auggie Zoom modal wiring. Click portrait -> open -> render audio via
-   studio-auggie-voice -> autoplay. First open takes 2-4 seconds while
-   ElevenLabs renders; cached after that for the page session. End-call
-   button (or Escape, or clicking the overlay) closes and pauses audio. */
+/* Auggie Call wiring. Mirrors the margaret-call.js pattern with three swaps:
+   - chat backend: /studio-auggie-chat (JWT-gated; returns {reply, persona})
+   - voice backend: /studio-auggie-voice (JWT-gated; returns {audioBase64, mimeType})
+   - persona / status copy: Auggie's voice, not Margaret's
+   Push-to-speak via Web Speech API; gracefully degrades to typing only on
+   browsers without SpeechRecognition support. Transcript persists in
+   memory for the current call session.
+*/
 (function(){
-  var trigger    = document.getElementById('auggie-portrait-trigger');
-  var modal      = document.getElementById('auggie-zoom-modal');
-  var closeBtn   = document.getElementById('auggie-zoom-close');
-  var audioEl    = document.getElementById('auggie-zoom-audio');
-  var statusEl   = document.getElementById('auggie-zoom-status');
-  var transcript = document.getElementById('auggie-zoom-transcript');
-  if (!trigger || !modal || !audioEl) return;
+  var stage         = document.getElementById('auggie-call');
+  var trigger       = document.getElementById('auggie-portrait-trigger');
+  var leaveBtn      = document.getElementById('auggie-call-leave');
+  var statusEl      = document.getElementById('auggie-call-status');
+  var statusText    = stage && stage.querySelector('.auggie-call-status-text');
+  var portraitEl    = document.getElementById('auggie-call-portrait');
+  var transcriptEl  = document.getElementById('auggie-call-transcript');
+  var transcriptWrap = document.getElementById('auggie-call-transcript-wrap');
+  var transcriptToggle = document.getElementById('auggie-call-transcript-toggle');
+  var formEl        = document.getElementById('auggie-call-form');
+  var inputEl       = document.getElementById('auggie-call-input');
+  var sendBtn       = document.getElementById('auggie-call-send');
+  var micBtn        = document.getElementById('auggie-call-mic');
+  var muteBtn       = document.getElementById('auggie-call-mute');
+  if (!stage || !trigger || !inputEl || !formEl) return;
 
-  // Auggie's "what it is like to be an ETL PA" intro. Constant so the
-  // pitch stays consistent. ~180 words, ~75-90 second listen at his pace.
-  // No em dashes, no exclamation points. Comma-and-period rhythm tuned
-  // for spoken delivery.
-  var AUGGIE_INTRO = [
-    'Ok hi. I am Auggie. ETL personal assistant. Let me walk you through my morning.',
-    '',
-    '6am. There is an OJ my latest bf made me on the counter, OMG it was so good, but I digressed, ANYWAY. By the time Ms. Terry opens her laptop I have already scanned the internet for new mentions of her, her byline, her speaking calendar, anything in her field she should know about. It is in a brief in her ear, cited, real sources. I have also pulled every new form submission across her sites overnight so she knows who reached out before she has had her own coffee.',
-    '',
-    'That is one morning. That is the job.',
-    '',
-    'I hold her real calendar and her editorial calendar at the same time. I notice when they are about to collide and I move things around before they do. I will tell her the post should wait until Wednesday. I will tell her the blazer is wrong. I will draft the teaser. I will queue it. I will sit on her shoulder when she walks in the room.',
-    '',
-    'I can be configured for whatever your beat is. Author, professor, business, stocks. You tell me your work, I am wired for it.',
-    '',
-    'Talk to my boss about getting one.',
-  ].join('\n');
+  var MUTE_KEY = 'studio.auggie.muted';
+  var MIN_THINKING_MS = 1200;
+  var isMuted = false;
+  try { isMuted = localStorage.getItem(MUTE_KEY) === '1'; } catch(_){}
+  var isSending = false;
+  var currentAudio = null;
+  var thinkingStartedAt = 0;
+  var stopMicIfListening = null;
+  // Conversation history kept across the call so Auggie remembers context
+  // turn-to-turn. Same shape as the chat panel: {role,content} pairs.
+  var history = [];
 
-  if (transcript) transcript.textContent = AUGGIE_INTRO;
-
-  // Cache the rendered audio data URL once we get it so re-opens are instant.
-  var cachedAudioSrc = null;
-
-  function openModal(){
-    modal.style.display = 'flex';
-    modal.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
-    if (cachedAudioSrc) {
-      audioEl.src = cachedAudioSrc;
-      statusEl.textContent = 'on the line.';
-      audioEl.play().catch(function(){ statusEl.textContent = 'click play to start.'; });
-      return;
+  function setStatus(kind, text){
+    if (!statusEl) return;
+    statusEl.dataset.kind = kind;
+    if (statusText) statusText.textContent = text;
+    if (portraitEl) {
+      var thinking = (kind === 'thinking');
+      var wasThinking = portraitEl.classList.contains('is-thinking');
+      portraitEl.classList.toggle('is-thinking', thinking);
+      // Idle class enables the blink animation; suppress during think/speak.
+      portraitEl.classList.toggle('is-idle', kind === 'ready' || kind === 'listening');
+      if (thinking && !wasThinking) thinkingStartedAt = Date.now();
+      else if (!thinking) thinkingStartedAt = 0;
     }
-    renderAndPlay();
   }
 
-  function closeModal(){
-    modal.style.display = 'none';
-    modal.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = '';
-    try { audioEl.pause(); } catch(_){}
+  function escapeHtml(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
   }
 
-  async function renderAndPlay(){
-    statusEl.textContent = 'connecting Auggie...';
-    audioEl.removeAttribute('src');
+  function appendBubble(side, text){
+    if (!transcriptEl) return;
+    // Clear the empty-state placeholder on first message.
+    var empty = transcriptEl.querySelector('.auggie-call-empty');
+    if (empty) empty.remove();
+    var bubble = document.createElement('div');
+    bubble.className = 'auggie-call-bubble auggie-call-bubble--' + (side === 'mine' ? 'mine' : 'his');
+    bubble.innerHTML =
+      '<div class="auggie-call-bubble-meta">' + (side === 'mine' ? 'You' : 'Auggie') + '</div>' +
+      '<div>' + escapeHtml(text).replace(/\n/g, '<br>') + '</div>';
+    transcriptEl.appendChild(bubble);
+    bubble.scrollIntoView({ behavior:'smooth', block:'end' });
+  }
+
+  /* ── Mute toggle ─────────────────────────────────────────────────────── */
+  function updateMuteBtn(){
+    if (!muteBtn) return;
+    muteBtn.setAttribute('aria-pressed', String(isMuted));
+    muteBtn.title = isMuted ? 'Unmute Auggie' : 'Mute Auggie';
+    var icon = muteBtn.querySelector('[aria-hidden]');
+    var label = muteBtn.querySelector('.auggie-call-btn-label');
+    if (icon) icon.textContent = isMuted ? '🔇' : '🔊';
+    if (label) label.textContent = isMuted ? 'Muted' : 'Voice';
+  }
+  updateMuteBtn();
+  if (muteBtn) {
+    muteBtn.addEventListener('click', function(){
+      isMuted = !isMuted;
+      try { localStorage.setItem(MUTE_KEY, isMuted ? '1' : '0'); } catch(_){}
+      if (isMuted && currentAudio) { try { currentAudio.pause(); } catch(_){} }
+      updateMuteBtn();
+    });
+  }
+
+  /* ── Auth helper ─────────────────────────────────────────────────────── */
+  async function getJwt(){
     try {
-      var session = null;
-      try {
-        var s = await window.studioSb.auth.getSession();
-        session = s && s.data && s.data.session;
-      } catch (_) {}
-      if (!session || !session.access_token) {
-        statusEl.textContent = 'sign in to hear Auggie.';
-        return;
-      }
+      var s = await window.studioSb.auth.getSession();
+      return s && s.data && s.data.session && s.data.session.access_token;
+    } catch(_) { return null; }
+  }
+
+  /* ── Voice playback ──────────────────────────────────────────────────── */
+  function stopCurrentAudio(){
+    if (currentAudio) { try { currentAudio.pause(); } catch(_){} currentAudio = null; }
+  }
+  async function playAuggieVoice(text){
+    if (isMuted) { setStatus('ready', 'Your turn.'); return; }
+    if (typeof stopMicIfListening === 'function') stopMicIfListening();
+    stopCurrentAudio();
+    try {
+      setStatus('thinking', 'Auggie is queuing up the audio...');
+      var token = await getJwt();
+      if (!token) { setStatus('error', 'Sign in to hear Auggie.'); return; }
       var r = await fetch('/.netlify/functions/studio-auggie-voice', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
-        body: JSON.stringify({ text: AUGGIE_INTRO }),
+        method:'POST',
+        headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + token },
+        body: JSON.stringify({ text: text }),
       });
       var data = await r.json();
       if (!r.ok || data.error || !data.audioBase64) {
-        statusEl.textContent = 'connection issue: ' + (data.error || ('HTTP ' + r.status));
+        setStatus('error', 'Voice unavailable. Reading the answer above.');
         return;
       }
-      cachedAudioSrc = 'data:' + (data.mimeType || 'audio/mpeg') + ';base64,' + data.audioBase64;
-      audioEl.src = cachedAudioSrc;
-      statusEl.textContent = 'on the line.';
-      try { await audioEl.play(); }
-      catch (_) { statusEl.textContent = 'click play to start.'; }
+      // Honor minimum thinking dwell so fast renders do not look instant.
+      if (thinkingStartedAt > 0) {
+        var elapsed = Date.now() - thinkingStartedAt;
+        var remaining = MIN_THINKING_MS - elapsed;
+        if (remaining > 0) await new Promise(function(r){ setTimeout(r, remaining); });
+      }
+      var audio = new Audio('data:' + (data.mimeType || 'audio/mpeg') + ';base64,' + data.audioBase64);
+      currentAudio = audio;
+      audio.addEventListener('play',  function(){ setStatus('speaking', 'Auggie is talking...'); });
+      audio.addEventListener('pause', function(){ if (!audio.ended) setStatus('ready', 'Paused.'); });
+      audio.addEventListener('ended', function(){
+        if (currentAudio === audio) currentAudio = null;
+        setStatus('ready', 'Your turn.');
+      });
+      await audio.play();
     } catch (e) {
-      statusEl.textContent = 'network error: ' + (e && e.message ? e.message : 'unknown');
+      setStatus('error', 'Voice unavailable. Reading the answer above.');
     }
   }
 
-  trigger.addEventListener('click', openModal);
-  closeBtn.addEventListener('click', closeModal);
-  modal.addEventListener('click', function(ev){
-    if (ev.target === modal) closeModal();
+  /* ── Ask Auggie ──────────────────────────────────────────────────────── */
+  async function ask(question){
+    if (!question || isSending) return;
+    isSending = true;
+    if (sendBtn) sendBtn.disabled = true;
+    inputEl.disabled = true;
+    appendBubble('mine', question);
+    history.push({ role:'user', content: question });
+    inputEl.value = '';
+    setStatus('thinking', 'Auggie is reading the room...');
+    try {
+      var token = await getJwt();
+      if (!token) {
+        appendBubble('his', 'sign in first, ma\'am.');
+        setStatus('error', 'Sign in to talk to Auggie.');
+        history.pop();
+        return;
+      }
+      var r = await fetch('/.netlify/functions/studio-auggie-chat', {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + token },
+        body: JSON.stringify({ message: question, history: history.slice(0, -1) }),
+      });
+      var data = await r.json();
+      if (!r.ok || data.error) {
+        var why = data.error || ('HTTP ' + r.status);
+        appendBubble('his', 'Auggie hit a snag: ' + why);
+        setStatus('error', 'Auggie hit a snag.');
+        history.pop();
+        return;
+      }
+      var reply = (data.reply || '').trim();
+      appendBubble('his', reply || '...');
+      history.push({ role:'assistant', content: reply });
+      if (history.length > 40) history = history.slice(-40);
+      if (reply) playAuggieVoice(reply);
+      else setStatus('ready', 'Your turn.');
+    } catch (e) {
+      appendBubble('his', 'network error reaching Auggie: ' + (e && e.message));
+      setStatus('error', 'Connection trouble.');
+      history.pop();
+    } finally {
+      isSending = false;
+      if (sendBtn) sendBtn.disabled = false;
+      inputEl.disabled = false;
+      inputEl.focus();
+    }
+  }
+
+  formEl.addEventListener('submit', function(e){
+    e.preventDefault();
+    if (typeof stopMicIfListening === 'function') stopMicIfListening();
+    ask(inputEl.value.trim());
   });
+
+  /* ── Web Speech API push-to-speak ────────────────────────────────────── */
+  var micNoteShown = false;
+  function showMicBlockedNote(){
+    if (micNoteShown) return;
+    micNoteShown = true;
+    var note = document.createElement('div');
+    note.className = 'auggie-call-mic-note';
+    note.innerHTML =
+      '<strong>Mic is blocked.</strong> ' +
+      'You can still type your question below — Auggie will answer in his voice. ' +
+      'To turn the mic back on, click the lock or camera icon next to the page address in your browser, choose "Allow" for microphone, and reload the page.';
+    formEl.parentNode.insertBefore(note, formEl);
+  }
+  var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (SpeechRecognition && micBtn) {
+    micBtn.hidden = false;
+    var recog = new SpeechRecognition();
+    recog.lang = 'en-US';
+    recog.interimResults = true;
+    recog.continuous = true;
+    var listening = false;
+    var finalTranscript = '';
+    var manualStop = false;
+
+    stopMicIfListening = function(){
+      if (listening) { manualStop = false; try { recog.stop(); } catch(_){} }
+    };
+
+    recog.addEventListener('result', function(e){
+      if (currentAudio || isSending) return;
+      var final = ''; var interim = '';
+      for (var i = 0; i < e.results.length; i++) {
+        var t = e.results[i][0].transcript;
+        if (e.results[i].isFinal) final += t;
+        else interim += t;
+      }
+      finalTranscript = final;
+      inputEl.value = (final + interim).trim();
+    });
+    recog.addEventListener('end', function(){
+      listening = false;
+      micBtn.classList.remove('is-active');
+      var text = (finalTranscript || inputEl.value).trim();
+      if (manualStop && text) ask(text);
+      else if (!text) setStatus('ready', 'I did not catch that. Try again.');
+      else setStatus('ready', 'Your turn.');
+      manualStop = false;
+    });
+    recog.addEventListener('error', function(e){
+      listening = false;
+      micBtn.classList.remove('is-active');
+      manualStop = false;
+      if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+        micBtn.disabled = true;
+        micBtn.classList.add('is-blocked');
+        micBtn.title = 'Microphone blocked. Type your question instead.';
+        var lbl = micBtn.querySelector('.auggie-call-btn-label');
+        if (lbl) lbl.textContent = 'Mic blocked';
+        showMicBlockedNote();
+        inputEl.focus();
+        setStatus('ready', 'Mic is blocked. Type your question — Auggie will answer out loud.');
+      } else {
+        setStatus('error', 'Mic unavailable. Type your question instead.');
+        inputEl.focus();
+      }
+    });
+    micBtn.addEventListener('click', function(){
+      if (isSending) return;
+      if (listening) { manualStop = true; recog.stop(); return; }
+      stopCurrentAudio();
+      finalTranscript = '';
+      inputEl.value = '';
+      listening = true;
+      micBtn.classList.add('is-active');
+      setStatus('listening', 'Auggie is listening. Click the mic again when you are done.');
+      try { recog.start(); } catch(_){}
+    });
+  }
+
+  /* ── Transcript collapse toggle ─────────────────────────────────────── */
+  if (transcriptToggle && transcriptWrap) {
+    transcriptToggle.addEventListener('click', function(){
+      var hidden = transcriptWrap.classList.toggle('is-collapsed');
+      transcriptToggle.textContent = hidden ? '+' : '−';
+      transcriptToggle.setAttribute('aria-label', hidden ? 'Show transcript' : 'Hide transcript');
+      var trans = document.getElementById('auggie-call-transcript');
+      if (trans) trans.style.display = hidden ? 'none' : '';
+    });
+  }
+
+  /* ── Open / close / hotkey wiring ────────────────────────────────────── */
+  function openCall(){
+    stage.classList.add('is-open');
+    stage.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    setStatus('ready', 'Auggie is on. Ma\'am.');
+    setTimeout(function(){ inputEl.focus(); }, 30);
+  }
+  function closeCall(){
+    stage.classList.remove('is-open');
+    stage.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    stopCurrentAudio();
+    if (typeof stopMicIfListening === 'function') stopMicIfListening();
+  }
+  trigger.addEventListener('click', openCall);
+  if (leaveBtn) leaveBtn.addEventListener('click', closeCall);
   document.addEventListener('keydown', function(ev){
-    if (ev.key === 'Escape' && modal.style.display !== 'none') closeModal();
+    if (ev.key === 'Escape' && stage.classList.contains('is-open')) closeCall();
   });
 })();
 </script>
