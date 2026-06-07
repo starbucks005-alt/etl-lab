@@ -669,12 +669,12 @@
           <button type="button" id="sp-again" class="sp-cta sp-cta-sm sp-cta-ghost">Run again</button>
         </div>
 
-        <!-- DEFAULT FALLBACK IMAGE (site homepage screenshot).
-             Shows automatically. Chris's graphic, if generated, replaces it. -->
+        <!-- POST IMAGE PANEL (shows the homepage fallback by default;
+             swappable with Terry's own upload OR Chris's generated graphic). -->
         <div id="sp-result-fallback" style="display:none;margin-top:24px;padding-top:20px;border-top:1px dashed var(--linen-edge);">
-          <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;color:var(--brass);text-transform:uppercase;margin-bottom:10px;">Default image (homepage)</div>
+          <div id="sp-result-fallback-label" style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;color:var(--brass);text-transform:uppercase;margin-bottom:10px;">Default image (homepage)</div>
           <img id="sp-result-fallback-img" src="" alt="" style="max-width:100%;height:auto;display:block;border:1px solid var(--linen-edge);background:#fff;">
-          <div style="font-family:'Cormorant Garamond',serif;font-size:13px;font-style:italic;color:var(--ink-quiet);margin-top:8px;">If you do not give Chris an image prompt below, this is the graphic that goes with the post.</div>
+          <div id="sp-result-fallback-hint" style="font-family:'Cormorant Garamond',serif;font-size:13px;font-style:italic;color:var(--ink-quiet);margin-top:8px;">If you do not upload your own or give Chris a prompt below, this is the graphic that goes with the post.</div>
         </div>
 
         <!-- CHRIS GRAPHIC PROMPT (conversational follow-up) -->
@@ -683,6 +683,8 @@
             <span style="font-family:'Cormorant Garamond',serif;font-size:16px;font-style:italic;color:var(--ink);">Want Chris to make a graphic for this?</span>
             <button type="button" id="sp-chris-yes" class="sp-cta sp-cta-sm">Yes</button>
             <button type="button" id="sp-chris-no" class="sp-cta sp-cta-sm sp-cta-ghost">Not this one</button>
+            <button type="button" id="sp-chris-upload-trigger" class="sp-cta sp-cta-sm sp-cta-ghost">Upload my own</button>
+            <input type="file" id="sp-chris-upload-input" accept="image/png,image/jpeg,image/webp,image/gif" style="display:none;">
           </div>
           <div id="sp-chris-q2" style="display:none;margin-top:14px;">
             <label class="sp-q" style="font-size:15px;">What kind of graphic?</label>
@@ -849,6 +851,35 @@
             subjText.focus();
           };
 
+          // "Upload my own" image handler. Reads the chosen file as a
+          // data URL and swaps it into the post-image panel above. The
+          // homepage fallback gets replaced; if Chris generates a graphic
+          // after this, Chris's image takes over. This is the simplest
+          // path: no upload to the server, the image lives in the page
+          // until the user copies it out.
+          var uploadTrigger = document.getElementById('sp-chris-upload-trigger');
+          var uploadInput = document.getElementById('sp-chris-upload-input');
+          if (uploadTrigger && uploadInput) {
+            uploadTrigger.onclick = function(){ uploadInput.click(); };
+            uploadInput.onchange = function(){
+              var file = uploadInput.files && uploadInput.files[0];
+              if (!file) return;
+              var reader = new FileReader();
+              reader.onload = function(ev){
+                var imgEl = document.getElementById('sp-result-fallback-img');
+                var labelEl = document.getElementById('sp-result-fallback-label');
+                var hintEl = document.getElementById('sp-result-fallback-hint');
+                var panel = document.getElementById('sp-result-fallback');
+                if (imgEl)   imgEl.src = ev.target.result;
+                if (imgEl)   imgEl.alt = file.name;
+                if (labelEl) labelEl.textContent = 'Your uploaded image  ·  ' + file.name;
+                if (hintEl)  hintEl.textContent = 'This image goes with the post. If you change your mind, upload again or ask Chris below.';
+                if (panel)   panel.style.display = '';
+              };
+              reader.readAsDataURL(file);
+            };
+          }
+
           // ---- Chris graphic flow ----
           // Reset Chris state when a new post lands
           document.getElementById('sp-chris-q1').style.display = 'flex';
@@ -912,6 +943,10 @@
               document.getElementById('sp-chris-out').style.display = 'block';
               document.getElementById('sp-chris-q2').style.display = 'none';
               status.textContent = '';
+              // Chris's image takes over as THE post image; hide the
+              // homepage fallback so there is only one image panel visible.
+              var fbPanel = document.getElementById('sp-result-fallback');
+              if (fbPanel) fbPanel.style.display = 'none';
 
               document.getElementById('sp-chris-download').onclick = function(){
                 var a = document.createElement('a');
