@@ -713,8 +713,18 @@
         gen.disabled = true;
         gen.textContent = 'Writing...';
         try {
+          // Send Supabase JWT so the function can validate the request and
+          // refuse anonymous calls (which would burn Anthropic credits on
+          // Terry's tab without auth).
+          var session = null;
+          try {
+            var s = await window.studioSb.auth.getSession();
+            session = s && s.data && s.data.session;
+          } catch (_) {}
+          var headers = {'Content-Type':'application/json'};
+          if (session && session.access_token) headers['Authorization'] = 'Bearer ' + session.access_token;
           var r = await fetch('/.netlify/functions/studio-social-generate', {
-            method:'POST', headers:{'Content-Type':'application/json'},
+            method:'POST', headers: headers,
             body: JSON.stringify(state),
           });
           var data = await r.json();
@@ -795,6 +805,9 @@
   var SUPABASE_URL = 'https://ulvrnermyuvzanxhxoib.supabase.co';
   var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsdnJuZXJteXV2emFueGh4b2liIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3MzYyMDEsImV4cCI6MjA5NjMxMjIwMX0.tAaXhm_pb-DxrYsXYw1DvvYENDJ_y3jlt2nGWSp2lbA';
 
+  // Expose the Supabase client as window.studioSb so other IIFEs in the page
+  // (like the Social Posts wizard) can pull the access token for auth-gated
+  // function calls. Set right after creation below.
   var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
     auth: {
       persistSession: true,
@@ -802,12 +815,77 @@
       autoRefreshToken: true,
     }
   });
+  window.studioSb = sb;
 
   function showWorkspace() {
     document.getElementById('login-wall').style.display = 'none';
     document.getElementById('workspace').classList.add('is-visible');
     document.getElementById('session-pill').textContent = 'Signed in';
     document.getElementById('signout-btn').style.display = 'inline';
+    // Fetch real workspace content from auth-gated endpoint. Until this
+    // returns, the user sees the public placeholders ('Sign in to see...').
+    loadWorkspaceContent().catch(function(e){ console.warn('workspace load failed', e && e.message); });
+  }
+
+  async function loadWorkspaceContent() {
+    var s = await sb.auth.getSession();
+    var token = s && s.data && s.data.session && s.data.session.access_token;
+    if (!token) return;
+    var r = await fetch('/.netlify/functions/studio-workspace-content', {
+      headers: { 'Authorization': 'Bearer ' + token },
+    });
+    if (!r.ok) {
+      console.warn('workspace content endpoint returned', r.status);
+      return;
+    }
+    var data = await r.json();
+    renderActivity(data.activity || []);
+    renderStaff(data.staff || {});
+    renderShipped(data.shipped || []);
+  }
+
+  function escHtml(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  function renderActivity(items) {
+    var grid = document.querySelector('.activity-grid');
+    if (!grid || !items.length) return;
+    grid.innerHTML = items.map(function(item){
+      return '<div class="activity-card">' +
+        '<div class="activity-status">' + escHtml(item.status) + '</div>' +
+        '<div class="activity-agent">' + escHtml(item.agent) + '</div>' +
+        '<div class="activity-task">' + escHtml(item.task) + '</div>' +
+        (item.meta ? '<div class="activity-meta">' + escHtml(item.meta) + '</div>' : '') +
+      '</div>';
+    }).join('');
+  }
+
+  function renderStaff(byName) {
+    var cards = document.querySelectorAll('.staff-card');
+    cards.forEach(function(card){
+      var nameEl = card.querySelector('.staff-name');
+      var currentEl = card.querySelector('.staff-current');
+      if (!nameEl || !currentEl) return;
+      var name = nameEl.textContent.trim();
+      if (byName[name]) {
+        currentEl.textContent = byName[name];
+      }
+    });
+  }
+
+  function renderShipped(items) {
+    var list = document.querySelector('.shipped-list');
+    if (!list || !items.length) return;
+    list.innerHTML = items.map(function(item){
+      return '<li class="shipped-row">' +
+        '<span class="shipped-when">' + escHtml(item.when) + '</span>' +
+        '<span class="shipped-what">' + escHtml(item.what) + '</span>' +
+        '<span class="shipped-by">' + escHtml(item.by) + '</span>' +
+      '</li>';
+    }).join('');
   }
   function showLoginWall() {
     document.getElementById('login-wall').style.display = '';
