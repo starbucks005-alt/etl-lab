@@ -491,9 +491,19 @@
         </div>
 
         <form id="auggie-chat-form" style="display:flex; gap:10px; margin-top:14px; align-items:flex-end;">
-          <textarea id="auggie-chat-input" rows="2"
-                    placeholder="ask auggie. paste your week. ask him to search for new mentions of your name. tell him what to queue."
-                    style="flex:1; padding:12px 14px; border:1px solid var(--linen-edge); font-family:'Cormorant Garamond',serif; font-size:16px; line-height:1.5; color:var(--ink); background:#fff; resize:vertical; box-sizing:border-box;"></textarea>
+          <div style="flex:1; display:flex; flex-direction:column; gap:8px;">
+            <textarea id="auggie-chat-input" rows="2"
+                      placeholder="ask auggie. paste your week. paste a screenshot. ask him to search for new mentions of your name. tell him what to queue."
+                      style="padding:12px 14px; border:1px solid var(--linen-edge); font-family:'Cormorant Garamond',serif; font-size:16px; line-height:1.5; color:var(--ink); background:#fff; resize:vertical; box-sizing:border-box; width:100%;"></textarea>
+            <!-- Pending image tray. Hidden until Terry pastes or uploads an
+                 image. Each chip is a thumbnail with an X to remove. -->
+            <div id="auggie-chat-attachments" style="display:none; gap:8px; flex-wrap:wrap;"></div>
+            <div style="display:flex; gap:10px; align-items:center;">
+              <label for="auggie-chat-file" style="font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink-soft); cursor:pointer; padding:6px 10px; border:1px solid var(--linen-edge); background:#fff;">📎 attach image</label>
+              <input type="file" id="auggie-chat-file" accept="image/png,image/jpeg,image/webp,image/gif" multiple style="display:none;">
+              <span style="font-family:'Cormorant Garamond',serif; font-size:12px; font-style:italic; color:var(--ink-quiet);">or paste directly into the box above</span>
+            </div>
+          </div>
           <button type="submit" id="auggie-chat-send"
                   style="padding:12px 22px; font-family:'DM Mono',monospace; font-size:11px; letter-spacing:0.18em; text-transform:uppercase; background:var(--ink); color:var(--linen); border:none; cursor:pointer; align-self:stretch;">Send</button>
         </form>
@@ -603,7 +613,7 @@
 
       <div class="staff-card">
         <div class="staff-portrait">
-          <img src="/agents/Ivy_eyes_open.jpg" alt="Ms. Ivy" onerror="this.outerHTML='<div class=&quot;staff-portrait-placeholder&quot;>I</div>'">
+          <img src="/agents/ivy_eyes-open.png" alt="Ms. Ivy" onerror="this.outerHTML='<div class=&quot;staff-portrait-placeholder&quot;>I</div>'">
         </div>
         <div class="staff-body">
           <div class="staff-name">Ms. Ivy</div>
@@ -625,7 +635,7 @@
 
       <div class="staff-card">
         <div class="staff-portrait">
-          <img src="/agents/Jess_Ramirez_eyes_open.jpg" alt="Jess Ramirez" onerror="this.outerHTML='<div class=&quot;staff-portrait-placeholder&quot;>JR</div>'">
+          <img src="/agents/Jess_Ramirez.png" alt="Jess Ramirez" onerror="this.outerHTML='<div class=&quot;staff-portrait-placeholder&quot;>JR</div>'">
         </div>
         <div class="staff-body">
           <div class="staff-name">Jess Ramirez</div>
@@ -636,7 +646,7 @@
 
       <div class="staff-card">
         <div class="staff-portrait">
-          <img src="/agents/Imani_Brooks_eyes_open.jpg" alt="Imani Brooks" onerror="this.outerHTML='<div class=&quot;staff-portrait-placeholder&quot;>IB</div>'">
+          <img src="/agents/Imani_Brooks.png" alt="Imani Brooks" onerror="this.outerHTML='<div class=&quot;staff-portrait-placeholder&quot;>IB</div>'">
         </div>
         <div class="staff-body">
           <div class="staff-name">Imani Brooks</div>
@@ -1491,22 +1501,142 @@
   // response, so we do not seed it in history.
   var history = [];
 
+  // Pending images, each { mediaType, base64, previewUrl }. Cleared after a
+  // successful send. Capped at 4 to match Anthropic's per-message limit and
+  // to keep payload size reasonable (each image can be a few MB).
+  var pendingImages = [];
+  var IMG_MAX = 4;
+  var IMG_MAX_BYTES = 5 * 1024 * 1024; // 5MB per Anthropic limit
+  var attachmentTray = document.getElementById('auggie-chat-attachments');
+  var fileInput = document.getElementById('auggie-chat-file');
+
+  function renderAttachments(){
+    if (!attachmentTray) return;
+    if (pendingImages.length === 0) {
+      attachmentTray.style.display = 'none';
+      attachmentTray.innerHTML = '';
+      return;
+    }
+    attachmentTray.style.display = 'flex';
+    attachmentTray.innerHTML = '';
+    pendingImages.forEach(function(img, idx){
+      var chip = document.createElement('div');
+      chip.style.cssText = 'position:relative; width:72px; height:72px; border:1px solid var(--linen-edge); background:#fff;';
+      var thumb = document.createElement('img');
+      thumb.src = img.previewUrl;
+      thumb.style.cssText = 'width:100%; height:100%; object-fit:cover; display:block;';
+      thumb.alt = 'attachment ' + (idx + 1);
+      var x = document.createElement('button');
+      x.type = 'button';
+      x.textContent = '×';
+      x.setAttribute('aria-label', 'Remove attachment');
+      x.style.cssText = 'position:absolute; top:-8px; right:-8px; width:22px; height:22px; border-radius:50%; border:1px solid var(--ink); background:#fff; color:var(--ink); font-size:14px; line-height:1; cursor:pointer; padding:0;';
+      x.addEventListener('click', function(){
+        try { URL.revokeObjectURL(img.previewUrl); } catch(_){}
+        pendingImages.splice(idx, 1);
+        renderAttachments();
+      });
+      chip.appendChild(thumb);
+      chip.appendChild(x);
+      attachmentTray.appendChild(chip);
+    });
+  }
+
+  // Convert a File/Blob to base64 (without the data URL prefix) for sending.
+  function fileToBase64(file){
+    return new Promise(function(resolve, reject){
+      var reader = new FileReader();
+      reader.onload = function(){
+        // reader.result is "data:image/png;base64,iVBOR..." — strip the prefix.
+        var s = String(reader.result || '');
+        var comma = s.indexOf(',');
+        resolve(comma >= 0 ? s.slice(comma + 1) : s);
+      };
+      reader.onerror = function(){ reject(reader.error || new Error('read failed')); };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function addImageFile(file){
+    if (!file || !/^image\//.test(file.type)) return;
+    if (file.size > IMG_MAX_BYTES) {
+      errBox.textContent = 'image too big (max 5MB): ' + (file.name || 'pasted image');
+      errBox.style.display = '';
+      return;
+    }
+    if (pendingImages.length >= IMG_MAX) {
+      errBox.textContent = 'auggie can only see ' + IMG_MAX + ' images at a time. remove one to add another.';
+      errBox.style.display = '';
+      return;
+    }
+    try {
+      var b64 = await fileToBase64(file);
+      pendingImages.push({
+        mediaType: file.type,
+        base64: b64,
+        previewUrl: URL.createObjectURL(file),
+      });
+      renderAttachments();
+      errBox.style.display = 'none';
+    } catch (e) {
+      errBox.textContent = 'could not read image: ' + (e && e.message);
+      errBox.style.display = '';
+    }
+  }
+
+  // Paste handler on the textarea: capture any image items from the
+  // clipboard, ignore text (textarea handles that natively).
+  input.addEventListener('paste', function(ev){
+    var items = (ev.clipboardData && ev.clipboardData.items) || [];
+    var images = [];
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].kind === 'file' && /^image\//.test(items[i].type)) {
+        images.push(items[i].getAsFile());
+      }
+    }
+    if (images.length === 0) return; // let normal text paste happen
+    ev.preventDefault();
+    images.forEach(addImageFile);
+  });
+
+  // File-picker fallback for users who would rather click an icon.
+  if (fileInput) {
+    fileInput.addEventListener('change', function(){
+      var files = Array.from(fileInput.files || []);
+      files.forEach(addImageFile);
+      fileInput.value = ''; // allow re-selecting same file later
+    });
+  }
+
   function escapeHtml(s){
     return String(s)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;')
       .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
-  function appendBubble(side, text){
+  function appendBubble(side, text, imageUrls){
     var div = document.createElement('div');
     div.className = 'auggie-bubble auggie-bubble--' + (side === 'mine' ? 'mine' : 'his');
     div.style.marginBottom = '14px';
     var meta = document.createElement('div');
     meta.className = 'auggie-bubble-meta';
     meta.textContent = (side === 'mine') ? 'You' : 'Auggie';
+    div.appendChild(meta);
+    // If images came with this bubble (mine-side only in practice), render
+    // them above the text so Auggie's view of what Terry sent is visible.
+    if (Array.isArray(imageUrls) && imageUrls.length) {
+      var imgRow = document.createElement('div');
+      imgRow.style.cssText = 'display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px;';
+      imageUrls.forEach(function(url){
+        var im = document.createElement('img');
+        im.src = url;
+        im.style.cssText = 'max-width:140px; max-height:140px; border:1px solid var(--linen-edge); object-fit:cover;';
+        imgRow.appendChild(im);
+      });
+      div.appendChild(imgRow);
+    }
     var body = document.createElement('div');
     body.innerHTML = escapeHtml(text).replace(/\n/g, '<br>');
-    div.appendChild(meta);
     div.appendChild(body);
     // Auggie-only: add a "hear it" button that calls the TTS endpoint and
     // plays his ElevenLabs voice inline. Mine-side bubbles never get one.
@@ -1589,12 +1719,26 @@
   form.addEventListener('submit', async function(ev){
     ev.preventDefault();
     var msg = input.value.trim();
-    if (!msg) return;
+    // Send is valid if there is text OR at least one pasted/uploaded image.
+    if (!msg && pendingImages.length === 0) return;
     errBox.style.display = 'none';
 
-    // Render the user line immediately.
-    appendBubble('mine', msg);
-    history.push({ role: 'user', content: msg });
+    // Snapshot images for this turn, then clear the pending tray so the
+    // user can start the next message clean.
+    var turnImages = pendingImages.slice();
+    var turnImageUrls = turnImages.map(function(i){ return i.previewUrl; });
+    pendingImages = [];
+    renderAttachments();
+
+    // Render the user line immediately, with image thumbnails if any.
+    appendBubble('mine', msg, turnImageUrls);
+    // History stays text-only (images are NOT retained across turns to keep
+    // payloads bounded). Auggie remembers what HE said about the image, not
+    // the image itself. Use a placeholder string if message was empty.
+    history.push({
+      role: 'user',
+      content: msg || ('[image attached: ' + turnImages.length + ']')
+    });
     input.value = '';
     sendBtn.disabled = true;
     sendBtn.textContent = 'Sending';
@@ -1621,7 +1765,13 @@
       var r = await fetch('/.netlify/functions/studio-auggie-chat', {
         method: 'POST',
         headers: headers,
-        body: JSON.stringify({ message: msg, history: history.slice(0, -1) }),
+        body: JSON.stringify({
+          message: msg,
+          history: history.slice(0, -1),
+          images: turnImages.map(function(i){
+            return { mediaType: i.mediaType, base64: i.base64 };
+          }),
+        }),
       });
       var data = await r.json();
       typing.remove();

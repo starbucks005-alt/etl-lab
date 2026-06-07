@@ -150,9 +150,21 @@ exports.handler = async (event) => {
 
   const message = (body.message || '').trim();
   const history = Array.isArray(body.history) ? body.history.slice(-20) : [];
+  // images: optional array of { mediaType, base64 }. Sent inline to Anthropic
+  // as image content blocks. Most common use: Terry pastes a calendar
+  // screenshot and asks Auggie to read it.
+  const images = Array.isArray(body.images) ? body.images.slice(0, 4) : [];
+  for (const img of images) {
+    if (!img || !img.base64 || !img.mediaType) {
+      return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'each image needs mediaType + base64' }) };
+    }
+    if (!/^image\/(png|jpeg|jpg|gif|webp)$/i.test(img.mediaType)) {
+      return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'unsupported image type: ' + img.mediaType }) };
+    }
+  }
 
-  if (!message) {
-    return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'message is required' }) };
+  if (!message && images.length === 0) {
+    return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'message or image required' }) };
   }
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -162,13 +174,29 @@ exports.handler = async (event) => {
 
   const client = new Anthropic({ apiKey });
 
-  // Build the conversation. History is a list of prior turns; we append the
-  // current message as the latest user turn.
+  // Build the conversation. History is a list of prior turns (text-only;
+  // pasted images are not retained in history to keep payloads bounded).
+  // Current turn becomes an array of content blocks when images are
+  // attached, plain string otherwise.
+  let currentContent;
+  if (images.length > 0) {
+    currentContent = [];
+    for (const img of images) {
+      currentContent.push({
+        type: 'image',
+        source: { type: 'base64', media_type: img.mediaType, data: img.base64 },
+      });
+    }
+    currentContent.push({ type: 'text', text: message || 'have a look at this and tell me what you see.' });
+  } else {
+    currentContent = message;
+  }
+
   const messages = [
     ...history
       .filter(t => t && (t.role === 'user' || t.role === 'assistant') && typeof t.content === 'string')
       .map(t => ({ role: t.role, content: t.content })),
-    { role: 'user', content: message },
+    { role: 'user', content: currentContent },
   ];
 
   try {
