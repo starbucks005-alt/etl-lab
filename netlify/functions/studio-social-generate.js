@@ -64,9 +64,9 @@ const SITES = {
   opsec:        { name: 'OPSEC Gauntlet', url: 'https://opsec-gauntlet.netlify.app',
                   fallbackImage: '/site-thumbs/ETL_Lab.png',
                   context: 'Civilian-SME intelligence triage platform. Routes vetted ideas from US civilians to the US Intelligence Community. Uses Dr. Oroszi\'s proprietary SLR method.' },
-  intel:        { name: 'Intel Dashboard', url: 'https://inteldashboard.org',
-                  fallbackImage: '/site-thumbs/ETL_Lab.png',
-                  context: 'Dr. Oroszi\'s intelligence-analysis platform. SLR method applied to open-source intelligence work.' },
+  // Intel Dashboard intentionally kept off the public social picker.
+  // Held back from public marketing while it is positioned for potential
+  // strategic acquisition. Do not add back without explicit instruction.
   gk:           { name: 'Gandhi-King Center for Nonviolence', url: 'https://gandhi-king.netlify.app',
                   fallbackImage: '/site-thumbs/GK_Center.png',
                   context: '501(c)(3) foundation. Board includes Tushar Gandhi (Mahatma\'s great-grandson), Rev. Joel King (Dr. King\'s cousin), and Gregory Foster (Coretta Scott King\'s cousin). Baroness Harris of Richmond is patron.' },
