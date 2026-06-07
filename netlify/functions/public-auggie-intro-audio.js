@@ -22,16 +22,16 @@ const { getStore, connectLambda } = require('@netlify/blobs');
 
 const AUGGIE_VOICE_ID = 'XMt7icsOj2DAS4Cn1PN1';
 const AUGGIE_MODEL_TTS = 'eleven_turbo_v2_5';
-// Voice direction: Terry hand-tuned this voice in the ElevenLabs UI by
-// pushing the personality knobs to 100% to bring out the camp inflection
-// ("stay with the brief" = similarity in ElevenLabs lingo; style
-// exaggeration controls the amplified character). Both pushed to 1.0
-// to match what she heard in the UI. Stability stays low so emotion
-// can move; speaker boost on for presence.
+// Voice direction: aiming for "relaxed and flamboyant," not "forced and
+// flamboyant." Maxing style/similarity to 1.0 makes him strained, which
+// reads as forced. The right curve is LOW stability (so he varies the
+// delivery emotionally, the way a person actually talks) with style and
+// similarity high-but-not-maxed (so the camp is there without effort).
+// Speaker boost on for presence on the homepage audio player.
 const AUGGIE_SETTINGS = {
-  stability: 0.42,
-  similarity_boost: 1.0,
-  style: 1.0,
+  stability: 0.30,
+  similarity_boost: 0.85,
+  style: 0.85,
   use_speaker_boost: true,
 };
 
@@ -42,14 +42,14 @@ const AUGGIE_SETTINGS = {
 
    Keep this in sync with the visible text on the homepage #etl-pa section.
    Versioned via the constant below so we can bust the cache when editing. */
-const INTRO_VERSION = 'v7-august-camp';
+const INTRO_VERSION = 'v8-relaxed-camp';
 const AUGGIE_INTRO = `Hi. I'm August. Friends call me Auggie.
 
 Coral Gables born and bred, but my soul spent every summer of my childhood poolside in Palm Springs. That's exactly where I learned that linen is a lifestyle and a cream blazer is always the right call.
 
 I came up under Devon on the Gauntlet bench. Three years, start to finish. He taught me how to read a room before stepping foot inside, how to distinguish a crisis from a blip, and how to spot an assistant on the verge of imploding. Devon knows how to promote good people out instead of hoarding talent, which is exactly how I landed here.
 
-Now I hold Ms. Terry's week. I hold her editorial calendar. I see the collision course before it happens and I redirect traffic. I run the 6AM daily brief over a fresh OJ my latest boyfriend made. Seriously, it was divine. But I digress. Anyway, that is the brief.
+Now I hold Ms. Terry's week. I hold her editorial calendar. I see the collision course before it happens and I redirect traffic. I run the 6AM daily brief over a fresh OJ my latest boyfriend made. Seriously, it was divine. But I digress. Anyway, that's the brief.
 
 I will tell her the blazer is wrong for the venue. I will tell her that post should wait until Wednesday. I will draft the teaser, I will queue it, and I will be on her shoulder the moment she walks into a room.
 
