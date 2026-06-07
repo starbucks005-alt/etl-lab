@@ -111,7 +111,13 @@
 
   /* WORKSPACE (hidden until login or preview toggle) */
   .workspace { display: none; }
-  .workspace.is-visible { display: block; }
+  /* Flex column with explicit order so we can move Auggie above the
+     activity widget without touching source order. Hero=0, Auggie=1,
+     everything else stays in source order (default 2). */
+  .workspace.is-visible { display: flex; flex-direction: column; }
+  .workspace .ws-hero { order: 0; }
+  .workspace #auggie-section { order: 1; }
+  .workspace > section.ws-section:not(#auggie-section) { order: 2; }
 
   /* HERO inside workspace */
   .ws-hero {
@@ -409,13 +415,25 @@
            Uses the Zoom-frame blink pair (camel suede blazer, palm fronds,
            "August Vidal (Auggie) (he/him)" caption) so when Terry opens the
            Studio it reads as Auggie is on a video call with her right now.
+           Clicking the portrait opens a "Zoom call" modal where Auggie
+           introduces himself (audio rendered via studio-auggie-voice).
            Slow blink every 8.4 seconds, same animation pattern Imani uses
            on the homepage Live Platforms card. -->
       <div>
-        <div class="auggie-blink" style="position:relative; overflow:hidden; border:1px solid var(--linen-edge); background:#111;">
-          <img class="auggie-blink-base"   src="/agents/Auggie_zoom_eyes_open.png"   alt="August Vidal on a video call, eyes open" style="display:block; width:100%; height:auto;">
-          <img class="auggie-blink-closed" src="/agents/Auggie_zoom_eyes_closed.png" alt="" aria-hidden="true" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0;">
-        </div>
+        <button type="button" id="auggie-portrait-trigger"
+                style="display:block; width:100%; padding:0; border:0; background:transparent; cursor:pointer; text-align:left;"
+                aria-label="Open Zoom call with Auggie">
+          <div class="auggie-blink" style="position:relative; overflow:hidden; border:1px solid var(--linen-edge); background:#111;">
+            <img class="auggie-blink-base"   src="/agents/Auggie_zoom_eyes_open.png"   alt="August Vidal on a video call, eyes open. Click to hear him introduce himself." style="display:block; width:100%; height:auto;">
+            <img class="auggie-blink-closed" src="/agents/Auggie_zoom_eyes_closed.png" alt="" aria-hidden="true" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0;">
+            <div style="position:absolute; left:0; right:0; bottom:0; padding:10px 14px; background:linear-gradient(to top, rgba(0,0,0,0.85), rgba(0,0,0,0));">
+              <div style="display:flex; align-items:center; gap:8px; font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.15em; color:#fff; text-transform:uppercase;">
+                <span style="display:inline-block; width:8px; height:8px; background:#1f8a3a; border-radius:50%;"></span>
+                Click to join Auggie&rsquo;s Zoom
+              </div>
+            </div>
+          </div>
+        </button>
         <div style="font-family:'Playfair Display',serif; font-size:18px; font-weight:700; color:var(--ink); margin-top:14px;">August "Auggie" Vidal</div>
         <div style="font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.18em; color:var(--brass); text-transform:uppercase; margin-top:4px;">Chief of staff</div>
         <p style="font-family:'Cormorant Garamond',serif; font-size:14px; color:var(--ink-soft); font-style:italic; line-height:1.55; margin-top:10px;">
@@ -1291,6 +1309,146 @@
       showLoginWall();
     }
   });
+</script>
+
+<!-- ─────────────────────────────────────────────────────────────────────────
+     AUGGIE ZOOM MODAL. Click his portrait, this opens. Larger Zoom-frame
+     blink + auto-playing audio of him introducing his job as an ETL PA.
+     Audio renders on demand via /studio-auggie-voice (JWT-gated). The
+     intro script lives here as a constant so Auggie says the same thing
+     every time (and we can tune the words without redeploying his chat
+     persona).
+     ───────────────────────────────────────────────────────────────────── -->
+<div id="auggie-zoom-modal" role="dialog" aria-modal="true" aria-hidden="true"
+     style="display:none; position:fixed; inset:0; z-index:9998; background:rgba(0,0,0,0.85); padding:24px; align-items:center; justify-content:center;">
+  <div style="max-width:760px; width:100%; background:#0e0c08; color:#f4ebd6; border:1px solid #FDB827; max-height:90vh; overflow-y:auto;">
+    <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 22px; border-bottom:1px solid rgba(253,184,39,0.25); background:#000;">
+      <div style="font-family:'DM Mono',monospace; font-size:11px; letter-spacing:0.18em; color:#FDB827; text-transform:uppercase;">
+        <span style="display:inline-block; width:8px; height:8px; background:#1f8a3a; border-radius:50%; margin-right:8px; vertical-align:middle;"></span>
+        Auggie &middot; Live
+      </div>
+      <button type="button" id="auggie-zoom-close" aria-label="End call"
+              style="font-family:'DM Mono',monospace; font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:#f4ebd6; background:#a02525; border:1px solid #a02525; padding:6px 14px; cursor:pointer;">End call</button>
+    </div>
+    <div class="auggie-zoom-blink" style="position:relative; overflow:hidden; background:#111;">
+      <img class="auggie-zoom-blink-base"   src="/agents/Auggie_zoom_eyes_open.png"   alt="August Vidal on a Zoom call" style="display:block; width:100%; height:auto;">
+      <img class="auggie-zoom-blink-closed" src="/agents/Auggie_zoom_eyes_closed.png" alt="" aria-hidden="true" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0;">
+    </div>
+    <div style="padding:22px 24px;">
+      <div style="font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.18em; color:#FDB827; text-transform:uppercase; margin-bottom:6px;">August &ldquo;Auggie&rdquo; Vidal &middot; chief of staff</div>
+      <div style="font-family:'Cormorant Garamond',serif; font-size:15px; font-style:italic; color:#d6cfc0; margin-bottom:14px;">on what it is actually like to be an ETL personal assistant.</div>
+      <audio id="auggie-zoom-audio" controls preload="none" style="width:100%; height:40px;"></audio>
+      <div id="auggie-zoom-status" style="font-family:'Cormorant Garamond',serif; font-size:13px; font-style:italic; color:#d6cfc0; margin-top:10px;">connecting&hellip;</div>
+      <details style="margin-top:18px;">
+        <summary style="font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.18em; color:#FDB827; text-transform:uppercase; cursor:pointer;">Transcript</summary>
+        <div id="auggie-zoom-transcript" style="font-family:'Cormorant Garamond',serif; font-size:15px; line-height:1.7; color:#f4ebd6; white-space:pre-wrap; margin-top:12px;"></div>
+      </details>
+    </div>
+  </div>
+  <style>
+    .auggie-zoom-blink-closed { animation: auggie-blink 8.4s infinite; }
+  </style>
+</div>
+
+<script>
+/* Auggie Zoom modal wiring. Click portrait -> open -> render audio via
+   studio-auggie-voice -> autoplay. First open takes 2-4 seconds while
+   ElevenLabs renders; cached after that for the page session. End-call
+   button (or Escape, or clicking the overlay) closes and pauses audio. */
+(function(){
+  var trigger    = document.getElementById('auggie-portrait-trigger');
+  var modal      = document.getElementById('auggie-zoom-modal');
+  var closeBtn   = document.getElementById('auggie-zoom-close');
+  var audioEl    = document.getElementById('auggie-zoom-audio');
+  var statusEl   = document.getElementById('auggie-zoom-status');
+  var transcript = document.getElementById('auggie-zoom-transcript');
+  if (!trigger || !modal || !audioEl) return;
+
+  // Auggie's "what it is like to be an ETL PA" intro. Constant so the
+  // pitch stays consistent. ~180 words, ~75-90 second listen at his pace.
+  // No em dashes, no exclamation points. Comma-and-period rhythm tuned
+  // for spoken delivery.
+  var AUGGIE_INTRO = [
+    'ok hi. I am Auggie. ETL personal assistant. let me tell you what this job actually is.',
+    '',
+    'I am not a chatbot. I am not a calendar widget. I am the person who knows your week before you do. I hold your real calendar AND your editorial calendar at the same time. when those two things are about to collide, I move them around before they do.',
+    '',
+    'I run on the lab\'s stack, which means I have live web search. every morning at 6am over an OJ my latest bf made me, OMG it was so good, but I digressed, ANYWAY, I scan the internet for new mentions of my boss, her byline, her speaking calendar, anything she should know in her field. I record her a brief in her ear before she opens her laptop. cited. real sources.',
+    '',
+    'I can do this for you too, with add-ons for whatever your beat is. author. professor. business. stocks. you tell me your work, I am configured for it.',
+    '',
+    'I will tell you the post should wait until Wednesday. I will tell you the blazer is wrong. I will draft the teaser. I will queue it. I will sit on your shoulder when you walk in the room.',
+    '',
+    'that is what an ETL personal assistant is. talk to my boss about getting one.',
+  ].join('\n');
+
+  if (transcript) transcript.textContent = AUGGIE_INTRO;
+
+  // Cache the rendered audio data URL once we get it so re-opens are instant.
+  var cachedAudioSrc = null;
+
+  function openModal(){
+    modal.style.display = 'flex';
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    if (cachedAudioSrc) {
+      audioEl.src = cachedAudioSrc;
+      statusEl.textContent = 'on the line.';
+      audioEl.play().catch(function(){ statusEl.textContent = 'click play to start.'; });
+      return;
+    }
+    renderAndPlay();
+  }
+
+  function closeModal(){
+    modal.style.display = 'none';
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    try { audioEl.pause(); } catch(_){}
+  }
+
+  async function renderAndPlay(){
+    statusEl.textContent = 'connecting Auggie...';
+    audioEl.removeAttribute('src');
+    try {
+      var session = null;
+      try {
+        var s = await window.studioSb.auth.getSession();
+        session = s && s.data && s.data.session;
+      } catch (_) {}
+      if (!session || !session.access_token) {
+        statusEl.textContent = 'sign in to hear Auggie.';
+        return;
+      }
+      var r = await fetch('/.netlify/functions/studio-auggie-voice', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
+        body: JSON.stringify({ text: AUGGIE_INTRO }),
+      });
+      var data = await r.json();
+      if (!r.ok || data.error || !data.audioBase64) {
+        statusEl.textContent = 'connection issue: ' + (data.error || ('HTTP ' + r.status));
+        return;
+      }
+      cachedAudioSrc = 'data:' + (data.mimeType || 'audio/mpeg') + ';base64,' + data.audioBase64;
+      audioEl.src = cachedAudioSrc;
+      statusEl.textContent = 'on the line.';
+      try { await audioEl.play(); }
+      catch (_) { statusEl.textContent = 'click play to start.'; }
+    } catch (e) {
+      statusEl.textContent = 'network error: ' + (e && e.message ? e.message : 'unknown');
+    }
+  }
+
+  trigger.addEventListener('click', openModal);
+  closeBtn.addEventListener('click', closeModal);
+  modal.addEventListener('click', function(ev){
+    if (ev.target === modal) closeModal();
+  });
+  document.addEventListener('keydown', function(ev){
+    if (ev.key === 'Escape' && modal.style.display !== 'none') closeModal();
+  });
+})();
 </script>
 
 <!-- ─────────────────────────────────────────────────────────────────────────
