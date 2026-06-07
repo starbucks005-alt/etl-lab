@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Custom PA inquiry · Emerging Technologies Laboratory</title>
+<meta name="description" content="Need a personal assistant we do not list on the builder? Tell us what you want and we will scope it.">
+<link rel="icon" href="/favicon.ico">
+
+<!-- Netlify Forms scaffolding (must exist statically at deploy time) -->
+<form name="custom-pa-inquiry" netlify netlify-honeypot="bot-field" hidden>
+  <input type="text" name="bot-field">
+  <input type="text" name="contact_name">
+  <input type="email" name="contact_email">
+  <input type="text" name="contact_role">
+  <input type="text" name="contact_org">
+  <textarea name="what_you_want"></textarea>
+  <textarea name="why_now"></textarea>
+  <input type="text" name="timeline">
+  <input type="text" name="budget_signal">
+  <input type="text" name="source"><!-- where they heard about us -->
+</form>
+
+<style>
+  :root {
+    --ink: #0e0c08;
+    --ink-soft: #3a3328;
+    --ink-quiet: #5a5240;
+    --linen: #f4ebd6;
+    --linen-edge: #ece2c8;
+    --brass: #b8922a;
+    --brass-bright: #FDB827;
+    --navy-mid: #2c3e5c;
+    --cream: #fbf4e0;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    background: #faf6ec; color: var(--ink);
+    line-height: 1.55; -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--brass); }
+
+  header.builder-top {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 18px 32px; background: #0a0a0a; color: #f4ebd6;
+    border-bottom: 1px solid var(--brass);
+  }
+  .builder-brand { font-family: 'Playfair Display', Georgia, serif; font-size: 18px; font-weight: 700; color: #fff; text-decoration: none; }
+  .builder-brand em { color: var(--brass-bright); font-style: italic; font-weight: 400; }
+  .builder-top-links a {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: #d6cfc0; text-decoration: none; margin-left: 18px;
+  }
+  .builder-top-links a:hover { color: var(--brass-bright); }
+
+  section.hero {
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 60%, #1f2d44 100%);
+    color: #f4ebd6; padding: 56px 32px 48px;
+  }
+  .hero-inner { max-width: 880px; margin: 0 auto; }
+  .eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase;
+    color: var(--brass-bright); margin-bottom: 14px;
+  }
+  h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(32px, 4.5vw, 50px); font-weight: 700;
+    color: #fff; line-height: 1.08; margin: 0 0 18px;
+  }
+  h1 em { color: var(--brass-bright); font-style: italic; font-weight: 400; }
+  .sub {
+    font-size: clamp(15px, 1.5vw, 18px);
+    color: #d6cfc0; max-width: 720px; margin: 0; font-style: italic;
+  }
+
+  main {
+    max-width: 880px; margin: 0 auto; padding: 48px 32px 80px;
+  }
+  .section {
+    background: #fff; border: 1px solid var(--linen-edge);
+    padding: 28px 32px; margin-bottom: 22px;
+  }
+  .section-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--brass); margin-bottom: 10px;
+  }
+  .section-h {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 22px; font-weight: 700; color: var(--ink); margin: 0 0 6px;
+  }
+  .section-sub {
+    font-size: 14px; color: var(--ink-quiet); font-style: italic; margin: 0 0 22px;
+  }
+
+  .field { margin-bottom: 18px; }
+  .field-label {
+    display: block; font-family: 'DM Mono', monospace;
+    font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--navy-mid); margin-bottom: 8px; font-weight: 600;
+  }
+  .field-help { font-size: 13px; color: var(--ink-quiet); font-style: italic; margin-top: 4px; }
+  .text, .textarea, .select {
+    width: 100%; padding: 10px 12px;
+    border: 1px solid var(--linen-edge); background: #fff;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 16px; color: var(--ink); box-sizing: border-box;
+  }
+  .text:focus, .textarea:focus, .select:focus { outline: 2px solid var(--brass); }
+  .textarea { font-size: 15px; line-height: 1.5; min-height: 110px; resize: vertical; }
+
+  .submit-row { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin-top: 22px; }
+  .submit {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
+    padding: 14px 32px; background: var(--brass); color: #fff;
+    border: 1px solid var(--brass); cursor: pointer; font-weight: 600;
+  }
+  .submit:hover { background: var(--ink); border-color: var(--ink); }
+  .submit:disabled { opacity: 0.6; cursor: wait; }
+
+  .confirm { display: none; padding: 32px; background: var(--cream); border-left: 4px solid var(--brass); }
+  .confirm.is-visible { display: block; }
+  .confirm-h { font-family: 'Playfair Display', Georgia, serif; font-size: 22px; font-weight: 700; color: var(--ink); margin: 0 0 12px; }
+
+  footer { text-align: center; padding: 36px 24px 52px; border-top: 1px solid var(--linen-edge); color: var(--ink-quiet); font-family: 'Cormorant Garamond', serif; font-size: 14px; font-style: italic; }
+  footer a { color: var(--navy-mid); }
+</style>
+</head>
+<body>
+
+<header class="builder-top">
+  <a href="/" class="builder-brand">ETL <em>Custom PA</em></a>
+  <div class="builder-top-links">
+    <a href="/">ETL Home</a>
+    <a href="/build-your-pa.html">Standard builder</a>
+    <a href="/studio">See Auggie</a>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow">Custom build &middot; not on the menu</div>
+    <h1>Tell us what you want <em>built</em>.</h1>
+    <p class="sub">If our standard 12-dimension builder does not cover what you need, we scope it directly. PAs with custom skills, custom integrations, or capabilities we have not productized yet.</p>
+  </div>
+</section>
+
+<main>
+
+  <form id="inquiry-form" novalidate>
+
+    <section class="section">
+      <div class="section-tag">01 &middot; About you</div>
+      <h2 class="section-h">Who you are</h2>
+      <div class="field">
+        <label class="field-label" for="contact_name">Your name</label>
+        <input type="text" id="contact_name" name="contact_name" class="text" required>
+      </div>
+      <div class="field">
+        <label class="field-label" for="contact_email">Email</label>
+        <input type="email" id="contact_email" name="contact_email" class="text" required>
+      </div>
+      <div class="field">
+        <label class="field-label" for="contact_role">Your role</label>
+        <input type="text" id="contact_role" name="contact_role" class="text" placeholder="e.g. physician, hedge fund manager, university chancellor, founder">
+      </div>
+      <div class="field">
+        <label class="field-label" for="contact_org">Organization (optional)</label>
+        <input type="text" id="contact_org" name="contact_org" class="text">
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-tag">02 &middot; What you want built</div>
+      <h2 class="section-h">The PA you have in mind</h2>
+      <p class="section-sub">Describe the assistant you want. What it does, what it knows, who it talks to, what platforms it touches.</p>
+      <div class="field">
+        <label class="field-label" for="what_you_want">What you want this PA to do</label>
+        <textarea id="what_you_want" name="what_you_want" class="textarea" placeholder="e.g. A PA that monitors my Robinhood portfolio, watches options activity on flagged tickers, sends me a 6am market-open brief in a voice I picked, and drafts a daily LinkedIn post about one trade thesis I am tracking. Should NOT auto-trade, just brief and alert." required></textarea>
+      </div>
+      <div class="field">
+        <label class="field-label" for="why_now">Why now</label>
+        <textarea id="why_now" name="why_now" class="textarea" placeholder="What is making you reach out today? A new opportunity, a workflow that broke, a tool you saw, a board meeting coming up. Helps us scope and prioritize."></textarea>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-tag">03 &middot; Logistics</div>
+      <h2 class="section-h">Timeline and signal</h2>
+      <div class="field">
+        <label class="field-label" for="timeline">When do you need this</label>
+        <select id="timeline" name="timeline" class="select">
+          <option value="">Pick one...</option>
+          <option>Yesterday</option>
+          <option>Within 2 weeks</option>
+          <option>This quarter</option>
+          <option>This year</option>
+          <option>Exploring, no rush</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="field-label" for="budget_signal">Budget signal (optional)</label>
+        <select id="budget_signal" name="budget_signal" class="select">
+          <option value="">Skip</option>
+          <option>Under $1K/mo</option>
+          <option>$1K–5K/mo</option>
+          <option>$5K–15K/mo</option>
+          <option>$15K+/mo</option>
+          <option>One-time build, then maintenance</option>
+          <option>Not sure, want to be told</option>
+        </select>
+        <div class="field-help">Optional. Helps us know whether to scope you a productized PA or a custom build.</div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="source">How did you hear about us</label>
+        <input type="text" id="source" name="source" class="text" placeholder="e.g. Forbes piece, a colleague, found Dr. O on LinkedIn, came from /build-your-pa">
+      </div>
+    </section>
+
+    <input type="hidden" name="form-name" value="custom-pa-inquiry">
+    <input type="text" name="bot-field" style="display:none;" tabindex="-1" autocomplete="off">
+
+    <div class="submit-row">
+      <button type="submit" id="submit-btn" class="submit">Send inquiry →</button>
+      <span id="err-box" style="color:#7d2828; font-family:'DM Mono',monospace; font-size:12px; display:none;"></span>
+    </div>
+
+    <div id="confirm-box" class="confirm">
+      <h3 class="confirm-h">Got it. We will reach out within a business day.</h3>
+      <p style="color:var(--ink-soft); font-size:15px; margin:0 0 12px;">Dr. Oroszi reviews every custom inquiry personally. Expect a reply with scope questions, pricing direction, and a build timeline.</p>
+      <p style="color:var(--ink-quiet); font-size:14px; font-style:italic; margin:0;">If you do not see anything from us within a business day, check spam, then email us at <a href="mailto:terry.oroszi@wright.edu">terry.oroszi@wright.edu</a>.</p>
+    </div>
+
+  </form>
+
+</main>
+
+<footer>
+  Custom personal assistants from the <a href="/">Emerging Technologies Laboratory</a>. Or start with the <a href="/build-your-pa.html">standard builder</a>.
+</footer>
+
+<script>
+(function(){
+  var form    = document.getElementById('inquiry-form');
+  var submit  = document.getElementById('submit-btn');
+  var errBox  = document.getElementById('err-box');
+  var confirm = document.getElementById('confirm-box');
+
+  form.addEventListener('submit', async function(ev){
+    ev.preventDefault();
+    errBox.style.display = 'none';
+
+    var nameOk  = (form.contact_name.value || '').trim().length > 0;
+    var emailOk = (form.contact_email.value || '').trim().length > 0 && /@/.test(form.contact_email.value);
+    var wantOk  = (form.what_you_want.value || '').trim().length > 10;
+    if (!nameOk || !emailOk) {
+      errBox.textContent = 'we need your name and a valid email.';
+      errBox.style.display = '';
+      return;
+    }
+    if (!wantOk) {
+      errBox.textContent = 'tell us what you want built. a sentence or two is enough.';
+      errBox.style.display = '';
+      return;
+    }
+
+    submit.disabled = true;
+    submit.textContent = 'Sending...';
+
+    var data = new URLSearchParams();
+    data.append('form-name', 'custom-pa-inquiry');
+    Array.from(form.elements).forEach(function(el){
+      if (!el.name) return;
+      if (el.type === 'submit' || el.type === 'button') return;
+      data.append(el.name, el.value || '');
+    });
+
+    try {
+      var r = await fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: data.toString(),
+      });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      form.querySelectorAll('section, .submit-row').forEach(function(el){ el.style.display = 'none'; });
+      confirm.classList.add('is-visible');
+      window.scrollTo({ top: confirm.offsetTop - 60, behavior: 'smooth' });
+    } catch (err) {
+      errBox.textContent = 'submission failed: ' + (err && err.message ? err.message : 'unknown') + '. email us at terry.oroszi@wright.edu and we will pick it up.';
+      errBox.style.display = '';
+      submit.disabled = false;
+      submit.textContent = 'Send inquiry →';
+    }
+  });
+})();
+</script>
+
+</body>
+</html>

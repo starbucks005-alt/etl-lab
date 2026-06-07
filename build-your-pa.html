@@ -272,6 +272,10 @@
     <div class="builder-eyebrow">A new product &middot; configured to you</div>
     <h1 class="builder-h1">Build your own <em>personal assistant</em></h1>
     <p class="builder-sub">Tell us who they are, how they talk, what they care about, and what work they need to know. We build them. You wake up to a brief in their voice every morning.</p>
+    <div style="margin-top:22px; padding-top:18px; border-top:1px solid rgba(253,184,39,0.25); font-family:'DM Mono',monospace; font-size:11px; letter-spacing:0.16em; color:#d6cfc0; text-transform:uppercase;">
+      Want something we have not built yet?
+      <a href="/custom-pa-inquiry.html" style="color:var(--brass-bright); margin-left:8px; text-decoration:underline;">Tell us directly &rarr;</a>
+    </div>
   </div>
 </section>
 
@@ -475,6 +479,21 @@
       <p class="builder-section-sub">Each add-on teaches your PA a specific beat to watch, sources to track, and outputs to deliver. Pick as many as fit your work. Add-ons are billed separately as part of the subscription.</p>
 
       <div class="addon-grid">
+
+        <!-- STOCKS first: hot demand right now, Robinhood-capable, and we have
+             confirmed leads asking for this exact build. Featured badge. -->
+        <label class="addon-chip" style="border:2px solid var(--brass); background:var(--cream); grid-column:1 / -1;">
+          <input type="checkbox" name="addon" value="Stocks">
+          <div style="flex:1;">
+            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:4px;">
+              <div class="addon-chip-name">📈 Stocks</div>
+              <span style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.18em; color:#fff; background:#1f8a3a; padding:3px 8px; text-transform:uppercase;">New</span>
+              <span style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.18em; color:var(--ink); background:var(--brass-bright); padding:3px 8px; text-transform:uppercase;">Robinhood-capable</span>
+            </div>
+            <div class="addon-chip-desc" style="font-size:14px;">Portfolio watch, market open and close briefs, earnings calendar, SEC filings. Robinhood API integration available for trade-aware monitoring (alerts and reports on your own activity). Execution-capable agents available as a separate build, on your express request and with appropriate disclosures.</div>
+          </div>
+        </label>
+
         <label class="addon-chip">
           <input type="checkbox" name="addon" value="Author">
           <div>
@@ -494,13 +513,6 @@
           <div>
             <div class="addon-chip-name">💼 Business</div>
             <div class="addon-chip-desc">Competitive scans, partnership leads, market intel briefs.</div>
-          </div>
-        </label>
-        <label class="addon-chip">
-          <input type="checkbox" name="addon" value="Stocks">
-          <div>
-            <div class="addon-chip-name">📈 Stocks</div>
-            <div class="addon-chip-desc">Portfolio watch, market briefs, earnings calendar, SEC filings.</div>
           </div>
         </label>
         <label class="addon-chip">
