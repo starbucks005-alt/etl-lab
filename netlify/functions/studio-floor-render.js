@@ -79,9 +79,28 @@ const STAFF = [
    that actually happened in the Studio today. We pull what we can find,
    then pass it to the model as grounding.
    ──────────────────────────────────────────────────────────────────────── */
+// Format the current wall-clock time in Terry's timezone (America/New_York).
+// We use Intl.DateTimeFormat for correct DST handling; falling back to a UTC
+// approximation if the runtime lacks tz data (Netlify nodes have it).
+function currentETTime() {
+  try {
+    const fmt = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/New_York',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    });
+    return fmt.format(new Date()).toLowerCase().replace(/\s+/g, '');
+  } catch (_) {
+    const d = new Date();
+    const h = d.getUTCHours();
+    return ((h % 12) || 12) + ':' + String(d.getUTCMinutes()).padStart(2, '0') + (h >= 12 ? 'pm' : 'am');
+  }
+}
+
 async function getTodaysContext(event) {
   const today = new Date().toISOString().slice(0, 10);
-  const context = { date: today, items: [] };
+  const context = { date: today, nowET: currentETTime(), items: [] };
 
   try { connectLambda(event); } catch (_) {}
 
@@ -151,6 +170,8 @@ exports.handler = async (event) => {
     'TODAY (' + context.date + ') — what actually happened that they might be talking about:',
     contextBlock,
     '',
+    'CURRENT WALL-CLOCK TIME, Eastern: **' + context.nowET + '** (Terry\'s timezone, America/New_York).',
+    '',
     'RULES:',
     '- 8 to 12 messages total.',
     '- Each message is one to three short sentences. Conversational, not paragraphs.',
@@ -159,7 +180,7 @@ exports.handler = async (event) => {
     '- If today\'s context is sparse, they are just doing office chatter — Auggie complaining about a typo, Bea pushing back on a deadline, Chris dropping a color note, Jess pinging about a podcast pitch. Real-office texture.',
     '- They like each other. They tease each other. There can be a small disagreement, but it resolves like adults.',
     '- No emojis. No exclamation points (Bea will not stand for them). ALL CAPS used sparingly for emphasis (OMG, ANYWAY) and only by Auggie.',
-    '- Timestamps as "h:MMam" or "h:MMpm" (e.g., "9:12am"). Make them progress through today plausibly — early morning to early afternoon range.',
+    '- Timestamps as "h:MMam" or "h:MMpm" (e.g., "2:14pm"). The conversation must have happened in the LAST 4-6 HOURS leading up to the current time above. **DO NOT timestamp anything in the future relative to now.** Example: if it is currently 4:23pm, the thread might run from roughly 10:15am to 4:10pm, progressing chronologically.',
     '',
     'OUTPUT FORMAT:',
     'Return JSON ONLY, no surrounding prose, no code fences. The exact shape:',
