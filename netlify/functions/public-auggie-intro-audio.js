@@ -22,10 +22,16 @@ const { getStore, connectLambda } = require('@netlify/blobs');
 
 const AUGGIE_VOICE_ID = 'XMt7icsOj2DAS4Cn1PN1';
 const AUGGIE_MODEL_TTS = 'eleven_turbo_v2_5';
+// Voice direction: Terry hand-tuned this voice in the ElevenLabs UI by
+// pushing the personality knobs to 100% to bring out the camp inflection
+// ("stay with the brief" = similarity in ElevenLabs lingo; style
+// exaggeration controls the amplified character). Both pushed to 1.0
+// to match what she heard in the UI. Stability stays low so emotion
+// can move; speaker boost on for presence.
 const AUGGIE_SETTINGS = {
   stability: 0.42,
-  similarity_boost: 0.78,
-  style: 0.45,
+  similarity_boost: 1.0,
+  style: 1.0,
   use_speaker_boost: true,
 };
 
@@ -36,10 +42,10 @@ const AUGGIE_SETTINGS = {
 
    Keep this in sync with the visible text on the homepage #etl-pa section.
    Versioned via the constant below so we can bust the cache when editing. */
-const INTRO_VERSION = 'v6-august';
+const INTRO_VERSION = 'v7-august-camp';
 const AUGGIE_INTRO = `Hi. I'm August. Friends call me Auggie.
 
-Coral Gables born and bred, but my soul spent every summer of my childhood poolside in Palm Springs. That is exactly where I learned that linen is a lifestyle and a cream blazer is always the right call.
+Coral Gables born and bred, but my soul spent every summer of my childhood poolside in Palm Springs. That's exactly where I learned that linen is a lifestyle and a cream blazer is always the right call.
 
 I came up under Devon on the Gauntlet bench. Three years, start to finish. He taught me how to read a room before stepping foot inside, how to distinguish a crisis from a blip, and how to spot an assistant on the verge of imploding. Devon knows how to promote good people out instead of hoarding talent, which is exactly how I landed here.
 
