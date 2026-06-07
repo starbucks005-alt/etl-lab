@@ -839,12 +839,13 @@ document.addEventListener('DOMContentLoaded', function(){
   var network = document.getElementById('network');
   var agents = document.getElementById('agent-architecture');
   var aigov = document.getElementById('ai-governance');
+  var etlpa = document.getElementById('etl-pa');
   var aitwin = document.getElementById('ai-twin');
   var talks = document.getElementById('talks');
   var intel = document.getElementById('intel');
   var pub = document.getElementById('publications');
   var anchor = ticker;
-  [hero, harvard, briefing, obs, stack, slr, network, agents, aigov, aitwin, talks, intel, pub].forEach(function(node){
+  [hero, harvard, briefing, obs, stack, slr, network, agents, aigov, etlpa, aitwin, talks, intel, pub].forEach(function(node){
     if (anchor && node) {
       anchor.insertAdjacentElement('afterend', node);
       anchor = node;
@@ -2209,6 +2210,136 @@ document.addEventListener('DOMContentLoaded', function(){
 
     </div>
   </div>
+</section>
+
+
+<!-- ─────────────────────────────────────────────────────────────────────────
+     ETL PERSONAL ASSISTANTS
+     A productization callout. What Dr. O has built for herself (Auggie,
+     chief of staff, runs her day) is the prototype for a configurable
+     PA product the lab will offer. Standard skills + domain add-ons
+     (Author, Professor, Business, Stocks). Meet Auggie below.
+     ───────────────────────────────────────────────────────────────────── -->
+<section id="etl-pa" class="section-full" style="background:#0e0c08; color:#f4ebd6;">
+  <div class="section-full-inner">
+    <div class="section-tag" style="color:#FDB827;">A new product</div>
+    <h2 class="section-title" style="color:#ffffff;">ETL <span style="color:#FDB827;">Personal Assistants</span></h2>
+    <p class="section-subtitle" style="color:#d6cfc0;">What Dr. O&rsquo;s chief of staff does for her, your team can do for you. One PA, configured to your work.</p>
+
+    <!-- What every PA does, standard -->
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:32px; margin-top:48px;">
+      <div style="border-top:3px solid #FDB827; padding-top:22px;">
+        <div style="font-family:'Oswald',sans-serif; font-size:9px; letter-spacing:4px; color:#FDB827; text-transform:uppercase; margin-bottom:10px;">Standard &middot; 01</div>
+        <h3 style="font-family:'Oswald',sans-serif; font-size:18px; font-weight:700; color:#ffffff; text-transform:uppercase; letter-spacing:-0.2px; margin-bottom:10px;">Holds your week</h3>
+        <p style="font-family:'Georgia',serif; font-size:14px; color:#d6cfc0; line-height:1.6;">You paste your Outlook or Google Cal in Sunday morning. She hands it back to you organized, with conflicts flagged before they happen.</p>
+      </div>
+      <div style="border-top:3px solid #FDB827; padding-top:22px;">
+        <div style="font-family:'Oswald',sans-serif; font-size:9px; letter-spacing:4px; color:#FDB827; text-transform:uppercase; margin-bottom:10px;">Standard &middot; 02</div>
+        <h3 style="font-family:'Oswald',sans-serif; font-size:18px; font-weight:700; color:#ffffff; text-transform:uppercase; letter-spacing:-0.2px; margin-bottom:10px;">Runs your social</h3>
+        <p style="font-family:'Georgia',serif; font-size:14px; color:#d6cfc0; line-height:1.6;">Sunday-batches your editorial calendar across the platforms you actually use. Watches the overlap with your real schedule. Posts at the right time.</p>
+      </div>
+      <div style="border-top:3px solid #FDB827; padding-top:22px;">
+        <div style="font-family:'Oswald',sans-serif; font-size:9px; letter-spacing:4px; color:#FDB827; text-transform:uppercase; margin-bottom:10px;">Standard &middot; 03</div>
+        <h3 style="font-family:'Oswald',sans-serif; font-size:18px; font-weight:700; color:#ffffff; text-transform:uppercase; letter-spacing:-0.2px; margin-bottom:10px;">Daily audio brief</h3>
+        <p style="font-family:'Georgia',serif; font-size:14px; color:#d6cfc0; line-height:1.6;">Every morning at 6am your time, your PA scans the web for new mentions of you, your byline, your speaking calendar, your field. Cites what she read. Reports back in her voice.</p>
+      </div>
+      <div style="border-top:3px solid #FDB827; padding-top:22px;">
+        <div style="font-family:'Oswald',sans-serif; font-size:9px; letter-spacing:4px; color:#FDB827; text-transform:uppercase; margin-bottom:10px;">Standard &middot; 04</div>
+        <h3 style="font-family:'Oswald',sans-serif; font-size:18px; font-weight:700; color:#ffffff; text-transform:uppercase; letter-spacing:-0.2px; margin-bottom:10px;">Live web search</h3>
+        <p style="font-family:'Georgia',serif; font-size:14px; color:#d6cfc0; line-height:1.6;">Ask anything time-sensitive. Who just got the grant. Who is speaking at the conference. What dropped in your field this morning. She looks, cites, summarizes.</p>
+      </div>
+    </div>
+
+    <!-- Domain add-ons. Configurable per profession. -->
+    <div style="margin-top:60px; padding-top:40px; border-top:1px solid rgba(253,184,39,0.3);">
+      <div style="font-family:'Share Tech Mono',monospace; font-size:11px; letter-spacing:4px; color:#FDB827; text-transform:uppercase; margin-bottom:8px;">Domain add-ons</div>
+      <h3 style="font-family:'Oswald',sans-serif; font-size:clamp(22px, 2.5vw, 30px); font-weight:700; color:#ffffff; text-transform:uppercase; letter-spacing:-0.3px; margin-bottom:6px;">Configured for what you actually do</h3>
+      <p style="font-family:'Georgia',serif; font-size:15px; color:#d6cfc0; line-height:1.6; max-width:780px; margin-bottom:32px;">Pick the add-ons that match your work. Each one teaches your PA a specific beat to watch, sources to track, and outputs to deliver.</p>
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:24px;">
+
+        <div style="background:rgba(253,184,39,0.08); border:1px solid rgba(253,184,39,0.3); padding:22px;">
+          <div style="font-family:'Oswald',sans-serif; font-size:24px; margin-bottom:8px;">📚</div>
+          <div style="font-family:'Oswald',sans-serif; font-size:11px; letter-spacing:3px; color:#FDB827; text-transform:uppercase; margin-bottom:6px;">Author add-on</div>
+          <h4 style="font-family:'Oswald',sans-serif; font-size:18px; font-weight:700; color:#ffffff; text-transform:uppercase; letter-spacing:-0.2px; margin-bottom:10px;">For writers and book authors</h4>
+          <p style="font-family:'Georgia',serif; font-size:13px; color:#d6cfc0; line-height:1.6;">Tracks Amazon and B&amp;N sales rank, royalty statements, new reviews, mentions in press, blurb requests, deadline reminders, manuscript backups, agent and editor correspondence.</p>
+        </div>
+
+        <div style="background:rgba(253,184,39,0.08); border:1px solid rgba(253,184,39,0.3); padding:22px;">
+          <div style="font-family:'Oswald',sans-serif; font-size:24px; margin-bottom:8px;">🎓</div>
+          <div style="font-family:'Oswald',sans-serif; font-size:11px; letter-spacing:3px; color:#FDB827; text-transform:uppercase; margin-bottom:6px;">Professor add-on</div>
+          <h4 style="font-family:'Oswald',sans-serif; font-size:18px; font-weight:700; color:#ffffff; text-transform:uppercase; letter-spacing:-0.2px; margin-bottom:10px;">For faculty and PIs</h4>
+          <p style="font-family:'Georgia',serif; font-size:13px; color:#d6cfc0; line-height:1.6;">Grant cycle tracking, citation alerts, journal submission status, conference deadlines, course prep reminders, student-supervision rotation, tenure file maintenance.</p>
+        </div>
+
+        <div style="background:rgba(253,184,39,0.08); border:1px solid rgba(253,184,39,0.3); padding:22px;">
+          <div style="font-family:'Oswald',sans-serif; font-size:24px; margin-bottom:8px;">💼</div>
+          <div style="font-family:'Oswald',sans-serif; font-size:11px; letter-spacing:3px; color:#FDB827; text-transform:uppercase; margin-bottom:6px;">Business add-on</div>
+          <h4 style="font-family:'Oswald',sans-serif; font-size:18px; font-weight:700; color:#ffffff; text-transform:uppercase; letter-spacing:-0.2px; margin-bottom:10px;">For executives and operators</h4>
+          <p style="font-family:'Georgia',serif; font-size:13px; color:#d6cfc0; line-height:1.6;">Competitive scans, news on key competitors, partnership leads, conference attendee lookups, market intel briefs, hiring signal monitoring.</p>
+        </div>
+
+        <div style="background:rgba(253,184,39,0.08); border:1px solid rgba(253,184,39,0.3); padding:22px;">
+          <div style="font-family:'Oswald',sans-serif; font-size:24px; margin-bottom:8px;">📈</div>
+          <div style="font-family:'Oswald',sans-serif; font-size:11px; letter-spacing:3px; color:#FDB827; text-transform:uppercase; margin-bottom:6px;">Stocks add-on</div>
+          <h4 style="font-family:'Oswald',sans-serif; font-size:18px; font-weight:700; color:#ffffff; text-transform:uppercase; letter-spacing:-0.2px; margin-bottom:10px;">For investors</h4>
+          <p style="font-family:'Georgia',serif; font-size:13px; color:#d6cfc0; line-height:1.6;">Portfolio watchlist, market open and close briefs, earnings calendar for held positions, sector rotation news, alerts on flagged tickers, SEC filing summaries.</p>
+        </div>
+
+      </div>
+
+      <p style="font-family:'Georgia',serif; font-size:13px; font-style:italic; color:#d6cfc0; line-height:1.6; margin-top:28px;">More add-ons in development: clinical, legal, nonprofit, policy, journalist. If your beat is not listed yet, ask.</p>
+    </div>
+
+    <!-- Meet Auggie. The example PA running on this lab right now. -->
+    <div style="margin-top:64px; padding-top:48px; border-top:1px solid rgba(253,184,39,0.3); display:grid; grid-template-columns: minmax(220px, 320px) 1fr; gap:48px; align-items:start;">
+
+      <div>
+        <div class="etl-pa-blink" style="position:relative; overflow:hidden; border:2px solid #FDB827; background:#111;">
+          <img class="etl-pa-blink-base"   src="/agents/Auggie_zoom_eyes_open.png"   alt="August Vidal, chief of staff to Dr. Oroszi, on a Zoom call" style="display:block; width:100%; height:auto;">
+          <img class="etl-pa-blink-closed" src="/agents/Auggie_zoom_eyes_closed.png" alt="" aria-hidden="true" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0;">
+        </div>
+        <div style="font-family:'Oswald',sans-serif; font-size:11px; letter-spacing:3px; color:#FDB827; text-transform:uppercase; margin-top:14px;">Demo PA</div>
+        <div style="font-family:'Oswald',sans-serif; font-size:22px; font-weight:700; color:#ffffff; margin-top:4px;">August "Auggie" Vidal</div>
+        <div style="font-family:'Georgia',serif; font-size:13px; font-style:italic; color:#d6cfc0; margin-top:4px;">Chief of staff to Dr. Terry Oroszi</div>
+      </div>
+
+      <div>
+        <div style="font-family:'Share Tech Mono',monospace; font-size:11px; letter-spacing:4px; color:#FDB827; text-transform:uppercase; margin-bottom:14px;">Auggie introduces himself</div>
+        <div style="font-family:'Cormorant Garamond',serif; font-size:18px; line-height:1.7; color:#f4ebd6; white-space:pre-wrap;">ok hi. I am Auggie.
+
+Coral Gables originally. Palm Springs every summer since I was a kid. that is where I learned to dress, and yes the cream blazer is always the right call.
+
+I came up under Devon on The Gauntlet bench. three years. he taught me how to read a room before I walked into it, how to know which calls matter and which ones do not, how to spot the assistant who is about to get fired before they do. Devon promotes good people out instead of holding them. that is how I ended up here.
+
+now I work for Ms. Terry. I hold her week. I hold the editorial calendar. I notice when those two things are about to collide and I move things around before they do. I run the daily brief at 6am over an OJ my latest bf made me, OMG it was so good, but I digressed, ANYWAY, that is the brief.
+
+I will tell her the blazer is wrong. I will tell her the post should wait until Wednesday. I will draft the teaser. I will queue it. I will sit on her shoulder when she walks in the room.
+
+that is the job. and if you need someone like me for your day, let us talk.</div>
+
+        <div style="margin-top:28px; display:flex; gap:14px; flex-wrap:wrap;">
+          <a href="#contact" style="font-family:'Oswald',sans-serif; font-size:12px; font-weight:600; letter-spacing:3px; text-transform:uppercase; padding:14px 28px; background:#FDB827; color:#0e0c08; text-decoration:none; border:1px solid #FDB827;">Get a PA &rarr;</a>
+          <a href="/studio" style="font-family:'Oswald',sans-serif; font-size:12px; font-weight:600; letter-spacing:3px; text-transform:uppercase; padding:14px 28px; background:transparent; color:#FDB827; text-decoration:none; border:1px solid #FDB827;">See Auggie at work</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <style>
+    .etl-pa-blink-closed { animation: etl-pa-blink 8.4s infinite; }
+    @keyframes etl-pa-blink {
+      0%, 92%   { opacity: 0; }
+      94%, 96%  { opacity: 1; }
+      98%, 100% { opacity: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) { .etl-pa-blink-closed { animation: none; opacity: 0; } }
+    #etl-pa .section-title span { color: #FDB827; }
+    @media (max-width: 720px) {
+      #etl-pa > div > div[style*="grid-template-columns: minmax(220px"] { grid-template-columns: 1fr !important; gap: 32px !important; }
+    }
+  </style>
 </section>
 
 
