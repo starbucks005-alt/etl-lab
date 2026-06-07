@@ -229,15 +229,18 @@ exports.handler = async (event) => {
   try {
     const resp = await client.messages.create({
       model: MODEL,
-      max_tokens: 1500,
+      max_tokens: 800,
       system: AUGGIE_PERSONA,
       tools: [
         // Anthropic server-side web search. The platform executes the
-        // tool, we just enable it. Max 3 uses per turn keeps the latency
-        // bounded inside Netlify's 10-second sync window for typical
-        // searches; if Auggie starts hitting it for chunkier research
-        // workflows we move this to a background function.
-        { type: 'web_search_20250305', name: 'web_search', max_uses: 3 },
+        // tool, we just enable it. max_uses kept to 1 so chat replies
+        // land inside Netlify's 10-second sync window. Previously 3,
+        // which combined with a 1500-token reply on Sonnet 4.6 would
+        // routinely time out — Netlify then returns its HTML 504 page
+        // and the client errors with "Unexpected token '<'". When
+        // Auggie needs chunkier research we move this to a background
+        // function with polling, the same pattern as Reviewer Panel.
+        { type: 'web_search_20250305', name: 'web_search', max_uses: 1 },
       ],
       messages: messages,
     });

@@ -2331,8 +2331,8 @@ I will tell her the blazer is wrong for the venue. I will tell her that post sho
 That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do have a copy of her CV, and know how to do a job search on ETL, and I can even do her stocks on Robinhood, but alas, she only wants her calendar kept, and her wardrobe. The last one, that was MY choice. You think she looks that good natch? No, honey&hellip; that&rsquo;s all me. If you need someone like me to run your day, let&rsquo;s talk.</div>
 
         <div style="margin-top:28px; display:flex; gap:14px; flex-wrap:wrap;">
-          <a href="/build-your-pa.html" style="font-family:'Oswald',sans-serif; font-size:12px; font-weight:600; letter-spacing:3px; text-transform:uppercase; padding:14px 28px; background:#FDB827; color:#0e0c08; text-decoration:none; border:1px solid #FDB827;">Build your own PA &rarr;</a>
-          <a href="/custom-pa-inquiry.html" style="font-family:'Oswald',sans-serif; font-size:12px; font-weight:600; letter-spacing:3px; text-transform:uppercase; padding:14px 28px; background:transparent; color:#FDB827; text-decoration:none; border:1px solid #FDB827;">Custom build &rarr;</a>
+          <a href="/build-your-pa.html" class="etl-pa-cta etl-pa-cta-primary">Build your own PA &rarr;</a>
+          <a href="/custom-pa-inquiry.html" class="etl-pa-cta etl-pa-cta-secondary">Custom build &rarr;</a>
         </div>
         <div style="margin-top:16px; font-family:'Share Tech Mono',monospace; font-size:11px; letter-spacing:0.18em; color:#d6cfc0; text-transform:uppercase;">
           From <span style="color:#FDB827; font-weight:700;">$199/mo</span> &middot;
@@ -2359,6 +2359,37 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
     @media (max-width: 720px) {
       #etl-pa > div > div[style*="grid-template-columns: minmax(220px"] { grid-template-columns: 1fr !important; gap: 32px !important; }
     }
+    /* CTA buttons — class-based, !important, forced-color-adjust: none.
+       Earlier inline-style versions were getting recolored to default
+       blue underlined links in browsers with Dark Reader, Edge Reading
+       View, or Windows high-contrast mode active. Classes survive that. */
+    .etl-pa-cta {
+      display: inline-block;
+      font-family: 'Oswald', sans-serif !important;
+      font-size: 12px !important;
+      font-weight: 600 !important;
+      letter-spacing: 3px !important;
+      text-transform: uppercase !important;
+      text-decoration: none !important;
+      padding: 14px 28px !important;
+      border: 1px solid #FDB827 !important;
+      forced-color-adjust: none !important;
+      transition: transform 120ms ease, opacity 120ms ease;
+    }
+    .etl-pa-cta:hover, .etl-pa-cta:focus { opacity: 0.9; }
+    .etl-pa-cta-primary {
+      background: #FDB827 !important;
+      color: #0e0c08 !important;
+    }
+    .etl-pa-cta-primary:link, .etl-pa-cta-primary:visited,
+    .etl-pa-cta-primary:hover, .etl-pa-cta-primary:active { color: #0e0c08 !important; }
+    .etl-pa-cta-secondary {
+      background: transparent !important;
+      color: #ffffff !important;
+      border-color: #ffffff !important;
+    }
+    .etl-pa-cta-secondary:link, .etl-pa-cta-secondary:visited,
+    .etl-pa-cta-secondary:hover, .etl-pa-cta-secondary:active { color: #ffffff !important; }
   </style>
 </section>
 
