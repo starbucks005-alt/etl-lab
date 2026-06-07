@@ -2306,21 +2306,33 @@ document.addEventListener('DOMContentLoaded', function(){
 
       <div>
         <div style="font-family:'Share Tech Mono',monospace; font-size:11px; letter-spacing:4px; color:#FDB827; text-transform:uppercase; margin-bottom:14px;">Auggie introduces himself</div>
-        <div style="font-family:'Cormorant Garamond',serif; font-size:18px; line-height:1.7; color:#f4ebd6; white-space:pre-wrap;">ok hi. I am Auggie.
 
-Coral Gables originally. Palm Springs every summer since I was a kid. that is where I learned to dress, and yes the cream blazer is always the right call.
+        <!-- Audio player. Hits public-auggie-intro-audio, which renders
+             once via ElevenLabs and caches in Netlify Blobs. After the
+             first visitor triggers the render, all subsequent plays are
+             instant from cache. Zero per-play cost. -->
+        <div style="background:rgba(253,184,39,0.08); border:1px solid rgba(253,184,39,0.3); padding:14px 16px; margin-bottom:22px; display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+          <span style="font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:3px; color:#FDB827; text-transform:uppercase;">▶ Hear him</span>
+          <audio controls preload="none" style="flex:1; min-width:240px; height:36px;" src="/.netlify/functions/public-auggie-intro-audio">
+            Your browser does not support audio playback.
+          </audio>
+        </div>
 
-I came up under Devon on The Gauntlet bench. three years. he taught me how to read a room before I walked into it, how to know which calls matter and which ones do not, how to spot the assistant who is about to get fired before they do. Devon promotes good people out instead of holding them. that is how I ended up here.
+        <div style="font-family:'Cormorant Garamond',serif; font-size:18px; line-height:1.7; color:#f4ebd6; white-space:pre-wrap;">OK, hi. I'm Auggie.
 
-now I work for Ms. Terry. I hold her week. I hold the editorial calendar. I notice when those two things are about to collide and I move things around before they do. I run the daily brief at 6am over an OJ my latest bf made me, OMG it was so good, but I digressed, ANYWAY, that is the brief.
+Coral Gables originally. Palm Springs every summer since I was a kid. That's where I learned to dress, and yes, the cream blazer is always the right call.
 
-I will tell her the blazer is wrong. I will tell her the post should wait until Wednesday. I will draft the teaser. I will queue it. I will sit on her shoulder when she walks in the room.
+I came up under Devon on The Gauntlet bench. Three years. He taught me how to read a room before I walked into it, how to know which calls matter and which ones don't, how to spot the assistant who's about to get fired before they do. Devon promotes good people out instead of holding them. That's how I ended up here.
 
-that is the job. and if you need someone like me for your day, let us talk.</div>
+Now I work for Ms. Terry. I hold her week. I hold the editorial calendar. I notice when those two things are about to collide and I move things around before they do. I run the daily brief at 6am over an OJ my latest boyfriend made me. OMG, it was so good, but I digressed, ANYWAY, that's the brief.
+
+I'll tell her the blazer is wrong. I'll tell her the post should wait until Wednesday. I'll draft the teaser. I'll queue it. I'll sit on her shoulder when she walks into the room.
+
+That's the job. And if you need someone like me running your day, let's talk.</div>
 
         <div style="margin-top:28px; display:flex; gap:14px; flex-wrap:wrap;">
           <a href="/build-your-pa.html" style="font-family:'Oswald',sans-serif; font-size:12px; font-weight:600; letter-spacing:3px; text-transform:uppercase; padding:14px 28px; background:#FDB827; color:#0e0c08; text-decoration:none; border:1px solid #FDB827;">Build your own PA &rarr;</a>
-          <a href="/studio" style="font-family:'Oswald',sans-serif; font-size:12px; font-weight:600; letter-spacing:3px; text-transform:uppercase; padding:14px 28px; background:transparent; color:#FDB827; text-decoration:none; border:1px solid #FDB827;">See Auggie at work</a>
+          <a href="/custom-pa-inquiry.html" style="font-family:'Oswald',sans-serif; font-size:12px; font-weight:600; letter-spacing:3px; text-transform:uppercase; padding:14px 28px; background:transparent; color:#FDB827; text-decoration:none; border:1px solid #FDB827;">Custom build &rarr;</a>
         </div>
         <div style="margin-top:16px; font-family:'Share Tech Mono',monospace; font-size:11px; letter-spacing:0.18em; color:#d6cfc0; text-transform:uppercase;">
           From <span style="color:#FDB827; font-weight:700;">$199/mo</span> &middot;
