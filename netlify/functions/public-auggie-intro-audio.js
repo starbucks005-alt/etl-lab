@@ -84,9 +84,29 @@ const CORS = {
   'Access-Control-Allow-Methods': 'GET, OPTIONS',
 };
 
+// Cache strategy: max-age is short and we revalidate via ETag.
+// Earlier versions sent `immutable, max-age=86400` which locked the
+// audio in browser cache for 24 hours and required a hard refresh
+// after every script change — that's the UX bug we're fixing. Now
+// browsers check back every 5 minutes; if INTRO_VERSION hasn't moved,
+// we 304 in milliseconds (no body, no ElevenLabs spend). If it has,
+// the new audio streams immediately.
+const ETAG = '"' + INTRO_VERSION + '"';
+const CACHE_HEADERS = {
+  'Cache-Control': 'public, max-age=300, must-revalidate',
+  'ETag': ETAG,
+};
+
 exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: CORS, body: '' };
   if (event.httpMethod !== 'GET') return { statusCode: 405, headers: CORS, body: 'method not allowed' };
+
+  // Conditional GET — if the client already has this version cached,
+  // short-circuit with 304 before touching Blobs or ElevenLabs.
+  const inm = (event.headers && (event.headers['if-none-match'] || event.headers['If-None-Match'])) || '';
+  if (inm && inm === ETAG) {
+    return { statusCode: 304, headers: { ...CORS, ...CACHE_HEADERS }, body: '' };
+  }
 
   try { connectLambda(event); } catch (_) {}
   const store = getStore('auggie_public_intro');
@@ -116,11 +136,8 @@ exports.handler = async (event) => {
     statusCode: 200,
     headers: {
       ...CORS,
+      ...CACHE_HEADERS,
       'Content-Type': 'audio/mpeg',
-      // Aggressive cache — the audio is keyed by version, so the only way
-      // it changes is if INTRO_VERSION changes (which means new audio file
-      // anyway). Browsers + CDN can cache for a long time.
-      'Cache-Control': 'public, max-age=86400, immutable',
       'Content-Length': String(Buffer.byteLength(Buffer.from(buf))),
     },
     body: Buffer.from(buf).toString('base64'),
