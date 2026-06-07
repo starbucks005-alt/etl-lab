@@ -409,7 +409,7 @@
       <div class="ws-section-tag">August "Auggie" Vidal</div>
     </div>
 
-    <div style="display:grid; grid-template-columns: minmax(220px, 280px) 1fr; gap:32px; align-items:start;">
+    <div class="auggie-row" style="display:grid; grid-template-columns: minmax(220px, 280px) minmax(380px, 1fr) minmax(320px, 400px); gap:28px; align-items:start;">
 
       <!-- Auggie's portrait + tiny bio.
            Uses the Zoom-frame blink pair (camel suede blazer, palm fronds,
@@ -520,6 +520,31 @@
 
         <div id="auggie-chat-error" style="display:none; margin-top:10px; padding:10px 14px; background:#fdecec; border:1px solid #f0b8b8; color:#7d2828; font-family:'DM Mono',monospace; font-size:11px;"></div>
       </div>
+
+      <!-- THE FLOOR — the inter-staff chat channel.
+           Collapsed by default. Click "open the Floor" to expand and
+           render a fresh in-voice thread between Auggie and the rest of
+           Terry's staff (Bea, Chris, Jess). Each open hits the backend
+           which generates a new thread from today's actual context
+           (Auggie's morning brief, etc.). Render-on-open only — when
+           closed, nothing runs and nothing costs anything. -->
+      <div id="floor-column">
+        <div id="floor-header">
+          <div id="floor-tag">The Floor</div>
+          <div id="floor-sub">your staff, talking to each other</div>
+          <button type="button" id="floor-toggle" aria-expanded="false">
+            <span id="floor-toggle-label">▸ open the Floor</span>
+          </button>
+        </div>
+        <div id="floor-body" style="display:none;">
+          <div id="floor-status" style="display:none;"></div>
+          <div id="floor-thread"></div>
+          <div id="floor-footer" style="display:none;">
+            <button type="button" id="floor-refresh">↻ refresh the channel</button>
+            <span id="floor-context-note"></span>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -568,6 +593,118 @@
     }
     .auggie-play-btn:hover:not(:disabled) { color:var(--ink); border-color:var(--brass); background:#fbf4e0; }
     .auggie-play-btn:disabled { opacity:0.55; cursor:wait; }
+
+    /* ─── THE FLOOR — right column ──────────────────────────────────────
+       The inter-staff chat surface. Visually distinct from Auggie's
+       direct chat: darker, panel-on-panel, more "back-office" than
+       "principal-facing." When collapsed shows just a header and a
+       toggle. When open, renders an in-voice Slack-style thread. */
+    #floor-column {
+      background: #0e0c08;
+      color: #f4ebd6;
+      border: 1px solid var(--brass);
+      padding: 18px 18px 14px;
+      align-self: stretch;
+      min-height: 240px;
+      display: flex; flex-direction: column;
+    }
+    #floor-header {
+      border-bottom: 1px solid rgba(184,146,42,0.35);
+      padding-bottom: 12px;
+    }
+    #floor-tag {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px; font-weight: 700; color: #fff;
+    }
+    #floor-sub {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 13px; font-style: italic; color: #d6cfc0;
+      margin-top: 3px;
+    }
+    #floor-toggle {
+      margin-top: 10px;
+      width: 100%;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px; letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #0e0c08; background: var(--brass-bright, #FDB827);
+      border: 1px solid var(--brass-bright, #FDB827);
+      padding: 8px 12px; cursor: pointer;
+    }
+    #floor-toggle[aria-expanded="true"] {
+      color: var(--brass-bright, #FDB827);
+      background: transparent;
+    }
+    #floor-toggle:hover { opacity: 0.92; }
+    #floor-body {
+      flex: 1;
+      margin-top: 14px;
+      display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+    #floor-status {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic; color: #d6cfc0; font-size: 13px;
+      padding: 8px 4px;
+    }
+    #floor-thread {
+      flex: 1;
+      overflow-y: auto;
+      max-height: 520px;
+      padding-right: 6px;
+    }
+    .floor-msg {
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(214,207,192,0.12);
+    }
+    .floor-msg:last-child { border-bottom: 0; }
+    .floor-msg-head {
+      display: flex; align-items: baseline; gap: 8px;
+      margin-bottom: 4px;
+    }
+    .floor-msg-speaker {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px; letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--brass-bright, #FDB827);
+      font-weight: 700;
+    }
+    .floor-msg-time {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px; color: #9a8e7e;
+    }
+    .floor-msg-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 15px; line-height: 1.5;
+      color: #f4ebd6;
+    }
+    #floor-footer {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(184,146,42,0.25);
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 10px;
+    }
+    #floor-refresh {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px; letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--brass-bright, #FDB827);
+      background: transparent;
+      border: 1px solid var(--brass);
+      padding: 5px 10px; cursor: pointer;
+    }
+    #floor-refresh:hover:not(:disabled) { background: rgba(253,184,39,0.1); }
+    #floor-refresh:disabled { opacity: 0.55; cursor: wait; }
+    #floor-context-note {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 11px; font-style: italic; color: #9a8e7e;
+    }
+    /* Stack the 3-column row vertically on narrower screens. The Floor
+       drops below the chat instead of squeezing it. */
+    @media (max-width: 1100px) {
+      .auggie-row { grid-template-columns: 1fr !important; }
+    }
   </style>
 
   <!-- THE STAFF -->
@@ -2115,6 +2252,139 @@
     obs.observe(ws, { attributes: true, attributeFilter: ['class'] });
   }
   whenWorkspaceVisible(loadAuggieBrief);
+})();
+
+<!-- ─── THE FLOOR — toggle + render ────────────────────────────────────────
+     Click "open the Floor" → expand panel → fetch a fresh in-voice thread
+     from /studio-floor-render. Render-on-open only; closed = no spend.
+     Each open is a NEW thread (no client-side caching) so the
+     conversation stays current with whatever happened in the Studio
+     today. Refresh button at the bottom for re-generating. -->
+<script>
+(function(){
+  var toggle      = document.getElementById('floor-toggle');
+  var toggleLabel = document.getElementById('floor-toggle-label');
+  var body        = document.getElementById('floor-body');
+  var thread      = document.getElementById('floor-thread');
+  var statusEl    = document.getElementById('floor-status');
+  var footer      = document.getElementById('floor-footer');
+  var refreshBtn  = document.getElementById('floor-refresh');
+  var contextNote = document.getElementById('floor-context-note');
+  if (!toggle || !thread) return;
+
+  var hasLoadedOnce = false;
+
+  function escapeHtml(s){
+    return String(s || '')
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  async function getJwt(){
+    try {
+      var s = await window.studioSb.auth.getSession();
+      return s && s.data && s.data.session && s.data.session.access_token;
+    } catch (_) { return null; }
+  }
+
+  function renderMessages(messages){
+    thread.innerHTML = '';
+    if (!Array.isArray(messages) || messages.length === 0) {
+      thread.innerHTML =
+        '<div style="font-family:Cormorant Garamond,serif; font-style:italic; color:#9a8e7e; padding:14px 4px;">' +
+        'the office is quiet right now.' +
+        '</div>';
+      return;
+    }
+    messages.forEach(function(m){
+      var row = document.createElement('div');
+      row.className = 'floor-msg';
+      var speaker = escapeHtml(m.speaker || 'staff');
+      var ts = escapeHtml(m.timestamp || '');
+      var text = escapeHtml(m.text || '');
+      row.innerHTML =
+        '<div class="floor-msg-head">' +
+          '<span class="floor-msg-speaker">' + speaker + '</span>' +
+          '<span class="floor-msg-time">' + ts + '</span>' +
+        '</div>' +
+        '<div class="floor-msg-text">' + text.replace(/\n/g, '<br>') + '</div>';
+      thread.appendChild(row);
+    });
+  }
+
+  async function loadFloor(){
+    statusEl.textContent = 'staff are gathering at the watercooler';
+    statusEl.style.display = '';
+    thread.innerHTML = '';
+    footer.style.display = 'none';
+    refreshBtn.disabled = true;
+
+    try {
+      var token = await getJwt();
+      if (!token) {
+        statusEl.textContent = 'sign in first.';
+        refreshBtn.disabled = false;
+        return;
+      }
+      var r = await fetch('/.netlify/functions/studio-floor-render', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: '{}',
+      });
+      var data;
+      try { data = await r.json(); }
+      catch (e) {
+        statusEl.textContent = 'the floor came back garbled. try refresh.';
+        refreshBtn.disabled = false;
+        return;
+      }
+
+      if (!r.ok || data.error) {
+        var why = data.error || ('HTTP ' + r.status);
+        statusEl.textContent = 'snag: ' + why;
+        refreshBtn.disabled = false;
+        return;
+      }
+
+      statusEl.style.display = 'none';
+      renderMessages(data.messages);
+      footer.style.display = 'flex';
+      refreshBtn.disabled = false;
+
+      if (data.context_used) {
+        var note = data.context_used.item_count > 0
+          ? 'based on today (' + data.context_used.date + ') — ' + data.context_used.item_count + ' real item' + (data.context_used.item_count === 1 ? '' : 's')
+          : 'no fresh activity today — texture only';
+        contextNote.textContent = note;
+      } else {
+        contextNote.textContent = '';
+      }
+    } catch (e) {
+      statusEl.textContent = 'network error: ' + (e && e.message ? e.message : 'unknown');
+      refreshBtn.disabled = false;
+    }
+  }
+
+  toggle.addEventListener('click', function(){
+    var expanded = toggle.getAttribute('aria-expanded') === 'true';
+    if (expanded) {
+      toggle.setAttribute('aria-expanded', 'false');
+      toggleLabel.textContent = '▸ open the Floor';
+      body.style.display = 'none';
+    } else {
+      toggle.setAttribute('aria-expanded', 'true');
+      toggleLabel.textContent = '▾ close the Floor';
+      body.style.display = 'flex';
+      if (!hasLoadedOnce) {
+        hasLoadedOnce = true;
+        loadFloor();
+      }
+    }
+  });
+
+  refreshBtn.addEventListener('click', function(){
+    loadFloor();
+  });
 })();
 </script>
 
