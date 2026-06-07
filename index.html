@@ -814,28 +814,36 @@
 <body>
 
 <!-- Reorder top of page on load:
-     1. Meet the Lab PI (#ai-twin)
-     2. Live Platforms / AI Agents (#network)
-     3. AI Governance talk (#intel)
-     4. Forbes Publications (#publications)
-     Hero + ticker stay on top; this just chains the four key sections after them. -->
+     1. Harvard credential strip (#latest-credential)
+     2. Three pillars band (#three-pillars)
+     3. Meet the Lab PI (#ai-twin)
+     4. Live Platforms / AI Agents (#network)
+     5. Framework underneath (#framework)
+     6. Talks & Keynotes (#talks)
+     7. AI Governance talk (#intel)
+     8. Forbes Publications (#publications)
+     Hero + ticker stay on top; this chains the key sections after them. -->
 <script>
 document.addEventListener('DOMContentLoaded', function(){
   var ticker = document.querySelector('.ticker-wrap');
   var hero = document.getElementById('hero');
+  var harvard = document.getElementById('latest-credential');
+  var pillars = document.getElementById('three-pillars');
   var briefing = document.getElementById('briefing-card');
   var aitwin = document.getElementById('ai-twin');
   var network = document.getElementById('network');
+  var framework = document.getElementById('framework');
   var talks = document.getElementById('talks');
   var intel = document.getElementById('intel');
   var pub = document.getElementById('publications');
-  // Final top-of-page chain: ticker -> hero -> briefing -> ai twin -> network
-  // -> talks -> intel -> publications. Reorder script inserts each AFTER the
-  // previous anchor so they end up in this exact sequence regardless of
-  // source order. Talks sits between Network and Intel: upcoming speaking
-  // engagements followed by the most recent recorded briefing.
+  // Final top-of-page chain: ticker -> hero -> Harvard -> three pillars ->
+  // briefing -> ai twin -> network -> framework -> talks -> intel -> publications.
+  // Reorder script inserts each AFTER the previous anchor so they end up in this
+  // exact sequence regardless of source order. Harvard and Three Pillars frame
+  // the identity story right under the hero; Framework explains what the
+  // platforms share, placed directly after the platforms themselves.
   var anchor = ticker;
-  [hero, briefing, aitwin, network, talks, intel, pub].forEach(function(node){
+  [hero, harvard, pillars, briefing, aitwin, network, framework, talks, intel, pub].forEach(function(node){
     if (anchor && node) {
       anchor.insertAdjacentElement('afterend', node);
       anchor = node;
