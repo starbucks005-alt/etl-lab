@@ -837,12 +837,14 @@ document.addEventListener('DOMContentLoaded', function(){
   var stack = document.getElementById('identity-stack');
   var slr = document.getElementById('slr-method');
   var network = document.getElementById('network');
+  var agents = document.getElementById('agent-architecture');
+  var aigov = document.getElementById('ai-governance');
   var aitwin = document.getElementById('ai-twin');
   var talks = document.getElementById('talks');
   var intel = document.getElementById('intel');
   var pub = document.getElementById('publications');
   var anchor = ticker;
-  [hero, harvard, briefing, obs, stack, slr, network, aitwin, talks, intel, pub].forEach(function(node){
+  [hero, harvard, briefing, obs, stack, slr, network, agents, aigov, aitwin, talks, intel, pub].forEach(function(node){
     if (anchor && node) {
       anchor.insertAdjacentElement('afterend', node);
       anchor = node;
@@ -1721,8 +1723,71 @@ document.addEventListener('DOMContentLoaded', function(){
 
     <div class="etl-net-grid">
 
-      <!-- SLR Studio (lead position; shortest legible tour) -->
-      <div class="etl-net-card etl-net-card--wide">
+      <!-- R3 CATEGORY HEADERS. Each spans the full grid row and uses
+           CSS `order:` to position groups. Cards below carry matching
+           order values so they fall under the right header. -->
+      <style>
+        .etl-net-group-header {
+          grid-column: 1 / -1;
+          background: #0a0a0a;
+          color: #FDB827;
+          padding: 22px 28px 18px;
+          border-bottom: 2px solid #FDB827;
+        }
+        .etl-net-group-eyebrow {
+          font-family: 'Share Tech Mono', monospace;
+          font-size: 10px;
+          letter-spacing: 4px;
+          text-transform: uppercase;
+          color: #FDB827;
+          margin-bottom: 6px;
+        }
+        .etl-net-group-title {
+          font-family: 'Oswald', sans-serif;
+          font-size: clamp(20px, 2.2vw, 26px);
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: -0.3px;
+          color: #ffffff;
+          line-height: 1.1;
+          margin: 0;
+        }
+        .etl-net-group-blurb {
+          font-family: 'Georgia', serif;
+          font-size: 13px;
+          color: #e8dece;
+          line-height: 1.6;
+          margin: 8px 0 0;
+          max-width: 800px;
+        }
+      </style>
+
+      <div class="etl-net-group-header" style="order: 0;">
+        <div class="etl-net-group-eyebrow">Programs &middot; Group 01</div>
+        <h3 class="etl-net-group-title">Operational Behavioral Science Programs</h3>
+        <p class="etl-net-group-blurb">SLR Method applied to intelligence, idea evaluation, and operational exposure.</p>
+      </div>
+
+      <div class="etl-net-group-header" style="order: 5;">
+        <div class="etl-net-group-eyebrow">Programs &middot; Group 02</div>
+        <h3 class="etl-net-group-title">Scholarly and Research Programs</h3>
+        <p class="etl-net-group-blurb">The canonical SLR engine and the faculty, defense, and professional preparation environments built on it.</p>
+      </div>
+
+      <div class="etl-net-group-header" style="order: 11;">
+        <div class="etl-net-group-eyebrow">Programs &middot; Group 03</div>
+        <h3 class="etl-net-group-title">Health and Clinical Programs</h3>
+        <p class="etl-net-group-blurb">SLR Method applied to clinical trial literacy and health communication.</p>
+      </div>
+
+      <div class="etl-net-group-header" style="order: 14;">
+        <div class="etl-net-group-eyebrow">Programs &middot; Group 04</div>
+        <h3 class="etl-net-group-title">Civic and Editorial Programs</h3>
+        <p class="etl-net-group-blurb">Peace and civic leadership, an AI-staffed newsroom, and an independent imprint for operator-grade nonfiction.</p>
+      </div>
+
+      <!-- SLR Studio (Scholarly group) -->
+      <div class="etl-net-card etl-net-card--wide" style="order: 6;">
         <div class="etl-net-video" style="padding-top:56.25%;"><iframe src="https://player.vimeo.com/video/1196496233?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" title="SLR STUDIO"></iframe></div>
         <div class="etl-net-body">
           <div class="etl-net-num">Platform // 01 <span class="etl-net-duration">3:44 walkthrough</span> <span style="display:inline-block;background:var(--green-bright,#1f8a3a);color:#fff;font-family:'Oswald',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;padding:3px 9px;margin-left:6px;border-radius:2px;">FREE AT THE LAB</span></div>
@@ -1740,7 +1805,8 @@ document.addEventListener('DOMContentLoaded', function(){
       </div>
 
       <!-- The Gauntlet -->
-      <div class="etl-net-card etl-net-card--wide">
+      <!-- The Gauntlet (OBS Programs group) -->
+      <div class="etl-net-card etl-net-card--wide" style="order: 3;">
         <div class="etl-net-video" style="padding-top:56.25%;"><iframe src="https://player.vimeo.com/video/1196488437?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" title="The Gauntlet"></iframe></div>
         <div class="etl-net-body">
           <div class="etl-net-num">Platform // 02 <span class="etl-net-duration">2:13 walkthrough</span> <span style="display:inline-block;background:var(--green-bright,#1f8a3a);color:#fff;font-family:'Oswald',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;padding:3px 9px;margin-left:6px;border-radius:2px;">FREE AT THE LAB</span></div>
@@ -1768,7 +1834,8 @@ document.addEventListener('DOMContentLoaded', function(){
       </div>
 
       <!-- Greylander Press -->
-      <div class="etl-net-card etl-net-card--wide">
+      <!-- Greylander Press (Civic and Editorial group) -->
+      <div class="etl-net-card etl-net-card--wide" style="order: 17;">
         <div class="etl-net-video" style="padding-top:56.25%;"><iframe src="https://player.vimeo.com/video/1196488438?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" title="Greylander Press"></iframe></div>
         <div class="etl-net-body">
           <div class="etl-net-num">Platform // 03 <span class="etl-net-duration">3:45 walkthrough</span> <span style="display:inline-block;background:var(--green-bright,#1f8a3a);color:#fff;font-family:'Oswald',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;padding:3px 9px;margin-left:6px;border-radius:2px;">FREE AT THE LAB</span></div>
@@ -1786,7 +1853,8 @@ document.addEventListener('DOMContentLoaded', function(){
       </div>
 
       <!-- Intel Dashboard -->
-      <div class="etl-net-card etl-net-card--wide">
+      <!-- Intel Dashboard (OBS Programs group) -->
+      <div class="etl-net-card etl-net-card--wide" style="order: 2;">
         <div class="etl-net-video" style="padding-top:56.25%;"><iframe src="https://player.vimeo.com/video/1196518465?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" title="INTEL DASHBOARD-for ETL"></iframe></div>
         <div class="etl-net-body">
           <div class="etl-net-num">Platform // 04 <span class="etl-net-duration">3:28 walkthrough</span></div>
@@ -1804,7 +1872,8 @@ document.addEventListener('DOMContentLoaded', function(){
       </div>
 
       <!-- The Dose (anchor position; longest tour, depth justified) -->
-      <div class="etl-net-card etl-net-card--wide">
+      <!-- The Dose (Health and Clinical group) -->
+      <div class="etl-net-card etl-net-card--wide" style="order: 12;">
         <div class="etl-net-video" style="padding-top:56.25%;"><iframe src="https://player.vimeo.com/video/1196471292?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" title="THE DOSE WEBSITE"></iframe></div>
         <div class="etl-net-body">
           <div class="etl-net-num">Platform // 05 <span class="etl-net-duration">8:28 full tour</span> <span style="display:inline-block;background:var(--green-bright,#1f8a3a);color:#fff;font-family:'Oswald',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;padding:3px 9px;margin-left:6px;border-radius:2px;">FREE &middot; NO LOGIN</span></div>
@@ -1826,7 +1895,8 @@ document.addEventListener('DOMContentLoaded', function(){
       </div>
 
       <!-- The Prep Room — For Students -->
-      <div class="etl-net-card etl-net-card--wide">
+      <!-- The Prep Room (Scholarly and Research group) -->
+      <div class="etl-net-card etl-net-card--wide" style="order: 8;">
         <div class="etl-net-video" style="padding-top:56.25%;position:relative;"><iframe src="https://player.vimeo.com/video/1197822546?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="The Prep Room"></iframe></div>
         <div class="etl-net-body">
           <div class="etl-net-num">Platform // 06 <span style="display:inline-block;background:var(--green-bright,#1f8a3a);color:#fff;font-family:'Oswald',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;padding:3px 9px;margin-left:6px;border-radius:2px;">FREE &middot; NO LOGIN</span></div>
@@ -1846,7 +1916,8 @@ document.addEventListener('DOMContentLoaded', function(){
       </div>
 
       <!-- The Boardroom — For Professionals -->
-      <div class="etl-net-card etl-net-card--wide">
+      <!-- The Boardroom (Scholarly and Research group) -->
+      <div class="etl-net-card etl-net-card--wide" style="order: 9;">
         <div class="etl-net-video" style="padding-top:56.25%;position:relative;"><iframe src="https://player.vimeo.com/video/1197834094?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479&amp;loop=1" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="The Boardroom"></iframe></div>
         <div class="etl-net-body">
           <div class="etl-net-num">Platform // 07 <span style="display:inline-block;background:var(--green-bright,#1f8a3a);color:#fff;font-family:'Oswald',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;padding:3px 9px;margin-left:6px;border-radius:2px;">FREE &middot; NO LOGIN</span></div>
@@ -1865,7 +1936,8 @@ document.addEventListener('DOMContentLoaded', function(){
       </div>
 
       <!-- Office Hours — For Faculty -->
-      <div class="etl-net-card etl-net-card--wide">
+      <!-- Office Hours (Scholarly and Research group) -->
+      <div class="etl-net-card etl-net-card--wide" style="order: 7;">
         <div class="etl-net-video" style="padding-top:56.25%;position:relative;"><iframe src="https://player.vimeo.com/video/1197840923?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479&amp;loop=1" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="Office Hours"></iframe></div>
         <div class="etl-net-body">
           <div class="etl-net-num">Platform // 08 <span style="display:inline-block;background:var(--green-bright,#1f8a3a);color:#fff;font-family:'Oswald',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;padding:3px 9px;margin-left:6px;border-radius:2px;">FREE &middot; NO LOGIN</span></div>
@@ -1876,8 +1948,8 @@ document.addEventListener('DOMContentLoaded', function(){
         </div>
       </div>
 
-      <!-- ETL Newswire -->
-      <div class="etl-net-card etl-net-card--wide">
+      <!-- ETL Newswire (Civic and Editorial group) -->
+      <div class="etl-net-card etl-net-card--wide" style="order: 16;">
         <div class="etl-net-video"><div class="etl-net-blink">
           <img class="etl-net-blink-base"   src="/agents/ETL_Newswire_HP_Eyes_Open.png"   alt="ETL Newswire anchor at her desk" loading="lazy">
           <img class="etl-net-blink-closed" src="/agents/ETL_Newswire_HP_Eyes_Closed.png" alt="" aria-hidden="true" loading="lazy">
@@ -1901,8 +1973,8 @@ document.addEventListener('DOMContentLoaded', function(){
         </div>
       </div>
 
-      <!-- Gandhi-King Center for Nonviolence -->
-      <div class="etl-net-card etl-net-card--wide">
+      <!-- Gandhi-King Center for Nonviolence (Civic and Editorial group) -->
+      <div class="etl-net-card etl-net-card--wide" style="order: 15;">
         <div class="etl-net-video" style="padding-top:56.25%;position:relative;">
           <img src="/agents/Gandhi_King_Composite.jpg" alt="Mahatma Gandhi and Dr. Martin Luther King Jr. composite, assembled from two original Library of Congress photographs" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;" loading="lazy">
         </div>
@@ -1922,8 +1994,8 @@ document.addEventListener('DOMContentLoaded', function(){
         </div>
       </div>
 
-      <!-- Agents Roster -->
-      <div class="etl-net-card etl-net-card--agents">
+      <!-- Agents Roster (meta card, placed after all four R3 groups) -->
+      <div class="etl-net-card etl-net-card--agents" style="order: 20;">
         <div class="etl-net-video">
           <div class="etl-net-roster">
             <!-- The Dose (11) -->
@@ -2074,6 +2146,68 @@ document.addEventListener('DOMContentLoaded', function(){
     <p style="font-family:'Georgia',serif; font-size:17px; line-height:1.75; color:#333; max-width:820px; margin-top:24px;">
       The SLR Method is a systematic research methodology developed during Dr. Oroszi&rsquo;s doctoral work. It identifies gaps in complex information systems and converts them into structured outputs. The method is the foundation of <strong style="color:#0a0a0a;">SLR Studio</strong> and its specialized derivatives, including <strong style="color:#0a0a0a;">The Gauntlet, OPSEC Gauntlet, Intel Dashboard, Office Hours,</strong> and <strong style="color:#0a0a0a;">The Dose Education Portal</strong>.
     </p>
+  </div>
+</section>
+
+
+<!-- ─────────────────────────────────────────────────────────────────────────
+     R3 AGENT ARCHITECTURE. Its own section, between the four Programs
+     groups (inside Live Platforms above) and the AI Governance Programs
+     block below. Names the creative method behind every agent and lists
+     who lives on the lab's stack.
+     ───────────────────────────────────────────────────────────────────── -->
+<section id="agent-architecture" class="section-full" style="background:#0a0a0a; color:#f4ebd6;">
+  <div class="section-full-inner">
+    <div class="section-tag" style="color:#FDB827;">The Creative Method</div>
+    <h2 class="section-title" style="color:#ffffff;">Agent <span style="color:#FDB827;">Architecture</span></h2>
+    <p style="font-family:'Georgia',serif; font-size:17px; line-height:1.75; color:#e8dece; max-width:820px; margin-top:24px;">
+      ETL agents are built with a creative method that blends <strong style="color:#FDB827; font-weight:600;">cognitive method acting</strong> with <strong style="color:#FDB827; font-weight:600;">profiling-based character construction</strong>. The approach lets agents behave like real experts, communicate with clarity, and respond with consistent persona-driven logic.
+    </p>
+    <p style="font-family:'Georgia',serif; font-size:15px; line-height:1.7; color:#d6cfc0; max-width:820px; margin-top:18px;">
+      Agents on the lab's stack include <strong style="color:#fff;">Ms. Ivy</strong>, the <strong style="color:#fff;">Chamber judges</strong>, the <strong style="color:#fff;">Helper personas</strong>, <strong style="color:#fff;">Margaret, Eli, Henry, Ayanna, Sneha</strong>, the <strong style="color:#fff;">OPSEC personas</strong>, and the <strong style="color:#fff;">Intel Dashboard personas</strong>.
+    </p>
+  </div>
+</section>
+
+
+<!-- ─────────────────────────────────────────────────────────────────────────
+     R3 AI GOVERNANCE AND RISK PROGRAMS. Final block of the Programs spine.
+     Four sub-blocks: research, policy/security, Forbes portfolio,
+     national security advisory work.
+     ───────────────────────────────────────────────────────────────────── -->
+<section id="ai-governance" class="section-full" style="background:#f4ebd6;">
+  <div class="section-full-inner">
+    <div class="section-tag">Programs &middot; Group 05</div>
+    <h2 class="section-title">AI Governance <span>and Risk Programs</span></h2>
+    <p class="section-subtitle">National-level work on organizational risk, AI policy, and the patterns by which institutions over-trust AI output.</p>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:32px; margin-top:40px;">
+
+      <div style="background:#ffffff; padding:28px; border-top:3px solid #FDB827;">
+        <div style="font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:3px; color:#285C4D; text-transform:uppercase; margin-bottom:10px;">Block 01</div>
+        <h3 style="font-family:'Oswald',sans-serif; font-size:20px; font-weight:700; color:#0a0a0a; text-transform:uppercase; letter-spacing:-0.3px; line-height:1.15; margin-bottom:14px;">AI Governance Research</h3>
+        <p style="font-family:'Georgia',serif; font-size:14px; color:#333; line-height:1.7;">Focus on organizational risk, misuse patterns, and decision failures in AI adoption.</p>
+      </div>
+
+      <div style="background:#ffffff; padding:28px; border-top:3px solid #FDB827;">
+        <div style="font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:3px; color:#285C4D; text-transform:uppercase; margin-bottom:10px;">Block 02</div>
+        <h3 style="font-family:'Oswald',sans-serif; font-size:20px; font-weight:700; color:#0a0a0a; text-transform:uppercase; letter-spacing:-0.3px; line-height:1.15; margin-bottom:14px;">AI Policy and Research Security</h3>
+        <p style="font-family:'Georgia',serif; font-size:14px; color:#333; line-height:1.7;">Work with <strong style="color:#0a0a0a;">NSF</strong>, <strong style="color:#0a0a0a;">Rice University</strong>, and federal partners on responsible collaboration and research security.</p>
+      </div>
+
+      <div style="background:#ffffff; padding:28px; border-top:3px solid #FDB827;">
+        <div style="font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:3px; color:#285C4D; text-transform:uppercase; margin-bottom:10px;">Block 03</div>
+        <h3 style="font-family:'Oswald',sans-serif; font-size:20px; font-weight:700; color:#0a0a0a; text-transform:uppercase; letter-spacing:-0.3px; line-height:1.15; margin-bottom:14px;">Forbes Technology Council Portfolio</h3>
+        <p style="font-family:'Georgia',serif; font-size:14px; color:#333; line-height:1.7;">Published analyses on AI governance, misuse, cognitive patterns, and organizational decision making.</p>
+      </div>
+
+      <div style="background:#ffffff; padding:28px; border-top:3px solid #FDB827;">
+        <div style="font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:3px; color:#285C4D; text-transform:uppercase; margin-bottom:10px;">Block 04</div>
+        <h3 style="font-family:'Oswald',sans-serif; font-size:20px; font-weight:700; color:#0a0a0a; text-transform:uppercase; letter-spacing:-0.3px; line-height:1.15; margin-bottom:14px;">National Security AI Advisory Work</h3>
+        <p style="font-family:'Georgia',serif; font-size:14px; color:#333; line-height:1.7;">Contributions to federal programs addressing AI risk, misinformation, and crisis decision support.</p>
+      </div>
+
+    </div>
   </div>
 </section>
 
