@@ -1,0 +1,721 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Build your PA · Emerging Technologies Laboratory</title>
+<meta name="description" content="Design your own ETL personal assistant. Pick who they are, how they talk, what they care about, and the domain add-ons that fit your work.">
+<link rel="icon" href="/favicon.ico">
+
+<!-- Netlify Forms requires a hidden form in the static HTML at build time
+     so Netlify's post-processor can find the field schema. We render that
+     hidden form here AND a real visible form below; the visible form
+     submits via fetch so the user stays on the page. -->
+<form name="pa-builder" netlify netlify-honeypot="bot-field" hidden>
+  <input type="text" name="bot-field">
+  <input type="text" name="contact_name">
+  <input type="email" name="contact_email">
+  <input type="text" name="contact_role">
+  <input type="text" name="gender">
+  <input type="text" name="pronouns">
+  <input type="text" name="pronouns_custom">
+  <input type="text" name="sexual_identity">
+  <input type="text" name="age_range">
+  <input type="text" name="energy">
+  <input type="text" name="humor">
+  <input type="text" name="terms_of_address">
+  <input type="text" name="terms_of_address_custom">
+  <input type="text" name="interests">
+  <input type="text" name="pushback_style">
+  <input type="text" name="background_flavor">
+  <input type="text" name="portrait_aesthetic">
+  <input type="text" name="voice_addon">
+  <input type="text" name="domain_addons">
+  <textarea name="notes"></textarea>
+</form>
+
+<style>
+  :root {
+    --ink: #0e0c08;
+    --ink-soft: #3a3328;
+    --ink-quiet: #5a5240;
+    --linen: #f4ebd6;
+    --linen-edge: #ece2c8;
+    --brass: #b8922a;
+    --brass-bright: #FDB827;
+    --navy: #1a2538;
+    --navy-mid: #2c3e5c;
+    --cream: #fbf4e0;
+    --rule: #d8cdb0;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    background: #faf6ec;
+    color: var(--ink);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--brass); }
+
+  /* HEADER */
+  header.builder-top {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 18px 32px;
+    background: #0a0a0a; color: #f4ebd6;
+    border-bottom: 1px solid var(--brass);
+  }
+  .builder-brand {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 18px; font-weight: 700; color: #fff;
+    text-decoration: none;
+  }
+  .builder-brand em { color: var(--brass-bright); font-style: italic; font-weight: 400; }
+  .builder-top-links a {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: #d6cfc0; text-decoration: none; margin-left: 18px;
+  }
+  .builder-top-links a:hover { color: var(--brass-bright); }
+
+  /* HERO */
+  section.builder-hero {
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 60%, #1f2d44 100%);
+    color: #f4ebd6;
+    padding: 64px 32px 56px;
+    text-align: left;
+  }
+  .builder-hero-inner { max-width: 1100px; margin: 0 auto; }
+  .builder-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase;
+    color: var(--brass-bright); margin-bottom: 14px;
+  }
+  .builder-h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(34px, 5vw, 58px); font-weight: 700;
+    color: #fff; line-height: 1.05; margin: 0 0 18px;
+  }
+  .builder-h1 em { color: var(--brass-bright); font-style: italic; font-weight: 400; }
+  .builder-sub {
+    font-size: clamp(16px, 1.6vw, 19px);
+    color: #d6cfc0; max-width: 780px; margin: 0;
+    font-style: italic;
+  }
+
+  /* MAIN LAYOUT */
+  main.builder-main {
+    max-width: 1280px; margin: 0 auto; padding: 56px 32px 80px;
+    display: grid; grid-template-columns: 1fr 380px; gap: 48px;
+    align-items: start;
+  }
+  @media (max-width: 900px) {
+    main.builder-main { grid-template-columns: 1fr; gap: 32px; }
+  }
+
+  /* FORM */
+  .builder-section {
+    background: #fff; border: 1px solid var(--linen-edge);
+    padding: 28px 32px; margin-bottom: 24px;
+  }
+  .builder-section-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--brass); margin-bottom: 10px;
+  }
+  .builder-section-h {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 24px; font-weight: 700; color: var(--ink);
+    margin: 0 0 6px;
+  }
+  .builder-section-sub {
+    font-size: 14px; color: var(--ink-quiet); font-style: italic;
+    margin: 0 0 22px;
+  }
+
+  .builder-field { margin-bottom: 20px; }
+  .builder-field-label {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--navy-mid); margin-bottom: 8px; font-weight: 600;
+  }
+  .builder-field-help {
+    font-size: 13px; color: var(--ink-quiet); font-style: italic;
+    margin-top: 4px;
+  }
+
+  .builder-select, .builder-text, .builder-textarea {
+    width: 100%; padding: 10px 12px;
+    border: 1px solid var(--linen-edge); background: #fff;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 16px; color: var(--ink);
+    box-sizing: border-box;
+  }
+  .builder-select:focus, .builder-text:focus, .builder-textarea:focus { outline: 2px solid var(--brass); }
+  .builder-textarea { font-size: 15px; line-height: 1.5; min-height: 90px; resize: vertical; }
+
+  /* Domain add-ons grid */
+  .addon-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+  }
+  .addon-chip {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 12px 14px; border: 1px solid var(--linen-edge); background: #fbf8ee;
+    cursor: pointer; transition: border-color 0.15s, background 0.15s;
+  }
+  .addon-chip:hover { border-color: var(--brass); background: var(--cream); }
+  .addon-chip.is-picked { border-color: var(--brass); background: var(--cream); }
+  .addon-chip input[type="checkbox"] {
+    margin-top: 3px; accent-color: var(--brass);
+  }
+  .addon-chip-name {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 15px; font-weight: 700; color: var(--ink);
+    line-height: 1.2;
+  }
+  .addon-chip-desc {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 13px; color: var(--ink-quiet); font-style: italic;
+    line-height: 1.4; margin-top: 3px;
+  }
+
+  /* SUBMIT */
+  .builder-submit-row {
+    display: flex; gap: 14px; align-items: center; flex-wrap: wrap;
+    margin-top: 24px;
+  }
+  .builder-submit {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
+    padding: 14px 32px;
+    background: var(--brass); color: #fff; border: 1px solid var(--brass);
+    cursor: pointer; font-weight: 600;
+  }
+  .builder-submit:hover { background: var(--ink); border-color: var(--ink); }
+  .builder-submit:disabled { opacity: 0.6; cursor: wait; }
+
+  /* CONFIRMATION */
+  .builder-confirm {
+    display: none; padding: 32px;
+    background: var(--cream); border-left: 4px solid var(--brass);
+  }
+  .builder-confirm.is-visible { display: block; }
+  .builder-confirm-h {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 24px; font-weight: 700; color: var(--ink);
+    margin: 0 0 12px;
+  }
+
+  /* LIVE PREVIEW */
+  aside.preview {
+    position: sticky; top: 24px;
+    background: #0a0a0a; color: #f4ebd6;
+    padding: 28px 28px 32px;
+    border: 1px solid var(--brass);
+  }
+  .preview-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--brass-bright); margin-bottom: 14px;
+  }
+  .preview-h {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 22px; font-weight: 700; color: #fff;
+    margin: 0 0 14px;
+  }
+  .preview-line {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 15px; color: #d6cfc0;
+    margin: 8px 0; line-height: 1.55;
+  }
+  .preview-line .label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; letter-spacing: 0.14em;
+    color: var(--brass-bright); text-transform: uppercase; margin-right: 6px;
+  }
+  .preview-line .val { color: #fff; font-style: italic; }
+  .preview-empty {
+    font-style: italic; color: #888; font-size: 14px;
+  }
+  .preview-divider {
+    border: 0; border-top: 1px solid rgba(253,184,39,0.25);
+    margin: 18px 0;
+  }
+
+  /* FOOTER */
+  footer.builder-foot {
+    text-align: center; padding: 36px 24px 52px;
+    border-top: 1px solid var(--linen-edge);
+    color: var(--ink-quiet);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 14px; font-style: italic;
+  }
+  footer.builder-foot a { color: var(--navy-mid); }
+</style>
+</head>
+<body>
+
+<header class="builder-top">
+  <a href="/" class="builder-brand">ETL <em>PA Builder</em></a>
+  <div class="builder-top-links">
+    <a href="/">ETL Home</a>
+    <a href="/#etl-pa">What is an ETL PA</a>
+    <a href="/studio">See Auggie</a>
+  </div>
+</header>
+
+<section class="builder-hero">
+  <div class="builder-hero-inner">
+    <div class="builder-eyebrow">A new product &middot; configured to you</div>
+    <h1 class="builder-h1">Build your own <em>personal assistant</em></h1>
+    <p class="builder-sub">Tell us who they are, how they talk, what they care about, and what work they need to know. We build them. You wake up to a brief in their voice every morning.</p>
+  </div>
+</section>
+
+<main class="builder-main">
+
+  <!-- ── FORM ──────────────────────────────────────────────────── -->
+  <form id="pa-builder-form" novalidate>
+
+    <!-- WHO ARE THEY -->
+    <section class="builder-section">
+      <div class="builder-section-tag">01 &middot; Who are they</div>
+      <h2 class="builder-section-h">Identity</h2>
+      <p class="builder-section-sub">The basics. Every dimension has a "not important" option if you genuinely do not care.</p>
+
+      <div class="builder-field">
+        <label class="builder-field-label" for="gender">Gender</label>
+        <select id="gender" name="gender" class="builder-select" data-preview="Gender">
+          <option value="">Pick one...</option>
+          <option>Man</option>
+          <option>Woman</option>
+          <option>Non-binary</option>
+          <option>Not important</option>
+        </select>
+      </div>
+
+      <div class="builder-field">
+        <label class="builder-field-label" for="pronouns">Pronouns</label>
+        <select id="pronouns" name="pronouns" class="builder-select" data-preview="Pronouns">
+          <option value="">Pick one...</option>
+          <option>he/him</option>
+          <option>she/her</option>
+          <option>they/them</option>
+          <option>Custom (write below)</option>
+        </select>
+        <input type="text" id="pronouns_custom" name="pronouns_custom" class="builder-text" placeholder="Custom pronouns" style="margin-top:8px; display:none;" data-show-when="pronouns=Custom (write below)" data-preview="Pronouns (custom)">
+      </div>
+
+      <div class="builder-field">
+        <label class="builder-field-label" for="sexual_identity">Sexual identity</label>
+        <select id="sexual_identity" name="sexual_identity" class="builder-select" data-preview="Identity">
+          <option value="">Pick one...</option>
+          <option>Straight</option>
+          <option>Gay</option>
+          <option>Lesbian</option>
+          <option>Bi</option>
+          <option>Queer</option>
+          <option>Not important</option>
+        </select>
+        <div class="builder-field-help">Shapes texture and reference points, not job competence.</div>
+      </div>
+
+      <div class="builder-field">
+        <label class="builder-field-label" for="age_range">Age range</label>
+        <select id="age_range" name="age_range" class="builder-select" data-preview="Age">
+          <option value="">Pick one...</option>
+          <option>Early 20s</option>
+          <option>Late 20s</option>
+          <option>30s</option>
+          <option>40s</option>
+          <option>50s</option>
+          <option>60s+</option>
+          <option>Not important</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- HOW DO THEY TALK -->
+    <section class="builder-section">
+      <div class="builder-section-tag">02 &middot; How do they talk</div>
+      <h2 class="builder-section-h">Voice &amp; manner</h2>
+      <p class="builder-section-sub">This is what shapes the day-to-day. Most users tell us this is the part they care about most.</p>
+
+      <div class="builder-field">
+        <label class="builder-field-label" for="energy">Energy</label>
+        <select id="energy" name="energy" class="builder-select" data-preview="Energy">
+          <option value="">Pick one...</option>
+          <option>Calm &amp; measured</option>
+          <option>Warm &amp; quick</option>
+          <option>Loud &amp; bright</option>
+          <option>Quietly intense</option>
+          <option>Not important</option>
+        </select>
+      </div>
+
+      <div class="builder-field">
+        <label class="builder-field-label" for="humor">Sense of humor</label>
+        <select id="humor" name="humor" class="builder-select" data-preview="Humor">
+          <option value="">Pick one...</option>
+          <option>Dry / deadpan</option>
+          <option>Playful / witty</option>
+          <option>Gossipy / chatty</option>
+          <option>Minimal / serious</option>
+          <option>Not important</option>
+        </select>
+      </div>
+
+      <div class="builder-field">
+        <label class="builder-field-label" for="terms_of_address">What do they call you?</label>
+        <select id="terms_of_address" name="terms_of_address" class="builder-select" data-preview="Calls you">
+          <option value="">Pick one...</option>
+          <option>Dr. / Professor [Last Name]</option>
+          <option>Ms. / Mr. [First Name]</option>
+          <option>First name only</option>
+          <option>"love" / "darling" (warm casual)</option>
+          <option>"chief" / "boss" (deferential)</option>
+          <option>Custom (write below)</option>
+        </select>
+        <input type="text" id="terms_of_address_custom" name="terms_of_address_custom" class="builder-text" placeholder="What they call you" style="margin-top:8px; display:none;" data-show-when="terms_of_address=Custom (write below)" data-preview="Calls you (custom)">
+      </div>
+
+      <div class="builder-field">
+        <label class="builder-field-label" for="pushback_style">Pushback style</label>
+        <select id="pushback_style" name="pushback_style" class="builder-select" data-preview="Pushback">
+          <option value="">Pick one...</option>
+          <option>Direct &amp; blunt</option>
+          <option>Kind but firm</option>
+          <option>Suggests, never tells</option>
+          <option>Asks questions instead</option>
+          <option>Not important</option>
+        </select>
+        <div class="builder-field-help">How they tell you the dress is wrong, or that the timing is bad.</div>
+      </div>
+    </section>
+
+    <!-- WHAT THEY CARE ABOUT -->
+    <section class="builder-section">
+      <div class="builder-section-tag">03 &middot; What they care about</div>
+      <h2 class="builder-section-h">Interests &amp; background</h2>
+      <p class="builder-section-sub">The texture of small talk and the kind of references they pull from.</p>
+
+      <div class="builder-field">
+        <label class="builder-field-label" for="interests">Outside interests</label>
+        <select id="interests" name="interests" class="builder-select" data-preview="Interests">
+          <option value="">Pick one...</option>
+          <option>Fashion / style</option>
+          <option>Gossip / pop culture</option>
+          <option>TV / film</option>
+          <option>Sports</option>
+          <option>Books / literature</option>
+          <option>Music</option>
+          <option>Food / wine</option>
+          <option>Travel</option>
+          <option>Not important</option>
+        </select>
+      </div>
+
+      <div class="builder-field">
+        <label class="builder-field-label" for="background_flavor">Background flavor</label>
+        <select id="background_flavor" name="background_flavor" class="builder-select" data-preview="Background">
+          <option value="">Pick one...</option>
+          <option>Corporate / consulting</option>
+          <option>Creative / arts</option>
+          <option>Hospitality / concierge</option>
+          <option>Military / veteran</option>
+          <option>Academic</option>
+          <option>Journalism / media</option>
+          <option>Politics / government</option>
+          <option>Not important</option>
+        </select>
+        <div class="builder-field-help">Where they came from before they came to you.</div>
+      </div>
+    </section>
+
+    <!-- HOW THEY LOOK & SOUND -->
+    <section class="builder-section">
+      <div class="builder-section-tag">04 &middot; How they look &amp; sound</div>
+      <h2 class="builder-section-h">Portrait &amp; voice</h2>
+      <p class="builder-section-sub">The visible and audible part. Voice is a paid add-on; portrait is generated by Chris.</p>
+
+      <div class="builder-field">
+        <label class="builder-field-label" for="portrait_aesthetic">Portrait aesthetic</label>
+        <select id="portrait_aesthetic" name="portrait_aesthetic" class="builder-select" data-preview="Aesthetic">
+          <option value="">Pick one...</option>
+          <option>Classic / timeless</option>
+          <option>Preppy / Ivy</option>
+          <option>Minimalist / Scandinavian</option>
+          <option>Artsy / creative-class</option>
+          <option>Sporty / athletic</option>
+          <option>Polished corporate</option>
+          <option>Old Hollywood</option>
+          <option>Palm Springs / sun-warmed</option>
+          <option>Custom (note below)</option>
+        </select>
+      </div>
+
+      <div class="builder-field">
+        <label class="builder-field-label" for="voice_addon">Voice add-on</label>
+        <select id="voice_addon" name="voice_addon" class="builder-select" data-preview="Voice">
+          <option value="">Pick one...</option>
+          <option>Yes, custom voice (ElevenLabs Voice Design, extra)</option>
+          <option>Pick from our voice library (included)</option>
+          <option>Text-only for now</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- DOMAIN ADD-ONS -->
+    <section class="builder-section">
+      <div class="builder-section-tag">05 &middot; Add-ons</div>
+      <h2 class="builder-section-h">What your PA needs to know</h2>
+      <p class="builder-section-sub">Each add-on teaches your PA a specific beat to watch, sources to track, and outputs to deliver. Pick as many as fit your work. Add-ons are billed separately as part of the subscription.</p>
+
+      <div class="addon-grid">
+        <label class="addon-chip">
+          <input type="checkbox" name="addon" value="Author">
+          <div>
+            <div class="addon-chip-name">📚 Author</div>
+            <div class="addon-chip-desc">Book sales, royalties, reviews, blurb requests. Ties into Greylander Press team.</div>
+          </div>
+        </label>
+        <label class="addon-chip">
+          <input type="checkbox" name="addon" value="Professor">
+          <div>
+            <div class="addon-chip-name">🎓 Professor</div>
+            <div class="addon-chip-desc">Grant cycles, citations, journal status, tenure file, course prep.</div>
+          </div>
+        </label>
+        <label class="addon-chip">
+          <input type="checkbox" name="addon" value="Business">
+          <div>
+            <div class="addon-chip-name">💼 Business</div>
+            <div class="addon-chip-desc">Competitive scans, partnership leads, market intel briefs.</div>
+          </div>
+        </label>
+        <label class="addon-chip">
+          <input type="checkbox" name="addon" value="Stocks">
+          <div>
+            <div class="addon-chip-name">📈 Stocks</div>
+            <div class="addon-chip-desc">Portfolio watch, market briefs, earnings calendar, SEC filings.</div>
+          </div>
+        </label>
+        <label class="addon-chip">
+          <input type="checkbox" name="addon" value="Clinical">
+          <div>
+            <div class="addon-chip-name">⚕️ Clinical</div>
+            <div class="addon-chip-desc">Trial registry watch, FDA actions, society guidelines, CME tracking.</div>
+          </div>
+        </label>
+        <label class="addon-chip">
+          <input type="checkbox" name="addon" value="Legal">
+          <div>
+            <div class="addon-chip-name">⚖️ Legal</div>
+            <div class="addon-chip-desc">Case watchlists, docket alerts, regulatory updates, CLE deadlines.</div>
+          </div>
+        </label>
+        <label class="addon-chip">
+          <input type="checkbox" name="addon" value="Journalist">
+          <div>
+            <div class="addon-chip-name">📰 Journalist</div>
+            <div class="addon-chip-desc">Beat-watch, source tracker, pitch calendar, FOIA followups.</div>
+          </div>
+        </label>
+        <label class="addon-chip">
+          <input type="checkbox" name="addon" value="Nonprofit">
+          <div>
+            <div class="addon-chip-name">🤝 Nonprofit</div>
+            <div class="addon-chip-desc">Grant opportunities, donor outreach, board prep, annual report.</div>
+          </div>
+        </label>
+        <label class="addon-chip">
+          <input type="checkbox" name="addon" value="Policy">
+          <div>
+            <div class="addon-chip-name">🏛️ Policy</div>
+            <div class="addon-chip-desc">Hearings calendar, member positions, rulemaking comment windows.</div>
+          </div>
+        </label>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section class="builder-section">
+      <div class="builder-section-tag">06 &middot; About you</div>
+      <h2 class="builder-section-h">Where to send your PA</h2>
+      <p class="builder-section-sub">We will reach out to confirm, set pricing for any add-ons, and get them built. Usually within a business day.</p>
+
+      <div class="builder-field">
+        <label class="builder-field-label" for="contact_name">Your name</label>
+        <input type="text" id="contact_name" name="contact_name" class="builder-text" required>
+      </div>
+      <div class="builder-field">
+        <label class="builder-field-label" for="contact_email">Email</label>
+        <input type="email" id="contact_email" name="contact_email" class="builder-text" required>
+      </div>
+      <div class="builder-field">
+        <label class="builder-field-label" for="contact_role">What do you do?</label>
+        <input type="text" id="contact_role" name="contact_role" class="builder-text" placeholder="e.g. novelist, faculty PI, hedge fund analyst, ED of a 501(c)(3)">
+      </div>
+      <div class="builder-field">
+        <label class="builder-field-label" for="notes">Anything else you want us to know?</label>
+        <textarea id="notes" name="notes" class="builder-textarea" placeholder="Optional. Special requests, names you want them to know, books you would want them to have read, etc."></textarea>
+      </div>
+    </section>
+
+    <input type="hidden" name="form-name" value="pa-builder">
+    <input type="text" name="bot-field" style="display:none;" tabindex="-1" autocomplete="off">
+
+    <div class="builder-submit-row">
+      <button type="submit" id="pa-builder-submit" class="builder-submit">Build my PA →</button>
+      <span id="pa-builder-error" style="color:#7d2828; font-family:'DM Mono',monospace; font-size:12px; display:none;"></span>
+    </div>
+
+    <div id="pa-builder-confirm" class="builder-confirm">
+      <h3 class="builder-confirm-h">Got it. Your PA spec is in.</h3>
+      <p style="color:var(--ink-soft); font-size:15px; margin:0 0 12px;">We will reach out within a business day to confirm the build, walk through pricing for any add-ons or custom voice you picked, and get your PA assembled. While you wait, you can <a href="/studio">see Auggie at work in Dr. O's Studio</a> for a sense of what the experience feels like.</p>
+      <p style="color:var(--ink-quiet); font-size:14px; font-style:italic; margin:0;">If you do not see anything from us within a business day, check spam, then email us at <a href="mailto:terry.oroszi@wright.edu">terry.oroszi@wright.edu</a>.</p>
+    </div>
+
+  </form>
+
+  <!-- ── LIVE PREVIEW ──────────────────────────────────────────── -->
+  <aside class="preview">
+    <div class="preview-tag">Your PA, so far</div>
+    <h3 class="preview-h">Spec preview</h3>
+    <div id="preview-body">
+      <div class="preview-empty">Start filling out the form. Your PA's spec will appear here as you build them.</div>
+    </div>
+    <hr class="preview-divider">
+    <div id="preview-addons-wrap" style="display:none;">
+      <div class="preview-tag">Add-ons selected</div>
+      <div id="preview-addons" style="font-family:'Cormorant Garamond',serif; font-size:14px; color:#fff; line-height:1.6;"></div>
+    </div>
+  </aside>
+
+</main>
+
+<footer class="builder-foot">
+  Configured personal assistants from the <a href="/">Emerging Technologies Laboratory</a>. The system that runs <a href="/studio">Dr. O's Studio</a>.
+</footer>
+
+<script>
+(function(){
+  var form    = document.getElementById('pa-builder-form');
+  var submit  = document.getElementById('pa-builder-submit');
+  var errBox  = document.getElementById('pa-builder-error');
+  var confirm = document.getElementById('pa-builder-confirm');
+  var preview = document.getElementById('preview-body');
+  var addonsWrap = document.getElementById('preview-addons-wrap');
+  var addonsBox  = document.getElementById('preview-addons');
+
+  // Show/hide the custom inputs that depend on a dropdown value.
+  // Pattern: any element with data-show-when="someFieldName=someValue".
+  document.querySelectorAll('[data-show-when]').forEach(function(el){
+    var spec = el.getAttribute('data-show-when').split('=');
+    var field = document.getElementById(spec[0]) || form.elements[spec[0]];
+    if (!field) return;
+    field.addEventListener('change', function(){
+      el.style.display = (field.value === spec[1]) ? '' : 'none';
+      if (field.value !== spec[1]) el.value = '';
+      updatePreview();
+    });
+  });
+
+  function updatePreview(){
+    var lines = [];
+    document.querySelectorAll('[data-preview]').forEach(function(el){
+      var label = el.getAttribute('data-preview');
+      var val = (el.value || '').trim();
+      if (!val) return;
+      // Suppress the *_custom helpers when the user has selected a non-Custom value.
+      if (el.id === 'pronouns_custom' && document.getElementById('pronouns').value !== 'Custom (write below)') return;
+      if (el.id === 'terms_of_address_custom' && document.getElementById('terms_of_address').value !== 'Custom (write below)') return;
+      lines.push('<div class="preview-line"><span class="label">' + label + '</span><span class="val">' + escapeHtml(val) + '</span></div>');
+    });
+    if (lines.length === 0) {
+      preview.innerHTML = '<div class="preview-empty">Start filling out the form. Your PA\'s spec will appear here as you build them.</div>';
+    } else {
+      preview.innerHTML = lines.join('');
+    }
+
+    var picked = [];
+    document.querySelectorAll('input[name="addon"]:checked').forEach(function(cb){
+      picked.push(cb.value);
+      cb.closest('.addon-chip').classList.add('is-picked');
+    });
+    document.querySelectorAll('input[name="addon"]:not(:checked)').forEach(function(cb){
+      cb.closest('.addon-chip').classList.remove('is-picked');
+    });
+    if (picked.length) {
+      addonsWrap.style.display = '';
+      addonsBox.textContent = picked.join(' · ');
+    } else {
+      addonsWrap.style.display = 'none';
+    }
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // Live preview updates on any change.
+  form.addEventListener('change', updatePreview);
+  form.addEventListener('input', updatePreview);
+
+  // AJAX submit so the user stays on the page. Netlify Forms posts use
+  // application/x-www-form-urlencoded with form-name=<name>.
+  form.addEventListener('submit', async function(ev){
+    ev.preventDefault();
+    errBox.style.display = 'none';
+
+    var nameOk  = (form.contact_name.value || '').trim().length > 0;
+    var emailOk = (form.contact_email.value || '').trim().length > 0 && /@/.test(form.contact_email.value);
+    if (!nameOk || !emailOk) {
+      errBox.textContent = 'we need your name and a valid email so we can reach you.';
+      errBox.style.display = '';
+      return;
+    }
+
+    submit.disabled = true;
+    submit.textContent = 'Sending...';
+
+    // Build the form-urlencoded body. Collect multi-value addon checkboxes
+    // into a single comma-separated string for the form submission.
+    var data = new URLSearchParams();
+    data.append('form-name', 'pa-builder');
+    Array.from(form.elements).forEach(function(el){
+      if (!el.name) return;
+      if (el.type === 'submit' || el.type === 'button') return;
+      if (el.name === 'addon') return; // handled below
+      if (el.type === 'checkbox' && !el.checked) return;
+      data.append(el.name, el.value || '');
+    });
+    var addons = [];
+    document.querySelectorAll('input[name="addon"]:checked').forEach(function(cb){ addons.push(cb.value); });
+    data.append('domain_addons', addons.join(', '));
+
+    try {
+      var r = await fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: data.toString(),
+      });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      form.querySelectorAll('section, .builder-submit-row').forEach(function(el){ el.style.display = 'none'; });
+      confirm.classList.add('is-visible');
+      window.scrollTo({ top: confirm.offsetTop - 60, behavior: 'smooth' });
+    } catch (err) {
+      errBox.textContent = 'submission failed: ' + (err && err.message ? err.message : 'unknown') + '. try again, or email us directly.';
+      errBox.style.display = '';
+      submit.disabled = false;
+      submit.textContent = 'Build my PA →';
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
