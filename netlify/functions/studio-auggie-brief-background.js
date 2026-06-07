@@ -147,8 +147,46 @@ exports.handler = async (event) => {
 
   // Step 1+2: gather findings AND write the monologue in one Anthropic call
   // with web_search enabled. The model decides how many searches to spend.
+  // Pull cross-site form submissions FIRST so we can include the digest
+  // in the prompt and Auggie can name new inquiries in his monologue.
+  // Failure here is non-fatal; brief still ships without form context.
+  let formsDigest = '';
+  let formsItems = [];
+  try {
+    const user = process.env.PRESS_ADMIN_USER;
+    const pass = process.env.PRESS_ADMIN_PASS;
+    if (user && pass) {
+      const basic = Buffer.from(`${user}:${pass}`).toString('base64');
+      const base = process.env.URL || 'https://emerging-tech-lab.com';
+      const fr = await fetch(`${base}/.netlify/functions/studio-auggie-forms`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Basic ${basic}` },
+        body: JSON.stringify({ action: 'summary_for_brief' }),
+      });
+      if (fr.ok) {
+        const fd = await fr.json();
+        formsDigest = fd.digest || '';
+        formsItems = Array.isArray(fd.items) ? fd.items : [];
+        console.log('[auggie-brief-bg] forms summary fetched, newCount=', fd.newCount);
+      } else {
+        console.warn('[auggie-brief-bg] forms summary http', fr.status);
+      }
+    }
+  } catch (err) {
+    console.warn('[auggie-brief-bg] forms summary fetch failed (non-fatal)', err && err.message);
+  }
+
+  // Build the per-item lines for the prompt (only if any new forms).
+  const formsLines = formsItems.length
+    ? formsItems.map(it => `- ${it.formName} on ${it.site} (${it.createdAt}): ${it.summary || (it.name + ' ' + it.email).trim()}`).join('\n')
+    : '';
+
   const userPrompt = [
     `Today is ${dateKey} (America/New_York).`,
+    '',
+    formsDigest
+      ? `INBOX SINCE LAST BRIEF: ${formsDigest}\n\nNew submissions Ms. Terry should know about:\n${formsLines}\n\nMention these explicitly in your brief. Lead with the inbox if any of these look high-value (custom inquiries, PA builder submissions with budget signal, anyone who named her in their notes). Otherwise weave them in after the personal-mentions section. Always name the submitter and a one-line gist; do not list every field.`
+      : 'INBOX SINCE LAST BRIEF: nothing new in the form inboxes across the ETL sites.',
     '',
     'Run the searches you need (up to 5) to find:',
     '1. Any new mentions of Dr. Terry Oroszi / Dr. Terry L. Oroszi in the last 14 days (queries to try: "Terry Oroszi", "Dr. Terry L. Oroszi", "Vice Chair Pharmacology Wright State", "Forbes Technology Council Oroszi").',
@@ -156,7 +194,7 @@ exports.handler = async (event) => {
     '3. Any upcoming speaking engagements, conference appearances, or panels where she is listed in the next 90 days.',
     '4. Recent news in AI governance, federal AI policy, biodefense, research security, or counter-terrorism research that she should know about.',
     '',
-    'Then write the morning brief as Ms. Terry would hear it from you. One continuous monologue, in your voice, 180-300 words. Follow the system prompt format exactly: opening with a tiny scene-set + digression, body with anything about HER first, close with a small recommendation or question. Cite source names + dates in plain language. If you found nothing fresh about HER, say so plainly and still cover the field news.',
+    'Then write the morning brief as Ms. Terry would hear it from you. One continuous monologue, in your voice, 200-340 words. Order: opening with a tiny scene-set + digression, then the inbox if anything is there, then anything about HER (mentions, Forbes, speaking), then field news, then close with one small recommendation or question. Cite source names + dates in plain language. If you found nothing fresh about HER AND no new inbox, say so plainly and still cover the field news.',
     '',
     'Return ONLY the monologue text. No headers. No bullet points. No JSON. Just the words Auggie would speak.',
   ].join('\n');
@@ -240,6 +278,21 @@ exports.handler = async (event) => {
   } catch (err) {
     console.error('[auggie-brief-bg] blob write failed', err && err.message);
     return { statusCode: 500, body: 'blob write failed: ' + (err && err.message) };
+  }
+
+  // Advance the forms cursor only AFTER successful storage. Any forms we
+  // surfaced in this brief should not appear in tomorrow's brief. Failure
+  // here is non-fatal; worst case Terry hears them mentioned twice.
+  if (formsItems.length > 0) {
+    try {
+      const formsStore = getStore('auggie_forms_state');
+      await formsStore.set('cursor', new Date().toISOString(), {
+        metadata: { contentType: 'text/plain' },
+      });
+      console.log('[auggie-brief-bg] forms cursor advanced after surfacing', formsItems.length, 'submissions');
+    } catch (err) {
+      console.warn('[auggie-brief-bg] forms cursor write failed (non-fatal)', err && err.message);
+    }
   }
 
   return { statusCode: 200, body: `auggie brief generated for ${dateKey}` };
