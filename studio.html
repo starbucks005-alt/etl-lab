@@ -623,7 +623,28 @@
         <div class="sp-step" data-step="4" style="display:none;">
           <label class="sp-q">4. Subject matter?</label>
           <textarea id="sp-subject" class="sp-input" rows="3" placeholder="What's the angle? A specific piece of news, a launch, a behind-the-scenes moment, a teaching point, an invitation..."></textarea>
-          <button type="button" id="sp-generate" class="sp-cta">Write the post →</button>
+
+          <!-- CTA closer: a small reminder appended to the post.
+               None / Above the Fold daily briefing / Deskline daily puzzle. -->
+          <div style="margin-top:18px;">
+            <label class="sp-q" style="font-size:14px;">Add a daily reminder at the end?</label>
+            <div style="display:flex; flex-direction:column; gap:8px; margin-top:8px;">
+              <label style="display:flex; align-items:flex-start; gap:10px; font-family:'Cormorant Garamond',serif; font-size:15px; color:var(--ink); cursor:pointer;">
+                <input type="radio" name="sp-cta" value="none" checked style="margin-top:5px; accent-color:var(--brass);">
+                <span><strong>No reminder.</strong> <span style="color:var(--ink-quiet); font-style:italic;">Just the post.</span></span>
+              </label>
+              <label style="display:flex; align-items:flex-start; gap:10px; font-family:'Cormorant Garamond',serif; font-size:15px; color:var(--ink); cursor:pointer;">
+                <input type="radio" name="sp-cta" value="briefing" style="margin-top:5px; accent-color:var(--brass);">
+                <span><strong>Your daily dose, Above the Fold.</strong> <span style="color:var(--ink-quiet); font-style:italic;">A short closer pointing readers to today's morning briefing at emerging-tech-lab.com/press.</span></span>
+              </label>
+              <label style="display:flex; align-items:flex-start; gap:10px; font-family:'Cormorant Garamond',serif; font-size:15px; color:var(--ink); cursor:pointer;">
+                <input type="radio" name="sp-cta" value="deskline" style="margin-top:5px; accent-color:var(--brass);">
+                <span><strong>From the desk, today's Deskline.</strong> <span style="color:var(--ink-quiet); font-style:italic;">A short closer pointing readers to today's puzzle at emerging-tech-lab.com/press/deskline.</span></span>
+              </label>
+            </div>
+          </div>
+
+          <button type="button" id="sp-generate" class="sp-cta" style="margin-top:18px;">Write the post →</button>
         </div>
 
       </div>
@@ -735,6 +756,9 @@
       gen.addEventListener('click', async function(){
         state.subject = subjText.value.trim();
         if (!state.subject){ subjText.focus(); return; }
+        // Pick up the CTA choice (none / briefing / deskline)
+        var ctaRadio = document.querySelector('input[name="sp-cta"]:checked');
+        state.cta = ctaRadio ? ctaRadio.value : 'none';
         errBox.style.display = 'none';
         gen.disabled = true;
         gen.textContent = 'Writing...';

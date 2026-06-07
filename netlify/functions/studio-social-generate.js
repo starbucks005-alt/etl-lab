@@ -218,7 +218,7 @@ exports.handler = async (event) => {
   try { body = JSON.parse(event.body || '{}'); }
   catch (e) { return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'invalid json' }) }; }
 
-  const { site, agent, platform, subject } = body;
+  const { site, agent, platform, subject, cta } = body;
   const siteData = SITES[site];
   const agentData = AGENTS[agent];
   const platformData = PLATFORMS[platform];
@@ -245,6 +245,11 @@ exports.handler = async (event) => {
     platformData.format + '\n' +
     'Character limit: ' + platformData.charLimit + ' hard max, ' + platformData.idealLength + ' target.\n\n' +
     'URL RULE, HARD: if you include a web link in the post, use EXACTLY the URL given above (' + siteData.url + '), character for character. Do not paraphrase it, shorten it, change the domain, drop the https, swap netlify.app for .com, or invent a different URL. If you are not sure of the URL, omit it from the post entirely. Inventing or misquoting a URL is the single worst thing you can do here.\n\n' +
+    (cta === 'briefing'
+       ? 'DAILY CLOSER, REQUIRED: end the post with a short, voice-matched reminder pointing readers to today\'s morning audio briefing, "Above the Fold" (Terry sometimes calls it "your daily dose"). The reminder must include the URL emerging-tech-lab.com/press exactly as written, no other URL. Keep the closer one or two sentences, matching the rest of the post\'s voice, not a separate disclaimer. Count it inside the character budget.\n\n'
+       : cta === 'deskline'
+       ? 'DAILY CLOSER, REQUIRED: end the post with a short, voice-matched reminder pointing readers to today\'s news-classification puzzle, "Deskline" (Terry sometimes calls it "from the desk"). The reminder must include the URL emerging-tech-lab.com/press/deskline exactly as written, no other URL. Keep the closer one or two sentences, matching the rest of the post\'s voice, not a separate disclaimer. Count it inside the character budget.\n\n'
+       : '') +
     'EM-DASH RULE: do not use em dashes or en dashes anywhere in the post or hashtags. Use commas or periods instead. This is a hard rule across all of Dr. Oroszi\'s public surfaces.\n\n' +
     'Return ONLY valid JSON, no markdown, no prose around it, in this exact shape: {"post": "the post text without hashtags", "hashtags": "the hashtags as a single space-separated string or empty string if none fit the voice or platform", "notes": "one short sentence on why this post works for this platform and this audience"}';
 
