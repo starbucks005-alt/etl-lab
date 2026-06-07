@@ -427,6 +427,41 @@
       <div>
         <div id="auggie-chat-thread"
              style="background:#fff; border:1px solid var(--linen-edge); padding:18px 22px; min-height:240px; max-height:480px; overflow-y:auto; font-family:'Cormorant Garamond',serif; font-size:16px; line-height:1.55; color:var(--ink);">
+          <!-- Morning brief panel. Loaded on workspace open by the JS
+               below; appears here above the static greeting if a fresh
+               brief exists in Netlify Blobs. -->
+          <div id="auggie-brief-panel" style="display:none; margin-bottom:18px; padding:14px 16px; background:#0e0c08; color:#f4ebd6; border-left:3px solid var(--brass);">
+            <div style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.18em; color:var(--brass); text-transform:uppercase; margin-bottom:6px;">
+              Auggie <span id="auggie-brief-date" style="color:#d6cfc0; margin-left:8px;"></span>
+              <span id="auggie-brief-length" style="color:#d6cfc0; margin-left:8px;"></span>
+            </div>
+            <div id="auggie-brief-transcript" style="font-family:'Cormorant Garamond',serif; font-size:15px; line-height:1.55; color:#f4ebd6; white-space:pre-wrap; margin-bottom:10px;"></div>
+            <audio id="auggie-brief-audio" controls preload="metadata" style="width:100%; height:36px;"></audio>
+            <div style="display:flex; gap:10px; align-items:center; margin-top:10px;">
+              <button type="button" id="auggie-brief-regen"
+                      style="font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.1em; text-transform:lowercase; color:var(--brass); background:transparent; border:1px solid var(--brass); padding:6px 12px; cursor:pointer;">
+                generate a fresh brief
+              </button>
+              <span id="auggie-brief-regen-status" style="font-family:'Cormorant Garamond',serif; font-size:12px; font-style:italic; color:#d6cfc0;"></span>
+            </div>
+          </div>
+
+          <!-- Empty-state. Shows when no brief exists yet (first deploy, before
+               cron has fired). Same regenerate trigger so Terry can seed it. -->
+          <div id="auggie-brief-empty" style="display:none; margin-bottom:18px; padding:14px 16px; background:#fbf4e0; border-left:3px solid var(--brass);">
+            <div style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.18em; color:var(--brass); text-transform:uppercase; margin-bottom:6px;">Morning brief</div>
+            <div style="font-family:'Cormorant Garamond',serif; font-size:14px; color:var(--ink); margin-bottom:10px;">
+              Auggie has not run a brief yet. The daily one fires at 6am ET. You can ask for one now.
+            </div>
+            <div style="display:flex; gap:10px; align-items:center;">
+              <button type="button" id="auggie-brief-regen-empty"
+                      style="font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.1em; text-transform:lowercase; color:var(--ink); background:transparent; border:1px solid var(--brass); padding:6px 12px; cursor:pointer;">
+                generate one now
+              </button>
+              <span id="auggie-brief-regen-empty-status" style="font-family:'Cormorant Garamond',serif; font-size:12px; font-style:italic; color:var(--ink-quiet);"></span>
+            </div>
+          </div>
+
           <div class="auggie-bubble auggie-bubble--his" style="margin-bottom:14px;">
             <div class="auggie-bubble-meta">Auggie</div>
             <div>hi Ms. Terry. what are we doing today.</div>
@@ -1464,6 +1499,128 @@
       input.setSelectionRange(input.value.length, input.value.length);
     });
   });
+
+  // Daily morning brief loader. Runs after auth resolves. Hits
+  // /studio-auggie-brief-latest with the JWT; if a fresh brief exists,
+  // fills the dark panel above the static greeting with the date,
+  // estimated length, transcript, and an inline audio player. Audio is
+  // fetched with auth and turned into a blob URL because the audio
+  // endpoint is JWT-gated and <audio> elements do not send auth headers.
+  async function getJwt(){
+    try {
+      var s = await window.studioSb.auth.getSession();
+      return s && s.data && s.data.session && s.data.session.access_token;
+    } catch (_) { return null; }
+  }
+
+  async function loadAuggieBrief(){
+    var panel       = document.getElementById('auggie-brief-panel');
+    var emptyPanel  = document.getElementById('auggie-brief-empty');
+    var dateLabel   = document.getElementById('auggie-brief-date');
+    var lengthLabel = document.getElementById('auggie-brief-length');
+    var transcript  = document.getElementById('auggie-brief-transcript');
+    var audioEl     = document.getElementById('auggie-brief-audio');
+    if (!panel || !audioEl) return;
+    try {
+      var token = await getJwt();
+      if (!token) return;
+      var auth = 'Bearer ' + token;
+
+      var metaR = await fetch('/.netlify/functions/studio-auggie-brief-latest', {
+        headers: { 'Authorization': auth },
+      });
+      if (!metaR.ok) return;
+      var meta = await metaR.json();
+      if (!meta || !meta.available) {
+        // No brief yet; show the empty-state with regen button.
+        if (emptyPanel) emptyPanel.style.display = '';
+        return;
+      }
+
+      // Pretty date: "Saturday, June 7" (use the dateKey, parse as ET).
+      var prettyDate = '';
+      try {
+        var parts = (meta.dateKey || '').split('-');
+        if (parts.length === 3) {
+          var d = new Date(Date.UTC(+parts[0], +parts[1] - 1, +parts[2], 12, 0, 0));
+          prettyDate = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'America/New_York' });
+        }
+      } catch (_) {}
+      dateLabel.textContent = prettyDate ? ('Morning brief · ' + prettyDate) : 'Morning brief';
+      var sec = +meta.estimatedSeconds || 0;
+      lengthLabel.textContent = sec > 0 ? ('· ' + Math.max(1, Math.round(sec / 60)) + ' min listen') : '';
+      transcript.textContent = meta.transcript || '';
+
+      // Audio is JWT-gated. Fetch with auth, blob it, hand to <audio>.
+      try {
+        var audR = await fetch(meta.audioUrl, { headers: { 'Authorization': auth } });
+        if (audR.ok) {
+          var blob = await audR.blob();
+          var blobUrl = URL.createObjectURL(blob);
+          audioEl.src = blobUrl;
+        }
+      } catch (_) {
+        // If audio fetch fails the transcript still renders, just no playback.
+      }
+      panel.style.display = '';
+      if (emptyPanel) emptyPanel.style.display = 'none';
+    } catch (e) {
+      // Silent fail; Auggie chat still works.
+    }
+  }
+
+  // Regen button handler. Used by both the full-panel "generate a fresh
+  // brief" button and the empty-state "generate one now" button. Trigger
+  // returns 202; Auggie takes 60-90s to gather, write, and render audio.
+  async function triggerRegen(btnId, statusId){
+    var btn = document.getElementById(btnId);
+    var status = document.getElementById(statusId);
+    if (!btn) return;
+    var originalLabel = btn.textContent;
+    btn.disabled = true; btn.style.opacity = '0.6'; btn.textContent = 'asking auggie';
+    if (status) status.textContent = '';
+    try {
+      var token = await getJwt();
+      if (!token) { if (status) status.textContent = 'sign in first'; btn.disabled = false; btn.style.opacity = ''; btn.textContent = originalLabel; return; }
+      var r = await fetch('/.netlify/functions/studio-auggie-brief-trigger', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: '{}',
+      });
+      var data = await r.json();
+      if (r.status === 202 || r.ok) {
+        if (status) status.textContent = 'on it. checking back in 90 seconds.';
+        // Auto-poll once at +90s, again at +120s in case ElevenLabs was slow.
+        setTimeout(loadAuggieBrief, 90000);
+        setTimeout(loadAuggieBrief, 120000);
+      } else {
+        if (status) status.textContent = 'snag: ' + (data.error || ('HTTP ' + r.status));
+        btn.disabled = false; btn.style.opacity = ''; btn.textContent = originalLabel;
+      }
+    } catch (e) {
+      if (status) status.textContent = 'network error: ' + (e && e.message);
+      btn.disabled = false; btn.style.opacity = ''; btn.textContent = originalLabel;
+    }
+  }
+
+  var regenFullBtn = document.getElementById('auggie-brief-regen');
+  if (regenFullBtn) regenFullBtn.addEventListener('click', function(){ triggerRegen('auggie-brief-regen', 'auggie-brief-regen-status'); });
+  var regenEmptyBtn = document.getElementById('auggie-brief-regen-empty');
+  if (regenEmptyBtn) regenEmptyBtn.addEventListener('click', function(){ triggerRegen('auggie-brief-regen-empty', 'auggie-brief-regen-empty-status'); });
+
+  // Wait for the workspace to become visible (auth resolved) before loading.
+  // workspaceObserver fires once the .workspace element gains is-visible,
+  // which is what showWorkspace() does in the main script above.
+  function whenWorkspaceVisible(cb){
+    var ws = document.getElementById('workspace');
+    if (!ws) return;
+    if (ws.classList.contains('is-visible')) { cb(); return; }
+    var obs = new MutationObserver(function(){
+      if (ws.classList.contains('is-visible')) { obs.disconnect(); cb(); }
+    });
+    obs.observe(ws, { attributes: true, attributeFilter: ['class'] });
+  }
+  whenWorkspaceVisible(loadAuggieBrief);
 })();
 </script>
 
