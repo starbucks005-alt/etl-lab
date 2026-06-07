@@ -499,9 +499,9 @@
                  image. Each chip is a thumbnail with an X to remove. -->
             <div id="auggie-chat-attachments" style="display:none; gap:8px; flex-wrap:wrap;"></div>
             <div style="display:flex; gap:10px; align-items:center;">
-              <label for="auggie-chat-file" style="font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink-soft); cursor:pointer; padding:6px 10px; border:1px solid var(--linen-edge); background:#fff;">📎 attach image</label>
-              <input type="file" id="auggie-chat-file" accept="image/png,image/jpeg,image/webp,image/gif" multiple style="display:none;">
-              <span style="font-family:'Cormorant Garamond',serif; font-size:12px; font-style:italic; color:var(--ink-quiet);">or paste directly into the box above</span>
+              <label for="auggie-chat-file" style="font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink-soft); cursor:pointer; padding:6px 10px; border:1px solid var(--linen-edge); background:#fff;">📎 attach image or file</label>
+              <input type="file" id="auggie-chat-file" accept="image/png,image/jpeg,image/webp,image/gif,application/pdf,text/plain,text/markdown,text/csv,application/json,text/calendar,.md,.txt,.csv,.json,.ics,.pdf" multiple style="display:none;">
+              <span style="font-family:'Cormorant Garamond',serif; font-size:12px; font-style:italic; color:var(--ink-quiet);">images, PDFs, or text — paste into the box above also works</span>
             </div>
           </div>
           <button type="submit" id="auggie-chat-send"
@@ -1505,20 +1505,38 @@
   // successful send. Capped at 4 to match Anthropic's per-message limit and
   // to keep payload size reasonable (each image can be a few MB).
   var pendingImages = [];
+  // Pending documents (PDFs only at the API boundary). Each
+  // { mediaType, base64, name, size }.
+  var pendingDocs = [];
+  // Pending text snippets pulled from .txt/.md/.csv/.json/.ics files. We
+  // inline these into the message text on submit rather than sending them
+  // as document blocks (Anthropic's document type is PDF-only).
+  var pendingTextFiles = [];
   var IMG_MAX = 4;
   var IMG_MAX_BYTES = 5 * 1024 * 1024; // 5MB per Anthropic limit
+  var DOC_MAX = 4;
+  var DOC_MAX_BYTES = 10 * 1024 * 1024; // 10MB per PDF — generous
+  var TXT_MAX_BYTES = 500 * 1024; // 500KB per text snippet
   var attachmentTray = document.getElementById('auggie-chat-attachments');
   var fileInput = document.getElementById('auggie-chat-file');
 
+  function fmtSize(n){
+    if (n < 1024) return n + 'B';
+    if (n < 1024 * 1024) return Math.round(n / 1024) + 'KB';
+    return (n / (1024 * 1024)).toFixed(1) + 'MB';
+  }
+
   function renderAttachments(){
     if (!attachmentTray) return;
-    if (pendingImages.length === 0) {
+    var total = pendingImages.length + pendingDocs.length + pendingTextFiles.length;
+    if (total === 0) {
       attachmentTray.style.display = 'none';
       attachmentTray.innerHTML = '';
       return;
     }
     attachmentTray.style.display = 'flex';
     attachmentTray.innerHTML = '';
+
     pendingImages.forEach(function(img, idx){
       var chip = document.createElement('div');
       chip.style.cssText = 'position:relative; width:72px; height:72px; border:1px solid var(--linen-edge); background:#fff;';
@@ -1529,7 +1547,7 @@
       var x = document.createElement('button');
       x.type = 'button';
       x.textContent = '×';
-      x.setAttribute('aria-label', 'Remove attachment');
+      x.setAttribute('aria-label', 'Remove image attachment');
       x.style.cssText = 'position:absolute; top:-8px; right:-8px; width:22px; height:22px; border-radius:50%; border:1px solid var(--ink); background:#fff; color:var(--ink); font-size:14px; line-height:1; cursor:pointer; padding:0;';
       x.addEventListener('click', function(){
         try { URL.revokeObjectURL(img.previewUrl); } catch(_){}
@@ -1538,6 +1556,50 @@
       });
       chip.appendChild(thumb);
       chip.appendChild(x);
+      attachmentTray.appendChild(chip);
+    });
+
+    function fileChip(label, sublabel, icon, onRemove){
+      var chip = document.createElement('div');
+      chip.style.cssText = 'position:relative; display:flex; align-items:center; gap:8px; min-height:72px; max-width:240px; padding:8px 26px 8px 10px; border:1px solid var(--linen-edge); background:#fff; font-family:\'DM Mono\',monospace; font-size:11px; color:var(--ink);';
+      var ic = document.createElement('div');
+      ic.textContent = icon;
+      ic.style.cssText = 'font-size:22px; line-height:1;';
+      var stack = document.createElement('div');
+      stack.style.cssText = 'display:flex; flex-direction:column; gap:2px; min-width:0;';
+      var name = document.createElement('div');
+      name.textContent = label;
+      name.style.cssText = 'overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:170px;';
+      var sub = document.createElement('div');
+      sub.textContent = sublabel;
+      sub.style.cssText = 'color:var(--ink-quiet); font-size:10px; letter-spacing:0.06em; text-transform:uppercase;';
+      stack.appendChild(name);
+      stack.appendChild(sub);
+      var x = document.createElement('button');
+      x.type = 'button';
+      x.textContent = '×';
+      x.setAttribute('aria-label', 'Remove attachment');
+      x.style.cssText = 'position:absolute; top:-8px; right:-8px; width:22px; height:22px; border-radius:50%; border:1px solid var(--ink); background:#fff; color:var(--ink); font-size:14px; line-height:1; cursor:pointer; padding:0;';
+      x.addEventListener('click', onRemove);
+      chip.appendChild(ic);
+      chip.appendChild(stack);
+      chip.appendChild(x);
+      return chip;
+    }
+
+    pendingDocs.forEach(function(doc, idx){
+      var chip = fileChip(doc.name || 'document.pdf', 'PDF · ' + fmtSize(doc.size || 0), '📄', function(){
+        pendingDocs.splice(idx, 1);
+        renderAttachments();
+      });
+      attachmentTray.appendChild(chip);
+    });
+
+    pendingTextFiles.forEach(function(tf, idx){
+      var chip = fileChip(tf.name || 'snippet.txt', 'TEXT · ' + fmtSize(tf.size || 0), '📝', function(){
+        pendingTextFiles.splice(idx, 1);
+        renderAttachments();
+      });
       attachmentTray.appendChild(chip);
     });
   }
@@ -1557,8 +1619,27 @@
     });
   }
 
+  function readAsText(file){
+    return new Promise(function(resolve, reject){
+      var reader = new FileReader();
+      reader.onload = function(){ resolve(String(reader.result || '')); };
+      reader.onerror = function(){ reject(reader.error || new Error('read failed')); };
+      reader.readAsText(file);
+    });
+  }
+
+  function classifyFile(file){
+    if (!file) return 'unknown';
+    var t = file.type || '';
+    var n = (file.name || '').toLowerCase();
+    if (/^image\//.test(t)) return 'image';
+    if (t === 'application/pdf' || /\.pdf$/.test(n)) return 'pdf';
+    if (/^text\//.test(t)) return 'text';
+    if (t === 'application/json' || /\.(txt|md|markdown|csv|json|ics|log)$/.test(n)) return 'text';
+    return 'unknown';
+  }
+
   async function addImageFile(file){
-    if (!file || !/^image\//.test(file.type)) return;
     if (file.size > IMG_MAX_BYTES) {
       errBox.textContent = 'image too big (max 5MB): ' + (file.name || 'pasted image');
       errBox.style.display = '';
@@ -1569,41 +1650,93 @@
       errBox.style.display = '';
       return;
     }
+    var b64 = await fileToBase64(file);
+    pendingImages.push({
+      mediaType: file.type,
+      base64: b64,
+      previewUrl: URL.createObjectURL(file),
+    });
+  }
+
+  async function addPdfFile(file){
+    if (file.size > DOC_MAX_BYTES) {
+      errBox.textContent = 'PDF too big (max 10MB): ' + (file.name || 'document.pdf');
+      errBox.style.display = '';
+      return;
+    }
+    if (pendingDocs.length >= DOC_MAX) {
+      errBox.textContent = 'auggie can only read ' + DOC_MAX + ' PDFs at a time. remove one to add another.';
+      errBox.style.display = '';
+      return;
+    }
+    var b64 = await fileToBase64(file);
+    pendingDocs.push({
+      mediaType: 'application/pdf',
+      base64: b64,
+      name: file.name || 'document.pdf',
+      size: file.size,
+    });
+  }
+
+  async function addTextFile(file){
+    if (file.size > TXT_MAX_BYTES) {
+      errBox.textContent = 'text file too big (max 500KB): ' + (file.name || 'snippet.txt');
+      errBox.style.display = '';
+      return;
+    }
+    var text = await readAsText(file);
+    pendingTextFiles.push({
+      name: file.name || 'snippet.txt',
+      size: file.size,
+      text: text,
+    });
+  }
+
+  // Single entry point. Routes by content-type / extension.
+  async function addAttachment(file){
+    if (!file) return;
+    var kind = classifyFile(file);
     try {
-      var b64 = await fileToBase64(file);
-      pendingImages.push({
-        mediaType: file.type,
-        base64: b64,
-        previewUrl: URL.createObjectURL(file),
-      });
+      if (kind === 'image') {
+        await addImageFile(file);
+      } else if (kind === 'pdf') {
+        await addPdfFile(file);
+      } else if (kind === 'text') {
+        await addTextFile(file);
+      } else {
+        errBox.textContent = 'unsupported file type: ' + (file.name || file.type || 'unknown');
+        errBox.style.display = '';
+        return;
+      }
       renderAttachments();
       errBox.style.display = 'none';
     } catch (e) {
-      errBox.textContent = 'could not read image: ' + (e && e.message);
+      errBox.textContent = 'could not read attachment: ' + (e && e.message);
       errBox.style.display = '';
     }
   }
 
-  // Paste handler on the textarea: capture any image items from the
-  // clipboard, ignore text (textarea handles that natively).
+  // Paste handler on the textarea: capture image / pdf / text file items
+  // from the clipboard. Plain text paste still goes through the textarea.
   input.addEventListener('paste', function(ev){
     var items = (ev.clipboardData && ev.clipboardData.items) || [];
-    var images = [];
+    var files = [];
     for (var i = 0; i < items.length; i++) {
-      if (items[i].kind === 'file' && /^image\//.test(items[i].type)) {
-        images.push(items[i].getAsFile());
+      if (items[i].kind === 'file') {
+        var f = items[i].getAsFile();
+        if (f) files.push(f);
       }
     }
-    if (images.length === 0) return; // let normal text paste happen
+    if (files.length === 0) return; // let normal text paste happen
     ev.preventDefault();
-    images.forEach(addImageFile);
+    files.forEach(addAttachment);
   });
 
   // File-picker fallback for users who would rather click an icon.
   if (fileInput) {
     fileInput.addEventListener('change', function(){
       var files = Array.from(fileInput.files || []);
-      files.forEach(addImageFile);
+      files.forEach(addAttachment);
       fileInput.value = ''; // allow re-selecting same file later
     });
   }
@@ -1614,7 +1747,7 @@
       .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
-  function appendBubble(side, text, imageUrls){
+  function appendBubble(side, text, imageUrls, fileList){
     var div = document.createElement('div');
     div.className = 'auggie-bubble auggie-bubble--' + (side === 'mine' ? 'mine' : 'his');
     div.style.marginBottom = '14px';
@@ -1634,6 +1767,17 @@
         imgRow.appendChild(im);
       });
       div.appendChild(imgRow);
+    }
+    if (Array.isArray(fileList) && fileList.length) {
+      var fileRow = document.createElement('div');
+      fileRow.style.cssText = 'display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px;';
+      fileList.forEach(function(f){
+        var chip = document.createElement('div');
+        chip.style.cssText = 'display:inline-flex; align-items:center; gap:6px; padding:4px 8px; border:1px solid var(--linen-edge); background:#fff; font-family:\'DM Mono\',monospace; font-size:10px; color:var(--ink); letter-spacing:0.04em;';
+        chip.textContent = '📄 ' + (f.name || 'file') + (f.size ? ' (' + fmtSize(f.size) + ')' : '');
+        fileRow.appendChild(chip);
+      });
+      div.appendChild(fileRow);
     }
     var body = document.createElement('div');
     body.innerHTML = escapeHtml(text).replace(/\n/g, '<br>');
@@ -1718,27 +1862,47 @@
 
   form.addEventListener('submit', async function(ev){
     ev.preventDefault();
-    var msg = input.value.trim();
-    // Send is valid if there is text OR at least one pasted/uploaded image.
-    if (!msg && pendingImages.length === 0) return;
+    var typed = input.value.trim();
+    // Send is valid if there is text OR at least one attachment of any kind.
+    if (!typed && pendingImages.length === 0 && pendingDocs.length === 0 && pendingTextFiles.length === 0) return;
     errBox.style.display = 'none';
 
-    // Snapshot images for this turn, then clear the pending tray so the
-    // user can start the next message clean.
+    // Snapshot attachments for this turn, then clear the pending tray so
+    // the user can start the next message clean.
     var turnImages = pendingImages.slice();
+    var turnDocs   = pendingDocs.slice();
+    var turnTexts  = pendingTextFiles.slice();
     var turnImageUrls = turnImages.map(function(i){ return i.previewUrl; });
+    var turnDocSummary = turnDocs.map(function(d){ return { name: d.name, size: d.size }; });
+    var turnTextSummary = turnTexts.map(function(t){ return { name: t.name, size: t.size }; });
     pendingImages = [];
+    pendingDocs = [];
+    pendingTextFiles = [];
     renderAttachments();
 
-    // Render the user line immediately, with image thumbnails if any.
-    appendBubble('mine', msg, turnImageUrls);
-    // History stays text-only (images are NOT retained across turns to keep
-    // payloads bounded). Auggie remembers what HE said about the image, not
-    // the image itself. Use a placeholder string if message was empty.
-    history.push({
-      role: 'user',
-      content: msg || ('[image attached: ' + turnImages.length + ']')
-    });
+    // Inline any text-file content into the outgoing message. The
+    // user-visible bubble shows only what Terry actually typed.
+    var msg = typed;
+    if (turnTexts.length) {
+      var inlined = turnTexts.map(function(t){
+        return '--- begin file: ' + t.name + ' ---\n' + t.text + '\n--- end file: ' + t.name + ' ---';
+      }).join('\n\n');
+      msg = (typed ? typed + '\n\n' : '') + inlined;
+    }
+
+    // Render the user line immediately, with image thumbnails + file chips.
+    appendBubble('mine', typed, turnImageUrls, turnDocSummary.concat(turnTextSummary));
+    // History stays text-light (binary attachments are NOT retained across
+    // turns to keep payloads bounded). Auggie remembers what HE said about
+    // the file, not the bytes. Use a placeholder if message was empty.
+    var historyText = msg;
+    if (!historyText) {
+      var bits = [];
+      if (turnImages.length) bits.push('image(s): ' + turnImages.length);
+      if (turnDocs.length)   bits.push('pdf(s): '   + turnDocs.map(function(d){ return d.name; }).join(', '));
+      historyText = '[attached — ' + bits.join('; ') + ']';
+    }
+    history.push({ role: 'user', content: historyText });
     input.value = '';
     sendBtn.disabled = true;
     sendBtn.textContent = 'Sending';
@@ -1770,6 +1934,9 @@
           history: history.slice(0, -1),
           images: turnImages.map(function(i){
             return { mediaType: i.mediaType, base64: i.base64 };
+          }),
+          documents: turnDocs.map(function(d){
+            return { mediaType: d.mediaType, base64: d.base64, name: d.name };
           }),
         }),
       });

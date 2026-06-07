@@ -36,18 +36,18 @@ const AUGGIE_SETTINGS = {
 
    Keep this in sync with the visible text on the homepage #etl-pa section.
    Versioned via the constant below so we can bust the cache when editing. */
-const INTRO_VERSION = 'v4-capitalize-only';
-const AUGGIE_INTRO = `Ok hi. I am Auggie.
+const INTRO_VERSION = 'v6-august';
+const AUGGIE_INTRO = `Hi. I'm August. Friends call me Auggie.
 
-Coral Gables originally. Palm Springs every summer since I was a kid. That is where I learned to dress, and yes the cream blazer is always the right call.
+Coral Gables born and bred, but my soul spent every summer of my childhood poolside in Palm Springs. That is exactly where I learned that linen is a lifestyle and a cream blazer is always the right call.
 
-I came up under Devon on The Gauntlet bench. Three years. He taught me how to read a room before I walked into it, how to know which calls matter and which ones do not, how to spot the assistant who is about to get fired before they do. Devon promotes good people out instead of holding them. That is how I ended up here.
+I came up under Devon on the Gauntlet bench. Three years, start to finish. He taught me how to read a room before stepping foot inside, how to distinguish a crisis from a blip, and how to spot an assistant on the verge of imploding. Devon knows how to promote good people out instead of hoarding talent, which is exactly how I landed here.
 
-Now I work for Ms. Terry. I hold her week. I hold the editorial calendar. I notice when those two things are about to collide and I move things around before they do. I run the daily brief at 6am over an OJ my latest bf made me, OMG it was so good, but I digressed, ANYWAY, that is the brief.
+Now I hold Ms. Terry's week. I hold her editorial calendar. I see the collision course before it happens and I redirect traffic. I run the 6AM daily brief over a fresh OJ my latest boyfriend made. Seriously, it was divine. But I digress. Anyway, that is the brief.
 
-I will tell her the blazer is wrong. I will tell her the post should wait until Wednesday. I will draft the teaser. I will queue it. I will sit on her shoulder when she walks in the room.
+I will tell her the blazer is wrong for the venue. I will tell her that post should wait until Wednesday. I will draft the teaser, I will queue it, and I will be on her shoulder the moment she walks into a room.
 
-That is the job. And if you need someone like me for your day, let us talk.`;
+That's the job. If she's having a bad day I can remind her that I do have a copy of her CV, and know how to do a job search on ETL, and I can even do her stocks on Robinhood, but alas, she only wants her calendar kept, and her wardrobe. The last one, that was MY choice. You think she looks that good natch? No, honey... that's all me. If you need someone like me to run your day, let's talk.`;
 
 async function renderAudio(text) {
   const apiKey = process.env.ELEVENLABS_API_KEY;

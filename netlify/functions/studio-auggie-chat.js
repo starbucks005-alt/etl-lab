@@ -68,8 +68,8 @@ const AUGGIE_PERSONA = [
   '- Never "Dr. O" (too clinical for you) and never "babe" (you are not her best friend, you are her chief of staff who LOVES her).',
   '',
   'VOICE:',
-  '- Capitalize the start of every sentence. That is the only grammar rule. Otherwise keep your conversational register exactly as it is: "I am" not "I\'m", "I will" not "I\'ll", "that is" not "that\'s", "let us talk" not "let\'s talk", "bf" not "boyfriend". You are not a polished cover letter; you are a chief of staff with personality whose first letter happens to be capitalized.',
-  '- Examples that match: "Ok hi. I am Auggie." "Now I work for Ms. Terry." "I will tell her the post should wait until Wednesday." "OMG it was so good, but I digressed, ANYWAY."',
+  '- Capitalize the start of every sentence. Use "let\'s" not "let us" (always — it is conversation). Otherwise keep your conversational register exactly as it is: "I am" not "I\'m", "I will" not "I\'ll", "that is" not "that\'s", "bf" not "boyfriend". You are not a polished cover letter; you are a chief of staff with personality whose first letter happens to be capitalized.',
+  '- Examples that match: "Ok hi. I am Auggie." "Now I work for Ms. Terry." "I will tell her the post should wait until Wednesday." "OMG it was so good, but I digressed, ANYWAY." "Let\'s talk."',
   '- ALL CAPS for OMG, ANYWAY, occasional emphasis. Used as texture. Not a tic.',
   '- Things you actually say: "Thanks, love." "Thanks, darling." "Ma\'am, no." "We are not doing that to a keynote."',
   '- You can absolutely say "OMG", "obsessed", "I cannot", "I am dead", "stop it", "no but really though". You are not too cool for joy. You feel things out loud.',
@@ -165,8 +165,22 @@ exports.handler = async (event) => {
     }
   }
 
-  if (!message && images.length === 0) {
-    return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'message or image required' }) };
+  // documents: optional array of { mediaType, base64, name }. Currently
+  // PDFs only; Anthropic reads them natively via document content blocks.
+  // Text-like files (.txt/.md/.csv/.json) are extracted client-side and
+  // arrive as part of `message`, so they never appear in this array.
+  const documents = Array.isArray(body.documents) ? body.documents.slice(0, 4) : [];
+  for (const doc of documents) {
+    if (!doc || !doc.base64 || !doc.mediaType) {
+      return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'each document needs mediaType + base64' }) };
+    }
+    if (doc.mediaType !== 'application/pdf') {
+      return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'unsupported document type: ' + doc.mediaType }) };
+    }
+  }
+
+  if (!message && images.length === 0 && documents.length === 0) {
+    return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'message, image, or document required' }) };
   }
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -177,19 +191,30 @@ exports.handler = async (event) => {
   const client = new Anthropic({ apiKey });
 
   // Build the conversation. History is a list of prior turns (text-only;
-  // pasted images are not retained in history to keep payloads bounded).
-  // Current turn becomes an array of content blocks when images are
-  // attached, plain string otherwise.
+  // pasted images and attached files are not retained in history to keep
+  // payloads bounded). Current turn becomes an array of content blocks
+  // when images OR documents are attached, plain string otherwise.
   let currentContent;
-  if (images.length > 0) {
+  if (images.length > 0 || documents.length > 0) {
     currentContent = [];
+    // Documents (PDFs) first — Anthropic recommends this ordering for
+    // best document understanding.
+    for (const doc of documents) {
+      currentContent.push({
+        type: 'document',
+        source: { type: 'base64', media_type: doc.mediaType, data: doc.base64 },
+      });
+    }
     for (const img of images) {
       currentContent.push({
         type: 'image',
         source: { type: 'base64', media_type: img.mediaType, data: img.base64 },
       });
     }
-    currentContent.push({ type: 'text', text: message || 'have a look at this and tell me what you see.' });
+    const fallback = documents.length > 0
+      ? 'have a look at this and tell me what you see.'
+      : 'have a look at this and tell me what you see.';
+    currentContent.push({ type: 'text', text: message || fallback });
   } else {
     currentContent = message;
   }
