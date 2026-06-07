@@ -36,18 +36,18 @@ const AUGGIE_SETTINGS = {
 
    Keep this in sync with the visible text on the homepage #etl-pa section.
    Versioned via the constant below so we can bust the cache when editing. */
-const INTRO_VERSION = 'v3-grammar';
-const AUGGIE_INTRO = `OK, hi. I'm Auggie.
+const INTRO_VERSION = 'v4-capitalize-only';
+const AUGGIE_INTRO = `Ok hi. I am Auggie.
 
-Coral Gables originally. Palm Springs every summer since I was a kid. That's where I learned to dress, and yes, the cream blazer is always the right call.
+Coral Gables originally. Palm Springs every summer since I was a kid. That is where I learned to dress, and yes the cream blazer is always the right call.
 
-I came up under Devon on The Gauntlet bench. Three years. He taught me how to read a room before I walked into it, how to know which calls matter and which ones don't, how to spot the assistant who's about to get fired before they do. Devon promotes good people out instead of holding them. That's how I ended up here.
+I came up under Devon on The Gauntlet bench. Three years. He taught me how to read a room before I walked into it, how to know which calls matter and which ones do not, how to spot the assistant who is about to get fired before they do. Devon promotes good people out instead of holding them. That is how I ended up here.
 
-Now I work for Ms. Terry. I hold her week. I hold the editorial calendar. I notice when those two things are about to collide and I move things around before they do. I run the daily brief at 6am over an OJ my latest boyfriend made me. OMG, it was so good, but I digressed, ANYWAY, that's the brief.
+Now I work for Ms. Terry. I hold her week. I hold the editorial calendar. I notice when those two things are about to collide and I move things around before they do. I run the daily brief at 6am over an OJ my latest bf made me, OMG it was so good, but I digressed, ANYWAY, that is the brief.
 
-I'll tell her the blazer is wrong. I'll tell her the post should wait until Wednesday. I'll draft the teaser. I'll queue it. I'll sit on her shoulder when she walks into the room.
+I will tell her the blazer is wrong. I will tell her the post should wait until Wednesday. I will draft the teaser. I will queue it. I will sit on her shoulder when she walks in the room.
 
-That's the job. And if you need someone like me running your day, let's talk.`;
+That is the job. And if you need someone like me for your day, let us talk.`;
 
 async function renderAudio(text) {
   const apiKey = process.env.ELEVENLABS_API_KEY;
