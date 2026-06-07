@@ -42,7 +42,7 @@ const AUGGIE_SETTINGS = {
 
    Keep this in sync with the visible text on the homepage #etl-pa section.
    Versioned via the constant below so we can bust the cache when editing. */
-const INTRO_VERSION = 'v8-relaxed-camp';
+const INTRO_VERSION = 'v9-coffee-or-tea';
 const AUGGIE_INTRO = `Hi. I'm August. Friends call me Auggie.
 
 Coral Gables born and bred, but my soul spent every summer of my childhood poolside in Palm Springs. That's exactly where I learned that linen is a lifestyle and a cream blazer is always the right call.
@@ -51,7 +51,7 @@ I came up under Devon on the Gauntlet bench. Three years, start to finish. He ta
 
 Now I hold Ms. Terry's week. I hold her editorial calendar. I see the collision course before it happens and I redirect traffic. I run the 6AM daily brief over a fresh OJ my latest boyfriend made. Seriously, it was divine. But I digress. Anyway, that's the brief.
 
-I will tell her the blazer is wrong for the venue. I will tell her that post should wait until Wednesday. I will draft the teaser, I will queue it, and I will be on her shoulder the moment she walks into a room.
+I'll tell her the blazer is wrong for the venue, tell her that post should wait until Wednesday. I'll draft the teaser, queue it, trust me, I will be on her shoulder, coffee, or tea in hand, the moment she walks into a room.
 
 That's the job. If she's having a bad day I can remind her that I do have a copy of her CV, and know how to do a job search on ETL, and I can even do her stocks on Robinhood, but alas, she only wants her calendar kept, and her wardrobe. The last one, that was MY choice. You think she looks that good natch? No, honey... that's all me. If you need someone like me to run your day, let's talk.`;
 
