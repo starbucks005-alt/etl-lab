@@ -428,8 +428,11 @@
         <div id="auggie-chat-thread"
              style="background:#fff; border:1px solid var(--linen-edge); padding:18px 22px; min-height:240px; max-height:480px; overflow-y:auto; font-family:'Cormorant Garamond',serif; font-size:16px; line-height:1.55; color:var(--ink);">
           <div class="auggie-bubble auggie-bubble--his" style="margin-bottom:14px;">
-            <div style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.18em; color:var(--brass); text-transform:uppercase; margin-bottom:4px;">Auggie</div>
+            <div class="auggie-bubble-meta">Auggie</div>
             <div>hi Ms. Terry. what are we doing today.</div>
+            <div style="margin-top:8px;">
+              <button type="button" class="auggie-play-btn" data-text="hi Ms. Terry. what are we doing today.">▶ hear it</button>
+            </div>
           </div>
         </div>
 
@@ -486,6 +489,16 @@
       cursor:pointer;
     }
     .auggie-preset-chip:hover { background:var(--brass); color:#fff; }
+    /* "hear it" button. Subtle, sits at the bottom of his bubbles, hits
+       ElevenLabs TTS on click and plays his voice inline. */
+    .auggie-play-btn {
+      font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.1em;
+      text-transform:lowercase; color:var(--ink-soft);
+      background:transparent; border:1px solid var(--linen-edge);
+      padding:4px 10px; cursor:pointer;
+    }
+    .auggie-play-btn:hover:not(:disabled) { color:var(--ink); border-color:var(--brass); background:#fbf4e0; }
+    .auggie-play-btn:disabled { opacity:0.55; cursor:wait; }
   </style>
 
   <!-- THE STAFF -->
@@ -1283,9 +1296,83 @@
     body.innerHTML = escapeHtml(text).replace(/\n/g, '<br>');
     div.appendChild(meta);
     div.appendChild(body);
+    // Auggie-only: add a "hear it" button that calls the TTS endpoint and
+    // plays his ElevenLabs voice inline. Mine-side bubbles never get one.
+    if (side !== 'mine' && text && text.trim()) {
+      var playWrap = document.createElement('div');
+      playWrap.style.marginTop = '8px';
+      var playBtn = document.createElement('button');
+      playBtn.type = 'button';
+      playBtn.className = 'auggie-play-btn';
+      playBtn.textContent = '▶ hear it';
+      playBtn.dataset.text = text;
+      playWrap.appendChild(playBtn);
+      div.appendChild(playWrap);
+    }
     thread.appendChild(div);
     thread.scrollTop = thread.scrollHeight;
   }
+
+  // Click handler for the "hear it" buttons. Sends the bubble's text to
+  // /studio-auggie-voice with the Supabase JWT, gets back base64 mp3,
+  // plays via inline <audio>. One concurrent player at a time so two
+  // bubbles cannot talk over each other.
+  var currentPlayer = null;
+  thread.addEventListener('click', async function(ev){
+    var btn = ev.target.closest('.auggie-play-btn');
+    if (!btn) return;
+    var text = btn.dataset.text || '';
+    if (!text) return;
+
+    // Stop anything currently playing.
+    if (currentPlayer) { try { currentPlayer.pause(); } catch(_){} currentPlayer = null; }
+
+    var origLabel = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'rendering';
+
+    try {
+      var session = null;
+      try {
+        var s = await window.studioSb.auth.getSession();
+        session = s && s.data && s.data.session;
+      } catch (_) {}
+      var headers = { 'Content-Type': 'application/json' };
+      if (session && session.access_token) headers['Authorization'] = 'Bearer ' + session.access_token;
+
+      var r = await fetch('/.netlify/functions/studio-auggie-voice', {
+        method: 'POST', headers: headers, body: JSON.stringify({ text: text }),
+      });
+      var data = await r.json();
+      if (!r.ok || data.error || !data.audioBase64) {
+        btn.textContent = '✗ ' + (data.error || ('HTTP ' + r.status));
+        setTimeout(function(){ btn.textContent = origLabel; btn.disabled = false; }, 3000);
+        return;
+      }
+      var audio = new Audio('data:' + (data.mimeType || 'audio/mpeg') + ';base64,' + data.audioBase64);
+      currentPlayer = audio;
+      btn.textContent = '■ stop';
+      btn.disabled = false;
+      audio.addEventListener('ended', function(){
+        btn.textContent = origLabel;
+        if (currentPlayer === audio) currentPlayer = null;
+      });
+      // Allow clicking stop while playing.
+      btn.onclick = function(){
+        try { audio.pause(); } catch(_){}
+        btn.textContent = origLabel;
+        btn.onclick = null;
+        if (currentPlayer === audio) currentPlayer = null;
+      };
+      audio.play().catch(function(err){
+        btn.textContent = '✗ playback blocked';
+        setTimeout(function(){ btn.textContent = origLabel; btn.disabled = false; }, 2500);
+      });
+    } catch (e) {
+      btn.textContent = '✗ network';
+      setTimeout(function(){ btn.textContent = origLabel; btn.disabled = false; }, 3000);
+    }
+  });
 
   form.addEventListener('submit', async function(ev){
     ev.preventDefault();
