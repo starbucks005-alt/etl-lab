@@ -392,6 +392,64 @@
     </div>
   </section>
 
+  <!-- AUGGIE: chief of staff. Chat panel sits up here, ahead of the staff
+       grid, because he runs the day. Persona, backstory, and voice live in
+       netlify/functions/studio-auggie-chat.js. Tools (calendar table + post
+       queue) get wired in the next commit; this commit is conversation-only
+       so we can hear his voice and tune before adding read/write access. -->
+  <section class="ws-section" id="auggie-section">
+    <div class="ws-section-head">
+      <div class="ws-section-h">Your <em>chief of staff</em></div>
+      <div class="ws-section-tag">August "Auggie" Vidal</div>
+    </div>
+
+    <div style="display:grid; grid-template-columns: minmax(220px, 280px) 1fr; gap:32px; align-items:start;">
+
+      <!-- Auggie's portrait + tiny bio -->
+      <div>
+        <div style="position:relative; overflow:hidden; border:1px solid var(--linen-edge); background:#fff;">
+          <img id="auggie-portrait" src="/agents/Auggie_profile.png" alt="August Vidal, chief of staff"
+               style="width:100%; height:auto; display:block;"
+               onerror="this.outerHTML='<div style=&quot;padding:60px;text-align:center;font-family:serif;font-style:italic;color:#888;&quot;>AV</div>'">
+        </div>
+        <div style="font-family:'Playfair Display',serif; font-size:18px; font-weight:700; color:var(--ink); margin-top:14px;">August "Auggie" Vidal</div>
+        <div style="font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.18em; color:var(--brass); text-transform:uppercase; margin-top:4px;">Chief of staff</div>
+        <p style="font-family:'Cormorant Garamond',serif; font-size:14px; color:var(--ink-soft); font-style:italic; line-height:1.55; margin-top:10px;">
+          Late twenties, Cuban-American, Coral Gables family with Palm Springs summers. Three years as Devon's personal assistant on the Gauntlet bench before Dr. Oroszi hired him into the Studio. He holds your week and the editorial calendar. He watches the overlap.
+        </p>
+      </div>
+
+      <!-- Chat panel -->
+      <div>
+        <div id="auggie-chat-thread"
+             style="background:#fff; border:1px solid var(--linen-edge); padding:18px 22px; min-height:240px; max-height:480px; overflow-y:auto; font-family:'Cormorant Garamond',serif; font-size:16px; line-height:1.55; color:var(--ink);">
+          <div class="auggie-bubble auggie-bubble--his" style="margin-bottom:14px;">
+            <div style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.18em; color:var(--brass); text-transform:uppercase; margin-bottom:4px;">Auggie</div>
+            <div>hi love. what is on your mind.</div>
+          </div>
+        </div>
+
+        <form id="auggie-chat-form" style="display:flex; gap:10px; margin-top:14px; align-items:flex-end;">
+          <textarea id="auggie-chat-input" rows="2"
+                    placeholder="ask auggie. paste your week. ask him what to wear friday. tell him what to queue."
+                    style="flex:1; padding:12px 14px; border:1px solid var(--linen-edge); font-family:'Cormorant Garamond',serif; font-size:16px; line-height:1.5; color:var(--ink); background:#fff; resize:vertical; box-sizing:border-box;"></textarea>
+          <button type="submit" id="auggie-chat-send"
+                  style="padding:12px 22px; font-family:'DM Mono',monospace; font-size:11px; letter-spacing:0.18em; text-transform:uppercase; background:var(--ink); color:var(--linen); border:none; cursor:pointer; align-self:stretch;">Send</button>
+        </form>
+        <div id="auggie-chat-error" style="display:none; margin-top:10px; padding:10px 14px; background:#fdecec; border:1px solid #f0b8b8; color:#7d2828; font-family:'DM Mono',monospace; font-size:11px;"></div>
+      </div>
+    </div>
+  </section>
+
+  <style>
+    .auggie-bubble { padding:10px 14px; border-left:3px solid transparent; }
+    .auggie-bubble--his   { border-left-color: var(--brass); background:#fbf4e0; }
+    .auggie-bubble--mine  { border-left-color: var(--navy-mid); background:#f3f1ec; margin-left:24px; }
+    .auggie-bubble-meta   { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.18em; color:var(--brass); text-transform:uppercase; margin-bottom:4px; }
+    .auggie-bubble--mine .auggie-bubble-meta { color: var(--navy-mid); }
+    #auggie-chat-input:focus { outline:1px solid var(--brass); }
+  </style>
+
   <!-- THE STAFF -->
   <section class="ws-section">
     <div class="ws-section-head">
@@ -399,6 +457,17 @@
       <div class="ws-section-tag">Currently on assignment</div>
     </div>
     <div class="staff-grid">
+
+      <div class="staff-card">
+        <div class="staff-portrait">
+          <img src="/agents/Auggie_profile.png" alt="August Vidal" onerror="this.outerHTML='<div class=&quot;staff-portrait-placeholder&quot;>AV</div>'">
+        </div>
+        <div class="staff-body">
+          <div class="staff-name">August "Auggie" Vidal</div>
+          <div class="staff-role">Chief of staff</div>
+          <div class="staff-current">Holding your week and the editorial calendar.</div>
+        </div>
+      </div>
 
       <div class="staff-card">
         <div class="staff-portrait">
@@ -1136,6 +1205,127 @@
       showLoginWall();
     }
   });
+</script>
+
+<!-- ─────────────────────────────────────────────────────────────────────────
+     AUGGIE CHAT WIRING. Conversation-only for this commit. Sends each
+     user line plus prior history to /studio-auggie-chat with the Supabase
+     JWT. Renders both sides in the thread. History stays in memory; we
+     persist to Supabase in the next commit.
+     ───────────────────────────────────────────────────────────────────── -->
+<script>
+(function(){
+  var form    = document.getElementById('auggie-chat-form');
+  var input   = document.getElementById('auggie-chat-input');
+  var thread  = document.getElementById('auggie-chat-thread');
+  var sendBtn = document.getElementById('auggie-chat-send');
+  var errBox  = document.getElementById('auggie-chat-error');
+  if (!form || !input || !thread) return;
+
+  // In-memory history. Last 20 turns get sent back to the server so Auggie
+  // has working context across the conversation. The opening "hi love" line
+  // shown in the HTML is for the human; we let the model own its first real
+  // response, so we do not seed it in history.
+  var history = [];
+
+  function escapeHtml(s){
+    return String(s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function appendBubble(side, text){
+    var div = document.createElement('div');
+    div.className = 'auggie-bubble auggie-bubble--' + (side === 'mine' ? 'mine' : 'his');
+    div.style.marginBottom = '14px';
+    var meta = document.createElement('div');
+    meta.className = 'auggie-bubble-meta';
+    meta.textContent = (side === 'mine') ? 'You' : 'Auggie';
+    var body = document.createElement('div');
+    body.innerHTML = escapeHtml(text).replace(/\n/g, '<br>');
+    div.appendChild(meta);
+    div.appendChild(body);
+    thread.appendChild(div);
+    thread.scrollTop = thread.scrollHeight;
+  }
+
+  form.addEventListener('submit', async function(ev){
+    ev.preventDefault();
+    var msg = input.value.trim();
+    if (!msg) return;
+    errBox.style.display = 'none';
+
+    // Render the user line immediately.
+    appendBubble('mine', msg);
+    history.push({ role: 'user', content: msg });
+    input.value = '';
+    sendBtn.disabled = true;
+    sendBtn.textContent = 'Sending';
+
+    // Show a placeholder "Auggie is typing" bubble we will swap on reply.
+    var typing = document.createElement('div');
+    typing.className = 'auggie-bubble auggie-bubble--his';
+    typing.style.marginBottom = '14px';
+    typing.innerHTML =
+      '<div class="auggie-bubble-meta">Auggie</div>' +
+      '<div style="font-style:italic; color:#888;">typing...</div>';
+    thread.appendChild(typing);
+    thread.scrollTop = thread.scrollHeight;
+
+    try {
+      var session = null;
+      try {
+        var s = await window.studioSb.auth.getSession();
+        session = s && s.data && s.data.session;
+      } catch (_) {}
+      var headers = {'Content-Type':'application/json'};
+      if (session && session.access_token) headers['Authorization'] = 'Bearer ' + session.access_token;
+
+      var r = await fetch('/.netlify/functions/studio-auggie-chat', {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify({ message: msg, history: history.slice(0, -1) }),
+      });
+      var data = await r.json();
+      typing.remove();
+
+      if (!r.ok || data.error) {
+        var why = data.error || ('HTTP ' + r.status);
+        errBox.textContent = 'Auggie hit a snag: ' + why;
+        errBox.style.display = '';
+        // Roll the user message back out of history so the next retry does
+        // not look like it already happened.
+        history.pop();
+        return;
+      }
+
+      var reply = (data.reply || '').trim();
+      appendBubble('his', reply || '...');
+      history.push({ role: 'assistant', content: reply });
+
+      // Keep memory bounded.
+      if (history.length > 40) history = history.slice(-40);
+    } catch (e) {
+      typing.remove();
+      errBox.textContent = 'network error reaching auggie: ' + (e && e.message ? e.message : 'unknown');
+      errBox.style.display = '';
+      history.pop();
+    } finally {
+      sendBtn.disabled = false;
+      sendBtn.textContent = 'Send';
+      input.focus();
+    }
+  });
+
+  // Cmd/Ctrl+Enter sends; plain Enter inserts newline (since input is a
+  // textarea for paste-in-your-week workflows).
+  input.addEventListener('keydown', function(ev){
+    if ((ev.ctrlKey || ev.metaKey) && ev.key === 'Enter') {
+      ev.preventDefault();
+      form.dispatchEvent(new Event('submit', { cancelable: true }));
+    }
+  });
+})();
 </script>
 
 </body>
