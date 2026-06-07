@@ -44,31 +44,52 @@ async function validateRequest(event) {
 }
 
 /* Dr. Oroszi's platforms. Each entry seeds the agent with what the site IS,
-   so posts have grounded context even when the subject matter is broad. */
+   so posts have grounded context even when the subject matter is broad.
+   `fallbackImage` is the homepage screenshot used as the default post graphic
+   when Chris does not generate a custom one. Stored at /site-thumbs/.
+   Sites without a custom screenshot fall back to the ETL Lab thumbnail. */
 const SITES = {
   etl:          { name: 'Emerging Technologies Laboratory', url: 'https://emerging-tech-lab.com',
+                  fallbackImage: '/site-thumbs/ETL_Lab.png',
                   context: 'Dr. Terry Oroszi\'s research lab. Five-platform ecosystem covering research, evaluation, intelligence, and education. Founded 2025.' },
   greylander:   { name: 'Greylander Press', url: 'https://greylanderpress.com',
+                  fallbackImage: '/site-thumbs/Greylander_Press.png',
                   context: 'Independent press founded by Dr. Oroszi in 2008 to preserve editorial control over operator-grade nonfiction. Publishes counter-terrorism research, body language, behavioral analysis.' },
   dose:         { name: 'The Dose', url: 'https://thedose.net',
+                  fallbackImage: '/site-thumbs/The_Dose.png',
                   context: 'Health-literacy education platform. Clinical-trial-aware, multi-source verified (PubMed + DSLD + OpenFDA + ClinicalTrials.gov). Educational only, never diagnostic.' },
   gauntlet:     { name: 'The Gauntlet', url: 'https://thegauntlet.studio',
+                  fallbackImage: '/site-thumbs/The_Gauntlet.png',
                   context: 'Diagnostic critique engine for early-stage ideas. Nine AI judge personas, panel-style evaluation. Creative/business audience.' },
   opsec:        { name: 'OPSEC Gauntlet', url: 'https://opsec-gauntlet.netlify.app',
+                  fallbackImage: '/site-thumbs/ETL_Lab.png',
                   context: 'Civilian-SME intelligence triage platform. Routes vetted ideas from US civilians to the US Intelligence Community. Uses Dr. Oroszi\'s proprietary SLR method.' },
   intel:        { name: 'Intel Dashboard', url: 'https://inteldashboard.org',
+                  fallbackImage: '/site-thumbs/ETL_Lab.png',
                   context: 'Dr. Oroszi\'s intelligence-analysis platform. SLR method applied to open-source intelligence work.' },
   gk:           { name: 'Gandhi-King Center for Nonviolence', url: 'https://gandhi-king.netlify.app',
+                  fallbackImage: '/site-thumbs/GK_Center.png',
                   context: '501(c)(3) foundation. Board includes Tushar Gandhi (Mahatma\'s great-grandson), Rev. Joel King (Dr. King\'s cousin), and Gregory Foster (Coretta Scott King\'s cousin). Baroness Harris of Richmond is patron.' },
   newswire:     { name: 'ETL Newswire', url: 'https://emerging-tech-lab.com/press',
+                  fallbackImage: '/site-thumbs/ETL_Newswire.png',
                   context: 'Eight-reporter AI newsroom with desk specialization. Daily Above-the-Fold audio briefings. Covers emerging tech, biodefense, federal partnerships, AI in academia.' },
   officeHours:  { name: 'Office Hours', url: 'https://emerging-tech-lab.com/office-hours',
+                  fallbackImage: '/site-thumbs/Office_Hours.png',
                   context: 'Faculty toolkit, 22 tools for the manuscript and grant lifecycle. Reviewer Panel, Pre-submission Check with Jules, Methods Coach, Resubmission Builder.' },
   prepRoom:     { name: 'Prep Room', url: 'https://emerging-tech-lab.com/prep-room',
+                  fallbackImage: '/site-thumbs/The_Prep_Room.png',
                   context: 'Thesis defense, job interview, and résumé coaching with AI-simulated panels. Nine professor personas, eight business interviewers, Charles Monroe résumé coach, Bea Reyes copy editor.' },
+  boardroom:    { name: 'The Boardroom', url: 'https://emerging-tech-lab.com/job-fair',
+                  fallbackImage: '/site-thumbs/The_Board_Room.png',
+                  context: 'Practice room for professionals. Job fair mastery, executive interview prep, leadership bio + full CV builder, and the Opportunity Scanner. Free, no login, no upsell.' },
   slr:          { name: 'SLR Studio', url: 'https://slrstudio.online',
+                  fallbackImage: '/site-thumbs/SLR_Studio.png',
                   context: 'Systematic literature review platform. Six output modes including PRISMA 2020 and Grant Significance & Innovation. The canonical SLR engine, Stripe-monetized.' },
+  agents:       { name: 'The ETL AI Staff', url: 'https://emerging-tech-lab.com/#agents',
+                  fallbackImage: '/site-thumbs/AI_Agents_MCP.png',
+                  context: 'The full cast of AI agents on the lab\'s stack. Two kinds: regular staff inside the website, and MCP staff who carry tooling out to PubMed, the web, ClinicalTrials.gov, and government registries. Each agent has their own job, bio, and voice.' },
   studio:       { name: 'Dr. O\'s Studio', url: 'https://emerging-tech-lab.com/studio',
+                  fallbackImage: '/site-thumbs/ETL_Lab.png',
                   context: 'Dr. Oroszi\'s private workspace where her AI staff works on her books, manuscripts, ideas, and outreach. Mostly private; the public layer shows what is on the floor.' },
 };
 
@@ -369,6 +390,8 @@ exports.handler = async (event) => {
         agentVoice: agentData.voice,
         suggestedTime: platformData.bestTime,
         site: siteData.name,
+        siteUrl: siteData.url,
+        fallbackImage: siteData.fallbackImage || '/site-thumbs/ETL_Lab.png',
       }),
     };
   } catch (err) {

@@ -577,11 +577,14 @@
             <option value="dose">The Dose</option>
             <option value="gauntlet">The Gauntlet</option>
             <option value="opsec">OPSEC Gauntlet</option>
+            <option value="intel">Intel Dashboard</option>
             <option value="gk">Gandhi-King Center</option>
             <option value="newswire">ETL Newswire</option>
             <option value="officeHours">Office Hours</option>
             <option value="prepRoom">Prep Room</option>
+            <option value="boardroom">The Boardroom</option>
             <option value="slr">SLR Studio</option>
+            <option value="agents">The ETL AI Staff</option>
             <option value="studio">Dr. O's Studio</option>
           </select>
         </div>
@@ -664,6 +667,14 @@
           <button type="button" id="sp-copy" class="sp-cta sp-cta-sm">Copy post</button>
           <button type="button" id="sp-copy-all" class="sp-cta sp-cta-sm">Copy post + hashtags</button>
           <button type="button" id="sp-again" class="sp-cta sp-cta-sm sp-cta-ghost">Run again</button>
+        </div>
+
+        <!-- DEFAULT FALLBACK IMAGE (site homepage screenshot).
+             Shows automatically. Chris's graphic, if generated, replaces it. -->
+        <div id="sp-result-fallback" style="display:none;margin-top:24px;padding-top:20px;border-top:1px dashed var(--linen-edge);">
+          <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;color:var(--brass);text-transform:uppercase;margin-bottom:10px;">Default image (homepage)</div>
+          <img id="sp-result-fallback-img" src="" alt="" style="max-width:100%;height:auto;display:block;border:1px solid var(--linen-edge);background:#fff;">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:13px;font-style:italic;color:var(--ink-quiet);margin-top:8px;">If you do not give Chris an image prompt below, this is the graphic that goes with the post.</div>
         </div>
 
         <!-- CHRIS GRAPHIC PROMPT (conversational follow-up) -->
@@ -798,6 +809,17 @@
             t.day + ' · ' + t.window + '. ' + t.reason + '.';
           document.getElementById('sp-result-notes').textContent =
             data.notes ? ('Why this works: ' + data.notes) : '';
+
+          // Default fallback image (homepage screenshot of the site).
+          // Chris can replace this on the conversational follow-up below.
+          var fallback = document.getElementById('sp-result-fallback');
+          var fallbackImg = document.getElementById('sp-result-fallback-img');
+          if (data.fallbackImage && fallback && fallbackImg) {
+            fallbackImg.src = data.fallbackImage + '?v=' + Date.now();
+            fallbackImg.alt = data.site + ' homepage';
+            fallback.style.display = '';
+          }
+
           result.style.display = '';
           result.scrollIntoView({behavior:'smooth', block:'nearest'});
 
