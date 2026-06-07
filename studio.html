@@ -644,6 +644,32 @@
           <button type="button" id="sp-copy-all" class="sp-cta sp-cta-sm">Copy post + hashtags</button>
           <button type="button" id="sp-again" class="sp-cta sp-cta-sm sp-cta-ghost">Run again</button>
         </div>
+
+        <!-- CHRIS GRAPHIC PROMPT (conversational follow-up) -->
+        <div id="sp-chris" style="margin-top:24px;padding-top:20px;border-top:1px dashed var(--linen-edge);">
+          <div id="sp-chris-q1" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+            <span style="font-family:'Cormorant Garamond',serif;font-size:16px;font-style:italic;color:var(--ink);">Want Chris to make a graphic for this?</span>
+            <button type="button" id="sp-chris-yes" class="sp-cta sp-cta-sm">Yes</button>
+            <button type="button" id="sp-chris-no" class="sp-cta sp-cta-sm sp-cta-ghost">Not this one</button>
+          </div>
+          <div id="sp-chris-q2" style="display:none;margin-top:14px;">
+            <label class="sp-q" style="font-size:15px;">What kind of graphic?</label>
+            <textarea id="sp-chris-prompt" class="sp-input" rows="2" placeholder="A photograph of... / A clean schematic showing... / An editorial illustration of... / A close-up of..."></textarea>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;">
+              <button type="button" id="sp-chris-go" class="sp-cta sp-cta-sm">Have Chris draw it</button>
+              <button type="button" id="sp-chris-cancel" class="sp-cta sp-cta-sm sp-cta-ghost">Cancel</button>
+            </div>
+            <div id="sp-chris-status" style="font-family:'Cormorant Garamond',serif;font-size:13px;font-style:italic;color:var(--ink-soft);margin-top:10px;"></div>
+          </div>
+          <div id="sp-chris-out" style="display:none;margin-top:18px;">
+            <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;color:var(--brass);text-transform:uppercase;margin-bottom:10px;">By Chris &middot; <span id="sp-chris-size"></span></div>
+            <img id="sp-chris-img" alt="Chris graphic" style="max-width:100%;height:auto;border:1px solid var(--linen-edge);display:block;margin-bottom:12px;">
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <button type="button" id="sp-chris-download" class="sp-cta sp-cta-sm">Download</button>
+              <button type="button" id="sp-chris-redo" class="sp-cta sp-cta-sm sp-cta-ghost">Have Chris try again</button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div id="sp-error" style="display:none;margin-top:18px;padding:14px 18px;background:#f8e8e8;border:1px solid #d4a8a8;color:#7d2828;font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;"></div>
@@ -776,6 +802,89 @@
             subjText.value = '';
             subjText.focus();
           };
+
+          // ---- Chris graphic flow ----
+          // Reset Chris state when a new post lands
+          document.getElementById('sp-chris-q1').style.display = 'flex';
+          document.getElementById('sp-chris-q2').style.display = 'none';
+          document.getElementById('sp-chris-out').style.display = 'none';
+          document.getElementById('sp-chris-prompt').value = '';
+          document.getElementById('sp-chris-status').textContent = '';
+
+          document.getElementById('sp-chris-yes').onclick = function(){
+            document.getElementById('sp-chris-q1').style.display = 'none';
+            document.getElementById('sp-chris-q2').style.display = 'block';
+            document.getElementById('sp-chris-prompt').focus();
+          };
+          document.getElementById('sp-chris-no').onclick = function(){
+            document.getElementById('sp-chris-q1').style.display = 'none';
+          };
+          document.getElementById('sp-chris-cancel').onclick = function(){
+            document.getElementById('sp-chris-q2').style.display = 'none';
+            document.getElementById('sp-chris-q1').style.display = 'flex';
+          };
+
+          async function runChris(){
+            var imagePrompt = document.getElementById('sp-chris-prompt').value.trim();
+            if (!imagePrompt) { document.getElementById('sp-chris-prompt').focus(); return; }
+            var status = document.getElementById('sp-chris-status');
+            var goBtn = document.getElementById('sp-chris-go');
+            status.textContent = 'Chris is drawing... (15-40 seconds)';
+            goBtn.disabled = true;
+
+            // Pull JWT for auth-gated function call
+            var session = null;
+            try {
+              var s = await window.studioSb.auth.getSession();
+              session = s && s.data && s.data.session;
+            } catch (_) {}
+            var headers = {'Content-Type':'application/json'};
+            if (session && session.access_token) headers['Authorization'] = 'Bearer ' + session.access_token;
+
+            try {
+              var cr = await fetch('/.netlify/functions/studio-chris-image', {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify({
+                  post: data.post,
+                  platform: state.platform,
+                  imagePrompt: imagePrompt,
+                  agentVoice: data.agent,
+                }),
+              });
+              var cdata = await cr.json();
+              if (!cr.ok || cdata.error) {
+                status.textContent = 'Chris hit a problem: ' + (cdata.error || ('HTTP ' + cr.status));
+                return;
+              }
+              var src = cdata.imageBase64
+                ? ('data:' + (cdata.mimeType || 'image/png') + ';base64,' + cdata.imageBase64)
+                : cdata.imageUrl;
+              if (!src) { status.textContent = 'Chris returned no image data.'; return; }
+              document.getElementById('sp-chris-img').src = src;
+              document.getElementById('sp-chris-size').textContent = cdata.size || '';
+              document.getElementById('sp-chris-out').style.display = 'block';
+              document.getElementById('sp-chris-q2').style.display = 'none';
+              status.textContent = '';
+
+              document.getElementById('sp-chris-download').onclick = function(){
+                var a = document.createElement('a');
+                a.href = src;
+                a.download = 'chris-' + state.platform + '-' + Date.now() + '.png';
+                document.body.appendChild(a); a.click(); a.remove();
+              };
+              document.getElementById('sp-chris-redo').onclick = function(){
+                document.getElementById('sp-chris-out').style.display = 'none';
+                document.getElementById('sp-chris-q2').style.display = 'block';
+                document.getElementById('sp-chris-prompt').focus();
+              };
+            } catch (e) {
+              status.textContent = 'Network error reaching Chris: ' + (e && e.message ? e.message : 'unknown');
+            } finally {
+              goBtn.disabled = false;
+            }
+          }
+          document.getElementById('sp-chris-go').onclick = runChris;
         } catch(e){
           errBox.textContent = 'Network error: ' + (e && e.message ? e.message : 'unknown');
           errBox.style.display = '';
