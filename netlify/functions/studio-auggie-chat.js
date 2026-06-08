@@ -442,32 +442,81 @@ function detectJaxApplyIntent(msg) {
 async function pickJaxApplyTargets(intent) {
   let idx;
   try { idx = await getStore('jax_reports_index').get('latest', { type: 'json' }); }
-  catch (_) { idx = null; }
-  if (!Array.isArray(idx) || idx.length === 0) return [];
+  catch (e) { console.error('[jax-apply-pick] index read failed', e && e.message); idx = null; }
+  if (!Array.isArray(idx) || idx.length === 0) {
+    console.warn('[jax-apply-pick] index is empty or missing');
+    return [];
+  }
+  console.log('[jax-apply-pick] index has', idx.length, 'entries; intent =', JSON.stringify({
+    target_urls: intent.target_urls,
+    apply_all: intent.apply_all,
+    apply_latest: intent.apply_latest,
+  }));
 
-  // Index is most-recent-first. For each target_url, keep the latest entry
-  // that actually has fixes drafted AND has not already been applied. We
-  // fetch the full report to learn fix_count + apply_status because the
-  // index only carries lightweight metadata.
+  // Wanted target HOSTS (not paths). Path matching was too strict and
+  // skipped real candidates when the saved URL had a trailing slash or a
+  // tiny normalization difference. Host-only match is forgiving and the
+  // right move: if Terry says "apply for ETL," any ETL scan counts.
+  const wantedHosts = new Set();
+  if (intent.target_urls && intent.target_urls.length > 0) {
+    for (const u of intent.target_urls) {
+      try { wantedHosts.add(new URL(u).hostname.toLowerCase().replace(/^www\./, '')); }
+      catch (_) {}
+    }
+  }
+  console.log('[jax-apply-pick] wanted hosts =', Array.from(wantedHosts));
+
+  // Walk the index. For each entry: if target host matches (or no filter),
+  // fetch the report and check for fixes. STATUS FILTER REMOVED — if the
+  // scan completed enough to write a report with non-zero fix_count, apply
+  // can try. Background safety: if apply has nothing genuinely new (already
+  // applied or no <head> available), apply_status comes back 'nothing_new'
+  // or 'failed' honestly, not silently.
   const seen = new Set();
   const candidates = [];
+  let skipped = { hostMismatch: 0, alreadySeen: 0, noReport: 0, zeroFixes: 0 };
+
   for (const entry of idx) {
     if (!entry || !entry.target_url || !entry.job_id) continue;
-    if (seen.has(entry.target_url)) continue;
+
+    let entryHost = '';
+    try { entryHost = new URL(entry.target_url).hostname.toLowerCase().replace(/^www\./, ''); }
+    catch (_) { continue; }
+
+    if (wantedHosts.size > 0 && !wantedHosts.has(entryHost)) {
+      skipped.hostMismatch++;
+      continue;
+    }
+    if (seen.has(entry.target_url)) {
+      skipped.alreadySeen++;
+      continue;
+    }
     seen.add(entry.target_url);
-    // Skip terminal-state runs that obviously had nothing to apply
-    if (entry.status && entry.status !== 'ready' && entry.status !== 'done' && entry.status !== 'complete') continue;
+
     let report;
     try { report = await getStore('jax_reports').get(entry.job_id, { type: 'json' }); }
-    catch (_) { continue; }
-    if (!report) continue;
+    catch (e) {
+      console.warn('[jax-apply-pick] report read failed for', entry.job_id, e && e.message);
+      skipped.noReport++;
+      continue;
+    }
+    if (!report) {
+      console.warn('[jax-apply-pick] no report blob for', entry.job_id);
+      skipped.noReport++;
+      continue;
+    }
+
     const fixCount = typeof report.fix_count === 'number'
       ? report.fix_count
       : (Array.isArray(report.findings) ? report.findings.filter(f => f.proposed_fix).length : 0);
-    if (fixCount === 0) continue;
-    // Already-applied runs stay in the candidate pool only if Terry asks
-    // for them by name — we surface a "nothing new to do" message in the
-    // reply rather than silently skipping.
+
+    console.log('[jax-apply-pick] candidate', entry.target_url, 'job_id=' + entry.job_id, 'status=' + entry.status, 'fixes=' + fixCount, 'apply_status=' + (report.apply_status || 'null'));
+
+    if (fixCount === 0) {
+      skipped.zeroFixes++;
+      continue;
+    }
+
     candidates.push({
       job_id: entry.job_id,
       target_url: entry.target_url,
@@ -477,30 +526,13 @@ async function pickJaxApplyTargets(intent) {
     if (candidates.length >= 20) break;
   }
 
-  if (intent.target_urls && intent.target_urls.length > 0) {
-    // Match by hostname + (loose) path so "dose" picks thedose.net and
-    // "office hours" picks emerging-tech-lab.com/office-hours.
-    const wanted = intent.target_urls.map(u => {
-      try { const x = new URL(u); return { host: x.hostname.toLowerCase().replace(/^www\./, ''), path: x.pathname.replace(/\/$/, '') }; }
-      catch (_) { return null; }
-    }).filter(Boolean);
-    const picked = [];
-    for (const c of candidates) {
-      try {
-        const cu = new URL(c.target_url);
-        const ch = cu.hostname.toLowerCase().replace(/^www\./, '');
-        const cp = cu.pathname.replace(/\/$/, '');
-        for (const w of wanted) {
-          if (w.host === ch && (w.path === '' || w.path === cp)) {
-            picked.push(c); break;
-          }
-        }
-      } catch (_) {}
-    }
-    return picked;
-  }
+  console.log('[jax-apply-pick] result:', candidates.length, 'candidates;', 'skipped:', JSON.stringify(skipped));
+
+  // If user named targets, return every matching candidate (could be
+  // multiple ETL subpath scans). If apply_all, return everything. Else
+  // return just the most recent.
+  if (wantedHosts.size > 0) return candidates;
   if (intent.apply_all) return candidates;
-  // apply_latest — return the single most recent
   return candidates.slice(0, 1);
 }
 
