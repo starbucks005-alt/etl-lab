@@ -138,6 +138,71 @@ const CORS = {
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
 
+/* ── Jax dispatch intent detection ────────────────────────────────────────
+   Pattern-match Terry's message for "have Jax do an SEO thing" style
+   requests. Returns { matched: bool, target_url: string }.
+
+   Trigger requires:
+     - "jax" appears in the message (case-insensitive)
+     - AND at least one SEO/discovery keyword
+
+   Target URL extraction priority:
+     1. Any explicit URL pasted in the message
+     2. A platform name → its canonical URL (ETL, dose, gauntlet, etc.)
+     3. Default to emerging-tech-lab.com (Terry's hub) — that is the
+        most-likely target when she just says "have Jax improve SEO".
+   ──────────────────────────────────────────────────────────────────────── */
+const JAX_KEYWORDS_RE = /\b(seo|discoverabil|search visibility|search results?|get found|getting found|find us|findability|audit|scan|crawl|ranking|google ranking|meta description|meta tags?|sitemap|robots\.txt|structured data|schema|backlinks?|search engine|SEM|indexing)\b/i;
+
+const PLATFORM_URL_MAP = [
+  // longer phrases first so "the dose" wins over "dose"
+  { match: /\b(emerging[- ]tech[- ]lab|emerging technologies lab|emerging-tech-lab\.com|\bETL\b)/i,                 url: 'https://emerging-tech-lab.com' },
+  { match: /\b(mission possible spy academy|mpsa|spy academy)/i,                                                  url: 'https://www.missionpossibleacademy.org' },
+  { match: /\b(intel dashboard|inteldashboard)/i,                                                                  url: 'https://inteldashboard.org' },
+  { match: /\b(the dose|thedose|the\s+dose\.net)/i,                                                                url: 'https://thedose.net' },
+  { match: /\b(greylander press|greylanderpress)/i,                                                                url: 'https://greylanderpress.com' },
+  { match: /\b(the gauntlet|thegauntlet)/i,                                                                        url: 'https://thegauntlet.studio' },
+  { match: /\b(gandhi-?king|gandhi king center)/i,                                                                  url: 'https://gandhi-king.netlify.app' },
+  { match: /\b(slr studio|slrstudio)/i,                                                                              url: 'https://slrstudio.online' },
+];
+
+function detectJaxDispatchIntent(msg) {
+  if (!msg || typeof msg !== 'string') return { matched: false };
+  const text = msg.toLowerCase();
+  if (!/\bjax\b/.test(text)) return { matched: false };
+  if (!JAX_KEYWORDS_RE.test(text)) return { matched: false };
+
+  // 1. Look for an explicit URL
+  const urlMatch = msg.match(/\bhttps?:\/\/[^\s"'<>]+/i);
+  if (urlMatch) {
+    return { matched: true, target_url: urlMatch[0].replace(/[.,!?)\]]+$/, '') };
+  }
+
+  // 2. Try platform name mapping
+  for (const p of PLATFORM_URL_MAP) {
+    if (p.match.test(msg)) return { matched: true, target_url: p.url };
+  }
+
+  // 3. Default to the ETL hub
+  return { matched: true, target_url: 'https://emerging-tech-lab.com' };
+}
+
+/* Build Auggie's reply in his voice when Jax is dispatched. Deterministic
+   but rotates phrasing slightly so it does not feel canned. */
+function buildAuggieJaxDispatchReply(targetUrl, reportUrl) {
+  const targetLabel = targetUrl
+    .replace(/^https?:\/\//i, '')
+    .replace(/\/$/, '');
+  // Two phrasings, picked by which weekday it is (deterministic but varied).
+  const day = new Date().getUTCDay();
+  const variants = [
+    "ok Ms. Terry, Jax is on it. he is running the full discovery audit on " + targetLabel + " right now. give him about a minute, then his report lands here: " + reportUrl + " . i will check in once he sends it up.",
+    "ma'am, Jax is on " + targetLabel + ". he is pulling the audit now, title, meta, sitemap, the works. report will be ready at " + reportUrl + " in roughly a minute. ANYWAY, give him a beat and refresh that link.",
+  ];
+  return variants[day % variants.length];
+}
+
+
 exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: CORS, body: '' };
   if (event.httpMethod !== 'POST') return { statusCode: 405, headers: CORS, body: 'method not allowed' };
@@ -187,6 +252,46 @@ exports.handler = async (event) => {
 
   if (!message && images.length === 0 && documents.length === 0) {
     return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'message, image, or document required' }) };
+  }
+
+  // ── JAX SEO DISPATCH INTENT ──────────────────────────────────────────────
+  // If Terry's message looks like she is asking Auggie to put Jax on an SEO
+  // or discoverability task, fire the Jax background scan and respond in
+  // Auggie's voice with the report link. Skips the model entirely — faster,
+  // cheaper, and the response is deterministic in tone.
+  // Triggers on: mentions "jax" AND one of (seo / discoverability / search
+  // visibility / audit / scan / get found / ranking / meta / sitemap).
+  const jaxDispatch = detectJaxDispatchIntent(message);
+  if (jaxDispatch.matched && images.length === 0 && documents.length === 0) {
+    try {
+      const authHeader = (event.headers && (event.headers.authorization || event.headers.Authorization)) || '';
+      const base = process.env.URL || ('https://' + ((event.headers && event.headers.host) || ''));
+      const triggerUrl = base.replace(/\/$/, '') + '/.netlify/functions/studio-jax-trigger';
+      const tr = await fetch(triggerUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': authHeader },
+        body: JSON.stringify({
+          target_url: jaxDispatch.target_url,
+          scope: 'homepage',
+          requested_by: 'Ms. Terry via Studio chat',
+        }),
+      });
+      if (tr.ok) {
+        const tj = await tr.json();
+        const reply = buildAuggieJaxDispatchReply(jaxDispatch.target_url, tj.report_url);
+        return {
+          statusCode: 200,
+          headers: { ...CORS, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reply, persona: 'Auggie', jax_dispatch: { job_id: tj.job_id, report_url: tj.report_url, target_url: tj.target_url } }),
+        };
+      } else {
+        // If the trigger fails we fall through to the normal model path so
+        // Auggie can at least say SOMETHING. Better than a silent error.
+        console.warn('[studio-auggie-chat] jax trigger non-2xx, falling back to model', tr.status);
+      }
+    } catch (e) {
+      console.warn('[studio-auggie-chat] jax trigger failed, falling back to model', e && e.message);
+    }
   }
 
   const apiKey = process.env.ANTHROPIC_API_KEY;

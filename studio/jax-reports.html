@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jax's Report — ETL Studio</title>
+<meta name="description" content="Jax Rivera's SEO and discoverability audit, run in Dr. Oroszi's Studio.">
+<meta name="robots" content="noindex">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --ink: #14233a;
+    --ink-soft: #4a5466;
+    --ink-quiet: #8a8579;
+    --brass: #b8922a;
+    --brass-bright: #d4a73a;
+    --linen-light: #faf6ec;
+    --linen-edge: #e4dcc8;
+    --paper: #fffdf6;
+    --high: #a82a2a;
+    --med:  #b8922a;
+    --low:  #4a5466;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 17px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 28px; border-bottom: 1px solid var(--linen-edge);
+    background: var(--linen-light);
+  }
+  .topbar a {
+    font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--brass); text-decoration: none;
+  }
+  .topbar a:hover { color: var(--ink); }
+  .topbar-title {
+    font-family: 'Playfair Display', serif; font-size: 13px;
+    letter-spacing: 0.12em; color: var(--ink-soft); text-transform: uppercase;
+  }
+
+  .container { max-width: 920px; margin: 0 auto; padding: 48px 28px 80px; }
+
+  /* AUTH GATE */
+  #auth-wall {
+    margin: 80px auto; max-width: 460px; text-align: center;
+    padding: 36px 28px; border: 1px solid var(--linen-edge);
+    background: var(--linen-light);
+  }
+  #auth-wall h2 {
+    font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 700;
+    color: var(--ink); margin-bottom: 14px;
+  }
+  #auth-wall p {
+    font-family: 'Cormorant Garamond', serif; font-size: 15px;
+    color: var(--ink-soft); font-style: italic; margin-bottom: 18px;
+  }
+  #auth-wall a {
+    font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--brass);
+    border: 1px solid var(--brass); padding: 10px 20px;
+    text-decoration: none; display: inline-block;
+  }
+  #auth-wall a:hover { background: var(--brass); color: var(--linen-light); }
+
+  /* REPORT */
+  .report-head {
+    margin-bottom: 36px; padding-bottom: 24px;
+    border-bottom: 1px solid var(--linen-edge);
+  }
+  .report-eyebrow {
+    font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.26em;
+    color: var(--brass); text-transform: uppercase; margin-bottom: 10px;
+  }
+  .report-title {
+    font-family: 'Playfair Display', serif; font-size: 38px; font-weight: 700;
+    color: var(--ink); line-height: 1.15; margin-bottom: 8px;
+  }
+  .report-title em { color: var(--brass); font-style: italic; font-weight: 400; }
+  .report-meta {
+    font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.06em;
+    color: var(--ink-quiet);
+  }
+  .report-meta a { color: var(--brass); text-decoration: none; }
+  .report-meta a:hover { color: var(--ink); }
+
+  /* JAX'S SUMMARY */
+  .jax-card {
+    background: var(--linen-light); border: 1px solid var(--brass);
+    border-left-width: 4px;
+    padding: 22px 24px;
+    margin-bottom: 36px;
+  }
+  .jax-card-head {
+    display: flex; gap: 12px; align-items: center; margin-bottom: 12px;
+  }
+  .jax-portrait {
+    width: 44px; height: 44px; flex: 0 0 44px;
+    background: var(--linen-edge);
+    border-radius: 50%; overflow: hidden;
+  }
+  .jax-portrait img { width: 100%; height: 100%; object-fit: cover; }
+  .jax-name {
+    font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 700;
+    color: var(--ink); line-height: 1.2;
+  }
+  .jax-role {
+    font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.18em;
+    color: var(--brass); text-transform: uppercase; margin-top: 2px;
+  }
+  .jax-text {
+    font-family: 'Cormorant Garamond', serif; font-size: 17px;
+    color: var(--ink); line-height: 1.65;
+  }
+
+  /* FINDINGS */
+  .section-h {
+    font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700;
+    color: var(--ink); margin: 36px 0 16px;
+  }
+  .section-h em { color: var(--brass); font-style: italic; font-weight: 400; }
+  .finding {
+    background: #fff; border: 1px solid var(--linen-edge);
+    border-left-width: 4px;
+    padding: 18px 20px; margin-bottom: 12px;
+  }
+  .finding-high   { border-left-color: var(--high); }
+  .finding-medium { border-left-color: var(--med); }
+  .finding-low    { border-left-color: var(--low); }
+  .finding-row {
+    display: flex; gap: 14px; align-items: baseline;
+    margin-bottom: 6px; flex-wrap: wrap;
+  }
+  .finding-sev {
+    font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.22em;
+    text-transform: uppercase; padding: 3px 8px;
+  }
+  .finding-sev.s-high   { background: var(--high); color: #fff; }
+  .finding-sev.s-medium { background: var(--med);  color: #fff; }
+  .finding-sev.s-low    { background: var(--low);  color: #fff; }
+  .finding-cat {
+    font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--ink-quiet);
+  }
+  .finding-head {
+    font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 700;
+    color: var(--ink); flex: 1 1 100%;
+  }
+  .finding-detail {
+    font-family: 'Cormorant Garamond', serif; font-size: 15px;
+    color: var(--ink-soft); line-height: 1.55; margin-top: 6px;
+  }
+  .finding-fix {
+    font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.04em;
+    color: var(--ink); background: var(--linen-light);
+    padding: 8px 12px; margin-top: 10px;
+    border-left: 2px solid var(--brass);
+  }
+  .finding-fix::before {
+    content: 'FIX: '; color: var(--brass); font-weight: 600;
+  }
+
+  .empty-clean {
+    padding: 24px; background: var(--linen-light); border: 1px solid var(--linen-edge);
+    font-family: 'Cormorant Garamond', serif; font-style: italic; color: var(--ink-soft);
+    text-align: center;
+  }
+
+  /* RAW CHECKS */
+  details.raw {
+    margin-top: 36px; padding: 16px 20px;
+    background: var(--linen-light); border: 1px solid var(--linen-edge);
+  }
+  details.raw summary {
+    font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--brass); cursor: pointer;
+  }
+  details.raw pre {
+    margin-top: 14px; font-family: 'DM Mono', monospace; font-size: 11px;
+    color: var(--ink-soft); white-space: pre-wrap; word-break: break-word;
+    max-height: 460px; overflow-y: auto;
+    padding: 12px; background: var(--paper); border: 1px solid var(--linen-edge);
+  }
+
+  /* STATES */
+  .state {
+    padding: 60px 24px; text-align: center;
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    color: var(--ink-soft); font-size: 17px;
+  }
+  .state-spinner {
+    display: inline-block; width: 14px; height: 14px;
+    border: 2px solid var(--linen-edge); border-top-color: var(--brass);
+    border-radius: 50%; animation: spin 0.9s linear infinite;
+    margin-right: 10px; vertical-align: -2px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .state-error {
+    color: var(--high); border: 1px solid var(--high); padding: 18px;
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a href="/studio">&larr; Back to Studio</a>
+  <span class="topbar-title">Jax · SEO &amp; Discovery</span>
+  <span></span>
+</header>
+
+<!-- Auth gate: only shows if not signed in -->
+<div id="auth-wall" style="display:none;">
+  <h2>Sign in to see this report.</h2>
+  <p>Jax's audits are scoped to Dr. Oroszi's Studio.</p>
+  <a href="/studio">Go to Studio &rarr;</a>
+</div>
+
+<!-- Report container -->
+<div id="report-root" class="container" style="display:none;">
+  <div class="state"><span class="state-spinner"></span>Loading report&hellip;</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+  var SUPABASE_URL = 'https://ulvrnermyuvzanxhxoib.supabase.co';
+  var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsdnJuZXJteXV2emFueGh4b2liIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3MzYyMDEsImV4cCI6MjA5NjMxMjIwMX0.tAaXhm_pb-DxrYsXYw1DvvYENDJ_y3jlt2nGWSp2lbA';
+
+  var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
+    auth: { persistSession: true, detectSessionInUrl: true, autoRefreshToken: true },
+  });
+
+  var authWall = document.getElementById('auth-wall');
+  var reportRoot = document.getElementById('report-root');
+
+  function escapeHtml(s) {
+    if (s === null || s === undefined) return '';
+    return String(s).replace(/[&<>"']/g, function(c){
+      return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+    });
+  }
+
+  function getQueryId() {
+    var m = window.location.search.match(/[?&]id=([^&]+)/);
+    return m ? decodeURIComponent(m[1]) : '';
+  }
+
+  function renderState(html, isError) {
+    reportRoot.innerHTML = '<div class="state' + (isError ? ' state-error' : '') + '">' + html + '</div>';
+  }
+
+  function renderReport(r) {
+    var findings = Array.isArray(r.findings) ? r.findings : [];
+    var checks = r.checks || {};
+    var when = r.completedAt ? new Date(r.completedAt) : new Date(r.createdAt);
+    var whenStr = when.toLocaleString('en-US', { dateStyle: 'long', timeStyle: 'short' });
+
+    var byOrder = { high: 0, medium: 1, low: 2 };
+    findings.sort(function(a, b){ return (byOrder[a.severity] || 3) - (byOrder[b.severity] || 3); });
+
+    var summaryHtml = r.jax_summary
+      ? '<div class="jax-card">' +
+          '<div class="jax-card-head">' +
+            '<div class="jax-portrait"><img src="/agents/Jax_Rivera_profile.png" alt="Jax Rivera" onerror="this.outerHTML=\'<div style=&quot;display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-family:Playfair Display,serif;color:#a89b80;&quot;>JX</div>\'"></div>' +
+            '<div><div class="jax-name">Jax Rivera</div><div class="jax-role">SEO &amp; Discovery</div></div>' +
+          '</div>' +
+          '<div class="jax-text">' + escapeHtml(r.jax_summary) + '</div>' +
+        '</div>'
+      : '';
+
+    var findingsHtml = '';
+    if (findings.length === 0) {
+      findingsHtml = '<div class="empty-clean">No findings. The page is in good shape.</div>';
+    } else {
+      findings.forEach(function(f){
+        var sev = f.severity || 'low';
+        findingsHtml +=
+          '<div class="finding finding-' + sev + '">' +
+            '<div class="finding-row">' +
+              '<span class="finding-sev s-' + sev + '">' + escapeHtml(sev) + '</span>' +
+              '<span class="finding-cat">' + escapeHtml(f.category || 'general') + '</span>' +
+              '<div class="finding-head">' + escapeHtml(f.headline) + '</div>' +
+            '</div>' +
+            (f.detail ? '<div class="finding-detail">' + escapeHtml(f.detail) + '</div>' : '') +
+            (f.fix    ? '<div class="finding-fix">' + escapeHtml(f.fix) + '</div>'    : '') +
+          '</div>';
+      });
+    }
+
+    var sevCounts = { high: 0, medium: 0, low: 0 };
+    findings.forEach(function(f){ sevCounts[f.severity] = (sevCounts[f.severity] || 0) + 1; });
+    var countsLine =
+      (sevCounts.high   ? sevCounts.high   + ' high · '   : '') +
+      (sevCounts.medium ? sevCounts.medium + ' medium · ' : '') +
+      (sevCounts.low    ? sevCounts.low    + ' low'       : '');
+    if (!countsLine) countsLine = 'no findings';
+
+    reportRoot.innerHTML =
+      '<div class="report-head">' +
+        '<div class="report-eyebrow">SEO &amp; Discoverability Audit</div>' +
+        '<h1 class="report-title">Jax\'s report on <em>' + escapeHtml(r.target_url) + '</em></h1>' +
+        '<div class="report-meta">' +
+          'Scanned ' + escapeHtml(whenStr) + ' &nbsp;·&nbsp; ' +
+          escapeHtml(countsLine) + ' &nbsp;·&nbsp; ' +
+          '<a href="' + escapeHtml(r.target_url) + '" target="_blank" rel="noopener">open the page &rarr;</a>' +
+        '</div>' +
+      '</div>' +
+      summaryHtml +
+      '<h2 class="section-h">The <em>findings</em></h2>' +
+      findingsHtml +
+      '<details class="raw"><summary>Raw checks (advanced)</summary><pre>' + escapeHtml(JSON.stringify(checks, null, 2)) + '</pre></details>';
+  }
+
+  async function fetchReport(id, token) {
+    var r = await fetch('/.netlify/functions/studio-jax-report?id=' + encodeURIComponent(id), {
+      headers: { 'Authorization': 'Bearer ' + token },
+    });
+    if (r.status === 404) return { notFound: true };
+    if (!r.ok) throw new Error('report fetch failed: ' + r.status);
+    return await r.json();
+  }
+
+  async function loadAndPoll() {
+    var id = getQueryId();
+    if (!id) {
+      renderState('No report ID in URL. Try opening the link Auggie sent again.', true);
+      return;
+    }
+
+    var s = await sb.auth.getSession();
+    var token = s && s.data && s.data.session && s.data.session.access_token;
+    if (!token) {
+      authWall.style.display = 'block';
+      reportRoot.style.display = 'none';
+      return;
+    }
+    authWall.style.display = 'none';
+    reportRoot.style.display = 'block';
+
+    var POLL_MS = 5000;
+    var MAX_TRIES = 36; // 3 minutes
+    var tries = 0;
+
+    async function tick() {
+      tries++;
+      try {
+        var r = await fetchReport(id, token);
+        if (r.notFound) {
+          if (tries >= MAX_TRIES) {
+            renderState('Jax did not finish in time. The scan may have failed silently. Check the function logs in Netlify.', true);
+            return;
+          }
+          renderState('<span class="state-spinner"></span>Jax is scanning. This usually takes 30 to 90 seconds.');
+          setTimeout(tick, POLL_MS);
+          return;
+        }
+        if (r.status === 'queued' || r.status === 'running') {
+          renderState('<span class="state-spinner"></span>Jax is ' + r.status + '. This usually takes 30 to 90 seconds.');
+          if (tries >= MAX_TRIES) {
+            renderState('Jax is taking longer than expected. Refresh in a minute or check the function logs.', true);
+            return;
+          }
+          setTimeout(tick, POLL_MS);
+          return;
+        }
+        if (r.status === 'failed') {
+          renderState('Jax could not complete the scan. ' + escapeHtml(r.error || ''), true);
+          return;
+        }
+        renderReport(r);
+      } catch (e) {
+        renderState('Error loading report: ' + escapeHtml(e && e.message || ''), true);
+      }
+    }
+
+    tick();
+  }
+
+  // Wait for Supabase session to hydrate from localStorage if needed
+  sb.auth.getSession().then(loadAndPoll).catch(function(e){
+    console.warn('session check failed', e && e.message);
+    loadAndPoll();
+  });
+
+  // Re-render if auth state changes (user signs in/out in another tab)
+  sb.auth.onAuthStateChange(function(_event, _session){ loadAndPoll(); });
+})();
+</script>
+
+</body>
+</html>

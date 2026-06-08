@@ -1906,9 +1906,25 @@
     if (empty) empty.remove();
     var bubble = document.createElement('div');
     bubble.className = 'auggie-call-bubble auggie-call-bubble--' + (side === 'mine' ? 'mine' : 'his');
+    // Auto-linkify http(s) URLs so Jax-report links (and any other URL
+    // Auggie sends) are clickable instead of literal text.
+    var bodyHtml = (function(t){
+      if (!t) return '';
+      var URL_RE = /\bhttps?:\/\/[^\s<>"']+/g;
+      var out = '', last = 0, m;
+      while ((m = URL_RE.exec(t)) !== null) {
+        out += escapeHtml(t.slice(last, m.index));
+        var u = m[0].replace(/[.,!?)\]]+$/, '');
+        var tail = m[0].slice(u.length);
+        out += '<a href="' + escapeHtml(u) + '" target="_blank" rel="noopener" style="color:var(--brass);text-decoration:underline;">' + escapeHtml(u) + '</a>' + escapeHtml(tail);
+        last = m.index + m[0].length;
+      }
+      out += escapeHtml(t.slice(last));
+      return out.replace(/\n/g, '<br>');
+    })(text);
     bubble.innerHTML =
       '<div class="auggie-call-bubble-meta">' + (side === 'mine' ? 'You' : 'Auggie') + '</div>' +
-      '<div>' + escapeHtml(text).replace(/\n/g, '<br>') + '</div>';
+      '<div>' + bodyHtml + '</div>';
     transcriptEl.appendChild(bubble);
     bubble.scrollIntoView({ behavior:'smooth', block:'end' });
   }
@@ -2451,7 +2467,22 @@
       div.appendChild(fileRow);
     }
     var body = document.createElement('div');
-    body.innerHTML = escapeHtml(text).replace(/\n/g, '<br>');
+    // Auto-linkify http(s) URLs so Jax-report links and any other URLs
+    // Auggie sends are clickable instead of literal text.
+    body.innerHTML = (function(t){
+      if (!t) return '';
+      var URL_RE = /\bhttps?:\/\/[^\s<>"']+/g;
+      var out = '', last = 0, m;
+      while ((m = URL_RE.exec(t)) !== null) {
+        out += escapeHtml(t.slice(last, m.index));
+        var u = m[0].replace(/[.,!?)\]]+$/, '');
+        var tail = m[0].slice(u.length);
+        out += '<a href="' + escapeHtml(u) + '" target="_blank" rel="noopener" style="color:var(--brass);text-decoration:underline;">' + escapeHtml(u) + '</a>' + escapeHtml(tail);
+        last = m.index + m[0].length;
+      }
+      out += escapeHtml(t.slice(last));
+      return out.replace(/\n/g, '<br>');
+    })(text);
     div.appendChild(body);
     // Auggie-only: add a "hear it" button that calls the TTS endpoint and
     // plays his ElevenLabs voice inline. Mine-side bubbles never get one.
