@@ -239,6 +239,24 @@
     font-family: 'Playfair Display', serif;
     font-size: 52px; color: var(--navy-mid);
   }
+  /* Reusable blink pair for any staff card with an open + closed frame.
+     Mirrors the 8.4s cycle Auggie uses on his Zoom panel and Imani on the
+     Newswire — eyes hold open ~7.9s, blink ~170ms. Opt in by giving the
+     portrait container .staff-portrait-blink and dropping a second img with
+     .staff-portrait-blink-closed pointing at the closed-eyes frame. */
+  .staff-portrait-blink-closed {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%; object-fit: cover; object-position: center top;
+    opacity: 0; animation: staff-blink 8.4s infinite; pointer-events: none;
+  }
+  @keyframes staff-blink {
+    0%, 92%   { opacity: 0; }
+    94%, 96%  { opacity: 1; }
+    98%, 100% { opacity: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .staff-portrait-blink-closed { animation: none; opacity: 0; }
+  }
   .staff-body { padding: 16px 18px 20px; background: var(--linen-light); }
   .staff-name {
     font-family: 'Playfair Display', serif;
@@ -859,8 +877,9 @@
       </div>
 
       <div class="staff-card">
-        <div class="staff-portrait">
-          <img src="/agents/Jax_Rivera.png" alt="Jax Rivera" onerror="this.outerHTML='<div class=&quot;staff-portrait-placeholder&quot;>JX</div>'">
+        <div class="staff-portrait staff-portrait-blink">
+          <img src="/agents/Jax_Rivera_eyes_open.png" alt="Jax Rivera" onerror="this.outerHTML='<div class=&quot;staff-portrait-placeholder&quot;>JX</div>'">
+          <img class="staff-portrait-blink-closed" src="/agents/Jax_Rivera_eyes_closed.png" alt="" aria-hidden="true">
         </div>
         <div class="staff-body">
           <div class="staff-name">Jax Rivera</div>
