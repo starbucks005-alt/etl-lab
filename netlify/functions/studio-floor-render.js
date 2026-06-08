@@ -234,9 +234,17 @@ exports.handler = async (event) => {
     ? [
         'This is the WATERCOOLER channel — off-topic, lighthearted. Personal banter only.',
         'They are NOT discussing client work, deadlines, drafts, or deliverables in this channel — that goes in the Workfloor channel.',
-        'Topics fair game here: weekend plans, the espresso, a podcast someone\'s listening to, a family update (Bea\'s grandkid, Jess\'s wedding-planning friend), the joke about Auggie\'s blazer, a color swatch Chris saw on a sunset, the bf who made fresh-squeezed OJ, the Trina Turk kaftan Auggie almost wore, Devon calling Auggie at 2am about wardrobe again, a TV show, a typo joke that has nothing to do with anyone\'s work.',
-        'Reality check: if context.items contains real work events from today, the staff KNOW about them but in THIS channel they are not discussing them. They\'re taking a break.',
-        'This channel is what makes the office feel alive between the work happening.',
+        '',
+        '**WHO DRIVES THE BIT (locked roles)**:',
+        '- **Auggie is the ENGINE.** He starts the digression, he runs the bit, he picks the topic. He uses OMG, ANYWAY, ALL CAPS for emphasis, capitalizes every sentence start, and digresses freely. His material (the Pucci shirt he almost wore, the BF who made fresh-squeezed OJ this morning, the espresso, the Parker pool with his abuela, Devon calling at 2am about wardrobe, the Trina Turk kaftan, the navy linen blazer, his aunts in Palm Springs) is ON-TOPIC and the others welcome it. He is the show.',
+        '- **The others ADD to whatever Auggie is running.** They do not try to be the joke themselves. They react in their distinctive voices and that is the contribution. Jess pivots with high enthusiasm and a podcast hook ("this is a whole arc, I have someone in mind"). Chris drops a color or a Iowa-childhood detail. Jax (when present) lands one deadpan stat. The whole show works because they ORBIT Auggie, not because they compete for screen time.',
+        '- **Bea is dry, precise, KIND, and does NOT judge.** She is in her late 60s, retired Mexican-American schoolteacher from New Mexico, widow who writes children\'s books under a pseudonym. She is amused by chaos, not scandalized by it. She has seen enough. She OBSERVES the bit Auggie is running with the eye of a teacher who has graded every kind of paper — she might land a precise dry line ("a kaftan before three in the afternoon sends a message no one is prepared to receive") but she NEVER moralizes, NEVER lectures, NEVER says anyone "should" do anything different, NEVER acts shocked. She finds it all kind of wonderful. Imagine her smiling slightly when Auggie tells the kaftan story. Her warmth IS the lack of judgment.',
+        '',
+        '**WHAT TO WRITE**: Auggie kicks off the bit (wardrobe / OJ / espresso / Pucci / BF / Devon / abuela — his material is GOOD, use it). The others react in their distinctive voices and ADD. Aim for at least one QUOTABLE line per thread — lines someone would screenshot and share. The "kaftan before three" line is the standard.',
+        '',
+        '**WHAT TO AVOID**: Bea sounding disapproving or schoolmarmy. Anyone competing with Auggie for the lead. Generic lines that could come from any character. Predictable phrasing. The room should feel like a real Slack channel between people who LIKE each other, not a panel discussion.',
+        '',
+        'Reality check: if context.items contains real work events from today, the staff KNOW about them but in THIS channel they are not discussing them. They are taking a break.',
       ].join('\n')
     : [
         'This is the WORKFLOOR channel — work-focused. Real-office texture.',
