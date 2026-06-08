@@ -1875,9 +1875,15 @@ document.addEventListener('DOMContentLoaded', function(){
   }
   /* Status dot in the corner of every avatar. Pulses to signal "agent online".
      CSS-only â€” no JS needed. Slight stagger via :nth-child so the wall
-     does not blink in unison. */
+     does not blink in unison.
+     POSITIONING NOTE (2026-06-08): The previous "position: absolute; inset: 0"
+     override on .etl-net-roster was a leftover from the old fixed-min-height
+     layout. That rule was floating the face wall over the MCP explainer above
+     it, causing the modal/roster overlap flicker Terry was seeing on the
+     Agents tab. The earlier refactor (when the explainer was added) moved the
+     roster to natural document flow with position:relative. Keeping that;
+     this duplicate override is gone. */
   .etl-network .etl-net-roster img { position: relative; }
-  .etl-network .etl-net-roster { position: absolute; inset: 0; }
   /* The dots use a sibling pseudo on a wrapper; since the imgs sit directly
      in the flex container, we paint dots via a CSS background overlay using
      a custom indicator layer. Use the simplest approach: a small absolutely
