@@ -98,6 +98,27 @@ function currentETTime() {
   }
 }
 
+/* Truncate text at the last sentence-ending punctuation that falls
+   within the maxChars window. If no good boundary is found in the last
+   40% of the window, hard-cut. Prevents the staff from seeing runoff
+   sentences in the brief context. */
+function smartTrimToSentence(text, maxChars) {
+  if (!text || text.length <= maxChars) return text || '';
+  const cut = text.slice(0, maxChars);
+  // Look for ., !, or ? followed by whitespace (avoids breaking on
+  // mid-word punctuation like "U.S." or "Dr.")
+  let lastEnd = -1;
+  const re = /[.!?](?:\s|$)/g;
+  let m;
+  while ((m = re.exec(cut)) !== null) lastEnd = m.index;
+  // Require the boundary to be in the back 40% so we don't slice off
+  // half the brief just to land on a sentence.
+  if (lastEnd >= maxChars * 0.6) {
+    return cut.slice(0, lastEnd + 1).trim();
+  }
+  return cut.trim();
+}
+
 async function getTodaysContext(event) {
   const today = new Date().toISOString().slice(0, 10);
   const context = { date: today, nowET: currentETTime(), items: [] };
@@ -109,11 +130,12 @@ async function getTodaysContext(event) {
     const metaStore = getStore('auggie_briefs_meta');
     const meta = await metaStore.get('latest', { type: 'json' });
     if (meta && meta.transcript) {
-      // Trim to ~1500 chars so the staff see more than the brief's lead.
-      // Cutting too tight makes them fixate on whatever single article
-      // the brief opened with; a fuller window lets them pull from
-      // any thread in today's brief, not just the first one.
-      const t = String(meta.transcript).slice(0, 1500);
+      // Trim to ~1500 chars so the staff see more than the brief's lead,
+      // but END ON A SENTENCE BOUNDARY so they don't see a runoff
+      // ellipsis and complain about it in voice (Bea will, and she did).
+      // Falls back to a hard cut only if no sentence end is found in
+      // the last 40% of the window.
+      const t = smartTrimToSentence(String(meta.transcript), 1500);
       context.items.push({
         kind: 'morning_brief',
         date: meta.dateKey || today,
