@@ -565,6 +565,13 @@
           </button>
         </div>
         <div id="floor-body" style="display:none;">
+          <!-- Two channels: Workfloor (work focus) and Watercooler (lighthearted
+               off-topic). Each tab has its own thread state; switching is
+               instant once loaded. First open of either tab fetches fresh. -->
+          <div id="floor-tabs" role="tablist">
+            <button type="button" class="floor-tab is-active" data-mode="workfloor" role="tab" aria-selected="true">Workfloor</button>
+            <button type="button" class="floor-tab" data-mode="watercooler" role="tab" aria-selected="false">Watercooler</button>
+          </div>
           <div id="floor-status" style="display:none;"></div>
           <div id="floor-thread"></div>
           <div id="floor-footer" style="display:none;">
@@ -718,6 +725,34 @@
       display: flex; flex-direction: column;
       overflow: hidden;
     }
+    /* Floor tabs: Workfloor vs Watercooler. Pill style on a darker
+       background so they sit cleanly between the header and the thread. */
+    #floor-tabs {
+      display: flex; gap: 2px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid rgba(253,184,39,0.25);
+    }
+    .floor-tab {
+      flex: 1;
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: #d6cfc0;
+      font-family: 'Oswald', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      padding: 9px 10px 11px;
+      cursor: pointer;
+      transition: color 0.12s ease, border-color 0.12s ease;
+    }
+    .floor-tab:hover { color: #FDB827; }
+    .floor-tab.is-active {
+      color: #FDB827;
+      border-bottom-color: #FDB827;
+    }
+    .floor-tab:focus-visible { outline: 2px solid #FDB827; outline-offset: -2px; }
     #floor-status {
       font-family: 'Cormorant Garamond', serif;
       font-style: italic; color: #d6cfc0; font-size: 13px;
@@ -2855,9 +2890,17 @@
   var footer      = document.getElementById('floor-footer');
   var refreshBtn  = document.getElementById('floor-refresh');
   var contextNote = document.getElementById('floor-context-note');
+  var tabButtons  = document.querySelectorAll('.floor-tab');
   if (!toggle || !thread) return;
 
-  var hasLoadedOnce = false;
+  // Two channels — each holds its own loaded state so switching is instant
+  // after the first fetch per tab. Refresh button always re-fetches the
+  // CURRENT tab. Default tab on first open is workfloor.
+  var activeMode = 'workfloor';
+  var cache = {
+    workfloor: { loaded: false, messages: null, contextNote: '' },
+    watercooler: { loaded: false, messages: null, contextNote: '' },
+  };
 
   function escapeHtml(s){
     return String(s || '')
@@ -2897,8 +2940,25 @@
     });
   }
 
-  async function loadFloor(){
-    statusEl.textContent = 'staff are gathering at the watercooler';
+  async function loadFloor(mode, opts){
+    mode = (mode === 'watercooler') ? 'watercooler' : 'workfloor';
+    opts = opts || {};
+    var force = !!opts.force;
+
+    // If we already have this tab's content cached AND caller didn't force,
+    // render from cache. Switching tabs is instant; only refresh re-fetches.
+    if (!force && cache[mode].loaded && cache[mode].messages) {
+      statusEl.style.display = 'none';
+      renderMessages(cache[mode].messages);
+      footer.style.display = 'flex';
+      contextNote.textContent = cache[mode].contextNote || '';
+      refreshBtn.disabled = false;
+      return;
+    }
+
+    statusEl.textContent = mode === 'watercooler'
+      ? 'staff are heading to the watercooler'
+      : 'staff are wrapping up something on the workfloor';
     statusEl.style.display = '';
     thread.innerHTML = '';
     footer.style.display = 'none';
@@ -2914,7 +2974,7 @@
       var r = await fetch('/.netlify/functions/studio-floor-render', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-        body: '{}',
+        body: JSON.stringify({ mode: mode }),
       });
       var data;
       try { data = await r.json(); }
@@ -2931,24 +2991,45 @@
         return;
       }
 
-      statusEl.style.display = 'none';
-      renderMessages(data.messages);
-      footer.style.display = 'flex';
-      refreshBtn.disabled = false;
-
+      // Tab race: if Terry clicked the other tab while this fetch was in
+      // flight, store the result in cache but don't render — the active
+      // tab's already been re-loaded.
+      var noteText = '';
       if (data.context_used) {
-        var note = data.context_used.item_count > 0
+        noteText = data.context_used.item_count > 0
           ? 'based on today (' + data.context_used.date + ') — ' + data.context_used.item_count + ' real item' + (data.context_used.item_count === 1 ? '' : 's')
           : 'no fresh activity today — texture only';
-        contextNote.textContent = note;
-      } else {
-        contextNote.textContent = '';
       }
+      cache[mode] = { loaded: true, messages: data.messages, contextNote: noteText };
+
+      if (mode === activeMode) {
+        statusEl.style.display = 'none';
+        renderMessages(data.messages);
+        footer.style.display = 'flex';
+        contextNote.textContent = noteText;
+      }
+      refreshBtn.disabled = false;
     } catch (e) {
       statusEl.textContent = 'network error: ' + (e && e.message ? e.message : 'unknown');
       refreshBtn.disabled = false;
     }
   }
+
+  // Tab switching: update aria + active class, then loadFloor for that mode.
+  // First click on a tab fetches; subsequent clicks render from cache.
+  tabButtons.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var mode = btn.getAttribute('data-mode');
+      if (mode === activeMode) return; // no-op if already on this tab
+      activeMode = mode;
+      tabButtons.forEach(function(b){
+        var isActive = b === btn;
+        b.classList.toggle('is-active', isActive);
+        b.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      });
+      loadFloor(activeMode);
+    });
+  });
 
   // The parent .auggie-row holds the 3-column grid. We toggle a
   // .floor-collapsed class on it in sync with the Floor open/close
@@ -2969,15 +3050,15 @@
       toggleLabel.textContent = '▾ close the Floor';
       body.style.display = 'flex';
       if (auggieRow) auggieRow.classList.remove('floor-collapsed');
-      if (!hasLoadedOnce) {
-        hasLoadedOnce = true;
-        loadFloor();
-      }
+      // First open: load the default tab (workfloor). Subsequent opens
+      // restore from cache (no extra spend).
+      loadFloor(activeMode);
     }
   });
 
   refreshBtn.addEventListener('click', function(){
-    loadFloor();
+    // Refresh always re-fetches the CURRENT tab.
+    loadFloor(activeMode, { force: true });
   });
 })();
 </script>

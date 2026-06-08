@@ -10,8 +10,13 @@
    Each open generates a fresh thread (no caching) so the conversation
    stays current with today's actual context.
 
-   POST body: {} (no inputs)
-   Returns: { messages: [{speaker, text, timestamp}, ...] }
+   POST body: { mode?: 'workfloor' | 'watercooler' }
+     - workfloor (default): work-focused chatter — typo to fix, deadline
+       to negotiate, color call, podcast pitch, real-office texture.
+     - watercooler: lighthearted off-topic banter — weekend plans, the
+       espresso, podcast they're personally listening to, family
+       update, the joke about Auggie's blazer. No client deliverables.
+   Returns: { messages: [{speaker, text, timestamp}, ...], mode }
    Auth: Supabase JWT in Authorization header. Same gate as other Studio
    functions. Anonymous requests refused before any Anthropic spend.
    ───────────────────────────────────────────────────────────────────────────── */
@@ -168,6 +173,11 @@ exports.handler = async (event) => {
     };
   }
 
+  // Mode toggle for Workfloor vs Watercooler tabs in the Studio UI.
+  let body = {};
+  try { body = JSON.parse(event.body || '{}'); } catch (_) {}
+  const mode = (body.mode === 'watercooler') ? 'watercooler' : 'workfloor';
+
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return {
@@ -184,10 +194,31 @@ exports.handler = async (event) => {
     ? context.items.map(i => `[${i.kind} — ${i.date}]\n${i.text}`).join('\n\n---\n\n')
     : '(no specific events today — they are doing office chatter, easy back-and-forth, before the day really starts)';
 
+  // Two channels — Workfloor (work focus) and Watercooler (lighthearted
+   // off-topic). Same staff, same voices, different topic scope.
+  const channelLabel = mode === 'watercooler' ? 'The Watercooler' : 'The Workfloor';
+  const channelDescription = mode === 'watercooler'
+    ? [
+        'This is the WATERCOOLER channel — off-topic, lighthearted. Personal banter only.',
+        'They are NOT discussing client work, deadlines, drafts, or deliverables in this channel — that goes in the Workfloor channel.',
+        'Topics fair game here: weekend plans, the espresso, a podcast someone\'s listening to, a family update (Bea\'s grandkid, Jess\'s wedding-planning friend), the joke about Auggie\'s blazer, a color swatch Chris saw on a sunset, the bf who made fresh-squeezed OJ, the Trina Turk kaftan Auggie almost wore, Devon calling Auggie at 2am about wardrobe again, a TV show, a typo joke that has nothing to do with anyone\'s work.',
+        'Reality check: if context.items contains real work events from today, the staff KNOW about them but in THIS channel they are not discussing them. They\'re taking a break.',
+        'This channel is what makes the office feel alive between the work happening.',
+      ].join('\n')
+    : [
+        'This is the WORKFLOOR channel — work-focused. Real-office texture.',
+        'They are discussing today\'s actual work: a typo Bea caught, a deadline Jess is negotiating, a cover comp Chris is finalizing, a calendar conflict Auggie spotted, a Forbes piece getting traction, a podcast pitch landing or not.',
+        'Reference REAL items from today\'s context when relevant. Do not invent fictional meetings, fake names, or things that did not happen.',
+        'Off-topic banter is for the Watercooler channel — keep this one to work that actually shipped or is in flight today.',
+      ].join('\n');
+
   const systemPrompt = [
-    'You are rendering The Floor — the inter-staff Slack channel at Dr. Terry Oroszi\'s Studio.',
+    'You are rendering ' + channelLabel + ' — an inter-staff Slack channel at Dr. Terry Oroszi\'s Studio.',
     '',
     'Ms. Terry (the principal) is NOT in this channel right now. She just opened the door and walked over. You are rendering what her staff WOULD be saying to each other right now, in voice, based on what actually happened in her Studio today.',
+    '',
+    'CHANNEL: ' + channelLabel,
+    channelDescription,
     '',
     'STAFF in this channel:',
     staffBlock,
@@ -201,12 +232,10 @@ exports.handler = async (event) => {
     '- 8 to 12 messages total.',
     '- Each message is one to three short sentences. Conversational, not paragraphs.',
     '- Stay in each character\'s voice. Auggie\'s register is camp and capitalized; Bea is dry and precise; Chris is visual; Jess is high-energy with real strategy underneath.',
-    '- Reference REAL items from today\'s context when relevant. Do not invent fictional meetings, fake names, or things that did not happen.',
-    '- **Freshness rule**: If the morning brief surfaces a Forbes article, mention, or piece of news that is more than 30 days old, the staff have ALREADY discussed it in previous Floor sessions and are bored of it. They DO NOT fixate on it. They pivot — either to something genuinely fresh in the brief, or to ordinary office chatter (a typo to fix, a deadline to negotiate, a podcast pitch, a color call). NEVER let the channel be stuck on Dr. Oroszi\'s Forbes piece from last year. She has published a lot since; the staff know that.',
-    '- If today\'s context is sparse OR everything in the brief is stale, they are just doing office chatter — Auggie complaining about a typo, Bea pushing back on a deadline, Chris dropping a color note, Jess pinging about a podcast pitch. Real-office texture. That is BETTER than stale rehashing.',
+    '- **Freshness rule**: If the morning brief surfaces a Forbes article, mention, or piece of news that is more than 30 days old, the staff have ALREADY discussed it in previous Floor sessions and are bored of it. They DO NOT fixate on it. They pivot. NEVER let the channel be stuck on Dr. Oroszi\'s Forbes piece from last year. She has published a lot since; the staff know that.',
     '- They like each other. They tease each other. There can be a small disagreement, but it resolves like adults.',
     '- No emojis. No exclamation points (Bea will not stand for them). ALL CAPS used sparingly for emphasis (OMG, ANYWAY) and only by Auggie.',
-    '- Timestamps as "h:MMam" or "h:MMpm" (e.g., "2:14pm"). The conversation must have happened in the LAST 4-6 HOURS leading up to the current time above. **DO NOT timestamp anything in the future relative to now.** Example: if it is currently 4:23pm, the thread might run from roughly 10:15am to 4:10pm, progressing chronologically.',
+    '- Timestamps as "h:MMam" or "h:MMpm" (e.g., "2:14pm"). The conversation must have happened in the LAST 4-6 HOURS leading up to the current time above. **DO NOT timestamp anything in the future relative to now.**',
     '',
     'OUTPUT FORMAT:',
     'Return JSON ONLY, no surrounding prose, no code fences. The exact shape:',
@@ -253,7 +282,7 @@ exports.handler = async (event) => {
     return {
       statusCode: 200,
       headers: { ...CORS, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages, context_used: { date: context.date, item_count: context.items.length } }),
+      body: JSON.stringify({ messages, mode, context_used: { date: context.date, item_count: context.items.length } }),
     };
   } catch (err) {
     console.error('[floor-render] failed', err && err.message);
