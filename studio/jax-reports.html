@@ -171,6 +171,66 @@
     content: 'FIX: '; color: var(--brass); font-weight: 600;
   }
 
+  /* PROPOSED FIX (the actual code Jax wrote) */
+  .jax-fix {
+    margin-top: 12px;
+    background: #fff7e6; border: 1px solid var(--brass-bright);
+    border-left-width: 4px;
+    padding: 14px 16px;
+  }
+  .jax-fix-head {
+    display: flex; gap: 10px; align-items: center; justify-content: space-between;
+    margin-bottom: 10px; flex-wrap: wrap;
+  }
+  .jax-fix-label {
+    font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--brass);
+  }
+  .jax-fix-label::before { content: '★ '; }
+  .jax-fix-target {
+    font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.08em;
+    color: var(--ink-soft);
+  }
+  .jax-fix-copy {
+    background: var(--ink); color: var(--brass-bright); border: 1px solid var(--ink);
+    cursor: pointer; padding: 5px 10px;
+    font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .jax-fix-copy:hover { background: var(--brass); color: var(--ink); }
+  .jax-fix-copy.copied { background: var(--brass); color: var(--linen-light); }
+  .jax-fix-code {
+    font-family: 'DM Mono', monospace; font-size: 11px; line-height: 1.5;
+    background: #fffdf6; color: var(--ink);
+    padding: 10px 12px; border: 1px solid var(--linen-edge);
+    white-space: pre-wrap; word-break: break-word;
+    overflow-x: auto;
+  }
+  .jax-fix-notes {
+    margin-top: 8px;
+    font-family: 'Cormorant Garamond', serif; font-size: 13px;
+    font-style: italic; color: var(--ink-soft);
+  }
+
+  /* "Jax made N fixes" banner — sits above the findings list */
+  .fix-banner {
+    background: var(--ink); color: var(--brass-bright);
+    padding: 16px 20px; margin-bottom: 22px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; flex-wrap: wrap;
+  }
+  .fix-banner-text {
+    font-family: 'Playfair Display', serif; font-size: 18px; color: var(--brass-bright);
+  }
+  .fix-banner-text strong { color: var(--linen-light); font-weight: 700; }
+  .fix-banner-btn {
+    background: var(--brass-bright); color: var(--ink); border: 0;
+    cursor: pointer; padding: 10px 16px;
+    font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+  .fix-banner-btn:hover { background: #fff; }
+
   .empty-clean {
     padding: 24px; background: var(--linen-light); border: 1px solid var(--linen-edge);
     font-family: 'Cormorant Garamond', serif; font-style: italic; color: var(--ink-soft);
@@ -352,12 +412,45 @@
         '</div>'
       : '';
 
+    // Track all proposed fixes for the bundle download
+    var allFixes = [];
+
+    function fixHtml(fix, fixIdx) {
+      if (!fix) return '';
+      var safeAfter = escapeHtml(fix.after || '');
+      var safeBefore = escapeHtml(fix.before || '');
+      var safeTarget = escapeHtml(fix.target || '');
+      var safeNotes = escapeHtml(fix.notes || '');
+      return '<div class="jax-fix">' +
+        '<div class="jax-fix-head">' +
+          '<div>' +
+            '<div class="jax-fix-label">Jax wrote the fix</div>' +
+            (safeTarget ? '<div class="jax-fix-target">target: ' + safeTarget + '</div>' : '') +
+          '</div>' +
+          '<button type="button" class="jax-fix-copy" data-copy-fix="' + fixIdx + '">Copy</button>' +
+        '</div>' +
+        (safeBefore ? '<div class="jax-fix-target" style="margin-bottom:4px;">before:</div><div class="jax-fix-code" style="opacity:0.6;">' + safeBefore + '</div>' : '') +
+        '<div class="jax-fix-target" style="margin:8px 0 4px;">' + (safeBefore ? 'after:' : 'add this:') + '</div>' +
+        '<div class="jax-fix-code">' + safeAfter + '</div>' +
+        (safeNotes ? '<div class="jax-fix-notes">' + safeNotes + '</div>' : '') +
+      '</div>';
+    }
+
     var findingsHtml = '';
     if (findings.length === 0) {
       findingsHtml = '<div class="empty-clean">No findings. The page is in good shape.</div>';
     } else {
       findings.forEach(function(f){
         var sev = f.severity || 'low';
+        var fixesBlock = '';
+        if (f.proposed_fix) {
+          allFixes.push({ finding: f, fix: f.proposed_fix });
+          fixesBlock += fixHtml(f.proposed_fix, allFixes.length - 1);
+        }
+        if (f.proposed_fix_extra) {
+          allFixes.push({ finding: f, fix: f.proposed_fix_extra });
+          fixesBlock += fixHtml(f.proposed_fix_extra, allFixes.length - 1);
+        }
         findingsHtml +=
           '<div class="finding finding-' + sev + '">' +
             '<div class="finding-row">' +
@@ -367,8 +460,18 @@
             '</div>' +
             (f.detail ? '<div class="finding-detail">' + escapeHtml(f.detail) + '</div>' : '') +
             (f.fix    ? '<div class="finding-fix">' + escapeHtml(f.fix) + '</div>'    : '') +
+            fixesBlock +
           '</div>';
       });
+    }
+
+    var fixBannerHtml = '';
+    if (allFixes.length > 0) {
+      fixBannerHtml =
+        '<div class="fix-banner">' +
+          '<div class="fix-banner-text"><strong>' + allFixes.length + ' fix' + (allFixes.length === 1 ? '' : 'es') + '</strong> ready to apply. Copy individually or download the bundle.</div>' +
+          '<button type="button" id="dl-fixes" class="fix-banner-btn">Download all fixes</button>' +
+        '</div>';
     }
 
     var sevCounts = { high: 0, medium: 0, low: 0 };
@@ -394,6 +497,7 @@
         '<button type="button" id="dl-json" class="download-btn download-btn--secondary">Download JSON</button>' +
       '</div>' +
       summaryHtml +
+      fixBannerHtml +
       '<h2 class="section-h">The <em>findings</em></h2>' +
       findingsHtml +
       '<details class="raw"><summary>Raw checks (advanced)</summary><pre>' + escapeHtml(JSON.stringify(checks, null, 2)) + '</pre></details>';
@@ -409,6 +513,96 @@
         var datePart = (r.completedAt || r.createdAt || '').slice(0, 10);
         var filename = 'jax-audit-' + safeTarget + '-' + datePart + '.json';
         var blob = new Blob([JSON.stringify(r, null, 2)], { type: 'application/json' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url; a.download = filename;
+        document.body.appendChild(a); a.click();
+        setTimeout(function(){
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }, 100);
+      } catch (e) {
+        alert('Download failed: ' + (e && e.message || ''));
+      }
+    });
+
+    // Wire individual "Copy" buttons on each fix card
+    var copyBtns = reportRoot.querySelectorAll('[data-copy-fix]');
+    copyBtns.forEach(function(btn){
+      btn.addEventListener('click', async function(){
+        var idx = parseInt(btn.getAttribute('data-copy-fix'), 10);
+        var entry = allFixes[idx];
+        if (!entry) return;
+        try {
+          await navigator.clipboard.writeText(entry.fix.after || '');
+          btn.textContent = 'Copied';
+          btn.classList.add('copied');
+          setTimeout(function(){
+            btn.textContent = 'Copy';
+            btn.classList.remove('copied');
+          }, 1600);
+        } catch (e) {
+          btn.textContent = 'Copy failed';
+          setTimeout(function(){ btn.textContent = 'Copy'; }, 1600);
+        }
+      });
+    });
+
+    // Wire "Download all fixes" — produces a markdown bundle Terry can
+    // hand to Claude Code, paste into a PR description, or apply by hand.
+    var btnFixes = document.getElementById('dl-fixes');
+    if (btnFixes) btnFixes.addEventListener('click', function(){
+      try {
+        var safeTarget = (r.target_url || 'site').replace(/^https?:\/\//, '').replace(/[^\w.-]+/g, '_').replace(/^_+|_+$/g, '');
+        var datePart = (r.completedAt || r.createdAt || '').slice(0, 10);
+        var filename = 'jax-fixes-' + safeTarget + '-' + datePart + '.md';
+
+        var lines = [];
+        lines.push('# Jax SEO Fix Bundle');
+        lines.push('');
+        lines.push('**Target:** ' + r.target_url);
+        lines.push('**Scanned:** ' + new Date(r.completedAt || r.createdAt).toISOString());
+        lines.push('**Fixes:** ' + allFixes.length);
+        lines.push('');
+        lines.push('Each fix below was generated by Jax (SEO Backpack). Apply by editing the target HTML and inserting/replacing the snippet shown.');
+        lines.push('');
+        lines.push('---');
+        lines.push('');
+        allFixes.forEach(function(entry, i){
+          var f = entry.finding, fix = entry.fix;
+          lines.push('## ' + (i + 1) + '. ' + (f.headline || 'Fix'));
+          lines.push('');
+          lines.push('- **Severity:** ' + (f.severity || 'low'));
+          lines.push('- **Category:** ' + (f.category || 'general'));
+          lines.push('- **Target:** ' + (fix.target || '(unspecified)'));
+          lines.push('- **Type:** `' + (fix.type || 'manual') + '`');
+          if (f.detail) {
+            lines.push('');
+            lines.push('**Why:** ' + f.detail);
+          }
+          if (fix.notes) {
+            lines.push('');
+            lines.push('**Notes:** ' + fix.notes);
+          }
+          if (fix.before) {
+            lines.push('');
+            lines.push('### Before');
+            lines.push('```html');
+            lines.push(fix.before);
+            lines.push('```');
+          }
+          lines.push('');
+          lines.push('### ' + (fix.before ? 'After' : 'Add this'));
+          lines.push('```html');
+          lines.push(fix.after);
+          lines.push('```');
+          lines.push('');
+          lines.push('---');
+          lines.push('');
+        });
+        lines.push('_Generated by Jax · SEO Backpack · ETL Studio_');
+
+        var blob = new Blob([lines.join('\n')], { type: 'text/markdown' });
         var url = URL.createObjectURL(blob);
         var a = document.createElement('a');
         a.href = url; a.download = filename;

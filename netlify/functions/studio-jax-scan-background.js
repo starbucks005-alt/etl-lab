@@ -54,6 +54,7 @@ const JAX_PERSONA = [
   '- 3 to 5 sentences total. This is a summary, not the report.',
   '- Open with the headline: what is the single biggest issue, or the single biggest win.',
   '- Mention 2 or 3 specific findings, with their fix in one phrase each.',
+  '- If fixes were drafted (count is given in the audit data), name how many and that they are ready to apply.',
   '- Close with what you would do next if she greenlights.',
   '',
   'OUTPUT: just the paragraph text. No headers. No bullets. Plain prose.',
@@ -382,6 +383,223 @@ function buildFindings(checks, targetUrl) {
   return findings;
 }
 
+/* ── Proposed fixes ───────────────────────────────────────────────────────
+   For every actionable finding, Jax produces a `proposed_fix` payload:
+   the exact change Dr. Oroszi (or a future GitHub-API integration) can
+   apply. Each fix has:
+     - type:     'insert_in_head' | 'modify_html_tag' | 'insert_block' | 'replace_text'
+     - target:   file or section hint (e.g. 'head', '<html> element')
+     - before:   what's there now (snippet, may be empty)
+     - after:    the exact replacement
+     - notes:    one-line context for the diff
+
+   Trivial fixes (canonical, viewport, lang, structured data) are generated
+   deterministically. Content fixes (meta description, OG content, alt
+   text, title shortening) are generated with one Anthropic call so the
+   prose lands in Jax's tight, plain register.
+   ──────────────────────────────────────────────────────────────────────── */
+
+function fixForCanonical(targetUrl) {
+  return {
+    type: 'insert_in_head',
+    target: 'head',
+    before: '',
+    after: `<link rel="canonical" href="${targetUrl}">`,
+    notes: 'Add to <head>. Prevents duplicate-content variants being treated as separate pages.',
+  };
+}
+function fixForViewport() {
+  return {
+    type: 'insert_in_head',
+    target: 'head',
+    before: '',
+    after: `<meta name="viewport" content="width=device-width, initial-scale=1">`,
+    notes: 'Add to <head>. Required for correct mobile rendering.',
+  };
+}
+function fixForLang(existingHtml) {
+  // Default to en if no signal; future: detect from content
+  return {
+    type: 'modify_html_tag',
+    target: '<html> element',
+    before: '<html>',
+    after: '<html lang="en">',
+    notes: 'Add lang="en" (or your locale) to the <html> tag. Used by screen readers and translation tools.',
+  };
+}
+function fixForJsonLdOrganization(targetUrl, siteName) {
+  const origin = new URL(targetUrl).origin;
+  const name = siteName || origin.replace(/^https?:\/\//, '');
+  const block = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: name,
+    url: origin,
+  };
+  return {
+    type: 'insert_block',
+    target: 'head (or just before </body>)',
+    before: '',
+    after: `<script type="application/ld+json">\n${JSON.stringify(block, null, 2)}\n</script>`,
+    notes: 'Adds Organization structured data so search engines can attach name + URL to your knowledge panel.',
+  };
+}
+function fixForJsonLdWebSite(targetUrl, siteName) {
+  const origin = new URL(targetUrl).origin;
+  const name = siteName || origin.replace(/^https?:\/\//, '');
+  const block = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: name,
+    url: origin,
+  };
+  return {
+    type: 'insert_block',
+    target: 'head (or just before </body>)',
+    before: '',
+    after: `<script type="application/ld+json">\n${JSON.stringify(block, null, 2)}\n</script>`,
+    notes: 'Adds WebSite structured data so the site is canonically named in search.',
+  };
+}
+function fixForOgBasics(seo, targetUrl) {
+  const title = seo.title || '[Add your page title here]';
+  const desc = seo.meta_description || '[Add a 140-160 char description here]';
+  const block =
+    `<meta property="og:type" content="website">\n` +
+    `<meta property="og:url" content="${targetUrl}">\n` +
+    `<meta property="og:title" content="${title}">\n` +
+    `<meta property="og:description" content="${desc}">\n` +
+    `<meta property="og:image" content="${new URL(targetUrl).origin}/og-image.png">`;
+  return {
+    type: 'insert_in_head',
+    target: 'head',
+    before: '',
+    after: block,
+    notes: 'Open Graph tags control how the page renders when shared on Facebook, LinkedIn, iMessage, Slack. og:image must exist at the URL.',
+  };
+}
+function fixForTwitterCard(seo, targetUrl) {
+  const title = seo.title || '[Add your page title here]';
+  const desc = seo.meta_description || '[Add a description here]';
+  const block =
+    `<meta name="twitter:card" content="summary_large_image">\n` +
+    `<meta name="twitter:title" content="${title}">\n` +
+    `<meta name="twitter:description" content="${desc}">\n` +
+    `<meta name="twitter:image" content="${new URL(targetUrl).origin}/og-image.png">`;
+  return {
+    type: 'insert_in_head',
+    target: 'head',
+    before: '',
+    after: block,
+    notes: 'Twitter card tags. summary_large_image is the richer format.',
+  };
+}
+
+/* LLM-generated content fixes. One Anthropic call covers multiple fixes
+   at once (meta description, shortened title if needed) to keep cost low. */
+async function generateContentFixes(client, targetUrl, seo, findings) {
+  const needsMetaDesc = findings.some(f => /meta description/i.test(f.headline) && /\bNo |missing|short/i.test(f.headline));
+  const titleTooLong  = findings.some(f => /Title tag is long/i.test(f.headline));
+  if (!needsMetaDesc && !titleTooLong) return {};
+
+  const sys = [
+    'You are Jax Rivera, SEO and Discovery Strategist. You are writing SEO copy for a page Dr. Oroszi owns.',
+    'Output JSON only. No prose, no code fences, no commentary.',
+    'Constraints:',
+    '- Meta descriptions: 140-160 characters, sentence case, no quotes, no exclamation points, no em dashes, write to the click but never overpromise.',
+    '- Shortened titles: 50-60 characters, lead with the most important phrase.',
+    '- Do not use marketing puffery ("revolutionary", "ultimate", "best in class").',
+  ].join('\n');
+
+  const ctx = [
+    `Target URL: ${targetUrl}`,
+    `Current title: ${seo.title || '(none)'}`,
+    `Current meta description: ${seo.meta_description || '(none)'}`,
+    `H1s: ${(seo.h1s || []).join(' | ') || '(none)'}`,
+    `OG title: ${seo.og && seo.og.title || '(none)'}`,
+    `OG description: ${seo.og && seo.og.description || '(none)'}`,
+  ].join('\n');
+
+  const tasks = [];
+  if (needsMetaDesc) tasks.push('"meta_description": <a 140-160 char description suited to this page>');
+  if (titleTooLong)  tasks.push('"shortened_title": <50-60 char tightened version of the current title>');
+
+  const userPrompt = [
+    'AUDIT CONTEXT:',
+    ctx,
+    '',
+    'Return JSON with these fields:',
+    '{ ' + tasks.join(', ') + ' }',
+  ].join('\n');
+
+  try {
+    const resp = await client.messages.create({
+      model: MODEL,
+      max_tokens: 400,
+      system: sys,
+      messages: [{ role: 'user', content: userPrompt }],
+    });
+    const raw = (resp.content || []).filter(b => b && b.type === 'text').map(b => b.text).join('\n').trim();
+    let cleaned = raw.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```$/, '').trim();
+    if (cleaned[0] !== '{') {
+      const s = cleaned.indexOf('{');
+      const e = cleaned.lastIndexOf('}');
+      if (s >= 0 && e > s) cleaned = cleaned.slice(s, e + 1);
+    }
+    return JSON.parse(cleaned);
+  } catch (e) {
+    console.error('[jax-scan-bg] content fixes failed', e && e.message);
+    return {};
+  }
+}
+
+/* Attach proposed_fix payloads to findings where Jax can generate them.
+   Deterministic fixes go on first; LLM-generated content fixes layer on
+   top. The findings array is mutated in place — same shape, plus
+   `.proposed_fix` on the ones that have one. */
+function attachDeterministicFixes(findings, checks, targetUrl) {
+  const seo = checks.on_page || {};
+
+  for (const f of findings) {
+    const h = f.headline || '';
+    if (/No canonical/i.test(h))                 f.proposed_fix = fixForCanonical(targetUrl);
+    else if (/No viewport/i.test(h))             f.proposed_fix = fixForViewport();
+    else if (/No lang attribute/i.test(h))       f.proposed_fix = fixForLang();
+    else if (/Open Graph tags incomplete/i.test(h)) f.proposed_fix = fixForOgBasics(seo, targetUrl);
+    else if (/No Twitter card metadata/i.test(h))   f.proposed_fix = fixForTwitterCard(seo, targetUrl);
+    else if (/No structured data/i.test(h)) {
+      // Two structured-data fixes: split into Organization + WebSite as
+      // sibling fixes attached to the same finding.
+      f.proposed_fix = fixForJsonLdOrganization(targetUrl, seo.title);
+      f.proposed_fix_extra = fixForJsonLdWebSite(targetUrl, seo.title);
+    }
+  }
+}
+
+function attachContentFixes(findings, contentFixes, targetUrl) {
+  for (const f of findings) {
+    const h = f.headline || '';
+    if (/No meta description|Meta description is short/i.test(h) && contentFixes.meta_description) {
+      f.proposed_fix = {
+        type: 'insert_in_head',
+        target: 'head',
+        before: '',
+        after: `<meta name="description" content="${contentFixes.meta_description.replace(/"/g, '&quot;')}">`,
+        notes: `Jax-drafted meta description (${contentFixes.meta_description.length} chars). Review the wording before applying.`,
+      };
+    }
+    if (/Title tag is long/i.test(h) && contentFixes.shortened_title) {
+      f.proposed_fix = {
+        type: 'replace_text',
+        target: '<title> element',
+        before: '(your current title — too long)',
+        after: `<title>${contentFixes.shortened_title}</title>`,
+        notes: `Jax-shortened title (${contentFixes.shortened_title.length} chars).`,
+      };
+    }
+  }
+}
+
 /* ── Jax's voice summary, generated via Anthropic ─────────────────────── */
 async function generateJaxSummary(client, targetUrl, checks, findings) {
   const highFindings = findings.filter(f => f.severity === 'high');
@@ -556,10 +774,19 @@ exports.handler = async (event) => {
   // 3. Findings derived from the checks
   const findings = buildFindings(checks, targetUrl);
 
-  // 4. Jax's voice summary
+  // 4. Proposed fixes — Jax actually DOES the work, not just reports.
+  //    Deterministic fixes first (canonical, viewport, lang, structured
+  //    data, OG, Twitter), then LLM-drafted content fixes (meta description
+  //    and shortened title where applicable).
+  attachDeterministicFixes(findings, checks, targetUrl);
+  const contentFixes = await generateContentFixes(client, targetUrl, checks.on_page, findings);
+  attachContentFixes(findings, contentFixes, targetUrl);
+
+  // 5. Jax's voice summary
   const jaxSummary = await generateJaxSummary(client, targetUrl, checks, findings);
 
-  // 5. Save full report
+  // 6. Save full report
+  const fixCount = findings.filter(f => f.proposed_fix).length;
   const report = {
     id: jobId,
     target_url: targetUrl,
@@ -571,12 +798,13 @@ exports.handler = async (event) => {
     checks,
     findings,
     jax_summary: jaxSummary,
+    fix_count: fixCount,
   };
 
   try {
     await getStore('jax_reports').setJSON(jobId, report);
     await updateIndex(jobId, targetUrl, 'complete');
-    console.log('[jax-scan-bg] complete', { jobId, findings: findings.length });
+    console.log('[jax-scan-bg] complete', { jobId, findings: findings.length, fixes: fixCount });
   } catch (e) {
     console.error('[jax-scan-bg] save failed', e && e.message);
   }
