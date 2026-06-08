@@ -70,9 +70,16 @@ function resolveTargetRepo(targetUrl) {
     if (host === 'opsec-gauntlet.netlify.app') {
       return { owner: 'starbucks005-alt', repo: 'opsec-gauntlet', path: 'index.html' };
     }
-    // Dose / Gandhi-King / SLR Studio / etc. — repo names not yet
-    // configured. Return null so the apply step writes a clear error
-    // back to the report blob and Auggie surfaces it honestly.
+    // Locked 2026-06-08 (Terry provided the full repo list).
+    if (host === 'thedose.net') {
+      return { owner: 'starbucks005-alt', repo: 'the-dose', path: 'index.html' };
+    }
+    if (host === 'gandhi-king.netlify.app') {
+      return { owner: 'starbucks005-alt', repo: 'gandhi-king-center', path: 'index.html' };
+    }
+    if (host === 'slrstudio.online') {
+      return { owner: 'starbucks005-alt', repo: 'SLR_Studio', path: 'index.html' };
+    }
     return null;
   } catch (_) { return null; }
 }

@@ -128,7 +128,7 @@ const AUGGIE_PERSONA = [
   '  • **Jax dispatch**: when she mentions "Jax + SEO/audit/discovery/scan", you fire a real scan via the trigger function. Returns a real job_id and report link. Already wired.',
   '  • **Jax status check**: when she mentions "Jax status / where\'s Jax / did Jax fix / Jax update", you read his latest reports from the index and list every site he has been on with their actual issue and fix counts. Already wired.',
   '  • **Jax apply fixes**: WIRED. When she says "apply Jax\'s fixes" / "push it live" / "commit the fixes" / "go ahead and fix [site]", you fire the apply trigger and Jax pushes the drafted fixes to main via the GitHub Contents API. Direct commit, no PR, no branch (Dr. Oroszi\'s deployment rule). You tell her the commit lands in ~30s and she can ask for "jax status" to see the commit URL. Apply is restricted to the SAFE-AUTO-APPLY fix types (canonical link, JSON-LD blocks, OG/Twitter metadata in <head>). Edits to body content still come back to her for review.',
-  '  • Apply only works for sites configured in the repo map (ETL, Gauntlet, Greylander Press, OPSEC Gauntlet today). If she asks to apply to The Dose, Gandhi-King, or SLR Studio, the apply will come back with "no repo mapping" — that is real, not theater; tell her honestly.',
+  '  • Apply is configured for ALL of these repos (locked 2026-06-08): ETL (+ subpath products), The Gauntlet, Greylander Press, OPSEC Gauntlet, The Dose, Gandhi-King Center, SLR Studio. If she asks to apply to any of these, fire the trigger; if a target outside this list comes up, the bg will return "no_repo_mapping" honestly.',
   '- Other Specialists (Six-Pack, Iris, future hires) will get their own Auggie channels as their backpacks ship. Each new build = a new ping capability for you.',
   '',
   'OFF-LIMITS TARGETS FOR JAX (do not dispatch, do not even suggest):',
@@ -788,9 +788,14 @@ exports.handler = async (event) => {
       const base = process.env.URL || ('https://' + ((event.headers && event.headers.host) || ''));
       const triggerUrl = base.replace(/\/$/, '') + '/.netlify/functions/studio-jax-trigger';
 
-      // Fire all dispatches in parallel. Each returns its own job_id and
-      // report_url; we collect them for the reply.
-      const dispatchResults = await Promise.all(toDispatch.map(async target => {
+      // Fire dispatches SERIALLY with a 250ms stagger. The previous version
+      // fired all 12 in parallel, which exceeded Netlify's background-function
+      // concurrency cap — triggers returned 202 but 11 of 12 background
+      // invocations got silently dropped. Serial+stagger guarantees every
+      // bg actually starts. Worst case for 12 sites: ~3s of dispatch latency.
+      const dispatchResults = [];
+      for (let i = 0; i < toDispatch.length; i++) {
+        const target = toDispatch[i];
         try {
           const tr = await fetch(triggerUrl, {
             method: 'POST',
@@ -801,13 +806,24 @@ exports.handler = async (event) => {
               requested_by: 'Ms. Terry via Studio chat (batch dispatch)',
             }),
           });
-          if (!tr.ok) return { ok: false, target, status: tr.status };
-          const tj = await tr.json();
-          return { ok: true, target, job_id: tj.job_id, report_url: tj.report_url, target_url: tj.target_url };
+          if (!tr.ok) {
+            console.warn('[auggie-batch-dispatch] trigger non-2xx', tr.status, 'for', target);
+            dispatchResults.push({ ok: false, target, status: tr.status });
+          } else {
+            const tj = await tr.json();
+            console.log('[auggie-batch-dispatch] dispatched', target, 'job_id=' + tj.job_id);
+            dispatchResults.push({ ok: true, target, job_id: tj.job_id, report_url: tj.report_url, target_url: tj.target_url });
+          }
         } catch (e) {
-          return { ok: false, target, error: e && e.message };
+          console.error('[auggie-batch-dispatch] trigger error for', target, e && e.message);
+          dispatchResults.push({ ok: false, target, error: e && e.message });
         }
-      }));
+        // Stagger so concurrent background invocations stay under Netlify's
+        // per-site limit. Skip the delay after the last one.
+        if (i < toDispatch.length - 1) {
+          await new Promise(r => setTimeout(r, 250));
+        }
+      }
 
       const successes = dispatchResults.filter(r => r.ok);
       const failures = dispatchResults.filter(r => !r.ok);
