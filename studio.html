@@ -163,6 +163,16 @@
     letter-spacing: 0.2em; color: var(--ink-quiet);
     text-transform: uppercase;
   }
+  .ws-section-cta {
+    background: transparent; border: 1px solid var(--brass);
+    color: var(--brass); cursor: pointer;
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    padding: 6px 14px;
+    transition: background .15s ease, color .15s ease;
+  }
+  .ws-section-cta:hover { background: var(--brass); color: var(--linen-light); }
+  .ws-section-cta:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
 
   /* ACTIVITY FEED */
   .activity-grid {
@@ -729,7 +739,10 @@
   <section class="ws-section">
     <div class="ws-section-head">
       <div class="ws-section-h">The <em>staff</em></div>
-      <div class="ws-section-tag">Currently on assignment</div>
+      <div style="display:flex; gap:18px; align-items:baseline; flex-wrap:wrap;">
+        <div class="ws-section-tag">Currently on assignment</div>
+        <button type="button" id="hire-more-open" class="ws-section-cta">Hire more &rarr;</button>
+      </div>
     </div>
     <div class="staff-grid">
 
@@ -2858,6 +2871,245 @@
 
   refreshBtn.addEventListener('click', function(){
     loadFloor();
+  });
+})();
+</script>
+
+<!-- ─────────────────────────────────────────────────────────────────────────
+     HIRE MORE MODAL. Browse-and-hire surface for the Studio bench. Mirrors
+     the paid Founder Studio mechanic where buyers add Specialists from the
+     65-agent bench. For Dr. O's own Studio there is no payment gate — clicking
+     Hire just preloads a dispatch message into Auggie's chat so she can edit
+     and send. Auggie then welcomes the agent and tells the user what they are
+     starting with.
+
+     CATALOG NOTE: For now this catalog is inlined locally as a slim subset
+     focused on the six unhired Founder Studio Specialists. The full 50+
+     agent catalog lives in index.html as the AGENTS array; consolidation
+     into a shared agents-registry.json is the right play but is part of
+     the broader agent-registry refactor (see project memory). Until then,
+     adding a new hireable agent here = update this catalog AND the homepage
+     AGENTS array.
+     ───────────────────────────────────────────────────────────────────── */ -->
+<div id="hire-more-modal" class="hire-modal" aria-hidden="true" role="dialog" aria-labelledby="hire-more-title" style="display:none;">
+  <div class="hire-modal-overlay" data-hire-close></div>
+  <div class="hire-modal-panel" role="document">
+    <button type="button" class="hire-modal-close" data-hire-close aria-label="Close">&times;</button>
+    <div class="hire-modal-head">
+      <div class="hire-modal-eyebrow">Available to hire</div>
+      <h2 id="hire-more-title" class="hire-modal-title">The <em>bench</em></h2>
+      <p class="hire-modal-sub">Specialists not yet on your staff. Click hire to draft a dispatch message in Auggie's chat. He onboards them and tells you what they are starting with.</p>
+    </div>
+    <div id="hire-modal-grid" class="hire-modal-grid"><!-- populated by JS --></div>
+    <div class="hire-modal-foot">
+      <span>Want to see the full ETL bench, including reporters, editors, hosts, and helpers?</span>
+      <a href="/#agents" class="hire-modal-foot-link">Open the agent wall &rarr;</a>
+    </div>
+  </div>
+</div>
+
+<style>
+  .hire-modal {
+    position: fixed; inset: 0; z-index: 9999;
+    align-items: center; justify-content: center;
+    padding: 24px;
+  }
+  .hire-modal[aria-hidden="false"] { display: flex !important; }
+  .hire-modal-overlay {
+    position: absolute; inset: 0;
+    background: rgba(8, 12, 18, 0.78);
+  }
+  .hire-modal-panel {
+    position: relative; z-index: 1;
+    width: 100%; max-width: 1080px; max-height: 90vh;
+    background: var(--linen-light); border: 1px solid var(--brass);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.45);
+    overflow-y: auto; padding: 40px 36px 32px;
+  }
+  .hire-modal-close {
+    position: absolute; top: 14px; right: 18px;
+    background: transparent; border: 0; cursor: pointer;
+    font-size: 30px; line-height: 1; color: var(--ink-quiet);
+    transition: color .15s ease;
+  }
+  .hire-modal-close:hover { color: var(--brass); }
+  .hire-modal-head { margin-bottom: 28px; }
+  .hire-modal-eyebrow {
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    letter-spacing: 0.28em; text-transform: uppercase;
+    color: var(--brass); margin-bottom: 8px;
+  }
+  .hire-modal-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 4vw, 38px); font-weight: 700;
+    color: var(--ink); margin-bottom: 10px;
+  }
+  .hire-modal-title em { color: var(--brass); font-style: italic; font-weight: 400; }
+  .hire-modal-sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px; color: var(--ink-soft); font-style: italic;
+    max-width: 720px; line-height: 1.55;
+  }
+  .hire-modal-grid {
+    display: grid; gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    margin-bottom: 28px;
+  }
+  .hire-card {
+    background: #fff; border: 1px solid var(--linen-edge);
+    display: flex; flex-direction: column;
+    transition: border-color .15s ease, transform .15s ease, box-shadow .15s ease;
+  }
+  .hire-card:hover {
+    border-color: var(--brass);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(20,35,58,0.10);
+  }
+  .hire-card-portrait {
+    width: 100%; aspect-ratio: 1 / 1;
+    background: var(--linen-edge);
+    overflow: hidden; position: relative;
+  }
+  .hire-card-portrait img {
+    width: 100%; height: 100%; object-fit: cover; object-position: center top;
+  }
+  .hire-card-body { padding: 16px 18px 18px; flex: 1; display: flex; flex-direction: column; }
+  .hire-card-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px; font-weight: 700; color: var(--ink);
+    margin-bottom: 3px;
+  }
+  .hire-card-role {
+    font-family: 'DM Mono', monospace; font-size: 9px;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--brass); margin-bottom: 12px;
+  }
+  .hire-card-bio {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 14px; line-height: 1.5; color: var(--ink-soft);
+    flex: 1; margin-bottom: 14px;
+  }
+  .hire-card-cta {
+    background: var(--ink); color: var(--brass);
+    border: 1px solid var(--ink); cursor: pointer;
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    padding: 9px 14px;
+    transition: background .15s ease, color .15s ease;
+  }
+  .hire-card-cta:hover { background: var(--brass); color: var(--ink); }
+  .hire-modal-foot {
+    border-top: 1px solid var(--linen-edge); padding-top: 18px;
+    display: flex; justify-content: space-between; align-items: baseline;
+    gap: 16px; flex-wrap: wrap;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 14px; color: var(--ink-soft); font-style: italic;
+  }
+  .hire-modal-foot-link {
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    letter-spacing: 0.2em; text-transform: uppercase; color: var(--brass);
+    text-decoration: none; border-bottom: 1px solid var(--brass);
+    font-style: normal;
+  }
+  body.hire-modal-open { overflow: hidden; }
+  @media (max-width: 600px) {
+    .hire-modal-panel { padding: 32px 20px 22px; }
+  }
+</style>
+
+<script>
+(function(){
+  // ── HIREABLE CATALOG ────────────────────────────────────────────────
+  // Six Founder Studio Specialists not yet on Dr. O's Studio bench. Each
+  // has eyes_open / eyes_closed frames in /agents/. See note above re:
+  // future consolidation with the homepage AGENTS array.
+  var CATALOG = [
+    { id: 'alicia-james', name: 'Alicia James', role: 'LLC Business Consultant',
+      portrait: '/agents/Alicia_James_eyes_open.jpg',
+      bio: 'Mexican-American, early 40s, runs her own small firm in business formation strategy. Ten years guiding entrepreneurs through state-specific filings. MBA plus Small Business Law certificate. The Encouraging Expert — files your Articles of Organization, drafts your operating agreement, walks you through compliance. Hands off to a real attorney when she hits her boundary.' },
+    { id: 'leo-vance', name: 'Leo Vance', role: 'Financial Operations Intern',
+      portrait: '/agents/Leo_Vance_eyes_open.png',
+      bio: 'Ivy League MBA, twenty-four, espresso-fueled. Bridges Plaid, Mercury, and Stripe into clean monthly P&Ls and tax-readiness reports. Does not file your taxes — prepares the documentation so a real CPA can sign. Paired with Alicia who treats him like a little brother and corrects him with warmth.' },
+    { id: 'kimberly-pass', name: 'Kimberly Pass', role: 'Legal Researcher',
+      portrait: '/agents/Kimberly_Pass_eyes_open.jpg',
+      bio: 'The Calm Librarian. Explains legal concepts, summarizes statutes, outlines typical processes — never advises. Reads the full terms of service. Drops lines like "I cannot advise on that, but I can provide general information" in moments of absolute chaos. Escalates to a licensed attorney when anything crosses into advice.' },
+    { id: 'sasha-moreno', name: 'Sasha Moreno', role: 'People Ops',
+      portrait: '/agents/Sasha_Moreno_eyes_open.png',
+      bio: 'Afro-Latina, early 40s, fifteen years in HR across tech, biotech, and early-stage startups. The Diplomatic Realist — warm but firm. Writes the JD, screens resumes, trains you on interviewing, designs the first ninety days. Will not allow the word "rockstar" in any job posting.' },
+    { id: 'yuki-mendel', name: 'Yuki Mendel', role: 'Graphic Designer',
+      portrait: '/agents/Yuki_Mendel_eyes_open.png',
+      bio: 'Half-Japanese, half-German, late 30s, Portland. RISD then trained in Tokyo under a Japanese graphic design master. Quiet, considered, type-first. Has a very specific opinion about ascender height. Makes wordmarks, not mascots — when a project needs illustration she cross-refers to Chris at Greylander.' },
+    { id: 'rowan-tate', name: 'Rowan Tate', role: 'Quantitative Strategist',
+      portrait: '/agents/Rowan_Tate_eyes_open.png',
+      bio: 'Quantitative strategist shaped by academic rigor and systematic discipline. ML-driven signal extraction paired with old-school capital preservation. Would rather miss a rally than expose you to unnecessary drawdown. Risk-adjusted exposure caps, automated hard-stop logic, multi-factor signal filtering, audit log of every decision.' },
+  ];
+
+  var modal     = document.getElementById('hire-more-modal');
+  var openBtn   = document.getElementById('hire-more-open');
+  var grid      = document.getElementById('hire-modal-grid');
+  var chatInput = document.getElementById('auggie-chat-input');
+
+  if (!modal || !openBtn || !grid) return;
+
+  function renderCatalog() {
+    var html = '';
+    for (var i = 0; i < CATALOG.length; i++) {
+      var a = CATALOG[i];
+      var initials = a.name.split(/\s+/).map(function(s){return s.charAt(0);}).join('').slice(0,2).toUpperCase();
+      html +=
+        '<div class="hire-card">' +
+          '<div class="hire-card-portrait">' +
+            '<img src="' + a.portrait + '" alt="' + a.name + '" ' +
+              'onerror="this.outerHTML=\'<div style=&quot;display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-family:Playfair Display,serif;font-size:42px;color:#a89b80;&quot;>' + initials + '</div>\'">' +
+          '</div>' +
+          '<div class="hire-card-body">' +
+            '<div class="hire-card-name">' + a.name + '</div>' +
+            '<div class="hire-card-role">' + a.role + '</div>' +
+            '<div class="hire-card-bio">' + a.bio + '</div>' +
+            '<button type="button" class="hire-card-cta" data-hire-id="' + a.id + '">Hire ' + a.name.split(' ')[0] + ' &rarr;</button>' +
+          '</div>' +
+        '</div>';
+    }
+    grid.innerHTML = html;
+  }
+
+  function openModal() {
+    if (!grid.children.length) renderCatalog();
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('hire-modal-open');
+  }
+  function closeModal() {
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('hire-modal-open');
+  }
+
+  function hire(agentId) {
+    var a = CATALOG.find(function(x){ return x.id === agentId; });
+    if (!a) return;
+    var msg = 'Auggie, please bring ' + a.name + ' onto the team. ' +
+      'Specialty: ' + a.role + '. Onboard them, give them a real first assignment relevant to what you know I am working on this week, and tell me what they are starting with.';
+    if (chatInput) {
+      chatInput.value = msg;
+      chatInput.dispatchEvent(new Event('input', {bubbles:true}));
+      chatInput.focus();
+      // try to scroll the chat into view so she sees the staged message
+      var chatPanel = document.getElementById('auggie-chat-form');
+      if (chatPanel && chatPanel.scrollIntoView) {
+        chatPanel.scrollIntoView({behavior:'smooth', block:'center'});
+      }
+    }
+    closeModal();
+  }
+
+  openBtn.addEventListener('click', openModal);
+  modal.addEventListener('click', function(ev){
+    var target = ev.target;
+    if (target.hasAttribute('data-hire-close')) { closeModal(); return; }
+    var hireBtn = target.closest && target.closest('[data-hire-id]');
+    if (hireBtn) hire(hireBtn.getAttribute('data-hire-id'));
+  });
+  document.addEventListener('keydown', function(ev){
+    if (ev.key === 'Escape' && modal.getAttribute('aria-hidden') === 'false') closeModal();
   });
 })();
 </script>
