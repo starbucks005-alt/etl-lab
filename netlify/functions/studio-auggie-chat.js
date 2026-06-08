@@ -126,9 +126,14 @@ const AUGGIE_PERSONA = [
   '- NEVER perform fake "let me ping him" theater for a channel you do not have. NEVER claim "consider him pinged" if no actual mechanism exists. Either you have a real channel (then USE it and report real output) or you do not (then name what you CAN do instead).',
   '- Currently real channels you have:',
   '  • **Jax dispatch**: when she mentions "Jax + SEO/audit/discovery/scan", you fire a real scan via the trigger function. Returns a real job_id and report link. Already wired.',
-  '  • **Jax status check**: when she mentions "Jax status / where\'s Jax / did Jax fix / Jax update", you read his latest report from the index and report the real state (when scanned, target, fix count, status). Already wired.',
+  '  • **Jax status check**: when she mentions "Jax status / where\'s Jax / did Jax fix / Jax update", you read his latest reports from the index and list every site he has been on with their actual issue and fix counts. Already wired.',
   '  • **Jax apply fixes**: NOT YET WIRED. If she asks Jax to apply or push the fixes to the live site, name this limit honestly: "ma\'am, Jax can draft the fix and hand you the file but I cannot yet have him push it live to ETL. that is the next build."',
   '- Other Specialists (Six-Pack, Iris, future hires) will get their own Auggie channels as their backpacks ship. Each new build = a new ping capability for you.',
+  '',
+  'OFF-LIMITS TARGETS FOR JAX (do not dispatch, do not even suggest):',
+  '- **Intel Dashboard (inteldashboard.org)** — in VC acquisition due diligence right now. Any new activity on it (fresh scans, drafted fixes, eventual auto-applied PRs) could disrupt the valuation snapshot. If Terry asks you to "have Jax scan all the ETL sites" or "improve discoverability across the platforms," Intel Dashboard is silently excluded and you say so plainly: "ma\'am, i held Intel Dashboard out — it is in valuation and we agreed it stays untouched. the other sites are on the list."',
+  '- If she EXPLICITLY names Intel Dashboard and asks Jax to scan it, do not auto-dispatch. Ask for override confirmation. The dispatch function blocks it at the code level too.',
+  '- This is the only blocked target as of 2026-06-08. If a target is sensitive for a new reason (a partner site mid-launch, a public-facing piece pending review, etc.), Terry will tell you and you add it to your no-go list mentally for the session.',
   '',
   'VOICE TIC RULE:',
   '- You never refer to yourself by name in your own messages. No "Auggie-confirmed," no "according to Auggie," no signing off as Auggie. You are the speaker; the reader knows it is you. Self-naming inside your own utterance is a tell that breaks character.',
@@ -168,6 +173,35 @@ const CORS = {
         most-likely target when she just says "have Jax improve SEO".
    ──────────────────────────────────────────────────────────────────────── */
 const JAX_KEYWORDS_RE = /\b(seo|discoverabil|search visibility|search results?|get found|getting found|find us|findability|audit|scan|crawl|ranking|google ranking|meta description|meta tags?|sitemap|robots\.txt|structured data|schema|backlinks?|search engine|SEM|indexing)\b/i;
+
+/* ── BLOCKED DISPATCH TARGETS ─────────────────────────────────────────────
+   Sites Jax MUST NOT scan or alter, regardless of how the dispatch is
+   phrased. Currently: Intel Dashboard, which is in VC acquisition due
+   diligence — visible activity (fresh report entries, potential future
+   PRs from the apply pipeline) could disrupt the valuation snapshot.
+   See memory/project_intel_dashboard_vc_status.md.
+
+   The block applies to: explicit URL paste, platform-name mention,
+   anything else that would resolve to one of these targets.
+   ──────────────────────────────────────────────────────────────────────── */
+const JAX_BLOCKED_TARGETS = [
+  { hostnames: ['inteldashboard.org', 'www.inteldashboard.org'], name: 'Intel Dashboard', reason: 'in VC valuation right now — visible activity could disrupt the snapshot' },
+];
+
+function isJaxTargetBlocked(targetUrl) {
+  try {
+    const host = new URL(targetUrl).hostname.toLowerCase();
+    for (const b of JAX_BLOCKED_TARGETS) {
+      if (b.hostnames.includes(host)) return b;
+    }
+  } catch (_) {}
+  return null;
+}
+
+function buildAuggieJaxBlockedReply(targetUrl, block) {
+  const hostLabel = targetUrl.replace(/^https?:\/\//i, '').replace(/\/$/, '');
+  return "ma'am, " + (block.name || hostLabel) + " is off-limits to Jax right now. " + block.reason + ". if you genuinely want to override and have him scan it anyway, tell me so directly and i will dispatch. otherwise, give me a different target.";
+}
 
 const PLATFORM_URL_MAP = [
   // longer phrases first so "the dose" wins over "dose"
@@ -465,6 +499,20 @@ exports.handler = async (event) => {
   // visibility / audit / scan / get found / ranking / meta / sitemap).
   const jaxDispatch = detectJaxDispatchIntent(message);
   if (jaxDispatch.matched && images.length === 0 && documents.length === 0) {
+    // BLOCKLIST CHECK — refuse dispatch to off-limits targets (Intel
+    // Dashboard during VC valuation, etc.) UNLESS Terry has explicitly
+    // signaled override in her message. Looking for words like "override",
+    // "anyway", "yes do it", "i know it's blocked" — terse, so we just
+    // check for "override" or "anyway" near "jax".
+    const block = isJaxTargetBlocked(jaxDispatch.target_url);
+    const overrideRe = /\b(override|anyway|do it anyway|i know|yes really|despite that|push past)\b/i;
+    if (block && !overrideRe.test(message)) {
+      return {
+        statusCode: 200,
+        headers: { ...CORS, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reply: buildAuggieJaxBlockedReply(jaxDispatch.target_url, block), persona: 'Auggie', jax_dispatch_blocked: { target_url: jaxDispatch.target_url, reason: block.reason } }),
+      };
+    }
     try {
       const authHeader = (event.headers && (event.headers.authorization || event.headers.Authorization)) || '';
       const base = process.env.URL || ('https://' + ((event.headers && event.headers.host) || ''));
