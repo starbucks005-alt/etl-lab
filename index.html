@@ -1037,6 +1037,103 @@ document.addEventListener('DOMContentLoaded', function(){
   });
 </script>
 
+<!-- ─────────────────────────────────────────────────────────────────────────
+     ETL TAB BAR. Five-tab chrome: Home / Live Platforms / AI Agents / Store /
+     About Dr. O. Sits directly under the main nav. Each top-level section on
+     the page is tagged with data-tab=""; the body's data-active-tab attribute
+     controls which sections render. Existing in-page anchor links (e.g.
+     #talks, #publications, #network) continue to work — clicking one switches
+     to the owning tab first, then scrolls to the section.
+     ───────────────────────────────────────────────────────────────────── -->
+<nav class="etl-tabs" id="etl-tabs" aria-label="Site sections">
+  <button class="etl-tab" data-tab="home" type="button">Home</button>
+  <button class="etl-tab" data-tab="platforms" type="button">Live Platforms</button>
+  <button class="etl-tab" data-tab="agents" type="button">AI Agents</button>
+  <button class="etl-tab" data-tab="store" type="button">Store</button>
+  <button class="etl-tab" data-tab="about" type="button">About Dr. O</button>
+</nav>
+<style>
+  .etl-tabs {
+    position: sticky; top: 60px; z-index: 998;
+    display: flex; gap: 0; padding: 0 24px;
+    background: #0a0a0a; border-bottom: 1px solid rgba(253,184,39,0.35);
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .etl-tabs::-webkit-scrollbar { display: none; }
+  .etl-tab {
+    flex: 0 0 auto;
+    background: transparent; border: 0; cursor: pointer;
+    padding: 14px 22px;
+    font-family: 'Oswald', sans-serif; font-size: 12px;
+    letter-spacing: 2.2px; text-transform: uppercase;
+    color: #c9c2b3; border-bottom: 2px solid transparent;
+    transition: color .15s ease, border-color .15s ease, background .15s ease;
+  }
+  .etl-tab:hover { color: #fff; background: rgba(253,184,39,0.06); }
+  .etl-tab.is-active { color: #FDB827; border-bottom-color: #FDB827; }
+  .etl-tab:focus-visible { outline: 2px solid #FDB827; outline-offset: -4px; }
+
+  /* Tab-content gating. Each top-level section is tagged with data-tab="...".
+     When the body has data-active-tab, hide every [data-tab] that doesn't match. */
+  body[data-active-tab="home"]      [data-tab]:not([data-tab="home"]),
+  body[data-active-tab="platforms"] [data-tab]:not([data-tab="platforms"]),
+  body[data-active-tab="agents"]    [data-tab]:not([data-tab="agents"]),
+  body[data-active-tab="store"]     [data-tab]:not([data-tab="store"]),
+  body[data-active-tab="about"]     [data-tab]:not([data-tab="about"]) {
+    display: none !important;
+  }
+
+  @media (max-width: 600px) {
+    .etl-tabs { padding: 0 8px; }
+    .etl-tab { padding: 12px 14px; font-size: 11px; letter-spacing: 1.8px; }
+  }
+</style>
+<script>
+  (function(){
+    var VALID = ['home','platforms','agents','store','about'];
+    function setTab(name, opts){
+      opts = opts || {};
+      if (VALID.indexOf(name) < 0) name = 'home';
+      document.body.setAttribute('data-active-tab', name);
+      var btns = document.querySelectorAll('.etl-tab');
+      for (var i = 0; i < btns.length; i++) {
+        btns[i].classList.toggle('is-active', btns[i].getAttribute('data-tab') === name);
+      }
+      if (opts.updateHash !== false && location.hash !== '#' + name) {
+        history.replaceState(null, '', '#' + name);
+      }
+      if (opts.scroll !== false) window.scrollTo({top: 0, behavior: 'instant'});
+    }
+    // If a hash maps to a section id (not a tab name), find that section's
+    // owning tab and switch to it, then scroll to the anchor.
+    function routeFromHash(hash){
+      var id = (hash || '').replace(/^#/, '');
+      if (!id) return setTab('home');
+      if (VALID.indexOf(id) >= 0) return setTab(id);
+      var el = document.getElementById(id);
+      if (!el) return setTab('home');
+      var owner = el.closest('[data-tab]');
+      var tab = owner ? owner.getAttribute('data-tab') : null;
+      if (!tab) return setTab('home');
+      setTab(tab, {updateHash: false, scroll: false});
+      setTimeout(function(){ el.scrollIntoView({behavior:'smooth', block:'start'}); }, 60);
+    }
+    // Wire tab buttons
+    document.addEventListener('DOMContentLoaded', function(){
+      var btns = document.querySelectorAll('.etl-tab');
+      for (var i = 0; i < btns.length; i++) {
+        btns[i].addEventListener('click', function(ev){
+          setTab(this.getAttribute('data-tab'));
+        });
+      }
+    });
+    window.addEventListener('hashchange', function(){ routeFromHash(location.hash); });
+    // Initial routing — run immediately so first paint shows correct tab
+    routeFromHash(location.hash);
+  })();
+</script>
+
 <!-- TICKER (sits directly under the nav, above the hero) -->
 <div class="ticker-wrap">
   <div class="ticker-content">
@@ -1045,7 +1142,7 @@ document.addEventListener('DOMContentLoaded', function(){
 </div>
 
 <!-- HERO -->
-<div id="hero">
+<div id="hero" data-tab="home">
   <div class="hex-bg"></div>
   <div class="hero-gradient"></div>
   <div class="hero-grid-lines"></div>
@@ -1085,7 +1182,7 @@ document.addEventListener('DOMContentLoaded', function(){
      Mirrors the order of evidence on Dr. Oroszi's CV: identity statement,
      then Harvard Kennedy School as the lead credential.
      ───────────────────────────────────────────────────────────────────── -->
-<section id="latest-credential" style="background:#0a0a0a; padding:14px 32px; border-bottom:1px solid rgba(253,184,39,0.4);">
+<section id="latest-credential" data-tab="home" style="background:#0a0a0a; padding:14px 32px; border-bottom:1px solid rgba(253,184,39,0.4);">
   <div style="max-width:1180px; margin:0 auto; display:flex; flex-wrap:wrap; gap:10px 24px; align-items:center; justify-content:center; text-align:center;">
     <span style="font-family:'Oswald',sans-serif; font-size:10px; letter-spacing:4px; color:#FDB827; text-transform:uppercase;">Latest Credential</span>
     <span style="font-family:'Oswald',sans-serif; font-size:13px; letter-spacing:1.5px; color:#fff; text-transform:uppercase; font-weight:600;">Harvard Kennedy School of Government</span>
@@ -1115,7 +1212,7 @@ document.addEventListener('DOMContentLoaded', function(){
   .briefing-share a:hover, .briefing-share button:hover { background: #b8922a; color: #fff; }
   .briefing-share .copied { color: #3a6a2a; border-color: #3a6a2a; }
 </style>
-<section class="briefing-band" id="briefing-card" aria-label="5 in Under 5 audio briefing">
+<section class="briefing-band" id="briefing-card" data-tab="home" aria-label="5 in Under 5 audio briefing">
   <div class="briefing-band-inner">
     <div>
       <div class="briefing-band-eyebrow">Above the Fold &middot; Morning briefing from the <a href="/press" style="color:#d4aa4a;text-decoration:underline;">ETL Newswire</a> desk</div>
@@ -1736,7 +1833,7 @@ document.addEventListener('DOMContentLoaded', function(){
   }
   .etl-network .etl-net-link2:hover { background: var(--green-bright); color: #fff; border-color: var(--green-bright); }
 </style>
-<section class="section-full etl-network" id="network">
+<section class="section-full etl-network" id="network" data-tab="platforms">
   <div class="section-full-inner">
     <div class="section-tag">The ETL Network</div>
     <h2 class="section-title">Live <span>Platforms</span></h2>
@@ -2155,7 +2252,7 @@ document.addEventListener('DOMContentLoaded', function(){
      layers, name the foundational method. Agent Architecture and AI
      Governance Programs come after Live Platforms in later sections.
      ───────────────────────────────────────────────────────────────────── -->
-<section id="obs-discipline" class="section-full" style="background:#0a0a0a; color:#f4ebd6;">
+<section id="obs-discipline" class="section-full" data-tab="home" style="background:#0a0a0a; color:#f4ebd6;">
   <div class="section-full-inner">
     <div class="section-tag" style="color:#FDB827;">The Discipline</div>
     <h2 class="section-title" style="color:#ffffff;">Operational <span style="color:#FDB827;">Behavioral Science</span></h2>
@@ -2165,7 +2262,7 @@ document.addEventListener('DOMContentLoaded', function(){
   </div>
 </section>
 
-<section id="identity-stack" class="section-full" style="background:#f4ebd6;">
+<section id="identity-stack" class="section-full" data-tab="home" style="background:#f4ebd6;">
   <div class="section-full-inner">
     <div class="section-tag">The ETL Identity Stack</div>
     <h2 class="section-title">Three Layers <span>Underneath</span></h2>
@@ -2192,7 +2289,7 @@ document.addEventListener('DOMContentLoaded', function(){
   </div>
 </section>
 
-<section id="slr-method" class="section-full" style="background:#fafaf6;">
+<section id="slr-method" class="section-full" data-tab="home" style="background:#fafaf6;">
   <div class="section-full-inner">
     <div class="section-tag">Foundational Methodology</div>
     <h2 class="section-title">The <span>SLR Method</span></h2>
@@ -2209,7 +2306,7 @@ document.addEventListener('DOMContentLoaded', function(){
      block below. Names the creative method behind every agent and lists
      who lives on the lab's stack.
      ───────────────────────────────────────────────────────────────────── -->
-<section id="agent-architecture" class="section-full" style="background:#0a0a0a; color:#f4ebd6;">
+<section id="agent-architecture" class="section-full" data-tab="home" style="background:#0a0a0a; color:#f4ebd6;">
   <div class="section-full-inner">
     <div class="section-tag" style="color:#FDB827;">The Creative Method</div>
     <h2 class="section-title" style="color:#ffffff;">Agent <span style="color:#FDB827;">Architecture</span></h2>
@@ -2228,7 +2325,7 @@ document.addEventListener('DOMContentLoaded', function(){
      Four sub-blocks: research, policy/security, Forbes portfolio,
      national security advisory work.
      ───────────────────────────────────────────────────────────────────── -->
-<section id="ai-governance" class="section-full" style="background:#f4ebd6;">
+<section id="ai-governance" class="section-full" data-tab="home" style="background:#f4ebd6;">
   <div class="section-full-inner">
     <div class="section-tag">Programs &middot; Group 05</div>
     <h2 class="section-title">AI Governance <span>and Risk Programs</span></h2>
@@ -2272,7 +2369,7 @@ document.addEventListener('DOMContentLoaded', function(){
      PA product the lab will offer. Standard skills + domain add-ons
      (Author, Professor, Business, Stocks). Meet Auggie below.
      ───────────────────────────────────────────────────────────────────── -->
-<section id="etl-pa" class="section-full" style="background:#0e0c08; color:#f4ebd6;">
+<section id="etl-pa" class="section-full" data-tab="home" style="background:#0e0c08; color:#f4ebd6;">
   <div class="section-full-inner">
     <div class="section-tag" style="color:#FDB827;">Act II &middot; After The Gauntlet</div>
     <h2 class="section-title" style="color:#ffffff;">Founder <span style="color:#FDB827;">Studio</span></h2>
@@ -2447,7 +2544,7 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
 
 
 <!-- PLAYBOOKS: CROSS-PLATFORM USE-CASE PIPELINES -->
-<section id="playbooks-callout" style="padding:48px 60px; background:#161310; color:#f3ecdc;">
+<section id="playbooks-callout" data-tab="home" style="padding:48px 60px; background:#161310; color:#f3ecdc;">
   <div style="max-width:1200px; margin:0 auto; padding:0 60px; display:grid; grid-template-columns: 1fr auto; gap:32px 60px; align-items:center;">
     <div>
       <div style="font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:4px; color:#d4aa4a; text-transform:uppercase; margin-bottom:10px;">ETL · CROSS-PLATFORM PLAYBOOKS</div>
@@ -2460,7 +2557,7 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
 
 
 <!-- AI TWIN INTRODUCTION -->
-<section id="ai-twin" style="padding:80px 60px; background:#ffffff; border-bottom:1px solid #ddd; max-width:100%;">
+<section id="ai-twin" data-tab="home" style="padding:80px 60px; background:#ffffff; border-bottom:1px solid #ddd; max-width:100%;">
   <div style="max-width:1200px; margin:0 auto; padding:0 60px;">
     <div style="display:grid; grid-template-columns:3fr 2fr; gap:60px; align-items:center;">
 
@@ -2518,7 +2615,7 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
 </section>
 
 <!-- GRADUATE RESEARCH TEAM -->
-<section id="team">
+<section id="team" data-tab="agents">
   <div class="section-tag">Research Operatives</div>
   <h2 class="section-title">Graduate <span>Research Team</span></h2>
   <p class="section-subtitle">ETL-affiliated graduate researchers</p>
@@ -2845,7 +2942,7 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
 </section>
 
 <!-- RESEARCH DIRECTIVES -->
-<div class="section-full" id="research">
+<div class="section-full" id="research" data-tab="about">
   <div class="section-full-inner">
     <div class="section-tag">Active Operations</div>
     <h2 class="section-title">Research <span>Directives</span></h2>
@@ -2917,7 +3014,7 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
 </div>
 
 <!-- DIRECTOR DOSSIER -->
-<section id="director">
+<section id="director" data-tab="about">
   <div class="section-tag">Personnel File</div>
   <h2 class="section-title">Principal <span>Investigator</span></h2>
   <p class="section-subtitle">Cleared for public release</p>
@@ -3042,7 +3139,7 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
 </section>
 
 <!-- RECOGNITION & AFFILIATIONS -->
-<section id="recognition" style="padding:80px max(2.5rem, calc((100% - 900px) / 2));width:100%;">
+<section id="recognition" data-tab="about" style="padding:80px max(2.5rem, calc((100% - 900px) / 2));width:100%;">
   <div class="section-tag">Dossier</div>
   <h2 class="section-title">Recognition &amp; <span>Affiliations</span></h2>
 
@@ -3076,7 +3173,7 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
 </section>
 
 <!-- SPECIALIZED TRAINING & CERTIFICATIONS -->
-<section id="training" style="padding:80px max(2.5rem, calc((100% - 900px) / 2));width:100%;">
+<section id="training" data-tab="about" style="padding:80px max(2.5rem, calc((100% - 900px) / 2));width:100%;">
   <div class="section-tag">Credentials</div>
   <h2 class="section-title">Specialized <span>Training</span></h2>
 
@@ -3136,7 +3233,7 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
 
   .talk-pull-quote { font-family: 'Source Serif 4', Georgia, serif; font-style: italic; font-size: 15px; color: #d4d4d4; border-left: 2px solid #FDB827; padding-left: 14px; margin: 4px 0; }
 </style>
-<section id="talks">
+<section id="talks" data-tab="about">
   <div class="section-tag">On the Circuit</div>
   <h2 class="section-title">Talks &amp; <span>Keynotes</span></h2>
   <p class="section-subtitle">Selected public speaking on AI agents, security, emerging technology, and crisis leadership.</p>
@@ -3183,7 +3280,7 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
 </section>
 
 <!-- INTEL BRIEF: FEATURED ARTICLE -->
-<section id="intel">
+<section id="intel" data-tab="about">
   <div class="section-tag">Latest Intel</div>
   <h2 class="section-title">Featured <span>Intelligence</span></h2>
   <p class="section-subtitle">Most recent public briefing from ETL PI Dr. Terry L. Oroszi</p>
@@ -3218,7 +3315,7 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
 </section>
 
 <!-- PUBLICATIONS -->
-<div class="section-full" id="publications">
+<div class="section-full" id="publications" data-tab="about">
   <div class="section-full-inner">
     <div class="section-tag">Research Output</div>
     <h2 class="section-title">Publications &amp; <span>Forbes Articles</span></h2>
@@ -3722,8 +3819,166 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
      prospects landing there see both the tool and how she teaches it). -->
 
 
+<!-- ─────────────────────────────────────────────────────────────────────────
+     STORE TAB. Catalog of ETL products. Organized by audience/function (NOT
+     by price). Currently-free products show a "Free" badge; paid-intent
+     products show pricing if locked or "Pricing soon" if not. MVP shipped
+     with 6 cards; aisles grow as more products productize.
+     See memory/project_etl_store_structure.md for canonical rules.
+     ───────────────────────────────────────────────────────────────────── -->
+<section id="store" data-tab="store" class="etl-store" style="background:#0e0c08; color:#f4ebd6; padding:72px 24px 96px;">
+  <div style="max-width:1180px; margin:0 auto;">
+    <div style="text-align:center; margin-bottom:56px;">
+      <div style="font-family:'Oswald',sans-serif; font-size:11px; letter-spacing:4px; color:#FDB827; text-transform:uppercase; margin-bottom:14px;">The Store</div>
+      <h2 style="font-family:'Oswald',sans-serif; font-size:clamp(34px, 5vw, 52px); font-weight:700; color:#fff; letter-spacing:1px; margin-bottom:14px;">Every product the lab ships</h2>
+      <p style="font-family:'Inter',sans-serif; font-size:16px; color:#d6cfc0; max-width:680px; margin:0 auto;">Each shelf is organized by who it serves. Some products are paid, some are free, some are coming. Click any card to enter.</p>
+    </div>
+
+    <div class="etl-store-grid">
+      <!-- Mission Possible Spy Academy -->
+      <a class="etl-store-card" href="https://www.missionpossibleacademy.org/" target="_blank" rel="noopener">
+        <div class="etl-store-card-aisle">Training &amp; Learning</div>
+        <div class="etl-store-card-name">Mission Possible Spy Academy</div>
+        <div class="etl-store-card-tag">10-Ribbon Pipeline · Field Commander Certification</div>
+        <div class="etl-store-card-desc">Elite civilian operative training. Bio + Syn faculty. Six months of structured tradecraft across analysis, profiling, strategy, deception, and integration. Real faculty. Real ribbons. Pro Bono Non Malo.</div>
+        <div class="etl-store-card-foot">
+          <span class="etl-store-card-price">$349/ribbon · $2,100 full pipeline</span>
+          <span class="etl-store-card-cta">Enter the Academy →</span>
+        </div>
+      </a>
+
+      <!-- Founder Studio (Act II) -->
+      <a class="etl-store-card" href="/founder-studio.html">
+        <div class="etl-store-card-aisle">For Founders · Act II</div>
+        <div class="etl-store-card-name">Founder Studio</div>
+        <div class="etl-store-card-tag">Build your AI company</div>
+        <div class="etl-store-card-desc">Your PA Auggie plus the Essential Staff Six-Pack plus two Specialist hires from the bench of 65. A 10-person operation. Less than $1K a month, staff salary included. From idea to company. No guesswork.</div>
+        <div class="etl-store-card-foot">
+          <span class="etl-store-card-price">$500/mo (10-seat default)</span>
+          <span class="etl-store-card-cta">See Founder Studio →</span>
+        </div>
+      </a>
+
+      <!-- The Gauntlet (Act I) -->
+      <a class="etl-store-card" href="https://thegauntlet.studio" target="_blank" rel="noopener">
+        <div class="etl-store-card-aisle">For Founders · Act I</div>
+        <div class="etl-store-card-name">The Gauntlet</div>
+        <div class="etl-store-card-tag">Get an idea worth building</div>
+        <div class="etl-store-card-desc">Nine domain judges. One stage. Your idea, evaluated for clarity, novelty, audience, and traction. Walk out with a real concept tested against people who know the field. Then take it to Founder Studio.</div>
+        <div class="etl-store-card-foot">
+          <span class="etl-store-card-price">Pricing soon</span>
+          <span class="etl-store-card-cta">Enter the Gauntlet →</span>
+        </div>
+      </a>
+
+      <!-- Intel Dashboard -->
+      <a class="etl-store-card" href="https://inteldashboard.org/" target="_blank" rel="noopener">
+        <div class="etl-store-card-aisle">Intel &amp; OPSEC</div>
+        <div class="etl-store-card-name">Intel Dashboard</div>
+        <div class="etl-store-card-tag">18-module analyst suite</div>
+        <div class="etl-store-card-desc">Source reliability scoring, multi-source corroboration, deception indicators, timeline reconstruction, actor network mapping, OPSEC risk scan, intel-specific SLR. Branded deliverables ready for command.</div>
+        <div class="etl-store-card-foot">
+          <span class="etl-store-card-price">Live</span>
+          <span class="etl-store-card-cta">Open the Dashboard →</span>
+        </div>
+      </a>
+
+      <!-- Office Hours -->
+      <a class="etl-store-card" href="/office-hours">
+        <div class="etl-store-card-aisle">For Researchers</div>
+        <div class="etl-store-card-name">Office Hours</div>
+        <div class="etl-store-card-tag">22-tool faculty research suite</div>
+        <div class="etl-store-card-desc">AI-Simulated Reviewer Panel, Methods Coach, Coherence Check, Cite-Check, Journal Finder, Resubmission Builder, Tenure Dossier Helper, and more. Built for academics and industry R&amp;D alike.</div>
+        <div class="etl-store-card-foot">
+          <span class="etl-store-card-price">Free · No login</span>
+          <span class="etl-store-card-cta">Visit Office Hours →</span>
+        </div>
+      </a>
+
+      <!-- Prep Room + Boardroom -->
+      <div class="etl-store-card etl-store-card-double">
+        <div class="etl-store-card-aisle">Career Prep · Free · No Upsell</div>
+        <div class="etl-store-card-name">The Prep Room <span style="opacity:0.5;">&amp;</span> The Boardroom</div>
+        <div class="etl-store-card-tag">Practice the hard parts before they count</div>
+        <div class="etl-store-card-desc">Sibling platforms. <strong style="color:#FDB827;">Prep Room</strong> for students — dissertation defense, early-career interviews, CV review from Charles Monroe. <strong style="color:#FDB827;">Boardroom</strong> for professionals — executive interviews, sector-standard CV, live executive postings.</div>
+        <div class="etl-store-card-foot" style="display:flex; gap:10px; flex-wrap:wrap;">
+          <a class="etl-store-card-cta etl-store-card-cta-btn" href="/prep-room">Prep Room →</a>
+          <a class="etl-store-card-cta etl-store-card-cta-btn" href="/boardroom">Boardroom →</a>
+        </div>
+      </div>
+    </div>
+
+    <p style="margin-top:48px; text-align:center; font-family:'Inter',sans-serif; font-size:14px; color:#9a9180;">More on the shelves soon. NVBL Body Language Course · Leadership card games · OPSEC Gauntlet · The Dose · Greylander Press · ETL Newswire · à-la-carte Specialist hires.</p>
+  </div>
+</section>
+
+<style>
+  .etl-store-grid {
+    display: grid; gap: 22px;
+    grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+  }
+  .etl-store-card {
+    display: flex; flex-direction: column;
+    background: #f4ebd6; color: #111; text-decoration: none;
+    border: 1px solid rgba(253,184,39,0.45);
+    padding: 26px 24px 22px;
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    position: relative; overflow: hidden;
+  }
+  .etl-store-card::before {
+    content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
+    background: #FDB827; transform: scaleY(0); transform-origin: bottom;
+    transition: transform .25s ease;
+  }
+  .etl-store-card:hover {
+    transform: translateY(-3px); border-color: #FDB827;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.35);
+  }
+  .etl-store-card:hover::before { transform: scaleY(1); }
+  .etl-store-card-double { grid-column: span 2; }
+  @media (max-width: 700px) {
+    .etl-store-card-double { grid-column: span 1; }
+  }
+  .etl-store-card-aisle {
+    font-family: 'Oswald', sans-serif; font-size: 10px;
+    letter-spacing: 2.6px; text-transform: uppercase;
+    color: #285C4D; margin-bottom: 10px;
+  }
+  .etl-store-card-name {
+    font-family: 'Oswald', sans-serif; font-size: 26px; font-weight: 700;
+    color: #111; line-height: 1.15; margin-bottom: 4px;
+  }
+  .etl-store-card-tag {
+    font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600;
+    color: #555; margin-bottom: 14px;
+  }
+  .etl-store-card-desc {
+    font-family: 'Inter', sans-serif; font-size: 14px; line-height: 1.55;
+    color: #333; flex: 1; margin-bottom: 18px;
+  }
+  .etl-store-card-foot {
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 12px; flex-wrap: wrap;
+    border-top: 1px solid rgba(0,0,0,0.1); padding-top: 14px;
+  }
+  .etl-store-card-price {
+    font-family: 'Share Tech Mono', monospace; font-size: 12px;
+    color: #285C4D; letter-spacing: 0.5px;
+  }
+  .etl-store-card-cta {
+    font-family: 'Oswald', sans-serif; font-size: 12px; font-weight: 600;
+    color: #111; letter-spacing: 1.5px; text-transform: uppercase;
+  }
+  .etl-store-card-cta-btn {
+    text-decoration: none; background: #111; color: #FDB827;
+    padding: 8px 14px; border: 1px solid #111;
+    transition: background .15s ease, color .15s ease;
+  }
+  .etl-store-card-cta-btn:hover { background: #FDB827; color: #111; }
+</style>
+
 <!-- CONTACT -->
-<section id="contact">
+<section id="contact" data-tab="home">
   <div class="section-tag">Reach the Lab</div>
   <h2 class="section-title">Contact &amp; <span>Access</span></h2>
   <p class="section-subtitle">Collaboration requests, research inquiries, and student applications</p>
