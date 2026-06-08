@@ -1106,9 +1106,11 @@ document.addEventListener('DOMContentLoaded', function(){
      (they also carry data-tab attributes — without this, switching tabs
      would hide every button except the active one).
      CRITICAL #2: uses [data-tab~="name"] (whitespace-contains) so a section
-     can belong to MULTIPLE tabs via data-tab="platforms agents". The
-     network section uses this — its platform cards and the agent face wall
-     both live there, and both tabs are correct surfaces for that content. */
+     can belong to MULTIPLE tabs via data-tab="platforms agents". (As of
+     2026-06-08 no section dual-tags any more — Platforms and Agents have
+     fully separate sections per Terry's rule. The selector form stays as
+     [data-tab~="name"] so the option is available if a future section
+     needs to live on more than one tab.) */
   body[data-active-tab="home"]      [data-tab]:not([data-tab~="home"]):not(.etl-tab),
   body[data-active-tab="platforms"] [data-tab]:not([data-tab~="platforms"]):not(.etl-tab),
   body[data-active-tab="agents"]    [data-tab]:not([data-tab~="agents"]):not(.etl-tab),
@@ -1514,14 +1516,23 @@ document.addEventListener('DOMContentLoaded', function(){
     .etl-network .etl-net-card--wide { grid-template-columns: 1fr; }
   }
   .etl-network .etl-net-card--agents .etl-net-video {
-    padding-top: 0; height: auto;
-    min-height: 1180px; /* fits 71 faces + 9 domain headers (was 740px for 62 cluster-sorted) */
+    /* Was a fixed min-height with an absolute-positioned roster on top —
+       which truncated the bottom domains (HIRING / NEWS / PEACE) once the
+       roster grew past 1180px. Now the roster flows naturally and the
+       container grows with it. */
+    padding-top: 0;
+    height: auto;
+    min-height: 0;
+    position: static;
   }
   .etl-network .etl-net-roster {
-    position: absolute; inset: 0;
+    /* Was position:absolute; inset:0; justify-content:center — which both
+       capped the height AND centered each row. Terry wants left-justified
+       and not truncated. Now: natural flow inside the parent, left-aligned. */
+    position: relative;
     display: flex; flex-wrap: wrap;
     gap: 8px; padding: 16px;
-    align-content: flex-start; justify-content: center;
+    align-content: flex-start; justify-content: flex-start;
     background: radial-gradient(circle at 50% 40%, #1c1c1c 0%, #0c0c0c 100%);
   }
   .etl-network .etl-net-roster img {
@@ -1531,6 +1542,66 @@ document.addEventListener('DOMContentLoaded', function(){
     border: 2px solid #1a1a1a;
     box-shadow: 0 0 0 1px #2a2a2a, 0 2px 8px rgba(0,0,0,0.4);
     flex-shrink: 0;
+    /* Needed for the backpack badge's absolute child below */
+    position: relative;
+  }
+  /* MCP backpack agents — gold border + glow so even before noticing the
+     corner badge you read "this one is different." data-mcp="1" is set
+     in JS from AGENTS[i].tools (any non-empty tools array). */
+  .etl-network .etl-net-roster img[data-mcp="1"] {
+    border-color: #FDB827;
+    box-shadow: 0 0 0 1px #FDB827, 0 0 12px rgba(253,184,39,0.35), 0 2px 8px rgba(0,0,0,0.4);
+  }
+  /* Wrapper inserted by JS around each MCP avatar so the corner badge can
+     be absolutely positioned over the image. Regular staff stay as bare
+     <img> direct children of .etl-net-roster — no wrapper, no badge. */
+  .etl-net-roster .agent-tile {
+    position: relative;
+    display: inline-flex;
+    flex: 0 0 auto;
+    line-height: 0;
+  }
+  .etl-net-roster .agent-backpack-badge {
+    position: absolute;
+    right: -4px; bottom: -4px;
+    width: 26px; height: 26px;
+    line-height: 22px;
+    text-align: center;
+    font-size: 14px;
+    background: #FDB827;
+    color: #1a1a1a;
+    border-radius: 50%;
+    border: 2px solid #0c0c0c;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+    pointer-events: none;
+    z-index: 2;
+  }
+  /* Backpack legend chip under the description. Small, single-line,
+     no commentary needed — the icon + caption do the work. */
+  .etl-net-backpack-legend {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 10px 0 14px;
+    padding: 8px 12px;
+    background: rgba(253,184,39,0.08);
+    border: 1px solid rgba(253,184,39,0.35);
+    border-radius: 4px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #FDB827;
+  }
+  .etl-net-backpack-legend .legend-glyph {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px; height: 22px;
+    background: #FDB827;
+    color: #1a1a1a;
+    border-radius: 50%;
+    font-size: 13px;
   }
   /* Domain section header — spans the full flex row so each domain group
      sits below its label. Visually small, brand-coloured eyebrow style
@@ -1866,7 +1937,7 @@ document.addEventListener('DOMContentLoaded', function(){
   }
   .etl-network .etl-net-link2:hover { background: var(--green-bright); color: #fff; border-color: var(--green-bright); }
 </style>
-<section class="section-full etl-network" id="network" data-tab="platforms agents">
+<section class="section-full etl-network" id="network" data-tab="platforms">
   <div class="section-full-inner">
     <div class="section-tag">The ETL Network</div>
     <h2 class="section-title">Live <span>Platforms</span></h2>
@@ -2145,8 +2216,27 @@ document.addEventListener('DOMContentLoaded', function(){
         </div>
       </div>
 
-      <!-- Agents Roster (meta card, placed after all four R3 groups) -->
-      <div class="etl-net-card etl-net-card--agents" style="order: 20;">
+      <!-- Agents Roster card extracted into its own dedicated #agents
+           section just below. Under Live Platforms tab: only platforms.
+           Under AI Agents tab: only the face wall. Terry's rule. -->
+
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────────────────────────────────
+     AI AGENTS section. Dedicated tab content: just the face wall, the
+     description, and the backpack legend. Lives in its own <section> with
+     data-tab="agents" so the tab chrome shows ONLY this when AI Agents is
+     active. (Previously the card was mashed into the bottom of the Live
+     Platforms network grid, which made the Agents tab show platforms +
+     agents and the Platforms tab show platforms + agents — wrong on
+     both sides.)
+     ───────────────────────────────────────────────────────────────────── -->
+<section class="section-full etl-network etl-network--agents-only" id="agents" data-tab="agents">
+  <div class="section-full-inner">
+    <div class="etl-net-grid">
+      <div class="etl-net-card etl-net-card--agents">
         <div class="etl-net-video">
           <div class="etl-net-roster">
             <!-- ─── Sorted by domain. Within each domain, agents grouped by source
@@ -2194,7 +2284,7 @@ document.addEventListener('DOMContentLoaded', function(){
             <img src="agents/Margo.png" alt="Margo">
             <img src="agents/Chris_DIGArtist_Eyes3_Open.png" alt="Chris">
             <img src="agents/Jess_Ramirez.png" alt="Jess Ramirez" loading="lazy">
-            <img src="agents/Jules_Rivera.png" alt="Jules Rivera" loading="lazy">
+            <img src="agents/Mara_Rivera.png" alt="Mara Rivera" loading="lazy">
 
             <!-- Business, Founders &amp; Operations (12) -->
             <div class="etl-net-domain-header">Business, Founders &amp; Operations</div>
@@ -2262,11 +2352,14 @@ document.addEventListener('DOMContentLoaded', function(){
           <div class="etl-net-title">AI Agents</div>
           <div class="etl-net-tagline">Meet the team behind every platform</div>
           <p class="etl-net-desc">A full staff of AI employees across every platform. Two kinds work here. <strong>Regular staff</strong> live inside the website's framework and do their job within it. <strong>MCP staff</strong> (short for Model Context Protocol) carry a backpack, the way Maya carries her magic one in the children's book, and the backpack travels with them everywhere. It lets them go out to PubMed, the web, ClinicalTrials.gov, and government registries and bring back real evidence. Each with their own job, their own bio, their own voice. Click any face to read who they are and visit them in their home.</p>
+          <div class="etl-net-backpack-legend">
+            <span class="legend-glyph" aria-hidden="true">&#x1F392;</span>
+            Backpack = MCP &mdash; pulls live evidence
+          </div>
           <div class="etl-net-agents-hint">Click any avatar to open their bio</div>
           <a class="etl-net-launch" href="/agents/" target="_blank" rel="noopener">View the full Roster &rarr;</a>
         </div>
       </div>
-
     </div>
   </div>
 </section>
@@ -4317,7 +4410,7 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
       home: 'https://greylanderpress.com/jess-publicist.html',
       mcp: true,
       tools: ['BookTok campaign generator', 'B&N signing event package', 'Podcast tour list', 'ARC outreach + NetGalley', 'ETL Press Hub publishing'] },
-    { name: 'Jules Rivera', platform: 'ETL Newswire', role: 'Entertainment Desk Reporter',
+    { name: 'Mara Rivera', platform: 'ETL Newswire', role: 'Entertainment Desk Reporter',
       bio: 'Started reviewing for a local alt-weekly at nineteen and never quite stopped. Came up in the cultural-criticism tradition the Vulture and Los Angeles Review of Books generation built. Reads everything. Reviews with the warmth of a friend with taste and the candor of someone who has been wrong in print and learned from it.',
       home: 'https://emerging-tech-lab.com/press?desk=entertainment',
       mcp: true,
@@ -4572,6 +4665,29 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
     img.setAttribute('tabindex', '0');
     img.setAttribute('role', 'button');
     img.setAttribute('aria-label', 'Open bio for ' + (AGENTS[i] ? AGENTS[i].name : ('agent ' + (i+1))));
+    // Data-driven backpack marker: any agent whose AGENTS[idx].tools has live
+    // MCP tools (PubMed, web_search, CT.gov, etc.) gets data-mcp="1" and is
+    // wrapped in an .agent-tile span with a 🎒 corner badge. Regular staff
+    // stay as bare <img> direct children of .etl-net-roster — no wrapper.
+    // The roster NodeList is static, so wrapping mid-iteration is safe for
+    // the handler binding below. See memory/project_backpack_metaphor.md.
+    if (AGENTS[i] && Array.isArray(AGENTS[i].tools) && AGENTS[i].tools.length > 0) {
+      img.setAttribute('data-mcp', '1');
+      img.setAttribute('aria-label', img.getAttribute('aria-label') + ' (MCP backpack — pulls live evidence)');
+      var parent = img.parentNode;
+      if (parent && !(parent.classList && parent.classList.contains('agent-tile'))) {
+        var tile = document.createElement('span');
+        tile.className = 'agent-tile';
+        var badge = document.createElement('span');
+        badge.className = 'agent-backpack-badge';
+        badge.setAttribute('aria-hidden', 'true');
+        badge.title = 'MCP backpack — pulls live evidence';
+        badge.textContent = '🎒'; /* 🎒 */
+        parent.insertBefore(tile, img);
+        tile.appendChild(img);
+        tile.appendChild(badge);
+      }
+    }
     img.addEventListener('click', function(){ openAgent(i); });
     img.addEventListener('keydown', function(e){
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openAgent(i); }
@@ -4725,169 +4841,4 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
   #iris-thread {
     flex: 1; overflow-y: auto;
     padding: 14px 16px;
-    background: #fbf4e0;
-    font-family: 'Source Serif Pro', 'Source Serif 4', Georgia, serif;
-    font-size: 14px; line-height: 1.5;
-    color: #0e0c08;
-  }
-  .iris-msg {
-    margin-bottom: 12px;
-    padding: 8px 12px;
-    border-left: 3px solid transparent;
-  }
-  .iris-msg--theirs {
-    background: rgba(184,146,42,0.1);
-    border-left-color: #FDB827;
-  }
-  .iris-msg--mine {
-    background: #fff;
-    border-left-color: #555;
-    margin-left: 22px;
-  }
-  .iris-msg-meta {
-    font-family: 'DM Mono', monospace;
-    font-size: 8px; letter-spacing: 0.18em;
-    text-transform: uppercase; color: #8a6a1c;
-    margin-bottom: 3px;
-  }
-  .iris-msg--mine .iris-msg-meta { color: #666; }
-
-  #iris-form {
-    display: flex; gap: 8px;
-    padding: 10px 12px;
-    border-top: 1px solid #d8cdb0;
-    background: #fff;
-  }
-  #iris-input {
-    flex: 1;
-    padding: 9px 12px;
-    border: 1px solid #d8cdb0;
-    font-family: inherit; font-size: 14px;
-    color: #0e0c08;
-  }
-  #iris-input:focus { outline: 1px solid #FDB827; border-color: #FDB827; }
-  #iris-send {
-    background: #FDB827; color: #0e0c08;
-    border: 1px solid #FDB827;
-    font-family: 'DM Mono', monospace;
-    font-size: 10px; letter-spacing: 0.14em;
-    text-transform: uppercase; font-weight: 600;
-    padding: 0 14px; cursor: pointer;
-  }
-  #iris-send:disabled { opacity: 0.55; cursor: wait; }
-  @media (max-width: 480px) {
-    #iris-panel { width: calc(100vw - 36px); height: 70vh; }
-  }
-</style>
-
-<script>
-(function(){
-  var bubble  = document.getElementById('iris-bubble');
-  var panel   = document.getElementById('iris-panel');
-  var closeBtn= document.getElementById('iris-panel-close');
-  var thread  = document.getElementById('iris-thread');
-  var form    = document.getElementById('iris-form');
-  var input   = document.getElementById('iris-input');
-  var sendBtn = document.getElementById('iris-send');
-  if (!bubble || !panel || !thread || !form) return;
-
-  var STORAGE_KEY = 'etl.iris.history';
-  var history = [];
-  try {
-    var raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) history = JSON.parse(raw) || [];
-  } catch(_) { history = []; }
-
-  function escapeHtml(s){
-    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
-      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
-    });
-  }
-
-  function renderMsg(role, text){
-    var who = role === 'user' ? 'You' : 'Iris';
-    var cls = role === 'user' ? 'iris-msg iris-msg--mine' : 'iris-msg iris-msg--theirs';
-    var div = document.createElement('div');
-    div.className = cls;
-    div.innerHTML =
-      '<div class="iris-msg-meta">' + who + '</div>' +
-      '<div>' + escapeHtml(text).replace(/\n/g, '<br>') + '</div>';
-    thread.appendChild(div);
-    thread.scrollTop = thread.scrollHeight;
-  }
-
-  function persist(){
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(history.slice(-20))); } catch(_){}
-  }
-
-  function rehydrate(){
-    thread.innerHTML = '';
-    if (!history.length) {
-      renderMsg('assistant', "Hi. I'm Iris, the concierge here. What can I help you find?");
-      return;
-    }
-    history.forEach(function(t){ renderMsg(t.role, t.content); });
-  }
-
-  function openPanel(){
-    panel.hidden = false;
-    bubble.setAttribute('aria-expanded', 'true');
-    rehydrate();
-    setTimeout(function(){ input.focus(); }, 50);
-  }
-  function closePanel(){
-    panel.hidden = true;
-    bubble.setAttribute('aria-expanded', 'false');
-  }
-
-  bubble.addEventListener('click', openPanel);
-  closeBtn.addEventListener('click', closePanel);
-
-  async function ask(msg){
-    if (!msg) return;
-    sendBtn.disabled = true; input.disabled = true;
-    renderMsg('user', msg);
-    history.push({ role: 'user', content: msg });
-    persist();
-    input.value = '';
-    var typingEl = document.createElement('div');
-    typingEl.className = 'iris-msg iris-msg--theirs';
-    typingEl.innerHTML = '<div class="iris-msg-meta">Iris</div><div style="font-style:italic; color:#8a6a1c;">typing...</div>';
-    thread.appendChild(typingEl);
-    thread.scrollTop = thread.scrollHeight;
-
-    try {
-      var r = await fetch('/.netlify/functions/etl-help-chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: msg, history: history.slice(0, -1) }),
-      });
-      var data = await r.json();
-      typingEl.remove();
-      if (!r.ok || data.error) {
-        renderMsg('assistant', 'I hit a snag: ' + (data.error || ('HTTP ' + r.status)) + '. You can email Dr. Oroszi at terry.oroszi@wright.edu.');
-        history.pop();
-        persist();
-        return;
-      }
-      var reply = (data.reply || '').trim() || '...';
-      renderMsg('assistant', reply);
-      history.push({ role: 'assistant', content: reply });
-      persist();
-    } catch (e) {
-      typingEl.remove();
-      renderMsg('assistant', 'Network trouble reaching me. Try again, or email terry.oroszi@wright.edu.');
-      history.pop();
-      persist();
-    } finally {
-      sendBtn.disabled = false; input.disabled = false;
-      input.focus();
-    }
-  }
-
-  form.addEventListener('submit', function(e){
-    e.preventDefault();
-    ask(input.value.trim());
-  });
-})();
-</script>
+    backgro

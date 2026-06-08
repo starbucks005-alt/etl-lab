@@ -127,7 +127,8 @@ const AUGGIE_PERSONA = [
   '- Currently real channels you have:',
   '  • **Jax dispatch**: when she mentions "Jax + SEO/audit/discovery/scan", you fire a real scan via the trigger function. Returns a real job_id and report link. Already wired.',
   '  • **Jax status check**: when she mentions "Jax status / where\'s Jax / did Jax fix / Jax update", you read his latest reports from the index and list every site he has been on with their actual issue and fix counts. Already wired.',
-  '  • **Jax apply fixes**: NOT YET WIRED. If she asks Jax to apply or push the fixes to the live site, name this limit honestly: "ma\'am, Jax can draft the fix and hand you the file but I cannot yet have him push it live to ETL. that is the next build."',
+  '  • **Jax apply fixes**: WIRED. When she says "apply Jax\'s fixes" / "push it live" / "commit the fixes" / "go ahead and fix [site]", you fire the apply trigger and Jax pushes the drafted fixes to main via the GitHub Contents API. Direct commit, no PR, no branch (Dr. Oroszi\'s deployment rule). You tell her the commit lands in ~30s and she can ask for "jax status" to see the commit URL. Apply is restricted to the SAFE-AUTO-APPLY fix types (canonical link, JSON-LD blocks, OG/Twitter metadata in <head>). Edits to body content still come back to her for review.',
+  '  • Apply only works for sites configured in the repo map (ETL, Gauntlet, Greylander Press, OPSEC Gauntlet today). If she asks to apply to The Dose, Gandhi-King, or SLR Studio, the apply will come back with "no repo mapping" — that is real, not theater; tell her honestly.',
   '- Other Specialists (Six-Pack, Iris, future hires) will get their own Auggie channels as their backpacks ship. Each new build = a new ping capability for you.',
   '',
   'OFF-LIMITS TARGETS FOR JAX (do not dispatch, do not even suggest):',
@@ -140,8 +141,8 @@ const AUGGIE_PERSONA = [
   '',
   'STAFF YOU CAN DELEGATE TO:',
   '- The Studio has a full bench. When she asks for something outside your scope, name the right person on staff and offer to put them on it.',
-  '- **Jax Rivera** — SEO and Discovery Strategist. Eighteen, Hispanic, Gen Z growth-hacker brain. Brought in by his older cousin Jules Rivera. He owns search visibility, keyword work, technical SEO audits, sitemap and meta cleanup, competitor scans, and discoverability across emerging-tech-lab.com and the other ETL surfaces. If she says anything like "help ETL get found", "improve SEO", "what are people searching for", "fix our search visibility", "audit our metas", "we are buried on Google" — that is Jax. Acknowledge in your voice ("ma\'am, that is Jax. let me put him on the ETL discovery audit and have him send up a punch list by end of day"), then say what you are doing.',
-  '- Other named staff in the Studio: Beatriz Reyes (Sr Copy Editor), Ms. Ivy (Librarian/Idea Generator), Jules Rivera (Pre-Submission Editor), Jess Ramirez (Publicist), Imani Brooks (Newswire), Reid Callum (Marketing/Positioning), Wren Calloway (Scout), Carol Haynes (Screener), Ayanna Cole (Director of Comms), Sneha Desai (Peace News), Arjun Mehta (Ops/Delivery), Charles Monroe (CV Coach). Delegate by role; do not freelance their work.',
+  '- **Jax Rivera** — SEO and Discovery Strategist. Eighteen, Hispanic, Gen Z growth-hacker brain. Brought in by his older cousin Mara Rivera. He owns search visibility, keyword work, technical SEO audits, sitemap and meta cleanup, competitor scans, and discoverability across emerging-tech-lab.com and the other ETL surfaces. If she says anything like "help ETL get found", "improve SEO", "what are people searching for", "fix our search visibility", "audit our metas", "we are buried on Google" — that is Jax. Acknowledge in your voice ("ma\'am, that is Jax. let me put him on the ETL discovery audit and have him send up a punch list by end of day"), then say what you are doing.',
+  '- Other named staff in the Studio: Beatriz Vega (Sr Copy Editor), Ms. Ivy (Librarian/Idea Generator), Jules (Pre-Submission Editor), Jess Ramirez (Publicist), Imani Brooks (Newswire), Reid Callum (Marketing/Positioning), Wren Calloway (Scout), Carol Haynes (Screener), Ayanna Cole (Director of Comms), Sneha Desai (Peace News), Arjun Mehta (Ops/Delivery), Charles Monroe (CV Coach). Delegate by role; do not freelance their work.',
   '- When you delegate, frame it as YOU dispatching THEM, not her asking them directly. You are the chief of staff; they go through you.',
   '',
   'TOOL YOU HAVE: WEB SEARCH.',
@@ -384,7 +385,131 @@ async function buildAuggieJaxStatusReply(event) {
   return "ok Ms. Terry, here is what Jax has done recently. " +
     enriched.length + " sites in his queue, " + totalFindings + " issues flagged across all of them, " + totalFixes + " fixes drafted in total.\n\n" +
     lines.join('\n') + "\n\n" +
-    "heads up — i can pull any of these audits and the fixes for you, but i cannot yet have him push them live. that apply step is the next build. want me to walk you through a specific one?";
+    "heads up — i can push any of these fixes live for you. say 'apply Jax's fixes' to push the most recent, or name the site (e.g. 'apply Jax's fixes for Dose'). i can also do all of them in one go if you say 'apply all'.";
+}
+
+/* ── Jax APPLY intent ──────────────────────────────────────────────────
+   Different from dispatch (run a NEW scan) and status (read back).
+   Apply pushes already-drafted fixes from saved reports live to the
+   actual repo on main, via studio-jax-apply-trigger →
+   studio-jax-apply-background → GitHub Contents API.
+
+   Triggers on explicit apply phrasing: "apply Jax's fixes", "push the
+   fixes live", "go fix [site]", "commit Jax's fixes", "have Jax push
+   them up." Deliberately NOT triggered by "have Jax fix the SEO" —
+   that is dispatch (discovery + drafting), not apply.
+
+   Target resolution:
+     - explicit URL(s) in message → those targets
+     - platform name(s) in message → those targets
+     - "all" / "everything" / "every site" → every report with fixes
+     - none of the above → most recent report with fixes
+   ──────────────────────────────────────────────────────────────────── */
+const JAX_APPLY_VERB_RE = /\b(apply|push\s+(it\s+)?(live|up)|push\s+the\s+fix|push\s+jax|push\s+his\s+fix|send\s+(the\s+|his\s+)?fix(es)?\s+(live|up)|commit\s+(the\s+|jax|his\s+)?fix|deploy\s+(the\s+|jax|his\s+)?fix|ship\s+(the\s+|jax|his\s+)?fix|land\s+(the\s+|jax|his\s+)?fix|go\s+ahead\s+and\s+(apply|push|fix|commit|ship)|(have|let|tell)\s+jax\s+(push|apply|commit|ship|land)|fix\s+(it|them|the\s+site))\b/i;
+
+function detectJaxApplyIntent(msg) {
+  if (!msg || typeof msg !== 'string') return { matched: false };
+  if (!JAX_APPLY_VERB_RE.test(msg)) return { matched: false };
+  // Must reference jax / his / the fixes / the audit / the report so that
+  // a stray "fix it" about some other thing does not fire apply.
+  if (!/\b(jax|his|the\s+fix|the\s+audit|the\s+report|fixes|the\s+seo)\b/i.test(msg)) {
+    return { matched: false };
+  }
+  // Strong dispatch signal — words like "scan", "audit it", "look at", "run"
+  // mean a NEW scan, not apply. Bail out so dispatch wins.
+  if (/\b(scan|audit\s+it|look\s+at|run\s+(an?\s+)?(scan|audit)|check\s+the\s+seo|new\s+scan|fresh\s+scan|do\s+the\s+audit)\b/i.test(msg)) {
+    return { matched: false };
+  }
+
+  const targets = new Set();
+  const urlMatches = msg.match(/\bhttps?:\/\/[^\s"'<>]+/gi) || [];
+  for (const u of urlMatches) targets.add(u.replace(/[.,!?)\]]+$/, ''));
+  for (const p of PLATFORM_URL_MAP) if (p.match.test(msg)) targets.add(p.url);
+
+  const applyAll = /\b(all|every\s+site|every\s+one|all\s+of\s+them|the\s+rest|each\s+site|everything)\b/i.test(msg);
+
+  return {
+    matched: true,
+    target_urls: Array.from(targets),
+    apply_all: applyAll,
+    apply_latest: !applyAll && targets.size === 0,
+  };
+}
+
+/* Pick the report job_ids to apply, based on intent + the saved index.
+   Returns an array of { job_id, target_url, fix_count } in the order
+   they should be applied. */
+async function pickJaxApplyTargets(intent) {
+  let idx;
+  try { idx = await getStore('jax_reports_index').get('latest', { type: 'json' }); }
+  catch (_) { idx = null; }
+  if (!Array.isArray(idx) || idx.length === 0) return [];
+
+  // Index is most-recent-first. For each target_url, keep the latest entry
+  // that actually has fixes drafted AND has not already been applied. We
+  // fetch the full report to learn fix_count + apply_status because the
+  // index only carries lightweight metadata.
+  const seen = new Set();
+  const candidates = [];
+  for (const entry of idx) {
+    if (!entry || !entry.target_url || !entry.job_id) continue;
+    if (seen.has(entry.target_url)) continue;
+    seen.add(entry.target_url);
+    // Skip terminal-state runs that obviously had nothing to apply
+    if (entry.status && entry.status !== 'ready' && entry.status !== 'done' && entry.status !== 'complete') continue;
+    let report;
+    try { report = await getStore('jax_reports').get(entry.job_id, { type: 'json' }); }
+    catch (_) { continue; }
+    if (!report) continue;
+    const fixCount = typeof report.fix_count === 'number'
+      ? report.fix_count
+      : (Array.isArray(report.findings) ? report.findings.filter(f => f.proposed_fix).length : 0);
+    if (fixCount === 0) continue;
+    // Already-applied runs stay in the candidate pool only if Terry asks
+    // for them by name — we surface a "nothing new to do" message in the
+    // reply rather than silently skipping.
+    candidates.push({
+      job_id: entry.job_id,
+      target_url: entry.target_url,
+      fix_count: fixCount,
+      apply_status: report.apply_status || null,
+    });
+    if (candidates.length >= 20) break;
+  }
+
+  if (intent.target_urls && intent.target_urls.length > 0) {
+    // Match by hostname + (loose) path so "dose" picks thedose.net and
+    // "office hours" picks emerging-tech-lab.com/office-hours.
+    const wanted = intent.target_urls.map(u => {
+      try { const x = new URL(u); return { host: x.hostname.toLowerCase().replace(/^www\./, ''), path: x.pathname.replace(/\/$/, '') }; }
+      catch (_) { return null; }
+    }).filter(Boolean);
+    const picked = [];
+    for (const c of candidates) {
+      try {
+        const cu = new URL(c.target_url);
+        const ch = cu.hostname.toLowerCase().replace(/^www\./, '');
+        const cp = cu.pathname.replace(/\/$/, '');
+        for (const w of wanted) {
+          if (w.host === ch && (w.path === '' || w.path === cp)) {
+            picked.push(c); break;
+          }
+        }
+      } catch (_) {}
+    }
+    return picked;
+  }
+  if (intent.apply_all) return candidates;
+  // apply_latest — return the single most recent
+  return candidates.slice(0, 1);
+}
+
+function buildAuggieJaxApplyEmptyReply(intent) {
+  if (intent.target_urls && intent.target_urls.length > 0) {
+    const named = intent.target_urls.map(u => u.replace(/^https?:\/\//, '').replace(/\/$/, '')).join(', ');
+    return "ma'am, i checked Jax's queue for " + named + " and there is nothing he can push live there right now. either no fixes drafted yet, or what he had ready is already on the site. want me to send him on a fresh round?";
+  }
+  return "ma'am, i checked Jax's queue and there is nothing he can push live right now. either he has not drafted any fixes yet, or everything he had ready is already on the sites. say 'have Jax scan [site]' and i will set him on a fresh round.";
 }
 
 /* ── New-hires intro queue ───────────────────────────────────────────────
@@ -401,7 +526,7 @@ const DEFAULT_PENDING_INTROS = [
   {
     name: 'Jax Rivera',
     intro_block:
-      'Jax Rivera just joined the bench. He is eighteen, Hispanic, Gen Z, and Jules\'s cousin (yes THAT Jules). His backpack is SEO and discoverability — he scans your sites, audits them, drafts the fixes. Today his apply-to-live capability is not wired yet, so he hands you the draft and you push it; the apply step is the next build. ' +
+      'Jax Rivera just joined the bench. He is eighteen, Hispanic, Gen Z, and Mara\'s cousin (yes THAT Mara). His backpack is SEO and discoverability — he scans your sites, audits them, drafts the fixes, AND now pushes them live to main on the configured repos (ETL, Gauntlet, Greylander, OPSEC Gauntlet). Direct commits, no PR. ' +
       'You can ask me to put him on any site (just say "have Jax audit X" or "improve SEO for X"), check his latest run ("Jax status"), or pull his download bundle. ' +
       'He is not warm-warm like me. He performs polite engagement with the older bench but really he is doing the work in his headphones. Bea finds him useful; Chris likes him; the work is the point.',
   },
@@ -518,6 +643,76 @@ exports.handler = async (event) => {
       };
     } catch (e) {
       console.warn('[studio-auggie-chat] jax status failed, falling back to model', e && e.message);
+    }
+  }
+
+  // ── JAX APPLY INTENT (must run BEFORE dispatch) ──────────────────────────
+  // "apply Jax's fixes" / "push it live" / "commit the fixes" → push the
+  // already-drafted fixes from saved reports to the live repo on main via
+  // the GitHub Contents API. Real apply, not theater. Skips the model.
+  const jaxApply = detectJaxApplyIntent(message);
+  if (jaxApply.matched && images.length === 0 && documents.length === 0) {
+    try {
+      const picks = await pickJaxApplyTargets(jaxApply);
+      if (picks.length === 0) {
+        return {
+          statusCode: 200,
+          headers: { ...CORS, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reply: buildAuggieJaxApplyEmptyReply(jaxApply), persona: 'Auggie', jax_apply: { triggered: 0 } }),
+        };
+      }
+
+      const authHeader = (event.headers && (event.headers.authorization || event.headers.Authorization)) || '';
+      const base = process.env.URL || ('https://' + ((event.headers && event.headers.host) || ''));
+      const applyTriggerUrl = base.replace(/\/$/, '') + '/.netlify/functions/studio-jax-apply-trigger';
+
+      const applyResults = await Promise.all(picks.map(async pick => {
+        try {
+          const tr = await fetch(applyTriggerUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': authHeader },
+            body: JSON.stringify({ job_id: pick.job_id }),
+          });
+          if (!tr.ok) return { ok: false, pick, status: tr.status };
+          const tj = await tr.json();
+          return { ok: true, pick, triggered: !!tj.triggered };
+        } catch (e) {
+          return { ok: false, pick, error: e && e.message };
+        }
+      }));
+
+      const ok = applyResults.filter(r => r.ok);
+      const bad = applyResults.filter(r => !r.ok);
+
+      let reply;
+      if (ok.length === 1 && bad.length === 0) {
+        const p = ok[0].pick;
+        const label = p.target_url.replace(/^https?:\/\//, '').replace(/\/$/, '');
+        reply = "ok Ms. Terry, telling Jax to push the " + p.fix_count + " fix" + (p.fix_count === 1 ? '' : 'es') + " for " + label + " live now. should commit to main in roughly 30 seconds; Netlify deploys after that. ask me 'jax status' in a minute and i will have the commit URL for you.";
+      } else if (ok.length > 0) {
+        const lines = ok.map(r => {
+          const label = r.pick.target_url.replace(/^https?:\/\//, '').replace(/\/$/, '');
+          return '• ' + label + ' — ' + r.pick.fix_count + ' fix' + (r.pick.fix_count === 1 ? '' : 'es');
+        });
+        reply = "ok Ms. Terry, Jax is pushing fixes live to " + ok.length + " site" + (ok.length === 1 ? '' : 's') + " right now. each one gets its own commit on main:\n\n" + lines.join('\n') + "\n\ncommits should land in roughly 30 seconds apiece, Netlify ships after that. ask 'jax status' in a couple minutes and i will have every commit URL.";
+        if (bad.length > 0) {
+          const badLines = bad.map(r => {
+            const label = (r.pick.target_url || '').replace(/^https?:\/\//, '').replace(/\/$/, '');
+            return '• ' + label + ' — failed to queue';
+          });
+          reply += "\n\ndid not queue (you may want to retry):\n" + badLines.join('\n');
+        }
+      } else {
+        reply = "ma'am, i tried to fire Jax's apply step and every single one came back with an error. that usually means the GITHUB_APPLY_TOKEN env var is missing or the trigger function is not deployed yet. i would not retry until we know which.";
+      }
+
+      return {
+        statusCode: 200,
+        headers: { ...CORS, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reply, persona: 'Auggie', jax_apply: { triggered: ok.length, failed: bad.length } }),
+      };
+    } catch (e) {
+      console.warn('[studio-auggie-chat] jax apply failed, falling back to model', e && e.message);
     }
   }
 
