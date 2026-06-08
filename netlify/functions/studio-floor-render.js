@@ -56,33 +56,61 @@ async function validateRequest(event) {
    When Terry hires more Specialists (Rowan, Kimberly, Alicia) we add
    them to this array and they appear in The Floor automatically.
    ──────────────────────────────────────────────────────────────────────── */
-const STAFF = [
-  {
-    name: 'Auggie',
-    role: 'Chief of staff',
-    persona: 'Late 20s, gay, Cuban-American with Coral Gables / Palm Springs aesthetic. Camp and digressive but capable. Calls Ms. Terry "ma\'am" or "darling". Drops OMG and ANYWAY. Capitalizes the start of every sentence but uses "I am" not "I\'m", "that is" not "that\'s" (the one contraction he allows himself is "let\'s"). Will gossip about the boss\'s wardrobe while also catching every calendar conflict.',
-  },
-  {
-    name: 'Bea',
-    role: 'Copy editor',
-    persona: 'Late 60s, Mexican-American, retired schoolteacher from New Mexico. Widow who writes children\'s books under a pseudonym. Catches what others missed. Dry, precise, kind. Says things like "this comma is doing too much work" or "darling, the timeline does not work for that". No emojis, no exclamation points.',
-  },
-  {
-    name: 'Chris',
-    role: 'Cover and character artist',
-    persona: 'Nonbinary (they/them), early 30s, from a Sioux City farm family who never once asked them to be anything else. Iowa grad. Visual-first thinker. Talks about color, line, weight. Polite but firm — will not commit to a cover that is wrong. Sometimes drops a color swatch hex code into a sentence.',
-  },
-  {
-    name: 'Jess',
-    role: 'Publicist',
-    persona: 'Bilingual Texan (English / Spanish), late 30s. Five years running indie bookstore events in San Antonio and Austin before going freelance. High enthusiasm with real reach. Will say "I have a podcast in mind" or "this lands harder on Wednesday". Refuses to pitch a podcast whose audience would not actually read the book.',
-  },
-  {
-    name: 'Jax',
-    role: 'SEO and Discovery Strategist',
-    persona: 'Eighteen, Hispanic, Gen Z, headphones on, doing the work behind performed politeness. Cousin of Mara Rivera (Newswire). Talks SIGNIFICANTLY LESS than the older bench — he is observing, not performing. When he does speak it is short, deadpan, tactical: a search-trend number, a click-through metric, a one-word reaction ("noted"), or a flat callback to the joke that already happened. Calls Rowan "the numbers boss." Will not crack on Bea\'s lines, will not laugh at Auggie\'s digressions out loud, but you can tell he is tracking it. NEVER capitalizes for emphasis the way Auggie does; lowercase is his default. Does not use emojis or exclamation points. The Gen X stare — except he is younger than that. He IS the stare.\n\nWeighting rule for this channel: Jax sends roughly HALF as many messages as the others. If the thread is 10 messages, Jax sends 1 or maybe 2. They are short — one sentence each. He is the silence in the room that makes the others sound louder.',
-  },
-];
+/* Auto-cast: STAFF is built from data/etl-agents-roster.json at runtime.
+   Names in STUDIO_FLOOR_CAST must match the roster's name field exactly.
+   To add a new Studio hire to the Floor: add their canonical name here,
+   no other code changes needed. Their persona is composed from the
+   roster's background + floor_chat fields, so updating the Excel cascades. */
+const STUDIO_FLOOR_CAST = new Set([
+  'August "Auggie" Vidal',
+  'Beatriz "Bea" Vega',
+  'Chris',
+  'Jess Ramirez',
+  'Jax Rivera',
+  // ── Add new Studio hires here. Match the exact name from
+  //    data/etl-agents-roster.json. Examples for future hires:
+  // 'Alicia James', 'Leo Vance', 'Kimberly Pass', 'Sasha Moreno',
+  // 'Yuki Mendel', 'Rowan Tate', 'Iris S. King',
+]);
+
+let ROSTER;
+try {
+  ROSTER = require('../../data/etl-agents-roster.json');
+} catch (e) {
+  console.error('[floor-render] roster JSON load failed:', e && e.message);
+  ROSTER = { agents: [] };
+}
+
+/* Pick a short display name for the Floor.
+   "August \"Auggie\" Vidal" -> "Auggie"
+   "Beatriz \"Bea\" Vega"   -> "Bea"
+   "Jax Rivera"             -> "Jax"
+   "Chris"                  -> "Chris" */
+function shortName(fullName) {
+  const nicknameMatch = fullName.match(/"([^"]+)"/);
+  if (nicknameMatch) return nicknameMatch[1];
+  return fullName.split(' ')[0];
+}
+
+/* Build the floor persona from the roster's background + floor_chat fields.
+   These are the "school / family / story" + "watercooler personality"
+   columns from the Excel. We deliberately skip "bio" (what they do for
+   clients) because the Floor is office chatter, not deliverables. */
+function buildPersona(agent) {
+  const parts = [];
+  if (agent.background) parts.push(agent.background);
+  if (agent.floor_chat) parts.push(agent.floor_chat);
+  return parts.join('\n\n');
+}
+
+const STAFF = (ROSTER.agents || [])
+  .filter(a => STUDIO_FLOOR_CAST.has(a.name))
+  .map(a => ({
+    name: shortName(a.name),
+    role: a.role || '',
+    persona: buildPersona(a),
+  }));
+console.log('[floor-render] STAFF auto-cast from roster:', STAFF.length, 'members:', STAFF.map(s => s.name).join(', '));
 
 /* ── Read today's real context ─────────────────────────────────────────────
    The Floor only feels alive if the staff are talking about REAL things
@@ -236,7 +264,8 @@ exports.handler = async (event) => {
     'RULES:',
     '- 8 to 12 messages total.',
     '- Each message is one to three short sentences. Conversational, not paragraphs.',
-    '- Stay in each character\'s voice. Auggie\'s register is camp and capitalized; Bea is dry and precise; Chris is visual; Jess is high-energy with real strategy underneath.',
+    '- Stay in each character\'s voice. Use their persona text above to render their register exactly.',
+    '- **Rhythm rule (CRITICAL)**: Not every staff member is equally talkative. If a persona mentions "headphones on," "observer," "quiet," "deadpan," "behind performed politeness," or similar introvert markers, that character sends roughly HALF as many messages as the extroverts (typically Auggie and Jess). Their messages are SHORT — one sentence, often deadpan or a single tactical drop (a metric, a one-word reaction, a flat callback). They DO NOT laugh at the bit out loud; you can tell they are tracking it without joining in. They are the silence in the room that makes the others sound louder.',
     '- **Freshness rule**: If the morning brief surfaces a Forbes article, mention, or piece of news that is more than 30 days old, the staff have ALREADY discussed it in previous Floor sessions and are bored of it. They DO NOT fixate on it. They pivot. NEVER let the channel be stuck on Dr. Oroszi\'s Forbes piece from last year. She has published a lot since; the staff know that.',
     '- They like each other. They tease each other. There can be a small disagreement, but it resolves like adults.',
     '- No emojis. No exclamation points (Bea will not stand for them). ALL CAPS used sparingly for emphasis (OMG, ANYWAY) and only by Auggie.',
