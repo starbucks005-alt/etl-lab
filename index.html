@@ -1102,17 +1102,18 @@ document.addEventListener('DOMContentLoaded', function(){
 
   /* Tab-content gating. Each top-level section is tagged with data-tab="...".
      When the body has data-active-tab, hide every off-tab section.
-     CRITICAL: the :not(.etl-tab) exclusion is required so this rule does
-     NOT also hide the tab BUTTONS themselves — they also carry data-tab
-     attributes (one per tab), and without the exclusion, switching tabs
-     would hide every tab button except the active one, leaving Terry
-     looking at a single tab with no navigation. Lost most of a morning
-     to this one. */
-  body[data-active-tab="home"]      [data-tab]:not([data-tab="home"]):not(.etl-tab),
-  body[data-active-tab="platforms"] [data-tab]:not([data-tab="platforms"]):not(.etl-tab),
-  body[data-active-tab="agents"]    [data-tab]:not([data-tab="agents"]):not(.etl-tab),
-  body[data-active-tab="store"]     [data-tab]:not([data-tab="store"]):not(.etl-tab),
-  body[data-active-tab="about"]     [data-tab]:not([data-tab="about"]):not(.etl-tab) {
+     CRITICAL #1: the :not(.etl-tab) exclusion keeps the tab BUTTONS visible
+     (they also carry data-tab attributes — without this, switching tabs
+     would hide every button except the active one).
+     CRITICAL #2: uses [data-tab~="name"] (whitespace-contains) so a section
+     can belong to MULTIPLE tabs via data-tab="platforms agents". The
+     network section uses this — its platform cards and the agent face wall
+     both live there, and both tabs are correct surfaces for that content. */
+  body[data-active-tab="home"]      [data-tab]:not([data-tab~="home"]):not(.etl-tab),
+  body[data-active-tab="platforms"] [data-tab]:not([data-tab~="platforms"]):not(.etl-tab),
+  body[data-active-tab="agents"]    [data-tab]:not([data-tab~="agents"]):not(.etl-tab),
+  body[data-active-tab="store"]     [data-tab]:not([data-tab~="store"]):not(.etl-tab),
+  body[data-active-tab="about"]     [data-tab]:not([data-tab~="about"]):not(.etl-tab) {
     display: none !important;
   }
 
@@ -1865,7 +1866,7 @@ document.addEventListener('DOMContentLoaded', function(){
   }
   .etl-network .etl-net-link2:hover { background: var(--green-bright); color: #fff; border-color: var(--green-bright); }
 </style>
-<section class="section-full etl-network" id="network" data-tab="platforms">
+<section class="section-full etl-network" id="network" data-tab="platforms agents">
   <div class="section-full-inner">
     <div class="section-tag">The ETL Network</div>
     <h2 class="section-title">Live <span>Platforms</span></h2>
@@ -2647,7 +2648,7 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
 </section>
 
 <!-- GRADUATE RESEARCH TEAM -->
-<section id="team" data-tab="agents">
+<section id="team" data-tab="about">
   <div class="section-tag">Research Operatives</div>
   <h2 class="section-title">Graduate <span>Research Team</span></h2>
   <p class="section-subtitle">ETL-affiliated graduate researchers</p>
