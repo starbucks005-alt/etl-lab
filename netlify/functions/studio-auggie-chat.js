@@ -232,8 +232,18 @@ function detectJaxStatusIntent(msg) {
   return { matched: true };
 }
 
-/* Read Jax's most recent report from the index and compose Auggie's
-   in-voice status update. If no reports exist yet, say so plainly. */
+/* Read Jax's recent reports from the index and compose Auggie's in-voice
+   status update. Reads up to the last 10 runs (deduped by target_url so
+   multiple scans of the same site collapse to the latest) so when Terry
+   asks "how's Jax on the platforms" he can actually list all the sites
+   he's been on — not just the most recent one. */
+function formatStatusDateTime(iso) {
+  try {
+    const d = iso ? new Date(iso) : null;
+    return d ? d.toLocaleString('en-US', { dateStyle: 'short', timeStyle: 'short', timeZone: 'America/New_York' }) : 'recently';
+  } catch (_) { return 'recently'; }
+}
+
 async function buildAuggieJaxStatusReply(event) {
   try { connectLambda(event); } catch (_) {}
   let idx;
@@ -245,28 +255,71 @@ async function buildAuggieJaxStatusReply(event) {
   if (!Array.isArray(idx) || idx.length === 0) {
     return "ma'am, Jax has not run a scan yet. give me a target and i will dispatch him.";
   }
-  const latest = idx[0];
-  // Pull the full report for the fix count
-  let report;
-  try {
-    report = await getStore('jax_reports').get(latest.job_id, { type: 'json' });
-  } catch (_) { report = null; }
-  const target = (latest.target_url || '').replace(/^https?:\/\//, '').replace(/\/$/, '');
-  const when = latest.createdAt ? new Date(latest.createdAt) : null;
-  const whenStr = when ? when.toLocaleString('en-US', { dateStyle: 'short', timeStyle: 'short', timeZone: 'America/New_York' }) : 'recently';
-  const base = (process.env.URL || 'https://emerging-tech-lab.com').replace(/\/$/, '');
-  const reportUrl = base + '/studio/jax-reports.html?id=' + encodeURIComponent(latest.job_id);
 
-  if (latest.status === 'queued' || latest.status === 'running') {
-    return "ma'am, Jax is mid-scan on " + target + " right now. he kicked off at " + whenStr + " ET. report will land at " + reportUrl + " in about a minute. give him a beat and refresh.";
+  // Dedupe by target_url, keeping the most recent entry per site. Index is
+  // already most-recent-first (unshifted in the bg function), so the first
+  // time we see each target is the latest one.
+  const seen = new Set();
+  const uniqueRuns = [];
+  for (const entry of idx) {
+    if (!entry || !entry.target_url) continue;
+    if (seen.has(entry.target_url)) continue;
+    seen.add(entry.target_url);
+    uniqueRuns.push(entry);
+    if (uniqueRuns.length >= 10) break;
   }
-  if (latest.status === 'failed') {
-    return "ma'am, Jax's last run on " + target + " failed. that was " + whenStr + " ET. i can re-dispatch if you want, or pull the error from " + reportUrl + " .";
+
+  const base = (process.env.URL || 'https://emerging-tech-lab.com').replace(/\/$/, '');
+
+  // Pull full reports for each run (parallel, bounded)
+  const enriched = await Promise.all(uniqueRuns.map(async run => {
+    let report = null;
+    try {
+      report = await getStore('jax_reports').get(run.job_id, { type: 'json' });
+    } catch (_) {}
+    const target = (run.target_url || '').replace(/^https?:\/\//, '').replace(/\/$/, '');
+    const whenStr = formatStatusDateTime(run.createdAt);
+    const reportUrl = base + '/studio/jax-reports.html?id=' + encodeURIComponent(run.job_id);
+    const fixCount = report && typeof report.fix_count === 'number'
+      ? report.fix_count
+      : (report && Array.isArray(report.findings) ? report.findings.filter(f => f.proposed_fix).length : 0);
+    const findingsCount = report && Array.isArray(report.findings) ? report.findings.length : 0;
+    return { run, report, target, whenStr, reportUrl, fixCount, findingsCount };
+  }));
+
+  // Single-run case — same compact phrasing as before, in Auggie's voice
+  if (enriched.length === 1) {
+    const r = enriched[0];
+    const status = r.run.status;
+    if (status === 'queued' || status === 'running') {
+      return "ma'am, Jax is mid-scan on " + r.target + " right now. he kicked off at " + r.whenStr + " ET. report will land at " + r.reportUrl + " in about a minute. give him a beat and refresh.";
+    }
+    if (status === 'failed') {
+      return "ma'am, Jax's last run on " + r.target + " failed. that was " + r.whenStr + " ET. i can re-dispatch if you want, or pull the error from " + r.reportUrl + " .";
+    }
+    return "ok Ms. Terry, Jax's latest run: " + r.target + " at " + r.whenStr + " ET. he flagged " + r.findingsCount + " issue" + (r.findingsCount === 1 ? '' : 's') + " and drafted " + r.fixCount + " fix" + (r.fixCount === 1 ? '' : 'es') + ". the report is here: " + r.reportUrl + " . heads up — i can pull his audit and the fixes for you, but i cannot yet have him push them live to the site. that is the next build.";
   }
-  // Complete
-  const fixCount = report && typeof report.fix_count === 'number' ? report.fix_count : (report && Array.isArray(report.findings) ? report.findings.filter(f => f.proposed_fix).length : 0);
-  const findingsCount = report && Array.isArray(report.findings) ? report.findings.length : 0;
-  return "ok Ms. Terry, Jax's latest run: " + target + " at " + whenStr + " ET. he flagged " + findingsCount + " issue" + (findingsCount === 1 ? '' : 's') + " and drafted " + fixCount + " fix" + (fixCount === 1 ? '' : 'es') + ". the report is here: " + reportUrl + " . heads up — i can pull his audit and the fixes for you, but i cannot yet have him push them live to the site. that is the next build.";
+
+  // Multi-run case — list each site he's been on, most recent first.
+  // Auggie's voice for the opener + closer; the middle is a clean line per site.
+  const totalFindings = enriched.reduce((sum, r) => sum + r.findingsCount, 0);
+  const totalFixes = enriched.reduce((sum, r) => sum + r.fixCount, 0);
+  const lines = enriched.map(r => {
+    let line = '• ' + r.target + ' — ' + r.whenStr + ' ET, ';
+    if (r.run.status === 'queued' || r.run.status === 'running') {
+      line += 'still scanning, report: ' + r.reportUrl;
+    } else if (r.run.status === 'failed') {
+      line += 'FAILED, error in: ' + r.reportUrl;
+    } else {
+      line += r.findingsCount + ' issue' + (r.findingsCount === 1 ? '' : 's') + ', ' + r.fixCount + ' fix' + (r.fixCount === 1 ? '' : 'es') + ' drafted, report: ' + r.reportUrl;
+    }
+    return line;
+  });
+
+  return "ok Ms. Terry, here is what Jax has done recently. " +
+    enriched.length + " sites in his queue, " + totalFindings + " issues flagged across all of them, " + totalFixes + " fixes drafted in total.\n\n" +
+    lines.join('\n') + "\n\n" +
+    "heads up — i can pull any of these audits and the fixes for you, but i cannot yet have him push them live. that apply step is the next build. want me to walk you through a specific one?";
 }
 
 /* ── New-hires intro queue ───────────────────────────────────────────────
