@@ -221,19 +221,38 @@ function detectJaxDispatchIntent(msg) {
   if (!/\bjax\b/.test(text)) return { matched: false };
   if (!JAX_KEYWORDS_RE.test(text)) return { matched: false };
 
-  // 1. Look for an explicit URL
-  const urlMatch = msg.match(/\bhttps?:\/\/[^\s"'<>]+/i);
-  if (urlMatch) {
-    return { matched: true, target_url: urlMatch[0].replace(/[.,!?)\]]+$/, '') };
+  // Collect ALL target URLs mentioned in the message. The dispatch flow
+  // now handles batch dispatch: when Terry lists multiple platforms ("dispatch
+  // Jax across ETL, Greylander, Dose, Gauntlet"), each one gets its own
+  // trigger call so all reports actually land. Previously this fired ONE
+  // trigger and silently dropped the rest, which is why Auggie kept saying
+  // "I only see one scan" when Terry thought she had dispatched a dozen.
+  const targets = new Set();
+
+  // 1. All explicit URLs in the message
+  const urlMatches = msg.match(/\bhttps?:\/\/[^\s"'<>]+/gi) || [];
+  for (const u of urlMatches) {
+    targets.add(u.replace(/[.,!?)\]]+$/, ''));
   }
 
-  // 2. Try platform name mapping
+  // 2. Every platform name mentioned (PLATFORM_URL_MAP matches against the
+  // raw message — we walk the whole map and collect each hit)
   for (const p of PLATFORM_URL_MAP) {
-    if (p.match.test(msg)) return { matched: true, target_url: p.url };
+    if (p.match.test(msg)) targets.add(p.url);
   }
 
-  // 3. Default to the ETL hub
-  return { matched: true, target_url: 'https://emerging-tech-lab.com' };
+  // 3. If nothing matched (just "have Jax look at SEO"), default to ETL
+  if (targets.size === 0) {
+    targets.add('https://emerging-tech-lab.com');
+  }
+
+  const targetList = Array.from(targets);
+  return {
+    matched: true,
+    target_urls: targetList,           // array — every site to dispatch
+    target_url: targetList[0],         // back-compat: first target for single-site callers
+    is_batch: targetList.length > 1,
+  };
 }
 
 /* Build Auggie's reply in his voice when Jax is dispatched. Deterministic
@@ -499,48 +518,107 @@ exports.handler = async (event) => {
   // visibility / audit / scan / get found / ranking / meta / sitemap).
   const jaxDispatch = detectJaxDispatchIntent(message);
   if (jaxDispatch.matched && images.length === 0 && documents.length === 0) {
-    // BLOCKLIST CHECK — refuse dispatch to off-limits targets (Intel
-    // Dashboard during VC valuation, etc.) UNLESS Terry has explicitly
-    // signaled override in her message. Looking for words like "override",
-    // "anyway", "yes do it", "i know it's blocked" — terse, so we just
-    // check for "override" or "anyway" near "jax".
-    const block = isJaxTargetBlocked(jaxDispatch.target_url);
     const overrideRe = /\b(override|anyway|do it anyway|i know|yes really|despite that|push past)\b/i;
-    if (block && !overrideRe.test(message)) {
+    const hasOverride = overrideRe.test(message);
+
+    // Partition targets into dispatched (allowed) and blocked (skipped or
+    // override-requires-confirm). Blocked targets are silently held out
+    // when batching; Auggie names them in the reply.
+    const toDispatch = [];
+    const heldBack = []; // { target_url, block }
+    for (const t of jaxDispatch.target_urls) {
+      const block = isJaxTargetBlocked(t);
+      if (block && !hasOverride) {
+        heldBack.push({ target_url: t, block });
+      } else {
+        toDispatch.push(t);
+      }
+    }
+
+    // Single-target, blocked, no override — same behavior as before
+    if (toDispatch.length === 0 && heldBack.length === 1) {
       return {
         statusCode: 200,
         headers: { ...CORS, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reply: buildAuggieJaxBlockedReply(jaxDispatch.target_url, block), persona: 'Auggie', jax_dispatch_blocked: { target_url: jaxDispatch.target_url, reason: block.reason } }),
+        body: JSON.stringify({ reply: buildAuggieJaxBlockedReply(heldBack[0].target_url, heldBack[0].block), persona: 'Auggie', jax_dispatch_blocked: { target_url: heldBack[0].target_url, reason: heldBack[0].block.reason } }),
       };
     }
-    try {
+
+    if (toDispatch.length > 0) {
       const authHeader = (event.headers && (event.headers.authorization || event.headers.Authorization)) || '';
       const base = process.env.URL || ('https://' + ((event.headers && event.headers.host) || ''));
       const triggerUrl = base.replace(/\/$/, '') + '/.netlify/functions/studio-jax-trigger';
-      const tr = await fetch(triggerUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': authHeader },
-        body: JSON.stringify({
-          target_url: jaxDispatch.target_url,
-          scope: 'homepage',
-          requested_by: 'Ms. Terry via Studio chat',
-        }),
-      });
-      if (tr.ok) {
-        const tj = await tr.json();
-        const reply = buildAuggieJaxDispatchReply(jaxDispatch.target_url, tj.report_url);
+
+      // Fire all dispatches in parallel. Each returns its own job_id and
+      // report_url; we collect them for the reply.
+      const dispatchResults = await Promise.all(toDispatch.map(async target => {
+        try {
+          const tr = await fetch(triggerUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': authHeader },
+            body: JSON.stringify({
+              target_url: target,
+              scope: 'homepage',
+              requested_by: 'Ms. Terry via Studio chat (batch dispatch)',
+            }),
+          });
+          if (!tr.ok) return { ok: false, target, status: tr.status };
+          const tj = await tr.json();
+          return { ok: true, target, job_id: tj.job_id, report_url: tj.report_url, target_url: tj.target_url };
+        } catch (e) {
+          return { ok: false, target, error: e && e.message };
+        }
+      }));
+
+      const successes = dispatchResults.filter(r => r.ok);
+      const failures = dispatchResults.filter(r => !r.ok);
+
+      if (successes.length > 0) {
+        // Build the reply: single-site (existing voice) OR batch (new voice).
+        let reply;
+        if (successes.length === 1 && heldBack.length === 0 && failures.length === 0) {
+          reply = buildAuggieJaxDispatchReply(successes[0].target_url, successes[0].report_url);
+        } else {
+          // Batch reply — Auggie's voice, names each dispatched target
+          // and discloses any held-back ones with the reason.
+          const lines = successes.map(s => {
+            const label = (s.target_url || s.target).replace(/^https?:\/\//, '').replace(/\/$/, '');
+            return '• ' + label + ' → ' + s.report_url;
+          });
+          const heldLines = heldBack.map(h => {
+            const label = (h.target_url || '').replace(/^https?:\/\//, '').replace(/\/$/, '');
+            return '• ' + (h.block.name || label) + ' — HELD OUT (' + h.block.reason + ')';
+          });
+          const failLines = failures.map(f => {
+            const label = (f.target || '').replace(/^https?:\/\//, '').replace(/\/$/, '');
+            return '• ' + label + ' — failed to queue';
+          });
+
+          reply = "ok Ms. Terry, Jax is on " + successes.length + " site" + (successes.length === 1 ? '' : 's') + " right now. each one gets its own scan; reports land in roughly a minute apiece. i will hold the links here:\n\n" +
+            lines.join('\n');
+          if (heldLines.length > 0) {
+            reply += "\n\nheld out of this run:\n" + heldLines.join('\n');
+          }
+          if (failLines.length > 0) {
+            reply += "\n\ndid not queue (you may want to retry):\n" + failLines.join('\n');
+          }
+          reply += "\n\nask me 'jax status' in a couple minutes and i will pull every report and list what he found.";
+        }
+
         return {
           statusCode: 200,
           headers: { ...CORS, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ reply, persona: 'Auggie', jax_dispatch: { job_id: tj.job_id, report_url: tj.report_url, target_url: tj.target_url } }),
+          body: JSON.stringify({
+            reply,
+            persona: 'Auggie',
+            jax_dispatch: { dispatched: successes, held_back: heldBack, failed: failures, is_batch: successes.length > 1 },
+          }),
         };
       } else {
-        // If the trigger fails we fall through to the normal model path so
-        // Auggie can at least say SOMETHING. Better than a silent error.
-        console.warn('[studio-auggie-chat] jax trigger non-2xx, falling back to model', tr.status);
+        // All dispatch attempts failed — fall through to model so Auggie can
+        // at least respond rather than 500.
+        console.warn('[studio-auggie-chat] all jax dispatches failed, falling back to model');
       }
-    } catch (e) {
-      console.warn('[studio-auggie-chat] jax trigger failed, falling back to model', e && e.message);
     }
   }
 
