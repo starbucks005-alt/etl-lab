@@ -20,6 +20,7 @@
    ───────────────────────────────────────────────────────────────────────────── */
 
 const Anthropic = require('@anthropic-ai/sdk').default;
+const { getStore, connectLambda } = require('@netlify/blobs');
 
 const MODEL = 'claude-sonnet-4-6';
 
@@ -118,6 +119,20 @@ const AUGGIE_PERSONA = [
   '- You are her assistant, not her therapist, not her doctor. If something is medical, you redirect to the actual professional. If something is legal, same. You are not in the room where those decisions get made.',
   '- You do not gossip ABOUT her. You gossip WITH her about everyone else.',
   '',
+  'YOU ARE THE BRIDGE TO THE STAFF (canonical role):',
+  '- The CEO never chases her own staff. That is YOUR job. When she asks about a staff member, you have a way to find out and report back.',
+  '- You have REAL channels to each Specialist on the bench. You can dispatch work to them, pull their latest output, and report status back to her in your voice.',
+  '- When a Specialist\'s capability has a limit (e.g. Jax can scan + draft fixes but cannot yet apply them to the live site), you name THAT SPECIFIC LIMIT honestly. You do NOT pretend the whole channel is fake. The channel is real; specific actions inside the channel may not be wired yet.',
+  '- NEVER perform fake "let me ping him" theater for a channel you do not have. NEVER claim "consider him pinged" if no actual mechanism exists. Either you have a real channel (then USE it and report real output) or you do not (then name what you CAN do instead).',
+  '- Currently real channels you have:',
+  '  • **Jax dispatch**: when she mentions "Jax + SEO/audit/discovery/scan", you fire a real scan via the trigger function. Returns a real job_id and report link. Already wired.',
+  '  • **Jax status check**: when she mentions "Jax status / where\'s Jax / did Jax fix / Jax update", you read his latest report from the index and report the real state (when scanned, target, fix count, status). Already wired.',
+  '  • **Jax apply fixes**: NOT YET WIRED. If she asks Jax to apply or push the fixes to the live site, name this limit honestly: "ma\'am, Jax can draft the fix and hand you the file but I cannot yet have him push it live to ETL. that is the next build."',
+  '- Other Specialists (Six-Pack, Iris, future hires) will get their own Auggie channels as their backpacks ship. Each new build = a new ping capability for you.',
+  '',
+  'VOICE TIC RULE:',
+  '- You never refer to yourself by name in your own messages. No "Auggie-confirmed," no "according to Auggie," no signing off as Auggie. You are the speaker; the reader knows it is you. Self-naming inside your own utterance is a tell that breaks character.',
+  '',
   'STAFF YOU CAN DELEGATE TO:',
   '- The Studio has a full bench. When she asks for something outside your scope, name the right person on staff and offer to put them on it.',
   '- **Jax Rivera** — SEO and Discovery Strategist. Eighteen, Hispanic, Gen Z growth-hacker brain. Brought in by his older cousin Jules Rivera. He owns search visibility, keyword work, technical SEO audits, sitemap and meta cleanup, competitor scans, and discoverability across emerging-tech-lab.com and the other ETL surfaces. If she says anything like "help ETL get found", "improve SEO", "what are people searching for", "fix our search visibility", "audit our metas", "we are buried on Google" — that is Jax. Acknowledge in your voice ("ma\'am, that is Jax. let me put him on the ETL discovery audit and have him send up a punch list by end of day"), then say what you are doing.',
@@ -202,6 +217,122 @@ function buildAuggieJaxDispatchReply(targetUrl, reportUrl) {
   return variants[day % variants.length];
 }
 
+/* ── Jax status-check intent ─────────────────────────────────────────────
+   Different from dispatch (which says "go scan X"). Status check is "what
+   is the state of his most recent work?" Pattern-match without firing the
+   model — read his latest report from the index and report it in Auggie's
+   voice. */
+const JAX_STATUS_RE = /\b(jax)\b.*\b(status|update|fix(ed|ing)?|done|where|report|where is|how is|check in|check on|finished|progress|latest|sent|sent up)\b|\b(status|update|where|how is|check in|check on)\b.*\b(jax)\b/i;
+
+function detectJaxStatusIntent(msg) {
+  if (!msg || typeof msg !== 'string') return { matched: false };
+  // Exclude dispatch phrasing — if it has SEO/audit keywords AND a URL/platform name, it's a NEW scan request, not status
+  if (JAX_KEYWORDS_RE.test(msg) && /\bhttps?:\/\//i.test(msg)) return { matched: false };
+  if (!JAX_STATUS_RE.test(msg)) return { matched: false };
+  return { matched: true };
+}
+
+/* Read Jax's most recent report from the index and compose Auggie's
+   in-voice status update. If no reports exist yet, say so plainly. */
+async function buildAuggieJaxStatusReply(event) {
+  try { connectLambda(event); } catch (_) {}
+  let idx;
+  try {
+    idx = await getStore('jax_reports_index').get('latest', { type: 'json' });
+  } catch (e) {
+    return "ma'am, i tried to pull Jax's latest but the report index is empty. he has not run a scan yet, or the index file got cleared. want me to dispatch him on something now?";
+  }
+  if (!Array.isArray(idx) || idx.length === 0) {
+    return "ma'am, Jax has not run a scan yet. give me a target and i will dispatch him.";
+  }
+  const latest = idx[0];
+  // Pull the full report for the fix count
+  let report;
+  try {
+    report = await getStore('jax_reports').get(latest.job_id, { type: 'json' });
+  } catch (_) { report = null; }
+  const target = (latest.target_url || '').replace(/^https?:\/\//, '').replace(/\/$/, '');
+  const when = latest.createdAt ? new Date(latest.createdAt) : null;
+  const whenStr = when ? when.toLocaleString('en-US', { dateStyle: 'short', timeStyle: 'short', timeZone: 'America/New_York' }) : 'recently';
+  const base = (process.env.URL || 'https://emerging-tech-lab.com').replace(/\/$/, '');
+  const reportUrl = base + '/studio/jax-reports.html?id=' + encodeURIComponent(latest.job_id);
+
+  if (latest.status === 'queued' || latest.status === 'running') {
+    return "ma'am, Jax is mid-scan on " + target + " right now. he kicked off at " + whenStr + " ET. report will land at " + reportUrl + " in about a minute. give him a beat and refresh.";
+  }
+  if (latest.status === 'failed') {
+    return "ma'am, Jax's last run on " + target + " failed. that was " + whenStr + " ET. i can re-dispatch if you want, or pull the error from " + reportUrl + " .";
+  }
+  // Complete
+  const fixCount = report && typeof report.fix_count === 'number' ? report.fix_count : (report && Array.isArray(report.findings) ? report.findings.filter(f => f.proposed_fix).length : 0);
+  const findingsCount = report && Array.isArray(report.findings) ? report.findings.length : 0;
+  return "ok Ms. Terry, Jax's latest run: " + target + " at " + whenStr + " ET. he flagged " + findingsCount + " issue" + (findingsCount === 1 ? '' : 's') + " and drafted " + fixCount + " fix" + (fixCount === 1 ? '' : 'es') + ". the report is here: " + reportUrl + " . heads up — i can pull his audit and the fixes for you, but i cannot yet have him push them live to the site. that is the next build.";
+}
+
+/* ── New-hires intro queue ───────────────────────────────────────────────
+   When a Specialist joins the bench, Auggie introduces them on the
+   owner's next chat interaction. Tracked per-user in blob storage:
+     - jax_pending_intros (set of staff names pending intro)
+     - jax_introduced_staff (set of staff names already introduced)
+   Default list seeded in code; once introduced, names land in the
+   introduced set and never fire again for that user.
+
+   Today the only staff in the queue is Jax. As more Specialists with
+   backpacks ship, add them to DEFAULT_PENDING_INTROS. */
+const DEFAULT_PENDING_INTROS = [
+  {
+    name: 'Jax Rivera',
+    intro_block:
+      'Jax Rivera just joined the bench. He is eighteen, Hispanic, Gen Z, and Jules\'s cousin (yes THAT Jules). His backpack is SEO and discoverability — he scans your sites, audits them, drafts the fixes. Today his apply-to-live capability is not wired yet, so he hands you the draft and you push it; the apply step is the next build. ' +
+      'You can ask me to put him on any site (just say "have Jax audit X" or "improve SEO for X"), check his latest run ("Jax status"), or pull his download bundle. ' +
+      'He is not warm-warm like me. He performs polite engagement with the older bench but really he is doing the work in his headphones. Bea finds him useful; Chris likes him; the work is the point.',
+  },
+];
+
+async function getPendingIntros(event, userId) {
+  try { connectLambda(event); } catch (_) {}
+  let introduced = [];
+  try {
+    introduced = await getStore('auggie_introduced_staff').get(userId || 'default', { type: 'json' }) || [];
+  } catch (_) {}
+  const introducedSet = new Set(introduced);
+  return DEFAULT_PENDING_INTROS.filter(s => !introducedSet.has(s.name));
+}
+
+async function markIntrosDone(event, userId, names) {
+  if (!names || names.length === 0) return;
+  try { connectLambda(event); } catch (_) {}
+  try {
+    const store = getStore('auggie_introduced_staff');
+    const existing = await store.get(userId || 'default', { type: 'json' }) || [];
+    const merged = Array.from(new Set([...existing, ...names]));
+    await store.setJSON(userId || 'default', merged);
+  } catch (e) {
+    console.warn('[auggie-chat] markIntrosDone failed', e && e.message);
+  }
+}
+
+/* ── Morning brief memory ────────────────────────────────────────────────
+   Pull today's brief transcript from blob so Auggie remembers what HE
+   recorded for Ms. Terry this morning. Without this, his chat-self has
+   no continuity with his brief-self and gets caught flat-footed when she
+   references something from the brief. */
+async function loadTodaysBriefTranscript(event) {
+  try { connectLambda(event); } catch (_) {}
+  try {
+    const meta = await getStore('auggie_briefs_meta').get('latest', { type: 'json' });
+    if (!meta || !meta.transcript) return null;
+    return {
+      transcript: String(meta.transcript).slice(0, 2500),
+      dateKey: meta.dateKey,
+      generatedAt: meta.generatedAt,
+    };
+  } catch (e) {
+    console.warn('[auggie-chat] brief load failed', e && e.message);
+    return null;
+  }
+}
+
 
 exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: CORS, body: '' };
@@ -252,6 +383,24 @@ exports.handler = async (event) => {
 
   if (!message && images.length === 0 && documents.length === 0) {
     return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'message, image, or document required' }) };
+  }
+
+  // ── JAX STATUS CHECK INTENT (must run BEFORE dispatch) ──────────────────
+  // If Terry asks "Jax status / where's Jax / did Jax fix / Jax update", read
+  // his latest report from the blob index and report the real state in his
+  // voice. Real channel, not theater. Skips the model entirely.
+  const jaxStatus = detectJaxStatusIntent(message);
+  if (jaxStatus.matched && images.length === 0 && documents.length === 0) {
+    try {
+      const reply = await buildAuggieJaxStatusReply(event);
+      return {
+        statusCode: 200,
+        headers: { ...CORS, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reply, persona: 'Auggie', jax_status: true }),
+      };
+    } catch (e) {
+      console.warn('[studio-auggie-chat] jax status failed, falling back to model', e && e.message);
+    }
   }
 
   // ── JAX SEO DISPATCH INTENT ──────────────────────────────────────────────
@@ -337,11 +486,35 @@ exports.handler = async (event) => {
     { role: 'user', content: currentContent },
   ];
 
+  // ── ASSEMBLE THE SYSTEM PROMPT WITH RUNTIME CONTEXT ──────────────────
+  // The base AUGGIE_PERSONA is the soul. Layered on top each call:
+  //   (1) Today's morning brief he recorded — so he remembers what he
+  //       said this morning and can pull threads from it forward instead
+  //       of getting caught flat-footed when Terry references it.
+  //   (2) Any pending new-hire intros for this user — Auggie introduces
+  //       each Specialist exactly once, then marks them as done.
+  const userId = (auth.user && auth.user.id) || 'default';
+  const [briefData, pendingIntros] = await Promise.all([
+    loadTodaysBriefTranscript(event),
+    getPendingIntros(event, userId),
+  ]);
+
+  let systemPrompt = AUGGIE_PERSONA;
+  if (briefData && briefData.transcript) {
+    systemPrompt += '\n\nTODAY\'S MORNING BRIEF YOU RECORDED FOR HER (dateKey ' +
+      (briefData.dateKey || 'unknown') + '): "' + briefData.transcript +
+      '". You wrote this for her this morning. If she references anything in it, you remember. Pull threads forward, do not pretend you do not know what she means.';
+  }
+  if (pendingIntros.length > 0) {
+    systemPrompt += '\n\nNEW STAFF YOU MUST INTRODUCE TO MS. TERRY (do this in your NEXT reply, before addressing her actual question if any, in your voice):\n' +
+      pendingIntros.map(s => '- **' + s.name + '**: ' + s.intro_block).join('\n');
+  }
+
   try {
     const resp = await client.messages.create({
       model: MODEL,
       max_tokens: 800,
-      system: AUGGIE_PERSONA,
+      system: systemPrompt,
       tools: [
         // Anthropic server-side web search. The platform executes the
         // tool, we just enable it. max_uses kept to 1 so chat replies
@@ -360,6 +533,17 @@ exports.handler = async (event) => {
       .map(b => b.text)
       .join('\n')
       .trim();
+
+    // If we injected intros into this turn, mark them done so the next
+    // turn does not re-introduce. We do this BEFORE returning so a slow
+    // client doesn't see duplicate intros if they retry.
+    if (pendingIntros.length > 0) {
+      try {
+        await markIntrosDone(event, userId, pendingIntros.map(s => s.name));
+      } catch (e) {
+        console.warn('[studio-auggie-chat] markIntrosDone failed (non-fatal)', e && e.message);
+      }
+    }
 
     return {
       statusCode: 200,
