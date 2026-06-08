@@ -1075,12 +1075,18 @@ document.addEventListener('DOMContentLoaded', function(){
   .etl-tab:focus-visible { outline: 2px solid #FDB827; outline-offset: -4px; }
 
   /* Tab-content gating. Each top-level section is tagged with data-tab="...".
-     When the body has data-active-tab, hide every [data-tab] that doesn't match. */
-  body[data-active-tab="home"]      [data-tab]:not([data-tab="home"]),
-  body[data-active-tab="platforms"] [data-tab]:not([data-tab="platforms"]),
-  body[data-active-tab="agents"]    [data-tab]:not([data-tab="agents"]),
-  body[data-active-tab="store"]     [data-tab]:not([data-tab="store"]),
-  body[data-active-tab="about"]     [data-tab]:not([data-tab="about"]) {
+     When the body has data-active-tab, hide every off-tab section.
+     CRITICAL: the :not(.etl-tab) exclusion is required so this rule does
+     NOT also hide the tab BUTTONS themselves — they also carry data-tab
+     attributes (one per tab), and without the exclusion, switching tabs
+     would hide every tab button except the active one, leaving Terry
+     looking at a single tab with no navigation. Lost most of a morning
+     to this one. */
+  body[data-active-tab="home"]      [data-tab]:not([data-tab="home"]):not(.etl-tab),
+  body[data-active-tab="platforms"] [data-tab]:not([data-tab="platforms"]):not(.etl-tab),
+  body[data-active-tab="agents"]    [data-tab]:not([data-tab="agents"]):not(.etl-tab),
+  body[data-active-tab="store"]     [data-tab]:not([data-tab="store"]):not(.etl-tab),
+  body[data-active-tab="about"]     [data-tab]:not([data-tab="about"]):not(.etl-tab) {
     display: none !important;
   }
 
