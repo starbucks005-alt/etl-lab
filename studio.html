@@ -437,7 +437,7 @@
       <div class="ws-section-tag">August "Auggie" Vidal</div>
     </div>
 
-    <div class="auggie-row" style="display:grid; grid-template-columns: minmax(220px, 280px) minmax(380px, 1fr) minmax(320px, 400px); gap:28px; align-items:start;">
+    <div class="auggie-row floor-collapsed">
 
       <!-- Auggie's portrait + tiny bio.
            Uses the Zoom-frame blink pair (camel suede blazer, palm fronds,
@@ -621,6 +621,54 @@
     }
     .auggie-play-btn:hover:not(:disabled) { color:var(--ink); border-color:var(--brass); background:#fbf4e0; }
     .auggie-play-btn:disabled { opacity:0.55; cursor:wait; }
+
+    /* ─── AUGGIE ROW LAYOUT ────────────────────────────────────────────
+       Three-column grid: portrait | chat | Floor. When the Floor is
+       closed (default), collapse its column to a thin vertical rail
+       so the chat column reclaims ~290px of horizontal space — the
+       chat is where she spends time, and Auggie's lines need room
+       to breathe. The .floor-collapsed class is toggled by the
+       existing Floor open/close button.
+
+       When you open the Floor, the rail expands back to its full
+       width (320-400px) and the chat shrinks accordingly. */
+    .auggie-row {
+      display: grid;
+      grid-template-columns: minmax(220px, 280px) minmax(380px, 1fr) minmax(320px, 400px);
+      gap: 28px;
+      align-items: start;
+    }
+    .auggie-row.floor-collapsed {
+      grid-template-columns: minmax(220px, 280px) 1fr 52px;
+    }
+    /* Floor column in collapsed-rail mode: thin vertical strip, just
+       the toggle button rendered as rotated text. */
+    .auggie-row.floor-collapsed #floor-column {
+      padding: 14px 6px;
+      min-height: 320px;
+      align-items: center; justify-content: center;
+    }
+    .auggie-row.floor-collapsed #floor-header {
+      border-bottom: 0; padding-bottom: 0;
+      width: 100%; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; flex: 1;
+    }
+    .auggie-row.floor-collapsed #floor-tag,
+    .auggie-row.floor-collapsed #floor-sub {
+      display: none;
+    }
+    .auggie-row.floor-collapsed #floor-toggle {
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      white-space: nowrap;
+      width: auto; height: auto;
+      margin: 0; padding: 18px 6px;
+      letter-spacing: 0.28em;
+    }
+    .auggie-row.floor-collapsed #floor-toggle-label::before {
+      /* swap the right-arrow for an up-arrow when reading bottom-to-top */
+      content: '';
+    }
 
     /* ─── THE FLOOR — right column ──────────────────────────────────────
        The inter-staff chat surface. Visually distinct from Auggie's
@@ -2852,16 +2900,25 @@
     }
   }
 
+  // The parent .auggie-row holds the 3-column grid. We toggle a
+  // .floor-collapsed class on it in sync with the Floor open/close
+  // state so the column collapses to a thin rail when closed, giving
+  // the chat the freed horizontal space. Initial page state is closed,
+  // and the HTML ships with .floor-collapsed already on .auggie-row.
+  var auggieRow = document.querySelector('.auggie-row');
+
   toggle.addEventListener('click', function(){
     var expanded = toggle.getAttribute('aria-expanded') === 'true';
     if (expanded) {
       toggle.setAttribute('aria-expanded', 'false');
       toggleLabel.textContent = '▸ open the Floor';
       body.style.display = 'none';
+      if (auggieRow) auggieRow.classList.add('floor-collapsed');
     } else {
       toggle.setAttribute('aria-expanded', 'true');
       toggleLabel.textContent = '▾ close the Floor';
       body.style.display = 'flex';
+      if (auggieRow) auggieRow.classList.remove('floor-collapsed');
       if (!hasLoadedOnce) {
         hasLoadedOnce = true;
         loadFloor();
