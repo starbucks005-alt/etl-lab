@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>From The Gauntlet to Founder Studio &middot; Act II</title>
+<meta name="description" content="You came through The Gauntlet with an idea worth building. Founder Studio is where you build it. Your pitch travels with you.">
+
+<link rel="icon" href="/favicon.ico">
+
+<!-- Google tag -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3GQ2KLSGX4"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-3GQ2KLSGX4');
+</script>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=DM+Mono:wght@300;400&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --ink: #0e0c08;
+    --linen: #f4ebd6;
+    --brass: #b8922a;
+    --brass-bright: #FDB827;
+    --cream: #fbf4e0;
+    --rule: #d8cdb0;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { margin:0; padding:0; }
+  body {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    background: #0a0a0a;
+    color: var(--linen);
+    line-height: 1.55;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--brass-bright); text-decoration: none; }
+  a:hover { color: #fff; }
+
+  /* HEADER */
+  header.brand-top {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 18px 32px;
+    background: #000; color: var(--linen);
+    border-bottom: 1px solid var(--brass);
+  }
+  .brand-top .brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px; font-weight: 700; color: #fff;
+  }
+  .brand-top .brand em { color: var(--brass-bright); font-style: italic; font-weight: 400; }
+  .brand-top .top-links a {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: #d6cfc0; margin-left: 18px;
+  }
+
+  /* HERO */
+  .hero {
+    padding: 90px 32px 50px;
+    text-align: center;
+    background: radial-gradient(circle at 50% 30%, #1a1410 0%, #0a0a0a 70%);
+  }
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px; letter-spacing: 0.28em;
+    color: var(--brass-bright); text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+  .hero-eyebrow .dot {
+    display: inline-block; width: 8px; height: 8px;
+    background: #1f8a3a; border-radius: 50%; margin-right: 8px;
+    vertical-align: middle;
+  }
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(40px, 6.5vw, 70px); font-weight: 700;
+    color: #fff; line-height: 1.05; margin-bottom: 18px;
+  }
+  .hero-title em {
+    font-style: italic; color: var(--brass-bright); font-weight: 400;
+  }
+  .hero-tagline {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(19px, 2.2vw, 24px); font-style: italic;
+    color: #d6cfc0; max-width: 720px; margin: 0 auto 30px;
+  }
+
+  /* PITCH RECAP CARD */
+  .pitch-recap {
+    max-width: 760px; margin: 30px auto 0;
+    padding: 28px 32px;
+    background: var(--cream); color: var(--ink);
+    border: 2px solid var(--brass);
+    text-align: left;
+    display: none; /* shown only if URL params arrived */
+  }
+  .pitch-recap.is-shown { display: block; }
+  .pitch-recap-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; letter-spacing: 0.22em;
+    color: var(--brass); text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .pitch-recap-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px; font-weight: 700; color: var(--ink);
+    margin-bottom: 12px;
+  }
+  .pitch-recap-body {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px; line-height: 1.65; color: var(--ink);
+  }
+  .pitch-recap-verdict {
+    margin-top: 14px; padding-top: 14px;
+    border-top: 1px solid var(--rule);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px; letter-spacing: 0.12em; color: var(--brass);
+    text-transform: uppercase;
+  }
+  .pitch-recap-judges {
+    margin-top: 6px;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic; color: var(--ink); font-size: 14px;
+  }
+
+  /* GENERIC FALLBACK CARD (when no params arrived) */
+  .pitch-generic {
+    max-width: 760px; margin: 30px auto 0;
+    padding: 24px 28px;
+    background: rgba(184,146,42,0.08);
+    border: 1px solid var(--brass);
+    text-align: left;
+  }
+  .pitch-generic-line {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px; color: #d6cfc0; line-height: 1.6;
+  }
+  .pitch-generic-line strong { color: #fff; font-weight: 700; }
+
+  /* THE ASK */
+  .ask-block {
+    padding: 80px 32px;
+    text-align: center;
+    border-top: 1px solid #1f1a14;
+  }
+  .ask-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(32px, 4.4vw, 48px); font-weight: 700;
+    color: #fff; line-height: 1.1; margin-bottom: 20px;
+    max-width: 760px; margin-left: auto; margin-right: auto;
+  }
+  .ask-title em { color: var(--brass-bright); font-style: italic; font-weight: 400; }
+  .ask-sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 19px; font-style: italic;
+    color: #d6cfc0; max-width: 660px;
+    margin: 0 auto 36px;
+  }
+
+  /* CTAs */
+  .cta-row {
+    display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;
+  }
+  .cta-primary {
+    font-family: 'Oswald', sans-serif;
+    font-size: 13px; font-weight: 600; letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 18px 36px;
+    background: var(--brass-bright); color: #0e0c08;
+    border: 1px solid var(--brass-bright);
+  }
+  .cta-primary:hover { background: #fff; border-color: #fff; color: #0e0c08; }
+  .cta-ghost {
+    font-family: 'Oswald', sans-serif;
+    font-size: 13px; font-weight: 600; letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 18px 36px;
+    background: transparent; color: #fff;
+    border: 1px solid #fff;
+  }
+  .cta-ghost:hover { background: #fff; color: #0e0c08; }
+
+  /* WHAT HAPPENS NEXT */
+  .next-strip {
+    padding: 70px 32px;
+    background: var(--cream); color: var(--ink);
+  }
+  .next-inner { max-width: 860px; margin: 0 auto; }
+  .next-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px; letter-spacing: 0.24em;
+    color: var(--brass); text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .next-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 3.6vw, 36px); font-weight: 700;
+    color: var(--ink); margin-bottom: 22px;
+  }
+  .next-list {
+    counter-reset: stepcount;
+    list-style: none; padding: 0;
+  }
+  .next-list li {
+    counter-increment: stepcount;
+    padding: 16px 0 16px 50px;
+    border-bottom: 1px solid var(--rule);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px; color: var(--ink);
+    position: relative;
+  }
+  .next-list li::before {
+    content: counter(stepcount);
+    position: absolute; left: 0; top: 16px;
+    font-family: 'Playfair Display', serif;
+    font-size: 26px; font-weight: 700; color: var(--brass);
+    line-height: 1;
+  }
+  .next-list li strong { color: var(--ink); font-weight: 700; }
+
+  /* FOOTER */
+  footer.fs-footer {
+    background: #000; color: #888;
+    padding: 28px 32px;
+    text-align: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+  }
+  footer.fs-footer a { color: var(--brass-bright); }
+</style>
+</head>
+<body>
+
+<!-- BRAND TOP -->
+<header class="brand-top">
+  <a href="/" class="brand">ETL <em>Founder Studio</em></a>
+  <div class="top-links">
+    <a href="/">Lab home</a>
+    <a href="/founder-studio.html">What is Founder Studio</a>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow"><span class="dot"></span>Welcome from The Gauntlet</div>
+  <h1 class="hero-title">You walked out with an <em>idea</em>.</h1>
+  <p class="hero-tagline">Act I is done. Act II is the company you build for it.</p>
+
+  <!-- If URL params arrived (pitch / verdict / judges), show the recap card.
+       Otherwise show the generic fallback. JS toggles the right one. -->
+  <div id="pitch-recap" class="pitch-recap">
+    <div class="pitch-recap-eyebrow">Your pitch, from The Gauntlet</div>
+    <div id="pitch-recap-title" class="pitch-recap-title"></div>
+    <div id="pitch-recap-body" class="pitch-recap-body"></div>
+    <div id="pitch-recap-verdict" class="pitch-recap-verdict"></div>
+    <div id="pitch-recap-judges" class="pitch-recap-judges"></div>
+  </div>
+
+  <div id="pitch-generic" class="pitch-generic">
+    <div class="pitch-generic-line">
+      <strong>You came here from The Gauntlet, but your pitch did not travel with you.</strong> No problem. Open Founder Studio and tell your PA the idea fresh. We pick up from there.
+    </div>
+  </div>
+</section>
+
+<!-- THE ASK -->
+<section class="ask-block">
+  <h2 class="ask-title">Now build the <em>company</em> for it.</h2>
+  <p class="ask-sub">A 10-seat AI company. Your PA, six Essential Staff, two add-on specialists, you in the tenth seat. Under $1K a month. Staff salary included.</p>
+
+  <div class="cta-row">
+    <a href="/build-your-pa.html" class="cta-primary">Configure Founder Studio &rarr;</a>
+    <a href="/founder-studio.html" class="cta-ghost">Read the full pitch first</a>
+  </div>
+</section>
+
+<!-- WHAT HAPPENS NEXT -->
+<section class="next-strip">
+  <div class="next-inner">
+    <div class="next-eyebrow">What happens next</div>
+    <h2 class="next-title">From pitch to company, in four steps.</h2>
+    <ol class="next-list">
+      <li><strong>Configure your PA.</strong> Pick who they are, what they sound like, how they push back. Auggie is the default; you can customize.</li>
+      <li><strong>Add the 6-pack.</strong> Alicia, Leo, Kimberly, Rowan, Yuki, Sasha. They form the day-one company.</li>
+      <li><strong>Pick two specialists.</strong> From the bench of 65, hire any two who fit your business. Jax for SEO. The Greylander team for authors. Whoever matches your pitch.</li>
+      <li><strong>Name your company.</strong> Your PA will ask, in voice, the first time you log in. You can keep it virtual or, when you are ready, file the LLC.</li>
+    </ol>
+
+    <div style="margin-top:32px; text-align:center;">
+      <a href="/build-your-pa.html" class="cta-primary">Start configuring &rarr;</a>
+    </div>
+  </div>
+</section>
+
+<footer class="fs-footer">
+  Founder Studio is Act II of the ETL journey. Act I lives at <a href="https://thegauntlet.studio">The Gauntlet</a>. Both are products of the <a href="/">Emerging Technologies Laboratory</a>.
+</footer>
+
+<script>
+(function(){
+  // Read pitch context from URL query params. If The Gauntlet has sent us
+  // any of pitch/verdict/judges, show the recap card; otherwise show the
+  // generic fallback. The values are also stashed in sessionStorage so
+  // they survive navigation to /build-your-pa.html and can be used to
+  // pre-fill that form once we wire the integration.
+  var qs = new URLSearchParams(window.location.search);
+  var pitch    = (qs.get('pitch')    || '').trim();
+  var verdict  = (qs.get('verdict')  || '').trim();
+  var judges   = (qs.get('judges')   || '').trim(); // comma-separated
+  var company  = (qs.get('company')  || '').trim(); // optional company-name draft
+
+  function esc(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  var hasContext = !!(pitch || verdict || judges || company);
+
+  if (hasContext) {
+    // Hide generic, show recap
+    document.getElementById('pitch-generic').style.display = 'none';
+    var recap = document.getElementById('pitch-recap');
+    recap.classList.add('is-shown');
+
+    if (company) {
+      document.getElementById('pitch-recap-title').textContent = company;
+    } else {
+      document.getElementById('pitch-recap-title').textContent = 'Your idea';
+    }
+
+    document.getElementById('pitch-recap-body').textContent = pitch || '(no pitch text passed through, but the rest survived)';
+
+    if (verdict) {
+      document.getElementById('pitch-recap-verdict').textContent = 'Verdict: ' + verdict;
+    }
+    if (judges) {
+      var judgeList = judges.split(',').map(function(j){ return j.trim(); }).filter(Boolean);
+      if (judgeList.length) {
+        document.getElementById('pitch-recap-judges').textContent =
+          'Judges: ' + judgeList.join(', ');
+      }
+    }
+
+    // Stash for the configurator page to pick up.
+    try {
+      sessionStorage.setItem('gauntlet_handoff', JSON.stringify({
+        pitch: pitch, verdict: verdict, judges: judges, company: company,
+        at: Date.now(),
+      }));
+    } catch (_) {}
+  }
+})();
+</script>
+
+</body>
+</html>
