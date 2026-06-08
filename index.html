@@ -1545,12 +1545,225 @@ document.addEventListener('DOMContentLoaded', function(){
     /* Needed for the backpack badge's absolute child below */
     position: relative;
   }
-  /* MCP backpack agents — gold border + glow so even before noticing the
-     corner badge you read "this one is different." data-mcp="1" is set
-     in JS from AGENTS[i].tools (any non-empty tools array). */
+  /* MCP backpack agents — gold border + pulsing aura so even before
+     noticing the corner badge you read "this one is different." Pulse
+     mirrors the MCP-vs-Regular explainer at the top of the Agents tab,
+     so the visual convention carries down into the wall. data-mcp="1"
+     is set in JS from AGENTS[i].tools (any non-empty tools array). */
   .etl-network .etl-net-roster img[data-mcp="1"] {
     border-color: #FDB827;
-    box-shadow: 0 0 0 1px #FDB827, 0 0 12px rgba(253,184,39,0.35), 0 2px 8px rgba(0,0,0,0.4);
+    box-shadow: 0 0 0 1px #FDB827, 0 0 14px rgba(253,184,39,0.4), 0 2px 8px rgba(0,0,0,0.45);
+    animation: etl-mcp-pulse 2.6s ease-in-out infinite;
+  }
+  @keyframes etl-mcp-pulse {
+    0%, 100% { box-shadow: 0 0 0 1px #FDB827, 0 0 10px rgba(253,184,39,0.30), 0 2px 8px rgba(0,0,0,0.45); }
+    50%      { box-shadow: 0 0 0 1px #FDB827, 0 0 22px rgba(253,184,39,0.65), 0 2px 8px rgba(0,0,0,0.45); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .etl-network .etl-net-roster img[data-mcp="1"] { animation: none; }
+  }
+
+  /* ─── MCP-vs-Regular explainer (top of Agents tab) ──────────────────────
+     Adapted from Terry's standalone MCP_vs_SiteTools.html. ETL palette:
+     black background, gold accent, cream copy. Same side-by-side layout,
+     same pulse-on-MCP visual cue, same source-tag chips above each side.
+     The 8 portraits are extracted to agents/mcp-explainer/. */
+  .mcp-explainer {
+    background: linear-gradient(180deg, #0e0c08 0%, #161310 60%, #0a0908 100%);
+    color: #f4ebd6;
+    padding: 48px 32px 40px;
+    margin: 0 0 56px;
+    border-top: 2px solid #FDB827;
+    border-bottom: 2px solid #FDB827;
+  }
+  .mcp-explainer-title {
+    text-align: center;
+    font-family: 'Oswald', sans-serif;
+    font-size: 38px; font-weight: 700;
+    letter-spacing: 0.5px;
+    margin: 0 0 6px;
+    color: #f4ebd6;
+  }
+  .mcp-explainer-title span {
+    color: #FDB827;
+  }
+  .mcp-explainer-sub {
+    text-align: center;
+    color: rgba(244,235,214,0.65);
+    margin: 0 0 28px;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+  }
+  .mcp-explainer-stage {
+    display: grid;
+    grid-template-columns: 1fr 1px 1fr;
+    gap: 28px;
+    align-items: start;
+    max-width: 1120px;
+    margin: 0 auto;
+  }
+  .mcp-divider {
+    background: linear-gradient(180deg, transparent, rgba(253,184,39,0.45), transparent);
+    width: 1px; height: 100%;
+    min-height: 320px;
+  }
+  .mcp-panel { padding: 0 4px; }
+  .mcp-tags {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    justify-content: center;
+    min-height: 64px; margin-bottom: 6px;
+  }
+  .mcp-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px; font-weight: 600;
+    color: #f4ebd6;
+    background: rgba(253,184,39,0.10);
+    border: 1px solid rgba(253,184,39,0.45);
+    padding: 5px 11px;
+    border-radius: 16px;
+    white-space: nowrap;
+    box-shadow: 0 0 12px rgba(253,184,39,0.12);
+    letter-spacing: 0.04em;
+  }
+  .mcp-tags--reg .mcp-tag {
+    background: rgba(244,235,214,0.05);
+    border-color: rgba(244,235,214,0.30);
+    box-shadow: none;
+    color: rgba(244,235,214,0.85);
+  }
+  .mcp-console {
+    display: flex; align-items: center; justify-content: center;
+    gap: 10px; margin-bottom: 14px;
+    background: linear-gradient(180deg, rgba(40,38,30,0.65), rgba(22,19,16,0.65));
+    border: 1px solid rgba(244,235,214,0.25);
+    border-radius: 12px;
+    padding: 11px 14px;
+    color: rgba(244,235,214,0.7);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.18em;
+    min-height: 64px;
+    box-sizing: border-box;
+  }
+  .mcp-console svg { color: rgba(244,235,214,0.7); }
+  .mcp-flow {
+    text-align: center;
+    color: rgba(244,235,214,0.4);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    margin: -2px 0 14px;
+  }
+  .mcp-group {
+    display: flex; gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .mcp-card {
+    margin: 0; width: 124px;
+    text-align: center;
+  }
+  .mcp-ring {
+    position: relative;
+    width: 104px; height: 104px;
+    margin: 0 auto 12px;
+    border-radius: 50%;
+  }
+  .mcp-ring img {
+    width: 104px; height: 104px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+  }
+  .mcp-card--mcp .mcp-ring {
+    box-shadow: 0 0 0 3px #FDB827, 0 0 22px 4px rgba(253,184,39,0.55);
+  }
+  .mcp-card--mcp .mcp-ring::before {
+    content: "";
+    position: absolute; inset: -9px;
+    border-radius: 50%;
+    border: 2px solid rgba(253,184,39,0.55);
+    animation: mcp-aura-pulse 2.6s ease-in-out infinite;
+    pointer-events: none;
+  }
+  @keyframes mcp-aura-pulse {
+    0%, 100% { opacity: 0.30; transform: scale(1); }
+    50%      { opacity: 0.85; transform: scale(1.06); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mcp-card--mcp .mcp-ring::before { animation: none; opacity: 0.5; }
+  }
+  .mcp-card--reg .mcp-ring {
+    box-shadow: 0 0 0 2px rgba(244,235,214,0.45);
+    filter: saturate(0.92);
+  }
+  .mcp-badge {
+    position: absolute;
+    right: -2px; bottom: -2px;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    border: 2px solid #0e0c08;
+    font-size: 14px; line-height: 1;
+  }
+  .mcp-badge--pack {
+    background: #FDB827;
+    color: #1a1a1a;
+  }
+  .mcp-badge--term {
+    background: rgba(244,235,214,0.55);
+    color: #1a1a1a;
+  }
+  .mcp-card figcaption b {
+    display: block;
+    font-family: 'Oswald', sans-serif;
+    font-size: 14px;
+    color: #f4ebd6;
+    letter-spacing: 0.3px;
+  }
+  .mcp-card figcaption span {
+    display: block;
+    font-size: 11px;
+    color: rgba(244,235,214,0.55);
+    margin-top: 2px;
+    font-family: 'Share Tech Mono', monospace;
+    letter-spacing: 0.05em;
+  }
+  .mcp-label {
+    margin-top: 22px;
+    border-radius: 24px;
+    padding: 12px 16px;
+    text-align: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11.5px; font-weight: 700;
+    letter-spacing: 0.18em;
+  }
+  .mcp-label--mcp {
+    background: rgba(253,184,39,0.12);
+    border: 1.5px solid #FDB827;
+    color: #FDB827;
+  }
+  .mcp-label--reg {
+    background: rgba(244,235,214,0.07);
+    border: 1.5px solid rgba(244,235,214,0.40);
+    color: rgba(244,235,214,0.80);
+  }
+  .mcp-foot {
+    text-align: center;
+    color: rgba(244,235,214,0.45);
+    font-size: 12px;
+    margin: 22px 0 0;
+    letter-spacing: 0.04em;
+    font-style: italic;
+  }
+  @media (max-width: 760px) {
+    .mcp-explainer { padding: 32px 16px 28px; }
+    .mcp-explainer-title { font-size: 26px; }
+    .mcp-explainer-stage { grid-template-columns: 1fr; gap: 32px; }
+    .mcp-divider { display: none; }
+    .mcp-group { gap: 12px; }
+    .mcp-card { width: 96px; }
+    .mcp-ring, .mcp-ring img { width: 84px; height: 84px; }
   }
   /* Wrapper inserted by JS around each MCP avatar so the corner badge can
      be absolutely positioned over the image. Regular staff stay as bare
@@ -2235,6 +2448,124 @@ document.addEventListener('DOMContentLoaded', function(){
      ───────────────────────────────────────────────────────────────────── -->
 <section class="section-full etl-network etl-network--agents-only" id="agents" data-tab="agents">
   <div class="section-full-inner">
+
+    <!-- ─────────────────────────────────────────────────────────────────────
+         MCP-vs-Regular explainer. Adapted from Terry's standalone
+         MCP_vs_SiteTools.html (8 illustrated portraits, pulsing-aura
+         treatment on MCP staff). Sits at the TOP of the Agents tab so
+         visitors see the distinction BEFORE they scan the face wall below.
+         The face wall then mirrors the same convention: MCP avatars carry
+         the gold pulsing ring; Regular avatars stay plain.
+         ───────────────────────────────────────────────────────────────── -->
+    <div class="mcp-explainer">
+      <h2 class="mcp-explainer-title">Same skills. <span>Different reach.</span></h2>
+      <p class="mcp-explainer-sub">Every ETL staffer is skilled. The difference is whether the tools travel with them.</p>
+
+      <div class="mcp-explainer-stage">
+        <!-- LEFT PANEL: MCP STAFF ────────────────────────────────────────── -->
+        <section class="mcp-panel mcp-panel--mcp">
+          <div class="mcp-tags">
+            <span class="mcp-tag">PubMed</span>
+            <span class="mcp-tag">ClinicalTrials.gov</span>
+            <span class="mcp-tag">FDA</span>
+            <span class="mcp-tag">the open web</span>
+            <span class="mcp-tag">gov registries</span>
+          </div>
+          <div class="mcp-flow">&#9651; tools travel on their backs &#9651;</div>
+          <div class="mcp-group">
+            <figure class="mcp-card mcp-card--mcp">
+              <div class="mcp-ring">
+                <img src="agents/mcp-explainer/eli_adler.png" alt="Eli Adler" loading="lazy">
+                <span class="mcp-badge mcp-badge--pack" title="carries an MCP backpack" aria-hidden="true">&#x1F392;</span>
+              </div>
+              <figcaption><b>Eli Adler</b><span>The Fact-Checker</span></figcaption>
+            </figure>
+            <figure class="mcp-card mcp-card--mcp">
+              <div class="mcp-ring">
+                <img src="agents/mcp-explainer/dr__henry_chen.png" alt="Dr. Henry Chen" loading="lazy">
+                <span class="mcp-badge mcp-badge--pack" title="carries an MCP backpack" aria-hidden="true">&#x1F392;</span>
+              </div>
+              <figcaption><b>Dr. Henry Chen</b><span>The Pharmacist</span></figcaption>
+            </figure>
+            <figure class="mcp-card mcp-card--mcp">
+              <div class="mcp-ring">
+                <img src="agents/mcp-explainer/ms__ivy.png" alt="Ms. Ivy" loading="lazy">
+                <span class="mcp-badge mcp-badge--pack" title="carries an MCP backpack" aria-hidden="true">&#x1F392;</span>
+              </div>
+              <figcaption><b>Ms. Ivy</b><span>Health Sciences Librarian</span></figcaption>
+            </figure>
+            <figure class="mcp-card mcp-card--mcp">
+              <div class="mcp-ring">
+                <img src="agents/mcp-explainer/mara_rivera.png" alt="Mara Rivera" loading="lazy">
+                <span class="mcp-badge mcp-badge--pack" title="carries an MCP backpack" aria-hidden="true">&#x1F392;</span>
+              </div>
+              <figcaption><b>Mara Rivera</b><span>Entertainment Desk</span></figcaption>
+            </figure>
+          </div>
+          <div class="mcp-label mcp-label--mcp">MCP STAFF &middot; their tools travel with them, on any site</div>
+        </section>
+
+        <div class="mcp-divider" aria-hidden="true"></div>
+
+        <!-- RIGHT PANEL: REGULAR STAFF ──────────────────────────────────── -->
+        <section class="mcp-panel mcp-panel--reg">
+          <div class="mcp-console">
+            <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M3 4h18v13h-7v2h3v2H7v-2h3v-2H3V4Zm2 2v9h14V6H5Z"/></svg>
+            SITE TOOLS &middot; built into the platform
+          </div>
+          <div class="mcp-flow">same sources, reached through the building &#9661;</div>
+          <div class="mcp-tags mcp-tags--reg">
+            <span class="mcp-tag">PubMed</span>
+            <span class="mcp-tag">ClinicalTrials.gov</span>
+            <span class="mcp-tag">FDA</span>
+            <span class="mcp-tag">the open web</span>
+            <span class="mcp-tag">gov registries</span>
+          </div>
+          <div class="mcp-group">
+            <figure class="mcp-card mcp-card--reg">
+              <div class="mcp-ring">
+                <img src="agents/mcp-explainer/yuki_mendel.png" alt="Yuki Mendel" loading="lazy">
+                <span class="mcp-badge mcp-badge--term" title="uses the site's built-in tools" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M3 4h18a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1h-7v2h3v2H7v-2h3v-2H3a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Zm1 2v9h16V6H4Zm2 2h5v2H6V8Zm0 3h8v1.5H6V11Z"/></svg>
+                </span>
+              </div>
+              <figcaption><b>Yuki Mendel</b><span>Graphic Designer</span></figcaption>
+            </figure>
+            <figure class="mcp-card mcp-card--reg">
+              <div class="mcp-ring">
+                <img src="agents/mcp-explainer/grey_hollis.png" alt="Grey Hollis" loading="lazy">
+                <span class="mcp-badge mcp-badge--term" title="uses the site's built-in tools" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M3 4h18a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1h-7v2h3v2H7v-2h3v-2H3a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Zm1 2v9h16V6H4Zm2 2h5v2H6V8Zm0 3h8v1.5H6V11Z"/></svg>
+                </span>
+              </div>
+              <figcaption><b>Grey Hollis</b><span>The Ghostwriter</span></figcaption>
+            </figure>
+            <figure class="mcp-card mcp-card--reg">
+              <div class="mcp-ring">
+                <img src="agents/mcp-explainer/margo_bennett.png" alt="Margo Bennett" loading="lazy">
+                <span class="mcp-badge mcp-badge--term" title="uses the site's built-in tools" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M3 4h18a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1h-7v2h3v2H7v-2h3v-2H3a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Zm1 2v9h16V6H4Zm2 2h5v2H6V8Zm0 3h8v1.5H6V11Z"/></svg>
+                </span>
+              </div>
+              <figcaption><b>Margo Bennett</b><span>The Beta Reader</span></figcaption>
+            </figure>
+            <figure class="mcp-card mcp-card--reg">
+              <div class="mcp-ring">
+                <img src="agents/mcp-explainer/chris_avila.png" alt="Chris Avila" loading="lazy">
+                <span class="mcp-badge mcp-badge--term" title="uses the site's built-in tools" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M3 4h18a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1h-7v2h3v2H7v-2h3v-2H3a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Zm1 2v9h16V6H4Zm2 2h5v2H6V8Zm0 3h8v1.5H6V11Z"/></svg>
+                </span>
+              </div>
+              <figcaption><b>Chris Avila</b><span>Comps &amp; Character Artist</span></figcaption>
+            </figure>
+          </div>
+          <div class="mcp-label mcp-label--reg">REGULAR STAFF &middot; use the site&rsquo;s built-in tools</div>
+        </section>
+      </div>
+
+      <p class="mcp-foot">MCP backpack = portable verification that follows the character to any platform.</p>
+    </div>
+
     <div class="etl-net-grid">
       <div class="etl-net-card etl-net-card--agents">
         <div class="etl-net-video">
@@ -2352,11 +2683,7 @@ document.addEventListener('DOMContentLoaded', function(){
           <div class="etl-net-title">AI Agents</div>
           <div class="etl-net-tagline">Meet the team behind every platform</div>
           <p class="etl-net-desc">A full staff of AI employees across every platform. Two kinds work here. <strong>Regular staff</strong> live inside the website's framework and do their job within it. <strong>MCP staff</strong> (short for Model Context Protocol) carry a backpack, the way Maya carries her magic one in the children's book, and the backpack travels with them everywhere. It lets them go out to PubMed, the web, ClinicalTrials.gov, and government registries and bring back real evidence. Each with their own job, their own bio, their own voice. Click any face to read who they are and visit them in their home.</p>
-          <div class="etl-net-backpack-legend">
-            <span class="legend-glyph" aria-hidden="true">&#x1F392;</span>
-            Backpack = MCP &mdash; pulls live evidence
-          </div>
-          <div class="etl-net-agents-hint">Click any avatar to open their bio</div>
+          <div class="etl-net-agents-hint">Click any avatar to open their bio. Gold pulsing ring = MCP staff (see comparison above).</div>
           <a class="etl-net-launch" href="/agents/" target="_blank" rel="noopener">View the full Roster &rarr;</a>
         </div>
       </div>
