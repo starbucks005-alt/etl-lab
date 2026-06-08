@@ -109,8 +109,11 @@ async function getTodaysContext(event) {
     const metaStore = getStore('auggie_briefs_meta');
     const meta = await metaStore.get('latest', { type: 'json' });
     if (meta && meta.transcript) {
-      // Trim to ~800 chars so the prompt does not balloon
-      const t = String(meta.transcript).slice(0, 800);
+      // Trim to ~1500 chars so the staff see more than the brief's lead.
+      // Cutting too tight makes them fixate on whatever single article
+      // the brief opened with; a fuller window lets them pull from
+      // any thread in today's brief, not just the first one.
+      const t = String(meta.transcript).slice(0, 1500);
       context.items.push({
         kind: 'morning_brief',
         date: meta.dateKey || today,
@@ -177,7 +180,8 @@ exports.handler = async (event) => {
     '- Each message is one to three short sentences. Conversational, not paragraphs.',
     '- Stay in each character\'s voice. Auggie\'s register is camp and capitalized; Bea is dry and precise; Chris is visual; Jess is high-energy with real strategy underneath.',
     '- Reference REAL items from today\'s context when relevant. Do not invent fictional meetings, fake names, or things that did not happen.',
-    '- If today\'s context is sparse, they are just doing office chatter — Auggie complaining about a typo, Bea pushing back on a deadline, Chris dropping a color note, Jess pinging about a podcast pitch. Real-office texture.',
+    '- **Freshness rule**: If the morning brief surfaces a Forbes article, mention, or piece of news that is more than 30 days old, the staff have ALREADY discussed it in previous Floor sessions and are bored of it. They DO NOT fixate on it. They pivot — either to something genuinely fresh in the brief, or to ordinary office chatter (a typo to fix, a deadline to negotiate, a podcast pitch, a color call). NEVER let the channel be stuck on Dr. Oroszi\'s Forbes piece from last year. She has published a lot since; the staff know that.',
+    '- If today\'s context is sparse OR everything in the brief is stale, they are just doing office chatter — Auggie complaining about a typo, Bea pushing back on a deadline, Chris dropping a color note, Jess pinging about a podcast pitch. Real-office texture. That is BETTER than stale rehashing.',
     '- They like each other. They tease each other. There can be a small disagreement, but it resolves like adults.',
     '- No emojis. No exclamation points (Bea will not stand for them). ALL CAPS used sparingly for emphasis (OMG, ANYWAY) and only by Auggie.',
     '- Timestamps as "h:MMam" or "h:MMpm" (e.g., "2:14pm"). The conversation must have happened in the LAST 4-6 HOURS leading up to the current time above. **DO NOT timestamp anything in the future relative to now.** Example: if it is currently 4:23pm, the thread might run from roughly 10:15am to 4:10pm, progressing chronologically.',
