@@ -204,15 +204,26 @@ function buildAuggieJaxBlockedReply(targetUrl, block) {
 }
 
 const PLATFORM_URL_MAP = [
-  // longer phrases first so "the dose" wins over "dose"
-  { match: /\b(emerging[- ]tech[- ]lab|emerging technologies lab|emerging-tech-lab\.com|\bETL\b)/i,                 url: 'https://emerging-tech-lab.com' },
-  { match: /\b(mission possible spy academy|mpsa|spy academy)/i,                                                  url: 'https://www.missionpossibleacademy.org' },
-  { match: /\b(intel dashboard|inteldashboard)/i,                                                                  url: 'https://inteldashboard.org' },
-  { match: /\b(the dose|thedose|the\s+dose\.net)/i,                                                                url: 'https://thedose.net' },
-  { match: /\b(greylander press|greylanderpress)/i,                                                                url: 'https://greylanderpress.com' },
-  { match: /\b(the gauntlet|thegauntlet)/i,                                                                        url: 'https://thegauntlet.studio' },
-  { match: /\b(gandhi-?king|gandhi king center)/i,                                                                  url: 'https://gandhi-king.netlify.app' },
-  { match: /\b(slr studio|slrstudio)/i,                                                                              url: 'https://slrstudio.online' },
+  // Longer / more specific phrases FIRST so "the dose" wins over "dose"
+  // and subpaths win over the root ETL match.
+  // ── Standalone-domain platforms ──────────────────────────────────────
+  { match: /\b(mission possible spy academy|mpsa|spy academy)/i,                  url: 'https://www.missionpossibleacademy.org' },
+  { match: /\b(intel dashboard|inteldashboard)/i,                                  url: 'https://inteldashboard.org' },
+  { match: /\b(the dose|thedose|the\s+dose\.net)/i,                                url: 'https://thedose.net' },
+  { match: /\b(greylander press|greylanderpress)/i,                                url: 'https://greylanderpress.com' },
+  { match: /\b(the gauntlet|thegauntlet)/i,                                        url: 'https://thegauntlet.studio' },
+  { match: /\b(gandhi-?king|gandhi king center)/i,                                  url: 'https://gandhi-king.netlify.app' },
+  { match: /\b(slr studio|slrstudio)/i,                                              url: 'https://slrstudio.online' },
+  // ── ETL subpath products — must be listed BEFORE the root ETL match
+  // so they win when Terry names them specifically. Each has its own
+  // <head> (title, meta, canonical) that deserves its own scan, even
+  // though they share emerging-tech-lab.com root. ─────────────────────
+  { match: /\b(office hours|officehours)/i,                                          url: 'https://emerging-tech-lab.com/office-hours' },
+  { match: /\b(prep room|preproom|the prep room)/i,                                  url: 'https://emerging-tech-lab.com/prep-room' },
+  { match: /\b(the boardroom|boardroom)/i,                                            url: 'https://emerging-tech-lab.com/boardroom' },
+  { match: /\b(etl newswire|the newswire|press hub|newswire)/i,                       url: 'https://emerging-tech-lab.com/press' },
+  // ── Root ETL last — broad pattern that matches "ETL" alone ──────────
+  { match: /\b(emerging[- ]tech[- ]lab|emerging technologies lab|emerging-tech-lab\.com|\bETL\b)/i, url: 'https://emerging-tech-lab.com' },
 ];
 
 function detectJaxDispatchIntent(msg) {
