@@ -1993,12 +1993,20 @@ document.addEventListener('DOMContentLoaded', function(){
     border: 2px solid var(--gold);
     box-shadow: 0 0 0 1px rgba(184,146,42,0.4), 0 0 28px rgba(184,146,42,0.32);
     background: #1a1a1a;
+    /* Defensive: if an agent's portrait file 404s the broken-image alt
+       text used to render INSIDE the circle and looked like a flicker
+       over the avatar (Mara's case). Zero font + hidden overflow makes
+       the broken-image case a silent dark circle instead. */
+    font-size: 0;
+    line-height: 0;
   }
   .agents-modal-portrait img {
     width: 100%; height: 100%;
     object-fit: cover;
     object-position: top;
     display: block;
+    /* Hide the browser's default broken-image icon for the same reason. */
+    color: transparent;
   }
   .agents-modal-name {
     font-family: 'Oswald', sans-serif;
@@ -2039,20 +2047,26 @@ document.addEventListener('DOMContentLoaded', function(){
   /* MCP signal: only renders when an agent has a tools[] list. Surfaces
      that this agent actually queries live data sources / has tool-using
      superpowers, not just LLM persona output. */
+  /* MCP block. Calmed down 2026-06-08: badge + tools split onto two rows
+     so the chips don't overflow + crowd the small modal. Lighter chip
+     borders so the eye reads the bio underneath, not the metadata. */
   .agents-modal-mcp {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    margin: -8px auto 18px;
-    max-width: 420px;
+    display: block;
+    margin: -4px auto 18px;
+    max-width: 460px;
     text-align: center;
+    padding: 10px 12px;
+    border-top: 1px solid rgba(184,146,42,0.18);
+    border-bottom: 1px solid rgba(184,146,42,0.18);
+  }
+  .agents-modal-mcp-header {
+    display: inline-flex; align-items: center; gap: 8px;
+    margin-bottom: 6px;
   }
   .agents-modal-mcp-badge {
     font-family: 'DM Mono', 'Share Tech Mono', monospace;
     font-size: 9px;
-    font-weight: 600;
+    font-weight: 700;
     letter-spacing: 0.22em;
     color: #0a0a0a;
     background: var(--gold);
@@ -2065,10 +2079,10 @@ document.addEventListener('DOMContentLoaded', function(){
     font-size: 9px;
     letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: #888;
+    color: #aaa;
   }
   .agents-modal-mcp-tools {
-    display: inline-flex;
+    display: flex;
     flex-wrap: wrap;
     gap: 4px;
     justify-content: center;
@@ -2076,11 +2090,12 @@ document.addEventListener('DOMContentLoaded', function(){
   .agents-modal-mcp-tools .tool-chip {
     font-family: 'DM Mono', monospace;
     font-size: 9px;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.10em;
     text-transform: uppercase;
-    color: #d4aa4a;
-    border: 1px solid rgba(184,146,42,0.4);
-    padding: 2px 6px;
+    color: #c8a04a;
+    background: rgba(184,146,42,0.06);
+    border: 1px solid rgba(184,146,42,0.22);
+    padding: 2px 7px;
     border-radius: 2px;
   }
   .agents-modal-actions {
@@ -4592,9 +4607,11 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
     <div class="agents-modal-role" id="agents-modal-role"></div>
     <div class="agents-modal-platform" id="agents-modal-platform"></div>
     <div class="agents-modal-mcp" id="agents-modal-mcp" hidden>
-      <span class="agents-modal-mcp-badge">MCP</span>
-      <span class="agents-modal-mcp-label">Live tools:</span>
-      <span class="agents-modal-mcp-tools" id="agents-modal-mcp-tools"></span>
+      <div class="agents-modal-mcp-header">
+        <span class="agents-modal-mcp-badge">MCP</span>
+        <span class="agents-modal-mcp-label">Live tools</span>
+      </div>
+      <div class="agents-modal-mcp-tools" id="agents-modal-mcp-tools"></div>
     </div>
     <p class="agents-modal-bio" id="agents-modal-bio"></p>
     <div class="agents-modal-actions">
