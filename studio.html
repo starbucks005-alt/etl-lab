@@ -818,10 +818,10 @@
 
       <div class="staff-card">
         <div class="staff-portrait">
-          <img src="/prep-room-assets/bea_open.png" alt="Beatriz Reyes" onerror="this.outerHTML='<div class=&quot;staff-portrait-placeholder&quot;>B</div>'">
+          <img src="/prep-room-assets/bea_open.png" alt="Beatriz Vega" onerror="this.outerHTML='<div class=&quot;staff-portrait-placeholder&quot;>B</div>'">
         </div>
         <div class="staff-body">
-          <div class="staff-name">Beatriz "Bea" Reyes</div>
+          <div class="staff-name">Beatriz "Bea" Vega</div>
           <div class="staff-role">Senior Copy Editor</div>
           <div class="staff-current">Currently on assignment. Sign in for detail.</div>
         </div>
@@ -2744,7 +2744,26 @@
       } catch (_) {}
       dateLabel.textContent = prettyDate ? ('Morning brief · ' + prettyDate) : 'Morning brief';
       var sec = +meta.estimatedSeconds || 0;
-      lengthLabel.textContent = sec > 0 ? ('· ' + Math.max(1, Math.round(sec / 60)) + ' min listen') : '';
+      var lengthStr = sec > 0 ? ('· ' + Math.max(1, Math.round(sec / 60)) + ' min listen') : '';
+      // Stale flag from the backend's self-healing check: brief.dateKey
+      // doesn't match today (ET). Backend already fired a regen — we just
+      // tell Terry what's happening and auto-poll for the fresh one.
+      if (meta.stale) {
+        lengthLabel.innerHTML = (lengthStr ? (lengthStr + ' · ') : '') +
+          '<span style="color:#FDB827; font-weight:700;">' +
+          'STALE — Auggie is generating today\'s brief now, refresh in ~90s' +
+          '</span>';
+        // Auto-poll for the fresh brief: try at +90s, +150s, +210s.
+        if (!window.__briefStalePolls) {
+          window.__briefStalePolls = true;
+          setTimeout(function(){ loadAuggieBrief(); }, 90000);
+          setTimeout(function(){ loadAuggieBrief(); }, 150000);
+          setTimeout(function(){ loadAuggieBrief(); }, 210000);
+        }
+      } else {
+        lengthLabel.textContent = lengthStr;
+        window.__briefStalePolls = false;
+      }
       transcript.textContent = meta.transcript || '';
 
       // Audio is JWT-gated. Fetch with auth, blob it, hand to <audio>.

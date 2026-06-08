@@ -6,11 +6,58 @@
    Auth: Supabase JWT (this is Terry-personal data, not public).
 
    Returns: { available, dateKey, generatedAt, transcript, estimatedSeconds,
-             audioUrl, sourcesUsed }
+             audioUrl, sourcesUsed, stale, expectedDateKey }
    or:      { available: false }
+
+   Self-healing: if the stored brief's dateKey is older than today (America/
+   New_York), the response includes stale=true AND fires a fire-and-forget
+   regen of the background brief. By the time Terry reads the stale text,
+   the fresh one is ready on next refresh. Prevents the "still showing
+   Sunday on Monday" failure mode that bit us when a cron misfired.
    ───────────────────────────────────────────────────────────────────────────── */
 
 const { getStore, connectLambda } = require('@netlify/blobs');
+
+/* Today's date key in America/New_York, format YYYY-MM-DD. Mirrors the
+   helper in studio-auggie-brief-background.js so freshness comparison
+   uses the same wall clock. */
+function todayKeyET() {
+  const now = new Date();
+  const fmt = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/New_York',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+  });
+  const parts = fmt.formatToParts(now);
+  const get = (t) => parts.find(p => p.type === t).value;
+  return get('year') + '-' + get('month') + '-' + get('day');
+}
+
+/* Fire-and-forget regen trigger. Calls the background brief function with
+   admin basic auth (same path the daily cron uses). We do NOT await the
+   bg's actual generation (that takes 60-90s). We just kick it off. */
+async function fireRegen(eventHost) {
+  try {
+    const user = process.env.PRESS_ADMIN_USER;
+    const pass = process.env.PRESS_ADMIN_PASS;
+    if (!user || !pass) {
+      console.warn('[brief-latest] regen skipped: PRESS_ADMIN_USER/PASS not set');
+      return;
+    }
+    const basic = Buffer.from(user + ':' + pass).toString('base64');
+    const base = (process.env.URL || ('https://' + (eventHost || 'emerging-tech-lab.com'))).replace(/\/$/, '');
+    // Await the bg invocation (cheap; bg returns 202 fast). Don't await the
+    // bg's actual work — that takes ~90s and would blow the sync function's
+    // 10s budget.
+    const r = await fetch(base + '/.netlify/functions/studio-auggie-brief-background', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Basic ' + basic },
+      body: JSON.stringify({ trigger: 'stale_auto_regen' }),
+    });
+    console.log('[brief-latest] regen invoke status', r.status);
+  } catch (e) {
+    console.warn('[brief-latest] regen invoke failed (non-fatal)', e && e.message);
+  }
+}
 
 const SUPABASE_URL = 'https://ulvrnermyuvzanxhxoib.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsdnJuZXJteXV2emFueGh4b2liIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3MzYyMDEsImV4cCI6MjA5NjMxMjIwMX0.tAaXhm_pb-DxrYsXYw1DvvYENDJ_y3jlt2nGWSp2lbA';
@@ -61,20 +108,39 @@ exports.handler = async (event) => {
     console.error('[auggie-brief-latest] meta read failed', err && err.message);
   }
 
+  const expectedDateKey = todayKeyET();
+  const eventHost = (event.headers && (event.headers.host || event.headers.Host)) || '';
+
   if (!meta) {
+    // Nothing on disk — kick a regen so the next pageview has content.
+    fireRegen(eventHost);
     return {
       statusCode: 200,
       headers: { ...CORS, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
-      body: JSON.stringify({ available: false }),
+      body: JSON.stringify({ available: false, expectedDateKey, stale: true, regenFired: true }),
     };
+  }
+
+  // Freshness check: stored brief's dateKey vs today (ET). If stale, fire
+  // a regen and flag the response so the UI can warn ("brief is from
+  // [Sunday] — refreshing now, check back in ~90s").
+  const isStale = meta.dateKey && meta.dateKey !== expectedDateKey;
+  if (isStale) {
+    console.log('[brief-latest] stale brief detected: stored=' + meta.dateKey + ' expected=' + expectedDateKey + ' — firing regen');
+    fireRegen(eventHost);
   }
 
   return {
     statusCode: 200,
-    headers: { ...CORS, 'Content-Type': 'application/json', 'Cache-Control': 'private, max-age=30' },
+    // No-store when stale so a refresh actually re-hits this endpoint and
+    // gets the fresh brief once the bg writes it.
+    headers: { ...CORS, 'Content-Type': 'application/json', 'Cache-Control': isStale ? 'no-store' : 'private, max-age=30' },
     body: JSON.stringify({
       available: true,
       dateKey: meta.dateKey,
+      expectedDateKey,
+      stale: isStale,
+      regenFired: isStale,
       generatedAt: meta.generatedAt,
       transcript: meta.transcript,
       estimatedSeconds: meta.estimatedSeconds,
