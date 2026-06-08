@@ -127,10 +127,14 @@ exports.handler = async (event) => {
   const base = process.env.URL || ('https://' + (event.headers && event.headers.host) || '');
   const bgUrl = base.replace(/\/$/, '') + '/.netlify/functions/studio-jax-scan-background';
 
+  // Invoke the background function. MUST be awaited — Netlify background
+  // functions return 202 immediately, so awaiting adds no real latency,
+  // but the previous fire-and-forget pattern let the lambda exit before
+  // the fetch even left the local network stack. That's why the polling
+  // saw "queued" forever — the background function was never actually
+  // called.
   try {
-    // Fire without awaiting the response. Background functions return
-    // immediately with 202 anyway; we just need the POST to land.
-    fetch(bgUrl, {
+    const bgRes = await fetch(bgUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -139,9 +143,42 @@ exports.handler = async (event) => {
         scope,
         requested_by: requestedBy,
       }),
-    }).catch(e => console.warn('[jax-trigger] bg fire-and-forget error', e && e.message));
+    });
+    console.log('[jax-trigger] bg invoke status', bgRes.status, 'for', jobId);
+    // 202 = accepted (background queued). Anything else means the
+    // background function did not pick up the work — surface the failure
+    // to the report blob so the report page shows a real error instead
+    // of polling for 3 minutes.
+    if (bgRes.status !== 202 && bgRes.status !== 200) {
+      const failBody = await bgRes.text().catch(() => '<no body>');
+      console.error('[jax-trigger] bg invoke non-2xx', bgRes.status, failBody.slice(0, 200));
+      try {
+        await getStore('jax_reports').setJSON(jobId, {
+          id: jobId, target_url: targetUrl, scope,
+          createdAt: new Date().toISOString(), completedAt: new Date().toISOString(),
+          status: 'failed',
+          error: 'background function returned ' + bgRes.status + ' (' + failBody.slice(0, 120) + ')',
+          requested_by: requestedBy,
+        });
+      } catch (e2) {
+        console.warn('[jax-trigger] fail-state write failed', e2 && e2.message);
+      }
+    }
   } catch (e) {
-    console.error('[jax-trigger] failed to fire background', e && e.message);
+    console.error('[jax-trigger] bg fetch failed', e && e.message);
+    // Write a failed status to blob so the polling shows a real error
+    // instead of waiting 3 minutes for nothing.
+    try {
+      await getStore('jax_reports').setJSON(jobId, {
+        id: jobId, target_url: targetUrl, scope,
+        createdAt: new Date().toISOString(), completedAt: new Date().toISOString(),
+        status: 'failed',
+        error: 'could not start the scan: ' + (e && e.message || 'unknown'),
+        requested_by: requestedBy,
+      });
+    } catch (e2) {
+      console.warn('[jax-trigger] fail-state write failed', e2 && e2.message);
+    }
     return {
       statusCode: 500,
       headers: { ...CORS, 'Content-Type': 'application/json' },
