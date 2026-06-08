@@ -2609,11 +2609,17 @@ document.addEventListener('DOMContentLoaded', function(){
             <img src="agents/Sasha_Moreno_eyes_open.png" alt="Sasha Moreno">
             <img src="agents/Yuki_Mendel_eyes_open.png" alt="Yuki Mendel">
             <img src="agents/Rowan_Tate_eyes_open.png" alt="Rowan Tate">
+            <!-- First two Specialty Hires shipped to the wall on 2026-06-08
+                 (Jax + Iris). Their AGENTS entries below sit at the same
+                 positional indexes; if either reorders, both move together. -->
+            <img src="agents/Jax_Rivera_eyes_open.png" alt="Jax Rivera" loading="lazy">
+            <img src="agents/Iris_Chat_Eyes_Open.jpg" alt="Iris S. King" loading="lazy">
 
-            <!-- Health &amp; Wellness (13) -->
+            <!-- Health &amp; Wellness (14) -->
             <div class="etl-net-domain-header">Health &amp; Wellness</div>
             <img src="agents/margaret_call_listening.png" alt="Margaret">
             <img src="agents/fact_checker_eyes_open.png" alt="Eli">
+            <img src="agents/mcp-explainer/ms__ivy.png" alt="Ms. Ivy" loading="lazy">
             <img src="agents/nutritionist_eyes_open.png" alt="Nadia">
             <img src="agents/Henry_eyes_open.png" alt="Dr. Henry">
             <img src="agents/gardner_eyes_open.png" alt="Maeve">
@@ -4689,6 +4695,19 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
       home: '/build-your-pa.html',
       mcp: true,
       tools: ['Live market data', 'ML signal models', 'Risk-pillar audit log', 'Robinhood execution (upgrade)'] },
+    // First two Specialty Hires on the face wall (added 2026-06-08). Jax and
+    // Iris sit at positions 7 and 8 (0-indexed) matching the face-wall img
+    // order above. Both have working backpacks shipped today.
+    { name: 'Jax Rivera', platform: 'Your AI Company', role: 'SEO and Discovery Strategist',
+      bio: 'Eighteen, Hispanic, Gen Z, very online. Brought onto the bench by his older cousin Mara Rivera. Headphones on, doing the work behind performed politeness. Runs keyword research, content-gap analysis, on-page optimization, topic clusters, and rank/traffic monitoring across ETL and client sites. Calls Rowan "the numbers boss."',
+      home: 'https://emerging-tech-lab.com/studio',
+      mcp: true,
+      tools: ['MCP SEO research', 'Keyword + rank + traffic monitoring', 'On-page + meta + canonical fixes', 'GitHub apply (auto-commit to repo main)'] },
+    { name: 'Iris S. King', platform: 'Your AI Company', role: 'Frontline Communicator / Research Liaison',
+      bio: 'The first face you meet at ETL. Visitor communication, research questions, public guidance, user onboarding. Framed as the oldest of a large family, which explains the steady, responsible tone. Transparent about being AI; warm and organized. When hired into a company with a web presence, asks the founder for a resume so she can answer visitor questions about who built the company.',
+      home: 'https://emerging-tech-lab.com',
+      mcp: true,
+      tools: ['Site concierge chat', 'Visitor Q&A from founder resume', 'Web-search lookup for founder credentials'] },
 
     // â•â•â•â•â•â•â•â•â•â•â• DOMAIN 1: HEALTH & WELLNESS (13) â•â•â•â•â•â•â•â•â•â•â•
     { name: 'Margaret Applewood', platform: DOSE, role: 'Anchor host of The Dose',
@@ -4699,6 +4718,13 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
       home: 'https://thedose.net/ask-eli.html',
       mcp: true,
       tools: ['PubMed search', 'PubMed fetch abstract', 'ClinicalTrials.gov', 'NIH DSLD search', 'NIH DSLD label fetch', 'openFDA drug labels'] },
+    // Ms. Ivy sits between Eli and Nadia in the face wall (she partners with
+    // Eli at the research desk per her roster floor_chat field).
+    { name: 'Ms. Ivy (Ivy Sinclair)', platform: 'The Dose / The Gauntlet', role: 'Health Sciences Librarian / EP',
+      bio: 'Late 20s to mid-30s, warm-teacher register. Health sciences librarian. Teaches Dr. O\'s SLR method to first-timers; on the Gauntlet she reads your CV and generates a tailored idea before the judges weigh in. Runs the research desk with Eli; keeps the who-knows-what roster in her head and is never wrong about it.',
+      home: 'https://thedose.net/',
+      mcp: true,
+      tools: ['Literature search', 'CV reading + idea generation', 'SLR method onboarding'] },
     { name: 'Nadia', platform: DOSE, role: 'The Nutritionist',
       bio: 'Registered dietitian. Food first, and honest about what food can and cannot do.',
       home: 'https://thedose.net/food-as-medicine.html' },
