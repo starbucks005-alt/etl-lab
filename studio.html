@@ -576,7 +576,9 @@
           <div id="floor-thread"></div>
           <div id="floor-footer" style="display:none;">
             <button type="button" id="floor-refresh">↻ refresh the channel</button>
+            <button type="button" id="floor-save" title="Copy this thread to clipboard + archive to highlights for the sales deck">📋 save this moment</button>
             <span id="floor-context-note"></span>
+            <span id="floor-save-status"></span>
           </div>
         </div>
       </div>
@@ -807,6 +809,26 @@
     }
     #floor-refresh:hover:not(:disabled) { background: rgba(253,184,39,0.1); }
     #floor-refresh:disabled { opacity: 0.55; cursor: wait; }
+    /* Save-this-moment button matches refresh visually so they read as a
+       paired action set in the footer. */
+    #floor-save {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px; letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--brass-bright, #FDB827);
+      background: transparent;
+      border: 1px solid var(--brass);
+      padding: 5px 10px; cursor: pointer;
+      margin-left: 6px;
+    }
+    #floor-save:hover:not(:disabled) { background: rgba(253,184,39,0.1); }
+    #floor-save:disabled { opacity: 0.55; cursor: wait; }
+    #floor-save-status {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px; letter-spacing: 0.08em;
+      color: var(--brass-bright, #FDB827);
+      margin-left: auto;
+    }
     #floor-context-note {
       font-family: 'Cormorant Garamond', serif;
       font-size: 11px; font-style: italic; color: #9a8e7e;
@@ -3060,6 +3082,111 @@
     // Refresh always re-fetches the CURRENT tab.
     loadFloor(activeMode, { force: true });
   });
+
+  /* "Save this moment" — formats the current tab's thread as Markdown,
+     copies to clipboard via navigator.clipboard, AND posts to the
+     studio-floor-save endpoint which archives it to the floor_highlights
+     blob. Used to capture gold moments (Bea's "kaftan before three" line,
+     Auggie's vanity-framing) for the sales deck / Founder Studio
+     testimonial section / FB pre-launch posts. */
+  var saveBtn    = document.getElementById('floor-save');
+  var saveStatus = document.getElementById('floor-save-status');
+  if (saveBtn) {
+    saveBtn.addEventListener('click', async function(){
+      var current = cache[activeMode];
+      if (!current || !Array.isArray(current.messages) || current.messages.length === 0) {
+        if (saveStatus) saveStatus.textContent = 'nothing to save yet — load the channel first';
+        return;
+      }
+      var originalLabel = saveBtn.textContent;
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'saving';
+      if (saveStatus) saveStatus.textContent = '';
+
+      // Build the Markdown. Headline + per-message lines. The format pastes
+      // cleanly into FB, Forbes drafts, Founder Studio testimonial blocks.
+      var channelLabel = (activeMode === 'watercooler') ? 'Watercooler' : 'Workfloor';
+      var d = new Date();
+      var dateStr = d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+      var lines = [
+        '**The Floor · ' + channelLabel + ' · ' + dateStr + '**',
+        '',
+        '_Dr. Terry Oroszi\'s Studio · staff talking to each other_',
+        '',
+      ];
+      current.messages.forEach(function(m){
+        var speaker = (m.speaker || 'staff').toString();
+        var ts = (m.timestamp || '').toString();
+        var text = (m.text || '').toString().replace(/\r\n|\n/g, ' ').trim();
+        lines.push('**' + speaker + '** _' + ts + '_');
+        lines.push(text);
+        lines.push('');
+      });
+      var markdown = lines.join('\n');
+
+      // Try to copy to clipboard first. Browsers gate this on user gesture
+      // (we are in a click handler, so it should work). Falls back to a
+      // hidden textarea if navigator.clipboard is unavailable.
+      var copiedToClipboard = false;
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(markdown);
+          copiedToClipboard = true;
+        }
+      } catch (_) {}
+      if (!copiedToClipboard) {
+        try {
+          var ta = document.createElement('textarea');
+          ta.value = markdown;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          copiedToClipboard = true;
+        } catch (_) {}
+      }
+
+      // POST to the archive endpoint so a future "best of the Floor"
+      // curation surface can pull from floor_highlights.
+      var archived = false;
+      var saveId = null;
+      try {
+        var token = await getJwt();
+        if (token) {
+          var r = await fetch('/.netlify/functions/studio-floor-save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+            body: JSON.stringify({
+              mode: activeMode,
+              messages: current.messages,
+              context_note: current.contextNote || '',
+            }),
+          });
+          if (r.ok) {
+            var data = await r.json();
+            if (data && data.ok) { archived = true; saveId = data.save_id; }
+          }
+        }
+      } catch (_) {}
+
+      // Status text. Clipboard is the user-facing win; archive is the
+      // sales-deck-curation insurance policy. If the clipboard worked, that
+      // is the message — note the archive in muted parens.
+      if (copiedToClipboard && archived) {
+        saveStatus.textContent = '✓ copied to clipboard · saved to highlights (' + saveId + ')';
+      } else if (copiedToClipboard) {
+        saveStatus.textContent = '✓ copied to clipboard (archive offline, paste it now)';
+      } else if (archived) {
+        saveStatus.textContent = '✓ saved to highlights — clipboard blocked, retrieve later by id ' + saveId;
+      } else {
+        saveStatus.textContent = 'snag: could not copy or save. try again or screenshot the panel';
+      }
+      saveBtn.disabled = false;
+      saveBtn.textContent = originalLabel;
+    });
+  }
 })();
 </script>
 
