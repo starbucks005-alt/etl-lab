@@ -103,8 +103,8 @@ function normalizeName(s) {
     .replace(/^_+|_+$/g, '');
 }
 
-function loadRoster() {
-  // Roster JSON lives at data/etl-agents-roster.json relative to repo root.
+async function loadRoster(event) {
+  // Try fs first (works locally + when included_files actually ships).
   const candidates = [
     path.join(__dirname, '..', '..', 'data', 'etl-agents-roster.json'),
     path.join(process.cwd(), 'data', 'etl-agents-roster.json'),
@@ -114,7 +114,21 @@ function loadRoster() {
       if (fs.existsSync(p)) {
         const raw = fs.readFileSync(p, 'utf8');
         const parsed = JSON.parse(raw);
-        return parsed.agents || [];
+        if (parsed && Array.isArray(parsed.agents) && parsed.agents.length) return parsed.agents;
+      }
+    } catch (_) {}
+  }
+  // Bulletproof fallback: fetch the roster from the deployed site itself.
+  // process.env.URL is set by Netlify for cron + standard invocations.
+  const base = process.env.URL
+            || ((event && event.headers && (event.headers.host || event.headers.Host))
+                ? 'https://' + (event.headers.host || event.headers.Host) : '');
+  if (base) {
+    try {
+      const r = await fetch(base + '/data/etl-agents-roster.json', { cache: 'no-store' });
+      if (r.ok) {
+        const parsed = await r.json();
+        if (parsed && Array.isArray(parsed.agents) && parsed.agents.length) return parsed.agents;
       }
     } catch (_) {}
   }
@@ -264,7 +278,7 @@ exports.handler = async function(event) {
   }
   const client = new Anthropic({ apiKey });
 
-  const roster = loadRoster();
+  const roster = await loadRoster(event);
   if (!roster.length) {
     return { statusCode: 500, body: JSON.stringify({ error: 'roster_not_found' }) };
   }
