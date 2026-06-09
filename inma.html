@@ -6,6 +6,16 @@
 <title>InfraGard National Members Alliance · Sign In</title>
 <meta name="description" content="Sign in to your INMA Studio.">
 <meta name="robots" content="noindex">
+<!-- PWA install metadata. Caroline can install this as 'INMA Events Studio'
+     from her browser; she gets a gold IN crest icon on her desktop, iPad,
+     or phone. Click icon → opens straight to her Studio, no URL bar. -->
+<link rel="manifest" href="/inma-manifest.json">
+<meta name="theme-color" content="#c4a262">
+<link rel="apple-touch-icon" href="/inma-crest-512.svg">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="INMA Studio">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;500;600;700&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
@@ -114,6 +124,19 @@
     if (e.key === 'Enter') document.getElementById('send-link').click();
   });
 })();
+</script>
+
+<!-- ── Service worker registration. After Caroline installs the PWA, the SW
+     caches the shell so the INMA Studio icon launches even on bad WiFi.
+     Live API/function calls still go straight to the network. ── -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/sw.js').catch(function(e) {
+      console.warn('INMA Studio service worker registration failed:', e && e.message);
+    });
+  });
+}
 </script>
 
 </body>

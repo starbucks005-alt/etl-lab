@@ -6,6 +6,16 @@
 <title>Dr. O's Studio | Emerging Technologies Laboratory</title>
 <meta name="description" content="Dr. Terry Oroszi's private workspace where the AI staff works on her books, manuscripts, ideas, and outreach.">
 <meta name="robots" content="noindex,nofollow">
+<!-- PWA install metadata. Lets the buyer install the Studio as an app from
+     their browser; one-time setup gives them a desktop icon that opens
+     straight to their Studio with no URL bar. -->
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#FDB827">
+<link rel="apple-touch-icon" href="/favicon_etl_512.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Studio">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -4379,6 +4389,14 @@
     if (cfg.sponsorship && cfg.sponsorship.in_kind && cfg.in_kind_banner) {
       injectInKindBanner(cfg.in_kind_banner);
     }
+
+    // Config-driven staff grid render. If the buyer has a provisioned
+    // hired_staff list, REPLACE the static hardcoded cards (which reflect
+    // Dr. O's bench) with the buyer's actual hires. Caroline lands and sees
+    // HER 14, not Terry's 14.
+    if (Array.isArray(cfg.hired_staff) && cfg.hired_staff.length > 0) {
+      renderConfigStaff(cfg);
+    }
   }
 
   function formatNameForBrand(name){
@@ -4409,12 +4427,126 @@
     }
   }
 
+  // ─── CONFIG-DRIVEN STAFF GRID ────────────────────────────────────
+  // Replace the static .staff-card elements with cards built from the
+  // buyer's hired_staff config. Portraits looked up from the roster JSON.
+  async function renderConfigStaff(cfg){
+    var grid = document.querySelector('.staff-grid');
+    if (!grid) return;
+
+    // Pull the roster JSON once for portrait + role lookups
+    var rosterByName = {};
+    try {
+      var r = await fetch('/data/etl-agents-roster.json', { cache: 'no-store' });
+      if (r.ok) {
+        var data = await r.json();
+        (data.agents || []).forEach(function(a){ if (a && a.name) rosterByName[a.name] = a; });
+      }
+    } catch (_) {}
+
+    // Substring fallback for name mismatches (catalog: "MJ" vs roster "Maeve \"MJ\" Johnson")
+    function lookupAgent(name){
+      if (rosterByName[name]) return rosterByName[name];
+      var lower = String(name || '').toLowerCase();
+      for (var n in rosterByName) {
+        if (n.toLowerCase().indexOf(lower) >= 0 || lower.indexOf(n.toLowerCase()) >= 0) {
+          return rosterByName[n];
+        }
+      }
+      return null;
+    }
+
+    function initials(name){
+      return String(name || '?')
+        .replace(/"[^"]*"/g, '').replace(/\([^)]*\)/g, '').trim()
+        .split(/\s+/).filter(function(w){ return !/^(dr\.?|the|mr\.?|ms\.?|mrs\.?|coach|admiral|adm\.?|prof\.?|capt\.?|lt\.?|sgt\.?|sir)$/i.test(w); })
+        .slice(0, 2).map(function(w){ return w[0]; }).join('').toUpperCase() || name[0];
+    }
+
+    function buildCard(name, role, backpack, contract, why){
+      var agent = lookupAgent(name);
+      var img = (agent && agent.image_url) || '';
+      var displayRole = role || (agent && agent.role) || '';
+      var portraitHtml = img
+        ? '<img src="' + img + '" alt="' + name.replace(/"/g, '&quot;') + '" onerror="this.outerHTML=&quot;<div class=staff-portrait-placeholder>' + initials(name) + '</div>&quot;">'
+        : '<div class="staff-portrait-placeholder">' + initials(name) + '</div>';
+
+      var contractChipHtml = '';
+      if (contract === 'standing') {
+        contractChipHtml = '<span class="staff-chip staff-chip-stand">Standing</span>';
+      } else if (contract === 'temp') {
+        contractChipHtml = '<span class="staff-chip staff-chip-temp">Temp</span>';
+      } else if (contract === 'bundled') {
+        contractChipHtml = '<span class="staff-chip staff-chip-pack">Six-Pack</span>';
+      } else if (contract === 'pa') {
+        contractChipHtml = '<span class="staff-chip staff-chip-pa">PA</span>';
+      }
+
+      var backpackChip = backpack
+        ? '<span class="staff-chip" style="color:#2e7d4f;border-color:#2e7d4f;">🎒 Backpack</span>'
+        : '';
+
+      var card = document.createElement('div');
+      card.className = 'staff-card';
+      card.innerHTML =
+        '<div class="staff-portrait">' + portraitHtml + '</div>' +
+        '<div class="staff-body">' +
+          '<div class="staff-name">' + name + '</div>' +
+          '<div class="staff-role">' + displayRole + '</div>' +
+          (why ? '<div class="staff-current">' + why + '</div>' : '') +
+          (contractChipHtml || backpackChip ?
+            '<div class="staff-contract">' + contractChipHtml + ' ' + backpackChip + '</div>' : '') +
+        '</div>';
+      return card;
+    }
+
+    // Clear the static cards and rebuild
+    grid.innerHTML = '';
+
+    // Card 1: the PA (Auggie or whoever)
+    if (cfg.pa && cfg.pa.display_name) {
+      grid.appendChild(buildCard(
+        cfg.pa.display_name,
+        cfg.pa.label || 'Personal Assistant',
+        cfg.pa.backpack,
+        'pa',
+        null
+      ));
+    }
+
+    // Remaining cards: from the config's hired_staff array
+    cfg.hired_staff.forEach(function(s){
+      grid.appendChild(buildCard(
+        s.name,
+        s.role || '',
+        s.backpack,
+        s.contract || 'standing',
+        s.why || s.note || null
+      ));
+    });
+  }
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', loadConfigAndApply);
   } else {
     loadConfigAndApply();
   }
 })();
+</script>
+
+<!-- ── Service worker registration. Powers the PWA-install experience:
+     after the buyer installs the Studio as an app, the SW caches the shell
+     so the icon-click-to-app launch is instant and works even on flaky WiFi.
+     Live API/function calls still go straight to the network. ── -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/sw.js').catch(function(e) {
+      // Non-fatal — Studio still works without offline shell caching
+      console.warn('Studio service worker registration failed:', e && e.message);
+    });
+  });
+}
 </script>
 
 </body>
