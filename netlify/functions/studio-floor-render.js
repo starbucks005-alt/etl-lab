@@ -78,6 +78,12 @@ const STUDIO_FLOOR_CAST = new Set([
   'Sneha Desai',
   'Arjun Mehta',
   'Jax Rivera',
+  // Cross-platform guests Terry wants to hear from — bring their canonical
+  // family storylines (Henry's grandchild, MJ's grandfather) into the
+  // Studio Watercooler. Their traits land via team_dynamics.json once
+  // they're in the cast pool.
+  'Dr. Henry Chen, RPh',
+  'Maeve "MJ" Johnson',
   // Legacy / GP-side characters kept in the pool for guest-style cameos:
   'Chris',
   // ── Add new Studio hires here. Match the exact name from
