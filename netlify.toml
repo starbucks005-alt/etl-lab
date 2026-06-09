@@ -47,6 +47,11 @@
 [functions."studio-routine-list"]
   included_files = ["data/auggie-routine-targets.json"]
 
+# Bradley Cooper-Smith's CFO backpack — reference template for the 29 C Suite
+# seats. Reads CCW's full backpack config from data/csuite-backpacks.json.
+[functions."csuite-bradley-background"]
+  included_files = ["data/csuite-backpacks.json"]
+
 # ─── Press Hub redirects ──────────────────────────────────────────────────
 # Pretty URLs over the Netlify Functions that render the press hub.
 # Order matters within this file: more specific rules first. The sitemap
