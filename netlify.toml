@@ -30,7 +30,7 @@
 # Same bundling fix so the locked-directive injection (lead + topic + cast)
 # can find the per-week topic pools.
 [functions."studio-floor-render"]
-  included_files = ["data/etl-agents-roster.json"]
+  included_files = ["data/etl-agents-roster.json", "data/team_dynamics.json"]
 
 # Auggie's Routines tick. Every 15 minutes the cron sweeps the
 # auggie_routines blob, finds every routine whose next_fire <= now,

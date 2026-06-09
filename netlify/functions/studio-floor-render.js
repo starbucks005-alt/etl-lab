@@ -94,6 +94,32 @@ try {
   ROSTER = { agents: [] };
 }
 
+/* CCW's relationship graph + per-agent traits. Lives at data/team_dynamics.json.
+   Has agent_traits (quirks / bad_day_flag / family_storyline / owner_context),
+   csuite_assistants (named bundled PAs), and a relationships array.
+   We use agent_traits + relationships to enrich persona blocks; the bad_day_flag
+   triggers Watercooler rally behavior. CCW resyncs this file; we pull updates. */
+let TEAM_DYNAMICS;
+try {
+  TEAM_DYNAMICS = require('../../data/team_dynamics.json');
+} catch (e) {
+  console.warn('[floor-render] team_dynamics JSON load failed (non-fatal):', e && e.message);
+  TEAM_DYNAMICS = { agent_traits: {}, relationships: [], csuite_assistants: {} };
+}
+const TRAITS_BY_NAME = TEAM_DYNAMICS.agent_traits || {};
+// Build a one-line summary of each named agent's strongest cross-cast ties
+// (capped at 3, prioritizing teammates/rally/friendly_rivalry over other types).
+const RELATIONSHIPS_BY_NAME = {};
+(TEAM_DYNAMICS.relationships || []).forEach(r => {
+  if (!r || !Array.isArray(r.pair) || r.pair.length !== 2) return;
+  const [a, b] = r.pair;
+  const note = r.note || r.type || '';
+  if (!RELATIONSHIPS_BY_NAME[a]) RELATIONSHIPS_BY_NAME[a] = [];
+  if (!RELATIONSHIPS_BY_NAME[b]) RELATIONSHIPS_BY_NAME[b] = [];
+  RELATIONSHIPS_BY_NAME[a].push({ other: b, type: r.type, note });
+  RELATIONSHIPS_BY_NAME[b].push({ other: a, type: r.type, note });
+});
+
 /* Pick a short display name for the Floor.
    "August \"Auggie\" Vidal" -> "Auggie"
    "Beatriz \"Bea\" Vega"   -> "Bea"
@@ -113,6 +139,29 @@ function buildPersona(agent) {
   const parts = [];
   if (agent.background) parts.push(agent.background);
   if (agent.floor_chat) parts.push(agent.floor_chat);
+  // Layer in CCW's team_dynamics traits if present. Looked up by FULL roster
+  // name (not shortName) since that's how the team_dynamics keys are stored.
+  const traits = TRAITS_BY_NAME[agent.name];
+  if (traits) {
+    if (Array.isArray(traits.quirks) && traits.quirks.length) {
+      parts.push('QUIRKS: ' + traits.quirks.join(' · '));
+    }
+    if (traits.family_storyline) {
+      parts.push('FAMILY STORYLINE (long-arc, visitors track this over time): ' + traits.family_storyline);
+    }
+    if (traits.owner_context) {
+      parts.push('OWNER CONTEXT: ' + traits.owner_context);
+    }
+  }
+  // Layer in the strongest cross-cast relationships (up to 3) so the model
+  // grounds banter / handoffs / rally moments in canonical pairings.
+  const rels = RELATIONSHIPS_BY_NAME[agent.name];
+  if (rels && rels.length) {
+    const priority = { teammates: 5, rally: 5, friendly_rivalry: 4, mentor: 3, recruited: 3, romance: 4, respect: 2, tension: 3, running_joke: 2, family_storyline: 1 };
+    const sorted = rels.slice().sort((a, b) => (priority[b.type] || 0) - (priority[a.type] || 0));
+    const top = sorted.slice(0, 3).map(r => '↔ ' + r.other + ' (' + r.type + (r.note ? ': ' + r.note : '') + ')');
+    parts.push('CANONICAL RELATIONSHIPS: ' + top.join('  ·  '));
+  }
   return parts.join('\n\n');
 }
 
@@ -334,17 +383,45 @@ exports.handler = async (event) => {
     } catch (_) { /* fall through; no directive without a topic */ }
 
     if (kickoffTopic) {
-      lockedDirective = [
+      // Scan attendance for any cast member CCW flagged with bad_day_flag.
+      // If any are present AND a random roll fires (so it's not every render),
+      // append a rally directive: the others quietly close ranks around them.
+      // Walks short→full name via STUDIO_FLOOR_CAST so the lookup keys match.
+      const badDayCandidates = [];
+      attendance.forEach(short => {
+        let full = null;
+        for (const castFull of STUDIO_FLOOR_CAST) {
+          if (shortName(castFull) === short) { full = castFull; break; }
+        }
+        if (full) {
+          const traits = TRAITS_BY_NAME[full];
+          if (traits && traits.bad_day_flag) badDayCandidates.push({ short, full, traits });
+        }
+      });
+      // Bad-day roll: 30% chance per render that, IF a flagged person is present,
+      // they're having one of those days. Keeps rallying special, not constant.
+      let rallyTarget = null;
+      if (badDayCandidates.length > 0 && Math.random() < 0.30) {
+        rallyTarget = badDayCandidates[Math.floor(Math.random() * badDayCandidates.length)];
+      }
+
+      const directiveLines = [
         '**THIS RENDER\'S LOCKED DIRECTIVES (override the rotation menu below)**:',
         '',
         '- **LEAD this render:** ' + lead,
         '- **KICKOFF (' + lead + ' opens with this exact anchor):** ' + kickoffTopic,
         '- **ATTENDANCE this render (these staff are in the channel; the rest are off-channel today):**',
         ...attendance.map(n => '  - ' + n),
-        '',
-        'These three (lead, kickoff topic, attendance) are LOCKED for this render. The rest of this prompt explains HOW to write voices, pacing, and reactions, but the lead picks the topic above, the cast is fixed, and the others orbit the lead\'s opening. Do NOT add staff who are not in the attendance list. Do NOT change the lead. Use the kickoff topic verbatim as ' + lead + '\'s opening line theme.',
-        '',
-      ].join('\n');
+      ];
+      if (rallyTarget) {
+        directiveLines.push('');
+        directiveLines.push('- **RALLY MODE (CRITICAL — this render only):** ' + rallyTarget.short + ' is having a hard day. Not stated outright, not in dialogue, but the cast SENSES it. The others quietly close ranks around her — somebody covers a task, somebody softens the banter, somebody asks how she\'s doing without making a thing of it. Her own lines still happen but are shorter and warmer than usual. The rally must feel earned, not performed. ' + (rallyTarget.traits.owner_context || ''));
+      }
+      directiveLines.push('');
+      directiveLines.push('These three (lead, kickoff topic, attendance) are LOCKED for this render. The rest of this prompt explains HOW to write voices, pacing, and reactions, but the lead picks the topic above, the cast is fixed, and the others orbit the lead\'s opening. Do NOT add staff who are not in the attendance list. Do NOT change the lead. Use the kickoff topic verbatim as ' + lead + '\'s opening line theme.');
+      directiveLines.push('');
+
+      lockedDirective = directiveLines.join('\n');
     }
   }
 
