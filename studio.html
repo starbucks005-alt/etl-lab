@@ -3710,7 +3710,7 @@
     <div id="hire-modal-grid" class="hire-modal-grid"><!-- populated by JS --></div>
     <div class="hire-modal-foot">
       <span>Want to see the full ETL bench, including reporters, editors, hosts, and helpers?</span>
-      <a href="/#agents" class="hire-modal-foot-link">Open the agent wall &rarr;</a>
+      <a href="/hiring-pool.html" class="hire-modal-foot-link">Open the hiring catalog &rarr;</a>
     </div>
   </div>
 </div>
@@ -4089,7 +4089,7 @@
       + '<div class="staff-card-empty-label">Six-Pack slot open</div>'
       + '<div class="staff-card-empty-cta">Hire someone from the Hiring Pool</div>';
     card.addEventListener('click', function(){
-      window.location.href = '/#agents';
+      window.location.href = '/hiring-pool.html';
     });
   }
 
@@ -4148,7 +4148,7 @@
       [
         { label: 'Cancel' },
         { label: 'Browse Hiring Pool', cls: 'fire-dialog-btn-primary', action: function(){
-          window.location.href = '/#agents';
+          window.location.href = '/hiring-pool.html?agent=' + encodeURIComponent(name);
         }}
       ]
     );

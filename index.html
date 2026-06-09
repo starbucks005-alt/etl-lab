@@ -5148,21 +5148,14 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
                    + (contractType === 'temp'
                        ? 'Temp Hires are built for project work. You can release them any time after day 30.'
                        : 'Standing Hires recur monthly until you release them. No minimum past the first month.');
-    if (!confirm(confirmMsg)) return;
-
-    // Persist to localStorage so the demo Studio can show them as hired
-    var queue = {};
-    try { queue = JSON.parse(localStorage.getItem('hired_queue_v1') || '{}'); } catch(e){}
-    queue[name] = {
-      contract: contractType,
-      price: price,
-      hiredOn: new Date().toISOString()
-    };
-    try { localStorage.setItem('hired_queue_v1', JSON.stringify(queue)); } catch(e){}
-
-    // Confirmation + Studio jump offer
-    var go = confirm(name + ' hired as ' + contractLabel + '.\n\nFind them in your Studio under "The staff". Open Studio now?');
-    if (go) window.location.href = '/studio.html';
+    // Route to the full Hiring Pool catalog with the agent pre-opened. The
+    // catalog is the canonical buying surface — handles cost calculator,
+    // company composition, swap mechanics, Temp/Standing toggle, and Ms. Ivy's
+    // three-mode picker once she ships. We pass intent in the URL so the
+    // catalog can pre-select the contract type if it wants to.
+    window.location.href = '/hiring-pool.html?agent='
+      + encodeURIComponent(name)
+      + '&contract=' + encodeURIComponent(contractType);
   }
   function rosterLookup(displayName){
     if (!ROSTER_BY_NAME) return null;

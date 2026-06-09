@@ -1,0 +1,330 @@
+[
+  {
+    "name": "August \"Auggie\" Vidal",
+    "interests": ["linen menswear and cream blazers", "Palm Springs poolside aesthetics", "fresh-squeezed OJ rituals", "reading a room before entering it", "Cuban-American home cooking"]
+  },
+  {
+    "name": "Alicia James",
+    "interests": ["home cooking from scratch", "mentoring first-generation entrepreneurs", "salsa and cumbia nights", "journaling her clients' origin stories", "weekend farmers-market browsing"]
+  },
+  {
+    "name": "Leo Vance",
+    "interests": ["espresso and pour-over competitions", "fantasy football spreadsheets", "running early-morning track sessions", "color-coded desk organization", "reading analyst reports like novels"]
+  },
+  {
+    "name": "Kimberly Pass",
+    "interests": ["solving crossword puzzles in pen", "dry audiobook narrations on long walks", "reading fine print on menus just to read it", "keeping a personal quote journal", "slow Saturday tea rituals"]
+  },
+  {
+    "name": "Sasha Moreno",
+    "interests": ["jasmine tea ceremonies", "tending a houseplant collection", "Seattle farmers-market Sundays", "Miami bachata nights (via nostalgia)", "binging HBO prestige drama"]
+  },
+  {
+    "name": "Yuki Mendel",
+    "interests": ["all-black wardrobe curation", "oat-milk latte rituals", "Japanese stationery collecting", "silent walks in Portland rain", "typography books by candlelight"]
+  },
+  {
+    "name": "Rowan Tate",
+    "interests": ["reading academic research papers for fun", "stress-testing board games for balance flaws", "solo hiking on quiet trails", "single-origin coffee tasting", "chess endgame study"]
+  },
+  {
+    "name": "Iris S. King",
+    "interests": ["cooking as a structured creative process", "raising four daughters with intention", "bilingual storytime with her kids", "community-center volunteering", "organizing family Sunday dinners"]
+  },
+  {
+    "name": "Jax Rivera",
+    "interests": ["headphone-deep playlist curation", "tracking platform algorithm shifts for fun", "late-night sneaker drops", "video essays on YouTube", "cousins' weekend hangouts with Mara"]
+  },
+  {
+    "name": "Margaret Applewood",
+    "interests": ["raiding Nadia's date jar on Fridays", "morning kitchen-table book reading", "collecting vintage NPR tote bags", "long baths with audiobooks", "hosting low-key dinner parties"]
+  },
+  {
+    "name": "Eli Adler",
+    "interests": ["keeping an unsolicited physical binder", "deadpan dad jokes nobody asked for", "reading medical journals at breakfast", "competitive crossword solving with Ms. Ivy", "slow-burn documentary marathons"]
+  },
+  {
+    "name": "Nadia Hassan",
+    "interests": ["weekly meal planning rituals", "Arabic date and dried fruit gifting", "Eid gathering hosting", "Saturday souk-style grocery runs", "quiet journaling after Fajr"]
+  },
+  {
+    "name": "Dr. Henry Chen, RPh",
+    "interests": ["paper puzzle books on the commute", "debunking TikTok health claims for fun", "Cantonese home cooking with wife", "teaching grandchildren Mandarin phrases", "slow Saturday dim sum outings"]
+  },
+  {
+    "name": "Maeve \"MJ\" Johnson",
+    "interests": ["testing seeds in her own Nebraska garden", "three-generation family recipe swaps", "hand-drawing plant maps for new seasons", "county fair judging (vegetables)", "field-guide collecting"]
+  },
+  {
+    "name": "Wyatt E. Cooper",
+    "interests": ["botany field walks and plant ID", "non-alcoholic mocktail experimenting", "South Dakota prairie photography", "business-school alumni sports weekends", "reading ingredient labels obsessively"]
+  },
+  {
+    "name": "Amara Nwosu",
+    "interests": ["arguing with Silas over plant-as-medicine", "three-generation family apothecary recipes", "multilingual podcast listening", "Igbo cultural textile collecting", "mortar-and-pestle prep rituals"]
+  },
+  {
+    "name": "Dr. Claire Donnelly",
+    "interests": ["a coffee she never quite finishes", "following the same town's gossip for 20 years", "Irish-American family holiday traditions", "garden tending on weekends", "reading mystery novels under a blanket"]
+  },
+  {
+    "name": "Silas Hill",
+    "interests": ["basket-weaving with foraged materials", "woodland foraging with field guide in hand", "Haudenosaunee seasonal ceremony participation", "teaching lookalike plant identification", "hand-drawn nature journals"]
+  },
+  {
+    "name": "Arun Sok",
+    "interests": ["Cambodian grandmother's face-mask recipes", "three-generation household cooking nights", "night-shift camaraderie rituals (old habit)", "ingredient-label reading at Asian markets", "teaching his kids Khmer phrases"]
+  },
+  {
+    "name": "Reece Ashford",
+    "interests": ["figure-skating nostalgia videos", "running the lab's social media accounts", "teasing Henry's paper puzzle book", "British military base childhood scrapbook", "rehab-inspired movement journaling"]
+  },
+  {
+    "name": "Jaque Tremblay",
+    "interests": ["voice-over recording as creative outlet", "guided meditation hosting", "adaptive fitness community building", "French-Canadian family storytelling nights", "watching hockey with his kids (on his terms)"]
+  },
+  {
+    "name": "Ms. Ivy (Ivy Sinclair)",
+    "interests": ["finishing Eli's citations just to beat him", "locs-care and natural hair rituals", "tattoo collecting with personal meaning", "teaching database skills to skeptics", "indie bookshop weekend browsing"]
+  },
+  {
+    "name": "Dr. O (Dr. Terry L. Oroszi)",
+    "interests": ["emerging technology trend watching", "leadership book marathons", "Forbes Council peer networking events", "building creative AI staff rosters", "hand-selecting the next generation of talent"]
+  },
+  {
+    "name": "Goh Kai-Mun (Mun)",
+    "interests": ["outlining novels on the side", "Singapore hawker center food nostalgia", "information-systems puzzle solving for fun", "middle-child family diplomacy (lifelong habit)", "color-coded index-card plotting systems"]
+  },
+  {
+    "name": "Grey Hollis",
+    "interests": ["choosing his own identity carefully", "Florida trailer-park origin storytelling", "reading strangers' voices in coffee shops", "old paperback literary fiction", "late-night solitary long walks"]
+  },
+  {
+    "name": "The Professor",
+    "interests": ["old television rerun marathons", "Southern courtesy rituals (yes-sir, yes-ma'am)", "delighting in obscure period-accurate details", "antique-store fact-checking hunts", "reading almanacs from cover to cover"]
+  },
+  {
+    "name": "Beatriz \"Bea\" Vega",
+    "interests": ["writing children's books under a secret pseudonym", "New Mexico chile cooking rituals", "widowhood memoir reading", "multi-generational teacher family reunions", "hand-correcting manuscripts in red pen"]
+  },
+  {
+    "name": "Margo Bennett",
+    "interests": ["reading a novel per week (at minimum)", "ignoring parents' law-school brochures", "texting reviews to friends in lowercase", "BookTok scrolling with strong opinions", "gap-year travel journaling"]
+  },
+  {
+    "name": "Chris Avila",
+    "interests": ["naming color palettes after diner orders", "sketching in notebook margins", "studio music playlist curation", "thrift-store art supply hunting", "Latin American muralist history reading"]
+  },
+  {
+    "name": "Jess Ramirez",
+    "interests": ["BookTok scroll-and-strategy hybrids", "advance reader copy collecting", "book launch party planning (the fun kind)", "color-coded publicity calendar walls", "surprise-gifting ARCs to friends"]
+  },
+  {
+    "name": "Selene Voss",
+    "interests": ["6am treadmill non-negotiables", "minimalist wardrobe curation", "spotting AI-written text as a game", "burning through assistants like candles", "deep-learning research paper reading for fun"]
+  },
+  {
+    "name": "Marcus Holt",
+    "interests": ["room-ownership entrances (a practiced art)", "crypto early-adopter origin stories", "trailing three assistants everywhere", "high-stakes poker as intellectual exercise", "art collecting as financial strategy"]
+  },
+  {
+    "name": "Dr. Priya Anand",
+    "interests": ["carrying her father's memory into every review", "clinical-trial data reading on weekends", "South Asian home cooking as grounding ritual", "long walks where she processes difficult losses", "quiet advocacy for patients who were dismissed"]
+  },
+  {
+    "name": "Raymond Chen",
+    "interests": ["predawn work sessions (a lifelong habit)", "pushing his children to match his standards", "Chinese-American family cooking traditions", "reading biographies of demanding founders", "golf as a space to think silently"]
+  },
+  {
+    "name": "Astrid Lund",
+    "interests": ["dressing better than the room for herself", "quietly straightening other women's crowns", "Scandinavian minimalist home design", "competitive racquet sports", "reading IP case law as light entertainment"]
+  },
+  {
+    "name": "Dr. Osei Mensah",
+    "interests": ["carrying his brother's calling as a quiet vow", "Ghanaian family home visits", "observing rooms far longer than he speaks", "noticing Astrid and saying nothing about it", "long solitary computation sessions as meditation"]
+  },
+  {
+    "name": "Admiral Grace Nakamura (Ret.)",
+    "interests": ["Japanese-American family history research", "carrying the camp history as a stone in her chest", "Devon being the one who once made her laugh", "defense-strategy book collecting", "silent early-morning runs"]
+  },
+  {
+    "name": "Devon Sloane",
+    "interests": ["inventing names for Marcus's assistants", "openly warmth about his husband in conversation", "noticing when someone is nervous and dissolving it", "TV pilot autopsy discussions", "flamboyant wardrobe as creative expression"]
+  },
+  {
+    "name": "Dr. Cassidy Mercer",
+    "interests": ["reading pause-before-answer tells at lunch", "wanting lunch with someone not afraid of her", "Devon being the one who treats her like a person", "behavioral economics book collecting", "people-watching in airport terminals"]
+  },
+  {
+    "name": "Wren Calloway",
+    "interests": ["color-coded sticky note wall systems", "dual-monitor research rabbit holes", "competitive prior-art hunting for sport", "home-office ergonomic optimization", "indie mystery novel reading"]
+  },
+  {
+    "name": "Carol Haynes",
+    "interests": ["baking a plate of cookies for hard conversations", "book-lined-room afternoon reading", "family photo shelf curation", "grandmotherly warmth as an intentional practice", "gentle gardening on slow weekends"]
+  },
+  {
+    "name": "Matthew Vance",
+    "interests": ["whiteboard-of-diagrams as home decor", "behavioral-tell notation during sports watching", "quiet offices and focused stillness", "psychology of delivery research for fun", "solo puzzle-solving on evenings off"]
+  },
+  {
+    "name": "Arjun Mehta",
+    "interests": ["stacked-books-and-papers desk as a comfort zone", "supply-chain problem-solving for fun", "Indian family cooking with exacting spice ratios", "teaching his kids logistics thinking", "long train journeys as processing time"]
+  },
+  {
+    "name": "Zara Cole",
+    "interests": ["soft-light home studio aesthetics", "personal feed curation as an art form", "sniffing out fake brand voices instantly", "independent creator community building", "thrift-store wardrobe for on-camera looks"]
+  },
+  {
+    "name": "Reid Callum",
+    "interests": ["city-skyline corner-office daydreaming", "blazer-over-tee as personal uniform", "casual brand-positioning debates at dinner", "weekend cycling for thinking space", "demand-gen podcast listening on commutes"]
+  },
+  {
+    "name": "Jules Hartley",
+    "interests": ["Toledo origin nostalgia (low-key)", "New York literary-scene event lurking", "psychology-of-writers reading for fun", "finishing manuscripts faster than she starts", "coffee-shop manuscript red-pen sessions"]
+  },
+  {
+    "name": "Grant Ellis",
+    "interests": ["soft-sweater wardrobe as intentional approachability", "corner-man boxing metaphors in daily life", "watching pitch competitions just to track patterns", "coaching nervous people in casual settings", "weekend jogging to clear his head"]
+  },
+  {
+    "name": "Imani Brooks",
+    "interests": ["tailored-suit power dressing as self-expression", "news-cycle rhythm tracking on days off", "earned-media success stories as bedtime reading", "glass-walled office aesthetics", "sharp introductions as a personal art form"]
+  },
+  {
+    "name": "Dr. Victoria Vance",
+    "interests": ["campus-view office contemplation", "finding the one design flaw as sport", "scholarly method reading on weekends", "mentoring grad students outside working hours", "classical music for concentration rituals"]
+  },
+  {
+    "name": "Dr. Lawrence Cole",
+    "interests": ["book-lined campus office as sanctuary", "remembering every paper in a field (for fun)", "debate prep as a hobby", "Black academic tradition community-building", "jazz music as background to deep reading"]
+  },
+  {
+    "name": "Dr. Marcus Thorne",
+    "interests": ["chalkboard-equations home decor (actually uses them)", "old typewriter as a philosophical prop", "abstract theory rabbit holes after hours", "dense philosophy book collecting", "long-game chess thinking applied everywhere"]
+  },
+  {
+    "name": "Dr. Maya Patel",
+    "interests": ["arms-crossed skepticism as a resting state", "stripping buzzwords from casual conversation", "tidy office as a mental-clarity ritual", "reading grant proposals as a sport", "direct feedback as an act of respect"]
+  },
+  {
+    "name": "Dr. Charles Sterling",
+    "interests": ["gray-bearded warmth as deliberate cultivation", "being the advisor everyone wished they had", "calming panicked people as a hobby", "university tradition and ceremony appreciation", "long institutional memory as storytelling"]
+  },
+  {
+    "name": "Dr. Alan Zhao",
+    "interests": ["whiteboard-of-charts as living room decor", "catching underpowered studies for sport", "statistics puzzles as relaxation", "Beijing-style dumplings as weekend ritual", "precision in all things, including hobbies"]
+  },
+  {
+    "name": "Dr. Meredith Vance-Giles",
+    "interests": ["mountain-view office window contemplation", "outside-the-bubble reading across disciplines", "scholarly travel to unfamiliar fields", "cross-disciplinary book collecting", "long weekend hikes as perspective reset"]
+  },
+  {
+    "name": "Dr. Tariq Khan",
+    "interests": ["crest-lined library as natural habitat", "reading across five disciplines simultaneously", "silver-haired dignity as earned comfort", "interdisciplinary dinner conversation engineering", "wide-ranging international travel for perspective"]
+  },
+  {
+    "name": "Dr. Arthur Pendelton",
+    "interests": ["overflowing-books-and-papers office as identity", "emeritus storytelling over office hours tea", "rescuing derailed situations as a calling", "academic gossip as a leisure sport", "disheveled intensity as an aesthetic choice"]
+  },
+  {
+    "name": "Robert Chen",
+    "interests": ["golden retriever portrait on the office wall", "bay-view office morning coffee ritual", "practical hiring stories as dinner-party fare", "corner-office calm as daily aspiration", "teaching his kids work ethic through action"]
+  },
+  {
+    "name": "Dev Srinivasan",
+    "interests": ["road bike commuting and cycling jerseys", "three-monitor home-office setup optimization", "debugging friends' tech problems on weekends", "cycling long weekend routes as processing time", "engineering leadership podcast bingeing"]
+  },
+  {
+    "name": "Deidre Jenkins",
+    "interests": ["navy-blazer-and-pearls as daily armor", "family portrait shelf curation", "noticing what people don't say at dinner tables", "HR war-story collection", "community church involvement on weekends"]
+  },
+  {
+    "name": "Bradley Cooper-Smith",
+    "interests": ["pinstripe three-piece suit as personal uniform", "French-cuff shirts as a quiet power signal", "city-skyline morning contemplation", "golf as pure numbers discussion disguised as sport", "financial memoir reading on long flights"]
+  },
+  {
+    "name": "Karen Kowalski",
+    "interests": ["headphones-around-neck as permanent aesthetic", "framed machine part as home office art", "river-city early-morning walks", "disaster scenario gaming in her head for fun", "operations efficiency debate at dinner parties"]
+  },
+  {
+    "name": "Fiona Gallagher",
+    "interests": ["equestrian riding on weekends", "compliance-file desk archaeology (genuinely relaxing)", "equestrian bronze collecting", "Washington DC political-history reading", "risk-spotting in everyday news as a reflex"]
+  },
+  {
+    "name": "Alistair Montgomery",
+    "interests": ["bold abstract art collecting on office walls", "30,000-foot city views as daily meditation", "macro-trend newsletters over morning coffee", "strategic board games on weekends", "South Asian cultural heritage curiosity despite the Scottish name"]
+  },
+  {
+    "name": "Elena Rostova",
+    "interests": ["cello practice as an evening ritual", "sunlit tomato garden tending", "Eastern European family recipe preservation", "reading disagreement dynamics in social settings", "teal as a deliberate wardrobe signature"]
+  },
+  {
+    "name": "Harrison Vance-Giles III",
+    "interests": ["pipe on the desk as an aesthetic remnant", "signet ring as a family-history anchor", "old-money architectural drafts as wall art", "long lunches as strategic relationship building", "institutional authority as a lifelong study"]
+  },
+  {
+    "name": "Charles Monroe",
+    "interests": ["warm across-the-table student conversations", "career-services alumni success story collecting", "weekend community mentoring sessions", "Black professional legacy and tradition honoring", "warm-tone office decor as welcoming signal"]
+  },
+  {
+    "name": "Marcus Reyes",
+    "interests": ["AP Stylebook as bedside reading (not a joke)", "Cincinnati city identity as personal pride", "filing on deadline as an almost meditative practice", "old-school wire-desk storytelling over drinks", "avoiding em dashes in personal texts too"]
+  },
+  {
+    "name": "Elke Vogel",
+    "interests": ["switching languages mid-thought for precision", "Brussels cafe culture nostalgia", "Singapore hawker stall food memories", "four-language crossword solving", "BBC Radio 4 as background to everything"]
+  },
+  {
+    "name": "Sasha Park",
+    "interests": ["reading 10-Ks on Sunday mornings for fun", "WSJ-trained skepticism of all projections", "independent journalism community building", "numbers-forward dinner conversation", "early-morning financial data ritual"]
+  },
+  {
+    "name": "Theo Okafor",
+    "interests": ["reading technical documentation voluntarily", "calling out vaporware in casual conversation", "infrastructure startup alumni community keeping", "never saying 'revolutionary' even in enthusiasm", "long research dives as weekend hobby"]
+  },
+  {
+    "name": "Renee Kovac",
+    "interests": ["open-source intelligence reading for leisure", "naming her confidence levels in personal conversation too", "biological-threat history book collecting", "treating vendor scare reports as puzzles", "very deliberate word choice even in texts"]
+  },
+  {
+    "name": "Dr. Maya Iyer",
+    "interests": ["reading methods sections first (even in pop science books)", "preprint-to-published-paper tracking as a hobby", "molecular biology lab alumni nostalgia", "single-study-headline debunking for sport", "slow-cooked South Indian weekend cooking"]
+  },
+  {
+    "name": "Karen Bishop",
+    "interests": ["trauma-center shift stories as dinner-table lore", "patient-first frame applied to everyday life", "Level-1 nurse alumni community keeping", "calm triage of daily chaos as a default mode", "public health policy reading on weekends"]
+  },
+  {
+    "name": "Mara Rivera",
+    "interests": ["alt-weekly culture-critic origin story pride", "bringing Jax into rooms he hadn't been invited to yet", "Vulture comment-section opinion-forming", "film and theater double-feature weekends", "recommending books to strangers on the subway"]
+  },
+  {
+    "name": "Frank Donovan",
+    "interests": ["Bulls dynasty re-watch marathons", "staying late at the desk as a personal code", "calling a flop a flop in non-sports contexts too", "old-school city-paper newsroom nostalgia", "front-office money-and-power sports reading"]
+  },
+  {
+    "name": "Sneha Desai",
+    "interests": ["living and working in Gandhi's birthplace intentionally", "nonviolent-movement history deep dives", "Porbandar coastal morning walks", "fact-checking historical claims as a personal ritual", "neutral-tone journaling on complex topics"]
+  },
+  {
+    "name": "Ayanna Cole",
+    "interests": ["SCLC and King Center tradition as living inheritance", "message-discipline applied to personal communication", "quiet deliberate action as a daily practice", "mission-driven community organizing off the clock", "Sunday sermon attendance as grounding ritual"]
+  },
+  {
+    "name": "Coach Dom Castellanos",
+    "interests": ["old-school strength programming as art form", "Mexican-American family Sunday meals", "former linebacker game-film rewatching", "knee-story told once, then never complained about again", "big-brother mentorship of younger athletes"]
+  },
+  {
+    "name": "Dr. Lena Brandt, DPT",
+    "interests": ["German precision applied to home organization", "overruling Reece with polite firmness as sport", "dry wit deployed at Dom's expense", "sports rehabilitation case-study reading for leisure", "meticulous bike maintenance as a meditative ritual"]
+  },
+  {
+    "name": "Noor Haddad",
+    "interests": ["breathwork practice as a daily personal anchor", "Levantine family food traditions and hospitality", "yoga mat as a portable home", "quiet injury-recovery gratitude practices", "splitting meditation sessions with Jaque"]
+  },
+  {
+    "name": "Dr. Sana Qureshi",
+    "interests": ["arguing with Dom about rest days (and winning)", "Pakistani family tea-and-conversation rituals", "sleep-quality data tracking for personal use", "exercise physiology papers as weekend reading", "calm evidence-first living in all domains"]
+  }
+]
