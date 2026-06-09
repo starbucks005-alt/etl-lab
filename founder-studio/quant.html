@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ask Rowan · Quant Strategist · ETL Founder Studio</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;500;600;700&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1c1a17;--gold:#9a7c2f;--cream:#faf8f4;--line:#e7e2d8;--muted:#6f685d;--good:#2e7d4f;--navy:#14233a}
+*{box-sizing:border-box}body{margin:0;background:#faf8f4;color:#1c1a17;font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+header{background:#fff;border-bottom:1px solid #e7e2d8;padding:18px 30px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.brand{font-family:"Playfair Display",serif;font-weight:700;font-size:22px;color:#1c1a17;text-decoration:none}
+.brand small{display:block;font-family:Inter;font-weight:500;letter-spacing:.18em;text-transform:uppercase;font-size:10px;color:#9a7c2f;margin-top:2px}
+header nav a{color:#1c1a17;text-decoration:none;font-size:13px;font-weight:500;margin-left:14px}header nav a:hover{color:#9a7c2f}
+main{max-width:880px;margin:0 auto;padding:36px 30px 80px}
+.hero{display:flex;gap:24px;align-items:flex-start;margin-bottom:18px}
+.portrait-ph{width:120px;height:120px;flex:none;border-radius:50%;background:linear-gradient(135deg,#1c2f4d,#14233a);display:flex;align-items:center;justify-content:center;color:#fff;font-family:"Playfair Display",serif;font-size:38px;font-weight:700}
+h1{font-family:"Playfair Display",serif;font-size:32px;margin:0 0 4px;line-height:1.15}
+.role{font-family:"DM Mono",monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#9a7c2f;font-weight:600;margin-bottom:10px}
+.pitch{font-family:"Cormorant Garamond",Georgia,serif;font-size:18px;font-style:italic;color:#4d5868;line-height:1.45}
+.disclaimer{background:#fff5f0;border:1px solid #f4d4c0;border-left:4px solid #b25d4e;border-radius:8px;padding:14px 18px;margin:14px 0 22px;color:#7a4b3d;font-size:13.5px;line-height:1.5}.disclaimer strong{color:#5a382c}
+.askbox{background:#fff;border:1px solid #e7e2d8;border-radius:12px;padding:22px;margin:14px 0 22px;box-shadow:0 4px 16px rgba(30,25,15,.04)}
+.askbox label{font-family:"DM Mono",monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#9a7c2f;font-weight:600;margin-bottom:8px;display:block}
+textarea{width:100%;border:1px solid #e7e2d8;border-radius:8px;padding:14px;font-family:Inter,sans-serif;font-size:14.5px;min-height:90px;resize:vertical;color:#1c1a17;background:#faf8f4}
+textarea:focus{border-color:#9a7c2f;outline:none}
+.ask-btn{background:#14233a;color:#fff;border:0;border-radius:8px;padding:13px 22px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:Inter;margin-top:12px}
+.ask-btn:hover{background:#1c2f4d}.ask-btn:disabled{background:#999;cursor:wait}
+.samples{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.samples span{font-size:12px;border:1px solid #e7e2d8;background:#faf8f4;border-radius:999px;padding:6px 13px;cursor:pointer;color:#4d5868;font-family:Inter}
+.samples span:hover{border-color:#9a7c2f;color:#1c1a17}
+.status{margin-top:14px;font-family:"DM Mono",monospace;font-size:11px;letter-spacing:.10em;color:#6f685d;display:none}
+.status.is-on{display:block}.status .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#9a7c2f;margin-right:8px;animation:pulse 1.4s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.answer{background:#fff;border:1px solid #e7e2d8;border-radius:12px;padding:28px 32px 26px;margin-top:24px;display:none;border-left:4px solid #9a7c2f}
+.answer.is-on{display:block}.answer h2{font-family:"Playfair Display",serif;font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:#9a7c2f;margin:0 0 14px;font-weight:600}
+.answer .body{font-family:Inter,sans-serif;font-size:15.5px;line-height:1.65;color:#1c1a17;white-space:pre-wrap}
+.answer .citations{margin-top:22px;padding-top:18px;border-top:1px solid #e7e2d8}
+.answer .citations h3{font-family:"DM Mono",monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#9a7c2f;margin:0 0 10px;font-weight:600}
+.answer .citations ol{margin:0;padding-left:22px}.answer .citations li{font-size:13px;color:#4d5868;margin-bottom:6px;line-height:1.45}
+.answer .citations a{color:#14233a;text-decoration:none;font-weight:500}.answer .citations a:hover{color:#9a7c2f;text-decoration:underline}
+.err{background:#fff5f0;border:1px solid #f4d4c0;border-radius:8px;padding:14px 18px;color:#b25d4e;font-size:13.5px;margin-top:14px;display:none}.err.is-on{display:block}
+.v1-note{font-family:"Cormorant Garamond",Georgia,serif;font-size:14px;font-style:italic;color:#6f685d;margin:24px 0 0;line-height:1.5}
+</style>
+</head><body>
+<header><a class="brand" href="/">ETL<small>Founder Studio</small></a>
+<nav><a href="/studio.html">Studio</a><a href="/hiring-pool.html">Catalog</a><a href="/founder-studio/cfo.html">CFO</a><a href="/founder-studio/ciso.html">CISO</a><a href="/founder-studio/general-counsel.html">GC</a><a href="/founder-studio/strategy.html">CSO</a><a href="/">Home</a></nav></header>
+<main>
+<div class="hero"><div class="portrait-ph">RT</div><div>
+<h1>Ask Rowan</h1>
+<div class="role">Rowan Tate &middot; Quant Strategist &middot; Six-Pack Staff</div>
+<div class="pitch">Watches the markets. Names the risk first, the upside second. Reasons through the four risk pillars. Does not pump positions.</div>
+</div></div>
+<div class="disclaimer">
+<strong>Research, not financial advice.</strong> Rowan is a research strategist. He is not a registered investment advisor or broker-dealer, and his notes are not personalized financial advice. For any consequential portfolio decision, especially involving retirement accounts, taxes, or alt assets, consult a licensed advisor in your jurisdiction. In v1 Rowan operates research-only and never executes trades.
+</div>
+<div class="askbox"><label>Your market question</label>
+<textarea id="q" placeholder="e.g., I have $40k of NVDA in a single position, 35% of my portfolio. Should I trim, and what would Rowan suggest?"></textarea>
+<div class="samples" id="samples"></div>
+<button class="ask-btn" id="ask">Ask Rowan &rarr;</button>
+<div class="status" id="status"><span class="dot"></span><span id="status-text">Rowan is checking the live tape...</span></div>
+<div class="err" id="err"></div></div>
+<div class="answer" id="answer"><h2>Rowan's call</h2><div class="body" id="answer-body"></div>
+<div class="citations" id="citations" style="display:none"><h3>Sources Rowan checked</h3><ol id="citations-list"></ol></div></div>
+<p class="v1-note">v1 backpack: web search (covers SEC EDGAR, FRED via web, exchange and issuer pages, central-bank statements). v2 adds direct Robinhood read+execute (with PA brokering credentials, per the canonical comms hierarchy), options chains, and direct FRED.</p>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+var SUPABASE_URL='https://ulvrnermyuvzanxhxoib.supabase.co';
+var SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsdnJuZXJteXV2emFueGh4b2liIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3MzYyMDEsImV4cCI6MjA5NjMxMjIwMX0.tAaXhm_pb-DxrYsXYw1DvvYENDJ_y3jlt2nGWSp2lbA';
+var sb=window.supabase&&window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+var SAMPLES=["NVDA single position, 35% of my portfolio. Trim or hold?",
+"30% in S&P 500 index, 30% in cash, 40% in a single tech name. Read on my concentration risk.",
+"BTC at current levels. Pillar 3 (counterparty/regulatory) read after the last enforcement cycle.",
+"Selling cash-secured puts on a $100 stock. What's my actual downside and is the premium real money?",
+"Treasury yields just shifted. Should an SMB owner with $200k cash care, and what's the call?"];
+function renderSamples(){var el=document.getElementById('samples');el.innerHTML=SAMPLES.map(function(s){return '<span data-q="'+s.replace(/"/g,'&quot;')+'">'+s+'</span>';}).join('');el.querySelectorAll('span').forEach(function(span){span.addEventListener('click',function(){document.getElementById('q').value=span.getAttribute('data-q');document.getElementById('q').focus();});});}
+renderSamples();
+async function getToken(){if(!sb)return null;var s=await sb.auth.getSession();return s&&s.data&&s.data.session&&s.data.session.access_token;}
+document.getElementById('ask').addEventListener('click',async function(){var q=document.getElementById('q').value.trim();if(!q)return;
+var btn=document.getElementById('ask'),status=document.getElementById('status'),err=document.getElementById('err'),answer=document.getElementById('answer');
+btn.disabled=true;answer.classList.remove('is-on');err.classList.remove('is-on');status.classList.add('is-on');
+document.getElementById('status-text').textContent='Rowan is checking the live tape...';
+var token=await getToken();if(!token){err.textContent='Sign in on /studio.html first.';err.classList.add('is-on');status.classList.remove('is-on');btn.disabled=false;return;}
+try{var r=await fetch('/.netlify/functions/specialist-rowan-ask',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({question:q})});
+if(!r.ok){var e=await r.json();throw new Error(e.error||('HTTP '+r.status));}var ack=await r.json();pollStatus(ack.job_id,token);}
+catch(e){err.textContent='snag: '+e.message;err.classList.add('is-on');status.classList.remove('is-on');btn.disabled=false;}});
+var pollAttempt=0;
+async function pollStatus(jobId,token){pollAttempt+=1;
+try{var r=await fetch('/.netlify/functions/specialist-rowan-status?job_id='+encodeURIComponent(jobId),{method:'GET',headers:{'Authorization':'Bearer '+token}});
+if(!r.ok)throw new Error('status HTTP '+r.status);var data=await r.json();
+if(data.status==='done'&&data.response){document.getElementById('status').classList.remove('is-on');document.getElementById('answer-body').textContent=data.response.text||'';
+var cites=data.response.citations||[];if(cites.length){document.getElementById('citations').style.display='';document.getElementById('citations-list').innerHTML=cites.map(function(c){return '<li><a href="'+c.url+'" target="_blank" rel="noopener">'+(c.title||c.url)+'</a></li>';}).join('');}else{document.getElementById('citations').style.display='none';}
+document.getElementById('answer').classList.add('is-on');document.getElementById('ask').disabled=false;pollAttempt=0;return;}
+if(data.status==='error'){document.getElementById('err').textContent='Rowan snag: '+(data.error||'unknown');document.getElementById('err').classList.add('is-on');document.getElementById('status').classList.remove('is-on');document.getElementById('ask').disabled=false;pollAttempt=0;return;}
+var notes=['Rowan is checking the live tape...','Rowan is running the four pillars...','Rowan is naming the risk...','Rowan is writing the call...'];
+document.getElementById('status-text').textContent=notes[Math.min(pollAttempt,notes.length-1)];
+if(pollAttempt<40)setTimeout(function(){pollStatus(jobId,token);},2500);
+else{document.getElementById('err').textContent='Rowan is taking longer than expected. Try refreshing.';document.getElementById('err').classList.add('is-on');document.getElementById('status').classList.remove('is-on');document.getElementById('ask').disabled=false;}}
+catch(e){document.getElementById('err').textContent='poll snag: '+e.message;document.getElementById('err').classList.add('is-on');document.getElementById('status').classList.remove('is-on');document.getElementById('ask').disabled=false;}}
+})();
+</script>
+</body></html>
