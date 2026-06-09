@@ -4297,5 +4297,125 @@
 })();
 </script>
 
+<!-- ────────────────────────────────────────────────────────────────────
+     PER-USER STUDIO CONFIG TEMPLATIZATION
+     Fetches /studio-config-get on auth ready, swaps every hardcoded
+     "Dr. O's Studio" / "Auggie" / "Your PA" string to match the buyer's
+     config. CCW spec: never hardcode owner-specific names on render.
+     For INMA's deployment, Caroline's config comes from
+     data/caroline-inma-company.json via the email-keyed fixture lookup.
+     ──────────────────────────────────────────────────────────────────── -->
+<script>
+(function(){
+  async function getJwt(){
+    try {
+      if (!window.studioSb) return null;
+      var s = await window.studioSb.auth.getSession();
+      return s && s.data && s.data.session && s.data.session.access_token;
+    } catch (_) { return null; }
+  }
+
+  async function loadConfigAndApply(){
+    var token = await getJwt();
+    if (!token) {
+      // Try again in a moment in case Supabase client booted late
+      setTimeout(loadConfigAndApply, 1500);
+      return;
+    }
+    try {
+      var r = await fetch('/.netlify/functions/studio-config-get', {
+        method: 'GET',
+        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+        cache: 'no-store',
+      });
+      if (!r.ok) return;
+      var cfg = await r.json();
+      if (!cfg) return;
+      applyConfig(cfg);
+    } catch (e) {
+      console.warn('[studio-config] load failed:', e && e.message);
+    }
+  }
+
+  function applyConfig(cfg){
+    var companyName = cfg.company_name || 'Your Studio';
+    var paName      = (cfg.pa && cfg.pa.display_name) || 'Auggie';
+    var paLabel     = (cfg.pa && cfg.pa.label) || 'Personal Assistant';
+
+    // Title bar
+    try { document.title = companyName + ' | Emerging Technologies Laboratory'; } catch(_){}
+
+    // Brand link (top nav)
+    var brandEl = document.querySelector('.studio-brand');
+    if (brandEl) {
+      // Match the styling: <name>'s <em>Studio</em> pattern. If config has a
+      // suffix like "Studio" already baked in, render as-is. Otherwise format.
+      brandEl.innerHTML = formatNameForBrand(companyName);
+    }
+
+    // H1 hero header
+    var h1 = document.querySelector('.ws-h1');
+    if (h1) h1.innerHTML = formatNameForBrand(companyName);
+
+    // PA section tag (currently shows "August \"Auggie\" Vidal")
+    var paTag = document.querySelector('.auggie-row .ws-section-tag, .ws-section-tag');
+    if (paTag && paTag.textContent && paTag.textContent.indexOf('Auggie') >= 0) {
+      // Keep "Auggie" in the deep-canon string; future PA personas will need
+      // their full names available. For v1 just swap to the display name.
+      if (paName !== 'Auggie') paTag.textContent = paName;
+    }
+
+    // PA label header ("Your PA" / "Personal Assistant" / custom)
+    var paHeaders = document.querySelectorAll('.ws-section-h');
+    paHeaders.forEach(function(el){
+      // If the visible text looks like a PA-section header, swap it
+      var t = (el.textContent || '').trim();
+      if (/^Your\s+PA$/i.test(t) || /^Personal\s+Assistant$/i.test(t)) {
+        el.textContent = paLabel;
+      }
+    });
+
+    // Sponsorship / in-kind banner
+    if (cfg.sponsorship && cfg.sponsorship.in_kind && cfg.in_kind_banner) {
+      injectInKindBanner(cfg.in_kind_banner);
+    }
+  }
+
+  function formatNameForBrand(name){
+    // Preserve "{owner}'s Studio" rendering. If name already contains "Studio"
+    // somewhere, split on it and italicize. Otherwise wrap whole thing.
+    var idx = name.toLowerCase().indexOf('studio');
+    if (idx > 0) {
+      var pre = name.slice(0, idx).trim();
+      return escapeHtml(pre) + ' <em>Studio</em>';
+    }
+    return escapeHtml(name);
+  }
+
+  function escapeHtml(s){
+    return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function injectInKindBanner(text){
+    if (document.getElementById('in-kind-banner')) return; // idempotent
+    var bar = document.createElement('div');
+    bar.id = 'in-kind-banner';
+    bar.style.cssText = 'background:#14233a;color:#c4a262;padding:10px 22px;font-family:DM Mono,monospace;font-size:11px;letter-spacing:.10em;text-transform:uppercase;text-align:center;border-bottom:1px solid #2a3a55';
+    bar.textContent = text;
+    if (document.body.firstChild) {
+      document.body.insertBefore(bar, document.body.firstChild);
+    } else {
+      document.body.appendChild(bar);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadConfigAndApply);
+  } else {
+    loadConfigAndApply();
+  }
+})();
+</script>
+
 </body>
 </html>

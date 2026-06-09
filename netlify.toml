@@ -65,6 +65,11 @@
 [functions."csuite-alistair-background"]
   included_files = ["data/csuite-backpacks.json"]
 
+# Per-user Studio config lookup. Reads the email-keyed provisioning fixtures
+# (Caroline at INMA, future donations) when a new user first authenticates.
+[functions."studio-config-get"]
+  included_files = ["data/caroline-inma-company.json", "data/pa_pool.json"]
+
 # ─── Press Hub redirects ──────────────────────────────────────────────────
 # Pretty URLs over the Netlify Functions that render the press hub.
 # Order matters within this file: more specific rules first. The sitemap

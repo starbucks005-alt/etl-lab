@@ -1,0 +1,207 @@
+{
+  "_doc": "Sponsored Founder Studio company for Caroline Schirato (INMA), tuned for event planning + sponsorship development. Doubles as Code's provisioning fixture for pipeline M1 (provision) and M3 (billing + sponsorship). Field shapes match start-studio.html handoff payload + gift-method-spec sponsorship flags. All staff editable; additions stay in-kind.",
+  "account": {
+    "account_id": "acct_inma_caroline",
+    "owner_name": "Caroline Schirato",
+    "owner_title": "Mayor of Angels Camp, California; Events Director, InfraGard National Members Alliance (INMA)",
+    "owner_email": "cschirato@infragardnational.org",
+    "provisioning": "magic_link",
+    "created_via": "gift_sponsorship",
+    "status": "ready_to_provision",
+    "owner_context": "Unanimously appointed Mayor of Angels Camp by the City Council on January 6, 2026; previously City Council member and Vice Mayor. Angels Camp is a small Calaveras County city with a heavy tourism-events calendar.",
+    "owner_org": "InfraGard National Members Alliance (INMA)"
+  },
+  "sponsorship": {
+    "sponsored": true,
+    "sponsor": "Dr. Terry L. Oroszi / Emerging Technologies Laboratory",
+    "in_kind": true,
+    "retail_value_monthly": 1499,
+    "amount_due_monthly": 0,
+    "term_end": null,
+    "revocable": true,
+    "editable": true,
+    "value_cap_monthly": null,
+    "statement": "In-kind service, sponsored by Dr. Oroszi / ETL. Executive tier, $1,499/mo value, $0 due.",
+    "staff_limit": null,
+    "staff_limit_note": "No cap. Caroline can hire as many staff as she wants; every addition is sponsored and stays in-kind at $0 due. The starter team below is a starting point, not a ceiling."
+  },
+  "company": {
+    "company_name": "INMA Events Studio",
+    "pa": {
+      "persona_id": "auggie_vidal",
+      "display_name": "Auggie",
+      "note": "Her pick. Swappable to any pool persona later if she wants.",
+      "backpack": true,
+      "voice_enabled": true,
+      "video_calls": {
+        "enabled": true,
+        "platforms": [
+          "Zoom",
+          "Google Meet",
+          "Microsoft Teams"
+        ],
+        "note": "Auggie has a real voice and can talk with Caroline out loud and join her on Zoom (or Meet/Teams) to brief her, take direction live, and take notes. Standard PA capability."
+      },
+      "voice": {
+        "provider": "ElevenLabs",
+        "voice_id": "XMt7icsOj2DAS4Cn1PN1",
+        "settings": {
+          "model": "eleven_turbo_v2_5",
+          "stability": 0.42,
+          "similarity_boost": 0.78,
+          "style": 0.45,
+          "use_speaker_boost": true
+        }
+      }
+    },
+    "cv_provided": false,
+    "address_pref": null,
+    "timezone": null,
+    "calendar_connected": false,
+    "beat": "Mayor of Angels Camp (constituent communications, council meeting prep, proclamations and remarks, city grant-seeking, local/tourism events) and Events Director for INMA (event planning plus sponsorship development with a dedicated closer).",
+    "domain_addon": "events_and_sponsorship",
+    "sixpack_on": true,
+    "plan": {
+      "tier": "Executive",
+      "base_monthly": 1499,
+      "currency": "USD"
+    },
+    "staff": [
+      {
+        "id": "benjamin_reed",
+        "name": "Benjamin Reed",
+        "role": "Chief Information Security Officer (CISO)",
+        "tier": "board",
+        "price": 89.99,
+        "backpack": true,
+        "free_assistant": {
+          "selection": "owner_choice_from_pool",
+          "persona_id": null,
+          "backpack": false,
+          "note": "A board hire comes with one free assistant. The owner (Caroline) picks it from the 10-PA pool at hire time, same picker as choosing a PA. Persona only, no backpack. She can also skip it."
+        },
+        "why": "Anchor of the gift. CISO and InfraGard member; the agent Dr. O described to the INMA board. The security authority that makes events and sponsor pitches credible."
+      },
+      {
+        "id": "delia_marsh",
+        "name": "Delia Marsh",
+        "role": "Director of Development & Sponsorships",
+        "tier": "mcp",
+        "price": 49,
+        "backpack": true,
+        "why": "Dedicated sponsorship closer, built on request. Backpack pulls live capacity signals (SEC EDGAR, SAM.gov, USAspending, ProPublica 990s) to rank prospects and size the ask. Runs the full development pipeline; Caroline keeps the relationship and makes the close. For the mayor role she also chases municipal grants (federal and state) using the same backpack (SAM.gov, USAspending, and public funding signals)."
+      },
+      {
+        "id": "reid_callum",
+        "name": "Reid Callum",
+        "role": "The Marketing Expert",
+        "tier": "addon",
+        "price": 49,
+        "backpack": false,
+        "why": "Builds the sponsor pitch and runs event promotion. Double duty across both of her jobs."
+      },
+      {
+        "id": "ayanna_cole",
+        "name": "Ayanna Cole",
+        "role": "Director of Communications",
+        "tier": "addon",
+        "price": 49,
+        "backpack": false,
+        "why": "Event comms, speaker coordination, and sponsor-facing outreach."
+      },
+      {
+        "id": "grey_hollis",
+        "name": "Grey Hollis",
+        "role": "The Ghostwriter",
+        "tier": "addon",
+        "price": 49,
+        "backpack": false,
+        "why": "Mayoral fit: speeches, proclamations, council remarks, op-eds, and event remarks. A mayor lives on prepared words."
+      },
+      {
+        "id": "the_professor",
+        "name": "The Professor",
+        "role": "Research & Fact-Checker",
+        "tier": "addon",
+        "price": 49,
+        "backpack": false,
+        "why": "Fact-checks claims before public statements, summarizes staff reports and ordinances in plain language, and vets sponsor and event facts. Serves all three roles: mayor, events director, and sponsorship."
+      }
+    ],
+    "sixpack_members": [
+      {
+        "id": "yuki_mendel",
+        "name": "Yuki Mendel",
+        "role": "Graphic Designer",
+        "note": "event collateral, sponsor decks, signage. Top fit.",
+        "backpack": false
+      },
+      {
+        "id": "leo_vance",
+        "name": "Leo Vance",
+        "role": "Financial Operations Associate",
+        "note": "event budgets, sponsor revenue tracking",
+        "backpack": true
+      },
+      {
+        "id": "sasha_moreno",
+        "name": "Sasha Moreno",
+        "role": "People Ops / HR",
+        "note": "committee and volunteer coordination",
+        "backpack": false
+      },
+      {
+        "id": "kimberly_pass",
+        "name": "Kimberly Pass",
+        "role": "Legal Researcher",
+        "note": "venue and sponsorship agreement research",
+        "backpack": false
+      },
+      {
+        "id": "alicia_james",
+        "name": "Alicia James",
+        "role": "LLC Business Consultant",
+        "note": "bonus; low relevance for a nonprofit",
+        "backpack": false
+      },
+      {
+        "id": "rowan_tate",
+        "name": "Rowan Tate",
+        "role": "Quantitative Strategist",
+        "note": "bonus; registration and attendance analytics",
+        "backpack": true
+      }
+    ]
+  },
+  "gaps_flagged": [
+    "RESOLVED: dedicated sponsorship closer added (Margo Whitfield, MCP backpack, $49/mo). She runs the full pipeline; the relationship and close stay with Caroline.",
+    "Optional add for sponsorship and event-ops strategy at board level: Raymond Chen (Judge, Business & Operations), +$89.99/mo, includes a free assistant.",
+    "Swapped out: Alistair Montgomery (Strategy & Market Analyst). Margo's backpack covers prospect research directly, so the generic analyst was redundant for this team. Add Alistair back at $49/mo if market-sizing depth is wanted."
+  ],
+  "value_breakdown": {
+    "tier": "Executive",
+    "tier_monthly": 1499,
+    "amount_due_monthly": 0,
+    "headcount": 14,
+    "includes": "PA + Studio (Auggie, with backpack, voice, and Zoom), the Essential Six-Pack, a full custom bench (CISO board advisor, development and sponsorship closer, marketing, communications, ghostwriter, fact-checker), custom integrations, concierge onboarding 1:1 with Dr. O, and weekly output review.",
+    "itemized_alternative_monthly": 732.99,
+    "valuation_note": "Valued at the Executive tier retail price ($1,499/mo), which is the package she receives. The same staff itemized a la carte is about $733/mo; the Executive tier adds concierge onboarding with Dr. O, custom integrations, full-bench access, and weekly review beyond raw headcount. If a conservative in-kind number is preferred for the city's or nonprofit's books, the itemized $732.99 can be used instead."
+  },
+  "_backpack_summary": "Backpack (live tools): Auggie (PA), Benjamin Reed (CISO), Delia Marsh (Dev/Sponsorships + municipal grants), Leo Vance and Rowan Tate (six-pack). In-framework only: Reid Callum, Ayanna Cole, Grey Hollis, The Professor, Alicia James, Kimberly Pass, Sasha Moreno, Yuki Mendel. Benjamin's free assistant carries NO backpack.",
+  "studio_landing": {
+    "purpose": "Caroline opens her magic link and lands directly in her Studio, fully staffed. No marketing, no pricing, no checkout.",
+    "show_on_first_login": [
+      "In-kind banner: 'Sponsored by Dr. Terry L. Oroszi / Emerging Technologies Laboratory. Executive tier, $1,499/mo value, $0 due.'",
+      "Studio header showing the company name (editable; see rename)",
+      "Her PA, Auggie, present with voice and Zoom available",
+      "All 14 staff populated on the Staff board and active in The Floor",
+      "The live panels: morning brief, chat window, On the Floor right now, Recently shipped, Command the staff",
+      "An optional first-run nudge to name her company and PA; defaults work if she skips"
+    ],
+    "rename": "She can rename the Studio (to her office, the city, or INMA) and rename her PA anytime. Persist company_name and pa.display_name.",
+    "no_payment_ui": "Do not show pricing, a card field, or a checkout anywhere in her account. amount_due_monthly is 0.",
+    "needs_from_dr_o": [
+      "Confirm the default company_name (currently 'INMA Events Studio'); she can rename after login"
+    ]
+  }
+}
