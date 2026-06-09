@@ -32,6 +32,21 @@
 [functions."studio-floor-render"]
   included_files = ["data/etl-agents-roster.json"]
 
+# Auggie's Routines tick. Every 15 minutes the cron sweeps the
+# auggie_routines blob, finds every routine whose next_fire <= now,
+# and dispatches each one to its whitelisted endpoint. The whitelist
+# lives in data/auggie-routine-targets.json (~12 known MCP actions
+# for v1). Phase 2 opens arbitrary intent.
+[functions."studio-routine-tick"]
+  schedule = "*/15 * * * *"
+  included_files = ["data/auggie-routine-targets.json"]
+
+# studio-routine-create and studio-routine-list also read the whitelist.
+[functions."studio-routine-create"]
+  included_files = ["data/auggie-routine-targets.json"]
+[functions."studio-routine-list"]
+  included_files = ["data/auggie-routine-targets.json"]
+
 # ─── Press Hub redirects ──────────────────────────────────────────────────
 # Pretty URLs over the Netlify Functions that render the press hub.
 # Order matters within this file: more specific rules first. The sitemap
