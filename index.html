@@ -2177,6 +2177,50 @@ document.addEventListener('DOMContentLoaded', function(){
     text-align: center;
   }
   .agents-modal-home:hover { background: #d4aa4a; border-color: #d4aa4a; }
+  /* HIRE CTA — two-button Standing / Temp flow inside the agent modal */
+  .agents-modal-hire {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 14px;
+    padding-top: 16px;
+    border-top: 1px dashed rgba(196,162,98,0.3);
+  }
+  .agents-modal-hirebtn {
+    display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
+    padding: 12px 14px;
+    font-family: 'DM Mono', monospace;
+    background: #14233a;
+    border: 1px solid #c4a262;
+    color: #f5efe2;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.15s, transform 0.15s;
+  }
+  .agents-modal-hirebtn:hover { background: #1c2f4d; transform: translateY(-1px); }
+  .agents-modal-hirebtn-label {
+    font-size: 10.5px; letter-spacing: 0.10em; text-transform: uppercase;
+    color: #f5efe2;
+  }
+  .agents-modal-hirebtn-min {
+    color: #c4a262; font-size: 9px;
+  }
+  .agents-modal-hirebtn-price {
+    font-size: 14px; color: #c4a262; letter-spacing: 0.04em;
+  }
+  .agents-modal-hirebtn-temp {
+    background: transparent; color: #c4a262;
+  }
+  .agents-modal-hirebtn-temp:hover { background: rgba(196,162,98,0.08); }
+  .agents-modal-hirebtn-temp .agents-modal-hirebtn-label { color: #c4a262; }
+  .agents-modal-hire-note {
+    grid-column: 1 / -1;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px; font-style: italic;
+    color: #6b7484;
+    line-height: 1.45;
+    margin-top: 4px;
+  }
   @media (max-width: 640px) {
     .agents-modal-card { padding: 22px 20px 18px; }
     .agents-modal-name { font-size: 22px; }
@@ -2184,6 +2228,7 @@ document.addEventListener('DOMContentLoaded', function(){
     .agents-modal-actions { flex-direction: column; }
     .agents-modal-home { width: 100%; }
     .agents-modal-nav { width: 100%; }
+    .agents-modal-hire { grid-template-columns: 1fr; }
   }
   /* Hint label below the roster on the agents card so visitors know
      the avatars are interactive. Lives inside the etl-net-body of that
@@ -4701,6 +4746,18 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
       <a class="agents-modal-home" id="agents-modal-home" target="_blank" rel="noopener">Visit them &rarr;</a>
       <button class="agents-modal-nav" id="agents-modal-next" type="button" aria-label="Next agent">Next &rarr;</button>
     </div>
+    <!-- HIRE CTA — two-button Standing / Temp flow, same price either way -->
+    <div class="agents-modal-hire" id="agents-modal-hire">
+      <button class="agents-modal-hirebtn agents-modal-hirebtn-standing" id="agents-modal-hire-standing" type="button">
+        <span class="agents-modal-hirebtn-label">Hire as Standing Staff</span>
+        <span class="agents-modal-hirebtn-price" id="agents-modal-hire-price-standing">$49/mo</span>
+      </button>
+      <button class="agents-modal-hirebtn agents-modal-hirebtn-temp" id="agents-modal-hire-temp" type="button">
+        <span class="agents-modal-hirebtn-label">Hire as Temp <span class="agents-modal-hirebtn-min">&middot; 1-month minimum</span></span>
+        <span class="agents-modal-hirebtn-price" id="agents-modal-hire-price-temp">$49/mo</span>
+      </button>
+      <div class="agents-modal-hire-note">Same price either way. Standing recurs until you let them go. Temp is built for project work &mdash; release any time after day 30.</div>
+    </div>
   </div>
 </div>
 
@@ -5080,6 +5137,33 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
       .replace(/\s+/g, ' ')
       .trim();
   }
+
+  // ─── HIRE HANDLER ────────────────────────────────────────────────
+  // Cosmetic Hire flow: write to localStorage hired_queue, show inline
+  // confirmation, offer Studio link. Real backend lands with the
+  // multi-tenant Stripe sprint (studio-hire.js Netlify function).
+  function handleHire(name, contractType, price){
+    var contractLabel = contractType === 'temp' ? 'Temp Hire (1-month minimum)' : 'Standing Hire';
+    var confirmMsg = 'Hire ' + name + ' as ' + contractLabel + ' for $' + price + '/mo?\n\n'
+                   + (contractType === 'temp'
+                       ? 'Temp Hires are built for project work. You can release them any time after day 30.'
+                       : 'Standing Hires recur monthly until you release them. No minimum past the first month.');
+    if (!confirm(confirmMsg)) return;
+
+    // Persist to localStorage so the demo Studio can show them as hired
+    var queue = {};
+    try { queue = JSON.parse(localStorage.getItem('hired_queue_v1') || '{}'); } catch(e){}
+    queue[name] = {
+      contract: contractType,
+      price: price,
+      hiredOn: new Date().toISOString()
+    };
+    try { localStorage.setItem('hired_queue_v1', JSON.stringify(queue)); } catch(e){}
+
+    // Confirmation + Studio jump offer
+    var go = confirm(name + ' hired as ' + contractLabel + '.\n\nFind them in your Studio under "The staff". Open Studio now?');
+    if (go) window.location.href = '/studio.html';
+  }
   function rosterLookup(displayName){
     if (!ROSTER_BY_NAME) return null;
     var key = normalizeName(displayName);
@@ -5202,6 +5286,24 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
     elNum.textContent = 'Agent ' + pad(idx + 1) + ' of ' + pad(AGENTS.length);
     elHome.href = a.home;
     elHome.textContent = 'Visit them at ' + a.platform + ' â†’';
+
+    // ─── HIRE CTA ───────────────────────────────────────────────────
+    // Pull price from roster if present; default by tier. Both buttons
+    // get the same price (same-price rule for Standing vs Temp).
+    var hirePrice = (rosterAgent && rosterAgent.price_monthly) ? rosterAgent.price_monthly : 49;
+    var hirePriceStr = '$' + hirePrice + '/mo';
+    var elHireStanding = document.getElementById('agents-modal-hire-standing');
+    var elHireTemp     = document.getElementById('agents-modal-hire-temp');
+    var elHirePriceS   = document.getElementById('agents-modal-hire-price-standing');
+    var elHirePriceT   = document.getElementById('agents-modal-hire-price-temp');
+    if (elHirePriceS) elHirePriceS.textContent = hirePriceStr;
+    if (elHirePriceT) elHirePriceT.textContent = hirePriceStr;
+    if (elHireStanding) {
+      elHireStanding.onclick = function(){ handleHire(a.name, 'standing', hirePrice); };
+    }
+    if (elHireTemp) {
+      elHireTemp.onclick = function(){ handleHire(a.name, 'temp', hirePrice); };
+    }
     // Re-trigger the scanline animation on every open by toggling the class
     var card = modal.querySelector('.agents-modal-card');
     if (card) {

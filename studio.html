@@ -362,6 +362,173 @@
     .shipped-row { grid-template-columns: 1fr; gap: 6px; }
     .login-wall { margin: 60px 22px; padding: 40px 28px; }
   }
+
+  /* ──────────────────────────────────────────────────────────────────
+     STAFF CARD CONTRACT CHIP + FIRE/SWAP CONTROLS
+     Cosmetic layer injected by JS on page load. State persists in
+     localStorage so demo-fired staff stay gone across page reloads.
+     Backend wiring lives in studio-fire.js / studio-hire.js (TBD).
+     ────────────────────────────────────────────────────────────────── */
+  .staff-contract {
+    display: flex; align-items: center; gap: 8px;
+    margin: 10px 0 0;
+    padding-top: 10px;
+    border-top: 1px dashed var(--linen-edge);
+  }
+  .staff-chip {
+    font-family: 'DM Mono', monospace;
+    font-size: 8.5px; letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 3px 7px;
+    border: 1px solid var(--linen-edge);
+    color: var(--ink-soft);
+    background: #fff;
+    line-height: 1.4;
+  }
+  .staff-chip-pa     { border-color: var(--navy-mid); color: var(--navy); }
+  .staff-chip-pack   { border-color: var(--brass); color: var(--brass); }
+  .staff-chip-temp   { border-color: var(--brass); color: var(--brass); background: rgba(196,162,98,0.07); }
+  .staff-chip-stand  { border-color: var(--linen-edge); color: var(--ink-quiet); }
+  .staff-meta {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px; letter-spacing: 0.10em;
+    color: var(--ink-quiet);
+    margin-left: auto;
+    text-transform: uppercase;
+  }
+  .staff-actions {
+    display: flex; gap: 8px;
+    margin-top: 12px;
+  }
+  .staff-btn {
+    flex: 1;
+    font-family: 'DM Mono', monospace;
+    font-size: 9.5px; letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 7px 8px;
+    background: #fff;
+    border: 1px solid var(--linen-edge);
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+  }
+  .staff-btn:hover { border-color: var(--brass); color: var(--ink); }
+  .staff-btn-swap  { border-color: var(--navy-mid); color: var(--navy); }
+  .staff-btn-swap:hover { background: var(--navy); color: var(--linen-light); }
+  .staff-btn-fire  { border-color: #b25d4e; color: #b25d4e; }
+  .staff-btn-fire:hover { background: #b25d4e; color: #fff; }
+  .staff-btn-fire[disabled],
+  .staff-btn-fire.is-locked {
+    border-color: var(--linen-edge);
+    color: var(--ink-quiet);
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+  .staff-btn-fire[disabled]:hover,
+  .staff-btn-fire.is-locked:hover {
+    background: #fff; color: var(--ink-quiet);
+  }
+  .staff-card.is-firing {
+    transition: opacity 0.5s, transform 0.5s;
+    opacity: 0; transform: translateY(-8px);
+  }
+  .staff-card.is-empty {
+    background: #fff;
+    border-style: dashed;
+    border-color: var(--linen-edge);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 32px 18px; min-height: 280px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .staff-card.is-empty:hover {
+    border-color: var(--brass); background: rgba(196,162,98,0.04);
+    transform: none; box-shadow: none;
+  }
+  .staff-card-empty-mark {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px; color: var(--linen-edge); margin-bottom: 8px;
+  }
+  .staff-card-empty-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--brass); margin-bottom: 6px;
+  }
+  .staff-card-empty-cta {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px; color: var(--ink-soft); font-style: italic;
+  }
+  .staff-temp-nudge {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px; font-style: italic; color: var(--brass);
+    margin: 8px 0 0; line-height: 1.4;
+  }
+
+  /* CONFIRM DIALOG (Fire / Swap recommendation) */
+  .fire-dialog {
+    position: fixed; inset: 0;
+    background: rgba(20,35,58,0.55);
+    display: none; align-items: center; justify-content: center;
+    z-index: 9000;
+  }
+  .fire-dialog.is-open { display: flex; }
+  .fire-dialog-card {
+    background: var(--linen-light);
+    max-width: 480px; width: calc(100% - 48px);
+    padding: 32px 32px 24px;
+    border-top: 4px solid var(--brass);
+  }
+  .fire-dialog-eyebrow {
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--brass); margin-bottom: 10px;
+  }
+  .fire-dialog-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px; color: var(--ink); margin-bottom: 12px;
+  }
+  .fire-dialog-body {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px; color: var(--ink-soft); line-height: 1.55;
+    margin-bottom: 22px;
+  }
+  .fire-dialog-body strong { color: var(--ink); font-weight: 600; }
+  .fire-dialog-actions {
+    display: flex; gap: 12px; justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+  .fire-dialog-btn {
+    font-family: 'DM Mono', monospace; font-size: 10.5px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    padding: 11px 18px;
+    border: 1px solid var(--linen-edge);
+    background: #fff; color: var(--ink-soft);
+    cursor: pointer;
+  }
+  .fire-dialog-btn:hover { border-color: var(--brass); color: var(--ink); }
+  .fire-dialog-btn-primary {
+    background: var(--navy); color: var(--linen-light);
+    border-color: var(--navy);
+  }
+  .fire-dialog-btn-primary:hover { background: var(--ink); color: #fff; }
+  .fire-dialog-btn-danger {
+    border-color: #b25d4e; color: #b25d4e;
+  }
+  .fire-dialog-btn-danger:hover { background: #b25d4e; color: #fff; border-color: #b25d4e; }
+
+  /* TOAST */
+  .fire-toast {
+    position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+    background: var(--ink); color: var(--linen-light);
+    font-family: 'DM Mono', monospace; font-size: 11px;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    padding: 14px 24px;
+    border-left: 3px solid var(--brass);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.25s, transform 0.25s;
+    z-index: 9100;
+  }
+  .fire-toast.is-on { opacity: 1; transform: translateX(-50%) translateY(-6px); }
 </style>
 </head>
 <body>
@@ -3426,6 +3593,306 @@
   document.addEventListener('keydown', function(ev){
     if (ev.key === 'Escape' && modal.getAttribute('aria-hidden') === 'false') closeModal();
   });
+})();
+</script>
+
+<!-- ────────────────────────────────────────────────────────────────────
+     FIRE / SWAP MECHANIC (cosmetic; localStorage-persistent)
+     A1 ship: visible Hire/Fire flow on every staff card. PA is swap-only.
+     Six-Pack fire-without-swap triggers the "runs with 5 at $199" dialog
+     and renders an empty-slot placeholder. Specialty fires drop the card.
+     Backend (real per-buyer Company storage) lands with the multi-tenant
+     Stripe sprint; this UI plugs into it unchanged when that ships.
+     ──────────────────────────────────────────────────────────────────── -->
+<div id="fire-dialog" class="fire-dialog" aria-hidden="true" role="dialog">
+  <div class="fire-dialog-card">
+    <div id="fire-dialog-eyebrow" class="fire-dialog-eyebrow">Release staff</div>
+    <div id="fire-dialog-title" class="fire-dialog-title">Let them go?</div>
+    <div id="fire-dialog-body" class="fire-dialog-body"></div>
+    <div id="fire-dialog-actions" class="fire-dialog-actions"></div>
+  </div>
+</div>
+<div id="fire-toast" class="fire-toast"></div>
+
+<script>
+(function(){
+  'use strict';
+
+  // ─── STAFF CONFIG ─────────────────────────────────────────────────
+  // Pool tier governs Fire behavior:
+  //   'pa'        → swap-only, no Fire button
+  //   'sixpack'   → Fire opens "runs with 5 at $199" recommend-swap dialog
+  //   'specialty' → Fire opens simple confirm dialog
+  // contract: 'standing' = no nudge after day 30, 'temp' = "Project complete?" nudge
+  // dayOffset: backdated days since hire. Used to compute eligibility + display.
+  var TODAY = new Date();
+  function daysAgo(n){ var d = new Date(TODAY); d.setDate(d.getDate() - n); return d.toISOString(); }
+
+  var STAFF = {
+    'August "Auggie" Vidal': { pool: 'pa',        contract: 'standing', dayOffset: 120 },
+    'Charles Monroe':        { pool: 'sixpack',   contract: 'standing', dayOffset: 47  },
+    'Beatriz "Bea" Vega':    { pool: 'sixpack',   contract: 'standing', dayOffset: 92  },
+    'Ms. Ivy':               { pool: 'sixpack',   contract: 'standing', dayOffset: 31  },
+    'Jules':                 { pool: 'sixpack',   contract: 'standing', dayOffset: 60  },
+    'Jess Ramirez':          { pool: 'sixpack',   contract: 'standing', dayOffset: 45  },
+    'Carol Haynes':          { pool: 'sixpack',   contract: 'temp',     dayOffset: 12  },
+    'Imani Brooks':          { pool: 'specialty', contract: 'standing', dayOffset: 75  },
+    'Reid Callum':           { pool: 'specialty', contract: 'temp',     dayOffset: 8   },
+    'Wren Calloway':         { pool: 'specialty', contract: 'standing', dayOffset: 90  },
+    'Ayanna Cole':           { pool: 'specialty', contract: 'temp',     dayOffset: 27  },
+    'Sneha Desai':           { pool: 'specialty', contract: 'standing', dayOffset: 14  },
+    'Arjun Mehta':           { pool: 'specialty', contract: 'standing', dayOffset: 50  },
+    'Jax Rivera':            { pool: 'specialty', contract: 'temp',     dayOffset: 25  }
+  };
+
+  var LS_FIRED    = 'studio_fired_v1';     // { name: ISOdate }
+  var LS_OVERRIDE = 'studio_contract_v1';  // { name: {pool, contract, hiredOn} }
+
+  function lsGet(k){ try { return JSON.parse(localStorage.getItem(k) || '{}'); } catch(e){ return {}; } }
+  function lsSet(k,v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} }
+
+  function getConfig(name){
+    var override = lsGet(LS_OVERRIDE)[name];
+    if (override) return override;
+    var base = STAFF[name];
+    if (!base) return null;
+    return { pool: base.pool, contract: base.contract, hiredOn: daysAgo(base.dayOffset) };
+  }
+
+  function daysSince(iso){
+    var then = new Date(iso).getTime();
+    var diff = Date.now() - then;
+    return Math.floor(diff / (1000 * 60 * 60 * 24));
+  }
+  function eligibleDate(iso){
+    var d = new Date(iso); d.setDate(d.getDate() + 30);
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
+
+  // ─── RENDER ────────────────────────────────────────────────────────
+  function decorateCard(card){
+    var nameEl = card.querySelector('.staff-name');
+    if (!nameEl) return;
+    var name = nameEl.textContent.trim();
+    var cfg = getConfig(name);
+    if (!cfg) return;
+
+    var fired = lsGet(LS_FIRED);
+    if (fired[name]) {
+      // Six-Pack fired without swap → render empty placeholder in place
+      if (cfg.pool === 'sixpack' && fired[name].mode === 'empty') {
+        renderEmptySlot(card, name);
+      } else {
+        card.style.display = 'none';
+      }
+      return;
+    }
+
+    card.setAttribute('data-staff', name);
+    card.setAttribute('data-pool', cfg.pool);
+    card.setAttribute('data-contract', cfg.contract);
+
+    var body = card.querySelector('.staff-body');
+    if (!body) return;
+
+    // Don't double-decorate
+    if (body.querySelector('.staff-contract')) return;
+
+    var days = daysSince(cfg.hiredOn);
+    var eligible = days >= 30;
+    var poolLabel = cfg.pool === 'pa' ? 'PA' : cfg.pool === 'sixpack' ? 'Six-Pack' : 'Specialty';
+    var poolClass = cfg.pool === 'pa' ? 'staff-chip-pa' : cfg.pool === 'sixpack' ? 'staff-chip-pack' : '';
+    var contractClass = cfg.contract === 'temp' ? 'staff-chip-temp' : 'staff-chip-stand';
+    var contractLabel = cfg.contract === 'temp' ? 'Temp Hire' : 'Standing';
+
+    var meta = '';
+    if (cfg.pool !== 'pa') {
+      if (eligible) {
+        meta = cfg.contract === 'temp'
+          ? 'Day ' + days + ' &middot; eligible to release'
+          : 'Day ' + days;
+      } else {
+        meta = 'Day ' + days + ' of 30';
+      }
+    } else {
+      meta = 'Day ' + days;
+    }
+
+    var html = ''
+      + '<div class="staff-contract">'
+      +   '<span class="staff-chip ' + poolClass + '">' + poolLabel + '</span>'
+      +   '<span class="staff-chip ' + contractClass + '">' + contractLabel + '</span>'
+      +   '<span class="staff-meta">' + meta + '</span>'
+      + '</div>';
+
+    // Temp Hire project-complete nudge at day 30+
+    if (cfg.pool !== 'pa' && cfg.contract === 'temp' && eligible) {
+      html += '<p class="staff-temp-nudge">Project complete? Release them when ready.</p>';
+    }
+
+    // Actions
+    html += '<div class="staff-actions">';
+    html += '<button type="button" class="staff-btn staff-btn-swap" data-act="swap">Swap</button>';
+    if (cfg.pool !== 'pa') {
+      if (eligible) {
+        html += '<button type="button" class="staff-btn staff-btn-fire" data-act="fire">Fire</button>';
+      } else {
+        html += '<button type="button" class="staff-btn staff-btn-fire is-locked" '
+              + 'title="1-month minimum. Eligible to release ' + eligibleDate(cfg.hiredOn) + '." '
+              + 'aria-disabled="true">Fire</button>';
+      }
+    }
+    html += '</div>';
+
+    body.insertAdjacentHTML('beforeend', html);
+
+    body.querySelector('[data-act="swap"]').addEventListener('click', function(){ openSwap(name, cfg); });
+    var fireBtn = body.querySelector('[data-act="fire"]');
+    if (fireBtn) fireBtn.addEventListener('click', function(){ openFire(name, cfg); });
+  }
+
+  function renderEmptySlot(card, originalName){
+    card.classList.add('is-empty');
+    card.innerHTML = ''
+      + '<div class="staff-card-empty-mark">+</div>'
+      + '<div class="staff-card-empty-label">Six-Pack slot open</div>'
+      + '<div class="staff-card-empty-cta">Hire someone from the Hiring Pool</div>';
+    card.addEventListener('click', function(){
+      window.location.href = '/#agents';
+    });
+  }
+
+  // ─── DIALOG ────────────────────────────────────────────────────────
+  var dlg     = document.getElementById('fire-dialog');
+  var dlgEb   = document.getElementById('fire-dialog-eyebrow');
+  var dlgTtl  = document.getElementById('fire-dialog-title');
+  var dlgBody = document.getElementById('fire-dialog-body');
+  var dlgAct  = document.getElementById('fire-dialog-actions');
+
+  function showDialog(eyebrow, title, bodyHtml, buttons){
+    dlgEb.textContent = eyebrow;
+    dlgTtl.textContent = title;
+    dlgBody.innerHTML = bodyHtml;
+    dlgAct.innerHTML = '';
+    buttons.forEach(function(b){
+      var btn = document.createElement('button');
+      btn.className = 'fire-dialog-btn' + (b.cls ? ' ' + b.cls : '');
+      btn.textContent = b.label;
+      btn.addEventListener('click', function(){
+        if (b.action) b.action();
+        closeDialog();
+      });
+      dlgAct.appendChild(btn);
+    });
+    dlg.classList.add('is-open');
+    dlg.setAttribute('aria-hidden', 'false');
+  }
+  function closeDialog(){
+    dlg.classList.remove('is-open');
+    dlg.setAttribute('aria-hidden', 'true');
+  }
+  dlg.addEventListener('click', function(ev){ if (ev.target === dlg) closeDialog(); });
+  document.addEventListener('keydown', function(ev){
+    if (ev.key === 'Escape' && dlg.classList.contains('is-open')) closeDialog();
+  });
+
+  function toast(msg){
+    var t = document.getElementById('fire-toast');
+    t.textContent = msg;
+    t.classList.add('is-on');
+    setTimeout(function(){ t.classList.remove('is-on'); }, 2600);
+  }
+
+  // ─── HANDLERS ──────────────────────────────────────────────────────
+  function openSwap(name, cfg){
+    var role = cfg.pool === 'pa' ? 'PA' : cfg.pool === 'sixpack' ? 'Six-Pack member' : 'Specialty Hire';
+    var bodyHtml = '<strong>' + name + '</strong> is a ' + role + '. Swapping replaces them with another candidate from the Hiring Pool in the same slot. Your billing does not change.';
+    if (cfg.pool === 'pa') {
+      bodyHtml += '<br><br>The PA is the helm of your Company. You always have one; you just pick which voice.';
+    }
+    showDialog(
+      'Swap staff',
+      'Replace ' + name + '?',
+      bodyHtml,
+      [
+        { label: 'Cancel' },
+        { label: 'Browse Hiring Pool', cls: 'fire-dialog-btn-primary', action: function(){
+          window.location.href = '/#agents';
+        }}
+      ]
+    );
+  }
+
+  function openFire(name, cfg){
+    if (cfg.pool === 'sixpack') {
+      showDialog(
+        'Release Six-Pack member',
+        'Let ' + name + ' go?',
+        '<strong>' + name + '</strong> is one of your Six-Pack. Letting them go without replacing means your Company runs with <strong>5 staff</strong>. Your <strong>$199/mo does not change</strong> &mdash; the Six-Pack price is locked. You can refill the slot any time from the Hiring Pool.',
+        [
+          { label: 'Cancel' },
+          { label: 'Swap instead', cls: 'fire-dialog-btn-primary', action: function(){ openSwap(name, cfg); }},
+          { label: 'Fire without swap', cls: 'fire-dialog-btn-danger', action: function(){ executeFire(name, cfg, 'empty'); }}
+        ]
+      );
+    } else {
+      var contractLabel = cfg.contract === 'temp' ? 'temp hire' : 'standing hire';
+      showDialog(
+        'Release staff',
+        'Let ' + name + ' go?',
+        '<strong>' + name + '</strong> is a ' + contractLabel + '. Releasing them stops their monthly charge and removes them from your Studio. You can re-hire them any time from the Hiring Pool.',
+        [
+          { label: 'Cancel' },
+          { label: 'Release ' + name.split(' ')[0], cls: 'fire-dialog-btn-danger', action: function(){ executeFire(name, cfg, 'remove'); }}
+        ]
+      );
+    }
+  }
+
+  function executeFire(name, cfg, mode){
+    var fired = lsGet(LS_FIRED);
+    fired[name] = { when: new Date().toISOString(), mode: mode };
+    lsSet(LS_FIRED, fired);
+
+    var card = document.querySelector('.staff-card[data-staff="' + cssEscape(name) + '"]');
+    if (!card) return;
+
+    card.classList.add('is-firing');
+    setTimeout(function(){
+      if (mode === 'empty') {
+        card.classList.remove('is-firing');
+        card.style.opacity = '';
+        card.style.transform = '';
+        renderEmptySlot(card, name);
+      } else {
+        card.style.display = 'none';
+      }
+      toast(name.split(' ')[0] + ' released');
+    }, 500);
+  }
+
+  // ─── UTILS ─────────────────────────────────────────────────────────
+  // Conservative CSS attribute escape for double-quoted selectors
+  function cssEscape(s){
+    return String(s).replace(/(["\\])/g, '\\$1');
+  }
+
+  // ─── INIT ──────────────────────────────────────────────────────────
+  function init(){
+    document.querySelectorAll('.staff-grid .staff-card').forEach(decorateCard);
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+  // Expose a dev-mode reset on the console for Terry
+  window.studioResetFires = function(){
+    localStorage.removeItem(LS_FIRED);
+    localStorage.removeItem(LS_OVERRIDE);
+    location.reload();
+  };
 })();
 </script>
 
