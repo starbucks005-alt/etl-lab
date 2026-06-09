@@ -4208,8 +4208,78 @@
     return String(s).replace(/(["\\])/g, '\\$1');
   }
 
+  // ─── CATALOG-HIRE INJECTION ──────────────────────────────────────
+  // The catalog (hiring-pool.html) writes hire state to localStorage.etl_co.
+  // The Studio "The staff" grid is hardcoded HTML for the original 14 staff,
+  // so catalog hires never appeared. Fix: on page load, read etl_co.extras,
+  // pull each hired agent's image + role from roster JSON, and append cards
+  // to the grid before decorateCard runs so they get Fire/Swap controls too.
+  function initials(name){
+    return String(name || '?')
+      .replace(/"[^"]*"/g, '').replace(/\([^)]*\)/g, '').trim()
+      .split(/\s+/).filter(w => !/^(dr\.?|the|mr\.?|ms\.?|mrs\.?|coach|admiral|adm\.?|prof\.?|capt\.?|lt\.?|sgt\.?|sir)$/i.test(w))
+      .slice(0, 2).map(w => w[0]).join('').toUpperCase() || name[0];
+  }
+  function buildHireCard(name, agent, contractType){
+    var role = agent && agent.role || '';
+    var img  = agent && agent.image_url || '';
+    var portraitHtml = img
+      ? '<img src="' + img + '" alt="' + name.replace(/"/g, '&quot;') + '" onerror="this.outerHTML=&quot;<div class=staff-portrait-placeholder>' + initials(name) + '</div>&quot;">'
+      : '<div class="staff-portrait-placeholder">' + initials(name) + '</div>';
+    var card = document.createElement('div');
+    card.className = 'staff-card';
+    card.innerHTML =
+      '<div class="staff-portrait">' + portraitHtml + '</div>' +
+      '<div class="staff-body">' +
+        '<div class="staff-name">' + name + '</div>' +
+        '<div class="staff-role">' + role + '</div>' +
+        '<div class="staff-current">Just hired. Settling in.</div>' +
+      '</div>';
+    return card;
+  }
+  async function injectCatalogHires(){
+    var etlCo = {};
+    try { etlCo = JSON.parse(localStorage.getItem('etl_co') || '{}'); } catch(e){}
+    var extras = (etlCo && etlCo.extras) || {};
+    var hiredNames = Object.keys(extras);
+    if (!hiredNames.length) return;
+    // Only inject names that aren't already in the hardcoded STAFF map.
+    var newNames = hiredNames.filter(function(n){ return !STAFF[n]; });
+    if (!newNames.length) return;
+    // Pull roster JSON for image + role lookups.
+    var roster = null;
+    try {
+      var r = await fetch('/data/etl-agents-roster.json', { cache: 'no-store' });
+      if (r.ok) roster = await r.json();
+    } catch(_) {}
+    var agents = (roster && roster.agents) || [];
+    var byName = {};
+    agents.forEach(function(a){ if (a && a.name) byName[a.name] = a; });
+    // Substring fallback so "Maeve" hires resolve to "Maeve \"MJ\" Johnson"
+    function lookupAgent(n){
+      if (byName[n]) return byName[n];
+      var key = String(n || '').toLowerCase();
+      for (var i = 0; i < agents.length; i++) {
+        var an = String(agents[i].name || '').toLowerCase();
+        if (an.indexOf(key) >= 0 || key.indexOf(an) >= 0) return agents[i];
+      }
+      return null;
+    }
+    var grid = document.querySelector('.staff-grid');
+    if (!grid) return;
+    newNames.forEach(function(name){
+      var agent = lookupAgent(name);
+      var contract = extras[name] && extras[name].temp ? 'temp' : 'standing';
+      // Add a STAFF_CONFIG entry so decorateCard works on the new card too.
+      STAFF[name] = { pool: 'specialty', contract: contract, dayOffset: 0 };
+      var card = buildHireCard(name, agent, contract);
+      grid.appendChild(card);
+    });
+  }
+
   // ─── INIT ──────────────────────────────────────────────────────────
-  function init(){
+  async function init(){
+    await injectCatalogHires();
     document.querySelectorAll('.staff-grid .staff-card').forEach(decorateCard);
   }
   if (document.readyState === 'loading') {
