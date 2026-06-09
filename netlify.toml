@@ -19,8 +19,18 @@
 # Weekly regen of Watercooler kickoff topics per staff member. Mondays
 # at 11:00 UTC (~6am ET in standard time, ~7am ET during DST). Reads
 # data/etl-agents-roster.json + writes to the `watercooler` blob store.
+# included_files bundles the roster JSON with the function so fs.readFileSync
+# can find it in the Netlify runtime (default function bundling doesn't ship
+# the data/ dir; without this we get roster_not_found).
 [functions."studio-topic-generator"]
   schedule = "0 11 * * 1"
+  included_files = ["data/etl-agents-roster.json"]
+
+# studio-floor-render also reads the roster JSON to build the cast personas.
+# Same bundling fix so the locked-directive injection (lead + topic + cast)
+# can find the per-week topic pools.
+[functions."studio-floor-render"]
+  included_files = ["data/etl-agents-roster.json"]
 
 # ─── Press Hub redirects ──────────────────────────────────────────────────
 # Pretty URLs over the Netlify Functions that render the press hub.
