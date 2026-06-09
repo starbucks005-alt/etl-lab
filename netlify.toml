@@ -16,6 +16,12 @@
 [functions."newswire-briefing-cron"]
   schedule = "0 10 * * *"
 
+# Weekly regen of Watercooler kickoff topics per staff member. Mondays
+# at 11:00 UTC (~6am ET in standard time, ~7am ET during DST). Reads
+# data/etl-agents-roster.json + writes to the `watercooler` blob store.
+[functions."studio-topic-generator"]
+  schedule = "0 11 * * 1"
+
 # ─── Press Hub redirects ──────────────────────────────────────────────────
 # Pretty URLs over the Netlify Functions that render the press hub.
 # Order matters within this file: more specific rules first. The sitemap

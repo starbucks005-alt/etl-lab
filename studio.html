@@ -739,6 +739,16 @@
             <button type="button" class="floor-tab is-active" data-mode="workfloor" role="tab" aria-selected="true">Workfloor</button>
             <button type="button" class="floor-tab" data-mode="watercooler" role="tab" aria-selected="false">Watercooler</button>
           </div>
+          <!-- LIVE bar: shows freshness + next-refresh countdown. The tab is
+               a TV channel; this is the on-air dot + the "next episode in"
+               clock. Cache rule: 30-min cap, regen on open if stale, auto
+               regen-on-poll while the tab stays open. -->
+          <div id="floor-live-bar" style="display:none;" aria-live="polite">
+            <span class="floor-live-dot">●</span>
+            <span class="floor-live-label">LIVE</span>
+            <span id="floor-live-age" class="floor-live-meta">just now</span>
+            <span id="floor-live-next" class="floor-live-meta"></span>
+          </div>
           <div id="floor-status" style="display:none;"></div>
           <div id="floor-thread"></div>
           <div id="floor-footer" style="display:none;">
@@ -746,6 +756,15 @@
             <button type="button" id="floor-save" title="Copy this thread to clipboard + archive to highlights for the sales deck">📋 save this moment</button>
             <span id="floor-context-note"></span>
             <span id="floor-save-status"></span>
+          </div>
+          <!-- DVR scroll: last 7 days of episodes, grouped by day, newest
+               first. Click any prior episode to replay inline. -->
+          <div id="floor-dvr" style="display:none;">
+            <div class="floor-dvr-head">
+              <span class="floor-dvr-title">Earlier episodes</span>
+              <span class="floor-dvr-hint">last 7 days &middot; click to replay</span>
+            </div>
+            <ul id="floor-dvr-list"></ul>
           </div>
         </div>
       </div>
@@ -999,6 +1018,100 @@
     #floor-context-note {
       font-family: 'Cormorant Garamond', serif;
       font-size: 11px; font-style: italic; color: #9a8e7e;
+    }
+    /* LIVE bar — on-air indicator + next-episode clock */
+    #floor-live-bar {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 12px;
+      margin: 8px 0 10px;
+      background: rgba(20,35,58,0.55);
+      border-left: 2px solid var(--brass-bright, #FDB827);
+      font-family: 'DM Mono', monospace;
+      font-size: 10px; letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #d9c79d;
+    }
+    .floor-live-dot {
+      color: var(--brass-bright, #FDB827);
+      animation: floor-live-pulse 2s infinite;
+      font-size: 12px;
+    }
+    @keyframes floor-live-pulse {
+      0%, 100% { opacity: 1; }
+      50%      { opacity: 0.3; }
+    }
+    .floor-live-label {
+      color: var(--brass-bright, #FDB827);
+      font-weight: 700;
+    }
+    .floor-live-meta {
+      color: #9a8e7e;
+      margin-left: 8px;
+    }
+    .floor-live-meta::before {
+      content: '· ';
+      opacity: 0.6;
+    }
+    /* DVR — earlier episodes scroll */
+    #floor-dvr {
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px dashed rgba(196,162,98,0.25);
+    }
+    .floor-dvr-head {
+      display: flex; align-items: baseline; gap: 12px;
+      margin-bottom: 8px;
+    }
+    .floor-dvr-title {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--brass-bright, #FDB827);
+    }
+    .floor-dvr-hint {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 11px; font-style: italic; color: #9a8e7e;
+    }
+    #floor-dvr-list {
+      list-style: none; margin: 0; padding: 0;
+      max-height: 280px; overflow-y: auto;
+    }
+    .floor-dvr-daygroup {
+      margin-bottom: 10px;
+    }
+    .floor-dvr-day {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase;
+      color: #9a8e7e;
+      padding: 6px 4px 4px;
+    }
+    .floor-dvr-item {
+      display: grid;
+      grid-template-columns: 64px 64px 1fr auto;
+      gap: 10px; align-items: baseline;
+      padding: 7px 6px;
+      border-top: 1px solid rgba(196,162,98,0.10);
+      cursor: pointer;
+      transition: background 0.12s;
+    }
+    .floor-dvr-item:hover { background: rgba(253,184,39,0.07); }
+    .floor-dvr-item.is-playing { background: rgba(253,184,39,0.12); }
+    .floor-dvr-time {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px; color: #d9c79d;
+    }
+    .floor-dvr-mode {
+      font-family: 'DM Mono', monospace;
+      font-size: 8.5px; letter-spacing: 0.10em; text-transform: uppercase;
+      color: var(--brass-bright, #FDB827);
+    }
+    .floor-dvr-summary {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 13px; color: #d9c79d; line-height: 1.35;
+    }
+    .floor-dvr-summary strong { color: #fff; font-weight: 600; }
+    .floor-dvr-count {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px; color: #9a8e7e;
     }
     /* Stack the 3-column row vertically on narrower screens. The Floor
        drops below the chat instead of squeezing it. */
@@ -3082,14 +3195,22 @@
   var tabButtons  = document.querySelectorAll('.floor-tab');
   if (!toggle || !thread) return;
 
-  // Two channels — each holds its own loaded state so switching is instant
-  // after the first fetch per tab. Refresh button always re-fetches the
-  // CURRENT tab. Default tab on first open is workfloor.
+  // Floor-as-TV: tune endpoint is the source of truth for episode state.
+  // 30-min cache + DVR + telemetry all live server-side. This client just
+  // tunes in, polls while open, fires telemetry events, and renders.
   var activeMode = 'workfloor';
   var cache = {
-    workfloor: { loaded: false, messages: null, contextNote: '' },
-    watercooler: { loaded: false, messages: null, contextNote: '' },
+    workfloor:   { loaded: false, episode: null, dvr: [] },
+    watercooler: { loaded: false, episode: null, dvr: [] },
   };
+  var liveBar    = document.getElementById('floor-live-bar');
+  var liveAge    = document.getElementById('floor-live-age');
+  var liveNext   = document.getElementById('floor-live-next');
+  var dvrWrap    = document.getElementById('floor-dvr');
+  var dvrList    = document.getElementById('floor-dvr-list');
+  var liveTickTimer = null;   // ticks LIVE bar every 30s
+  var pollTimer     = null;   // polls tune endpoint every 60s while open
+  var tabOpenAt     = null;   // ts of most recent tab_open event (for dwell)
 
   function escapeHtml(s){
     return String(s || '')
@@ -3129,29 +3250,156 @@
     });
   }
 
+  // ─── Telemetry: fire-and-forget event POST ──────────────────────────
+  async function fireEvent(type, extra){
+    try {
+      var token = await getJwt();
+      if (!token) return;
+      var body = Object.assign({ type: type, mode: activeMode }, extra || {});
+      // We don't await the response — keep telemetry off the render path.
+      fetch('/.netlify/functions/studio-watercooler-event', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify(body),
+        keepalive: true,
+      }).catch(function(){});
+    } catch (_) {}
+  }
+
+  // ─── LIVE bar ─────────────────────────────────────────────────────
+  function fmtAge(seconds){
+    if (seconds < 60) return 'just now';
+    var mins = Math.floor(seconds / 60);
+    if (mins < 60) return mins + ' min ago';
+    var hrs = Math.floor(mins / 60);
+    if (hrs < 24) return hrs + ' hr ago';
+    var days = Math.floor(hrs / 24);
+    return days + ' d ago';
+  }
+  function fmtCountdown(seconds){
+    if (seconds <= 0) return 'next refresh any moment';
+    var mins = Math.ceil(seconds / 60);
+    return 'next refresh in ~' + mins + ' min';
+  }
+  function tickLiveBar(){
+    var ep = cache[activeMode].episode;
+    if (!ep || !ep.timestamp) { liveBar.style.display = 'none'; return; }
+    liveBar.style.display = 'flex';
+    var ageSec = Math.floor((Date.now() - new Date(ep.timestamp).getTime()) / 1000);
+    liveAge.textContent = fmtAge(ageSec);
+    var ttl = (30 * 60) - ageSec;
+    liveNext.textContent = fmtCountdown(ttl);
+  }
+  function startLiveTick(){
+    stopLiveTick();
+    tickLiveBar();
+    liveTickTimer = setInterval(tickLiveBar, 30000);
+  }
+  function stopLiveTick(){
+    if (liveTickTimer) { clearInterval(liveTickTimer); liveTickTimer = null; }
+  }
+
+  // ─── DVR list ─────────────────────────────────────────────────────
+  function groupDvrByDay(dvr){
+    var groups = {};
+    dvr.forEach(function(item){
+      var key = item.dayKey || (item.timestamp || '').slice(0,10).replace(/-/g,'');
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(item);
+    });
+    return groups;
+  }
+  function fmtDayLabel(dayKey){
+    // dayKey is YYYYMMDD ET
+    var y = dayKey.slice(0,4), m = dayKey.slice(4,6), d = dayKey.slice(6,8);
+    var iso = y + '-' + m + '-' + d + 'T12:00:00';
+    var dt = new Date(iso);
+    var todayET = (new Date()).toLocaleDateString('en-CA', { timeZone:'America/New_York' }).replace(/-/g,'');
+    var yest = new Date(); yest.setDate(yest.getDate()-1);
+    var yestKey = yest.toLocaleDateString('en-CA', { timeZone:'America/New_York' }).replace(/-/g,'');
+    if (dayKey === todayET) return 'Today';
+    if (dayKey === yestKey) return 'Yesterday';
+    return dt.toLocaleDateString('en-US', { weekday:'long', month:'short', day:'numeric' });
+  }
+  function fmtTimeOnly(iso){
+    var d = new Date(iso);
+    return d.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' });
+  }
+  function renderDvr(dvr){
+    if (!Array.isArray(dvr) || dvr.length === 0) {
+      dvrWrap.style.display = 'none';
+      return;
+    }
+    dvrWrap.style.display = '';
+    dvrList.innerHTML = '';
+    var groups = groupDvrByDay(dvr);
+    var dayKeys = Object.keys(groups).sort().reverse();
+    dayKeys.forEach(function(dayKey){
+      var group = document.createElement('li');
+      group.className = 'floor-dvr-daygroup';
+      var head = document.createElement('div');
+      head.className = 'floor-dvr-day';
+      head.textContent = fmtDayLabel(dayKey);
+      group.appendChild(head);
+      groups[dayKey].forEach(function(item){
+        var row = document.createElement('div');
+        row.className = 'floor-dvr-item';
+        row.setAttribute('data-episode-id', item.id);
+        row.setAttribute('data-day-key', item.dayKey || dayKey);
+        var lead   = item.lead   ? '<strong>' + escapeHtml(item.lead) + '</strong> led' : 'open thread';
+        var topic  = item.topic  ? ' &middot; ' + escapeHtml(item.topic) : '';
+        var modeUC = (item.mode === 'watercooler') ? 'WC' : 'WF';
+        row.innerHTML =
+          '<span class="floor-dvr-time">' + fmtTimeOnly(item.timestamp) + '</span>' +
+          '<span class="floor-dvr-mode">' + modeUC + '</span>' +
+          '<span class="floor-dvr-summary">' + lead + topic + '</span>' +
+          '<span class="floor-dvr-count">' + (item.message_count || 0) + ' msgs</span>';
+        row.addEventListener('click', function(){
+          playDvrEpisode(item.id, item.dayKey || dayKey, item.mode);
+        });
+        group.appendChild(row);
+      });
+      dvrList.appendChild(group);
+    });
+  }
+  function markDvrPlaying(episodeId){
+    var rows = dvrList.querySelectorAll('.floor-dvr-item');
+    rows.forEach(function(r){
+      r.classList.toggle('is-playing', r.getAttribute('data-episode-id') === episodeId);
+    });
+  }
+
+  // ─── Tune endpoint call ───────────────────────────────────────────
   async function loadFloor(mode, opts){
     mode = (mode === 'watercooler') ? 'watercooler' : 'workfloor';
     opts = opts || {};
-    var force = !!opts.force;
+    var force  = !!opts.force;   // ignore client cache, hit tune
+    var silent = !!opts.silent;  // background poll: don't show status
 
-    // If we already have this tab's content cached AND caller didn't force,
-    // render from cache. Switching tabs is instant; only refresh re-fetches.
-    if (!force && cache[mode].loaded && cache[mode].messages) {
+    if (!force && cache[mode].loaded && cache[mode].episode) {
       statusEl.style.display = 'none';
-      renderMessages(cache[mode].messages);
+      renderMessages(cache[mode].episode.messages);
       footer.style.display = 'flex';
-      contextNote.textContent = cache[mode].contextNote || '';
+      contextNote.textContent = cache[mode].episode.context_note || '';
       refreshBtn.disabled = false;
+      if (mode === activeMode) {
+        tickLiveBar();
+        startLiveTick();
+        renderDvr(cache[mode].dvr);
+        fireEvent('episode_view', { episode_id: cache[mode].episode.id });
+      }
       return;
     }
 
-    statusEl.textContent = mode === 'watercooler'
-      ? 'staff are heading to the watercooler'
-      : 'staff are wrapping up something on the workfloor';
-    statusEl.style.display = '';
-    thread.innerHTML = '';
-    footer.style.display = 'none';
-    refreshBtn.disabled = true;
+    if (!silent) {
+      statusEl.textContent = mode === 'watercooler'
+        ? 'tuning the watercooler'
+        : 'tuning the workfloor';
+      statusEl.style.display = '';
+      thread.innerHTML = '';
+      footer.style.display = 'none';
+      refreshBtn.disabled = true;
+    }
 
     try {
       var token = await getJwt();
@@ -3160,7 +3408,7 @@
         refreshBtn.disabled = false;
         return;
       }
-      var r = await fetch('/.netlify/functions/studio-floor-render', {
+      var r = await fetch('/.netlify/functions/studio-watercooler-tune', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
         body: JSON.stringify({ mode: mode }),
@@ -3168,40 +3416,76 @@
       var data;
       try { data = await r.json(); }
       catch (e) {
-        statusEl.textContent = 'the floor came back garbled. try refresh.';
+        if (!silent) statusEl.textContent = 'the floor came back garbled. try refresh.';
         refreshBtn.disabled = false;
         return;
       }
-
       if (!r.ok || data.error) {
-        var why = data.error || ('HTTP ' + r.status);
-        statusEl.textContent = 'snag: ' + why;
+        if (!silent) statusEl.textContent = 'snag: ' + (data.error || ('HTTP ' + r.status));
         refreshBtn.disabled = false;
         return;
       }
 
-      // Tab race: if Terry clicked the other tab while this fetch was in
-      // flight, store the result in cache but don't render — the active
-      // tab's already been re-loaded.
-      var noteText = '';
-      if (data.context_used) {
-        noteText = data.context_used.item_count > 0
-          ? 'based on today (' + data.context_used.date + ') — ' + data.context_used.item_count + ' real item' + (data.context_used.item_count === 1 ? '' : 's')
-          : 'no fresh activity today — texture only';
-      }
-      cache[mode] = { loaded: true, messages: data.messages, contextNote: noteText };
+      var prevId = cache[mode].episode && cache[mode].episode.id;
+      cache[mode] = { loaded: true, episode: data.episode, dvr: data.dvr || [] };
 
       if (mode === activeMode) {
         statusEl.style.display = 'none';
-        renderMessages(data.messages);
+        renderMessages(data.episode.messages);
         footer.style.display = 'flex';
-        contextNote.textContent = noteText;
+        contextNote.textContent = data.episode.context_note || '';
+        tickLiveBar();
+        startLiveTick();
+        renderDvr(data.dvr || []);
+        // Telemetry: count a view on first display; count a "fresh" event
+        // separately when the tune endpoint just regen'd (new episode_id).
+        var isNewEpisode = (data.episode.id !== prevId);
+        if (isNewEpisode || !silent) {
+          fireEvent('episode_view', { episode_id: data.episode.id });
+        }
       }
       refreshBtn.disabled = false;
     } catch (e) {
-      statusEl.textContent = 'network error: ' + (e && e.message ? e.message : 'unknown');
+      if (!silent) statusEl.textContent = 'network error: ' + (e && e.message ? e.message : 'unknown');
       refreshBtn.disabled = false;
     }
+  }
+
+  // ─── DVR replay ───────────────────────────────────────────────────
+  async function playDvrEpisode(episodeId, dayKey, mode){
+    mode = (mode === 'watercooler') ? 'watercooler' : 'workfloor';
+    try {
+      var token = await getJwt();
+      if (!token) return;
+      var r = await fetch('/.netlify/functions/studio-watercooler-tune', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ mode: mode, episode_id: episodeId, dayKey: dayKey }),
+      });
+      if (!r.ok) return;
+      var data = await r.json();
+      if (!data.episode) return;
+      // Render the replay in the thread but DON'T overwrite the LIVE
+      // cache pointer (LIVE stays the freshest episode).
+      renderMessages(data.episode.messages);
+      contextNote.textContent = data.episode.context_note || '';
+      markDvrPlaying(episodeId);
+      fireEvent('episode_replay', { episode_id: episodeId, mode: mode });
+    } catch (_) {}
+  }
+
+  // ─── Poll while visible ───────────────────────────────────────────
+  function startPolling(){
+    stopPolling();
+    pollTimer = setInterval(function(){
+      // Silent re-tune; the endpoint serves cached if <30min, regen if not
+      if (document.visibilityState === 'visible') {
+        loadFloor(activeMode, { force: true, silent: true });
+      }
+    }, 60000);
+  }
+  function stopPolling(){
+    if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
   }
 
   // Tab switching: update aria + active class, then loadFloor for that mode.
@@ -3227,6 +3511,19 @@
   // and the HTML ships with .floor-collapsed already on .auggie-row.
   var auggieRow = document.querySelector('.auggie-row');
 
+  function emitTabOpen(){
+    tabOpenAt = Date.now();
+    fireEvent('tab_open');
+    startPolling();
+  }
+  function emitTabClose(){
+    var dwell = tabOpenAt ? (Date.now() - tabOpenAt) : 0;
+    tabOpenAt = null;
+    if (dwell > 0) fireEvent('tab_close', { dwell_ms: dwell });
+    stopPolling();
+    stopLiveTick();
+  }
+
   toggle.addEventListener('click', function(){
     var expanded = toggle.getAttribute('aria-expanded') === 'true';
     if (expanded) {
@@ -3234,19 +3531,41 @@
       toggleLabel.textContent = '▸ open the Floor';
       body.style.display = 'none';
       if (auggieRow) auggieRow.classList.add('floor-collapsed');
+      emitTabClose();
     } else {
       toggle.setAttribute('aria-expanded', 'true');
       toggleLabel.textContent = '▾ close the Floor';
       body.style.display = 'flex';
       if (auggieRow) auggieRow.classList.remove('floor-collapsed');
       // First open: load the default tab (workfloor). Subsequent opens
-      // restore from cache (no extra spend).
+      // restore from cache. Either way, tune endpoint decides regen.
       loadFloor(activeMode);
+      emitTabOpen();
     }
   });
 
+  // If the Floor is open and the user switches browser tabs / minimizes
+  // the window, emit tab_close so dwell isn't inflated by AFK time.
+  // Re-emit tab_open when they come back if the Floor is still open.
+  document.addEventListener('visibilitychange', function(){
+    var isOpen = toggle.getAttribute('aria-expanded') === 'true';
+    if (!isOpen) return;
+    if (document.visibilityState === 'hidden') {
+      emitTabClose();
+    } else if (document.visibilityState === 'visible') {
+      emitTabOpen();
+      // Quick re-tune in case a new episode dropped while AFK
+      loadFloor(activeMode, { force: true, silent: true });
+    }
+  });
+  // Best-effort close on page unload
+  window.addEventListener('pagehide', function(){
+    var isOpen = toggle.getAttribute('aria-expanded') === 'true';
+    if (isOpen) emitTabClose();
+  });
+
   refreshBtn.addEventListener('click', function(){
-    // Refresh always re-fetches the CURRENT tab.
+    // Manual refresh: force-tune the current tab (regen if >=30 min stale).
     loadFloor(activeMode, { force: true });
   });
 
@@ -3261,7 +3580,10 @@
   if (saveBtn) {
     saveBtn.addEventListener('click', async function(){
       var current = cache[activeMode];
-      if (!current || !Array.isArray(current.messages) || current.messages.length === 0) {
+      var currentMessages = current && current.episode && current.episode.messages;
+      var currentNote     = current && current.episode && current.episode.context_note;
+      var currentEpId     = current && current.episode && current.episode.id;
+      if (!currentMessages || !Array.isArray(currentMessages) || currentMessages.length === 0) {
         if (saveStatus) saveStatus.textContent = 'nothing to save yet — load the channel first';
         return;
       }
@@ -3281,7 +3603,7 @@
         '_Dr. Terry Oroszi\'s Studio · staff talking to each other_',
         '',
       ];
-      current.messages.forEach(function(m){
+      currentMessages.forEach(function(m){
         var speaker = (m.speaker || 'staff').toString();
         var ts = (m.timestamp || '').toString();
         var text = (m.text || '').toString().replace(/\r\n|\n/g, ' ').trim();
@@ -3327,8 +3649,8 @@
             headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
             body: JSON.stringify({
               mode: activeMode,
-              messages: current.messages,
-              context_note: current.contextNote || '',
+              messages: currentMessages,
+              context_note: currentNote || '',
             }),
           });
           if (r.ok) {
@@ -3337,6 +3659,9 @@
           }
         }
       } catch (_) {}
+      // Fire episode_save telemetry (independent of archive success — the
+      // intent to save is the signal, archive failure is an infra blip).
+      if (currentEpId) fireEvent('episode_save', { episode_id: currentEpId });
 
       // Status text. Clipboard is the user-facing win; archive is the
       // sales-deck-curation insurance policy. If the clipboard worked, that
@@ -3630,12 +3955,18 @@
 
   var STAFF = {
     'August "Auggie" Vidal': { pool: 'pa',        contract: 'standing', dayOffset: 120 },
-    'Charles Monroe':        { pool: 'sixpack',   contract: 'standing', dayOffset: 47  },
-    'Beatriz "Bea" Vega':    { pool: 'sixpack',   contract: 'standing', dayOffset: 92  },
-    'Ms. Ivy':               { pool: 'sixpack',   contract: 'standing', dayOffset: 31  },
-    'Jules':                 { pool: 'sixpack',   contract: 'standing', dayOffset: 60  },
-    'Jess Ramirez':          { pool: 'sixpack',   contract: 'standing', dayOffset: 45  },
-    'Carol Haynes':          { pool: 'sixpack',   contract: 'temp',     dayOffset: 12  },
+    // CORRECTION 2026-06-09: The "Six-Pack" is the Founder Studio BUNDLED
+    // staff (Alicia + Leo + Kimberly + Rowan + Yuki + Sasha) sold at $199/mo,
+    // NOT slots in Terry's own Studio dashboard. All 13 non-PA staff below
+    // are Specialty Hires. The Six-Pack swap-recommend dialog still exists
+    // in the JS for when a Founder Studio buyer fires one of THEIR bundled
+    // staff, but it never fires on Terry's Studio.
+    'Charles Monroe':        { pool: 'specialty', contract: 'standing', dayOffset: 47  },
+    'Beatriz "Bea" Vega':    { pool: 'specialty', contract: 'standing', dayOffset: 92  },
+    'Ms. Ivy':               { pool: 'specialty', contract: 'standing', dayOffset: 31  },
+    'Jules':                 { pool: 'specialty', contract: 'standing', dayOffset: 60  },
+    'Jess Ramirez':          { pool: 'specialty', contract: 'standing', dayOffset: 45  },
+    'Carol Haynes':          { pool: 'specialty', contract: 'temp',     dayOffset: 12  },
     'Imani Brooks':          { pool: 'specialty', contract: 'standing', dayOffset: 75  },
     'Reid Callum':           { pool: 'specialty', contract: 'temp',     dayOffset: 8   },
     'Wren Calloway':         { pool: 'specialty', contract: 'standing', dayOffset: 90  },

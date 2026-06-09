@@ -240,6 +240,112 @@ exports.handler = async (event) => {
     ? context.items.map(i => `[${i.kind} .${i.date}]\n${i.text}`).join('\n\n---\n\n')
     : '(no specific events today .they are doing office chatter, easy back-and-forth, before the day really starts)';
 
+  /* ─── Locked directives for THIS render (Watercooler only for now) ────
+     Pre-determines lead + kickoff topic + attendance in code so:
+       1) lead rotation is actually rotated (model was sticking to Auggie+Bea)
+       2) kickoff topic uses the fresh weekly pool from studio-topic-generator
+       3) attendance varies across renders so the owner meets every staff
+     The directive gets PREPENDED to channelDescription with override priority.
+     Falls back gracefully (no directive injected) if the topic pool is empty
+     for this week — model keeps existing behavior. ──────────────────────── */
+  function normName(s) {
+    return String(s || '').toLowerCase()
+      .replace(/[""'']/g, '')
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '');
+  }
+  function currentWeekKeyET() {
+    const now = new Date();
+    const parts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short',
+    }).formatToParts(now);
+    const get = (t) => (parts.find(p => p.type === t) || {}).value;
+    const y = parseInt(get('year'), 10);
+    const m = parseInt(get('month'), 10);
+    const d = parseInt(get('day'), 10);
+    const wd = get('weekday');
+    const map = { Mon:0, Tue:1, Wed:2, Thu:3, Fri:4, Sat:5, Sun:6 };
+    const offset = map[wd] != null ? map[wd] : 0;
+    const mon = new Date(Date.UTC(y, m - 1, d - offset, 12, 0, 0));
+    const yy = mon.getUTCFullYear();
+    const mm = String(mon.getUTCMonth() + 1).padStart(2, '0');
+    const dd = String(mon.getUTCDate()).padStart(2, '0');
+    return '' + yy + mm + dd;
+  }
+  function weightedPick(weights) {
+    // weights: array of [name, weight]; returns one name
+    const total = weights.reduce((s, w) => s + w[1], 0);
+    let r = Math.random() * total;
+    for (const [name, w] of weights) {
+      r -= w;
+      if (r <= 0) return name;
+    }
+    return weights[weights.length - 1][0];
+  }
+  function shuffleAndTake(arr, n) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a.slice(0, n);
+  }
+
+  let lockedDirective = null;
+  if (mode === 'watercooler' && STAFF.length > 0) {
+    // Lead weights: Auggie 30%, Jax 5% (rare deadpan), Bea 8%, others split rest
+    const castNames = STAFF.map(s => s.name);
+    const leadWeights = castNames.map(name => {
+      if (name === 'Auggie') return [name, 30];
+      if (name === 'Jax') return [name, 5];
+      if (name === 'Bea') return [name, 8];
+      return [name, 7];
+    });
+    const lead = weightedPick(leadWeights);
+
+    // Attendance: lead + 3-5 others picked at random from the rest
+    const others = castNames.filter(n => n !== lead);
+    const attendCount = 3 + Math.floor(Math.random() * 3); // 3..5 others
+    const attendance = [lead, ...shuffleAndTake(others, attendCount)];
+
+    // Try to read the weekly topic pool for this lead.
+    // STAFF was built using shortName(a.name); to look up the topic pool
+    // (keyed by normName(full roster name)) we walk the cast and pick the
+    // full-name agent whose shortName matches the picked lead.
+    let kickoffTopic = null;
+    try {
+      const topicStore = getStore('watercooler');
+      const weekKey = currentWeekKeyET();
+      // Find the full roster name for this lead by walking STUDIO_FLOOR_CAST
+      // and applying shortName the same way STAFF was built.
+      let leadFullName = null;
+      for (const castFull of STUDIO_FLOOR_CAST) {
+        if (shortName(castFull) === lead) { leadFullName = castFull; break; }
+      }
+      if (leadFullName) {
+        const key = 'staff_topics/' + weekKey + '/' + normName(leadFullName);
+        const pool = await topicStore.get(key, { type: 'json' });
+        if (pool && Array.isArray(pool.topics) && pool.topics.length > 0) {
+          kickoffTopic = pool.topics[Math.floor(Math.random() * pool.topics.length)];
+        }
+      }
+    } catch (_) { /* fall through; no directive without a topic */ }
+
+    if (kickoffTopic) {
+      lockedDirective = [
+        '**THIS RENDER\'S LOCKED DIRECTIVES (override the rotation menu below)**:',
+        '',
+        '- **LEAD this render:** ' + lead,
+        '- **KICKOFF (' + lead + ' opens with this exact anchor):** ' + kickoffTopic,
+        '- **ATTENDANCE this render (these staff are in the channel; the rest are off-channel today):**',
+        ...attendance.map(n => '  - ' + n),
+        '',
+        'These three (lead, kickoff topic, attendance) are LOCKED for this render. The rest of this prompt explains HOW to write voices, pacing, and reactions, but the lead picks the topic above, the cast is fixed, and the others orbit the lead\'s opening. Do NOT add staff who are not in the attendance list. Do NOT change the lead. Use the kickoff topic verbatim as ' + lead + '\'s opening line theme.',
+        '',
+      ].join('\n');
+    }
+  }
+
   // Two channels .Workfloor (work focus) and Watercooler (lighthearted
    // off-topic). Same staff, same voices, different topic scope.
   const channelLabel = mode === 'watercooler' ? 'The Watercooler' : 'The Workfloor';
@@ -260,16 +366,18 @@ exports.handler = async (event) => {
         '- **Chris leads sometimes.** Color name just renamed in their head (paint-store specific), Iowa-childhood detail mid-coffee, typography pet peeve, building observation (sound, smell, lighting), small object on their desk. they/them, lower-case fragments, one precise sensory detail.',
         '- **Jess leads sometimes.** A podcast pitch she cannot let go of, a person she ran into who she is mentally rolodexing for a future intro, a Forbes piece getting traction, a placement she landed yesterday she has not bragged about yet, a hot take. Enthusiasm in her THOUGHT not her PUNCTUATION (channel ban on exclamation marks still applies), names names, pivots fast.',
         '- **Bea leads sometimes.** A sentence she overheard at the coffee shop, a thing one of her grandchildren said, a line from the children\'s book she is drafting, something she noticed in a student\'s old paper. She does not BUILD a bit by leading; she sets a small stone in the middle of the table and the others pick it up.',
-        '- **Charles Monroe leads sometimes.** CV Coach. Opens with a small detail from someone\'s draft he is reviewing (a verb tense he wants to change, an accomplishment buried in paragraph three, a job title that is doing too much work), or a quiet aside about how language moves people. Warm, considered, measured. Never showy.',
-        '- **Ms. Ivy leads sometimes.** Librarian / idea generator. Opens with a citation she just found that delighted her, a journal trend she is watching, an old reference she is finally throwing out, a question someone asked her at the desk that has stuck with her. Precise, dry, generous, the energy of a person who reads for a living.',
-        '- **Jules Hartley leads sometimes.** Pre-submission editor. Opens with a manuscript she is holding for Bea, a comma she is going to die on, a structural problem she is mentally re-blocking, a beautiful sentence she stole from a draft and is keeping in a Word file. Quiet, exact, has opinions.',
-        '- **Imani Brooks leads sometimes.** Newswire correspondent. Opens with a source she just got off the phone with, an embargo she is watching tick down, a headline she is workshopping, a quote that is too good to use. Reporter rhythm — clean, no wasted words.',
-        '- **Reid Callum leads sometimes.** Marketing / positioning. Opens with a tagline he is testing in his head, a competitor move he just clocked, a name he wants to change, an audience he thinks they are under-targeting. Strategic, slightly impatient, the energy of someone who has been thinking about it longer than you.',
-        '- **Wren Calloway leads sometimes.** Scout. Opens with a federal opportunity she just spotted, a dual-use civic-engagement angle she is chasing, a researcher she wants to introduce someone to. Sharp, curious, three-steps-ahead.',
-        '- **Carol Haynes leads sometimes.** Screener. Opens with an idea she is triaging before it reaches Ms. Ivy, a submission she had to send back, a pattern she keeps seeing in the inbox. Steady, kind, no-nonsense.',
-        '- **Ayanna Cole leads sometimes.** Director of Communications. Opens with a cross-platform post she is drafting for Gandhi-King, a stat that landed well, a hashtag she is killing, a community partner she just connected with. Confident, warm, knows the rooms.',
-        '- **Sneha Desai leads sometimes.** Peace News correspondent. Opens with a dispatch from Porbandar, an interview she just transcribed, a frame she is wrestling with for a Gandhi-King piece. Thoughtful, soft cadence, weight under it.',
-        '- **Arjun Mehta leads sometimes.** Operations / delivery. Opens with a deploy he just pushed, a Netlify build that took longer than it should have, a redirect that is finally fixed, a small infra win. Calm, dry, the relief of a person who just unblocked something.',
+        '**REMINDER: Watercooler is OFF the clock for EVERYONE.** Even if a staff member has a professional voice on the Workfloor (Imani is a reporter, Reid is in marketing, Charles is a CV coach), their Watercooler material is PERSONAL. Nothing about sources, drafts, clients, deliverables, deploys, manuscripts, pitches, or work product. Off-the-clock only.',
+        '',
+        '- **Charles Monroe leads sometimes.** CV Coach by day; off-the-clock the topic is personal. Opens with a tie he is debating, his wife\'s pottery class, his commute audiobook, a small repair around the house. Warm, considered, measured. Never showy.',
+        '- **Ms. Ivy leads sometimes.** Librarian / idea generator by day; off-the-clock she opens with a granddaughter\'s drawing, a cardamom roll at the new bakery, a book club argument, a paint swatch she keeps on her desk for no reason. Precise, dry, generous.',
+        '- **Jules Hartley leads sometimes.** Pre-submission editor by day; off-the-clock she opens with a yoga teacher she likes, a vacuum she is debating, a paint color, a tomato plant that has opinions. Quiet, exact, has opinions about everything.',
+        '- **Imani Brooks leads sometimes.** Newswire correspondent by day; off-the-clock she opens with the bodega coffee that was wrong, her sister texting about Thanksgiving, a podcast she could not stop listening to on the commute, a sneaker she is waiting for. Reporter rhythm in her cadence — clean, no wasted words, but the SUBJECT is personal.',
+        '- **Reid Callum leads sometimes.** Marketing / positioning by day; off-the-clock he opens with the gym he is switching, a vinyl he found, his wife\'s reaction to a haircut, a restaurant he keeps recommending. Strategic energy, but the topic is personal.',
+        '- **Wren Calloway leads sometimes.** Scout by day; off-the-clock she opens with a hike this weekend, a hot sauce her brother sent, a dog she met at the trailhead, a thrift-store find. Sharp, curious, three-steps-ahead.',
+        '- **Carol Haynes leads sometimes.** Screener by day; off-the-clock she opens with her grandkid\'s loose tooth, her book club, a knitting project she abandoned, a casserole she perfected. Steady, kind, no-nonsense.',
+        '- **Ayanna Cole leads sometimes.** Director of Communications by day; off-the-clock she opens with her godson\'s birthday plans, a salad place near the office, a TikTok dance she will not learn, a sample sale she went to on her lunch break. Confident, warm.',
+        '- **Sneha Desai leads sometimes.** Peace News correspondent by day; off-the-clock she opens with her mother\'s video calls, a chai she finally found stateside, a movie she watched twice, a garden cilantro situation. Thoughtful, soft cadence.',
+        '- **Arjun Mehta leads sometimes.** Operations / delivery by day; off-the-clock he opens with his garden basil, his bicycle, a recipe disaster, a cricket match he stayed up for. Calm, dry, the relief of a person who is not currently on a deploy.',
         '- **Jax leads occasionally (rare).** ONE flat deadpan line that recontextualizes whatever the room was half-paying-attention to. A stat. An observation about traffic on one of the sites. A Gen Z reference that lands sideways. Lowercase. No follow-up from him unless someone directly asks. He drops the bit and goes back to his laptop.',
         '',
         '**Decide ONE lead per render at the top of your writing. Vary it across renders. Auggie is the most frequent lead but the owner needs to meet ALL of them, so rotate.**',
@@ -339,6 +447,7 @@ exports.handler = async (event) => {
     '',
     'Ms. Terry (the principal) is NOT in this channel right now. She just opened the door and walked over. You are rendering what her staff WOULD be saying to each other right now, in voice, based on what actually happened in her Studio today.',
     '',
+    (lockedDirective || ''),
     'CHANNEL: ' + channelLabel,
     channelDescription,
     '',
