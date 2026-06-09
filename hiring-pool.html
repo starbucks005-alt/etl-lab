@@ -116,7 +116,7 @@ header.top{border-bottom:1px solid var(--line);background:#fff}
     <span class="pill"><b>PA + shell company</b> &middot; $199/mo</span>
     <span class="pill"><b>Essential six-pack</b> &middot; $199/mo</span>
     <span class="pill"><b>Standard add-on</b> &middot; $49/mo each</span>
-    <span class="pill"><b>Board-level</b> &middot; $89.99/mo each</span>
+    <span class="pill"><b>C Suite</b> &middot; $149/mo each</span>
   </div>
 </div>
 
@@ -126,7 +126,7 @@ header.top{border-bottom:1px solid var(--line);background:#fff}
     <select id="platform" onchange="render()"><option value="">All platforms</option></select>
     <select id="tier" onchange="render()">
       <option value="">All tiers</option><option value="pa">PA</option><option value="core">Core six-pack</option>
-      <option value="addon">Standard add-on</option><option value="board">Board-level</option><option value="premium">Premium (SLR)</option><option value="not_sold">Not for hire</option>
+      <option value="addon">Standard add-on</option><option value="csuite">C Suite</option><option value="premium">Premium (SLR)</option><option value="not_sold">Not for hire</option>
     </select>
     <select id="sort" onchange="render()">
       <option value="name">Sort: Name A-Z</option><option value="skill">Sort: Skill A-Z</option>
@@ -188,7 +188,7 @@ header.top{border-bottom:1px solid var(--line);background:#fff}
     <tr><td class="t">MCP<small>$49 &middot; backpack hires</small></td><td>They leave the chat, check the live web for you, and bring back current answers with a link to where they found it. The one thing a plain prompt cannot fake.</td></tr>
     <tr><td class="t">Standard<small>$49 &middot; in-framework</small></td><td>Your methods and your voice, pre-built into a teammate who delivers in your format every time, not a blank prompt you re-explain every morning.</td></tr>
     <tr><td class="t">Premium<small>$549 &middot; Ms. Ivy</small></td><td>Carries Dr. Oroszi's proprietary SLR Method across academic, clinical, and gov registers, a doctoral-grade methodology you cannot prompt into existence. She earns money, so $549 reads cheap.</td></tr>
-    <tr><td class="t">Board<small>$89.99 &middot; per seat</small></td><td>Nine domain experts stress-test your idea at once and return a verdict with the math and the dissent, and they scan the live web for the newest thinking in their field before they weigh in.</td></tr>
+    <tr><td class="t">C Suite<small>$149 &middot; per seat</small></td><td>Twenty-nine executive seats on call &mdash; CEO, CFO, COO, CTO, GC, CISO, CSO, plus a nine-domain advisory board (former Gauntlet judges) and a research and strategy office. Each one steps out to live sources and brings back sourced, dated findings. A real CFO on contract is five thousand a month and up. A backpack-equipped C Suite seat at one forty-nine is the kind of math a small-business owner can finally do.</td></tr>
   </table>
   <p class="close">Leave the boring, time-eating work to us. <span class="g">Keep your hours for what matters to you.</span></p>
 </div>
@@ -203,7 +203,7 @@ header.top{border-bottom:1px solid var(--line);background:#fff}
     <div class="under ok" id="under">Headcount: <span id="dhc">8</span> &middot; under $500</div>
   </header>
   <div class="dbody" id="dbody"></div>
-  <div class="dfoot">PA + shell ($199) and the essential six-pack ($199) are fixed. Firing your PA or a six-pack member is a <b>swap, not a refund</b> - the seat and its cost stay; you pick the replacement in the catalog. Only add-ons and board members change your monthly cost. Temp hires bill for a one-month minimum.</div>
+  <div class="dfoot">PA + shell ($199) and the essential six-pack ($199) are fixed. Firing your PA or a six-pack member is a <b>swap, not a refund</b> - the seat and its cost stay; you pick the replacement in the catalog. Only add-ons and C Suite hires change your monthly cost. Temp hires bill for a one-month minimum.</div>
 </div>
 
 <script>
@@ -233,7 +233,8 @@ function normalize(rows){return rows.map(a=>{const n=a.name||a.Name||"";const ti
   let cat="addon",price=49,label="Standard add-on";const t=tier.toLowerCase();
   if(t.includes("pa base")){cat="pa";price=199;label="PA + shell"}
   else if(t.includes("six-pack")||t.includes("core")){cat="core";price=0;label="Core six-pack"}
-  else if(t.includes("board")){cat="board";price=89.99;label="Board-level"}
+  else if(t.includes("c suite")||t.includes("c_suite")||t.includes("c-suite")){cat="csuite";price=149;label="C Suite"}
+  else if(t.includes("board")){cat="csuite";price=149;label="C Suite"} /* legacy "board" labels reroute to C Suite */
   else if(t.includes("not sold")||t.includes("lab staff")){cat="not_sold";price=0;label="Lab staff"}
   else if(t.includes("owner")||t.includes("not an employee")){cat="owner";price=0;label="Owner / PI"}
   else if(t.includes("premium")||t.includes("549")){cat="premium";price=549;label="Premium · SLR"}
@@ -389,9 +390,9 @@ function fireAct(i){const a=AGENTS[i];delete state.extras[a.name];saveState();re
 function openDrawer(){updateDrawer();document.getElementById('drawer').classList.add('show');document.getElementById('bd').classList.add('show');}
 function closeAll(){document.getElementById('drawer').classList.remove('show');document.getElementById('bd').classList.remove('show');closeModal();}
 function updateDrawer(){
-  const ex=Object.entries(state.extras);const addons=ex.filter(([n,h])=>h.cat==='addon'),board=ex.filter(([n,h])=>h.cat==='board'),premium=ex.filter(([n,h])=>h.cat==='premium');
-  const total=199+199+addons.length*49+board.length*89.99+premium.length*549;
-  const hc=1+1+state.sixpack.filter(Boolean).length+addons.length+board.length+premium.length;
+  const ex=Object.entries(state.extras);const addons=ex.filter(([n,h])=>h.cat==='addon'),csuite=ex.filter(([n,h])=>h.cat==='csuite'||h.cat==='board'),premium=ex.filter(([n,h])=>h.cat==='premium');
+  const total=199+199+addons.length*49+csuite.length*149+premium.length*549;
+  const hc=1+1+state.sixpack.filter(Boolean).length+addons.length+csuite.length+premium.length;
   document.getElementById('totbtn').textContent='$'+Math.round(total);
   document.getElementById('hc').textContent=hc;
   document.getElementById('dtot').textContent='$'+total.toFixed(2).replace('.00','');
@@ -406,9 +407,9 @@ function updateDrawer(){
     else{html+=`<div class="drow"><div class="ini2">+</div><div class="nm"><span class="empty">Empty seat ${idx+1}</span></div><div class="pr"><button class="x" onclick="startSwap('core',${idx})">fill</button></div></div>`;}});
   html+=`<div class="dgrp">Add-ons &middot; $49/mo each</div>`;
   html+= addons.length?addons.map(([n,h])=>row(byName(n),`$49 <button class="x fire" onclick="rm('${n.replace(/'/g,"\\'")}')">fire</button>`)).join(''):'<div class="note">None yet - add specialists from the catalog.</div>';
-  html+=`<div class="dgrp">Board-level &middot; $89.99/mo each</div>`;
+  html+=`<div class="dgrp">C Suite &middot; $149/mo each</div>`;
 
-  html+= board.length?board.map(([n,h])=>row(byName(n),`$89.99 <button class="x fire" onclick="rm('${n.replace(/'/g,"\\'")}')">fire</button>`)).join(''):'<div class="note">None yet.</div>';
+  html+= csuite.length?csuite.map(([n,h])=>row(byName(n),`$149 <button class="x fire" onclick="rm('${n.replace(/'/g,"\\'")}')">fire</button>`)).join(''):'<div class="note">None yet.</div>';
   html+=`<div class="dgrp">Premium &middot; $549/mo each &middot; earns its keep</div>`;
   html+= premium.length?premium.map(([n,h])=>row(byName(n),`$549 <button class="x fire" onclick="rm('${n.replace(/'/g,"\\'")}')">fire</button>`)).join(''):'<div class="note">None yet - e.g. Ms. Ivy, who travels with the SLR Method.</div>';
   document.getElementById('dbody').innerHTML=html;
