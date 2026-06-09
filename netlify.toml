@@ -61,6 +61,10 @@
 [functions."csuite-fiona-background"]
   included_files = ["data/csuite-backpacks.json"]
 
+# Alistair Montgomery's CSO backpack. Market direction + competitive intel.
+[functions."csuite-alistair-background"]
+  included_files = ["data/csuite-backpacks.json"]
+
 # ─── Press Hub redirects ──────────────────────────────────────────────────
 # Pretty URLs over the Netlify Functions that render the press hub.
 # Order matters within this file: more specific rules first. The sitemap
