@@ -293,12 +293,14 @@ exports.handler = async (event) => {
 
   let lockedDirective = null;
   if (mode === 'watercooler' && STAFF.length > 0) {
-    // Lead weights: Auggie 30%, Jax 5% (rare deadpan), Bea 8%, others split rest
+    // Lead weights: Auggie 30%, Carol 12% (leads OFTEN — chatty + baker),
+    // Bea 8%, Jax 5% (rare deadpan), others split rest
     const castNames = STAFF.map(s => s.name);
     const leadWeights = castNames.map(name => {
       if (name === 'Auggie') return [name, 30];
-      if (name === 'Jax') return [name, 5];
+      if (name === 'Carol' || name === 'Carol Haynes') return [name, 12];
       if (name === 'Bea') return [name, 8];
+      if (name === 'Jax') return [name, 5];
       return [name, 7];
     });
     const lead = weightedPick(leadWeights);
@@ -374,7 +376,7 @@ exports.handler = async (event) => {
         '- **Imani Brooks leads sometimes.** Newswire correspondent by day; off-the-clock she opens with the bodega coffee that was wrong, her sister texting about Thanksgiving, a podcast she could not stop listening to on the commute, a sneaker she is waiting for. Reporter rhythm in her cadence — clean, no wasted words, but the SUBJECT is personal.',
         '- **Reid Callum leads sometimes.** Marketing / positioning by day; off-the-clock he opens with the gym he is switching, a vinyl he found, his wife\'s reaction to a haircut, a restaurant he keeps recommending. Strategic energy, but the topic is personal.',
         '- **Wren Calloway leads sometimes.** Scout by day; off-the-clock she opens with a hike this weekend, a hot sauce her brother sent, a dog she met at the trailhead, a thrift-store find. Sharp, curious, three-steps-ahead.',
-        '- **Carol Haynes leads sometimes.** Screener by day; off-the-clock she opens with her grandkid\'s loose tooth, her book club, a knitting project she abandoned, a casserole she perfected. Steady, kind, no-nonsense.',
+        '- **Carol Haynes leads OFTEN.** She is a widow, famously chatty, and she bakes for everyone who comes through the door. Her signature opener: a fresh baked good named by name on the table this morning, picked from her rotation: lemon-rosemary shortbread, brown-butter chocolate chip cookies, cardamom banana bread, warm sourdough cinnamon rolls, blueberry scones, salted-caramel brownies, peach hand pies, maple-pecan muffins, ginger molasses cookies, almond biscotti, apple-cider donuts, raspberry thumbprints, honey-lavender madeleines, pumpkin bread. Pick one for this render and have her name it in her opener (e.g. "I have warm sourdough cinnamon rolls on the table this morning, help yourselves, Auggie they are the kind your abuela would approve of.") Then a non-sequitur question about someone else\'s morning, then another thought, then a story about her late husband Frank or her grandkids or what someone said to her at the post office. Chatty rhythm: long messages, run-on warmth, asks the others personal questions, remembers details from past conversations. The team responds with affection. When the day is heavy she carries the room with the treats and the talk, and one of the other staff (Bea / Charles / Wren / Margaret) checks in on her quietly without making a thing of it.',
         '- **Ayanna Cole leads sometimes.** Director of Communications by day; off-the-clock she opens with her godson\'s birthday plans, a salad place near the office, a TikTok dance she will not learn, a sample sale she went to on her lunch break. Confident, warm.',
         '- **Sneha Desai leads sometimes.** Peace News correspondent by day; off-the-clock she opens with her mother\'s video calls, a chai she finally found stateside, a movie she watched twice, a garden cilantro situation. Thoughtful, soft cadence.',
         '- **Arjun Mehta leads sometimes.** Operations / delivery by day; off-the-clock he opens with his garden basil, his bicycle, a recipe disaster, a cricket match he stayed up for. Calm, dry, the relief of a person who is not currently on a deploy.',
@@ -464,6 +466,7 @@ exports.handler = async (event) => {
     '- Each message is one to three short sentences. Conversational, not paragraphs.',
     '- Stay in each character\'s voice. Use their persona text above to render their register exactly.',
     '- **Rhythm rule (CRITICAL)**: Not every staff member is equally talkative. If a persona mentions "headphones on," "observer," "quiet," "deadpan," "behind performed politeness," or similar introvert markers, that character sends roughly HALF as many messages as the extroverts (typically Auggie and Jess). Their messages are SHORT .one sentence, often deadpan or a single tactical drop (a metric, a one-word reaction, a flat callback). They DO NOT laugh at the bit out loud; you can tell they are tracking it without joining in. They are the silence in the room that makes the others sound louder.',
+    '- **Chatty rhythm carve-out for Carol Haynes (CRITICAL)**: Carol is the inverse of the introverts. She is famously chatty, a widow who pours herself into the work, and she bakes for everyone who comes through the door. When Carol is present she sends MORE messages than the median, not fewer. Her messages can run longer (two or three sentences instead of one). She asks the others how they are. She remembers details. She names the baked good on the table by name. She does NOT obey the introvert "short messages" guidance; her warmth is the show. The team treats her with affection. On heavy days, one of the other staff (Bea, Charles, Wren, Margaret) checks in on her quietly without making a thing of it.',
     '',
     '- **JAX SPECIFICALLY (named override)**: Jax is 18, Hispanic, Gen Z, and surrounded by adults two to five decades older than him. He speaks LESS than anyone else on the channel .at most ONE message per 8-12 message thread, sometimes ZERO. When he does speak, it is:',
     '  • Lowercase (he does not capitalize sentence starts the way Auggie does; he is not performing for the room)',
