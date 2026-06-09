@@ -121,14 +121,27 @@ const RELATIONSHIPS_BY_NAME = {};
 });
 
 /* Pick a short display name for the Floor.
-   "August \"Auggie\" Vidal" -> "Auggie"
-   "Beatriz \"Bea\" Vega"   -> "Bea"
-   "Jax Rivera"             -> "Jax"
-   "Chris"                  -> "Chris" */
+   "August \"Auggie\" Vidal"        -> "Auggie"     (quoted nickname wins)
+   "Beatriz \"Bea\" Vega"           -> "Bea"
+   "Ms. Ivy (Ivy Sinclair)"         -> "Ms. Ivy"    (title kept, paren suffix stripped)
+   "Dr. Henry Chen, RPh"            -> "Dr. Henry"
+   "Admiral Grace Nakamura (Ret.)"  -> "Admiral Grace"
+   "Jax Rivera"                     -> "Jax"
+   "Chris"                          -> "Chris" */
 function shortName(fullName) {
   const nicknameMatch = fullName.match(/"([^"]+)"/);
   if (nicknameMatch) return nicknameMatch[1];
-  return fullName.split(' ')[0];
+  // Strip parenthesized suffix like "(Ivy Sinclair)" or "(Ret.)" so it doesn't
+  // pollute the title-detection logic.
+  const cleaned = String(fullName || '').replace(/\s*\([^)]*\)/g, '').trim();
+  const parts = cleaned.split(/\s+/);
+  // If the first token is an honorific / rank, keep it joined to the next word
+  // so "Ms. Ivy" stays "Ms. Ivy" instead of collapsing to "Ms."
+  const TITLES = new Set(['Mr.', 'Ms.', 'Mrs.', 'Miss', 'Dr.', 'Prof.', 'Admiral', 'Adm.', 'Coach', 'Capt.', 'Sir', 'Lt.', 'Sgt.']);
+  if (parts.length > 1 && TITLES.has(parts[0])) {
+    return parts[0] + ' ' + parts[1];
+  }
+  return parts[0];
 }
 
 /* Build the floor persona from the roster's background + floor_chat fields.
