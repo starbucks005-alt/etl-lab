@@ -56,6 +56,11 @@
 [functions."csuite-benjamin-background"]
   included_files = ["data/csuite-backpacks.json"]
 
+# Fiona Gallagher's GC/CCO backpack. Regulatory posture + risk exposure.
+# NOTE: Research-grade, not legal advice. UI surfaces this prominently.
+[functions."csuite-fiona-background"]
+  included_files = ["data/csuite-backpacks.json"]
+
 # ─── Press Hub redirects ──────────────────────────────────────────────────
 # Pretty URLs over the Netlify Functions that render the press hub.
 # Order matters within this file: more specific rules first. The sitemap
