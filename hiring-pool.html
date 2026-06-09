@@ -342,7 +342,19 @@ function render(){
     } else if(isPA(a.name)){action=`<span class="tier pa">your PA</span>`;cls='seated';}
     else if(seatIndex(a.name)>=0){action=`<span class="tier core">in six-pack</span>`;cls='seated';}
     else if(!a.hireable){action=`<span class="tier ${a.cat}">not for hire</span>`;}
-    else{const h=!!state.extras[a.name];action=`<button class="hbtn ${h?'hired':''}" onclick="event.stopPropagation();quickHire(${i})">${h?'&#10003; Hired':'Hire'}</button>`;}
+    else{const h=state.extras[a.name];
+      // Two-button card hire so the Standing-vs-Temp choice is visible upfront,
+      // not buried in the modal. Standing is the dark primary; Temp is the
+      // gold secondary (small label "Temp · 1-mo"). Both reuse the modal's
+      // hireAct() so cost calculator + drawer stay in sync.
+      if (h && !h.temp) {
+        action=`<button class="hbtn hired" onclick="event.stopPropagation();hireAct(${i},false)">&#10003; Hired</button>`;
+      } else if (h && h.temp) {
+        action=`<button class="hbtn hired" onclick="event.stopPropagation();hireAct(${i},true)">&#10003; Temp</button>`;
+      } else {
+        action=`<div style="display:flex;gap:5px;align-items:center"><button class="hbtn" onclick="event.stopPropagation();hireAct(${i},false)">Hire</button><button class="hbtn" style="background:transparent;color:var(--gold);border:1px solid var(--gold);padding:6px 10px;font-size:11px" onclick="event.stopPropagation();hireAct(${i},true)">Temp</button></div>`;
+      }
+    }
     return `<div class="card ${cls}" ${click?`onclick="${click}"`:''}>
       ${avatar(a,'ph')}
       <div class="cbody">
