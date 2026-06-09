@@ -2050,6 +2050,47 @@ document.addEventListener('DOMContentLoaded', function(){
     margin-bottom: 22px;
     text-align: center;
   }
+  /* Tagline: italic gold one-liner from the roster JSON. Sits just below
+     the MCP chip block, just above the sectioned bio. Reads as the
+     character's headline. */
+  .agents-modal-tagline {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 17px;
+    line-height: 1.45;
+    color: var(--gold, #b8922a);
+    text-align: center;
+    margin: 4px auto 20px;
+    max-width: 480px;
+  }
+  /* Sectioned bio: tagline + bio + background + floor_chat (the four
+     Excel-roster fields). Each section has a small uppercase label so
+     the eye can scan them; the body sits in a serif paragraph below. */
+  .agents-modal-sections {
+    margin-bottom: 22px;
+  }
+  .agents-modal-section {
+    margin-bottom: 18px;
+    padding: 0 4px;
+  }
+  .agents-modal-section:last-child { margin-bottom: 0; }
+  .agents-modal-section-label {
+    font-family: 'DM Mono', 'Share Tech Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold, #b8922a);
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(184,146,42,0.22);
+  }
+  .agents-modal-section-body {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #d4cdb9;
+    margin: 0;
+  }
   /* MCP signal: only renders when an agent has a tools[] list. Surfaces
      that this agent actually queries live data sources / has tool-using
      superpowers, not just LLM persona output. */
@@ -4629,7 +4670,32 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
       </div>
       <div class="agents-modal-mcp-tools" id="agents-modal-mcp-tools"></div>
     </div>
-    <p class="agents-modal-bio" id="agents-modal-bio"></p>
+    <!-- Tagline (italic gold one-liner from the roster JSON). Hidden when
+         no canonical match found for this agent. -->
+    <p class="agents-modal-tagline" id="agents-modal-tagline" hidden></p>
+
+    <!-- Sectioned bio. Populated from data/etl-agents-roster.json fields
+         when a name match is found; falls back to the inline AGENTS[i].bio
+         in the legacy paragraph below if lookup fails. -->
+    <div class="agents-modal-sections" id="agents-modal-sections" hidden>
+      <div class="agents-modal-section">
+        <div class="agents-modal-section-label">The work</div>
+        <p class="agents-modal-section-body" id="agents-modal-section-work"></p>
+      </div>
+      <div class="agents-modal-section">
+        <div class="agents-modal-section-label">The person</div>
+        <p class="agents-modal-section-body" id="agents-modal-section-person"></p>
+      </div>
+      <div class="agents-modal-section">
+        <div class="agents-modal-section-label">Around the office</div>
+        <p class="agents-modal-section-body" id="agents-modal-section-office"></p>
+      </div>
+    </div>
+
+    <!-- Legacy single-paragraph bio. Shown only when the roster JSON lookup
+         did NOT find a match for this agent (e.g. an agent in the wall who
+         is not in the roster yet). -->
+    <p class="agents-modal-bio" id="agents-modal-bio" hidden></p>
     <div class="agents-modal-actions">
       <button class="agents-modal-nav" id="agents-modal-prev" type="button" aria-label="Previous agent">&larr; Prev</button>
       <a class="agents-modal-home" id="agents-modal-home" target="_blank" rel="noopener">Visit them &rarr;</a>
@@ -4998,6 +5064,54 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
   var modal = document.getElementById('agents-modal');
   if (!modal || !roster.length) return;
 
+  // ── Roster JSON lookup ────────────────────────────────────────────────
+  // Fetch the canonical agent roster at modal init. Each entry in the JSON
+  // has tagline / bio / background / floor_chat — the full Excel record.
+  // When the modal opens we look up the active agent by name and render
+  // those four fields as proper sections. Falls back to AGENTS[i].bio if
+  // the agent isn't in the roster yet (e.g. a wall face that was added
+  // before the roster sync). Fire-and-forget; modals opened before the
+  // fetch lands silently show the legacy bio.
+  var ROSTER_BY_NAME = null;
+  function normalizeName(s){
+    return String(s || '')
+      .toLowerCase()
+      .replace(/[""'']/g, '"')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+  function rosterLookup(displayName){
+    if (!ROSTER_BY_NAME) return null;
+    var key = normalizeName(displayName);
+    // 1) exact
+    if (ROSTER_BY_NAME[key]) return ROSTER_BY_NAME[key];
+    // 2) substring either way (handles "Bea" vs "Beatriz \"Bea\" Vega")
+    for (var k in ROSTER_BY_NAME) {
+      if (k.indexOf(key) >= 0 || key.indexOf(k) >= 0) return ROSTER_BY_NAME[k];
+    }
+    // 3) first significant word (drops Mr./Dr./Ms./Admiral/Rev. etc.)
+    var firstSig = key.replace(/^(dr|mr|mrs|ms|miss|rev|admiral|captain|colonel|major|sgt|sergeant|lieutenant|prof|professor)\.?\s+/i, '').split(' ')[0];
+    if (firstSig) {
+      for (var k2 in ROSTER_BY_NAME) {
+        var rosterFirstSig = k2.replace(/^(dr|mr|mrs|ms|miss|rev|admiral|captain|colonel|major|sgt|sergeant|lieutenant|prof|professor)\.?\s+/i, '').split(' ')[0];
+        if (rosterFirstSig === firstSig) return ROSTER_BY_NAME[k2];
+      }
+    }
+    return null;
+  }
+  fetch('/data/etl-agents-roster.json', { cache: 'force-cache' })
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(j){
+      if (!j || !Array.isArray(j.agents)) return;
+      var map = {};
+      j.agents.forEach(function(a){
+        if (a && a.name) map[normalizeName(a.name)] = a;
+      });
+      ROSTER_BY_NAME = map;
+      console.log('[agents-modal] roster loaded:', j.agents.length, 'entries');
+    })
+    .catch(function(e){ console.warn('[agents-modal] roster fetch failed', e && e.message); });
+
   var elName     = document.getElementById('agents-modal-name');
   var elRole     = document.getElementById('agents-modal-role');
   var elPlatform = document.getElementById('agents-modal-platform');
@@ -5042,7 +5156,49 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
         elMcpTools.innerHTML = '';
       }
     }
-    elBio.textContent = a.bio;
+    // Roster JSON wins for bio content when we can match by name. The roster
+    // carries tagline + bio + background + floor_chat (the full Excel record);
+    // the AGENTS array carries only a single legacy bio paragraph. When the
+    // lookup succeeds: show the four sections, hide the legacy paragraph.
+    // When it fails: show the legacy paragraph, hide the sections.
+    var elTagline    = document.getElementById('agents-modal-tagline');
+    var elSections   = document.getElementById('agents-modal-sections');
+    var elSectWork   = document.getElementById('agents-modal-section-work');
+    var elSectPerson = document.getElementById('agents-modal-section-person');
+    var elSectOffice = document.getElementById('agents-modal-section-office');
+    var rosterAgent  = rosterLookup(a.name);
+    if (rosterAgent) {
+      // Tagline (only when non-empty)
+      if (rosterAgent.tagline && rosterAgent.tagline.trim().length > 0) {
+        elTagline.textContent = rosterAgent.tagline;
+        elTagline.hidden = false;
+      } else {
+        elTagline.hidden = true;
+      }
+      // Sections: hide a section if the roster field is empty (some agents
+      // have only some fields populated, e.g. Dr. O without floor_chat).
+      var showSections = false;
+      if (rosterAgent.bio && rosterAgent.bio.trim().length > 0) {
+        elSectWork.textContent = rosterAgent.bio;
+        elSectWork.parentNode.hidden = false; showSections = true;
+      } else { elSectWork.parentNode.hidden = true; }
+      if (rosterAgent.background && rosterAgent.background.trim().length > 0) {
+        elSectPerson.textContent = rosterAgent.background;
+        elSectPerson.parentNode.hidden = false; showSections = true;
+      } else { elSectPerson.parentNode.hidden = true; }
+      if (rosterAgent.floor_chat && rosterAgent.floor_chat.trim().length > 0) {
+        elSectOffice.textContent = rosterAgent.floor_chat;
+        elSectOffice.parentNode.hidden = false; showSections = true;
+      } else { elSectOffice.parentNode.hidden = true; }
+      elSections.hidden = !showSections;
+      elBio.hidden = true;
+    } else {
+      // No roster match (yet or ever) — fall back to legacy single-paragraph bio.
+      elTagline.hidden = true;
+      elSections.hidden = true;
+      elBio.textContent = a.bio;
+      elBio.hidden = false;
+    }
     elNum.textContent = 'Agent ' + pad(idx + 1) + ' of ' + pad(AGENTS.length);
     elHome.href = a.home;
     elHome.textContent = 'Visit them at ' + a.platform + ' â†’';
