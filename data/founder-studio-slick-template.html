@@ -1,0 +1,112 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Founder Studio - Slick (template)</title>
+<!--
+  TAILORED MARKETING SLICK, FILL TEMPLATE
+  Owner of this capability: Reid Callum (Marketing). Designer: Yuki Mendel.
+  How Reid fills it:
+    1. Research the recipient (his backpack: live web search + web fetch). Pull their real work, goals, and pains.
+    2. Replace every {{TOKEN}} below. Honest claims only, no invented quotes, no em dashes. On sensitive topics, grave and respectful.
+    3. Map each need to specific studio crew in the row "crew" line. That specificity is what makes it land.
+    4. Output a self-contained HTML file (and a PDF) named for the recipient.
+  Tokens:
+    {{AUDIENCE_LINE}}   short eyebrow, e.g. "Prepared for Jane Doe" or "For founders"
+    {{HEADLINE_HTML}}   the headline; may include <em>...</em> for the gold phrase
+    {{LEDE_HTML}}       1 to 3 sentences; may include <b>...</b>
+    {{VALUE_ROWS}}      2 or 3 rows; copy the ROW BLOCK below once per need
+    {{MOAT_BODY}}       leave default unless a recipient needs a different angle
+    {{TIERS}}           leave default, or trim to the tiers that fit
+    {{CTA_LINE_HTML}}   closing line; may include <em>...</em>
+    {{CTA_BUTTON}}      button label, e.g. "Build your studio"
+  ROW BLOCK (duplicate, increment the number):
+    <div class="row"><div class="num">N</div><div>
+      <h3>ROW TITLE</h3><p>ROW BODY with a <b>bold hook</b>.</p>
+      <div class="crew">Your crew: <b>Name</b> &middot; <b>Name</b> &middot; <b>Name</b></div>
+    </div></div>
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,800;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1c1a17;--gold:#9a7c2f;--gold2:#b89441;--cream:#faf8f4;--paper:#fff;--line:#e7e2d8;--muted:#6f685d;--dark:#1f2d3d}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#e9e5dd;font-family:Inter,system-ui,sans-serif;color:var(--ink);line-height:1.5;padding:24px}
+.sheet{max-width:840px;margin:0 auto;background:var(--cream);box-shadow:0 8px 40px rgba(0,0,0,.16)}
+h1,h2,h3{font-family:"Playfair Display",Georgia,serif}
+.eyebrow{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:600}
+.hero{background:var(--ink);color:#f3efe7;padding:40px 44px 36px}
+.hero .brand{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid #3a352c;padding-bottom:14px;margin-bottom:22px}
+.hero .brand .wm{font-family:"Playfair Display",serif;font-weight:800;font-size:22px}
+.hero .brand .wm b{color:var(--gold2)}
+.hero .brand .sub{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#a59c8c}
+.hero h1{font-size:38px;line-height:1.07;font-weight:800;margin-bottom:14px}
+.hero h1 em{font-style:italic;color:var(--gold2)}
+.hero p.lede{font-size:15.5px;color:#d9d2c5;max-width:640px}
+.hero p.lede b{color:#fff;font-weight:600}
+.section{padding:24px 44px 6px}
+.row{display:flex;gap:20px;align-items:flex-start;padding:15px 0;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.row .num{font-family:"Playfair Display",serif;font-size:28px;font-weight:700;color:var(--gold);line-height:1;min-width:40px}
+.row h3{font-size:18px;margin-bottom:6px}
+.row p{font-size:13.4px;color:#3b362e;line-height:1.55}
+.row p b{color:var(--ink)}
+.crew{margin-top:7px;font-size:11.5px;color:var(--muted)}
+.crew b{color:var(--gold)}
+.moat{margin:16px 44px 0;background:var(--dark);color:#fff;border-radius:12px;padding:22px 26px}
+.moat .eyebrow{color:var(--gold2)}
+.moat h2{font-size:20px;margin:6px 0 8px}
+.moat p{font-size:13.4px;color:#dfe6ee;line-height:1.6}
+.price{padding:24px 44px 6px;text-align:center}
+.price h2{font-size:21px;margin-bottom:4px}
+.price p{color:var(--muted);font-size:12.5px;max-width:540px;margin:0 auto 14px}
+.tiers{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.tier{border:1px solid var(--line);border-radius:11px;background:var(--paper);padding:15px 22px;text-align:center;min-width:180px}
+.tier.best{border:2px solid var(--gold)}
+.tier .nm{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.tier .amt{font-family:"Playfair Display",serif;font-size:26px;font-weight:700;margin-top:4px}
+.tier .amt span{font-size:12px;color:var(--muted);font-family:Inter}
+.tier .d{font-size:11.5px;color:#3b362e;margin-top:6px}
+.cta{padding:24px 44px 20px;text-align:center}
+.cta .big{font-family:"Playfair Display",serif;font-size:21px;font-weight:700;margin-bottom:14px}
+.cta .big em{font-style:italic;color:var(--gold)}
+.btn{display:inline-block;padding:13px 28px;border-radius:9px;font-weight:600;font-size:14px;text-decoration:none;background:var(--ink);color:#fff}
+.foot{background:var(--ink);color:#a59c8c;font-size:11px;text-align:center;padding:15px}
+.foot b{color:#e7e2d8}
+@media print{body{background:#fff;padding:0}.sheet{box-shadow:none}}
+</style></head>
+<body>
+<div class="sheet">
+
+  <div class="hero">
+    <div class="brand"><div class="wm">FOUNDER <b>STUDIO</b></div><div class="sub">A Mission Possible Institute company</div></div>
+    <div class="eyebrow">{{AUDIENCE_LINE}}</div>
+    <h1>{{HEADLINE_HTML}}</h1>
+    <p class="lede">{{LEDE_HTML}}</p>
+  </div>
+
+  <div class="section">
+    {{VALUE_ROWS}}
+  </div>
+
+  <div class="moat">
+    <div class="eyebrow">Why this is not just another tool</div>
+    <h2>It is a real team, and it has your back.</h2>
+    <p>{{MOAT_BODY}}</p>
+  </div>
+
+  <div class="price">
+    <h2>Start small. Grow when it earns it.</h2>
+    <p>Begin with just your assistant, or stand up the whole crew. Change it anytime, and your studio can be set up for you so day one is ready, not a blank screen.</p>
+    <div class="tiers">
+      {{TIERS}}
+    </div>
+  </div>
+
+  <div class="cta">
+    <div class="big">{{CTA_LINE_HTML}}</div>
+    <a class="btn" href="https://emerging-tech-lab.com/etl-staffing">{{CTA_BUTTON}}</a>
+  </div>
+
+  <div class="foot">Visit <b>emerging-tech-lab.com</b> &nbsp;&middot;&nbsp; Founder Studio is a property of <b>Mission Possible Institute LLC</b>, Dayton, Ohio &nbsp;&middot;&nbsp; (c) 2026</div>
+
+</div>
+</body></html>

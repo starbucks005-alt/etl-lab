@@ -79,10 +79,23 @@
 [functions."specialist-delia-background"]
   included_files = ["data/delia-backpack-config.json"]
 
+# Reid's tailored-slick generator. Bundles CCW's slick template so the
+# generator can fill it server-side in the Netlify runtime.
+[functions."studio-reid-slick-background"]
+  included_files = ["data/founder-studio-slick-template.html"]
+
 # Per-user Studio config lookup. Reads the email-keyed provisioning fixtures
 # (Caroline at INMA, future donations) when a new user first authenticates.
 [functions."studio-config-get"]
   included_files = ["data/caroline-inma-company.json", "data/pa_pool.json"]
+
+# ─── Reid slick viewer ────────────────────────────────────────────────────
+# Pretty URL for a generated tailored slick. Owner shares /slick/<slug>;
+# the page is public (no auth) and prints to PDF.
+[[redirects]]
+  from = "/slick/*"
+  to = "/.netlify/functions/studio-slick-view?slug=:splat"
+  status = 200
 
 # ─── Press Hub redirects ──────────────────────────────────────────────────
 # Pretty URLs over the Netlify Functions that render the press hub.
