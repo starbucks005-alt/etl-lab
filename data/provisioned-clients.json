@@ -1,0 +1,7 @@
+{
+  "_doc": "Generic provisioning map (Option B). Email -> fixture filename. studio-config-get reads THIS instead of a hardcoded map in code, so adding a client is a data edit (drop their fixture in data/, add one line here), not a code change. Caroline was the first; Vikram is the first paying client. Email keys are lowercased.",
+  "clients": {
+    "cschirato@infragardnational.org": "caroline-inma-company.json",
+    "vikram@vikramsethi.com": "vikram-sethi-company.json"
+  }
+}

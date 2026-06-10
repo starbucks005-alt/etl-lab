@@ -1,0 +1,118 @@
+{
+  "_doc": "First paying client. Provisioning fixture for Code, same shape as caroline-inma-company.json but PAID (not sponsored). Rowan's Robinhood integration is being wired by Code.",
+  "account": {
+    "account_id": "acct_vikram_sethi",
+    "owner_name": "Dr. Vikram Sethi",
+    "owner_title": "Business Professor, Wright State University (Dayton, Ohio)",
+    "owner_org": "His technology company (operations based in India)",
+    "owner_context": "Strong product, but client acquisition is the hard part. Wants Rowan for Robinhood/markets. The Studio is aimed at helping him win clients. He regards Dr. Oroszi as the smartest person he knows and says so often (including the morning he signed up); what he is really buying is access to her intelligence and method via the Studio, not generic AI. Carry it accordingly: he is a peer who respects the brain trust behind the operation.",
+    "owner_email": "vikram@vikramsethi.com",
+    "owner_site": "https://www.onesmarter.com",
+    "provisioning": "magic_link",
+    "created_via": "paid_signup",
+    "status": "provisioned"
+  },
+  "billing": {
+    "sponsored": false,
+    "plan": "a la carte (PA + Studio base, six-pack, three specialists)",
+    "base_monthly": 199,
+    "amount_due_monthly": 615,
+    "currency": "USD",
+    "invoiced_out_of_band": true,
+    "breakdown": {
+      "pa_plus_studio": 199,
+      "six_pack": 199,
+      "jax": 49,
+      "zara": 49,
+      "rowan_csuite_mcp": 119
+    }
+  },
+  "company": {
+    "company_name": "Sethi Studio",
+    "pa": {
+      "persona_id": "auggie_vidal",
+      "display_name": "Auggie",
+      "backpack": true,
+      "contract": "PA",
+      "note": "Default PA; swappable to any of the 12 pool personas."
+    },
+    "sixpack_on": true,
+    "sixpack_members": [
+      {
+        "id": "alicia_james",
+        "name": "Alicia James",
+        "contract": "Six-Pack"
+      },
+      {
+        "id": "leo_vance",
+        "name": "Leo Vance",
+        "contract": "Six-Pack",
+        "backpack": true
+      },
+      {
+        "id": "kimberly_pass",
+        "name": "Kimberly Pass",
+        "contract": "Six-Pack"
+      },
+      {
+        "id": "sasha_moreno",
+        "name": "Sasha Moreno",
+        "contract": "Six-Pack"
+      },
+      {
+        "id": "yuki_mendel",
+        "name": "Yuki Mendel",
+        "contract": "Six-Pack"
+      },
+      {
+        "id": "reid_callum",
+        "name": "Reid Callum",
+        "contract": "Six-Pack",
+        "note": "Now a default essential six-pack member."
+      }
+    ],
+    "staff": [
+      {
+        "id": "rowan_tate",
+        "name": "Rowan Tate",
+        "role": "Quant Strategist",
+        "tier": "csuite_mcp",
+        "price": 119,
+        "backpack": true,
+        "contract": "Standing",
+        "why": "The reason Vikram came. C-Suite MCP execution specialist for markets and Robinhood. Starts in advise mode (read + prepare orders, Vikram confirms); autonomous execution is a later graduation behind the four risk pillars."
+      },
+      {
+        "id": "jax_rivera",
+        "name": "Jax Rivera",
+        "role": "SEO & Discovery Strategist",
+        "tier": "addon",
+        "price": 49,
+        "backpack": true,
+        "contract": "Standing",
+        "why": "His core problem, getting found and winning clients: scans onesmarter.com, audits SEO, drafts the fixes."
+      },
+      {
+        "id": "zara_cole",
+        "name": "Zara Cole",
+        "role": "The Influencer",
+        "tier": "addon",
+        "price": 49,
+        "backpack": false,
+        "contract": "Standing",
+        "why": "Social and influence: the get-seen half of client acquisition, alongside Reid (positioning) and Jax (search)."
+      }
+    ],
+    "beat": "B2B technology; winning US/global clients for an India-based firm; market positioning and outbound."
+  },
+  "value_breakdown": {
+    "headcount": 10,
+    "headcount_note": "Vikram + PA(1) + six-pack(6) + Rowan(1) + Jax(1) + 2nd standard(1) = 10-person company",
+    "total_monthly": 585
+  },
+  "flags": [
+    "Need Dr. Sethi's email for the magic link (owner_email is null).",
+    "Second standard specialist is a TBD slot. For 'hard to get clients', strong fits: Reid is already in the six-pack; consider Charles Monroe (positioning + case studies that land clients) or Cassidy Mercer (why prospects hesitate) or Alistair Montgomery (market/strategy).",
+    "Jax and Rowan are MCP backpack hires at $69, not $49 standard. If you meant both 'standard agents' at $49, confirm and I'll reprice; as configured the total is $585/mo."
+  ]
+}

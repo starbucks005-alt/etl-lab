@@ -22,12 +22,10 @@ const path = require('path');
 const SUPABASE_URL = 'https://ulvrnermyuvzanxhxoib.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsdnJuZXJteXV2emFueGh4b2liIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3MzYyMDEsImV4cCI6MjA5NjMxMjIwMX0.tAaXhm_pb-DxrYsXYw1DvvYENDJ_y3jlt2nGWSp2lbA';
 
-// Email-keyed provisioning fixtures. When a NEW buyer with a matching email
-// first authenticates, this fixture seeds their config. Subsequent edits land
-// in their per-user blob via studio-config-set.
-const PROVISIONING_FIXTURES = {
-  'cschirato@infragardnational.org': 'caroline-inma-company.json',
-};
+// Generic provisioning (Option B): the email -> fixture map lives in DATA
+// (data/provisioned-clients.json), not hardcoded here. Adding a client is a
+// data edit, not a code change. Caroline was the first; Vikram is the first
+// paying client. No buyer is special-cased in this function anymore.
 
 async function validateRequest(event) {
   const authHeader = (event.headers && (event.headers.authorization || event.headers.Authorization)) || '';
@@ -61,6 +59,17 @@ function loadFixture(filename) {
   return null;
 }
 
+// The generic email -> fixture map. Lives in data/provisioned-clients.json so
+// onboarding a client is a data edit. Returns a flat { email: filename } object
+// (lowercased keys), or {} if the file is missing.
+function loadProvisioningMap() {
+  const parsed = loadFixture('provisioned-clients.json');
+  const clients = (parsed && parsed.clients) || {};
+  const out = {};
+  for (const k of Object.keys(clients)) out[k.toLowerCase()] = clients[k];
+  return out;
+}
+
 // Transform CCW's caroline-inma-company.json shape into the unified
 // studio_config envelope the front-end consumes. Fixture is the canonical
 // source; we just flatten + normalize.
@@ -68,7 +77,8 @@ function fixtureToStudioConfig(fixture, user) {
   if (!fixture) return null;
   const acct = fixture.account || {};
   const co = fixture.company || {};
-  const sp = fixture.sponsorship || {};
+  const sp = fixture.sponsorship || {};   // Caroline-shape (sponsored / in-kind)
+  const billing = fixture.billing || {};  // Vikram-shape (paid / invoiced)
   const landing = fixture.studio_landing || {};
   const staff = (co.staff || []).map(s => ({
     name: s.name, role: s.role, tier: s.tier, price: s.price,
@@ -112,7 +122,16 @@ function fixtureToStudioConfig(fixture, user) {
       amount_due_monthly: typeof sp.amount_due_monthly === 'number' ? sp.amount_due_monthly : null,
       statement: sp.statement || '',
     },
-    no_payment_ui: !!(landing.no_payment_ui || sp.in_kind),
+    billing: {
+      sponsored: !!sp.sponsored,
+      amount_due_monthly: typeof billing.amount_due_monthly === 'number'
+        ? billing.amount_due_monthly
+        : (typeof sp.amount_due_monthly === 'number' ? sp.amount_due_monthly : null),
+      invoiced_out_of_band: !!billing.invoiced_out_of_band,
+      plan: billing.plan || co.plan || null,
+    },
+    // Provisioned clients (sponsored or invoiced) never see self-serve checkout.
+    no_payment_ui: !!(landing.no_payment_ui || sp.in_kind || billing.invoiced_out_of_band || billing.amount_due_monthly),
     in_kind_banner: sp.statement || null,
     hired_staff: staff.concat(sixpack),
     first_login_show: landing.show_on_first_login || [],
@@ -170,7 +189,7 @@ exports.handler = async function(event) {
 
   // 2. Email-keyed provisioning fixture
   const email = (auth.user.email || '').toLowerCase();
-  const fixtureFile = PROVISIONING_FIXTURES[email];
+  const fixtureFile = loadProvisioningMap()[email];
   if (fixtureFile) {
     const fixture = loadFixture(fixtureFile);
     if (fixture) {
