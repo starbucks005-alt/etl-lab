@@ -7,7 +7,15 @@ const { getStore, connectLambda } = require('@netlify/blobs');
 exports.handler = async function(event) {
   try { connectLambda(event); } catch (_) {}
 
-  const slug = (event.queryStringParameters && (event.queryStringParameters.slug || event.queryStringParameters.splat)) || '';
+  const qs = event.queryStringParameters || {};
+  let slug = (qs.slug || qs.splat || '').trim();
+  // Fallback: pull the slug from the path when Netlify's splat-to-query does
+  // not populate it (/slick/<slug> rewrite). Bulletproofs the pretty URL.
+  if (!slug) {
+    const p = (event.path || event.rawUrl || '').split('?')[0].replace(/\/+$/, '');
+    const m = p.match(/\/slick\/(.+)$/) || p.match(/\/studio-slick-view\/(.+)$/);
+    if (m) { try { slug = decodeURIComponent(m[1]); } catch (_) { slug = m[1]; } }
+  }
   if (!slug) {
     return { statusCode: 400, headers: { 'Content-Type': 'text/plain' }, body: 'Missing slug.' };
   }
