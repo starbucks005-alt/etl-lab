@@ -21,6 +21,7 @@ const ALLOWED_FIELDS = new Set([
   'company_name', 'owner_name', 'owner_title', 'owner_org', 'owner_context',
   'pa', 'address_pref', 'timezone', 'brief_beat', 'domain_addon', 'hired_staff',
   'cv_provided', 'cv_summary',
+  'owner_site', 'website',
 ]);
 
 async function validateRequest(event) {

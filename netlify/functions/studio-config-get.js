@@ -102,6 +102,7 @@ function fixtureToStudioConfig(fixture, user) {
     timezone: co.timezone || null,
     brief_beat: co.beat || '',
     domain_addon: co.domain_addon || null,
+    owner_site: co.owner_site || acct.owner_site || null,
     plan: co.plan || null,
     sponsorship: {
       sponsored: !!sp.sponsored,
@@ -135,6 +136,10 @@ function defaultStudioConfig(user) {
       voice_enabled: true,
     },
     brief_beat: '',
+    // The owner's default Jax target. For Dr. O (default config) this is her
+    // hub, so "have Jax improve SEO" still auto-targets ETL. Buyers override
+    // it with their own owner_site via their fixture or Settings.
+    owner_site: 'https://emerging-tech-lab.com',
     sponsorship: { sponsored: false, in_kind: false },
     no_payment_ui: false,
     hired_staff: [],

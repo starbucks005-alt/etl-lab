@@ -254,17 +254,17 @@ function detectJaxDispatchIntent(msg) {
     if (p.match.test(msg)) targets.add(p.url);
   }
 
-  // 3. If nothing matched (just "have Jax look at SEO"), default to ETL
-  if (targets.size === 0) {
-    targets.add('https://emerging-tech-lab.com');
-  }
-
+  // 3. Nothing explicit in the message. DON'T hardcode ETL anymore — Jax
+  //    serves any buyer now. The handler resolves the target from the owner's
+  //    configured website (owner_site), and if there is none it asks for the
+  //    URL. needs_target signals that fallback.
   const targetList = Array.from(targets);
   return {
     matched: true,
-    target_urls: targetList,           // array — every site to dispatch
-    target_url: targetList[0],         // back-compat: first target for single-site callers
+    target_urls: targetList,           // array — every explicit site to dispatch
+    target_url: targetList[0] || null, // back-compat
     is_batch: targetList.length > 1,
+    needs_target: targetList.length === 0,
   };
 }
 
@@ -623,6 +623,24 @@ async function loadPaLabel(event, userId) {
   return 'Personal Assistant';
 }
 
+// The owner's own website, for Jax to default to when no URL is named. Each
+// buyer's config carries owner_site (Vikram -> onesmarter.com). Returns null
+// if none set, in which case the PA asks for the URL. No hardcoded ETL: Jax
+// serves any buyer now.
+async function loadOwnerSite(event, userId) {
+  try { connectLambda(event); } catch (_) {}
+  try {
+    const cfg = await getStore('studio_config').get(userId || 'default', { type: 'json' });
+    const site = cfg && (cfg.owner_site || cfg.website || (cfg.company && cfg.company.owner_site));
+    if (site) {
+      let s = String(site).trim();
+      if (!/^https?:\/\//i.test(s)) s = 'https://' + s;
+      return s.replace(/\/+$/, '');
+    }
+  } catch (_) {}
+  return null;
+}
+
 /* ── New-hires intro queue ───────────────────────────────────────────────
    When a Specialist joins the bench, Auggie introduces them on the
    owner's next chat interaction. Tracked per-user in blob storage:
@@ -836,6 +854,27 @@ exports.handler = async (event) => {
   // visibility / audit / scan / get found / ranking / meta / sitemap).
   const jaxDispatch = detectJaxDispatchIntent(message);
   if (jaxDispatch.matched && images.length === 0 && documents.length === 0) {
+    // No site named in the message. Default to the owner's configured website
+    // (Vikram -> onesmarter.com); if none on file, the PA asks for the URL
+    // instead of guessing. Jax is no longer wired to just Terry's sites.
+    if (jaxDispatch.needs_target) {
+      const ownerSite = await loadOwnerSite(event, (auth.user && auth.user.id) || 'default');
+      if (ownerSite) {
+        jaxDispatch.target_urls = [ownerSite];
+        jaxDispatch.target_url = ownerSite;
+        jaxDispatch.needs_target = false;
+      } else {
+        return {
+          statusCode: 200,
+          headers: { ...CORS, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            reply: "happy to put Jax on it, love — which site should he audit? paste the URL (or tell me your website) and i will send him to scan it.",
+            persona: 'Auggie',
+            jax_needs_target: true,
+          }),
+        };
+      }
+    }
     const overrideRe = /\b(override|anyway|do it anyway|i know|yes really|despite that|push past)\b/i;
     const hasOverride = overrideRe.test(message);
 
