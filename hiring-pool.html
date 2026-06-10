@@ -187,7 +187,7 @@ function isPA(n){return state.pa===n}
 function seatIndex(n){return state.sixpack.indexOf(n)}
 function isSeated(n){return isPA(n)||seatIndex(n)>=0}
 
-(async function(){try{const r=await fetch(ROSTER_URL,{cache:"no-store"});if(r.ok){const d=await r.json();if(Array.isArray(d)&&d.length){AGENTS=normalize(d);const s=document.getElementById('src');s.className='srcdot live';s.innerHTML='<i></i> live &middot; '+ROSTER_URL}}}catch(e){}boot()})();
+(async function(){try{const r=await fetch(ROSTER_URL,{cache:"no-store"});if(r.ok){const d=await r.json();const arr=Array.isArray(d)?d:((d&&(d.agents||d.roster||d.staff))||[]);if(arr.length){const norm=arr.map(function(row){try{return normalize([row])[0]}catch(_e){return null}}).filter(Boolean);if(norm.length){AGENTS=norm;const s=document.getElementById('src');if(s){s.className='srcdot live';s.innerHTML='<i></i> live &middot; '+ROSTER_URL}}}}}catch(e){console.error('roster load failed',e)}boot()})();
 
 function normalize(rows){return rows.map(a=>{const n=a.name||a.Name||"";const tier=(a.tier||a['Tier / Price']||"").toString();
   let cat="addon",price=49,label="Standard add-on";const t=tier.toLowerCase();
