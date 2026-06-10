@@ -4429,12 +4429,39 @@
 
   // ─── CONFIG-DRIVEN STAFF GRID ────────────────────────────────────
   // Replace the static .staff-card elements with cards built from the
-  // buyer's hired_staff config. Portraits looked up from the roster JSON.
+  // buyer's hired_staff config. Portraits looked up from the roster JSON,
+  // or from the interim blink-pair map below when one exists.
   async function renderConfigStaff(cfg){
     var grid = document.querySelector('.staff-grid');
     if (!grid) return;
 
-    // Pull the roster JSON once for portrait + role lookups
+    // ─── Per-buyer blink-pair portraits ──────────────────────────────
+    // Each entry is {open, closed} pointing at the actual filenames CCW
+    // dropped into /agents/. We DON'T assume extension parity (Leo's
+    // closed frame is .jpg while his open is .png; Benjamin's pair uses
+    // capitalized "Eyes"; "The Professor" is two words). The map records
+    // exact filenames so the cards render with breathing blinks instead
+    // of stiff stills. Interim shape — when more buyers join, this moves
+    // into the roster JSON so it's data-driven, not hardcoded here.
+    var PORTRAIT_PAIRS = {
+      'August "Auggie" Vidal': { open: '/agents/Auggie_eyes_open.png',        closed: '/agents/Auggie_eyes_closed.png' },
+      'Auggie':                { open: '/agents/Auggie_eyes_open.png',        closed: '/agents/Auggie_eyes_closed.png' },
+      'Benjamin Reed':         { open: '/agents/Benjamin_Reed_Eyes_Open.jpg', closed: '/agents/Benjamin_Reed_Eyes_Closed.jpg' },
+      'Delia Marsh':           { open: '/agents/Delia_Marsh_Eyes_Open.png',   closed: '/agents/Delia_Marsh_Eyes_Closed.png' },
+      'Reid Callum':           { open: '/agents/Reid_Callum_eyes_open.jpg',   closed: '/agents/Reid_Callum_eyes_closed.jpg' },
+      'Ayanna Cole':           { open: '/agents/Ayanna_Cole_eyes_open.jpg',   closed: '/agents/Ayanna_Cole_eyes_closed.jpg' },
+      'Grey Hollis':           { open: '/agents/Grey_Hollis_eyes_open.png',   closed: '/agents/Grey_Hollis_eyes_closed.png' },
+      'The Professor':         { open: '/agents/The_Professor_eyes_open.png', closed: '/agents/The_Professor_eyes_closed.png' },
+      'Yuki Mendel':           { open: '/agents/Yuki_Mendel_eyes_open.png',   closed: '/agents/Yuki_Mendel_eyes_closed.png' },
+      'Leo Vance':             { open: '/agents/Leo_Vance_eyes_open.png',     closed: '/agents/Leo_Vance_eyes_closed.jpg' },
+      'Sasha Moreno':          { open: '/agents/Sasha_Moreno_eyes_open.png',  closed: '/agents/Sasha_Moreno_eyes_closed.png' },
+      'Kimberly Pass':         { open: '/agents/Kimberly_Pass_eyes_open.jpg', closed: '/agents/Kimberly_Pass_eyes_closed.jpg' },
+      'Alicia James':          { open: '/agents/Alicia_James_eyes_open.jpg',  closed: '/agents/Alicia_James_eyes_closed.jpg' },
+      'Rowan Tate':            { open: '/agents/Rowan_Tate_eyes_open.png',    closed: '/agents/Rowan_Tate_eyes_closed.png' },
+    };
+
+    // Pull the roster JSON once for portrait + role lookups (fallback
+    // when no portrait pair exists yet for someone in hired_staff)
     var rosterByName = {};
     try {
       var r = await fetch('/data/etl-agents-roster.json', { cache: 'no-store' });
@@ -4465,11 +4492,26 @@
 
     function buildCard(name, role, backpack, contract, why){
       var agent = lookupAgent(name);
-      var img = (agent && agent.image_url) || '';
       var displayRole = role || (agent && agent.role) || '';
-      var portraitHtml = img
-        ? '<img src="' + img + '" alt="' + name.replace(/"/g, '&quot;') + '" onerror="this.outerHTML=&quot;<div class=staff-portrait-placeholder>' + initials(name) + '</div>&quot;">'
-        : '<div class="staff-portrait-placeholder">' + initials(name) + '</div>';
+
+      // Portrait: prefer the blink pair when we have one, fall back to
+      // single roster image, fall back to initials block. Stagger the
+      // blink animation by a random negative delay so 13 cards in the
+      // grid don't all wink in unison — that's uncanny.
+      var pair = PORTRAIT_PAIRS[name];
+      var portraitHtml;
+      if (pair) {
+        var delay = (-(Math.random() * 8.4)).toFixed(2);
+        var altSafe = name.replace(/"/g, '&quot;');
+        portraitHtml =
+          '<img src="' + pair.open + '" alt="' + altSafe + '" loading="lazy" onerror="this.outerHTML=&quot;<div class=staff-portrait-placeholder>' + initials(name) + '</div>&quot;">' +
+          '<img src="' + pair.closed + '" alt="" aria-hidden="true" class="staff-portrait-blink-closed" style="animation-delay:' + delay + 's" onerror="this.style.display=\'none\'">';
+      } else {
+        var img = (agent && agent.image_url) || '';
+        portraitHtml = img
+          ? '<img src="' + img + '" alt="' + name.replace(/"/g, '&quot;') + '" loading="lazy" onerror="this.outerHTML=&quot;<div class=staff-portrait-placeholder>' + initials(name) + '</div>&quot;">'
+          : '<div class="staff-portrait-placeholder">' + initials(name) + '</div>';
+      }
 
       var contractChipHtml = '';
       if (contract === 'standing') {
