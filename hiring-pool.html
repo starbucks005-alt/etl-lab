@@ -117,8 +117,10 @@ header.top{border-bottom:1px solid var(--line);background:#fff}
   <div class="valbar">
     <span class="pill"><b>PA + Studio</b> &middot; $199/mo &middot; all you must buy</span>
     <span class="pill"><b>Essential six-pack</b> &middot; +$199/mo &middot; suggested</span>
-    <span class="pill"><b>Standard add-on</b> &middot; $49/mo each &middot; suggested</span>
-    <span class="pill"><b>Board-level</b> &middot; $89.99/mo each</span>
+    <span class="pill"><b>Standard</b> &middot; $49/mo each</span>
+    <span class="pill"><b>MCP</b> &middot; $69/mo each &middot; backpack</span>
+    <span class="pill"><b>C Suite</b> &middot; $89/mo &middot; or $119 MCP</span>
+    <span class="pill"><b>Premium</b> &middot; $549/mo &middot; Ms. Ivy</span>
   </div>
 </div>
 
@@ -186,14 +188,20 @@ function isSeated(n){return isPA(n)||seatIndex(n)>=0}
 (async function(){try{const r=await fetch(ROSTER_URL,{cache:"no-store"});if(r.ok){const d=await r.json();if(Array.isArray(d)&&d.length){AGENTS=normalize(d);const s=document.getElementById('src');s.className='srcdot live';s.innerHTML='<i></i> live &middot; '+ROSTER_URL}}}catch(e){}boot()})();
 
 function normalize(rows){return rows.map(a=>{const n=a.name||a.Name||"";const tier=(a.tier||a['Tier / Price']||"").toString();
-  let cat="addon",price=49,label="Standard add-on";const t=tier.toLowerCase();
-  if(t.includes("pa base")){cat="pa";price=199;label="PA + shell"}
-  else if(t.includes("six-pack")||t.includes("core")){cat="core";price=0;label="Core six-pack"}
-  else if(t.includes("board")){cat="board";price=89.99;label="Board-level"}
+  /* Tier categorizer — recognizes both the locked ladder Terry shipped
+     (PA Base $199 · C Suite $89 / C Suite MCP $119 · MCP $69 · Standard $49
+     · Premium $549) and the older "Board-level $89.99" string for backward
+     compat while CCW's spreadsheet sync catches up. */
+  let cat="addon",price=49,label="Standard";const t=tier.toLowerCase();
+  if(t.includes("pa base")){cat="pa";price=199;label="PA + Studio"}
+  else if(t.includes("six-pack")||t.includes("core")){cat="core";price=0;label="Six-Pack"}
+  else if(t.includes("c suite mcp")||t.includes("c-suite mcp")||t.includes("csuite mcp")){cat="csuite_mcp";price=119;label="C Suite MCP"}
+  else if(t.includes("c suite")||t.includes("c-suite")||t.includes("csuite")){cat="csuite";price=89;label="C Suite"}
+  else if(t.includes("board")){cat="csuite";price=89;label="C Suite"} // legacy "Board-level $89.99" → C Suite Standard $89
   else if(t.includes("not sold")||t.includes("lab staff")){cat="not_sold";price=0;label="Lab staff"}
   else if(t.includes("owner")||t.includes("not an employee")){cat="owner";price=0;label="Owner / PI"}
   else if(t.includes("premium")||t.includes("549")){cat="premium";price=549;label="Premium · SLR"}
-  if(cat==="addon" && /^\s*yes/i.test((a.mcp||a['MCP / Live tools']||""))){cat="mcp";label="MCP";}
+  if(cat==="addon" && /^\s*yes/i.test((a.mcp||a['MCP / Live tools']||""))){cat="mcp";price=69;label="MCP";}
   const hs=(a.hashtags||a['# Hashtags (business areas)']||"").toString();
   const platform=a.platform||a.Platform||"";
   const platforms=platform.split('/').map(s=>s.split('(')[0].trim()).filter(Boolean);
@@ -321,9 +329,18 @@ function fireAct(i){const a=AGENTS[i];delete state.extras[a.name];saveState();re
 function openDrawer(){updateDrawer();document.getElementById('drawer').classList.add('show');document.getElementById('bd').classList.add('show');}
 function closeAll(){document.getElementById('drawer').classList.remove('show');document.getElementById('bd').classList.remove('show');closeModal();}
 function updateDrawer(){
-  const ex=Object.entries(state.extras);const addons=ex.filter(([n,h])=>h.cat==='addon'||h.cat==='mcp'),board=ex.filter(([n,h])=>h.cat==='board'),premium=ex.filter(([n,h])=>h.cat==='premium');
+  /* Bucketing for the receipt sidebar. `board` now also covers the new
+     C Suite categories (csuite + csuite_mcp) along with the legacy 'board'
+     cat for backward compat. Total is summed from each agent's actual
+     price field so the row labels (C Suite Standard $89 vs MCP $119) and
+     the bottom-line total always agree, no matter what mix the buyer hires. */
+  const ex=Object.entries(state.extras);
+  const addons=ex.filter(([n,h])=>h.cat==='addon'||h.cat==='mcp');
+  const board=ex.filter(([n,h])=>h.cat==='board'||h.cat==='csuite'||h.cat==='csuite_mcp');
+  const premium=ex.filter(([n,h])=>h.cat==='premium');
   const six=state.sixpackOn?199:0;const sixHc=state.sixpackOn?state.sixpack.filter(Boolean).length:0;
-  const total=199+six+addons.length*49+board.length*89.99+premium.length*549;
+  const sumPrices=(arr)=>arr.reduce((s,[n,h])=>s+(byName(n).price||0),0);
+  const total=199+six+sumPrices(addons)+sumPrices(board)+sumPrices(premium);
   const hc=1+1+sixHc+addons.length+premium.length+board.length*2;
   document.getElementById('totbtn').textContent='$'+Math.round(total);
   document.getElementById('hc').textContent=hc;
@@ -342,10 +359,13 @@ function updateDrawer(){
     html+=`<div class="dgrp">Suggested &middot; the essential six-pack</div>`;
     html+=`<div class="drow"><div class="ini2">+6</div><div class="nm">Six core staff for $199<br><small>a no-brainer, but optional</small></div><div class="pr"><button class="x" onclick="addSixpack()">add $199</button></div></div>`;
   }
-  html+=`<div class="dgrp">Add-ons &middot; $49/mo each</div>`;
-  html+= addons.length?addons.map(([n,h])=>row(byName(n),`$49 <button class="x fire" onclick="rm('${n.replace(/'/g,"\\'")}')">fire</button>`)).join(''):'<div class="note">None yet - add specialists from the catalog.</div>';
-  html+=`<div class="dgrp">Board-level &middot; $89.99/mo each</div>`;
-  html+= board.length?board.map(([n,h])=>row(byName(n),`$89.99 <button class="x fire" onclick="rm('${n.replace(/'/g,"\\'")}')">fire</button>`)+`<div class="drow" style="padding-left:22px"><div class="ini2" style="background:linear-gradient(135deg,#9a7c2f,#b89441)">+1</div><div class="nm">Assistant <span class="tempbadge">FREE</span><br><small>${esc(asstLabel(n))}</small></div><div class="pr">$0</div></div>`).join(''):'<div class="note">None yet.</div>';
+  /* Per-agent price (not hardcoded). After the C Suite split and the
+     MCP $49→$69 bump, the same row template handles both flavors via
+     byName(n).price, so the receipt always matches the catalog card. */
+  html+=`<div class="dgrp">Add-ons &middot; Standard $49 &middot; MCP $69</div>`;
+  html+= addons.length?addons.map(([n,h])=>{const a=byName(n);return row(a,`$${a.price||49} <button class="x fire" onclick="rm('${n.replace(/'/g,"\\'")}')">fire</button>`);}).join(''):'<div class="note">None yet - add specialists from the catalog.</div>';
+  html+=`<div class="dgrp">C Suite &middot; Standard $89 &middot; MCP $119</div>`;
+  html+= board.length?board.map(([n,h])=>{const a=byName(n);return row(a,`$${a.price||89} <button class="x fire" onclick="rm('${n.replace(/'/g,"\\'")}')">fire</button>`)+`<div class="drow" style="padding-left:22px"><div class="ini2" style="background:linear-gradient(135deg,#9a7c2f,#b89441)">+1</div><div class="nm">Assistant <span class="tempbadge">FREE</span><br><small>${esc(asstLabel(n))}</small></div><div class="pr">$0</div></div>`;}).join(''):'<div class="note">None yet.</div>';
   html+=`<div class="dgrp">Premium &middot; $549/mo each &middot; earns its keep</div>`;
   html+= premium.length?premium.map(([n,h])=>row(byName(n),`$549 <button class="x fire" onclick="rm('${n.replace(/'/g,"\\'")}')">fire</button>`)).join(''):'<div class="note">None yet - e.g. Ms. Ivy, who travels with the SLR Method.</div>';
   document.getElementById('dbody').innerHTML=html;
