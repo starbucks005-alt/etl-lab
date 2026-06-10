@@ -72,6 +72,13 @@
 [functions."studio-reid-background"]
   included_files = ["data/reid-backpack-config.json"]
 
+# Delia Marsh's Development & Sponsorships backpack. Loads CCW's spec (with
+# the InfraGard/INMA/DSAC domain knowledge). LIVE custom tools: ProPublica
+# Nonprofits + USAspending (both free, no key). SEC EDGAR/SAM.gov/fetch/
+# data-analysis pending.
+[functions."specialist-delia-background"]
+  included_files = ["data/delia-backpack-config.json"]
+
 # Per-user Studio config lookup. Reads the email-keyed provisioning fixtures
 # (Caroline at INMA, future donations) when a new user first authenticates.
 [functions."studio-config-get"]
