@@ -15,7 +15,7 @@
    activate so buyers don't get stuck on a stale Studio.
    ───────────────────────────────────────────────────────────────────────── */
 
-const CACHE = 'etl-studio-v1';
+const CACHE = 'etl-studio-v2';
 
 const SHELL = [
   '/studio.html',
@@ -60,7 +60,15 @@ self.addEventListener('fetch', (event) => {
              || url.pathname.startsWith('/studio-')
              || url.pathname.startsWith('/auggie-')
              || url.pathname.startsWith('/watercooler')
-             || url.pathname.startsWith('/press');
+             || url.pathname.startsWith('/press')
+             // Pages and data must never be served stale by the worker. Page
+             // navigations, any .html, and any .json (roster.json especially)
+             // go network-first so the live site always wins. This is what
+             // stopped the catalog from updating: the old worker cached
+             // hiring-pool.html + roster.json cache-first and froze them.
+             || req.mode === 'navigate'
+             || url.pathname.endsWith('.html')
+             || url.pathname.endsWith('.json');
   if (isApi) {
     event.respondWith(
       fetch(req)
