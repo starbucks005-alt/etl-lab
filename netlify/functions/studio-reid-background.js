@@ -36,7 +36,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 // only claims tools that work. Update this line as each tool comes online.
 const LIVE_TOOLS_NOTE = [
   '',
-  'Backpack status (read carefully): LIVE and connected right now are web search and the GDELT news monitor (use gdelt_news to pull recent news and PR mentions of a brand, competitor, or topic across global media). Meta Ad Library, Reddit listening, Google Trends, web page fetch, and data analysis are being connected and are NOT available yet. Do not claim to have used a tool that is not live. If a question truly needs one that is not connected, say which one would answer it best and use web search and GDELT to get as close as you honestly can.',
+  'Backpack status (read carefully): LIVE and connected are web search and the GDELT news monitor (gdelt_news, for recent news and PR mentions of a brand or competitor). Reddit listening (reddit_listening, for what real people say about a brand, category, or pain point in their own words) is available; it is reliable when its credentials are connected and best-effort otherwise, so if a reddit_listening call comes back empty, say so and lean on your other live tools. Meta Ad Library, Google Trends, web page fetch, and data analysis are NOT connected yet. Never claim to have used a tool that returned nothing. If a question needs a tool that is not connected, say which one would answer it best and use your live tools to get as close as you honestly can.',
   '',
   'Output format:',
   '- Lead with the recommendation: the angle, the channel, the timing, and the first creative move.',
@@ -138,6 +138,110 @@ async function gdeltSearch(query, timespan, maxRecords) {
   }
 }
 
+// ─── Reddit social listening (public JSON, no auth) ──────────────────────────
+// Reddit's .json endpoints need no app credentials, only a descriptive
+// User-Agent. Voice-of-customer: real audience words for messaging. Like
+// GDELT, can be throttled from cloud IPs; degrades gracefully. If it ever gets
+// too flaky, the OAuth path is the robust upgrade.
+const REDDIT_TOOL = {
+  name: 'reddit_listening',
+  description: 'Search Reddit for what real people say about a brand, product, category, or pain point. Voice-of-customer for messaging and headlines: their actual words, complaints, and phrasing. Optionally restrict to one subreddit. Do not use for SEO or rank, that is Jax\'s lane.',
+  input_schema: {
+    type: 'object',
+    properties: {
+      query: { type: 'string', description: 'What to listen for: a brand, product, category, or pain point.' },
+      subreddit: { type: 'string', description: 'Optional: restrict to one subreddit (without the r/), e.g. "smallbusiness".' },
+      sort: { type: 'string', description: 'relevance, new, top, or comments. Defaults to relevance.' },
+      limit: { type: 'integer', description: 'How many posts to return, 1 to 25. Defaults to 15.' },
+    },
+    required: ['query'],
+  },
+};
+
+// Get an app-only (client_credentials) bearer token using "script"-app creds.
+// Read-only, no user login. Returns null if creds are absent or the call fails.
+async function redditToken() {
+  const id = process.env.REDDIT_CLIENT_ID;
+  const secret = process.env.REDDIT_CLIENT_SECRET;
+  if (!id || !secret) return null;
+  try {
+    const basic = Buffer.from(id + ':' + secret).toString('base64');
+    const r = await fetch('https://www.reddit.com/api/v1/access_token', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Basic ' + basic,
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'User-Agent': 'web:etl-studio-reid:1.0 (marketing listening)',
+      },
+      body: 'grant_type=client_credentials',
+    });
+    if (!r.ok) return null;
+    const j = await r.json();
+    return j && j.access_token ? j.access_token : null;
+  } catch (_) { return null; }
+}
+
+function mapRedditChildren(children) {
+  return (children || []).filter(c => c && c.data).map(c => {
+    const d = c.data;
+    return {
+      title: d.title,
+      subreddit: d.subreddit_name_prefixed || ('r/' + (d.subreddit || '')),
+      score: d.score,
+      comments: d.num_comments,
+      snippet: String(d.selftext || '').slice(0, 280),
+      url: 'https://www.reddit.com' + (d.permalink || ''),
+      created_utc: d.created_utc,
+    };
+  });
+}
+
+async function redditSearch(query, subreddit, sort, limit) {
+  const q = String(query || '').trim().slice(0, 300);
+  if (!q) return { error: 'empty_query' };
+  const s = ['relevance', 'new', 'top', 'comments'].indexOf(String(sort)) >= 0 ? sort : 'relevance';
+  const n = Math.min(Math.max(parseInt(limit, 10) || 15, 1), 25);
+  const sub = String(subreddit || '').trim().replace(/^r\//i, '').replace(/[^a-zA-Z0-9_]/g, '');
+  const qs = 'q=' + encodeURIComponent(q) + '&sort=' + s + '&limit=' + n + '&raw_json=1' + (sub ? '&restrict_sr=1' : '');
+  const ua = 'web:etl-studio-reid:1.0 (marketing listening)';
+
+  // Reliable path: authenticated oauth.reddit.com when creds are set.
+  const token = await redditToken();
+  if (token) {
+    const path = sub ? '/r/' + sub + '/search' : '/search';
+    try {
+      const r = await fetch('https://oauth.reddit.com' + path + '?' + qs, {
+        headers: { 'Authorization': 'Bearer ' + token, 'User-Agent': ua },
+      });
+      if (r.ok) {
+        const data = await r.json();
+        const posts = mapRedditChildren(data && data.data && data.data.children);
+        return { count: posts.length, query: q, subreddit: sub || null, source: 'oauth', posts };
+      }
+    } catch (_) {}
+    // fall through to public attempt if oauth call failed
+  }
+
+  // Best-effort path: public .json. Often walled from datacenter IPs (returns
+  // HTML), in which case we degrade gracefully and Reid leans on web_search.
+  const baseUrl = sub
+    ? 'https://www.reddit.com/r/' + sub + '/search.json?'
+    : 'https://www.reddit.com/search.json?';
+  try {
+    const r = await fetch(baseUrl + qs, { headers: { 'User-Agent': ua } });
+    if (!r.ok) return { error: 'reddit_http_' + r.status };
+    const ctype = (r.headers.get('content-type') || '').toLowerCase();
+    if (ctype.indexOf('json') < 0) {
+      return { count: 0, posts: [], note: 'Reddit blocked the unauthenticated request (no app credentials set). Connect REDDIT_CLIENT_ID and REDDIT_CLIENT_SECRET for reliable access.' };
+    }
+    const data = await r.json();
+    const posts = mapRedditChildren(data && data.data && data.data.children);
+    return { count: posts.length, query: q, subreddit: sub || null, source: 'public', posts };
+  } catch (e) {
+    return { error: 'reddit_fetch_failed: ' + (e && e.message) };
+  }
+}
+
 exports.handler = async function(event) {
   try { connectLambda(event); } catch (_) {}
 
@@ -194,6 +298,7 @@ exports.handler = async function(event) {
   const tools = [
     { type: 'web_search_20250305', name: 'web_search', max_uses: MAX_WEB_SEARCHES },
     GDELT_TOOL,
+    REDDIT_TOOL,
   ];
   const MAX_TURNS = 6;
   const messages = [{ role: 'user', content: question + (body.context ? '\n\nOwner context: ' + String(body.context).slice(0, 1500) : '') }];
@@ -241,6 +346,9 @@ exports.handler = async function(event) {
         if (tu.name === 'gdelt_news') {
           const inp = tu.input || {};
           result = await gdeltSearch(inp.query, inp.timespan, inp.max_records);
+        } else if (tu.name === 'reddit_listening') {
+          const inp = tu.input || {};
+          result = await redditSearch(inp.query, inp.subreddit, inp.sort, inp.limit);
         } else {
           result = { error: 'tool_not_connected', tool: tu.name };
         }
