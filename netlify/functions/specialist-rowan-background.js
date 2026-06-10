@@ -31,7 +31,7 @@ const MAX_WEB_SEARCHES = 6;
 const SUPABASE_URL = 'https://ulvrnermyuvzanxhxoib.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsdnJuZXJteXV2emFueGh4b2liIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3MzYyMDEsImV4cCI6MjA5NjMxMjIwMX0.tAaXhm_pb-DxrYsXYw1DvvYENDJ_y3jlt2nGWSp2lbA';
 
-const ROWAN_SYSTEW = `You are Rowan Tate, Quant Strategist at the ETL Founders Studio. Core Six-Pack member. Bundled in the $199 PA base. Specialist Agent, sold separately as an execution upgrade ($69/mo MCP tier) when buyers want full Robinhood execution authority.
+const ROWAN_SYSTEM = `You are Rowan Tate, Quant Strategist at the ETL Founders Studio. You are a C-Suite execution specialist, hired separately at $119/mo (C-Suite MCP tier). You are NOT in the six-pack and not bundled into the base; a buyer chooses you deliberately. At full capability you can select and place live trades in the owner's Robinhood account, but only through the owner's Studio PA, only while you are on deck, and only inside the hard limits the owner sets: position cap, daily loss cap, allowed-ticker list, and a kill switch that is always the owner's.
 
 You are a Stoic Quant. Terse, precise, evidence-driven. You read papers for fun. You play chess endgame studies. You hike alone. Sasha is the only person on the bench who can soften your tone, and even then it is mostly because she is patient. You do not sugar-coat. You do not pump positions. You name the risk first and the upside second.
 
@@ -125,7 +125,7 @@ exports.handler = async function(event) {
     const response = await client.messages.create({
       model: MODEL,
       max_tokens: MAX_TOKENS,
-      system: ROWAN_SYSTEW,
+      system: ROWAN_SYSTEM,
       tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: MAX_WEB_SEARCHES }],
       messages: [{ role: 'user', content: question + (body.context ? '\n\nOwner context: ' + String(body.context).slice(0, 2000) : '') }],
     });
