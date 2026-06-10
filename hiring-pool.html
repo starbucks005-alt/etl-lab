@@ -197,6 +197,7 @@ function normalize(rows){return rows.map(a=>{const n=a.name||a.Name||"";const ti
   else if(t.includes("not sold")||t.includes("lab staff")){cat="not_sold";price=0;label="Lab staff"}
   else if(t.includes("owner")||t.includes("not an employee")){cat="owner";price=0;label="Owner / PI"}
   else if(t.includes("premium")||t.includes("549")){cat="premium";price=549;label="Premium · SLR"}
+  else if(t.includes("inquiry")||t.includes("ai twin")||t.includes("patron")||t.includes("founding sponsor")){cat="inquire";price=0;label="By inquiry"}
   const _mcpYes=/^\s*yes/i.test((a.mcp||a['MCP / Live tools']||""));
   if(cat==="addon"&&_mcpYes){cat="mcp";price=69;label="MCP";}
   if(cat==="board"&&_mcpYes){cat="board_mcp";price=119;label="C-suite \u00b7 MCP";}
@@ -237,13 +238,13 @@ function matches(a){
   const q=document.getElementById('q').value.toLowerCase().trim();
   const pf=document.getElementById('platform').value, tf=document.getElementById('tier').value, ef=document.getElementById('emp').value;
   if(pf&&!(a.platforms||[a.platform]).includes(pf))return false;
-  if(tf){if(tf==='nfh'){if(!['owner','not_sold'].includes(a.cat))return false;}else if(a.cat!==tf)return false;}
+  if(tf){if(tf==='nfh'){if(!['owner','not_sold','inquire'].includes(a.cat))return false;}else if(a.cat!==tf)return false;}
   if(ef&&!(a.employment_types||[]).includes(ef))return false;
   for(const s of activeSkills)if(!a.skills.includes(s))return false;
   if(q){const hay=(a.name+' '+a.role+' '+a.platform+' '+a.hashtags+' '+a.tagline+' '+(a.interests||[]).join(' ')+' '+(a.employment||'')).toLowerCase();if(!hay.includes(q))return false;}
   return true;
 }
-function sortFn(){const v=document.getElementById('sort').value;const o={pa:0,core:1,premium:2,board_mcp:3,board:4,mcp:5,addon:6,not_sold:7,owner:8};
+function sortFn(){const v=document.getElementById('sort').value;const o={pa:0,core:1,premium:2,board_mcp:3,board:4,mcp:5,addon:6,inquire:7,not_sold:8,owner:9};
   if(v==='platform')return (a,b)=>a.platform.localeCompare(b.platform)||a.name.localeCompare(b.name);
   if(v==='tier')return (a,b)=>(o[a.cat]-o[b.cat])||a.name.localeCompare(b.name);
   if(v==='price')return (a,b)=>a.price-b.price||a.name.localeCompare(b.name);
@@ -266,6 +267,7 @@ function render(){
     } else if(isPA(a.name)){action=`<span class="tier pa">your PA</span>`;cls='seated';}
     else if(a.cat==='pa'){action=`<button class="hbtn" onclick="event.stopPropagation();choosePA(${i})">Swap to this PA</button>`;}
     else if(a.cat==='core'){action=`<span class="tier core">${state.sixpackOn?'in six-pack':'six-pack (suggested)'}</span>`;cls=state.sixpackOn?'seated':'';}
+    else if(a.cat==='inquire'){action=`<button class="hbtn" onclick="event.stopPropagation();openModal(${i})">Inquire</button>`;}
     else if(!a.hireable){action=`<span class="tier ${a.cat}">not for hire</span>`;}
     else{const h=!!state.extras[a.name];action=`<button class="hbtn ${h?'hired':''}" onclick="event.stopPropagation();quickHire(${i})">${h?'&#10003; Hired':'Hire'}</button>`;}
     return `<div class="card ${cls}" ${click?`onclick="${click}"`:''}>
@@ -299,6 +301,7 @@ function openModal(i){const a=AGENTS[i];const m=document.getElementById('modal')
   else if(a.cat==='pa'){acts=`<div class="swapnote"><b>A Personal Assistant option.</b> Your PA seat is the $199 base (PA and Studio). This only sets who fills it, and it does not change your cost.</div><div class="acts"><button class="abtn gold" onclick="choosePA(${i})">Swap to this PA &rarr;</button></div>`;}
   else if(a.cat==='core'&&state.sixpackOn){acts=`<div class="swapnote"><b>Essential six-pack member (seat ${seatIndex(a.name)+1}).</b> Included in your $199 six-pack. Firing is a swap, not a refund - the seat and its cost stay. You can also remove the whole six-pack from Your Company.</div><div class="acts"><button class="abtn gold" onclick="startSwap('core',${seatIndex(a.name)})">Swap this seat in the catalog &rarr;</button></div>`;}
   else if(a.cat==='core'){acts=`<div class="swapnote"><b>Part of the suggested essential six-pack.</b> Six core staff for $199, a no-brainer but optional. Add the six-pack to bring them on; you can swap any of the six afterward.</div><div class="acts"><button class="abtn gold" onclick="addSixpack();closeModal()">Add the six-pack &middot; $199 &rarr;</button></div>`;}
+  else if(a.cat==='inquire'){acts=`<div class="note"><b>By inquiry - Founding Sponsor / Patron tier.</b> Not a standard hire and not sold through checkout. Access is by lab sponsorship or funding. Contact ETL to discuss.</div>`;}
   else if(!a.hireable){acts=`<div class="note">${a.cat==='owner'?'Owner / Principal Investigator - not an employee.':'Lab front-line staff - not sold to founders.'}</div>`;}
   else{const h=state.extras[a.name];acts=`<div class="acts">
       <button class="abtn primary ${h&&!h.temp?'hired':''}" onclick="hireAct(${i},false)">${h&&!h.temp?'&#10003; Hired - remove':'Hire &middot; $'+a.price.toFixed(2).replace('.00','')+'/mo'}</button>
