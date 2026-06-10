@@ -97,8 +97,8 @@
         "role": "The Marketing Expert",
         "tier": "addon",
         "price": 49,
-        "backpack": false,
-        "why": "Builds the sponsor pitch and runs event promotion. Double duty across both of her jobs."
+        "backpack": true,
+        "why": "Builds the sponsor pitch and runs event promotion, now with a live marketing-landscape backpack. Double duty across both of her jobs."
       },
       {
         "id": "ayanna_cole",
@@ -163,13 +163,6 @@
         "role": "LLC Business Consultant",
         "note": "bonus; low relevance for a nonprofit",
         "backpack": false
-      },
-      {
-        "id": "reid_callum",
-        "name": "Reid Callum",
-        "role": "The Marketing Expert",
-        "note": "positioning and outreach for sponsor recruiting and event promotion; live marketing-landscape backpack",
-        "backpack": true
       }
     ]
   },
@@ -187,7 +180,7 @@
     "itemized_alternative_monthly": 732.99,
     "valuation_note": "Valued at the Executive tier retail price ($1,499/mo), which is the package she receives. The same staff itemized a la carte is about $733/mo; the Executive tier adds concierge onboarding with Dr. O, custom integrations, full-bench access, and weekly review beyond raw headcount. If a conservative in-kind number is preferred for the city's or nonprofit's books, the itemized $732.99 can be used instead."
   },
-  "_backpack_summary": "Backpack (live tools): Auggie (PA), Benjamin Reed (CISO), Delia Marsh (Dev/Sponsorships + municipal grants), Leo Vance and Reid Callum (six-pack; Reid carries live marketing-landscape intelligence). In-framework only: Ayanna Cole, Grey Hollis, The Professor, Alicia James, Kimberly Pass, Sasha Moreno, Yuki Mendel. Benjamin's free assistant carries NO backpack.",
+  "_backpack_summary": "Backpack (live tools): Auggie (PA), Benjamin Reed (CISO), Delia Marsh (Dev/Sponsorships + municipal grants), Reid Callum (standing; live marketing-landscape backpack + slick generator), Leo Vance (six-pack). In-framework only: Ayanna Cole, Grey Hollis, The Professor, Alicia James, Kimberly Pass, Sasha Moreno, Yuki Mendel. Benjamin's free assistant carries NO backpack. Reid appears once (standing); the six-pack is Yuki, Leo, Sasha, Kimberly, Alicia. Rowan is no longer on this roster (he became the separately-sold C-Suite MCP execution specialist).",
   "studio_landing": {
     "purpose": "Caroline opens her magic link and lands directly in her Studio, fully staffed. No marketing, no pricing, no checkout.",
     "show_on_first_login": [
