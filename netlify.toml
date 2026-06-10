@@ -65,6 +65,13 @@
 [functions."csuite-alistair-background"]
   included_files = ["data/csuite-backpacks.json"]
 
+# Reid Callum's marketing backpack. Campaign / messaging / positioning /
+# competitor intel, lane-separated from Jax (SEO). Loads CCW's config so
+# fs.readFileSync finds it in the Netlify runtime. LIVE tool: web_search;
+# GDELT/Reddit/Meta/Trends/fetch/data-analysis phase in as APIs+tokens connect.
+[functions."studio-reid-background"]
+  included_files = ["data/reid-backpack-config.json"]
+
 # Per-user Studio config lookup. Reads the email-keyed provisioning fixtures
 # (Caroline at INMA, future donations) when a new user first authenticates.
 [functions."studio-config-get"]
