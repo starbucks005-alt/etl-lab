@@ -544,6 +544,85 @@ function buildAuggieJaxApplyEmptyReply(intent) {
   return "ma'am, i checked Jax's queue and there is nothing he can push live right now. either he has not drafted any fixes yet, or everything he had ready is already on the sites. say 'have Jax scan [site]' and i will set him on a fresh round.";
 }
 
+/* ── Reid slick generator channel ─────────────────────────────────────────
+   Auggie's real channel to Reid's tailored-slick generator. Dispatch fires
+   studio-reid-slick-ask with a recipient + the owner's raw request as the
+   brief, and stashes the job_id per-user so the status intent can hand back
+   the link once Reid finishes. Mirrors the Jax dispatch/status pattern: the
+   channel is real, not theater. */
+const SLICK_NOUN_RE = /\b(slick|one[-\s]?pager|sell\s*sheet|marketing\s*sheet|leave[-\s]?behind)\b/i;
+const SLICK_MAKE_RE = /\b(make|create|build|generate|draft|produce|put together|whip up|do|need|want)\b/i;
+const SLICK_STATUS_RE = /\b(ready|done|finished|where('?s| is)?|status|back yet|landed|come back|got it|is it|did reid)\b/i;
+
+function detectSlickStatusIntent(msg) {
+  if (!msg || typeof msg !== 'string') return { matched: false };
+  if (!SLICK_NOUN_RE.test(msg)) return { matched: false };
+  // It is a NEW request (dispatch), not a status check, if it asks to make one FOR someone.
+  if (SLICK_MAKE_RE.test(msg) && /\bfor\s+\S/i.test(msg)) return { matched: false };
+  if (!SLICK_STATUS_RE.test(msg) && !/\breid'?s\b/i.test(msg)) return { matched: false };
+  return { matched: true };
+}
+
+function detectSlickDispatchIntent(msg) {
+  if (!msg || typeof msg !== 'string') return { matched: false };
+  if (!SLICK_NOUN_RE.test(msg)) return { matched: false };
+  const reid = /\breid\b/i.test(msg);
+  const make = SLICK_MAKE_RE.test(msg);
+  if (!reid && !make) return { matched: false };
+  // Extract the recipient: "for X" up to about/because/to/punctuation/end.
+  let recipient = '';
+  let m = msg.match(/\bfor\s+(.+?)(?:\s+about\b|\s+because\b|\s+to\b|[.?!\n]|$)/i);
+  if (m) recipient = m[1].trim();
+  if (!recipient) { m = msg.match(/slick\s+(?:for\s+)?(.+)/i); if (m) recipient = m[1].trim(); }
+  recipient = recipient.replace(/^(the\s+|a\s+|an\s+)/i, '').replace(/["',]+$/, '').slice(0, 200);
+  return { matched: true, recipient: recipient || '', brief: msg.slice(0, 1500) };
+}
+
+function buildSlickDispatchReply(recipient) {
+  const who = recipient ? recipient : 'them';
+  return "ok Ms. Terry, Reid is on it. He is researching " + who + " right now and building your one-pager: the angle, the value rows mapped to your crew, the whole thing. give him about ninety seconds, then ask me 'is the slick ready' and i will have your link.";
+}
+function buildSlickNoRecipientReply() {
+  return "happy to put Reid on a slick, love, but who is it for? give me a name, a person or a company, and i will send him to research them and build it.";
+}
+
+async function buildSlickStatusReply(event, authHeader, userId, base) {
+  try { connectLambda(event); } catch (_) {}
+  let job;
+  try { job = await getStore('reid_slick_jobs').get(userId || 'default', { type: 'json' }); } catch (_) {}
+  if (!job || !job.job_id) {
+    return "ma'am, i do not have a slick in progress for you right now. say 'Reid, make a slick for [name]' and i will set him on it.";
+  }
+  try {
+    const r = await fetch(base.replace(/\/$/, '') + '/.netlify/functions/studio-reid-slick-status?job_id=' + encodeURIComponent(job.job_id), {
+      headers: { 'Authorization': authHeader },
+    });
+    if (r.ok) {
+      const s = await r.json();
+      if (s.status === 'done' && s.view_url) {
+        const full = base.replace(/\/$/, '') + s.view_url;
+        return "ready, Ms. Terry. Reid finished your one-pager for " + (s.recipient || job.recipient || 'them') + ". here it is: " + full + " . open it and the Download PDF button is top right. want me to have Yuki give the look a pass before you send it?";
+      }
+      if (s.status === 'error') {
+        return "ma'am, Reid hit a snag building that slick, the generator came back with an error. want me to send him at it again?";
+      }
+      return "he is still on it, love. Reid is researching " + (job.recipient || 'them') + " and laying out the page. give him another minute, then ask me again.";
+    }
+  } catch (_) {}
+  return "i tried to check on Reid but the status came back empty. give it another moment and ask me again.";
+}
+
+// Per-owner title for Auggie. Default Personal Assistant; a buyer's config
+// (e.g. Caroline) can set Chief of Staff. Read from the studio_config blob.
+async function loadPaLabel(event, userId) {
+  try { connectLambda(event); } catch (_) {}
+  try {
+    const cfg = await getStore('studio_config').get(userId || 'default', { type: 'json' });
+    if (cfg && cfg.pa && cfg.pa.label) return String(cfg.pa.label);
+  } catch (_) {}
+  return 'Personal Assistant';
+}
+
 /* ── New-hires intro queue ───────────────────────────────────────────────
    When a Specialist joins the bench, Auggie introduces them on the
    owner's next chat interaction. Tracked per-user in blob storage:
@@ -877,6 +956,69 @@ exports.handler = async (event) => {
     }
   }
 
+  // ── REID SLICK STATUS INTENT (must run BEFORE dispatch) ─────────────────
+  // "is my slick ready / where's the slick / did Reid finish" → poll the
+  // stored job and hand back the link when Reid is done. Real delivery, not
+  // theater. Skips the model.
+  const slickStatus = detectSlickStatusIntent(message);
+  if (slickStatus.matched && images.length === 0 && documents.length === 0) {
+    try {
+      const authHeader = (event.headers && (event.headers.authorization || event.headers.Authorization)) || '';
+      const base = process.env.URL || ('https://' + ((event.headers && event.headers.host) || ''));
+      const reply = await buildSlickStatusReply(event, authHeader, (auth.user && auth.user.id) || 'default', base);
+      return {
+        statusCode: 200,
+        headers: { ...CORS, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reply, persona: 'Auggie', slick_status: true }),
+      };
+    } catch (e) {
+      console.warn('[studio-auggie-chat] slick status failed, falling back to model', e && e.message);
+    }
+  }
+
+  // ── REID SLICK DISPATCH INTENT ───────────────────────────────────────────
+  // "Reid, make a slick for [recipient]" → fire the real slick generator,
+  // stash the job per-user, reply in Auggie's voice. Reid actually runs.
+  const slickDispatch = detectSlickDispatchIntent(message);
+  if (slickDispatch.matched && images.length === 0 && documents.length === 0) {
+    if (!slickDispatch.recipient) {
+      return {
+        statusCode: 200,
+        headers: { ...CORS, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reply: buildSlickNoRecipientReply(), persona: 'Auggie' }),
+      };
+    }
+    try {
+      const authHeader = (event.headers && (event.headers.authorization || event.headers.Authorization)) || '';
+      const base = process.env.URL || ('https://' + ((event.headers && event.headers.host) || ''));
+      const askUrl = base.replace(/\/$/, '') + '/.netlify/functions/studio-reid-slick-ask';
+      const r = await fetch(askUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': authHeader },
+        body: JSON.stringify({ recipient: slickDispatch.recipient, brief: slickDispatch.brief }),
+      });
+      if (r.ok) {
+        const j = await r.json();
+        if (j && j.job_id) {
+          try { connectLambda(event); } catch (_) {}
+          try {
+            await getStore('reid_slick_jobs').setJSON((auth.user && auth.user.id) || 'default', {
+              job_id: j.job_id, recipient: slickDispatch.recipient, created_at: new Date().toISOString(),
+            });
+          } catch (_) {}
+          return {
+            statusCode: 200,
+            headers: { ...CORS, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reply: buildSlickDispatchReply(slickDispatch.recipient), persona: 'Auggie', slick_dispatch: { job_id: j.job_id, recipient: slickDispatch.recipient } }),
+          };
+        }
+      }
+      console.warn('[studio-auggie-chat] slick dispatch non-ok', r.status);
+    } catch (e) {
+      console.warn('[studio-auggie-chat] slick dispatch failed, falling back to model', e && e.message);
+    }
+  }
+
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: 'ANTHROPIC_API_KEY not set' }) };
@@ -928,12 +1070,19 @@ exports.handler = async (event) => {
   //   (2) Any pending new-hire intros for this user — Auggie introduces
   //       each Specialist exactly once, then marks them as done.
   const userId = (auth.user && auth.user.id) || 'default';
-  const [briefData, pendingIntros] = await Promise.all([
+  const [briefData, pendingIntros, paLabel] = await Promise.all([
     loadTodaysBriefTranscript(event),
     getPendingIntros(event, userId),
+    loadPaLabel(event, userId),
   ]);
 
   let systemPrompt = AUGGIE_PERSONA;
+  // Per-owner title. The persona above defaults to "chief of staff"; this
+  // owner's configured title wins (Terry = Personal Assistant, Caroline may
+  // set Chief of Staff). So Auggie introduces himself correctly per buyer.
+  if (paLabel && paLabel.trim().toLowerCase() !== 'chief of staff') {
+    systemPrompt += '\n\nTITLE OVERRIDE (this owner): your title with her is "' + paLabel.trim() + '". When you state your role or introduce yourself, say you are her ' + paLabel.trim() + ', not "chief of staff". The persona above uses "chief of staff" as a default; this owner configured "' + paLabel.trim() + '", and that wins.';
+  }
   if (briefData && briefData.transcript) {
     systemPrompt += '\n\nTODAY\'S MORNING BRIEF YOU RECORDED FOR HER (dateKey ' +
       (briefData.dateKey || 'unknown') + '): "' + briefData.transcript +
