@@ -921,7 +921,7 @@ document.addEventListener('DOMContentLoaded', function(){
     white-space: nowrap;
     transition: background 0.15s, color 0.15s;
   }
-  .nav-submenu li a:hover { background: #f4ebd6; color: var(--gold); }
+  .nav-submenu li a:hover { background: #e9edf2; color: var(--gold); }
   .nav-submenu li.nav-submenu-divider {
     height: 1px;
     background: #e6e6e6;
@@ -1231,29 +1231,29 @@ document.addEventListener('DOMContentLoaded', function(){
 
 <!-- 5 IN UNDER 5 - top-of-page audio briefing, hidden until generated -->
 <style>
-  .briefing-band { background: #f4ebd6; color: #0e0c08; padding: 16px 0; display: none; border-top: 1px solid #b8922a; border-bottom: 1px solid #b8922a; }
+  .briefing-band { background: #e9edf2; color: #0e0c08; padding: 16px 0; display: none; border-top: 1px solid #28527a; border-bottom: 1px solid #28527a; }
   .briefing-band.is-ready { display: block; }
   .briefing-band-inner { max-width: 1180px; margin: 0 auto; padding: 0 32px; display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: center; }
   @media (max-width: 720px) { .briefing-band-inner { grid-template-columns: 1fr; } }
-  .briefing-band-eyebrow { font-family: 'DM Mono', 'Courier New', monospace; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: #8a6a1c; margin-bottom: 4px; }
-  .briefing-band-eyebrow a { color: #8a6a1c; }
-  .briefing-band-title { font-family: 'Playfair Display', Georgia, serif; font-size: 22px; font-weight: 700; color: #0e0c08; line-height: 1.15; margin-bottom: 2px; }
-  .briefing-band-sub { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 14px; color: #5a5240; font-style: italic; }
+  .briefing-band-eyebrow { font-family: 'Public Sans', sans-serif; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: #28527a; margin-bottom: 4px; }
+  .briefing-band-eyebrow a { color: #28527a; }
+  .briefing-band-title { font-family: 'Spectral', Georgia, serif; font-size: 22px; font-weight: 700; color: #0e0c08; line-height: 1.15; margin-bottom: 2px; }
+  .briefing-band-sub { font-family: 'Public Sans', sans-serif; font-size: 14px; color: #5a5240; font-style: italic; }
   .briefing-band-audio audio { width: 320px; max-width: 100%; height: 36px; }
   @media (max-width: 720px) { .briefing-band-audio audio { width: 100%; } }
   .briefing-audio-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-  .briefing-length { display: inline-flex; align-items: center; gap: 6px; font-family:'IBM Plex Mono',monospace; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: #8a6a1c; background: rgba(184,146,42,0.10); border: 1px solid #b8922a; padding: 6px 12px; white-space: nowrap; }
+  .briefing-length { display: inline-flex; align-items: center; gap: 6px; font-family:'IBM Plex Mono',monospace; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: #28527a; background: rgba(184,146,42,0.10); border: 1px solid #b8922a; padding: 6px 12px; white-space: nowrap; }
   .briefing-length::before { content: ''; display: inline-block; width: 6px; height: 6px; background: #b8922a; border-radius: 50%; }
   /* Share panel + button */
-  .briefing-share { display: flex; align-items: center; gap: 10px; margin-top: 6px; font-family:'IBM Plex Mono',monospace; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: #8a6a1c; flex-wrap: wrap; }
-  .briefing-share a, .briefing-share button { font-family: inherit; font-size: inherit; letter-spacing: inherit; text-transform: inherit; color: #8a6a1c; background: transparent; border: 1px solid #b8922a; padding: 4px 9px; cursor: pointer; text-decoration: none; }
+  .briefing-share { display: flex; align-items: center; gap: 10px; margin-top: 6px; font-family:'IBM Plex Mono',monospace; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: #28527a; flex-wrap: wrap; }
+  .briefing-share a, .briefing-share button { font-family: inherit; font-size: inherit; letter-spacing: inherit; text-transform: inherit; color: #28527a; background: transparent; border: 1px solid #b8922a; padding: 4px 9px; cursor: pointer; text-decoration: none; }
   .briefing-share a:hover, .briefing-share button:hover { background: #b8922a; color: #fff; }
   .briefing-share .copied { color: #3a6a2a; border-color: #3a6a2a; }
 </style>
 <section class="briefing-band" id="briefing-card" data-tab="home" aria-label="5 in Under 5 audio briefing">
   <div class="briefing-band-inner">
     <div>
-      <div class="briefing-band-eyebrow">Above the Fold &middot; Morning briefing from the <a href="/press" style="color:#d4aa4a;text-decoration:underline;">ETL Newswire</a> desk</div>
+      <div class="briefing-band-eyebrow">Above the Fold &middot; Morning briefing from the <a href="/press" style="color:#28527a;text-decoration:underline;">ETL Newswire</a> desk</div>
       <div class="briefing-band-title">Today's top stories, above the fold.</div>
       <div class="briefing-band-sub" id="briefing-sub"></div>
     </div>
@@ -1268,7 +1268,7 @@ document.addEventListener('DOMContentLoaded', function(){
         <button type="button" data-share="embed">Copy embed</button>
         <a href="https://twitter.com/intent/tweet?text=Today%27s%20wire%2C%20above%20the%20fold.&url=https%3A%2F%2Femerging-tech-lab.com%2Fpress" target="_blank" rel="noopener">Tweet</a>
         <a href="/press/above-the-fold.xml" target="_blank" rel="noopener">Podcast RSS</a>
-        <a href="/press/deskline" style="background:#d4aa4a;color:#0e0c08;border-color:#d4aa4a;font-weight:700;">Play Deskline &rarr;</a>
+        <a href="/press/deskline" style="background:#d4aa4a;color:#0e0c08;border-color:#28527a;font-weight:700;">Play Deskline &rarr;</a>
       </div>
     </div>
   </div>
@@ -2857,7 +2857,7 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
 <section id="playbooks-callout" data-tab="home" style="padding:48px 60px; background:#161310; color:#f3ecdc;">
   <div style="max-width:1360px; margin:0 auto; padding:0 36px; display:grid; grid-template-columns: 1fr auto; gap:32px 60px; align-items:center;">
     <div>
-      <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:4px; color:#d4aa4a; text-transform:uppercase; margin-bottom:10px;">ETL Â· CROSS-PLATFORM PLAYBOOKS</div>
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:4px; color:#28527a; text-transform:uppercase; margin-bottom:10px;">ETL Â· CROSS-PLATFORM PLAYBOOKS</div>
       <div style="font-family:'Public Sans',sans-serif; font-size:32px; font-weight:700; letter-spacing:-0.005em; margin-bottom:10px; color:#fff;">The platforms work better together. Here's how.</div>
       <p style="font-family:'Source Serif Pro','Georgia',serif; font-size:16px; line-height:1.55; color:#e8dece; max-width:760px; margin:0;">Playbooks are step-by-step pipelines that use multiple ETL platforms together. <strong style="color:#fff;">Playbook 01 (CDMRP)</strong> walks a Wright State faculty member from idea to submission to resubmission for a DoD Congressionally Directed Medical Research Program award, including the active FY26 TERP opportunity. NIH R01 and VA Merit playbooks are next.</p>
     </div>
@@ -4229,7 +4229,7 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
   }
   .etl-store-card {
     display: flex; flex-direction: column;
-    background: #f4ebd6; color: #111; text-decoration: none;
+    background: #e9edf2; color: #111; text-decoration: none;
     border: 1px solid rgba(253,184,39,0.45);
     padding: 26px 24px 22px;
     transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
@@ -5329,7 +5329,7 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
   .iris-msg-meta {
     font-family:'IBM Plex Mono',monospace;
     font-size: 8px; letter-spacing: 0.18em;
-    text-transform: uppercase; color: #8a6a1c;
+    text-transform: uppercase; color: #28527a;
     margin-bottom: 3px;
   }
   .iris-msg--mine .iris-msg-meta { color: #666; }
@@ -5362,6 +5362,9 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
   }
 
 /* HOUSE OVERRIDE - Stamped Dossier (staged) */
+p,li,dd,td{font-family:'Public Sans',sans-serif}
+.hero-sub{font-family:'Spectral',serif!important;font-style:italic;font-size:17px!important;color:#b9c2cc!important}
+.line-dim{font-family:'Public Sans',sans-serif!important;font-weight:500!important;letter-spacing:.09em!important;font-size:.34em!important;color:#7e8a98!important}
 .section-title,.etl-net-group-title{font-family:'Spectral',serif!important;font-weight:300!important;text-transform:none!important;letter-spacing:0!important;line-height:1.08!important}
 .section-title span,.section-title b,.section-title strong{font-weight:500!important}
 .hero-main{font-family:'Spectral',serif!important;font-weight:300!important;text-transform:none!important;letter-spacing:0!important;line-height:1.05!important}
