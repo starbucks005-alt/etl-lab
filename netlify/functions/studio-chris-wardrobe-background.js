@@ -57,6 +57,18 @@ const PROMPT_TEMPLATE = (outfit) =>
   'Change ONLY the clothing to: ' + outfit + '. ' +
   'Photorealistic professional portrait quality. No text, no watermarks, no logos.';
 
+/* Photoreal remake mode (for portraits that came out too painterly, e.g. the
+   Dose cast): step 1 reshoots the painterly reference as a photograph; step 2
+   closes the eyes ON STEP 1'S OUTPUT so the blink pair matches exactly. */
+const RESTYLE_OPEN_PROMPT =
+  'Recreate this exact portrait as a photorealistic professional photograph of the same person: ' +
+  'identical face structure, hairstyle, skin tone, expression, pose, framing, clothing, and background composition. ' +
+  'Natural skin texture, true-to-life lighting, shot on a professional camera. Eyes open. ' +
+  'Remove all painterly, illustrated, or stylized rendering. No text, no watermarks.';
+const RESTYLE_CLOSED_PROMPT =
+  'Edit this photograph. The ONLY change: the eyes are now gently closed in a soft natural blink. ' +
+  'Everything else stays exactly identical: face, hair, clothing, lighting, background, framing. No text, no watermarks.';
+
 /* Chris writes the closet from the persona. they/them.
    The assignment (Terry's spec): work pieces + weekend pieces + maybe an
    evening look, with a dress code steering the work register. Returns
@@ -199,6 +211,44 @@ exports.handler = async (event) => {
     if (!refResp.ok) return { statusCode: 502, body: 'reference fetch failed: ' + refUrl };
     refMime = (refResp.headers.get('content-type') || 'image/png').split(';')[0];
     refBuf = Buffer.from(await refResp.arrayBuffer());
+  }
+
+  // ── PHOTOREAL REMAKE MODE ─────────────────────────────────────────────
+  // ?mode=restyle: ignore the wardrobe assignment; produce a matched
+  // eyes-open + eyes-closed photoreal pair from the (painterly) reference.
+  if ((params.mode || '') === 'restyle') {
+    const store2 = getStore('pa_wardrobe');
+    const indexKey2 = slug + '/index';
+    const idx = { pa: slug, name: displayName, reference: refUrl, source: 'photoreal-remake', quality, started_at: new Date().toISOString(), outfits: [
+      { n: 1, outfit: 'photoreal remake, eyes open', category: 'restyle', status: 'pending' },
+      { n: 2, outfit: 'photoreal remake, eyes closed (matched blink pair)', category: 'restyle', status: 'pending' },
+    ] };
+    await store2.setJSON(indexKey2, idx);
+    let openBuf = null;
+    try {
+      openBuf = await editImage(openaiKey, refBuf, refMime, RESTYLE_OPEN_PROMPT, quality);
+      await store2.set(slug + '/1.png', new Blob([openBuf]));
+      idx.outfits[0].status = 'done'; idx.outfits[0].bytes = openBuf.length;
+    } catch (e) {
+      idx.outfits[0].status = 'failed: ' + (e && e.message ? e.message.slice(0, 160) : 'unknown');
+      idx.outfits[1].status = 'skipped: open version failed';
+    }
+    idx.outfits[0].finished_at = new Date().toISOString();
+    await store2.setJSON(indexKey2, idx);
+    if (openBuf) {
+      try {
+        const closedBuf = await editImage(openaiKey, openBuf, 'image/png', RESTYLE_CLOSED_PROMPT, quality);
+        await store2.set(slug + '/2.png', new Blob([closedBuf]));
+        idx.outfits[1].status = 'done'; idx.outfits[1].bytes = closedBuf.length;
+      } catch (e) {
+        idx.outfits[1].status = 'failed: ' + (e && e.message ? e.message.slice(0, 160) : 'unknown');
+      }
+      idx.outfits[1].finished_at = new Date().toISOString();
+    }
+    idx.finished_at = new Date().toISOString();
+    await store2.setJSON(indexKey2, idx);
+    console.log('[chris-wardrobe] restyle done', slug);
+    return { statusCode: 200, body: 'done' };
   }
 
   const store = getStore('pa_wardrobe');

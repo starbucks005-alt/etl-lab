@@ -145,6 +145,12 @@ footer a{color:var(--brass);text-decoration:none;margin:0 10px;}
         <datalist id="agent-list"></datalist>
         <div class="who" id="who"><img id="who-img" src="" alt=""><div><div class="nm" id="who-nm"></div><div class="rl" id="who-rl"></div></div></div>
 
+        <label class="lbl" for="job">What is Chris making?</label>
+        <select id="job">
+          <option value="wardrobe" selected>A wardrobe (the assignment below)</option>
+          <option value="restyle">Photoreal remake: eyes open + closed pair (for portraits that came out too painterly)</option>
+        </select>
+
         <label class="lbl">The assignment</label>
         <div class="mixrow">
           <div><span class="mini w">Work</span><select id="mix-work"><option>3</option><option>4</option><option selected>5</option><option>6</option><option>7</option></select></div>
@@ -280,29 +286,47 @@ footer a{color:var(--brass);text-decoration:none;margin:0 10px;}
     dl.innerHTML = ROSTER.map(function(a){ return '<option value="'+a.name.replace(/"/g,'&quot;')+'">'; }).join('');
     ROSTER.forEach(function(a){ byName[a.name.toLowerCase()] = a; });
 
-    // Shuffle once, then each mannequin cycles through its own slice on its own clock.
-    var pool = ROSTER.slice();
-    for (var i = pool.length - 1; i > 0; i--) { var j = Math.floor(Math.random()*(i+1)); var t = pool[i]; pool[i]=pool[j]; pool[j]=t; }
-    var manns = document.querySelectorAll('.mann');
-    manns.forEach(function(m, mi){
-      var slice = pool.filter(function(_, idx){ return idx % manns.length === mi; });
-      if (!slice.length) return;
-      var k = 0;
-      function show(){
-        var a = slice[k % slice.length]; k++;
-        var img = document.createElement('img');
-        img.src = a.image_url; img.alt = '';
-        img.onload = function(){
-          m.insertBefore(img, m.firstChild);
-          requestAnimationFrame(function(){ requestAnimationFrame(function(){ img.classList.add('on'); }); });
-          var tag = m.querySelector('.tag'); if (tag) tag.textContent = a.name;
-          var olds = m.querySelectorAll('img');
-          if (olds.length > 2) m.removeChild(olds[olds.length-1]);
-          olds.forEach(function(o){ if (o !== img) o.classList.remove('on'); });
-        };
+    // The window prefers PUBLISHED looks (agents in generated outfits, sent
+    // from the fitting room). Until at least 3 are published, it falls back
+    // to canonical portraits so the glass is never empty.
+    function startWindow(pool){
+      var manns = document.querySelectorAll('.mann');
+      manns.forEach(function(m, mi){
+        var slice = pool.filter(function(_, idx){ return idx % manns.length === mi; });
+        if (!slice.length) slice = pool;
+        var k = 0;
+        function show(){
+          var a = slice[k % slice.length]; k++;
+          var img = document.createElement('img');
+          img.src = a.src; img.alt = '';
+          img.onload = function(){
+            m.insertBefore(img, m.firstChild);
+            requestAnimationFrame(function(){ requestAnimationFrame(function(){ img.classList.add('on'); }); });
+            var tag = m.querySelector('.tag'); if (tag) tag.textContent = a.tag;
+            var olds = m.querySelectorAll('img');
+            if (olds.length > 2) m.removeChild(olds[olds.length-1]);
+            olds.forEach(function(o){ if (o !== img) o.classList.remove('on'); });
+          };
+        }
+        show();
+        setInterval(show, 5200 + mi * 850); // staggered clocks, like a real window
+      });
+    }
+    fetch('/.netlify/functions/wardrobe-window?list=1').then(function(r){ return r.ok ? r.json() : []; }).then(function(wins){
+      var pool;
+      if (Array.isArray(wins) && wins.length >= 3) {
+        pool = wins.map(function(w){
+          var snip = (w.outfit || '').slice(0, 38);
+          return { src: '/.netlify/functions/wardrobe-window?id=' + w.id, tag: w.name + (snip ? ' · ' + snip : '') };
+        });
+      } else {
+        pool = ROSTER.map(function(a){ return { src: a.image_url, tag: a.name }; });
+        for (var i = pool.length - 1; i > 0; i--) { var j = Math.floor(Math.random()*(i+1)); var t = pool[i]; pool[i]=pool[j]; pool[j]=t; }
       }
-      show();
-      setInterval(show, 5200 + mi * 850); // staggered clocks, like a real window
+      startWindow(pool);
+    }).catch(function(){
+      var pool = ROSTER.map(function(a){ return { src: a.image_url, tag: a.name }; });
+      startWindow(pool);
     });
   }).catch(function(){ setStatus('Could not load the catalog. Refresh me.'); });
 
@@ -331,8 +355,19 @@ footer a{color:var(--brass);text-decoration:none;margin:0 10px;}
         : '<div class="imgbox">' + (o.status === 'pending' ? 'Chris is sewing&hellip;' : o.status) + '</div>';
       return '<div class="fit ' + cls + '">' + inner + '<div class="cap">' +
         (cat ? '<span class="badge ' + bcls + '">' + cat + '</span>' : '') + '#' + o.n + ' &middot; ' + o.outfit +
-        (o.status === 'done' ? '<br><a class="dl" id="dl-'+o.n+'" href="#">Save this look</a>' : '') + '</div></div>';
+        (o.status === 'done' ? '<br><a class="dl" id="dl-'+o.n+'" href="#">Save this look</a> &nbsp; <a class="dl" href="#" data-pub="'+o.n+'" data-slug="'+slug+'">Put in the window</a>' : '') + '</div></div>';
     }).join('');
+    rack.querySelectorAll('a[data-pub]').forEach(function(a){
+      a.addEventListener('click', function(ev){
+        ev.preventDefault();
+        var auth2 = authHeader(); if (!auth2) return;
+        var self = this;
+        fetch('/.netlify/functions/studio-chris-wardrobe?pa=' + this.getAttribute('data-slug') + '&publish=' + this.getAttribute('data-pub'), { headers: { 'Authorization': auth2 } })
+          .then(function(r){ return r.json(); })
+          .then(function(d){ self.textContent = d && d.ok ? 'In the window ✓' : 'Could not publish'; })
+          .catch(function(){ self.textContent = 'Could not publish'; });
+      });
+    });
     (index.outfits || []).forEach(function(o){
       if (o.status !== 'done') return;
       fetch('/.netlify/functions/studio-chris-wardrobe?pa=' + slug + '&i=' + o.n, { headers: { 'Authorization': auth } })
@@ -367,11 +402,15 @@ footer a{color:var(--brass);text-decoration:none;margin:0 10px;}
   function sendToTailor(qs, slug){
     var auth = authHeader();
     if (!auth) { setStatus('The Tailor Shop is staff-only for now. Enter the admin login.'); return; }
+    var job = document.getElementById('job').value;
     var mix = document.getElementById('mix-work').value + ',' + document.getElementById('mix-weekend').value + ',' + document.getElementById('mix-evening').value;
     var code = document.getElementById('code').value;
     var q = document.getElementById('quality').value;
-    setStatus('Chris has the file. Writing the assignment (' + mix.split(',').join(' work / ') .replace(/^(\d+) work \/ (\d+) \/ (\d+)$/, '$1 work, $2 weekend, $3 evening') + ', ' + code + '), then sewing.');
-    fetch('/.netlify/functions/studio-chris-wardrobe-background?' + qs + '&mix=' + mix + '&code=' + encodeURIComponent(code) + '&quality=' + q, { headers: { 'Authorization': auth } })
+    var extra = job === 'restyle' ? '&mode=restyle' : ('&mix=' + mix + '&code=' + encodeURIComponent(code));
+    setStatus(job === 'restyle'
+      ? 'Chris has the portrait. Reshooting it as a photograph, then closing the eyes for the blink pair. Two looks, a couple of minutes.'
+      : 'Chris has the file. Writing the assignment (' + mix.replace(',', ' work, ').replace(',', ' weekend, ') + ' evening, ' + code + '), then sewing.');
+    fetch('/.netlify/functions/studio-chris-wardrobe-background?' + qs + extra + '&quality=' + q, { headers: { 'Authorization': auth } })
       .then(function(r){
         if (r.status === 401) { setStatus('The staff door did not open. Check the admin login.'); return; }
         stopPoll();

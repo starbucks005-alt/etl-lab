@@ -37,6 +37,26 @@ exports.handler = async (event) => {
 
   const store = getStore('pa_wardrobe');
 
+  // Publish a finished look into the public shop window (?pa=x&publish=N).
+  // Copies the image into the 'shop_window' store and adds it to the public
+  // rotation index. The window only ever shows what was explicitly published.
+  if (params.publish) {
+    const n = parseInt(params.publish, 10);
+    const buf = await store.get(pa + '/' + n + '.png', { type: 'arrayBuffer' });
+    if (!buf) return { statusCode: 404, body: 'that look is not generated yet' };
+    const index = await store.get(pa + '/index', { type: 'json' });
+    const entry = index && (index.outfits || []).find(o => o.n === n);
+    const win = getStore('shop_window');
+    const id = pa + '-' + n;
+    await win.set('img/' + id + '.png', new Blob([Buffer.from(buf)]));
+    let wIndex = [];
+    try { wIndex = (await win.get('index', { type: 'json' })) || []; } catch (_) {}
+    wIndex = wIndex.filter(w => w.id !== id);
+    wIndex.unshift({ id, name: (index && index.name) || pa, outfit: (entry && entry.outfit) || '', category: (entry && entry.category) || null, published_at: new Date().toISOString() });
+    await win.setJSON('index', wIndex.slice(0, 60));
+    return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ok: true, id, in_window: wIndex.length }) };
+  }
+
   // Single image
   if (params.i) {
     const n = parseInt(params.i, 10);
