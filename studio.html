@@ -1963,9 +1963,13 @@
   <div class="auggie-call-stage">
     <div class="auggie-call-portrait-wrap">
       <div id="auggie-call-portrait" class="auggie-call-portrait">
-        <img class="auggie-call-portrait-base"     src="/agents/Auggie_zoom_eyes_open.png"     alt="August Vidal on a video call" style="display:block;">
-        <img class="auggie-call-portrait-closed"   src="/agents/Auggie_zoom_eyes_closed.png"   alt="" aria-hidden="true">
-        <img class="auggie-call-portrait-thinking" src="/agents/Auggie_zoom_eyes_thinking.png" alt="" aria-hidden="true">
+        <!-- The CALL uses the wide Zoom frame; the page card keeps the square
+             profile. Convention per PA: <Name>_zoom_wide_eyes_{open,closed,
+             thinking}.png. If a PA's wide set is not made yet, onerror falls
+             back to their square so the call never breaks. -->
+        <img class="auggie-call-portrait-base"     src="/agents/Auggie_zoom_wide_eyes_open.png"     alt="August Vidal on a video call" style="display:block;" onerror="this.onerror=null;this.src='/agents/Auggie_zoom_eyes_open.png';">
+        <img class="auggie-call-portrait-closed"   src="/agents/Auggie_zoom_wide_eyes_closed.png"   alt="" aria-hidden="true" onerror="this.onerror=null;this.src='/agents/Auggie_zoom_eyes_closed.png';">
+        <img class="auggie-call-portrait-thinking" src="/agents/Auggie_zoom_wide_eyes_thinking.png" alt="" aria-hidden="true" onerror="this.onerror=null;this.src='/agents/Auggie_zoom_eyes_thinking.png';">
       </div>
     </div>
     <aside id="auggie-call-transcript-wrap" class="auggie-call-transcript-wrap">
