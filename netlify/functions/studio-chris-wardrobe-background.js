@@ -293,6 +293,30 @@ exports.handler = async (event) => {
   const indexKey = slug + '/index';
   const index = { pa: slug, name: displayName, reference: refUrl, source, quality, code, mix, note: note || undefined, started_at: new Date().toISOString(), outfits: [] };
 
+  // A note that changes the scene (remove the tablet, lose the glasses) loses
+  // when it only rides the outfit prompts: the edits endpoint anchors on the
+  // reference, and what the reference shows beats what the text says (Jen's
+  // tablet survived "remove her tablet" verbatim). So apply the note to the
+  // REFERENCE once, then sew every look onto the cleaned base - now the
+  // keep-everything rule preserves the correction instead of fighting it.
+  if (note) {
+    index.note_prep = 'pending';
+    await store.setJSON(indexKey, index);
+    try {
+      const cleaned = await editImage(openaiKey, refBuf, refMime,
+        'Edit this photo. Apply exactly this change: ' + note + '. ' +
+        'If that removes a held object or prop, the hands rest naturally and the space fills in seamlessly with the existing scene. ' +
+        'Everything else stays identical: same person, face, hairstyle, expression, pose, clothing, camera framing, lighting, background. ' +
+        'Photorealistic. No text, no watermarks.', quality);
+      refBuf = cleaned;
+      refMime = 'image/png';
+      index.note_prep = 'applied to reference';
+    } catch (e) {
+      index.note_prep = 'failed, sewing on original: ' + (e && e.message ? e.message.slice(0, 120) : 'unknown');
+    }
+    await store.setJSON(indexKey, index);
+  }
+
   for (let i = 0; i < outfits.length; i++) {
     const n = i + 1;
     if (only && n !== only) continue;
