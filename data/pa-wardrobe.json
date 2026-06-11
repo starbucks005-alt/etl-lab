@@ -1,0 +1,31 @@
+{
+  "_doc": "PA wardrobe catalog. 7 persona-fitted outfits per PA (a week of clothes). studio-chris-wardrobe-background.js feeds each outfit + the PA's canonical profile photo into gpt-image-1 images/edits (reference-anchored, so the face holds). Terry reviews the generated profiles, then builds the wide Zoom frames in Photoshop. Add a PA: add an entry with their reference image + 7 outfits written FROM their persona.",
+  "pas": {
+    "auggie": {
+      "name": "August \"Auggie\" Vidal",
+      "reference": "Auggie_Profile.png",
+      "outfits": [
+        "a vintage Emilio Pucci-style swirl-print silk shirt in blues and greens, top button open",
+        "a white linen suit jacket over a soft pink crew-neck tee",
+        "a modern slim-cut cream guayabera shirt",
+        "a pastel yellow cashmere crewneck sweater over a white collared shirt",
+        "a light blue seersucker blazer over a crisp white shirt",
+        "a terracotta camp-collar shirt with a subtle palm-leaf pattern",
+        "a navy polo under an unstructured oatmeal linen blazer, gold watch visible"
+      ]
+    },
+    "jen": {
+      "name": "Jen Lopez",
+      "reference": "Jen_Lopez_Profile.png",
+      "outfits": [
+        "a champagne silk blouse with a draped neckline and delicate gold hoop earrings",
+        "a tailored ivory power blazer over a matching camisole",
+        "an emerald green wrap blouse",
+        "a soft blush turtleneck with a thin gold chain necklace",
+        "a classic black structured blazer over a white silk tee, statement gold earrings",
+        "a caramel trench-style jacket over a cream top",
+        "a burgundy satin button-up blouse"
+      ]
+    }
+  }
+}

@@ -84,6 +84,12 @@
 [functions."studio-reid-slick-background"]
   included_files = ["data/founder-studio-slick-template.html"]
 
+# Chris's tailor shop: outfit variants of PA profile photos via gpt-image-1
+# images/edits (reference-anchored so the face holds). Bundles the per-PA
+# outfit catalog.
+[functions."studio-chris-wardrobe-background"]
+  included_files = ["data/pa-wardrobe.json"]
+
 # Per-user Studio config lookup. Reads the generic provisioning map
 # (data/provisioned-clients.json: email -> fixture) plus the bespoke client
 # fixtures (Caroline donated, Vikram paid) when a provisioned user signs in.
