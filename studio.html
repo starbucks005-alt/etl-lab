@@ -4377,15 +4377,20 @@
       if (paName !== 'Auggie') paTag.textContent = paName;
     }
 
-    // PA label header ("Your PA" / "Personal Assistant" / custom)
-    var paHeaders = document.querySelectorAll('.ws-section-h');
-    paHeaders.forEach(function(el){
-      // If the visible text looks like a PA-section header, swap it
-      var t = (el.textContent || '').trim();
-      if (/^Your\s+PA$/i.test(t) || /^Personal\s+Assistant$/i.test(t)) {
-        el.textContent = paLabel;
-      }
-    });
+    // PA label header. The page says "Your PA" - that stays, because it
+    // feels personal. Only swap it when the owner has a genuinely CUSTOM
+    // title (e.g. Caroline's "Chief of Staff"); the default label never
+    // overwrites the warm header. The spelled-out "Personal Assistant (PA)"
+    // lives in the small tag under the PA's name.
+    if (paLabel && paLabel !== 'Personal Assistant') {
+      var paHeaders = document.querySelectorAll('.ws-section-h');
+      paHeaders.forEach(function(el){
+        var t = (el.textContent || '').trim();
+        if (/^Your\s+PA$/i.test(t) || /^Personal\s+Assistant$/i.test(t)) {
+          el.textContent = paLabel;
+        }
+      });
+    }
 
     // Sponsorship / in-kind banner
     if (cfg.sponsorship && cfg.sponsorship.in_kind && cfg.in_kind_banner) {
