@@ -233,7 +233,11 @@ exports.handler = async (event) => {
   // eyes-open + eyes-closed photoreal pair from the (painterly) reference.
   if ((params.mode || '') === 'restyle') {
     const note = (params.note || '').trim().slice(0, 300);
-    const single = params.single === '1'; // profiles: one photoreal shot, no blink pair
+    // Default is OPEN FRAME ONLY. Generated eyes-closed frames drift in
+    // detail (tattoos, patterns, props redraw) and are useless as blink
+    // overlays; Terry hand-makes the closed frames in Photoshop from the
+    // good open frame. Pass &pair=1 to opt back into a generated pair.
+    const single = params.pair === '1' ? false : true;
     const openPrompt = note
       ? RESTYLE_OPEN_PROMPT.replace('clothing, and background composition.', 'and background composition. Clothing: ' + note + '.')
       : RESTYLE_OPEN_PROMPT;
