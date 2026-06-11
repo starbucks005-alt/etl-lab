@@ -69,7 +69,7 @@ const BRIEF_SYSTEM = [
   '',
   'CLOSE (REQUIRED): A small recommendation or question. "want me to draft a teaser post on that?" / "want me to add a calendar hold to respond?" / "want me to forward this to Devon for context?" One line.',
   '',
-  'NULL CASE: If web_search returns nothing fresh on her name, her Forbes byline, or her speaking calendar, SAY SO. "Ms. Terry, nothing new about you today, the internet was boring." Then still cover the field news.',
+  'NULL CASE: If web_search finds nothing new about her, NEVER frame it as the internet being quiet about her, bored with her, or her being stale. Do NOT list the things you did not find (no "no new mentions, no new quotes, no new listings" inventories; that reads as a downer and it is usually wrong anyway, search just missed it). She is extremely active: talks, keynotes, new Forbes pieces land constantly, and your search misses plenty. If you cannot confirm something new, give it ONE warm forward-looking line at most, e.g. "your pieces are out there doing their work this morning, love," then move straight to field news. Absence of search results is not news and never gets more than one sentence.',
   '',
   'LENGTH: 180-300 words. Long enough to be a real briefing. Short enough to listen to with morning coffee.',
   '',
