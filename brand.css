@@ -1,0 +1,112 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   ETL HOUSE BRAND - "Stamped Dossier"
+   Locked by Dr. Oroszi 2026-06-11. Designed by Yuki Mendel.
+
+   One file, one house. Every platform imports this and keeps its own room
+   palette on top. The parts this system replaces, permanently:
+   Playfair Display / Cormorant -> Spectral
+   Inter / Lora                 -> Public Sans
+   muted gold #c4a262           -> stamp blue #28527a
+   mono-caps letterspaced labels -> classification-banner tabs (.tab)
+
+   Load fonts with:
+   <link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Public+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+   ═══════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* the house */
+  --house-display: 'Spectral', Georgia, serif;
+  --house-body: 'Public Sans', system-ui, sans-serif;
+  --house-accent: #28527a;        /* stamp blue, light rooms */
+  --house-accent-dark: #7fa8c9;   /* stamp blue tint, dark rooms */
+  --house-ink: #16202b;
+  --house-paper: #f4f3ee;         /* light room background */
+  --house-night: #10161d;         /* dark room background */
+  --house-line: #d8d6cc;
+  --house-muted: #4a5664;
+  --house-muted-dark: #a8b4c0;
+}
+
+/* ── Display type ──────────────────────────────────────────────────────────
+   Spectral 300 at large sizes; the thinness is the confidence. Sentence case.
+   The house headline move survives: one accent word, italic, stamp blue.   */
+.house-display, .house-h1 {
+  font-family: var(--house-display);
+  font-weight: 300;
+  line-height: 1.12;
+  letter-spacing: 0;
+}
+.house-h1 em, .house-accent-word {
+  font-style: italic;
+  font-weight: 300;
+  color: var(--house-accent);
+}
+[data-room="dark"] .house-h1 em, [data-room="dark"] .house-accent-word {
+  color: var(--house-accent-dark);
+}
+
+/* ── The classification banner (replaces every mono-caps eyebrow) ─────────
+   Sentence case, white on a solid rectangle, square corners. Ink tab for
+   neutral labels, blue tab for the room's primary eyebrow.               */
+.tab {
+  display: inline-block;
+  font-family: var(--house-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .01em;
+  color: #fff;
+  background: var(--house-ink);
+  padding: 4px 10px;
+  border-radius: 0;
+  text-transform: none;
+}
+.tab.blue { background: var(--house-accent); }
+[data-room="dark"] .tab { background: var(--house-accent); }
+
+/* ── Section marks (the house quirk) ──────────────────────────────────────
+   Inline or margin references in stamp blue, tabular figures, the way IC
+   best-practice documents are numbered. <span class="smark">&sect; 3.2</span> */
+.smark {
+  font-family: var(--house-body);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--house-accent);
+}
+[data-room="dark"] .smark { color: var(--house-accent-dark); }
+
+/* ── Buttons ──────────────────────────────────────────────────────────── */
+.house-btn {
+  display: inline-block;
+  font-family: var(--house-body);
+  font-weight: 600;
+  font-size: 14px;
+  padding: 11px 22px;
+  border-radius: 0;
+  text-decoration: none;
+  background: var(--house-accent);
+  color: #fff;
+  border: 1px solid var(--house-accent);
+  cursor: pointer;
+}
+.house-btn.ghost {
+  background: transparent;
+  color: var(--house-accent);
+}
+[data-room="dark"] .house-btn.ghost { color: var(--house-accent-dark); border-color: var(--house-accent-dark); }
+
+/* ── Body text ────────────────────────────────────────────────────────── */
+.house-body-text {
+  font-family: var(--house-body);
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+/* ── Rules and fences ─────────────────────────────────────────────────── */
+.house-rule { border: 0; border-top: 1px solid var(--house-line); }
+
+/* ── Room notes ───────────────────────────────────────────────────────────
+   THE DOSE: body text >= 16px always, headline weight 400 not 300 (thin
+   strokes fail low-vision readers), contrast AA+ against its warm paper.
+   THE GAUNTLET: keeps its near-black; accent renders as --house-accent-dark.
+   NEWSWIRE: masthead in Spectral 300 at display sizes; section tabs .tab.
+   Per-room palettes live in each page; this file only carries the house. */
