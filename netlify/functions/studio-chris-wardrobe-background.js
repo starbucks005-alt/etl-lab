@@ -51,10 +51,15 @@ function slugify(name) {
   return String(name).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 }
 
-const PROMPT_TEMPLATE = (outfit) =>
+const PROMPT_TEMPLATE = (outfit, note) =>
   'Edit this photo. Keep the SAME person: identical face, hairstyle, skin tone, ' +
   'expression, pose, camera framing, lighting, and the same background. ' +
   'Change ONLY the clothing to: ' + outfit + '. ' +
+  (note
+    ? 'ADDITIONALLY, the client instructs: ' + note + '. This instruction WINS over ' +
+      'the keep-everything rule above wherever they conflict (props, held objects, ' +
+      'and accessories may be removed, added, or changed as the client asks). '
+    : '') +
   'Photorealistic professional portrait quality. No text, no watermarks, no logos.';
 
 /* Photoreal remake mode (for portraits that came out too painterly, e.g. the
@@ -73,7 +78,7 @@ const RESTYLE_CLOSED_PROMPT =
    The assignment (Terry's spec): work pieces + weekend pieces + maybe an
    evening look, with a dress code steering the work register. Returns
    [{category, outfit}, ...]. */
-async function chrisWritesOutfits(agent, mix, code) {
+async function chrisWritesOutfits(agent, mix, code, note) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) throw new Error('anthropic key missing for outfit writing');
   const client = new Anthropic({ apiKey });
@@ -99,11 +104,16 @@ async function chrisWritesOutfits(agent, mix, code) {
       '',
       'THE ASSIGNMENT:',
       '- ' + mix.work + ' WORK pieces. The workplace dress code is "' + code + '" - interpret that register THROUGH this person\'s taste, not as a uniform.',
+      (code === 'clinical'
+        ? 'CLINICAL means: every WORK look keeps the white lab coat or clinical coat ON. The variety lives in what shows around it - the shirt, blouse, tie, or knitwear underneath, the collar, an ID badge, glasses, a pen in the pocket. State "white lab coat over ..." explicitly in each work description. Weekend and evening looks are coat-free, normal life.'
+        : ''),
       (mix.weekend ? '- ' + mix.weekend + ' WEEKEND pieces. Off the clock, errands, brunch, the hobby in their file.' : ''),
       (mix.evening ? '- ' + mix.evening + ' EVENING piece. Dinner out, an event, a date; their version of dressed up.' : ''),
       '',
+      (note ? 'A NOTE FROM THE CLIENT about this closet: "' + note + '". Honor it in every look it touches.' : ''),
       'Each outfit must be visible in a head-and-shoulders portrait: tops, jackets, collars, knitwear, scarves, jewelry, glasses. No pants talk, no shoes, no costumes unless the persona demands it.',
       'Each description is one line, concrete and paintable (colors, fabrics, cut).',
+      'Keep every description studio-safe: nothing that emphasizes exposed skin (no plunge, low-cut, sheer). The camera is head-and-shoulders; necklines stay modest.',
       'Return ONLY a JSON array of exactly ' + total + ' objects, work pieces first, then weekend, then evening:',
       '[{"category":"work","outfit":"..."}, ...]',
       'No commentary, no markdown fences.',
@@ -147,11 +157,15 @@ exports.handler = async (event) => {
   const params = event.queryStringParameters || {};
   const only = params.only ? parseInt(params.only, 10) : null;
   const quality = params.quality === 'high' ? 'high' : 'medium';
+  // Client note rides every mode: Chris reads it when writing the closet AND
+  // the painter gets it as an override (props like the tablet only leave the
+  // frame if the paint prompt is told the note wins over keep-everything).
+  const note = (params.note || '').trim().slice(0, 300);
   // The assignment: work,weekend,evening counts (Terry's default: 5,2,1)
   const mixParts = String(params.mix || '5,2,1').split(',').map(n => Math.min(Math.max(parseInt(n, 10) || 0, 0), 7));
   const mix = { work: mixParts[0] || 0, weekend: mixParts[1] || 0, evening: mixParts[2] || 0 };
   if (mix.work + mix.weekend + mix.evening === 0) mix.work = 5;
-  const CODES = ['formal', 'business', 'semiformal', 'smart casual', 'casual', 'creative'];
+  const CODES = ['formal', 'business', 'semiformal', 'smart casual', 'casual', 'creative', 'clinical'];
   const code = CODES.includes((params.code || '').toLowerCase()) ? params.code.toLowerCase() : 'business';
 
   let slug = null, displayName = null, refUrl = null, refBuf = null, refMime = 'image/png', outfits = null, source = null;
@@ -186,7 +200,7 @@ exports.handler = async (event) => {
     refBuf = Buffer.from(buf);
     source = 'persona-desk-draft';
     try {
-      outfits = await chrisWritesOutfits(dossier, mix, code);
+      outfits = await chrisWritesOutfits(dossier, mix, code, note);
     } catch (e) {
       return { statusCode: 502, body: 'chris could not write the closet: ' + (e && e.message) };
     }
@@ -204,7 +218,7 @@ exports.handler = async (event) => {
     refUrl = agent.image_url;
     source = 'persona';
     try {
-      outfits = await chrisWritesOutfits(agent, mix, code);
+      outfits = await chrisWritesOutfits(agent, mix, code, note);
     } catch (e) {
       return { statusCode: 502, body: 'chris could not write the closet: ' + (e && e.message) };
     }
@@ -232,7 +246,6 @@ exports.handler = async (event) => {
   // ?mode=restyle: ignore the wardrobe assignment; produce a matched
   // eyes-open + eyes-closed photoreal pair from the (painterly) reference.
   if ((params.mode || '') === 'restyle') {
-    const note = (params.note || '').trim().slice(0, 300);
     // Default is OPEN FRAME ONLY. Generated eyes-closed frames drift in
     // detail (tattoos, patterns, props redraw) and are useless as blink
     // overlays; Terry hand-makes the closed frames in Photoshop from the
@@ -278,7 +291,7 @@ exports.handler = async (event) => {
 
   const store = getStore('pa_wardrobe');
   const indexKey = slug + '/index';
-  const index = { pa: slug, name: displayName, reference: refUrl, source, quality, code, mix, started_at: new Date().toISOString(), outfits: [] };
+  const index = { pa: slug, name: displayName, reference: refUrl, source, quality, code, mix, note: note || undefined, started_at: new Date().toISOString(), outfits: [] };
 
   for (let i = 0; i < outfits.length; i++) {
     const n = i + 1;
@@ -288,7 +301,7 @@ exports.handler = async (event) => {
     index.outfits.push(entry);
     await store.setJSON(indexKey, index);
     try {
-      const img = await editImage(openaiKey, refBuf, refMime, PROMPT_TEMPLATE(item.outfit), quality);
+      const img = await editImage(openaiKey, refBuf, refMime, PROMPT_TEMPLATE(item.outfit, note), quality);
       await store.set(slug + '/' + n + '.png', new Blob([img]));
       entry.status = 'done';
       entry.bytes = img.length;

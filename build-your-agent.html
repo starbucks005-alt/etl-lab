@@ -169,6 +169,7 @@ footer a{color:var(--brass);text-decoration:none;margin:0 10px;}
           <option value="smart casual">Smart casual</option>
           <option value="casual">Casual</option>
           <option value="creative">Creative</option>
+          <option value="clinical">Laboratory / Clinical (white coat stays)</option>
         </select>
 
         <label class="lbl" for="quality">Fabric quality</label>
@@ -414,7 +415,8 @@ footer a{color:var(--brass);text-decoration:none;margin:0 10px;}
     var code = document.getElementById('code').value;
     var q = document.getElementById('quality').value;
     var note = document.getElementById('note').value.trim();
-    var extra = job === 'restyle' ? ('&mode=restyle' + (note ? '&note=' + encodeURIComponent(note) : '')) : ('&mix=' + mix + '&code=' + encodeURIComponent(code));
+    var extra = (job === 'restyle' ? '&mode=restyle' : ('&mix=' + mix + '&code=' + encodeURIComponent(code)))
+      + (note ? '&note=' + encodeURIComponent(note) : '');
     setStatus(job === 'restyle'
       ? 'Chris has the portrait. Reshooting it as a photograph, then closing the eyes for the blink pair. Two looks, a couple of minutes.'
       : 'Chris has the file. Writing the assignment (' + mix.replace(',', ' work, ').replace(',', ' weekend, ') + ' evening, ' + code + '), then sewing.');
