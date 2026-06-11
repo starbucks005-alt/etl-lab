@@ -44,11 +44,11 @@
   "company": {
     "company_name": "Sethi Studio",
     "pa": {
-      "persona_id": "auggie_vidal",
-      "display_name": "Auggie",
+      "persona_id": "jen_lopez",
+      "display_name": "Jen Lopez",
       "backpack": true,
       "contract": "PA",
-      "note": "Default PA; swappable to any of the 12 pool personas."
+      "note": "Jen was made for him: dinner-party joke about cloning J-Lo, asked of the one person at the table who actually did cloning in grad school. Swappable to any of the 12 pool personas, but he will not be swapping."
     },
     "sixpack_on": true,
     "sixpack_members": [
