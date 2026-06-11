@@ -1,28 +1,28 @@
 {
-  "name": "Your Studio",
+  "name": "Founder Studio",
   "short_name": "Studio",
-  "description": "Your AI company. Auggie and your hired staff.",
+  "description": "You started a business. Now staff it. Your PA and your hired staff.",
   "start_url": "/studio.html",
   "scope": "/",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#0a0a0a",
-  "theme_color": "#FDB827",
+  "theme_color": "#c49a45",
   "icons": [
     {
-      "src": "/favicon_etl_512.png",
+      "src": "/fs-icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/favicon_etl_512.png",
+      "src": "/fs-icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/favicon.png",
+      "src": "/fs-icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     }
