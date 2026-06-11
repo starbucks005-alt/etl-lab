@@ -1,0 +1,191 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rowan's Desk - What is the world saying?</title>
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#e8eaed;--accent:#d4f23c;--bg:#0a0b0d;--card:#161922;--line:#262a33;--muted:#8b93a3;--dark:#0d0f13}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);font-family:"Space Grotesk",system-ui,sans-serif;color:var(--ink);line-height:1.55;padding:28px 18px 60px}
+.wrap{max-width:880px;margin:0 auto}
+.mono{font-family:"IBM Plex Mono",monospace}
+.top{display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--line);padding-bottom:18px;margin-bottom:22px;flex-wrap:wrap}
+.top img{width:64px;height:64px;border-radius:10px;object-fit:cover;border:1px solid var(--line)}
+.top h1{font-size:24px;color:#fff;font-weight:700}
+.top h1 b{color:var(--accent)}
+.top .sub{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-top:3px}
+.lbl{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:600;display:block;margin:16px 0 6px}
+.lbl::before{content:"// "}
+input,textarea{width:100%;background:var(--card);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-family:"Space Grotesk",sans-serif;font-size:15px;padding:11px 13px;outline:none}
+input:focus,textarea:focus{border-color:var(--accent)}
+.modes{display:flex;gap:8px;flex-wrap:wrap}
+.mode{font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;padding:8px 14px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--muted);cursor:pointer;user-select:none}
+.mode.on{border-color:var(--accent);color:var(--accent)}
+.examples{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.ex{font-size:12.5px;padding:7px 12px;border:1px dashed var(--line);border-radius:6px;color:var(--muted);cursor:pointer}
+.ex:hover{color:var(--accent);border-color:var(--accent)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.send{margin-top:18px;width:100%;background:var(--accent);color:#0a0b0d;border:none;border-radius:8px;font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:15px;padding:14px;cursor:pointer}
+.send:disabled{opacity:.45;cursor:default}
+.status{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--muted);margin-top:12px;min-height:18px}
+.brief{margin-top:26px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:24px 26px;display:none}
+.brief .bq{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:14px}
+.brief .bq b{color:var(--accent)}
+.brief pre{white-space:pre-wrap;font-family:"Space Grotesk",sans-serif;font-size:14.5px;line-height:1.7;color:#cdd2da}
+.brief pre .hd{color:var(--accent);font-weight:700}
+.sources{margin-top:18px;border-top:1px solid var(--line);padding-top:14px}
+.sources .sh{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.sources a{display:block;font-size:12.5px;color:var(--accent);text-decoration:none;margin-bottom:5px;word-break:break-all}
+.tools{display:flex;gap:10px;margin-top:16px}
+.tools button{background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:6px;font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:8px 14px;cursor:pointer}
+.tools button:hover{color:var(--accent);border-color:var(--accent)}
+.note{margin-top:22px;font-size:12px;color:var(--muted);border-left:2px solid var(--line);padding-left:12px}
+@media(max-width:620px){.grid2{grid-template-columns:1fr}}
+</style></head><body>
+<div class="wrap">
+
+  <div class="top">
+    <img src="/agents/Rowan_Tate_eyes_open.png" alt="Rowan Tate" onerror="this.style.display='none'">
+    <div>
+      <h1>Rowan's Desk <b>/ what is the world saying?</b></h1>
+      <div class="sub">research mode &middot; live sources &middot; he does not execute, you do</div>
+    </div>
+  </div>
+
+  <label class="lbl" for="q">The question</label>
+  <input id="q" placeholder="A ticker (CRWD), a sector (semiconductors), or a PE question">
+
+  <label class="lbl">Shape</label>
+  <div class="modes">
+    <div class="mode on" data-m="">Auto</div>
+    <div class="mode" data-m="ticker">Ticker</div>
+    <div class="mode" data-m="cluster">Cluster</div>
+    <div class="mode" data-m="pe">PE wire</div>
+  </div>
+  <div class="examples">
+    <div class="ex" data-q="CRWD" data-m="ticker">What is the world saying about CRWD?</div>
+    <div class="ex" data-q="semiconductors" data-m="cluster">The semiconductor cluster this week</div>
+    <div class="ex" data-q="What private equity announcements are echoing through the consulting sector?" data-m="pe">PE wire: consulting</div>
+  </div>
+
+  <label class="lbl">Staff door</label>
+  <div class="grid2">
+    <input id="adm-u" placeholder="Admin user" autocomplete="username">
+    <input id="adm-p" type="password" placeholder="Admin password" autocomplete="current-password">
+  </div>
+
+  <button class="send" id="send">Ask Rowan &rarr;</button>
+  <div class="status" id="status"></div>
+
+  <div class="brief" id="brief">
+    <div class="bq" id="bq"></div>
+    <pre id="btext"></pre>
+    <div class="sources" id="sources" style="display:none"><div class="sh">Sources</div><div id="slinks"></div></div>
+    <div class="tools">
+      <button id="copy">Copy brief</button>
+      <button id="again">Ask another</button>
+    </div>
+  </div>
+
+  <div class="note">Rowan answers from live web research with a primary-source mandate (EDGAR, FRED, exchange and issuer pages, deal press releases). Every claim carries a source and a date. Research mode only: he reads the world, he does not touch money. A brief takes one to three minutes.</div>
+
+</div>
+<script>
+(function(){
+  var mode = '';
+  var pollTimer = null;
+
+  document.querySelectorAll('.mode').forEach(function(el){
+    el.addEventListener('click', function(){
+      document.querySelectorAll('.mode').forEach(function(x){ x.classList.remove('on'); });
+      el.classList.add('on'); mode = el.getAttribute('data-m') || '';
+    });
+  });
+  document.querySelectorAll('.ex').forEach(function(el){
+    el.addEventListener('click', function(){
+      document.getElementById('q').value = el.getAttribute('data-q');
+      var m = el.getAttribute('data-m') || '';
+      document.querySelectorAll('.mode').forEach(function(x){ x.classList.toggle('on', (x.getAttribute('data-m')||'') === m); });
+      mode = m;
+    });
+  });
+
+  // staff door remembered locally, same keys as the Tailor Shop
+  var U = document.getElementById('adm-u'), P = document.getElementById('adm-p');
+  try { U.value = localStorage.getItem('etl_adm_u') || ''; P.value = localStorage.getItem('etl_adm_p') || ''; } catch(_){}
+  function authHeader(){
+    var u = U.value.trim(), p = P.value;
+    if (!u || !p) return null;
+    try { localStorage.setItem('etl_adm_u', u); localStorage.setItem('etl_adm_p', p); } catch(_){}
+    return 'Basic ' + btoa(u + ':' + p);
+  }
+  function setStatus(t){ document.getElementById('status').textContent = t; }
+
+  function highlight(text){
+    return text.replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/^(THE READ|THE STORY|DIVERGENCE|WHAT I WOULD WATCH|Risk note:)/gm, '<span class="hd">$1</span>');
+  }
+
+  function render(rec){
+    var b = document.getElementById('brief'); b.style.display = 'block';
+    document.getElementById('bq').innerHTML = '<b>' + (rec.mode||'').toUpperCase() + '</b> &middot; ' + (rec.q||'') + (rec.finished_at ? ' &middot; ' + new Date(rec.finished_at).toLocaleString() : '');
+    if (rec.status === 'done') {
+      document.getElementById('btext').innerHTML = highlight(rec.response.text || '');
+      var cites = (rec.response.citations || []);
+      var sl = document.getElementById('slinks'); sl.innerHTML = '';
+      cites.forEach(function(c){ var a = document.createElement('a'); a.href = c.url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = c.title ? (c.title + ' - ' + c.url) : c.url; sl.appendChild(a); });
+      document.getElementById('sources').style.display = cites.length ? 'block' : 'none';
+      setStatus('Brief delivered. ' + cites.length + ' sources.');
+    } else if (rec.status === 'error') {
+      document.getElementById('btext').textContent = 'Rowan hit an error: ' + (rec.error || 'unknown') + '. Ask again.';
+      setStatus('');
+    }
+  }
+
+  function poll(id, auth){
+    fetch('/.netlify/functions/rowan-world-says?id=' + encodeURIComponent(id), { headers: { 'Authorization': auth } })
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(rec){
+        if (!rec) return;
+        if (rec.status === 'done' || rec.status === 'error') {
+          clearInterval(pollTimer); pollTimer = null;
+          render(rec);
+          document.getElementById('send').disabled = false;
+        }
+      }).catch(function(){});
+  }
+
+  document.getElementById('send').addEventListener('click', function(){
+    var q = document.getElementById('q').value.trim();
+    if (!q) { setStatus('Give Rowan a question first.'); return; }
+    var auth = authHeader();
+    if (!auth) { setStatus('The desk is staff-only. Enter the admin login.'); return; }
+    var day = new Date().toISOString().slice(0,10);
+    var modeGuess = mode || (/^[A-Za-z]{1,5}$/.test(q) ? 'ticker' : (/private equity|\bpe\b|acquisition|buyout/i.test(q) ? 'pe' : 'cluster'));
+    var id = (modeGuess + '-' + q + '-' + day).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,60);
+    document.getElementById('send').disabled = true;
+    document.getElementById('brief').style.display = 'none';
+    setStatus('Rowan is at the desk. Reading filings, wires, and the live tape. One to three minutes.');
+    fetch('/.netlify/functions/rowan-world-says-background?q=' + encodeURIComponent(q) + (mode ? '&mode=' + mode : ''), { headers: { 'Authorization': auth } })
+      .then(function(r){
+        if (r.status === 401) { setStatus('The staff door did not open. Check the login.'); document.getElementById('send').disabled = false; return; }
+        if (pollTimer) clearInterval(pollTimer);
+        pollTimer = setInterval(function(){ poll(id, auth); }, 7000);
+      })
+      .catch(function(){ setStatus('Could not reach the desk. Try again.'); document.getElementById('send').disabled = false; });
+  });
+
+  document.getElementById('copy').addEventListener('click', function(){
+    var t = document.getElementById('btext').textContent;
+    var links = Array.prototype.map.call(document.querySelectorAll('#slinks a'), function(a){ return a.href; }).join('\n');
+    navigator.clipboard.writeText('ROWAN TATE - RESEARCH BRIEF\n\n' + t + (links ? '\n\nSOURCES\n' + links : '')).then(function(){ setStatus('Copied.'); });
+  });
+  document.getElementById('again').addEventListener('click', function(){
+    document.getElementById('brief').style.display = 'none';
+    document.getElementById('q').value = '';
+    document.getElementById('q').focus();
+  });
+})();
+</script>
+</body></html>
