@@ -1083,7 +1083,7 @@ document.addEventListener('DOMContentLoaded', function(){
   .etl-tabs {
     position: sticky; top: 60px; z-index: 998;
     display: flex; gap: 0; padding: 0 24px;
-    background: #0a0a0a; border-bottom: 1px solid rgba(253,184,39,0.35);
+    background: #0a0a0a; border-bottom: 1px solid rgba(92,138,181,0.35);
     overflow-x: auto; -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
   }
@@ -1097,7 +1097,7 @@ document.addEventListener('DOMContentLoaded', function(){
     color: #c9c2b3; border-bottom: 2px solid transparent;
     transition: color .15s ease, border-color .15s ease, background .15s ease;
   }
-  .etl-tab:hover { color: #fff; background: rgba(253,184,39,0.06); }
+  .etl-tab:hover { color: #fff; background: rgba(92,138,181,0.06); }
   .etl-tab.is-active { color: #5c8ab5; border-bottom-color: #5c8ab5; }
   .etl-tab:focus-visible { outline: 2px solid #5c8ab5; outline-offset: -4px; }
 
@@ -1220,7 +1220,7 @@ document.addEventListener('DOMContentLoaded', function(){
      Mirrors the order of evidence on Dr. Oroszi's CV: identity statement,
      then Harvard Kennedy School as the lead credential.
      ───────────────────────────────────────────────────────────────────── -->
-<section id="latest-credential" data-tab="home" style="background:#0a0a0a; padding:14px 32px; border-bottom:1px solid rgba(253,184,39,0.4);">
+<section id="latest-credential" data-tab="home" style="background:#0a0a0a; padding:14px 32px; border-bottom:1px solid rgba(92,138,181,0.4);">
   <div style="max-width:1180px; margin:0 auto; display:flex; flex-wrap:wrap; gap:10px 24px; align-items:center; justify-content:center; text-align:center;">
     <span style="font-family:'Public Sans',sans-serif; font-size:10px; letter-spacing:4px; color:#5c8ab5; text-transform:uppercase;">Latest Credential</span>
     <span style="font-family:'Public Sans',sans-serif; font-size:13px; letter-spacing:1.5px; color:#fff; text-transform:uppercase; font-weight:600;">Harvard Kennedy School of Government</span>
@@ -1555,12 +1555,12 @@ document.addEventListener('DOMContentLoaded', function(){
      is set in JS from AGENTS[i].tools (any non-empty tools array). */
   .etl-network .etl-net-roster img[data-mcp="1"] {
     border-color: #5c8ab5;
-    box-shadow: 0 0 0 1px #5c8ab5, 0 0 14px rgba(253,184,39,0.4), 0 2px 8px rgba(0,0,0,0.45);
+    box-shadow: 0 0 0 1px #5c8ab5, 0 0 14px rgba(92,138,181,0.4), 0 2px 8px rgba(0,0,0,0.45);
     animation: etl-mcp-pulse 2.6s ease-in-out infinite;
   }
   @keyframes etl-mcp-pulse {
-    0%, 100% { box-shadow: 0 0 0 1px #5c8ab5, 0 0 10px rgba(253,184,39,0.30), 0 2px 8px rgba(0,0,0,0.45); }
-    50%      { box-shadow: 0 0 0 1px #5c8ab5, 0 0 22px rgba(253,184,39,0.65), 0 2px 8px rgba(0,0,0,0.45); }
+    0%, 100% { box-shadow: 0 0 0 1px #5c8ab5, 0 0 10px rgba(92,138,181,0.30), 0 2px 8px rgba(0,0,0,0.45); }
+    50%      { box-shadow: 0 0 0 1px #5c8ab5, 0 0 22px rgba(92,138,181,0.65), 0 2px 8px rgba(0,0,0,0.45); }
   }
   @media (prefers-reduced-motion: reduce) {
     .etl-network .etl-net-roster img[data-mcp="1"] { animation: none; }
@@ -1606,7 +1606,7 @@ document.addEventListener('DOMContentLoaded', function(){
     margin: 0 auto;
   }
   .mcp-divider {
-    background: linear-gradient(180deg, transparent, rgba(253,184,39,0.45), transparent);
+    background: linear-gradient(180deg, transparent, rgba(92,138,181,0.45), transparent);
     width: 1px; height: 100%;
     min-height: 320px;
   }
@@ -1620,12 +1620,12 @@ document.addEventListener('DOMContentLoaded', function(){
     font-family:'IBM Plex Mono',monospace;
     font-size: 11px; font-weight: 600;
     color: #f4ebd6;
-    background: rgba(253,184,39,0.10);
-    border: 1px solid rgba(253,184,39,0.45);
+    background: rgba(92,138,181,0.10);
+    border: 1px solid rgba(92,138,181,0.45);
     padding: 5px 11px;
     border-radius: 16px;
     white-space: nowrap;
-    box-shadow: 0 0 12px rgba(253,184,39,0.12);
+    box-shadow: 0 0 12px rgba(92,138,181,0.12);
     letter-spacing: 0.04em;
   }
   .mcp-tags--reg .mcp-tag {
@@ -1679,13 +1679,13 @@ document.addEventListener('DOMContentLoaded', function(){
     display: block;
   }
   .mcp-card--mcp .mcp-ring {
-    box-shadow: 0 0 0 3px #5c8ab5, 0 0 22px 4px rgba(253,184,39,0.55);
+    box-shadow: 0 0 0 3px #5c8ab5, 0 0 22px 4px rgba(92,138,181,0.55);
   }
   .mcp-card--mcp .mcp-ring::before {
     content: "";
     position: absolute; inset: -9px;
     border-radius: 50%;
-    border: 2px solid rgba(253,184,39,0.55);
+    border: 2px solid rgba(92,138,181,0.55);
     animation: mcp-aura-pulse 2.6s ease-in-out infinite;
     pointer-events: none;
   }
@@ -1742,7 +1742,7 @@ document.addEventListener('DOMContentLoaded', function(){
     letter-spacing: 0.18em;
   }
   .mcp-label--mcp {
-    background: rgba(253,184,39,0.12);
+    background: rgba(92,138,181,0.12);
     border: 1.5px solid #5c8ab5;
     color: #5c8ab5;
   }
@@ -1800,8 +1800,8 @@ document.addEventListener('DOMContentLoaded', function(){
     gap: 8px;
     margin: 10px 0 14px;
     padding: 8px 12px;
-    background: rgba(253,184,39,0.08);
-    border: 1px solid rgba(253,184,39,0.35);
+    background: rgba(92,138,181,0.08);
+    border: 1px solid rgba(92,138,181,0.35);
     border-radius: 4px;
     font-family:'IBM Plex Mono',monospace;
     font-size: 11px;
@@ -1832,7 +1832,7 @@ document.addEventListener('DOMContentLoaded', function(){
     color: #5c8ab5;
     padding: 14px 4px 4px;
     margin-top: 6px;
-    border-bottom: 1px solid rgba(253,184,39,0.18);
+    border-bottom: 1px solid rgba(92,138,181,0.18);
     text-align: left;
   }
   .etl-network .etl-net-roster .etl-net-domain-header:first-child {
@@ -2710,35 +2710,35 @@ document.addEventListener('DOMContentLoaded', function(){
     </div>
 
     <!-- Domain add-ons. Configurable per profession. -->
-    <div style="margin-top:60px; padding-top:40px; border-top:1px solid rgba(253,184,39,0.3);">
+    <div style="margin-top:60px; padding-top:40px; border-top:1px solid rgba(92,138,181,0.3);">
       <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:4px; color:#5c8ab5; text-transform:uppercase; margin-bottom:8px;">Domain add-ons</div>
       <h3 style="font-family:'Public Sans',sans-serif; font-size:clamp(22px, 2.5vw, 30px); font-weight:700; color:#ffffff; text-transform:uppercase; letter-spacing:-0.3px; margin-bottom:6px;">Configured for what you actually do</h3>
       <p style="font-family:'Spectral',serif; font-size:15px; color:#d6cfc0; line-height:1.6; max-width:780px; margin-bottom:32px;">Pick the add-ons that match your work. Each one teaches your PA a specific beat to watch, sources to track, and outputs to deliver.</p>
 
-      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:24px;">
+      <div style="display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:24px;">
 
-        <div style="background:rgba(253,184,39,0.08); border:1px solid rgba(253,184,39,0.3); padding:22px;">
+        <div style="background:rgba(92,138,181,0.08); border:1px solid rgba(92,138,181,0.3); padding:22px;">
           <div style="font-family:'Public Sans',sans-serif; font-size:24px; margin-bottom:8px;">📚</div>
           <div style="font-family:'Public Sans',sans-serif; font-size:11px; letter-spacing:3px; color:#5c8ab5; text-transform:uppercase; margin-bottom:6px;">Author add-on</div>
           <h4 style="font-family:'Public Sans',sans-serif; font-size:18px; font-weight:700; color:#ffffff; text-transform:uppercase; letter-spacing:-0.2px; margin-bottom:10px;">For writers and book authors</h4>
           <p style="font-family:'Spectral',serif; font-size:13px; color:#d6cfc0; line-height:1.6;">Tracks Amazon and B&amp;N sales rank, royalty statements, new reviews, mentions in press, blurb requests, deadline reminders, manuscript backups, agent and editor correspondence.</p>
         </div>
 
-        <div style="background:rgba(253,184,39,0.08); border:1px solid rgba(253,184,39,0.3); padding:22px;">
+        <div style="background:rgba(92,138,181,0.08); border:1px solid rgba(92,138,181,0.3); padding:22px;">
           <div style="font-family:'Public Sans',sans-serif; font-size:24px; margin-bottom:8px;">🎓</div>
           <div style="font-family:'Public Sans',sans-serif; font-size:11px; letter-spacing:3px; color:#5c8ab5; text-transform:uppercase; margin-bottom:6px;">Professor add-on</div>
           <h4 style="font-family:'Public Sans',sans-serif; font-size:18px; font-weight:700; color:#ffffff; text-transform:uppercase; letter-spacing:-0.2px; margin-bottom:10px;">For faculty and PIs</h4>
           <p style="font-family:'Spectral',serif; font-size:13px; color:#d6cfc0; line-height:1.6;">Grant cycle tracking, citation alerts, journal submission status, conference deadlines, course prep reminders, student-supervision rotation, tenure file maintenance.</p>
         </div>
 
-        <div style="background:rgba(253,184,39,0.08); border:1px solid rgba(253,184,39,0.3); padding:22px;">
+        <div style="background:rgba(92,138,181,0.08); border:1px solid rgba(92,138,181,0.3); padding:22px;">
           <div style="font-family:'Public Sans',sans-serif; font-size:24px; margin-bottom:8px;">💼</div>
           <div style="font-family:'Public Sans',sans-serif; font-size:11px; letter-spacing:3px; color:#5c8ab5; text-transform:uppercase; margin-bottom:6px;">Business add-on</div>
           <h4 style="font-family:'Public Sans',sans-serif; font-size:18px; font-weight:700; color:#ffffff; text-transform:uppercase; letter-spacing:-0.2px; margin-bottom:10px;">For executives and operators</h4>
           <p style="font-family:'Spectral',serif; font-size:13px; color:#d6cfc0; line-height:1.6;">Competitive scans, news on key competitors, partnership leads, conference attendee lookups, market intel briefs, hiring signal monitoring.</p>
         </div>
 
-        <div style="background:rgba(253,184,39,0.08); border:1px solid rgba(253,184,39,0.3); padding:22px;">
+        <div style="background:rgba(92,138,181,0.08); border:1px solid rgba(92,138,181,0.3); padding:22px;">
           <div style="font-family:'Public Sans',sans-serif; font-size:24px; margin-bottom:8px;">📈</div>
           <div style="font-family:'Public Sans',sans-serif; font-size:11px; letter-spacing:3px; color:#5c8ab5; text-transform:uppercase; margin-bottom:6px;">Stocks add-on</div>
           <h4 style="font-family:'Public Sans',sans-serif; font-size:18px; font-weight:700; color:#ffffff; text-transform:uppercase; letter-spacing:-0.2px; margin-bottom:10px;">For investors</h4>
@@ -2751,7 +2751,7 @@ document.addEventListener('DOMContentLoaded', function(){
     </div>
 
     <!-- Meet Auggie. The example PA running on this lab right now. -->
-    <div style="margin-top:64px; padding-top:48px; border-top:1px solid rgba(253,184,39,0.3); display:grid; grid-template-columns: minmax(220px, 320px) 1fr; gap:48px; align-items:start;">
+    <div style="margin-top:64px; padding-top:48px; border-top:1px solid rgba(92,138,181,0.3); display:grid; grid-template-columns: minmax(220px, 320px) 1fr; gap:48px; align-items:start;">
 
       <div>
         <div class="etl-pa-blink" style="position:relative; overflow:hidden; border:2px solid #5c8ab5; background:#111;">
@@ -2770,7 +2770,7 @@ document.addEventListener('DOMContentLoaded', function(){
              once via ElevenLabs and caches in Netlify Blobs. After the
              first visitor triggers the render, all subsequent plays are
              instant from cache. Zero per-play cost. -->
-        <div style="background:rgba(253,184,39,0.08); border:1px solid rgba(253,184,39,0.3); padding:14px 16px; margin-bottom:22px; display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+        <div style="background:rgba(92,138,181,0.08); border:1px solid rgba(92,138,181,0.3); padding:14px 16px; margin-bottom:22px; display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
           <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:3px; color:#5c8ab5; text-transform:uppercase;">▶ Hear him</span>
           <audio controls preload="none" style="flex:1; min-width:240px; height:36px;" src="/.netlify/functions/public-auggie-intro-audio?v=v9-coffee-or-tea">
             Your browser does not support audio playback.
@@ -2932,7 +2932,7 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
 
 
 <!-- SLR BASELINE COHORT HEADER -->
-  <div style="margin-top:40px; margin-bottom:16px; background:linear-gradient(135deg,rgba(40,92,77,0.12),rgba(253,184,39,0.04)); border:1px solid var(--green); border-left:4px solid var(--gold); padding:20px 28px;">
+  <div style="margin-top:40px; margin-bottom:16px; background:linear-gradient(135deg,rgba(40,92,77,0.12),rgba(92,138,181,0.04)); border:1px solid var(--green); border-left:4px solid var(--gold); padding:20px 28px;">
     <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:3px; color:var(--gold); margin-bottom:8px;">ETL RESEARCH TEAM Â· SLR STUDIO DEVELOPMENT</div>
     <div style="font-family:'Public Sans',sans-serif; font-size:18px; font-weight:700; text-transform:uppercase; color:var(--black); margin-bottom:8px;">Human-Baseline Research Cohort</div>
     <p style="font-size:12px; color:var(--gray); line-height:1.7; font-weight:300; max-width:800px;">During SLR Studio's development, these graduate researchers ran systematic literature reviews by hand using the Excel-and-PubMed method. Those reviews served as the human benchmark the tool was measured against.</p>
@@ -2948,7 +2948,7 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
         <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--green-bright); margin-bottom:8px;">ETL RESEARCHER Â· 2025–2026</div>
         <div style="font-family:'Public Sans',sans-serif; font-size:24px; font-weight:700; text-transform:uppercase; line-height:1.1; margin-bottom:4px;">Kavya Lekkala<span style="font-size:14px; font-weight:300; color:var(--gray)">, PharmD</span></div>
         <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--gold); letter-spacing:1px; margin-bottom:20px;">THESIS STUDENT Â· COMPUTATIONAL TOXICOLOGY &amp; AI</div>
-        <div style="background:rgba(253,184,39,0.06); border-left:3px solid var(--gold); padding:14px 16px; margin-bottom:16px;">
+        <div style="background:rgba(92,138,181,0.06); border-left:3px solid var(--gold); padding:14px 16px; margin-bottom:16px;">
           <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:1px; color:var(--gold); margin-bottom:6px;">THESIS</div>
           <div style="font-family:'Public Sans',sans-serif; font-size:14px; font-weight:600; text-transform:uppercase; color:var(--black); line-height:1.3;">Development of a Graph Neural Network Framework for Toxicity Prediction Using 3D Spatial and Electronic Features Integrated with ToxCast Data</div>
         </div>
@@ -2960,7 +2960,7 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
           <div style="font-size:11px; color:var(--gray); font-weight:300;">Clinical Evidence of Association Between T2DM and Hypothyroidism — 702 patients, 6 months</div>
         </div>
         <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:16px;">
-          <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid rgba(253,184,39,0.4); color:var(--gold);">Poster + Oral</span>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid rgba(92,138,181,0.4); color:var(--gold);">Poster + Oral</span>
           <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid var(--border); color:var(--gray);">GNN Â· ToxCast</span>
           <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid var(--border); color:var(--gray);">702 Patients</span>
         </div>
@@ -2974,7 +2974,7 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
         <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--green-bright); margin-bottom:8px;">ETL RESEARCHER Â· 2025–2026</div>
         <div style="font-family:'Public Sans',sans-serif; font-size:24px; font-weight:700; text-transform:uppercase; line-height:1.1; margin-bottom:4px;">Surya Akula<span style="font-size:14px; font-weight:300; color:var(--gray)">, PharmD</span></div>
         <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--gold); letter-spacing:1px; margin-bottom:20px;">THESIS STUDENT Â· AI &amp; CLINICAL PHARMACOLOGY</div>
-        <div style="background:rgba(253,184,39,0.06); border-left:3px solid var(--gold); padding:14px 16px; margin-bottom:16px;">
+        <div style="background:rgba(92,138,181,0.06); border-left:3px solid var(--gold); padding:14px 16px; margin-bottom:16px;">
           <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:1px; color:var(--gold); margin-bottom:6px;">THESIS</div>
           <div style="font-family:'Public Sans',sans-serif; font-size:14px; font-weight:600; text-transform:uppercase; color:var(--black); line-height:1.3;">Using Language Models to Reliably Simplify Boxed Warnings</div>
         </div>
@@ -2984,7 +2984,7 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
           addressing a critical gap in drug safety literacy and informed consent.
         </p>
         <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:16px;">
-          <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid rgba(253,184,39,0.4); color:var(--gold);">LLMs</span>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid rgba(92,138,181,0.4); color:var(--gold);">LLMs</span>
           <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid var(--border); color:var(--gray);">Drug Safety</span>
           <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid var(--border); color:var(--gray);">FDA Black Box</span>
           <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid var(--border); color:var(--gray);">Health Literacy</span>
@@ -2999,7 +2999,7 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
         <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--green-bright); margin-bottom:8px;">ETL RESEARCHER Â· 2025–2026</div>
         <div style="font-family:'Public Sans',sans-serif; font-size:24px; font-weight:700; text-transform:uppercase; line-height:1.1; margin-bottom:4px;">Vamsi Mohan<span style="font-size:14px; font-weight:300; color:var(--gray)">, BPharm</span></div>
         <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--gold); letter-spacing:1px; margin-bottom:20px;">THESIS STUDENT Â· DATA SCIENCE &amp; MEDICAL EDUCATION</div>
-        <div style="background:rgba(253,184,39,0.06); border-left:3px solid var(--gold); padding:14px 16px; margin-bottom:16px;">
+        <div style="background:rgba(92,138,181,0.06); border-left:3px solid var(--gold); padding:14px 16px; margin-bottom:16px;">
           <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:1px; color:var(--gold); margin-bottom:6px;">THESIS</div>
           <div style="font-family:'Public Sans',sans-serif; font-size:14px; font-weight:600; text-transform:uppercase; color:var(--black); line-height:1.3;">Orange As a Data Analysis and Education Tool for Medical Data</div>
         </div>
@@ -3009,7 +3009,7 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
           lowering the barrier to data science for clinicians and students.
         </p>
         <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:16px;">
-          <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid rgba(253,184,39,0.4); color:var(--gold);">Orange Platform</span>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid rgba(92,138,181,0.4); color:var(--gold);">Orange Platform</span>
           <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid var(--border); color:var(--gray);">Medical Data</span>
           <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid var(--border); color:var(--gray);">No-Code ML</span>
           <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid var(--border); color:var(--gray);">Health Education</span>
@@ -3024,7 +3024,7 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
         <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--green-bright); margin-bottom:8px;">ETL RESEARCHER Â· 2025–2026</div>
         <div style="font-family:'Public Sans',sans-serif; font-size:24px; font-weight:700; text-transform:uppercase; line-height:1.1; margin-bottom:4px;">Sahini Bingi<span style="font-size:14px; font-weight:300; color:var(--gray)">, PharmD</span></div>
         <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--gold); letter-spacing:1px; margin-bottom:20px;">THESIS STUDENT Â· CLINICAL PHARMACOLOGY &amp; SAFETY</div>
-        <div style="background:rgba(253,184,39,0.06); border-left:3px solid var(--gold); padding:14px 16px; margin-bottom:16px;">
+        <div style="background:rgba(92,138,181,0.06); border-left:3px solid var(--gold); padding:14px 16px; margin-bottom:16px;">
           <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:1px; color:var(--gold); margin-bottom:6px;">THESIS</div>
           <div style="font-family:'Public Sans',sans-serif; font-size:14px; font-weight:600; text-transform:uppercase; color:var(--black); line-height:1.3;">Safety Profile of Long-Term Opioid Use in Chronic Non-Cancer Pain: A Meta-Analysis</div>
         </div>
@@ -3034,7 +3034,7 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
           with direct implications for prescribing guidelines and opioid crisis policy.
         </p>
         <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:16px;">
-          <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid rgba(253,184,39,0.4); color:var(--gold);">Meta-Analysis</span>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid rgba(92,138,181,0.4); color:var(--gold);">Meta-Analysis</span>
           <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid var(--border); color:var(--gray);">Opioid Safety</span>
           <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid var(--border); color:var(--gray);">Chronic Pain</span>
           <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid var(--border); color:var(--gray);">Drug Policy</span>
@@ -3052,7 +3052,7 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
   </div>
 
   <!-- PUBLISHED: BATHINI + VALLAKATI (co-authors, one card) -->
-  <div style="background:linear-gradient(135deg,rgba(40,92,77,0.14),rgba(253,184,39,0.05)); border:1px solid var(--green); padding:28px; position:relative; margin-bottom:2px;">
+  <div style="background:linear-gradient(135deg,rgba(40,92,77,0.14),rgba(92,138,181,0.05)); border:1px solid var(--green); padding:28px; position:relative; margin-bottom:2px;">
     <div style="position:absolute; top:0; left:0; right:0; background:var(--gold); font-family:'Public Sans',sans-serif; font-size:9px; font-weight:700; letter-spacing:3px; text-align:center; padding:6px; color:var(--black);">CTC</div>
     <div style="margin-top:28px;">
       <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; color:var(--green-bright); margin-bottom:8px; letter-spacing:2px;">JIRMPS Â· 2026 Â· hal-05576866</div>
@@ -3063,7 +3063,7 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
         <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; color:var(--gray); margin-top:5px;">Bathini Â· Vallakati Â· Oroszi Â· JIRMPS 21(2):45–74</div>
       </div>
       <div style="display:flex; gap:6px; flex-wrap:wrap;">
-        <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid rgba(253,184,39,0.4); color:var(--gold);">Published 2026</span>
+        <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid rgba(92,138,181,0.4); color:var(--gold);">Published 2026</span>
         <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid var(--border); color:var(--gray);">Cardiometabolic</span>
         <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid var(--border); color:var(--gray);">Safflower Oil</span>
       </div>
@@ -3077,12 +3077,12 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
       <div style="margin-top:28px;">
         <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; color:var(--green-bright); margin-bottom:8px; letter-spacing:2px;">POSTER SYMPOSIUM Â· APRIL 1, 2026</div>
         <div style="font-family:'Public Sans',sans-serif; font-size:22px; font-weight:700; text-transform:uppercase; margin-bottom:14px;">Santhosh Azhagappan</div>
-        <div style="background:rgba(253,184,39,0.06); border-left:3px solid var(--gold); padding:12px 14px; margin-bottom:12px;">
+        <div style="background:rgba(92,138,181,0.06); border-left:3px solid var(--gold); padding:12px 14px; margin-bottom:12px;">
           <div style="font-family:'Public Sans',sans-serif; font-size:13px; font-weight:600; text-transform:uppercase; color:var(--black); line-height:1.3;">AI in Pharmacological Cancer Diagnosis: Imaging, Pathology &amp; Biomarker-Driven Therapy Selection</div>
         </div>
         <p style="font-size:12px; color:var(--gray); line-height:1.7; font-weight:300;">AI integration of imaging, pathology, and multi-omics for PD-L1 and Mcl-1 biomarker identification. Radiomics models predict PD-L1 from CT, reducing invasive biopsies.</p>
         <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:12px;">
-          <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid rgba(253,184,39,0.4); color:var(--gold);">AI Radiomics</span>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid rgba(92,138,181,0.4); color:var(--gold);">AI Radiomics</span>
           <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid var(--border); color:var(--gray);">PD-L1</span>
           <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid var(--border); color:var(--gray);">Precision Oncology</span>
         </div>
@@ -3093,12 +3093,12 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
       <div style="margin-top:28px;">
         <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; color:var(--green-bright); margin-bottom:8px; letter-spacing:2px;">POSTER SYMPOSIUM Â· APRIL 1, 2026</div>
         <div style="font-family:'Public Sans',sans-serif; font-size:22px; font-weight:700; text-transform:uppercase; margin-bottom:14px;">Kashif Mohiuddin Syed</div>
-        <div style="background:rgba(253,184,39,0.06); border-left:3px solid var(--gold); padding:12px 14px; margin-bottom:12px;">
+        <div style="background:rgba(92,138,181,0.06); border-left:3px solid var(--gold); padding:12px 14px; margin-bottom:12px;">
           <div style="font-family:'Public Sans',sans-serif; font-size:13px; font-weight:600; text-transform:uppercase; color:var(--black); line-height:1.3;">Emerging Technologies &amp; AI in STEM: Bridging Human Expertise with Machine Intelligence</div>
         </div>
         <p style="font-size:12px; color:var(--gray); line-height:1.7; font-weight:300;">Review of 17 studies (2020–2025) on ML, robotics, XR, and cognitive computing. Defines hybrid intelligence. Cites Oroszi (2023) as foundational reference.</p>
         <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:12px;">
-          <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid rgba(253,184,39,0.4); color:var(--gold);">Hybrid Intelligence</span>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid rgba(92,138,181,0.4); color:var(--gold);">Hybrid Intelligence</span>
           <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid var(--border); color:var(--gray);">XR</span>
           <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; padding:3px 9px; border:1px solid var(--border); color:var(--gray);">AI Ethics</span>
         </div>
@@ -3115,12 +3115,12 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
       <div style="margin-top:22px;">
         <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--green-bright); margin-bottom:6px;">ETL RESEARCHER Â· 2025–2026</div>
         <div style="font-family:'Public Sans',sans-serif; font-size:20px; font-weight:700; text-transform:uppercase; line-height:1.1; margin-bottom:14px;">Tina Davison</div>
-        <div style="background:rgba(253,184,39,0.06); border-left:3px solid var(--gold); padding:12px 14px; margin-bottom:12px;">
+        <div style="background:rgba(92,138,181,0.06); border-left:3px solid var(--gold); padding:12px 14px; margin-bottom:12px;">
           <div style="font-family:'IBM Plex Mono',monospace; font-size:8px; letter-spacing:1px; color:var(--gold); margin-bottom:4px;">POSTER Â· APRIL 2026</div>
           <div style="font-family:'Public Sans',sans-serif; font-size:13px; font-weight:600; text-transform:uppercase; color:var(--black); line-height:1.3;">Beyond the Siloes: A Unified Framework for Host-Pathogen-Pharmacokinetic Drivers of Antibiotic Resistance</div>
         </div>
         <div style="display:flex; flex-wrap:wrap; gap:4px;">
-          <span style="font-family:'IBM Plex Mono',monospace; font-size:8px; padding:2px 8px; border:1px solid rgba(253,184,39,0.4); color:var(--gold);">Antibiotic Resistance</span>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:8px; padding:2px 8px; border:1px solid rgba(92,138,181,0.4); color:var(--gold);">Antibiotic Resistance</span>
           <span style="font-family:'IBM Plex Mono',monospace; font-size:8px; padding:2px 8px; border:1px solid var(--border); color:var(--gray);">Pharmacokinetics</span>
           <span style="font-family:'IBM Plex Mono',monospace; font-size:8px; padding:2px 8px; border:1px solid var(--border); color:var(--gray);">Infectious Disease</span>
         </div>
@@ -3133,12 +3133,12 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
       <div style="margin-top:22px;">
         <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--green-bright); margin-bottom:6px;">ETL RESEARCHER Â· 2025–2026</div>
         <div style="font-family:'Public Sans',sans-serif; font-size:20px; font-weight:700; text-transform:uppercase; line-height:1.1; margin-bottom:14px;">Anusha Garvandhula</div>
-        <div style="background:rgba(253,184,39,0.06); border-left:3px solid var(--gold); padding:12px 14px; margin-bottom:12px;">
+        <div style="background:rgba(92,138,181,0.06); border-left:3px solid var(--gold); padding:12px 14px; margin-bottom:12px;">
           <div style="font-family:'IBM Plex Mono',monospace; font-size:8px; letter-spacing:1px; color:var(--gold); margin-bottom:4px;">POSTER Â· APRIL 2026</div>
           <div style="font-family:'Public Sans',sans-serif; font-size:13px; font-weight:600; text-transform:uppercase; color:var(--black); line-height:1.3;">How Social Media Impacts Mental Health: Risks, Benefits</div>
         </div>
         <div style="display:flex; flex-wrap:wrap; gap:4px;">
-          <span style="font-family:'IBM Plex Mono',monospace; font-size:8px; padding:2px 8px; border:1px solid rgba(253,184,39,0.4); color:var(--gold);">Social Media</span>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:8px; padding:2px 8px; border:1px solid rgba(92,138,181,0.4); color:var(--gold);">Social Media</span>
           <span style="font-family:'IBM Plex Mono',monospace; font-size:8px; padding:2px 8px; border:1px solid var(--border); color:var(--gray);">Mental Health</span>
           <span style="font-family:'IBM Plex Mono',monospace; font-size:8px; padding:2px 8px; border:1px solid var(--border); color:var(--gray);">Public Health</span>
         </div>
@@ -3151,12 +3151,12 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
       <div style="margin-top:22px;">
         <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--green-bright); margin-bottom:6px;">ETL RESEARCHER Â· 2025–2026</div>
         <div style="font-family:'Public Sans',sans-serif; font-size:20px; font-weight:700; text-transform:uppercase; line-height:1.1; margin-bottom:14px;">Brianne N. Jones</div>
-        <div style="background:rgba(253,184,39,0.06); border-left:3px solid var(--gold); padding:12px 14px; margin-bottom:12px;">
+        <div style="background:rgba(92,138,181,0.06); border-left:3px solid var(--gold); padding:12px 14px; margin-bottom:12px;">
           <div style="font-family:'IBM Plex Mono',monospace; font-size:8px; letter-spacing:1px; color:var(--gold); margin-bottom:4px;">POSTER Â· APRIL 2026</div>
           <div style="font-family:'Public Sans',sans-serif; font-size:13px; font-weight:600; text-transform:uppercase; color:var(--black); line-height:1.3;">How Much Do You Want to Know?: Genetic Testing in Modern Medicine</div>
         </div>
         <div style="display:flex; flex-wrap:wrap; gap:4px;">
-          <span style="font-family:'IBM Plex Mono',monospace; font-size:8px; padding:2px 8px; border:1px solid rgba(253,184,39,0.4); color:var(--gold);">Genetic Testing</span>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:8px; padding:2px 8px; border:1px solid rgba(92,138,181,0.4); color:var(--gold);">Genetic Testing</span>
           <span style="font-family:'IBM Plex Mono',monospace; font-size:8px; padding:2px 8px; border:1px solid var(--border); color:var(--gray);">Precision Medicine</span>
           <span style="font-family:'IBM Plex Mono',monospace; font-size:8px; padding:2px 8px; border:1px solid var(--border); color:var(--gray);">Clinical Genomics</span>
         </div>
@@ -3169,7 +3169,7 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
       <div style="margin-top:22px;">
         <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--green-bright); margin-bottom:6px;">ETL RESEARCHERS Â· 2025–2026</div>
         <div style="font-family:'Public Sans',sans-serif; font-size:20px; font-weight:700; text-transform:uppercase; line-height:1.1; margin-bottom:14px;">Maaz Abdul Munaf Shaikh &amp; Kashif Mohiuddin Syed</div>
-        <div style="background:rgba(253,184,39,0.06); border-left:3px solid var(--gold); padding:12px 14px; margin-bottom:8px;">
+        <div style="background:rgba(92,138,181,0.06); border-left:3px solid var(--gold); padding:12px 14px; margin-bottom:8px;">
           <div style="font-family:'IBM Plex Mono',monospace; font-size:8px; letter-spacing:1px; color:var(--gold); margin-bottom:4px;">POSTER 01 Â· APRIL 2026</div>
           <div style="font-family:'Public Sans',sans-serif; font-size:12px; font-weight:600; text-transform:uppercase; color:var(--black); line-height:1.3;">Organ-on-a-Chip and Microphysiological Systems as Advanced Biosensing Platforms for Environmental Toxicology, Nanomaterial Safety Assessment, and Translational Diagnostics</div>
         </div>
@@ -3178,7 +3178,7 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
           <div style="font-family:'Public Sans',sans-serif; font-size:12px; font-weight:600; text-transform:uppercase; color:var(--black); line-height:1.3;">Application of Emerging Technologies and Artificial Intelligence in STEM to Bridge Human Expertise with Machine Intelligence</div>
         </div>
         <div style="display:flex; flex-wrap:wrap; gap:4px;">
-          <span style="font-family:'IBM Plex Mono',monospace; font-size:8px; padding:2px 8px; border:1px solid rgba(253,184,39,0.4); color:var(--gold);">Organ-on-a-Chip</span>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:8px; padding:2px 8px; border:1px solid rgba(92,138,181,0.4); color:var(--gold);">Organ-on-a-Chip</span>
           <span style="font-family:'IBM Plex Mono',monospace; font-size:8px; padding:2px 8px; border:1px solid var(--border); color:var(--gray);">AI / Emerging Tech</span>
           <span style="font-family:'IBM Plex Mono',monospace; font-size:8px; padding:2px 8px; border:1px solid var(--border); color:var(--gray);">Toxicology</span>
         </div>
@@ -3191,7 +3191,7 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
       <div style="margin-top:22px;">
         <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--green-bright); margin-bottom:6px;">ETL RESEARCHERS Â· 2025–2026</div>
         <div style="font-family:'Public Sans',sans-serif; font-size:20px; font-weight:700; text-transform:uppercase; line-height:1.1; margin-bottom:14px;">Dharani Karnayana &amp; Sai Kiran Yerragunta</div>
-        <div style="background:rgba(253,184,39,0.06); border-left:3px solid var(--gold); padding:12px 14px; margin-bottom:8px;">
+        <div style="background:rgba(92,138,181,0.06); border-left:3px solid var(--gold); padding:12px 14px; margin-bottom:8px;">
           <div style="font-family:'IBM Plex Mono',monospace; font-size:8px; letter-spacing:1px; color:var(--gold); margin-bottom:4px;">POSTER 01 Â· APRIL 2026</div>
           <div style="font-family:'Public Sans',sans-serif; font-size:12px; font-weight:600; text-transform:uppercase; color:var(--black); line-height:1.3;">Sleep and Circadian Rhythm: Gatekeepers of Health and Drivers of Disease</div>
         </div>
@@ -3200,7 +3200,7 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
           <div style="font-family:'Public Sans',sans-serif; font-size:12px; font-weight:600; text-transform:uppercase; color:var(--black); line-height:1.3;">Health Effects of Climate Change: Narrative Review of a 20-Subgroups Keywords-Based Literature Mapping</div>
         </div>
         <div style="display:flex; flex-wrap:wrap; gap:4px;">
-          <span style="font-family:'IBM Plex Mono',monospace; font-size:8px; padding:2px 8px; border:1px solid rgba(253,184,39,0.4); color:var(--gold);">Sleep &amp; Circadian</span>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:8px; padding:2px 8px; border:1px solid rgba(92,138,181,0.4); color:var(--gold);">Sleep &amp; Circadian</span>
           <span style="font-family:'IBM Plex Mono',monospace; font-size:8px; padding:2px 8px; border:1px solid var(--border); color:var(--gray);">Climate Change</span>
           <span style="font-family:'IBM Plex Mono',monospace; font-size:8px; padding:2px 8px; border:1px solid var(--border); color:var(--gray);">Systematic Review</span>
         </div>
@@ -3213,13 +3213,13 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
       <div style="margin-top:22px;">
         <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--green-bright); margin-bottom:6px;">ETL RESEARCHER Â· 2025–2026</div>
         <div style="font-family:'Public Sans',sans-serif; font-size:20px; font-weight:700; text-transform:uppercase; line-height:1.1; margin-bottom:14px;">Naresh Vallakati</div>
-        <div style="background:rgba(253,184,39,0.06); border-left:3px solid var(--gold); padding:12px 14px; margin-bottom:12px;">
+        <div style="background:rgba(92,138,181,0.06); border-left:3px solid var(--gold); padding:12px 14px; margin-bottom:12px;">
           <div style="font-family:'IBM Plex Mono',monospace; font-size:8px; letter-spacing:1px; color:var(--gold); margin-bottom:4px;">POSTER Â· APRIL 2026</div>
           <div style="font-family:'Public Sans',sans-serif; font-size:13px; font-weight:600; text-transform:uppercase; color:var(--black); line-height:1.3;">Advances in Precision Neuro-Oncology</div>
         </div>
         <div style="font-family:'IBM Plex Mono',monospace; font-size:8px; padding:3px 0; color:var(--gray);">SEE ALSO: Safflower Oil &amp; Cardiometabolic Health (co-authored publication)</div>
         <div style="display:flex; flex-wrap:wrap; gap:4px; margin-top:8px;">
-          <span style="font-family:'IBM Plex Mono',monospace; font-size:8px; padding:2px 8px; border:1px solid rgba(253,184,39,0.4); color:var(--gold);">Neuro-Oncology</span>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:8px; padding:2px 8px; border:1px solid rgba(92,138,181,0.4); color:var(--gold);">Neuro-Oncology</span>
           <span style="font-family:'IBM Plex Mono',monospace; font-size:8px; padding:2px 8px; border:1px solid var(--border); color:var(--gray);">Precision Medicine</span>
           <span style="font-family:'IBM Plex Mono',monospace; font-size:8px; padding:2px 8px; border:1px solid var(--border); color:var(--gray);">Cancer Treatment</span>
         </div>
@@ -3233,7 +3233,7 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
         <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--green-bright); margin-bottom:6px;">ETL RESEARCHER Â· 2025–2026</div>
         <div style="font-family:'Public Sans',sans-serif; font-size:20px; font-weight:700; text-transform:uppercase; line-height:1.1; margin-bottom:8px;">Poojitha Gorla</div>
         <div style="font-size:12px; color:var(--gray); font-weight:300; margin-bottom:10px;">Clinical Trials Coordination Â· ETL</div>
-        <div style="background:rgba(253,184,39,0.06); border-left:3px solid var(--gold); padding:12px 14px;">
+        <div style="background:rgba(92,138,181,0.06); border-left:3px solid var(--gold); padding:12px 14px;">
           <div style="font-family:'IBM Plex Mono',monospace; font-size:8px; letter-spacing:1px; color:var(--gold); margin-bottom:4px;">THESIS</div>
           <div style="font-family:'Public Sans',sans-serif; font-size:12px; font-weight:600; text-transform:uppercase; color:var(--black); line-height:1.3;">Design and Evaluation of pH-Dependent Time-Delayed Compressed Tablets for Colon-Targeted Drug Delivery</div>
         </div>
@@ -4230,7 +4230,7 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
   .etl-store-card {
     display: flex; flex-direction: column;
     background: #e9edf2; color: #111; text-decoration: none;
-    border: 1px solid rgba(253,184,39,0.45);
+    border: 1px solid rgba(92,138,181,0.45);
     padding: 26px 24px 22px;
     transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
     position: relative; overflow: hidden;
@@ -5225,7 +5225,7 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
     border-radius: 50%;
     overflow: hidden;
     border: 2px solid #5c8ab5;
-    box-shadow: 0 0 0 1px #0e0c08, 0 0 14px rgba(253,184,39,0.35);
+    box-shadow: 0 0 0 1px #0e0c08, 0 0 14px rgba(92,138,181,0.35);
   }
   .iris-face img {
     position: absolute; inset: 0;
