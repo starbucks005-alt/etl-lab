@@ -1188,7 +1188,7 @@ document.addEventListener('DOMContentLoaded', function(){
   <div class="hero-content">
     <div class="hero-classification">WELCOME TO THE LAB</div>
     <h1 class="hero-main">
-      <span class="line-white">Dr. Terry Oroszi <span style="color:var(--gold);font-size:0.65em;font-weight:400;letter-spacing:0.04em;">(Or-z)</span></span>
+      <span class="line-white">Dr. Terry Oroszi <span style="color:#7fa8c9;font-size:0.42em;font-weight:300;font-style:italic;letter-spacing:0;">(Or-z)</span></span>
       <span class="line-dim">researcher &middot; professor &middot; mentor &middot; artist &middot; philanthrope</span>
     </h1>
     <div class="hero-divider"></div>
@@ -5362,6 +5362,9 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
   }
 
 /* HOUSE OVERRIDE - Stamped Dossier (staged) */
+.hero-classification{background:#28527a!important;color:#fff!important;letter-spacing:.01em!important;font-size:11.5px!important;font-weight:600!important;padding:4px 10px!important;display:inline-flex!important;width:max-content;gap:0!important}
+.hero-classification::before{display:none!important}.hero-classification span:empty{display:none!important}
+.stat-label{text-transform:none!important;letter-spacing:.02em!important;font-size:11.5px!important;color:#8b97a5!important}
 p,li,dd,td{font-family:'Public Sans',sans-serif}
 .hero-sub{font-family:'Spectral',serif!important;font-style:italic;font-size:17px!important;color:#b9c2cc!important}
 .line-dim{font-family:'Public Sans',sans-serif!important;font-weight:500!important;letter-spacing:.09em!important;font-size:.34em!important;color:#7e8a98!important}
