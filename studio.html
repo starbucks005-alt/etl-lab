@@ -4407,6 +4407,24 @@
     // (Auggie for Dr. O, Jen Lopez for Sethi Studio, any of the 12).
     window.__paPersonaId = (cfg.pa && cfg.pa.persona_id) || 'auggie_vidal';
 
+    // ...and whose FACE the page card + call modal wear. Convention per PA:
+    // <Persona_Id_TitleCased>_Profile.png + _zoom_wide_eyes_{open,closed,
+    // thinking}.png in /agents/. Auggie (the default) keeps his hardcoded
+    // set; everyone else swaps in by convention with Auggie as fallback.
+    if (window.__paPersonaId !== 'auggie_vidal') {
+      var pfx = window.__paPersonaId.split('_').map(function(w){ return w.charAt(0).toUpperCase() + w.slice(1); }).join('_');
+      var cardImg = document.querySelector('.auggie-blink-base');
+      if (cardImg) { cardImg.src = '/agents/' + pfx + '_Profile.png'; cardImg.alt = paName; }
+      var callMap = { 'auggie-call-portrait-base': 'open', 'auggie-call-portrait-closed': 'closed', 'auggie-call-portrait-thinking': 'thinking' };
+      Object.keys(callMap).forEach(function(cls){
+        var img = document.querySelector('.' + cls);
+        if (img) {
+          img.onerror = null;
+          img.src = '/agents/' + pfx + '_zoom_wide_eyes_' + callMap[cls] + '.png';
+        }
+      });
+    }
+
     // Title bar
     try { document.title = companyName + ' | Emerging Technologies Laboratory'; } catch(_){}
 
