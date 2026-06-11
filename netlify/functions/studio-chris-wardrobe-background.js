@@ -57,8 +57,11 @@ const PROMPT_TEMPLATE = (outfit) =>
   'Change ONLY the clothing to: ' + outfit + '. ' +
   'Photorealistic professional portrait quality. No text, no watermarks, no logos.';
 
-/* Chris writes the closet from the persona. they/them. */
-async function chrisWritesOutfits(agent, count) {
+/* Chris writes the closet from the persona. they/them.
+   The assignment (Terry's spec): work pieces + weekend pieces + maybe an
+   evening look, with a dress code steering the work register. Returns
+   [{category, outfit}, ...]. */
+async function chrisWritesOutfits(agent, mix, code) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) throw new Error('anthropic key missing for outfit writing');
   const client = new Anthropic({ apiKey });
@@ -69,21 +72,30 @@ async function chrisWritesOutfits(agent, count) {
     'Bio: ' + (agent.bio || ''),
     'Background: ' + (agent.background || ''),
     'Backstory: ' + (agent.backstory || ''),
-    'Floor voice: ' + (agent.floor || ''),
+    'Personality: ' + (agent.personality || ''),
+    'Floor voice: ' + (agent.floor || agent.floor_voice || ''),
     'Interests: ' + (Array.isArray(agent.interests) ? agent.interests.join('; ') : (agent.interests || '')),
   ].filter(l => l.split(': ')[1]).join('\n');
 
+  const total = mix.work + mix.weekend + mix.evening;
   const resp = await client.messages.create({
     model: 'claude-sonnet-4-6',
-    max_tokens: 900,
+    max_tokens: 1100,
     system: [
-      'You are Chris Avila (they/them), the artist on the ETL bench. You are dressing a colleague for the week.',
+      'You are Chris Avila (they/them), the artist on the ETL bench. You are dressing a colleague.',
       'THE RULE (Terry, locked): the clothes MUST fit the personality. The closet IS the character. Never a generic rack.',
-      'You read the persona below and write ' + count + ' distinct outfits that THIS person would actually wear across a work week.',
+      '',
+      'THE ASSIGNMENT:',
+      '- ' + mix.work + ' WORK pieces. The workplace dress code is "' + code + '" - interpret that register THROUGH this person\'s taste, not as a uniform.',
+      (mix.weekend ? '- ' + mix.weekend + ' WEEKEND pieces. Off the clock, errands, brunch, the hobby in their file.' : ''),
+      (mix.evening ? '- ' + mix.evening + ' EVENING piece. Dinner out, an event, a date; their version of dressed up.' : ''),
+      '',
       'Each outfit must be visible in a head-and-shoulders portrait: tops, jackets, collars, knitwear, scarves, jewelry, glasses. No pants talk, no shoes, no costumes unless the persona demands it.',
-      'Each description is one line, concrete and paintable (colors, fabrics, cut). Vary formality across the week the way a real person does.',
-      'Return ONLY a JSON array of ' + count + ' strings. No commentary, no markdown fences.',
-    ].join('\n'),
+      'Each description is one line, concrete and paintable (colors, fabrics, cut).',
+      'Return ONLY a JSON array of exactly ' + total + ' objects, work pieces first, then weekend, then evening:',
+      '[{"category":"work","outfit":"..."}, ...]',
+      'No commentary, no markdown fences.',
+    ].filter(Boolean).join('\n'),
     messages: [{ role: 'user', content: persona }],
   });
   const text = (resp.content || []).filter(b => b.type === 'text').map(b => b.text).join('').trim();
@@ -91,7 +103,7 @@ async function chrisWritesOutfits(agent, count) {
   if (!match) throw new Error('chris returned no outfit list');
   const arr = JSON.parse(match[0]);
   if (!Array.isArray(arr) || !arr.length) throw new Error('chris outfit list empty');
-  return arr.slice(0, count).map(String);
+  return arr.slice(0, total).map(o => ({ category: String(o.category || 'work'), outfit: String(o.outfit || o) }));
 }
 
 async function editImage(apiKey, refBuf, refMime, prompt, quality) {
@@ -123,11 +135,35 @@ exports.handler = async (event) => {
   const params = event.queryStringParameters || {};
   const only = params.only ? parseInt(params.only, 10) : null;
   const quality = params.quality === 'high' ? 'high' : 'medium';
-  const count = Math.min(Math.max(parseInt(params.count || '7', 10) || 7, 1), 10);
+  // The assignment: work,weekend,evening counts (Terry's default: 5,2,1)
+  const mixParts = String(params.mix || '5,2,1').split(',').map(n => Math.min(Math.max(parseInt(n, 10) || 0, 0), 7));
+  const mix = { work: mixParts[0] || 0, weekend: mixParts[1] || 0, evening: mixParts[2] || 0 };
+  if (mix.work + mix.weekend + mix.evening === 0) mix.work = 5;
+  const CODES = ['formal', 'business', 'semiformal', 'smart casual', 'casual', 'creative'];
+  const code = CODES.includes((params.code || '').toLowerCase()) ? params.code.toLowerCase() : 'business';
 
-  let slug = null, displayName = null, refUrl = null, outfits = null, source = null;
+  let slug = null, displayName = null, refUrl = null, refBuf = null, refMime = 'image/png', outfits = null, source = null;
+  const draftsStore = getStore('agent_drafts');
 
-  if (params.agent) {
+  if (params.draft) {
+    // A brand-new agent from the Persona Desk. Reference portrait + persona
+    // both live in the agent_drafts store.
+    const dSlug = params.draft.toLowerCase().trim();
+    const dossier = await draftsStore.get(dSlug + '/dossier', { type: 'json' });
+    if (!dossier) return { statusCode: 404, body: 'no draft dossier: ' + dSlug };
+    const buf = await draftsStore.get(dSlug + '/portrait.png', { type: 'arrayBuffer' });
+    if (!buf) return { statusCode: 400, body: 'draft has no portrait yet; the Desk is still painting' };
+    slug = dSlug;
+    displayName = dossier.name;
+    refUrl = 'draft:' + dSlug;
+    refBuf = Buffer.from(buf);
+    source = 'persona-desk-draft';
+    try {
+      outfits = await chrisWritesOutfits(dossier, mix, code);
+    } catch (e) {
+      return { statusCode: 502, body: 'chris could not write the closet: ' + (e && e.message) };
+    }
+  } else if (params.agent) {
     // Any roster agent. Chris reads the persona and writes the closet.
     const roster = loadJson('roster.json');
     if (!Array.isArray(roster)) return { statusCode: 500, body: 'roster unavailable' };
@@ -141,7 +177,7 @@ exports.handler = async (event) => {
     refUrl = agent.image_url;
     source = 'persona';
     try {
-      outfits = await chrisWritesOutfits(agent, count);
+      outfits = await chrisWritesOutfits(agent, mix, code);
     } catch (e) {
       return { statusCode: 502, body: 'chris could not write the closet: ' + (e && e.message) };
     }
@@ -154,28 +190,30 @@ exports.handler = async (event) => {
     slug = paSlug;
     displayName = pa.name;
     refUrl = 'https://emerging-tech-lab.com/agents/' + pa.reference;
-    outfits = pa.outfits;
+    outfits = pa.outfits.map(o => ({ category: null, outfit: o }));
     source = 'catalog';
   }
 
-  const refResp = await fetch(refUrl);
-  if (!refResp.ok) return { statusCode: 502, body: 'reference fetch failed: ' + refUrl };
-  const refMime = (refResp.headers.get('content-type') || 'image/png').split(';')[0];
-  const refBuf = Buffer.from(await refResp.arrayBuffer());
+  if (!refBuf) {
+    const refResp = await fetch(refUrl);
+    if (!refResp.ok) return { statusCode: 502, body: 'reference fetch failed: ' + refUrl };
+    refMime = (refResp.headers.get('content-type') || 'image/png').split(';')[0];
+    refBuf = Buffer.from(await refResp.arrayBuffer());
+  }
 
   const store = getStore('pa_wardrobe');
   const indexKey = slug + '/index';
-  const index = { pa: slug, name: displayName, reference: refUrl, source, quality, started_at: new Date().toISOString(), outfits: [] };
+  const index = { pa: slug, name: displayName, reference: refUrl, source, quality, code, mix, started_at: new Date().toISOString(), outfits: [] };
 
   for (let i = 0; i < outfits.length; i++) {
     const n = i + 1;
     if (only && n !== only) continue;
-    const outfit = outfits[i];
-    const entry = { n, outfit, status: 'pending' };
+    const item = outfits[i];
+    const entry = { n, outfit: item.outfit, category: item.category, status: 'pending' };
     index.outfits.push(entry);
     await store.setJSON(indexKey, index);
     try {
-      const img = await editImage(openaiKey, refBuf, refMime, PROMPT_TEMPLATE(outfit), quality);
+      const img = await editImage(openaiKey, refBuf, refMime, PROMPT_TEMPLATE(item.outfit), quality);
       await store.set(slug + '/' + n + '.png', new Blob([img]));
       entry.status = 'done';
       entry.bytes = img.length;

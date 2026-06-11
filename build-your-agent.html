@@ -1,50 +1,97 @@
 <!DOCTYPE html><html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Build Your Own AI Agent - ETL</title>
-<meta name="description" content="Build your own AI agent at the Emerging Technologies Laboratory. First room open: Chris's Tailor Shop - persona-fitted wardrobes for any agent in the catalog.">
+<meta name="description" content="Build your own AI agent at the Emerging Technologies Laboratory: the Persona Desk writes them, Chris's Tailor Shop dresses them.">
 <link rel="icon" type="image/png" sizes="64x64" href="/fs-favicon-64.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=Cormorant+Garamond:ital@0;1&family=DM+Mono&family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <style>
-:root{--ink:#1d1b16;--ink-soft:#5d574b;--brass:#b8922a;--linen:#faf7f1;--linen-edge:#e7e0d2;--navy:#10182b;}
+:root{
+  --ink:#1d1b16;--ink-soft:#5d574b;--brass:#b8922a;--linen:#faf7f1;--linen-edge:#e7e0d2;--navy:#10182b;
+  --work:#2e4a6b;--weekend:#c4622d;--evening:#6d3a5d;--thread:#1f7a5c;
+}
 *{box-sizing:border-box}body{margin:0;background:var(--linen);color:var(--ink);font-family:Inter,system-ui,sans-serif}
 .topbar{background:var(--navy);border-bottom:2px solid var(--brass);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
 .topbar .brand{font-family:'Playfair Display',serif;color:#fff;font-size:17px;}
 .topbar .brand em{color:var(--brass);font-style:normal}
 .topbar a{color:#fff;text-decoration:none;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;margin-left:18px;}
 .topbar a:hover{color:var(--brass)}
-.wrap{max-width:1100px;margin:0 auto;padding:0 28px;}
-.hero{padding:54px 0 10px;text-align:center;}
+.wrap{max-width:1140px;margin:0 auto;padding:0 28px;}
+.hero{padding:50px 0 8px;text-align:center;}
 .eyebrow{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.22em;color:var(--brass);text-transform:uppercase;margin-bottom:14px;}
 h1{font-family:'Playfair Display',serif;font-size:clamp(32px,5vw,50px);font-weight:700;margin:0 0 14px;}
 h1 em{color:var(--brass);font-style:italic;font-weight:400}
-.hero p{font-family:'Cormorant Garamond',serif;font-size:19px;font-style:italic;color:var(--ink-soft);max-width:640px;margin:0 auto;}
-section{padding:40px 0;border-top:1px solid var(--linen-edge);margin-top:36px;}
+.hero p{font-family:'Cormorant Garamond',serif;font-size:19px;font-style:italic;color:var(--ink-soft);max-width:680px;margin:0 auto;}
+
+/* ── The shop window: rotating mannequins ── */
+.window{margin:34px auto 0;max-width:1000px;background:var(--navy);border:1px solid #2a3450;border-top:3px solid var(--brass);padding:22px 22px 14px;}
+.window .w-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--brass);text-align:center;margin-bottom:14px;}
+.mannequins{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;}
+@media(max-width:760px){.mannequins{grid-template-columns:repeat(3,1fr)} .mann:nth-child(n+4){display:none}}
+.mann{position:relative;aspect-ratio:1/1.18;overflow:hidden;background:#0b1120;border:1px solid #2a3450;}
+.mann img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.4s ease;}
+.mann img.on{opacity:1;}
+.mann .tag{position:absolute;left:0;right:0;bottom:0;padding:6px 9px;background:linear-gradient(to top,rgba(5,8,16,.92),rgba(5,8,16,0));font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:#cfc4a6;}
+.window .w-sub{font-family:'Cormorant Garamond',serif;font-style:italic;color:#8e96ad;font-size:13.5px;text-align:center;margin-top:12px;}
+
+section{padding:42px 0;border-top:1px solid var(--linen-edge);margin-top:38px;}
 .s-h{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;margin-bottom:4px;}
 .s-h em{color:var(--brass);font-style:italic;font-weight:400}
-.s-sub{font-family:'Cormorant Garamond',serif;font-size:16.5px;font-style:italic;color:var(--ink-soft);max-width:760px;margin:0 0 22px;}
-.shop{display:grid;grid-template-columns:300px 1fr;gap:26px;align-items:start;}
-@media(max-width:820px){.shop{grid-template-columns:1fr}}
+.s-sub{font-family:'Cormorant Garamond',serif;font-size:16.5px;font-style:italic;color:var(--ink-soft);max-width:780px;margin:0 0 22px;}
 .panel{background:#fff;border:1px solid var(--linen-edge);padding:20px;}
 .lbl{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--brass);display:block;margin:14px 0 6px;}
 .lbl:first-child{margin-top:0}
-input,select{width:100%;border:1px solid var(--linen-edge);padding:11px 12px;font-size:14px;font-family:Inter;background:#fff;}
+input,select,textarea{width:100%;border:1px solid var(--linen-edge);padding:11px 12px;font-size:14px;font-family:Inter;background:#fff;}
+textarea{min-height:84px;resize:vertical;}
 .btn{display:block;width:100%;margin-top:18px;background:var(--brass);color:#10182b;border:0;padding:13px;font-weight:600;font-size:14px;cursor:pointer;}
 .btn[disabled]{opacity:.5;cursor:default}
+.btn.navy{background:var(--navy);color:#fff;}
 .who{display:flex;gap:12px;align-items:center;margin-top:14px;display:none;}
 .who img{width:64px;height:64px;object-fit:cover;border:1px solid var(--linen-edge);}
 .who .nm{font-family:'Playfair Display',serif;font-weight:700;font-size:15px;}
 .who .rl{font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--brass);margin-top:3px;}
 .status{font-family:'DM Mono',monospace;font-size:11.5px;color:var(--ink-soft);margin-top:14px;line-height:1.6;min-height:18px;}
-.rack{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;}
-.fit{background:#fff;border:1px solid var(--linen-edge);}
+.shop{display:grid;grid-template-columns:320px 1fr;gap:26px;align-items:start;}
+@media(max-width:860px){.shop{grid-template-columns:1fr}}
+.mixrow{display:flex;gap:8px;}
+.mixrow>div{flex:1}
+.mixrow .mini{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:4px;}
+.mixrow .mini.w{color:var(--work)} .mixrow .mini.e{color:var(--evening)} .mixrow .mini.k{color:var(--weekend)}
+.rack{display:grid;grid-template-columns:repeat(auto-fill,minmax(225px,1fr));gap:14px;}
+.fit{background:#fff;border:1px solid var(--linen-edge);border-top:3px solid var(--linen-edge);}
+.fit.c-work{border-top-color:var(--work)} .fit.c-weekend{border-top-color:var(--weekend)} .fit.c-evening{border-top-color:var(--evening)}
 .fit .imgbox{aspect-ratio:1;background:#f3efe6;display:flex;align-items:center;justify-content:center;color:#9a917f;font-family:'DM Mono',monospace;font-size:10px;text-align:center;padding:10px;}
 .fit img{width:100%;height:100%;object-fit:cover;display:block;}
 .fit .cap{padding:10px 12px;font-family:'Cormorant Garamond',serif;font-size:13.5px;color:var(--ink-soft);line-height:1.45;}
+.badge{display:inline-block;font-family:'DM Mono',monospace;font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:#fff;padding:2px 7px;margin-right:6px;}
+.badge.b-work{background:var(--work)} .badge.b-weekend{background:var(--weekend)} .badge.b-evening{background:var(--evening)} .badge.b-none{background:#9a917f}
 .fit .dl{display:inline-block;margin-top:6px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--brass);text-decoration:none;}
-.chris{display:flex;gap:16px;align-items:flex-start;background:#fff;border:1px solid var(--linen-edge);padding:16px 18px;margin-bottom:22px;max-width:760px;}
+.chris{display:flex;gap:16px;align-items:flex-start;background:#fff;border:1px solid var(--linen-edge);border-left:3px solid var(--thread);padding:16px 18px;margin-bottom:22px;max-width:780px;}
 .chris img{width:64px;height:64px;object-fit:cover;flex:none;border:1px solid var(--linen-edge);}
 .chris p{font-family:'Cormorant Garamond',serif;font-size:15.5px;font-style:italic;color:var(--ink-soft);margin:0;line-height:1.55;}
+.desk{display:grid;grid-template-columns:320px 1fr;gap:26px;align-items:start;}
+@media(max-width:860px){.desk{grid-template-columns:1fr}}
+.dossier{background:#fff;border:1px solid var(--linen-edge);padding:22px;display:none;}
+.dossier .d-head{display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap;}
+.dossier .d-head img{width:150px;height:150px;object-fit:cover;border:1px solid var(--linen-edge);}
+.dossier h3{font-family:'Playfair Display',serif;font-size:22px;margin:0 0 2px;}
+.dossier .d-role{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--brass);margin-bottom:8px;}
+.dossier .d-tag{font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--ink-soft);font-size:15px;}
+.d-sec{margin-top:16px;}
+.d-sec .d-lbl{font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--brass);margin-bottom:5px;}
+.d-sec p{font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--ink);line-height:1.55;margin:0;}
+.resume{width:100%;border-collapse:collapse;font-size:13px;}
+.resume td{border-top:1px solid var(--linen-edge);padding:7px 8px 7px 0;vertical-align:top;font-family:'Cormorant Garamond',serif;font-size:14.5px;}
+.resume td.yrs{font-family:'DM Mono',monospace;font-size:10.5px;color:var(--ink-soft);white-space:nowrap;padding-right:14px;}
+.price-row{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;}
+.pcard{flex:1;min-width:250px;background:#fff;border:1px solid var(--linen-edge);padding:22px 24px;}
+.pcard.reco{border:2px solid var(--brass);background:#fdf9ee;}
+.pcard .amt{font-family:'Playfair Display',serif;font-size:30px;font-weight:700;}
+.pcard .amt small{font-size:13px;color:var(--ink-soft);font-weight:400}
+.pcard .what{font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--ink-soft);line-height:1.5;margin:8px 0 16px;}
+.cta{display:inline-block;background:var(--brass);color:#10182b;text-decoration:none;font-weight:600;font-size:13px;padding:11px 20px;}
+.cta.ghost{background:transparent;border:1px solid var(--brass);color:var(--brass);}
+.note{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;color:var(--ink-soft);margin-top:14px;}
 .coming{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;}
 .room{background:#fff;border:1px dashed var(--linen-edge);padding:18px 20px;color:var(--ink-soft);}
 .room .rh{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--ink);margin-bottom:5px;}
@@ -66,12 +113,25 @@ footer a{color:var(--brass);text-decoration:none;margin:0 10px;}
   <div class="hero">
     <div class="eyebrow">Emerging Technologies Laboratory</div>
     <h1>The agent <em>workshop</em></h1>
-    <p>Where agents get made, and remade. The first room is open: the Tailor Shop. More rooms are being built around it.</p>
+    <p>Where agents get made, and remade. The Persona Desk writes them into existence; Chris&rsquo;s Tailor Shop dresses them for the life they are about to live.</p>
+  </div>
+
+  <!-- The shop window: rotating looks, the whole bench in the glass -->
+  <div class="window">
+    <div class="w-label">In the window today</div>
+    <div class="mannequins" id="mannequins">
+      <div class="mann"><div class="tag"></div></div>
+      <div class="mann"><div class="tag"></div></div>
+      <div class="mann"><div class="tag"></div></div>
+      <div class="mann"><div class="tag"></div></div>
+      <div class="mann"><div class="tag"></div></div>
+    </div>
+    <div class="w-sub">The bench, rotating through the glass. Every face below can be re-dressed; every face can be born here.</div>
   </div>
 
   <section>
     <div class="s-h">Chris&rsquo;s <em>Tailor Shop</em></div>
-    <p class="s-sub">Pick any agent from the catalog. Chris reads who they are from their profile and writes them a week of clothes that fit the personality, then sews each look onto their portrait. Same face, same room, new outfit.</p>
+    <p class="s-sub">Pick any agent from the catalog. Chris reads who they are from their file and writes the assignment in their taste: work pieces in your dress code, weekend pieces for the life in their file, an evening look for their version of dressed up. Then they sew every look onto the portrait. Same face, same room, new clothes.</p>
 
     <div class="chris">
       <img src="https://emerging-tech-lab.com/agents/Chris_Avila_eyes_open.png" alt="Chris Avila" onerror="this.style.display='none'">
@@ -84,6 +144,23 @@ footer a{color:var(--brass);text-decoration:none;margin:0 10px;}
         <input id="agent" list="agent-list" placeholder="Start typing a name from the catalog" autocomplete="off">
         <datalist id="agent-list"></datalist>
         <div class="who" id="who"><img id="who-img" src="" alt=""><div><div class="nm" id="who-nm"></div><div class="rl" id="who-rl"></div></div></div>
+
+        <label class="lbl">The assignment</label>
+        <div class="mixrow">
+          <div><span class="mini w">Work</span><select id="mix-work"><option>3</option><option>4</option><option selected>5</option><option>6</option><option>7</option></select></div>
+          <div><span class="mini k">Weekend</span><select id="mix-weekend"><option>0</option><option>1</option><option selected>2</option><option>3</option></select></div>
+          <div><span class="mini e">Evening</span><select id="mix-evening"><option>0</option><option selected>1</option><option>2</option></select></div>
+        </div>
+
+        <label class="lbl" for="code">Workplace dress code</label>
+        <select id="code">
+          <option value="formal">Formal</option>
+          <option value="business" selected>Business</option>
+          <option value="semiformal">Semiformal</option>
+          <option value="smart casual">Smart casual</option>
+          <option value="casual">Casual</option>
+          <option value="creative">Creative</option>
+        </select>
 
         <label class="lbl" for="quality">Fabric quality</label>
         <select id="quality">
@@ -100,16 +177,72 @@ footer a{color:var(--brass);text-decoration:none;margin:0 10px;}
         <div class="status" id="status">The rack is empty. Pick a name.</div>
       </div>
 
-      <div>
-        <div class="rack" id="rack"></div>
+      <div><div class="rack" id="rack"></div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="s-h">The <em>Persona Desk</em></div>
+    <p class="s-sub">For agents that do not exist yet. Give the Desk a role and whatever notes you have; it writes the whole person: where they grew up, where they worked (a real resume), their family, their personality, how they type in the office chat. Then it paints their first portrait. From there, send them straight to Chris for a closet.</p>
+
+    <div class="desk">
+      <div class="panel">
+        <label class="lbl" for="d-name">Name (optional, the Desk can invent one)</label>
+        <input id="d-name" placeholder="e.g. Rosa Delgado">
+        <label class="lbl" for="d-role">Role</label>
+        <input id="d-role" placeholder="e.g. Events and hospitality lead">
+        <label class="lbl" for="d-notes">Notes for the Desk</label>
+        <textarea id="d-notes" placeholder="Whatever you know: vibe, age, hometown, a quirk, who they remind you of in spirit"></textarea>
+        <button class="btn navy" id="d-go">Create at the Desk &rarr;</button>
+        <div class="status" id="d-status">The Desk is quiet. Give it a brief.</div>
+        <label class="lbl" for="d-existing">Or open a previous creation</label>
+        <select id="d-existing"><option value="">Drafts appear here</option></select>
+      </div>
+
+      <div class="dossier" id="dossier">
+        <div class="d-head">
+          <img id="d-img" src="" alt="">
+          <div style="flex:1;min-width:240px;">
+            <h3 id="d-nm"></h3>
+            <div class="d-role" id="d-rl"></div>
+            <div class="d-tag" id="d-tg"></div>
+            <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;">
+              <button class="btn" id="d-dress" style="width:auto;margin:0;padding:10px 16px;">Send to the Tailor Shop &rarr;</button>
+              <a class="cta ghost" id="d-save" href="#" download>Save portrait</a>
+            </div>
+          </div>
+        </div>
+        <div class="d-sec"><div class="d-lbl">Bio</div><p id="d-bio"></p></div>
+        <div class="d-sec"><div class="d-lbl">Personality</div><p id="d-pers"></p></div>
+        <div class="d-sec"><div class="d-lbl">Background</div><p id="d-bg"></p></div>
+        <div class="d-sec"><div class="d-lbl">Family</div><p id="d-fam"></p></div>
+        <div class="d-sec"><div class="d-lbl">Work history</div><table class="resume" id="d-resume"></table></div>
+        <div class="d-sec"><div class="d-lbl">Interests</div><p id="d-int"></p></div>
+        <div class="d-sec"><div class="d-lbl">Floor voice</div><p id="d-fv"></p></div>
       </div>
     </div>
   </section>
 
   <section>
+    <div class="s-h">What the workshop <em>charges</em></div>
+    <div class="price-row">
+      <div class="pcard reco">
+        <div class="amt">$149<small> one-time</small></div>
+        <div class="what"><b>Custom Agent Build.</b> The Persona Desk writes them, the first portrait is painted, and Chris fits the full first wardrobe. A complete, hireable character. They then join your company at the normal seat price.</div>
+        <a class="cta" href="https://buy.stripe.com/14AdR88b5ac98tj4g26Zy0f" target="_blank" rel="noopener">Finish the paperwork &rarr;</a>
+      </div>
+      <div class="pcard">
+        <div class="amt">$29<small> one-time</small></div>
+        <div class="what"><b>Wardrobe Refresh.</b> A new 8-look closet for any agent you already have, written from their personality and sewn onto their portrait.</div>
+        <a class="cta ghost" href="https://buy.stripe.com/bJeeVcgHBgAx6lb6oa6Zy0g" target="_blank" rel="noopener">Finish the paperwork &rarr;</a>
+      </div>
+    </div>
+    <p class="note">Builds are currently run white-glove by the lab after your paperwork clears. Your PA personas are dressed by the house and come with the Studio.</p>
+  </section>
+
+  <section>
     <div class="s-h">Rooms <em>under construction</em></div>
     <div class="coming">
-      <div class="room"><div class="rh">The Persona Desk</div><p>Write a new agent from scratch: name, history, voice, the way they talk on the Floor.</p></div>
       <div class="room"><div class="rh">The Voice Booth</div><p>Give them a voice that matches the face and the file.</p></div>
       <div class="room"><div class="rh">The Backpack Bench</div><p>Fit them with live tools so they do the job, not just talk about it.</p></div>
     </div>
@@ -122,9 +255,7 @@ footer a{color:var(--brass);text-decoration:none;margin:0 10px;}
 
 <script>
 (function(){
-  var ROSTER = [];
-  var byName = {};
-  var pollTimer = null;
+  var ROSTER = [], byName = {}, pollTimer = null, deskTimer = null, currentDraft = null;
 
   function slugify(n){ return String(n).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,''); }
   function authHeader(){
@@ -135,20 +266,44 @@ footer a{color:var(--brass);text-decoration:none;margin:0 10px;}
     return 'Basic ' + btoa(u + ':' + p);
   }
   function setStatus(t){ document.getElementById('status').textContent = t; }
-
-  // Restore saved staff-door creds
+  function setDeskStatus(t){ document.getElementById('d-status').textContent = t; }
   try {
     var su = localStorage.getItem('etl_adm_u'), sp = localStorage.getItem('etl_adm_p');
     if (su) document.getElementById('adm-u').value = su;
     if (sp) document.getElementById('adm-p').value = sp;
   } catch(_){}
 
-  // Load the catalog for the picker
+  /* ── Shop window: rotating mannequins, diverse slices of the bench ── */
   fetch('/roster.json', {cache:'no-store'}).then(function(r){return r.json();}).then(function(d){
     ROSTER = (Array.isArray(d)?d:[]).filter(function(a){ return a && a.name && a.image_url; });
     var dl = document.getElementById('agent-list');
     dl.innerHTML = ROSTER.map(function(a){ return '<option value="'+a.name.replace(/"/g,'&quot;')+'">'; }).join('');
     ROSTER.forEach(function(a){ byName[a.name.toLowerCase()] = a; });
+
+    // Shuffle once, then each mannequin cycles through its own slice on its own clock.
+    var pool = ROSTER.slice();
+    for (var i = pool.length - 1; i > 0; i--) { var j = Math.floor(Math.random()*(i+1)); var t = pool[i]; pool[i]=pool[j]; pool[j]=t; }
+    var manns = document.querySelectorAll('.mann');
+    manns.forEach(function(m, mi){
+      var slice = pool.filter(function(_, idx){ return idx % manns.length === mi; });
+      if (!slice.length) return;
+      var k = 0;
+      function show(){
+        var a = slice[k % slice.length]; k++;
+        var img = document.createElement('img');
+        img.src = a.image_url; img.alt = '';
+        img.onload = function(){
+          m.insertBefore(img, m.firstChild);
+          requestAnimationFrame(function(){ requestAnimationFrame(function(){ img.classList.add('on'); }); });
+          var tag = m.querySelector('.tag'); if (tag) tag.textContent = a.name;
+          var olds = m.querySelectorAll('img');
+          if (olds.length > 2) m.removeChild(olds[olds.length-1]);
+          olds.forEach(function(o){ if (o !== img) o.classList.remove('on'); });
+        };
+      }
+      show();
+      setInterval(show, 5200 + mi * 850); // staggered clocks, like a real window
+    });
   }).catch(function(){ setStatus('Could not load the catalog. Refresh me.'); });
 
   document.getElementById('agent').addEventListener('input', function(){
@@ -162,15 +317,20 @@ footer a{color:var(--brass);text-decoration:none;margin:0 10px;}
     } else { who.style.display = 'none'; }
   });
 
+  /* ── The rack ── */
   function renderRack(index, auth){
     var rack = document.getElementById('rack');
     var slug = index.pa;
     rack.innerHTML = (index.outfits || []).map(function(o){
+      var cat = o.category || '';
+      var cls = cat === 'work' ? 'c-work' : cat === 'weekend' ? 'c-weekend' : cat === 'evening' ? 'c-evening' : '';
+      var bcls = cat ? ('b-' + cat) : 'b-none';
       var id = 'fit-' + o.n;
       var inner = o.status === 'done'
         ? '<div class="imgbox" id="'+id+'">loading the look&hellip;</div>'
         : '<div class="imgbox">' + (o.status === 'pending' ? 'Chris is sewing&hellip;' : o.status) + '</div>';
-      return '<div class="fit">' + inner + '<div class="cap">#' + o.n + ' &middot; ' + o.outfit +
+      return '<div class="fit ' + cls + '">' + inner + '<div class="cap">' +
+        (cat ? '<span class="badge ' + bcls + '">' + cat + '</span>' : '') + '#' + o.n + ' &middot; ' + o.outfit +
         (o.status === 'done' ? '<br><a class="dl" id="dl-'+o.n+'" href="#">Save this look</a>' : '') + '</div></div>';
     }).join('');
     (index.outfits || []).forEach(function(o){
@@ -186,12 +346,11 @@ footer a{color:var(--brass);text-decoration:none;margin:0 10px;}
         }).catch(function(){});
     });
   }
-
   function poll(slug, auth){
     fetch('/.netlify/functions/studio-chris-wardrobe?pa=' + slug + '&list=1', { headers: { 'Authorization': auth } })
       .then(function(r){
         if (r.status === 401) { setStatus('The staff door did not open. Check the admin login.'); stopPoll(); return null; }
-        if (r.status === 404) { return null; } // not started writing yet
+        if (r.status === 404) { return null; }
         return r.json();
       })
       .then(function(index){
@@ -200,31 +359,121 @@ footer a{color:var(--brass);text-decoration:none;margin:0 10px;}
         var done = (index.outfits||[]).filter(function(o){return o.status==='done';}).length;
         var total = (index.outfits||[]).length;
         if (index.finished_at) { setStatus('Chris is finished. ' + done + ' of ' + total + ' looks on the rack.'); stopPoll(); }
-        else { setStatus('Chris is sewing. ' + done + ' of ' + total + ' looks done so far. This page updates itself.'); }
+        else { setStatus('Chris is sewing. ' + done + ' of ' + total + ' looks done. This page updates itself.'); }
       }).catch(function(){});
   }
   function stopPoll(){ if (pollTimer) { clearInterval(pollTimer); pollTimer = null; } }
+
+  function sendToTailor(qs, slug){
+    var auth = authHeader();
+    if (!auth) { setStatus('The Tailor Shop is staff-only for now. Enter the admin login.'); return; }
+    var mix = document.getElementById('mix-work').value + ',' + document.getElementById('mix-weekend').value + ',' + document.getElementById('mix-evening').value;
+    var code = document.getElementById('code').value;
+    var q = document.getElementById('quality').value;
+    setStatus('Chris has the file. Writing the assignment (' + mix.split(',').join(' work / ') .replace(/^(\d+) work \/ (\d+) \/ (\d+)$/, '$1 work, $2 weekend, $3 evening') + ', ' + code + '), then sewing.');
+    fetch('/.netlify/functions/studio-chris-wardrobe-background?' + qs + '&mix=' + mix + '&code=' + encodeURIComponent(code) + '&quality=' + q, { headers: { 'Authorization': auth } })
+      .then(function(r){
+        if (r.status === 401) { setStatus('The staff door did not open. Check the admin login.'); return; }
+        stopPoll();
+        pollTimer = setInterval(function(){ poll(slug, auth); }, 6000);
+      })
+      .catch(function(){ setStatus('Could not reach the shop. Try again.'); });
+  }
 
   document.getElementById('go').addEventListener('click', function(){
     var name = document.getElementById('agent').value.trim();
     var a = byName[name.toLowerCase()];
     if (!a) { setStatus('Pick a name from the catalog list first.'); return; }
-    var auth = authHeader();
-    if (!auth) { setStatus('The Tailor Shop is staff-only for now. Enter the admin login.'); return; }
-    var q = document.getElementById('quality').value;
-    var slug = slugify(a.name);
-    var btn = this; btn.disabled = true;
-    setStatus('Sending ' + a.name + ' to Chris…');
-    fetch('/.netlify/functions/studio-chris-wardrobe-background?agent=' + encodeURIComponent(a.name) + '&quality=' + q, { headers: { 'Authorization': auth } })
-      .then(function(r){
-        if (r.status === 401) { setStatus('The staff door did not open. Check the admin login.'); btn.disabled = false; return; }
-        setStatus('Chris has the file. Reading the persona, writing the closet, then sewing. First look in about a minute.');
-        stopPoll();
-        pollTimer = setInterval(function(){ poll(slug, auth); }, 6000);
-        setTimeout(function(){ btn.disabled = false; }, 8000);
-      })
-      .catch(function(){ setStatus('Could not reach the shop. Try again.'); btn.disabled = false; });
+    sendToTailor('agent=' + encodeURIComponent(a.name), slugify(a.name));
   });
+
+  /* ── The Persona Desk ── */
+  function renderDossier(d, auth){
+    currentDraft = d._meta && d._meta.slug;
+    document.getElementById('dossier').style.display = 'block';
+    document.getElementById('d-nm').textContent = d.name || '';
+    document.getElementById('d-rl').textContent = (d.role || '') + (d.pronouns ? ' · ' + d.pronouns : '');
+    document.getElementById('d-tg').textContent = d.tagline || '';
+    document.getElementById('d-bio').textContent = d.bio || '';
+    document.getElementById('d-pers').textContent = d.personality || '';
+    document.getElementById('d-bg').textContent = d.background || '';
+    document.getElementById('d-fam').textContent = d.family || '';
+    document.getElementById('d-int').textContent = Array.isArray(d.interests) ? d.interests.join(' · ') : (d.interests || '');
+    document.getElementById('d-fv').textContent = d.floor_voice || '';
+    document.getElementById('d-resume').innerHTML = (d.work_history || []).map(function(w){
+      return '<tr><td class="yrs">' + (w.years||'') + '</td><td><b>' + (w.title||'') + '</b>, ' + (w.org||'') + (w.note ? ' — ' + w.note : '') + '</td></tr>';
+    }).join('');
+    var img = document.getElementById('d-img');
+    img.src = ''; img.alt = d.name || '';
+    var ps = d._meta && d._meta.portrait_status;
+    if (ps === 'done') {
+      fetch('/.netlify/functions/agent-persona-desk?slug=' + currentDraft + '&img=1', { headers: { 'Authorization': auth } })
+        .then(function(r){ if(!r.ok) throw 0; return r.blob(); })
+        .then(function(b){ var u = URL.createObjectURL(b); img.src = u; var sv = document.getElementById('d-save'); sv.href = u; sv.download = currentDraft + '-portrait.png'; })
+        .catch(function(){});
+    }
+  }
+  function pollDesk(slug, auth){
+    fetch('/.netlify/functions/agent-persona-desk?slug=' + slug, { headers: { 'Authorization': auth } })
+      .then(function(r){ if (r.status === 404) return null; if (!r.ok) throw 0; return r.json(); })
+      .then(function(d){
+        if (!d) { setDeskStatus('The Desk is writing. The dossier appears here when the ink dries.'); return; }
+        renderDossier(d, auth);
+        var ps = d._meta && d._meta.portrait_status;
+        if (ps === 'done') { setDeskStatus('Done. ' + d.name + ' exists now. Read the file, save the portrait, send them to Chris.'); stopDesk(); refreshDrafts(auth); }
+        else if (ps && ps.indexOf('failed') === 0) { setDeskStatus('Dossier done, but the portrait failed: ' + ps + '. You can retry by creating again with the same name.'); stopDesk(); }
+        else { setDeskStatus('Dossier written. The portrait is being painted.'); }
+      }).catch(function(){});
+  }
+  function stopDesk(){ if (deskTimer) { clearInterval(deskTimer); deskTimer = null; } }
+  function refreshDrafts(auth){
+    fetch('/.netlify/functions/agent-persona-desk?list=1', { headers: { 'Authorization': auth } })
+      .then(function(r){ return r.ok ? r.json() : []; })
+      .then(function(list){
+        var sel = document.getElementById('d-existing');
+        sel.innerHTML = '<option value="">Drafts appear here</option>' + (list||[]).map(function(d){
+          return '<option value="' + d.slug + '">' + d.name + ' (' + (d.role||'') + ')</option>';
+        }).join('');
+      }).catch(function(){});
+  }
+  document.getElementById('d-go').addEventListener('click', function(){
+    var auth = authHeader();
+    if (!auth) { setDeskStatus('The Desk is staff-only for now. Enter the admin login above in the Tailor Shop panel.'); return; }
+    var name = document.getElementById('d-name').value.trim();
+    var role = document.getElementById('d-role').value.trim();
+    var notes = document.getElementById('d-notes').value.trim();
+    if (!role && !notes) { setDeskStatus('Give the Desk at least a role or some notes.'); return; }
+    var qs = 'role=' + encodeURIComponent(role) + '&notes=' + encodeURIComponent(notes) + (name ? '&name=' + encodeURIComponent(name) : '');
+    setDeskStatus('The Desk has the brief. Writing the person, then painting the portrait. A minute or two.');
+    fetch('/.netlify/functions/agent-persona-desk-background?' + qs, { headers: { 'Authorization': auth } })
+      .then(function(r){
+        if (r.status === 401) { setDeskStatus('The staff door did not open. Check the admin login.'); return; }
+        // We may not know the invented name; poll the list and open the newest.
+        stopDesk();
+        deskTimer = setInterval(function(){
+          fetch('/.netlify/functions/agent-persona-desk?list=1', { headers: { 'Authorization': auth } })
+            .then(function(r2){ return r2.ok ? r2.json() : []; })
+            .then(function(list){
+              if (list && list.length) {
+                var newest = name ? list.filter(function(d){ return d.slug === slugify(name); })[0] || list[0] : list[0];
+                pollDesk(newest.slug, auth);
+              }
+            }).catch(function(){});
+        }, 7000);
+      })
+      .catch(function(){ setDeskStatus('Could not reach the Desk. Try again.'); });
+  });
+  document.getElementById('d-existing').addEventListener('change', function(){
+    var auth = authHeader(); if (!auth || !this.value) return;
+    pollDesk(this.value, auth);
+  });
+  document.getElementById('d-dress').addEventListener('click', function(){
+    if (!currentDraft) return;
+    sendToTailor('draft=' + currentDraft, currentDraft);
+    document.getElementById('status').scrollIntoView({behavior:'smooth', block:'center'});
+  });
+  // Populate drafts list if creds already saved
+  var boot = authHeader(); if (boot) refreshDrafts(boot);
 })();
 </script>
 </body></html>
