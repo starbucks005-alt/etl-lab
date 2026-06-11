@@ -2086,7 +2086,10 @@
       overflow:hidden;
     }
     .auggie-call-portrait img {
-      display:block; max-width:100%; max-height:75vh; width:auto; height:auto;
+      /* Budget = modal cap (90vh) minus its chrome (header + status row +
+         composer, ~300px). Keeps the painted Zoom toolbar at the bottom of
+         the square frame fully visible instead of clipped under the chrome. */
+      display:block; max-width:100%; max-height:calc(90vh - 300px); width:auto; height:auto;
     }
     .auggie-call-portrait-closed, .auggie-call-portrait-thinking {
       position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0;
@@ -2446,12 +2449,30 @@
     var finalTranscript = '';
     var manualStop = false;
 
+    // Demo-room safety: a continuous mic with no timeout stays hot through
+    // the PA's replies and picks up everyone in the room. Two guards:
+    // close after SILENCE_MS without new speech, and hard-cap a session.
+    var SILENCE_MS = 8000, MAX_LISTEN_MS = 45000;
+    var silenceTimer = null, capTimer = null;
+    function clearMicTimers(){
+      if (silenceTimer) { clearTimeout(silenceTimer); silenceTimer = null; }
+      if (capTimer) { clearTimeout(capTimer); capTimer = null; }
+    }
+    function armSilenceTimer(){
+      if (silenceTimer) clearTimeout(silenceTimer);
+      silenceTimer = setTimeout(function(){
+        if (listening) { manualStop = false; try { recog.stop(); } catch(_){}
+          setStatus('ready', 'Mic closed itself after a quiet stretch. Click it to talk.'); }
+      }, SILENCE_MS);
+    }
+
     stopMicIfListening = function(){
-      if (listening) { manualStop = false; try { recog.stop(); } catch(_){} }
+      if (listening) { manualStop = false; clearMicTimers(); try { recog.stop(); } catch(_){} }
     };
 
     recog.addEventListener('result', function(e){
       if (currentAudio || isSending) return;
+      armSilenceTimer();
       var final = ''; var interim = '';
       for (var i = 0; i < e.results.length; i++) {
         var t = e.results[i][0].transcript;
@@ -2463,6 +2484,7 @@
     });
     recog.addEventListener('end', function(){
       listening = false;
+      clearMicTimers();
       micBtn.classList.remove('is-active');
       var text = (finalTranscript || inputEl.value).trim();
       if (manualStop && text) ask(text);
@@ -2490,13 +2512,18 @@
     });
     micBtn.addEventListener('click', function(){
       if (isSending) return;
-      if (listening) { manualStop = true; recog.stop(); return; }
+      if (listening) { manualStop = true; clearMicTimers(); recog.stop(); return; }
       stopCurrentAudio();
       finalTranscript = '';
       inputEl.value = '';
       listening = true;
       micBtn.classList.add('is-active');
       setStatus('listening', 'Auggie is listening. Click the mic again when you are done.');
+      clearMicTimers();
+      armSilenceTimer();
+      capTimer = setTimeout(function(){
+        if (listening) { manualStop = true; try { recog.stop(); } catch(_){} }
+      }, MAX_LISTEN_MS);
       try { recog.start(); } catch(_){}
     });
   }
