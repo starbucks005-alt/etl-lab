@@ -361,17 +361,26 @@ exports.handler = async (event) => {
 
   let lockedDirective = null;
   if (mode === 'watercooler' && STAFF.length > 0) {
-    // Lead weights: Auggie 30%, Carol 12% (leads OFTEN — chatty + baker),
-    // Bea 8%, Jax 5% (rare deadpan), others split rest
+    // The PA hosts the watercooler. Terry's rule (2026-06-11): the owner's
+    // PA leads EVERY watercooler conversation, in their fun witty register.
+    // Found by ROLE, not name, so it generalizes to all 12 pool personas
+    // (Auggie for Dr. O, Jen Lopez for Sethi Studio, etc.). If no PA is in
+    // the cast for some reason, fall back to the old weighted rotation.
     const castNames = STAFF.map(s => s.name);
-    const leadWeights = castNames.map(name => {
-      if (name === 'Auggie') return [name, 30];
-      if (name === 'Carol' || name === 'Carol Haynes') return [name, 12];
-      if (name === 'Bea') return [name, 8];
-      if (name === 'Jax') return [name, 5];
-      return [name, 7];
-    });
-    const lead = weightedPick(leadWeights);
+    const paStaff = STAFF.find(s => /personal assistant/i.test(s.role || ''));
+    let lead;
+    if (paStaff) {
+      lead = paStaff.name;
+    } else {
+      const leadWeights = castNames.map(name => {
+        if (name === 'Auggie') return [name, 30];
+        if (name === 'Carol' || name === 'Carol Haynes') return [name, 12];
+        if (name === 'Bea') return [name, 8];
+        if (name === 'Jax') return [name, 5];
+        return [name, 7];
+      });
+      lead = weightedPick(leadWeights);
+    }
 
     // Attendance: lead + 3-5 others picked at random from the rest
     const others = castNames.filter(n => n !== lead);
@@ -432,6 +441,10 @@ exports.handler = async (event) => {
         '- **ATTENDANCE this render (these staff are in the channel; the rest are off-channel today):**',
         ...attendance.map(n => '  - ' + n),
       ];
+      if (paStaff && lead === paStaff.name) {
+        directiveLines.push('');
+        directiveLines.push('- **THE PA HOSTS:** ' + lead + ' is the owner\'s Personal Assistant and the standing host of this watercooler. They open with the kickoff, but they also KEEP the conversation alive: tossing the topic to specific people, teeing up bits, calling back to earlier jokes, drawing out the quiet ones, and landing at least one genuinely witty line of their own. Fun, quick, warm, never mean. The host energy is the PA\'s love language toward the owner\'s company: they make this floor feel like a place people like working. Other staff still get the best lines sometimes; a good host sets up other people\'s punchlines.');
+      }
       if (rallyTarget) {
         directiveLines.push('');
         directiveLines.push('- **RALLY MODE (CRITICAL — this render only):** ' + rallyTarget.short + ' is having a hard day. Not stated outright, not in dialogue, but the cast SENSES it. The others quietly close ranks around her — somebody covers a task, somebody softens the banter, somebody asks how she\'s doing without making a thing of it. Her own lines still happen but are shorter and warmer than usual. The rally must feel earned, not performed. ' + (rallyTarget.traits.owner_context || ''));
