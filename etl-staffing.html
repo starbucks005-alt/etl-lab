@@ -185,7 +185,8 @@ function run(){
   const WHY6={'Alicia James':'Files your LLC and makes the company legally real.','Leo Vance':'Keeps the books and gets you tax-ready.','Kimberly Pass':'Reads your contracts and explains them in plain English.','Sasha Moreno':'Hires and onboards when you bring people on.','Yuki Mendel':'Builds your brand and the way it looks.','Reid Callum':'Positions you and wins the attention.'};
   const card=(a,role,why,price)=>{const bp=/^\s*yes/i.test(a.mcp||'')?`<div class="why" style="margin-top:4px;color:#1f7a5c">🎒 <b>Backpack:</b> ${(''+a.mcp).replace(/^\s*yes:?\s*/i,'')}</div>`:'';
     return `<div class="member">${avatar(a,'','mi')}<div><div class="nm">${a.name}</div><div class="rl">${role||a.role||a.tier_label||''}</div><div class="why">${why}</div>${bp}${price!==undefined?`<div class="pr">${price}</div>`:''}</div></div>`;};
-  window.__place={full,head};window.__placeTier='full';
+  const seatCounts={};team.forEach(t=>{const c=(t.a&&t.a.cat)||'addon';seatCounts[c]=(seatCounts[c]||0)+1;});
+  window.__place={full,head,counts:seatCounts};window.__placeTier='full';
   document.getElementById('out').innerHTML=`
    <div class="reply"><img class="av" src="${AM}" onerror="this.style.display='none'">
      <div>Grab a ${treat} while we talk. So, <b>${echo||'that'}</b>. We can staff that. Here is how every company we place is built, so you can see exactly where the ${head} people come from.</div></div>
@@ -222,5 +223,13 @@ function run(){
   document.getElementById('out').scrollIntoView({behavior:'smooth',block:'start'});
 }
 function selTier(t){window.__placeTier=t;const f=document.getElementById('tier-found'),u=document.getElementById('tier-full');const on='2px solid var(--gold)',onbg='#fdf8ee',off='2px solid var(--line)',offbg='#fff';f.style.border=t==='found'?on:off;f.style.background=t==='found'?onbg:offbg;u.style.border=t==='full'?on:off;u.style.background=t==='full'?onbg:offbg;const p=window.__place||{full:398};const btn=document.getElementById('placebtn');btn.innerHTML=(t==='found'?'Place my foundation &middot; $398/mo':'Place my full team &middot; $'+Math.round(p.full)+'/mo')+' &rarr;';}
-function placeTeam(){const p=window.__place||{full:398,head:8};const tier=window.__placeTier||'full';const cost=tier==='found'?398:Math.round(p.full);const ppl=tier==='found'?8:p.head;const what=tier==='found'?'your foundation company (you, your PA, and the six essential staff)':('your full '+ppl+'-person company');document.getElementById('out').innerHTML=`<div class="reply"><img class="av" src="${AM}" onerror="this.style.display='none'"><div><b>Wonderful.</b> I have placed ${what} at <b>$${cost}/mo</b>, salaries included. Here is what happens next: we set up your Founder Studio, your PA moves in first, and they walk you in and introduce the team. I will be in touch to confirm and get you started.<div style="margin-top:14px;display:flex;gap:12px;flex-wrap:wrap"><a class="cta" href="hiring-pool.html">Review the full roster &amp; adjust &rarr;</a><a href="javascript:void(0)" onclick="run()" style="font-size:13px;color:var(--gold);text-decoration:none;font-weight:600;align-self:center">Back to the proposal</a></div></div></div>`;document.getElementById('out').scrollIntoView({behavior:'smooth',block:'start'});}
+function placeTeam(){const p=window.__place||{};const tier=window.__placeTier||'full';
+  const btn=document.getElementById('placebtn');if(btn){btn.innerHTML='Preparing your paperwork&hellip;';}
+  fetch('/.netlify/functions/staffing-checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tier:tier,counts:p.counts||{}})})
+    .then(r=>r.json()).then(d=>{if(d&&d.url){location.href=d.url;}else{throw new Error((d&&d.error)||'no_url');}})
+    .catch(()=>{if(btn){btn.innerHTML='Finish the paperwork &rarr;';}alert('The paperwork desk is briefly unavailable. Try again in a moment.');});}
+(function(){const q=new URLSearchParams(location.search);
+  if(q.get('paid')){document.getElementById('out').innerHTML=`<div class="reply"><img class="av" src="${AM}" onerror="this.style.display='none'"><div><b>Wonderful, the paperwork is signed.</b> Here is what happens next: we set up your Founder Studio, your PA moves in first, and they walk you in and introduce the team. Watch your email for your sign-in invitation; it usually arrives the same day.<div style="margin-top:14px"><a class="cta" href="hiring-pool.html">Meet the rest of the catalog &rarr;</a></div></div></div>`;document.getElementById('out').scrollIntoView({behavior:'smooth',block:'start'});}
+  else if(q.get('canceled')){document.getElementById('out').innerHTML=`<div class="reply"><img class="av" src="${AM}" onerror="this.style.display='none'"><div>No harm done, the paperwork will keep. Your proposal is a question away whenever you are ready; describe your venture above and I will assemble the crew again.</div></div>`;}
+})();
 </script></body></html>
