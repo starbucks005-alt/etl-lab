@@ -4413,16 +4413,38 @@
     // set; everyone else swaps in by convention with Auggie as fallback.
     if (window.__paPersonaId !== 'auggie_vidal') {
       var pfx = window.__paPersonaId.split('_').map(function(w){ return w.charAt(0).toUpperCase() + w.slice(1); }).join('_');
-      var cardImg = document.querySelector('.auggie-blink-base');
-      if (cardImg) { cardImg.src = '/agents/' + pfx + '_Profile.png'; cardImg.alt = paName; }
       var callMap = { 'auggie-call-portrait-base': 'open', 'auggie-call-portrait-closed': 'closed', 'auggie-call-portrait-thinking': 'thinking' };
-      Object.keys(callMap).forEach(function(cls){
-        var img = document.querySelector('.' + cls);
-        if (img) {
-          img.onerror = null;
-          img.src = '/agents/' + pfx + '_zoom_wide_eyes_' + callMap[cls] + '.png';
+      // Dress the PA in a given closet prefix. The card AND all three call
+      // frames swap together: she is never wearing one outfit on the page
+      // card and another on the call. Outfit files that 404 fall back to the
+      // PA's un-numbered base set.
+      var dressPA = function(opfx){
+        var cardImg = document.querySelector('.auggie-blink-base');
+        if (cardImg) {
+          cardImg.onerror = (opfx === pfx) ? null : function(){ this.onerror = null; this.src = '/agents/' + pfx + '_Profile.png'; };
+          cardImg.src = '/agents/' + opfx + '_Profile.png';
+          cardImg.alt = paName;
         }
-      });
+        Object.keys(callMap).forEach(function(cls){
+          var img = document.querySelector('.' + cls);
+          if (img) {
+            img.onerror = (opfx === pfx) ? null : function(){ this.onerror = null; this.src = '/agents/' + pfx + '_zoom_wide_eyes_' + callMap[cls] + '.png'; };
+            img.src = '/agents/' + opfx + '_zoom_wide_eyes_' + callMap[cls] + '.png';
+          }
+        });
+      };
+      dressPA(pfx);
+      // Daily wardrobe rotation (Jen is the pilot): data/pa-outfits.json says
+      // which numbered closets exist; a date-keyed pick holds all day and
+      // flips overnight. Deterministic - no randomness at render, so every
+      // reload today shows the same outfit. No manifest entry = base set.
+      fetch('/data/pa-outfits.json').then(function(r){ return r.ok ? r.json() : null; }).then(function(man){
+        var m = man && man[window.__paPersonaId];
+        if (!m || !m.outfits || !m.outfits.length) return;
+        var d = new Date();
+        var dayKey = Math.floor((d.getTime() - d.getTimezoneOffset() * 60000) / 86400000);
+        dressPA(pfx + '_o' + m.outfits[dayKey % m.outfits.length]);
+      }).catch(function(){});
     }
 
     // Title bar

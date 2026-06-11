@@ -15,7 +15,7 @@
    activate so buyers don't get stuck on a stale Studio.
    ───────────────────────────────────────────────────────────────────────── */
 
-const CACHE = 'etl-studio-v5'; // bump on asset swaps so cached images purge
+const CACHE = 'etl-studio-v6'; // bump on asset swaps so cached images purge
 
 const SHELL = [
   '/studio.html',
