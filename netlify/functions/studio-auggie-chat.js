@@ -777,18 +777,39 @@ exports.handler = async (event) => {
         reply: "ok love, I tried that calendar link just now and it would not open for me. double-check it is the ICS link from Outlook's Publish a calendar page, with permission set to can view all details, and paste it again. I will be right here.",
       }) };
     }
+    // Label the feed by the account domain inside the URL (wright.edu,
+    // infragardnational.org, ...) so multiple calendars stay tellable apart.
+    let feedLabel = 'calendar';
+    const dm = icsUrl.match(/calendar\/[^/]*@([^/]+)\//i);
+    if (dm) feedLabel = dm[1];
+    else { try { feedLabel = new URL(icsUrl).hostname; } catch (_) {} }
+    let feedCount = 1;
     try {
       const store = getStore('auggie_calendar');
-      const rec = { url: icsUrl, saved_at: new Date().toISOString(), saved_by: auth.user.email || auth.user.id };
-      await store.setJSON(auth.user.id, rec);
-      await store.setJSON('default', rec);
+      let rec = null;
+      try { rec = await store.get(auth.user.id, { type: 'json' }); } catch (_) {}
+      let feeds = (rec && Array.isArray(rec.feeds)) ? rec.feeds
+        : (rec && rec.url ? [{ url: rec.url, label: rec.label || 'calendar', saved_at: rec.saved_at }] : []);
+      if (feeds.some(f => f.url === icsUrl)) {
+        return { statusCode: 200, headers: { ...CORS, 'Content-Type': 'application/json' }, body: JSON.stringify({
+          reply: 'love, I already have that one. the ' + feedLabel + ' calendar is in my hands, ' + eventCount + ' events on the feed right now. paste a DIFFERENT link if you are adding another account.',
+        }) };
+      }
+      feeds.push({ url: icsUrl, label: feedLabel, saved_at: new Date().toISOString() });
+      feedCount = feeds.length;
+      const newRec = { feeds: feeds, saved_at: new Date().toISOString(), saved_by: auth.user.email || auth.user.id };
+      await store.setJSON(auth.user.id, newRec);
+      await store.setJSON('default', newRec);
+      var feedNames = feeds.map(f => f.label).join(', ');
     } catch (e) {
       return { statusCode: 200, headers: { ...CORS, 'Content-Type': 'application/json' }, body: JSON.stringify({
         reply: 'I read the feed fine, love, but saving it hiccuped on my end. paste it once more and I will try again.',
       }) };
     }
     return { statusCode: 200, headers: { ...CORS, 'Content-Type': 'application/json' }, body: JSON.stringify({
-      reply: 'OMG finally, the REAL calendar. I just read the feed, ' + eventCount + ' events on it, and I have it saved. from now on the morning brief works from your actual week, not whatever the internet thinks you are doing. if you ever rotate the link, just paste the new one here. and yes I already peeked at your next two weeks, we will discuss the back-to-backs.',
+      reply: feedCount === 1
+        ? 'OMG finally, the REAL calendar. I just read your ' + feedLabel + ' feed, ' + eventCount + ' events on it, saved. from now on the morning brief works from your actual week, not whatever the internet thinks you are doing. got more calendars? paste each link and I will hold them all.'
+        : 'and THAT makes ' + feedCount + ', the ' + feedLabel + ' calendar is in. ' + eventCount + ' events on this feed. I am now reading: ' + feedNames + '. the brief merges all of them, so I see the whole woman, not one slice of her.',
     }) };
   }
 

@@ -161,28 +161,39 @@ function parseIcsEvents(text) {
   return evs;
 }
 async function loadCalendarLines() {
-  let url = null;
+  // Feed list: { feeds:[{url,label}] } (current), { url } (legacy), or env.
+  let feeds = [];
   try {
     const rec = await getStore('auggie_calendar').get('default', { type: 'json' });
-    if (rec && rec.url) url = rec.url;
+    if (rec && Array.isArray(rec.feeds)) feeds = rec.feeds.filter(f => f && f.url);
+    else if (rec && rec.url) feeds = [{ url: rec.url, label: rec.label || '' }];
   } catch (_) {}
-  if (!url) url = process.env.AUGGIE_CALENDAR_ICS || null;
-  if (!url) return '';
-  try {
-    const r = await fetch(url);
-    if (!r.ok) return '';
-    const evs = parseIcsEvents(await r.text());
-    const now = Date.now();
-    const lo = now - 12 * 3600e3, hi = now + 21 * 86400e3;
-    const win = evs.filter(e => e.start && e.start.getTime() >= lo && e.start.getTime() <= hi)
-      .sort((a, b) => a.start - b.start).slice(0, 25);
-    if (!win.length) return '';
-    const fmtDay = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'short', month: 'short', day: 'numeric' });
-    const fmtTime = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' });
-    return win.map(e =>
-      '- ' + fmtDay.format(e.start) + (e.allDay ? ' (all day)' : ' ' + fmtTime.format(e.start)) + ': ' + e.summary + (e.location ? ' [' + e.location + ']' : '')
-    ).join('\n');
-  } catch (_) { return ''; }
+  if (!feeds.length && process.env.AUGGIE_CALENDAR_ICS) {
+    feeds = [{ url: process.env.AUGGIE_CALENDAR_ICS, label: '' }];
+  }
+  if (!feeds.length) return '';
+  const multi = feeds.length > 1;
+  const all = [];
+  for (const f of feeds) {
+    try {
+      const r = await fetch(f.url);
+      if (!r.ok) continue;
+      const evs = parseIcsEvents(await r.text());
+      for (const e of evs) { e.feedLabel = f.label || ''; all.push(e); }
+    } catch (_) { /* one bad feed never kills the brief */ }
+  }
+  const now = Date.now();
+  const lo = now - 12 * 3600e3, hi = now + 21 * 86400e3;
+  const win = all.filter(e => e.start && e.start.getTime() >= lo && e.start.getTime() <= hi)
+    .sort((a, b) => a.start - b.start).slice(0, 30);
+  if (!win.length) return '';
+  const fmtDay = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'short', month: 'short', day: 'numeric' });
+  const fmtTime = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' });
+  return win.map(e =>
+    '- ' + fmtDay.format(e.start) + (e.allDay ? ' (all day)' : ' ' + fmtTime.format(e.start)) + ': ' + e.summary
+    + (e.location ? ' [' + e.location + ']' : '')
+    + (multi && e.feedLabel ? ' (' + e.feedLabel + ')' : '')
+  ).join('\n');
 }
 
 exports.handler = async (event) => {
