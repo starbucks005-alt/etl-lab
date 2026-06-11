@@ -154,6 +154,10 @@ footer a{color:var(--brass);text-decoration:none;margin:0 10px;}
         <label class="lbl" for="note">Note to Chris (optional)</label>
         <input id="note" placeholder="e.g. keep the white lab coat; stethoscope stays">
 
+        <label class="lbl" for="anchor">Anchor photo URL (optional)</label>
+        <input id="anchor" placeholder="paste a clean base photo; every look sews onto it">
+        <p class="hint" style="font-size:11px;margin:4px 0 0;">Use this when the catalog portrait has something you don&rsquo;t want in the looks (a tablet, old glasses). Point it at a clean photo on the site, e.g. /agents/Jen_Lopez_o1_Profile.png, and the outfits inherit that base exactly.</p>
+
         <label class="lbl">The assignment</label>
         <div class="mixrow">
           <div><span class="mini w">Work</span><select id="mix-work"><option>3</option><option>4</option><option selected>5</option><option>6</option><option>7</option></select></div>
@@ -415,8 +419,11 @@ footer a{color:var(--brass);text-decoration:none;margin:0 10px;}
     var code = document.getElementById('code').value;
     var q = document.getElementById('quality').value;
     var note = document.getElementById('note').value.trim();
+    var anchor = (document.getElementById('anchor') ? document.getElementById('anchor').value.trim() : '');
+    if (anchor && anchor.charAt(0) === '/') anchor = 'https://emerging-tech-lab.com' + anchor;
     var extra = (job === 'restyle' ? '&mode=restyle' : ('&mix=' + mix + '&code=' + encodeURIComponent(code)))
-      + (note ? '&note=' + encodeURIComponent(note) : '');
+      + (note ? '&note=' + encodeURIComponent(note) : '')
+      + (anchor && job !== 'restyle' ? '&ref=' + encodeURIComponent(anchor) : '');
     setStatus(job === 'restyle'
       ? 'Chris has the portrait. Reshooting it as a photograph, then closing the eyes for the blink pair. Two looks, a couple of minutes.'
       : 'Chris has the file. Writing the assignment (' + mix.replace(',', ' work, ').replace(',', ' weekend, ') + ' evening, ' + code + '), then sewing.');

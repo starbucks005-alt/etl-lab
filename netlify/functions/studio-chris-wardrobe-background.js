@@ -235,6 +235,18 @@ exports.handler = async (event) => {
     source = 'catalog';
   }
 
+  // Anchor override for wardrobe runs: sew every look onto a specific base
+  // photo instead of the catalog/roster portrait. This is how a PA with a
+  // hand-cleaned base (Jen's PS-built o1 profile, no tablet) gets outfits
+  // with zero identity drift. ETL domains only, same rule as restyle's ref.
+  if (params.ref && (params.mode || '') !== 'restyle') {
+    if (!/^https:\/\/(emerging-tech-lab\.com|thedose\.net|www\.thedose\.net|thegauntlet\.studio)\//i.test(params.ref)) {
+      return { statusCode: 400, body: 'ref must be an https image on an ETL domain' };
+    }
+    refUrl = params.ref;
+    refBuf = null;
+  }
+
   if (!refBuf) {
     const refResp = await fetch(refUrl);
     if (!refResp.ok) return { statusCode: 502, body: 'reference fetch failed: ' + refUrl };
@@ -293,29 +305,13 @@ exports.handler = async (event) => {
   const indexKey = slug + '/index';
   const index = { pa: slug, name: displayName, reference: refUrl, source, quality, code, mix, note: note || undefined, started_at: new Date().toISOString(), outfits: [] };
 
-  // A note that changes the scene (remove the tablet, lose the glasses) loses
-  // when it only rides the outfit prompts: the edits endpoint anchors on the
-  // reference, and what the reference shows beats what the text says (Jen's
-  // tablet survived "remove her tablet" verbatim). So apply the note to the
-  // REFERENCE once, then sew every look onto the cleaned base - now the
-  // keep-everything rule preserves the correction instead of fighting it.
-  if (note) {
-    index.note_prep = 'pending';
-    await store.setJSON(indexKey, index);
-    try {
-      const cleaned = await editImage(openaiKey, refBuf, refMime,
-        'Edit this photo. Apply exactly this change: ' + note + '. ' +
-        'If that removes a held object or prop, the hands rest naturally and the space fills in seamlessly with the existing scene. ' +
-        'Everything else stays identical: same person, face, hairstyle, expression, pose, clothing, camera framing, lighting, background. ' +
-        'Photorealistic. No text, no watermarks.', quality);
-      refBuf = cleaned;
-      refMime = 'image/png';
-      index.note_prep = 'applied to reference';
-    } catch (e) {
-      index.note_prep = 'failed, sewing on original: ' + (e && e.message ? e.message.slice(0, 120) : 'unknown');
-    }
-    await store.setJSON(indexKey, index);
-  }
+  // NOTE on scene notes (two failed experiments, 2026-06-11): text overrides
+  // in the outfit prompt lose to reference anchoring (Jen's tablet survived
+  // "remove her tablet" verbatim), and an AI pass that cleans the reference
+  // first removes the prop but loses the character - chained edits compound
+  // identity drift. The answer is the &ref= anchor override below the mode
+  // branches: sew onto a hand-cleaned base (e.g. Jen's PS-built o1 profile)
+  // and there is nothing to remove and no drift to fight.
 
   for (let i = 0; i < outfits.length; i++) {
     const n = i + 1;
