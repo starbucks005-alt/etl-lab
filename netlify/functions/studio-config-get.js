@@ -205,7 +205,46 @@ exports.handler = async function(event) {
     }
   }
 
-  // 3. Empty defaults
+  // 3. Self-serve checkout provisioning (written by the stripe-provision
+  //    webhook, keyed by email). First sign-in converts the purchase into
+  //    a live config: paid, seats counted, six-pack on if bought.
+  try {
+    const pend = getStore('studio_config_pending');
+    const p = await pend.get(email, { type: 'json' });
+    if (p && p.paid) {
+      const seats = p.seats || {};
+      return {
+        statusCode: 200,
+        headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
+        body: JSON.stringify({
+          user_id: auth.user.id,
+          user_email: auth.user.email,
+          company_name: 'Your Studio',
+          owner_name: auth.user.email,
+          pa: { persona_id: 'auggie_vidal', display_name: 'Auggie', label: 'Personal Assistant', backpack: true, voice_enabled: true },
+          brief_beat: '',
+          owner_site: null,
+          plan: 'self_serve',
+          sponsorship: { sponsored: false, in_kind: false },
+          billing: {
+            sponsored: false,
+            paid: true,
+            amount_due_monthly: p.amount_monthly || null,
+            seats: seats,
+            stripe_subscription: p.stripe_subscription || null,
+          },
+          no_payment_ui: true,
+          sixpack_on: !!seats.six_pack,
+          hired_staff: [],
+          seats_to_assign: seats,
+          first_login_show: ['welcome'],
+          source: 'self_serve_checkout',
+        }),
+      };
+    }
+  } catch (_) {}
+
+  // 4. Empty defaults
   return {
     statusCode: 200,
     headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
