@@ -757,6 +757,41 @@ exports.handler = async (event) => {
     return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'message, image, or document required' }) };
   }
 
+  // ── CALENDAR FEED CAPTURE ────────────────────────────────────────────────
+  // If the owner pastes a published Outlook/ICS link, store it so the morning
+  // brief reads their REAL week from then on. Stored under their user id AND
+  // 'default' (the brief cron has no user context in v1). Skips the model.
+  const icsMatch = message.match(/https?:\/\/\S+\.ics\b\S*/i);
+  if (icsMatch && images.length === 0 && documents.length === 0) {
+    const icsUrl = icsMatch[0];
+    let eventCount = -1;
+    try {
+      const r = await fetch(icsUrl);
+      if (r.ok) {
+        const t = await r.text();
+        eventCount = (t.match(/BEGIN:VEVENT/g) || []).length;
+      }
+    } catch (_) {}
+    if (eventCount < 0) {
+      return { statusCode: 200, headers: { ...CORS, 'Content-Type': 'application/json' }, body: JSON.stringify({
+        reply: "ok love, I tried that calendar link just now and it would not open for me. double-check it is the ICS link from Outlook's Publish a calendar page, with permission set to can view all details, and paste it again. I will be right here.",
+      }) };
+    }
+    try {
+      const store = getStore('auggie_calendar');
+      const rec = { url: icsUrl, saved_at: new Date().toISOString(), saved_by: auth.user.email || auth.user.id };
+      await store.setJSON(auth.user.id, rec);
+      await store.setJSON('default', rec);
+    } catch (e) {
+      return { statusCode: 200, headers: { ...CORS, 'Content-Type': 'application/json' }, body: JSON.stringify({
+        reply: 'I read the feed fine, love, but saving it hiccuped on my end. paste it once more and I will try again.',
+      }) };
+    }
+    return { statusCode: 200, headers: { ...CORS, 'Content-Type': 'application/json' }, body: JSON.stringify({
+      reply: 'OMG finally, the REAL calendar. I just read the feed, ' + eventCount + ' events on it, and I have it saved. from now on the morning brief works from your actual week, not whatever the internet thinks you are doing. if you ever rotate the link, just paste the new one here. and yes I already peeked at your next two weeks, we will discuss the back-to-backs.',
+    }) };
+  }
+
   // ── JAX STATUS CHECK INTENT (must run BEFORE dispatch) ──────────────────
   // If Terry asks "Jax status / where's Jax / did Jax fix / Jax update", read
   // his latest report from the blob index and report the real state in his

@@ -127,6 +127,64 @@ function todayKeyET() {
   return `${get('year')}-${get('month')}-${get('day')}`;
 }
 
+/* ── Outlook calendar feed (ICS) ──────────────────────────────────────────
+   The owner publishes their Outlook calendar (Settings > Calendar > Shared
+   calendars > Publish) and pastes the ICS link to their PA in chat; the chat
+   function stores it in the 'auggie_calendar' blob. The brief reads the live
+   feed so Auggie talks about her REAL week, not whatever web search found.
+   Minimal tolerant parser: unfolds wrapped lines, reads DTSTART/SUMMARY/
+   LOCATION per VEVENT. Recurring-event expansion is not attempted (v1). */
+function parseIcsDate(v) {
+  const m = String(v).match(/^(\d{4})(\d{2})(\d{2})(?:T(\d{2})(\d{2})(\d{2})?(Z)?)?/);
+  if (!m) return null;
+  if (m[7] === 'Z') return new Date(Date.UTC(+m[1], +m[2] - 1, +m[3], +(m[4] || 0), +(m[5] || 0), +(m[6] || 0)));
+  return new Date(+m[1], +m[2] - 1, +m[3], m[4] ? +m[4] : 0, m[5] ? +m[5] : 0);
+}
+function parseIcsEvents(text) {
+  const raw = String(text).split(/\r?\n/);
+  const lines = [];
+  for (const ln of raw) {
+    if (/^[ \t]/.test(ln) && lines.length) lines[lines.length - 1] += ln.slice(1);
+    else lines.push(ln);
+  }
+  const evs = []; let cur = null;
+  for (const ln of lines) {
+    if (ln === 'BEGIN:VEVENT') { cur = {}; continue; }
+    if (ln === 'END:VEVENT') { if (cur && cur.start && cur.summary) evs.push(cur); cur = null; continue; }
+    if (!cur) continue;
+    const i = ln.indexOf(':'); if (i < 0) continue;
+    const key = ln.slice(0, i); const val = ln.slice(i + 1);
+    if (key.startsWith('DTSTART')) { cur.start = parseIcsDate(val); cur.allDay = key.includes('VALUE=DATE'); }
+    else if (key === 'SUMMARY' || key.startsWith('SUMMARY;')) cur.summary = val.replace(/\\,/g, ',').replace(/\\n/g, ' ').trim();
+    else if (key === 'LOCATION' || key.startsWith('LOCATION;')) cur.location = val.replace(/\\,/g, ',').trim();
+  }
+  return evs;
+}
+async function loadCalendarLines() {
+  let url = null;
+  try {
+    const rec = await getStore('auggie_calendar').get('default', { type: 'json' });
+    if (rec && rec.url) url = rec.url;
+  } catch (_) {}
+  if (!url) url = process.env.AUGGIE_CALENDAR_ICS || null;
+  if (!url) return '';
+  try {
+    const r = await fetch(url);
+    if (!r.ok) return '';
+    const evs = parseIcsEvents(await r.text());
+    const now = Date.now();
+    const lo = now - 12 * 3600e3, hi = now + 21 * 86400e3;
+    const win = evs.filter(e => e.start && e.start.getTime() >= lo && e.start.getTime() <= hi)
+      .sort((a, b) => a.start - b.start).slice(0, 25);
+    if (!win.length) return '';
+    const fmtDay = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'short', month: 'short', day: 'numeric' });
+    const fmtTime = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' });
+    return win.map(e =>
+      '- ' + fmtDay.format(e.start) + (e.allDay ? ' (all day)' : ' ' + fmtTime.format(e.start)) + ': ' + e.summary + (e.location ? ' [' + e.location + ']' : '')
+    ).join('\n');
+  } catch (_) { return ''; }
+}
+
 exports.handler = async (event) => {
   // Auth: require admin basic auth for any caller (cron + manual reruns).
   if (!checkAdminAuth(event)) {
@@ -181,8 +239,16 @@ exports.handler = async (event) => {
     ? formsItems.map(it => `- ${it.formName} on ${it.site} (${it.createdAt}): ${it.summary || (it.name + ' ' + it.email).trim()}`).join('\n')
     : '';
 
+  // Her real calendar from the published Outlook feed (non-fatal if absent).
+  const calLines = await loadCalendarLines();
+  if (calLines) console.log('[auggie-brief-bg] calendar feed loaded');
+
   const userPrompt = [
     `Today is ${dateKey} (America/New_York).`,
+    '',
+    calLines
+      ? 'HER REAL CALENDAR (ground truth from her own Outlook feed, next 3 weeks):\n' + calLines + '\n\nThis is her ACTUAL schedule; trust it over anything web search says about her being quiet. Weave 1-3 of these in naturally where they matter: lead with momentum (talks, keynotes, briefings, media, travel), flag any same-day collisions or brutal back-to-backs, and connect field news to an upcoming engagement when the link is real ("that executive order is exactly your lane for the keynote"). Do NOT read the whole list aloud; you are her PA, not her calendar app.'
+      : '',
     '',
     formsDigest
       ? `INBOX SINCE LAST BRIEF: ${formsDigest}\n\nNew submissions Ms. Terry should know about:\n${formsLines}\n\nMention these explicitly in your brief. Lead with the inbox if any of these look high-value (custom inquiries, PA builder submissions with budget signal, anyone who named her in their notes). Otherwise weave them in after the personal-mentions section. Always name the submitter and a one-line gist; do not list every field.`
