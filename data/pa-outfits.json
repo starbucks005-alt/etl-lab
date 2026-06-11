@@ -1,4 +1,4 @@
 {
-  "_doc": "Daily wardrobe rotation per PA. Key = persona_id. 'outfits' lists which numbered closets exist as COMPLETE 4-image sets in /agents/ (<Pfx>_o<N>_Profile.png + _o<N>_zoom_wide_eyes_{open,closed,thinking}.png). The unit of rotation is the full set: the page card and the call modal swap together, never separately (Terry's consistency rule). The picker in studio.html is date-keyed and deterministic: today's outfit holds all day and flips overnight. A PA absent from this file (or a fetch failure) falls back to their un-numbered set. Jen 4 (charcoal blazer + cat-eye glasses) is staged in /agents/ but waits on its square profile before joining the list.",
-  "jen_lopez": { "outfits": [1, 2, 3, 5, 6, 7] }
+  "_doc": "Daily wardrobe rotation per PA. Key = persona_id. 'outfits' lists which numbered closets exist as COMPLETE 4-image sets in /agents/ (<Pfx>_o<N>_Profile.png + _o<N>_zoom_wide_eyes_{open,closed,thinking}.png). The unit of rotation is the full set: the page card and the call modal swap together, never separately (Terry's consistency rule). The picker in studio.html is date-keyed and deterministic: today's outfit holds all day and flips overnight. A PA absent from this file (or a fetch failure) falls back to their un-numbered set.",
+  "jen_lopez": { "outfits": [1, 2, 3, 4, 5, 6, 7] }
 }
