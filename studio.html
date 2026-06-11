@@ -2347,7 +2347,7 @@
       var r = await fetch('/.netlify/functions/studio-auggie-voice', {
         method:'POST',
         headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + token },
-        body: JSON.stringify({ text: text }),
+        body: JSON.stringify({ text: text, persona_id: window.__paPersonaId || 'auggie_vidal' }),
       });
       var data = await r.json();
       if (!r.ok || data.error || !data.audioBase64) {
@@ -2928,7 +2928,7 @@
       if (session && session.access_token) headers['Authorization'] = 'Bearer ' + session.access_token;
 
       var r = await fetch('/.netlify/functions/studio-auggie-voice', {
-        method: 'POST', headers: headers, body: JSON.stringify({ text: text }),
+        method: 'POST', headers: headers, body: JSON.stringify({ text: text, persona_id: window.__paPersonaId || 'auggie_vidal' }),
       });
       var data = await r.json();
       if (!r.ok || data.error || !data.audioBase64) {
@@ -4403,6 +4403,9 @@
     var companyName = cfg.company_name || 'Your Studio';
     var paName      = (cfg.pa && cfg.pa.display_name) || 'Auggie';
     var paLabel     = (cfg.pa && cfg.pa.label) || 'Personal Assistant';
+    // Which PA persona is seated drives whose VOICE the TTS endpoint uses
+    // (Auggie for Dr. O, Jen Lopez for Sethi Studio, any of the 12).
+    window.__paPersonaId = (cfg.pa && cfg.pa.persona_id) || 'auggie_vidal';
 
     // Title bar
     try { document.title = companyName + ' | Emerging Technologies Laboratory'; } catch(_){}

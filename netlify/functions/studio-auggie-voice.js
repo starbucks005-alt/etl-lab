@@ -40,11 +40,16 @@ async function validateRequest(event) {
   }
 }
 
-/* Auggie's ElevenLabs voice. Locked in after three Voice Design rounds.
-   Settings tuned for an expressive, conversational chat-back voice; lower
-   stability than the briefing reporters because Auggie is animated, not
-   anchorly. style up at 0.45 lets his character come through. */
-const AUGGIE_VOICE_ID = 'XMt7icsOj2DAS4Cn1PN1';
+/* PA voices, keyed by persona_id. The endpoint serves whichever PA the
+   owner's Studio has seated (body.persona_id; default Auggie).
+   - Auggie: locked after three Voice Design rounds.
+   - Jen Lopez: Terry's pick 2026-06-11 (Vikram's PA; she speaks before he
+     ever clicks his invite). Settings start on Auggie's expressive profile;
+     tune per-voice as they get air time. */
+const PA_VOICES = {
+  auggie_vidal: { id: 'XMt7icsOj2DAS4Cn1PN1' },
+  jen_lopez:    { id: 'Nq8lEMZJxW4MjEjQcBIo' },
+};
 const AUGGIE_MODEL = 'eleven_turbo_v2_5';
 const AUGGIE_SETTINGS = {
   stability: 0.42,
@@ -96,7 +101,9 @@ exports.handler = async (event) => {
     // 64kbps mp3 keeps Netlify response size well under the 6 MB cap even
     // for the maximum 4000-char input. Same encoding the briefing reporters
     // use for parity.
-    const url = `https://api.elevenlabs.io/v1/text-to-speech/${AUGGIE_VOICE_ID}?output_format=mp3_44100_64`;
+    const persona = (body.persona_id || 'auggie_vidal').toLowerCase();
+    const voice = PA_VOICES[persona] || PA_VOICES.auggie_vidal;
+    const url = `https://api.elevenlabs.io/v1/text-to-speech/${voice.id}?output_format=mp3_44100_64`;
     const res = await fetch(url, {
       method: 'POST',
       headers: {
