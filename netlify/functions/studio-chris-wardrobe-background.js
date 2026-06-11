@@ -217,16 +217,20 @@ exports.handler = async (event) => {
   // ?mode=restyle: ignore the wardrobe assignment; produce a matched
   // eyes-open + eyes-closed photoreal pair from the (painterly) reference.
   if ((params.mode || '') === 'restyle') {
+    const note = (params.note || '').trim().slice(0, 300);
+    const openPrompt = note
+      ? RESTYLE_OPEN_PROMPT.replace('clothing, and background composition.', 'and background composition. Clothing: ' + note + '.')
+      : RESTYLE_OPEN_PROMPT;
     const store2 = getStore('pa_wardrobe');
     const indexKey2 = slug + '/index';
-    const idx = { pa: slug, name: displayName, reference: refUrl, source: 'photoreal-remake', quality, started_at: new Date().toISOString(), outfits: [
-      { n: 1, outfit: 'photoreal remake, eyes open', category: 'restyle', status: 'pending' },
+    const idx = { pa: slug, name: displayName, reference: refUrl, source: 'photoreal-remake', quality, note: note || undefined, started_at: new Date().toISOString(), outfits: [
+      { n: 1, outfit: 'photoreal remake, eyes open' + (note ? ' (' + note + ')' : ''), category: 'restyle', status: 'pending' },
       { n: 2, outfit: 'photoreal remake, eyes closed (matched blink pair)', category: 'restyle', status: 'pending' },
     ] };
     await store2.setJSON(indexKey2, idx);
     let openBuf = null;
     try {
-      openBuf = await editImage(openaiKey, refBuf, refMime, RESTYLE_OPEN_PROMPT, quality);
+      openBuf = await editImage(openaiKey, refBuf, refMime, openPrompt, quality);
       await store2.set(slug + '/1.png', new Blob([openBuf]));
       idx.outfits[0].status = 'done'; idx.outfits[0].bytes = openBuf.length;
     } catch (e) {

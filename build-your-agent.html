@@ -151,6 +151,9 @@ footer a{color:var(--brass);text-decoration:none;margin:0 10px;}
           <option value="restyle">Photoreal remake: eyes open + closed pair (for portraits that came out too painterly)</option>
         </select>
 
+        <label class="lbl" for="note">Note to Chris (optional)</label>
+        <input id="note" placeholder="e.g. keep the white lab coat; stethoscope stays">
+
         <label class="lbl">The assignment</label>
         <div class="mixrow">
           <div><span class="mini w">Work</span><select id="mix-work"><option>3</option><option>4</option><option selected>5</option><option>6</option><option>7</option></select></div>
@@ -405,7 +408,8 @@ footer a{color:var(--brass);text-decoration:none;margin:0 10px;}
     var mix = document.getElementById('mix-work').value + ',' + document.getElementById('mix-weekend').value + ',' + document.getElementById('mix-evening').value;
     var code = document.getElementById('code').value;
     var q = document.getElementById('quality').value;
-    var extra = job === 'restyle' ? '&mode=restyle' : ('&mix=' + mix + '&code=' + encodeURIComponent(code));
+    var note = document.getElementById('note').value.trim();
+    var extra = job === 'restyle' ? ('&mode=restyle' + (note ? '&note=' + encodeURIComponent(note) : '')) : ('&mix=' + mix + '&code=' + encodeURIComponent(code));
     setStatus(job === 'restyle'
       ? 'Chris has the portrait. Reshooting it as a photograph, then closing the eyes for the blink pair. Two looks, a couple of minutes.'
       : 'Chris has the file. Writing the assignment (' + mix.replace(',', ' work, ').replace(',', ' weekend, ') + ' evening, ' + code + '), then sewing.');
