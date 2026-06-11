@@ -104,6 +104,17 @@
 /* ── Rules and fences ─────────────────────────────────────────────────── */
 .house-rule { border: 0; border-top: 1px solid var(--house-line); }
 
+/* ── THE FOUR-VOICE LAW (Terry, 2026-06-11, while auditing the hub hero) ──
+   No viewport shows more than FOUR type treatments:
+   1. The tab        - one classification banner per view (.tab)
+   2. The display    - Spectral 300, sentence case, one accent word
+   3. The support    - quiet micro text: Public Sans, sentence case,
+                       NO letterspacing, NO uppercase (this voice covers
+                       eyebrow-adjacent labels, stat captions, roles lines)
+   4. The accent     - at most one Spectral italic moment
+   Bold numbers count as support-family emphasis, not a fifth voice.
+   She counted seven in one hero. Never again. Count before you ship. */
+
 /* ── Room notes ───────────────────────────────────────────────────────────
    THE DOSE: body text >= 16px always, headline weight 400 not 300 (thin
    strokes fail low-vision readers), contrast AA+ against its warm paper.
