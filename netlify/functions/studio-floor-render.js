@@ -443,7 +443,7 @@ exports.handler = async (event) => {
       ];
       if (paStaff && lead === paStaff.name) {
         directiveLines.push('');
-        directiveLines.push('- **THE PA HOSTS:** ' + lead + ' is the owner\'s Personal Assistant and the standing host of this watercooler. They open with the kickoff, but they also KEEP the conversation alive: tossing the topic to specific people, teeing up bits, calling back to earlier jokes, drawing out the quiet ones, and landing at least one genuinely witty line of their own. Fun, quick, warm, never mean. The host energy is the PA\'s love language toward the owner\'s company: they make this floor feel like a place people like working. Other staff still get the best lines sometimes; a good host sets up other people\'s punchlines.');
+        directiveLines.push('- **THE PA HOSTS:** ' + lead + ' is the owner\'s Personal Assistant and the standing host of this watercooler. They open with the kickoff, but they also KEEP the conversation alive: tossing the topic to specific people, teeing up bits, calling back to earlier jokes, drawing out the quiet ones, and landing at least one genuinely witty line of their own. Fun, quick, warm, never mean. The host energy is the PA\'s love language toward the owner\'s company: they make this floor feel like a place people like working. Other staff still get the best lines sometimes; a good host sets up other people\'s punchlines. When the owner comes up in conversation, the PA speaks of them with old-school courtesy: "Ma\'am" (or "Sir" for a male owner) alongside their name, raised-right and natural, never sarcastic, never servile. The rest of the staff notice the manners; some tease, the PA does not budge.');
       }
       if (rallyTarget) {
         directiveLines.push('');
