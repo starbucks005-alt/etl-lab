@@ -121,6 +121,48 @@ let CURTREAT="";
 function setTreat(){CURTREAT=TREATS[Math.floor(Math.random()*TREATS.length)];document.getElementById('treat').textContent="There’s "+CURTREAT+" on the table this morning, help yourself.";return CURTREAT;}
 setTreat();
 document.getElementById('ex').innerHTML=EXAMPLES.map(e=>`<span onclick="document.getElementById('goal').value=this.textContent;run()">${e}</span>`).join('');
+
+// ── Formal invites. A bespoke client gets a personal link
+//    (etl-staffing.html?invite=slug). Carol greets them by name with the
+//    recommended team, the trial note, and the paperwork button. They can
+//    browse the catalog before deciding. Adding a client = add an entry.
+const INVITES={
+  "vikram-sethi":{
+    greeting:"Dr. Sethi, welcome. Dr. Oroszi asked me to put a team together for OneSmarter, and I think you'll like who we found.",
+    title:"Our formal staffing recommendation",
+    intro:"Winning clients is the job, so this team leans into search, positioning, and reach. Hire them as proposed, or look around the catalog first; we re-staff as you grow.",
+    items:[
+      ["Your PA + Founder Studio (the Starter)","$199/mo"],
+      ["The Essential Six-Pack: six core staff","$199/mo"],
+      ["Jax Rivera, SEO and Discovery (carries a backpack)","$69/mo"],
+      ["Zara Cole, The Influencer","$49/mo"]
+    ],
+    total:"$516/mo",
+    trial:"Rowan Tate rides along on trial at no charge. Use him, see how he does while the trading-desk rules are developed. He joins the bill at $119/mo only when his desk is live and proven.",
+    pay:"https://buy.stripe.com/8x2cN4dvp9854d3h2O6Zy0e"
+  }
+};
+(function(){
+  const slug=new URLSearchParams(location.search).get('invite');
+  const inv=slug&&INVITES[slug]; if(!inv)return;
+  const rows=inv.items.map(it=>`<div style="display:flex;justify-content:space-between;gap:14px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px;"><span>${it[0]}</span><span style="white-space:nowrap;color:var(--gold);font-weight:600">${it[1]}</span></div>`).join('');
+  document.getElementById('out').innerHTML=`
+   <div class="reply"><img class="av" src="${AM}" onerror="this.style.display='none'">
+     <div>${inv.greeting} Grab a ${CURTREAT} while you read it over.</div></div>
+   <div class="sec">${inv.title}</div>
+   <div class="sub">${inv.intro}</div>
+   <div style="background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px 22px;">
+     ${rows}
+     <div style="display:flex;justify-content:space-between;gap:14px;padding:12px 0 2px;font-size:16px;font-weight:700;"><span>Total</span><span style="color:var(--gold)">${inv.total}</span></div>
+     ${inv.trial?`<div style="margin-top:10px;font-size:13px;color:#7a6a3f;font-style:italic;">${inv.trial}</div>`:''}
+     <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:18px;">
+       <a class="cta" href="${inv.pay}" target="_blank" rel="noopener">Finish the paperwork &rarr;</a>
+       <a href="hiring-pool.html" style="font-size:13px;color:var(--gold);text-decoration:none;font-weight:600">Take a look around the catalog first &rarr;</a>
+     </div>
+   </div>
+   <div class="note">This is our proposed placement. Like any agency, you interview each one, swap anybody, add or drop specialists, and we re-staff as your business grows.</div>`;
+  document.getElementById('out').scrollIntoView({behavior:'smooth',block:'start'});
+})();
 function run(){
   const g=(document.getElementById('goal').value||'').toLowerCase().trim(); if(!g)return;
   const treat=setTreat();

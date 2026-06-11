@@ -4390,6 +4390,14 @@
       injectInKindBanner(cfg.in_kind_banner);
     }
 
+    // Bespoke staffing recommendation card. Regular paying clients whose
+    // company was hand-recommended see a formal "we recommend you hire"
+    // card with one Finish-the-paperwork button (their Stripe link) and a
+    // path into the catalog to upsell themselves. Disappears once paid.
+    if (cfg.billing && cfg.billing.payment_link && !cfg.billing.paid) {
+      injectStaffingRecommendation(cfg);
+    }
+
     // Config-driven staff grid render. If the buyer has a provisioned
     // hired_staff list, REPLACE the static hardcoded cards (which reflect
     // Dr. O's bench) with the buyer's actual hires. Caroline lands and sees
@@ -4425,6 +4433,42 @@
     } else {
       document.body.appendChild(bar);
     }
+  }
+
+  // ─── BESPOKE STAFFING RECOMMENDATION CARD ────────────────────────
+  // The "cart" lives in the Studio: a formal recommendation letter with
+  // line items, one Finish-the-paperwork button (the client's Stripe
+  // payment link), a trial note for any pending staff, and a catalog
+  // link so the client can upsell themselves.
+  function injectStaffingRecommendation(cfg){
+    if (document.getElementById('staffing-rec-card')) return; // idempotent
+    var b = cfg.billing || {};
+    var items = Array.isArray(b.recommendation_items) ? b.recommendation_items : [];
+    var rows = items.map(function(it){
+      return '<div style="display:flex;justify-content:space-between;gap:14px;padding:7px 0;border-bottom:1px solid rgba(196,162,98,.18);font-size:13.5px;">'
+        + '<span>' + escapeHtml(it.label) + '</span>'
+        + '<span style="white-space:nowrap;color:#c4a262;">' + escapeHtml(it.price) + '</span></div>';
+    }).join('');
+    var trial = b.trial_note
+      ? '<div style="margin-top:10px;font-size:12.5px;color:#8fa3c0;font-style:italic;">' + escapeHtml(b.trial_note) + '</div>'
+      : '';
+    var card = document.createElement('section');
+    card.id = 'staffing-rec-card';
+    card.style.cssText = 'max-width:760px;margin:26px auto 8px;background:#101b2e;border:1px solid #2a3a55;border-radius:14px;padding:26px 30px;color:#e8e4da;font-family:Inter,system-ui,sans-serif;box-shadow:0 10px 34px rgba(0,0,0,.35);';
+    card.innerHTML =
+      '<div style="font-family:DM Mono,monospace;font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:#c4a262;margin-bottom:8px;">ETL Staffing &middot; Formal recommendation</div>'
+      + '<div style="font-family:Playfair Display,Georgia,serif;font-size:22px;margin-bottom:4px;">' + escapeHtml(b.recommendation_title || 'We recommend you hire this team.') + '</div>'
+      + '<div style="font-size:13.5px;color:#aebad0;margin-bottom:16px;">' + escapeHtml(b.recommendation_intro || 'Assembled for your business. Hire them as proposed, or adjust in the catalog first.') + '</div>'
+      + rows
+      + '<div style="display:flex;justify-content:space-between;gap:14px;padding:11px 0 2px;font-size:15px;font-weight:600;"><span>Total</span><span style="color:#c4a262;">$' + escapeHtml(String(b.amount_due_monthly || '')) + '/mo</span></div>'
+      + trial
+      + '<div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:18px;">'
+      + '<a href="' + escapeHtml(b.payment_link) + '" target="_blank" rel="noopener" style="background:#c4a262;color:#101b2e;text-decoration:none;font-weight:700;font-size:13.5px;letter-spacing:.04em;padding:12px 22px;border-radius:9px;">Finish the paperwork &rarr;</a>'
+      + '<a href="/hiring-pool.html" style="color:#c4a262;text-decoration:none;font-size:13px;font-weight:600;">Or adjust your team in the catalog &rarr;</a>'
+      + '</div>';
+    var anchor = document.querySelector('.staff-grid');
+    if (anchor && anchor.parentNode) { anchor.parentNode.insertBefore(card, anchor); }
+    else { document.body.insertBefore(card, document.body.children[1] || null); }
   }
 
   // ─── CONFIG-DRIVEN STAFF GRID ────────────────────────────────────
