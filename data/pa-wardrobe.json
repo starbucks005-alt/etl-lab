@@ -1,5 +1,5 @@
 {
-  "_doc": "PA wardrobe catalog. 7 persona-fitted outfits per PA (a week of clothes). studio-chris-wardrobe-background.js feeds each outfit + the PA's canonical profile photo into gpt-image-1 images/edits (reference-anchored, so the face holds). Terry reviews the generated profiles, then builds the wide Zoom frames in Photoshop. Add a PA: add an entry with their reference image + 7 outfits written FROM their persona.",
+  "_doc": "PA wardrobe catalog. 7 persona-fitted outfits per PA (a week of clothes). RULE (Terry, locked): the clothes MUST fit the personality of the PA - the closet IS the character (Pucci and Palm Springs linen for Auggie, fashion-forward glam for Jen, never a generic rack). Outfits are written FROM the roster persona, not from fashion in general. studio-chris-wardrobe-background.js feeds each outfit + the PA's canonical profile photo into gpt-image-1 images/edits (reference-anchored, so the face holds). Terry reviews the generated profiles, then builds the wide Zoom frames in Photoshop. Add a PA: add an entry with their reference image + 7 persona-true outfits.",
   "pas": {
     "auggie": {
       "name": "August \"Auggie\" Vidal",
