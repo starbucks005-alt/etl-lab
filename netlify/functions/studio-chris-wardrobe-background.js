@@ -157,7 +157,22 @@ exports.handler = async (event) => {
   let slug = null, displayName = null, refUrl = null, refBuf = null, refMime = 'image/png', outfits = null, source = null;
   const draftsStore = getStore('agent_drafts');
 
-  if (params.draft) {
+  // Custom reference override (admin batch work, e.g. remaking PROFILE
+  // images, which are a different crop from the main portrait). Requires
+  // mode=restyle and a label for naming. Only https images on our domains.
+  if (params.ref && (params.mode || '') === 'restyle') {
+    const ref = params.ref;
+    if (!/^https:\/\/(emerging-tech-lab\.com|thedose\.net|www\.thedose\.net|thegauntlet\.studio)\//i.test(ref)) {
+      return { statusCode: 400, body: 'ref must be an https image on an ETL domain' };
+    }
+    const label = (params.label || '').trim();
+    if (!label) return { statusCode: 400, body: 'label required with ref (names the output run)' };
+    slug = slugify(label);
+    displayName = label;
+    refUrl = ref;
+    source = 'restyle-custom-ref';
+    outfits = []; // restyle mode builds its own entries
+  } else if (params.draft) {
     // A brand-new agent from the Persona Desk. Reference portrait + persona
     // both live in the agent_drafts store.
     const dSlug = params.draft.toLowerCase().trim();
@@ -218,15 +233,17 @@ exports.handler = async (event) => {
   // eyes-open + eyes-closed photoreal pair from the (painterly) reference.
   if ((params.mode || '') === 'restyle') {
     const note = (params.note || '').trim().slice(0, 300);
+    const single = params.single === '1'; // profiles: one photoreal shot, no blink pair
     const openPrompt = note
       ? RESTYLE_OPEN_PROMPT.replace('clothing, and background composition.', 'and background composition. Clothing: ' + note + '.')
       : RESTYLE_OPEN_PROMPT;
     const store2 = getStore('pa_wardrobe');
     const indexKey2 = slug + '/index';
-    const idx = { pa: slug, name: displayName, reference: refUrl, source: 'photoreal-remake', quality, note: note || undefined, started_at: new Date().toISOString(), outfits: [
+    const entries = [
       { n: 1, outfit: 'photoreal remake, eyes open' + (note ? ' (' + note + ')' : ''), category: 'restyle', status: 'pending' },
-      { n: 2, outfit: 'photoreal remake, eyes closed (matched blink pair)', category: 'restyle', status: 'pending' },
-    ] };
+    ];
+    if (!single) entries.push({ n: 2, outfit: 'photoreal remake, eyes closed (matched blink pair)', category: 'restyle', status: 'pending' });
+    const idx = { pa: slug, name: displayName, reference: refUrl, source: 'photoreal-remake', quality, note: note || undefined, single: single || undefined, started_at: new Date().toISOString(), outfits: entries };
     await store2.setJSON(indexKey2, idx);
     let openBuf = null;
     try {
@@ -235,11 +252,11 @@ exports.handler = async (event) => {
       idx.outfits[0].status = 'done'; idx.outfits[0].bytes = openBuf.length;
     } catch (e) {
       idx.outfits[0].status = 'failed: ' + (e && e.message ? e.message.slice(0, 160) : 'unknown');
-      idx.outfits[1].status = 'skipped: open version failed';
+      if (idx.outfits[1]) idx.outfits[1].status = 'skipped: open version failed';
     }
     idx.outfits[0].finished_at = new Date().toISOString();
     await store2.setJSON(indexKey2, idx);
-    if (openBuf) {
+    if (openBuf && !single) {
       try {
         const closedBuf = await editImage(openaiKey, openBuf, 'image/png', RESTYLE_CLOSED_PROMPT, quality);
         await store2.set(slug + '/2.png', new Blob([closedBuf]));
@@ -251,7 +268,7 @@ exports.handler = async (event) => {
     }
     idx.finished_at = new Date().toISOString();
     await store2.setJSON(indexKey2, idx);
-    console.log('[chris-wardrobe] restyle done', slug);
+    console.log('[chris-wardrobe] restyle done', slug, single ? '(single)' : '(pair)');
     return { statusCode: 200, body: 'done' };
   }
 
