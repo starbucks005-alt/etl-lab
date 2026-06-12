@@ -4454,6 +4454,14 @@ h1 em,h2 em{font-weight:300;color:#28527a}
      config. CCW spec: never hardcode owner-specific names on render.
      For INMA's deployment, Caroline's config comes from
      data/caroline-inma-company.json via the email-keyed fixture lookup.
+
+     2026-06-12 SCAR: a single-quoted style string containing 'Public Sans'
+     terminated early and threw SyntaxError, which killed THIS ENTIRE
+     SCRIPT BLOCK. Result: config never loaded, the page stayed hardcoded
+     Auggie, and the PA swap looked broken for a full day (it was saving
+     fine server-side; the page just never read it back). Lesson: inline
+     style strings that contain a quoted font-family MUST use double quotes
+     outside. This block is now syntax-checked in isolation before deploy.
      ──────────────────────────────────────────────────────────────────── -->
 <script>
 (function(){
@@ -4661,7 +4669,7 @@ h1 em,h2 em{font-weight:300;color:#28527a}
       : '';
     var card = document.createElement('section');
     card.id = 'staffing-rec-card';
-    card.style.cssText = 'max-width:760px;margin:26px auto 8px;background:#101b2e;border:1px solid #2a3a55;border-radius:14px;padding:26px 30px;color:#e8e4da;font-family:'Public Sans',system-ui,sans-serif;box-shadow:0 10px 34px rgba(0,0,0,.35);';
+    card.style.cssText = "max-width:760px;margin:26px auto 8px;background:#101b2e;border:1px solid #2a3a55;border-radius:14px;padding:26px 30px;color:#e8e4da;font-family:'Public Sans',system-ui,sans-serif;box-shadow:0 10px 34px rgba(0,0,0,.35);";
     card.innerHTML =
       '<div style="font-family:DM Mono,monospace;font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:#5c8ab5;margin-bottom:8px;">ETL Staffing &middot; Formal recommendation</div>'
       + '<div style="font-family:Playfair Display,Georgia,serif;font-size:22px;margin-bottom:4px;">' + escapeHtml(b.recommendation_title || 'We recommend you hire this team.') + '</div>'

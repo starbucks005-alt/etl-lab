@@ -173,16 +173,7 @@ function defaultStudioConfig(user) {
 exports.handler = async function(event) {
   try { connectLambda(event); } catch (_) {}
 
-  // TEMPORARY DIAG BYPASS (2026-06-12, the swap bug): lets CC replay the
-  // exact deployed read path for a given user without a Supabase session.
-  // Token-gated; remove with studio-seat-diag.js when the bug is closed.
-  const qp = event.queryStringParameters || {};
-  let auth;
-  if (qp.diag_t === 'tg7Vq2pXr9mKw4Zs8bN3hYcDf6JaLuE5' && qp.as_id) {
-    auth = { ok: true, user: { id: qp.as_id, email: qp.as_email || '' } };
-  } else {
-    auth = await validateRequest(event);
-  }
+  const auth = await validateRequest(event);
   if (!auth.ok) {
     return { statusCode: 401, body: JSON.stringify({ error: 'unauthorized', reason: auth.reason }) };
   }
@@ -233,7 +224,7 @@ exports.handler = async function(event) {
   if (baseCfg) {
     return {
       statusCode: 200,
-      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', 'Access-Control-Allow-Origin': '*' },
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
       body: JSON.stringify(await withUserOverlay(baseCfg)),
     };
   }
@@ -248,7 +239,7 @@ exports.handler = async function(event) {
       const seats = p.seats || {};
       return {
         statusCode: 200,
-        headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', 'Access-Control-Allow-Origin': '*' },
+        headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
         body: JSON.stringify(await withUserOverlay({
           user_id: auth.user.id,
           user_email: auth.user.email,
@@ -280,7 +271,7 @@ exports.handler = async function(event) {
   // 4. Empty defaults
   return {
     statusCode: 200,
-    headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', 'Access-Control-Allow-Origin': '*' },
+    headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
     body: JSON.stringify(await withUserOverlay(defaultStudioConfig(auth.user))),
   };
 };
