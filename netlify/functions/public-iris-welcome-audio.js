@@ -31,12 +31,14 @@ const IRIS_SETTINGS = {
   use_speaker_boost: true,
 };
 
-const WELCOME_VERSION = 'v3-which-floor-are-you';
+const WELCOME_VERSION = 'v5-shell-have-your-back';
 const IRIS_WELCOME = `Hi, welcome to the lab. I'm Iris, the concierge.
 
-I know how it is. You step off the elevator and there's no sign telling you whether to go left or right, or whether you're even on the right floor. This place has eleven platforms, a home page, an about page... nobody finds their way around here on the first visit.
+I know how it is. You step off the elevator and there's no sign telling you whether to go left or right, or whether you're even on the right floor. Eleven platforms, a home page, an about page... nobody finds their way around here on the first visit. So tell me, right here in the chat: are you a professor? A student? An author? An entrepreneur? Just visiting? That's okay too. I'll walk you to the right door either way.
 
-So tell me, right here in the chat. Are you a professor? A student? An entrepreneur? How you answer is how I'll know which door to walk you to.`;
+One more thing, and it's the most important thing. If money ever stops you from enjoying anything at this lab, just let Dr. O know. She'll have your back. She's like that. It's why I work here.
+
+Have a great day.`;
 
 async function renderAudio(text) {
   const apiKey = process.env.ELEVENLABS_API_KEY;
