@@ -3926,11 +3926,21 @@ h1 em,h2 em{font-weight:300;color:#28527a}
 
   if (!modal || !openBtn || !grid) return;
 
+  // Names already on the owner's staff (from config.hired_staff). The
+  // catalog reads this so an already-hired specialist shows "On your staff"
+  // instead of a live "Hire" button. (Terry: a hired Yuki was still reading
+  // as un-hired.) Refreshed every time the modal opens.
+  var hiredNames = {};
+
   function renderCatalog() {
     var html = '';
     for (var i = 0; i < CATALOG.length; i++) {
       var a = CATALOG[i];
       var initials = a.name.split(/\s+/).map(function(s){return s.charAt(0);}).join('').slice(0,2).toUpperCase();
+      var already = !!hiredNames[a.name];
+      var cta = already
+        ? '<button type="button" class="hire-card-cta" disabled style="opacity:.6;cursor:default;">&#10003; On your staff</button>'
+        : '<button type="button" class="hire-card-cta" data-hire-id="' + a.id + '">Hire ' + a.name.split(' ')[0] + ' &rarr;</button>';
       html +=
         '<div class="hire-card">' +
           '<div class="hire-card-portrait">' +
@@ -3941,15 +3951,26 @@ h1 em,h2 em{font-weight:300;color:#28527a}
             '<div class="hire-card-name">' + a.name + '</div>' +
             '<div class="hire-card-role">' + a.role + '</div>' +
             '<div class="hire-card-bio">' + a.bio + '</div>' +
-            '<button type="button" class="hire-card-cta" data-hire-id="' + a.id + '">Hire ' + a.name.split(' ')[0] + ' &rarr;</button>' +
+            cta +
           '</div>' +
         '</div>';
     }
     grid.innerHTML = html;
   }
 
-  function openModal() {
-    if (!grid.children.length) renderCatalog();
+  async function openModal() {
+    // Refresh hired state from the server so the catalog is accurate.
+    try {
+      var s = await window.studioSb.auth.getSession();
+      var token = s && s.data && s.data.session && s.data.session.access_token;
+      if (token) {
+        var cr = await fetch('/.netlify/functions/studio-config-get', { headers: { 'Authorization': 'Bearer ' + token }, cache: 'no-store' });
+        var cfg = await cr.json();
+        hiredNames = {};
+        (cfg.hired_staff || []).forEach(function(st){ if (st && st.name) hiredNames[st.name] = true; });
+      }
+    } catch(_){}
+    renderCatalog();
     modal.setAttribute('aria-hidden', 'false');
     document.body.classList.add('hire-modal-open');
   }
@@ -4878,30 +4899,32 @@ h1 em,h2 em{font-weight:300;color:#28527a}
       return card;
     }
 
-    // Clear the static cards and rebuild
-    grid.innerHTML = '';
-
-    // Card 1: the PA (Auggie or whoever)
-    if (cfg.pa && cfg.pa.display_name) {
-      grid.appendChild(buildCard(
-        cfg.pa.display_name,
-        cfg.pa.label || 'Personal Assistant',
-        cfg.pa.backpack,
-        'pa',
-        null
-      ));
+    // Staff grid: SOURCE-AWARE so we never wipe the owner's team.
+    // - Real BUYER (fixture / self-serve): rebuild the grid from THEIR
+    //   config; they start with their purchased staff, not the demo team.
+    // - DEFAULT (Dr. O's own studio): keep the shipped 14-card team, leave
+    //   the PA card to setGenericPAIdentity (it shows Jen + her photo), and
+    //   APPEND any hired specialists not already on the grid. This is why
+    //   the team vanished and Jen's card went to "JL": the old code cleared
+    //   everything and rebuilt the PA card from a roster that lacks her.
+    var src = String(cfg.source || '');
+    var isBuyer = src.indexOf('fixture') === 0 || src.indexOf('self_serve') === 0;
+    var hired = Array.isArray(cfg.hired_staff) ? cfg.hired_staff : [];
+    if (isBuyer) {
+      grid.innerHTML = '';
+      if (cfg.pa && cfg.pa.display_name) {
+        grid.appendChild(buildCard(cfg.pa.display_name, cfg.pa.label || 'Personal Assistant', cfg.pa.backpack, 'pa', null));
+      }
+      hired.forEach(function(s){ grid.appendChild(buildCard(s.name, s.role || '', s.backpack, s.contract || 'standing', s.why || s.note || null)); });
+    } else {
+      // Keep the static team; append hires not already shown by name.
+      var shown = {};
+      Array.prototype.forEach.call(grid.querySelectorAll('.staff-name'), function(n){ shown[n.textContent.trim()] = true; });
+      hired.forEach(function(s){
+        if (shown[s.name]) return;
+        grid.appendChild(buildCard(s.name, s.role || '', s.backpack, s.contract || 'standing', s.why || s.note || null));
+      });
     }
-
-    // Remaining cards: from the config's hired_staff array
-    cfg.hired_staff.forEach(function(s){
-      grid.appendChild(buildCard(
-        s.name,
-        s.role || '',
-        s.backpack,
-        s.contract || 'standing',
-        s.why || s.note || null
-      ));
-    });
   }
 
   if (document.readyState === 'loading') {
