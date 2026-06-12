@@ -38,6 +38,11 @@ const { getStore, connectLambda } = require('@netlify/blobs');
 const MODEL = 'claude-sonnet-4-6';
 const LOG_RETENTION_DAYS = 30;
 
+// Iris's own ElevenLabs voice, assigned by Dr. O 2026-06-12. Not wired to
+// any audio yet (her welcome/navigation lines are still being decided) -
+// recorded here so the ID is never lost.
+const IRIS_VOICE_ID = '6aDn1KB0hjpdcocrUkmq'; // eslint-disable-line no-unused-vars
+
 // Newswire roster, bundled at build time. Used by the owner-mode voice desk
 // so Iris knows every speaker id and its default voice.
 let WIRE_REPORTERS = [];
