@@ -4532,6 +4532,38 @@ h1 em,h2 em{font-weight:300;color:#28527a}
     // (Auggie for Dr. O, Jen Lopez for Sethi Studio, any of the 12).
     window.__paPersonaId = (cfg.pa && cfg.pa.persona_id) || 'auggie_vidal';
 
+    // ── GENERIC PA IDENTITY (Terry's law, 2026-06-12) ────────────────────
+    // This is NOT "replace Auggie with Jen." It is replace {PA1} with {PA2}
+    // for ANY user and ANY seated PA. Every place that names the PA reads
+    // from the seated config + the roster, so a buyer with their own PA
+    // sees their PA's name, first name, bio, and pronoun-safe copy. Runs
+    // for EVERY PA including the default, so the page is never left with
+    // hardcoded "Auggie" text when someone else is seated.
+    window.__paFirstName = (paName.split(/[ "]/).filter(Boolean)[0]) || 'Auggie';
+    (function setGenericPAIdentity(){
+      var idEl;
+      if ((idEl = document.getElementById('pa-section-tag')))   idEl.textContent = paName;
+      if ((idEl = document.getElementById('pa-name-display')))  idEl.textContent = paName;
+      if ((idEl = document.getElementById('pa-staff-name')))    idEl.textContent = paName;
+      if ((idEl = document.getElementById('auggie-call-persona-name'))) idEl.textContent = paName;
+      if ((idEl = document.querySelector('.auggie-call-status-text'))) idEl.textContent = window.__paFirstName + ' is on.';
+      if ((idEl = document.getElementById('pa-zoom-label')))    idEl.textContent = 'Click to join ' + window.__paFirstName + '’s Zoom';
+      // Chat placeholder: name + they/them (Terry: use they/them rather than
+      // per-PA pronoun guessing). Works for any seated PA.
+      var ta = document.getElementById('auggie-chat-input');
+      if (ta) ta.setAttribute('placeholder', 'ask ' + window.__paFirstName + '. paste your week, paste a screenshot, ask them to search for new mentions of your name, tell them what to queue.');
+      // Bio: pull the seated PA's bio from the roster by display name; fall
+      // back to leaving the shipped text. Generic for all PAs.
+      fetch('/data/etl-agents-roster.json', { cache: 'force-cache' }).then(function(r){ return r.ok ? r.json() : null; }).then(function(data){
+        if (!data || !data.agents) return;
+        var hit = data.agents.find(function(a){ return a && a.name === paName; });
+        var bioEl = document.getElementById('pa-bio-display');
+        if (hit && bioEl && (hit.bio || hit.background)) bioEl.textContent = hit.bio || hit.background;
+        var curEl = document.getElementById('pa-staff-current');
+        if (hit && curEl && hit.tagline) curEl.textContent = hit.tagline;
+      }).catch(function(){});
+    })();
+
     // ...and whose FACE the page card + call modal wear. Convention per PA:
     // <Persona_Id_TitleCased>_Profile.png + _zoom_wide_eyes_{open,closed,
     // thinking}.png in /agents/. Auggie (the default) keeps his hardcoded
@@ -4559,32 +4591,12 @@ h1 em,h2 em{font-weight:300;color:#28527a}
         });
       };
       dressPA(pfx);
-      // Identity texts. The page ships with Auggie written in; when another
-      // PA is seated, every place that names the PA follows the seat. A
-      // successful swap must LOOK like a swap.
-      var PA_PAGE_META = {
-        jen_lopez: {
-          name: 'Jen Lopez',
-          bio: 'Late thirties, the Administrative Architect. She came up running operations for executives who made chaos faster than they could schedule it. She holds your week and the three-week map. She hates surprises, so you will never meet one.',
-          current: 'Mapping your next three weeks.'
-        }
-      };
-      var meta = PA_PAGE_META[window.__paPersonaId] || { name: paName, bio: '', current: '' };
-      var idEl;
-      if ((idEl = document.getElementById('pa-section-tag')))  idEl.textContent = meta.name;
-      if ((idEl = document.getElementById('pa-name-display'))) idEl.textContent = meta.name;
-      if ((idEl = document.getElementById('pa-bio-display')) && meta.bio) idEl.textContent = meta.bio;
-      if ((idEl = document.getElementById('pa-staff-name')))   idEl.textContent = meta.name;
-      if ((idEl = document.getElementById('pa-staff-current')) && meta.current) idEl.textContent = meta.current;
+      // Identity text is now set generically above (setGenericPAIdentity),
+      // for every PA. Here we only handle the per-PA FACE swap. The staff
+      // card portrait follows the seat too.
       var staffImg = document.getElementById('pa-staff-portrait');
-      if (staffImg) { staffImg.onerror = null; staffImg.src = '/agents/' + pfx + '_Profile.png'; staffImg.alt = meta.name; }
-      // The Zoom call header + status line follow the seat too. The call
-      // modal's status strings (a different IIFE) read window.__paFirstName.
-      window.__paFirstName = (meta.name.split(/[ "]/).filter(Boolean)[0]) || 'Auggie';
-      if ((idEl = document.getElementById('auggie-call-persona-name'))) idEl.textContent = meta.name;
-      if ((idEl = document.getElementById('auggie-call-status-text') || document.querySelector('.auggie-call-status-text'))) idEl.textContent = window.__paFirstName + ' is on.';
-      if ((idEl = document.getElementById('pa-zoom-label'))) idEl.textContent = 'Click to join ' + window.__paFirstName + '’s Zoom';
-      // Daily wardrobe rotation (Jen is the pilot): data/pa-outfits.json says
+      if (staffImg) { staffImg.onerror = null; staffImg.src = '/agents/' + pfx + '_Profile.png'; staffImg.alt = paName; }
+      // Daily wardrobe rotation: data/pa-outfits.json says
       // which numbered closets exist; a date-keyed pick holds all day and
       // flips overnight. Deterministic - no randomness at render, so every
       // reload today shows the same outfit. No manifest entry = base set.
