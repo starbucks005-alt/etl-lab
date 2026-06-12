@@ -31,12 +31,12 @@ const IRIS_SETTINGS = {
   use_speaker_boost: true,
 };
 
-const WELCOME_VERSION = 'v2-off-the-elevator';
+const WELCOME_VERSION = 'v3-which-floor-are-you';
 const IRIS_WELCOME = `Hi, welcome to the lab. I'm Iris, the concierge.
 
 I know how it is. You step off the elevator and there's no sign telling you whether to go left or right, or whether you're even on the right floor. This place has eleven platforms, a home page, an about page... nobody finds their way around here on the first visit.
 
-So don't wander. Tell me what brought you in, and I'll walk you to the right door.`;
+So tell me, right here in the chat. Are you a professor? A student? An entrepreneur? How you answer is how I'll know which door to walk you to.`;
 
 async function renderAudio(text) {
   const apiKey = process.env.ELEVENLABS_API_KEY;
