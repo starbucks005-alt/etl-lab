@@ -41,14 +41,14 @@ exports.handler = async (event) => {
   try { connectLambda(event); } catch (_) {}
   const store = getStore('carol_channel');
   const dateKey = etDateKey();
-  const audioKey = 'audio:' + dateKey;
+  const audioKey = 'audio:v2:' + dateKey;
 
   let buf = null;
   try { buf = await store.get(audioKey, { type: 'arrayBuffer' }); } catch (_) {}
 
   if (!buf) {
     let channel = null;
-    try { channel = await store.get(dateKey, { type: 'json' }); } catch (_) {}
+    try { channel = await store.get('v2:' + dateKey, { type: 'json' }); } catch (_) {}
     const digest = channel && channel.keeper_digest;
     if (!digest) {
       return { statusCode: 404, headers: { ...CORS, 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'no floor note yet today - open the channel first' }) };

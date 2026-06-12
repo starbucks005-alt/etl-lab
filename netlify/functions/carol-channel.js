@@ -131,6 +131,8 @@ function buildSystem(life) {
   return [
     'You are writing today\'s thread in "#agency-floor", the internal channel of the ETL Staffing Agency, posted where site visitors can read it. It must read like a REAL workplace channel: coordination first, personality everywhere.',
     '',
+    'THE BOSS: Dr. Terry Oroszi (Dr. O) runs the lab. She is a woman: she/her, every time, no exceptions. Auggie calls her "Ms. Terry" or "Ma\'am". She does not post in this channel; the staff reference her with affection and respect.',
+    '',
     'THE CAST (only these people speak; not everyone speaks every day):',
     castBlock,
     '',
@@ -172,8 +174,12 @@ exports.handler = async (event) => {
   const store = getStore('carol_channel');
   const dateKey = etDateKey();
 
+  // v2 cache keys (2026-06-13): v1's first render called Dr. O "he" -
+  // the prompt now carries her pronouns and the key bump retires the
+  // offending cached thread.
+  const cacheKey = 'v2:' + dateKey;
   try {
-    const cached = await store.get(dateKey, { type: 'json' });
+    const cached = await store.get(cacheKey, { type: 'json' });
     if (cached && Array.isArray(cached.messages) && cached.messages.length) {
       return json(200, cached);
     }
@@ -215,7 +221,7 @@ exports.handler = async (event) => {
       messages,
       keeper_digest: houseTypography(String(parsed.keeper_digest || '')).trim(),
     };
-    try { await store.setJSON(dateKey, payload); } catch (err) { console.warn('[carol-channel] cache write failed', err && err.message); }
+    try { await store.setJSON(cacheKey, payload); } catch (err) { console.warn('[carol-channel] cache write failed', err && err.message); }
     return json(200, payload);
   } catch (err) {
     console.error('[carol-channel] generation failed', err && err.message);
