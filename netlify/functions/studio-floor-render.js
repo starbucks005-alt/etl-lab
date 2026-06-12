@@ -25,7 +25,8 @@ const Anthropic = require('@anthropic-ai/sdk').default;
 const { VOICE_LAW_CHAT, houseTypography } = require('./_etl-voice-law.js');
 const { getStore, connectLambda } = require('@netlify/blobs');
 
-const MODEL = 'claude-sonnet-4-6';
+const MODEL = 'claude-haiku-4-5-20251001';
+const CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes
 
 /* ── JWT validation against Supabase ────────────────────────────────────── */
 const SUPABASE_URL = 'https://ulvrnermyuvzanxhxoib.supabase.co';
@@ -301,6 +302,29 @@ exports.handler = async (event) => {
       body: JSON.stringify({ error: 'ANTHROPIC_API_KEY not set' }),
     };
   }
+
+  // ── 30-min result cache ─────────────────────────────────────────────────
+  // Key: floor_cache/{userId}/{mode}/{YYYYMMDDHH30} (30-min slot)
+  // First open in any 30-min window pays; all repeats are free.
+  const userId = auth.user.id;
+  const now = new Date();
+  const slot = now.getUTCFullYear()
+    + String(now.getUTCMonth() + 1).padStart(2, '0')
+    + String(now.getUTCDate()).padStart(2, '0')
+    + String(now.getUTCHours()).padStart(2, '0')
+    + (now.getUTCMinutes() < 30 ? '0' : '1');
+  const cacheKey = 'floor_cache/' + userId + '/' + mode + '/' + slot;
+  try {
+    const cached = await getStore('watercooler').get(cacheKey, { type: 'json' });
+    if (cached && cached.messages) {
+      return {
+        statusCode: 200,
+        headers: { ...CORS, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: cached.messages, mode, cached: true }),
+      };
+    }
+  } catch (_) {}
+  // ────────────────────────────────────────────────────────────────────────
 
   const context = await getTodaysContext(event);
 
@@ -671,6 +695,10 @@ exports.handler = async (event) => {
 
     const messages = (Array.isArray(parsed.messages) ? parsed.messages : [])
       .map(m => (m && typeof m.text === 'string') ? { ...m, text: houseTypography(m.text) } : m);
+
+    // Store in cache (fire-and-forget)
+    getStore('watercooler').setJSON(cacheKey, { messages }).catch(() => {});
+
     return {
       statusCode: 200,
       headers: { ...CORS, 'Content-Type': 'application/json' },
