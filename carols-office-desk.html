@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Desk — Carol's Office</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,600;1,400&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --blue:   #28527a;
+    --blue-d: #1a3a57;
+    --blue-l: #e8f0f7;
+    --warm:   #f7f4ef;
+    --sand:   #e8e0d0;
+    --ink:    #1a1a1a;
+    --mid:    #555;
+    --light:  #888;
+  }
+  body { font-family: 'Public Sans', sans-serif; background: var(--warm); color: var(--ink); min-height: 100vh; }
+
+  .top-bar {
+    background: var(--blue);
+    color: #fff;
+    padding: 10px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.82rem;
+  }
+  .top-brand { font-family: 'Spectral', serif; font-size: 1rem; color: #fff; }
+  .top-bar a { color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.8rem; }
+  .top-bar a:hover { color: #fff; }
+
+  /* ── LOGIN WALL ──────────────────────────────────────────────── */
+  .login-wall {
+    max-width: 420px;
+    margin: 80px auto;
+    background: #fff;
+    border: 1px solid var(--sand);
+    border-radius: 8px;
+    padding: 40px 36px;
+    text-align: center;
+  }
+  .login-wall img {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    object-fit: cover; object-position: top;
+    margin-bottom: 16px;
+    border: 2px solid var(--sand);
+  }
+  .login-wall h1 {
+    font-family: 'Spectral', serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--blue-d);
+    margin-bottom: 6px;
+  }
+  .login-wall p { font-size: 0.88rem; color: var(--mid); margin-bottom: 24px; }
+  .login-wall input {
+    width: 100%;
+    border: 1px solid #d0cec9;
+    border-radius: 4px;
+    padding: 11px 12px;
+    font: inherit;
+    font-size: 0.92rem;
+    text-align: center;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    outline: none;
+    margin-bottom: 12px;
+    transition: border-color 0.15s;
+  }
+  .login-wall input:focus { border-color: var(--blue); }
+  .btn-enter {
+    width: 100%;
+    background: var(--blue);
+    color: #fff;
+    font: inherit;
+    font-weight: 600;
+    font-size: 0.92rem;
+    padding: 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn-enter:hover { background: var(--blue-d); }
+  .btn-enter:disabled { opacity: 0.55; cursor: default; }
+  .login-err {
+    font-size: 0.82rem;
+    color: #c0392b;
+    margin-top: 10px;
+    display: none;
+  }
+  .login-wall .back-link { display: block; margin-top: 16px; font-size: 0.8rem; }
+  .login-wall .back-link a { color: var(--light); text-decoration: none; }
+
+  /* ── DESK ────────────────────────────────────────────────────── */
+  .desk-wrap {
+    display: none;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 32px 24px;
+  }
+  .desk-wrap.visible { display: block; }
+
+  .desk-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    background: #fff;
+    border: 1px solid var(--sand);
+    border-radius: 8px;
+    padding: 24px 28px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+  .desk-header img {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    object-fit: cover; object-position: top;
+    border: 2px solid var(--sand);
+    flex-shrink: 0;
+  }
+  .desk-info h2 {
+    font-family: 'Spectral', serif;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--blue-d);
+    margin-bottom: 2px;
+  }
+  .desk-info .desk-meta {
+    font-size: 0.82rem;
+    color: var(--mid);
+    line-height: 1.7;
+  }
+  .desk-info .desk-meta strong { color: var(--ink); }
+  .desk-code-pill {
+    margin-left: auto;
+    background: var(--blue-l);
+    border: 1px solid #c4d9ed;
+    border-radius: 4px;
+    padding: 8px 14px;
+    font-size: 0.78rem;
+    color: var(--blue-d);
+    text-align: right;
+  }
+  .desk-code-pill .code-val {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    margin-top: 2px;
+  }
+
+  /* ── CHAT ────────────────────────────────────────────────────── */
+  .chat-card {
+    background: #fff;
+    border: 1px solid var(--sand);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    height: 540px;
+  }
+  .chat-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--sand);
+    background: var(--blue-l);
+    border-radius: 8px 8px 0 0;
+  }
+  .chat-head img {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    object-fit: cover; object-position: top;
+  }
+  .chat-head .chat-head-name { font-weight: 600; font-size: 0.9rem; color: var(--blue-d); }
+  .chat-head .chat-head-role { font-size: 0.75rem; color: var(--mid); }
+
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .msg { max-width: 82%; display: flex; flex-direction: column; gap: 3px; }
+  .msg.user { align-self: flex-end; }
+  .msg.carol { align-self: flex-start; }
+  .msg-bubble {
+    padding: 10px 14px;
+    border-radius: 16px;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .msg.carol .msg-bubble {
+    background: var(--blue-l);
+    color: var(--ink);
+    border-bottom-left-radius: 4px;
+  }
+  .msg.user .msg-bubble {
+    background: var(--blue);
+    color: #fff;
+    border-bottom-right-radius: 4px;
+  }
+  .msg-name { font-size: 0.72rem; color: var(--light); padding: 0 4px; }
+  .msg.user .msg-name { text-align: right; }
+
+  .chat-typing {
+    align-self: flex-start;
+    padding: 10px 14px;
+    background: var(--blue-l);
+    border-radius: 16px;
+    border-bottom-left-radius: 4px;
+    display: none;
+  }
+  .typing-dot {
+    display: inline-block;
+    width: 7px; height: 7px;
+    background: var(--blue);
+    border-radius: 50%;
+    margin: 0 2px;
+    animation: blink 1.2s infinite;
+  }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes blink { 0%,80%,100%{opacity:0.2} 40%{opacity:1} }
+
+  .chat-input-row {
+    display: flex;
+    gap: 10px;
+    padding: 14px 16px;
+    border-top: 1px solid var(--sand);
+  }
+  .chat-input-row textarea {
+    flex: 1;
+    border: 1px solid #d0cec9;
+    border-radius: 6px;
+    padding: 9px 12px;
+    font: inherit;
+    font-size: 0.9rem;
+    resize: none;
+    outline: none;
+    min-height: 40px;
+    max-height: 100px;
+    transition: border-color 0.15s;
+  }
+  .chat-input-row textarea:focus { border-color: var(--blue); }
+  .btn-send {
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 0 18px;
+    font: inherit;
+    font-weight: 600;
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: background 0.15s;
+    white-space: nowrap;
+  }
+  .btn-send:hover { background: var(--blue-d); }
+  .btn-send:disabled { opacity: 0.5; cursor: default; }
+
+  /* ── PROCESSING SCREEN ───────────────────────────────────────── */
+  .processing-screen {
+    max-width: 420px;
+    margin: 80px auto;
+    background: #fff;
+    border: 1px solid var(--sand);
+    border-radius: 8px;
+    padding: 40px 36px;
+    text-align: center;
+    display: none;
+  }
+  .processing-screen.visible { display: block; }
+  .processing-screen h2 {
+    font-family: 'Spectral', serif;
+    font-size: 1.4rem;
+    color: var(--blue-d);
+    margin-bottom: 10px;
+  }
+  .processing-screen p { font-size: 0.88rem; color: var(--mid); margin-bottom: 20px; }
+  .spinner {
+    width: 36px; height: 36px;
+    border: 3px solid var(--blue-l);
+    border-top-color: var(--blue);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 20px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 600px) {
+    .desk-header { flex-direction: column; }
+    .desk-code-pill { margin-left: 0; }
+    .chat-card { height: 460px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <span class="top-brand">Carol's Office</span>
+  <div style="display:flex;gap:16px;align-items:center;">
+    <span id="desk-label-top" style="color:rgba(255,255,255,0.7);display:none;"></span>
+    <a href="/carols-office.html">Rent a desk</a>
+    <a href="/">ETL Home</a>
+  </div>
+</div>
+
+<!-- PROCESSING (post-payment provision) -->
+<div class="processing-screen" id="processing-screen">
+  <div class="spinner"></div>
+  <h2>Carol's getting your desk ready.</h2>
+  <p>This takes just a moment. Don't close this tab.</p>
+  <div id="provision-err" style="font-size:0.82rem;color:#c0392b;display:none;margin-top:12px;"></div>
+</div>
+
+<!-- LOGIN WALL -->
+<div class="login-wall" id="login-wall">
+  <img src="/agents/Carol_eyes_open.jpg" alt="Carol Haynes">
+  <h1>Welcome back.</h1>
+  <p>Enter your desk access code to get in.</p>
+  <input type="text" id="code-input" placeholder="CAROL-XXXXXXX" maxlength="13" autocomplete="off"
+    onkeydown="if(event.key==='Enter'){enterDesk();}">
+  <button class="btn-enter" id="enter-btn" onclick="enterDesk()">Enter &rarr;</button>
+  <div class="login-err" id="login-err"></div>
+  <p class="back-link"><a href="/carols-office.html">Don't have a desk yet? Rent one &rarr;</a></p>
+</div>
+
+<!-- DESK -->
+<div class="desk-wrap" id="desk-wrap">
+  <div class="desk-header">
+    <img src="/agents/Carol_eyes_open.jpg" alt="Carol Haynes">
+    <div class="desk-info">
+      <h2 id="desk-company">Your Desk</h2>
+      <div class="desk-meta">
+        <strong>Address:</strong> <span id="desk-address"></span><br>
+        <strong>Front desk:</strong> Carol Haynes
+      </div>
+    </div>
+    <div class="desk-code-pill">
+      Your access code<br>
+      <span class="code-val" id="desk-code-display"></span>
+    </div>
+  </div>
+
+  <div class="chat-card">
+    <div class="chat-head">
+      <img src="/agents/Carol_eyes_open.jpg" alt="Carol">
+      <div>
+        <div class="chat-head-name">Carol Haynes</div>
+        <div class="chat-head-role">Front Desk &middot; Carol's Office</div>
+      </div>
+    </div>
+    <div class="chat-messages" id="chat-messages">
+      <div class="chat-typing" id="typing-indicator">
+        <span class="typing-dot"></span>
+        <span class="typing-dot"></span>
+        <span class="typing-dot"></span>
+      </div>
+    </div>
+    <div class="chat-input-row">
+      <textarea id="chat-input" placeholder="Message Carol..." rows="1"
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage();}"></textarea>
+      <button class="btn-send" id="send-btn" onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var ACCESS_CODE_KEY = 'carols_office_code';
+  var currentDesk = null;
+  var chatHistory = [];
+
+  // ── PROVISION FLOW (post-Stripe) ────────────────────────────
+  var params = new URLSearchParams(window.location.search);
+  var sessionId = params.get('session_id');
+
+  if (sessionId) {
+    document.getElementById('login-wall').style.display = 'none';
+    document.getElementById('processing-screen').classList.add('visible');
+    provision(sessionId);
+  } else {
+    // Check saved code
+    var saved = localStorage.getItem(ACCESS_CODE_KEY);
+    if (saved) {
+      document.getElementById('code-input').value = saved;
+      loadDesk(saved, true);
+    }
+  }
+
+  async function provision(sid) {
+    try {
+      var r = await fetch('/.netlify/functions/carols-office-provision', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session_id: sid }),
+      });
+      var data = await r.json();
+      if (!r.ok || !data.desk) {
+        showProvisionErr(data.error || 'Provisioning failed. Please email us your confirmation number.');
+        return;
+      }
+      // Clean URL
+      window.history.replaceState({}, '', '/carols-office-desk.html');
+      activateDesk(data.desk, true);
+    } catch (e) {
+      showProvisionErr('Network error. Please refresh or contact us.');
+    }
+  }
+
+  function showProvisionErr(msg) {
+    var el = document.getElementById('provision-err');
+    el.textContent = msg;
+    el.style.display = 'block';
+    document.querySelector('.spinner').style.display = 'none';
+  }
+
+  // ── ACCESS CODE LOGIN ───────────────────────────────────────
+  window.enterDesk = async function() {
+    var btn = document.getElementById('enter-btn');
+    var err = document.getElementById('login-err');
+    var code = document.getElementById('code-input').value.trim().toUpperCase();
+    err.style.display = 'none';
+    if (!code) { err.textContent = 'Enter your access code.'; err.style.display = 'block'; return; }
+
+    btn.disabled = true;
+    btn.textContent = 'One moment...';
+    await loadDesk(code, false);
+    btn.disabled = false;
+    btn.textContent = 'Enter →';
+  };
+
+  async function loadDesk(code, silent) {
+    try {
+      var r = await fetch('/.netlify/functions/carols-office-provision', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ access_code: code }),
+      });
+      var data = await r.json();
+      if (!r.ok || !data.desk) {
+        if (!silent) {
+          var err = document.getElementById('login-err');
+          err.textContent = 'That code doesn\'t match any desk. Check it and try again.';
+          err.style.display = 'block';
+        }
+        localStorage.removeItem(ACCESS_CODE_KEY);
+        return;
+      }
+      activateDesk(data.desk, false);
+    } catch (e) {
+      if (!silent) {
+        var err = document.getElementById('login-err');
+        err.textContent = 'Network error. Try again in a moment.';
+        err.style.display = 'block';
+      }
+    }
+  }
+
+  // ── ACTIVATE DESK ───────────────────────────────────────────
+  function activateDesk(desk, isNew) {
+    currentDesk = desk;
+    localStorage.setItem(ACCESS_CODE_KEY, desk.access_code);
+
+    document.getElementById('processing-screen').classList.remove('visible');
+    document.getElementById('login-wall').style.display = 'none';
+    document.getElementById('desk-wrap').classList.add('visible');
+
+    document.getElementById('desk-company').textContent = desk.company_name || 'Your Desk';
+    document.getElementById('desk-address').textContent = desk.address || 'Dayton, Ohio';
+    document.getElementById('desk-code-display').textContent = desk.access_code;
+    document.getElementById('desk-label-top').textContent = desk.company_name || '';
+    document.getElementById('desk-label-top').style.display = 'inline';
+
+    chatHistory = [];
+    var greeting = isNew
+      ? 'Welcome to Carol\'s Office! Your desk is all set. Your US address is ' + (desk.address || 'Dayton, Ohio') + ' — use it for any business correspondence, your website, whatever you need. Coffee\'s on, and I\'m here whenever you need anything. What can I help you with today?'
+      : 'Hey, welcome back! Good to see you. What do you need?';
+    appendMessage('carol', 'Carol', greeting);
+    chatHistory.push({ role: 'assistant', content: greeting });
+
+    setTimeout(function() {
+      document.getElementById('chat-input').focus();
+    }, 200);
+  }
+
+  // ── CHAT ────────────────────────────────────────────────────
+  window.sendMessage = async function() {
+    if (!currentDesk) return;
+    var input = document.getElementById('chat-input');
+    var btn = document.getElementById('send-btn');
+    var msg = input.value.trim();
+    if (!msg) return;
+
+    appendMessage('user', 'You', msg);
+    chatHistory.push({ role: 'user', content: msg });
+    input.value = '';
+    input.style.height = 'auto';
+    btn.disabled = true;
+    showTyping(true);
+
+    try {
+      var r = await fetch('/.netlify/functions/carols-office-chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          access_code: currentDesk.access_code,
+          message: msg,
+          history: chatHistory.slice(-14),
+        }),
+      });
+      var data = await r.json();
+      var reply = data.reply || 'Something went wrong on my end. Try again in a moment.';
+      appendMessage('carol', 'Carol', reply);
+      chatHistory.push({ role: 'assistant', content: reply });
+    } catch (e) {
+      appendMessage('carol', 'Carol', 'Network hiccup. Try again?');
+    } finally {
+      showTyping(false);
+      btn.disabled = false;
+      input.focus();
+    }
+  };
+
+  function appendMessage(who, name, text) {
+    var container = document.getElementById('chat-messages');
+    var typing = document.getElementById('typing-indicator');
+    var div = document.createElement('div');
+    div.className = 'msg ' + who;
+    div.innerHTML = '<div class="msg-name">' + name + '</div><div class="msg-bubble">' + escHtml(text) + '</div>';
+    container.insertBefore(div, typing);
+    container.scrollTop = container.scrollHeight;
+  }
+
+  function showTyping(on) {
+    var t = document.getElementById('typing-indicator');
+    t.style.display = on ? 'block' : 'none';
+    if (on) document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+  }
+
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // Auto-grow textarea
+  document.getElementById('chat-input').addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+  });
+})();
+</script>
+</body>
+</html>
