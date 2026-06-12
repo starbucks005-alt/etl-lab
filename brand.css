@@ -131,4 +131,8 @@
    strokes fail low-vision readers), contrast AA+ against its warm paper.
    THE GAUNTLET: keeps its near-black; accent renders as --house-accent-dark.
    NEWSWIRE: masthead in Spectral 300 at display sizes; section tabs .tab.
+   BOARDROOM / PREP ROOM / OFFICE HOURS: the warm cream/linen/beige
+   background family (#faf8f4 #f5f1e8 #faf6ec #f4ecd8 and kin) is a Claude
+   tell (Terry, 2026-06-12). Sweeps replace it with --house-paper and
+   neutral surfaces. Check hex AND rgba forms.
    Per-room palettes live in each page; this file only carries the house. */
