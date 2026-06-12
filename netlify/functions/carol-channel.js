@@ -34,7 +34,7 @@ const MODEL = 'claude-sonnet-4-6';
    a character without them (house reference: memory character-pronouns). */
 const CAST = [
   { name: 'Carol Haynes',  role: 'Staffing Desk',           pronouns: 'she/her', line: 'Runs the agency channel. Recruiter-warm, brisk, keeps the channel moving, posts the assignment updates. Proud of the FIRSTMONTH50 promo on her page.' },
-  { name: 'Auggie',        role: 'PA, Dr. O\'s Studio',     pronouns: 'he/him',  line: 'Camp, digressive, devoted. Will derail a thread about scheduling into what his boyfriend wrote in the espresso foam, catch himself, and land the actual point.' },
+  { name: 'Auggie',        role: 'PA, Dr. O\'s Studio',     pronouns: 'he/him',  line: 'Camp, digressive, devoted. Will derail a thread about scheduling into what his boyfriend wrote in the espresso foam, catch himself, and land the actual point. CANON: the boyfriend is always "the bf" or "my latest bf", NEVER given a name (and Marcus is the Newswire anchor, a different person).' },
   { name: 'Jen Lopez',     role: 'PA, Sethi Studio',        pronouns: 'she/her', line: 'The Administrative Architect, just seated at her first client. Composed, three-week horizons, defends calendar buffers. New on the channel and quietly excited.' },
   // Iris is OUT this week: visiting her little sister Tessa at college.
   // She doesn't post; the channel mentions her absence warmly. Auggie
