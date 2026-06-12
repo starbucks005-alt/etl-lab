@@ -5195,7 +5195,10 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
         <div id="iris-panel-title">Iris</div>
         <div id="iris-panel-sub">ETL site concierge</div>
       </div>
-      <button type="button" id="iris-panel-close" aria-label="Close help chat">&times;</button>
+      <div style="display:flex;align-items:center;gap:2px;">
+        <button type="button" id="iris-voice-btn" aria-label="Hear Iris's welcome" title="Hear Iris">&#9654;</button>
+        <button type="button" id="iris-panel-close" aria-label="Close help chat">&times;</button>
+      </div>
     </div>
     <div id="iris-thread"></div>
     <form id="iris-form" autocomplete="off">
@@ -5317,6 +5320,12 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
     padding: 0 4px;
   }
   #iris-panel-close:hover { color: #fff; }
+  #iris-voice-btn {
+    background: transparent; border: 1px solid #7fa8c9; color: #7fa8c9;
+    font-size: 11px; cursor: pointer; line-height: 1;
+    padding: 4px 7px; border-radius: 50%;
+  }
+  #iris-voice-btn:hover { color: #fff; border-color: #fff; }
 
   #iris-thread {
     flex: 1; overflow-y: auto;
@@ -5449,10 +5458,29 @@ h1 b,h2 b,h1 strong,h2 strong{font-weight:500}
     history.forEach(function(t){ renderMsg(t.role, t.content); });
   }
 
+  var welcomeAudio = null;
+  function playWelcome(){
+    try {
+      if (!welcomeAudio) welcomeAudio = new Audio('/.netlify/functions/public-iris-welcome-audio');
+      welcomeAudio.currentTime = 0;
+      welcomeAudio.play().catch(function(){});
+    } catch(_){}
+  }
+  var voiceBtn = document.getElementById('iris-voice-btn');
+  if (voiceBtn) voiceBtn.addEventListener('click', playWelcome);
+
   function openPanel(){
     panel.hidden = false;
     bubble.setAttribute('aria-expanded', 'true');
     rehydrate();
+    // First-ever open: she says hello out loud. The open click counts as
+    // the user gesture, so autoplay restrictions do not block it.
+    try {
+      if (!localStorage.getItem('etl.iris.welcomed')) {
+        localStorage.setItem('etl.iris.welcomed', '1');
+        playWelcome();
+      }
+    } catch(_){}
     setTimeout(function(){ input.focus(); }, 50);
   }
   function closePanel(){
