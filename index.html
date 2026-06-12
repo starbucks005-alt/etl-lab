@@ -1362,9 +1362,18 @@ document.addEventListener('DOMContentLoaded', function(){
     /* Frame each video as a discrete piece of media (a "movie") so it
        reads visually distinct from the surrounding tile and the dark page
        background. Gold rule + soft shadow underneath. */
-    border: 2px solid #b8922a;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(184, 146, 42, 0.15);
+    border: 2px solid #5c8ab5;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(92, 138, 181, 0.15);
   }
+  /* Screenshot cards (Gauntlet, SLR) wear the same frame as the video
+     cards so every platform tile reads as the same kind of media. */
+  .etl-network .etl-net-shot {
+    display: block;
+    background: var(--black);
+    border: 2px solid #5c8ab5;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(92, 138, 181, 0.15);
+  }
+  .etl-network .etl-net-shot img { width: 100%; display: block; }
   .etl-network .etl-net-video iframe {
     position: absolute; top: 0; left: 0;
     width: 100% !important; height: 100% !important; max-width: 100% !important; border: 0;
@@ -2334,7 +2343,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
       <!-- SLR Studio (Scholarly group) -->
       <div class="etl-net-card etl-net-card--wide" style="order: 6;">
-        <a href="https://slrstudio.online/" target="_blank" rel="noopener" style="display:block;"><img src="/images/slr-home.jpg" alt="SLR Studio homepage" style="width:100%;display:block;" loading="lazy"></a>
+        <a href="https://slrstudio.online/" target="_blank" rel="noopener" class="etl-net-shot"><img src="/images/slr-home.jpg" alt="SLR Studio homepage" loading="lazy"></a>
         <div class="etl-net-body">
           <div class="etl-net-num">Platform // 01 <span class="etl-net-duration">live now</span> <span style="display:inline-block;background:var(--green-bright,#1f8a3a);color:#fff;font-family:'Public Sans',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;padding:3px 9px;margin-left:6px;border-radius:2px;">FREE AT THE LAB</span></div>
           <div class="etl-net-title">SLR Studio</div>
@@ -2353,7 +2362,7 @@ document.addEventListener('DOMContentLoaded', function(){
       <!-- The Gauntlet -->
       <!-- The Gauntlet (OBS Programs group) -->
       <div class="etl-net-card etl-net-card--wide" style="order: 3;">
-        <a href="https://thegauntlet.studio" target="_blank" rel="noopener" style="display:block;"><img src="/images/gauntlet-home.jpg" alt="The Gauntlet homepage" style="width:100%;display:block;" loading="lazy"></a>
+        <a href="https://thegauntlet.studio" target="_blank" rel="noopener" class="etl-net-shot"><img src="/images/gauntlet-home.jpg" alt="The Gauntlet homepage" loading="lazy"></a>
         <div class="etl-net-body">
           <div class="etl-net-num">Platform // 02 <span class="etl-net-duration">live now</span> <span style="display:inline-block;background:var(--green-bright,#1f8a3a);color:#fff;font-family:'Public Sans',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;padding:3px 9px;margin-left:6px;border-radius:2px;">FREE AT THE LAB</span></div>
           <div class="etl-net-title">The Gauntlet</div>
