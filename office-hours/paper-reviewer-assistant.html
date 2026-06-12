@@ -15,15 +15,15 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
 <style>
   :root {
-    --paper: #f3ecdc;
-    --paper-deep: #e8dec8;
+    --paper: #f4f3ee;
+    --paper-deep: #d8d6cc;
     --ink: #161310;
     --ink-soft: #4a443a;
-    --gold: #b8922a;
+    --gold: #28527a;
     --gold-deep: #8a6c1a;
     --line: #c8bba0;
     --bad: #8a2a2a;
@@ -33,20 +33,20 @@
   html, body {
     margin: 0; padding: 0;
     background: var(--paper); color: var(--ink);
-    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-family: 'Spectral', Georgia, serif;
     font-size: 18px; line-height: 1.55;
   }
   a { color: var(--gold-deep); text-decoration: underline; text-underline-offset: 3px; }
   a:hover { color: var(--ink); }
 
   .top-strip {
-    background: #161310; color: #d4aa4a;
-    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.18em;
+    background: #161310; color: #28527a;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; letter-spacing: 0.18em;
     text-transform: uppercase;
     padding: 0.6rem 1.5rem; display: flex; justify-content: space-between; align-items: center;
     flex-wrap: wrap; gap: 0.5rem;
   }
-  .top-strip a { color: #d4aa4a; text-decoration: none; }
+  .top-strip a { color: #28527a; text-decoration: none; }
   .top-strip a:hover { color: #fff; }
   .top-strip__crumbs a { margin-right: 0.6rem; }
   .top-strip__crumbs .sep { color: #8a6c1a; margin-right: 0.6rem; }
@@ -55,11 +55,11 @@
 
   .masthead { text-align: center; padding: 1.5rem 0 0.8rem; border-bottom: 1px solid var(--line); }
   .masthead .eyebrow {
-    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.22em;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; letter-spacing: 0.22em;
     text-transform: uppercase; color: var(--gold-deep);
   }
   .masthead h1 {
-    font-family: 'Playfair Display', Georgia, serif; font-weight: 900;
+    font-family: 'Spectral', Georgia, serif; font-weight: 900;
     font-size: clamp(2rem, 4.5vw, 3.2rem); margin: 0.2rem 0 0.2rem; letter-spacing: -0.01em;
   }
   .masthead .sub {
@@ -70,18 +70,18 @@
   .privacy-banner {
     margin: 1.4rem 0 1.8rem;
     padding: 0.9rem 1.2rem;
-    background: #ece1c8; border-left: 3px solid var(--gold);
+    background: #d8d6cc; border-left: 3px solid var(--gold);
     font-size: 0.95rem; color: var(--ink-soft);
   }
   .privacy-banner strong { color: var(--ink); }
 
   .card {
-    background: #fcf6e8; border: 1px solid var(--line);
+    background: #f4f3ee; border: 1px solid var(--line);
     padding: 1.4rem 1.4rem 1.6rem; box-shadow: 0 1px 0 rgba(0,0,0,0.03);
     margin-bottom: 1.4rem;
   }
   .card h2 {
-    font-family: 'Playfair Display', Georgia, serif; font-weight: 700;
+    font-family: 'Spectral', Georgia, serif; font-weight: 700;
     font-size: 1.4rem; margin: 0 0 0.3rem;
   }
   .card .card-sub {
@@ -91,22 +91,22 @@
 
   label.field {
     display: block; margin-bottom: 1rem;
-    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em;
     text-transform: uppercase; color: var(--gold-deep);
   }
   label.field > .label-text { display: block; margin-bottom: 0.35rem; }
   label.field > .label-note {
-    display: block; font-family: 'Cormorant Garamond', serif; text-transform: none;
+    display: block; font-family: 'Spectral', serif; text-transform: none;
     letter-spacing: 0; color: var(--ink-soft); font-style: italic;
     font-size: 0.9rem; margin-bottom: 0.35rem;
   }
   label.field input[type=text], label.field select, label.field textarea {
     width: 100%; padding: 0.55rem 0.7rem;
-    font-family: 'Cormorant Garamond', serif; font-size: 1rem;
-    background: #fffbef; border: 1px solid var(--line);
+    font-family: 'Spectral', serif; font-size: 1rem;
+    background: #ffffff; border: 1px solid var(--line);
     color: var(--ink); border-radius: 0;
   }
-  label.field textarea { font-family: 'DM Mono', monospace; font-size: 0.86rem; line-height: 1.5; min-height: 280px; resize: vertical; }
+  label.field textarea { font-family: 'IBM Plex Mono', monospace; font-size: 0.86rem; line-height: 1.5; min-height: 280px; resize: vertical; }
   label.field input:focus, label.field textarea:focus, label.field select:focus {
     outline: 2px solid var(--gold); outline-offset: -1px;
   }
@@ -119,26 +119,26 @@
 
   .sample-bar {
     margin: 0 0 1.2rem; padding: 0.7rem 0.9rem;
-    background: #ece1c8; border: 1px dashed var(--gold);
+    background: #d8d6cc; border: 1px dashed var(--gold);
     display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap;
   }
   .sample-bar label {
-    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em;
     text-transform: uppercase; color: var(--gold-deep);
   }
   .sample-bar select {
-    padding: 0.4rem 0.6rem; font-family: 'Cormorant Garamond', serif; font-size: 0.95rem;
-    background: #fffbef; border: 1px solid var(--line);
+    padding: 0.4rem 0.6rem; font-family: 'Spectral', serif; font-size: 0.95rem;
+    background: #ffffff; border: 1px solid var(--line);
   }
   .sample-bar button.link {
     background: transparent; border: 0; color: var(--gold-deep); cursor: pointer;
-    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em;
     text-transform: uppercase; text-decoration: underline;
   }
 
   .actions { display: flex; gap: 0.7rem; flex-wrap: wrap; margin-top: 0.6rem; align-items: center; }
   button.btn {
-    font-family: 'DM Mono', monospace; font-size: 0.75rem; letter-spacing: 0.18em;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; letter-spacing: 0.18em;
     text-transform: uppercase; cursor: pointer; padding: 0.8rem 1.4rem;
     border: 1px solid var(--gold-deep); background: var(--gold); color: #fff;
     transition: 0.15s;
@@ -149,7 +149,7 @@
   button.btn.ghost:hover { background: var(--paper-deep); }
 
   .status {
-    font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.12em;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; letter-spacing: 0.12em;
     text-transform: uppercase; padding: 0.5rem 0; min-height: 1.4em;
     color: var(--ink-soft);
   }
@@ -161,34 +161,34 @@
   .results { margin-top: 1rem; }
   .result-block { margin-bottom: 1.8rem; }
   .result-block h3 {
-    font-family: 'Playfair Display', Georgia, serif; font-weight: 700;
+    font-family: 'Spectral', Georgia, serif; font-weight: 700;
     font-size: 1.2rem; margin: 0 0 0.5rem;
     padding-bottom: 0.3rem; border-bottom: 1px solid var(--line);
   }
   .result-block h3 .count {
-    font-family: 'DM Mono', monospace; font-size: 0.7rem;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem;
     letter-spacing: 0.16em; color: var(--ink-soft); font-weight: 400;
     margin-left: 0.4rem;
   }
 
   .recommendation-card {
     padding: 1.1rem 1.2rem; margin-bottom: 0.6rem;
-    font-family: 'Cormorant Garamond', serif; font-size: 1.05rem;
+    font-family: 'Spectral', serif; font-size: 1.05rem;
   }
   .recommendation-card__label {
-    font-family: 'DM Mono', monospace; font-size: 0.7rem;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem;
     letter-spacing: 0.16em; text-transform: uppercase; font-weight: 700;
     margin-bottom: 0.3rem;
   }
   .recommendation-card__verdict {
-    font-family: 'Playfair Display', Georgia, serif; font-weight: 700;
+    font-family: 'Spectral', Georgia, serif; font-weight: 700;
     font-size: 1.5rem; margin: 0 0 0.5rem;
   }
   .recommendation-card.accept { background: #e3edd9; border-left: 4px solid var(--good); }
   .recommendation-card.accept .recommendation-card__label { color: var(--good); }
-  .recommendation-card.minor { background: #f5ecc8; border-left: 4px solid var(--gold); }
+  .recommendation-card.minor { background: #f4f3ee; border-left: 4px solid var(--gold); }
   .recommendation-card.minor .recommendation-card__label { color: var(--gold-deep); }
-  .recommendation-card.major { background: #f5dec8; border-left: 4px solid #c97a2a; }
+  .recommendation-card.major { background: #e9e7df; border-left: 4px solid #c97a2a; }
   .recommendation-card.major .recommendation-card__label { color: #8a4c1a; }
   .recommendation-card.reject { background: #f5d8d8; border-left: 4px solid var(--bad); }
   .recommendation-card.reject .recommendation-card__label { color: var(--bad); }
@@ -198,12 +198,12 @@
     padding: 0.7rem 0.9rem 0.7rem 1.6rem;
     border-bottom: 1px dotted var(--line);
     position: relative;
-    font-family: 'Cormorant Garamond', serif; font-size: 1rem;
+    font-family: 'Spectral', serif; font-size: 1rem;
     line-height: 1.5;
   }
   .result-list li::before {
     position: absolute; left: 0.3rem; top: 0.7rem;
-    font-family: 'DM Mono', monospace; font-size: 0.85rem;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.85rem;
     font-weight: 700;
   }
   .result-list.strengths li::before { content: '+'; color: var(--good); }
@@ -211,36 +211,36 @@
   .result-list li:last-child { border-bottom: 0; }
 
   .concern-card {
-    background: #fffbef; border-left: 3px solid var(--bad);
+    background: #ffffff; border-left: 3px solid var(--bad);
     padding: 0.9rem 1.1rem; margin-bottom: 0.7rem;
   }
   .concern-card__num {
-    font-family: 'DM Mono', monospace; font-size: 0.7rem;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem;
     letter-spacing: 0.16em; text-transform: uppercase; color: var(--bad);
     font-weight: 700; margin-bottom: 0.3rem;
   }
   .concern-card__text {
-    font-family: 'Cormorant Garamond', serif; font-size: 1rem;
+    font-family: 'Spectral', serif; font-size: 1rem;
     line-height: 1.55; margin: 0;
   }
 
   .comment-card {
-    background: #fffbef; border: 1px solid var(--line);
+    background: #ffffff; border: 1px solid var(--line);
     padding: 0.8rem 1rem; margin-bottom: 0.5rem;
   }
   .comment-card__section {
-    font-family: 'DM Mono', monospace; font-size: 0.7rem;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem;
     letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-deep);
     font-weight: 700; margin-bottom: 0.25rem;
   }
   .comment-card__text {
-    font-family: 'Cormorant Garamond', serif; font-size: 0.96rem;
+    font-family: 'Spectral', serif; font-size: 0.96rem;
     line-height: 1.5; margin: 0;
   }
 
   footer {
     margin-top: 4rem; padding-top: 1.4rem; border-top: 1px solid var(--line);
-    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.14em;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; letter-spacing: 0.14em;
     text-transform: uppercase; color: var(--ink-soft); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
   }
   footer a { color: var(--ink-soft); }

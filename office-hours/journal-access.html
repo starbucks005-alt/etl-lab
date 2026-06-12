@@ -15,15 +15,15 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
 <style>
   :root {
-    --paper: #f3ecdc;
-    --paper-deep: #e8dec8;
+    --paper: #f4f3ee;
+    --paper-deep: #d8d6cc;
     --ink: #161310;
     --ink-soft: #4a443a;
-    --gold: #b8922a;
+    --gold: #28527a;
     --gold-deep: #8a6c1a;
     --line: #c8bba0;
     --good: #3a6a2a;
@@ -33,20 +33,20 @@
   html, body {
     margin: 0; padding: 0;
     background: var(--paper); color: var(--ink);
-    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-family: 'Spectral', Georgia, serif;
     font-size: 18px; line-height: 1.55;
   }
   a { color: var(--gold-deep); text-decoration: underline; text-underline-offset: 3px; }
   a:hover { color: var(--ink); }
 
   .top-strip {
-    background: #161310; color: #d4aa4a;
-    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.18em;
+    background: #161310; color: #28527a;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; letter-spacing: 0.18em;
     text-transform: uppercase;
     padding: 0.6rem 1.5rem; display: flex; justify-content: space-between; align-items: center;
     flex-wrap: wrap; gap: 0.5rem;
   }
-  .top-strip a { color: #d4aa4a; text-decoration: none; }
+  .top-strip a { color: #28527a; text-decoration: none; }
   .top-strip a:hover { color: #fff; }
   .top-strip__crumbs a { margin-right: 0.6rem; }
   .top-strip__crumbs .sep { color: #8a6c1a; margin-right: 0.6rem; }
@@ -55,11 +55,11 @@
 
   .masthead { text-align: center; padding: 1.5rem 0 0.8rem; border-bottom: 1px solid var(--line); }
   .masthead .eyebrow {
-    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.22em;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; letter-spacing: 0.22em;
     text-transform: uppercase; color: var(--gold-deep);
   }
   .masthead h1 {
-    font-family: 'Playfair Display', Georgia, serif; font-weight: 900;
+    font-family: 'Spectral', Georgia, serif; font-weight: 900;
     font-size: clamp(2rem, 4.5vw, 3.2rem); margin: 0.2rem 0 0.2rem; letter-spacing: -0.01em;
   }
   .masthead .sub {
@@ -70,24 +70,24 @@
   .intro {
     margin: 1.4rem 0 1.8rem;
     padding: 1rem 1.2rem;
-    background: #fcf6e8; border-left: 3px solid var(--gold);
+    background: #f4f3ee; border-left: 3px solid var(--gold);
     font-size: 1rem; line-height: 1.55; color: var(--ink);
   }
   .intro strong { color: var(--ink); }
 
   .section {
-    background: #fcf6e8; border: 1px solid var(--line);
+    background: #f4f3ee; border: 1px solid var(--line);
     padding: 1.4rem 1.6rem 1.6rem; margin-bottom: 1.4rem;
   }
   .section.featured {
-    background: #fffbef; border-left: 5px solid var(--gold);
+    background: #ffffff; border-left: 5px solid var(--gold);
   }
   .section h2 {
-    font-family: 'Playfair Display', Georgia, serif; font-weight: 700;
+    font-family: 'Spectral', Georgia, serif; font-weight: 700;
     font-size: 1.5rem; margin: 0 0 0.4rem;
   }
   .section h2 .badge {
-    font-family: 'DM Mono', monospace; font-size: 0.66rem;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.66rem;
     letter-spacing: 0.16em; text-transform: uppercase;
     background: var(--gold); color: #fff; padding: 0.15rem 0.5rem;
     margin-left: 0.5rem; vertical-align: middle; font-weight: 700;
@@ -102,21 +102,21 @@
     gap: 0.6rem;
   }
   .pub-card {
-    background: #fffbef; border: 1px solid var(--line);
+    background: #ffffff; border: 1px solid var(--line);
     padding: 0.6rem 0.9rem;
     display: flex; flex-direction: column; gap: 0.2rem;
   }
   .pub-card__name {
-    font-family: 'Playfair Display', serif; font-weight: 700;
+    font-family: 'Spectral', serif; font-weight: 700;
     font-size: 1rem; color: var(--ink);
   }
   .pub-card__note {
-    font-family: 'Cormorant Garamond', serif; font-size: 0.88rem;
+    font-family: 'Spectral', serif; font-size: 0.88rem;
     color: var(--ink-soft); line-height: 1.4;
   }
 
   .section h3 {
-    font-family: 'DM Mono', monospace; font-size: 0.72rem;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem;
     letter-spacing: 0.16em; text-transform: uppercase;
     color: var(--gold-deep); font-weight: 700;
     margin: 1.2rem 0 0.5rem;
@@ -129,26 +129,26 @@
   }
   .link-list li {
     padding: 0.4rem 0; border-bottom: 1px dotted var(--line);
-    font-family: 'Cormorant Garamond', serif; font-size: 1rem;
+    font-family: 'Spectral', serif; font-size: 1rem;
   }
   .link-list li:last-child { border-bottom: 0; }
   .link-list .label {
-    font-family: 'DM Mono', monospace; font-size: 0.66rem;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.66rem;
     letter-spacing: 0.12em; color: var(--ink-soft);
     margin-right: 0.5rem;
   }
 
   .callout {
-    background: #ece1c8; border-left: 4px solid var(--gold-deep);
+    background: #d8d6cc; border-left: 4px solid var(--gold-deep);
     padding: 0.8rem 1.1rem; margin: 1rem 0;
-    font-family: 'Cormorant Garamond', serif; font-size: 0.98rem;
+    font-family: 'Spectral', serif; font-size: 0.98rem;
     line-height: 1.55;
   }
   .callout strong { color: var(--ink); }
 
   footer {
     margin-top: 4rem; padding-top: 1.4rem; border-top: 1px solid var(--line);
-    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.14em;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; letter-spacing: 0.14em;
     text-transform: uppercase; color: var(--ink-soft); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
   }
   footer a { color: var(--ink-soft); }

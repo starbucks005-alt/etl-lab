@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Prep Room — Defense &amp; Interview Practice | Emerging Technologies Laboratory</title>
 <meta name="description" content="Practice your thesis defense or a job interview against an AI panel. Pick your panel, set the difficulty, and get a readiness card.">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root{
     --ink:#1a1d24; --muted:#5a6072; --line:#e2e1dc; --paper:#f7f6f2;
-    --card:#ffffff; --gold:#b8922a; --gold-dim:#8f7220; --navy:#243049;
-    --green:#285C4D; --danger:#a3402f; --soft:#f0eee7;
+    --card:#ffffff; --gold:#28527a; --gold-dim:#8f7220; --navy:#243049;
+    --green:#285C4D; --danger:#a3402f; --soft:#f4f3ee;
   }
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
   body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);line-height:1.6;}
@@ -25,7 +25,7 @@
   .home-link:hover{color:#fff;}
 
   .hero{padding:48px 0 8px;text-align:center;}
-  .hero h1{font-family:'Playfair Display',serif;font-size:clamp(30px,5vw,46px);font-weight:700;letter-spacing:-0.5px;line-height:1.05;}
+  .hero h1{font-family:'Spectral',serif;font-size:clamp(30px,5vw,46px);font-weight:700;letter-spacing:-0.5px;line-height:1.05;}
   .hero h1 em{font-style:italic;color:var(--gold-dim);}
   .hero p{max-width:620px;margin:14px auto 0;color:var(--muted);font-size:16px;font-weight:300;}
   .kicker{font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--gold-dim);margin-bottom:10px;}
@@ -58,7 +58,7 @@
   .step{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:30px;margin:22px 0;box-shadow:0 1px 3px rgba(0,0,0,.03);}
   .step.locked{opacity:.45;pointer-events:none;}
   .step-num{font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--gold-dim);margin-bottom:6px;}
-  .step h2{font-family:'Playfair Display',serif;font-size:23px;font-weight:600;margin-bottom:6px;}
+  .step h2{font-family:'Spectral',serif;font-size:23px;font-weight:600;margin-bottom:6px;}
   .step .hint{color:var(--muted);font-size:14px;font-weight:300;margin-bottom:18px;}
 
   .drop{border:2px dashed #cfcdc4;border-radius:6px;padding:34px 20px;text-align:center;background:var(--soft);cursor:pointer;transition:border-color .15s,background .15s;}
@@ -76,7 +76,7 @@
   .prof{border:1.5px solid var(--line);border-radius:6px;padding:16px;cursor:pointer;background:#fff;transition:border-color .15s,box-shadow .15s;position:relative;}
   .prof:hover{border-color:var(--gold);}
   .prof.sel{border-color:var(--green);box-shadow:0 0 0 1px var(--green) inset;background:#f6faf8;}
-  .prof .pname{font-family:'Playfair Display',serif;font-size:17px;font-weight:600;}
+  .prof .pname{font-family:'Spectral',serif;font-size:17px;font-weight:600;}
   .prof .prole{font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold-dim);margin:2px 0 8px;}
   .prof .pdesc{font-size:12.5px;color:var(--muted);line-height:1.5;}
   .prof .check{position:absolute;top:12px;right:12px;width:20px;height:20px;border-radius:50%;border:1.5px solid #cfcdc4;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;}
@@ -118,13 +118,13 @@
 
   #card{display:none;}
   .rc-head{text-align:center;margin-bottom:24px;}
-  .rc-head .verdict{font-family:'Playfair Display',serif;font-size:30px;font-weight:700;}
+  .rc-head .verdict{font-family:'Spectral',serif;font-size:30px;font-weight:700;}
   .rc-overall{font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--gold-dim);}
   .rubric{display:flex;flex-direction:column;gap:14px;margin:18px 0;}
   .rb{border:1px solid var(--line);border-radius:6px;padding:14px 16px;background:#fff;}
   .rb-top{display:flex;justify-content:space-between;align-items:center;gap:10px;}
   .rb-name{font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--navy);}
-  .rb-score{font-family:'Playfair Display',serif;font-weight:700;font-size:20px;}
+  .rb-score{font-family:'Spectral',serif;font-weight:700;font-size:20px;}
   .rb-bar{height:6px;background:var(--soft);border-radius:3px;margin:8px 0;overflow:hidden;}
   .rb-fill{height:100%;background:var(--gold);}
   .rb-note{font-size:13.5px;color:var(--muted);}
@@ -138,14 +138,14 @@
   .samples{margin-top:22px;border-top:1px dashed var(--line);padding-top:18px;}
   .samples-h{font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--navy);margin-bottom:12px;}
   .sample-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--line);border-radius:6px;margin-bottom:8px;background:#fff;flex-wrap:wrap;}
-  .sample-row .s-title{font-family:'Playfair Display',serif;font-size:15px;font-weight:600;}
+  .sample-row .s-title{font-family:'Spectral',serif;font-size:15px;font-weight:600;}
   .sample-row .s-sub{font-size:12px;color:var(--muted);}
   .s-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
   .btn.small{padding:8px 14px;font-size:11px;}
   .dl{font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:1px;text-transform:uppercase;text-decoration:none;color:var(--navy);border:1px solid var(--line);padding:7px 10px;border-radius:4px;}
   .dl:hover{border-color:var(--gold);color:var(--gold-dim);}
   .caveat{font-size:11.5px;color:#9a9a93;margin-top:10px;line-height:1.5;}
-  .rec{margin-top:18px;border:1px solid var(--line);border-left:4px solid var(--gold);background:#fdfaf1;border-radius:6px;padding:14px 16px;}
+  .rec{margin-top:18px;border:1px solid var(--line);border-left:4px solid var(--gold);background:#f4f3ee;border-radius:6px;padding:14px 16px;}
   .rec.fit{border-left-color:var(--green);background:#f4f9f6;}
   .rec .rec-h{font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold-dim);margin-bottom:6px;}
   .rec.fit .rec-h{color:var(--green);}

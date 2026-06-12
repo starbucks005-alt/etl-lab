@@ -15,15 +15,15 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
 <style>
   :root {
-    --paper: #f3ecdc;
-    --paper-deep: #e8dec8;
+    --paper: #f4f3ee;
+    --paper-deep: #d8d6cc;
     --ink: #161310;
     --ink-soft: #4a443a;
-    --gold: #b8922a;
+    --gold: #28527a;
     --gold-deep: #8a6c1a;
     --line: #c8bba0;
     --bad: #8a2a2a;
@@ -34,20 +34,20 @@
   html, body {
     margin: 0; padding: 0;
     background: var(--paper); color: var(--ink);
-    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-family: 'Spectral', Georgia, serif;
     font-size: 18px; line-height: 1.55;
   }
   a { color: var(--gold-deep); text-decoration: underline; text-underline-offset: 3px; }
   a:hover { color: var(--ink); }
 
   .top-strip {
-    background: #161310; color: #d4aa4a;
-    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.18em;
+    background: #161310; color: #28527a;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; letter-spacing: 0.18em;
     text-transform: uppercase;
     padding: 0.6rem 1.5rem; display: flex; justify-content: space-between; align-items: center;
     flex-wrap: wrap; gap: 0.5rem;
   }
-  .top-strip a { color: #d4aa4a; text-decoration: none; }
+  .top-strip a { color: #28527a; text-decoration: none; }
   .top-strip a:hover { color: #fff; }
   .top-strip__crumbs a { margin-right: 0.6rem; }
   .top-strip__crumbs .sep { color: #8a6c1a; margin-right: 0.6rem; }
@@ -56,11 +56,11 @@
 
   .masthead { text-align: center; padding: 1.5rem 0 0.8rem; border-bottom: 1px solid var(--line); }
   .masthead .eyebrow {
-    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.22em;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; letter-spacing: 0.22em;
     text-transform: uppercase; color: var(--gold-deep);
   }
   .masthead h1 {
-    font-family: 'Playfair Display', Georgia, serif; font-weight: 900;
+    font-family: 'Spectral', Georgia, serif; font-weight: 900;
     font-size: clamp(2rem, 4.5vw, 3.2rem); margin: 0.2rem 0 0.2rem; letter-spacing: -0.01em;
   }
   .masthead .sub {
@@ -77,12 +77,12 @@
   .privacy-banner strong { color: var(--bad); }
 
   .card {
-    background: #fcf6e8; border: 1px solid var(--line);
+    background: #f4f3ee; border: 1px solid var(--line);
     padding: 1.4rem 1.4rem 1.6rem; box-shadow: 0 1px 0 rgba(0,0,0,0.03);
     margin-bottom: 1.4rem;
   }
   .card h2 {
-    font-family: 'Playfair Display', Georgia, serif; font-weight: 700;
+    font-family: 'Spectral', Georgia, serif; font-weight: 700;
     font-size: 1.4rem; margin: 0 0 0.3rem;
   }
   .card .card-sub {
@@ -92,22 +92,22 @@
 
   label.field {
     display: block; margin-bottom: 1rem;
-    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em;
     text-transform: uppercase; color: var(--gold-deep);
   }
   label.field > .label-text { display: block; margin-bottom: 0.35rem; }
   label.field > .label-note {
-    display: block; font-family: 'Cormorant Garamond', serif; text-transform: none;
+    display: block; font-family: 'Spectral', serif; text-transform: none;
     letter-spacing: 0; color: var(--ink-soft); font-style: italic;
     font-size: 0.9rem; margin-bottom: 0.35rem;
   }
   label.field input[type=text], label.field input[type=number], label.field select, label.field textarea {
     width: 100%; padding: 0.55rem 0.7rem;
-    font-family: 'Cormorant Garamond', serif; font-size: 1rem;
-    background: #fffbef; border: 1px solid var(--line);
+    font-family: 'Spectral', serif; font-size: 1rem;
+    background: #ffffff; border: 1px solid var(--line);
     color: var(--ink); border-radius: 0;
   }
-  label.field textarea { font-family: 'DM Mono', monospace; font-size: 0.84rem; line-height: 1.5; min-height: 280px; resize: vertical; }
+  label.field textarea { font-family: 'IBM Plex Mono', monospace; font-size: 0.84rem; line-height: 1.5; min-height: 280px; resize: vertical; }
   label.field input:focus, label.field textarea:focus, label.field select:focus {
     outline: 2px solid var(--gold); outline-offset: -1px;
   }
@@ -116,9 +116,9 @@
   @media (max-width: 600px) { .row-2 { grid-template-columns: 1fr; } }
 
   .mechanism-note {
-    background: #ece1c8; border-left: 3px solid var(--gold);
+    background: #d8d6cc; border-left: 3px solid var(--gold);
     padding: 0.6rem 0.9rem; margin: -0.5rem 0 1rem;
-    font-family: 'Cormorant Garamond', serif; font-size: 0.92rem;
+    font-family: 'Spectral', serif; font-size: 0.92rem;
     font-style: italic; color: var(--ink-soft);
     display: none;
   }
@@ -126,26 +126,26 @@
 
   .sample-bar {
     margin: 0 0 1.2rem; padding: 0.7rem 0.9rem;
-    background: #ece1c8; border: 1px dashed var(--gold);
+    background: #d8d6cc; border: 1px dashed var(--gold);
     display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap;
   }
   .sample-bar label {
-    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em;
     text-transform: uppercase; color: var(--gold-deep);
   }
   .sample-bar select {
-    padding: 0.4rem 0.6rem; font-family: 'Cormorant Garamond', serif; font-size: 0.95rem;
-    background: #fffbef; border: 1px solid var(--line); flex: 1; min-width: 260px;
+    padding: 0.4rem 0.6rem; font-family: 'Spectral', serif; font-size: 0.95rem;
+    background: #ffffff; border: 1px solid var(--line); flex: 1; min-width: 260px;
   }
   .sample-bar button.link {
     background: transparent; border: 0; color: var(--gold-deep); cursor: pointer;
-    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em;
     text-transform: uppercase; text-decoration: underline;
   }
 
   .actions { display: flex; gap: 0.7rem; flex-wrap: wrap; margin-top: 0.6rem; align-items: center; }
   button.btn {
-    font-family: 'DM Mono', monospace; font-size: 0.75rem; letter-spacing: 0.18em;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; letter-spacing: 0.18em;
     text-transform: uppercase; cursor: pointer; padding: 0.8rem 1.4rem;
     border: 1px solid var(--gold-deep); background: var(--gold); color: #fff;
     transition: 0.15s;
@@ -156,7 +156,7 @@
   button.btn.ghost:hover { background: var(--paper-deep); }
 
   .status {
-    font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.12em;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; letter-spacing: 0.12em;
     text-transform: uppercase; padding: 0.5rem 0; min-height: 1.4em;
     color: var(--ink-soft);
   }
@@ -167,12 +167,12 @@
   /* Results */
   .result-block { margin-bottom: 1.8rem; }
   .result-block h3 {
-    font-family: 'Playfair Display', Georgia, serif; font-weight: 700;
+    font-family: 'Spectral', Georgia, serif; font-weight: 700;
     font-size: 1.2rem; margin: 0 0 0.5rem;
     padding-bottom: 0.3rem; border-bottom: 1px solid var(--line);
   }
   .result-block h3 .count {
-    font-family: 'DM Mono', monospace; font-size: 0.7rem;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem;
     letter-spacing: 0.16em; color: var(--ink-soft); font-weight: 400;
     margin-left: 0.4rem;
   }
@@ -180,13 +180,13 @@
   /* Overall assessment card */
   .assess-card {
     padding: 1rem 1.2rem;
-    font-family: 'Cormorant Garamond', serif; font-size: 1.04rem;
+    font-family: 'Spectral', serif; font-size: 1.04rem;
   }
   .assess-card.yes  { background: #e3edd9; border-left: 4px solid var(--good); }
-  .assess-card.rework  { background: #f5ecc8; border-left: 4px solid var(--gold); }
+  .assess-card.rework  { background: #f4f3ee; border-left: 4px solid var(--gold); }
   .assess-card.new-sub { background: #f5d8d8; border-left: 4px solid var(--bad); }
   .assess-card__verdict {
-    font-family: 'Playfair Display', serif; font-weight: 700;
+    font-family: 'Spectral', serif; font-weight: 700;
     font-size: 1.3rem; margin: 0 0 0.4rem;
   }
   .assess-card.yes .assess-card__verdict { color: var(--good); }
@@ -197,20 +197,20 @@
     margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px dotted var(--line);
   }
   .assess-card__risk strong {
-    font-family: 'DM Mono', monospace; font-size: 0.7rem;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem;
     letter-spacing: 0.14em; text-transform: uppercase; color: var(--bad);
     font-style: normal;
   }
 
   /* Attempt strategy banner */
   .strategy-banner {
-    background: #fffbef; border-left: 4px solid var(--gold-deep);
+    background: #ffffff; border-left: 4px solid var(--gold-deep);
     padding: 0.9rem 1.1rem;
-    font-family: 'Cormorant Garamond', serif; font-size: 1rem;
+    font-family: 'Spectral', serif; font-size: 1rem;
     line-height: 1.55; margin-bottom: 1rem;
   }
   .strategy-banner strong {
-    font-family: 'DM Mono', monospace; font-size: 0.7rem;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem;
     letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-deep);
     display: block; margin-bottom: 0.3rem;
   }
@@ -221,7 +221,7 @@
 
   /* Critique cards */
   .critique-card {
-    background: #fffbef; border-left: 3px solid var(--gold);
+    background: #ffffff; border-left: 3px solid var(--gold);
     padding: 0.9rem 1.1rem; margin-bottom: 0.8rem;
   }
   .critique-card.showstopper { border-left-color: var(--bad); background: #fdf3f3; }
@@ -232,7 +232,7 @@
     align-items: baseline; margin-bottom: 0.4rem;
   }
   .critique-card__reviewer, .critique-card__category, .critique-card__severity, .critique-card__action {
-    font-family: 'DM Mono', monospace; font-size: 0.62rem;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem;
     letter-spacing: 0.14em; text-transform: uppercase;
     padding: 0.2rem 0.5rem; border: 1px solid var(--line);
   }
@@ -243,41 +243,41 @@
   .critique-card__severity.minor { color: var(--ink-soft); }
   .critique-card__action { color: var(--gold-deep); border-color: var(--gold-deep); }
   .critique-card__text {
-    font-family: 'Cormorant Garamond', serif; font-size: 1rem;
+    font-family: 'Spectral', serif; font-size: 1rem;
     line-height: 1.55; margin: 0.4rem 0 0.6rem; font-weight: 600;
   }
   .critique-card__response-label {
-    font-family: 'DM Mono', monospace; font-size: 0.62rem;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem;
     letter-spacing: 0.14em; text-transform: uppercase; color: var(--good);
     font-weight: 700; margin-top: 0.3rem;
   }
   .critique-card__response {
     background: #f0f5e8; border-left: 2px solid var(--good);
     padding: 0.5rem 0.7rem; margin: 0.3rem 0;
-    font-family: 'Cormorant Garamond', serif; font-size: 0.98rem;
+    font-family: 'Spectral', serif; font-size: 0.98rem;
     line-height: 1.55; color: var(--ink);
   }
   .critique-card__response[contenteditable="true"]:focus { outline: 2px solid var(--gold); outline-offset: -1px; }
 
   /* Intro page */
   .intro-block {
-    background: #fffbef; border: 1px solid var(--line);
+    background: #ffffff; border: 1px solid var(--line);
     padding: 1.2rem 1.4rem;
   }
   .intro-block__meta {
-    font-family: 'DM Mono', monospace; font-size: 0.68rem;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem;
     letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-deep);
     margin-bottom: 0.6rem; padding-bottom: 0.4rem; border-bottom: 1px dotted var(--line);
   }
   .intro-block__draft {
-    font-family: 'Cormorant Garamond', serif; font-size: 1.02rem;
+    font-family: 'Spectral', serif; font-size: 1.02rem;
     line-height: 1.7; white-space: pre-wrap; color: var(--ink);
     margin: 0 0 0.8rem;
   }
   .intro-block__draft[contenteditable="true"]:focus { outline: 2px solid var(--gold); outline-offset: -1px; }
 
   .copy-btn {
-    font-family: 'DM Mono', monospace; font-size: 0.66rem;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.66rem;
     letter-spacing: 0.14em; text-transform: uppercase;
     padding: 0.4rem 0.8rem; background: transparent; border: 1px solid var(--line); color: var(--ink-soft);
     cursor: pointer;
@@ -291,20 +291,20 @@
   }
   @media (max-width: 700px) { .plan-grid { grid-template-columns: 1fr; } }
   .plan-cell {
-    background: #fffbef; border: 1px solid var(--line);
+    background: #ffffff; border: 1px solid var(--line);
     padding: 0.8rem 1rem;
   }
   .plan-cell__label {
-    font-family: 'DM Mono', monospace; font-size: 0.66rem;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.66rem;
     letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-deep);
     font-weight: 700; margin-bottom: 0.4rem;
   }
-  .plan-cell ul { margin: 0; padding-left: 1.2rem; font-family: 'Cormorant Garamond', serif; font-size: 0.96rem; line-height: 1.5; }
+  .plan-cell ul { margin: 0; padding-left: 1.2rem; font-family: 'Spectral', serif; font-size: 0.96rem; line-height: 1.5; }
   .plan-cell li { margin-bottom: 0.2rem; }
 
   footer {
     margin-top: 4rem; padding-top: 1.4rem; border-top: 1px solid var(--line);
-    font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.14em;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; letter-spacing: 0.14em;
     text-transform: uppercase; color: var(--ink-soft); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
   }
   footer a { color: var(--ink-soft); }
