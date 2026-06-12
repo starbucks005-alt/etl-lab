@@ -22,6 +22,7 @@
    ───────────────────────────────────────────────────────────────────────────── */
 
 const Anthropic = require('@anthropic-ai/sdk').default;
+const { VOICE_LAW_CHAT, houseTypography } = require('./_etl-voice-law.js');
 const { getStore, connectLambda } = require('@netlify/blobs');
 
 const MODEL = 'claude-sonnet-4-6';
@@ -638,7 +639,7 @@ exports.handler = async (event) => {
     const resp = await client.messages.create({
       model: MODEL,
       max_tokens: 1500,
-      system: systemPrompt,
+      system: systemPrompt + VOICE_LAW_CHAT,
       messages: [{ role: 'user', content: 'Render the channel now.' }],
     });
     const raw = (resp.content || [])
@@ -668,7 +669,8 @@ exports.handler = async (event) => {
       };
     }
 
-    const messages = Array.isArray(parsed.messages) ? parsed.messages : [];
+    const messages = (Array.isArray(parsed.messages) ? parsed.messages : [])
+      .map(m => (m && typeof m.text === 'string') ? { ...m, text: houseTypography(m.text) } : m);
     return {
       statusCode: 200,
       headers: { ...CORS, 'Content-Type': 'application/json' },

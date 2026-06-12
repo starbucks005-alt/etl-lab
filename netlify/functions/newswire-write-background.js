@@ -21,6 +21,7 @@
    ───────────────────────────────────────────────────────────────────────────── */
 
 const Anthropic = require('@anthropic-ai/sdk').default;
+const { VOICE_LAW_PROSE, houseTypography } = require('./_etl-voice-law.js');
 
 const MODEL = 'claude-sonnet-4-6';
 const MAX_TOKENS = 2400;
@@ -163,7 +164,7 @@ async function runReporter(reporter, topic_seed, auto_publish, apiKey) {
   const response = await client.messages.create({
     model: MODEL,
     max_tokens: MAX_TOKENS,
-    system: buildSystemPrompt(reporter, topic_seed),
+    system: buildSystemPrompt(reporter, topic_seed) + VOICE_LAW_PROSE,
     tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: MAX_WEB_SEARCHES }],
     messages: [{ role: 'user', content: `Find a real current story on the ${reporter.desk_label} beat and write it up. JSON only.` }],
   });
@@ -184,7 +185,7 @@ async function runReporter(reporter, topic_seed, auto_publish, apiKey) {
     return;
   }
 
-  const scrub = (s) => String(s || '').replace(/—/g, '-').replace(/–/g, '-');
+  const scrub = (s) => houseTypography(s);
   parsed.title = scrub(parsed.title);
   parsed.dek = scrub(parsed.dek);
   parsed.body = scrub(parsed.body);

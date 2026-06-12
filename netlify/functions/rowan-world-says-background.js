@@ -25,6 +25,7 @@
    ───────────────────────────────────────────────────────────────────────────── */
 
 const Anthropic = require('@anthropic-ai/sdk').default;
+const { VOICE_LAW_PROSE, houseTypography } = require('./_etl-voice-law.js');
 const { getStore, connectLambda } = require('@netlify/blobs');
 
 const MODEL = 'claude-sonnet-4-6';
@@ -125,7 +126,7 @@ exports.handler = async function (event) {
     const response = await client.messages.create({
       model: MODEL,
       max_tokens: MAX_TOKENS,
-      system: ROWAN_SYSTEM,
+      system: ROWAN_SYSTEM + VOICE_LAW_PROSE,
       tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: MAX_WEB_SEARCHES }],
       messages: [{ role: 'user', content: MODE_PROMPTS[mode](q) }],
     });
@@ -145,7 +146,7 @@ exports.handler = async function (event) {
 
     record.status = 'done';
     record.finished_at = new Date().toISOString();
-    record.response = { text: String(text || '').replace(/—/g, '-').replace(/–/g, '-'), citations };
+    record.response = { text: houseTypography(text), citations };
     record.tokens_used = (response.usage && (response.usage.input_tokens + response.usage.output_tokens)) || null;
     await store.setJSON(id, record);
     console.log('[rowan-world-says] done', id, citations.length + ' sources');

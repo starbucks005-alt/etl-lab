@@ -22,6 +22,7 @@
    ───────────────────────────────────────────────────────────────────────────── */
 
 const Anthropic = require('@anthropic-ai/sdk').default;
+const { VOICE_LAW_CHAT, houseTypography } = require('./_etl-voice-law.js');
 const { getStore, connectLambda } = require('@netlify/blobs');
 
 const MODEL = 'claude-sonnet-4-6';
@@ -125,7 +126,7 @@ exports.handler = async function(event) {
     const response = await client.messages.create({
       model: MODEL,
       max_tokens: MAX_TOKENS,
-      system: ROWAN_SYSTEM,
+      system: ROWAN_SYSTEM + VOICE_LAW_CHAT,
       tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: MAX_WEB_SEARCHES }],
       messages: [{ role: 'user', content: question + (body.context ? '\n\nOwner context: ' + String(body.context).slice(0, 2000) : '') }],
     });
@@ -146,7 +147,7 @@ exports.handler = async function(event) {
       });
     });
 
-    const scrubbed = String(text || '').replace(/—/g, '-').replace(/–/g, '-');
+    const scrubbed = houseTypography(text);
 
     await store.setJSON(jobKey, {
       job_id: jobId,

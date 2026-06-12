@@ -20,6 +20,7 @@
    ───────────────────────────────────────────────────────────────────────────── */
 
 const Anthropic = require('@anthropic-ai/sdk').default;
+const { VOICE_LAW_CHAT, houseTypography } = require('./_etl-voice-law.js');
 const { getStore, connectLambda } = require('@netlify/blobs');
 
 const MODEL = 'claude-sonnet-4-6';
@@ -1193,7 +1194,7 @@ exports.handler = async (event) => {
     const resp = await client.messages.create({
       model: MODEL,
       max_tokens: 800,
-      system: systemPrompt,
+      system: systemPrompt + VOICE_LAW_CHAT,
       tools: [
         // Anthropic server-side web search. The platform executes the
         // tool, we just enable it. max_uses kept to 1 so chat replies
@@ -1207,11 +1208,11 @@ exports.handler = async (event) => {
       ],
       messages: messages,
     });
-    const reply = (resp.content || [])
+    const reply = houseTypography((resp.content || [])
       .filter(b => b && b.type === 'text')
       .map(b => b.text)
       .join('\n')
-      .trim();
+      .trim());
 
     // If we injected intros into this turn, mark them done so the next
     // turn does not re-introduce. We do this BEFORE returning so a slow

@@ -25,6 +25,7 @@
    ───────────────────────────────────────────────────────────────────────────── */
 
 const { getStore } = require('@netlify/blobs');
+const { VOICE_LAW_PROSE, houseTypography } = require('./_etl-voice-law.js');
 
 const SITE_BASE = 'https://emerging-tech-lab.com';
 
@@ -129,7 +130,7 @@ VOICE GUARDRAILS
   - Numbers spoken naturally ("about a fifth", "fifteen percent", "50 million").
   - No raw URLs in text.
 
-Return ONLY the JSON object. No markdown fences, no preamble.`;
+Return ONLY the JSON object. No markdown fences, no preamble.` + VOICE_LAW_PROSE;
 }
 
 function buildScriptUserMessage(pieces) {
@@ -349,7 +350,7 @@ async function renderBriefingFromSegments(segments) {
   const buffers = [];
   for (let i = 0; i < segments.length; i++) {
     const seg = segments[i];
-    const text = String(seg.text || '').replace(/—/g, ', ').replace(/–/g, ', ').replace(/\s{2,}/g, ' ').trim();
+    const text = houseTypography(seg.text).replace(/\s{2,}/g, ' ').trim();
     if (!text) continue;
     const buf = await synthSegment(text, seg.speaker || 'anchor');
     buffers.push(buf);

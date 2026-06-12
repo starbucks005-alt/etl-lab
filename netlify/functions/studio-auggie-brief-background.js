@@ -26,6 +26,7 @@
    ───────────────────────────────────────────────────────────────────────────── */
 
 const Anthropic = require('@anthropic-ai/sdk').default;
+const { VOICE_LAW_PROSE, houseTypography } = require('./_etl-voice-law.js');
 const { getStore, connectLambda } = require('@netlify/blobs');
 
 const MODEL = 'claude-sonnet-4-6';
@@ -289,7 +290,7 @@ exports.handler = async (event) => {
     const resp = await client.messages.create({
       model: MODEL,
       max_tokens: 1500,
-      system: BRIEF_SYSTEM,
+      system: BRIEF_SYSTEM + VOICE_LAW_PROSE,
       tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: MAX_WEB_SEARCHES }],
       messages: [{ role: 'user', content: userPrompt }],
     });
@@ -297,7 +298,7 @@ exports.handler = async (event) => {
     // Pull text blocks for the monologue and gather any tool-use URLs for
     // the metadata (so we can surface "Auggie read these" in the UI later).
     const textBlocks = (resp.content || []).filter(b => b && b.type === 'text');
-    monologue = textBlocks.map(b => b.text).join('\n').trim();
+    monologue = houseTypography(textBlocks.map(b => b.text).join('\n').trim());
 
     // web_search results come back as tool_use / server_tool_use blocks
     // depending on Anthropic's response shape. Defensive extraction.

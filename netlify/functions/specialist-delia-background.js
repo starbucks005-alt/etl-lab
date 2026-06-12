@@ -22,6 +22,7 @@
    ───────────────────────────────────────────────────────────────────────────── */
 
 const Anthropic = require('@anthropic-ai/sdk').default;
+const { VOICE_LAW_CHAT, houseTypography } = require('./_etl-voice-law.js');
 const { getStore, connectLambda } = require('@netlify/blobs');
 const fs = require('fs');
 const path = require('path');
@@ -224,7 +225,7 @@ exports.handler = async function(event) {
     });
     return { statusCode: 500, body: JSON.stringify({ error: 'backpack_config_not_found' }) };
   }
-  const systemPrompt = basePrompt + '\n' + LIVE_TOOLS_NOTE;
+  const systemPrompt = basePrompt + '\n' + LIVE_TOOLS_NOTE + VOICE_LAW_CHAT;
 
   const client = new Anthropic({ apiKey });
   const tools = [
@@ -281,7 +282,7 @@ exports.handler = async function(event) {
       messages.push({ role: 'user', content: toolResults });
     }
 
-    const scrubbed = String(finalText || '').replace(/—/g, '-').replace(/–/g, '-');
+    const scrubbed = houseTypography(finalText);
 
     await store.setJSON(jobKey, {
       job_id: jobId,

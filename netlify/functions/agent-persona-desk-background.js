@@ -23,6 +23,7 @@
 
 const { getStore, connectLambda } = require('@netlify/blobs');
 const Anthropic = require('@anthropic-ai/sdk').default;
+const { VOICE_LAW_PROSE, houseTypography } = require('./_etl-voice-law.js');
 
 function checkAdminAuth(event) {
   const expectedUser = process.env.PRESS_ADMIN_USER;
@@ -98,7 +99,7 @@ exports.handler = async (event) => {
     const resp = await client.messages.create({
       model: 'claude-sonnet-4-6',
       max_tokens: 2000,
-      system: DOSSIER_SYSTEM,
+      system: DOSSIER_SYSTEM + VOICE_LAW_PROSE,
       messages: [{ role: 'user', content: seed }],
     });
     const text = (resp.content || []).filter(b => b.type === 'text').map(b => b.text).join('').trim();
@@ -106,6 +107,11 @@ exports.handler = async (event) => {
     if (!match) throw new Error('no JSON in dossier response');
     dossier = JSON.parse(match[0]);
     if (!dossier.name || !dossier.portrait_prompt) throw new Error('dossier missing name or portrait brief');
+    // House typography on the prose fields only. portrait_prompt is an image
+    // prompt (work product) and name/pronouns/role are data values: untouched.
+    for (const k of ['tagline', 'bio', 'personality', 'background', 'family', 'floor_voice']) {
+      if (typeof dossier[k] === 'string') dossier[k] = houseTypography(dossier[k]);
+    }
   } catch (e) {
     return { statusCode: 502, body: 'the Desk could not finish the dossier: ' + (e && e.message) };
   }

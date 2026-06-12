@@ -23,6 +23,7 @@
    ───────────────────────────────────────────────────────────────────────────── */
 
 const Anthropic = require('@anthropic-ai/sdk').default;
+const { VOICE_LAW_PROSE, houseTypography } = require('./_etl-voice-law.js');
 const { getStore, connectLambda } = require('@netlify/blobs');
 
 const MODEL = 'claude-sonnet-4-6';
@@ -395,7 +396,7 @@ async function runSeed(reporter, apiKey, publishToken, event) {
         const resp = await client.messages.create({
           model: MODEL,
           max_tokens: MAX_TOKENS,
-          system: buildSystemPrompt(reporter),
+          system: buildSystemPrompt(reporter) + VOICE_LAW_PROSE,
           messages: [{ role: 'user', content: userMsg }],
         });
         raw = (resp.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n').trim();
@@ -426,7 +427,7 @@ async function runSeed(reporter, apiKey, publishToken, event) {
     }
 
     // Step 2 — validate parsed content.
-    const scrub = (s) => String(s || '').replace(/—/g, '-').replace(/–/g, '-');
+    const scrub = (s) => houseTypography(s);
     const title = scrub(parsed.title);
     const dek = scrub(parsed.dek);
     const body = scrub(parsed.body);

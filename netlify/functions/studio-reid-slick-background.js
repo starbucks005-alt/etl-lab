@@ -17,6 +17,7 @@
    ───────────────────────────────────────────────────────────────────────────── */
 
 const Anthropic = require('@anthropic-ai/sdk').default;
+const { VOICE_LAW_PROSE, houseTypography } = require('./_etl-voice-law.js');
 const { getStore, connectLambda } = require('@netlify/blobs');
 const fs = require('fs');
 const path = require('path');
@@ -100,7 +101,7 @@ function esc(s) {
 // Reid's content allows a small whitelist of inline tags (<em>, <b>). Keep those,
 // escape everything else, and strip em dashes per brand rules.
 function inlineHtml(s) {
-  let t = String(s == null ? '' : s).replace(/—/g, '-').replace(/–/g, '-');
+  let t = houseTypography(s);
   // escape all, then re-open the whitelisted tags
   t = t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   t = t.replace(/&lt;(\/?)(em|b)&gt;/gi, '<$1$2>');
@@ -248,7 +249,7 @@ exports.handler = async function(event) {
 
     for (let turn = 0; turn < MAX_TURNS; turn++) {
       const response = await client.messages.create({
-        model: MODEL, max_tokens: MAX_TOKENS, system: SLICK_SYSTEM, tools, messages,
+        model: MODEL, max_tokens: MAX_TOKENS, system: SLICK_SYSTEM + VOICE_LAW_PROSE, tools, messages,
       });
       totalTokens += (response.usage && (response.usage.output_tokens + response.usage.input_tokens)) || 0;
       const turnText = (response.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n').trim();
