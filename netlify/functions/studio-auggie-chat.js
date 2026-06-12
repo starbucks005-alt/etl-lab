@@ -648,6 +648,61 @@ function buildSlickNoRecipientReply() {
   return "happy to put Reid on a slick, love, but who is it for? give me a name, a person or a company, and i will send him to research them and build it.";
 }
 
+// ── ROWAN TATE (Quant Strategist) dispatch + status ──────────────────────────
+const ROWAN_KEYWORDS_RE = /\b(trade|trading|agentic|robinhood|portfolio|position|risk|equity|market|stock|etf|quant|strategy|invest|asset|hedge|allocation|volatility|drawdown|liquidity|concentration|counterparty|buy|sell|hold|exit|reduce|rebalance|crypto|option|futures|valuation|analysis|research)\b/i;
+const ROWAN_STATUS_RE = /\b(rowan)\b.*\b(status|update|done|finished|ready|response|back|said|think|found|result|answer|know|hear)\b|\b(status|update|done|finished|ready|response|back|result|answer)\b.*\b(rowan)\b/i;
+
+function detectRowanDispatchIntent(msg) {
+  if (!msg || typeof msg !== 'string') return { matched: false };
+  const text = msg.toLowerCase();
+  if (!/\browan\b/.test(text)) return { matched: false };
+  // Pure status checks route to the status handler instead
+  if (ROWAN_STATUS_RE.test(msg) && !ROWAN_KEYWORDS_RE.test(msg)) return { matched: false };
+  const isAskPattern = /\b(ask|tell|have|get)\s+rowan\b|rowan[,:]?\s*\S/i.test(msg);
+  if (!isAskPattern && !ROWAN_KEYWORDS_RE.test(text)) return { matched: false };
+  // Strip the "ask Rowan" or "Rowan," prefix to get the actual question
+  let question = msg
+    .replace(/^\s*(ask|tell|have|get)\s+rowan\s*/i, '')
+    .replace(/^\s*rowan[,:]?\s*/i, '')
+    .trim() || msg.trim();
+  return { matched: true, question: question.slice(0, 4000) };
+}
+
+function detectRowanStatusIntent(msg) {
+  if (!msg || typeof msg !== 'string') return { matched: false };
+  if (!ROWAN_STATUS_RE.test(msg)) return { matched: false };
+  return { matched: true };
+}
+
+function buildRowanDispatchReply() {
+  return "ok Ms. Terry, Rowan is on it. he is researching right now and will have an answer in about ninety seconds. ask me 'what did Rowan say' and i will pull his response.";
+}
+
+async function buildRowanStatusReply(event, authHeader, userId, base) {
+  try { connectLambda(event); } catch (_) {}
+  let job;
+  try { job = await getStore('rowan_jobs').get(userId || 'default', { type: 'json' }); } catch (_) {}
+  if (!job || !job.job_id) {
+    return "ma'am, i don't have a Rowan query in progress for you right now. ask me something like 'ask Rowan what he knows about agentic AI trading' and i will put him on it.";
+  }
+  try {
+    const r = await fetch(base.replace(/\/$/, '') + '/.netlify/functions/specialist-rowan-status?job_id=' + encodeURIComponent(job.job_id), {
+      headers: { 'Authorization': authHeader },
+    });
+    if (r.ok) {
+      const s = await r.json();
+      if (s.status === 'done' && s.response && s.response.text) {
+        return "Rowan's back, Ms. Terry. here is what he found:\n\n" + s.response.text;
+      }
+      if (s.status === 'error') {
+        return "ma'am, Rowan hit an error on that one. want me to send him at it again?";
+      }
+      return "he is still on it, love. give Rowan another minute, then ask me again.";
+    }
+  } catch (_) {}
+  return "i tried to check on Rowan but the status came back empty. give it another moment and ask me again.";
+}
+
 async function buildSlickStatusReply(event, authHeader, userId, base) {
   try { connectLambda(event); } catch (_) {}
   let job;
@@ -1290,6 +1345,57 @@ exports.handler = async (event) => {
       console.warn('[studio-auggie-chat] slick dispatch non-ok', r.status);
     } catch (e) {
       console.warn('[studio-auggie-chat] slick dispatch failed, falling back to model', e && e.message);
+    }
+  }
+
+  // ── ROWAN STATUS INTENT ──────────────────────────────────────────────────
+  const rowanStatus = detectRowanStatusIntent(message);
+  if (rowanStatus.matched && images.length === 0 && documents.length === 0) {
+    try {
+      const authHeader = (event.headers && (event.headers.authorization || event.headers.Authorization)) || '';
+      const base = process.env.URL || ('https://' + ((event.headers && event.headers.host) || ''));
+      const reply = await buildRowanStatusReply(event, authHeader, (auth.user && auth.user.id) || 'default', base);
+      return {
+        statusCode: 200,
+        headers: { ...CORS, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reply, persona: 'Auggie', rowan_status: true }),
+      };
+    } catch (e) {
+      console.warn('[studio-auggie-chat] rowan status failed, falling back to model', e && e.message);
+    }
+  }
+
+  // ── ROWAN DISPATCH INTENT ────────────────────────────────────────────────
+  const rowanDispatch = detectRowanDispatchIntent(message);
+  if (rowanDispatch.matched && images.length === 0 && documents.length === 0) {
+    try {
+      const authHeader = (event.headers && (event.headers.authorization || event.headers.Authorization)) || '';
+      const base = process.env.URL || ('https://' + ((event.headers && event.headers.host) || ''));
+      const askUrl = base.replace(/\/$/, '') + '/.netlify/functions/specialist-rowan-ask';
+      const r = await fetch(askUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': authHeader },
+        body: JSON.stringify({ question: rowanDispatch.question }),
+      });
+      if (r.ok) {
+        const j = await r.json();
+        if (j && j.job_id) {
+          try { connectLambda(event); } catch (_) {}
+          try {
+            await getStore('rowan_jobs').setJSON((auth.user && auth.user.id) || 'default', {
+              job_id: j.job_id, question: rowanDispatch.question, created_at: new Date().toISOString(),
+            });
+          } catch (_) {}
+          return {
+            statusCode: 200,
+            headers: { ...CORS, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reply: buildRowanDispatchReply(), persona: 'Auggie', rowan_dispatch: { job_id: j.job_id } }),
+          };
+        }
+      }
+      console.warn('[studio-auggie-chat] rowan dispatch non-ok', r.status);
+    } catch (e) {
+      console.warn('[studio-auggie-chat] rowan dispatch failed, falling back to model', e && e.message);
     }
   }
 
