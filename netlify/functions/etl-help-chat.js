@@ -160,6 +160,15 @@ function tokenFor(pass) {
   return crypto.createHmac('sha256', pass).update('iris-owner-v1').digest('hex');
 }
 
+// House typography is enforced here, not just requested in the prompt:
+// em dashes (and spaced en dashes) become commas. Public-facing surface rule.
+function houseTypography(s) {
+  return String(s || '')
+    .replace(/\s*—\s*/g, ', ')
+    .replace(/\s+–\s+/g, ', ')
+    .replace(/,\s*,/g, ',');
+}
+
 function buildDigest(idx) {
   if (!Array.isArray(idx) || !idx.length) return '';
   const now = Date.now();
@@ -272,7 +281,7 @@ exports.handler = async (event) => {
         system: ownerSystem(notes, digest, voiceLines),
         messages: messages,
       });
-      let reply = (resp.content || []).filter(b => b && b.type === 'text').map(b => b.text).join('\n').trim();
+      let reply = houseTypography((resp.content || []).filter(b => b && b.type === 'text').map(b => b.text).join('\n').trim());
 
       // Extract [[remember: ...]] plumbing into her notes, strip from reply.
       const remembered = [];
@@ -338,7 +347,7 @@ exports.handler = async (event) => {
       system: IRIS_PERSONA,
       messages: messages,
     });
-    const reply = (resp.content || []).filter(b => b && b.type === 'text').map(b => b.text).join('\n').trim();
+    const reply = houseTypography((resp.content || []).filter(b => b && b.type === 'text').map(b => b.text).join('\n').trim());
 
     // Best-effort session log; never blocks or breaks the reply.
     if (logsStore && sid) {
