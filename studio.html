@@ -4567,15 +4567,29 @@ h1 em,h2 em{font-weight:300;color:#28527a}
       // per-PA pronoun guessing). Works for any seated PA.
       var ta = document.getElementById('auggie-chat-input');
       if (ta) ta.setAttribute('placeholder', 'ask ' + window.__paFirstName + '. paste your week, paste a screenshot, ask them to search for new mentions of your name, tell them what to queue.');
-      // Bio: pull the seated PA's bio from the roster by display name; fall
-      // back to leaving the shipped text. Generic for all PAs.
-      fetch('/data/etl-agents-roster.json', { cache: 'force-cache' }).then(function(r){ return r.ok ? r.json() : null; }).then(function(data){
-        if (!data || !data.agents) return;
-        var hit = data.agents.find(function(a){ return a && a.name === paName; });
+      // Bio: pull the seated PA's bio from /roster.json by display name.
+      // (2026-06-12: was wrongly pointed at data/etl-agents-roster.json,
+      // a 79-agent file that has none of the PA personas. /roster.json is
+      // the 95-staff file the hiring catalog actually uses and has every
+      // PA with a full bio + tagline.) Generic for all PAs; leaves the
+      // shipped text if a PA somehow is not found.
+      fetch('/roster.json', { cache: 'no-store' }).then(function(r){ return r.ok ? r.json() : null; }).then(function(data){
+        var agents = Array.isArray(data) ? data : (data && data.agents);
+        if (!agents) return;
+        // Tolerant match: roster names carry nicknames (Mateo "Teo" Rivera,
+        // August "Auggie" Vidal) the picker display name omits. Strip
+        // quoted nicknames + parens, then compare first+last tokens, so any
+        // PA resolves regardless of nickname punctuation.
+        function norm(s){ return String(s||'').replace(/"[^"]*"/g,' ').replace(/\([^)]*\)/g,' ').replace(/\s+/g,' ').trim().toLowerCase(); }
+        function firstLast(s){ var p = norm(s).split(' ').filter(Boolean); return p.length ? (p[0] + ' ' + p[p.length-1]) : ''; }
+        var want = paName, wantFL = firstLast(paName);
+        var hit = agents.find(function(a){ return a && a.name === want; })
+               || agents.find(function(a){ return a && firstLast(a.name) === wantFL; });
+        if (!hit) return;
         var bioEl = document.getElementById('pa-bio-display');
-        if (hit && bioEl && (hit.bio || hit.background)) bioEl.textContent = hit.bio || hit.background;
+        if (bioEl && (hit.bio || hit.background)) bioEl.textContent = hit.bio || hit.background;
         var curEl = document.getElementById('pa-staff-current');
-        if (hit && curEl && hit.tagline) curEl.textContent = hit.tagline;
+        if (curEl && hit.tagline) curEl.textContent = hit.tagline;
       }).catch(function(){});
     })();
 
