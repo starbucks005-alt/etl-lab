@@ -4236,12 +4236,27 @@ h1 em,h2 em{font-weight:300;color:#28527a}
   // ─── HANDLERS ──────────────────────────────────────────────────────
   // PA swap is REAL (2026-06-13): posts the new seat to studio-config-set,
   // which persists it server-side; studio-config-get overlays it on every
-  // load, so the seat survives sign-outs and devices. Only fully wired
-  // PAs (persona + voice + zoom frames) are offered; the function enforces
-  // the same allowlist via its `pa` field.
+  // load, so the seat survives sign-outs and devices.
+  //
+  // The picker offers every PA persona that has a portrait (Terry opened
+  // this 2026-06-12 to test the generic {PA1}->{PA2} system). NOTE: only
+  // Auggie and Jen have a built voice + chat persona today; the rest seat
+  // with their face, name, and roster bio but fall back to Auggie's voice
+  // and a generic persona until their soul is built. The generic identity
+  // system handles all of them.
   var WIRED_PA_SEATS = [
-    { persona_id: 'auggie_vidal', display_name: 'Auggie', desc: 'Palm Springs polish, holds your week and your wardrobe' },
-    { persona_id: 'jen_lopez',    display_name: 'Jen Lopez', desc: 'the Administrative Architect, maps your next three weeks' }
+    { persona_id: 'auggie_vidal',     display_name: 'Auggie',            desc: 'Palm Springs polish, holds your week and your wardrobe (voice + persona built)' },
+    { persona_id: 'jen_lopez',        display_name: 'Jen Lopez',         desc: 'the Administrative Architect, maps your next three weeks (voice + persona built)' },
+    { persona_id: 'mateo_rivera',     display_name: 'Mateo Rivera',      desc: 'PA option (face + bio; voice/persona pending)' },
+    { persona_id: 'simone_beaumont',  display_name: 'Simone Beaumont',   desc: 'PA option (face + bio; voice/persona pending)' },
+    { persona_id: 'mei_sato',         display_name: 'Mei Sato',          desc: 'PA option (face + bio; voice/persona pending)' },
+    { persona_id: 'marceline_smith',  display_name: 'Marceline Smith',   desc: 'PA option (face + bio; voice/persona pending)' },
+    { persona_id: 'antonio_crosby',   display_name: 'Antonio Crosby',    desc: 'PA option (face + bio; voice/persona pending)' },
+    { persona_id: 'amelie_griffith',  display_name: 'Amelie Griffith',   desc: 'PA option (face + bio; voice/persona pending)' },
+    { persona_id: 'ezra_doyle',       display_name: 'Ezra Doyle',        desc: 'PA option (face + bio; voice/persona pending)' },
+    { persona_id: 'dilan_wolf',       display_name: 'Dilan Wolf',        desc: 'PA option (face + bio; voice/persona pending)' },
+    { persona_id: 'annika_bender',    display_name: 'Annika Bender',     desc: 'PA option (face + bio; voice/persona pending)' },
+    { persona_id: 'walt_brenner',     display_name: 'Walt Brenner',      desc: 'PA option (face + bio; voice/persona pending)' }
   ];
 
   // Instrumented on purpose (2026-06-13): the first ship of this failed
@@ -4283,20 +4298,20 @@ h1 em,h2 em{font-weight:300;color:#28527a}
         alert('PA swap failed at save: HTTP ' + r.status + ' ' + (data ? JSON.stringify(data) : '(no response body)'));
         return;
       }
-      stage = 'verify';
-      var vr = await fetch('/.netlify/functions/studio-config-get', {
-        headers: { 'Authorization': 'Bearer ' + session.access_token },
-        cache: 'no-store'
-      });
-      var vcfg = null;
-      try { vcfg = await vr.json(); } catch(_){}
-      var seated = vcfg && vcfg.pa && vcfg.pa.persona_id;
-      if (seated !== seat.persona_id) {
-        alert('PA swap: the save succeeded but the server still returns "' + seated + '" (config source: ' + (vcfg && vcfg.source) + '). Screenshot this message for CC.');
+      // Verify from the SAVE RESPONSE, which is authoritative and has no
+      // read-after-write lag. The old code did a second GET right after the
+      // write; Netlify Blobs is not strongly consistent that fast, so the
+      // re-read returned the PREVIOUS seat and the swap aborted even though
+      // the save worked. The set endpoint returns the merged config, so the
+      // new seat is right here.
+      var savedSeat = data.config && data.config.pa && data.config.pa.persona_id;
+      if (savedSeat && savedSeat !== seat.persona_id) {
+        alert('PA swap: the server saved "' + savedSeat + '" instead of "' + seat.persona_id + '". Screenshot this for CC.');
         return;
       }
       toast(seat.display_name + ' is seated. Reloading...');
-      setTimeout(function(){ window.location.reload(); }, 700);
+      // Small delay lets the blob settle so the reload's GET sees the new seat.
+      setTimeout(function(){ window.location.reload(); }, 1200);
     } catch (e) {
       alert('PA swap failed at ' + stage + ': ' + (e && e.message ? e.message : e));
     }
