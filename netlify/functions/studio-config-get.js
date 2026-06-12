@@ -233,7 +233,7 @@ exports.handler = async function(event) {
   if (baseCfg) {
     return {
       statusCode: 200,
-      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', 'Access-Control-Allow-Origin': '*' },
       body: JSON.stringify(await withUserOverlay(baseCfg)),
     };
   }
@@ -248,7 +248,7 @@ exports.handler = async function(event) {
       const seats = p.seats || {};
       return {
         statusCode: 200,
-        headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
+        headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', 'Access-Control-Allow-Origin': '*' },
         body: JSON.stringify(await withUserOverlay({
           user_id: auth.user.id,
           user_email: auth.user.email,
@@ -280,7 +280,7 @@ exports.handler = async function(event) {
   // 4. Empty defaults
   return {
     statusCode: 200,
-    headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
+    headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', 'Access-Control-Allow-Origin': '*' },
     body: JSON.stringify(await withUserOverlay(defaultStudioConfig(auth.user))),
   };
 };
