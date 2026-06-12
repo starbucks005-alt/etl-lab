@@ -613,7 +613,7 @@
   <section class="ws-section" id="auggie-section">
     <div class="ws-section-head">
       <div class="ws-section-h">Your <em>PA</em></div>
-      <div class="ws-section-tag">August "Auggie" Vidal</div>
+      <div class="ws-section-tag" id="pa-section-tag">August "Auggie" Vidal</div>
     </div>
 
     <div class="auggie-row floor-collapsed">
@@ -642,9 +642,9 @@
             </div>
           </div>
         </button>
-        <div style="font-family:'Spectral',serif; font-size:18px; font-weight:700; color:var(--ink); margin-top:14px;">August "Auggie" Vidal</div>
-        <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.12em; color:var(--brass); margin-top:4px;">Personal Assistant (PA)</div>
-        <p style="font-family:'Spectral',serif; font-size:14px; color:var(--ink-soft); font-style:italic; line-height:1.55; margin-top:10px;">
+        <div id="pa-name-display" style="font-family:'Spectral',serif; font-size:18px; font-weight:700; color:var(--ink); margin-top:14px;">August "Auggie" Vidal</div>
+        <div id="pa-role-display" style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.12em; color:var(--brass); margin-top:4px;">Personal Assistant (PA)</div>
+        <p id="pa-bio-display" style="font-family:'Spectral',serif; font-size:14px; color:var(--ink-soft); font-style:italic; line-height:1.55; margin-top:10px;">
           Late twenties, Cuban-American, Coral Gables family with Palm Springs summers. Three years as Devon's personal assistant on the Gauntlet bench before Dr. Oroszi hired him into the Studio. He holds your week and the editorial calendar. He watches the overlap.
         </p>
 
@@ -1164,12 +1164,12 @@
 
       <div class="staff-card">
         <div class="staff-portrait">
-          <img src="/agents/Auggie_profile.png" alt="August Vidal" onerror="this.outerHTML='<div class=&quot;staff-portrait-placeholder&quot;>AV</div>'">
+          <img id="pa-staff-portrait" src="/agents/Auggie_profile.png" alt="August Vidal" onerror="this.outerHTML='<div class=&quot;staff-portrait-placeholder&quot;>AV</div>'">
         </div>
         <div class="staff-body">
-          <div class="staff-name">August "Auggie" Vidal</div>
+          <div class="staff-name" id="pa-staff-name">August "Auggie" Vidal</div>
           <div class="staff-role">PA</div>
-          <div class="staff-current">Holding your week and the editorial calendar.</div>
+          <div class="staff-current" id="pa-staff-current">Holding your week and the editorial calendar.</div>
         </div>
       </div>
 
@@ -4022,6 +4022,9 @@ h1 em,h2 em{font-weight:300;color:#28527a}
 
   var STAFF = {
     'August "Auggie" Vidal': { pool: 'pa',        contract: 'standing', dayOffset: 120 },
+    // Jen carries the same pool config so the card's Swap button works
+    // when SHE is the seated PA (the card name follows the seat).
+    'Jen Lopez':             { pool: 'pa',        contract: 'standing', dayOffset: 1   },
     // CORRECTION 2026-06-09: The "Six-Pack" is the Founder Studio BUNDLED
     // staff (Alicia + Leo + Kimberly + Rowan + Yuki + Sasha) sold at $199/mo,
     // NOT slots in Terry's own Studio dashboard. All 13 non-PA staff below
@@ -4212,17 +4215,28 @@ h1 em,h2 em{font-weight:300;color:#28527a}
     { persona_id: 'jen_lopez',    display_name: 'Jen Lopez', desc: 'the Administrative Architect, maps your next three weeks' }
   ];
 
+  // Instrumented on purpose (2026-06-13): the first ship of this failed
+  // SILENTLY for Dr. O. Every stage now reports out loud. Failures alert()
+  // with a stage tag she can screenshot; success verifies the seat by
+  // re-reading the config BEFORE reloading, so a reload always means the
+  // server really has the new PA.
   async function seatPA(seat){
+    toast('Seating ' + seat.display_name + '...');
+    var stage = 'sign-in check';
     try {
       var session = null;
       try {
         var s = await window.studioSb.auth.getSession();
         session = s && s.data && s.data.session;
-      } catch(_){}
-      if (!session || !session.access_token) {
-        toast('Sign in first, then swap.');
+      } catch(e){
+        alert('PA swap failed at sign-in check: ' + (e && e.message ? e.message : e));
         return;
       }
+      if (!session || !session.access_token) {
+        alert('PA swap: this page does not have a signed-in session. Sign in to the Studio, then swap.');
+        return;
+      }
+      stage = 'save';
       var r = await fetch('/.netlify/functions/studio-config-set', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
@@ -4234,15 +4248,28 @@ h1 em,h2 em{font-weight:300;color:#28527a}
           voice_enabled: true
         }})
       });
-      var data = await r.json();
-      if (!r.ok || !data.ok) {
-        toast('Seat change failed: ' + (data.error || ('HTTP ' + r.status)));
+      var data = null;
+      try { data = await r.json(); } catch(_){}
+      if (!r.ok || !data || !data.ok) {
+        alert('PA swap failed at save: HTTP ' + r.status + ' ' + (data ? JSON.stringify(data) : '(no response body)'));
         return;
       }
-      toast(seat.display_name + ' is your PA now. Reloading the Studio...');
-      setTimeout(function(){ window.location.reload(); }, 900);
+      stage = 'verify';
+      var vr = await fetch('/.netlify/functions/studio-config-get', {
+        headers: { 'Authorization': 'Bearer ' + session.access_token },
+        cache: 'no-store'
+      });
+      var vcfg = null;
+      try { vcfg = await vr.json(); } catch(_){}
+      var seated = vcfg && vcfg.pa && vcfg.pa.persona_id;
+      if (seated !== seat.persona_id) {
+        alert('PA swap: the save succeeded but the server still returns "' + seated + '" (config source: ' + (vcfg && vcfg.source) + '). Screenshot this message for CC.');
+        return;
+      }
+      toast(seat.display_name + ' is seated. Reloading...');
+      setTimeout(function(){ window.location.reload(); }, 700);
     } catch (e) {
-      toast('Network trouble. Try again.');
+      alert('PA swap failed at ' + stage + ': ' + (e && e.message ? e.message : e));
     }
   }
 
@@ -4495,6 +4522,25 @@ h1 em,h2 em{font-weight:300;color:#28527a}
         });
       };
       dressPA(pfx);
+      // Identity texts. The page ships with Auggie written in; when another
+      // PA is seated, every place that names the PA follows the seat. A
+      // successful swap must LOOK like a swap.
+      var PA_PAGE_META = {
+        jen_lopez: {
+          name: 'Jen Lopez',
+          bio: 'Late thirties, the Administrative Architect. She came up running operations for executives who made chaos faster than they could schedule it. She holds your week and the three-week map. She hates surprises, so you will never meet one.',
+          current: 'Mapping your next three weeks.'
+        }
+      };
+      var meta = PA_PAGE_META[window.__paPersonaId] || { name: paName, bio: '', current: '' };
+      var idEl;
+      if ((idEl = document.getElementById('pa-section-tag')))  idEl.textContent = meta.name;
+      if ((idEl = document.getElementById('pa-name-display'))) idEl.textContent = meta.name;
+      if ((idEl = document.getElementById('pa-bio-display')) && meta.bio) idEl.textContent = meta.bio;
+      if ((idEl = document.getElementById('pa-staff-name')))   idEl.textContent = meta.name;
+      if ((idEl = document.getElementById('pa-staff-current')) && meta.current) idEl.textContent = meta.current;
+      var staffImg = document.getElementById('pa-staff-portrait');
+      if (staffImg) { staffImg.onerror = null; staffImg.src = '/agents/' + pfx + '_Profile.png'; staffImg.alt = meta.name; }
       // Daily wardrobe rotation (Jen is the pilot): data/pa-outfits.json says
       // which numbered closets exist; a date-keyed pick holds all day and
       // flips overnight. Deterministic - no randomness at render, so every
