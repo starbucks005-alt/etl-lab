@@ -3,10 +3,10 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ETL Founders Studio - Hiring Catalog</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-:root{--ink:#1c1a17;--gold:#9a7c2f;--gold2:#b89441;--cream:#faf8f4;--card:#fff;--line:#e7e2d8;--muted:#7c756a;--good:#2e7d4f;}
+:root{--ink:#1c1a17;--gold:#28527a;--gold2:#5c8ab5;--cream:#faf8f4;--card:#fff;--line:#e7e2d8;--muted:#7c756a;--good:#2e7d4f;}
 *{box-sizing:border-box}
 body{margin:0;background:var(--cream);color:var(--ink);font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
 h1,h2,h3,.serif{font-family:"Playfair Display",Georgia,serif}
@@ -39,7 +39,7 @@ header.top{border-bottom:1px solid var(--line);background:#fff}
 .chip:hover{border-color:var(--gold)}.chip.on{background:var(--gold);border-color:var(--gold);color:#fff}
 #swapbar{display:none;background:#faf3e0;border:1px solid #ecdca8;border-radius:8px;padding:10px 14px;font-size:13.5px;color:#7a6526;align-items:center;gap:10px}
 #swapbar.show{display:flex}
-#swapbar a{color:#9a7c2f;text-decoration:underline;cursor:pointer;font-weight:600}
+#swapbar a{color:#28527a;text-decoration:underline;cursor:pointer;font-weight:600}
 .count{color:var(--muted);font-size:13px;padding:16px 0 0}
 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;padding:14px 0 60px}
 @media(max-width:1080px){.grid{grid-template-columns:repeat(3,1fr)}}
@@ -57,7 +57,7 @@ header.top{border-bottom:1px solid var(--line);background:#fff}
 .ctag{font-style:italic;color:#544e45;font-size:13px;line-height:1.45;flex:1}
 .cmeta{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:4px}
 .tier{font-size:10.5px;font-weight:600;padding:3px 9px;border-radius:999px;background:#f1ede4;color:#6a6354}
-.tier.core{background:#eef4ee;color:#2e7d4f}.tier.board{background:#eef1f6;color:#39507a}.tier.board_mcp{background:#e3edf8;color:#2f5e8a}.tier.pa{background:#f6efe0;color:#9a7c2f}.tier.premium{background:#f3e9f6;color:#7a4f8a}.tier.mcp{background:#e6f3ef;color:#1f7a5c}.tier.not_sold,.tier.owner{background:#f3eeee;color:#9a6b6b}
+.tier.core{background:#eef4ee;color:#2e7d4f}.tier.board{background:#eef1f6;color:#39507a}.tier.board_mcp{background:#e3edf8;color:#2f5e8a}.tier.pa{background:#f6efe0;color:#28527a}.tier.premium{background:#f3e9f6;color:#7a4f8a}.tier.mcp{background:#e6f3ef;color:#1f7a5c}.tier.not_sold,.tier.owner{background:#f3eeee;color:#9a6b6b}
 .hbtn{border:0;border-radius:7px;padding:7px 13px;font-size:12px;font-weight:600;cursor:pointer;background:var(--ink);color:#fff}
 .hbtn.hired{background:var(--good)}.hbtn.swap{background:var(--gold)}
 .sktags{display:flex;flex-wrap:wrap;gap:5px}
@@ -98,14 +98,18 @@ header.top{border-bottom:1px solid var(--line);background:#fff}
 .drow .ini2{display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:13px;background:linear-gradient(135deg,#6b7280,#374151)}
 .drow .nm{flex:1;font-size:13px;line-height:1.2}.drow .nm small{color:var(--muted);font-size:11px}
 .drow .pr{font-size:12px;color:#6a6354;white-space:nowrap}
-.x{border:0;background:none;color:#9a7c2f;cursor:pointer;font-size:11.5px;font-weight:600;text-decoration:underline}
+.x{border:0;background:none;color:#28527a;cursor:pointer;font-size:11.5px;font-weight:600;text-decoration:underline}
 .x.fire{color:#b06a6a}
 .lock{color:#bcb4a4;font-size:11px}
 .empty{color:#b06a6a;font-style:italic;font-size:12px}
 .dfoot{padding:16px 22px;border-top:1px solid var(--line);font-size:11.5px;color:var(--muted);line-height:1.5}
 .backdrop{position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:55;display:none}.backdrop.show{display:block}
-.tempbadge{font-size:9.5px;background:#f6efe0;color:#9a7c2f;border-radius:4px;padding:1px 6px;margin-left:5px;font-weight:600}
-.swapnote{background:#faf6ec;border:1px solid #ecdfc0;border-radius:8px;padding:10px 12px;font-size:12.5px;color:#7a6a3f;margin-top:14px;line-height:1.5}
+.tempbadge{font-size:9.5px;background:#f6efe0;color:#28527a;border-radius:4px;padding:1px 6px;margin-left:5px;font-weight:600}
+.swapnote{background:#faf6ec;border:1px solid #ecdfc0;border-radius:8px;padding:10px 12px;font-size:12.5px;color:#4a5664;margin-top:14px;line-height:1.5}
+
+/* HOUSE - Stamped Dossier */
+h1,h2,h3{font-family:'Spectral',serif;font-weight:300;letter-spacing:0;text-transform:none}
+h1 em,h2 em{font-weight:300;color:#28527a}
 </style></head>
 <body>
 <header class="top"><div class="wrap">
@@ -357,7 +361,7 @@ function updateDrawer(){
   html+=`<div class="dgrp">Specialists &middot; $49 standard, $69 MCP</div>`;
   html+= addons.length?addons.map(([n,h])=>row(byName(n),`$${+h.price} <button class="x fire" onclick="rm('${n.replace(/'/g,"\\'")}')">fire</button>`)).join(''):'<div class="note">None yet - add specialists from the catalog.</div>';
   html+=`<div class="dgrp">C-suite &middot; $89, or $119 with a backpack &middot; free assistant each</div>`;
-  html+= board.length?board.map(([n,h])=>row(byName(n),`$${+h.price} <button class="x fire" onclick="rm('${n.replace(/'/g,"\\'")}')">fire</button>`)+`<div class="drow" style="padding-left:22px"><div class="ini2" style="background:linear-gradient(135deg,#9a7c2f,#b89441)">+1</div><div class="nm">Assistant <span class="tempbadge">FREE</span><br><small>${esc(asstLabel(n))}</small></div><div class="pr">$0</div></div>`).join(''):'<div class="note">None yet.</div>';
+  html+= board.length?board.map(([n,h])=>row(byName(n),`$${+h.price} <button class="x fire" onclick="rm('${n.replace(/'/g,"\\'")}')">fire</button>`)+`<div class="drow" style="padding-left:22px"><div class="ini2" style="background:linear-gradient(135deg,#28527a,#5c8ab5)">+1</div><div class="nm">Assistant <span class="tempbadge">FREE</span><br><small>${esc(asstLabel(n))}</small></div><div class="pr">$0</div></div>`).join(''):'<div class="note">None yet.</div>';
   html+=`<div class="dgrp">Premium &middot; $549/mo each &middot; earns its keep</div>`;
   html+= premium.length?premium.map(([n,h])=>row(byName(n),`$549 <button class="x fire" onclick="rm('${n.replace(/'/g,"\\'")}')">fire</button>`)).join(''):'<div class="note">None yet - e.g. Ms. Ivy, who travels with the SLR Method.</div>';
   document.getElementById('dbody').innerHTML=html;

@@ -2,9 +2,9 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ETL Staffing - Tell us what you're building</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{--ink:#1c1a17;--gold:#9a7c2f;--gold2:#b89441;--cream:#faf8f4;--card:#fff;--line:#e7e2d8;--muted:#7c756a;--good:#2e7d4f;}
+:root{--ink:#1c1a17;--gold:#28527a;--gold2:#5c8ab5;--cream:#faf8f4;--card:#fff;--line:#e7e2d8;--muted:#7c756a;--good:#2e7d4f;}
 *{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font-family:Inter,system-ui,sans-serif}
 h1,h2,h3,.serif{font-family:"Playfair Display",Georgia,serif}
 .wrap{max-width:940px;margin:0 auto;padding:0 22px}
@@ -19,7 +19,7 @@ header.top{border-bottom:1px solid var(--line);background:#fff}
 .hero h1{font-size:30px;margin:0 0 4px}
 .hero p{margin:0;color:var(--muted);font-size:15px;line-height:1.5}
 .hero .by{font-size:12px;color:var(--gold);font-weight:600;margin-top:6px}
-.treat{font-size:13.5px;font-style:italic;color:#7a6a3f;margin-top:8px}
+.treat{font-size:13.5px;font-style:italic;color:#4a5664;margin-top:8px}
 .askbox{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;margin-top:18px;box-shadow:0 6px 20px rgba(30,25,15,.05)}
 .askbox label{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);font-weight:600}
 .askrow{display:flex;gap:10px;margin-top:8px}
@@ -50,6 +50,10 @@ header.top{border-bottom:1px solid var(--line);background:#fff}
 .note{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.5}
 .steps{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
 .steps span{font-size:11.5px;color:#6a6354;background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px 11px}
+
+/* HOUSE - Stamped Dossier */
+h1,h2,h3{font-family:'Spectral',serif;font-weight:300;letter-spacing:0;text-transform:none}
+h1 em,h2 em{font-weight:300;color:#28527a}
 </style></head>
 <body>
 <header class="top"><div class="wrap">
@@ -160,7 +164,7 @@ const INVITES={
    <div style="background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px 22px;">
      ${rows}
      <div style="display:flex;justify-content:space-between;gap:14px;padding:12px 0 2px;font-size:16px;font-weight:700;"><span>Total</span><span style="color:var(--gold)">${inv.total}</span></div>
-     ${inv.trial?`<div style="margin-top:10px;font-size:13px;color:#7a6a3f;font-style:italic;">${inv.trial}</div>`:''}
+     ${inv.trial?`<div style="margin-top:10px;font-size:13px;color:#4a5664;font-style:italic;">${inv.trial}</div>`:''}
      <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:18px;">
        <a class="cta" href="${inv.pay}" target="_blank" rel="noopener">Finish the paperwork &rarr;</a>
        <a href="hiring-pool.html" style="font-size:13px;color:var(--gold);text-decoration:none;font-weight:600">Take a look around the catalog first &rarr;</a>
@@ -200,7 +204,7 @@ function run(){
    <div class="sec">1 &middot; Your company shell <span style="font-weight:400;color:var(--muted);font-size:13px">&mdash; the $398 foundation, always placed</span></div>
    <div class="sub">Every founder gets this. On its own it is a real, runnable company. Staff marked 🎒 carry a <b>backpack</b> &mdash; their tools are part of them, so they do the job anywhere, not just talk about it.</div>
    <div class="team">
-     <div class="member"><div class="mi" style="background:linear-gradient(135deg,#9a7c2f,#b89441);font-size:13px">You</div><div><div class="nm">You</div><div class="rl">Founder &amp; CEO</div><div class="why">You run it. Everyone reports up to you through your PA &mdash; one person to talk to, like a real company.</div></div></div>
+     <div class="member"><div class="mi" style="background:linear-gradient(135deg,#28527a,#5c8ab5);font-size:13px">You</div><div><div class="nm">You</div><div class="rl">Founder &amp; CEO</div><div class="why">You run it. Everyone reports up to you through your PA &mdash; one person to talk to, like a real company.</div></div></div>
      ${pa?card(pa,'Your Personal Assistant (PA)','Your single point of contact &mdash; you tell them what you need, they make it happen. <b>What they actually do:</b> run your 6 AM daily brief (scans the web for you and your field overnight), dispatch work to any staff member and report back in one thread, hold your calendar and schedule, set the routines that run your company on autopilot, and onboard every new hire for you. The $199/mo includes <b>Founder Studio</b>, the workspace your whole company runs in.','$199/mo &middot; includes the Studio'):''}
    </div>
    <div class="sub" style="margin-top:14px"><b>The Essential Six-Pack</b> &mdash; six core staff for one more $199, bundled. The backbone every small company needs on day one:</div>

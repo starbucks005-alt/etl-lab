@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -18,7 +18,7 @@
 <meta name="apple-mobile-web-app-title" content="Studio">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
     --linen: #ffffff;
@@ -37,7 +37,7 @@
   body {
     background: var(--linen);
     color: var(--ink);
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Spectral', serif;
     font-size: 18px;
     line-height: 1.55;
     min-height: 100vh;
@@ -55,7 +55,7 @@
     position: sticky; top: 0; z-index: 100;
   }
   .studio-brand {
-    font-family: 'Oswald', 'Playfair Display', serif;
+    font-family: 'Oswald', 'Spectral', serif;
     font-size: 14px; font-weight: 600;
     letter-spacing: 3px; text-transform: uppercase;
     color: var(--linen);
@@ -68,13 +68,13 @@
     display: flex; align-items: center; gap: 24px;
   }
   .studio-top-right a {
-    font-family: 'DM Mono', monospace; font-size: 11px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px;
     letter-spacing: 0.1em; text-transform: uppercase;
     color: var(--linen);
   }
   .studio-top-right a:hover { color: var(--brass-light); }
   .session-pill {
-    font-family: 'DM Mono', monospace; font-size: 10px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px;
     letter-spacing: 0.16em; text-transform: uppercase;
     color: var(--brass-light); padding: 5px 12px;
     border: 1px solid var(--brass);
@@ -89,24 +89,24 @@
     border-top: 3px solid var(--brass);
   }
   .login-eyebrow {
-    font-family: 'DM Mono', monospace; font-size: 10px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px;
     letter-spacing: 0.22em; color: var(--brass);
     text-transform: uppercase; margin-bottom: 22px;
   }
   .login-h {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Spectral', serif;
     font-size: 32px; font-weight: 700;
     color: var(--ink); margin-bottom: 12px;
   }
   .login-h em { color: var(--brass); font-style: italic; font-weight: 400; }
   .login-sub {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Spectral', serif;
     font-size: 16px; font-style: italic;
     color: var(--ink-soft); margin-bottom: 30px;
   }
   .login-btn {
     display: inline-block;
-    font-family: 'DM Mono', monospace; font-size: 11px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px;
     letter-spacing: 0.2em; text-transform: uppercase;
     color: var(--linen); background: var(--navy);
     padding: 14px 32px; cursor: pointer; border: none;
@@ -114,7 +114,7 @@
   .login-btn:hover { background: var(--navy-mid); color: var(--brass-light); }
   .login-preview-toggle {
     margin-top: 18px;
-    font-family: 'DM Mono', monospace; font-size: 9px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 9px;
     letter-spacing: 0.16em; color: var(--ink-quiet);
     text-transform: uppercase; cursor: pointer;
     background: none; border: none;
@@ -137,19 +137,19 @@
     padding: 70px 40px 50px;
   }
   .ws-eyebrow {
-    font-family: 'DM Mono', monospace; font-size: 11px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px;
     letter-spacing: 0.22em; color: var(--brass);
     text-transform: uppercase; margin-bottom: 18px;
   }
   .ws-h1 {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Spectral', serif;
     font-size: clamp(40px, 6vw, 64px);
     font-weight: 700; line-height: 1.05;
     color: var(--ink); margin-bottom: 20px;
   }
   .ws-h1 em { color: var(--brass); font-style: italic; font-weight: 400; }
   .ws-sub {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Spectral', serif;
     font-size: 21px; font-style: italic;
     color: var(--ink-soft); max-width: 700px;
   }
@@ -165,20 +165,20 @@
     margin-bottom: 34px; flex-wrap: wrap; gap: 14px;
   }
   .ws-section-h {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Spectral', serif;
     font-size: clamp(26px, 3vw, 32px); font-weight: 700;
     color: var(--ink);
   }
   .ws-section-h em { color: var(--brass); font-style: italic; font-weight: 400; }
   .ws-section-tag {
-    font-family: 'DM Mono', monospace; font-size: 10px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px;
     letter-spacing: 0.2em; color: var(--ink-quiet);
     text-transform: uppercase;
   }
   .ws-section-cta {
     background: transparent; border: 1px solid var(--brass);
     color: var(--brass); cursor: pointer;
-    font-family: 'DM Mono', monospace; font-size: 10px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px;
     letter-spacing: 0.2em; text-transform: uppercase;
     padding: 6px 14px;
     transition: background .15s ease, color .15s ease;
@@ -199,7 +199,7 @@
     padding: 22px 24px;
   }
   .activity-status {
-    font-family: 'DM Mono', monospace; font-size: 10px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px;
     letter-spacing: 0.16em; text-transform: uppercase;
     color: var(--brass); display: inline-flex; align-items: center;
     gap: 8px; margin-bottom: 14px;
@@ -215,17 +215,17 @@
     50% { opacity: 0.4; }
   }
   .activity-agent {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Spectral', serif;
     font-size: 18px; font-weight: 600;
     color: var(--ink); margin-bottom: 4px;
   }
   .activity-task {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Spectral', serif;
     font-size: 17px; color: var(--ink-soft);
     font-style: italic;
   }
   .activity-meta {
-    font-family: 'DM Mono', monospace; font-size: 10px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px;
     letter-spacing: 0.1em; color: var(--ink-quiet);
     margin-top: 12px;
   }
@@ -258,7 +258,7 @@
     object-position: center top;
   }
   .staff-portrait-placeholder {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Spectral', serif;
     font-size: 52px; color: var(--navy-mid);
   }
   /* Reusable blink pair for any staff card with an open + closed frame.
@@ -281,17 +281,17 @@
   }
   .staff-body { padding: 16px 18px 20px; background: var(--linen-light); }
   .staff-name {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Spectral', serif;
     font-size: 18px; font-weight: 700;
     color: var(--ink); margin-bottom: 3px;
   }
   .staff-role {
-    font-family: 'DM Mono', monospace; font-size: 9px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 9px;
     letter-spacing: 0.16em; text-transform: uppercase;
     color: var(--brass); margin-bottom: 10px;
   }
   .staff-current {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Spectral', serif;
     font-size: 14px; color: var(--ink-soft);
     font-style: italic; line-height: 1.45;
   }
@@ -310,17 +310,17 @@
   }
   .shipped-row:last-child { border-bottom: none; }
   .shipped-when {
-    font-family: 'DM Mono', monospace; font-size: 10px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px;
     letter-spacing: 0.14em; color: var(--ink-quiet);
     text-transform: uppercase;
   }
   .shipped-what {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Spectral', serif;
     font-size: 18px; color: var(--ink);
   }
   .shipped-what strong { color: var(--navy); font-weight: 700; }
   .shipped-by {
-    font-family: 'DM Mono', monospace; font-size: 10px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px;
     letter-spacing: 0.14em; color: var(--brass);
     text-transform: uppercase;
   }
@@ -333,24 +333,24 @@
     border-left: 4px solid var(--brass);
   }
   .command-eyebrow {
-    font-family: 'DM Mono', monospace; font-size: 10px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px;
     letter-spacing: 0.22em; color: var(--brass-light);
     text-transform: uppercase; margin-bottom: 14px;
   }
   .command-h {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Spectral', serif;
     font-size: clamp(22px, 2.6vw, 28px); font-weight: 600;
     color: var(--linen); margin-bottom: 14px;
   }
   .command-body {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Spectral', serif;
     font-size: 17px; color: rgba(244,236,216,0.78);
     font-style: italic;
     max-width: 620px; margin-bottom: 22px;
   }
   .command-btn {
     display: inline-block;
-    font-family: 'DM Mono', monospace; font-size: 11px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px;
     letter-spacing: 0.2em; text-transform: uppercase;
     color: var(--linen); padding: 12px 26px;
     border: 1px solid var(--brass);
@@ -362,7 +362,7 @@
     text-align: center; padding: 50px 40px 60px;
     border-top: 1px solid var(--linen-edge);
     color: var(--ink-quiet);
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Spectral', serif;
     font-size: 15px; font-style: italic;
   }
   footer.studio-foot a { color: var(--navy-mid); }
@@ -388,7 +388,7 @@
     border-top: 1px dashed var(--linen-edge);
   }
   .staff-chip {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 8.5px; letter-spacing: 0.14em;
     text-transform: uppercase;
     padding: 3px 7px;
@@ -402,7 +402,7 @@
   .staff-chip-temp   { border-color: var(--brass); color: var(--brass); background: rgba(196,162,98,0.07); }
   .staff-chip-stand  { border-color: var(--linen-edge); color: var(--ink-quiet); }
   .staff-meta {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 9px; letter-spacing: 0.10em;
     color: var(--ink-quiet);
     margin-left: auto;
@@ -414,7 +414,7 @@
   }
   .staff-btn {
     flex: 1;
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 9.5px; letter-spacing: 0.12em;
     text-transform: uppercase;
     padding: 7px 8px;
@@ -458,20 +458,20 @@
     transform: none; box-shadow: none;
   }
   .staff-card-empty-mark {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Spectral', serif;
     font-size: 36px; color: var(--linen-edge); margin-bottom: 8px;
   }
   .staff-card-empty-label {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
     color: var(--brass); margin-bottom: 6px;
   }
   .staff-card-empty-cta {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Spectral', serif;
     font-size: 16px; color: var(--ink-soft); font-style: italic;
   }
   .staff-temp-nudge {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Spectral', serif;
     font-size: 13px; font-style: italic; color: var(--brass);
     margin: 8px 0 0; line-height: 1.4;
   }
@@ -491,16 +491,16 @@
     border-top: 4px solid var(--brass);
   }
   .fire-dialog-eyebrow {
-    font-family: 'DM Mono', monospace; font-size: 10px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px;
     letter-spacing: 0.16em; text-transform: uppercase;
     color: var(--brass); margin-bottom: 10px;
   }
   .fire-dialog-title {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Spectral', serif;
     font-size: 24px; color: var(--ink); margin-bottom: 12px;
   }
   .fire-dialog-body {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Spectral', serif;
     font-size: 17px; color: var(--ink-soft); line-height: 1.55;
     margin-bottom: 22px;
   }
@@ -510,7 +510,7 @@
     flex-wrap: wrap;
   }
   .fire-dialog-btn {
-    font-family: 'DM Mono', monospace; font-size: 10.5px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 10.5px;
     letter-spacing: 0.14em; text-transform: uppercase;
     padding: 11px 18px;
     border: 1px solid var(--linen-edge);
@@ -532,7 +532,7 @@
   .fire-toast {
     position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
     background: var(--ink); color: var(--linen-light);
-    font-family: 'DM Mono', monospace; font-size: 11px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px;
     letter-spacing: 0.12em; text-transform: uppercase;
     padding: 14px 24px;
     border-left: 3px solid var(--brass);
@@ -570,10 +570,10 @@
       placeholder="your email"
       autocomplete="email"
       required
-      style="font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.05em;padding:14px 16px;border:1px solid var(--linen-edge);background:#fff;color:var(--ink);text-align:center;">
+      style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.05em;padding:14px 16px;border:1px solid var(--linen-edge);background:#fff;color:var(--ink);text-align:center;">
     <button type="submit" class="login-btn" id="login-submit">Send sign-in link</button>
   </form>
-  <p id="login-status" style="margin-top:18px;font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;color:var(--ink-soft);min-height:1.5em;"></p>
+  <p id="login-status" style="margin-top:18px;font-family:'Spectral',serif;font-size:14px;font-style:italic;color:var(--ink-soft);min-height:1.5em;"></p>
 </div>
 
 
@@ -635,16 +635,16 @@
           <div class="auggie-blink" style="position:relative; overflow:hidden; border:1px solid var(--linen-edge); background:#111;">
             <img class="auggie-blink-base"     src="/agents/Auggie_Profile.png"     alt="August Vidal. Click to join his Zoom and hear him introduce himself." style="display:block; width:100%; height:auto;">
             <div style="position:absolute; left:0; right:0; bottom:0; padding:10px 14px; background:linear-gradient(to top, rgba(0,0,0,0.85), rgba(0,0,0,0));">
-              <div style="display:flex; align-items:center; gap:8px; font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.15em; color:#fff; text-transform:uppercase;">
+              <div style="display:flex; align-items:center; gap:8px; font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.15em; color:#fff; text-transform:uppercase;">
                 <span style="display:inline-block; width:8px; height:8px; background:#1f8a3a; border-radius:50%;"></span>
                 Click to join Auggie&rsquo;s Zoom
               </div>
             </div>
           </div>
         </button>
-        <div style="font-family:'Playfair Display',serif; font-size:18px; font-weight:700; color:var(--ink); margin-top:14px;">August "Auggie" Vidal</div>
-        <div style="font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.12em; color:var(--brass); margin-top:4px;">Personal Assistant (PA)</div>
-        <p style="font-family:'Cormorant Garamond',serif; font-size:14px; color:var(--ink-soft); font-style:italic; line-height:1.55; margin-top:10px;">
+        <div style="font-family:'Spectral',serif; font-size:18px; font-weight:700; color:var(--ink); margin-top:14px;">August "Auggie" Vidal</div>
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.12em; color:var(--brass); margin-top:4px;">Personal Assistant (PA)</div>
+        <p style="font-family:'Spectral',serif; font-size:14px; color:var(--ink-soft); font-style:italic; line-height:1.55; margin-top:10px;">
           Late twenties, Cuban-American, Coral Gables family with Palm Springs summers. Three years as Devon's personal assistant on the Gauntlet bench before Dr. Oroszi hired him into the Studio. He holds your week and the editorial calendar. He watches the overlap.
         </p>
 
@@ -652,14 +652,14 @@
              from a published Outlook ICS feed; pasting the link into the chat
              stores it (studio-auggie-chat) and the morning brief reads it. -->
         <details style="margin-top:14px; border:1px solid var(--linen-edge); background:#fff;">
-          <summary style="cursor:pointer; padding:10px 12px; font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.14em; text-transform:uppercase; color:var(--brass);">Give your PA your calendar</summary>
-          <div style="padding:4px 14px 14px; font-family:'Cormorant Garamond',serif; font-size:14px; line-height:1.6; color:var(--ink-soft);">
+          <summary style="cursor:pointer; padding:10px 12px; font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.14em; text-transform:uppercase; color:var(--brass);">Give your PA your calendar</summary>
+          <div style="padding:4px 14px 14px; font-family:'Spectral',serif; font-size:14px; line-height:1.6; color:var(--ink-soft);">
             <p style="margin:8px 0;">Your PA can read your actual calendar, so the morning brief talks about your real week. Works with Outlook and Google; have more than one calendar? Paste each link, your PA holds them all.</p>
-            <p style="margin:10px 0 4px; font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:var(--brass);">Outlook</p>
+            <p style="margin:10px 0 4px; font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:var(--brass);">Outlook</p>
             <p style="margin:6px 0;">1. In Outlook on the web: <b>Settings &rarr; Calendar &rarr; Shared calendars</b>.</p>
             <p style="margin:6px 0;">2. Under <b>Publish a calendar</b>, pick your calendar, set <b>Can view all details</b>, click <b>Publish</b>.</p>
             <p style="margin:6px 0;">3. Copy the <b>ICS</b> link and paste it into the chat here. Your PA confirms and keeps it.</p>
-            <p style="margin:10px 0 4px; font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:var(--brass);">Google Calendar</p>
+            <p style="margin:10px 0 4px; font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:var(--brass);">Google Calendar</p>
             <p style="margin:6px 0;">1. At calendar.google.com (on a computer): gear icon &rarr; <b>Settings</b>.</p>
             <p style="margin:6px 0;">2. In the left list under <b>Settings for my calendars</b>, click your calendar, then <b>Integrate calendar</b>.</p>
             <p style="margin:6px 0;">3. Copy the <b>Secret address in iCal format</b> and paste it into the chat here. Your PA confirms and keeps it.</p>
@@ -671,39 +671,39 @@
       <!-- Chat panel -->
       <div>
         <div id="auggie-chat-thread"
-             style="background:#fff; border:1px solid var(--linen-edge); padding:18px 22px; min-height:240px; max-height:480px; overflow-y:auto; font-family:'Cormorant Garamond',serif; font-size:16px; line-height:1.55; color:var(--ink);">
+             style="background:#fff; border:1px solid var(--linen-edge); padding:18px 22px; min-height:240px; max-height:480px; overflow-y:auto; font-family:'Spectral',serif; font-size:16px; line-height:1.55; color:var(--ink);">
           <!-- Morning brief panel. Loaded on workspace open by the JS
                below; appears here above the static greeting if a fresh
                brief exists in Netlify Blobs. -->
           <div id="auggie-brief-panel" style="display:none; margin-bottom:18px; padding:14px 16px; background:#0e0c08; color:#f4ebd6; border-left:3px solid var(--brass);">
-            <div style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.18em; color:var(--brass); text-transform:uppercase; margin-bottom:6px;">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.18em; color:var(--brass); text-transform:uppercase; margin-bottom:6px;">
               Auggie <span id="auggie-brief-date" style="color:#d6cfc0; margin-left:8px;"></span>
               <span id="auggie-brief-length" style="color:#d6cfc0; margin-left:8px;"></span>
             </div>
-            <div id="auggie-brief-transcript" style="font-family:'Cormorant Garamond',serif; font-size:15px; line-height:1.55; color:#f4ebd6; white-space:pre-wrap; margin-bottom:10px;"></div>
+            <div id="auggie-brief-transcript" style="font-family:'Spectral',serif; font-size:15px; line-height:1.55; color:#f4ebd6; white-space:pre-wrap; margin-bottom:10px;"></div>
             <audio id="auggie-brief-audio" controls preload="metadata" style="width:100%; height:36px;"></audio>
             <div style="display:flex; gap:10px; align-items:center; margin-top:10px;">
               <button type="button" id="auggie-brief-regen"
-                      style="font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.1em; text-transform:lowercase; color:var(--brass); background:transparent; border:1px solid var(--brass); padding:6px 12px; cursor:pointer;">
+                      style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.1em; text-transform:lowercase; color:var(--brass); background:transparent; border:1px solid var(--brass); padding:6px 12px; cursor:pointer;">
                 generate a fresh brief
               </button>
-              <span id="auggie-brief-regen-status" style="font-family:'Cormorant Garamond',serif; font-size:12px; font-style:italic; color:#d6cfc0;"></span>
+              <span id="auggie-brief-regen-status" style="font-family:'Spectral',serif; font-size:12px; font-style:italic; color:#d6cfc0;"></span>
             </div>
           </div>
 
           <!-- Empty-state. Shows when no brief exists yet (first deploy, before
                cron has fired). Same regenerate trigger so Terry can seed it. -->
           <div id="auggie-brief-empty" style="display:none; margin-bottom:18px; padding:14px 16px; background:#fbf4e0; border-left:3px solid var(--brass);">
-            <div style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.18em; color:var(--brass); text-transform:uppercase; margin-bottom:6px;">Morning brief</div>
-            <div style="font-family:'Cormorant Garamond',serif; font-size:14px; color:var(--ink); margin-bottom:10px;">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.18em; color:var(--brass); text-transform:uppercase; margin-bottom:6px;">Morning brief</div>
+            <div style="font-family:'Spectral',serif; font-size:14px; color:var(--ink); margin-bottom:10px;">
               Auggie has not run a brief yet. The daily one fires at 6am ET. You can ask for one now.
             </div>
             <div style="display:flex; gap:10px; align-items:center;">
               <button type="button" id="auggie-brief-regen-empty"
-                      style="font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.1em; text-transform:lowercase; color:var(--ink); background:transparent; border:1px solid var(--brass); padding:6px 12px; cursor:pointer;">
+                      style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.1em; text-transform:lowercase; color:var(--ink); background:transparent; border:1px solid var(--brass); padding:6px 12px; cursor:pointer;">
                 generate one now
               </button>
-              <span id="auggie-brief-regen-empty-status" style="font-family:'Cormorant Garamond',serif; font-size:12px; font-style:italic; color:var(--ink-quiet);"></span>
+              <span id="auggie-brief-regen-empty-status" style="font-family:'Spectral',serif; font-size:12px; font-style:italic; color:var(--ink-quiet);"></span>
             </div>
           </div>
 
@@ -720,18 +720,18 @@
           <div style="flex:1; display:flex; flex-direction:column; gap:8px;">
             <textarea id="auggie-chat-input" rows="2"
                       placeholder="ask auggie. paste your week. paste a screenshot. ask him to search for new mentions of your name. tell him what to queue."
-                      style="padding:12px 14px; border:1px solid var(--linen-edge); font-family:'Cormorant Garamond',serif; font-size:16px; line-height:1.5; color:var(--ink); background:#fff; resize:vertical; box-sizing:border-box; width:100%;"></textarea>
+                      style="padding:12px 14px; border:1px solid var(--linen-edge); font-family:'Spectral',serif; font-size:16px; line-height:1.5; color:var(--ink); background:#fff; resize:vertical; box-sizing:border-box; width:100%;"></textarea>
             <!-- Pending image tray. Hidden until Terry pastes or uploads an
                  image. Each chip is a thumbnail with an X to remove. -->
             <div id="auggie-chat-attachments" style="display:none; gap:8px; flex-wrap:wrap;"></div>
             <div style="display:flex; gap:10px; align-items:center;">
-              <label for="auggie-chat-file" style="font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink-soft); cursor:pointer; padding:6px 10px; border:1px solid var(--linen-edge); background:#fff;">📎 attach image or file</label>
+              <label for="auggie-chat-file" style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink-soft); cursor:pointer; padding:6px 10px; border:1px solid var(--linen-edge); background:#fff;">📎 attach image or file</label>
               <input type="file" id="auggie-chat-file" accept="image/png,image/jpeg,image/webp,image/gif,application/pdf,text/plain,text/markdown,text/csv,application/json,text/calendar,.md,.txt,.csv,.json,.ics,.pdf" multiple style="display:none;">
-              <span style="font-family:'Cormorant Garamond',serif; font-size:12px; font-style:italic; color:var(--ink-quiet);">images, PDFs, or text — paste into the box above also works</span>
+              <span style="font-family:'Spectral',serif; font-size:12px; font-style:italic; color:var(--ink-quiet);">images, PDFs, or text — paste into the box above also works</span>
             </div>
           </div>
           <button type="submit" id="auggie-chat-send"
-                  style="padding:12px 22px; font-family:'DM Mono',monospace; font-size:11px; letter-spacing:0.18em; text-transform:uppercase; background:var(--ink); color:var(--linen); border:none; cursor:pointer; align-self:stretch;">Send</button>
+                  style="padding:12px 22px; font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.18em; text-transform:uppercase; background:var(--ink); color:var(--linen); border:none; cursor:pointer; align-self:stretch;">Send</button>
         </form>
 
         <!-- Quick-search presets. Click a chip to drop a starter search
@@ -744,7 +744,7 @@
           <button type="button" class="auggie-preset-chip" data-preset="search for news in AI governance, federal AI policy, or research security in the last 7 days that I should be aware of for the lab.">Field news this week</button>
         </div>
 
-        <div id="auggie-chat-error" style="display:none; margin-top:10px; padding:10px 14px; background:#fdecec; border:1px solid #f0b8b8; color:#7d2828; font-family:'DM Mono',monospace; font-size:11px;"></div>
+        <div id="auggie-chat-error" style="display:none; margin-top:10px; padding:10px 14px; background:#fdecec; border:1px solid #f0b8b8; color:#7d2828; font-family:'IBM Plex Mono',monospace; font-size:11px;"></div>
       </div>
 
       <!-- THE FLOOR — the inter-staff chat channel.
@@ -806,7 +806,7 @@
     .auggie-bubble { padding:10px 14px; border-left:3px solid transparent; }
     .auggie-bubble--his   { border-left-color: var(--brass); background:#fbf4e0; }
     .auggie-bubble--mine  { border-left-color: var(--navy-mid); background:#f3f1ec; margin-left:24px; }
-    .auggie-bubble-meta   { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.18em; color:var(--brass); text-transform:uppercase; margin-bottom:4px; }
+    .auggie-bubble-meta   { font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.18em; color:var(--brass); text-transform:uppercase; margin-bottom:4px; }
     .auggie-bubble--mine .auggie-bubble-meta { color: var(--navy-mid); }
     #auggie-chat-input:focus { outline:1px solid var(--brass); }
     /* Slow blink on the Zoom portrait. Same 8.4-second cycle the Newswire
@@ -831,7 +831,7 @@
        for her name on demand. */
     .auggie-preset-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
     .auggie-preset-chip {
-      font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.12em;
+      font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.12em;
       text-transform:uppercase; color:var(--brass);
       background:#fbf4e0; border:1px solid var(--brass); padding:6px 12px;
       cursor:pointer;
@@ -840,7 +840,7 @@
     /* "hear it" button. Subtle, sits at the bottom of his bubbles, hits
        ElevenLabs TTS on click and plays his voice inline. */
     .auggie-play-btn {
-      font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.1em;
+      font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.1em;
       text-transform:lowercase; color:var(--ink-soft);
       background:transparent; border:1px solid var(--linen-edge);
       padding:4px 10px; cursor:pointer;
@@ -915,18 +915,18 @@
       padding-bottom: 12px;
     }
     #floor-tag {
-      font-family: 'Playfair Display', serif;
+      font-family: 'Spectral', serif;
       font-size: 18px; font-weight: 700; color: #fff;
     }
     #floor-sub {
-      font-family: 'Cormorant Garamond', serif;
+      font-family: 'Spectral', serif;
       font-size: 13px; font-style: italic; color: #d6cfc0;
       margin-top: 3px;
     }
     #floor-toggle {
       margin-top: 10px;
       width: 100%;
-      font-family: 'DM Mono', monospace;
+      font-family: 'IBM Plex Mono', monospace;
       font-size: 11px; letter-spacing: 0.15em;
       text-transform: uppercase;
       color: #0e0c08; background: var(--brass-bright, #FDB827);
@@ -973,7 +973,7 @@
     }
     .floor-tab:focus-visible { outline: 2px solid #FDB827; outline-offset: -2px; }
     #floor-status {
-      font-family: 'Cormorant Garamond', serif;
+      font-family: 'Spectral', serif;
       font-style: italic; color: #d6cfc0; font-size: 13px;
       padding: 8px 4px;
     }
@@ -993,18 +993,18 @@
       margin-bottom: 4px;
     }
     .floor-msg-speaker {
-      font-family: 'DM Mono', monospace;
+      font-family: 'IBM Plex Mono', monospace;
       font-size: 10px; letter-spacing: 0.18em;
       text-transform: uppercase;
       color: var(--brass-bright, #FDB827);
       font-weight: 700;
     }
     .floor-msg-time {
-      font-family: 'DM Mono', monospace;
+      font-family: 'IBM Plex Mono', monospace;
       font-size: 10px; color: #9a8e7e;
     }
     .floor-msg-text {
-      font-family: 'Cormorant Garamond', serif;
+      font-family: 'Spectral', serif;
       font-size: 15px; line-height: 1.5;
       color: #f4ebd6;
     }
@@ -1016,7 +1016,7 @@
       gap: 10px;
     }
     #floor-refresh {
-      font-family: 'DM Mono', monospace;
+      font-family: 'IBM Plex Mono', monospace;
       font-size: 10px; letter-spacing: 0.12em;
       text-transform: uppercase;
       color: var(--brass-bright, #FDB827);
@@ -1029,7 +1029,7 @@
     /* Save-this-moment button matches refresh visually so they read as a
        paired action set in the footer. */
     #floor-save {
-      font-family: 'DM Mono', monospace;
+      font-family: 'IBM Plex Mono', monospace;
       font-size: 10px; letter-spacing: 0.12em;
       text-transform: uppercase;
       color: var(--brass-bright, #FDB827);
@@ -1041,13 +1041,13 @@
     #floor-save:hover:not(:disabled) { background: rgba(253,184,39,0.1); }
     #floor-save:disabled { opacity: 0.55; cursor: wait; }
     #floor-save-status {
-      font-family: 'DM Mono', monospace;
+      font-family: 'IBM Plex Mono', monospace;
       font-size: 10px; letter-spacing: 0.08em;
       color: var(--brass-bright, #FDB827);
       margin-left: auto;
     }
     #floor-context-note {
-      font-family: 'Cormorant Garamond', serif;
+      font-family: 'Spectral', serif;
       font-size: 11px; font-style: italic; color: #9a8e7e;
     }
     /* LIVE bar — on-air indicator + next-episode clock */
@@ -1057,7 +1057,7 @@
       margin: 8px 0 10px;
       background: rgba(20,35,58,0.55);
       border-left: 2px solid var(--brass-bright, #FDB827);
-      font-family: 'DM Mono', monospace;
+      font-family: 'IBM Plex Mono', monospace;
       font-size: 10px; letter-spacing: 0.12em;
       text-transform: uppercase;
       color: #d9c79d;
@@ -1094,12 +1094,12 @@
       margin-bottom: 8px;
     }
     .floor-dvr-title {
-      font-family: 'DM Mono', monospace;
+      font-family: 'IBM Plex Mono', monospace;
       font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
       color: var(--brass-bright, #FDB827);
     }
     .floor-dvr-hint {
-      font-family: 'Cormorant Garamond', serif;
+      font-family: 'Spectral', serif;
       font-size: 11px; font-style: italic; color: #9a8e7e;
     }
     #floor-dvr-list {
@@ -1110,7 +1110,7 @@
       margin-bottom: 10px;
     }
     .floor-dvr-day {
-      font-family: 'DM Mono', monospace;
+      font-family: 'IBM Plex Mono', monospace;
       font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase;
       color: #9a8e7e;
       padding: 6px 4px 4px;
@@ -1127,21 +1127,21 @@
     .floor-dvr-item:hover { background: rgba(253,184,39,0.07); }
     .floor-dvr-item.is-playing { background: rgba(253,184,39,0.12); }
     .floor-dvr-time {
-      font-family: 'DM Mono', monospace;
+      font-family: 'IBM Plex Mono', monospace;
       font-size: 10px; color: #d9c79d;
     }
     .floor-dvr-mode {
-      font-family: 'DM Mono', monospace;
+      font-family: 'IBM Plex Mono', monospace;
       font-size: 8.5px; letter-spacing: 0.10em; text-transform: uppercase;
       color: var(--brass-bright, #FDB827);
     }
     .floor-dvr-summary {
-      font-family: 'Cormorant Garamond', serif;
+      font-family: 'Spectral', serif;
       font-size: 13px; color: #d9c79d; line-height: 1.35;
     }
     .floor-dvr-summary strong { color: #fff; font-weight: 600; }
     .floor-dvr-count {
-      font-family: 'DM Mono', monospace;
+      font-family: 'IBM Plex Mono', monospace;
       font-size: 9px; color: #9a8e7e;
     }
     /* Stack the 3-column row vertically on narrower screens. The Floor
@@ -1342,9 +1342,9 @@
 
     <!-- Tool: Social Posts -->
     <div id="cc-social" style="background:var(--linen-light);border:1px solid var(--linen-edge);border-left:3px solid var(--brass);padding:28px 32px;">
-      <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.18em;color:var(--brass);text-transform:uppercase;margin-bottom:10px;">Social Posts</div>
-      <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:600;color:var(--ink);margin-bottom:6px;">Hand it to the girls.</div>
-      <p style="font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--ink-soft);font-size:16px;margin-bottom:22px;max-width:640px;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.18em;color:var(--brass);text-transform:uppercase;margin-bottom:10px;">Social Posts</div>
+      <div style="font-family:'Spectral',serif;font-size:22px;font-weight:600;color:var(--ink);margin-bottom:6px;">Hand it to the girls.</div>
+      <p style="font-family:'Spectral',serif;font-style:italic;color:var(--ink-soft);font-size:16px;margin-bottom:22px;max-width:640px;">
         Zara, Sneha, or Ayanna will ask you four things and write the post.
         Copy and paste it to your account.
       </p>
@@ -1416,15 +1416,15 @@
           <div style="margin-top:18px;">
             <label class="sp-q" style="font-size:14px;">Add a daily reminder at the end?</label>
             <div style="display:flex; flex-direction:column; gap:8px; margin-top:8px;">
-              <label style="display:flex; align-items:flex-start; gap:10px; font-family:'Cormorant Garamond',serif; font-size:15px; color:var(--ink); cursor:pointer;">
+              <label style="display:flex; align-items:flex-start; gap:10px; font-family:'Spectral',serif; font-size:15px; color:var(--ink); cursor:pointer;">
                 <input type="radio" name="sp-cta" value="none" checked style="margin-top:5px; accent-color:var(--brass);">
                 <span><strong>No reminder.</strong> <span style="color:var(--ink-quiet); font-style:italic;">Just the post.</span></span>
               </label>
-              <label style="display:flex; align-items:flex-start; gap:10px; font-family:'Cormorant Garamond',serif; font-size:15px; color:var(--ink); cursor:pointer;">
+              <label style="display:flex; align-items:flex-start; gap:10px; font-family:'Spectral',serif; font-size:15px; color:var(--ink); cursor:pointer;">
                 <input type="radio" name="sp-cta" value="briefing" style="margin-top:5px; accent-color:var(--brass);">
                 <span><strong>Your daily dose, Above the Fold.</strong> <span style="color:var(--ink-quiet); font-style:italic;">A short closer pointing readers to today's morning briefing at emerging-tech-lab.com/press.</span></span>
               </label>
-              <label style="display:flex; align-items:flex-start; gap:10px; font-family:'Cormorant Garamond',serif; font-size:15px; color:var(--ink); cursor:pointer;">
+              <label style="display:flex; align-items:flex-start; gap:10px; font-family:'Spectral',serif; font-size:15px; color:var(--ink); cursor:pointer;">
                 <input type="radio" name="sp-cta" value="deskline" style="margin-top:5px; accent-color:var(--brass);">
                 <span><strong>From the desk, today's Deskline.</strong> <span style="color:var(--ink-quiet); font-style:italic;">A short closer pointing readers to today's puzzle at emerging-tech-lab.com/press/deskline.</span></span>
               </label>
@@ -1438,15 +1438,15 @@
 
       <!-- Results -->
       <div id="sp-result" style="display:none;margin-top:28px;padding-top:24px;border-top:1px solid var(--linen-edge);">
-        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;color:var(--brass);text-transform:uppercase;margin-bottom:10px;" id="sp-result-meta"></div>
-        <pre id="sp-result-post" style="font-family:'Cormorant Garamond',serif;font-size:17px;line-height:1.55;color:var(--ink);white-space:pre-wrap;background:#fff;padding:18px 20px;border:1px solid var(--linen-edge);margin:0 0 12px;"></pre>
-        <div id="sp-result-hashtags" style="font-family:'DM Mono',monospace;font-size:13px;color:var(--navy-mid);margin-bottom:14px;"></div>
-        <div id="sp-result-chars" style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.12em;color:var(--ink-quiet);text-transform:uppercase;margin-bottom:18px;"></div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:0.18em;color:var(--brass);text-transform:uppercase;margin-bottom:10px;" id="sp-result-meta"></div>
+        <pre id="sp-result-post" style="font-family:'Spectral',serif;font-size:17px;line-height:1.55;color:var(--ink);white-space:pre-wrap;background:#fff;padding:18px 20px;border:1px solid var(--linen-edge);margin:0 0 12px;"></pre>
+        <div id="sp-result-hashtags" style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--navy-mid);margin-bottom:14px;"></div>
+        <div id="sp-result-chars" style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.12em;color:var(--ink-quiet);text-transform:uppercase;margin-bottom:18px;"></div>
         <div style="background:#fbf4e0;border:1px solid var(--linen-edge);padding:14px 18px;margin-bottom:18px;">
-          <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;color:var(--brass);text-transform:uppercase;margin-bottom:6px;">Suggested time to post</div>
-          <div id="sp-result-time" style="font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--ink-soft);font-style:italic;"></div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:0.18em;color:var(--brass);text-transform:uppercase;margin-bottom:6px;">Suggested time to post</div>
+          <div id="sp-result-time" style="font-family:'Spectral',serif;font-size:15px;color:var(--ink-soft);font-style:italic;"></div>
         </div>
-        <div id="sp-result-notes" style="font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--ink-quiet);font-style:italic;margin-bottom:18px;"></div>
+        <div id="sp-result-notes" style="font-family:'Spectral',serif;font-size:14px;color:var(--ink-quiet);font-style:italic;margin-bottom:18px;"></div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
           <button type="button" id="sp-copy" class="sp-cta sp-cta-sm">Copy post</button>
           <button type="button" id="sp-copy-all" class="sp-cta sp-cta-sm">Copy post + hashtags</button>
@@ -1456,15 +1456,15 @@
         <!-- POST IMAGE PANEL (shows the homepage fallback by default;
              swappable with Terry's own upload OR Chris's generated graphic). -->
         <div id="sp-result-fallback" style="display:none;margin-top:24px;padding-top:20px;border-top:1px dashed var(--linen-edge);">
-          <div id="sp-result-fallback-label" style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;color:var(--brass);text-transform:uppercase;margin-bottom:10px;">Default image (homepage)</div>
+          <div id="sp-result-fallback-label" style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:0.18em;color:var(--brass);text-transform:uppercase;margin-bottom:10px;">Default image (homepage)</div>
           <img id="sp-result-fallback-img" src="" alt="" style="max-width:100%;height:auto;display:block;border:1px solid var(--linen-edge);background:#fff;">
-          <div id="sp-result-fallback-hint" style="font-family:'Cormorant Garamond',serif;font-size:13px;font-style:italic;color:var(--ink-quiet);margin-top:8px;">If you do not upload your own or give Chris a prompt below, this is the graphic that goes with the post.</div>
+          <div id="sp-result-fallback-hint" style="font-family:'Spectral',serif;font-size:13px;font-style:italic;color:var(--ink-quiet);margin-top:8px;">If you do not upload your own or give Chris a prompt below, this is the graphic that goes with the post.</div>
         </div>
 
         <!-- CHRIS GRAPHIC PROMPT (conversational follow-up) -->
         <div id="sp-chris" style="margin-top:24px;padding-top:20px;border-top:1px dashed var(--linen-edge);">
           <div id="sp-chris-q1" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
-            <span style="font-family:'Cormorant Garamond',serif;font-size:16px;font-style:italic;color:var(--ink);">Want Chris to make a graphic for this?</span>
+            <span style="font-family:'Spectral',serif;font-size:16px;font-style:italic;color:var(--ink);">Want Chris to make a graphic for this?</span>
             <button type="button" id="sp-chris-yes" class="sp-cta sp-cta-sm">Yes</button>
             <button type="button" id="sp-chris-no" class="sp-cta sp-cta-sm sp-cta-ghost">Not this one</button>
             <button type="button" id="sp-chris-upload-trigger" class="sp-cta sp-cta-sm sp-cta-ghost">Upload my own</button>
@@ -1477,10 +1477,10 @@
               <button type="button" id="sp-chris-go" class="sp-cta sp-cta-sm">Have Chris draw it</button>
               <button type="button" id="sp-chris-cancel" class="sp-cta sp-cta-sm sp-cta-ghost">Cancel</button>
             </div>
-            <div id="sp-chris-status" style="font-family:'Cormorant Garamond',serif;font-size:13px;font-style:italic;color:var(--ink-soft);margin-top:10px;"></div>
+            <div id="sp-chris-status" style="font-family:'Spectral',serif;font-size:13px;font-style:italic;color:var(--ink-soft);margin-top:10px;"></div>
           </div>
           <div id="sp-chris-out" style="display:none;margin-top:18px;">
-            <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;color:var(--brass);text-transform:uppercase;margin-bottom:10px;">By Chris &middot; <span id="sp-chris-size"></span></div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:0.18em;color:var(--brass);text-transform:uppercase;margin-bottom:10px;">By Chris &middot; <span id="sp-chris-size"></span></div>
             <img id="sp-chris-img" alt="Chris graphic" style="max-width:100%;height:auto;border:1px solid var(--linen-edge);display:block;margin-bottom:12px;">
             <div style="display:flex;gap:10px;flex-wrap:wrap;">
               <button type="button" id="sp-chris-download" class="sp-cta sp-cta-sm">Download</button>
@@ -1490,22 +1490,22 @@
         </div>
       </div>
 
-      <div id="sp-error" style="display:none;margin-top:18px;padding:14px 18px;background:#f8e8e8;border:1px solid #d4a8a8;color:#7d2828;font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;"></div>
+      <div id="sp-error" style="display:none;margin-top:18px;padding:14px 18px;background:#f8e8e8;border:1px solid #d4a8a8;color:#7d2828;font-family:'Spectral',serif;font-size:14px;font-style:italic;"></div>
     </div>
   </section>
 
   <style>
-    .sp-q { display:block; font-family:'Playfair Display',serif; font-size:17px; font-weight:600; color:var(--ink); margin-bottom:8px; }
-    .sp-input { width:100%; padding:12px 14px; font-family:'Cormorant Garamond',serif; font-size:16px; color:var(--ink); background:#fff; border:1px solid var(--linen-edge); }
+    .sp-q { display:block; font-family:'Spectral',serif; font-size:17px; font-weight:600; color:var(--ink); margin-bottom:8px; }
+    .sp-input { width:100%; padding:12px 14px; font-family:'Spectral',serif; font-size:16px; color:var(--ink); background:#fff; border:1px solid var(--linen-edge); }
     .sp-input:focus { outline:none; border-color:var(--brass); }
     select.sp-input { cursor:pointer; }
     textarea.sp-input { resize:vertical; min-height:80px; }
     .sp-agent { padding:14px 16px; background:#fff; border:1px solid var(--linen-edge); cursor:pointer; text-align:left; transition:border-color 0.15s, transform 0.15s; }
     .sp-agent:hover { border-color:var(--brass); transform:translateY(-1px); }
     .sp-agent.is-picked { border-color:var(--brass); background:#fbf4e0; }
-    .sp-agent-name { font-family:'Playfair Display',serif; font-size:16px; font-weight:700; color:var(--ink); margin-bottom:3px; }
-    .sp-agent-vibe { font-family:'Cormorant Garamond',serif; font-size:13px; color:var(--ink-soft); font-style:italic; }
-    .sp-cta { display:inline-block; margin-top:14px; padding:12px 24px; font-family:'DM Mono',monospace; font-size:11px; letter-spacing:0.16em; text-transform:uppercase; color:var(--linen); background:var(--navy); border:none; cursor:pointer; }
+    .sp-agent-name { font-family:'Spectral',serif; font-size:16px; font-weight:700; color:var(--ink); margin-bottom:3px; }
+    .sp-agent-vibe { font-family:'Spectral',serif; font-size:13px; color:var(--ink-soft); font-style:italic; }
+    .sp-cta { display:inline-block; margin-top:14px; padding:12px 24px; font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.16em; text-transform:uppercase; color:var(--linen); background:var(--navy); border:none; cursor:pointer; }
     .sp-cta:hover { background:var(--navy-mid); }
     .sp-cta-sm { padding:9px 18px; font-size:10px; margin-top:0; }
     .sp-cta-ghost { background:transparent; color:var(--ink-soft); border:1px solid var(--linen-edge); }
@@ -2014,26 +2014,26 @@
       flex:1; text-align:center;
     }
     .auggie-call-brand {
-      font-family:'DM Mono',monospace; font-size:11px; letter-spacing:0.22em;
+      font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.22em;
       color:#FDB827; text-transform:uppercase;
     }
     .auggie-call-leave {
-      font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.15em;
+      font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.15em;
       text-transform:uppercase; color:#d6cfc0;
       background:transparent; border:1px solid rgba(214,207,192,0.3);
       padding:5px 10px; cursor:pointer;
     }
     .auggie-call-leave:hover { color:#fff; border-color:#fff; }
     .auggie-call-persona-name {
-      font-family:'Playfair Display',serif; font-size:18px; font-weight:700;
+      font-family:'Spectral',serif; font-size:18px; font-weight:700;
       color:#fff;
     }
     .auggie-call-persona-role {
-      font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.18em;
+      font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.18em;
       color:#d6cfc0; text-transform:uppercase; margin-top:2px;
     }
     .auggie-call-connected {
-      font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.15em;
+      font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.15em;
       color:#d6cfc0; text-transform:uppercase;
       display:flex; align-items:center; gap:6px;
     }
@@ -2049,7 +2049,7 @@
       background:rgba(184,146,42,0.08);
       border:1px solid rgba(184,146,42,0.3);
       border-radius:18px;
-      font-family:'DM Mono',monospace; font-size:11px; letter-spacing:0.1em;
+      font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.1em;
       color:#f4ebd6;
     }
     .auggie-call-status-dot {
@@ -2127,19 +2127,19 @@
       margin-bottom:10px;
     }
     .auggie-call-transcript-label {
-      font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.2em;
+      font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.2em;
       color:#FDB827; text-transform:uppercase;
     }
     .auggie-call-transcript-toggle {
       background:transparent; border:1px solid rgba(184,146,42,0.3);
       color:#d6cfc0; cursor:pointer;
-      font-family:'DM Mono',monospace; font-size:14px;
+      font-family:'IBM Plex Mono',monospace; font-size:14px;
       width:22px; height:22px; padding:0; line-height:1;
     }
     .auggie-call-transcript {
       flex:1;
       overflow-y:auto;
-      font-family:'Cormorant Garamond',serif; font-size:15px; line-height:1.55;
+      font-family:'Spectral',serif; font-size:15px; line-height:1.55;
     }
     .auggie-call-empty {
       font-style:italic; color:#9a8e7e; padding:8px 4px;
@@ -2155,7 +2155,7 @@
       border-left-color:#FDB827; background:rgba(184,146,42,0.08); color:#f4ebd6;
     }
     .auggie-call-bubble-meta {
-      font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.18em;
+      font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.18em;
       text-transform:uppercase; margin-bottom:3px; color:#FDB827;
     }
     .auggie-call-bubble--mine .auggie-call-bubble-meta { color:#d6cfc0; }
@@ -2167,7 +2167,7 @@
       background:#000;
     }
     .auggie-call-mic, .auggie-call-send, .auggie-call-mute {
-      font-family:'DM Mono',monospace; font-size:11px; letter-spacing:0.12em;
+      font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.12em;
       text-transform:uppercase;
       padding:10px 16px; cursor:pointer;
       border:1px solid rgba(184,146,42,0.5);
@@ -2193,7 +2193,7 @@
     }
     .auggie-call-input {
       flex:1; padding:11px 14px;
-      font-family:'Cormorant Garamond',serif; font-size:15px;
+      font-family:'Spectral',serif; font-size:15px;
       background:#0e0c08; color:#f4ebd6;
       border:1px solid rgba(184,146,42,0.35);
     }
@@ -2202,7 +2202,7 @@
 
     .auggie-call-mic-note {
       background:#5a1818; color:#f4ebd6; padding:10px 14px;
-      margin:0 22px 10px; font-family:'Cormorant Garamond',serif; font-size:13px;
+      margin:0 22px 10px; font-family:'Spectral',serif; font-size:13px;
       border-left:3px solid #a02525;
     }
 
@@ -3804,18 +3804,18 @@
   .hire-modal-close:hover { color: var(--brass); }
   .hire-modal-head { margin-bottom: 28px; }
   .hire-modal-eyebrow {
-    font-family: 'DM Mono', monospace; font-size: 10px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px;
     letter-spacing: 0.28em; text-transform: uppercase;
     color: var(--brass); margin-bottom: 8px;
   }
   .hire-modal-title {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Spectral', serif;
     font-size: clamp(28px, 4vw, 38px); font-weight: 700;
     color: var(--ink); margin-bottom: 10px;
   }
   .hire-modal-title em { color: var(--brass); font-style: italic; font-weight: 400; }
   .hire-modal-sub {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Spectral', serif;
     font-size: 15px; color: var(--ink-soft); font-style: italic;
     max-width: 720px; line-height: 1.55;
   }
@@ -3844,24 +3844,24 @@
   }
   .hire-card-body { padding: 16px 18px 18px; flex: 1; display: flex; flex-direction: column; }
   .hire-card-name {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Spectral', serif;
     font-size: 18px; font-weight: 700; color: var(--ink);
     margin-bottom: 3px;
   }
   .hire-card-role {
-    font-family: 'DM Mono', monospace; font-size: 9px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 9px;
     letter-spacing: 0.16em; text-transform: uppercase;
     color: var(--brass); margin-bottom: 12px;
   }
   .hire-card-bio {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Spectral', serif;
     font-size: 14px; line-height: 1.5; color: var(--ink-soft);
     flex: 1; margin-bottom: 14px;
   }
   .hire-card-cta {
     background: var(--ink); color: var(--brass);
     border: 1px solid var(--ink); cursor: pointer;
-    font-family: 'DM Mono', monospace; font-size: 10px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px;
     letter-spacing: 0.2em; text-transform: uppercase;
     padding: 9px 14px;
     transition: background .15s ease, color .15s ease;
@@ -3871,11 +3871,11 @@
     border-top: 1px solid var(--linen-edge); padding-top: 18px;
     display: flex; justify-content: space-between; align-items: baseline;
     gap: 16px; flex-wrap: wrap;
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Spectral', serif;
     font-size: 14px; color: var(--ink-soft); font-style: italic;
   }
   .hire-modal-foot-link {
-    font-family: 'DM Mono', monospace; font-size: 10px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px;
     letter-spacing: 0.2em; text-transform: uppercase; color: var(--brass);
     text-decoration: none; border-bottom: 1px solid var(--brass);
     font-style: normal;
@@ -3884,6 +3884,10 @@
   @media (max-width: 600px) {
     .hire-modal-panel { padding: 32px 20px 22px; }
   }
+
+/* HOUSE - Stamped Dossier */
+h1,h2,h3{font-family:'Spectral',serif;font-weight:300;letter-spacing:0;text-transform:none}
+h1 em,h2 em{font-weight:300;color:#28527a}
 </style>
 
 <script>
@@ -4526,7 +4530,7 @@
     if (document.getElementById('in-kind-banner')) return; // idempotent
     var bar = document.createElement('div');
     bar.id = 'in-kind-banner';
-    bar.style.cssText = 'background:#14233a;color:#c4a262;padding:10px 22px;font-family:DM Mono,monospace;font-size:11px;letter-spacing:.10em;text-transform:uppercase;text-align:center;border-bottom:1px solid #2a3a55';
+    bar.style.cssText = 'background:#14233a;color:#5c8ab5;padding:10px 22px;font-family:DM Mono,monospace;font-size:11px;letter-spacing:.10em;text-transform:uppercase;text-align:center;border-bottom:1px solid #2a3a55';
     bar.textContent = text;
     if (document.body.firstChild) {
       document.body.insertBefore(bar, document.body.firstChild);
@@ -4547,7 +4551,7 @@
     var rows = items.map(function(it){
       return '<div style="display:flex;justify-content:space-between;gap:14px;padding:7px 0;border-bottom:1px solid rgba(196,162,98,.18);font-size:13.5px;">'
         + '<span>' + escapeHtml(it.label) + '</span>'
-        + '<span style="white-space:nowrap;color:#c4a262;">' + escapeHtml(it.price) + '</span></div>';
+        + '<span style="white-space:nowrap;color:#5c8ab5;">' + escapeHtml(it.price) + '</span></div>';
     }).join('');
     var trial = b.trial_note
       ? '<div style="margin-top:10px;font-size:12.5px;color:#8fa3c0;font-style:italic;">' + escapeHtml(b.trial_note) + '</div>'
@@ -4556,15 +4560,15 @@
     card.id = 'staffing-rec-card';
     card.style.cssText = 'max-width:760px;margin:26px auto 8px;background:#101b2e;border:1px solid #2a3a55;border-radius:14px;padding:26px 30px;color:#e8e4da;font-family:Inter,system-ui,sans-serif;box-shadow:0 10px 34px rgba(0,0,0,.35);';
     card.innerHTML =
-      '<div style="font-family:DM Mono,monospace;font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:#c4a262;margin-bottom:8px;">ETL Staffing &middot; Formal recommendation</div>'
+      '<div style="font-family:DM Mono,monospace;font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:#5c8ab5;margin-bottom:8px;">ETL Staffing &middot; Formal recommendation</div>'
       + '<div style="font-family:Playfair Display,Georgia,serif;font-size:22px;margin-bottom:4px;">' + escapeHtml(b.recommendation_title || 'We recommend you hire this team.') + '</div>'
       + '<div style="font-size:13.5px;color:#aebad0;margin-bottom:16px;">' + escapeHtml(b.recommendation_intro || 'Assembled for your business. Hire them as proposed, or adjust in the catalog first.') + '</div>'
       + rows
-      + '<div style="display:flex;justify-content:space-between;gap:14px;padding:11px 0 2px;font-size:15px;font-weight:600;"><span>Total</span><span style="color:#c4a262;">$' + escapeHtml(String(b.amount_due_monthly || '')) + '/mo</span></div>'
+      + '<div style="display:flex;justify-content:space-between;gap:14px;padding:11px 0 2px;font-size:15px;font-weight:600;"><span>Total</span><span style="color:#5c8ab5;">$' + escapeHtml(String(b.amount_due_monthly || '')) + '/mo</span></div>'
       + trial
       + '<div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:18px;">'
-      + '<a href="' + escapeHtml(b.payment_link) + '" target="_blank" rel="noopener" style="background:#c4a262;color:#101b2e;text-decoration:none;font-weight:700;font-size:13.5px;letter-spacing:.04em;padding:12px 22px;border-radius:9px;">Finish the paperwork &rarr;</a>'
-      + '<a href="/hiring-pool.html" style="color:#c4a262;text-decoration:none;font-size:13px;font-weight:600;">Or adjust your team in the catalog &rarr;</a>'
+      + '<a href="' + escapeHtml(b.payment_link) + '" target="_blank" rel="noopener" style="background:#5c8ab5;color:#101b2e;text-decoration:none;font-weight:700;font-size:13.5px;letter-spacing:.04em;padding:12px 22px;border-radius:9px;">Finish the paperwork &rarr;</a>'
+      + '<a href="/hiring-pool.html" style="color:#5c8ab5;text-decoration:none;font-size:13px;font-weight:600;">Or adjust your team in the catalog &rarr;</a>'
       + '</div>';
     var anchor = document.querySelector('.staff-grid');
     if (anchor && anchor.parentNode) { anchor.parentNode.insertBefore(card, anchor); }
