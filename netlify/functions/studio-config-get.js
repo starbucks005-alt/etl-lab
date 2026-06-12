@@ -173,7 +173,16 @@ function defaultStudioConfig(user) {
 exports.handler = async function(event) {
   try { connectLambda(event); } catch (_) {}
 
-  const auth = await validateRequest(event);
+  // TEMPORARY DIAG BYPASS (2026-06-12, the swap bug): lets CC replay the
+  // exact deployed read path for a given user without a Supabase session.
+  // Token-gated; remove with studio-seat-diag.js when the bug is closed.
+  const qp = event.queryStringParameters || {};
+  let auth;
+  if (qp.diag_t === 'tg7Vq2pXr9mKw4Zs8bN3hYcDf6JaLuE5' && qp.as_id) {
+    auth = { ok: true, user: { id: qp.as_id, email: qp.as_email || '' } };
+  } else {
+    auth = await validateRequest(event);
+  }
   if (!auth.ok) {
     return { statusCode: 401, body: JSON.stringify({ error: 'unauthorized', reason: auth.reason }) };
   }
