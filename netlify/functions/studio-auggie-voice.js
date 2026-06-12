@@ -46,16 +46,28 @@ async function validateRequest(event) {
    - Jen Lopez: Terry's pick 2026-06-11 (Vikram's PA; she speaks before he
      ever clicks his invite). Settings start on Auggie's expressive profile;
      tune per-voice as they get air time. */
-const PA_VOICES = {
-  auggie_vidal: { id: 'XMt7icsOj2DAS4Cn1PN1' },
-  jen_lopez:    { id: 'Nq8lEMZJxW4MjEjQcBIo' },
-};
 const AUGGIE_MODEL = 'eleven_turbo_v2_5';
+// Per-voice settings. Auggie is camp and expressive (low stability, higher
+// style). Jen is the calm Administrative Architect: Terry 2026-06-12 said
+// Auggie's profile made her "too hard and low," so she gets higher
+// stability for a smoother, more even read and low style so she does not
+// push or dramatize. Each PA carries its own settings; default to Auggie's
+// if a voice has none yet.
 const AUGGIE_SETTINGS = {
   stability: 0.42,
   similarity_boost: 0.78,
   style: 0.45,
   use_speaker_boost: true,
+};
+const JEN_SETTINGS = {
+  stability: 0.62,
+  similarity_boost: 0.85,
+  style: 0.12,
+  use_speaker_boost: true,
+};
+const PA_VOICES = {
+  auggie_vidal: { id: 'XMt7icsOj2DAS4Cn1PN1', settings: AUGGIE_SETTINGS },
+  jen_lopez:    { id: 'Nq8lEMZJxW4MjEjQcBIo', settings: JEN_SETTINGS },
 };
 
 const CORS = {
@@ -114,7 +126,7 @@ exports.handler = async (event) => {
       body: JSON.stringify({
         text: text,
         model_id: AUGGIE_MODEL,
-        voice_settings: AUGGIE_SETTINGS,
+        voice_settings: voice.settings || AUGGIE_SETTINGS,
       }),
     });
 
