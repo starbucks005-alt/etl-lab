@@ -177,9 +177,13 @@ const PAIRS={"Jaque Tremblay": [{"other": "Reece Ashford", "icon": "\ud83d\udc4a
 const ROSTER_URL="/roster.json";
 let activeSkills=new Set(), state=loadState(), swapMode=null;
 
-function loadState(){try{const s=JSON.parse(localStorage.getItem('etl_co'));if(s&&s.sixpack)return s;}catch(e){}return null;}
-function saveState(){try{localStorage.setItem('etl_co',JSON.stringify(state))}catch(e){}}
-function resetCompany(){if(confirm('Start over as a brand-new buyer? This clears your current company.')){try{localStorage.removeItem('etl_co')}catch(e){}location.reload();}}
+// v2 key (2026-06-13): one-time reset of every saved sandbox. The old key
+// let an experimental PA pick (Jen Lopez) read as the user's REAL seated
+// PA, which it never was - this catalog is a draft, the Studio config is
+// the only truth about who is seated.
+function loadState(){try{const s=JSON.parse(localStorage.getItem('etl_co_v2'));if(s&&s.sixpack)return s;}catch(e){}try{localStorage.removeItem('etl_co')}catch(e){}return null;}
+function saveState(){try{localStorage.setItem('etl_co_v2',JSON.stringify(state))}catch(e){}}
+function resetCompany(){if(confirm('Start over as a brand-new buyer? This clears your current company.')){try{localStorage.removeItem('etl_co_v2')}catch(e){}location.reload();}}
 function defaultState(){return {pa:(AGENTS.find(a=>a.cat==='pa')||{}).name||'',sixpack:AGENTS.filter(a=>a.cat==='core').slice(0,6).map(a=>a.name),sixpackOn:false,extras:{}};}
 function addSixpack(){state.sixpackOn=true;saveState();render();updateDrawer();}
 function dropSixpack(){state.sixpackOn=false;saveState();render();updateDrawer();}
@@ -267,7 +271,7 @@ function render(){
     if(swapMode){
       const ok=a.cat!=='owner'&&a.cat!=='not_sold'&&!isSeated(a.name);
       if(ok){action=`<button class="hbtn swap" onclick="event.stopPropagation();pickReplacement(${i})">Swap in &rarr;</button>`;click=`pickReplacement(${i})`;}
-      else{action=`<span class="tier ${a.cat}">${isSeated(a.name)?'already seated':'n/a'}</span>`;cls='dim';click='';}
+      else{action=`<span class="tier ${a.cat}">${isSeated(a.name)?'in your draft team':'n/a'}</span>`;cls='dim';click='';}
     } else if(isPA(a.name)){action=`<span class="tier pa">your PA</span>`;cls='seated';}
     else if(a.cat==='pa'){action=`<button class="hbtn" onclick="event.stopPropagation();choosePA(${i})">Swap to this PA</button>`;}
     else if(a.cat==='core'){action=`<span class="tier core">${state.sixpackOn?'in six-pack':'six-pack (suggested)'}</span>`;cls=state.sixpackOn?'seated':'';}
