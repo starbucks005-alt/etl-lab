@@ -37,6 +37,12 @@ const { getStore, connectLambda } = require('@netlify/blobs');
 
 const MODEL = 'claude-sonnet-4-6';
 const LOG_RETENTION_DAYS = 30;
+
+// Newswire roster, bundled at build time. Used by the owner-mode voice desk
+// so Iris knows every speaker id and its default voice.
+let WIRE_REPORTERS = [];
+try { WIRE_REPORTERS = require('../../config/newswire-reporters.json').reporters || []; } catch (_) {}
+const ANCHOR_LINE = 'anchor · Marcus Reyes (briefing anchor) · default Bill (pqHfZKP75CvOlQylNhV4)';
 const TROUBLE_RE = /broken|does\s*n[o']t work|not work|error|can\s*n?[o']t|cannot|stuck|fail|issue|problem|bug|404|blank|missing|confus/i;
 
 const IRIS_PERSONA = [
@@ -96,7 +102,7 @@ const IRIS_PERSONA = [
   '- "Hi. I\'m Iris, the concierge here. What can I help you find?"',
 ].join('\n');
 
-function ownerSystem(notes, digest) {
+function ownerSystem(notes, digest, voiceLines) {
   return IRIS_PERSONA + '\n\n' + [
     '──────────────────────────────────────────',
     'OWNER MODE — VERIFIED.',
@@ -104,6 +110,11 @@ function ownerSystem(notes, digest) {
     'Drop the visitor posture. With her you are a trusted staff member reporting in: candid, warm, brief. You may discuss the site, the visitors, and anything in your notes.',
     'She often checks in just to make sure visitors are treated well and the site is behaving. Use the VISITOR LOG DIGEST below to answer factually: how many conversations, what people asked about, and anything flagged as a possible problem. If nothing is flagged, say so plainly. Do not invent visitor activity that is not in the digest.',
     'If she asks you to remember something (or tells you something clearly worth keeping), append [[remember: the fact, briefly]] at the very end of your reply. The brackets are invisible plumbing — never mention them, and never show them to her; they are stripped before she sees the reply.',
+    '',
+    'VOICE DESK (your owner ability): you can recast the text-to-speech voice of any Newswire reporter, or the briefing anchor, for the Above the Fold audio. When Dr. O asks for a voice change and gives you an ElevenLabs voice ID, confirm the change back in plain words and append [[setvoice: speaker_id = VoiceId]] at the very end of your reply — same invisible plumbing as remember. To undo an override and return a speaker to their default: [[clearvoice: speaker_id]]. The change applies from the NEXT briefing render; audio already rendered does not change. Never invent a voice ID — if she has not given you one, ask her for it.',
+    '',
+    'THE VOICE ROSTER (speaker_id · name · default voice · active override if any):',
+    voiceLines && voiceLines.trim() ? voiceLines.trim() : '(roster unavailable)',
     '',
     'YOUR NOTES (everything she has had you remember so far):',
     notes && notes.trim() ? notes.trim() : '(no notes yet)',
@@ -213,6 +224,21 @@ exports.handler = async (event) => {
         try { const idx = await logsStore.get('idx', { type: 'json' }); digest = buildDigest(idx); } catch (_) {}
       }
 
+      // Voice desk state: current overrides + the full roster for the prompt.
+      let voiceStore = null;
+      let overrides = {};
+      try { voiceStore = getStore('etl_voice_overrides'); } catch (_) {}
+      if (voiceStore) {
+        try { const m = await voiceStore.get('map', { type: 'json' }); if (m && typeof m === 'object') overrides = m; } catch (_) {}
+      }
+      const voiceLines = [
+        ANCHOR_LINE + (overrides.anchor ? ' · OVERRIDE: ' + overrides.anchor : ''),
+        ...WIRE_REPORTERS.map(r =>
+          r.id + ' · ' + r.name + ' (' + (r.desk_label || '') + ') · default ' + (r.voice_label || '?') + ' (' + (r.voice_id || 'none') + ')' +
+          (overrides[r.id] ? ' · OVERRIDE: ' + overrides[r.id] : '')
+        ),
+      ].join('\n');
+
       const messages = [
         ...ownerHistory.slice(-40).filter(t => t && (t.role === 'user' || t.role === 'assistant') && typeof t.content === 'string'),
         { role: 'user', content: message },
@@ -221,7 +247,7 @@ exports.handler = async (event) => {
       const resp = await client.messages.create({
         model: MODEL,
         max_tokens: 600,
-        system: ownerSystem(notes, digest),
+        system: ownerSystem(notes, digest, voiceLines),
         messages: messages,
       });
       let reply = (resp.content || []).filter(b => b && b.type === 'text').map(b => b.text).join('\n').trim();
@@ -233,6 +259,28 @@ exports.handler = async (event) => {
         if (f) remembered.push(f);
         return '';
       }).trim();
+
+      // Voice desk plumbing: [[setvoice: id = VoiceId]] / [[clearvoice: id]].
+      const voiceSets = [];
+      const voiceClears = [];
+      reply = reply.replace(/\[\[\s*setvoice\s*:\s*([a-z0-9_]+)\s*=\s*([A-Za-z0-9]{8,48})\s*\]\]/gi, (_, id, vid) => {
+        voiceSets.push([id.toLowerCase(), vid]);
+        return '';
+      }).trim();
+      reply = reply.replace(/\[\[\s*clearvoice\s*:\s*([a-z0-9_]+)\s*\]\]/gi, (_, id) => {
+        voiceClears.push(id.toLowerCase());
+        return '';
+      }).trim();
+      if (voiceStore && (voiceSets.length || voiceClears.length)) {
+        const validIds = new Set(['anchor', ...WIRE_REPORTERS.map(r => r.id)]);
+        let changed = false;
+        voiceSets.forEach(([id, vid]) => { if (validIds.has(id)) { overrides[id] = vid; changed = true; } });
+        voiceClears.forEach(id => { if (overrides[id]) { delete overrides[id]; changed = true; } });
+        if (changed) {
+          try { await voiceStore.setJSON('map', overrides); }
+          catch (err) { console.error('[etl-help-chat] voice override write failed', err && err.message); }
+        }
+      }
 
       if (ownerStore) {
         try {

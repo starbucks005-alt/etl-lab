@@ -65,6 +65,27 @@ function loadReporters() {
   return REPORTERS_CACHE;
 }
 
+// Owner voice overrides, set through Iris's voice desk (store
+// "etl_voice_overrides", key "map": { speakerId: elevenLabsVoiceId }).
+// Beats the config default at render time so Dr. O can recast a voice
+// from chat without a deploy. "anchor" is a valid speaker key too.
+// Cached 60s per warm lambda; storage failure means config defaults apply.
+let VOICE_OVERRIDES_CACHE = null;
+let VOICE_OVERRIDES_TS = 0;
+async function loadVoiceOverrides() {
+  const now = Date.now();
+  if (VOICE_OVERRIDES_CACHE && (now - VOICE_OVERRIDES_TS) < 60000) return VOICE_OVERRIDES_CACHE;
+  try {
+    const { getStore } = require('@netlify/blobs');
+    const map = await getStore('etl_voice_overrides').get('map', { type: 'json' });
+    VOICE_OVERRIDES_CACHE = (map && typeof map === 'object') ? map : {};
+  } catch (_) {
+    VOICE_OVERRIDES_CACHE = VOICE_OVERRIDES_CACHE || {};
+  }
+  VOICE_OVERRIDES_TS = now;
+  return VOICE_OVERRIDES_CACHE;
+}
+
 function buildScriptSystemPrompt() {
   return `You are writing the script for "Above the Fold," a daily multi-voice audio briefing on ETL Newswire. The script is a STRUCTURED HANDOFF between the anchor and the staff reporters. Each segment is rendered in its own voice via text-to-speech.
 
@@ -163,6 +184,11 @@ async function synthSegment(text, speakerId) {
       settings = { stability: 0.55, similarity_boost: 0.75, style: 0.0, use_speaker_boost: false };
     }
   }
+
+  try {
+    const overrides = await loadVoiceOverrides();
+    if (overrides[speakerId]) voiceId = overrides[speakerId];
+  } catch (_) {}
 
   // output_format=mp3_44100_64 cuts file size in half vs default 128kbps
   // while sounding identical for spoken-word voice. Also keeps encoding

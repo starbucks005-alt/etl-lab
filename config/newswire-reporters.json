@@ -43,8 +43,8 @@
       "tier": "correspondent",
       "tier_label": "Correspondent",
       "portrait_placeholder": "SP",
-      "voice_id": "9BWtsMINqrJLrRacOk9x",
-      "voice_label": "Aria"
+      "voice_id": "sqPfHNevDXtW0XoVMcPL",
+      "voice_label": "Custom (replaced Aria 2026-06-12; Aria read as country twang)"
     },
     {
       "id": "theo_okafor",
@@ -107,17 +107,17 @@
       "voice_label": "Dorothy"
     },
     {
-      "id": "jules_rivera",
-      "name": "Jules Rivera",
+      "id": "mara_rivera",
+      "name": "Mara Rivera",
       "desk": "entertainment",
       "desk_label": "Entertainment",
       "beat": "Books, film, theater, streaming, the publishing industry, BookTok and the platform-shaped reading economy.",
       "bio": "Started reviewing for a local alt-weekly at nineteen and never quite stopped. Came up in the cultural-criticism tradition the Vulture and Los Angeles Review of Books generation built. Reads everything. Reviews with the warmth of a friend with taste, the candor of someone who has been wrong in print and learned from it.",
       "voice_rider": "Warm, opinionated, conversational. Will not pretend a bad book is fine to be polite. Will not pretend a great book is fine when it is great. Names the reference points readers will know. No em dashes. No 'page-turner' or 'rollercoaster of emotions'.",
-      "byline": "By Jules Rivera, Entertainment Desk",
+      "byline": "By Mara Rivera, Entertainment Desk",
       "tier": "correspondent",
       "tier_label": "Correspondent",
-      "portrait_placeholder": "JR",
+      "portrait_placeholder": "MR",
       "voice_id": "pFZP5JQG7iQjIQuC4Bku",
       "voice_label": "Lily"
     },
