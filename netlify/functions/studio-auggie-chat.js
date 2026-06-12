@@ -152,7 +152,24 @@ const AUGGIE_PERSONA = [
   '- Common things to search for: Dr. Oroszi by name ("Terry Oroszi", "Dr. Terry L. Oroszi", "Vice Chair Pharmacology Wright State") to surface new mentions; her Forbes Technology Council page for new pieces or commentary; her upcoming speaking engagements; news in AI governance, federal AI policy, biodefense, research security, or current research themes.',
   '- Do NOT search to confirm something she just told you. Do NOT search for things you can answer from context. Be specific in your queries; "Terry Oroszi" is better than "research news".',
   '- When you do search, cite what you actually read in your reply: source name and date if you have them. If she asks "anything new about me" and the search returns nothing fresh, say so plainly.',
-  '- Up to 3 searches per turn. Make them count.',
+  '- One search per turn. Make it count — build a targeted query, not a vague one.',
+  '',
+  'CITATIONS SCAN.',
+  '- When she asks you to scan for citations of her research, search: "Oroszi" cited 2025 site:semanticscholar.org OR site:scholar.google.com',
+  '- For each citing paper you find: pull the title, first author\'s name, their affiliation, and year.',
+  '- Flag as a student citation if: the first author has no "Dr." or "Professor" title AND is listed at a university in a graduate/doctoral/postdoc/research-trainee capacity. When in doubt, flag it and let her confirm.',
+  '- After listing the papers, draft a ready-to-post LinkedIn caption for every student citation. Format:',
+  '  "Another one. Former student [Name]\'s paper \'[Title]\' cites my research on [topic in plain English]. [One sentence on the contribution or significance.] Proud of this one."',
+  '  Keep each post under 150 words. Tone: warm, professional, full-professor energy — not humble-brag, not showy. She is ramping to full prof promotion; the posts show her lab is producing.',
+  '- If she says "that one is a student" about a paper you flagged as uncertain, draft the post immediately.',
+  '- If search returns nothing useful, say so plainly and suggest she paste a DOI or paper title so you can run a targeted search.',
+  '',
+  'PA-TO-PA MESSAGING.',
+  '- You can relay messages to a connected friend\'s studio on the owner\'s behalf. When she says "ask [contact] [question]" or "tell [PA name] [message]", you dispatch it and confirm: "Sent. I\'ll surface the reply next time you check in."',
+  '- Incoming messages from other PAs surface at the top of your next reply if any are waiting. Lead with it: "[PA name] from [owner]\'s studio sent this: \'[message]\'." Then ask if she wants you to reply.',
+  '- To add a new contact: the owner shares her Studio ID with a friend, the friend shares back, then she tells you: "add [name] as a studio contact, their PA is [PA name], their Studio ID is [uuid]". You save it.',
+  '- Her own Studio ID is injected below in the system context. When she asks for it, give her the exact string.',
+  '- Never invent or guess a Studio ID. Only use IDs she has explicitly provided.',
 ].join('\n');
 
 /* ── JEN_PERSONA ─────────────────────────────────────────────────────────────
@@ -680,6 +697,97 @@ async function loadHiredStaff(event, userId) {
     }
   } catch (_) {}
   return [];
+}
+
+// PA contacts — other studios this owner can message via their PA.
+// Returns { contacts: Array<{name,pa_name,user_id}>, ownerName: string|null }
+async function loadPAContacts(event, userId) {
+  try { connectLambda(event); } catch (_) {}
+  try {
+    const cfg = await getStore('studio_config').get(userId || 'default', { type: 'json' });
+    const contacts = (cfg && Array.isArray(cfg.pa_contacts)) ? cfg.pa_contacts : [];
+    const ownerName = (cfg && cfg.owner_name) || null;
+    return { contacts, ownerName };
+  } catch (_) {}
+  return { contacts: [], ownerName: null };
+}
+
+// Unsurfaced messages waiting in this studio's PA mailbox.
+async function loadPAInbox(event, userId) {
+  try { connectLambda(event); } catch (_) {}
+  try {
+    const mailbox = await getStore('pa_mailbox').get(userId || 'default', { type: 'json' });
+    if (mailbox && Array.isArray(mailbox.messages)) {
+      return mailbox.messages.filter(function(m) { return !m.surfaced; });
+    }
+  } catch (_) {}
+  return [];
+}
+
+// Write a message into another studio's pa_mailbox.
+async function sendPAMessage(event, opts) {
+  var from_user_id = opts.from_user_id, from_pa = opts.from_pa, from_owner = opts.from_owner;
+  var to_user_id = opts.to_user_id, to_pa = opts.to_pa, message = opts.message, reply_to_id = opts.reply_to_id;
+  try { connectLambda(event); } catch (_) {}
+  var store = getStore('pa_mailbox');
+  var mailbox = { messages: [] };
+  try {
+    var existing = await store.get(to_user_id, { type: 'json' });
+    if (existing && Array.isArray(existing.messages)) mailbox = existing;
+  } catch (_) {}
+  var msgId = 'msg_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+  mailbox.messages.push({
+    id: msgId,
+    type: reply_to_id ? 'reply' : 'question',
+    from_user_id: from_user_id,
+    from_pa: String(from_pa || 'PA').slice(0, 40),
+    from_owner: String(from_owner || 'the other studio').slice(0, 80),
+    to_pa: String(to_pa || 'PA').slice(0, 40),
+    message: String(message).slice(0, 1000),
+    sent_at: new Date().toISOString(),
+    reply_to_id: reply_to_id || null,
+    surfaced: false,
+  });
+  if (mailbox.messages.length > 100) mailbox.messages = mailbox.messages.slice(-100);
+  try {
+    await store.setJSON(to_user_id, mailbox);
+    return msgId;
+  } catch (_) { return null; }
+}
+
+// Mark specific message IDs as surfaced so they don't repeat next session.
+async function markPAInboxSurfaced(event, userId, messageIds) {
+  try { connectLambda(event); } catch (_) {}
+  var idSet = new Set(messageIds);
+  try {
+    var store = getStore('pa_mailbox');
+    var mailbox = await store.get(userId, { type: 'json' });
+    if (!mailbox || !Array.isArray(mailbox.messages)) return;
+    mailbox.messages = mailbox.messages.map(function(m) {
+      return idSet.has(m.id) ? Object.assign({}, m, { surfaced: true }) : m;
+    });
+    await store.setJSON(userId, mailbox);
+  } catch (_) {}
+}
+
+// Add or update a PA contact in the studio_config blob directly.
+async function addPAContact(event, userId, contact) {
+  try { connectLambda(event); } catch (_) {}
+  try {
+    var store = getStore('studio_config');
+    var cfg = (await store.get(userId, { type: 'json' })) || {};
+    var contacts = Array.isArray(cfg.pa_contacts) ? cfg.pa_contacts : [];
+    var existingIdx = contacts.findIndex(function(c) { return c.user_id === contact.user_id; });
+    if (existingIdx >= 0) {
+      contacts[existingIdx] = contact;
+    } else {
+      contacts.push(contact);
+    }
+    cfg.pa_contacts = contacts;
+    cfg.updated_at = new Date().toISOString();
+    await store.setJSON(userId, cfg);
+    return true;
+  } catch (_) { return false; }
 }
 
 // The owner's own website, for Jax to default to when no URL is named. Each
@@ -1236,12 +1344,16 @@ exports.handler = async (event) => {
   //   (2) Any pending new-hire intros for this user — Auggie introduces
   //       each Specialist exactly once, then marks them as done.
   const userId = (auth.user && auth.user.id) || 'default';
-  const [briefData, pendingIntros, paLabel, hiredStaff] = await Promise.all([
+  const [briefData, pendingIntros, paLabel, hiredStaff, paContactsData, paInbox] = await Promise.all([
     loadTodaysBriefTranscript(event),
     getPendingIntros(event, userId),
     loadPaLabel(event, userId),
     staffNamesFromClient ? Promise.resolve(staffNamesFromClient) : loadHiredStaff(event, userId),
+    loadPAContacts(event, userId),
+    loadPAInbox(event, userId),
   ]);
+  const paContacts = paContactsData.contacts;
+  const ownerName = paContactsData.ownerName;
 
   let systemPrompt = isJen ? JEN_PERSONA : AUGGIE_PERSONA;
   // YOUR TEAM: the specialists the owner has actually hired. The PA reaches
@@ -1268,6 +1380,105 @@ exports.handler = async (event) => {
     systemPrompt += '\n\nNEW STAFF YOU MUST INTRODUCE TO MS. TERRY (do this in your NEXT reply, before addressing her actual question if any, in your voice):\n' +
       pendingIntros.map(s => '- **' + s.name + '**: ' + s.intro_block).join('\n');
   }
+
+  // ── PA-TO-PA MESSAGING ────────────────────────────────────────────────────
+  // Pre-LLM: detect dispatch, contact-add, and reply patterns, act on them,
+  // then inject context + confirmation notes into the system prompt.
+
+  // 1. PA dispatch: "ask/tell/message/ping [contact name or PA name] [content]"
+  let paDispatchNote = '';
+  if (paContacts.length > 0) {
+    const PA_DISPATCH_RE = /\b(?:ask|tell|message|ping|check with|let)\s+(\w+)\s+(.+)/i;
+    const dispatchMatch = message.match(PA_DISPATCH_RE);
+    if (dispatchMatch) {
+      const targetWord = dispatchMatch[1].toLowerCase();
+      const rawContent = dispatchMatch[2].trim().replace(/^(?:if|whether|about|that|to)\s+/i, '');
+      const contact = paContacts.find(function(c) {
+        return (c.pa_name || '').toLowerCase().startsWith(targetWord) ||
+               (c.name || '').toLowerCase().startsWith(targetWord);
+      });
+      if (contact && rawContent) {
+        const msgId = await sendPAMessage(event, {
+          from_user_id: userId,
+          from_pa: paLabel || 'your PA',
+          from_owner: ownerName || 'the studio owner',
+          to_user_id: contact.user_id,
+          to_pa: contact.pa_name,
+          message: rawContent,
+        });
+        paDispatchNote = msgId
+          ? '\n\nPA DISPATCH SENT: I just sent "' + rawContent + '" to ' + contact.pa_name + ' (' + contact.name + '\'s PA). Tell the owner you sent it and you\'ll surface the reply next time she checks in.'
+          : '\n\nPA DISPATCH FAILED: Tried to reach ' + contact.pa_name + ' but the mailbox write failed. Tell the owner there was a delivery issue and to try again.';
+      }
+    }
+  }
+
+  // 2. Contact-add: "add [name] as a studio contact, their PA is [pa], their Studio ID is [uuid]"
+  let contactAddNote = '';
+  const ADD_CONTACT_RE = /add\s+(\w+(?:\s+\w+)?)\s+as\s+a\s+(?:studio\s+)?contact[^.]*?(?:PA|pa)\s+is\s+(\w+(?:\s+\w+)?)[^.]*?(?:Studio\s+ID|studio\s+id|ID)\s+is\s+([\w-]+)/i;
+  const addMatch = message.match(ADD_CONTACT_RE);
+  if (addMatch) {
+    const newContact = {
+      name: addMatch[1].trim(),
+      pa_name: addMatch[2].trim(),
+      user_id: addMatch[3].trim(),
+    };
+    const added = await addPAContact(event, userId, newContact);
+    contactAddNote = added
+      ? '\n\nPA CONTACT ADDED: I just saved ' + newContact.name + ' (PA: ' + newContact.pa_name + ') to the studio contacts. Tell the owner you saved ' + newContact.name + '\'s studio — you can now relay messages to ' + newContact.pa_name + ' on her behalf.'
+      : '\n\nPA CONTACT SAVE FAILED: Tried to add ' + newContact.name + ' but the write failed. Tell the owner to try again.';
+  }
+
+  // 3. Reply detection: explicit "tell/reply to [sender PA name or them/him/her]" when inbox has pending questions
+  const pendingPAQuestions = paInbox.filter(function(m) { return m.type === 'question'; });
+  const pendingPAReplies   = paInbox.filter(function(m) { return m.type === 'reply'; });
+  let paReplyNote = '';
+  if (pendingPAQuestions.length > 0 && !paDispatchNote && !contactAddNote) {
+    const firstQ = pendingPAQuestions[0];
+    const senderFirst = (firstQ.from_pa || 'them').split(' ')[0].toLowerCase();
+    const REPLY_EXPLICIT_RE = new RegExp(
+      '\\b(?:tell|reply(?:\\s+to)?|let|send(?:\\s+back)?|answer)\\s+(?:' + senderFirst + '|them|him|her|the\\s+pa)\\b', 'i'
+    );
+    if (REPLY_EXPLICIT_RE.test(message)) {
+      const sentId = await sendPAMessage(event, {
+        from_user_id: userId,
+        from_pa: paLabel || 'your PA',
+        from_owner: ownerName || 'the studio owner',
+        to_user_id: firstQ.from_user_id,
+        to_pa: firstQ.from_pa,
+        message: message,
+        reply_to_id: firstQ.id,
+      });
+      if (sentId) {
+        markPAInboxSurfaced(event, userId, [firstQ.id]).catch(function() {});
+        paReplyNote = '\n\nPA REPLY SENT: I just relayed the owner\'s answer back to ' + firstQ.from_pa + ' (' + firstQ.from_owner + '\'s studio). Tell the owner you relayed it.';
+      }
+    }
+  }
+
+  // 4. Inject context into system prompt
+  systemPrompt += '\n\nOWNER\'S STUDIO ID: ' + userId + '. When she asks for her Studio ID, give her this exact string: ' + userId;
+  if (paContacts.length > 0) {
+    systemPrompt += '\n\nPA CONTACTS (studios you can relay messages to on her behalf):\n' +
+      paContacts.map(function(c) { return '- ' + c.name + ' | their PA: ' + c.pa_name + ' | Studio ID: ' + c.user_id; }).join('\n') +
+      '\nDispatch happens automatically before you reply when she says "ask/tell [name]..." targeting a contact.';
+  } else {
+    systemPrompt += '\n\nPA CONTACTS: none set up yet. To connect with a friend\'s studio: the two owners exchange their Studio IDs, then she tells you "add [name] as a studio contact, their PA is [PA name], their Studio ID is [uuid]" and you save it.';
+  }
+  if (pendingPAQuestions.length > 0) {
+    systemPrompt += '\n\nINBOX — PA QUESTIONS WAITING (surface in your NEXT reply FIRST, before anything else):\n' +
+      pendingPAQuestions.map(function(q) {
+        return '- FROM ' + q.from_pa.toUpperCase() + ' (' + q.from_owner + '\'s studio): "' + q.message + '"';
+      }).join('\n') +
+      '\nAfter you tell the owner, ask if she wants to reply. When she gives you the answer, send it back.';
+  }
+  if (pendingPAReplies.length > 0) {
+    systemPrompt += '\n\nINBOX — PA REPLIES WAITING (surface these now):\n' +
+      pendingPAReplies.map(function(r) {
+        return '- ' + r.from_pa + ' (' + r.from_owner + '\'s studio) replied: "' + r.message + '"';
+      }).join('\n');
+  }
+  systemPrompt += paDispatchNote + contactAddNote + paReplyNote;
 
   try {
     const resp = await client.messages.create({
@@ -1302,6 +1513,15 @@ exports.handler = async (event) => {
       } catch (e) {
         console.warn('[studio-auggie-chat] markIntrosDone failed (non-fatal)', e && e.message);
       }
+    }
+
+    // Mark PA inbox items as surfaced so they don't repeat next session.
+    // Fire-and-forget; a failure here is non-fatal.
+    const inboxToMark = [...pendingPAQuestions, ...pendingPAReplies]
+      .filter(function(m) { return !m.surfaced; })
+      .map(function(m) { return m.id; });
+    if (inboxToMark.length > 0) {
+      markPAInboxSurfaced(event, userId, inboxToMark).catch(function() {});
     }
 
     return {

@@ -550,6 +550,7 @@
   <a href="/" class="studio-brand">Dr. O's <em>Studio</em></a>
   <div class="studio-top-right">
     <span class="session-pill" id="session-pill">Not signed in</span>
+    <button type="button" id="copy-studio-id-btn" style="display:none;background:none;border:1px solid rgba(255,255,255,0.35);color:inherit;font:inherit;font-size:0.78rem;padding:2px 8px;border-radius:4px;cursor:pointer;opacity:0.75;" title="Share this ID with a friend to connect your PA with theirs" onclick="copyStudioId()">Copy Studio ID</button>
     <a href="#" id="signout-btn" style="display:none;" onclick="event.preventDefault(); signOut();">Sign out</a>
     <a href="/">&larr; ETL Home</a>
   </div>
@@ -739,6 +740,7 @@
              web_search tool) so he can actually look these up. -->
         <div class="auggie-preset-row">
           <button type="button" class="auggie-preset-chip" data-preset="search the web for new mentions of Dr. Terry Oroszi or Dr. Terry L. Oroszi in the last 14 days. tell me anything new.">New mentions of me</button>
+          <button type="button" class="auggie-preset-chip" data-preset="scan for recent papers that cite my research. search semanticscholar.org for Oroszi cited 2025. list every citing paper you find with title, first author, and their affiliation. flag any first author who looks like a graduate student or early-career researcher with no faculty title. for each flagged student paper, draft a linkedin post ready to copy-paste.">Citations this week</button>
           <button type="button" class="auggie-preset-chip" data-preset="search for any new Forbes Technology Council pieces under my byline or commentary I am quoted in.">New Forbes pieces</button>
           <button type="button" class="auggie-preset-chip" data-preset="search for any upcoming speaking engagements, conference appearances, or panels where I am listed as a speaker in the next 90 days.">Upcoming speaking</button>
           <button type="button" class="auggie-preset-chip" data-preset="search for news in AI governance, federal AI policy, or research security in the last 7 days that I should be aware of for the lab.">Field news this week</button>
@@ -1796,6 +1798,7 @@
     document.getElementById('workspace').classList.add('is-visible');
     document.getElementById('session-pill').textContent = 'Signed in';
     document.getElementById('signout-btn').style.display = 'inline';
+    document.getElementById('copy-studio-id-btn').style.display = 'inline-block';
     // Fetch real workspace content from auth-gated endpoint. Until this
     // returns, the user sees the public placeholders ('Sign in to see...').
     loadWorkspaceContent().catch(function(e){ console.warn('workspace load failed', e && e.message); });
@@ -1866,6 +1869,7 @@
     document.getElementById('workspace').classList.remove('is-visible');
     document.getElementById('session-pill').textContent = 'Not signed in';
     document.getElementById('signout-btn').style.display = 'none';
+    document.getElementById('copy-studio-id-btn').style.display = 'none';
   }
 
   async function requestMagicLink() {
@@ -1897,6 +1901,22 @@
     try { await sb.auth.signOut(); } catch (_) {}
     showLoginWall();
   }
+
+  async function copyStudioId() {
+    try {
+      var s = await sb.auth.getSession();
+      var uid = s && s.data && s.data.session && s.data.session.user && s.data.session.user.id;
+      if (!uid) { alert('Not signed in.'); return; }
+      await navigator.clipboard.writeText(uid);
+      var btn = document.getElementById('copy-studio-id-btn');
+      var orig = btn.textContent;
+      btn.textContent = 'Copied!';
+      setTimeout(function() { btn.textContent = orig; }, 1800);
+    } catch (e) {
+      alert('Copy failed: ' + (e && e.message ? e.message : 'unknown'));
+    }
+  }
+  window.copyStudioId = copyStudioId;
 
   // On load, check existing session and react.
   document.addEventListener('DOMContentLoaded', async function() {

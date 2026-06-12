@@ -22,6 +22,7 @@ const ALLOWED_FIELDS = new Set([
   'pa', 'address_pref', 'timezone', 'brief_beat', 'domain_addon', 'hired_staff',
   'cv_provided', 'cv_summary',
   'owner_site', 'website',
+  'pa_contacts',
 ]);
 
 async function validateRequest(event) {
