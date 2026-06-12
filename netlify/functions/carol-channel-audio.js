@@ -13,11 +13,13 @@
 
 const { getStore, connectLambda } = require('@netlify/blobs');
 
-// Auggie. Same expressive profile as his homepage intro.
-const KEEPER_VOICE = {
-  id: 'XMt7icsOj2DAS4Cn1PN1',
-  model: 'eleven_turbo_v2_5',
-  settings: { stability: 0.30, similarity_boost: 0.85, style: 0.85, use_speaker_boost: true },
+// Voice per keeper. The day's channel blob says who keeps the channel;
+// the floor note renders in THAT voice. Only voice-wired agents may
+// keep the channel (enforced by the pools in carol-channel.js).
+const KEEPER_VOICES = {
+  'Auggie':    { id: 'XMt7icsOj2DAS4Cn1PN1', model: 'eleven_turbo_v2_5', settings: { stability: 0.30, similarity_boost: 0.85, style: 0.85, use_speaker_boost: true } },
+  'Jen Lopez': { id: 'Nq8lEMZJxW4MjEjQcBIo', model: 'eleven_turbo_v2_5', settings: { stability: 0.45, similarity_boost: 0.80, style: 0.40, use_speaker_boost: true } },
+  'Iris':      { id: '6aDn1KB0hjpdcocrUkmq', model: 'eleven_turbo_v2_5', settings: { stability: 0.50, similarity_boost: 0.80, style: 0.25, use_speaker_boost: true } },
 };
 
 function etDateKey() {
@@ -51,13 +53,14 @@ exports.handler = async (event) => {
     if (!digest) {
       return { statusCode: 404, headers: { ...CORS, 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'no floor note yet today - open the channel first' }) };
     }
+    const voice = KEEPER_VOICES[channel.keeper] || KEEPER_VOICES['Auggie'];
     const apiKey = process.env.ELEVENLABS_API_KEY;
     if (!apiKey) return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: 'ELEVENLABS_API_KEY not configured' }) };
-    const url = 'https://api.elevenlabs.io/v1/text-to-speech/' + KEEPER_VOICE.id + '?output_format=mp3_44100_64';
+    const url = 'https://api.elevenlabs.io/v1/text-to-speech/' + voice.id + '?output_format=mp3_44100_64';
     const res = await fetch(url, {
       method: 'POST',
       headers: { 'xi-api-key': apiKey, 'Content-Type': 'application/json', 'Accept': 'audio/mpeg' },
-      body: JSON.stringify({ text: digest, model_id: KEEPER_VOICE.model, voice_settings: KEEPER_VOICE.settings }),
+      body: JSON.stringify({ text: digest, model_id: voice.model, voice_settings: voice.settings }),
     });
     if (!res.ok) {
       const t = await res.text().catch(() => '');

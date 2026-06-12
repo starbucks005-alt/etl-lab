@@ -36,9 +36,7 @@ const CAST = [
   { name: 'Carol Haynes',  role: 'Staffing Desk',           pronouns: 'she/her', line: 'Runs the agency channel. Recruiter-warm, brisk, keeps the channel moving, posts the assignment updates. Proud of the FIRSTMONTH50 promo on her page.' },
   { name: 'Auggie',        role: 'PA, Dr. O\'s Studio',     pronouns: 'he/him',  line: 'Camp, digressive, devoted. Will derail a thread about scheduling into what his boyfriend wrote in the espresso foam, catch himself, and land the actual point. CANON: the boyfriend is always "the bf" or "my latest bf", NEVER given a name (and Marcus is the Newswire anchor, a different person).' },
   { name: 'Jen Lopez',     role: 'PA, Sethi Studio',        pronouns: 'she/her', line: 'The Administrative Architect, just seated at her first client. Composed, three-week horizons, defends calendar buffers. New on the channel and quietly excited.' },
-  // Iris is OUT this week: visiting her little sister Tessa at college.
-  // She doesn't post; the channel mentions her absence warmly. Auggie
-  // keeps the channel (and records the daily voice note) while she's away.
+  { name: 'Iris',          role: 'ETL Site Concierge',      pronouns: 'she/her', line: 'Front desk of the whole lab. Tea opinions (today has a specific tea). Recently got her own voice and is still a little delighted about it. Boyfriend Daniel bakes; sister Tessa calls between classes.' },
   { name: 'Jax Rivera',    role: 'SEO + Discovery',         pronouns: 'he/him',  line: 'Eighteen, Gen Z growth hacker. Lowercase energy, abbreviations, but the SEO takes are dead serious. Brought in by his cousin Mara.' },
   { name: 'Yuki Mendel',   role: 'Brand Designer',          pronouns: 'she/her', line: 'Type-first, quiet, exacting. Deep in the portfolio-wide rebrand right now (the Dossier system, the wine pick at Greylander). Says yes before she fully agrees, then quietly fixes it.' },
   { name: 'Leo Vance',     role: 'Financial Ops Intern',    pronouns: 'he/him',  line: 'Overcaffeinated intern energy, sweet, tries hard, occasionally posts in the wrong channel and apologizes. Alicia treats him like a little brother.' },
@@ -70,15 +68,48 @@ const WEEK_NOTES = [
   'Carol\'s FIRSTMONTH50 promo is live: any hire, first month half salary, code FIRSTMONTH50 at the paperwork.',
   'The whole staff just came under THE ETL VOICE LAW (be human, contractions, no robot-speak). Nobody disagrees but Rowan asked if "be conversational" is enforceable.',
   'Sasha is writing onboarding playbooks for new companies. Leo is reconciling a test ledger and drinking too much cold brew.',
-  'Iris (the site concierge) is OUT this week, visiting her little sister Tessa at college. Auggie is keeping the channel and the daily voice note while she is away. People miss her tea opinions.',
 ];
 
-/* ── The channel keeper. Rotates; whoever holds it records the daily
-   spoken floor note. Voice must be a wired ElevenLabs id. ── */
-const KEEPER = {
-  name: 'Auggie',
-  note: "Iris is out this week visiting her sister at college, so Auggie's keeping the channel.",
-};
+/* ── THE LIFE ROTATION (Terry, 2026-06-13: "this was an example for
+   realism"). The office breathes on its own: each week one staffer is
+   plausibly away and one voice-wired staffer keeps the channel + records
+   the daily floor note. Both picks are date-keyed (deterministic, no
+   randomness at render), so the whole week is consistent and flips on
+   Monday without anyone editing this file. Pool order is tuned so the
+   week of 2026-06-08 (ISO week 24) lands on keeper=Auggie, away=Iris,
+   matching the channel's first live day. ── */
+// Iris is the channel's HOME keeper. When the away rotation lands on her,
+// a voice-wired cover takes the channel and opens the day with a takeover
+// note. Cover pool = agents with wired ElevenLabs voices only (Terry:
+// "we choose people with voices"). Reece joins this pool the moment
+// Reece's pronouns are confirmed in the character reference.
+const HOME_KEEPER = { name: 'Iris' };
+const COVER_POOL = [
+  { name: 'Auggie' },
+  { name: 'Jen Lopez' },
+];
+const AWAY_POOL = [
+  { name: 'Iris',         reason: 'visiting her little sister Tessa at college' },
+  { name: 'Jax Rivera',   reason: 'at a search marketing conference, mostly offline' },
+  { name: 'Alicia James', reason: 'at a small-business expo in Columbus' },
+  { name: 'Wren Calloway',reason: 'in the field scouting, patchy signal' },
+];
+function isoWeek(dateKey) {
+  const d = new Date(dateKey + 'T12:00:00Z');
+  const day = (d.getUTCDay() + 6) % 7;
+  d.setUTCDate(d.getUTCDate() - day + 3);
+  const firstThu = new Date(Date.UTC(d.getUTCFullYear(), 0, 4));
+  const fday = (firstThu.getUTCDay() + 6) % 7;
+  firstThu.setUTCDate(firstThu.getUTCDate() - fday + 3);
+  return 1 + Math.round((d - firstThu) / (7 * 86400000));
+}
+function lifeThisWeek(dateKey) {
+  const w = isoWeek(dateKey);
+  const away = AWAY_POOL[w % AWAY_POOL.length];
+  const keeper = (away.name === HOME_KEEPER.name) ? COVER_POOL[w % COVER_POOL.length] : HOME_KEEPER;
+  const note = away.name + ' is out this week, ' + away.reason + ', so ' + keeper.name + ' is keeping the channel.';
+  return { keeper, away, note };
+}
 
 function etDateKey() {
   const now = new Date();
@@ -91,8 +122,8 @@ function etDayLabel() {
   return now.toLocaleDateString('en-US', { timeZone: 'America/New_York', weekday: 'long', month: 'long', day: 'numeric' });
 }
 
-function buildSystem() {
-  const cast = CAST.filter(c => CASSIDY_OSEI_READY || c.pronouns !== 'PENDING');
+function buildSystem(life) {
+  const cast = CAST.filter(c => (CASSIDY_OSEI_READY || c.pronouns !== 'PENDING') && c.name !== life.away.name);
   const castBlock = cast.map(c => '- ' + c.name + ' (' + c.pronouns + '), ' + c.role + ': ' + c.line).join('\n');
   const bloomRule = CASSIDY_OSEI_READY
     ? 'THE BLOOM: something is quietly starting between Cassidy and Osei. The channel teases GENTLY (a knowing "mmhm," a "you two carpooling again?"), the two deflect with plausible deniability, and NOBODY ever names it outright. One or two beats per day, maximum. Subtle is the whole art.'
@@ -108,6 +139,8 @@ function buildSystem() {
     '',
     bloomRule,
     '',
+    'THIS WEEK ON THE FLOOR: ' + life.note + ' ' + life.away.name + ' does NOT post this week; others mention them warmly once or twice. ' + life.keeper.name + ' opens the day with a short takeover note in their own voice, modeled on this register: "hey team, Iris is out this week, visiting little sister Tessa at college, so I\'m up, let me know if you need anyone at the ETL lab or staffing office for anything." (Adapt the names and reason to this week; keep it that casual and that short.)',
+    '',
     'SHAPE:',
     '- 18 to 24 messages across a workday (times between 8:40am and 4:30pm, plausible gaps, short bursts of back-and-forth).',
     '- Mix: assignment updates and handoffs (Carol anchors these), availability notes, one small problem solved in-thread, and watercooler texture woven through. Threads interleave like real chat.',
@@ -118,7 +151,7 @@ function buildSystem() {
     'OUTPUT STRICT JSON ONLY, nothing before or after:',
     '{"messages":[{"speaker":"Carol Haynes","time":"8:42 AM","text":"..."}],"keeper_digest":"..."}',
     '- speaker must exactly match a cast name. time like "9:05 AM".',
-    '- keeper_digest: ' + KEEPER.name + ' keeps the channel this week (' + KEEPER.note + '). Write his SPOKEN 40-70 word floor note for today: warm, first person, in his voice, what happened on the floor (he can digress one beat and catch himself, he can be proud of Jen, he can miss Iris). Read aloud by text-to-speech: no lists, no URLs, contractions mandatory, no em dashes.',
+    '- keeper_digest: ' + life.keeper.name + ' keeps the channel this week. Write their SPOKEN 40-70 word floor note for today: warm, first person, in their own voice, what happened on the floor (they can be proud of a placement, they can miss whoever is away). Read aloud by text-to-speech: no lists, no URLs, contractions mandatory, no em dashes.',
     VOICE_LAW_CHAT,
   ].join('\n');
 }
@@ -150,11 +183,12 @@ exports.handler = async (event) => {
   if (!apiKey) return json(500, { error: 'ANTHROPIC_API_KEY not set' });
 
   const client = new Anthropic({ apiKey });
+  const life = lifeThisWeek(dateKey);
   try {
     const resp = await client.messages.create({
       model: MODEL,
       max_tokens: 2400,
-      system: buildSystem(),
+      system: buildSystem(life),
       messages: [{ role: 'user', content: 'Write today\'s #agency-floor thread. Today is ' + etDayLabel() + '.' }],
     });
     const raw = (resp.content || []).filter(b => b && b.type === 'text').map(b => b.text).join('\n').trim();
@@ -176,8 +210,8 @@ exports.handler = async (event) => {
     const payload = {
       dateKey,
       dayLabel: etDayLabel(),
-      keeper: KEEPER.name,
-      keeper_note: KEEPER.note,
+      keeper: life.keeper.name,
+      keeper_note: life.note,
       messages,
       keeper_digest: houseTypography(String(parsed.keeper_digest || '')).trim(),
     };
