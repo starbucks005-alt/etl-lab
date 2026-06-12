@@ -677,7 +677,7 @@
                brief exists in Netlify Blobs. -->
           <div id="auggie-brief-panel" style="display:none; margin-bottom:18px; padding:14px 16px; background:#0e0c08; color:#f4ebd6; border-left:3px solid var(--brass);">
             <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.18em; color:var(--brass); text-transform:uppercase; margin-bottom:6px;">
-              Auggie <span id="auggie-brief-date" style="color:#d6cfc0; margin-left:8px;"></span>
+              <span id="auggie-brief-speaker">Auggie</span> <span id="auggie-brief-date" style="color:#d6cfc0; margin-left:8px;"></span>
               <span id="auggie-brief-length" style="color:#d6cfc0; margin-left:8px;"></span>
             </div>
             <div id="auggie-brief-transcript" style="font-family:'Spectral',serif; font-size:15px; line-height:1.55; color:#f4ebd6; white-space:pre-wrap; margin-bottom:10px;"></div>
@@ -4563,6 +4563,7 @@ h1 em,h2 em{font-weight:300;color:#28527a}
       if ((idEl = document.getElementById('auggie-call-persona-name'))) idEl.textContent = paName;
       if ((idEl = document.querySelector('.auggie-call-status-text'))) idEl.textContent = window.__paFirstName + ' is on.';
       if ((idEl = document.getElementById('pa-zoom-label')))    idEl.textContent = 'Click to join ' + window.__paFirstName + '’s Zoom';
+      if ((idEl = document.getElementById('auggie-brief-speaker'))) idEl.textContent = window.__paFirstName;
       // Chat placeholder: name + they/them (Terry: use they/them rather than
       // per-PA pronoun guessing). Works for any seated PA.
       var ta = document.getElementById('auggie-chat-input');
