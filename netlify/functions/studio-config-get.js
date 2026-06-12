@@ -147,24 +147,17 @@ function defaultStudioConfig(user) {
     user_email: user.email,
     company_name: 'Your Studio',
     owner_name: user.email,
-    // DRESS REHEARSAL 2026-06-13: Jen Lopez temporarily seated in Dr. O's
-    // studio so she can test Jen end-to-end (Zoom modal, voice, blink)
-    // before Vikram meets her. FLIP BACK to auggie_vidal when Terry says
-    // done. Auggie's block preserved below.
+    // Auggie is the default seat. Swapping is now REAL: the in-Studio
+    // picker posts to studio-config-set and the seat persists per user
+    // via the overlay above (the 2026-06-13 rehearsal hardcode is gone;
+    // Terry tests Jen through the same flow her customers use).
     pa: {
-      persona_id: 'jen_lopez',
-      display_name: 'Jen',
+      persona_id: 'auggie_vidal',
+      display_name: 'Auggie',
       label: 'Personal Assistant',
       backpack: true,
       voice_enabled: true,
     },
-    // pa: {
-    //   persona_id: 'auggie_vidal',
-    //   display_name: 'Auggie',
-    //   label: 'Personal Assistant',
-    //   backpack: true,
-    //   voice_enabled: true,
-    // },
     brief_beat: '',
     // The owner's default Jax target. For Dr. O (default config) this is her
     // hub, so "have Jax improve SEO" still auto-targets ETL. Buyers override
@@ -185,20 +178,18 @@ exports.handler = async function(event) {
     return { statusCode: 401, body: JSON.stringify({ error: 'unauthorized', reason: auth.reason }) };
   }
 
-  // 1. Per-user blob (writes from studio-config-set)
-  const store = getStore('studio_config');
-  try {
-    const persisted = await store.get(auth.user.id, { type: 'json' });
-    if (persisted) {
-      return {
-        statusCode: 200,
-        headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
-        body: JSON.stringify(Object.assign({ source: 'blob' }, persisted, { user_id: auth.user.id, user_email: auth.user.email })),
-      };
-    }
-  } catch (_) {}
+  // Resolve the BASE config first (fixture > self-serve > default), then
+  // overlay the per-user blob from studio-config-set ON TOP of it.
+  //
+  // Why the order changed (2026-06-13): the old code returned the per-user
+  // blob INSTEAD of the base when it existed. The set endpoint writes only
+  // the fields the user changed, so one PA swap would shadow a paying
+  // client's whole fixture (billing, staff, recommendation) with a nearly
+  // empty config. Merging means a seat swap changes the seat and nothing
+  // else, for every config source.
+  let baseCfg = null;
 
-  // 2. Email-keyed provisioning fixture
+  // 1. Email-keyed provisioning fixture
   const email = (auth.user.email || '').toLowerCase();
   const fixtureFile = loadProvisioningMap()[email];
   if (fixtureFile) {
@@ -207,13 +198,35 @@ exports.handler = async function(event) {
       const cfg = fixtureToStudioConfig(fixture, auth.user);
       if (cfg) {
         cfg.fixture_file = fixtureFile;
-        return {
-          statusCode: 200,
-          headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
-          body: JSON.stringify(cfg),
-        };
+        baseCfg = cfg;
       }
     }
+  }
+
+  // Overlay helper: persisted user edits (PA seat, company name, settings)
+  // win over the base, identity fields stay authoritative.
+  const store = getStore('studio_config');
+  async function withUserOverlay(cfg) {
+    try {
+      const persisted = await store.get(auth.user.id, { type: 'json' });
+      if (persisted && typeof persisted === 'object') {
+        const merged = Object.assign({}, cfg, persisted, {
+          user_id: auth.user.id,
+          user_email: auth.user.email,
+          source: (cfg.source || 'unknown') + '+user_edits',
+        });
+        return merged;
+      }
+    } catch (_) {}
+    return cfg;
+  }
+
+  if (baseCfg) {
+    return {
+      statusCode: 200,
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
+      body: JSON.stringify(await withUserOverlay(baseCfg)),
+    };
   }
 
   // 3. Self-serve checkout provisioning (written by the stripe-provision
@@ -227,7 +240,7 @@ exports.handler = async function(event) {
       return {
         statusCode: 200,
         headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
-        body: JSON.stringify({
+        body: JSON.stringify(await withUserOverlay({
           user_id: auth.user.id,
           user_email: auth.user.email,
           company_name: 'Your Studio',
@@ -250,7 +263,7 @@ exports.handler = async function(event) {
           seats_to_assign: seats,
           first_login_show: ['welcome'],
           source: 'self_serve_checkout',
-        }),
+        })),
       };
     }
   } catch (_) {}
@@ -259,6 +272,6 @@ exports.handler = async function(event) {
   return {
     statusCode: 200,
     headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
-    body: JSON.stringify(defaultStudioConfig(auth.user)),
+    body: JSON.stringify(await withUserOverlay(defaultStudioConfig(auth.user))),
   };
 };

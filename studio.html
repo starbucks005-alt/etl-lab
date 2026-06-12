@@ -4202,16 +4202,72 @@ h1 em,h2 em{font-weight:300;color:#28527a}
   }
 
   // ─── HANDLERS ──────────────────────────────────────────────────────
-  function openSwap(name, cfg){
-    var role = cfg.pool === 'pa' ? 'PA' : cfg.pool === 'sixpack' ? 'Six-Pack member' : 'Specialty Hire';
-    var bodyHtml = '<strong>' + name + '</strong> is a ' + role + '. Swapping replaces them with another candidate from the Hiring Pool in the same slot. Your billing does not change.';
-    if (cfg.pool === 'pa') {
-      bodyHtml += '<br><br>The PA is the helm of your Company. You always have one; you just pick which voice.';
+  // PA swap is REAL (2026-06-13): posts the new seat to studio-config-set,
+  // which persists it server-side; studio-config-get overlays it on every
+  // load, so the seat survives sign-outs and devices. Only fully wired
+  // PAs (persona + voice + zoom frames) are offered; the function enforces
+  // the same allowlist via its `pa` field.
+  var WIRED_PA_SEATS = [
+    { persona_id: 'auggie_vidal', display_name: 'Auggie', desc: 'Palm Springs polish, holds your week and your wardrobe' },
+    { persona_id: 'jen_lopez',    display_name: 'Jen Lopez', desc: 'the Administrative Architect, maps your next three weeks' }
+  ];
+
+  async function seatPA(seat){
+    try {
+      var session = null;
+      try {
+        var s = await window.studioSb.auth.getSession();
+        session = s && s.data && s.data.session;
+      } catch(_){}
+      if (!session || !session.access_token) {
+        toast('Sign in first, then swap.');
+        return;
+      }
+      var r = await fetch('/.netlify/functions/studio-config-set', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
+        body: JSON.stringify({ pa: {
+          persona_id: seat.persona_id,
+          display_name: seat.display_name,
+          label: 'Personal Assistant',
+          backpack: true,
+          voice_enabled: true
+        }})
+      });
+      var data = await r.json();
+      if (!r.ok || !data.ok) {
+        toast('Seat change failed: ' + (data.error || ('HTTP ' + r.status)));
+        return;
+      }
+      toast(seat.display_name + ' is your PA now. Reloading the Studio...');
+      setTimeout(function(){ window.location.reload(); }, 900);
+    } catch (e) {
+      toast('Network trouble. Try again.');
     }
+  }
+
+  function openSwap(name, cfg){
+    if (cfg.pool === 'pa') {
+      var current = (window.__paPersonaId || 'auggie_vidal');
+      var bodyHtml = 'The PA is the helm of your Company. You always have one; you just pick which voice. The change is real and immediate: chat, Zoom call, and voice all become your new PA.';
+      var buttons = [{ label: 'Cancel' }];
+      WIRED_PA_SEATS.forEach(function(seat){
+        if (seat.persona_id === current) return; // already seated
+        buttons.push({
+          label: 'Seat ' + seat.display_name,
+          cls: 'fire-dialog-btn-primary',
+          action: function(){ seatPA(seat); }
+        });
+      });
+      showDialog('Swap your PA', 'Who runs your day?', bodyHtml, buttons);
+      return;
+    }
+    var role = cfg.pool === 'sixpack' ? 'Six-Pack member' : 'Specialty Hire';
+    var bodyHtml2 = '<strong>' + name + '</strong> is a ' + role + '. Swapping replaces them with another candidate from the Hiring Pool in the same slot. Your billing does not change.';
     showDialog(
       'Swap staff',
       'Replace ' + name + '?',
-      bodyHtml,
+      bodyHtml2,
       [
         { label: 'Cancel' },
         { label: 'Browse Hiring Pool', cls: 'fire-dialog-btn-primary', action: function(){
