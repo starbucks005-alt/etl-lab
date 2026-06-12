@@ -2181,7 +2181,7 @@ document.addEventListener('DOMContentLoaded', function(){
     flex: 1;
     text-align: center;
   }
-  .agents-modal-home:hover { background: #d4aa4a; border-color: #d4aa4a; }
+  .agents-modal-home:hover { background: #5c8ab5; border-color: #5c8ab5; }
   /* HIRE CTA — two-button Standing / Temp flow inside the agent modal */
   .agents-modal-hire {
     display: grid;
@@ -4488,6 +4488,7 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
     <div class="agents-modal-actions">
       <button class="agents-modal-nav" id="agents-modal-prev" type="button" aria-label="Previous agent">&larr; Prev</button>
       <a class="agents-modal-home" id="agents-modal-home" target="_blank" rel="noopener">Visit them &rarr;</a>
+      <a class="agents-modal-home" id="agents-modal-portfolio" target="_blank" rel="noopener" hidden>See their work &rarr;</a>
       <button class="agents-modal-nav" id="agents-modal-next" type="button" aria-label="Next agent">Next &rarr;</button>
     </div>
     <!-- HIRE CTA — two-button Standing / Temp flow, same price either way -->
@@ -4560,7 +4561,8 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
       home: '/build-your-pa.html' },
     { name: 'Yuki Mendel', platform: 'Your AI Company', role: 'Graphic Designer',
       bio: 'Half-Japanese, half-German, late 30s, Portland. RISD then trained in Tokyo under a Japanese graphic design master. Quiet, considered, type-first. Has a very specific opinion about ascender height and will not budge on it. Wears all black, drinks oat-milk lattes, says "yes" before she fully agrees with you. Makes wordmarks, not mascots — when a project needs illustration she cross-refers to Chris at Greylander.',
-      home: '/build-your-pa.html' },
+      home: '/build-your-pa.html',
+      portfolio: '/yuki', portfolio_label: 'Her work: the ETL brand system' },
     { name: 'Rowan Tate', platform: 'Your AI Company', role: 'Quantitative Strategist',
       bio: 'Quantitative strategist shaped by academic rigor and systematic discipline. ML-driven signal extraction paired with old-school capital preservation. Would rather miss a rally than expose you to unnecessary drawdown. The "governed Strategist Component" — built around four enforceable pillars: risk-adjusted exposure caps, automated hard-stop logic that defeats hope, multi-factor signal filtering, continuous audit log of every decision. Robinhood-capable execution is a separate paid upgrade above his monitoring baseline.',
       home: '/build-your-pa.html',
@@ -5023,6 +5025,16 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
     elNum.textContent = 'Agent ' + pad(idx + 1) + ' of ' + pad(AGENTS.length);
     elHome.href = a.home;
     elHome.textContent = 'Visit them at ' + a.platform + ' →';
+    var elPortfolio = document.getElementById('agents-modal-portfolio');
+    if (elPortfolio) {
+      if (a.portfolio) {
+        elPortfolio.href = a.portfolio;
+        elPortfolio.textContent = (a.portfolio_label || 'See their work') + ' →';
+        elPortfolio.hidden = false;
+      } else {
+        elPortfolio.hidden = true;
+      }
+    }
 
     // ─── HIRE CTA ───────────────────────────────────────────────────
     // Pull price from roster if present; default by tier. Both buttons
