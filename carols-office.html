@@ -4,477 +4,918 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Carol's Office — Dayton, Ohio</title>
-<meta name="description" content="A coworking space for remote and international companies. Rent a desk. Your PA is already there.">
+<meta name="description" content="Rent a desk in a real building. Pick your specialist. Get a US commercial address. Carol runs the floor.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,600;1,400&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  :root {
-    --blue:   #28527a;
-    --blue-d: #1a3a57;
-    --blue-l: #e8f0f7;
-    --warm:   #f7f4ef;
-    --sand:   #e8e0d0;
-    --ink:    #1a1a1a;
-    --mid:    #555;
-    --light:  #888;
-  }
+:root {
+  --blue:    #28527a;
+  --blue-d:  #1a3a57;
+  --blue-l:  #e8f0f7;
+  --warm:    #f7f4ef;
+  --sand:    #e5ddd0;
+  --sand-d:  #c8bfb0;
+  --ink:     #1a1714;
+  --charcoal:#2e2a26;
+  --mid:     #5c5650;
+  --light:   #9a9088;
+  --cream:   #faf7f2;
+  --amber:   #b5813a;
+  --amber-l: #f5e8d0;
+}
 
-  body {
-    font-family: 'Public Sans', sans-serif;
-    background: var(--warm);
-    color: var(--ink);
-    line-height: 1.6;
-  }
+html { scroll-behavior: smooth; }
 
-  /* ── HEADER ─────────────────────────────────────────────────── */
-  .top-bar {
-    background: var(--blue);
-    color: #fff;
-    padding: 10px 32px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 0.82rem;
-    letter-spacing: 0.04em;
-  }
-  .top-bar a { color: rgba(255,255,255,0.75); text-decoration: none; }
-  .top-bar a:hover { color: #fff; }
-  .top-brand { font-family: 'Spectral', serif; font-size: 1rem; color: #fff; letter-spacing: 0; }
+body {
+  font-family: 'Public Sans', sans-serif;
+  background: var(--warm);
+  color: var(--ink);
+  line-height: 1.6;
+}
 
-  /* ── HERO ────────────────────────────────────────────────────── */
-  .hero {
-    background: var(--blue-d);
-    color: #fff;
-    padding: 72px 32px 64px;
-    text-align: center;
-  }
-  .hero-eyebrow {
-    font-size: 0.72rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.55);
-    margin-bottom: 18px;
-  }
-  .hero h1 {
-    font-family: 'Spectral', serif;
-    font-size: clamp(2rem, 5vw, 3.2rem);
-    font-weight: 600;
-    line-height: 1.15;
-    max-width: 680px;
-    margin: 0 auto 20px;
-  }
-  .hero h1 em { font-style: italic; color: rgba(255,255,255,0.7); }
-  .hero-sub {
-    font-size: 1.05rem;
-    color: rgba(255,255,255,0.75);
-    max-width: 520px;
-    margin: 0 auto 40px;
-  }
-  .hero-cta {
-    display: inline-block;
-    background: #fff;
-    color: var(--blue-d);
-    font-weight: 600;
-    font-size: 0.95rem;
-    padding: 14px 36px;
-    border-radius: 4px;
-    text-decoration: none;
-    cursor: pointer;
-    border: none;
-    letter-spacing: 0.02em;
-    transition: background 0.15s;
-  }
-  .hero-cta:hover { background: #e8f0f7; }
+/* ─── NAV ───────────────────────────────────────────────────── */
+.nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  background: rgba(26,20,16,0.92);
+  backdrop-filter: blur(8px);
+  padding: 0 40px;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.nav-brand {
+  font-family: 'Spectral', serif;
+  font-size: 1.1rem;
+  color: #fff;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+}
+.nav-brand span {
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.45);
+  margin-left: 10px;
+  font-family: 'Public Sans', sans-serif;
+}
+.nav-links { display: flex; align-items: center; gap: 28px; }
+.nav-links a {
+  color: rgba(255,255,255,0.65);
+  font-size: 0.82rem;
+  text-decoration: none;
+  letter-spacing: 0.03em;
+  transition: color 0.15s;
+}
+.nav-links a:hover { color: #fff; }
+.nav-links .nav-cta {
+  background: var(--amber);
+  color: #fff;
+  padding: 7px 18px;
+  border-radius: 3px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  opacity: 1;
+}
+.nav-links .nav-cta:hover { background: #c9902e; color: #fff; }
 
-  /* ── CAROL INTRO ─────────────────────────────────────────────── */
-  .carol-band {
-    background: #fff;
-    border-bottom: 1px solid var(--sand);
-    padding: 48px 32px;
-    display: flex;
-    align-items: center;
-    gap: 40px;
-    max-width: 820px;
-    margin: 0 auto;
-  }
-  .carol-photo {
-    width: 110px;
-    height: 110px;
-    border-radius: 50%;
-    object-fit: cover;
-    object-position: top;
-    flex-shrink: 0;
-    border: 3px solid var(--sand);
-  }
-  .carol-quote {
-    font-family: 'Spectral', serif;
-    font-size: 1.15rem;
-    font-style: italic;
-    color: var(--mid);
-    line-height: 1.65;
-  }
-  .carol-sig {
-    margin-top: 12px;
-    font-size: 0.82rem;
-    color: var(--light);
-    font-style: normal;
-    font-family: 'Public Sans', sans-serif;
-  }
+/* ─── HERO ──────────────────────────────────────────────────── */
+.hero {
+  min-height: 100vh;
+  background:
+    linear-gradient(160deg, rgba(26,20,14,0.88) 0%, rgba(40,30,18,0.78) 60%, rgba(28,35,50,0.85) 100%),
+    repeating-linear-gradient(
+      45deg,
+      rgba(181,129,58,0.04) 0px,
+      rgba(181,129,58,0.04) 1px,
+      transparent 1px,
+      transparent 60px
+    );
+  background-color: #1c1612;
+  display: flex;
+  align-items: center;
+  padding: 100px 40px 80px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 120px;
+  background: linear-gradient(to bottom, transparent, var(--warm));
+  pointer-events: none;
+}
+.hero-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 64px;
+  align-items: center;
+}
+.hero-eyebrow {
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-bottom: 22px;
+  font-weight: 500;
+}
+.hero h1 {
+  font-family: 'Spectral', serif;
+  font-size: clamp(2.4rem, 5vw, 4rem);
+  font-weight: 300;
+  line-height: 1.12;
+  color: #fff;
+  margin-bottom: 28px;
+  letter-spacing: -0.01em;
+}
+.hero h1 strong { font-weight: 600; }
+.hero h1 em {
+  font-style: italic;
+  color: rgba(255,255,255,0.55);
+  font-weight: 300;
+}
+.hero-sub {
+  font-size: 1.05rem;
+  color: rgba(255,255,255,0.6);
+  max-width: 480px;
+  margin-bottom: 40px;
+  font-weight: 300;
+  line-height: 1.7;
+}
+.hero-actions { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+.btn-primary {
+  display: inline-block;
+  background: var(--amber);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 14px 32px;
+  border-radius: 3px;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  letter-spacing: 0.03em;
+  transition: background 0.15s;
+  font-family: inherit;
+}
+.btn-primary:hover { background: #c9902e; }
+.hero-signin {
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.45);
+  text-decoration: none;
+}
+.hero-signin:hover { color: rgba(255,255,255,0.75); }
 
-  /* ── WHAT'S INCLUDED ─────────────────────────────────────────── */
-  .section { max-width: 820px; margin: 0 auto; padding: 56px 32px; }
-  .section-eyebrow {
-    font-size: 0.72rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--light);
-    margin-bottom: 12px;
-  }
-  .section h2 {
-    font-family: 'Spectral', serif;
-    font-size: 1.9rem;
-    font-weight: 600;
-    margin-bottom: 32px;
-    color: var(--blue-d);
-  }
+.hero-carol-card {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 32px;
+  backdrop-filter: blur(4px);
+}
+.hero-carol-card img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: top;
+  border: 2px solid rgba(181,129,58,0.5);
+  margin-bottom: 18px;
+}
+.hero-carol-card .carol-name {
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+.hero-carol-card blockquote {
+  font-family: 'Spectral', serif;
+  font-style: italic;
+  font-size: 1rem;
+  color: rgba(255,255,255,0.75);
+  line-height: 1.7;
+  font-weight: 300;
+}
 
-  .includes-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 24px;
-    margin-bottom: 40px;
-  }
-  .include-card {
-    background: #fff;
-    border: 1px solid var(--sand);
-    border-radius: 6px;
-    padding: 24px 20px;
-  }
-  .include-card .icon {
-    font-size: 1.4rem;
-    margin-bottom: 10px;
-  }
-  .include-card h3 {
-    font-size: 0.9rem;
-    font-weight: 600;
-    margin-bottom: 6px;
-    color: var(--blue);
-  }
-  .include-card p {
-    font-size: 0.85rem;
-    color: var(--mid);
-    line-height: 1.55;
-  }
+/* ─── STATS BAND ────────────────────────────────────────────── */
+.stats-band {
+  background: var(--charcoal);
+  color: #fff;
+  padding: 36px 40px;
+  display: flex;
+  justify-content: center;
+  gap: 72px;
+  flex-wrap: wrap;
+}
+.stat { text-align: center; }
+.stat-num {
+  font-family: 'Spectral', serif;
+  font-size: 2.2rem;
+  font-weight: 600;
+  color: var(--amber);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.stat-label {
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.45);
+}
 
-  /* ── PRICING ─────────────────────────────────────────────────── */
-  .pricing-band {
-    background: var(--blue-l);
-    border-top: 1px solid var(--sand);
-    border-bottom: 1px solid var(--sand);
-  }
-  .pricing-inner {
-    max-width: 820px;
-    margin: 0 auto;
-    padding: 56px 32px;
-    display: flex;
-    align-items: flex-start;
-    gap: 48px;
-    flex-wrap: wrap;
-  }
-  .pricing-card {
-    background: #fff;
-    border: 1px solid var(--sand);
-    border-radius: 8px;
-    padding: 32px 28px;
-    min-width: 260px;
-    flex: 1;
-    max-width: 340px;
-  }
-  .pricing-card .price {
-    font-family: 'Spectral', serif;
-    font-size: 2.6rem;
-    font-weight: 600;
-    color: var(--blue-d);
-    line-height: 1;
-  }
-  .pricing-card .price span {
-    font-size: 1rem;
-    font-weight: 400;
-    color: var(--mid);
-    font-family: 'Public Sans', sans-serif;
-  }
-  .pricing-card .price-label {
-    font-size: 0.82rem;
-    color: var(--light);
-    margin: 6px 0 20px;
-  }
-  .pricing-card ul {
-    list-style: none;
-    font-size: 0.88rem;
-    color: var(--mid);
-    line-height: 1.9;
-  }
-  .pricing-card ul li::before { content: '✓  '; color: var(--blue); font-weight: 600; }
+/* ─── SECTION COMMONS ───────────────────────────────────────── */
+.section-wrap { max-width: 1100px; margin: 0 auto; padding: 80px 40px; }
+.eyebrow {
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-bottom: 14px;
+  font-weight: 600;
+}
+.section-title {
+  font-family: 'Spectral', serif;
+  font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+  font-weight: 300;
+  line-height: 1.2;
+  color: var(--ink);
+  margin-bottom: 16px;
+}
+.section-title strong { font-weight: 600; }
+.section-sub {
+  font-size: 1rem;
+  color: var(--mid);
+  max-width: 560px;
+  line-height: 1.7;
+  margin-bottom: 52px;
+  font-weight: 300;
+}
 
-  .pricing-copy {
-    flex: 1;
-    min-width: 220px;
-  }
-  .pricing-copy h2 {
-    font-family: 'Spectral', serif;
-    font-size: 1.7rem;
-    font-weight: 600;
-    color: var(--blue-d);
-    margin-bottom: 14px;
-  }
-  .pricing-copy p {
-    font-size: 0.93rem;
-    color: var(--mid);
-    line-height: 1.7;
-    margin-bottom: 24px;
-  }
+/* ─── SPACE PHOTOS ──────────────────────────────────────────── */
+.space-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-rows: 220px 220px;
+  gap: 10px;
+  margin-bottom: 16px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.space-photo {
+  position: relative;
+  overflow: hidden;
+}
+.space-photo:first-child {
+  grid-row: span 2;
+}
+.space-photo-bg {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  padding: 18px 20px;
+}
+.space-photo-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.75);
+  font-weight: 500;
+}
+/* CSS office photo placeholders */
+.space-lobby    { background: linear-gradient(135deg, #2d2418 0%, #4a3825 40%, #3a4a5a 100%); }
+.space-kitchen  { background: linear-gradient(135deg, #3d2e1a 0%, #5a4020 60%, #2a3020 100%); }
+.space-desk     { background: linear-gradient(135deg, #1a2030 0%, #28527a 50%, #3a4a3a 100%); }
+.space-lounge   { background: linear-gradient(135deg, #2a1e14 0%, #4a3418 60%, #3a3028 100%); }
+.space-meeting  { background: linear-gradient(135deg, #1e2830 0%, #2a4050 60%, #1a1a28 100%); }
 
-  /* ── FORM ────────────────────────────────────────────────────── */
-  .reserve-form {
-    background: #fff;
-    border: 1px solid var(--sand);
-    border-radius: 8px;
-    padding: 40px 36px;
-    max-width: 480px;
-    margin: 0 auto;
-  }
-  .reserve-form h2 {
-    font-family: 'Spectral', serif;
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--blue-d);
-    margin-bottom: 6px;
-  }
-  .reserve-form .form-sub {
-    font-size: 0.85rem;
-    color: var(--light);
-    margin-bottom: 28px;
-  }
-  .form-row { margin-bottom: 16px; }
-  .form-row label {
-    display: block;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--mid);
-    margin-bottom: 5px;
-    letter-spacing: 0.03em;
-  }
-  .form-row input {
-    width: 100%;
-    border: 1px solid #d0cec9;
-    border-radius: 4px;
-    padding: 10px 12px;
-    font: inherit;
-    font-size: 0.92rem;
-    outline: none;
-    transition: border-color 0.15s;
-  }
-  .form-row input:focus { border-color: var(--blue); }
-  .btn-reserve {
-    width: 100%;
-    background: var(--blue);
-    color: #fff;
-    font: inherit;
-    font-weight: 600;
-    font-size: 0.95rem;
-    padding: 13px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-top: 8px;
-    transition: background 0.15s;
-  }
-  .btn-reserve:hover { background: var(--blue-d); }
-  .btn-reserve:disabled { opacity: 0.55; cursor: default; }
-  .form-note {
-    font-size: 0.78rem;
-    color: var(--light);
-    text-align: center;
-    margin-top: 12px;
-  }
-  .form-err {
-    background: #fff0f0;
-    border: 1px solid #f5c0c0;
-    border-radius: 4px;
-    padding: 10px 12px;
-    font-size: 0.85rem;
-    color: #c0392b;
-    margin-top: 12px;
-    display: none;
-  }
+/* ─── DESK CARDS (agent at desk) ────────────────────────────── */
+.desk-section { background: var(--cream); border-top: 1px solid var(--sand); border-bottom: 1px solid var(--sand); }
 
-  /* ── EXISTING TENANT ─────────────────────────────────────────── */
-  .tenant-band {
-    text-align: center;
-    padding: 32px;
-    border-top: 1px solid var(--sand);
-    background: #fff;
-  }
-  .tenant-band p { font-size: 0.9rem; color: var(--mid); margin-bottom: 10px; }
-  .tenant-band a {
-    color: var(--blue);
-    font-weight: 600;
-    font-size: 0.9rem;
-    text-decoration: none;
-  }
-  .tenant-band a:hover { text-decoration: underline; }
+.desk-intro {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: center;
+  margin-bottom: 56px;
+}
+.desk-scroll {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 16px;
+}
+.desk-card {
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--warm);
+  border: 1px solid var(--sand);
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: default;
+}
+.desk-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+}
+.desk-card-office {
+  height: 130px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 0;
+  position: relative;
+  overflow: hidden;
+}
+/* Warm desk/office background per card */
+.desk-bg-1 { background: linear-gradient(170deg, #3a2c1a 0%, #5a4028 40%, #2a3848 100%); }
+.desk-bg-2 { background: linear-gradient(170deg, #1e2c3a 0%, #28527a 60%, #1a2018 100%); }
+.desk-bg-3 { background: linear-gradient(170deg, #2a1e30 0%, #4a2850 60%, #1a2028 100%); }
+.desk-bg-4 { background: linear-gradient(170deg, #1a2a1a 0%, #2a4828 60%, #1a2830 100%); }
+.desk-bg-5 { background: linear-gradient(170deg, #3a2018 0%, #6a3818 60%, #2a2018 100%); }
+.desk-bg-6 { background: linear-gradient(170deg, #1e1e2e 0%, #2e3a5a 60%, #1a2828 100%); }
+.desk-bg-7 { background: linear-gradient(170deg, #2a2820 0%, #48402a 60%, #3a3020 100%); }
+.desk-bg-8 { background: linear-gradient(170deg, #2a1820 0%, #3a2830 60%, #1a2030 100%); }
 
-  /* ── FOOTER ──────────────────────────────────────────────────── */
-  footer {
-    text-align: center;
-    padding: 28px;
-    font-size: 0.78rem;
-    color: var(--light);
-    border-top: 1px solid var(--sand);
-  }
-  footer a { color: var(--light); }
+.desk-card-office img {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: top;
+  border: 3px solid rgba(255,255,255,0.15);
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.desk-card-info {
+  padding: 22px 16px 18px;
+  text-align: center;
+}
+.desk-card-name {
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: var(--ink);
+  margin-bottom: 3px;
+}
+.desk-card-role {
+  font-size: 0.75rem;
+  color: var(--light);
+  letter-spacing: 0.04em;
+}
+.desk-card-tag {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: var(--blue-l);
+  color: var(--blue);
+  padding: 2px 8px;
+  border-radius: 2px;
+  font-weight: 600;
+}
 
-  @media (max-width: 600px) {
-    .carol-band { flex-direction: column; text-align: center; }
-    .pricing-inner { flex-direction: column; }
-    .reserve-form { padding: 28px 20px; }
-  }
+/* ─── HOW IT WORKS ──────────────────────────────────────────── */
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
+.step-num {
+  font-family: 'Spectral', serif;
+  font-size: 3.5rem;
+  font-weight: 300;
+  color: var(--sand-d);
+  line-height: 1;
+  margin-bottom: 16px;
+}
+.step h3 {
+  font-family: 'Spectral', serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 10px;
+}
+.step p {
+  font-size: 0.9rem;
+  color: var(--mid);
+  line-height: 1.65;
+  font-weight: 300;
+}
+.step-divider {
+  width: 32px;
+  height: 2px;
+  background: var(--amber);
+  margin-bottom: 20px;
+}
+
+/* ─── PRICING ───────────────────────────────────────────────── */
+.pricing-band {
+  background: var(--charcoal);
+  color: #fff;
+}
+.pricing-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 80px 40px;
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 72px;
+  align-items: center;
+}
+.pricing-copy .eyebrow { color: var(--amber); }
+.pricing-copy .section-title { color: #fff; }
+.pricing-copy .section-sub { color: rgba(255,255,255,0.55); }
+
+.price-card {
+  background: var(--cream);
+  border-radius: 8px;
+  padding: 40px 36px;
+  color: var(--ink);
+}
+.price-top {
+  border-bottom: 1px solid var(--sand);
+  padding-bottom: 24px;
+  margin-bottom: 24px;
+}
+.price-label-sm {
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--light);
+  margin-bottom: 10px;
+}
+.price-amount {
+  font-family: 'Spectral', serif;
+  font-size: 3.2rem;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1;
+}
+.price-amount span {
+  font-size: 1rem;
+  font-weight: 300;
+  color: var(--mid);
+  font-family: 'Public Sans', sans-serif;
+}
+.price-per { font-size: 0.8rem; color: var(--light); margin-top: 4px; }
+.price-includes {
+  list-style: none;
+  margin-bottom: 28px;
+}
+.price-includes li {
+  font-size: 0.88rem;
+  color: var(--mid);
+  padding: 6px 0;
+  border-bottom: 1px solid var(--sand);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.price-includes li::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--amber);
+  flex-shrink: 0;
+}
+.btn-reserve-lg {
+  width: 100%;
+  background: var(--blue);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.92rem;
+  padding: 15px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background 0.15s;
+  letter-spacing: 0.02em;
+}
+.btn-reserve-lg:hover { background: var(--blue-d); }
+.btn-reserve-lg:disabled { opacity: 0.5; cursor: default; }
+.price-note { font-size: 0.75rem; color: var(--light); text-align: center; margin-top: 10px; }
+
+/* ─── RESERVE FORM ──────────────────────────────────────────── */
+.reserve-section { background: var(--warm); }
+.reserve-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 80px 40px;
+  display: grid;
+  grid-template-columns: 1fr 440px;
+  gap: 72px;
+  align-items: start;
+}
+.form-card {
+  background: #fff;
+  border: 1px solid var(--sand);
+  border-radius: 8px;
+  padding: 40px 36px;
+}
+.form-card h2 {
+  font-family: 'Spectral', serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--blue-d);
+  margin-bottom: 6px;
+}
+.form-card .form-sub {
+  font-size: 0.85rem;
+  color: var(--light);
+  margin-bottom: 28px;
+}
+.form-row { margin-bottom: 16px; }
+.form-row label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--mid);
+  margin-bottom: 5px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.form-row input {
+  width: 100%;
+  border: 1px solid var(--sand);
+  border-radius: 3px;
+  padding: 11px 13px;
+  font: inherit;
+  font-size: 0.92rem;
+  outline: none;
+  background: var(--warm);
+  transition: border-color 0.15s;
+  color: var(--ink);
+}
+.form-row input:focus { border-color: var(--blue); background: #fff; }
+.form-err {
+  background: #fff0f0;
+  border: 1px solid #f5c0c0;
+  border-radius: 3px;
+  padding: 10px 13px;
+  font-size: 0.85rem;
+  color: #c0392b;
+  margin-top: 12px;
+  display: none;
+}
+.reserve-copy .section-sub { margin-bottom: 36px; }
+.tenant-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--blue);
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+  margin-top: 20px;
+}
+.tenant-link:hover { text-decoration: underline; }
+
+/* ─── FOOTER ────────────────────────────────────────────────── */
+footer {
+  background: var(--charcoal);
+  color: rgba(255,255,255,0.4);
+  text-align: center;
+  padding: 32px 40px;
+  font-size: 0.78rem;
+  letter-spacing: 0.03em;
+}
+footer a { color: rgba(255,255,255,0.4); }
+
+/* ─── RESPONSIVE ────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .hero-inner { grid-template-columns: 1fr; gap: 48px; }
+  .hero-carol-card { max-width: 400px; }
+  .space-grid { grid-template-columns: 1fr 1fr; grid-template-rows: repeat(3, 180px); }
+  .space-photo:first-child { grid-row: span 1; }
+  .desk-intro { grid-template-columns: 1fr; gap: 32px; }
+  .steps { grid-template-columns: 1fr; gap: 40px; }
+  .pricing-inner { grid-template-columns: 1fr; gap: 48px; }
+  .reserve-inner { grid-template-columns: 1fr; gap: 48px; }
+  .stats-band { gap: 40px; }
+}
+@media (max-width: 600px) {
+  .nav { padding: 0 20px; }
+  .section-wrap { padding: 60px 24px; }
+  .hero { padding: 90px 24px 70px; }
+  .space-grid { grid-template-columns: 1fr; grid-template-rows: repeat(3, 200px); }
+  .desk-scroll { grid-template-columns: repeat(2, 1fr); }
+  .stats-band { padding: 32px 24px; gap: 32px; }
+  .pricing-inner, .reserve-inner { padding: 60px 24px; }
+  .form-card, .price-card { padding: 32px 24px; }
+}
 </style>
 </head>
 <body>
 
-<div class="top-bar">
-  <span class="top-brand">Carol's Office</span>
-  <div>
-    <a href="/carols-office-desk.html">Already a tenant? Sign in &rarr;</a>
-    &nbsp;&nbsp;
-    <a href="/">ETL Home</a>
+<!-- NAV -->
+<nav class="nav">
+  <a class="nav-brand" href="/carols-office.html">
+    Carol's Office
+    <span>Dayton, Ohio</span>
+  </a>
+  <div class="nav-links">
+    <a href="#how-it-works">How it works</a>
+    <a href="#pricing">Pricing</a>
+    <a href="/carols-office-desk.html">Tenant sign-in</a>
+    <a href="#reserve" class="nav-cta">Reserve a Desk</a>
   </div>
-</div>
+</nav>
 
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-eyebrow">Dayton, Ohio &middot; US Business Address &middot; PA Included</div>
-  <h1>Your team works from everywhere.<br><em>Your office is in Dayton.</em></h1>
-  <p class="hero-sub">Carol's Office is a coworking space for remote and international companies. Rent a desk. Your PA is already there.</p>
-  <button class="hero-cta" onclick="scrollToForm()">Reserve a Desk &rarr;</button>
+  <div class="hero-inner">
+    <div>
+      <div class="hero-eyebrow">Dayton, Ohio &nbsp;&middot;&nbsp; US Business Address &nbsp;&middot;&nbsp; Specialist Included</div>
+      <h1>The office your<br>remote team <em>never<br>had</em> to think about.</h1>
+      <p class="hero-sub">Rent a desk. Pick your specialist. Get a real US commercial address. Carol runs the building so you can run your business.</p>
+      <div class="hero-actions">
+        <button class="btn-primary" onclick="document.getElementById('reserve').scrollIntoView({behavior:'smooth'})">Reserve a Desk &rarr;</button>
+        <a href="#desks" class="hero-signin">Meet the specialists &darr;</a>
+      </div>
+    </div>
+    <div class="hero-carol-card">
+      <img src="/agents/Carol_eyes_open.jpg" alt="Carol Haynes">
+      <div class="carol-name">Carol Haynes &middot; Front Desk</div>
+      <blockquote>"The desk is yours the moment the paperwork clears. I'll have the coffee on."</blockquote>
+    </div>
+  </div>
 </section>
 
-<!-- CAROL -->
-<div class="carol-band">
-  <img src="/agents/Carol_eyes_open.jpg" alt="Carol Haynes" class="carol-photo">
-  <div>
-    <p class="carol-quote">"I've been running this front desk for a while now. The coffee's always fresh, the wifi never drops, and every company that comes through here gets my full attention. That's the deal."</p>
-    <p class="carol-sig">Carol Haynes &middot; Front Desk Manager, Carol's Office</p>
+<!-- STATS BAND -->
+<div class="stats-band">
+  <div class="stat">
+    <div class="stat-num">65+</div>
+    <div class="stat-label">Specialists on the bench</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">$199</div>
+    <div class="stat-label">Per desk, per month</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">1</div>
+    <div class="stat-label">US address, yours</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">24/7</div>
+    <div class="stat-label">Your specialist is in</div>
   </div>
 </div>
 
-<!-- WHAT'S INCLUDED -->
-<section class="section">
-  <div class="section-eyebrow">What's at your desk</div>
-  <h2>Everything a real office has. None of the overhead.</h2>
-  <div class="includes-grid">
-    <div class="include-card">
-      <div class="icon">📍</div>
-      <h3>US Business Address</h3>
-      <p>A real commercial address in Dayton, Ohio. Use it for correspondence, your website, and business cards.</p>
+<!-- THE SPACE -->
+<section class="section-wrap">
+  <div class="eyebrow">The Building</div>
+  <h2 class="section-title">A real address.<br><strong>A real floor.</strong></h2>
+  <p class="section-sub">Carol's Office is a working coworking space in Dayton, Ohio inside a commercial high-rise. When you rent a desk, that address is yours to use for business correspondence, your website, and marketing materials.</p>
+  <div class="space-grid">
+    <div class="space-photo">
+      <div class="space-photo-bg space-lobby" style="height:100%;">
+        <span class="space-photo-label">The lobby</span>
+      </div>
     </div>
-    <div class="include-card">
-      <div class="icon">🧑‍💼</div>
-      <h3>Your PA at Your Desk</h3>
-      <p>Carol assigns a Personal Assistant to your desk. They're ready when you arrive, every time.</p>
+    <div class="space-photo">
+      <div class="space-photo-bg space-kitchen">
+        <span class="space-photo-label">Coffee &amp; kitchen</span>
+      </div>
     </div>
-    <div class="include-card">
-      <div class="icon">☎️</div>
-      <h3>Front Desk Coverage</h3>
-      <p>Carol answers the main line and routes inquiries to the right desk. You're reachable.</p>
+    <div class="space-photo">
+      <div class="space-photo-bg space-desk">
+        <span class="space-photo-label">Your desk</span>
+      </div>
     </div>
-    <div class="include-card">
-      <div class="icon">🤝</div>
-      <h3>Inter-Office Comms</h3>
-      <p>Your PA talks to other companies' PAs in the building. Introductions, coordination, handoffs.</p>
+    <div class="space-photo">
+      <div class="space-photo-bg space-lounge">
+        <span class="space-photo-label">The lounge</span>
+      </div>
     </div>
-    <div class="include-card">
-      <div class="icon">☕</div>
-      <h3>The Building Perks</h3>
-      <p>Free coffee, loose-leaf tea, and something freshly baked most mornings. It's a real office.</p>
-    </div>
-    <div class="include-card">
-      <div class="icon">🌐</div>
-      <h3>Remote-First Ready</h3>
-      <p>Your team stays wherever they are. The office handles your US presence so you don't have to.</p>
+    <div class="space-photo">
+      <div class="space-photo-bg space-meeting">
+        <span class="space-photo-label">Meeting rooms</span>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- PRICING + FORM -->
-<div class="pricing-band">
+<!-- YOUR DESK / SPECIALISTS -->
+<section class="desk-section" id="desks">
+  <div class="section-wrap">
+    <div class="desk-intro">
+      <div>
+        <div class="eyebrow">Your Specialist</div>
+        <h2 class="section-title">The office is the shell.<br><strong>The agent is the engine.</strong></h2>
+        <p class="section-sub">When you rent a desk, you pick a specialist from the ETL bench. They learn your industry, your goals, and your workflow. A real estate agent gets a real-estate PA. A startup founder gets a founder-optimized strategist. A writer gets a research-heavy collaborator.</p>
+      </div>
+      <div>
+        <p style="font-size:0.95rem;color:var(--mid);line-height:1.75;font-weight:300;">
+          Every specialist on the bench is available at your desk. Your choice is not cosmetic. It shapes what your desk does, what your agent knows, and how they work for you from day one.
+        </p>
+        <p style="font-size:0.85rem;color:var(--light);margin-top:16px;line-height:1.65;">
+          During checkout, you'll tell us your industry and top goals. Carol has your specialist briefed before you arrive.
+        </p>
+      </div>
+    </div>
+
+    <div class="desk-scroll">
+
+      <div class="desk-card">
+        <div class="desk-card-office desk-bg-1">
+          <img src="/agents/Auggie_zoom_wide_eyes_open.png" alt="Auggie">
+        </div>
+        <div class="desk-card-info">
+          <div class="desk-card-name">Auggie</div>
+          <div class="desk-card-role">Personal Assistant</div>
+          <span class="desk-card-tag">PA</span>
+        </div>
+      </div>
+
+      <div class="desk-card">
+        <div class="desk-card-office desk-bg-2">
+          <img src="/agents/Rowan_Tate_eyes_open.png" alt="Rowan Tate">
+        </div>
+        <div class="desk-card-info">
+          <div class="desk-card-name">Rowan Tate</div>
+          <div class="desk-card-role">Quant Strategist</div>
+          <span class="desk-card-tag">Finance</span>
+        </div>
+      </div>
+
+      <div class="desk-card">
+        <div class="desk-card-office desk-bg-3">
+          <img src="/agents/Kimberly_Pass_eyes_open.jpg" alt="Kimberly Pass">
+        </div>
+        <div class="desk-card-info">
+          <div class="desk-card-name">Kimberly Pass</div>
+          <div class="desk-card-role">Legal Researcher</div>
+          <span class="desk-card-tag">Legal</span>
+        </div>
+      </div>
+
+      <div class="desk-card">
+        <div class="desk-card-office desk-bg-4">
+          <img src="/agents/Alicia_James_eyes_open.jpg" alt="Alicia James">
+        </div>
+        <div class="desk-card-info">
+          <div class="desk-card-name">Alicia James</div>
+          <div class="desk-card-role">LLC Consultant</div>
+          <span class="desk-card-tag">Business</span>
+        </div>
+      </div>
+
+      <div class="desk-card">
+        <div class="desk-card-office desk-bg-5">
+          <img src="/agents/Jax_Rivera_eyes_open.png" alt="Jax Rivera">
+        </div>
+        <div class="desk-card-info">
+          <div class="desk-card-name">Jax Rivera</div>
+          <div class="desk-card-role">SEO &amp; Discovery</div>
+          <span class="desk-card-tag">Marketing</span>
+        </div>
+      </div>
+
+      <div class="desk-card">
+        <div class="desk-card-office desk-bg-6">
+          <img src="/agents/Yuki_Mendel_eyes_open.png" alt="Yuki Mendel">
+        </div>
+        <div class="desk-card-info">
+          <div class="desk-card-name">Yuki Mendel</div>
+          <div class="desk-card-role">Brand Design</div>
+          <span class="desk-card-tag">Design</span>
+        </div>
+      </div>
+
+      <div class="desk-card">
+        <div class="desk-card-office desk-bg-7">
+          <img src="/agents/Leo_Vance_eyes_open.png" alt="Leo Vance">
+        </div>
+        <div class="desk-card-info">
+          <div class="desk-card-name">Leo Vance</div>
+          <div class="desk-card-role">Financial Ops</div>
+          <span class="desk-card-tag">Finance</span>
+        </div>
+      </div>
+
+      <div class="desk-card">
+        <div class="desk-card-office desk-bg-8">
+          <img src="/agents/Sasha_Moreno_eyes_open.png" alt="Sasha Moreno">
+        </div>
+        <div class="desk-card-info">
+          <div class="desk-card-name">Sasha Moreno</div>
+          <div class="desk-card-role">People Ops</div>
+          <span class="desk-card-tag">HR</span>
+        </div>
+      </div>
+
+    </div>
+    <p style="font-size:0.8rem;color:var(--light);margin-top:20px;text-align:center;">65+ specialists available &middot; Full bench at <a href="/agents/" style="color:var(--blue);">emerging-tech-lab.com/agents</a></p>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section-wrap" id="how-it-works">
+  <div class="eyebrow">How it works</div>
+  <h2 class="section-title">Three steps.<br><strong>Carol handles everything else.</strong></h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">01</div>
+      <div class="step-divider"></div>
+      <h3>Rent your desk</h3>
+      <p>Tell us your company name and what you do. Pay $199/mo. Carol assigns your suite number and has your access code waiting when the payment clears.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <div class="step-divider"></div>
+      <h3>Pick your specialist</h3>
+      <p>Choose from 65+ specialists on the ETL bench. A PA for general operations, a strategist for growth, a legal researcher for contracts, a brand designer for launch. Your choice changes everything about what your desk does.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <div class="step-divider"></div>
+      <h3>Start working</h3>
+      <p>Log in with your access code. Your specialist is briefed and ready. The address is yours to use. Carol's at the front desk. The coffee's already on.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing-band" id="pricing">
   <div class="pricing-inner">
     <div class="pricing-copy">
-      <h2>One desk.<br>One price.<br>Carol handles the rest.</h2>
-      <p>No setup fees. No long-term contracts. Cancel anytime. The moment your payment clears, Carol has your desk ready and your access code waiting.</p>
+      <div class="eyebrow">Pricing</div>
+      <h2 class="section-title">One desk.<br><strong>One price.</strong><br>No guesswork.</h2>
+      <p class="section-sub">No setup fees. No seat minimums. No long-term contracts. Teams rent multiple desks at the same rate. Cancel anytime.</p>
+      <p style="font-size:0.85rem;color:rgba(255,255,255,0.35);line-height:1.7;">
+        Need a full AI company with a PA, legal, finance, marketing, and more in one package? That's <a href="/founder-studio.html" style="color:rgba(255,255,255,0.55);">Founder Studio</a>. Carol's Office is for one desk, one specialist, one address.
+      </p>
     </div>
-    <div class="pricing-card">
-      <div class="price">$199 <span>/ mo</span></div>
-      <div class="price-label">per desk, billed monthly</div>
-      <ul>
-        <li>US commercial address</li>
-        <li>Dedicated PA at your desk</li>
-        <li>Carol's front desk coverage</li>
+    <div class="price-card">
+      <div class="price-top">
+        <div class="price-label-sm">Per desk, billed monthly</div>
+        <div class="price-amount">$199 <span>/ mo</span></div>
+        <div class="price-per">Cancel anytime</div>
+      </div>
+      <ul class="price-includes">
+        <li>US commercial address (Dayton, Ohio)</li>
+        <li>One specialist of your choice</li>
+        <li>Carol at the front desk</li>
         <li>Inter-office PA messaging</li>
-        <li>Cancel anytime</li>
+        <li>Access code login — no email signup</li>
+        <li>Add more desks at the same rate</li>
       </ul>
+      <button class="btn-reserve-lg" id="price-reserve-btn" onclick="document.getElementById('reserve').scrollIntoView({behavior:'smooth'})">Reserve a Desk &rarr;</button>
+      <p class="price-note">You'll complete payment on the next screen. Powered by Stripe.</p>
     </div>
-  </div>
-</div>
-
-<!-- RESERVE FORM -->
-<section class="section" id="reserve-section">
-  <div class="reserve-form" id="reserve-form">
-    <h2>Reserve your desk</h2>
-    <p class="form-sub">Carol will have it ready when the paperwork clears.</p>
-    <div class="form-row">
-      <label for="company-name">Company name</label>
-      <input type="text" id="company-name" placeholder="Acme International" autocomplete="organization">
-    </div>
-    <div class="form-row">
-      <label for="contact-name">Your name</label>
-      <input type="text" id="contact-name" placeholder="Your name" autocomplete="name">
-    </div>
-    <button class="btn-reserve" id="reserve-btn" onclick="startCheckout()">Reserve a Desk &rarr;</button>
-    <p class="form-note">You'll complete payment on the next screen. Powered by Stripe.</p>
-    <div class="form-err" id="form-err"></div>
   </div>
 </section>
 
-<!-- EXISTING TENANT -->
-<div class="tenant-band">
-  <p>Already have a desk?</p>
-  <a href="/carols-office-desk.html">Sign in with your access code &rarr;</a>
-</div>
+<!-- RESERVE FORM -->
+<section class="reserve-section" id="reserve">
+  <div class="reserve-inner">
+    <div class="reserve-copy">
+      <div class="eyebrow">Reserve</div>
+      <h2 class="section-title">Carol has your desk<br><strong>ready when you are.</strong></h2>
+      <p class="section-sub">Fill in your company name, pay, and your access code lands instantly. No back-and-forth. No waiting period.</p>
+      <a href="/carols-office-desk.html" class="tenant-link">Already have a desk? Sign in &rarr;</a>
+    </div>
+    <div class="form-card">
+      <h2>Reserve your desk</h2>
+      <p class="form-sub">Carol will have it ready when the paperwork clears.</p>
+      <div class="form-row">
+        <label for="company-name">Company name</label>
+        <input type="text" id="company-name" placeholder="Acme International" autocomplete="organization">
+      </div>
+      <div class="form-row">
+        <label for="contact-name">Your name</label>
+        <input type="text" id="contact-name" placeholder="Your name" autocomplete="name">
+      </div>
+      <button class="btn-reserve-lg" id="reserve-btn" onclick="startCheckout()">Reserve a Desk &rarr;</button>
+      <p class="price-note">Powered by Stripe &middot; Secure checkout</p>
+      <div class="form-err" id="form-err"></div>
+    </div>
+  </div>
+</section>
 
 <footer>
-  Carol's Office is part of the <a href="/">Emerging Technologies Laboratory</a> &middot; Dayton, Ohio
+  Carol's Office &nbsp;&middot;&nbsp; Part of the <a href="/">Emerging Technologies Laboratory</a> &nbsp;&middot;&nbsp; Dayton, Ohio
 </footer>
 
 <script>
-  // Check for cancel param
   (function() {
     if (window.location.search.includes('canceled=1')) {
       var err = document.getElementById('form-err');
-      err.textContent = 'Checkout was canceled. Your desk is still available whenever you are ready.';
+      err.textContent = 'Checkout was canceled. Your desk is still here whenever you are ready.';
       err.style.display = 'block';
-      scrollToForm();
+      document.getElementById('reserve').scrollIntoView({ behavior: 'smooth' });
     }
   })();
-
-  function scrollToForm() {
-    document.getElementById('reserve-section').scrollIntoView({ behavior: 'smooth' });
-    setTimeout(function() { document.getElementById('company-name').focus(); }, 400);
-  }
 
   async function startCheckout() {
     var btn = document.getElementById('reserve-btn');
@@ -500,9 +941,7 @@
         body: JSON.stringify({ company_name: company, contact_name: contact }),
       });
       var data = await r.json();
-      if (!r.ok || !data.url) {
-        throw new Error(data.error || 'Something went wrong. Try again in a moment.');
-      }
+      if (!r.ok || !data.url) throw new Error(data.error || 'Something went wrong. Try again in a moment.');
       window.location.href = data.url;
     } catch (e) {
       err.textContent = e.message || 'Could not start checkout. Please try again.';
