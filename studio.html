@@ -3957,22 +3957,50 @@ h1 em,h2 em{font-weight:300;color:#28527a}
     document.body.classList.remove('hire-modal-open');
   }
 
-  function hire(agentId) {
+  // REAL hire (2026-06-12): writes the new staffer into the owner's config
+  // (studio-config-set accepts hired_staff) so they actually appear on the
+  // staff grid after reload. The chat dispatch still fires so Auggie
+  // onboards them and reports a first assignment. Before this, hire() only
+  // typed a message and nobody ever joined the team.
+  async function hire(agentId) {
     var a = CATALOG.find(function(x){ return x.id === agentId; });
     if (!a) return;
+    var btn = grid.querySelector('[data-hire-id="' + agentId + '"]');
+    if (btn) { btn.disabled = true; btn.textContent = 'Hiring ' + a.name.split(' ')[0] + '...'; }
+    try {
+      var token = null;
+      try { var s = await window.studioSb.auth.getSession(); token = s && s.data && s.data.session && s.data.session.access_token; } catch(_){}
+      if (!token) { if (btn) { btn.disabled = false; btn.textContent = 'Sign in to hire'; } return; }
+      // Read current config, append this hire (no dupes), write it back.
+      var cr = await fetch('/.netlify/functions/studio-config-get', {
+        headers: { 'Authorization': 'Bearer ' + token }, cache: 'no-store'
+      });
+      var cfg = await cr.json();
+      var staff = Array.isArray(cfg.hired_staff) ? cfg.hired_staff.slice() : [];
+      if (!staff.some(function(s){ return s.name === a.name; })) {
+        staff.push({ name: a.name, role: a.role, backpack: false, contract: 'standing', why: '', portrait: a.portrait });
+      }
+      var sr = await fetch('/.netlify/functions/studio-config-set', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ hired_staff: staff })
+      });
+      var sd = await sr.json();
+      if (!sr.ok || !sd.ok) { if (btn) { btn.disabled = false; btn.textContent = 'Hire failed, retry'; } return; }
+    } catch (e) {
+      if (btn) { btn.disabled = false; btn.textContent = 'Network trouble, retry'; }
+      return;
+    }
+    // Staged dispatch so Auggie onboards them in chat.
     var msg = 'Auggie, please bring ' + a.name + ' onto the team. ' +
       'Specialty: ' + a.role + '. Onboard them, give them a real first assignment relevant to what you know I am working on this week, and tell me what they are starting with.';
     if (chatInput) {
       chatInput.value = msg;
       chatInput.dispatchEvent(new Event('input', {bubbles:true}));
-      chatInput.focus();
-      // try to scroll the chat into view so she sees the staged message
-      var chatPanel = document.getElementById('auggie-chat-form');
-      if (chatPanel && chatPanel.scrollIntoView) {
-        chatPanel.scrollIntoView({behavior:'smooth', block:'center'});
-      }
     }
     closeModal();
+    // Reload so the staff grid rebuilds with the new hire on it.
+    setTimeout(function(){ window.location.reload(); }, 400);
   }
 
   openBtn.addEventListener('click', openModal);
