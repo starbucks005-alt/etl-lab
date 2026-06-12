@@ -5401,11 +5401,22 @@ h1 b,h2 b,h1 strong,h2 strong{font-weight:500}
   if (!bubble || !panel || !thread || !form) return;
 
   var STORAGE_KEY = 'etl.iris.history';
+  var SID_KEY = 'etl.iris.sid';
+  var OWNER_KEY = 'etl.iris.owner';
   var history = [];
+  var sid = null, ownerToken = null;
   try {
     var raw = localStorage.getItem(STORAGE_KEY);
     if (raw) history = JSON.parse(raw) || [];
   } catch(_) { history = []; }
+  try {
+    sid = localStorage.getItem(SID_KEY);
+    if (!sid) {
+      sid = 'i' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+      localStorage.setItem(SID_KEY, sid);
+    }
+    ownerToken = localStorage.getItem(OWNER_KEY) || null;
+  } catch(_){}
 
   function escapeHtml(s){
     return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
@@ -5469,7 +5480,7 @@ h1 b,h2 b,h1 strong,h2 strong{font-weight:500}
       var r = await fetch('/.netlify/functions/etl-help-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: msg, history: history.slice(0, -1) }),
+        body: JSON.stringify({ message: msg, history: history.slice(0, -1), sid: sid, ownerToken: ownerToken }),
       });
       var data = await r.json();
       typingEl.remove();
@@ -5478,6 +5489,19 @@ h1 b,h2 b,h1 strong,h2 strong{font-weight:500}
         history.pop();
         persist();
         return;
+      }
+      if (data.ownerToken) {
+        // She just identified with the staff password. Keep the token for
+        // this device and scrub the password from the local transcript.
+        ownerToken = data.ownerToken;
+        try { localStorage.setItem(OWNER_KEY, ownerToken); } catch(_){}
+        if (history.length && history[history.length - 1].role === 'user') {
+          history[history.length - 1].content = '[identified as Dr. Oroszi]';
+        }
+      }
+      if (data.owner) {
+        var sub = document.getElementById('iris-panel-sub');
+        if (sub) sub.textContent = 'ETL site concierge · staff line';
       }
       var reply = (data.reply || '').trim() || '...';
       renderMsg('assistant', reply);
