@@ -25,7 +25,18 @@
   --house-line: #d8d6cc;
   --house-muted: #4a5664;
   --house-muted-dark: #a8b4c0;
+
+  /* the evergreen - joined the family 2026-06-12 via SLR Studio.
+     Second house accent alongside stamp blue. Works on dark and light. */
+  --house-green: #35806f;
+  --house-green-tint: #63b3a0;
 }
+
+/* ── Cohesion law (Terry, 2026-06-12) ─────────────────────────────────────
+   ALL platforms draw from one family: stamp blue + evergreen on the house
+   neutrals. Room signatures on top: Gauntlet's red glow, Greylander's gold
+   (hers, original, GP-only). The ONLY exemption is the GK Center - it is
+   not an ETL product and keeps its own face entirely. */
 
 /* ── Display type ──────────────────────────────────────────────────────────
    Spectral 300 at large sizes; the thinness is the confidence. Sentence case.
