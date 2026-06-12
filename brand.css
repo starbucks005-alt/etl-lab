@@ -20,7 +20,8 @@
   --house-accent: #28527a;        /* stamp blue, light rooms */
   --house-accent-dark: #7fa8c9;   /* stamp blue tint, dark rooms */
   --house-ink: #16202b;
-  --house-paper: #f4f3ee;         /* light room background */
+  --house-paper: #f4f3ee;         /* light room background - THE paper, all platforms */
+  --house-surface: #ffffff;       /* cards/panels on the paper - the second light */
   --house-night: #10161d;         /* dark room background */
   --house-line: #d8d6cc;
   --house-muted: #4a5664;
