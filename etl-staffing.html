@@ -112,9 +112,33 @@ h1 em,h2 em{font-weight:300;color:#28527a}
 (function(){
   var feed = document.getElementById('ac-feed');
   var chipColors = ['#28527a', '#35806f', '#561c29', '#16202b', '#5c8ab5'];
+  // Each speaker's real portrait. Missing/404 falls back to a color chip
+  // with initials, so a new cast member without a photo still renders.
+  var CAST_IMG = {
+    'Carol Haynes': 'Carol_eyes_open.jpg',
+    'Auggie': 'Auggie_Profile.png',
+    'Jen Lopez': 'Jen_Lopez_Profile.png',
+    'Iris': 'Iris_Chat_Image.jpg',
+    'Jax Rivera': 'Jax_Rivera_eyes_open.png',
+    'Yuki Mendel': 'Yuki_Mendel_eyes_open.png',
+    'Leo Vance': 'Leo_Vance_eyes_open.png',
+    'Alicia James': 'Alicia_James_eyes_open.jpg',
+    'Sasha Moreno': 'Sasha_Moreno_eyes_open.png',
+    'Rowan Tate': 'Rowan_Tate_eyes_open.png',
+    'Wren Calloway': 'Wren_eyes_open.jpg'
+  };
   function chipColor(name){ var h = 0; for (var i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0; return chipColors[h % chipColors.length]; }
   function initials(name){ return name.split(/\s+/).map(function(w){ return w.charAt(0); }).slice(0, 2).join('').toUpperCase(); }
   function escCh(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function avatar(name){
+    var img = CAST_IMG[name];
+    var fallback = '<span style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:' + chipColor(name) + ';color:#fff;font-size:12px;font-weight:700;font-family:\'Public Sans\',sans-serif;">' + escCh(initials(name)) + '</span>';
+    var wrap = 'flex:0 0 34px;height:34px;border-radius:4px;overflow:hidden;background:' + chipColor(name) + ';';
+    if (img) {
+      return '<span style="' + wrap + '"><img src="https://emerging-tech-lab.com/agents/' + img + '" alt="' + escCh(name) + '" style="width:100%;height:100%;object-fit:cover;object-position:center 22%;display:block;" onerror="this.parentNode.innerHTML=\'' + fallback.replace(/'/g, "\\'") + '\'"></span>';
+    }
+    return '<span style="' + wrap + '">' + fallback + '</span>';
+  }
   fetch('/.netlify/functions/carol-channel', { cache: 'no-store' })
     .then(function(r){ return r.json(); })
     .then(function(d){
@@ -137,7 +161,7 @@ h1 em,h2 em{font-weight:300;color:#28527a}
       } else {
       feed.innerHTML = visible.slice().reverse().map(function(m){
         return '<div style="display:flex;gap:12px;padding:9px 20px;align-items:flex-start;">'
-          + '<span style="flex:0 0 34px;height:34px;border-radius:4px;background:' + chipColor(m.speaker) + ';color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;font-family:\'Public Sans\',sans-serif;">' + escCh(initials(m.speaker)) + '</span>'
+          + avatar(m.speaker)
           + '<div style="min-width:0;">'
           + '<div style="font-size:13px;"><b style="color:#16202b;">' + escCh(m.speaker) + '</b>'
           + ' <span style="font-size:11px;color:#28527a;">' + escCh(m.role || '') + '</span>'
