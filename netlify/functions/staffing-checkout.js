@@ -40,6 +40,7 @@ exports.handler = async function (event) {
   const origin = 'https://emerging-tech-lab.com';
   const params = new URLSearchParams();
   params.set('mode', 'subscription');
+  params.set('allow_promotion_codes', 'true');
   params.set('success_url', origin + '/etl-staffing.html?paid=1');
   params.set('cancel_url', origin + '/etl-staffing.html?canceled=1');
   params.set('allow_promotion_codes', 'true');
