@@ -29,6 +29,7 @@ header.top{border-bottom:1px solid var(--line);background:#fff}
 .ex span{font-size:12.5px;border:1px solid var(--line);background:#faf8f4;border-radius:999px;padding:6px 12px;cursor:pointer;color:#544e45}
 .ex span:hover{border-color:var(--gold)}
 #out{margin:24px 0 70px}
+#out:empty{margin:0}
 .reply{background:#faf6ec;border:1px solid #ecdfc0;border-radius:12px;padding:18px 20px;font-size:16px;line-height:1.55;color:#5a4e2e;display:flex;gap:14px}
 .reply .av{width:46px;height:46px;border-radius:50%;object-fit:cover;flex:none}
 .reply b{color:var(--ink)}
@@ -92,7 +93,7 @@ h1 em,h2 em{font-weight:300;color:#28527a}
        (blob-cached; every visitor reads the same chat). Auggie keeps the
        channel this week while Iris visits her sister at college; his
        spoken floor note renders via carol-channel-audio.js. -->
-  <div id="agency-channel" style="margin-top:38px;">
+  <div id="agency-channel" style="margin-top:20px;">
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
       <span style="display:inline-block;background:#16202b;color:#fff;font-size:11px;font-weight:600;padding:4px 10px;">Inside the agency</span>
       <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#28527a;">#agency-floor</span>
@@ -122,7 +123,19 @@ h1 em,h2 em{font-weight:300;color:#28527a}
       if (day && d.dayLabel) day.textContent = d.dayLabel;
       var keep = document.getElementById('ac-keeper');
       if (keep && d.keeper_note) keep.textContent = d.keeper_note + ' The staff coordinate here all day. It\'s their channel. You\'re welcome to read over their shoulders.';
-      feed.innerHTML = d.messages.map(function(m){
+      /* Live-clock reveal: the day's thread is written, but messages only
+         appear once their timestamp has passed (ET). At 8:40 you see the
+         morning; the channel fills in as the day goes. Newest on top so
+         someone hopping on reads new-to-old. */
+      function minutesOf(t){ var m = /(\d{1,2}):(\d{2})\s*(AM|PM)/i.exec(t || ''); if (!m) return 0; var h = parseInt(m[1], 10) % 12; if (/pm/i.test(m[3])) h += 12; return h * 60 + parseInt(m[2], 10); }
+      var nowET = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
+      var nowMin = nowET.getHours() * 60 + nowET.getMinutes();
+      var visible = d.messages.filter(function(m){ return minutesOf(m.time) <= nowMin; });
+      var lastMin = Math.max.apply(null, d.messages.map(function(m){ return minutesOf(m.time); }));
+      if (!visible.length) {
+        feed.innerHTML = '<div style="padding:18px 20px;font-size:13.5px;color:#4a5664;font-style:italic;">The floor\'s still quiet. First posts usually land around 8:40.</div>';
+      } else {
+      feed.innerHTML = visible.slice().reverse().map(function(m){
         return '<div style="display:flex;gap:12px;padding:9px 20px;align-items:flex-start;">'
           + '<span style="flex:0 0 34px;height:34px;border-radius:4px;background:' + chipColor(m.speaker) + ';color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;font-family:\'Public Sans\',sans-serif;">' + escCh(initials(m.speaker)) + '</span>'
           + '<div style="min-width:0;">'
@@ -132,7 +145,10 @@ h1 em,h2 em{font-weight:300;color:#28527a}
           + '<div style="font-size:14px;color:#2a333d;line-height:1.5;margin-top:2px;">' + escCh(m.text) + '</div>'
           + '</div></div>';
       }).join('');
-      if (d.keeper_digest) {
+      }
+      /* The keeper records the floor note at day's end; the button only
+         appears once the day's last message has passed. */
+      if (d.keeper_digest && nowMin >= lastMin) {
         var btn = document.getElementById('ac-listen');
         var noteAudio = null;
         if (d.keeper) btn.innerHTML = '&#9654; ' + escCh(d.keeper) + "'s floor note";
