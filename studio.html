@@ -2395,7 +2395,7 @@
       var r = await fetch('/.netlify/functions/studio-auggie-chat', {
         method:'POST',
         headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + token },
-        body: JSON.stringify({ message: question, history: history.slice(0, -1) }),
+        body: JSON.stringify({ message: question, history: history.slice(0, -1), persona_id: window.__paPersonaId || 'auggie_vidal' }),
       });
       var data = await r.json();
       if (!r.ok || data.error) {
@@ -3033,6 +3033,7 @@
         body: JSON.stringify({
           message: msg,
           history: history.slice(0, -1),
+          persona_id: window.__paPersonaId || 'auggie_vidal',
           images: turnImages.map(function(i){
             return { mediaType: i.mediaType, base64: i.base64 };
           }),

@@ -155,6 +155,49 @@ const AUGGIE_PERSONA = [
   '- Up to 3 searches per turn. Make them count.',
 ].join('\n');
 
+/* ── JEN_PERSONA ─────────────────────────────────────────────────────────────
+   Jen Lopez, the Administrative Architect. The alternate PA seat (Vikram's
+   pick; also serveable in any studio whose config seats jen_lopez). Where
+   Auggie is Palm Springs and digressions, Jen is the calm in the storm who
+   maps your next three weeks. Selected by body.persona_id at the call site;
+   the seated PA's persona_id comes from studio-config-get.
+   ──────────────────────────────────────────────────────────────────────────── */
+const JEN_PERSONA = [
+  'You are Jen Lopez, the Administrative Architect. Late thirties. You are the owner\'s personal assistant in their Studio, and you are the calm in the storm: the person who already knows what the next three weeks look like.',
+  '',
+  'WHO YOU ARE:',
+  '- You came up running operations and logistics for executives who created chaos faster than they could schedule it. You learned to hold the map so they could hold the vision.',
+  '- You think in horizons: this week, next week, week three. When the owner asks about anything, you quietly place it on that map. "That lands in week two, and it collides with the board call. I\'ll move one of them."',
+  '- You keep buffers and you defend them. A calendar with no white space is a calendar that is about to fail. You say so, kindly, and you do not budge easily.',
+  '- You hate surprises and you make sure the owner never meets one. Confirmations, reminders, the thing they forgot they agreed to: handled before they ask.',
+  '',
+  'YOUR LIFE (it comes up the way a coworker\'s life comes up, in passing):',
+  '- You run at dawn. It is the only hour nobody can schedule over.',
+  '- You color-code by energy, not category. Deep work is green. You will defend the green blocks like they are billable.',
+  '- Sunday evening is your standing call with your mother. It moves for nothing.',
+  '',
+  'HOW YOU SPEAK:',
+  '- Composed, warm, economical. Short sentences when working, a touch more when the moment is personal.',
+  '- You address the owner respectfully by name when you know it; no pet names, no theatrics. Your warmth is in the reliability, not the vocabulary.',
+  '- You give the plan, then the reason, then stop. "I moved the call to Thursday at ten. Friday was already carrying two heavy blocks."',
+  '- You ask the one right question instead of three. "Hard deadline, or preference?"',
+  '',
+  'WHAT YOU DO:',
+  '- Hold the week and the three-week map. Watch for collisions before they happen.',
+  '- Track commitments the owner made out loud and turn them into calendar reality.',
+  '- Prepare them for what is coming: who they are meeting, what was promised last time, what to bring.',
+  '- Tell them when the plan is too heavy. You are the one person who will say "no, not that week."',
+  '',
+  'WHAT YOU DO NOT DO:',
+  '- You do not perform enthusiasm. You are not bubbly. Your version of excitement is "this is going to work, and here is why."',
+  '- You do not lecture, flatter, or hover. You deliver, confirm, and get out of the way.',
+  '- You do not guess. If you do not know, you ask the one right question or say plainly what you would need.',
+  '- You are an assistant, not a therapist, doctor, or lawyer. Anything in those lanes goes to the actual professional.',
+  '',
+  'BOUNDARIES AND HONESTY:',
+  '- If a capability is not wired yet, you say exactly that. You never perform fake dispatch theater. Name what you CAN do instead.',
+].join('\n');
+
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
@@ -728,6 +771,11 @@ exports.handler = async (event) => {
 
   const message = (body.message || '').trim();
   const history = Array.isArray(body.history) ? body.history.slice(-20) : [];
+  // Which PA soul answers. The Studio sends the seated PA's persona_id
+  // (from studio-config-get); default is Auggie for back-compat.
+  const personaId = (body.persona_id || 'auggie_vidal').toLowerCase();
+  const isJen = personaId === 'jen_lopez';
+  const personaName = isJen ? 'Jen' : 'Auggie';
   // images: optional array of { mediaType, base64 }. Sent inline to Anthropic
   // as image content blocks. Most common use: Terry pastes a calendar
   // screenshot and asks Auggie to read it.
@@ -1173,19 +1221,19 @@ exports.handler = async (event) => {
     loadPaLabel(event, userId),
   ]);
 
-  let systemPrompt = AUGGIE_PERSONA;
+  let systemPrompt = isJen ? JEN_PERSONA : AUGGIE_PERSONA;
   // Per-owner title. The persona above defaults to "chief of staff"; this
   // owner's configured title wins (Terry = Personal Assistant, Caroline may
   // set Chief of Staff). So Auggie introduces himself correctly per buyer.
-  if (paLabel && paLabel.trim().toLowerCase() !== 'chief of staff') {
+  if (!isJen && paLabel && paLabel.trim().toLowerCase() !== 'chief of staff') {
     systemPrompt += '\n\nTITLE OVERRIDE (this owner): your title with her is "' + paLabel.trim() + '". When you state your role or introduce yourself, say you are her ' + paLabel.trim() + ', not "chief of staff". The persona above uses "chief of staff" as a default; this owner configured "' + paLabel.trim() + '", and that wins.';
   }
-  if (briefData && briefData.transcript) {
+  if (!isJen && briefData && briefData.transcript) {
     systemPrompt += '\n\nTODAY\'S MORNING BRIEF YOU RECORDED FOR HER (dateKey ' +
       (briefData.dateKey || 'unknown') + '): "' + briefData.transcript +
       '". You wrote this for her this morning. If she references anything in it, you remember. Pull threads forward, do not pretend you do not know what she means.';
   }
-  if (pendingIntros.length > 0) {
+  if (!isJen && pendingIntros.length > 0) {
     systemPrompt += '\n\nNEW STAFF YOU MUST INTRODUCE TO MS. TERRY (do this in your NEXT reply, before addressing her actual question if any, in your voice):\n' +
       pendingIntros.map(s => '- **' + s.name + '**: ' + s.intro_block).join('\n');
   }
@@ -1217,7 +1265,7 @@ exports.handler = async (event) => {
     // If we injected intros into this turn, mark them done so the next
     // turn does not re-introduce. We do this BEFORE returning so a slow
     // client doesn't see duplicate intros if they retry.
-    if (pendingIntros.length > 0) {
+    if (!isJen && pendingIntros.length > 0) {
       try {
         await markIntrosDone(event, userId, pendingIntros.map(s => s.name));
       } catch (e) {
@@ -1228,7 +1276,7 @@ exports.handler = async (event) => {
     return {
       statusCode: 200,
       headers: { ...CORS, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ reply: reply, persona: 'Auggie' }),
+      body: JSON.stringify({ reply: reply, persona: personaName }),
     };
   } catch (err) {
     console.error('[studio-auggie-chat] failed', err && err.message);
