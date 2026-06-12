@@ -147,13 +147,24 @@ function defaultStudioConfig(user) {
     user_email: user.email,
     company_name: 'Your Studio',
     owner_name: user.email,
+    // DRESS REHEARSAL 2026-06-13: Jen Lopez temporarily seated in Dr. O's
+    // studio so she can test Jen end-to-end (Zoom modal, voice, blink)
+    // before Vikram meets her. FLIP BACK to auggie_vidal when Terry says
+    // done. Auggie's block preserved below.
     pa: {
-      persona_id: 'auggie_vidal',
-      display_name: 'Auggie',
+      persona_id: 'jen_lopez',
+      display_name: 'Jen',
       label: 'Personal Assistant',
       backpack: true,
       voice_enabled: true,
     },
+    // pa: {
+    //   persona_id: 'auggie_vidal',
+    //   display_name: 'Auggie',
+    //   label: 'Personal Assistant',
+    //   backpack: true,
+    //   voice_enabled: true,
+    // },
     brief_beat: '',
     // The owner's default Jax target. For Dr. O (default config) this is her
     // hub, so "have Jax improve SEO" still auto-targets ETL. Buyers override
