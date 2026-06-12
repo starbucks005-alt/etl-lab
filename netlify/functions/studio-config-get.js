@@ -70,6 +70,42 @@ function loadProvisioningMap() {
   return out;
 }
 
+// Build a lookup map from normalized agent ID → roster entry.
+// IDs are hyphen-normalized (fixture uses underscores, roster uses hyphens).
+function loadRosterIndex() {
+  const roster = loadFixture('etl-agents-roster.json');
+  const index = {};
+  for (const agent of (roster && roster.agents) || []) {
+    if (!agent || !agent.id) continue;
+    const key = agent.id.toLowerCase().replace(/_/g, '-');
+    index[key] = agent;
+  }
+  return index;
+}
+
+// Resolve a single hired_staff entry against the roster. Roster wins for
+// display data (name, role); fixture/blob wins for contractual context
+// (contract, hired_at, why). If ID not in roster, entry passes through
+// unchanged (backwards-compat for legacy or custom agents).
+function resolveStaffEntry(entry, rosterIndex) {
+  if (!entry || typeof entry !== 'object') return null;
+  const key = entry.id ? String(entry.id).toLowerCase().replace(/_/g, '-') : null;
+  const r = key ? rosterIndex[key] : null;
+  if (!r) return entry;
+  return {
+    id: r.id,
+    name: r.name,
+    role: r.role || entry.role || '',
+    tier: entry.tier || r.tier || 'specialty_hire',
+    price: entry.price != null ? entry.price : (r.price_monthly || 0),
+    backpack: entry.backpack != null ? !!entry.backpack : !!(r.mcp),
+    why: entry.why || entry.note || '',
+    contract: entry.contract || 'standing',
+    hired_at: entry.hired_at || null,
+    free_assistant: entry.free_assistant || null,
+  };
+}
+
 // Transform CCW's caroline-inma-company.json shape into the unified
 // studio_config envelope the front-end consumes. Fixture is the canonical
 // source; we just flatten + normalize.
@@ -81,15 +117,17 @@ function fixtureToStudioConfig(fixture, user) {
   const billing = fixture.billing || {};  // Vikram-shape (paid / invoiced)
   const landing = fixture.studio_landing || {};
   const staff = (co.staff || []).map(s => ({
+    id: s.id || null,
     name: s.name, role: s.role, tier: s.tier, price: s.price,
     backpack: !!s.backpack, why: s.why || '',
     contract: 'standing', hired_at: acct.created_at || null,
     free_assistant: s.free_assistant || null,
   }));
   const sixpack = (co.sixpack_members || []).map(s => ({
-    name: s.name, role: s.role, tier: 'core_six_pack', price: 0,
+    id: s.id || null,
+    name: s.name, role: s.role || '', tier: 'core_six_pack', price: 0,
     backpack: !!s.backpack, note: s.note || '',
-    contract: 'bundled', hired_at: acct.created_at || null,
+    contract: s.contract || 'bundled', hired_at: acct.created_at || null,
   }));
   return {
     user_id: user.id,
@@ -206,6 +244,8 @@ exports.handler = async function(event) {
   // Overlay helper: persisted user edits (PA seat, company name, settings)
   // win over the base, identity fields stay authoritative.
   const store = getStore('studio_config');
+  const rosterIndex = loadRosterIndex();
+
   async function withUserOverlay(cfg) {
     try {
       const persisted = await store.get(auth.user.id, { type: 'json' });
@@ -215,18 +255,28 @@ exports.handler = async function(event) {
           user_email: auth.user.email,
           source: (cfg.source || 'unknown') + '+user_edits',
         });
-        // hired_staff: fixture staff are always present (they are the owner's
-        // standing team). User-added staff are appended. This prevents a blob
-        // write (e.g. PA swap) from wiping out fixture-provisioned staff.
+        // hired_staff: base/fixture staff always present; user-added staff
+        // appended. Dedup by id first, fall back to name.
         if (cfg.hired_staff && cfg.hired_staff.length > 0) {
-          const baseNames = new Set(cfg.hired_staff.map(s => s.name));
-          const userAdded = (persisted.hired_staff || []).filter(s => s && !baseNames.has(s.name));
+          const baseKeys = new Set(cfg.hired_staff.map(s => s.id || s.name));
+          const userAdded = (persisted.hired_staff || []).filter(s => s && !baseKeys.has(s.id || s.name));
           merged.hired_staff = [...cfg.hired_staff, ...userAdded];
         }
+        // Resolve every entry against the canonical roster so name/role/tier
+        // stay current regardless of when the fixture or blob was written.
+        merged.hired_staff = (merged.hired_staff || [])
+          .map(s => resolveStaffEntry(s, rosterIndex))
+          .filter(Boolean);
         return merged;
       }
     } catch (_) {}
-    return cfg;
+    // No persisted blob — still resolve base staff against roster.
+    return {
+      ...cfg,
+      hired_staff: (cfg.hired_staff || [])
+        .map(s => resolveStaffEntry(s, rosterIndex))
+        .filter(Boolean),
+    };
   }
 
   if (baseCfg) {
