@@ -1941,8 +1941,8 @@
       <button type="button" id="auggie-call-leave" class="auggie-call-leave" aria-label="Leave call">&larr; Leave call</button>
     </div>
     <div class="auggie-call-top-center">
-      <div class="auggie-call-persona-name">August &ldquo;Auggie&rdquo; Vidal</div>
-      <div class="auggie-call-persona-role">PA</div>
+      <div class="auggie-call-persona-name" id="auggie-call-persona-name">August &ldquo;Auggie&rdquo; Vidal</div>
+      <div class="auggie-call-persona-role" id="auggie-call-persona-role">PA</div>
     </div>
     <div class="auggie-call-top-right">
       <span class="auggie-call-connected">
@@ -4549,6 +4549,9 @@ h1 em,h2 em{font-weight:300;color:#28527a}
       if ((idEl = document.getElementById('pa-staff-current')) && meta.current) idEl.textContent = meta.current;
       var staffImg = document.getElementById('pa-staff-portrait');
       if (staffImg) { staffImg.onerror = null; staffImg.src = '/agents/' + pfx + '_Profile.png'; staffImg.alt = meta.name; }
+      // The Zoom call header + status line follow the seat too.
+      if ((idEl = document.getElementById('auggie-call-persona-name'))) idEl.textContent = meta.name;
+      if ((idEl = document.getElementById('auggie-call-status-text') || document.querySelector('.auggie-call-status-text'))) idEl.textContent = (meta.name.split(/[ "]/)[0] || meta.name) + ' is on.';
       // Daily wardrobe rotation (Jen is the pilot): data/pa-outfits.json says
       // which numbered closets exist; a date-keyed pick holds all day and
       // flips overnight. Deterministic - no randomness at render, so every

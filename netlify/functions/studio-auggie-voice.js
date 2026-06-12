@@ -137,7 +137,7 @@ exports.handler = async (event) => {
       body: JSON.stringify({
         audioBase64: audioB64,
         mimeType: 'audio/mpeg',
-        voiceId: AUGGIE_VOICE_ID,
+        voiceId: voice.id,
         charCount: text.length,
       }),
     };
