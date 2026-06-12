@@ -2341,9 +2341,10 @@
     if (typeof stopMicIfListening === 'function') stopMicIfListening();
     stopCurrentAudio();
     try {
-      setStatus('thinking', 'Auggie is queuing up the audio...');
+      var paNm = window.__paFirstName || 'Auggie';
+      setStatus('thinking', paNm + ' is queuing up the audio...');
       var token = await getJwt();
-      if (!token) { setStatus('error', 'Sign in to hear Auggie.'); return; }
+      if (!token) { setStatus('error', 'Sign in to hear ' + paNm + '.'); return; }
       var r = await fetch('/.netlify/functions/studio-auggie-voice', {
         method:'POST',
         headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + token },
@@ -2362,7 +2363,7 @@
       }
       var audio = new Audio('data:' + (data.mimeType || 'audio/mpeg') + ';base64,' + data.audioBase64);
       currentAudio = audio;
-      audio.addEventListener('play',  function(){ setStatus('speaking', 'Auggie is talking...'); });
+      audio.addEventListener('play',  function(){ setStatus('speaking', (window.__paFirstName || 'Auggie') + ' is talking...'); });
       audio.addEventListener('pause', function(){ if (!audio.ended) setStatus('ready', 'Paused.'); });
       audio.addEventListener('ended', function(){
         if (currentAudio === audio) currentAudio = null;
@@ -2388,7 +2389,7 @@
       var token = await getJwt();
       if (!token) {
         appendBubble('his', 'sign in first, ma\'am.');
-        setStatus('error', 'Sign in to talk to Auggie.');
+        setStatus('error', 'Sign in to talk to ' + (window.__paFirstName || 'Auggie') + '.');
         history.pop();
         return;
       }
@@ -2548,7 +2549,7 @@
     stage.classList.add('is-open');
     stage.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
-    setStatus('ready', 'Auggie is on. Ma\'am.');
+    setStatus('ready', (window.__paFirstName || 'Auggie') + ' is on. Ma\'am.');
     setTimeout(function(){ inputEl.focus(); }, 30);
   }
   function closeCall(){
@@ -4577,9 +4578,11 @@ h1 em,h2 em{font-weight:300;color:#28527a}
       if ((idEl = document.getElementById('pa-staff-current')) && meta.current) idEl.textContent = meta.current;
       var staffImg = document.getElementById('pa-staff-portrait');
       if (staffImg) { staffImg.onerror = null; staffImg.src = '/agents/' + pfx + '_Profile.png'; staffImg.alt = meta.name; }
-      // The Zoom call header + status line follow the seat too.
+      // The Zoom call header + status line follow the seat too. The call
+      // modal's status strings (a different IIFE) read window.__paFirstName.
+      window.__paFirstName = (meta.name.split(/[ "]/).filter(Boolean)[0]) || 'Auggie';
       if ((idEl = document.getElementById('auggie-call-persona-name'))) idEl.textContent = meta.name;
-      if ((idEl = document.getElementById('auggie-call-status-text') || document.querySelector('.auggie-call-status-text'))) idEl.textContent = (meta.name.split(/[ "]/)[0] || meta.name) + ' is on.';
+      if ((idEl = document.getElementById('auggie-call-status-text') || document.querySelector('.auggie-call-status-text'))) idEl.textContent = window.__paFirstName + ' is on.';
       // Daily wardrobe rotation (Jen is the pilot): data/pa-outfits.json says
       // which numbered closets exist; a date-keyed pick holds all day and
       // flips overnight. Deterministic - no randomness at render, so every
