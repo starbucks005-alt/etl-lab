@@ -1,0 +1,36 @@
+{
+  "_doc": "Dr. Terry Oroszi — owner/admin standing staff config. Provides the always-on hired_staff base so Auggie knows her full team regardless of blob state. PA and other user prefs come from her per-user blob (studio-config-set writes; withUserOverlay merges on top).",
+  "account": {
+    "owner_name": "Dr. Terry Oroszi",
+    "created_at": "2025-12-15T00:00:00Z"
+  },
+  "company": {
+    "company_name": "Emerging Tech Lab",
+    "owner_site": "https://emerging-tech-lab.com",
+    "pa": {
+      "persona_id": "auggie_vidal",
+      "display_name": "Auggie",
+      "backpack": true,
+      "voice_enabled": true
+    },
+    "staff": [
+      {
+        "name": "Dr. Henry Chen, RPh",
+        "role": "The Pharmacist",
+        "tier": "addon",
+        "price": 49,
+        "backpack": false,
+        "why": "Health Sciences pharmacology expert on The Dose cast; handles drug interactions, supplement evidence, and medication literacy."
+      },
+      {
+        "name": "Maeve \"MJ\" Johnson",
+        "role": "The Gardener",
+        "tier": "addon",
+        "price": 49,
+        "backpack": false,
+        "why": "The Dose cast; nutrition, home growing, whole-food wellness, and practical plant-based guidance."
+      }
+    ],
+    "sixpack_members": []
+  }
+}

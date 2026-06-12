@@ -215,6 +215,14 @@ exports.handler = async function(event) {
           user_email: auth.user.email,
           source: (cfg.source || 'unknown') + '+user_edits',
         });
+        // hired_staff: fixture staff are always present (they are the owner's
+        // standing team). User-added staff are appended. This prevents a blob
+        // write (e.g. PA swap) from wiping out fixture-provisioned staff.
+        if (cfg.hired_staff && cfg.hired_staff.length > 0) {
+          const baseNames = new Set(cfg.hired_staff.map(s => s.name));
+          const userAdded = (persisted.hired_staff || []).filter(s => s && !baseNames.has(s.name));
+          merged.hired_staff = [...cfg.hired_staff, ...userAdded];
+        }
         return merged;
       }
     } catch (_) {}
