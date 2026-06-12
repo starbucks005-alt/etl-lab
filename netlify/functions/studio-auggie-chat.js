@@ -668,6 +668,20 @@ async function loadPaLabel(event, userId) {
   return 'Personal Assistant';
 }
 
+// The owner's actual hired staff, so the PA knows who is on the team and
+// reaches them INTERNALLY instead of telling the owner to email them.
+// (Terry: Jen told her to Slack Yuki, who is hired staff in the same studio.)
+async function loadHiredStaff(event, userId) {
+  try { connectLambda(event); } catch (_) {}
+  try {
+    const cfg = await getStore('studio_config').get(userId || 'default', { type: 'json' });
+    if (cfg && Array.isArray(cfg.hired_staff)) {
+      return cfg.hired_staff.filter(s => s && s.name).map(s => ({ name: s.name, role: s.role || '' }));
+    }
+  } catch (_) {}
+  return [];
+}
+
 // The owner's own website, for Jax to default to when no URL is named. Each
 // buyer's config carries owner_site (Vikram -> onesmarter.com). Returns null
 // if none set, in which case the PA asks for the URL. No hardcoded ETL: Jax
@@ -774,6 +788,13 @@ exports.handler = async (event) => {
   // Which PA soul answers. The Studio sends the seated PA's persona_id
   // (from studio-config-get); default is Auggie for back-compat.
   const personaId = (body.persona_id || 'auggie_vidal').toLowerCase();
+  // The frontend sends the names currently visible in the staff grid.
+  // This is authoritative: it includes both the static default team AND
+  // any catalog hires, without needing a separate Blobs read. Fall back
+  // to loadHiredStaff (config blob) only when the client didn't send it.
+  const staffNamesFromClient = Array.isArray(body.staff_names)
+    ? body.staff_names.filter(s => s && typeof s === 'string').map(s => ({ name: s, role: '' }))
+    : null;
   const isJen = personaId === 'jen_lopez';
   const personaName = isJen ? 'Jen' : 'Auggie';
   // images: optional array of { mediaType, base64 }. Sent inline to Anthropic
@@ -1215,13 +1236,23 @@ exports.handler = async (event) => {
   //   (2) Any pending new-hire intros for this user — Auggie introduces
   //       each Specialist exactly once, then marks them as done.
   const userId = (auth.user && auth.user.id) || 'default';
-  const [briefData, pendingIntros, paLabel] = await Promise.all([
+  const [briefData, pendingIntros, paLabel, hiredStaff] = await Promise.all([
     loadTodaysBriefTranscript(event),
     getPendingIntros(event, userId),
     loadPaLabel(event, userId),
+    staffNamesFromClient ? Promise.resolve(staffNamesFromClient) : loadHiredStaff(event, userId),
   ]);
 
   let systemPrompt = isJen ? JEN_PERSONA : AUGGIE_PERSONA;
+  // YOUR TEAM: the specialists the owner has actually hired. The PA reaches
+  // them INTERNALLY (dispatches the work, pulls their output) and never
+  // tells the owner to email or Slack a teammate. If the owner names a
+  // teammate, treat them as a colleague down the hall, not an outside vendor.
+  if (hiredStaff && hiredStaff.length) {
+    systemPrompt += '\n\nYOUR TEAM (specialists on staff in THIS studio, hired by the owner):\n' +
+      hiredStaff.map(s => '- ' + s.name + (s.role ? ' (' + s.role + ')' : '')).join('\n') +
+      '\nThese people work here, with you, for the owner. When the owner wants one of them on something, you DISPATCH the work to them internally and report back; you never say "email her" or "reach her on Slack" or treat a teammate as an outside contact. If a real dispatch channel for that specialist is not wired yet, say plainly that you will hand it to them and follow up, not that the owner should contact them.';
+  }
   // Per-owner title. The persona above defaults to "chief of staff"; this
   // owner's configured title wins (Terry = Personal Assistant, Caroline may
   // set Chief of Staff). So Auggie introduces himself correctly per buyer.

@@ -2396,7 +2396,7 @@
       var r = await fetch('/.netlify/functions/studio-auggie-chat', {
         method:'POST',
         headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + token },
-        body: JSON.stringify({ message: question, history: history.slice(0, -1), persona_id: window.__paPersonaId || 'auggie_vidal' }),
+        body: JSON.stringify({ message: question, history: history.slice(0, -1), persona_id: window.__paPersonaId || 'auggie_vidal', staff_names: Array.from(document.querySelectorAll('.staff-grid .staff-name')).map(function(n){return n.textContent.trim();}).filter(Boolean) }),
       });
       var data = await r.json();
       if (!r.ok || data.error) {
@@ -3035,6 +3035,7 @@
           message: msg,
           history: history.slice(0, -1),
           persona_id: window.__paPersonaId || 'auggie_vidal',
+          staff_names: Array.from(document.querySelectorAll('.staff-grid .staff-name')).map(function(n){return n.textContent.trim();}).filter(Boolean),
           images: turnImages.map(function(i){
             return { mediaType: i.mediaType, base64: i.base64 };
           }),
@@ -4021,8 +4022,11 @@ h1 em,h2 em{font-weight:300;color:#28527a}
       chatInput.dispatchEvent(new Event('input', {bubbles:true}));
     }
     closeModal();
-    // Reload so the staff grid rebuilds with the new hire on it.
-    setTimeout(function(){ window.location.reload(); }, 400);
+    // Dispatch the fresh config (from the SET response) so the grid IIFE
+    // can update live. Avoids the Netlify Blobs consistency race that hit
+    // the PA seat: a 400ms reload would read the old blob before the write
+    // propagated. sd.config is authoritative — no read needed.
+    window.dispatchEvent(new CustomEvent('studio:hire:complete', { detail: { config: sd.config } }));
   }
 
   openBtn.addEventListener('click', openModal);
@@ -4926,6 +4930,12 @@ h1 em,h2 em{font-weight:300;color:#28527a}
       });
     }
   }
+
+  // When hire() completes it dispatches fresh config (from the SET response)
+  // so the grid updates live without a page reload + Blobs consistency race.
+  window.addEventListener('studio:hire:complete', function(ev) {
+    if (ev.detail && ev.detail.config) renderConfigStaff(ev.detail.config);
+  });
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', loadConfigAndApply);
