@@ -684,7 +684,23 @@ footer a { color: rgba(255,255,255,0.4); }
   letter-spacing: 0.06em; margin-left: 10px;
 }
 .zoom-video { position: relative; aspect-ratio: 16/10; overflow: hidden; }
-.zoom-video img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+.zoom-video img {
+  width: 100%; height: 100%; object-fit: cover; object-position: top;
+  display: block; position: absolute; top: 0; left: 0;
+}
+.zoom-img-open  { position: relative !important; }
+.zoom-img-think { opacity: 0; animation: zoom-think 9s linear infinite; }
+.zoom-img-blink { opacity: 0; animation: zoom-blink 9s linear infinite; }
+@keyframes zoom-think {
+  0%,  72%  { opacity: 0; }
+  74%,  80% { opacity: 1; }
+  82%, 100% { opacity: 0; }
+}
+@keyframes zoom-blink {
+  0%,  83%  { opacity: 0; }
+  85%,  89% { opacity: 1; }
+  91%, 100% { opacity: 0; }
+}
 .zoom-nameplate {
   position: absolute; bottom: 12px; left: 12px;
   background: rgba(0,0,0,0.65); color: #fff;
@@ -1054,7 +1070,9 @@ footer a { color: rgba(255,255,255,0.4); }
         <span class="zoom-title-text">Carol's Office &nbsp;&middot;&nbsp; PA Call</span>
       </div>
       <div class="zoom-video">
-        <img src="/agents/Jen_Lopez_o2_zoom_wide_eyes_open.png" alt="Jen Lopez on a call">
+        <img class="zoom-img-open"  src="/agents/Jen_Lopez_o2_zoom_wide_eyes_open.png"     alt="Jen Lopez on a call">
+        <img class="zoom-img-think" src="/agents/Jen_Lopez_o2_zoom_wide_eyes_thinking.png" alt="">
+        <img class="zoom-img-blink" src="/agents/Jen_Lopez_o2_zoom_wide_eyes_closed.png"   alt="">
         <div class="zoom-nameplate"><span class="zoom-connected"></span>Jen Lopez &nbsp;&middot;&nbsp; Personal Assistant</div>
       </div>
       <div class="zoom-controls">
