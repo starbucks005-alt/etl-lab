@@ -237,6 +237,11 @@
   to = "/admin.html"
   status = 200
 
+[[redirects]]
+  from = "/carols-office"
+  to = "/carols-office.html"
+  status = 200
+
 [[headers]]
   for = "/app.html"
   [headers.values]
