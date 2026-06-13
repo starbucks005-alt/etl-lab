@@ -659,6 +659,70 @@ footer a { color: rgba(255,255,255,0.4); }
   .pricing-inner, .reserve-inner { padding: 60px 24px; }
   .form-card, .price-card { padding: 32px 24px; }
 }
+
+/* ─── ZOOM CALL FEATURE ─────────────────────────────────────────── */
+.zoom-feature { background: var(--charcoal); padding: 80px 40px; }
+.zoom-feature-inner {
+  max-width: 1100px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 80px; align-items: center;
+}
+.zoom-window {
+  background: #111; border-radius: 12px;
+  overflow: hidden; box-shadow: 0 32px 80px rgba(0,0,0,0.5);
+}
+.zoom-titlebar {
+  background: #1e1e1e; padding: 10px 16px;
+  display: flex; align-items: center; gap: 6px;
+}
+.zoom-dot { width: 12px; height: 12px; border-radius: 50%; }
+.zoom-dot-r { background: #ff5f57; }
+.zoom-dot-y { background: #febc2e; }
+.zoom-dot-g { background: #28c840; }
+.zoom-title-text {
+  font-size: 0.7rem; color: rgba(255,255,255,0.35);
+  letter-spacing: 0.06em; margin-left: 10px;
+}
+.zoom-video { position: relative; aspect-ratio: 16/10; overflow: hidden; }
+.zoom-video img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+.zoom-nameplate {
+  position: absolute; bottom: 12px; left: 12px;
+  background: rgba(0,0,0,0.65); color: #fff;
+  font-size: 0.72rem; padding: 5px 12px; border-radius: 4px;
+  letter-spacing: 0.04em; display: flex; align-items: center; gap: 7px;
+}
+.zoom-connected { width: 7px; height: 7px; background: #28c840; border-radius: 50%; flex-shrink: 0; }
+.zoom-controls {
+  background: #1a1a1a; padding: 14px 20px;
+  display: flex; justify-content: center; align-items: center; gap: 14px;
+}
+.zoom-btn {
+  background: rgba(255,255,255,0.08); border: none; border-radius: 50%;
+  width: 38px; height: 38px; display: flex; align-items: center;
+  justify-content: center; cursor: default; font-size: 0.95rem; color: #fff;
+}
+.zoom-btn-end {
+  border-radius: 20px; width: auto; padding: 0 22px;
+  background: #c53030; font-size: 0.72rem; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+}
+.zoom-copy .eyebrow { color: var(--amber); margin-bottom: 20px; }
+.zoom-copy h2 {
+  font-family: 'Spectral', serif;
+  font-size: clamp(2rem, 3.2vw, 2.8rem);
+  font-weight: 300; line-height: 1.18; color: #fff; margin-bottom: 24px;
+}
+.zoom-copy p { font-size: 1rem; line-height: 1.75; color: rgba(255,255,255,0.6); max-width: 420px; }
+.zoom-copy ul { list-style: none; margin-top: 28px; display: flex; flex-direction: column; gap: 12px; }
+.zoom-copy ul li {
+  font-size: 0.88rem; color: rgba(255,255,255,0.5);
+  padding-left: 20px; position: relative;
+}
+.zoom-copy ul li::before { content: '—'; position: absolute; left: 0; color: var(--amber); }
+@media (max-width: 900px) {
+  .zoom-feature-inner { grid-template-columns: 1fr; gap: 48px; }
+  .zoom-feature { padding: 60px 24px; }
+}
 </style>
 </head>
 <body>
@@ -976,6 +1040,40 @@ footer a { color: rgba(255,255,255,0.4); }
 
     </div>
     <p style="font-size:0.8rem;color:var(--light);margin-top:20px;text-align:center;">100+ specialists available &middot; Full bench at <a href="/agents/" style="color:var(--blue);">emerging-tech-lab.com/agents</a></p>
+  </div>
+</section>
+
+<!-- ZOOM CALL FEATURE -->
+<section class="zoom-feature">
+  <div class="zoom-feature-inner">
+    <div class="zoom-window">
+      <div class="zoom-titlebar">
+        <span class="zoom-dot zoom-dot-r"></span>
+        <span class="zoom-dot zoom-dot-y"></span>
+        <span class="zoom-dot zoom-dot-g"></span>
+        <span class="zoom-title-text">Carol's Office &nbsp;&middot;&nbsp; PA Call</span>
+      </div>
+      <div class="zoom-video">
+        <img src="/agents/Jen_Lopez_o2_zoom_wide_eyes_open.png" alt="Jen Lopez on a call">
+        <div class="zoom-nameplate"><span class="zoom-connected"></span>Jen Lopez &nbsp;&middot;&nbsp; Personal Assistant</div>
+      </div>
+      <div class="zoom-controls">
+        <button class="zoom-btn">🎤</button>
+        <button class="zoom-btn">📹</button>
+        <button class="zoom-btn zoom-btn-end">End Call</button>
+        <button class="zoom-btn">&#8943;</button>
+      </div>
+    </div>
+    <div class="zoom-copy">
+      <div class="eyebrow">Your desk. Your PA. Your call.</div>
+      <h2>Zoom-like calls<br>with your PA.</h2>
+      <p>Jen picks up. Walk through the brief, the client situation, the quarter plan — whatever needs a real conversation, not a chat window. Your PA is in when you are.</p>
+      <ul>
+        <li>No scheduling. No wait time.</li>
+        <li>Briefed on your business from day one.</li>
+        <li>Video, voice, or text — your call.</li>
+      </ul>
+    </div>
   </div>
 </section>
 
