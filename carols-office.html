@@ -580,6 +580,52 @@ body {
 }
 .tenant-link:hover { text-decoration: underline; }
 
+/* ─── DESKWORKS CAROUSEL ────────────────────────────────────── */
+.dw-section { background: var(--cream); border-top: 1px solid var(--sand); padding: 72px 40px; }
+.dw-section .section-wrap { padding: 0; max-width: 1100px; margin: 0 auto; }
+.dw-carousel {
+  position: relative; max-width: 860px; margin: 36px auto 0;
+  border-radius: 8px; overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.14);
+}
+.dw-track { display: flex; transition: transform 0.52s cubic-bezier(.4,0,.2,1); }
+.dw-slide { flex: 0 0 100%; position: relative; }
+.dw-slide img { width: 100%; height: auto; display: block; }
+.dw-caption {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 40px 28px 22px;
+  background: linear-gradient(to top, rgba(26,20,14,0.82) 0%, transparent 100%);
+}
+.dw-caption-name {
+  font-family: 'Spectral', serif; font-size: 1.25rem; font-weight: 600;
+  color: #fff; margin-bottom: 3px;
+}
+.dw-caption-role {
+  font-size: 0.7rem; letter-spacing: 0.13em; text-transform: uppercase;
+  color: var(--amber); font-weight: 500;
+}
+.dw-arrow {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  background: rgba(255,255,255,0.92); border: none;
+  width: 38px; height: 38px; border-radius: 50%;
+  font-size: 1rem; color: var(--ink); cursor: pointer; z-index: 3;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s; box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+}
+.dw-arrow:hover { background: #fff; }
+.dw-prev { left: 14px; }
+.dw-next { right: 14px; }
+.dw-dots {
+  display: flex; justify-content: center; gap: 8px;
+  padding: 16px 0 0; background: var(--cream);
+}
+.dw-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--sand-d); border: none; cursor: pointer; padding: 0;
+  transition: background 0.2s, transform 0.2s;
+}
+.dw-dot.active { background: var(--amber); transform: scale(1.25); }
+
 /* ─── FOOTER ────────────────────────────────────────────────── */
 footer {
   background: var(--charcoal);
@@ -702,6 +748,71 @@ footer a { color: rgba(255,255,255,0.4); }
         <span class="space-photo-label">Meeting rooms</span>
       </div>
     </div>
+  </div>
+</section>
+
+<!-- DESKWORKS CAROUSEL -->
+<section class="dw-section">
+  <div class="section-wrap">
+    <div class="eyebrow">The Floor</div>
+    <h2 class="section-title">Real desks.<br><strong>Real specialists in the building.</strong></h2>
+    <p class="section-sub">Every desk in Carol's Office is a working seat. These are the specialists currently on the floor.</p>
+    <div class="dw-carousel" id="dw-carousel">
+      <div class="dw-track" id="dw-track">
+
+        <div class="dw-slide">
+          <img src="/agents/deskworks/Annika_Bender_Deskworks.png" alt="Annika Bender at her desk">
+          <div class="dw-caption">
+            <div class="dw-caption-name">Annika Bender</div>
+            <div class="dw-caption-role">ETL Deskworks Dayton</div>
+          </div>
+        </div>
+
+        <div class="dw-slide">
+          <img src="/agents/deskworks/Amelie_Griffith_Deskworks.png" alt="Amelie Griffith at her desk">
+          <div class="dw-caption">
+            <div class="dw-caption-name">Amelie Griffith</div>
+            <div class="dw-caption-role">ETL Deskworks Dayton</div>
+          </div>
+        </div>
+
+        <div class="dw-slide">
+          <img src="/agents/deskworks/Antonio_Crosby_Deskworks.png" alt="Antonio Crosby at his desk">
+          <div class="dw-caption">
+            <div class="dw-caption-name">Antonio Crosby</div>
+            <div class="dw-caption-role">ETL Deskworks Dayton</div>
+          </div>
+        </div>
+
+        <div class="dw-slide">
+          <img src="/agents/deskworks/Marceline_Smith_Deskworks.png" alt="Marceline Smith at her desk">
+          <div class="dw-caption">
+            <div class="dw-caption-name">Marceline Smith</div>
+            <div class="dw-caption-role">Operations Coordinator</div>
+          </div>
+        </div>
+
+        <div class="dw-slide">
+          <img src="/agents/deskworks/Simone_Beaumont_Deskworks.png" alt="Simone Beaumont at her desk">
+          <div class="dw-caption">
+            <div class="dw-caption-name">Simone Beaumont</div>
+            <div class="dw-caption-role">ETL Deskworks Dayton</div>
+          </div>
+        </div>
+
+        <div class="dw-slide">
+          <img src="/agents/deskworks/Marceline and Simone.png" alt="Marceline Smith and Simone Beaumont">
+          <div class="dw-caption">
+            <div class="dw-caption-name">Marceline &amp; Simone</div>
+            <div class="dw-caption-role">ETL Deskworks Dayton</div>
+          </div>
+        </div>
+
+      </div>
+      <button class="dw-arrow dw-prev" aria-label="Previous slide">&#8592;</button>
+      <button class="dw-arrow dw-next" aria-label="Next slide">&#8594;</button>
+    </div>
+    <div class="dw-dots" id="dw-dots"></div>
   </div>
 </section>
 
@@ -915,6 +1026,48 @@ footer a { color: rgba(255,255,255,0.4); }
       err.style.display = 'block';
       document.getElementById('reserve').scrollIntoView({ behavior: 'smooth' });
     }
+  })();
+
+  // Deskworks carousel
+  (function() {
+    var track = document.getElementById('dw-track');
+    var dotsEl = document.getElementById('dw-dots');
+    var carousel = document.getElementById('dw-carousel');
+    if (!track || !dotsEl || !carousel) return;
+    var slides = track.querySelectorAll('.dw-slide');
+    var total = slides.length;
+    var current = 0;
+    var timer;
+
+    for (var i = 0; i < total; i++) {
+      (function(idx) {
+        var dot = document.createElement('button');
+        dot.className = 'dw-dot' + (idx === 0 ? ' active' : '');
+        dot.setAttribute('aria-label', 'Go to slide ' + (idx + 1));
+        dot.addEventListener('click', function() { goTo(idx); resetTimer(); });
+        dotsEl.appendChild(dot);
+      })(i);
+    }
+
+    function goTo(n) {
+      current = (n + total) % total;
+      track.style.transform = 'translateX(-' + current * 100 + '%)';
+      dotsEl.querySelectorAll('.dw-dot').forEach(function(d, i) {
+        d.classList.toggle('active', i === current);
+      });
+    }
+
+    function resetTimer() {
+      clearInterval(timer);
+      timer = setInterval(function() { goTo(current + 1); }, 5000);
+    }
+
+    carousel.querySelector('.dw-prev').addEventListener('click', function() { goTo(current - 1); resetTimer(); });
+    carousel.querySelector('.dw-next').addEventListener('click', function() { goTo(current + 1); resetTimer(); });
+    carousel.addEventListener('mouseenter', function() { clearInterval(timer); });
+    carousel.addEventListener('mouseleave', resetTimer);
+
+    resetTimer();
   })();
 
   async function startCheckout() {
