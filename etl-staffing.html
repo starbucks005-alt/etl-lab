@@ -527,14 +527,18 @@ function placeTeam(){const p=window.__place||{};const tier=window.__placeTier||'
   if(enterBtn) enterBtn.addEventListener('click', function(){
     if(overlay) overlay.classList.add('cc-hidden');
     if(iface)   iface.classList.remove('cc-blurred');
-    // Ding fires immediately on entry
-    ding.play().catch(function(){});
-    // Ambient starts under Iris — fades in slightly delayed
+    // Ding on entry — use preloaded element, fall back to fresh Audio
+    var dingEl = document.getElementById('cc-ding');
+    if(dingEl){ dingEl.currentTime = 0; dingEl.volume = 1; dingEl.play().catch(function(e){ console.error('[CC ding]', e); }); }
+    else { var d2 = new Audio('/audio/BELLMisc-A_short_elevator_arr-Elevenlabs.mp3'); d2.play().catch(function(e){ console.error('[CC ding fallback]', e); }); }
+    // Ambient loop under Iris
     setTimeout(function(){
-      ambient.play().catch(function(){});
+      var ambEl = document.getElementById('cc-ambient');
+      if(ambEl){ ambEl.volume = 0.22; ambEl.play().catch(function(e){ console.error('[CC ambient]', e); }); }
+      else { var a2 = new Audio('/audio/AMBOffc-A_seamless_looping_a-Elevenlabs.mp3'); a2.loop=true; a2.volume=0.22; a2.play().catch(function(e){ console.error('[CC ambient fallback]', e); }); }
     }, 800);
     // Iris speaks on top
-    if(irisAudio && audioReady){ irisAudio.play().catch(function(){}); }
+    if(irisAudio && audioReady){ irisAudio.play().catch(function(e){ console.error('[CC iris]', e); }); }
   });
 })();
 </script></body></html>
