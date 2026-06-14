@@ -497,7 +497,12 @@ function placeTeam(){const p=window.__place||{};const tier=window.__placeTier||'
   var irisAudio = null;
   var audioReady = false;
 
-  // Pre-fetch audio on page load so it plays instantly on click
+  var ding    = new Audio('/audio/BELLMisc-A_short_elevator_arr-Elevenlabs.mp3');
+  var ambient = new Audio('/audio/AMBOffc-A_seamless_looping_a-Elevenlabs.mp3');
+  ambient.loop   = true;
+  ambient.volume = 0.22;
+
+  // Pre-fetch Iris greeting so it plays instantly on click
   fetch('/.netlify/functions/iris-greeting')
     .then(function(r){ return r.blob(); })
     .then(function(blob){
@@ -509,6 +514,13 @@ function placeTeam(){const p=window.__place||{};const tier=window.__placeTier||'
   if(enterBtn) enterBtn.addEventListener('click', function(){
     if(overlay) overlay.classList.add('cc-hidden');
     if(iface)   iface.classList.remove('cc-blurred');
+    // Ding fires immediately on entry
+    ding.play().catch(function(){});
+    // Ambient starts under Iris — fades in slightly delayed
+    setTimeout(function(){
+      ambient.play().catch(function(){});
+    }, 800);
+    // Iris speaks on top
     if(irisAudio && audioReady){ irisAudio.play().catch(function(){}); }
   });
 })();
