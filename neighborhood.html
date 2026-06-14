@@ -279,7 +279,7 @@ function pickPairPartner(a,i){
     const b=agents[j];
     if(b.partner>=0)continue;
     if(b.state!==ST.W&&b.state!==ST.P)continue;
-    if(Math.hypot(a.x-b.x,a.y-b.y)<100)return j;
+    if(Math.hypot(a.x-b.x,a.y-b.y)<180)return j;
   }
   return -1;
 }
@@ -323,7 +323,7 @@ function tick(ts){
           const r=Math.random();
           if(r<.35){
             const t=pickTarget(a);
-            if(a.partner<0&&Math.random()<.45){
+            if(a.partner<0&&Math.random()<.80){
               const j=pickPairPartner(a,i);
               if(j>=0){ setGuide(a,t); setGuide(agents[j],t); a.partner=j; agents[j].partner=i; }
               else setGuide(a,t);
