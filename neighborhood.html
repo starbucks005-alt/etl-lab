@@ -8,7 +8,9 @@
   *{margin:0;padding:0;box-sizing:border-box}
   body{background:#040a12;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;font-family:'Courier New',monospace}
   #wrap{position:relative;width:1200px;height:900px;flex-shrink:0}
-  canvas{display:block;border:1px solid #1a3a5c;box-shadow:0 0 40px rgba(0,180,255,0.08)}
+  #map-bg{display:block;border:1px solid #1a3a5c;box-shadow:0 0 40px rgba(0,180,255,0.08)}
+  #map-fg{position:absolute;left:0;top:0;z-index:2;pointer-events:none;}
+  #tech-map-overlay{position:absolute;left:0;top:0;width:1200px;height:900px;pointer-events:none;z-index:1;}
   #tooltip{
     position:absolute;pointer-events:none;display:none;
     background:rgba(4,14,32,0.97);border:1px solid #00c8ff;
@@ -32,7 +34,9 @@
 </head>
 <body>
 <div id="wrap">
-  <canvas id="map" width="1200" height="900"></canvas>
+  <canvas id="map-bg" width="1200" height="900"></canvas>
+  <img id="tech-map-overlay" src="/etl-neighborhood-map.svg" alt="">
+  <canvas id="map-fg" width="1200" height="900"></canvas>
   <div id="tooltip">
     <div class="tt-name" id="tt-name"></div>
     <div class="tt-sub" id="tt-sub"></div>
@@ -43,8 +47,11 @@
 <script>
 // ── ETL NEIGHBORHOOD ANIMATED MAP ──────────────────────────────────────────
 
-const canvas = document.getElementById('map');
-const ctx    = canvas.getContext('2d');
+const canvasBG = document.getElementById('map-bg');
+const canvasFG = document.getElementById('map-fg');
+let ctx        = canvasBG.getContext('2d');
+const ctxBG    = canvasBG.getContext('2d');
+const ctxFG    = canvasFG.getContext('2d');
 const W = 1200, H = 900;
 
 // ── PALETTE ──────────────────────────────────────────────────────────────────
@@ -535,20 +542,6 @@ function drawBuildings(){
   ctx.restore();
 }
 
-// ── TECH MAP OVERLAY ─────────────────────────────────────────────────────────
-const techMap = new Image();
-let techMapReady = false;
-techMap.onload = () => { techMapReady = true; };
-techMap.src = '/etl-neighborhood-map.svg';
-
-function drawTechMap(){
-  if(!techMapReady)return;
-  ctx.save();
-  ctx.globalAlpha = 0.58;
-  ctx.drawImage(techMap, 0, 0, W, H);
-  ctx.restore();
-}
-
 // ── HUB GLOW ────────────────────────────────────────────────────────────────
 function drawHubGlow(){
   const [hx,hy]=N[HUB];
@@ -719,8 +712,9 @@ function drawHUD(){
 const tip=document.getElementById('tooltip');
 const stMap={walk:'Walking',guide:'En route',pause:'Paused',chat:'Chatting',hub:'At DeskWorks'};
 
-canvas.addEventListener('mousemove',e=>{
-  const r=canvas.getBoundingClientRect();
+canvasFG.style.pointerEvents='auto';
+canvasFG.addEventListener('mousemove',e=>{
+  const r=canvasFG.getBoundingClientRect();
   const mx=(e.clientX-r.left)*(W/r.width), my=(e.clientY-r.top)*(H/r.height);
   let found=null;
   for(const a of agents){ if(Math.hypot(a.x-mx,a.y-my)<a.r+7){found=a;break;} }
@@ -733,7 +727,7 @@ canvas.addEventListener('mousemove',e=>{
     tip.style.top=(e.clientY-r.top-8)+'px';
   } else tip.style.display='none';
 });
-canvas.addEventListener('mouseleave',()=>tip.style.display='none');
+canvasFG.addEventListener('mouseleave',()=>tip.style.display='none');
 
 // ── LOOP ─────────────────────────────────────────────────────────────────────
 let last=0;
@@ -741,8 +735,11 @@ function loop(ts){
   const dt=Math.min(ts-last,50); last=ts;
   if(ts-lastTick>TICK){ tick(ts); }
   agents.forEach(a=>move(a,dt));
+  ctx = ctxBG;
   drawBG(); drawHubGlow(); drawPaths();
-  if(techMapReady) drawTechMap(); else drawBuildings();
+
+  ctx = ctxFG;
+  ctxFG.clearRect(0,0,W,H);
   drawAgents(); drawHUD();
   requestAnimationFrame(loop);
 }

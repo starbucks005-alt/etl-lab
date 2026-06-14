@@ -1,17 +1,19 @@
-<svg width="1200" height="900" viewBox="0 0 1200 900" xmlns="http://www.w3.org/2000/svg">
-  <!-- ETL Neighborhood Map — Dark Overlay Version (no background) -->
+<svg width="1200" height="900" viewBox="0 0 1200 900" xmlns="http://www.w3.org/2000/svg" role="img">
+  <title>ETL Neighborhood Map</title>
   <defs>
+    <filter id="bshadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="1" stdDeviation="2.5" flood-color="#00000030"/>
+    </filter>
     <style>
-      text { font-family: 'Courier New', Courier, monospace; }
-      .dlabel { font-size: 9px; font-weight: 700; letter-spacing: 0.10em; fill: #2a5070; }
-      .blabel { font-size: 8px; font-weight: 500; fill: #90b8d0; }
-      .blabel-sm { font-size: 7px; font-weight: 500; fill: #90b8d0; }
-      .hub-label { font-size: 7.5px; font-weight: 700; fill: #ff4455; letter-spacing: 0.08em; }
+      text { font-family: system-ui, -apple-system, sans-serif; }
+      .dlabel { font-size: 9.5px; font-weight: 700; letter-spacing: 0.09em; fill: #8ab0cc; }
+      .blabel { font-size: 8.5px; font-weight: 500; fill: #d0e8f8; }
+      .blabel-sm { font-size: 7.5px; font-weight: 500; fill: #d0e8f8; }
     </style>
   </defs>
 
-  <!-- Hub lines radiating from ETL Deskworks Dayton (910,605) -->
-  <g stroke="#004468" stroke-width="1" stroke-dasharray="4,9" fill="none" opacity="0.55">
+  <!-- Hub lines from ETL Deskworks Dayton (910,605) -->
+  <g stroke="#004870" stroke-width="1" stroke-dasharray="4,8" fill="none" opacity="0.55">
     <line x1="910" y1="605" x2="600" y2="110"/>
     <line x1="910" y1="605" x2="225" y2="350"/>
     <line x1="910" y1="605" x2="325" y2="550"/>
@@ -21,79 +23,93 @@
   </g>
 
   <!-- District zones -->
-  <rect x="450" y="50"  width="300" height="120" rx="8" fill="#3b82f6" fill-opacity="0.05" stroke="#3b82f6" stroke-opacity="0.22" stroke-width="1.5"/>
+  <rect x="450" y="50"  width="300" height="120" rx="8" fill="#3b82f6" fill-opacity="0.08" stroke="#3b82f6" stroke-opacity="0.30" stroke-width="1.5"/>
   <text x="600" y="65"  class="dlabel" text-anchor="middle">NORTH DISTRICT</text>
 
-  <rect x="100" y="250" width="250" height="200" rx="8" fill="#22c55e" fill-opacity="0.05" stroke="#22c55e" stroke-opacity="0.22" stroke-width="1.5"/>
+  <rect x="100" y="250" width="250" height="200" rx="8" fill="#22c55e" fill-opacity="0.08" stroke="#22c55e" stroke-opacity="0.30" stroke-width="1.5"/>
   <text x="225" y="266" class="dlabel" text-anchor="middle">WEST DISTRICT</text>
 
-  <rect x="200" y="450" width="250" height="200" rx="8" fill="#f97316" fill-opacity="0.05" stroke="#f97316" stroke-opacity="0.22" stroke-width="1.5"/>
+  <rect x="200" y="450" width="250" height="200" rx="8" fill="#f97316" fill-opacity="0.08" stroke="#f97316" stroke-opacity="0.30" stroke-width="1.5"/>
   <text x="325" y="466" class="dlabel" text-anchor="middle">SOUTHWEST</text>
 
-  <rect x="450" y="250" width="300" height="200" rx="8" fill="#a855f7" fill-opacity="0.05" stroke="#a855f7" stroke-opacity="0.22" stroke-width="1.5"/>
+  <rect x="450" y="250" width="300" height="200" rx="8" fill="#a855f7" fill-opacity="0.08" stroke="#a855f7" stroke-opacity="0.30" stroke-width="1.5"/>
   <text x="600" y="266" class="dlabel" text-anchor="middle">CENTRAL ACADEMIC QUAD</text>
 
-  <rect x="750" y="250" width="200" height="200" rx="8" fill="#14b8a6" fill-opacity="0.05" stroke="#14b8a6" stroke-opacity="0.22" stroke-width="1.5"/>
+  <rect x="750" y="250" width="200" height="200" rx="8" fill="#14b8a6" fill-opacity="0.08" stroke="#14b8a6" stroke-opacity="0.30" stroke-width="1.5"/>
   <text x="850" y="266" class="dlabel" text-anchor="middle">EAST DISTRICT</text>
 
-  <rect x="700" y="450" width="300" height="300" rx="8" fill="#ef4444" fill-opacity="0.05" stroke="#ef4444" stroke-opacity="0.22" stroke-width="1.5"/>
+  <rect x="700" y="450" width="300" height="300" rx="8" fill="#ef4444" fill-opacity="0.08" stroke="#ef4444" stroke-opacity="0.30" stroke-width="1.5"/>
   <text x="850" y="466" class="dlabel" text-anchor="middle">SOUTHEAST DISTRICT</text>
 
-  <rect x="450" y="650" width="300" height="200" rx="8" fill="#eab308" fill-opacity="0.05" stroke="#eab308" stroke-opacity="0.22" stroke-width="1.5"/>
+  <rect x="450" y="650" width="300" height="200" rx="8" fill="#eab308" fill-opacity="0.08" stroke="#eab308" stroke-opacity="0.30" stroke-width="1.5"/>
   <text x="600" y="666" class="dlabel" text-anchor="middle">SOUTH DISTRICT</text>
 
-  <!-- ── BUILDINGS (dark fill, platform-colored strokes) ── -->
+  <!-- ── BUILDINGS ── -->
 
   <!-- NORTH -->
-  <rect x="500" y="100" width="120" height="50" rx="5" fill="#040a12" fill-opacity="0.68" stroke="#4a9eff" stroke-width="1.3"/>
-  <rect x="650" y="100" width="120" height="50" rx="5" fill="#040a12" fill-opacity="0.68" stroke="#b060ff" stroke-width="1.3"/>
-  <text text-anchor="middle" class="blabel"><tspan x="560" y="121">Intel</tspan><tspan x="560" dy="13">Dashboard</tspan></text>
-  <text text-anchor="middle" class="blabel"><tspan x="710" y="121">OPSEC</tspan><tspan x="710" dy="13">Gauntlet</tspan></text>
+  <g filter="url(#bshadow)">
+    <rect x="500" y="100" width="120" height="50" rx="6" fill="#0a1828" stroke="#4a9eff" stroke-width="1.5"/>
+    <rect x="650" y="100" width="120" height="50" rx="6" fill="#0a1828" stroke="#b060ff" stroke-width="1.5"/>
+  </g>
+  <text text-anchor="middle" class="blabel"><tspan x="560" y="120">Intel</tspan><tspan x="560" dy="13">Dashboard</tspan></text>
+  <text text-anchor="middle" class="blabel"><tspan x="710" y="120">OPSEC</tspan><tspan x="710" dy="13">Gauntlet</tspan></text>
 
   <!-- WEST -->
-  <rect x="200" y="300" width="120" height="50" rx="5" fill="#040a12" fill-opacity="0.68" stroke="#ff4455" stroke-width="1.3"/>
+  <g filter="url(#bshadow)">
+    <rect x="200" y="300" width="120" height="50" rx="6" fill="#0a1828" stroke="#ff4455" stroke-width="1.5"/>
+  </g>
   <text x="260" y="329" text-anchor="middle" class="blabel">The Gauntlet</text>
 
   <!-- SOUTHWEST -->
-  <rect x="250" y="500" width="120" height="50" rx="5" fill="#040a12" fill-opacity="0.68" stroke="#22d47a" stroke-width="1.3"/>
-  <rect x="350" y="520" width="120" height="50" rx="5" fill="#040a12" fill-opacity="0.68" stroke="#14d4b0" stroke-width="1.3"/>
+  <g filter="url(#bshadow)">
+    <rect x="250" y="500" width="120" height="50" rx="6" fill="#0a1828" stroke="#22d47a" stroke-width="1.5"/>
+    <rect x="350" y="520" width="120" height="50" rx="6" fill="#0a1828" stroke="#14d4b0" stroke-width="1.5"/>
+  </g>
   <text x="310" y="529" text-anchor="middle" class="blabel">The Dose</text>
   <text x="410" y="544" text-anchor="middle" class="blabel">The Gym</text>
-  <text x="410" y="560" text-anchor="middle" style="font-family:'Courier New',monospace;font-size:6.5px;font-weight:700;letter-spacing:0.08em;fill:#f97316;">COMING SOON</text>
+  <text x="410" y="560" text-anchor="middle" style="font-size:7px;font-weight:700;letter-spacing:0.08em;fill:#f97316;">COMING SOON</text>
 
   <!-- CENTRAL ACADEMIC QUAD -->
-  <rect x="500" y="300" width="120" height="50" rx="5" fill="#040a12" fill-opacity="0.68" stroke="#f5a623" stroke-width="1.3"/>
-  <rect x="600" y="300" width="120" height="50" rx="5" fill="#040a12" fill-opacity="0.68" stroke="#f5a623" stroke-width="1.3"/>
-  <rect x="500" y="380" width="120" height="50" rx="5" fill="#040a12" fill-opacity="0.68" stroke="#f5a623" stroke-width="1.3"/>
-  <rect x="600" y="380" width="120" height="50" rx="5" fill="#040a12" fill-opacity="0.68" stroke="#b060ff" stroke-width="1.3"/>
+  <g filter="url(#bshadow)">
+    <rect x="500" y="300" width="120" height="50" rx="6" fill="#0a1828" stroke="#f5a623" stroke-width="1.5"/>
+    <rect x="600" y="300" width="120" height="50" rx="6" fill="#0a1828" stroke="#f5a623" stroke-width="1.5"/>
+    <rect x="500" y="380" width="120" height="50" rx="6" fill="#0a1828" stroke="#f5a623" stroke-width="1.5"/>
+    <rect x="600" y="380" width="120" height="50" rx="6" fill="#0a1828" stroke="#b060ff" stroke-width="1.5"/>
+  </g>
   <text x="560" y="329" text-anchor="middle" class="blabel">Office Hours</text>
   <text x="660" y="329" text-anchor="middle" class="blabel">Prep Room</text>
   <text x="560" y="409" text-anchor="middle" class="blabel">SLR Studio</text>
-  <text text-anchor="middle" class="blabel-sm"><tspan x="660" y="399">Mission Possible</tspan><tspan x="660" dy="12">Spy Academy</tspan></text>
+  <text text-anchor="middle" class="blabel-sm"><tspan x="660" y="398">Mission Possible</tspan><tspan x="660" dy="12">Spy Academy</tspan></text>
 
   <!-- EAST -->
-  <rect x="800" y="300" width="120" height="50" rx="5" fill="#040a12" fill-opacity="0.68" stroke="#ff7a30" stroke-width="1.3"/>
-  <rect x="820" y="380" width="120" height="50" rx="5" fill="#040a12" fill-opacity="0.68" stroke="#d4b46a" stroke-width="1.3"/>
-  <text text-anchor="middle" class="blabel-sm"><tspan x="860" y="321">ETL Newswire</tspan><tspan x="860" dy="12">Press Hub</tspan></text>
+  <g filter="url(#bshadow)">
+    <rect x="800" y="300" width="120" height="50" rx="6" fill="#0a1828" stroke="#ff7a30" stroke-width="1.5"/>
+    <rect x="820" y="380" width="120" height="50" rx="6" fill="#0a1828" stroke="#d4b46a" stroke-width="1.5"/>
+  </g>
+  <text text-anchor="middle" class="blabel-sm"><tspan x="860" y="320">ETL Newswire</tspan><tspan x="860" dy="12">Press Hub</tspan></text>
   <text x="880" y="409" text-anchor="middle" class="blabel">Greylander Press</text>
 
   <!-- SOUTHEAST -->
-  <rect x="750" y="500" width="120" height="50" rx="5" fill="#040a12" fill-opacity="0.68" stroke="#f5a623" stroke-width="1.3"/>
-  <rect x="850" y="500" width="120" height="50" rx="5" fill="#040a12" fill-opacity="0.68" stroke="#4a9eff" stroke-width="1.3"/>
-  <rect x="750" y="580" width="120" height="50" rx="5" fill="#040a12" fill-opacity="0.68" stroke="#4a9eff" stroke-width="1.3"/>
-  <!-- DeskWorks HUB — double accent ring -->
-  <rect x="848" y="578" width="124" height="54" rx="7" fill="none" stroke="#ff4455" stroke-opacity="0.50" stroke-width="2"/>
-  <rect x="850" y="580" width="120" height="50" rx="5" fill="#0a0010" fill-opacity="0.78" stroke="#ff4455" stroke-width="1.5"/>
-  <rect x="900" y="620" width="120" height="50" rx="5" fill="#040a12" fill-opacity="0.68" stroke="#d4b46a" stroke-width="1.3"/>
-  <rect x="780" y="650" width="120" height="50" rx="5" fill="#040a12" fill-opacity="0.68" stroke="#4a9eff" stroke-width="1.3"/>
+  <g filter="url(#bshadow)">
+    <rect x="750" y="500" width="120" height="50" rx="6" fill="#0a1828" stroke="#f5a623" stroke-width="1.5"/>
+    <rect x="850" y="500" width="120" height="50" rx="6" fill="#0a1828" stroke="#4a9eff" stroke-width="1.5"/>
+    <rect x="750" y="580" width="120" height="50" rx="6" fill="#0a1828" stroke="#4a9eff" stroke-width="1.5"/>
+    <!-- DeskWorks HUB accent ring -->
+    <rect x="848" y="578" width="124" height="54" rx="7" fill="none" stroke="#ff4455" stroke-opacity="0.55" stroke-width="2"/>
+    <rect x="850" y="580" width="120" height="50" rx="6" fill="#120008" stroke="#ff4455" stroke-width="1.5"/>
+    <rect x="900" y="620" width="120" height="50" rx="6" fill="#0a1828" stroke="#d4b46a" stroke-width="1.5"/>
+    <rect x="780" y="650" width="120" height="50" rx="6" fill="#0a1828" stroke="#4a9eff" stroke-width="1.5"/>
+  </g>
   <text x="810" y="529" text-anchor="middle" class="blabel">Boardroom</text>
   <text x="910" y="529" text-anchor="middle" class="blabel">ETL Staffing</text>
   <text x="810" y="609" text-anchor="middle" class="blabel">Founder Studio</text>
-  <text text-anchor="middle" class="hub-label"><tspan x="910" y="601">ETL DESKWORKS</tspan><tspan x="910" dy="12">DAYTON ★</tspan></text>
+  <text text-anchor="middle" style="font-size:7.5px;font-weight:700;fill:#ff4455;letter-spacing:0.06em;"><tspan x="910" y="601">ETL DESKWORKS</tspan><tspan x="910" dy="12">DAYTON ★</tspan></text>
   <text text-anchor="middle" class="blabel"><tspan x="960" y="641">Chris's Tailor</tspan><tspan x="960" dy="13">Shop</tspan></text>
   <text text-anchor="middle" class="blabel"><tspan x="840" y="670">Build Your</tspan><tspan x="840" dy="13">Agent</tspan></text>
 
   <!-- SOUTH -->
-  <rect x="550" y="700" width="120" height="50" rx="5" fill="#040a12" fill-opacity="0.68" stroke="#d060f0" stroke-width="1.3"/>
+  <g filter="url(#bshadow)">
+    <rect x="550" y="700" width="120" height="50" rx="6" fill="#0a1828" stroke="#d060f0" stroke-width="1.5"/>
+  </g>
   <text text-anchor="middle" class="blabel"><tspan x="610" y="720">Gandhi-King</tspan><tspan x="610" dy="13">Center</tspan></text>
 </svg>
