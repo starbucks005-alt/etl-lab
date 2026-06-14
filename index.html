@@ -2653,13 +2653,14 @@ document.addEventListener('DOMContentLoaded', function(){
 
 <!-- ── COMMAND CENTER ──────────────────────────────────────────────────────── -->
 <style>
-.cc-section{background:#050c14;padding:32px 0 0}
+.cc-section{background:#050c14;padding:12px 0 0}
 .cc-wrap-inner{width:100%;margin:0 auto;padding:0 20px}
 .cc-eyebrow-hp{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.2em;color:rgba(0,200,255,.65);padding:0 0 10px;text-transform:uppercase}
 .cc-interface-hp{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:540px;border:1px solid rgba(0,200,255,.18);overflow:hidden}
 .cc-panel-hp{display:flex;flex-direction:column;overflow:hidden;border-right:1px solid rgba(0,200,255,.12);min-height:0;position:relative}
-.cc-key-btn{background:transparent;border:1px solid rgba(0,200,255,.4);color:rgba(0,200,255,.85);font-family:'IBM Plex Mono',monospace;font-size:9px;padding:3px 8px;cursor:pointer;letter-spacing:.08em;flex:none}
-.cc-key-btn:hover{background:rgba(0,200,255,.1)}
+.cc-key-btn{background:rgba(0,200,255,.12);border:1px solid rgba(0,200,255,.7);color:#00c8ff;font-family:'IBM Plex Mono',monospace;font-size:9px;padding:4px 10px;cursor:pointer;letter-spacing:.1em;flex:none;font-weight:700;animation:cc-key-pulse 2.8s ease-in-out infinite}
+@keyframes cc-key-pulse{0%,100%{box-shadow:0 0 0 0 rgba(0,200,255,.35)}60%{box-shadow:0 0 0 4px rgba(0,200,255,0)}}
+.cc-key-btn:hover{background:rgba(0,200,255,.25);animation:none}
 .cc-key-overlay{display:none;position:absolute;top:35px;right:0;z-index:30;background:rgba(4,10,22,.97);border:1px solid rgba(0,200,255,.25);border-top:none;padding:12px 14px;min-width:185px}
 .cc-key-overlay.open{display:block}
 .cc-key-title{font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(0,200,255,.85);letter-spacing:.14em;margin-bottom:8px;font-weight:700}
@@ -2703,7 +2704,6 @@ document.addEventListener('DOMContentLoaded', function(){
         <div class="cc-key-row"><span class="cc-key-dot" style="background:#d4b46a"></span>Greylander Press</div>
         <div class="cc-key-row"><span class="cc-key-dot" style="background:#d060f0"></span>Gandhi-King Center</div>
         <div class="cc-key-row"><span class="cc-key-dot" style="background:#708090"></span>Multi-platform</div>
-        <div class="cc-key-row"><span class="cc-key-dot" style="background:#f5c823"></span>Dr. O's Studio</div>
         <div class="cc-key-row"><span class="cc-key-dot" style="background:#4a6fa5"></span>City Government</div>
         <div class="cc-key-sep"></div>
         <div class="cc-key-row"><span class="cc-key-ring"></span>Backpack Agent (MCP)</div>
