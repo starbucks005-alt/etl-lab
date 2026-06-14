@@ -409,10 +409,9 @@ function tick(ts){
   });
   // Romance spawner — grabs any two available agents and sends them to a bridge
   if(Math.random() < 0.18){
-    const BRIDGE_EDGES = [[19,23],[7,8],[6,11]]; // garden / faculty / quad
-    const edge = BRIDGE_EDGES[Math.floor(Math.random()*BRIDGE_EDGES.length)];
-    const mx = (N[edge[0]][0]+N[edge[1]][0])/2;
-    const my = (N[edge[0]][1]+N[edge[1]][1])/2;
+    const bridge = BRIDGES[Math.floor(Math.random()*BRIDGES.length)];
+    const mx = bridge.mx;
+    const my = bridge.my;
     // Allow paired walkers and solo walkers — just not agents already romancing or chatting
     const pool = agents.filter(a=>a.state!==ST.R&&a.state!==ST.C&&a.state!==ST.H);
     if(pool.length>=2){
@@ -496,7 +495,7 @@ function move(a, dt){
     case ST.R: {
       // Walk slowly to the bridge midpoint, then barely sway
       const dx=a.mx-a.x, dy=a.my-a.y, d=Math.hypot(dx,dy);
-      if(d > 6){ a.x += (dx/d)*GSPD*dt*.35; a.y += (dy/d)*GSPD*dt*.35; }
+      if(d > 6){ a.x += (dx/d)*GSPD*dt*.55; a.y += (dy/d)*GSPD*dt*.55; }
       else {
         a.x += (Math.random()-.5)*WDRIFT*dt*.15;
         a.y += (Math.random()-.5)*WDRIFT*dt*.15;
@@ -623,17 +622,15 @@ function drawBuildings(){
   ctx.restore();
 }
 
-// ── BRIDGES ──────────────────────────────────────────────────────────────────
+// ── BRIDGES — explicit canvas coords matching the illustrated map ─────────────
 const BRIDGES = [
-  {edge:[19,23], name:'GARDEN BRIDGE'},
-  {edge:[7,8],   name:'FACULTY BRIDGE'},
-  {edge:[6,11],  name:'QUAD BRIDGE'},
+  {mx:505, my:800, name:'GARDEN BRIDGE'},   // the stone bridge in the illustration
+  {mx:192, my:442, name:'LAKESIDE PATH'},   // west side near The Dose / water
+  {mx:490, my:464, name:'QUAD PATH'},       // central quad romantic bench
 ];
 function drawBridges(){
   const t = Date.now();
-  BRIDGES.forEach(({edge,name})=>{
-    const mx=(N[edge[0]][0]+N[edge[1]][0])/2;
-    const my=(N[edge[0]][1]+N[edge[1]][1])/2;
+  BRIDGES.forEach(({mx,my,name})=>{
     ctx.save();
     // arch glow
     ctx.shadowColor='rgba(0,180,255,0.4)'; ctx.shadowBlur=10;
