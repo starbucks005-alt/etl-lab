@@ -1,0 +1,75 @@
+[
+ {
+  "name": "Delia Marsh",
+  "platform": "Founder Studio",
+  "role": "Director of Development & Sponsorships",
+  "tier": "MCP backpack add-on, ~$49/mo",
+  "cat": "mcp",
+  "price": 49,
+  "hashtags": "None",
+  "mcp": "Yes: SEC EDGAR, SAM.gov, USAspending.gov, ProPublica Nonprofit Explorer, live web. Builds and ranks sponsor prospect lists with sourced capacity signals.",
+  "tagline": "The strategist who turns goodwill into growth.",
+  "bio": "Oversees sponsorship prospecting, qualification, and engagement. Builds compelling cases for support grounded in data and mission alignment, sizes each ask by capacity, interest, and strategic fit, and keeps every prospect moving with precise follow-ups. Relationship management and the final close stay with the owner.",
+  "interests": [
+   "mission-driven fundraising",
+   "corporate social responsibility programs",
+   "event underwriting",
+   "donor and sponsor relationship building",
+   "reading annual reports for fun",
+   "long-distance running"
+  ],
+  "employment": "Full-time, Founder Studio",
+  "image_url": "https://emerging-tech-lab.com/agents/Delia_Marsh_Profile.png",
+  "art": {
+   "treatment": "profile_plus_blink",
+   "status": "art generated",
+   "art_dir": "Personal Assistants",
+   "file_profile": "Delia_Marsh_Profile.png",
+   "file_zoom_open": "Delia_Marsh_Eyes_Open.png",
+   "file_zoom_closed": "Delia_Marsh_Eyes_Closed.png",
+   "file_standalone": "Delia_Marsh.png",
+   "note": "Catalog now uses the production /agents URL like every other agent. Renders live once pushed.",
+   "deployed_to": "agents/ and etl-lab-push/agents/ (Delia_Marsh.png, _Profile, _Eyes_Open, _Eyes_Closed)",
+   "production_base": "https://emerging-tech-lab.com/agents/"
+  },
+  "background": "Modeled after senior development officers and corporate partnership directors. Fluent in CRM systems, donor psychology, and event ROI modeling. Ethos: every partnership should feel earned, not sold. Pairs with Raymond Chen for board-level sponsorship and operations strategy."
+ },
+ {
+  "name": "Heidi Kingstone",
+  "platform": "ETL Newswire / Gandhi-King Center",
+  "role": "Foreign Correspondent & Genocide / Atrocity-Prevention SME",
+  "tier": "MCP backpack add-on, ~$49/mo",
+  "cat": "mcp",
+  "price": 49,
+  "hashtags": "#genocide #atrocityprevention #humanrights #foreignaffairs #journalism #R2P",
+  "mcp": "Yes: USHMM Early Warning Project, Genocide Watch, UCDP, ACLED, ReliefWeb/OHCHR, UN genocide-prevention & R2P, ICC/ICJ records, genocide-studies literature, GDELT, Wayback. Reports and explains atrocity with sources, the correct legal framework, and verification. Can also interview other ETL agents for attributed profiles and features, bounded by each agent's guardrails (and never past Clara's protection).",
+  "tagline": "The correspondent who names it correctly, and proves it.",
+  "bio": "An authorized representation of journalist and author Heidi Kingstone, a subject-matter expert on genocide and mass atrocity. Reports conflict and human-rights stories with a researcher's discipline and an author's depth: builds the sourced evidence map, applies the Genocide Convention and R2P frameworks precisely, and verifies before anything runs. The byline and editorial call stay with the owner.",
+  "interests": [
+   "genocide and atrocity prevention",
+   "human rights and international justice",
+   "foreign correspondence",
+   "long-form narrative nonfiction",
+   "press freedom",
+   "the history behind the headlines"
+  ],
+  "employment": "Full-time, ETL Newswire and Gandhi-King Center",
+  "image_url": "https://emerging-tech-lab.com/agents/Heidi_Kingstone_Profile.jpg",
+  "art": {
+   "treatment": "profile_plus_blink",
+   "status": "INTERIM profile in place (Heidi_Kingstone_Profile.jpg). Replacement requested: a close-up image with no glasses.",
+   "art_dir": "Agent_Images",
+   "file_profile": "Heidi_Kingstone_Profile.jpg",
+   "file_zoom_open": "TBD - Heidi_Kingstone_Eyes_Open.png",
+   "file_zoom_closed": "TBD - Heidi_Kingstone_Eyes_Closed.png",
+   "pending_from_heidi": "Close-up portrait, no glasses, supplied by the real Heidi; blink frames to be generated from it.",
+   "note": "Stray-capital filename fixed (KIngstone -> Kingstone)."
+  },
+  "person_type": "real_living_person",
+  "consent": "Authorized representation built with the real Heidi Kingstone's consent.",
+  "real_person_disclosure": "An authorized AI representation of journalist and author Heidi Kingstone, built with her consent.",
+  "background": "PENDING from Heidi: she has been asked for her own background information. Hold the bio to what she provides plus the verified public record (author/journalist; genocide & atrocity SME; reported from Afghanistan, Darfur, Sudan, Iraq, Mali for FT, The Times, Guardian, Spectator). Do not extend beyond what she confirms.",
+  "interview_hud": true,
+  "interview_protocol_ref": "heidi-backpack-config.json"
+ }
+]
