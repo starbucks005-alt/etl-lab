@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ETL Neighborhood — Live Campus</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#040a12;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;font-family:'Courier New',monospace}
+  #wrap{position:relative;width:1200px;height:900px;flex-shrink:0}
+  canvas{display:block;border:1px solid #1a3a5c;box-shadow:0 0 40px rgba(0,180,255,0.08)}
+  #tooltip{
+    position:absolute;pointer-events:none;display:none;
+    background:rgba(4,14,32,0.97);border:1px solid #00c8ff;
+    color:#d0e8f8;padding:9px 13px;font-size:11px;border-radius:4px;
+    white-space:nowrap;z-index:10;box-shadow:0 0 16px rgba(0,200,255,0.25);
+    line-height:1.6
+  }
+  .tt-name{font-weight:bold;color:#00d4ff;font-size:12px}
+  .tt-sub{color:#6090b0;font-size:10px}
+  .tt-state{color:#70c890;font-size:10px;margin-top:2px}
+  #legend{
+    position:absolute;bottom:36px;left:10px;
+    background:rgba(4,12,24,0.88);border:1px solid #1a3a5c;
+    padding:8px 10px;border-radius:4px;font-size:9px;color:#406080;line-height:1.8
+  }
+  #legend b{color:#00b8ff;display:block;margin-bottom:2px;font-size:10px;letter-spacing:.06em}
+  .lrow{display:flex;align-items:center;gap:6px}
+  .ldot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+  .lring{width:10px;height:10px;border-radius:50%;flex-shrink:0;border:1.5px solid rgba(255,255,255,0.7)}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <canvas id="map" width="1200" height="900"></canvas>
+  <div id="tooltip">
+    <div class="tt-name" id="tt-name"></div>
+    <div class="tt-sub" id="tt-sub"></div>
+    <div class="tt-state" id="tt-state"></div>
+  </div>
+  <div id="legend">
+    <b>PLATFORM</b>
+    <div class="lrow"><div class="ldot" style="background:#4a9eff"></div>Founder Studio</div>
+    <div class="lrow"><div class="ldot" style="background:#b060ff"></div>OPSEC Gauntlet</div>
+    <div class="lrow"><div class="ldot" style="background:#ff4455"></div>The Gauntlet</div>
+    <div class="lrow"><div class="ldot" style="background:#22d47a"></div>The Dose</div>
+    <div class="lrow"><div class="ldot" style="background:#14d4b0"></div>The Gym</div>
+    <div class="lrow"><div class="ldot" style="background:#f5a623"></div>Prep Room / Boardroom</div>
+    <div class="lrow"><div class="ldot" style="background:#ff7a30"></div>ETL Newswire</div>
+    <div class="lrow"><div class="ldot" style="background:#d4b46a"></div>Greylander Press</div>
+    <div class="lrow"><div class="ldot" style="background:#d060f0"></div>Gandhi-King Center</div>
+    <div class="lrow"><div class="ldot" style="background:#708090"></div>Multi-platform</div>
+    <br>
+    <div class="lrow"><div class="lring" style="background:transparent"></div>MCP backpack</div>
+    <div class="lrow"><div class="ldot" style="background:#ffffff;opacity:.6;width:6px;height:6px"></div>Larger = senior tier</div>
+  </div>
+</div>
+
+<script>
+// ── ETL NEIGHBORHOOD ANIMATED MAP ──────────────────────────────────────────
+
+const canvas = document.getElementById('map');
+const ctx    = canvas.getContext('2d');
+const W = 1200, H = 900;
+
+// ── PALETTE ──────────────────────────────────────────────────────────────────
+const PC = {
+  FS:'#4a9eff', OG:'#b060ff', TG:'#ff4455', TD:'#22d47a', GY:'#14d4b0',
+  PR:'#f5a623', NW:'#ff7a30', GP:'#d4b46a', GK:'#d060f0', XX:'#708090'
+};
+const PL = {
+  FS:'Founder Studio', OG:'OPSEC Gauntlet', TG:'The Gauntlet',
+  TD:'The Dose', GY:'The Gym', PR:'Prep Room / Boardroom',
+  NW:'ETL Newswire', GP:'Greylander Press', GK:'Gandhi-King Center', XX:'Multi-platform'
+};
+
+// ── WAYPOINT GRAPH — matches illustrated campus map ───────────────────────────
+// [x, y]
+const N = [
+  [504,117],  // 0  Intel Dashboard
+  [672,126],  // 1  OPSEC Gauntlet
+  [989,198],  // 2  The Gauntlet (dome)
+  [588,205],  // 3  North Junction (spine south from Intel/OPSEC)
+  [825,178],  // 4  NE Junction (OPSEC → Gauntlet dome)
+  [120,315],  // 5  The Dose
+  [264,308],  // 6  The Gym
+  [362,272],  // 7  West Junction
+  [432,351],  // 8  Office Hours
+  [564,342],  // 9  Prep Room
+  [696,351],  // 10 SLR Studio
+  [564,432],  // 11 Quad Junction
+  [840,378],  // 12 ETL Newswire
+  [996,414],  // 13 Greylander Press
+  [562,502],  // 14 Mission Possible Spy Academy
+  [780,490],  // 15 SE Junction
+  [156,558],  // 16 Boardroom
+  [288,549],  // 17 ETL Staffing
+  [408,549],  // 18 Founder Studio
+  [408,622],  // 19 SW Junction
+  [120,666],  // 20 ETL Deskworks Dayton  ← HUB
+  [252,666],  // 21 Chris's Tailor Shop
+  [372,657],  // 22 Build Your Agent
+  [900,630],  // 23 Gandhi-King Center
+  [562,582],  // 24 South Junction
+];
+
+const EDGES = [
+  [0,1],             // Intel ↔ OPSEC (top bar)
+  [0,3],[1,3],       // both → North Junction
+  [1,4],[4,2],       // OPSEC → NE Jct → Gauntlet dome
+  [3,7],             // North → West Junction
+  [5,7],[6,7],       // Dose + Gym → West Junction
+  [7,8],             // West → Office Hours
+  [8,9],[9,10],      // Quad row
+  [3,9],             // North spine → Prep Room
+  [4,12],[10,12],    // NE Jct + SLR → Newswire
+  [12,13],           // Newswire → Greylander
+  [9,11],[11,14],    // Prep → Quad Jct → Mission Possible
+  [10,15],[12,15],   // SLR + Newswire → SE Junction
+  [14,15],           // Mission Possible → SE Junction
+  [15,23],           // SE Junction → Gandhi-King
+  [14,24],           // Mission Possible → South Junction
+  [24,16],           // South Jct → Boardroom
+  [16,17],[17,18],   // Boardroom → Staffing → Founder
+  [18,19],           // Founder → SW Junction
+  [16,20],[19,20],   // Boardroom + SW Jct → DeskWorks
+  [19,21],[20,21],   // SW Jct + DeskWorks → Tailor
+  [18,22],[19,22],   // Founder + SW Jct → Build Your Agent
+  [22,24],[24,23],   // Build Agent → South Jct → Gandhi-King
+];
+
+const ADJ = Array.from({length:N.length},()=>[]);
+EDGES.forEach(([a,b])=>{
+  const dx=N[a][0]-N[b][0],dy=N[a][1]-N[b][1],d=Math.hypot(dx,dy);
+  ADJ[a].push([b,d]); ADJ[b].push([a,d]);
+});
+
+function astar(s,e){
+  if(s===e)return[s];
+  const h=(a,b)=>Math.hypot(N[a][0]-N[b][0],N[a][1]-N[b][1]);
+  const open=[{n:s,g:0,f:h(s,e),p:[s]}],cl=new Set();
+  while(open.length){
+    open.sort((a,b)=>a.f-b.f);
+    const cur=open.shift();
+    if(cur.n===e)return cur.p;
+    if(cl.has(cur.n))continue;
+    cl.add(cur.n);
+    for(const[nb,cost]of ADJ[cur.n]){
+      if(!cl.has(nb)){
+        const g=cur.g+cost;
+        open.push({n:nb,g,f:g+h(nb,e),p:[...cur.p,nb]});
+      }
+    }
+  }
+  return[s,e];
+}
+
+// ── AGENT DATA ───────────────────────────────────────────────────────────────
+// [name, platform, radius, hasMCP]
+const ADAT = [
+  ["August 'Auggie' Vidal","FS",7,1],["Alicia James","FS",5.5,0],
+  ["Leo Vance","FS",6,1],["Kimberly Pass","FS",5.5,0],
+  ["Sasha Moreno","FS",5.5,0],["Yuki Mendel","FS",5.5,0],
+  ["Rowan Tate","FS",6,1],["Iris S. King","FS",5.5,0],
+  ["Jax Rivera","FS",6,1],["Margaret Applewood","TD",5.5,0],
+  ["Eli Adler","TD",6,1],["Nadia Hassan","TD",5.5,0],
+  ["Dr. Henry Chen","TD",6,1],["Maeve 'MJ' Johnson","TD",5.5,0],
+  ["Wyatt E. Cooper","XX",5.5,0],["Amara Nwosu","TD",5.5,0],
+  ["Dr. Claire Donnelly","TD",5.5,0],["Silas Hill","TD",5.5,0],
+  ["Arun Sok","TD",5.5,0],["Reece Ashford","XX",5.5,0],
+  ["Jaque Tremblay","XX",5.5,0],["Ms. Ivy (Ivy Sinclair)","XX",8,1],
+  ["Goh Kai-Mun (Mun)","GP",5.5,0],["Grey Hollis","GP",5.5,0],
+  ["The Professor","GP",5.5,0],["Beatriz 'Bea' Vega","XX",5.5,0],
+  ["Margo Bennett","XX",5.5,0],["Chris Avila","GP",5.5,0],
+  ["Jess Ramirez","GP",6,1],["Selene Voss","TG",8,1],
+  ["Marcus Holt","TG",8,1],["Dr. Priya Anand","TG",8,1],
+  ["Raymond Chen","TG",8,1],["Astrid Lund","TG",8,1],
+  ["Dr. Osei Mensah","TG",8,1],["Adm. Grace Nakamura","XX",8,1],
+  ["Devon Sloane","TG",8,1],["Dr. Cassidy Mercer","TG",8,1],
+  ["Wren Calloway","TG",6,1],["Carol Haynes","TG",5.5,0],
+  ["Matthew Vance","TG",5.5,0],["Arjun Mehta","TG",5.5,0],
+  ["Zara Cole","TG",5.5,0],["Reid Callum","TG",5.5,0],
+  ["Jules Hartley","XX",5.5,0],["Grant Ellis","TG",5.5,0],
+  ["Imani Brooks","TG",6,1],["Dr. Victoria Vance","PR",5.5,0],
+  ["Dr. Lawrence Cole","PR",5.5,0],["Dr. Marcus Thorne","PR",5.5,0],
+  ["Dr. Maya Patel","PR",5.5,0],["Dr. Charles Sterling","PR",5.5,0],
+  ["Dr. Alan Zhao","PR",5.5,0],["Dr. Meredith Vance-Giles","PR",5.5,0],
+  ["Dr. Tariq Khan","PR",5.5,0],["Dr. Arthur Pendelton","PR",5.5,0],
+  ["Robert Chen","PR",5.5,0],["Dev Srinivasan","PR",5.5,0],
+  ["Deidre Jenkins","PR",5.5,0],["Bradley Cooper-Smith","PR",5.5,0],
+  ["Karen Kowalski","PR",5.5,0],["Fiona Gallagher","PR",5.5,0],
+  ["Alistair Montgomery","PR",5.5,0],["Elena Rostova","PR",5.5,0],
+  ["Harrison Vance-Giles III","PR",5.5,0],["Charles Monroe","PR",5.5,0],
+  ["Marcus Reyes","NW",6,1],["Elke Vogel","NW",6,1],
+  ["Sasha Park","NW",6,1],["Theo Okafor","NW",6,1],
+  ["Renee Kovac","XX",6,1],["Dr. Maya Iyer","NW",6,1],
+  ["Karen Bishop","NW",6,1],["Mara Rivera","NW",6,1],
+  ["Frank Donovan","NW",6,1],["Sneha Desai","GK",6,1],
+  ["Ayanna Cole","GK",5.5,0],["Coach Dom Castellanos","GY",6,1],
+  ["Dr. Lena Brandt DPT","GY",6,1],["Noor Haddad","GY",5.5,0],
+  ["Dr. Sana Qureshi","GY",5.5,0],["Benjamin Reed","FS",8,1],
+  ["Dr. Terry L. Oroszi (AI Twin)","FS",9,1],["Delia Marsh","FS",6,1],
+  ["Mateo 'Teo' Rivera","FS",7,1],["Simone Beaumont","FS",7,1],
+  ["Mei Sato","FS",7,1],["Marceline Smith","FS",7,1],
+  ["Antonio Crosby","FS",7,1],["Amelie Griffith","FS",7,1],
+  ["Ezra Doyle","FS",7,1],["Dilan Wolf","FS",7,1],
+  ["Annika Bender","FS",7,1],["Walt Brenner","FS",7,1],
+  ["Jen Lopez","FS",7,1],["Dr. Helena Ward","OG",8,1],
+  ["Col. Rafael 'Rafe' Dominguez","OG",8,1],["Dr. Liyun Zhao","OG",8,1],
+  ["Miles Harrington","OG",8,1],["Dr. Amina Farouk","OG",8,1],
+  ["Jonas McCrae","OG",8,1],["Dr. Priyanka 'Pri' Nanduri","OG",8,1],
+  ["Elias 'Eli' Kade","OG",8,1],["Dr. Mirela Stanescu","OG",8,1],
+  ["Gunnar Thorsen","OG",8,1],["Dr. Selah Okonjo","OG",8,1],
+  ["Victor Hale","OG",8,1],["Dr. Yara Ben-Saïd","OG",8,1],
+  ["Owen Kessler","OG",8,1],["Dr. Marisol Quintero","OG",8,1],
+  ["Soren Veldt","OG",8,1],["Dr. Sahini Rao","OG",6,1],
+  ["Dr. Ali Malik","OG",6,1]
+];
+
+const HOME = {FS:18,OG:1,TG:2,TD:5,GY:6,PR:9,NW:12,GP:13,GK:23,XX:20};
+const HUB  = 20;
+const HUB_R = 90;
+const ST   = {W:'walk',G:'guide',P:'pause',C:'chat',H:'hub',R:'romance'};
+
+// px/ms — walking speed. At 60fps (16.67ms/frame) this is ~0.4px/frame.
+// A 300px path takes ~12 seconds. Feels like a slow campus stroll.
+const GSPD = 0.025;   // guided walk
+const WDRIFT = 0.004; // idle drift near node, barely perceptible
+
+// ── INIT AGENTS ──────────────────────────────────────────────────────────────
+const agents = ADAT.map(([name,plat,r,mcp])=>{
+  const hn = HOME[plat]||20;
+  const [hx,hy] = N[hn];
+  return {
+    name,plat,r,mcp:!!mcp,color:PC[plat],
+    x: hx+(Math.random()-.5)*40,
+    y: hy+(Math.random()-.5)*40,
+    state:ST.W, timer:Math.random()*15000, dur:15000+Math.random()*20000,
+    node:hn, tnode:hn, path:[], pi:0,
+    partner:-1, mx:0, my:0,
+    phase:Math.random()*Math.PI*2,
+    wdx:(Math.random()-.5)*.3, wdy:(Math.random()-.5)*.3,
+    inHub:false
+  };
+});
+
+// ── BEHAVIOR ─────────────────────────────────────────────────────────────────
+const TICK = 1800; // evaluate state every 1.8s
+let lastTick = 0;
+
+// Neighbour nodes (1-hop) for realistic short trips
+function nearbyNode(a){
+  const nbrs = ADJ[a.node].map(([n])=>n);
+  return nbrs[Math.floor(Math.random()*nbrs.length)];
+}
+// Target selection: mostly home, occasionally nearby, rarely far
+function pickTarget(a){
+  const r=Math.random();
+  if(r<.45) return HOME[a.plat]||HUB;   // go home
+  if(r<.70) return nearbyNode(a);        // short hop
+  if(r<.82) return HUB;                  // visit DeskWorks
+  let n; do{n=Math.floor(Math.random()*N.length)}while(n===a.node); return n;
+}
+
+function setWalk(a){
+  a.state=ST.W; a.dur=12000+Math.random()*18000; a.timer=0; a.partner=-1;
+  a.wdx=(Math.random()-.5)*.3; a.wdy=(Math.random()-.5)*.3;
+}
+function setPause(a){ a.state=ST.P; a.dur=10000+Math.random()*20000; a.timer=0; }
+function setGuide(a,t){
+  a.tnode=t; a.path=astar(a.node,t); a.pi=1;
+  a.state=ST.G; a.timer=0;
+  // duration = generous upper bound; arrival triggers transition
+  a.dur=60000;
+}
+function setChat(a,b){
+  const mx=(a.x+b.x)/2, my=(a.y+b.y)/2;
+  [a,b].forEach(ag=>{ ag.state=ST.C; ag.timer=0; ag.dur=12000+Math.random()*16000; ag.mx=mx; ag.my=my; });
+  a.partner=agents.indexOf(b); b.partner=agents.indexOf(a);
+}
+function setRomance(a,b,mx,my){
+  [a,b].forEach((ag,i)=>{
+    ag.state=ST.R; ag.timer=0; ag.dur=28000+Math.random()*22000;
+    ag.mx=mx+(i===0?-6:6); ag.my=my; ag.partner=agents.indexOf(i===0?b:a);
+  });
+}
+
+function tick(ts){
+  agents.forEach((a,i)=>{
+    a.timer+=TICK;
+    a.inHub = Math.hypot(a.x-N[HUB][0],a.y-N[HUB][1]) < HUB_R;
+    const exp = a.timer>=a.dur;
+
+    if(a.inHub && a.state===ST.W && Math.random()<.15){
+      a.state=ST.H; a.dur=20000+Math.random()*25000; a.timer=0;
+    }
+
+    switch(a.state){
+      case ST.W:
+        if(exp){
+          const r=Math.random();
+          if(r<.35) setGuide(a,pickTarget(a));
+          else if(r<.65) setPause(a);
+          else setWalk(a);
+        }
+        // Chat on proximity — low probability per tick
+        if(Math.random()<(a.inHub?.06:.015)){
+          for(let j=0;j<agents.length;j++){
+            if(j===i)continue; const b=agents[j];
+            if(b.state!==ST.W&&b.state!==ST.P&&b.state!==ST.H)continue;
+            if(b.partner>=0)continue;
+            if(Math.hypot(a.x-b.x,a.y-b.y)<45){ setChat(a,b); break; }
+          }
+        }
+        break;
+      case ST.G:
+        // Arrival handled in move(); timeout fallback
+        if(exp){ a.node=a.tnode; setWalk(a); }
+        break;
+      case ST.P:
+        if(exp) setWalk(a);
+        break;
+      case ST.C:
+        if(exp){ setWalk(a); if(a.partner>=0&&agents[a.partner]) setWalk(agents[a.partner]); }
+        break;
+      case ST.R:
+        if(exp){ setWalk(a); if(a.partner>=0&&agents[a.partner]) setWalk(agents[a.partner]); }
+        break;
+      case ST.H:
+        if(exp||!a.inHub){ Math.random()<.5?setGuide(a,HOME[a.plat]||HUB):setWalk(a); }
+        if(Math.random()<.18){
+          for(let j=0;j<agents.length;j++){
+            if(j===i)continue; const b=agents[j];
+            if(b.partner>=0)continue;
+            if((b.state===ST.H||b.state===ST.W)&&Math.hypot(a.x-b.x,a.y-b.y)<75){ setChat(a,b); break; }
+          }
+        }
+        break;
+    }
+  });
+  // Romance spawner — pick two idle agents and send them to a random edge midpoint
+  if(Math.random() < 0.10){
+    const edge = EDGES[Math.floor(Math.random()*EDGES.length)];
+    const mx = (N[edge[0]][0]+N[edge[1]][0])/2;
+    const my = (N[edge[0]][1]+N[edge[1]][1])/2;
+    const pool = agents.filter(a=>a.partner<0&&(a.state===ST.W||a.state===ST.P));
+    if(pool.length>=2){
+      const ai = Math.floor(Math.random()*pool.length);
+      let bi; do{ bi=Math.floor(Math.random()*pool.length); }while(bi===ai);
+      setRomance(pool[ai],pool[bi],mx,my);
+    }
+  }
+  lastTick=ts;
+}
+
+// ── MOVEMENT ─────────────────────────────────────────────────────────────────
+// All speeds are px/ms, multiplied by dt so framerate doesn't matter.
+// GSPD 0.025 px/ms = ~1.5px/s at 60fps. A 300px path takes ~12 seconds.
+
+function move(a, dt){
+  a.phase += dt * .0015;
+
+  switch(a.state){
+    case ST.W: case ST.H: {
+      // Gentle pull back toward home node if drifted too far
+      const [nx,ny]=N[a.node], dx=nx-a.x, dy=ny-a.y, d=Math.hypot(dx,dy);
+      if(d > 40){
+        // Slow drift back
+        a.x += (dx/d) * WDRIFT * dt * 3;
+        a.y += (dy/d) * WDRIFT * dt * 3;
+      } else {
+        // Micro idle jitter — barely perceptible
+        if(Math.random() < .008){ a.wdx=(Math.random()-.5)*.25; a.wdy=(Math.random()-.5)*.25; }
+        a.x += a.wdx * WDRIFT * dt;
+        a.y += a.wdy * WDRIFT * dt;
+      }
+      break;
+    }
+    case ST.G: {
+      if(a.pi < a.path.length){
+        const [tx,ty]=N[a.path[a.pi]], dx=tx-a.x, dy=ty-a.y, d=Math.hypot(dx,dy);
+        if(d < 5){ a.node=a.path[a.pi]; a.pi++; }
+        else { a.x += (dx/d)*GSPD*dt; a.y += (dy/d)*GSPD*dt; }
+      } else {
+        // Arrived
+        a.node = a.tnode; setWalk(a);
+      }
+      break;
+    }
+    case ST.C: {
+      const dx=a.mx-a.x, dy=a.my-a.y, d=Math.hypot(dx,dy);
+      if(d > 8){ a.x += (dx/d)*GSPD*dt*.4; a.y += (dy/d)*GSPD*dt*.4; }
+      else {
+        // Standing and talking — tiny sway
+        a.x += (Math.random()-.5) * WDRIFT * dt * .5;
+        a.y += (Math.random()-.5) * WDRIFT * dt * .5;
+      }
+      break;
+    }
+    case ST.P:
+      // Paused — almost completely still, breathing-level micro-movement
+      a.x += (Math.random()-.5) * WDRIFT * dt * .3;
+      a.y += (Math.random()-.5) * WDRIFT * dt * .3;
+      break;
+    case ST.R: {
+      // Walk slowly to the bridge midpoint, then barely sway
+      const dx=a.mx-a.x, dy=a.my-a.y, d=Math.hypot(dx,dy);
+      if(d > 6){ a.x += (dx/d)*GSPD*dt*.35; a.y += (dy/d)*GSPD*dt*.35; }
+      else {
+        a.x += (Math.random()-.5)*WDRIFT*dt*.15;
+        a.y += (Math.random()-.5)*WDRIFT*dt*.15;
+      }
+      break;
+    }
+
+  a.x = Math.max(18, Math.min(W-18, a.x));
+  a.y = Math.max(32, Math.min(H-18, a.y));
+}
+
+// ── DRAW BACKGROUND ──────────────────────────────────────────────────────────
+function drawBG(){
+  ctx.fillStyle='#080f1c'; ctx.fillRect(0,0,W,H);
+  // Topographic waves
+  ctx.save(); ctx.strokeStyle='#0d1e33'; ctx.lineWidth=1;
+  for(let i=0;i<9;i++){
+    const cy=80+i*100;
+    ctx.beginPath(); ctx.moveTo(0,cy);
+    for(let x=0;x<=W;x+=20) ctx.lineTo(x, cy+Math.sin(x*.013+i*.7)*16+Math.cos(x*.007+i*.4)*9);
+    ctx.stroke();
+  }
+  ctx.restore();
+  // Subtle grid
+  ctx.save(); ctx.strokeStyle='rgba(12,28,52,0.7)'; ctx.lineWidth=.4;
+  for(let x=0;x<=W;x+=60){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(let y=0;y<=H;y+=60){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+  ctx.restore();
+}
+
+// ── DRAW PATHS ───────────────────────────────────────────────────────────────
+const dashOff = {v:0};
+function drawPaths(){
+  dashOff.v=(dashOff.v+0.35)%24;
+  EDGES.forEach(([a,b])=>{
+    const [ax,ay]=N[a],[bx,by]=N[b];
+    // outer aura
+    ctx.save(); ctx.shadowColor='#005fa0'; ctx.shadowBlur=22;
+    ctx.strokeStyle='rgba(0,110,180,0.10)'; ctx.lineWidth=7;
+    ctx.beginPath(); ctx.moveTo(ax,ay); ctx.lineTo(bx,by); ctx.stroke();
+    ctx.restore();
+    // mid glow
+    ctx.save(); ctx.shadowColor='#0090d0'; ctx.shadowBlur=12;
+    ctx.strokeStyle='rgba(0,155,220,0.32)'; ctx.lineWidth=2.5;
+    ctx.beginPath(); ctx.moveTo(ax,ay); ctx.lineTo(bx,by); ctx.stroke();
+    ctx.restore();
+    // bright crisp core
+    ctx.save(); ctx.shadowBlur=0;
+    ctx.strokeStyle='rgba(0,220,255,0.78)'; ctx.lineWidth=0.8;
+    ctx.beginPath(); ctx.moveTo(ax,ay); ctx.lineTo(bx,by); ctx.stroke();
+    ctx.restore();
+    // animated pulse
+    ctx.save(); ctx.strokeStyle='rgba(0,255,220,0.30)'; ctx.lineWidth=1.2;
+    ctx.setLineDash([5,19]); ctx.lineDashOffset=-dashOff.v;
+    ctx.beginPath(); ctx.moveTo(ax,ay); ctx.lineTo(bx,by); ctx.stroke();
+    ctx.restore();
+  });
+}
+
+// ── DRAW BUILDINGS ───────────────────────────────────────────────────────────
+const BLDGS = [
+  [444,92,120,50,'Intel Dashboard','#4a9eff'],
+  [612,101,120,50,'OPSEC Gauntlet','#b060ff'],
+  [934,158,110,80,'The Gauntlet','#ff4455'],          // dome: taller footprint
+  [60,290,120,50,'The Dose','#22d47a'],
+  [204,283,120,50,'The Gym','#14d4b0',true],           // coming soon
+  [372,326,120,50,'Office Hours','#f5a623'],
+  [504,317,120,50,'Prep Room','#f5a623'],
+  [636,326,120,50,'SLR Studio','#f5a623'],
+  [492,462,140,80,'Mission Possible\nSpy Academy','#b060ff'],  // prominent center
+  [780,353,120,50,'ETL Newswire\nPress Hub','#ff7a30'],
+  [936,389,120,50,'Greylander Press','#d4b46a'],
+  [96,533,120,50,'Boardroom','#f5a623'],
+  [228,524,120,50,'ETL Staffing','#4a9eff'],
+  [348,524,120,50,'Founder Studio','#4a9eff'],
+  [60,641,120,50,'ETL Deskworks\nDayton','#ff4455'],   // HUB
+  [192,641,120,50,"Chris's Tailor\nShop",'#d4b46a'],
+  [312,632,120,50,'Build Your\nAgent','#4a9eff'],
+  [840,605,120,50,'Gandhi-King\nCenter','#d060f0'],
+];
+
+function rr(x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.arcTo(x+w,y,x+w,y+r,r);
+  ctx.lineTo(x+w,y+h-r); ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
+  ctx.lineTo(x+r,y+h); ctx.arcTo(x,y+h,x,y+h-r,r);
+  ctx.lineTo(x,y+r); ctx.arcTo(x,y,x+r,y,r); ctx.closePath();
+}
+
+function drawBuildings(){
+  BLDGS.forEach(([bx,by,bw,bh,label,ac,comingSoon])=>{
+    ctx.save();
+    ctx.shadowColor=ac; ctx.shadowBlur=12;
+    ctx.fillStyle='#0b1a2c'; ctx.strokeStyle=ac; ctx.lineWidth=1;
+    rr(bx,by,bw,bh,4); ctx.fill(); ctx.stroke();
+    ctx.restore();
+
+    const lines=label.split('\n');
+    const cx=bx+bw/2;
+    ctx.save();
+    ctx.textAlign='center'; ctx.font='8px "Courier New",monospace';
+    const yBase = comingSoon
+      ? by+bh/2-5
+      : by+bh/2-(lines.length-1)*5.5;
+
+    lines.forEach((ln,i)=>{
+      ctx.fillStyle='#b0cce0';
+      ctx.fillText(ln, cx, yBase+i*11+(lines.length===1?3:0));
+    });
+    if(comingSoon){
+      ctx.fillStyle='rgba(245,166,35,0.9)';
+      ctx.font='bold 7px "Courier New",monospace';
+      ctx.fillText('COMING SOON', cx, by+bh/2+8);
+    }
+    ctx.restore();
+  });
+
+  // DeskWorks extra border
+  ctx.save();
+  ctx.strokeStyle='rgba(255,68,85,0.45)'; ctx.lineWidth=2;
+  ctx.setLineDash([3,4]);
+  rr(58,639,124,54,6); ctx.stroke();
+  ctx.restore();
+}
+
+// ── HUB GLOW ────────────────────────────────────────────────────────────────
+function drawHubGlow(){
+  const [hx,hy]=N[HUB];
+  const p=.5+.5*Math.sin(Date.now()*.0018);
+  const g=ctx.createRadialGradient(hx,hy,0,hx,hy,HUB_R);
+  g.addColorStop(0,`rgba(255,68,85,${.06+p*.07})`);
+  g.addColorStop(.6,`rgba(255,68,85,${.02+p*.02})`);
+  g.addColorStop(1,'rgba(255,68,85,0)');
+  ctx.fillStyle=g; ctx.beginPath(); ctx.arc(hx,hy,HUB_R,0,Math.PI*2); ctx.fill();
+}
+
+// ── HEART ────────────────────────────────────────────────────────────────────
+function drawHeart(cx, cy, r, alpha){
+  ctx.save();
+  ctx.shadowBlur=0;
+  ctx.fillStyle=`rgba(255,110,160,${alpha})`;
+  ctx.beginPath();
+  ctx.moveTo(cx, cy+r*0.5);
+  ctx.bezierCurveTo(cx, cy-r*0.2, cx-r*1.3, cy-r*0.2, cx-r*1.3, cy-r*0.7);
+  ctx.bezierCurveTo(cx-r*1.3, cy-r*1.5, cx, cy-r*1.5, cx, cy-r*0.7);
+  ctx.bezierCurveTo(cx, cy-r*1.5, cx+r*1.3, cy-r*1.5, cx+r*1.3, cy-r*0.7);
+  ctx.bezierCurveTo(cx+r*1.3, cy-r*0.2, cx, cy-r*0.2, cx, cy+r*0.5);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+// ── DRAW AGENTS ──────────────────────────────────────────────────────────────
+function drawAgents(){
+  agents.forEach(a=>{
+    const p=.5+.5*Math.sin(a.phase);
+    let gm=1;
+    if(a.state===ST.C) gm=1.6+p*.7;
+    if(a.state===ST.H) gm=1.3+p*.4;
+    if(a.state===ST.P) gm=.6+p*.3;
+
+    ctx.save();
+    ctx.shadowBlur=0;
+    if(a.mcp){
+      // crisp white ring, no blur
+      ctx.strokeStyle=`rgba(255,255,255,${.5+p*.2})`;
+      ctx.lineWidth=1;
+      ctx.beginPath(); ctx.arc(a.x,a.y,a.r+2.5,0,Math.PI*2); ctx.stroke();
+    }
+    // solid crisp dot
+    ctx.fillStyle=a.color;
+    ctx.beginPath(); ctx.arc(a.x,a.y,a.r,0,Math.PI*2); ctx.fill();
+    // state ring: chat/hub white, romance pink
+    if(a.state===ST.C||a.state===ST.H){
+      ctx.strokeStyle=`rgba(255,255,255,${.2+p*.28})`;
+      ctx.lineWidth=0.8;
+      ctx.beginPath(); ctx.arc(a.x,a.y,a.r+(a.state===ST.C?4:3)+p*2,0,Math.PI*2); ctx.stroke();
+    }
+    if(a.state===ST.R){
+      ctx.strokeStyle=`rgba(255,130,170,${.3+p*.3})`;
+      ctx.lineWidth=0.9;
+      ctx.beginPath(); ctx.arc(a.x,a.y,a.r+3+p*2,0,Math.PI*2); ctx.stroke();
+      // heart floats between the pair — draw once from the lower-index agent
+      const b=agents[a.partner];
+      if(b&&b.state===ST.R&&agents.indexOf(a)<a.partner){
+        const hx=(a.x+b.x)/2, hy=(a.y+b.y)/2-6-p*4;
+        drawHeart(hx, hy, 2.2+p*1.2, 0.55+p*0.35);
+      }
+    }
+    // Dr. O AI Twin — special star ring
+    if(a.name.includes('AI Twin')){
+      ctx.strokeStyle='rgba(255,255,255,0.8)'; ctx.lineWidth=1;
+      ctx.setLineDash([2,3]);
+      ctx.beginPath(); ctx.arc(a.x,a.y,a.r+5,0,Math.PI*2); ctx.stroke();
+    }
+    ctx.restore();
+  });
+}
+
+// ── HUD ──────────────────────────────────────────────────────────────────────
+function drawHUD(){
+  // Top bar
+  ctx.save();
+  ctx.fillStyle='rgba(4,10,20,0.88)'; ctx.fillRect(0,0,W,26);
+  ctx.strokeStyle='#1a3a5c'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(0,26); ctx.lineTo(W,26); ctx.stroke();
+  ctx.fillStyle='#00c8ff'; ctx.font='bold 10.5px "Courier New",monospace';
+  ctx.fillText('ETL NEIGHBORHOOD  ◆  LIVE CAMPUS', 14, 17);
+  const active=agents.filter(a=>a.state!==ST.P).length;
+  const chatting=Math.floor(agents.filter(a=>a.state===ST.C).length/2);
+  const atHub=agents.filter(a=>a.inHub).length;
+  ctx.fillStyle='#4080a0'; ctx.textAlign='right'; ctx.font='9.5px "Courier New",monospace';
+  ctx.fillText(`AGENTS ${agents.length}  ·  ACTIVE ${active}  ·  CHATTING ${chatting}  ·  AT DESKWORKS ${atHub}`, W-14, 17);
+  ctx.restore();
+
+  // Compass
+  const cx=44, cy=66;
+  ctx.save();
+  ctx.fillStyle='rgba(5,14,28,.85)'; ctx.beginPath(); ctx.arc(cx,cy,26,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle='#1a3a5c'; ctx.lineWidth=1; ctx.beginPath(); ctx.arc(cx,cy,26,0,Math.PI*2); ctx.stroke();
+  [['N',0,-15,'#00d4ff'],['S',0,19,'#2a4060'],['W',-18,3,'#2a4060'],['E',16,3,'#2a4060']].forEach(([l,dx,dy,c])=>{
+    ctx.fillStyle=c; ctx.font=`bold 9px "Courier New",monospace`; ctx.textAlign='center'; ctx.fillText(l,cx+dx,cy+dy);
+  });
+  ctx.strokeStyle='#00d4ff'; ctx.lineWidth=1.2;
+  ctx.beginPath(); ctx.moveTo(cx,cy-11); ctx.lineTo(cx,cy+11); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx-11,cy); ctx.lineTo(cx+11,cy); ctx.stroke();
+  ctx.restore();
+
+  // Hub marker
+  const [hx,hy]=N[HUB];
+  ctx.save();
+  ctx.fillStyle='rgba(255,68,85,0.75)'; ctx.font='bold 8px "Courier New",monospace'; ctx.textAlign='center';
+  ctx.fillText('◆ HUB', hx, hy-20);
+  ctx.restore();
+
+  // Border
+  ctx.save(); ctx.strokeStyle='#1a3a5c'; ctx.lineWidth=2; ctx.strokeRect(1,1,W-2,H-2); ctx.restore();
+}
+
+// ── TOOLTIP ──────────────────────────────────────────────────────────────────
+const tip=document.getElementById('tooltip');
+const stMap={walk:'Walking',guide:'En route',pause:'Paused',chat:'Chatting',hub:'At DeskWorks'};
+
+canvas.addEventListener('mousemove',e=>{
+  const r=canvas.getBoundingClientRect();
+  const mx=(e.clientX-r.left)*(W/r.width), my=(e.clientY-r.top)*(H/r.height);
+  let found=null;
+  for(const a of agents){ if(Math.hypot(a.x-mx,a.y-my)<a.r+7){found=a;break;} }
+  if(found){
+    document.getElementById('tt-name').textContent=found.name;
+    document.getElementById('tt-sub').textContent=PL[found.plat]+(found.mcp?' · Backpack Agent':'');
+    document.getElementById('tt-state').textContent='◉ '+(stMap[found.state]||found.state);
+    tip.style.display='block';
+    tip.style.left=(e.clientX-r.left+16)+'px';
+    tip.style.top=(e.clientY-r.top-8)+'px';
+  } else tip.style.display='none';
+});
+canvas.addEventListener('mouseleave',()=>tip.style.display='none');
+
+// ── LOOP ─────────────────────────────────────────────────────────────────────
+let last=0;
+function loop(ts){
+  const dt=Math.min(ts-last,50); last=ts;
+  if(ts-lastTick>TICK){ tick(ts); }
+  agents.forEach(a=>move(a,dt));
+  drawBG(); drawHubGlow(); drawPaths(); drawBuildings(); drawAgents(); drawHUD();
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
