@@ -106,9 +106,9 @@ const N = [
   [296,590],  // 17 ETL Staffing
   [402,590],  // 18 Founder Studio
   [460,672],  // 19 SW Junction
-  [208,708],  // 20 ETL Deskworks Dayton  ← HUB
-  [328,712],  // 21 Chris's Tailor Shop
-  [446,704],  // 22 Build Your Agent
+  [142,722],  // 20 ETL Deskworks Dayton  ← HUB
+  [268,718],  // 21 Chris's Tailor Shop
+  [388,710],  // 22 Build Your Agent
   [848,648],  // 23 Gandhi-King Center
   [648,610],  // 24 South Junction
 ];
@@ -367,17 +367,22 @@ function tick(ts){
         break;
     }
   });
-  // Romance spawner — always sends pairs to a named bridge
-  if(Math.random() < 0.10){
+  // Romance spawner — grabs any two available agents and sends them to a bridge
+  if(Math.random() < 0.18){
     const BRIDGE_EDGES = [[19,23],[7,8],[6,11]]; // garden / faculty / quad
     const edge = BRIDGE_EDGES[Math.floor(Math.random()*BRIDGE_EDGES.length)];
     const mx = (N[edge[0]][0]+N[edge[1]][0])/2;
     const my = (N[edge[0]][1]+N[edge[1]][1])/2;
-    const pool = agents.filter(a=>a.partner<0&&(a.state===ST.W||a.state===ST.P));
+    // Allow paired walkers and solo walkers — just not agents already romancing or chatting
+    const pool = agents.filter(a=>a.state!==ST.R&&a.state!==ST.C&&a.state!==ST.H);
     if(pool.length>=2){
       const ai = Math.floor(Math.random()*pool.length);
       let bi; do{ bi=Math.floor(Math.random()*pool.length); }while(bi===ai);
-      setRomance(pool[ai],pool[bi],mx,my);
+      const ag=pool[ai], bg=pool[bi];
+      // Break up any existing walk partnerships first
+      if(ag.partner>=0&&agents[ag.partner]) agents[ag.partner].partner=-1;
+      if(bg.partner>=0&&agents[bg.partner]) agents[bg.partner].partner=-1;
+      setRomance(ag,bg,mx,my);
     }
   }
   lastTick=ts;
