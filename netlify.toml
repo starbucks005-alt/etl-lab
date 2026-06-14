@@ -7,6 +7,12 @@
 [functions."proxy-ai"]
   timeout = 60
 
+[functions."carol-channel"]
+  timeout = 26
+
+[functions."carol-channel-audio"]
+  timeout = 26
+
 # Scheduled functions. The exports.config.schedule syntax inside the function
 # files does not always register; declaring the schedule here is the reliable
 # pattern. Cron in UTC.

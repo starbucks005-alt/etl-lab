@@ -193,7 +193,7 @@ exports.handler = async (event) => {
   try {
     const resp = await client.messages.create({
       model: MODEL,
-      max_tokens: 2400,
+      max_tokens: 1600,
       system: buildSystem(life),
       messages: [{ role: 'user', content: 'Write today\'s #agency-floor thread. Today is ' + etDayLabel() + '.' }],
     });
