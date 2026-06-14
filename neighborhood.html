@@ -77,56 +77,56 @@ const PL = {
 // ── WAYPOINT GRAPH — matches illustrated campus map ───────────────────────────
 // [x, y]
 const N = [
-  [504,117],  // 0  Intel Dashboard
-  [672,126],  // 1  OPSEC Gauntlet
-  [989,198],  // 2  The Gauntlet (dome)
-  [588,205],  // 3  North Junction (spine south from Intel/OPSEC)
-  [825,178],  // 4  NE Junction (OPSEC → Gauntlet dome)
-  [120,315],  // 5  The Dose
-  [264,308],  // 6  The Gym
-  [362,272],  // 7  West Junction
-  [432,351],  // 8  Office Hours
-  [564,342],  // 9  Prep Room
-  [696,351],  // 10 SLR Studio
-  [564,432],  // 11 Quad Junction
-  [840,378],  // 12 ETL Newswire
-  [996,414],  // 13 Greylander Press
-  [562,502],  // 14 Mission Possible Spy Academy
-  [780,490],  // 15 SE Junction
-  [156,558],  // 16 Boardroom
-  [288,549],  // 17 ETL Staffing
-  [408,549],  // 18 Founder Studio
-  [408,622],  // 19 SW Junction
-  [120,666],  // 20 ETL Deskworks Dayton  ← HUB
-  [252,666],  // 21 Chris's Tailor Shop
-  [372,657],  // 22 Build Your Agent
-  [900,630],  // 23 Gandhi-King Center
-  [562,582],  // 24 South Junction
+  [560,125],  // 0  Intel Dashboard
+  [710,125],  // 1  OPSEC Gauntlet
+  [260,325],  // 2  The Gauntlet
+  [635,215],  // 3  North Junction
+  [785,225],  // 4  NE Junction
+  [310,525],  // 5  The Dose
+  [410,545],  // 6  The Gym
+  [285,430],  // 7  West Junction
+  [560,325],  // 8  Office Hours
+  [660,325],  // 9  Prep Room
+  [560,405],  // 10 SLR Studio
+  [610,450],  // 11 Quad Junction
+  [860,325],  // 12 ETL Newswire
+  [880,405],  // 13 Greylander Press
+  [660,405],  // 14 Mission Possible Spy Academy
+  [860,470],  // 15 SE Junction
+  [810,525],  // 16 Boardroom
+  [910,525],  // 17 ETL Staffing
+  [810,605],  // 18 Founder Studio
+  [720,680],  // 19 SW Junction
+  [910,605],  // 20 ETL Deskworks Dayton  ← HUB
+  [960,645],  // 21 Chris's Tailor Shop
+  [840,675],  // 22 Build Your Agent
+  [610,725],  // 23 Gandhi-King Center
+  [635,560],  // 24 South Junction
 ];
 
 const EDGES = [
-  [0,1],             // Intel ↔ OPSEC (top bar)
-  [0,3],[1,3],       // both → North Junction
-  [1,4],[4,2],       // OPSEC → NE Jct → Gauntlet dome
-  [3,7],             // North → West Junction
-  [5,7],[6,7],       // Dose + Gym → West Junction
-  [7,8],             // West → Office Hours
-  [8,9],[9,10],      // Quad row
-  [3,9],             // North spine → Prep Room
-  [4,12],[10,12],    // NE Jct + SLR → Newswire
-  [12,13],           // Newswire → Greylander
-  [9,11],[11,14],    // Prep → Quad Jct → Mission Possible
-  [10,15],[12,15],   // SLR + Newswire → SE Junction
-  [14,15],           // Mission Possible → SE Junction
-  [15,23],           // SE Junction → Gandhi-King
-  [14,24],           // Mission Possible → South Junction
-  [24,16],           // South Jct → Boardroom
-  [16,17],[17,18],   // Boardroom → Staffing → Founder
-  [18,19],           // Founder → SW Junction
-  [16,20],[19,20],   // Boardroom + SW Jct → DeskWorks
-  [19,21],[20,21],   // SW Jct + DeskWorks → Tailor
-  [18,22],[19,22],   // Founder + SW Jct → Build Your Agent
-  [22,24],[24,23],   // Build Agent → South Jct → Gandhi-King
+  [0,1],               // Intel ↔ OPSEC
+  [0,3],[1,3],         // both → North Junction
+  [1,4],               // OPSEC → NE Junction
+  [3,8],               // North Jct → Office Hours
+  [4,9],[4,12],        // NE Jct → Prep Room + Newswire
+  [3,2],[2,7],         // North Jct → Gauntlet → West Junction
+  [7,5],[5,6],[6,7],   // West Jct ↔ Dose ↔ Gym loop
+  [6,11],              // Gym → Quad Junction
+  [7,8],               // West Jct → Office Hours
+  [8,9],               // Office Hours ↔ Prep Room
+  [8,10],[9,14],       // OfficeHours → SLR, PrepRoom → Mission Possible
+  [10,11],[14,11],     // SLR + Mission Possible → Quad Junction
+  [12,13],[13,15],     // Newswire → Greylander → SE Junction
+  [12,15],             // Newswire → SE Junction direct
+  [11,24],[24,23],     // Quad Jct → South Junction → Gandhi-King
+  [15,16],[15,17],     // SE Jct → Boardroom + Staffing
+  [16,17],             // Boardroom ↔ Staffing
+  [16,18],[17,20],     // Boardroom → Founder, Staffing → DeskWorks
+  [18,20],             // Founder → DeskWorks
+  [20,21],[20,22],     // DeskWorks → Tailor + Build Agent
+  [18,19],[22,19],     // Founder + Build Agent → SW Junction
+  [19,23],             // SW Junction → Gandhi-King
 ];
 
 const ADJ = Array.from({length:N.length},()=>[]);
@@ -487,24 +487,24 @@ function drawPaths(){
 
 // ── DRAW BUILDINGS ───────────────────────────────────────────────────────────
 const BLDGS = [
-  [444,92,120,50,'Intel Dashboard','#4a9eff'],
-  [612,101,120,50,'OPSEC Gauntlet','#b060ff'],
-  [934,158,110,80,'The Gauntlet','#ff4455'],          // dome: taller footprint
-  [60,290,120,50,'The Dose','#22d47a'],
-  [204,283,120,50,'The Gym','#14d4b0',true],           // coming soon
-  [372,326,120,50,'Office Hours','#f5a623'],
-  [504,317,120,50,'Prep Room','#f5a623'],
-  [636,326,120,50,'SLR Studio','#f5a623'],
-  [492,462,140,80,'Mission Possible\nSpy Academy','#b060ff'],  // prominent center
-  [780,353,120,50,'ETL Newswire\nPress Hub','#ff7a30'],
-  [936,389,120,50,'Greylander Press','#d4b46a'],
-  [96,533,120,50,'Boardroom','#f5a623'],
-  [228,524,120,50,'ETL Staffing','#4a9eff'],
-  [348,524,120,50,'Founder Studio','#4a9eff'],
-  [60,641,120,50,'ETL Deskworks\nDayton','#ff4455'],   // HUB
-  [192,641,120,50,"Chris's Tailor\nShop",'#d4b46a'],
-  [312,632,120,50,'Build Your\nAgent','#4a9eff'],
-  [840,605,120,50,'Gandhi-King\nCenter','#d060f0'],
+  [500,100,120,50,'Intel Dashboard','#4a9eff'],
+  [650,100,120,50,'OPSEC Gauntlet','#b060ff'],
+  [200,300,120,50,'The Gauntlet','#ff4455'],
+  [250,500,120,50,'The Dose','#22d47a'],
+  [350,520,120,50,'The Gym','#14d4b0',true],
+  [500,300,120,50,'Office Hours','#f5a623'],
+  [600,300,120,50,'Prep Room','#f5a623'],
+  [500,380,120,50,'SLR Studio','#f5a623'],
+  [600,380,120,50,'Mission Possible\nSpy Academy','#b060ff'],
+  [800,300,120,50,'ETL Newswire\nPress Hub','#ff7a30'],
+  [820,380,120,50,'Greylander Press','#d4b46a'],
+  [750,500,120,50,'Boardroom','#f5a623'],
+  [850,500,120,50,'ETL Staffing','#4a9eff'],
+  [750,580,120,50,'Founder Studio','#4a9eff'],
+  [850,580,120,50,'ETL Deskworks\nDayton','#ff4455'],
+  [900,620,120,50,"Chris's Tailor\nShop",'#d4b46a'],
+  [780,650,120,50,'Build Your\nAgent','#4a9eff'],
+  [550,700,120,50,'Gandhi-King\nCenter','#d060f0'],
 ];
 
 function rr(x,y,w,h,r){
@@ -547,7 +547,21 @@ function drawBuildings(){
   ctx.save();
   ctx.strokeStyle='rgba(255,68,85,0.45)'; ctx.lineWidth=2;
   ctx.setLineDash([3,4]);
-  rr(58,639,124,54,6); ctx.stroke();
+  rr(848,578,124,54,6); ctx.stroke();
+  ctx.restore();
+}
+
+// ── TECH MAP OVERLAY ─────────────────────────────────────────────────────────
+const techMap = new Image();
+let techMapReady = false;
+techMap.onload = () => { techMapReady = true; };
+techMap.src = '/etl-neighborhood-map.svg';
+
+function drawTechMap(){
+  if(!techMapReady)return;
+  ctx.save();
+  ctx.globalAlpha = 0.58;
+  ctx.drawImage(techMap, 0, 0, W, H);
   ctx.restore();
 }
 
@@ -743,7 +757,9 @@ function loop(ts){
   const dt=Math.min(ts-last,50); last=ts;
   if(ts-lastTick>TICK){ tick(ts); }
   agents.forEach(a=>move(a,dt));
-  drawBG(); drawHubGlow(); drawPaths(); drawBuildings(); drawAgents(); drawHUD();
+  drawBG(); drawHubGlow(); drawPaths();
+  if(techMapReady) drawTechMap(); else drawBuildings();
+  drawAgents(); drawHUD();
   requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
