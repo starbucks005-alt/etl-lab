@@ -86,12 +86,14 @@ const W = 1200, H = 900;
 // ── PALETTE ──────────────────────────────────────────────────────────────────
 const PC = {
   FS:'#4a9eff', OG:'#b060ff', TG:'#ff4455', TD:'#22d47a', GY:'#14d4b0',
-  PR:'#f5a623', NW:'#ff7a30', GP:'#d4b46a', GK:'#d060f0', XX:'#708090'
+  PR:'#f5a623', NW:'#ff7a30', GP:'#d4b46a', GK:'#d060f0', XX:'#708090',
+  DR:'#f5c823'
 };
 const PL = {
   FS:'Founder Studio', OG:'OPSEC Gauntlet', TG:'The Gauntlet',
   TD:'The Dose', GY:'The Gym', PR:'Prep Room / Boardroom',
-  NW:'ETL Newswire', GP:'Greylander Press', GK:'Gandhi-King Center', XX:'Multi-platform'
+  NW:'ETL Newswire', GP:'Greylander Press', GK:'Gandhi-King Center', XX:'Multi-platform',
+  DR:"Dr. O's Studio"
 };
 
 // ── WAYPOINT GRAPH — remapped to tech-map.png building positions ──────────────
@@ -122,6 +124,7 @@ const N = [
   [395,805],  // 22 Build Your Agent
   [848,700],  // 23 Gandhi-King Center
   [640,668],  // 24 South Junction
+  [760,272],  // 25 Dr. O's Studio       ← PI
 ];
 
 const EDGES = [
@@ -150,6 +153,7 @@ const EDGES = [
   [20,21],[21,22],     // DeskWorks → Tailor → Build Agent
   [18,19],[22,19],     // Founder + Build Agent → SW Junction
   [19,23],             // SW Junction → Gandhi-King
+  [25,4],[25,10],[25,12],[25,1], // Dr. O's Studio → NE Jct, SLR, Newswire, OPSEC
 ];
 
 const ADJ = Array.from({length:N.length},()=>[]);
@@ -222,7 +226,7 @@ const ADAT = [
   ["Ayanna Cole","GK",5.5,0],["Coach Dom Castellanos","GY",6,1],
   ["Dr. Lena Brandt DPT","GY",6,1],["Noor Haddad","GY",5.5,0],
   ["Dr. Sana Qureshi","GY",5.5,0],["Benjamin Reed","FS",8,1],
-  ["Dr. Terry L. Oroszi (AI Twin)","FS",9,1],["Delia Marsh","FS",6,1],
+  ["Dr. Terry L. Oroszi (AI Twin)","DR",9,1],["Delia Marsh","FS",6,1],
   ["Mateo 'Teo' Rivera","FS",7,1],["Simone Beaumont","FS",7,1],
   ["Mei Sato","FS",7,1],["Marceline Smith","FS",7,1],
   ["Antonio Crosby","FS",7,1],["Amelie Griffith","FS",7,1],
@@ -243,6 +247,8 @@ const ADAT = [
 const HOME = {FS:18,OG:1,TG:2,TD:5,GY:6,PR:9,NW:12,GP:13,GK:23,XX:20};
 const HUB  = 20;
 const HUB_R = 60;
+const DR_O = 25;
+const DR_O_R = 55;
 const ST   = {W:'walk',G:'guide',P:'pause',C:'chat',H:'hub',R:'romance'};
 
 // ── FLOATING EMOJI EVENTS ────────────────────────────────────────────────────
@@ -576,6 +582,7 @@ const BLDGS = [
   [900,620,120,50,"Chris's Tailor\nShop",'#d4b46a'],
   [780,650,120,50,'Build Your\nAgent','#4a9eff'],
   [550,700,120,50,'Gandhi-King\nCenter','#d060f0'],
+  [700,248,130,56,"Dr. O's\nStudio",'#f5c823'],
 ];
 
 function rr(x,y,w,h,r){
@@ -659,6 +666,23 @@ function drawHubGlow(){
   g.addColorStop(.6,`rgba(255,68,85,${.02+p*.02})`);
   g.addColorStop(1,'rgba(255,68,85,0)');
   ctx.fillStyle=g; ctx.beginPath(); ctx.arc(hx,hy,HUB_R,0,Math.PI*2); ctx.fill();
+}
+
+// ── DR. O GLOW — gold pulse, PI's Studio ────────────────────────────────────
+function drawDrOGlow(){
+  const [hx,hy]=N[DR_O];
+  const p=.5+.5*Math.sin(Date.now()*.0014+1.2);
+  const g=ctx.createRadialGradient(hx,hy,0,hx,hy,DR_O_R);
+  g.addColorStop(0,`rgba(245,200,35,${.10+p*.10})`);
+  g.addColorStop(.5,`rgba(245,180,20,${.04+p*.04})`);
+  g.addColorStop(1,'rgba(245,180,20,0)');
+  ctx.fillStyle=g; ctx.beginPath(); ctx.arc(hx,hy,DR_O_R,0,Math.PI*2); ctx.fill();
+  // crisp gold ring
+  ctx.save();
+  ctx.strokeStyle=`rgba(245,200,35,${.35+p*.25})`; ctx.lineWidth=1.2;
+  ctx.setLineDash([4,5]);
+  ctx.beginPath(); ctx.arc(hx,hy,DR_O_R*.65,0,Math.PI*2); ctx.stroke();
+  ctx.restore();
 }
 
 // ── HEART ────────────────────────────────────────────────────────────────────
@@ -831,6 +855,15 @@ function drawHUD(){
   ctx.fillText('◆ HUB', hx, hy-24);
   ctx.restore();
 
+  // Dr. O Studio marker
+  const [dx,dy]=N[DR_O];
+  const dp=.5+.5*Math.sin(Date.now()*.0014+1.2);
+  ctx.save();
+  ctx.fillStyle=`rgba(245,200,35,${.7+dp*.3})`; ctx.font='bold 12px "Courier New",monospace'; ctx.textAlign='center';
+  ctx.shadowColor='rgba(245,200,35,0.7)'; ctx.shadowBlur=8;
+  ctx.fillText('◆ DR. O', dx, dy-28);
+  ctx.restore();
+
   // Border
   ctx.save(); ctx.strokeStyle='#1a3a5c'; ctx.lineWidth=2; ctx.strokeRect(1,1,W-2,H-2); ctx.restore();
 }
@@ -863,7 +896,7 @@ function loop(ts){
   if(ts-lastTick>TICK){ tick(ts); }
   agents.forEach(a=>move(a,dt));
   ctx = ctxBG;
-  drawBG(); drawHubGlow(); drawPaths(); drawBridges();
+  drawBG(); drawHubGlow(); drawDrOGlow(); drawPaths(); drawBridges();
 
   ctx = ctxFG;
   ctxFG.clearRect(0,0,W,H);

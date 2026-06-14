@@ -957,7 +957,7 @@
                        "inquiry_only":  true,
                        "sub_kind":  null,
                        "studio_facing":  true,
-                       "hashtags":  "owner",
+                       "hashtags":  ["owner","dr_o","founder","pi","twin","founding_sponsor","slr_method","etl_lab"],
                        "mcp":  false,
                        "mcp_tools_desc":  "",
                        "voice_id":  "TRlWg9aKJrzCDaEFF7Bz",
