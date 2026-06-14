@@ -679,77 +679,79 @@ function drawAgents(){
 
 // ── HUD ──────────────────────────────────────────────────────────────────────
 function drawHUD(){
-  // Top bar
-  ctx.save();
-  ctx.fillStyle='rgba(4,10,20,0.88)'; ctx.fillRect(0,0,W,26);
-  ctx.strokeStyle='#1a3a5c'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(0,26); ctx.lineTo(W,26); ctx.stroke();
-  ctx.fillStyle='#00c8ff'; ctx.font='bold 10.5px "Courier New",monospace';
-  ctx.fillText('ETL NEIGHBORHOOD  ◆  LIVE CAMPUS', 14, 17);
   const active=agents.filter(a=>a.state!==ST.P).length;
   const chatting=Math.floor(agents.filter(a=>a.state===ST.C).length/2);
   const atHub=agents.filter(a=>a.inHub).length;
-  ctx.fillStyle='#4080a0'; ctx.textAlign='right'; ctx.font='9.5px "Courier New",monospace';
-  ctx.fillText(`AGENTS ${agents.length}  ·  ACTIVE ${active}  ·  CHATTING ${chatting}  ·  AT DESKWORKS ${atHub}`, W-14, 17);
+  const enRoute=agents.filter(a=>a.state===ST.G).length;
+  const pairs=Math.floor(agents.filter(a=>a.partner>=0&&a.state===ST.G).length/2);
+
+  // Top bar — 38px tall
+  ctx.save();
+  ctx.fillStyle='rgba(4,10,20,0.92)'; ctx.fillRect(0,0,W,38);
+  ctx.strokeStyle='#1a3a5c'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(0,38); ctx.lineTo(W,38); ctx.stroke();
+  ctx.fillStyle='#00c8ff'; ctx.font='bold 15px "Courier New",monospace';
+  ctx.textAlign='left'; ctx.fillText('ETL NEIGHBORHOOD  ◆  LIVE CAMPUS', 16, 24);
+  ctx.fillStyle='#4080a0'; ctx.textAlign='right'; ctx.font='13px "Courier New",monospace';
+  ctx.fillText(`AGENTS ${agents.length}  ·  ACTIVE ${active}  ·  CHATTING ${chatting}  ·  AT DESKWORKS ${atHub}`, W-16, 24);
   ctx.restore();
 
   // ── DATA panel (top-right) ────────────────────────────────────────────────
   {
-    const pw=138, px=W-pw-14, py=32, ph=90;
-    const enRoute=agents.filter(a=>a.state===ST.G).length;
-    const pairs=Math.floor(agents.filter(a=>a.partner>=0&&a.state===ST.G).length/2);
+    const pw=175, px=W-pw-16, py=44, ph=118, rowH=15;
     ctx.save();
-    ctx.fillStyle='rgba(4,10,20,0.82)'; ctx.strokeStyle='#1a3a5c'; ctx.lineWidth=1;
-    rr(px,py,pw,ph,3); ctx.fill(); ctx.stroke();
-    ctx.fillStyle='#00c8ff'; ctx.font='bold 8.5px "Courier New",monospace'; ctx.textAlign='left';
-    ctx.fillText('DATA', px+8, py+13);
+    ctx.fillStyle='rgba(4,10,20,0.88)'; ctx.strokeStyle='#1a3a5c'; ctx.lineWidth=1;
+    rr(px,py,pw,ph,4); ctx.fill(); ctx.stroke();
+    ctx.fillStyle='#00c8ff'; ctx.font='bold 12px "Courier New",monospace'; ctx.textAlign='left';
+    ctx.fillText('DATA', px+10, py+17);
     ctx.strokeStyle='#1a3a5c'; ctx.lineWidth=.5;
-    ctx.beginPath(); ctx.moveTo(px+8,py+17); ctx.lineTo(px+pw-8,py+17); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(px+10,py+22); ctx.lineTo(px+pw-10,py+22); ctx.stroke();
     const rows=[['AGENTS',agents.length],['ACTIVE',active],['EN ROUTE',enRoute],['CHATTING',chatting],['AT HUB',atHub],['PAIRS',pairs]];
-    ctx.font='8px "Courier New",monospace';
+    ctx.font='11px "Courier New",monospace';
     rows.forEach(([lbl,val],i)=>{
-      ctx.fillStyle='#4080a0'; ctx.textAlign='left'; ctx.fillText(lbl,px+8,py+29+i*11);
-      ctx.fillStyle='#00c8ff'; ctx.textAlign='right'; ctx.fillText(val,px+pw-8,py+29+i*11);
+      ctx.fillStyle='#4080a0'; ctx.textAlign='left';  ctx.fillText(lbl, px+10, py+36+i*rowH);
+      ctx.fillStyle='#00c8ff'; ctx.textAlign='right'; ctx.fillText(val, px+pw-10, py+36+i*rowH);
     });
     ctx.restore();
   }
 
-  // ── SYSTEM panel (top-left, below compass) ────────────────────────────────
-  {
-    const pw=128, px=14, py=100, ph=70;
-    ctx.save();
-    ctx.fillStyle='rgba(4,10,20,0.82)'; ctx.strokeStyle='#1a3a5c'; ctx.lineWidth=1;
-    rr(px,py,pw,ph,3); ctx.fill(); ctx.stroke();
-    ctx.fillStyle='#00c8ff'; ctx.font='bold 8.5px "Courier New",monospace'; ctx.textAlign='left';
-    ctx.fillText('SYSTEM', px+8, py+13);
-    ctx.strokeStyle='#1a3a5c'; ctx.lineWidth=.5;
-    ctx.beginPath(); ctx.moveTo(px+8,py+17); ctx.lineTo(px+pw-8,py+17); ctx.stroke();
-    const rows=[['NODES',N.length],['LINKS',EDGES.length],['PLATFORMS',Object.keys(PC).length],['AGENTS',agents.length],['STATUS','ONLINE']];
-    ctx.font='8px "Courier New",monospace';
-    rows.forEach(([lbl,val],i)=>{
-      ctx.fillStyle='#4080a0'; ctx.textAlign='left'; ctx.fillText(lbl,px+8,py+29+i*11);
-      ctx.fillStyle=i===4?'#22d47a':'#6090b0'; ctx.textAlign='right'; ctx.fillText(val,px+pw-8,py+29+i*11);
-    });
-    ctx.restore();
-  }
-
-  // Compass
-  const cx=44, cy=66;
+  // ── Compass ───────────────────────────────────────────────────────────────
+  const cx=52, cy=82;
   ctx.save();
-  ctx.fillStyle='rgba(5,14,28,.85)'; ctx.beginPath(); ctx.arc(cx,cy,26,0,Math.PI*2); ctx.fill();
-  ctx.strokeStyle='#1a3a5c'; ctx.lineWidth=1; ctx.beginPath(); ctx.arc(cx,cy,26,0,Math.PI*2); ctx.stroke();
-  [['N',0,-15,'#00d4ff'],['S',0,19,'#2a4060'],['W',-18,3,'#2a4060'],['E',16,3,'#2a4060']].forEach(([l,dx,dy,c])=>{
-    ctx.fillStyle=c; ctx.font=`bold 9px "Courier New",monospace`; ctx.textAlign='center'; ctx.fillText(l,cx+dx,cy+dy);
+  ctx.fillStyle='rgba(5,14,28,.88)'; ctx.beginPath(); ctx.arc(cx,cy,34,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle='#1a3a5c'; ctx.lineWidth=1; ctx.beginPath(); ctx.arc(cx,cy,34,0,Math.PI*2); ctx.stroke();
+  [['N',0,-20,'#00d4ff'],['S',0,25,'#2a4060'],['W',-23,4,'#2a4060'],['E',21,4,'#2a4060']].forEach(([l,dx,dy,c])=>{
+    ctx.fillStyle=c; ctx.font='bold 13px "Courier New",monospace'; ctx.textAlign='center'; ctx.fillText(l,cx+dx,cy+dy);
   });
-  ctx.strokeStyle='#00d4ff'; ctx.lineWidth=1.2;
-  ctx.beginPath(); ctx.moveTo(cx,cy-11); ctx.lineTo(cx,cy+11); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(cx-11,cy); ctx.lineTo(cx+11,cy); ctx.stroke();
+  ctx.strokeStyle='#00d4ff'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.moveTo(cx,cy-15); ctx.lineTo(cx,cy+15); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx-15,cy); ctx.lineTo(cx+15,cy); ctx.stroke();
   ctx.restore();
+
+  // ── SYSTEM panel (below compass) ─────────────────────────────────────────
+  {
+    const pw=160, px=14, py=128, ph=100, rowH=15;
+    ctx.save();
+    ctx.fillStyle='rgba(4,10,20,0.88)'; ctx.strokeStyle='#1a3a5c'; ctx.lineWidth=1;
+    rr(px,py,pw,ph,4); ctx.fill(); ctx.stroke();
+    ctx.fillStyle='#00c8ff'; ctx.font='bold 12px "Courier New",monospace'; ctx.textAlign='left';
+    ctx.fillText('SYSTEM', px+10, py+17);
+    ctx.strokeStyle='#1a3a5c'; ctx.lineWidth=.5;
+    ctx.beginPath(); ctx.moveTo(px+10,py+22); ctx.lineTo(px+pw-10,py+22); ctx.stroke();
+    const rows=[['NODES',N.length],['LINKS',EDGES.length],['PLATFORMS',Object.keys(PC).length],['AGENTS',agents.length],['STATUS','ONLINE']];
+    ctx.font='11px "Courier New",monospace';
+    rows.forEach(([lbl,val],i)=>{
+      ctx.fillStyle='#4080a0'; ctx.textAlign='left';  ctx.fillText(lbl, px+10, py+36+i*rowH);
+      ctx.fillStyle=i===4?'#22d47a':'#6090b0'; ctx.textAlign='right'; ctx.fillText(val, px+pw-10, py+36+i*rowH);
+    });
+    ctx.restore();
+  }
 
   // Hub marker
   const [hx,hy]=N[HUB];
   ctx.save();
-  ctx.fillStyle='rgba(255,68,85,0.75)'; ctx.font='bold 8px "Courier New",monospace'; ctx.textAlign='center';
-  ctx.fillText('◆ HUB', hx, hy-20);
+  ctx.fillStyle='rgba(255,68,85,0.85)'; ctx.font='bold 12px "Courier New",monospace'; ctx.textAlign='center';
+  ctx.fillText('◆ HUB', hx, hy-24);
   ctx.restore();
 
   // Border
