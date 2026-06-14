@@ -244,10 +244,10 @@ const ADAT = [
   ["Dr. Ali Malik","OG",6,1]
 ];
 
-const HOME = {FS:18,OG:1,TG:2,TD:5,GY:6,PR:9,NW:12,GP:13,GK:23,XX:20};
+const HOME = {FS:18,OG:1,TG:2,TD:5,GY:6,PR:9,NW:12,GP:13,GK:23,XX:20,DR:10};
 const HUB  = 20;
 const HUB_R = 60;
-const DR_O = 25;
+const DR_O = 10; // SLR Studio — Dr. O's home node
 const DR_O_R = 55;
 const ST   = {W:'walk',G:'guide',P:'pause',C:'chat',H:'hub',R:'romance'};
 
@@ -308,6 +308,11 @@ function nearbyNode(a){
 // Target selection: mostly home, occasionally nearby, rarely far
 function pickTarget(a){
   const r=Math.random();
+  // Dr. O AI Twin: SLR Studio home, but tours every platform hub routinely
+  if(a.plat==='DR'){
+    const allHomes=Object.values(HOME);
+    return r<.35 ? 10 : allHomes[Math.floor(Math.random()*allHomes.length)];
+  }
   if(r<.45) return HOME[a.plat]||HUB;   // go home
   if(r<.70) return nearbyNode(a);        // short hop
   if(r<.77) return HUB;                  // visit DeskWorks (7% not 12%)
