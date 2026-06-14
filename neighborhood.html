@@ -242,7 +242,7 @@ const ADAT = [
 
 const HOME = {FS:18,OG:1,TG:2,TD:5,GY:6,PR:9,NW:12,GP:13,GK:23,XX:20};
 const HUB  = 20;
-const HUB_R = 90;
+const HUB_R = 60;
 const ST   = {W:'walk',G:'guide',P:'pause',C:'chat',H:'hub',R:'romance'};
 
 // ── FLOATING EMOJI EVENTS ────────────────────────────────────────────────────
@@ -304,7 +304,7 @@ function pickTarget(a){
   const r=Math.random();
   if(r<.45) return HOME[a.plat]||HUB;   // go home
   if(r<.70) return nearbyNode(a);        // short hop
-  if(r<.82) return HUB;                  // visit DeskWorks
+  if(r<.77) return HUB;                  // visit DeskWorks (7% not 12%)
   let n; do{n=Math.floor(Math.random()*N.length)}while(n===a.node); return n;
 }
 function pickPairPartner(a,i){
@@ -397,7 +397,7 @@ function tick(ts){
         break;
       case ST.H:
         if(exp||!a.inHub){ Math.random()<.5?setGuide(a,HOME[a.plat]||HUB):setWalk(a); }
-        if(Math.random()<.18){
+        if(Math.random()<.08){
           for(let j=0;j<agents.length;j++){
             if(j===i)continue; const b=agents[j];
             if(b.partner>=0)continue;
