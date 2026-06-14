@@ -2645,7 +2645,7 @@ document.addEventListener('DOMContentLoaded', function(){
   <div class="section-full-inner">
     <div class="section-tag" style="color:#5c8ab5;">The Discipline</div>
     <h2 class="section-title" style="color:#ffffff;">Operational <span style="color:#5c8ab5;">Behavioral Science</span></h2>
-    <p style="font-family:'Spectral',serif; font-size:17px; line-height:1.75; color:#e8dece; max-width:820px; margin-top:24px;">
+    <p style="font-family:'Spectral',serif; font-size:17px; line-height:1.75; color:#e8dece; margin-top:24px;">
       Operational Behavioral Science is the applied study of human behavior in high-stakes environments. The laboratory integrates <strong style="color:#5c8ab5; font-weight:600;">behavioral profiling, situational awareness, OSINT, crisis leadership, AI governance,</strong> and <strong style="color:#5c8ab5; font-weight:600;">AI-driven analysis</strong> to build tools that improve decision making across <strong style="color:#fff; font-weight:600;">national security, healthcare, research, and civic leadership</strong>.
     </p>
   </div>
@@ -2654,7 +2654,7 @@ document.addEventListener('DOMContentLoaded', function(){
 <!-- ── COMMAND CENTER ──────────────────────────────────────────────────────── -->
 <style>
 .cc-section{background:#050c14;padding:32px 0 0}
-.cc-wrap-inner{max-width:1200px;margin:0 auto;padding:0 20px}
+.cc-wrap-inner{width:100%;margin:0 auto;padding:0 20px}
 .cc-eyebrow-hp{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.2em;color:rgba(0,200,255,.65);padding:0 0 10px;text-transform:uppercase}
 .cc-interface-hp{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:540px;border:1px solid rgba(0,200,255,.18);overflow:hidden}
 .cc-panel-hp{display:flex;flex-direction:column;overflow:hidden;border-right:1px solid rgba(0,200,255,.12);min-height:0;position:relative}
@@ -5581,9 +5581,7 @@ h1 b,h2 b,h1 strong,h2 strong{font-weight:500}
     var iframe = document.getElementById('cc-map-iframe');
     if(!wrap || !iframe) return;
     var scaleW = wrap.offsetWidth / 1200;
-    var scaleH = wrap.offsetHeight / 900;
-    var scale  = Math.min(scaleW, scaleH);
-    if(scale <= 0) scale = scaleW;
+    var scale  = scaleW > 0 ? scaleW : 1;
     iframe.style.transform = 'scale(' + scale + ')';
   }
   window.addEventListener('load', scaleCCMap);
@@ -5594,7 +5592,9 @@ h1 b,h2 b,h1 strong,h2 strong{font-weight:500}
   var feed = document.getElementById('cc-ac-feed');
   if(!feed) return;
   var chipColors = ['#28527a','#35806f','#561c29','#16202b','#5c8ab5'];
+  var jenOutfit = ((new Date().getDay() % 7) + 1);
   var CAST_IMG = {
+    'Jen Lopez':       'Jen' + jenOutfit + '_profile.png',
     'Auggie':          'Auggie_zoom_eyes_open.png',
     'Jax Rivera':      'Jax_Rivera_eyes_open.png',
     'Yuki Mendel':     'Yuki_Mendel_eyes_open.png',
