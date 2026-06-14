@@ -629,6 +629,25 @@ function drawBuildings(){
   ctx.restore();
 }
 
+function drawDrOBuilding(){
+  const [bx,by,bw,bh,label,ac] = BLDGS[BLDGS.length-1];
+  ctx.save();
+  ctx.shadowColor=ac; ctx.shadowBlur=22;
+  ctx.fillStyle='rgba(30,20,0,0.85)'; ctx.strokeStyle=ac; ctx.lineWidth=2;
+  rr(bx,by,bw,bh,4); ctx.fill(); ctx.stroke();
+  ctx.restore();
+  const lines=label.split('\n');
+  const cx=bx+bw/2;
+  ctx.save();
+  ctx.textAlign='center'; ctx.font='bold 8px "Courier New",monospace';
+  const yBase=by+bh/2-(lines.length-1)*5.5;
+  lines.forEach((ln,i)=>{
+    ctx.fillStyle=ac;
+    ctx.fillText(ln, cx, yBase+i*11+(lines.length===1?3:0));
+  });
+  ctx.restore();
+}
+
 // ── BRIDGES — explicit canvas coords matching the illustrated map ─────────────
 const BRIDGES = [
   {mx:505, my:800, name:'GARDEN BRIDGE'},   // the stone bridge in the illustration
@@ -896,7 +915,7 @@ function loop(ts){
   if(ts-lastTick>TICK){ tick(ts); }
   agents.forEach(a=>move(a,dt));
   ctx = ctxBG;
-  drawBG(); drawHubGlow(); drawDrOGlow(); drawPaths(); drawBridges();
+  drawBG(); drawHubGlow(); drawDrOGlow(); drawDrOBuilding(); drawPaths(); drawBridges();
 
   ctx = ctxFG;
   ctxFG.clearRect(0,0,W,H);
