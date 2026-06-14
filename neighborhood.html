@@ -261,6 +261,16 @@ function pickTarget(a){
   if(r<.82) return HUB;                  // visit DeskWorks
   let n; do{n=Math.floor(Math.random()*N.length)}while(n===a.node); return n;
 }
+function pickPairPartner(a,i){
+  for(let j=0;j<agents.length;j++){
+    if(j===i)continue;
+    const b=agents[j];
+    if(b.partner>=0)continue;
+    if(b.state!==ST.W&&b.state!==ST.P)continue;
+    if(Math.hypot(a.x-b.x,a.y-b.y)<100)return j;
+  }
+  return -1;
+}
 
 function setWalk(a){
   a.state=ST.W; a.dur=12000+Math.random()*18000; a.timer=0; a.partner=-1;
@@ -299,7 +309,14 @@ function tick(ts){
       case ST.W:
         if(exp){
           const r=Math.random();
-          if(r<.35) setGuide(a,pickTarget(a));
+          if(r<.35){
+            const t=pickTarget(a);
+            if(a.partner<0&&Math.random()<.45){
+              const j=pickPairPartner(a,i);
+              if(j>=0){ setGuide(a,t); setGuide(agents[j],t); a.partner=j; agents[j].partner=i; }
+              else setGuide(a,t);
+            } else setGuide(a,t);
+          }
           else if(r<.65) setPause(a);
           else setWalk(a);
         }
@@ -315,7 +332,7 @@ function tick(ts){
         break;
       case ST.G:
         // Arrival handled in move(); timeout fallback
-        if(exp){ a.node=a.tnode; setWalk(a); }
+        if(exp){ a.node=a.tnode; if(a.partner>=0&&agents[a.partner])agents[a.partner].partner=-1; setWalk(a); }
         break;
       case ST.P:
         if(exp) setWalk(a);
@@ -383,7 +400,9 @@ function move(a, dt){
         else { a.x += (dx/d)*GSPD*dt; a.y += (dy/d)*GSPD*dt; }
       } else {
         // Arrived
-        a.node = a.tnode; setWalk(a);
+        a.node = a.tnode;
+        if(a.partner>=0&&agents[a.partner])agents[a.partner].partner=-1;
+        setWalk(a);
       }
       break;
     }
@@ -561,6 +580,19 @@ function drawHeart(cx, cy, r, alpha){
 
 // ── DRAW AGENTS ──────────────────────────────────────────────────────────────
 function drawAgents(){
+  // Pair-walk connection lines (drawn under dots)
+  agents.forEach((a,i)=>{
+    if(a.state===ST.G&&a.partner>=0&&i<a.partner){
+      const b=agents[a.partner];
+      if(b&&b.state===ST.G){
+        ctx.save();
+        ctx.strokeStyle='rgba(255,255,255,0.10)';
+        ctx.lineWidth=1; ctx.setLineDash([3,7]);
+        ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
+        ctx.restore();
+      }
+    }
+  });
   agents.forEach(a=>{
     const p=.5+.5*Math.sin(a.phase);
     let gm=1;
@@ -620,6 +652,46 @@ function drawHUD(){
   ctx.fillStyle='#4080a0'; ctx.textAlign='right'; ctx.font='9.5px "Courier New",monospace';
   ctx.fillText(`AGENTS ${agents.length}  ·  ACTIVE ${active}  ·  CHATTING ${chatting}  ·  AT DESKWORKS ${atHub}`, W-14, 17);
   ctx.restore();
+
+  // ── DATA panel (top-right) ────────────────────────────────────────────────
+  {
+    const pw=138, px=W-pw-14, py=32, ph=90;
+    const enRoute=agents.filter(a=>a.state===ST.G).length;
+    const pairs=Math.floor(agents.filter(a=>a.partner>=0&&a.state===ST.G).length/2);
+    ctx.save();
+    ctx.fillStyle='rgba(4,10,20,0.82)'; ctx.strokeStyle='#1a3a5c'; ctx.lineWidth=1;
+    rr(px,py,pw,ph,3); ctx.fill(); ctx.stroke();
+    ctx.fillStyle='#00c8ff'; ctx.font='bold 8.5px "Courier New",monospace'; ctx.textAlign='left';
+    ctx.fillText('DATA', px+8, py+13);
+    ctx.strokeStyle='#1a3a5c'; ctx.lineWidth=.5;
+    ctx.beginPath(); ctx.moveTo(px+8,py+17); ctx.lineTo(px+pw-8,py+17); ctx.stroke();
+    const rows=[['AGENTS',agents.length],['ACTIVE',active],['EN ROUTE',enRoute],['CHATTING',chatting],['AT HUB',atHub],['PAIRS',pairs]];
+    ctx.font='8px "Courier New",monospace';
+    rows.forEach(([lbl,val],i)=>{
+      ctx.fillStyle='#4080a0'; ctx.textAlign='left'; ctx.fillText(lbl,px+8,py+29+i*11);
+      ctx.fillStyle='#00c8ff'; ctx.textAlign='right'; ctx.fillText(val,px+pw-8,py+29+i*11);
+    });
+    ctx.restore();
+  }
+
+  // ── SYSTEM panel (top-left, below compass) ────────────────────────────────
+  {
+    const pw=128, px=14, py=100, ph=70;
+    ctx.save();
+    ctx.fillStyle='rgba(4,10,20,0.82)'; ctx.strokeStyle='#1a3a5c'; ctx.lineWidth=1;
+    rr(px,py,pw,ph,3); ctx.fill(); ctx.stroke();
+    ctx.fillStyle='#00c8ff'; ctx.font='bold 8.5px "Courier New",monospace'; ctx.textAlign='left';
+    ctx.fillText('SYSTEM', px+8, py+13);
+    ctx.strokeStyle='#1a3a5c'; ctx.lineWidth=.5;
+    ctx.beginPath(); ctx.moveTo(px+8,py+17); ctx.lineTo(px+pw-8,py+17); ctx.stroke();
+    const rows=[['NODES',N.length],['LINKS',EDGES.length],['PLATFORMS',Object.keys(PC).length],['AGENTS',agents.length],['STATUS','ONLINE']];
+    ctx.font='8px "Courier New",monospace';
+    rows.forEach(([lbl,val],i)=>{
+      ctx.fillStyle='#4080a0'; ctx.textAlign='left'; ctx.fillText(lbl,px+8,py+29+i*11);
+      ctx.fillStyle=i===4?'#22d47a':'#6090b0'; ctx.textAlign='right'; ctx.fillText(val,px+pw-8,py+29+i*11);
+    });
+    ctx.restore();
+  }
 
   // Compass
   const cx=44, cy=66;
