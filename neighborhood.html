@@ -65,43 +65,44 @@ const PL = {
   NW:'ETL Newswire', GP:'Greylander Press', GK:'Gandhi-King Center', XX:'Multi-platform'
 };
 
-// ── WAYPOINT GRAPH — matches illustrated campus map ───────────────────────────
-// [x, y]
+// ── WAYPOINT GRAPH — remapped to tech-map.png building positions ──────────────
+// Coordinates match the illustrated campus image displayed at 1200×900
 const N = [
-  [560,125],  // 0  Intel Dashboard
-  [710,125],  // 1  OPSEC Gauntlet
-  [260,325],  // 2  The Gauntlet
-  [635,215],  // 3  North Junction
-  [785,225],  // 4  NE Junction
-  [310,525],  // 5  The Dose
-  [410,545],  // 6  The Gym
-  [285,430],  // 7  West Junction
-  [560,325],  // 8  Office Hours
-  [660,325],  // 9  Prep Room
-  [560,405],  // 10 SLR Studio
-  [610,450],  // 11 Quad Junction
-  [860,325],  // 12 ETL Newswire
-  [880,405],  // 13 Greylander Press
-  [660,405],  // 14 Mission Possible Spy Academy
-  [860,470],  // 15 SE Junction
-  [810,525],  // 16 Boardroom
-  [910,525],  // 17 ETL Staffing
-  [810,605],  // 18 Founder Studio
-  [720,680],  // 19 SW Junction
-  [910,605],  // 20 ETL Deskworks Dayton  ← HUB
-  [960,645],  // 21 Chris's Tailor Shop
-  [840,675],  // 22 Build Your Agent
-  [610,725],  // 23 Gandhi-King Center
-  [635,560],  // 24 South Junction
+  [482,222],  // 0  Intel Dashboard
+  [635,205],  // 1  OPSEC Gauntlet
+  [990,340],  // 2  The Gauntlet (dome, far right)
+  [548,160],  // 3  North Junction
+  [815,250],  // 4  NE Junction
+  [145,390],  // 5  The Dose
+  [288,308],  // 6  The Gym
+  [216,435],  // 7  West Junction
+  [432,450],  // 8  Office Hours
+  [540,425],  // 9  Prep Room
+  [635,425],  // 10 SLR Studio
+  [525,515],  // 11 Quad Junction
+  [790,432],  // 12 ETL Newswire
+  [958,440],  // 13 Greylander Press
+  [540,575],  // 14 Mission Possible Spy Academy
+  [895,515],  // 15 SE Junction
+  [240,640],  // 16 Boardroom
+  [348,640],  // 17 ETL Staffing
+  [455,640],  // 18 Founder Studio
+  [475,720],  // 19 SW Junction
+  [205,748],  // 20 ETL Deskworks Dayton  ← HUB
+  [335,738],  // 21 Chris's Tailor Shop
+  [443,729],  // 22 Build Your Agent
+  [803,693],  // 23 Gandhi-King Center
+  [658,630],  // 24 South Junction
 ];
 
 const EDGES = [
   [0,1],               // Intel ↔ OPSEC
   [0,3],[1,3],         // both → North Junction
   [1,4],               // OPSEC → NE Junction
+  [4,2],               // NE Junction → The Gauntlet dome (right-side path)
+  [3,7],               // North Junction → West Junction (left-side path)
   [3,8],               // North Jct → Office Hours
   [4,9],[4,12],        // NE Jct → Prep Room + Newswire
-  [3,2],[2,7],         // North Jct → Gauntlet → West Junction
   [7,5],[5,6],[6,7],   // West Jct ↔ Dose ↔ Gym loop
   [6,11],              // Gym → Quad Junction
   [7,8],               // West Jct → Office Hours
@@ -109,13 +110,15 @@ const EDGES = [
   [8,10],[9,14],       // OfficeHours → SLR, PrepRoom → Mission Possible
   [10,11],[14,11],     // SLR + Mission Possible → Quad Junction
   [12,13],[13,15],     // Newswire → Greylander → SE Junction
-  [12,15],             // Newswire → SE Junction direct
+  [12,15],[2,15],      // Newswire → SE Jct direct; Gauntlet dome → SE Jct
   [11,24],[24,23],     // Quad Jct → South Junction → Gandhi-King
-  [15,16],[15,17],     // SE Jct → Boardroom + Staffing
+  [24,16],[24,17],     // South Junction → Boardroom + Staffing
+  [15,23],             // SE Jct → Gandhi-King (right-side path south)
   [16,17],             // Boardroom ↔ Staffing
-  [16,18],[17,20],     // Boardroom → Founder, Staffing → DeskWorks
+  [16,20],[17,20],     // Boardroom + Staffing → DeskWorks
   [18,20],             // Founder → DeskWorks
-  [20,21],[20,22],     // DeskWorks → Tailor + Build Agent
+  [17,18],             // Staffing → Founder Studio
+  [20,21],[21,22],     // DeskWorks → Tailor → Build Agent
   [18,19],[22,19],     // Founder + Build Agent → SW Junction
   [19,23],             // SW Junction → Gandhi-King
 ];
