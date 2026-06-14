@@ -112,4 +112,47 @@
     <rect x="550" y="700" width="120" height="50" rx="6" fill="#0a1828" stroke="#d060f0" stroke-width="1.5"/>
   </g>
   <text text-anchor="middle" class="blabel"><tspan x="610" y="720">Gandhi-King</tspan><tspan x="610" dy="13">Center</tspan></text>
+
+  <!-- ── BRIDGES ── small footbridge symbols at scenic edge midpoints ── -->
+  <defs>
+    <marker id="bdot" markerWidth="3" markerHeight="3" refX="1.5" refY="1.5" orient="auto">
+      <circle cx="1.5" cy="1.5" r="1.2" fill="#4a7a9b"/>
+    </marker>
+  </defs>
+
+  <!-- Bridge 1: West Junction ↔ Office Hours (422, 377) — mid-campus crossing -->
+  <g transform="translate(422,377)">
+    <rect x="-28" y="-6" width="56" height="12" rx="3" fill="#050e1e" stroke="#2a5070" stroke-width="1" opacity="0.9"/>
+    <line x1="-22" y1="-3" x2="22" y2="-3" stroke="#4a7a9b" stroke-width="1.5"/>
+    <line x1="-22" y1="3"  x2="22" y2="3"  stroke="#4a7a9b" stroke-width="1.5"/>
+    <line x1="-16" y1="-3" x2="-16" y2="3" stroke="#4a7a9b" stroke-width="1"/>
+    <line x1="-6"  y1="-3" x2="-6"  y2="3" stroke="#4a7a9b" stroke-width="1"/>
+    <line x1="6"   y1="-3" x2="6"   y2="3" stroke="#4a7a9b" stroke-width="1"/>
+    <line x1="16"  y1="-3" x2="16"  y2="3" stroke="#4a7a9b" stroke-width="1"/>
+    <text x="0" y="17" text-anchor="middle" style="font-size:6.5px;fill:#3a6888;font-family:system-ui;letter-spacing:0.07em">FACULTY BRIDGE</text>
+  </g>
+
+  <!-- Bridge 2: Gym ↔ Quad Junction (510, 497) — southwest connector -->
+  <g transform="translate(510,497)">
+    <rect x="-28" y="-6" width="56" height="12" rx="3" fill="#050e1e" stroke="#2a5070" stroke-width="1" opacity="0.9"/>
+    <line x1="-22" y1="-3" x2="22" y2="-3" stroke="#4a7a9b" stroke-width="1.5"/>
+    <line x1="-22" y1="3"  x2="22" y2="3"  stroke="#4a7a9b" stroke-width="1.5"/>
+    <line x1="-16" y1="-3" x2="-16" y2="3" stroke="#4a7a9b" stroke-width="1"/>
+    <line x1="-6"  y1="-3" x2="-6"  y2="3" stroke="#4a7a9b" stroke-width="1"/>
+    <line x1="6"   y1="-3" x2="6"   y2="3" stroke="#4a7a9b" stroke-width="1"/>
+    <line x1="16"  y1="-3" x2="16"  y2="3" stroke="#4a7a9b" stroke-width="1"/>
+    <text x="0" y="17" text-anchor="middle" style="font-size:6.5px;fill:#3a6888;font-family:system-ui;letter-spacing:0.07em">QUAD BRIDGE</text>
+  </g>
+
+  <!-- Bridge 3: SW Junction ↔ Gandhi-King (665, 702) — garden crossing -->
+  <g transform="translate(665,702)">
+    <rect x="-28" y="-6" width="56" height="12" rx="3" fill="#050e1e" stroke="#2a5070" stroke-width="1" opacity="0.9"/>
+    <line x1="-22" y1="-3" x2="22" y2="-3" stroke="#4a7a9b" stroke-width="1.5"/>
+    <line x1="-22" y1="3"  x2="22" y2="3"  stroke="#4a7a9b" stroke-width="1.5"/>
+    <line x1="-16" y1="-3" x2="-16" y2="3" stroke="#4a7a9b" stroke-width="1"/>
+    <line x1="-6"  y1="-3" x2="-6"  y2="3" stroke="#4a7a9b" stroke-width="1"/>
+    <line x1="6"   y1="-3" x2="6"   y2="3" stroke="#4a7a9b" stroke-width="1"/>
+    <line x1="16"  y1="-3" x2="16"  y2="3" stroke="#4a7a9b" stroke-width="1"/>
+    <text x="0" y="17" text-anchor="middle" style="font-size:6.5px;fill:#3a6888;font-family:system-ui;letter-spacing:0.07em">GARDEN BRIDGE</text>
+  </g>
 </svg>
