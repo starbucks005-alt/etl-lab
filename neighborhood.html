@@ -346,9 +346,10 @@ function tick(ts){
         break;
     }
   });
-  // Romance spawner — pick two idle agents and send them to a random edge midpoint
+  // Romance spawner — always sends pairs to a named bridge
   if(Math.random() < 0.10){
-    const edge = EDGES[Math.floor(Math.random()*EDGES.length)];
+    const BRIDGE_EDGES = [[19,23],[7,8],[6,11]]; // garden / faculty / quad
+    const edge = BRIDGE_EDGES[Math.floor(Math.random()*BRIDGE_EDGES.length)];
     const mx = (N[edge[0]][0]+N[edge[1]][0])/2;
     const my = (N[edge[0]][1]+N[edge[1]][1])/2;
     const pool = agents.filter(a=>a.partner<0&&(a.state===ST.W||a.state===ST.P));
@@ -542,6 +543,36 @@ function drawBuildings(){
   ctx.restore();
 }
 
+// ── BRIDGES ──────────────────────────────────────────────────────────────────
+const BRIDGES = [
+  {edge:[19,23], name:'GARDEN BRIDGE'},
+  {edge:[7,8],   name:'FACULTY BRIDGE'},
+  {edge:[6,11],  name:'QUAD BRIDGE'},
+];
+function drawBridges(){
+  const t = Date.now();
+  BRIDGES.forEach(({edge,name})=>{
+    const mx=(N[edge[0]][0]+N[edge[1]][0])/2;
+    const my=(N[edge[0]][1]+N[edge[1]][1])/2;
+    ctx.save();
+    // arch glow
+    ctx.shadowColor='rgba(0,180,255,0.4)'; ctx.shadowBlur=10;
+    ctx.strokeStyle='rgba(0,200,255,0.55)'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(mx-22,my); ctx.lineTo(mx+22,my); ctx.stroke();
+    ctx.strokeStyle='rgba(0,200,255,0.35)'; ctx.lineWidth=1;
+    for(let i=-18;i<=18;i+=9){
+      ctx.beginPath(); ctx.moveTo(mx+i,my-4); ctx.lineTo(mx+i,my+4); ctx.stroke();
+    }
+    // label
+    ctx.shadowBlur=0;
+    ctx.fillStyle='rgba(0,180,220,0.55)';
+    ctx.font='6px "Courier New",monospace';
+    ctx.textAlign='center';
+    ctx.fillText(name, mx, my+13);
+    ctx.restore();
+  });
+}
+
 // ── HUB GLOW ────────────────────────────────────────────────────────────────
 function drawHubGlow(){
   const [hx,hy]=N[HUB];
@@ -615,8 +646,25 @@ function drawAgents(){
       // heart floats between the pair — draw once from the lower-index agent
       const b=agents[a.partner];
       if(b&&b.state===ST.R&&agents.indexOf(a)<a.partner){
-        const hx=(a.x+b.x)/2, hy=(a.y+b.y)/2-6-p*4;
-        drawHeart(hx, hy, 2.2+p*1.2, 0.55+p*0.35);
+        // pink tether line between the pair
+        ctx.save();
+        ctx.strokeStyle=`rgba(255,120,160,${0.25+p*0.2})`;
+        ctx.lineWidth=1; ctx.setLineDash([3,6]);
+        ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
+        ctx.restore();
+        // large pulsing heart above midpoint
+        const hx=(a.x+b.x)/2, hy=(a.y+b.y)/2-18-p*6;
+        ctx.save();
+        ctx.shadowColor='rgba(255,80,140,0.9)'; ctx.shadowBlur=18;
+        drawHeart(hx, hy, 7+p*4, 0.8+p*0.2);
+        ctx.restore();
+        // BRIDGE label below heart
+        ctx.save();
+        ctx.fillStyle=`rgba(255,140,180,${0.55+p*0.3})`;
+        ctx.font='bold 7px "Courier New",monospace';
+        ctx.textAlign='center';
+        ctx.fillText('♥ ON THE BRIDGE', hx, hy+22);
+        ctx.restore();
       }
     }
     // Dr. O AI Twin — special star ring
@@ -736,7 +784,7 @@ function loop(ts){
   if(ts-lastTick>TICK){ tick(ts); }
   agents.forEach(a=>move(a,dt));
   ctx = ctxBG;
-  drawBG(); drawHubGlow(); drawPaths();
+  drawBG(); drawHubGlow(); drawPaths(); drawBridges();
 
   ctx = ctxFG;
   ctxFG.clearRect(0,0,W,H);
