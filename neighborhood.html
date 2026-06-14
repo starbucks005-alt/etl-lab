@@ -17,6 +17,16 @@
   .stat{display:flex;flex-direction:column;align-items:center;gap:6px}
   .stat .val{font-size:52px;font-weight:700;color:#00c8ff;line-height:1;font-family:'Courier New',monospace}
   .stat .lbl{font-size:13px;font-weight:700;color:#4080a0;letter-spacing:0.12em;text-transform:uppercase}
+  #map-title{
+    width:1200px;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;gap:18px;
+    padding:18px 0 14px 0;
+    font-family:'Courier New',monospace;font-size:22px;font-weight:700;
+    color:#00c8ff;letter-spacing:0.22em;text-transform:uppercase;
+    border-bottom:1px solid #1a3a5c;
+  }
+  #map-title .pulse{display:inline-block;width:9px;height:9px;border-radius:50%;background:#ff4455;box-shadow:0 0 8px #ff4455;animation:blink 1.4s ease-in-out infinite;}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
   #map-bg{display:block;border:1px solid #1a3a5c;box-shadow:0 0 40px rgba(0,180,255,0.08)}
   #map-fg{position:absolute;left:0;top:0;z-index:2;pointer-events:none;}
   #tech-map-overlay{position:absolute;left:0;top:0;width:1200px;height:900px;pointer-events:none;z-index:1;}
@@ -42,6 +52,7 @@
 </style>
 </head>
 <body>
+<div id="map-title"><span class="pulse"></span> ETL Agents — Live Campus <span class="pulse"></span></div>
 <div id="wrap">
   <canvas id="map-bg" width="1200" height="900"></canvas>
   <img id="tech-map-overlay" src="/tech-map.png" alt="">
@@ -234,6 +245,29 @@ const HUB  = 20;
 const HUB_R = 90;
 const ST   = {W:'walk',G:'guide',P:'pause',C:'chat',H:'hub',R:'romance'};
 
+// ── FLOATING EMOJI EVENTS ────────────────────────────────────────────────────
+const emojiEvents = [];
+function spawnEmoji(emoji, x, y, vx=0, vy=-0.028, dur=2000){
+  emojiEvents.push({emoji, x, y, vx, vy, born: performance.now(), dur});
+}
+function drawEmojiEvents(){
+  const now = performance.now();
+  for(let i=emojiEvents.length-1;i>=0;i--){
+    const e=emojiEvents[i];
+    const age=now-e.born;
+    if(age>e.dur){ emojiEvents.splice(i,1); continue; }
+    const t=age/e.dur;
+    const alpha=t<0.18?(t/0.18):(1-((t-0.18)/0.82));
+    e.x+=e.vx; e.y+=e.vy;
+    ctx.save();
+    ctx.globalAlpha=Math.max(0,alpha);
+    ctx.font='20px serif';
+    ctx.textAlign='center';
+    ctx.fillText(e.emoji, e.x, e.y);
+    ctx.restore();
+  }
+}
+
 // px/ms — walking speed. At 60fps (16.67ms/frame) this is ~0.4px/frame.
 // A 300px path takes ~12 seconds. Feels like a slow campus stroll.
 const GSPD = 0.013;   // guided walk
@@ -299,6 +333,7 @@ function setChat(a,b){
   const mx=(a.x+b.x)/2, my=(a.y+b.y)/2;
   [a,b].forEach(ag=>{ ag.state=ST.C; ag.timer=0; ag.dur=12000+Math.random()*16000; ag.mx=mx; ag.my=my; });
   a.partner=agents.indexOf(b); b.partner=agents.indexOf(a);
+  spawnEmoji('💬', mx, Math.min(a.y,b.y)-22, 0, -0.02, 2400);
 }
 function setRomance(a,b,mx,my){
   [a,b].forEach((ag,i)=>{
@@ -350,7 +385,12 @@ function tick(ts){
         if(exp) setWalk(a);
         break;
       case ST.C:
-        if(exp){ setWalk(a); if(a.partner>=0&&agents[a.partner]) setWalk(agents[a.partner]); }
+        if(exp){
+          spawnEmoji('👋', a.x-10, a.y-20, -0.025, -0.03, 1400);
+          const cp=a.partner>=0?agents[a.partner]:null;
+          if(cp){ spawnEmoji('👋', cp.x+10, cp.y-20, 0.025, -0.03, 1400); setWalk(cp); }
+          setWalk(a);
+        }
         break;
       case ST.R:
         if(exp){ setWalk(a); if(a.partner>=0&&agents[a.partner]) setWalk(agents[a.partner]); }
@@ -385,6 +425,15 @@ function tick(ts){
       setRomance(ag,bg,mx,my);
     }
   }
+  // ambient floating emojis
+  agents.forEach(a=>{
+    if((a.state===ST.W||a.state===ST.P)&&Math.random()<0.003)
+      spawnEmoji('💡', a.x, a.y-22, (Math.random()-.5)*0.015, -0.025, 2200);
+    if(a.inHub&&a.state===ST.H&&Math.random()<0.007)
+      spawnEmoji('☕', a.x+(Math.random()-.5)*14, a.y-18, 0, -0.018, 2400);
+    if(a.node===6&&(a.state===ST.W||a.state===ST.H)&&Math.random()<0.008)
+      spawnEmoji('🎵', a.x+(Math.random()-.5)*18, a.y-18, (Math.random()-.5)*0.025, -0.022, 2600);
+  });
   lastTick=ts;
 }
 
@@ -418,8 +467,13 @@ function move(a, dt){
         else { a.x += (dx/d)*GSPD*dt; a.y += (dy/d)*GSPD*dt; }
       } else {
         // Arrived
+        const arrivedAt = a.tnode;
         a.node = a.tnode;
         if(a.partner>=0&&agents[a.partner])agents[a.partner].partner=-1;
+        if(arrivedAt===2)  spawnEmoji('🏆', a.x, a.y-28, 0, -0.035, 2600);
+        if(arrivedAt===12) spawnEmoji('📰', a.x+(Math.random()-.5)*14, a.y-20, (Math.random()-.5)*0.02, -0.022, 2200);
+        if(arrivedAt===5)  spawnEmoji('💊', a.x, a.y-22, 0, -0.025, 2000);
+        if(arrivedAt===23) spawnEmoji('🕊️', a.x, a.y-24, (Math.random()-.5)*0.03, -0.03, 2400);
         setWalk(a);
       }
       break;
@@ -816,7 +870,7 @@ function loop(ts){
 
   ctx = ctxFG;
   ctxFG.clearRect(0,0,W,H);
-  drawAgents(); drawHUD();
+  drawAgents(); drawHUD(); drawEmojiEvents();
 
   // update stats bar below map
   const _active=agents.filter(a=>a.state!==ST.P).length;
