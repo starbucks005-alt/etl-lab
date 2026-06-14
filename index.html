@@ -2724,7 +2724,7 @@ document.addEventListener('DOMContentLoaded', function(){
       <div id="cc-ac-feed" class="cc-feed-hp">
         <div class="cc-feed-loading-hp">Opening the channel...</div>
       </div>
-      <button class="cc-scroll-btn" id="cc-scroll-latest" type="button">&#9660; LATEST</button>
+      <button class="cc-scroll-btn" id="cc-scroll-latest" type="button">&#9650; LATEST</button>
     </div>
 
   </div>
@@ -5625,7 +5625,7 @@ h1 b,h2 b,h1 strong,h2 strong{font-weight:500}
     return '<span style="'+wrap+'">'+fb+'</span>';
   }
   var scrollBtn=document.getElementById('cc-scroll-latest');
-  if(scrollBtn) scrollBtn.addEventListener('click',function(){ feed.scrollTop=feed.scrollHeight; });
+  if(scrollBtn) scrollBtn.addEventListener('click',function(){ feed.scrollTop=0; });
   var keyBtn=document.getElementById('cc-key-btn');
   var keyOverlay=document.getElementById('cc-key-overlay');
   if(keyBtn&&keyOverlay){
@@ -5808,8 +5808,8 @@ h1 b,h2 b,h1 strong,h2 strong{font-weight:500}
     var html='<div style="display:flex;gap:10px;align-items:flex-start;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.05);">'+avatar(who.n)+
       '<div style="flex:1;min-width:0;"><div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;margin-bottom:2px;"><span style="font-size:12px;font-weight:700;color:rgba(0,200,255,.85);">'+escCh(who.n)+'</span>'+role+'<span style="font-size:10px;color:rgba(255,255,255,.3);font-family:\'IBM Plex Mono\',monospace;">'+fmtNow()+'</span></div>'+
       '<span style="font-size:13px;color:rgba(255,255,255,.75);line-height:1.5;">'+escCh(pick.m)+'</span></div></div>';
-    feed.insertAdjacentHTML('beforeend',html);
-    feed.scrollTop=feed.scrollHeight;
+    feed.insertAdjacentHTML('afterbegin',html);
+    feed.scrollTop=0;
     setTimeout(addBanter,60000+Math.random()*90000);
   }
   fetch('/.netlify/functions/carol-channel',{cache:'no-store'})
@@ -5820,7 +5820,7 @@ h1 b,h2 b,h1 strong,h2 strong{font-weight:500}
       if(day&&d.dayLabel) day.textContent=d.dayLabel;
       var keep=document.getElementById('cc-ac-keeper');
       if(keep&&d.keeper_note) keep.textContent=d.keeper_note+' The staff coordinate here all day. You\'re welcome to read over their shoulders.';
-      var msgs=d.messages.slice(-8);
+      var msgs=d.messages.slice(-8).reverse();
       var html='';
       msgs.forEach(function(m){
         var name=escCh(m.speaker||'Staff');
@@ -5832,7 +5832,7 @@ h1 b,h2 b,h1 strong,h2 strong{font-weight:500}
           '<span style="font-size:13px;color:rgba(255,255,255,.75);line-height:1.5;">'+text+'</span></div></div>';
       });
       feed.innerHTML=html;
-      feed.scrollTop=feed.scrollHeight;
+      feed.scrollTop=0;
       setTimeout(addBanter,20000+Math.random()*25000);
       // Floor note button
       if(d.keeper_digest){
