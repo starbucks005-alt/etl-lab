@@ -2,157 +2,131 @@
   <title>ETL Neighborhood Map</title>
   <defs>
     <filter id="bshadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="1" stdDeviation="2.5" flood-color="#00000030"/>
+      <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#00000050"/>
     </filter>
     <style>
-      text { font-family: system-ui, -apple-system, sans-serif; }
-      .dlabel { font-size: 9.5px; font-weight: 700; letter-spacing: 0.09em; fill: #8ab0cc; }
-      .blabel { font-size: 8.5px; font-weight: 500; fill: #d0e8f8; }
-      .blabel-sm { font-size: 7.5px; font-weight: 500; fill: #d0e8f8; }
+      text { font-family: 'Courier New', monospace; }
+      .blabel  { font-size: 8.5px; font-weight: 500; fill: #c8dff0; }
+      .blabel2 { font-size: 7.5px; font-weight: 500; fill: #c8dff0; }
+      .dlabel  { font-size: 7px;   font-weight: 700; letter-spacing: 0.10em; fill: #2a4a62; }
+      .bridgelabel { font-size: 6px; fill: #2a4a62; letter-spacing: 0.08em; font-family: 'Courier New', monospace; }
     </style>
   </defs>
 
   <!-- Hub lines from ETL Deskworks Dayton (910,605) -->
-  <g stroke="#004870" stroke-width="1" stroke-dasharray="4,8" fill="none" opacity="0.55">
-    <line x1="910" y1="605" x2="600" y2="110"/>
-    <line x1="910" y1="605" x2="225" y2="350"/>
-    <line x1="910" y1="605" x2="325" y2="550"/>
-    <line x1="910" y1="605" x2="600" y2="350"/>
-    <line x1="910" y1="605" x2="850" y2="350"/>
-    <line x1="910" y1="605" x2="600" y2="750"/>
+  <g stroke="#0d2e48" stroke-width="1" stroke-dasharray="5,10" fill="none" opacity="0.7">
+    <line x1="910" y1="605" x2="560" y2="125"/>
+    <line x1="910" y1="605" x2="260" y2="325"/>
+    <line x1="910" y1="605" x2="310" y2="525"/>
+    <line x1="910" y1="605" x2="560" y2="325"/>
+    <line x1="910" y1="605" x2="860" y2="325"/>
+    <line x1="910" y1="605" x2="610" y2="725"/>
   </g>
-
-  <!-- District zones -->
-  <rect x="450" y="50"  width="300" height="120" rx="8" fill="#3b82f6" fill-opacity="0.08" stroke="#3b82f6" stroke-opacity="0.30" stroke-width="1.5"/>
-  <text x="600" y="65"  class="dlabel" text-anchor="middle">NORTH DISTRICT</text>
-
-  <rect x="100" y="250" width="250" height="200" rx="8" fill="#22c55e" fill-opacity="0.08" stroke="#22c55e" stroke-opacity="0.30" stroke-width="1.5"/>
-  <text x="225" y="266" class="dlabel" text-anchor="middle">WEST DISTRICT</text>
-
-  <rect x="200" y="450" width="250" height="200" rx="8" fill="#f97316" fill-opacity="0.08" stroke="#f97316" stroke-opacity="0.30" stroke-width="1.5"/>
-  <text x="325" y="466" class="dlabel" text-anchor="middle">SOUTHWEST</text>
-
-  <rect x="450" y="250" width="300" height="200" rx="8" fill="#a855f7" fill-opacity="0.08" stroke="#a855f7" stroke-opacity="0.30" stroke-width="1.5"/>
-  <text x="600" y="266" class="dlabel" text-anchor="middle">CENTRAL ACADEMIC QUAD</text>
-
-  <rect x="750" y="250" width="200" height="200" rx="8" fill="#14b8a6" fill-opacity="0.08" stroke="#14b8a6" stroke-opacity="0.30" stroke-width="1.5"/>
-  <text x="850" y="266" class="dlabel" text-anchor="middle">EAST DISTRICT</text>
-
-  <rect x="700" y="450" width="300" height="300" rx="8" fill="#ef4444" fill-opacity="0.08" stroke="#ef4444" stroke-opacity="0.30" stroke-width="1.5"/>
-  <text x="850" y="466" class="dlabel" text-anchor="middle">SOUTHEAST DISTRICT</text>
-
-  <rect x="450" y="650" width="300" height="200" rx="8" fill="#eab308" fill-opacity="0.08" stroke="#eab308" stroke-opacity="0.30" stroke-width="1.5"/>
-  <text x="600" y="666" class="dlabel" text-anchor="middle">SOUTH DISTRICT</text>
 
   <!-- ── BUILDINGS ── -->
 
   <!-- NORTH -->
   <g filter="url(#bshadow)">
-    <rect x="500" y="100" width="120" height="50" rx="6" fill="#0a1828" stroke="#4a9eff" stroke-width="1.5"/>
-    <rect x="650" y="100" width="120" height="50" rx="6" fill="#0a1828" stroke="#b060ff" stroke-width="1.5"/>
+    <rect x="500" y="100" width="120" height="50" rx="5" fill="#060d1a" stroke="#4a9eff" stroke-width="1.5"/>
+    <rect x="650" y="100" width="120" height="50" rx="5" fill="#060d1a" stroke="#b060ff" stroke-width="1.5"/>
   </g>
-  <text text-anchor="middle" class="blabel"><tspan x="560" y="120">Intel</tspan><tspan x="560" dy="13">Dashboard</tspan></text>
-  <text text-anchor="middle" class="blabel"><tspan x="710" y="120">OPSEC</tspan><tspan x="710" dy="13">Gauntlet</tspan></text>
+  <text text-anchor="middle" class="blabel"><tspan x="560" y="121">Intel</tspan><tspan x="560" dy="13">Dashboard</tspan></text>
+  <text text-anchor="middle" class="blabel"><tspan x="710" y="121">OPSEC</tspan><tspan x="710" dy="13">Gauntlet</tspan></text>
 
   <!-- WEST -->
   <g filter="url(#bshadow)">
-    <rect x="200" y="300" width="120" height="50" rx="6" fill="#0a1828" stroke="#ff4455" stroke-width="1.5"/>
+    <rect x="200" y="300" width="120" height="50" rx="5" fill="#060d1a" stroke="#ff4455" stroke-width="1.5"/>
   </g>
   <text x="260" y="329" text-anchor="middle" class="blabel">The Gauntlet</text>
 
   <!-- SOUTHWEST -->
   <g filter="url(#bshadow)">
-    <rect x="250" y="500" width="120" height="50" rx="6" fill="#0a1828" stroke="#22d47a" stroke-width="1.5"/>
-    <rect x="350" y="520" width="120" height="50" rx="6" fill="#0a1828" stroke="#14d4b0" stroke-width="1.5"/>
+    <rect x="250" y="500" width="120" height="50" rx="5" fill="#060d1a" stroke="#22d47a" stroke-width="1.5"/>
+    <rect x="350" y="520" width="120" height="50" rx="5" fill="#060d1a" stroke="#14d4b0" stroke-width="1.5"/>
   </g>
   <text x="310" y="529" text-anchor="middle" class="blabel">The Dose</text>
   <text x="410" y="544" text-anchor="middle" class="blabel">The Gym</text>
-  <text x="410" y="560" text-anchor="middle" style="font-size:7px;font-weight:700;letter-spacing:0.08em;fill:#f97316;">COMING SOON</text>
+  <text x="410" y="560" text-anchor="middle" style="font-size:6.5px;font-weight:700;letter-spacing:0.09em;fill:#e07010;font-family:'Courier New',monospace;">COMING SOON</text>
 
   <!-- CENTRAL ACADEMIC QUAD -->
   <g filter="url(#bshadow)">
-    <rect x="500" y="300" width="120" height="50" rx="6" fill="#0a1828" stroke="#f5a623" stroke-width="1.5"/>
-    <rect x="600" y="300" width="120" height="50" rx="6" fill="#0a1828" stroke="#f5a623" stroke-width="1.5"/>
-    <rect x="500" y="380" width="120" height="50" rx="6" fill="#0a1828" stroke="#f5a623" stroke-width="1.5"/>
-    <rect x="600" y="380" width="120" height="50" rx="6" fill="#0a1828" stroke="#b060ff" stroke-width="1.5"/>
+    <rect x="500" y="300" width="120" height="50" rx="5" fill="#060d1a" stroke="#f5a623" stroke-width="1.5"/>
+    <rect x="600" y="300" width="120" height="50" rx="5" fill="#060d1a" stroke="#f5a623" stroke-width="1.5"/>
+    <rect x="500" y="380" width="120" height="50" rx="5" fill="#060d1a" stroke="#f5a623" stroke-width="1.5"/>
+    <rect x="600" y="380" width="120" height="50" rx="5" fill="#060d1a" stroke="#b060ff" stroke-width="1.5"/>
   </g>
   <text x="560" y="329" text-anchor="middle" class="blabel">Office Hours</text>
   <text x="660" y="329" text-anchor="middle" class="blabel">Prep Room</text>
   <text x="560" y="409" text-anchor="middle" class="blabel">SLR Studio</text>
-  <text text-anchor="middle" class="blabel-sm"><tspan x="660" y="398">Mission Possible</tspan><tspan x="660" dy="12">Spy Academy</tspan></text>
+  <text text-anchor="middle" class="blabel2"><tspan x="660" y="398">Mission Possible</tspan><tspan x="660" dy="13">Spy Academy</tspan></text>
 
   <!-- EAST -->
   <g filter="url(#bshadow)">
-    <rect x="800" y="300" width="120" height="50" rx="6" fill="#0a1828" stroke="#ff7a30" stroke-width="1.5"/>
-    <rect x="820" y="380" width="120" height="50" rx="6" fill="#0a1828" stroke="#d4b46a" stroke-width="1.5"/>
+    <rect x="800" y="300" width="120" height="50" rx="5" fill="#060d1a" stroke="#ff7a30" stroke-width="1.5"/>
+    <rect x="820" y="380" width="120" height="50" rx="5" fill="#060d1a" stroke="#d4b46a" stroke-width="1.5"/>
   </g>
-  <text text-anchor="middle" class="blabel-sm"><tspan x="860" y="320">ETL Newswire</tspan><tspan x="860" dy="12">Press Hub</tspan></text>
+  <text text-anchor="middle" class="blabel2"><tspan x="860" y="321">ETL Newswire</tspan><tspan x="860" dy="13">Press Hub</tspan></text>
   <text x="880" y="409" text-anchor="middle" class="blabel">Greylander Press</text>
 
   <!-- SOUTHEAST -->
   <g filter="url(#bshadow)">
-    <rect x="750" y="500" width="120" height="50" rx="6" fill="#0a1828" stroke="#f5a623" stroke-width="1.5"/>
-    <rect x="850" y="500" width="120" height="50" rx="6" fill="#0a1828" stroke="#4a9eff" stroke-width="1.5"/>
-    <rect x="750" y="580" width="120" height="50" rx="6" fill="#0a1828" stroke="#4a9eff" stroke-width="1.5"/>
-    <!-- DeskWorks HUB accent ring -->
-    <rect x="848" y="578" width="124" height="54" rx="7" fill="none" stroke="#ff4455" stroke-opacity="0.55" stroke-width="2"/>
-    <rect x="850" y="580" width="120" height="50" rx="6" fill="#120008" stroke="#ff4455" stroke-width="1.5"/>
-    <rect x="900" y="620" width="120" height="50" rx="6" fill="#0a1828" stroke="#d4b46a" stroke-width="1.5"/>
-    <rect x="780" y="650" width="120" height="50" rx="6" fill="#0a1828" stroke="#4a9eff" stroke-width="1.5"/>
+    <rect x="750" y="500" width="120" height="50" rx="5" fill="#060d1a" stroke="#f5a623" stroke-width="1.5"/>
+    <rect x="850" y="500" width="120" height="50" rx="5" fill="#060d1a" stroke="#4a9eff" stroke-width="1.5"/>
+    <rect x="750" y="580" width="120" height="50" rx="5" fill="#060d1a" stroke="#4a9eff" stroke-width="1.5"/>
+    <!-- DeskWorks HUB — double border -->
+    <rect x="848" y="578" width="124" height="54" rx="6" fill="none" stroke="#ff4455" stroke-opacity="0.5" stroke-width="2"/>
+    <rect x="850" y="580" width="120" height="50" rx="5" fill="#100010" stroke="#ff4455" stroke-width="1.5"/>
+    <rect x="900" y="620" width="120" height="50" rx="5" fill="#060d1a" stroke="#d4b46a" stroke-width="1.5"/>
+    <rect x="780" y="650" width="120" height="50" rx="5" fill="#060d1a" stroke="#4a9eff" stroke-width="1.5"/>
   </g>
   <text x="810" y="529" text-anchor="middle" class="blabel">Boardroom</text>
   <text x="910" y="529" text-anchor="middle" class="blabel">ETL Staffing</text>
   <text x="810" y="609" text-anchor="middle" class="blabel">Founder Studio</text>
-  <text text-anchor="middle" style="font-size:7.5px;font-weight:700;fill:#ff4455;letter-spacing:0.06em;"><tspan x="910" y="601">ETL DESKWORKS</tspan><tspan x="910" dy="12">DAYTON ★</tspan></text>
-  <text text-anchor="middle" class="blabel"><tspan x="960" y="641">Chris's Tailor</tspan><tspan x="960" dy="13">Shop</tspan></text>
-  <text text-anchor="middle" class="blabel"><tspan x="840" y="670">Build Your</tspan><tspan x="840" dy="13">Agent</tspan></text>
+  <text text-anchor="middle" style="font-size:7px;font-weight:700;fill:#ff4455;letter-spacing:0.07em;font-family:'Courier New',monospace;"><tspan x="910" y="601">ETL DESKWORKS</tspan><tspan x="910" dy="12">DAYTON ★</tspan></text>
+  <text text-anchor="middle" class="blabel2"><tspan x="960" y="641">Chris's Tailor</tspan><tspan x="960" dy="13">Shop</tspan></text>
+  <text text-anchor="middle" class="blabel2"><tspan x="840" y="670">Build Your</tspan><tspan x="840" dy="13">Agent</tspan></text>
 
   <!-- SOUTH -->
   <g filter="url(#bshadow)">
-    <rect x="550" y="700" width="120" height="50" rx="6" fill="#0a1828" stroke="#d060f0" stroke-width="1.5"/>
+    <rect x="550" y="700" width="120" height="50" rx="5" fill="#060d1a" stroke="#d060f0" stroke-width="1.5"/>
   </g>
   <text text-anchor="middle" class="blabel"><tspan x="610" y="720">Gandhi-King</tspan><tspan x="610" dy="13">Center</tspan></text>
 
-  <!-- ── BRIDGES ── small footbridge symbols at scenic edge midpoints ── -->
-  <defs>
-    <marker id="bdot" markerWidth="3" markerHeight="3" refX="1.5" refY="1.5" orient="auto">
-      <circle cx="1.5" cy="1.5" r="1.2" fill="#4a7a9b"/>
-    </marker>
-  </defs>
+  <!-- ── BRIDGES ── footbridge symbols at scenic edge midpoints ── -->
 
-  <!-- Bridge 1: West Junction ↔ Office Hours (422, 377) — mid-campus crossing -->
+  <!-- Faculty Bridge: West Junction ↔ Office Hours midpoint (422, 377) -->
   <g transform="translate(422,377)">
-    <rect x="-28" y="-6" width="56" height="12" rx="3" fill="#050e1e" stroke="#2a5070" stroke-width="1" opacity="0.9"/>
-    <line x1="-22" y1="-3" x2="22" y2="-3" stroke="#4a7a9b" stroke-width="1.5"/>
-    <line x1="-22" y1="3"  x2="22" y2="3"  stroke="#4a7a9b" stroke-width="1.5"/>
-    <line x1="-16" y1="-3" x2="-16" y2="3" stroke="#4a7a9b" stroke-width="1"/>
-    <line x1="-6"  y1="-3" x2="-6"  y2="3" stroke="#4a7a9b" stroke-width="1"/>
-    <line x1="6"   y1="-3" x2="6"   y2="3" stroke="#4a7a9b" stroke-width="1"/>
-    <line x1="16"  y1="-3" x2="16"  y2="3" stroke="#4a7a9b" stroke-width="1"/>
-    <text x="0" y="17" text-anchor="middle" style="font-size:6.5px;fill:#3a6888;font-family:system-ui;letter-spacing:0.07em">FACULTY BRIDGE</text>
+    <rect x="-30" y="-7" width="60" height="14" rx="3" fill="#04080f" stroke="#1a3a55" stroke-width="0.8"/>
+    <line x1="-23" y1="-3" x2="23" y2="-3" stroke="#2a5c80" stroke-width="1.5"/>
+    <line x1="-23" y1="3"  x2="23" y2="3"  stroke="#2a5c80" stroke-width="1.5"/>
+    <line x1="-17" y1="-3" x2="-17" y2="3" stroke="#2a5c80" stroke-width="1"/>
+    <line x1="-6"  y1="-3" x2="-6"  y2="3" stroke="#2a5c80" stroke-width="1"/>
+    <line x1="6"   y1="-3" x2="6"   y2="3" stroke="#2a5c80" stroke-width="1"/>
+    <line x1="17"  y1="-3" x2="17"  y2="3" stroke="#2a5c80" stroke-width="1"/>
+    <text x="0" y="18" text-anchor="middle" class="bridgelabel">FACULTY BRIDGE</text>
   </g>
 
-  <!-- Bridge 2: Gym ↔ Quad Junction (510, 497) — southwest connector -->
+  <!-- Quad Bridge: Gym ↔ Quad Junction midpoint (510, 497) -->
   <g transform="translate(510,497)">
-    <rect x="-28" y="-6" width="56" height="12" rx="3" fill="#050e1e" stroke="#2a5070" stroke-width="1" opacity="0.9"/>
-    <line x1="-22" y1="-3" x2="22" y2="-3" stroke="#4a7a9b" stroke-width="1.5"/>
-    <line x1="-22" y1="3"  x2="22" y2="3"  stroke="#4a7a9b" stroke-width="1.5"/>
-    <line x1="-16" y1="-3" x2="-16" y2="3" stroke="#4a7a9b" stroke-width="1"/>
-    <line x1="-6"  y1="-3" x2="-6"  y2="3" stroke="#4a7a9b" stroke-width="1"/>
-    <line x1="6"   y1="-3" x2="6"   y2="3" stroke="#4a7a9b" stroke-width="1"/>
-    <line x1="16"  y1="-3" x2="16"  y2="3" stroke="#4a7a9b" stroke-width="1"/>
-    <text x="0" y="17" text-anchor="middle" style="font-size:6.5px;fill:#3a6888;font-family:system-ui;letter-spacing:0.07em">QUAD BRIDGE</text>
+    <rect x="-30" y="-7" width="60" height="14" rx="3" fill="#04080f" stroke="#1a3a55" stroke-width="0.8"/>
+    <line x1="-23" y1="-3" x2="23" y2="-3" stroke="#2a5c80" stroke-width="1.5"/>
+    <line x1="-23" y1="3"  x2="23" y2="3"  stroke="#2a5c80" stroke-width="1.5"/>
+    <line x1="-17" y1="-3" x2="-17" y2="3" stroke="#2a5c80" stroke-width="1"/>
+    <line x1="-6"  y1="-3" x2="-6"  y2="3" stroke="#2a5c80" stroke-width="1"/>
+    <line x1="6"   y1="-3" x2="6"   y2="3" stroke="#2a5c80" stroke-width="1"/>
+    <line x1="17"  y1="-3" x2="17"  y2="3" stroke="#2a5c80" stroke-width="1"/>
+    <text x="0" y="18" text-anchor="middle" class="bridgelabel">QUAD BRIDGE</text>
   </g>
 
-  <!-- Bridge 3: SW Junction ↔ Gandhi-King (665, 702) — garden crossing -->
+  <!-- Garden Bridge: SW Junction ↔ Gandhi-King midpoint (665, 702) -->
   <g transform="translate(665,702)">
-    <rect x="-28" y="-6" width="56" height="12" rx="3" fill="#050e1e" stroke="#2a5070" stroke-width="1" opacity="0.9"/>
-    <line x1="-22" y1="-3" x2="22" y2="-3" stroke="#4a7a9b" stroke-width="1.5"/>
-    <line x1="-22" y1="3"  x2="22" y2="3"  stroke="#4a7a9b" stroke-width="1.5"/>
-    <line x1="-16" y1="-3" x2="-16" y2="3" stroke="#4a7a9b" stroke-width="1"/>
-    <line x1="-6"  y1="-3" x2="-6"  y2="3" stroke="#4a7a9b" stroke-width="1"/>
-    <line x1="6"   y1="-3" x2="6"   y2="3" stroke="#4a7a9b" stroke-width="1"/>
-    <line x1="16"  y1="-3" x2="16"  y2="3" stroke="#4a7a9b" stroke-width="1"/>
-    <text x="0" y="17" text-anchor="middle" style="font-size:6.5px;fill:#3a6888;font-family:system-ui;letter-spacing:0.07em">GARDEN BRIDGE</text>
+    <rect x="-30" y="-7" width="60" height="14" rx="3" fill="#04080f" stroke="#1a3a55" stroke-width="0.8"/>
+    <line x1="-23" y1="-3" x2="23" y2="-3" stroke="#2a5c80" stroke-width="1.5"/>
+    <line x1="-23" y1="3"  x2="23" y2="3"  stroke="#2a5c80" stroke-width="1.5"/>
+    <line x1="-17" y1="-3" x2="-17" y2="3" stroke="#2a5c80" stroke-width="1"/>
+    <line x1="-6"  y1="-3" x2="-6"  y2="3" stroke="#2a5c80" stroke-width="1"/>
+    <line x1="6"   y1="-3" x2="6"   y2="3" stroke="#2a5c80" stroke-width="1"/>
+    <line x1="17"  y1="-3" x2="17"  y2="3" stroke="#2a5c80" stroke-width="1"/>
+    <text x="0" y="18" text-anchor="middle" class="bridgelabel">GARDEN BRIDGE</text>
   </g>
 </svg>
