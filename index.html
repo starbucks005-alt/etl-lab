@@ -2657,7 +2657,16 @@ document.addEventListener('DOMContentLoaded', function(){
 .cc-wrap-inner{max-width:1200px;margin:0 auto;padding:0 20px}
 .cc-eyebrow-hp{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.2em;color:rgba(0,200,255,.65);padding:0 0 10px;text-transform:uppercase}
 .cc-interface-hp{display:grid;grid-template-columns:1fr 1fr;border:1px solid rgba(0,200,255,.18);overflow:hidden;height:540px}
-.cc-panel-hp{display:flex;flex-direction:column;overflow:hidden;border-right:1px solid rgba(0,200,255,.12);height:540px}
+.cc-panel-hp{display:flex;flex-direction:column;overflow:hidden;border-right:1px solid rgba(0,200,255,.12);height:540px;position:relative}
+.cc-key-btn{background:transparent;border:1px solid rgba(0,200,255,.4);color:rgba(0,200,255,.85);font-family:'IBM Plex Mono',monospace;font-size:9px;padding:3px 8px;cursor:pointer;letter-spacing:.08em;flex:none}
+.cc-key-btn:hover{background:rgba(0,200,255,.1)}
+.cc-key-overlay{display:none;position:absolute;top:35px;right:0;z-index:30;background:rgba(4,10,22,.97);border:1px solid rgba(0,200,255,.25);border-top:none;padding:12px 14px;min-width:185px}
+.cc-key-overlay.open{display:block}
+.cc-key-title{font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(0,200,255,.85);letter-spacing:.14em;margin-bottom:8px;font-weight:700}
+.cc-key-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:#a0c8e0;letter-spacing:.05em}
+.cc-key-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.cc-key-ring{width:11px;height:11px;border-radius:50%;flex-shrink:0;border:1.5px solid rgba(255,255,255,.6)}
+.cc-key-sep{height:1px;background:rgba(0,200,255,.12);margin:7px 0}
 .cc-panel-hp:last-child{border-right:none}
 .cc-panel-hp-header{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.14em;color:rgba(0,200,255,.75);padding:8px 12px;border-bottom:1px solid rgba(0,200,255,.1);background:rgba(0,0,0,.5);display:flex;align-items:center;gap:8px;flex:none;justify-content:space-between}
 .cc-sdot{width:6px;height:6px;border-radius:50%;background:#22d47a;flex:none;animation:cc-blink 2s infinite}
@@ -2680,6 +2689,24 @@ document.addEventListener('DOMContentLoaded', function(){
     <div class="cc-panel-hp" id="cc-map-panel-hp">
       <div class="cc-panel-hp-header">
         <span style="display:flex;align-items:center;gap:8px;"><span class="cc-sdot"></span>LIVE CAMPUS MAP &nbsp;·&nbsp; ETL NEIGHBORHOOD</span>
+        <button class="cc-key-btn" id="cc-key-btn" type="button">&#9670; KEY</button>
+      </div>
+      <div class="cc-key-overlay" id="cc-key-overlay">
+        <div class="cc-key-title">PLATFORM KEY</div>
+        <div class="cc-key-row"><span class="cc-key-dot" style="background:#4a9eff"></span>Founder Studio</div>
+        <div class="cc-key-row"><span class="cc-key-dot" style="background:#b060ff"></span>OPSEC Gauntlet</div>
+        <div class="cc-key-row"><span class="cc-key-dot" style="background:#ff4455"></span>The Gauntlet</div>
+        <div class="cc-key-row"><span class="cc-key-dot" style="background:#22d47a"></span>The Dose</div>
+        <div class="cc-key-row"><span class="cc-key-dot" style="background:#14d4b0"></span>The Gym</div>
+        <div class="cc-key-row"><span class="cc-key-dot" style="background:#f5a623"></span>Prep Room / Boardroom</div>
+        <div class="cc-key-row"><span class="cc-key-dot" style="background:#ff7a30"></span>ETL Newswire</div>
+        <div class="cc-key-row"><span class="cc-key-dot" style="background:#d4b46a"></span>Greylander Press</div>
+        <div class="cc-key-row"><span class="cc-key-dot" style="background:#d060f0"></span>Gandhi-King Center</div>
+        <div class="cc-key-row"><span class="cc-key-dot" style="background:#708090"></span>Multi-platform</div>
+        <div class="cc-key-row"><span class="cc-key-dot" style="background:#f5c823"></span>Dr. O's Studio</div>
+        <div class="cc-key-row"><span class="cc-key-dot" style="background:#4a6fa5"></span>City Government</div>
+        <div class="cc-key-sep"></div>
+        <div class="cc-key-row"><span class="cc-key-ring"></span>Backpack Agent (MCP)</div>
       </div>
       <div class="cc-map-wrap" id="cc-map-wrap">
         <iframe src="/neighborhood.html" scrolling="no" title="ETL Live Campus" id="cc-map-iframe"></iframe>
@@ -5589,6 +5616,12 @@ h1 b,h2 b,h1 strong,h2 strong{font-weight:500}
   }
   var scrollBtn=document.getElementById('cc-scroll-latest');
   if(scrollBtn) scrollBtn.addEventListener('click',function(){ feed.scrollTop=feed.scrollHeight; });
+  var keyBtn=document.getElementById('cc-key-btn');
+  var keyOverlay=document.getElementById('cc-key-overlay');
+  if(keyBtn&&keyOverlay){
+    keyBtn.addEventListener('click',function(e){ e.stopPropagation(); keyOverlay.classList.toggle('open'); });
+    document.addEventListener('click',function(){ if(keyOverlay) keyOverlay.classList.remove('open'); });
+  }
   fetch('/.netlify/functions/carol-channel',{cache:'no-store'})
     .then(function(r){return r.json();})
     .then(function(d){
