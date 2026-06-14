@@ -49,6 +49,34 @@
   .lrow{display:flex;align-items:center;gap:6px}
   .ldot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
   .lring{width:10px;height:10px;border-radius:50%;flex-shrink:0;border:1.5px solid rgba(255,255,255,0.7)}
+
+  /* ── LEGEND MODAL ───────────────────────────────────────────────────── */
+  #legend-btn{
+    position:absolute;bottom:12px;right:12px;z-index:20;
+    background:rgba(4,12,24,0.92);border:1px solid #1a3a5c;
+    color:#00c8ff;font-family:'Courier New',monospace;font-size:11px;
+    font-weight:700;letter-spacing:0.12em;padding:5px 12px;
+    cursor:pointer;border-radius:3px;transition:border-color .2s;
+  }
+  #legend-btn:hover{border-color:#00c8ff;box-shadow:0 0 8px rgba(0,200,255,0.2)}
+  #legend-modal{
+    display:none;position:absolute;bottom:46px;right:12px;z-index:30;
+    background:rgba(4,10,22,0.97);border:1px solid #1a3a5c;
+    padding:14px 16px;border-radius:5px;min-width:210px;
+    box-shadow:0 0 24px rgba(0,180,255,0.15);
+  }
+  #legend-modal.open{display:block}
+  #legend-modal h3{
+    color:#00c8ff;font-family:'Courier New',monospace;font-size:11px;
+    font-weight:700;letter-spacing:0.12em;margin-bottom:10px;text-transform:uppercase;
+  }
+  .lm-row{
+    display:flex;align-items:center;gap:8px;margin-bottom:7px;
+    font-family:'Courier New',monospace;font-size:10px;color:#a0c8e0;
+  }
+  .lm-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+  .lm-ring{width:10px;height:10px;border-radius:50%;flex-shrink:0;border:1.5px solid rgba(255,255,255,0.6)}
+  .lm-sep{height:1px;background:#1a3a5c;margin:8px 0}
 </style>
 </head>
 <body>
@@ -57,6 +85,13 @@
   <canvas id="map-bg" width="1200" height="900"></canvas>
   <img id="tech-map-overlay" src="/tech-map.png" alt="">
   <canvas id="map-fg" width="1200" height="900"></canvas>
+  <button id="legend-btn" onclick="document.getElementById('legend-modal').classList.toggle('open')">◆ KEY</button>
+  <div id="legend-modal">
+    <h3>Platform Key</h3>
+    <div id="lm-rows"></div>
+    <div class="lm-sep"></div>
+    <div class="lm-row"><span class="lm-ring"></span><span>Backpack Agent (MCP)</span></div>
+  </div>
   <div id="tooltip">
     <div class="tt-name" id="tt-name"></div>
     <div class="tt-sub" id="tt-sub"></div>
@@ -87,13 +122,13 @@ const W = 1200, H = 900;
 const PC = {
   FS:'#4a9eff', OG:'#b060ff', TG:'#ff4455', TD:'#22d47a', GY:'#14d4b0',
   PR:'#f5a623', NW:'#ff7a30', GP:'#d4b46a', GK:'#d060f0', XX:'#708090',
-  DR:'#f5c823'
+  DR:'#f5c823', CG:'#4a6fa5'
 };
 const PL = {
   FS:'Founder Studio', OG:'OPSEC Gauntlet', TG:'The Gauntlet',
   TD:'The Dose', GY:'The Gym', PR:'Prep Room / Boardroom',
   NW:'ETL Newswire', GP:'Greylander Press', GK:'Gandhi-King Center', XX:'Multi-platform',
-  DR:"Dr. O's Studio"
+  DR:"Dr. O's Studio", CG:'City Government'
 };
 
 // ── WAYPOINT GRAPH — remapped to tech-map.png building positions ──────────────
@@ -125,6 +160,7 @@ const N = [
   [848,700],  // 23 Gandhi-King Center
   [640,668],  // 24 South Junction
   [760,272],  // 25 Dr. O's Studio       ← PI
+  [165,175],  // 26 City Government
 ];
 
 const EDGES = [
@@ -154,6 +190,7 @@ const EDGES = [
   [18,19],[22,19],     // Founder + Build Agent → SW Junction
   [19,23],             // SW Junction → Gandhi-King
   [25,4],[25,10],[25,12],[25,1], // Dr. O's Studio → NE Jct, SLR, Newswire, OPSEC
+  [26,6],[26,0],                 // City Govt → The Gym + Intel Dashboard
 ];
 
 const ADJ = Array.from({length:N.length},()=>[]);
@@ -244,7 +281,7 @@ const ADAT = [
   ["Dr. Ali Malik","OG",6,1]
 ];
 
-const HOME = {FS:18,OG:1,TG:2,TD:5,GY:6,PR:9,NW:12,GP:13,GK:23,XX:20,DR:10};
+const HOME = {FS:18,OG:1,TG:2,TD:5,GY:6,PR:9,NW:12,GP:13,GK:23,XX:20,DR:10,CG:26};
 const HUB  = 20;
 const HUB_R = 60;
 const DR_O = 10; // SLR Studio — Dr. O's home node
@@ -927,6 +964,22 @@ function loop(ts){
   requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
+
+// ── LEGEND MODAL — populate from PC/PL ───────────────────────────────────────
+(function(){
+  const rows = document.getElementById('lm-rows');
+  Object.keys(PL).forEach(k=>{
+    const div = document.createElement('div');
+    div.className = 'lm-row';
+    div.innerHTML = `<span class="lm-dot" style="background:${PC[k]}"></span><span>${PL[k]}</span>`;
+    rows.appendChild(div);
+  });
+  document.addEventListener('click', e=>{
+    const modal = document.getElementById('legend-modal');
+    const btn   = document.getElementById('legend-btn');
+    if(!modal.contains(e.target) && e.target !== btn) modal.classList.remove('open');
+  });
+})();
 </script>
 </body>
 </html>
