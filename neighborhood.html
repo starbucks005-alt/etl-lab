@@ -772,11 +772,16 @@ function drawAgents(){
         ctx.restore();
       }
     }
-    // Dr. O AI Twin — special star ring
+    // Dr. O AI Twin — special star ring + permanent ETL tag
     if(a.name.includes('AI Twin')){
       ctx.strokeStyle='rgba(255,255,255,0.8)'; ctx.lineWidth=1;
       ctx.setLineDash([2,3]);
       ctx.beginPath(); ctx.arc(a.x,a.y,a.r+5,0,Math.PI*2); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.font='bold 9px "Courier New",monospace';
+      ctx.textAlign='center';
+      ctx.fillStyle='#f5c823';
+      ctx.fillText('ETL', a.x, a.y - a.r - 8);
     }
     ctx.restore();
   });
