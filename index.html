@@ -867,11 +867,12 @@ document.addEventListener('DOMContentLoaded', function(){
   var aigov = document.getElementById('ai-governance');
   var etlpa = document.getElementById('etl-pa');
   var aitwin = document.getElementById('ai-twin');
+  var cc = document.getElementById('command-center');
   var talks = document.getElementById('talks');
   var intel = document.getElementById('intel');
   var pub = document.getElementById('publications');
   var anchor = ticker;
-  [hero, harvard, briefing, obs, stack, slr, network, agents, aigov, etlpa, aitwin, talks, intel, pub].forEach(function(node){
+  [hero, harvard, briefing, obs, cc, stack, slr, network, agents, aigov, etlpa, aitwin, talks, intel, pub].forEach(function(node){
     if (anchor && node) {
       anchor.insertAdjacentElement('afterend', node);
       anchor = node;
@@ -1217,19 +1218,6 @@ document.addEventListener('DOMContentLoaded', function(){
     </div>
   </div>
 
-  <!-- Live neighborhood map — bleeds in from the right of the hero -->
-  <div class="hero-map-panel" style="position:absolute;left:44%;right:0;top:60px;bottom:0;overflow:hidden;z-index:1;">
-    <!-- left fade: map dissolves into hero background -->
-    <div style="position:absolute;left:0;top:0;bottom:0;width:120px;background:linear-gradient(90deg,#1a1a1a,transparent);z-index:3;pointer-events:none;"></div>
-    <!-- bottom fade -->
-    <div style="position:absolute;left:0;bottom:0;right:0;height:80px;background:linear-gradient(0deg,#1a1a1a,transparent);z-index:3;pointer-events:none;"></div>
-    <iframe
-      src="/neighborhood.html"
-      style="width:1200px;height:1080px;border:none;position:absolute;left:0;top:0;transform:scale(0.73);transform-origin:top left;"
-      scrolling="no"
-      title="ETL Neighborhood — Live Agent Campus"
-    ></iframe>
-  </div>
 
 </div>
 
