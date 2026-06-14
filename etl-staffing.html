@@ -177,6 +177,10 @@ h1 em,h2 em{font-weight:300;color:#28527a}
   </div>
   <div class="cc-obs-note">ETL LAB &nbsp;·&nbsp; COMMAND CENTER v1 &nbsp;·&nbsp; OBS-OPTIMIZED 16:9</div>
 
+<!-- Preloaded CC audio — browser buffers these at page load -->
+<audio id="cc-ding"    src="/audio/BELLMisc-A_short_elevator_arr-Elevenlabs.mp3" preload="auto"></audio>
+<audio id="cc-ambient" src="/audio/AMBOffc-A_seamless_looping_a-Elevenlabs.mp3"  preload="auto" loop></audio>
+
   <!-- Narrative Strip -->
   <div class="cc-narrative-section">
     <div class="cc-narrative-strip">
@@ -319,9 +323,19 @@ h1 em,h2 em{font-weight:300;color:#28527a}
         btn.style.display = 'inline-block';
         btn.addEventListener('click', function(){
           try {
-            if (!noteAudio) noteAudio = new Audio('/.netlify/functions/carol-channel-audio');
-            noteAudio.currentTime = 0;
-            noteAudio.play().catch(function(){});
+            if (!noteAudio) {
+              noteAudio = new Audio('/.netlify/functions/carol-channel-audio');
+              noteAudio.onended = function(){ btn.innerHTML = (d.keeper ? '&#9654; ' + escCh(d.keeper) + "'s floor note" : '&#9654; FLOOR NOTE'); };
+            }
+            if (!noteAudio.paused) {
+              noteAudio.pause();
+              noteAudio.currentTime = 0;
+              btn.innerHTML = (d.keeper ? '&#9654; ' + escCh(d.keeper) + "'s floor note" : '&#9654; FLOOR NOTE');
+            } else {
+              noteAudio.currentTime = 0;
+              noteAudio.play().catch(function(){});
+              btn.innerHTML = '&#9646;&#9646; STOP';
+            }
           } catch(_){}
         });
       }
@@ -497,10 +511,9 @@ function placeTeam(){const p=window.__place||{};const tier=window.__placeTier||'
   var irisAudio = null;
   var audioReady = false;
 
-  var ding    = new Audio('/audio/BELLMisc-A_short_elevator_arr-Elevenlabs.mp3');
-  var ambient = new Audio('/audio/AMBOffc-A_seamless_looping_a-Elevenlabs.mp3');
-  ambient.loop   = true;
-  ambient.volume = 0.22;
+  var ding    = document.getElementById('cc-ding');
+  var ambient = document.getElementById('cc-ambient');
+  if(ambient) ambient.volume = 0.22;
 
   // Pre-fetch Iris greeting so it plays instantly on click
   fetch('/.netlify/functions/iris-greeting')
