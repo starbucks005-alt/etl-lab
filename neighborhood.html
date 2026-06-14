@@ -263,7 +263,7 @@ const ADAT = [
   ["Ayanna Cole","GK",5.5,0],["Coach Dom Castellanos","GY",6,1],
   ["Dr. Lena Brandt DPT","GY",6,1],["Noor Haddad","GY",5.5,0],
   ["Dr. Sana Qureshi","GY",5.5,0],["Benjamin Reed","FS",8,1],
-  ["Dr. Terry L. Oroszi (AI Twin)","DR",9,1],["Delia Marsh","FS",6,1],
+  ["Dr. Terry L. Oroszi","DR",9,1],["Delia Marsh","FS",6,1],
   ["Mateo 'Teo' Rivera","FS",7,1],["Simone Beaumont","FS",7,1],
   ["Mei Sato","FS",7,1],["Marceline Smith","FS",7,1],
   ["Antonio Crosby","FS",7,1],["Amelie Griffith","FS",7,1],
@@ -810,7 +810,7 @@ function drawAgents(){
       }
     }
     // Dr. O AI Twin — special star ring + permanent ETL tag
-    if(a.name.includes('AI Twin')){
+    if(a.plat==='DR'){
       ctx.strokeStyle='rgba(255,255,255,0.8)'; ctx.lineWidth=1;
       ctx.setLineDash([2,3]);
       ctx.beginPath(); ctx.arc(a.x,a.y,a.r+5,0,Math.PI*2); ctx.stroke();
