@@ -2668,17 +2668,19 @@ document.addEventListener('DOMContentLoaded', function(){
 .cc-section{background:#050c14;padding:32px 0 0}
 .cc-wrap-inner{max-width:1200px;margin:0 auto;padding:0 20px}
 .cc-eyebrow-hp{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.2em;color:rgba(0,200,255,.65);padding:0 0 10px;text-transform:uppercase}
-.cc-interface-hp{display:grid;grid-template-columns:1fr 1fr;border:1px solid rgba(0,200,255,.18);overflow:hidden}
-.cc-panel-hp{display:flex;flex-direction:column;overflow:hidden;border-right:1px solid rgba(0,200,255,.12)}
+.cc-interface-hp{display:grid;grid-template-columns:1fr 1fr;border:1px solid rgba(0,200,255,.18);overflow:hidden;height:540px}
+.cc-panel-hp{display:flex;flex-direction:column;overflow:hidden;border-right:1px solid rgba(0,200,255,.12);height:540px}
 .cc-panel-hp:last-child{border-right:none}
 .cc-panel-hp-header{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.14em;color:rgba(0,200,255,.75);padding:8px 12px;border-bottom:1px solid rgba(0,200,255,.1);background:rgba(0,0,0,.5);display:flex;align-items:center;gap:8px;flex:none;justify-content:space-between}
 .cc-sdot{width:6px;height:6px;border-radius:50%;background:#22d47a;flex:none;animation:cc-blink 2s infinite}
 @keyframes cc-blink{0%,100%{opacity:1}50%{opacity:.25}}
-.cc-map-wrap{position:relative;overflow:hidden;flex:1;min-height:300px}
+.cc-map-wrap{position:relative;overflow:hidden;flex:1;min-height:0}
 .cc-map-wrap iframe{position:absolute;top:0;left:0;width:1200px;height:900px;border:none;transform-origin:top left}
-.cc-feed-hp{flex:1;overflow-y:auto;background:#050c14;min-height:300px}
+.cc-feed-hp{flex:1;overflow-y:auto;background:#050c14;min-height:0}
 .cc-feed-loading-hp{padding:20px;font-size:12px;color:rgba(255,255,255,.35);font-family:'IBM Plex Mono',monospace;font-style:italic}
 .cc-panel-hp-keeper{font-size:11px;color:rgba(255,255,255,.38);margin:6px 12px 8px;line-height:1.5;font-family:'IBM Plex Mono',monospace;font-style:italic;flex:none}
+.cc-scroll-btn{flex:none;display:block;width:100%;background:rgba(0,200,255,.06);border:none;border-top:1px solid rgba(0,200,255,.1);color:rgba(0,200,255,.6);font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.12em;padding:7px;cursor:pointer;text-align:center}
+.cc-scroll-btn:hover{background:rgba(0,200,255,.12);color:rgba(0,200,255,.9)}
 .cc-obs-note-hp{font-family:'IBM Plex Mono',monospace;font-size:9px;color:rgba(255,255,255,.18);text-align:right;padding:5px 0 14px;letter-spacing:.08em}
 </style>
 <section class="cc-section" id="command-center" data-tab="home">
@@ -2706,6 +2708,7 @@ document.addEventListener('DOMContentLoaded', function(){
       <div id="cc-ac-feed" class="cc-feed-hp">
         <div class="cc-feed-loading-hp">Opening the channel...</div>
       </div>
+      <button class="cc-scroll-btn" id="cc-scroll-latest" type="button">&#9660; LATEST</button>
     </div>
 
   </div>
@@ -5562,9 +5565,11 @@ h1 b,h2 b,h1 strong,h2 strong{font-weight:500}
     var wrap   = document.getElementById('cc-map-wrap');
     var iframe = document.getElementById('cc-map-iframe');
     if(!wrap || !iframe) return;
-    var scale = wrap.offsetWidth / 1200;
+    var scaleW = wrap.offsetWidth / 1200;
+    var scaleH = wrap.offsetHeight / 900;
+    var scale  = Math.min(scaleW, scaleH);
+    if(scale <= 0) scale = scaleW;
     iframe.style.transform = 'scale(' + scale + ')';
-    wrap.style.height = Math.round(900 * scale) + 'px';
   }
   window.addEventListener('load', scaleCCMap);
   window.addEventListener('resize', scaleCCMap);
@@ -5575,12 +5580,14 @@ h1 b,h2 b,h1 strong,h2 strong{font-weight:500}
   if(!feed) return;
   var chipColors = ['#28527a','#35806f','#561c29','#16202b','#5c8ab5'];
   var CAST_IMG = {
-    'Carol Haynes':'Carol_eyes_open.jpg','Auggie':'Auggie_Profile.png',
-    'Jen Lopez':'Jen_Lopez_Profile.png','Iris':'Iris_Chat_Image.jpg',
-    'Jax Rivera':'Jax_Rivera_eyes_open.png','Yuki Mendel':'Yuki_Mendel_eyes_open.png',
-    'Leo Vance':'Leo_Vance_eyes_open.png','Alicia James':'Alicia_James_eyes_open.jpg',
-    'Sasha Moreno':'Sasha_Moreno_eyes_open.png','Rowan Tate':'Rowan_Tate_eyes_open.png',
-    'Wren Calloway':'Wren_eyes_open.jpg'
+    'Auggie':        'Auggie_zoom_eyes_open.png',
+    'Jax Rivera':    'Jax_Rivera_eyes_open.png',
+    'Yuki Mendel':   'Yuki_Mendel_eyes_open.png',
+    'Leo Vance':     'Leo_Vance_eyes_open.png',
+    'Alicia James':  'Alicia_James_eyes_open.png',
+    'Sasha Moreno':  'Sasha_Moreno_eyes_open.png',
+    'Rowan Tate':    'Rowan_Tate_eyes_open.png',
+    'Mara Rivera':   'Mara_Rivera.png'
   };
   function chipColor(name){ var h=0; for(var i=0;i<name.length;i++) h=(h*31+name.charCodeAt(i))>>>0; return chipColors[h%chipColors.length]; }
   function initials(name){ return name.split(/\s+/).map(function(w){return w.charAt(0);}).slice(0,2).join('').toUpperCase(); }
@@ -5588,10 +5595,12 @@ h1 b,h2 b,h1 strong,h2 strong{font-weight:500}
   function avatar(name){
     var img=CAST_IMG[name];
     var fb='<span style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:'+chipColor(name)+';color:#fff;font-size:12px;font-weight:700;">'+escCh(initials(name))+'</span>';
-    var wrap='flex:0 0 34px;height:34px;border-radius:4px;overflow:hidden;background:'+chipColor(name)+';';
-    if(img) return '<span style="'+wrap+'"><img src="https://emerging-tech-lab.com/agents/'+img+'" alt="'+escCh(name)+'" style="width:100%;height:100%;object-fit:cover;object-position:center 22%;display:block;" onerror="this.parentNode.innerHTML=\''+fb.replace(/'/g,"\\'")+'\'"></span>';
+    var wrap='flex:0 0 36px;height:36px;border-radius:50%;overflow:hidden;background:'+chipColor(name)+';';
+    if(img) return '<span style="'+wrap+'"><img src="/agents/'+img+'" alt="'+escCh(name)+'" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;" onerror="this.parentNode.innerHTML=\''+fb.replace(/'/g,"\\'")+'\'"></span>';
     return '<span style="'+wrap+'">'+fb+'</span>';
   }
+  var scrollBtn=document.getElementById('cc-scroll-latest');
+  if(scrollBtn) scrollBtn.addEventListener('click',function(){ feed.scrollTop=feed.scrollHeight; });
   fetch('/.netlify/functions/carol-channel',{cache:'no-store'})
     .then(function(r){return r.json();})
     .then(function(d){
@@ -5600,14 +5609,15 @@ h1 b,h2 b,h1 strong,h2 strong{font-weight:500}
       if(day&&d.dayLabel) day.textContent=d.dayLabel;
       var keep=document.getElementById('cc-ac-keeper');
       if(keep&&d.keeper_note) keep.textContent=d.keeper_note+' The staff coordinate here all day. You\'re welcome to read over their shoulders.';
+      var msgs=d.messages.slice(-8);
       var html='';
-      d.messages.forEach(function(m){
-        var name=escCh(m.name||'Staff');
+      msgs.forEach(function(m){
+        var name=escCh(m.speaker||'Staff');
         var text=escCh(m.text||'');
         var time=escCh(m.time||'');
-        var tag=m.tag?'<span style="background:rgba(0,200,255,.12);color:rgba(0,200,255,.8);font-size:10px;font-family:\'IBM Plex Mono\',monospace;padding:2px 7px;border-radius:3px;margin-left:6px;">'+escCh(m.tag)+'</span>':'';
-        html+='<div style="display:flex;gap:10px;align-items:flex-start;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.05);">'+avatar(m.name||'')+
-          '<div style="flex:1;min-width:0;"><div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;margin-bottom:3px;"><span style="font-size:12px;font-weight:700;color:rgba(0,200,255,.85);">'+name+'</span>'+tag+'<span style="font-size:10px;color:rgba(255,255,255,.3);font-family:\'IBM Plex Mono\',monospace;">'+time+'</span></div>'+
+        var role=m.role?'<span style="font-size:9px;color:rgba(255,255,255,.3);font-family:\'IBM Plex Mono\',monospace;letter-spacing:.06em;">'+escCh(m.role)+'</span>':'';
+        html+='<div style="display:flex;gap:10px;align-items:flex-start;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.05);">'+avatar(m.speaker||'')+
+          '<div style="flex:1;min-width:0;"><div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;margin-bottom:2px;"><span style="font-size:12px;font-weight:700;color:rgba(0,200,255,.85);">'+name+'</span>'+role+'<span style="font-size:10px;color:rgba(255,255,255,.3);font-family:\'IBM Plex Mono\',monospace;">'+time+'</span></div>'+
           '<span style="font-size:13px;color:rgba(255,255,255,.75);line-height:1.5;">'+text+'</span></div></div>';
       });
       feed.innerHTML=html;
