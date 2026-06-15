@@ -206,10 +206,9 @@ function buildMsg(name, role, time, text){
   '</div>';
 }
 function appendMsg(html){
-  // cap DOM nodes — remove oldest (firstChild) when over limit
-  if(feed.children.length >= MAX_MSGS) feed.removeChild(feed.firstChild);
-  feed.insertAdjacentHTML('beforeend', html);
-  feed.scrollTop = feed.scrollHeight;
+  // cap DOM nodes — remove oldest (lastChild) when over limit
+  if(feed.children.length >= MAX_MSGS) feed.removeChild(feed.lastChild);
+  feed.insertAdjacentHTML('afterbegin', html);
 }
 
 // ── LIVE BANTER POLL ──────────────────────────────────────────────────────
