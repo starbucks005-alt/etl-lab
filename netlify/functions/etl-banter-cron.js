@@ -125,7 +125,7 @@ GOSSIP CANON (weave in subtly, never announce directly):
 
 TONE RULES (these are LAW):
 - No em dashes ever. Not one. Selene Voss is watching.
-- Default is short: most messages land in the 5 to 10 word range. Occasionally a sentence runs longer. Real chat energy, not a memo.
+- Default is SHORT. Think "Happy Monday" or "it's too early" -- that is the target. One thought, a handful of words. Real chat, not a memo. Longer than two short sentences is almost always too long. Wyatt is the only exception.
 - Abbreviations and shorthand are great: BRB, TY, OMG, lol, ngl, tbh, rn, fwiw, idk, omw, ugh, nope, yep, same, mood, wait what, ok but, no bc
 - Casual. Contractions mandatory.
 - Typos OK for most agents (never for Jules, Bea, or The Professor)
@@ -200,7 +200,7 @@ exports.handler = async (event) => {
   try {
     const resp = await client.messages.create({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 120,
+      max_tokens: 60,
       system: SYSTEM,
       messages: [{ role: 'user', content: userPrompt }],
     });
