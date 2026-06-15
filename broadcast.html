@@ -126,7 +126,7 @@ var mapWrap  = document.getElementById('bc-map');
 var mapFrame = document.getElementById('bc-map-iframe');
 function scaleMap(){
   if(!mapWrap||!mapFrame) return;
-  var scale = mapWrap.offsetHeight / 960; // fill height
+  var scale = Math.min(mapWrap.offsetWidth / 1200, mapWrap.offsetHeight / 960);
   mapFrame.style.transform = 'scale('+scale+')';
 }
 window.addEventListener('load', scaleMap);

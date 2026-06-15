@@ -375,7 +375,7 @@ exports.handler = async (event) => {
   let raw;
   try {
     const resp = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
+      model: 'claude-sonnet-4-6',
       max_tokens: 1200,
       system: SYSTEM,
       messages: [{ role: 'user', content: promptParts }],

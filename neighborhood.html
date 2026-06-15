@@ -355,7 +355,7 @@ function getETHour(){
 }
 function getTimeMode(){
   var h = getETHour();
-  if(h >= 11 && h < 13) return 'lunch';
+  if(h >= 12 && h < 13) return 'lunch';
   if(h >= 8  && h < 17) return 'work';
   if(h >= 17 && h < 21) return 'evening';
   if(h >= 7  && h < 8)  return 'morning';
@@ -417,10 +417,9 @@ function pickTarget(a){
     return HUB;                            // rare DeskWorks visit
   }
   if(mode==='lunch'){
-    if(r<.40) return HOME[a.plat]||HUB;
-    if(r<.60) return nearbyNode(a);
-    if(r<.75) return HUB;
-    let n; do{n=Math.floor(Math.random()*N.length)}while(n===a.node); return n;
+    if(r<.50) return HOME[a.plat]||HUB;
+    if(r<.80) return nearbyNode(a);
+    return HUB;
   }
   // morning / evening / night — original behavior
   if(r<.45) return HOME[a.plat]||HUB;
