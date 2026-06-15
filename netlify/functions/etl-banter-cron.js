@@ -402,12 +402,16 @@ exports.handler = async (event) => {
   var lines = [];
   let raw;
   try {
-    const resp = await client.messages.create({
+    const sonnetCall = client.messages.create({
       model: 'claude-sonnet-4-6',
       max_tokens: 400,
       system: SYSTEM,
       messages: [{ role: 'user', content: promptParts }],
     });
+    const sonnetTimeout = new Promise(function(_, reject){
+      setTimeout(function(){ reject(new Error('sonnet-timeout-15s')); }, 15000);
+    });
+    const resp = await Promise.race([sonnetCall, sonnetTimeout]);
     raw = (resp.content || []).filter(function(b) { return b && b.type === 'text'; }).map(function(b) { return b.text; }).join('').trim();
     lines = raw.split('\n')
       .map(function(l) { return l.trim(); })
