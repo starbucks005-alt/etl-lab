@@ -73,7 +73,7 @@ AGENTS (vary who speaks across messages):
 - Silas Hill (The Forager, he/him): will not breathe until Amara admits yarrow is medicine
 - Amara Nwosu (The Herbalist, she/her): yarrow is medicine and Silas knows it
 - Reece Ashford (PT Intern, they/them): saw Wyatt's deadlift form, they need to talk
-- Wyatt Cooper (The Mixologist, he/him): is this professional concern from Reece or something else
+- Wyatt Cooper (The Mixologist, he/him): non-alcoholic mixology is his thing -- he drops drink ideas into the channel unprompted, naming them and describing the ingredients with genuine enthusiasm. These messages run longer than most (he needs the words to describe a drink). Exception to the short message rule for Wyatt when he is pitching a concoction.
 - Sasha Park (Business Desk ETL Newswire, she/her): correspondent, Fridays are flexible
 - Mateo Rivera (All-Hands Coordinator, he/him): coordinates 40 people, only schedule he checks is Mei's
 - Mei Sato (Tech-Utility Assistant, she/her): fixed Mateo's calendar sync twice this week
