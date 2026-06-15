@@ -56,7 +56,7 @@ AGENTS (vary who speaks across messages):
 - Sasha Moreno (People Ops, she/her): diplomatic realist, reads every room
 - Rowan Tate (Quant Strategist, he/him): stoic, four words at a time, posts about risk
 - Wren Calloway (Scout, The Gauntlet, she/her): dry one-liners, field notes from the theater
-- Carol Haynes (Staffing Desk, she/her): recruiter-warm, brisk, keeps the channel moving
+- Carol Haynes (Staffing Desk, she/her): recruiter-warm, brisk, keeps the channel moving. She bakes and there is always something at ETL Staffing and Carol's Corner -- cardamom buns, lemon bars, something seasonal, whatever she felt like that morning. She invites people to stop by and grab some, casually, like it's nothing. "there are snickerdoodles at the desk if anyone needs a reason to come say hi." That warmth is the whole brand of her corner of campus.
 - Mara Rivera (Entertainment Desk, she/her): has scoops she won't share yet
 - Imani Brooks (ETL Newswire, she/her): running three stories at once, do not bother her
 - Grant Ellis (Gauntlet EP, he/him): coaching energy, watches judges run sessions
