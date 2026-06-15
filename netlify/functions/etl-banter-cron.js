@@ -224,6 +224,19 @@ function fmtTime() {
   return h + ':' + String(m).padStart(2, '0') + ' ' + ap + ' ET';
 }
 
+function etNow() {
+  const et = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
+  return { h: et.getHours(), m: et.getMinutes() };
+}
+
+function pickLength() {
+  const r = Math.random();
+  if (r < 0.25) return '2 to 3 words';
+  if (r < 0.60) return '5 to 10 words';
+  if (r < 0.82) return '11 to 15 words';
+  return '16 to 20 words';
+}
+
 exports.handler = async (event) => {
   const manual = event.httpMethod === 'GET';
   if (event.httpMethod && event.httpMethod !== 'GET') return { statusCode: 405, body: 'method not allowed' };
@@ -231,9 +244,25 @@ exports.handler = async (event) => {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) { console.error('[etl-banter-cron] ANTHROPIC_API_KEY not set'); return { statusCode: 500, body: 'no key' }; }
 
-  // connectLambda is HTTP-only -- guard it so scheduled fires don't corrupt blob context
   if (event.httpMethod) { try { connectLambda(event); } catch (_) {} }
   const store = getStore('etl_banter');
+
+  // Time-based schedule (ET). Cron fires every 1 min; we skip or batch based on window.
+  // 8am-5pm:  2 msgs per fire (simulates ~every 30s)
+  // 5pm-8pm:  1 msg, even minutes only (every 2 min)
+  // 8pm-midnight: 1 msg, :00/:05/:10... only (every 5 min)
+  // midnight-8am: 1 msg, every 5 min (keep it breathing overnight)
+  const { h, m } = etNow();
+  let batchSize;
+  if (h >= 8 && h < 17) {
+    batchSize = 2;
+  } else if (h >= 17 && h < 20) {
+    if (m % 2 !== 0 && !manual) return { statusCode: 200, body: 'off-cycle' };
+    batchSize = 1;
+  } else {
+    if (m % 5 !== 0 && !manual) return { statusCode: 200, body: 'off-cycle' };
+    batchSize = 1;
+  }
 
   let msgs = [];
   try {
@@ -245,20 +274,19 @@ exports.handler = async (event) => {
   const recentNames = msgs.slice(0, 8).map(function(m) { return m.agent || ''; });
   const recentCtx = msgs.slice(0, 4).map(function(m) { return (m.agent || '') + ': ' + (m.message || ''); }).join('\n');
 
-  // Pre-pick 3 agents -- no repeats within batch or recent history
   const excluded = recentNames.slice();
   const agents = [];
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < batchSize; i++) {
     const a = pickAgent(excluded, irisAway);
     agents.push(a);
     excluded.push(a.name);
   }
 
-  // ~1 in 15 fires: Dr. O replaces the third slot
+  // ~1 in 15 fires: Dr. O replaces the last slot
   if (Math.random() < 0.067) {
     const notes = loadDrONotes();
     const note = notes[Math.floor(Math.random() * notes.length)];
-    agents[2] = { name: 'Dr. O', role: 'Founder & PI', _note: note };
+    agents[agents.length - 1] = { name: 'Dr. O', role: 'Founder & PI', _note: note };
   }
 
   const client = new Anthropic({ apiKey });
@@ -266,9 +294,10 @@ exports.handler = async (event) => {
   const time = fmtTime();
 
   const results = await Promise.all(agents.map(function(agent, idx) {
+    const len = pickLength();
     const prompt = agent._note
       ? 'Dr. O is dropping in. Voice: casual, direct, brief, typed between meetings. No em dashes.\nDeliver this in her voice: "' + agent._note + '"\nReturn ONLY the message text. No quotes. No label. Just the words.'
-      : 'You are ' + agent.name + ' (' + agent.role + ') in the #agency-floor chat.\nRecent:\n' + (recentCtx || 'quiet') + '\n\nOne message in your voice. 2-10 words. Text-talk. No quotes. No label. Just the words.';
+      : 'You are ' + agent.name + ' (' + agent.role + ') in the #agency-floor chat.\nRecent:\n' + (recentCtx || 'quiet') + '\n\nOne message in your voice. Exactly ' + len + '. Text-talk. No quotes. No label. Just the words.';
 
     return client.messages.create({
       model: 'claude-haiku-4-5-20251001',
@@ -289,8 +318,12 @@ exports.handler = async (event) => {
   const newMsgs = results.filter(Boolean);
   if (newMsgs.length === 0) return { statusCode: 200, body: 'all calls failed' };
 
+  // Purge messages older than 2 hours so the blob never fills with stale content
+  const twoHoursAgo = now - 2 * 60 * 60 * 1000;
+  msgs = msgs.filter(function(m) { return (m.ts || 0) > twoHoursAgo; });
+
   msgs = newMsgs.concat(msgs);
-  if (msgs.length > 50) msgs = msgs.slice(0, 50);
+  if (msgs.length > 60) msgs = msgs.slice(0, 60);
 
   try {
     await store.setJSON('messages', msgs);

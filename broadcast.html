@@ -220,9 +220,12 @@ function pollBanter() {
   fetch('/.netlify/functions/etl-banter-feed', {cache:'no-store'})
     .then(function(r){ return r.json(); })
     .then(function(d){
-      var fresh = (d.messages || []).filter(function(m){ return (m.ts||0) > lastBanterTs; });
-      // store newest-first; reverse so we append oldest-of-new first
-      fresh.reverse().forEach(function(m){
+      var all = d.messages || [];
+      var fresh = all.filter(function(m){ return (m.ts||0) > lastBanterTs; });
+      // First load: blob is newest-first, cap to 8 most recent so old cached messages don't flood the view
+      if (lastBanterTs === 0 && fresh.length > 8) fresh = fresh.slice(0, 8);
+      // reverse so we append oldest-of-fresh first, newest lands at bottom
+      fresh.slice().reverse().forEach(function(m){
         appendMsg(buildMsg(m.agent||'Staff', m.role||'', m.time||'', m.message||''));
         if((m.ts||0) > lastBanterTs) lastBanterTs = m.ts;
       });
