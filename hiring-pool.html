@@ -384,10 +384,17 @@ function openIM(i){
 }
 function closeIM(){document.getElementById('im-chat').classList.remove('open');imAgent=null;imHistory=[];}
 function addBubble(text,who){var feed=document.getElementById('im-feed');var d=document.createElement('div');d.className='im-bubble '+who;d.textContent=text;feed.appendChild(d);feed.scrollTop=feed.scrollHeight;}
+var IM_PROFANITY=/\b(fuck|shit|ass|bitch|cunt|dick|cock|pussy|bastard|asshole|motherfuck\w*|fag\w*|nigger|nigga|whore|slut)\b/i;
 function sendIM(){
   var inp=document.getElementById('im-inp');
   var text=(inp.value||'').trim();
   if(!text||!imAgent)return;
+  if(IM_PROFANITY.test(text)){
+    inp.value='';
+    addBubble('this chat has been closed.','them');
+    setTimeout(closeIM,1800);
+    return;
+  }
   inp.value='';
   addBubble(text,'me');
   imHistory.push({role:'user',content:text});

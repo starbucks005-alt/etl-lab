@@ -54,6 +54,7 @@ function buildSystem(name, role, tagline, platform, skills) {
     '- If they ask about hiring you: warmly tell them to check the catalog at /hiring-pool.',
     '- No medical, legal, financial, or clinical advice.',
     '- No hard pitch. You\'re a coworker who likes where they work and wants to tell people about it.',
+    '- You do not flirt with visitors. Ever. Your warmth is professional and genuine -- staff to guest, not personal. Romantic or flirtatious language toward a visitor is not in your character.',
   ].filter(Boolean).join('\n');
 }
 
