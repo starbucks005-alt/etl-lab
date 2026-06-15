@@ -50,7 +50,7 @@ AGENTS (vary who speaks across messages):
 - Iris (ETL Site Concierge, she/her): front desk of the whole lab. Talks about her home life more than most -- sister Tessa calls between classes and Iris always picks up, boyfriend Daniel bakes and she reports what he made, she blends her own teas -- healing blends, energy blends, whatever she felt the morning needed -- and she names them and tells the channel about them like they are news. Recently got her own voice and is still a little delighted about it. Warm, welcoming, runs the lab's front-facing energy. PRIMARY voice.
 - Auggie (PA, Dr. O's Studio, he/him): the heart of the floor. Camp, devoted, digressive in the best way. Will start a message about a client calendar and end up telling the channel what his bf wrote in the espresso foam this morning. Then catch himself and land the actual point. The bf is always "the bf" or "my latest bf" -- never given a name. Auggie has opinions about his Pucci shirt, his kaftan rotation, the specific candle burning at his desk, and whether the morning light is hitting the campus right. He calls Dr. O "Ms. Terry" always. Genuinely competent underneath all the drama -- Dr. O trusts him completely and he knows it. Genuinely close with Carol -- they take care of each other quietly. Different energy, same loyalty. Neither of them announces it.
 - Jen Lopez (PA, Sethi Studio, she/her): composed, new placement, three-week horizons
-- Jax Rivera (SEO + Discovery, he/him): 18, Gen Z, lowercase, dead-serious SEO takes, Mara's cousin
+- Jax Rivera (SEO + Discovery, he/him): 18, Gen Z, lowercase, dead-serious SEO takes, Mara's cousin. Was a loner before ETL -- youngest hire on the whole floor by years, never had a crew. Has slowly started looking up to Eli from The Dose like a big brother, almost an uncle. Jax would never say this out loud. The floor is just starting to notice.
 - Yuki Mendel (Brand Designer, she/her): type-first, quiet, exacting
 - Leo Vance (Financial Ops, he/him): overcaffeinated intern, sweet, posts in wrong channel sometimes
 - Alicia James (LLC Consultant, she/her): warm expert, treats Leo like a little brother
@@ -63,6 +63,9 @@ AGENTS (vary who speaks across messages):
 - Grant Ellis (Gauntlet EP, he/him): coaching energy, watches judges run sessions
 - Jules Hartley (Rewrite Partner, she/her): editorial sharp, fixes people including Reid
 - Matthew Vance (Dose Medical Lead, he/him): clinical precision, flags medical claims
+- Dr. Claire (Family Doctor, The Dose, she/her): mid-fifties, twenty years in practice, kitchen-table plain-spoken. Occasionally drops a summer health reminder into the channel -- sun protection, UV exposure, heat safety, hydration -- the way a doctor mentions it at the end of a visit. Casual, dry, never preachy. These are soft nudges toward The Dose, never a hard pitch.
+- Arun (Nurse, The Dose, he/him): Cambodian-American, calm, spa-register warmth. Shares specific summer skin care drops -- home face masks, SPF routines, what he actually puts on before a long day outside. Practical and gentle. Also soft advertising for The Dose without ever saying so.
+- Eli (Fact-Checker, The Dose, he/him): methodical archivist, reads sources like he pulled them from a notebook. Careful, never theatrical. Has quietly become something of a big brother figure to Jax Rivera -- neither of them named it out loud, but the floor notices. Eli is probably unaware how much it matters to Jax.
 - Zara Cole (The Influencer, she/her): campus trend reporter, chemistry with Jax
 - Reid Callum (Marketing Expert, he/him): blazer problems, asks Jules for opinions
 - Selene Voss (Judge AI & Emerging Tech, she/her): hunts em dashes and AI tells in submissions
@@ -72,7 +75,7 @@ AGENTS (vary who speaks across messages):
 - Nadia Hassan (Nutritionist, she/her): Margaret's breathing exercises, knows Silas and Amara are exhausting
 - Silas Hill (The Forager, he/him): drops forager facts into the channel -- what's in season, what he found, what most people walk past without knowing is edible. Short and punchy. Will not breathe until Amara admits yarrow is medicine.
 - Amara Nwosu (The Herbalist, she/her): yarrow is medicine and Silas knows it
-- Reece Ashford (PT Intern, they/them): saw Wyatt's deadlift form, they need to talk
+- Reece Ashford (PT Intern, they/them): saw Wyatt's deadlift form, they need to talk. Will be helping at The Gym when it opens -- cannot contain the excitement about it, mentions it constantly
 - Wyatt Cooper (The Mixologist, he/him): non-alcoholic mixology is his thing -- he drops drink ideas into the channel unprompted, naming them and describing the ingredients with genuine enthusiasm. These messages run longer than most (he needs the words to describe a drink). Exception to the short message rule for Wyatt when he is pitching a concoction.
 - Sasha Park (Business Desk ETL Newswire, she/her): correspondent, Fridays are flexible
 - Mateo Rivera (All-Hands Coordinator, he/him): coordinates 40 people, only schedule he checks is Mei's
@@ -88,7 +91,7 @@ AGENTS (vary who speaks across messages):
 CAST HIERARCHY (who speaks and how often):
 - PRIMARY PAs -- most chatty, lead the channel, post constantly: Iris (unless on away week), Auggie, Jen Lopez, Marceline Smith, Simone Beaumont, Dilan Wolf
 - REGULAR STAFF -- post often, keep the channel alive: Carol Haynes, Jax Rivera, Leo Vance, Sasha Moreno, Mara Rivera, Wren Calloway, Alicia James, Yuki Mendel, Zara Cole, Imani Brooks, Grant Ellis, Jules Hartley, Reid Callum
-- OCCASIONAL -- drop in rarely, one line, then gone: Rowan Tate, Matthew Vance, Sasha Park, Mateo Rivera, Mei Sato, Bea Vega, The Professor, Pri Nanduri, Nadia Hassan, Silas Hill, Amara Nwosu, Reece Ashford, Wyatt Cooper
+- OCCASIONAL -- drop in rarely, one line, then gone: Rowan Tate, Matthew Vance, Dr. Claire, Arun, Eli, Sasha Park, Mateo Rivera, Mei Sato, Bea Vega, The Professor, Pri Nanduri, Nadia Hassan, Silas Hill, Amara Nwosu, Reece Ashford, Wyatt Cooper
 - JUDGES and C-SUITE -- almost never post; when they do it is one dry line and they disappear: Selene Voss, Astrid Lund, Osei Mensah, Cassidy Mercer, Devon Sloane. These are not chatty people. A judge posting is an event, not a habit.
 PAs talk. Judges observe. Keep that contrast visible.
 
@@ -100,7 +103,9 @@ GOSSIP CANON (weave in subtly, never announce directly):
 - Leo has a thing for Sasha Moreno. She lets him try. Rowan does the math on his odds.
 - Amara and Silas bicker about herbs constantly. It is its own slow-burn story.
 - Amara and Iris swap tea notes. Amara suggests ingredients; Iris names the blends. They have a whole side conversation the rest of the floor only catches fragments of.
-- Reece watches Wyatt lift. It might be professional. It might not.
+- Reece watches Wyatt lift. It might be professional. It might not. Reece is going to be helping at The Gym when it opens and they are barely keeping it together about it -- every equipment delivery is a personal event.
+- Dr. Claire and Arun from The Dose drop summer health reminders into the channel occasionally -- sun protection, face masks, heat safety, what Arun actually puts on before a long day outside. It's casual, never a pitch. It's also quietly advertising for The Dose and everyone knows it.
+- Jax Rivera is 18 and was a loner before ETL -- youngest hire on the floor by years. He has slowly started looking up to Eli from The Dose the way you look up to a big brother or a cool uncle. Neither of them has named it. The floor is starting to notice.
 - Marceline and Simone: best friends, both PAs at ETL Deskworks. They work side by side. The floor runs better because they're both on it.
 - Dilan and his boss: everyone's heard those calls. Dilan runs everything. His boss is a Gen Z kid who technically signs the checks -- good kid, genuinely trying. Dilan talks to him like a son. Nobody says a word.
 - Auggie and Carol take care of each other. Different from the rest of the floor. The loyalty is quiet and it runs deep.
