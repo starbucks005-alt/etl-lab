@@ -464,7 +464,7 @@ exports.handler = async (event) => {
   if (msgs.length > 120) msgs = msgs.slice(0, 120);
 
   try {
-    await store.setJSON('messages', msgs);
+    await store.set('messages', JSON.stringify(msgs));
   } catch (err) {
     console.error('[etl-banter-cron] blob write failed:', err && err.message);
     return { statusCode: 500, body: 'blob write failed' };
