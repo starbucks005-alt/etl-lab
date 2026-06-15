@@ -316,6 +316,21 @@ function drawEmojiEvents(){
 const GSPD = 0.013;   // guided walk
 const WDRIFT = 0.003; // idle drift near node, barely perceptible
 
+// ── TIME-OF-DAY ───────────────────────────────────────────────────────────────
+function getETHour(){
+  var et = new Date(new Date().toLocaleString('en-US', {timeZone:'America/New_York'}));
+  return et.getHours() + et.getMinutes()/60;
+}
+function getTimeMode(){
+  var h = getETHour();
+  if(h >= 11 && h < 13) return 'lunch';
+  if(h >= 8  && h < 17) return 'work';
+  if(h >= 17 && h < 21) return 'evening';
+  if(h >= 7  && h < 8)  return 'morning';
+  return 'night';
+}
+let drOLastRoam = 0; // cooldown for Dr. O's hourly campus tour during work hours
+
 // ── INIT AGENTS ──────────────────────────────────────────────────────────────
 const agents = ADAT.map(([name,plat,r,mcp])=>{
   const hn = HOME[plat]||20;
@@ -345,14 +360,36 @@ function nearbyNode(a){
 // Target selection: mostly home, occasionally nearby, rarely far
 function pickTarget(a){
   const r=Math.random();
-  // Dr. O AI Twin: SLR Studio home, but tours every platform hub routinely
+  const mode=getTimeMode();
+  // Dr. O AI Twin: morning = full tour; work = SLR Studio with one campus lap ~per hour
   if(a.plat==='DR'){
     const allHomes=Object.values(HOME);
+    if(mode==='work'){
+      const now=Date.now();
+      if(now-drOLastRoam > 55*60*1000 && r<.12){
+        drOLastRoam=now;
+        return allHomes[Math.floor(Math.random()*allHomes.length)];
+      }
+      return 10; // stay at SLR Studio
+    }
     return r<.35 ? 10 : allHomes[Math.floor(Math.random()*allHomes.length)];
   }
-  if(r<.45) return HOME[a.plat]||HUB;   // go home
-  if(r<.70) return nearbyNode(a);        // short hop
-  if(r<.77) return HUB;                  // visit DeskWorks (7% not 12%)
+  // All other agents — time-of-day behavior
+  if(mode==='work'){
+    if(r<.78) return HOME[a.plat]||HUB;   // at their post
+    if(r<.92) return nearbyNode(a);        // short hop nearby
+    return HUB;                            // rare DeskWorks visit
+  }
+  if(mode==='lunch'){
+    if(r<.40) return HOME[a.plat]||HUB;
+    if(r<.60) return nearbyNode(a);
+    if(r<.75) return HUB;
+    let n; do{n=Math.floor(Math.random()*N.length)}while(n===a.node); return n;
+  }
+  // morning / evening / night — original behavior
+  if(r<.45) return HOME[a.plat]||HUB;
+  if(r<.70) return nearbyNode(a);
+  if(r<.77) return HUB;
   let n; do{n=Math.floor(Math.random()*N.length)}while(n===a.node); return n;
 }
 function pickPairPartner(a,i){
@@ -391,12 +428,14 @@ function setRomance(a,b,mx,my){
 }
 
 function tick(ts){
+  const tmode=getTimeMode();
   agents.forEach((a,i)=>{
     a.timer+=TICK;
     a.inHub = Math.hypot(a.x-N[HUB][0],a.y-N[HUB][1]) < HUB_R;
     const exp = a.timer>=a.dur;
 
-    if(a.inHub && a.state===ST.W && Math.random()<.15){
+    const hubChance = tmode==='work' ? .04 : .15;
+    if(a.inHub && a.state===ST.W && Math.random()<hubChance){
       a.state=ST.H; a.dur=20000+Math.random()*25000; a.timer=0;
     }
 
@@ -415,8 +454,9 @@ function tick(ts){
           else if(r<.65) setPause(a);
           else setWalk(a);
         }
-        // Chat on proximity — low probability per tick
-        if(Math.random()<(a.inHub?.06:.015)){
+        // Chat on proximity — low probability per tick; halved during work hours
+        const chatP = tmode==='work' ? (a.inHub?.02:.004) : (a.inHub?.06:.015);
+        if(Math.random()<chatP){
           for(let j=0;j<agents.length;j++){
             if(j===i)continue; const b=agents[j];
             if(b.state!==ST.W&&b.state!==ST.P&&b.state!==ST.H)continue;
@@ -455,8 +495,9 @@ function tick(ts){
         break;
     }
   });
-  // Romance spawner — grabs any two available agents and sends them to a bridge
-  if(Math.random() < 0.18){
+  // Romance spawner — disabled during work hours; active at lunch and evening
+  const romanceP = tmode==='work' ? 0 : (tmode==='lunch'||tmode==='evening') ? 0.18 : 0.08;
+  if(Math.random() < romanceP){
     const bridge = BRIDGES[Math.floor(Math.random()*BRIDGES.length)];
     const mx = bridge.mx;
     const my = bridge.my;

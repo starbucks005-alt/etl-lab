@@ -66,6 +66,7 @@ html,body{width:1920px;height:1080px;overflow:hidden;background:#050c14;font-fam
 .bc-feed{
   flex:1;
   overflow-y:scroll;
+  overflow-anchor:none;
   scrollbar-width:none;
   padding-bottom:48px; /* clear lower-third */
 }
@@ -232,6 +233,7 @@ function pollBanter() {
         appendMsg(buildMsg(m.agent||'Staff', m.role||'', m.time||'', m.message||''));
         if((m.ts||0) > lastBanterTs) lastBanterTs = m.ts;
       });
+      if (fresh.length > 0) feed.scrollTop = 0;
     })
     .catch(function(){})
     .finally(function(){ setTimeout(pollBanter, 10000); });
