@@ -123,10 +123,13 @@ function fmtTime() {
   const h = et.getHours() % 12 || 12;
   const m = et.getMinutes();
   const ap = et.getHours() >= 12 ? 'PM' : 'AM';
-  return h + ':' + String(m).padStart(2, '0') + ' ' + ap;
+  return h + ':' + String(m).padStart(2, '0') + ' ' + ap + ' ET';
 }
 
 exports.handler = async (event) => {
+  const manual = event.httpMethod === 'GET'; // browser diagnostic trigger
+  if (event.httpMethod && event.httpMethod !== 'GET') return { statusCode: 405, body: 'method not allowed' };
+
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) { console.error('[etl-banter-cron] ANTHROPIC_API_KEY not set'); return { statusCode: 500, body: 'no key' }; }
 
@@ -156,7 +159,7 @@ exports.handler = async (event) => {
   let msg;
   try {
     const resp = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
+      model: 'claude-sonnet-4-6',
       max_tokens: 250,
       system: SYSTEM,
       messages: [{ role: 'user', content: userPrompt }],
@@ -188,5 +191,6 @@ exports.handler = async (event) => {
   }
 
   console.log('[etl-banter-cron] posted:', msg.agent, '|', msg.message.slice(0, 60));
+  if (manual) return { statusCode: 200, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ ok: true, msg }) };
   return { statusCode: 200, body: 'ok' };
 };
