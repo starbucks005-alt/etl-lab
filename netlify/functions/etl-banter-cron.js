@@ -1,12 +1,19 @@
 /* ─────────────────────────────────────────────────────────────────────────────
    etl-banter-cron — 24/7 agency floor chat engine.
 
-   Fires every 1 minute. Generates 3 messages per fire in parallel (agents
-   pre-selected in JS, plain-text output -- no JSON wrapper overhead).
-   Prepends all 3 to the etl_banter blob store (capped at 50 messages).
-   broadcast.html polls etl-banter-feed every 10 seconds.
+   One Haiku call generates a long "scene" -- 25-40 Name: text lines.
+   Code splits it into messages with staggered ts values (seconds apart).
+   broadcast.html reveals them one at a time as ts <= Date.now().
 
-   Dr. O checks in ~1 in 15 fires, replacing the third slot.
+   Cron fires every minute. Only generates a new block when < 10 future
+   messages remain in the blob (the queue runs dry soon). New ts values
+   chain from end of existing queue so there's no gap or overlap.
+
+   Reveal cadence:
+     7am-6pm ET:    5-8s per line  (active scroll)
+     6pm-9pm ET:   20-30s per line
+     9pm-midnight: 45-60s per line
+     overnight:    2-3 min per line
 
    Schedule declared in netlify.toml (the exports.config line alone is not
    always reliable per existing pattern in this repo).
@@ -203,25 +210,17 @@ var CAST_POOL = {
   ],
 };
 
-function pickAgent(excluded, irisAway) {
-  var r = Math.random();
-  var pool;
-  if (r < 0.50) pool = CAST_POOL.primary.slice();
-  else if (r < 0.84) pool = CAST_POOL.regular.slice();
-  else if (r < 0.97) pool = CAST_POOL.occasional.slice();
-  else pool = CAST_POOL.judges.slice();
-  if (irisAway) pool = pool.filter(function(a) { return a.name !== 'Iris'; });
-  var available = pool.filter(function(a) { return excluded.indexOf(a.name) === -1; });
-  if (available.length === 0) available = pool.length ? pool : CAST_POOL.primary;
-  return available[Math.floor(Math.random() * available.length)];
+function lookupRole(name) {
+  var all = CAST_POOL.primary.concat(CAST_POOL.regular, CAST_POOL.occasional, CAST_POOL.judges);
+  var found = all.filter(function(a) { return a.name.toLowerCase() === name.toLowerCase(); })[0];
+  return found ? found.role : '';
 }
 
-function fmtTime() {
-  const et = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
-  const h = et.getHours() % 12 || 12;
-  const m = et.getMinutes();
-  const ap = et.getHours() >= 12 ? 'PM' : 'AM';
-  return h + ':' + String(m).padStart(2, '0') + ' ' + ap + ' ET';
+function fmtTs(ts) {
+  var d = new Date(new Date(ts).toLocaleString('en-US', { timeZone: 'America/New_York' }));
+  var hh = d.getHours() % 12 || 12;
+  var mm = d.getMinutes();
+  return hh + ':' + String(mm).padStart(2, '0') + ' ' + (d.getHours() >= 12 ? 'PM' : 'AM') + ' ET';
 }
 
 function etNow() {
@@ -229,12 +228,11 @@ function etNow() {
   return { h: et.getHours(), m: et.getMinutes() };
 }
 
-function pickLength() {
-  const r = Math.random();
-  if (r < 0.25) return '2 to 3 words';
-  if (r < 0.60) return '5 to 10 words';
-  if (r < 0.82) return '11 to 15 words';
-  return '16 to 20 words';
+function pickSpacing(h) {
+  if (h >= 7 && h < 18) return Math.floor(5000 + Math.random() * 3001);    // 5-8 s (active)
+  if (h >= 18 && h < 21) return Math.floor(20000 + Math.random() * 10001); // 20-30 s (evening)
+  if (h >= 21) return Math.floor(45000 + Math.random() * 15001);            // 45-60 s (late)
+  return Math.floor(120000 + Math.random() * 60001);                         // 2-3 min (overnight)
 }
 
 exports.handler = async (event) => {
@@ -247,22 +245,8 @@ exports.handler = async (event) => {
   if (event.httpMethod) { try { connectLambda(event); } catch (_) {} }
   const store = getStore('etl_banter');
 
-  // Time-based schedule (ET). Cron fires every 1 min; we skip or batch based on window.
-  // 8am-5pm:  2 msgs per fire (simulates ~every 30s)
-  // 5pm-8pm:  1 msg, even minutes only (every 2 min)
-  // 8pm-midnight: 1 msg, :00/:05/:10... only (every 5 min)
-  // midnight-8am: 1 msg, every 5 min (keep it breathing overnight)
-  const { h, m } = etNow();
-  let batchSize;
-  if (h >= 8 && h < 17) {
-    batchSize = 2;
-  } else if (h >= 17 && h < 20) {
-    if (m % 2 !== 0 && !manual) return { statusCode: 200, body: 'off-cycle' };
-    batchSize = 1;
-  } else {
-    if (m % 5 !== 0 && !manual) return { statusCode: 200, body: 'off-cycle' };
-    batchSize = 1;
-  }
+  const now = Date.now();
+  const { h } = etNow();
 
   let msgs = [];
   try {
@@ -270,60 +254,106 @@ exports.handler = async (event) => {
     if (Array.isArray(cached)) msgs = cached;
   } catch (_) {}
 
+  // Only generate a new scene when the future queue is running low
+  var futureCount = msgs.filter(function(m) { return (m.ts || 0) > now; }).length;
+  if (futureCount >= 10 && !manual) {
+    return { statusCode: 200, body: 'queue ok (' + futureCount + ' future)' };
+  }
+
   const irisAway = irisAwayThisWeek();
-  const recentNames = msgs.slice(0, 8).map(function(m) { return m.agent || ''; });
-  const recentCtx = msgs.slice(0, 4).map(function(m) { return (m.agent || '') + ': ' + (m.message || ''); }).join('\n');
 
-  const excluded = recentNames.slice();
-  const agents = [];
-  for (let i = 0; i < batchSize; i++) {
-    const a = pickAgent(excluded, irisAway);
-    agents.push(a);
-    excluded.push(a.name);
+  // Context: last few already-revealed messages
+  var recentCtx = msgs
+    .filter(function(m) { return (m.ts || 0) <= now; })
+    .slice(0, 6)
+    .map(function(m) { return (m.agent || '') + ': ' + (m.message || ''); })
+    .join('\n');
+
+  // Time-of-day prompt context
+  var timeCtx;
+  var isOvernight = (h < 7);
+  if (h >= 7 && h < 9)   timeCtx = 'early morning, people arriving, coffee runs';
+  else if (h >= 9 && h < 12)  timeCtx = 'mid-morning, fully in it, busy floor';
+  else if (h >= 12 && h < 14) timeCtx = 'midday, some grabbing lunch from Carol\'s Corner';
+  else if (h >= 14 && h < 18) timeCtx = 'afternoon, deep in work or winding toward close';
+  else if (h >= 18 && h < 21) timeCtx = 'evening, pace slowing, fewer people on the floor';
+  else if (h >= 21)            timeCtx = 'late evening, maybe 3-4 people still around';
+  else                         timeCtx = 'very late, almost no one up';
+
+  // ~1 in 8 blocks: include a Dr. O note
+  var drONote = null;
+  if (Math.random() < 0.125) {
+    var notes = loadDrONotes();
+    drONote = notes[Math.floor(Math.random() * notes.length)];
   }
 
-  // ~1 in 15 fires: Dr. O replaces the last slot
-  if (Math.random() < 0.067) {
-    const notes = loadDrONotes();
-    const note = notes[Math.floor(Math.random() * notes.length)];
-    agents[agents.length - 1] = { name: 'Dr. O', role: 'Founder & PI', _note: note };
-  }
+  var lineCount = 25 + Math.floor(Math.random() * 16); // 25-40 lines per scene
+
+  var promptParts = [
+    'Write a long stretch of the ETL #agency-floor group chat.',
+    lineCount + ' lines. Format: "Name: message text", one per line. Nothing else -- no blank lines, no asterisks, no scene headings, no numbers.',
+    'Time on campus: ' + timeCtx + '.',
+    isOvernight
+      ? 'Very late. Most people are gone. Include 2-3 short quiet-channel lines like "Auggie: channel\'s quiet tonight" or "Iris: anyone still up?" scattered through the scene.'
+      : 'Move through different spots: Carol\'s Corner, ETL Deskworks, the Gauntlet theater, the Bridge outside, the Gym windows, the Newswire room.',
+    'Mix lengths: some 2-4 words, most 8-15 words. Wyatt gets longer when describing a drink.',
+    irisAway ? 'Iris is away this week -- skip her.' : '',
+    'PRIMARY voices lead (Auggie, Jen Lopez, Marceline, Simone, Dilan' + (irisAway ? '' : ', Iris') + '). Weave in 4-6 REGULAR staff. One or two OCCASIONAL characters max -- one line each, then gone. Judges: at most one line per scene, dry, then gone.',
+    drONote ? 'IMPORTANT: Include Dr. O as one speaker. Her line in casual clipped voice, no em dashes: "' + drONote + '"' : '',
+    recentCtx ? 'Recent channel history (do not repeat):\n' + recentCtx : '',
+  ].filter(Boolean).join('\n');
 
   const client = new Anthropic({ apiKey });
-  const now = Date.now();
-  const time = fmtTime();
 
-  const results = await Promise.all(agents.map(function(agent, idx) {
-    const len = pickLength();
-    const prompt = agent._note
-      ? 'Dr. O is dropping in. Voice: casual, direct, brief, typed between meetings. No em dashes.\nDeliver this in her voice: "' + agent._note + '"\nReturn ONLY the message text. No quotes. No label. Just the words.'
-      : 'You are ' + agent.name + ' (' + agent.role + ') in the #agency-floor chat.\nRecent:\n' + (recentCtx || 'quiet') + '\n\nOne message in your voice. Exactly ' + len + '. Text-talk. No quotes. No label. Just the words.';
-
-    return client.messages.create({
+  let raw;
+  try {
+    const resp = await client.messages.create({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 40,
+      max_tokens: 1200,
       system: SYSTEM,
-      messages: [{ role: 'user', content: prompt }],
-    }).then(function(resp) {
-      let text = (resp.content || []).filter(function(b) { return b && b.type === 'text'; }).map(function(b) { return b.text; }).join('').trim();
-      text = text.replace(/^["'`]|["'`]$/g, '').trim();
-      if (!text) return null;
-      return { agent: agent.name, role: agent.role, message: text, time: time, ts: now + idx };
-    }).catch(function(err) {
-      console.error('[etl-banter-cron] call failed', agent.name, err && err.message);
-      return null;
+      messages: [{ role: 'user', content: promptParts }],
     });
-  }));
+    raw = (resp.content || []).filter(function(b) { return b && b.type === 'text'; }).map(function(b) { return b.text; }).join('').trim();
+  } catch (err) {
+    console.error('[etl-banter-cron] Haiku call failed:', err && err.message);
+    return { statusCode: 200, body: 'haiku error' };
+  }
 
-  const newMsgs = results.filter(Boolean);
-  if (newMsgs.length === 0) return { statusCode: 200, body: 'all calls failed' };
+  // Parse "Name: text" lines
+  var lines = raw.split('\n')
+    .map(function(l) { return l.trim(); })
+    .filter(Boolean)
+    .map(function(line) {
+      var colon = line.indexOf(':');
+      if (colon === -1) return null;
+      var agentName = line.slice(0, colon).trim().replace(/^["*_`\d.\s]+|["*_`]+$/g, '').trim();
+      var message = line.slice(colon + 1).trim().replace(/^["']|["']$/g, '');
+      if (!agentName || !message) return null;
+      return { agent: agentName, message: message };
+    })
+    .filter(Boolean);
 
-  // Purge messages older than 2 hours so the blob never fills with stale content
-  const twoHoursAgo = now - 2 * 60 * 60 * 1000;
-  msgs = msgs.filter(function(m) { return (m.ts || 0) > twoHoursAgo; });
+  if (lines.length === 0) {
+    console.error('[etl-banter-cron] parse failed:', raw.slice(0, 200));
+    return { statusCode: 200, body: 'parse failed' };
+  }
 
-  msgs = newMsgs.concat(msgs);
-  if (msgs.length > 60) msgs = msgs.slice(0, 60);
+  // Chain ts from end of existing queue (no gap, no overlap)
+  var lastQueuedTs = msgs.reduce(function(max, m) { return Math.max(max, m.ts || 0); }, 0);
+  var chainTs = lastQueuedTs > now ? lastQueuedTs : now;
+
+  var newMsgs = lines.map(function(line) {
+    chainTs += pickSpacing(h);
+    var role = lookupRole(line.agent);
+    return { agent: line.agent, role: role, message: line.message, time: fmtTs(chainTs), ts: chainTs };
+  });
+
+  // Keep 1 hour of past messages + all future messages
+  var oneHourAgo = now - 60 * 60 * 1000;
+  msgs = msgs.filter(function(m) { return (m.ts || 0) > oneHourAgo; });
+  msgs = msgs.concat(newMsgs);
+  msgs.sort(function(a, b) { return (b.ts || 0) - (a.ts || 0); }); // newest-first
+  if (msgs.length > 120) msgs = msgs.slice(0, 120);
 
   try {
     await store.setJSON('messages', msgs);
@@ -332,7 +362,12 @@ exports.handler = async (event) => {
     return { statusCode: 500, body: 'blob write failed' };
   }
 
-  console.log('[etl-banter-cron] posted', newMsgs.length, ':', newMsgs.map(function(m) { return m.agent + ': ' + m.message; }).join(' | '));
-  if (manual) return { statusCode: 200, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ ok: true, msgs: newMsgs }) };
-  return { statusCode: 200, body: 'ok' };
+  var queueEnd = new Date(chainTs).toISOString();
+  console.log('[etl-banter-cron] generated', newMsgs.length, 'lines, queue through', queueEnd);
+  if (manual) return {
+    statusCode: 200,
+    headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+    body: JSON.stringify({ ok: true, count: newMsgs.length, queueThrough: queueEnd, sample: newMsgs.slice(0, 3) }),
+  };
+  return { statusCode: 200, body: 'ok: ' + newMsgs.length + ' lines, queue through ' + queueEnd };
 };
