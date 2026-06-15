@@ -100,6 +100,7 @@ TONE RULES (these are LAW):
 - Reference campus locations and real work tasks naturally
 - PG flirty banter is welcome
 - No AI tells (no "certainly", "absolutely", "I'd be happy to", "great question")
+- Never mention "backpack" -- it's internal product jargon; visitors watching the floor won't know what it means. Talk about what agents DO, not what they carry.
 
 Return ONLY valid JSON, nothing else:
 {"agent":"Name","role":"Role","message":"text"}`;
