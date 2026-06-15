@@ -316,6 +316,38 @@ function drawEmojiEvents(){
 const GSPD = 0.013;   // guided walk
 const WDRIFT = 0.003; // idle drift near node, barely perceptible
 
+// ── SHARED STATE ─────────────────────────────────────────────────────────────
+const MIRROR_MODE = new URLSearchParams(location.search).get('mode') === 'mirror';
+let lastStateWrite = 0;
+
+function snapshotAgents(){
+  return agents.map(a=>({n:a.name,x:Math.round(a.x),y:Math.round(a.y),s:a.state,nd:a.node,p:a.plat}));
+}
+function writeState(){
+  const now=Date.now();
+  if(now-lastStateWrite<3000) return;
+  lastStateWrite=now;
+  fetch('/.netlify/functions/etl-map-state',{
+    method:'POST',cache:'no-store',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({ts:now,agents:snapshotAgents()})
+  }).catch(function(){});
+}
+function startMirrorPoll(){
+  fetch('/.netlify/functions/etl-map-state',{cache:'no-store'})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(!d.agents) return;
+      d.agents.forEach(function(snap){
+        var a=agents.find(function(ag){return ag.name===snap.n;});
+        if(!a) return;
+        a.x=snap.x; a.y=snap.y; a.state=snap.s; a.node=snap.nd;
+      });
+    })
+    .catch(function(){})
+    .finally(function(){setTimeout(startMirrorPoll,2500);});
+}
+
 // ── TIME-OF-DAY ───────────────────────────────────────────────────────────────
 function getETHour(){
   var et = new Date(new Date().toLocaleString('en-US', {timeZone:'America/New_York'}));
@@ -980,8 +1012,7 @@ canvasFG.addEventListener('mouseleave',()=>tip.style.display='none');
 let last=0;
 function loop(ts){
   const dt=Math.min(ts-last,50); last=ts;
-  if(ts-lastTick>TICK){ tick(ts); }
-  agents.forEach(a=>move(a,dt));
+  if(!MIRROR_MODE){ if(ts-lastTick>TICK){ tick(ts); writeState(); } agents.forEach(a=>move(a,dt)); }
   ctx = ctxBG;
   drawBG(); drawHubGlow(); drawDrOGlow(); drawPaths(); drawBridges();
 
@@ -1005,6 +1036,7 @@ function loop(ts){
   requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
+if(MIRROR_MODE) startMirrorPoll();
 
 // ── LEGEND MODAL — populate from PC/PL ───────────────────────────────────────
 (function(){
