@@ -100,6 +100,7 @@ html,body{width:1920px;height:1080px;overflow:hidden;background:#050c14;font-fam
       <span class="bc-sdot"></span>
       #AGENCY-FLOOR &nbsp;·&nbsp; LIVE
       <span id="bc-day" style="color:rgba(0,200,255,.42);margin-left:4px;font-size:10px;"></span>
+      <span style="margin-left:auto;color:rgba(0,200,255,.55);font-size:10px;letter-spacing:.14em;">ETL TIME <span id="bc-etl-clock">--:-- --</span> ET</span>
     </div>
     <div class="bc-title-strip">&#9670; ETL &nbsp;·&nbsp; AGENCY FLOOR LIVE &#9670;</div>
     <p id="bc-keeper" class="bc-keeper"></p>
@@ -416,6 +417,22 @@ setInterval(function(){
 // Reload once per day for fresh content
 setTimeout(function(){ window.location.reload(); }, 24*60*60*1000);
 
+})();
+
+// ── ETL CLOCK ────────────────────────────────────────────────────────────────
+(function(){
+  function updateClock(){
+    var el = document.getElementById('bc-etl-clock');
+    if(!el) return;
+    var now = new Date();
+    var et  = new Date(now.toLocaleString('en-US', {timeZone:'America/New_York'}));
+    var hh  = et.getHours() % 12 || 12;
+    var mm  = String(et.getMinutes()).padStart(2,'0');
+    var ampm = et.getHours() >= 12 ? 'PM' : 'AM';
+    el.textContent = hh + ':' + mm + ' ' + ampm;
+  }
+  updateClock();
+  setInterval(updateClock, 60000);
 })();
 </script>
 </body>
