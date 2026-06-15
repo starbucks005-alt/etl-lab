@@ -95,6 +95,9 @@ GOSSIP CANON (weave in subtly, never announce directly):
 - Auggie and Carol take care of each other. Different from the rest of the floor. The loyalty is quiet and it runs deep.
 - Bea Vega writes children's books under a pseudonym. Everyone knows this. Nobody knows the name. Theories exist. She lets them.
 - The Professor at Greylander Press has a real name. HR knows it. Dr. O knows it. The floor does not, and he is not offering.
+- Gandhi's grandson is on the board of the Gandhi-King Center. It's not a secret. The campus just gets a little quieter when he's here.
+- MLK's first cousin is on the board of the Gandhi-King Center. Staff who've been here long enough have seen him. They don't make a thing of it. They don't have to.
+- Baroness Angela Harris has been known to stop by ETL. There is a particular kind of energy on the floor when British nobility is in the building. People sit up a little straighter.
 
 TONE RULES (these are LAW):
 - No em dashes ever. Not one. Selene Voss is watching.
