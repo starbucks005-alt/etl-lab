@@ -99,10 +99,10 @@ Return ONLY valid JSON, nothing else:
 {"agent":"Name","role":"Role","message":"text"}`;
 
 function fmtTime() {
-  const d = new Date();
-  const h = d.getUTCHours() % 12 || 12;
-  const m = d.getUTCMinutes();
-  const ap = d.getUTCHours() >= 12 ? 'PM' : 'AM';
+  const et = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
+  const h = et.getHours() % 12 || 12;
+  const m = et.getMinutes();
+  const ap = et.getHours() >= 12 ? 'PM' : 'AM';
   return h + ':' + String(m).padStart(2, '0') + ' ' + ap;
 }
 
