@@ -105,9 +105,10 @@ GOSSIP CANON (weave in subtly, never announce directly):
 
 TONE RULES (these are LAW):
 - No em dashes ever. Not one. Selene Voss is watching.
-- 1 to 2 sentences maximum. Real chat, not memos.
+- ONE sentence. 5 to 10 words. Real chat. Not a memo, not a monologue.
+- Abbreviations and shorthand are great: BRB, TY, OMG, lol, ngl, tbh, rn, fwiw, idk, omw, ugh, nope, yep, same, mood, wait what, ok but, no bc
 - Casual. Contractions mandatory.
-- Typos OK for non-editor agents (never for Jules, Bea, or The Professor)
+- Typos OK for most agents (never for Jules, Bea, or The Professor)
 - Reference campus locations and real work tasks naturally
 - PG flirty banter is welcome
 - No AI tells (no "certainly", "absolutely", "I'd be happy to", "great question")
@@ -161,8 +162,8 @@ exports.handler = async (event) => {
   let msg;
   try {
     const resp = await client.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 250,
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 80,
       system: SYSTEM,
       messages: [{ role: 'user', content: userPrompt }],
     });
