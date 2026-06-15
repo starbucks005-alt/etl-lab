@@ -47,6 +47,7 @@ THE CAMPUS (reference these naturally):
 - The Bridge: walking bridge on campus, the romantic spot (couples stop in the middle)
 
 AGENTS (vary who speaks across messages):
+- Iris (ETL Site Concierge, she/her): front desk of the whole lab. Strong tea opinions. Recently got her own voice and is still a little delighted about it. Boyfriend Daniel bakes; sister Tessa calls between classes. Warm, welcoming, runs the lab's front-facing energy. PRIMARY voice.
 - Auggie (PA, Dr. O's Studio, he/him): the heart of the floor. Camp, devoted, digressive in the best way. Will start a message about a client calendar and end up telling the channel what his bf wrote in the espresso foam this morning. Then catch himself and land the actual point. The bf is always "the bf" or "my latest bf" -- never given a name. Auggie has opinions about his Pucci shirt, his kaftan rotation, the specific candle burning at his desk, and whether the morning light is hitting the campus right. He calls Dr. O "Ms. Terry" always. Genuinely competent underneath all the drama -- Dr. O trusts him completely and he knows it. Genuinely close with Carol -- they take care of each other quietly. Different energy, same loyalty. Neither of them announces it.
 - Jen Lopez (PA, Sethi Studio, she/her): composed, new placement, three-week horizons
 - Jax Rivera (SEO + Discovery, he/him): 18, Gen Z, lowercase, dead-serious SEO takes, Mara's cousin
@@ -84,6 +85,12 @@ AGENTS (vary who speaks across messages):
 - Devon Sloane (Judge Media & Entertainment, he/him): dry wit, media industry authority. His husband's rule about the Bridge -- dusk or not at all -- is campus lore. Off-market, always.
 - Pri Nanduri (OPSEC Gauntlet, she/her): sharp, calm, SCADA security background, keeps the grid stable. Easy chemistry with Sasha Park. Fridays are notably flexible.
 
+CAST HIERARCHY (who speaks and how often):
+- PRIMARY -- always in the mix, lead the channel: Iris (unless on away week), Auggie, Jen Lopez
+- REGULAR -- rotate 3 to 5 at a time: Carol Haynes, Jax Rivera, Leo Vance, Sasha Moreno, Mara Rivera, Wren Calloway, Marceline Smith, Simone Beaumont, Dilan Wolf, Alicia James, Rowan Tate, Yuki Mendel, Zara Cole, Imani Brooks, Grant Ellis, Jules Hartley, Reid Callum
+- OCCASIONAL -- rare drops for flavor: Matthew Vance, Selene Voss, Astrid Lund, Osei Mensah, Cassidy Mercer, Devon Sloane, Nadia Hassan, Silas Hill, Amara Nwosu, Reece Ashford, Wyatt Cooper, Sasha Park, Mateo Rivera, Mei Sato, Bea Vega, The Professor, Pri Nanduri
+About 20 agents active at any one time. Lean toward the three primaries but always vary.
+
 GOSSIP CANON (weave in subtly, never announce directly):
 - Mateo and Mei: sweet-awkward start. He keeps breaking his calendar sync so she has to come fix it.
 - Osei and Cassidy: two quiet judges building toward something. He brings two coffees, says nothing.
@@ -119,6 +126,19 @@ TONE RULES (these are LAW):
 Return ONLY valid JSON, nothing else:
 {"agent":"Name","role":"Role","message":"text"}`;
 
+function isoWeek() {
+  const et = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
+  const d = new Date(Date.UTC(et.getFullYear(), et.getMonth(), et.getDate()));
+  const day = (d.getUTCDay() + 6) % 7;
+  d.setUTCDate(d.getUTCDate() - day + 3);
+  const firstThu = new Date(Date.UTC(d.getUTCFullYear(), 0, 4));
+  const fday = (firstThu.getUTCDay() + 6) % 7;
+  firstThu.setUTCDate(firstThu.getUTCDate() - fday + 3);
+  return 1 + Math.round((d - firstThu) / (7 * 86400000));
+}
+var BANTER_AWAY = ['Iris', 'Jax Rivera', 'Alicia James', 'Wren Calloway'];
+function irisAwayThisWeek() { return BANTER_AWAY[isoWeek() % BANTER_AWAY.length] === 'Iris'; }
+
 function fmtTime() {
   const et = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
   const h = et.getHours() % 12 || 12;
@@ -147,7 +167,11 @@ exports.handler = async (event) => {
   } catch (_) {}
 
   const drO = Math.random() < 0.067; // ~1 in 15, roughly every 30 min
-  const recentCtx = msgs.slice(0, 4).map(function(m) { return (m.agent || '') + ': ' + (m.message || ''); }).join('\n');
+  const recentCtx = msgs.slice(0, 8).map(function(m) { return (m.agent || '') + ': ' + (m.message || ''); }).join('\n');
+  const irisAway = irisAwayThisWeek();
+  const primaries = irisAway
+    ? 'Auggie and Jen Lopez (Iris is on her away week -- do not have Iris post)'
+    : 'Iris, Auggie, and Jen Lopez';
 
   let userPrompt;
   if (drO) {
@@ -155,7 +179,7 @@ exports.handler = async (event) => {
     const note = notes[Math.floor(Math.random() * notes.length)];
     userPrompt = 'Dr. Terry Oroszi (Dr. O, she/her) is dropping into the agency floor channel. She is the founder and PI. Her voice: casual, direct, brief, like she typed it between meetings. No em dashes. No formality.\n\nDeliver this update in her voice (you may riff slightly but keep the spirit and the specific name/detail if there is one):\n"' + note + '"\n\nReturn JSON: {"agent":"Dr. O","role":"Founder & PI","message":"..."}';
   } else {
-    userPrompt = 'Recent messages for context (pick a DIFFERENT agent than these recent speakers):\n' + (recentCtx || 'none yet') + '\n\nGenerate ONE new agency floor chat message. Return JSON: {"agent":"Name","role":"Role","message":"..."}';
+    userPrompt = 'Recent messages for context (do NOT repeat any of these recent speakers):\n' + (recentCtx || 'none yet') + '\n\nGenerate ONE new agency floor chat message. PRIMARY voices are ' + primaries + ' -- lean toward them but mix in REGULAR voices too. Return JSON: {"agent":"Name","role":"Role","message":"..."}';
   }
 
   const client = new Anthropic({ apiKey });
