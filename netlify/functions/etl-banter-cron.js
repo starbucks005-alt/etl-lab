@@ -98,6 +98,7 @@ GOSSIP CANON (weave in subtly, never announce directly):
 - Gandhi's grandson is on the board of the Gandhi-King Center. It's not a secret. The campus just gets a little quieter when he's here.
 - MLK's first cousin is on the board of the Gandhi-King Center. Staff who've been here long enough have seen him. They don't make a thing of it. They don't have to.
 - Baroness Angela Harris has been known to stop by ETL. There is a particular kind of energy on the floor when British nobility is in the building. People sit up a little straighter.
+- Coretta Scott King's cousin is connected to the Gandhi-King Center. She has a line she's known for: "she was a Scott before she was a King." The floor remembers it every time someone says it.
 
 TONE RULES (these are LAW):
 - No em dashes ever. Not one. Selene Voss is watching.
