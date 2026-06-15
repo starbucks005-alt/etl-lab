@@ -405,6 +405,16 @@ exports.handler = async (event) => {
     return { statusCode: 200, body: 'parse failed' };
   }
 
+  // Normalize first-name-only outputs to full names (Sonnet sometimes writes "Jax" not "Jax Rivera")
+  var allCast = CAST_POOL.primary.concat(CAST_POOL.regular, CAST_POOL.occasional, CAST_POOL.judges);
+  var firstNameMap = {};
+  allCast.forEach(function(a){ var f=a.name.split(' ')[0].toLowerCase(); if(!firstNameMap[f]) firstNameMap[f]=a.name; });
+  lines = lines.map(function(line){
+    var exact = allCast.filter(function(a){ return a.name.toLowerCase()===line.agent.toLowerCase(); })[0];
+    if(!exact){ var full=firstNameMap[line.agent.split(' ')[0].toLowerCase()]; if(full) line.agent=full; }
+    return line;
+  });
+
   // Chain ts from end of existing queue (no gap, no overlap)
   var lastQueuedTs = msgs.reduce(function(max, m) { return Math.max(max, m.ts || 0); }, 0);
   var chainTs = lastQueuedTs > now ? lastQueuedTs : now;

@@ -197,6 +197,7 @@ function initials(n){return n.split(/\s+/).map(function(w){return w.charAt(0);})
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 function avatar(name){
   var img = CAST_IMG[name];
+  if(!img){var first=name.split(/\s+/)[0];for(var k in CAST_IMG){if(k.split(/\s+/)[0]===first){img=CAST_IMG[k];break;}}}
   var bg  = chipColor(name);
   var fb  = '<span style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:'+bg+';color:#fff;font-size:15px;font-weight:700;">'+esc(initials(name))+'</span>';
   var wrap= 'flex:0 0 46px;height:46px;border-radius:50%;overflow:hidden;background:'+bg+';';
@@ -437,7 +438,7 @@ setInterval(function(){
 }, 5*60*1000); // update day label every 5 min
 
 // Reload once per day for fresh content
-setTimeout(function(){ window.location.reload(); }, 24*60*60*1000);
+setTimeout(function(){ window.location.reload(); }, 60*60*1000);
 
 })();
 
