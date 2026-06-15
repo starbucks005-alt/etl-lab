@@ -120,7 +120,7 @@ exports.handler = async (event) => {
     if (Array.isArray(cached)) msgs = cached;
   } catch (_) {}
 
-  const drO = Math.random() < 0.125;
+  const drO = Math.random() < 0.033; // ~1 in 30, roughly once per hour
   const recentCtx = msgs.slice(0, 4).map(function(m) { return (m.agent || '') + ': ' + (m.message || ''); }).join('\n');
 
   let userPrompt;
