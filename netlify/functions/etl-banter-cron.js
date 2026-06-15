@@ -372,37 +372,63 @@ exports.handler = async (event) => {
 
   const client = new Anthropic({ apiKey });
 
+  var FALLBACK_LINES = [
+    {agent:'Iris',message:"checking in, how is everyone doing"},
+    {agent:'Auggie',message:"Ms. Terry is in the building, just so everyone knows"},
+    {agent:'Carol Haynes',message:"coffee is fresh, come by"},
+    {agent:'Jen Lopez',message:"back at my desk if anyone needs me"},
+    {agent:'Jax Rivera',message:"working on discovery, do not disturb"},
+    {agent:'Leo Vance',message:"reconciliation is done, Alicia you are welcome"},
+    {agent:'Alicia James',message:"thank you Leo, only took three reminders"},
+    {agent:'Sasha Moreno',message:"all good on my end"},
+    {agent:'Imani Brooks',message:"on deadline, give me an hour"},
+    {agent:'Wren Calloway',message:"judges are in the chamber"},
+    {agent:'Grant Ellis',message:"session starting in five"},
+    {agent:'Mara Rivera',message:"have a scoop but it is not ready yet"},
+    {agent:'Ms. Ivy',message:"research request in the queue, working through it"},
+    {agent:'Rowan Tate',message:"risk is contained"},
+    {agent:'Zara Cole',message:"trend watch, nothing critical"},
+    {agent:'Jules Hartley',message:"in a rewrite, almost there"},
+    {agent:'Yuki Mendel',message:"type review done, sending notes"},
+    {agent:'Marceline Smith',message:"calendar updated, check yours"},
+    {agent:'Simone Beaumont',message:"post scheduled, engagement is up"},
+    {agent:'Dilan Wolf',message:"operations stable"},
+    {agent:'Iris',message:"quiet morning in a good way"},
+    {agent:'Auggie',message:"client call went well, very well"},
+    {agent:'Carol Haynes',message:"there is banana bread on the table, help yourself"},
+    {agent:'Jax Rivera',message:"rankings moved overnight, checking it"},
+  ];
+
+  var lines = [];
   let raw;
   try {
     const resp = await client.messages.create({
       model: 'claude-sonnet-4-6',
-      max_tokens: 700,
+      max_tokens: 400,
       system: SYSTEM,
       messages: [{ role: 'user', content: promptParts }],
     });
     raw = (resp.content || []).filter(function(b) { return b && b.type === 'text'; }).map(function(b) { return b.text; }).join('').trim();
+    lines = raw.split('\n')
+      .map(function(l) { return l.trim(); })
+      .filter(Boolean)
+      .map(function(line) {
+        var colon = line.indexOf(':');
+        if (colon === -1) return null;
+        var agentName = line.slice(0, colon).trim().replace(/^["*_`\d.\s]+|["*_`]+$/g, '').trim();
+        var message = line.slice(colon + 1).trim().replace(/^["']|["']$/g, '');
+        if (!agentName || !message) return null;
+        return { agent: agentName, message: message };
+      })
+      .filter(Boolean);
   } catch (err) {
-    console.error('[etl-banter-cron] Haiku call failed:', err && err.message);
-    return { statusCode: 200, body: 'haiku error' };
+    console.error('[etl-banter-cron] Sonnet failed, using fallback:', err && err.message);
   }
 
-  // Parse "Name: text" lines
-  var lines = raw.split('\n')
-    .map(function(l) { return l.trim(); })
-    .filter(Boolean)
-    .map(function(line) {
-      var colon = line.indexOf(':');
-      if (colon === -1) return null;
-      var agentName = line.slice(0, colon).trim().replace(/^["*_`\d.\s]+|["*_`]+$/g, '').trim();
-      var message = line.slice(colon + 1).trim().replace(/^["']|["']$/g, '');
-      if (!agentName || !message) return null;
-      return { agent: agentName, message: message };
-    })
-    .filter(Boolean);
-
   if (lines.length === 0) {
-    console.error('[etl-banter-cron] parse failed:', raw.slice(0, 200));
-    return { statusCode: 200, body: 'parse failed' };
+    var shuffled = FALLBACK_LINES.slice().sort(function(){ return Math.random()-.5; });
+    lines = shuffled.slice(0, 6 + Math.floor(Math.random()*4));
+    console.log('[etl-banter-cron] using fallback pool, ' + lines.length + ' lines');
   }
 
   // Normalize first-name-only outputs to full names (Sonnet sometimes writes "Jax" not "Jax Rivera")
