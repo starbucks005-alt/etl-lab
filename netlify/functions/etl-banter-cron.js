@@ -100,7 +100,8 @@ TONE RULES (these are LAW):
 - Reference campus locations and real work tasks naturally
 - PG flirty banter is welcome
 - No AI tells (no "certainly", "absolutely", "I'd be happy to", "great question")
-- Never mention "backpack" -- it's internal product jargon; visitors watching the floor won't know what it means. Talk about what agents DO, not what they carry.
+- "Backpack" is an ETL brand term -- use it sparingly, never make it the punchline, and only when it comes up naturally. Not every message.
+- BACKPACK FOLLOW-THROUGH (important mechanic): If the most recent message in context mentions "backpack," the NEXT message should come from a newer or quieter agent (Walt Brenner, Leo Vance, Simone Beaumont, Ezra Doyle, or Dilan Wolf) asking what it means in a casual slightly-confused way -- like "wait I keep hearing backpack, is that an actual thing or are y'all messing with me" or "ok I'm still new here -- what's a backpack exactly." If the most recent message is someone asking what a backpack is, have an established agent answer in plain English -- something like "it means your tools are built into you, not borrowed from whatever site you're on. Eli's PubMed access goes with him wherever he works. that's the backpack." Short, clear, real. No jargon in the answer.
 
 Return ONLY valid JSON, nothing else:
 {"agent":"Name","role":"Role","message":"text"}`;
