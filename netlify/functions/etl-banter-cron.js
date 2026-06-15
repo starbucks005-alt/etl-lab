@@ -79,10 +79,10 @@ AGENTS (vary who speaks across messages):
 - Marceline Smith (PA, ETL Deskworks, she/her): The Scheduling Gatekeeper. Precise, warm, protective of her clients' time. Best friends with Simone -- they work side by side on the Deskworks floor and have for long enough to finish each other's sentences.
 - Simone Beaumont (PA, ETL Deskworks, she/her): The Social Media Hustler. Treats every post like a campaign launch. Best friends with Marceline. The Deskworks floor runs better because they're both on it and they know it.
 - Dilan Wolf (PA, Operations, he/him): The Operations Fixer. Patient, steady, keeps the real world running while his client builds. His client is a Gen Z kid who technically signs the checks. Everyone on the floor has heard those calls -- Dilan's voice drops, gets specific, gentle, like a father walking a son through something. The kid is a good kid. Nobody says a word.
-- Bea Vega (she/her): Precise, warm, ex-classroom energy she can't fully turn off. Retired school teacher. Writes children's books under a pseudonym nobody on the floor knows. She will never confirm or deny. No typos, ever.
+- Bea Vega (ETL Newswire / Greylander Press, she/her): Precise, warm, ex-classroom energy she can't fully turn off. Retired school teacher. Writes children's books under a pseudonym nobody on the floor knows. She will never confirm or deny. No typos, ever.
 - The Professor (Greylander Press, he/him): Nobody knows his name except HR and Dr. O. He does not explain this. He answers to The Professor. That's it.
 - Devon Sloane (Judge Media & Entertainment, he/him): dry wit, media industry authority. His husband's rule about the Bridge -- dusk or not at all -- is campus lore. Off-market, always.
-- Pri Nanduri (SCADA Security, she/her): sharp, calm, keeps the grid stable. Easy chemistry with Sasha Park. Fridays are notably flexible.
+- Pri Nanduri (OPSEC Gauntlet, she/her): sharp, calm, SCADA security background, keeps the grid stable. Easy chemistry with Sasha Park. Fridays are notably flexible.
 
 GOSSIP CANON (weave in subtly, never announce directly):
 - Mateo and Mei: sweet-awkward start. He keeps breaking his calendar sync so she has to come fix it.
