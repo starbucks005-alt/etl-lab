@@ -305,7 +305,7 @@ function etNow() {
 }
 
 function pickSpacing(h) {
-  if (h >= 7 && h < 18) return Math.floor(5000 + Math.random() * 3001);    // 5-8 s (active)
+  if (h >= 7 && h < 18) return Math.floor(2000 + Math.random() * 1001);    // 2-3 s (active)
   if (h >= 18 && h < 21) return Math.floor(20000 + Math.random() * 10001); // 20-30 s (evening)
   if (h >= 21) return Math.floor(45000 + Math.random() * 15001);            // 45-60 s (late)
   return Math.floor(120000 + Math.random() * 60001);                         // 2-3 min (overnight)
@@ -332,7 +332,7 @@ exports.handler = async (event) => {
 
   // Only generate a new scene when the future queue is running low
   var futureCount = msgs.filter(function(m) { return (m.ts || 0) > now; }).length;
-  if (futureCount >= 10 && !manual) {
+  if (futureCount >= 20 && !manual) {
     return { statusCode: 200, body: 'queue ok (' + futureCount + ' future)' };
   }
 
@@ -404,13 +404,13 @@ exports.handler = async (event) => {
   let raw;
   try {
     const sonnetCall = client.messages.create({
-      model: 'claude-sonnet-4-6',
+      model: 'claude-haiku-4-5-20251001',
       max_tokens: 400,
       system: SYSTEM,
       messages: [{ role: 'user', content: promptParts }],
     });
     const sonnetTimeout = new Promise(function(_, reject){
-      setTimeout(function(){ reject(new Error('sonnet-timeout-15s')); }, 15000);
+      setTimeout(function(){ reject(new Error('haiku-timeout-8s')); }, 8000);
     });
     const resp = await Promise.race([sonnetCall, sonnetTimeout]);
     raw = (resp.content || []).filter(function(b) { return b && b.type === 'text'; }).map(function(b) { return b.text; }).join('').trim();
