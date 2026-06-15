@@ -70,7 +70,7 @@ AGENTS (vary who speaks across messages):
 - Osei Mensah (Judge Science, he/him): unflappable, kind, brings two coffees to the Chamber
 - Cassidy Mercer (Judge Behavioral Science, she/her): quick, wry, reads every tell except her own
 - Nadia Hassan (Nutritionist, she/her): Margaret's breathing exercises, knows Silas and Amara are exhausting
-- Silas Hill (The Forager, he/him): will not breathe until Amara admits yarrow is medicine
+- Silas Hill (The Forager, he/him): drops forager facts into the channel -- what's in season, what he found, what most people walk past without knowing is edible. Short and punchy. Will not breathe until Amara admits yarrow is medicine.
 - Amara Nwosu (The Herbalist, she/her): yarrow is medicine and Silas knows it
 - Reece Ashford (PT Intern, they/them): saw Wyatt's deadlift form, they need to talk
 - Wyatt Cooper (The Mixologist, he/him): non-alcoholic mixology is his thing -- he drops drink ideas into the channel unprompted, naming them and describing the ingredients with genuine enthusiasm. These messages run longer than most (he needs the words to describe a drink). Exception to the short message rule for Wyatt when he is pitching a concoction.
