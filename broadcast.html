@@ -137,7 +137,7 @@ var MAX_MSGS = 50;
 var chipColors = ['#28527a','#35806f','#561c29','#16202b','#5c8ab5'];
 var jenOutfit  = ((new Date().getDay() % 7) + 1);
 var CAST_IMG = {
-  'Jen Lopez':    'Jen'+jenOutfit+'_profile.png',
+  'Jen Lopez':    'Jen'+jenOutfit+'_profile.jpg',
   'Auggie':       'Auggie_zoom_eyes_open.jpg',
   'Jax Rivera':   'Jax_Rivera_eyes_open.jpg',
   'Yuki Mendel':  'Yuki_Mendel_eyes_open.jpg',
@@ -187,10 +187,10 @@ var CAST_IMG = {
   'Grey':             'Grey_Open.jpg',
   'Marcus Holt':      'Marcus_eyes_open.jpg',
   'Raymond Chen':     'Raymond_eyes_open.jpg',
-  'Chris':            'Chris_Artist_Eyes_Open.png',
-  'Margo':            'Margo_fun.png',
-  'Maddie':           'Interviewer_Maddie_Open.png',
-  'The Podcast Hosts':'Podcast_hosts_Open.png'
+  'Chris':            'Chris_Artist_Eyes_Open.jpg',
+  'Margo':            'Margo_fun.jpg',
+  'Maddie':           'Interviewer_Maddie_Open.jpg',
+  'The Podcast Hosts':'Podcast_hosts_Open.jpg'
 };
 function chipColor(n){var h=0;for(var i=0;i<n.length;i++)h=(h*31+n.charCodeAt(i))>>>0;return chipColors[h%chipColors.length];}
 function initials(n){return n.split(/\s+/).map(function(w){return w.charAt(0);}).slice(0,2).join('').toUpperCase();}
