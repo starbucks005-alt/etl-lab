@@ -134,7 +134,89 @@ window.addEventListener('load', scaleMap);
 // ── HELPERS ───────────────────────────────────────────────────────────────
 var feed     = document.getElementById('bc-feed');
 var MAX_MSGS = 50;
-var chipColors = ['#28527a','#35806f','#561c29','#16202b','#5c8ab5'];
+var AGENT_COLOR = {
+  // Founder Studio #4a9eff
+  'Auggie':'#4a9eff','August Vidal':'#4a9eff',
+  'Iris':'#4a9eff','Iris S. King':'#4a9eff',
+  'Jen Lopez':'#4a9eff',
+  'Jax Rivera':'#4a9eff',
+  'Yuki Mendel':'#4a9eff',
+  'Leo Vance':'#4a9eff',
+  'Alicia James':'#4a9eff',
+  'Sasha Moreno':'#4a9eff',
+  'Rowan Tate':'#4a9eff',
+  'Kimberly Pass':'#4a9eff',
+  'Marceline Smith':'#4a9eff',
+  'Simone Beaumont':'#4a9eff',
+  'Dilan Wolf':'#4a9eff',
+  'Mateo Rivera':'#4a9eff','Teo Rivera':'#4a9eff',
+  'Mei Sato':'#4a9eff',
+  'Delia Marsh':'#4a9eff',
+  'Benjamin Reed':'#4a9eff',
+  // The Gauntlet #ff4455
+  'Wren Calloway':'#ff4455',
+  'Carol Haynes':'#ff4455',
+  'Grant Ellis':'#ff4455',
+  'Imani Brooks':'#ff4455',
+  'Matthew Vance':'#ff4455',
+  'Zara Cole':'#ff4455',
+  'Reid Callum':'#ff4455',
+  'Selene Voss':'#ff4455',
+  'Astrid Lund':'#ff4455',
+  'Osei Mensah':'#ff4455','Dr. Osei Mensah':'#ff4455',
+  'Cassidy Mercer':'#ff4455','Dr. Cassidy Mercer':'#ff4455',
+  'Marcus Holt':'#ff4455',
+  'Priya Anand':'#ff4455','Dr. Priya Anand':'#ff4455',
+  'Raymond Chen':'#ff4455',
+  'Devon Sloane':'#ff4455',
+  'Arjun Mehta':'#ff4455',
+  // The Dose #22d47a
+  'Ms. Ivy':'#22d47a','Ivy Sinclair':'#22d47a',
+  'Eli':'#22d47a','Eli Adler':'#22d47a',
+  'Nadia Hassan':'#22d47a',
+  'Dr. Henry':'#22d47a','Dr. Henry Chen':'#22d47a',
+  'Maeve MJ Johnson':'#22d47a','Maeve Johnson':'#22d47a',
+  'Amara Nwosu':'#22d47a',
+  'Dr. Claire':'#22d47a','Dr. Claire Donnelly':'#22d47a',
+  'Silas Hill':'#22d47a',
+  'Arun':'#22d47a','Arun Sok':'#22d47a',
+  'Margaret Applewood':'#22d47a',
+  'Jaque':'#22d47a','Jaque Tremblay':'#22d47a',
+  'Wyatt Cooper':'#22d47a','Wyatt E. Cooper':'#22d47a',
+  'Reece Ashford':'#22d47a',
+  // The Gym #14d4b0
+  'Coach Dom Castellanos':'#14d4b0',
+  'Dr. Lena Brandt':'#14d4b0',
+  'Noor Haddad':'#14d4b0',
+  'Dr. Sana Qureshi':'#14d4b0',
+  // ETL Newswire #ff7a30
+  'Mara Rivera':'#ff7a30',
+  'Sasha Park':'#ff7a30',
+  'Marcus Reyes':'#ff7a30',
+  'Elke Vogel':'#ff7a30',
+  'Theo Okafor':'#ff7a30',
+  'Dr. Maya Iyer':'#ff7a30',
+  'Karen Bishop':'#ff7a30',
+  'Frank Donovan':'#ff7a30',
+  // Greylander Press #d4b46a
+  'Grey':'#d4b46a','Grey Hollis':'#d4b46a',
+  'The Professor':'#d4b46a',
+  'Chris Avila':'#d4b46a',
+  'Bea Vega':'#d4b46a','Beatriz Vega':'#d4b46a',
+  'Jess Ramirez':'#d4b46a',
+  'Mun':'#d4b46a','Goh Kai-Mun':'#d4b46a',
+  // Gandhi-King Center #d060f0
+  'Sneha Desai':'#d060f0',
+  'Ayanna Cole':'#d060f0',
+  // OPSEC Gauntlet #b060ff
+  'Pri Nanduri':'#b060ff',
+  // Multi-platform #708090
+  'Jules Hartley':'#708090',
+  'Margo Bennett':'#708090',
+  'Renee Kovac':'#708090',
+  // Dr. O #c8a96e
+  'Dr. O':'#c8a96e','Dr. Terry Oroszi':'#c8a96e','Dr. Terry L. Oroszi':'#c8a96e',
+};
 var jenOutfit  = ((new Date().getDay() % 7) + 1);
 var CAST_IMG = {
   'Jen Lopez':    'Jen'+jenOutfit+'_profile.jpg',
@@ -192,7 +274,12 @@ var CAST_IMG = {
   'Maddie':           'Interviewer_Maddie_Open.jpg',
   'The Podcast Hosts':'Podcast_hosts_Open.jpg'
 };
-function chipColor(n){var h=0;for(var i=0;i<n.length;i++)h=(h*31+n.charCodeAt(i))>>>0;return chipColors[h%chipColors.length];}
+function chipColor(n){
+  if(AGENT_COLOR[n]) return AGENT_COLOR[n];
+  var first=n.split(/\s+/)[0];
+  for(var k in AGENT_COLOR){if(k.split(/\s+/)[0]===first) return AGENT_COLOR[k];}
+  return '#708090';
+}
 function initials(n){return n.split(/\s+/).map(function(w){return w.charAt(0);}).slice(0,2).join('').toUpperCase();}
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 function avatar(name){
