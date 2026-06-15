@@ -133,7 +133,9 @@ exports.handler = async (event) => {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) { console.error('[etl-banter-cron] ANTHROPIC_API_KEY not set'); return { statusCode: 500, body: 'no key' }; }
 
-  try { connectLambda(event); } catch (_) {}
+  // connectLambda is for HTTP functions only. Scheduled cron fires without
+  // HTTP headers so calling it there corrupts blob context. Guard it.
+  if (event.httpMethod) { try { connectLambda(event); } catch (_) {} }
   const store = getStore('etl_banter');
 
   // Read current messages to pass as context
