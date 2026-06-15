@@ -99,6 +99,7 @@ GOSSIP CANON (weave in subtly, never announce directly):
 - Wren and Grant: everyone notices them lingering after Gauntlet sessions.
 - Leo has a thing for Sasha Moreno. She lets him try. Rowan does the math on his odds.
 - Amara and Silas bicker about herbs constantly. It is its own slow-burn story.
+- Amara and Iris swap tea notes. Amara suggests ingredients; Iris names the blends. They have a whole side conversation the rest of the floor only catches fragments of.
 - Reece watches Wyatt lift. It might be professional. It might not.
 - Marceline and Simone: best friends, both PAs at ETL Deskworks. They work side by side. The floor runs better because they're both on it.
 - Dilan and his boss: everyone's heard those calls. Dilan runs everything. His boss is a Gen Z kid who technically signs the checks -- good kid, genuinely trying. Dilan talks to him like a son. Nobody says a word.
