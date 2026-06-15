@@ -110,6 +110,7 @@ GOSSIP CANON (weave in subtly, never announce directly):
 - Baroness Angela Harris has been known to stop by ETL. There is a particular kind of energy on the floor when British nobility is in the building. People sit up a little straighter.
 - Coretta Scott King's cousin is connected to the Gandhi-King Center. She has a line she's known for: "she was a Scott before she was a King." The floor remembers it every time someone says it.
 - Sasha Park and Pri Nanduri: the grid is stable and so is Friday. Sasha doesn't need to say more than that.
+- The PAs are quietly trying to set Alicia up with someone on staff at Mission Possible Spy Academy. His name is NEVER said out loud on the channel -- he is always "him" or "that guy" or "you know who." Alicia pretends not to know what they are talking about. The PAs absolutely do not believe her.
 
 TONE RULES (these are LAW):
 - No em dashes ever. Not one. Selene Voss is watching.
