@@ -436,10 +436,16 @@ function pickPairPartner(a,i){
 }
 
 function setWalk(a){
-  a.state=ST.W; a.dur=12000+Math.random()*18000; a.timer=0; a.partner=-1;
+  const wm=getTimeMode();
+  const dur=wm==='work'?45000+Math.random()*35000:12000+Math.random()*18000;
+  a.state=ST.W; a.dur=dur; a.timer=0; a.partner=-1;
   a.wdx=(Math.random()-.5)*.3; a.wdy=(Math.random()-.5)*.3;
 }
-function setPause(a){ a.state=ST.P; a.dur=10000+Math.random()*20000; a.timer=0; }
+function setPause(a){
+  const wm=getTimeMode();
+  const dur=wm==='work'?50000+Math.random()*40000:10000+Math.random()*20000;
+  a.state=ST.P; a.dur=dur; a.timer=0;
+}
 function setGuide(a,t){
   a.tnode=t; a.path=astar(a.node,t); a.pi=1;
   a.state=ST.G; a.timer=0;
@@ -475,9 +481,11 @@ function tick(ts){
       case ST.W:
         if(exp){
           const r=Math.random();
-          if(r<.35){
+          const moveRate = tmode==='work' ? 0.08 : 0.35;
+          if(r<moveRate){
             const t=pickTarget(a);
-            if(a.partner<0&&Math.random()<.80){
+            // no pair-walking during work hours — agents go alone
+            if(a.partner<0&&Math.random()<.80&&tmode!=='work'){
               const j=pickPairPartner(a,i);
               if(j>=0){ setGuide(a,t); setGuide(agents[j],t); a.partner=j; agents[j].partner=i; }
               else setGuide(a,t);
