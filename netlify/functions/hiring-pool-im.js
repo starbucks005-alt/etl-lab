@@ -77,16 +77,22 @@ exports.handler = async (event) => {
   const { agentName, agentRole, agentTagline, agentPlatform, agentSkills, message, history } = body;
   if (!agentName || !message) return json(400, { error: 'agentName and message required' });
 
+  // Opening greeting — no prior history, agent speaks first in their own register.
+  // A judge, C-suite exec, or Dr. O greets very differently from a PA or intern.
+  const isGreet = message === '__greet__';
+
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return json(500, { error: 'no key' });
 
   const client = new Anthropic({ apiKey });
-  const msgs = [
-    ...(Array.isArray(history) ? history.slice(-10) : [])
-      .filter(function(t) { return t && (t.role === 'user' || t.role === 'assistant') && typeof t.content === 'string'; })
-      .map(function(t) { return { role: t.role, content: t.content }; }),
-    { role: 'user', content: message },
-  ];
+  const msgs = isGreet
+    ? [{ role: 'user', content: 'A visitor just opened a chat with you. Give your opening line -- one short sentence, in your own voice and register. No "hey there." No generic openers. Speak as yourself.' }]
+    : [
+        ...(Array.isArray(history) ? history.slice(-10) : [])
+          .filter(function(t) { return t && (t.role === 'user' || t.role === 'assistant') && typeof t.content === 'string'; })
+          .map(function(t) { return { role: t.role, content: t.content }; }),
+        { role: 'user', content: message },
+      ];
 
   try {
     const resp = await client.messages.create({

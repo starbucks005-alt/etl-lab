@@ -375,12 +375,12 @@ function openIM(i){
   var img=imgFor(imAgent.name);
   var av=img?'<img class="im-av" src="'+img+'" alt="">':'<div class="im-av-ini">'+esc((imAgent.name||'?')[0])+'</div>';
   document.getElementById('im-head').innerHTML=av+'<div class="im-hinfo"><strong>'+esc(imAgent.name)+'</strong><span>'+esc(imAgent.role)+'</span></div><button class="im-x" onclick="closeIM()">&times;</button>';
-  var openers=['hey! '+imAgent.name.split(' ')[0]+' here. what are you working on?','hi, i\'m '+imAgent.name.split(' ')[0]+'. glad you stopped by -- what\'s on your mind?','hey there. what brings you in today?'];
-  var opener=openers[Math.floor(Math.random()*openers.length)];
-  addBubble(opener,'them');
-  imHistory=[{role:'assistant',content:opener}];
   document.getElementById('im-chat').classList.add('open');
-  setTimeout(function(){document.getElementById('im-inp').focus();},100);
+  var typ=document.getElementById('im-typing');typ.style.display='block';
+  fetch('/.netlify/functions/hiring-pool-im',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({agentName:imAgent.name,agentRole:imAgent.role||'',agentTagline:imAgent.tagline||'',agentPlatform:imAgent.platform||'',agentSkills:(imAgent.skills||[]).join(', '),message:'__greet__',history:[]})})
+    .then(function(r){return r.json();})
+    .then(function(d){typ.style.display='none';var opener=d.reply||'hello.';addBubble(opener,'them');imHistory=[{role:'assistant',content:opener}];document.getElementById('im-inp').focus();})
+    .catch(function(){typ.style.display='none';addBubble('hello.','them');imHistory=[{role:'assistant',content:'hello.'}];});
 }
 function closeIM(){document.getElementById('im-chat').classList.remove('open');imAgent=null;imHistory=[];}
 function addBubble(text,who){var feed=document.getElementById('im-feed');var d=document.createElement('div');d.className='im-bubble '+who;d.textContent=text;feed.appendChild(d);feed.scrollTop=feed.scrollHeight;}
