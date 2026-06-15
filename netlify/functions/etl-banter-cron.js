@@ -355,7 +355,7 @@ exports.handler = async (event) => {
     drONote = notes[Math.floor(Math.random() * notes.length)];
   }
 
-  var lineCount = 25 + Math.floor(Math.random() * 16); // 25-40 lines per scene
+  var lineCount = 12 + Math.floor(Math.random() * 7); // 12-18 lines per scene (Sonnet speed)
 
   var promptParts = 'Write ' + lineCount + ' lines of #agency-floor chat for right now.\n\n'
     + 'Time: ' + etTimeStr + ' (' + daypart + ').\n'
@@ -376,7 +376,7 @@ exports.handler = async (event) => {
   try {
     const resp = await client.messages.create({
       model: 'claude-sonnet-4-6',
-      max_tokens: 1200,
+      max_tokens: 700,
       system: SYSTEM,
       messages: [{ role: 'user', content: promptParts }],
     });

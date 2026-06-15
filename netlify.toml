@@ -54,7 +54,7 @@
 [functions."etl-banter-cron"]
   schedule = "*/1 * * * *"
   included_files = ["data/dr-o-notes.json"]
-  timeout = 26
+  timeout = 60
 
 # studio-routine-create and studio-routine-list also read the whitelist.
 [functions."studio-routine-create"]
