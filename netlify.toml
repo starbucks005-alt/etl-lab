@@ -47,13 +47,12 @@
   schedule = "*/15 * * * *"
   included_files = ["data/auggie-routine-targets.json"]
 
-# Agency floor live banter. Calls Sonnet every 2 minutes, writes one
-# in-character message to the etl_banter blob store. broadcast.html
-# polls etl-banter-feed every 10 s to display fresh messages 24/7
-# even when no browser is on the site. Dr. O checks in ~1 in 8 runs.
-# timeout = 26 matches carol-channel; Sonnet needs the headroom.
+# Agency floor live banter. Fires every 1 minute, generates 3 short
+# messages per fire in parallel (agents pre-picked in JS, plain-text
+# output). broadcast.html polls etl-banter-feed every 10 s.
+# Dr. O checks in ~1 in 15 fires. Haiku runs in ~2s; timeout = 26 is headroom.
 [functions."etl-banter-cron"]
-  schedule = "*/2 * * * *"
+  schedule = "*/1 * * * *"
   included_files = ["data/dr-o-notes.json"]
   timeout = 26
 

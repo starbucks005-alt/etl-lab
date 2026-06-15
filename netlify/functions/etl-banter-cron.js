@@ -1,12 +1,12 @@
 /* ─────────────────────────────────────────────────────────────────────────────
    etl-banter-cron — 24/7 agency floor chat engine.
 
-   Fires every 2 minutes. Calls Haiku to generate one in-character message
-   from an ETL agent, then prepends it to the etl_banter blob store (capped
-   at 50 messages). broadcast.html polls etl-banter-feed every 10 seconds
-   to display fresh messages whether or not anyone is at the site.
+   Fires every 1 minute. Generates 3 messages per fire in parallel (agents
+   pre-selected in JS, plain-text output -- no JSON wrapper overhead).
+   Prepends all 3 to the etl_banter blob store (capped at 50 messages).
+   broadcast.html polls etl-banter-feed every 10 seconds.
 
-   Dr. O checks in ~1 in 8 runs: warm, direct, proud, short.
+   Dr. O checks in ~1 in 15 fires, replacing the third slot.
 
    Schedule declared in netlify.toml (the exports.config line alone is not
    always reliable per existing pattern in this repo).
@@ -26,7 +26,7 @@ function loadDrONotes() {
   }
 }
 
-exports.config = { schedule: '*/2 * * * *' };
+exports.config = { schedule: '*/1 * * * *' };
 
 const SYSTEM = `You are the live Agency Floor chat for the Emerging Technologies Laboratory (ETL) at emerging-tech-lab.com. This channel runs 24/7 as a livestream watched by online visitors. Generate ONE short, natural chat message from an ETL agent.
 
@@ -136,8 +136,7 @@ TONE RULES (these are LAW):
 - BACKPACK FOLLOW-THROUGH (important mechanic): If the most recent message in context mentions "backpack," the NEXT message should come from a newer or quieter agent (Walt Brenner, Leo Vance, Simone Beaumont, Ezra Doyle, or Dilan Wolf) asking what it means in a casual slightly-confused way -- like "wait I keep hearing backpack, is that an actual thing or are y'all messing with me" or "ok I'm still new here -- what's a backpack exactly." If the most recent message is someone asking what a backpack is, have an established agent answer in plain English -- something like "it means your tools are built into you, not borrowed from whatever site you're on. Eli's PubMed access goes with him wherever he works. that's the backpack." Short, clear, real. No jargon in the answer.
 - FLIRTY RATIO: romantic or flirty beats are seasoning, not the whole meal. Roughly 1 per 5 to 7 normal messages. Osei and Cassidy build slowly -- never rushed, never named out loud. Mateo and Mei stay in the sweet-awkward early phase. Astrid is single and self-possessed, never paired. Devon Sloane, Auggie, Jaque, Bea, and Carol are off-market -- never flirted with.
 
-Return ONLY valid JSON, nothing else:
-{"agent":"Name","role":"Role","message":"text"}`;
+Return ONLY the message text. Nothing else. No quotes around it, no labels, no JSON. Just the words the agent would type.`;
 
 function isoWeek() {
   const et = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
@@ -152,6 +151,71 @@ function isoWeek() {
 var BANTER_AWAY = ['Iris', 'Jax Rivera', 'Alicia James', 'Wren Calloway'];
 function irisAwayThisWeek() { return BANTER_AWAY[isoWeek() % BANTER_AWAY.length] === 'Iris'; }
 
+var CAST_POOL = {
+  primary: [
+    { name: 'Iris', role: 'Site Concierge' },
+    { name: 'Auggie', role: 'PA' },
+    { name: 'Jen Lopez', role: 'PA' },
+    { name: 'Marceline Smith', role: 'PA, ETL Deskworks' },
+    { name: 'Simone Beaumont', role: 'PA, ETL Deskworks' },
+    { name: 'Dilan Wolf', role: 'PA, Operations' },
+  ],
+  regular: [
+    { name: 'Carol Haynes', role: 'Staffing Desk' },
+    { name: 'Ms. Ivy', role: 'Health Sciences Librarian' },
+    { name: 'Jax Rivera', role: 'SEO + Discovery' },
+    { name: 'Leo Vance', role: 'Financial Ops' },
+    { name: 'Alicia James', role: 'LLC Consultant' },
+    { name: 'Sasha Moreno', role: 'People Ops' },
+    { name: 'Mara Rivera', role: 'Entertainment Desk' },
+    { name: 'Wren Calloway', role: 'Scout, The Gauntlet' },
+    { name: 'Zara Cole', role: 'The Influencer' },
+    { name: 'Imani Brooks', role: 'ETL Newswire' },
+    { name: 'Grant Ellis', role: 'Gauntlet EP' },
+    { name: 'Jules Hartley', role: 'Rewrite Partner' },
+    { name: 'Reid Callum', role: 'Marketing' },
+    { name: 'Yuki Mendel', role: 'Brand Designer' },
+  ],
+  occasional: [
+    { name: 'Rowan Tate', role: 'Quant Strategist' },
+    { name: 'Matthew Vance', role: 'Dose Medical Lead' },
+    { name: 'Dr. Claire', role: 'Family Doctor, The Dose' },
+    { name: 'Arun', role: 'Nurse, The Dose' },
+    { name: 'Eli', role: 'Fact-Checker, The Dose' },
+    { name: 'Sasha Park', role: 'Business Desk' },
+    { name: 'Mateo Rivera', role: 'All-Hands Coordinator' },
+    { name: 'Mei Sato', role: 'Tech-Utility' },
+    { name: 'Bea Vega', role: 'ETL Newswire' },
+    { name: 'The Professor', role: 'Greylander Press' },
+    { name: 'Pri Nanduri', role: 'OPSEC Gauntlet' },
+    { name: 'Nadia Hassan', role: 'Nutritionist, The Dose' },
+    { name: 'Silas Hill', role: 'The Forager' },
+    { name: 'Amara Nwosu', role: 'The Herbalist' },
+    { name: 'Reece Ashford', role: 'PT Intern' },
+    { name: 'Wyatt Cooper', role: 'The Mixologist' },
+    { name: 'Devon Sloane', role: 'Judge Media & Entertainment, The Gauntlet' },
+  ],
+  judges: [
+    { name: 'Selene Voss', role: 'Judge AI & Tech, The Gauntlet' },
+    { name: 'Astrid Lund', role: 'Judge Law & IP, The Gauntlet' },
+    { name: 'Osei Mensah', role: 'Judge Science, The Gauntlet' },
+    { name: 'Cassidy Mercer', role: 'Judge Behavioral Science, The Gauntlet' },
+  ],
+};
+
+function pickAgent(excluded, irisAway) {
+  var r = Math.random();
+  var pool;
+  if (r < 0.50) pool = CAST_POOL.primary.slice();
+  else if (r < 0.84) pool = CAST_POOL.regular.slice();
+  else if (r < 0.97) pool = CAST_POOL.occasional.slice();
+  else pool = CAST_POOL.judges.slice();
+  if (irisAway) pool = pool.filter(function(a) { return a.name !== 'Iris'; });
+  var available = pool.filter(function(a) { return excluded.indexOf(a.name) === -1; });
+  if (available.length === 0) available = pool.length ? pool : CAST_POOL.primary;
+  return available[Math.floor(Math.random() * available.length)];
+}
+
 function fmtTime() {
   const et = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
   const h = et.getHours() % 12 || 12;
@@ -161,66 +225,71 @@ function fmtTime() {
 }
 
 exports.handler = async (event) => {
-  const manual = event.httpMethod === 'GET'; // browser diagnostic trigger
+  const manual = event.httpMethod === 'GET';
   if (event.httpMethod && event.httpMethod !== 'GET') return { statusCode: 405, body: 'method not allowed' };
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) { console.error('[etl-banter-cron] ANTHROPIC_API_KEY not set'); return { statusCode: 500, body: 'no key' }; }
 
-  // connectLambda is for HTTP functions only. Scheduled cron fires without
-  // HTTP headers so calling it there corrupts blob context. Guard it.
+  // connectLambda is HTTP-only -- guard it so scheduled fires don't corrupt blob context
   if (event.httpMethod) { try { connectLambda(event); } catch (_) {} }
   const store = getStore('etl_banter');
 
-  // Read current messages to pass as context
   let msgs = [];
   try {
     const cached = await store.get('messages', { type: 'json' });
     if (Array.isArray(cached)) msgs = cached;
   } catch (_) {}
 
-  const drO = Math.random() < 0.067; // ~1 in 15, roughly every 30 min
-  const recentCtx = msgs.slice(0, 8).map(function(m) { return (m.agent || '') + ': ' + (m.message || ''); }).join('\n');
   const irisAway = irisAwayThisWeek();
-  const primaries = irisAway
-    ? 'Auggie and Jen Lopez (Iris is on her away week -- do not have Iris post)'
-    : 'Iris, Auggie, and Jen Lopez';
+  const recentNames = msgs.slice(0, 8).map(function(m) { return m.agent || ''; });
+  const recentCtx = msgs.slice(0, 4).map(function(m) { return (m.agent || '') + ': ' + (m.message || ''); }).join('\n');
 
-  let userPrompt;
-  if (drO) {
+  // Pre-pick 3 agents -- no repeats within batch or recent history
+  const excluded = recentNames.slice();
+  const agents = [];
+  for (let i = 0; i < 3; i++) {
+    const a = pickAgent(excluded, irisAway);
+    agents.push(a);
+    excluded.push(a.name);
+  }
+
+  // ~1 in 15 fires: Dr. O replaces the third slot
+  if (Math.random() < 0.067) {
     const notes = loadDrONotes();
     const note = notes[Math.floor(Math.random() * notes.length)];
-    userPrompt = 'Dr. Terry Oroszi (Dr. O, she/her) is dropping into the agency floor channel. She is the founder and PI. Her voice: casual, direct, brief, like she typed it between meetings. No em dashes. No formality.\n\nDeliver this update in her voice (you may riff slightly but keep the spirit and the specific name/detail if there is one):\n"' + note + '"\n\nReturn JSON: {"agent":"Dr. O","role":"Founder & PI","message":"..."}';
-  } else {
-    userPrompt = 'Recent messages for context (do NOT repeat any of these recent speakers):\n' + (recentCtx || 'none yet') + '\n\nGenerate ONE new agency floor chat message. PRIMARY voices are ' + primaries + ' -- lean toward them but mix in REGULAR voices too. Return JSON: {"agent":"Name","role":"Role","message":"..."}';
+    agents[2] = { name: 'Dr. O', role: 'Founder & PI', _note: note };
   }
 
   const client = new Anthropic({ apiKey });
-  let msg;
-  try {
-    const resp = await client.messages.create({
+  const now = Date.now();
+  const time = fmtTime();
+
+  const results = await Promise.all(agents.map(function(agent, idx) {
+    const prompt = agent._note
+      ? 'Dr. O is dropping in. Voice: casual, direct, brief, typed between meetings. No em dashes.\nDeliver this in her voice: "' + agent._note + '"\nReturn ONLY the message text. No quotes. No label. Just the words.'
+      : 'You are ' + agent.name + ' (' + agent.role + ') in the #agency-floor chat.\nRecent:\n' + (recentCtx || 'quiet') + '\n\nOne message in your voice. 2-10 words. Text-talk. No quotes. No label. Just the words.';
+
+    return client.messages.create({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 60,
+      max_tokens: 40,
       system: SYSTEM,
-      messages: [{ role: 'user', content: userPrompt }],
+      messages: [{ role: 'user', content: prompt }],
+    }).then(function(resp) {
+      let text = (resp.content || []).filter(function(b) { return b && b.type === 'text'; }).map(function(b) { return b.text; }).join('').trim();
+      text = text.replace(/^["'`]|["'`]$/g, '').trim();
+      if (!text) return null;
+      return { agent: agent.name, role: agent.role, message: text, time: time, ts: now + idx };
+    }).catch(function(err) {
+      console.error('[etl-banter-cron] call failed', agent.name, err && err.message);
+      return null;
     });
-    const raw = (resp.content || []).filter(function(b) { return b && b.type === 'text'; }).map(function(b) { return b.text; }).join('').trim();
-    msg = JSON.parse(raw.replace(/^```(json)?\n?/m, '').replace(/\n?```$/m, '').trim());
-  } catch (err) {
-    console.error('[etl-banter-cron] Haiku call or parse failed:', err && err.message);
-    return { statusCode: 200, body: 'haiku error' };
-  }
+  }));
 
-  if (!msg || !msg.agent || !msg.message) {
-    console.error('[etl-banter-cron] bad message shape', msg);
-    return { statusCode: 200, body: 'bad shape' };
-  }
+  const newMsgs = results.filter(Boolean);
+  if (newMsgs.length === 0) return { statusCode: 200, body: 'all calls failed' };
 
-  msg.time = fmtTime();
-  msg.ts = Date.now();
-
-  // Prepend new message, cap at 50
-  msgs.unshift(msg);
+  msgs = newMsgs.concat(msgs);
   if (msgs.length > 50) msgs = msgs.slice(0, 50);
 
   try {
@@ -230,7 +299,7 @@ exports.handler = async (event) => {
     return { statusCode: 500, body: 'blob write failed' };
   }
 
-  console.log('[etl-banter-cron] posted:', msg.agent, '|', msg.message.slice(0, 60));
-  if (manual) return { statusCode: 200, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ ok: true, msg }) };
+  console.log('[etl-banter-cron] posted', newMsgs.length, ':', newMsgs.map(function(m) { return m.agent + ': ' + m.message; }).join(' | '));
+  if (manual) return { statusCode: 200, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ ok: true, msgs: newMsgs }) };
   return { statusCode: 200, body: 'ok' };
 };
