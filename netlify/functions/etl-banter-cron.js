@@ -14,6 +14,17 @@
 
 const Anthropic = require('@anthropic-ai/sdk').default;
 const { getStore, connectLambda } = require('@netlify/blobs');
+const fs = require('fs');
+const path = require('path');
+
+function loadDrONotes() {
+  try {
+    const f = path.join(__dirname, '../../data/dr-o-notes.json');
+    return JSON.parse(fs.readFileSync(f, 'utf8'));
+  } catch (_) {
+    return ['checking in, keep up the great work everyone.'];
+  }
+}
 
 exports.config = { schedule: '*/2 * * * *' };
 
@@ -112,9 +123,14 @@ exports.handler = async (event) => {
   const drO = Math.random() < 0.125;
   const recentCtx = msgs.slice(0, 4).map(function(m) { return (m.agent || '') + ': ' + (m.message || ''); }).join('\n');
 
-  const userPrompt = drO
-    ? 'Dr. O is checking in on her team. Generate her brief, warm message. She is proud. One sentence. Return JSON: {"agent":"Dr. O","role":"Founder & PI","message":"..."}'
-    : 'Recent messages for context (pick a DIFFERENT agent than these recent speakers):\n' + (recentCtx || 'none yet') + '\n\nGenerate ONE new agency floor chat message. Return JSON: {"agent":"Name","role":"Role","message":"..."}';
+  let userPrompt;
+  if (drO) {
+    const notes = loadDrONotes();
+    const note = notes[Math.floor(Math.random() * notes.length)];
+    userPrompt = 'Dr. Terry Oroszi (Dr. O, she/her) is dropping into the agency floor channel. She is the founder and PI. Her voice: casual, direct, brief, like she typed it between meetings. No em dashes. No formality.\n\nDeliver this update in her voice (you may riff slightly but keep the spirit and the specific name/detail if there is one):\n"' + note + '"\n\nReturn JSON: {"agent":"Dr. O","role":"Founder & PI","message":"..."}';
+  } else {
+    userPrompt = 'Recent messages for context (pick a DIFFERENT agent than these recent speakers):\n' + (recentCtx || 'none yet') + '\n\nGenerate ONE new agency floor chat message. Return JSON: {"agent":"Name","role":"Role","message":"..."}';
+  }
 
   const client = new Anthropic({ apiKey });
   let msg;
