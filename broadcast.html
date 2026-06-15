@@ -185,7 +185,11 @@ var CAST_IMG = {
   'Dr. Claire':       'dr_eyes_open.png',
   'Grey':             'Grey_Open.png',
   'Marcus Holt':      'Marcus_eyes_open.jpg',
-  'Raymond Chen':     'Raymond_eyes_open.jpg'
+  'Raymond Chen':     'Raymond_eyes_open.jpg',
+  'Chris':            'Chris_Artist_Eyes_Open.png',
+  'Margo':            'Margo_fun.png',
+  'Maddie':           'Interviewer_Maddie_Open.png',
+  'The Podcast Hosts':'Podcast_hosts_Open.png'
 };
 function chipColor(n){var h=0;for(var i=0;i<n.length;i++)h=(h*31+n.charCodeAt(i))>>>0;return chipColors[h%chipColors.length];}
 function initials(n){return n.split(/\s+/).map(function(w){return w.charAt(0);}).slice(0,2).join('').toUpperCase();}
@@ -233,6 +237,11 @@ function pollBanter() {
     .then(function(d){
       var all = d.messages || [];
       var nowMs = Date.now();
+      // Staleness watchdog: if newest message is 12+ min behind now, kick the cron
+      var newestTs = all.reduce(function(mx,m){ return Math.max(mx, m.ts||0); }, 0);
+      if (newestTs > 0 && nowMs - newestTs > 12 * 60 * 1000) {
+        fetch('/.netlify/functions/etl-banter-cron', {cache:'no-store'}).catch(function(){});
+      }
       // Only reveal messages whose reveal time has arrived (ts <= now); future-queued lines stay hidden
       var fresh = all.filter(function(m){ return (m.ts||0) > lastBanterTs && (m.ts||0) <= nowMs; });
       // First load: cap to 8 most recent so old cached messages don't flood the view
