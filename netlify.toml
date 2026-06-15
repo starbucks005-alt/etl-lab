@@ -47,6 +47,13 @@
   schedule = "*/15 * * * *"
   included_files = ["data/auggie-routine-targets.json"]
 
+# Agency floor live banter. Calls Haiku every 2 minutes, writes one
+# in-character message to the etl_banter blob store. broadcast.html
+# polls etl-banter-feed every 10 s to display fresh messages 24/7
+# even when no browser is on the site. Dr. O checks in ~1 in 8 runs.
+[functions."etl-banter-cron"]
+  schedule = "*/2 * * * *"
+
 # studio-routine-create and studio-routine-list also read the whitelist.
 [functions."studio-routine-create"]
   included_files = ["data/auggie-routine-targets.json"]

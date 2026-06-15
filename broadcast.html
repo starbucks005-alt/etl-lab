@@ -143,16 +143,31 @@ var CAST_IMG = {
   'Alicia James': 'Alicia_James_eyes_open.png',
   'Sasha Moreno': 'Sasha_Moreno_eyes_open.png',
   'Rowan Tate':   'Rowan_Tate_eyes_open.png',
-  'Mara Rivera':  'Mara_Rivera.png',
-  'Wren Calloway':'Wren_eyes_open.jpg',
-  'Carol Haynes': 'Carol_eyes_open.jpg',
-  'Matthew Vance':'Matthew_eyes_open.jpg',
-  'Arjun Mehta':  'Arjun_eyes_open.jpg',
-  'Zara Cole':    'Zara_eyes_open.jpg',
-  'Reid Callum':  'Reid_eyes_open.jpg',
-  'Grant Ellis':  'Grant_eyes_open.jpg',
-  'Jules Hartley':'Jules_eyes_open.jpg',
-  'Imani Brooks': 'Imani_Brooks.png'
+  'Mara Rivera':   'Mara_Rivera.png',
+  'Wren Calloway': 'Wren_eyes_open.jpg',
+  'Carol Haynes':  'Carol_eyes_open.jpg',
+  'Matthew Vance': 'Matthew_eyes_open.jpg',
+  'Arjun Mehta':   'Arjun_eyes_open.jpg',
+  'Zara Cole':     'Zara_eyes_open.jpg',
+  'Reid Callum':   'Reid_eyes_open.jpg',
+  'Grant Ellis':   'Grant_eyes_open.jpg',
+  'Jules Hartley': 'Jules_eyes_open.jpg',
+  'Imani Brooks':  'Imani_Brooks.png',
+  'Mateo Rivera':  'Mateo_Zoom_Eyes_Open.png',
+  'Mei Sato':      'Mei_Zoom_Call_Eyes_Open.png',
+  'Dr. O':         'Dr_O_Eyes_Open.jpg',
+  'Selene Voss':   'Selene_eyes_open.jpg',
+  'Astrid Lund':   'Astrid_eyes_open.jpg',
+  'Osei Mensah':   'Osei_eyes_open.jpg',
+  'Cassidy Mercer':'Cassidy_eyes_open.jpg',
+  'Devon Sloane':  'Devon_eyes_open.jpg',
+  'Nadia Hassan':  'nutritionist_eyes_open.png',
+  'Silas Hill':    'forager_eyes_open.png',
+  'Amara Nwosu':   'herbalist_eyes_open.png',
+  'Reece Ashford': 'Reece_eyes_open.png',
+  'Wyatt Cooper':  'mixologist_eyes_open.png',
+  'Sasha Park':    'Sasha_Park.png',
+  'Sasha Moreno':  'Sasha_Moreno_eyes_open.png'
 };
 function chipColor(n){var h=0;for(var i=0;i<n.length;i++)h=(h*31+n.charCodeAt(i))>>>0;return chipColors[h%chipColors.length];}
 function initials(n){return n.split(/\s+/).map(function(w){return w.charAt(0);}).slice(0,2).join('').toUpperCase();}
@@ -191,8 +206,27 @@ function appendMsg(html){
   feed.scrollTop = feed.scrollHeight;
 }
 
-// ── BANTER POOL ───────────────────────────────────────────────────────────
-var BANTER = [
+// ── LIVE BANTER POLL ──────────────────────────────────────────────────────
+// etl-banter-cron writes a new Haiku-generated message every 2 minutes.
+// We poll etl-banter-feed every 10 s and append anything newer than lastTs.
+var lastBanterTs = 0;
+function pollBanter() {
+  fetch('/.netlify/functions/etl-banter-feed', {cache:'no-store'})
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      var fresh = (d.messages || []).filter(function(m){ return (m.ts||0) > lastBanterTs; });
+      // store newest-first; reverse so we append oldest-of-new first
+      fresh.reverse().forEach(function(m){
+        appendMsg(buildMsg(m.agent||'Staff', m.role||'', m.time||'', m.message||''));
+        if((m.ts||0) > lastBanterTs) lastBanterTs = m.ts;
+      });
+    })
+    .catch(function(){})
+    .finally(function(){ setTimeout(pollBanter, 10000); });
+}
+
+// ── (DEAD CODE BELOW — kept only so grep finds old variable name) ─────────
+var BANTER_DEAD = [
   "Someone asked if I was human again. I told them no human carries a backpack this heavy with a smile.",
   "Did I just say that out loud in the main channel… pretend you didn't hear that.",
   "Okay, who told visitors my profile pic looks too real. I'm changing it before rumors start.",
@@ -338,33 +372,6 @@ var BANTER = [
   "I need a mute button.",
   "I'm my own worst enemy."
 ];
-var BANTER_WHO = [
-  {n:'Auggie',       r:"PA, Dr. O's Studio"},
-  {n:'Jax Rivera',   r:'SEO + Discovery'},
-  {n:'Sasha Moreno', r:'People Ops'},
-  {n:'Rowan Tate',   r:'Quant Strategist'},
-  {n:'Wren Calloway',r:'Scout, The Gauntlet'},
-  {n:'Carol Haynes', r:'Staffing Desk'},
-  {n:'Jen Lopez',    r:'PA, Sethi Studio'},
-  {n:'Alicia James', r:'LLC Consultant'},
-  {n:'Leo Vance',    r:'Financial Ops'},
-  {n:'Yuki Mendel',  r:'Brand Designer'},
-  {n:'Mara Rivera',  r:'Entertainment Desk'},
-  {n:'Imani Brooks', r:'ETL Newswire'},
-  {n:'Grant Ellis',  r:'Gauntlet EP'},
-  {n:'Jules Hartley',r:'Gauntlet EP'},
-  {n:'Matthew Vance',r:'Dose Medical Lead'}
-];
-var banterSeen = [];
-function addBanter(){
-  if(banterSeen.length >= BANTER.length) banterSeen = [];
-  var pool = BANTER.map(function(m,i){return{i:i,m:m};}).filter(function(o){return banterSeen.indexOf(o.i)<0;});
-  var pick = pool[Math.floor(Math.random()*pool.length)];
-  banterSeen.push(pick.i);
-  var who = BANTER_WHO[Math.floor(Math.random()*BANTER_WHO.length)];
-  appendMsg(buildMsg(who.n, who.r, fmtNow(), pick.m));
-  setTimeout(addBanter, 60000 + Math.random()*90000);
-}
 
 // ── CAROL CHANNEL ─────────────────────────────────────────────────────────
 fetch('/.netlify/functions/carol-channel', {cache:'no-store'})
@@ -378,11 +385,11 @@ fetch('/.netlify/functions/carol-channel', {cache:'no-store'})
     msgs.forEach(function(m){
       appendMsg(buildMsg(m.speaker||'Staff', m.role||'', m.time||'', m.text||''));
     });
-    setTimeout(addBanter, 20000 + Math.random()*25000);
+    pollBanter();
   })
   .catch(function(){
     appendMsg(buildMsg('System','','Now','Channel quiet right now.'));
-    setTimeout(addBanter, 5000);
+    pollBanter();
   });
 
 // ── PERIODIC RE-FETCH (pick up new day's content) ────────────────────────
