@@ -408,7 +408,11 @@ function pickTarget(a){
   }
   // All other agents — time-of-day behavior
   if(mode==='work'){
-    if(r<.78) return HOME[a.plat]||HUB;   // at their post
+    const homeNode = HOME[a.plat]||HUB;
+    // If agent is far from home (drifted during overnight), pull them back
+    const dist = Math.hypot(a.x - N[homeNode][0], a.y - N[homeNode][1]);
+    if(dist > 200) return homeNode;
+    if(r<.72) return homeNode;             // at their post
     if(r<.92) return nearbyNode(a);        // short hop nearby
     return HUB;                            // rare DeskWorks visit
   }
@@ -437,13 +441,13 @@ function pickPairPartner(a,i){
 
 function setWalk(a){
   const wm=getTimeMode();
-  const dur=wm==='work'?45000+Math.random()*35000:12000+Math.random()*18000;
+  const dur=wm==='work'?20000+Math.random()*20000:12000+Math.random()*18000;
   a.state=ST.W; a.dur=dur; a.timer=0; a.partner=-1;
   a.wdx=(Math.random()-.5)*.3; a.wdy=(Math.random()-.5)*.3;
 }
 function setPause(a){
   const wm=getTimeMode();
-  const dur=wm==='work'?50000+Math.random()*40000:10000+Math.random()*20000;
+  const dur=wm==='work'?22000+Math.random()*28000:10000+Math.random()*20000;
   a.state=ST.P; a.dur=dur; a.timer=0;
 }
 function setGuide(a,t){
@@ -481,7 +485,7 @@ function tick(ts){
       case ST.W:
         if(exp){
           const r=Math.random();
-          const moveRate = tmode==='work' ? 0.08 : 0.35;
+          const moveRate = tmode==='work' ? 0.15 : 0.35;
           if(r<moveRate){
             const t=pickTarget(a);
             // no pair-walking during work hours — agents go alone
