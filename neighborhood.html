@@ -148,7 +148,7 @@ const N = [
   [548,496],  // 11 Quad Junction
   [860,438],  // 12 ETL Newswire
   [1000,438], // 13 Greylander Press
-  [596,548],  // 14 Mission Possible Spy Academy
+  [596,548],  // 14 ETL Building
   [926,506],  // 15 SE Junction
   [132,718],  // 16 Boardroom
   [278,718],  // 17 ETL Staffing
@@ -225,7 +225,7 @@ const ADAT = [
   ["August 'Auggie' Vidal","FS",7,1],["Alicia James","FS",5.5,0],
   ["Leo Vance","FS",6,1],["Kimberly Pass","FS",5.5,0],
   ["Sasha Moreno","FS",5.5,0],["Yuki Mendel","FS",5.5,0],
-  ["Rowan Tate","FS",6,1],["Iris S. King","FS",5.5,0],
+  ["Rowan Tate","FS",6,1],["Iris S. King","ET",5.5,0],
   ["Jax Rivera","FS",6,1],["Margaret Applewood","TD",5.5,0],
   ["Eli Adler","TD",6,1],["Nadia Hassan","TD",5.5,0],
   ["Dr. Henry Chen","TD",6,1],["Maeve 'MJ' Johnson","TD",5.5,0],
@@ -281,10 +281,10 @@ const ADAT = [
   ["Dr. Ali Malik","OG",6,1]
 ];
 
-const HOME = {FS:18,OG:1,TG:2,TD:5,GY:6,PR:9,NW:12,GP:13,GK:23,XX:20,DR:10,CG:26};
+const HOME = {FS:18,OG:1,TG:2,TD:5,GY:6,PR:9,NW:12,GP:13,GK:23,XX:20,DR:14,ET:14,CG:26};
 const HUB  = 20;
 const HUB_R = 60;
-const DR_O = 10; // SLR Studio — Dr. O's home node
+const DR_O = 14; // ETL Building — Dr. O's home node
 const DR_O_R = 55;
 const ST   = {W:'walk',G:'guide',P:'pause',C:'chat',H:'hub',R:'romance'};
 
@@ -393,7 +393,7 @@ function nearbyNode(a){
 function pickTarget(a){
   const r=Math.random();
   const mode=getTimeMode();
-  // Dr. O AI Twin: morning = full tour; work = SLR Studio with one campus lap ~per hour
+  // Dr. O AI Twin: morning = full tour; work = ETL Building with one campus lap ~per hour
   if(a.plat==='DR'){
     const allHomes=Object.values(HOME);
     if(mode==='work'){
@@ -402,9 +402,9 @@ function pickTarget(a){
         drOLastRoam=now;
         return allHomes[Math.floor(Math.random()*allHomes.length)];
       }
-      return 10; // stay at SLR Studio
+      return 14; // stay at ETL Building
     }
-    return r<.35 ? 10 : allHomes[Math.floor(Math.random()*allHomes.length)];
+    return r<.35 ? 14 : allHomes[Math.floor(Math.random()*allHomes.length)];
   }
   // All other agents — time-of-day behavior
   if(mode==='work'){
