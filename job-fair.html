@@ -1148,7 +1148,7 @@ async function sCallAPI(body, opts) {
         throw new Error('Server returned an unexpected response. Please try again.');
       }
       if (d.error) {
-        var msg = typeof d.error === 'string' ? d.error : (d.error.message || JSON.stringify(d.error));
+        var msg = typeof d.error === 'string' ? d.error : (d.error.message || 'Search service returned an error. Please try again.');
         console.error('[scanner] API error:', msg);
         // 529 overloaded → retry once
         if (/529|overloaded/i.test(msg) && attempts < maxAttempts) {
@@ -1202,7 +1202,7 @@ async function sRunScan() {
       ? {type:'document', source:{type:'base64', media_type:'application/pdf', data:sCvBase64}}
       : {type:'text', text:'[DOCX file: ' + sCvFileName + ']'};
 
-    var d1 = await sCallAPI({model:'claude-sonnet-4-20250514', max_tokens:1000,
+    var d1 = await sCallAPI({model:'claude-sonnet-4-6', max_tokens:1000,
       system:'Extract a structured profile from the CV or resume. Respond with ONLY a raw JSON object, no markdown. Fields: {"name":string,"field":string,"degree":string,"skills":string[],"experience":string,"targetRoles":string[]}',
       messages:[{role:'user', content:[cvContent, {type:'text', text:'Extract the profile. Return raw JSON only.'}]}]
     });
@@ -1225,7 +1225,7 @@ async function sRunScan() {
       : '';
 
     var d2 = await sCallAPI({
-      model:'claude-sonnet-4-20250514',
+      model:'claude-sonnet-4-6',
       max_tokens:600,
       // Cap the web search at 2 calls so the model commits faster instead of
       // running 5 searches and timing out the function.
@@ -1247,7 +1247,7 @@ async function sRunScan() {
 
     if (!jobs || !Array.isArray(jobs)) {
       statusEl.innerHTML = '<div class="s-status-box">' + bar + '<div class="s-status-title">Formatting results</div><div class="s-status-sub">Structuring search output&hellip;</div></div>';
-      var d3 = await sCallAPI({model:'claude-sonnet-4-20250514', max_tokens:1000,
+      var d3 = await sCallAPI({model:'claude-sonnet-4-6', max_tokens:1000,
         system:'Convert to a raw JSON array starting with [. Each object needs: company, role, location, visaStatus, matchScore (60-99), matchReason, deadline, description, url.',
         messages:[{role:'user', content:raw2}]
       });
