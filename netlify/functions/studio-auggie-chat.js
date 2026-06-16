@@ -276,7 +276,7 @@ const PLATFORM_URL_MAP = [
   { match: /\b(greylander press|greylanderpress)/i,                                url: 'https://greylanderpress.com' },
   { match: /\b(the gauntlet|thegauntlet)/i,                                        url: 'https://thegauntlet.studio' },
   { match: /\b(opsec gauntlet|opsec-gauntlet|opsecgauntlet)/i,                      url: 'https://opsec-gauntlet.netlify.app' },
-  { match: /\b(gandhi-?king|gandhi king center)/i,                                  url: 'https://gandhi-king.netlify.app' },
+  { match: /\b(gandhi-?king|gandhi king center)/i,                                  url: 'https://gandhi-king-center-for-nonviolence.org' },
   { match: /\b(slr studio|slrstudio)/i,                                              url: 'https://slrstudio.online' },
   // ── ETL subpath products — must be listed BEFORE the root ETL match
   // so they win when Terry names them specifically. Each has its own

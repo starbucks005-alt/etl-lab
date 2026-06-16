@@ -67,7 +67,7 @@ const SITES = {
   // Intel Dashboard intentionally kept off the public social picker.
   // Held back from public marketing while it is positioned for potential
   // strategic acquisition. Do not add back without explicit instruction.
-  gk:           { name: 'Gandhi-King Center for Nonviolence', url: 'https://gandhi-king.netlify.app',
+  gk:           { name: 'Gandhi-King Center for Nonviolence', url: 'https://gandhi-king-center-for-nonviolence.org',
                   fallbackImage: '/site-thumbs/GK_Center.png',
                   context: '501(c)(3) foundation. Board includes Tushar Gandhi (Mahatma\'s great-grandson), Rev. Joel King (Dr. King\'s cousin), and Gregory Foster (Coretta Scott King\'s cousin). Baroness Harris of Richmond is patron.' },
   newswire:     { name: 'ETL Newswire', url: 'https://emerging-tech-lab.com/press',
@@ -78,7 +78,7 @@ const SITES = {
                   context: 'Faculty toolkit, 22 tools for the manuscript and grant lifecycle. Reviewer Panel, Pre-submission Check with Jules, Methods Coach, Resubmission Builder.' },
   prepRoom:     { name: 'Prep Room', url: 'https://emerging-tech-lab.com/prep-room',
                   fallbackImage: '/site-thumbs/The_Prep_Room.png',
-                  context: 'Thesis defense, job interview, and résumé coaching with AI-simulated panels. Nine professor personas, eight business interviewers, Charles Monroe résumé coach, Bea Reyes copy editor.' },
+                  context: 'Thesis defense, job interview, and résumé coaching with AI-simulated panels. Nine professor personas, eight business interviewers, Charles Monroe résumé coach, Bea Vega copy editor.' },
   boardroom:    { name: 'The Boardroom', url: 'https://emerging-tech-lab.com/job-fair',
                   fallbackImage: '/site-thumbs/The_Board_Room.png',
                   context: 'Practice room for professionals. Job fair mastery, executive interview prep, leadership bio + full CV builder, and the Opportunity Scanner. Free, no login, no upsell.' },
