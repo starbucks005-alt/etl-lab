@@ -221,7 +221,7 @@ exports.handler = async (event) => {
       messages,
       keeper_digest: houseTypography(String(parsed.keeper_digest || '')).trim(),
     };
-    try { await store.setJSON(cacheKey, payload); } catch (err) { console.warn('[carol-channel] cache write failed', err && err.message); }
+    try { await store.set(cacheKey, JSON.stringify(payload)); } catch (err) { console.warn('[carol-channel] cache write failed', err && err.message); }
     return json(200, payload);
   } catch (err) {
     console.error('[carol-channel] generation failed', err && err.message);

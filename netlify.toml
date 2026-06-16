@@ -8,10 +8,10 @@
   timeout = 60
 
 [functions."carol-channel"]
-  timeout = 26
+  timeout = 60
 
 [functions."carol-channel-audio"]
-  timeout = 26
+  timeout = 60
 
 # Scheduled functions. The exports.config.schedule syntax inside the function
 # files does not always register; declaring the schedule here is the reliable
