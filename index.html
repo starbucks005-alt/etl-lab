@@ -1240,8 +1240,16 @@ document.addEventListener('DOMContentLoaded', function(){
 <style>
   .briefing-band { background: #e9edf2; color: #0e0c08; padding: 16px 0; display: none; border-top: 1px solid #28527a; border-bottom: 1px solid #28527a; }
   .briefing-band.is-ready { display: block; }
-  .briefing-band-inner { max-width: 1180px; margin: 0 auto; padding: 0 32px; display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: center; }
+  .briefing-band-inner { max-width: 1180px; margin: 0 auto; padding: 0 32px; display: grid; grid-template-columns: 1fr 1px 1fr; gap: 0 40px; align-items: center; }
   @media (max-width: 720px) { .briefing-band-inner { grid-template-columns: 1fr; } }
+  .briefing-col { display: flex; flex-direction: column; gap: 10px; }
+  .briefing-divider { background: rgba(40,82,122,0.2); align-self: stretch; }
+  @media (max-width: 720px) { .briefing-divider { display: none; } }
+  .briefing-dose-links { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-family:'IBM Plex Mono',monospace; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; }
+  .briefing-dose-links a { color: #28527a; background: transparent; border: 1px solid #b8922a; padding: 4px 9px; text-decoration: none; }
+  .briefing-dose-links a:hover { background: #b8922a; color: #fff; }
+  .briefing-dose-links .primary { background: #d4aa4a; color: #0e0c08; border-color: #28527a; font-weight: 700; }
+  .briefing-dose-links .primary:hover { background: #b8922a; color: #fff; }
   .briefing-band-eyebrow { font-family: 'Public Sans', sans-serif; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: #28527a; margin-bottom: 4px; }
   .briefing-band-eyebrow a { color: #28527a; }
   .briefing-band-title { font-family: 'Spectral', Georgia, serif; font-size: 22px; font-weight: 700; color: #0e0c08; line-height: 1.15; margin-bottom: 2px; }
@@ -1259,25 +1267,47 @@ document.addEventListener('DOMContentLoaded', function(){
 </style>
 <section class="briefing-band" id="briefing-card" data-tab="home" aria-label="5 in Under 5 audio briefing">
   <div class="briefing-band-inner">
-    <div>
-      <div class="briefing-band-eyebrow">Above the Fold &middot; Morning briefing from the <a href="/press" style="color:#28527a;text-decoration:underline;">ETL Newswire</a> desk</div>
-      <div class="briefing-band-title">Today's top stories, above the fold.</div>
-      <div class="briefing-band-sub" id="briefing-sub"></div>
-    </div>
-    <div class="briefing-band-audio">
-      <div class="briefing-audio-row">
-        <audio id="briefing-audio" controls preload="none"></audio>
-        <span class="briefing-length" id="briefing-length" hidden></span>
+
+    <!-- Left: ETL Newswire -->
+    <div class="briefing-col">
+      <div>
+        <div class="briefing-band-eyebrow">Above the Fold &middot; Morning briefing from the <a href="/press" style="color:#28527a;text-decoration:underline;">ETL Newswire</a> desk</div>
+        <div class="briefing-band-title">Today's top stories, above the fold.</div>
+        <div class="briefing-band-sub" id="briefing-sub"></div>
       </div>
-      <div class="briefing-share" id="briefing-share">
-        <span>Share:</span>
-        <button type="button" data-share="link">Copy link</button>
-        <button type="button" data-share="embed">Copy embed</button>
-        <a href="https://twitter.com/intent/tweet?text=Today%27s%20wire%2C%20above%20the%20fold.&url=https%3A%2F%2Femerging-tech-lab.com%2Fpress" target="_blank" rel="noopener">Tweet</a>
-        <a href="/press/above-the-fold.xml" target="_blank" rel="noopener">Podcast RSS</a>
-        <a href="/press/deskline" style="background:#d4aa4a;color:#0e0c08;border-color:#28527a;font-weight:700;">Play Deskline &rarr;</a>
+      <div class="briefing-band-audio">
+        <div class="briefing-audio-row">
+          <audio id="briefing-audio" controls preload="none"></audio>
+          <span class="briefing-length" id="briefing-length" hidden></span>
+        </div>
+        <div class="briefing-share" id="briefing-share">
+          <span>Share:</span>
+          <button type="button" data-share="link">Copy link</button>
+          <button type="button" data-share="embed">Copy embed</button>
+          <a href="https://twitter.com/intent/tweet?text=Today%27s%20wire%2C%20above%20the%20fold.&url=https%3A%2F%2Femerging-tech-lab.com%2Fpress" target="_blank" rel="noopener">Tweet</a>
+          <a href="/press/above-the-fold.xml" target="_blank" rel="noopener">Podcast RSS</a>
+          <a href="/press/deskline" style="background:#d4aa4a;color:#0e0c08;border-color:#28527a;font-weight:700;">Play Deskline &rarr;</a>
+        </div>
       </div>
     </div>
+
+    <!-- Divider -->
+    <div class="briefing-divider"></div>
+
+    <!-- Right: Your Daily Dose -->
+    <div class="briefing-col">
+      <div>
+        <div class="briefing-band-eyebrow">Your Daily Dose &middot; From <a href="https://thedose.net" target="_blank" rel="noopener" style="color:#28527a;text-decoration:underline;">The Dose</a></div>
+        <div class="briefing-band-title">Health, in plain language.</div>
+      </div>
+      <div class="briefing-band-audio">
+        <div class="briefing-dose-links">
+          <a href="https://thedose.net/#dd-section" target="_blank" rel="noopener" class="primary">&#9654; Listen: Your Daily Dose</a>
+          <a href="https://thedose.net/" target="_blank" rel="noopener">Open The Dose &rarr;</a>
+        </div>
+      </div>
+    </div>
+
   </div>
 </section>
 <script>
