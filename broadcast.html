@@ -18,11 +18,11 @@ html,body{width:1920px;height:1080px;overflow:hidden;background:#050c14;font-fam
   border-right:1px solid rgba(0,200,255,.15);
   background:#040a12;
 }
-.bc-map iframe{
+.bc-map img{
   position:absolute;top:0;left:0;
-  width:1200px;height:960px;
-  border:none;transform-origin:top left;
-  /* JS sets transform:scale() */
+  width:100%;height:100%;
+  object-fit:contain;object-position:center center;
+  border:none;
 }
 
 /* ── RIGHT: CHAT ── */
@@ -90,9 +90,9 @@ html,body{width:1920px;height:1080px;overflow:hidden;background:#050c14;font-fam
 <body>
 <div class="bc-wrap">
 
-  <!-- LEFT: NEIGHBORHOOD MAP -->
+  <!-- LEFT: ETL MAP -->
   <div class="bc-map" id="bc-map">
-    <iframe src="/neighborhood.html" scrolling="no" id="bc-map-iframe" title="ETL Live Campus"></iframe>
+    <img src="/tech-map.png" alt="ETL Campus Map">
   </div>
 
   <!-- RIGHT: AGENCY FLOOR CHAT -->
@@ -120,16 +120,6 @@ html,body{width:1920px;height:1080px;overflow:hidden;background:#050c14;font-fam
 <script>
 (function(){
 'use strict';
-
-// ── MAP SCALE — fill height, clip right overflow ──────────────────────────
-var mapWrap  = document.getElementById('bc-map');
-var mapFrame = document.getElementById('bc-map-iframe');
-function scaleMap(){
-  if(!mapWrap||!mapFrame) return;
-  var scale = Math.min(mapWrap.offsetWidth / 1200, mapWrap.offsetHeight / 960);
-  mapFrame.style.transform = 'scale('+scale+')';
-}
-window.addEventListener('load', scaleMap);
 
 // ── HELPERS ───────────────────────────────────────────────────────────────
 var feed     = document.getElementById('bc-feed');
@@ -255,7 +245,7 @@ var CAST_IMG = {
   'Marceline Smith':  'Marceline_Smith_Profile.jpg',
   'Simone Beaumont':  'Simone_Beaumont_Profile.jpg',
   'Dilan Wolf':       'Dilan_Wolf_Profile.jpg',
-  'Bea Vega':         'Bea_Open.jpg',
+  'Bea Vega':         'Bea_Open.png',
   'The Professor':    'The_Professor_eyes_open.jpg',
   'Pri Nanduri':      'Priya_eyes_open.jpg',
   'Priya Anand':      'Priya_eyes_open.jpg',
