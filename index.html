@@ -2727,7 +2727,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
 <!-- ── COMMAND CENTER ──────────────────────────────────────────────────────── -->
 <style>
-.cc-section{background:#050c14;padding:12px 0 0}
+.cc-section{background:#050c14;padding:12px 0 0;overflow:hidden}
 .cc-wrap-inner{width:100%;margin:0 auto;padding:0 20px}
 .cc-eyebrow-hp{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.2em;color:rgba(0,200,255,.65);padding:0 0 10px;text-transform:uppercase;text-align:center}
 .cc-interface-hp{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:min(540px,55vh);border:1px solid rgba(0,200,255,.18);overflow:hidden}
@@ -5982,18 +5982,25 @@ h1 b,h2 b,h1 strong,h2 strong{font-weight:500}
 (function(){
 // ── COMMAND CENTER: MAP SCALE + AGENCY FLOOR ────────────────────────────────
 (function(){
-  // Scale map iframe to fill the panel width responsively
+  // Scale map iframe to fit panel in both dimensions — prevents right/bottom clip
   function scaleCCMap(){
     var wrap   = document.getElementById('cc-map-wrap');
     var iframe = document.getElementById('cc-map-iframe');
     if(!wrap || !iframe) return;
-    var scaleW = wrap.offsetWidth / 1200;
-    var scale  = scaleW > 0 ? scaleW : 1;
+    var w = wrap.offsetWidth;
+    var h = wrap.offsetHeight;
+    var scale = Math.min(w / 1200, h / 900);
+    if(scale <= 0) scale = 1;
     iframe.style.transform = 'scale(' + scale + ')';
   }
-  window.addEventListener('load', scaleCCMap);
-  window.addEventListener('resize', scaleCCMap);
-  scaleCCMap();
+  // ResizeObserver fires reliably as the panel's actual dimensions settle
+  var _mapWrap = document.getElementById('cc-map-wrap');
+  if(_mapWrap && window.ResizeObserver){
+    new ResizeObserver(scaleCCMap).observe(_mapWrap);
+  } else {
+    window.addEventListener('resize', scaleCCMap);
+  }
+  window.addEventListener('load', function(){ requestAnimationFrame(scaleCCMap); });
 
   // Agency Floor renderer (carol-channel)
   var feed = document.getElementById('cc-ac-feed');
