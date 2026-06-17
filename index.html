@@ -2743,6 +2743,27 @@ document.addEventListener('DOMContentLoaded', function(){
 .cc-key-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
 .cc-key-ring{width:11px;height:11px;border-radius:50%;flex-shrink:0;border:1.5px solid rgba(255,255,255,.6)}
 .cc-key-sep{height:1px;background:rgba(0,200,255,.12);margin:7px 0}
+.cc-key-bp-info{background:none;border:none;color:rgba(0,200,255,.6);cursor:pointer;font-size:12px;padding:0 0 0 5px;line-height:1;vertical-align:middle;font-family:sans-serif}
+.cc-key-bp-info:hover{color:#00c8ff}
+#bp-modal{display:none;position:fixed;inset:0;z-index:9500;background:rgba(0,0,0,.8);align-items:center;justify-content:center;padding:20px}
+#bp-modal.open{display:flex}
+#bp-modal-box{background:#050c14;border:1px solid rgba(0,200,255,.28);max-width:740px;width:100%;position:relative;font-family:'Public Sans',sans-serif}
+#bp-modal-close{position:absolute;top:12px;right:16px;background:none;border:none;color:rgba(0,200,255,.55);font-size:22px;cursor:pointer;line-height:1;padding:0}
+#bp-modal-close:hover{color:#00c8ff}
+.bp-eyebrow{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.22em;color:rgba(0,200,255,.65);padding:20px 24px 0;text-transform:uppercase}
+.bp-headline{font-family:'Spectral',serif;font-size:26px;font-weight:700;color:#f5f3ee;padding:8px 24px 18px;line-height:1.2;border-bottom:1px solid rgba(0,200,255,.12)}
+.bp-cols{display:grid;grid-template-columns:1fr 1fr}
+.bp-col{padding:22px 24px}
+.bp-col+.bp-col{border-left:1px solid rgba(0,200,255,.1)}
+.bp-col-hd{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.bp-col-ring{width:14px;height:14px;border-radius:50%;flex-shrink:0;border:2px solid rgba(255,255,255,.7)}
+.bp-col-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;background:#708090}
+.bp-col-label{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.16em;text-transform:uppercase}
+.bp-col--mcp .bp-col-label{color:#00c8ff}
+.bp-col--reg .bp-col-label{color:#f5a623}
+.bp-col-body{font-size:13px;line-height:1.72;color:#b8cdd8}
+.bp-footer{padding:14px 24px;border-top:1px solid rgba(0,200,255,.08);font-size:11px;color:rgba(255,255,255,.38);line-height:1.6}
+.bp-footer strong{color:rgba(255,255,255,.55)}
 .cc-panel-hp:last-child{border-right:none}
 .cc-panel-hp-header{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.14em;color:rgba(0,200,255,.75);padding:8px 12px;border-bottom:1px solid rgba(0,200,255,.1);background:rgba(0,0,0,.5);display:flex;align-items:center;gap:8px;flex:none;justify-content:space-between}
 .cc-sdot{width:6px;height:6px;border-radius:50%;background:#22d47a;flex:none;animation:cc-blink 2s infinite}
@@ -3021,7 +3042,7 @@ document.addEventListener('DOMContentLoaded', function(){
         <div class="cc-key-row"><span class="cc-key-dot" style="background:#708090"></span>Multi-platform</div>
         <div class="cc-key-row"><span class="cc-key-dot" style="background:#4a6fa5"></span>City Government</div>
         <div class="cc-key-sep"></div>
-        <div class="cc-key-row"><span class="cc-key-ring"></span>Backpack Agent (MCP)</div>
+        <div class="cc-key-row"><span class="cc-key-ring"></span>Backpack Agent (MCP)<button class="cc-key-bp-info" id="cc-bp-info-btn" type="button" title="What's a backpack?">ⓘ</button></div>
       </div>
       <div class="cc-map-wrap" id="cc-map-wrap">
         <iframe src="/neighborhood.html?mode=mirror" scrolling="no" title="ETL Live Campus" id="cc-map-iframe"></iframe>
@@ -5007,6 +5028,26 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
      still lives on leadership-cert.html itself, which is reachable from
      the Prep Room / Boardroom -> Leadership Programs flow. -->
 
+<!-- ─── BACKPACK MODAL ───────────────────────────────────────────────── -->
+<div id="bp-modal" role="dialog" aria-modal="true" aria-labelledby="bp-modal-title">
+  <div id="bp-modal-box">
+    <button id="bp-modal-close" type="button" aria-label="Close">&times;</button>
+    <div class="bp-eyebrow">The Backpack &nbsp;·&nbsp; MCP Staff</div>
+    <h2 class="bp-headline" id="bp-modal-title">Same skills.<br>Different reach.</h2>
+    <div class="bp-cols">
+      <div class="bp-col bp-col--mcp">
+        <div class="bp-col-hd"><span class="bp-col-ring"></span><span class="bp-col-label">MCP Staff &nbsp;·&nbsp; Backpack Equipped</span></div>
+        <p class="bp-col-body">Their tools are built into them — like a backpack they carry everywhere. Drop them into any site and they bring PubMed, FDA registries, clinical trial databases, the open web — all of it — with them. The platform doesn't need to provide any of that. It's already in their pack.</p>
+      </div>
+      <div class="bp-col bp-col--reg">
+        <div class="bp-col-hd"><span class="bp-col-dot"></span><span class="bp-col-label">Regular Staff &nbsp;·&nbsp; Site-Dependent</span></div>
+        <p class="bp-col-body">They work through whatever tools the platform provides. Inside their home system they're powerful — they know the workflow, the data, the environment. But those tools stay behind when they move. Different site, different toolkit.</p>
+      </div>
+    </div>
+    <div class="bp-footer"><strong>MCP</strong> stands for Model Context Protocol — an open standard that lets an agent carry its own toolkit and use it across any platform, any site, any context. On the map, backpack agents are shown with a white ring around their dot.</div>
+  </div>
+</div>
+
 <!-- ─── AGENTS MODAL ─────────────────────────────────────────────────── -->
 <div class="agents-modal" id="agents-modal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="agents-modal-name">
   <div class="agents-modal-overlay" id="agents-modal-overlay"></div>
@@ -6047,6 +6088,19 @@ h1 b,h2 b,h1 strong,h2 strong{font-weight:500}
   if(keyBtn&&keyOverlay){
     keyBtn.addEventListener('click',function(e){ e.stopPropagation(); keyOverlay.classList.toggle('open'); });
     document.addEventListener('click',function(){ if(keyOverlay) keyOverlay.classList.remove('open'); });
+  }
+  var bpInfoBtn=document.getElementById('cc-bp-info-btn');
+  var bpModal=document.getElementById('bp-modal');
+  var bpClose=document.getElementById('bp-modal-close');
+  if(bpInfoBtn&&bpModal){
+    bpInfoBtn.addEventListener('click',function(e){
+      e.stopPropagation();
+      bpModal.classList.add('open');
+      if(keyOverlay) keyOverlay.classList.remove('open');
+    });
+    bpClose.addEventListener('click',function(){ bpModal.classList.remove('open'); });
+    bpModal.addEventListener('click',function(e){ if(e.target===bpModal) bpModal.classList.remove('open'); });
+    document.addEventListener('keydown',function(e){ if(e.key==='Escape') bpModal.classList.remove('open'); });
   }
   // ── AGENCY FLOOR BANTER ─────────────────────────────────────────────────
   var BANTER_MSGS=[
