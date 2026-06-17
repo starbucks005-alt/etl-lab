@@ -868,11 +868,12 @@ document.addEventListener('DOMContentLoaded', function(){
   var etlpa = document.getElementById('etl-pa');
   var aitwin = document.getElementById('ai-twin');
   var cc = document.getElementById('command-center');
+  var etlcc = document.getElementById('etl-cc');
   var talks = document.getElementById('talks');
   var intel = document.getElementById('intel');
   var pub = document.getElementById('publications');
   var anchor = ticker;
-  [hero, harvard, briefing, obs, cc, stack, slr, network, agents, aigov, etlpa, aitwin, talks, intel, pub].forEach(function(node){
+  [hero, harvard, briefing, obs, etlcc, cc, stack, slr, network, agents, aigov, etlpa, aitwin, talks, intel, pub].forEach(function(node){
     if (anchor && node) {
       anchor.insertAdjacentElement('afterend', node);
       anchor = node;
