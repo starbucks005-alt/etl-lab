@@ -49,7 +49,7 @@
 </script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
     --black: #111111;
@@ -2583,6 +2583,240 @@ document.addEventListener('DOMContentLoaded', function(){
   </div>
 </section>
 <script src="https://player.vimeo.com/api/player.js"></script>
+
+<!-- ─────────────────────────────────────────────────────────────────────────
+     ETL COMMAND CENTER — arrival layer above the campus map.
+     Two views: A = by domain/neighborhood, B = by scale + color.
+     All CSS scoped under #etl-cc to avoid conflicts with page globals.
+     ───────────────────────────────────────────────────────────────────── -->
+<section id="etl-cc" data-tab="platforms">
+<style>
+#etl-cc{
+  --bg:#08111f;--bg2:#0c1a2c;--panel:#0f2236;--panel2:#12283f;
+  --line:#1d3a56;--line2:#2a5478;
+  --cyan:#46d6e6;--cyan-dim:#2c8c99;--ice:#bfe9f0;--text:#dce8f2;--mute:#7c97b0;
+  --gold:#e8b659;--rose:#e8728c;--green:#5bd6a0;--violet:#9b8cf0;--orange:#f0975a;
+  --display:'Rajdhani',sans-serif;--mono:'IBM Plex Mono',monospace;--body:'Inter',sans-serif;
+  background:
+    radial-gradient(1200px 600px at 78% -10%, rgba(70,214,230,.10), transparent 60%),
+    radial-gradient(900px 500px at 10% 110%, rgba(70,214,230,.06), transparent 60%),
+    var(--bg);
+  color:var(--text);font-family:var(--body);line-height:1.5;padding:0 0 40px;
+}
+#etl-cc *{box-sizing:border-box}
+#etl-cc .wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+#etl-cc .util{border-bottom:1px solid var(--line);background:rgba(8,17,31,.78);backdrop-filter:blur(6px)}
+#etl-cc .util .wrap{display:flex;align-items:center;justify-content:space-between;height:46px}
+#etl-cc .util .left{font-family:var(--mono);font-size:11px;letter-spacing:.22em;color:var(--cyan-dim);text-transform:uppercase}
+#etl-cc .util .left b{color:var(--cyan)}
+#etl-cc .toggle{display:flex;border:1px solid var(--line2);border-radius:2px;overflow:hidden}
+#etl-cc .toggle button{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;background:transparent;color:var(--mute);border:none;padding:8px 16px;cursor:pointer;transition:.15s}
+#etl-cc .toggle button.on{background:var(--cyan);color:#03121b;font-weight:600}
+#etl-cc .toggle button:not(.on):hover{color:var(--ice);background:rgba(70,214,230,.06)}
+#etl-cc .hero{padding:52px 0 28px;border-bottom:1px solid var(--line)}
+#etl-cc .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.32em;color:var(--cyan-dim);text-transform:uppercase;margin-bottom:18px}
+#etl-cc .eyebrow .dot{color:var(--cyan)}
+#etl-cc .hero h1{font-family:var(--display);font-weight:700;line-height:.98;font-size:clamp(38px,6.6vw,78px);color:var(--ice);text-transform:uppercase;margin:0}
+#etl-cc .hero h1 .alive{color:var(--cyan)}
+#etl-cc .hero .sub{margin-top:18px;max-width:680px;color:var(--mute);font-size:16px}
+#etl-cc .hero .sub b{color:var(--text);font-weight:600}
+#etl-cc .readout{display:flex;flex-wrap:wrap;margin-top:32px;border:1px solid var(--line);border-radius:3px;overflow:hidden}
+#etl-cc .readout .cell{flex:1;min-width:140px;padding:16px 20px;border-right:1px solid var(--line);background:linear-gradient(180deg,rgba(18,40,63,.5),rgba(15,34,54,.2))}
+#etl-cc .readout .cell:last-child{border-right:none}
+#etl-cc .readout .n{font-family:var(--display);font-weight:700;font-size:34px;color:var(--cyan);line-height:1}
+#etl-cc .readout .n.small{color:var(--ice)}
+#etl-cc .readout .k{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--mute);margin-top:7px}
+#etl-cc .pulse{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);margin-right:7px;animation:etlcc-pulse 2.2s infinite}
+@keyframes etlcc-pulse{0%{box-shadow:0 0 0 0 rgba(91,214,160,.5)}70%{box-shadow:0 0 0 7px rgba(91,214,160,0)}100%{box-shadow:0 0 0 0 rgba(91,214,160,0)}}
+#etl-cc .secthead{display:flex;align-items:baseline;justify-content:space-between;margin:44px 0 6px}
+#etl-cc .secthead h2{font-family:var(--display);font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:24px;color:var(--ice);margin:0}
+#etl-cc .secthead .meta{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--cyan-dim);text-transform:uppercase}
+#etl-cc .lede{color:var(--mute);font-size:14px;max-width:760px;margin-bottom:18px}
+#etl-cc .domkey{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
+#etl-cc .domkey .chip{display:flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:3px;padding:5px 10px;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--text)}
+#etl-cc .domkey .chip .sw{width:11px;height:11px;border-radius:2px}
+#etl-cc .grid{display:grid;gap:14px}
+#etl-cc .grid.cols{grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+#etl-cc .domain{margin-bottom:28px}
+#etl-cc .domain-label{display:flex;align-items:center;gap:12px;margin:0 0 12px}
+#etl-cc .domain-label .tag{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase}
+#etl-cc .domain-label .rule{flex:1;height:1px;background:linear-gradient(90deg,var(--line2),transparent)}
+#etl-cc .domain-label .cnt{font-family:var(--mono);font-size:11px;color:var(--mute);letter-spacing:.1em}
+#etl-cc .card{position:relative;border:1px solid var(--line);border-radius:4px;background:linear-gradient(180deg,var(--panel),var(--bg2));padding:16px 18px;overflow:hidden;transition:.18s;cursor:default;display:flex;flex-direction:column;min-height:150px;border-left:3px solid var(--line2)}
+#etl-cc .card:hover{transform:translateY(-2px);background:linear-gradient(180deg,var(--panel2),var(--bg2))}
+#etl-cc .domtag{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:9px}
+#etl-cc .domtag .sw{width:8px;height:8px;border-radius:2px;flex:none}
+#etl-cc .card .top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+#etl-cc .card .name{font-family:var(--display);font-weight:600;font-size:21px;color:var(--ice);text-transform:uppercase;line-height:1.05}
+#etl-cc .card .role{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin-top:5px}
+#etl-cc .count{font-family:var(--display);font-weight:700;font-size:40px;line-height:.85;color:var(--cyan);text-align:right}
+#etl-cc .count .lbl{display:block;font-family:var(--mono);font-size:9px;letter-spacing:.16em;color:var(--cyan-dim);font-weight:500;margin-top:4px}
+#etl-cc .toolline{font-family:var(--mono);font-size:11px;color:var(--ice);text-align:right;line-height:1.5}
+#etl-cc .toolline .lbl{display:block;font-size:9px;letter-spacing:.16em;color:var(--cyan-dim);margin-bottom:4px}
+#etl-cc .card .foot{margin-top:auto;padding-top:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#etl-cc .pill{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:2px;border:1px solid var(--line2)}
+#etl-cc .pill.free{color:var(--green);border-color:rgba(91,214,160,.35);background:rgba(91,214,160,.07)}
+#etl-cc .pill.campus{color:var(--gold);border-color:rgba(232,182,89,.35);background:rgba(232,182,89,.07)}
+#etl-cc .pill.pending{color:var(--mute);border-color:var(--line)}
+#etl-cc .pill.engine{color:var(--cyan);border-color:rgba(70,214,230,.35);background:rgba(70,214,230,.07)}
+#etl-cc .travel{font-family:var(--mono);font-size:10px;color:var(--rose);letter-spacing:.04em;display:flex;align-items:center;gap:6px;margin-top:2px;width:100%}
+#etl-cc .card.pending-card{opacity:.62;border-style:dashed}
+#etl-cc .card.pending-card:hover{opacity:.85}
+#etl-cc .etlcc-hidden{display:none !important}
+#etl-cc .legend{display:flex;gap:18px;flex-wrap:wrap;margin:18px 0 0;padding:14px 0 0;border-top:1px solid var(--line)}
+#etl-cc .legend span{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:var(--mute);display:flex;align-items:center;gap:7px}
+#etl-cc .legend .sw{width:10px;height:10px;border-radius:2px}
+#etl-cc .seam{margin-top:48px;border-top:1px dashed var(--line2);padding-top:26px;text-align:center}
+#etl-cc .seam .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--cyan-dim)}
+#etl-cc .seam .arrow{color:var(--cyan);font-size:18px;display:block;margin-top:10px;animation:etlcc-bob 2.4s ease-in-out infinite}
+@keyframes etlcc-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(5px)}}
+#etl-cc .seam .note{color:var(--mute);font-size:13px;max-width:600px;margin:12px auto 0}
+#etl-cc .seam .note b{color:var(--text)}
+@media(max-width:560px){
+  #etl-cc .util .wrap{flex-direction:column;height:auto;gap:8px;padding:8px 28px}
+  #etl-cc .readout .cell{min-width:50%;flex:none}
+}
+</style>
+
+<div class="util">
+  <div class="wrap">
+    <div class="left">&#9670; ETL &nbsp;&middot;&nbsp; <b>COMMAND CENTER</b> &nbsp;&middot;&nbsp; NEW ARRIVAL LAYER ONLY</div>
+    <div class="toggle">
+      <button id="btnA" onclick="etlccView('A')">A &middot; By domain</button>
+      <button id="btnB" class="on" onclick="etlccView('B')">B &middot; By scale + color</button>
+    </div>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="wrap">
+    <div class="eyebrow"><span class="dot">&#9670;</span> EMERGING TECHNOLOGIES LABORATORY &nbsp;&middot;&nbsp; DR. TERRY OROSZI &nbsp;&middot;&nbsp; WRIGHT STATE CAMPUS</div>
+    <h1>Come in. The whole <span class="alive">staff is working.</span></h1>
+    <div class="sub">A living campus of AI specialists you can actually talk to. Pick a building, read over their shoulders, or <b>talk to any one of them yourself</b>. Free at the lab.</div>
+    <div class="readout">
+      <div class="cell"><div class="n">120</div><div class="k"><span class="pulse"></span>Agents on staff</div></div>
+      <div class="cell"><div class="n">19</div><div class="k">Travel between buildings</div></div>
+      <div class="cell"><div class="n small">13</div><div class="k">Live buildings</div></div>
+      <div class="cell"><div class="n small">9</div><div class="k">Free on campus</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div id="viewA" class="etlcc-hidden">
+    <div class="secthead"><h2>Find your building</h2><div class="meta">ROUTES BY WHO YOU ARE</div></div>
+    <p class="lede">Six neighborhoods. You arrive knowing what you came for and you go straight to the door. Each card's left edge is its neighborhood color &mdash; meant to match the building's color on your map just below.</p>
+    <div id="domainGrid"></div>
+    <div class="legend">
+      <span><span class="sw" style="background:var(--green)"></span>Free everywhere</span>
+      <span><span class="sw" style="background:var(--gold)"></span>Free on WSU campus &middot; paid off it</span>
+      <span><span class="sw" style="background:var(--cyan)"></span>Engine &mdash; leads with tools</span>
+      <span><span class="sw" style="background:var(--rose)"></span>Traveler thread</span>
+      <span><span class="sw" style="background:var(--mute)"></span>Pending &mdash; not in the live 120</span>
+    </div>
+  </div>
+
+  <div id="viewB">
+    <div class="secthead"><h2>The whole floor</h2><div class="meta">RANKED BY SIZE &middot; COLORED BY NEIGHBORHOOD</div></div>
+    <p class="lede">Biggest crew first, so you feel the scale &mdash; but every card carries its neighborhood color and tag, so a security or academia visitor can still pick out their buildings in the ranked grid. Best of both front doors.</p>
+    <div class="domkey" id="domKey"></div>
+    <div class="grid cols" id="scaleGrid"></div>
+    <div class="legend">
+      <span><span class="sw" style="background:var(--green)"></span>Free everywhere</span>
+      <span><span class="sw" style="background:var(--gold)"></span>Free on campus &middot; paid off it</span>
+      <span><span class="sw" style="background:var(--cyan)"></span>Engine, tool-led</span>
+      <span><span class="sw" style="background:var(--rose)"></span>Traveler thread</span>
+      <span><span class="sw" style="background:var(--mute)"></span>Pending</span>
+    </div>
+  </div>
+
+  <div class="seam">
+    <div class="lbl">&#9670; End of the new layer &#9670;</div>
+    <span class="arrow">&#9660;</span>
+    <p class="note"><b>Your existing Live Campus map and Agency Floor chat continue here, unchanged.</b> The command center above is the only new piece. It hands off to the map you already built.</p>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  const C = {sec:'#46d6e6',health:'#5bd6a0',acad:'#e8b659',news:'#9b8cf0',biz:'#f0975a',mission:'#e8728c'};
+  const DOM = {
+    sec:'Security & Eval', health:'Health', acad:'Academia',
+    news:'News & Pub', biz:'Professional', mission:'Mission'
+  };
+
+  const platforms = [
+    {name:'Founder Studio',    role:'Run your AI company',        dom:'biz',     type:'count',  n:23, access:'campus'},
+    {name:'The Gauntlet',      role:'Idea & pitch review',        dom:'sec',     type:'count',  n:19, access:'free'},
+    {name:'The Prep Room',     role:'For students',               dom:'acad',    type:'count',  n:18, access:'free',    travel:'shares 9 with the Boardroom'},
+    {name:'The Dose',          role:'Health literacy, verified',  dom:'health',  type:'count',  n:13, access:'free',    travel:'2 travel in from Newswire'},
+    {name:'ETL Newswire',      role:'AI-staffed newsroom',        dom:'news',    type:'count',  n:12, access:'free'},
+    {name:'The Boardroom',     role:'For professionals',          dom:'biz',     type:'count',  n:10, access:'free',    travel:'9 of 10 also work the Prep Room'},
+    {name:'Greylander Press',  role:'Independent imprint',        dom:'news',    type:'count',  n:9,  access:'campus'},
+    {name:'The Gym',           role:'Movement & wellness',        dom:'health',  type:'count',  n:6,  access:'free'},
+    {name:'Gandhi-King Center',role:'Peace & civic leadership',   dom:'mission', type:'count',  n:4,  access:'free',    travel:'+ human: Heidi Kingstone'},
+    {name:'Intel Dashboard',   role:'Signal-gap engine',          dom:'sec',     type:'engine', tool:'18 modules &middot; live MCP', access:'free'},
+    {name:'SLR Studio',        role:'Research engine &middot; Cleo', dom:'acad', type:'engine', tool:'6 modes &middot; 10 tools',    access:'campus'},
+    {name:'Office Hours',      role:'For faculty',                dom:'acad',    type:'engine', tool:'email & rec drafting',         access:'free'},
+    {name:'OPSEC Gauntlet',    role:'Operational stress-test',    dom:'sec',     type:'count',  n:20, access:'pending'},
+    {name:'Spy Academy',       role:'MPSA &middot; certification',dom:'acad',    type:'count',  n:2,  access:'pending'},
+  ];
+
+  const domains = [
+    {key:'sec',     label:'Security & Evaluation',    color:C.sec},
+    {key:'health',  label:'Health',                   color:C.health},
+    {key:'acad',    label:'Academia',                 color:C.acad},
+    {key:'news',    label:'News & Publishing',        color:C.news},
+    {key:'biz',     label:'Professional & Business',  color:C.biz},
+    {key:'mission', label:'Mission',                  color:C.mission},
+  ];
+
+  document.getElementById('domKey').innerHTML = domains.map(d =>
+    `<span class="chip"><span class="sw" style="background:${d.color}"></span>${d.label}</span>`
+  ).join('');
+
+  const accPill = a => ({
+    free:    '<span class="pill free">Free at lab</span>',
+    campus:  '<span class="pill campus">Free on campus</span>',
+    pending: '<span class="pill pending">Shipping soon</span>'
+  }[a]);
+
+  function cardHTML(p, showDom){
+    const pend   = p.access==='pending' ? ' pending-card' : '';
+    const tag    = showDom ? `<span class="domtag" style="color:${C[p.dom]}"><span class="sw" style="background:${C[p.dom]}"></span>${DOM[p.dom]}</span>` : '';
+    const head   = p.type==='engine'
+      ? `<div class="toolline"><span class="lbl">Engine</span>${p.tool}</div>`
+      : `<div class="count">${p.n}<span class="lbl">Agents</span></div>`;
+    const foot   = (p.type==='engine' ? '<span class="pill engine">Tool-led</span>' : '') + accPill(p.access);
+    const travel = p.travel ? `<span class="travel">&#8596; ${p.travel}</span>` : '';
+    return `<div class="card${pend}" style="border-left-color:${C[p.dom]}">${tag}<div class="top"><div><div class="name">${p.name}</div><div class="role">${p.role}</div></div>${head}</div><div class="foot">${foot}${travel}</div></div>`;
+  }
+
+  document.getElementById('domainGrid').innerHTML = domains.map(d => {
+    const cards = platforms
+      .filter(p => p.dom === d.key)
+      .sort((a,b) => (a.access==='pending'?1:0)-(b.access==='pending'?1:0) || (b.n||0)-(a.n||0));
+    return `<div class="domain"><div class="domain-label"><span class="tag" style="color:${d.color}">${d.label}</span><span class="rule"></span><span class="cnt">${cards.length} building${cards.length>1?'s':''}</span></div><div class="grid cols">${cards.map(c=>cardHTML(c,false)).join('')}</div></div>`;
+  }).join('');
+
+  const live = platforms.filter(p => p.access!=='pending' && p.type==='count').sort((a,b) => b.n-a.n);
+  const eng  = platforms.filter(p => p.type==='engine');
+  const pend = platforms.filter(p => p.access==='pending');
+  document.getElementById('scaleGrid').innerHTML = [...live,...eng,...pend].map(c => cardHTML(c,true)).join('');
+
+  function etlccView(v){
+    document.getElementById('viewA').classList.toggle('etlcc-hidden', v!=='A');
+    document.getElementById('viewB').classList.toggle('etlcc-hidden', v!=='B');
+    document.getElementById('btnA').classList.toggle('on', v==='A');
+    document.getElementById('btnB').classList.toggle('on', v==='B');
+  }
+  window.etlccView = etlccView;
+})();
+</script>
+
+</section>
 
 <!-- ─────────────────────────────────────────────────────────────────────────
      THE ETL NEIGHBORHOOD. Four rooms in the same building: staffing,
@@ -5612,7 +5846,8 @@ h1 b,h2 b,h1 strong,h2 strong{font-weight:500}
     'Reid Callum':     'Reid_eyes_open.jpg',
     'Grant Ellis':     'Grant_eyes_open.jpg',
     'Jules Hartley':   'Jules_eyes_open.jpg',
-    'Imani Brooks':    'Imani_Brooks.png'
+    'Imani Brooks':    'Imani_Brooks.png',
+    'Iris S. King':    'Iris_Chat_Eyes_Open.jpg'
   };
   function chipColor(name){ var h=0; for(var i=0;i<name.length;i++) h=(h*31+name.charCodeAt(i))>>>0; return chipColors[h%chipColors.length]; }
   function initials(name){ return name.split(/\s+/).map(function(w){return w.charAt(0);}).slice(0,2).join('').toUpperCase(); }
