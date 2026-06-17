@@ -2929,8 +2929,8 @@ document.addEventListener('DOMContentLoaded', function(){
     {name:'Greylander Press',  url:'https://greylanderpress.com/',                     role:'Independent imprint',        dom:'news',    type:'count',  n:9,  access:'campus'},
     {name:'The Gym',           url:null,                                               role:'Movement & wellness',        dom:'health',  type:'count',  n:6,  access:'free'},
     {name:'Gandhi-King Center',url:'https://gandhi-king-center-for-nonviolence.org/',  role:'Peace & civic leadership',   dom:'mission', type:'count',  n:4,  access:'free'},
-    {name:'Intel Dashboard',   url:'https://inteldashboard.org/',                      role:'Signal-gap engine',          dom:'sec',     type:'engine', tool:'18 modules &middot; live MCP', access:'free'},
-    {name:'SLR Studio',        url:'https://slrstudio.online/',                        role:'Research engine &middot; Cleo', dom:'acad', type:'engine', tool:'6 modes &middot; 10 tools',    access:'campus'},
+    {name:'Intel Dashboard',   url:'https://inteldashboard.org/',                      role:'Signal-gap engine',          dom:'sec',     type:'engine', n:1, tool:'18 modules &middot; live MCP', access:'free'},
+    {name:'SLR Studio',        url:'https://slrstudio.online/',                        role:'Research engine &middot; Cleo', dom:'acad', type:'engine', n:1, tool:'6 modes &middot; 10 tools',    access:'campus'},
     {name:'Office Hours',      url:'/office-hours',                                    role:'For faculty',                dom:'acad',    type:'engine', tool:'email & rec drafting',         access:'free'},
     {name:'OPSEC Gauntlet',    url:null,                                               role:'Operational stress-test',    dom:'sec',     type:'count',  n:20, access:'pending'},
     {name:'Spy Academy',       url:null,                                               role:'MPSA &middot; certification',dom:'acad',    type:'count',  n:2,  access:'pending'},
@@ -2959,7 +2959,7 @@ document.addEventListener('DOMContentLoaded', function(){
     const pend   = p.access==='pending' ? ' pending-card' : '';
     const tag    = showDom ? `<span class="domtag" style="color:${C[p.dom]}"><span class="sw" style="background:${C[p.dom]}"></span>${DOM[p.dom]}</span>` : '';
     const head   = p.type==='engine'
-      ? `<div class="toolline"><span class="lbl">Engine</span>${p.tool}</div>`
+      ? `<div class="toolline"><span class="lbl">Engine</span>${p.tool}${p.n ? ` &middot; ${p.n} agent${p.n===1?'':'s'}` : ''}</div>`
       : `<div class="count">${p.n}<span class="lbl">Agents</span></div>`;
     const foot   = (p.type==='engine' ? '<span class="pill engine">Tool-led</span>' : '') + accPill(p.access);
     const travel = p.travel ? `<span class="travel">&#8596; ${p.travel}</span>` : '';
