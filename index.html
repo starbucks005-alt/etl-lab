@@ -2791,6 +2791,10 @@ document.addEventListener('DOMContentLoaded', function(){
 #etl-cc .card.pending-card{opacity:.62;border-style:dashed}
 #etl-cc .card.pending-card:hover{opacity:.85}
 #etl-cc .etlcc-hidden{display:none !important}
+#etl-cc a.card{color:inherit;text-decoration:none;cursor:pointer}
+#etl-cc .etlcc-more{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--mute);margin-top:24px;padding-top:14px;border-top:1px solid var(--line);text-align:right}
+#etl-cc .etlcc-more a{color:var(--cyan-dim);text-decoration:none}
+#etl-cc .etlcc-more a:hover{color:var(--cyan)}
 #etl-cc .legend{display:flex;gap:18px;flex-wrap:wrap;margin:18px 0 0;padding:14px 0 0;border-top:1px solid var(--line)}
 #etl-cc .legend span{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:var(--mute);display:flex;align-items:center;gap:7px}
 #etl-cc .legend .sw{width:10px;height:10px;border-radius:2px}
@@ -2850,6 +2854,7 @@ document.addEventListener('DOMContentLoaded', function(){
     <p class="lede">Biggest crew first, so you feel the scale &mdash; but every card carries its neighborhood color and tag, so a security or academia visitor can still pick out their buildings in the ranked grid. Best of both front doors.</p>
     <div class="domkey" id="domKey"></div>
     <div class="grid cols" id="scaleGrid"></div>
+    <p class="etlcc-more"><a href="#platforms">Full platform profiles on the Platforms tab &rarr;</a></p>
     <div class="legend">
       <span><span class="sw" style="background:var(--green)"></span>Free everywhere</span>
       <span><span class="sw" style="background:var(--gold)"></span>Free on campus &middot; paid off it</span>
@@ -2871,20 +2876,20 @@ document.addEventListener('DOMContentLoaded', function(){
   };
 
   const platforms = [
-    {name:'Founder Studio',    role:'Run your AI company',        dom:'biz',     type:'count',  n:23, access:'campus'},
-    {name:'The Gauntlet',      role:'Idea & pitch review',        dom:'sec',     type:'count',  n:19, access:'free'},
-    {name:'The Prep Room',     role:'For students',               dom:'acad',    type:'count',  n:18, access:'free',    travel:'shares 9 with the Boardroom'},
-    {name:'The Dose',          role:'Health literacy, verified',  dom:'health',  type:'count',  n:13, access:'free',    travel:'2 travel in from Newswire'},
-    {name:'ETL Newswire',      role:'AI-staffed newsroom',        dom:'news',    type:'count',  n:12, access:'free'},
-    {name:'The Boardroom',     role:'For professionals',          dom:'biz',     type:'count',  n:10, access:'free',    travel:'9 of 10 also work the Prep Room'},
-    {name:'Greylander Press',  role:'Independent imprint',        dom:'news',    type:'count',  n:9,  access:'campus'},
-    {name:'The Gym',           role:'Movement & wellness',        dom:'health',  type:'count',  n:6,  access:'free'},
-    {name:'Gandhi-King Center',role:'Peace & civic leadership',   dom:'mission', type:'count',  n:4,  access:'free',    travel:'+ human: Heidi Kingstone'},
-    {name:'Intel Dashboard',   role:'Signal-gap engine',          dom:'sec',     type:'engine', tool:'18 modules &middot; live MCP', access:'free'},
-    {name:'SLR Studio',        role:'Research engine &middot; Cleo', dom:'acad', type:'engine', tool:'6 modes &middot; 10 tools',    access:'campus'},
-    {name:'Office Hours',      role:'For faculty',                dom:'acad',    type:'engine', tool:'email & rec drafting',         access:'free'},
-    {name:'OPSEC Gauntlet',    role:'Operational stress-test',    dom:'sec',     type:'count',  n:20, access:'pending'},
-    {name:'Spy Academy',       role:'MPSA &middot; certification',dom:'acad',    type:'count',  n:2,  access:'pending'},
+    {name:'Founder Studio',    url:'/founder-studio.html',                             role:'Run your AI company',        dom:'biz',     type:'count',  n:23, access:'campus'},
+    {name:'The Gauntlet',      url:'https://thegauntlet.studio/',                      role:'Idea & pitch review',        dom:'sec',     type:'count',  n:19, access:'free'},
+    {name:'The Prep Room',     url:'/prep-room#students',                              role:'For students',               dom:'acad',    type:'count',  n:18, access:'free',    travel:'shares 9 with the Boardroom'},
+    {name:'The Dose',          url:'https://thedose.net/',                             role:'Health literacy, verified',  dom:'health',  type:'count',  n:13, access:'free',    travel:'2 travel in from Newswire'},
+    {name:'ETL Newswire',      url:'/press',                                           role:'AI-staffed newsroom',        dom:'news',    type:'count',  n:12, access:'free'},
+    {name:'The Boardroom',     url:'/prep-room#pros',                                  role:'For professionals',          dom:'biz',     type:'count',  n:10, access:'free',    travel:'9 of 10 also work the Prep Room'},
+    {name:'Greylander Press',  url:'https://greylanderpress.com/',                     role:'Independent imprint',        dom:'news',    type:'count',  n:9,  access:'campus'},
+    {name:'The Gym',           url:null,                                               role:'Movement & wellness',        dom:'health',  type:'count',  n:6,  access:'free'},
+    {name:'Gandhi-King Center',url:'https://gandhi-king-center-for-nonviolence.org/',  role:'Peace & civic leadership',   dom:'mission', type:'count',  n:4,  access:'free',    travel:'+ human: Heidi Kingstone'},
+    {name:'Intel Dashboard',   url:'https://inteldashboard.org/',                      role:'Signal-gap engine',          dom:'sec',     type:'engine', tool:'18 modules &middot; live MCP', access:'free'},
+    {name:'SLR Studio',        url:'https://slrstudio.online/',                        role:'Research engine &middot; Cleo', dom:'acad', type:'engine', tool:'6 modes &middot; 10 tools',    access:'campus'},
+    {name:'Office Hours',      url:'/office-hours',                                    role:'For faculty',                dom:'acad',    type:'engine', tool:'email & rec drafting',         access:'free'},
+    {name:'OPSEC Gauntlet',    url:null,                                               role:'Operational stress-test',    dom:'sec',     type:'count',  n:20, access:'pending'},
+    {name:'Spy Academy',       url:null,                                               role:'MPSA &middot; certification',dom:'acad',    type:'count',  n:2,  access:'pending'},
   ];
 
   const domains = [
@@ -2914,7 +2919,12 @@ document.addEventListener('DOMContentLoaded', function(){
       : `<div class="count">${p.n}<span class="lbl">Agents</span></div>`;
     const foot   = (p.type==='engine' ? '<span class="pill engine">Tool-led</span>' : '') + accPill(p.access);
     const travel = p.travel ? `<span class="travel">&#8596; ${p.travel}</span>` : '';
-    return `<div class="card${pend}" style="border-left-color:${C[p.dom]}">${tag}<div class="top"><div><div class="name">${p.name}</div><div class="role">${p.role}</div></div>${head}</div><div class="foot">${foot}${travel}</div></div>`;
+    const inner  = `${tag}<div class="top"><div><div class="name">${p.name}</div><div class="role">${p.role}</div></div>${head}</div><div class="foot">${foot}${travel}</div>`;
+    if (p.url && p.access !== 'pending') {
+      const ext = p.url.startsWith('http') ? ' target="_blank" rel="noopener"' : '';
+      return `<a href="${p.url}"${ext} class="card${pend}" style="border-left-color:${C[p.dom]}">${inner}</a>`;
+    }
+    return `<div class="card${pend}" style="border-left-color:${C[p.dom]}">${inner}</div>`;
   }
 
   document.getElementById('domainGrid').innerHTML = domains.map(d => {
