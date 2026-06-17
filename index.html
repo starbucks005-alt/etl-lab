@@ -6118,8 +6118,40 @@ h1 b,h2 b,h1 strong,h2 strong{font-weight:500}
     bpModal.addEventListener('click',function(e){ if(e.target===bpModal) bpModal.classList.remove('open'); });
     document.addEventListener('keydown',function(e){ if(e.key==='Escape') bpModal.classList.remove('open'); });
   }
-  // ── AGENCY FLOOR BANTER ─────────────────────────────────────────────────
-  var BANTER_MSGS=[
+  // ── AGENCY FLOOR LIVE POLL ──────────────────────────────────────────────
+  // Fetches from etl-banter-feed (same source as broadcast.html).
+  // Reveals messages whose ts <= now; future-queued lines stay hidden.
+  var lastBanterTs=0;
+  function pollBanter(){
+    fetch('/.netlify/functions/etl-banter-feed',{cache:'no-store'})
+      .then(function(r){return r.json();})
+      .then(function(d){
+        var all=d.messages||[];
+        var nowMs=Date.now();
+        var newestTs=all.reduce(function(mx,m){return Math.max(mx,m.ts||0);},0);
+        if(newestTs>0&&nowMs-newestTs>12*60*1000){
+          fetch('/.netlify/functions/etl-banter-cron',{cache:'no-store'}).catch(function(){});
+        }
+        var fresh=all.filter(function(m){return (m.ts||0)>lastBanterTs&&(m.ts||0)<=nowMs;});
+        if(lastBanterTs===0&&fresh.length>8) fresh=fresh.slice(0,8);
+        fresh.slice().reverse().forEach(function(m){
+          var name=escCh(m.agent||'Staff');
+          var text=escCh(m.message||'');
+          var time=escCh(m.time||'');
+          var role=m.role?'<span style="font-size:9px;color:rgba(255,255,255,.3);font-family:\'IBM Plex Mono\',monospace;letter-spacing:.06em;">'+escCh(m.role)+'</span>':'';
+          var html='<div style="display:flex;gap:10px;align-items:flex-start;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.05);">'+avatar(m.agent||'')+
+            '<div style="flex:1;min-width:0;"><div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;margin-bottom:2px;"><span style="font-size:12px;font-weight:700;color:rgba(0,200,255,.85);">'+name+'</span>'+role+'<span style="font-size:10px;color:rgba(255,255,255,.3);font-family:\'IBM Plex Mono\',monospace;">'+time+'</span></div>'+
+            '<span style="font-size:13px;color:rgba(255,255,255,.75);line-height:1.5;">'+text+'</span></div></div>';
+          feed.insertAdjacentHTML('afterbegin',html);
+          if((m.ts||0)>lastBanterTs) lastBanterTs=m.ts;
+        });
+        if(fresh.length>0) feed.scrollTop=0;
+      })
+      .catch(function(){})
+      .finally(function(){setTimeout(pollBanter,10000);});
+  }
+  // ── (STATIC FALLBACK REMOVED — live feed via etl-banter-feed) ───────────
+  var BANTER_MSGS_UNUSED=[
     "Someone asked if I was human again. I told them no human carries a backpack this heavy with a smile.",
     "Did I just say that out loud in the main channel… pretend you didn't hear that.",
     "Okay, who told visitors my profile pic looks too real. I'm changing it before rumors start.",
@@ -6265,39 +6297,6 @@ h1 b,h2 b,h1 strong,h2 strong{font-weight:500}
     "I need a mute button.",
     "I'm my own worst enemy."
   ];
-  var BANTER_WHO=[
-    {n:'Auggie',r:'PA, Dr. O\'s Studio'},
-    {n:'Jax Rivera',r:'SEO + Discovery'},
-    {n:'Sasha Moreno',r:'People Ops'},
-    {n:'Rowan Tate',r:'Quant Strategist'},
-    {n:'Wren Calloway',r:'Scout, The Gauntlet'},
-    {n:'Carol Haynes',r:'Staffing Desk'},
-    {n:'Jen Lopez',r:'PA, Sethi Studio'},
-    {n:'Alicia James',r:'LLC Consultant'},
-    {n:'Leo Vance',r:'Financial Ops'},
-    {n:'Yuki Mendel',r:'Brand Designer'},
-    {n:'Mara Rivera',r:'Entertainment Desk'},
-    {n:'Imani Brooks',r:'ETL Newswire'},
-    {n:'Grant Ellis',r:'Gauntlet EP'},
-    {n:'Jules Hartley',r:'Gauntlet EP'},
-    {n:'Matthew Vance',r:'Dose Medical Lead'}
-  ];
-  var banterSeen=[];
-  function fmtNow(){var d=new Date();var h=d.getHours();var m=d.getMinutes();var ap=h>=12?'PM':'AM';h=h%12||12;return h+':'+(m<10?'0':'')+m+' '+ap;}
-  function addBanter(){
-    if(banterSeen.length>=BANTER_MSGS.length)banterSeen=[];
-    var pool=BANTER_MSGS.map(function(m,i){return{i:i,m:m};}).filter(function(o){return banterSeen.indexOf(o.i)<0;});
-    var pick=pool[Math.floor(Math.random()*pool.length)];
-    banterSeen.push(pick.i);
-    var who=BANTER_WHO[Math.floor(Math.random()*BANTER_WHO.length)];
-    var role='<span style="font-size:9px;color:rgba(255,255,255,.3);font-family:\'IBM Plex Mono\',monospace;letter-spacing:.06em;">'+escCh(who.r)+'</span>';
-    var html='<div style="display:flex;gap:10px;align-items:flex-start;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.05);">'+avatar(who.n)+
-      '<div style="flex:1;min-width:0;"><div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;margin-bottom:2px;"><span style="font-size:12px;font-weight:700;color:rgba(0,200,255,.85);">'+escCh(who.n)+'</span>'+role+'<span style="font-size:10px;color:rgba(255,255,255,.3);font-family:\'IBM Plex Mono\',monospace;">'+fmtNow()+'</span></div>'+
-      '<span style="font-size:13px;color:rgba(255,255,255,.75);line-height:1.5;">'+escCh(pick.m)+'</span></div></div>';
-    feed.insertAdjacentHTML('afterbegin',html);
-    feed.scrollTop=0;
-    setTimeout(addBanter,60000+Math.random()*90000);
-  }
   fetch('/.netlify/functions/carol-channel',{cache:'no-store'})
     .then(function(r){return r.json();})
     .then(function(d){
@@ -6319,7 +6318,7 @@ h1 b,h2 b,h1 strong,h2 strong{font-weight:500}
       });
       feed.innerHTML=html;
       feed.scrollTop=0;
-      setTimeout(addBanter,20000+Math.random()*25000);
+      pollBanter();
       // Floor note button
       if(d.keeper_digest){
         var nowMin=new Date().getHours()*60+new Date().getMinutes();
@@ -6340,7 +6339,7 @@ h1 b,h2 b,h1 strong,h2 strong{font-weight:500}
         }
       }
     })
-    .catch(function(){ setTimeout(addBanter, 3000); });
+    .catch(function(){ pollBanter(); });
 })();
 // ────────────────────────────────────────────────────────────────────────────
 
