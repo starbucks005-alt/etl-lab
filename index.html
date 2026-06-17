@@ -1297,14 +1297,19 @@ document.addEventListener('DOMContentLoaded', function(){
       <div>
         <div class="briefing-band-eyebrow">Your Daily Dose &middot; From <a href="https://thedose.net" target="_blank" rel="noopener" style="color:#28527a;text-decoration:underline;">The Dose</a></div>
         <div class="briefing-band-title">Health, in plain language.</div>
-        <div class="briefing-band-sub">A knowledgeable friend for your health questions &mdash; free to ask anything.</div>
+        <div class="briefing-band-sub" id="dose-sub">A knowledgeable friend for your health questions &mdash; free to ask anything.</div>
       </div>
       <div class="briefing-band-audio">
-        <div class="briefing-dose-links">
-          <a href="https://thedose.net/#dd-section" target="_blank" rel="noopener" class="primary">&#9654; Listen: Your Daily Dose</a>
-          <a href="https://thedose.net/education" target="_blank" rel="noopener">Education Portal &rarr;</a>
-          <a href="https://thedose.net/#team-section" target="_blank" rel="noopener">Meet the Cast &rarr;</a>
-          <a href="https://thedose.net/" target="_blank" rel="noopener">Open The Dose &rarr;</a>
+        <div class="briefing-audio-row">
+          <audio id="dose-audio" controls preload="none"></audio>
+          <span class="briefing-length" id="dose-length" hidden></span>
+        </div>
+        <div class="briefing-share" id="dose-share">
+          <span>Share:</span>
+          <button type="button" data-dose-share="link">Copy link</button>
+          <a href="https://twitter.com/intent/tweet?text=Today%27s%20Daily%20Dose%20from%20The%20Dose.&url=https%3A%2F%2Fthedose.net" target="_blank" rel="noopener">Tweet</a>
+          <a href="https://thedose.net/download.htm" target="_blank" rel="noopener">Podcast RSS</a>
+          <a href="https://thedose.net/" target="_blank" rel="noopener" style="background:#d4aa4a;color:#0e0c08;border-color:#28527a;font-weight:700;">Open The Dose &rarr;</a>
         </div>
       </div>
     </div>
@@ -1358,6 +1363,44 @@ document.addEventListener('DOMContentLoaded', function(){
         lenBadge.hidden = false;
       }
       card.classList.add('is-ready');
+    })
+    .catch(function(){});
+
+  // ── DOSE PLAYER ──────────────────────────────────────────────────────────
+  var doseShare = document.getElementById('dose-share');
+  if (doseShare) {
+    doseShare.addEventListener('click', function(ev){
+      var btn = ev.target.closest('button[data-dose-share]');
+      if (!btn) return;
+      var orig = btn.textContent;
+      var copy = navigator.clipboard ? navigator.clipboard.writeText('https://thedose.net') : Promise.reject();
+      copy.then(function(){
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(function(){ btn.textContent = orig; btn.classList.remove('copied'); }, 1800);
+      }).catch(function(){ window.prompt('Copy this:', 'https://thedose.net'); });
+    });
+  }
+
+  fetch('/.netlify/functions/dose-latest-proxy', { credentials: 'omit' })
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(meta){
+      if (!meta || !meta.audioUrl) return;
+      var card  = document.getElementById('briefing-card');
+      var audio = document.getElementById('dose-audio');
+      var sub   = document.getElementById('dose-sub');
+      if (!audio) return;
+      audio.src = meta.audioUrl;
+      if (sub && meta.generatedAt) {
+        var dt = new Date(meta.generatedAt);
+        sub.textContent = isNaN(+dt) ? '' : 'Recorded ' + dt.toLocaleDateString('en-US',{weekday:'long', month:'long', day:'numeric'}) + ' at ' + dt.toLocaleTimeString('en-US',{hour:'numeric', minute:'2-digit'});
+      }
+      var lenBadge = document.getElementById('dose-length');
+      if (lenBadge && meta.duration_label) {
+        lenBadge.textContent = 'Length ' + meta.duration_label;
+        lenBadge.hidden = false;
+      }
+      if (card) card.classList.add('is-ready');
     })
     .catch(function(){});
 })();
