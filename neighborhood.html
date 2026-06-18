@@ -161,6 +161,7 @@ const N = [
   [640,668],  // 24 South Junction
   [596,548],  // 25 Dr. O's Studio / ETL  ← PI
   [165,175],  // 26 City Government
+  [505,790],  // 27  Garden Bridge crossing
 ];
 
 const EDGES = [
@@ -191,8 +192,10 @@ const EDGES = [
   [19,23],             // SW Junction → Gandhi-King
   [25,4],[25,10],[25,12],[25,1], // Dr. O's Studio → NE Jct, SLR, Newswire, OPSEC
   [26,6],[26,0],                 // City Govt → The Gym + Intel Dashboard
+  [19,27],[27,24],              // SW Junction → Garden Bridge → South Junction
 ];
 
+const BRIDGE_NODE = 27;
 const ADJ = Array.from({length:N.length},()=>[]);
 EDGES.forEach(([a,b])=>{
   const dx=N[a][0]-N[b][0],dy=N[a][1]-N[b][1],d=Math.hypot(dx,dy);
@@ -370,13 +373,15 @@ const agents = ADAT.map(([name,plat,r,mcp])=>{
   const [hx,hy] = N[hn];
   return {
     name,plat,r,mcp:!!mcp,color:PC[plat],
-    x: hx+(Math.random()-.5)*40,
-    y: hy+(Math.random()-.5)*40,
+    x: hx+(Math.random()-.5)*4,
+    y: hy+(Math.random()-.5)*4,
     state:ST.W, timer:Math.random()*15000, dur:15000+Math.random()*20000,
     node:hn, tnode:hn, path:[], pi:0,
     partner:-1, mx:0, my:0,
     phase:Math.random()*Math.PI*2,
-    wdx:(Math.random()-.5)*.3, wdy:(Math.random()-.5)*.3,
+    wdx:0, wdy:0,
+    paceDir:-1, pacePhase:0,
+    romancePending:false,
     inHub:false
   };
 });
@@ -443,7 +448,7 @@ function setWalk(a){
   const wm=getTimeMode();
   const dur=wm==='work'?45000+Math.random()*35000:12000+Math.random()*18000;
   a.state=ST.W; a.dur=dur; a.timer=0; a.partner=-1;
-  a.wdx=(Math.random()-.5)*.3; a.wdy=(Math.random()-.5)*.3;
+  a.paceDir=-1; a.pacePhase=0; a.romancePending=false;
 }
 function setPause(a){
   const wm=getTimeMode();
@@ -546,7 +551,7 @@ function tick(ts){
     const mx = bridge.mx;
     const my = bridge.my;
     // Allow paired walkers and solo walkers — just not agents already romancing or chatting
-    const pool = agents.filter(a=>a.state!==ST.R&&a.state!==ST.C&&a.state!==ST.H);
+    const pool = agents.filter(a=>a.state!==ST.R&&a.state!==ST.C&&a.state!==ST.H&&!a.romancePending);
     if(pool.length>=2){
       const ai = Math.floor(Math.random()*pool.length);
       let bi; do{ bi=Math.floor(Math.random()*pool.length); }while(bi===ai);
@@ -554,7 +559,10 @@ function tick(ts){
       // Break up any existing walk partnerships first
       if(ag.partner>=0&&agents[ag.partner]) agents[ag.partner].partner=-1;
       if(bg.partner>=0&&agents[bg.partner]) agents[bg.partner].partner=-1;
-      setRomance(ag,bg,mx,my);
+      // Route both to bridge via the path graph — they walk there naturally
+      ag.partner=agents.indexOf(bg); bg.partner=agents.indexOf(ag);
+      ag.romancePending=true; bg.romancePending=true;
+      setGuide(ag,BRIDGE_NODE); setGuide(bg,BRIDGE_NODE);
     }
   }
   // ambient floating emojis
@@ -578,17 +586,24 @@ function move(a, dt){
 
   switch(a.state){
     case ST.W: case ST.H: {
-      // Gentle pull back toward home node if drifted too far
-      const [nx,ny]=N[a.node], dx=nx-a.x, dy=ny-a.y, d=Math.hypot(dx,dy);
-      if(d > 40){
-        // Slow drift back
-        a.x += (dx/d) * WDRIFT * dt * 3;
-        a.y += (dy/d) * WDRIFT * dt * 3;
+      // Pace slowly along the nearest path edge — looks like a human waiting/wandering
+      const [nx,ny]=N[a.node];
+      if(a.paceDir<0||!ADJ[a.node].some(([n])=>n===a.paceDir)){
+        const nbrs=ADJ[a.node].map(([n])=>n);
+        a.paceDir=nbrs[Math.floor(Math.random()*nbrs.length)]||a.node;
+        a.pacePhase=0;
+      }
+      const [px,py]=N[a.paceDir];
+      // Walk 28% of the way toward the neighbor then return — stays on path, looks purposeful
+      const tx=nx+(px-nx)*0.28, ty=ny+(py-ny)*0.28;
+      const [gx,gy]=a.pacePhase===0?[tx,ty]:[nx,ny];
+      const dx=gx-a.x, dy=gy-a.y, d=Math.hypot(dx,dy);
+      if(d<1.5){
+        if(a.pacePhase===0){ a.pacePhase=1; }
+        else { a.paceDir=-1; }  // pick new direction next frame
       } else {
-        // Micro idle jitter — barely perceptible
-        if(Math.random() < .008){ a.wdx=(Math.random()-.5)*.25; a.wdy=(Math.random()-.5)*.25; }
-        a.x += a.wdx * WDRIFT * dt;
-        a.y += a.wdy * WDRIFT * dt;
+        a.x+=(dx/d)*WDRIFT*dt*2.2;
+        a.y+=(dy/d)*WDRIFT*dt*2.2;
       }
       break;
     }
@@ -601,12 +616,26 @@ function move(a, dt){
         // Arrived
         const arrivedAt = a.tnode;
         a.node = a.tnode;
-        if(a.partner>=0&&agents[a.partner])agents[a.partner].partner=-1;
-        if(arrivedAt===2)  spawnEmoji('🏆', a.x, a.y-28, 0, -0.035, 2600);
-        if(arrivedAt===12) spawnEmoji('📰', a.x+(Math.random()-.5)*14, a.y-20, (Math.random()-.5)*0.02, -0.022, 2200);
-        if(arrivedAt===5)  spawnEmoji('💊', a.x, a.y-22, 0, -0.025, 2000);
-        if(arrivedAt===23) spawnEmoji('🕊️', a.x, a.y-24, (Math.random()-.5)*0.03, -0.03, 2400);
-        setWalk(a);
+        // Romance pair arrived at bridge — trigger romance if partner is here or waiting
+        if(a.romancePending && arrivedAt===BRIDGE_NODE){
+          a.romancePending=false;
+          const partner=a.partner>=0?agents[a.partner]:null;
+          if(partner && !partner.romancePending && partner.state===ST.P && partner.node===BRIDGE_NODE){
+            // Partner arrived first and is waiting at the bridge — both here, start romance
+            const[bx,by]=N[BRIDGE_NODE];
+            setRomance(a,partner,bx,by);
+          } else {
+            // First to arrive — pause at bridge and wait up to 12s for partner
+            a.state=ST.P; a.dur=12000; a.timer=0;
+          }
+        } else {
+          if(a.partner>=0&&agents[a.partner])agents[a.partner].partner=-1;
+          if(arrivedAt===2)  spawnEmoji('🏆', a.x, a.y-28, 0, -0.035, 2600);
+          if(arrivedAt===12) spawnEmoji('📰', a.x+(Math.random()-.5)*14, a.y-20, (Math.random()-.5)*0.02, -0.022, 2200);
+          if(arrivedAt===5)  spawnEmoji('💊', a.x, a.y-22, 0, -0.025, 2000);
+          if(arrivedAt===23) spawnEmoji('🕊️', a.x, a.y-24, (Math.random()-.5)*0.03, -0.03, 2400);
+          setWalk(a);
+        }
       }
       break;
     }
@@ -827,65 +856,67 @@ function drawHeart(cx, cy, r, alpha){
   ctx.restore();
 }
 
+// ── PAIR SIDE-BY-SIDE OFFSET ─────────────────────────────────────────────────
+// Returns [ox, oy] perpendicular offset for agents walking in pairs on a path.
+function pairOff(a){
+  if(a.partner<0||a.state!==ST.G||a.pi>=a.path.length) return [0,0];
+  const[tx,ty]=N[a.path[a.pi]], dx=tx-a.x, dy=ty-a.y, d=Math.hypot(dx,dy);
+  if(d<1) return [0,0];
+  const side=agents.indexOf(a)<a.partner?1:-1;
+  return [-dy/d*8*side, dx/d*8*side];
+}
+
 // ── DRAW AGENTS ──────────────────────────────────────────────────────────────
 function drawAgents(){
-  // Pair-walk connection lines (drawn under dots)
+  // Pair-walk connection lines (drawn under dots, using offset positions)
   agents.forEach((a,i)=>{
     if(a.state===ST.G&&a.partner>=0&&i<a.partner){
       const b=agents[a.partner];
       if(b&&b.state===ST.G){
+        const[aox,aoy]=pairOff(a), [box,boy]=pairOff(b);
         ctx.save();
         ctx.strokeStyle='rgba(255,255,255,0.10)';
         ctx.lineWidth=1; ctx.setLineDash([3,7]);
-        ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(a.x+aox,a.y+aoy); ctx.lineTo(b.x+box,b.y+boy); ctx.stroke();
         ctx.restore();
       }
     }
   });
   agents.forEach(a=>{
+    const[ox,oy]=pairOff(a);
+    const ax=a.x+ox, ay=a.y+oy;
     const p=.5+.5*Math.sin(a.phase);
-    let gm=1;
-    if(a.state===ST.C) gm=1.6+p*.7;
-    if(a.state===ST.H) gm=1.3+p*.4;
-    if(a.state===ST.P) gm=.6+p*.3;
 
     ctx.save();
     ctx.shadowBlur=0;
     if(a.mcp){
-      // crisp white ring, no blur
       ctx.strokeStyle=`rgba(255,255,255,${.5+p*.2})`;
       ctx.lineWidth=1;
-      ctx.beginPath(); ctx.arc(a.x,a.y,a.r+2.5,0,Math.PI*2); ctx.stroke();
+      ctx.beginPath(); ctx.arc(ax,ay,a.r+2.5,0,Math.PI*2); ctx.stroke();
     }
-    // solid crisp dot
     ctx.fillStyle=a.color;
-    ctx.beginPath(); ctx.arc(a.x,a.y,a.r,0,Math.PI*2); ctx.fill();
-    // state ring: chat/hub white, romance pink
+    ctx.beginPath(); ctx.arc(ax,ay,a.r,0,Math.PI*2); ctx.fill();
     if(a.state===ST.C||a.state===ST.H){
       ctx.strokeStyle=`rgba(255,255,255,${.2+p*.28})`;
       ctx.lineWidth=0.8;
-      ctx.beginPath(); ctx.arc(a.x,a.y,a.r+(a.state===ST.C?4:3)+p*2,0,Math.PI*2); ctx.stroke();
+      ctx.beginPath(); ctx.arc(ax,ay,a.r+(a.state===ST.C?4:3)+p*2,0,Math.PI*2); ctx.stroke();
     }
     if(a.state===ST.R){
       ctx.strokeStyle=`rgba(255,130,170,${.3+p*.3})`;
       ctx.lineWidth=0.9;
-      ctx.beginPath(); ctx.arc(a.x,a.y,a.r+3+p*2,0,Math.PI*2); ctx.stroke();
-      // heart floats between the pair — draw once from the lower-index agent
+      ctx.beginPath(); ctx.arc(ax,ay,a.r+3+p*2,0,Math.PI*2); ctx.stroke();
       const b=agents[a.partner];
       if(b&&b.state===ST.R&&agents.indexOf(a)<a.partner){
-        // pink tether line between the pair
         ctx.save();
         ctx.strokeStyle=`rgba(255,120,160,${0.25+p*0.2})`;
         ctx.lineWidth=1; ctx.setLineDash([3,6]);
-        ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(ax,ay); ctx.lineTo(b.x,b.y); ctx.stroke();
         ctx.restore();
-        // large pulsing heart above midpoint
-        const hx=(a.x+b.x)/2, hy=(a.y+b.y)/2-18-p*6;
+        const hx=(ax+b.x)/2, hy=(ay+b.y)/2-18-p*6;
         ctx.save();
         ctx.shadowColor='rgba(255,80,140,0.9)'; ctx.shadowBlur=18;
         drawHeart(hx, hy, 7+p*4, 0.8+p*0.2);
         ctx.restore();
-        // BRIDGE label below heart
         ctx.save();
         ctx.fillStyle=`rgba(255,140,180,${0.55+p*0.3})`;
         ctx.font='bold 7px "Courier New",monospace';
@@ -894,16 +925,15 @@ function drawAgents(){
         ctx.restore();
       }
     }
-    // Dr. O AI Twin — special star ring + permanent ETL tag
     if(a.plat==='DR'){
       ctx.strokeStyle='rgba(255,255,255,0.8)'; ctx.lineWidth=1;
       ctx.setLineDash([2,3]);
-      ctx.beginPath(); ctx.arc(a.x,a.y,a.r+5,0,Math.PI*2); ctx.stroke();
+      ctx.beginPath(); ctx.arc(ax,ay,a.r+5,0,Math.PI*2); ctx.stroke();
       ctx.setLineDash([]);
       ctx.font='bold 9px "Courier New",monospace';
       ctx.textAlign='center';
       ctx.fillStyle='#c0c0c0';
-      ctx.fillText('ETL', a.x, a.y - a.r - 8);
+      ctx.fillText('ETL', ax, ay-a.r-8);
     }
     ctx.restore();
   });
