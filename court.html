@@ -137,6 +137,10 @@ body{margin:0;background:var(--parch);color:var(--ink);font-family:'Inter',sans-
 .portrait-frame{position:relative;}
 .roz-blink{position:absolute;top:0;left:0;width:100%;display:block;opacity:0;animation:blink 3.8s ease-in-out infinite;}
 
+/* ── CALL TO ORDER ── */
+.btn-cto{width:100%;padding:.72rem;background:var(--wood);color:var(--gold);border:2px solid var(--gold-dk);border-radius:2px;font-family:'Merriweather',serif;font-weight:700;font-size:.88rem;cursor:pointer;letter-spacing:.12em;text-transform:uppercase;margin-bottom:1.2rem;display:flex;align-items:center;justify-content:center;gap:.5rem;}
+.btn-cto:hover{background:var(--wood-dk);}
+
 /* ── FOOTER ── */
 .court-footer{background:var(--wood-dk);border-top:3px solid var(--gold-dk);padding:1.5rem;}
 .footer-inner{max-width:1120px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:.45rem;text-align:center;}
@@ -205,6 +209,9 @@ body{margin:0;background:var(--parch);color:var(--ink);font-family:'Inter',sans-
       <img src="/judge-roz.png" alt="Judge Roz Okonkwo" style="width:100%;display:block;">
       <img src="/judge-roz-closed.png" alt="" class="roz-blink">
     </div>
+
+    <!-- Call to Order -->
+    <button class="btn-cto" id="callToOrder">⚖️&nbsp;&nbsp;Call to Order</button>
 
     <!-- Verdict / Court Order -->
     <div class="verdict" id="verdict">
@@ -350,7 +357,23 @@ const EVLABEL={green:"The Evidence · Checks out",amber:"The Evidence · It depe
 const sel=document.getElementById('caseSel');
 sel.innerHTML=CASES.map((c,i)=>'<option value="'+i+'">'+c.q+'</option>').join('');
 
-function renderCase(c,label){
+function stripHtml(h){return h.replace(/<[^>]*>/g,'').replace(/\s+/g,' ').trim();}
+let _rozAudio=null;
+async function rozSpeak(text){
+  if(_rozAudio){_rozAudio.pause();URL.revokeObjectURL(_rozAudio._url);_rozAudio=null;}
+  try{
+    const res=await fetch('/.netlify/functions/roz-voice',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text})});
+    if(!res.ok)return;
+    const blob=await res.blob();
+    const url=URL.createObjectURL(blob);
+    _rozAudio=new Audio(url);_rozAudio._url=url;
+    _rozAudio.play();
+    _rozAudio.onended=function(){URL.revokeObjectURL(url);_rozAudio=null;};
+  }catch(e){console.error('roz voice:',e);}
+}
+const ROZ_WELCOME="Welcome to the Emerging Technologies Laboratory Court of Appeals. I am Judge Rosalind Okonkwo. This court settles disputes, busts myths, and rules on matters of taste with appropriate gravity. To file a case: select one from the docket on the left, or type your own dispute and bring it before me. If you want to argue your position directly, use the decision tree below and state your strongest argument. I have heard them all. This court does not accept screenshots as evidence, common sense as a citation, or I just know as a legal strategy. Present your case. I will rule. Court is in session.";
+
+function renderCase(c,label,speak){
   document.getElementById('vcase').textContent='"'+(label||c.q)+'"';
   const pill=document.getElementById('vpill');
   pill.className='pill '+c.pill; pill.textContent=c.ruling;
@@ -364,13 +387,14 @@ function renderCase(c,label){
   document.getElementById('vsentence').innerHTML='&#9878;&#65039; '+c.sentence;
   document.getElementById('ffnote').classList.remove('shown');
   const v=document.getElementById('verdict'); v.classList.remove('shown'); void v.offsetWidth; v.classList.add('shown');
+  if(speak) rozSpeak(stripHtml(c.judge));
   v.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
-function rule(i){ renderCase(CASES[i]); }
-document.getElementById('gavel').addEventListener('click',()=>rule(+sel.value));
+function rule(i,speak){ renderCase(CASES[i],null,speak); }
+document.getElementById('gavel').addEventListener('click',()=>rule(+sel.value,true));
 document.getElementById('shake').addEventListener('click',()=>{
   const i=Math.floor(Math.random()*CASES.length);
-  sel.value=i; rule(i);
+  sel.value=i; rule(i,true);
 });
 document.getElementById('file').addEventListener('click', async ()=>{
   const raw=document.getElementById('ff').value.trim();
@@ -437,6 +461,7 @@ function renderTree(id){
       '<div class="tree-verdict">'+n.verdict+'</div>'+
       '<button class="tree-restart" id="treeRestart">Try a different argument</button>';
     document.getElementById('treeRestart').onclick=function(){renderTree('root');};
+    rozSpeak(n.plea+'. '+stripHtml(n.verdict));
     return;
   }
   el.innerHTML='<p class="tree-prompt">'+n.prompt+'</p><div class="tree-opts">'+
@@ -445,6 +470,7 @@ function renderTree(id){
 }
 renderTree('root');
 rule(0);
+document.getElementById('callToOrder').addEventListener('click',()=>rozSpeak(ROZ_WELCOME));
 </script>
 </body>
 </html>
