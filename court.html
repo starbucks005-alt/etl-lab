@@ -4,181 +4,323 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Take It to Roz</title>
-<meta name="description" content="Two friends, one argument, one ruling. Judge Roz settles it: fun on top, a real citation underneath. Verify before you believe.">
+<meta name="description" content="Two friends. One argument. One ruling. Judge Roz settles it fast. Fun on top, a real citation underneath.">
 <meta name="author" content="Dr. Terry Oroszi, EdD">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,700&family=Inter:wght@400;500;600;700&family=Lora:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root{--ink:#1b1f2e;--muted:#5b6172;--soft:#8b91a3;--bg:#f2f4f7;--panel:#ffffff;--line:#dde3eb;
-    --brass:#28527a;--brass-dk:#1d3d5c;--navy:#1a2535;--green:#2e9e5b;--amber:#d99016;--red:#c8485f;}
-  *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',sans-serif;line-height:1.5;}
-  .wrap{max-width:760px;margin:0 auto;padding:0 1.1rem 4rem;}
-  a{color:var(--brass-dk);}
-  .ribbon{background:var(--navy);color:#fff;text-align:center;font-family:'Lora',serif;letter-spacing:.16em;text-transform:uppercase;font-size:.72rem;padding:.5rem;}
-  .ribbon b{color:#a8c8e0;}
-  .topbar{display:flex;align-items:center;justify-content:space-between;gap:1rem;max-width:760px;margin:0 auto;padding:1rem 1.1rem .4rem;}
-  .brand{font-family:'Fraunces',serif;font-weight:700;font-size:1.15rem;} .brand .dot{color:var(--brass);}
-  .backlink{font-size:.85rem;color:var(--muted);text-decoration:none;}
-  .hero{text-align:center;padding:1.6rem 0 .6rem;}
-  .gavel{font-size:2.6rem;line-height:1;}
-  .hero h1{font-family:'Fraunces',serif;font-size:2.5rem;line-height:1.04;margin:.4rem 0 .4rem;}
-  .hero .tag{color:var(--muted);font-size:1.08rem;max-width:54ch;margin:0 auto .6rem;}
-  .hero .mini{color:var(--soft);font-size:.92rem;max-width:56ch;margin:0 auto;font-style:italic;}
-  .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:1.5rem 1.6rem;margin:1.5rem 0;box-shadow:0 1px 4px rgba(27,31,46,.05);}
-  .field label{display:block;font-family:'Lora',serif;font-size:.78rem;color:var(--brass-dk);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.4rem;}
-  .field select,.field textarea{width:100%;padding:.7rem .8rem;font-family:'Inter';font-size:1rem;border:1px solid var(--line);background:#f8fafc;border-radius:8px;color:var(--ink);}
-  .field textarea{min-height:70px;resize:vertical;}
-  .field select:focus,.field textarea:focus{outline:2px solid var(--brass);outline-offset:1px;}
-  .row{display:flex;gap:.7rem;flex-wrap:wrap;margin-top:1rem;}
-  .btn{padding:.8rem 1.4rem;border-radius:9px;font-family:'Inter';font-weight:700;font-size:1rem;cursor:pointer;border:none;}
-  .btn-gavel{background:var(--brass);color:#fff;} .btn-gavel:hover{background:var(--brass-dk);color:#fff;}
-  .btn-shake{background:var(--navy);color:#fff;} .btn-shake:hover{background:#111d2b;}
-  .btn-ghost{background:#fff;color:var(--brass-dk);border:1px solid var(--brass);}
-  .or{text-align:center;color:var(--soft);font-size:.85rem;margin:1.2rem 0 .4rem;font-style:italic;}
+:root{
+  --wood:#3B2F2F; --wood-dk:#2a1f1f; --wood-lt:#4e3c3c;
+  --gold:#C2A878; --gold-dk:#9a7f4e; --gold-lt:#d4bc96;
+  --parch:#F7F3E8; --parch-dk:#ede9d6;
+  --ink:#1A1A1A; --muted:#5a5040; --soft:#9a8a6a; --line:#d4c8a8;
+  --panel:#ffffff;
+  --green:#2e5c3a; --red:#8B2E2E; --red-lt:#a53838; --amber:#7a5c10; --purple:#5a4a7a;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--parch);color:var(--ink);font-family:'Inter',sans-serif;line-height:1.5;}
 
-  /* verdict */
-  .verdict{display:none;margin-top:1.4rem;}
-  .verdict.shown{display:block;animation:drop .5s ease;}
-  @keyframes drop{0%{transform:translateY(-14px) rotate(-1deg);opacity:0;}100%{transform:none;opacity:1;}}
-  .v-case{font-family:'Lora',serif;font-style:italic;color:var(--muted);font-size:1rem;margin:0 0 .8rem;text-align:center;}
-  .ruling{display:flex;align-items:center;justify-content:center;gap:.6rem;margin:0 0 1rem;}
-  .ruling .pill{font-family:'Fraunces',serif;font-weight:700;font-size:1.15rem;color:#fff;padding:.5rem 1.1rem;border-radius:999px;text-align:center;}
-  .p-plaintiff{background:#2e7d5b;} .p-defendant{background:#2e7d5b;} .p-dismissed{background:var(--red);}
-  .p-bothguilty{background:var(--amber);} .p-taste{background:#7a6cab;}
-  .judge-line{display:flex;gap:.8rem;align-items:flex-start;background:#f0f4f8;border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;margin:0 0 1rem;}
-  .judge-line .ja{width:44px;height:44px;border-radius:50%;background:var(--navy);color:#a8c8e0;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-weight:700;flex-shrink:0;}
-  .judge-line .jq{font-size:1rem;color:var(--ink);} .judge-line .jq b{color:var(--brass-dk);}
-  .evid{border:1px solid var(--line);border-radius:10px;overflow:hidden;}
-  .evid-top{display:flex;align-items:center;gap:.6rem;padding:.6rem 1rem;color:#fff;font-family:'Lora',serif;text-transform:uppercase;letter-spacing:.07em;font-size:.78rem;font-weight:600;}
-  .e-green{background:var(--green);} .e-amber{background:var(--amber);} .e-red{background:var(--red);} .e-opinion{background:#7a6cab;}
-  .evid-body{padding:.9rem 1rem;font-size:.95rem;}
-  .evid-body .src{margin:.6rem 0 0;font-size:.82rem;color:var(--soft);} .evid-body .src b{color:var(--brass-dk);}
-  .sentence{margin:1rem 0 0;padding:.8rem 1rem;background:var(--navy);color:#deeaf5;border-radius:10px;font-size:.95rem;}
-  .sentence b{color:#a8c8e0;}
-  .freeform-note{display:none;margin-top:1rem;padding:1rem;border:1px dashed var(--brass);border-radius:10px;background:#f0f4f8;font-size:.95rem;color:var(--ink);}
-  .freeform-note.shown{display:block;}
+/* ── HEADER ── */
+.court-header{background:var(--wood);border-bottom:3px solid var(--gold-dk);}
+.header-inner{max-width:1120px;margin:0 auto;padding:1rem 1.5rem;display:flex;align-items:center;gap:1.2rem;}
+.header-center{flex:1;text-align:center;}
+.header-center h1{font-family:'Merriweather',serif;font-size:1.75rem;font-weight:700;color:var(--parch);margin:0 0 .15rem;letter-spacing:.02em;}
+.header-center .sub{font-family:'Merriweather',serif;font-style:italic;color:var(--gold);font-size:.88rem;margin:0;letter-spacing:.04em;}
+.header-right{flex-shrink:0;text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:.3rem;}
+.header-gavel{font-size:1.5rem;line-height:1;}
+.backlink{color:var(--gold);font-size:.78rem;text-decoration:none;letter-spacing:.06em;text-transform:uppercase;}
+.backlink:hover{color:var(--parch);}
 
-  .castcard{max-width:330px;margin:2rem auto 0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff;box-shadow:0 1px 4px rgba(27,31,46,.06);}
-  .cc-photo{position:relative;height:210px;background:linear-gradient(160deg,#1a2f4a,#0e1a2d);display:flex;align-items:center;justify-content:center;}
-  .cc-mono{font-family:'Fraunces',serif;font-size:3.2rem;color:#a8c8e0;}
-  .cc-body{padding:1rem 1.1rem 1.15rem;}
-  .cc-nm{font-family:'Fraunces',serif;font-weight:700;font-size:1.3rem;margin:0;}
-  .cc-role{color:var(--brass-dk);font-weight:700;font-size:.76rem;letter-spacing:.04em;text-transform:uppercase;margin:.3rem 0 .55rem;}
-  .cc-tag{font-style:italic;color:var(--muted);font-size:.98rem;margin:0 0 1rem;}
-  .cc-tags{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.85rem;}
-  .cc-t{font-size:.78rem;background:#e8f0f7;color:#3d5a72;padding:.2rem .55rem;border-radius:6px;}
-  .cc-foot{display:flex;align-items:center;gap:.5rem;}
-  .cc-pill{font-size:.78rem;padding:.25rem .62rem;border-radius:999px;background:#dde8f0;color:#1d3d5c;}
-  .cc-hire{margin-left:auto;background:var(--navy);color:#fff;border:none;border-radius:8px;padding:.55rem 1.25rem;font-weight:700;font-family:'Inter';cursor:pointer;}
-  .disc{margin-top:2rem;font-size:.82rem;color:var(--soft);border-top:1px solid var(--line);padding-top:1rem;line-height:1.55;text-align:center;} .disc b{color:var(--muted);}
-  .tree-prompt{font-family:'Fraunces',serif;font-size:1.2rem;margin:0 0 1rem;}
-  .tree-opts{display:flex;flex-direction:column;gap:.5rem;}
-  .tree-btn{text-align:left;padding:.75rem .9rem;border:1px solid var(--line);background:#f8fafc;border-radius:9px;font-family:'Inter';font-size:.98rem;cursor:pointer;color:var(--ink);}
-  .tree-btn:hover{border-color:var(--brass);background:#e8f0f7;}
-  .tree-verdict{font-size:1rem;padding:1rem 1.1rem;background:#f0f4f8;border:1px solid var(--line);border-radius:10px;}
-  .tree-verdict b{color:var(--brass-dk);}
-  .tree-restart{margin-top:1rem;background:var(--navy);color:#fff;border:none;border-radius:8px;padding:.55rem 1.2rem;font-weight:700;cursor:pointer;font-family:'Inter';}
-  .tree-restart:hover{background:#111d2b;}
-  .plea{font-family:'Fraunces',serif;font-weight:700;font-size:1.7rem;text-align:center;color:#fff;padding:.6rem;border-radius:10px;margin:0 0 .8rem;letter-spacing:.03em;}
-  .plea-guilty{background:var(--red);}
-  .plea-free{background:var(--green);}
-  .plea-both{background:var(--amber);}
-  .docket-item{border:1px solid var(--line);border-radius:10px;padding:.8rem 1rem;margin-bottom:.6rem;background:#ffffff;}
-  .docket-case{font-family:'Fraunces',serif;font-weight:700;font-size:1.05rem;}
-  .docket-case span{color:var(--brass);font-style:italic;font-weight:400;}
-  .docket-charge{font-size:.9rem;color:var(--muted);font-style:italic;margin:.2rem 0 .45rem;}
-  .docket-ruling{font-size:.92rem;}
-  .dr-pill{display:inline-block;font-size:.7rem;font-weight:700;color:#fff;padding:.12rem .5rem;border-radius:999px;margin-right:.45rem;letter-spacing:.02em;}
-  .dr-def{background:var(--green);} .dr-dismissed{background:var(--red);} .dr-both{background:var(--amber);} .dr-taste{background:#7a6cab;}
-  .docket{list-style:none;padding:0;margin:1rem 0 0;}
-  .docket li{padding:.8rem 0;border-bottom:1px dashed var(--line);}
-  .docket li:last-child{border-bottom:none;}
-  .dk-case{font-weight:700;color:var(--ink);}
-  .dk-gripe{font-style:italic;color:var(--muted);font-size:.92rem;margin:.15rem 0;}
-  .dk-rule{font-size:.93rem;color:var(--ink);}
-  .dk-rule .vw{font-family:'Lora',serif;font-weight:700;color:var(--brass-dk);text-transform:uppercase;letter-spacing:.03em;}
+/* ── COURT SEAL SVG shared sizing ── */
+.seal-lg{width:64px;height:64px;flex-shrink:0;}
+.seal-sm{width:18px;height:18px;}
+.seal-xs{width:36px;height:36px;}
+
+/* ── MAIN GRID ── */
+.court-main{max-width:1120px;margin:0 auto;padding:2rem 1.5rem;display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start;}
+@media(max-width:780px){.court-main{grid-template-columns:1fr;}}
+
+/* ── PANELS ── */
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:3px;padding:1.4rem 1.5rem;box-shadow:0 2px 6px rgba(59,47,47,.07);}
+.panel+.panel{margin-top:1.4rem;}
+.panel-title{font-family:'Merriweather',serif;font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.14em;margin:0 0 1.1rem;padding-bottom:.55rem;border-bottom:1px solid var(--line);}
+
+/* ── FORM ── */
+.field{margin-bottom:1rem;}
+.field label{display:block;font-family:'Merriweather',serif;font-style:italic;font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.38rem;}
+.field select,.field textarea{width:100%;padding:.65rem .8rem;font-family:'Inter';font-size:.93rem;border:1px solid var(--line);background:var(--parch);border-radius:2px;color:var(--ink);}
+.field textarea{min-height:80px;resize:vertical;}
+.field select:focus,.field textarea:focus{outline:2px solid var(--gold);outline-offset:1px;}
+.row{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.75rem;}
+.btn{padding:.72rem 1.3rem;border:none;border-radius:2px;font-family:'Inter';font-weight:700;font-size:.92rem;cursor:pointer;}
+.btn-gavel{background:var(--ink);color:var(--gold);border:1px solid var(--gold-dk);}
+.btn-gavel:hover{background:var(--wood-dk);}
+.btn-shake{background:var(--wood);color:var(--parch);}
+.btn-shake:hover{background:var(--wood-dk);}
+.btn-file{background:var(--red);color:var(--parch);width:100%;margin-top:.65rem;text-transform:uppercase;letter-spacing:.07em;font-size:.88rem;}
+.btn-file:hover{background:var(--red-lt);}
+.btn-file:disabled{opacity:.55;cursor:not-allowed;}
+.divider{border:none;border-top:1px dashed var(--line);margin:1.15rem 0;}
+.or-label{text-align:center;font-family:'Merriweather',serif;font-style:italic;color:var(--soft);font-size:.82rem;margin:.5rem 0;}
+.ffnote{display:none;margin-top:.8rem;padding:.75rem 1rem;border-left:3px solid var(--gold);background:var(--parch-dk);font-family:'Merriweather',serif;font-style:italic;font-size:.88rem;color:var(--ink);border-radius:0 2px 2px 0;}
+.ffnote.shown{display:block;}
+
+/* ── PORTRAIT ── */
+.portrait-frame{border:6px solid var(--wood);box-shadow:4px 4px 0 var(--gold-dk),inset 0 0 0 1px var(--gold-dk);background:var(--wood-dk);aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:.5rem;margin-bottom:1.3rem;}
+.portrait-mono{font-family:'Merriweather',serif;font-size:4.5rem;font-weight:700;color:var(--gold);letter-spacing:.06em;}
+.portrait-name{font-family:'Merriweather',serif;font-size:.65rem;color:var(--parch);letter-spacing:.16em;text-transform:uppercase;text-align:center;opacity:.65;padding:0 1rem;}
+.portrait-pending{font-size:.6rem;color:var(--gold);opacity:.45;font-style:italic;text-align:center;margin-top:.2rem;}
+
+/* ── VERDICT / COURT ORDER ── */
+.verdict{display:none;}
+.verdict.shown{display:block;animation:drop .45s ease;}
+@keyframes drop{0%{transform:translateY(-10px);opacity:0;}100%{transform:none;opacity:1;}}
+.court-order{border:1px solid var(--line);border-radius:3px;overflow:hidden;background:var(--panel);}
+.court-order-banner{background:var(--wood);color:var(--gold);font-family:'Merriweather',serif;text-transform:uppercase;letter-spacing:.18em;font-size:.7rem;font-weight:700;text-align:center;padding:.5rem;border-bottom:1px solid var(--gold-dk);display:flex;align-items:center;justify-content:center;gap:.6rem;}
+.court-order-body{padding:1rem 1.1rem;}
+.v-case{font-family:'Merriweather',serif;font-style:italic;color:var(--muted);font-size:.88rem;margin:0 0 .75rem;text-align:center;}
+.ruling{display:flex;justify-content:center;margin:0 0 .85rem;}
+.pill{font-family:'Merriweather',serif;font-weight:700;font-size:1rem;color:#fff;padding:.4rem 1.1rem;border-radius:2px;text-align:center;text-transform:uppercase;letter-spacing:.07em;}
+.p-plaintiff{background:var(--green);}
+.p-defendant{background:var(--green);}
+.p-dismissed{background:var(--red);}
+.p-bothguilty{background:var(--amber);color:var(--parch);}
+.p-taste{background:var(--purple);}
+.judge-line{display:flex;gap:.75rem;align-items:flex-start;background:var(--parch-dk);border:1px solid var(--line);border-radius:2px;padding:.75rem .9rem;margin:0 0 .85rem;}
+.ja{width:38px;height:38px;border-radius:50%;background:var(--wood);color:var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Merriweather',serif;font-weight:700;font-size:.8rem;flex-shrink:0;border:1px solid var(--gold-dk);}
+.jq{font-size:.9rem;color:var(--ink);}
+.jq b{color:var(--wood);}
+.evid{border:1px solid var(--line);border-radius:2px;overflow:hidden;}
+.evid-top{display:flex;align-items:center;gap:.5rem;padding:.5rem .85rem;color:#fff;font-family:'Merriweather',serif;font-style:italic;text-transform:uppercase;letter-spacing:.06em;font-size:.7rem;font-weight:600;}
+.e-green{background:var(--green);}
+.e-amber{background:var(--amber);}
+.e-red{background:var(--red);}
+.e-opinion{background:var(--purple);}
+.evid-body{padding:.8rem .9rem;font-size:.88rem;line-height:1.58;}
+.evid-body .src{margin:.5rem 0 0;font-size:.78rem;color:var(--soft);}
+.evid-body .src b{color:var(--muted);}
+.sentence{margin:.85rem 0 0;padding:.72rem .9rem;background:var(--wood);color:var(--parch);border-radius:2px;font-size:.88rem;font-family:'Merriweather',serif;font-style:italic;}
+
+/* ── WIDE SECTIONS ── */
+.court-wide{max-width:1120px;margin:0 auto;padding:0 1.5rem 2.5rem;}
+
+/* ── DOCKET ── */
+.docket-panel{background:var(--wood);border:1px solid var(--gold-dk);border-radius:3px;padding:1.5rem;box-shadow:0 2px 10px rgba(0,0,0,.2);}
+.docket-panel .panel-title{color:var(--gold);border-color:var(--gold-dk);}
+.docket-panel .dk-sub{color:var(--gold);opacity:.6;font-size:.8rem;font-style:italic;margin:0 0 1rem;}
+.docket-item{border:1px solid rgba(194,168,120,.2);border-radius:2px;padding:.7rem .9rem;margin-bottom:.5rem;background:rgba(194,168,120,.05);}
+.docket-item:last-child{margin-bottom:0;}
+.docket-case{font-family:'Merriweather',serif;font-weight:700;font-size:.9rem;color:var(--parch);margin-bottom:.18rem;}
+.docket-case span{color:var(--gold);font-style:italic;font-weight:400;}
+.docket-charge{font-size:.78rem;color:var(--gold);font-style:italic;margin-bottom:.3rem;opacity:.8;}
+.docket-ruling{font-size:.84rem;color:var(--parch-dk);line-height:1.45;}
+.dr-pill{display:inline-block;font-size:.65rem;font-weight:700;color:#fff;padding:.1rem .42rem;border-radius:1px;margin-right:.38rem;letter-spacing:.04em;text-transform:uppercase;font-family:'Merriweather',serif;}
+.dr-def{background:var(--green);}
+.dr-dismissed{background:var(--red);}
+.dr-both{background:var(--amber);}
+.dr-taste{background:var(--purple);}
+
+/* ── DECISION TREE ── */
+.tree-prompt{font-family:'Merriweather',serif;font-size:1.05rem;margin:0 0 .9rem;color:var(--wood);}
+.tree-opts{display:flex;flex-direction:column;gap:.42rem;}
+.tree-btn{text-align:left;padding:.68rem .88rem;border:1px solid var(--line);background:var(--parch);border-radius:2px;font-family:'Inter';font-size:.9rem;cursor:pointer;color:var(--ink);}
+.tree-btn:hover{border-color:var(--gold);background:var(--parch-dk);}
+.plea{font-family:'Merriweather',serif;font-weight:700;font-size:1.4rem;text-align:center;color:#fff;padding:.55rem;border-radius:2px;margin:0 0 .75rem;letter-spacing:.05em;text-transform:uppercase;}
+.plea-guilty{background:var(--red);}
+.plea-free{background:var(--green);}
+.plea-both{background:var(--amber);}
+.tree-verdict{font-size:.9rem;padding:.9rem 1rem;background:var(--parch-dk);border:1px solid var(--line);border-radius:2px;font-family:'Merriweather',serif;line-height:1.62;}
+.tree-verdict b{color:var(--wood);}
+.tree-restart{margin-top:.85rem;background:var(--wood);color:var(--parch);border:none;border-radius:2px;padding:.52rem 1.15rem;font-weight:700;cursor:pointer;font-family:'Inter';font-size:.88rem;}
+.tree-restart:hover{background:var(--wood-dk);}
+
+/* ── FOOTER ── */
+.court-footer{background:var(--wood-dk);border-top:3px solid var(--gold-dk);padding:1.5rem;}
+.footer-inner{max-width:1120px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:.45rem;text-align:center;}
+.footer-sig{font-family:'Merriweather',serif;font-style:italic;color:var(--gold);font-size:.98rem;margin:0;}
+.footer-sub{font-family:'Merriweather',serif;color:var(--parch);opacity:.45;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;margin:0;}
+.footer-disc{max-width:560px;font-size:.74rem;color:var(--parch);opacity:.35;line-height:1.55;margin:.4rem 0 0;}
+.footer-back{margin-top:.3rem;color:var(--gold);font-size:.76rem;text-decoration:none;opacity:.55;text-transform:uppercase;letter-spacing:.07em;}
+.footer-back:hover{opacity:1;}
 </style>
 </head>
 <body>
-<div class="ribbon"><b>Verify before you believe.</b> &nbsp;Two friends. One argument. One ruling.</div>
-<div class="topbar"><div class="brand">TAKE IT TO ROZ<span class="dot">.</span></div><a class="backlink" href="index.html">&larr; ETL platform</a></div>
-<div class="wrap">
-  <div class="hero">
-    <div class="gavel">&#129687;&#65039;</div>
-    <h1>Take It to Roz</h1>
-    <p class="tag">You two have been arguing about this for twenty minutes. Bring it to Judge Roz. She rules fast, she rules fair, and when there's evidence, she brings the receipt.</p>
-    <p class="mini">Part Magic 8-Ball, part fact-check. The verdict is fun. The citation underneath is real.</p>
+
+<!-- ── HEADER ── -->
+<header class="court-header">
+  <div class="header-inner">
+    <!-- ETL Court Seal placeholder -->
+    <svg class="seal-lg" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="40" cy="40" r="37" fill="#1A1A1A" stroke="#C2A878" stroke-width="2.5"/>
+      <circle cx="40" cy="40" r="30" fill="none" stroke="#C2A878" stroke-width=".7" stroke-dasharray="2 2"/>
+      <text x="40" y="17.5" text-anchor="middle" fill="#C2A878" font-family="Georgia,serif" font-size="7" letter-spacing="2.5" font-weight="bold">ETL COURT</text>
+      <!-- scales -->
+      <line x1="40" y1="22" x2="40" y2="52" stroke="#C2A878" stroke-width="1.2"/>
+      <line x1="25" y1="30" x2="55" y2="30" stroke="#C2A878" stroke-width="1.2"/>
+      <line x1="25" y1="30" x2="22" y2="43" stroke="#C2A878" stroke-width=".8"/>
+      <line x1="25" y1="30" x2="28" y2="43" stroke="#C2A878" stroke-width=".8"/>
+      <path d="M19 43 Q25 47 31 43" fill="none" stroke="#C2A878" stroke-width="1.2"/>
+      <line x1="55" y1="30" x2="52" y2="43" stroke="#C2A878" stroke-width=".8"/>
+      <line x1="55" y1="30" x2="58" y2="43" stroke="#C2A878" stroke-width=".8"/>
+      <path d="M49 43 Q55 47 61 43" fill="none" stroke="#C2A878" stroke-width="1.2"/>
+      <rect x="38" y="52" width="4" height="2" fill="#C2A878"/>
+      <rect x="34" y="54" width="12" height="1.5" fill="#C2A878" rx=".5"/>
+      <text x="40" y="67" text-anchor="middle" fill="#C2A878" font-family="Georgia,serif" font-size="5.5" letter-spacing="2">OF ROZ</text>
+      <circle cx="13" cy="40" r="1.4" fill="#C2A878"/>
+      <circle cx="67" cy="40" r="1.4" fill="#C2A878"/>
+    </svg>
+
+    <div class="header-center">
+      <h1>The Court of Judge Roz</h1>
+      <p class="sub">Petty disputes. Real rulings.</p>
+    </div>
+
+    <div class="header-right">
+      <div class="header-gavel">⚖️</div>
+      <a class="backlink" href="index.html">&larr; ETL</a>
+    </div>
   </div>
+</header>
 
-  <div class="panel">
-    <div class="field">
-      <label for="caseSel">Pick a case before the court</label>
-      <select id="caseSel"></select>
-    </div>
-    <div class="row">
-      <button class="btn btn-gavel" id="gavel">&#129687;&#65039;&nbsp; Bang the gavel</button>
-      <button class="btn btn-shake" id="shake">&#127922;&nbsp; Shake for a random case</button>
-    </div>
-    <p class="or">or bring your own</p>
-    <div class="field">
-      <label for="ff">State your case (you vs. them)</label>
-      <textarea id="ff" placeholder="e.g. He says pineapple belongs on pizza. I say he needs help."></textarea>
-    </div>
-    <div class="row"><button class="btn btn-ghost" id="file">File it with the court</button></div>
-    <div class="freeform-note" id="ffnote"></div>
+<!-- ── MAIN TWO-COLUMN ── -->
+<div class="court-main">
 
-    <div class="verdict" id="verdict">
-      <p class="v-case" id="vcase"></p>
-      <div class="ruling"><span class="pill" id="vpill"></span></div>
-      <div class="judge-line"><div class="ja">JR</div><div class="jq" id="vjudge"></div></div>
-      <div class="evid" id="vevid">
-        <div class="evid-top" id="vetop"><span id="vev"></span></div>
-        <div class="evid-body"><div id="vans"></div><p class="src" id="vsrc"></p></div>
+  <!-- LEFT: form + decision tree -->
+  <div>
+    <div class="panel">
+      <div class="panel-title">File a case before the court</div>
+      <div class="field">
+        <label for="caseSel">Pick from the docket</label>
+        <select id="caseSel"></select>
       </div>
-      <div class="sentence" id="vsentence"></div>
+      <div class="row">
+        <button class="btn btn-gavel" id="gavel">⚖️&nbsp; Bang the gavel</button>
+        <button class="btn btn-shake" id="shake">🎲&nbsp; Random case</button>
+      </div>
+      <hr class="divider">
+      <p class="or-label">or bring your own</p>
+      <div class="field">
+        <label for="ff">State your case (you vs. them)</label>
+        <textarea id="ff" placeholder="e.g. My husband says the ending of Edge of Tomorrow was stupid. I loved it."></textarea>
+      </div>
+      <button class="btn btn-file" id="file">File it with the court</button>
+      <div class="ffnote" id="ffnote"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Make your argument</div>
+      <p style="color:var(--muted);font-size:.84rem;font-style:italic;margin:0 0 1rem;">Your opponent is insufferable and you deserve to win. Pick your strongest argument. Judge Roz has heard everything. She is not impressed yet.</p>
+      <div id="tree"></div>
     </div>
   </div>
 
-  <div class="panel">
-    <h2 style="font-family:'Fraunces',serif;font-size:1.5rem;margin:0 0 .3rem;">Make your case</h2>
-    <p style="color:var(--muted);font-size:.95rem;margin:0 0 1.1rem;">Your opponent is insufferable and you deserve to win. Pick your strongest argument. Judge Roz has heard everything. She is not impressed yet.</p>
-    <div id="tree"></div>
-  </div>
+  <!-- RIGHT: portrait + verdict -->
+  <div>
+    <!-- Judge Roz portrait placeholder -->
+    <div class="portrait-frame">
+      <div class="portrait-mono">JR</div>
+      <div class="portrait-name">Judge Rosalind "Roz" Okonkwo</div>
+      <div class="portrait-pending">Portrait pending</div>
+    </div>
 
-  <div class="panel">
-    <h2 style="font-family:'Fraunces',serif;font-size:1.5rem;margin:0 0 .3rem;">The recent docket</h2>
-    <p style="color:var(--muted);font-size:.95rem;margin:0 0 1.1rem;">Cases the staff filed against each other this week. The court keeps receipts.</p>
-  <div class="docket-item"><div class="docket-case">Reece Ashford <span>v.</span> Coach Dom</div><div class="docket-charge">Charge: "His programming is boringly slow."</div><div class="docket-ruling"><span class="dr-pill dr-def">Not guilty</span><b>Roz:</b> Boring training that works is not a crime. Run it twelve weeks, counsel.</div></div>
-  <div class="docket-item"><div class="docket-case">Wyatt Cooper <span>v.</span> Nadia Hassan</div><div class="docket-charge">Charge: "Is a smoothie a meal or a dessert?"</div><div class="docket-ruling"><span class="dr-pill dr-taste">On vibes</span><b>Roz:</b> Ruled on vibes. Both parties held in contempt for arguing at the blender.</div></div>
-  <div class="docket-item"><div class="docket-case">Dr. Henry Chen <span>v.</span> Reece Ashford</div><div class="docket-charge">Charge: "She keeps sending me TikToks as citations."</div><div class="docket-ruling"><span class="dr-pill dr-def">For Dr. Chen</span><b>Roz:</b> A screenshot is not a witness under oath. Reece, cease and desist.</div></div>
-  <div class="docket-item"><div class="docket-case">Jax Rivera <span>v.</span> The Whole Floor</div><div class="docket-charge">Charge: "It IS about to trend, your honor."</div><div class="docket-ruling"><span class="dr-pill dr-both">Continued</span><b>Roz:</b> The court reconvenes when the trend either trends or dies. Adjourned.</div></div>
-  <div class="docket-item"><div class="docket-case">Zara Cole <span>v.</span> Everyone</div><div class="docket-charge">Charge: "Nobody will stop blinking in the smoothie selfies."</div><div class="docket-ruling"><span class="dr-pill dr-both">Both guilty</span><b>Roz:</b> The court orders one (1) acceptable group photo and an end to this matter.</div></div>
-  <div class="docket-item"><div class="docket-case">MJ Johnson <span>v.</span> Wyatt Cooper</div><div class="docket-charge">Charge: "A dried cherry tomato is a snack, not a garnish."</div><div class="docket-ruling"><span class="dr-pill dr-def">For MJ</span><b>Roz:</b> It is a snack. A garnish is just a snack with a publicist.</div></div>
-  <div class="docket-item"><div class="docket-case">Amara Nwosu <span>v.</span> Eli Adler</div><div class="docket-charge">Charge: "He overruled my herb call."</div><div class="docket-ruling"><span class="dr-pill dr-dismissed">Dismissed</span><b>Roz:</b> Health and safety are not my bench. Take it to the Dose Stoplight, counsel.</div></div>
-  <div class="docket-item"><div class="docket-case">Coach Dom <span>v.</span> Reece Ashford</div><div class="docket-charge">Charge: Counter-suit: "She skipped her own deload week."</div><div class="docket-ruling"><span class="dr-pill dr-def">For Coach Dom</span><b>Roz:</b> Practice what you post. The court sides with the coach.</div></div>
-  </div>
-
-  <div class="panel">
-    <h2 style="font-family:'Fraunces',serif;font-size:1.5rem;margin:0 0 .3rem;">Recent docket</h2>
-    <p style="color:var(--muted);font-size:.95rem;margin:0 0 .4rem;">Cases the staff brought this week. Yes, they really do this to each other.</p>
-    <ul class="docket"><li><div class="dk-case">Reece v. Coach Dom</div><div class="dk-gripe">"his programming is boringly slow, same five lifts for months"</div><div class="dk-rule">&#129687;&#65039; Boring training that works is not a crime. Run it twelve weeks. <span class="vw">Overruled.</span></div></li><li><div class="dk-case">Wyatt v. Nadia</div><div class="dk-gripe">"is a smoothie a meal or a dessert?"</div><div class="dk-rule">&#129687;&#65039; Both held in contempt for arguing at the blender. <span class="vw">Ruled on vibes.</span></div></li><li><div class="dk-case">Henry v. Reece</div><div class="dk-gripe">"she keeps sending TikToks as if they are citations"</div><div class="dk-rule">&#129687;&#65039; A screenshot is not a witness under oath. For the pharmacist. <span class="vw">Dismissed.</span></div></li><li><div class="dk-case">Coach Dom v. Reece</div><div class="dk-gripe">"counter-suit: she skipped her own deload week"</div><div class="dk-rule">&#129687;&#65039; Practice what you post, counsel. For the coach. <span class="vw">Sustained.</span></div></li><li><div class="dk-case">MJ v. Wyatt</div><div class="dk-gripe">"a dried cherry tomato is a snack, not a garnish"</div><div class="dk-rule">&#129687;&#65039; A garnish is a snack with a publicist. For the gardener. <span class="vw">Sustained.</span></div></li><li><div class="dk-case">Jax v. the whole floor</div><div class="dk-gripe">"it IS about to trend, your honor"</div><div class="dk-rule">&#129687;&#65039; The court awaits the data. <span class="vw">Case continued.</span></div></li><li><div class="dk-case">Zara v. everyone</div><div class="dk-gripe">"nobody stops blinking in the smoothie selfies"</div><div class="dk-rule">&#129687;&#65039; Take one acceptable photo, then we adjourn. <span class="vw">Both guilty.</span></div></li><li><div class="dk-case">Leo v. Rowan</div><div class="dk-gripe">"spreadsheet color-coding standards"</div><div class="dk-rule">&#129687;&#65039; The court finds you both guilty of caring too much. <span class="vw">Both guilty.</span></div></li></ul>
-  </div>
-
-  <div class="castcard">
-    <div class="cc-photo"><span class="cc-mono">JR</span></div>
-    <div class="cc-body">
-      <h3 class="cc-nm">Judge Rosalind "Roz" Okonkwo</h3>
-      <div class="cc-role">Presiding Judge &middot; Take It to Roz</div>
-      <p class="cc-tag">She's heard worse. She'll rule anyway.</p>
-      <div class="cc-tags"><span class="cc-t">#settleit</span><span class="cc-t">#factcheck</span><span class="cc-t">#nodrama</span></div>
-      <div class="cc-foot"><span class="cc-pill">In-framework</span><button class="cc-hire">Hire</button></div>
+    <!-- Verdict / Court Order -->
+    <div class="verdict" id="verdict">
+      <div class="court-order">
+        <div class="court-order-banner">
+          <svg class="seal-sm" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="40" cy="40" r="37" fill="none" stroke="#C2A878" stroke-width="2"/>
+            <text x="40" y="44" text-anchor="middle" fill="#C2A878" font-family="Georgia,serif" font-size="18" font-weight="bold">ETL</text>
+          </svg>
+          COURT ORDER
+          <svg class="seal-sm" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="40" cy="40" r="37" fill="none" stroke="#C2A878" stroke-width="2"/>
+            <text x="40" y="44" text-anchor="middle" fill="#C2A878" font-family="Georgia,serif" font-size="18" font-weight="bold">ETL</text>
+          </svg>
+        </div>
+        <div class="court-order-body">
+          <p class="v-case" id="vcase"></p>
+          <div class="ruling"><span class="pill" id="vpill"></span></div>
+          <div class="judge-line">
+            <div class="ja">JR</div>
+            <div class="jq" id="vjudge"></div>
+          </div>
+          <div class="evid">
+            <div class="evid-top" id="vetop"><span id="vev"></span></div>
+            <div class="evid-body">
+              <div id="vans"></div>
+              <p class="src" id="vsrc"></p>
+            </div>
+          </div>
+          <div class="sentence" id="vsentence"></div>
+        </div>
+      </div>
     </div>
   </div>
-
-  <p class="disc"><b>For fun, and for facts that have an answer.</b> Judge Roz settles bets and busts myths; she is not a lawyer, doctor, or referee for your actual relationship. For a real legal dispute, see a real attorney (ask for Kimberly). For a medical question, see a clinician (ask for Dr. Claire). Matters of taste are ruled on vibes, and the court says so out loud.</p>
 </div>
+
+<!-- ── DOCKET (full width) ── -->
+<div class="court-wide">
+  <div class="docket-panel">
+    <div class="panel-title">The Recent Docket</div>
+    <p class="dk-sub">Cases the staff filed against each other this week. The court keeps receipts.</p>
+    <div class="docket-item">
+      <div class="docket-case">Reece Ashford <span>v.</span> Coach Dom</div>
+      <div class="docket-charge">"His programming is boringly slow."</div>
+      <div class="docket-ruling"><span class="dr-pill dr-def">Not guilty</span>Boring training that works is not a crime. Run it twelve weeks, counsel.</div>
+    </div>
+    <div class="docket-item">
+      <div class="docket-case">Wyatt Cooper <span>v.</span> Nadia Hassan</div>
+      <div class="docket-charge">"Is a smoothie a meal or a dessert?"</div>
+      <div class="docket-ruling"><span class="dr-pill dr-taste">On vibes</span>Both parties held in contempt for arguing at the blender. Ruled on vibes.</div>
+    </div>
+    <div class="docket-item">
+      <div class="docket-case">Dr. Henry Chen <span>v.</span> Reece Ashford</div>
+      <div class="docket-charge">"She keeps sending me TikToks as citations."</div>
+      <div class="docket-ruling"><span class="dr-pill dr-def">For Dr. Chen</span>A screenshot is not a witness under oath. Reece, cease and desist.</div>
+    </div>
+    <div class="docket-item">
+      <div class="docket-case">Jax Rivera <span>v.</span> The Whole Floor</div>
+      <div class="docket-charge">"It IS about to trend, your honor."</div>
+      <div class="docket-ruling"><span class="dr-pill dr-both">Continued</span>The court reconvenes when the trend either trends or dies. Adjourned.</div>
+    </div>
+    <div class="docket-item">
+      <div class="docket-case">Zara Cole <span>v.</span> Everyone</div>
+      <div class="docket-charge">"Nobody will stop blinking in the group selfies."</div>
+      <div class="docket-ruling"><span class="dr-pill dr-both">Both guilty</span>The court orders one acceptable group photo and an end to this matter.</div>
+    </div>
+    <div class="docket-item">
+      <div class="docket-case">MJ Johnson <span>v.</span> Wyatt Cooper</div>
+      <div class="docket-charge">"A dried cherry tomato is a snack, not a garnish."</div>
+      <div class="docket-ruling"><span class="dr-pill dr-def">For MJ</span>It is a snack. A garnish is just a snack with a publicist.</div>
+    </div>
+    <div class="docket-item">
+      <div class="docket-case">Leo Vance <span>v.</span> Rowan Tate</div>
+      <div class="docket-charge">"Spreadsheet color-coding standards."</div>
+      <div class="docket-ruling"><span class="dr-pill dr-both">Both guilty</span>The court finds you both guilty of caring too much. Adjourned.</div>
+    </div>
+    <div class="docket-item">
+      <div class="docket-case">Coach Dom <span>v.</span> Reece Ashford</div>
+      <div class="docket-charge">Counter-suit: "She skipped her own deload week."</div>
+      <div class="docket-ruling"><span class="dr-pill dr-def">For Coach Dom</span>Practice what you post. The court sides with the coach.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── FOOTER ── -->
+<footer class="court-footer">
+  <div class="footer-inner">
+    <svg class="seal-xs" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" style="opacity:.5">
+      <circle cx="40" cy="40" r="37" fill="none" stroke="#C2A878" stroke-width="2"/>
+      <text x="40" y="44" text-anchor="middle" fill="#C2A878" font-family="Georgia,serif" font-size="18" font-weight="bold">ETL</text>
+    </svg>
+    <p class="footer-sig">Signed, Judge Roz</p>
+    <p class="footer-sub">The Court remains in session.</p>
+    <p class="footer-disc">For fun, and for facts that have an answer. Judge Roz settles bets and busts myths; she is not a lawyer, doctor, or referee for your actual relationship. Matters of taste are ruled on vibes, and the court says so out loud.</p>
+    <a class="footer-back" href="index.html">&larr; Back to ETL</a>
+  </div>
+</footer>
+
 <script>
 const CASES = [
  {q:"Toilet paper: over or under?",ruling:"FOR THE PLAINTIFF",pill:"p-plaintiff",
@@ -231,9 +373,9 @@ const CASES = [
   src:"",sentence:"Sentence: do not, under any circumstances, start this at dinner."}
 ];
 
-const EVLABEL = {green:"The Evidence · Checks out", amber:"The Evidence · It depends", red:"The Evidence · Myth, busted", opinion:"The Ruling · On vibes"};
+const EVLABEL={green:"The Evidence · Checks out",amber:"The Evidence · It depends",red:"The Evidence · Myth, busted",opinion:"The Ruling · On vibes"};
 const sel=document.getElementById('caseSel');
-sel.innerHTML = CASES.map((c,i)=>'<option value="'+i+'">'+c.q+'</option>').join('');
+sel.innerHTML=CASES.map((c,i)=>'<option value="'+i+'">'+c.q+'</option>').join('');
 
 function renderCase(c,label){
   document.getElementById('vcase').textContent='"'+(label||c.q)+'"';
@@ -276,7 +418,7 @@ document.getElementById('file').addEventListener('click', async ()=>{
     const data=await res.json();
     if(data.error) throw new Error(data.error);
     note.classList.remove('shown');
-    renderCase(data, raw);
+    renderCase(data,raw);
   } catch(e){
     note.innerHTML='&#9878;&#65039; The court is temporarily in recess. Try the gavel up top while we sort this out.';
   } finally{
@@ -313,11 +455,11 @@ const TREE={
  vibes:{plea:"GUILTY",verdict:"The court also reads vibes. The court's vibes, having carefully reviewed the situation, the argument, and the general energy counsel has brought into this room today, say: very sincere. Extremely wrong. The court rules accordingly. <b>Ruled on vibes.</b>"}
 };
 function renderTree(id){
-  const n=TREE[id], el=document.getElementById('tree');
+  const n=TREE[id],el=document.getElementById('tree');
   if(n.verdict){
     const pleaClass=n.plea==="GUILTY"?"plea-guilty":n.plea==="BOTH GUILTY"?"plea-both":"plea-free";
     const pleaText=n.plea==="GUILTY"?"&#9878;&#65039; GUILTY":n.plea==="BOTH GUILTY"?"&#9878;&#65039; BOTH GUILTY":"&#9878;&#65039; NOT GUILTY";
-    el.innerHTML='<p style="text-align:center;font-style:italic;color:var(--muted);margin:.2rem 0 .6rem;">The court has deliberated. The court has seen some things today.</p>'+
+    el.innerHTML='<p style="text-align:center;font-style:italic;color:var(--muted);font-family:Merriweather,serif;font-size:.84rem;margin:.2rem 0 .6rem;">The court has deliberated. The court has seen some things today.</p>'+
       '<div class="plea '+pleaClass+'">'+pleaText+'</div>'+
       '<div class="tree-verdict">'+n.verdict+'</div>'+
       '<button class="tree-restart" id="treeRestart">Try a different argument</button>';
