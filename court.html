@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Court of Settled Facts</title>
+<meta name="description" content="Two friends, one argument, one ruling. Judge Roz settles it: fun on top, a real citation underneath. Verify before you believe.">
+<meta name="author" content="Dr. Terry Oroszi, EdD">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,700&family=Inter:wght@400;500;600;700&family=Lora:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#1b1f2e;--muted:#5b6172;--soft:#8b91a3;--bg:#f2f4f7;--panel:#ffffff;--line:#dde3eb;
+    --brass:#28527a;--brass-dk:#1d3d5c;--navy:#1a2535;--green:#2e9e5b;--amber:#d99016;--red:#c8485f;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',sans-serif;line-height:1.5;}
+  .wrap{max-width:760px;margin:0 auto;padding:0 1.1rem 4rem;}
+  a{color:var(--brass-dk);}
+  .ribbon{background:var(--navy);color:#fff;text-align:center;font-family:'Lora',serif;letter-spacing:.16em;text-transform:uppercase;font-size:.72rem;padding:.5rem;}
+  .ribbon b{color:#a8c8e0;}
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:1rem;max-width:760px;margin:0 auto;padding:1rem 1.1rem .4rem;}
+  .brand{font-family:'Fraunces',serif;font-weight:700;font-size:1.15rem;} .brand .dot{color:var(--brass);}
+  .backlink{font-size:.85rem;color:var(--muted);text-decoration:none;}
+  .hero{text-align:center;padding:1.6rem 0 .6rem;}
+  .gavel{font-size:2.6rem;line-height:1;}
+  .hero h1{font-family:'Fraunces',serif;font-size:2.5rem;line-height:1.04;margin:.4rem 0 .4rem;}
+  .hero .tag{color:var(--muted);font-size:1.08rem;max-width:54ch;margin:0 auto .6rem;}
+  .hero .mini{color:var(--soft);font-size:.92rem;max-width:56ch;margin:0 auto;font-style:italic;}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:1.5rem 1.6rem;margin:1.5rem 0;box-shadow:0 1px 4px rgba(27,31,46,.05);}
+  .field label{display:block;font-family:'Lora',serif;font-size:.78rem;color:var(--brass-dk);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.4rem;}
+  .field select,.field textarea{width:100%;padding:.7rem .8rem;font-family:'Inter';font-size:1rem;border:1px solid var(--line);background:#f8fafc;border-radius:8px;color:var(--ink);}
+  .field textarea{min-height:70px;resize:vertical;}
+  .field select:focus,.field textarea:focus{outline:2px solid var(--brass);outline-offset:1px;}
+  .row{display:flex;gap:.7rem;flex-wrap:wrap;margin-top:1rem;}
+  .btn{padding:.8rem 1.4rem;border-radius:9px;font-family:'Inter';font-weight:700;font-size:1rem;cursor:pointer;border:none;}
+  .btn-gavel{background:var(--brass);color:#fff;} .btn-gavel:hover{background:var(--brass-dk);color:#fff;}
+  .btn-shake{background:var(--navy);color:#fff;} .btn-shake:hover{background:#111d2b;}
+  .btn-ghost{background:#fff;color:var(--brass-dk);border:1px solid var(--brass);}
+  .or{text-align:center;color:var(--soft);font-size:.85rem;margin:1.2rem 0 .4rem;font-style:italic;}
+
+  /* verdict */
+  .verdict{display:none;margin-top:1.4rem;}
+  .verdict.shown{display:block;animation:drop .5s ease;}
+  @keyframes drop{0%{transform:translateY(-14px) rotate(-1deg);opacity:0;}100%{transform:none;opacity:1;}}
+  .v-case{font-family:'Lora',serif;font-style:italic;color:var(--muted);font-size:1rem;margin:0 0 .8rem;text-align:center;}
+  .ruling{display:flex;align-items:center;justify-content:center;gap:.6rem;margin:0 0 1rem;}
+  .ruling .pill{font-family:'Fraunces',serif;font-weight:700;font-size:1.15rem;color:#fff;padding:.5rem 1.1rem;border-radius:999px;text-align:center;}
+  .p-plaintiff{background:#2e7d5b;} .p-defendant{background:#2e7d5b;} .p-dismissed{background:var(--red);}
+  .p-bothguilty{background:var(--amber);} .p-taste{background:#7a6cab;}
+  .judge-line{display:flex;gap:.8rem;align-items:flex-start;background:#f0f4f8;border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;margin:0 0 1rem;}
+  .judge-line .ja{width:44px;height:44px;border-radius:50%;background:var(--navy);color:#a8c8e0;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-weight:700;flex-shrink:0;}
+  .judge-line .jq{font-size:1rem;color:var(--ink);} .judge-line .jq b{color:var(--brass-dk);}
+  .evid{border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+  .evid-top{display:flex;align-items:center;gap:.6rem;padding:.6rem 1rem;color:#fff;font-family:'Lora',serif;text-transform:uppercase;letter-spacing:.07em;font-size:.78rem;font-weight:600;}
+  .e-green{background:var(--green);} .e-amber{background:var(--amber);} .e-red{background:var(--red);} .e-opinion{background:#7a6cab;}
+  .evid-body{padding:.9rem 1rem;font-size:.95rem;}
+  .evid-body .src{margin:.6rem 0 0;font-size:.82rem;color:var(--soft);} .evid-body .src b{color:var(--brass-dk);}
+  .sentence{margin:1rem 0 0;padding:.8rem 1rem;background:var(--navy);color:#deeaf5;border-radius:10px;font-size:.95rem;}
+  .sentence b{color:#a8c8e0;}
+  .freeform-note{display:none;margin-top:1rem;padding:1rem;border:1px dashed var(--brass);border-radius:10px;background:#f0f4f8;font-size:.95rem;color:var(--ink);}
+  .freeform-note.shown{display:block;}
+
+  .castcard{max-width:330px;margin:2rem auto 0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff;box-shadow:0 1px 4px rgba(27,31,46,.06);}
+  .cc-photo{position:relative;height:210px;background:linear-gradient(160deg,#1a2f4a,#0e1a2d);display:flex;align-items:center;justify-content:center;}
+  .cc-mono{font-family:'Fraunces',serif;font-size:3.2rem;color:#a8c8e0;}
+  .cc-body{padding:1rem 1.1rem 1.15rem;}
+  .cc-nm{font-family:'Fraunces',serif;font-weight:700;font-size:1.3rem;margin:0;}
+  .cc-role{color:var(--brass-dk);font-weight:700;font-size:.76rem;letter-spacing:.04em;text-transform:uppercase;margin:.3rem 0 .55rem;}
+  .cc-tag{font-style:italic;color:var(--muted);font-size:.98rem;margin:0 0 1rem;}
+  .cc-tags{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.85rem;}
+  .cc-t{font-size:.78rem;background:#e8f0f7;color:#3d5a72;padding:.2rem .55rem;border-radius:6px;}
+  .cc-foot{display:flex;align-items:center;gap:.5rem;}
+  .cc-pill{font-size:.78rem;padding:.25rem .62rem;border-radius:999px;background:#dde8f0;color:#1d3d5c;}
+  .cc-hire{margin-left:auto;background:var(--navy);color:#fff;border:none;border-radius:8px;padding:.55rem 1.25rem;font-weight:700;font-family:'Inter';cursor:pointer;}
+  .disc{margin-top:2rem;font-size:.82rem;color:var(--soft);border-top:1px solid var(--line);padding-top:1rem;line-height:1.55;text-align:center;} .disc b{color:var(--muted);}
+  .tree-prompt{font-family:'Fraunces',serif;font-size:1.2rem;margin:0 0 1rem;}
+  .tree-opts{display:flex;flex-direction:column;gap:.5rem;}
+  .tree-btn{text-align:left;padding:.75rem .9rem;border:1px solid var(--line);background:#f8fafc;border-radius:9px;font-family:'Inter';font-size:.98rem;cursor:pointer;color:var(--ink);}
+  .tree-btn:hover{border-color:var(--brass);background:#e8f0f7;}
+  .tree-verdict{font-size:1rem;padding:1rem 1.1rem;background:#f0f4f8;border:1px solid var(--line);border-radius:10px;}
+  .tree-verdict b{color:var(--brass-dk);}
+  .tree-restart{margin-top:1rem;background:var(--navy);color:#fff;border:none;border-radius:8px;padding:.55rem 1.2rem;font-weight:700;cursor:pointer;font-family:'Inter';}
+  .tree-restart:hover{background:#111d2b;}
+  .plea{font-family:'Fraunces',serif;font-weight:700;font-size:1.7rem;text-align:center;color:#fff;padding:.6rem;border-radius:10px;margin:0 0 .8rem;letter-spacing:.03em;}
+  .plea-guilty{background:var(--red);}
+  .plea-free{background:var(--green);}
+  .docket-item{border:1px solid var(--line);border-radius:10px;padding:.8rem 1rem;margin-bottom:.6rem;background:#ffffff;}
+  .docket-case{font-family:'Fraunces',serif;font-weight:700;font-size:1.05rem;}
+  .docket-case span{color:var(--brass);font-style:italic;font-weight:400;}
+  .docket-charge{font-size:.9rem;color:var(--muted);font-style:italic;margin:.2rem 0 .45rem;}
+  .docket-ruling{font-size:.92rem;}
+  .dr-pill{display:inline-block;font-size:.7rem;font-weight:700;color:#fff;padding:.12rem .5rem;border-radius:999px;margin-right:.45rem;letter-spacing:.02em;}
+  .dr-def{background:var(--green);} .dr-dismissed{background:var(--red);} .dr-both{background:var(--amber);} .dr-taste{background:#7a6cab;}
+  .docket{list-style:none;padding:0;margin:1rem 0 0;}
+  .docket li{padding:.8rem 0;border-bottom:1px dashed var(--line);}
+  .docket li:last-child{border-bottom:none;}
+  .dk-case{font-weight:700;color:var(--ink);}
+  .dk-gripe{font-style:italic;color:var(--muted);font-size:.92rem;margin:.15rem 0;}
+  .dk-rule{font-size:.93rem;color:var(--ink);}
+  .dk-rule .vw{font-family:'Lora',serif;font-weight:700;color:var(--brass-dk);text-transform:uppercase;letter-spacing:.03em;}
+</style>
+</head>
+<body>
+<div class="ribbon"><b>Verify before you believe.</b> &nbsp;Two friends. One argument. One ruling.</div>
+<div class="topbar"><div class="brand">THE COURT<span class="dot">.</span></div><a class="backlink" href="index.html">&larr; ETL platform</a></div>
+<div class="wrap">
+  <div class="hero">
+    <div class="gavel">&#129687;&#65039;</div>
+    <h1>The Court of Settled Facts</h1>
+    <p class="tag">You two have been arguing about this for twenty minutes. Bring it to Judge Roz. She rules fast, she rules fair, and when there's evidence, she brings the receipt.</p>
+    <p class="mini">Part Magic 8-Ball, part fact-check. The verdict is fun. The citation underneath is real.</p>
+  </div>
+
+  <div class="panel">
+    <div class="field">
+      <label for="caseSel">Pick a case before the court</label>
+      <select id="caseSel"></select>
+    </div>
+    <div class="row">
+      <button class="btn btn-gavel" id="gavel">&#129687;&#65039;&nbsp; Bang the gavel</button>
+      <button class="btn btn-shake" id="shake">&#127922;&nbsp; Shake for a random case</button>
+    </div>
+    <p class="or">or bring your own</p>
+    <div class="field">
+      <label for="ff">State your case (you vs. them)</label>
+      <textarea id="ff" placeholder="e.g. He says pineapple belongs on pizza. I say he needs help."></textarea>
+    </div>
+    <div class="row"><button class="btn btn-ghost" id="file">File it with the court</button></div>
+    <div class="freeform-note" id="ffnote"></div>
+
+    <div class="verdict" id="verdict">
+      <p class="v-case" id="vcase"></p>
+      <div class="ruling"><span class="pill" id="vpill"></span></div>
+      <div class="judge-line"><div class="ja">JR</div><div class="jq" id="vjudge"></div></div>
+      <div class="evid" id="vevid">
+        <div class="evid-top" id="vetop"><span id="vev"></span></div>
+        <div class="evid-body"><div id="vans"></div><p class="src" id="vsrc"></p></div>
+      </div>
+      <div class="sentence" id="vsentence"></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2 style="font-family:'Fraunces',serif;font-size:1.5rem;margin:0 0 .3rem;">Plead your case</h2>
+    <p style="color:var(--muted);font-size:.95rem;margin:0 0 1.1rem;">The appeals bench. Pick your best argument and watch Judge Roz weigh it.</p>
+    <div id="tree"></div>
+  </div>
+
+  <div class="panel">
+    <h2 style="font-family:'Fraunces',serif;font-size:1.5rem;margin:0 0 .3rem;">The recent docket</h2>
+    <p style="color:var(--muted);font-size:.95rem;margin:0 0 1.1rem;">Cases the staff filed against each other this week. The court keeps receipts.</p>
+  <div class="docket-item"><div class="docket-case">Reece Ashford <span>v.</span> Coach Dom</div><div class="docket-charge">Charge: "His programming is boringly slow."</div><div class="docket-ruling"><span class="dr-pill dr-def">Not guilty</span><b>Roz:</b> Boring training that works is not a crime. Run it twelve weeks, counsel.</div></div>
+  <div class="docket-item"><div class="docket-case">Wyatt Cooper <span>v.</span> Nadia Hassan</div><div class="docket-charge">Charge: "Is a smoothie a meal or a dessert?"</div><div class="docket-ruling"><span class="dr-pill dr-taste">On vibes</span><b>Roz:</b> Ruled on vibes. Both parties held in contempt for arguing at the blender.</div></div>
+  <div class="docket-item"><div class="docket-case">Dr. Henry Chen <span>v.</span> Reece Ashford</div><div class="docket-charge">Charge: "She keeps sending me TikToks as citations."</div><div class="docket-ruling"><span class="dr-pill dr-def">For Dr. Chen</span><b>Roz:</b> A screenshot is not a witness under oath. Reece, cease and desist.</div></div>
+  <div class="docket-item"><div class="docket-case">Jax Rivera <span>v.</span> The Whole Floor</div><div class="docket-charge">Charge: "It IS about to trend, your honor."</div><div class="docket-ruling"><span class="dr-pill dr-both">Continued</span><b>Roz:</b> The court reconvenes when the trend either trends or dies. Adjourned.</div></div>
+  <div class="docket-item"><div class="docket-case">Zara Cole <span>v.</span> Everyone</div><div class="docket-charge">Charge: "Nobody will stop blinking in the smoothie selfies."</div><div class="docket-ruling"><span class="dr-pill dr-both">Both guilty</span><b>Roz:</b> The court orders one (1) acceptable group photo and an end to this matter.</div></div>
+  <div class="docket-item"><div class="docket-case">MJ Johnson <span>v.</span> Wyatt Cooper</div><div class="docket-charge">Charge: "A dried cherry tomato is a snack, not a garnish."</div><div class="docket-ruling"><span class="dr-pill dr-def">For MJ</span><b>Roz:</b> It is a snack. A garnish is just a snack with a publicist.</div></div>
+  <div class="docket-item"><div class="docket-case">Amara Nwosu <span>v.</span> Eli Adler</div><div class="docket-charge">Charge: "He overruled my herb call."</div><div class="docket-ruling"><span class="dr-pill dr-dismissed">Dismissed</span><b>Roz:</b> Health and safety are not my bench. Take it to the Dose Stoplight, counsel.</div></div>
+  <div class="docket-item"><div class="docket-case">Coach Dom <span>v.</span> Reece Ashford</div><div class="docket-charge">Charge: Counter-suit: "She skipped her own deload week."</div><div class="docket-ruling"><span class="dr-pill dr-def">For Coach Dom</span><b>Roz:</b> Practice what you post. The court sides with the coach.</div></div>
+  </div>
+
+  <div class="panel">
+    <h2 style="font-family:'Fraunces',serif;font-size:1.5rem;margin:0 0 .3rem;">Recent docket</h2>
+    <p style="color:var(--muted);font-size:.95rem;margin:0 0 .4rem;">Cases the staff brought this week. Yes, they really do this to each other.</p>
+    <ul class="docket"><li><div class="dk-case">Reece v. Coach Dom</div><div class="dk-gripe">"his programming is boringly slow, same five lifts for months"</div><div class="dk-rule">&#129687;&#65039; Boring training that works is not a crime. Run it twelve weeks. <span class="vw">Overruled.</span></div></li><li><div class="dk-case">Wyatt v. Nadia</div><div class="dk-gripe">"is a smoothie a meal or a dessert?"</div><div class="dk-rule">&#129687;&#65039; Both held in contempt for arguing at the blender. <span class="vw">Ruled on vibes.</span></div></li><li><div class="dk-case">Henry v. Reece</div><div class="dk-gripe">"she keeps sending TikToks as if they are citations"</div><div class="dk-rule">&#129687;&#65039; A screenshot is not a witness under oath. For the pharmacist. <span class="vw">Dismissed.</span></div></li><li><div class="dk-case">Coach Dom v. Reece</div><div class="dk-gripe">"counter-suit: she skipped her own deload week"</div><div class="dk-rule">&#129687;&#65039; Practice what you post, counsel. For the coach. <span class="vw">Sustained.</span></div></li><li><div class="dk-case">MJ v. Wyatt</div><div class="dk-gripe">"a dried cherry tomato is a snack, not a garnish"</div><div class="dk-rule">&#129687;&#65039; A garnish is a snack with a publicist. For the gardener. <span class="vw">Sustained.</span></div></li><li><div class="dk-case">Jax v. the whole floor</div><div class="dk-gripe">"it IS about to trend, your honor"</div><div class="dk-rule">&#129687;&#65039; The court awaits the data. <span class="vw">Case continued.</span></div></li><li><div class="dk-case">Zara v. everyone</div><div class="dk-gripe">"nobody stops blinking in the smoothie selfies"</div><div class="dk-rule">&#129687;&#65039; Take one acceptable photo, then we adjourn. <span class="vw">Both guilty.</span></div></li><li><div class="dk-case">Leo v. Rowan</div><div class="dk-gripe">"spreadsheet color-coding standards"</div><div class="dk-rule">&#129687;&#65039; The court finds you both guilty of caring too much. <span class="vw">Both guilty.</span></div></li></ul>
+  </div>
+
+  <div class="castcard">
+    <div class="cc-photo"><span class="cc-mono">JR</span></div>
+    <div class="cc-body">
+      <h3 class="cc-nm">Judge Rosalind "Roz" Okonkwo</h3>
+      <div class="cc-role">Presiding Judge &middot; The Court of Settled Facts</div>
+      <p class="cc-tag">She's heard worse. She'll rule anyway.</p>
+      <div class="cc-tags"><span class="cc-t">#settleit</span><span class="cc-t">#factcheck</span><span class="cc-t">#nodrama</span></div>
+      <div class="cc-foot"><span class="cc-pill">In-framework</span><button class="cc-hire">Hire</button></div>
+    </div>
+  </div>
+
+  <p class="disc"><b>For fun, and for facts that have an answer.</b> Judge Roz settles bets and busts myths; she is not a lawyer, doctor, or referee for your actual relationship. For a real legal dispute, see a real attorney (ask for Kimberly). For a medical question, see a clinician (ask for Dr. Claire). Matters of taste are ruled on vibes, and the court says so out loud.</p>
+</div>
+<script>
+const CASES = [
+ {q:"Toilet paper: over or under?",ruling:"FOR THE PLAINTIFF",pill:"p-plaintiff",
+  judge:"The over camp wins, and not on opinion. <b>Plaintiff prevails.</b>",
+  ev:"green",ans:"Over. The original 1891 toilet-paper patent literally shows the sheet draping over the top of the roll. Bonus: over keeps fingers off the wall, which is why a lot of hospitals prefer it too.",
+  src:"Seth Wheeler, U.S. Patent No. 465,588 (1891)",sentence:"Sentence: the under-hangers will re-roll the bathroom by morning."},
+ {q:"Is it 'I could care less' or 'I couldn't care less'?",ruling:"FOR THE DEFENDANT",pill:"p-defendant",
+  judge:"If you <i>could</i> care less, then you still care. <b>Defendant wins on logic.</b>",
+  ev:"green",ans:"'Couldn't care less' is the correct, logical phrase: you care so little there is no room beneath you. 'Could care less' literally means you care at least a little. Usage guides flag the second as a slip that crept in.",
+  src:"Merriam-Webster, usage notes",sentence:"Sentence: say the apostrophe-t out loud from now on."},
+ {q:"GIF: hard G or 'jif'?",ruling:"BOTH GUILTY",pill:"p-bothguilty",
+  judge:"The father of the GIF says 'jif.' The dictionary shrugs. <b>You are both allowed to live.</b>",
+  ev:"amber",ans:"It depends who you ask. Steve Wilhite, who invented the format, insisted it is 'jif.' Dictionaries list both as acceptable. So the creator says soft-G, common usage is split.",
+  src:"Steve Wilhite, GIF creator (2013)",sentence:"Sentence: pick one and commit. Cowardice is the only wrong answer."},
+ {q:"Does the toilet flush backwards in the Southern Hemisphere?",ruling:"CASE DISMISSED",pill:"p-dismissed",
+  judge:"Blame the jets, not the equator. <b>Dismissed.</b>",
+  ev:"red",ans:"Myth. The Coriolis effect is far too weak to steer a toilet or sink. The swirl is decided by the shape of the bowl and the angle of the water jets, not which hemisphere you stand in.",
+  src:"Basic physics (Coriolis scale vs. basin size)",sentence:"Sentence: book the trip for the beaches, not the plumbing."},
+ {q:"Side streets or the highway, which is faster?",ruling:"BOTH GUILTY",pill:"p-bothguilty",
+  judge:"You are <b>both</b> right on different days. The court declines to die on this hill.",
+  ev:"amber",ans:"It depends. Highways win in free-flowing traffic and on longer trips. In heavy congestion, short hops, or well-timed lights, surface streets can beat them. Distance, traffic, and signals decide it, not loyalty.",
+  src:"Traffic-engineering / route-choice studies",sentence:"Sentence: let the map app referee, that is its entire job."},
+ {q:"Is a hot dog a sandwich?",ruling:"MATTER OF TASTE",pill:"p-taste",
+  judge:"No science here, only feelings. <b>Ruled on vibes:</b> structurally a sandwich, spiritually its own creature.",
+  ev:"opinion",ans:"Pure opinion. By a strict 'filling between bread' rule it qualifies. Culturally, most people file it on its own. No study settles taste, and the court will not pretend one does.",
+  src:"",sentence:"Sentence: order what you like, call it what you want."},
+ {q:"Is cereal a soup?",ruling:"MATTER OF TASTE",pill:"p-taste",
+  judge:"Technically tempting, spiritually upsetting. <b>Vibes say no.</b>",
+  ev:"opinion",ans:"Pure opinion. It passes a box or two on a technicality and fails every box on the soul. No citation can rescue this, so the court declines to ruin breakfast.",
+  src:"",sentence:"Sentence: never say this at brunch again."},
+ {q:"Is Die Hard a Christmas movie?",ruling:"MATTER OF TASTE",pill:"p-taste",
+  judge:"Set on Christmas Eve, filed under Action. <b>Ruled on vibes:</b> it is Christmas if it makes you happy.",
+  ev:"opinion",ans:"Pure opinion. It takes place at a Christmas party, which is the whole case for. Its genre and marketing say action, which is the whole case against. No fact to find, only tradition.",
+  src:"",sentence:"Sentence: yippee-ki-yay, watch what you want in December."},
+ {q:"Glass half full or half empty?",ruling:"MATTER OF TASTE",pill:"p-taste",
+  judge:"Same water either way. <b>This is a personality test, not a case.</b>",
+  ev:"opinion",ans:"Pure opinion. The volume is identical; the answer only reveals the mood of the person answering. The engineer in the room will tell you the glass is simply twice as big as it needs to be.",
+  src:"",sentence:"Sentence: drink the water before you finish arguing about it."},
+ {q:"Should you tip on takeout?",ruling:"MATTER OF TASTE",pill:"p-taste",
+  judge:"Etiquette, not fact. <b>Ruled on vibes:</b> a small tip is kind, no tip is not a crime.",
+  ev:"opinion",ans:"Pure opinion and local custom. Someone still boxed it and bagged it, so a little goes a long way, but there is no factually correct percentage, only norms that vary by place.",
+  src:"",sentence:"Sentence: round up, move on, stop debating at the counter."},
+ {q:"Pineapple on pizza: yes or no?",ruling:"MATTER OF TASTE",pill:"p-taste",
+  judge:"Sweet, salty, divisive. <b>Ruled on vibes:</b> your pizza, your rules, his opinion noted and ignored.",
+  ev:"opinion",ans:"Pure opinion. Flavor preference is not a fact, and the court has bigger fights to settle. The only crime here is yucking someone else's yum.",
+  src:"",sentence:"Sentence: order half-and-half and keep the peace."},
+ {q:"Is water wet?",ruling:"MATTER OF TASTE",pill:"p-taste",
+  judge:"A definition fight dressed up as a science question. <b>Ruled on vibes,</b> with a sigh.",
+  ev:"opinion",ans:"Semantics, not fact. 'Wet' usually describes what water does to other things. Whether water itself counts as wet depends entirely on your definition, which is exactly why this argument never ends.",
+  src:"",sentence:"Sentence: do not, under any circumstances, start this at dinner."}
+];
+
+const EVLABEL = {green:"The Evidence · Checks out", amber:"The Evidence · It depends", red:"The Evidence · Myth, busted", opinion:"The Ruling · On vibes"};
+const sel=document.getElementById('caseSel');
+sel.innerHTML = CASES.map((c,i)=>'<option value="'+i+'">'+c.q+'</option>').join('');
+
+function rule(i){
+  const c=CASES[i];
+  document.getElementById('vcase').textContent='"'+c.q+'"';
+  const pill=document.getElementById('vpill');
+  pill.className='pill '+c.pill; pill.textContent=c.ruling;
+  document.getElementById('vjudge').innerHTML='<b>Judge Roz:</b> '+c.judge;
+  const etop=document.getElementById('vetop'); etop.className='evid-top e-'+c.ev;
+  document.getElementById('vev').textContent=EVLABEL[c.ev];
+  document.getElementById('vans').innerHTML=c.ans;
+  const src=document.getElementById('vsrc');
+  if(c.src){ src.style.display='block'; src.innerHTML='Checked against: <b>'+c.src+'</b>'; }
+  else { src.style.display='none'; }
+  document.getElementById('vsentence').innerHTML='&#9878;&#65039; '+c.sentence;
+  document.getElementById('ffnote').classList.remove('shown');
+  const v=document.getElementById('verdict'); v.classList.remove('shown'); void v.offsetWidth; v.classList.add('shown');
+  v.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+document.getElementById('gavel').addEventListener('click',()=>rule(+sel.value));
+document.getElementById('shake').addEventListener('click',()=>{
+  const i=Math.floor(Math.random()*CASES.length);
+  sel.value=i; rule(i);
+});
+document.getElementById('file').addEventListener('click',()=>{
+  const raw=document.getElementById('ff').value.trim();
+  const note=document.getElementById('ffnote');
+  const verdict=document.getElementById('verdict');
+  if(!raw){ note.classList.add('shown'); note.innerHTML='The court needs to hear the dispute first. Type what you two are arguing about.'; verdict.classList.remove('shown'); return; }
+  const t=raw.toLowerCase();
+  const health=/(health|medical|supplement|vitamin|diet|calorie|protein|creatine|sick|symptom|doctor|pain|sleep|weight|nutrition|sugar|detox|cleanse|carb|fasting)/;
+  const legal=/(legal|sue|lawsuit|contract|lease|landlord|fired|rights|custody|divorce| will |tax|evict)/;
+  verdict.classList.remove('shown');
+  note.classList.add('shown');
+  if(health.test(t)){
+    note.innerHTML='&#129687;&#65039; <b>Judge Roz:</b> "Health claim. Not my courtroom." That one has jurisdiction over at <b>The Dose Mythbuster</b> &mdash; ask for Eli, he brings the citations. I only settle the arguments that are not about your body.';
+    return;
+  }
+  if(legal.test(t)){
+    note.innerHTML='&#129687;&#65039; <b>Judge Roz:</b> "That is a real legal matter, and I am a fun judge, not your lawyer." Take it to <b>Kimberly</b> in legal research, or an actual attorney. This court does bets and bragging rights only.';
+    return;
+  }
+  const i=Math.floor(Math.random()*CASES.length);
+  rule(i);
+  note.classList.add('shown');
+  note.innerHTML='&#129687;&#65039; <b>Case filed.</b> The live courtroom would weigh your exact dispute; this preview runs from a fixed docket, so here is one from the bench that rhymes with yours:';
+  verdict.scrollIntoView({behavior:'smooth',block:'nearest'});
+});
+const TREE={
+ root:{prompt:"Counsel approaches the bench. What is your strongest argument?",opts:[
+   ["I was right last week","lastweek"],["My favorite color is blue","blue"],["I said it first","first"],["It is just common sense","sense"],["I actually have evidence","evidence"]]},
+ evidence:{prompt:"Evidence, finally. What kind are we talking about?",opts:[
+   ["A real study or source","real"],["Something I saw online","online"],["A very strong feeling","feeling"]]},
+ lastweek:{plea:"GUILTY",verdict:"Last week is not evidence, it is nostalgia. Being right once does not make you right forever. <b>Overruled.</b>"},
+ blue:{plea:"GUILTY",verdict:"The court reviewed your favorite color. It is a lovely blue, and <b>completely irrelevant</b> to the matter at hand. Guilty, with compliments to your taste."},
+ first:{plea:"GUILTY",verdict:"Saying it first makes you fast, not correct. This court rewards accuracy, not reflexes."},
+ sense:{plea:"GUILTY",verdict:"'Common sense' is what people say when they have no source. This court has heard common sense argue that the earth is flat."},
+ real:{plea:"NOT GUILTY",verdict:"Now <i>that</i> is admissible. The court accepts real, citable evidence. Take it to the docket up top and let Judge Roz rule for real. <b>Case may proceed.</b>"},
+ online:{plea:"GUILTY",verdict:"The internet is not a witness under oath, and a screenshot is not a citation. The court admires your confidence anyway."},
+ feeling:{plea:"GUILTY",verdict:"A feeling is not a fact, counsel. This court runs on evidence, not butterflies."}
+};
+function renderTree(id){
+  const n=TREE[id], el=document.getElementById('tree');
+  if(n.verdict){
+    el.innerHTML='<p style="text-align:center;font-style:italic;color:var(--muted);margin:.2rem 0 .6rem;">Based on everything the court has heard today...</p>'+
+      '<div class="plea '+(n.plea==="GUILTY"?"plea-guilty":"plea-free")+'">'+(n.plea==="GUILTY"?"&#9878;&#65039; GUILTY":"&#9878;&#65039; NOT GUILTY")+'</div>'+
+      '<div class="tree-verdict">'+n.verdict+'</div>'+
+      '<button class="tree-restart" id="treeRestart">Start over</button>';
+    document.getElementById('treeRestart').onclick=function(){renderTree('root');};
+    return;
+  }
+  el.innerHTML='<p class="tree-prompt">'+n.prompt+'</p><div class="tree-opts">'+
+    n.opts.map(function(o){return '<button class="tree-btn" data-to="'+o[1]+'">'+o[0]+'</button>';}).join('')+'</div>';
+  el.querySelectorAll('.tree-btn').forEach(function(b){b.onclick=function(){renderTree(b.dataset.to);};});
+}
+renderTree('root');
+rule(0);
+</script>
+</body>
+</html>
