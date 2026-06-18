@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WSU Predatory Journal Scan — ETL</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700&display=swap">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d1117;color:#c9d1d9;font-family:'Public Sans','Segoe UI',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px}
+
+/* ── Gate ── */
+#gate{width:100%;max-width:400px;text-align:center}
+.gate-eye{font-family:'Courier New',monospace;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#c9d1d9;background:#28527a;padding:3px 12px;display:inline-block;margin-bottom:16px}
+.gate-title{font-family:'Courier New',monospace;font-size:18px;color:#58a6ff;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}
+.gate-sub{font-size:12px;color:#8b949e;margin-bottom:28px;line-height:1.5}
+.gate-input{width:100%;background:#161b22;border:1px solid #30363d;color:#c9d1d9;font-family:'Courier New',monospace;font-size:15px;padding:12px 16px;border-radius:3px;outline:none;text-align:center;letter-spacing:.12em;margin-bottom:10px}
+.gate-input:focus{border-color:#58a6ff}
+.gate-btn{width:100%;background:#28527a;color:#fff;border:none;font-family:'Public Sans',sans-serif;font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:12px;border-radius:3px;cursor:pointer;transition:background .15s}
+.gate-btn:hover{background:#2d6494}
+.gate-btn:disabled{opacity:.5;cursor:default}
+.gate-err{font-size:12px;color:#f85149;font-family:'Courier New',monospace;margin-top:8px;min-height:16px}
+
+/* ── Tool ── */
+#tool{display:none;width:100%;max-width:900px}
+.eye{font-family:'Courier New',monospace;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#c9d1d9;background:#28527a;padding:3px 12px;display:inline-block;margin-bottom:12px}
+h1{font-family:'Courier New',monospace;font-size:20px;color:#58a6ff;letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px}
+.sub{font-size:12px;color:#8b949e;font-family:'Courier New',monospace;margin-bottom:40px}
+.card{background:#161b22;border:1px solid #21262d;padding:28px 32px;border-radius:4px;margin-bottom:24px}
+.card-eye{font-family:'Courier New',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#8b949e;margin-bottom:10px}
+.card h2{font-family:'Courier New',monospace;font-size:13px;color:#58a6ff;letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px}
+.card p{font-size:13.5px;color:#c9d1d9;line-height:1.65;margin-bottom:12px}
+.card p:last-child{margin-bottom:0}
+.code-block{background:#0d1117;border:1px solid #21262d;border-left:3px solid #28527a;font-family:'Courier New',monospace;font-size:12.5px;color:#79c0ff;padding:14px 18px;border-radius:2px;margin:12px 0;overflow-x:auto;white-space:pre}
+.dl-btn{display:inline-block;background:#28527a;color:#fff;font-family:'Public Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:10px 20px;border-radius:3px;text-decoration:none;margin-right:10px;margin-top:8px}
+.dl-btn:hover{background:#2d6494}
+.flag-note{background:#1a0808;border:1px solid #3d1515;padding:12px 16px;border-radius:3px;font-size:12px;color:#e57373;font-family:'Courier New',monospace;line-height:1.6;margin-top:14px}
+.col2{display:flex;gap:20px;flex-wrap:wrap}
+.col2 .card{flex:1;min-width:260px;margin-bottom:0}
+.opts{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.opt{background:#0d1117;border:1px solid #21262d;border-left:3px solid #28527a;padding:10px 14px;font-family:'Courier New',monospace;font-size:12px;color:#8b949e;flex:1;min-width:200px}
+.opt strong{color:#c9d1d9;display:block;margin-bottom:2px}
+a{color:#58a6ff;text-decoration:none}
+a:hover{text-decoration:underline}
+.logout{font-family:'Courier New',monospace;font-size:10px;color:#8b949e;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;border:none;background:none;margin-top:32px;display:block}
+.logout:hover{color:#f85149}
+</style>
+</head>
+<body>
+
+<!-- ── Auth gate ─────────────────────────────────────────────────── -->
+<div id="gate">
+  <div class="gate-eye">§ ETL Internal Tool</div>
+  <div class="gate-title">WSU Scan</div>
+  <div class="gate-sub">Enter your ETL access code to continue.</div>
+  <input id="code-in" class="gate-input" type="password" placeholder="••••••••"
+    autocomplete="off" spellcheck="false"
+    onkeydown="if(event.key==='Enter')unlock()">
+  <button class="gate-btn" id="gate-btn" onclick="unlock()">Enter →</button>
+  <div class="gate-err" id="gate-err"></div>
+</div>
+
+<!-- ── Tool (hidden until authed) ────────────────────────────────── -->
+<div id="tool">
+  <div class="eye">§ ETL Research Integrity</div>
+  <h1>WSU Predatory Journal Scan</h1>
+  <div class="sub">Wright State University · Publications 2020–2025 · Python + OpenAlex + Stop Predatory Journals</div>
+
+  <div class="col2">
+    <div class="card">
+      <div class="card-eye">Step 1</div>
+      <h2>Install</h2>
+      <p>One dependency. Run this once.</p>
+      <div class="code-block">pip install requests</div>
+    </div>
+    <div class="card">
+      <div class="card-eye">Step 2</div>
+      <h2>Run</h2>
+      <p>From the ETL repo <code style="color:#79c0ff">scripts/</code> folder:</p>
+      <div class="code-block">python wsu_predatory_scan.py</div>
+      <p style="font-size:12px;color:#8b949e;margin-top:8px">First run takes 3–5 min (OpenAlex pagination). Subsequent runs use the cached predatory list.</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:24px">
+    <h2>Output Files</h2>
+    <p>Two files written to your working directory on each run:</p>
+    <div class="opts">
+      <div class="opt"><strong>wsu_predatory_results.csv</strong>Every publication — year, authors, department, college, journal, publisher, predatory flag, match reason, link.</div>
+      <div class="opt"><strong>wsu_predatory_report.html</strong>Visual report — open in browser. Summary stats, top flagged journals, top flagged authors, full sortable tables.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Optional Flags</h2>
+    <div class="code-block"># Narrow the date range
+python wsu_predatory_scan.py --from-year 2022
+
+# Write output files to a specific folder
+python wsu_predatory_scan.py --out-dir C:\Reports
+
+# Re-download predatory lists (skip cache)
+python wsu_predatory_scan.py --no-cache</div>
+  </div>
+
+  <div class="card">
+    <h2>How Flagging Works</h2>
+    <p>Each publication's journal is cross-checked against the <a href="https://github.com/stop-predatory-journals/stop-predatory-journals.github.io" target="_blank">Stop Predatory Journals dataset</a> (community Beall's-successor) in three ways, in order:</p>
+    <div class="opts">
+      <div class="opt"><strong>ISSN match</strong>Most reliable. Journal ISSN matches a known predatory ISSN exactly.</div>
+      <div class="opt"><strong>Journal name</strong>Normalized title matches the predatory journal list.</div>
+      <div class="opt"><strong>Publisher</strong>Publisher substring matches a known predatory publisher.</div>
+    </div>
+    <div class="flag-note">
+      A YES flag means the journal matched a community-maintained list — not a formal institutional determination. Verify flagged entries manually before using for personnel or accreditation decisions. False positives occur. Absence of a flag does not certify legitimacy.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Script Location</h2>
+    <p>The script lives in the ETL repo at:</p>
+    <div class="code-block">etl-lab-push/scripts/wsu_predatory_scan.py</div>
+    <a class="dl-btn" href="https://github.com/starbucks005-alt/etl-lab/blob/main/scripts/wsu_predatory_scan.py" target="_blank">View on GitHub ↗</a>
+    <a class="dl-btn" href="https://raw.githubusercontent.com/starbucks005-alt/etl-lab/main/scripts/wsu_predatory_scan.py" download="wsu_predatory_scan.py">Download Script ↓</a>
+  </div>
+
+  <button class="logout" onclick="logout()">Sign out of this device</button>
+</div>
+
+<script>
+var OWNER_KEY = 'etl.iris.owner';
+var AUTH_FN   = '/.netlify/functions/wsu-scan-auth';
+
+// Auto-check if already recognized by Iris
+(function(){
+  var tok = localStorage.getItem(OWNER_KEY);
+  if (tok) verify(tok, true);
+})();
+
+async function verify(token, silent) {
+  try {
+    var r = await fetch(AUTH_FN, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ownerToken: token }),
+      cache: 'no-store',
+    });
+    var d = await r.json();
+    if (d.ok) {
+      show();
+    } else if (!silent) {
+      err('Code not recognized. Try again.');
+      document.getElementById('gate-btn').disabled = false;
+      document.getElementById('gate-btn').textContent = 'Enter →';
+    }
+  } catch(_) {
+    if (!silent) {
+      err('Network error. Try again.');
+      document.getElementById('gate-btn').disabled = false;
+      document.getElementById('gate-btn').textContent = 'Enter →';
+    }
+  }
+}
+
+// Manual code entry: the code IS the PRESS_ADMIN_PASS.
+// We hash it client-side to match the stored ownerToken format,
+// then verify server-side. This means the raw password never leaves the page.
+async function unlock() {
+  var code = document.getElementById('code-in').value.trim();
+  if (!code) { err('Enter your access code.'); return; }
+  err('');
+  document.getElementById('gate-btn').disabled = true;
+  document.getElementById('gate-btn').textContent = 'Checking…';
+
+  // Derive candidate token (same HMAC the server uses)
+  try {
+    var enc  = new TextEncoder();
+    var key  = await crypto.subtle.importKey('raw', enc.encode(code), {name:'HMAC',hash:'SHA-256'}, false, ['sign']);
+    var sig  = await crypto.subtle.sign('HMAC', key, enc.encode('iris-owner-v1'));
+    var hex  = Array.from(new Uint8Array(sig)).map(b=>b.toString(16).padStart(2,'0')).join('');
+    // Store it and verify server-side
+    localStorage.setItem(OWNER_KEY, hex);
+    await verify(hex, false);
+  } catch(_) {
+    err('Something went wrong. Refresh and try again.');
+    document.getElementById('gate-btn').disabled = false;
+    document.getElementById('gate-btn').textContent = 'Enter →';
+  }
+}
+
+function show() {
+  document.getElementById('gate').style.display = 'none';
+  document.getElementById('tool').style.display = 'block';
+}
+
+function err(msg) {
+  document.getElementById('gate-err').textContent = msg;
+}
+
+function logout() {
+  localStorage.removeItem(OWNER_KEY);
+  location.reload();
+}
+</script>
+</body>
+</html>
