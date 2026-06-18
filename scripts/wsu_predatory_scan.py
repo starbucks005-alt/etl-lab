@@ -189,6 +189,134 @@ def load_predatory_lists(no_cache=False):
     return bad_issns, bad_j_names, bad_publishers
 
 
+# ── Department / College extraction ──────────────────────────────────────────
+import re
+
+# WSU department keyword → college. Keys are lowercase substrings; first match wins.
+_DEPT_TO_COLLEGE = {
+    # Boonshoft School of Medicine
+    "anatomy":               "Boonshoft School of Medicine",
+    "biochemistry":          "Boonshoft School of Medicine",
+    "community health":      "Boonshoft School of Medicine",
+    "emergency medicine":    "Boonshoft School of Medicine",
+    "geriatric":             "Boonshoft School of Medicine",
+    "internal medicine":     "Boonshoft School of Medicine",
+    "neuroscience":          "Boonshoft School of Medicine",
+    "obstetrics":            "Boonshoft School of Medicine",
+    "oncology":              "Boonshoft School of Medicine",
+    "orthopedic":            "Boonshoft School of Medicine",
+    "pathology":             "Boonshoft School of Medicine",
+    "pediatric":             "Boonshoft School of Medicine",
+    "pharmacology":          "Boonshoft School of Medicine",
+    "physiology":            "Boonshoft School of Medicine",
+    "psychiatry":            "Boonshoft School of Medicine",
+    "radiology":             "Boonshoft School of Medicine",
+    "surgery":               "Boonshoft School of Medicine",
+    "urology":               "Boonshoft School of Medicine",
+    "boonshoft":             "Boonshoft School of Medicine",
+    "school of medicine":    "Boonshoft School of Medicine",
+    # College of Science and Mathematics
+    "biological sciences":   "College of Science and Mathematics",
+    "chemistry":             "College of Science and Mathematics",
+    "earth and environmental":"College of Science and Mathematics",
+    "geological":            "College of Science and Mathematics",
+    "math":                  "College of Science and Mathematics",
+    "physics":               "College of Science and Mathematics",
+    "statistics":            "College of Science and Mathematics",
+    # College of Engineering and Computer Science
+    "biomedical engineering":"College of Engineering and Computer Science",
+    "chemical engineering":  "College of Engineering and Computer Science",
+    "computer science":      "College of Engineering and Computer Science",
+    "computer engineering":  "College of Engineering and Computer Science",
+    "electrical engineering":"College of Engineering and Computer Science",
+    "mechanical":            "College of Engineering and Computer Science",
+    "industrial":            "College of Engineering and Computer Science",
+    "systems engineering":   "College of Engineering and Computer Science",
+    "human factors":         "College of Engineering and Computer Science",
+    # College of Liberal Arts
+    "art history":           "College of Liberal Arts",
+    "classics":              "College of Liberal Arts",
+    "communication":         "College of Liberal Arts",
+    "english":               "College of Liberal Arts",
+    "film":                  "College of Liberal Arts",
+    "history":               "College of Liberal Arts",
+    "international studies": "College of Liberal Arts",
+    "liberal arts":          "College of Liberal Arts",
+    "modern languages":      "College of Liberal Arts",
+    "music":                 "College of Liberal Arts",
+    "philosophy":            "College of Liberal Arts",
+    "political science":     "College of Liberal Arts",
+    "psychology":            "College of Liberal Arts",
+    "religion":              "College of Liberal Arts",
+    "social work":           "College of Liberal Arts",
+    "sociology":             "College of Liberal Arts",
+    "theatre":               "College of Liberal Arts",
+    # Raj Soin College of Business
+    "accountancy":           "Raj Soin College of Business",
+    "accounting":            "Raj Soin College of Business",
+    "economics":             "Raj Soin College of Business",
+    "finance":               "Raj Soin College of Business",
+    "information systems":   "Raj Soin College of Business",
+    "management":            "Raj Soin College of Business",
+    "marketing":             "Raj Soin College of Business",
+    "supply chain":          "Raj Soin College of Business",
+    "raj soin":              "Raj Soin College of Business",
+    # College of Nursing and Health
+    "nursing":               "College of Nursing and Health",
+    "population health":     "College of Nursing and Health",
+    "public health":         "College of Nursing and Health",
+    "rehabilitation":        "College of Nursing and Health",
+    # College of Education and Human Services
+    "counseling":            "College of Education and Human Services",
+    "curriculum":            "College of Education and Human Services",
+    "educational":           "College of Education and Human Services",
+    "human services":        "College of Education and Human Services",
+    "kinesiology":           "College of Education and Human Services",
+    "leadership studies":    "College of Education and Human Services",
+    "teacher":               "College of Education and Human Services",
+    # Lake Campus
+    "lake campus":           "Wright State University Lake Campus",
+}
+
+_DEPT_PATTERNS = [
+    re.compile(r'\bDept(?:artment)?\.?\s+of\s+([^,;]+)',   re.IGNORECASE),
+    re.compile(r'\bDivision\s+of\s+([^,;]+)',              re.IGNORECASE),
+    re.compile(r'\bSchool\s+of\s+([^,;]+)',                re.IGNORECASE),
+    re.compile(r'\bProgram(?:s)?\s+in\s+([^,;]+)',         re.IGNORECASE),
+    re.compile(r'\bInstitute\s+(?:of|for)\s+([^,;]+)',     re.IGNORECASE),
+    re.compile(r'\bCenter\s+(?:for|of)\s+([^,;]+)',        re.IGNORECASE),
+    re.compile(r'([A-Z][^,;]{3,40}?)\s+Department\b',     re.IGNORECASE),
+]
+_SKIP = re.compile(r'^(OH|USA|US|Dayton|Ohio|United States)$', re.IGNORECASE)
+
+
+def extract_dept_college(raw_affiliation_strings):
+    """Parse department and college from raw OpenAlex affiliation strings.
+    Only considers strings that mention Wright State."""
+    dept = ""
+    college = ""
+    for aff in (raw_affiliation_strings or []):
+        if "wright state" not in aff.lower():
+            continue
+        for pat in _DEPT_PATTERNS:
+            m = pat.search(aff)
+            if m:
+                candidate = m.group(1).strip().rstrip(".,;")
+                if len(candidate) > 4 and not _SKIP.match(candidate):
+                    if not dept:
+                        dept = candidate
+                    break
+        if not college and dept:
+            dept_lo = dept.lower()
+            for keyword, col in _DEPT_TO_COLLEGE.items():
+                if keyword in dept_lo:
+                    college = col
+                    break
+        if dept and college:
+            break
+    return dept, college
+
+
 def check_predatory(venue, bad_issns, bad_j_names, bad_publishers):
     """Return (is_predatory: bool, reason: str)."""
     if not venue:
@@ -235,28 +363,35 @@ def parse_works(works, bad_issns, bad_j_names, bad_publishers):
 
         flagged, reason = check_predatory(venue, bad_issns, bad_j_names, bad_publishers)
 
-        # Collect authors affiliated with Wright State
+        # Collect authors affiliated with Wright State; gather raw affiliation strings
         wsu_authors = []
+        all_raw_affs = []
         for auth in (w.get("authorships") or []):
             inst_names = [
                 (i.get("display_name") or "").lower()
                 for i in (auth.get("institutions") or [])
             ]
+            raw_affs = auth.get("raw_affiliation_strings") or []
+            all_raw_affs.extend(raw_affs)
             if any("wright state" in n for n in inst_names):
                 aname = (auth.get("author") or {}).get("display_name") or "Unknown"
                 wsu_authors.append(aname)
 
+        dept, college = extract_dept_college(all_raw_affs)
+
         rows.append({
-            "year":      year,
-            "authors":   "; ".join(wsu_authors) or "(no WSU author listed)",
-            "title":     title,
-            "type":      wtype,
-            "journal":   journal,
-            "publisher": publisher,
-            "issns":     issns,
-            "url":       oa_url,
-            "predatory": "YES" if flagged else "no",
-            "reason":    reason,
+            "year":       year,
+            "authors":    "; ".join(wsu_authors) or "(no WSU author listed)",
+            "department": dept,
+            "college":    college,
+            "title":      title,
+            "type":       wtype,
+            "journal":    journal,
+            "publisher":  publisher,
+            "issns":      issns,
+            "url":        oa_url,
+            "predatory":  "YES" if flagged else "no",
+            "reason":     reason,
         })
 
     return rows
@@ -299,6 +434,8 @@ def write_html(rows, out_path, from_year, generated_at):
             f'<tr{cls}>'
             f'<td>{escape(str(r["year"]))}</td>'
             f'<td class="auth">{auth}</td>'
+            f'<td class="auth">{escape(r.get("department",""))}</td>'
+            f'<td class="auth">{escape(r.get("college",""))}</td>'
             f'<td>{ttl}</td>'
             f'<td>{escape(r["journal"])}</td>'
             f'<td>{escape(r["publisher"])}</td>'
@@ -381,7 +518,7 @@ a:hover{{text-decoration:underline}}
 <p class="note">Rows highlighted red. Match types: ISSN · journal name · publisher substring.</p>
 <div class="scr">
 <table>
-<thead><tr><th>Year</th><th>WSU Authors</th><th>Title</th><th>Journal</th><th>Publisher</th><th>Flag</th><th>Reason</th><th>Link</th></tr></thead>
+<thead><tr><th>Year</th><th>WSU Authors</th><th>Department</th><th>College</th><th>Title</th><th>Journal</th><th>Publisher</th><th>Flag</th><th>Reason</th><th>Link</th></tr></thead>
 <tbody>{flagged_rows or '<tr><td colspan="8" style="color:#8b949e;padding:12px">No flagged publications found.</td></tr>'}</tbody>
 </table>
 </div>
@@ -390,7 +527,7 @@ a:hover{{text-decoration:underline}}
 <p class="note">Flagged rows highlighted. Download the CSV for ISSNs and full author lists.</p>
 <div class="scr">
 <table>
-<thead><tr><th>Year</th><th>WSU Authors</th><th>Title</th><th>Journal</th><th>Publisher</th><th>Flag</th><th>Reason</th><th>Link</th></tr></thead>
+<thead><tr><th>Year</th><th>WSU Authors</th><th>Department</th><th>College</th><th>Title</th><th>Journal</th><th>Publisher</th><th>Flag</th><th>Reason</th><th>Link</th></tr></thead>
 <tbody>{all_rows}</tbody>
 </table>
 </div>
