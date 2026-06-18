@@ -235,9 +235,8 @@ const EVLABEL = {green:"The Evidence · Checks out", amber:"The Evidence · It d
 const sel=document.getElementById('caseSel');
 sel.innerHTML = CASES.map((c,i)=>'<option value="'+i+'">'+c.q+'</option>').join('');
 
-function rule(i){
-  const c=CASES[i];
-  document.getElementById('vcase').textContent='"'+c.q+'"';
+function renderCase(c,label){
+  document.getElementById('vcase').textContent='"'+(label||c.q)+'"';
   const pill=document.getElementById('vpill');
   pill.className='pill '+c.pill; pill.textContent=c.ruling;
   document.getElementById('vjudge').innerHTML='<b>Judge Roz:</b> '+c.judge;
@@ -252,12 +251,13 @@ function rule(i){
   const v=document.getElementById('verdict'); v.classList.remove('shown'); void v.offsetWidth; v.classList.add('shown');
   v.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
+function rule(i){ renderCase(CASES[i]); }
 document.getElementById('gavel').addEventListener('click',()=>rule(+sel.value));
 document.getElementById('shake').addEventListener('click',()=>{
   const i=Math.floor(Math.random()*CASES.length);
   sel.value=i; rule(i);
 });
-document.getElementById('file').addEventListener('click',()=>{
+document.getElementById('file').addEventListener('click', async ()=>{
   const raw=document.getElementById('ff').value.trim();
   const note=document.getElementById('ffnote');
   const verdict=document.getElementById('verdict');
@@ -268,18 +268,31 @@ document.getElementById('file').addEventListener('click',()=>{
   verdict.classList.remove('shown');
   note.classList.add('shown');
   if(health.test(t)){
-    note.innerHTML='&#129687;&#65039; <b>Judge Roz:</b> "Health claim. Not my courtroom." That one has jurisdiction over at <b>The Dose Mythbuster</b> &mdash; ask for Eli, he brings the citations. I only settle the arguments that are not about your body.';
+    note.innerHTML='&#9878;&#65039; <b>Judge Roz:</b> "Health claim. Not my courtroom." That one has jurisdiction over at <b>The Dose Mythbuster</b> &mdash; ask for Eli, he brings the citations. I only settle the arguments that are not about your body.';
     return;
   }
   if(legal.test(t)){
-    note.innerHTML='&#129687;&#65039; <b>Judge Roz:</b> "That is a real legal matter, and I am a fun judge, not your lawyer." Take it to <b>Kimberly</b> in legal research, or an actual attorney. This court does bets and bragging rights only.';
+    note.innerHTML='&#9878;&#65039; <b>Judge Roz:</b> "That is a real legal matter, and I am a fun judge, not your lawyer." Take it to <b>Kimberly</b> in legal research, or an actual attorney. This court does bets and bragging rights only.';
     return;
   }
-  const i=Math.floor(Math.random()*CASES.length);
-  rule(i);
-  note.classList.add('shown');
-  note.innerHTML='&#129687;&#65039; <b>Case filed.</b> The live courtroom would weigh your exact dispute; this preview runs from a fixed docket, so here is one from the bench that rhymes with yours:';
-  verdict.scrollIntoView({behavior:'smooth',block:'nearest'});
+  note.innerHTML='&#9878;&#65039; The court is reviewing your case. Judge Roz is deliberating&hellip;';
+  const btn=document.getElementById('file'); btn.disabled=true;
+  try{
+    const res=await fetch('/.netlify/functions/roz-ruling',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({dispute:raw})
+    });
+    if(!res.ok) throw new Error('recess');
+    const data=await res.json();
+    if(data.error) throw new Error(data.error);
+    note.classList.remove('shown');
+    renderCase(data, raw);
+  } catch(e){
+    note.innerHTML='&#9878;&#65039; The court is temporarily in recess. Try the gavel up top while we sort this out.';
+  } finally{
+    btn.disabled=false;
+  }
 });
 const TREE={
  root:{prompt:"Counsel, state your single strongest argument. The court has heard everything. Surprise us.",opts:[
