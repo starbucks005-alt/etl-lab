@@ -12,7 +12,8 @@ const EMAIL              = 'research@emerging-tech-lab.com';
 const CACHE_DIR          = path.join(__dirname, '.wsu_scan_cache');
 const SPJ_JOURNALS_URL   = 'https://raw.githubusercontent.com/stop-predatory-journals/stop-predatory-journals.github.io/master/_data/journals.csv';
 const SPJ_PUBLISHERS_URL = 'https://raw.githubusercontent.com/stop-predatory-journals/stop-predatory-journals.github.io/master/_data/publishers.csv';
-const FROM_YEAR          = 2020;
+const FROM_DATE          = '2021-07-01';
+const TO_DATE            = '2026-06-30';
 
 // ── HTTP helper ───────────────────────────────────────────────────────────────
 function httpGet(urlStr) {
@@ -105,11 +106,11 @@ async function getWsuId() {
   throw new Error('Wright State University not found in OpenAlex.');
 }
 
-async function fetchAllWorks(institutionId, fromYear) {
+async function fetchAllWorks(institutionId, fromDate, toDate) {
   const works  = [];
   let cursor   = '*';
   let page     = 0;
-  const filter = `institutions.id:${institutionId},from_publication_date:${fromYear}-01-01`;
+  const filter = `institutions.id:${institutionId},from_publication_date:${fromDate},to_publication_date:${toDate}`;
   const select = 'id,title,publication_year,primary_location,authorships,type';
 
   while (true) {
@@ -377,7 +378,7 @@ function topN(arr, n) {
   return Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, n);
 }
 
-function writeHTML(rows, outPath, fromYear, generatedAt) {
+function writeHTML(rows, outPath, fromDate, toDate, generatedAt) {
   const flagged     = rows.filter(r => r.predatory === 'YES');
   const total       = rows.length;
   const nFlag       = flagged.length;
@@ -443,7 +444,7 @@ a{color:#58a6ff;text-decoration:none}a:hover{text-decoration:underline}
 <body>
 <div class="eye">§ ETL Research Integrity Report</div>
 <h1>Wright State University — Predatory Journal Scan</h1>
-<div class="sub">Publications ${fromYear}–2025 · Generated ${generatedAt.slice(0, 10)} · OpenAlex API · Stop Predatory Journals</div>
+<div class="sub">Publications ${fromDate} to ${toDate} · Generated ${generatedAt.slice(0, 10)} · OpenAlex API · Stop Predatory Journals</div>
 <div class="stats">
   <div class="stat"><div class="v">${total.toLocaleString()}</div><div class="l">Total Publications</div></div>
   <div class="stat"><div class="v r">${nFlag.toLocaleString()}</div><div class="l">Flagged Predatory</div></div>
@@ -475,7 +476,8 @@ a{color:#58a6ff;text-decoration:none}a:hover{text-decoration:underline}
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 async function main() {
-  const fromYear    = parseInt(process.argv[2] || FROM_YEAR, 10);
+  const fromDate    = process.argv[2] || FROM_DATE;
+  const toDate      = process.argv[3] || TO_DATE;
   const noCache     = process.argv.includes('--no-cache');
   const generatedAt = new Date().toISOString();
   const outCSV      = path.join(__dirname, 'wsu_predatory_results.csv');
@@ -483,7 +485,7 @@ async function main() {
 
   console.log('============================================================');
   console.log('  WSU Publication Integrity Scan');
-  console.log(`  Publications ${fromYear} - 2025`);
+  console.log(`  Publications ${fromDate} to ${toDate}`);
   console.log('============================================================');
 
   console.log('\n[1/4] Resolving Wright State University in OpenAlex...');
@@ -498,7 +500,7 @@ async function main() {
 
   console.log('\n[3/4] Fetching WSU publications from OpenAlex...');
   let works;
-  try { works = await fetchAllWorks(wsuId, fromYear); }
+  try { works = await fetchAllWorks(wsuId, fromDate, toDate); }
   catch (e) { console.error(`\n  ERROR: ${e.message}`); process.exit(1); }
 
   if (!works.length) {
@@ -511,7 +513,7 @@ async function main() {
   const nFlag = rows.filter(r => r.predatory === 'YES').length;
 
   writeCSV(rows, outCSV);
-  writeHTML(rows, outHTML, fromYear, generatedAt);
+  writeHTML(rows, outHTML, fromDate, toDate, generatedAt);
 
   console.log('');
   console.log('============================================================');
