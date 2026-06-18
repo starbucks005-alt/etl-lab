@@ -132,6 +132,11 @@ body{margin:0;background:var(--parch);color:var(--ink);font-family:'Inter',sans-
 .tree-restart{margin-top:.85rem;background:var(--wood);color:var(--parch);border:none;border-radius:2px;padding:.52rem 1.15rem;font-weight:700;cursor:pointer;font-family:'Inter';font-size:.88rem;}
 .tree-restart:hover{background:var(--wood-dk);}
 
+/* ── BLINK ── */
+@keyframes blink{0%,88%,100%{opacity:0;}91%,97%{opacity:1;}}
+.portrait-frame{position:relative;}
+.roz-blink{position:absolute;top:0;left:0;width:100%;display:block;opacity:0;animation:blink 3.8s ease-in-out infinite;}
+
 /* ── FOOTER ── */
 .court-footer{background:var(--wood-dk);border-top:3px solid var(--gold-dk);padding:1.5rem;}
 .footer-inner{max-width:1120px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:.45rem;text-align:center;}
@@ -197,7 +202,8 @@ body{margin:0;background:var(--parch);color:var(--ink);font-family:'Inter',sans-
   <div>
     <!-- Judge Roz portrait -->
     <div class="portrait-frame">
-      <img src="/judge-roz.png" alt="Judge Roz Okonkwo" style="width:100%;display:block;object-fit:cover;">
+      <img src="/judge-roz.png" alt="Judge Roz Okonkwo" style="width:100%;display:block;">
+      <img src="/judge-roz-closed.png" alt="" class="roz-blink">
     </div>
 
     <!-- Verdict / Court Order -->
