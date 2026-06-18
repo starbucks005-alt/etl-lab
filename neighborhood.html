@@ -372,10 +372,11 @@ let drOLastRoam = 0; // cooldown for Dr. O's hourly campus tour during work hour
 const agents = ADAT.map(([name,plat,r,mcp])=>{
   const hn = HOME[plat]||20;
   const [hx,hy] = N[hn];
+  const _da=Math.random()*Math.PI*2, _dd=8+Math.random()*22;
+  const dox=Math.cos(_da)*_dd, doy=Math.sin(_da)*_dd;
   return {
     name,plat,r,mcp:!!mcp,color:PC[plat],
-    x: hx+(Math.random()-.5)*4,
-    y: hy+(Math.random()-.5)*4,
+    x: hx+dox, y: hy+doy, dox, doy,
     state:ST.W, timer:Math.random()*15000, dur:15000+Math.random()*20000,
     node:hn, tnode:hn, path:[], pi:0,
     partner:-1, mx:0, my:0,
@@ -587,10 +588,9 @@ function move(a, dt){
 
   switch(a.state){
     case ST.W: case ST.H: {
-      // Snap to node — no drifting above buildings
       const [nx,ny]=N[a.node];
-      a.x += (nx-a.x)*0.08;
-      a.y += (ny-a.y)*0.08;
+      a.x += (nx+a.dox-a.x)*0.08;
+      a.y += (ny+a.doy-a.y)*0.08;
       const j=WDRIFT*dt*0.4;
       a.x += (Math.random()-.5)*j;
       a.y += (Math.random()-.5)*j;
