@@ -4,14 +4,6 @@ echo ============================================================
 echo   WSU Predatory Journal Scan
 echo ============================================================
 echo.
-node wsu_predatory_scan.js
-if %errorlevel% equ 0 (
-  echo.
-  echo Opening report in browser...
-  start "" "wsu_predatory_report.html"
-) else (
-  echo.
-  echo Scan did not complete. See error above.
-)
+powershell -NoProfile -ExecutionPolicy Bypass -Command "node '%~dp0wsu_predatory_scan.js'; if ($LASTEXITCODE -eq 0) { Start-Process '%~dp0wsu_predatory_report.html' } else { Write-Host 'Scan did not complete. See error above.' -ForegroundColor Red }"
 echo.
 pause
