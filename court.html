@@ -84,6 +84,7 @@
   .plea{font-family:'Fraunces',serif;font-weight:700;font-size:1.7rem;text-align:center;color:#fff;padding:.6rem;border-radius:10px;margin:0 0 .8rem;letter-spacing:.03em;}
   .plea-guilty{background:var(--red);}
   .plea-free{background:var(--green);}
+  .plea-both{background:var(--amber);}
   .docket-item{border:1px solid var(--line);border-radius:10px;padding:.8rem 1rem;margin-bottom:.6rem;background:#ffffff;}
   .docket-case{font-family:'Fraunces',serif;font-weight:700;font-size:1.05rem;}
   .docket-case span{color:var(--brass);font-style:italic;font-weight:400;}
@@ -141,8 +142,8 @@
   </div>
 
   <div class="panel">
-    <h2 style="font-family:'Fraunces',serif;font-size:1.5rem;margin:0 0 .3rem;">Plead your case</h2>
-    <p style="color:var(--muted);font-size:.95rem;margin:0 0 1.1rem;">The appeals bench. Pick your best argument and watch Judge Roz weigh it.</p>
+    <h2 style="font-family:'Fraunces',serif;font-size:1.5rem;margin:0 0 .3rem;">Make your case</h2>
+    <p style="color:var(--muted);font-size:.95rem;margin:0 0 1.1rem;">Your opponent is insufferable and you deserve to win. Pick your strongest argument. Judge Roz has heard everything. She is not impressed yet.</p>
     <div id="tree"></div>
   </div>
 
@@ -281,25 +282,43 @@ document.getElementById('file').addEventListener('click',()=>{
   verdict.scrollIntoView({behavior:'smooth',block:'nearest'});
 });
 const TREE={
- root:{prompt:"Counsel approaches the bench. What is your strongest argument?",opts:[
-   ["I was right last week","lastweek"],["My favorite color is blue","blue"],["I said it first","first"],["It is just common sense","sense"],["I actually have evidence","evidence"]]},
- evidence:{prompt:"Evidence, finally. What kind are we talking about?",opts:[
-   ["A real study or source","real"],["Something I saw online","online"],["A very strong feeling","feeling"]]},
- lastweek:{plea:"GUILTY",verdict:"Last week is not evidence, it is nostalgia. Being right once does not make you right forever. <b>Overruled.</b>"},
- blue:{plea:"GUILTY",verdict:"The court reviewed your favorite color. It is a lovely blue, and <b>completely irrelevant</b> to the matter at hand. Guilty, with compliments to your taste."},
- first:{plea:"GUILTY",verdict:"Saying it first makes you fast, not correct. This court rewards accuracy, not reflexes."},
- sense:{plea:"GUILTY",verdict:"'Common sense' is what people say when they have no source. This court has heard common sense argue that the earth is flat."},
- real:{plea:"NOT GUILTY",verdict:"Now <i>that</i> is admissible. The court accepts real, citable evidence. Take it to the docket up top and let Judge Roz rule for real. <b>Case may proceed.</b>"},
- online:{plea:"GUILTY",verdict:"The internet is not a witness under oath, and a screenshot is not a citation. The court admires your confidence anyway."},
- feeling:{plea:"GUILTY",verdict:"A feeling is not a fact, counsel. This court runs on evidence, not butterflies."}
+ root:{prompt:"Counsel, state your single strongest argument. The court has heard everything. Surprise us.",opts:[
+   ["I was right about something last week, so.","lastweek"],
+   ["I said it first, which counts.","first"],
+   ["It is literally just common sense.","sense"],
+   ["I actually have a real source.","evidence"],
+   ["They know I'm right. They just won't say it.","theykno"],
+   ["I have a very strong feeling about this.","feeling"]]},
+ evidence:{prompt:"The court is briefly hopeful. What kind of source?",opts:[
+   ["A published study or official document.","real"],
+   ["I found it online.","online"],
+   ["I asked an AI.","ai"],
+   ["A screenshot of them saying it once.","screenshot"]]},
+ feeling:{prompt:"Describe the feeling with precision, counsel.",opts:[
+   ["A gut feeling. Deep, visceral, correct.","gut"],
+   ["I just know. I cannot explain further.","iknow"],
+   ["The vibes are off and I read vibes.","vibes"]]},
+ lastweek:{plea:"GUILTY",verdict:"The court's records show counsel was also right about which route would be faster, and then traffic happened, and they have not mentioned that since. Being right is not a subscription service that carries over month to month. <b>Overruled.</b>"},
+ first:{plea:"GUILTY",verdict:"Counsel also said 'this meeting could've been an email' first. And 'I'll just have one.' And 'I'm almost there' from a location that was not almost there. The record of firsts is mixed, counsel. <b>Overruled.</b>"},
+ sense:{plea:"GUILTY",verdict:"'Common sense' has been cited in support of bloodletting, not refrigerating mayo, the geocentric model of the universe, and reply-all. The court is intimately familiar with common sense. The court is not a fan. <b>Overruled.</b>"},
+ theykno:{plea:"GUILTY",verdict:"Counsel's theory is that their opponent is secretly convinced but performing ignorance for sport. The court's theory is that this is not a legal argument. This is a coping mechanism wearing a blazer. <b>Overruled.</b>"},
+ real:{plea:"NOT GUILTY",verdict:"A real, published source. With an author. And a date. That is not behind a paywall. The court needs a moment. <i>This almost never happens in here.</i> The evidence is admissible. Counsel may proceed. <b>Sustained.</b>"},
+ online:{plea:"GUILTY",verdict:"The court has been online. The court has seen the comments. The court has watched someone argue about the moon landing under a pasta recipe. Whatever counsel found out there, the court has seen worse, and it was also wrong. <b>Dismissed.</b>"},
+ ai:{plea:"BOTH GUILTY",verdict:"Counsel sourced their argument from a language model that once cited a Harvard study that does not exist and called it 'well-documented.' The AI is not a witness. The AI is a very confident guesser in a suit. The court rules against counsel and, frankly, against the chatbot. <b>Both guilty.</b>"},
+ screenshot:{plea:"GUILTY",verdict:"A screenshot. Of one message. Sent at what time, counsel? Under what circumstances? Sarcastically? To end a different argument? Context has been cropped out along with the timestamp and the three messages before it. A screenshot is not a confession. It is a .png with an agenda. <b>Dismissed.</b>"},
+ gut:{plea:"GUILTY",verdict:"The gut is wise. The gut has also greenlit a gas station sushi purchase, a 2am text that started with 'ok but hear me out,' and at least one haircut that everyone was too kind to discuss at the time. The gut means well. The gut does not testify. <b>Ruled on vibes.</b>"},
+ iknow:{plea:"GUILTY",verdict:"'I just know' is also how people explain why they don't need to check the expiration date, why they don't need directions, and why that investment was definitely going to work out. The court has seen how 'I just know' ends. <b>Overruled.</b>"},
+ vibes:{plea:"GUILTY",verdict:"The court also reads vibes. The court's vibes, having carefully reviewed the situation, the argument, and the general energy counsel has brought into this room today, say: very sincere. Extremely wrong. The court rules accordingly. <b>Ruled on vibes.</b>"}
 };
 function renderTree(id){
   const n=TREE[id], el=document.getElementById('tree');
   if(n.verdict){
-    el.innerHTML='<p style="text-align:center;font-style:italic;color:var(--muted);margin:.2rem 0 .6rem;">Based on everything the court has heard today...</p>'+
-      '<div class="plea '+(n.plea==="GUILTY"?"plea-guilty":"plea-free")+'">'+(n.plea==="GUILTY"?"&#9878;&#65039; GUILTY":"&#9878;&#65039; NOT GUILTY")+'</div>'+
+    const pleaClass=n.plea==="GUILTY"?"plea-guilty":n.plea==="BOTH GUILTY"?"plea-both":"plea-free";
+    const pleaText=n.plea==="GUILTY"?"&#9878;&#65039; GUILTY":n.plea==="BOTH GUILTY"?"&#9878;&#65039; BOTH GUILTY":"&#9878;&#65039; NOT GUILTY";
+    el.innerHTML='<p style="text-align:center;font-style:italic;color:var(--muted);margin:.2rem 0 .6rem;">The court has deliberated. The court has seen some things today.</p>'+
+      '<div class="plea '+pleaClass+'">'+pleaText+'</div>'+
       '<div class="tree-verdict">'+n.verdict+'</div>'+
-      '<button class="tree-restart" id="treeRestart">Start over</button>';
+      '<button class="tree-restart" id="treeRestart">Try a different argument</button>';
     document.getElementById('treeRestart').onclick=function(){renderTree('root');};
     return;
   }
