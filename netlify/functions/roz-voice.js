@@ -21,7 +21,7 @@ exports.handler = async (event) => {
     body: JSON.stringify({
       text: text.slice(0, 1000),
       model_id: 'eleven_turbo_v2_5',
-      voice_settings: { stability: 0.55, similarity_boost: 0.75, style: 0.2, use_speaker_boost: true }
+      voice_settings: { stability: 0.65, similarity_boost: 0.75, style: 0.0, use_speaker_boost: false, speed: 0.92 }
     })
   });
 

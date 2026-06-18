@@ -140,6 +140,9 @@ body{margin:0;background:var(--parch);color:var(--ink);font-family:'Inter',sans-
 /* ── CALL TO ORDER ── */
 .btn-cto{width:100%;padding:.72rem;background:var(--wood);color:var(--gold);border:2px solid var(--gold-dk);border-radius:2px;font-family:'Merriweather',serif;font-weight:700;font-size:.88rem;cursor:pointer;letter-spacing:.12em;text-transform:uppercase;margin-bottom:1.2rem;display:flex;align-items:center;justify-content:center;gap:.5rem;}
 .btn-cto:hover{background:var(--wood-dk);}
+.cto-hint{text-align:center;font-size:.73rem;color:var(--soft);font-family:'Merriweather',serif;font-style:italic;margin:-.5rem 0 .8rem;letter-spacing:.03em;}
+.roz-stop{display:none;text-align:center;font-size:.78rem;color:var(--red-lt);cursor:pointer;font-family:'Merriweather',serif;font-style:italic;margin:.1rem 0 .6rem;letter-spacing:.04em;}
+.roz-stop.shown{display:block;}
 
 /* ── FOOTER ── */
 .court-footer{background:var(--wood-dk);border-top:3px solid var(--gold-dk);padding:1.5rem;}
@@ -211,7 +214,9 @@ body{margin:0;background:var(--parch);color:var(--ink);font-family:'Inter',sans-
     </div>
 
     <!-- Call to Order -->
-    <button class="btn-cto" id="callToOrder">⚖️&nbsp;&nbsp;Call to Order</button>
+    <button class="btn-cto" id="callToOrder">🔊&nbsp; Hear Judge Roz</button>
+    <p class="cto-hint">Tap to hear her open the session.</p>
+    <p class="roz-stop" id="rozStop">⏹ Stop</p>
 
     <!-- Verdict / Court Order -->
     <div class="verdict" id="verdict">
@@ -359,17 +364,26 @@ sel.innerHTML=CASES.map((c,i)=>'<option value="'+i+'">'+c.q+'</option>').join(''
 
 function stripHtml(h){return h.replace(/<[^>]*>/g,'').replace(/\s+/g,' ').trim();}
 let _rozAudio=null;
-async function rozSpeak(text){
+const _ctoBtnEl=document.getElementById('callToOrder');
+const _stopEl=document.getElementById('rozStop');
+function rozReset(){
   if(_rozAudio){_rozAudio.pause();URL.revokeObjectURL(_rozAudio._url);_rozAudio=null;}
+  _ctoBtnEl.innerHTML='🔊&nbsp; Hear Judge Roz';
+  _stopEl.classList.remove('shown');
+}
+async function rozSpeak(text,isCto){
+  rozReset();
   try{
     const res=await fetch('/.netlify/functions/roz-voice',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text})});
     if(!res.ok)return;
     const blob=await res.blob();
     const url=URL.createObjectURL(blob);
     _rozAudio=new Audio(url);_rozAudio._url=url;
+    if(isCto) _ctoBtnEl.innerHTML='⏹&nbsp; Stop';
+    else _stopEl.classList.add('shown');
     _rozAudio.play();
-    _rozAudio.onended=function(){URL.revokeObjectURL(url);_rozAudio=null;};
-  }catch(e){console.error('roz voice:',e);}
+    _rozAudio.onended=function(){URL.revokeObjectURL(url);_rozAudio=null;_ctoBtnEl.innerHTML='🔊&nbsp; Hear Judge Roz';_stopEl.classList.remove('shown');};
+  }catch(e){console.error('roz voice:',e);rozReset();}
 }
 const ROZ_WELCOME="Welcome to the Emerging Technologies Laboratory Court of Appeals. I am Judge Rosalind Okonkwo. This court settles disputes, busts myths, and rules on matters of taste with appropriate gravity. To file a case: select one from the docket on the left, or type your own dispute and bring it before me. If you want to argue your position directly, use the decision tree below and state your strongest argument. I have heard them all. This court does not accept screenshots as evidence, common sense as a citation, or I just know as a legal strategy. Present your case. I will rule. Court is in session.";
 
@@ -470,7 +484,8 @@ function renderTree(id){
 }
 renderTree('root');
 rule(0);
-document.getElementById('callToOrder').addEventListener('click',()=>rozSpeak(ROZ_WELCOME));
+_ctoBtnEl.addEventListener('click',()=>{ if(_rozAudio) rozReset(); else rozSpeak(ROZ_WELCOME,true); });
+_stopEl.addEventListener('click',()=>rozReset());
 </script>
 </body>
 </html>
