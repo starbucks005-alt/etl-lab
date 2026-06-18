@@ -319,6 +319,7 @@ function drawEmojiEvents(){
 // A 300px path takes ~12 seconds. Feels like a slow campus stroll.
 const GSPD = 0.013;   // guided walk
 const WDRIFT = 0.003; // idle drift near node, barely perceptible
+const DOT_R = 5;      // uniform dot radius for all agents
 
 // ── SHARED STATE ─────────────────────────────────────────────────────────────
 const MIRROR_MODE = new URLSearchParams(location.search).get('mode') === 'mirror';
@@ -469,7 +470,7 @@ function setChat(a,b){
 }
 function setRomance(a,b,mx,my){
   [a,b].forEach((ag,i)=>{
-    ag.state=ST.R; ag.timer=0; ag.dur=28000+Math.random()*22000;
+    ag.state=ST.R; ag.timer=0; ag.dur=300000;
     ag.mx=mx+(i===0?-6:6); ag.my=my; ag.partner=agents.indexOf(i===0?b:a);
   });
 }
@@ -586,25 +587,13 @@ function move(a, dt){
 
   switch(a.state){
     case ST.W: case ST.H: {
-      // Pace slowly along the nearest path edge — looks like a human waiting/wandering
+      // Snap to node — no drifting above buildings
       const [nx,ny]=N[a.node];
-      if(a.paceDir<0||!ADJ[a.node].some(([n])=>n===a.paceDir)){
-        const nbrs=ADJ[a.node].map(([n])=>n);
-        a.paceDir=nbrs[Math.floor(Math.random()*nbrs.length)]||a.node;
-        a.pacePhase=0;
-      }
-      const [px,py]=N[a.paceDir];
-      // Walk 28% of the way toward the neighbor then return — stays on path, looks purposeful
-      const tx=nx+(px-nx)*0.28, ty=ny+(py-ny)*0.28;
-      const [gx,gy]=a.pacePhase===0?[tx,ty]:[nx,ny];
-      const dx=gx-a.x, dy=gy-a.y, d=Math.hypot(dx,dy);
-      if(d<1.5){
-        if(a.pacePhase===0){ a.pacePhase=1; }
-        else { a.paceDir=-1; }  // pick new direction next frame
-      } else {
-        a.x+=(dx/d)*WDRIFT*dt*2.2;
-        a.y+=(dy/d)*WDRIFT*dt*2.2;
-      }
+      a.x += (nx-a.x)*0.08;
+      a.y += (ny-a.y)*0.08;
+      const j=WDRIFT*dt*0.4;
+      a.x += (Math.random()-.5)*j;
+      a.y += (Math.random()-.5)*j;
       break;
     }
     case ST.G: {
@@ -634,7 +623,8 @@ function move(a, dt){
           if(arrivedAt===12) spawnEmoji('📰', a.x+(Math.random()-.5)*14, a.y-20, (Math.random()-.5)*0.02, -0.022, 2200);
           if(arrivedAt===5)  spawnEmoji('💊', a.x, a.y-22, 0, -0.025, 2000);
           if(arrivedAt===23) spawnEmoji('🕊️', a.x, a.y-24, (Math.random()-.5)*0.03, -0.03, 2400);
-          setWalk(a);
+          if(arrivedAt===BRIDGE_NODE){ a.state=ST.P; a.dur=300000; a.timer=0; }
+          else setWalk(a);
         }
       }
       break;
@@ -892,19 +882,19 @@ function drawAgents(){
     if(a.mcp){
       ctx.strokeStyle=`rgba(255,255,255,${.5+p*.2})`;
       ctx.lineWidth=1;
-      ctx.beginPath(); ctx.arc(ax,ay,a.r+2.5,0,Math.PI*2); ctx.stroke();
+      ctx.beginPath(); ctx.arc(ax,ay,DOT_R+2.5,0,Math.PI*2); ctx.stroke();
     }
     ctx.fillStyle=a.color;
-    ctx.beginPath(); ctx.arc(ax,ay,a.r,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(ax,ay,DOT_R,0,Math.PI*2); ctx.fill();
     if(a.state===ST.C||a.state===ST.H){
       ctx.strokeStyle=`rgba(255,255,255,${.2+p*.28})`;
       ctx.lineWidth=0.8;
-      ctx.beginPath(); ctx.arc(ax,ay,a.r+(a.state===ST.C?4:3)+p*2,0,Math.PI*2); ctx.stroke();
+      ctx.beginPath(); ctx.arc(ax,ay,DOT_R+(a.state===ST.C?4:3)+p*2,0,Math.PI*2); ctx.stroke();
     }
     if(a.state===ST.R){
       ctx.strokeStyle=`rgba(255,130,170,${.3+p*.3})`;
       ctx.lineWidth=0.9;
-      ctx.beginPath(); ctx.arc(ax,ay,a.r+3+p*2,0,Math.PI*2); ctx.stroke();
+      ctx.beginPath(); ctx.arc(ax,ay,DOT_R+3+p*2,0,Math.PI*2); ctx.stroke();
       const b=agents[a.partner];
       if(b&&b.state===ST.R&&agents.indexOf(a)<a.partner){
         ctx.save();
@@ -928,12 +918,12 @@ function drawAgents(){
     if(a.plat==='DR'){
       ctx.strokeStyle='rgba(255,255,255,0.8)'; ctx.lineWidth=1;
       ctx.setLineDash([2,3]);
-      ctx.beginPath(); ctx.arc(ax,ay,a.r+5,0,Math.PI*2); ctx.stroke();
+      ctx.beginPath(); ctx.arc(ax,ay,DOT_R+5,0,Math.PI*2); ctx.stroke();
       ctx.setLineDash([]);
       ctx.font='bold 9px "Courier New",monospace';
       ctx.textAlign='center';
       ctx.fillStyle='#c0c0c0';
-      ctx.fillText('ETL', ax, ay-a.r-8);
+      ctx.fillText('ETL', ax, ay-DOT_R-8);
     }
     ctx.restore();
   });
@@ -960,7 +950,7 @@ function drawHUD(){
 
   // ── DATA panel (top-right) ────────────────────────────────────────────────
   {
-    const pw=175, px=W-pw-16, py=44, ph=118, rowH=15;
+    const pw=175, px=W-pw-16, py=44, ph=148, rowH=15;
     ctx.save();
     ctx.fillStyle='rgba(4,10,20,0.88)'; ctx.strokeStyle='#1a3a5c'; ctx.lineWidth=1;
     rr(px,py,pw,ph,4); ctx.fill(); ctx.stroke();
@@ -968,7 +958,7 @@ function drawHUD(){
     ctx.fillText('DATA', px+10, py+17);
     ctx.strokeStyle='#1a3a5c'; ctx.lineWidth=.5;
     ctx.beginPath(); ctx.moveTo(px+10,py+22); ctx.lineTo(px+pw-10,py+22); ctx.stroke();
-    const rows=[['AGENTS',agents.length],['ACTIVE',active],['EN ROUTE',enRoute],['CHATTING',chatting],['AT HUB',atHub],['PAIRS',pairs]];
+    const rows=[['AGENTS','120'],['BACKPACKS','84  (70%)'],['ACTIVE',active],['EN ROUTE',enRoute],['CHATTING',chatting],['AT HUB',atHub],['PAIRS',pairs]];
     ctx.font='11px "Courier New",monospace';
     rows.forEach(([lbl,val],i)=>{
       ctx.fillStyle='#4080a0'; ctx.textAlign='left';  ctx.fillText(lbl, px+10, py+36+i*rowH);
@@ -1038,7 +1028,7 @@ canvasFG.addEventListener('mousemove',e=>{
   const r=canvasFG.getBoundingClientRect();
   const mx=(e.clientX-r.left)*(W/r.width), my=(e.clientY-r.top)*(H/r.height);
   let found=null;
-  for(const a of agents){ if(Math.hypot(a.x-mx,a.y-my)<a.r+7){found=a;break;} }
+  for(const a of agents){ if(Math.hypot(a.x-mx,a.y-my)<DOT_R+7){found=a;break;} }
   if(found){
     document.getElementById('tt-name').textContent=found.name;
     document.getElementById('tt-sub').textContent=PL[found.plat]+(found.mcp?' · Backpack Agent':'');
