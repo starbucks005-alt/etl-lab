@@ -262,19 +262,8 @@ document.getElementById('file').addEventListener('click', async ()=>{
   const note=document.getElementById('ffnote');
   const verdict=document.getElementById('verdict');
   if(!raw){ note.classList.add('shown'); note.innerHTML='The court needs to hear the dispute first. Type what you two are arguing about.'; verdict.classList.remove('shown'); return; }
-  const t=raw.toLowerCase();
-  const health=/(health|medical|supplement|vitamin|diet|calorie|protein|creatine|sick|symptom|doctor|pain|sleep|weight|nutrition|sugar|detox|cleanse|carb|fasting)/;
-  const legal=/(legal|sue|lawsuit|contract|lease|landlord|fired|rights|custody|divorce| will |tax|evict)/;
   verdict.classList.remove('shown');
   note.classList.add('shown');
-  if(health.test(t)){
-    note.innerHTML='&#9878;&#65039; <b>Judge Roz:</b> "Health claim. Not my courtroom." That one has jurisdiction over at <b>The Dose Mythbuster</b> &mdash; ask for Eli, he brings the citations. I only settle the arguments that are not about your body.';
-    return;
-  }
-  if(legal.test(t)){
-    note.innerHTML='&#9878;&#65039; <b>Judge Roz:</b> "That is a real legal matter, and I am a fun judge, not your lawyer." Take it to <b>Kimberly</b> in legal research, or an actual attorney. This court does bets and bragging rights only.';
-    return;
-  }
   note.innerHTML='&#9878;&#65039; The court is reviewing your case. Judge Roz is deliberating&hellip;';
   const btn=document.getElementById('file'); btn.disabled=true;
   try{
