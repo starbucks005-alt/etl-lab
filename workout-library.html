@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Workout Library, The Gym</title>
+<meta name="description" content="Short guided workouts and full routines led by Coach Dom. Every claim checked. Verify before you believe.">
+<meta name="author" content="Dr. Terry Oroszi, EdD">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,700&family=Inter:wght@400;500;600;700&family=Lora:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#16212b;--muted:#5a6a78;--soft:#7a8a98;--bg:#f6f8f7;--panel:#fff;--line:#d7e0e2;--accent:#e0552e;--accent-dk:#bd4220;--teal:#2f8f7f;--green:#2e9e5b;--amber:#d99016;--red:#c8485f;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',sans-serif;line-height:1.5;}
+  .wrap{max-width:880px;margin:0 auto;padding:0 1.1rem 4rem;}
+  a{color:var(--accent-dk);}
+  .ribbon{background:var(--ink);color:#fff;text-align:center;font-family:'Lora',serif;letter-spacing:.16em;text-transform:uppercase;font-size:.72rem;padding:.5rem;}
+  .ribbon b{color:var(--accent);}
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:1rem;max-width:880px;margin:0 auto;padding:1rem 1.1rem .4rem;}
+  .brand{font-family:'Fraunces',serif;font-weight:700;font-size:1.15rem;} .brand .dot{color:var(--accent);}
+  .backlink{font-size:.85rem;color:var(--muted);text-decoration:none;}
+  .hero{padding:1.5rem 0 .4rem;}
+  .hero h1{font-family:'Fraunces',serif;font-size:2.35rem;line-height:1.05;margin:0 0 .5rem;}
+  .hero .tag{color:var(--muted);font-size:1.06rem;max-width:60ch;margin:0 0 .8rem;}
+  .hero .mini{color:var(--soft);font-size:.92rem;max-width:62ch;font-style:italic;}
+  .tabs{display:flex;gap:.4rem;margin:1.2rem 0 0;}
+  .tab{flex:1;text-align:center;padding:.7rem 1rem;border:1px solid var(--line);background:#eef3f2;color:var(--muted);font-weight:600;cursor:pointer;border-radius:8px 8px 0 0;font-size:.98rem;}
+  .tab.active{background:var(--panel);color:var(--accent-dk);border-bottom-color:var(--panel);}
+  .view{display:none;} .view.active{display:block;}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:1.4rem 1.5rem;margin:0 0 1.4rem;}
+  .panel.top{border-top-left-radius:0;}
+  .picker{display:grid;grid-template-columns:1fr;gap:1rem;}
+  @media(min-width:620px){.picker{grid-template-columns:1fr 1fr;}}
+  .field label{display:block;font-family:'Lora',serif;font-size:.78rem;color:var(--teal);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.35rem;}
+  .field select{width:100%;padding:.7rem .75rem;font-family:'Inter';font-size:1rem;border:1px solid var(--line);background:#f9fbfa;border-radius:6px;color:var(--ink);}
+  .field select:focus{outline:2px solid var(--accent);outline-offset:1px;}
+  .meta{display:flex;flex-wrap:wrap;gap:.5rem;margin:.2rem 0 0;}
+  .chip{font-size:.78rem;background:#eef3f2;border:1px solid var(--line);color:#37606e;padding:.25rem .6rem;border-radius:999px;}
+  .chip.lvl{background:#fdeee8;border-color:#f3c9b7;color:var(--accent-dk);}
+  .ex-head{font-family:'Fraunces',serif;font-size:1.7rem;margin:.2rem 0;}
+  .ex-sub{color:var(--muted);font-size:.95rem;margin:0 0 1rem;}
+  .script{list-style:none;counter-reset:step;padding:0;margin:0;}
+  .script li{counter-increment:step;position:relative;padding:.55rem 0 .55rem 2.4rem;border-bottom:1px dashed #e7edec;}
+  .script li:last-child{border-bottom:none;}
+  .script li::before{content:counter(step);position:absolute;left:0;top:.5rem;width:1.7rem;height:1.7rem;background:var(--accent);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem;}
+  .actions{display:flex;gap:.7rem;flex-wrap:wrap;margin:1.2rem 0 .2rem;}
+  .btn{padding:.7rem 1.3rem;border-radius:7px;font-family:'Inter';font-weight:600;font-size:.98rem;cursor:pointer;border:none;}
+  .btn-go{background:var(--accent);color:#fff;} .btn-go:hover{background:var(--accent-dk);}
+  .btn-ghost{background:#fff;color:var(--accent-dk);border:1px solid var(--accent);}
+  .speaking-note{font-size:.85rem;color:var(--soft);font-style:italic;margin-top:.5rem;min-height:1.2em;}
+  .fix{margin:1.3rem 0 0;padding:.9rem 1rem;background:#fffaf3;border:1px solid #f1ddc2;border-radius:8px;font-size:.95rem;} .fix b{color:var(--amber);}
+  .myth{margin:1.3rem 0 0;border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+  .myth-top{display:flex;align-items:center;gap:.7rem;padding:.7rem 1rem;font-weight:600;color:#fff;}
+  .myth-top .v{font-family:'Lora',serif;text-transform:uppercase;letter-spacing:.08em;font-size:.8rem;}
+  .myth.green .myth-top{background:var(--green);} .myth.amber .myth-top{background:var(--amber);} .myth.red .myth-top{background:var(--red);}
+  .myth-body{padding:.9rem 1rem;font-size:.95rem;}
+  .myth-body .claim{font-style:italic;color:var(--muted);margin:0 0 .5rem;}
+  .myth-body .src{margin:.6rem 0 0;font-size:.82rem;color:var(--soft);} .myth-body .src b{color:var(--teal);}
+  .routine-list{list-style:none;padding:0;margin:1rem 0 0;}
+  .routine-list li{display:flex;align-items:center;gap:.8rem;padding:.7rem .6rem;border:1px solid var(--line);border-radius:8px;margin-bottom:.5rem;background:#fbfdfc;cursor:pointer;}
+  .routine-list li.now{border-color:var(--accent);background:#fdeee8;box-shadow:0 0 0 2px #f3c9b7;}
+  .routine-list li.done{opacity:.55;}
+  .routine-list .num{width:1.8rem;height:1.8rem;flex-shrink:0;background:var(--ink);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;}
+  .routine-list li.now .num{background:var(--accent);}
+  .routine-list .rn{font-weight:600;} .routine-list .rd{font-size:.82rem;color:var(--muted);}
+  .routine-list .open{margin-left:auto;font-size:.78rem;color:var(--accent-dk);}
+  .nowbar{display:none;align-items:center;gap:1rem;margin:1rem 0 0;padding:.9rem 1.1rem;background:#0f1922;color:#fff;border-radius:10px;}
+  .nowbar.shown{display:flex;}
+  .nowbar .big{font-family:'Fraunces',serif;font-size:1.15rem;}
+  .nowbar .timer{margin-left:auto;font-family:'Fraunces',serif;font-size:1.8rem;color:var(--accent);min-width:2.5ch;text-align:right;}
+  .nowbar .timer.rest{color:#7fd9c4;}
+  .host{display:flex;gap:.9rem;align-items:center;margin:1.6rem 0;padding:1rem;border:1px solid var(--line);background:#fff;border-radius:10px;}
+  .host .av{width:54px;height:54px;border-radius:50%;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-weight:700;font-size:1.2rem;flex-shrink:0;}
+  .host .nm{font-family:'Lora',serif;font-weight:600;color:var(--accent-dk);} .host .bio{font-size:.9rem;color:var(--muted);}
+  .verify-box{margin:2rem 0;padding:1.3rem 1.5rem;background:#0f1922;color:#e8eef0;border-radius:12px;}
+  .verify-box h3{font-family:'Fraunces',serif;margin:0 0 .5rem;color:#fff;font-size:1.2rem;}
+  .verify-box p{font-size:.92rem;color:#c4cfd4;margin:.4rem 0;}
+  .verify-box .dots{display:flex;gap:.6rem;margin-top:.7rem;flex-wrap:wrap;}
+  .verify-box .pill{font-size:.78rem;padding:.25rem .6rem;border-radius:999px;background:#1d2c38;color:#9fd9c9;}
+  .disc{margin-top:2rem;font-size:.82rem;color:var(--soft);border-top:1px solid var(--line);padding-top:1rem;line-height:1.55;} .disc b{color:var(--muted);}
+  .modal-cues{margin:1rem 0 0;padding:1rem;border:1px dashed var(--line);border-radius:8px;background:#fbfdfc;display:none;} .modal-cues.shown{display:block;}
+  .castcard{max-width:340px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff;margin:1.8rem 0;box-shadow:0 1px 4px rgba(20,33,43,.06);}
+  .cc-photo{position:relative;height:220px;background:linear-gradient(160deg,#5c6675,#3a4452);display:flex;align-items:center;justify-content:center;}
+  .cc-mono{font-family:'Fraunces',serif;font-size:3.4rem;color:#fff;letter-spacing:.04em;}
+  .cc-mcp{position:absolute;top:.7rem;right:.7rem;background:#2e9e5b;color:#fff;font-size:.72rem;font-weight:700;padding:.28rem .62rem;border-radius:999px;}
+  .cc-body{padding:1rem 1.1rem 1.15rem;}
+  .cc-nm{font-family:'Fraunces',serif;font-weight:700;font-size:1.3rem;margin:0;color:var(--ink);}
+  .cc-role{color:#2c6486;font-weight:700;font-size:.76rem;letter-spacing:.04em;text-transform:uppercase;margin:.3rem 0 .55rem;}
+  .cc-tag{font-style:italic;color:var(--muted);font-size:.98rem;margin:0 0 1rem;}
+  .cc-tags{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.85rem;}
+  .cc-t{font-size:.78rem;background:#f0ece6;color:#6a6157;padding:.2rem .55rem;border-radius:6px;}
+  .cc-foot{display:flex;align-items:center;gap:.5rem;}
+  .cc-pill{font-size:.78rem;padding:.25rem .62rem;border-radius:999px;}
+  .cc-mcp2{background:#d8f0e2;color:#1f7a45;}
+  .cc-emp{background:#eef0f2;color:#5a6a78;}
+  .cc-hire{margin-left:auto;background:#15212b;color:#fff;border:none;border-radius:8px;padding:.55rem 1.25rem;font-weight:700;font-family:'Inter';font-size:.95rem;cursor:pointer;}
+  .cc-hire:hover{background:#000;}
+</style>
+</head>
+<body>
+<div class="ribbon"><b>Verify before you believe.</b> &nbsp;The gym staff who read the studies, not the labels.</div>
+<div class="topbar"><div class="brand">THE GYM<span class="dot">.</span></div><a class="backlink" href="/gym">&larr; All of The Gym</a></div>
+<div class="wrap">
+  <div class="hero">
+    <h1>The Workout Library</h1>
+    <p class="tag">Short and guided, no ego. Train one body part, or run a full session and let Coach Dom talk you through every rep and rest out loud.</p>
+    <p class="mini">Like the breathing sessions over at The Dose, but for your whole body. Every move comes with a myth check, because the gym is where bad advice goes to get loud.</p>
+  </div>
+  <div class="tabs">
+    <div class="tab active" data-view="single">Single Move</div>
+    <div class="tab" data-view="full">Full Workout</div>
+  </div>
+  <div class="view active" id="view-single">
+    <div class="panel top">
+      <div class="picker">
+        <div class="field"><label for="part">1. Body part</label><select id="part"></select></div>
+        <div class="field"><label for="move">2. Move</label><select id="move"></select></div>
+      </div>
+      <div class="meta" id="meta"></div>
+    </div>
+    <div class="panel" id="card">
+      <h2 class="ex-head" id="exname"></h2>
+      <p class="ex-sub" id="extarget"></p>
+      <ol class="script" id="script"></ol>
+      <div class="actions">
+        <button class="btn btn-go" id="speak">&#9654;&nbsp; Coach, talk me through it</button>
+        <button class="btn btn-ghost" id="stop">&#9632;&nbsp; Stop</button>
+      </div>
+      <p class="speaking-note" id="note">Tip: turn your sound on. Coach reads each cue with a beat in between so you can actually move.</p>
+      <div class="fix" id="fix"></div>
+      <div class="myth" id="myth"><div class="myth-top"><span class="v" id="mythv"></span><span id="mythh"></span></div>
+        <div class="myth-body"><p class="claim" id="mythclaim"></p><div id="mythtruth"></div><p class="src" id="mythsrc"></p></div></div>
+    </div>
+  </div>
+  <div class="view" id="view-full">
+    <div class="panel top">
+      <div class="field"><label for="routine">Pick a session</label><select id="routine"></select></div>
+      <p class="ex-sub" id="rdesc" style="margin:.8rem 0 0"></p>
+      <div class="meta" id="rmeta" style="margin-top:.6rem"></div>
+      <div class="nowbar" id="nowbar"><div><div class="big" id="nowname">Ready</div><div id="nowcue" style="font-size:.86rem;color:#bcc8cf"></div></div><div class="timer" id="timer"></div></div>
+      <ul class="routine-list" id="rlist"></ul>
+      <div class="modal-cues" id="cuebox"></div>
+      <div class="actions">
+        <button class="btn btn-go" id="rstart">&#9654;&nbsp; Start the full workout</button>
+        <button class="btn btn-ghost" id="rstop">&#9632;&nbsp; Stop</button>
+      </div>
+      <p class="speaking-note" id="rnote">Coach announces each move, reads the key cues, then counts your rest. Tap any move to see its full cues and myth check.</p>
+    </div>
+  </div>
+    <div class="castcard">
+    <div class="cc-photo"><span class="cc-mono">DC</span><span class="cc-mcp">&#127890; MCP</span></div>
+    <div class="cc-body">
+      <h3 class="cc-nm">Coach Dom Castellanos</h3>
+      <div class="cc-role">Strength &amp; Conditioning Coach (CSCS)</div>
+      <p class="cc-tag">The coach who'd rather you run the old program for twelve weeks.</p>
+      <div class="cc-tags"><span class="cc-t">#gym</span><span class="cc-t">#fitnessbrand</span><span class="cc-t">#strengthcoach</span></div>
+      <div class="cc-foot"><span class="cc-pill cc-mcp2">MCP</span><span class="cc-pill cc-emp">Full-time</span><button class="cc-hire">Hire</button></div>
+    </div>
+  </div>
+  <div class="verify-box">
+    <h3>How the staff verify (so you don't have to take our word for it)</h3>
+    <p>Every myth check on this page got run through The Gym <b>Stoplight</b> before it reached you. Eli pulls the studies, Coach Dom checks the training science, Henry flags anything that touches a supplement or a stimulant, and Dr. Claire calls it when a move belongs in a clinic, not a comment section.</p>
+    <p>Green means the evidence backs it. Amber means "it depends, and here's on what." Red means the internet is lying to you again. Each verdict carries a named source you can look up yourself.</p>
+    <div class="dots"><span class="pill">PubMed</span><span class="pill">ACSM / NSCA guidelines</span><span class="pill">ExRx exercise database</span><span class="pill">openFDA &middot; NIH DSLD</span><span class="pill">Stoplight verdict + citation</span></div>
+  </div>
+  <p class="disc"><b>Educational, not medical.</b> These are general fitness cues, not a prescription or a diagnosis. If a movement causes sharp pain, numbness, dizziness, or chest pressure, stop and check with a clinician or a licensed physical therapist. New to lifting, pregnant, or returning from injury? Get cleared first.<br><br>
+  If training or food has started to feel like a punishment, or the number on the scale is running your day, that is worth talking to someone about. The <b>National Alliance for Eating Disorders</b> helpline can help: 1-866-662-1235.</p>
+</div>
+<script>
+const DB = {
+ "Arms":[
+  {id:"biceps-curl",name:"Dumbbell Biceps Curl",target:"Biceps",level:"Beginner",dose:"2-3 x 8-12",
+   script:["Stand tall, a dumbbell in each hand, palms facing forward.","Pin your elbows to your ribs like you refuse to drop two newspapers.","Curl up bending only at the elbow. Squeeze at the top.","Lower slow, count to three. The lowering is where the gains hide."],
+   fix:"Common mistake: swinging the body. Fix: drop five pounds and let the muscle work, not momentum.",
+   myth:{verdict:"amber",claim:"“Curls give you a peak if you hit enough angles.”",truth:"Your biceps peak is mostly genetics. Training builds the muscle bigger, but the shape is the one your parents handed you.",source:"Schoenfeld &amp; Grgic, 2020, Strength &amp; Conditioning Journal"}},
+  {id:"hammer-curl",name:"Hammer Curl",target:"Biceps + brachialis + forearm",level:"Beginner",dose:"2-3 x 10-12",
+   script:["Same as a curl, but palms face each other like you hold two hammers.","Elbows pinned. Curl up keeping palms facing in.","Squeeze the top, lower for a slow three count.","Hits the muscle under the biceps and the forearm. Fuller arm, stronger grip."],
+   fix:"Common mistake: wrists rolling. Fix: knuckles to the ceiling, wrist locked straight.",
+   myth:{verdict:"green",claim:"“Grip and forearm work carries over to my other lifts.”",truth:"True. Grip is a real limiter on rows, deadlifts, and carries, and it tracks with overall strength.",source:"NSCA, Essentials of Strength Training &amp; Conditioning, 4th ed."}},
+  {id:"concentration-curl",name:"Concentration Curl",target:"Biceps (peak isolation)",level:"Beginner",dose:"2-3 x 10-12 per arm",
+   script:["Sit, lean forward, brace your working elbow against the inside of your thigh.","Let the weight hang, then curl it up slow with zero body english.","Picture the muscle shortening. Cue the squeeze on purpose.","Lower all the way to a full stretch. One arm at a time, no rushing."],
+   fix:"Common mistake: rushing reps. Fix: this is the slowest curl you own, treat it that way.",
+   myth:{verdict:"green",claim:"“Thinking about the muscle actually does something.”",truth:"For smaller isolation moves, focusing on the working muscle can increase its activation and growth a touch. Mind-muscle connection is real here.",source:"Schoenfeld et al., 2018, European Journal of Sport Science"}},
+  {id:"oh-triceps",name:"Overhead Triceps Extension",target:"Triceps",level:"Beginner",dose:"2-3 x 10-12",
+   script:["One dumbbell, both hands cupped under the top end, hoisted overhead.","Elbows point forward and stay close to your head, no chicken wings.","Lower behind your head by bending only at the elbow. Feel the stretch.","Press back to straight and squeeze the back of the arm."],
+   fix:"Common mistake: elbows flaring wide. Fix: imagine your elbows are in a narrow doorway.",
+   myth:{verdict:"red",claim:"“Kickbacks are the best move for bigger arms.”",truth:"Two thirds of your upper arm is triceps, but kickbacks load it in its weakest position. Overhead extensions train it where it grows.",source:"Maeo et al., 2023, European Journal of Sport Science"}},
+  {id:"dips",name:"Bench Triceps Dips",target:"Triceps + chest + front delts",level:"Beginner",dose:"2-3 x 8-12",
+   script:["Sit on the edge of a sturdy bench, hands by your hips, fingers forward.","Scoot your hips off the edge so your weight is in your hands.","Bend elbows straight back and lower your hips toward the floor.","Press back up. Keep shoulders down and away from your ears."],
+   fix:"Common mistake: shrugging to the ears. Fix: pull the shoulder blades down, chest tall.",
+   myth:{verdict:"amber",claim:"“Dips wreck your shoulders, avoid them.”",truth:"Fine for most people if you do not drop too deep and keep the shoulders packed down. Cranky shoulder? Limit depth. It depends on your joint.",source:"ACSM, Guidelines for Exercise Testing &amp; Prescription, 11th ed."}},
+  {id:"cg-pushup",name:"Close-Grip Push-Up",target:"Triceps + chest",level:"Beginner to intermediate",dose:"2-3 x 6-12",
+   script:["Hands under your shoulders, narrow, almost a diamond. Body in one straight line.","Brace your abs and glutes so the hips do not sag.","Lower with elbows tucked close to your sides, not flared.","Press up to long arms. Too hard? Put your knees down. No shame, only reps."],
+   fix:"Common mistake: elbows flaring out. Fix: keep them brushing your ribs on the way down.",
+   myth:{verdict:"amber",claim:"“Push-ups can't build real muscle, only the bench can.”",truth:"For beginners and intermediates, hard push-ups build the chest and triceps well. Once they get easy you add load or elevation. It depends on how challenging you make them.",source:"Kikuchi &amp; Nakazato, 2017, Journal of Physical Therapy Science"}}
+ ],
+ "Shoulders":[
+  {id:"lat-raise",name:"Lateral Raise",target:"Side delts",level:"Beginner",dose:"2-3 x 12-15",
+   script:["Light dumbbells. Heavier than you think is the classic mistake, start humble.","Tiny bend in the elbows, weights in front of your thighs.","Raise out to the sides to shoulder height, leading with the elbows.","Pour out imaginary jugs, pinkies slightly up. Lower slow, no swinging."],
+   fix:"Common mistake: heaving heavy weights. Fix: go light, this muscle wants control and reps.",
+   myth:{verdict:"green",claim:"“Wide shoulders make my waist look smaller.”",truth:"True, and it is just geometry. Building side delts widens your frame and improves the shoulder to waist ratio with zero change to your waist.",source:"NSCA, Essentials of Strength Training &amp; Conditioning, 4th ed."}},
+  {id:"oh-press",name:"Overhead Press",target:"Front + side delts + triceps",level:"Beginner to intermediate",dose:"2-3 x 6-10",
+   script:["Dumbbells at shoulder height, palms forward, elbows under wrists.","Brace your core like someone is about to tell a bad joke and you refuse to laugh.","Press straight up to long arms without leaning back.","Lower under control to your shoulders. That is one."],
+   fix:"Common mistake: arching the lower back. Fix: squeeze glutes, brace abs, keep ribs down.",
+   myth:{verdict:"red",claim:"“Overhead pressing is bad for your shoulders.”",truth:"For a healthy shoulder, pressing overhead is normal and useful. Avoiding it leaves you weaker in a range you use daily. Build up slowly.",source:"ACSM, Guidelines for Exercise Testing &amp; Prescription, 11th ed."}},
+  {id:"front-raise",name:"Front Raise",target:"Front delts",level:"Beginner",dose:"2-3 x 10-12",
+   script:["Weights resting on the front of your thighs, palms facing you.","Raise straight arms forward to shoulder height, no higher.","Slow on the way up, slower on the way down.","Do not swing or lean back. If you rock, go lighter."],
+   fix:"Common mistake: using momentum from the hips. Fix: pause for a beat at the bottom each rep.",
+   myth:{verdict:"amber",claim:"“I need direct front delt work to build my shoulders.”",truth:"Your front delts already get hammered by every press and push-up. A little direct work is fine, but it is often the least necessary. It depends on your pressing volume.",source:"NSCA, Essentials of Strength Training &amp; Conditioning, 4th ed."}},
+  {id:"rear-fly",name:"Rear Delt Fly",target:"Rear delts + upper back",level:"Beginner",dose:"2-3 x 12-15",
+   script:["Hinge forward at the hips, flat back, light dumbbells hanging down.","Open your arms out to the sides like wings, leading with the elbows.","Squeeze your shoulder blades together at the top.","Lower slow. Tiny weight, big squeeze, this muscle is shy."],
+   fix:"Common mistake: turning it into a row. Fix: keep arms wide and lead with the pinkies, not the hands.",
+   myth:{verdict:"red",claim:"“Rear delts are tiny and not worth training.”",truth:"Rear delts balance out all your pressing, support your posture, and round out the shoulder. Skipping them is how you end up hunched and front-heavy.",source:"NSCA, Essentials of Strength Training &amp; Conditioning, 4th ed."}},
+  {id:"face-pull",name:"Band Face Pull",target:"Rear delts + upper back",level:"Beginner",dose:"2-3 x 15-20",
+   script:["Anchor a band at face height. Hold one end in each hand, arms straight out.","Pull the band toward your face, splitting your hands out to the sides.","Aim your knuckles past your ears, elbows high.","Squeeze, then return slow. This is the posture move you will thank yourself for."],
+   fix:"Common mistake: pulling with the lower arms only. Fix: drive the elbows back and high, not down.",
+   myth:{verdict:"amber",claim:"“Face pulls fix your posture.”",truth:"They help strengthen the muscles that hold you upright, but posture is also about how much you move and sit. One exercise is a piece, not a cure. It depends on the whole day.",source:"ACSM position resources on posture &amp; resistance training"}}
+ ],
+ "Back":[
+  {id:"bent-row",name:"Bent-Over Row",target:"Lats + mid-back + biceps",level:"Beginner to intermediate",dose:"2-3 x 8-12",
+   script:["Hinge at the hips, flat back, knees soft, weights hanging below you.","Brace your core hard. Your spine stays a straight line the whole set.","Pull the weights to your lower ribs, driving the elbows back.","Squeeze the shoulder blades, then lower slow. Chest proud, eyes down."],
+   fix:"Common mistake: rounding the back under load. Fix: lighten up and keep the spine flat and braced.",
+   myth:{verdict:"amber",claim:"“Rows round your back and are dangerous.”",truth:"A braced, flat-back row is safe and one of the best back builders. The risk is loading a rounded spine, not the row itself. It depends on your position.",source:"McGill, 2015, Low Back Disorders, 3rd ed."}},
+  {id:"one-arm-row",name:"One-Arm Dumbbell Row",target:"Lats + mid-back",level:"Beginner",dose:"2-3 x 10-12 per arm",
+   script:["One hand and one knee on a bench, back flat like a table.","Let the dumbbell hang, then row it up to your hip pocket.","Drive the elbow back and squeeze. Do not twist your torso to cheat it.","Lower to a full stretch. The other arm is jealous, switch sides."],
+   fix:"Common mistake: twisting the body to lift more. Fix: keep your shoulders level and let the back do the pulling.",
+   myth:{verdict:"amber",claim:"“A lifting belt makes your core weak.”",truth:"Used on heavy sets, a belt can help you brace and lift more, and it does not weaken your core for most people. Wearing it for everything is unnecessary. It depends on the load.",source:"NSCA position resources on belt use"}},
+  {id:"superman",name:"Superman",target:"Lower back + glutes",level:"Beginner",dose:"2-3 x 10-12",
+   script:["Lie face down, arms reaching forward, legs straight.","Lift your arms, chest, and legs off the floor at the same time.","Reach long, like you are flying, not folding. Short range is fine.","Lower with control. This trains the back you cannot see in the mirror."],
+   fix:"Common mistake: cranking the neck up. Fix: keep your gaze down and lift from the back, not the chin.",
+   myth:{verdict:"green",claim:"“You should actually train your lower back, not just protect it.”",truth:"The lower back is a muscle that gets stronger and more resilient when you train it through a comfortable range. Avoiding it entirely tends to leave it weaker.",source:"McGill, 2015, Low Back Disorders, 3rd ed."}},
+  {id:"assist-pullup",name:"Band-Assisted Pull-Up",target:"Lats + biceps + grip",level:"Intermediate",dose:"2-3 x 4-8",
+   script:["Loop a band over the bar and put one foot or knee in it for help.","Hands just wider than shoulders, hang with long arms.","Pull your chest toward the bar by driving your elbows down.","Lower all the way to a dead hang. Fewer clean reps beat many sloppy ones."],
+   fix:"Common mistake: half reps. Fix: full hang at the bottom, chin over at the top, use more band if needed.",
+   myth:{verdict:"amber",claim:"“You can't build a back without pull-ups.”",truth:"Pull-ups are great, but rows build the back just as well. If a bar is not your friend yet, rows will get you there. It depends on what you have access to.",source:"NSCA, Essentials of Strength Training &amp; Conditioning, 4th ed."}}
+ ],
+ "Chest":[
+  {id:"pushup",name:"Push-Up",target:"Chest + triceps + front delts",level:"Beginner",dose:"2-3 x 6-15",
+   script:["Hands under your shoulders, body in one straight line from head to heels.","Brace your abs and glutes so the hips do not sag or pike.","Lower until your chest is a fist off the floor, elbows at about 45 degrees.","Press up to long arms. Knees down to scale it, hands elevated to scale it more."],
+   fix:"Common mistake: hips sagging. Fix: squeeze glutes and abs, think one rigid plank the whole time.",
+   myth:{verdict:"red",claim:"“Push-ups are just for beginners.”",truth:"Elevate the feet, slow the tempo, or add a weighted pack and push-ups challenge anyone. Strength is about how hard the variation is, not the name.",source:"Kikuchi &amp; Nakazato, 2017, Journal of Physical Therapy Science"}},
+  {id:"incline-pushup",name:"Incline Push-Up",target:"Chest + triceps (easier)",level:"Beginner",dose:"2-3 x 8-15",
+   script:["Hands on a sturdy counter, bench, or wall. The higher the surface, the easier.","Walk your feet back so your body is one straight, leaning line.","Lower your chest to the edge, elbows tucked, then press away.","This is the on-ramp to floor push-ups. Lower the surface as you get strong."],
+   fix:"Common mistake: bending at the hips. Fix: keep the line from head to heel, lead with the chest.",
+   myth:{verdict:"amber",claim:"“Incline push-ups carve the upper chest.”",truth:"Incline pressing does bias the upper chest somewhat, but you cannot sculpt one corner of a muscle in isolation. It is emphasis, not magic. It depends, modestly.",source:"Trebs et al., 2010, Journal of Strength &amp; Conditioning Research"}},
+  {id:"floor-press",name:"Dumbbell Floor Press",target:"Chest + triceps",level:"Beginner",dose:"2-3 x 8-12",
+   script:["Lie on your back, knees bent, a dumbbell in each hand over your chest.","Lower until your upper arms touch the floor, elbows at about 45 degrees.","Pause for a beat when your elbows touch down.","Press back up and squeeze your chest at the top. Shoulder-friendly and simple."],
+   fix:"Common mistake: bouncing the elbows off the floor. Fix: pause, then press, no rebound.",
+   myth:{verdict:"red",claim:"“You must train chest to failure every set to grow.”",truth:"Stopping a rep or two short of failure builds nearly the same muscle with less fatigue and lower injury risk. Failure every set is not required.",source:"Grgic et al., 2022, Sports Medicine"}},
+  {id:"chest-fly",name:"Dumbbell Chest Fly",target:"Chest",level:"Beginner",dose:"2-3 x 10-12",
+   script:["On the floor or a bench, weights over your chest, slight bend in the elbows.","Open your arms out wide like a big hug in slow motion.","Feel the stretch across your chest, then hug the weights back together.","Keep that elbow angle fixed the whole time. Light weight, big stretch."],
+   fix:"Common mistake: turning it into a press. Fix: keep the soft elbow bend locked, move only at the shoulder.",
+   myth:{verdict:"red",claim:"“Flys carve out the inner chest.”",truth:"There is no separate inner chest to isolate. The chest is one muscle that you build as a whole. Flys add a nice stretch, not a secret inner line.",source:"NSCA, Essentials of Strength Training &amp; Conditioning, 4th ed."}}
+ ],
+ "Legs":[
+  {id:"squat",name:"Bodyweight Squat",target:"Quads, glutes, hamstrings",level:"Beginner",dose:"2-3 x 10-15",
+   script:["Feet shoulder width, toes turned out a touch, arms out front for balance.","Push your hips back like you reach for a chair behind you.","Sink down, letting your knees travel over your toes. That is allowed, that is human.","Drive through your whole foot to stand and squeeze the glutes at the top."],
+   fix:"Common mistake: heels popping up. Fix: spread weight across the whole foot and slow the descent.",
+   myth:{verdict:"red",claim:"“Knees should never go past your toes.”",truth:"Knees traveling past the toes is normal and safe for healthy knees. You cannot climb stairs without it. Forcing knees back just shifts strain to your back.",source:"Fry, Smith &amp; Schilling, 2003, Journal of Strength &amp; Conditioning Research"}},
+  {id:"rdl",name:"Romanian Deadlift (RDL)",target:"Hamstrings + glutes",level:"Beginner to intermediate",dose:"2-3 x 8-12",
+   script:["Stand with weights in front of your thighs, knees softly bent.","Push your hips straight back and let the weights slide down your legs.","Keep your back flat and the weights close. Feel the stretch in your hamstrings.","Drive your hips forward to stand tall and squeeze the glutes. Hinge, do not squat."],
+   fix:"Common mistake: rounding the back or squatting it. Fix: it is a hip hinge, push the hips back, keep the spine flat.",
+   myth:{verdict:"amber",claim:"“Deadlifts wreck your back.”",truth:"Hinging with a braced, flat spine is one of the best things for a healthy back. The risk comes from rounding under heavy load, not the movement. It depends on technique.",source:"McGill, 2015, Low Back Disorders, 3rd ed."}},
+  {id:"lunge",name:"Reverse Lunge",target:"Quads, glutes, balance",level:"Beginner to intermediate",dose:"2-3 x 8-10 per leg",
+   script:["Stand tall, hands on hips. This move is sneaky humbling, respect it.","Step one foot straight back and lower your back knee toward the floor.","Both knees bend to about 90 degrees, chest up, weight in the front heel.","Drive through the front foot to stand. Stepping back is easier on the knees."],
+   fix:"Common mistake: wobbling and rushing. Fix: go slow, fix your eyes ahead, use a wall at first.",
+   myth:{verdict:"amber",claim:"“Lifting weights makes women bulky.”",truth:"Building large muscle takes years, lots of food, and usually more testosterone than most women make. For nearly everyone, strength training builds tone, not bulk. It depends on training like a bodybuilder, which does not happen by accident.",source:"ACSM Position Stand on Resistance Training"}},
+  {id:"glute-bridge",name:"Glute Bridge",target:"Glutes + hamstrings + core",level:"Beginner",dose:"2-3 x 12-15",
+   script:["Lie on your back, knees bent, feet flat about hip width.","Push through your heels and lift your hips to the ceiling.","Squeeze your glutes hard at the top like cracking a walnut you dislike.","Make a straight line from knees to shoulders, no back-arching to cheat height."],
+   fix:"Common mistake: arching the lower back. Fix: tuck the ribs, drive height from the glutes.",
+   myth:{verdict:"red",claim:"“You can burn the fat off your hips with the right move.”",truth:"Spot reduction is not real. You build the glute with bridges, and you lose fat overall through a deficit and time. Both, not either.",source:"Vispute et al., 2011, Journal of Strength &amp; Conditioning Research"}},
+  {id:"calf-raise",name:"Calf Raise",target:"Calves",level:"Beginner",dose:"2-3 x 15-20",
+   script:["Stand tall near a wall for a fingertip of balance.","Press up onto the balls of your feet as high as you can.","Pause at the top for a beat. The pause is the part everyone skips.","Lower slow to a full stretch, then go again. Calves want patience."],
+   fix:"Common mistake: tiny fast bounces. Fix: full range, full stretch, real pause at the top.",
+   myth:{verdict:"amber",claim:"“Calves are pure genetics, training is pointless.”",truth:"Genetics set the ceiling and shape, but calves still grow with full-range work and enough volume. The people who call it hopeless usually trained them twice and quit.",source:"Schoenfeld &amp; Grgic, 2020, Strength &amp; Conditioning Journal"}},
+  {id:"wall-sit",name:"Wall Sit",target:"Quads (endurance)",level:"Beginner",dose:"2-3 holds of 20-45 sec",
+   script:["Back flat against a wall, slide down until your thighs are near parallel.","Knees over your ankles, weight in your heels.","Hold. Breathe. Your quads will start writing you angry letters. Read them later.","When your form breaks or the knees cave in, stand up. Quality over the clock."],
+   fix:"Common mistake: knees caving inward. Fix: gently press the knees out in line with your toes.",
+   myth:{verdict:"amber",claim:"“The longer the wall sit, the better.”",truth:"Wall sits build endurance and a mind-quad connection, but a marathon hold is not the goal. Strength comes from harder movement and load too. It depends on what you are training for.",source:"NSCA, Essentials of Strength Training &amp; Conditioning, 4th ed."}}
+ ],
+ "Abs":[
+  {id:"plank",name:"Forearm Plank",target:"Deep core",level:"Beginner",dose:"3 holds of 20-40 sec",
+   script:["Forearms down, elbows under shoulders, legs straight out on your toes.","One straight line from heels to head. No saggy hips, no mountain peak.","Squeeze glutes and brace your abs like you will take a friendly gut punch.","Keep breathing. People hold their breath and turn purple. Hold the line, not the air."],
+   fix:"Common mistake: hips sagging or hiking. Fix: squeeze glutes, tuck ribs, film yourself from the side once.",
+   myth:{verdict:"red",claim:"“Enough planks and crunches and you get a six pack.”",truth:"Everyone already has a six pack, it just sits under body fat. Core work thickens the muscle, but you see it by lowering body fat overall.",source:"Vispute et al., 2011, Journal of Strength &amp; Conditioning Research"}},
+  {id:"dead-bug",name:"Dead Bug",target:"Core control, back-friendly",level:"Beginner",dose:"2-3 x 8 per side",
+   script:["On your back, arms over your shoulders, knees bent over your hips. Lean into the bug look.","Press your lower back gently into the floor and keep it there.","Slowly lower one arm overhead and the opposite leg toward the floor.","Only go as far as your back stays glued down. Return and switch sides."],
+   fix:"Common mistake: lower back arching off the floor. Fix: shorten the range, keep the back down, slow it by half.",
+   myth:{verdict:"green",claim:"“Anti-movement core work beats endless crunches for back health.”",truth:"For most people, dead bugs and planks build stability that supports the lower back with less strain than high-rep crunching. General guidance, not a fix for an existing injury.",source:"McGill, 2015, Low Back Disorders, 3rd ed."}},
+  {id:"bird-dog",name:"Bird Dog",target:"Core + glutes + balance",level:"Beginner",dose:"2-3 x 8 per side",
+   script:["On all fours, hands under shoulders, knees under hips, flat back.","Reach one arm forward and the opposite leg straight back.","Keep your hips level, like a drink is balanced on your back and you cannot spill it.","Hold a beat, return with control, switch sides. Slow and boring is the point."],
+   fix:"Common mistake: rotating the hips and rushing. Fix: move slower, reach longer, keep hips square.",
+   myth:{verdict:"amber",claim:"“You need a daily ab routine for a strong core.”",truth:"Your core already works hard in squats, presses, rows, and carries. A little focused work helps, daily grind is not required. It depends on how much your big lifts challenge your trunk.",source:"NSCA, Essentials of Strength Training &amp; Conditioning, 4th ed."}},
+  {id:"side-plank",name:"Side Plank",target:"Obliques + lateral core",level:"Beginner to intermediate",dose:"2-3 holds of 15-30 sec per side",
+   script:["Lie on your side, forearm down, elbow under your shoulder, legs stacked.","Lift your hips so your body is one straight diagonal line.","Reach the top arm to the ceiling, or rest it on your hip.","Hold tall, do not let the hips droop. Drop a knee to scale it down."],
+   fix:"Common mistake: hips sagging toward the floor. Fix: push the bottom hip up and squeeze the side that faces down.",
+   myth:{verdict:"red",claim:"“Oblique training shrinks your waist.”",truth:"Trained obliques can slightly thicken the waist, not shrink it. Waist size is mostly body fat and your skeletal structure, neither set by side planks.",source:"Vispute et al., 2011, Journal of Strength &amp; Conditioning Research"}},
+  {id:"hollow-hold",name:"Hollow Hold",target:"Front core (anterior chain)",level:"Intermediate",dose:"2-3 holds of 15-30 sec",
+   script:["On your back, press your lower back flat into the floor and keep it there.","Lift your shoulders and legs a few inches off the ground.","Reach long, arms by your ears, like a banana that decided to do crunches.","Too hard? Bend the knees or tuck the arms. Back lifts off the floor, set is over."],
+   fix:"Common mistake: the lower back popping up. Fix: bend the knees and lower the legs less, keep the back pinned.",
+   myth:{verdict:"red",claim:"“Hollow holds flatten your stomach.”",truth:"They build serious core control, but a flat stomach is a body fat outcome, not a hold-this-pose outcome. Strong core, yes. Spot-flattened belly, no.",source:"Vispute et al., 2011, Journal of Strength &amp; Conditioning Research"}},
+  {id:"leg-raise",name:"Lying Leg Raise",target:"Core (lower-region emphasis)",level:"Beginner to intermediate",dose:"2-3 x 8-12",
+   script:["On your back, hands under your hips or by your sides for support.","Keep your lower back pressed down and lift your straight legs toward the ceiling.","Lower them slow, only as far as your back stays flat on the floor.","If your back arches, bend your knees. Control beats range."],
+   fix:"Common mistake: the lower back arching as the legs lower. Fix: stop the descent higher, or bend the knees.",
+   myth:{verdict:"amber",claim:"“Leg raises train a separate lower ab muscle.”",truth:"Your six pack is one sheet of muscle, the rectus abdominis. Leg raises can emphasize the lower region a bit, but there is no separate lower ab to isolate. It depends, modestly.",source:"NSCA, Essentials of Strength Training &amp; Conditioning, 4th ed."}}
+ ],
+ "Full body":[
+  {id:"five-min",name:"The 5 Minute Wake-Up",target:"Everything, lightly",level:"Beginner",dose:"5 rounds, ~1 min each",
+   script:["No gear, no excuses. Set a timer for five minutes and keep moving.","10 bodyweight squats. Sit back, stand tall, squeeze.","10 second plank. One straight line, keep breathing.","10 glute bridges. Heels down, squeeze the top.","8 reverse lunges, then march in place. You did more than most people do all day."],
+   fix:"Common mistake: going too hard on day one and skipping day two. Fix: keep it easy enough that you come back tomorrow.",
+   myth:{verdict:"green",claim:"“Short daily movement counts, even without a full session.”",truth:"True. Short bouts add up and improve health, and any movement beats none. The best workout is the one you will actually repeat.",source:"2018 Physical Activity Guidelines for Americans, 2nd ed. (U.S. HHS)"}},
+  {id:"mobility-flow",name:"5 Minute Mobility Flow",target:"Joints, warm-up",level:"Beginner",dose:"~5 min, flowing",
+   script:["Stand tall. 10 slow arm circles forward, 10 back. Wake the shoulders up.","10 hip circles each way, like you are spinning a hula hoop in slow motion.","10 bodyweight squats to depth, easy and smooth.","10 slow leg swings each leg, then 5 deep breaths. Now you are ready to train."],
+   fix:"Common mistake: bouncing into long static stretches before lifting. Fix: keep it moving and dynamic to warm up.",
+   myth:{verdict:"amber",claim:"“Static stretching before a workout prevents injury and boosts performance.”",truth:"Long static holds before training can dial down power for a bit and do not reliably prevent injury. A dynamic warm-up like this is the better pre-workout choice. It depends on timing.",source:"Behm &amp; Chaouachi, 2011, European Journal of Applied Physiology"}}
+ ]
+};
+
+const ROUTINES = [
+ {id:"full",name:"Full Body Express",time:"~18 min",desc:"One pass over the whole body. Great default if you only do one session a week.",
+  items:[{ref:"squat",dose:"12 reps",rest:30},{ref:"pushup",dose:"10 reps",rest:30},{ref:"bent-row",dose:"10 reps",rest:30},{ref:"glute-bridge",dose:"15 reps",rest:30},{ref:"oh-press",dose:"10 reps",rest:30},{ref:"plank",dose:"30 seconds",rest:45}]},
+ {id:"upper",name:"Upper Body",time:"~16 min",desc:"Push, pull, and arms. Chest, back, shoulders, biceps, triceps.",
+  items:[{ref:"pushup",dose:"10 reps",rest:30},{ref:"bent-row",dose:"10 reps",rest:30},{ref:"oh-press",dose:"10 reps",rest:30},{ref:"biceps-curl",dose:"12 reps",rest:30},{ref:"oh-triceps",dose:"12 reps",rest:30},{ref:"rear-fly",dose:"15 reps",rest:30}]},
+ {id:"lower",name:"Lower Body",time:"~16 min",desc:"Quads, hamstrings, glutes, calves. The session people skip and regret.",
+  items:[{ref:"squat",dose:"12 reps",rest:30},{ref:"rdl",dose:"10 reps",rest:30},{ref:"lunge",dose:"8 per leg",rest:30},{ref:"glute-bridge",dose:"15 reps",rest:30},{ref:"calf-raise",dose:"20 reps",rest:30},{ref:"wall-sit",dose:"30 seconds",rest:45}]},
+ {id:"core",name:"Core Express",time:"~9 min",desc:"Five moves, no crunches required. Stability over spectacle.",
+  items:[{ref:"dead-bug",dose:"8 per side",rest:25},{ref:"plank",dose:"30 seconds",rest:30},{ref:"bird-dog",dose:"8 per side",rest:25},{ref:"side-plank",dose:"20 sec per side",rest:30},{ref:"hollow-hold",dose:"20 seconds",rest:30}]},
+ {id:"wake",name:"5 Minute Wake-Up",time:"~5 min",desc:"The no-excuses starter. Squat, plank, bridge, lunge.",
+  items:[{ref:"squat",dose:"10 reps",rest:20},{ref:"plank",dose:"15 seconds",rest:20},{ref:"glute-bridge",dose:"10 reps",rest:20},{ref:"lunge",dose:"6 per leg",rest:20}]}
+];
+
+const BYID = {};
+Object.values(DB).forEach(arr=>arr.forEach(e=>BYID[e.id]=e));
+const VERDICT = {green:"Green · Checks out", amber:"Amber · It depends", red:"Red · Myth"};
+
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
+  stopSpeak(); stopRoutine();
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  document.getElementById('view-'+t.dataset.view).classList.add('active');
+}));
+
+const partSel=document.getElementById('part'), moveSel=document.getElementById('move');
+partSel.innerHTML = Object.keys(DB).map(p=>'<option value="'+p+'">'+p+'</option>').join('');
+function fillMoves(){
+  moveSel.innerHTML = DB[partSel.value].map((m,i)=>'<option value="'+i+'">'+m.name+'</option>').join('');
+  renderMove();
+}
+function renderMove(){
+  const m=DB[partSel.value][+moveSel.value];
+  document.getElementById('meta').innerHTML='<span class="chip lvl">'+m.level+'</span><span class="chip">Target: '+m.target+'</span><span class="chip">Do: '+m.dose+'</span>';
+  document.getElementById('exname').textContent=m.name;
+  document.getElementById('extarget').textContent='Works: '+m.target+'  ·  Suggested: '+m.dose;
+  document.getElementById('script').innerHTML=m.script.map(s=>'<li>'+s+'</li>').join('');
+  document.getElementById('fix').innerHTML='<b>Form fix.</b> '+m.fix;
+  const my=m.myth, box=document.getElementById('myth');
+  box.className='myth '+my.verdict;
+  document.getElementById('mythv').textContent=VERDICT[my.verdict];
+  document.getElementById('mythh').textContent='Myth Check';
+  document.getElementById('mythclaim').textContent=my.claim;
+  document.getElementById('mythtruth').innerHTML='<span>'+my.truth+'</span>';
+  document.getElementById('mythsrc').innerHTML='Checked against: <b>'+my.source+'</b>';
+  stopSpeak();
+}
+partSel.addEventListener('change',fillMoves);
+moveSel.addEventListener('change',renderMove);
+
+function pickVoice(){
+  const vs=window.speechSynthesis?speechSynthesis.getVoices():[];
+  return vs.find(v=>/en(-|_)?(US|GB)/i.test(v.lang)&&/male|daniel|alex|fred|guy|aaron/i.test(v.name))||vs.find(v=>/^en/i.test(v.lang))||null;
+}
+function say(text, rate){
+  return new Promise(res=>{
+    if(!('speechSynthesis' in window)){res();return;}
+    const u=new SpeechSynthesisUtterance(text);
+    const v=pickVoice(); if(v)u.voice=v;
+    u.rate=rate||0.96; u.pitch=1.0; u.onend=res; u.onerror=res;
+    speechSynthesis.speak(u);
+  });
+}
+let singleSpeaking=false;
+const note=document.getElementById('note');
+async function speakSingle(){
+  if(!('speechSynthesis' in window)){note.textContent='Your browser will not read aloud, but the cues are right there. Read them like a coach.';return;}
+  stopSpeak(); singleSpeaking=true;
+  document.getElementById('speak').textContent='⏸ Reading...';
+  note.textContent='Coach is talking. Move with the cues and do not rush the lowering.';
+  const m=DB[partSel.value][+moveSel.value];
+  const lines=[m.name+'. Let us go.'].concat(m.script);
+  for(const line of lines){ if(!singleSpeaking)return; await say(line+' ... '); }
+  stopSpeak(); note.textContent='Nice. Run it again, or pick the next move.';
+}
+function stopSpeak(){
+  if('speechSynthesis' in window)speechSynthesis.cancel();
+  singleSpeaking=false;
+  const b=document.getElementById('speak'); if(b)b.innerHTML='&#9654;&nbsp; Coach, talk me through it';
+}
+document.getElementById('speak').addEventListener('click',speakSingle);
+document.getElementById('stop').addEventListener('click',()=>{stopSpeak();note.textContent='Stopped. Hit play when you are ready.';});
+
+const routSel=document.getElementById('routine');
+routSel.innerHTML=ROUTINES.map((r,i)=>'<option value="'+i+'">'+r.name+' ('+r.time+')</option>').join('');
+let routineRunning=false, routineTimer=null, routineCancel=false;
+function curRoutine(){return ROUTINES[+routSel.value];}
+function renderRoutine(){
+  const r=curRoutine();
+  document.getElementById('rdesc').textContent=r.desc;
+  document.getElementById('rmeta').innerHTML='<span class="chip lvl">'+r.time+'</span><span class="chip">'+r.items.length+' moves</span><span class="chip">Coach-narrated</span>';
+  const list=document.getElementById('rlist');
+  list.innerHTML=r.items.map((it,i)=>{
+    const e=BYID[it.ref];
+    return '<li data-i="'+i+'"><span class="num">'+(i+1)+'</span><span><span class="rn">'+e.name+'</span><br><span class="rd">'+it.dose+' · rest '+it.rest+'s</span></span><span class="open">cues &amp; check &#8595;</span></li>';
+  }).join('');
+  list.querySelectorAll('li').forEach(li=>li.addEventListener('click',()=>showCues(+li.dataset.i)));
+  document.getElementById('cuebox').classList.remove('shown');
+  document.getElementById('cuebox').innerHTML='';
+}
+function showCues(i){
+  const it=curRoutine().items[i], e=BYID[it.ref], box=document.getElementById('cuebox');
+  box.classList.add('shown');
+  box.innerHTML='<b style="font-family:\'Fraunces\',serif;font-size:1.1rem">'+e.name+'</b> <span class="rd">('+it.dose+')</span>'+
+    '<ol class="script" style="margin-top:.6rem">'+e.script.map(s=>'<li>'+s+'</li>').join('')+'</ol>'+
+    '<div class="myth '+e.myth.verdict+'" style="margin-top:1rem"><div class="myth-top"><span class="v">'+VERDICT[e.myth.verdict]+'</span><span>Myth Check</span></div>'+
+    '<div class="myth-body"><p class="claim">'+e.myth.claim+'</p><div>'+e.myth.truth+'</div><p class="src">Checked against: <b>'+e.myth.source+'</b></p></div></div>';
+  box.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+routSel.addEventListener('change',()=>{stopRoutine();renderRoutine();});
+function setNow(name,cue,show){
+  const bar=document.getElementById('nowbar');
+  bar.classList.toggle('shown',!!show);
+  document.getElementById('nowname').textContent=name||'';
+  document.getElementById('nowcue').textContent=cue||'';
+}
+function highlight(i){
+  document.querySelectorAll('#rlist li').forEach((li,idx)=>{
+    li.classList.toggle('now',idx===i);
+    li.classList.toggle('done', i===-1 ? true : idx<i);
+  });
+}
+function countdown(secs,restMode){
+  return new Promise(res=>{
+    const t=document.getElementById('timer');
+    t.className='timer'+(restMode?' rest':'');
+    let s=secs; t.textContent=s;
+    routineTimer=setInterval(()=>{
+      if(routineCancel){clearInterval(routineTimer);res();return;}
+      s--; t.textContent=s>0?s:'';
+      if(s<=0){clearInterval(routineTimer);res();}
+    },1000);
+  });
+}
+async function runRoutine(){
+  const r=curRoutine();
+  routineRunning=true; routineCancel=false;
+  document.getElementById('rstart').textContent='⏸ Running...';
+  document.getElementById('rnote').textContent='Coach is running the session. Follow the highlighted move. Hit Stop anytime.';
+  setNow('Warming up','Roll your shoulders and take a breath.',true);
+  await say(r.name+'. '+r.items.length+' moves. Let us get to work.');
+  if(routineCancel)return finishRoutine(true);
+  for(let i=0;i<r.items.length;i++){
+    if(routineCancel)return finishRoutine(true);
+    const it=r.items[i], e=BYID[it.ref];
+    highlight(i);
+    setNow((i+1)+'. '+e.name, it.dose, true);
+    document.getElementById('timer').textContent='';
+    await say('Move '+(i+1)+' of '+r.items.length+'. '+e.name+'. '+it.dose+'.');
+    if(routineCancel)return finishRoutine(true);
+    for(const cue of e.script.slice(0,2)){ if(routineCancel)return finishRoutine(true); await say(cue+' ... '); }
+    await say('Go.');
+    const isTimed=/sec/.test(it.dose);
+    const workSecs=isTimed?(parseInt(it.dose)||30):30;
+    setNow((i+1)+'. '+e.name, 'Work: '+it.dose, true);
+    await countdown(workSecs,false);
+    if(routineCancel)return finishRoutine(true);
+    if(i<r.items.length-1){
+      setNow('Rest', 'Next up: '+BYID[r.items[i+1].ref].name, true);
+      await say('Rest. '+it.rest+' seconds.');
+      await countdown(it.rest,true);
+    }
+  }
+  if(routineCancel)return finishRoutine(true);
+  highlight(-1);
+  setNow('Done', 'That is the session. Well run.', true);
+  await say('That is the whole session. Nicely done. Same time tomorrow, or let it recover. Either way, you showed up.');
+  finishRoutine(false);
+}
+function finishRoutine(cancelled){
+  routineRunning=false;
+  if(routineTimer)clearInterval(routineTimer);
+  if('speechSynthesis' in window)speechSynthesis.cancel();
+  document.getElementById('rstart').innerHTML='&#9654;&nbsp; Start the full workout';
+  if(cancelled){ setNow('','',false); document.querySelectorAll('#rlist li').forEach(li=>li.classList.remove('now','done')); document.getElementById('timer').textContent=''; document.getElementById('rnote').textContent='Stopped. Press start when you are ready to run it again.'; }
+}
+function stopRoutine(){ routineCancel=true; finishRoutine(true); }
+document.getElementById('rstart').addEventListener('click',()=>{ if(routineRunning){stopRoutine();}else{runRoutine();} });
+document.getElementById('rstop').addEventListener('click',stopRoutine);
+window.addEventListener('beforeunload',()=>{stopSpeak();stopRoutine();});
+
+fillMoves();
+renderRoutine();
+if('speechSynthesis' in window){ speechSynthesis.onvoiceschanged=()=>{}; }
+</script>
+</body>
+</html>

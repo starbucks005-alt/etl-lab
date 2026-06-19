@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Drying Bench, The Gym</title>
+<meta name="description" content="Dehydrate it right. Pick a food, get the temp, time, and prep, with a myth check on every one. Raw foods, jerky, fruit leather and more. Verify before you believe.">
+<meta name="author" content="Dr. Terry Oroszi, EdD">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,700&family=Inter:wght@400;500;600;700&family=Lora:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#16212b;--muted:#5a6a78;--soft:#7a8a98;--bg:#f6f8f7;--panel:#fff;--line:#d4dde2;--accent:#c0356f;--accent-dk:#97285a;--warm:#d98a2b;--green:#2e9e5b;--amber:#d99016;--red:#c8485f;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',sans-serif;line-height:1.5;}
+  .wrap{max-width:880px;margin:0 auto;padding:0 1.1rem 4rem;}
+  a{color:var(--accent-dk);}
+  .ribbon{background:var(--ink);color:#fff;text-align:center;font-family:'Lora',serif;letter-spacing:.16em;text-transform:uppercase;font-size:.72rem;padding:.5rem;}
+  .ribbon b{color:var(--accent);}
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:1rem;max-width:880px;margin:0 auto;padding:1rem 1.1rem .4rem;}
+  .brand{font-family:'Fraunces',serif;font-weight:700;font-size:1.15rem;} .brand .dot{color:var(--accent);}
+  .backlink{font-size:.85rem;color:var(--muted);text-decoration:none;}
+  .hero{padding:1.5rem 0 .4rem;}
+  .hero h1{font-family:'Fraunces',serif;font-size:2.35rem;line-height:1.05;margin:0 0 .5rem;}
+  .hero .tag{color:var(--muted);font-size:1.06rem;max-width:60ch;margin:0 0 .8rem;}
+  .hero .mini{color:var(--soft);font-size:.92rem;max-width:62ch;font-style:italic;}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:1.4rem 1.5rem;margin:1.4rem 0;}
+  .picker{display:grid;grid-template-columns:1fr;gap:1rem;}
+  @media(min-width:620px){.picker{grid-template-columns:1fr 1fr;}}
+  .field label{display:block;font-family:'Lora',serif;font-size:.78rem;color:var(--accent-dk);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.35rem;}
+  .field select{width:100%;padding:.7rem .75rem;font-family:'Inter';font-size:1rem;border:1px solid var(--line);background:#f9fbfa;border-radius:6px;color:var(--ink);}
+  .field select:focus{outline:2px solid var(--accent);outline-offset:1px;}
+  .meta{display:flex;flex-wrap:wrap;gap:.5rem;margin:.2rem 0 0;}
+  .chip{font-size:.8rem;background:#eaf3f1;border:1px solid #cfe3de;color:#27675c;padding:.3rem .65rem;border-radius:999px;font-weight:600;}
+  .chip.temp{background:#fbe6f0;border-color:#f0c4da;color:var(--accent-dk);}
+  .chip.time{background:#eef3f2;border-color:var(--line);color:#37606e;}
+  .ex-head{font-family:'Fraunces',serif;font-size:1.7rem;margin:.2rem 0;}
+  .ex-sub{color:var(--muted);font-size:.95rem;margin:0 0 1rem;}
+  .script{list-style:none;counter-reset:step;padding:0;margin:0;}
+  .script li{counter-increment:step;position:relative;padding:.55rem 0 .55rem 2.4rem;border-bottom:1px dashed #e7edec;}
+  .script li:last-child{border-bottom:none;}
+  .script li::before{content:counter(step);position:absolute;left:0;top:.5rem;width:1.7rem;height:1.7rem;background:var(--accent);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem;}
+  .actions{display:flex;gap:.7rem;flex-wrap:wrap;margin:1.2rem 0 .2rem;}
+  .btn{padding:.7rem 1.3rem;border-radius:7px;font-family:'Inter';font-weight:600;font-size:.98rem;cursor:pointer;border:none;}
+  .btn-go{background:var(--accent);color:#fff;} .btn-go:hover{background:var(--accent-dk);}
+  .btn-ghost{background:#fff;color:var(--accent-dk);border:1px solid var(--accent);}
+  .speaking-note{font-size:.85rem;color:var(--soft);font-style:italic;margin-top:.5rem;min-height:1.2em;}
+  .store{margin:1.2rem 0 0;padding:.9rem 1rem;background:#f8f2f6;border:1px solid #e8d3e0;border-radius:8px;font-size:.95rem;}
+  .store b{color:var(--accent-dk);}
+  .doneness{margin:1rem 0 0;padding:.9rem 1rem;background:#fffaf3;border:1px solid #f1ddc2;border-radius:8px;font-size:.95rem;} .doneness b{color:var(--amber);}
+  .myth{margin:1.3rem 0 0;border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+  .myth-top{display:flex;align-items:center;gap:.7rem;padding:.7rem 1rem;font-weight:600;color:#fff;}
+  .myth-top .v{font-family:'Lora',serif;text-transform:uppercase;letter-spacing:.08em;font-size:.8rem;}
+  .myth.green .myth-top{background:var(--green);} .myth.amber .myth-top{background:var(--amber);} .myth.red .myth-top{background:var(--red);}
+  .myth-body{padding:.9rem 1rem;font-size:.95rem;}
+  .myth-body .claim{font-style:italic;color:var(--muted);margin:0 0 .5rem;}
+  .myth-body .src{margin:.6rem 0 0;font-size:.82rem;color:var(--soft);} .myth-body .src b{color:var(--accent-dk);}
+  .safety{margin:1.4rem 0;padding:1rem 1.1rem;background:#fdf3f5;border:1px solid #f1c9d3;border-radius:10px;font-size:.93rem;}
+  .safety b{color:var(--red);}
+  .host{display:flex;gap:.9rem;align-items:center;margin:1.6rem 0;padding:1rem;border:1px solid var(--line);background:#fff;border-radius:10px;}
+  .host .av{width:54px;height:54px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-weight:700;font-size:1rem;flex-shrink:0;}
+  .host .nm{font-family:'Lora',serif;font-weight:600;color:var(--accent-dk);} .host .bio{font-size:.9rem;color:var(--muted);}
+  .verify-box{margin:2rem 0;padding:1.3rem 1.5rem;background:#0f1922;color:#e8eef0;border-radius:12px;}
+  .verify-box h3{font-family:'Fraunces',serif;margin:0 0 .5rem;color:#fff;font-size:1.2rem;}
+  .verify-box p{font-size:.92rem;color:#c4cfd4;margin:.4rem 0;}
+  .verify-box .dots{display:flex;gap:.6rem;margin-top:.7rem;flex-wrap:wrap;}
+  .verify-box .pill{font-size:.78rem;padding:.25rem .6rem;border-radius:999px;background:#2a1d28;color:#e7a9c6;}
+  .disc{margin-top:2rem;font-size:.82rem;color:var(--soft);border-top:1px solid var(--line);padding-top:1rem;line-height:1.55;} .disc b{color:var(--muted);}
+  .counter{margin:1.4rem 0;padding:1.2rem 1.4rem;background:#fdf1f7;border:1px solid #f2cfe1;border-radius:12px;}
+  .counter-h{font-family:'Fraunces',serif;font-size:1.25rem;color:var(--accent-dk);margin:0 0 .4rem;}
+  .counter p{font-size:.95rem;color:var(--ink);margin:.3rem 0;}
+  .counter .byline{font-size:.86rem;color:var(--muted);font-style:italic;margin-top:.5rem;}
+  .uses{display:flex;gap:.5rem;flex-wrap:wrap;margin:.7rem 0 .2rem;}
+  .use-chip{font-size:.82rem;background:#fff;border:1px solid #f0c4da;color:var(--accent-dk);padding:.3rem .7rem;border-radius:999px;font-weight:600;}
+  .castcard{max-width:340px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff;margin:1.8rem 0;box-shadow:0 1px 4px rgba(20,33,43,.06);}
+  .cc-photo{position:relative;height:220px;background:linear-gradient(160deg,#5c6675,#3a4452);display:flex;align-items:center;justify-content:center;}
+  .cc-mono{font-family:'Fraunces',serif;font-size:3.4rem;color:#fff;letter-spacing:.04em;}
+  .cc-body{padding:1rem 1.1rem 1.15rem;}
+  .cc-nm{font-family:'Fraunces',serif;font-weight:700;font-size:1.3rem;margin:0;color:var(--ink);}
+  .cc-role{color:#2c6486;font-weight:700;font-size:.76rem;letter-spacing:.04em;text-transform:uppercase;margin:.3rem 0 .55rem;}
+  .cc-tag{font-style:italic;color:var(--muted);font-size:.98rem;margin:0 0 1rem;}
+  .cc-tags{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.85rem;}
+  .cc-t{font-size:.78rem;background:#f0ece6;color:#6a6157;padding:.2rem .55rem;border-radius:6px;}
+  .cc-foot{display:flex;align-items:center;gap:.5rem;}
+  .cc-pill{font-size:.78rem;padding:.25rem .62rem;border-radius:999px;}
+  .cc-inf{background:#eef0f2;color:#5a6a78;}
+  .cc-emp{background:#f4eaf0;color:#9c4d77;}
+  .cc-hire{margin-left:auto;background:#15212b;color:#fff;border:none;border-radius:8px;padding:.55rem 1.25rem;font-weight:700;font-family:'Inter';font-size:.95rem;cursor:pointer;}
+  .cc-hire:hover{background:#000;}
+  .crew{margin:1.4rem 0;padding:1.1rem 1.3rem;background:#fbf3f8;border:1px solid #f0cfe2;border-radius:12px;}
+  .crew-h{font-family:'Fraunces',serif;font-size:1.15rem;color:var(--accent-dk);margin-bottom:.55rem;}
+  .crew ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:.5rem;}
+  .crew li{font-size:.92rem;color:var(--ink);}
+  .crew li b{color:var(--accent-dk);}
+  .crew .bp{font-size:.68rem;background:#d8f0e2;color:#1f7a45;padding:.08rem .45rem;border-radius:999px;margin-left:.3rem;white-space:nowrap;}
+</style>
+</head>
+<body>
+<div class="ribbon"><b>Verify before you believe.</b> &nbsp;We dry the food, and we check the claims on the label.</div>
+<div class="topbar"><div class="brand">THE GYM<span class="dot">.</span></div><a class="backlink" href="/gym">&larr; Back to The Gym</a></div>
+<div class="wrap">
+  <div class="hero">
+    <h1>The Drying Bench</h1>
+    <p class="tag">A dehydrator turns a glut of produce into snacks that last for months. Pick a food and get the temperature, the time, the prep, and the storage, with a myth check on every single one.</p>
+    <p class="mini">Raw crackers, fruit leather, jerky, herbs, and more. Some of the loudest claims in the raw-food and homestead world live here, so we put the receipts right next to the recipe.</p>
+  </div>
+
+  <div class="counter">
+    <div class="counter-h">Keep them on the counter</div>
+    <p>We keep ours in glass jars with wood tops, right out where you can see them, so they are not a project, they are a habit. A handful into a smoothie, a spoon over yogurt, a soak to bring the fruit back, or just a snack from the jar.</p>
+    <p>Better than chips, and we mean that literally: no fried oil, real fruit, real fiber. The one honest catch is that drying concentrates the natural sugar, so keep the scoop reasonable and you have got the best snack on the counter.</p>
+    <div class="uses"><span class="use-chip">Smoothies</span><span class="use-chip">Yogurt</span><span class="use-chip">Rehydrate</span><span class="use-chip">Snack</span></div>
+    <p class="byline">Reece runs the bench and the socials. "If it is pretty and in reach, you actually reach for it. That is not a hack, it is just true."</p>
+  </div>
+
+  <div class="safety"><b>Read this first.</b> Two rules keep dehydrating safe. One: for any meat jerky, the meat has to reach 160°F (poultry 165°F), not just dry out. Two: never store dried garlic or herbs sitting in oil at room temperature. Both are explained on the foods below, with sources.</div>
+
+  <div class="panel">
+    <div class="picker">
+      <div class="field"><label for="cat">1. Food category</label><select id="cat"></select></div>
+      <div class="field"><label for="food">2. What are you drying</label><select id="food"></select></div>
+    </div>
+    <div class="meta" id="meta"></div>
+  </div>
+
+  <div class="panel" id="card">
+    <h2 class="ex-head" id="fname"></h2>
+    <p class="ex-sub" id="fsub"></p>
+    <ol class="script" id="script"></ol>
+    <div class="actions">
+      <button class="btn btn-go" id="speak">&#9654;&nbsp; Read me the steps</button>
+      <button class="btn btn-ghost" id="stop">&#9632;&nbsp; Stop</button>
+    </div>
+    <p class="speaking-note" id="note">Drying is mostly waiting. Prep is the part that matters, so we read you the prep.</p>
+    <div class="doneness" id="doneness"></div>
+    <div class="store" id="store"></div>
+    <div class="myth" id="myth"><div class="myth-top"><span class="v" id="mythv"></span><span id="mythh"></span></div>
+      <div class="myth-body"><p class="claim" id="mythclaim"></p><div id="mythtruth"></div><p class="src" id="mythsrc"></p></div></div>
+  </div>
+
+    <div class="castcard">
+    <div class="cc-photo"><span class="cc-mono">RA</span></div>
+    <div class="cc-body">
+      <h3 class="cc-nm">Reece Ashford</h3>
+      <div class="cc-role">Movement / PT Intern &middot; Your host</div>
+      <p class="cc-tag">Tells you whether the viral trend does what it claims. Stays in her lane, does not diagnose.</p>
+      <div class="cc-tags"><span class="cc-t">#gym</span><span class="cc-t">#fitnessbrand</span><span class="cc-t">#PT</span><span class="cc-t">#socialmedia</span></div>
+      <div class="cc-foot"><span class="cc-pill cc-inf">In-framework</span><span class="cc-pill cc-emp">Dose / Gym</span><button class="cc-hire">Hire</button></div>
+    </div>
+  </div>
+
+  <div class="crew">
+    <div class="crew-h">The bench crew</div>
+    <ul>
+      <li><b>Jax Rivera</b> (18, trend scout) &mdash; Reece's hire. His SEO backpack spots what is spiking in search before it is a trend, then drops the list on her desk.<span class="bp">&#127890; backpack</span></li>
+      <li><b>Zara Cole</b> &mdash; the social-media fun goddess. Runs the smoothies, poses everyone for selfies, keeps it fun, keeps it honest.<span class="bp">&#127890; backpack</span></li>
+      <li><b>Nadia Hassan</b> &mdash; the nutrition authority on anything you actually eat.<span class="bp">&#127890; backpack</span></li>
+      <li><b>Dr. Sana Qureshi</b> &mdash; the calm evidence on recovery and why fuel matters.<span class="bp">&#127890; backpack</span></li>
+      <li><b>Eli Adler</b> &mdash; runs the Stoplight, so every verdict has a source.<span class="bp">&#127890; backpack</span></li>
+    </ul>
+  </div>
+
+  <div class="verify-box">
+    <h3>How the staff verify (so you don't have to take our word for it)</h3>
+    <p>Reece hosts the bench and vets the viral version of every trend. Jax, her 18-year-old trend scout, surfaces what is spiking before it blows up; Zara keeps it fun on socials and runs the smoothies; and the experts check the claims. Every myth check ran through The Gym <b>Stoplight</b> first: Eli on food-safety, Nadia on nutrition, Dr. Sana on recovery, Dr. Claire on real risk.</p>
+    <p>Green means the evidence backs it. Amber means it depends, and here is on what. Red means a popular claim that is wrong, sometimes dangerously. Each verdict names a source you can open yourself.</p>
+    <div class="dots"><span class="pill">USDA FSIS &middot; NCHFP</span><span class="pill">PubMed</span><span class="pill">USDA FoodData Central</span><span class="pill">NIH ODS</span><span class="pill">Stoplight verdict + citation</span></div>
+  </div>
+
+  <p class="disc"><b>Educational, not medical, and not a substitute for tested food-safety guidance.</b> Home food preservation has real risks, including foodborne illness. For canning, curing, and meat safety, follow the National Center for Home Food Preservation and USDA guidance. When in doubt, throw it out. If you have a medical condition, are pregnant, or are immune-compromised, talk to your clinician before relying on home-dried foods.</p>
+</div>
+<script>
+const DB = {
+ "Fruits":[
+  {id:"mango",name:"Mango (house favorite)",temp:"135°F (57°C)",time:"8-14 hrs",
+   script:["Peel and slice ripe mango into even strips. No pretreatment needed, mango dries like a dream.","Lay in a single layer, not touching.","Dry at 135°F until pliable and chewy, like soft fruit leather.","Remix, Dr. O's favorite: blend the dried strips with cold water, or San Pellegrino for fizz, in the Vitamix for an instant mango drink or puree."],
+   doneness:"Doneness: chewy and pliable with no wet centers. Thin slices can go crisp.",
+   store:"Storage: airtight after cooling and conditioning. Keeps for months. Or rehydrate a handful any time you want fresh mango back.",
+   myth:{verdict:"amber",claim:"“No-sugar-added dried mango is a low-sugar snack.”",truth:"No added sugar is true, but the fruit's own sugar concentrates as the water leaves, so dried mango is very sweet and easy to overeat. A few strips is a snack, the whole tray is dessert. It depends on portion.",source:"USDA FoodData Central"}},
+  {id:"blueberries",name:"Blueberries (and blender jam)",temp:"135°F (57°C)",time:"10-18 hrs",
+   script:["Use whole blueberries. The skins are waxy, so 'check' them first: 30 seconds in boiling water then into ice water to crack the skins, or just accept a longer dry time.","Single layer on a mesh sheet, since they like to roll.","Dry at 135°F until they rattle on the tray like little raisins, hard and dry.","Remix, Dr. O's favorite: blend dried blueberries with a little water in the Vitamix and you get instant blueberry jam. Yum."],
+   doneness:"Doneness: shriveled, hard, and they rattle. No soft squishy ones left, or they can mold.",
+   store:"Storage: airtight and conditioned. Lovely in oatmeal and trail mix, or blended into jam.",
+   myth:{verdict:"green",claim:"“Dried blueberries keep most of their antioxidants.”",truth:"Largely true. The anthocyanins, fiber, and minerals survive drying well. Some vitamin C is lost to heat and air, but they stay little concentrated antioxidant bombs.",source:"USDA FoodData Central; food science on anthocyanins"}},
+  {id:"apple",name:"Apple Slices / Chips",temp:"135°F (57°C)",time:"6-12 hrs",
+   script:["Core and slice thin and even, about an eighth of an inch. A mandoline is your friend.","Dunk slices for five minutes in water with a splash of lemon juice to stop browning.","Lay them out in a single layer, not touching. Crowding is why batches dry unevenly.","Dry at 135°F until leathery, or longer for a crisp chip."],
+   doneness:"Doneness: bendy and leathery with no wet pockets, or snappy if you want a crisp. Let one cool before you judge, warm pieces feel softer than they are.",
+   store:"Storage: cool fully, then airtight in a jar. 'Condition' for a week by shaking the jar daily and checking for moisture beads. Months in the pantry, longer in the freezer.",
+   myth:{verdict:"amber",claim:"“Dried fruit is a health food, eat all you want.”",truth:"It keeps fiber and minerals, but drying concentrates the sugar and calories and removes the water that fills you up. A handful is a snack, a bag is dessert. It depends on portion.",source:"USDA FoodData Central; Dietary Guidelines for Americans"}},
+  {id:"banana",name:"Banana",temp:"135°F (57°C)",time:"8-12 hrs",
+   script:["Use ripe but firm bananas. Slice into even coins about a quarter inch.","Brush or dip in lemon water so they do not turn brown and sad.","Single layer, no touching. They are sticky, so a nonstick sheet helps.","Dry at 135°F to chewy, or longer and thinner for a crisp."],
+   doneness:"Doneness: chewy and pliable, or fully crisp if sliced thin. They firm up as they cool.",
+   store:"Storage: airtight after cooling and conditioning. Chewy ones keep a few weeks, crisp ones longer.",
+   myth:{verdict:"amber",claim:"“Banana chips are a healthy snack.”",truth:"The crunchy banana chips in stores are usually fried in oil and sweetened. Your home-dried ones are far better, but still a concentrated sugar snack, not a free pass. It depends on how they were made.",source:"USDA FoodData Central"}},
+  {id:"strawberry",name:"Strawberry",temp:"135°F (57°C)",time:"7-12 hrs",
+   script:["Hull and slice a quarter inch thick. No pretreatment needed, berries dry beautifully.","Single layer, cut side up, not touching.","Dry at 135°F until they are dry and leathery, or crisp if thin.","Patience pays. Thin slices can crisp into little candy-like chips."],
+   doneness:"Doneness: leathery with no sticky wet centers, or crisp and brittle if sliced thin.",
+   store:"Storage: airtight, conditioned. Great in oatmeal, trail mix, and tea.",
+   myth:{verdict:"green",claim:"“Dried berries keep most of their fiber and minerals.”",truth:"True. Fiber, potassium, and many antioxidants survive drying well. Vitamin C does drop because it is heat and air sensitive, but the rest largely stays.",source:"USDA FoodData Central; food science reviews"}},
+  {id:"fruit-leather",name:"Fruit Leather",temp:"135°F (57°C)",time:"6-10 hrs",
+   script:["Puree ripe fruit smooth. Add a squeeze of lemon. Sweeten only if the fruit is tart.","Pour onto a lined solid tray and spread an even eighth of an inch, thinner at the edges.","Dry at 135°F until the center is no longer tacky to a clean finger.","Peel while slightly warm, then roll it in parchment and slice."],
+   doneness:"Doneness: smooth, slightly tacky but not sticky, and it peels off the sheet in one piece.",
+   store:"Storage: rolled in parchment, airtight. A few weeks at room temp, longer chilled.",
+   myth:{verdict:"amber",claim:"“Fruit roll-ups are basically just fruit.”",truth:"Homemade leather from pure fruit is mostly fruit, which is great. Many commercial roll-ups add sugar and concentrate, and either way it sticks to teeth, so it is a treat not a serving of produce. It depends on the ingredients.",source:"USDA FoodData Central; NCHFP"}}
+ ],
+ "Vegetables":[
+  {id:"cherry-tomato-italian",name:"Cherry Tomatoes, Italian (house favorite)",temp:"135°F (57°C)",time:"10-18 hrs",
+   script:["A house favorite from Dr. O's kitchen, her husband's pick, made in the Excalibur.","Halve the cherry tomatoes through the middle and lay them cut side up so the juice does not pool.","Dust with Italian seasoning and a little salt, plus a whisper of garlic powder if you like.","Dry at 135°F. With a horizontal-fan Excalibur you can skip rotating trays. Cherry tomatoes are water in a tight skin, so give them 10 to 18 hours."],
+   doneness:"Doneness: shrunken and leathery, pliable but not wet in the center. Juicier ones at the tray edges may want an extra hour.",
+   store:"Storage: cool fully, then airtight in a jar for months. For that deli oil-packed texture, keep them refrigerated and use within a few days, because tomatoes sitting in oil at room temp are a botulism risk.",
+   myth:{verdict:"green",claim:"“Slow-dried tomatoes keep their lycopene, even concentrate it.”",truth:"True. Lycopene is heat-stable, and concentrating tomatoes makes it easier for your body to absorb. So her husband is getting a real antioxidant with his snack. The Italian seasoning is purely for joy.",source:"Nutrition reviews on lycopene bioavailability"}},
+  {id:"tomato",name:"Tomatoes (sun-dried style)",temp:"135°F (57°C)",time:"8-14 hrs",
+   script:["Slice romas in half or thick rounds. Scoop very wet seed pockets if you like.","Lay cut side up, a light pinch of salt optional.","Dry at 135°F until leathery and pliable, not brittle, unless you want crisp.","Do not store them in oil at room temperature. See the storage note, this one matters."],
+   doneness:"Doneness: leathery and bendy with no moist spots. For powder, dry fully crisp and blend.",
+   store:"Storage: airtight and dry, or freeze. If you pack them in oil for that deli texture, keep it refrigerated and use within days, because oil plus low-acid food at room temp is a botulism risk.",
+   myth:{verdict:"green",claim:"“Dried tomatoes keep their lycopene.”",truth:"True, and then some. Lycopene is heat stable, and concentrating tomatoes actually makes it easier for your body to absorb. One of the rare cases where processing helps.",source:"Nutrition reviews on lycopene bioavailability"}},
+  {id:"zucchini",name:"Zucchini Chips",temp:"125°F (52°C)",time:"6-10 hrs",
+   script:["Slice thin and even. Season lightly if you want savory chips.","Single layer, not touching.","Dry at 125°F until crisp. Vegetables generally dry cooler than fruit.","They shrink a lot. A whole zucchini becomes a small handful, which is normal."],
+   doneness:"Doneness: brittle and crisp, snaps cleanly.",
+   store:"Storage: airtight with a desiccant if you have one. Crisp veggies grab moisture from the air fast.",
+   myth:{verdict:"amber",claim:"“Dehydrating destroys all the nutrients.”",truth:"Minerals, fiber, and many phytonutrients stay put. The losses are mostly heat and light sensitive vitamins like C and some B and folate. So it is real but partial, not total. It depends on the nutrient.",source:"Food science reviews on drying"}},
+  {id:"kale-chips",name:"Kale Chips",temp:"125°F (52°C)",time:"4-8 hrs",
+   script:["Tear off the tough stems. Wash and dry the leaves really well.","Toss with a little oil and seasoning so it sticks.","Single layer at 125°F until crisp and shatter-able.","Low and slow keeps them green instead of brown."],
+   doneness:"Doneness: crisp, light, and they shatter when you press them.",
+   store:"Storage: airtight, eat within a week or two. They go stale-soft fast once exposed to air.",
+   myth:{verdict:"amber",claim:"“Kale chips are just as nutritious as raw kale.”",truth:"At low temps most of the minerals and fiber survive, so they are a solid snack. Some vitamin C is lost, and store versions can be oily and salty. Close to raw, not identical. It depends.",source:"USDA FoodData Central"}},
+  {id:"peppers",name:"Peppers (and homemade powder)",temp:"125°F (52°C)",time:"6-12 hrs",
+   script:["Slice peppers, remove seeds. Wear gloves for hot ones, your eyes will thank you.","Single layer, skin side down.","Dry at 125°F until brittle.","Blend the brittle pieces into your own paprika or chili powder. That is all those jars are."],
+   doneness:"Doneness: fully brittle so they grind cleanly into powder.",
+   store:"Storage: airtight. Whole pieces keep months, powder keeps best in a dark jar.",
+   myth:{verdict:"green",claim:"“You can make real spice powder at home from dried peppers.”",truth:"True. Paprika, chili powder, and cayenne are literally dried, ground peppers. Homemade is fresher and additive-free.",source:"NCHFP home drying guidance"}}
+ ],
+ "Herbs & Tea":[
+  {id:"leafy-herbs",name:"Leafy Herbs (basil, parsley, mint)",temp:"95-105°F (35-40°C)",time:"2-6 hrs",
+   script:["Wash and pat very dry. Pull leaves off thick stems.","Single layer on a mesh tray so air moves around them.","Dry low, 95 to 105°F, to protect the oils that carry the flavor.","They are done fast and they crumble when ready, so check early."],
+   doneness:"Doneness: crumbly and brittle, they crush between your fingers.",
+   store:"Storage: airtight, whole leaves keep more flavor than pre-crushed. Crush right before using.",
+   myth:{verdict:"amber",claim:"“Dried herbs are just as flavorful as fresh.”",truth:"Drying concentrates some flavor but the bright volatile oils fade, so dried tastes different and you use about a third as much. Great for cooking, not identical to fresh. It depends on the herb.",source:"Food science on volatile oils"}},
+  {id:"woody-herbs",name:"Woody Herbs (rosemary, thyme, oregano)",temp:"95-105°F (35-40°C)",time:"3-8 hrs",
+   script:["Rinse and dry the sprigs. You can dry them whole and strip later.","Lay sprigs in a single layer.","Dry low until the leaves drop off the stem at a touch.","Strip, and store the leaves whole."],
+   doneness:"Doneness: leaves snap off the stem and crumble.",
+   store:"Storage: airtight jars, away from light. Woody herbs hold their flavor for many months.",
+   myth:{verdict:"green",claim:"“Woody herbs dry better than soft ones.”",truth:"True. Low-moisture herbs like rosemary, thyme, and oregano dry fast and keep their flavor well, which is why they are the classics in the spice rack.",source:"NCHFP home drying guidance"}},
+  {id:"ginger-tea",name:"Ginger & Citrus Tea Bits",temp:"125-135°F (52-57°C)",time:"4-8 hrs",
+   script:["Peel and thin-slice ginger. Add thin citrus peel strips if you like.","Single layer, dry at 125 to 135°F until hard and dry.","Steep a few pieces in hot water for a warming tea.","Amara's note: lovely and soothing, just keep your expectations honest."],
+   doneness:"Doneness: hard, dry, and brittle so it stores without molding.",
+   store:"Storage: airtight. Drop a few bits in hot water as needed.",
+   myth:{verdict:"amber",claim:"“Dried ginger tea cures colds.”",truth:"Ginger has decent evidence for easing nausea and is pleasant when you are sick, but it does not cure a cold or the flu. Comfort yes, cure no. It depends on what you are asking it to do.",source:"NCCIH; Cochrane reviews on ginger"}}
+ ],
+ "Jerky & Protein":[
+  {id:"beef-jerky",name:"Beef Jerky",temp:"160°F meat, then 145-155°F dry",time:"4-8 hrs",
+   script:["Trim fat, fat goes rancid. Slice lean beef thin, freeze it 30 minutes first for clean cuts.","Marinate in the fridge. Acid and salt add flavor but do not make it safe on their own.","Safety step: heat the meat to 160°F. Either bake the strips to 160°F first, or dry then finish in a 275°F oven for 10 minutes.","Dry until it bends and cracks but does not snap. Blot any oil."],
+   doneness:"Doneness: bends and shows white fibers without snapping clean. Brittle means over-dried.",
+   store:"Storage: airtight after fully cooling. Refrigerate or freeze for best safety and longest life. Eat shelf-stored jerky within a couple of weeks.",
+   myth:{verdict:"red",claim:"“Low and slow at 145°F makes safe jerky.”",truth:"Wrong, and it is the dangerous one. Drying temperatures alone do not reliably kill E. coli and Salmonella. USDA says the meat must reach 160°F, before or after drying. Skipping that has caused real illness.",source:"USDA FSIS, Jerky and Food Safety"}},
+  {id:"turkey-jerky",name:"Poultry Jerky (turkey, chicken)",temp:"165°F meat, then dry",time:"4-7 hrs",
+   script:["Use lean ground or thin-sliced poultry. Keep everything cold and clean.","Marinate in the fridge, never on the counter.","Safety step: poultry must reach 165°F, even higher than beef. Heat-treat the strips to 165°F.","Dry until firm and bendy, then cool and blot."],
+   doneness:"Doneness: firm, dry, bends without snapping.",
+   store:"Storage: refrigerate or freeze. Poultry is less forgiving than beef, so do not leave it on the shelf for long.",
+   myth:{verdict:"red",claim:"“Poultry jerky is fine at the same temp as beef.”",truth:"No. Poultry has to reach 165°F, a higher bar than beef's 160°F, because of Salmonella and Campylobacter. Treat chicken and turkey jerky with extra care.",source:"USDA FSIS, Jerky and Food Safety"}},
+  {id:"plant-jerky",name:"Plant Jerky (tofu, mushroom)",temp:"135-155°F (57-68°C)",time:"4-8 hrs",
+   script:["Press firm tofu hard to remove water, or slice big meaty mushrooms thick.","Marinate in soy, smoke, and spice. They soak up flavor like a sponge.","Single layer, dry at 135 to 155°F until chewy.","No raw-meat pathogens here, but still keep your hands and surfaces clean."],
+   doneness:"Doneness: chewy and dry to the touch, not wet in the middle.",
+   store:"Storage: airtight, refrigerate for longer life. Best within a week or two.",
+   myth:{verdict:"green",claim:"“You can make a jerky without the meat-safety risk.”",truth:"True. Tofu and mushroom jerky skip the raw-meat pathogen problem entirely, so the 160°F rule does not apply. Still store it clean and cool.",source:"USDA FSIS (meat guidance, by exclusion); general food safety"}}
+ ],
+ "Raw Crackers & Leathers":[
+  {id:"flax-crackers",name:"Raw Flax Crackers",temp:"115°F (46°C)",time:"10-18 hrs",
+   script:["Soak flax or chia seeds until gel-like. Stir in veggies, herbs, and seasoning.","Spread thin and even on a lined tray, then score into cracker shapes.","Dry low, around 115°F, flipping once when the top is set.","Long and slow. Raw crackers take patience, sometimes most of a day."],
+   doneness:"Doneness: fully crisp and snappy, with zero soft spots, or they will mold.",
+   store:"Storage: airtight with a desiccant. Crisp seed crackers reabsorb humidity quickly.",
+   myth:{verdict:"red",claim:"“Keeping it under 118°F preserves living enzymes that help you digest.”",truth:"This is the central raw-food claim and it does not hold up. Plant enzymes are broken down by your stomach acid before they do anything, so the 'living enzyme' benefit is unsupported. Raw crackers can be delicious and healthy, just not for that reason.",source:"Nutrition reviews on food enzymes &amp; digestion"}},
+  {id:"raw-veg-crackers",name:"Raw Veggie Crackers",temp:"115°F (46°C)",time:"8-16 hrs",
+   script:["Blend vegetables with soaked seeds or nuts into a thick batter.","Spread thin, score, and dry low to keep it 'raw'.","Flip when set, finish until crisp.","Great for dips, and a smart way to use pulp from juicing."],
+   doneness:"Doneness: crisp all the way through.",
+   store:"Storage: airtight, eat within a week or two for the best crunch.",
+   myth:{verdict:"amber",claim:"“Raw food is always more nutritious than cooked.”",truth:"Sometimes, sometimes not. Raw keeps vitamin C and some enzymes-for-the-plant, but gentle heat actually increases absorbable lycopene and beta-carotene. The best diets mix both. It depends on the food and the nutrient.",source:"Nutrition reviews on raw vs cooked"}},
+  {id:"raw-leather",name:"Raw Fruit Leather",temp:"115°F (46°C)",time:"8-14 hrs",
+   script:["Puree raw fruit, no cooking. A little lemon keeps the color.","Spread an even eighth of an inch on a solid lined tray.","Dry at 115°F until it peels in one sheet and is not tacky.","Roll in parchment and slice into strips."],
+   doneness:"Doneness: smooth, peelable, not sticky.",
+   store:"Storage: rolled in parchment, airtight. Chill for longer life.",
+   myth:{verdict:"green",claim:"“Homemade fruit leather beats store fruit snacks.”",truth:"True when it is just fruit. No added sugar, no corn syrup, no dyes. It is still sticky and concentrated, so it is a treat, but a much cleaner one.",source:"USDA FoodData Central; NCHFP"}}
+ ],
+ "More":[
+  {id:"citrus-wheels",name:"Citrus Wheels",temp:"135°F (57°C)",time:"6-12 hrs",
+   script:["Slice oranges, lemons, or limes into thin even wheels.","Lay flat, single layer, and blot the tops.","Dry at 135°F until dry and slightly translucent.","Use in tea, water, garnish, or holiday decor that smells amazing."],
+   doneness:"Doneness: dry and leathery to crisp, no wet pith.",
+   store:"Storage: airtight. Mostly decorative and for drinks, the pith is bitter to eat plain.",
+   myth:{verdict:"green",claim:"“Dried citrus wheels are safe for tea and garnish.”",truth:"True. They are simple, safe, and pretty. Just know they are a flavor and garnish thing, not a vitamin C supplement, since drying drops the C.",source:"USDA FoodData Central"}},
+  {id:"mushrooms",name:"Mushrooms",temp:"125-135°F (52-57°C)",time:"6-10 hrs",
+   script:["Use clean, store-bought or positively identified edible mushrooms only.","Slice a quarter inch, do not wash heavily, they get soggy.","Dry at 125 to 135°F until cracker-dry and brittle.","Rehydrate later in warm water for soups and sauces."],
+   doneness:"Doneness: brittle and snappable, no leathery middles.",
+   store:"Storage: airtight and very dry. Rehydrate as needed.",
+   myth:{verdict:"red",claim:"“You can dry any wild mushroom you find.”",truth:"No. Drying does not make a toxic mushroom safe, and some have heat-stable poisons. Only dry mushrooms a qualified source has positively identified as edible. When in doubt, do not. This is Silas the Forager's hard rule.",source:"Poison control / mycology safety guidance"}},
+  {id:"garlic",name:"Garlic (and powder)",temp:"125°F (52°C)",time:"6-12 hrs",
+   script:["Peel and slice cloves thin.","Dry at 125°F until hard and brittle. Your kitchen will smell like garlic, no avoiding it.","Blend the brittle slices into your own garlic powder.","Keep it dry. Read the storage note, this one is a real safety point."],
+   doneness:"Doneness: hard and brittle so it grinds to powder.",
+   store:"Storage: as dry powder or chips, airtight. Never store dried or fresh garlic submerged in oil at room temperature, that combination can grow botulism. Garlic in oil belongs in the fridge and gets used within a few days.",
+   myth:{verdict:"red",claim:"“Garlic stored in oil on the counter is shelf-stable.”",truth:"Dangerously false. Garlic is low-acid, and sitting in oil at room temp creates the oxygen-free, low-acid conditions Clostridium botulinum loves. Keep garlic-in-oil refrigerated and brief, or keep garlic dry as powder.",source:"USDA / NCHFP; FDA on garlic-in-oil botulism"}}
+ ]
+};
+
+const VERDICT = {green:"Green · Checks out", amber:"Amber · It depends", red:"Red · Myth"};
+const catSel=document.getElementById('cat'), foodSel=document.getElementById('food');
+catSel.innerHTML = Object.keys(DB).map(c=>'<option value="'+c+'">'+c+'</option>').join('');
+function fillFoods(){
+  foodSel.innerHTML = DB[catSel.value].map((f,i)=>'<option value="'+i+'">'+f.name+'</option>').join('');
+  renderFood();
+}
+function renderFood(){
+  const f=DB[catSel.value][+foodSel.value];
+  document.getElementById('meta').innerHTML='<span class="chip temp">Temp: '+f.temp+'</span><span class="chip time">Time: '+f.time+'</span><span class="chip">'+catSel.value+'</span>';
+  document.getElementById('fname').textContent=f.name;
+  document.getElementById('fsub').textContent='Dry at '+f.temp+'  ·  about '+f.time;
+  document.getElementById('script').innerHTML=f.script.map(s=>'<li>'+s+'</li>').join('');
+  document.getElementById('doneness').innerHTML='<b>'+f.doneness.replace(/^Doneness:/,'Doneness:')+'</b>';
+  document.getElementById('store').innerHTML='<b>'+f.store.replace(/^Storage:/,'Storage:')+'</b>';
+  const my=f.myth, box=document.getElementById('myth');
+  box.className='myth '+my.verdict;
+  document.getElementById('mythv').textContent=VERDICT[my.verdict];
+  document.getElementById('mythh').textContent='Myth Check';
+  document.getElementById('mythclaim').textContent=my.claim;
+  document.getElementById('mythtruth').innerHTML='<span>'+my.truth+'</span>';
+  document.getElementById('mythsrc').innerHTML='Checked against: <b>'+my.source+'</b>';
+  stopSpeak();
+}
+catSel.addEventListener('change',fillFoods);
+foodSel.addEventListener('change',renderFood);
+
+function pickVoice(){
+  const vs=window.speechSynthesis?speechSynthesis.getVoices():[];
+  return vs.find(v=>/en(-|_)?(US|GB)/i.test(v.lang))||null;
+}
+function say(text){
+  return new Promise(res=>{
+    if(!('speechSynthesis' in window)){res();return;}
+    const u=new SpeechSynthesisUtterance(text);
+    const v=pickVoice(); if(v)u.voice=v;
+    u.rate=0.97; u.onend=res; u.onerror=res;
+    speechSynthesis.speak(u);
+  });
+}
+let speaking=false;
+const note=document.getElementById('note');
+async function speakSteps(){
+  if(!('speechSynthesis' in window)){note.textContent='Your browser will not read aloud, but the steps are right there.';return;}
+  stopSpeak(); speaking=true;
+  document.getElementById('speak').textContent='⏸ Reading...';
+  note.textContent='Reading the prep. Get your trays ready.';
+  const f=DB[catSel.value][+foodSel.value];
+  const lines=[f.name+'. Dry at '+f.temp+'.'].concat(f.script).concat([f.doneness]);
+  for(const line of lines){ if(!speaking)return; await say(line+' ... '); }
+  stopSpeak(); note.textContent='That is the prep. The rest is patience.';
+}
+function stopSpeak(){
+  if('speechSynthesis' in window)speechSynthesis.cancel();
+  speaking=false;
+  const b=document.getElementById('speak'); if(b)b.innerHTML='&#9654;&nbsp; Read me the steps';
+}
+document.getElementById('speak').addEventListener('click',speakSteps);
+document.getElementById('stop').addEventListener('click',()=>{stopSpeak();note.textContent='Stopped.';});
+window.addEventListener('beforeunload',stopSpeak);
+
+fillFoods();
+if('speechSynthesis' in window){ speechSynthesis.onvoiceschanged=()=>{}; }
+</script>
+</body>
+</html>
