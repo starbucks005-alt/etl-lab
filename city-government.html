@@ -47,11 +47,7 @@ body {
   gap: 0.6rem;
   flex-wrap: wrap;
 }
-.usa-banner-flag {
-  font-size: 1rem;
-  flex-shrink: 0;
-}
-.usa-banner strong { color: #fff; font-weight: 600; }
+.usa-banner-text strong { color: #fff; font-weight: 600; }
 
 /* ── Topbar ── */
 .tg-topbar {
@@ -112,6 +108,34 @@ body {
   transition: color 0.18s;
 }
 .tg-topbar-nav a:hover { color: var(--uswds-gold); }
+
+/* ── Positioning band ── */
+.positioning-band {
+  padding: 0.8rem 2rem;
+  background: var(--etl-blue);
+  text-align: center;
+  border-bottom: 1px solid rgba(255,255,255,0.14);
+}
+.positioning-line {
+  font-family: 'Public Sans', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.88);
+}
+.positioning-line em {
+  font-style: normal;
+  font-weight: 700;
+  color: var(--uswds-gold);
+}
+.positioning-line--sub {
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.55);
+  margin-top: 0.2rem;
+}
 
 /* ── Bands ── */
 .band { width: 100%; padding: 5rem 2rem; }
@@ -567,27 +591,44 @@ body {
 <body>
 
 <!-- ── USWDS Official Banner ── -->
-<div class="usa-banner">
-  <span class="usa-banner-flag">&#127482;&#127480;</span>
-  <span>An official program of the <strong>Emerging Technologies Laboratory</strong>, Dayton, Ohio &middot; Municipal AI Initiative</span>
+<div class="usa-banner" aria-label="Official website of the Emerging Technologies Laboratory">
+  <svg width="16" height="11" viewBox="0 0 16 11" aria-hidden="true" focusable="false" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
+    <rect width="16" height="11" fill="#B22234"/>
+    <rect y="1.57" width="16" height="1.57" fill="white"/>
+    <rect y="3.14" width="16" height="1.57" fill="#B22234"/>
+    <rect y="4.71" width="16" height="1.57" fill="white"/>
+    <rect y="6.29" width="16" height="1.57" fill="#B22234"/>
+    <rect y="7.86" width="16" height="1.57" fill="white"/>
+    <rect y="9.43" width="16" height="1.57" fill="#B22234"/>
+    <rect width="6.86" height="5.5" fill="#3C3B6E"/>
+  </svg>
+  <span class="usa-banner-text">An official program of the <strong>Emerging Technologies Laboratory</strong></span>
 </div>
 
 <!-- ── Topbar ── -->
 <header class="tg-topbar">
-  <a href="/" class="tg-topbar-wordmark">
+  <a class="tg-topbar-wordmark" href="https://emerging-tech-lab.com">
     <span class="tg-topbar-wordmark-etl">ETL</span>
-    <span class="tg-topbar-sep"></span>
-    <span class="tg-topbar-program">City Operations Gateway</span>
   </a>
-  <nav>
-    <ul class="tg-topbar-nav">
-      <li><a href="#how-it-works">How It Works</a></li>
-      <li><a href="#operators">The Operators</a></li>
-      <li><a href="#divisions">Divisions</a></li>
-      <li><a href="/">ETL Campus</a></li>
-    </ul>
+  <div class="tg-topbar-sep"></div>
+  <a class="tg-topbar-program" href="/">City Operations Gateway</a>
+  <nav class="tg-topbar-nav">
+    <a href="#how-it-works">How It Works</a>
+    <a href="#operators">The Operators</a>
+    <a href="#divisions">Divisions</a>
+    <a href="https://emerging-tech-lab.com">ETL Campus</a>
   </nav>
 </header>
+
+<!-- ── Positioning band ── -->
+<section class="positioning-band">
+  <p class="positioning-line">
+    5 City Operators. 3 Divisions. <em>Municipal AI ready to deploy.</em>
+  </p>
+  <p class="positioning-line positioning-line--sub">
+    Submissions stored in Microsoft Azure Secure Cloud Storage
+  </p>
+</section>
 
 <!-- ── Hero ── -->
 <section class="hero">
