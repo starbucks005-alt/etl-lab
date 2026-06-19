@@ -98,7 +98,7 @@
     font-size: 32px; font-weight: 700;
     color: var(--ink); margin-bottom: 12px;
   }
-  .login-h em { color: var(--brass); font-style: italic; font-weight: 400; }
+  .login-h em { font-style: inherit; font-weight: inherit; }
   .login-sub {
     font-family: 'Spectral', serif;
     font-size: 16px; font-style: italic;
@@ -147,7 +147,7 @@
     font-weight: 700; line-height: 1.05;
     color: var(--ink); margin-bottom: 20px;
   }
-  .ws-h1 em { color: var(--brass); font-style: italic; font-weight: 400; }
+  .ws-h1 em { font-style: inherit; font-weight: inherit; }
   .ws-sub {
     font-family: 'Spectral', serif;
     font-size: 21px; font-style: italic;
@@ -169,7 +169,7 @@
     font-size: clamp(26px, 3vw, 32px); font-weight: 700;
     color: var(--ink);
   }
-  .ws-section-h em { color: var(--brass); font-style: italic; font-weight: 400; }
+  .ws-section-h em { font-style: inherit; font-weight: inherit; }
   .ws-section-tag {
     font-family: 'IBM Plex Mono', monospace; font-size: 10px;
     letter-spacing: 0.2em; color: var(--ink-quiet);
@@ -559,7 +559,7 @@
 <!-- LOGIN WALL (default visible; hidden when authenticated) -->
 <div class="login-wall" id="login-wall">
   <div class="login-eyebrow">Private workspace</div>
-  <h1 class="login-h">Sign in to <em>the studio</em></h1>
+  <h1 class="login-h">Sign in to the studio</h1>
   <p class="login-sub">
     Dr. Oroszi's personal workspace. The AI staff works here on her
     books, manuscripts, ideas, and outreach. Access is restricted.
@@ -583,7 +583,7 @@
 
   <header class="ws-hero">
     <div class="ws-eyebrow">A working studio. The staff is at the bench.</div>
-    <h1 class="ws-h1">Dr. O's <em>Studio</em></h1>
+    <h1 class="ws-h1">Dr. O's Studio</h1>
     <p class="ws-sub">
       The artist's workshop. The AI staff works here on Dr. Oroszi's own
       books, manuscripts, ideas, and outreach. What is below is what is on
@@ -594,7 +594,7 @@
   <!-- ON THE FLOOR RIGHT NOW -->
   <section class="ws-section">
     <div class="ws-section-head">
-      <div class="ws-section-h">On the floor <em>right now</em></div>
+      <div class="ws-section-h">On the floor right now</div>
       <div class="ws-section-tag">Live activity</div>
     </div>
     <div class="activity-grid">
@@ -613,7 +613,7 @@
        so we can hear his voice and tune before adding read/write access. -->
   <section class="ws-section" id="auggie-section">
     <div class="ws-section-head">
-      <div class="ws-section-h">Your <em>PA</em></div>
+      <div class="ws-section-h">Your PA</div>
       <div class="ws-section-tag" id="pa-section-tag">August "Auggie" Vidal</div>
     </div>
 
@@ -1156,7 +1156,7 @@
   <!-- THE STAFF -->
   <section class="ws-section">
     <div class="ws-section-head">
-      <div class="ws-section-h">The <em>staff</em></div>
+      <div class="ws-section-h">The staff</div>
       <div style="display:flex; gap:18px; align-items:baseline; flex-wrap:wrap;">
         <div class="ws-section-tag">Currently on assignment</div>
         <button type="button" id="hire-more-open" class="ws-section-cta">Hire more &rarr;</button>
@@ -1325,7 +1325,7 @@
   <!-- RECENTLY SHIPPED -->
   <section class="ws-section">
     <div class="ws-section-head">
-      <div class="ws-section-h">Recently <em>shipped</em></div>
+      <div class="ws-section-h">Recently shipped</div>
       <div class="ws-section-tag">Last 48 hours</div>
     </div>
     <ul class="shipped-list">
@@ -1338,7 +1338,7 @@
   <!-- COMMAND CENTER -->
   <section class="ws-section">
     <div class="ws-section-head">
-      <div class="ws-section-h">Command <em>the staff</em></div>
+      <div class="ws-section-h">Command the staff</div>
       <div class="ws-section-tag">Tools online</div>
     </div>
 
@@ -3789,7 +3789,7 @@
     <button type="button" class="hire-modal-close" data-hire-close aria-label="Close">&times;</button>
     <div class="hire-modal-head">
       <div class="hire-modal-eyebrow">Available to hire</div>
-      <h2 id="hire-more-title" class="hire-modal-title">The <em>catalog</em></h2>
+      <h2 id="hire-more-title" class="hire-modal-title">The catalog</h2>
       <p class="hire-modal-sub">Specialists not yet on your staff. Click hire to draft a dispatch message in Auggie's chat. He onboards them and tells you what they are starting with.</p>
     </div>
     <div id="hire-modal-grid" class="hire-modal-grid"><!-- populated by JS --></div>
@@ -3836,7 +3836,7 @@
     font-size: clamp(28px, 4vw, 38px); font-weight: 700;
     color: var(--ink); margin-bottom: 10px;
   }
-  .hire-modal-title em { color: var(--brass); font-style: italic; font-weight: 400; }
+  .hire-modal-title em { font-style: inherit; font-weight: inherit; }
   .hire-modal-sub {
     font-family: 'Spectral', serif;
     font-size: 15px; color: var(--ink-soft); font-style: italic;
