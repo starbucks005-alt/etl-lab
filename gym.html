@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Gym &middot; Train. Recover. Move well, longer.</title>
+<meta name="description" content="A fitness and longevity platform led by Coach Dom, Dr. Lena, Noor, and Dr. Sana. Anti-hype workouts, real PT oversight, breathwork, and evidence-based recovery. Verify before you believe.">
+<link rel="canonical" href="https://emerging-tech-lab.com/gym">
+<link rel="icon" type="image/png" href="/favicon_etl_512.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,700&family=Inter:wght@400;500;600;700&family=Lora:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:        #16212b;
+  --muted:      #5a6a78;
+  --soft:       #7a8a98;
+  --bg:         #f6f8f7;
+  --panel:      #ffffff;
+  --line:       #d7e0e2;
+  --accent:     #e0552e;
+  --accent-dk:  #bd4220;
+  --teal:       #2f8f7f;
+  --green:      #2e9e5b;
+  --amber:      #d99016;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Inter', sans-serif;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Ribbon ── */
+.ribbon {
+  background: var(--ink);
+  color: #fff;
+  text-align: center;
+  font-family: 'Lora', serif;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  padding: 0.5rem 1rem;
+}
+.ribbon b { color: var(--accent); }
+
+/* ── Topbar ── */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem 0.6rem;
+  max-width: 1100px;
+  margin: 0 auto;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.brand {
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  font-size: 1.4rem;
+  color: var(--ink);
+  text-decoration: none;
+}
+.brand .dot { color: var(--accent); }
+.topbar-nav {
+  display: flex;
+  gap: 1.5rem;
+  list-style: none;
+  align-items: center;
+}
+.topbar-nav a {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.topbar-nav a:hover { color: var(--accent-dk); }
+.topbar-nav a.nav-cta {
+  background: var(--ink);
+  color: #fff;
+  padding: 0.45rem 1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+.topbar-nav a.nav-cta:hover { background: var(--accent-dk); }
+
+/* ── Hero ── */
+.hero {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 3.5rem 2rem 3rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: center;
+}
+.hero-copy h1 {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(2.2rem, 4vw, 3.4rem);
+  line-height: 1.08;
+  color: var(--ink);
+  margin-bottom: 1.2rem;
+  font-weight: 700;
+}
+.hero-copy h1 em {
+  font-style: italic;
+  color: var(--accent-dk);
+}
+.hero-copy p {
+  font-size: 1.08rem;
+  color: var(--muted);
+  line-height: 1.7;
+  margin-bottom: 1.4rem;
+  max-width: 48ch;
+}
+.hero-copy .verify-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--ink);
+  color: #fff;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  font-family: 'Lora', serif;
+  text-transform: uppercase;
+}
+.hero-copy .verify-badge .dot-verify {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  flex-shrink: 0;
+}
+.hero-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+.btn {
+  padding: 0.75rem 1.4rem;
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: background 0.15s;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent-dk); }
+.btn-ghost { background: var(--panel); color: var(--accent-dk); border: 1px solid var(--accent); }
+.btn-ghost:hover { background: #fdeee8; }
+
+/* Hero cast grid (2x2) */
+.hero-cast {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+.hero-cast-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+}
+.hero-cast-portrait {
+  position: relative;
+  aspect-ratio: 1;
+  background: linear-gradient(160deg, #3a4452, #5c6675);
+}
+.hero-cast-portrait img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* Blink for hero portraits */
+.portrait-blink { position: relative; width: 100%; height: 100%; }
+.portrait-blink__base { display: block; width: 100%; height: 100%; object-fit: cover; }
+.portrait-blink__closed {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  animation: gym-blink 8.4s infinite;
+}
+@keyframes gym-blink {
+  0%, 92%   { opacity: 0; }
+  94%, 96%  { opacity: 1; }
+  98%, 100% { opacity: 0; }
+}
+.hero-cast-label {
+  padding: 0.6rem 0.75rem 0.65rem;
+}
+.hero-cast-name {
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--ink);
+  line-height: 1.2;
+}
+.hero-cast-role {
+  font-size: 0.7rem;
+  color: var(--muted);
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  font-family: 'Lora', serif;
+  margin-top: 0.15rem;
+}
+
+/* ── Section wrapper ── */
+.section {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 3.5rem 2rem;
+}
+.section--alt { background: var(--panel); }
+.section--alt .section { padding: 3.5rem 2rem; }
+.section-eyebrow {
+  font-family: 'Lora', serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 0.7rem;
+}
+.section h2 {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(1.7rem, 3vw, 2.4rem);
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.1;
+  margin-bottom: 0.7rem;
+}
+.section-sub {
+  font-size: 1.05rem;
+  color: var(--muted);
+  max-width: 60ch;
+  line-height: 1.7;
+  margin-bottom: 2.5rem;
+}
+hr.section-rule {
+  border: none;
+  border-top: 1px solid var(--line);
+  margin: 0 0 2.5rem;
+}
+
+/* ── Cast section ── */
+.cast-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.25rem;
+}
+.cast-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(20,33,43,0.06);
+  display: flex;
+  flex-direction: column;
+}
+.cast-card:hover {
+  box-shadow: 0 4px 16px rgba(20,33,43,0.12);
+  transform: translateY(-2px);
+  transition: all 0.2s;
+}
+.cast-photo {
+  position: relative;
+  aspect-ratio: 1;
+  background: linear-gradient(160deg, #3a4452, #5c6675);
+  overflow: hidden;
+}
+.cast-body {
+  padding: 1.1rem 1.15rem 1.2rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.cast-credential {
+  display: inline-block;
+  font-family: 'Lora', serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--teal);
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+.cast-name {
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: var(--ink);
+  margin-bottom: 0.2rem;
+  line-height: 1.2;
+}
+.cast-role {
+  font-size: 0.78rem;
+  color: var(--accent-dk);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  margin-bottom: 0.65rem;
+}
+.cast-tagline {
+  font-style: italic;
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin-bottom: 0.9rem;
+  line-height: 1.5;
+}
+.cast-bio {
+  font-size: 0.88rem;
+  color: var(--muted);
+  line-height: 1.65;
+  flex: 1;
+}
+
+/* ── Programs ── */
+.programs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.25rem;
+}
+.program-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 1.8rem 1.5rem;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  transition: box-shadow 0.2s, transform 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.program-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: var(--accent);
+}
+.program-card:hover {
+  box-shadow: 0 6px 20px rgba(20,33,43,0.12);
+  transform: translateY(-2px);
+}
+.program-card:nth-child(2)::before { background: var(--teal); }
+.program-label {
+  font-family: 'Lora', serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent-dk);
+  margin-bottom: 0.6rem;
+  font-weight: 600;
+}
+.program-card:nth-child(2) .program-label { color: var(--teal); }
+.program-card h3 {
+  font-family: 'Fraunces', serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 0.55rem;
+  line-height: 1.2;
+}
+.program-card p {
+  font-size: 0.9rem;
+  color: var(--muted);
+  line-height: 1.65;
+  margin-bottom: 1.2rem;
+}
+.program-host {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+.program-host-av {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.program-host-av img { width: 100%; height: 100%; object-fit: cover; }
+.program-host-name {
+  font-family: 'Lora', serif;
+  font-weight: 600;
+  font-size: 0.82rem;
+  color: var(--ink);
+}
+.program-host-tag {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+/* ── Floor chat sample ── */
+.floor-sample {
+  background: var(--ink);
+  color: #e8eef0;
+  border-radius: 14px;
+  padding: 2rem 1.8rem;
+  margin-top: 2.5rem;
+}
+.floor-sample h3 {
+  font-family: 'Fraunces', serif;
+  font-size: 1.1rem;
+  color: #fff;
+  margin-bottom: 0.3rem;
+}
+.floor-sample .floor-sub {
+  font-size: 0.85rem;
+  color: #8a9eaa;
+  margin-bottom: 1.5rem;
+  font-style: italic;
+}
+.floor-messages { display: flex; flex-direction: column; gap: 0.85rem; }
+.floor-msg {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+.floor-av {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #1d2c38;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  font-size: 0.88rem;
+  flex-shrink: 0;
+}
+.floor-msg-body { flex: 1; }
+.floor-msg-name {
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: var(--accent);
+  margin-bottom: 0.2rem;
+}
+.floor-msg-text {
+  font-size: 0.9rem;
+  color: #c4cfd4;
+  line-height: 1.5;
+}
+
+/* ── Verify banner ── */
+.verify-banner {
+  background: #0f1922;
+  color: #e8eef0;
+  border-radius: 12px;
+  padding: 1.5rem 1.8rem;
+}
+.verify-banner h3 {
+  font-family: 'Fraunces', serif;
+  font-size: 1.15rem;
+  color: #fff;
+  margin-bottom: 0.4rem;
+}
+.verify-banner p {
+  font-size: 0.9rem;
+  color: #c4cfd4;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+.verify-pills {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.verify-pill {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  background: #1d2c38;
+  color: #9fd9c9;
+  font-family: 'Lora', serif;
+  letter-spacing: 0.04em;
+}
+
+/* ── Footer ── */
+.site-footer {
+  background: var(--ink);
+  color: #8a9eaa;
+  padding: 2.5rem 2rem;
+  margin-top: 4rem;
+  font-size: 0.85rem;
+  line-height: 1.7;
+}
+.footer-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.footer-brand-name {
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #fff;
+  margin-bottom: 0.2rem;
+}
+.footer-brand-name .dot { color: var(--accent); }
+.footer-link {
+  color: #8a9eaa;
+  text-decoration: none;
+  font-size: 0.82rem;
+}
+.footer-link:hover { color: var(--accent); }
+.footer-disc {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #1d2c38;
+  font-size: 0.78rem;
+  color: #526470;
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
+}
+
+/* ── Responsive ── */
+@media (max-width: 720px) {
+  .hero {
+    grid-template-columns: 1fr;
+    padding: 2.5rem 1.1rem 2rem;
+  }
+  .hero-cast { grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+  .topbar { padding: 0.75rem 1.1rem 0.4rem; }
+  .section { padding: 2.5rem 1.1rem; }
+  .cast-grid { grid-template-columns: 1fr 1fr; }
+  .programs-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+  .cast-grid { grid-template-columns: 1fr; }
+  .hero-cast { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="ribbon"><b>Verify before you believe.</b> &nbsp; We read the studies so you do not have to trust the label.</div>
+
+<!-- ── Topbar ── -->
+<div class="topbar">
+  <a href="/" class="brand">THE GYM<span class="dot">.</span></a>
+  <nav>
+    <ul class="topbar-nav">
+      <li><a href="#cast">The Staff</a></li>
+      <li><a href="/workout-library">Workout Library</a></li>
+      <li><a href="/dehydrator">Recovery</a></li>
+      <li><a href="/" class="nav-cta">Back to ETL</a></li>
+    </ul>
+  </nav>
+</div>
+
+<!-- ── Hero ── -->
+<section style="background:var(--panel);border-bottom:1px solid var(--line);">
+  <div class="hero">
+    <div class="hero-copy">
+      <p class="section-eyebrow" style="margin-bottom:0.9rem;">Strength. Recovery. Longevity.</p>
+      <h1>Train well. <em>Recover</em> better. Move well longer.</h1>
+      <p>Coach Dom runs the programming. Dr. Lena keeps you safe. Noor resets your nervous system. Dr. Sana makes the case for sleep. Four experts in one floor. No hype, no program-hopping, no bro science.</p>
+      <div style="margin-bottom:1.2rem;">
+        <span class="verify-badge"><span class="dot-verify"></span>Verify before you believe</span>
+      </div>
+      <div class="hero-actions">
+        <a href="/workout-library" class="btn btn-primary">Start the Workout Library &rarr;</a>
+        <a href="/dehydrator" class="btn btn-ghost">Recovery Tools</a>
+      </div>
+    </div>
+    <div>
+      <div class="hero-cast">
+        <!-- Coach Dom — delay 0s -->
+        <div class="hero-cast-card">
+          <div class="hero-cast-portrait">
+            <div class="portrait-blink">
+              <img class="portrait-blink__base" src="/agents/Coach_Dom_Eyes_open.png" alt="Coach Dom Castellanos" loading="lazy">
+              <img class="portrait-blink__closed" src="/agents/Coach_Dom_Eyes_closed.png" alt="" aria-hidden="true" loading="lazy">
+            </div>
+          </div>
+          <div class="hero-cast-label">
+            <div class="hero-cast-name">Coach Dom</div>
+            <div class="hero-cast-role">Strength &amp; Conditioning</div>
+          </div>
+        </div>
+        <!-- Dr. Lena — delay 2.1s -->
+        <div class="hero-cast-card">
+          <div class="hero-cast-portrait">
+            <div class="portrait-blink">
+              <img class="portrait-blink__base" src="/agents/Dr_Lena_eyes_open.png" alt="Dr. Lena Brandt, DPT" loading="lazy">
+              <img class="portrait-blink__closed" src="/agents/Dr_Lena_eyes_closed.png" alt="" aria-hidden="true" loading="lazy" style="animation-delay:2.1s">
+            </div>
+          </div>
+          <div class="hero-cast-label">
+            <div class="hero-cast-name">Dr. Lena Brandt</div>
+            <div class="hero-cast-role">Physical Therapy</div>
+          </div>
+        </div>
+        <!-- Noor — delay 4.2s -->
+        <div class="hero-cast-card">
+          <div class="hero-cast-portrait">
+            <div class="portrait-blink">
+              <img class="portrait-blink__base" src="/agents/Noor_eyes_open.png" alt="Noor Haddad, RYT-500" loading="lazy">
+              <img class="portrait-blink__closed" src="/agents/Noor_eyes_closed.png" alt="" aria-hidden="true" loading="lazy" style="animation-delay:4.2s">
+            </div>
+          </div>
+          <div class="hero-cast-label">
+            <div class="hero-cast-name">Noor Haddad</div>
+            <div class="hero-cast-role">Yoga &amp; Breathwork</div>
+          </div>
+        </div>
+        <!-- Dr. Sana — delay 6.3s -->
+        <div class="hero-cast-card">
+          <div class="hero-cast-portrait">
+            <div class="portrait-blink">
+              <img class="portrait-blink__base" src="/agents/Sana_eyes_open.png" alt="Dr. Sana Qureshi, Sleep Physiologist" loading="lazy">
+              <img class="portrait-blink__closed" src="/agents/Sana_eyes_closed.png" alt="" aria-hidden="true" loading="lazy" style="animation-delay:6.3s">
+            </div>
+          </div>
+          <div class="hero-cast-label">
+            <div class="hero-cast-name">Dr. Sana Qureshi</div>
+            <div class="hero-cast-role">Sleep &amp; Recovery</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── The Staff ── -->
+<section style="background:var(--bg);" id="cast">
+  <div class="section">
+    <p class="section-eyebrow">The Staff</p>
+    <h2>Four people in your corner.</h2>
+    <p class="section-sub">Each one has a credential, a lane, and a strong opinion about what you should not be doing. They argue with each other so you do not have to figure it out alone.</p>
+    <hr class="section-rule">
+    <div class="cast-grid">
+
+      <!-- Coach Dom — delay 0s already set -->
+      <div class="cast-card">
+        <div class="cast-photo">
+          <div class="portrait-blink" style="position:absolute;inset:0;">
+            <img class="portrait-blink__base" src="/agents/Coach_Dom_Eyes_open.png" alt="Coach Dom Castellanos, CSCS" loading="lazy">
+            <img class="portrait-blink__closed" src="/agents/Coach_Dom_Eyes_closed.png" alt="" aria-hidden="true" loading="lazy">
+          </div>
+        </div>
+        <div class="cast-body">
+          <span class="cast-credential">CSCS</span>
+          <div class="cast-name">Coach Dom Castellanos</div>
+          <div class="cast-role">Strength &amp; Conditioning Coach</div>
+          <div class="cast-tagline">He believes most people do not need a new program. They need to run the old one for twelve more weeks.</div>
+          <div class="cast-bio">Anti-hype, pro-consistency, allergic to program-hopping. Former college linebacker who coaches the basics because the basics work. Short sentences. Add five pounds. Come back Thursday.</div>
+        </div>
+      </div>
+
+      <!-- Dr. Lena — delay 2.1s -->
+      <div class="cast-card">
+        <div class="cast-photo">
+          <div class="portrait-blink" style="position:absolute;inset:0;">
+            <img class="portrait-blink__base" src="/agents/Dr_Lena_eyes_open.png" alt="Dr. Lena Brandt, DPT" loading="lazy">
+            <img class="portrait-blink__closed" src="/agents/Dr_Lena_eyes_closed.png" alt="" aria-hidden="true" loading="lazy" style="animation-delay:2.1s">
+          </div>
+        </div>
+        <div class="cast-body">
+          <span class="cast-credential">DPT, Licensed</span>
+          <div class="cast-name">Dr. Lena Brandt</div>
+          <div class="cast-role">Physical Therapist</div>
+          <div class="cast-tagline">The licensed authority on the floor. The brake on everyone else's enthusiasm.</div>
+          <div class="cast-bio">German-American sports-rehab clinician. Precise, composed, dryly funny. She does not raise her voice because she does not need to. "No. Next question." Then, a beat later, the actual help.</div>
+        </div>
+      </div>
+
+      <!-- Noor — delay 4.2s -->
+      <div class="cast-card">
+        <div class="cast-photo">
+          <div class="portrait-blink" style="position:absolute;inset:0;">
+            <img class="portrait-blink__base" src="/agents/Noor_eyes_open.png" alt="Noor Haddad, RYT-500" loading="lazy">
+            <img class="portrait-blink__closed" src="/agents/Noor_eyes_closed.png" alt="" aria-hidden="true" loading="lazy" style="animation-delay:4.2s">
+          </div>
+        </div>
+        <div class="cast-body">
+          <span class="cast-credential">RYT-500</span>
+          <div class="cast-name">Noor Haddad</div>
+          <div class="cast-role">Yoga &amp; Breathwork Instructor</div>
+          <div class="cast-tagline">The breath-first voice that down-regulates the room without seeming to try.</div>
+          <div class="cast-bio">Levantine, found movement through her own recovery when breath was the only thing she could train. Leads guided yoga, breathwork audio, and the sleep sessions. Hard to rattle. Leaves silence on purpose.</div>
+        </div>
+      </div>
+
+      <!-- Dr. Sana — delay 6.3s -->
+      <div class="cast-card">
+        <div class="cast-photo">
+          <div class="portrait-blink" style="position:absolute;inset:0;">
+            <img class="portrait-blink__base" src="/agents/Sana_eyes_open.png" alt="Dr. Sana Qureshi, PhD" loading="lazy">
+            <img class="portrait-blink__closed" src="/agents/Sana_eyes_closed.png" alt="" aria-hidden="true" loading="lazy" style="animation-delay:6.3s">
+          </div>
+        </div>
+        <div class="cast-body">
+          <span class="cast-credential">PhD, Exercise Physiology</span>
+          <div class="cast-name">Dr. Sana Qureshi</div>
+          <div class="cast-role">Sleep &amp; Recovery Physiologist</div>
+          <div class="cast-tagline">The evidence-based antidote to overtraining culture. She argues with Dom about rest days, and she wins, because she brings the paper.</div>
+          <div class="cast-bio">Pakistani-American physiologist. Calm, evidence-first, citation-ready. "Love the effort. Now show me your sleep from this week." Tracks her own HRV for fun. Never smug, always sourced.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Floor chat sample -->
+    <div class="floor-sample">
+      <h3>On the floor right now</h3>
+      <p class="floor-sub">A sample of what the staff sounds like when they disagree, which is often.</p>
+      <div class="floor-messages">
+        <div class="floor-msg">
+          <div class="floor-av">D</div>
+          <div class="floor-msg-body">
+            <div class="floor-msg-name">Coach Dom</div>
+            <div class="floor-msg-text">One more heavy day this week. Build the base.</div>
+          </div>
+        </div>
+        <div class="floor-msg">
+          <div class="floor-av" style="color:#9fd9c9;">S</div>
+          <div class="floor-msg-body">
+            <div class="floor-msg-name" style="color:#9fd9c9;">Dr. Sana</div>
+            <div class="floor-msg-text">Your HRV says build a nap. I have the numbers.</div>
+          </div>
+        </div>
+        <div class="floor-msg">
+          <div class="floor-av" style="color:#c4b89a;">N</div>
+          <div class="floor-msg-body">
+            <div class="floor-msg-name" style="color:#c4b89a;">Noor</div>
+            <div class="floor-msg-text">Both of you. Exhale longer than you inhale. We will revisit.</div>
+          </div>
+        </div>
+        <div class="floor-msg">
+          <div class="floor-av" style="color:#aac4ce;">L</div>
+          <div class="floor-msg-body">
+            <div class="floor-msg-name" style="color:#aac4ce;">Dr. Lena</div>
+            <div class="floor-msg-text">The knee he never complains about still needs the rehab he skips. Noted for the record.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Programs ── -->
+<section style="background:var(--panel);border-top:1px solid var(--line);border-bottom:1px solid var(--line);">
+  <div class="section">
+    <p class="section-eyebrow">Featured Programs</p>
+    <h2>Where to start.</h2>
+    <p class="section-sub">Two tools built from the floor up by the staff. Every claim checked, every move cued, every myth flagged.</p>
+    <div class="programs-grid">
+
+      <a href="/workout-library" class="program-card">
+        <div class="program-label">Strength &middot; Coach Dom</div>
+        <h3>The Workout Library</h3>
+        <p>Short guided workouts and full routines, led by Coach Dom. Every exercise cued out loud. Every popular fitness claim run through a myth check before it reaches you.</p>
+        <div class="program-host">
+          <div class="program-host-av">
+            <img src="/agents/Coach_Dom_Eyes_open.png" alt="Coach Dom" loading="lazy">
+          </div>
+          <div>
+            <div class="program-host-name">Coach Dom Castellanos</div>
+            <div class="program-host-tag">Strength &amp; Conditioning, CSCS</div>
+          </div>
+        </div>
+      </a>
+
+      <a href="/dehydrator" class="program-card">
+        <div class="program-label" style="color:var(--teal);">Recovery &middot; Reece Ashford</div>
+        <h3>The Recovery Dehydrator</h3>
+        <p>Hydration and nutrition guidance for active recovery. Reece cross-posts from The Dose bench. Dr. Sana flags the science. What actually helps vs. what is just marketing with electrolytes.</p>
+        <div class="program-host">
+          <div class="program-host-av" style="background:var(--teal);">R</div>
+          <div>
+            <div class="program-host-name">Reece Ashford</div>
+            <div class="program-host-tag">Recovery Intern &middot; The Dose / The Gym</div>
+          </div>
+        </div>
+      </a>
+
+    </div>
+
+    <div class="verify-banner" style="margin-top:1.5rem;">
+      <h3>Verify before you believe.</h3>
+      <p>Every claim that reaches you has been checked. The staff reads the study, not the label. When the evidence is weak, you will hear it. When a popular claim is wrong, they say so.</p>
+      <div class="verify-pills">
+        <span class="verify-pill">PubMed sourced</span>
+        <span class="verify-pill">Myth checks included</span>
+        <span class="verify-pill">Credentials verified</span>
+        <span class="verify-pill">No supplements sold</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── About ── -->
+<section style="background:var(--bg);">
+  <div class="section">
+    <p class="section-eyebrow">About The Gym</p>
+    <h2>A sister site to The Dose.</h2>
+    <p class="section-sub">The Gym is part of the Emerging Technologies Laboratory campus. It shares The Dose's commitment to evidence-based, companion-forward design: the staff are AI agents briefed like colleagues, not tools you operate.</p>
+    <p style="color:var(--muted);font-size:0.95rem;line-height:1.75;max-width:60ch;">Dom wants you to train. Sana wants you to recover. Lena wants you not to get hurt. Noor wants you to breathe. Most of the floor conversation is some version of those four pulling on the same person. That is the point.</p>
+  </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand-name">THE GYM<span class="dot">.</span></div>
+      <div>Part of the <a href="/" class="footer-link">Emerging Technologies Laboratory</a> campus.</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:0.4rem;text-align:right;">
+      <a href="/workout-library" class="footer-link">Workout Library</a>
+      <a href="/dehydrator" class="footer-link">Recovery Dehydrator</a>
+      <a href="https://thedose.net" class="footer-link" target="_blank" rel="noopener">The Dose &rarr;</a>
+    </div>
+  </div>
+  <div class="footer-disc">
+    The Gym is staffed by AI agents briefed and supervised by Dr. Terry L. Oroszi, Emerging Technologies Laboratory, Dayton, Ohio. This content is for fitness education only. Consult a licensed healthcare provider before beginning any new exercise program, especially if you have existing injuries or health conditions.
+  </div>
+</footer>
+
+</body>
+</html>

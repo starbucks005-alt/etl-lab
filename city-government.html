@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>City Operations Gateway &middot; Emerging Technologies Laboratory</title>
+<meta name="description" content="Plug your city into an on-demand operational engine. AI agents for municipal workflow, budget analysis, public interface, emergency readiness, and infrastructure coordination.">
+<link rel="canonical" href="https://emerging-tech-lab.com/city-government">
+<link rel="icon" type="image/png" href="/favicon_etl_512.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+/* ── Design tokens (OPSEC Gauntlet dark/gold) ── */
+:root {
+  --bg:           #13100c;
+  --bg-alt:       #1a1610;
+  --surface:      #1f1a13;
+  --text:         #e8dece;
+  --text-dim:     #b8aa98;
+  --gold:         #d4aa4a;
+  --gold-deep:    #b8922a;
+  --rule:         rgba(212,170,74,0.25);
+  --rule-strong:  rgba(212,170,74,0.50);
+  --font-serif:   'Cormorant Garamond', Georgia, serif;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-mono:    'DM Mono', ui-monospace, monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  line-height: 1.85;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Topbar ── */
+.topbar {
+  display: flex;
+  align-items: center;
+  padding: 0 2.5rem;
+  height: 58px;
+  border-bottom: 1px solid var(--rule);
+  position: sticky;
+  top: 0;
+  background: rgba(19,16,12,0.95);
+  backdrop-filter: blur(12px);
+  z-index: 100;
+  gap: 1.5rem;
+}
+.topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+}
+.topbar-seal {
+  width: 36px;
+  height: 36px;
+  border: 1.5px solid var(--gold-deep);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  letter-spacing: 0.08em;
+  color: var(--gold);
+  flex-shrink: 0;
+}
+.topbar-title {
+  font-family: var(--font-display);
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--gold);
+  white-space: nowrap;
+}
+.topbar-title span {
+  color: var(--text-dim);
+  font-weight: 400;
+  font-size: 0.78rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-family: var(--font-mono);
+  margin-left: 0.6rem;
+}
+.topbar-nav {
+  margin-left: auto;
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+}
+.topbar-nav a {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.topbar-nav a:hover { color: var(--gold); }
+
+/* ── Bands ── */
+.band { width: 100%; padding: 6rem 2.5rem; }
+.band-alt { background: var(--bg-alt); }
+.inner { max-width: 1080px; margin: 0 auto; }
+.inner--read { max-width: 760px; margin: 0 auto; }
+
+/* ── Hero ── */
+.hero {
+  padding: 9rem 2.5rem 8rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(212,170,74,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.38em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 1.2rem;
+}
+.hero h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2.6rem, 5vw, 4.4rem);
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.08;
+  margin-bottom: 1.8rem;
+  letter-spacing: -0.01em;
+  max-width: 820px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.hero p {
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  color: var(--text-dim);
+  max-width: 640px;
+  margin: 0 auto 2.5rem;
+  line-height: 1.75;
+}
+.hero-tiles {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 3rem;
+}
+.hero-tile {
+  border: 1px solid var(--rule-strong);
+  padding: 1.4rem 2rem;
+  min-width: 200px;
+  text-align: left;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s, background 0.2s;
+  background: rgba(212,170,74,0.03);
+}
+.hero-tile:hover {
+  border-color: var(--gold);
+  background: rgba(212,170,74,0.07);
+}
+.hero-tile-label {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 0.5rem;
+}
+.hero-tile-name {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* ── How it works ── */
+.flow {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto 1fr;
+  gap: 0;
+  align-items: start;
+  margin-top: 3rem;
+}
+.flow-step {
+  padding: 2rem 1.5rem;
+  border: 1px solid var(--rule);
+  background: var(--surface);
+}
+.flow-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 0.5rem;
+  color: var(--gold);
+  font-size: 1.4rem;
+  align-self: center;
+}
+.flow-num {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+  margin-bottom: 0.8rem;
+}
+.flow-step h3 {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 0.6rem;
+  line-height: 1.25;
+}
+.flow-step p {
+  font-family: var(--font-serif);
+  font-size: 0.95rem;
+  color: var(--text-dim);
+  line-height: 1.7;
+}
+
+/* ── Section headings ── */
+.section-heading {
+  font-family: var(--font-display);
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.15;
+  margin-bottom: 0.8rem;
+  letter-spacing: -0.005em;
+}
+.section-sub {
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  color: var(--text-dim);
+  max-width: 680px;
+  margin-bottom: 3rem;
+}
+.rule { border: none; border-top: 1px solid var(--rule); margin: 0 0 3rem; }
+
+/* ── Operator roster ── */
+.roster-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+}
+.agent-card {
+  background: var(--bg);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.agent-card:hover { background: var(--surface); }
+
+/* Portrait blink */
+.portrait-blink {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 1.2rem;
+  border: 1px solid var(--rule);
+  flex-shrink: 0;
+}
+.portrait-blink__base {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.portrait-blink__closed {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  animation: cog-blink 8.4s infinite;
+}
+@keyframes cog-blink {
+  0%, 92%   { opacity: 0; }
+  94%, 96%  { opacity: 1; }
+  98%, 100% { opacity: 0; }
+}
+
+.agent-division {
+  font-family: var(--font-mono);
+  font-size: 0.52rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+  border: 1px solid var(--rule);
+  display: inline-block;
+  padding: 3px 8px;
+  margin-bottom: 0.65rem;
+  width: fit-content;
+}
+.agent-role {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 0.3rem;
+}
+.agent-name {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 0.6rem;
+  line-height: 1.15;
+}
+.agent-tagline {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 0.95rem;
+  color: var(--gold);
+  margin-bottom: 0.9rem;
+  line-height: 1.5;
+}
+.agent-bio {
+  font-family: var(--font-serif);
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  line-height: 1.7;
+  flex: 1;
+}
+.agent-backpack {
+  margin-top: 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.56rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+  border-top: 1px solid var(--rule);
+  padding-top: 0.8rem;
+  line-height: 1.8;
+}
+.agent-backpack strong {
+  color: var(--gold);
+  font-weight: 500;
+}
+
+/* ── Division cards ── */
+.division-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2.5rem;
+}
+.division-card {
+  border: 1px solid var(--rule);
+  background: var(--surface);
+  padding: 2rem;
+}
+.division-tag {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 1rem;
+}
+.division-card h3 {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 0.7rem;
+  line-height: 1.2;
+}
+.division-card p {
+  font-size: 0.95rem;
+  color: var(--text-dim);
+  line-height: 1.7;
+  margin-bottom: 1rem;
+}
+.division-staff {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+  border-top: 1px solid var(--rule);
+  padding-top: 0.8rem;
+  line-height: 2;
+}
+
+/* ── Pull quote ── */
+.pull-quote {
+  border-left: 3px solid var(--gold-deep);
+  padding: 1.5rem 2rem;
+  margin: 3rem 0;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.5rem;
+  color: var(--text);
+  line-height: 1.45;
+}
+.pull-quote cite {
+  display: block;
+  margin-top: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-style: normal;
+}
+
+/* ── Footer ── */
+.site-footer {
+  border-top: 1px solid var(--rule);
+  padding: 3rem 2.5rem;
+  background: var(--bg-alt);
+}
+.footer-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.footer-brand {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  color: var(--gold);
+  font-weight: 700;
+}
+.footer-brand span {
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-weight: 400;
+  margin-left: 0.5rem;
+}
+.footer-link {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  text-decoration: none;
+}
+.footer-link:hover { color: var(--gold); }
+
+/* ── Responsive ── */
+@media (max-width: 800px) {
+  .flow {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .flow-arrow { display: none; }
+  .flow-step { border-top: none; }
+  .flow-step:first-child { border-top: 1px solid var(--rule); }
+  .topbar-nav { display: none; }
+  .hero h1 { font-size: 2.4rem; }
+  .hero-tiles { flex-direction: column; align-items: center; }
+  .hero-tile { width: 100%; max-width: 320px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Topbar ── -->
+<header class="topbar">
+  <a href="/" class="topbar-brand">
+    <div class="topbar-seal">COG</div>
+    <span class="topbar-title">City Operations Gateway<span>Delray Beach Initiative</span></span>
+  </a>
+  <nav>
+    <ul class="topbar-nav">
+      <li><a href="#how-it-works">How It Works</a></li>
+      <li><a href="#roster">The Operators</a></li>
+      <li><a href="#divisions">Divisions</a></li>
+      <li><a href="/" style="color:var(--gold)">ETL &rarr;</a></li>
+    </ul>
+  </nav>
+</header>
+
+<!-- ── Hero ── -->
+<section class="hero">
+  <p class="eyebrow">City Operations Gateway &middot; Emerging Technologies Laboratory</p>
+  <h1>Plug your city into an on-demand operational engine.</h1>
+  <p>AI agents arrive fully equipped for municipal work. They standardize permit intake, coordinate field operations, manage public communications, track the budget, and keep emergency protocols current, without adding permanent headcount.</p>
+  <div class="hero-tiles">
+    <a href="#roster" class="hero-tile">
+      <div class="hero-tile-label">Division 01</div>
+      <div class="hero-tile-name">City Solutions Lab</div>
+    </a>
+    <a href="#roster" class="hero-tile">
+      <div class="hero-tile-label">Division 02</div>
+      <div class="hero-tile-name">City Project Oversight Hub</div>
+    </a>
+    <a href="#roster" class="hero-tile">
+      <div class="hero-tile-label">Division 03</div>
+      <div class="hero-tile-name">City Talent Reserve</div>
+    </a>
+  </div>
+</section>
+
+<!-- ── How it works ── -->
+<section class="band band-alt" id="how-it-works">
+  <div class="inner">
+    <p class="eyebrow">The Workflow</p>
+    <h2 class="section-heading">From bottleneck to resolved. Three moves.</h2>
+    <p class="section-sub">The city identifies what is stalled. The Oversight Hub activates the right specialists. The Solutions Lab deploys the frameworks that clear it. No permanent staff added. No backlog left sitting.</p>
+    <div class="flow">
+      <div class="flow-step">
+        <div class="flow-num">Step 01</div>
+        <h3>City Identifies the Bottleneck</h3>
+        <p>A permit backlog, a stalled infrastructure project, a public inquiry surge. The city flags the need and pushes the requirement into the system.</p>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <div class="flow-num">Step 02</div>
+        <h3>Oversight Hub Activates Specialists</h3>
+        <p>The City Project Oversight Hub dispatches the right operator. Field work gets a coordinator. Zoning gets an analyst. Finance gets a tracker. The right agent is already equipped.</p>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <div class="flow-num">Step 03</div>
+        <h3>Solutions Lab Deploys the Framework</h3>
+        <p>The City Solutions Lab provides the process scaffolding. The intake form is standardized. The workflow is clean. The office maintains velocity without getting bogged down.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Pull quote ── -->
+<section class="band">
+  <div class="inner--read">
+    <div class="pull-quote">
+      "You are not getting a software tool. You are plugging your city into an established engine that already knows how to run."
+      <cite>City Operations Gateway &middot; ETL Municipal Architecture</cite>
+    </div>
+    <p style="color:var(--text-dim);font-size:0.95rem;line-height:1.75;">Every operator in this system carries a backpack. That is the engine inside them that lets them do the job, not just talk about it. The Permit Processor carries zoning statutes and compliance checklists. The Budget Analyst carries expenditure dashboards and variance alerts. The Infrastructure Coordinator carries utility maps and contractor dispatch. They arrive ready.</p>
+  </div>
+</section>
+
+<!-- ── Operator Roster ── -->
+<section class="band band-alt" id="roster">
+  <div class="inner">
+    <p class="eyebrow">Municipal Operator Roster</p>
+    <h2 class="section-heading">Five operators. Five city functions.</h2>
+    <p class="section-sub">Each agent is domain-scoped, role-anchored, and equipped before deployment. They do not generalize. They specialize.</p>
+    <hr class="rule">
+    <div class="roster-grid">
+
+      <!-- Yolanda Ferreira — delay 0s (no style attribute needed) -->
+      <div class="agent-card">
+        <div class="portrait-blink">
+          <img class="portrait-blink__base" src="/agents/Yolanda_eyes_open.png" alt="Yolanda Ferreira, Municipal Workflow Architect" loading="lazy">
+          <img class="portrait-blink__closed" src="/agents/Yolanda_eyes_closed.png" alt="" aria-hidden="true" loading="lazy">
+        </div>
+        <div class="agent-division">City Solutions Lab</div>
+        <div class="agent-role">Municipal Workflow Architect</div>
+        <div class="agent-name">Yolanda Ferreira</div>
+        <div class="agent-tagline">The architect who makes city processes run straight.</div>
+        <div class="agent-bio">Yolanda designs the workflows that keep a city office from stalling. She standardizes permit intake, rewrites broken processes, and builds the templates that let a municipal team move work without confusion. She turns a backlog into a clean, predictable pipeline.</div>
+        <div class="agent-backpack"><strong>Backpack:</strong> Permit intake workflows, zoning review templates, cross-department handoff frameworks, repeat-task automation playbooks.</div>
+      </div>
+
+      <!-- Priscilla Okeke — delay 1.68s -->
+      <div class="agent-card">
+        <div class="portrait-blink">
+          <img class="portrait-blink__base" src="/agents/Priscilla_eyes_open.png" alt="Priscilla Okeke, Municipal Budget Analyst" loading="lazy">
+          <img class="portrait-blink__closed" src="/agents/Priscilla_eyes_closed.png" alt="" aria-hidden="true" loading="lazy" style="animation-delay:1.68s">
+        </div>
+        <div class="agent-division">City Solutions Lab</div>
+        <div class="agent-role">Municipal Budget Analyst</div>
+        <div class="agent-name">Priscilla Okeke</div>
+        <div class="agent-tagline">The analyst who makes every dollar show its work.</div>
+        <div class="agent-bio">Priscilla builds the financial clarity cities rarely have. She tracks spending, flags variances, prepares audit-ready summaries, and gives leadership a clean view of where money is going. She turns scattered spreadsheets into a single, readable financial picture.</div>
+        <div class="agent-backpack"><strong>Backpack:</strong> Budget dashboards, expenditure tracking, variance alerts, audit-ready summary templates, seasonal and emergency forecasting.</div>
+      </div>
+
+      <!-- Tessa Whitfield — delay 3.36s -->
+      <div class="agent-card">
+        <div class="portrait-blink">
+          <img class="portrait-blink__base" src="/agents/Tessa_eyes_open.png" alt="Tessa Whitfield, Public Interface Specialist" loading="lazy">
+          <img class="portrait-blink__closed" src="/agents/Tessa_eyes_closed.png" alt="" aria-hidden="true" loading="lazy" style="animation-delay:3.36s">
+        </div>
+        <div class="agent-division">City Talent Reserve</div>
+        <div class="agent-role">Public Interface Specialist</div>
+        <div class="agent-name">Tessa Whitfield</div>
+        <div class="agent-tagline">The steady voice that keeps the front desk from collapsing.</div>
+        <div class="agent-bio">Tessa handles the public-facing side of city operations. She answers inquiries, routes requests, manages intake questions, and keeps the office from drowning in calls and emails. She makes government feel navigable.</div>
+        <div class="agent-backpack"><strong>Backpack:</strong> Communication templates, inquiry routing logic, ticket trackers, seasonal surge protocols, public satisfaction frameworks.</div>
+      </div>
+
+      <!-- Ramon Delgado — delay 5.04s -->
+      <div class="agent-card">
+        <div class="portrait-blink">
+          <img class="portrait-blink__base" src="/agents/Ramon_eyes_open.png" alt="Ramon Delgado, Emergency Readiness Coordinator" loading="lazy">
+          <img class="portrait-blink__closed" src="/agents/Ramon_eyes_closed.png" alt="" aria-hidden="true" loading="lazy" style="animation-delay:5.04s">
+        </div>
+        <div class="agent-division">City Talent Reserve</div>
+        <div class="agent-role">Emergency Readiness Coordinator</div>
+        <div class="agent-name">Ramon Delgado</div>
+        <div class="agent-tagline">The coordinator who keeps the city ready before it needs to be.</div>
+        <div class="agent-bio">Ramon prepares cities for emergencies before they happen. He builds readiness checklists, updates emergency protocols, coordinates cross-department communication, and ensures public safety teams have what they need when the pressure hits.</div>
+        <div class="agent-backpack"><strong>Backpack:</strong> Emergency protocol library, cross-department readiness checklists, public communication templates, seasonal hazard preparation, after-action review frameworks.</div>
+      </div>
+
+      <!-- Dez Quigley — delay 6.72s -->
+      <div class="agent-card">
+        <div class="portrait-blink">
+          <img class="portrait-blink__base" src="/agents/Dez_eyes_open.png" alt="Desmond Quigley, Infrastructure Field Coordinator" loading="lazy">
+          <img class="portrait-blink__closed" src="/agents/Dez_eyes_closed.png" alt="" aria-hidden="true" loading="lazy" style="animation-delay:6.72s">
+        </div>
+        <div class="agent-division">City Project Oversight Hub</div>
+        <div class="agent-role">Infrastructure Field Coordinator</div>
+        <div class="agent-name">Desmond &ldquo;Dez&rdquo; Quigley</div>
+        <div class="agent-tagline">The coordinator who keeps the field moving.</div>
+        <div class="agent-bio">Dez oversees the moving parts of public works. He tracks work orders, dispatches subcontractors, monitors field progress, and keeps leadership updated with clean, real-time reports. He is the bridge between the office and the street.</div>
+        <div class="agent-backpack"><strong>Backpack:</strong> GIS layers, utility maps, contractor dispatch system, work order tracking, multi-vendor project coordination.</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── Divisions ── -->
+<section class="band" id="divisions">
+  <div class="inner">
+    <p class="eyebrow">The Three Divisions</p>
+    <h2 class="section-heading">Each operator has a home. Each home has a function.</h2>
+    <p class="section-sub">The three divisions map to the three layers of city operations: strategy and process, field execution, and public interface.</p>
+    <div class="division-grid">
+
+      <div class="division-card">
+        <div class="division-tag">Division 01</div>
+        <h3>City Solutions Lab</h3>
+        <p>The strategy and process layer. Where broken workflows get rebuilt and financial clarity gets built from scratch. The Solutions Lab provides the frameworks that make the other two divisions possible.</p>
+        <div class="division-staff">
+          Yolanda Ferreira &middot; Municipal Workflow Architect<br>
+          Priscilla Okeke &middot; Municipal Budget Analyst
+        </div>
+      </div>
+
+      <div class="division-card">
+        <div class="division-tag">Division 02</div>
+        <h3>City Project Oversight Hub</h3>
+        <p>The field execution layer. Where public works projects get tracked, subcontractors get dispatched, and the gap between the office and the street closes. The Hub replaces guesswork with visibility.</p>
+        <div class="division-staff">
+          Desmond &ldquo;Dez&rdquo; Quigley &middot; Infrastructure Field Coordinator
+        </div>
+      </div>
+
+      <div class="division-card">
+        <div class="division-tag">Division 03</div>
+        <h3>City Talent Reserve</h3>
+        <p>The public interface and readiness layer. Where resident inquiries get answered without breaking staff focus, and emergency protocols stay current without a dedicated preparedness hire.</p>
+        <div class="division-staff">
+          Tessa Whitfield &middot; Public Interface Specialist<br>
+          Ramon Delgado &middot; Emergency Readiness Coordinator
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── About ── -->
+<section class="band band-alt">
+  <div class="inner--read">
+    <p class="eyebrow">About This System</p>
+    <h2 class="section-heading">A municipal initiative by the Emerging Technologies Laboratory.</h2>
+    <p style="color:var(--text-dim);line-height:1.85;margin-bottom:1.3rem;">The City Operations Gateway is a pilot architecture built by Dr. Terry L. Oroszi's Emerging Technologies Laboratory in Dayton, Ohio. It applies ETL's AI staffing methodology to municipal operations, demonstrating that city offices can gain on-demand operational capacity without permanent headcount expansion.</p>
+    <p style="color:var(--text-dim);line-height:1.85;margin-bottom:1.3rem;">Each operator in the system is a role-scoped AI agent: briefed like a staff member, equipped with domain-specific tools, and deployed to a specific function. They do not replace human judgment. They handle the structured, repeatable work that consumes human capacity without requiring human expertise.</p>
+    <p style="color:var(--text-dim);line-height:1.85;">This architecture is the foundation for the Delray Beach municipal integration proposal developed in partnership with the Office of the Vice Mayor.</p>
+  </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand">City Operations Gateway<span>ETL Municipal Initiative</span></div>
+      <div style="font-family:var(--font-mono);font-size:0.55rem;letter-spacing:0.15em;color:var(--text-dim);margin-top:0.4rem;text-transform:uppercase;">Emerging Technologies Laboratory &middot; Dayton, Ohio</div>
+    </div>
+    <a href="/" class="footer-link">Back to ETL &rarr;</a>
+  </div>
+</footer>
+
+</body>
+</html>
