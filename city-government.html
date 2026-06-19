@@ -428,6 +428,40 @@ body {
 }
 .svc-chat-send:disabled { opacity: 0.5; cursor: default; }
 
+/* ── Zip code row ── */
+.svc-zip-row {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+  padding: 0.8rem 1.1rem;
+  background: var(--band-alt);
+  border-left: 3px solid var(--etl-blue);
+}
+.svc-zip-label {
+  font-family: 'Public Sans', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--stamp-blue);
+  white-space: nowrap;
+}
+.svc-zip-input {
+  font-family: 'Public Sans', sans-serif;
+  font-size: 0.9rem;
+  padding: 0.42rem 0.65rem;
+  border: 1px solid var(--rule);
+  width: 8.5rem;
+  background: #fff;
+}
+.svc-zip-hint {
+  font-family: 'Public Sans', sans-serif;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
 /* ── Corridor wings (agents) ── */
 .corridor-wings { padding: 4rem 2rem 5rem; }
 .corridor-wing {
@@ -801,6 +835,11 @@ body {
     <p class="section-eyebrow">City Services</p>
     <h2 class="section-title">Tell us what you need.</h2>
     <p class="section-sub">Three requests the Gateway handles from day one. No office visit required. No hold music.</p>
+    <div class="svc-zip-row">
+      <label class="svc-zip-label" for="svc-zip">Your ZIP code</label>
+      <input class="svc-zip-input" id="svc-zip" type="text" inputmode="numeric" placeholder="e.g. 45402" maxlength="10" autocomplete="postal-code">
+      <span class="svc-zip-hint">Helps agents find real local permit offices, records portals, and licensing boards.</span>
+    </div>
     <div class="service-grid">
 
       <div class="service-card">
@@ -1049,13 +1088,14 @@ body {
       e.preventDefault();
       var q = (input.value || '').trim();
       if (!q) return;
+      var zip = (document.getElementById('svc-zip').value || '').trim().slice(0, 10);
       input.value = ''; send.disabled = true;
       var qd = mk('q', 'You: ' + q); log.appendChild(qd);
       var ad = mk('a pending', name + ' is looking into it...'); log.appendChild(ad);
       log.scrollTop = log.scrollHeight;
       fetch('/.netlify/functions/city-' + slug + '-ask', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: q })
+        body: JSON.stringify({ question: q, zip: zip })
       })
       .then(function(r){ return r.json(); })
       .then(function(d){ if (!d || !d.job_id) throw new Error('no_job'); poll(d.job_id, 0, ad); })

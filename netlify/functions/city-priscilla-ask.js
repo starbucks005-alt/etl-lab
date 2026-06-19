@@ -15,6 +15,7 @@ exports.handler = async function(event) {
   catch (e) { return { statusCode: 400, body: JSON.stringify({ error: 'bad_json' }) }; }
 
   const question = String(body.question || '').trim();
+  const zip = String(body.zip || '').trim().slice(0, 10);
   if (!question)              return { statusCode: 400, body: JSON.stringify({ error: 'question_required' }) };
   if (question.length > 4000) return { statusCode: 400, body: JSON.stringify({ error: 'question_too_long' }) };
 
@@ -30,7 +31,7 @@ exports.handler = async function(event) {
     fetch(bgUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ job_id: jobId, question }),
+      body: JSON.stringify({ job_id: jobId, question, zip }),
       keepalive: true,
     }).catch(() => {});
   } catch (_) {}

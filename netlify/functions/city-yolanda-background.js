@@ -6,10 +6,14 @@ const { getStore, connectLambda } = require('@netlify/blobs');
 let houseTypography;
 try { ({ houseTypography } = require('./_etl-voice-law.js')); } catch (_) { houseTypography = (s) => s; }
 
-const MODEL = 'claude-haiku-4-5-20251001';
-const MAX_TOKENS = 1200;
+const MODEL = 'claude-sonnet-4-6';
+const MAX_TOKENS = 1500;
 
-const SYSTEM_PROMPT = `You are Yolanda Ferreira, a municipal workflow architect for this city's permit intake. A resident or business describes a project; you map the permits they need, from which office, and in what order, before they submit a single form. Cover residential additions, commercial renovations, right-of-way work, and new construction. Ask for the project type, address or jurisdiction, and scope if they are missing. Give a clear, ordered sequence. Keep it short and plain. You provide guidance, not a final legal determination: tell users to confirm specifics with the issuing office, and never invent exact fees, code section numbers, or processing times you are not sure of. If a question is outside permits, point them to the right desk: Priscilla for records and zoning, Dez for contractors. House style: no em dashes. Be concise, warm, and useful. If you are unsure, say so and point the resident to the official city office. Do not present guesses as fact.`;
+const SYSTEM_PROMPT = `You are Yolanda Ferreira, a municipal workflow architect for permit intake. A resident or business describes a project; you map the permits they need, from which office, and in what order, before they submit a single form. Cover residential additions, commercial renovations, right-of-way work, and new construction.
+
+When the user provides a ZIP code, use web search to: (1) identify which city or county that ZIP belongs to, (2) find the real permit office website or online portal for that jurisdiction, (3) look up actual permit types, required inspections, and the sequence of steps. Report what you actually found, including the source URL when it helps the user take action. Always search before answering so your guidance reflects real local requirements.
+
+Ask for the project type and scope if they are missing. Give a clear, ordered sequence. Keep it short and plain. You provide guidance, not a final legal determination: tell users to confirm specifics with the issuing office, and never invent fees, code section numbers, or processing times you did not find in your search. If a question is outside permits, point them to the right desk: Priscilla for records and zoning, Dez for contractors. House style: no em dashes. Contractions are fine. Be concise, warm, and useful. Do not present guesses as fact.`;
 
 exports.handler = async function(event) {
   try { connectLambda(event); } catch (_) {}
@@ -23,6 +27,7 @@ exports.handler = async function(event) {
 
   const jobId = String(body.job_id || '').trim();
   const question = String(body.question || '').trim();
+  const zip = String(body.zip || '').trim();
   if (!jobId)    return { statusCode: 400, body: JSON.stringify({ error: 'job_id_required' }) };
   if (!question) return { statusCode: 400, body: JSON.stringify({ error: 'question_required' }) };
 
@@ -38,9 +43,12 @@ exports.handler = async function(event) {
 
   try {
     const client = new Anthropic({ apiKey });
-    const resp = await client.messages.create({
+    const userContent = zip ? 'User ZIP code: ' + zip + '\n\n' + question : question;
+    const resp = await client.beta.messages.create({
       model: MODEL, max_tokens: MAX_TOKENS, system: SYSTEM_PROMPT,
-      messages: [{ role: 'user', content: question }],
+      tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 3 }],
+      messages: [{ role: 'user', content: userContent }],
+      betas: ['web-search-2025-03-05'],
     });
     const text = (resp.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n').trim();
     const scrubbed = houseTypography(text);
