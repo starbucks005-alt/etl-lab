@@ -341,6 +341,73 @@ body {
   line-height: 1.7;
 }
 
+/* ── Service cards ── */
+.service-section {
+  padding: 5rem 2rem;
+  background: var(--bg);
+}
+.service-section-inner {
+  max-width: 1180px;
+  margin: 0 auto;
+}
+.service-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-top: 2.5rem;
+}
+.service-card {
+  background: #fff;
+  border: 1px solid var(--rule);
+  border-top: 4px solid var(--uswds-gold);
+  padding: 2rem 1.8rem;
+  display: flex;
+  flex-direction: column;
+}
+.service-card-label {
+  font-family: 'Public Sans', sans-serif;
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--etl-blue);
+  margin-bottom: 0.7rem;
+}
+.service-card h3 {
+  font-family: 'Spectral', serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--stamp-blue);
+  line-height: 1.15;
+  margin-bottom: 0.8rem;
+}
+.service-card p {
+  font-family: 'Public Sans', sans-serif;
+  font-size: 0.88rem;
+  color: var(--text-dim);
+  line-height: 1.7;
+  flex: 1;
+}
+.service-card-operator {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--rule);
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.service-card-op-name {
+  font-family: 'Public Sans', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--stamp-blue);
+}
+.service-card-op-role {
+  font-family: 'Public Sans', sans-serif;
+  font-size: 0.7rem;
+  color: var(--text-dim);
+}
+
 /* ── Corridor wings (agents) ── */
 .corridor-wings { padding: 4rem 2rem 5rem; }
 .corridor-wing {
@@ -574,6 +641,8 @@ body {
 
 /* ── Responsive ── */
 @media (max-width: 860px) {
+  .service-grid { grid-template-columns: 1fr; gap: 1rem; }
+
   .hero-paths { grid-template-columns: 1fr; }
   .hero-path { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.1); }
   .how-grid { grid-template-columns: 1fr; }
@@ -700,6 +769,50 @@ body {
         <h3>Solutions Lab Deploys the Framework</h3>
         <p>The City Solutions Lab provides the process scaffolding. Intake is standardized. The workflow is clear. The office maintains velocity without getting bogged down in administrative overhead.</p>
       </div>
+    </div>
+  </div>
+</section>
+
+<div class="footlight"></div>
+
+<!-- ── City Services ── -->
+<section class="service-section">
+  <div class="service-section-inner">
+    <p class="section-eyebrow">City Services</p>
+    <h2 class="section-title">Tell us what you need.</h2>
+    <p class="section-sub">Three requests the Gateway handles from day one. No office visit required. No hold music.</p>
+    <div class="service-grid">
+
+      <div class="service-card">
+        <div class="service-card-label">Permits &amp; Compliance</div>
+        <h3>What permits do I need?</h3>
+        <p>Tell us your project. We identify every permit required, from which office, and in what order. Residential addition, commercial renovation, right-of-way work, or new construction. We map the sequence before you submit a single form.</p>
+        <div class="service-card-operator">
+          <div class="service-card-op-name">Yolanda Ferreira</div>
+          <div class="service-card-op-role">Municipal Workflow Architect &middot; City Solutions Lab</div>
+        </div>
+      </div>
+
+      <div class="service-card">
+        <div class="service-card-label">Documentation &amp; Zoning</div>
+        <h3>Building plans and city records.</h3>
+        <p>Access approved building plans, zoning records, county documentation, and permit history for any address in your jurisdiction. Priscilla pulls what you need, reads what matters, and hands you a clean summary instead of a document stack.</p>
+        <div class="service-card-operator">
+          <div class="service-card-op-name">Priscilla Okeke</div>
+          <div class="service-card-op-role">Municipal Budget Analyst &middot; City Solutions Lab</div>
+        </div>
+      </div>
+
+      <div class="service-card">
+        <div class="service-card-label">Field Operations</div>
+        <h3>Contractor recommendations.</h3>
+        <p>Local contractor sourcing with verified reviews, license checks, and ratings from residents in your area. Dez cross-references what the field already knows with what the public record shows. No guesswork. No unvetted referrals.</p>
+        <div class="service-card-operator">
+          <div class="service-card-op-name">Desmond &ldquo;Dez&rdquo; Quigley</div>
+          <div class="service-card-op-role">Infrastructure Field Coordinator &middot; City Project Oversight Hub</div>
+        </div>
+      </div>
+
     </div>
   </div>
 </section>
