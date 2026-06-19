@@ -332,6 +332,34 @@ hr.section-rule {
   flex: 1;
 }
 
+/* ── Cast card CTAs (Dose-style) ── */
+.cast-cta-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  align-items: center;
+}
+.cast-im-btn {
+  padding: 0.42rem 0.85rem;
+  background: var(--ink);
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.cast-im-btn:hover { background: var(--accent-dk); }
+.cast-visit-link {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--teal);
+  text-decoration: none;
+}
+.cast-visit-link:hover { color: var(--accent-dk); text-decoration: underline; }
+
 /* ── Programs ── */
 .programs-grid {
   display: grid;
@@ -740,6 +768,10 @@ hr.section-rule {
           <div class="cast-role">Strength &amp; Conditioning Coach</div>
           <div class="cast-tagline">He believes most people do not need a new program. They need to run the old one for twelve more weeks.</div>
           <div class="cast-bio">Anti-hype, pro-consistency, allergic to program-hopping. Former college linebacker who coaches the basics because the basics work. Short sentences. Add five pounds. Come back Thursday.</div>
+          <div class="cast-cta-row">
+            <button type="button" class="cast-im-btn" data-gym-char="dom">IM Dom</button>
+            <a class="cast-visit-link" href="/workout-library">Visit Dom &rarr;</a>
+          </div>
         </div>
       </div>
 
@@ -757,6 +789,10 @@ hr.section-rule {
           <div class="cast-role">Physical Therapist</div>
           <div class="cast-tagline">The licensed authority on the floor. The brake on everyone else's enthusiasm.</div>
           <div class="cast-bio">German-American sports-rehab clinician. Precise, composed, dryly funny. She does not raise her voice because she does not need to. "No. Next question." Then, a beat later, the actual help.</div>
+          <div class="cast-cta-row">
+            <button type="button" class="cast-im-btn" data-gym-char="lena">IM Dr. Lena</button>
+            <a class="cast-visit-link" href="/gym-profile?char=lena">Visit Dr. Lena &rarr;</a>
+          </div>
         </div>
       </div>
 
@@ -774,6 +810,10 @@ hr.section-rule {
           <div class="cast-role">Yoga &amp; Breathwork Instructor</div>
           <div class="cast-tagline">The breath-first voice that down-regulates the room without seeming to try.</div>
           <div class="cast-bio">Levantine, found movement through her own recovery when breath was the only thing she could train. Leads guided yoga, breathwork audio, and the sleep sessions. Hard to rattle. Leaves silence on purpose.</div>
+          <div class="cast-cta-row">
+            <button type="button" class="cast-im-btn" data-gym-char="noor">IM Noor</button>
+            <a class="cast-visit-link" href="/gym-profile?char=noor">Visit Noor &rarr;</a>
+          </div>
         </div>
       </div>
 
@@ -791,6 +831,10 @@ hr.section-rule {
           <div class="cast-role">Sleep &amp; Recovery Physiologist</div>
           <div class="cast-tagline">The evidence-based antidote to overtraining culture. She argues with Dom about rest days, and she wins, because she brings the paper.</div>
           <div class="cast-bio">Pakistani-American physiologist. Calm, evidence-first, citation-ready. "Love the effort. Now show me your sleep from this week." Tracks her own HRV for fun. Never smug, always sourced.</div>
+          <div class="cast-cta-row">
+            <button type="button" class="cast-im-btn" data-gym-char="sana">IM Dr. Sana</button>
+            <a class="cast-visit-link" href="/longevity">Visit Dr. Sana &rarr;</a>
+          </div>
         </div>
       </div>
 
@@ -856,6 +900,10 @@ hr.section-rule {
           <div class="cast-role">Recovery Nutrition</div>
           <div class="cast-tagline">Cross-posts evidence-based fuel guidance from The Dose kitchen to the gym floor.</div>
           <div class="cast-bio">Nadia brings The Dose's nutrition rigor here. Performance fuel, recovery eating, and every supplement label checked against the research before it gets near the floor.</div>
+          <div class="cast-cta-row">
+            <button type="button" class="cast-im-btn" data-gym-char="nadia">IM Nadia</button>
+            <a class="cast-visit-link" href="/gym-profile?char=nadia">Visit Nadia &rarr;</a>
+          </div>
         </div>
       </div>
 
@@ -873,6 +921,10 @@ hr.section-rule {
           <div class="cast-role">Recovery Drinks</div>
           <div class="cast-tagline">The bar that does not compromise your recovery to taste good.</div>
           <div class="cast-bio">Wyatt cross-posts from The Dose. Zero-proof recovery drinks, electrolyte sourcing checked, and recipes built around what the research actually supports. He also believes sparkling water with lime is underrated.</div>
+          <div class="cast-cta-row">
+            <button type="button" class="cast-im-btn" data-gym-char="wyatt">IM Wyatt</button>
+            <a class="cast-visit-link" href="/gym-profile?char=wyatt">Visit Wyatt &rarr;</a>
+          </div>
         </div>
       </div>
 
@@ -890,6 +942,10 @@ hr.section-rule {
           <div class="cast-role">Dehydrator &amp; Recovery Nutrition</div>
           <div class="cast-tagline">Hosts The Recovery Dehydrator. Lives between food science and active recovery.</div>
           <div class="cast-bio">Reece bridges the dehydration bench and the gym floor. Checks what the label says against what the study says, and is perpetually in over their head in the best way.</div>
+          <div class="cast-cta-row">
+            <button type="button" class="cast-im-btn" data-gym-char="reece">IM Reece</button>
+            <a class="cast-visit-link" href="/dehydrator">Visit Reece &rarr;</a>
+          </div>
         </div>
       </div>
 
@@ -907,6 +963,10 @@ hr.section-rule {
           <div class="cast-role">Smoothies &amp; Recovery Fuel</div>
           <div class="cast-tagline">Every blend is built for a purpose. No filler, no mystery powders.</div>
           <div class="cast-bio">Zara runs the smoothie bar on the gym floor. Post-lift, pre-run, or just getting through the afternoon. She keeps it simple and checks every ingredient before it goes in the blender.</div>
+          <div class="cast-cta-row">
+            <button type="button" class="cast-im-btn" data-gym-char="zara">IM Zara</button>
+            <a class="cast-visit-link" href="/gym-profile?char=zara">Visit Zara &rarr;</a>
+          </div>
         </div>
       </div>
 
@@ -924,6 +984,10 @@ hr.section-rule {
           <div class="cast-role">Trend Verification</div>
           <div class="cast-tagline">When a fitness trend starts moving, he maps it. Then he checks it.</div>
           <div class="cast-bio">Jax cross-posts from the ETL studio. Tracks what is going viral in fitness, then runs it through the evidence before the crew endorses it. Gen Z with receipts. His cousin Mara is on the Newswire.</div>
+          <div class="cast-cta-row">
+            <button type="button" class="cast-im-btn" data-gym-char="jax">IM Jax</button>
+            <a class="cast-visit-link" href="/gym-profile?char=jax">Visit Jax &rarr;</a>
+          </div>
         </div>
       </div>
 
@@ -938,6 +1002,10 @@ hr.section-rule {
           <div class="cast-role">Fitness Claim Verification</div>
           <div class="cast-tagline">The research pass that clears a claim before the crew endorses it.</div>
           <div class="cast-bio">Eli runs the evidence check on fitness claims that look credible but need sourcing. Cross-trained from The Dose, where the same standard applies. If Jax finds a trend, Eli is usually the one pulling the paper.</div>
+          <div class="cast-cta-row">
+            <button type="button" class="cast-im-btn" data-gym-char="eli">IM Eli</button>
+            <a class="cast-visit-link" href="/gym-profile?char=eli">Visit Eli &rarr;</a>
+          </div>
         </div>
       </div>
 
@@ -1139,5 +1207,6 @@ hr.section-rule {
   </div>
 </footer>
 
+<script src="/js/gym-im.js"></script>
 </body>
 </html>

@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Gym &middot; Staff Profile</title>
+<meta name="description" content="Meet the staff at The Gym. Evidence-based fitness, recovery, and longevity coaching.">
+<link rel="canonical" href="https://emerging-tech-lab.com/gym">
+<link rel="icon" type="image/png" href="/favicon_etl_512.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,700&family=Inter:wght@400;500;600;700&family=Lora:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:        #16212b;
+  --muted:      #5a6a78;
+  --soft:       #7a8a98;
+  --bg:         #f6f8f7;
+  --panel:      #ffffff;
+  --line:       #d7e0e2;
+  --accent:     #e0552e;
+  --accent-dk:  #bd4220;
+  --teal:       #2f8f7f;
+  --green:      #2e9e5b;
+  --amber:      #d99016;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Inter', sans-serif;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Ribbon ── */
+.ribbon {
+  background: var(--ink);
+  color: #fff;
+  text-align: center;
+  font-family: 'Lora', serif;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  padding: 0.5rem 1rem;
+}
+.ribbon b { color: var(--accent); }
+
+/* ── Topbar ── */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem 0.6rem;
+  max-width: 1100px;
+  margin: 0 auto;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.brand {
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  font-size: 1.4rem;
+  color: var(--ink);
+  text-decoration: none;
+}
+.brand .dot { color: var(--accent); }
+.topbar-nav {
+  display: flex;
+  gap: 1.5rem;
+  list-style: none;
+  align-items: center;
+}
+.topbar-nav a {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.topbar-nav a:hover { color: var(--accent-dk); }
+.topbar-nav a.nav-cta {
+  background: var(--ink);
+  color: #fff;
+  padding: 0.45rem 1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+.topbar-nav a.nav-cta:hover { background: var(--accent-dk); }
+
+/* ── Profile layout ── */
+.profile-section {
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+  min-height: 60vh;
+}
+.profile-wrap {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 3.5rem 2rem;
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 3rem;
+  align-items: start;
+}
+.profile-photo {
+  position: relative;
+  aspect-ratio: 1;
+  background: linear-gradient(160deg, #3a4452, #5c6675);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(20,33,43,0.12);
+}
+.portrait-blink { position: relative; width: 100%; height: 100%; }
+.portrait-blink__base { display: block; width: 100%; height: 100%; object-fit: cover; }
+.portrait-blink__closed {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  animation: gym-blink 8.4s infinite;
+}
+@keyframes gym-blink {
+  0%, 92%   { opacity: 0; }
+  94%, 96%  { opacity: 1; }
+  98%, 100% { opacity: 0; }
+}
+.profile-credential {
+  display: inline-block;
+  font-family: 'Lora', serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--teal);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+.profile-name {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.1;
+  margin-bottom: 0.35rem;
+}
+.profile-role {
+  font-size: 0.85rem;
+  color: var(--accent-dk);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  margin-bottom: 1.2rem;
+}
+.profile-tagline {
+  font-style: italic;
+  color: var(--muted);
+  font-size: 1.05rem;
+  margin-bottom: 1.2rem;
+  line-height: 1.6;
+  border-left: 3px solid var(--line);
+  padding-left: 1rem;
+}
+.profile-bio {
+  font-size: 0.97rem;
+  color: var(--muted);
+  line-height: 1.75;
+  margin-bottom: 1.8rem;
+}
+.profile-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.cast-im-btn {
+  padding: 0.65rem 1.3rem;
+  background: var(--ink);
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.cast-im-btn:hover { background: var(--accent-dk); }
+.btn-ghost-profile {
+  padding: 0.65rem 1.3rem;
+  background: var(--panel);
+  color: var(--accent-dk);
+  border: 1.5px solid var(--accent);
+  border-radius: 7px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.15s;
+  display: inline-block;
+}
+.btn-ghost-profile:hover { background: #fdeee8; }
+.profile-back {
+  margin-top: 2rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-decoration: none;
+}
+.profile-back:hover { color: var(--accent); }
+
+/* ── Loading / error states ── */
+.profile-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  color: var(--muted);
+  font-size: 1rem;
+  font-style: italic;
+}
+
+/* ── Footer ── */
+.site-footer {
+  background: var(--ink);
+  color: #8a9eaa;
+  padding: 2.5rem 2rem;
+  margin-top: 4rem;
+  font-size: 0.85rem;
+  line-height: 1.7;
+}
+.footer-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.footer-brand-name {
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #fff;
+  margin-bottom: 0.2rem;
+}
+.footer-brand-name .dot { color: var(--accent); }
+.footer-link {
+  color: #8a9eaa;
+  text-decoration: none;
+  font-size: 0.82rem;
+}
+.footer-link:hover { color: var(--accent); }
+.footer-disc {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #1d2c38;
+  font-size: 0.78rem;
+  color: #526470;
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
+}
+
+/* ── Responsive ── */
+@media (max-width: 720px) {
+  .profile-wrap {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding: 2.5rem 1.1rem;
+  }
+  .profile-photo { max-width: 240px; }
+  .topbar { padding: 0.75rem 1.1rem 0.4rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="ribbon"><b>Verify before you believe.</b> &nbsp; We read the studies so you do not have to trust the label.</div>
+
+<div class="topbar">
+  <a href="/gym" class="brand">THE GYM<span class="dot">.</span></a>
+  <nav>
+    <ul class="topbar-nav">
+      <li><a href="/gym#cast">The Staff</a></li>
+      <li><a href="/workout-library">Workout Library</a></li>
+      <li><a href="/dehydrator">Recovery</a></li>
+      <li><a href="/" class="nav-cta">Back to ETL</a></li>
+    </ul>
+  </nav>
+</div>
+
+<section class="profile-section">
+  <div id="profile-root" class="profile-loading">Loading&hellip;</div>
+</section>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand-name">THE GYM<span class="dot">.</span></div>
+      <div>Part of the <a href="/" class="footer-link">Emerging Technologies Laboratory</a> campus.</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:0.4rem;text-align:right;">
+      <a href="/workout-library" class="footer-link">Workout Library</a>
+      <a href="/dehydrator" class="footer-link">Recovery Dehydrator</a>
+      <a href="/longevity" class="footer-link">Longevity Checked</a>
+      <a href="/gym" class="footer-link">The Gym &rarr;</a>
+    </div>
+  </div>
+  <div class="footer-disc">
+    The Gym is staffed by AI agents briefed and supervised by Dr. Terry L. Oroszi, Emerging Technologies Laboratory, Dayton, Ohio. This content is for fitness education only. Consult a licensed healthcare provider before beginning any new exercise program, especially if you have existing injuries or health conditions.
+  </div>
+</footer>
+
+<script src="/js/gym-im.js"></script>
+<script>
+(function () {
+  function esc(s) {
+    return String(s || '').replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  var root = document.getElementById('profile-root');
+  var params = new URLSearchParams(window.location.search);
+  var charId = (params.get('char') || '').trim();
+  var ch = charId && window.GYM_CAST && window.GYM_CAST[charId];
+
+  if (!ch) {
+    root.className = '';
+    root.style.cssText = 'max-width:900px;margin:0 auto;padding:3.5rem 2rem;';
+    root.innerHTML = '<p style="color:var(--muted);font-size:1rem;">Character not found. <a href="/gym" style="color:var(--accent);">Back to The Gym</a></p>';
+    return;
+  }
+
+  document.title = ch.firstName + ' · The Gym';
+  var metaDesc = document.querySelector('meta[name="description"]');
+  if (metaDesc) metaDesc.content = ch.fullName + ', ' + ch.role + ' at The Gym. ' + ch.tagline;
+
+  var portrait = ch.portrait;
+  var portraitHtml;
+  if (portrait.closed) {
+    portraitHtml =
+      '<div class="portrait-blink">' +
+        '<img class="portrait-blink__base" src="' + esc(portrait.open) + '" alt="' + esc(ch.firstName) + '" loading="eager">' +
+        '<img class="portrait-blink__closed" src="' + esc(portrait.closed) + '" alt="" aria-hidden="true" loading="eager">' +
+      '</div>';
+  } else {
+    portraitHtml = '<img src="' + esc(portrait.open) + '" alt="' + esc(ch.firstName) + '" loading="eager" style="width:100%;height:100%;object-fit:cover;display:block;">';
+  }
+
+  var visitBtn = ch.visitHref
+    ? '<a href="' + esc(ch.visitHref) + '" class="btn-ghost-profile">' + esc(ch.visitLabel) + ' &rarr;</a>'
+    : '';
+
+  root.className = 'profile-wrap';
+  root.innerHTML =
+    '<div>' +
+      '<div class="profile-photo">' + portraitHtml + '</div>' +
+    '</div>' +
+    '<div>' +
+      '<span class="profile-credential">' + esc(ch.credential) + '</span>' +
+      '<h1 class="profile-name">' + esc(ch.fullName) + '</h1>' +
+      '<p class="profile-role">' + esc(ch.role) + '</p>' +
+      '<p class="profile-tagline">' + esc(ch.tagline) + '</p>' +
+      '<p class="profile-bio">' + esc(ch.bio) + '</p>' +
+      '<div class="profile-actions">' +
+        '<button type="button" class="cast-im-btn" data-gym-char="' + esc(charId) + '">IM ' + esc(ch.firstName) + '</button>' +
+        visitBtn +
+      '</div>' +
+      '<a href="/gym#cast" class="profile-back">&larr; Back to The Gym</a>' +
+    '</div>';
+})();
+</script>
+
+</body>
+</html>
