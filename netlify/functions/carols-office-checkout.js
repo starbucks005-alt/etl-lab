@@ -40,7 +40,7 @@ exports.handler = async function (event) {
   params.set('line_items[0][price]', priceId);
   params.set('line_items[0][quantity]', '1');
   params.set('success_url', origin + '/carols-office-desk.html?session_id={CHECKOUT_SESSION_ID}');
-  params.set('cancel_url', origin + '/carols-office.html?canceled=1');
+  params.set('cancel_url', origin + '/deskworks?canceled=1');
   if (company) params.set('metadata[company_name]', company);
   if (contact) params.set('metadata[contact_name]', contact);
   params.set('custom_text[submit][message]',

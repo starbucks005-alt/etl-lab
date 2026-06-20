@@ -253,9 +253,19 @@
   status = 200
 
 [[redirects]]
-  from = "/carols-office"
-  to = "/carols-office.html"
+  from = "/deskworks"
+  to = "/deskworks.html"
   status = 200
+
+[[redirects]]
+  from = "/carols-office"
+  to = "/deskworks"
+  status = 301
+
+[[redirects]]
+  from = "/carols-office.html"
+  to = "/deskworks"
+  status = 301
 
 [[headers]]
   for = "/app.html"
