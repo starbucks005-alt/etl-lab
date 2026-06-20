@@ -2956,7 +2956,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
   <div id="viewA" class="etlcc-hidden">
     <div class="secthead"><h2>Find your building</h2><div class="meta">ROUTES BY WHO YOU ARE</div></div>
-    <p class="lede">Six neighborhoods. You arrive knowing what you came for and you go straight to the door. Each card's left edge is its neighborhood color &mdash; meant to match the building's color on your map just below.</p>
+    <p class="lede">Seven neighborhoods. You arrive knowing what you came for and you go straight to the door. Each card's left edge is its neighborhood color &mdash; meant to match the building's color on your map just below.</p>
     <div id="domainGrid"></div>
     <div class="legend">
       <span><span class="sw" style="background:var(--green)"></span>Free everywhere</span>
@@ -2987,10 +2987,10 @@ document.addEventListener('DOMContentLoaded', function(){
 
 <script>
 (function(){
-  const C = {sec:'#46d6e6',health:'#5bd6a0',acad:'#e8b659',news:'#9b8cf0',biz:'#f0975a',mission:'#e8728c'};
+  const C = {sec:'#46d6e6',health:'#5bd6a0',acad:'#e8b659',news:'#9b8cf0',biz:'#f0975a',mission:'#e8728c',gov:'#4a6fa5'};
   const DOM = {
     sec:'Security & Eval', health:'Health', acad:'Academia',
-    news:'News & Pub', biz:'Professional', mission:'Mission'
+    news:'News & Pub', biz:'Professional', mission:'Mission', gov:'Government'
   };
 
   const platforms = [
@@ -3001,7 +3001,8 @@ document.addEventListener('DOMContentLoaded', function(){
     {name:'ETL Newswire',      url:'/press',                                           role:'AI-staffed newsroom',        dom:'news',    type:'count',  n:12, access:'free'},
     {name:'The Boardroom',     url:'/prep-room#pros',                                  role:'For professionals',          dom:'biz',     type:'count',  n:10, access:'free',    travel:'9 of 10 also work the Prep Room'},
     {name:'Greylander Press',  url:'https://greylanderpress.com/',                     role:'Independent imprint',        dom:'news',    type:'count',  n:9,  access:'campus'},
-    {name:'The Gym',           url:null,                                               role:'Movement & wellness',        dom:'health',  type:'count',  n:6,  access:'free'},
+    {name:'The Gym',           url:'/gym',                                             role:'Movement & wellness',        dom:'health',  type:'count',  n:6,  access:'free'},
+    {name:'City Government',   url:'/city-government',                                  role:'For residents',              dom:'gov',     type:'count',  n:5,  access:'free'},
     {name:'Gandhi-King Center',url:'https://gandhi-king-center-for-nonviolence.org/',  role:'Peace & civic leadership',   dom:'mission', type:'count',  n:4,  access:'free'},
     {name:'Intel Dashboard',   url:'https://inteldashboard.org/',                      role:'Signal-gap engine',          dom:'sec',     type:'engine', n:1, tool:'18 modules &middot; live MCP', access:'free'},
     {name:'SLR Studio',        url:'https://slrstudio.online/',                        role:'Research engine &middot; Cleo', dom:'acad', type:'engine', n:1, tool:'6 modes &middot; 10 tools',    access:'campus'},
@@ -3017,6 +3018,7 @@ document.addEventListener('DOMContentLoaded', function(){
     {key:'news',    label:'News & Publishing',        color:C.news},
     {key:'biz',     label:'Professional & Business',  color:C.biz},
     {key:'mission', label:'Mission',                  color:C.mission},
+    {key:'gov',     label:'Government',                color:C.gov},
   ];
 
   document.getElementById('domKey').innerHTML = domains.map(d =>
@@ -6559,9 +6561,11 @@ h1 b,h2 b,h1 strong,h2 strong{font-weight:500}
 
   async function ask(msg){
     if (!msg) return;
+    var isHidden = input.type === 'password';
     sendBtn.disabled = true; input.disabled = true;
-    renderMsg('user', msg);
-    history.push({ role: 'user', content: msg });
+    var displayMsg = isHidden ? '●●●●●' : msg;
+    renderMsg('user', displayMsg);
+    history.push({ role: 'user', content: displayMsg });
     persist();
     input.value = '';
     var typingEl = document.createElement('div');
@@ -6585,12 +6589,16 @@ h1 b,h2 b,h1 strong,h2 strong{font-weight:500}
         return;
       }
       if (data.ownerToken) {
-        // She just identified with the staff password. Keep the token for
-        // this device and scrub the password from the local transcript.
         ownerToken = data.ownerToken;
         try { localStorage.setItem(OWNER_KEY, ownerToken); } catch(_){}
         if (history.length && history[history.length - 1].role === 'user') {
           history[history.length - 1].content = '[identified as Dr. Oroszi]';
+        }
+        var allUserBubbles = thread.querySelectorAll('.iris-msg--mine');
+        if (allUserBubbles.length) {
+          var lastBubble = allUserBubbles[allUserBubbles.length - 1];
+          var contentDiv = lastBubble.querySelector('div:not(.iris-msg-meta)');
+          if (contentDiv) contentDiv.textContent = '[identified as Dr. Oroszi]';
         }
       }
       if (data.owner) {
