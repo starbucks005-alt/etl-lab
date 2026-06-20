@@ -66,12 +66,7 @@ body {
   text-decoration: none;
 }
 .brand .dot { color: var(--accent); }
-.topbar-nav {
-  display: flex;
-  gap: 1.5rem;
-  list-style: none;
-  align-items: center;
-}
+.topbar-nav { display: flex; gap: 1.5rem; list-style: none; align-items: center; }
 .topbar-nav a {
   font-size: 0.88rem;
   font-weight: 500;
@@ -90,36 +85,33 @@ body {
 }
 .topbar-nav a.nav-cta:hover { background: var(--accent-dk); }
 
-/* ── Profile layout ── */
-.profile-section {
+/* ── Profile hero ── */
+.prof-hero {
   background: var(--panel);
   border-bottom: 1px solid var(--line);
-  min-height: 60vh;
+  padding: 2.5rem 2rem 2rem;
 }
-.profile-wrap {
+.prof-hero-inner {
   max-width: 900px;
   margin: 0 auto;
-  padding: 3.5rem 2rem;
-  display: grid;
-  grid-template-columns: 300px 1fr;
-  gap: 3rem;
-  align-items: start;
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
 }
-.profile-photo {
-  position: relative;
-  aspect-ratio: 1;
-  background: linear-gradient(160deg, #3a4452, #5c6675);
-  border-radius: 14px;
+.prof-avatar {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
   overflow: hidden;
-  box-shadow: 0 4px 24px rgba(20,33,43,0.12);
+  flex-shrink: 0;
+  border: 3px solid var(--line);
+  position: relative;
+  background: var(--bg);
 }
-.portrait-blink { position: relative; width: 100%; height: 100%; }
-.portrait-blink__base { display: block; width: 100%; height: 100%; object-fit: cover; }
-.portrait-blink__closed {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  object-fit: cover;
+.prof-avatar-base { width: 100%; height: 100%; object-fit: cover; display: block; }
+.prof-avatar-closed {
+  position: absolute; top: 0; left: 0;
+  width: 100%; height: 100%; object-fit: cover;
   opacity: 0;
   animation: gym-blink 8.4s infinite;
 }
@@ -128,98 +120,174 @@ body {
   94%, 96%  { opacity: 1; }
   98%, 100% { opacity: 0; }
 }
-.profile-credential {
+.prof-hero-text { flex: 1; }
+.prof-credential {
   display: inline-block;
   font-family: 'Lora', serif;
-  font-size: 0.7rem;
-  letter-spacing: 0.07em;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--teal);
   font-weight: 600;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
 }
-.profile-name {
+.prof-name {
   font-family: 'Fraunces', serif;
-  font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+  font-size: clamp(1.5rem, 3vw, 2.1rem);
   font-weight: 700;
   color: var(--ink);
   line-height: 1.1;
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.2rem;
 }
-.profile-role {
-  font-size: 0.85rem;
-  color: var(--accent-dk);
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  margin-bottom: 1.2rem;
-}
-.profile-tagline {
+.prof-role {
   font-style: italic;
   color: var(--muted);
-  font-size: 1.05rem;
-  margin-bottom: 1.2rem;
-  line-height: 1.6;
-  border-left: 3px solid var(--line);
-  padding-left: 1rem;
-}
-.profile-bio {
   font-size: 0.97rem;
-  color: var(--muted);
-  line-height: 1.75;
-  margin-bottom: 1.8rem;
+  margin-bottom: 0.9rem;
 }
-.profile-actions {
-  display: flex;
-  gap: 0.75rem;
-  align-items: center;
-  flex-wrap: wrap;
-}
+.prof-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; }
 .cast-im-btn {
-  padding: 0.65rem 1.3rem;
+  padding: 0.55rem 1.2rem;
   background: var(--ink);
   color: #fff;
   border: none;
   border-radius: 7px;
   font-family: 'Inter', sans-serif;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s;
 }
 .cast-im-btn:hover { background: var(--accent-dk); }
 .btn-ghost-profile {
-  padding: 0.65rem 1.3rem;
+  padding: 0.55rem 1.2rem;
   background: var(--panel);
   color: var(--accent-dk);
   border: 1.5px solid var(--accent);
   border-radius: 7px;
   font-family: 'Inter', sans-serif;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 600;
   text-decoration: none;
   transition: background 0.15s;
   display: inline-block;
 }
 .btn-ghost-profile:hover { background: #fdeee8; }
-.profile-back {
-  margin-top: 2rem;
-  font-size: 0.85rem;
-  color: var(--muted);
-  text-decoration: none;
-}
-.profile-back:hover { color: var(--accent); }
 
-/* ── Loading / error states ── */
-.profile-loading {
+/* ── Sections ── */
+.prof-sections {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 50vh;
-  color: var(--muted);
-  font-size: 1rem;
-  font-style: italic;
+  flex-direction: column;
+  gap: 1.5rem;
 }
+
+/* ── Cards ── */
+.prof-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 2rem;
+}
+.prof-card-title {
+  font-family: 'Fraunces', serif;
+  font-size: 1.1rem;
+  font-style: italic;
+  color: var(--accent-dk);
+  margin-bottom: 1rem;
+}
+
+/* Story */
+.prof-story p { font-size: 0.97rem; color: var(--muted); line-height: 1.75; }
+.prof-story p + p { margin-top: 0.85rem; }
+
+/* What / Where two-col */
+.prof-two-col { display: grid; grid-template-columns: 1fr 1fr; }
+.prof-two-col > .prof-col-left {
+  padding-right: 2rem;
+  border-right: 1px solid var(--line);
+}
+.prof-two-col > .prof-col-right { padding-left: 2rem; }
+.prof-what-body {
+  font-style: italic;
+  font-family: 'Lora', serif;
+  font-size: 0.97rem;
+  color: var(--ink);
+  line-height: 1.75;
+}
+
+/* Where */
+.prof-where-group { margin-bottom: 1rem; }
+.prof-where-group:last-child { margin-bottom: 0; }
+.prof-where-cat {
+  font-size: 0.63rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--soft);
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+}
+.prof-where-link {
+  display: block;
+  color: var(--accent-dk);
+  font-size: 0.9rem;
+  text-decoration: none;
+  line-height: 1.7;
+}
+.prof-where-link:hover { text-decoration: underline; }
+.prof-where-plain {
+  display: block;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+/* Thinking */
+.prof-thinking-sub {
+  font-style: italic;
+  font-size: 0.85rem;
+  color: var(--soft);
+  margin-bottom: 1.25rem;
+}
+.prof-note {
+  border-left: 3px solid var(--line);
+  padding: 0.55rem 0 0.55rem 1rem;
+  margin-bottom: 0.85rem;
+}
+.prof-note:last-of-type { margin-bottom: 0; }
+.prof-note-date {
+  font-size: 0.66rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--soft);
+  margin-bottom: 0.2rem;
+}
+.prof-note-text { font-size: 0.93rem; color: var(--muted); line-height: 1.65; }
+.prof-notes-extra { display: none; }
+.prof-see-more {
+  display: inline-block;
+  margin-top: 1rem;
+  padding: 0.45rem 1rem;
+  border: 1.5px solid var(--line);
+  border-radius: 6px;
+  background: transparent;
+  font-size: 0.82rem;
+  color: var(--muted);
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: border-color 0.15s, color 0.15s;
+}
+.prof-see-more:hover { border-color: var(--accent); color: var(--accent-dk); }
+
+/* Back */
+.prof-back-row { max-width: 900px; margin: 0 auto; padding: 0 2rem 1.5rem; }
+.prof-back { font-size: 0.85rem; color: var(--muted); text-decoration: none; }
+.prof-back:hover { color: var(--accent); }
+
+/* Loading */
+.prof-loading { padding: 4rem 2rem; text-align: center; color: var(--muted); font-style: italic; }
 
 /* ── Footer ── */
 .site-footer {
@@ -247,11 +315,7 @@ body {
   margin-bottom: 0.2rem;
 }
 .footer-brand-name .dot { color: var(--accent); }
-.footer-link {
-  color: #8a9eaa;
-  text-decoration: none;
-  font-size: 0.82rem;
-}
+.footer-link { color: #8a9eaa; text-decoration: none; font-size: 0.82rem; }
 .footer-link:hover { color: var(--accent); }
 .footer-disc {
   margin-top: 1.5rem;
@@ -267,12 +331,20 @@ body {
 
 /* ── Responsive ── */
 @media (max-width: 720px) {
-  .profile-wrap {
-    grid-template-columns: 1fr;
-    gap: 2rem;
-    padding: 2.5rem 1.1rem;
+  .prof-hero { padding: 1.5rem 1.25rem; }
+  .prof-hero-inner { gap: 1rem; }
+  .prof-avatar { width: 80px; height: 80px; }
+  .prof-sections { padding: 1.25rem; gap: 1.25rem; }
+  .prof-card { padding: 1.5rem; }
+  .prof-two-col { grid-template-columns: 1fr; }
+  .prof-two-col > .prof-col-left {
+    padding-right: 0;
+    border-right: none;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
   }
-  .profile-photo { max-width: 240px; }
+  .prof-two-col > .prof-col-right { padding-left: 0; }
   .topbar { padding: 0.75rem 1.1rem 0.4rem; }
 }
 </style>
@@ -293,8 +365,10 @@ body {
   </nav>
 </div>
 
-<section class="profile-section">
-  <div id="profile-root" class="profile-loading">Loading&hellip;</div>
+<section style="min-height:60vh;">
+  <div id="profile-root">
+    <p class="prof-loading">Loading&hellip;</p>
+  </div>
 </section>
 
 <footer class="site-footer">
@@ -323,6 +397,9 @@ body {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
     });
   }
+  function noteHtml(n) {
+    return '<div class="prof-note"><div class="prof-note-date">' + esc(n.date) + '</div><div class="prof-note-text">' + esc(n.text) + '</div></div>';
+  }
 
   var root = document.getElementById('profile-root');
   var params = new URLSearchParams(window.location.search);
@@ -330,49 +407,111 @@ body {
   var ch = charId && window.GYM_CAST && window.GYM_CAST[charId];
 
   if (!ch) {
-    root.className = '';
-    root.style.cssText = 'max-width:900px;margin:0 auto;padding:3.5rem 2rem;';
-    root.innerHTML = '<p style="color:var(--muted);font-size:1rem;">Character not found. <a href="/gym" style="color:var(--accent);">Back to The Gym</a></p>';
+    root.innerHTML = '<p class="prof-loading">Character not found. <a href="/gym" style="color:var(--accent);">Back to The Gym</a></p>';
     return;
   }
 
   document.title = ch.firstName + ' · The Gym';
   var metaDesc = document.querySelector('meta[name="description"]');
-  if (metaDesc) metaDesc.content = ch.fullName + ', ' + ch.role + ' at The Gym. ' + ch.tagline;
+  if (metaDesc) metaDesc.content = ch.fullName + ', ' + ch.role + ' at The Gym. ' + (ch.tagline || '');
 
-  var portrait = ch.portrait;
-  var portraitHtml;
-  if (portrait.closed) {
-    portraitHtml =
-      '<div class="portrait-blink">' +
-        '<img class="portrait-blink__base" src="' + esc(portrait.open) + '" alt="' + esc(ch.firstName) + '" loading="eager">' +
-        '<img class="portrait-blink__closed" src="' + esc(portrait.closed) + '" alt="" aria-hidden="true" loading="eager">' +
-      '</div>';
-  } else {
-    portraitHtml = '<img src="' + esc(portrait.open) + '" alt="' + esc(ch.firstName) + '" loading="eager" style="width:100%;height:100%;object-fit:cover;display:block;">';
-  }
+  // Avatar
+  var portrait = ch.portrait || {};
+  var avatarInner = portrait.closed
+    ? '<img class="prof-avatar-base" src="' + esc(portrait.open) + '" alt="' + esc(ch.firstName) + '" loading="eager">' +
+      '<img class="prof-avatar-closed" src="' + esc(portrait.closed) + '" alt="" aria-hidden="true" loading="eager">'
+    : '<img class="prof-avatar-base" src="' + esc(portrait.open) + '" alt="' + esc(ch.firstName) + '" loading="eager">';
 
+  // Visit button
   var visitBtn = ch.visitHref
-    ? '<a href="' + esc(ch.visitHref) + '" class="btn-ghost-profile">' + esc(ch.visitLabel) + ' &rarr;</a>'
+    ? '<a href="' + esc(ch.visitHref) + '" class="btn-ghost-profile">Visit ' + esc(ch.firstName) + '\'s page &rarr;</a>'
     : '';
 
-  root.className = 'profile-wrap';
+  // Story paragraphs
+  var storyParas = (ch.story || '').split('\n\n').filter(Boolean)
+    .map(function (p) { return '<p>' + esc(p) + '</p>'; }).join('');
+
+  // Where to find
+  var WF_CATS = [
+    { key: 'hosts',    label: 'HOSTS' },
+    { key: 'coHost',   label: 'CO-HOST' },
+    { key: 'guestsOn', label: 'GUESTS ON' },
+    { key: 'sources',  label: 'SOURCES FOR' },
+    { key: 'atDose',   label: 'AT THE DOSE' },
+    { key: 'atEtl',    label: 'AT ETL' },
+  ];
+  var wf = ch.whereToFind || {};
+  var whereHtml = WF_CATS
+    .filter(function (c) { return wf[c.key] && wf[c.key].length; })
+    .map(function (c) {
+      var items = wf[c.key].map(function (item) {
+        return item.href
+          ? '<a href="' + esc(item.href) + '" class="prof-where-link">' + esc(item.label) + '</a>'
+          : '<span class="prof-where-plain">' + esc(item.label) + '</span>';
+      }).join('');
+      return '<div class="prof-where-group"><div class="prof-where-cat">' + c.label + '</div>' + items + '</div>';
+    }).join('');
+
+  // Notes
+  var notes = ch.notes || [];
+  var notesBlock = '';
+  if (notes.length) {
+    var vis = notes.slice(0, 3);
+    var hid = notes.slice(3);
+    notesBlock = vis.map(noteHtml).join('');
+    if (hid.length) {
+      notesBlock +=
+        '<div class="prof-notes-extra" id="prof-notes-extra">' + hid.map(noteHtml).join('') + '</div>' +
+        '<button type="button" class="prof-see-more" id="prof-see-more">See ' + hid.length +
+        ' more note' + (hid.length !== 1 ? 's' : '') + ' from ' + esc(ch.firstName) + ' ↓</button>';
+    }
+  }
+
   root.innerHTML =
-    '<div>' +
-      '<div class="profile-photo">' + portraitHtml + '</div>' +
-    '</div>' +
-    '<div>' +
-      '<span class="profile-credential">' + esc(ch.credential) + '</span>' +
-      '<h1 class="profile-name">' + esc(ch.fullName) + '</h1>' +
-      '<p class="profile-role">' + esc(ch.role) + '</p>' +
-      '<p class="profile-tagline">' + esc(ch.tagline) + '</p>' +
-      '<p class="profile-bio">' + esc(ch.bio) + '</p>' +
-      '<div class="profile-actions">' +
-        '<button type="button" class="cast-im-btn" data-gym-char="' + esc(charId) + '">IM ' + esc(ch.firstName) + '</button>' +
-        visitBtn +
+    '<div class="prof-hero">' +
+      '<div class="prof-hero-inner">' +
+        '<div class="prof-avatar">' + avatarInner + '</div>' +
+        '<div class="prof-hero-text">' +
+          '<span class="prof-credential">' + esc(ch.credential) + '</span>' +
+          '<h1 class="prof-name">' + esc(ch.fullName) + '</h1>' +
+          '<p class="prof-role">' + esc(ch.role) + '</p>' +
+          '<div class="prof-actions">' +
+            '<button type="button" class="cast-im-btn" data-gym-char="' + esc(charId) + '">IM ' + esc(ch.firstName) + '</button>' +
+            visitBtn +
+          '</div>' +
+        '</div>' +
       '</div>' +
-      '<a href="/gym#cast" class="profile-back">&larr; Back to The Gym</a>' +
-    '</div>';
+    '</div>' +
+    '<div class="prof-sections">' +
+      (storyParas
+        ? '<div class="prof-card"><h2 class="prof-card-title">Their story</h2><div class="prof-story">' + storyParas + '</div></div>'
+        : '') +
+      '<div class="prof-card prof-two-col">' +
+        '<div class="prof-col-left">' +
+          '<h2 class="prof-card-title">What ' + esc(ch.firstName) + ' does at The Gym</h2>' +
+          '<p class="prof-what-body">' + esc(ch.whatIDo || '') + '</p>' +
+        '</div>' +
+        '<div class="prof-col-right">' +
+          '<h2 class="prof-card-title">Where you\'ll find ' + esc(ch.firstName) + '</h2>' +
+          (whereHtml || '<span class="prof-where-plain">Profile in progress.</span>') +
+        '</div>' +
+      '</div>' +
+      (notesBlock
+        ? '<div class="prof-card"><h2 class="prof-card-title">What ' + esc(ch.firstName) + ' is thinking about</h2>' +
+          '<p class="prof-thinking-sub">Personal notes from ' + esc(ch.firstName) + '. New ones land over time.</p>' +
+          notesBlock + '</div>'
+        : '') +
+    '</div>' +
+    '<div class="prof-back-row"><a href="/gym#cast" class="prof-back">&larr; Back to The Gym</a></div>';
+
+  var seeMoreBtn = document.getElementById('prof-see-more');
+  var extraNotes = document.getElementById('prof-notes-extra');
+  if (seeMoreBtn && extraNotes) {
+    seeMoreBtn.addEventListener('click', function () {
+      extraNotes.style.display = 'block';
+      seeMoreBtn.style.display = 'none';
+    });
+  }
 })();
 </script>
 
