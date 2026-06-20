@@ -5863,13 +5863,24 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
       </div>
       <div style="display:flex;align-items:center;gap:2px;">
         <button type="button" id="iris-voice-btn" aria-label="Hear Iris's welcome" title="Hear Iris">&#9654;</button>
+        <button type="button" id="iris-staff-btn" aria-label="Staff sign-in" title="Staff sign-in">&#128274;</button>
         <button type="button" id="iris-panel-close" aria-label="Close help chat">&times;</button>
       </div>
+    </div>
+    <div id="iris-auth-overlay" hidden>
+      <form id="iris-auth-form" autocomplete="off">
+        <div id="iris-auth-title">Staff sign-in</div>
+        <input type="password" id="iris-auth-input" placeholder="Password" autocomplete="current-password">
+        <div id="iris-auth-error" hidden></div>
+        <div id="iris-auth-btns">
+          <button type="submit" id="iris-auth-submit">Sign in</button>
+          <button type="button" id="iris-auth-cancel">Cancel</button>
+        </div>
+      </form>
     </div>
     <div id="iris-thread"></div>
     <form id="iris-form" autocomplete="off">
       <input type="text" id="iris-input" placeholder="ask me anything about ETL" autocomplete="off">
-      <button type="button" id="iris-hide-toggle" title="Hide input (demo mode)" aria-label="Toggle input visibility">👁</button>
       <button type="submit" id="iris-send">Send</button>
     </form>
   </div>
@@ -5964,6 +5975,7 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
     box-shadow: 0 8px 28px rgba(0,0,0,0.4);
     display: flex; flex-direction: column;
     overflow: hidden;
+    position: relative;
   }
   #iris-panel[hidden] { display: none; }
   #iris-panel-head {
@@ -6038,15 +6050,51 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
     color: #16202b;
   }
   #iris-input:focus { outline: 1px solid #5c8ab5; border-color: #5c8ab5; }
-  #iris-hide-toggle {
-    background: none; border: 1px solid #d8d6cc;
-    font-size: 15px; line-height: 1;
-    padding: 0 8px; cursor: pointer;
-    color: #888; flex: none;
-    transition: border-color 0.15s;
+  #iris-staff-btn {
+    background: transparent; border: 1px solid #4a6a8a;
+    color: #7fa8c9; font-size: 11px; cursor: pointer; line-height: 1;
+    padding: 4px 7px; border-radius: 50%;
   }
-  #iris-hide-toggle:hover { border-color: #5c8ab5; }
-  #iris-hide-toggle.hidden-mode { border-color: #28527a; color: #28527a; }
+  #iris-staff-btn:hover { color: #fff; border-color: #fff; }
+  #iris-auth-overlay {
+    position: absolute; inset: 0;
+    background: rgba(7,16,30,0.96);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 10;
+  }
+  #iris-auth-overlay[hidden] { display: none; }
+  #iris-auth-form {
+    width: 80%; max-width: 260px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  #iris-auth-title {
+    font-size: 12px; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; color: rgba(255,255,255,0.6);
+    font-family: 'Public Sans', system-ui, sans-serif;
+  }
+  #iris-auth-input {
+    width: 100%; padding: 9px 12px; box-sizing: border-box;
+    background: #0f1e2e; border: 1px solid #2a3a4a;
+    color: #e0e8f0; font-size: 14px; border-radius: 4px;
+    font-family: inherit;
+  }
+  #iris-auth-input:focus { outline: 1px solid #5c8ab5; border-color: #5c8ab5; }
+  #iris-auth-error { font-size: 12px; color: #e05050; font-family: 'Public Sans', system-ui, sans-serif; }
+  #iris-auth-error[hidden] { display: none; }
+  #iris-auth-btns { display: flex; gap: 8px; }
+  #iris-auth-submit {
+    flex: 1; padding: 8px; background: #28527a; border: none; border-radius: 4px;
+    color: #fff; font-family: 'Public Sans', system-ui, sans-serif;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+  }
+  #iris-auth-submit:hover { background: #2e6090; }
+  #iris-auth-submit:disabled { opacity: 0.55; cursor: wait; }
+  #iris-auth-cancel {
+    padding: 8px 14px; background: none; border: 1px solid #2a3a4a;
+    border-radius: 4px; color: #7a8a9a; font-size: 13px; cursor: pointer;
+    font-family: 'Public Sans', system-ui, sans-serif;
+  }
+  #iris-auth-cancel:hover { color: #fff; }
   #iris-send {
     background: #28527a; color: #fff;
     border: 1px solid #28527a;
@@ -6462,18 +6510,7 @@ h1 b,h2 b,h1 strong,h2 strong{font-weight:500}
   var form    = document.getElementById('iris-form');
   var input   = document.getElementById('iris-input');
   var sendBtn = document.getElementById('iris-send');
-  var hideBtn = document.getElementById('iris-hide-toggle');
   if (!bubble || !panel || !thread || !form) return;
-
-  if (hideBtn) {
-    hideBtn.addEventListener('click', function(){
-      var hidden = input.type === 'password';
-      input.type = hidden ? 'text' : 'password';
-      hideBtn.textContent = hidden ? '👁' : '🔒';
-      hideBtn.classList.toggle('hidden-mode', !hidden);
-      input.focus();
-    });
-  }
 
   var STORAGE_KEY = 'etl.iris.history';
   var SID_KEY = 'etl.iris.sid';
@@ -6559,13 +6596,64 @@ h1 b,h2 b,h1 strong,h2 strong{font-weight:500}
   bubble.addEventListener('click', openPanel);
   closeBtn.addEventListener('click', closePanel);
 
+  // ── Staff sign-in overlay ──
+  var staffBtn    = document.getElementById('iris-staff-btn');
+  var authOverlay = document.getElementById('iris-auth-overlay');
+  var authForm    = document.getElementById('iris-auth-form');
+  var authInput   = document.getElementById('iris-auth-input');
+  var authSubmit  = document.getElementById('iris-auth-submit');
+  var authCancel  = document.getElementById('iris-auth-cancel');
+  var authError   = document.getElementById('iris-auth-error');
+
+  if (staffBtn) staffBtn.addEventListener('click', function(){
+    if (!authOverlay) return;
+    authOverlay.hidden = false;
+    if (authInput) { authInput.value = ''; setTimeout(function(){ authInput.focus(); }, 50); }
+    if (authError) { authError.hidden = true; authError.textContent = ''; }
+  });
+  if (authCancel) authCancel.addEventListener('click', function(){
+    if (authOverlay) authOverlay.hidden = true;
+  });
+  if (authForm) authForm.addEventListener('submit', async function(e){
+    e.preventDefault();
+    var pw = authInput ? authInput.value.trim() : '';
+    if (!pw) return;
+    authSubmit.disabled = true;
+    if (authError) { authError.hidden = true; authError.textContent = ''; }
+    try {
+      var ar = await fetch('/.netlify/functions/etl-help-chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: pw, history: [], sid: sid, ownerToken: null }),
+      });
+      var ad = await ar.json();
+      if (ad.ownerToken) {
+        ownerToken = ad.ownerToken;
+        try { localStorage.setItem(OWNER_KEY, ownerToken); } catch(_){}
+        authOverlay.hidden = true;
+        var sub = document.getElementById('iris-panel-sub');
+        if (sub) sub.textContent = 'ETL site concierge · Dr. O';
+        if (ad.reply) {
+          var greeting = ad.reply.trim();
+          renderMsg('assistant', greeting);
+          history.push({ role: 'assistant', content: greeting });
+          persist();
+        }
+      } else {
+        if (authError) { authError.textContent = 'Password not recognized.'; authError.hidden = false; }
+      }
+    } catch(_) {
+      if (authError) { authError.textContent = 'Network error. Try again.'; authError.hidden = false; }
+    } finally {
+      if (authSubmit) authSubmit.disabled = false;
+    }
+  });
+
   async function ask(msg){
     if (!msg) return;
-    var isHidden = input.type === 'password';
     sendBtn.disabled = true; input.disabled = true;
-    var displayMsg = isHidden ? '●●●●●' : msg;
-    renderMsg('user', displayMsg);
-    history.push({ role: 'user', content: displayMsg });
+    renderMsg('user', msg);
+    history.push({ role: 'user', content: msg });
     persist();
     input.value = '';
     var typingEl = document.createElement('div');
@@ -6591,15 +6679,6 @@ h1 b,h2 b,h1 strong,h2 strong{font-weight:500}
       if (data.ownerToken) {
         ownerToken = data.ownerToken;
         try { localStorage.setItem(OWNER_KEY, ownerToken); } catch(_){}
-        if (history.length && history[history.length - 1].role === 'user') {
-          history[history.length - 1].content = '[identified as Dr. Oroszi]';
-        }
-        var allUserBubbles = thread.querySelectorAll('.iris-msg--mine');
-        if (allUserBubbles.length) {
-          var lastBubble = allUserBubbles[allUserBubbles.length - 1];
-          var contentDiv = lastBubble.querySelector('div:not(.iris-msg-meta)');
-          if (contentDiv) contentDiv.textContent = '[identified as Dr. Oroszi]';
-        }
       }
       if (data.owner) {
         var sub = document.getElementById('iris-panel-sub');
