@@ -251,7 +251,12 @@ exports.handler = async (event) => {
       let notes = '';
       let digest = '';
       if (ownerStore) {
-        try { const h = await ownerStore.get('history', { type: 'json' }); if (Array.isArray(h)) ownerHistory = h; } catch (_) {}
+        if (issueToken) {
+          // Fresh password: wipe any polluted history so the model starts clean.
+          try { await ownerStore.setJSON('history', []); } catch (_) {}
+        } else {
+          try { const h = await ownerStore.get('history', { type: 'json' }); if (Array.isArray(h)) ownerHistory = h; } catch (_) {}
+        }
         try { const n = await ownerStore.get('notes'); if (typeof n === 'string') notes = n; } catch (_) {}
       }
       if (logsStore) {
