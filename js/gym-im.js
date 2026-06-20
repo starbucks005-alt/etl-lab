@@ -255,7 +255,7 @@
         { date: 'May 21, 2026', text: 'Ran the same claim-check process on three trending supplement stacks. One cleared. Two did not. The ones that did not clear have better marketing than the one that did. That is the usual pattern.' },
       ],
       color: '#3a4a5a', bg: '#eceff2',
-      portrait: { open: '/agents/Eli_Adler_profile.png', closed: null },
+      portrait: { open: '/agents/Eli_eyes_open.png', closed: '/agents/Eli_eyes_closed.png' },
       visitHref: null, visitLabel: null,
     },
   };
