@@ -333,6 +333,24 @@ exports.handler = async (event) => {
 
   // ── SPOTLIGHT MODE: ?spotlight=vic injects one Vic Stallion message immediately ──
   var qs = event.queryStringParameters || {};
+  if (qs.spotlight === 'rowan') {
+    var spotLines = [
+      "rotation confirmed. watching semis.",
+      "Mag 7 spread too wide. trimming.",
+      "NVDA overbought. energy looks better.",
+      "rotation is real. semis first.",
+    ];
+    var spotMsg = spotLines[Math.floor(Math.random() * spotLines.length)];
+    var spotMsgs = [];
+    try { var sc = await store.get('messages', { type: 'json' }); if (Array.isArray(sc)) spotMsgs = sc; } catch (_) {}
+    var spotTs = now + 1000;
+    spotMsgs.push({ agent: 'Rowan Tate', role: 'Quant Strategist', message: spotMsg, time: fmtTs(spotTs), ts: spotTs });
+    spotMsgs.sort(function(a, b) { return (b.ts || 0) - (a.ts || 0); });
+    if (spotMsgs.length > 120) spotMsgs = spotMsgs.slice(0, 120);
+    try { await store.set('messages', JSON.stringify(spotMsgs)); } catch (_) {}
+    return { statusCode: 200, body: 'spotlight: Rowan Tate' };
+  }
+
   if (qs.spotlight === 'vic') {
     var spotLines = [
       "NVDA's doing something interesting rn. just watching.",
