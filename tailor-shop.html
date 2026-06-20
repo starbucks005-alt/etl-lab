@@ -988,13 +988,11 @@ footer{border-top:1px solid #D3C1A8;background:#E8D6C0;padding:22px 28px;display
     if(mirrorAgent&&mirrorAgent.image_url)showMirrorBefore(mirrorAgent.image_url);
     fetch('/.netlify/functions/studio-chris-wardrobe-background?'+qs,{headers:{Authorization:auth}})
       .then(function(r){
-        if(r.status===401){document.getElementById('m-status').textContent='Credentials didn\'t open the door.';return null;}
-        if(!r.ok){document.getElementById('m-status').textContent='Error reaching the shop. Try again.';return null;}
-        return r.json();
-      })
-      .then(function(data){
-        if(!data)return;
-        var slug=data.slug||slugify(name);
+        if(r.status===401){document.getElementById('m-status').textContent='Credentials didn\'t open the door.';return;}
+        if(!r.ok){document.getElementById('m-status').textContent='Error reaching the shop ('+r.status+'). Try again.';return;}
+        // Background function returns 202 with an empty body — do not call r.json().
+        // Compute the slug the same way the server does and start polling immediately.
+        var slug=slugify(name);
         document.getElementById('m-status').textContent='Chris is working on '+name+'. Updates as each look comes off the needle.';
         var ws=document.getElementById('ward-section');
         ws.style.display='block';
