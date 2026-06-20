@@ -106,6 +106,12 @@
 [functions."studio-chris-wardrobe-background"]
   included_files = ["data/pa-wardrobe.json", "roster.json"]
 
+# Generic agent runner (the "Take Your Agent Anywhere" export system).
+# Bundles roster.json so _agent-registry.js can build the persona in the
+# Netlify runtime without a network fetch.
+[functions."agent-background"]
+  included_files = ["roster.json"]
+
 # Per-user Studio config lookup. Reads the generic provisioning map
 # (data/provisioned-clients.json: email -> fixture) plus the bespoke client
 # fixtures (Caroline donated, Vikram paid) when a provisioned user signs in.
