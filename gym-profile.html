@@ -12,17 +12,14 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,700&family=Inter:wght@400;500;600;700&family=Lora:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --ink:        #16212b;
-  --muted:      #5a6a78;
-  --soft:       #7a8a98;
-  --bg:         #f6f8f7;
-  --panel:      #ffffff;
-  --line:       #d7e0e2;
-  --accent:     #e0552e;
-  --accent-dk:  #bd4220;
-  --teal:       #2f8f7f;
-  --green:      #2e9e5b;
-  --amber:      #d99016;
+  --ink:      #16212b;
+  --muted:    #5a6a78;
+  --soft:     #7a8a98;
+  --bg:       #f6f8f7;
+  --panel:    #ffffff;
+  --line:     #d7e0e2;
+  --accent:   #e0552e;
+  --accent-dk:#bd4220;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
@@ -85,132 +82,144 @@ body {
 }
 .topbar-nav a.nav-cta:hover { background: var(--accent-dk); }
 
-/* ── Profile hero ── */
-.prof-hero {
-  background: var(--panel);
-  border-bottom: 1px solid var(--line);
-  padding: 2.5rem 2rem 2rem;
-}
-.prof-hero-inner {
-  max-width: 900px;
+/* ── Profile root ── */
+#pf-root {
+  --pf-color: #e0552e;
+  --pf-bg:    #f6f8f7;
+  max-width: 1100px;
   margin: 0 auto;
-  display: flex;
-  align-items: center;
-  gap: 1.75rem;
+  padding: 1.5rem 1.25rem 4rem;
 }
-.prof-avatar {
-  width: 110px;
-  height: 110px;
+
+/* ── Hero ── */
+.pf-hero {
+  background: var(--pf-bg);
+  border-radius: 12px;
+  padding: 2rem 2rem 1.6rem;
+  margin-bottom: 2rem;
+}
+.pf-hero-inner {
+  display: flex;
+  gap: 1.8rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.pf-portrait {
+  position: relative;
+  width: 180px;
+  height: 180px;
   border-radius: 50%;
   overflow: hidden;
   flex-shrink: 0;
-  border: 3px solid var(--line);
-  position: relative;
-  background: var(--bg);
+  border: 4px solid #fff;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.12);
 }
-.prof-avatar-base { width: 100%; height: 100%; object-fit: cover; display: block; }
-.prof-avatar-closed {
-  position: absolute; top: 0; left: 0;
-  width: 100%; height: 100%; object-fit: cover;
+.pf-portrait img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover; display: block;
+}
+.pf-portrait-closed {
   opacity: 0;
-  animation: gym-blink 8.4s infinite;
+  animation: pf-blink 8.4s ease-in-out infinite;
 }
-@keyframes gym-blink {
-  0%, 92%   { opacity: 0; }
-  94%, 96%  { opacity: 1; }
-  98%, 100% { opacity: 0; }
+@keyframes pf-blink {
+  0%, 93%, 100% { opacity: 0; }
+  96%, 98%      { opacity: 1; }
 }
-.prof-hero-text { flex: 1; }
-.prof-credential {
-  display: inline-block;
-  font-family: 'Lora', serif;
-  font-size: 0.68rem;
-  letter-spacing: 0.08em;
+.pf-id { flex: 1; min-width: 240px; }
+.pf-cred {
+  font-size: 0.7rem;
   text-transform: uppercase;
-  color: var(--teal);
+  letter-spacing: 0.06em;
+  color: var(--pf-color);
   font-weight: 600;
   margin-bottom: 0.25rem;
+  display: block;
 }
-.prof-name {
+.pf-name {
   font-family: 'Fraunces', serif;
-  font-size: clamp(1.5rem, 3vw, 2.1rem);
-  font-weight: 700;
-  color: var(--ink);
+  font-size: clamp(1.8rem, 3.5vw, 2.4rem);
+  font-weight: 600;
   line-height: 1.1;
-  margin-bottom: 0.2rem;
+  color: var(--ink);
+  margin: 0 0 0.3rem;
 }
-.prof-role {
+.pf-role-label {
+  font-family: 'Lora', serif;
+  font-size: 1.05rem;
+  color: var(--pf-color);
   font-style: italic;
-  color: var(--muted);
-  font-size: 0.97rem;
   margin-bottom: 0.9rem;
 }
-.prof-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; }
-.cast-im-btn {
-  padding: 0.55rem 1.2rem;
-  background: var(--ink);
+.pf-actions {
+  display: flex;
+  gap: 0.8rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+.pf-im-btn {
+  padding: 0.65rem 1.3rem;
+  background: var(--pf-color);
   color: #fff;
   border: none;
-  border-radius: 7px;
+  border-radius: 4px;
   font-family: 'Inter', sans-serif;
-  font-size: 0.88rem;
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: opacity 0.15s, transform 0.15s;
 }
-.cast-im-btn:hover { background: var(--accent-dk); }
-.btn-ghost-profile {
-  padding: 0.55rem 1.2rem;
-  background: var(--panel);
-  color: var(--accent-dk);
-  border: 1.5px solid var(--accent);
-  border-radius: 7px;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.88rem;
+.pf-im-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+.pf-visit-btn {
+  padding: 0.65rem 1.3rem;
+  background: #fff;
+  color: var(--pf-color);
+  border: 1px solid var(--pf-color);
+  border-radius: 4px;
+  font-size: 1rem;
   font-weight: 600;
   text-decoration: none;
   transition: background 0.15s;
   display: inline-block;
 }
-.btn-ghost-profile:hover { background: #fdeee8; }
+.pf-visit-btn:hover { background: var(--pf-bg); }
 
-/* ── Sections ── */
-.prof-sections {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
+/* ── Content grid ── */
+.pf-grid {
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 1.5rem;
 }
-
-/* ── Cards ── */
-.prof-card {
+@media (min-width: 800px) {
+  .pf-grid { grid-template-columns: 1fr 1fr; }
+  .pf-bio   { grid-column: 1 / -1; }
+  .pf-notes { grid-column: 1 / -1; }
+}
+.pf-section {
   background: var(--panel);
   border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 2rem;
+  border-radius: 8px;
+  padding: 1.4rem 1.6rem;
 }
-.prof-card-title {
+.pf-section-title {
   font-family: 'Fraunces', serif;
-  font-size: 1.1rem;
-  font-style: italic;
-  color: var(--accent-dk);
-  margin-bottom: 1rem;
+  font-size: 1.3rem;
+  color: var(--pf-color);
+  margin: 0 0 0.8rem;
+  font-weight: 600;
 }
 
 /* Story */
-.prof-story p { font-size: 0.97rem; color: var(--muted); line-height: 1.75; }
-.prof-story p + p { margin-top: 0.85rem; }
-
-/* What / Where two-col */
-.prof-two-col { display: grid; grid-template-columns: 1fr 1fr; }
-.prof-two-col > .prof-col-left {
-  padding-right: 2rem;
-  border-right: 1px solid var(--line);
+.pf-bio-body {
+  color: var(--muted);
+  font-size: 0.97rem;
+  line-height: 1.75;
 }
-.prof-two-col > .prof-col-right { padding-left: 2rem; }
-.prof-what-body {
+.pf-bio-body p + p { margin-top: 0.85rem; }
+
+/* What I do */
+.pf-what-body {
   font-style: italic;
   font-family: 'Lora', serif;
   font-size: 0.97rem;
@@ -218,10 +227,10 @@ body {
   line-height: 1.75;
 }
 
-/* Where */
-.prof-where-group { margin-bottom: 1rem; }
-.prof-where-group:last-child { margin-bottom: 0; }
-.prof-where-cat {
+/* Where to find */
+.pf-where-group { margin-bottom: 1rem; }
+.pf-where-group:last-child { margin-bottom: 0; }
+.pf-where-cat {
   font-size: 0.63rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -229,65 +238,73 @@ body {
   font-weight: 600;
   margin-bottom: 0.3rem;
 }
-.prof-where-link {
+.pf-where-link {
   display: block;
-  color: var(--accent-dk);
+  color: var(--pf-color);
   font-size: 0.9rem;
   text-decoration: none;
   line-height: 1.7;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.15s;
 }
-.prof-where-link:hover { text-decoration: underline; }
-.prof-where-plain {
+.pf-where-link:hover { border-bottom-color: var(--pf-color); }
+.pf-where-plain {
   display: block;
   color: var(--muted);
   font-size: 0.9rem;
   line-height: 1.7;
 }
 
-/* Thinking */
-.prof-thinking-sub {
+/* Notes */
+.pf-notes-sub {
   font-style: italic;
-  font-size: 0.85rem;
   color: var(--soft);
-  margin-bottom: 1.25rem;
+  font-size: 0.92rem;
+  margin: 0 0 1rem;
 }
-.prof-note {
-  border-left: 3px solid var(--line);
-  padding: 0.55rem 0 0.55rem 1rem;
-  margin-bottom: 0.85rem;
+.pf-note {
+  border-left: 3px solid var(--pf-color);
+  padding: 0.7rem 1rem;
+  background: var(--pf-bg);
+  border-radius: 0 6px 6px 0;
+  margin-bottom: 0.9rem;
 }
-.prof-note:last-of-type { margin-bottom: 0; }
-.prof-note-date {
-  font-size: 0.66rem;
-  letter-spacing: 0.09em;
+.pf-note:last-of-type { margin-bottom: 0; }
+.pf-note-date {
+  font-family: 'Lora', serif;
+  font-size: 0.78rem;
+  color: var(--pf-color);
+  font-weight: 600;
   text-transform: uppercase;
-  color: var(--soft);
-  margin-bottom: 0.2rem;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.3rem;
 }
-.prof-note-text { font-size: 0.93rem; color: var(--muted); line-height: 1.65; }
-.prof-notes-extra { display: none; }
-.prof-see-more {
+.pf-note-body {
+  color: var(--ink);
+  font-size: 0.97rem;
+  line-height: 1.6;
+  margin: 0;
+}
+.pf-note-extra { display: none; }
+.pf-note-extra-shown { display: block; }
+.pf-notes-toggle {
   display: inline-block;
-  margin-top: 1rem;
-  padding: 0.45rem 1rem;
-  border: 1.5px solid var(--line);
-  border-radius: 6px;
+  margin-top: 0.6rem;
+  padding: 0.5rem 1rem;
   background: transparent;
-  font-size: 0.82rem;
-  color: var(--muted);
-  cursor: pointer;
+  color: var(--pf-color);
+  border: 1px solid var(--pf-color);
+  border-radius: 4px;
   font-family: 'Inter', sans-serif;
-  transition: border-color 0.15s, color 0.15s;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
 }
-.prof-see-more:hover { border-color: var(--accent); color: var(--accent-dk); }
+.pf-notes-toggle:hover { background: var(--pf-bg); }
 
-/* Back */
-.prof-back-row { max-width: 900px; margin: 0 auto; padding: 0 2rem 1.5rem; }
-.prof-back { font-size: 0.85rem; color: var(--muted); text-decoration: none; }
-.prof-back:hover { color: var(--accent); }
-
-/* Loading */
-.prof-loading { padding: 4rem 2rem; text-align: center; color: var(--muted); font-style: italic; }
+.pf-empty { color: var(--soft); font-style: italic; font-size: 0.95rem; }
+.pf-error { color: var(--soft); font-style: italic; padding: 4rem 0; text-align: center; }
 
 /* ── Footer ── */
 .site-footer {
@@ -331,20 +348,10 @@ body {
 
 /* ── Responsive ── */
 @media (max-width: 720px) {
-  .prof-hero { padding: 1.5rem 1.25rem; }
-  .prof-hero-inner { gap: 1rem; }
-  .prof-avatar { width: 80px; height: 80px; }
-  .prof-sections { padding: 1.25rem; gap: 1.25rem; }
-  .prof-card { padding: 1.5rem; }
-  .prof-two-col { grid-template-columns: 1fr; }
-  .prof-two-col > .prof-col-left {
-    padding-right: 0;
-    border-right: none;
-    border-bottom: 1px solid var(--line);
-    padding-bottom: 1.5rem;
-    margin-bottom: 1.5rem;
-  }
-  .prof-two-col > .prof-col-right { padding-left: 0; }
+  #pf-root { padding: 1rem 1rem 3rem; }
+  .pf-hero { padding: 1.5rem 1.25rem; }
+  .pf-portrait { width: 110px; height: 110px; }
+  .pf-hero-inner { gap: 1.2rem; }
   .topbar { padding: 0.75rem 1.1rem 0.4rem; }
 }
 </style>
@@ -365,11 +372,11 @@ body {
   </nav>
 </div>
 
-<section style="min-height:60vh;">
-  <div id="profile-root">
-    <p class="prof-loading">Loading&hellip;</p>
+<main>
+  <div id="pf-root">
+    <p class="pf-empty" style="padding:4rem 0;text-align:center;">Loading&hellip;</p>
   </div>
-</section>
+</main>
 
 <footer class="site-footer">
   <div class="footer-inner">
@@ -392,43 +399,46 @@ body {
 <script src="/js/gym-im.js"></script>
 <script>
 (function () {
+  'use strict';
+
   function esc(s) {
     return String(s || '').replace(/[&<>"']/g, function (c) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
     });
   }
-  function noteHtml(n) {
-    return '<div class="prof-note"><div class="prof-note-date">' + esc(n.date) + '</div><div class="prof-note-text">' + esc(n.text) + '</div></div>';
-  }
 
-  var root = document.getElementById('profile-root');
+  var root = document.getElementById('pf-root');
   var params = new URLSearchParams(window.location.search);
   var charId = (params.get('char') || '').trim();
   var ch = charId && window.GYM_CAST && window.GYM_CAST[charId];
 
   if (!ch) {
-    root.innerHTML = '<p class="prof-loading">Character not found. <a href="/gym" style="color:var(--accent);">Back to The Gym</a></p>';
+    root.innerHTML = '<p class="pf-error">Profile not found. <a href="/gym" style="color:var(--accent);">Back to The Gym</a></p>';
     return;
   }
 
-  document.title = ch.firstName + ' · The Gym';
+  document.title = (ch.firstName || ch.fullName) + ' · The Gym';
   var metaDesc = document.querySelector('meta[name="description"]');
   if (metaDesc) metaDesc.content = ch.fullName + ', ' + ch.role + ' at The Gym. ' + (ch.tagline || '');
 
-  // Avatar
+  // Per-character theme
+  root.style.setProperty('--pf-color', ch.color || '#e0552e');
+  root.style.setProperty('--pf-bg', ch.bg || '#f6f8f7');
+
+  // Portrait
   var portrait = ch.portrait || {};
-  var avatarInner = portrait.closed
-    ? '<img class="prof-avatar-base" src="' + esc(portrait.open) + '" alt="' + esc(ch.firstName) + '" loading="eager">' +
-      '<img class="prof-avatar-closed" src="' + esc(portrait.closed) + '" alt="" aria-hidden="true" loading="eager">'
-    : '<img class="prof-avatar-base" src="' + esc(portrait.open) + '" alt="' + esc(ch.firstName) + '" loading="eager">';
+  var portraitHtml = portrait.open
+    ? '<img class="pf-portrait-open" src="' + esc(portrait.open) + '" alt="' + esc(ch.firstName) + '" loading="eager">' +
+      (portrait.closed ? '<img class="pf-portrait-closed" src="' + esc(portrait.closed) + '" alt="" aria-hidden="true" loading="eager">' : '')
+    : '';
 
   // Visit button
   var visitBtn = ch.visitHref
-    ? '<a href="' + esc(ch.visitHref) + '" class="btn-ghost-profile">Visit ' + esc(ch.firstName) + '\'s page &rarr;</a>'
+    ? '<a href="' + esc(ch.visitHref) + '" class="pf-visit-btn">Visit ' + esc(ch.firstName) + '\'s page →</a>'
     : '';
 
   // Story paragraphs
-  var storyParas = (ch.story || '').split('\n\n').filter(Boolean)
+  var storyHtml = (ch.story || '').split('\n\n').filter(Boolean)
     .map(function (p) { return '<p>' + esc(p) + '</p>'; }).join('');
 
   // Where to find
@@ -446,70 +456,94 @@ body {
     .map(function (c) {
       var items = wf[c.key].map(function (item) {
         return item.href
-          ? '<a href="' + esc(item.href) + '" class="prof-where-link">' + esc(item.label) + '</a>'
-          : '<span class="prof-where-plain">' + esc(item.label) + '</span>';
+          ? '<a href="' + esc(item.href) + '" class="pf-where-link">' + esc(item.label) + '</a>'
+          : '<span class="pf-where-plain">' + esc(item.label) + '</span>';
       }).join('');
-      return '<div class="prof-where-group"><div class="prof-where-cat">' + c.label + '</div>' + items + '</div>';
+      return '<div class="pf-where-group"><div class="pf-where-cat">' + c.label + '</div>' + items + '</div>';
     }).join('');
 
   // Notes
   var notes = ch.notes || [];
-  var notesBlock = '';
+  var notesInner = '';
   if (notes.length) {
-    var vis = notes.slice(0, 3);
-    var hid = notes.slice(3);
-    notesBlock = vis.map(noteHtml).join('');
-    if (hid.length) {
-      notesBlock +=
-        '<div class="prof-notes-extra" id="prof-notes-extra">' + hid.map(noteHtml).join('') + '</div>' +
-        '<button type="button" class="prof-see-more" id="prof-see-more">See ' + hid.length +
-        ' more note' + (hid.length !== 1 ? 's' : '') + ' from ' + esc(ch.firstName) + ' ↓</button>';
+    var VISIBLE = 3;
+    notesInner = notes.map(function (n, i) {
+      var hidClass = i >= VISIBLE ? ' pf-note-extra' : '';
+      return '<div class="pf-note' + hidClass + '"><div class="pf-note-date">' + esc(n.date) + '</div><p class="pf-note-body">' + esc(n.text) + '</p></div>';
+    }).join('');
+    var extra = notes.length - VISIBLE;
+    if (extra > 0) {
+      notesInner += '<button type="button" class="pf-notes-toggle" id="pf-notes-toggle" data-state="collapsed">' +
+        'See ' + extra + ' more note' + (extra === 1 ? '' : 's') + ' from ' + esc(ch.firstName) + ' ↓' +
+        '</button>';
     }
+  } else {
+    notesInner = '<p class="pf-empty">No notes yet. Come back soon.</p>';
   }
 
   root.innerHTML =
-    '<div class="prof-hero">' +
-      '<div class="prof-hero-inner">' +
-        '<div class="prof-avatar">' + avatarInner + '</div>' +
-        '<div class="prof-hero-text">' +
-          '<span class="prof-credential">' + esc(ch.credential) + '</span>' +
-          '<h1 class="prof-name">' + esc(ch.fullName) + '</h1>' +
-          '<p class="prof-role">' + esc(ch.role) + '</p>' +
-          '<div class="prof-actions">' +
-            '<button type="button" class="cast-im-btn" data-gym-char="' + esc(charId) + '">IM ' + esc(ch.firstName) + '</button>' +
+    '<section class="pf-hero">' +
+      '<div class="pf-hero-inner">' +
+        '<div class="pf-portrait">' + portraitHtml + '</div>' +
+        '<div class="pf-id">' +
+          '<span class="pf-cred">' + esc(ch.credential) + '</span>' +
+          '<h1 class="pf-name">' + esc(ch.fullName) + '</h1>' +
+          '<div class="pf-role-label">' + esc(ch.role) + '</div>' +
+          '<div class="pf-actions">' +
+            '<button type="button" class="pf-im-btn" data-gym-char="' + esc(charId) + '">IM ' + esc(ch.firstName) + '</button>' +
             visitBtn +
           '</div>' +
         '</div>' +
       '</div>' +
-    '</div>' +
-    '<div class="prof-sections">' +
-      (storyParas
-        ? '<div class="prof-card"><h2 class="prof-card-title">Their story</h2><div class="prof-story">' + storyParas + '</div></div>'
-        : '') +
-      '<div class="prof-card prof-two-col">' +
-        '<div class="prof-col-left">' +
-          '<h2 class="prof-card-title">What ' + esc(ch.firstName) + ' does at The Gym</h2>' +
-          '<p class="prof-what-body">' + esc(ch.whatIDo || '') + '</p>' +
-        '</div>' +
-        '<div class="prof-col-right">' +
-          '<h2 class="prof-card-title">Where you\'ll find ' + esc(ch.firstName) + '</h2>' +
-          (whereHtml || '<span class="prof-where-plain">Profile in progress.</span>') +
-        '</div>' +
-      '</div>' +
-      (notesBlock
-        ? '<div class="prof-card"><h2 class="prof-card-title">What ' + esc(ch.firstName) + ' is thinking about</h2>' +
-          '<p class="prof-thinking-sub">Personal notes from ' + esc(ch.firstName) + '. New ones land over time.</p>' +
-          notesBlock + '</div>'
-        : '') +
-    '</div>' +
-    '<div class="prof-back-row"><a href="/gym#cast" class="prof-back">&larr; Back to The Gym</a></div>';
+    '</section>' +
 
-  var seeMoreBtn = document.getElementById('prof-see-more');
-  var extraNotes = document.getElementById('prof-notes-extra');
-  if (seeMoreBtn && extraNotes) {
-    seeMoreBtn.addEventListener('click', function () {
-      extraNotes.style.display = 'block';
-      seeMoreBtn.style.display = 'none';
+    '<div class="pf-grid">' +
+
+      (storyHtml
+        ? '<section class="pf-section pf-bio">' +
+            '<h2 class="pf-section-title">Their story</h2>' +
+            '<div class="pf-bio-body">' + storyHtml + '</div>' +
+          '</section>'
+        : '') +
+
+      '<section class="pf-section pf-what">' +
+        '<h2 class="pf-section-title">What ' + esc(ch.firstName) + ' does at The Gym</h2>' +
+        '<p class="pf-what-body">' + esc(ch.whatIDo || '') + '</p>' +
+      '</section>' +
+
+      '<section class="pf-section pf-where">' +
+        '<h2 class="pf-section-title">Where you\'ll find ' + esc(ch.firstName) + '</h2>' +
+        (whereHtml || '<p class="pf-empty">Profile in progress.</p>') +
+      '</section>' +
+
+      '<section class="pf-section pf-notes">' +
+        '<h2 class="pf-section-title">What ' + esc(ch.firstName) + ' is thinking about</h2>' +
+        '<p class="pf-notes-sub">Personal notes from ' + esc(ch.firstName) + '. New ones land over time.</p>' +
+        notesInner +
+      '</section>' +
+
+    '</div>';
+
+  // Wire IM button (gym-im.js provides openGymChat via data-gym-char delegation,
+  // but we also wire it directly in case the delegated handler isn't present)
+  var imBtn = root.querySelector('.pf-im-btn');
+  if (imBtn && window.openGymChat) {
+    imBtn.addEventListener('click', function () { window.openGymChat(charId); });
+  }
+
+  // Notes toggle
+  var toggleBtn = root.querySelector('#pf-notes-toggle');
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', function () {
+      var expanded = toggleBtn.dataset.state === 'expanded';
+      var extras = root.querySelectorAll('.pf-note-extra');
+      extras.forEach(function (el) {
+        el.classList.toggle('pf-note-extra-shown', !expanded);
+      });
+      toggleBtn.dataset.state = expanded ? 'collapsed' : 'expanded';
+      toggleBtn.textContent = expanded
+        ? 'See ' + extras.length + ' more note' + (extras.length === 1 ? '' : 's') + ' from ' + ch.firstName + ' ↓'
+        : 'Hide older notes ↑';
     });
   }
 })();
