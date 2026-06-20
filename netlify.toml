@@ -253,6 +253,11 @@
   status = 200
 
 [[redirects]]
+  from = "/tailor-shop"
+  to = "/tailor-shop.html"
+  status = 200
+
+[[redirects]]
   from = "/deskworks"
   to = "/deskworks.html"
   status = 200

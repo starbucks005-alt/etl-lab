@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chris's Tailor Shop - ETL</title>
+<meta name="description" content="Personas measured, cut, and stitched by hand. Chris's Tailor Shop at the Emerging Technologies Laboratory.">
+<link rel="icon" type="image/png" sizes="64x64" href="/fs-favicon-64.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#F4E9D8;font-family:'Inter',system-ui,sans-serif;color:#3B2A1A}
+
+/* ── Nav ── */
+.topbar{background:#10182b;border-bottom:2px solid #C48A5A;padding:14px 28px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.topbar .brand{font-family:'Playfair Display',serif;color:#fff;font-size:17px;letter-spacing:.01em}
+.topbar .brand em{color:#C48A5A;font-style:normal}
+.topbar nav a{color:#fff;text-decoration:none;font-family:'Inter',sans-serif;font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin-left:18px}
+.topbar nav a:hover{color:#C48A5A}
+
+/* ── Shop header ── */
+.shop-header{background:#E8D6C0;padding:32px 0 28px;text-align:center;border-bottom:1px solid #D3C1A8}
+.shop-sign{font-family:'Playfair Display',serif;font-size:32px;font-weight:600;color:#3B2A1A;margin-bottom:8px}
+.shop-tagline{font-family:'Playfair Display',serif;font-size:16px;font-style:italic;color:#5A4633}
+
+/* ── Art strip ── */
+.art-wrap{max-width:1120px;margin:0 auto;overflow:hidden}
+.art-strip{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0}
+.art-strip img{width:100%;height:220px;object-fit:cover;object-position:center 20%;display:block;filter:sepia(.08)}
+
+/* ── Layout ── */
+.shop-layout{max-width:1120px;margin-left:auto;margin-right:auto;padding-left:0;padding-right:0}
+.shop-grid{display:grid;grid-template-columns:260px 520px 260px;column-gap:40px;padding:40px 0 48px;margin:0}
+@media(max-width:960px){.shop-grid{grid-template-columns:1fr;padding:24px 20px}}
+
+/* ── Cards (shared) ── */
+.card{background:#F9F1E5;border:1px solid #D3C1A8;border-radius:16px;padding:24px;box-shadow:0 2px 4px rgba(0,0,0,.06);margin-bottom:24px}
+.card-eyebrow{font-family:'Inter',sans-serif;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#7A6247;margin-bottom:12px;display:block}
+.card h2{font-family:'Playfair Display',serif;font-size:20px;font-weight:600;color:#3B2A1A;margin-bottom:10px;line-height:1.3}
+.card p{font-family:'Inter',sans-serif;font-size:14px;color:#5A4633;line-height:1.65}
+
+/* ── Left column ── */
+.chris-portrait{border:1px solid #D3C1A8;border-radius:12px;overflow:hidden;margin-bottom:22px}
+.chris-portrait img{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;object-position:top center}
+
+.tools-panel{background:#F9F1E5;border:1px solid #D3C1A8;border-radius:12px;padding:16px;margin-bottom:18px}
+.tools-panel .tp-label{font-family:'Inter',sans-serif;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#7A6247;margin-bottom:12px}
+.tool-row{display:flex;align-items:center;gap:10px;margin-bottom:9px;font-family:'Inter',sans-serif;font-size:13px;color:#5A4633}
+.tool-row svg{width:17px;height:17px;flex-shrink:0;stroke:#8C5A3A;stroke-width:1.5;fill:none;stroke-linecap:round;stroke-linejoin:round}
+
+.swatch-strip{display:flex;gap:7px;margin-bottom:20px}
+.swatch{flex:1;height:38px;border-radius:5px;border:1px solid #D3C1A8}
+
+.chalkboard{background:#1F3A2E;border-radius:8px;padding:18px}
+.chalk-heading{font-family:'Playfair Display',serif;font-size:14px;font-style:italic;color:#fff;margin-bottom:12px}
+.chalk-item{font-family:'Inter',sans-serif;font-size:12px;color:rgba(255,255,255,.72);line-height:1.6;padding:6px 0;border-top:1px solid rgba(255,255,255,.1)}
+.chalk-item:first-of-type{border-top:none;padding-top:0}
+
+/* ── Form fields ── */
+.field{margin-bottom:15px}
+.field label{display:block;font-family:'Inter',sans-serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#7A6247;margin-bottom:5px}
+.field input,.field select,.field textarea{
+  width:100%;height:44px;border:1px solid #CBB59A;border-radius:8px;
+  padding:0 12px;font-family:'Inter',sans-serif;font-size:14px;color:#3B2A1A;
+  background:#fff;outline:none;-webkit-appearance:none;transition:border-color .15s,box-shadow .15s
+}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:#8C5A3A;box-shadow:0 0 0 3px rgba(140,90,58,.12)}
+.field textarea{height:90px;padding:10px 12px;resize:vertical}
+.field select{
+  cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237A6247' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;padding-right:32px
+}
+
+/* ── Buttons ── */
+.btn-primary{
+  display:block;width:100%;margin-top:18px;
+  background:#8C5A3A;color:#fff;border:none;border-radius:24px;
+  padding:13px 24px;font-family:'Inter',sans-serif;font-size:15px;font-weight:500;
+  cursor:pointer;transition:background .18s
+}
+.btn-primary:hover{background:#74472F}
+.btn-primary:disabled{opacity:.5;cursor:default}
+.btn-send{
+  display:inline-block;margin-top:12px;
+  background:#C48A5A;color:#fff;border:none;border-radius:20px;
+  padding:10px 20px;font-family:'Inter',sans-serif;font-size:13px;font-weight:500;
+  cursor:pointer;transition:background .18s
+}
+.btn-send:hover{background:#A86F46}
+
+/* ── Status lines ── */
+.status-line{font-family:'Inter',sans-serif;font-size:12px;color:#7A6247;margin-top:12px;min-height:16px;line-height:1.5;font-style:italic}
+
+/* ── Staff door ── */
+.staff-toggle{font-family:'Inter',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#7A6247;text-decoration:none;display:inline-block;margin-top:14px}
+.staff-toggle:hover{color:#8C5A3A}
+.staff-door{display:none;margin-top:10px;background:rgba(255,255,255,.55);border:1px solid #D3C1A8;border-radius:8px;padding:12px}
+.staff-door.open{display:block}
+.staff-door .sd-label{font-family:'Inter',sans-serif;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#7A6247;margin-bottom:8px}
+.sd-creds{display:flex;gap:8px;flex-wrap:wrap}
+.sd-creds input{flex:1;min-width:100px;height:36px;border:1px solid #CBB59A;border-radius:6px;padding:0 10px;font-family:'Inter',sans-serif;font-size:13px;background:#fff;outline:none}
+.sd-creds input:focus{border-color:#8C5A3A}
+
+/* ── Cutting table ── */
+.cutting-table{
+  display:none;
+  background:#F9F1E5;border:1px solid #D3C1A8;border-radius:16px;
+  padding:24px;margin-bottom:24px;position:relative;overflow:hidden
+}
+.cutting-table::before{
+  content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(45deg,rgba(196,138,90,.04) 0,rgba(196,138,90,.04) 1px,transparent 1px,transparent 8px);
+  pointer-events:none
+}
+.cutting-table .ct-inner{position:relative}
+
+/* ── Dossier ── */
+.dossier{display:none;background:#fff;border:1px solid #D3C1A8;border-radius:16px;padding:24px;margin-bottom:24px}
+.dossier .d-head{display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap;margin-bottom:20px}
+.dossier .d-head img{width:110px;height:110px;object-fit:cover;border-radius:8px;border:1px solid #D3C1A8;flex-shrink:0}
+.d-name{font-family:'Playfair Display',serif;font-size:20px;font-weight:600;color:#3B2A1A;margin-bottom:3px}
+.d-role-line{font-family:'Inter',sans-serif;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#8C5A3A;margin-bottom:6px}
+.d-tag{font-family:'Playfair Display',serif;font-style:italic;font-size:14px;color:#5A4633}
+.d-actions{margin-top:12px;display:flex;gap:10px;flex-wrap:wrap}
+.d-btn{
+  background:#8C5A3A;color:#fff;border:none;border-radius:20px;
+  padding:9px 16px;font-family:'Inter',sans-serif;font-size:12.5px;font-weight:500;cursor:pointer;transition:background .18s
+}
+.d-btn:hover{background:#74472F}
+.d-link{
+  display:inline-flex;align-items:center;
+  border:1px solid #C48A5A;color:#8C5A3A;border-radius:20px;
+  padding:9px 14px;font-family:'Inter',sans-serif;font-size:12.5px;text-decoration:none;transition:background .18s
+}
+.d-link:hover{background:#FBF5EE}
+.d-section{margin-bottom:13px}
+.d-section-lbl{font-family:'Inter',sans-serif;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#7A6247;margin-bottom:4px}
+.d-section p{font-family:'Inter',sans-serif;font-size:14px;color:#3B2A1A;line-height:1.55}
+
+/* ── Wardrobe section + rack ── */
+.ward-section{display:none;background:#F9F1E5;border:1px solid #D3C1A8;border-radius:16px;padding:24px;margin-bottom:20px}
+.rack-wrap{display:none;margin-bottom:40px}
+.rack{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+.fit{background:#fff;border:1px solid #D3C1A8;border-radius:10px;overflow:hidden}
+.fit.c-work{border-top:3px solid #2e4a6b}
+.fit.c-weekend{border-top:3px solid #c4622d}
+.fit.c-evening{border-top:3px solid #6d3a5d}
+.fit .imgbox{aspect-ratio:1;background:#f3efe6;display:flex;align-items:center;justify-content:center;color:#9a917f;font-family:'Inter',sans-serif;font-size:11px;text-align:center;padding:10px}
+.fit img{width:100%;height:100%;object-fit:cover;display:block}
+.fit .cap{padding:10px 13px;font-family:'Inter',sans-serif;font-size:12.5px;color:#5A4633;line-height:1.45}
+.badge{display:inline-block;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#fff;padding:2px 7px;border-radius:3px;margin-right:5px}
+.b-work{background:#2e4a6b}.b-weekend{background:#c4622d}.b-evening{background:#6d3a5d}
+.dl-link{font-family:'Inter',sans-serif;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#8C5A3A;text-decoration:none}
+.dl-link:hover{text-decoration:underline}
+
+/* ── Drafts row ── */
+.drafts-row{display:none;margin-top:16px}
+.drafts-row label{font-family:'Inter',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#7A6247;display:block;margin-bottom:6px}
+.drafts-row select{width:100%;height:40px;border:1px solid #CBB59A;border-radius:6px;padding:0 10px;font-family:'Inter',sans-serif;font-size:13px;background:#fff;color:#3B2A1A}
+
+/* ── Right column ── */
+.ward-wall-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:600;color:#3B2A1A;margin-bottom:6px}
+.ward-wall-sub{font-family:'Inter',sans-serif;font-size:13px;color:#5A4633;margin-bottom:18px;line-height:1.5}
+
+.garment-tag{
+  background:#FFFDF8;border:1px solid #D3C1A8;border-radius:12px;
+  padding:17px 14px 14px;margin-bottom:14px;position:relative
+}
+.garment-tag.reco{border-color:#8C5A3A;background:#FFF8F2}
+.tag-hole{
+  width:10px;height:10px;border-radius:50%;
+  border:1.5px solid #D3C1A8;
+  position:absolute;top:8px;left:50%;transform:translateX(-50%);
+  background:#F4E9D8
+}
+.garment-tag.reco .tag-hole{border-color:#8C5A3A}
+.tag-name{font-family:'Playfair Display',serif;font-size:15px;font-weight:600;color:#3B2A1A;margin:10px 0 5px}
+.tag-desc{font-family:'Inter',sans-serif;font-size:12.5px;color:#5A4633;line-height:1.45;margin-bottom:9px}
+.tag-price{font-family:'Playfair Display',serif;font-size:19px;font-weight:700;color:#8C5A3A}
+.tag-cta{
+  display:block;margin-top:10px;text-align:center;
+  background:#8C5A3A;color:#fff;text-decoration:none;
+  font-family:'Inter',sans-serif;font-size:12px;font-weight:500;
+  padding:9px 14px;border-radius:20px;transition:background .18s
+}
+.tag-cta:hover{background:#74472F}
+.garment-tag.reco .tag-cta{background:#74472F}
+.garment-tag.reco .tag-cta:hover{background:#5E3821}
+
+.ledger{background:#F4E3C7;border:1px solid #D3C1A8;border-radius:12px;padding:18px;margin-bottom:20px}
+.ledger h3{font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:#3B2A1A;margin-bottom:14px}
+.ledger-row{display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid rgba(211,193,168,.7);padding:7px 0;font-family:'Inter',sans-serif;font-size:13px;color:#5A4633}
+.ledger-row:first-of-type{border-top:none}
+.l-price{font-family:'Playfair Display',serif;font-size:15px;font-weight:600;color:#3B2A1A}
+
+.back-room{background:#E0CFB4;border:1px solid #D3C1A8;border-radius:12px;padding:18px}
+.back-room h3{font-family:'Playfair Display',serif;font-size:15px;font-weight:600;color:#3B2A1A;margin-bottom:14px}
+.room-card{margin-bottom:13px}
+.room-card:last-child{margin-bottom:0}
+.room-card .rn{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:#3B2A1A;margin-bottom:3px}
+.room-card .rd{font-family:'Inter',sans-serif;font-size:12px;color:#5A4633;line-height:1.5}
+
+/* ── White-glove note ── */
+.wg-note{font-family:'Playfair Display',serif;font-style:italic;font-size:13.5px;color:#7A6247;margin-top:16px;line-height:1.55;border-top:1px solid #D3C1A8;padding-top:14px}
+
+/* ── Footer ── */
+footer{border-top:1px solid #D3C1A8;background:#E8D6C0;padding:22px 28px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.f-sig{font-family:'Playfair Display',serif;font-style:italic;font-size:14px;color:#5A4633}
+.f-links{font-family:'Inter',sans-serif;font-size:11px;color:#7A6247}
+.f-links a{color:#8C5A3A;text-decoration:none}
+.f-links a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">Chris&rsquo;s <em>Tailor Shop</em></div>
+  <nav>
+    <a href="/">&larr; ETL</a>
+    <a href="/hiring-pool.html">The Catalog</a>
+    <a href="/build-your-agent">Agent Workshop</a>
+  </nav>
+</div>
+
+<div class="shop-header">
+  <div class="shop-sign">Chris&rsquo;s Bespoke Tailor Shop</div>
+  <div class="shop-tagline">Personas measured, cut, and stitched by hand</div>
+</div>
+
+<div class="art-wrap">
+  <div class="art-strip">
+    <img src="/agents/tailor-shop/chris-at-desk.jpg" alt="Chris at the cutting table" onerror="this.parentElement.style.display='none'">
+    <img src="/agents/tailor-shop/chris-fitting.jpg" alt="Chris fitting a new agent" onerror="this.style.display='none'">
+    <img src="/agents/tailor-shop/chris-pinning.jpg" alt="Chris pinning the pattern" onerror="this.style.display='none'">
+  </div>
+</div>
+
+<div class="shop-layout">
+  <div class="shop-grid">
+
+    <!-- ── LEFT COLUMN ── -->
+    <div>
+      <div class="chris-portrait">
+        <img src="https://emerging-tech-lab.com/agents/Chris_DIGArtist_Eyes3_Open.png" alt="Chris Avila" onerror="this.style.opacity='.25'">
+      </div>
+
+      <div class="tools-panel">
+        <div class="tp-label">Tools on the wall</div>
+        <div class="tool-row">
+          <svg viewBox="0 0 24 24"><path d="M6 3l3 6-4 4 4 4 4-4 6 3M9 9l6 6"/></svg>
+          Scissors
+        </div>
+        <div class="tool-row">
+          <svg viewBox="0 0 24 24"><rect x="3" y="10" width="18" height="4" rx="1"/><line x1="7" y1="10" x2="7" y2="14"/><line x1="11" y1="10" x2="11" y2="14"/><line x1="15" y1="10" x2="15" y2="14"/></svg>
+          Tape measure
+        </div>
+        <div class="tool-row">
+          <svg viewBox="0 0 24 24"><path d="M4 20l8-16 4 8-4 1 4 7"/></svg>
+          Tailor's chalk
+        </div>
+        <div class="tool-row">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="4" x2="12" y2="8"/><line x1="12" y1="16" x2="12" y2="20"/><line x1="4" y1="12" x2="8" y2="12"/><line x1="16" y1="12" x2="20" y2="12"/></svg>
+          Pin cushion
+        </div>
+      </div>
+
+      <div class="swatch-strip">
+        <div class="swatch" style="background:#2e4a6b" title="Work"></div>
+        <div class="swatch" style="background:#c4622d" title="Weekend"></div>
+        <div class="swatch" style="background:#6d3a5d" title="Evening"></div>
+        <div class="swatch" style="background:#5A4633" title="Classic"></div>
+      </div>
+
+      <div class="chalkboard">
+        <div class="chalk-heading">Today&rsquo;s work</div>
+        <div class="chalk-item" id="chalk-1">The shop is open.</div>
+        <div class="chalk-item" id="chalk-2">Bring a name and a brief.</div>
+        <div class="chalk-item" id="chalk-3">Every person is built from scratch.</div>
+      </div>
+    </div>
+
+    <!-- ── CENTER COLUMN ── -->
+    <div>
+
+      <!-- Front Counter -->
+      <div class="card" id="front-counter">
+        <span class="card-eyebrow">The Front Counter</span>
+        <h2>Welcome to the Persona Tailor Shop</h2>
+        <p>Step inside. Tell the master tailor what sort of persona you need. Every agent begins with a simple conversation and a few careful measurements.</p>
+      </div>
+
+      <!-- Fitting Room -->
+      <div class="card" id="fitting-room">
+        <span class="card-eyebrow">The Fitting Room</span>
+        <h2>Measurements for your new persona</h2>
+
+        <div class="field" style="margin-top:16px">
+          <label for="d-name">Name (the tailor can invent one)</label>
+          <input id="d-name" placeholder="e.g. Rosa Delgado" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="d-role">Role</label>
+          <input id="d-role" placeholder="e.g. Events and hospitality lead">
+        </div>
+        <div class="field">
+          <label for="d-notes">Notes for the tailor</label>
+          <textarea id="d-notes" placeholder="Vibe, age, hometown, a quirk, who they remind you of in spirit. The more you give, the better the fit."></textarea>
+        </div>
+        <div class="field">
+          <label for="d-code">Workplace dress code</label>
+          <select id="d-code">
+            <option value="formal">Formal</option>
+            <option value="business" selected>Business</option>
+            <option value="semiformal">Semiformal</option>
+            <option value="smart casual">Smart casual</option>
+            <option value="casual">Casual</option>
+            <option value="creative">Creative</option>
+            <option value="clinical">Laboratory / Clinical (white coat stays)</option>
+          </select>
+        </div>
+
+        <a href="#" class="staff-toggle" id="staff-toggle">Staff entrance</a>
+        <div class="staff-door" id="staff-door">
+          <div class="sd-label">Staff credentials</div>
+          <div class="sd-creds">
+            <input id="adm-u" placeholder="Username" autocomplete="username">
+            <input id="adm-p" type="password" placeholder="Password" autocomplete="current-password">
+          </div>
+        </div>
+
+        <button class="btn-primary" id="begin-btn">Begin the fitting &rarr;</button>
+        <div class="status-line" id="fit-status"></div>
+      </div>
+
+      <!-- Cutting Table (reveals after Begin the fitting) -->
+      <div class="cutting-table" id="cutting-table">
+        <div class="ct-inner">
+          <span class="card-eyebrow">The Cutting Table</span>
+          <h2 style="font-family:'Playfair Display',serif;font-size:20px;font-weight:600;color:#3B2A1A;margin-bottom:8px">Where the pattern is drafted</h2>
+          <p style="font-family:'Inter',sans-serif;font-size:14px;color:#5A4633;line-height:1.65;margin-bottom:14px">The tailor studies your notes, sketches the first pattern, and prepares the cloth. Your persona is taking shape here.</p>
+          <div class="status-line" id="desk-status">The Desk is reading the brief.</div>
+          <div class="drafts-row" id="drafts-row">
+            <label for="d-existing">Open a previous fitting</label>
+            <select id="d-existing"><option value="">Previous fittings</option></select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dossier (reveals when persona is ready) -->
+      <div class="dossier" id="dossier">
+        <div class="d-head">
+          <img id="d-img" src="" alt="">
+          <div style="flex:1;min-width:0">
+            <div class="d-name" id="d-nm"></div>
+            <div class="d-role-line" id="d-rl"></div>
+            <div class="d-tag" id="d-tg"></div>
+            <div class="d-actions">
+              <button class="d-btn" id="d-dress">Send to the wardrobe &rarr;</button>
+              <a class="d-link" id="d-save" href="#" download>Save portrait</a>
+            </div>
+          </div>
+        </div>
+        <div class="d-section"><div class="d-section-lbl">Bio</div><p id="d-bio"></p></div>
+        <div class="d-section"><div class="d-section-lbl">Personality</div><p id="d-pers"></p></div>
+        <div class="d-section"><div class="d-section-lbl">Background</div><p id="d-bg"></p></div>
+        <div class="d-section"><div class="d-section-lbl">Interests</div><p id="d-int"></p></div>
+        <div class="d-section"><div class="d-section-lbl">Floor voice</div><p id="d-fv"></p></div>
+      </div>
+
+      <!-- Wardrobe in progress -->
+      <div class="ward-section" id="ward-section">
+        <span class="card-eyebrow">The Wardrobe</span>
+        <h2 style="font-family:'Playfair Display',serif;font-size:20px;font-weight:600;color:#3B2A1A;margin-bottom:8px">Chris is sewing</h2>
+        <div class="status-line" id="ward-status">Sending the file to Chris.</div>
+      </div>
+
+      <!-- The rack -->
+      <div class="rack-wrap" id="rack-wrap">
+        <div class="rack" id="rack"></div>
+      </div>
+
+    </div>
+
+    <!-- ── RIGHT COLUMN ── -->
+    <div>
+
+      <!-- Wardrobe Wall -->
+      <div class="card">
+        <span class="card-eyebrow">The Wardrobe Wall</span>
+        <div class="ward-wall-title">Outfits and wardrobes for your persona</div>
+        <div class="ward-wall-sub">Every persona needs the right look for the right job. Choose the level of work you want the tailor to complete.</div>
+
+        <div class="garment-tag">
+          <div class="tag-hole"></div>
+          <div class="tag-name">Single Outfit Stitch</div>
+          <div class="tag-desc">One outfit, one purpose. A simple stitch for a persona that needs a single look.</div>
+          <div class="tag-price">$9.99</div>
+          <a class="tag-cta" href="https://buy.stripe.com/3cI8wOcrl841bFvbIu6Zy0i" target="_blank" rel="noopener">Sign the work order</a>
+        </div>
+
+        <div class="garment-tag reco">
+          <div class="tag-hole"></div>
+          <div class="tag-name">Seasonal Wardrobe</div>
+          <div class="tag-desc">A full set of outfits for different situations. Work, weekend, and an evening look. Ideal for personas that move between roles.</div>
+          <div class="tag-price">$49.99</div>
+          <a class="tag-cta" href="https://buy.stripe.com/8x25kCfDx2JH5h7bIu6Zy0h" target="_blank" rel="noopener">Sign the work order</a>
+        </div>
+
+        <div class="garment-tag">
+          <div class="tag-hole"></div>
+          <div class="tag-name">Bespoke Persona Commission</div>
+          <div class="tag-desc">A complete, hand-crafted persona built from the first sketch to the final stitch. Measurements, fittings, and a full wardrobe.</div>
+          <div class="tag-price">$149</div>
+          <a class="tag-cta" href="https://buy.stripe.com/14AdR88b5ac98tj4g26Zy0f" target="_blank" rel="noopener">Sign the work order</a>
+        </div>
+
+        <p class="wg-note">Builds and wardrobes are run white-glove by the lab after your paperwork clears. Your PA&rsquo;s first outfit set comes with the Studio; the full closet is how they stop wearing the same thing every day.</p>
+      </div>
+
+      <!-- Tailor's Ledger -->
+      <div class="ledger">
+        <h3>The Tailor&rsquo;s Ledger</h3>
+        <div class="ledger-row"><span>Single Outfit Stitch</span><span class="l-price">$9.99</span></div>
+        <div class="ledger-row"><span>Seasonal Wardrobe</span><span class="l-price">$49.99</span></div>
+        <div class="ledger-row"><span>Bespoke Commission</span><span class="l-price">$149</span></div>
+      </div>
+
+      <!-- Back Room -->
+      <div class="back-room">
+        <h3>Rooms under construction</h3>
+        <div class="room-card">
+          <div class="rn">The Voice Booth</div>
+          <div class="rd">A quiet room where the tailor tunes your persona's voice and manner of speaking.</div>
+        </div>
+        <div class="room-card">
+          <div class="rn">The Backpack Bench</div>
+          <div class="rd">A workbench where tools, habits, and live connections are added to your persona's kit.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="f-sig">Every persona is crafted by hand. Signed, Chris Avila.</div>
+  <div class="f-links">
+    <a href="/">ETL Home</a> &nbsp;&middot;&nbsp;
+    <a href="/hiring-pool.html">Hiring Catalog</a> &nbsp;&middot;&nbsp;
+    <a href="/build-your-agent">Agent Workshop</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var deskTimer=null, pollTimer=null, currentDraft=null;
+
+  function slugify(n){ return String(n).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,''); }
+
+  function authHeader(){
+    var u=(document.getElementById('adm-u').value||'').trim();
+    var p=(document.getElementById('adm-p').value||'').trim();
+    if(!u||!p) return null;
+    try{localStorage.setItem('etl_adm_u',u);localStorage.setItem('etl_adm_p',p);}catch(_){}
+    return 'Basic '+btoa(u+':'+p);
+  }
+
+  // Restore saved creds
+  try{
+    var su=localStorage.getItem('etl_adm_u'),sp=localStorage.getItem('etl_adm_p');
+    if(su) document.getElementById('adm-u').value=su;
+    if(sp) document.getElementById('adm-p').value=sp;
+    if(su&&sp){
+      document.getElementById('staff-door').classList.add('open');
+      refreshDrafts('Basic '+btoa(su+':'+sp));
+    }
+  }catch(_){}
+
+  document.getElementById('staff-toggle').addEventListener('click',function(e){
+    e.preventDefault();
+    document.getElementById('staff-door').classList.toggle('open');
+  });
+
+  function setFitStatus(t){document.getElementById('fit-status').textContent=t;}
+  function setDeskStatus(t){document.getElementById('desk-status').textContent=t;}
+  function setWardStatus(t){document.getElementById('ward-status').textContent=t;}
+
+  function showCuttingTable(){
+    var ct=document.getElementById('cutting-table');
+    ct.style.display='block';
+    ct.scrollIntoView({behavior:'smooth',block:'center'});
+  }
+
+  function updateChalkboard(name,role){
+    document.getElementById('chalk-1').textContent='In fitting: '+(name||'new persona')+(role?' ('+role+')':'');
+    document.getElementById('chalk-2').textContent='Pattern being cut.';
+    document.getElementById('chalk-3').textContent='Portrait in the brush.';
+  }
+
+  function renderDossier(d,auth){
+    currentDraft=d._meta&&d._meta.slug;
+    var dos=document.getElementById('dossier');
+    dos.style.display='block';
+    document.getElementById('d-nm').textContent=d.name||'';
+    document.getElementById('d-rl').textContent=(d.role||'')+(d.pronouns?' · '+d.pronouns:'');
+    document.getElementById('d-tg').textContent=d.tagline||'';
+    document.getElementById('d-bio').textContent=d.bio||'';
+    document.getElementById('d-pers').textContent=d.personality||'';
+    document.getElementById('d-bg').textContent=d.background||'';
+    document.getElementById('d-int').textContent=Array.isArray(d.interests)?d.interests.join(' · '):(d.interests||'');
+    document.getElementById('d-fv').textContent=d.floor_voice||'';
+    var img=document.getElementById('d-img');
+    img.src='';img.alt=d.name||'';
+    var ps=d._meta&&d._meta.portrait_status;
+    if(ps==='done'){
+      fetch('/.netlify/functions/agent-persona-desk?slug='+currentDraft+'&img=1',{headers:{Authorization:auth}})
+        .then(function(r){if(!r.ok)throw 0;return r.blob();})
+        .then(function(b){
+          var u=URL.createObjectURL(b);
+          img.src=u;
+          var sv=document.getElementById('d-save');
+          sv.href=u;sv.download=currentDraft+'-portrait.png';
+        }).catch(function(){});
+    }
+    dos.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+
+  function pollDesk(slug,auth){
+    fetch('/.netlify/functions/agent-persona-desk?slug='+slug,{headers:{Authorization:auth}})
+      .then(function(r){if(r.status===404)return null;if(!r.ok)throw 0;return r.json();})
+      .then(function(d){
+        if(!d){setDeskStatus('The Desk is writing. The dossier appears here when the ink dries.');return;}
+        renderDossier(d,auth);
+        var ps=d._meta&&d._meta.portrait_status;
+        if(ps==='done'){
+          setDeskStatus('Done. '+d.name+' has been written and painted.');
+          stopDesk();refreshDrafts(auth);
+        }else if(ps&&ps.indexOf('failed')===0){
+          setDeskStatus('Dossier written, but the portrait failed: '+ps);
+          stopDesk();
+        }else{
+          setDeskStatus('Dossier written. Painting the portrait now.');
+        }
+      }).catch(function(){});
+  }
+  function stopDesk(){if(deskTimer){clearInterval(deskTimer);deskTimer=null;}}
+
+  function refreshDrafts(auth){
+    fetch('/.netlify/functions/agent-persona-desk?list=1',{headers:{Authorization:auth}})
+      .then(function(r){return r.ok?r.json():[];})
+      .then(function(list){
+        if(!list||!list.length)return;
+        var row=document.getElementById('drafts-row');
+        var sel=document.getElementById('d-existing');
+        sel.innerHTML='<option value="">Previous fittings</option>'+
+          (list||[]).map(function(d){
+            return '<option value="'+d.slug+'">'+d.name+' ('+(d.role||'')+')</option>';
+          }).join('');
+        row.style.display='block';
+      }).catch(function(){});
+  }
+
+  document.getElementById('begin-btn').addEventListener('click',function(){
+    var role=document.getElementById('d-role').value.trim();
+    var notes=document.getElementById('d-notes').value.trim();
+    var name=document.getElementById('d-name').value.trim();
+    if(!role&&!notes){setFitStatus('Give the tailor at least a role or some notes.');return;}
+    var auth=authHeader();
+    if(!auth){
+      setFitStatus('To commission a persona, sign a work order on the right and the lab will reach out to begin the fitting.');
+      showCuttingTable();
+      setDeskStatus('Work order received. After the paperwork clears, the tailor begins.');
+      return;
+    }
+    setFitStatus('The brief is in. Chris is reading it now.');
+    updateChalkboard(name,role);
+    showCuttingTable();
+    var qs='role='+encodeURIComponent(role)+'&notes='+encodeURIComponent(notes)+(name?'&name='+encodeURIComponent(name):'');
+    fetch('/.netlify/functions/agent-persona-desk-background?'+qs,{headers:{Authorization:auth}})
+      .then(function(r){
+        if(r.status===401){setFitStatus('The staff door did not open. Check the credentials.');return;}
+        stopDesk();
+        deskTimer=setInterval(function(){
+          fetch('/.netlify/functions/agent-persona-desk?list=1',{headers:{Authorization:auth}})
+            .then(function(r2){return r2.ok?r2.json():[];})
+            .then(function(list){
+              if(list&&list.length){
+                var newest=name
+                  ?list.filter(function(d){return d.slug===slugify(name);})[0]||list[0]
+                  :list[0];
+                pollDesk(newest.slug,auth);
+              }
+            }).catch(function(){});
+        },7000);
+      })
+      .catch(function(){setFitStatus('Could not reach the Desk. Try again.');});
+  });
+
+  document.getElementById('d-existing').addEventListener('change',function(){
+    var auth=authHeader();if(!auth||!this.value)return;
+    pollDesk(this.value,auth);
+  });
+
+  document.getElementById('d-dress').addEventListener('click',function(){
+    if(!currentDraft)return;
+    var auth=authHeader();if(!auth)return;
+    var code=document.getElementById('d-code').value;
+    var ws=document.getElementById('ward-section');
+    ws.style.display='block';
+    ws.scrollIntoView({behavior:'smooth',block:'center'});
+    setWardStatus('Sending the file to Chris. Writing the wardrobe assignment now.');
+    var qs='draft='+currentDraft+'&mix=5,2,1&code='+encodeURIComponent(code)+'&quality=medium';
+    fetch('/.netlify/functions/studio-chris-wardrobe-background?'+qs,{headers:{Authorization:auth}})
+      .then(function(r){
+        if(r.status===401){setWardStatus('Staff door did not open.');return;}
+        setWardStatus('Chris has the file. Sewing. This page updates itself.');
+        stopPoll();
+        pollTimer=setInterval(function(){pollRack(currentDraft,auth);},7000);
+      })
+      .catch(function(){setWardStatus('Could not reach the shop. Try again.');});
+  });
+
+  function pollRack(slug,auth){
+    fetch('/.netlify/functions/studio-chris-wardrobe?pa='+slug+'&list=1',{headers:{Authorization:auth}})
+      .then(function(r){if(r.status===404)return null;if(!r.ok)throw 0;return r.json();})
+      .then(function(idx){
+        if(!idx)return;
+        renderRack(idx,auth);
+        var done=(idx.outfits||[]).filter(function(o){return o.status==='done';}).length;
+        var total=(idx.outfits||[]).length;
+        if(idx.finished_at){setWardStatus('Chris is finished. '+done+' of '+total+' looks on the rack.');stopPoll();}
+        else{setWardStatus('Chris is sewing. '+done+' of '+total+' looks done.');}
+      }).catch(function(){});
+  }
+  function stopPoll(){if(pollTimer){clearInterval(pollTimer);pollTimer=null;}}
+
+  function renderRack(idx,auth){
+    var wrap=document.getElementById('rack-wrap');
+    var rack=document.getElementById('rack');
+    var slug=idx.pa;
+    wrap.style.display='block';
+    rack.innerHTML=(idx.outfits||[]).map(function(o){
+      var cat=o.category||'';
+      var cls=cat==='work'?'c-work':cat==='weekend'?'c-weekend':cat==='evening'?'c-evening':'';
+      var bcls=cat?'b-'+cat:'';
+      var id='fit-'+o.n;
+      var inner=o.status==='done'
+        ?'<div class="imgbox" id="'+id+'">loading look&hellip;</div>'
+        :'<div class="imgbox">'+(o.status==='pending'?'Chris is sewing&hellip;':o.status)+'</div>';
+      return '<div class="fit '+cls+'">'+inner+'<div class="cap">'
+        +(cat?'<span class="badge '+bcls+'">'+cat+'</span> ':'')
+        +'#'+o.n+' &middot; '+o.outfit
+        +(o.status==='done'?'<br><a class="dl-link" id="dl-'+o.n+'" href="#">Save this look</a>':'')
+        +'</div></div>';
+    }).join('');
+    (idx.outfits||[]).forEach(function(o){
+      if(o.status!=='done')return;
+      fetch('/.netlify/functions/studio-chris-wardrobe?pa='+slug+'&i='+o.n,{headers:{Authorization:auth}})
+        .then(function(r){if(!r.ok)throw 0;return r.blob();})
+        .then(function(b){
+          var url=URL.createObjectURL(b);
+          var box=document.getElementById('fit-'+o.n);
+          if(box)box.innerHTML='<img src="'+url+'" alt="">';
+          var dl=document.getElementById('dl-'+o.n);
+          if(dl){dl.href=url;dl.download=slug+'-look-'+o.n+'.png';}
+        }).catch(function(){});
+    });
+  }
+})();
+</script>
+</body>
+</html>
