@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Harvest Circuit at ETL</title>
+<meta name="description" content="The Harvest Circuit at ETL: a farm-to-table house wired through with high tech. Learn wine, cheese, and food pairings, and where every ingredient comes from.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#140f08;--bg2:#1d150c;--panel:#221a0f;--line:#3a2c1a;--amber:#e8b659;--amber-br:#f3c969;
+    --teal:#46d6e6;--teal-dim:#2c8c99;--herb:#8fbf6a;--cream:#f3ead8;--text:#e9dcc4;--mute:#b89f7e;--vein:#f0c14b;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6;}
+  a{color:var(--teal);}
+  .wrap{max-width:980px;margin:0 auto;padding:0 1.2rem 5rem;}
+  .ribbon{background:#0d0a05;border-bottom:1px solid var(--line);text-align:center;font-family:'IBM Plex Mono',monospace;letter-spacing:.18em;text-transform:uppercase;font-size:.66rem;color:var(--mute);padding:.5rem;}
+  .ribbon b{color:var(--amber);}
+  .backlink{font-family:'IBM Plex Mono',monospace;font-size:.74rem;color:var(--mute);text-decoration:none;display:inline-block;margin:1.4rem 0 .2rem;}
+  /* HERO */
+  .hero{position:relative;border-radius:16px;overflow:hidden;margin-top:.8rem;border:1px solid var(--line);background:linear-gradient(180deg,#1d150c,#140f08);}
+  .hero-img{width:100%;display:block;max-height:360px;object-fit:cover;opacity:.55;}
+  .hero-veins{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
+  .hero-cap{position:absolute;left:0;right:0;bottom:0;padding:1.6rem 1.8rem;background:linear-gradient(0deg,rgba(20,15,8,.92),rgba(20,15,8,0));}
+  .eyebrow{font-family:'IBM Plex Mono',monospace;letter-spacing:.22em;text-transform:uppercase;font-size:.68rem;color:var(--teal);}
+  h1{font-family:'Spectral',serif;font-weight:700;font-size:2.7rem;line-height:1.02;margin:.3rem 0 .3rem;color:#fff;}
+  h1 .glow{color:var(--amber-br);}
+  .tag{color:var(--cream);font-size:1.05rem;max-width:56ch;}
+  .blend{font-family:'IBM Plex Mono',monospace;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin-top:.6rem;}
+  .blend b{color:var(--herb);} .blend i{color:var(--teal);font-style:normal;}
+  h2{font-family:'Spectral',serif;font-size:1.7rem;color:var(--amber-br);margin:2.4rem 0 .3rem;}
+  .sub{color:var(--mute);max-width:64ch;margin:0 0 1.2rem;}
+</style>
+</head>
+<body>
+<div class="ribbon">Emerging Technologies Laboratory &nbsp;·&nbsp; First Floor &nbsp;·&nbsp; <b>The Harvest Circuit</b></div>
+<div class="wrap">
+  <a class="backlink" href="/">&larr; ETL campus</a>
+  <div class="hero">
+    <img class="hero-img" src="/assets/harvest-circuit-hero.png" alt="The Harvest Circuit dining room" onerror="this.style.display='none'">
+    <svg class="hero-veins" viewBox="0 0 980 360" preserveAspectRatio="none" aria-hidden="true">
+      <g fill="none" stroke="var(--vein)" stroke-width="1.4" opacity="0.5">
+        <path d="M490 360 L490 250 M490 250 C420 220 360 210 280 170 M490 250 C560 220 640 210 720 168 M490 290 C440 280 380 280 300 300 M490 290 C560 285 640 285 700 305 M490 250 L490 150 M490 150 C450 120 430 90 470 40 M490 150 C540 120 560 96 540 50"/>
+        <circle cx="280" cy="170" r="3" fill="var(--vein)" stroke="none"/><circle cx="720" cy="168" r="3" fill="var(--vein)" stroke="none"/>
+        <circle cx="300" cy="300" r="2.5" fill="var(--vein)" stroke="none"/><circle cx="700" cy="305" r="2.5" fill="var(--vein)" stroke="none"/>
+        <circle cx="470" cy="40" r="2.5" fill="var(--vein)" stroke="none"/><circle cx="540" cy="50" r="2.5" fill="var(--vein)" stroke="none"/>
+      </g>
+    </svg>
+    <div class="hero-cap">
+      <div class="eyebrow">Farm to table, wired through</div>
+      <h1>The Harvest <span class="glow">Circuit</span> at ETL</h1>
+      <p class="tag">The campus comes to the table. Forage, kitchen, cellar, cheese, chocolate: one circuit, every link sourced and named.</p>
+      <p class="blend"><b>Hanging gardens, root-vein floors, robot harvest arms</b> &nbsp;+&nbsp; <i>live data on every plate</i></p>
+    </div>
+  </div>
+
+<style>
+  .concept{margin-top:1.6rem;font-size:1.05rem;color:var(--cream);max-width:66ch;}
+  .concept b{color:var(--amber-br);}
+  .flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:.4rem;margin:1rem 0 .5rem;}
+  .fstep{flex:1;min-width:120px;background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--amber);border-radius:10px;padding:.8rem .9rem;}
+  .fstep .s{font-family:'IBM Plex Mono',monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);}
+  .fstep .w{font-family:'Spectral',serif;font-size:1.05rem;color:var(--cream);margin-top:.1rem;}
+  .fstep .who{font-size:.78rem;color:var(--mute);margin-top:.15rem;}
+  .arrow{align-self:center;color:var(--vein);font-size:1.1rem;}
+  @media(max-width:640px){.arrow{display:none;}.fstep{min-width:45%;}}
+  /* featured new-partner cards */
+  .new-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:.4rem;}
+  @media(max-width:760px){.new-grid{grid-template-columns:1fr;}}
+  .fcard{background:linear-gradient(180deg,#241b10,#1a130b);border:1px solid var(--line);border-top:4px solid var(--amber);border-radius:14px;padding:1.4rem 1.3rem;display:flex;flex-direction:column;align-items:flex-start;position:relative;}
+  .new-badge{position:absolute;top:.8rem;right:.8rem;font-family:'IBM Plex Mono',monospace;font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:#0d0a05;background:var(--teal);border-radius:999px;padding:.2rem .55rem;}
+  .av{position:relative;border-radius:50%;background:#2c2113;display:inline-flex;align-items:center;justify-content:center;overflow:hidden;flex:none;}
+  .av i{font-family:'Spectral',serif;font-style:normal;font-weight:700;color:var(--amber-br);}
+  .av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;}
+  .av-lg{width:84px;height:84px;font-size:1.5rem;border:2px solid var(--amber);}
+  .av-sm{width:46px;height:46px;font-size:.95rem;border:1px solid var(--line);}
+  .fcard .nm{font-family:'Spectral',serif;font-size:1.3rem;color:#fff;margin:.7rem 0 .1rem;}
+  .fcard .rl{font-family:'IBM Plex Mono',monospace;font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--teal);}
+  .fcard .og{font-size:.78rem;color:var(--herb);margin:.15rem 0 .5rem;}
+  .fcard .hook{font-size:.9rem;color:var(--text);}
+  .talk{margin-top:.9rem;font-family:'IBM Plex Mono',monospace;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;font-weight:600;background:var(--amber);color:#0d0a05;border:none;border-radius:8px;padding:.6rem 1rem;cursor:pointer;}
+  .talk:hover{background:var(--amber-br);}
+  .known{display:flex;flex-wrap:wrap;gap:.8rem;margin-top:.5rem;}
+  .kchip{display:flex;gap:.6rem;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:.4rem .9rem .4rem .4rem;text-decoration:none;}
+  .kchip .nm{font-size:.85rem;color:var(--cream);font-weight:600;} .kchip .rl{font-size:.72rem;color:var(--mute);}
+  .note{background:var(--bg2);border-left:3px solid var(--teal);border-radius:0 8px 8px 0;padding:.9rem 1.1rem;font-size:.9rem;color:var(--mute);margin:1.8rem 0;}
+  .note b{color:var(--cream);}
+  footer{border-top:1px solid var(--line);margin-top:2.4rem;padding-top:1rem;color:var(--mute);font-size:.82rem;}
+</style>
+
+  <p class="concept">Come to <b>learn</b>: which wine sings with the dish, what cheese to set beside it, how flavors fit, and where every ingredient actually came from. Pleasure and provenance, the part the campus has never served. High tech meets farm to table, and the floor lights the path from soil to plate.</p>
+
+  <h2>The circuit of the meal</h2>
+  <p class="sub">One current runs the whole night, soil to last bite. Every link is a partner, and every claim has a source.</p>
+  <div class="flow">
+    <div class="fstep"><div class="s">Forage</div><div class="w">The wild</div><div class="who">Silas</div></div>
+    <span class="arrow">&rarr;</span>
+    <div class="fstep"><div class="s">Kitchen</div><div class="w">The plate</div><div class="who">Reuben</div></div>
+    <span class="arrow">&rarr;</span>
+    <div class="fstep"><div class="s">Cellar</div><div class="w">The pour</div><div class="who">Vic</div></div>
+    <span class="arrow">&rarr;</span>
+    <div class="fstep"><div class="s">Board</div><div class="w">The cheese</div><div class="who">Camille</div></div>
+    <span class="arrow">&rarr;</span>
+    <div class="fstep"><div class="s">Sweet</div><div class="w">The last bite</div><div class="who">Luca</div></div>
+  </div>
+
+<style>
+  .sides{display:grid;grid-template-columns:1fr 1fr;gap:1.3rem;align-items:start;}
+  @media(max-width:760px){.sides{grid-template-columns:1fr;}}
+  .side-h{font-family:'IBM Plex Mono',monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);margin:.2rem 0 .7rem;padding-bottom:.4rem;border-bottom:1px solid var(--line);}
+  .side .fcard{margin-bottom:1rem;}
+</style>
+
+  <h2>The front of house</h2>
+  <p class="sub">Four who work the room. The plate and the pour on one side, the board and the sweet on the other. Pull up a chair, they have been waiting to talk.</p>
+  <div class="sides">
+    <div class="side">
+      <div class="side-h">The plate &amp; the pour</div>
+      <div class="fcard">
+        <span class="new-badge">New</span>
+        <span class="av av-lg"><i>RH</i><img src="/agents/Reuben_Hart_eyes_open.png" alt="Reuben Hart" onerror="this.remove()"></span>
+        <div class="nm">Reuben Hart</div>
+        <div class="rl">Chef &middot; the kitchen</div>
+        <div class="og">American</div>
+        <div class="hook">Lets the ingredient lead. Builds the night around whatever Silas walks in with. Fast, warm, decisive: "let the carrot be a carrot."</div>
+        <button class="talk" data-name="Reuben" type="button">Talk to Reuben</button>
+      </div>
+      <div class="fcard">
+        <span class="av av-lg"><i>VS</i><img src="/agents/Vic_Stallion_eyes_open.png" alt="Vic Stallion" onerror="this.remove()"></span>
+        <div class="nm">Vic Stallion</div>
+        <div class="rl">Sommelier &middot; the pour</div>
+        <div class="og">Super Tuscan devotee</div>
+        <div class="hook">Dr. Vikram Sethi's cellar self. Names the bottle for any dish and defends Bolgheri to the last drop. Carries the live <b>wine-data</b> backpack.</div>
+        <button class="talk" data-name="Vic" type="button">Talk to Vic</button>
+      </div>
+    </div>
+    <div class="side">
+      <div class="side-h">The board &amp; the sweet</div>
+      <div class="fcard">
+        <span class="new-badge">New</span>
+        <span class="av av-lg"><i>CL</i><img src="/agents/Camille_Lefevre_eyes_open.png" alt="Camille Lefevre" onerror="this.remove()"></span>
+        <div class="nm">Camille Lef&egrave;vre</div>
+        <div class="rl">Cheese monger &middot; the board</div>
+        <div class="og">French</div>
+        <div class="hook">Affineur from a family of them. Ages wheels by feel and swears the cheese course is the meal's true climax. Will correct your pronunciation once, gently.</div>
+        <button class="talk" data-name="Camille" type="button">Talk to Camille</button>
+      </div>
+      <div class="fcard">
+        <span class="new-badge">New</span>
+        <span class="av av-lg"><i>LB</i><img src="/agents/Luca_Brunner_eyes_open.png" alt="Luca Brunner" onerror="this.remove()"></span>
+        <div class="nm">Luca Brunner</div>
+        <div class="rl">Chocolatier &middot; the last bite</div>
+        <div class="og">Swiss</div>
+        <div class="hook">Bean to bar, single-origin, tempering obsessive. Believes the last taste is the one you remember, so dessert lands the night. Carries a thermometer everywhere.</div>
+        <button class="talk" data-name="Luca" type="button">Talk to Luca</button>
+      </div>
+    </div>
+  </div>
+
+  <h2>Also in the house</h2>
+  <p class="sub">Campus regulars who co-own the room and cross over from their home desks.</p>
+  <div class="known">
+    <a class="kchip" href="https://thedose.net/"><span class="av av-sm"><i>WC</i><img src="/agents/mixologist_eyes_open.jpg" alt="" onerror="this.remove()"></span><span><span class="nm">Wyatt Cooper</span><br><span class="rl">Bar &amp; zero-proof</span></span></a>
+    <a class="kchip" href="https://thedose.net/"><span class="av av-sm"><i>SH</i><img src="/agents/forager_eyes_open.jpg" alt="" onerror="this.remove()"></span><span><span class="nm">Silas Hill</span><br><span class="rl">Forager</span></span></a>
+    <a class="kchip" href="https://thedose.net/"><span class="av av-sm"><i>AN</i><img src="/agents/herbalist_eyes_open.jpg" alt="" onerror="this.remove()"></span><span><span class="nm">Amara Nwosu</span><br><span class="rl">Botanicals &amp; tea</span></span></a>
+    <a class="kchip" href="https://thedose.net/"><span class="av av-sm"><i>NH</i><img src="/agents/nutritionist_eyes_open.jpg" alt="" onerror="this.remove()"></span><span><span class="nm">Nadia Hassan</span><br><span class="rl">Balance &amp; flavor</span></span></a>
+  </div>
+
+  <div class="note"><b>Verify before you believe</b>, on a plate. Every pairing, every cheese, every foraged find is named and sourced; Silas's <b>plant-id</b> backpack is the is-this-safe gate, and Vic's <b>wine-data</b> names the bottle. Pleasure and provenance. The health desk stays at <a href="https://thedose.net/">The Dose</a>.</div>
+
+  <footer>The Harvest Circuit at ETL &middot; first floor, Emerging Technologies Laboratory. Forage, kitchen, cellar, cheese, chocolate. Know where everything comes from. &nbsp; <a href="/">ETL campus</a> &middot; <a href="/hiring-pool">Hiring catalog</a></footer>
+</div>
+<style>
+  .ov{position:fixed;inset:0;background:rgba(8,5,2,.8);display:none;align-items:center;justify-content:center;z-index:60;padding:1rem;}
+  .ov.open{display:flex;}
+  .modal{background:#1b140b;border:1px solid var(--line);border-top:4px solid var(--amber);border-radius:14px;max-width:560px;width:100%;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;}
+  .m-hd{display:flex;align-items:center;gap:.8rem;padding:1.1rem 1.2rem;border-bottom:1px solid var(--line);}
+  .m-hd .nm{font-family:'Spectral',serif;font-size:1.25rem;color:#fff;line-height:1.1;}
+  .m-hd .rl{font-family:'IBM Plex Mono',monospace;font-size:.66rem;letter-spacing:.06em;text-transform:uppercase;color:var(--teal);}
+  .m-ic{font-size:1.5rem;margin-left:auto;}
+  .m-x{background:none;border:none;color:var(--mute);font-size:1.4rem;cursor:pointer;line-height:1;padding:.2rem .4rem;}
+  .m-bd{padding:1.1rem 1.2rem;overflow:auto;}
+  .m-intro{color:var(--cream);font-size:.95rem;margin:0 0 .4rem;}
+  .m-start{color:var(--mute);font-size:.82rem;margin:0 0 .8rem;}
+  .m-chips{display:flex;flex-wrap:wrap;gap:.45rem;margin:.2rem 0 .9rem;}
+  .m-chip{font-size:.8rem;background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:999px;padding:.35rem .75rem;cursor:pointer;}
+  .m-chip:hover{border-color:var(--amber);}
+  .m-row{display:flex;gap:.5rem;}
+  .m-row input{flex:1;background:var(--bg2);border:1px solid var(--line);border-radius:8px;color:var(--text);font-family:'Inter';font-size:.95rem;padding:.6rem .7rem;}
+  .m-ask{font-family:'IBM Plex Mono',monospace;font-size:.74rem;letter-spacing:.05em;text-transform:uppercase;font-weight:600;background:var(--amber);color:#0d0a05;border:none;border-radius:8px;padding:0 1.1rem;cursor:pointer;}
+  .m-resp{margin-top:.8rem;font-size:.92rem;color:var(--text);white-space:pre-wrap;}
+  .m-resp.show{background:var(--bg2);border-radius:8px;padding:.8rem .9rem;}
+  .m-ft{padding:.8rem 1.2rem;border-top:1px solid var(--line);font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:var(--mute);display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;}
+  .m-ft a{color:var(--teal);cursor:pointer;}
+</style>
+<div class="ov" id="ov" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="m-hd"><span class="av av-sm" id="mAv"></span><span><span class="nm" id="mName"></span><br><span class="rl" id="mRole"></span></span><span class="m-ic" id="mIcon"></span><button class="m-x" id="mX" aria-label="Close">&times;</button></div>
+    <div class="m-bd">
+      <p class="m-intro" id="mIntro"></p>
+      <p class="m-start">Start here, or ask your own.</p>
+      <div class="m-chips" id="mChips"></div>
+      <div class="m-row"><input id="mInput" type="text" placeholder="Ask a question..."><button class="m-ask" id="mAsk" type="button">Ask</button></div>
+      <div class="m-resp" id="mResp"></div>
+    </div>
+    <div class="m-ft"><span>Powered by The Harvest Circuit</span><span>Ask another: <a data-go="camille">Camille</a> &middot; <a data-go="reuben">Reuben</a> &middot; <a data-go="luca">Luca</a> &middot; <a data-go="vic">Vic</a></span></div>
+  </div>
+</div>
+<script>
+  var HC={
+    reuben:{name:'Reuben Hart',role:'The Kitchen · chef',icon:'🔪',mono:'RH',img:'/agents/Reuben_Hart_eyes_open.png',
+      intro:'You are in The Kitchen. I am Reuben. Ask me about cooking methods, ingredients, timing, and how to turn raw materials into a finished dish.',
+      chips:['How do I cook this ingredient?','Best method for this cut of meat?','How do I balance flavors?','What should I make with what I have?']},
+    vic:{name:'Vic Stallion',role:'The Cellar · sommelier',icon:'🍷',mono:'VS',img:'/agents/Vic_Stallion_eyes_open.png',
+      intro:'You are in The Cellar. I am Vic. I help you understand wine structure, aroma, pairing, and how to choose the right bottle for the right moment.',
+      chips:['What wine pairs with this dish?','Explain tannins in simple terms','A wine for beginners?','Old World vs New World?']},
+    camille:{name:'Camille Lefèvre',role:'The Board · cheese',icon:'🧀',mono:'CL',img:'/agents/Camille_Lefevre_eyes_open.png',
+      intro:'Welcome to The Board. I am Camille. I help you understand cheese, aging, terroir, and how to pair dairy with wine, chocolate, and seasonal dishes.',
+      chips:['What cheese pairs with this wine?','Brie vs Camembert?','How does aging change flavor?','Where do I start if I am new?']},
+    luca:{name:'Luca Brunner',role:'The Last Bite · chocolate',icon:'🍫',mono:'LB',img:'/agents/Luca_Brunner_eyes_open.png',
+      intro:'Welcome to The Last Bite. I am Luca. I guide you through chocolate, dessert structure, temperature control, and how to finish a meal with intention.',
+      chips:['How do I temper chocolate?','What dessert pairs with this wine?','Why does chocolate seize?','A balanced dessert plate?']}
+  };
+  var $=function(s){return document.getElementById(s);};
+  function openModal(k){
+    var a=HC[k]; if(!a) return;
+    $('ov').dataset.k=k;
+    $('mAv').innerHTML='<i>'+a.mono+'</i><img src="'+a.img+'" alt="" onerror="this.remove()">';
+    $('mName').textContent=a.name; $('mRole').textContent=a.role; $('mIcon').textContent=a.icon;
+    $('mIntro').textContent=a.intro;
+    $('mChips').innerHTML=a.chips.map(function(c){return '<span class="m-chip">'+c.replace(/</g,'&lt;')+'</span>';}).join('');
+    $('mChips').querySelectorAll('.m-chip').forEach(function(ch){ch.onclick=function(){$('mInput').value=ch.textContent;$('mInput').focus();};});
+    $('mInput').value=''; var r=$('mResp'); r.textContent=''; r.className='m-resp';
+    $('ov').classList.add('open');
+  }
+  function closeModal(){ $('ov').classList.remove('open'); }
+  function ask(){
+    var k=$('ov').dataset.k, a=HC[k], q=$('mInput').value.trim(); if(!q) return;
+    var r=$('mResp'); r.className='m-resp show'; r.textContent=a.name.split(' ')[0]+' is thinking...';
+    fetch('/.netlify/functions/harvest-ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({partner:k,question:q})})
+      .then(function(res){ if(!res.ok) throw new Error('x'); return res.json(); })
+      .then(function(d){ r.textContent=(d.answer||d.response||'').trim()|| (a.name.split(' ')[0]+' did not have an answer for that.'); })
+      .catch(function(){ r.textContent=a.name.split(' ')[0]+' is still settling into the kitchen. The chat opens when the partners go live. For now, this is a preview of the room.'; });
+  }
+  document.querySelectorAll('.talk').forEach(function(b){
+    var k=(b.getAttribute('data-name')||'').toLowerCase();
+    b.addEventListener('click',function(){ openModal(k); });
+  });
+  $('mAsk').onclick=ask;
+  $('mInput')&&$('mInput').addEventListener('keydown',function(e){ if(e.key==='Enter') ask(); });
+  $('mX').onclick=closeModal;
+  $('ov').addEventListener('click',function(e){ if(e.target===$('ov')) closeModal(); });
+  document.querySelectorAll('.m-ft a[data-go]').forEach(function(a){ a.onclick=function(){ openModal(a.getAttribute('data-go')); }; });
+</script>
+</body>
+</html>
