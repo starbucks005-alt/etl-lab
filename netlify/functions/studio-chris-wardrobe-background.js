@@ -51,16 +51,22 @@ function slugify(name) {
   return String(name).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 }
 
-const PROMPT_TEMPLATE = (outfit, note) =>
-  'Edit this photo. Keep the SAME person: identical face, hairstyle, skin tone, ' +
-  'expression, pose, camera framing, lighting, and the same background. ' +
-  'Change ONLY the clothing to: ' + outfit + '. ' +
-  (note
-    ? 'ADDITIONALLY, the client instructs: ' + note + '. This instruction WINS over ' +
-      'the keep-everything rule above wherever they conflict (props, held objects, ' +
-      'and accessories may be removed, added, or changed as the client asks). '
-    : '') +
-  'Photorealistic professional portrait quality. No text, no watermarks, no logos.';
+const PROMPT_TEMPLATE = (outfit, note, category) => {
+  const bgRule = (!category || category === 'work')
+    ? 'the same background'
+    : category === 'evening'
+      ? 'a warm upscale setting, a restaurant or event venue, with ambient evening lighting (replace the original background)'
+      : 'a relaxed outdoor or casual indoor setting with natural daylight (replace the original background)';
+  return (
+    'Edit this photo. Keep the SAME person: identical face, hairstyle, skin tone, ' +
+    'expression, pose, and camera framing. Background: ' + bgRule + '. ' +
+    'Change ONLY the clothing to: ' + outfit + '. ' +
+    (note
+      ? 'ADDITIONALLY, the client instructs: ' + note + '. You may adjust props, held objects, and accessories as directed. Identity features, face, hairstyle, skin tone, and expression, are locked and must not change under any circumstance. '
+      : '') +
+    'Photorealistic professional portrait quality. No text, no watermarks, no logos.'
+  );
+};
 
 /* Photoreal remake mode (for portraits that came out too painterly, e.g. the
    Dose cast): step 1 reshoots the painterly reference as a photograph; step 2
@@ -321,7 +327,7 @@ exports.handler = async (event) => {
     index.outfits.push(entry);
     await store.setJSON(indexKey, index);
     try {
-      const img = await editImage(openaiKey, refBuf, refMime, PROMPT_TEMPLATE(item.outfit, note), quality);
+      const img = await editImage(openaiKey, refBuf, refMime, PROMPT_TEMPLATE(item.outfit, note, item.category), quality);
       await store.set(slug + '/' + n + '.png', new Blob([img]));
       entry.status = 'done';
       entry.bytes = img.length;
