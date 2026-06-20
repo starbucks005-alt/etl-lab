@@ -855,11 +855,18 @@ footer{border-top:1px solid #D3C1A8;background:#E8D6C0;padding:22px 28px;display
       fetch('/.netlify/functions/studio-chris-wardrobe?pa='+slug+'&i='+o.n,{headers:{Authorization:auth}})
         .then(function(r){if(!r.ok)throw 0;return r.blob();})
         .then(function(b){
-          var url=URL.createObjectURL(b);
-          var box=document.getElementById('fit-'+o.n);
-          if(box)box.innerHTML='<img src="'+url+'" alt="">';
-          var dl=document.getElementById('dl-'+o.n);
-          if(dl){dl.href=url;dl.download=slug+'-look-'+o.n+'.png';}
+          watermarkBlob(b,function(c){
+            c.style.cssText='width:100%;display:block';
+            var box=document.getElementById('fit-'+o.n);
+            if(box){box.innerHTML='';box.appendChild(c);}
+            var dl=document.getElementById('dl-'+o.n);
+            if(dl){
+              c.toBlob(function(wb){
+                var wu=URL.createObjectURL(wb);
+                dl.href=wu;dl.download=slug+'-look-'+o.n+'.png';
+              },'image/png');
+            }
+          });
         }).catch(function(){});
     });
   }
@@ -1018,8 +1025,10 @@ footer{border-top:1px solid #D3C1A8;background:#E8D6C0;padding:22px 28px;display
               .then(function(r2){return r2.ok?r2.blob():null;})
               .then(function(b){
                 if(!b)return;
-                var url=URL.createObjectURL(b);
-                afterEl.innerHTML='<img src="'+url+'" alt="" style="width:100%;aspect-ratio:1;object-fit:cover;display:block">';
+                watermarkBlob(b,function(c){
+                  c.style.cssText='width:100%;aspect-ratio:1;object-fit:cover;display:block';
+                  afterEl.innerHTML='';afterEl.appendChild(c);
+                });
               }).catch(function(){});
           }
         }
@@ -1036,6 +1045,39 @@ footer{border-top:1px solid #D3C1A8;background:#E8D6C0;padding:22px 28px;display
           setWardStatus('Chris is sewing. '+done+' of '+total+' looks done.');
         }
       }).catch(function(){});
+  }
+
+  // ── Watermark ─────────────────────────────────────────────────────────
+  // Stamps "ETL" diagonally across every generated outfit image before it
+  // reaches the DOM. The download link gets the watermarked version too.
+  function watermarkBlob(blob, onCanvas){
+    var url=URL.createObjectURL(blob);
+    var img=new Image();
+    img.onload=function(){
+      var c=document.createElement('canvas');
+      c.width=img.naturalWidth||img.width;
+      c.height=img.naturalHeight||img.height;
+      var ctx=c.getContext('2d');
+      ctx.drawImage(img,0,0);
+      var sz=Math.round(c.width*0.13);
+      ctx.save();
+      ctx.globalAlpha=0.32;
+      ctx.translate(c.width/2,c.height/2);
+      ctx.rotate(-Math.PI/5.5);
+      ctx.font='bold '+sz+'px Arial,sans-serif';
+      ctx.fillStyle='#FFFFFF';
+      ctx.strokeStyle='rgba(0,0,0,0.18)';
+      ctx.lineWidth=Math.round(sz/12);
+      ctx.textAlign='center';
+      ctx.textBaseline='middle';
+      ctx.strokeText('ETL',0,0);
+      ctx.fillText('ETL',0,0);
+      ctx.restore();
+      URL.revokeObjectURL(url);
+      onCanvas(c);
+    };
+    img.onerror=function(){URL.revokeObjectURL(url);};
+    img.src=url;
   }
 
   // ── Show in window (delegated click on rack) ─────────────────────────
