@@ -330,6 +330,29 @@ exports.handler = async (event) => {
   const store = getStore('etl_banter');
 
   const now = Date.now();
+
+  // ── SPOTLIGHT MODE: ?spotlight=vic injects one Vic Stallion message immediately ──
+  var qs = event.queryStringParameters || {};
+  if (qs.spotlight === 'vic') {
+    var spotLines = [
+      "NVDA's doing something interesting rn. just watching.",
+      "Rowan, thoughts on the Mag 7 rotation.",
+      "yield curve's moving. not saying anything. just saying.",
+      "supply chain data looks different this week. worth a look.",
+      "Super Tuscan and a Bloomberg terminal. that's a Friday.",
+      "if anyone wants to talk equities later, I'm around.",
+    ];
+    var spotMsg = spotLines[Math.floor(Math.random() * spotLines.length)];
+    var spotMsgs = [];
+    try { var sc = await store.get('messages', { type: 'json' }); if (Array.isArray(sc)) spotMsgs = sc; } catch (_) {}
+    var spotTs = now + 1000;
+    spotMsgs.push({ agent: 'Vic Stallion', role: 'Business Technology Strategist, Founder Studio', message: spotMsg, time: fmtTs(spotTs), ts: spotTs });
+    spotMsgs.sort(function(a, b) { return (b.ts || 0) - (a.ts || 0); });
+    if (spotMsgs.length > 120) spotMsgs = spotMsgs.slice(0, 120);
+    try { await store.set('messages', JSON.stringify(spotMsgs)); } catch (_) {}
+    return { statusCode: 200, body: 'spotlight: Vic Stallion' };
+  }
+
   const { h } = etNow();
 
   let msgs = [];
