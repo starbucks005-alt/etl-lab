@@ -225,14 +225,14 @@ exports.handler = async (event) => {
   }
 
   // ── Owner recognition ──
-  const pass = process.env.PRESS_ADMIN_PASS;
+  const pass = (process.env.PRESS_ADMIN_PASS || '').trim();
   let owner = false;
   let issueToken = false;
   if (pass) {
     const expected = tokenFor(pass);
     if (typeof body.ownerToken === 'string' && body.ownerToken === expected) {
       owner = true;
-    } else if (message.includes(pass)) {
+    } else if (message.toLowerCase().includes(pass.toLowerCase())) {
       // She typed the staff password into the chat. Verify, issue the device
       // token, and make sure the password itself never reaches the model,
       // the logs, or the stored history.
