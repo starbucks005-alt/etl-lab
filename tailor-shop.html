@@ -909,7 +909,8 @@ footer{border-top:1px solid #D3C1A8;background:#E8D6C0;padding:22px 28px;display
     if(!q||q.length<2){sug.style.display='none';return;}
     var low=q.toLowerCase();
     var matches=rosterCache.filter(function(a){
-      return a.name&&a.name.toLowerCase().indexOf(low)!==-1;
+      return (a.name&&a.name.toLowerCase().indexOf(low)!==-1)
+        ||(a.nickname&&a.nickname.toLowerCase().indexOf(low)!==-1);
     }).slice(0,7);
     if(!matches.length){sug.style.display='none';return;}
     sug.innerHTML=matches.map(function(a){
