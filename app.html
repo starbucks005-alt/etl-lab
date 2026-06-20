@@ -3098,7 +3098,7 @@ Rules:
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-api-key': state.apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-6',
         max_tokens: 2000,
         messages: [{ role: 'user', content: prompt }]
       })
@@ -3439,7 +3439,7 @@ Keep terms concise (1-3 words). Realistic academic database search keywords.`;
         'anthropic-dangerous-direct-browser-access': 'true'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-6',
         max_tokens: 500,
         messages: [{ role: 'user', content: prompt }]
       })
@@ -5613,7 +5613,7 @@ Base scores on actual content quality, not effort. A short work with ${wordCount
     const resp = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-api-key': state.apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
-      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, messages: [{ role: 'user', content: prompt }] })
+      body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000, messages: [{ role: 'user', content: prompt }] })
     });
     const data = await resp.json();
     const raw = data.content?.[0]?.text?.trim() || '';
@@ -5831,7 +5831,7 @@ async function callToolAPI(prompt, systemPrompt, imageData) {
       : prompt
   }];
   const body = {
-    model: 'claude-sonnet-4-20250514',
+    model: 'claude-sonnet-4-6',
     max_tokens: 1500,
     messages
   };
@@ -7128,7 +7128,7 @@ If no specific prior work was provided, frame the systematic literature review i
           'anthropic-dangerous-direct-browser-access': 'true'
         },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
+          model: 'claude-sonnet-4-6',
           max_tokens: 1500,
           messages: [{ role: 'user', content: prompts[sectionId] }]
         })
@@ -7507,7 +7507,7 @@ Reference: Page, M. J., McKenzie, J. E., Bossuyt, P. M., et al. (2021). The PRIS
     try {
       const resp = await fetch('https://api.anthropic.com/v1/messages', {
         method:'POST', headers:{'Content-Type':'application/json','x-api-key':state.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-        body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1200, messages:[{role:'user',content:`Write a PRISMA 2020-compliant Methods section (~450 words) for a systematic review on: "${state.topic}". PICO: P=${proto.population||'defined population'}, I=${proto.intervention||'intervention'}, C=${proto.comparison||'N/A'}, O=${proto.outcome||'defined outcomes'}. Inclusion: ${proto.inclusion.join('; ')||'peer-reviewed English studies'}. Exclusion: ${proto.exclusion.join('; ')||'grey literature, non-English'}. Database: OpenAlex. ${sgCount} keyword subgroups, progressive Boolean AND narrowing. Records identified: ${total}. Included: ${included}. Date range: ${proto.dateFrom||'2010'}–${proto.dateTo||'2026'}. Cite PRISMA 2020 (Page et al., 2021). Scholarly passive voice.`}]})
+        body: JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:1200, messages:[{role:'user',content:`Write a PRISMA 2020-compliant Methods section (~450 words) for a systematic review on: "${state.topic}". PICO: P=${proto.population||'defined population'}, I=${proto.intervention||'intervention'}, C=${proto.comparison||'N/A'}, O=${proto.outcome||'defined outcomes'}. Inclusion: ${proto.inclusion.join('; ')||'peer-reviewed English studies'}. Exclusion: ${proto.exclusion.join('; ')||'grey literature, non-English'}. Database: OpenAlex. ${sgCount} keyword subgroups, progressive Boolean AND narrowing. Records identified: ${total}. Included: ${included}. Date range: ${proto.dateFrom||'2010'}–${proto.dateTo||'2026'}. Cite PRISMA 2020 (Page et al., 2021). Scholarly passive voice.`}]})
       });
       const data = await resp.json();
       const text = data.content?.[0]?.text?.trim();
@@ -8200,7 +8200,7 @@ Higgins, J. P. T., & Thompson, S. G. (2002). Quantifying heterogeneity in a meta
     try {
       const resp = await fetch('https://api.anthropic.com/v1/messages', {
         method:'POST', headers:{'Content-Type':'application/json','x-api-key':state.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-        body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:800, messages:[{role:'user',content:`Write a concise, publication-ready Statistical Analysis section (~300 words) for a ${model} meta-analysis on: "${state.topic||'the research topic'}". Effect measure: ${effectType}. Studies: ${result.studies.length}. Pooled effect: ${pooledDisplay.toFixed(3)} (95% CI [${ciLowDisplay.toFixed(3)}, ${ciHighDisplay.toFixed(3)}]). I² = ${I2.toFixed(1)}%. Q = ${Q.toFixed(2)}, df=${df}, p${pQ<0.001?'<0.001':'='+pQ.toFixed(3)}. τ² = ${tau2.toFixed(4)}. Use scholarly passive voice. Cite DerSimonian & Laird (1986) and Higgins & Thompson (2002).`}]})
+        body: JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:800, messages:[{role:'user',content:`Write a concise, publication-ready Statistical Analysis section (~300 words) for a ${model} meta-analysis on: "${state.topic||'the research topic'}". Effect measure: ${effectType}. Studies: ${result.studies.length}. Pooled effect: ${pooledDisplay.toFixed(3)} (95% CI [${ciLowDisplay.toFixed(3)}, ${ciHighDisplay.toFixed(3)}]). I² = ${I2.toFixed(1)}%. Q = ${Q.toFixed(2)}, df=${df}, p${pQ<0.001?'<0.001':'='+pQ.toFixed(3)}. τ² = ${tau2.toFixed(4)}. Use scholarly passive voice. Cite DerSimonian & Laird (1986) and Higgins & Thompson (2002).`}]})
       });
       const data = await resp.json();
       const t = data.content?.[0]?.text?.trim();
@@ -9710,7 +9710,7 @@ End with a transition sentence to the next section.`;
         'anthropic-dangerous-direct-browser-access': 'true'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-6',
         max_tokens: mode === 'thesis' ? 3000 : 2000,
         messages: [{ role: 'user', content: prompt }]
       })
@@ -10366,7 +10366,7 @@ Return ONLY the SVG code, starting with <svg. No explanation.`;
       const resp = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-api-key': state.apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
-        body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 2000, messages: [{ role: 'user', content: prompt }] })
+        body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 2000, messages: [{ role: 'user', content: prompt }] })
       });
       const data = await resp.json();
       const svgText = data.content?.[0]?.text?.trim() || '';
@@ -10593,7 +10593,7 @@ If a field cannot be found, use an empty string. Year must be 4 digits or empty.
     const resp = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
-      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 400, messages: [{ role: 'user', content: prompt }] })
+      body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 400, messages: [{ role: 'user', content: prompt }] })
     });
     const data = await resp.json();
     const raw = data.content?.[0]?.text?.trim() || '{}';
@@ -13403,7 +13403,7 @@ async function populatePosterSection(sectionId) {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-api-key': state.apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
-      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 500, messages: [{ role: 'user', content: prompt }] })
+      body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 500, messages: [{ role: 'user', content: prompt }] })
     });
     const data = await response.json();
     const text = data.content?.[0]?.text?.trim() || '';
