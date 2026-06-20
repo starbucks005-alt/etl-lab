@@ -430,7 +430,9 @@ function pickTarget(a){
     const dist = Math.hypot(a.x - N[homeNode][0], a.y - N[homeNode][1]);
     // GP/NW/CG stay tight to their building — 100px keeps Greylander out of
     // Newswire and city-gov (incl. Roz) anchored at City Govt.
-    const pullDist = ['GP','NW','CG'].includes(a.plat) ? 100 : 200;
+    // FS gets 84px: Build Your Agent (node 22) is only 87px from Founder Studio
+    // (node 18), so without a tighter radius FS agents cluster at the wrong building.
+    const pullDist = ['GP','NW','CG'].includes(a.plat) ? 100 : a.plat==='FS' ? 84 : 200;
     if(dist > pullDist) return homeNode;
     if(r<.72) return homeNode;             // at their post
     if(r<.92) return nearbyNode(a);        // short hop nearby
