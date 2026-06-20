@@ -847,7 +847,7 @@ footer{border-top:1px solid #D3C1A8;background:#E8D6C0;padding:22px 28px;display
       return '<div class="fit '+cls+'">'+inner+'<div class="cap">'
         +(cat?'<span class="badge '+bcls+'">'+cat+'</span> ':'')
         +'#'+o.n+' &middot; '+o.outfit
-        +(o.status==='done'?'<br><a class="dl-link" id="dl-'+o.n+'" href="#">Save this look</a>':'')
+        +(o.status==='done'?'<br><a class="dl-link" id="dl-'+o.n+'" href="#">Save this look</a> &nbsp;&middot;&nbsp; <a class="dl-link" id="win-'+o.n+'" href="#" data-slug="'+slug+'" data-n="'+o.n+'">Show in window</a>':'')
         +'</div></div>';
     }).join('');
     (idx.outfits||[]).forEach(function(o){
@@ -1037,6 +1037,24 @@ footer{border-top:1px solid #D3C1A8;background:#E8D6C0;padding:22px 28px;display
         }
       }).catch(function(){});
   }
+
+  // ── Show in window (delegated click on rack) ─────────────────────────
+  document.getElementById('rack-wrap').addEventListener('click',function(e){
+    var link=e.target.closest('[id^="win-"]');
+    if(!link)return;
+    e.preventDefault();
+    var slug=link.dataset.slug;
+    var n=link.dataset.n;
+    var auth=mirrorAuth()||authHeader();
+    if(!auth){link.textContent='Open the staff door first.';return;}
+    link.textContent='Adding to window…';
+    fetch('/.netlify/functions/studio-chris-wardrobe?pa='+slug+'&publish='+n,{headers:{Authorization:auth}})
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(d){
+        link.textContent=d?'In the window ✓':'Publish failed';
+        if(d)loadWindow();
+      }).catch(function(){link.textContent='Publish failed';});
+  });
 
   // ── Page init ─────────────────────────────────────────────────────────
   loadWindow();

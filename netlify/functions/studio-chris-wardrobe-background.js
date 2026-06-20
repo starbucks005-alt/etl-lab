@@ -58,11 +58,12 @@ const PROMPT_TEMPLATE = (outfit, note, category) => {
       ? 'a warm upscale setting, a restaurant or event venue, with ambient evening lighting (replace the original background)'
       : 'a relaxed outdoor or casual indoor setting with natural daylight (replace the original background)';
   return (
-    'Edit this photo. Keep the SAME person: identical face, hairstyle, skin tone, ' +
-    'expression, pose, and camera framing. Background: ' + bgRule + '. ' +
-    'Change ONLY the clothing to: ' + outfit + '. ' +
+    'Edit this photo. Change ONLY the clothing to: ' + outfit + '. ' +
+    'Background: ' + bgRule + '. ' +
+    'Keep IDENTICAL and do not alter under any circumstance: the person\'s face, facial structure, eye color, hair color, hair length, hair texture, hairstyle, skin tone, expression, pose, and camera framing. ' +
+    'Hair color and style must be pixel-perfect to the reference. Do not lighten, darken, curl, straighten, or restyle the hair in any way. ' +
     (note
-      ? 'ADDITIONALLY, the client instructs: ' + note + '. You may adjust props, held objects, and accessories as directed. Identity features, face, hairstyle, skin tone, and expression, are locked and must not change under any circumstance. '
+      ? 'ADDITIONALLY, the client instructs: ' + note + '. You may adjust props, held objects, and accessories as directed. All identity features (face, hair color, hairstyle, skin tone, expression) remain locked. '
       : '') +
     'Photorealistic professional portrait quality. No text, no watermarks, no logos.'
   );
