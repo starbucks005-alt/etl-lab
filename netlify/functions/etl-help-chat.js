@@ -238,7 +238,7 @@ exports.handler = async (event) => {
       // the logs, or the stored history.
       owner = true;
       issueToken = true;
-      message = '[Dr. Oroszi has just identified herself on this device with the staff password. The verification succeeded. Greet her.]';
+      message = '[VERIFIED: Dr. Terry Oroszi just authenticated. Owner mode active. Your reply MUST open by addressing her as "Dr. O" or "Dr. Oroszi" by name. Be warm, brief, and ready to help.]';
     }
   }
 
