@@ -2905,6 +2905,7 @@ document.addEventListener('DOMContentLoaded', function(){
 #etl-cc .pill.campus{color:var(--gold);border-color:rgba(232,182,89,.35);background:rgba(232,182,89,.07)}
 #etl-cc .pill.pending{color:var(--mute);border-color:var(--line)}
 #etl-cc .pill.engine{color:var(--cyan);border-color:rgba(70,214,230,.35);background:rgba(70,214,230,.07)}
+#etl-cc .pill.paid{color:#f5c070;border-color:rgba(245,192,112,.35);background:rgba(245,192,112,.07)}
 #etl-cc .travel{font-family:var(--mono);font-size:10px;color:var(--rose);letter-spacing:.04em;display:flex;align-items:center;gap:6px;margin-top:2px;width:100%}
 #etl-cc .card.pending-card{opacity:.62;border-style:dashed}
 #etl-cc .card.pending-card:hover{opacity:.85}
@@ -2945,8 +2946,8 @@ document.addEventListener('DOMContentLoaded', function(){
     <div class="sub">A living campus of AI specialists you can actually talk to. Pick a building, read over their shoulders, or <b>talk to any one of them yourself</b>. Free at the lab.</div>
     <div class="readout">
       <div class="cell"><div class="n">122</div><div class="k"><span class="pulse"></span>Agents on staff</div></div>
-      <div class="cell"><div class="n">19</div><div class="k">Travel between buildings</div></div>
-      <div class="cell"><div class="n small">13</div><div class="k">Live buildings</div></div>
+      <div class="cell"><div class="n">25</div><div class="k">Travel between buildings</div></div>
+      <div class="cell"><div class="n small">19</div><div class="k">Live buildings</div></div>
       <div class="cell"><div class="n small">9</div><div class="k">Free on campus</div></div>
     </div>
   </div>
@@ -3007,6 +3008,8 @@ document.addEventListener('DOMContentLoaded', function(){
     {name:'Intel Dashboard',   url:'https://inteldashboard.org/',                      role:'Signal-gap engine',          dom:'sec',     type:'engine', n:1, tool:'18 modules &middot; live MCP', access:'free'},
     {name:'SLR Studio',        url:'https://slrstudio.online/',                        role:'Research engine &middot; Cleo', dom:'acad', type:'engine', n:1, tool:'6 modes &middot; 10 tools',    access:'campus'},
     {name:'Office Hours',      url:'/office-hours',                                    role:'For faculty',                dom:'acad',    type:'engine', tool:'email & rec drafting',         access:'free'},
+    {name:'ETL DeskWorks Dayton', url:'/deskworks',          role:'Real desk &middot; AI specialist in the building', dom:'biz',  type:'count',  n:9,  access:'paid', price:'$149.99/mo'},
+    {name:"Chris's Tailor Shop",  url:'/build-your-agent',   role:'Where agents get made, and remade',                dom:'biz',  type:'engine', tool:'Persona Desk &middot; Wardrobe &middot; Voice Booth', access:'paid', price:'From $9.99'},
     {name:'OPSEC Gauntlet',    url:null,                                               role:'Operational stress-test',    dom:'sec',     type:'count',  n:20, access:'pending'},
     {name:'Spy Academy',       url:null,                                               role:'MPSA &middot; certification',dom:'acad',    type:'count',  n:2,  access:'pending'},
   ];
@@ -3025,10 +3028,11 @@ document.addEventListener('DOMContentLoaded', function(){
     `<span class="chip"><span class="sw" style="background:${d.color}"></span>${d.label}</span>`
   ).join('');
 
-  const accPill = a => ({
+  const accPill = (a, price) => ({
     free:    '<span class="pill free">Free at Dr. O&rsquo;s Lab &middot; WSU</span>',
     campus:  '<span class="pill campus">Free at Dr. O&rsquo;s Lab &middot; WSU</span>',
-    pending: '<span class="pill pending">Shipping soon</span>'
+    pending: '<span class="pill pending">Shipping soon</span>',
+    paid:    `<span class="pill paid">${price || 'Paid'}</span>`,
   }[a]);
 
   function cardHTML(p, showDom){
@@ -3037,7 +3041,7 @@ document.addEventListener('DOMContentLoaded', function(){
     const head   = p.type==='engine'
       ? `<div class="toolline"><span class="lbl">Engine</span>${p.tool}${p.n ? ` &middot; ${p.n} agent${p.n===1?'':'s'}` : ''}</div>`
       : `<div class="count">${p.n}<span class="lbl">Agents</span></div>`;
-    const foot   = (p.type==='engine' ? '<span class="pill engine">Tool-led</span>' : '') + accPill(p.access);
+    const foot   = (p.type==='engine' ? '<span class="pill engine">Tool-led</span>' : '') + accPill(p.access, p.price);
     const travel = p.travel ? `<span class="travel">&#8596; ${p.travel}</span>` : '';
     const inner  = `${tag}<div class="top"><div><div class="name">${p.name}</div><div class="role">${p.role}</div></div>${head}</div><div class="foot">${foot}${travel}</div>`;
     if (p.url && p.access !== 'pending') {
@@ -3094,7 +3098,7 @@ document.addEventListener('DOMContentLoaded', function(){
         <div class="cc-key-row"><span class="cc-key-dot" style="background:#d4b46a"></span>Greylander Press</div>
         <div class="cc-key-row"><span class="cc-key-dot" style="background:#d060f0"></span>Gandhi-King Center</div>
         <div class="cc-key-row"><span class="cc-key-dot" style="background:#708090"></span>Multi-platform</div>
-        <div class="cc-key-row"><span class="cc-key-dot" style="background:#4a6fa5"></span>City Government</div>
+        <div class="cc-key-row"><span class="cc-key-dot" style="background:#e8c97a"></span>City Government</div>
         <div class="cc-key-sep"></div>
         <div class="cc-key-row"><span class="cc-key-ring"></span>Backpack Agent (MCP)<button class="cc-key-bp-info" id="cc-bp-info-btn" type="button" title="What's a backpack?">ⓘ</button></div>
       </div>
