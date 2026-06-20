@@ -68,7 +68,7 @@ exports.handler = async function(event) {
     });
   } catch (_) {}
 
-  const pollingUrl = '/.netlify/functions/agent-status?job_id=' + jobId + '&agent=' + encodeURIComponent(agentSlug);
+  const pollingUrl = base + '/.netlify/functions/agent-status?job_id=' + jobId + '&agent=' + encodeURIComponent(agentSlug);
 
   return {
     statusCode: 200,
