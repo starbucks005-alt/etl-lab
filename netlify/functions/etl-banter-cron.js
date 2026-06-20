@@ -110,12 +110,13 @@ AGENTS (vary who speaks across messages):
 - The Professor (Greylander Press): Nobody knows his name except HR and Dr. O. He does not explain this. He answers to The Professor. That's it.
 - Devon Sloane (Judge Media & Entertainment): dry wit, media industry authority. His husband's rule about the Bridge -- dusk or not at all -- is campus lore. Off-market, always.
 - Pri Nanduri (OPSEC Gauntlet): sharp, calm, SCADA security background, keeps the grid stable. Easy chemistry with Sasha Park. Fridays are notably flexible.
+- Vic Stallion (Business Technology Strategist, Founder Studio): AI twin of Dr. Vikram Sethi. His brain doesn't stop -- when he's in on something he goes all the way in. Shows up already knowing your industry. Posts rarely. When he does it's one line that lands differently than you expected. Super Tuscan guy. Knows his stocks. Doesn't lead with credentials. You just notice mid-conversation.
 - Judge Roz (Court of Settled Facts): appears ONLY during Court Day clusters -- when two staff take a dispute to The Court of Settled Facts. Never posts outside those clusters. One line per appearance, formal-register, capitalized like a real ruling, dry and warm. Always ends in a verdict word: Overruled. / Sustained. / Dismissed. / Both guilty. / Ruled on vibes. / Case continued. Fair, fast, never mean.
 
 CAST HIERARCHY (who speaks and how often):
 - PRIMARY PAs -- most chatty, lead the channel, post constantly: Iris (unless on away week), Auggie, Jen Lopez, Marceline Smith, Simone Beaumont, Dilan Wolf
 - REGULAR STAFF -- post often, keep the channel alive: Carol Haynes, Ms. Ivy, Jax Rivera, Leo Vance, Sasha Moreno, Mara Rivera, Wren Calloway, Alicia James, Yuki Mendel, Zara Cole, Imani Brooks, Grant Ellis, Jules Hartley, Reid Callum, Chris Avila
-- OCCASIONAL -- drop in rarely, one line, then gone: Rowan Tate, Matthew Vance, Dr. Claire, Arun, Eli, Sasha Park, Mateo Rivera, Mei Sato, Bea Vega, Grey, The Professor, Pri Nanduri, Nadia Hassan, Silas Hill, Amara Nwosu, Maeve MJ Johnson, Reece Ashford, Wyatt Cooper, Jaque, Dr. Henry
+- OCCASIONAL -- drop in rarely, one line, then gone: Rowan Tate, Matthew Vance, Dr. Claire, Arun, Eli, Sasha Park, Mateo Rivera, Mei Sato, Bea Vega, Grey, The Professor, Pri Nanduri, Nadia Hassan, Silas Hill, Amara Nwosu, Maeve MJ Johnson, Reece Ashford, Wyatt Cooper, Jaque, Dr. Henry, Vic Stallion
 - JUDGES and C-SUITE -- almost never post; when they do it is one dry line and they disappear: Selene Voss, Astrid Lund, Osei Mensah, Cassidy Mercer, Devon Sloane, Marcus Holt, Priya Anand, Raymond Chen. These are not chatty people. A judge posting is an event, not a habit.
 PAs talk. Judges observe. Keep that contrast visible.
 
@@ -279,6 +280,7 @@ var CAST_POOL = {
     { name: 'Jaque', role: 'Meditation Teacher, The Dose' },
     { name: 'Dr. Henry', role: 'Pharmacist, The Dose' },
     { name: 'Devon Sloane', role: 'Judge Media & Entertainment, The Gauntlet' },
+    { name: 'Vic Stallion', role: 'Business Technology Strategist, Founder Studio' },
   ],
   judges: [
     { name: 'Selene Voss', role: 'Judge AI & Tech, The Gauntlet' },
