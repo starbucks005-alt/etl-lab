@@ -263,26 +263,27 @@ hr.section-rule {
 /* ── Cast section ── */
 .cast-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 1.25rem;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
 }
 .cast-card {
+  --team-color: var(--accent);
   background: var(--panel);
   border: 1px solid var(--line);
+  border-top: 5px solid var(--team-color);
   border-radius: 14px;
   overflow: hidden;
-  box-shadow: 0 1px 4px rgba(20,33,43,0.06);
   display: flex;
   flex-direction: column;
+  transition: transform 0.15s, box-shadow 0.15s;
 }
 .cast-card:hover {
-  box-shadow: 0 4px 16px rgba(20,33,43,0.12);
-  transform: translateY(-2px);
-  transition: all 0.2s;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(20,33,43,0.13);
 }
 .cast-photo {
   position: relative;
-  aspect-ratio: 1;
+  aspect-ratio: 3 / 4;
   background: linear-gradient(160deg, #3a4452, #5c6675);
   overflow: hidden;
 }
@@ -311,12 +312,12 @@ hr.section-rule {
   line-height: 1.2;
 }
 .cast-role {
-  font-size: 0.78rem;
-  color: var(--accent-dk);
-  font-weight: 700;
-  letter-spacing: 0.03em;
+  font-size: 0.72rem;
+  color: var(--team-color);
+  font-weight: 600;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  margin-bottom: 0.65rem;
+  margin-bottom: 0.5rem;
 }
 .cast-tagline {
   font-style: italic;
@@ -335,30 +336,33 @@ hr.section-rule {
 /* ── Cast card CTAs (Dose-style) ── */
 .cast-cta-row {
   display: flex;
-  gap: 0.5rem;
-  margin-top: 1rem;
   align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin-top: auto;
+  padding-top: 0.5rem;
 }
 .cast-im-btn {
-  padding: 0.42rem 0.85rem;
-  background: var(--ink);
+  padding: 0.45rem 0.85rem;
+  background: var(--team-color);
   color: #fff;
   border: none;
-  border-radius: 5px;
+  border-radius: 4px;
   font-family: 'Inter', sans-serif;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: opacity 0.15s, transform 0.15s;
 }
-.cast-im-btn:hover { background: var(--accent-dk); }
+.cast-im-btn:hover { opacity: 0.88; transform: translateY(-1px); }
 .cast-visit-link {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 600;
-  color: var(--teal);
+  color: var(--team-color);
   text-decoration: none;
+  transition: transform 0.15s;
 }
-.cast-visit-link:hover { color: var(--accent-dk); text-decoration: underline; }
+.cast-visit-link:hover { transform: translateX(3px); }
 
 /* ── Programs ── */
 .programs-grid {
@@ -637,6 +641,9 @@ hr.section-rule {
 }
 
 /* ── Responsive ── */
+@media (max-width: 980px) {
+  .cast-grid { grid-template-columns: repeat(3, 1fr); }
+}
 @media (max-width: 720px) {
   .hero {
     grid-template-columns: 1fr;
@@ -755,7 +762,7 @@ hr.section-rule {
     <div class="cast-grid">
 
       <!-- Coach Dom — delay 0s already set -->
-      <div class="cast-card">
+      <div class="cast-card" style="--team-color:#e0552e">
         <div class="cast-photo">
           <div class="portrait-blink" style="position:absolute;inset:0;">
             <img class="portrait-blink__base" src="/agents/Coach_Dom_Eyes_open.png" alt="Coach Dom Castellanos, CSCS" loading="lazy">
@@ -776,7 +783,7 @@ hr.section-rule {
       </div>
 
       <!-- Dr. Lena — delay 2.1s -->
-      <div class="cast-card">
+      <div class="cast-card" style="--team-color:#3a7fa0">
         <div class="cast-photo">
           <div class="portrait-blink" style="position:absolute;inset:0;">
             <img class="portrait-blink__base" src="/agents/Dr_Lena_eyes_open.png" alt="Dr. Lena Brandt, DPT" loading="lazy">
@@ -797,7 +804,7 @@ hr.section-rule {
       </div>
 
       <!-- Noor — delay 4.2s -->
-      <div class="cast-card">
+      <div class="cast-card" style="--team-color:#7a6a4a">
         <div class="cast-photo">
           <div class="portrait-blink" style="position:absolute;inset:0;">
             <img class="portrait-blink__base" src="/agents/Noor_eyes_open.png" alt="Noor Haddad, RYT-500" loading="lazy">
@@ -818,7 +825,7 @@ hr.section-rule {
       </div>
 
       <!-- Dr. Sana — delay 6.3s -->
-      <div class="cast-card">
+      <div class="cast-card" style="--team-color:#2f8f7f">
         <div class="cast-photo">
           <div class="portrait-blink" style="position:absolute;inset:0;">
             <img class="portrait-blink__base" src="/agents/Sana_eyes_open.png" alt="Dr. Sana Qureshi, PhD" loading="lazy">
@@ -887,7 +894,7 @@ hr.section-rule {
     <div class="cast-grid">
 
       <!-- Nadia Hassan -->
-      <div class="cast-card">
+      <div class="cast-card" style="--team-color:#2e7a50">
         <div class="cast-photo">
           <div class="portrait-blink" style="position:absolute;inset:0;">
             <img class="portrait-blink__base" src="/agents/Nadia_eyes_open.png" alt="Nadia Hassan" loading="lazy">
@@ -908,7 +915,7 @@ hr.section-rule {
       </div>
 
       <!-- Wyatt E. Cooper -->
-      <div class="cast-card">
+      <div class="cast-card" style="--team-color:#8a5a1a">
         <div class="cast-photo">
           <div class="portrait-blink" style="position:absolute;inset:0;">
             <img class="portrait-blink__base" src="/agents/Wyatt_eyes_open.png" alt="Wyatt E. Cooper" loading="lazy">
@@ -929,7 +936,7 @@ hr.section-rule {
       </div>
 
       <!-- Reece Ashford — blink portrait -->
-      <div class="cast-card">
+      <div class="cast-card" style="--team-color:#4a6a80">
         <div class="cast-photo">
           <div class="portrait-blink" style="position:absolute;inset:0;">
             <img class="portrait-blink__base" src="/agents/Reece_eyes_open.png" alt="Reece Ashford" loading="lazy">
@@ -950,7 +957,7 @@ hr.section-rule {
       </div>
 
       <!-- Zara Cole -->
-      <div class="cast-card">
+      <div class="cast-card" style="--team-color:#2e7a3a">
         <div class="cast-photo">
           <div class="portrait-blink" style="position:absolute;inset:0;">
             <img class="portrait-blink__base" src="/agents/Zara_eyes_open.png" alt="Zara Cole" loading="lazy">
@@ -971,7 +978,7 @@ hr.section-rule {
       </div>
 
       <!-- Jax Rivera -->
-      <div class="cast-card">
+      <div class="cast-card" style="--team-color:#3a5aaa">
         <div class="cast-photo">
           <div class="portrait-blink" style="position:absolute;inset:0;">
             <img class="portrait-blink__base" src="/agents/Jax_eyes_open.png" alt="Jax Rivera" loading="lazy">
@@ -992,7 +999,7 @@ hr.section-rule {
       </div>
 
       <!-- Eli Adler -->
-      <div class="cast-card">
+      <div class="cast-card" style="--team-color:#3a4a5a">
         <div class="cast-photo">
           <img src="/agents/Eli_Adler_profile.png" alt="Eli Adler" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;">
         </div>
