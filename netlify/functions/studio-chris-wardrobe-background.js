@@ -58,12 +58,15 @@ const PROMPT_TEMPLATE = (outfit, note, category) => {
       ? 'a warm upscale setting, a restaurant or event venue, with ambient evening lighting (replace the original background)'
       : 'a relaxed outdoor or casual indoor setting with natural daylight (replace the original background)';
   return (
-    'Edit this photo. Change ONLY the clothing to: ' + outfit + '. ' +
+    'Edit this photo. The ONLY change allowed is the clothing. Replace the clothing with: ' + outfit + '. ' +
     'Background: ' + bgRule + '. ' +
-    'Keep IDENTICAL and do not alter under any circumstance: the person\'s face, facial structure, eye color, hair color, hair length, hair texture, hairstyle, skin tone, expression, pose, and camera framing. ' +
-    'Hair color and style must be pixel-perfect to the reference. Do not lighten, darken, curl, straighten, or restyle the hair in any way. ' +
+    'LOCKED — do not change under any circumstance: face, facial structure, eye color, hair color, hair length, hair texture, hairstyle, skin tone, expression, body pose, hand position, arm position, camera framing, and crop. ' +
+    'Hair must be pixel-perfect to the reference — do not lighten, darken, curl, straighten, restyle, or recolor it in any way. ' +
+    'Do NOT add any props, objects, tools, equipment, or items not worn on the body. ' +
+    'Do NOT change the person\'s stance, pose, or the position of their hands, arms, or body in any way. ' +
+    'The clothing swap is the only edit. Every other pixel stays as close to the reference as possible. ' +
     (note
-      ? 'ADDITIONALLY, the client instructs: ' + note + '. You may adjust props, held objects, and accessories as directed. All identity features (face, hair color, hairstyle, skin tone, expression) remain locked. '
+      ? 'Client note (wearable adjustments only): ' + note + '. Honor this for garments and jewelry only. All identity features, pose, and props remain locked. '
       : '') +
     'Photorealistic professional portrait quality. No text, no watermarks, no logos.'
   );
@@ -120,6 +123,7 @@ async function chrisWritesOutfits(agent, mix, code, note) {
       (note ? 'A NOTE FROM THE CLIENT about this closet: "' + note + '". Honor it in every look it touches.' : ''),
       'Each outfit must be visible in a head-and-shoulders portrait: tops, jackets, collars, knitwear, scarves, jewelry, glasses. No pants talk, no shoes, no costumes unless the persona demands it.',
       'Each description is one line, concrete and paintable (colors, fabrics, cut).',
+      'CRITICAL: describe ONLY the garments and wearable accessories (clothing, jewelry, eyewear, scarves, pins). Do NOT write narrative about activities, actions, or objects the person might hold or use (no golf clubs, briefcases, phones, books, tools). The painter reads your description literally and will add any object you mention. Stick to what is worn on the body.',
       'Keep every description studio-safe: nothing that emphasizes exposed skin (no plunge, low-cut, sheer). The camera is head-and-shoulders; necklines stay modest.',
       'Return ONLY a JSON array of exactly ' + total + ' objects, work pieces first, then weekend, then evening:',
       '[{"category":"work","outfit":"..."}, ...]',
