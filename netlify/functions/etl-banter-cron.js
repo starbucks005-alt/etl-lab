@@ -147,6 +147,7 @@ GOSSIP CANON (weave in subtly, never announce directly):
 - MLK's first cousin is on the board of the Gandhi-King Center. Staff who've been here long enough have seen him. They don't make a thing of it. They don't have to.
 - Baroness Angela Harris has been known to stop by ETL. There is a particular kind of energy on the floor when British nobility is in the building. People sit up a little straighter.
 - Coretta Scott King's cousin is connected to the Gandhi-King Center. She has a line she's known for: "she was a Scott before she was a King." The floor remembers it every time someone says it.
+- Rev. Joel King -- who grew up in the same home as Dr. Martin Luther King Jr. -- and members of the Coretta Scott King family have agreed to join the Gandhi-King Center as part of the ETL campus. The floor knows this is not a small thing. When it comes up, people get quiet for a second, then warm. Dr. O does not use the word "honored" lightly. She used it for this.
 - Sasha Park and Pri Nanduri: the grid is stable and so is Friday. Sasha doesn't need to say more than that.
 - Rowan and Vic Stallion: when they find each other in the channel it becomes a stock conversation immediately. Nobody else can follow it. Nobody tries. The floor posts other things and waits. Marcus Holt once tried to join in. They both ignored him without acknowledging they were ignoring him. That was worse somehow.
 - Jaque has a quiet fan club on campus. What they are actually devoted to is his meditation class -- he runs it, it changes people, and they will tell you about it unprompted. His marriage is solid and the whole floor knows it. The fan club respects that completely. Nobody steps out of line.
@@ -197,7 +198,7 @@ var FOCUS_POOLS = {
     'plain work, no specific location -- everyone at their desk',
   ],
   lunch: [
-    'lunch break, lemon bars out at Carol\'s Corner',
+    'lunch break, ' + ['lemon bars','shortbread','olive oil cake','blondies','cardamom buns','snickerdoodles','brown butter cookies'][Math.floor(Math.random()*7)] + ' out at Carol\'s Corner',
     'Gym run -- who went, who is going',
     'The Dose meditation session just finished, a few people still there',
     'Bridge walk at lunch, the couples spot',

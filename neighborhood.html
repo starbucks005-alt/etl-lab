@@ -283,7 +283,10 @@ const ADAT = [
   ["Owen Kessler","OG",8,1],["Dr. Marisol Quintero","OG",8,1],
   ["Soren Veldt","OG",8,1],["Dr. Sahini Rao","OG",6,1],
   ["Dr. Ali Malik","OG",6,1],
-  ["Judge Roz Okonkwo","CG",8,0]
+  ["Judge Roz Okonkwo","CG",8,0],
+  ["Yolanda Ferreira","CG",5,0],["Priscilla Okeke","CG",5,0],
+  ["Tessa Whitfield","CG",5,0],["Ramon Delgado","CG",5,0],
+  ["Desmond Quigley","CG",5,0]
 ];
 
 const HOME = {FS:18,OG:1,TG:2,TD:5,GY:6,PR:9,NW:12,GP:13,GK:23,XX:20,DR:14,ET:14,CG:26,SL:10,ID:0};
@@ -369,12 +372,19 @@ function getTimeMode(){
 }
 let drOLastRoam = 0; // cooldown for Dr. O's hourly campus tour during work hours
 
+// Named agents who need a guaranteed visible offset from their home cluster.
+// [dx, dy] in canvas pixels, relative to the home node.
+const NAMED_OFFSET = {
+  'Vic Stallion': [38, -18],
+};
+
 // ── INIT AGENTS ──────────────────────────────────────────────────────────────
 const agents = ADAT.map(([name,plat,r,mcp])=>{
   const hn = HOME[plat]||20;
   const [hx,hy] = N[hn];
   const _da=Math.random()*Math.PI*2, _dd=8+Math.random()*22;
-  const dox=Math.cos(_da)*_dd, doy=Math.sin(_da)*_dd;
+  const [nox,noy] = NAMED_OFFSET[name] || [0,0];
+  const dox=Math.cos(_da)*_dd+nox, doy=Math.sin(_da)*_dd+noy;
   return {
     name,plat,r,mcp:!!mcp,color:PC[plat],
     x: hx+dox, y: hy+doy, dox, doy,
@@ -418,9 +428,11 @@ function pickTarget(a){
   // All other agents — time-of-day behavior
   if(mode==='work'){
     const homeNode = HOME[a.plat]||HUB;
-    // If agent is far from home (drifted during overnight), pull them back
     const dist = Math.hypot(a.x - N[homeNode][0], a.y - N[homeNode][1]);
-    if(dist > 200) return homeNode;
+    // GP/NW/CG stay tight to their building — 100px keeps Greylander out of
+    // Newswire and city-gov (incl. Roz) anchored at City Govt.
+    const pullDist = ['GP','NW','CG'].includes(a.plat) ? 100 : 200;
+    if(dist > pullDist) return homeNode;
     if(r<.72) return homeNode;             // at their post
     if(r<.92) return nearbyNode(a);        // short hop nearby
     return HUB;                            // rare DeskWorks visit
@@ -959,7 +971,7 @@ function drawHUD(){
     ctx.fillText('DATA', px+10, py+17);
     ctx.strokeStyle='#1a3a5c'; ctx.lineWidth=.5;
     ctx.beginPath(); ctx.moveTo(px+10,py+22); ctx.lineTo(px+pw-10,py+22); ctx.stroke();
-    const rows=[['AGENTS','120'],['BACKPACKS','84  (70%)'],['ACTIVE',active],['EN ROUTE',enRoute],['CHATTING',chatting],['AT HUB',atHub],['PAIRS',pairs]];
+    const rows=[['AGENTS','122'],['BACKPACKS','85  (70%)'],['ACTIVE',active],['EN ROUTE',enRoute],['CHATTING',chatting],['AT HUB',atHub],['PAIRS',pairs]];
     ctx.font='11px "Courier New",monospace';
     rows.forEach(([lbl,val],i)=>{
       ctx.fillStyle='#4080a0'; ctx.textAlign='left';  ctx.fillText(lbl, px+10, py+36+i*rowH);
@@ -1022,7 +1034,7 @@ function drawHUD(){
 
 // ── TOOLTIP ──────────────────────────────────────────────────────────────────
 const tip=document.getElementById('tooltip');
-const stMap={walk:'Walking',guide:'En route',pause:'Paused',chat:'Chatting',hub:'At DeskWorks'};
+const stMap={walk:'Working',guide:'En route',pause:'Paused',chat:'Chatting',hub:'At DeskWorks'};
 
 canvasFG.style.pointerEvents='auto';
 canvasFG.addEventListener('mousemove',e=>{
