@@ -26,12 +26,26 @@ function checkAdminAuth(event) {
 }
 
 exports.handler = async (event) => {
+  try { connectLambda(event); } catch (_) {}
+  const params = event.queryStringParameters || {};
+
+  // ── PUBLIC: shop window (curated/published looks, no auth required) ──────
+  if (params.window) {
+    const win = getStore('shop_window');
+    if (params.id) {
+      const buf = await win.get('img/' + params.id + '.png', { type: 'arrayBuffer' });
+      if (!buf) return { statusCode: 404, body: 'not in window' };
+      return { statusCode: 200, headers: { 'Content-Type': 'image/png', 'Cache-Control': 'public,max-age=3600' }, body: Buffer.from(buf).toString('base64'), isBase64Encoded: true };
+    }
+    let wIndex = [];
+    try { wIndex = (await win.get('index', { type: 'json' })) || []; } catch (_) {}
+    return { statusCode: 200, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public,max-age=60', 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify(wIndex) };
+  }
+
   if (!checkAdminAuth(event)) {
     return { statusCode: 401, headers: { 'WWW-Authenticate': 'Basic realm="wardrobe"' }, body: 'unauthorized' };
   }
-  try { connectLambda(event); } catch (_) {}
 
-  const params = event.queryStringParameters || {};
   const pa = (params.pa || '').toLowerCase().trim();
   if (!pa) return { statusCode: 400, body: 'pa required, e.g. ?pa=auggie' };
 

@@ -206,6 +206,57 @@ html,body{background:#F4E9D8;font-family:'Inter',system-ui,sans-serif;color:#3B2
 /* ── White-glove note ── */
 .wg-note{font-family:'Playfair Display',serif;font-style:italic;font-size:13.5px;color:#7A6247;margin-top:16px;line-height:1.55;border-top:1px solid #D3C1A8;padding-top:14px}
 
+/* ── In the Window Today strip ── */
+.window-wrap{display:none;background:#10182b;padding:22px 0 18px;border-bottom:2px solid #C48A5A}
+.window-inner{max-width:1120px;margin:0 auto;padding:0 28px}
+.window-eyebrow{font-family:'Inter',sans-serif;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#C48A5A;margin-bottom:14px;text-align:center}
+.window-sub{font-family:'Playfair Display',serif;font-style:italic;font-size:13px;color:rgba(255,255,255,.5);text-align:center;margin-bottom:16px}
+.window-row{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;justify-content:center}
+.window-row::-webkit-scrollbar{height:4px}.window-row::-webkit-scrollbar-thumb{background:#C48A5A;border-radius:2px}
+.window-frame{flex:0 0 150px;background:#1a2840;border-radius:6px;overflow:hidden;border:1px solid rgba(196,138,90,.25)}
+.window-frame img{width:150px;height:150px;object-fit:cover;display:block}
+.window-cap{padding:7px 8px}
+.window-name{font-family:'Inter',sans-serif;font-size:9.5px;font-weight:600;color:#C48A5A;letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px}
+.window-fit{font-family:'Inter',sans-serif;font-size:10px;color:rgba(255,255,255,.55);line-height:1.4}
+
+/* ── Mirror ── */
+.mirror-card{background:#F9F1E5;border:1px solid #D3C1A8;border-radius:16px;padding:24px;margin-bottom:24px}
+.mirror-display{display:none;margin:16px 0;border:1px solid #D3C1A8;border-radius:10px;overflow:hidden;background:#F4E9D8;position:relative}
+.mirror-halves{display:grid;grid-template-columns:1fr 4px 1fr}
+.mirror-seam{background:linear-gradient(to bottom,#E8D6C0,#C48A5A 30%,#8C5A3A 50%,#C48A5A 70%,#E8D6C0)}
+.mirror-half img{width:100%;aspect-ratio:1;object-fit:cover;display:block}
+.mirror-ph{width:100%;aspect-ratio:1;display:flex;align-items:center;justify-content:center;background:#E8D6C0;font-family:'Playfair Display',serif;font-style:italic;font-size:12px;color:#8C5A3A;text-align:center;padding:14px;line-height:1.5}
+.mirror-label{font-family:'Inter',sans-serif;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#fff;background:rgba(59,42,26,.65);padding:4px 8px;text-align:center}
+
+/* ── Quality tabs ── */
+.q-tabs{display:flex;margin:14px 0 4px;border:1px solid #CBB59A;border-radius:8px;overflow:hidden}
+.q-tab{flex:1;padding:10px 8px;font-family:'Inter',sans-serif;font-size:13px;font-weight:500;cursor:pointer;background:#fff;border:none;color:#5A4633;transition:background .15s;text-align:center;line-height:1.3}
+.q-tab.active{background:#8C5A3A;color:#fff}
+.q-tab:first-child{border-right:1px solid #CBB59A}
+.q-tab small{display:block;font-size:10px;font-weight:400;opacity:.75;margin-top:1px}
+
+/* ── Mix row ── */
+.mix-row{display:flex;gap:8px;margin-bottom:14px}
+.mix-col{flex:1;text-align:center}
+.mix-col .mx-lbl{font-family:'Inter',sans-serif;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#7A6247;margin-bottom:5px;display:block}
+.mix-spin{display:flex;align-items:center;justify-content:center;border:1px solid #CBB59A;border-radius:6px;overflow:hidden;background:#fff}
+.mix-spin button{background:none;border:none;width:28px;height:36px;font-size:16px;color:#8C5A3A;cursor:pointer;padding:0}
+.mix-spin button:hover{background:#FBF5EE}
+.mix-val{width:30px;text-align:center;font-family:'Inter',sans-serif;font-size:14px;color:#3B2A1A;line-height:36px;display:inline-block}
+
+/* ── Name autocomplete ── */
+.name-wrap{position:relative}
+.name-suggest{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #CBB59A;border-top:none;border-radius:0 0 8px 8px;z-index:20;display:none;max-height:190px;overflow-y:auto;box-shadow:0 6px 16px rgba(0,0,0,.1)}
+.nsi{padding:9px 12px;font-family:'Inter',sans-serif;font-size:13px;color:#3B2A1A;cursor:pointer;display:flex;align-items:center;gap:10px}
+.nsi:hover{background:#FBF5EE}
+.nsi img{width:32px;height:32px;border-radius:4px;object-fit:cover;flex-shrink:0;border:1px solid #D3C1A8}
+.nsi-info small{display:block;font-size:11px;color:#7A6247}
+
+/* ── Section divide ── */
+.section-divide{border:none;border-top:2px dashed #D3C1A8;margin:30px 0 26px}
+.section-head{font-family:'Playfair Display',serif;font-size:19px;font-weight:600;color:#3B2A1A;margin-bottom:4px}
+.section-lead{font-family:'Inter',sans-serif;font-size:13px;color:#5A4633;line-height:1.6;margin-bottom:18px}
+
 /* ── Footer ── */
 footer{border-top:1px solid #D3C1A8;background:#E8D6C0;padding:22px 28px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
 .f-sig{font-family:'Playfair Display',serif;font-style:italic;font-size:14px;color:#5A4633}
@@ -235,6 +286,15 @@ footer{border-top:1px solid #D3C1A8;background:#E8D6C0;padding:22px 28px;display
     <img src="/agents/tailor-shop/Chris%20Tailor%20Shop.png" alt="Chris's tailor shop" onerror="this.style.display='none'">
     <img src="/agents/tailor-shop/Chris%20Tailor%20Shop1.png" alt="Chris at the cutting table" onerror="this.style.display='none'">
     <img src="/agents/tailor-shop/Chris%20and%20Auggie.png" alt="Chris and Auggie" onerror="this.style.display='none'">
+  </div>
+</div>
+
+<!-- ── IN THE WINDOW TODAY ─────────────────────────────────────────── -->
+<div class="window-wrap" id="window-wrap">
+  <div class="window-inner">
+    <div class="window-eyebrow">In the Window Today</div>
+    <div class="window-sub">Published looks from the tailor shop</div>
+    <div class="window-row" id="window-row"></div>
   </div>
 </div>
 
@@ -284,6 +344,117 @@ footer{border-top:1px solid #D3C1A8;background:#E8D6C0;padding:22px 28px;display
 
     <!-- ── CENTER COLUMN ── -->
     <div>
+
+      <!-- The Mirror: dress an existing agent -->
+      <div class="mirror-card" id="mirror-card">
+        <span class="card-eyebrow">The Mirror</span>
+        <h2 style="font-family:'Playfair Display',serif;font-size:20px;font-weight:600;color:#3B2A1A;margin:0 0 6px">Dress an existing agent</h2>
+        <p style="font-family:'Inter',sans-serif;font-size:13px;color:#5A4633;line-height:1.6;margin-bottom:14px">Type a name. The mirror shows you before and after as Chris finishes each look.</p>
+
+        <div class="field name-wrap" style="margin-bottom:10px">
+          <label for="m-name">Agent name</label>
+          <input id="m-name" placeholder="e.g. Auggie Chen" autocomplete="off" style="position:relative;z-index:1">
+          <div class="name-suggest" id="name-suggest"></div>
+        </div>
+
+        <!-- Mirror display (hidden until name matched) -->
+        <div class="mirror-display" id="mirror-display">
+          <div class="mirror-halves">
+            <div class="mirror-half" id="m-before">
+              <div class="mirror-ph" id="m-before-ph">Before</div>
+            </div>
+            <div class="mirror-seam"></div>
+            <div class="mirror-half" id="m-after">
+              <div class="mirror-ph" id="m-after-ph">Chris hasn&rsquo;t touched it yet.</div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 4px 1fr">
+            <div class="mirror-label">Current look</div>
+            <div></div>
+            <div class="mirror-label">Chris&rsquo;s work</div>
+          </div>
+        </div>
+
+        <!-- Quality selector -->
+        <div style="margin-bottom:12px">
+          <label style="font-family:'Inter',sans-serif;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#7A6247;margin-bottom:4px;display:block">Fabric quality</label>
+          <div class="q-tabs">
+            <button class="q-tab active" id="qt-standard" onclick="setQuality('standard')">Standard<small>$1.00 / outfit &middot; $8.50 wardrobe</small></button>
+            <button class="q-tab" id="qt-premium" onclick="setQuality('premium')">Premium<small>$2.00 / outfit &middot; $17.00 wardrobe</small></button>
+          </div>
+        </div>
+
+        <!-- Outfit mix spinners -->
+        <div style="margin-bottom:12px">
+          <label style="font-family:'Inter',sans-serif;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#7A6247;margin-bottom:6px;display:block">Outfit mix</label>
+          <div class="mix-row">
+            <div class="mix-col">
+              <span class="mx-lbl">Work</span>
+              <div class="mix-spin">
+                <button onclick="adjMix('work',-1)">&#8722;</button>
+                <span class="mix-val" id="mx-work">5</span>
+                <button onclick="adjMix('work',1)">+</button>
+              </div>
+            </div>
+            <div class="mix-col">
+              <span class="mx-lbl">Weekend</span>
+              <div class="mix-spin">
+                <button onclick="adjMix('wknd',-1)">&#8722;</button>
+                <span class="mix-val" id="mx-wknd">2</span>
+                <button onclick="adjMix('wknd',1)">+</button>
+              </div>
+            </div>
+            <div class="mix-col">
+              <span class="mx-lbl">Evening</span>
+              <div class="mix-spin">
+                <button onclick="adjMix('eve',-1)">&#8722;</button>
+                <span class="mix-val" id="mx-eve">1</span>
+                <button onclick="adjMix('eve',1)">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="field" style="margin-bottom:10px">
+          <label for="m-code">Dress code</label>
+          <select id="m-code">
+            <option value="business" selected>Business</option>
+            <option value="formal">Formal</option>
+            <option value="semiformal">Semiformal</option>
+            <option value="smart casual">Smart casual</option>
+            <option value="casual">Casual</option>
+            <option value="creative">Creative</option>
+            <option value="clinical">Laboratory / Clinical</option>
+          </select>
+        </div>
+
+        <div class="field" style="margin-bottom:10px">
+          <label for="m-note">Note to Chris <span style="font-weight:400;color:#8C7A60">(optional)</span></label>
+          <input id="m-note" placeholder="e.g. She always wears her grandmother's scarf">
+        </div>
+
+        <div class="field" style="margin-bottom:16px">
+          <label for="m-ref">Anchor photo URL <span style="font-weight:400;color:#8C7A60">(optional)</span></label>
+          <input id="m-ref" placeholder="https://...">
+          <div style="font-family:'Inter',sans-serif;font-size:11px;color:#8C7A60;margin-top:4px;line-height:1.5">A reference image anchors the look. Without it, Chris works from the agent&rsquo;s CDN portrait.</div>
+        </div>
+
+        <a href="#" class="staff-toggle" id="m-staff-toggle">Staff entrance</a>
+        <div class="staff-door" id="m-staff-door">
+          <div class="sd-label">Staff credentials</div>
+          <div class="sd-creds">
+            <input id="m-adm-u" placeholder="Username" autocomplete="username">
+            <input id="m-adm-p" type="password" placeholder="Password" autocomplete="current-password">
+          </div>
+        </div>
+
+        <button class="btn-primary" id="m-send" style="margin-top:16px">Send to Chris &rarr;</button>
+        <div class="status-line" id="m-status"></div>
+      </div>
+
+      <hr class="section-divide">
+      <div class="section-head">Build a new persona</div>
+      <div class="section-lead">No agent yet? The tailor makes one from scratch. Give a role, a few notes, and Chris handles the rest.</div>
 
       <!-- Front Counter -->
       <div class="card" id="front-counter">
@@ -395,37 +566,55 @@ footer{border-top:1px solid #D3C1A8;background:#E8D6C0;padding:22px 28px;display
 
         <div class="garment-tag">
           <div class="tag-hole"></div>
-          <div class="tag-name">Single Outfit Stitch</div>
-          <div class="tag-desc">One outfit, one purpose. A simple stitch for a persona that needs a single look.</div>
-          <div class="tag-price">$9.99</div>
-          <a class="tag-cta" href="https://buy.stripe.com/3cI8wOcrl841bFvbIu6Zy0i" target="_blank" rel="noopener">Sign the work order</a>
+          <div class="tag-name">Single Outfit &mdash; Standard</div>
+          <div class="tag-desc">One look, one purpose. Fast and clean. Ideal for a quick refresh or a single-context agent.</div>
+          <div class="tag-price">$1.00</div>
+          <a class="tag-cta" href="#" target="_blank" rel="noopener">Sign the work order</a>
+        </div>
+
+        <div class="garment-tag">
+          <div class="tag-hole"></div>
+          <div class="tag-name">Single Outfit &mdash; Premium</div>
+          <div class="tag-desc">High-fidelity render. Richer fabric, sharper detail, truer likeness. One look, no compromises.</div>
+          <div class="tag-price">$2.00</div>
+          <a class="tag-cta" href="#" target="_blank" rel="noopener">Sign the work order</a>
         </div>
 
         <div class="garment-tag reco">
           <div class="tag-hole"></div>
-          <div class="tag-name">Seasonal Wardrobe</div>
-          <div class="tag-desc">A full set of outfits for different situations. Work, weekend, and an evening look. Ideal for personas that move between roles.</div>
-          <div class="tag-price">$49.99</div>
-          <a class="tag-cta" href="https://buy.stripe.com/8x25kCfDx2JH5h7bIu6Zy0h" target="_blank" rel="noopener">Sign the work order</a>
+          <div class="tag-name">Seasonal Wardrobe &mdash; Standard</div>
+          <div class="tag-desc">Eight outfits: five work, two weekend, one evening. The full rotation at a practical price.</div>
+          <div class="tag-price">$8.50</div>
+          <a class="tag-cta" href="#" target="_blank" rel="noopener">Sign the work order</a>
+        </div>
+
+        <div class="garment-tag reco">
+          <div class="tag-hole"></div>
+          <div class="tag-name">Seasonal Wardrobe &mdash; Premium</div>
+          <div class="tag-desc">Eight high-fidelity looks. The complete closet, rendered at the highest quality Chris can deliver.</div>
+          <div class="tag-price">$17.00</div>
+          <a class="tag-cta" href="#" target="_blank" rel="noopener">Sign the work order</a>
         </div>
 
         <div class="garment-tag">
           <div class="tag-hole"></div>
           <div class="tag-name">Bespoke Persona Commission</div>
-          <div class="tag-desc">A complete, hand-crafted persona built from the first sketch to the final stitch. Measurements, fittings, and a full wardrobe.</div>
-          <div class="tag-price">$149</div>
-          <a class="tag-cta" href="https://buy.stripe.com/14AdR88b5ac98tj4g26Zy0f" target="_blank" rel="noopener">Sign the work order</a>
+          <div class="tag-desc">A complete persona built from nothing. Measurements, dossier, portrait, and a full premium wardrobe. Inquire for pricing.</div>
+          <div class="tag-price" style="font-size:15px">Contact the lab</div>
+          <a class="tag-cta" href="mailto:info@emerging-tech-lab.com" rel="noopener">Request a fitting</a>
         </div>
 
-        <p class="wg-note">Builds and wardrobes are run white-glove by the lab after your paperwork clears. Your PA&rsquo;s first outfit set comes with the Studio; the full closet is how they stop wearing the same thing every day.</p>
+        <p class="wg-note">Wardrobes run white-glove after your work order clears. Your PA&rsquo;s first outfit set comes with the Studio; the full closet is how they stop wearing the same thing every day.</p>
       </div>
 
       <!-- Tailor's Ledger -->
       <div class="ledger">
         <h3>The Tailor&rsquo;s Ledger</h3>
-        <div class="ledger-row"><span>Single Outfit Stitch</span><span class="l-price">$9.99</span></div>
-        <div class="ledger-row"><span>Seasonal Wardrobe</span><span class="l-price">$49.99</span></div>
-        <div class="ledger-row"><span>Bespoke Commission</span><span class="l-price">$149</span></div>
+        <div class="ledger-row"><span>Single Outfit &mdash; Standard</span><span class="l-price">$1.00</span></div>
+        <div class="ledger-row"><span>Single Outfit &mdash; Premium</span><span class="l-price">$2.00</span></div>
+        <div class="ledger-row"><span>Wardrobe (8 looks) &mdash; Standard</span><span class="l-price">$8.50</span></div>
+        <div class="ledger-row"><span>Wardrobe (8 looks) &mdash; Premium</span><span class="l-price">$17.00</span></div>
+        <div class="ledger-row"><span>Bespoke Commission</span><span class="l-price">Inquire</span></div>
       </div>
 
       <!-- Back Room -->
@@ -457,6 +646,11 @@ footer{border-top:1px solid #D3C1A8;background:#E8D6C0;padding:22px 28px;display
 <script>
 (function(){
   var deskTimer=null, pollTimer=null, currentDraft=null;
+  var currentQuality='standard';
+  var mixVals={work:5,wknd:2,eve:1};
+  var rosterCache=[];
+  var mirrorAgent=null;
+  var mirrorPollTimer=null;
 
   function slugify(n){ return String(n).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,''); }
 
@@ -612,7 +806,7 @@ footer{border-top:1px solid #D3C1A8;background:#E8D6C0;padding:22px 28px;display
     ws.style.display='block';
     ws.scrollIntoView({behavior:'smooth',block:'center'});
     setWardStatus('Sending the file to Chris. Writing the wardrobe assignment now.');
-    var qs='draft='+currentDraft+'&mix=5,2,1&code='+encodeURIComponent(code)+'&quality=medium';
+    var qs='draft='+currentDraft+'&mix='+mixVals.work+','+mixVals.wknd+','+mixVals.eve+'&code='+encodeURIComponent(code)+'&quality='+currentQuality;
     fetch('/.netlify/functions/studio-chris-wardrobe-background?'+qs,{headers:{Authorization:auth}})
       .then(function(r){
         if(r.status===401){setWardStatus('Staff door did not open.');return;}
@@ -669,6 +863,186 @@ footer{border-top:1px solid #D3C1A8;background:#E8D6C0;padding:22px 28px;display
         }).catch(function(){});
     });
   }
+  // ── Quality tabs (called via onclick attrs, must be on window) ───────
+  window.setQuality=function(q){
+    currentQuality=q;
+    document.getElementById('qt-standard').classList.toggle('active',q==='standard');
+    document.getElementById('qt-premium').classList.toggle('active',q==='premium');
+  };
+
+  // ── Mix spinners ──────────────────────────────────────────────────────
+  window.adjMix=function(cat,delta){
+    mixVals[cat]=Math.max(0,Math.min(8,(mixVals[cat]||0)+delta));
+    document.getElementById('mx-'+cat).textContent=mixVals[cat];
+  };
+
+  // ── In the Window Today ───────────────────────────────────────────────
+  function loadWindow(){
+    fetch('/.netlify/functions/studio-chris-wardrobe?window=1')
+      .then(function(r){return r.ok?r.json():[];})
+      .then(function(items){
+        if(!items||!items.length)return;
+        var row=document.getElementById('window-row');
+        row.innerHTML=items.slice(0,8).map(function(item){
+          return '<div class="window-frame">'
+            +'<img src="/.netlify/functions/studio-chris-wardrobe?window=1&id='+encodeURIComponent(item.id)+'" alt="" loading="lazy" onerror="this.closest(\'.window-frame\').style.display=\'none\'">'
+            +'<div class="window-cap"><div class="window-name">'+(item.name||'')+'</div>'
+            +'<div class="window-fit">'+(item.outfit||'')+'</div></div>'
+            +'</div>';
+        }).join('');
+        document.getElementById('window-wrap').style.display='block';
+      }).catch(function(){});
+  }
+
+  // ── Roster autocomplete ───────────────────────────────────────────────
+  function loadRoster(){
+    fetch('/roster.json')
+      .then(function(r){return r.ok?r.json():[];})
+      .then(function(data){
+        rosterCache=Array.isArray(data)?data:(data.agents||[]);
+      }).catch(function(){});
+  }
+
+  document.getElementById('m-name').addEventListener('input',function(){
+    var q=this.value.trim();
+    var sug=document.getElementById('name-suggest');
+    if(!q||q.length<2){sug.style.display='none';return;}
+    var low=q.toLowerCase();
+    var matches=rosterCache.filter(function(a){
+      return a.name&&a.name.toLowerCase().indexOf(low)!==-1;
+    }).slice(0,7);
+    if(!matches.length){sug.style.display='none';return;}
+    sug.innerHTML=matches.map(function(a){
+      var img=a.image_url||'';
+      var role=a.role||a.title||'';
+      return '<div class="nsi" data-name="'+a.name+'" data-img="'+img+'" data-slug="'+(a.slug||slugify(a.name))+'">'
+        +(img?'<img src="'+img+'" alt="" onerror="this.style.display=\'none\'">':'')
+        +'<div><div>'+a.name+'</div>'+(role?'<small>'+role+'</small>':'')+'</div>'
+        +'</div>';
+    }).join('');
+    sug.style.display='block';
+  });
+
+  document.getElementById('name-suggest').addEventListener('click',function(e){
+    var item=e.target.closest('.nsi');
+    if(!item)return;
+    document.getElementById('m-name').value=item.dataset.name;
+    document.getElementById('name-suggest').style.display='none';
+    mirrorAgent={name:item.dataset.name,image_url:item.dataset.img,slug:item.dataset.slug};
+    showMirrorBefore(item.dataset.img);
+  });
+
+  document.addEventListener('click',function(e){
+    if(!e.target.closest('#mirror-card')){
+      document.getElementById('name-suggest').style.display='none';
+    }
+  });
+
+  function showMirrorBefore(imgUrl){
+    var disp=document.getElementById('mirror-display');
+    var bef=document.getElementById('m-before');
+    bef.innerHTML=imgUrl
+      ?'<img src="'+imgUrl+'" alt="" style="width:100%;aspect-ratio:1;object-fit:cover;display:block">'
+      :'<div class="mirror-ph">No portrait on file.</div>';
+    document.getElementById('m-after').innerHTML='<div class="mirror-ph">Chris hasn&rsquo;t touched it yet.</div>';
+    disp.style.display='block';
+  }
+
+  function mirrorAuth(){
+    var u=(document.getElementById('m-adm-u').value||document.getElementById('adm-u').value||'').trim();
+    var p=(document.getElementById('m-adm-p').value||document.getElementById('adm-p').value||'').trim();
+    if(!u||!p)return null;
+    try{localStorage.setItem('etl_adm_u',u);localStorage.setItem('etl_adm_p',p);}catch(_){}
+    return 'Basic '+btoa(u+':'+p);
+  }
+
+  document.getElementById('m-staff-toggle').addEventListener('click',function(e){
+    e.preventDefault();
+    document.getElementById('m-staff-door').classList.toggle('open');
+  });
+
+  // Restore creds into mirror door too
+  try{
+    var _su=localStorage.getItem('etl_adm_u'),_sp=localStorage.getItem('etl_adm_p');
+    if(_su)document.getElementById('m-adm-u').value=_su;
+    if(_sp)document.getElementById('m-adm-p').value=_sp;
+  }catch(_){}
+
+  document.getElementById('m-send').addEventListener('click',function(){
+    var name=document.getElementById('m-name').value.trim();
+    if(!name){document.getElementById('m-status').textContent='Type an agent name first.';return;}
+    var auth=mirrorAuth();
+    if(!auth){document.getElementById('m-status').textContent='Open the staff entrance and enter credentials.';return;}
+    var code=document.getElementById('m-code').value;
+    var note=document.getElementById('m-note').value.trim();
+    var ref=document.getElementById('m-ref').value.trim();
+    var mix=mixVals.work+','+mixVals.wknd+','+mixVals.eve;
+    var qs='agent='+encodeURIComponent(name)
+      +'&quality='+currentQuality
+      +'&mix='+mix
+      +'&code='+encodeURIComponent(code)
+      +(note?'&note='+encodeURIComponent(note):'')
+      +(ref?'&ref='+encodeURIComponent(ref):'');
+    document.getElementById('m-status').textContent='Sending to Chris. Wardrobe run starting.';
+    document.getElementById('m-after').innerHTML='<div class="mirror-ph">Chris is sewing&hellip;</div>';
+    if(mirrorAgent&&mirrorAgent.image_url)showMirrorBefore(mirrorAgent.image_url);
+    fetch('/.netlify/functions/studio-chris-wardrobe-background?'+qs,{headers:{Authorization:auth}})
+      .then(function(r){
+        if(r.status===401){document.getElementById('m-status').textContent='Credentials didn\'t open the door.';return null;}
+        if(!r.ok){document.getElementById('m-status').textContent='Error reaching the shop. Try again.';return null;}
+        return r.json();
+      })
+      .then(function(data){
+        if(!data)return;
+        var slug=data.slug||slugify(name);
+        document.getElementById('m-status').textContent='Chris is working on '+name+'. Updates as each look comes off the needle.';
+        var ws=document.getElementById('ward-section');
+        ws.style.display='block';
+        ws.scrollIntoView({behavior:'smooth',block:'center'});
+        setWardStatus('Chris is working on '+name+'\'s wardrobe.');
+        stopPoll();
+        if(mirrorPollTimer)clearInterval(mirrorPollTimer);
+        mirrorPollTimer=setInterval(function(){pollMirrorRack(slug,auth);},7000);
+      }).catch(function(){document.getElementById('m-status').textContent='Could not reach the shop. Try again.';});
+  });
+
+  function pollMirrorRack(slug,auth){
+    fetch('/.netlify/functions/studio-chris-wardrobe?pa='+slug+'&list=1',{headers:{Authorization:auth}})
+      .then(function(r){if(!r.ok)throw 0;return r.json();})
+      .then(function(idx){
+        if(!idx)return;
+        var first=(idx.outfits||[]).find(function(o){return o.status==='done';});
+        if(first){
+          var afterEl=document.getElementById('m-after');
+          if(afterEl&&!afterEl.querySelector('img')){
+            fetch('/.netlify/functions/studio-chris-wardrobe?pa='+slug+'&i='+first.n,{headers:{Authorization:auth}})
+              .then(function(r2){return r2.ok?r2.blob():null;})
+              .then(function(b){
+                if(!b)return;
+                var url=URL.createObjectURL(b);
+                afterEl.innerHTML='<img src="'+url+'" alt="" style="width:100%;aspect-ratio:1;object-fit:cover;display:block">';
+              }).catch(function(){});
+          }
+        }
+        renderRack(idx,auth);
+        var done=(idx.outfits||[]).filter(function(o){return o.status==='done';}).length;
+        var total=(idx.outfits||[]).length;
+        if(idx.finished_at){
+          document.getElementById('m-status').textContent='Chris is done. '+done+' looks on the rack.';
+          setWardStatus('Chris is finished. '+done+' of '+total+' looks on the rack.');
+          clearInterval(mirrorPollTimer);mirrorPollTimer=null;
+          stopPoll();
+        }else{
+          document.getElementById('m-status').textContent=done+' of '+total+' looks done.';
+          setWardStatus('Chris is sewing. '+done+' of '+total+' looks done.');
+        }
+      }).catch(function(){});
+  }
+
+  // ── Page init ─────────────────────────────────────────────────────────
+  loadWindow();
+  loadRoster();
+
 })();
 </script>
 </body>

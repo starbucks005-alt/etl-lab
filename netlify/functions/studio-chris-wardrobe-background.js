@@ -162,7 +162,9 @@ exports.handler = async (event) => {
 
   const params = event.queryStringParameters || {};
   const only = params.only ? parseInt(params.only, 10) : null;
-  const quality = params.quality === 'high' ? 'high' : 'medium';
+  // standard → gpt-image-1 medium (fast, lower cost)
+  // premium or high → gpt-image-1 high (best quality, higher cost)
+  const quality = (params.quality === 'premium' || params.quality === 'high') ? 'high' : 'medium';
   // Client note rides every mode: Chris reads it when writing the closet AND
   // the painter gets it as an override (props like the tablet only leave the
   // frame if the paint prompt is told the note wins over keep-everything).
