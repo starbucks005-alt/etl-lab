@@ -61,12 +61,11 @@ exports.handler = async function(event) {
 
   const bgUrl = base + '/.netlify/functions/agent-background';
   try {
-    fetch(bgUrl, {
-      method:    'POST',
-      headers:   { 'Content-Type': 'application/json' },
-      body:      JSON.stringify({ job_id: jobId, agent: agentSlug, question, context: body.context || null }),
-      keepalive: true,
-    }).catch(() => {});
+    await fetch(bgUrl, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ job_id: jobId, agent: agentSlug, question, context: body.context || null }),
+    });
   } catch (_) {}
 
   const pollingUrl = '/.netlify/functions/agent-status?job_id=' + jobId + '&agent=' + encodeURIComponent(agentSlug);
