@@ -1,6 +1,7 @@
-const { getStore } = require('@netlify/blobs');
+const { getStore, connectLambda } = require('@netlify/blobs');
 
 exports.handler = async function(event) {
+  try { connectLambda(event); } catch (_) {}
   const store = getStore('etl_map');
 
   const headers = {
