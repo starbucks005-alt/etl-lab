@@ -78,6 +78,18 @@ exports.handler = async function(event) {
   const ts  = new Date().toISOString().replace(/[:.]/g, '-');
   const key = ts + '--' + (spec.id || 'agent');
 
+  // ── Dev / owner bypass ───────────────────────────────────────────
+  const devKey    = (payload.dev_key || '').trim();
+  const envDevKey = (process.env.BYOA_DEV_KEY || '').trim();
+  if (devKey && envDevKey && devKey === envDevKey) {
+    await writeBlob(key + '--dev', { spec, items, total, status: 'dev_bypass', submitted_at: new Date().toISOString() });
+    return {
+      statusCode: 200,
+      headers: { ...CORS, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ok: true, bypass: true, ref: key + '--dev' }),
+    };
+  }
+
   // ── Staff bypass ──────────────────────────────────────────────────
   const authHeader = (event.headers['authorization'] || event.headers['Authorization'] || '');
   const token = authHeader.replace(/^Bearer\s+/i, '').trim();

@@ -682,6 +682,7 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
 <script>
 (function(){
   var TOTAL=8, cur=1;
+  var devKey=(new URLSearchParams(window.location.search).get('dev')||'');
   var state={role:'',purpose:'',reach:'',capabilities:[],name:'',tagline:'',background:'',
     tone:'',quirks:'',imgMode:'',imgOpen:'',imgClosed:'',imgPrompt:'',voice:'',voiceGender:'',voiceAge:'',voiceSample:''};
   var STEP_NAMES=['Purpose','Reach','Name','Story','Personality','Face','Voice','Work order'];
@@ -1051,12 +1052,12 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
       fetch('/.netlify/functions/create-checkout-session',{
         method:'POST',
         headers:hdrs,
-        body:JSON.stringify({spec:s,items:items,total:total})
+        body:JSON.stringify({spec:s,items:items,total:total,dev_key:devKey})
       })
       .then(function(r){return r.json();})
       .then(function(d){
         if(d.bypass){
-          if(d.ref){ window.location.replace('/agent-chat?ref='+encodeURIComponent(d.ref)); }
+          if(d.ref){ window.location.replace('/build-your-own-agent?paid=1&ref='+encodeURIComponent(d.ref)); }
           else {
             submitBtn.disabled=false; updateInvoiceTotal();
             $('#submitConfirm').style.color='var(--ok)';
@@ -1278,5 +1279,10 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
   };
 })();
 </script>
+
+<!-- admin -->
+<div style="position:fixed;bottom:8px;left:14px;z-index:50;">
+  <a href="/build-your-own-agent?dev=etl2026" style="font-family:'IBM Plex Mono',monospace;font-size:.55rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(200,151,58,0.25);text-decoration:none;" onmouseover="this.style.color='rgba(200,151,58,0.7)'" onmouseout="this.style.color='rgba(200,151,58,0.25)'">admin</a>
+</div>
 </body>
 </html>
