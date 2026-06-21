@@ -244,6 +244,11 @@
   status = 200
 
 [[redirects]]
+  from = "/export-your-agent"
+  to = "/export-your-agent.html"
+  status = 200
+
+[[redirects]]
   from = "/prep-room"
   to = "/prep-room.html"
   status = 200
