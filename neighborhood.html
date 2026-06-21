@@ -491,10 +491,11 @@ function pickTarget(a){
     if(r<.88) return HUB;                                                  //  5% DeskWorks cafe
     let n; do{n=Math.floor(Math.random()*N.length)}while(n===a.node||n===BRIDGE_NODE||(n===1&&a.plat!=='OG')); return n;
   }
-  // morning / evening / night — original behavior
+  // morning / evening / night — courtyard is the main square; DeskWorks is one of several spots
   if(r<.45) return HOME_OVERRIDE[a.name]||HOME[a.plat]||HUB;
   if(r<.70) return nearbyNode(a);
-  if(r<.77) return HUB;
+  if(r<.82) return YARD_NODE;   // 12% → Courtyard (primary off-hours square)
+  if(r<.85) return HUB;         //  3% → DeskWorks (one of several stops)
   let n; do{n=Math.floor(Math.random()*N.length)}while(n===a.node||n===BRIDGE_NODE||(n===1&&a.plat!=='OG')); return n;
 }
 function pickPairPartner(a,i){
@@ -545,7 +546,7 @@ function tick(ts){
     a.inHub = Math.hypot(a.x-N[HUB][0],a.y-N[HUB][1]) < HUB_R;
     const exp = a.timer>=a.dur;
 
-    const hubChance = tmode==='work' ? .04 : tmode==='weekend' ? .06 : .08;
+    const hubChance = tmode==='work' ? .04 : tmode==='weekend' ? .06 : .05;
     if(a.inHub && a.state===ST.W && Math.random()<hubChance){
       a.state=ST.H; a.dur=20000+Math.random()*25000; a.timer=0;
     }
