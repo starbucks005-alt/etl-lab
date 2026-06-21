@@ -682,7 +682,7 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
 <script>
 (function(){
   var TOTAL=8, cur=1;
-  var devKey=(new URLSearchParams(window.location.search).get('dev')||'');
+  var devKey=(new URLSearchParams(window.location.search).get('dev')||sessionStorage.getItem('byoa_dev')||'');
   var state={role:'',purpose:'',reach:'',capabilities:[],name:'',tagline:'',background:'',
     tone:'',quirks:'',imgMode:'',imgOpen:'',imgClosed:'',imgPrompt:'',voice:'',voiceGender:'',voiceAge:'',voiceSample:''};
   var STEP_NAMES=['Purpose','Reach','Name','Story','Personality','Face','Voice','Work order'];
@@ -1282,7 +1282,7 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
 
 <!-- admin -->
 <div style="position:fixed;bottom:8px;left:14px;z-index:50;">
-  <a href="/build-your-own-agent?dev=etl2026" style="font-family:'IBM Plex Mono',monospace;font-size:.55rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(200,151,58,0.25);text-decoration:none;" onmouseover="this.style.color='rgba(200,151,58,0.7)'" onmouseout="this.style.color='rgba(200,151,58,0.25)'">admin</a>
+  <button id="byoa-admin-btn" onclick="sessionStorage.setItem('byoa_dev','etl2026');devKey='etl2026';this.textContent='dev mode on';this.style.color='rgba(200,151,58,0.75)';" style="font-family:'IBM Plex Mono',monospace;font-size:.55rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(200,151,58,0.25);background:none;border:none;cursor:pointer;padding:0;" onmouseover="this.style.color='rgba(200,151,58,0.6)'" onmouseout="if(sessionStorage.getItem('byoa_dev'))this.style.color='rgba(200,151,58,0.75)';else this.style.color='rgba(200,151,58,0.25)'">admin</button>
 </div>
 </body>
 </html>
