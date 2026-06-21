@@ -506,7 +506,8 @@ console.log(status.response.text);</pre>
   var audio = document.getElementById('a9-audio');
   var busy  = false;
 
-  var TEXT = 'Hello. I am Astra 9. Welcome to the export desk. I see you are here to pick up your agent and take them home. Let me find them for you. Your agent comes with a few items. Forgive the tech words, but I am part robot, you know. It says here you are getting a hosted link, a one-line embed for your site, and an API endpoint with a bearer key. The export package is just twenty-five dollars, added as your final step in the workshop. Thank you, and I hope you enjoy your new agent. Come back when you are ready to expand.';
+  var agentName = new URLSearchParams(window.location.search).get('agent') || 'your new agent';
+  var TEXT = 'Hello. I am Astra 9. Welcome to the export desk. I see you are here to pick up your agent and take them home. Let me find them for you. Your agent comes with a few items. Forgive the tech words, but I am part robot, you know. It says here you are getting a hosted link, a one-line embed for your site, and an API endpoint with a bearer key. The export package is just twenty-five dollars, added as your final step in the workshop. Thank you, and I hope you enjoy ' + agentName + '. Come back when you are ready to expand.';
 
   fig.onclick = function(){
     label.classList.toggle('hidden');
