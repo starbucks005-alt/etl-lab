@@ -7,202 +7,489 @@
 <meta name="description" content="The ETL agent workshop. Build a staff member from scratch: purpose, backpack, name, background, personality, image, and voice.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root{--bg:#08111f;--panel:#0f2236;--panel2:#0c1b2c;--line:#1d3a56;--cyan:#46d6e6;--cyan-dim:#2c8c99;--ice:#bfe9f0;--text:#dce8f2;--mute:#7c97b0;--gold:#e8b659;--ok:#46d6a0;}
-  *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.55;}
-  a{color:var(--cyan);}
-  .wrap{max-width:880px;margin:0 auto;padding:0 1.2rem 5rem;}
-  .ribbon{background:#06101c;border-bottom:1px solid var(--line);text-align:center;font-family:'IBM Plex Mono',monospace;letter-spacing:.18em;text-transform:uppercase;font-size:.66rem;color:var(--mute);padding:.5rem;}
-  .ribbon b{color:var(--cyan);}
-  header.hero{padding:2.2rem 0 1rem;}
-  .eyebrow{font-family:'IBM Plex Mono',monospace;letter-spacing:.22em;text-transform:uppercase;font-size:.7rem;color:var(--cyan);}
-  h1{font-family:'Spectral',serif;font-weight:700;font-size:2.5rem;line-height:1.05;margin:.5rem 0 .4rem;}
-  .lede{color:var(--mute);font-size:1.05rem;max-width:60ch;}
-  .steps-bar{display:flex;flex-wrap:wrap;gap:.4rem;margin:1.6rem 0 1.2rem;}
-  .sdot{font-family:'IBM Plex Mono',monospace;font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);border:1px solid var(--line);border-radius:999px;padding:.3rem .7rem;background:var(--panel2);}
-  .sdot.active{color:#06101c;background:var(--cyan);border-color:var(--cyan);font-weight:600;}
-  .sdot.done{color:var(--ok);border-color:var(--ok);}
-  .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:1.6rem 1.7rem;display:none;}
-  .panel.active{display:block;}
-  .panel h2{font-family:'Spectral',serif;font-size:1.6rem;margin:0 0 .3rem;color:var(--ice);}
-  .panel .sub{color:var(--mute);font-size:.95rem;margin:0 0 1.3rem;}
-  label.fld{display:block;font-family:'IBM Plex Mono',monospace;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--cyan);margin:1rem 0 .35rem;}
-  input[type=text],textarea,select{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:8px;color:var(--text);font-family:'Inter';font-size:1rem;padding:.7rem .8rem;}
-  input:focus,textarea:focus,select:focus{outline:2px solid var(--cyan);outline-offset:1px;}
-  textarea{min-height:88px;resize:vertical;}
-  .hint{color:var(--mute);font-size:.82rem;margin:.35rem 0 0;}
-  .opts{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin:.3rem 0;}
-  @media(max-width:560px){.opts{grid-template-columns:1fr;}}
-  .opt{border:1px solid var(--line);background:var(--panel2);border-radius:10px;padding:.9rem 1rem;cursor:pointer;transition:border-color .15s;}
-  .opt:hover{border-color:var(--cyan-dim);}
-  .opt.sel{border-color:var(--cyan);box-shadow:0 0 0 1px var(--cyan) inset;}
-  .opt .t{font-weight:600;color:var(--ice);}
-  .opt .d{font-size:.82rem;color:var(--mute);margin-top:.2rem;}
-  .chips{display:flex;flex-wrap:wrap;gap:.5rem;margin:.4rem 0;}
-  .chip{border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:999px;padding:.4rem .8rem;font-size:.85rem;cursor:pointer;}
-  .chip.sel{background:var(--cyan);color:#06101c;border-color:var(--cyan);font-weight:600;}
-  .nav{display:flex;justify-content:space-between;gap:.8rem;margin-top:1.6rem;}
-  .btn{font-family:'IBM Plex Mono',monospace;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;font-weight:600;border:none;border-radius:8px;padding:.75rem 1.4rem;cursor:pointer;}
-  .btn-next{background:var(--cyan);color:#06101c;} .btn-next:hover{background:var(--ice);}
-  .btn-back{background:transparent;color:var(--mute);border:1px solid var(--line);} .btn-back:hover{color:var(--text);}
-  .btn-ghost{background:transparent;color:var(--cyan);border:1px solid var(--cyan);}
-  .err{color:#ff9a8a;font-size:.82rem;margin-top:.5rem;min-height:1em;}
-  .note{background:var(--panel2);border-left:3px solid var(--cyan);border-radius:0 8px 8px 0;padding:.7rem .9rem;font-size:.86rem;color:var(--mute);margin:1rem 0;}
-  .note b{color:var(--ice);}
-  .imgprev{display:flex;gap:.8rem;margin-top:.6rem;}
-  .imgprev div{flex:1;text-align:center;border:1px dashed var(--line);border-radius:8px;padding:.5rem;font-size:.72rem;color:var(--mute);}
-  .imgprev img{max-width:100%;border-radius:6px;display:block;margin:0 auto .3rem;}
-  pre.spec{background:#06101c;border:1px solid var(--line);border-radius:10px;padding:1rem;overflow:auto;font-family:'IBM Plex Mono',monospace;font-size:.78rem;color:var(--ice);max-height:340px;}
-  .review-row{display:flex;gap:.6rem;border-bottom:1px solid var(--line);padding:.55rem 0;font-size:.92rem;}
-  .review-row .k{font-family:'IBM Plex Mono',monospace;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--cyan);min-width:130px;}
-  .review-row .v{color:var(--text);}
-  .backlink{font-family:'IBM Plex Mono',monospace;font-size:.74rem;color:var(--mute);text-decoration:none;}
-  .twoshop{font-size:.82rem;color:var(--mute);margin-top:1rem;}
+:root {
+  --bg: #0e0b07;
+  --panel: #1c1610;
+  --panel2: #261d0f;
+  --line: #3d2e1a;
+  --amber: #e8a844;
+  --amber-dim: #a87832;
+  --cream: #f4ead8;
+  --text: #d8c8a8;
+  --mute: #8a7660;
+  --ok: #7ab88a;
+  --red: #ff9a8a;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; line-height: 1.55; }
+a { color: var(--amber); }
+
+/* RIBBON */
+.ribbon {
+  background: #07050200;
+  border-bottom: 1px solid var(--line);
+  text-align: center;
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  font-size: .66rem;
+  color: var(--mute);
+  padding: .5rem;
+  background: #0a0704;
+}
+.ribbon b { color: var(--amber); }
+
+/* HERO BANNER */
+.shop-hero {
+  position: relative;
+  width: 100%;
+  height: 400px;
+  overflow: hidden;
+  background: #1a1208;
+}
+.shop-hero .hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 25%;
+  display: block;
+}
+.shop-hero .hero-layer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom,
+    rgba(14,11,7,0.1) 0%,
+    rgba(14,11,7,0.55) 55%,
+    rgba(14,11,7,0.92) 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 2rem 2.6rem 2.2rem;
+}
+.hero-eyebrow {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .63rem;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-bottom: .45rem;
+}
+.hero-layer h1 {
+  font-family: 'Spectral', serif;
+  font-size: clamp(1.9rem, 4vw, 2.8rem);
+  font-weight: 600;
+  color: var(--cream);
+  margin: 0 0 .4rem;
+  line-height: 1.05;
+}
+.hero-layer p {
+  font-size: .97rem;
+  color: rgba(244,234,216,.68);
+  max-width: 52ch;
+  margin: 0;
+}
+@media (max-width: 640px) {
+  .shop-hero { height: 280px; }
+  .shop-hero .hero-layer { padding: 1.2rem 1.2rem 1.4rem; }
+  .hero-layer h1 { font-size: 1.6rem; }
+}
+
+/* BODY: sidebar + wizard */
+.shop-body {
+  max-width: 1080px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 210px 1fr;
+  gap: 0;
+  padding: 2.2rem 1.6rem 6rem;
+}
+@media (max-width: 760px) {
+  .shop-body {
+    grid-template-columns: 1fr;
+    padding: 1.2rem .9rem 4rem;
+  }
+}
+
+/* SIDEBAR */
+.sidebar {
+  padding-right: 1.8rem;
+  border-right: 1px solid var(--line);
+}
+@media (max-width: 760px) {
+  .sidebar {
+    border-right: none;
+    border-bottom: 1px solid var(--line);
+    padding-right: 0;
+    padding-bottom: 1.6rem;
+    margin-bottom: 1.8rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 1.4rem;
+  }
+}
+@media (max-width: 480px) {
+  .sidebar { grid-template-columns: 1fr; }
+}
+
+.sb-back {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .72rem;
+  color: var(--mute);
+  text-decoration: none;
+  display: block;
+  margin-bottom: 1.4rem;
+}
+.sb-back:hover { color: var(--text); }
+@media (max-width: 760px) {
+  .sb-back { grid-column: 1 / -1; }
+}
+
+.sb-section { margin-bottom: 1.5rem; }
+
+.sb-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .62rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--amber);
+  border-bottom: 1px solid var(--line);
+  padding-bottom: .32rem;
+  margin-bottom: .7rem;
+}
+
+.sb-img {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.parts-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.parts-list li {
+  font-size: .83rem;
+  color: var(--text);
+  padding: .27rem 0;
+  border-bottom: 1px solid rgba(61,46,26,.6);
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+}
+.parts-list li::before {
+  content: '◆';
+  font-size: .5rem;
+  color: var(--amber-dim);
+  flex-shrink: 0;
+}
+
+.sb-note {
+  font-size: .81rem;
+  color: var(--mute);
+  line-height: 1.55;
+  margin: 0;
+}
+
+.sb-cta {
+  display: inline-block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .7rem;
+  letter-spacing: .06em;
+  color: var(--amber);
+  text-decoration: none;
+  border: 1px solid var(--amber-dim);
+  border-radius: 6px;
+  padding: .32rem .72rem;
+  margin-bottom: .5rem;
+}
+.sb-cta:hover { background: var(--amber); color: #0e0b07; }
+
+/* WIZARD */
+.wizard-main { padding-left: 1.9rem; }
+@media (max-width: 760px) { .wizard-main { padding-left: 0; } }
+
+.steps-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .35rem;
+  margin-bottom: 1.4rem;
+}
+.sdot {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .6rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--mute);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: .28rem .65rem;
+  background: var(--panel2);
+}
+.sdot.active { color: #0e0b07; background: var(--amber); border-color: var(--amber); font-weight: 600; }
+.sdot.done { color: var(--ok); border-color: var(--ok); }
+
+/* STEP PANELS */
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 1.6rem 1.7rem; display: none; }
+.panel.active { display: block; }
+.panel h2 { font-family: 'Spectral', serif; font-size: 1.45rem; margin: 0 0 .3rem; color: var(--cream); }
+.panel .sub { color: var(--mute); font-size: .93rem; margin: 0 0 1.3rem; }
+
+label.fld {
+  display: block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .68rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin: 1rem 0 .35rem;
+}
+input[type=text], textarea, select {
+  width: 100%;
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  padding: .7rem .8rem;
+}
+input:focus, textarea:focus, select:focus { outline: 2px solid var(--amber); outline-offset: 1px; }
+textarea { min-height: 88px; resize: vertical; }
+.hint { color: var(--mute); font-size: .82rem; margin: .35rem 0 0; }
+
+.opts { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; margin: .3rem 0; }
+@media (max-width: 520px) { .opts { grid-template-columns: 1fr; } }
+.opt { border: 1px solid var(--line); background: var(--panel2); border-radius: 10px; padding: .9rem 1rem; cursor: pointer; transition: border-color .15s; }
+.opt:hover { border-color: var(--amber-dim); }
+.opt.sel { border-color: var(--amber); box-shadow: 0 0 0 1px var(--amber) inset; }
+.opt .t { font-weight: 600; color: var(--cream); }
+.opt .d { font-size: .82rem; color: var(--mute); margin-top: .2rem; }
+
+.chips { display: flex; flex-wrap: wrap; gap: .5rem; margin: .4rem 0; }
+.chip { border: 1px solid var(--line); background: var(--panel2); color: var(--text); border-radius: 999px; padding: .38rem .8rem; font-size: .84rem; cursor: pointer; }
+.chip.sel { background: var(--amber); color: #0e0b07; border-color: var(--amber); font-weight: 600; }
+
+.addbtn { flex: none; width: auto; background: var(--panel2); border: 1px solid var(--amber); color: var(--amber); border-radius: 8px; padding: .48rem 1rem; font-family: 'IBM Plex Mono', monospace; font-size: .77rem; letter-spacing: .04em; text-transform: uppercase; cursor: pointer; }
+.addbtn:hover { background: var(--amber); color: #0e0b07; }
+
+.nav { display: flex; justify-content: space-between; gap: .8rem; margin-top: 1.6rem; }
+.btn { font-family: 'IBM Plex Mono', monospace; font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; font-weight: 600; border: none; border-radius: 8px; padding: .75rem 1.4rem; cursor: pointer; }
+.btn-next { background: var(--amber); color: #0e0b07; }
+.btn-next:hover { background: var(--cream); }
+.btn-back { background: transparent; color: var(--mute); border: 1px solid var(--line); }
+.btn-back:hover { color: var(--text); }
+.btn-ghost { background: transparent; color: var(--amber); border: 1px solid var(--amber); }
+
+.err { color: var(--red); font-size: .82rem; margin-top: .5rem; min-height: 1em; }
+
+.note { background: var(--panel2); border-left: 3px solid var(--amber); border-radius: 0 8px 8px 0; padding: .7rem .9rem; font-size: .86rem; color: var(--mute); margin: 1rem 0; }
+.note b { color: var(--cream); }
+
+.imgprev { display: flex; gap: .8rem; margin-top: .6rem; }
+.imgprev div { flex: 1; text-align: center; border: 1px dashed var(--line); border-radius: 8px; padding: .5rem; font-size: .72rem; color: var(--mute); }
+.imgprev img { max-width: 100%; border-radius: 6px; display: block; margin: 0 auto .3rem; }
+
+pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-radius: 10px; padding: 1rem; overflow: auto; font-family: 'IBM Plex Mono', monospace; font-size: .78rem; color: var(--cream); max-height: 340px; }
+
+.review-row { display: flex; gap: .6rem; border-bottom: 1px solid var(--line); padding: .55rem 0; font-size: .92rem; }
+.review-row .k { font-family: 'IBM Plex Mono', monospace; font-size: .68rem; letter-spacing: .06em; text-transform: uppercase; color: var(--amber); min-width: 130px; }
+.review-row .v { color: var(--text); }
 </style>
 </head>
 <body>
-<div class="ribbon">Emerging Technologies Laboratory &nbsp;·&nbsp; <b>Agent Workshop</b></div>
-<div class="wrap">
-  <header class="hero">
-    <a class="backlink" href="/">&larr; ETL campus</a>
-    <div class="eyebrow" style="margin-top:.6rem;">Build Your Own Agent</div>
-    <h1>The workshop bench.</h1>
-    <p class="lede">Start with a blank bench and walk out with a fully specified staff member: purpose, reach, name, story, personality, face, and voice. Every agent built here follows the house rule: verify before you believe.</p>
-    <p class="twoshop">Looking to alter or dress an existing persona instead? That is <a href="/tailor-shop">Chris's Tailor Shop</a>, next door. This bench builds new ones from scratch.</p>
-  </header>
-  <div class="steps-bar" id="stepsBar"></div>
 
-  <!-- STEP 1: PURPOSE -->
-  <section class="panel" data-step="1">
-    <h2>1. What kind of agent?</h2>
-    <p class="sub">Start with the job. What does this agent do, and who is it for?</p>
-    <label class="fld" for="role">Role / title</label>
-    <input type="text" id="role" placeholder="e.g. Grant Strategist, Sleep Coach, Wine Concierge">
-    <label class="fld" for="purpose">What they do (a few sentences)</label>
-    <textarea id="purpose" placeholder="The work this agent owns, the questions it answers, the people it serves."></textarea>
-    <div class="err" id="err1"></div>
-  </section>
+<div class="ribbon">Emerging Technologies Laboratory &nbsp;&middot;&nbsp; <b>Agent Workshop</b></div>
 
-  <!-- STEP 2: REACH + CAPABILITIES -->
-  <section class="panel" data-step="2">
-    <h2>2. Reach: backpack or in-framework?</h2>
-    <p class="sub">Same skills, different reach. A backpack gives the agent its own live tools that travel across platforms. In-framework agents use whatever the host site provides.</p>
-    <div class="opts" id="reachOpts">
-      <div class="opt" data-reach="mcp_backpack"><div class="t">MCP Backpack</div><div class="d">Carries its own live tools (web, data, registries). Travels across sites. For agents that make factual or safety claims needing live verification.</div></div>
-      <div class="opt" data-reach="in_framework"><div class="t">In-Framework</div><div class="d">Uses the host site's tools and fact-checker. For craft, role-play, and host personas that do not need live lookups.</div></div>
-    </div>
-    <div id="capWrap" style="display:none;">
-      <label class="fld">Capabilities (pick the live tools this backpack carries)</label>
-      <div class="chips" id="capChips"></div>
-      <p class="hint">Each maps to a live data server. CC wires the adapters and keys on deploy.</p>
-    </div>
-    <div class="err" id="err2"></div>
-  </section>
-
-  <!-- STEP 3: IDENTITY -->
-  <section class="panel" data-step="3">
-    <h2>3. Name and tagline.</h2>
-    <p class="sub">Give the agent a name and a one-line hook.</p>
-    <label class="fld" for="name">Name</label>
-    <input type="text" id="name" placeholder="e.g. Dr. Vikram Sethi, Coach Dom, Yolanda Ferreira">
-    <label class="fld" for="tagline">Tagline</label>
-    <input type="text" id="tagline" placeholder="One memorable line. e.g. Builds the program and the funding to run it.">
-    <div class="err" id="err3"></div>
-  </section>
-
-  <!-- STEP 4: BACKGROUND -->
-  <section class="panel" data-step="4">
-    <h2>4. Background and story.</h2>
-    <p class="sub">Where they come from, how they got here, what shaped them. This is the backstory the agent carries.</p>
-    <label class="fld" for="background">Background</label>
-    <textarea id="background" placeholder="School, family, career, the turning point. The detail that makes them a person, not a template."></textarea>
-    <div class="err" id="err4"></div>
-  </section>
-
-  <!-- STEP 5: PERSONALITY -->
-  <section class="panel" data-step="5">
-    <h2>5. Personality and voice.</h2>
-    <p class="sub">How they talk and what makes them them. This drives the chat tone and the watercooler banter.</p>
-    <label class="fld" for="tone">Manner of speaking</label>
-    <input type="text" id="tone" placeholder="e.g. Plain and dry. Warm and unhurried. Camp and devoted.">
-    <label class="fld" for="quirks">Quirks and tells</label>
-    <textarea id="quirks" placeholder="The small specifics. A phrase they repeat, a thing they always do, an opinion they defend."></textarea>
-    <div class="err" id="err5"></div>
-  </section>
-
-  <!-- STEP 6: IMAGE -->
-  <section class="panel" data-step="6">
-    <h2>6. The face.</h2>
-    <p class="sub">Every ETL agent has a portrait with an eyes-open and eyes-closed frame so it can blink. Upload them, or describe a portrait for generation.</p>
-    <div class="opts" id="imgOpts">
-      <div class="opt" data-img="upload"><div class="t">Upload portraits</div><div class="d">I already have an eyes-open and eyes-closed pair.</div></div>
-      <div class="opt" data-img="generate"><div class="t">Describe for generation</div><div class="d">Write a portrait brief and ETL generates the pair.</div></div>
-    </div>
-    <div id="imgUpload" style="display:none;">
-      <div class="imgprev">
-        <div><img id="prevOpen" style="display:none;"><span>eyes open</span><br><input type="file" id="fileOpen" accept="image/*" style="margin-top:.4rem;font-size:.72rem;"></div>
-        <div><img id="prevClosed" style="display:none;"><span>eyes closed</span><br><input type="file" id="fileClosed" accept="image/*" style="margin-top:.4rem;font-size:.72rem;"></div>
-      </div>
-      <div class="note">Name the files <b>&lt;Name&gt;_eyes_open.png</b> and <b>&lt;Name&gt;_eyes_closed.png</b> and drop them in the agent's site <b>/assets</b> folder. That is the ETL house structure.</div>
-    </div>
-    <div id="imgGenerate" style="display:none;">
-      <label class="fld" for="imgPrompt">Portrait brief</label>
-      <textarea id="imgPrompt" placeholder="Who they are, the setting, expression, wardrobe. Photoreal environmental portrait, eye level, soft even light, looking at camera."></textarea>
-      <label class="fld" for="imgModel">Image model</label>
-      <select id="imgModel">
-        <option value="imagen-4-pro">Imagen 4 Pro (default)</option>
-        <option value="gemini-3-pro-image">Gemini 3 Pro Image</option>
-        <option value="flux-1-pro">FLUX 1 Pro</option>
-        <option value="ideogram-v3-quality">Ideogram v3 Quality</option>
-        <option value="gpt-image-1-high">GPT Image 1 High</option>
-      </select>
-      <div style="margin-top:.9rem;display:flex;gap:.7rem;align-items:center;flex-wrap:wrap;">
-        <button class="btn btn-ghost" id="genBtn" type="button">Generate portrait</button>
-        <span class="hint" id="genStatus"></span>
-      </div>
-      <div id="genPrev" style="display:none;margin-top:.8rem;"><img id="genImg" alt="generated portrait" style="max-width:220px;border-radius:10px;border:1px solid var(--line);display:block;"></div>
-      <div class="note">Powered by the <b>Gamma API</b> with top-tier image models. Generation takes up to a minute and uses Gamma credits. ETL refines the result into the eyes-open / eyes-closed blink pair and drops it in the site's <b>/assets</b>.</div>
-    </div>
-    <div class="err" id="err6"></div>
-  </section>
-
-  <!-- STEP 7: VOICE -->
-  <section class="panel" data-step="7">
-    <h2>7. The voice.</h2>
-    <p class="sub">Pick an ElevenLabs voice character. ETL assigns the exact voice on deploy; this sets the direction.</p>
-    <div class="chips" id="voiceChips"></div>
-    <label class="fld" for="voiceSample">A line in their voice (for tuning)</label>
-    <input type="text" id="voiceSample" placeholder="Something they would actually say, the way they would say it.">
-    <div style="margin-top:.9rem;display:flex;gap:.7rem;align-items:center;flex-wrap:wrap;">
-      <button class="btn btn-ghost" id="voiceBtn" type="button">Preview this voice</button>
-      <span class="hint" id="voiceStatus"></span>
-    </div>
-    <audio id="voiceAudio" style="display:none;"></audio>
-    <div class="note">Powered by <b>ElevenLabs</b>. The five styles map to premade voices for the preview; ETL assigns or clones the final voice on deploy.</div>
-    <div class="err" id="err7"></div>
-  </section>
-
-  <!-- STEP 8: REVIEW -->
-  <section class="panel" data-step="8">
-    <h2>8. The work order.</h2>
-    <p class="sub">Here is your agent. Copy or download the spec and hand it to ETL to provision: backpack wiring, portrait, ElevenLabs voice, and deploy.</p>
-    <div id="reviewBody"></div>
-    <label class="fld">Agent spec (JSON)</label>
-    <pre class="spec" id="specOut">{}</pre>
-    <div class="nav" style="justify-content:flex-start;gap:.6rem;flex-wrap:wrap;">
-      <button class="btn btn-next" id="copyBtn" type="button">Copy spec</button>
-      <button class="btn btn-ghost" id="dlBtn" type="button">Download .json</button>
-    </div>
-    <div class="note" style="margin-top:1.3rem;">This bench produces the spec. ETL provisions it: builds the backpack against the live servers, places the portrait in the site's <b>/assets</b>, assigns the ElevenLabs voice, and deploys. The house guardrail (verify before you believe, no em dashes, advice not certainty) is baked in automatically.</div>
-  </section>
-
-  <div class="nav">
-    <button class="btn btn-back" id="backBtn" type="button">Back</button>
-    <button class="btn btn-next" id="nextBtn" type="button">Next</button>
+<!-- HERO BANNER -->
+<div class="shop-hero">
+  <img class="hero-img" src="/assets/byoa-atelier.png" alt="The agent workshop" onerror="this.style.display='none'">
+  <div class="hero-layer">
+    <div class="hero-eyebrow">Workshop &middot; ETL &middot; Agent Fabrication</div>
+    <h1>Build Your Own Agent.</h1>
+    <p>Start at a blank bench. Walk out with a fully specified staff member.</p>
   </div>
 </div>
+
+<!-- BODY -->
+<div class="shop-body">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <a class="sb-back" href="/">&larr; ETL campus</a>
+
+    <div class="sb-section">
+      <div class="sb-label">Parts in stock</div>
+      <img class="sb-img" src="/assets/byoa-shop.png" alt="Component shelves" onerror="this.style.display='none'">
+      <ul class="parts-list">
+        <li>Personality Core</li>
+        <li>Voice Module</li>
+        <li>Logic Board</li>
+        <li>Skill Pack</li>
+        <li>Knowledge Backpack</li>
+      </ul>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-label">Today's work</div>
+      <p class="sb-note">The shop is open. Bring a name and a brief. Every agent is built from scratch, from the role up.</p>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-label">Next door</div>
+      <a class="sb-cta" href="/tailor-shop">Chris's Tailor Shop &rarr;</a>
+      <p class="sb-note">Alter or dress an agent you already have. This bench builds new ones from scratch.</p>
+    </div>
+  </aside>
+
+  <!-- WIZARD -->
+  <main class="wizard-main">
+    <div class="steps-bar" id="stepsBar"></div>
+
+    <!-- STEP 1: PURPOSE -->
+    <section class="panel" data-step="1">
+      <h2>1. What kind of agent?</h2>
+      <p class="sub">Start with the job. What does this agent do, and who is it for?</p>
+      <label class="fld" for="role">Role / title</label>
+      <input type="text" id="role" placeholder="e.g. Grant Strategist, Sleep Coach, Wine Concierge">
+      <label class="fld" for="purpose">What they do (a few sentences)</label>
+      <textarea id="purpose" placeholder="The work this agent owns, the questions it answers, the people it serves."></textarea>
+      <div class="err" id="err1"></div>
+    </section>
+
+    <!-- STEP 2: REACH + CAPABILITIES -->
+    <section class="panel" data-step="2">
+      <h2>2. Reach: backpack or in-framework?</h2>
+      <p class="sub">Same skills, different reach. A backpack gives the agent its own live tools that travel across platforms. In-framework agents use whatever the host site provides.</p>
+      <div class="opts" id="reachOpts">
+        <div class="opt" data-reach="mcp_backpack"><div class="t">MCP Backpack</div><div class="d">Carries its own live tools (web, data, registries). Travels across sites. For agents that make factual or safety claims needing live verification.</div></div>
+        <div class="opt" data-reach="in_framework"><div class="t">In-Framework</div><div class="d">Uses the host site's tools and fact-checker. For craft, role-play, and host personas that do not need live lookups.</div></div>
+      </div>
+      <div id="capWrap" style="display:none;">
+        <label class="fld">Capabilities (pick the live tools this backpack carries)</label>
+        <div class="chips" id="capChips"></div>
+        <div style="display:flex;gap:.5rem;margin-top:.6rem;max-width:520px;">
+          <input type="text" id="capOther" placeholder="Other capability (e.g. recipe data, cheese data)" style="flex:1;">
+          <button type="button" id="capAdd" class="addbtn">Add</button>
+        </div>
+        <p class="hint">Each maps to a live data server. Add your own with Other if it is not listed.</p>
+      </div>
+      <div class="err" id="err2"></div>
+    </section>
+
+    <!-- STEP 3: IDENTITY -->
+    <section class="panel" data-step="3">
+      <h2>3. Name and tagline.</h2>
+      <p class="sub">Give the agent a name and a one-line hook.</p>
+      <label class="fld" for="name">Name</label>
+      <input type="text" id="name" placeholder="e.g. Dr. Vikram Sethi, Coach Dom, Yolanda Ferreira">
+      <label class="fld" for="tagline">Tagline</label>
+      <input type="text" id="tagline" placeholder="One memorable line. e.g. Builds the program and the funding to run it.">
+      <div class="err" id="err3"></div>
+    </section>
+
+    <!-- STEP 4: BACKGROUND -->
+    <section class="panel" data-step="4">
+      <h2>4. Background and story.</h2>
+      <p class="sub">Where they come from, how they got here, what shaped them. This is the backstory the agent carries.</p>
+      <label class="fld" for="background">Background</label>
+      <textarea id="background" placeholder="School, family, career, the turning point. The detail that makes them a person, not a template."></textarea>
+      <div class="err" id="err4"></div>
+    </section>
+
+    <!-- STEP 5: PERSONALITY -->
+    <section class="panel" data-step="5">
+      <h2>5. Personality and voice.</h2>
+      <p class="sub">How they talk and what makes them them. This drives the chat tone and the watercooler banter.</p>
+      <label class="fld" for="tone">Manner of speaking</label>
+      <input type="text" id="tone" placeholder="e.g. Plain and dry. Warm and unhurried. Camp and devoted.">
+      <label class="fld" for="quirks">Quirks and tells</label>
+      <textarea id="quirks" placeholder="The small specifics. A phrase they repeat, a thing they always do, an opinion they defend."></textarea>
+      <div class="err" id="err5"></div>
+    </section>
+
+    <!-- STEP 6: IMAGE -->
+    <section class="panel" data-step="6">
+      <h2>6. The face.</h2>
+      <p class="sub">Every ETL agent has a portrait with an eyes-open and eyes-closed frame so it can blink. Upload them, or describe a portrait for generation.</p>
+      <div class="opts" id="imgOpts">
+        <div class="opt" data-img="upload"><div class="t">Upload portraits</div><div class="d">I already have an eyes-open and eyes-closed pair.</div></div>
+        <div class="opt" data-img="generate"><div class="t">Describe for generation</div><div class="d">Write a portrait brief and ETL generates the pair.</div></div>
+      </div>
+      <div id="imgUpload" style="display:none;">
+        <div class="imgprev">
+          <div><img id="prevOpen" style="display:none;"><span>eyes open</span><br><input type="file" id="fileOpen" accept="image/*" style="margin-top:.4rem;font-size:.72rem;"></div>
+          <div><img id="prevClosed" style="display:none;"><span>eyes closed</span><br><input type="file" id="fileClosed" accept="image/*" style="margin-top:.4rem;font-size:.72rem;"></div>
+        </div>
+        <div class="note">Name the files <b>&lt;Name&gt;_eyes_open.png</b> and <b>&lt;Name&gt;_eyes_closed.png</b> and drop them in the agent's site <b>/assets</b> folder. That is the ETL house structure.</div>
+      </div>
+      <div id="imgGenerate" style="display:none;">
+        <label class="fld" for="imgPrompt">Portrait brief</label>
+        <textarea id="imgPrompt" placeholder="Who they are, the setting, expression, wardrobe. Photoreal environmental portrait, eye level, soft even light, looking at camera."></textarea>
+        <label class="fld" for="imgModel">Image model</label>
+        <select id="imgModel">
+          <option value="imagen-4-pro">Imagen 4 Pro (default)</option>
+          <option value="gemini-3-pro-image">Gemini 3 Pro Image</option>
+          <option value="flux-1-pro">FLUX 1 Pro</option>
+          <option value="ideogram-v3-quality">Ideogram v3 Quality</option>
+          <option value="gpt-image-1-high">GPT Image 1 High</option>
+        </select>
+        <div style="margin-top:.9rem;display:flex;gap:.7rem;align-items:center;flex-wrap:wrap;">
+          <button class="btn btn-ghost" id="genBtn" type="button">Generate portrait</button>
+          <span class="hint" id="genStatus"></span>
+        </div>
+        <div id="genPrev" style="display:none;margin-top:.8rem;"><img id="genImg" alt="generated portrait" style="max-width:220px;border-radius:10px;border:1px solid var(--line);display:block;"></div>
+        <div class="note">Powered by the <b>Gamma API</b> with top-tier image models. Generation takes up to a minute and uses Gamma credits. ETL refines the result into the eyes-open / eyes-closed blink pair and drops it in the site's <b>/assets</b>.</div>
+      </div>
+      <div class="err" id="err6"></div>
+    </section>
+
+    <!-- STEP 7: VOICE -->
+    <section class="panel" data-step="7">
+      <h2>7. The voice.</h2>
+      <p class="sub">Pick an ElevenLabs voice character. ETL assigns the exact voice on deploy; this sets the direction.</p>
+      <div class="chips" id="voiceChips"></div>
+      <div style="display:flex;gap:.5rem;margin-top:.6rem;max-width:520px;">
+        <input type="text" id="voiceOther" placeholder="Other voice (e.g. French, warm and dry; Swiss, precise)" style="flex:1;">
+        <button type="button" id="voiceAdd" class="addbtn">Add</button>
+      </div>
+      <label class="fld" for="voiceSample">A line in their voice (for tuning)</label>
+      <input type="text" id="voiceSample" placeholder="Something they would actually say, the way they would say it.">
+      <div style="margin-top:.9rem;display:flex;gap:.7rem;align-items:center;flex-wrap:wrap;">
+        <button class="btn btn-ghost" id="voiceBtn" type="button">Preview this voice</button>
+        <span class="hint" id="voiceStatus"></span>
+      </div>
+      <audio id="voiceAudio" style="display:none;"></audio>
+      <div class="note">Powered by <b>ElevenLabs</b>. The five styles map to premade voices for the preview; ETL assigns or clones the final voice on deploy.</div>
+      <div class="err" id="err7"></div>
+    </section>
+
+    <!-- STEP 8: REVIEW -->
+    <section class="panel" data-step="8">
+      <h2>8. The work order.</h2>
+      <p class="sub">Here is your agent. Copy or download the spec and hand it to ETL to provision: backpack wiring, portrait, ElevenLabs voice, and deploy.</p>
+      <div id="reviewBody"></div>
+      <label class="fld">Agent spec (JSON)</label>
+      <pre class="spec" id="specOut">{}</pre>
+      <div class="nav" style="justify-content:flex-start;gap:.6rem;flex-wrap:wrap;">
+        <button class="btn btn-next" id="copyBtn" type="button">Copy spec</button>
+        <button class="btn btn-ghost" id="dlBtn" type="button">Download .json</button>
+      </div>
+      <div class="note" style="margin-top:1.3rem;">This bench produces the spec. ETL provisions it: builds the backpack against the live servers, places the portrait in the site's <b>/assets</b>, assigns the ElevenLabs voice, and deploys. The house guardrail (verify before you believe, no em dashes, advice not certainty) is baked in automatically.</div>
+    </section>
+
+    <div class="nav">
+      <button class="btn btn-back" id="backBtn" type="button">Back</button>
+      <button class="btn btn-next" id="nextBtn" type="button">Next</button>
+    </div>
+  </main>
+
+</div>
+
 <script>
 (function(){
   var TOTAL=8, cur=1;
@@ -217,104 +504,123 @@
   var $=function(s){return document.querySelector(s);};
   var panels=document.querySelectorAll('.panel');
 
-  // build steps bar
   var sb=$('#stepsBar');
   STEP_NAMES.forEach(function(n,i){var s=document.createElement('span');s.className='sdot';s.id='sdot'+(i+1);s.textContent=(i+1)+'. '+n;sb.appendChild(s);});
-  // capability chips
+
   var cc=$('#capChips');
   CAPS.forEach(function(c){var el=document.createElement('span');el.className='chip';el.dataset.cap=c[0];el.textContent=c[1];
     el.onclick=function(){var i=state.capabilities.indexOf(c[0]);if(i>=0){state.capabilities.splice(i,1);el.classList.remove('sel');}else{state.capabilities.push(c[0]);el.classList.add('sel');}};
     cc.appendChild(el);});
-  // voice chips
+
+  function addCustomCap(){
+    var inp=$('#capOther'); var raw=(inp.value||'').trim(); if(!raw) return;
+    var key=raw.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+    if(!key) return;
+    if(state.capabilities.indexOf(key)>=0){inp.value='';return;}
+    state.capabilities.push(key);
+    var el=document.createElement('span');el.className='chip sel';el.dataset.cap=key;el.textContent=raw+' \xd7';
+    el.onclick=function(){var i=state.capabilities.indexOf(key);if(i>=0)state.capabilities.splice(i,1);el.remove();};
+    cc.appendChild(el); inp.value=''; inp.focus();
+  }
+  $('#capAdd').onclick=addCustomCap;
+  $('#capOther').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();addCustomCap();}});
+
   var vc=$('#voiceChips');
   VOICES.forEach(function(v){var el=document.createElement('span');el.className='chip';el.textContent=v;
     el.onclick=function(){state.voice=v;document.querySelectorAll('#voiceChips .chip').forEach(function(x){x.classList.remove('sel');});el.classList.add('sel');};
     vc.appendChild(el);});
 
-  // reach option select
+  function addCustomVoice(){
+    var inp=$('#voiceOther'); var raw=(inp.value||'').trim(); if(!raw) return;
+    document.querySelectorAll('#voiceChips .chip').forEach(function(x){x.classList.remove('sel');});
+    var prev=vc.querySelector('.chip-custom'); if(prev) prev.remove();
+    state.voice=raw;
+    var el=document.createElement('span');el.className='chip chip-custom sel';el.textContent=raw;
+    el.onclick=function(){document.querySelectorAll('#voiceChips .chip').forEach(function(x){x.classList.remove('sel');});el.classList.add('sel');state.voice=raw;};
+    vc.appendChild(el); inp.value='';
+  }
+  $('#voiceAdd').onclick=addCustomVoice;
+  $('#voiceOther').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();addCustomVoice();}});
+
   document.querySelectorAll('#reachOpts .opt').forEach(function(o){o.onclick=function(){
     state.reach=o.dataset.reach;
     document.querySelectorAll('#reachOpts .opt').forEach(function(x){x.classList.remove('sel');});o.classList.add('sel');
-    $('#capWrap').style.display = state.reach==='mcp_backpack' ? 'block':'none';
+    $('#capWrap').style.display=state.reach==='mcp_backpack'?'block':'none';
   };});
-  // image option select
+
   document.querySelectorAll('#imgOpts .opt').forEach(function(o){o.onclick=function(){
     state.imgMode=o.dataset.img;
     document.querySelectorAll('#imgOpts .opt').forEach(function(x){x.classList.remove('sel');});o.classList.add('sel');
-    $('#imgUpload').style.display = state.imgMode==='upload'?'block':'none';
-    $('#imgGenerate').style.display = state.imgMode==='generate'?'block':'none';
+    $('#imgUpload').style.display=state.imgMode==='upload'?'block':'none';
+    $('#imgGenerate').style.display=state.imgMode==='generate'?'block':'none';
   };});
-  // file previews
+
   function preview(input,img,key){input.onchange=function(){var f=input.files[0];if(!f)return;state[key]=f.name;var r=new FileReader();r.onload=function(e){img.src=e.target.result;img.style.display='block';};r.readAsDataURL(f);};}
   preview($('#fileOpen'),$('#prevOpen'),'imgOpen'); preview($('#fileClosed'),$('#prevClosed'),'imgClosed');
 
-  // Gamma portrait generation
   var genImgUrl='';
   var genBtn=$('#genBtn');
-  if(genBtn){
-    genBtn.onclick=function(){
-      sync(); var p=$('#imgPrompt').value.trim();
-      if(!p){ $('#genStatus').textContent='Write a portrait brief first.'; return; }
-      genBtn.disabled=true; genImgUrl=''; $('#genPrev').style.display='none';
-      $('#genStatus').textContent=(state.name||'Portrait')+': starting…';
-      fetch('/.netlify/functions/gamma-image-ask',{method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({prompt:p,name:state.name,role:state.role,model:$('#imgModel').value})})
-        .then(function(r){return r.json();})
-        .then(function(d){ if(!d.generation_id) throw new Error(d.error||'no_id'); pollGen(d.generation_id,0); })
-        .catch(function(e){ genBtn.disabled=false; $('#genStatus').textContent='Could not start generation ('+(e.message||'error')+').'; });
-    };
-  }
+  if(genBtn){genBtn.onclick=function(){
+    sync(); var p=$('#imgPrompt').value.trim();
+    if(!p){$('#genStatus').textContent='Write a portrait brief first.';return;}
+    genBtn.disabled=true; genImgUrl=''; $('#genPrev').style.display='none';
+    $('#genStatus').textContent=(state.name||'Portrait')+': starting…';
+    fetch('/.netlify/functions/gamma-image-ask',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({prompt:p,name:state.name,role:state.role,model:$('#imgModel').value})})
+      .then(function(r){return r.json();})
+      .then(function(d){if(!d.generation_id)throw new Error(d.error||'no_id');pollGen(d.generation_id,0);})
+      .catch(function(e){genBtn.disabled=false;$('#genStatus').textContent='Could not start generation ('+(e.message||'error')+').';});
+  };}
+
   function pollGen(id,n){
-    if(n>40){ genBtn.disabled=false; $('#genStatus').textContent='Taking longer than expected; check Gamma.'; return; }
+    if(n>40){genBtn.disabled=false;$('#genStatus').textContent='Taking longer than expected; check Gamma.';return;}
     fetch('/.netlify/functions/gamma-image-status?id='+encodeURIComponent(id),{cache:'no-store'})
       .then(function(r){return r.json();})
       .then(function(d){
         var s=(d.status||'').toLowerCase();
-        if(s==='completed'&&d.image_url){ genImgUrl=d.image_url; $('#genImg').src=d.image_url; $('#genPrev').style.display='block'; $('#genStatus').textContent='Portrait ready.'; genBtn.disabled=false; return; }
-        if(s==='failed'){ genBtn.disabled=false; $('#genStatus').textContent='Generation failed.'; return; }
+        if(s==='completed'&&d.image_url){genImgUrl=d.image_url;$('#genImg').src=d.image_url;$('#genPrev').style.display='block';$('#genStatus').textContent='Portrait ready.';genBtn.disabled=false;return;}
+        if(s==='failed'){genBtn.disabled=false;$('#genStatus').textContent='Generation failed.';return;}
         $('#genStatus').textContent='Working… ('+(n+1)+')';
-        setTimeout(function(){ pollGen(id,n+1); },3000);
+        setTimeout(function(){pollGen(id,n+1);},3000);
       })
-      .catch(function(){ setTimeout(function(){ pollGen(id,n+1); },3500); });
+      .catch(function(){setTimeout(function(){pollGen(id,n+1);},3500);});
   }
 
-  // ElevenLabs voice preview
-  var voiceBtn=$('#voiceBtn'), voiceAudio=$('#voiceAudio');
-  if(voiceBtn){
-    voiceBtn.onclick=function(){
-      sync();
-      if(!state.voice){ $('#voiceStatus').textContent='Pick a voice first.'; return; }
-      voiceBtn.disabled=true; $('#voiceStatus').textContent='Synthesizing…';
-      fetch('/.netlify/functions/voice-preview',{method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({text:state.voiceSample,style:state.voice})})
-        .then(function(r){ if(!r.ok) throw new Error('tts_'+r.status); return r.blob(); })
-        .then(function(b){ voiceAudio.src=URL.createObjectURL(b); voiceAudio.play(); $('#voiceStatus').textContent='Playing '+state.voice+'.'; voiceBtn.disabled=false; })
-        .catch(function(e){ voiceBtn.disabled=false; $('#voiceStatus').textContent='Could not synthesize ('+(e.message||'error')+').'; });
-    };
-  }
+  var voiceBtn=$('#voiceBtn'),voiceAudio=$('#voiceAudio');
+  if(voiceBtn){voiceBtn.onclick=function(){
+    sync();
+    if(!state.voice){$('#voiceStatus').textContent='Pick a voice first.';return;}
+    voiceBtn.disabled=true;$('#voiceStatus').textContent='Synthesizing…';
+    fetch('/.netlify/functions/voice-preview',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({text:state.voiceSample,style:state.voice})})
+      .then(function(r){if(!r.ok)throw new Error('tts_'+r.status);return r.blob();})
+      .then(function(b){voiceAudio.src=URL.createObjectURL(b);voiceAudio.play();$('#voiceStatus').textContent='Playing '+state.voice+'.';voiceBtn.disabled=false;})
+      .catch(function(e){voiceBtn.disabled=false;$('#voiceStatus').textContent='Could not synthesize ('+(e.message||'error')+').';});
+  };}
 
   function sync(){state.role=$('#role').value.trim();state.purpose=$('#purpose').value.trim();
     state.name=$('#name').value.trim();state.tagline=$('#tagline').value.trim();state.background=$('#background').value.trim();
     state.tone=$('#tone').value.trim();state.quirks=$('#quirks').value.trim();state.imgPrompt=$('#imgPrompt').value.trim();
     state.voiceSample=$('#voiceSample').value.trim();}
 
-  function slug(n){return (n||'agent').toLowerCase().replace(/["'’.]/g,'').replace(/\([^)]*\)/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')||'agent';}
+  function slug(n){return(n||'agent').toLowerCase().replace(/["''.]/g,'').replace(/\([^)]*\)/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')||'agent';}
+
   function buildSpec(){
-    var s={
+    return {
       id:slug(state.name),name:state.name,role:state.role,tagline:state.tagline,
       bio:state.purpose,background:state.background,
       personality:{manner:state.tone,quirks:state.quirks},
       reach:state.reach,
-      capabilities: state.reach==='mcp_backpack'?state.capabilities.slice():[],
-      image: state.imgMode==='upload'
-        ? {mode:'upload',eyes_open:state.imgOpen||(slug(state.name)+'_eyes_open.png'),eyes_closed:state.imgClosed||(slug(state.name)+'_eyes_closed.png')}
-        : {mode:'generate',prompt:state.imgPrompt,model:(document.getElementById('imgModel')||{}).value||'imagen-4-pro',generated_url:genImgUrl},
+      capabilities:state.reach==='mcp_backpack'?state.capabilities.slice():[],
+      image:state.imgMode==='upload'
+        ?{mode:'upload',eyes_open:state.imgOpen||(slug(state.name)+'_eyes_open.png'),eyes_closed:state.imgClosed||(slug(state.name)+'_eyes_closed.png')}
+        :{mode:'generate',prompt:state.imgPrompt,model:(document.getElementById('imgModel')||{}).value||'imagen-4-pro',generated_url:genImgUrl},
       voice:{provider:'elevenlabs',style:state.voice,sample:state.voiceSample},
       guardrail:'Verify before you believe: ground factual and safety claims in a live source, never memory. Advises, does not certify or guarantee. No em dashes (house voice).',
       house:{no_em_dashes:true,verify_before_you_believe:true}
     };
-    return s;
   }
+
   function renderReview(){
     var s=buildSpec();
     var rows=[['Name',s.name],['Role',s.role],['Tagline',s.tagline],
@@ -327,29 +633,31 @@
 
   function validate(){
     sync(); var e='';
-    if(cur===1 && (!state.role||!state.purpose)) e='Give the role and what they do.';
-    if(cur===2){ if(!state.reach) e='Pick a reach.'; else if(state.reach==='mcp_backpack'&&!state.capabilities.length) e='Pick at least one capability for the backpack.'; }
-    if(cur===3 && (!state.name||!state.tagline)) e='Name and tagline are required.';
-    if(cur===4 && !state.background) e='Add a background.';
-    if(cur===5 && !state.tone) e='Describe how they speak.';
-    if(cur===6){ if(!state.imgMode) e='Choose upload or generate.'; else if(state.imgMode==='generate'&&!state.imgPrompt) e='Write a portrait brief.'; }
-    if(cur===7 && !state.voice) e='Pick a voice character.';
+    if(cur===1&&(!state.role||!state.purpose)) e='Give the role and what they do.';
+    if(cur===2){if(!state.reach) e='Pick a reach.'; else if(state.reach==='mcp_backpack'&&!state.capabilities.length) e='Pick at least one capability for the backpack.';}
+    if(cur===3&&(!state.name||!state.tagline)) e='Name and tagline are required.';
+    if(cur===4&&!state.background) e='Add a background.';
+    if(cur===5&&!state.tone) e='Describe how they speak.';
+    if(cur===6){if(!state.imgMode) e='Choose upload or generate.'; else if(state.imgMode==='generate'&&!state.imgPrompt) e='Write a portrait brief.';}
+    if(cur===7&&!state.voice) e='Pick a voice character.';
     var box=$('#err'+cur); if(box) box.textContent=e;
     return !e;
   }
+
   function show(n){
     cur=n;
-    panels.forEach(function(p){p.classList.toggle('active', +p.dataset.step===n);});
+    panels.forEach(function(p){p.classList.toggle('active',+p.dataset.step===n);});
     for(var i=1;i<=TOTAL;i++){var d=$('#sdot'+i);d.classList.toggle('active',i===n);d.classList.toggle('done',i<n);}
-    $('#backBtn').style.visibility = n===1?'hidden':'visible';
-    $('#nextBtn').textContent = n===TOTAL?'Done':'Next';
+    $('#backBtn').style.visibility=n===1?'hidden':'visible';
+    $('#nextBtn').textContent=n===TOTAL?'Done':'Next';
     if(n===TOTAL) renderReview();
     window.scrollTo({top:0,behavior:'smooth'});
   }
-  $('#nextBtn').onclick=function(){ if(cur===TOTAL) return; if(!validate()) return; show(cur+1); };
-  $('#backBtn').onclick=function(){ if(cur>1) show(cur-1); };
-  $('#copyBtn').onclick=function(){ navigator.clipboard.writeText($('#specOut').textContent).then(function(){$('#copyBtn').textContent='Copied';setTimeout(function(){$('#copyBtn').textContent='Copy spec';},1500);}); };
-  $('#dlBtn').onclick=function(){ var s=buildSpec();var blob=new Blob([JSON.stringify(s,null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=slug(state.name)+'.json';a.click(); };
+
+  $('#nextBtn').onclick=function(){if(cur===TOTAL)return;if(!validate())return;show(cur+1);};
+  $('#backBtn').onclick=function(){if(cur>1)show(cur-1);};
+  $('#copyBtn').onclick=function(){navigator.clipboard.writeText($('#specOut').textContent).then(function(){$('#copyBtn').textContent='Copied';setTimeout(function(){$('#copyBtn').textContent='Copy spec';},1500);});};
+  $('#dlBtn').onclick=function(){var s=buildSpec();var blob=new Blob([JSON.stringify(s,null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=slug(state.name)+'.json';a.click();};
 
   show(1);
 })();

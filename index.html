@@ -139,9 +139,6 @@
     display: flex; align-items: center;
     overflow: hidden; padding-top: 60px;
     background: var(--dark);
-    background-image: url('/assets/district-street-hero.png');
-    background-size: cover;
-    background-position: center top;
   }
 
   .hero-gradient {
@@ -1192,104 +1189,36 @@ document.addEventListener('DOMContentLoaded', function(){
   <div class="hero-grid-lines"></div>
 
   <div class="hero-content">
-    <img src="/brand/etl-lockup-dark.svg" alt="ETL - Emerging Technologies Laboratory" style="height:44px;width:auto;max-width:100%;display:block;margin:0 0 28px;opacity:0.92;">
-    <div class="hero-classification">Dayton, Ohio &nbsp;·&nbsp; The District</div>
+    <img src="/brand/etl-lockup-dark.svg" alt="ETL - Emerging Technologies Laboratory - Applied AI laboratory" style="height:60px;width:auto;max-width:100%;display:block;margin:0 0 30px;">
+    <div class="hero-classification">WELCOME TO THE LAB</div>
     <h1 class="hero-main">
-      <span class="line-white">Walk the street.</span>
+      <span class="line-white">Dr. Terry Oroszi <span style="color:#7fa8c9;font-size:0.42em;font-weight:300;font-style:italic;letter-spacing:0;">(Or-z)</span></span>
+      <span class="line-dim">researcher &middot; professor &middot; mentor &middot; artist &middot; philanthrope</span>
     </h1>
     <div class="hero-divider"></div>
-    <p class="hero-sub" style="color:#d6cfc0;max-width:520px;line-height:1.7;margin-bottom:36px;">Each shop has a purpose. Each tool has a voice. Each agent has a story.</p>
-    <a href="#district-shops" style="display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;font-weight:500;color:#f4ebd6;border:1px solid rgba(244,235,214,0.3);border-radius:6px;padding:.65rem 1.5rem;text-decoration:none;background:rgba(0,0,0,0.25);backdrop-filter:blur(4px);transition:all .2s;" onmouseover="this.style.background='rgba(244,235,214,0.1)';this.style.borderColor='rgba(244,235,214,0.6)'" onmouseout="this.style.background='rgba(0,0,0,0.25)';this.style.borderColor='rgba(244,235,214,0.3)'">Enter the District &darr;</a>
+    <p class="hero-tagline" style="font-family:'Cormorant Garamond','Georgia',serif; font-size:clamp(17px, 1.7vw, 22px); font-style:italic; color:#d6cfc0; max-width:780px; line-height:1.55; margin:0 0 32px;">The laboratory studies human behavior in high stakes environments and builds tools that make that knowledge usable.</p>
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="stat-num">ETL</div>
+        <div class="stat-label">Dayton, Ohio</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">100+</div>
+        <div class="stat-label">Publications</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">125+</div>
+        <div class="stat-label">Students Mentored</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">30+</div>
+        <div class="stat-label">Books</div>
+      </div>
+    </div>
   </div>
 
 
 </div>
-
-<!-- ─── DISTRICT SHOPS ──────────────────────────────────────────────────── -->
-<section id="district-shops" data-tab="home" style="background:#0c0a07;padding:64px 24px 80px;">
-<style>
-  .ds-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:1180px;margin:0 auto;}
-  @media(max-width:900px){.ds-grid{grid-template-columns:repeat(2,1fr);}}
-  @media(max-width:560px){.ds-grid{grid-template-columns:1fr;}}
-  .ds-card{display:block;text-decoration:none;background:#16120e;border:1px solid rgba(244,235,214,0.07);border-radius:14px;overflow:hidden;transition:transform .2s,border-color .25s,box-shadow .25s;}
-  .ds-card:hover{transform:translateY(-5px);box-shadow:0 16px 40px rgba(0,0,0,0.55);}
-  .ds-card .ds-bar{height:5px;}
-  .ds-card .ds-img{width:100%;height:170px;object-fit:cover;display:block;}
-  .ds-card .ds-body{padding:22px 24px 26px;}
-  .ds-card .ds-tag{font-family:'IBM Plex Mono',monospace;font-size:.63rem;letter-spacing:.18em;text-transform:uppercase;margin-bottom:10px;}
-  .ds-card .ds-name{font-family:'Spectral',serif;font-size:1.3rem;font-weight:500;color:#f4ebd6;margin:0 0 8px;line-height:1.2;}
-  .ds-card .ds-desc{font-size:.85rem;color:#7a6e60;line-height:1.55;margin:0 0 18px;}
-  .ds-card .ds-enter{font-family:'IBM Plex Mono',monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;}
-</style>
-  <div style="text-align:center;margin-bottom:48px;">
-    <div style="font-family:'IBM Plex Mono',monospace;font-size:.66rem;letter-spacing:.22em;text-transform:uppercase;color:#5c8ab5;margin-bottom:10px;">Emerging Technologies Laboratory</div>
-    <h2 style="font-family:'Spectral',serif;font-size:clamp(1.7rem,3.2vw,2.4rem);color:#f4ebd6;font-weight:400;margin:0;">Choose your shop.</h2>
-  </div>
-  <div class="ds-grid">
-
-    <a href="/build-your-own-agent" class="ds-card" style="border-color:rgba(70,214,230,0.15);" onmouseover="this.style.borderColor='rgba(70,214,230,0.4)'" onmouseout="this.style.borderColor='rgba(70,214,230,0.15)'">
-      <div class="ds-bar" style="background:#46d6e6;"></div>
-      <img class="ds-img" src="/assets/byoa-shop.png" alt="Build Your Own Agent workshop" onerror="this.style.display='none'">
-      <div class="ds-body">
-        <div class="ds-tag" style="color:#46d6e6;">Workshop</div>
-        <div class="ds-name">Build Your Own Agent</div>
-        <p class="ds-desc">Start at a blank bench. Walk out with a fully built staff member: purpose, backpack, name, story, face, and voice.</p>
-        <span class="ds-enter" style="color:#46d6e6;">Enter &rarr;</span>
-      </div>
-    </a>
-
-    <a href="/tailor-shop" class="ds-card" style="border-color:rgba(232,182,89,0.15);" onmouseover="this.style.borderColor='rgba(232,182,89,0.4)'" onmouseout="this.style.borderColor='rgba(232,182,89,0.15)'">
-      <div class="ds-bar" style="background:#e8b659;"></div>
-      <div class="ds-body" style="padding-top:32px;">
-        <div class="ds-tag" style="color:#e8b659;">Alterations &amp; Dress</div>
-        <div class="ds-name">Chris's Tailor Shop</div>
-        <p class="ds-desc">Already have an agent? Chris reads their file, designs new wardrobes, and dresses them for the life they live. Same face, new clothes.</p>
-        <span class="ds-enter" style="color:#e8b659;">Enter &rarr;</span>
-      </div>
-    </a>
-
-    <a href="/restaurant" class="ds-card" style="border-color:rgba(168,181,74,0.15);" onmouseover="this.style.borderColor='rgba(168,181,74,0.4)'" onmouseout="this.style.borderColor='rgba(168,181,74,0.15)'">
-      <div class="ds-bar" style="background:#a8b54a;"></div>
-      <div class="ds-body" style="padding-top:32px;">
-        <div class="ds-tag" style="color:#a8b54a;">Restaurant &middot; First Floor</div>
-        <div class="ds-name">The Harvest Circuit</div>
-        <p class="ds-desc">Farm to table, wired through. Reuben, Vic, Camille, and Luca answer questions about the kitchen, the cellar, the board, and the last bite.</p>
-        <span class="ds-enter" style="color:#a8b54a;">Enter &rarr;</span>
-      </div>
-    </a>
-
-    <a href="https://thegauntlet.studio" class="ds-card" style="border-color:rgba(232,114,89,0.15);" onmouseover="this.style.borderColor='rgba(232,114,89,0.4)'" onmouseout="this.style.borderColor='rgba(232,114,89,0.15)'">
-      <div class="ds-bar" style="background:#e87259;"></div>
-      <div class="ds-body" style="padding-top:32px;">
-        <div class="ds-tag" style="color:#e87259;">Testing Arena</div>
-        <div class="ds-name">The Gauntlet</div>
-        <p class="ds-desc">Bring your idea. Nine judges, a live tribunal, and a score you can take to a bank or a patent office. No rubber stamps.</p>
-        <span class="ds-enter" style="color:#e87259;">Enter &rarr;</span>
-      </div>
-    </a>
-
-    <a href="https://thedose.net" class="ds-card" style="border-color:rgba(91,214,160,0.15);" onmouseover="this.style.borderColor='rgba(91,214,160,0.4)'" onmouseout="this.style.borderColor='rgba(91,214,160,0.15)'">
-      <div class="ds-bar" style="background:#5bd6a0;"></div>
-      <div class="ds-body" style="padding-top:32px;">
-        <div class="ds-tag" style="color:#5bd6a0;">Health Desk</div>
-        <div class="ds-name">The Dose</div>
-        <p class="ds-desc">Health-literate companions who verify before they answer. Built for the people who need someone there with them, not a search engine.</p>
-        <span class="ds-enter" style="color:#5bd6a0;">Enter &rarr;</span>
-      </div>
-    </a>
-
-    <a href="/press" class="ds-card" style="border-color:rgba(155,140,240,0.15);" onmouseover="this.style.borderColor='rgba(155,140,240,0.4)'" onmouseout="this.style.borderColor='rgba(155,140,240,0.15)'">
-      <div class="ds-bar" style="background:#9b8cf0;"></div>
-      <div class="ds-body" style="padding-top:32px;">
-        <div class="ds-tag" style="color:#9b8cf0;">Newswire</div>
-        <div class="ds-name">ETL Newswire</div>
-        <p class="ds-desc">Lab dispatches, field reports, and the Above the Fold briefing. Everything the district publishes, in one place.</p>
-        <span class="ds-enter" style="color:#9b8cf0;">Enter &rarr;</span>
-      </div>
-    </a>
-
-  </div>
-</section>
 
 <!-- ─────────────────────────────────────────────────────────────────────────
      HARVARD CREDENTIAL STRIP. Slim one-line band directly under the hero.
