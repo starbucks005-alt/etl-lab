@@ -14,13 +14,13 @@
    ───────────────────────────────────────────────────────────────────────── */
 
 const PRICE = {
-  starter:   'price_1TgvfbBpqKA2T6wFYAsKgpLU', // Your PA + Founder Studio $199/mo
-  sixpack:   'price_1TgvfbBpqKA2T6wFakMbsvCJ', // Essential Six-Pack $199/mo
-  mcp:       'price_1TgvfbBpqKA2T6wFmTzs9YJI', // Specialist MCP (backpack) $69/mo
-  addon:     'price_1TgvfcBpqKA2T6wFiQyVb53y', // Specialist Standard $49/mo
-  board:     'price_1TgviyBpqKA2T6wFl0bXqAm3', // C-Suite $89/mo
-  board_mcp: 'price_1TgviyBpqKA2T6wFlKmbEegY', // C-Suite MCP $119/mo
-  premium:   'price_1TgviyBpqKA2T6wFM7taYrQn', // Premium SLR Method $549/mo
+  starter:   'price_1Tkq8rBpqKA2T6wFQRq015eg', // Your PA + Founder Studio $99/mo
+  sixpack:   'price_1Tkq9GBpqKA2T6wF6KDWOeVX', // Essential Six-Pack $99/mo
+  mcp:       'price_1Tkq9zBpqKA2T6wFjIXrQp5V', // Specialist MCP (backpack) $35/mo
+  addon:     'price_1Tkq9yBpqKA2T6wFA1YCZ5lZ', // Specialist Standard $25/mo
+  board:     'price_1Tkq9zBpqKA2T6wFt4sxlco4', // C-Suite $45/mo
+  board_mcp: 'price_1TgviyBpqKA2T6wFlKmbEegY', // C-Suite MCP $119/mo (unchanged)
+  premium:   'price_1TgviyBpqKA2T6wFM7taYrQn', // Premium SLR Method $549/mo (unchanged)
 };
 
 exports.handler = async function (event) {

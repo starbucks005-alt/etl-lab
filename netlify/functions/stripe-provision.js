@@ -23,7 +23,13 @@ const { getStore, connectLambda } = require('@netlify/blobs');
 const SUPABASE_URL = 'https://ulvrnermyuvzanxhxoib.supabase.co';
 
 // price id -> seat meaning (mirror of staffing-checkout.js)
+// Old prices kept so existing subscribers still provision correctly.
 const PRICE_SEATS = {
+  'price_1Tkq8rBpqKA2T6wFQRq015eg': { key: 'pa_plus_studio', label: 'Your PA + Founder Studio', amount: 99 },
+  'price_1Tkq9GBpqKA2T6wF6KDWOeVX': { key: 'six_pack', label: 'Essential Six-Pack', amount: 99 },
+  'price_1Tkq9zBpqKA2T6wFjIXrQp5V': { key: 'specialist_mcp', label: 'Specialist (backpack)', amount: 35 },
+  'price_1Tkq9yBpqKA2T6wFA1YCZ5lZ': { key: 'specialist_standard', label: 'Specialist (standard)', amount: 25 },
+  'price_1Tkq9zBpqKA2T6wFt4sxlco4': { key: 'csuite', label: 'C-Suite seat', amount: 45 },
   'price_1TgvfbBpqKA2T6wFYAsKgpLU': { key: 'pa_plus_studio', label: 'Your PA + Founder Studio', amount: 199 },
   'price_1TgvfbBpqKA2T6wFakMbsvCJ': { key: 'six_pack', label: 'Essential Six-Pack', amount: 199 },
   'price_1TgvfbBpqKA2T6wFmTzs9YJI': { key: 'specialist_mcp', label: 'Specialist (backpack)', amount: 69 },
