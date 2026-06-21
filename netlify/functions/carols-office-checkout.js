@@ -2,14 +2,13 @@
    carols-office-checkout
 
    Creates a Stripe Checkout Session for a Carol's Office desk rental.
-   $199/mo recurring subscription. Returns the hosted checkout URL.
+   $89/mo recurring subscription. Returns the hosted checkout URL.
 
    POST { company_name?, contact_name? }
    Returns { url }
 
    Env: STRIPE_SECRET_KEY, CAROLS_OFFICE_PRICE_ID
-   (Create a $199/mo recurring price in Stripe, paste the price_xxx ID as
-   CAROLS_OFFICE_PRICE_ID in Netlify site settings.)
+   (Price ID: price_1Tkn0lBpqKA2T6wFOQ7hskDj — $89/mo, prod_UkHYnRdCNB1UUc)
    ───────────────────────────────────────────────────────────────────────────── */
 
 const CORS = {
