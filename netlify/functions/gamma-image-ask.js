@@ -25,9 +25,8 @@ exports.handler = async function(event){
   const payload = {
     inputText: (name + (role ? ' — ' + role : '') + '. ' + prompt).slice(0,4000),
     format: 'social',
-    textMode: 'generate',
+    textMode: 'none',
     numCards: 1,
-    textOptions: { amount: 'brief' },
     cardOptions: { dimensions: '1x1' },
     imageOptions: { source: 'aiGenerated', model: model, style: style },
     exportAs: 'png'

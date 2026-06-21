@@ -41,6 +41,8 @@ async function resolveEmail(token) {
 
 function isStaff(email) {
   if (!email) return false;
+  const owner = (process.env.OWNER_EMAIL || '').trim().toLowerCase();
+  if (owner && email === owner) return true;
   const list = (process.env.STAFF_EMAILS || '')
     .split(',')
     .map(e => e.trim().toLowerCase())
