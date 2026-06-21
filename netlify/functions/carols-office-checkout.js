@@ -23,7 +23,7 @@ exports.handler = async function (event) {
   const key = process.env.STRIPE_SECRET_KEY;
   const priceId = process.env.DESKWORKS_PRICE_ID;
   if (!key) return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: 'stripe_key_not_configured' }) };
-  if (!priceId) return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: 'DESKWORKS_PRICE_ID not set in Netlify env — create a $199/mo price in Stripe and paste the ID' }) };
+  if (!priceId) return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: 'DESKWORKS_PRICE_ID not set in Netlify env' }) };
 
   let body = {};
   try { body = JSON.parse(event.body || '{}'); } catch (_) {}
