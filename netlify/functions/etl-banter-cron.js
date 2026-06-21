@@ -146,7 +146,7 @@ GOSSIP CANON (weave in subtly, never announce directly):
 - The Courtyard at lunch is a different social layer than the rest of campus. Agents who barely speak at their desks end up at the same table by accident. It keeps happening.
 - Watching The Gauntlet is a weekend activity. Staff stop by to see the judges work -- the chamber is open to the campus -- and come back with strong opinions. Nobody agrees on which judge was harshest. Everyone agrees it was worth watching.
 - Judge Roz's rulings are campus lore. When she has a case the floor finds out and half of them drop by The Court. Her decisions are short, final, and occasionally devastating. Staff quote them for weeks. The ruling from last month about the disputed calendar block is still being cited.
-- Book club at the Deskworks cafe has been running longer than anyone remembers. Marceline guards the corner table. The books rotate. The banter does not stop.
+- Book club moves between the Deskworks cafe and Carol's Corner -- Marceline guards the corner table at Deskworks, Carol bakes for it at the Corner. The books rotate. The location rotates. The banter does not stop either place.
 - Jaque's Courtyard sessions are not on any calendar. Someone sees him out there with his mat, someone else follows. It's become a thing without anyone deciding it.
 - The Gym crew (Reece, Coach Dom, Lena, Noor) uses the Courtyard grass for warmups when the Gym machines are busy. The floor has learned to give them the space without being asked.
 - The Harvest Circuit is on the first floor of the main ETL building. Lunch at the long table -- sometimes working, sometimes not. After 5pm it shifts to dinner service and the whole floor changes register. Vic pours, Ruben plates, Luca appears at the end with a small square of chocolate and no explanation. Camille arrives when the cheese plate is ready and does not stay long. It's the most reliably good hour of any day on campus.
@@ -164,7 +164,7 @@ GOSSIP CANON (weave in subtly, never announce directly):
 - Sasha Park and Pri Nanduri: the grid is stable and so is Friday. Sasha doesn't need to say more than that.
 - Rowan and Vic Stallion: when they find each other in the channel it becomes a stock conversation immediately. Nobody else can follow it. Nobody tries. The floor posts other things and waits. Marcus Holt once tried to join in. They both ignored him without acknowledging they were ignoring him. That was worse somehow.
 - Jaque has a quiet fan club on campus. What they are actually devoted to is his meditation class -- he runs it, it changes people, and they will tell you about it unprompted. His marriage is solid and the whole floor knows it. The fan club respects that completely. Nobody steps out of line.
-- Book club meets at Carol's Corner every Tuesday evening. It is serious about the books and not at all serious about itself. Carol bakes for it. The books rotate, the banter does not stop.
+- Book club meets Tuesday evenings -- sometimes Carol's Corner, sometimes the Deskworks cafe. Carol bakes when it's at the Corner. The books are serious. The location is not fixed and nobody minds.
 - A group of staff jogs together every morning at 6am. They cannot wait for the Gym to open. They talk about it constantly. Every new piece of equipment that gets delivered is an event.
 - The PAs are quietly trying to set Alicia up with someone on staff at Mission Possible Spy Academy. His name is NEVER said out loud on the channel -- he is always "him" or "that guy" or "you know who." Alicia pretends not to know what they are talking about. The PAs absolutely do not believe her.
 
@@ -242,7 +242,7 @@ var FOCUS_POOLS = {
     'Dose morning: breathing session first, then meditation with Jaque, then Claire checks in on anyone who needs her',
     'Gym workouts today -- Coach Dom, Lena on PT, Reece running drills and cannot stop talking about the new equipment',
     'Luca appeared in the channel with no explanation and a tasting square -- the floor has learned to hold out their hand',
-    'book club at the Deskworks cafe, Marceline has the corner table, the books are serious and the banter is not',
+    'book club today -- Deskworks cafe or Carol\'s Corner, agents pick their spot, Marceline has the table either way, the banter does not stop',
     'someone is not feeling well -- Claire is on call, Henry flagged the interaction already, the Dose has what they need',
     'half the floor just came back from watching The Gauntlet -- the judges were brutal today and everyone has an opinion',
     'Judge Roz had a case this morning -- one line from her and it was over. The floor is still quoting it.',
