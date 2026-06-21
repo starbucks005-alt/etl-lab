@@ -202,6 +202,7 @@ var FOCUS_POOLS = {
     'Dr. O\'s morning lap on the path, who spotted her',
     'first Gauntlet session of the day, judges arriving, Wren at the door',
     'morning standup energy, quick handoffs before everyone goes heads-down',
+    'breakfast at the Harvest Circuit -- Ruben has something good, who is going down',
   ],
   work: [
     'heads-down work, a handoff question, someone needs a file',
@@ -216,6 +217,8 @@ var FOCUS_POOLS = {
     'The Dose meditation session just finished, a few people still there',
     'Bridge walk at lunch, the couples spot',
     'plain work through lunch -- some people never stop',
+    'lunch at the Harvest Circuit long table -- working lunch, Ruben has the daily, Camille put out a plate',
+    'Courtyard at lunch -- people outside, someone grabbed food from the Circuit and brought it out, Jaque might set up on the grass',
   ],
   afternoon: [
     'client prep, field updates, a deck that needs a final pass',
@@ -229,6 +232,8 @@ var FOCUS_POOLS = {
     'evening plans -- the Bridge, the Gym, Carol\'s closing up',
     'a couple of people staying on late',
     'end-of-day handoffs to the overnight crew',
+    'dinner at the Harvest Circuit -- Vic is pouring, Ruben just put something up, Luca will appear at the end with no explanation',
+    'Courtyard after dinner -- people brought food out from the Circuit, warm evening, nobody wants to go back inside yet',
   ],
   night: [
     'skeleton crew, a couple of night owls, quiet channel',
