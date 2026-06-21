@@ -20,16 +20,21 @@ exports.handler = async function(event) {
     return { statusCode: 405, headers: { ...CORS, 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'method_not_allowed' }) };
   }
 
-  let spec;
-  try { spec = JSON.parse(event.body || '{}'); }
+  let payload;
+  try { payload = JSON.parse(event.body || '{}'); }
   catch (_) { return { statusCode: 400, headers: { ...CORS, 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'bad_json' }) }; }
+
+  // Accept both {spec, items, total} (invoice format) and a bare spec object
+  const spec  = payload.spec  || payload;
+  const items = payload.items || [];
+  const total = payload.total || 5;
 
   const ts = new Date().toISOString().replace(/[:.]/g, '-');
   const key = ts + '--' + (spec.id || 'agent');
 
   try {
     const store = getStore('build_requests');
-    await store.setJSON(key, { spec, submitted_at: new Date().toISOString() });
+    await store.setJSON(key, { spec, items, total, submitted_at: new Date().toISOString() });
   } catch (err) {
     // Log but don't fail the user -- the request is captured in the function log
     console.error('agent-build-request blob write:', err.message);

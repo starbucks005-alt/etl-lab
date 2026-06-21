@@ -285,6 +285,10 @@ textarea { min-height: 88px; resize: vertical; }
 .btn-back:hover { color: var(--text); }
 .btn-ghost { background: transparent; color: var(--amber); border: 1px solid var(--amber); }
 
+.suggest-btn { font-family: 'IBM Plex Mono', monospace; font-size: .58rem; letter-spacing: .06em; text-transform: uppercase; background: transparent; color: var(--amber-dim); border: 1px solid var(--amber-dim); border-radius: 5px; padding: .12rem .4rem; cursor: pointer; vertical-align: middle; margin-left: .45rem; }
+.suggest-btn:hover { color: var(--amber); border-color: var(--amber); }
+.suggest-btn:disabled { opacity: .4; cursor: default; }
+
 .err { color: var(--red); font-size: .82rem; margin-top: .5rem; min-height: 1em; }
 
 .note { background: var(--panel2); border-left: 3px solid var(--amber); border-radius: 0 8px 8px 0; padding: .7rem .9rem; font-size: .86rem; color: var(--mute); margin: 1rem 0; }
@@ -354,9 +358,9 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
     <section class="panel" data-step="1">
       <h2>1. What kind of agent?</h2>
       <p class="sub">Start with the job. What does this agent do, and who is it for?</p>
-      <label class="fld" for="role">Role / title</label>
+      <label class="fld" for="role">Role / title <button type="button" class="suggest-btn" data-suggest="role" data-target="role">Suggest</button></label>
       <input type="text" id="role" placeholder="e.g. Grant Strategist, Sleep Coach, Wine Concierge">
-      <label class="fld" for="purpose">What they do (a few sentences)</label>
+      <label class="fld" for="purpose">What they do <button type="button" class="suggest-btn" data-suggest="purpose" data-target="purpose">Suggest</button></label>
       <textarea id="purpose" placeholder="The work this agent owns, the questions it answers, the people it serves."></textarea>
       <div class="err" id="err1"></div>
     </section>
@@ -385,9 +389,9 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
     <section class="panel" data-step="3">
       <h2>3. Name and tagline.</h2>
       <p class="sub">Give the agent a name and a one-line hook.</p>
-      <label class="fld" for="name">Name</label>
+      <label class="fld" for="name">Name <button type="button" class="suggest-btn" data-suggest="name" data-target="name">Suggest</button></label>
       <input type="text" id="name" placeholder="e.g. Dr. Vikram Sethi, Coach Dom, Yolanda Ferreira">
-      <label class="fld" for="tagline">Tagline</label>
+      <label class="fld" for="tagline">Tagline <button type="button" class="suggest-btn" data-suggest="tagline" data-target="tagline">Suggest</button></label>
       <input type="text" id="tagline" placeholder="One memorable line. e.g. Builds the program and the funding to run it.">
       <div class="err" id="err3"></div>
     </section>
@@ -396,7 +400,7 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
     <section class="panel" data-step="4">
       <h2>4. Background and story.</h2>
       <p class="sub">Where they come from, how they got here, what shaped them. This is the backstory the agent carries.</p>
-      <label class="fld" for="background">Background</label>
+      <label class="fld" for="background">Background <button type="button" class="suggest-btn" data-suggest="background" data-target="background">Suggest</button></label>
       <textarea id="background" placeholder="School, family, career, the turning point. The detail that makes them a person, not a template."></textarea>
       <div class="err" id="err4"></div>
     </section>
@@ -405,9 +409,9 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
     <section class="panel" data-step="5">
       <h2>5. Personality and voice.</h2>
       <p class="sub">How they talk and what makes them them. This drives the chat tone and the watercooler banter.</p>
-      <label class="fld" for="tone">Manner of speaking</label>
+      <label class="fld" for="tone">Manner of speaking <button type="button" class="suggest-btn" data-suggest="tone" data-target="tone">Suggest</button></label>
       <input type="text" id="tone" placeholder="e.g. Plain and dry. Warm and unhurried. Camp and devoted.">
-      <label class="fld" for="quirks">Quirks and tells</label>
+      <label class="fld" for="quirks">Quirks and tells <button type="button" class="suggest-btn" data-suggest="quirks" data-target="quirks">Suggest</button></label>
       <textarea id="quirks" placeholder="The small specifics. A phrase they repeat, a thing they always do, an opinion they defend."></textarea>
       <div class="err" id="err5"></div>
     </section>
@@ -489,13 +493,73 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
         </div>
       </div>
 
-      <!-- === 2. MAKE IT REAL === -->
+      <!-- === 2. INVOICE === -->
       <div style="border-top:1px solid var(--line);margin-top:1.8rem;padding-top:1.5rem;">
         <div style="font-family:'IBM Plex Mono',monospace;font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--amber);margin-bottom:.9rem;">Make it real</div>
-        <div style="display:flex;flex-wrap:wrap;gap:.8rem;align-items:center;">
-          <button class="btn btn-next" id="submitBtn" type="button">Submit work order to ETL</button>
-          <a href="/export-your-agent" style="font-family:'IBM Plex Mono',monospace;font-size:.74rem;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:.72rem 1.2rem;" onmouseover="this.style.color='var(--text)';this.style.borderColor='var(--amber-dim)'" onmouseout="this.style.color='var(--mute)';this.style.borderColor='var(--line)'">Take it with you &rarr;</a>
+
+        <div style="border:1px solid var(--line);border-radius:12px;overflow:hidden;">
+
+          <!-- Invoice header -->
+          <div style="background:var(--panel2);border-bottom:1px solid var(--line);padding:.65rem 1.1rem;display:flex;justify-content:space-between;align-items:baseline;">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);">ETL Work Order</span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--mute);" id="invDate"></span>
+          </div>
+
+          <!-- Agent name line -->
+          <div style="padding:.65rem 1.1rem;border-bottom:1px solid var(--line);display:flex;align-items:baseline;gap:.7rem;">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);flex-shrink:0;">Agent</span>
+            <span style="font-family:'Spectral',serif;font-size:1.05rem;color:var(--cream);" id="invAgentName">&mdash;</span>
+          </div>
+
+          <!-- Line items -->
+          <div>
+            <!-- JSON always included -->
+            <div style="display:flex;align-items:center;gap:.9rem;padding:.55rem 1.1rem;border-bottom:1px solid rgba(61,46,26,.4);">
+              <span style="color:var(--ok);width:16px;text-align:center;flex-shrink:0;">&#10003;</span>
+              <span style="flex:1;color:var(--text);font-size:.91rem;">JSON work order spec</span>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:.82rem;color:var(--cream);flex-shrink:0;">$5.00</span>
+            </div>
+            <!-- Portrait -->
+            <label style="display:flex;align-items:center;gap:.9rem;padding:.55rem 1.1rem;border-bottom:1px solid rgba(61,46,26,.4);cursor:pointer;" onmouseover="this.style.background='rgba(61,46,26,.25)'" onmouseout="this.style.background=''">
+              <input type="checkbox" id="inv_portrait" data-price="6" style="width:15px;height:15px;accent-color:var(--amber);cursor:pointer;flex-shrink:0;">
+              <span style="flex:1;color:var(--text);font-size:.91rem;">Portrait <span style="color:var(--mute);font-size:.8rem;">eyes-open, AI-generated</span></span>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:.82rem;color:var(--cream);flex-shrink:0;">$6.00</span>
+            </label>
+            <!-- Blink (requires portrait) -->
+            <label id="blinkRow" style="display:flex;align-items:center;gap:.9rem;padding:.55rem 1.1rem;border-bottom:1px solid rgba(61,46,26,.4);cursor:pointer;" onmouseover="this.style.background='rgba(61,46,26,.25)'" onmouseout="this.style.background=''">
+              <input type="checkbox" id="inv_blink" data-price="20" style="width:15px;height:15px;accent-color:var(--amber);cursor:pointer;flex-shrink:0;" disabled>
+              <span style="flex:1;font-size:.91rem;" id="blinkLbl">Bespoke blink <span style="font-size:.8rem;">eyes-closed, hand-matched in PS</span></span>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:.82rem;flex-shrink:0;" id="blinkPrice">$20.00</span>
+            </label>
+            <!-- Voice -->
+            <label style="display:flex;align-items:center;gap:.9rem;padding:.55rem 1.1rem;border-bottom:1px solid rgba(61,46,26,.4);cursor:pointer;" onmouseover="this.style.background='rgba(61,46,26,.25)'" onmouseout="this.style.background=''">
+              <input type="checkbox" id="inv_voice" data-price="8" style="width:15px;height:15px;accent-color:var(--amber);cursor:pointer;flex-shrink:0;">
+              <span style="flex:1;color:var(--text);font-size:.91rem;">Voice <span style="color:var(--mute);font-size:.8rem;">ElevenLabs character assigned</span></span>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:.82rem;color:var(--cream);flex-shrink:0;">$8.00</span>
+            </label>
+            <!-- Backpack -->
+            <label style="display:flex;align-items:center;gap:.9rem;padding:.55rem 1.1rem;border-bottom:1px solid rgba(61,46,26,.4);cursor:pointer;" onmouseover="this.style.background='rgba(61,46,26,.25)'" onmouseout="this.style.background=''">
+              <input type="checkbox" id="inv_backpack" data-price="15" style="width:15px;height:15px;accent-color:var(--amber);cursor:pointer;flex-shrink:0;">
+              <span style="flex:1;color:var(--text);font-size:.91rem;">Backpack wiring <span style="color:var(--mute);font-size:.8rem;">live MCP tools connected</span></span>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:.82rem;color:var(--cream);flex-shrink:0;">$15.00</span>
+            </label>
+            <!-- Export -->
+            <label style="display:flex;align-items:center;gap:.9rem;padding:.55rem 1.1rem;cursor:pointer;" onmouseover="this.style.background='rgba(61,46,26,.25)'" onmouseout="this.style.background=''">
+              <input type="checkbox" id="inv_export" data-price="25" style="width:15px;height:15px;accent-color:var(--amber);cursor:pointer;flex-shrink:0;">
+              <span style="flex:1;color:var(--text);font-size:.91rem;">Export package <span style="color:var(--mute);font-size:.8rem;">embed + API key + MCP config, deploys to your site</span></span>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:.82rem;color:var(--cream);flex-shrink:0;">$25.00</span>
+            </label>
+          </div>
+
+          <!-- Total row + submit -->
+          <div style="border-top:1px solid var(--line);background:var(--panel2);padding:.85rem 1.1rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+            <button class="btn btn-next" id="submitBtn" type="button" style="font-size:.78rem;">Submit work order &middot; $5.00</button>
+            <div style="flex:1;"></div>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);">Total</span>
+            <span style="font-family:'Spectral',serif;font-size:1.55rem;font-weight:600;color:var(--amber);" id="invTotal">$5.00</span>
+          </div>
         </div>
+
         <p id="submitConfirm" style="color:var(--mute);font-size:.82rem;margin:.7rem 0 0;line-height:1.5;min-height:1.2em;"></p>
       </div>
 
@@ -760,6 +824,7 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
     $('#submitConfirm').textContent='';
     var inp=$('#previewInput');
     if(inp){inp.value='';inp.focus();}
+    initInvoice();
   }
 
   var previewAskBtn=$('#previewAskBtn');
@@ -809,20 +874,27 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
       var s=buildSpec();
       if(!s.name){
         $('#submitConfirm').style.color='var(--red)';
-        $('#submitConfirm').textContent='Fill out the spec first.';
+        $('#submitConfirm').textContent='Fill out the spec first (name is required).';
         return;
       }
+      var items=(['portrait','blink','voice','backpack','export']).filter(function(id){
+        var cb=document.getElementById('inv_'+id);return cb&&cb.checked&&!cb.disabled;
+      });
+      var total=5;
+      items.forEach(function(id){var cb=document.getElementById('inv_'+id);if(cb)total+=parseFloat(cb.dataset.price||0);});
       submitBtn.disabled=true;
+      submitBtn.textContent='Submitting…';
       $('#submitConfirm').style.color='var(--mute)';
-      $('#submitConfirm').textContent='Submitting…';
+      $('#submitConfirm').textContent='';
       fetch('/.netlify/functions/agent-build-request',{
         method:'POST',
         headers:{'Content-Type':'application/json'},
-        body:JSON.stringify(s)
+        body:JSON.stringify({spec:s,items:items,total:total})
       })
       .then(function(r){return r.json();})
       .then(function(d){
         submitBtn.disabled=false;
+        updateInvoiceTotal();
         if(d.ok){
           $('#submitConfirm').style.color='var(--ok)';
           $('#submitConfirm').textContent='Work order received. We\'ll be in touch about '+(s.name||'your agent')+'. Ref: '+d.ref+'.';
@@ -833,11 +905,96 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
       })
       .catch(function(){
         submitBtn.disabled=false;
+        updateInvoiceTotal();
         $('#submitConfirm').style.color='var(--red)';
-        $('#submitConfirm').textContent='Could not reach ETL. Try again or download the spec and send it directly.';
+        $('#submitConfirm').textContent='Could not reach ETL. Try again or download the spec and send directly.';
       });
     };
   }
+  // ─────────────────────────────────────────────────────────────────
+
+  // ── Invoice (step 8) ─────────────────────────────────────────────
+  var INV_IDS=['portrait','blink','voice','backpack','export'];
+
+  function updateInvoiceTotal(){
+    var total=5;
+    INV_IDS.forEach(function(id){
+      var cb=document.getElementById('inv_'+id);
+      if(cb&&cb.checked&&!cb.disabled)total+=parseFloat(cb.dataset.price||0);
+    });
+    var totEl=document.getElementById('invTotal');
+    if(totEl)totEl.textContent='$'+total.toFixed(2);
+    var sb=document.getElementById('submitBtn');
+    if(sb&&!sb.disabled)sb.textContent='Submit work order \xb7 $'+total.toFixed(2);
+    return total;
+  }
+
+  function updateBlinkState(){
+    var pCb=document.getElementById('inv_portrait');
+    var bCb=document.getElementById('inv_blink');
+    var bLbl=document.getElementById('blinkLbl');
+    var bPri=document.getElementById('blinkPrice');
+    if(!pCb||!bCb)return;
+    var on=pCb.checked;
+    bCb.disabled=!on;
+    if(!on)bCb.checked=false;
+    var col=on?'var(--text)':'var(--mute)';
+    if(bLbl)bLbl.style.color=col;
+    if(bPri)bPri.style.color=on?'var(--cream)':'var(--mute)';
+  }
+
+  function initInvoice(){
+    var d=new Date();
+    var MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var de=document.getElementById('invDate');
+    if(de)de.textContent=MO[d.getMonth()]+' '+d.getDate()+', '+d.getFullYear();
+    var ne=document.getElementById('invAgentName');
+    if(ne)ne.textContent=state.name||'—';
+    INV_IDS.forEach(function(id){var cb=document.getElementById('inv_'+id);if(cb)cb.checked=false;});
+    updateBlinkState();
+    updateInvoiceTotal();
+  }
+
+  INV_IDS.forEach(function(id){
+    var cb=document.getElementById('inv_'+id);
+    if(cb)cb.addEventListener('change',function(){
+      if(id==='portrait')updateBlinkState();
+      updateInvoiceTotal();
+    });
+  });
+  // ─────────────────────────────────────────────────────────────────
+
+  // ── Per-field suggest buttons ─────────────────────────────────────
+  function doSuggest(field,targetId){
+    var btn=document.querySelector('[data-suggest="'+field+'"]');
+    if(btn){btn.disabled=true;btn.textContent='…';}
+    sync();
+    fetch('/.netlify/functions/agent-prompt-gen',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({field:field,context:{
+        role:state.role,purpose:state.purpose,name:state.name,
+        tagline:state.tagline,background:state.background,
+        tone:state.tone,quirks:state.quirks
+      }})
+    })
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.suggestion){
+        var el=document.getElementById(targetId);
+        if(el){el.value=d.suggestion;state[field]=d.suggestion;}
+      }
+      if(btn){btn.disabled=false;btn.textContent='Suggest';}
+    })
+    .catch(function(){if(btn){btn.disabled=false;btn.textContent='Suggest';}});
+  }
+
+  document.querySelectorAll('[data-suggest]').forEach(function(btn){
+    btn.addEventListener('click',function(e){
+      e.preventDefault();e.stopPropagation();
+      doSuggest(btn.dataset.suggest,btn.dataset.target||btn.dataset.suggest);
+    });
+  });
   // ─────────────────────────────────────────────────────────────────
 
   show(1);
