@@ -10,11 +10,12 @@
    Response header X-Generated-Voice-Id carries the generated_voice_id so it can be saved later. */
 
 // Preset bench labels expanded to Voice-Design-friendly descriptions (must be 20-1000 chars).
+// Descriptions are intentionally gender-neutral so the explicit gender param (prepended below) wins.
 const PRESET_DESC = {
   'Warm narrator':      'A warm, friendly narrator. Mature, clear and reassuring, with an even, unhurried pace and a natural conversational tone.',
-  'Deep & commanding':  'A deep, commanding voice. Resonant baritone, confident and authoritative, measured, strong and grounded.',
+  'Deep & commanding':  'A deep, commanding voice. Resonant, confident and authoritative, measured, strong and grounded.',
   'Bright & energetic': 'A bright, energetic voice. Upbeat, lively and youthful, with quick, expressive, enthusiastic delivery.',
-  'Calm & measured':    'A calm, measured voice. Soft, steady and soothing, with a gentle even cadence and relaxed warmth.',
+  'Calm & measured':    'A calm, measured voice. Steady and composed, even-keeled, with deliberate pacing and controlled delivery. Every word lands with quiet authority.',
   'Dry & precise':      'A dry, precise voice. Crisp, articulate and exact, cool and understated, every word deliberate.',
   'Match my own':       'A neutral, professional adult voice, clear and natural, as a stand-in until a cloned voice is assigned.'
 };
@@ -69,9 +70,11 @@ exports.handler = async function(event){
     // Path 2: design a voice from the description.
     let desc = String(body.description || PRESET_DESC[body.style] || body.style || '').trim();
     if (desc.length < 20) desc = PRESET_DESC['Warm narrator'];   // Design requires >= 20 chars
-    desc = desc.slice(0,1000);
     const gender = ['male','female','neutral'].includes(body.gender) ? body.gender : undefined;
     const age    = ['young','middle_aged','old'].includes(body.age)  ? body.age    : undefined;
+    // Prepend gender so the description doesn't override the explicit selection
+    if (gender && gender !== 'neutral') desc = (gender === 'male' ? 'Male voice. ' : 'Female voice. ') + desc;
+    desc = desc.slice(0,1000);
     const out = await designVoice(key, desc, text, gender, age);
     return { statusCode:200, headers:{ 'Content-Type':'audio/mpeg', 'Cache-Control':'no-store', 'X-Generated-Voice-Id':out.gvid }, body:out.audio.toString('base64'), isBase64Encoded:true };
   } catch(err){
