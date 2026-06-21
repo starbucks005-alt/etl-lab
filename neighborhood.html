@@ -122,13 +122,13 @@ const W = 1200, H = 900;
 const PC = {
   FS:'#4a9eff', OG:'#b060ff', TG:'#ff4455', TD:'#22d47a', GY:'#14d4b0',
   PR:'#f5a623', NW:'#ff7a30', GP:'#d4b46a', GK:'#d060f0', XX:'#708090',
-  DR:'#ffffff', CG:'#e8c97a', ET:'#f5c542', SL:'#f06090', ID:'#40d4b8'
+  DR:'#ffffff', CG:'#e8c97a', ET:'#f5c542', SL:'#f06090', ID:'#40d4b8', HC:'#e8984a'
 };
 const PL = {
   FS:'Founder Studio', OG:'OPSEC Gauntlet', TG:'The Gauntlet',
   TD:'The Dose', GY:'The Gym', PR:'Prep Room / Boardroom',
   NW:'ETL Newswire', GP:'Greylander Press', GK:'Gandhi-King Center', XX:'Multi-platform',
-  DR:"Dr. O's Studio", CG:'City Government', ET:'ETL-wide', SL:'SLR Studio', ID:'Intel Dashboard'
+  DR:"Dr. O's Studio", CG:'City Government', ET:'ETL-wide', SL:'SLR Studio', ID:'Intel Dashboard', HC:'Harvest Circuit'
 };
 
 // ── WAYPOINT GRAPH — remapped to tech-map.png building positions ──────────────
@@ -152,7 +152,7 @@ const N = [
   [926,506],  // 15 SE Junction
   [132,718],  // 16 Boardroom
   [278,718],  // 17 ETL Staffing
-  [390,718],  // 18 Founder Studio
+  [390,688],  // 18 Founder Studio
   [455,768],  // 19 SW Junction
   [155,818],  // 20 ETL Deskworks Dayton  ← HUB
   [278,810],  // 21 Chris's Tailor Shop
@@ -286,10 +286,11 @@ const ADAT = [
   ["Judge Roz Okonkwo","CG",8,0],
   ["Yolanda Ferreira","CG",5,0],["Priscilla Okeke","CG",5,0],
   ["Tessa Whitfield","CG",5,0],["Ramon Delgado","CG",5,0],
-  ["Desmond Quigley","CG",5,0]
+  ["Desmond Quigley","CG",5,0],
+  ["Ruben Hart","HC",6,0],["Camille Lefèvre","HC",5.5,0],["Luca Brunner","HC",5.5,0]
 ];
 
-const HOME = {FS:18,OG:1,TG:2,TD:5,GY:6,PR:9,NW:12,GP:13,GK:23,XX:20,DR:14,ET:14,CG:26,SL:10,ID:0};
+const HOME = {FS:18,OG:1,TG:2,TD:5,GY:6,PR:9,NW:12,GP:13,GK:23,XX:20,DR:14,ET:14,CG:26,SL:10,ID:0,HC:14};
 const HUB  = 20;
 const HUB_R = 60;
 const DR_O = 14; // ETL Building — Dr. O's home node
@@ -432,7 +433,7 @@ function pickTarget(a){
     // Newswire and city-gov (incl. Roz) anchored at City Govt.
     // FS gets 84px: Build Your Agent (node 22) is only 87px from Founder Studio
     // (node 18), so without a tighter radius FS agents cluster at the wrong building.
-    const pullDist = ['GP','NW','CG'].includes(a.plat) ? 100 : a.plat==='FS' ? 84 : 200;
+    const pullDist = ['GP','NW','CG'].includes(a.plat) ? 100 : a.plat==='FS' ? 55 : 200;
     if(dist > pullDist) return homeNode;
     if(r<.72) return homeNode;             // at their post
     if(r<.92) return nearbyNode(a);        // short hop nearby
