@@ -5,6 +5,7 @@
   "description": "Emerging Technologies Laboratory homepage and Press Hub.",
   "dependencies": {
     "@anthropic-ai/sdk": "^0.30.0",
-    "@netlify/blobs": "^8.1.0"
+    "@netlify/blobs": "^8.1.0",
+    "stripe": "^17.0.0"
   }
 }

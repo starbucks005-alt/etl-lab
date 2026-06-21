@@ -867,6 +867,16 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
     previewInput.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();doPreviewAsk();}});
   }
 
+  // Show success message if returning from Stripe checkout
+  (function(){
+    var params=new URLSearchParams(window.location.search);
+    if(params.get('paid')==='1'){
+      var conf=$('#submitConfirm');
+      if(conf){conf.style.color='var(--ok)';conf.textContent='Payment received. We\'ll be in touch soon. Ref: '+(params.get('ref')||'')+'.';}
+      history.replaceState(null,'',window.location.pathname);
+    }
+  })();
+
   var submitBtn=$('#submitBtn');
   if(submitBtn){
     submitBtn.onclick=function(){
@@ -883,24 +893,40 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
       var total=5;
       items.forEach(function(id){var cb=document.getElementById('inv_'+id);if(cb)total+=parseFloat(cb.dataset.price||0);});
       submitBtn.disabled=true;
-      submitBtn.textContent='Submitting…';
+      submitBtn.textContent='Redirecting to checkout…';
       $('#submitConfirm').style.color='var(--mute)';
       $('#submitConfirm').textContent='';
-      fetch('/.netlify/functions/agent-build-request',{
+
+      // Read Supabase session token from localStorage (set by login.html on same domain)
+      var token='';
+      try{
+        var sbRaw=localStorage.getItem('sb-ulvrnermyuvzanxhxoib-auth-token');
+        var sbSess=sbRaw?JSON.parse(sbRaw):null;
+        token=(sbSess&&sbSess.access_token)||'';
+      }catch(_){}
+
+      var hdrs={'Content-Type':'application/json'};
+      if(token)hdrs['Authorization']='Bearer '+token;
+
+      fetch('/.netlify/functions/create-checkout-session',{
         method:'POST',
-        headers:{'Content-Type':'application/json'},
+        headers:hdrs,
         body:JSON.stringify({spec:s,items:items,total:total})
       })
       .then(function(r){return r.json();})
       .then(function(d){
-        submitBtn.disabled=false;
-        updateInvoiceTotal();
-        if(d.ok){
+        if(d.bypass){
+          submitBtn.disabled=false;
+          updateInvoiceTotal();
           $('#submitConfirm').style.color='var(--ok)';
-          $('#submitConfirm').textContent='Work order received. We\'ll be in touch about '+(s.name||'your agent')+'. Ref: '+d.ref+'.';
+          $('#submitConfirm').textContent='Work order queued (staff). '+(s.name||'Agent')+' is in the build queue. Ref: '+d.ref+'.';
+        } else if(d.url){
+          window.location.href=d.url;
         } else {
+          submitBtn.disabled=false;
+          updateInvoiceTotal();
           $('#submitConfirm').style.color='var(--red)';
-          $('#submitConfirm').textContent='Could not submit ('+(d.error||'error')+').';
+          $('#submitConfirm').textContent='Could not start checkout ('+(d.error||'error')+').';
         }
       })
       .catch(function(){
