@@ -1277,7 +1277,7 @@ footer a { color: rgba(255,255,255,0.4); }
     btn.textContent = 'One moment...';
 
     try {
-      var r = await fetch('/.netlify/functions/carols-office-checkout', {
+      var r = await fetch('/.netlify/functions/deskworks-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ company_name: company, contact_name: contact }),

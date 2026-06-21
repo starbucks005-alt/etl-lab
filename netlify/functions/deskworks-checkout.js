@@ -1,13 +1,13 @@
 /* ─────────────────────────────────────────────────────────────────────────────
-   carols-office-checkout
+   deskworks-checkout
 
-   Creates a Stripe Checkout Session for a Carol's Office desk rental.
+   Creates a Stripe Checkout Session for an ETL DeskWorks desk rental.
    $89/mo recurring subscription. Returns the hosted checkout URL.
 
    POST { company_name?, contact_name? }
    Returns { url }
 
-   Env: STRIPE_SECRET_KEY, DESKWORKS_PRICE_ID
+   Env: DESKWORKS_STRIPE_KEY, DESKWORKS_PRICE_ID
    ───────────────────────────────────────────────────────────────────────────── */
 
 const CORS = {
@@ -20,7 +20,7 @@ exports.handler = async function (event) {
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: CORS, body: '' };
   if (event.httpMethod !== 'POST') return { statusCode: 405, headers: CORS, body: 'POST only' };
 
-  const key = process.env.STRIPE_SECRET_KEY;
+  const key = process.env.DESKWORKS_STRIPE_KEY;
   const priceId = process.env.DESKWORKS_PRICE_ID;
   if (!key) return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: 'stripe_key_not_configured' }) };
   if (!priceId) return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: 'DESKWORKS_PRICE_ID not set in Netlify env' }) };
