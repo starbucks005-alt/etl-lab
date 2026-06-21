@@ -8,7 +8,6 @@
    Returns { url }
 
    Env: STRIPE_SECRET_KEY, DESKWORKS_PRICE_ID
-   (Price ID: price_1Tkn0lBpqKA2T6wFOQ7hskDj — $89/mo, prod_UkHYnRdCNB1UUc)
    ───────────────────────────────────────────────────────────────────────────── */
 
 const CORS = {
