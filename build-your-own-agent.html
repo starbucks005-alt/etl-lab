@@ -682,7 +682,6 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
 <script>
 (function(){
   var TOTAL=8, cur=1;
-  var devKey=(new URLSearchParams(window.location.search).get('dev')||sessionStorage.getItem('byoa_dev')||'');
   var state={role:'',purpose:'',reach:'',capabilities:[],name:'',tagline:'',background:'',
     tone:'',quirks:'',imgMode:'',imgOpen:'',imgClosed:'',imgPrompt:'',voice:'',voiceGender:'',voiceAge:'',voiceSample:''};
   var STEP_NAMES=['Purpose','Reach','Name','Story','Personality','Face','Voice','Work order'];
@@ -1052,7 +1051,7 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
       fetch('/.netlify/functions/create-checkout-session',{
         method:'POST',
         headers:hdrs,
-        body:JSON.stringify({spec:s,items:items,total:total,dev_key:devKey})
+        body:JSON.stringify({spec:s,items:items,total:total,dev_key:(new URLSearchParams(window.location.search).get('dev')||sessionStorage.getItem('byoa_dev')||'')})
       })
       .then(function(r){return r.json();})
       .then(function(d){
