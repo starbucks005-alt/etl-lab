@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Agent · Emerging Technologies Laboratory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0e0b07;
+  --panel: #1c1610;
+  --panel2: #261d0f;
+  --line: #3d2e1a;
+  --amber: #e8a844;
+  --amber-dim: #a87832;
+  --cream: #f4ead8;
+  --text: #d8c8a8;
+  --mute: #8a7660;
+  --ok: #7ab88a;
+  --red: #ff9a8a;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; line-height: 1.55; min-height: 100vh; }
+a { color: var(--amber); }
+
+.ribbon {
+  background: #0a0704;
+  border-bottom: 1px solid var(--line);
+  text-align: center;
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  font-size: .66rem;
+  color: var(--mute);
+  padding: .5rem;
+}
+.ribbon b { color: var(--amber); }
+
+.wrap {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 1.6rem 1.4rem 5rem;
+}
+
+.backlink {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .72rem;
+  color: var(--mute);
+  text-decoration: none;
+  display: inline-block;
+  margin-bottom: 1.6rem;
+}
+.backlink:hover { color: var(--text); }
+
+/* AGENT HEADER */
+.agent-header {
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+  margin-bottom: 1.8rem;
+}
+.agent-av {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid var(--line);
+  background: var(--panel2);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--amber);
+}
+.agent-av img { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; }
+.agent-name {
+  font-family: 'Spectral', serif;
+  font-size: 1.55rem;
+  font-weight: 600;
+  color: var(--cream);
+  margin: 0 0 .18rem;
+}
+.agent-role {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .68rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--amber);
+}
+.agent-tagline {
+  font-size: .88rem;
+  color: var(--mute);
+  margin-top: .22rem;
+}
+
+/* CHAT */
+.chat-box {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.chat-header {
+  background: var(--panel2);
+  border-bottom: 1px solid var(--line);
+  padding: .6rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .65rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+.chat-messages {
+  min-height: 200px;
+  max-height: 52vh;
+  overflow-y: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: .9rem;
+}
+.msg {
+  display: flex;
+  gap: .6rem;
+  align-items: flex-start;
+}
+.msg.user { flex-direction: row-reverse; }
+.msg-bubble {
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: .55rem .85rem;
+  font-size: .91rem;
+  line-height: 1.55;
+  max-width: 80%;
+  color: var(--text);
+  white-space: pre-wrap;
+}
+.msg.user .msg-bubble {
+  background: rgba(232,168,68,.1);
+  border-color: rgba(232,168,68,.25);
+  color: var(--cream);
+}
+.msg-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .6rem;
+  color: var(--mute);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin-top: .28rem;
+  white-space: nowrap;
+}
+.msg.user .msg-label { text-align: right; }
+.chat-input-row {
+  border-top: 1px solid var(--line);
+  display: flex;
+  gap: .5rem;
+  padding: .65rem .8rem;
+  background: var(--panel);
+}
+.chat-input-row input {
+  flex: 1;
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: .5rem .75rem;
+  color: var(--cream);
+  font-family: 'Inter', sans-serif;
+  font-size: .9rem;
+  outline: none;
+}
+.chat-input-row input:focus { border-color: var(--amber-dim); }
+.chat-input-row input::placeholder { color: var(--mute); }
+.btn-ask {
+  background: var(--amber);
+  color: #0e0b07;
+  border: none;
+  border-radius: 7px;
+  padding: .5rem 1.1rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .72rem;
+  letter-spacing: .06em;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.btn-ask:disabled { opacity: .45; cursor: default; }
+.btn-ask:not(:disabled):hover { background: var(--cream); }
+
+.error-msg {
+  color: var(--red);
+  font-size: .88rem;
+  margin-top: 1.2rem;
+  line-height: 1.5;
+}
+.loading-msg {
+  color: var(--mute);
+  font-size: .88rem;
+  margin-top: 1.2rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .72rem;
+  letter-spacing: .08em;
+}
+
+footer {
+  border-top: 1px solid var(--line);
+  margin-top: 3rem;
+  padding-top: .9rem;
+  color: var(--mute);
+  font-size: .8rem;
+}
+</style>
+</head>
+<body>
+
+<div class="ribbon">Emerging Technologies Laboratory &nbsp;&middot;&nbsp; <b id="ribbonName">Your Agent</b></div>
+
+<div class="wrap">
+  <a class="backlink" href="/">&larr; ETL campus</a>
+
+  <div id="loadingMsg" class="loading-msg">Loading your agent&hellip;</div>
+  <div id="errorMsg" class="error-msg" style="display:none;"></div>
+
+  <div id="agentHeader" class="agent-header" style="display:none;">
+    <div class="agent-av" id="agentAv"><span id="agentInitials"></span></div>
+    <div>
+      <div class="agent-name" id="agentName"></div>
+      <div class="agent-role" id="agentRole"></div>
+      <div class="agent-tagline" id="agentTagline"></div>
+    </div>
+  </div>
+
+  <div id="chatBox" class="chat-box" style="display:none;">
+    <div class="chat-header">
+      <span id="chatAgentLabel">Your agent</span>
+      <span>Prompt-only preview</span>
+    </div>
+    <div class="chat-messages" id="chatMessages"></div>
+    <div class="chat-input-row">
+      <input type="text" id="chatInput" placeholder="Say something&hellip;">
+      <button class="btn-ask" id="askBtn">Ask</button>
+    </div>
+  </div>
+
+  <footer>Emerging Technologies Laboratory &middot; Dr. Terry L. Oroszi. Your agent, your site, your keys.</footer>
+</div>
+
+<script>
+(function(){
+  var params = new URLSearchParams(window.location.search);
+  var ref    = params.get('ref') || '';
+  var systemPrompt = '';
+
+  function show(id){ document.getElementById(id).style.display=''; }
+  function hide(id){ document.getElementById(id).style.display='none'; }
+  function el(id){ return document.getElementById(id); }
+
+  function initials(name){
+    return (name||'?').split(/\s+/).slice(0,2).map(function(w){return w[0].toUpperCase();}).join('');
+  }
+
+  function buildSystemPrompt(s){
+    return [
+      'You are '+(s.name||'an agent')+', '+(s.role||'a staff member')+'.',
+      s.bio||'',
+      s.background?'Background: '+s.background:'',
+      s.personality&&s.personality.manner?'Manner: '+s.personality.manner:'',
+      s.personality&&s.personality.quirks?'Quirks: '+s.personality.quirks:'',
+      s.voice&&s.voice.sample?'Voice sample: "'+s.voice.sample+'"':'',
+      s.guardrail||''
+    ].filter(Boolean).join('\n\n');
+  }
+
+  function renderAgent(spec){
+    // Header
+    el('agentName').textContent   = spec.name  || 'Your Agent';
+    el('agentRole').textContent   = spec.role  || '';
+    el('agentTagline').textContent= spec.tagline || '';
+    el('ribbonName').textContent  = spec.name  || 'Your Agent';
+    el('chatAgentLabel').textContent = spec.name || 'Your agent';
+    el('agentInitials').textContent  = initials(spec.name);
+    document.title = (spec.name || 'Your Agent') + ' · ETL';
+
+    // Portrait
+    var portraitUrl = '';
+    if(spec.image){
+      if(spec.image.mode==='generate' && spec.image.generated_url){
+        portraitUrl = spec.image.generated_url;
+      } else if(spec.image.mode==='upload' && spec.image.eyes_open){
+        portraitUrl = '/agents/' + spec.image.eyes_open;
+      }
+    }
+    if(portraitUrl){
+      var img = document.createElement('img');
+      img.alt = spec.name || '';
+      img.onerror = function(){ this.remove(); };
+      img.src = portraitUrl;
+      el('agentAv').innerHTML = '';
+      el('agentAv').appendChild(img);
+    }
+
+    show('agentHeader');
+    show('chatBox');
+    hide('loadingMsg');
+
+    // Opener line
+    var msgs = el('chatMessages');
+    var opener = document.createElement('div');
+    opener.className='msg';
+    opener.innerHTML='<div><div class="msg-bubble">Go ahead, I\'m listening.</div><div class="msg-label">'+(spec.name||'Agent')+'</div></div>';
+    msgs.appendChild(opener);
+
+    el('chatInput').focus();
+  }
+
+  function appendMsg(text, isUser, label){
+    var msgs = el('chatMessages');
+    var row  = document.createElement('div');
+    row.className = 'msg' + (isUser ? ' user' : '');
+    row.innerHTML = '<div><div class="msg-bubble"></div><div class="msg-label">'+label+'</div></div>';
+    row.querySelector('.msg-bubble').textContent = text;
+    msgs.appendChild(row);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function doAsk(){
+    var input = el('chatInput');
+    var btn   = el('askBtn');
+    var q     = input.value.trim();
+    if(!q || btn.disabled) return;
+    input.value = '';
+    appendMsg(q, true, 'You');
+    btn.disabled = true;
+
+    fetch('/.netlify/functions/agent-preview', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ system: systemPrompt, question: q })
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      btn.disabled = false;
+      appendMsg(d.answer || '(no response)', false, el('agentName').textContent);
+    })
+    .catch(function(){
+      btn.disabled = false;
+      appendMsg('Could not reach the agent. Try again.', false, 'Error');
+    });
+  }
+
+  el('askBtn').onclick  = doAsk;
+  el('chatInput').addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); doAsk(); } });
+
+  // Load spec
+  if(!ref){
+    hide('loadingMsg');
+    el('errorMsg').textContent = 'No agent reference found. Check your link.';
+    show('errorMsg');
+    return;
+  }
+
+  fetch('/.netlify/functions/get-agent-spec?ref=' + encodeURIComponent(ref))
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if(!d.spec){ throw new Error('not_found'); }
+    systemPrompt = buildSystemPrompt(d.spec);
+    renderAgent(d.spec);
+  })
+  .catch(function(){
+    hide('loadingMsg');
+    el('errorMsg').textContent = 'Agent not found. Your link may be expired or incorrect.';
+    show('errorMsg');
+  });
+})();
+</script>
+</body>
+</html>
