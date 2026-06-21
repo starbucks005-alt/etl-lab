@@ -12,7 +12,7 @@
 // Preset bench labels expanded to Voice-Design-friendly descriptions (must be 20-1000 chars).
 const PRESET_DESC = {
   'Warm narrator':      'A warm, friendly narrator. Mature, clear and reassuring, with an even, unhurried pace and a natural conversational tone.',
-  'Deep & commanding':  'A deep, commanding male voice. Resonant baritone, confident and authoritative, measured, strong and grounded.',
+  'Deep & commanding':  'A deep, commanding voice. Resonant baritone, confident and authoritative, measured, strong and grounded.',
   'Bright & energetic': 'A bright, energetic voice. Upbeat, lively and youthful, with quick, expressive, enthusiastic delivery.',
   'Calm & measured':    'A calm, measured voice. Soft, steady and soothing, with a gentle even cadence and relaxed warmth.',
   'Dry & precise':      'A dry, precise voice. Crisp, articulate and exact, cool and understated, every word deliberate.',
@@ -30,8 +30,10 @@ async function synthExisting(key, voiceId, text){
   return Buffer.from(await r.arrayBuffer());
 }
 
-async function designVoice(key, description, sample){
+async function designVoice(key, description, sample, gender, age){
   const payload = { voice_description: description, model_id:'eleven_multilingual_ttv_v2', guidance_scale:5 };
+  if (gender) payload.gender = gender;
+  if (age)    payload.age    = age;
   const s = String(sample||'').trim();
   if (s.length >= 100) payload.text = s.slice(0,1000);   // Design needs 100-1000 chars of sample text
   else payload.auto_generate_text = true;                 // otherwise let ElevenLabs write the sample
@@ -68,7 +70,9 @@ exports.handler = async function(event){
     let desc = String(body.description || PRESET_DESC[body.style] || body.style || '').trim();
     if (desc.length < 20) desc = PRESET_DESC['Warm narrator'];   // Design requires >= 20 chars
     desc = desc.slice(0,1000);
-    const out = await designVoice(key, desc, text);
+    const gender = ['male','female','neutral'].includes(body.gender) ? body.gender : undefined;
+    const age    = ['young','middle_aged','old'].includes(body.age)  ? body.age    : undefined;
+    const out = await designVoice(key, desc, text, gender, age);
     return { statusCode:200, headers:{ 'Content-Type':'audio/mpeg', 'Cache-Control':'no-store', 'X-Generated-Voice-Id':out.gvid }, body:out.audio.toString('base64'), isBase64Encoded:true };
   } catch(err){
     const code = err && err.status ? err.status : 500;

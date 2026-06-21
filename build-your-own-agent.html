@@ -457,7 +457,15 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
       <h2>7. The voice.</h2>
       <p class="sub">Pick an ElevenLabs voice character. ETL assigns the exact voice on deploy; this sets the direction.</p>
       <div class="chips" id="voiceChips"></div>
-      <div style="display:flex;gap:.5rem;margin-top:.6rem;max-width:520px;">
+      <div style="margin-top:.8rem;">
+        <label class="fld" style="margin-bottom:.35rem;display:block;">Gender</label>
+        <div class="chips" id="genderChips"></div>
+      </div>
+      <div style="margin-top:.6rem;">
+        <label class="fld" style="margin-bottom:.35rem;display:block;">Age</label>
+        <div class="chips" id="ageChips"></div>
+      </div>
+      <div style="display:flex;gap:.5rem;margin-top:.8rem;max-width:520px;">
         <input type="text" id="voiceOther" placeholder="Other voice (e.g. French, warm and dry; Swiss, precise)" style="flex:1;">
         <button type="button" id="voiceAdd" class="addbtn">Add</button>
       </div>
@@ -591,7 +599,7 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
 (function(){
   var TOTAL=8, cur=1;
   var state={role:'',purpose:'',reach:'',capabilities:[],name:'',tagline:'',background:'',
-    tone:'',quirks:'',imgMode:'',imgOpen:'',imgClosed:'',imgPrompt:'',voice:'',voiceSample:''};
+    tone:'',quirks:'',imgMode:'',imgOpen:'',imgClosed:'',imgPrompt:'',voice:'',voiceGender:'',voiceAge:'',voiceSample:''};
   var STEP_NAMES=['Purpose','Reach','Name','Story','Personality','Face','Voice','Work order'];
   var CAPS=[['web-research','Live web research'],['lit-pubmed','Scholarly literature'],['market-data','Market & equities'],
     ['wine-data','Wine reference'],['labor-market','Labor market'],['market-intel','Industry intel'],
@@ -626,6 +634,18 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
   VOICES.forEach(function(v){var el=document.createElement('span');el.className='chip';el.textContent=v;
     el.onclick=function(){state.voice=v;document.querySelectorAll('#voiceChips .chip').forEach(function(x){x.classList.remove('sel');});el.classList.add('sel');};
     vc.appendChild(el);});
+
+  var gc=$('#genderChips');
+  [['female','Female'],['male','Male'],['neutral','Neutral']].forEach(function(g){
+    var el=document.createElement('span');el.className='chip';el.textContent=g[1];
+    el.onclick=function(){state.voiceGender=g[0];document.querySelectorAll('#genderChips .chip').forEach(function(x){x.classList.remove('sel');});el.classList.add('sel');};
+    gc.appendChild(el);});
+
+  var ac=$('#ageChips');
+  [['young','Young'],['middle_aged','Middle-aged'],['old','Mature']].forEach(function(a){
+    var el=document.createElement('span');el.className='chip';el.textContent=a[1];
+    el.onclick=function(){state.voiceAge=a[0];document.querySelectorAll('#ageChips .chip').forEach(function(x){x.classList.remove('sel');});el.classList.add('sel');};
+    ac.appendChild(el);});
 
   function addCustomVoice(){
     var inp=$('#voiceOther'); var raw=(inp.value||'').trim(); if(!raw) return;
@@ -689,7 +709,7 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
     if(!state.voice){$('#voiceStatus').textContent='Pick a voice first.';return;}
     voiceBtn.disabled=true;$('#voiceStatus').textContent='Synthesizing…';
     fetch('/.netlify/functions/voice-preview',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({text:state.voiceSample,style:state.voice})})
+      body:JSON.stringify({text:state.voiceSample,style:state.voice,gender:state.voiceGender||undefined,age:state.voiceAge||undefined})})
       .then(function(r){if(!r.ok)throw new Error('tts_'+r.status);return r.blob();})
       .then(function(b){voiceAudio.src=URL.createObjectURL(b);voiceAudio.play();$('#voiceStatus').textContent='Playing '+state.voice+'.';voiceBtn.disabled=false;})
       .catch(function(e){voiceBtn.disabled=false;$('#voiceStatus').textContent='Could not synthesize ('+(e.message||'error')+').';});
