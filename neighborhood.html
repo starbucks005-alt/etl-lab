@@ -83,7 +83,7 @@
 <div id="map-title"><span class="pulse"></span> ETL Agents — Live Campus <span class="pulse"></span></div>
 <div id="wrap">
   <canvas id="map-bg" width="1200" height="900"></canvas>
-  <img id="tech-map-overlay" src="/tech-map.png?v=20260618" alt="">
+  <img id="tech-map-overlay" src="/tech-map.png?v=20260621" alt="">
   <canvas id="map-fg" width="1200" height="900"></canvas>
   <button id="legend-btn" onclick="document.getElementById('legend-modal').classList.toggle('open')">◆ KEY</button>
   <div id="legend-modal">
@@ -166,6 +166,8 @@ const N = [
   [596,548],  // 25 Dr. O's Studio / ETL  ← PI
   [320,160],  // 26 City Government
   [505,790],  // 27  Garden Bridge crossing
+  [330,510],  // 28  Harvest Circuit Restaurant (own building)
+  [488,485],  // 29  Courtyard (outdoor plaza, lunch + meditation)
 ];
 
 const EDGES = [
@@ -197,9 +199,12 @@ const EDGES = [
   [25,4],[25,10],[25,12],[25,1], // Dr. O's Studio → NE Jct, SLR, Newswire, OPSEC
   [26,6],[26,0],                 // City Govt → The Gym + Intel Dashboard
   [19,27],[27,24],              // SW Junction → Garden Bridge → South Junction
+  [7,28],[28,29],               // West Jct → Restaurant → Courtyard
+  [29,8],[29,11],[29,14],       // Courtyard → Office Hours, Quad Jct, ETL Building
 ];
 
 const BRIDGE_NODE = 27;
+const YARD_NODE   = 29;
 const ADJ = Array.from({length:N.length},()=>[]);
 EDGES.forEach(([a,b])=>{
   const dx=N[a][0]-N[b][0],dy=N[a][1]-N[b][1],d=Math.hypot(dx,dy);
@@ -294,7 +299,7 @@ const ADAT = [
   ["Ruben Hart","HC",6,0],["Camille Lefèvre","HC",5.5,0],["Luca Brunner","HC",5.5,0]
 ];
 
-const HOME = {FS:18,OG:1,TG:2,TD:5,GY:6,PR:9,NW:12,GP:13,GK:23,XX:20,DR:14,ET:14,CG:26,SL:10,ID:0,HC:14};
+const HOME = {FS:18,OG:1,TG:2,TD:5,GY:6,PR:9,NW:12,GP:13,GK:23,XX:20,DR:14,ET:14,CG:26,SL:10,ID:0,HC:28};
 const HUB  = 20;
 const HUB_R = 60;
 const DR_O = 14; // ETL Building — Dr. O's home node
@@ -444,6 +449,7 @@ function pickTarget(a){
     return HUB;                            // rare DeskWorks visit
   }
   if(mode==='lunch'){
+    if(a.plat!=='DR' && r<.15) return YARD_NODE;  // pull ~15% to courtyard at lunch
     if(r<.50) return HOME[a.plat]||HUB;
     if(r<.80) return nearbyNode(a);
     return HUB;
@@ -594,6 +600,8 @@ function tick(ts){
       spawnEmoji('☕', a.x+(Math.random()-.5)*14, a.y-18, 0, -0.018, 2400);
     if(a.node===6&&(a.state===ST.W||a.state===ST.H)&&Math.random()<0.008)
       spawnEmoji('🎵', a.x+(Math.random()-.5)*18, a.y-18, (Math.random()-.5)*0.025, -0.022, 2600);
+    if(a.node===YARD_NODE&&(a.state===ST.W||a.state===ST.H)&&Math.random()<0.006)
+      spawnEmoji('🌿', a.x+(Math.random()-.5)*14, a.y-16, (Math.random()-.5)*0.018, -0.022, 2400);
   });
   lastTick=ts;
 }
@@ -821,10 +829,21 @@ function drawBridges(){
   });
 }
 
-// ── HARVEST CIRCUIT GLYPH — first-floor restaurant marker on ETL Building ────
+// ── YARD GLOW — courtyard ambient green ─────────────────────────────────────
+function drawYardGlow(){
+  const [yx,yy]=N[YARD_NODE];
+  const p=.5+.5*Math.sin(Date.now()*.0012+0.5);
+  const g=ctx.createRadialGradient(yx,yy,0,yx,yy,62);
+  g.addColorStop(0,`rgba(50,160,80,${.05+p*.04})`);
+  g.addColorStop(.6,`rgba(30,120,50,${.02+p*.02})`);
+  g.addColorStop(1,'rgba(30,120,50,0)');
+  ctx.fillStyle=g; ctx.beginPath(); ctx.arc(yx,yy,62,0,Math.PI*2); ctx.fill();
+}
+
+// ── HARVEST CIRCUIT GLYPH — restaurant building marker ────────────────────────
 function drawHarvestGlyph(){
-  const [nx,ny]=N[14];          // ETL Building [596,548]
-  const gx=nx+42, gy=ny+24;    // lower-right corner of the tile
+  const [nx,ny]=N[28];          // Harvest Circuit Restaurant node
+  const gx=nx, gy=ny-18;       // centered above the node
   const col='#e8984a';
   ctx.save();
   ctx.fillStyle='rgba(18,8,2,0.90)'; ctx.strokeStyle=col;
@@ -1090,6 +1109,15 @@ function drawHUD(){
   ctx.fillText('◆ HUB', hx, hy-24);
   ctx.restore();
 
+  // Courtyard marker
+  const [yx2,yy2]=N[YARD_NODE];
+  const yp=.5+.5*Math.sin(Date.now()*.0012+0.5);
+  ctx.save();
+  ctx.fillStyle=`rgba(60,180,80,${.55+yp*.25})`; ctx.font='bold 11px "Courier New",monospace'; ctx.textAlign='center';
+  ctx.shadowColor='rgba(50,160,80,0.5)'; ctx.shadowBlur=6;
+  ctx.fillText('◆ YARD', yx2, yy2-22);
+  ctx.restore();
+
   // Dr. O Studio marker
   const [dx,dy]=N[DR_O];
   const dp=.5+.5*Math.sin(Date.now()*.0014+1.2);
@@ -1130,7 +1158,7 @@ function loop(ts){
   const dt=Math.min(ts-last,50); last=ts;
   if(!MIRROR_MODE){ if(ts-lastTick>TICK){ tick(ts); writeState(); } agents.forEach(a=>move(a,dt)); }
   ctx = ctxBG;
-  drawBG(); drawHubGlow(); drawDrOGlow(); drawPaths(); drawBridges();
+  drawBG(); drawHubGlow(); drawDrOGlow(); drawYardGlow(); drawPaths(); drawBridges();
 
   ctx = ctxFG;
   ctxFG.clearRect(0,0,W,H);
