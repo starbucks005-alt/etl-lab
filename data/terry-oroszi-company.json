@@ -1,4 +1,4 @@
-{
+﻿{
   "_doc": "Dr. Terry Oroszi — owner/admin standing staff config. Provides the always-on hired_staff base so Auggie knows her full team regardless of blob state. PA and other user prefs come from her per-user blob (studio-config-set writes; withUserOverlay merges on top).",
   "account": {
     "owner_name": "Dr. Terry Oroszi",
@@ -18,7 +18,7 @@
         "name": "Dr. Henry Chen, RPh",
         "role": "The Pharmacist",
         "tier": "addon",
-        "price": 49,
+        "price": 25,
         "backpack": false,
         "why": "Health Sciences pharmacology expert on The Dose cast; handles drug interactions, supplement evidence, and medication literacy."
       },
@@ -26,7 +26,7 @@
         "name": "Maeve \"MJ\" Johnson",
         "role": "The Gardener",
         "tier": "addon",
-        "price": 49,
+        "price": 25,
         "backpack": false,
         "why": "The Dose cast; nutrition, home growing, whole-food wellness, and practical plant-based guidance."
       }

@@ -1,4 +1,4 @@
-{
+﻿{
   "_doc": "Sponsored Founder Studio company for Caroline Schirato (INMA), tuned for event planning + sponsorship development. Doubles as Code's provisioning fixture for pipeline M1 (provision) and M3 (billing + sponsorship). Field shapes match start-studio.html handoff payload + gift-method-spec sponsorship flags. All staff editable; additions stay in-kind.",
   "account": {
     "account_id": "acct_inma_caroline",
@@ -72,7 +72,7 @@
         "name": "Benjamin Reed",
         "role": "Chief Information Security Officer (CISO)",
         "tier": "board",
-        "price": 89.99,
+        "price": 45,
         "backpack": true,
         "free_assistant": {
           "selection": "owner_choice_from_pool",
@@ -87,7 +87,7 @@
         "name": "Delia Marsh",
         "role": "Director of Development & Sponsorships",
         "tier": "mcp",
-        "price": 49,
+        "price": 25,
         "backpack": true,
         "why": "Dedicated sponsorship closer, built on request. Backpack pulls live capacity signals (SEC EDGAR, SAM.gov, USAspending, ProPublica 990s) to rank prospects and size the ask. Runs the full development pipeline; Caroline keeps the relationship and makes the close. For the mayor role she also chases municipal grants (federal and state) using the same backpack (SAM.gov, USAspending, and public funding signals)."
       },
@@ -96,7 +96,7 @@
         "name": "Reid Callum",
         "role": "The Marketing Expert",
         "tier": "addon",
-        "price": 49,
+        "price": 25,
         "backpack": true,
         "why": "Builds the sponsor pitch and runs event promotion, now with a live marketing-landscape backpack. Double duty across both of her jobs."
       },
@@ -105,7 +105,7 @@
         "name": "Ayanna Cole",
         "role": "Director of Communications",
         "tier": "addon",
-        "price": 49,
+        "price": 25,
         "backpack": false,
         "why": "Event comms, speaker coordination, and sponsor-facing outreach."
       },
@@ -114,7 +114,7 @@
         "name": "Grey Hollis",
         "role": "The Ghostwriter",
         "tier": "addon",
-        "price": 49,
+        "price": 25,
         "backpack": false,
         "why": "Mayoral fit: speeches, proclamations, council remarks, op-eds, and event remarks. A mayor lives on prepared words."
       },
@@ -123,7 +123,7 @@
         "name": "The Professor",
         "role": "Research & Fact-Checker",
         "tier": "addon",
-        "price": 49,
+        "price": 25,
         "backpack": false,
         "why": "Fact-checks claims before public statements, summarizes staff reports and ordinances in plain language, and vets sponsor and event facts. Serves all three roles: mayor, events director, and sponsorship."
       }
@@ -167,9 +167,9 @@
     ]
   },
   "gaps_flagged": [
-    "RESOLVED: dedicated sponsorship closer added (Margo Whitfield, MCP backpack, $49/mo). She runs the full pipeline; the relationship and close stay with Caroline.",
-    "Optional add for sponsorship and event-ops strategy at board level: Raymond Chen (Judge, Business & Operations), +$89.99/mo, includes a free assistant.",
-    "Swapped out: Alistair Montgomery (Strategy & Market Analyst). Margo's backpack covers prospect research directly, so the generic analyst was redundant for this team. Add Alistair back at $49/mo if market-sizing depth is wanted."
+    "RESOLVED: dedicated sponsorship closer added (Margo Whitfield, MCP backpack, $25/mo). She runs the full pipeline; the relationship and close stay with Caroline.",
+    "Optional add for sponsorship and event-ops strategy at board level: Raymond Chen (Judge, Business & Operations), +$45/mo, includes a free assistant.",
+    "Swapped out: Alistair Montgomery (Strategy & Market Analyst). Margo's backpack covers prospect research directly, so the generic analyst was redundant for this team. Add Alistair back at $25/mo if market-sizing depth is wanted."
   ],
   "value_breakdown": {
     "tier": "Executive",

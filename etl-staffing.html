@@ -320,12 +320,12 @@ const INVITES={
     title:"Our formal staffing recommendation",
     intro:"Winning clients is the job, so this team leans into search, positioning, and reach. Hire them as proposed, or look around the catalog first; we re-staff as you grow.",
     items:[
-      ["Your PA + Founder Studio (the Starter)","$199/mo"],
-      ["The Essential Six-Pack: six core staff","$199/mo"],
-      ["Jax Rivera, SEO and Discovery (carries a backpack)","$69/mo"],
-      ["Zara Cole, The Influencer","$49/mo"]
+      ["Your PA + Founder Studio (the Starter)","$99/mo"],
+      ["The Essential Six-Pack: six core staff","$99/mo"],
+      ["Jax Rivera, SEO and Discovery (carries a backpack)","$35/mo"],
+      ["Zara Cole, The Influencer","$25/mo"]
     ],
-    total:"$516/mo",
+    total:"$258/mo",
     trial:"Rowan Tate rides along on trial at no charge. Use him, see how he does while the trading-desk rules are developed. He joins the bill at $119/mo only when his desk is live and proven.",
     pay:"https://buy.stripe.com/8x2cN4dvp9854d3h2O6Zy0e"
   }
@@ -368,7 +368,7 @@ function run(){
   if(chosen.length===0) DEFAULTS.forEach(([sub,why])=>{const a=find(sub);if(a&&!seen.has(a.name)){seen.add(a.name);chosen.push({a,why});}});
   const team=chosen.slice(0,6);
   const specTotal=team.reduce((s,t)=>s+(t.a.price||0),0);
-  const full=398+specTotal; const head=8+team.length;
+  const full=198+specTotal; const head=8+team.length;
   const echo=document.getElementById('goal').value.trim().replace(/^I (am|want to|would like to)\s*/i,'').replace(/\.$/,'');
   const WHY6={'Alicia James':'Files your LLC and makes the company legally real.','Leo Vance':'Keeps the books and gets you tax-ready.','Kimberly Pass':'Reads your contracts and explains them in plain English.','Sasha Moreno':'Hires and onboards when you bring people on.','Yuki Mendel':'Builds your brand and the way it looks.','Reid Callum':'Positions you and wins the attention.'};
   const card=(a,role,why,price)=>{const bp=/^\s*yes/i.test(a.mcp||'')?`<div class="why" style="margin-top:4px;color:#1f7a5c">🎒 <b>Backpack:</b> ${(''+a.mcp).replace(/^\s*yes:?\s*/i,'')}</div>`:'';
@@ -379,13 +379,13 @@ function run(){
    <div class="reply"><img class="av" src="${AM}" onerror="this.style.display='none'">
      <div>Grab a ${treat} while we talk. So, <b>${echo||'that'}</b>. We can staff that. Here is how every company we place is built, so you can see exactly where the ${head} people come from.</div></div>
 
-   <div class="sec">1 &middot; Your company shell <span style="font-weight:400;color:var(--muted);font-size:13px">&mdash; the $398 foundation, always placed</span></div>
+   <div class="sec">1 &middot; Your company shell <span style="font-weight:400;color:var(--muted);font-size:13px">&mdash; the $198 foundation, always placed</span></div>
    <div class="sub">Every founder gets this. On its own it is a real, runnable company. Staff marked 🎒 carry a <b>backpack</b> &mdash; their tools are part of them, so they do the job anywhere, not just talk about it.</div>
    <div class="team">
      <div class="member"><div class="mi" style="background:linear-gradient(135deg,#28527a,#5c8ab5);font-size:13px">You</div><div><div class="nm">You</div><div class="rl">Founder &amp; CEO</div><div class="why">You run it. Everyone reports up to you through your PA &mdash; one person to talk to, like a real company.</div></div></div>
-     ${pa?card(pa,'Your Personal Assistant (PA)','Your single point of contact &mdash; you tell them what you need, they make it happen. <b>What they actually do:</b> run your 6 AM daily brief (scans the web for you and your field overnight), dispatch work to any staff member and report back in one thread, hold your calendar and schedule, set the routines that run your company on autopilot, and onboard every new hire for you. The $199/mo includes <b>Founder Studio</b>, the workspace your whole company runs in.','$199/mo &middot; includes the Studio'):''}
+     ${pa?card(pa,'Your Personal Assistant (PA)','Your single point of contact &mdash; you tell them what you need, they make it happen. <b>What they actually do:</b> run your 6 AM daily brief (scans the web for you and your field overnight), dispatch work to any staff member and report back in one thread, hold your calendar and schedule, set the routines that run your company on autopilot, and onboard every new hire for you. The $99/mo includes <b>Founder Studio</b>, the workspace your whole company runs in.','$99/mo &middot; includes the Studio'):''}
    </div>
-   <div class="sub" style="margin-top:14px"><b>The Essential Six-Pack</b> &mdash; six core staff for one more $199, bundled. The backbone every small company needs on day one:</div>
+   <div class="sub" style="margin-top:14px"><b>The Essential Six-Pack</b> &mdash; six core staff for one more $99, bundled. The backbone every small company needs on day one:</div>
    <div class="team">${sixpack.map(a=>card(a,null,WHY6[a.name]||a.tagline||a.role||'Core staff.','included')).join('')}</div>
 
    <div class="sec" style="margin-top:24px">2 &middot; Your specialists for <span style="font-style:italic">${echo||'this venture'}</span></div>
@@ -395,7 +395,7 @@ function run(){
    <div class="sec" style="margin-top:24px">3 &middot; Choose how you start</div>
    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:6px">
      <div id="tier-found" onclick="selTier('found')" style="flex:1;min-width:240px;border:2px solid var(--line);border-radius:12px;padding:14px 16px;cursor:pointer;background:#fff">
-       <div class="big">$398<span style="font-size:14px">/mo</span></div>
+       <div class="big">$198<span style="font-size:14px">/mo</span></div>
        <div class="lbl"><b>Foundation only</b> &mdash; you + PA + the six essential staff. 8 people. A real company you can run today.</div>
      </div>
      <div id="tier-full" onclick="selTier('full')" style="flex:1;min-width:240px;border:2px solid var(--gold);border-radius:12px;padding:14px 16px;cursor:pointer;background:#fdf8ee">
@@ -410,7 +410,7 @@ function run(){
    <div class="note">Like any agency, you interview each one, swap anybody, add or drop specialists, and we re-staff as your business grows. Cost updates as you adjust.</div>`;
   document.getElementById('out').scrollIntoView({behavior:'smooth',block:'start'});
 }
-function selTier(t){window.__placeTier=t;const f=document.getElementById('tier-found'),u=document.getElementById('tier-full');const on='2px solid var(--gold)',onbg='#fdf8ee',off='2px solid var(--line)',offbg='#fff';f.style.border=t==='found'?on:off;f.style.background=t==='found'?onbg:offbg;u.style.border=t==='full'?on:off;u.style.background=t==='full'?onbg:offbg;const p=window.__place||{full:398};const btn=document.getElementById('placebtn');btn.innerHTML=(t==='found'?'Place my foundation &middot; $398/mo':'Place my full team &middot; $'+Math.round(p.full)+'/mo')+' &rarr;';}
+function selTier(t){window.__placeTier=t;const f=document.getElementById('tier-found'),u=document.getElementById('tier-full');const on='2px solid var(--gold)',onbg='#fdf8ee',off='2px solid var(--line)',offbg='#fff';f.style.border=t==='found'?on:off;f.style.background=t==='found'?onbg:offbg;u.style.border=t==='full'?on:off;u.style.background=t==='full'?onbg:offbg;const p=window.__place||{full:398};const btn=document.getElementById('placebtn');btn.innerHTML=(t==='found'?'Place my foundation &middot; $198/mo':'Place my full team &middot; $'+Math.round(p.full)+'/mo')+' &rarr;';}
 function placeTeam(){const p=window.__place||{};const tier=window.__placeTier||'full';
   const btn=document.getElementById('placebtn');if(btn){btn.innerHTML='Preparing your paperwork&hellip;';}
   fetch('/.netlify/functions/staffing-checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tier:tier,counts:p.counts||{}})})

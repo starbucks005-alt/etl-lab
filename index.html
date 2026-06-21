@@ -3444,7 +3444,7 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
           <a href="/build-your-pa.html" class="etl-pa-cta etl-pa-cta-secondary">Build your company &rarr;</a>
         </div>
         <div style="margin-top:16px; font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.18em; color:#d6cfc0; text-transform:uppercase;">
-          From <span style="color:#5c8ab5; font-weight:700;">$199/mo team cost</span> &middot;
+          From <span style="color:#5c8ab5; font-weight:700;">$99/mo team cost</span> &middot;
           <a href="/build-your-pa.html" style="color:#5c8ab5; text-decoration:underline;">see all three tiers</a>
         </div>
         <div style="margin-top:8px; font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.18em; color:#d6cfc0; text-transform:uppercase;">
@@ -5175,11 +5175,11 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
     <div class="agents-modal-hire" id="agents-modal-hire">
       <button class="agents-modal-hirebtn agents-modal-hirebtn-standing" id="agents-modal-hire-standing" type="button">
         <span class="agents-modal-hirebtn-label">Hire as Standing Staff</span>
-        <span class="agents-modal-hirebtn-price" id="agents-modal-hire-price-standing">$49/mo</span>
+        <span class="agents-modal-hirebtn-price" id="agents-modal-hire-price-standing">$25/mo</span>
       </button>
       <button class="agents-modal-hirebtn agents-modal-hirebtn-temp" id="agents-modal-hire-temp" type="button">
         <span class="agents-modal-hirebtn-label">Hire as Temp <span class="agents-modal-hirebtn-min">&middot; 1-month minimum</span></span>
-        <span class="agents-modal-hirebtn-price" id="agents-modal-hire-price-temp">$49/mo</span>
+        <span class="agents-modal-hirebtn-price" id="agents-modal-hire-price-temp">$25/mo</span>
       </button>
       <div class="agents-modal-hire-note">Same price either way. Standing recurs until you let them go. Temp is built for project work &mdash; release any time after day 30.</div>
     </div>
@@ -5719,7 +5719,7 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
     // ─── HIRE CTA ───────────────────────────────────────────────────
     // Pull price from roster if present; default by tier. Both buttons
     // get the same price (same-price rule for Standing vs Temp).
-    var hirePrice = (rosterAgent && rosterAgent.price_monthly) ? rosterAgent.price_monthly : 49;
+    var hirePrice = (rosterAgent && rosterAgent.price_monthly) ? rosterAgent.price_monthly : 25;
     var hirePriceStr = '$' + hirePrice + '/mo';
     var elHireStanding = document.getElementById('agents-modal-hire-standing');
     var elHireTemp     = document.getElementById('agents-modal-hire-temp');

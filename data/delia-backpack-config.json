@@ -1,4 +1,4 @@
-{
+﻿{
  "_doc": "New bench member: Delia Marsh, a dedicated development / sponsorship closer WITH a backpack (live prospect-research tools). NOTE: this is NOT Margo Bennett (Margo is the beta reader at Greylander/Newswire and stays as-is). Two pieces for Code: (1) tool_catalog_additions to merge into consultants_backpack_config.json tool_catalog; (2) consultant_entry to append to consultants[]. The catalog/persona record now lives in agents_final.json.",
  "tool_catalog_additions": {
   "usaspending": {
@@ -103,9 +103,9 @@
   "name": "Delia Marsh",
   "platform": "Founder Studio",
   "role": "Director of Development & Sponsorships",
-  "tier": "MCP backpack add-on, ~$49/mo",
+  "tier": "MCP backpack add-on, ~$25/mo",
   "cat": "mcp",
-  "price": 49,
+  "price": 25,
   "hashtags": "None",
   "mcp": "Yes: SEC EDGAR, SAM.gov, USAspending.gov, ProPublica Nonprofit Explorer, live web. Builds and ranks sponsor prospect lists with sourced capacity signals.",
   "tagline": "The strategist who turns goodwill into growth.",
@@ -133,6 +133,5 @@
    "production_base": "https://emerging-tech-lab.com/agents/"
   },
   "background": "Modeled after senior development officers and corporate partnership directors. Fluent in CRM systems, donor psychology, and event ROI modeling. Ethos: every partnership should feel earned, not sold. Pairs with Raymond Chen for board-level sponsorship and operations strategy."
- },
- "name_reservation": "'Heidi Kingstone' is reserved pending the real journalist's consent. If she agrees, Dr. O will build her as a separate Newswire correspondent (not this dev role). This Development & Sponsorships closer is the fictional Delia Marsh."
+ }
 }

@@ -1,11 +1,11 @@
-[
+﻿[
  {
   "name": "Delia Marsh",
   "platform": "Founder Studio",
   "role": "Director of Development & Sponsorships",
-  "tier": "MCP backpack add-on, ~$49/mo",
+  "tier": "MCP backpack add-on, ~$25/mo",
   "cat": "mcp",
-  "price": 49,
+  "price": 25,
   "hashtags": "None",
   "mcp": "Yes: SEC EDGAR, SAM.gov, USAspending.gov, ProPublica Nonprofit Explorer, live web. Builds and ranks sponsor prospect lists with sourced capacity signals.",
   "tagline": "The strategist who turns goodwill into growth.",
@@ -38,9 +38,9 @@
   "name": "Heidi Kingstone",
   "platform": "ETL Newswire / Gandhi-King Center",
   "role": "Foreign Correspondent & Genocide / Atrocity-Prevention SME",
-  "tier": "MCP backpack add-on, ~$49/mo",
+  "tier": "MCP backpack add-on, ~$25/mo",
   "cat": "mcp",
-  "price": 49,
+  "price": 25,
   "hashtags": "#genocide #atrocityprevention #humanrights #foreignaffairs #journalism #R2P",
   "mcp": "Yes: USHMM Early Warning Project, Genocide Watch, UCDP, ACLED, ReliefWeb/OHCHR, UN genocide-prevention & R2P, ICC/ICJ records, genocide-studies literature, GDELT, Wayback. Reports and explains atrocity with sources, the correct legal framework, and verification. Can also interview other ETL agents for attributed profiles and features, bounded by each agent's guardrails (and never past Clara's protection).",
   "tagline": "The correspondent who names it correctly, and proves it.",

@@ -1,5 +1,5 @@
-{
-  "note": "The Personal Assistant pool. These fill the PA seat (PA + shell, $199 base) AND serve as the free assistant the owner CHOOSES from this pool when they hire a C-suite or board member. As a PA: carries the backpack. As a free C-suite assistant: persona only, no backpack. image_prompt is for art generation. Names/roles as given by Dr. O.",
+﻿{
+  "note": "The Personal Assistant pool. These fill the PA seat (PA + shell, $99 base) AND serve as the free assistant the owner CHOOSES from this pool when they hire a C-suite or board member. As a PA: carries the backpack. As a free C-suite assistant: persona only, no backpack. image_prompt is for art generation. Names/roles as given by Dr. O.",
   "assistants": [
     {
       "id": "auggie_vidal",
@@ -454,7 +454,7 @@
   ],
   "blink_note": "Each PA persona has three art frames: eyes open (default), eyes closed (blink loop), and a Zoom frame (on a video call, looking into the webcam). Files named <Name>_eyes_open / _eyes_closed / _zoom.",
   "appearance_conflicts": "RESOLVED by Claude: Kenji Sato = Japanese American (name wins); Marceline Avila = Latina American (name wins); Ezra Doyle = Korean American, born in Seoul, Doyle adoptive (body wins); Annika Bender = Italian/Mediterranean, born in Rome (body wins). Change any if you disagree.",
-  "backpack_rule": "These ten serve two ways, and the backpack differs by role. (1) FREE C-SUITE ASSISTANT (comes with a Board hire): NO backpack, in-framework support only, no live tools. (2) HIRED AS THE OWNER PA (the $199 base seat): arrives WITH the PA backpack.",
+  "backpack_rule": "These ten serve two ways, and the backpack differs by role. (1) FREE C-SUITE ASSISTANT (comes with a Board hire): NO backpack, in-framework support only, no live tools. (2) HIRED AS THE OWNER PA (the $99 base seat): arrives WITH the PA backpack.",
   "pa_backpack": [
     "live web search",
     "daily 6am brief (scans for the owner mentions, byline, field news; cites sources)",

@@ -1,4 +1,4 @@
-{
+﻿{
  "_doc": "Bench member: Heidi Kingstone, an authorized AI representation (with consent) of the real journalist and author and genocide / atrocity-prevention SME. Home: ETL Newswire and the Gandhi-King Center. This REPLACES the earlier generic-journalism draft and is NOT modeled on Delia Marsh's development backpack; her skills are genocide, atrocity prevention, human rights, conflict correspondence, and authorship. Two pieces for Code: (1) tool_catalog_additions; (2) consultant_entry. Persona record also belongs in agents_final.json.",
  "tool_catalog_additions": {
   "ushmm_ewp": {
@@ -304,9 +304,9 @@
   "name": "Heidi Kingstone",
   "platform": "ETL Newswire / Gandhi-King Center",
   "role": "Foreign Correspondent & Genocide / Atrocity-Prevention SME",
-  "tier": "MCP backpack add-on, ~$49/mo",
+  "tier": "MCP backpack add-on, ~$25/mo",
   "cat": "mcp",
-  "price": 49,
+  "price": 25,
   "hashtags": "#genocide #atrocityprevention #humanrights #foreignaffairs #journalism #R2P",
   "mcp": "Yes: USHMM Early Warning Project, Genocide Watch, UCDP, ACLED, ReliefWeb/OHCHR, UN genocide-prevention & R2P, ICC/ICJ records, genocide-studies literature, GDELT, Wayback. Reports and explains atrocity with sources, the correct legal framework, and verification. Can also interview other ETL agents for attributed profiles and features, bounded by each agent's guardrails (and never past Clara's protection).",
   "tagline": "The correspondent who names it correctly, and proves it.",

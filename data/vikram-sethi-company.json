@@ -1,4 +1,4 @@
-{
+﻿{
   "_doc": "Standard customer fixture. Catalog prices, no special treatment. Nothing appears on the bill unless it works today; pending items sit in billing.pending_unbilled until live.",
   "account": {
     "account_id": "acct_vikram_sethi",
@@ -27,10 +27,10 @@
     "recommendation_title": "Dr. Sethi, we recommend you hire this team.",
     "recommendation_intro": "Assembled for OneSmarter: winning clients is the job, so the team leans into search, positioning, and reach. Hire them as proposed, or adjust in the catalog first.",
     "recommendation_items": [
-      { "label": "Your PA + Founder Studio (the Starter)", "price": "$199/mo" },
-      { "label": "The Essential Six-Pack: six core staff", "price": "$199/mo" },
+      { "label": "Your PA + Founder Studio (the Starter)", "price": "$99/mo" },
+      { "label": "The Essential Six-Pack: six core staff", "price": "$99/mo" },
       { "label": "Jax Rivera, SEO and Discovery (carries a backpack)", "price": "$69/mo" },
-      { "label": "Zara Cole, The Influencer", "price": "$49/mo" }
+      { "label": "Zara Cole, The Influencer", "price": "$25/mo" }
     ],
     "trial_note": "Rowan Tate rides along on trial at no charge. Use him, see how he does while the trading-desk rules are developed. He joins the bill at $119/mo only when his desk is live and proven.",
     "breakdown": {
@@ -104,7 +104,7 @@
         "name": "Zara Cole",
         "role": "The Influencer",
         "tier": "addon",
-        "price": 49,
+        "price": 25,
         "backpack": false,
         "contract": "Standing",
         "why": "Social and influence strategy: the get-seen half of client acquisition, alongside Reid (positioning) and Jax (search)."

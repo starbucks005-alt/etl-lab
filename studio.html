@@ -4065,7 +4065,7 @@ h1 em,h2 em{font-weight:300;color:#28527a}
 <!-- ────────────────────────────────────────────────────────────────────
      FIRE / SWAP MECHANIC (cosmetic; localStorage-persistent)
      A1 ship: visible Hire/Fire flow on every staff card. PA is swap-only.
-     Six-Pack fire-without-swap triggers the "runs with 5 at $199" dialog
+     Six-Pack fire-without-swap triggers the "runs with 5 at $99" dialog
      and renders an empty-slot placeholder. Specialty fires drop the card.
      Backend (real per-buyer Company storage) lands with the multi-tenant
      Stripe sprint; this UI plugs into it unchanged when that ships.
@@ -4087,7 +4087,7 @@ h1 em,h2 em{font-weight:300;color:#28527a}
   // ─── STAFF CONFIG ─────────────────────────────────────────────────
   // Pool tier governs Fire behavior:
   //   'pa'        → swap-only, no Fire button
-  //   'sixpack'   → Fire opens "runs with 5 at $199" recommend-swap dialog
+  //   'sixpack'   → Fire opens "runs with 5 at $99" recommend-swap dialog
   //   'specialty' → Fire opens simple confirm dialog
   // contract: 'standing' = no nudge after day 30, 'temp' = "Project complete?" nudge
   // dayOffset: backdated days since hire. Used to compute eligibility + display.
@@ -4100,7 +4100,7 @@ h1 em,h2 em{font-weight:300;color:#28527a}
     // when SHE is the seated PA (the card name follows the seat).
     'Jen Lopez':             { pool: 'pa',        contract: 'standing', dayOffset: 1   },
     // CORRECTION 2026-06-09: The "Six-Pack" is the Founder Studio BUNDLED
-    // staff (Alicia + Leo + Kimberly + Rowan + Yuki + Sasha) sold at $199/mo,
+    // staff (Alicia + Leo + Kimberly + Rowan + Yuki + Sasha) sold at $99/mo,
     // NOT slots in Terry's own Studio dashboard. All 13 non-PA staff below
     // are Specialty Hires. The Six-Pack swap-recommend dialog still exists
     // in the JS for when a Founder Studio buyer fires one of THEIR bundled
@@ -4398,7 +4398,7 @@ h1 em,h2 em{font-weight:300;color:#28527a}
       showDialog(
         'Release Six-Pack member',
         'Let ' + name + ' go?',
-        '<strong>' + name + '</strong> is one of your Six-Pack. Letting them go without replacing means your Company runs with <strong>5 staff</strong>. Your <strong>$199/mo does not change</strong> &mdash; the Six-Pack price is locked. You can refill the slot any time from the Hiring Pool.',
+        '<strong>' + name + '</strong> is one of your Six-Pack. Letting them go without replacing means your Company runs with <strong>5 staff</strong>. Your <strong>$99/mo does not change</strong> &mdash; the Six-Pack price is locked. You can refill the slot any time from the Hiring Pool.',
         [
           { label: 'Cancel' },
           { label: 'Swap instead', cls: 'fire-dialog-btn-primary', action: function(){ openSwap(name, cfg); }},
