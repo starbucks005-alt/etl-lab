@@ -545,7 +545,7 @@ function tick(ts){
     a.inHub = Math.hypot(a.x-N[HUB][0],a.y-N[HUB][1]) < HUB_R;
     const exp = a.timer>=a.dur;
 
-    const hubChance = tmode==='work' ? .04 : tmode==='weekend' ? .06 : .15;
+    const hubChance = tmode==='work' ? .04 : tmode==='weekend' ? .06 : .08;
     if(a.inHub && a.state===ST.W && Math.random()<hubChance){
       a.state=ST.H; a.dur=20000+Math.random()*25000; a.timer=0;
     }
@@ -610,7 +610,8 @@ function tick(ts){
   });
   // Romance spawner — disabled during work hours; active at lunch and evening
   const romanceP = tmode==='work' ? 0 : (tmode==='lunch'||tmode==='evening'||tmode==='weekend') ? 0.18 : 0.08;
-  if(Math.random() < romanceP){
+  const bridgeRomancers = agents.filter(a=>a.state===ST.R&&Math.hypot(a.x-N[BRIDGE_NODE][0],a.y-N[BRIDGE_NODE][1])<120).length;
+  if(Math.random() < romanceP && bridgeRomancers < 4){
     const bridge = BRIDGES[Math.floor(Math.random()*BRIDGES.length)];
     const mx = bridge.mx;
     const my = bridge.my;
