@@ -308,7 +308,7 @@ const HOME_OVERRIDE = {
   'Jaque Tremblay':           29,  // Courtyard (outdoor, meditation)
   "Jules Hartley":            13,  // Greylander Press
   "Renee Kovac":              12,  // ETL Newswire
-  "Beatriz 'Bea' Vega":      12,  // ETL Newswire (Bea is on all four, NW is her anchor)
+  "Beatriz 'Bea' Vega":      13,  // Greylander Press (her writing home)
   'Margo Bennett':            13,  // Greylander Press (novelist)
   'Adm. Grace Nakamura':       1,  // OPSEC Gauntlet
   'Ms. Ivy (Ivy Sinclair)':   14,  // ETL Building (campus concierge lives at HQ)
@@ -447,6 +447,15 @@ function pickTarget(a){
       }
       return 14; // stay at ETL Building
     }
+    if(mode==='weekend'){
+      const now=Date.now();
+      if(now-drOLastRoam > 90*60*1000 && r<.15){
+        drOLastRoam=now;
+        return allHomes[Math.floor(Math.random()*allHomes.length)];
+      }
+      // Weekend: splits time between her office, courtyard, and campus visits
+      return r<.45 ? 14 : r<.60 ? YARD_NODE : allHomes[Math.floor(Math.random()*allHomes.length)];
+    }
     return r<.35 ? 14 : allHomes[Math.floor(Math.random()*allHomes.length)];
   }
   // All other agents — time-of-day behavior
@@ -470,20 +479,23 @@ function pickTarget(a){
     return HUB;
   }
   if(mode==='weekend'){
-    // Saturday/Sunday: social campus — spread across courtyard, Gym, Dose, home
-    if(a.plat!=='DR' && r<.20) return YARD_NODE;   // 20% courtyard
-    if(a.plat!=='DR' && r<.28) return 6;            //  8% Gym
-    if(a.plat!=='DR' && r<.33) return 5;            //  5% Dose area
-    if(r<.58) return HOME_OVERRIDE[a.name]||HOME[a.plat]||HUB;  // 25% home
-    if(r<.78) return nearbyNode(a);                 // 20% nearby
-    if(r<.83) return HUB;                           //  5% DeskWorks
-    let n; do{n=Math.floor(Math.random()*N.length)}while(n===a.node||n===BRIDGE_NODE); return n;
+    // Saturday/Sunday: social campus, some still working
+    const cyZone=Math.random()<.5?YARD_NODE:11; // spread courtyard across outer quad too
+    if(a.plat!=='DR' && r<.12) return cyZone;                              // 12% courtyard zone
+    if(a.plat!=='DR' && r<.19) return 6;                                   //  7% Gym
+    if(a.plat!=='DR' && r<.24) return 5;                                   //  5% Dose
+    if(a.plat!=='DR'&&a.plat!=='OG'&&r<.28) return 2;                     //  4% Gauntlet spectating
+    if(a.plat!=='DR'&&a.plat!=='CG'&&r<.31) return 26;                    //  3% Court (watch Judge Roz)
+    if(r<.65) return HOME_OVERRIDE[a.name]||HOME[a.plat]||HUB;            // 34% at home/working
+    if(r<.83) return nearbyNode(a);                                        // 18% nearby
+    if(r<.88) return HUB;                                                  //  5% DeskWorks cafe
+    let n; do{n=Math.floor(Math.random()*N.length)}while(n===a.node||n===BRIDGE_NODE||(n===1&&a.plat!=='OG')); return n;
   }
   // morning / evening / night — original behavior
   if(r<.45) return HOME_OVERRIDE[a.name]||HOME[a.plat]||HUB;
   if(r<.70) return nearbyNode(a);
   if(r<.77) return HUB;
-  let n; do{n=Math.floor(Math.random()*N.length)}while(n===a.node||n===BRIDGE_NODE); return n;
+  let n; do{n=Math.floor(Math.random()*N.length)}while(n===a.node||n===BRIDGE_NODE||(n===1&&a.plat!=='OG')); return n;
 }
 function pickPairPartner(a,i){
   for(let j=0;j<agents.length;j++){

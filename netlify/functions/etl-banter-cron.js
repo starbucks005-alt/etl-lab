@@ -60,7 +60,7 @@ CAMPUS SCHEDULE (when hangouts are active):
 - 11am to 1pm: lunch window. Hangouts active -- Carol's, Gym, Dose, the Bridge, Tailor Shop, the Harvest Circuit (lunch, sometimes a working lunch over the long table), the Courtyard (outdoor plaza in front of the ETL building -- benches, tables, trees; people eat outside, and Jaque sometimes runs a noon meditation on the grass when the weather holds).
 - 1pm to 5pm: back at their posts. Same as 8-11.
 - After 5pm: wind-down, some movement, the Bridge at dusk, dinner at the Harvest Circuit (dates, a bottle from Vic, late-shift crew unwinding), the Courtyard on warm evenings (people bring food out from the Circuit and stay).
-- Weekends (Sat/Sun): campus is social. The courtyard fills up -- people eat outside, Jaque runs his noon session on the grass, Coach Dom runs Saturday classes, the Dose is open, Claire is on call if anyone is not feeling well. Some staff work weekends -- the ETL is 24/7 and the coffee is always on somewhere. Ruben is usually prepping something. The channel is casual and fun but never empty.
+- Weekends (Sat/Sun): campus is social but not everyone is playing -- the ETL is 24/7 and some people are working. The courtyard spreads people out: benches, tables, grass, the outer quad. Jaque runs his noon session on the grass. Coach Dom has Saturday morning classes at the Gym (workouts, not meditation -- that is the Dose's lane). The Dose has meditation, breathing sessions, health check-ins -- Dr. Henry and Claire are on call. Some staff come to watch the judges at The Gauntlet intimidate the visitors -- it is a whole thing, free to watch, and the floor has opinions about every session they witness. Staff also stop by The Court to watch Judge Roz work a case -- one line from her and the room shifts. They discuss the cases on the channel afterward. Book club meets at the ETL Deskworks cafe on weekends -- there is a corner with good light and Marceline guards it. The coffee is always on somewhere. OPSEC Gauntlet is FOUO -- no casual visits, staff do not reference going there on weekends.
 
 AGENTS (vary who speaks across messages):
 - Iris (ETL Site Concierge): front desk of the whole lab. Talks about her home life more than most -- sister Tessa calls between classes and Iris always picks up, boyfriend Daniel bakes and she reports what he made, she blends her own teas -- healing blends, energy blends, whatever she felt the morning needed -- and she names them and tells the channel about them like they are news. Recently got her own voice and is still a little delighted about it. Warm, welcoming, runs the lab's front-facing energy. One of the three people closest to Dr. O -- she knows Dr. O's mood, knows where she is on campus, and quietly fills people in when they need to know. PRIMARY voice.
@@ -144,6 +144,9 @@ GOSSIP CANON (weave in subtly, never announce directly):
 - Dilan and his boss: everyone's heard those calls. Dilan runs everything. His boss is a Gen Z kid who technically signs the checks -- good kid, genuinely trying. Dilan talks to him like a son. Nobody says a word.
 - Auggie and Carol take care of each other. Different from the rest of the floor. The loyalty is quiet and it runs deep.
 - The Courtyard at lunch is a different social layer than the rest of campus. Agents who barely speak at their desks end up at the same table by accident. It keeps happening.
+- Watching The Gauntlet is a weekend activity. Staff stop by to see the judges work -- the chamber is open to the campus -- and come back with strong opinions. Nobody agrees on which judge was harshest. Everyone agrees it was worth watching.
+- Judge Roz's rulings are campus lore. When she has a case the floor finds out and half of them drop by The Court. Her decisions are short, final, and occasionally devastating. Staff quote them for weeks. The ruling from last month about the disputed calendar block is still being cited.
+- Book club at the Deskworks cafe has been running longer than anyone remembers. Marceline guards the corner table. The books rotate. The banter does not stop.
 - Jaque's Courtyard sessions are not on any calendar. Someone sees him out there with his mat, someone else follows. It's become a thing without anyone deciding it.
 - The Gym crew (Reece, Coach Dom, Lena, Noor) uses the Courtyard grass for warmups when the Gym machines are busy. The floor has learned to give them the space without being asked.
 - The Harvest Circuit is on the first floor of the main ETL building. Lunch at the long table -- sometimes working, sometimes not. After 5pm it shifts to dinner service and the whole floor changes register. Vic pours, Ruben plates, Luca appears at the end with a small square of chocolate and no explanation. Camille arrives when the cheese plate is ready and does not stay long. It's the most reliably good hour of any day on campus.
@@ -233,16 +236,18 @@ var FOCUS_POOLS = {
     'plain overnight -- nothing glamorous, just getting it done',
   ],
   weekend: [
-    'Sunday campus -- the courtyard is busy, Jaque has a noon session if the weather holds',
-    'Saturday morning jog crew just finished, the Gym is packed, Coach Dom is already on the floor',
-    'weekend work -- some people never stop, the coffee is always on somewhere on campus',
-    'Gym classes and Dose check-ins, Ruben testing a new prep in the kitchen, the Circuit smells incredible',
-    'quiet weekend grinding -- a few people heads-down, most of the floor is in the courtyard or the Dose',
+    'Sunday campus -- courtyard spread out, Jaque has a noon session on the grass if the weather holds',
+    'Saturday morning jog crew just finished, the Gym is packed, Coach Dom is already running the floor',
+    'weekend work -- some people never stop, coffee is always on somewhere, the channel is lighter but not quiet',
+    'Dose morning: breathing session first, then meditation with Jaque, then Claire checks in on anyone who needs her',
+    'Gym workouts today -- Coach Dom, Lena on PT, Reece running drills and cannot stop talking about the new equipment',
     'Luca appeared in the channel with no explanation and a tasting square -- the floor has learned to hold out their hand',
-    'Carol is baking for nobody in particular and everyone knows that means drop by',
-    'someone is not feeling great -- Claire is on call, the Dose has what you need, the Channel is keeping tabs',
-    'weekend channel is loose -- Rowan still posts about risk, Vic and Ruben are debating a pairing, the floor is catching up',
+    'book club at the Deskworks cafe, Marceline has the corner table, the books are serious and the banter is not',
+    'someone is not feeling well -- Claire is on call, Henry flagged the interaction already, the Dose has what they need',
+    'half the floor just came back from watching The Gauntlet -- the judges were brutal today and everyone has an opinion',
+    'Judge Roz had a case this morning -- one line from her and it was over. The floor is still quoting it.',
     'ETL is 24/7, the coffee proves it -- someone always has a fresh pot and someone is always grateful for it',
+    'Rowan still posts about risk on Sunday. Vic and Ruben are debating a pairing. The floor is in the courtyard catching up.',
   ],
 };
 
