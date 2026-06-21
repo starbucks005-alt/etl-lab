@@ -166,7 +166,7 @@ const N = [
   [596,548],  // 25 Dr. O's Studio / ETL  ← PI
   [320,160],  // 26 City Government
   [505,790],  // 27  Garden Bridge crossing
-  [330,510],  // 28  Harvest Circuit Restaurant (own building)
+  [385,490],  // 28  Harvest Circuit Restaurant (own building)
   [488,485],  // 29  Courtyard (outdoor plaza, lunch + meditation)
 ];
 
@@ -840,28 +840,6 @@ function drawYardGlow(){
   ctx.fillStyle=g; ctx.beginPath(); ctx.arc(yx,yy,62,0,Math.PI*2); ctx.fill();
 }
 
-// ── HARVEST CIRCUIT GLYPH — restaurant building marker ────────────────────────
-function drawHarvestGlyph(){
-  const [nx,ny]=N[28];          // Harvest Circuit Restaurant node
-  const gx=nx, gy=ny-18;       // centered above the node
-  const col='#e8984a';
-  ctx.save();
-  ctx.fillStyle='rgba(18,8,2,0.90)'; ctx.strokeStyle=col;
-  ctx.shadowColor=col; ctx.shadowBlur=7; ctx.lineWidth=1;
-  rr(gx-10,gy-11,20,20,3); ctx.fill(); ctx.stroke();
-  ctx.shadowBlur=0;
-  ctx.strokeStyle=col; ctx.lineWidth=1.5; ctx.lineCap='round';
-  ctx.beginPath();
-  ctx.moveTo(gx,gy+5); ctx.lineTo(gx,gy);
-  ctx.moveTo(gx,gy);   ctx.lineTo(gx-5,gy-6);
-  ctx.moveTo(gx,gy);   ctx.lineTo(gx+5,gy-6);
-  ctx.stroke();
-  ctx.fillStyle=col;
-  ctx.beginPath(); ctx.arc(gx-5,gy-6,1.5,0,Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.arc(gx+5,gy-6,1.5,0,Math.PI*2); ctx.fill();
-  ctx.restore();
-}
-
 // ── HUB GLOW ────────────────────────────────────────────────────────────────
 function drawHubGlow(){
   const [hx,hy]=N[HUB];
@@ -1098,9 +1076,6 @@ function drawHUD(){
     }
     ctx.restore();
   }
-
-  // Harvest Circuit glyph on ETL Building tile
-  drawHarvestGlyph();
 
   // Hub marker
   const [hx,hy]=N[HUB];
