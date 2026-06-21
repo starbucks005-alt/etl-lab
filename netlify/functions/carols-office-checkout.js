@@ -7,7 +7,7 @@
    POST { company_name?, contact_name? }
    Returns { url }
 
-   Env: STRIPE_SECRET_KEY, CAROLS_OFFICE_PRICE_ID
+   Env: STRIPE_SECRET_KEY, DESKWORKS_PRICE_ID
    (Price ID: price_1Tkn0lBpqKA2T6wFOQ7hskDj — $89/mo, prod_UkHYnRdCNB1UUc)
    ───────────────────────────────────────────────────────────────────────────── */
 
@@ -22,9 +22,9 @@ exports.handler = async function (event) {
   if (event.httpMethod !== 'POST') return { statusCode: 405, headers: CORS, body: 'POST only' };
 
   const key = process.env.STRIPE_SECRET_KEY;
-  const priceId = process.env.CAROLS_OFFICE_PRICE_ID;
+  const priceId = process.env.DESKWORKS_PRICE_ID;
   if (!key) return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: 'stripe_key_not_configured' }) };
-  if (!priceId) return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: 'CAROLS_OFFICE_PRICE_ID not set in Netlify env — create a $199/mo price in Stripe and paste the ID' }) };
+  if (!priceId) return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: 'DESKWORKS_PRICE_ID not set in Netlify env — create a $199/mo price in Stripe and paste the ID' }) };
 
   let body = {};
   try { body = JSON.parse(event.body || '{}'); } catch (_) {}
