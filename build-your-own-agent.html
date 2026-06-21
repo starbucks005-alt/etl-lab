@@ -971,12 +971,27 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
     previewInput.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();doPreviewAsk();}});
   }
 
-  // Stripe success: redirect straight to the agent chat page
+  // Stripe success: show completion screen with pickup link
   (function(){
     var params=new URLSearchParams(window.location.search);
     if(params.get('paid')==='1'){
       var ref=params.get('ref')||'';
-      if(ref){ window.location.replace('/agent-chat?ref='+encodeURIComponent(ref)); }
+      var name=localStorage.getItem('byoa_agent_name')||'your agent';
+      localStorage.removeItem('byoa_agent_name');
+      function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+      var exportHref='/export-your-agent?agent='+encodeURIComponent(name)+(ref?'&ref='+encodeURIComponent(ref):'');
+      var chatHref=ref?'/agent-chat?ref='+encodeURIComponent(ref):'/agent-chat';
+      document.body.style.overflow='hidden';
+      var ov=document.createElement('div');
+      ov.style.cssText='position:fixed;inset:0;background:rgba(14,11,7,0.97);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;text-align:center;';
+      ov.innerHTML=
+        '<img src="/agents/Astra_9_eyes_open.png" style="width:120px;margin-bottom:1.4rem;opacity:.92;" alt="Astra 9">'+
+        '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:.6rem;letter-spacing:.2em;color:#c8973a;text-transform:uppercase;margin-bottom:.6rem;">Astra 9 &middot; Agent Fabricator</div>'+
+        '<h2 style="font-family:\'Spectral\',serif;color:#f4ead8;font-size:1.6rem;margin:0 0 .6rem;">Payment received.</h2>'+
+        '<p style="color:#b8a880;max-width:38ch;line-height:1.7;margin:0 0 2rem;">I am building <strong style="color:#f4ead8;">'+esc(name)+'</strong> now. Give me 10 to 15 minutes, then come back to pick them up.</p>'+
+        '<a href="'+exportHref+'" style="display:inline-block;font-family:\'IBM Plex Mono\',monospace;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;font-weight:600;background:#c8973a;color:#0e0b07;border-radius:8px;padding:.75rem 1.6rem;text-decoration:none;margin-bottom:1.2rem;">Pick up '+esc(name)+' &rarr;</a><br>'+
+        '<a href="'+chatHref+'" style="font-family:\'IBM Plex Mono\',monospace;font-size:.72rem;color:rgba(200,151,58,0.55);text-decoration:none;">Try them out while you wait &rarr;</a>';
+      document.body.appendChild(ov);
     }
   })();
 
@@ -990,6 +1005,7 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
         $('#submitConfirm').textContent='Fill out the spec first (name is required).';
         return;
       }
+      localStorage.setItem('byoa_agent_name', s.name || 'your agent');
       var items=(['portrait','blink','voice','backpack','export']).filter(function(id){
         var cb=document.getElementById('inv_'+id);return cb&&cb.checked&&!cb.disabled;
       });
