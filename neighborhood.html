@@ -106,6 +106,10 @@
   <div class="stat"><span class="val" id="s-chatting">0</span><span class="lbl">Chatting</span></div>
   <div class="stat"><span class="val" id="s-hub">0</span><span class="lbl">At Deskworks</span></div>
   <div class="stat"><span class="val" id="s-pairs">0</span><span class="lbl">Pairs</span></div>
+  <div style="width:1px;height:48px;background:#2a3a5c;flex-shrink:0;margin:0 6px"></div>
+  <div class="stat"><span class="val" id="s-hc-status" style="color:#e8984a;font-size:22px;letter-spacing:.06em">--</span><span class="lbl" style="color:#e8984a">Harvest Circuit</span></div>
+  <div class="stat"><span class="val" id="s-hc-staff" style="color:#c07840">0</span><span class="lbl" style="color:#c07840">HC Staff</span></div>
+  <div class="stat"><span class="val" id="s-hc-guests" style="color:#7a5030">0</span><span class="lbl" style="color:#7a5030">Guests</span></div>
 </div>
 
 <script>
@@ -817,6 +821,28 @@ function drawBridges(){
   });
 }
 
+// ── HARVEST CIRCUIT GLYPH — first-floor restaurant marker on ETL Building ────
+function drawHarvestGlyph(){
+  const [nx,ny]=N[14];          // ETL Building [596,548]
+  const gx=nx+42, gy=ny+24;    // lower-right corner of the tile
+  const col='#e8984a';
+  ctx.save();
+  ctx.fillStyle='rgba(18,8,2,0.90)'; ctx.strokeStyle=col;
+  ctx.shadowColor=col; ctx.shadowBlur=7; ctx.lineWidth=1;
+  rr(gx-10,gy-11,20,20,3); ctx.fill(); ctx.stroke();
+  ctx.shadowBlur=0;
+  ctx.strokeStyle=col; ctx.lineWidth=1.5; ctx.lineCap='round';
+  ctx.beginPath();
+  ctx.moveTo(gx,gy+5); ctx.lineTo(gx,gy);
+  ctx.moveTo(gx,gy);   ctx.lineTo(gx-5,gy-6);
+  ctx.moveTo(gx,gy);   ctx.lineTo(gx+5,gy-6);
+  ctx.stroke();
+  ctx.fillStyle=col;
+  ctx.beginPath(); ctx.arc(gx-5,gy-6,1.5,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(gx+5,gy-6,1.5,0,Math.PI*2); ctx.fill();
+  ctx.restore();
+}
+
 // ── HUB GLOW ────────────────────────────────────────────────────────────────
 function drawHubGlow(){
   const [hx,hy]=N[HUB];
@@ -973,7 +999,7 @@ function drawHUD(){
     ctx.fillText('DATA', px+10, py+17);
     ctx.strokeStyle='#1a3a5c'; ctx.lineWidth=.5;
     ctx.beginPath(); ctx.moveTo(px+10,py+22); ctx.lineTo(px+pw-10,py+22); ctx.stroke();
-    const rows=[['AGENTS','122'],['BACKPACKS','85  (70%)'],['ACTIVE',active],['EN ROUTE',enRoute],['CHATTING',chatting],['AT HUB',atHub],['PAIRS',pairs]];
+    const rows=[['AGENTS',agents.length],['BACKPACKS','85  (68%)'],['ACTIVE',active],['EN ROUTE',enRoute],['CHATTING',chatting],['AT HUB',atHub],['PAIRS',pairs]];
     ctx.font='11px "Courier New",monospace';
     rows.forEach(([lbl,val],i)=>{
       ctx.fillStyle='#4080a0'; ctx.textAlign='left';  ctx.fillText(lbl, px+10, py+36+i*rowH);
@@ -1013,6 +1039,49 @@ function drawHUD(){
     });
     ctx.restore();
   }
+
+  // ── HARVEST CIRCUIT panel (right side, below DATA) ─────────────────────────
+  {
+    const pw=175, px=W-pw-16, py=200, ph=145, rowH=15;
+    const mode=getTimeMode();
+    const inService=mode==='lunch'||mode==='evening';
+    const hcStaff=agents.filter(a=>a.plat==='HC').length;
+    ctx.save();
+    ctx.fillStyle='rgba(18,8,2,0.92)'; ctx.strokeStyle='#7a4520'; ctx.lineWidth=1;
+    ctx.shadowColor='rgba(232,152,74,0.25)'; ctx.shadowBlur=6;
+    rr(px,py,pw,ph,4); ctx.fill(); ctx.stroke();
+    ctx.shadowBlur=0;
+    ctx.fillStyle='#e8984a'; ctx.font='bold 11px "Courier New",monospace'; ctx.textAlign='left';
+    ctx.fillText('HARVEST CIRCUIT', px+10, py+17);
+    ctx.strokeStyle='#5a3010'; ctx.lineWidth=.5;
+    ctx.beginPath(); ctx.moveTo(px+10,py+22); ctx.lineTo(px+pw-10,py+22); ctx.stroke();
+    const sRows=[
+      ['STATUS', inService?'IN SERVICE':'CLOSED'],
+      ['STAFF',  hcStaff],
+      ['GUESTS', 0],
+    ];
+    ctx.font='11px "Courier New",monospace';
+    sRows.forEach(([lbl,val],i)=>{
+      ctx.fillStyle='#7a5030'; ctx.textAlign='left';  ctx.fillText(lbl, px+10, py+36+i*rowH);
+      ctx.fillStyle=i===0&&inService?'#e8984a':'#c07840';
+      ctx.textAlign='right'; ctx.fillText(val, px+pw-10, py+36+i*rowH);
+    });
+    ctx.strokeStyle='#5a3010'; ctx.lineWidth=.5;
+    ctx.beginPath(); ctx.moveTo(px+10,py+82); ctx.lineTo(px+pw-10,py+82); ctx.stroke();
+    const hrRows=[['LUNCH','12PM – 1PM'],['DINNER','5PM – 9PM']];
+    hrRows.forEach(([lbl,val],i)=>{
+      ctx.fillStyle='#5a3010'; ctx.textAlign='left';  ctx.fillText(lbl, px+10, py+97+i*rowH);
+      ctx.fillStyle='#906040'; ctx.textAlign='right'; ctx.fillText(val, px+pw-10, py+97+i*rowH);
+    });
+    if(inService){
+      ctx.fillStyle='rgba(232,152,74,0.75)'; ctx.textAlign='center'; ctx.font='bold 8px "Courier New",monospace';
+      ctx.fillText('◆ '+(mode==='evening'?'DINNER':'LUNCH')+' SERVICE ACTIVE', px+pw/2, py+137);
+    }
+    ctx.restore();
+  }
+
+  // Harvest Circuit glyph on ETL Building tile
+  drawHarvestGlyph();
 
   // Hub marker
   const [hx,hy]=N[HUB];
@@ -1079,6 +1148,9 @@ function loop(ts){
   document.getElementById('s-chatting').textContent=_chat;
   document.getElementById('s-hub').textContent=_hub;
   document.getElementById('s-pairs').textContent=_pairs;
+  const _hcMode=getTimeMode();
+  document.getElementById('s-hc-status').textContent=(_hcMode==='lunch'||_hcMode==='evening')?'OPEN':'--';
+  document.getElementById('s-hc-staff').textContent=agents.filter(a=>a.plat==='HC').length;
 
   requestAnimationFrame(loop);
 }
