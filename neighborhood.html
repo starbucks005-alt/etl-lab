@@ -1077,9 +1077,13 @@ function drawHUD(){
 
   // ── HARVEST CIRCUIT panel (right side, below DATA) ─────────────────────────
   {
-    const pw=175, px=W-pw-16, py=200, ph=145, rowH=15;
-    const mode=getTimeMode();
-    const inService=mode==='lunch'||mode==='evening';
+    const pw=175, px=W-pw-16, py=200, ph=160, rowH=15;
+    const hcH=getETHour();
+    const isBreakfast=hcH>=7&&hcH<10;
+    const isLunch=hcH>=12&&hcH<13;
+    const isDinner=hcH>=17&&hcH<21;
+    const inService=isBreakfast||isLunch||isDinner;
+    const hcServiceLabel=isBreakfast?'BREAKFAST':isDinner?'DINNER':'LUNCH';
     const hcStaff=agents.filter(a=>a.plat==='HC').length;
     ctx.save();
     ctx.fillStyle='rgba(18,8,2,0.92)'; ctx.strokeStyle='#7a4520'; ctx.lineWidth=1;
@@ -1103,14 +1107,14 @@ function drawHUD(){
     });
     ctx.strokeStyle='#5a3010'; ctx.lineWidth=.5;
     ctx.beginPath(); ctx.moveTo(px+10,py+82); ctx.lineTo(px+pw-10,py+82); ctx.stroke();
-    const hrRows=[['LUNCH','12PM – 1PM'],['DINNER','5PM – 9PM']];
+    const hrRows=[['BREAKFAST','7AM – 10AM'],['LUNCH','12PM – 1PM'],['DINNER','5PM – 9PM']];
     hrRows.forEach(([lbl,val],i)=>{
       ctx.fillStyle='#5a3010'; ctx.textAlign='left';  ctx.fillText(lbl, px+10, py+97+i*rowH);
       ctx.fillStyle='#906040'; ctx.textAlign='right'; ctx.fillText(val, px+pw-10, py+97+i*rowH);
     });
     if(inService){
       ctx.fillStyle='rgba(232,152,74,0.75)'; ctx.textAlign='center'; ctx.font='bold 8px "Courier New",monospace';
-      ctx.fillText('◆ '+(mode==='evening'?'DINNER':'LUNCH')+' SERVICE ACTIVE', px+pw/2, py+137);
+      ctx.fillText('◆ '+hcServiceLabel+' SERVICE ACTIVE', px+pw/2, py+152);
     }
     ctx.restore();
   }
@@ -1189,8 +1193,9 @@ function loop(ts){
   document.getElementById('s-chatting').textContent=_chat;
   document.getElementById('s-hub').textContent=_hub;
   document.getElementById('s-pairs').textContent=_pairs;
-  const _hcMode=getTimeMode();
-  document.getElementById('s-hc-status').textContent=(_hcMode==='lunch'||_hcMode==='evening')?'OPEN':'--';
+  const _hcH=getETHour();
+  const _hcOpen=(_hcH>=7&&_hcH<10)||(_hcH>=12&&_hcH<13)||(_hcH>=17&&_hcH<21);
+  document.getElementById('s-hc-status').textContent=_hcOpen?'OPEN':'--';
   document.getElementById('s-hc-staff').textContent=agents.filter(a=>a.plat==='HC').length;
 
   requestAnimationFrame(loop);
