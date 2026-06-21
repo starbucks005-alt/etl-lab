@@ -238,7 +238,7 @@ const ADAT = [
   ["August 'Auggie' Vidal","ET",7,1],["Alicia James","FS",5.5,0],
   ["Leo Vance","FS",6,1],["Kimberly Pass","FS",5.5,0],
   ["Sasha Moreno","FS",5.5,0],["Yuki Mendel","FS",5.5,0],
-  ["Rowan Tate","FS",6,1],["Vic Stallion","ET",6,1],["Iris S. King","ET",5.5,0],
+  ["Rowan Tate","FS",6,1],["Vic Stallion","HC",6,1],["Iris S. King","ET",5.5,0],
   ["Jax Rivera","FS",6,1],["Margaret Applewood","TD",5.5,0],
   ["Eli Adler","TD",6,1],["Nadia Hassan","TD",5.5,0],
   ["Dr. Henry Chen","TD",6,1],["Maeve 'MJ' Johnson","TD",5.5,0],
@@ -273,7 +273,7 @@ const ADAT = [
   ["Renee Kovac","XX",6,1],["Dr. Maya Iyer","NW",6,1],
   ["Karen Bishop","NW",6,1],["Mara Rivera","NW",6,1],
   ["Frank Donovan","NW",6,1],["Sneha Desai","GK",6,1],
-  ["Ayanna Cole","GK",5.5,0],["Coach Dom Castellanos","GY",6,1],
+  ["Clara Sediqa","GK",5.5,0],["Ayanna Cole","GK",5.5,0],["Coach Dom Castellanos","GY",6,1],
   ["Dr. Lena Brandt DPT","GY",6,1],["Noor Haddad","GY",5.5,0],
   ["Dr. Sana Qureshi","GY",5.5,0],["Benjamin Reed","FS",8,1],
   ["Dr. Terry L. Oroszi","DR",9,1],["Delia Marsh","FS",6,1],
@@ -374,7 +374,9 @@ function getETHour(){
 }
 function getTimeMode(){
   var h = getETHour();
+  var isWknd = ['Sat','Sun'].includes(new Date().toLocaleString('en-US',{timeZone:'America/New_York',weekday:'short'}));
   if(h >= 12 && h < 13) return 'lunch';
+  if(isWknd && h >= 9 && h < 20) return 'weekend';
   if(h >= 8  && h < 17) return 'work';
   if(h >= 17 && h < 21) return 'evening';
   if(h >= 7  && h < 8)  return 'morning';
@@ -442,7 +444,7 @@ function pickTarget(a){
     // Newswire and city-gov (incl. Roz) anchored at City Govt.
     // FS gets 84px: Build Your Agent (node 22) is only 87px from Founder Studio
     // (node 18), so without a tighter radius FS agents cluster at the wrong building.
-    const pullDist = ['GP','NW','CG'].includes(a.plat) ? 100 : a.plat==='FS' ? 55 : 200;
+    const pullDist = ['GP','NW','CG','HC'].includes(a.plat) ? 100 : a.plat==='FS' ? 55 : 200;
     if(dist > pullDist) return homeNode;
     if(r<.72) return homeNode;             // at their post
     if(r<.92) return nearbyNode(a);        // short hop nearby
@@ -453,6 +455,14 @@ function pickTarget(a){
     if(r<.50) return HOME[a.plat]||HUB;
     if(r<.80) return nearbyNode(a);
     return HUB;
+  }
+  if(mode==='weekend'){
+    // Saturday/Sunday: campus is social, courtyard draws ~40% of everyone
+    if(a.plat!=='DR' && r<.40) return YARD_NODE;
+    if(r<.65) return HOME[a.plat]||HUB;
+    if(r<.85) return nearbyNode(a);
+    if(r<.90) return HUB;
+    let n; do{n=Math.floor(Math.random()*N.length)}while(n===a.node); return n;
   }
   // morning / evening / night — original behavior
   if(r<.45) return HOME[a.plat]||HUB;
@@ -473,13 +483,13 @@ function pickPairPartner(a,i){
 
 function setWalk(a){
   const wm=getTimeMode();
-  const dur=wm==='work'?45000+Math.random()*35000:12000+Math.random()*18000;
+  const dur=wm==='work'?45000+Math.random()*35000:wm==='weekend'?22000+Math.random()*28000:12000+Math.random()*18000;
   a.state=ST.W; a.dur=dur; a.timer=0; a.partner=-1;
   a.paceDir=-1; a.pacePhase=0; a.romancePending=false;
 }
 function setPause(a){
   const wm=getTimeMode();
-  const dur=wm==='work'?50000+Math.random()*40000:10000+Math.random()*20000;
+  const dur=wm==='work'?50000+Math.random()*40000:wm==='weekend'?30000+Math.random()*35000:10000+Math.random()*20000;
   a.state=ST.P; a.dur=dur; a.timer=0;
 }
 function setGuide(a,t){
@@ -508,7 +518,7 @@ function tick(ts){
     a.inHub = Math.hypot(a.x-N[HUB][0],a.y-N[HUB][1]) < HUB_R;
     const exp = a.timer>=a.dur;
 
-    const hubChance = tmode==='work' ? .04 : .15;
+    const hubChance = tmode==='work' ? .04 : tmode==='weekend' ? .06 : .15;
     if(a.inHub && a.state===ST.W && Math.random()<hubChance){
       a.state=ST.H; a.dur=20000+Math.random()*25000; a.timer=0;
     }
@@ -517,7 +527,7 @@ function tick(ts){
       case ST.W:
         if(exp){
           const r=Math.random();
-          const moveRate = tmode==='work' ? 0.08 : 0.35;
+          const moveRate = tmode==='work' ? 0.08 : tmode==='weekend' ? 0.20 : 0.35;
           if(r<moveRate){
             const t=pickTarget(a);
             // no pair-walking during work hours — agents go alone
@@ -572,7 +582,7 @@ function tick(ts){
     }
   });
   // Romance spawner — disabled during work hours; active at lunch and evening
-  const romanceP = tmode==='work' ? 0 : (tmode==='lunch'||tmode==='evening') ? 0.18 : 0.08;
+  const romanceP = tmode==='work' ? 0 : (tmode==='lunch'||tmode==='evening'||tmode==='weekend') ? 0.18 : 0.08;
   if(Math.random() < romanceP){
     const bridge = BRIDGES[Math.floor(Math.random()*BRIDGES.length)];
     const mx = bridge.mx;
