@@ -148,10 +148,10 @@ const N = [
   [222,415],  // 7  West Junction
   [462,390],  // 8  Office Hours
   [554,385],  // 9  Prep Room
-  [658,380],  // 10 SLR Studio
+  [722,376],  // 10 SLR Studio
   [548,496],  // 11 Quad Junction
-  [855,396],  // 12 ETL Newswire
-  [994,394],  // 13 Greylander Press
+  [878,392],  // 12 ETL Newswire
+  [1058,410], // 13 Greylander Press
   [596,548],  // 14 ETL Building
   [926,506],  // 15 SE Junction
   [132,718],  // 16 Boardroom
@@ -300,6 +300,19 @@ const ADAT = [
 ];
 
 const HOME = {FS:18,OG:1,TG:2,TD:5,GY:6,PR:9,NW:12,GP:13,GK:23,XX:20,DR:14,ET:14,CG:26,SL:10,ID:0,HC:28};
+// Per-agent home overrides for XX multi-platform staff who each have a real home building
+const HOME_OVERRIDE = {
+  'Chris Avila':              21,  // his own Tailor Shop
+  'Wyatt E. Cooper':           5,  // The Dose (he keeps home there)
+  'Reece Ashford':             6,  // The Gym
+  'Jaque Tremblay':           29,  // Courtyard (outdoor, meditation)
+  "Jules Hartley":            13,  // Greylander Press
+  "Renee Kovac":              12,  // ETL Newswire
+  "Beatriz 'Bea' Vega":      12,  // ETL Newswire (Bea is on all four, NW is her anchor)
+  'Margo Bennett':            13,  // Greylander Press (novelist)
+  'Adm. Grace Nakamura':       1,  // OPSEC Gauntlet
+  'Ms. Ivy (Ivy Sinclair)':   14,  // ETL Building (campus concierge lives at HQ)
+};
 const HUB  = 20;
 const HUB_R = 60;
 const DR_O = 14; // ETL Building — Dr. O's home node
@@ -391,7 +404,7 @@ const NAMED_OFFSET = {
 
 // ── INIT AGENTS ──────────────────────────────────────────────────────────────
 const agents = ADAT.map(([name,plat,r,mcp])=>{
-  const hn = HOME[plat]||20;
+  const hn = HOME_OVERRIDE[name] || HOME[plat] || 20;
   const [hx,hy] = N[hn];
   const _da=Math.random()*Math.PI*2, _dd=8+Math.random()*22;
   const [nox,noy] = NAMED_OFFSET[name] || [0,0];
@@ -438,7 +451,7 @@ function pickTarget(a){
   }
   // All other agents — time-of-day behavior
   if(mode==='work'){
-    const homeNode = HOME[a.plat]||HUB;
+    const homeNode = HOME_OVERRIDE[a.name] || HOME[a.plat] || HUB;
     const dist = Math.hypot(a.x - N[homeNode][0], a.y - N[homeNode][1]);
     // GP/NW/CG stay tight to their building — 100px keeps Greylander out of
     // Newswire and city-gov (incl. Roz) anchored at City Govt.
@@ -457,18 +470,20 @@ function pickTarget(a){
     return HUB;
   }
   if(mode==='weekend'){
-    // Saturday/Sunday: campus is social, courtyard draws ~40% of everyone
-    if(a.plat!=='DR' && r<.40) return YARD_NODE;
-    if(r<.65) return HOME[a.plat]||HUB;
-    if(r<.85) return nearbyNode(a);
-    if(r<.90) return HUB;
-    let n; do{n=Math.floor(Math.random()*N.length)}while(n===a.node); return n;
+    // Saturday/Sunday: social campus — spread across courtyard, Gym, Dose, home
+    if(a.plat!=='DR' && r<.20) return YARD_NODE;   // 20% courtyard
+    if(a.plat!=='DR' && r<.28) return 6;            //  8% Gym
+    if(a.plat!=='DR' && r<.33) return 5;            //  5% Dose area
+    if(r<.58) return HOME_OVERRIDE[a.name]||HOME[a.plat]||HUB;  // 25% home
+    if(r<.78) return nearbyNode(a);                 // 20% nearby
+    if(r<.83) return HUB;                           //  5% DeskWorks
+    let n; do{n=Math.floor(Math.random()*N.length)}while(n===a.node||n===BRIDGE_NODE); return n;
   }
   // morning / evening / night — original behavior
-  if(r<.45) return HOME[a.plat]||HUB;
+  if(r<.45) return HOME_OVERRIDE[a.name]||HOME[a.plat]||HUB;
   if(r<.70) return nearbyNode(a);
   if(r<.77) return HUB;
-  let n; do{n=Math.floor(Math.random()*N.length)}while(n===a.node); return n;
+  let n; do{n=Math.floor(Math.random()*N.length)}while(n===a.node||n===BRIDGE_NODE); return n;
 }
 function pickPairPartner(a,i){
   for(let j=0;j<agents.length;j++){
@@ -660,8 +675,7 @@ function move(a, dt){
           if(arrivedAt===12) spawnEmoji('📰', a.x+(Math.random()-.5)*14, a.y-20, (Math.random()-.5)*0.02, -0.022, 2200);
           if(arrivedAt===5)  spawnEmoji('💊', a.x, a.y-22, 0, -0.025, 2000);
           if(arrivedAt===23) spawnEmoji('🕊️', a.x, a.y-24, (Math.random()-.5)*0.03, -0.03, 2400);
-          if(arrivedAt===BRIDGE_NODE){ a.state=ST.P; a.dur=300000; a.timer=0; }
-          else setWalk(a);
+          setWalk(a);
         }
       }
       break;
@@ -1151,7 +1165,7 @@ function loop(ts){
 
   // update stats bar below map
   const _active=agents.filter(a=>a.state!==ST.P).length;
-  const _chat=Math.floor(agents.filter(a=>a.state===ST.C).length/2);
+  const _chat=agents.filter(a=>a.state===ST.C).length;
   const _hub=agents.filter(a=>a.inHub).length;
   const _route=agents.filter(a=>a.state===ST.G).length;
   const _pairs=Math.floor(agents.filter(a=>a.partner>=0&&a.state===ST.G).length/2);

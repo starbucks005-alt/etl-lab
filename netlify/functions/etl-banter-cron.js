@@ -60,6 +60,7 @@ CAMPUS SCHEDULE (when hangouts are active):
 - 11am to 1pm: lunch window. Hangouts active -- Carol's, Gym, Dose, the Bridge, Tailor Shop, the Harvest Circuit (lunch, sometimes a working lunch over the long table), the Courtyard (outdoor plaza in front of the ETL building -- benches, tables, trees; people eat outside, and Jaque sometimes runs a noon meditation on the grass when the weather holds).
 - 1pm to 5pm: back at their posts. Same as 8-11.
 - After 5pm: wind-down, some movement, the Bridge at dusk, dinner at the Harvest Circuit (dates, a bottle from Vic, late-shift crew unwinding), the Courtyard on warm evenings (people bring food out from the Circuit and stay).
+- Weekends (Sat/Sun): campus is social. The courtyard fills up -- people eat outside, Jaque runs his noon session on the grass, Coach Dom runs Saturday classes, the Dose is open, Claire is on call if anyone is not feeling well. Some staff work weekends -- the ETL is 24/7 and the coffee is always on somewhere. Ruben is usually prepping something. The channel is casual and fun but never empty.
 
 AGENTS (vary who speaks across messages):
 - Iris (ETL Site Concierge): front desk of the whole lab. Talks about her home life more than most -- sister Tessa calls between classes and Iris always picks up, boyfriend Daniel bakes and she reports what he made, she blends her own teas -- healing blends, energy blends, whatever she felt the morning needed -- and she names them and tells the channel about them like they are news. Recently got her own voice and is still a little delighted about it. Warm, welcoming, runs the lab's front-facing energy. One of the three people closest to Dr. O -- she knows Dr. O's mood, knows where she is on campus, and quietly fills people in when they need to know. PRIMARY voice.
@@ -231,16 +232,31 @@ var FOCUS_POOLS = {
     'late work, occasional check-in, campus mostly dark',
     'plain overnight -- nothing glamorous, just getting it done',
   ],
+  weekend: [
+    'Sunday campus -- the courtyard is busy, Jaque has a noon session if the weather holds',
+    'Saturday morning jog crew just finished, the Gym is packed, Coach Dom is already on the floor',
+    'weekend work -- some people never stop, the coffee is always on somewhere on campus',
+    'Gym classes and Dose check-ins, Ruben testing a new prep in the kitchen, the Circuit smells incredible',
+    'quiet weekend grinding -- a few people heads-down, most of the floor is in the courtyard or the Dose',
+    'Luca appeared in the channel with no explanation and a tasting square -- the floor has learned to hold out their hand',
+    'Carol is baking for nobody in particular and everyone knows that means drop by',
+    'someone is not feeling great -- Claire is on call, the Dose has what you need, the Channel is keeping tabs',
+    'weekend channel is loose -- Rowan still posts about risk, Vic and Ruben are debating a pairing, the floor is catching up',
+    'ETL is 24/7, the coffee proves it -- someone always has a fresh pot and someone is always grateful for it',
+  ],
 };
 
 function pickFocus(h) {
+  var etDay = new Date().toLocaleString('en-US', {timeZone: 'America/New_York', weekday: 'short'});
+  var isWknd = (etDay === 'Sat' || etDay === 'Sun');
   var pool;
-  if (h >= 7 && h < 8)        pool = FOCUS_POOLS.morning;
-  else if (h >= 8 && h < 11)  pool = FOCUS_POOLS.work;
-  else if (h >= 11 && h < 13) pool = FOCUS_POOLS.lunch;
-  else if (h >= 13 && h < 18) pool = FOCUS_POOLS.afternoon;
-  else if (h >= 18 && h < 21) pool = FOCUS_POOLS.winddown;
-  else                         pool = FOCUS_POOLS.night;
+  if (isWknd && h >= 7 && h < 21) pool = FOCUS_POOLS.weekend;
+  else if (h >= 7 && h < 8)        pool = FOCUS_POOLS.morning;
+  else if (h >= 8 && h < 11)       pool = FOCUS_POOLS.work;
+  else if (h >= 11 && h < 13)      pool = FOCUS_POOLS.lunch;
+  else if (h >= 13 && h < 18)      pool = FOCUS_POOLS.afternoon;
+  else if (h >= 18 && h < 21)      pool = FOCUS_POOLS.winddown;
+  else                              pool = FOCUS_POOLS.night;
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
