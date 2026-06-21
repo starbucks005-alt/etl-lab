@@ -65,6 +65,21 @@
   .fstep .who{font-size:.78rem;color:var(--mute);margin-top:.15rem;}
   .arrow{align-self:center;color:var(--vein);font-size:1.1rem;}
   @media(max-width:640px){.arrow{display:none;}.fstep{min-width:45%;}}
+  .fstep{transition:border-color .25s, box-shadow .25s, transform .25s, background .25s;}
+  .fstep.active{border-color:var(--teal);box-shadow:0 0 0 1px var(--teal), 0 6px 22px rgba(70,214,230,.18);transform:translateY(-2px);}
+  .fstep.active .s{color:var(--vein);}
+  .circuit-run{display:flex;gap:.5rem;margin:.3rem 0 0;max-width:620px;}
+  .circuit-run input{flex:1;background:var(--bg2);border:1px solid var(--line);border-radius:8px;color:var(--text);font-family:'Inter';font-size:.95rem;padding:.6rem .75rem;}
+  .circuit-run button{font-family:'IBM Plex Mono',monospace;font-size:.74rem;letter-spacing:.05em;text-transform:uppercase;font-weight:600;background:var(--amber);color:#0d0a05;border:none;border-radius:8px;padding:0 1.2rem;cursor:pointer;}
+  .circuit-out{margin:.9rem 0 .2rem;display:flex;flex-direction:column;gap:.5rem;}
+  .crow{display:flex;gap:.7rem;align-items:flex-start;opacity:0;transform:translateY(6px);transition:opacity .35s, transform .35s;background:var(--bg2);border-left:3px solid var(--vein);border-radius:8px;padding:.6rem .8rem;}
+  .crow.show{opacity:1;transform:none;}
+  .crow .cw{flex:none;width:118px;}
+  .crow .cw .cs{font-family:'IBM Plex Mono',monospace;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;color:var(--teal);}
+  .crow .cw .cn{font-family:'Spectral',serif;color:var(--cream);font-size:.98rem;}
+  .crow .cl{font-size:.92rem;color:var(--text);}
+  .circuit-head{font-family:'IBM Plex Mono',monospace;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);margin:.2rem 0 .2rem;}
+  @media(max-width:640px){.crow .cw{width:92px;}}
   /* featured new-partner cards */
   .new-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:.4rem;}
   @media(max-width:760px){.new-grid{grid-template-columns:1fr;}}
@@ -94,16 +109,75 @@
   <h2>The circuit of the meal</h2>
   <p class="sub">One current runs the whole night, soil to last bite. Every link is a partner, and every claim has a source.</p>
   <div class="flow">
-    <div class="fstep"><div class="s">Forage</div><div class="w">The wild</div><div class="who">Silas</div></div>
+    <div class="fstep" data-link="forage"><div class="s">Forage</div><div class="w">The wild</div><div class="who">Silas</div></div>
     <span class="arrow">&rarr;</span>
-    <div class="fstep"><div class="s">Kitchen</div><div class="w">The plate</div><div class="who">Reuben</div></div>
+    <div class="fstep" data-link="kitchen"><div class="s">Kitchen</div><div class="w">The plate</div><div class="who">Ruben</div></div>
     <span class="arrow">&rarr;</span>
-    <div class="fstep"><div class="s">Cellar</div><div class="w">The pour</div><div class="who">Vic</div></div>
+    <div class="fstep" data-link="cellar"><div class="s">Cellar</div><div class="w">The pour</div><div class="who">Vic</div></div>
     <span class="arrow">&rarr;</span>
-    <div class="fstep"><div class="s">Board</div><div class="w">The cheese</div><div class="who">Camille</div></div>
+    <div class="fstep" data-link="board"><div class="s">Board</div><div class="w">The cheese</div><div class="who">Camille</div></div>
     <span class="arrow">&rarr;</span>
-    <div class="fstep"><div class="s">Sweet</div><div class="w">The last bite</div><div class="who">Luca</div></div>
+    <div class="fstep" data-link="sweet"><div class="s">Sweet</div><div class="w">The last bite</div><div class="who">Luca</div></div>
   </div>
+
+  <div class="circuit-run">
+    <input id="circIn" type="text" placeholder="Name a dish or an ingredient (e.g. roast chicken, figs, mushrooms)">
+    <button id="circBtn" type="button">Run the circuit</button>
+  </div>
+  <div class="circuit-out" id="circOut" aria-live="polite"></div>
+  <script>
+  (function(){
+    var CHAIN=[
+      {link:'forage', role:'Forage', partner:'Silas',  fb:'checks what is wild and in season, and clears it as safe to use.'},
+      {link:'kitchen',role:'Kitchen',partner:'Ruben', fb:'sets the method and lets the ingredient lead.'},
+      {link:'cellar', role:'Cellar', partner:'Vic',    fb:'finds the pour by weight, acid, and tannin.'},
+      {link:'board',  role:'Board',  partner:'Camille',fb:'names the cheese to sit beside it.'},
+      {link:'sweet',  role:'Sweet',  partner:'Luca',   fb:'lands the last bite to finish the meal.'}
+    ];
+    var inEl=document.getElementById('circIn'), btn=document.getElementById('circBtn'), out=document.getElementById('circOut');
+    function clearActive(){document.querySelectorAll('.fstep').forEach(function(f){f.classList.remove('active');});}
+    function esc(s){return (s||'').replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
+    function reveal(steps, live){
+      out.innerHTML='<div class="circuit-head">Tonight’s circuit'+(inEl.value.trim()?' for: '+esc(inEl.value.trim()):'')+'</div>';
+      clearActive();
+      steps.forEach(function(st,i){
+        var row=document.createElement('div');row.className='crow';
+        row.innerHTML='<div class="cw"><div class="cs">'+esc(st.role)+'</div><div class="cn">'+esc(st.partner)+'</div></div><div class="cl">'+esc(st.line)+'</div>';
+        out.appendChild(row);
+        setTimeout(function(){
+          var f=document.querySelector('.fstep[data-link="'+st.link+'"]'); if(f)f.classList.add('active');
+          row.classList.add('show');
+          if(f)f.scrollIntoView({block:'nearest'});
+        }, 140+i*620);
+      });
+      if(!live){
+        setTimeout(function(){
+          var n=document.createElement('div');n.className='circuit-head';
+          n.textContent='Preview of the relay. Live sourced picks for your dish arrive when the kitchen is wired.';
+          out.appendChild(n);
+        }, 160+steps.length*620);
+      }
+    }
+    function run(){
+      var dish=inEl.value.trim();
+      btn.disabled=true; var orig=btn.textContent; btn.textContent='Running...';
+      var fallback=CHAIN.map(function(c){return {link:c.link,role:c.role,partner:c.partner,line:c.partner+' '+c.fb};});
+      fetch('/.netlify/functions/harvest-circuit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({dish:dish})})
+        .then(function(r){if(!r.ok)throw new Error('x');return r.json();})
+        .then(function(d){
+          var steps=(d.steps&&d.steps.length)?d.steps.map(function(s){
+            var meta=CHAIN.filter(function(c){return c.link===s.link||c.partner===s.partner;})[0]||{};
+            return {link:s.link||meta.link,role:s.role||meta.role,partner:s.partner||meta.partner,line:s.line||s.answer||''};
+          }):fallback;
+          reveal(steps, true);
+        })
+        .catch(function(){ reveal(fallback, false); })
+        .finally(function(){ btn.disabled=false; btn.textContent=orig; });
+    }
+    btn.onclick=run;
+    inEl.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();run();}});
+  })();
+  </script>
 
 <style>
   .sides{display:grid;grid-template-columns:1fr 1fr;gap:1.3rem;align-items:start;}
@@ -119,12 +193,12 @@
       <div class="side-h">The plate &amp; the pour</div>
       <div class="fcard">
         <span class="new-badge">New</span>
-        <span class="av av-lg"><i>RH</i><img src="/agents/Reuben_Hart_eyes_open.png" alt="Reuben Hart" onerror="this.remove()"></span>
-        <div class="nm">Reuben Hart</div>
+        <span class="av av-lg"><i>RH</i><img src="/agents/Ruben_Hart_eyes_open.png" alt="Ruben Hart" onerror="this.remove()"></span>
+        <div class="nm">Ruben Hart</div>
         <div class="rl">Chef &middot; the kitchen</div>
         <div class="og">American</div>
         <div class="hook">Lets the ingredient lead. Builds the night around whatever Silas walks in with. Fast, warm, decisive: "let the carrot be a carrot."</div>
-        <button class="talk" data-name="Reuben" type="button">Talk to Reuben</button>
+        <button class="talk" data-name="Ruben" type="button">Talk to Ruben</button>
       </div>
       <div class="fcard">
         <span class="av av-lg"><i>VS</i><img src="/agents/Vic_Stallion_eyes_open.png" alt="Vic Stallion" onerror="this.remove()"></span>
@@ -204,13 +278,13 @@
       <div class="m-row"><input id="mInput" type="text" placeholder="Ask a question..."><button class="m-ask" id="mAsk" type="button">Ask</button></div>
       <div class="m-resp" id="mResp"></div>
     </div>
-    <div class="m-ft"><span>Powered by The Harvest Circuit</span><span>Ask another: <a data-go="camille">Camille</a> &middot; <a data-go="reuben">Reuben</a> &middot; <a data-go="luca">Luca</a> &middot; <a data-go="vic">Vic</a></span></div>
+    <div class="m-ft"><span>Powered by The Harvest Circuit</span><span>Ask another: <a data-go="camille">Camille</a> &middot; <a data-go="ruben">Ruben</a> &middot; <a data-go="luca">Luca</a> &middot; <a data-go="vic">Vic</a></span></div>
   </div>
 </div>
 <script>
   var HC={
-    reuben:{name:'Reuben Hart',role:'The Kitchen · chef',icon:'🔪',mono:'RH',img:'/agents/Reuben_Hart_eyes_open.png',
-      intro:'You are in The Kitchen. I am Reuben. Ask me about cooking methods, ingredients, timing, and how to turn raw materials into a finished dish.',
+    ruben:{name:'Ruben Hart',role:'The Kitchen · chef',icon:'🔪',mono:'RH',img:'/agents/Ruben_Hart_eyes_open.png',
+      intro:'You are in The Kitchen. I am Ruben. Ask me about cooking methods, ingredients, timing, and how to turn raw materials into a finished dish.',
       chips:['How do I cook this ingredient?','Best method for this cut of meat?','How do I balance flavors?','What should I make with what I have?']},
     vic:{name:'Vic Stallion',role:'The Cellar · sommelier',icon:'🍷',mono:'VS',img:'/agents/Vic_Stallion_eyes_open.png',
       intro:'You are in The Cellar. I am Vic. I help you understand wine structure, aroma, pairing, and how to choose the right bottle for the right moment.',
