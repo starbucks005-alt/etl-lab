@@ -487,6 +487,64 @@ console.log(status.response.text);</pre>
 
 </div>
 
+<!-- ── BYOA DELIVERY POLLING ─────────────────────────────────────── -->
+<script>
+(function(){
+  var params=new URLSearchParams(window.location.search);
+  var ref=params.get('ref')||'';
+  var agentName=decodeURIComponent((params.get('agent')||'your agent').replace(/\+/g,' '));
+  if(!ref)return;
+
+  function escH(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+  // Insert delivery card at top of main content
+  var main=document.querySelector('main');
+  var lede=main&&main.querySelector('h1');
+  var card=document.createElement('div');
+  card.id='byoa-delivery-card';
+  card.style.cssText='background:rgba(200,151,58,0.07);border:1px solid rgba(200,151,58,0.35);border-radius:12px;padding:1.4rem 1.6rem;margin-bottom:1.8rem;';
+  card.innerHTML=
+    '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:#c8973a;margin-bottom:.7rem;">Your Delivery &middot; '+escH(agentName)+'</div>'+
+    '<div id="byoa-poll-status" style="color:#8a7a60;font-size:.9rem;line-height:1.6;">Astra is packaging '+escH(agentName)+'. This usually takes under a minute.</div>'+
+    '<div id="byoa-ready-panel" style="display:none;"></div>';
+  if(main&&lede)main.insertBefore(card,lede);
+  else if(main)main.insertBefore(card,main.firstChild);
+
+  function showDelivery(boxRef){
+    var chatUrl='/agent-chat?ref='+encodeURIComponent(ref);
+    var dlUrl='/.netlify/functions/download-agent-box?ref='+encodeURIComponent(boxRef);
+    var slug=agentName.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')||'your-agent';
+    document.getElementById('byoa-poll-status').style.display='none';
+    var panel=document.getElementById('byoa-ready-panel');
+    panel.style.display='block';
+    panel.innerHTML=
+      '<h3 style="font-family:\'Spectral\',serif;color:#f4ead8;margin:0 0 1rem;font-size:1.25rem;font-style:italic;">'+escH(agentName)+' is ready.</h3>'+
+      '<div style="margin-bottom:1rem;">'+
+        '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:#c8973a;margin-bottom:.35rem;">Your live link</div>'+
+        '<a href="'+chatUrl+'" style="font-family:\'IBM Plex Mono\',monospace;font-size:.82rem;color:#c8973a;word-break:break-all;">emerging-tech-lab.com'+chatUrl+'</a>'+
+      '</div>'+
+      '<div style="margin-bottom:1.2rem;">'+
+        '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:#c8973a;margin-bottom:.35rem;">Embed snippet</div>'+
+        '<pre style="background:rgba(0,0,0,0.3);border:1px solid rgba(200,151,58,0.2);border-radius:6px;padding:.7rem 1rem;font-size:.75rem;white-space:pre-wrap;word-break:break-all;color:#d4c4a0;margin:0;">&lt;script src="https://emerging-tech-lab.com/embed/agent.js" data-agent="'+escH(slug)+'" data-key="'+escH(ref)+'"&gt;&lt;/script&gt;</pre>'+
+      '</div>'+
+      '<div style="display:flex;gap:.75rem;flex-wrap:wrap;">'+
+        '<a href="'+chatUrl+'" style="display:inline-block;font-family:\'IBM Plex Mono\',monospace;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;font-weight:600;background:#c8973a;color:#0e0b07;border-radius:8px;padding:.65rem 1.4rem;text-decoration:none;">Talk to '+escH(agentName)+' now &rarr;</a>'+
+        '<a href="'+dlUrl+'" style="display:inline-block;font-family:\'IBM Plex Mono\',monospace;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;background:transparent;color:#c8973a;border:1px solid rgba(200,151,58,0.4);border-radius:8px;padding:.65rem 1.4rem;text-decoration:none;">Download the box &rarr;</a>'+
+      '</div>';
+    window._a9_delivery_text=agentName+' is ready. Your live link and download are showing above. Click either to get started, or copy the embed snippet to put them on your site.';
+  }
+
+  function poll(){
+    fetch('/.netlify/functions/check-agent-box?ref='+encodeURIComponent(ref))
+      .then(function(r){return r.json();})
+      .then(function(d){if(d.ready&&d.box_ref){clearInterval(timer);showDelivery(d.box_ref);}})
+      .catch(function(){});
+  }
+  poll();
+  var timer=setInterval(poll,4000);
+})();
+</script>
+
 <!-- ── ASTRA 9 EXPORT DESK ───────────────────────────────────────── -->
 <div id="a9-wrap">
   <div id="a9-label">
@@ -516,7 +574,7 @@ console.log(status.response.text);</pre>
     fetch('/.netlify/functions/voice-preview', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ voice_id: 'weA4Q36twV5kwSaTEL0Q', text: TEXT })
+      body: JSON.stringify({ voice_id: 'weA4Q36twV5kwSaTEL0Q', text: window._a9_delivery_text || TEXT })
     })
     .then(function(r){ if(!r.ok) throw new Error('tts'); return r.blob(); })
     .then(function(b){ audio.src = URL.createObjectURL(b); audio.play(); busy = false; })
