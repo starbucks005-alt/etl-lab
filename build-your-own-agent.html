@@ -652,8 +652,8 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
     $('#imgGenerate').style.display=state.imgMode==='generate'?'block':'none';
   };});
 
-  function preview(input,img,key){input.onchange=function(){var f=input.files[0];if(!f)return;state[key]=f.name;var r=new FileReader();r.onload=function(e){img.src=e.target.result;img.style.display='block';};r.readAsDataURL(f);};}
-  preview($('#fileOpen'),$('#prevOpen'),'imgOpen'); preview($('#fileClosed'),$('#prevClosed'),'imgClosed');
+  function preview(input,img,nameKey,b64Key){input.onchange=function(){var f=input.files[0];if(!f)return;state[nameKey]=f.name;var r=new FileReader();r.onload=function(e){img.src=e.target.result;img.style.display='block';if(b64Key)state[b64Key]=(e.target.result.split(',')[1]||'');};r.readAsDataURL(f);};}
+  preview($('#fileOpen'),$('#prevOpen'),'imgOpen','imgOpenB64'); preview($('#fileClosed'),$('#prevClosed'),'imgClosed','imgClosedB64');
 
   var genImgUrl='';
   var genBtn=$('#genBtn');
@@ -710,7 +710,7 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
       reach:state.reach,
       capabilities:state.reach==='mcp_backpack'?state.capabilities.slice():[],
       image:state.imgMode==='upload'
-        ?{mode:'upload',eyes_open:state.imgOpen||(slug(state.name)+'_eyes_open.png'),eyes_closed:state.imgClosed||(slug(state.name)+'_eyes_closed.png')}
+        ?{mode:'upload',eyes_open:state.imgOpen||(slug(state.name)+'_eyes_open.png'),eyes_closed:state.imgClosed||(slug(state.name)+'_eyes_closed.png'),portrait_base64:state.imgOpenB64||null}
         :{mode:'generate',prompt:state.imgPrompt,model:(document.getElementById('imgModel')||{}).value||'imagen-4-pro',generated_url:genImgUrl},
       voice:{provider:'elevenlabs',style:state.voice,sample:state.voiceSample},
       guardrail:'Verify before you believe: ground factual and safety claims in a live source, never memory. Advises, does not certify or guarantee. No em dashes (house voice).',
@@ -754,7 +754,7 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
   $('#nextBtn').onclick=function(){
     if(cur===TOTAL){
       state={role:'',purpose:'',reach:'',capabilities:[],name:'',tagline:'',background:'',
-        tone:'',quirks:'',imgMode:'',imgOpen:'',imgClosed:'',imgPrompt:'',voice:'',voiceSample:''};
+        tone:'',quirks:'',imgMode:'',imgOpen:'',imgClosed:'',imgOpenB64:'',imgClosedB64:'',imgPrompt:'',voice:'',voiceSample:''};
       ['role','purpose','name','tagline','background','tone','quirks','imgPrompt','voiceSample'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
       document.querySelectorAll('.chip.sel').forEach(function(c){c.classList.remove('sel');});
       document.querySelectorAll('.opt.sel').forEach(function(o){o.classList.remove('sel');});
@@ -867,13 +867,12 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
     previewInput.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();doPreviewAsk();}});
   }
 
-  // Show success message if returning from Stripe checkout
+  // Stripe success: redirect straight to the agent chat page
   (function(){
     var params=new URLSearchParams(window.location.search);
     if(params.get('paid')==='1'){
-      var conf=$('#submitConfirm');
-      if(conf){conf.style.color='var(--ok)';conf.textContent='Payment received. We\'ll be in touch soon. Ref: '+(params.get('ref')||'')+'.';}
-      history.replaceState(null,'',window.location.pathname);
+      var ref=params.get('ref')||'';
+      if(ref){ window.location.replace('/agent-chat?ref='+encodeURIComponent(ref)); }
     }
   })();
 
@@ -916,10 +915,12 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
       .then(function(r){return r.json();})
       .then(function(d){
         if(d.bypass){
-          submitBtn.disabled=false;
-          updateInvoiceTotal();
-          $('#submitConfirm').style.color='var(--ok)';
-          $('#submitConfirm').textContent='Work order queued (staff). '+(s.name||'Agent')+' is in the build queue. Ref: '+d.ref+'.';
+          if(d.ref){ window.location.replace('/agent-chat?ref='+encodeURIComponent(d.ref)); }
+          else {
+            submitBtn.disabled=false; updateInvoiceTotal();
+            $('#submitConfirm').style.color='var(--ok)';
+            $('#submitConfirm').textContent='Work order queued (staff).';
+          }
         } else if(d.url){
           window.location.href=d.url;
         } else {

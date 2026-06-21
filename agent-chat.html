@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Your Agent · Emerging Technologies Laboratory</title>
+<link rel="icon" type="image/x-icon" href="/assets/BYOA.ico">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -216,6 +217,18 @@ footer {
   color: var(--mute);
   font-size: .8rem;
 }
+
+/* BOX */
+.box-wrap { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin-top: 1.8rem; }
+.box-hdr { background: var(--panel2); border-bottom: 1px solid var(--line); padding: .6rem 1rem; display: flex; align-items: center; gap: .6rem; }
+.box-hdr img { width: 26px; height: 26px; object-fit: contain; flex-shrink: 0; }
+.box-hdr span { font-family: 'IBM Plex Mono', monospace; font-size: .64rem; letter-spacing: .1em; text-transform: uppercase; color: var(--mute); }
+.box-body { padding: 1rem 1.2rem; }
+.box-preparing { font-family: 'IBM Plex Mono', monospace; font-size: .72rem; letter-spacing: .06em; color: var(--mute); }
+.btn-box-dl { display: inline-flex; align-items: center; gap: .5rem; background: var(--amber); color: #0e0b07; border: none; border-radius: 8px; padding: .55rem 1.2rem; font-family: 'IBM Plex Mono', monospace; font-size: .72rem; font-weight: 600; letter-spacing: .04em; cursor: pointer; text-decoration: none; }
+.btn-box-dl:hover { background: var(--cream); color: #0e0b07; }
+.btn-box-dl img { width: 16px; height: 16px; object-fit: contain; }
+.box-note { font-size: .8rem; color: var(--mute); margin: .55rem 0 0; }
 </style>
 </head>
 <body>
@@ -246,6 +259,25 @@ footer {
     <div class="chat-input-row">
       <input type="text" id="chatInput" placeholder="Say something&hellip;">
       <button class="btn-ask" id="askBtn">Ask</button>
+    </div>
+  </div>
+
+  <div id="boxSection" style="display:none;">
+    <div class="box-wrap">
+      <div class="box-hdr">
+        <img src="/assets/BYOA.png" alt="Box">
+        <span>Your agent box</span>
+      </div>
+      <div class="box-body">
+        <div id="boxPreparing" class="box-preparing">Preparing your box&hellip;</div>
+        <div id="boxReady" style="display:none;">
+          <a id="boxDownloadBtn" href="#" class="btn-box-dl" download>
+            <img src="/assets/BYOA.png" alt="">
+            Download your box
+          </a>
+          <p class="box-note">Spec, portrait, voice config, and instructions. Everything to deploy <span id="boxAgentName">your agent</span>.</p>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -318,6 +350,9 @@ footer {
     msgs.appendChild(opener);
 
     el('chatInput').focus();
+    // Trigger delivery box assembly
+    el('boxAgentName').textContent = spec.name || 'your agent';
+    triggerBoxPackaging(ref);
   }
 
   function appendMsg(text, isUser, label){
@@ -378,6 +413,42 @@ footer {
     el('errorMsg').textContent = 'Agent not found. Your link may be expired or incorrect.';
     show('errorMsg');
   });
+
+  // ── Box delivery ──────────────────────────────────────────────────
+  function triggerBoxPackaging(agentRef) {
+    if (!agentRef) return;
+    show('boxSection');
+    // Fire background function (returns 202 immediately, builds async)
+    fetch('/.netlify/functions/package-agent-background', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ref: agentRef })
+    }).catch(function() {});
+    pollBox(agentRef, 0);
+  }
+
+  function pollBox(agentRef, attempt) {
+    if (attempt >= 40) {
+      var prep = el('boxPreparing');
+      if (prep) prep.textContent = 'Box preparation is taking longer than expected. Refresh to check.';
+      return;
+    }
+    fetch('/.netlify/functions/check-agent-box?ref=' + encodeURIComponent(agentRef))
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        if (d.ready && d.box_ref) {
+          el('boxPreparing').style.display = 'none';
+          el('boxDownloadBtn').href =
+            '/.netlify/functions/download-agent-box?ref=' + encodeURIComponent(d.box_ref);
+          el('boxReady').style.display = '';
+        } else {
+          setTimeout(function() { pollBox(agentRef, attempt + 1); }, 3000);
+        }
+      })
+      .catch(function() {
+        setTimeout(function() { pollBox(agentRef, attempt + 1); }, 3000);
+      });
+  }
 })();
 </script>
 </body>
