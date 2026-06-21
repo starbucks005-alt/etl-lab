@@ -3040,8 +3040,8 @@ document.addEventListener('DOMContentLoaded', function(){
   ).join('');
 
   const accPill = (a, price) => ({
-    free:    '<span class="pill free">Free at Dr. O&rsquo;s Lab &middot; WSU</span>',
-    campus:  '<span class="pill campus">Free at Dr. O&rsquo;s Lab &middot; WSU</span>',
+    free:    '<span class="pill free">Free</span>',
+    campus:  '<span class="pill campus">Free</span>',
     pending: '<span class="pill pending">Shipping soon</span>',
     paid:    `<span class="pill paid">${price || 'Paid'}</span>`,
   }[a]);
