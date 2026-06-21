@@ -987,10 +987,12 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
       ov.innerHTML=
         '<img src="/agents/Astra_9_eyes_open.png" style="width:120px;margin-bottom:1.4rem;opacity:.92;" alt="Astra 9">'+
         '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:.6rem;letter-spacing:.2em;color:#c8973a;text-transform:uppercase;margin-bottom:.6rem;">Astra 9 &middot; Agent Fabricator</div>'+
-        '<h2 style="font-family:\'Spectral\',serif;color:#f4ead8;font-size:1.6rem;margin:0 0 .6rem;">Payment received.</h2>'+
-        '<p style="color:#b8a880;max-width:38ch;line-height:1.7;margin:0 0 2rem;">I am building <strong style="color:#f4ead8;">'+esc(name)+'</strong> now. Give me 10 to 15 minutes, then come back to pick them up.</p>'+
-        '<a href="'+exportHref+'" style="display:inline-block;font-family:\'IBM Plex Mono\',monospace;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;font-weight:600;background:#c8973a;color:#0e0b07;border-radius:8px;padding:.75rem 1.6rem;text-decoration:none;margin-bottom:1.2rem;">Pick up '+esc(name)+' &rarr;</a><br>'+
-        '<a href="'+chatHref+'" style="font-family:\'IBM Plex Mono\',monospace;font-size:.72rem;color:rgba(200,151,58,0.55);text-decoration:none;">Try them out while you wait &rarr;</a>';
+        '<h2 style="font-family:\'Spectral\',serif;color:#f4ead8;font-size:1.8rem;margin:0 0 .5rem;font-style:italic;">'+esc(name)+' is on the bench.</h2>'+
+        '<p style="color:#b8a880;max-width:40ch;line-height:1.7;margin:0 0 .4rem;">I pulled your spec. I am at work. This is the good part.</p>'+
+        '<p style="color:#b8a880;max-width:40ch;line-height:1.7;margin:0 0 2rem;"><strong style="color:#f4ead8;">Come back in ten minutes.</strong><br>Your pickup window is at the export desk.</p>'+
+        '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:.6rem;letter-spacing:.18em;color:rgba(200,151,58,0.55);text-transform:uppercase;margin-bottom:.5rem;">Your pickup link &mdash; bookmark this</div>'+
+        '<a href="'+exportHref+'" style="display:inline-block;font-family:\'IBM Plex Mono\',monospace;font-size:.73rem;letter-spacing:.03em;color:#c8973a;text-decoration:none;border:1px solid rgba(200,151,58,0.28);border-radius:6px;padding:.65rem 1.3rem;margin-bottom:2.2rem;">emerging-tech-lab.com/export-your-agent</a>'+
+        '<p style="color:rgba(184,168,128,0.35);font-family:\'IBM Plex Mono\',monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;margin:0;">I do not rush. Neither should you.</p>';
       document.body.appendChild(ov);
     }
   })();
