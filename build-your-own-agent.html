@@ -326,7 +326,7 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
   border: 1px solid rgba(200,151,58,0.4);
   border-radius: 10px 10px 10px 0;
   padding: .85rem 1rem;
-  min-width: 210px;
+  min-width: 230px;
   pointer-events: auto;
   box-shadow: 0 4px 28px rgba(0,0,0,0.6);
   transition: opacity .2s;
@@ -338,17 +338,45 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
   text-transform: uppercase; margin-bottom: .55rem;
   border-bottom: 1px solid rgba(200,151,58,0.22); padding-bottom: .4rem;
 }
+.a9-tabs { display: flex; gap: 5px; margin-bottom: .65rem; }
+.a9-tab {
+  flex: 1; font-family: 'IBM Plex Mono', monospace;
+  font-size: .57rem; letter-spacing: .1em; text-transform: uppercase;
+  background: rgba(200,151,58,0.07); border: 1px solid rgba(200,151,58,0.28);
+  border-radius: 4px; color: #9a8c6e; padding: .28rem 0;
+  cursor: pointer; transition: background .15s, color .15s;
+}
+.a9-tab:hover, .a9-tab.sel { background: rgba(200,151,58,0.2); color: #c8973a; border-color: rgba(200,151,58,0.5); }
+.a9-panel { display: none; }
+.a9-panel.active { display: block; }
 .a9-row {
   display: flex; justify-content: space-between;
   font-family: 'IBM Plex Mono', monospace;
   font-size: .71rem; color: #b8a880; padding: .18rem 0;
 }
 .a9-row span:last-child { color: #c8973a; }
-.a9-cta {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: .56rem; letter-spacing: .1em;
-  color: rgba(200,151,58,0.55); text-transform: uppercase;
-  margin-top: .55rem; text-align: center; cursor: pointer;
+.a9-outcome {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: .83rem; line-height: 1.55; color: #b8a880; margin: 0;
+}
+#a9-helpinput {
+  width: 100%; box-sizing: border-box;
+  background: rgba(200,151,58,0.06); border: 1px solid rgba(200,151,58,0.25);
+  border-radius: 5px; color: #d6cfc0;
+  font-family: 'IBM Plex Mono', monospace; font-size: .68rem;
+  padding: .45rem .55rem; resize: none; outline: none; display: block;
+}
+#a9-helpbtn {
+  font-family: 'IBM Plex Mono', monospace; font-size: .57rem;
+  letter-spacing: .1em; text-transform: uppercase;
+  background: rgba(200,151,58,0.15); border: 1px solid rgba(200,151,58,0.42);
+  border-radius: 4px; color: #c8973a; padding: .3rem .75rem;
+  cursor: pointer; display: block; margin: .4rem 0 0 auto;
+}
+#a9-helpbtn:disabled { opacity: .45; cursor: default; }
+#a9-helpreply {
+  font-family: 'IBM Plex Mono', monospace; font-size: .65rem;
+  color: #b8a880; margin-top: .5rem; line-height: 1.5; min-height: 0;
 }
 #astra9-fig {
   position: relative; width: 148px; cursor: pointer;
@@ -1106,17 +1134,31 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
 
 <!-- ── ASTRA 9 FLOATING GUIDE ──────────────────────────────────────── -->
 <div id="astra9-wrap">
-  <div id="astra9-bubble">
+  <div id="astra9-bubble" class="hidden">
     <div class="a9-head">Astra 9 &middot; Agent Fabricator</div>
-    <div class="a9-row"><span>JSON spec</span><span>$5</span></div>
-    <div class="a9-row"><span>Portrait</span><span>$6</span></div>
-    <div class="a9-row"><span>Voice</span><span>$8</span></div>
-    <div class="a9-row"><span>Bespoke blink</span><span>$20</span></div>
-    <div class="a9-row"><span>Backpack wiring</span><span>$15</span></div>
-    <div class="a9-row"><span>Export + deploy</span><span>$25</span></div>
-    <div class="a9-cta">&#9654; click me to hear how it works</div>
+    <div class="a9-tabs">
+      <button class="a9-tab" data-tab="price">Price</button>
+      <button class="a9-tab" data-tab="outcome">Outcome</button>
+      <button class="a9-tab" data-tab="help">Help</button>
+    </div>
+    <div id="a9-panel-price" class="a9-panel">
+      <div class="a9-row"><span>JSON spec</span><span>$5</span></div>
+      <div class="a9-row"><span>Portrait</span><span>$6</span></div>
+      <div class="a9-row"><span>Voice</span><span>$8</span></div>
+      <div class="a9-row"><span>Bespoke blink</span><span>$20</span></div>
+      <div class="a9-row"><span>Backpack wiring</span><span>$15</span></div>
+      <div class="a9-row"><span>Export + deploy</span><span>$25</span></div>
+    </div>
+    <div id="a9-panel-outcome" class="a9-panel">
+      <p class="a9-outcome">You walk away with a fully deployed AI agent: a JSON specification, a portrait that blinks, a designed voice, and live backpack wiring if you need it. Patience is required. She takes her time so yours runs forever.</p>
+    </div>
+    <div id="a9-panel-help" class="a9-panel">
+      <textarea id="a9-helpinput" rows="3" placeholder="Ask me anything about the process..."></textarea>
+      <button id="a9-helpbtn">Ask Astra 9</button>
+      <div id="a9-helpreply"></div>
+    </div>
   </div>
-  <div id="astra9-fig" title="Click to hear Astra 9">
+  <div id="astra9-fig" title="Click Astra 9">
     <img src="/agents/Astra_9_eyes_open.png" alt="Astra 9">
     <img id="astra9-blink" src="/agents/Astra_9_eyes_closed.png" alt="">
   </div>
@@ -1124,26 +1166,78 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
 <audio id="astra9-audio"></audio>
 <script>
 (function(){
-  var fig    = document.getElementById('astra9-fig');
-  var bubble = document.getElementById('astra9-bubble');
-  var audio  = document.getElementById('astra9-audio');
-  var busy   = false;
+  var fig      = document.getElementById('astra9-fig');
+  var bubble   = document.getElementById('astra9-bubble');
+  var audio    = document.getElementById('astra9-audio');
+  var helpbtn  = document.getElementById('a9-helpbtn');
+  var helpinput= document.getElementById('a9-helpinput');
+  var helpreply= document.getElementById('a9-helpreply');
+  var busy     = false;
+  var VOICE    = 'weA4Q36twV5kwSaTEL0Q';
 
-  fig.onclick = function(){
-    bubble.classList.toggle('hidden');
+  var LINES = {
+    price:   'Hello. I am Astra 9. I spec, price, and build agents. Your spec starts at five dollars. Add a portrait for six, a voice for eight, a bespoke blink for twenty, backpack wiring for fifteen, or a full export and deploy package for twenty-five. Fill in the steps and I will build exactly what you describe.',
+    outcome: 'You walk away with a fully deployed AI agent: a JSON specification, a portrait that blinks, a designed voice, and live backpack wiring if you need it. Patience is required. She takes her time so yours runs forever.'
+  };
+
+  function speak(text){
     if(busy) return;
     busy = true;
-    fetch('/.netlify/functions/voice-preview', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        voice_id: 'weA4Q36twV5kwSaTEL0Q',
-        text: 'Hello. I am Astra 9. I spec, price, and build agents. Your spec starts at five dollars. Add a portrait for six, a voice for eight, backpack wiring for fifteen, or a full export package for twenty-five. Fill in the steps and I will build exactly what you describe.'
-      })
+    fetch('/.netlify/functions/voice-preview',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ voice_id: VOICE, text: text })
     })
     .then(function(r){ if(!r.ok) throw new Error('tts'); return r.blob(); })
     .then(function(b){ audio.src = URL.createObjectURL(b); audio.play(); busy = false; })
     .catch(function(){ busy = false; });
+  }
+
+  function activateTab(tab){
+    document.querySelectorAll('.a9-tab').forEach(function(t){ t.classList.remove('sel'); });
+    document.querySelectorAll('.a9-panel').forEach(function(p){ p.classList.remove('active'); });
+    tab.classList.add('sel');
+    document.getElementById('a9-panel-' + tab.dataset.tab).classList.add('active');
+    if(LINES[tab.dataset.tab]) speak(LINES[tab.dataset.tab]);
+  }
+
+  document.querySelectorAll('.a9-tab').forEach(function(tab){
+    tab.addEventListener('click', function(){ activateTab(tab); });
+  });
+
+  fig.onclick = function(){
+    var opening = bubble.classList.contains('hidden');
+    bubble.classList.toggle('hidden');
+    if(opening){
+      var priceTab = document.querySelector('.a9-tab[data-tab="price"]');
+      if(priceTab) activateTab(priceTab);
+    }
+  };
+
+  helpbtn.onclick = function(){
+    var q = (helpinput.value||'').trim();
+    if(!q) return;
+    helpreply.textContent = 'Processing...';
+    helpbtn.disabled = true;
+    fetch('/.netlify/functions/proxy-ai',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 150,
+        system: 'You are Astra 9, an AI Agent Fabricator at the Emerging Technologies Laboratory. You spec, price, and build AI agents with robotic precision. Services: JSON spec $5, portrait $6, voice $8, bespoke blink $20, backpack wiring $15, export and deploy $25. Answer in under 60 words. No em dashes. First person.',
+        messages: [{ role:'user', content: q }]
+      })
+    })
+    .then(function(r){ if(!r.ok) throw new Error('ai'); return r.json(); })
+    .then(function(j){
+      var text = (j && j.content && j.content[0] && j.content[0].text) || 'I cannot answer that right now.';
+      helpreply.textContent = text;
+      helpbtn.disabled = false;
+      speak(text);
+    })
+    .catch(function(){
+      helpreply.textContent = 'Unable to reach me right now. Try again.';
+      helpbtn.disabled = false;
+    });
   };
 })();
 </script>
