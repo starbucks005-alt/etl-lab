@@ -464,22 +464,55 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
         <span class="hint" id="voiceStatus"></span>
       </div>
       <audio id="voiceAudio" style="display:none;"></audio>
-      <div class="note">Powered by <b>ElevenLabs</b>. The five styles map to premade voices for the preview; ETL assigns or clones the final voice on deploy.</div>
+      <div class="note">Powered by <b>ElevenLabs Voice Design</b>. Preview generates a brand-new voice from your description (the style or the Other box). Each generate uses ElevenLabs credits and takes a few seconds; ETL saves the chosen voice on deploy.</div>
       <div class="err" id="err7"></div>
     </section>
 
-    <!-- STEP 8: REVIEW -->
+    <!-- STEP 8: WORK ORDER + PREVIEW CHAT -->
     <section class="panel" data-step="8">
       <h2>8. The work order.</h2>
-      <p class="sub">Here is your agent. Copy or download the spec and hand it to ETL to provision: backpack wiring, portrait, ElevenLabs voice, and deploy.</p>
+      <p class="sub">Here's your agent. Say hello.</p>
+
+      <!-- Quick spec review -->
       <div id="reviewBody"></div>
-      <label class="fld">Agent spec (JSON)</label>
-      <pre class="spec" id="specOut">{}</pre>
-      <div class="nav" style="justify-content:flex-start;gap:.6rem;flex-wrap:wrap;">
-        <button class="btn btn-next" id="copyBtn" type="button">Copy spec</button>
-        <button class="btn btn-ghost" id="dlBtn" type="button">Download .json</button>
+
+      <!-- === 1. THE PAYOFF: Talk to your agent === -->
+      <div id="previewChat" style="border:1px solid var(--amber-dim);border-radius:12px;overflow:hidden;margin-top:1.5rem;">
+        <div style="background:var(--panel2);border-bottom:1px solid var(--line);padding:.7rem 1.1rem;display:flex;align-items:center;gap:.7rem;">
+          <span id="previewAgentLabel" style="font-family:'IBM Plex Mono',monospace;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--amber);">Your agent</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;background:rgba(138,118,96,.15);border:1px solid rgba(138,118,96,.3);color:var(--mute);border-radius:999px;padding:.12rem .52rem;">Prompt-only preview</span>
+        </div>
+        <div id="previewMessages" style="padding:1rem 1.1rem;min-height:80px;max-height:260px;overflow-y:auto;font-size:.93rem;line-height:1.65;"></div>
+        <div style="border-top:1px solid var(--line);padding:.65rem .9rem;display:flex;gap:.55rem;">
+          <input type="text" id="previewInput" placeholder="Ask your agent something&hellip;" style="flex:1;font-size:.93rem;padding:.6rem .75rem;">
+          <button class="btn btn-next" id="previewAskBtn" type="button" style="padding:.6rem 1.1rem;font-size:.76rem;white-space:nowrap;">Ask</button>
+        </div>
       </div>
-      <div class="note" style="margin-top:1.3rem;">This bench produces the spec. ETL provisions it: builds the backpack against the live servers, places the portrait in the site's <b>/assets</b>, assigns the ElevenLabs voice, and deploys. The house guardrail (verify before you believe, no em dashes, advice not certainty) is baked in automatically.</div>
+
+      <!-- === 2. MAKE IT REAL === -->
+      <div style="border-top:1px solid var(--line);margin-top:1.8rem;padding-top:1.5rem;">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--amber);margin-bottom:.9rem;">Make it real</div>
+        <div style="display:flex;flex-wrap:wrap;gap:.8rem;align-items:center;">
+          <button class="btn btn-next" id="submitBtn" type="button">Submit work order to ETL</button>
+          <a href="/export-your-agent" style="font-family:'IBM Plex Mono',monospace;font-size:.74rem;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:.72rem 1.2rem;" onmouseover="this.style.color='var(--text)';this.style.borderColor='var(--amber-dim)'" onmouseout="this.style.color='var(--mute)';this.style.borderColor='var(--line)'">Take it with you &rarr;</a>
+        </div>
+        <p id="submitConfirm" style="color:var(--mute);font-size:.82rem;margin:.7rem 0 0;line-height:1.5;min-height:1.2em;"></p>
+      </div>
+
+      <!-- === 3 & 4. SAVE THE RECIPE === -->
+      <div style="border-top:1px solid var(--line);margin-top:1.5rem;padding-top:1.4rem;">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--mute);margin-bottom:.8rem;">Save the recipe</div>
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap;">
+          <button class="btn btn-next" id="copyBtn" type="button">Copy spec</button>
+          <button class="btn btn-ghost" id="dlBtn" type="button">Download .json</button>
+        </div>
+        <details style="margin-top:1rem;">
+          <summary style="font-family:'IBM Plex Mono',monospace;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);cursor:pointer;user-select:none;">Show JSON spec</summary>
+          <pre class="spec" id="specOut" style="margin-top:.7rem;">{}</pre>
+        </details>
+      </div>
+
+      <div class="note" style="margin-top:1.3rem;">ETL provisions it: builds the backpack against the live servers, places the portrait in the site's <b>/assets</b>, assigns the ElevenLabs voice, and deploys. The house guardrail (verify before you believe, no em dashes, advice not certainty) is baked in automatically.</div>
     </section>
 
     <div class="nav">
@@ -649,15 +682,163 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
     panels.forEach(function(p){p.classList.toggle('active',+p.dataset.step===n);});
     for(var i=1;i<=TOTAL;i++){var d=$('#sdot'+i);d.classList.toggle('active',i===n);d.classList.toggle('done',i<n);}
     $('#backBtn').style.visibility=n===1?'hidden':'visible';
-    $('#nextBtn').textContent=n===TOTAL?'Done':'Next';
-    if(n===TOTAL) renderReview();
+    $('#nextBtn').textContent=n===TOTAL?'Start over':'Next';
+    if(n===TOTAL){renderReview();initPreviewChat();}
     window.scrollTo({top:0,behavior:'smooth'});
   }
 
-  $('#nextBtn').onclick=function(){if(cur===TOTAL)return;if(!validate())return;show(cur+1);};
+  $('#nextBtn').onclick=function(){
+    if(cur===TOTAL){
+      state={role:'',purpose:'',reach:'',capabilities:[],name:'',tagline:'',background:'',
+        tone:'',quirks:'',imgMode:'',imgOpen:'',imgClosed:'',imgPrompt:'',voice:'',voiceSample:''};
+      ['role','purpose','name','tagline','background','tone','quirks','imgPrompt','voiceSample'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+      document.querySelectorAll('.chip.sel').forEach(function(c){c.classList.remove('sel');});
+      document.querySelectorAll('.opt.sel').forEach(function(o){o.classList.remove('sel');});
+      $('#capWrap').style.display='none';
+      $('#imgUpload').style.display='none';
+      $('#imgGenerate').style.display='none';
+      genImgUrl='';
+      $('#previewMessages').innerHTML='';
+      $('#submitConfirm').textContent='';
+      show(1);
+      return;
+    }
+    if(!validate())return;
+    show(cur+1);
+  };
   $('#backBtn').onclick=function(){if(cur>1)show(cur-1);};
   $('#copyBtn').onclick=function(){navigator.clipboard.writeText($('#specOut').textContent).then(function(){$('#copyBtn').textContent='Copied';setTimeout(function(){$('#copyBtn').textContent='Copy spec';},1500);});};
   $('#dlBtn').onclick=function(){var s=buildSpec();var blob=new Blob([JSON.stringify(s,null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=slug(state.name)+'.json';a.click();};
+
+  // ── Preview chat (step 8) ────────────────────────────────────────
+  function buildPreviewSystemPrompt(){
+    sync();
+    var s=buildSpec();
+    return [
+      'You are '+(s.name||'an unnamed agent')+', '+(s.role||'a staff member')+'.',
+      s.bio||'',
+      s.background?'Background: '+s.background:'',
+      (s.personality&&s.personality.manner)?'Manner of speaking: '+s.personality.manner:'',
+      (s.personality&&s.personality.quirks)?'Quirks: '+s.personality.quirks:'',
+      (s.voice&&s.voice.sample)?'Voice sample: "'+s.voice.sample+'"':'',
+      s.guardrail||''
+    ].filter(Boolean).join('\n\n');
+  }
+
+  function addPreviewMsg(who,text){
+    var msgs=$('#previewMessages');
+    var wrapper=document.createElement('div');
+    wrapper.style.cssText='margin-bottom:.75rem;';
+    var label=document.createElement('span');
+    label.style.cssText='font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:.2rem;color:'+(who==='you'?'var(--mute)':'var(--amber)')+';';
+    label.textContent=who==='you'?'You':(state.name||'Agent');
+    var content=document.createElement('span');
+    content.style.cssText='color:var(--text);white-space:pre-wrap;';
+    content.textContent=text;
+    wrapper.appendChild(label);
+    wrapper.appendChild(content);
+    msgs.appendChild(wrapper);
+    msgs.scrollTop=msgs.scrollHeight;
+  }
+
+  function initPreviewChat(){
+    var s=buildSpec();
+    $('#previewAgentLabel').textContent=s.name||'Your agent';
+    var msgs=$('#previewMessages');
+    msgs.innerHTML='';
+    var opener=document.createElement('div');
+    opener.style.cssText='margin-bottom:.75rem;';
+    var label=document.createElement('span');
+    label.style.cssText='font-family:"IBM Plex Mono",monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:.2rem;color:var(--amber);';
+    label.textContent=s.name||'Agent';
+    var content=document.createElement('span');
+    content.style.cssText='color:var(--text);';
+    content.textContent="Go ahead, I'm listening.";
+    opener.appendChild(label);
+    opener.appendChild(content);
+    msgs.appendChild(opener);
+    $('#submitConfirm').textContent='';
+    var inp=$('#previewInput');
+    if(inp){inp.value='';inp.focus();}
+  }
+
+  var previewAskBtn=$('#previewAskBtn');
+  var previewInput=$('#previewInput');
+
+  function doPreviewAsk(){
+    var q=(previewInput.value||'').trim();
+    if(!q)return;
+    previewInput.value='';
+    addPreviewMsg('you',q);
+    previewAskBtn.disabled=true;
+    var thinkEl=document.createElement('div');
+    thinkEl.style.cssText='font-size:.82rem;color:var(--mute);font-style:italic;margin-bottom:.75rem;';
+    thinkEl.textContent=(state.name||'Agent')+' is thinking…';
+    thinkEl.id='previewThink';
+    var msgs=$('#previewMessages');
+    msgs.appendChild(thinkEl);
+    msgs.scrollTop=msgs.scrollHeight;
+    fetch('/.netlify/functions/agent-preview',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({system:buildPreviewSystemPrompt(),question:q})
+    })
+    .then(function(r){return r.json();})
+    .then(function(d){
+      var t=document.getElementById('previewThink');if(t)t.remove();
+      addPreviewMsg('agent',d.answer||d.error||'No response.');
+      previewAskBtn.disabled=false;
+      previewInput.focus();
+    })
+    .catch(function(){
+      var t=document.getElementById('previewThink');if(t)t.remove();
+      addPreviewMsg('agent','Could not reach the preview endpoint. Check your connection.');
+      previewAskBtn.disabled=false;
+    });
+  }
+
+  if(previewAskBtn){
+    previewAskBtn.onclick=doPreviewAsk;
+    previewInput.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();doPreviewAsk();}});
+  }
+
+  var submitBtn=$('#submitBtn');
+  if(submitBtn){
+    submitBtn.onclick=function(){
+      sync();
+      var s=buildSpec();
+      if(!s.name){
+        $('#submitConfirm').style.color='var(--red)';
+        $('#submitConfirm').textContent='Fill out the spec first.';
+        return;
+      }
+      submitBtn.disabled=true;
+      $('#submitConfirm').style.color='var(--mute)';
+      $('#submitConfirm').textContent='Submitting…';
+      fetch('/.netlify/functions/agent-build-request',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(s)
+      })
+      .then(function(r){return r.json();})
+      .then(function(d){
+        submitBtn.disabled=false;
+        if(d.ok){
+          $('#submitConfirm').style.color='var(--ok)';
+          $('#submitConfirm').textContent='Work order received. We\'ll be in touch about '+(s.name||'your agent')+'. Ref: '+d.ref+'.';
+        } else {
+          $('#submitConfirm').style.color='var(--red)';
+          $('#submitConfirm').textContent='Could not submit ('+(d.error||'error')+').';
+        }
+      })
+      .catch(function(){
+        submitBtn.disabled=false;
+        $('#submitConfirm').style.color='var(--red)';
+        $('#submitConfirm').textContent='Could not reach ETL. Try again or download the spec and send it directly.';
+      });
+    };
+  }
+  // ─────────────────────────────────────────────────────────────────
 
   show(1);
 })();
