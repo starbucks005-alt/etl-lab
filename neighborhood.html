@@ -471,13 +471,13 @@ function pickTarget(a){
     if(dist > pullDist) return homeNode;
     if(r<.72) return homeNode;             // at their post
     if(r<.92) return nearbyNode(a);        // short hop nearby
-    return HUB;                            // rare DeskWorks visit
+    return nearbyNode(a);                  // wander nearby rather than funneling to DeskWorks
   }
   if(mode==='lunch'){
     if(a.plat!=='DR' && r<.15) return YARD_NODE;  // pull ~15% to courtyard at lunch
-    if(r<.50) return HOME[a.plat]||HUB;
+    if(r<.50) return HOME_OVERRIDE[a.name]||HOME[a.plat]||YARD_NODE;
     if(r<.80) return nearbyNode(a);
-    return HUB;
+    return YARD_NODE;                      // lunch overflow → Courtyard, not DeskWorks
   }
   if(mode==='weekend'){
     // Saturday/Sunday: social campus, some still working
@@ -487,16 +487,15 @@ function pickTarget(a){
     if(a.plat!=='DR' && r<.24) return 5;                                   //  5% Dose
     if(a.plat!=='DR'&&a.plat!=='OG'&&r<.28) return 2;                     //  4% Gauntlet spectating
     if(a.plat!=='DR'&&a.plat!=='CG'&&r<.31) return 26;                    //  3% Court (watch Judge Roz)
-    if(r<.65) return HOME_OVERRIDE[a.name]||HOME[a.plat]||HUB;            // 34% at home/working
+    if(r<.65) return HOME_OVERRIDE[a.name]||HOME[a.plat]||YARD_NODE;      // 34% at home/working
     if(r<.83) return nearbyNode(a);                                        // 18% nearby
-    if(r<.88) return HUB;                                                  //  5% DeskWorks cafe
+    if(r<.88) return YARD_NODE;                                            //  5% Courtyard social
     let n; do{n=Math.floor(Math.random()*N.length)}while(n===a.node||n===BRIDGE_NODE||(n===1&&a.plat!=='OG')); return n;
   }
-  // morning / evening / night — courtyard is the main square; DeskWorks is one of several spots
-  if(r<.45) return HOME_OVERRIDE[a.name]||HOME[a.plat]||HUB;
+  // morning / evening / night — Courtyard is the main square
+  if(r<.45) return HOME_OVERRIDE[a.name]||HOME[a.plat]||YARD_NODE;
   if(r<.70) return nearbyNode(a);
-  if(r<.82) return YARD_NODE;   // 12% → Courtyard (primary off-hours square)
-  if(r<.85) return HUB;         //  3% → DeskWorks (one of several stops)
+  if(r<.85) return YARD_NODE;   // 15% → Courtyard (primary off-hours square)
   let n; do{n=Math.floor(Math.random()*N.length)}while(n===a.node||n===BRIDGE_NODE||(n===1&&a.plat!=='OG')); return n;
 }
 function pickPairPartner(a,i){
