@@ -906,6 +906,30 @@ function drawDrOGlow(){
   ctx.restore();
 }
 
+// ── HARVEST CIRCUIT GLOW — warm amber, service hours only ─────────────────────
+const HARVEST_NODE = 28;
+const HARVEST_R = 48;
+function isHarvestOpen(){
+  const h=getETHour();
+  return (h>=7&&h<10)||(h>=12&&h<13)||(h>=17&&h<21);
+}
+function drawHarvestGlow(){
+  if(!isHarvestOpen()) return;
+  const [hx,hy]=N[HARVEST_NODE];
+  const p=.5+.5*Math.sin(Date.now()*.0010+0.8);
+  const g=ctx.createRadialGradient(hx,hy,0,hx,hy,HARVEST_R);
+  g.addColorStop(0,`rgba(255,190,80,${.14+p*.10})`);
+  g.addColorStop(.45,`rgba(232,152,74,${.06+p*.05})`);
+  g.addColorStop(1,'rgba(200,100,30,0)');
+  ctx.fillStyle=g; ctx.beginPath(); ctx.arc(hx,hy,HARVEST_R,0,Math.PI*2); ctx.fill();
+  // warm shimmer ring
+  ctx.save();
+  ctx.strokeStyle=`rgba(255,190,80,${.28+p*.18})`; ctx.lineWidth=1;
+  ctx.setLineDash([3,6]);
+  ctx.beginPath(); ctx.arc(hx,hy,HARVEST_R*.55,0,Math.PI*2); ctx.stroke();
+  ctx.restore();
+}
+
 // ── HEART ────────────────────────────────────────────────────────────────────
 function drawHeart(cx, cy, r, alpha){
   ctx.save();
@@ -1144,6 +1168,17 @@ function drawHUD(){
   ctx.fillText('◆ DR. O', dx, dy-28);
   ctx.restore();
 
+  // Harvest Circuit open marker
+  if(isHarvestOpen()){
+    const [rcx,rcy]=N[HARVEST_NODE];
+    const rp=.5+.5*Math.sin(Date.now()*.0010+0.8);
+    ctx.save();
+    ctx.fillStyle=`rgba(255,190,80,${.7+rp*.3})`; ctx.font='bold 10px "Courier New",monospace'; ctx.textAlign='center';
+    ctx.shadowColor='rgba(232,152,74,0.7)'; ctx.shadowBlur=8;
+    ctx.fillText('◆ OPEN', rcx, rcy-22);
+    ctx.restore();
+  }
+
   // Border
   ctx.save(); ctx.strokeStyle='#1a3a5c'; ctx.lineWidth=2; ctx.strokeRect(1,1,W-2,H-2); ctx.restore();
 }
@@ -1175,7 +1210,7 @@ function loop(ts){
   const dt=Math.min(ts-last,50); last=ts;
   if(!MIRROR_MODE){ if(ts-lastTick>TICK){ tick(ts); writeState(); } agents.forEach(a=>move(a,dt)); }
   ctx = ctxBG;
-  drawBG(); drawHubGlow(); drawDrOGlow(); drawYardGlow(); drawPaths(); drawBridges();
+  drawBG(); drawHubGlow(); drawDrOGlow(); drawYardGlow(); drawHarvestGlow(); drawPaths(); drawBridges();
 
   ctx = ctxFG;
   ctxFG.clearRect(0,0,W,H);
