@@ -70,7 +70,7 @@ const WORKSPACE = {
     },
     {
       status: 'In flight',
-      agent: 'Bea Reyes',
+      agent: 'Bea Vega',
       task: 'Line-editing chapter 3 of the next Greylander Press title. CMOS pass, parallel-bullet pass, date-format consistency.',
       meta: 'Greylander Press · started 38 min ago',
     },
@@ -83,7 +83,7 @@ const WORKSPACE = {
   ],
   staff: {
     'Charles Monroe':           'Reviewing and restructuring Dr. O\'s CV for the UD application.',
-    'Beatriz "Bea" Reyes':      'Line-editing the next Greylander Press manuscript. Voice preserved, mechanics fixed.',
+    'Beatriz "Bea" Vega':      'Line-editing the next Greylander Press manuscript. Voice preserved, mechanics fixed.',
     'Ms. Ivy':                  'Mapping Dr. O\'s catalog against the new civilian-SME concept.',
     'Jules':                    'Holding for the next manuscript handoff from Bea.',
     'Jess Ramirez':             'Drafting the launch piece for the workshops catalog when it goes live.',
@@ -119,9 +119,12 @@ exports.handler = async (event) => {
     };
   }
 
+  const isOwner = (auth.user.email || '').toLowerCase() === 'starbucks005@gmail.com';
+  const payload = isOwner ? WORKSPACE : { activity: [], staff: {}, shipped: [] };
+
   return {
     statusCode: 200,
     headers: { ...CORS, 'Content-Type': 'application/json' },
-    body: JSON.stringify(WORKSPACE),
+    body: JSON.stringify(payload),
   };
 };

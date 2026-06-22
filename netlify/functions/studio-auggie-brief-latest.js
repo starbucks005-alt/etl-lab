@@ -98,6 +98,16 @@ exports.handler = async (event) => {
     return { statusCode: 401, headers: { ...CORS, 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'unauthorized', reason: auth.reason }) };
   }
 
+  // Brief is owner-only until per-user brief generation is built.
+  const isOwner = (auth.user.email || '').toLowerCase() === 'starbucks005@gmail.com';
+  if (!isOwner) {
+    return {
+      statusCode: 200,
+      headers: { ...CORS, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
+      body: JSON.stringify({ available: false }),
+    };
+  }
+
   try { connectLambda(event); } catch (_) {}
 
   let meta = null;
