@@ -231,7 +231,7 @@ exports.handler = async function(event) {
   const email = (auth.user.email || '').toLowerCase();
   const provMap = loadProvisioningMap();
   const fixtureFile = provMap[email];
-  console.log('[studio-config-get] email=' + email + ' fixtureFile=' + fixtureFile + ' mapKeys=' + Object.keys(provMap).join(','));
+  console.log('[studio-config-get] email=' + email + ' fixtureFile=' + fixtureFile + ' mapKeys=' + Object.keys(provMap).join(',') + ' __dirname=' + __dirname + ' cwd=' + process.cwd());
   if (fixtureFile) {
     const fixture = loadFixture(fixtureFile);
     console.log('[studio-config-get] fixture loaded=' + !!fixture);
