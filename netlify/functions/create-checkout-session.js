@@ -19,11 +19,11 @@ const SUPABASE_URL  = 'https://ulvrnermyuvzanxhxoib.supabase.co';
 const SUPABASE_ANON = process.env.SUPABASE_ANON_KEY || '';
 
 const PRICE_MAP = {
-  portrait: { name: 'Portrait (eyes-open, AI-generated)',  unit_amount: 600  },
-  blink:    { name: 'Bespoke blink (PS hand-match)',       unit_amount: 2000 },
-  voice:    { name: 'Voice design',                        unit_amount: 800  },
-  backpack: { name: 'Backpack wiring',                     unit_amount: 1500 },
-  export:   { name: 'Export package',                      unit_amount: 2500 },
+  portrait: { name: 'Portrait (eyes-open, AI-generated)',  unit_amount:  600 },
+  blink:    { name: 'Bespoke blink (PS hand-match)',       unit_amount: 7500 },
+  voice:    { name: 'Voice design',                        unit_amount: 3500 },
+  backpack: { name: 'Backpack wiring',                     unit_amount: 9900 },
+  export:   { name: 'Export package',                      unit_amount: 7500 },
 };
 
 async function resolveEmail(token) {
@@ -114,7 +114,7 @@ exports.handler = async function(event) {
   const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20' });
 
   const lineItems = [
-    { price_data: { currency: 'usd', product_data: { name: 'Agent JSON work order spec' }, unit_amount: 500 }, quantity: 1 },
+    { price_data: { currency: 'usd', product_data: { name: 'Agent JSON work order spec' }, unit_amount: 2500 }, quantity: 1 },
   ];
   items.forEach(function(id) {
     const p = PRICE_MAP[id];

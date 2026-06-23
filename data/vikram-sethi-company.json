@@ -16,9 +16,9 @@
   },
   "billing": {
     "sponsored": false,
-    "plan": "Founding member: full team bundle, FOUNDING50 (50% off for life, list $400)",
-    "base_monthly": 199,
-    "amount_due_monthly": 200,
+    "plan": "Founding member: full team bundle, FOUNDING50 (50% off for life, list $200)",
+    "base_monthly": 200,
+    "amount_due_monthly": 100,
     "currency": "USD",
     "invoiced_out_of_band": false,
     "paid": true,
@@ -131,7 +131,7 @@
   "value_breakdown": {
     "headcount": 10,
     "headcount_note": "Owner + PA(1) + six-pack(6) + Jax(1) + Zara(1) = 10-person company; Rowan makes 11 when live",
-    "total_monthly": 516
+    "total_monthly": 200
   },
   "flags": []
 }

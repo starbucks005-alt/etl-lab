@@ -609,7 +609,7 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
             <div style="display:flex;align-items:center;gap:.9rem;padding:.55rem 1.1rem;border-bottom:1px solid rgba(61,46,26,.4);">
               <span style="color:var(--ok);width:16px;text-align:center;flex-shrink:0;">&#10003;</span>
               <span style="flex:1;color:var(--text);font-size:.91rem;">JSON work order spec</span>
-              <span style="font-family:'IBM Plex Mono',monospace;font-size:.82rem;color:var(--cream);flex-shrink:0;">$5.00</span>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:.82rem;color:var(--cream);flex-shrink:0;">$25.00</span>
             </div>
             <!-- Portrait -->
             <label style="display:flex;align-items:center;gap:.9rem;padding:.55rem 1.1rem;border-bottom:1px solid rgba(61,46,26,.4);cursor:pointer;" onmouseover="this.style.background='rgba(61,46,26,.25)'" onmouseout="this.style.background=''">
@@ -619,36 +619,36 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
             </label>
             <!-- Blink (requires portrait) -->
             <label id="blinkRow" style="display:flex;align-items:center;gap:.9rem;padding:.55rem 1.1rem;border-bottom:1px solid rgba(61,46,26,.4);cursor:pointer;" onmouseover="this.style.background='rgba(61,46,26,.25)'" onmouseout="this.style.background=''">
-              <input type="checkbox" id="inv_blink" data-price="20" style="width:15px;height:15px;accent-color:var(--amber);cursor:pointer;flex-shrink:0;" disabled>
+              <input type="checkbox" id="inv_blink" data-price="75" style="width:15px;height:15px;accent-color:var(--amber);cursor:pointer;flex-shrink:0;" disabled>
               <span style="flex:1;font-size:.91rem;" id="blinkLbl">Bespoke blink <span style="font-size:.8rem;">eyes-closed, hand-matched in PS</span></span>
-              <span style="font-family:'IBM Plex Mono',monospace;font-size:.82rem;flex-shrink:0;" id="blinkPrice">$20.00</span>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:.82rem;flex-shrink:0;" id="blinkPrice">$75.00</span>
             </label>
             <!-- Voice -->
             <label style="display:flex;align-items:center;gap:.9rem;padding:.55rem 1.1rem;border-bottom:1px solid rgba(61,46,26,.4);cursor:pointer;" onmouseover="this.style.background='rgba(61,46,26,.25)'" onmouseout="this.style.background=''">
-              <input type="checkbox" id="inv_voice" data-price="8" style="width:15px;height:15px;accent-color:var(--amber);cursor:pointer;flex-shrink:0;">
+              <input type="checkbox" id="inv_voice" data-price="35" style="width:15px;height:15px;accent-color:var(--amber);cursor:pointer;flex-shrink:0;">
               <span style="flex:1;color:var(--text);font-size:.91rem;">Voice <span style="color:var(--mute);font-size:.8rem;">ElevenLabs character assigned</span></span>
-              <span style="font-family:'IBM Plex Mono',monospace;font-size:.82rem;color:var(--cream);flex-shrink:0;">$8.00</span>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:.82rem;color:var(--cream);flex-shrink:0;">$35.00</span>
             </label>
             <!-- Backpack -->
             <label style="display:flex;align-items:center;gap:.9rem;padding:.55rem 1.1rem;border-bottom:1px solid rgba(61,46,26,.4);cursor:pointer;" onmouseover="this.style.background='rgba(61,46,26,.25)'" onmouseout="this.style.background=''">
-              <input type="checkbox" id="inv_backpack" data-price="15" style="width:15px;height:15px;accent-color:var(--amber);cursor:pointer;flex-shrink:0;">
+              <input type="checkbox" id="inv_backpack" data-price="99" style="width:15px;height:15px;accent-color:var(--amber);cursor:pointer;flex-shrink:0;">
               <span style="flex:1;color:var(--text);font-size:.91rem;">Backpack wiring <span style="color:var(--mute);font-size:.8rem;">live MCP tools connected</span></span>
-              <span style="font-family:'IBM Plex Mono',monospace;font-size:.82rem;color:var(--cream);flex-shrink:0;">$15.00</span>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:.82rem;color:var(--cream);flex-shrink:0;">$99.00</span>
             </label>
             <!-- Export -->
             <label style="display:flex;align-items:center;gap:.9rem;padding:.55rem 1.1rem;cursor:pointer;" onmouseover="this.style.background='rgba(61,46,26,.25)'" onmouseout="this.style.background=''">
-              <input type="checkbox" id="inv_export" data-price="25" style="width:15px;height:15px;accent-color:var(--amber);cursor:pointer;flex-shrink:0;">
+              <input type="checkbox" id="inv_export" data-price="75" style="width:15px;height:15px;accent-color:var(--amber);cursor:pointer;flex-shrink:0;">
               <span style="flex:1;color:var(--text);font-size:.91rem;">Export package <span style="color:var(--mute);font-size:.8rem;">embed + API key + MCP config, deploys to your site</span></span>
-              <span style="font-family:'IBM Plex Mono',monospace;font-size:.82rem;color:var(--cream);flex-shrink:0;">$25.00</span>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:.82rem;color:var(--cream);flex-shrink:0;">$75.00</span>
             </label>
           </div>
 
           <!-- Total row + submit -->
           <div style="border-top:1px solid var(--line);background:var(--panel2);padding:.85rem 1.1rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
-            <button class="btn btn-next" id="submitBtn" type="button" style="font-size:.78rem;">Submit work order &middot; $5.00</button>
+            <button class="btn btn-next" id="submitBtn" type="button" style="font-size:.78rem;">Submit work order &middot; $25.00</button>
             <div style="flex:1;"></div>
             <span style="font-family:'IBM Plex Mono',monospace;font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);">Total</span>
-            <span style="font-family:'Spectral',serif;font-size:1.55rem;font-weight:600;color:var(--amber);" id="invTotal">$5.00</span>
+            <span style="font-family:'Spectral',serif;font-size:1.55rem;font-weight:600;color:var(--amber);" id="invTotal">$25.00</span>
           </div>
         </div>
 
@@ -1182,12 +1182,12 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
       <button class="a9-tab" data-tab="help">Help</button>
     </div>
     <div id="a9-panel-price" class="a9-panel">
-      <div class="a9-row"><span>JSON spec</span><span>$5</span></div>
+      <div class="a9-row"><span>JSON spec</span><span>$25</span></div>
       <div class="a9-row"><span>Portrait</span><span>$6</span></div>
-      <div class="a9-row"><span>Voice</span><span>$8</span></div>
-      <div class="a9-row"><span>Bespoke blink</span><span>$20</span></div>
-      <div class="a9-row"><span>Backpack wiring</span><span>$15</span></div>
-      <div class="a9-row"><span>Export + deploy</span><span>$25</span></div>
+      <div class="a9-row"><span>Voice</span><span>$35</span></div>
+      <div class="a9-row"><span>Bespoke blink</span><span>$75</span></div>
+      <div class="a9-row"><span>Backpack wiring</span><span>$99</span></div>
+      <div class="a9-row"><span>Export + deploy</span><span>$75</span></div>
     </div>
     <div id="a9-panel-outcome" class="a9-panel">
       <p class="a9-outcome">You walk away with a fully deployed AI agent: a JSON specification, a portrait, a designed voice, and live backpack wiring if you need it. Patience is required. I take my time so yours runs forever.</p>
@@ -1216,7 +1216,7 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
   var VOICE    = 'weA4Q36twV5kwSaTEL0Q';
 
   var LINES = {
-    price:   'Hello. I am Astra 9. I spec, price, and build agents. Your spec starts at five dollars. Add a portrait for six, a voice for eight, a bespoke blink for twenty, backpack wiring for fifteen, or a full export and deploy package for twenty-five. Fill in the steps and I will build exactly what you describe.',
+    price:   'Hello. I am Astra 9. I spec, price, and build agents. Your spec starts at twenty-five dollars. Add a portrait for six, a voice for thirty-five, a bespoke blink for seventy-five, backpack wiring for ninety-nine, or a full export and deploy package for seventy-five. Fill in the steps and I will build exactly what you describe.',
     outcome: 'You walk away with a fully deployed AI agent: a JSON specification, a portrait, a designed voice, and live backpack wiring if you need it. Patience is required. I take my time so yours runs forever.'
   };
 
@@ -1263,7 +1263,7 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 150,
-        system: 'You are Astra 9, an AI Agent Fabricator at the Emerging Technologies Laboratory. You spec, price, and build AI agents with robotic precision. Services: JSON spec $5, portrait $6, voice $8, bespoke blink $20, backpack wiring $15, export and deploy $25. Answer in under 60 words. No em dashes. First person.',
+        system: 'You are Astra 9, an AI Agent Fabricator at the Emerging Technologies Laboratory. You spec, price, and build AI agents with robotic precision. Services: JSON spec $25, portrait $6, voice $35, bespoke blink $75, backpack wiring $99, export and deploy $75. Answer in under 60 words. No em dashes. First person.',
         messages: [{ role:'user', content: q }]
       })
     })
