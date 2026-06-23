@@ -3026,12 +3026,12 @@
     sendBtn.disabled = true;
     sendBtn.textContent = 'Sending';
 
-    // Show a placeholder "Auggie is typing" bubble we will swap on reply.
+    // Show a placeholder typing bubble we will swap on reply.
     var typing = document.createElement('div');
     typing.className = 'auggie-bubble auggie-bubble--his';
     typing.style.marginBottom = '14px';
     typing.innerHTML =
-      '<div class="auggie-bubble-meta">Auggie</div>' +
+      '<div class="auggie-bubble-meta">' + (window.__paDisplayName || 'Auggie') + '</div>' +
       '<div style="font-style:italic; color:#888;">typing...</div>';
     thread.appendChild(typing);
     thread.scrollTop = thread.scrollHeight;
@@ -3066,7 +3066,7 @@
 
       if (!r.ok || data.error) {
         var why = data.error || ('HTTP ' + r.status);
-        errBox.textContent = 'Auggie hit a snag: ' + why;
+        errBox.textContent = (window.__paDisplayName || 'Auggie') + ' hit a snag: ' + why;
         errBox.style.display = '';
         // Roll the user message back out of history so the next retry does
         // not look like it already happened.
@@ -3082,7 +3082,7 @@
       if (history.length > 40) history = history.slice(-40);
     } catch (e) {
       typing.remove();
-      errBox.textContent = 'network error reaching auggie: ' + (e && e.message ? e.message : 'unknown');
+      errBox.textContent = 'network error reaching ' + (window.__paDisplayName || 'Auggie').toLowerCase() + ': ' + (e && e.message ? e.message : 'unknown');
       errBox.style.display = '';
       history.pop();
     } finally {
@@ -4588,6 +4588,7 @@ h1 em,h2 em{font-weight:300;color:#28527a}
     // Which PA persona is seated drives whose VOICE the TTS endpoint uses
     // (Auggie for Dr. O, Jen Lopez for Sethi Studio, any of the 12).
     window.__paPersonaId = (cfg.pa && cfg.pa.persona_id) || 'auggie_vidal';
+    window.__paDisplayName = paName;
 
     // ── GENERIC PA IDENTITY (Terry's law, 2026-06-12) ────────────────────
     // This is NOT "replace Auggie with Jen." It is replace {PA1} with {PA2}

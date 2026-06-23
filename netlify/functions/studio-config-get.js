@@ -48,8 +48,9 @@ async function validateRequest(event) {
 
 function loadFixture(filename) {
   const candidates = [
-    path.join(__dirname, '..', '..', 'data', filename),
+    path.join(__dirname, 'data', filename),
     path.join(process.cwd(), 'data', filename),
+    path.join(__dirname, '..', '..', 'data', filename),
   ];
   for (const p of candidates) {
     try {
