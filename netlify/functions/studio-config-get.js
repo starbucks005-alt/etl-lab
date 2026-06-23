@@ -135,6 +135,8 @@ function fixtureToStudioConfig(fixture, user) {
     user_email: user.email,
     company_name: co.company_name || 'Your Studio',
     owner_name: acct.owner_name || user.email,
+    owner_address_form: acct.owner_address_form || '',
+    owner_honorific: acct.owner_honorific || '',
     owner_title: acct.owner_title || '',
     owner_org: acct.owner_org || '',
     owner_context: acct.owner_context || '',
@@ -186,6 +188,8 @@ function defaultStudioConfig(user) {
     user_email: user.email,
     company_name: 'Your Studio',
     owner_name: user.email,
+    owner_address_form: '',
+    owner_honorific: '',
     // Auggie is the default seat. Swapping is now REAL: the in-Studio
     // picker posts to studio-config-set and the seat persists per user
     // via the overlay above (the 2026-06-13 rehearsal hardcode is gone;

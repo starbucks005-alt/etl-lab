@@ -855,6 +855,8 @@ function buildOwnerContextBlock(ownerCfg, isJen) {
   const company = (ownerCfg && ownerCfg.company_name) || '';
   const context = (ownerCfg && ownerCfg.owner_context) || '';
   const site = (ownerCfg && ownerCfg.owner_site) || '';
+  const explicitAddressForm = (ownerCfg && ownerCfg.owner_address_form) || '';
+  const explicitHonorific = (ownerCfg && ownerCfg.owner_honorific) || '';
 
   if (!name && !company) return '';
 
@@ -874,15 +876,18 @@ function buildOwnerContextBlock(ownerCfg, isJen) {
   if (site) lines.push('- Their website: ' + site);
 
   if (!isTerrysStudio && name) {
-    let addressForm;
-    if (/^dr\.?\s/i.test(name)) {
-      const parts = name.trim().split(/\s+/);
-      addressForm = 'Dr. ' + parts[parts.length - 1];
-    } else if (/^prof\.?\s/i.test(name)) {
-      const parts = name.trim().split(/\s+/);
-      addressForm = 'Prof. ' + parts[parts.length - 1];
-    } else {
-      addressForm = name.trim().split(/\s+/)[0];
+    // Explicit address form from fixture wins; auto-derive as fallback only
+    let addressForm = explicitAddressForm;
+    if (!addressForm) {
+      if (/^dr\.?\s/i.test(name)) {
+        const parts = name.trim().split(/\s+/);
+        addressForm = 'Dr. ' + parts[parts.length - 1];
+      } else if (/^prof\.?\s/i.test(name)) {
+        const parts = name.trim().split(/\s+/);
+        addressForm = 'Prof. ' + parts[parts.length - 1];
+      } else {
+        addressForm = name.trim().split(/\s+/)[0];
+      }
     }
     if (isJen) {
       lines.push('- Address them as: ' + addressForm + '. Warm but professional, as you address any executive you respect.');
@@ -892,8 +897,12 @@ function buildOwnerContextBlock(ownerCfg, isJen) {
         lines.push('- When mentioning their business in conversation, reference ' + (company || 'their company') + (site ? ' (' + site + ')' : '') + ', NOT "ETL", "Greylander Press", "The Dose", or other Dr. Oroszi platforms.');
       }
     }
+    if (explicitHonorific) {
+      lines.push('- Respectful address in conversation: "' + explicitHonorific + '" (e.g. "Of course, ' + explicitHonorific + '." or "Yes, ' + explicitHonorific + '."). Use this wherever you would naturally say ma\'am or sir.');
+    }
   } else if (isTerrysStudio && isJen) {
     lines.push('- Address them as: Dr. Oroszi (or Ms. Terry — she uses both; follow her lead).');
+    lines.push('- Respectful address in conversation: "ma\'am".');
   }
 
   return lines.join('\n');
@@ -1602,6 +1611,20 @@ exports.handler = async (event) => {
   // Runs AFTER all bespoke handlers so Jax/Reid/Rowan keep their channels.
   const genericStaffDispatch = detectGenericStaffDispatch(message, STAFF_REGISTRY);
   if (genericStaffDispatch.matched && images.length === 0 && documents.length === 0) {
+    // Gate: only dispatch if the agent is on this user's hired staff list.
+    // staffNamesFromClient comes from the page's rendered staff grid — it is
+    // authoritative for the current user. If empty (not sent), skip dispatch
+    // and let the model handle it (safe fallback).
+    const staffList = staffNamesFromClient
+      ? staffNamesFromClient.map(s => (s.name || '').toLowerCase())
+      : [];
+    const agentFirst = (genericStaffDispatch.entry.first_name || '').toLowerCase();
+    const agentFull = (genericStaffDispatch.entry.name || '').toLowerCase();
+    const agentOnStaff = staffList.length > 0 &&
+      staffList.some(n => n.includes(agentFirst) || agentFirst.includes(n.split(' ')[0]) || n.includes(agentFull));
+    if (!agentOnStaff) {
+      // Not on this user's team — fall through to the model, which will respond naturally
+    } else
     try {
       const authHeader = (event.headers && (event.headers.authorization || event.headers.Authorization)) || '';
       const base = process.env.URL || ('https://' + ((event.headers && event.headers.host) || ''));
@@ -1720,6 +1743,8 @@ exports.handler = async (event) => {
       company_name: body.company_name || null,
       owner_context: body.owner_context || null,
       owner_site: body.owner_site || null,
+      owner_address_form: body.owner_address_form || null,
+      owner_honorific: body.owner_honorific || null,
     },
     isJen
   );

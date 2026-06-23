@@ -3,6 +3,8 @@
   "account": {
     "account_id": "acct_vikram_sethi",
     "owner_name": "Dr. Vikram Sethi",
+    "owner_address_form": "Mr. Sethi",
+    "owner_honorific": "sir",
     "owner_title": "Business Professor, Wright State University (Dayton, Ohio)",
     "owner_org": "OneSmarter Inc. (technology company; operations based in India)",
     "owner_context": "B2B technology company. Stated goal at signup: win more US/global clients; client acquisition is the bottleneck. Interested in markets/Robinhood support (Rowan) when available.",
@@ -79,6 +81,8 @@
       {
         "id": "yuki_mendel",
         "name": "Yuki Mendel",
+        "role": "Brand Designer",
+        "note": "visual identity and pitch decks for client acquisition",
         "contract": "Six-Pack"
       },
       {
