@@ -4686,6 +4686,9 @@ h1 em,h2 em{font-weight:300;color:#28527a}
 
     // Title bar
     try { document.title = companyName + ' | Emerging Technologies Laboratory'; } catch(_){}
+    // Diagnostic: session pill shows which config loaded (remove after Vikram debug)
+    var pillEl = document.getElementById('session-pill');
+    if (pillEl) pillEl.textContent = 'Signed in · ' + companyName;
 
     // Brand link (top nav)
     var brandEl = document.querySelector('.studio-brand');
