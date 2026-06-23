@@ -255,6 +255,17 @@ exports.handler = async function(event) {
           user_email: auth.user.email,
           source: (cfg.source || 'unknown') + '+user_edits',
         });
+        // Provisioned fixture fields are canonical — the blob cannot override
+        // them. A stale blob written before a fixture was set up would otherwise
+        // shadow company_name, pa, owner_name, and billing with defaults.
+        if (cfg.source === 'fixture') {
+          merged.company_name = cfg.company_name;
+          merged.owner_name   = cfg.owner_name;
+          merged.pa           = cfg.pa;
+          merged.billing      = cfg.billing;
+          merged.sponsorship  = cfg.sponsorship;
+          merged.no_payment_ui = cfg.no_payment_ui;
+        }
         // hired_staff: base/fixture staff always present; user-added staff
         // appended. Dedup by id first, fall back to name.
         if (cfg.hired_staff && cfg.hired_staff.length > 0) {
