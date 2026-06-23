@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dr. O's Studio | Emerging Technologies Laboratory</title>
+<title>Studio | Emerging Technologies Laboratory</title>
 <meta name="description" content="Dr. Terry Oroszi's private workspace where the AI staff works on her books, manuscripts, ideas, and outreach.">
 <meta name="robots" content="noindex,nofollow">
 <!-- PWA install metadata. Lets the buyer install the Studio as an app from
@@ -547,7 +547,7 @@
 
 <!-- NAVY HEADER BAND -->
 <header class="studio-top">
-  <a href="/" class="studio-brand">Dr. O's <em>Studio</em></a>
+  <a href="/" class="studio-brand">The <em>Studio</em></a>
   <div class="studio-top-right">
     <span class="session-pill" id="session-pill">Not signed in</span>
     <button type="button" id="copy-studio-id-btn" style="display:none;background:none;border:1px solid rgba(255,255,255,0.35);color:inherit;font:inherit;font-size:0.78rem;padding:2px 8px;border-radius:4px;cursor:pointer;opacity:0.75;" title="Share this ID with a friend to connect your PA with theirs" onclick="copyStudioId()">Copy Studio ID</button>
@@ -561,8 +561,7 @@
   <div class="login-eyebrow">Private workspace</div>
   <h1 class="login-h">Sign in to the studio</h1>
   <p class="login-sub">
-    Dr. Oroszi's personal workspace. The AI staff works here on her
-    books, manuscripts, ideas, and outreach. Access is restricted.
+    Private workspace. Sign in with your email to access your studio.
   </p>
   <form id="login-form" onsubmit="event.preventDefault(); requestMagicLink();" style="display:flex;flex-direction:column;gap:12px;">
     <input
@@ -583,11 +582,9 @@
 
   <header class="ws-hero">
     <div class="ws-eyebrow">A working studio. The staff is at the bench.</div>
-    <h1 class="ws-h1">Dr. O's Studio</h1>
+    <h1 class="ws-h1">Your Studio</h1>
     <p class="ws-sub">
-      The artist's workshop. The AI staff works here on Dr. Oroszi's own
-      books, manuscripts, ideas, and outreach. What is below is what is on
-      the floor right now.
+      Your AI staff is here and ready. What is below is what is on the floor right now.
     </p>
   </header>
 
@@ -1957,7 +1954,7 @@
   <!-- Top bar: brand + persona name + connected indicator + leave call -->
   <div class="auggie-call-top">
     <div class="auggie-call-top-left">
-      <div class="auggie-call-brand">DR. O&rsquo;S STUDIO</div>
+      <div class="auggie-call-brand" id="auggie-call-brand">THE STUDIO</div>
       <button type="button" id="auggie-call-leave" class="auggie-call-leave" aria-label="Leave call">&larr; Leave call</button>
     </div>
     <div class="auggie-call-top-center">
@@ -4689,6 +4686,9 @@ h1 em,h2 em{font-weight:300;color:#28527a}
     // Diagnostic: session pill shows which config loaded (remove after Vikram debug)
     var pillEl = document.getElementById('session-pill');
     if (pillEl) pillEl.textContent = 'Signed in · ' + companyName;
+    // Call overlay brand
+    var callBrand = document.getElementById('auggie-call-brand');
+    if (callBrand) callBrand.textContent = companyName.toUpperCase();
 
     // Brand link (top nav)
     var brandEl = document.querySelector('.studio-brand');
