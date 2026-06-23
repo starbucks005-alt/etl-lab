@@ -2413,7 +2413,7 @@
       var r = await fetch('/.netlify/functions/studio-auggie-chat', {
         method:'POST',
         headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + token },
-        body: JSON.stringify({ message: question, history: history.slice(0, -1), persona_id: window.__paPersonaId || 'auggie_vidal', staff_names: Array.from(document.querySelectorAll('.staff-grid .staff-name')).map(function(n){return n.textContent.trim();}).filter(Boolean) }),
+        body: JSON.stringify({ message: question, history: history.slice(0, -1), persona_id: window.__paPersonaId || 'auggie_vidal', staff_names: Array.from(document.querySelectorAll('.staff-grid .staff-name')).map(function(n){return n.textContent.trim();}).filter(Boolean), owner_name: window.__ownerName || '', company_name: window.__companyName || '', owner_context: window.__ownerContext || '', owner_site: window.__ownerSite || '' }),
       });
       var data = await r.json();
       if (!r.ok || data.error) {
@@ -3059,6 +3059,10 @@
           documents: turnDocs.map(function(d){
             return { mediaType: d.mediaType, base64: d.base64, name: d.name };
           }),
+          owner_name: window.__ownerName || '',
+          company_name: window.__companyName || '',
+          owner_context: window.__ownerContext || '',
+          owner_site: window.__ownerSite || '',
         }),
       });
       var data = await r.json();
@@ -4589,6 +4593,10 @@ h1 em,h2 em{font-weight:300;color:#28527a}
     // (Auggie for Dr. O, Jen Lopez for Sethi Studio, any of the 12).
     window.__paPersonaId = (cfg.pa && cfg.pa.persona_id) || 'auggie_vidal';
     window.__paDisplayName = paName;
+    window.__ownerName    = cfg.owner_name    || '';
+    window.__companyName  = cfg.company_name  || '';
+    window.__ownerContext = cfg.owner_context || '';
+    window.__ownerSite    = cfg.owner_site    || '';
 
     // ── GENERIC PA IDENTITY (Terry's law, 2026-06-12) ────────────────────
     // This is NOT "replace Auggie with Jen." It is replace {PA1} with {PA2}

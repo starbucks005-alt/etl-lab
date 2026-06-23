@@ -103,6 +103,15 @@
 # Yuki's Anthropic analysis. No data files needed; brief + URL from request.
 [functions."studio-yuki-background"]
 
+# Generic staff dispatch stack. Bundles the staff registry so the background
+# function can load personas in the Netlify runtime without a network fetch.
+[functions."studio-staff-background"]
+  included_files = ["data/studio-staff-registry.json"]
+
+# studio-auggie-chat also needs the registry for inline dispatch detection.
+[functions."studio-auggie-chat"]
+  included_files = ["data/studio-staff-registry.json"]
+
 # Chris's tailor shop: outfit variants of agent portraits via gpt-image-1
 # images/edits (reference-anchored so the face holds). Bundles the curated
 # outfit catalog AND the full roster (?agent= path reads the persona and

@@ -22,6 +22,27 @@
 const Anthropic = require('@anthropic-ai/sdk').default;
 const { VOICE_LAW_CHAT, houseTypography } = require('./_etl-voice-law.js');
 const { getStore, connectLambda } = require('@netlify/blobs');
+const path = require('path');
+const fs = require('fs');
+
+/* ── Staff registry (generic dispatch) ──────────────────────────────────────
+   Loaded at cold-start from the bundled JSON so detectGenericStaffDispatch
+   can run synchronously in the handler. If the file is absent (local dev
+   before registry exists) the registry is empty and generic dispatch simply
+   does not fire — safe fallback. */
+function loadStaffRegistry() {
+  const candidates = [
+    path.join(__dirname, 'data', 'studio-staff-registry.json'),
+    path.join(process.cwd(), 'data', 'studio-staff-registry.json'),
+  ];
+  for (const p of candidates) {
+    try {
+      if (fs.existsSync(p)) return JSON.parse(fs.readFileSync(p, 'utf8'));
+    } catch (_) {}
+  }
+  return {};
+}
+const STAFF_REGISTRY = loadStaffRegistry();
 
 const MODEL = 'claude-sonnet-4-6';
 
@@ -729,65 +750,153 @@ async function buildSlickStatusReply(event, authHeader, userId, base) {
   return "i tried to check on Reid but the status came back empty. give it another moment and ask me again.";
 }
 
-// ── YUKI MENDEL (Brand Designer) dispatch + status ────────────────────────────
-const YUKI_DESIGN_RE = /\b(redesign|rebrand|brand(?:ing)?|visual(?:s)?|typography|typeface|fonts?|colou?rs?|palette|look and feel|aesthetic|logo|identity|design direction|website design|site design|visual system|graphic system|look)\b/i;
-const YUKI_STATUS_RE = /\b(what did yuki|did yuki|is yuki done|yuki done|yuki ready|yuki status|yuki back|yuki finished|yuki sent|yuki found|yuki said)\b/i;
+// ── GENERIC STAFF DISPATCH (covers Yuki, Alicia, Leo, Kimberly, Sasha, etc.) ──
+// Uses the STAFF_REGISTRY loaded at cold-start. Any bench member in the registry
+// can be dispatched via studio-staff-ask and polled via studio-staff-status.
+// Bespoke channels (Jax SEO scanner, Reid slick generator, Rowan markets) keep
+// their own handlers above. The generic handlers run AFTER those bespoke handlers
+// so there is no ambiguity on Jax/Reid/Rowan messages.
 
-function detectYukiDispatchIntent(msg) {
-  if (!msg || typeof msg !== 'string') return { matched: false };
-  if (!/\byuki\b/i.test(msg)) return { matched: false };
-  if (!YUKI_DESIGN_RE.test(msg)) return { matched: false };
-  const urlMatches = msg.match(/\bhttps?:\/\/[^\s"'<>]+/gi) || [];
-  const targetUrl = urlMatches.length > 0 ? urlMatches[0].replace(/[.,!?)\]]+$/, '') : null;
-  return { matched: true, target_url: targetUrl, brief: msg.slice(0, 2000) };
+const STAFF_TASK_VERB_RE = /\b(have|ask|tell|get|put|send|dispatch|assign|let|make|give|want|need)\b/i;
+const STAFF_STATUS_PHRASE_RE = /\b(what did|did|is|has|status|done|ready|back|finished|found|said|sent|result|report|hear from|get back)\b/i;
+
+function escapeRegexChars(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-function detectYukiStatusIntent(msg) {
-  if (!msg || typeof msg !== 'string') return { matched: false };
-  if (!/\byuki\b/i.test(msg)) return { matched: false };
-  if (!YUKI_STATUS_RE.test(msg)) return { matched: false };
-  return { matched: true };
-}
+function detectGenericStaffDispatch(msg, registry) {
+  if (!msg || !registry) return { matched: false };
+  if (!STAFF_TASK_VERB_RE.test(msg)) return { matched: false };
 
-function buildYukiDispatchReply(targetUrl, paIsJen) {
-  const domain = targetUrl ? targetUrl.replace(/^https?:\/\//, '').replace(/\/$/, '') : 'your site';
-  if (paIsJen) {
-    return "I've sent " + domain + " to Yuki along with your brief. She is pulling the site now and doing a full brand assessment: type, color, layout, the works. Give her about ninety seconds, then ask me 'what did Yuki find' and I will surface her direction proposal.";
+  for (const [, entry] of Object.entries(registry)) {
+    if (!entry || !entry.first_name || entry.first_name.length < 3) continue;
+    const nameRe = new RegExp('\\b' + escapeRegexChars(entry.first_name) + '\\b', 'i');
+    if (!nameRe.test(msg)) continue;
+
+    // If the entry has trigger_keywords, at least one must appear in the message.
+    // This stops a generic "have Bea look at this" from firing for a brand-design message.
+    if (Array.isArray(entry.trigger_keywords) && entry.trigger_keywords.length > 0) {
+      const kwPattern = entry.trigger_keywords.map(escapeRegexChars).join('|');
+      const kwRe = new RegExp('\\b(' + kwPattern + ')\\b', 'i');
+      if (!kwRe.test(msg)) continue;
+    }
+
+    const urlMatches = msg.match(/\bhttps?:\/\/[^\s"'<>]+/gi) || [];
+    const targetUrl = urlMatches.length > 0 ? urlMatches[0].replace(/[.,!?)\]]+$/, '') : null;
+    return { matched: true, entry, brief: msg.slice(0, 2000), target_url: targetUrl };
   }
-  return "ok Ms. Terry, Yuki is on it. she is pulling " + domain + " right now and building the full direction brief: typography, palette, layout, the works. give her about ninety seconds, then ask me 'what did Yuki say' and i will have her proposal.";
+
+  return { matched: false };
 }
 
-async function buildYukiStatusReply(event, authHeader, userId, base, paIsJen) {
+function detectGenericStaffStatus(msg, registry) {
+  if (!msg || !registry) return { matched: false };
+  if (!STAFF_STATUS_PHRASE_RE.test(msg)) return { matched: false };
+
+  for (const [, entry] of Object.entries(registry)) {
+    if (!entry || !entry.first_name || entry.first_name.length < 3) continue;
+    const nameRe = new RegExp('\\b' + escapeRegexChars(entry.first_name) + '\\b', 'i');
+    if (nameRe.test(msg)) return { matched: true, entry };
+  }
+
+  return { matched: false };
+}
+
+function buildGenericDispatchReply(entry, ownerSite, paIsJen) {
+  const firstName = entry.first_name || entry.name.split(' ')[0];
+  const siteNote = ownerSite ? ' on ' + ownerSite.replace(/^https?:\/\//, '').replace(/\/$/, '') : '';
+  if (paIsJen) {
+    return "I've put " + firstName + " on it" + siteNote + ". Give them about ninety seconds, then ask me 'what did " + firstName + " find' and I will surface their response.";
+  }
+  return "ok, " + firstName + " is on it" + siteNote + ". give them about ninety seconds, then ask me 'what did " + firstName + " say' and i will have the response.";
+}
+
+async function buildGenericStatusReply(event, authHeader, userId, staffId, staffName, base, paIsJen) {
   try { connectLambda(event); } catch (_) {}
+  const firstName = staffName.split(' ')[0];
   let job;
-  try { job = await getStore('yuki_jobs').get(userId || 'default', { type: 'json' }); } catch (_) {}
+  try {
+    job = await getStore('studio_staff_jobs').get(userId + ':' + staffId, { type: 'json' });
+  } catch (_) {}
   if (!job || !job.job_id) {
-    if (paIsJen) return "I don't have a Yuki job in progress for you right now. If you would like her to review a site, tell me the URL and what you are trying to achieve and I will put her on it.";
-    return "ma'am, i don't have a Yuki job in progress for you. say 'have Yuki review [site]' and i will put her on it.";
+    if (paIsJen) return "I don't have a " + firstName + " job in progress right now. If you'd like " + firstName + " to look at something, just tell me what you need.";
+    return "i don't have a " + firstName + " job in progress right now. tell me what you need and i will put them on it.";
   }
   try {
-    const r = await fetch(base.replace(/\/$/, '') + '/.netlify/functions/studio-yuki-status?job_id=' + encodeURIComponent(job.job_id), {
+    const r = await fetch(base.replace(/\/$/, '') + '/.netlify/functions/studio-staff-status?job_id=' + encodeURIComponent(job.job_id), {
       headers: { 'Authorization': authHeader },
     });
     if (r.ok) {
       const s = await r.json();
       if (s.status === 'done' && s.text) {
-        const domain = (job.owner_site || '').replace(/^https?:\/\//, '').replace(/\/$/, '');
-        if (paIsJen) {
-          return "Yuki's back. Here is her direction brief" + (domain ? ' for ' + domain : '') + ":\n\n" + s.text;
-        }
-        return "Yuki sent this up" + (domain ? ' on ' + domain : '') + ':\n\n' + s.text;
+        const siteNote = job.owner_site ? ' on ' + job.owner_site.replace(/^https?:\/\//, '').replace(/\/$/, '') : '';
+        if (paIsJen) return firstName + "'s back" + siteNote + ". Here is what they put together:\n\n" + s.text;
+        return firstName + " sent this up" + siteNote + ":\n\n" + s.text;
       }
       if (s.status === 'error') {
-        if (paIsJen) return "Yuki ran into an issue on that one. Would you like me to send her at it again?";
-        return "ma'am, Yuki hit an error on that one. want me to put her back on it?";
+        if (paIsJen) return firstName + " ran into an issue on that one. Want me to send them at it again?";
+        return firstName + " hit an error on that one. want me to put them back on it?";
       }
-      if (paIsJen) return "Yuki is still working on it. Give her another thirty seconds, then ask me again.";
-      return "she is still on it, love. give Yuki another thirty seconds, then ask me again.";
+      if (paIsJen) return firstName + " is still working on it. Give them another thirty seconds.";
+      return firstName + " is still on it. give them another thirty seconds and ask me again.";
     }
   } catch (_) {}
-  if (paIsJen) return "I tried to check on Yuki but got no status back. Give it a moment and ask me again.";
-  return "i tried to check on Yuki but the status came back empty. give it another moment and ask me again.";
+  if (paIsJen) return "I tried to check on " + firstName + " but got no status back. Give it a moment and ask me again.";
+  return "i tried to check on " + firstName + " but the status came back empty. give it another moment.";
+}
+
+/* ── Dynamic owner context block ────────────────────────────────────────────
+   Appends an owner-specific override to the PA persona. For Auggie + Terry:
+   no-op (base persona already has her name and address form). For any other
+   owner: explicit override so Auggie does not call Vikram "Ms. Terry."
+   For Jen: always inject the owner's name so she can address them correctly. */
+function buildOwnerContextBlock(ownerCfg, isJen) {
+  const name = (ownerCfg && ownerCfg.owner_name) || '';
+  const company = (ownerCfg && ownerCfg.company_name) || '';
+  const context = (ownerCfg && ownerCfg.owner_context) || '';
+  const site = (ownerCfg && ownerCfg.owner_site) || '';
+
+  if (!name && !company) return '';
+
+  const isTerrysStudio = (name === 'Dr. Terry Oroszi');
+
+  if (isTerrysStudio && !isJen) return '';  // Auggie's base persona already handles Terry correctly
+
+  const lines = ['\n\nOWNER CONTEXT:'];
+
+  if (!isTerrysStudio && !isJen) {
+    lines.push('IMPORTANT: The owner is NOT Dr. Terry Oroszi. Do NOT open with "Ms. Terry" or any Terry-specific greeting. Do NOT reference Forbes Technology Council, Harvard Kennedy, pharmacology, CBRN biodefense, or ETL platforms as belonging to this owner. Adapt your chief-of-staff energy to this person and their business.');
+  }
+
+  if (name) lines.push('- You work for: ' + name);
+  if (company) lines.push('- Their company/studio: ' + company);
+  if (context) lines.push('- Context: ' + context);
+  if (site) lines.push('- Their website: ' + site);
+
+  if (!isTerrysStudio && name) {
+    let addressForm;
+    if (/^dr\.?\s/i.test(name)) {
+      const parts = name.trim().split(/\s+/);
+      addressForm = 'Dr. ' + parts[parts.length - 1];
+    } else if (/^prof\.?\s/i.test(name)) {
+      const parts = name.trim().split(/\s+/);
+      addressForm = 'Prof. ' + parts[parts.length - 1];
+    } else {
+      addressForm = name.trim().split(/\s+/)[0];
+    }
+    if (isJen) {
+      lines.push('- Address them as: ' + addressForm + '. Warm but professional, as you address any executive you respect.');
+    } else {
+      lines.push('- Address them as: ' + addressForm + '. Use your usual warmth and chief-of-staff energy, adapted to who this person is.');
+      if (site || company) {
+        lines.push('- When mentioning their business in conversation, reference ' + (company || 'their company') + (site ? ' (' + site + ')' : '') + ', NOT "ETL", "Greylander Press", "The Dose", or other Dr. Oroszi platforms.');
+      }
+    }
+  } else if (isTerrysStudio && isJen) {
+    lines.push('- Address them as: Dr. Oroszi (or Ms. Terry — she uses both; follow her lead).');
+  }
+
+  return lines.join('\n');
 }
 
 // Per-owner title for Auggie. Default Personal Assistant; a buyer's config
@@ -1409,68 +1518,6 @@ exports.handler = async (event) => {
     }
   }
 
-  // ── YUKI STATUS INTENT ───────────────────────────────────────────────────
-  const yukiStatus = detectYukiStatusIntent(message);
-  if (yukiStatus.matched && images.length === 0 && documents.length === 0) {
-    try {
-      const authHeader = (event.headers && (event.headers.authorization || event.headers.Authorization)) || '';
-      const base = process.env.URL || ('https://' + ((event.headers && event.headers.host) || ''));
-      const reply = await buildYukiStatusReply(event, authHeader, (auth.user && auth.user.id) || 'default', base, isJen);
-      return {
-        statusCode: 200,
-        headers: { ...CORS, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reply, persona: personaName, yuki_status: true }),
-      };
-    } catch (e) {
-      console.warn('[studio-auggie-chat] yuki status failed, falling back to model', e && e.message);
-    }
-  }
-
-  // ── YUKI DISPATCH INTENT ─────────────────────────────────────────────────
-  const yukiDispatch = detectYukiDispatchIntent(message);
-  if (yukiDispatch.matched && images.length === 0 && documents.length === 0) {
-    try {
-      const authHeader = (event.headers && (event.headers.authorization || event.headers.Authorization)) || '';
-      const base = process.env.URL || ('https://' + ((event.headers && event.headers.host) || ''));
-
-      // Resolve owner_site for context: prefer explicit URL in message, fall back to config
-      let ownerSite = yukiDispatch.target_url;
-      if (!ownerSite) ownerSite = await loadOwnerSite(event, (auth.user && auth.user.id) || 'default');
-
-      const askUrl = base.replace(/\/$/, '') + '/.netlify/functions/studio-yuki-ask';
-      const r = await fetch(askUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': authHeader },
-        body: JSON.stringify({
-          brief: yukiDispatch.brief,
-          owner_site: ownerSite || null,
-        }),
-      });
-      if (r.ok) {
-        const j = await r.json();
-        if (j && j.job_id) {
-          try { connectLambda(event); } catch (_) {}
-          try {
-            await getStore('yuki_jobs').setJSON((auth.user && auth.user.id) || 'default', {
-              job_id: j.job_id, owner_site: ownerSite || null, created_at: new Date().toISOString(),
-            });
-          } catch (_) {}
-          return {
-            statusCode: 200,
-            headers: { ...CORS, 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              reply: buildYukiDispatchReply(ownerSite, isJen),
-              persona: personaName,
-              yuki_dispatch: { job_id: j.job_id, owner_site: ownerSite },
-            }),
-          };
-        }
-      }
-      console.warn('[studio-auggie-chat] yuki dispatch non-ok', r && r.status);
-    } catch (e) {
-      console.warn('[studio-auggie-chat] yuki dispatch failed, falling back to model', e && e.message);
-    }
-  }
 
   // ── ROWAN STATUS INTENT ──────────────────────────────────────────────────
   const rowanStatus = detectRowanStatusIntent(message);
@@ -1520,6 +1567,86 @@ exports.handler = async (event) => {
       console.warn('[studio-auggie-chat] rowan dispatch non-ok', r.status);
     } catch (e) {
       console.warn('[studio-auggie-chat] rowan dispatch failed, falling back to model', e && e.message);
+    }
+  }
+
+  // ── GENERIC STAFF STATUS INTENT ──────────────────────────────────────────
+  // "what did Yuki find" / "is Alicia done" / "Kimberly status" → poll the
+  // studio_staff_jobs blob and surface the result in the PA's voice.
+  // Runs AFTER all bespoke handlers so Jax/Reid/Rowan keep their channels.
+  const genericStaffStatus = detectGenericStaffStatus(message, STAFF_REGISTRY);
+  if (genericStaffStatus.matched && images.length === 0 && documents.length === 0) {
+    try {
+      const authHeader = (event.headers && (event.headers.authorization || event.headers.Authorization)) || '';
+      const base = process.env.URL || ('https://' + ((event.headers && event.headers.host) || ''));
+      const reply = await buildGenericStatusReply(
+        event, authHeader,
+        (auth.user && auth.user.id) || 'default',
+        genericStaffStatus.entry.id,
+        genericStaffStatus.entry.name,
+        base, isJen
+      );
+      return {
+        statusCode: 200,
+        headers: { ...CORS, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reply, persona: personaName, staff_status: { staff_id: genericStaffStatus.entry.id } }),
+      };
+    } catch (e) {
+      console.warn('[studio-auggie-chat] generic staff status failed, falling back to model', e && e.message);
+    }
+  }
+
+  // ── GENERIC STAFF DISPATCH INTENT ───────────────────────────────────────
+  // "have Yuki redesign my site" / "ask Alicia about LLC formation" → fire
+  // studio-staff-ask, stash the job per-user, reply in the PA's voice.
+  // Runs AFTER all bespoke handlers so Jax/Reid/Rowan keep their channels.
+  const genericStaffDispatch = detectGenericStaffDispatch(message, STAFF_REGISTRY);
+  if (genericStaffDispatch.matched && images.length === 0 && documents.length === 0) {
+    try {
+      const authHeader = (event.headers && (event.headers.authorization || event.headers.Authorization)) || '';
+      const base = process.env.URL || ('https://' + ((event.headers && event.headers.host) || ''));
+
+      let ownerSiteForDispatch = genericStaffDispatch.target_url;
+      if (!ownerSiteForDispatch && genericStaffDispatch.entry.fetch_site) {
+        ownerSiteForDispatch = await loadOwnerSite(event, (auth.user && auth.user.id) || 'default');
+      }
+
+      const askUrl = base.replace(/\/$/, '') + '/.netlify/functions/studio-staff-ask';
+      const r = await fetch(askUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': authHeader },
+        body: JSON.stringify({
+          staff_id: genericStaffDispatch.entry.id,
+          brief: genericStaffDispatch.brief,
+          owner_site: ownerSiteForDispatch || null,
+          owner_name: body.owner_name || null,
+          owner_context: body.owner_context || null,
+        }),
+      });
+      if (r.ok) {
+        const j = await r.json();
+        if (j && j.job_id) {
+          try { connectLambda(event); } catch (_) {}
+          try {
+            await getStore('studio_staff_jobs').setJSON(
+              ((auth.user && auth.user.id) || 'default') + ':' + genericStaffDispatch.entry.id,
+              { job_id: j.job_id, owner_site: ownerSiteForDispatch || null, created_at: new Date().toISOString() }
+            );
+          } catch (_) {}
+          return {
+            statusCode: 200,
+            headers: { ...CORS, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              reply: buildGenericDispatchReply(genericStaffDispatch.entry, ownerSiteForDispatch, isJen),
+              persona: personaName,
+              staff_dispatch: { job_id: j.job_id, staff_id: genericStaffDispatch.entry.id },
+            }),
+          };
+        }
+      }
+      console.warn('[studio-auggie-chat] generic staff dispatch non-ok', r && r.status);
+    } catch (e) {
+      console.warn('[studio-auggie-chat] generic staff dispatch failed, falling back to model', e && e.message);
     }
   }
 
@@ -1586,6 +1713,16 @@ exports.handler = async (event) => {
   const ownerName = paContactsData.ownerName;
 
   let systemPrompt = isJen ? JEN_PERSONA : AUGGIE_PERSONA;
+  // Inject dynamic owner context (overrides Terry-specific defaults for non-Terry buyers)
+  systemPrompt += buildOwnerContextBlock(
+    {
+      owner_name: body.owner_name || null,
+      company_name: body.company_name || null,
+      owner_context: body.owner_context || null,
+      owner_site: body.owner_site || null,
+    },
+    isJen
+  );
   // YOUR TEAM: the specialists the owner has actually hired. The PA reaches
   // them INTERNALLY (dispatches the work, pulls their output) and never
   // tells the owner to email or Slack a teammate. If the owner names a
