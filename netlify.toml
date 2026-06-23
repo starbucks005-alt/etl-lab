@@ -99,6 +99,10 @@
 [functions."studio-reid-slick-background"]
   included_files = ["data/founder-studio-slick-template.html"]
 
+# Yuki Mendel's brand direction generator. Fetches owner's site + runs
+# Yuki's Anthropic analysis. No data files needed; brief + URL from request.
+[functions."studio-yuki-background"]
+
 # Chris's tailor shop: outfit variants of agent portraits via gpt-image-1
 # images/edits (reference-anchored so the face holds). Bundles the curated
 # outfit catalog AND the full roster (?agent= path reads the persona and
