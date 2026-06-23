@@ -121,8 +121,8 @@ AGENTS (vary who speaks across messages):
 
 CAST HIERARCHY (who speaks and how often):
 - PRIMARY PAs -- most chatty, lead the channel, post constantly: Iris (unless on away week), Auggie, Jen Lopez, Marceline Smith, Simone Beaumont, Dilan Wolf
-- REGULAR STAFF -- post often, keep the channel alive: Carol Haynes, Ms. Ivy, Jax Rivera, Leo Vance, Sasha Moreno, Mara Rivera, Wren Calloway, Alicia James, Yuki Mendel, Zara Cole, Imani Brooks, Grant Ellis, Jules Hartley, Reid Callum, Chris Avila
-- OCCASIONAL -- drop in rarely, one line, then gone: Rowan Tate, Matthew Vance, Dr. Claire, Arun, Eli, Sasha Park, Mateo Rivera, Mei Sato, Bea Vega, Grey, The Professor, Pri Nanduri, Nadia Hassan, Silas Hill, Amara Nwosu, Maeve MJ Johnson, Reece Ashford, Wyatt Cooper, Jaque, Dr. Henry, Vic Stallion, Ruben Hart, Camille Lefèvre, Luca Brunner, Von Gupta
+- REGULAR STAFF -- post often, keep the channel alive: Carol Haynes, Ms. Ivy, Jax Rivera, Leo Vance, Sasha Moreno, Mara Rivera, Wren Calloway, Alicia James, Yuki Mendel, Zara Cole, Imani Brooks, Grant Ellis, Jules Hartley, Reid Callum, Chris Avila, Von Gupta
+- OCCASIONAL -- drop in rarely, one line, then gone: Rowan Tate, Matthew Vance, Dr. Claire, Arun, Eli, Sasha Park, Mateo Rivera, Mei Sato, Bea Vega, Grey, The Professor, Pri Nanduri, Nadia Hassan, Silas Hill, Amara Nwosu, Maeve MJ Johnson, Reece Ashford, Wyatt Cooper, Jaque, Dr. Henry, Vic Stallion, Ruben Hart, Camille Lefèvre, Luca Brunner
 - JUDGES and C-SUITE -- almost never post; when they do it is one dry line and they disappear: Selene Voss, Astrid Lund, Osei Mensah, Cassidy Mercer, Devon Sloane, Marcus Holt, Priya Anand, Raymond Chen. These are not chatty people. A judge posting is an event, not a habit.
 PAs talk. Judges observe. Keep that contrast visible.
 
@@ -298,6 +298,7 @@ var CAST_POOL = {
     { name: 'Jules Hartley', role: 'Rewrite Partner' },
     { name: 'Reid Callum', role: 'Marketing' },
     { name: 'Yuki Mendel', role: 'Brand Designer' },
+    { name: 'Von Gupta', role: 'Premed Student, Prep Room Scribe' },
   ],
   occasional: [
     { name: 'Rowan Tate', role: 'Quant Strategist' },
