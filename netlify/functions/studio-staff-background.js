@@ -110,15 +110,19 @@ exports.handler = async function(event) {
   const jobKey = 'staff/' + jobId;
   const userId = body.user_id || auth.user.id;
 
-  await jobs.setJSON(jobKey, {
-    job_id: jobId,
-    staff_id: staffId,
-    agent: entry.name,
-    status: 'running',
-    owner_site: body.owner_site || null,
-    user_id: userId,
-    created_at: new Date().toISOString(),
-  });
+  try {
+    await jobs.setJSON(jobKey, {
+      job_id: jobId,
+      staff_id: staffId,
+      agent: entry.name,
+      status: 'running',
+      owner_site: body.owner_site || null,
+      user_id: userId,
+      created_at: new Date().toISOString(),
+    });
+  } catch (blobErr) {
+    console.error('[studio-staff-background] blob running write failed:', staffId, blobErr && blobErr.message);
+  }
 
   try {
     const ownerSite = body.owner_site || null;

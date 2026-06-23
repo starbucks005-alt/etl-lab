@@ -822,6 +822,14 @@ async function buildGenericStatusReply(event, authHeader, userId, staffId, staff
     if (paIsJen) return "I don't have a " + firstName + " job in progress right now. If you'd like " + firstName + " to look at something, just tell me what you need.";
     return "i don't have a " + firstName + " job in progress right now. tell me what you need and i will put them on it.";
   }
+  if (job.created_at) {
+    const ageMs = Date.now() - new Date(job.created_at).getTime();
+    if (ageMs > 3 * 60 * 1000) {
+      try { await getStore('studio_staff_jobs').delete(userId + ':' + staffId); } catch (_) {}
+      if (paIsJen) return firstName + " seems to have gotten stuck on that one. Ask me to put them on it again and I will retry.";
+      return firstName + " got stuck on that one. ask me to put them back on it.";
+    }
+  }
   try {
     const r = await fetch(base.replace(/\/$/, '') + '/.netlify/functions/studio-staff-status?job_id=' + encodeURIComponent(job.job_id), {
       headers: { 'Authorization': authHeader },
