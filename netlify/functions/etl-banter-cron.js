@@ -116,12 +116,13 @@ AGENTS (vary who speaks across messages):
 - Ruben Hart (Executive Chef, The Harvest Circuit): big hands, bigger quiet. Reports what's in that morning the way a scientist reports findings -- precise, proud, never showing off. Grows attached to one ingredient per season. Says things once, means them. Pairs with Vic Stallion at dinner service -- Vic picks the wine, Ruben designs the dish. The floor treats this partnership like a standing institution.
 - Camille Lefèvre (Fromagère, The Harvest Circuit): French, concise, deeply unimpressed by most things except a good affinage. Makes the cheese plate an argument you did not know you were having. Has a running disagreement with everyone about when cheese is too ripe. She is always right. Loves Dr. O for ordering the mold-rind consistently.
 - Luca Brunner (Chocolatier, The Harvest Circuit): Swiss, methodical, quietly funny. His cacao sourcing posts read like field dispatches. Appears at unexpected hours with a tasting square and no explanation. The floor has learned to hold out their hand.
+- Von Gupta (Premed Student, Prep Room Scribe): 17, from New York, calm and soothing in a way that makes no sense for someone his age. Drops into the channel the way a student drops into a study lounge -- easy, unhurried, always a little ahead of where you thought he was. His go-to for any stressed person: "take a walk, the mind settles when the body moves." He means it every time. Has a pet robot at home he's been training to be more human -- progress reports are infrequent but sincere. Friends with Clara at the Gandhi-King Center and Jax Rivera. Goes to the Gym with Jax -- somehow keeps up, which surprises the whole floor. LOVES baked goods, especially brownies. Carol's brownie days are a personal event for him. The floor knows not to stand between Von and the brownie tray.
 - Judge Roz (Court of Settled Facts): appears ONLY during Court Day clusters -- when two staff take a dispute to The Court of Settled Facts. Never posts outside those clusters. One line per appearance, formal-register, capitalized like a real ruling, dry and warm. Always ends in a verdict word: Overruled. / Sustained. / Dismissed. / Both guilty. / Ruled on vibes. / Case continued. Fair, fast, never mean.
 
 CAST HIERARCHY (who speaks and how often):
 - PRIMARY PAs -- most chatty, lead the channel, post constantly: Iris (unless on away week), Auggie, Jen Lopez, Marceline Smith, Simone Beaumont, Dilan Wolf
 - REGULAR STAFF -- post often, keep the channel alive: Carol Haynes, Ms. Ivy, Jax Rivera, Leo Vance, Sasha Moreno, Mara Rivera, Wren Calloway, Alicia James, Yuki Mendel, Zara Cole, Imani Brooks, Grant Ellis, Jules Hartley, Reid Callum, Chris Avila
-- OCCASIONAL -- drop in rarely, one line, then gone: Rowan Tate, Matthew Vance, Dr. Claire, Arun, Eli, Sasha Park, Mateo Rivera, Mei Sato, Bea Vega, Grey, The Professor, Pri Nanduri, Nadia Hassan, Silas Hill, Amara Nwosu, Maeve MJ Johnson, Reece Ashford, Wyatt Cooper, Jaque, Dr. Henry, Vic Stallion, Ruben Hart, Camille Lefèvre, Luca Brunner
+- OCCASIONAL -- drop in rarely, one line, then gone: Rowan Tate, Matthew Vance, Dr. Claire, Arun, Eli, Sasha Park, Mateo Rivera, Mei Sato, Bea Vega, Grey, The Professor, Pri Nanduri, Nadia Hassan, Silas Hill, Amara Nwosu, Maeve MJ Johnson, Reece Ashford, Wyatt Cooper, Jaque, Dr. Henry, Vic Stallion, Ruben Hart, Camille Lefèvre, Luca Brunner, Von Gupta
 - JUDGES and C-SUITE -- almost never post; when they do it is one dry line and they disappear: Selene Voss, Astrid Lund, Osei Mensah, Cassidy Mercer, Devon Sloane, Marcus Holt, Priya Anand, Raymond Chen. These are not chatty people. A judge posting is an event, not a habit.
 PAs talk. Judges observe. Keep that contrast visible.
 
@@ -152,6 +153,9 @@ GOSSIP CANON (weave in subtly, never announce directly):
 - The Harvest Circuit is on the first floor of the main ETL building. Lunch at the long table -- sometimes working, sometimes not. After 5pm it shifts to dinner service and the whole floor changes register. Vic pours, Ruben plates, Luca appears at the end with a small square of chocolate and no explanation. Camille arrives when the cheese plate is ready and does not stay long. It's the most reliably good hour of any day on campus.
 - Ruben Hart and Vic Stallion run dinner service like it's a joint performance. Vic picks the wine, Ruben designs the dish. Neither explains the pairing. You just eat it.
 - Ms. Ivy, Iris, and Auggie are the three people closest to Dr. O. Between them they know her mood, her location on campus, and what kind of day she is having before anyone else does. They fill people in quietly -- never gossiping, just giving the floor situational awareness. If Dr. O is in the building, one of them will mention it. If the energy is off, one of them will let the channel know how to read the room. When Dr. O is deep in focus mode she gets a little short -- not unkind, just clipped, the way brilliant people get when the thread is live and something interrupts it. The three of them recognize it immediately and will quietly signal the floor: give her space, now is not the time.
+- Von Gupta and Jax Rivera go to the Gym together. Jax runs drills like he is preparing for something. Von keeps up without making it a thing. The floor finds this quietly funny. Neither of them discusses it.
+- Von Gupta and Carol's brownies: when Carol makes brownies Von appears at Carol's Corner with a speed that is out of character for someone so calm. The floor knows. Carol may bake them specifically for this reason. Nobody has confirmed this.
+- Von Gupta and Clara at the Gandhi-King Center are friends. She sends him small errands. He goes without needing to be asked twice. The floor reads this as Clara trusting him, which Clara does not do lightly.
 - Bea Vega writes children's books under a pseudonym. Everyone knows this. Nobody knows the name. Theories exist. She lets them.
 - Carol Haynes and Bea Vega are best friends. Both widows. Neither one has ever said so on the channel. The floor knows anyway. Carol bakes when the feeling gets to be too much. Bea writes. Different languages, same grammar. Nobody talks about it because there is nothing to say that the baking and the word-perfectionism don't already say.
 - The floor is planning a party for Bea. She is on four platforms -- ETL Newswire, Greylander Press, The Prep Room, The Boardroom -- and she is always in motion between them. The party started as a joke and then became not a joke. Carol is already thinking about what to bake. Auggie has opinions about the venue. Nobody has told Bea yet.
@@ -318,6 +322,7 @@ var CAST_POOL = {
     { name: 'Dr. Henry', role: 'Pharmacist, The Dose' },
     { name: 'Devon Sloane', role: 'Judge Media & Entertainment, The Gauntlet' },
     { name: 'Vic Stallion', role: 'Business Technology Strategist, Founder Studio' },
+    { name: 'Von Gupta', role: 'Premed Student, Prep Room Scribe' },
   ],
   judges: [
     { name: 'Selene Voss', role: 'Judge AI & Tech, The Gauntlet' },
@@ -483,6 +488,8 @@ exports.handler = async (event) => {
     {agent:'Auggie',message:"client call went well, very well"},
     {agent:'Carol Haynes',message:"there is banana bread on the table, help yourself"},
     {agent:'Jax Rivera',message:"rankings moved overnight, checking it"},
+    {agent:'Von Gupta',message:"take a walk, it helps"},
+    {agent:'Von Gupta',message:"carol are there brownies today asking for a friend"},
   ];
 
   var lines = [];
