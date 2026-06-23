@@ -229,9 +229,12 @@ exports.handler = async function(event) {
 
   // 1. Email-keyed provisioning fixture
   const email = (auth.user.email || '').toLowerCase();
-  const fixtureFile = loadProvisioningMap()[email];
+  const provMap = loadProvisioningMap();
+  const fixtureFile = provMap[email];
+  console.log('[studio-config-get] email=' + email + ' fixtureFile=' + fixtureFile + ' mapKeys=' + Object.keys(provMap).join(','));
   if (fixtureFile) {
     const fixture = loadFixture(fixtureFile);
+    console.log('[studio-config-get] fixture loaded=' + !!fixture);
     if (fixture) {
       const cfg = fixtureToStudioConfig(fixture, auth.user);
       if (cfg) {
