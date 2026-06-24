@@ -561,9 +561,9 @@
   <div class="login-eyebrow">Private workspace</div>
   <h1 class="login-h">Sign in to the studio</h1>
   <p class="login-sub">
-    Private workspace. Sign in with your email to access your studio.
+    Private workspace. Sign in with your email and password.
   </p>
-  <form id="login-form" onsubmit="event.preventDefault(); requestMagicLink();" style="display:flex;flex-direction:column;gap:12px;">
+  <form id="login-form" onsubmit="event.preventDefault(); signInWithPassword();" style="display:flex;flex-direction:column;gap:12px;">
     <input
       type="email"
       id="login-email"
@@ -571,7 +571,14 @@
       autocomplete="email"
       required
       style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.05em;padding:14px 16px;border:1px solid var(--linen-edge);background:#fff;color:var(--ink);text-align:center;">
-    <button type="submit" class="login-btn" id="login-submit">Send sign-in link</button>
+    <input
+      type="password"
+      id="login-password"
+      placeholder="password"
+      autocomplete="current-password"
+      required
+      style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.05em;padding:14px 16px;border:1px solid var(--linen-edge);background:#fff;color:var(--ink);text-align:center;">
+    <button type="submit" class="login-btn" id="login-submit">Sign in</button>
   </form>
   <p id="login-status" style="margin-top:18px;font-family:'Spectral',serif;font-size:14px;font-style:italic;color:var(--ink-soft);min-height:1.5em;"></p>
 </div>
@@ -1869,28 +1876,24 @@
     document.getElementById('copy-studio-id-btn').style.display = 'none';
   }
 
-  async function requestMagicLink() {
+  async function signInWithPassword() {
     var email = document.getElementById('login-email').value.trim();
+    var password = document.getElementById('login-password').value;
     var status = document.getElementById('login-status');
     var btn = document.getElementById('login-submit');
     if (!email) { status.textContent = 'Enter your email first.'; return; }
+    if (!password) { status.textContent = 'Enter your password.'; return; }
     btn.disabled = true;
-    btn.textContent = 'Sending...';
+    btn.textContent = 'Signing in...';
     try {
-      var result = await sb.auth.signInWithOtp({
-        email: email,
-        options: {
-          emailRedirectTo: window.location.origin + '/studio',
-          shouldCreateUser: false,
-        }
-      });
-      // Intentionally vague to avoid leaking whether email is registered.
-      status.textContent = 'If your email is on file, a sign-in link has been sent. Check your inbox.';
+      var result = await sb.auth.signInWithPassword({ email: email, password: password });
+      if (result.error) throw result.error;
+      status.textContent = '';
     } catch (e) {
-      status.textContent = 'If your email is on file, a sign-in link has been sent. Check your inbox.';
+      status.textContent = 'Sign-in failed. Check your email and password.';
     } finally {
       btn.disabled = false;
-      btn.textContent = 'Send sign-in link';
+      btn.textContent = 'Sign in';
     }
   }
 
@@ -4856,6 +4859,8 @@ h1 em,h2 em{font-weight:300;color:#28527a}
       'Alicia James':          { open: '/agents/Alicia_James_eyes_open.jpg',  closed: '/agents/Alicia_James_eyes_closed.jpg' },
       'Reid Callum':           { open: '/agents/Reid_Callum_eyes_open.jpg',   closed: '/agents/Reid_Callum_eyes_closed.jpg' },
       'Rowan Tate':            { open: '/agents/Rowan_Tate_eyes_open.png',    closed: '/agents/Rowan_Tate_eyes_closed.png' },
+      'Dr. Henry Chen, RPh':   { open: '/agents/Henry_eyes_open.png',         closed: '/agents/Henry_eyes_closed.png' },
+      'Maeve "MJ" Johnson':    { open: '/agents/MJ_sit_eyes_open.png',        closed: '/agents/MJ_sit_eyes_closed.png' },
     };
 
     // Pull the roster JSON once for portrait + role lookups (fallback
