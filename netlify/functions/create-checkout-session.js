@@ -78,7 +78,7 @@ exports.handler = async function(event) {
   const ts  = new Date().toISOString().replace(/[:.]/g, '-');
   const key = ts + '--' + (spec.id || 'agent');
 
-  // ── Dev / owner bypass ───────────────────────────────────────────
+  // ── Dev / owner bypass (BYOA_DEV_KEY env var; fallback etl2026) ──
   const devKey    = (payload.dev_key || '').trim();
   const envDevKey = (process.env.BYOA_DEV_KEY || 'etl2026').trim();
   if (devKey && devKey === envDevKey) {
