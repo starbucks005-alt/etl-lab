@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Yuki Mendel — Flexee</title>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Public+Sans:wght@300;400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#f8f5f0;color:#1a2030;font-family:'Public Sans',sans-serif;padding:48px 20px 80px}
+.wrap{max-width:860px;margin:0 auto}
+.tab{display:inline-block;font-size:11px;font-weight:600;color:#fff;background:#28527a;padding:4px 10px}
+h1{font-family:Spectral,serif;font-weight:300;font-size:38px;margin:14px 0 2px}
+.role{font-size:13px;color:#4a5664;margin-bottom:40px}
+h2{font-family:Spectral,serif;font-weight:500;font-size:20px;margin:44px 0 16px;padding-top:24px;border-top:1px solid #d8d4cc}
+.note{font-size:13px;color:#4a5664;line-height:1.65;max-width:620px}
+.mono{font-family:'IBM Plex Mono',monospace}
+svg{display:block}
+</style></head>
+<body>
+<div class="wrap">
+
+<span class="tab">Yuki Mendel</span>
+<h1>Flexee</h1>
+<div class="role">Design brief — Vikram Sethi / OneSmarter</div>
+
+<p class="note">The tagline earns every word. The site does not yet earn the tagline. What follows is what earning it looks like.</p>
+
+<!-- ── HERO ────────────────────────────────────────────────────────────── -->
+<h2>The hero</h2>
+
+<div style="background:#1a2030;border-radius:8px;padding:56px 48px 48px;position:relative;overflow:hidden">
+
+  <!-- faint grid lines for depth, pure CSS -->
+  <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none"></div>
+
+  <div style="position:relative">
+    <div style="font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#c07820;margin-bottom:28px">Business Simulation Platform</div>
+
+    <div style="font-family:Spectral,serif;font-weight:300;font-size:54px;line-height:1.05;color:#f8f5f0;letter-spacing:-0.5px">Practice the decisions</div>
+    <div style="font-family:Spectral,serif;font-style:italic;font-weight:300;font-size:54px;line-height:1.05;color:#f8f5f0;letter-spacing:-0.5px;margin-bottom:32px">that matter.</div>
+
+    <div style="width:40px;height:2px;background:#c07820;margin-bottom:28px"></div>
+
+    <div style="font-size:15px;color:#8a9bb0;max-width:420px;line-height:1.7;margin-bottom:36px">
+      Students do not read about consequences. They cause them. Finance, operations, and customers respond in real time.
+    </div>
+
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+      <div style="background:#c07820;color:#fff;font-weight:600;font-size:13px;padding:12px 26px;border-radius:3px;cursor:pointer">See the simulations</div>
+      <div style="font-size:12px;color:#5a6f84;font-family:'IBM Plex Mono',monospace">7 disciplines &nbsp;·&nbsp; site / per-sim / per-student</div>
+    </div>
+  </div>
+</div>
+
+<p class="note" style="margin-top:16px">The italic is the weight of consequence. Amber reads as something at stake. Navy reads as enterprise software. The current site is navy.</p>
+
+<!-- ── SIMULATION CARDS ────────────────────────────────────────────────── -->
+<h2>The simulation cards</h2>
+<p class="note" style="margin-bottom:22px">Flexee has two states for every discipline: what you chose, and what happened. The marketing site should show both. This is not a feature list. It is the product.</p>
+
+<!-- decision / consequence pair -->
+<div style="display:grid;grid-template-columns:1fr 1fr;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.10)">
+
+  <!-- left: the decision -->
+  <div style="background:#fff;padding:0">
+    <div style="background:#2e6fa8;padding:10px 22px">
+      <span style="font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,0.75)">The decision</span>
+    </div>
+    <div style="padding:24px 22px;display:flex;flex-direction:column;gap:0">
+
+      <div style="padding:18px 0;border-bottom:1px solid #edecea">
+        <div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#2e6fa8;margin-bottom:6px">Supply Chain</div>
+        <div style="font-family:Spectral,serif;font-weight:500;font-size:17px;color:#1a2030;margin-bottom:5px">Disruption</div>
+        <div style="font-size:12px;color:#5a6878;line-height:1.5">Control sourcing, routing, and inventory across a disrupted quarter.</div>
+      </div>
+
+      <div style="padding:18px 0;border-bottom:1px solid #edecea">
+        <div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#2e6fa8;margin-bottom:6px">Healthcare</div>
+        <div style="font-family:Spectral,serif;font-weight:500;font-size:17px;color:#1a2030;margin-bottom:5px">Operations</div>
+        <div style="font-size:12px;color:#5a6878;line-height:1.5">Run the floor. Staffing, throughput, and margin are yours.</div>
+      </div>
+
+      <div style="padding:18px 0">
+        <div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#2e6fa8;margin-bottom:6px">Finance</div>
+        <div style="font-family:Spectral,serif;font-weight:500;font-size:17px;color:#1a2030;margin-bottom:5px">Capital</div>
+        <div style="font-size:12px;color:#5a6878;line-height:1.5">Allocate under pressure. Four departments, twelve weeks.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- right: the consequence -->
+  <div style="background:#1a2030;padding:0">
+    <div style="background:#c07820;padding:10px 22px">
+      <span style="font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,0.8)">What happened</span>
+    </div>
+    <div style="padding:24px 22px;display:flex;flex-direction:column;gap:0">
+
+      <div style="padding:18px 0;border-bottom:1px solid #243040">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:500;color:#f8f5f0;margin-bottom:5px">Margin &nbsp;<span style="color:#e05c3c">-12.4%</span></div>
+        <div style="font-size:12px;color:#607080;line-height:1.5">Late sourcing triggered a two-week stockout. Customers switched suppliers.</div>
+      </div>
+
+      <div style="padding:18px 0;border-bottom:1px solid #243040">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:500;color:#f8f5f0;margin-bottom:5px">Utilization &nbsp;<span style="color:#38a86e">87%</span></div>
+        <div style="font-size:12px;color:#607080;line-height:1.5">Staffing held. Discharge timing improved patient flow by 18%.</div>
+      </div>
+
+      <div style="padding:18px 0">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:500;color:#f8f5f0;margin-bottom:5px">Runway &nbsp;<span style="color:#c07820">6 weeks</span></div>
+        <div style="font-size:12px;color:#607080;line-height:1.5">R&D allocation cut liquidity. Product shipped. Runway did not survive it.</div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<p class="note" style="margin-top:16px">A student looks left and remembers the choice. She looks right and sees what it cost. That is Flexee. The site should do that on the first scroll.</p>
+
+<!-- ── COLOR ──────────────────────────────────────────────────────────── -->
+<h2>Two colors, two meanings</h2>
+<p class="note" style="margin-bottom:20px">Everything else follows from this. Navy is not one of them.</p>
+
+<div style="display:flex;border-radius:6px;overflow:hidden;max-width:500px">
+  <div style="background:#2e6fa8;flex:1;padding:20px 24px">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,0.55);margin-bottom:5px">#2e6fa8</div>
+    <div style="font-size:14px;font-weight:600;color:#fff;margin-bottom:3px">Decision blue</div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.55)">the moment you choose</div>
+  </div>
+  <div style="background:#c07820;flex:1;padding:20px 24px">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,0.55);margin-bottom:5px">#c07820</div>
+    <div style="font-size:14px;font-weight:600;color:#fff;margin-bottom:3px">Consequence amber</div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.55)">what it cost</div>
+  </div>
+  <div style="background:#1a2030;flex:1;padding:20px 24px">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,0.25);margin-bottom:5px">#1a2030</div>
+    <div style="font-size:14px;font-weight:600;color:#fff;margin-bottom:3px">Stage</div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.25)">where it plays out</div>
+  </div>
+</div>
+
+<!-- ── WHAT STAYS ─────────────────────────────────────────────────────── -->
+<h2>What I would not touch</h2>
+<p class="note">The tagline. The simulation list. The pricing logic. The product is not the problem. The container is.</p>
+
+<!-- ── TYPE ───────────────────────────────────────────────────────────── -->
+<h2>Type</h2>
+<p class="note" style="margin-bottom:18px">Spectral for display. Public Sans for body. IBM Plex Mono for outcome data only. The mono is important: numbers that look like data feel more real than numbers that look like marketing.</p>
+
+<div style="border-left:3px solid #c07820;padding-left:20px;max-width:600px">
+  <div style="font-family:Spectral,serif;font-weight:300;font-size:32px;line-height:1.1;color:#1a2030;margin-bottom:8px">Practice the decisions <span style="font-style:italic">that matter.</span></div>
+  <div style="font-size:14px;color:#4a5870;line-height:1.65;margin-bottom:10px">Students do not read about consequences. They cause them. Finance, operations, and customers respond in real time.</div>
+  <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#5a6878">Site license &nbsp;·&nbsp; Per-simulation &nbsp;·&nbsp; Per-student</div>
+</div>
+
+<!-- ── NEXT ────────────────────────────────────────────────────────────── -->
+<h2>Next</h2>
+<p class="note">If the direction holds: a Figma file with the hero and the card system at breakpoints. Nav decisions after that, not before. Type system and color tokens first, then I build.</p>
+
+<p style="margin-top:52px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#7c8694">Yuki Mendel &nbsp;·&nbsp; Portland studio &nbsp;·&nbsp; June 2026</p>
+
+</div>
+</body></html>
