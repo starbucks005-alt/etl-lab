@@ -213,6 +213,21 @@ function defaultStudioConfig(user) {
   };
 }
 
+const OWNER_GUARANTEED_STAFF = [
+  { name: 'Dr. Henry Chen, RPh', role: 'The Pharmacist', backpack: false, contract: 'standing', tier: 'addon', price: 25, why: 'Health Sciences pharmacology expert on The Dose cast; handles drug interactions, supplement evidence, and medication literacy.' },
+  { name: 'Maeve "MJ" Johnson',  role: 'The Gardener',   backpack: false, contract: 'standing', tier: 'addon', price: 25, why: 'The Dose cast; nutrition, home growing, whole-food wellness, and practical plant-based guidance.' },
+];
+
+function injectOwnerStaff(cfg, email) {
+  const ownerEmail = (process.env.OWNER_EMAIL || '').toLowerCase();
+  if (!ownerEmail || email !== ownerEmail) return;
+  const existing = new Set((cfg.hired_staff || []).map(s => s.name));
+  const missing = OWNER_GUARANTEED_STAFF.filter(s => !existing.has(s.name));
+  if (missing.length > 0) {
+    cfg.hired_staff = [...missing, ...(cfg.hired_staff || [])];
+  }
+}
+
 exports.handler = async function(event) {
   try { connectLambda(event); } catch (_) {}
 
@@ -286,16 +301,19 @@ exports.handler = async function(event) {
         merged.hired_staff = (merged.hired_staff || [])
           .map(s => resolveStaffEntry(s, rosterIndex))
           .filter(Boolean);
+        injectOwnerStaff(merged, email);
         return merged;
       }
     } catch (_) {}
     // No persisted blob — still resolve base staff against roster.
-    return {
+    const noBlobResult = {
       ...cfg,
       hired_staff: (cfg.hired_staff || [])
         .map(s => resolveStaffEntry(s, rosterIndex))
         .filter(Boolean),
     };
+    injectOwnerStaff(noBlobResult, email);
+    return noBlobResult;
   }
 
   if (baseCfg) {
