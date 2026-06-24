@@ -561,7 +561,7 @@
   <div class="login-eyebrow">Private workspace</div>
   <h1 class="login-h">Sign in to the studio</h1>
   <p class="login-sub">
-    Private workspace. Sign in with your email and password.
+    Private workspace. Sign in with your email and password, or send a magic link.
   </p>
   <form id="login-form" onsubmit="event.preventDefault(); signInWithPassword();" style="display:flex;flex-direction:column;gap:12px;">
     <input
@@ -574,12 +574,12 @@
     <input
       type="password"
       id="login-password"
-      placeholder="password"
+      placeholder="password (leave blank to use magic link)"
       autocomplete="current-password"
-      required
       style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.05em;padding:14px 16px;border:1px solid var(--linen-edge);background:#fff;color:var(--ink);text-align:center;">
     <button type="submit" class="login-btn" id="login-submit">Sign in</button>
   </form>
+  <button id="magic-link-btn" onclick="sendMagicLink();" style="margin-top:10px;width:100%;padding:12px 16px;background:transparent;border:1px solid var(--linen-edge);color:var(--ink-soft);font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.05em;cursor:pointer;">Send magic link instead</button>
   <p id="login-status" style="margin-top:18px;font-family:'Spectral',serif;font-size:14px;font-style:italic;color:var(--ink-soft);min-height:1.5em;"></p>
 </div>
 
@@ -1882,7 +1882,7 @@
     var status = document.getElementById('login-status');
     var btn = document.getElementById('login-submit');
     if (!email) { status.textContent = 'Enter your email first.'; return; }
-    if (!password) { status.textContent = 'Enter your password.'; return; }
+    if (!password) { sendMagicLink(); return; }
     btn.disabled = true;
     btn.textContent = 'Signing in...';
     try {
@@ -1894,6 +1894,25 @@
     } finally {
       btn.disabled = false;
       btn.textContent = 'Sign in';
+    }
+  }
+
+  async function sendMagicLink() {
+    var email = document.getElementById('login-email').value.trim();
+    var status = document.getElementById('login-status');
+    var btn = document.getElementById('magic-link-btn');
+    if (!email) { status.textContent = 'Enter your email first.'; return; }
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+    try {
+      var result = await sb.auth.signInWithOtp({ email: email, options: { emailRedirectTo: window.location.origin + '/studio.html' } });
+      if (result.error) throw result.error;
+      status.textContent = 'Magic link sent. Check your email and click the link.';
+    } catch (e) {
+      status.textContent = 'Could not send link. Try again or contact support.';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Send magic link instead';
     }
   }
 
