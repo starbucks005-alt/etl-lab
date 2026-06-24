@@ -132,6 +132,7 @@
 [functions."studio-config-get"]
   included_files = [
     "data/provisioned-clients.json",
+    "data/terry-oroszi-company.json",
     "data/caroline-inma-company.json",
     "data/vikram-sethi-company.json",
     "data/pa_pool.json"
