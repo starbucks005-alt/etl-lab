@@ -773,12 +773,15 @@ function detectGenericStaffDispatch(msg, registry) {
     const nameRe = new RegExp('\\b' + escapeRegexChars(entry.first_name) + '\\b', 'i');
     if (!nameRe.test(msg)) continue;
 
-    // If the entry has trigger_keywords, at least one must appear in the message.
-    // This stops a generic "have Bea look at this" from firing for a brand-design message.
+    // If the entry has trigger_keywords, at least one must appear in the message —
+    // unless a URL is also present (explicit name + URL is unambiguous enough).
     if (Array.isArray(entry.trigger_keywords) && entry.trigger_keywords.length > 0) {
-      const kwPattern = entry.trigger_keywords.map(escapeRegexChars).join('|');
-      const kwRe = new RegExp('\\b(' + kwPattern + ')\\b', 'i');
-      if (!kwRe.test(msg)) continue;
+      const urlPresent = /\bhttps?:\/\/[^\s"'<>]+/i.test(msg);
+      if (!urlPresent) {
+        const kwPattern = entry.trigger_keywords.map(escapeRegexChars).join('|');
+        const kwRe = new RegExp('\\b(' + kwPattern + ')\\b', 'i');
+        if (!kwRe.test(msg)) continue;
+      }
     }
 
     const urlMatches = msg.match(/\bhttps?:\/\/[^\s"'<>]+/gi) || [];
