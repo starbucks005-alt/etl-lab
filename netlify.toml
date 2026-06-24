@@ -112,6 +112,12 @@
 [functions."studio-auggie-chat"]
   included_files = ["data/studio-staff-registry.json"]
 
+# Auggie's daily morning brief. Fires at 11:00 UTC (7am ET DST / 6am ET EST).
+# Triggers studio-auggie-brief-background which gathers web findings, reads
+# the stored calendar ICS, generates Auggie's monologue, and renders audio.
+[functions."studio-auggie-brief-cron"]
+  schedule = "0 11 * * *"
+
 # Chris's tailor shop: outfit variants of agent portraits via gpt-image-1
 # images/edits (reference-anchored so the face holds). Bundles the curated
 # outfit catalog AND the full roster (?agent= path reads the persona and
