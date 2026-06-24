@@ -89,10 +89,10 @@ const COVER_POOL = [
   { name: 'Jen Lopez' },
 ];
 const AWAY_POOL = [
-  { name: 'Iris',         reason: 'visiting her little sister Tessa at college' },
   { name: 'Jax Rivera',   reason: 'at a search marketing conference, mostly offline' },
   { name: 'Alicia James', reason: 'at a small-business expo in Columbus' },
   { name: 'Wren Calloway',reason: 'in the field scouting, patchy signal' },
+  { name: 'Leo Vance',    reason: 'at a bookkeeping bootcamp in Chicago' },
 ];
 function isoWeek(dateKey) {
   const d = new Date(dateKey + 'T12:00:00Z');
@@ -106,8 +106,8 @@ function isoWeek(dateKey) {
 function lifeThisWeek(dateKey) {
   const w = isoWeek(dateKey);
   const away = AWAY_POOL[w % AWAY_POOL.length];
-  const keeper = (away.name === HOME_KEEPER.name) ? COVER_POOL[w % COVER_POOL.length] : HOME_KEEPER;
-  const note = away.name + ' is out this week, ' + away.reason + ', so ' + keeper.name + ' is keeping the channel.';
+  const keeper = HOME_KEEPER;
+  const note = away.name + ' is out this week, ' + away.reason + '.';
   return { keeper, away, note };
 }
 
@@ -141,7 +141,7 @@ function buildSystem(life) {
     '',
     bloomRule,
     '',
-    'THIS WEEK ON THE FLOOR: ' + life.note + ' ' + life.away.name + ' does NOT post this week; others mention them warmly once or twice. ' + life.keeper.name + ' opens the day with a short takeover note in their own voice, modeled on this register: "hey team, Iris is out this week, visiting little sister Tessa at college, so I\'m up, let me know if you need anyone at the ETL lab or staffing office for anything." (Adapt the names and reason to this week; keep it that casual and that short.)',
+    'THIS WEEK ON THE FLOOR: ' + life.note + ' ' + life.away.name + ' does NOT post this week; others mention them warmly once or twice. Iris runs the channel as always — she opens the day with a brief note in her own voice acknowledging whoever is out, something like: "morning everyone, heads up — Alicia is out this week at that expo in Columbus, tag me if anything comes up." (Adapt the name and reason; keep it that casual and that short.)',
     '',
     'SHAPE:',
     '- 18 to 24 messages across a workday (times between 8:40am and 4:30pm, plausible gaps, short bursts of back-and-forth).',
@@ -153,7 +153,7 @@ function buildSystem(life) {
     'OUTPUT STRICT JSON ONLY, nothing before or after:',
     '{"messages":[{"speaker":"Carol Haynes","time":"8:42 AM","text":"..."}],"keeper_digest":"..."}',
     '- speaker must exactly match a cast name. time like "9:05 AM".',
-    '- keeper_digest: ' + life.keeper.name + ' keeps the channel this week. Write their SPOKEN 40-70 word floor note for today: warm, first person, in their own voice, what happened on the floor (they can be proud of a placement, they can miss whoever is away). Read aloud by text-to-speech: no lists, no URLs, contractions mandatory, no em dashes.',
+    '- keeper_digest: Iris keeps the channel, as always. Write her SPOKEN 40-70 word floor note for today: warm, first person, in her own voice, what happened on the floor (she can be proud of a placement, she can mention whoever is out this week). Read aloud by text-to-speech: no lists, no URLs, contractions mandatory, no em dashes.',
     VOICE_LAW_CHAT,
   ].join('\n');
 }
@@ -177,7 +177,7 @@ exports.handler = async (event) => {
   // v2 cache keys (2026-06-13): v1's first render called Dr. O "he" -
   // the prompt now carries her pronouns and the key bump retires the
   // offending cached thread.
-  const cacheKey = 'v2:' + dateKey;
+  const cacheKey = 'v3:' + dateKey;
   try {
     const cached = await store.get(cacheKey, { type: 'json' });
     if (cached && Array.isArray(cached.messages) && cached.messages.length) {
