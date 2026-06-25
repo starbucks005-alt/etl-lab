@@ -365,13 +365,15 @@ footer {
 #a9-label {
   background: rgba(10,8,4,0.95);
   border: 1px solid rgba(200,151,58,0.38);
-  border-radius: 8px 8px 8px 0;
-  padding: .55rem .85rem;
+  border-radius: 8px;
+  padding: .65rem 1rem;
   pointer-events: auto;
+  cursor: pointer;
   box-shadow: 0 4px 24px rgba(0,0,0,0.55);
-  transition: opacity .2s;
+  transition: background .18s;
+  margin-bottom: 16px;
 }
-#a9-label.hidden { opacity: 0; pointer-events: none; }
+#a9-label:hover { background: rgba(20,15,6,0.98); }
 .a9-name {
   font-family: 'IBM Plex Mono', monospace;
   font-size: .57rem; letter-spacing: .14em;
@@ -382,15 +384,6 @@ footer {
   font-family: 'IBM Plex Mono', monospace;
   font-size: .58rem; color: rgba(200,151,58,0.5);
   text-transform: uppercase; letter-spacing: .08em;
-}
-#a9-fig {
-  position: relative; width: 148px; cursor: pointer;
-  pointer-events: auto; flex-shrink: 0;
-}
-#a9-fig img:first-child { width: 100%; display: block; }
-#a9-blink {
-  position: absolute; top: 0; left: 0; width: 100%; opacity: 0;
-  animation: astra-blink 6s linear infinite;
 }
 </style>
 </head>
@@ -573,17 +566,12 @@ console.log(status.response.text);</pre>
 <div id="a9-wrap">
   <div id="a9-label">
     <div class="a9-name">Astra 9 &middot; Export Desk</div>
-    <div class="a9-hint">&#9654; click me</div>
-  </div>
-  <div id="a9-fig" title="Click Astra 9">
-    <img src="/agents/Astra_9_eyes_open.png" alt="Astra 9">
-    <img id="a9-blink" src="/agents/Astra_9_eyes_closed.png" alt="">
+    <div class="a9-hint">&#9654; click to hear</div>
   </div>
 </div>
 <audio id="a9-audio"></audio>
 <script>
 (function(){
-  var fig   = document.getElementById('a9-fig');
   var label = document.getElementById('a9-label');
   var audio = document.getElementById('a9-audio');
   var busy  = false;
@@ -591,8 +579,7 @@ console.log(status.response.text);</pre>
   var agentName = new URLSearchParams(window.location.search).get('agent') || 'your new agent';
   var TEXT = 'Hello. I am Astra 9. Welcome to the export desk. I see you are here to pick up your agent and take them home. Let me find them for you. Your agent comes with a few items. Forgive the tech words, but I am part robot, you know. It says here you are getting a hosted link, a one-line embed for your site, and an API endpoint with a bearer key. The export package is just twenty-five dollars, added as your final step in the workshop. Thank you, and I hope you enjoy ' + agentName + '. Come back when you are ready to expand.';
 
-  fig.onclick = function(){
-    label.classList.toggle('hidden');
+  label.onclick = function(){
     if(busy) return;
     busy = true;
     fetch('/.netlify/functions/voice-preview', {
