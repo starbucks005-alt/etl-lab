@@ -1048,7 +1048,7 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
       var hdrs={'Content-Type':'application/json'};
       if(token)hdrs['Authorization']='Bearer '+token;
 
-      var _dk=(new URLSearchParams(window.location.search).get('dev')||sessionStorage.getItem('byoa_dev')||'');
+      var _dk=(new URLSearchParams(window.location.search).get('dev')||localStorage.getItem('byoa_dev')||'');
       if(_dk){$('#submitConfirm').style.color='var(--gold,#c8973a)';$('#submitConfirm').textContent='dev bypass...';}
 
       fetch('/.netlify/functions/create-checkout-session',{
@@ -1284,7 +1284,7 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
 
 <!-- admin -->
 <div style="position:fixed;bottom:8px;left:14px;z-index:50;">
-  <button id="byoa-admin-btn" onclick="history.replaceState(null,'',location.pathname+'?dev=etl2026');sessionStorage.setItem('byoa_dev','etl2026');this.textContent='dev mode on';this.style.color='rgba(200,151,58,0.75)';" style="font-family:'IBM Plex Mono',monospace;font-size:.55rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(200,151,58,0.25);background:none;border:none;cursor:pointer;padding:0;" onmouseover="this.style.color='rgba(200,151,58,0.6)'" onmouseout="if(sessionStorage.getItem('byoa_dev'))this.style.color='rgba(200,151,58,0.75)';else this.style.color='rgba(200,151,58,0.25)'">admin</button>
+  <button id="byoa-admin-btn" onclick="history.replaceState(null,'',location.pathname+'?dev=etl2026');localStorage.setItem('byoa_dev','etl2026');this.textContent='dev mode on';this.style.color='rgba(200,151,58,0.75)';" style="font-family:'IBM Plex Mono',monospace;font-size:.55rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(200,151,58,0.25);background:none;border:none;cursor:pointer;padding:0;" onmouseover="this.style.color='rgba(200,151,58,0.6)'" onmouseout="if(localStorage.getItem('byoa_dev'))this.style.color='rgba(200,151,58,0.75)';else this.style.color='rgba(200,151,58,0.25)'">admin</button>
 </div>
 </body>
 </html>
