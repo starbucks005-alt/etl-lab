@@ -345,45 +345,13 @@ footer {
   font-size: .82rem;
 }
 
-/* ── ASTRA 9 ─────────────────────────────────────────────────────── */
-@keyframes astra-blink {
-  0%, 92%  { opacity: 0; }
-  92.5%    { opacity: 1; }
-  94.3%    { opacity: 1; }
-  94.4%    { opacity: 0; }
-  95.4%    { opacity: 0; }
-  95.5%    { opacity: 1; }
-  97.1%    { opacity: 1; }
-  97.2%    { opacity: 0; }
-  100%     { opacity: 0; }
-}
-#a9-wrap {
-  position: fixed; bottom: 0; right: 24px; z-index: 200;
-  display: flex; align-items: flex-end; gap: 12px;
-  pointer-events: none;
-}
-#a9-label {
-  background: rgba(10,8,4,0.95);
-  border: 1px solid rgba(200,151,58,0.38);
-  border-radius: 8px;
-  padding: .65rem 1rem;
-  pointer-events: auto;
-  cursor: pointer;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.55);
-  transition: background .18s;
-  margin-bottom: 16px;
-}
-#a9-label:hover { background: rgba(20,15,6,0.98); }
-.a9-name {
+.shop-hero { cursor: pointer; }
+.hero-speak-hint {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: .57rem; letter-spacing: .14em;
-  color: #c8973a; text-transform: uppercase;
-  margin-bottom: .18rem;
-}
-.a9-hint {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: .58rem; color: rgba(200,151,58,0.5);
-  text-transform: uppercase; letter-spacing: .08em;
+  font-size: .62rem; letter-spacing: .14em;
+  text-transform: uppercase;
+  color: rgba(200,151,58,0.65);
+  margin-top: .6rem;
 }
 </style>
 </head>
@@ -399,6 +367,7 @@ footer {
     <div class="hero-eyebrow">Export &middot; ETL &middot; Embed &middot; API &middot; MCP</div>
     <h1>Take your agent anywhere.</h1>
     <p>Same skills, different reach. Run it on your own site three ways.</p>
+    <div class="hero-speak-hint">&#9654; click to hear Astra</div>
   </div>
 </div>
 
@@ -562,34 +531,37 @@ console.log(status.response.text);</pre>
 })();
 </script>
 
-<!-- ── ASTRA 9 EXPORT DESK ───────────────────────────────────────── -->
-<div id="a9-wrap">
-  <div id="a9-label">
-    <div class="a9-name">Astra 9 &middot; Export Desk</div>
-    <div class="a9-hint">&#9654; click to hear</div>
-  </div>
-</div>
 <audio id="a9-audio"></audio>
 <script>
 (function(){
-  var label = document.getElementById('a9-label');
+  var hero  = document.querySelector('.shop-hero');
+  var hint  = hero && hero.querySelector('.hero-speak-hint');
   var audio = document.getElementById('a9-audio');
   var busy  = false;
 
   var agentName = new URLSearchParams(window.location.search).get('agent') || 'your new agent';
   var TEXT = 'Hello. I am Astra 9. Welcome to the export desk. I see you are here to pick up your agent and take them home. Let me find them for you. Your agent comes with a few items. Forgive the tech words, but I am part robot, you know. It says here you are getting a hosted link, a one-line embed for your site, and an API endpoint with a bearer key. The export package is just twenty-five dollars, added as your final step in the workshop. Thank you, and I hope you enjoy ' + agentName + '. Come back when you are ready to expand.';
 
-  label.onclick = function(){
+  if(hero) hero.onclick = function(){
     if(busy) return;
     busy = true;
+    if(hint) hint.textContent = '▶ loading...';
     fetch('/.netlify/functions/voice-preview', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ voice_id: 'weA4Q36twV5kwSaTEL0Q', text: window._a9_delivery_text || TEXT })
     })
     .then(function(r){ if(!r.ok) throw new Error('tts'); return r.blob(); })
-    .then(function(b){ audio.src = URL.createObjectURL(b); audio.play(); busy = false; })
-    .catch(function(){ busy = false; });
+    .then(function(b){
+      audio.src = URL.createObjectURL(b);
+      audio.play();
+      if(hint) hint.textContent = '▶ click to hear Astra';
+      busy = false;
+    })
+    .catch(function(){
+      if(hint) hint.textContent = '▶ click to hear Astra';
+      busy = false;
+    });
   };
 })();
 </script>
