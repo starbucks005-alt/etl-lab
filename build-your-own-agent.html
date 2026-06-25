@@ -1283,8 +1283,24 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
 </script>
 
 <!-- admin -->
+<script>
+(function(){
+  var DEV_KEY='etl2026', LS_KEY='byoa_dev';
+  var params=new URLSearchParams(window.location.search);
+  if(params.get('dev')===DEV_KEY){
+    localStorage.setItem(LS_KEY,DEV_KEY);
+    history.replaceState(null,'',location.pathname);
+  }
+  if(localStorage.getItem(LS_KEY)===DEV_KEY){
+    document.addEventListener('DOMContentLoaded',function(){
+      var btn=document.getElementById('byoa-admin-btn');
+      if(btn){btn.textContent='dev mode on';btn.style.color='rgba(200,151,58,0.75)';}
+    });
+  }
+})();
+</script>
 <div style="position:fixed;bottom:8px;left:14px;z-index:50;">
-  <button id="byoa-admin-btn" onclick="history.replaceState(null,'',location.pathname+'?dev=etl2026');localStorage.setItem('byoa_dev','etl2026');this.textContent='dev mode on';this.style.color='rgba(200,151,58,0.75)';" style="font-family:'IBM Plex Mono',monospace;font-size:.55rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(200,151,58,0.25);background:none;border:none;cursor:pointer;padding:0;" onmouseover="this.style.color='rgba(200,151,58,0.6)'" onmouseout="if(localStorage.getItem('byoa_dev'))this.style.color='rgba(200,151,58,0.75)';else this.style.color='rgba(200,151,58,0.25)'">admin</button>
+  <button id="byoa-admin-btn" onclick="localStorage.setItem('byoa_dev','etl2026');this.textContent='dev mode on';this.style.color='rgba(200,151,58,0.75)';" style="font-family:'IBM Plex Mono',monospace;font-size:.55rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(200,151,58,0.25);background:none;border:none;cursor:pointer;padding:0;" onmouseover="this.style.color='rgba(200,151,58,0.6)'" onmouseout="if(localStorage.getItem('byoa_dev'))this.style.color='rgba(200,151,58,0.75)';else this.style.color='rgba(200,151,58,0.25)'">admin</button>
 </div>
 </body>
 </html>
