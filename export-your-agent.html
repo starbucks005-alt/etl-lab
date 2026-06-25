@@ -42,31 +42,54 @@ a { color: var(--amber); }
 .ribbon b { color: var(--amber); }
 
 /* HERO BANNER */
+@keyframes hero-blink {
+  0%, 92%  { opacity: 0; }
+  92.5%    { opacity: 1; }
+  94.3%    { opacity: 1; }
+  94.4%    { opacity: 0; }
+  95.4%    { opacity: 0; }
+  95.5%    { opacity: 1; }
+  97.1%    { opacity: 1; }
+  97.2%    { opacity: 0; }
+  100%     { opacity: 0; }
+}
 .shop-hero {
   position: relative;
   width: 100%;
-  height: 400px;
+  height: 620px;
   overflow: hidden;
   background: #1a1208;
 }
 .shop-hero .hero-img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 20%;
+  object-position: center center;
   display: block;
+}
+.shop-hero .hero-blink {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  opacity: 0;
+  animation: hero-blink 6s linear infinite;
 }
 .shop-hero .hero-layer {
   position: absolute;
   inset: 0;
   background: linear-gradient(to bottom,
-    rgba(14,11,7,0.1) 0%,
-    rgba(14,11,7,0.55) 55%,
-    rgba(14,11,7,0.92) 100%);
+    rgba(14,11,7,0.05) 0%,
+    rgba(14,11,7,0.35) 50%,
+    rgba(14,11,7,0.88) 100%);
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 2rem 2.6rem 2.2rem;
+  padding: 2rem 2.6rem 2.4rem;
 }
 .hero-eyebrow {
   font-family: 'IBM Plex Mono', monospace;
@@ -91,7 +114,7 @@ a { color: var(--amber); }
   margin: 0;
 }
 @media (max-width: 640px) {
-  .shop-hero { height: 280px; }
+  .shop-hero { height: 420px; }
   .shop-hero .hero-layer { padding: 1.2rem 1.2rem 1.4rem; }
   .hero-layer h1 { font-size: 1.6rem; }
 }
@@ -377,7 +400,8 @@ footer {
 
 <!-- HERO BANNER -->
 <div class="shop-hero">
-  <img class="hero-img" src="/assets/export-hero.png" alt="The export desk" onerror="this.style.display='none'">
+  <img class="hero-img" src="/agents/Astra_9_eyes_open.png" alt="Astra 9 at the export desk">
+  <img class="hero-blink" src="/agents/Astra_9_eyes_closed.png" alt="">
   <div class="hero-layer">
     <div class="hero-eyebrow">Export &middot; ETL &middot; Embed &middot; API &middot; MCP</div>
     <h1>Take your agent anywhere.</h1>
