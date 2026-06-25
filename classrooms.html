@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ETL Classrooms · Emerging Technologies Laboratory</title>
+<meta name="description" content="Rent a classroom for your agents. Teaching assistants, faculty, and living legends built for education and hosted on the ETL campus.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Public+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #080c11;
+  --bg2:     #0d1219;
+  --panel:   #111820;
+  --panel2:  #161e28;
+  --line:    #1e2c3a;
+  --blue:    #28527a;
+  --blue-br: #4c7ba3;
+  --gold:    #c8973a;
+  --gold-br: #e0ac50;
+  --cream:   #f0ead8;
+  --text:    #c8d4de;
+  --mute:    #5a7a94;
+  --legend:  #9b7a3a;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Public Sans', sans-serif; line-height: 1.65; }
+a { color: var(--blue-br); text-decoration: none; }
+a:hover { color: var(--cream); }
+
+/* ── RIBBON ── */
+.ribbon {
+  background: #050709;
+  border-bottom: 1px solid var(--line);
+  text-align: center;
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  font-size: .62rem;
+  color: var(--mute);
+  padding: .5rem 1rem;
+}
+.ribbon b { color: var(--blue-br); }
+
+/* ── WRAP ── */
+.wrap { max-width: 960px; margin: 0 auto; padding: 0 1.4rem 6rem; }
+.backlink {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .72rem;
+  color: var(--mute);
+  text-decoration: none;
+  display: inline-block;
+  margin: 1.6rem 0 .4rem;
+  letter-spacing: .04em;
+}
+.backlink:hover { color: var(--text); }
+
+/* ── HERO ── */
+.hero {
+  margin-top: .6rem;
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--blue);
+  background: var(--panel);
+  padding: 3.4rem 2.8rem 3rem;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 27px,
+    rgba(40,82,122,.045) 27px,
+    rgba(40,82,122,.045) 28px
+  );
+  pointer-events: none;
+}
+.eyebrow {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .58rem;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: var(--blue-br);
+  margin-bottom: 1rem;
+}
+.hero h1 {
+  font-family: 'Spectral', serif;
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
+  font-weight: 700;
+  color: var(--cream);
+  margin: 0 0 .9rem;
+  line-height: 1.08;
+  max-width: 18ch;
+}
+.hero-lede {
+  font-size: 1.05rem;
+  color: var(--text);
+  max-width: 56ch;
+  margin: 0 0 .5rem;
+  line-height: 1.7;
+}
+.hero-note {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .67rem;
+  letter-spacing: .08em;
+  color: var(--mute);
+  margin-top: 1.4rem;
+  text-transform: uppercase;
+}
+.hero-note b { color: var(--blue-br); }
+
+/* ── SECTION HEADING ── */
+.sec-head {
+  margin: 3.6rem 0 .2rem;
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+}
+.sec-head h2 {
+  font-family: 'Spectral', serif;
+  font-size: 1.55rem;
+  font-weight: 600;
+  color: var(--cream);
+  margin: 0;
+}
+.sec-rule {
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+.sec-sub {
+  font-size: .88rem;
+  color: var(--mute);
+  margin: .35rem 0 1.8rem;
+  max-width: 60ch;
+}
+
+/* ── TIER ROWS ── */
+.tiers { display: flex; flex-direction: column; gap: 1px; border: 1px solid var(--line); }
+
+.tier {
+  background: var(--panel);
+  display: grid;
+  grid-template-columns: 220px 1fr auto;
+  align-items: start;
+  gap: 0;
+  transition: background .18s;
+}
+.tier:hover { background: var(--panel2); }
+
+.tier-left {
+  padding: 1.8rem 1.6rem;
+  border-right: 1px solid var(--line);
+}
+.tier-tag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .56rem;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--mute);
+  margin-bottom: .5rem;
+}
+.tier-name {
+  font-family: 'Spectral', serif;
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--cream);
+  line-height: 1.15;
+}
+.tier-name.ta-name  { color: #8fa3b8; }
+.tier-name.fac-name { color: #b8cdd8; }
+.tier-name.leg-name { color: var(--gold-br); }
+
+.tier-body {
+  padding: 1.8rem 1.8rem 1.8rem 2rem;
+}
+.tier-desc {
+  font-size: .94rem;
+  color: var(--text);
+  line-height: 1.7;
+  max-width: 52ch;
+  margin: 0 0 .9rem;
+}
+.tier-detail {
+  font-size: .82rem;
+  color: var(--mute);
+  line-height: 1.6;
+}
+.tier-detail b { color: var(--text); }
+
+.tier-price {
+  padding: 1.8rem 1.8rem 1.8rem 1.2rem;
+  text-align: right;
+  white-space: nowrap;
+  border-left: 1px solid var(--line);
+  min-width: 140px;
+}
+.price-build {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .6rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--mute);
+  margin-bottom: .2rem;
+}
+.price-amount {
+  font-family: 'Spectral', serif;
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--cream);
+  line-height: 1;
+}
+.price-amount.gold { color: var(--gold-br); }
+.price-unit {
+  font-size: .78rem;
+  color: var(--mute);
+  margin-top: .15rem;
+}
+.price-host {
+  margin-top: 1rem;
+  padding-top: .8rem;
+  border-top: 1px solid var(--line);
+}
+
+/* Legend tier special treatment */
+.tier.legend-tier {
+  border-top: 1px solid var(--legend);
+  position: relative;
+}
+.tier.legend-tier::before {
+  content: 'FLAGSHIP';
+  position: absolute;
+  top: 0; right: 0;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .54rem;
+  letter-spacing: .18em;
+  background: var(--legend);
+  color: #fff;
+  padding: .18rem .6rem;
+}
+
+/* ── IMAGE PLACEHOLDER ── */
+.img-row {
+  margin-top: 2.8rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  border: 1px solid var(--line);
+}
+.img-slot {
+  background: var(--panel);
+  aspect-ratio: 16/9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  position: relative;
+  overflow: hidden;
+}
+.img-slot img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: .85;
+}
+.img-slot .img-cap {
+  position: relative;
+  z-index: 1;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .6rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--mute);
+  text-align: center;
+  padding: .4rem .8rem;
+  background: rgba(8,12,17,.7);
+}
+.img-placeholder-icon {
+  font-size: 1.6rem;
+  opacity: .18;
+}
+
+/* ── HOW IT WORKS ── */
+.steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  border: 1px solid var(--line);
+  margin-top: 1rem;
+}
+.step {
+  background: var(--panel);
+  padding: 1.6rem 1.5rem;
+}
+.step-num {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .6rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--blue-br);
+  margin-bottom: .5rem;
+}
+.step-title {
+  font-family: 'Spectral', serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--cream);
+  margin: 0 0 .4rem;
+}
+.step-body {
+  font-size: .88rem;
+  color: var(--mute);
+  line-height: 1.65;
+}
+
+/* ── HOSTING TABLE ── */
+.hosting-grid {
+  margin-top: 1rem;
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+.hg-head {
+  display: grid;
+  grid-template-columns: 1fr 120px 140px;
+  background: var(--panel2);
+  border-bottom: 1px solid var(--line);
+  padding: .7rem 1.4rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .6rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+.hg-row {
+  display: grid;
+  grid-template-columns: 1fr 120px 140px;
+  padding: .9rem 1.4rem;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel);
+  align-items: center;
+  transition: background .15s;
+}
+.hg-row:hover { background: var(--panel2); }
+.hg-row:last-child { border-bottom: none; }
+.hg-name {
+  font-family: 'Spectral', serif;
+  font-size: 1.05rem;
+  color: var(--cream);
+}
+.hg-name small {
+  display: block;
+  font-family: 'Public Sans', sans-serif;
+  font-size: .8rem;
+  color: var(--mute);
+  margin-top: .1rem;
+}
+.hg-build {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .88rem;
+  color: var(--text);
+}
+.hg-host {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .88rem;
+  color: var(--gold-br);
+  text-align: right;
+}
+.hg-note {
+  padding: .7rem 1.4rem;
+  font-size: .78rem;
+  color: var(--mute);
+  background: var(--bg2);
+  border-top: 1px solid var(--line);
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: .04em;
+}
+
+/* ── CTA ── */
+.cta-block {
+  margin-top: 3.2rem;
+  border: 1px solid var(--blue);
+  background: var(--panel);
+  padding: 2.4rem 2.4rem 2.2rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 2.4rem;
+  flex-wrap: wrap;
+}
+.cta-left { flex: 1; min-width: 240px; }
+.cta-eyebrow {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .56rem;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  color: var(--blue-br);
+  margin-bottom: .6rem;
+}
+.cta-title {
+  font-family: 'Spectral', serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--cream);
+  margin: 0 0 .5rem;
+}
+.cta-body {
+  font-size: .9rem;
+  color: var(--mute);
+  max-width: 44ch;
+  line-height: 1.65;
+}
+.cta-right {
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+  justify-content: center;
+  align-self: center;
+}
+.btn-primary {
+  display: inline-block;
+  padding: .85rem 1.8rem;
+  background: var(--blue);
+  color: #fff;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .68rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background .18s;
+  white-space: nowrap;
+}
+.btn-primary:hover { background: var(--blue-br); color: #fff; }
+.btn-secondary {
+  display: inline-block;
+  padding: .85rem 1.8rem;
+  background: transparent;
+  color: var(--mute);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .68rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  border: 1px solid var(--line);
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color .18s, color .18s;
+  white-space: nowrap;
+  text-align: center;
+}
+.btn-secondary:hover { border-color: var(--blue-br); color: var(--text); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 780px) {
+  .tier {
+    grid-template-columns: 1fr;
+  }
+  .tier-left { border-right: none; border-bottom: 1px solid var(--line); }
+  .tier-price { border-left: none; border-top: 1px solid var(--line); text-align: left; }
+  .img-row { grid-template-columns: 1fr; }
+  .steps { grid-template-columns: 1fr; }
+  .hg-head, .hg-row { grid-template-columns: 1fr 100px; }
+  .hg-host { display: none; }
+  .hero { padding: 2.2rem 1.4rem 1.8rem; }
+  .hero h1 { font-size: 2rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="ribbon">
+  Emerging Technologies Laboratory &nbsp;&middot;&nbsp; <b>ETL Classrooms</b> &nbsp;&middot;&nbsp; Education &amp; Research
+</div>
+
+<div class="wrap">
+  <a class="backlink" href="/">&larr; ETL campus</a>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="eyebrow">ETL Classrooms &nbsp;&middot;&nbsp; Built for Education</div>
+    <h1>Rent a classroom for your agents.</h1>
+    <p class="hero-lede">
+      Teaching assistants that never miss office hours. Faculty who remember every student.
+      Living legends who walked out of the textbook and into the room.
+      Your agents live here, on the ETL campus, permanently.
+    </p>
+    <p class="hero-note">
+      <b>Build once.</b> &nbsp;Host here. &nbsp;Your department handles the ideas. &nbsp;We handle the infrastructure.
+    </p>
+  </div>
+
+  <!-- THREE TIERS -->
+  <div class="sec-head">
+    <h2>Three kinds of classroom agents</h2>
+    <div class="sec-rule"></div>
+  </div>
+  <p class="sec-sub">Each type is built for a different role. All of them live on the ETL campus, in your department's classroom.</p>
+
+  <div class="tiers">
+
+    <!-- Teaching Assistants -->
+    <div class="tier">
+      <div class="tier-left">
+        <div class="tier-tag">Tier 01</div>
+        <div class="tier-name ta-name">Teaching<br>Assistants</div>
+      </div>
+      <div class="tier-body">
+        <p class="tier-desc">
+          Always-on academic support. Research guidance, citation help, concept explanations,
+          study questions. Available at 11pm before an exam when you're not.
+        </p>
+        <p class="tier-detail">
+          <b>Best for:</b> Undergraduate courses, large lecture sections, writing-intensive programs.<br>
+          Built to your course materials. Knows your syllabus, your preferred sources, your standards.
+        </p>
+      </div>
+      <div class="tier-price">
+        <div class="price-build">Build</div>
+        <div class="price-amount">$150</div>
+        <div class="price-unit">per agent</div>
+        <div class="price-host">
+          <div class="price-build">Hosting</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:.88rem;color:var(--text);">see below</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ETL Faculty -->
+    <div class="tier">
+      <div class="tier-left">
+        <div class="tier-tag">Tier 02</div>
+        <div class="tier-name fac-name">ETL<br>Faculty</div>
+      </div>
+      <div class="tier-body">
+        <p class="tier-desc">
+          Your AI counterpart. Built to your voice, your discipline, your approach.
+          Handles the recurring questions that eat office hours. Available when you're at a conference, in a meeting, or done for the day.
+        </p>
+        <p class="tier-detail">
+          <b>Best for:</b> Graduate seminars, faculty research programs, advising-heavy departments.<br>
+          Includes voice design so it sounds like a real person in your field, not a chatbot.
+        </p>
+      </div>
+      <div class="tier-price">
+        <div class="price-build">Build</div>
+        <div class="price-amount">$215</div>
+        <div class="price-unit">per agent</div>
+        <div class="price-host">
+          <div class="price-build">Hosting</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:.88rem;color:var(--text);">see below</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Living Legends -->
+    <div class="tier legend-tier">
+      <div class="tier-left">
+        <div class="tier-tag">Tier 03</div>
+        <div class="tier-name leg-name">Living<br>Legends</div>
+      </div>
+      <div class="tier-body">
+        <p class="tier-desc">
+          Historical figures, literary characters, and era-specific voices pulled from the textbook and put in the room.
+          Ask a 14th-century Danish merchant about the North Sea trade routes.
+          Toggle between period language and modern translation.
+          Every agent carries a backpack of verified sources, no genealogy databases, no false records.
+        </p>
+        <p class="tier-detail">
+          <b>Best for:</b> History, literature, political science, philosophy, religion, area studies.<br>
+          Full build: portrait, blink, period-accurate voice, source-verified backpack.
+          Each legend is built from the historical record, with guardrails that keep them honest.
+        </p>
+      </div>
+      <div class="tier-price">
+        <div class="price-build">Build</div>
+        <div class="price-amount gold">$315</div>
+        <div class="price-unit">per legend</div>
+        <div class="price-host">
+          <div class="price-build">Hosting</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:.88rem;color:var(--gold-br);">see below</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /tiers -->
+
+  <!-- IMAGE ROW -->
+  <div class="img-row">
+    <div class="img-slot">
+      <img src="/assets/classrooms-photo-1.jpg" alt="Students using ETL agents at laptops" onerror="this.style.display='none'">
+      <div class="img-placeholder-icon">&#9654;</div>
+      <div class="img-cap">Students interacting with ETL agents in the classroom</div>
+    </div>
+    <div class="img-slot">
+      <img src="/assets/classrooms-photo-2.jpg" alt="Faculty and students with agent on laptop" onerror="this.style.display='none'">
+      <div class="img-placeholder-icon">&#9654;</div>
+      <div class="img-cap">A Living Legend answers questions in real time</div>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <div class="sec-head">
+    <h2>How a classroom works</h2>
+    <div class="sec-rule"></div>
+  </div>
+  <p class="sec-sub">Three steps from concept to a room full of agents ready for your students.</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">Step 01 &nbsp;&middot;&nbsp; You</div>
+      <div class="step-title">Fill out the spec</div>
+      <p class="step-body">
+        Tell us who the agent is. Their role, their subject matter, their voice, their knowledge domain.
+        For Living Legends, their era, their language, their sources.
+        The spec form takes about 20 minutes per agent.
+      </p>
+    </div>
+    <div class="step">
+      <div class="step-num">Step 02 &nbsp;&middot;&nbsp; ETL</div>
+      <div class="step-title">We build and test</div>
+      <p class="step-body">
+        Portrait, blink animation, voice design, backpack wiring, persona refinement.
+        We run the agent through a review before it goes live.
+        Turnaround is typically 3 to 5 business days per agent.
+      </p>
+    </div>
+    <div class="step">
+      <div class="step-num">Step 03 &nbsp;&middot;&nbsp; Your classroom</div>
+      <div class="step-title">Your agents move in</div>
+      <p class="step-body">
+        Your department gets a dedicated classroom on the ETL campus.
+        Students access it through a link. No app, no account required on their end.
+        You manage who can talk to which agents. We keep the lights on.
+      </p>
+    </div>
+  </div>
+
+  <!-- HOSTING PRICING -->
+  <div class="sec-head" style="margin-top:3.2rem;">
+    <h2>Classroom hosting</h2>
+    <div class="sec-rule"></div>
+  </div>
+  <p class="sec-sub">One flat rate per department. Build your agents, move them in, we handle the rest.</p>
+
+  <div class="hosting-grid">
+    <div class="hg-head">
+      <span>Classroom tier</span>
+      <span>Build / agent</span>
+      <span style="text-align:right;">Monthly hosting</span>
+    </div>
+    <div class="hg-row">
+      <div class="hg-name">
+        Teaching Assistants
+        <small>Up to 10 agents per classroom</small>
+      </div>
+      <div class="hg-build">$150</div>
+      <div class="hg-host">$99 / mo</div>
+    </div>
+    <div class="hg-row">
+      <div class="hg-name">
+        ETL Faculty
+        <small>Up to 10 agents per classroom</small>
+      </div>
+      <div class="hg-build">$215</div>
+      <div class="hg-host">$99 / mo</div>
+    </div>
+    <div class="hg-row">
+      <div class="hg-name">
+        Living Legends
+        <small>Up to 15 legends per classroom</small>
+      </div>
+      <div class="hg-build">$315</div>
+      <div class="hg-host">$149 / mo</div>
+    </div>
+    <div class="hg-note">
+      Additional agents beyond the classroom cap: $15 / agent / mo &nbsp;&middot;&nbsp;
+      Annual billing available (2 months free) &nbsp;&middot;&nbsp;
+      Multi-classroom departments: contact for institutional rate
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-block">
+    <div class="cta-left">
+      <div class="cta-eyebrow">Reserve your classroom</div>
+      <h2 class="cta-title" style="margin:0 0 .5rem;">Ready to bring your course to life?</h2>
+      <p class="cta-body">
+        Start with a single agent. Tell us who they are and what they teach.
+        Most departments launch with 3 to 5 agents in the first semester.
+      </p>
+    </div>
+    <div class="cta-right">
+      <a class="btn-primary" href="/build-your-own-agent.html">Build an agent</a>
+      <a class="btn-secondary" href="mailto:terry.oroszi@wright.edu">Talk to Dr. O</a>
+    </div>
+  </div>
+
+</div><!-- /wrap -->
+</body>
+</html>
