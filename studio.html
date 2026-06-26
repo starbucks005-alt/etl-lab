@@ -1350,7 +1350,7 @@
     <p style="font-family:'Spectral',serif;font-style:italic;color:var(--ink-soft);font-size:16px;margin:0 0 22px;max-width:700px;">
       One conversation. You talk to your PA, your PA hands the work to the right person and brings it back. Here is what to say.
     </p>
-    <div id="team-cap-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;"></div>
+    <div id="team-cap-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;"></div>
   </section>
 
   <script>
@@ -1365,7 +1365,7 @@
     var CAPS = [
       { match:/reid/i,             label:'Reid Callum',    makes:'Personalized one-pagers and sponsor pitches.',        cmd:'have Reid make a one-pager for [who it is for]', tool:'cc-reid', example:'/reid-sample-inma-sponsorship.html' },
       { match:/yuki/i,             label:'Yuki Mendel',    makes:'Brand and design: logos, decks, a full brand kit.',   cmd:'have Yuki build my brand kit', example:'/yuki.html' },
-      { match:/jax/i,              label:'Jax Rivera',     makes:'SEO and discovery reports for your site.',            cmd:'have Jax run an SEO report on [your site]' },
+      { match:/jax/i,              label:'Jax Rivera',     makes:'SEO and discovery reports for your site.',            cmd:'have Jax run an SEO report on [your site]', tool:'cc-jax' },
       { match:/zara/i,             label:'Zara Cole',      makes:'Social posts that get seen.',                         cmd:'have Zara write a post about [topic]', tool:'cc-social' },
       { match:/(sneha|ayanna)/i,   label:'Sneha & Ayanna', makes:'Communications and field-aware social.',              cmd:'have the social team post about [topic]', tool:'cc-social' },
       { match:/delia/i,            label:'Delia Marsh',    makes:'Sponsor and grant prospecting, sized asks.',          cmd:'have Delia find sponsors for [event]' },
@@ -1456,6 +1456,9 @@
       <div class="ws-section-tag">Tools online</div>
     </div>
 
+    <!-- Tools laid out two-up. Hidden tools (display:none until their agent is
+         on staff) drop out of the grid automatically, so the row count adapts. -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:24px;align-items:start;">
     <!-- Tool: Social Posts -->
     <div id="cc-social" style="background:var(--linen-light);border:1px solid var(--linen-edge);border-left:3px solid var(--brass);padding:28px 32px;">
       <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.18em;color:var(--brass);text-transform:uppercase;margin-bottom:10px;">Social Posts</div>
@@ -1612,7 +1615,7 @@
     <!-- Tool: One-Pagers (Reid). Standard for any owner with Reid Callum on
          staff; hidden otherwise. Reid builds a personalized one-pager via
          studio-reid-slick-ask -> studio-reid-slick-status -> /slick/<slug>. -->
-    <div id="cc-reid" style="display:none;background:var(--linen-light);border:1px solid var(--linen-edge);border-left:3px solid var(--brass);padding:28px 32px;margin-top:24px;">
+    <div id="cc-reid" style="display:none;background:var(--linen-light);border:1px solid var(--linen-edge);border-left:3px solid var(--brass);padding:28px 32px;">
       <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.18em;color:var(--brass);text-transform:uppercase;margin-bottom:10px;">One-Pagers</div>
       <div style="font-family:'Spectral',serif;font-size:22px;font-weight:600;color:var(--ink);margin-bottom:6px;">Hand it to Reid.</div>
       <p style="font-family:'Spectral',serif;font-style:italic;color:var(--ink-soft);font-size:16px;margin-bottom:18px;max-width:640px;">
@@ -1633,6 +1636,34 @@
         <div id="reid-status" style="display:none;font-family:'Spectral',serif;font-style:italic;color:var(--ink-soft);font-size:15px;"></div>
         <div id="reid-result" style="display:none;"></div>
       </div>
+    </div>
+
+    <!-- COMMAND THE STAFF: Jax — SEO report / safe-fix. Revealed only when Jax
+         Rivera is on staff. Report: jax-trigger -> poll jax-report -> view.
+         Fix: also jax-apply-trigger -> poll for apply_status + commit. -->
+    <div id="cc-jax" style="display:none;background:var(--linen-light);border:1px solid var(--linen-edge);border-left:3px solid var(--brass);padding:28px 32px;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.18em;color:var(--brass);text-transform:uppercase;margin-bottom:10px;">SEO &amp; Discovery</div>
+      <div style="font-family:'Spectral',serif;font-size:22px;font-weight:600;color:var(--ink);margin-bottom:6px;">Hand it to Jax.</div>
+      <p style="font-family:'Spectral',serif;font-style:italic;color:var(--ink-soft);font-size:16px;margin-bottom:18px;max-width:640px;">
+        Give Jax your website. He audits it for search and discovery and hands you a report. Choose &ldquo;report&rdquo; to see what he found, or let him apply the safe fixes for you.
+      </p>
+      <div style="display:flex;flex-direction:column;gap:16px;max-width:640px;">
+        <div>
+          <label class="sp-q">1. Your website</label>
+          <input id="jax-url" class="sp-input" type="text" placeholder="onesmarter.com  (or a specific page URL)">
+        </div>
+        <div>
+          <label class="sp-q">2. What should Jax do?</label>
+          <select id="jax-action" class="sp-input">
+            <option value="report">Give me an SEO report</option>
+            <option value="fix">Run a report, then apply the safe fixes</option>
+          </select>
+        </div>
+        <div><button type="button" id="jax-run" class="sp-cta">Send to Jax</button></div>
+        <div id="jax-status" style="display:none;font-family:'Spectral',serif;font-style:italic;color:var(--ink-soft);font-size:15px;"></div>
+        <div id="jax-result" style="display:none;"></div>
+      </div>
+    </div>
     </div>
   </section>
 
@@ -1726,6 +1757,94 @@
           statusEl.textContent = 'Reid is taking longer than usual. Ask him in the chat in a minute: "is the one-pager for ' + escH(recipient) + ' ready?"';
         }
       } catch(e){ polling = false; buildBtn.disabled = false; statusEl.textContent = 'Network snag reaching Reid. Try again.'; }
+    });
+  })();
+  </script>
+
+  <script>
+  (function(){
+    var card = document.getElementById('cc-jax');
+    if (!card) return;
+    var urlEl    = document.getElementById('jax-url');
+    var actionEl = document.getElementById('jax-action');
+    var runBtn   = document.getElementById('jax-run');
+    var statusEl = document.getElementById('jax-status');
+    var resultEl = document.getElementById('jax-result');
+    function escH(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+    function setStatus(t){ statusEl.style.display=''; statusEl.textContent=t; }
+
+    // Reveal only when Jax Rivera is on this owner's staff.
+    function jaxOnStaff(){
+      var hs = window.__hiredStaff;
+      if (Array.isArray(hs)) return hs.some(function(s){ return s && (/jax/i.test(s.id||'') || /jax\s+rivera/i.test(s.name||'')); });
+      return /jax\s+rivera/i.test(((document.getElementById('workspace')||document.body).textContent) || '');
+    }
+    (function reveal(tries){ if (jaxOnStaff()) { card.style.display=''; return; } if (tries>0) setTimeout(function(){ reveal(tries-1); }, 800); })(8);
+
+    async function jwt(){ try { var s = await window.studioSb.auth.getSession(); return s && s.data && s.data.session && s.data.session.access_token; } catch(_){ return null; } }
+
+    // Poll the report blob. want='complete' for the scan, 'apply' for the fix step.
+    async function pollReport(id, token, want){
+      for (var i=0;i<40;i++){
+        await new Promise(function(r){ setTimeout(r,3000); });
+        try {
+          var r2 = await fetch('/.netlify/functions/studio-jax-report?id='+encodeURIComponent(id)+'&_='+Date.now(), { headers:{'Authorization':'Bearer '+token}, cache:'no-store' });
+          if (r2.status===404) continue;
+          var d = await r2.json();
+          if (want==='apply') { if (d.apply_status) return d; }
+          else if (d.status==='complete' || d.status==='failed') return d;
+        } catch(_){}
+      }
+      return null;
+    }
+
+    runBtn.addEventListener('click', async function(){
+      if (window.__previewMode) { setStatus('Read-only preview. Open this studio for real to run Jax.'); return; }
+      var url = (urlEl.value||'').trim();
+      if (!url) { setStatus('Give Jax a website first.'); urlEl.focus(); return; }
+      var action = actionEl.value;
+      var token = await jwt();
+      if (!token) { setStatus('Sign in first.'); return; }
+      runBtn.disabled = true; resultEl.style.display='none';
+      setStatus('Jax is scanning ' + url + '. Give him about a minute...');
+      try {
+        var r = await fetch('/.netlify/functions/studio-jax-trigger', { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token}, body: JSON.stringify({ target_url: url, requested_by: 'Studio: Command the staff' }) });
+        var data = await r.json();
+        if (!r.ok || !data.job_id) { setStatus('Jax hit a snag starting that: ' + escH((data&&data.error)||('HTTP '+r.status))); runBtn.disabled=false; return; }
+        var jobId = data.job_id;
+        var reportUrl = data.report_url || ('/studio/jax-reports.html?id='+encodeURIComponent(jobId));
+        var rep = await pollReport(jobId, token, 'complete');
+        if (!rep) { statusEl.style.display='none'; resultEl.style.display=''; resultEl.innerHTML = '<div style="border:1px solid var(--linen-edge);background:#fff;padding:18px 20px;"><div style="font-family:\'Spectral\',serif;font-size:15px;color:var(--ink);margin-bottom:12px;">Jax is taking longer than usual. Your report will land here:</div><a href="'+escH(reportUrl)+'" target="_blank" rel="noopener" class="sp-cta" style="display:inline-block;text-decoration:none;">Open the report &rarr;</a></div>'; runBtn.disabled=false; return; }
+        if (rep.status==='failed') { setStatus('Jax could not scan that one' + (rep.error?(': '+escH(rep.error)):'.')); runBtn.disabled=false; return; }
+        var nFind = Array.isArray(rep.findings) ? rep.findings.length : 0;
+        function reportCard(metaExtra, trailingHtml){
+          return '<div style="border:1px solid var(--linen-edge);background:#fff;padding:18px 20px;">' +
+            (rep.jax_summary ? '<div style="font-family:\'Spectral\',serif;font-size:15px;color:var(--ink);line-height:1.55;margin-bottom:12px;white-space:pre-wrap;">' + escH(rep.jax_summary) + '</div>' : '') +
+            '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:11px;color:var(--ink-soft);margin-bottom:12px;">' + nFind + ' finding' + (nFind===1?'':'s') + (metaExtra||'') + '</div>' +
+            '<a href="'+escH(reportUrl)+'" target="_blank" rel="noopener" class="sp-cta" style="display:inline-block;text-decoration:none;">View the full report &rarr;</a>' +
+            (trailingHtml||'') +
+          '</div>';
+        }
+        if (action === 'report') { statusEl.style.display='none'; resultEl.style.display=''; resultEl.innerHTML = reportCard('', ''); runBtn.disabled=false; return; }
+
+        // Fix: apply the safe, deterministic fixes.
+        setStatus('Report done. Jax is applying the safe fixes now...');
+        var ar = await fetch('/.netlify/functions/studio-jax-apply-trigger', { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token}, body: JSON.stringify({ job_id: jobId }) });
+        var ad = await ar.json();
+        if (!ar.ok || !ad.triggered) { statusEl.style.display='none'; resultEl.style.display=''; resultEl.innerHTML = reportCard(' · could not start the auto-fix', ''); runBtn.disabled=false; return; }
+        var ap = await pollReport(jobId, token, 'apply');
+        statusEl.style.display='none'; resultEl.style.display='';
+        if (ap) {
+          var nApplied = Array.isArray(ap.applied)?ap.applied.length:0, nSkipped = Array.isArray(ap.skipped)?ap.skipped.length:0;
+          var trailing = ap.apply_commit_url
+            ? '<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--linen-edge);font-family:\'IBM Plex Mono\',monospace;font-size:12px;color:var(--ink-soft);">Jax applied ' + nApplied + ', skipped ' + nSkipped + '. <a href="'+escH(ap.apply_commit_url)+'" target="_blank" rel="noopener" style="color:var(--brass);text-decoration:underline;">See the commit &rarr;</a></div>'
+            : '<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--linen-edge);font-family:\'IBM Plex Mono\',monospace;font-size:12px;color:var(--ink-soft);">No auto-fixable changes for this site, or it is not connected for auto-apply. The report still shows everything to fix by hand.</div>';
+          resultEl.innerHTML = reportCard('', trailing);
+        } else {
+          resultEl.innerHTML = reportCard(' · apply is taking longer than usual; the commit will show on the report', '');
+        }
+        runBtn.disabled=false;
+      } catch(e){ setStatus('Network snag reaching Jax. Try again.'); runBtn.disabled=false; }
     });
   })();
   </script>
