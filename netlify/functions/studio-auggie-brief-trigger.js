@@ -67,18 +67,29 @@ exports.handler = async (event) => {
   // built from their validated user_id plus the owner context the Studio sent.
   let reqBody = {};
   try { reqBody = JSON.parse(event.body || '{}'); } catch (_) {}
-  const isOwner = (auth.user.email || '').toLowerCase() === 'starbucks005@gmail.com';
-  const forwardBody = isOwner ? {} : {
-    target: {
-      user_id: auth.user.id,
-      owner_name: reqBody.owner_name || '',
-      company_name: reqBody.company_name || '',
-      owner_context: reqBody.owner_context || '',
-      owner_site: reqBody.owner_site || '',
-      address_form: reqBody.owner_address_form || '',
-      pa_first_name: reqBody.pa_first_name || '',
-    },
+  const OWNER_EMAIL = 'starbucks005@gmail.com';
+  const isOwner = (auth.user.email || '').toLowerCase() === OWNER_EMAIL;
+  // Landlord preview ("generate this client's test brief"): the owner passes
+  // preview_as=<client email> plus that client's identity. Write to a
+  // preview-<email> namespace so it never touches the client's real
+  // (login-keyed) brief, and the landlord reads it back via ?as=.
+  const previewAs = isOwner ? String(reqBody.preview_as || '').toLowerCase().trim() : '';
+  const clientFields = {
+    owner_name: reqBody.owner_name || '',
+    company_name: reqBody.company_name || '',
+    owner_context: reqBody.owner_context || '',
+    owner_site: reqBody.owner_site || '',
+    address_form: reqBody.owner_address_form || '',
+    pa_first_name: reqBody.pa_first_name || '',
   };
+  let forwardBody;
+  if (previewAs) {
+    forwardBody = { target: Object.assign({ user_id: 'preview-' + previewAs, skip_audio: true }, clientFields) };
+  } else if (isOwner) {
+    forwardBody = {};
+  } else {
+    forwardBody = { target: Object.assign({ user_id: auth.user.id }, clientFields) };
+  }
 
   try {
     const res = await fetch(`${base}/.netlify/functions/studio-auggie-brief-background`, {

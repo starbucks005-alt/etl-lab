@@ -101,8 +101,15 @@ exports.handler = async (event) => {
   // Per-owner brief. Dr. O reads the global blobs (written by her cron); every
   // other signed-in owner reads their own namespace (written by the buyer
   // brief path, keyed by user_id).
-  const isOwner = (auth.user.email || '').toLowerCase() === 'starbucks005@gmail.com';
-  const keyPfx = isOwner ? '' : ('u/' + auth.user.id + '/');
+  const OWNER_EMAIL = 'starbucks005@gmail.com';
+  const isOwner = (auth.user.email || '').toLowerCase() === OWNER_EMAIL;
+  // Landlord preview: the owner reads a client's TEST brief (?as=<client email>),
+  // written to a preview-<email> namespace by brief-trigger's preview path. Never
+  // the owner's global brief (that was the "Ms. Terry brief in Vikram's studio"
+  // leak). Auto-regen stays owner-only and is suppressed while previewing.
+  const asParam = (event.queryStringParameters && (event.queryStringParameters.as || '')).toLowerCase().trim();
+  const previewing = isOwner && !!asParam && asParam !== OWNER_EMAIL;
+  const keyPfx = previewing ? ('u/preview-' + asParam + '/') : (isOwner ? '' : ('u/' + auth.user.id + '/'));
 
   try { connectLambda(event); } catch (_) {}
 
@@ -121,11 +128,11 @@ exports.handler = async (event) => {
     // Owner: kick a regen so the next pageview has content. Buyer: no auto
     // regen (the daily cron is owner-only), but tell the UI it can generate
     // one on demand via the "generate one now" button.
-    if (isOwner) fireRegen(eventHost);
+    if (isOwner && !previewing) fireRegen(eventHost);
     return {
       statusCode: 200,
       headers: { ...CORS, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
-      body: JSON.stringify({ available: false, expectedDateKey, stale: true, regenFired: isOwner, can_generate: true }),
+      body: JSON.stringify({ available: false, expectedDateKey, stale: true, regenFired: isOwner && !previewing, can_generate: true }),
     };
   }
 
@@ -134,7 +141,7 @@ exports.handler = async (event) => {
   // [Sunday] — refreshing now, check back in ~90s"). Auto-regen is owner-only
   // (cron path); buyers refresh their stale brief with the explicit button.
   const isStale = meta.dateKey && meta.dateKey !== expectedDateKey;
-  if (isStale && isOwner) {
+  if (isStale && isOwner && !previewing) {
     console.log('[brief-latest] stale brief detected: stored=' + meta.dateKey + ' expected=' + expectedDateKey + ' — firing regen');
     fireRegen(eventHost);
   }
@@ -149,7 +156,7 @@ exports.handler = async (event) => {
       dateKey: meta.dateKey,
       expectedDateKey,
       stale: isStale,
-      regenFired: isStale && isOwner,
+      regenFired: isStale && isOwner && !previewing,
       generatedAt: meta.generatedAt,
       transcript: meta.transcript,
       estimatedSeconds: meta.estimatedSeconds,

@@ -387,14 +387,20 @@ exports.handler = async (event) => {
     return { statusCode: 502, body: 'monologue empty or too short' };
   }
 
-  // Step 3: render to audio.
-  let audioBuf;
-  try {
-    audioBuf = await ttsAuggie(monologue);
-    console.log('[auggie-brief-bg] elevenlabs ok, bytes=', audioBuf.length);
-  } catch (err) {
-    console.error('[auggie-brief-bg] elevenlabs failed', err && err.message);
-    return { statusCode: 502, body: 'elevenlabs failed: ' + (err && err.message) };
+  // Step 3: render to audio. Skipped for landlord TEST briefs
+  // (target.skip_audio) so verifying a client's brief does not burn ElevenLabs
+  // TTS, only the transcript is needed to confirm it works.
+  let audioBuf = null;
+  if (!(target && target.skip_audio)) {
+    try {
+      audioBuf = await ttsAuggie(monologue);
+      console.log('[auggie-brief-bg] elevenlabs ok, bytes=', audioBuf.length);
+    } catch (err) {
+      console.error('[auggie-brief-bg] elevenlabs failed', err && err.message);
+      return { statusCode: 502, body: 'elevenlabs failed: ' + (err && err.message) };
+    }
+  } else {
+    console.log('[auggie-brief-bg] skip_audio set (test brief), no TTS');
   }
 
   // Step 4: persist to Blobs.
@@ -403,18 +409,20 @@ exports.handler = async (event) => {
     const metaStore  = getStore('auggie_briefs_meta');
     // keyPfx namespaces a buyer's brief to their user_id; empty for Dr. O so
     // her cron keeps writing the global 'latest' / dateKey blobs as before.
-    await audioStore.set(keyPfx + dateKey, audioBuf, {
-      metadata: { contentType: 'audio/mpeg', dateKey: dateKey },
-    });
+    if (audioBuf) {
+      await audioStore.set(keyPfx + dateKey, audioBuf, {
+        metadata: { contentType: 'audio/mpeg', dateKey: dateKey },
+      });
+    }
     const meta = {
       dateKey: dateKey,
       generatedAt: new Date().toISOString(),
       transcript: monologue,
-      audioKey: keyPfx + dateKey,
-      audioBytes: audioBuf.length,
-      // Rough duration estimate at 64kbps mp3: bytes / (8000) seconds.
-      // Good enough for "this is a 2-minute brief" UI labeling.
-      estimatedSeconds: Math.round(audioBuf.length / 8000),
+      audioKey: audioBuf ? (keyPfx + dateKey) : null,
+      audioBytes: audioBuf ? audioBuf.length : 0,
+      // Duration from audio bytes (64kbps mp3) when present; else estimate from
+      // the transcript (~2.5 words/sec) so a test brief still shows a length.
+      estimatedSeconds: audioBuf ? Math.round(audioBuf.length / 8000) : Math.round(monologue.split(/\s+/).filter(Boolean).length / 2.5),
       voiceId: AUGGIE_VOICE_ID,
       sourcesUsed: sourcesUsed.slice(0, 20),
     };

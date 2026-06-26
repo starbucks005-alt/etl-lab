@@ -3509,13 +3509,13 @@
   }
 
   async function loadAuggieBrief(){
-    // The morning brief is private to each owner; never load it in a preview.
-    // Check the ?as= URL param directly, not just window.__previewMode: the flag
-    // is set asynchronously by the config load, and this brief fetch can win the
-    // race and render the OWNER's brief inside a client's studio (the "Ms. Terry
-    // brief in Vikram's studio" leak). The URL is authoritative and synchronous.
-    if (window.__previewMode) return;
-    try { if (new URLSearchParams(location.search).get('as')) return; } catch (_) {}
+    // Preview (landlord viewing a client via ?as=): load the CLIENT's brief from
+    // their preview namespace, never the owner's. The ?as= param is read
+    // synchronously so the owner's brief can never leak into a client's studio
+    // while config loads. Outside preview, load the signed-in owner's own brief.
+    var asEmail = '';
+    try { asEmail = (new URLSearchParams(location.search).get('as') || '').trim(); } catch (_) {}
+    var preview = !!asEmail;
     var panel       = document.getElementById('auggie-brief-panel');
     var emptyPanel  = document.getElementById('auggie-brief-empty');
     var dateLabel   = document.getElementById('auggie-brief-date');
@@ -3528,14 +3528,24 @@
       if (!token) return;
       var auth = 'Bearer ' + token;
 
-      var metaR = await fetch('/.netlify/functions/studio-auggie-brief-latest', {
+      var metaR = await fetch('/.netlify/functions/studio-auggie-brief-latest' + (preview ? ('?as=' + encodeURIComponent(asEmail)) : ''), {
         headers: { 'Authorization': auth },
       });
       if (!metaR.ok) return;
       var meta = await metaR.json();
       if (!meta || !meta.available) {
-        // No brief yet; show the empty-state with regen button.
-        if (emptyPanel) emptyPanel.style.display = '';
+        // No brief yet; show the empty-state with the generate button. In a
+        // landlord preview, relabel it so it's clear you're generating a TEST
+        // brief for THIS client to verify the feature works for them.
+        if (emptyPanel) {
+          emptyPanel.style.display = '';
+          if (preview) {
+            var et = emptyPanel.children && emptyPanel.children[1];
+            var eb = document.getElementById('auggie-brief-regen-empty');
+            if (et) et.textContent = (window.__companyName || 'This client') + ' has no brief yet. Generate one to verify it works for them.';
+            if (eb) eb.textContent = 'generate this client’s brief';
+          }
+        }
         return;
       }
 
@@ -3572,8 +3582,11 @@
       }
       transcript.textContent = meta.transcript || '';
 
-      // Audio is JWT-gated. Fetch with auth, blob it, hand to <audio>.
-      try {
+      // Audio is JWT-gated. Fetch with auth, blob it, hand to <audio>. Skip in
+      // preview: we only need the transcript to verify the client's brief, and
+      // this avoids fetching audio from a namespace that isn't theirs.
+      if (preview) { try { audioEl.style.display = 'none'; } catch (_) {} }
+      else try {
         var audR = await fetch(meta.audioUrl, { headers: { 'Authorization': auth } });
         if (audR.ok) {
           var blob = await audR.blob();
@@ -3597,7 +3610,12 @@
     var btn = document.getElementById(btnId);
     var status = document.getElementById(statusId);
     if (!btn) return;
-    if (window.__previewMode) { if (status) status.textContent = 'read-only preview'; return; }
+    var asEmail = '';
+    try { asEmail = (new URLSearchParams(location.search).get('as') || '').trim(); } catch (_) {}
+    // Read-only preview normally blocks writes, but generating a client's TEST
+    // brief IS the landlord verification action, so allow it when ?as= is set
+    // (it writes to a preview namespace, never the client's real brief).
+    if (window.__previewMode && !asEmail) { if (status) status.textContent = 'read-only preview'; return; }
     var originalLabel = btn.textContent;
     btn.disabled = true; btn.style.opacity = '0.6'; btn.textContent = 'asking auggie';
     if (status) status.textContent = '';
@@ -3617,6 +3635,9 @@
           owner_site: window.__ownerSite || '',
           owner_address_form: window.__ownerAddressForm || '',
           pa_first_name: window.__paFirstName || window.__paDisplayName || '',
+          // Landlord preview: target THIS client's namespace (owner-gated server
+          // side). Omitted (undefined -> dropped by JSON) outside preview.
+          preview_as: asEmail || undefined,
         }),
       });
       var data = await r.json();
