@@ -5181,7 +5181,14 @@ h1 em,h2 em{font-weight:300;color:#28527a}
     //   the team vanished and Jen's card went to "JL": the old code cleared
     //   everything and rebuilt the PA card from a roster that lacks her.
     var src = String(cfg.source || '');
-    var isBuyer = src.indexOf('fixture') === 0 || src.indexOf('self_serve') === 0;
+    // The OWNER (Dr. O) keeps her shipped static bench. Her fixture
+    // (terry-oroszi-company.json) only seeds Auggie's team awareness; it must
+    // NOT rebuild her grid. Before the data files were de-BOM'd her fixture
+    // failed to parse and she landed on 'default' (which kept the bench); now
+    // that it loads as 'fixture' we exclude the owner explicitly so the bench
+    // does not vanish. Only real buyers rebuild from their hired_staff.
+    var isOwner = (cfg.owner_name === 'Dr. Terry Oroszi');
+    var isBuyer = !isOwner && (src.indexOf('fixture') === 0 || src.indexOf('self_serve') === 0);
     var hired = Array.isArray(cfg.hired_staff) ? cfg.hired_staff : [];
     if (isBuyer) {
       grid.innerHTML = '';
