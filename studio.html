@@ -1324,6 +1324,83 @@
     </ul>
   </section>
 
+  <!-- WHAT YOUR TEAM CAN DO — discoverability. Teaches the owner the plain-
+       language commands to give their PA, driven by who they have actually
+       hired (window.__hiredStaff). The PA is the voice; everything routes
+       through them. Hidden until staff loads; cards only for agents on staff. -->
+  <section class="ws-section" id="cc-team-capabilities" style="display:none;">
+    <div class="ws-section-head">
+      <div class="ws-section-h">What your team can do</div>
+      <div class="ws-section-tag">Just ask your PA</div>
+    </div>
+    <p style="font-family:'Spectral',serif;font-style:italic;color:var(--ink-soft);font-size:16px;margin:0 0 22px;max-width:700px;">
+      One conversation. You talk to your PA, your PA hands the work to the right person and brings it back. Here is what to say.
+    </p>
+    <div id="team-cap-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;"></div>
+  </section>
+
+  <script>
+  (function(){
+    var section = document.getElementById('cc-team-capabilities');
+    var grid = document.getElementById('team-cap-grid');
+    if (!section || !grid) return;
+    function escH(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+
+    // Each agent -> what they make + the exact command to give the PA. {match}
+    // tests the staff id and name; the card renders only if that agent is hired.
+    var CAPS = [
+      { match:/reid/i,             label:'Reid Callum',    makes:'Personalized one-pagers and sponsor pitches.',        cmd:'have Reid make a one-pager for [who it is for]', tool:'cc-reid' },
+      { match:/yuki/i,             label:'Yuki Mendel',    makes:'Brand and design: logos, decks, a full brand kit.',   cmd:'have Yuki build my brand kit' },
+      { match:/jax/i,              label:'Jax Rivera',     makes:'SEO and discovery reports for your site.',            cmd:'have Jax run an SEO report on [your site]' },
+      { match:/zara/i,             label:'Zara Cole',      makes:'Social posts that get seen.',                         cmd:'have Zara write a post about [topic]', tool:'cc-social' },
+      { match:/(sneha|ayanna)/i,   label:'Sneha & Ayanna', makes:'Communications and field-aware social.',              cmd:'have the social team post about [topic]', tool:'cc-social' },
+      { match:/delia/i,            label:'Delia Marsh',    makes:'Sponsor and grant prospecting, sized asks.',          cmd:'have Delia find sponsors for [event]' },
+      { match:/grey/i,             label:'Grey Hollis',    makes:'Speeches, proclamations, op-eds, ghostwriting.',      cmd:'have Grey draft [the speech or op-ed]' },
+      { match:/(professor|fact)/i, label:'The Professor',  makes:'Fact-checks and plain-language research.',            cmd:'have the Professor fact-check [this]' }
+    ];
+
+    function card(tag, tagColor, body, sayLine, toolId){
+      var toolBtn = toolId ? '<a href="#' + toolId + '" onclick="var e=document.getElementById(\'' + toolId + '\'); if(e){e.scrollIntoView({behavior:\'smooth\'});} return false;" style="display:inline-block;margin-top:10px;font-family:\'Public Sans\',sans-serif;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--brass);text-decoration:underline;">Or use the tool &rarr;</a>' : '';
+      return '<div style="background:var(--linen-light);border:1px solid var(--linen-edge);border-left:3px solid var(--brass);padding:20px 22px;">' +
+        '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:10px;letter-spacing:.16em;color:' + tagColor + ';text-transform:uppercase;margin-bottom:6px;">' + tag + '</div>' +
+        '<div style="font-family:\'Spectral\',serif;font-size:15px;color:var(--ink);line-height:1.5;margin-bottom:10px;">' + body + '</div>' +
+        '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:12px;color:var(--ink-soft);background:#fff;border:1px solid var(--linen-edge);padding:8px 10px;line-height:1.5;">' + sayLine + '</div>' +
+        toolBtn +
+      '</div>';
+    }
+
+    function render(){
+      var hs = window.__hiredStaff;
+      if (!Array.isArray(hs)) return false;
+      var pa = window.__paFirstName || 'your PA';
+      var cards = [];
+      // The PA, always first: the voice and the everyday tools.
+      cards.push(card(
+        escH(pa) + ' &middot; your PA', 'var(--brass)',
+        'Runs your week, reads your calendar, scans the web for mentions of you, and hands work to the rest of the team.',
+        'Try: &ldquo;' + escH(pa) + ', any new mentions of me this week?&rdquo; &nbsp;or attach a spreadsheet and ask ' + escH(pa) + ' to edit it.',
+        null
+      ));
+      CAPS.forEach(function(cap){
+        var on = hs.some(function(s){ return s && (cap.match.test(s.id||'') || cap.match.test(s.name||'')); });
+        if (!on) return;
+        cards.push(card(
+          escH(cap.label), 'var(--ink-soft)',
+          escH(cap.makes),
+          'Say: &ldquo;' + escH(pa) + ', ' + escH(cap.cmd) + '.&rdquo;',
+          cap.tool
+        ));
+      });
+      grid.innerHTML = cards.join('');
+      section.style.display = '';
+      return true;
+    }
+
+    document.addEventListener('studio:staff-ready', render);
+    if (!render()) { (function retry(n){ if (render()) return; if (n>0) setTimeout(function(){ retry(n-1); }, 800); })(8); }
+  })();
+  </script>
+
   <!-- COMMAND CENTER -->
   <section class="ws-section">
     <div class="ws-section-head">
@@ -5042,6 +5119,8 @@ h1 em,h2 em{font-weight:300;color:#28527a}
     // for EVERY PA including the default, so the page is never left with
     // hardcoded "Auggie" text when someone else is seated.
     window.__paFirstName = (paName.split(/[ "]/).filter(Boolean)[0]) || 'Auggie';
+    window.__hiredStaff = (cfg && cfg.hired_staff) || [];  // drives the team-capabilities surface + Reid tool gating
+    try { document.dispatchEvent(new CustomEvent('studio:staff-ready')); } catch (_) {}
     (function setGenericPAIdentity(){
       var idEl;
       if ((idEl = document.getElementById('pa-section-tag')))   idEl.textContent = paName;
