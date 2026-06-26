@@ -1399,7 +1399,7 @@
         .filter(function(s){ return s.name; });
       if (!bench.length) return false;
       var pa = window.__paFirstName || 'your PA';
-      var out = [], seen = {};
+      var out = [], seen = {}, seenCap = {};
       // The PA, always first: the voice and the everyday tools.
       out.push(card(
         escH(pa) + ' &middot; your PA', 'var(--brass)',
@@ -1415,6 +1415,7 @@
         var cap = null;
         for (var i = 0; i < CAPS.length; i++) { if (CAPS[i].match.test(s.name)) { cap = CAPS[i]; break; } }
         if (cap) {
+          if (seenCap[cap.label]) return; seenCap[cap.label] = 1;
           out.push(card(escH(cap.label), 'var(--ink-soft)', escH(cap.makes),
             'Say: &ldquo;' + escH(pa) + ', ' + escH(cap.cmd) + '.&rdquo;', cap.tool, cap.example));
         } else {
@@ -1436,7 +1437,15 @@
     }
 
     document.addEventListener('studio:staff-ready', render);
-    if (!render()) { (function retry(n){ if (render()) return; if (n>0) setTimeout(function(){ retry(n-1); }, 800); })(8); }
+    render();
+    // The staff grid is rebuilt asynchronously for buyers (their hires replace
+    // the default bench). Re-render whenever it changes, debounced, so this panel
+    // reflects the SETTLED grid and not the default one it may read first.
+    (function(){
+      var sg = document.querySelector('.staff-grid');
+      if (!sg) { (function retry(n){ if (render()) return; if (n>0) setTimeout(function(){ retry(n-1); }, 800); })(10); return; }
+      var t; new MutationObserver(function(){ clearTimeout(t); t = setTimeout(render, 250); }).observe(sg, { childList: true, subtree: true });
+    })();
   })();
   </script>
 
