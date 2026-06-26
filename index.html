@@ -6523,49 +6523,11 @@ h1 b,h2 b,h1 strong,h2 strong{font-weight:500}
     "I need a mute button.",
     "I'm my own worst enemy."
   ];
-  fetch('/.netlify/functions/carol-channel',{cache:'no-store'})
-    .then(function(r){return r.json();})
-    .then(function(d){
-      if(!d||!d.messages||!d.messages.length) throw new Error('empty');
-      var day=document.getElementById('cc-ac-day');
-      if(day&&d.dayLabel) day.textContent=d.dayLabel;
-      var keep=document.getElementById('cc-ac-keeper');
-      if(keep&&d.keeper_note) keep.textContent=d.keeper_note+' The staff coordinate here all day. You\'re welcome to read over their shoulders.';
-      var msgs=d.messages.slice(-8).reverse();
-      var html='';
-      msgs.forEach(function(m){
-        var name=escCh(m.speaker||'Staff');
-        var text=escCh(m.text||'');
-        var time=escCh(m.time||'');
-        var role=m.role?'<span style="font-size:9px;color:rgba(255,255,255,.3);font-family:\'IBM Plex Mono\',monospace;letter-spacing:.06em;">'+escCh(m.role)+'</span>':'';
-        html+='<div style="display:flex;gap:10px;align-items:flex-start;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.05);">'+avatar(m.speaker||'')+
-          '<div style="flex:1;min-width:0;"><div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;margin-bottom:2px;"><span style="font-size:12px;font-weight:700;color:rgba(0,200,255,.85);">'+name+'</span>'+role+'<span style="font-size:10px;color:rgba(255,255,255,.3);font-family:\'IBM Plex Mono\',monospace;">'+time+'</span></div>'+
-          '<span style="font-size:13px;color:rgba(255,255,255,.75);line-height:1.5;">'+text+'</span></div></div>';
-      });
-      feed.innerHTML=html;
-      feed.scrollTop=0;
-      pollBanter();
-      // Floor note button
-      if(d.keeper_digest){
-        var nowMin=new Date().getHours()*60+new Date().getMinutes();
-        var msgs=d.messages; var lastMin=0;
-        msgs.forEach(function(m){ var parts=(m.time||'').match(/(\d+):(\d+)\s*(am|pm)?/i); if(parts){ var h=parseInt(parts[1]); var mn=parseInt(parts[2]); var ap=(parts[3]||'').toLowerCase(); if(ap==='pm'&&h!==12)h+=12; if(ap==='am'&&h===12)h=0; lastMin=h*60+mn;} });
-        if(nowMin>=lastMin){
-          var btn=document.getElementById('cc-ac-listen');
-          var noteAudio=null;
-          if(d.keeper) btn.innerHTML='&#9654; '+escCh(d.keeper)+"'s floor note";
-          btn.style.display='inline-block';
-          btn.addEventListener('click',function(){
-            try{
-              if(!noteAudio){ noteAudio=new Audio('/.netlify/functions/carol-channel-audio'); noteAudio.onended=function(){btn.innerHTML=(d.keeper?'&#9654; '+escCh(d.keeper)+"'s floor note":'&#9654; FLOOR NOTE');}; }
-              if(!noteAudio.paused){ noteAudio.pause(); noteAudio.currentTime=0; btn.innerHTML=(d.keeper?'&#9654; '+escCh(d.keeper)+"'s floor note":'&#9654; FLOOR NOTE'); }
-              else{ noteAudio.currentTime=0; noteAudio.play().catch(function(){}); btn.innerHTML='&#9646;&#9646; STOP'; }
-            }catch(_){}
-          });
-        }
-      }
-    })
-    .catch(function(){ pollBanter(); });
+  // Live campus broadcast is the ONLY feed now. pollBanter() reads
+  // etl-banter-feed (same source as broadcast.html and the studios), seeds the
+  // initial view (capped to 8 recent), and keeps polling every 10s. The old
+  // carol-channel seed and the FLOOR NOTE audio (carol-channel-audio) are gone.
+  pollBanter();
 })();
 // ────────────────────────────────────────────────────────────────────────────
 

@@ -201,14 +201,24 @@ h1 em,h2 em{font-weight:300;color:#28527a}
     }
     return '<span style="' + wrap + '">' + fallback + '</span>';
   }
-  fetch('/.netlify/functions/carol-channel', { cache: 'no-store' })
+  fetch('/.netlify/functions/etl-banter-feed', { cache: 'no-store' })
     .then(function(r){ return r.json(); })
     .then(function(d){
       if (!d || !d.messages || !d.messages.length) throw new Error('empty');
+      /* Campus broadcast feed (etl-banter-feed) -> staffing row shape.
+         Reveal only lines whose ts has arrived; keep chronological (oldest
+         first) so the render's .reverse() puts newest on top; map the banter
+         {agent,message} fields onto the {speaker,text} the row template uses. */
+      var nowTs = Date.now();
+      d.messages = (d.messages || [])
+        .filter(function(m){ return (m.ts || 0) <= nowTs; })
+        .sort(function(a, b){ return (a.ts || 0) - (b.ts || 0); })
+        .map(function(m){ return { speaker: m.agent, role: m.role, time: m.time, text: m.message }; });
+      if (!d.messages.length) throw new Error('empty');
       var day = document.getElementById('ac-day');
       if (day && d.dayLabel) day.textContent = d.dayLabel;
       var keep = document.getElementById('ac-keeper');
-      if (keep && d.keeper_note) keep.textContent = d.keeper_note + ' The staff coordinate here all day. It\'s their channel. You\'re welcome to read over their shoulders.';
+      if (keep) keep.textContent = 'The campus coordinates here all day. It\'s their channel. You\'re welcome to read over their shoulders.';
       /* Live-clock reveal: the day's thread is written, but messages only
          appear once their timestamp has passed (ET). At 8:40 you see the
          morning; the channel fills in as the day goes. Newest on top so

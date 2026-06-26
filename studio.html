@@ -773,46 +773,20 @@
       <div id="floor-column">
         <div id="floor-header">
           <div id="floor-tag">The Floor</div>
-          <div id="floor-sub">your staff, talking to each other</div>
+          <div id="floor-sub">the ETL campus, live</div>
           <button type="button" id="floor-toggle" aria-expanded="false">
             <span id="floor-toggle-label">▸ open the Floor</span>
           </button>
         </div>
         <div id="floor-body" style="display:none;">
-          <!-- Two channels: Workfloor (work focus) and Watercooler (lighthearted
-               off-topic). Each tab has its own thread state; switching is
-               instant once loaded. First open of either tab fetches fresh. -->
+          <!-- One channel now: the ETL Campus broadcast. Read-only mirror of
+               /etl-banter-feed, the same shared agency-floor feed the homepage
+               and broadcast page show. No per-studio generation, no auth, no
+               spend. (Replaced the legacy Workfloor/Watercooler two-tab Floor.) -->
           <div id="floor-tabs" role="tablist">
-            <button type="button" class="floor-tab is-active" data-mode="workfloor" role="tab" aria-selected="true">Workfloor</button>
-            <button type="button" class="floor-tab" data-mode="watercooler" role="tab" aria-selected="false">Watercooler</button>
+            <button type="button" class="floor-tab is-active" role="tab" aria-selected="true" tabindex="-1">ETL Campus</button>
           </div>
-          <!-- LIVE bar: shows freshness + next-refresh countdown. The tab is
-               a TV channel; this is the on-air dot + the "next episode in"
-               clock. Cache rule: 30-min cap, regen on open if stale, auto
-               regen-on-poll while the tab stays open. -->
-          <div id="floor-live-bar" style="display:none;" aria-live="polite">
-            <span class="floor-live-dot">●</span>
-            <span class="floor-live-label">LIVE</span>
-            <span id="floor-live-age" class="floor-live-meta">just now</span>
-            <span id="floor-live-next" class="floor-live-meta"></span>
-          </div>
-          <div id="floor-status" style="display:none;"></div>
           <div id="floor-thread"></div>
-          <div id="floor-footer" style="display:none;">
-            <button type="button" id="floor-refresh">↻ refresh the channel</button>
-            <button type="button" id="floor-save" title="Copy this thread to clipboard + archive to highlights for the sales deck">📋 save this moment</button>
-            <span id="floor-context-note"></span>
-            <span id="floor-save-status"></span>
-          </div>
-          <!-- DVR scroll: last 7 days of episodes, grouped by day, newest
-               first. Click any prior episode to replay inline. -->
-          <div id="floor-dvr" style="display:none;">
-            <div class="floor-dvr-head">
-              <span class="floor-dvr-title">Earlier episodes</span>
-              <span class="floor-dvr-hint">last 7 days &middot; click to replay</span>
-            </div>
-            <ul id="floor-dvr-list"></ul>
-          </div>
         </div>
       </div>
     </div>
@@ -3447,16 +3421,98 @@
      today. Refresh button at the bottom for re-generating. -->
 <script>
 (function(){
+  // ── ETL CAMPUS FEED ──────────────────────────────────────────────────
+  // The Floor now shows ONE channel: the shared campus broadcast
+  // (etl-banter-feed), the same feed the homepage and broadcast page show.
+  // Read-only, public, no per-studio generation, no auth, no spend. This
+  // block supersedes the legacy two-tab Workfloor/Watercooler machinery
+  // below, which is left in place but UNREACHABLE (early return) pending a
+  // cleanup pass.
   var toggle      = document.getElementById('floor-toggle');
   var toggleLabel = document.getElementById('floor-toggle-label');
   var body        = document.getElementById('floor-body');
   var thread      = document.getElementById('floor-thread');
-  var statusEl    = document.getElementById('floor-status');
-  var footer      = document.getElementById('floor-footer');
-  var refreshBtn  = document.getElementById('floor-refresh');
-  var contextNote = document.getElementById('floor-context-note');
-  var tabButtons  = document.querySelectorAll('.floor-tab');
   if (!toggle || !thread) return;
+  var auggieRow   = document.querySelector('.auggie-row');
+
+  function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function fmtTime(ts){
+    try { return new Date(ts).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}); }
+    catch(_) { return ''; }
+  }
+
+  var lastTs = 0, seeded = false, pollTimer = null, placeholder = null;
+  var MAX = 40;
+
+  function renderRow(agent, time, text){
+    if (placeholder) { placeholder.remove(); placeholder = null; }
+    var row = document.createElement('div');
+    row.className = 'floor-msg';
+    row.innerHTML =
+      '<div class="floor-msg-head">' +
+        '<span class="floor-msg-speaker">' + escHtml(agent || 'staff') + '</span>' +
+        '<span class="floor-msg-time">' + escHtml(time || '') + '</span>' +
+      '</div>' +
+      '<div class="floor-msg-text">' + escHtml(text || '').replace(/\n/g,'<br>') + '</div>';
+    thread.insertBefore(row, thread.firstChild);
+    while (thread.children.length > MAX) thread.removeChild(thread.lastChild);
+  }
+
+  function poll(){
+    fetch('/.netlify/functions/etl-banter-feed', { cache:'no-store' })
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        var all = (d && d.messages) || [];
+        var nowMs = Date.now();
+        var fresh = all.filter(function(m){ return (m.ts||0) > lastTs && (m.ts||0) <= nowMs; });
+        if (!seeded && fresh.length > 8) fresh = fresh.slice(0, 8);
+        fresh.slice().reverse().forEach(function(m){
+          renderRow(m.agent, m.time || fmtTime(m.ts), m.message);
+          if ((m.ts||0) > lastTs) lastTs = m.ts;
+        });
+        seeded = true;
+      })
+      .catch(function(){})
+      .finally(function(){ pollTimer = setTimeout(poll, 10000); });
+  }
+  function startPoll(){ if (pollTimer) return; poll(); }
+  function stopPoll(){ if (pollTimer) { clearTimeout(pollTimer); pollTimer = null; } }
+
+  function openFloor(){
+    toggle.setAttribute('aria-expanded','true');
+    toggleLabel.textContent = '▾ close the Floor';
+    body.style.display = 'flex';
+    if (auggieRow) auggieRow.classList.remove('floor-collapsed');
+    if (thread.children.length === 0) {
+      thread.innerHTML = '';
+      placeholder = document.createElement('div');
+      placeholder.style.cssText = 'font-family:Cormorant Garamond,serif;font-style:italic;color:#9a8e7e;padding:14px 4px;';
+      placeholder.textContent = 'tuning in to the ETL campus...';
+      thread.appendChild(placeholder);
+    }
+    startPoll();
+  }
+  function closeFloor(){
+    toggle.setAttribute('aria-expanded','false');
+    toggleLabel.textContent = '▸ open the Floor';
+    body.style.display = 'none';
+    if (auggieRow) auggieRow.classList.add('floor-collapsed');
+    stopPoll();
+  }
+
+  toggle.addEventListener('click', function(){
+    if (toggle.getAttribute('aria-expanded') === 'true') closeFloor();
+    else openFloor();
+  });
+  document.addEventListener('visibilitychange', function(){
+    if (toggle.getAttribute('aria-expanded') !== 'true') return;
+    if (document.visibilityState === 'hidden') stopPoll();
+    else startPoll();
+  });
+  window.addEventListener('pagehide', stopPoll);
+  return;
+  // ── LEGACY two-tab Floor machinery below is SUPERSEDED and UNREACHABLE ──
+  //    (kept temporarily; safe to delete in a cleanup pass)
 
   // Floor-as-TV: tune endpoint is the source of truth for episode state.
   // 30-min cache + DVR + telemetry all live server-side. This client just
