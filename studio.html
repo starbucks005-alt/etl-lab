@@ -1947,8 +1947,20 @@
   }
   window.copyStudioId = copyStudioId;
 
+  // Dev bypass: ?dev=etl2026 sets localStorage and skips the login wall (persists on device).
+  (function() {
+    var DEV_KEY = 'etl2026', LS_KEY = 'studio_dev';
+    var params = new URLSearchParams(window.location.search);
+    if (params.get('dev') === DEV_KEY) {
+      try { localStorage.setItem(LS_KEY, DEV_KEY); } catch(_) {}
+      history.replaceState(null, '', location.pathname);
+    }
+    window._studioDevMode = (localStorage.getItem(LS_KEY) === DEV_KEY);
+  })();
+
   // On load, check existing session and react.
   document.addEventListener('DOMContentLoaded', async function() {
+    if (window._studioDevMode) { showWorkspace(); return; }
     try {
       var s = await sb.auth.getSession();
       if (s && s.data && s.data.session) {
