@@ -307,8 +307,8 @@ function chipColor(n){
 function initials(n){return n.split(/\s+/).map(function(w){return w.charAt(0);}).slice(0,2).join('').toUpperCase();}
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 var DOT = '<span style="position:absolute;bottom:1px;right:1px;width:11px;height:11px;border-radius:50%;background:#22d47a;border:2px solid #07101e;animation:bc-blink 2s infinite;"></span>';
-function avatar(name){
-  var img = CAST_IMG[name];
+function avatar(name, img0){
+  var img = img0 || CAST_IMG[name];
   if(!img){var first=name.split(/\s+/)[0];for(var k in CAST_IMG){if(k.split(/\s+/)[0]===first){img=CAST_IMG[k];break;}}}
   var bg  = chipColor(name);
   var fb  = '<span style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:'+bg+';color:#fff;font-size:15px;font-weight:700;">'+esc(initials(name))+'</span>';
@@ -322,10 +322,10 @@ function fmtNow(){
   h=h%12||12;
   return h+':'+(m<10?'0':'')+m+' '+ap;
 }
-function buildMsg(name, role, time, text){
+function buildMsg(name, role, time, text, image){
   var roleSpan = role ? '<span style="font-size:10px;color:rgba(255,255,255,.28);font-family:\'IBM Plex Mono\',monospace;letter-spacing:.06em;">'+esc(role)+'</span>' : '';
   return '<div style="display:flex;gap:13px;align-items:flex-start;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.05);">'+
-    avatar(name)+
+    avatar(name, image)+
     '<div style="flex:1;min-width:0;">'+
       '<div style="display:flex;align-items:baseline;gap:7px;flex-wrap:wrap;margin-bottom:4px;">'+
         '<span style="font-size:14px;font-weight:700;color:rgba(0,200,255,.85);">'+esc(name)+'</span>'+
@@ -363,7 +363,7 @@ function pollBanter() {
       if (lastBanterTs === 0 && fresh.length > 8) fresh = fresh.slice(0, 8);
       // process oldest-of-fresh first; prepend each so newest lands at top
       fresh.slice().reverse().forEach(function(m){
-        appendMsg(buildMsg(m.agent||'Staff', m.role||'', m.time||'', m.message||''));
+        appendMsg(buildMsg(m.agent||'Staff', m.role||'', m.time||'', m.message||'', m.image));
         if((m.ts||0) > lastBanterTs) lastBanterTs = m.ts;
       });
       if (fresh.length > 0) feed.scrollTop = 0;

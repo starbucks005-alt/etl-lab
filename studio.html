@@ -3444,16 +3444,29 @@
   var lastTs = 0, seeded = false, pollTimer = null, placeholder = null;
   var MAX = 40;
 
-  function renderRow(agent, time, text){
+  function initials(s){ return String(s||'').split(/\s+/).map(function(w){ return w.charAt(0); }).slice(0,2).join('').toUpperCase(); }
+  function avatarHtml(agent, image){
+    var fb = '<span style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:#1f2a37;color:#e9e2d4;font-size:12px;font-weight:700;font-family:Public Sans,sans-serif;">' + escHtml(initials(agent)) + '</span>';
+    var wrap = 'flex:0 0 34px;height:34px;border-radius:5px;overflow:hidden;background:#1f2a37;';
+    if (image) {
+      return '<span style="' + wrap + '"><img src="/agents/' + escHtml(image) + '" alt="' + escHtml(agent) + '" style="width:100%;height:100%;object-fit:cover;object-position:center 22%;display:block;" onerror="this.parentNode.innerHTML=\'' + fb.replace(/'/g, "\\'") + '\'"></span>';
+    }
+    return '<span style="' + wrap + '">' + fb + '</span>';
+  }
+  function renderRow(agent, time, text, image){
     if (placeholder) { placeholder.remove(); placeholder = null; }
     var row = document.createElement('div');
     row.className = 'floor-msg';
+    row.style.cssText = 'display:flex;gap:10px;align-items:flex-start;';
     row.innerHTML =
-      '<div class="floor-msg-head">' +
-        '<span class="floor-msg-speaker">' + escHtml(agent || 'staff') + '</span>' +
-        '<span class="floor-msg-time">' + escHtml(time || '') + '</span>' +
-      '</div>' +
-      '<div class="floor-msg-text">' + escHtml(text || '').replace(/\n/g,'<br>') + '</div>';
+      avatarHtml(agent, image) +
+      '<div style="flex:1;min-width:0;">' +
+        '<div class="floor-msg-head">' +
+          '<span class="floor-msg-speaker">' + escHtml(agent || 'staff') + '</span>' +
+          '<span class="floor-msg-time">' + escHtml(time || '') + '</span>' +
+        '</div>' +
+        '<div class="floor-msg-text">' + escHtml(text || '').replace(/\n/g,'<br>') + '</div>' +
+      '</div>';
     thread.insertBefore(row, thread.firstChild);
     while (thread.children.length > MAX) thread.removeChild(thread.lastChild);
   }
@@ -3467,7 +3480,7 @@
         var fresh = all.filter(function(m){ return (m.ts||0) > lastTs && (m.ts||0) <= nowMs; });
         if (!seeded && fresh.length > 8) fresh = fresh.slice(0, 8);
         fresh.slice().reverse().forEach(function(m){
-          renderRow(m.agent, m.time || fmtTime(m.ts), m.message);
+          renderRow(m.agent, m.time || fmtTime(m.ts), m.message, m.image);
           if ((m.ts||0) > lastTs) lastTs = m.ts;
         });
         seeded = true;
