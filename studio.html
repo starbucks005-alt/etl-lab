@@ -644,6 +644,47 @@
           Late twenties, Cuban-American, Coral Gables family with Palm Springs summers. Three years as Devon's personal assistant on the Gauntlet bench before Dr. Oroszi hired him into the Studio. He holds your week and the editorial calendar. He watches the overlap.
         </p>
 
+        <!-- CV / résumé upload. The PA reads it once; studio-cv-ingest saves a
+             profile to owner_context, which the chat + the morning brief web
+             sweep already use to know the owner and search for what fits them. -->
+        <details style="margin-top:14px; border:1px solid var(--linen-edge); background:#fff;">
+          <summary style="cursor:pointer; padding:10px 12px; font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.14em; text-transform:uppercase; color:var(--brass);">Give your PA your CV / résumé</summary>
+          <div style="padding:4px 14px 14px; font-family:'Spectral',serif; font-size:14px; line-height:1.6; color:var(--ink-soft);">
+            <p style="margin:8px 0;">Upload your CV or résumé and your PA reads it once, so they know who you are, your field, and what you are working on, and the morning brief starts searching the web for what fits you.</p>
+            <input type="file" id="cv-upload-input" accept="application/pdf,.pdf,text/plain,.txt,.md,.markdown" style="display:none;">
+            <button type="button" id="cv-upload-btn" style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--brass); background:transparent; border:1px solid var(--brass); padding:8px 14px; cursor:pointer;">Upload CV / résumé</button>
+            <span id="cv-upload-status" style="margin-left:10px; font-size:12.5px; font-style:italic;"></span>
+            <div id="cv-upload-result" style="margin-top:12px; display:none; white-space:pre-wrap; font-family:'IBM Plex Mono',monospace; font-size:11.5px; line-height:1.5; color:var(--ink); background:var(--linen-light); border:1px solid var(--linen-edge); padding:10px 12px;"></div>
+            <p style="margin:10px 0 0; font-size:12px;">PDF or plain text for now. Stored privately, never shown on any page.</p>
+          </div>
+        </details>
+        <script>
+        (function(){
+          var btn=document.getElementById('cv-upload-btn'), inp=document.getElementById('cv-upload-input');
+          var st=document.getElementById('cv-upload-status'), res=document.getElementById('cv-upload-result');
+          if(!btn||!inp) return;
+          function status(m){ if(st) st.textContent=m||''; }
+          async function token(){ try{ var s=await window.studioSb.auth.getSession(); return s&&s.data&&s.data.session&&s.data.session.access_token; }catch(_){ return null; } }
+          function readFile(file){ return new Promise(function(resolve,reject){ var fr=new FileReader(); fr.onerror=function(){ reject(new Error('could not read the file')); }; if(file.type==='application/pdf'||/\.pdf$/i.test(file.name)){ fr.onload=function(){ var d=String(fr.result); var i=d.indexOf(','); resolve({document:{mediaType:'application/pdf', base64:d.slice(i+1), name:file.name}}); }; fr.readAsDataURL(file); } else { fr.onload=function(){ resolve({text:String(fr.result)}); }; fr.readAsText(file); } }); }
+          btn.addEventListener('click', function(){ inp.click(); });
+          inp.addEventListener('change', async function(){
+            var f=inp.files&&inp.files[0]; if(!f){ return; }
+            if(window.__previewMode){ status('read-only preview'); inp.value=''; return; }
+            if(f.size>10*1024*1024){ status('that file is over 10MB'); inp.value=''; return; }
+            btn.disabled=true; btn.style.opacity='0.6'; status('reading your CV…'); if(res) res.style.display='none';
+            try{
+              var payload=await readFile(f);
+              var tk=await token(); if(!tk){ status('sign in first'); btn.disabled=false; btn.style.opacity=''; inp.value=''; return; }
+              var r=await fetch('/.netlify/functions/studio-cv-ingest',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tk},body:JSON.stringify(payload)});
+              var j=await r.json().catch(function(){return{};});
+              if(r.ok&&j.ok){ status('done — your PA now knows you.'); if(res&&j.profile){ res.textContent=j.profile; res.style.display=''; } }
+              else { status('snag: '+(j.message||j.error||('HTTP '+r.status))); }
+            }catch(e){ status('error: '+(e&&e.message)); }
+            btn.disabled=false; btn.style.opacity=''; inp.value='';
+          });
+        })();
+        </script>
+
         <!-- Calendar hookup instructions. The PA reads the owner's REAL week
              from a published Outlook ICS feed; pasting the link into the chat
              stores it (studio-auggie-chat) and the morning brief reads it. -->
@@ -1322,8 +1363,8 @@
     // Each agent -> what they make + the exact command to give the PA. {match}
     // tests the staff id and name; the card renders only if that agent is hired.
     var CAPS = [
-      { match:/reid/i,             label:'Reid Callum',    makes:'Personalized one-pagers and sponsor pitches.',        cmd:'have Reid make a one-pager for [who it is for]', tool:'cc-reid' },
-      { match:/yuki/i,             label:'Yuki Mendel',    makes:'Brand and design: logos, decks, a full brand kit.',   cmd:'have Yuki build my brand kit' },
+      { match:/reid/i,             label:'Reid Callum',    makes:'Personalized one-pagers and sponsor pitches.',        cmd:'have Reid make a one-pager for [who it is for]', tool:'cc-reid', example:'/reid-sample-inma-sponsorship.html' },
+      { match:/yuki/i,             label:'Yuki Mendel',    makes:'Brand and design: logos, decks, a full brand kit.',   cmd:'have Yuki build my brand kit', example:'/yuki.html' },
       { match:/jax/i,              label:'Jax Rivera',     makes:'SEO and discovery reports for your site.',            cmd:'have Jax run an SEO report on [your site]' },
       { match:/zara/i,             label:'Zara Cole',      makes:'Social posts that get seen.',                         cmd:'have Zara write a post about [topic]', tool:'cc-social' },
       { match:/(sneha|ayanna)/i,   label:'Sneha & Ayanna', makes:'Communications and field-aware social.',              cmd:'have the social team post about [topic]', tool:'cc-social' },
@@ -1332,51 +1373,64 @@
       { match:/(professor|fact)/i, label:'The Professor',  makes:'Fact-checks and plain-language research.',            cmd:'have the Professor fact-check [this]' }
     ];
 
-    function card(tag, tagColor, body, sayLine, toolId){
-      var toolBtn = toolId ? '<a href="#' + toolId + '" onclick="var e=document.getElementById(\'' + toolId + '\'); if(e){e.scrollIntoView({behavior:\'smooth\'});} return false;" style="display:inline-block;margin-top:10px;font-family:\'Public Sans\',sans-serif;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--brass);text-decoration:underline;">Or use the tool &rarr;</a>' : '';
+    function card(tag, tagColor, body, sayLine, toolId, exampleUrl){
+      var toolBtn = toolId ? '<a href="#' + toolId + '" onclick="var e=document.getElementById(\'' + toolId + '\'); if(e){e.scrollIntoView({behavior:\'smooth\'});} return false;" style="display:inline-block;margin-top:10px;margin-right:16px;font-family:\'Public Sans\',sans-serif;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--brass);text-decoration:underline;">Or use the tool &rarr;</a>' : '';
+      var exBtn = exampleUrl ? '<a href="' + exampleUrl + '" target="_blank" rel="noopener" style="display:inline-block;margin-top:10px;font-family:\'Public Sans\',sans-serif;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--brass);text-decoration:underline;">See an example &rarr;</a>' : '';
       return '<div style="background:var(--linen-light);border:1px solid var(--linen-edge);border-left:3px solid var(--brass);padding:20px 22px;">' +
         '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:10px;letter-spacing:.16em;color:' + tagColor + ';text-transform:uppercase;margin-bottom:6px;">' + tag + '</div>' +
         '<div style="font-family:\'Spectral\',serif;font-size:15px;color:var(--ink);line-height:1.5;margin-bottom:10px;">' + body + '</div>' +
         '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:12px;color:var(--ink-soft);background:#fff;border:1px solid var(--linen-edge);padding:8px 10px;line-height:1.5;">' + sayLine + '</div>' +
-        toolBtn +
+        toolBtn + exBtn +
       '</div>';
     }
 
     function render(){
-      var hs = Array.isArray(window.__hiredStaff) ? window.__hiredStaff : [];
       // The "The staff" grid above is the authoritative bench for this studio
-      // (its cards are filtered per owner). Match against its visible names too,
-      // so this panel mirrors exactly the team shown above instead of only the
-      // formal hired_staff entries (which for the owner are just the 2 Dose
-      // specialists, so the panel used to show the PA alone).
-      var gridNames = Array.prototype.slice.call(document.querySelectorAll('.staff-grid .staff-card'))
+      // (filtered per owner). Build a card for EVERY visible teammate, so all of
+      // a buyer's hires show here, not only the ones with a hardcoded skill. For
+      // a known agent we use the rich capability + command (+ work example); for
+      // everyone else we generate a card from their own role and description.
+      var bench = Array.prototype.slice.call(document.querySelectorAll('.staff-grid .staff-card'))
         .filter(function(c){ return c.offsetParent !== null; })
-        .map(function(c){ var n = c.querySelector('.staff-name'); return n ? n.textContent.trim() : ''; })
-        .filter(Boolean);
-      if (!hs.length && !gridNames.length) return false;
-      function onTeam(cap){
-        return hs.some(function(s){ return s && (cap.match.test(s.id||'') || cap.match.test(s.name||'')); })
-            || gridNames.some(function(nm){ return cap.match.test(nm); });
-      }
+        .map(function(c){
+          var n = c.querySelector('.staff-name'), r = c.querySelector('.staff-role'), w = c.querySelector('.staff-current');
+          return { name: n ? n.textContent.trim() : '', role: r ? r.textContent.trim() : '', why: w ? w.textContent.trim() : '' };
+        })
+        .filter(function(s){ return s.name; });
+      if (!bench.length) return false;
       var pa = window.__paFirstName || 'your PA';
-      var cards = [];
+      var out = [], seen = {};
       // The PA, always first: the voice and the everyday tools.
-      cards.push(card(
+      out.push(card(
         escH(pa) + ' &middot; your PA', 'var(--brass)',
         'Runs your week, reads your calendar, scans the web for mentions of you, and hands work to the rest of the team.',
         'Try: &ldquo;' + escH(pa) + ', any new mentions of me this week?&rdquo; &nbsp;or attach a spreadsheet and ask ' + escH(pa) + ' to edit it.',
-        null
+        null, null
       ));
-      CAPS.forEach(function(cap){
-        if (!onTeam(cap)) return;
-        cards.push(card(
-          escH(cap.label), 'var(--ink-soft)',
-          escH(cap.makes),
-          'Say: &ldquo;' + escH(pa) + ', ' + escH(cap.cmd) + '.&rdquo;',
-          cap.tool
-        ));
+      bench.forEach(function(s){
+        // The PA is rendered above; skip its grid card and any duplicate.
+        if (/^pa$/i.test(s.role) || /personal assistant/i.test(s.role)) return;
+        var key = s.name.toLowerCase();
+        if (seen[key]) return; seen[key] = 1;
+        var cap = null;
+        for (var i = 0; i < CAPS.length; i++) { if (CAPS[i].match.test(s.name)) { cap = CAPS[i]; break; } }
+        if (cap) {
+          out.push(card(escH(cap.label), 'var(--ink-soft)', escH(cap.makes),
+            'Say: &ldquo;' + escH(pa) + ', ' + escH(cap.cmd) + '.&rdquo;', cap.tool, cap.example));
+        } else {
+          // Generic teammate: their own role + description, with a clean dispatch
+          // command that always reads well regardless of the role noun.
+          var first = s.name.replace(/^(dr\.?|ms\.?|mr\.?|mrs\.?)\s+/i, '').split(/\s+/)[0];
+          var makes = s.why || (s.role ? (s.role + '.') : 'On your bench, ready when you are.');
+          out.push(card(
+            escH(s.name) + (s.role ? ' &middot; ' + escH(s.role) : ''), 'var(--ink-soft)',
+            escH(makes),
+            'Say: &ldquo;' + escH(pa) + ', bring ' + escH(first) + ' in on this.&rdquo;',
+            null, null
+          ));
+        }
       });
-      grid.innerHTML = cards.join('');
+      grid.innerHTML = out.join('');
       section.style.display = '';
       return true;
     }
