@@ -673,7 +673,7 @@
                brief exists in Netlify Blobs. -->
           <div id="auggie-brief-panel" style="display:none; margin-bottom:18px; padding:14px 16px; background:#0e0c08; color:#f4ebd6; border-left:3px solid var(--brass);">
             <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.18em; color:var(--brass); text-transform:uppercase; margin-bottom:6px;">
-              <span id="auggie-brief-speaker">Auggie</span> <span id="auggie-brief-date" style="color:#d6cfc0; margin-left:8px;"></span>
+              <span id="auggie-brief-speaker">Chief of Staff</span> <span id="auggie-brief-date" style="color:#d6cfc0; margin-left:8px;"></span>
               <span id="auggie-brief-length" style="color:#d6cfc0; margin-left:8px;"></span>
             </div>
             <div id="auggie-brief-transcript" style="font-family:'Spectral',serif; font-size:15px; line-height:1.55; color:#f4ebd6; white-space:pre-wrap; margin-bottom:10px;"></div>
@@ -3510,7 +3510,12 @@
 
   async function loadAuggieBrief(){
     // The morning brief is private to each owner; never load it in a preview.
+    // Check the ?as= URL param directly, not just window.__previewMode: the flag
+    // is set asynchronously by the config load, and this brief fetch can win the
+    // race and render the OWNER's brief inside a client's studio (the "Ms. Terry
+    // brief in Vikram's studio" leak). The URL is authoritative and synchronous.
     if (window.__previewMode) return;
+    try { if (new URLSearchParams(location.search).get('as')) return; } catch (_) {}
     var panel       = document.getElementById('auggie-brief-panel');
     var emptyPanel  = document.getElementById('auggie-brief-empty');
     var dateLabel   = document.getElementById('auggie-brief-date');
@@ -5151,7 +5156,10 @@ h1 em,h2 em{font-weight:300;color:#28527a}
       if ((idEl = document.getElementById('auggie-call-persona-name'))) idEl.textContent = paName;
       if ((idEl = document.querySelector('.auggie-call-status-text'))) idEl.textContent = window.__paFirstName + ' is on.';
       if ((idEl = document.getElementById('pa-zoom-label')))    idEl.textContent = 'Click to join ' + window.__paFirstName + '’s Zoom';
-      if ((idEl = document.getElementById('auggie-brief-speaker'))) idEl.textContent = window.__paFirstName;
+      // The brief is the Chief-of-Staff briefing, a role, not the PA's name
+      // (Dr. O: "should not be called AUGGIE"). The PA's name still appears on
+      // the PA card and in the chat; the brief header is role-titled.
+      if ((idEl = document.getElementById('auggie-brief-speaker'))) idEl.textContent = 'Chief of Staff';
       // ── OWNER ADDRESS (never leave another buyer reading "Ms. Terry") ──────
       // The static greeting bubble + its play button ship with "Ms. Terry"
       // baked in (Auggie's default owner). For ANY other owner that is the
@@ -5446,16 +5454,28 @@ h1 em,h2 em{font-weight:300;color:#28527a}
       'Rowan Tate':            { open: '/agents/Rowan_Tate_eyes_open.png',    closed: '/agents/Rowan_Tate_eyes_closed.png' },
       'Dr. Henry Chen, RPh':   { open: '/agents/Henry_eyes_open.png',         closed: '/agents/Henry_eyes_open.png' },
       'Maeve "MJ" Johnson':    { open: '/agents/MJ_profile2.png',             closed: '/agents/MJ_profile2.png' },
+      // Buyer-studio staff that were falling back to initials (e.g. Vikram's
+      // bench): Jen (his PA), Jax, Zara. Portrait files are deployed in /agents.
+      'Jen Lopez':             { open: '/agents/Jen_Lopez_Eyes_Open.png',     closed: '/agents/Jen_Lopez_Eyes_Closed.png' },
+      'Jax Rivera':            { open: '/agents/Jax_Rivera_eyes_open.png',    closed: '/agents/Jax_Rivera_eyes_closed.png' },
+      'Zara Cole':             { open: '/agents/Zara_eyes_open.png',          closed: '/agents/Zara_eyes_closed.png' },
     };
 
     // Pull the roster JSON once for portrait + role lookups (fallback
     // when no portrait pair exists yet for someone in hired_staff)
     var rosterByName = {};
     try {
-      var r = await fetch('/data/etl-agents-roster.json', { cache: 'no-store' });
+      // roster.json (repo root) is the CANONICAL cast file: all 126 agents,
+      // each with a real image_url. data/etl-agents-roster.json is a stale
+      // mid-month operational copy with NO image_url on any agent, which is
+      // why buyer staff (Jax, Zara, ...) fell back to initials. Read the
+      // canonical file so every agent resolves a portrait with zero hand-
+      // mapping. Flat array here; tolerate the {agents:[...]} shape too.
+      var r = await fetch('/roster.json', { cache: 'no-store' });
       if (r.ok) {
         var data = await r.json();
-        (data.agents || []).forEach(function(a){ if (a && a.name) rosterByName[a.name] = a; });
+        var list = Array.isArray(data) ? data : (data.agents || []);
+        list.forEach(function(a){ if (a && a.name) rosterByName[a.name] = a; });
       }
     } catch (_) {}
 
