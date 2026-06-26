@@ -128,7 +128,11 @@ function fixtureToStudioConfig(fixture, user) {
     id: s.id || null,
     name: s.name, role: s.role, tier: s.tier, price: s.price,
     backpack: !!s.backpack, why: s.why || '',
-    contract: 'standing', hired_at: acct.created_at || null,
+    // Default 'standing', but preserve a gifted/comped contract so a staffer
+    // given to the owner at no charge (e.g. Rowan -> Vikram) shows as a Gift,
+    // not as a normal billed hire.
+    contract: /gift|given|comp/i.test(s.contract || '') ? 'gift' : 'standing',
+    hired_at: acct.created_at || null,
     free_assistant: s.free_assistant || null,
   }));
   const sixpack = (co.sixpack_members || []).map(s => ({

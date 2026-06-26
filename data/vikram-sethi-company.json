@@ -112,18 +112,16 @@
         "backpack": false,
         "contract": "Standing",
         "why": "Social and influence strategy: the get-seen half of client acquisition, alongside Reid (positioning) and Jax (search)."
-      }
-    ],
-    "staff_pending": [
+      },
       {
         "id": "rowan_tate",
         "name": "Rowan Tate",
         "role": "Quant Strategist",
         "tier": "csuite_mcp",
-        "price": 119,
+        "price": 0,
         "backpack": true,
-        "contract": "Pending",
-        "why": "Markets and Robinhood, advise mode (read + prepare orders, owner confirms). Joins the company and the bill when his trading desk is live. Autonomous execution is a later graduation behind the four risk pillars and legal review."
+        "contract": "Gift",
+        "why": "Markets and Robinhood, advise mode (read + prepare orders, owner confirms). Given to Vikram at no charge; autonomous execution comes later behind the four risk pillars and legal review."
       }
     ],
     "beat": "B2B technology; winning US/global clients for an India-based firm; market positioning and outbound."
