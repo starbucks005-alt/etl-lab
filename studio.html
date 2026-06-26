@@ -557,6 +557,7 @@
     <span class="session-pill" id="session-pill">Not signed in</span>
     <button type="button" id="copy-studio-id-btn" style="display:none;background:none;border:1px solid rgba(255,255,255,0.35);color:inherit;font:inherit;font-size:0.78rem;padding:2px 8px;border-radius:4px;cursor:pointer;opacity:0.75;" title="Share this ID with a friend to connect your PA with theirs" onclick="copyStudioId()">Copy Studio ID</button>
     <a href="#" id="signout-btn" style="display:none;" onclick="event.preventDefault(); signOut();">Sign out</a>
+    <a href="/studios" id="studios-link" style="display:none;" title="Keys to every studio (owner only)">Studios</a>
     <a href="/">&larr; ETL Home</a>
   </div>
 </header>
@@ -1787,6 +1788,15 @@
     document.getElementById('session-pill').textContent = 'Signed in';
     document.getElementById('signout-btn').style.display = 'inline';
     document.getElementById('copy-studio-id-btn').style.display = 'inline-block';
+    // Owner-only: reveal the landlord "Studios" link (keys to every studio).
+    (async function(){
+      try {
+        var s = await sb.auth.getSession();
+        var em = s && s.data && s.data.session && s.data.session.user && (s.data.session.user.email || '').toLowerCase();
+        var el = document.getElementById('studios-link');
+        if (el && em === 'starbucks005@gmail.com') el.style.display = 'inline';
+      } catch (_) {}
+    })();
     // Fetch real workspace content from auth-gated endpoint. Until this
     // returns, the user sees the public placeholders ('Sign in to see...').
     loadWorkspaceContent().catch(function(e){ console.warn('workspace load failed', e && e.message); });

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Studios · Keys to the Building</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%231a2632'/><text y='70' x='50' text-anchor='middle' font-size='52' font-family='serif' font-weight='bold' fill='%23b08d4f'>ETL</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Public+Sans:wght@300;400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --linen:#f3f1ec; --paper:#fbfaf6; --ink:#1a2632; --ink-soft:#5c6b7a; --brass:#b08d4f; --navy:#1f3a5f; --edge:#e3ded3; }
+  *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Public Sans',sans-serif; background:var(--linen); color:var(--ink); min-height:100vh; }
+  a { color:inherit; }
+  header { display:flex; align-items:center; justify-content:space-between; padding:18px 28px; background:var(--ink); color:#fff; }
+  .brand { font-family:'Cormorant Garamond',serif; font-size:22px; font-weight:700; }
+  .brand span { color:var(--brass); }
+  .hbtn { font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:rgba(255,255,255,0.6); border:1px solid rgba(255,255,255,0.18); background:transparent; padding:7px 14px; cursor:pointer; text-decoration:none; }
+  .hbtn:hover { color:var(--brass); border-color:var(--brass); }
+  main { max-width:1100px; margin:0 auto; padding:40px 28px 80px; }
+  h1 { font-family:'Cormorant Garamond',serif; font-size:40px; font-weight:700; line-height:1.05; }
+  .sub { color:var(--ink-soft); font-size:15px; margin:8px 0 6px; font-style:italic; font-family:'Cormorant Garamond',serif; }
+  .note { color:var(--ink-soft); font-size:12px; font-family:'IBM Plex Mono',monospace; letter-spacing:0.04em; margin-bottom:32px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:18px; }
+  .card { background:var(--paper); border:1px solid var(--edge); padding:24px 26px; display:flex; flex-direction:column; }
+  .badge { align-self:flex-start; font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.16em; text-transform:uppercase; padding:4px 9px; margin-bottom:14px; border:1px solid var(--edge); color:var(--ink-soft); }
+  .badge.owner { color:var(--brass); border-color:var(--brass); }
+  .badge.fixture { color:var(--navy); border-color:var(--navy); }
+  .badge.self_serve { color:#2d6a4f; border-color:#2d6a4f; }
+  .co { font-family:'Cormorant Garamond',serif; font-size:24px; font-weight:700; line-height:1.15; }
+  .owner-name { font-size:13px; color:var(--ink); margin-top:4px; font-weight:600; }
+  .owner-title { font-size:12px; color:var(--ink-soft); margin-top:3px; line-height:1.45; }
+  .email { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink-soft); margin-top:12px; word-break:break-all; }
+  .enter { margin-top:20px; display:inline-block; text-align:center; font-family:'Public Sans',sans-serif; font-size:12px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; padding:11px 18px; background:var(--ink); color:#fff; text-decoration:none; }
+  .enter:hover { background:var(--brass); color:var(--ink); }
+  .enter.owner { background:var(--brass); color:var(--ink); }
+  .status { color:var(--ink-soft); font-size:14px; padding:40px 4px; font-family:'Cormorant Garamond',serif; font-style:italic; }
+  /* Login wall */
+  .login-wall { max-width:380px; margin:80px auto; padding:36px 30px; background:var(--paper); border:1px solid var(--edge); }
+  .login-wall h2 { font-family:'Cormorant Garamond',serif; font-size:26px; font-weight:700; margin-bottom:6px; }
+  .login-wall p { color:var(--ink-soft); font-size:13px; margin-bottom:18px; }
+  .login-wall input { width:100%; padding:11px 13px; margin-bottom:10px; border:1px solid var(--edge); font-family:'Public Sans',sans-serif; font-size:14px; }
+  .login-wall button { width:100%; padding:12px 16px; border:none; background:var(--ink); color:#fff; font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.06em; cursor:pointer; }
+  .login-wall .ghost { background:transparent; border:1px solid var(--edge); color:var(--ink-soft); margin-top:10px; }
+  .login-status { font-size:12px; color:var(--ink-soft); margin-top:10px; min-height:16px; font-family:'IBM Plex Mono',monospace; }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">THE <span>STUDIOS</span></div>
+  <div style="display:flex; gap:10px; align-items:center;">
+    <a class="hbtn" href="/studio">My Studio</a>
+    <a class="hbtn" href="/">ETL Home</a>
+    <button class="hbtn" id="signout-btn" style="display:none;" onclick="signOut()">Sign out</button>
+  </div>
+</header>
+
+<!-- Login wall -->
+<div class="login-wall" id="login-wall" style="display:none;">
+  <h2>Keys to the Building</h2>
+  <p>Owner access only. Sign in with your email and password, or a magic link.</p>
+  <form id="login-form" onsubmit="event.preventDefault(); signInWithPassword();">
+    <input type="email" id="login-email" placeholder="email" autocomplete="username" required>
+    <input type="password" id="login-password" placeholder="password (leave blank for magic link)" autocomplete="current-password">
+    <button type="submit">Sign in</button>
+  </form>
+  <button class="ghost" onclick="sendMagicLink()">Send magic link instead</button>
+  <div class="login-status" id="login-status"></div>
+</div>
+
+<main id="main" style="display:none;">
+  <h1>Your Studios</h1>
+  <div class="sub">Keys to the building. Walk into any studio to check it is working.</div>
+  <div class="note">Read-only. Sold and future studios appear here automatically. Entering opens that studio in preview mode, nothing you do is saved to their account.</div>
+  <div class="status" id="status">Loading the directory&hellip;</div>
+  <div class="grid" id="grid"></div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  var SUPABASE_URL = 'https://ulvrnermyuvzanxhxoib.supabase.co';
+  var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsdnJuZXJteXV2emFueGh4b2liIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3MzYyMDEsImV4cCI6MjA5NjMxMjIwMX0.tAaXhm_pb-DxrYsXYw1DvvYENDJ_y3jlt2nGWSp2lbA';
+  var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
+
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+
+  function showLogin(msg){
+    document.getElementById('login-wall').style.display = '';
+    document.getElementById('main').style.display = 'none';
+    document.getElementById('signout-btn').style.display = 'none';
+    if (msg) document.getElementById('login-status').textContent = msg;
+  }
+  function showMain(){
+    document.getElementById('login-wall').style.display = 'none';
+    document.getElementById('main').style.display = '';
+    document.getElementById('signout-btn').style.display = '';
+  }
+
+  async function signInWithPassword(){
+    var email = document.getElementById('login-email').value.trim();
+    var password = document.getElementById('login-password').value;
+    if (!password) { sendMagicLink(); return; }
+    document.getElementById('login-status').textContent = 'Signing in&hellip;';
+    var r = await sb.auth.signInWithPassword({ email: email, password: password });
+    if (r.error) { document.getElementById('login-status').textContent = r.error.message; return; }
+    load();
+  }
+  async function sendMagicLink(){
+    var email = document.getElementById('login-email').value.trim();
+    if (!email) { document.getElementById('login-status').textContent = 'Enter your email first.'; return; }
+    var r = await sb.auth.signInWithOtp({ email: email, options: { emailRedirectTo: window.location.origin + '/studios.html' } });
+    document.getElementById('login-status').textContent = r.error ? r.error.message : 'Magic link sent. Check your email.';
+  }
+  async function signOut(){ try { await sb.auth.signOut(); } catch(_){} showLogin('Signed out.'); }
+
+  function badgeLabel(s){
+    if (s.source === 'owner') return 'Your studio';
+    if (s.source === 'self_serve') return s.paid ? 'Self-serve · paid' : 'Self-serve';
+    return 'Provisioned';
+  }
+  function render(data){
+    var grid = document.getElementById('grid');
+    var status = document.getElementById('status');
+    var list = (data && data.studios) || [];
+    if (!list.length) { status.textContent = 'No studios yet.'; grid.innerHTML = ''; return; }
+    status.style.display = 'none';
+    grid.innerHTML = list.map(function(s){
+      var href = (s.source === 'owner') ? '/studio' : ('/studio?as=' + encodeURIComponent(s.email));
+      var alts = (s.alt_emails && s.alt_emails.length) ? '<div class="email">also: ' + s.alt_emails.map(esc).join(', ') + '</div>' : '';
+      return '<div class="card">'
+        + '<span class="badge ' + esc(s.source) + '">' + esc(badgeLabel(s)) + '</span>'
+        + '<div class="co">' + esc(s.company_name) + '</div>'
+        + '<div class="owner-name">' + esc(s.owner_name) + '</div>'
+        + (s.owner_title ? '<div class="owner-title">' + esc(s.owner_title) + '</div>' : '')
+        + '<div class="email">' + esc(s.email) + '</div>'
+        + alts
+        + '<a class="enter ' + (s.source === 'owner' ? 'owner' : '') + '" href="' + href + '">'
+        + (s.source === 'owner' ? 'Open my studio &rarr;' : 'Enter (read only) &rarr;') + '</a>'
+        + '</div>';
+    }).join('');
+  }
+
+  async function load(){
+    var s = await sb.auth.getSession();
+    var token = s && s.data && s.data.session && s.data.session.access_token;
+    if (!token) { showLogin(); return; }
+    showMain();
+    try {
+      var r = await fetch('/.netlify/functions/studio-list', { headers: { 'Authorization': 'Bearer ' + token }, cache: 'no-store' });
+      if (r.status === 403) { document.getElementById('status').textContent = 'This page is for the owner only.'; document.getElementById('status').style.display = ''; document.getElementById('grid').innerHTML = ''; return; }
+      if (r.status === 401) { showLogin('Session expired, sign in again.'); return; }
+      var data = await r.json();
+      render(data);
+    } catch (e) {
+      document.getElementById('status').textContent = 'Could not load the directory. Try a refresh.';
+      document.getElementById('status').style.display = '';
+    }
+  }
+
+  sb.auth.onAuthStateChange(function(event, session){ if (session) load(); });
+  load();
+</script>
+</body>
+</html>
