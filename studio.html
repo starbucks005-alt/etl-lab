@@ -1483,7 +1483,127 @@
 
       <div id="sp-error" style="display:none;margin-top:18px;padding:14px 18px;background:#f8e8e8;border:1px solid #d4a8a8;color:#7d2828;font-family:'Spectral',serif;font-size:14px;font-style:italic;"></div>
     </div>
+
+    <!-- Tool: One-Pagers (Reid). Standard for any owner with Reid Callum on
+         staff; hidden otherwise. Reid builds a personalized one-pager via
+         studio-reid-slick-ask -> studio-reid-slick-status -> /slick/<slug>. -->
+    <div id="cc-reid" style="display:none;background:var(--linen-light);border:1px solid var(--linen-edge);border-left:3px solid var(--brass);padding:28px 32px;margin-top:24px;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.18em;color:var(--brass);text-transform:uppercase;margin-bottom:10px;">One-Pagers</div>
+      <div style="font-family:'Spectral',serif;font-size:22px;font-weight:600;color:var(--ink);margin-bottom:6px;">Hand it to Reid.</div>
+      <p style="font-family:'Spectral',serif;font-style:italic;color:var(--ink-soft);font-size:16px;margin-bottom:18px;max-width:640px;">
+        Name who it is for and the angle. Reid writes a personalized one-pager and hands you a link you can share.
+      </p>
+      <div id="cc-reid-templates" style="font-family:'Spectral',serif;font-size:14px;color:var(--ink-soft);margin-bottom:22px;max-width:640px;"></div>
+
+      <div style="display:flex;flex-direction:column;gap:16px;max-width:640px;">
+        <div>
+          <label class="sp-q">1. Who is it for?</label>
+          <input id="reid-recipient" class="sp-input" type="text" placeholder="A sponsor, a company, a person, an organization...">
+        </div>
+        <div>
+          <label class="sp-q">2. The angle and details <span style="color:var(--ink-quiet);font-style:italic;font-weight:400;">(optional)</span></label>
+          <textarea id="reid-brief" class="sp-input" rows="3" placeholder="What should Reid emphasize? Real numbers, the ask, the value to them, the audience. Or say 'like the INMA example.'"></textarea>
+        </div>
+        <div><button type="button" id="reid-build" class="sp-cta">Build the one-pager</button></div>
+        <div id="reid-status" style="display:none;font-family:'Spectral',serif;font-style:italic;color:var(--ink-soft);font-size:15px;"></div>
+        <div id="reid-result" style="display:none;"></div>
+      </div>
+    </div>
   </section>
+
+  <script>
+  (function(){
+    var card = document.getElementById('cc-reid');
+    if (!card) return;
+    var recipientEl = document.getElementById('reid-recipient');
+    var briefEl     = document.getElementById('reid-brief');
+    var buildBtn    = document.getElementById('reid-build');
+    var statusEl    = document.getElementById('reid-status');
+    var resultEl    = document.getElementById('reid-result');
+    var tmplEl      = document.getElementById('cc-reid-templates');
+    function escH(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+
+    // Owner's saved example one-pagers (templates Reid can match). Standard set.
+    var TEMPLATES = [
+      { label: 'INMA event sponsorship', url: '/reid-sample-inma-sponsorship.html' },
+      { label: 'Angels Camp (mayor)',    url: '/reid-sample-angels-camp-sponsorship.html' }
+    ];
+
+    // Gate: reveal only when Reid Callum is on this owner's staff. Prefer the
+    // exposed config; fall back to scanning the rendered staff grid. Retry
+    // while the config is still loading.
+    function reidOnStaff(){
+      var hs = window.__hiredStaff;
+      if (Array.isArray(hs)) return hs.some(function(s){ return s && (/reid/i.test(s.id||'') || /reid\s+callum/i.test(s.name||'')); });
+      return /reid\s+callum/i.test(((document.getElementById('workspace')||document.body).textContent) || '');
+    }
+    function maybeReveal(tries){
+      if (reidOnStaff()) {
+        card.style.display = '';
+        tmplEl.innerHTML = 'See an example: ' + TEMPLATES.map(function(t){
+          return '<a href="' + t.url + '" target="_blank" rel="noopener" style="color:var(--brass);text-decoration:underline;">' + escH(t.label) + '</a>';
+        }).join(' &middot; ');
+        return;
+      }
+      if (tries > 0) setTimeout(function(){ maybeReveal(tries - 1); }, 800);
+    }
+    maybeReveal(8);
+
+    async function jwt(){
+      try { var s = await window.studioSb.auth.getSession(); return s && s.data && s.data.session && s.data.session.access_token; }
+      catch(_){ return null; }
+    }
+    var polling = false;
+    async function poll(endpoint, token){
+      for (var i = 0; i < 40 && polling; i++) {
+        await new Promise(function(r){ setTimeout(r, 3000); });
+        try {
+          var r2 = await fetch(endpoint, { headers: { 'Authorization': 'Bearer ' + token }, cache: 'no-store' });
+          var d = await r2.json();
+          if (d.view_url || d.status === 'done' || d.status === 'ready') return d;
+          if (d.status === 'failed' || d.error) return d;
+        } catch(_){}
+      }
+      return null;
+    }
+    buildBtn.addEventListener('click', async function(){
+      if (window.__previewMode) { statusEl.style.display=''; statusEl.textContent='Read-only preview. Open this studio for real to have Reid build one.'; return; }
+      var recipient = (recipientEl.value || '').trim();
+      if (!recipient) { statusEl.style.display=''; statusEl.textContent='Tell Reid who it is for first.'; recipientEl.focus(); return; }
+      var token = await jwt();
+      if (!token) { statusEl.style.display=''; statusEl.textContent='Sign in first.'; return; }
+      buildBtn.disabled = true; resultEl.style.display = 'none';
+      statusEl.style.display = ''; statusEl.textContent = 'Reid is building your one-pager for ' + recipient + '. Give him about a minute...';
+      try {
+        var r = await fetch('/.netlify/functions/studio-reid-slick-ask', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ recipient: recipient, brief: (briefEl.value || '').trim() || null })
+        });
+        var data = await r.json();
+        if (!r.ok || !data.polling_endpoint) { statusEl.textContent = 'Reid hit a snag starting that. Try again.'; buildBtn.disabled = false; return; }
+        polling = true;
+        var done = await poll(data.polling_endpoint, token);
+        polling = false; buildBtn.disabled = false;
+        if (done && done.view_url) {
+          statusEl.style.display = 'none'; resultEl.style.display = '';
+          resultEl.innerHTML =
+            '<div style="border:1px solid var(--linen-edge);background:#fff;padding:18px 20px;">' +
+              '<div style="font-family:\'Spectral\',serif;font-size:16px;color:var(--ink);margin-bottom:12px;">Reid\'s one-pager for <strong>' + escH(done.recipient || recipient) + '</strong> is ready.</div>' +
+              '<a href="' + escH(done.view_url) + '" target="_blank" rel="noopener" class="sp-cta" style="display:inline-block;text-decoration:none;margin-right:10px;">Open it &rarr;</a>' +
+              '<button type="button" id="reid-copy" class="sp-cta sp-cta-sm">Copy link</button>' +
+            '</div>';
+          var copyBtn = document.getElementById('reid-copy');
+          if (copyBtn) copyBtn.onclick = function(){ navigator.clipboard.writeText(window.location.origin + done.view_url).then(function(){ copyBtn.textContent='Copied'; setTimeout(function(){copyBtn.textContent='Copy link';},1500); }); };
+        } else if (done && done.error) {
+          statusEl.textContent = 'Reid could not finish that one: ' + escH(done.error);
+        } else {
+          statusEl.textContent = 'Reid is taking longer than usual. Ask him in the chat in a minute: "is the one-pager for ' + escH(recipient) + ' ready?"';
+        }
+      } catch(e){ polling = false; buildBtn.disabled = false; statusEl.textContent = 'Network snag reaching Reid. Try again.'; }
+    });
+  })();
+  </script>
 
   <style>
     .sp-q { display:block; font-family:'Spectral',serif; font-size:17px; font-weight:600; color:var(--ink); margin-bottom:8px; }
@@ -1794,7 +1914,9 @@
         var s = await sb.auth.getSession();
         var em = s && s.data && s.data.session && s.data.session.user && (s.data.session.user.email || '').toLowerCase();
         var el = document.getElementById('studios-link');
-        if (el && em === 'starbucks005@gmail.com') el.style.display = 'inline';
+        // Reveal for the owner: session email match OR the dev bypass
+        // (?dev=etl2026), which is how Dr. O reaches her studio without a login.
+        if (el && (em === 'starbucks005@gmail.com' || window._studioDevMode)) el.style.display = 'inline';
       } catch (_) {}
     })();
     // Fetch real workspace content from auth-gated endpoint. Until this
@@ -2792,9 +2914,16 @@
       return;
     }
     if (typeof XLSX === 'undefined') {
-      errBox.textContent = 'spreadsheet reader is still loading, give it a second and attach again.';
-      errBox.style.display = '';
-      return;
+      // SheetJS loads with defer; if the owner attaches before it is ready,
+      // wait for it (up to ~6s) instead of erroring and making them re-attach.
+      for (var waited = 0; typeof XLSX === 'undefined' && waited < 6000; waited += 150) {
+        await new Promise(function(r){ setTimeout(r, 150); });
+      }
+      if (typeof XLSX === 'undefined') {
+        errBox.textContent = 'spreadsheet reader could not load. check your connection and try again.';
+        errBox.style.display = '';
+        return;
+      }
     }
     var buf = await readAsArrayBuffer(file);
     var wb = XLSX.read(buf, { type: 'array' });
