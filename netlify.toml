@@ -144,6 +144,19 @@
     "data/pa_pool.json"
   ]
 
+# studio-list (the /studios landlord directory) enumerates every studio from
+# the same provisioning map + fixtures studio-config-get reads. Default function
+# bundling does not ship the data/ dir, so without this the directory only sees
+# self-serve buyers (from the blob store) and drops the fixture studios (Dr. O,
+# Caroline). Same files as studio-config-get, minus pa_pool (not read here).
+[functions."studio-list"]
+  included_files = [
+    "data/provisioned-clients.json",
+    "data/terry-oroszi-company.json",
+    "data/caroline-inma-company.json",
+    "data/vikram-sethi-company.json"
+  ]
+
 # ─── Reid slick viewer ────────────────────────────────────────────────────
 # Pretty URL for a generated tailored slick. Owner shares /slick/<slug>;
 # the page is public (no auth) and prints to PDF.

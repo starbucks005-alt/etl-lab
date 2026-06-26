@@ -95,15 +95,11 @@ const WORKSPACE = {
     'Sneha Desai':              'Filing this week\'s dispatch from Porbandar.',
     'Arjun Mehta':              'Tracking deploys across the ETL platforms.',
   },
-  shipped: [
-    { when: 'Today · AM',    what: 'Studio security: workspace content moved behind server-side JWT validation. Static HTML is now placeholder-only.', by: 'Studio' },
-    { when: 'Today · AM',    what: 'Social Posts wizard shipped to the Studio Command Center with Zara, Sneha, and Ayanna voices.', by: 'Studio' },
-    { when: 'Yesterday',     what: 'OPSEC Gauntlet palette swap: federal classical (navy, parchment, burgundy, brass, taupe).', by: 'Studio' },
-    { when: 'Yesterday',     what: 'Charles credential-evaluation prompt fixed so operator credentials are no longer dismissed as padding.', by: 'Charles' },
-    { when: 'Yesterday',     what: 'Bea added to the Prep Room as the second coach. Charles repositions, Bea cleans up.', by: 'Bea' },
-    { when: 'Yesterday',     what: 'Charles and Bea moved to background functions with Blobs polling. No more 26-second timeouts on long CVs.', by: 'Studio' },
-    { when: 'This week',     what: 'Workshops catalog spec filed. Seven verticals, one brand, no live sessions.', by: 'Studio' },
-  ],
+  // "Recently shipped" was a hardcoded list with frozen relative dates ("Today",
+  // "Yesterday") that rendered as current every day, asserting ships that did not
+  // happen on those days. Emptied 2026-06-26 as misleading on a demo surface; if
+  // revived it must read real commit/deploy data, not static text.
+  shipped: [],
 };
 
 exports.handler = async (event) => {

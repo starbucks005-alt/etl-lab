@@ -1296,18 +1296,6 @@
     </div>
   </section>
 
-  <!-- RECENTLY SHIPPED -->
-  <section class="ws-section">
-    <div class="ws-section-head">
-      <div class="ws-section-h">Recently shipped</div>
-      <div class="ws-section-tag">Last 48 hours</div>
-    </div>
-    <ul class="shipped-list">
-      <li class="shipped-row" style="grid-template-columns:1fr;text-align:center;">
-        <span class="shipped-what" style="font-style:italic;color:var(--ink-soft);">Recent activity is auth-gated. Sign in to see what shipped.</span>
-      </li>
-    </ul>
-  </section>
 
   <!-- WHAT YOUR TEAM CAN DO — discoverability. Teaches the owner the plain-
        language commands to give their PA, driven by who they have actually
@@ -1355,8 +1343,21 @@
     }
 
     function render(){
-      var hs = window.__hiredStaff;
-      if (!Array.isArray(hs)) return false;
+      var hs = Array.isArray(window.__hiredStaff) ? window.__hiredStaff : [];
+      // The "The staff" grid above is the authoritative bench for this studio
+      // (its cards are filtered per owner). Match against its visible names too,
+      // so this panel mirrors exactly the team shown above instead of only the
+      // formal hired_staff entries (which for the owner are just the 2 Dose
+      // specialists, so the panel used to show the PA alone).
+      var gridNames = Array.prototype.slice.call(document.querySelectorAll('.staff-grid .staff-card'))
+        .filter(function(c){ return c.offsetParent !== null; })
+        .map(function(c){ var n = c.querySelector('.staff-name'); return n ? n.textContent.trim() : ''; })
+        .filter(Boolean);
+      if (!hs.length && !gridNames.length) return false;
+      function onTeam(cap){
+        return hs.some(function(s){ return s && (cap.match.test(s.id||'') || cap.match.test(s.name||'')); })
+            || gridNames.some(function(nm){ return cap.match.test(nm); });
+      }
       var pa = window.__paFirstName || 'your PA';
       var cards = [];
       // The PA, always first: the voice and the everyday tools.
@@ -1367,8 +1368,7 @@
         null
       ));
       CAPS.forEach(function(cap){
-        var on = hs.some(function(s){ return s && (cap.match.test(s.id||'') || cap.match.test(s.name||'')); });
-        if (!on) return;
+        if (!onTeam(cap)) return;
         cards.push(card(
           escH(cap.label), 'var(--ink-soft)',
           escH(cap.makes),
