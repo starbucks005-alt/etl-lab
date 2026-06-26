@@ -32,11 +32,11 @@ function json(status, obj) {
    /agents/<file> on the site / CDN. Lifted from broadcast.html's proven map.
    Jen Lopez rotates her outfit by weekday, so she is resolved dynamically. */
 const CAST_IMG = {
-  'Auggie': 'Auggie_zoom_eyes_open.jpg',
+  'Auggie': 'Auggie_eyes_open.png',
   'Jax Rivera': 'Jax_Rivera_eyes_open.jpg',
   'Yuki Mendel': 'Yuki_Mendel_eyes_open.jpg',
   'Leo Vance': 'Leo_Vance_eyes_open.jpg',
-  'Iris': 'Iris_Chat_Eyes_Open.jpg',
+  'Iris': 'Iris_King_open.jpg',
   'Alicia James': 'Alicia_James_eyes_open.jpg',
   'Sasha Moreno': 'Sasha_Moreno_eyes_open.jpg',
   'Rowan Tate': 'Rowan_Tate_eyes_open.jpg',
@@ -50,8 +50,8 @@ const CAST_IMG = {
   'Grant Ellis': 'Grant_eyes_open.jpg',
   'Jules Hartley': 'Jules_eyes_open.jpg',
   'Imani Brooks': 'Imani_Brooks.jpg',
-  'Mateo Rivera': 'Mateo_Zoom_Eyes_Open.jpg',
-  'Mei Sato': 'Mei_Zoom_Call_Eyes_Open.jpg',
+  'Mateo Rivera': 'Mateo_Rivera_Profile.png',
+  'Mei Sato': 'Mei_Sato_Profile.png',
   'Dr. O': 'Dr_O_Eyes_Open.jpg',
   'Selene Voss': 'Selene_eyes_open.jpg',
   'Astrid Lund': 'Astrid_eyes_open.jpg',
@@ -91,7 +91,7 @@ const CAST_IMG = {
   'Maddie': 'Interviewer_Maddie_Open.jpg',
   'The Podcast Hosts': 'Podcast_hosts_Open.jpg',
   'Kimberly Pass': 'Kimberly_Pass_eyes_open.jpg',
-  'Margaret Applewood': 'margaret_call_blink.png',
+  'Margaret Applewood': 'Margaret_Applewood_open.png',
   'Mun': 'Mun_Eyes_open.png',
   'Goh Kai-Mun': 'Mun_Eyes_open.png',
   'Jess Ramirez': 'Jess_Ramirez.png',
