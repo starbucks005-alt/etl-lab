@@ -6771,3 +6771,24 @@ h1 b,h2 b,h1 strong,h2 strong{font-weight:500}
   });
 })();
 </script>
+
+<script>
+// Owner convenience: when Dr. O is signed in, the INMA button previews
+// Caroline's studio (read-only) from her own session instead of routing to
+// Caroline's login. Everyone else (including Caroline) still gets her login.
+(function(){
+  try {
+    var raw = localStorage.getItem('sb-ulvrnermyuvzanxhxoib-auth-token');
+    var sess = raw ? JSON.parse(raw) : null;
+    var email = sess && ((sess.user && sess.user.email)
+      || (sess.currentSession && sess.currentSession.user && sess.currentSession.user.email));
+    if (email && String(email).toLowerCase() === 'starbucks005@gmail.com') {
+      var links = document.querySelectorAll('a[href="/inma.html"], a[href="/inma"]');
+      Array.prototype.forEach.call(links, function(a){
+        a.setAttribute('href', '/studio.html?as=cschirato@infragardnational.org');
+        a.setAttribute('title', 'Preview Caroline’s studio (read-only)');
+      });
+    }
+  } catch (_) {}
+})();
+</script>

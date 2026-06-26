@@ -243,6 +243,16 @@ exports.handler = async function(event) {
     return { statusCode: 401, body: JSON.stringify({ error: 'unauthorized', reason: auth.reason }) };
   }
 
+  // Owner preview ("view as"): the OWNER (Dr. O) may pass ?as=<client-email>
+  // to view any provisioned client's studio from her own session, read only.
+  // Gated to the owner email; for anyone else ?as is ignored. The returned
+  // config is flagged preview:true so the page goes read-only and skips the
+  // owner's own per-user blob (so her edits never bleed into the preview).
+  const OWNER_PREVIEW_EMAIL = 'starbucks005@gmail.com';
+  const realEmail = (auth.user.email || '').toLowerCase();
+  const asParam = (event.queryStringParameters && (event.queryStringParameters.as || '')).toLowerCase().trim();
+  const previewing = !!asParam && realEmail === OWNER_PREVIEW_EMAIL && asParam !== realEmail;
+
   // Resolve the BASE config first (fixture > self-serve > default), then
   // overlay the per-user blob from studio-config-set ON TOP of it.
   //
@@ -254,8 +264,8 @@ exports.handler = async function(event) {
   // else, for every config source.
   let baseCfg = null;
 
-  // 1. Email-keyed provisioning fixture
-  const email = (auth.user.email || '').toLowerCase();
+  // 1. Email-keyed provisioning fixture (the target email in preview mode)
+  const email = previewing ? asParam : realEmail;
   const provMap = loadProvisioningMap();
   const fixtureFile = provMap[email];
   console.log('[studio-config-get] email=' + email + ' fixtureFile=' + fixtureFile + ' mapKeys=' + Object.keys(provMap).join(',') + ' __dirname=' + __dirname + ' cwd=' + process.cwd());
@@ -324,6 +334,23 @@ exports.handler = async function(event) {
   }
 
   if (baseCfg) {
+    if (previewing) {
+      // Read-only owner preview: return the CLIENT's fixture as-is (resolved
+      // against the roster), with NO owner-blob overlay and NO owner-staff
+      // injection, so the page shows exactly the client's studio.
+      baseCfg.preview = true;
+      baseCfg.preview_as = email;
+      baseCfg.source = (baseCfg.source || 'fixture') + '+preview';
+      const resolved = {
+        ...baseCfg,
+        hired_staff: (baseCfg.hired_staff || []).map(s => resolveStaffEntry(s, rosterIndex)).filter(Boolean),
+      };
+      return {
+        statusCode: 200,
+        headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
+        body: JSON.stringify(resolved),
+      };
+    }
     return {
       statusCode: 200,
       headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
