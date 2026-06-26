@@ -62,6 +62,24 @@ exports.handler = async (event) => {
   const basic = Buffer.from(`${user}:${pass}`).toString('base64');
   const base = process.env.URL || 'https://emerging-tech-lab.com';
 
+  // Owner vs buyer. Dr. O triggers her global brief (empty body, cron shape).
+  // Any other signed-in owner triggers a brief ABOUT THEM: we forward a target
+  // built from their validated user_id plus the owner context the Studio sent.
+  let reqBody = {};
+  try { reqBody = JSON.parse(event.body || '{}'); } catch (_) {}
+  const isOwner = (auth.user.email || '').toLowerCase() === 'starbucks005@gmail.com';
+  const forwardBody = isOwner ? {} : {
+    target: {
+      user_id: auth.user.id,
+      owner_name: reqBody.owner_name || '',
+      company_name: reqBody.company_name || '',
+      owner_context: reqBody.owner_context || '',
+      owner_site: reqBody.owner_site || '',
+      address_form: reqBody.owner_address_form || '',
+      pa_first_name: reqBody.pa_first_name || '',
+    },
+  };
+
   try {
     const res = await fetch(`${base}/.netlify/functions/studio-auggie-brief-background`, {
       method: 'POST',
@@ -69,7 +87,7 @@ exports.handler = async (event) => {
         'Content-Type': 'application/json',
         'Authorization': `Basic ${basic}`,
       },
-      body: JSON.stringify({}),
+      body: JSON.stringify(forwardBody),
     });
     // Background returns 202 immediately; we just confirm the trigger landed.
     if (res.status >= 200 && res.status < 300) {

@@ -1,4 +1,4 @@
-﻿{
+{
   "_doc": "Sponsored Founder Studio company for Caroline Schirato (INMA), tuned for event planning + sponsorship development. Doubles as Code's provisioning fixture for pipeline M1 (provision) and M3 (billing + sponsorship). Field shapes match start-studio.html handoff payload + gift-method-spec sponsorship flags. All staff editable; additions stay in-kind.",
   "account": {
     "account_id": "acct_inma_caroline",
@@ -23,7 +23,8 @@
     "revocable": true,
     "editable": true,
     "value_cap_monthly": null,
-    "statement": "In-kind service, sponsored by Dr. Oroszi / ETL. Executive tier, $1,499/mo value, $0 due.",
+    "statement": "Executive tier. $1,499/mo value, $0 due.",
+    "_statement_note": "Per Dr. O 2026-06-25: Caroline should not be made to credit the sponsor. The owner-facing banner shows the tier and $0 due only, no 'Sponsored by Dr. Oroszi' line. The sponsor field above stays for internal accounting; it is not rendered to Caroline.",
     "staff_limit": null,
     "staff_limit_note": "No cap. Caroline can hire as many staff as she wants; every addition is sponsored and stays in-kind at $0 due. The starter team below is a starting point, not a ceiling."
   },
@@ -186,7 +187,7 @@
   "studio_landing": {
     "purpose": "Caroline opens her magic link and lands directly in her Studio, fully staffed. No marketing, no pricing, no checkout.",
     "show_on_first_login": [
-      "In-kind banner: 'Sponsored by Dr. Terry L. Oroszi / Emerging Technologies Laboratory. Executive tier, $1,499/mo value, $0 due.'",
+      "In-kind banner (no sponsor credit, per Dr. O 2026-06-25): 'Executive tier. $1,499/mo value, $0 due.'",
       "Studio header showing the company name (editable; see rename)",
       "Her PA, Auggie, present with voice and Zoom available",
       "All 14 staff populated on the Staff board and active in The Floor",

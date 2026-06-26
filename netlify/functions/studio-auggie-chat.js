@@ -919,6 +919,40 @@ function buildOwnerContextBlock(ownerCfg, isJen) {
   return lines.join('\n');
 }
 
+/* ── Owner-name safety net ───────────────────────────────────────────────────
+   Auggie's base persona, the canned Jax/Reid/Rowan replies, and the staff-intro
+   prompt all default to "Ms. Terry" (his original owner). For ANY other buyer
+   that is the wrong name. buildOwnerContextBlock steers the model, but the
+   canned reply strings bypass the model entirely (e.g. "ok Ms. Terry, Reid is
+   on it"), so steering is not enough. This pair guarantees no buyer ever reads
+   "Ms. Terry": resolve their address form, then scrub Terry/Oroszi out of every
+   outgoing reply for a non-Terry studio. Terry's own studio is left untouched. */
+function isTerryOwner(body) {
+  const name = (body && body.owner_name) || '';
+  return !name || name === 'Dr. Terry Oroszi';
+}
+
+function ownerAddressForm(body) {
+  const explicit = (body && body.owner_address_form) || '';
+  if (explicit) return explicit;
+  const name = (body && body.owner_name) || '';
+  if (!name || name === 'Dr. Terry Oroszi') return 'Ms. Terry';
+  if (/^dr\.?\s/i.test(name))   return 'Dr. ' + name.trim().split(/\s+/).pop();
+  if (/^prof\.?\s/i.test(name)) return 'Prof. ' + name.trim().split(/\s+/).pop();
+  return name.trim().split(/\s+/)[0];
+}
+
+function scrubTerry(text, addr) {
+  if (!text || !addr) return text;
+  // Kill the MISADDRESS only. "Ms. Terry" and a bare first-name "Terry" used as
+  // direct address become the real owner. But "Dr. Oroszi" / "Terry Oroszi" is
+  // the sponsor's actual name (Caroline's in-kind studio is credited to her),
+  // so a "Terry" immediately followed by "Oroszi" is left intact.
+  return String(text)
+    .replace(/\bMs\.\s*Terry\b/g, addr)
+    .replace(/\bTerry\b(?!\s+(?:L\.\s*)?Oroszi)/g, addr);
+}
+
 // Per-owner title for Auggie. Default Personal Assistant; a buyer's config
 // (e.g. Caroline) can set Chief of Staff. Read from the studio_config blob.
 async function loadPaLabel(event, userId) {
@@ -1118,7 +1152,7 @@ async function loadTodaysBriefTranscript(event) {
 }
 
 
-exports.handler = async (event) => {
+const rawHandler = async (event) => {
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: CORS, body: '' };
   if (event.httpMethod !== 'POST') return { statusCode: 405, headers: CORS, body: 'method not allowed' };
 
@@ -1747,6 +1781,16 @@ exports.handler = async (event) => {
   const ownerName = paContactsData.ownerName;
 
   let systemPrompt = isJen ? JEN_PERSONA : AUGGIE_PERSONA;
+  // Spreadsheets in and out. The owner can attach an Excel/CSV file; its rows
+  // arrive inline in their message as CSV between "--- begin file ---" markers.
+  // When the owner asks you to BUILD, fill, or modify a spreadsheet (add a
+  // column, reformat, merge, summarize into a table), return the result as a
+  // fenced CSV block: a line with ```csv, then the comma-separated rows
+  // (header row first), then a closing ```. The Studio turns that block into a
+  // one-click Excel/CSV download for them, so they do not retype anything. Put
+  // your normal conversational reply around the block as usual. Use a real CSV
+  // block (not just prose) whenever the deliverable is tabular.
+  systemPrompt += '\n\nSPREADSHEETS: The owner can attach Excel or CSV files; the rows arrive inline as CSV in their message. When they ask you to create, fill, extend (e.g. "add a column"), reformat, or summarize tabular data, return the table as a fenced ```csv block (header row first, comma-separated), wrapped in your normal reply. The Studio renders that block as a one-click Excel and CSV download, so never tell them to copy-paste cells by hand.';
   // Inject dynamic owner context (overrides Terry-specific defaults for non-Terry buyers)
   systemPrompt += buildOwnerContextBlock(
     {
@@ -1780,7 +1824,7 @@ exports.handler = async (event) => {
       '". You wrote this for her this morning. If she references anything in it, you remember. Pull threads forward, do not pretend you do not know what she means.';
   }
   if (!isJen && pendingIntros.length > 0) {
-    systemPrompt += '\n\nNEW STAFF YOU MUST INTRODUCE TO MS. TERRY (do this in your NEXT reply, before addressing her actual question if any, in your voice):\n' +
+    systemPrompt += '\n\nNEW STAFF YOU MUST INTRODUCE TO ' + ownerAddressForm(body).toUpperCase() + ' (do this in your NEXT reply, before addressing their actual question if any, in your voice):\n' +
       pendingIntros.map(s => '- **' + s.name + '**: ' + s.intro_block).join('\n');
   }
 
@@ -1940,4 +1984,25 @@ exports.handler = async (event) => {
       body: JSON.stringify({ error: (err && err.message) || 'auggie could not reply' }),
     };
   }
+};
+
+// Public handler. Wraps rawHandler with the owner-name safety net so that no
+// non-Terry buyer (Caroline, Vikram, anyone) ever reads "Ms. Terry" in a reply,
+// whether it came from a canned string or the model. Terry's own studio is a
+// no-op: scrubbing only runs when owner_name is set and is not Dr. Oroszi.
+exports.handler = async (event) => {
+  const res = await rawHandler(event);
+  try {
+    let body = {};
+    try { body = JSON.parse((event && event.body) || '{}'); } catch (_) {}
+    if (!isTerryOwner(body) && res && typeof res.body === 'string') {
+      const addr = ownerAddressForm(body);
+      const parsed = JSON.parse(res.body); // throws on non-JSON bodies -> caught, returns res as-is
+      if (parsed && typeof parsed.reply === 'string') {
+        parsed.reply = scrubTerry(parsed.reply, addr);
+        res.body = JSON.stringify(parsed);
+      }
+    }
+  } catch (_) {}
+  return res;
 };

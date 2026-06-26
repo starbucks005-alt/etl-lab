@@ -1,4 +1,4 @@
-﻿{
+{
   "_doc": "Standard customer fixture. Catalog prices, no special treatment. Nothing appears on the bill unless it works today; pending items sit in billing.pending_unbilled until live.",
   "account": {
     "account_id": "acct_vikram_sethi",

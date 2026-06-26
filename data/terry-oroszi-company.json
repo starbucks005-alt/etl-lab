@@ -1,4 +1,4 @@
-﻿{
+{
   "_doc": "Dr. Terry Oroszi — owner/admin standing staff config. Provides the always-on hired_staff base so Auggie knows her full team regardless of blob state. PA and other user prefs come from her per-user blob (studio-config-set writes; withUserOverlay merges on top).",
   "account": {
     "owner_name": "Dr. Terry Oroszi",

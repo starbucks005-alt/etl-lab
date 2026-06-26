@@ -50,6 +50,11 @@ exports.handler = async (event) => {
 
   try { connectLambda(event); } catch (_) {}
 
+  // Per-owner namespace: Dr. O serves the global blobs; every other owner
+  // serves their own (keyed by user_id), matching the brief background/latest.
+  const isOwner = (auth.user.email || '').toLowerCase() === 'starbucks005@gmail.com';
+  const keyPfx = isOwner ? '' : ('u/' + auth.user.id + '/');
+
   const params = event.queryStringParameters || {};
   let dateKey = (params.date || '').trim();
 
@@ -57,7 +62,7 @@ exports.handler = async (event) => {
   if (!dateKey) {
     try {
       const metaStore = getStore('auggie_briefs_meta');
-      const meta = await metaStore.get('latest', { type: 'json' });
+      const meta = await metaStore.get(keyPfx + 'latest', { type: 'json' });
       if (meta && meta.dateKey) dateKey = meta.dateKey;
     } catch (err) {
       console.error('[auggie-brief-audio] meta read failed', err && err.message);
@@ -71,7 +76,7 @@ exports.handler = async (event) => {
   let audioBuf;
   try {
     const audioStore = getStore('auggie_briefs_audio');
-    audioBuf = await audioStore.get(dateKey, { type: 'arrayBuffer' });
+    audioBuf = await audioStore.get(keyPfx + dateKey, { type: 'arrayBuffer' });
   } catch (err) {
     console.error('[auggie-brief-audio] read failed', dateKey, err && err.message);
     return { statusCode: 500, headers: { ...CORS, 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'audio read failed' }) };

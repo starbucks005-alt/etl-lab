@@ -98,22 +98,18 @@ exports.handler = async (event) => {
     return { statusCode: 401, headers: { ...CORS, 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'unauthorized', reason: auth.reason }) };
   }
 
-  // Brief is owner-only until per-user brief generation is built.
+  // Per-owner brief. Dr. O reads the global blobs (written by her cron); every
+  // other signed-in owner reads their own namespace (written by the buyer
+  // brief path, keyed by user_id).
   const isOwner = (auth.user.email || '').toLowerCase() === 'starbucks005@gmail.com';
-  if (!isOwner) {
-    return {
-      statusCode: 200,
-      headers: { ...CORS, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
-      body: JSON.stringify({ available: false }),
-    };
-  }
+  const keyPfx = isOwner ? '' : ('u/' + auth.user.id + '/');
 
   try { connectLambda(event); } catch (_) {}
 
   let meta = null;
   try {
     const metaStore = getStore('auggie_briefs_meta');
-    meta = await metaStore.get('latest', { type: 'json' });
+    meta = await metaStore.get(keyPfx + 'latest', { type: 'json' });
   } catch (err) {
     console.error('[auggie-brief-latest] meta read failed', err && err.message);
   }
@@ -122,20 +118,23 @@ exports.handler = async (event) => {
   const eventHost = (event.headers && (event.headers.host || event.headers.Host)) || '';
 
   if (!meta) {
-    // Nothing on disk — kick a regen so the next pageview has content.
-    fireRegen(eventHost);
+    // Owner: kick a regen so the next pageview has content. Buyer: no auto
+    // regen (the daily cron is owner-only), but tell the UI it can generate
+    // one on demand via the "generate one now" button.
+    if (isOwner) fireRegen(eventHost);
     return {
       statusCode: 200,
       headers: { ...CORS, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
-      body: JSON.stringify({ available: false, expectedDateKey, stale: true, regenFired: true }),
+      body: JSON.stringify({ available: false, expectedDateKey, stale: true, regenFired: isOwner, can_generate: true }),
     };
   }
 
   // Freshness check: stored brief's dateKey vs today (ET). If stale, fire
   // a regen and flag the response so the UI can warn ("brief is from
-  // [Sunday] — refreshing now, check back in ~90s").
+  // [Sunday] — refreshing now, check back in ~90s"). Auto-regen is owner-only
+  // (cron path); buyers refresh their stale brief with the explicit button.
   const isStale = meta.dateKey && meta.dateKey !== expectedDateKey;
-  if (isStale) {
+  if (isStale && isOwner) {
     console.log('[brief-latest] stale brief detected: stored=' + meta.dateKey + ' expected=' + expectedDateKey + ' — firing regen');
     fireRegen(eventHost);
   }
@@ -150,7 +149,7 @@ exports.handler = async (event) => {
       dateKey: meta.dateKey,
       expectedDateKey,
       stale: isStale,
-      regenFired: isStale,
+      regenFired: isStale && isOwner,
       generatedAt: meta.generatedAt,
       transcript: meta.transcript,
       estimatedSeconds: meta.estimatedSeconds,

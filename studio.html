@@ -19,6 +19,11 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
 <link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<!-- SheetJS: lets the PA chat IMPORT Excel files (parsed to CSV client-side so
+     the team reads the rows) and EXPORT a reply's table/CSV back to a real
+     .xlsx the owner can download. Loaded from CDN; used only on file attach
+     or when a reply contains a table, so it never blocks first paint. -->
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" defer></script>
 <style>
   :root {
     --linen: #ffffff;
@@ -713,10 +718,10 @@
           </div>
 
           <div class="auggie-bubble auggie-bubble--his" style="margin-bottom:14px;">
-            <div class="auggie-bubble-meta">Auggie</div>
-            <div>hi Ms. Terry. what are we doing today.</div>
+            <div class="auggie-bubble-meta" id="pa-greeting-speaker">Auggie</div>
+            <div id="pa-greeting-text">hi Ms. Terry. what are we doing today.</div>
             <div style="margin-top:8px;">
-              <button type="button" class="auggie-play-btn" data-text="hi Ms. Terry. what are we doing today.">▶ hear it</button>
+              <button type="button" class="auggie-play-btn" id="pa-greeting-play" data-text="hi Ms. Terry. what are we doing today.">▶ hear it</button>
             </div>
           </div>
         </div>
@@ -730,8 +735,8 @@
                  image. Each chip is a thumbnail with an X to remove. -->
             <div id="auggie-chat-attachments" style="display:none; gap:8px; flex-wrap:wrap;"></div>
             <div style="display:flex; gap:10px; align-items:center;">
-              <label for="auggie-chat-file" style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink-soft); cursor:pointer; padding:6px 10px; border:1px solid var(--linen-edge); background:#fff;">📎 attach image or file</label>
-              <input type="file" id="auggie-chat-file" accept="image/png,image/jpeg,image/webp,image/gif,application/pdf,text/plain,text/markdown,text/csv,application/json,text/calendar,.md,.txt,.csv,.json,.ics,.pdf" multiple style="display:none;">
+              <label for="auggie-chat-file" style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink-soft); cursor:pointer; padding:6px 10px; border:1px solid var(--linen-edge); background:#fff;">📎 attach image, file, or spreadsheet</label>
+              <input type="file" id="auggie-chat-file" accept="image/png,image/jpeg,image/webp,image/gif,application/pdf,text/plain,text/markdown,text/csv,application/json,text/calendar,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,.md,.txt,.csv,.json,.ics,.pdf,.xlsx,.xls" multiple style="display:none;">
               <span style="font-family:'Spectral',serif; font-size:12px; font-style:italic; color:var(--ink-quiet);">images, PDFs, or text — paste into the box above also works</span>
             </div>
           </div>
@@ -742,12 +747,17 @@
         <!-- Quick-search presets. Click a chip to drop a starter search
              into the input. Auggie has live web search (Anthropic's
              web_search tool) so he can actually look these up. -->
+        <!-- These quick-search chips ship tuned to Dr. Oroszi (her name,
+             her Forbes byline, her academic citations, her policy field).
+             For any OTHER owner those are the wrong searches, so applyConfig
+             rewrites "New mentions" to the buyer's own name and hides the
+             Terry-academic chips (citations / Forbes / field news). -->
         <div class="auggie-preset-row">
-          <button type="button" class="auggie-preset-chip" data-preset="search the web for new mentions of Dr. Terry Oroszi or Dr. Terry L. Oroszi in the last 14 days. tell me anything new.">New mentions of me</button>
-          <button type="button" class="auggie-preset-chip" data-preset="scan for recent papers that cite my research. search semanticscholar.org for Oroszi cited 2025. list every citing paper you find with title, first author, and their affiliation. flag any first author who looks like a graduate student or early-career researcher with no faculty title. for each flagged student paper, draft a linkedin post ready to copy-paste.">Citations this week</button>
-          <button type="button" class="auggie-preset-chip" data-preset="search for any new Forbes Technology Council pieces under my byline or commentary I am quoted in.">New Forbes pieces</button>
-          <button type="button" class="auggie-preset-chip" data-preset="search for any upcoming speaking engagements, conference appearances, or panels where I am listed as a speaker in the next 90 days.">Upcoming speaking</button>
-          <button type="button" class="auggie-preset-chip" data-preset="search for news in AI governance, federal AI policy, or research security in the last 7 days that I should be aware of for the lab.">Field news this week</button>
+          <button type="button" class="auggie-preset-chip" id="preset-mentions" data-preset="search the web for new mentions of Dr. Terry Oroszi or Dr. Terry L. Oroszi in the last 14 days. tell me anything new.">New mentions of me</button>
+          <button type="button" class="auggie-preset-chip" id="preset-citations" data-preset="scan for recent papers that cite my research. search semanticscholar.org for Oroszi cited 2025. list every citing paper you find with title, first author, and their affiliation. flag any first author who looks like a graduate student or early-career researcher with no faculty title. for each flagged student paper, draft a linkedin post ready to copy-paste.">Citations this week</button>
+          <button type="button" class="auggie-preset-chip" id="preset-forbes" data-preset="search for any new Forbes Technology Council pieces under my byline or commentary I am quoted in.">New Forbes pieces</button>
+          <button type="button" class="auggie-preset-chip" id="preset-speaking" data-preset="search for any upcoming speaking engagements, conference appearances, or panels where I am listed as a speaker in the next 90 days.">Upcoming speaking</button>
+          <button type="button" class="auggie-preset-chip" id="preset-fieldnews" data-preset="search for news in AI governance, federal AI policy, or research security in the last 7 days that I should be aware of for the lab.">Field news this week</button>
         </div>
 
         <div id="auggie-chat-error" style="display:none; margin-top:10px; padding:10px 14px; background:#fdecec; border:1px solid #f0b8b8; color:#7d2828; font-family:'IBM Plex Mono',monospace; font-size:11px;"></div>
@@ -2760,9 +2770,48 @@
     var n = (file.name || '').toLowerCase();
     if (/^image\//.test(t)) return 'image';
     if (t === 'application/pdf' || /\.pdf$/.test(n)) return 'pdf';
+    // Excel workbooks: parsed client-side to CSV so the team can read the rows.
+    // (.csv stays in the plain-text path; only the binary .xlsx/.xls land here.)
+    if (/\.(xlsx|xls|xlsm)$/.test(n) || /spreadsheetml|ms-excel/.test(t)) return 'spreadsheet';
     if (/^text\//.test(t)) return 'text';
     if (t === 'application/json' || /\.(txt|md|markdown|csv|json|ics|log)$/.test(n)) return 'text';
     return 'unknown';
+  }
+
+  function readAsArrayBuffer(file){
+    return new Promise(function(resolve, reject){
+      var reader = new FileReader();
+      reader.onload = function(){ resolve(reader.result); };
+      reader.onerror = function(){ reject(reader.error || new Error('read failed')); };
+      reader.readAsArrayBuffer(file);
+    });
+  }
+
+  // Excel in. Parse every sheet to CSV with SheetJS and hand it to the team as
+  // text (same path as a pasted .csv), so "here is my spreadsheet" just works.
+  async function addSpreadsheetFile(file){
+    if (file.size > DOC_MAX_BYTES) {
+      errBox.textContent = 'spreadsheet too big (max 10MB): ' + (file.name || 'workbook.xlsx');
+      errBox.style.display = '';
+      return;
+    }
+    if (typeof XLSX === 'undefined') {
+      errBox.textContent = 'spreadsheet reader is still loading, give it a second and attach again.';
+      errBox.style.display = '';
+      return;
+    }
+    var buf = await readAsArrayBuffer(file);
+    var wb = XLSX.read(buf, { type: 'array' });
+    var parts = wb.SheetNames.map(function(sn){
+      var csv = XLSX.utils.sheet_to_csv(wb.Sheets[sn]);
+      return (wb.SheetNames.length > 1 ? '# sheet: ' + sn + '\n' : '') + csv;
+    });
+    var text = parts.join('\n\n');
+    pendingTextFiles.push({
+      name: (file.name || 'workbook.xlsx') + ' (as CSV)',
+      size: file.size,
+      text: text,
+    });
   }
 
   async function addImageFile(file){
@@ -2827,6 +2876,8 @@
         await addImageFile(file);
       } else if (kind === 'pdf') {
         await addPdfFile(file);
+      } else if (kind === 'spreadsheet') {
+        await addSpreadsheetFile(file);
       } else if (kind === 'text') {
         await addTextFile(file);
       } else {
@@ -2873,6 +2924,74 @@
       .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
+  // ─── SPREADSHEET EXPORT ───────────────────────────────────────────────
+  // If a reply contains a table (a ```csv block or a markdown table), pull
+  // it into a 2D array so we can offer a one-click .xlsx / .csv download.
+  // Auggie is told to return tabular results as a ```csv block, so this is
+  // the reliable path; the markdown-table reader is a fallback.
+  function extractTableAoA(text){
+    if (!text) return null;
+    var fence = text.match(/```(?:csv)?\s*\n([\s\S]*?)```/i);
+    if (fence && /,/.test(fence[1]) && /\n/.test(fence[1].trim())) {
+      var block = fence[1].trim();
+      if (typeof XLSX !== 'undefined') {
+        try {
+          var wsb = XLSX.read(block, { type: 'string', raw: true });
+          return XLSX.utils.sheet_to_json(wsb.Sheets[wsb.SheetNames[0]], { header: 1 });
+        } catch (_) {}
+      }
+      return block.split('\n').map(function(r){ return r.split(','); });
+    }
+    // Markdown table: contiguous run of "| ... |" lines with a --- separator.
+    var lines = text.split('\n');
+    var tbl = [];
+    for (var i = 0; i < lines.length; i++) {
+      if (/^\s*\|.*\|\s*$/.test(lines[i])) tbl.push(lines[i]);
+      else if (tbl.length) break;
+    }
+    if (tbl.length >= 2 && /^\s*\|?[\s:|-]+\|?\s*$/.test(tbl[1])) {
+      return tbl.filter(function(l, idx){ return idx !== 1; }).map(function(l){
+        return l.replace(/^\s*\|/, '').replace(/\|\s*$/, '').split('|').map(function(c){ return c.trim(); });
+      });
+    }
+    return null;
+  }
+
+  function makeDownloadBtn(label, onClick){
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'auggie-play-btn';
+    b.textContent = label;
+    b.addEventListener('click', onClick);
+    return b;
+  }
+
+  function attachTableDownloads(div, text){
+    var aoa = extractTableAoA(text);
+    if (!aoa || !aoa.length) return;
+    var wrap = document.createElement('div');
+    wrap.style.cssText = 'margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;';
+    wrap.appendChild(makeDownloadBtn('⬇ download as Excel', function(){
+      if (typeof XLSX === 'undefined') return;
+      var ws = XLSX.utils.aoa_to_sheet(aoa);
+      var wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+      XLSX.writeFile(wb, 'studio-export.xlsx');
+    }));
+    wrap.appendChild(makeDownloadBtn('⬇ download as CSV', function(){
+      if (typeof XLSX === 'undefined') return;
+      var ws = XLSX.utils.aoa_to_sheet(aoa);
+      var csv = XLSX.utils.sheet_to_csv(ws);
+      var blob = new Blob([csv], { type: 'text/csv' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url; a.download = 'studio-export.csv';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+    }));
+    div.appendChild(wrap);
+  }
+
   function appendBubble(side, text, imageUrls, fileList){
     var div = document.createElement('div');
     div.className = 'auggie-bubble auggie-bubble--' + (side === 'mine' ? 'mine' : 'his');
@@ -2906,6 +3025,13 @@
       div.appendChild(fileRow);
     }
     var body = document.createElement('div');
+    // If the reply carries a downloadable table (```csv block), hide the raw
+    // block in the displayed text and the spoken text; the data lands in the
+    // download buttons below instead of as a wall of commas.
+    var displayText = text;
+    if (side !== 'mine' && text && /```(?:csv)?\s*\n[\s\S]*?```/i.test(text)) {
+      displayText = text.replace(/```(?:csv)?\s*\n[\s\S]*?```/i, '\n(spreadsheet ready, download below)\n').replace(/\n{3,}/g, '\n\n').trim();
+    }
     // Auto-linkify http(s) URLs so Jax-report links and any other URLs
     // Auggie sends are clickable instead of literal text.
     body.innerHTML = (function(t){
@@ -2921,7 +3047,7 @@
       }
       out += escapeHtml(t.slice(last));
       return out.replace(/\n/g, '<br>');
-    })(text);
+    })(displayText);
     div.appendChild(body);
     // Auggie-only: add a "hear it" button that calls the TTS endpoint and
     // plays his ElevenLabs voice inline. Mine-side bubbles never get one.
@@ -2932,10 +3058,12 @@
       playBtn.type = 'button';
       playBtn.className = 'auggie-play-btn';
       playBtn.textContent = '▶ hear it';
-      playBtn.dataset.text = text;
+      playBtn.dataset.text = displayText;
       playWrap.appendChild(playBtn);
       div.appendChild(playWrap);
     }
+    // Spreadsheet out: if the PA's reply contains a table, offer a download.
+    if (side !== 'mine' && text) attachTableDownloads(div, text);
     thread.appendChild(div);
     thread.scrollTop = thread.scrollHeight;
   }
@@ -3247,7 +3375,17 @@
       var r = await fetch('/.netlify/functions/studio-auggie-brief-trigger', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-        body: '{}',
+        // Owner context so a buyer's brief is about THEM (the trigger ignores
+        // this for Dr. O and runs her global brief). pa_first_name keeps the
+        // brief in the seated PA's name.
+        body: JSON.stringify({
+          owner_name: window.__ownerName || '',
+          company_name: window.__companyName || '',
+          owner_context: window.__ownerContext || '',
+          owner_site: window.__ownerSite || '',
+          owner_address_form: window.__ownerAddressForm || '',
+          pa_first_name: window.__paFirstName || window.__paDisplayName || '',
+        }),
       });
       var data = await r.json();
       if (r.status === 202 || r.ok) {
@@ -3521,7 +3659,16 @@
       var r = await fetch('/.netlify/functions/studio-watercooler-tune', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-        body: JSON.stringify({ mode: mode }),
+        // Owner context so the Floor renders THIS studio's cast + name, not
+        // Dr. O's. staff_names comes from the live grid (the buyer's hires).
+        body: JSON.stringify({
+          mode: mode,
+          owner_name: window.__ownerName || '',
+          company_name: window.__companyName || '',
+          owner_address_form: window.__ownerAddressForm || '',
+          pa_name: window.__paDisplayName || window.__paFirstName || '',
+          staff_names: Array.from(document.querySelectorAll('.staff-grid .staff-name')).map(function(n){return n.textContent.trim();}).filter(Boolean),
+        }),
       });
       var data;
       try { data = await r.json(); }
@@ -3707,10 +3854,16 @@
       var channelLabel = (activeMode === 'watercooler') ? 'Watercooler' : 'Workfloor';
       var d = new Date();
       var dateStr = d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+      // Whose studio this moment belongs to. Terry's own keeps her exact byline;
+      // any other owner gets their company name (so Caroline never pastes
+      // "Dr. Terry Oroszi's Studio" into a sponsor deck).
+      var studioLabel = (window.__ownerName && window.__ownerName !== 'Dr. Terry Oroszi')
+        ? (window.__companyName || (window.__ownerName + "'s Studio"))
+        : 'Dr. Terry Oroszi\'s Studio';
       var lines = [
         '**The Floor · ' + channelLabel + ' · ' + dateStr + '**',
         '',
-        '_Dr. Terry Oroszi\'s Studio · staff talking to each other_',
+        '_' + studioLabel + ' · staff talking to each other_',
         '',
       ];
       currentMessages.forEach(function(m){
@@ -4641,6 +4794,37 @@ h1 em,h2 em{font-weight:300;color:#28527a}
       if ((idEl = document.querySelector('.auggie-call-status-text'))) idEl.textContent = window.__paFirstName + ' is on.';
       if ((idEl = document.getElementById('pa-zoom-label')))    idEl.textContent = 'Click to join ' + window.__paFirstName + '’s Zoom';
       if ((idEl = document.getElementById('auggie-brief-speaker'))) idEl.textContent = window.__paFirstName;
+      // ── OWNER ADDRESS (never leave another buyer reading "Ms. Terry") ──────
+      // The static greeting bubble + its play button ship with "Ms. Terry"
+      // baked in (Auggie's default owner). For ANY other owner that is the
+      // wrong name, so rewrite it from the seated config. Terry's own studio
+      // (owner_name "Dr. Terry Oroszi") keeps "Ms. Terry". Caroline reads
+      // "Ms. Caroline", Vikram "Mr. Sethi", etc. Address form comes from the
+      // fixture when present, otherwise derived from the owner's name.
+      (function setOwnerAddress(){
+        var ownerNm = window.__ownerName || '';
+        var addr = window.__ownerAddressForm || '';
+        if (!addr) {
+          if (!ownerNm || ownerNm === 'Dr. Terry Oroszi') addr = 'Ms. Terry';
+          else if (/^dr\.?\s/i.test(ownerNm))   addr = 'Dr. ' + ownerNm.trim().split(/\s+/).pop();
+          else if (/^prof\.?\s/i.test(ownerNm)) addr = 'Prof. ' + ownerNm.trim().split(/\s+/).pop();
+          else addr = ownerNm.trim().split(/\s+/)[0];
+        }
+        window.__ownerAddress = addr;
+        var greet = 'hi ' + addr + '. what are we doing today.';
+        var gSpk, gTxt, gPlay;
+        if ((gSpk  = document.getElementById('pa-greeting-speaker'))) gSpk.textContent = window.__paFirstName;
+        if ((gTxt  = document.getElementById('pa-greeting-text')))    gTxt.textContent = greet;
+        if ((gPlay = document.getElementById('pa-greeting-play')))    gPlay.setAttribute('data-text', greet);
+        // Auggie's shipped bio says "Dr. Oroszi hired him into the Studio,"
+        // which is only true in Terry's own studio. For any other owner with
+        // Auggie seated, read it neutral (no sponsor reference). Other PAs get
+        // their own bio from the roster fetch below, so this only touches Auggie.
+        if (window.__paPersonaId === 'auggie_vidal' && ownerNm && ownerNm !== 'Dr. Terry Oroszi') {
+          var bioN = document.getElementById('pa-bio-display');
+          if (bioN) bioN.textContent = 'Late twenties, Cuban-American, Coral Gables family with Palm Springs summers. He spent three years as a personal assistant on the Gauntlet bench before joining the Studio as your right hand. He holds your week and your editorial calendar. He watches the overlap.';
+        }
+      })();
       // Chat placeholder: name + they/them (Terry: use they/them rather than
       // per-PA pronoun guessing). Works for any seated PA.
       var ta = document.getElementById('auggie-chat-input');
@@ -4670,6 +4854,30 @@ h1 em,h2 em{font-weight:300;color:#28527a}
         if (curEl && hit.tagline) curEl.textContent = hit.tagline;
       }).catch(function(){});
     })();
+
+    // ── QUICK-SEARCH PRESETS PER OWNER ────────────────────────────────────
+    // The preset chips ship tuned to Dr. Oroszi (her name, her Forbes byline,
+    // her academic citations, her policy field). For any other owner, point
+    // "New mentions" at THEIR name + company and hide the Terry-academic chips
+    // so the studio never offers to search "Dr. Terry Oroszi" or her byline.
+    (function tunePresets(){
+      var ownerNm = window.__ownerName || '';
+      if (!ownerNm || ownerNm === 'Dr. Terry Oroszi') return; // Terry keeps hers
+      var mentions = document.getElementById('preset-mentions');
+      if (mentions) mentions.setAttribute('data-preset',
+        'search the web for new mentions of ' + ownerNm + (window.__companyName ? ' or ' + window.__companyName : '') + ' in the last 14 days. tell me anything new.');
+      ['preset-citations','preset-forbes','preset-fieldnews'].forEach(function(id){
+        var el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+      });
+    })();
+
+    // ── THE FLOOR IS NOW OWNER-AWARE ──────────────────────────────────────
+    // studio-floor-render + studio-watercooler-tune now build the cast from
+    // THIS owner's staff grid and use their name, with per-user episode
+    // storage, so the Floor is safe to show every buyer. (It used to be
+    // hidden for non-Terry owners because it rendered Dr. O's fixed cast.)
+    // Nothing to gate here anymore; the Floor stays visible for everyone.
 
     // ...and whose FACE the page card + call modal wear. Convention per PA:
     // <Persona_Id_TitleCased>_Profile.png + _zoom_wide_eyes_{open,closed,

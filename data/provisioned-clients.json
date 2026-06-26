@@ -1,7 +1,9 @@
 {
   "_doc": "Generic provisioning map (Option B). Email -> fixture filename. studio-config-get reads THIS instead of a hardcoded map in code, so adding a client is a data edit (drop their fixture in data/, add one line here), not a code change. Caroline was the first; Vikram is the first paying client. Email keys are lowercased.",
+  "_test_note": "starbucks005+caroline@gmail.com is a TEST alias for Dr. O to preview Caroline's studio from her own inbox (Gmail delivers +tags to starbucks005@gmail.com). It is treated as a buyer (not the owner), so edits write to a separate user_id and never touch Caroline's real account. Remove this line when testing is done.",
   "clients": {
     "starbucks005@gmail.com": "terry-oroszi-company.json",
+    "starbucks005+caroline@gmail.com": "caroline-inma-company.json",
     "cschirato@infragardnational.org": "caroline-inma-company.json",
     "vikram@vikramsethi.com": "vikram-sethi-company.json",
     "vikram.sethi@onesmarter.com": "vikram-sethi-company.json"

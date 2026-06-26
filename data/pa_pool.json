@@ -1,4 +1,4 @@
-﻿{
+{
   "note": "The Personal Assistant pool. These fill the PA seat (PA + shell, $99 base) AND serve as the free assistant the owner CHOOSES from this pool when they hire a C-suite or board member. As a PA: carries the backpack. As a free C-suite assistant: persona only, no backpack. image_prompt is for art generation. Names/roles as given by Dr. O.",
   "assistants": [
     {

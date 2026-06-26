@@ -1,4 +1,4 @@
-﻿{
+{
  "_doc": "New bench member: Delia Marsh, a dedicated development / sponsorship closer WITH a backpack (live prospect-research tools). NOTE: this is NOT Margo Bennett (Margo is the beta reader at Greylander/Newswire and stays as-is). Two pieces for Code: (1) tool_catalog_additions to merge into consultants_backpack_config.json tool_catalog; (2) consultant_entry to append to consultants[]. The catalog/persona record now lives in agents_final.json.",
  "tool_catalog_additions": {
   "usaspending": {

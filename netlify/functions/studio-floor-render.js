@@ -195,6 +195,74 @@ const STAFF = (ROSTER.agents || [])
   }));
 console.log('[floor-render] STAFF auto-cast from roster:', STAFF.length, 'members:', STAFF.map(s => s.name).join(', '));
 
+/* ── Owner-aware cast (buyers other than Dr. O) ────────────────────────────
+   Dr. O's Floor uses the fixed STUDIO_FLOOR_CAST above. A BUYER's Floor must
+   show THEIR staff, not Terry's. The frontend sends the names visible in the
+   buyer's staff grid; we resolve each against the same roster and compose the
+   same persona (background + floor_chat + any team_dynamics traits). Agents not
+   in the roster (e.g. custom hires like Delia Marsh) still appear, just with a
+   thinner persona. Tolerant match: exact, shortName, first+last, substring. */
+function findRosterAgent(name) {
+  const want = String(name || '').trim();
+  if (!want) return null;
+  const agents = ROSTER.agents || [];
+  let hit = agents.find(a => a.name === want);
+  if (hit) return hit;
+  hit = agents.find(a => shortName(a.name) === want);
+  if (hit) return hit;
+  const norm = s => String(s || '').replace(/"[^"]*"/g, ' ').replace(/\([^)]*\)/g, ' ')
+    .replace(/[^a-zA-Z ]/g, ' ').replace(/\s+/g, ' ').trim().toLowerCase();
+  const firstLast = s => { const p = norm(s).split(' ').filter(Boolean); return p.length ? p[0] + ' ' + p[p.length - 1] : ''; };
+  const wantFL = firstLast(want);
+  if (wantFL) { hit = agents.find(a => firstLast(a.name) === wantFL); if (hit) return hit; }
+  const wl = want.toLowerCase();
+  hit = agents.find(a => a.name && (a.name.toLowerCase().includes(wl) || wl.includes(shortName(a.name).toLowerCase())));
+  return hit || null;
+}
+
+function buildCastFromNames(names) {
+  const seen = new Set();
+  const cast = [];
+  for (const nm of (names || [])) {
+    if (!nm) continue;
+    const agent = findRosterAgent(nm);
+    const key = agent ? agent.name : String(nm).toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    cast.push(agent
+      ? { name: shortName(agent.name), role: agent.role || '', persona: buildPersona(agent) }
+      : { name: shortName(String(nm)), role: '', persona: '' });
+  }
+  return cast;
+}
+
+/* Generic banter directions for a buyer's Floor. No Terry-cast-specific named
+   callouts (Bea, Carol, Jax, ...); the model writes each person from their own
+   persona text in the prompt. Keeps the studio feeling alive without Dr. O's
+   bespoke per-character machinery. */
+function genericChannelDescription(mode, staff, paShortName) {
+  const names = staff.map(s => s.name).join(', ');
+  if (mode === 'watercooler') {
+    return [
+      'This is the WATERCOOLER channel: off-topic, lighthearted, personal banter only. No client work, deadlines, drafts, or deliverables here (that is the Workfloor channel).',
+      '',
+      'CAST (write each person from their persona text above, in their exact voice): ' + names + '.',
+      '',
+      'HOW TO WRITE IT:',
+      '- Pick ONE lead for this render and let them kick off the bit. Rotate the lead across renders so the owner gets to know everyone.' + (paShortName ? ' ' + paShortName + ' (the owner\'s PA) hosts most often: they open, keep it alive, toss the topic around, draw out the quiet ones, and land a witty line. Warm, quick, never mean.' : ''),
+      '- VARY ATTENDANCE: only 4 to 6 of the cast are in the channel this render; the rest are off-channel today (a call, deep work, a coffee run, a walk). Rotate who is present across renders so every staffer surfaces over time.',
+      '- Each person reacts in their OWN voice from their persona text. Aim for at least one genuinely quotable line, the kind someone screenshots. Quotability comes from precision and surprise.',
+      '- Off the clock: nothing about sources, drafts, clients, or work product. Weekend plans, a recipe, a show, a pet, a small life thing.',
+    ].join('\n');
+  }
+  return [
+    'This is the WORKFLOOR channel: work-focused, real-office texture.',
+    'CAST (write each person from their persona text above): ' + names + '.',
+    'They are talking about today\'s actual work in THIS studio: something one of them shipped or has in flight, a small handoff, a quick question, a call to make. Concrete and in-voice. Do not invent fake meetings or fictional names.',
+    'Vary who chimes in (4 to 6 of the cast per render) and rotate across renders.',
+  ].join('\n');
+}
+
 /* ── Read today's real context ─────────────────────────────────────────────
    The Floor only feels alive if the staff are talking about REAL things
    that actually happened in the Studio today. We pull what we can find,
@@ -240,14 +308,16 @@ function smartTrimToSentence(text, maxChars) {
   return cut.trim();
 }
 
-async function getTodaysContext(event) {
+async function getTodaysContext(event, includeBrief) {
   const today = new Date().toISOString().slice(0, 10);
   const context = { date: today, nowET: currentETTime(), items: [] };
 
   try { connectLambda(event); } catch (_) {}
 
-  // Auggie's latest morning brief, if rendered
-  try {
+  // Auggie's latest morning brief, if rendered. ONLY for Dr. O's own Floor:
+  // the brief is her private, single-tenant blob, so a buyer's Floor must not
+  // read it (that would leak her week into someone else's studio).
+  if (includeBrief) try {
     const metaStore = getStore('auggie_briefs_meta');
     const meta = await metaStore.get('latest', { type: 'json' });
     if (meta && meta.transcript) {
@@ -294,6 +364,22 @@ exports.handler = async (event) => {
   try { body = JSON.parse(event.body || '{}'); } catch (_) {}
   const mode = (body.mode === 'watercooler') ? 'watercooler' : 'workfloor';
 
+  // ── Owner identity ──────────────────────────────────────────────────────
+  // Default (no owner sent, or Dr. O's own studio) keeps the original
+  // Terry-tuned Floor verbatim. Any other owner gets an owner-aware render:
+  // THEIR cast (from the staff grid), THEIR name, a generic banter directive,
+  // and none of Dr. O's private brief context.
+  const ownerName    = (body.owner_name || '').trim();
+  const isTerry      = !ownerName || ownerName === 'Dr. Terry Oroszi';
+  const companyName  = (body.company_name || '').trim();
+  const paName       = (body.pa_name || '').trim();
+  const ownerAddress = (body.owner_address_form || '').trim()
+    || (isTerry ? 'Ms. Terry' : (ownerName.split(/\s+/)[0] || 'the owner'));
+  const studioLabel  = isTerry ? "Dr. Terry Oroszi's Studio"
+    : (companyName || (ownerName + "'s Studio"));
+  const ownerStaffNames = Array.isArray(body.staff_names)
+    ? body.staff_names.filter(n => n && typeof n === 'string') : [];
+
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return {
@@ -326,9 +412,15 @@ exports.handler = async (event) => {
   } catch (_) {}
   // ────────────────────────────────────────────────────────────────────────
 
-  const context = await getTodaysContext(event);
+  const context = await getTodaysContext(event, isTerry);
 
-  const staffBlock = STAFF.map(s => `- **${s.name}** (${s.role}): ${s.persona}`).join('\n\n');
+  // Dr. O's own Floor uses her fixed cast; a buyer's Floor is built from the
+  // staff visible in THEIR grid (plus their PA), resolved to roster personas.
+  const activeStaff = isTerry
+    ? STAFF
+    : buildCastFromNames([paName, ...ownerStaffNames]);
+  const staffBlock = (activeStaff.length ? activeStaff : STAFF)
+    .map(s => `- **${s.name}** (${s.role}): ${s.persona}`).join('\n\n');
   const contextBlock = context.items.length
     ? context.items.map(i => `[${i.kind} .${i.date}]\n${i.text}`).join('\n\n---\n\n')
     : '(no specific events today .they are doing office chatter, easy back-and-forth, before the day really starts)';
@@ -385,7 +477,10 @@ exports.handler = async (event) => {
   }
 
   let lockedDirective = null;
-  if (mode === 'watercooler' && STAFF.length > 0) {
+  // The locked-directive machinery (weekly topic pool, bad-day rallies, Carol's
+  // "Frank day", etc.) is bespoke to Dr. O's cast and her team_dynamics data, so
+  // it runs for her studio only. Buyers use the generic channel directive below.
+  if (isTerry && mode === 'watercooler' && STAFF.length > 0) {
     // The PA hosts the watercooler. Terry's rule (2026-06-11): the owner's
     // PA leads EVERY watercooler conversation, in their fun witty register.
     // Found by ROLE, not name, so it generalizes to all 12 pool personas
@@ -489,7 +584,9 @@ exports.handler = async (event) => {
   // Two channels .Workfloor (work focus) and Watercooler (lighthearted
    // off-topic). Same staff, same voices, different topic scope.
   const channelLabel = mode === 'watercooler' ? 'The Watercooler' : 'The Workfloor';
-  const channelDescription = mode === 'watercooler'
+  const channelDescription = !isTerry
+    ? genericChannelDescription(mode, (activeStaff.length ? activeStaff : STAFF), paName || ((activeStaff[0] || {}).name || ''))
+    : mode === 'watercooler'
     ? [
         'This is the WATERCOOLER channel .off-topic, lighthearted. Personal banter only.',
         'They are NOT discussing client work, deadlines, drafts, or deliverables in this channel .that goes in the Workfloor channel.',
@@ -593,9 +690,9 @@ exports.handler = async (event) => {
       ].join('\n');
 
   const systemPrompt = [
-    'You are rendering ' + channelLabel + ' .an inter-staff Slack channel at Dr. Terry Oroszi\'s Studio.',
+    'You are rendering ' + channelLabel + ' .an inter-staff Slack channel at ' + studioLabel + '.',
     '',
-    'Ms. Terry (the principal) is NOT in this channel right now. She just opened the door and walked over. You are rendering what her staff WOULD be saying to each other right now, in voice, based on what actually happened in her Studio today.',
+    ownerAddress + ' (the principal) is NOT in this channel right now. They just opened the door and walked over. You are rendering what the staff WOULD be saying to each other right now, in voice, based on what actually happened in this Studio today.',
     '',
     (lockedDirective || ''),
     'CHANNEL: ' + channelLabel,
@@ -607,7 +704,7 @@ exports.handler = async (event) => {
     'TODAY (' + context.date + ') .what actually happened that they might be talking about:',
     contextBlock,
     '',
-    'CURRENT WALL-CLOCK TIME, Eastern: **' + context.nowET + '** (Terry\'s timezone, America/New_York).',
+    'CURRENT WALL-CLOCK TIME, Eastern: **' + context.nowET + '** (' + (isTerry ? 'Terry\'s timezone, ' : '') + 'America/New_York).',
     '',
     'RULES:',
     '- 8 to 12 messages total.',
@@ -629,12 +726,12 @@ exports.handler = async (event) => {
     '  - Says "you are SO right" or laughs at Bea\'s lines (he tracks them without joining the bit out loud)',
     '  - Refers to himself or his work .he just drops a number and disengages',
     '  Use this Jax voice in EVERY render where he is in the cast. If you produce a Jax message that reads warm or chatty, you have rendered him wrong; rewrite that line before returning.',
-    '- **Freshness rule**: If the morning brief surfaces a Forbes article, mention, or piece of news that is more than 30 days old, the staff have ALREADY discussed it in previous Floor sessions and are bored of it. They DO NOT fixate on it. They pivot. NEVER let the channel be stuck on Dr. Oroszi\'s Forbes piece from last year. She has published a lot since; the staff know that.',
+    '- **Freshness rule**: If the morning brief surfaces a Forbes article, mention, or piece of news that is more than 30 days old, the staff have ALREADY discussed it in previous Floor sessions and are bored of it. They DO NOT fixate on it. They pivot. ' + (isTerry ? 'NEVER let the channel be stuck on Dr. Oroszi\'s Forbes piece from last year. She has published a lot since; the staff know that.' : 'NEVER let the channel be stuck on one old item; the staff move on.'),
     '- They like each other. They tease each other. There can be a small disagreement, but it resolves like adults.',
     '- No emojis. No exclamation points (Bea will not stand for them). ALL CAPS used sparingly for emphasis (OMG, ANYWAY) and only by Auggie.',
-    '- **NO EM DASHES, anywhere, in any message.** Em dashes are an AI tell and Dr. Oroszi has banned them on every public surface. The staff do not use them in speech either. Use periods, commas, ellipses, or a separate sentence instead. If you find yourself writing "—" or "--", rewrite the line.',
+    '- **NO EM DASHES, anywhere, in any message.** Em dashes are an AI tell and are banned on every public surface here. The staff do not use them in speech either. Use periods, commas, ellipses, or a separate sentence instead. If you find yourself writing "—" or "--", rewrite the line.',
     '',
-    '- **AI-TELL BAN LIST (CRITICAL).** Terry is going to PASTE THIS THREAD TO FACEBOOK to prove her AI staff are different from every other GPT wrapper. If the messages read as AI-generated, the pitch dies on contact. The room must sound like a real Slack channel written by humans. The following words and phrasings are LLM tells and are BANNED in every staff message:',
+    '- **AI-TELL BAN LIST (CRITICAL).** ' + (isTerry ? 'Terry is going to PASTE THIS THREAD TO FACEBOOK to prove her AI staff are' : 'This thread may be shared publicly to prove the studio\'s AI staff are') + ' different from every other GPT wrapper. If the messages read as AI-generated, the pitch dies on contact. The room must sound like a real Slack channel written by humans. The following words and phrasings are LLM tells and are BANNED in every staff message:',
     '  • "delve into", "delve", "delving" — the dead giveaway. Use "look at", "dig into", "get into", or just don\'t announce the action.',
     '  • "navigate" (as a verb in conversation), "navigating" — say "handle," "work through," or "deal with."',
     '  • "leverage" (as a verb), "leveraging" — say "use," "lean on," or "pull from."',

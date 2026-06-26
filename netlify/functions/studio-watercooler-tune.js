@@ -110,21 +110,23 @@ async function writeJson(store, key, data) {
 // We don't list-and-prune the whole bucket because that's expensive;
 // we just nuke the index for one stale day per regen, which keeps the
 // window honest with minimal work.
-async function cleanupStaleDay(store) {
+async function cleanupStaleDay(store, pfx) {
+  pfx = pfx || '';
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - (DVR_WINDOW_DAYS + 1));
   const staleKey = todayKeyET(cutoff);
   try {
-    const idx = await readJson(store, 'episodes/' + staleKey + '/index');
+    const idx = await readJson(store, pfx + 'episodes/' + staleKey + '/index');
     if (!idx || !Array.isArray(idx.episode_ids)) return;
     for (const id of idx.episode_ids) {
-      try { await store.delete('episodes/' + staleKey + '/' + id); } catch (_) {}
+      try { await store.delete(pfx + 'episodes/' + staleKey + '/' + id); } catch (_) {}
     }
-    try { await store.delete('episodes/' + staleKey + '/index'); } catch (_) {}
+    try { await store.delete(pfx + 'episodes/' + staleKey + '/index'); } catch (_) {}
   } catch (_) { /* best-effort */ }
 }
 
-async function buildDvrList(store) {
+async function buildDvrList(store, pfx) {
+  pfx = pfx || '';
   // Walk back DVR_WINDOW_DAYS days, collect each day's index, return
   // newest-first list of episode summaries. Caps at DVR_LIST_LIMIT.
   const today = new Date();
@@ -133,12 +135,12 @@ async function buildDvrList(store) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
     const dayKey = todayKeyET(d);
-    const idx = await readJson(store, 'episodes/' + dayKey + '/index');
+    const idx = await readJson(store, pfx + 'episodes/' + dayKey + '/index');
     if (!idx || !Array.isArray(idx.episode_ids)) continue;
     // Newest first within the day
     const ids = idx.episode_ids.slice().reverse();
     for (const id of ids) {
-      const ep = await readJson(store, 'episodes/' + dayKey + '/' + id);
+      const ep = await readJson(store, pfx + 'episodes/' + dayKey + '/' + id);
       if (!ep) continue;
       summaries.push({
         id: ep.id,
@@ -155,7 +157,7 @@ async function buildDvrList(store) {
   return summaries;
 }
 
-async function callFloorRender(event, mode, token) {
+async function callFloorRender(event, mode, token, ownerCtx) {
   // Server-to-server call to the existing render function. We pass the
   // user's JWT through so the render endpoint's own auth gate sees a
   // valid session. Host derived from the incoming request so this works
@@ -168,7 +170,7 @@ async function callFloorRender(event, mode, token) {
   const r = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-    body: JSON.stringify({ mode }),
+    body: JSON.stringify(Object.assign({ mode }, ownerCtx || {})),
   });
   let data;
   try { data = await r.json(); }
@@ -196,16 +198,30 @@ exports.handler = async function(event) {
   const mode = (body.mode === 'watercooler') ? 'watercooler' : 'workfloor';
   const store = getStore('watercooler');
 
+  // Per-user namespace. The Floor is each owner's OWN office; episodes, the
+  // latest pointer, and the DVR history must not be shared across studios.
+  // (Previously these keys were global, so a buyer would have seen Dr. O's
+  // episodes.) Owner context is forwarded to the render so the cast + names
+  // are the buyer's, not Terry's.
+  const pfx = 'u/' + auth.user.id + '/';
+  const ownerCtx = {
+    owner_name: body.owner_name || '',
+    company_name: body.company_name || '',
+    owner_address_form: body.owner_address_form || '',
+    pa_name: body.pa_name || '',
+    staff_names: Array.isArray(body.staff_names) ? body.staff_names : [],
+  };
+
   // DVR replay branch: caller wants a specific past episode. Skip cache
   // check, skip regen — just read the episode body and return it inside
   // the same envelope (so the front-end uses the same rendering path).
   if (body.episode_id && body.dayKey && /^[0-9]{8}$/.test(body.dayKey)) {
-    const ep = await readJson(store, 'episodes/' + body.dayKey + '/' + body.episode_id);
+    const ep = await readJson(store, pfx + 'episodes/' + body.dayKey + '/' + body.episode_id);
     if (!ep) {
       return { statusCode: 404, body: JSON.stringify({ error: 'episode_not_found' }) };
     }
     const ageMs = Date.now() - new Date(ep.timestamp).getTime();
-    const dvr = await buildDvrList(store);
+    const dvr = await buildDvrList(store, pfx);
     return {
       statusCode: 200,
       headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
@@ -230,7 +246,7 @@ exports.handler = async function(event) {
   }
 
   // 1. Check latest pointer for this mode.
-  const latestPtr = await readJson(store, 'latest/' + mode);
+  const latestPtr = await readJson(store, pfx + 'latest/' + mode);
   const now = Date.now();
   let episode = null;
   let fresh = false;
@@ -239,7 +255,7 @@ exports.handler = async function(event) {
     const age = now - new Date(latestPtr.timestamp).getTime();
     if (age >= 0 && age < CACHE_TTL_MS) {
       // Cache hit — read full episode from its day's bucket
-      const ep = await readJson(store, 'episodes/' + latestPtr.dayKey + '/' + latestPtr.id);
+      const ep = await readJson(store, pfx + 'episodes/' + latestPtr.dayKey + '/' + latestPtr.id);
       if (ep) {
         episode = ep;
       }
@@ -248,7 +264,7 @@ exports.handler = async function(event) {
 
   // 2. If no cached episode, regen.
   if (!episode) {
-    const render = await callFloorRender(event, mode, auth.token);
+    const render = await callFloorRender(event, mode, auth.token, ownerCtx);
     const ts = new Date().toISOString();
     const dayKey = todayKeyET(new Date(ts));
     const id = newEpisodeId(mode, ts);
@@ -270,20 +286,20 @@ exports.handler = async function(event) {
       topic: meta.topic,
     };
     // Write the episode body
-    await writeJson(store, 'episodes/' + dayKey + '/' + id, episode);
+    await writeJson(store, pfx + 'episodes/' + dayKey + '/' + id, episode);
     // Update the day's index
-    const idx = (await readJson(store, 'episodes/' + dayKey + '/index')) || { episode_ids: [] };
+    const idx = (await readJson(store, pfx + 'episodes/' + dayKey + '/index')) || { episode_ids: [] };
     idx.episode_ids.push(id);
-    await writeJson(store, 'episodes/' + dayKey + '/index', idx);
+    await writeJson(store, pfx + 'episodes/' + dayKey + '/index', idx);
     // Update the latest pointer for this mode
-    await writeJson(store, 'latest/' + mode, { id, dayKey, timestamp: ts });
+    await writeJson(store, pfx + 'latest/' + mode, { id, dayKey, timestamp: ts });
     // Cleanup stale day (rolling 7-day window)
-    await cleanupStaleDay(store);
+    await cleanupStaleDay(store, pfx);
     fresh = true;
   }
 
   const ageMs = now - new Date(episode.timestamp).getTime();
-  const dvr = await buildDvrList(store);
+  const dvr = await buildDvrList(store, pfx);
 
   return {
     statusCode: 200,

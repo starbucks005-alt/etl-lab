@@ -54,7 +54,14 @@ function loadFixture(filename) {
   ];
   for (const p of candidates) {
     try {
-      if (fs.existsSync(p)) return JSON.parse(fs.readFileSync(p, 'utf8'));
+      if (fs.existsSync(p)) {
+        // Strip a leading UTF-8 BOM before parsing. Several data files get
+        // re-saved by editors / PowerShell `-Encoding utf8`, which prepends a
+        // BOM (EF BB BF). Node's JSON.parse throws on it, which silently
+        // dropped provisioned buyers (Caroline, Vikram) to the default config
+        // (generic studio + the static "Ms. Terry" / Dr. O staff fallback).
+        const _raw = fs.readFileSync(p, "utf8"); return JSON.parse(_raw.charCodeAt(0) === 0xFEFF ? _raw.slice(1) : _raw);
+      }
     } catch (_) {}
   }
   return null;

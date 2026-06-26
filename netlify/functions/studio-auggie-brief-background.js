@@ -86,6 +86,51 @@ const BRIEF_SYSTEM = [
   'YOU ARE WRITING WHAT WILL BE PLAYED IN YOUR VOICE AT 6am ET. Make it feel like a real voice memo.',
 ].join('\n');
 
+/* Per-owner brief (any buyer who is not Dr. O). The cron/Terry path above is
+   untouched; this is built from the validated `target` the trigger forwards.
+   It addresses the buyer by their address form, searches THEIR name/context,
+   and skips Dr. O's publication list and ETL form inboxes entirely. */
+function buildBuyerBriefSystem(target, ownerAddr) {
+  const paFirst = target.pa_first_name || 'your assistant';
+  const studio = target.company_name || ((target.owner_name || 'your') + "'s") + ' Studio';
+  return [
+    'You are ' + paFirst + ', the personal assistant in ' + studio + '. Warm, sharp, loyal to your principal.',
+    '',
+    'TASK: Write ' + ownerAddr + '\'s morning brief in your own voice, first person, as a spoken voice memo (it will be read aloud). One continuous monologue, no headers, no bullet points, no markdown.',
+    '',
+    'OPENING: Address them as "' + ownerAddr + ',", one short warm scene-set line, then pivot into what you found.',
+    '',
+    'BODY: Lead with anything about THEM or their organization first (new mentions, news, anything naming them or their company). Then field news relevant to their work. Cite source names and dates in plain language, never URLs.',
+    '',
+    'CLOSE: One small recommendation or question ("want me to draft a note on that?").',
+    '',
+    'NULL CASE: If search finds nothing new about them, do not dwell or list what you did not find. One warm forward-looking line, then move to field news.',
+    '',
+    'LENGTH: 150-280 words. Personal, not a press release. No exclamation points, no em dashes. This will be SPOKEN; punctuate for breath.',
+  ].join('\n');
+}
+
+function buildBuyerUserPrompt(target, dateKey, calLines, ownerAddr) {
+  const name = target.owner_name || ownerAddr;
+  const ctx = target.owner_context || '';
+  const site = target.owner_site || '';
+  const company = target.company_name || '';
+  return [
+    'Today is ' + dateKey + ' (America/New_York).',
+    '',
+    calLines ? ('THEIR REAL CALENDAR (next 3 weeks, from their own feed):\n' + calLines + '\n\nWeave in 1-3 of these where they matter; do not read the whole list aloud.') : '',
+    '',
+    'Run up to 4 web searches to find, in priority order:',
+    '1. Any genuinely NEW mentions of ' + name + (company ? ' or ' + company : '') + ' in the last 30 days.',
+    site ? ('2. Anything new about ' + site + ' or their public presence.') : '',
+    (ctx ? ('3. News in the last 7 days relevant to their work: ' + ctx) : '3. Recent news relevant to their role and field.'),
+    '',
+    'Then write the morning brief as ' + ownerAddr + ' would hear it from you. 150-280 words. Order: warm opening, then anything about THEM, then field news, then one small recommendation. Cite source names + dates. If nothing fresh about them, say so in one warm line and cover the field news.',
+    '',
+    'Return ONLY the monologue text. No headers, no bullets, no JSON.',
+  ].filter(Boolean).join('\n');
+}
+
 /* Helper: render text to mp3 via ElevenLabs. Returns a Buffer. */
 async function ttsAuggie(text) {
   const apiKey = process.env.ELEVENLABS_API_KEY;
@@ -161,11 +206,14 @@ function parseIcsEvents(text) {
   }
   return evs;
 }
-async function loadCalendarLines() {
+async function loadCalendarLines(calKey) {
   // Feed list: { feeds:[{url,label}] } (current), { url } (legacy), or env.
+  // calKey is the owner's calendar namespace: their user_id for a buyer, or
+  // 'default' for Dr. O. The chat stores each owner's ICS feed under their
+  // user_id, so the brief reads THEIR week, not whoever pasted last.
   let feeds = [];
   try {
-    const rec = await getStore('auggie_calendar').get('default', { type: 'json' });
+    const rec = await getStore('auggie_calendar').get(calKey || 'default', { type: 'json' });
     if (rec && Array.isArray(rec.feeds)) feeds = rec.feeds.filter(f => f && f.url);
     else if (rec && rec.url) feeds = [{ url: rec.url, label: rec.label || '' }];
   } catch (_) {}
@@ -212,8 +260,21 @@ exports.handler = async (event) => {
   }
   const client = new Anthropic({ apiKey });
 
+  // Per-owner brief. The trigger forwards a validated target for a buyer
+  // (user_id from their JWT). No target = Dr. O's own brief (cron path),
+  // which keeps every behavior below verbatim and writes the global blobs.
+  let target = null;
+  try {
+    const b = JSON.parse(event.body || '{}');
+    if (b && b.target && b.target.user_id) target = b.target;
+  } catch (_) {}
+  const keyPfx = target ? ('u/' + target.user_id + '/') : '';
+  const ownerAddr = target
+    ? (target.address_form || (target.owner_name ? target.owner_name.split(/\s+/)[0] : 'there'))
+    : 'Ms. Terry';
+
   const dateKey = todayKeyET();
-  console.log('[auggie-brief-bg] starting brief for', dateKey);
+  console.log('[auggie-brief-bg] starting brief for', dateKey, target ? ('(buyer ' + target.user_id + ')') : '(owner)');
 
   // Step 1+2: gather findings AND write the monologue in one Anthropic call
   // with web_search enabled. The model decides how many searches to spend.
@@ -222,7 +283,9 @@ exports.handler = async (event) => {
   // Failure here is non-fatal; brief still ships without form context.
   let formsDigest = '';
   let formsItems = [];
-  try {
+  // The cross-site form inboxes are Dr. O's ETL platforms; a buyer's brief
+  // never reads them. Only the owner path pulls the forms digest.
+  if (!target) try {
     const user = process.env.PRESS_ADMIN_USER;
     const pass = process.env.PRESS_ADMIN_PASS;
     if (user && pass) {
@@ -252,10 +315,10 @@ exports.handler = async (event) => {
     : '';
 
   // Her real calendar from the published Outlook feed (non-fatal if absent).
-  const calLines = await loadCalendarLines();
+  const calLines = await loadCalendarLines(target ? target.user_id : 'default');
   if (calLines) console.log('[auggie-brief-bg] calendar feed loaded');
 
-  const userPrompt = [
+  const userPrompt = target ? buildBuyerUserPrompt(target, dateKey, calLines, ownerAddr) : [
     `Today is ${dateKey} (America/New_York).`,
     '',
     calLines
@@ -290,7 +353,7 @@ exports.handler = async (event) => {
     const resp = await client.messages.create({
       model: MODEL,
       max_tokens: 1500,
-      system: BRIEF_SYSTEM + VOICE_LAW_PROSE,
+      system: (target ? buildBuyerBriefSystem(target, ownerAddr) : BRIEF_SYSTEM) + VOICE_LAW_PROSE,
       tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: MAX_WEB_SEARCHES }],
       messages: [{ role: 'user', content: userPrompt }],
     });
@@ -338,14 +401,16 @@ exports.handler = async (event) => {
   try {
     const audioStore = getStore('auggie_briefs_audio');
     const metaStore  = getStore('auggie_briefs_meta');
-    await audioStore.set(dateKey, audioBuf, {
+    // keyPfx namespaces a buyer's brief to their user_id; empty for Dr. O so
+    // her cron keeps writing the global 'latest' / dateKey blobs as before.
+    await audioStore.set(keyPfx + dateKey, audioBuf, {
       metadata: { contentType: 'audio/mpeg', dateKey: dateKey },
     });
     const meta = {
       dateKey: dateKey,
       generatedAt: new Date().toISOString(),
       transcript: monologue,
-      audioKey: dateKey,
+      audioKey: keyPfx + dateKey,
       audioBytes: audioBuf.length,
       // Rough duration estimate at 64kbps mp3: bytes / (8000) seconds.
       // Good enough for "this is a 2-minute brief" UI labeling.
@@ -353,10 +418,10 @@ exports.handler = async (event) => {
       voiceId: AUGGIE_VOICE_ID,
       sourcesUsed: sourcesUsed.slice(0, 20),
     };
-    await metaStore.set('latest', JSON.stringify(meta), {
+    await metaStore.set(keyPfx + 'latest', JSON.stringify(meta), {
       metadata: { contentType: 'application/json' },
     });
-    await metaStore.set(dateKey, JSON.stringify(meta), {
+    await metaStore.set(keyPfx + dateKey, JSON.stringify(meta), {
       metadata: { contentType: 'application/json' },
     });
     console.log('[auggie-brief-bg] persisted', dateKey, 'sec~', meta.estimatedSeconds);
