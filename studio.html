@@ -597,24 +597,9 @@
     <div class="ws-eyebrow">A working studio. The staff is at the bench.</div>
     <h1 class="ws-h1">Your Studio</h1>
     <p class="ws-sub">
-      Your AI staff is here and ready. What is below is what is on the floor right now.
+      Your AI staff is here and ready.
     </p>
   </header>
-
-  <!-- ON THE FLOOR RIGHT NOW -->
-  <section class="ws-section">
-    <div class="ws-section-head">
-      <div class="ws-section-h">On the floor right now</div>
-      <div class="ws-section-tag">Live activity</div>
-    </div>
-    <div class="activity-grid">
-      <div class="activity-card" style="grid-column:1/-1;text-align:center;">
-        <div class="activity-status">Private</div>
-        <div class="activity-agent" style="margin-top:8px;">Live activity is auth-gated.</div>
-        <div class="activity-task">Sign in to see what is currently on the floor and who is working on it.</div>
-      </div>
-    </div>
-  </section>
 
   <!-- AUGGIE: chief of staff. Chat panel sits up here, ahead of the staff
        grid, because he runs the day. Persona, backstory, and voice live in
@@ -1978,6 +1963,43 @@
     }
   });
   window.studioSb = sb;
+
+  // ── Owner master key (passcode-less landlord access) ──────────────────────
+  // Dr. O has no working per-user login (no password was ever set; the magic
+  // link never establishes a desktop session). Her browser instead carries a
+  // single owner key in localStorage. We wrap getSession so that whenever there
+  // is no real Supabase session but the owner key is present, every existing
+  // call site transparently receives a synthetic owner session whose
+  // access_token IS the key. The studio-* functions accept that key (see
+  // netlify/functions/_owner-auth.js) and treat the caller as the owner. Real
+  // buyer logins are untouched: a genuine session always wins over the key.
+  (function(){
+    var OWNER_KEY_LS = 'etl_owner_key';
+    var OWNER_EMAIL  = 'starbucks005@gmail.com';
+    // ?key=<owner key> plants the key once; afterwards it just lives here.
+    try {
+      var _qk = new URLSearchParams(location.search).get('key');
+      if (_qk) { localStorage.setItem(OWNER_KEY_LS, _qk); history.replaceState(null, '', location.pathname + location.hash); }
+    } catch(_) {}
+    function ownerKey(){ try { return localStorage.getItem(OWNER_KEY_LS) || null; } catch(_) { return null; } }
+    window._studioOwnerKey = ownerKey;
+    var _realGetSession = sb.auth.getSession.bind(sb.auth);
+    sb.auth.getSession = async function(){
+      var r;
+      try { r = await _realGetSession(); } catch(_) { r = null; }
+      var hasReal = r && r.data && r.data.session && r.data.session.access_token;
+      var k = ownerKey();
+      if (!hasReal && k) {
+        return { data: { session: {
+          access_token: k,
+          token_type: 'bearer',
+          user: { id: 'owner-master', email: OWNER_EMAIL }
+        } }, error: null };
+      }
+      return r || { data: { session: null }, error: null };
+    };
+  })();
+  // ──────────────────────────────────────────────────────────────────────────
 
   function showWorkspace() {
     document.getElementById('login-wall').style.display = 'none';

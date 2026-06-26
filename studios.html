@@ -82,6 +82,24 @@
   var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsdnJuZXJteXV2emFueGh4b2liIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3MzYyMDEsImV4cCI6MjA5NjMxMjIwMX0.tAaXhm_pb-DxrYsXYw1DvvYENDJ_y3jlt2nGWSp2lbA';
   var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
 
+  // Owner master key (passcode-less landlord access). Same shim as studio.html:
+  // when there is no real session but the owner key is in localStorage, hand
+  // back a synthetic owner session whose token IS the key. studio-list accepts
+  // it via netlify/functions/_owner-auth.js. See studio.html for the rationale.
+  (function(){
+    var OWNER_KEY_LS = 'etl_owner_key', OWNER_EMAIL = 'starbucks005@gmail.com';
+    try { var _qk = new URLSearchParams(location.search).get('key'); if (_qk) { localStorage.setItem(OWNER_KEY_LS, _qk); history.replaceState(null, '', location.pathname); } } catch(_){}
+    function ownerKey(){ try { return localStorage.getItem(OWNER_KEY_LS) || null; } catch(_){ return null; } }
+    var _real = sb.auth.getSession.bind(sb.auth);
+    sb.auth.getSession = async function(){
+      var r; try { r = await _real(); } catch(_){ r = null; }
+      var hasReal = r && r.data && r.data.session && r.data.session.access_token;
+      var k = ownerKey();
+      if (!hasReal && k) return { data: { session: { access_token: k, token_type: 'bearer', user: { id: 'owner-master', email: OWNER_EMAIL } } }, error: null };
+      return r || { data: { session: null }, error: null };
+    };
+  })();
+
   function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 
   function showLogin(msg){

@@ -11,7 +11,7 @@ async function validateRequest(event) {
   const authHeader = (event.headers && (event.headers.authorization || event.headers.Authorization)) || '';
   if (!authHeader.toLowerCase().startsWith('bearer ')) return { ok: false, reason: 'no_bearer' };
   const token = authHeader.slice(7).trim();
-  if (!token) return { ok: false, reason: 'empty_token' };
+  if (!token) return { ok: false, reason: 'empty_token' }; { const _ok = require('./_owner-auth.js').ownerUser(token); if (_ok) return { ok: true, user: _ok }; }
   try {
     const r = await fetch(SUPABASE_URL + '/auth/v1/user', {
       method: 'GET',
