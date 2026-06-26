@@ -3155,8 +3155,12 @@
   // the reliable path; the markdown-table reader is a fallback.
   function extractTableAoA(text){
     if (!text) return null;
-    var fence = text.match(/```(?:csv)?\s*\n([\s\S]*?)```/i);
-    if (fence && /,/.test(fence[1]) && /\n/.test(fence[1].trim())) {
+    // A closed ```csv block, OR an UNCLOSED one: LLMs often omit the closing
+    // ``` on a long table, which made "export" show the raw CSV with no download
+    // button. Fall back to "fence open -> end of text" so the data still exports.
+    var fence = text.match(/```(?:csv)?[ \t]*\r?\n([\s\S]*?)```/i)
+             || text.match(/```(?:csv)?[ \t]*\r?\n([\s\S]+)$/i);
+    if (fence && /,/.test(fence[1]) && /\r?\n/.test(fence[1].trim())) {
       var block = fence[1].trim();
       if (typeof XLSX !== 'undefined') {
         try {
@@ -3164,7 +3168,7 @@
           return XLSX.utils.sheet_to_json(wsb.Sheets[wsb.SheetNames[0]], { header: 1 });
         } catch (_) {}
       }
-      return block.split('\n').map(function(r){ return r.split(','); });
+      return block.split(/\r?\n/).map(function(r){ return r.split(','); });
     }
     // Markdown table: contiguous run of "| ... |" lines with a --- separator.
     var lines = text.split('\n');
@@ -3253,8 +3257,14 @@
     // block in the displayed text and the spoken text; the data lands in the
     // download buttons below instead of as a wall of commas.
     var displayText = text;
-    if (side !== 'mine' && text && /```(?:csv)?\s*\n[\s\S]*?```/i.test(text)) {
-      displayText = text.replace(/```(?:csv)?\s*\n[\s\S]*?```/i, '\n(spreadsheet ready, download below)\n').replace(/\n{3,}/g, '\n\n').trim();
+    if (side !== 'mine' && text) {
+      // Hide the raw CSV (closed OR unclosed fence) so the data lands in the
+      // download buttons instead of a wall of commas.
+      var CSV_CLOSED = /```(?:csv)?[ \t]*\r?\n[\s\S]*?```/i;
+      var CSV_OPEN   = /```(?:csv)?[ \t]*\r?\n[\s\S]+$/i;
+      if (CSV_CLOSED.test(text))      displayText = text.replace(CSV_CLOSED, '\n(spreadsheet ready, download below)\n');
+      else if (CSV_OPEN.test(text))   displayText = text.replace(CSV_OPEN, '\n(spreadsheet ready, download below)\n');
+      displayText = displayText.replace(/\n{3,}/g, '\n\n').trim();
     }
     // Auto-linkify http(s) URLs so Jax-report links and any other URLs
     // Auggie sends are clickable instead of literal text.
