@@ -52,6 +52,13 @@ exports.handler = async function(event) {
     return { statusCode: 400, headers: { ...CORS, 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'question_too_long' }) };
   }
 
+  // Accept conversation history from the client; cap at last 20 messages (10 turns).
+  const rawHistory = Array.isArray(body.messages) ? body.messages : [];
+  const history = rawHistory
+    .filter(m => (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string' && m.content.trim())
+    .slice(-20);
+  const messages = [...history, { role: 'user', content: question }];
+
   const systemPrompt = PERSONAS[partner] + '\n\n' + LANE + '\n\n' + VOICE;
 
   let text;
@@ -61,7 +68,7 @@ exports.handler = async function(event) {
       model:      'claude-haiku-4-5-20251001',
       max_tokens: 600,
       system:     systemPrompt,
-      messages:   [{ role: 'user', content: question }],
+      messages,
     });
     text = (msg.content || []).filter(b => b.type === 'text').map(b => b.text).join('').trim();
   } catch (err) {

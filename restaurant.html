@@ -309,12 +309,20 @@
     $('ov').classList.add('open');
   }
   function closeModal(){ $('ov').classList.remove('open'); }
+  var HIST={};
   function ask(){
     var k=$('ov').dataset.k, a=HC[k], q=$('mInput').value.trim(); if(!q) return;
     var r=$('mResp'); r.className='m-resp show'; r.textContent=a.name.split(' ')[0]+' is thinking...';
-    fetch('/.netlify/functions/harvest-ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({partner:k,question:q})})
+    if(!HIST[k]) HIST[k]=[];
+    var msgs=HIST[k].concat([{role:'user',content:q}]);
+    fetch('/.netlify/functions/harvest-ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({partner:k,question:q,messages:msgs})})
       .then(function(res){ if(!res.ok) throw new Error('x'); return res.json(); })
-      .then(function(d){ r.textContent=(d.answer||d.response||'').trim()|| (a.name.split(' ')[0]+' did not have an answer for that.'); })
+      .then(function(d){
+        var ans=(d.answer||d.response||'').trim()||(a.name.split(' ')[0]+' did not have an answer for that.');
+        r.textContent=ans;
+        HIST[k]=msgs.concat([{role:'assistant',content:ans}]);
+        $('mInput').value='';
+      })
       .catch(function(){ r.textContent=a.name.split(' ')[0]+' is still settling into the kitchen. The chat opens when the partners go live. For now, this is a preview of the room.'; });
   }
   document.querySelectorAll('.talk').forEach(function(b){
