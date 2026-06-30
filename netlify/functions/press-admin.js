@@ -309,7 +309,7 @@ function renderDashboard(pieces) {
               <option value="renee_kovac">Ren&eacute;e Kovac &middot; Security</option>
               <option value="maya_iyer">Dr. Maya Iyer &middot; Science</option>
               <option value="karen_bishop">Karen Bishop &middot; Health</option>
-              <option value="jules_rivera">Jules Rivera &middot; Entertainment</option>
+              <option value="mara_rivera">Mara Rivera &middot; Entertainment</option>
               <option value="frank_donovan">Frank Donovan &middot; Sports</option>
             </select>
           </label>
@@ -336,7 +336,7 @@ function renderDashboard(pieces) {
           <button type="button" class="btn btn-seed" data-rid="renee_kovac">Seed Ren&eacute;e Kovac</button>
           <button type="button" class="btn btn-seed" data-rid="maya_iyer">Seed Maya Iyer</button>
           <button type="button" class="btn btn-seed" data-rid="karen_bishop">Seed Karen Bishop</button>
-          <button type="button" class="btn btn-seed" data-rid="jules_rivera">Seed Jules Rivera</button>
+          <button type="button" class="btn btn-seed" data-rid="mara_rivera">Seed Mara Rivera</button>
           <button type="button" class="btn btn-seed" data-rid="frank_donovan">Seed Frank Donovan</button>
         </div>
         <div class="tool-result" id="seed-result"></div>

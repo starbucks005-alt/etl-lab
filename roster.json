@@ -4534,13 +4534,13 @@
         "use_cases":  "â€¢ Dispatching subcontractors for road, utility, or facility work\nâ€¢ Tracking field progress in real time\nâ€¢ Coordinating multi-vendor projects\nâ€¢ Closing the loop between office and field\nâ€¢ Reducing delays caused by unclear communication",
         "image_url":  "https://emerging-tech-lab.com/agents/Dez_eyes_open.png",
         "cat":  "staff",
-        "tier_label":  "Not for hire",
-        "pill":  "Not for hire",
-        "price":  0.0,
+        "tier_label":  "MCP add-on, ~$69/mo",
+        "pill":  "",
+        "price":  69.0,
         "skills":  [
                        "Basketball, grilling, restoring old tools."
                    ],
-        "hireable":  false,
+        "hireable":  true,
         "interests":  [
                           "Basketball, grilling, restoring old tools."
                       ],
@@ -4639,13 +4639,13 @@
         "use_cases":  "â€¢ Emergency protocol updates\nâ€¢ Cross-department readiness coordination\nâ€¢ Public communication templates\nâ€¢ Seasonal hazard preparation\nâ€¢ After-action reviews",
         "image_url":  "https://emerging-tech-lab.com/agents/Ramon_eyes_open.png",
         "cat":  "staff",
-        "tier_label":  "Not for hire",
-        "pill":  "Not for hire",
-        "price":  0.0,
+        "tier_label":  "Add-on, ~$49/mo",
+        "pill":  "",
+        "price":  49.0,
         "skills":  [
                        "Trail running, weather tracking, minimalist camping."
                    ],
-        "hireable":  false,
+        "hireable":  true,
         "interests":  [
                           "Trail running, weather tracking, minimalist camping."
                       ],

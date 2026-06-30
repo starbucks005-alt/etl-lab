@@ -29,7 +29,7 @@ const REPORTERS = [
   'renee_kovac',
   'maya_iyer',
   'karen_bishop',
-  'jules_rivera',
+  'mara_rivera',
   'frank_donovan',
 ];
 

@@ -231,10 +231,45 @@
       color: rgba(255,255,255,0.2);
     }
 
+    /* Founder section */
+    .founder-section {
+      padding: 80px 60px;
+      background: rgba(40,82,122,0.06);
+    }
+    .founder-inner {
+      max-width: 760px;
+      border-left: 3px solid var(--gold);
+      padding-left: 48px;
+    }
+    .founder-eyebrow {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 3.5px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 20px;
+    }
+    .founder-headline {
+      font-family: 'Spectral', serif;
+      font-size: clamp(26px, 3.5vw, 40px);
+      font-weight: 300;
+      line-height: 1.25;
+      color: #fff;
+      margin-bottom: 28px;
+    }
+    .founder-body p {
+      font-size: 15px;
+      line-height: 1.8;
+      color: #a09890;
+    }
+    .founder-body p + p { margin-top: 16px; }
+
     @media (max-width: 860px) {
       .top-nav { padding: 16px 24px; }
       .hero { padding: 64px 24px 56px; }
       .section-divider { margin: 0 24px; }
+      .founder-section { padding: 56px 24px; }
+      .founder-inner { padding-left: 24px; }
       .cards-section { padding: 56px 24px; }
       .cards-grid { grid-template-columns: 1fr; }
       .cta-section { padding: 56px 24px; flex-direction: column; gap: 40px; }
@@ -255,6 +290,19 @@
   <div class="hero-eyebrow">ETL &nbsp;&middot;&nbsp; Investment Overview &nbsp;&middot;&nbsp; 2026</div>
   <h1>Iris has a sister at college.<br>Tessa calls between <em>classes.</em></h1>
   <p class="hero-sub">Every agent on the ETL campus has a life like that. A name, a role, a history, relationships. They show up the same way every time, across every platform on campus. That is staff. The Emerging Technologies Laboratory is built on that distinction, and the architecture that makes it possible across twelve platforms is the investment thesis.</p>
+</section>
+
+<hr class="section-divider">
+
+<section class="founder-section">
+  <div class="founder-inner">
+    <div class="founder-eyebrow">Founder &nbsp;&middot;&nbsp; Dr. Terry Oroszi</div>
+    <h2 class="founder-headline">What makes an ETL agent feel real?</h2>
+    <div class="founder-body">
+      <p>Most AI builders come from engineering. Dr. Terry Oroszi holds a doctorate in organizational behavior, a master's in molecular genetics, FBI profiling certifications, an acting credit on IMDB, and a published body of fiction spanning novels, novellas, and a graphic novel. Each of these disciplines is training in the same question.</p>
+      <p>Her research describes the approach as "cognitive method acting and profiling-based character construction." Iris was not programmed with a personality. She was built from the inside out, the same way a novelist constructs a character until the consistency is native, not rule-governed. Twenty years of peer-reviewed research and classified national security work provide the analytical rigor. The character craft provides the thing rigor alone cannot: agents people want to come back to.</p>
+    </div>
+  </div>
 </section>
 
 <hr class="section-divider">

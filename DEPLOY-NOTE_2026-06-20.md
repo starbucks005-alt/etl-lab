@@ -56,6 +56,11 @@ git add CC-HANDOFF_restaurant_MASTER_2026-06-20.md CC-HANDOFF_harvest-ask_2026-0
   returns `X-Generated-Voice-Id` so ETL can save the chosen voice on deploy. `voice-preview.js`
   still accepts an explicit `voice_id` to read with an existing My Voices voice.
 
+**Floor banter (`netlify/functions/etl-banter-cron.js`, already tracked, modified)**
+- Added The Harvest Circuit to the campus context and schedule so the floor references it as a
+  place to go: breakfast, lunch, working lunch over the long table, dinner, dates, a bottle from
+  Vic. No new banter cast; the existing staff just talk about it like the good lunch spot.
+
 **City chat (already in prior handoff, confirm shipped)**
 - `city-government.html` + the 9 `city-{yolanda,priscilla,dez}-{ask,status,background}.js` functions.
 
