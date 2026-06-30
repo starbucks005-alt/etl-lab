@@ -264,6 +264,51 @@
     }
     .founder-body p + p { margin-top: 16px; }
 
+    /* Photo strip */
+    .photos-section {
+      padding: 80px 60px;
+      background: rgba(40,82,122,0.04);
+    }
+    .photos-section-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 3.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 48px;
+    }
+    .photos-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .photo-wrap {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      overflow: hidden;
+    }
+    .photo-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      display: block;
+      filter: saturate(0.88) brightness(0.92);
+      transition: filter .3s;
+    }
+    .photo-item:hover .photo-wrap img {
+      filter: saturate(1) brightness(1);
+    }
+    .photo-names {
+      margin-top: 12px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      line-height: 1.7;
+    }
+
     @media (max-width: 860px) {
       .top-nav { padding: 16px 24px; }
       .hero { padding: 64px 24px 56px; }
@@ -272,8 +317,14 @@
       .founder-inner { padding-left: 24px; }
       .cards-section { padding: 56px 24px; }
       .cards-grid { grid-template-columns: 1fr; }
+      .photos-section { padding: 56px 24px; }
+      .photos-grid { grid-template-columns: 1fr 1fr; gap: 16px; }
       .cta-section { padding: 56px 24px; flex-direction: column; gap: 40px; }
       .inv-footer { padding: 28px 24px; }
+    }
+
+    @media (max-width: 560px) {
+      .photos-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -364,6 +415,45 @@
       <h2>The seventh platform costs a fraction of the first.</h2>
       <p>Every ETL platform runs on the same shared architecture: serverless functions, a unified authentication and credit layer, the Anthropic SDK, and the backpack standard. Every new platform, The Gym, The Harvest Circuit, The Court, adds to the same campus without rebuilding the foundation. A new agent goes live in hours. A new platform launches on infrastructure that already serves ten others.</p>
       <p>The marginal cost of campus growth is low. The marginal value of each new agent compounds: more cast means more hiring options in Founder Studio, more routing depth for Iris, and a richer campus experience for every visitor who comes through any door.</p>
+    </div>
+
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<section class="photos-section">
+  <div class="photos-section-label">The campus, in session</div>
+  <div class="photos-grid">
+
+    <div class="photo-item">
+      <div class="photo-wrap"><img src="/images/PAs_Fun2.png" alt="Marceline, Annika, Simone, Walt, Ezra and Mateo at the ETL campus"></div>
+      <div class="photo-names">Marceline &nbsp;&middot;&nbsp; Annika &nbsp;&middot;&nbsp; Simone &nbsp;&middot;&nbsp; Walt &nbsp;&middot;&nbsp; Ezra &nbsp;&middot;&nbsp; Mateo</div>
+    </div>
+
+    <div class="photo-item">
+      <div class="photo-wrap"><img src="/images/GP_Fun.png" alt="Maddie, Rachel, Chris and Emir at Greylander Press"></div>
+      <div class="photo-names">Maddie &nbsp;&middot;&nbsp; Rachel &nbsp;&middot;&nbsp; Chris &nbsp;&middot;&nbsp; Emir</div>
+    </div>
+
+    <div class="photo-item">
+      <div class="photo-wrap"><img src="/images/Jen_Auggie_fun.png" alt="Jen and Auggie"></div>
+      <div class="photo-names">Jen &nbsp;&middot;&nbsp; Auggie</div>
+    </div>
+
+    <div class="photo-item">
+      <div class="photo-wrap"><img src="/images/EPs_Fun.png" alt="Matthew Vance, Carol, Jules and Zara"></div>
+      <div class="photo-names">Matthew Vance &nbsp;&middot;&nbsp; Carol &nbsp;&middot;&nbsp; Jules &nbsp;&middot;&nbsp; Zara</div>
+    </div>
+
+    <div class="photo-item">
+      <div class="photo-wrap"><img src="/images/Group_fun_2.png" alt="Iris, Alicia and MJ"></div>
+      <div class="photo-names">Iris &nbsp;&middot;&nbsp; Alicia &nbsp;&middot;&nbsp; MJ</div>
+    </div>
+
+    <div class="photo-item">
+      <div class="photo-wrap"><img src="/images/PAs_Fun.png" alt="Marceline, Annika, Simone and Walt"></div>
+      <div class="photo-names">Marceline &nbsp;&middot;&nbsp; Annika &nbsp;&middot;&nbsp; Simone &nbsp;&middot;&nbsp; Walt</div>
     </div>
 
   </div>
