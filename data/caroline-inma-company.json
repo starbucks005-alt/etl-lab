@@ -136,42 +136,42 @@
         "id": "yuki_mendel",
         "name": "Yuki Mendel",
         "role": "Graphic Designer",
-        "note": "event collateral, sponsor decks, signage. Top fit.",
+        "note": "Caroline's in-house design desk. Event collateral, sponsor decks, signage, name badges, and the program book, all in one consistent INMA look so everything she puts in front of a sponsor or a council chamber reads as credible as it is. When a pitch has to look the part, Yuki makes it. Top fit for an events shop.",
         "backpack": false
       },
       {
         "id": "leo_vance",
         "name": "Leo Vance",
         "role": "Financial Operations Associate",
-        "note": "event budgets, sponsor revenue tracking",
+        "note": "The numbers behind the events. Builds and tracks event budgets, reconciles sponsor revenue against pledges, flags overruns before they land, and keeps a clean per-event P&L the INMA board can read at a glance. For the mayor role he holds the same discipline on municipal line items. His backpack pulls live figures, so the tracking is current, not last month's spreadsheet.",
         "backpack": true
       },
       {
         "id": "sasha_moreno",
         "name": "Sasha Moreno",
         "role": "People Ops / HR",
-        "note": "committee and volunteer coordination",
+        "note": "The people side of every event. Builds the volunteer and committee roster, assigns roles, owns the day-of run sheet, and keeps the thank-yous going out after. For INMA's members and the mayor's office alike, she turns a list of willing people into an organized crew that shows up knowing what to do.",
         "backpack": false
       },
       {
         "id": "kimberly_pass",
         "name": "Kimberly Pass",
         "role": "Legal Researcher",
-        "note": "venue and sponsorship agreement research",
+        "note": "Reads the fine print so Caroline is never surprised at signing. Researches venue contracts, sponsorship agreements, and vendor terms; flags liability, insurance, and cancellation clauses; and checks the nonprofit and municipal compliance questions before they become problems. Not legal advice, the homework that makes the lawyer's hour cheaper and the signature safer.",
         "backpack": false
       },
       {
         "id": "ramon_delgado",
         "name": "Ramon Delgado",
         "role": "Emergency Readiness Coordinator",
-        "note": "InfraGard mission fit: readiness protocols, continuity, cross-team coordination for INMA events and the city. Donated for Caroline to try.",
+        "note": "On InfraGard's home turf. Builds readiness checklists and continuity plans for INMA events (medical, weather, crowd, evacuation) and keeps emergency protocols current for the Angels Camp side. The one who quietly writes the plan that saves hours when something goes wrong at a 400-person event. Donated for Caroline to try.",
         "backpack": false
       },
       {
         "id": "dez_quigley",
         "name": "Desmond \"Dez\" Quigley",
         "role": "Infrastructure Field Coordinator",
-        "note": "Public-works and infrastructure field ops: work orders, vendor dispatch, field visibility. Donated for Caroline to try.",
+        "note": "Keeps the moving parts moving. Coordinates the field side of events and public works, vendor and contractor dispatch, load-in and load-out, work orders, and real-time status so Caroline always knows what is actually happening on the ground. The bridge between the office and the street for INMA events and the mayor's projects alike. Donated for Caroline to try.",
         "backpack": true
       }
     ]
