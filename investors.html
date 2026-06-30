@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Investor Overview — Emerging Technologies Laboratory</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="/brand/etl-favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:  #0a0a0f;
+      --blue:   #28527a;
+      --gold:   #c6a667;
+      --green:  #46d6e6;
+      --cream:  #f5f3ee;
+      --muted:  #888;
+    }
+
+    body {
+      background: var(--black);
+      color: var(--cream);
+      font-family: 'Public Sans', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Classification banner */
+    .banner {
+      background: var(--blue);
+      text-align: center;
+      padding: 7px 24px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #fff;
+    }
+
+    /* Top nav */
+    .top-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 60px;
+      border-bottom: 1px solid rgba(92,138,181,0.2);
+    }
+    .top-nav a { text-decoration: none; }
+    .top-nav-logo {
+      font-family: 'Public Sans', sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .top-nav-logo span { color: var(--green); }
+    .top-nav-back {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color .15s;
+    }
+    .top-nav-back:hover { color: var(--cream); }
+
+    /* Hero */
+    .hero {
+      padding: 100px 60px 80px;
+      max-width: 900px;
+    }
+    .hero-eyebrow {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 3.5px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 28px;
+    }
+    .hero h1 {
+      font-family: 'Spectral', serif;
+      font-size: clamp(38px, 6vw, 68px);
+      font-weight: 300;
+      line-height: 1.1;
+      color: #fff;
+      margin-bottom: 28px;
+    }
+    .hero h1 em {
+      font-style: italic;
+      color: var(--green);
+    }
+    .hero-sub {
+      font-size: 17px;
+      line-height: 1.75;
+      color: #b0a898;
+      max-width: 640px;
+    }
+
+    /* Divider */
+    .section-divider {
+      border: 0;
+      border-top: 1px solid rgba(92,138,181,0.2);
+      margin: 0 60px;
+    }
+
+    /* Cards section */
+    .cards-section {
+      padding: 80px 60px;
+    }
+    .cards-section-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 3.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 48px;
+    }
+    .cards-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px;
+      background: rgba(92,138,181,0.12);
+    }
+    .card {
+      background: var(--black);
+      padding: 48px 44px;
+    }
+    .card-eyebrow {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 20px;
+    }
+    .card h2 {
+      font-family: 'Spectral', serif;
+      font-size: clamp(20px, 2.5vw, 26px);
+      font-weight: 400;
+      line-height: 1.25;
+      color: #fff;
+      margin-bottom: 20px;
+    }
+    .card p {
+      font-size: 14px;
+      line-height: 1.8;
+      color: #a09890;
+    }
+    .card p + p { margin-top: 12px; }
+
+    /* Highlight card (first card gets slight treatment) */
+    .card--lead {
+      border-left: 3px solid var(--green);
+    }
+    .card--lead .card-eyebrow { color: var(--green); }
+
+    /* CTA section */
+    .cta-section {
+      padding: 80px 60px;
+      display: flex;
+      align-items: flex-start;
+      gap: 80px;
+    }
+    .cta-left { flex: 1; max-width: 520px; }
+    .cta-eyebrow {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 3.5px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 20px;
+    }
+    .cta-left h2 {
+      font-family: 'Spectral', serif;
+      font-size: clamp(26px, 3.5vw, 40px);
+      font-weight: 300;
+      line-height: 1.2;
+      color: #fff;
+      margin-bottom: 20px;
+    }
+    .cta-left p {
+      font-size: 15px;
+      line-height: 1.75;
+      color: #a09890;
+    }
+    .cta-right {
+      padding-top: 6px;
+    }
+    .cta-link {
+      display: inline-block;
+      font-family: 'Public Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--black);
+      background: var(--cream);
+      padding: 16px 36px;
+      text-decoration: none;
+      transition: background .15s, color .15s;
+    }
+    .cta-link:hover { background: var(--green); }
+
+    /* Footer */
+    .inv-footer {
+      border-top: 1px solid rgba(92,138,181,0.2);
+      padding: 32px 60px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .inv-footer-left {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.25);
+      line-height: 1.8;
+    }
+    .inv-footer-right {
+      font-family: 'Public Sans', sans-serif;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.2);
+    }
+
+    @media (max-width: 860px) {
+      .top-nav { padding: 16px 24px; }
+      .hero { padding: 64px 24px 56px; }
+      .section-divider { margin: 0 24px; }
+      .cards-section { padding: 56px 24px; }
+      .cards-grid { grid-template-columns: 1fr; }
+      .cta-section { padding: 56px 24px; flex-direction: column; gap: 40px; }
+      .inv-footer { padding: 28px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="banner">INVESTOR OVERVIEW &nbsp;&middot;&nbsp; EMERGING TECHNOLOGIES LABORATORY &nbsp;&middot;&nbsp; CONFIDENTIAL</div>
+
+<nav class="top-nav">
+  <a href="/" class="top-nav-logo">DR. TERRY OROSZI'S EMERGING <span>TECHNOLOGIES</span> LABORATORY</a>
+  <a href="/" class="top-nav-back">&larr; Back to Campus</a>
+</nav>
+
+<section class="hero">
+  <div class="hero-eyebrow">ETL &nbsp;&middot;&nbsp; Investment Overview &nbsp;&middot;&nbsp; 2026</div>
+  <h1>This is not a<br>chatbot company.<br>It is a <em>campus.</em></h1>
+  <p class="hero-sub">The Emerging Technologies Laboratory is a portfolio of working AI platforms unified by a single cast of 125 persistent characters, a proprietary methodology, and an architecture that lets agents carry their capabilities across every site on campus. The distinction between a campus and a collection of chatbots is the entire investment thesis.</p>
+</section>
+
+<hr class="section-divider">
+
+<section class="cards-section">
+  <div class="cards-section-label">Six reasons the architecture is defensible</div>
+
+  <div class="cards-grid">
+
+    <!-- 1. Campus Illusion -->
+    <div class="card card--lead">
+      <div class="card-eyebrow">Differentiator &nbsp;01</div>
+      <h2>One conversation. Six websites. Zero seams.</h2>
+      <p>When a visitor asks Iris where to go for research help, she tells them about SLR Studio. When they ask about dinner, she describes The Harvest Circuit. When they want to settle a dispute, she walks them to The Court. What the visitor experiences is a single conversation with a concierge who knows every building on campus.</p>
+      <p>What is actually happening is navigation across six separate websites on three different domains. The visitor never knows. The illusion holds because two things work together: the backpack architecture, which gives each agent cross-platform knowledge as a native capability, and the campus brand system, which runs the building metaphor all the way down to every surface. No traditional chatbot can replicate this. A FAQ bot knows one site. Iris knows the entire campus.</p>
+    </div>
+
+    <!-- 2. 125 Agents -->
+    <div class="card">
+      <div class="card-eyebrow">Architecture &nbsp;02</div>
+      <h2>Not personas. Not templates. Staff.</h2>
+      <p>Every agent on the ETL campus has a name, a role, a domain lens, a home platform, and a persistent identity that travels with them. Hire Rowan Tate for your Founder Studio and he brings his quant risk framework. Hire Kimberly Pass and she brings her seven-section legal research architecture. These are not skins over a generic model.</p>
+      <p>85 of the 125 carry a live backpack, a Model Context Protocol toolkit they carry across every platform they touch. An agent with a backpack brings PubMed, FDA registries, clinical trial databases, or financial data feeds with them wherever they go. The platform does not have to provide any of it. It is already in the pack.</p>
+    </div>
+
+    <!-- 3. Act I / Act II -->
+    <div class="card">
+      <div class="card-eyebrow">Business Model &nbsp;03</div>
+      <h2>From no idea to a running company in one pipeline.</h2>
+      <p>The Gauntlet (Act I) takes a person who wants to start a business and runs their concept through nine domain judges: finance, law, operations, market, and five more. They leave with a tested idea and a scorecard. Founder Studio (Act II) wraps that idea in a 10-seat AI company: a Chief of Staff, six Essential Staff specialists, and two add-on hires they pick from a bench of 65.</p>
+      <p>The pipeline has no natural exit point. A Gauntlet graduate's next logical move is Founder Studio. A Founder Studio member's next need is more specialists. Each step pulls the next one forward.</p>
+    </div>
+
+    <!-- 4. SLR Method -->
+    <div class="card">
+      <div class="card-eyebrow">Proprietary IP &nbsp;04</div>
+      <h2>The same methodology powers every platform.</h2>
+      <p>Dr. Oroszi's Structured Literature Review method, developed across two decades of research, 70-plus peer-reviewed publications, and 22 classified national security documents, is the intellectual backbone of the ETL platform. The method: identify gaps in complex information systems, apply structured analytical frameworks, produce structured outputs.</p>
+      <p>It powers the Gauntlet scoring engine, the SLR Studio research pipeline, the Intel Dashboard analysis layer, and the OPSEC Gauntlet threat assessment modules. It is not a prompt. It is a repeatable, defensible methodology with a published academic pedigree. That is the moat.</p>
+    </div>
+
+    <!-- 5. The $500 Company -->
+    <div class="card">
+      <div class="card-eyebrow">Market &nbsp;05</div>
+      <h2>A 10-seat AI company for less than one week of one salary.</h2>
+      <p>The full Founder Studio configuration, a Personal Assistant, six Essential Staff specialists, and two add-on hires, runs $500 a month. Under $10,000 for the full first year, staff included. The comparison is not to other AI tools. It is to the cost of staffing a small business: $4,000 a month for one employee, before benefits, before turnover, before onboarding.</p>
+      <p>ETL delivers the equivalent of a full operating team, with institutional memory, consistent output, and no HR liability, at a price point the SMB market can sustain. The addressable market is every first-time founder, solo operator, and small business owner who knows they need help and cannot afford a staff.</p>
+    </div>
+
+    <!-- 6. Built for Scale -->
+    <div class="card">
+      <div class="card-eyebrow">Infrastructure &nbsp;06</div>
+      <h2>The seventh platform costs a fraction of the first.</h2>
+      <p>Every ETL platform runs on the same shared architecture: serverless functions, a unified authentication and credit layer, the Anthropic SDK, and the backpack standard. Every new platform, The Gym, The Harvest Circuit, The Court, adds to the same campus without rebuilding the foundation. A new agent goes live in hours. A new platform launches on infrastructure that already serves ten others.</p>
+      <p>The marginal cost of campus growth is low. The marginal value of each new agent compounds: more cast means more hiring options in Founder Studio, more routing depth for Iris, and a richer campus experience for every visitor who comes through any door.</p>
+    </div>
+
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<section class="cta-section">
+  <div class="cta-left">
+    <div class="cta-eyebrow">Next Steps</div>
+    <h2>Schedule a conversation with Dr. Oroszi.</h2>
+    <p>Dr. Terry Oroszi is the founder, principal investigator, and director of the Emerging Technologies Laboratory. She is available for investor conversations, live campus demonstrations, and partnership discussions. The demo is the lab itself, running live.</p>
+  </div>
+  <div class="cta-right">
+    <a href="mailto:drterryoroszi@emerging-tech-lab.com?subject=Investor Inquiry — ETL" class="cta-link">Get in Touch</a>
+  </div>
+</section>
+
+<footer class="inv-footer">
+  <div class="inv-footer-left">
+    &copy; 2026 Mission Possible Institute LLC &nbsp;&middot;&nbsp; Dr. Terry L. Oroszi<br>
+    This document is confidential and intended for prospective investors only.
+  </div>
+  <div class="inv-footer-right">emerging-tech-lab.com</div>
+</footer>
+
+</body>
+</html>
