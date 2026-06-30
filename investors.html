@@ -231,6 +231,29 @@
       color: rgba(255,255,255,0.2);
     }
 
+    /* Video section */
+    .video-section {
+      padding: 80px 60px;
+    }
+    .video-eyebrow {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 3.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
+    .video-wrap {
+      max-width: 860px;
+      padding: 56.25% 0 0 0;
+      position: relative;
+    }
+    .video-wrap iframe {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+    }
+
     /* Founder section */
     .founder-section {
       padding: 80px 60px;
@@ -317,6 +340,7 @@
       .founder-inner { padding-left: 24px; }
       .cards-section { padding: 56px 24px; }
       .cards-grid { grid-template-columns: 1fr; }
+      .video-section { padding: 56px 24px; }
       .photos-section { padding: 56px 24px; }
       .photos-grid { grid-template-columns: 1fr 1fr; gap: 16px; }
       .cta-section { padding: 56px 24px; flex-direction: column; gap: 40px; }
@@ -341,6 +365,15 @@
   <div class="hero-eyebrow">ETL &nbsp;&middot;&nbsp; Investment Overview &nbsp;&middot;&nbsp; 2026</div>
   <h1>Iris has a sister at college.<br>Tessa calls between <em>classes.</em></h1>
   <p class="hero-sub">Every agent on the ETL campus has a life like that. A name, a role, a history, relationships. They show up the same way every time, across every platform on campus. That is staff. The Emerging Technologies Laboratory is built on that distinction, and the architecture that makes it possible across twelve platforms is the investment thesis.</p>
+</section>
+
+<hr class="section-divider">
+
+<section class="video-section">
+  <div class="video-eyebrow">The ETL Campus &nbsp;&middot;&nbsp; The AI Staff, in their own voice</div>
+  <div class="video-wrap">
+    <iframe src="https://player.vimeo.com/video/1205971191?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" title="The Dose Welcome"></iframe>
+  </div>
 </section>
 
 <hr class="section-divider">
@@ -490,5 +523,6 @@
   <div class="inv-footer-right">emerging-tech-lab.com</div>
 </footer>
 
+<script src="https://player.vimeo.com/api/player.js"></script>
 </body>
 </html>
