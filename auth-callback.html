@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Signing In — Emerging Technologies Laboratory</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="/brand/etl-favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&family=Public+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0a0a0f; color: #f5f3ee; font-family: 'Public Sans', sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; -webkit-font-smoothing: antialiased; }
+    .wrap { text-align: center; padding: 40px 24px; max-width: 380px; }
+    .mono { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: #888; margin-bottom: 20px; }
+    h1 { font-size: 18px; font-weight: 500; color: #fff; margin-bottom: 10px; }
+    p { font-size: 14px; color: #888; line-height: 1.6; }
+    .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #46d6e6; margin: 0 3px; animation: blink 1.2s infinite; }
+    .dot:nth-child(2) { animation-delay: .2s; }
+    .dot:nth-child(3) { animation-delay: .4s; }
+    @keyframes blink { 0%, 80%, 100% { opacity: 0.2; } 40% { opacity: 1; } }
+    .error-box { display: none; margin-top: 24px; padding: 14px 16px; background: rgba(220,80,80,0.08); border-left: 3px solid #dc5050; text-align: left; font-size: 13px; color: #f8c8c8; line-height: 1.6; }
+    .back-link { display: inline-block; margin-top: 24px; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: #888; text-decoration: none; }
+    .back-link:hover { color: #f5f3ee; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="mono">ETL &nbsp;&middot;&nbsp; Member Access</div>
+  <h1>Signing you in<span class="dot"></span><span class="dot"></span><span class="dot"></span></h1>
+  <p id="status-text">Verifying your login link.</p>
+  <div class="error-box" id="error-box"></div>
+  <a href="/member-login" class="back-link" id="back-link" style="display:none">&larr; Back to login</a>
+</div>
+
+<script>
+  function showError(msg) {
+    document.getElementById('status-text').textContent = 'Something went wrong.';
+    const box = document.getElementById('error-box');
+    box.textContent = msg;
+    box.style.display = 'block';
+    document.getElementById('back-link').style.display = 'inline-block';
+    document.querySelector('h1').textContent = 'Sign-in failed';
+  }
+
+  async function handleCallback() {
+    // Supabase puts session in the URL hash after magic link click
+    const hash = window.location.hash.substring(1);
+    const params = new URLSearchParams(hash);
+
+    const accessToken  = params.get('access_token');
+    const refreshToken = params.get('refresh_token');
+    const expiresIn    = parseInt(params.get('expires_in') || '3600', 10);
+    const type         = params.get('type');
+
+    // Also handle query-string style (PKCE flow) — Supabase sometimes uses ?code=
+    const qParams   = new URLSearchParams(window.location.search);
+    const errorDesc = qParams.get('error_description') || params.get('error_description');
+    if (errorDesc) { showError(errorDesc); return; }
+
+    if (!accessToken) {
+      showError('No login token found. The link may have expired. Please request a new one.');
+      return;
+    }
+
+    // Store session in localStorage
+    const session = {
+      access_token:  accessToken,
+      refresh_token: refreshToken,
+      expires_at:    Date.now() + expiresIn * 1000,
+      token_type:    'bearer',
+    };
+    try {
+      localStorage.setItem('etl_session', JSON.stringify(session));
+    } catch (_) {
+      showError('Could not save your session. Please enable localStorage and try again.');
+      return;
+    }
+
+    document.getElementById('status-text').textContent = 'Syncing your account...';
+
+    // Sync subscription status at login
+    try {
+      await fetch('/.netlify/functions/check-subscription-etl', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+    } catch (_) {}
+
+    // Seed / check credits (also migrates pending membership blob on first login)
+    try {
+      await fetch('/.netlify/functions/get-credits-etl', {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+    } catch (_) {}
+
+    // Redirect: go to intended destination or member-welcome
+    const dest = sessionStorage.getItem('etl_login_dest') || '/member-welcome';
+    sessionStorage.removeItem('etl_login_dest');
+    window.location.replace(dest);
+  }
+
+  handleCallback();
+</script>
+</body>
+</html>

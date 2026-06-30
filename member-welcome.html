@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome, Member — Emerging Technologies Laboratory</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="/brand/etl-favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Spectral:wght@300;400&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --black: #0a0a0f; --blue: #28527a; --gold: #c6a667; --green: #46d6e6; --cream: #f5f3ee; --muted: #888; }
+    body { background: var(--black); color: var(--cream); font-family: 'Public Sans', sans-serif; min-height: 100vh; display: flex; flex-direction: column; -webkit-font-smoothing: antialiased; }
+    .banner { background: var(--blue); text-align: center; padding: 7px 24px; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: #fff; }
+    .top-nav { display: flex; align-items: center; justify-content: space-between; padding: 20px 60px; border-bottom: 1px solid rgba(92,138,181,0.2); }
+    .top-nav a { text-decoration: none; }
+    .logo { font-family: 'Public Sans', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); }
+    .logo span { color: var(--green); }
+    .nav-right { display: flex; gap: 24px; align-items: center; }
+    .nav-link { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); transition: color .15s; }
+    .nav-link:hover { color: var(--cream); }
+    .main { flex: 1; padding: 80px 60px; max-width: 900px; }
+    .eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 3.5px; text-transform: uppercase; color: var(--gold); margin-bottom: 20px; }
+    h1 { font-family: 'Spectral', serif; font-size: clamp(32px, 5vw, 56px); font-weight: 300; line-height: 1.1; color: #fff; margin-bottom: 20px; }
+    .sub { font-size: 16px; line-height: 1.75; color: #888; max-width: 560px; margin-bottom: 48px; }
+    .credit-bar { display: inline-flex; align-items: center; gap: 16px; background: rgba(40,82,122,0.15); border: 1px solid rgba(92,138,181,0.25); padding: 14px 24px; margin-bottom: 56px; }
+    .credit-label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+    .credit-val { font-family: 'IBM Plex Mono', monospace; font-size: 20px; color: var(--green); font-weight: 500; }
+    .credit-note { font-size: 12px; color: #666; }
+    .links-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; background: rgba(92,138,181,0.12); max-width: 640px; }
+    .link-card { background: var(--black); padding: 28px 32px; text-decoration: none; display: block; transition: background .15s; }
+    .link-card:hover { background: rgba(40,82,122,0.12); }
+    .link-eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--blue); margin-bottom: 10px; }
+    .link-title { font-family: 'Spectral', serif; font-size: 18px; font-weight: 400; color: #fff; margin-bottom: 6px; }
+    .link-desc { font-size: 12px; color: #666; line-height: 1.6; }
+    .signout { margin-top: 48px; }
+    .signout button { background: none; border: none; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: #555; cursor: pointer; transition: color .15s; padding: 0; }
+    .signout button:hover { color: #888; }
+    @media (max-width: 700px) { .top-nav { padding: 16px 20px; } .main { padding: 56px 20px; } .links-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<div class="banner">EMERGING TECHNOLOGIES LABORATORY &nbsp;&middot;&nbsp; MEMBER</div>
+
+<nav class="top-nav">
+  <a href="/" class="logo">DR. TERRY OROSZI'S EMERGING <span>TECHNOLOGIES</span> LABORATORY</a>
+  <div class="nav-right">
+    <a href="/" class="nav-link">Campus</a>
+    <a href="/hiring-pool" class="nav-link">Hiring Pool</a>
+  </div>
+</nav>
+
+<main class="main">
+  <div class="eyebrow" id="eyebrow">ETL &nbsp;&middot;&nbsp; Member</div>
+  <h1 id="headline">You're in.</h1>
+  <p class="sub" id="sub-text">Your account is active. Use your credits across the campus.</p>
+
+  <div class="credit-bar" id="credit-bar" style="display:none">
+    <div>
+      <div class="credit-label">Credits remaining</div>
+      <div class="credit-val" id="credit-count">—</div>
+    </div>
+    <div class="credit-note" id="credit-note">Tops up by 20 each month.</div>
+  </div>
+
+  <div class="links-grid">
+    <a href="/hiring-pool" class="link-card">
+      <div class="link-eyebrow">Explore</div>
+      <div class="link-title">Hiring Pool</div>
+      <div class="link-desc">Chat with agents across the campus cast.</div>
+    </a>
+    <a href="/court" class="link-card">
+      <div class="link-eyebrow">The Court</div>
+      <div class="link-title">Take It to Roz</div>
+      <div class="link-desc">File a dispute. Judge Roz rules on it.</div>
+    </a>
+    <a href="/founder-studio.html" class="link-card">
+      <div class="link-eyebrow">Founder Studio</div>
+      <div class="link-title">Build Your Company</div>
+      <div class="link-desc">Staff your AI company from the bench.</div>
+    </a>
+    <a href="/" class="link-card">
+      <div class="link-eyebrow">Campus</div>
+      <div class="link-title">Back to ETL</div>
+      <div class="link-desc">The full campus, all platforms.</div>
+    </a>
+  </div>
+
+  <div class="signout">
+    <button id="signout-btn">Sign out</button>
+  </div>
+</main>
+
+<script>
+  // Check for fresh Stripe checkout (member-welcome?session_id=...)
+  const urlParams = new URLSearchParams(window.location.search);
+  const sessionId = urlParams.get('session_id');
+
+  async function provisionIfNew(sid) {
+    if (!sid) return;
+    try {
+      await fetch('/.netlify/functions/verify-checkout-etl', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session_id: sid }),
+      });
+      document.getElementById('eyebrow').textContent = 'Welcome to ETL';
+      document.getElementById('headline').textContent = 'Subscription active.';
+      document.getElementById('sub-text').textContent = 'Your membership is confirmed. Check your email for a login link to access your account from any device.';
+    } catch (_) {}
+    // Clean URL
+    history.replaceState({}, '', '/member-welcome');
+  }
+
+  async function loadCredits() {
+    let session;
+    try { session = JSON.parse(localStorage.getItem('etl_session') || 'null'); } catch (_) {}
+    if (!session || !session.access_token) return;
+
+    try {
+      const r = await fetch('/.netlify/functions/get-credits-etl', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+      if (!r.ok) return;
+      const data = await r.json();
+      const bar = document.getElementById('credit-bar');
+      document.getElementById('credit-count').textContent = data.balance;
+      document.getElementById('credit-note').textContent = data.subscription_active
+        ? 'Tops up by 20 each month.'
+        : 'Subscribe to unlock monthly top-ups.';
+      bar.style.display = 'inline-flex';
+    } catch (_) {}
+  }
+
+  provisionIfNew(sessionId).then(loadCredits);
+
+  document.getElementById('signout-btn').addEventListener('click', () => {
+    localStorage.removeItem('etl_session');
+    window.location.href = '/member-login';
+  });
+</script>
+
+</body>
+</html>

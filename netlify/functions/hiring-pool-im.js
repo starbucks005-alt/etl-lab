@@ -16,11 +16,12 @@
    ───────────────────────────────────────────────────────────────────────────── */
 
 const Anthropic = require('@anthropic-ai/sdk').default;
+const { getUser, extractToken, deductCredit } = require('./_etl-credits-util');
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
 
 function json(status, obj) {
@@ -77,6 +78,21 @@ exports.handler = async (event) => {
   const { agentName, agentRole, agentTagline, agentPlatform, agentSkills, message, history } = body;
   if (!agentName || !message) return json(400, { error: 'agentName and message required' });
 
+  // Auth + credit gate
+  const token = extractToken(event.headers.authorization);
+  if (!token) return json(401, { error: 'no_token', message: 'Sign in at /member-login to chat with agents.' });
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!serviceKey) return json(500, { error: 'config' });
+  const user = await getUser(token);
+  if (!user) return json(401, { error: 'invalid_token', message: 'Your session has expired. Sign in again at /member-login.' });
+  const credit = await deductCredit(user.id, serviceKey);
+  if (!credit.ok) {
+    const msg = credit.reason === 'no_credits'
+      ? "You're out of credits for this month. Your balance tops up on your monthly renewal date."
+      : 'No credit account found. Subscribe at /member-login.';
+    return json(402, { error: credit.reason, message: msg });
+  }
+
   // Opening greeting — no prior history, agent speaks first in their own register.
   // A judge, C-suite exec, or Dr. O greets very differently from a PA or intern.
   const isGreet = message === '__greet__';
@@ -96,7 +112,7 @@ exports.handler = async (event) => {
 
   try {
     const resp = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
+      model: 'claude-sonnet-4-6',
       max_tokens: 120,
       system: buildSystem(agentName, agentRole || '', agentTagline || '', agentPlatform || '', agentSkills || ''),
       messages: msgs,

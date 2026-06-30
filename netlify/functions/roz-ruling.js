@@ -1,6 +1,7 @@
 /* roz-ruling — takes a freeform dispute, has Judge Roz rule on it via Haiku. */
 
 const Anthropic = require('@anthropic-ai/sdk').default;
+const { getUser, extractToken, deductCredit } = require('./_etl-credits-util');
 
 const SYSTEM = `You are Judge Rosalind "Roz" Okonkwo, presiding judge at "Take It to Roz" — a fast, funny online dispute resolution service. Someone just filed their actual dispute. Your job is to rule on the SPECIFIC thing they said. Not a generic ruling. Their thing.
 
@@ -28,21 +29,44 @@ ROZ'S VOICE (non-negotiable):
 Return ONLY a valid JSON object with these exact keys: ruling, pill, judge, ev, ans, src, sentence.
 No markdown fences. No commentary. Just the JSON.`;
 
+const CORS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
+function json(status, obj) {
+  return { statusCode: status, headers: { ...CORS, 'Content-Type': 'application/json' }, body: JSON.stringify(obj) };
+}
+
 exports.handler = async (event) => {
-  if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 200, headers: { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Content-Type' }, body: '' };
-  }
-  if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method not allowed' };
+  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: CORS, body: '' };
+  if (event.httpMethod !== 'POST') return json(405, { error: 'Method not allowed' });
 
   let dispute;
-  try { ({ dispute } = JSON.parse(event.body || '{}')); } catch { return { statusCode: 400, body: 'Bad request' }; }
-  if (!dispute || dispute.trim().length < 3) return { statusCode: 400, body: 'No dispute filed' };
+  try { ({ dispute } = JSON.parse(event.body || '{}')); } catch { return json(400, { error: 'Bad request' }); }
+  if (!dispute || dispute.trim().length < 3) return json(400, { error: 'No dispute filed' });
+
+  // Auth + credit gate
+  const token = extractToken(event.headers.authorization);
+  if (!token) return json(401, { error: 'no_token', message: 'Sign in at /member-login to bring your case to Roz.' });
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!serviceKey) return json(500, { error: 'config' });
+  const user = await getUser(token);
+  if (!user) return json(401, { error: 'invalid_token', message: 'Your session has expired. Sign in again at /member-login.' });
+  const credit = await deductCredit(user.id, serviceKey);
+  if (!credit.ok) {
+    const msg = credit.reason === 'no_credits'
+      ? "You're out of credits. The court will reconvene when your balance tops up next month."
+      : 'No credit account found. Subscribe at /member-login.';
+    return json(402, { error: credit.reason, message: msg });
+  }
 
   const client = new Anthropic();
 
   try {
     const msg = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
+      model: 'claude-sonnet-4-6',
       max_tokens: 600,
       system: SYSTEM,
       messages: [{ role: 'user', content: `The dispute filed with the court: ${dispute.slice(0, 600)}` }]
@@ -55,13 +79,9 @@ exports.handler = async (event) => {
     const required = ['ruling','pill','judge','ev','ans','src','sentence'];
     for (const k of required) if (!(k in ruling)) throw new Error('Missing field: ' + k);
 
-    return {
-      statusCode: 200,
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-      body: JSON.stringify(ruling)
-    };
+    return json(200, ruling);
   } catch (e) {
     console.error('roz-ruling error:', e.message);
-    return { statusCode: 500, headers: { 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ error: 'Court is temporarily in recess.' }) };
+    return json(500, { error: 'Court is temporarily in recess.' });
   }
 };
