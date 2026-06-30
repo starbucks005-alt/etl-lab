@@ -161,11 +161,18 @@
         "backpack": false
       },
       {
-        "id": "alicia_james",
-        "name": "Alicia James",
-        "role": "LLC Business Consultant",
-        "note": "bonus; low relevance for a nonprofit",
+        "id": "ramon_delgado",
+        "name": "Ramon Delgado",
+        "role": "Emergency Readiness Coordinator",
+        "note": "InfraGard mission fit: readiness protocols, continuity, cross-team coordination for INMA events and the city. Donated for Caroline to try.",
         "backpack": false
+      },
+      {
+        "id": "dez_quigley",
+        "name": "Desmond \"Dez\" Quigley",
+        "role": "Infrastructure Field Coordinator",
+        "note": "Public-works and infrastructure field ops: work orders, vendor dispatch, field visibility. Donated for Caroline to try.",
+        "backpack": true
       }
     ]
   },
@@ -183,7 +190,7 @@
     "itemized_alternative_monthly": 732.99,
     "valuation_note": "Valued at the Executive tier retail price ($1,499/mo), which is the package she receives. The same staff itemized a la carte is about $733/mo; the Executive tier adds concierge onboarding with Dr. O, custom integrations, full-bench access, and weekly review beyond raw headcount. If a conservative in-kind number is preferred for the city's or nonprofit's books, the itemized $732.99 can be used instead."
   },
-  "_backpack_summary": "Backpack (live tools): Auggie (PA), Benjamin Reed (CISO), Delia Marsh (Dev/Sponsorships + municipal grants), Reid Callum (standing; live marketing-landscape backpack + slick generator), Leo Vance (six-pack). In-framework only: Ayanna Cole, Grey Hollis, The Professor, Alicia James, Kimberly Pass, Sasha Moreno, Yuki Mendel. Benjamin's free assistant carries NO backpack. Reid appears once (standing); the six-pack is Yuki, Leo, Sasha, Kimberly, Alicia. Rowan is no longer on this roster (he became the separately-sold C-Suite MCP execution specialist).",
+  "_backpack_summary": "Backpack (live tools): Auggie (PA), Benjamin Reed (CISO), Delia Marsh (Dev/Sponsorships + municipal grants), Reid Callum (standing; live marketing-landscape backpack + slick generator), Leo Vance (six-pack), Dez Quigley (six-pack, MCP). In-framework only: Ayanna Cole, Grey Hollis, The Professor, Ramon Delgado, Kimberly Pass, Sasha Moreno, Yuki Mendel. Benjamin's free assistant carries NO backpack. Reid appears once (standing); the six-pack is Yuki, Leo, Sasha, Kimberly, Ramon, Dez (Alicia swapped out 2026-06-26 as low-relevance for a nonprofit; Ramon + Dez donated for Caroline to try). Rowan is no longer on this roster (he became the separately-sold C-Suite MCP execution specialist).",
   "studio_landing": {
     "purpose": "Caroline opens her magic link and lands directly in her Studio, fully staffed. No marketing, no pricing, no checkout.",
     "show_on_first_login": [

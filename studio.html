@@ -5672,6 +5672,11 @@ h1 em,h2 em{font-weight:300;color:#28527a}
       'Jen Lopez':             { open: '/agents/Jen_Lopez_Eyes_Open.png',     closed: '/agents/Jen_Lopez_Eyes_Closed.png' },
       'Jax Rivera':            { open: '/agents/Jax_Rivera_eyes_open.png',    closed: '/agents/Jax_Rivera_eyes_closed.png' },
       'Zara Cole':             { open: '/agents/Zara_eyes_open.png',          closed: '/agents/Zara_eyes_closed.png' },
+      // City-gov agents donated to Caroline's bench (2026-06-26). Not in
+      // data/etl-agents-roster.json, so they need an explicit pair here or
+      // they fall back to initials. Portraits live in /agents (Dez_*, Ramon_*).
+      'Ramon Delgado':            { open: '/agents/Ramon_eyes_open.png', closed: '/agents/Ramon_eyes_closed.png' },
+      'Desmond "Dez" Quigley':    { open: '/agents/Dez_eyes_open.png',   closed: '/agents/Dez_eyes_closed.png' },
     };
 
     // Pull the roster JSON once for portrait + role lookups (fallback
