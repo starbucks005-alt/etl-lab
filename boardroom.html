@@ -764,7 +764,7 @@
     var job_id = 'rc_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,10);
     // Fire-and-poll. Netlify returns 202 immediately on background functions.
     var fire = await fetch('/.netlify/functions/office-hours-resume-coach-background', {
-      method:'POST', headers:{'Content-Type':'application/json'},
+      method:'POST', headers:{'Content-Type':'application/json', Authorization: 'Bearer ' + (window._boardroom_token || '')},
       body: JSON.stringify({ job_id: job_id, kind: kind, payload: payload })
     });
     // 202 = accepted (background), 200 = ok. Anything else is a real error.
@@ -781,7 +781,7 @@
       await new Promise(function(res){ setTimeout(res, SLEEP_MS); });
       var elapsedSec = Math.round((Date.now()-started)/1000);
       if(typeof onProgress === 'function'){ try{ onProgress(elapsedSec); }catch(_){} }
-      var rs = await fetch('/.netlify/functions/office-hours-resume-coach-status?job_id='+encodeURIComponent(job_id));
+      var rs = await fetch('/.netlify/functions/office-hours-resume-coach-status?job_id='+encodeURIComponent(job_id), { headers: { Authorization: 'Bearer ' + (window._boardroom_token || '') } });
       var rec = null;
       try{ rec = await rs.json(); }catch(_){}
       if(rec && rec.status === 'done'){

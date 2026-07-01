@@ -16,6 +16,7 @@
    ───────────────────────────────────────────────────────────────────────────── */
 
 const Anthropic = require('@anthropic-ai/sdk').default;
+const { getUser, extractToken } = require('./_etl-credits-util');
 const { getStore, connectLambda } = require('@netlify/blobs');
 
 const MODEL = 'claude-sonnet-4-6';
@@ -123,7 +124,7 @@ function pickReviewers(paper_type) {
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
 const json = (statusCode, body) => ({
   statusCode,
@@ -256,6 +257,13 @@ async function writeStatus(jobId, status) {
 exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: CORS, body: '' };
   if (event.httpMethod !== 'POST') return json(405, { error: 'method not allowed' });
+
+  // Auth gate -- Lab Member required (no credit deduction; auth only)
+  const token = extractToken(event.headers.authorization);
+  if (!token) return json(401, { error: 'no_token', message: 'Sign in at /member-login to use Office Hours.' });
+  const user = await getUser(token);
+  if (!user) return json(401, { error: 'invalid_token', message: 'Your session has expired. Sign in again at /member-login.' });
+
 
   let body;
   try { body = JSON.parse(event.body || '{}'); }

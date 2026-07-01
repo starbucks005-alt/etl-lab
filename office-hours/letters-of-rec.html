@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script>(function(){var r=null;try{r=localStorage.getItem('etl_session');}catch(_){}var ok=false;if(r){try{var s=JSON.parse(r);ok=!!(s&&s.access_token&&(!s.expires_at||Date.now()<s.expires_at));if(ok)window._oh_token=s.access_token;}catch(_){}}if(!ok){window.location.replace('/member-login?next='+encodeURIComponent(window.location.pathname));}})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Letters of Rec &mdash; Office Hours | Emerging Technologies Laboratory</title>
 <meta name="description" content="Faculty tool for drafting letters of recommendation. Full intake (tier, percentile, anecdotes), FERPA-aware framing, export to DOCX and PDF with your letterhead and signature.">
@@ -876,7 +877,7 @@
     generateBtn.disabled = true;
     fetch('/.netlify/functions/office-hours-draft', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + (window._oh_token || '') },
       body: JSON.stringify({ mode: 'email-reply', intake: intake })
     }).then(function(r){ return r.json().then(function(j){ return { status: r.status, body: j }; }); })
       .then(function(res){
@@ -1105,7 +1106,7 @@
     lorGenerate.disabled = true;
     fetch('/.netlify/functions/office-hours-draft', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + (window._oh_token || '') },
       body: JSON.stringify({ mode: 'lor', intake: intake })
     }).then(function(r){ return r.json().then(function(j){ return { status: r.status, body: j }; }); })
       .then(function(res){

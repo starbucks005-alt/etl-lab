@@ -16,6 +16,7 @@
    ───────────────────────────────────────────────────────────────────────────── */
 
 const Anthropic = require('@anthropic-ai/sdk').default;
+const { getUser, extractToken } = require('./_etl-credits-util');
 const { getStore, connectLambda } = require('@netlify/blobs');
 
 const MODEL = 'claude-sonnet-4-6';
@@ -172,6 +173,13 @@ exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'method not allowed' };
   }
+
+  // Auth gate -- Lab Member required (no credit deduction; auth only)
+  const token = extractToken(event.headers.authorization);
+  if (!token) return { statusCode: 401, body: JSON.stringify({ error: 'no_token', message: 'Sign in at /member-login to use Office Hours.' }) };
+  const user = await getUser(token);
+  if (!user) return { statusCode: 401, body: JSON.stringify({ error: 'invalid_token', message: 'Your session has expired. Sign in again at /member-login.' }) };
+
   let body;
   try { body = JSON.parse(event.body || '{}'); } catch (e) {
     return { statusCode: 400, body: 'invalid json' };

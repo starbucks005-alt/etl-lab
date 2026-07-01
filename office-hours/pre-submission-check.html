@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script>(function(){var r=null;try{r=localStorage.getItem('etl_session');}catch(_){}var ok=false;if(r){try{var s=JSON.parse(r);ok=!!(s&&s.access_token&&(!s.expires_at||Date.now()<s.expires_at));if(ok)window._oh_token=s.access_token;}catch(_){}}if(!ok){window.location.replace('/member-login?next='+encodeURIComponent(window.location.pathname));}})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pre-submission Check with Jules &mdash; Office Hours | Emerging Technologies Laboratory</title>
 <meta name="description" content="Editorial last-look on your manuscript before you send it to a journal. Jules reads journal fit, reviewer-bait, citation hygiene, structural compliance, and voice. Drafts a cover letter to match. Not AI writing; editorial scrutiny on what you already wrote.">
@@ -501,7 +502,7 @@
     try {
       const resp = await fetch('/.netlify/functions/office-hours-pre-submission-check', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + (window._oh_token || '') },
         body: JSON.stringify(payload),
       });
       const contentType = (resp.headers.get('content-type') || '').toLowerCase();

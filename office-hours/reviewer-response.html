@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script>(function(){var r=null;try{r=localStorage.getItem('etl_session');}catch(_){}var ok=false;if(r){try{var s=JSON.parse(r);ok=!!(s&&s.access_token&&(!s.expires_at||Date.now()<s.expires_at));if(ok)window._oh_token=s.access_token;}catch(_){}}if(!ok){window.location.replace('/member-login?next='+encodeURIComponent(window.location.pathname));}})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Reviewer Response &mdash; Office Hours | Emerging Technologies Laboratory</title>
 <meta name="description" content="Reviewer comments came back? Paste them and your manuscript section. Get a point-by-point response letter in journal convention plus revised manuscript text ready to paste.">
@@ -436,7 +437,7 @@ The effect we observe is consistent with the upper end of effect sizes documente
     try {
       const resp = await fetch('/.netlify/functions/office-hours-reviewer-response', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + (window._oh_token || '') },
         body: JSON.stringify(payload),
       });
       if (!resp.ok) {

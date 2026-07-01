@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script>(function(){var r=null;try{r=localStorage.getItem('etl_session');}catch(_){}var ok=false;if(r){try{var s=JSON.parse(r);ok=!!(s&&s.access_token&&(!s.expires_at||Date.now()<s.expires_at));if(ok)window._oh_token=s.access_token;}catch(_){}}if(!ok){window.location.replace('/member-login?next='+encodeURIComponent(window.location.pathname));}})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Resubmission Builder &mdash; Office Hours | Emerging Technologies Laboratory</title>
 <meta name="description" content="Paste the Summary Statement from your rejected federal grant. Get critique-by-critique response drafts in your mechanism's expected convention, a draft Introduction to Resubmission page, and a revision plan. Supports VA, NIH, NSF, DoD CDMRP, AHRQ, HRSA, PCORI, and foundation mechanisms.">
@@ -529,7 +530,7 @@ Aim 3. Examine the relationship between cognitive trajectory and functional outc
   // Load mechanism list from the function via GET, build the dropdown.
   async function loadMechanisms() {
     try {
-      const resp = await fetch('/.netlify/functions/office-hours-resubmission-builder', { method: 'GET' });
+      const resp = await fetch('/.netlify/functions/office-hours-resubmission-builder', { method: 'GET', headers: { Authorization: 'Bearer ' + (window._oh_token || '') } });
       if (!resp.ok) throw new Error('mechanism load failed');
       const data = await resp.json();
       const list = Array.isArray(data.mechanisms) ? data.mechanisms : [];
@@ -667,7 +668,7 @@ Aim 3. Examine the relationship between cognitive trajectory and functional outc
     try {
       const resp = await fetch('/.netlify/functions/office-hours-resubmission-builder', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + (window._oh_token || '') },
         body: JSON.stringify(payload),
       });
       if (!resp.ok) {

@@ -22,6 +22,7 @@
    ───────────────────────────────────────────────────────────────────────────── */
 
 const Anthropic = require('@anthropic-ai/sdk').default;
+const { getUser, extractToken } = require('./_etl-credits-util');
 
 const MODEL = 'claude-sonnet-4-6';
 const MAX_TOKENS = 7000;
@@ -47,7 +48,7 @@ const STYLE_NAMES = {
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
 const json = (statusCode, body) => ({
   statusCode,
@@ -167,6 +168,13 @@ function shapeJournal(j) {
 exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: CORS, body: '' };
   if (event.httpMethod !== 'POST') return json(405, { error: 'method not allowed' });
+
+  // Auth gate -- Lab Member required (no credit deduction; auth only)
+  const token = extractToken(event.headers.authorization);
+  if (!token) return json(401, { error: 'no_token', message: 'Sign in at /member-login to use Office Hours.' });
+  const user = await getUser(token);
+  if (!user) return json(401, { error: 'invalid_token', message: 'Your session has expired. Sign in again at /member-login.' });
+
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return json(500, { error: 'ANTHROPIC_API_KEY not configured' });

@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script>(function(){var r=null;try{r=localStorage.getItem('etl_session');}catch(_){}var ok=false;if(r){try{var s=JSON.parse(r);ok=!!(s&&s.access_token&&(!s.expires_at||Date.now()<s.expires_at));if(ok)window._oh_token=s.access_token;}catch(_){}}if(!ok){window.location.replace('/member-login?next='+encodeURIComponent(window.location.pathname));}})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Conference Q&amp;A Prep &mdash; Office Hours | Emerging Technologies Laboratory</title>
 <meta name="description" content="Paste your talk abstract. Get the 5 most likely audience questions with suggested answers, the one question you do not want to be asked with a defense, and an opening disarmer.">
@@ -440,7 +441,7 @@
     try {
       const resp = await fetch('/.netlify/functions/office-hours-conference-qa-prep', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + (window._oh_token || '') },
         body: JSON.stringify(payload),
       });
       const contentType = (resp.headers.get('content-type') || '').toLowerCase();

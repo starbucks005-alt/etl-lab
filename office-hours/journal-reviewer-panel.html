@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script>(function(){var r=null;try{r=localStorage.getItem('etl_session');}catch(_){}var ok=false;if(r){try{var s=JSON.parse(r);ok=!!(s&&s.access_token&&(!s.expires_at||Date.now()<s.expires_at));if(ok)window._oh_token=s.access_token;}catch(_){}}if(!ok){window.location.replace('/member-login?next='+encodeURIComponent(window.location.pathname));}})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Reviewer Panel &mdash; Office Hours | Emerging Technologies Laboratory</title>
 <meta name="description" content="Upload your paper. Get three independent journal reviewer reports written in three different academic voices, with major/minor issues, questions for authors, and an editor decision. The Methodologist, the Domain Expert, the Skeptic, the Theorist, the Stats Hardliner, the Outside Reader.">
@@ -1073,7 +1074,7 @@ Active learning interventions in introductory STEM courses generally improve stu
   // ─── Roster ───────────────────────────────────────────
   async function loadRoster() {
     try {
-      const resp = await fetch('/.netlify/functions/office-hours-reviewer-panel-roster', { method: 'GET' });
+      const resp = await fetch('/.netlify/functions/office-hours-reviewer-panel-roster', { method: 'GET', headers: { Authorization: 'Bearer ' + (window._oh_token || '') } });
       if (!resp.ok) throw new Error('roster load failed');
       const data = await resp.json();
       roster = Array.isArray(data.reviewers) ? data.reviewers : [];
@@ -1155,7 +1156,7 @@ Active learning interventions in introductory STEM courses generally improve stu
     try {
       const startResp = await fetch('/.netlify/functions/office-hours-reviewer-panel-run-background', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + (window._oh_token || '') },
         body: JSON.stringify(payload),
       });
       // Background functions return 202 on success; treat anything 2xx as kicked off.
@@ -1193,7 +1194,7 @@ Active learning interventions in introductory STEM courses generally improve stu
 
       let statusJson;
       try {
-        const statusResp = await fetch('/.netlify/functions/office-hours-reviewer-panel-status?job_id=' + encodeURIComponent(job_id));
+        const statusResp = await fetch('/.netlify/functions/office-hours-reviewer-panel-status?job_id=' + encodeURIComponent(job_id), { headers: { Authorization: 'Bearer ' + (window._oh_token || '') } });
         if (!statusResp.ok) {
           // Transient errors on polling: keep retrying up to the timeout.
           continue;
