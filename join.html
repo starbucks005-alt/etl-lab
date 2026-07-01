@@ -415,7 +415,7 @@
 
     <p style="font-family:'Public Sans',sans-serif; font-size:14px; color:#b8a882; line-height:1.8; margin:0 0 32px; max-width:600px;">Lab Members who joined before this campus was a household name. Members can opt in to public recognition, or stay anonymous. The choice is always yours.</p>
 
-    <p id="founding-members-list" style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:2px; text-transform:uppercase; color:#5a5040; margin-bottom:40px;">No names yet. Be the first.</p>
+    <p id="founding-members-list" style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:2px; text-transform:uppercase; color:#5a5040; margin-bottom:40px; line-height:2;">No names yet. Be the first.</p>
 
     <div style="padding-top:32px; border-top:1px solid rgba(92,138,181,0.1);">
       <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:4px; text-transform:uppercase; color:#5a5040; margin-bottom:14px;">Not a subscriber?</div>
@@ -426,6 +426,24 @@
   </div>
 
 </div>
+
+<script>
+(function() {
+  fetch('/.netlify/functions/get-founding-members')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      var el = document.getElementById('founding-members-list');
+      if (!el) return;
+      if (!data.names || data.names.length === 0) {
+        el.textContent = 'No names yet. Be the first.';
+        return;
+      }
+      el.textContent = data.names.join('  ·  ');
+      el.style.color = '#b8a882';
+    })
+    .catch(function() {});
+})();
+</script>
 
 <script>
 document.getElementById('vol-form').addEventListener('submit', async function(e) {
