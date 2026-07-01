@@ -71,10 +71,8 @@
     .top-nav-back:hover { color: var(--cream); }
 
     .hero {
-      padding: 96px 60px 72px;
+      padding: 96px 60px 64px;
       max-width: 860px;
-      margin: 0 auto;
-      text-align: center;
     }
     .hero-eyebrow {
       font-family: 'IBM Plex Mono', monospace;
@@ -97,16 +95,18 @@
       color: var(--warm);
       line-height: 1.8;
       max-width: 620px;
-      margin: 0 auto 64px;
+    }
+
+    .content-wrap {
+      padding: 0 60px 96px;
     }
 
     .tiers {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 24px;
-      max-width: 800px;
-      margin: 0 auto 64px;
-      padding: 0 60px;
+      max-width: 820px;
+      margin: 0 0 48px;
     }
 
     .tier {
@@ -132,11 +132,13 @@
 
     .tier-title {
       font-family: 'Spectral', serif;
-      font-size: 28px;
+      font-size: clamp(24px, 2.5vw, 34px);
       font-weight: 300;
       color: #fff;
+      line-height: 1.1;
       margin-bottom: 8px;
     }
+
     .tier-price {
       font-family: 'Public Sans', sans-serif;
       font-size: 13px;
@@ -183,9 +185,9 @@
     .tier.member .tier-cta { background: var(--gold); }
 
     .credits-note {
-      max-width: 800px;
-      margin: 0 auto 48px;
-      padding: 0 60px;
+      max-width: 820px;
+      margin: 0 0 40px;
+      padding: 24px 0 0;
       font-family: 'IBM Plex Mono', monospace;
       font-size: 10px;
       letter-spacing: 2px;
@@ -193,13 +195,9 @@
       color: #5a5040;
       line-height: 1.9;
       border-top: 1px solid rgba(92,138,181,0.15);
-      padding-top: 28px;
     }
 
     .investor-nudge {
-      max-width: 800px;
-      margin: 0 auto 96px;
-      padding: 0 60px;
       font-size: 14px;
       color: #5a5040;
     }
@@ -210,12 +208,56 @@
     }
     .investor-nudge a:hover { text-decoration: underline; }
 
-    @media (max-width: 640px) {
+    /* Volunteer email form */
+    .vol-form {
+      display: flex;
+      gap: 10px;
+      margin-top: 28px;
+      flex-wrap: wrap;
+    }
+    .vol-form input[type="email"] {
+      flex: 1;
+      min-width: 200px;
+      padding: 12px 14px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(92,138,181,0.35);
+      color: var(--cream);
+      font-family: 'Public Sans', sans-serif;
+      font-size: 13px;
+      outline: none;
+    }
+    .vol-form input[type="email"]::placeholder { color: #5a5040; }
+    .vol-form input[type="email"]:focus { border-color: var(--blue-lt); }
+    .vol-form button {
+      padding: 12px 24px;
+      background: var(--cream);
+      color: #0e0c08;
+      font-family: 'Public Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      border: none;
+      cursor: pointer;
+      transition: opacity .15s;
+      white-space: nowrap;
+    }
+    .vol-form button:hover { opacity: .88; }
+    .vol-confirm {
+      display: none;
+      margin-top: 16px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--blue-lt);
+    }
+
+    @media (max-width: 680px) {
       .top-nav { padding: 16px 24px; }
       .hero { padding: 60px 24px 48px; }
-      .tiers { grid-template-columns: 1fr; padding: 0 24px; }
-      .credits-note, .investor-nudge { padding: 0 24px; }
-      .credits-note { padding-top: 24px; }
+      .content-wrap { padding: 0 24px 64px; }
+      .tiers { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -234,47 +276,75 @@
   <p class="hero-body">This lab sits at the intersection of education and emerging technology. Your membership funds that work and keeps these tools free for students who couldn't access them otherwise.</p>
 </section>
 
-<div class="tiers">
+<div class="content-wrap">
 
-  <div class="tier">
-    <div class="tier-label">Lab Volunteer</div>
-    <div class="tier-title">Free</div>
-    <div class="tier-price">20 credits on signup</div>
-    <ul class="tier-features">
-      <li>Talk to any lab agent</li>
-      <li>Prep Room sessions</li>
-      <li>Interview practice</li>
-      <li>Job search assistance</li>
-      <li>Judge Roz's Court</li>
-      <li>Broadcast feed (always free)</li>
-    </ul>
-    <a href="/member-login" class="tier-cta">Join Free</a>
+  <div class="tiers">
+
+    <div class="tier">
+      <div class="tier-label">Lab Volunteer</div>
+      <div class="tier-title">Stay in the know.</div>
+      <div class="tier-price">Free, always</div>
+      <ul class="tier-features">
+        <li>Lab newsletter from the staff</li>
+        <li>Advanced awareness of what's coming</li>
+        <li>Beta testing opportunities for new products</li>
+        <li>Broadcast feed (always free)</li>
+      </ul>
+      <form class="vol-form" id="vol-form">
+        <input type="email" id="vol-email" placeholder="your@email.com" required>
+        <button type="submit">Join Free</button>
+      </form>
+      <div class="vol-confirm" id="vol-confirm">You're in. Watch your inbox.</div>
+    </div>
+
+    <div class="tier member">
+      <div class="tier-label">Lab Member</div>
+      <div class="tier-title">Your first month is on us.</div>
+      <div class="tier-price">Then $19.99 / month. Cancel any time.</div>
+      <ul class="tier-features">
+        <li>Everything in volunteer</li>
+        <li>20 credits every month, rollover</li>
+        <li>Talk to any lab agent</li>
+        <li>Prep Room sessions</li>
+        <li>Interview practice &amp; job search</li>
+        <li>Judge Roz's Court</li>
+        <li>Keeps free tools running for students</li>
+      </ul>
+      <a href="/member-login?plan=member" class="tier-cta">Start Your Free Month</a>
+    </div>
+
   </div>
 
-  <div class="tier member">
-    <div class="tier-label">Lab Member</div>
-    <div class="tier-title">$19.99 / mo</div>
-    <div class="tier-price">20 credits renewed monthly, rollover</div>
-    <ul class="tier-features">
-      <li>Everything in volunteer</li>
-      <li>Credits renewed every month</li>
-      <li>Keeps free tools running for students</li>
-      <li>Priority access to new tools</li>
-      <li>Lab newsletter from the staff</li>
-    </ul>
-    <a href="/member-login?plan=member" class="tier-cta">Become a Member</a>
+  <div class="credits-note">
+    Member credits are used by: Agent IM &nbsp;&middot;&nbsp; Prep Room &nbsp;&middot;&nbsp; Interview Practice &nbsp;&middot;&nbsp; Job Search &nbsp;&middot;&nbsp; Thesis Defense &nbsp;&middot;&nbsp; Judge Roz's Court<br>
+    Broadcast feed is always free.
+  </div>
+
+  <div class="investor-nudge">
+    Serious about what we're building? <a href="/investors">See where this is going &rarr;</a>
   </div>
 
 </div>
 
-<div class="credits-note">
-  Credits are used by: Agent IM &nbsp;&middot;&nbsp; Prep Room &nbsp;&middot;&nbsp; Interview Practice &nbsp;&middot;&nbsp; Job Search &nbsp;&middot;&nbsp; Thesis Defense &nbsp;&middot;&nbsp; Judge Roz's Court<br>
-  Broadcast feed is always free.
-</div>
-
-<div class="investor-nudge">
-  Serious about what we're building? <a href="/investors">See where this is going &rarr;</a>
-</div>
+<script>
+document.getElementById('vol-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  var email = document.getElementById('vol-email').value.trim();
+  if (!email) return;
+  var btn = this.querySelector('button');
+  btn.textContent = 'Joining...';
+  btn.disabled = true;
+  try {
+    await fetch('/.netlify/functions/volunteer-signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email }),
+    });
+  } catch (_) {}
+  document.getElementById('vol-form').style.display = 'none';
+  document.getElementById('vol-confirm').style.display = 'block';
+});
+</script>
 
 </body>
 </html>
