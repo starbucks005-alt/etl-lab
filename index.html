@@ -1067,7 +1067,7 @@ document.addEventListener('DOMContentLoaded', function(){
 </script>
 
 <!-- ─────────────────────────────────────────────────────────────────────────
-     ETL TAB BAR. Five-tab chrome: Home / Live Platforms / AI Agents / Store /
+     ETL TAB BAR. Four-tab chrome: Home / Live Platforms / AI Agents /
      About Dr. O. Sits directly under the main nav. Each top-level section on
      the page is tagged with data-tab=""; the body's data-active-tab attribute
      controls which sections render. Existing in-page anchor links (e.g.
@@ -1079,7 +1079,6 @@ document.addEventListener('DOMContentLoaded', function(){
   <button class="etl-tab" data-tab="home" type="button">Home</button>
   <button class="etl-tab" data-tab="platforms" type="button">Live Platforms</button>
   <a class="etl-tab" href="/etl-staffing.html">ETL Staffing</a>
-  <button class="etl-tab" data-tab="store" type="button">Store</button>
   <button class="etl-tab" data-tab="about" type="button">About Dr. O</button>
 </nav>
 <style>
@@ -1118,7 +1117,6 @@ document.addEventListener('DOMContentLoaded', function(){
   body[data-active-tab="home"]      [data-tab]:not([data-tab~="home"]):not(.etl-tab),
   body[data-active-tab="platforms"] [data-tab]:not([data-tab~="platforms"]):not(.etl-tab),
   body[data-active-tab="agents"]    [data-tab]:not([data-tab~="agents"]):not(.etl-tab),
-  body[data-active-tab="store"]     [data-tab]:not([data-tab~="store"]):not(.etl-tab),
   body[data-active-tab="about"]     [data-tab]:not([data-tab~="about"]):not(.etl-tab) {
     display: none !important;
   }
@@ -1130,7 +1128,7 @@ document.addEventListener('DOMContentLoaded', function(){
 </style>
 <script>
   (function(){
-    var VALID = ['home','platforms','agents','store','about'];
+    var VALID = ['home','platforms','agents','about'];
     function setTab(name, opts){
       opts = opts || {};
       if (VALID.indexOf(name) < 0) name = 'home';
@@ -4828,185 +4826,6 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
 
 
 <!-- ─────────────────────────────────────────────────────────────────────────
-     STORE TAB. Catalog of ETL products. Organized by audience/function (NOT
-     by price). Currently-free products show a "Free" badge; paid-intent
-     products show pricing if locked or "Pricing soon" if not. MVP shipped
-     with 6 cards; aisles grow as more products productize.
-     See memory/project_etl_store_structure.md for canonical rules.
-     ───────────────────────────────────────────────────────────────────── -->
-<section id="store" data-tab="store" class="etl-store" style="background:#0e0c08; color:#f4ebd6; padding:72px 24px 96px;">
-  <div style="max-width:1180px; margin:0 auto;">
-    <div style="text-align:center; margin-bottom:56px;">
-      <div style="font-family:'Public Sans',sans-serif; font-size:11px; letter-spacing:4px; color:#5c8ab5; text-transform:uppercase; margin-bottom:14px;">The Store</div>
-      <h2 style="font-family:'Public Sans',sans-serif; font-size:clamp(34px, 5vw, 52px); font-weight:700; color:#fff; letter-spacing:1px; margin-bottom:14px;">Every product the lab ships</h2>
-      <p style="font-family:'Public Sans',sans-serif; font-size:16px; color:#d6cfc0; max-width:680px; margin:0 auto;">Each shelf is organized by who it serves. Some products are paid, some are free, some are coming. Click any card to enter.</p>
-    </div>
-
-    <div class="etl-store-grid">
-      <!-- Mission Possible Spy Academy -->
-      <a class="etl-store-card" href="https://www.missionpossibleacademy.org/" target="_blank" rel="noopener">
-        <div class="etl-store-card-aisle">Training &amp; Learning</div>
-        <div class="etl-store-card-name">Mission Possible Spy Academy</div>
-        <div class="etl-store-card-tag">10-Ribbon Pipeline · Field Commander Certification</div>
-        <div class="etl-store-card-desc">Elite civilian operative training. Bio + Syn faculty. Six months of structured tradecraft across analysis, profiling, strategy, deception, and integration. Real faculty. Real ribbons. Pro Bono Non Malo.</div>
-        <div class="etl-store-card-foot">
-          <span class="etl-store-card-price">$349/ribbon · $2,100 full pipeline</span>
-          <span class="etl-store-card-cta">Enter the Academy →</span>
-        </div>
-      </a>
-
-      <!-- Founder Studio (Act II) -->
-      <a class="etl-store-card" href="/founder-studio.html">
-        <div class="etl-store-card-aisle">For Founders · Act II</div>
-        <div class="etl-store-card-name">Founder Studio</div>
-        <div class="etl-store-card-tag">Build your AI company</div>
-        <div class="etl-store-card-desc">Your PA Auggie plus the Essential Staff Six-Pack plus two Specialist hires from the bench of 65. A 10-person operation. Less than $1K a month, staff salary included. From idea to company. No guesswork.</div>
-        <div class="etl-store-card-foot">
-          <span class="etl-store-card-price">$500/mo (10-seat default)</span>
-          <span class="etl-store-card-cta">See Founder Studio →</span>
-        </div>
-      </a>
-
-      <!-- ETL DeskWorks -->
-      <a class="etl-store-card" href="/deskworks">
-        <div class="etl-store-card-aisle">For Founders · US Office</div>
-        <div class="etl-store-card-name">ETL DeskWorks Dayton</div>
-        <div class="etl-store-card-tag">Desk + agent + US commercial address</div>
-        <div class="etl-store-card-desc">A real desk in a real building in Dayton, Ohio. Rent the space, pick your specialist — PA, strategist, researcher, marketer, and more. Your agent learns your industry and works from your office. Address included.</div>
-        <div class="etl-store-card-foot">
-          <span class="etl-store-card-price">$89/mo per desk</span>
-          <span class="etl-store-card-cta">Reserve a Desk →</span>
-        </div>
-      </a>
-
-      <!-- The Gauntlet (Act I) -->
-      <a class="etl-store-card" href="https://thegauntlet.studio" target="_blank" rel="noopener">
-        <div class="etl-store-card-aisle">For Founders · Act I</div>
-        <div class="etl-store-card-name">The Gauntlet</div>
-        <div class="etl-store-card-tag">Get an idea worth building</div>
-        <div class="etl-store-card-desc">Nine domain judges. One stage. Your idea, evaluated for clarity, novelty, audience, and traction. Walk out with a real concept tested against people who know the field. Then take it to Founder Studio.</div>
-        <div class="etl-store-card-foot">
-          <span class="etl-store-card-price">Pricing soon</span>
-          <span class="etl-store-card-cta">Enter the Gauntlet →</span>
-        </div>
-      </a>
-
-      <!-- Intel Dashboard -->
-      <a class="etl-store-card" href="https://inteldashboard.org/" target="_blank" rel="noopener">
-        <div class="etl-store-card-aisle">Intel &amp; OPSEC</div>
-        <div class="etl-store-card-name">Intel Dashboard</div>
-        <div class="etl-store-card-tag">18-module analyst suite</div>
-        <div class="etl-store-card-desc">Source reliability scoring, multi-source corroboration, deception indicators, timeline reconstruction, actor network mapping, OPSEC risk scan, intel-specific SLR. Branded deliverables ready for command.</div>
-        <div class="etl-store-card-foot">
-          <span class="etl-store-card-price">Live</span>
-          <span class="etl-store-card-cta">Open the Dashboard →</span>
-        </div>
-      </a>
-
-      <!-- Office Hours -->
-      <a class="etl-store-card" href="/office-hours">
-        <div class="etl-store-card-aisle">For Researchers</div>
-        <div class="etl-store-card-name">Office Hours</div>
-        <div class="etl-store-card-tag">22-tool faculty research suite</div>
-        <div class="etl-store-card-desc">AI-Simulated Reviewer Panel, Methods Coach, Coherence Check, Cite-Check, Journal Finder, Resubmission Builder, Tenure Dossier Helper, and more. Built for academics and industry R&amp;D alike.</div>
-        <div class="etl-store-card-foot">
-          <span class="etl-store-card-price">Free · No login</span>
-          <span class="etl-store-card-cta">Visit Office Hours →</span>
-        </div>
-      </a>
-
-      <!-- Prep Room + Boardroom -->
-      <div class="etl-store-card etl-store-card-double">
-        <div class="etl-store-card-aisle">Career Prep · Free · No Upsell</div>
-        <div class="etl-store-card-name">The Prep Room <span style="opacity:0.5;">&amp;</span> The Boardroom</div>
-        <div class="etl-store-card-tag">Practice the hard parts before they count</div>
-        <div class="etl-store-card-desc">Sibling platforms. <strong style="color:#5c8ab5;">Prep Room</strong> for students — dissertation defense, early-career interviews, CV review from Charles Monroe. <strong style="color:#5c8ab5;">Boardroom</strong> for professionals — executive interviews, sector-standard CV, live executive postings.</div>
-        <div class="etl-store-card-foot" style="display:flex; gap:10px; flex-wrap:wrap;">
-          <a class="etl-store-card-cta etl-store-card-cta-btn" href="/prep-room#students">Prep Room →</a>
-          <a class="etl-store-card-cta etl-store-card-cta-btn" href="/prep-room#pros">Boardroom →</a>
-        </div>
-      </div>
-      <!-- The Harvest Circuit -->
-      <a class="etl-store-card" href="/restaurant">
-        <div class="etl-store-card-aisle" style="color:#a8b54a;">On Campus &middot; First Floor</div>
-        <div class="etl-store-card-name">The Harvest Circuit</div>
-        <div class="etl-store-card-tag">Farm to table. Curated pairings. AI front of house.</div>
-        <div class="etl-store-card-desc">The ETL first floor. Chef Ruben Hart handles the kitchen. Vic Stallion manages the cellar. Camille Lef&egrave;vre runs the cheese program. Luca Brunner anchors chocolate. Four specialists, one floor, one experience. Reservations open through the restaurant.</div>
-        <div class="etl-store-card-foot">
-          <span class="etl-store-card-price">Open to guests</span>
-          <span class="etl-store-card-cta">Visit the Restaurant &rarr;</span>
-        </div>
-      </a>
-    </div>
-
-    <p style="margin-top:48px; text-align:center; font-family:'Public Sans',sans-serif; font-size:14px; color:#9a9180;">More on the shelves soon. NVBL Body Language Course · Leadership card games · OPSEC Gauntlet · The Dose · Greylander Press · ETL Newswire · à-la-carte Specialist hires.</p>
-  </div>
-</section>
-
-<style>
-  .etl-store-grid {
-    display: grid; gap: 22px;
-    grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
-  }
-  .etl-store-card {
-    display: flex; flex-direction: column;
-    background: #e9edf2; color: #111; text-decoration: none;
-    border: 1px solid rgba(92,138,181,0.45);
-    padding: 26px 24px 22px;
-    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
-    position: relative; overflow: hidden;
-  }
-  .etl-store-card::before {
-    content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
-    background: #5c8ab5; transform: scaleY(0); transform-origin: bottom;
-    transition: transform .25s ease;
-  }
-  .etl-store-card:hover {
-    transform: translateY(-3px); border-color: #5c8ab5;
-    box-shadow: 0 10px 28px rgba(0,0,0,0.35);
-  }
-  .etl-store-card:hover::before { transform: scaleY(1); }
-  .etl-store-card-double { grid-column: span 2; }
-  @media (max-width: 700px) {
-    .etl-store-card-double { grid-column: span 1; }
-  }
-  .etl-store-card-aisle {
-    font-family:'Public Sans',sans-serif; font-size: 10px;
-    letter-spacing: 2.6px; text-transform: uppercase;
-    color: #285C4D; margin-bottom: 10px;
-  }
-  .etl-store-card-name {
-    font-family:'Public Sans',sans-serif; font-size: 26px; font-weight: 700;
-    color: #111; line-height: 1.15; margin-bottom: 4px;
-  }
-  .etl-store-card-tag {
-    font-family:'Public Sans',sans-serif; font-size: 13px; font-weight: 600;
-    color: #555; margin-bottom: 14px;
-  }
-  .etl-store-card-desc {
-    font-family:'Public Sans',sans-serif; font-size: 14px; line-height: 1.55;
-    color: #333; flex: 1; margin-bottom: 18px;
-  }
-  .etl-store-card-foot {
-    display: flex; justify-content: space-between; align-items: center;
-    gap: 12px; flex-wrap: wrap;
-    border-top: 1px solid rgba(0,0,0,0.1); padding-top: 14px;
-  }
-  .etl-store-card-price {
-    font-family:'IBM Plex Mono',monospace; font-size: 12px;
-    color: #285C4D; letter-spacing: 0.5px;
-  }
-  .etl-store-card-cta {
-    font-family:'Public Sans',sans-serif; font-size: 12px; font-weight: 600;
-    color: #111; letter-spacing: 1.5px; text-transform: uppercase;
-  }
-  .etl-store-card-cta-btn {
-    text-decoration: none; background: #111; color: #5c8ab5;
-    padding: 8px 14px; border: 1px solid #111;
-    transition: background .15s ease, color .15s ease;
-  }
-  .etl-store-card-cta-btn:hover { background: #5c8ab5; color: #111; }
-</style>
 
 <!-- CONTACT -->
 <section id="contact" data-tab="home">
