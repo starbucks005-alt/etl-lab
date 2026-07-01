@@ -1,6 +1,7 @@
 /* heidi-ask — sync trigger for Heidi Kingstone's correspondent backpack.
    Fires the background job and returns a polling endpoint immediately. */
 
+const { deductCredit } = require('./_etl-credits-util');
 const SUPABASE_URL = 'https://ulvrnermyuvzanxhxoib.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsdnJuZXJteXV2emFueGh4b2liIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3MzYyMDEsImV4cCI6MjA5NjMxMjIwMX0.tAaXhm_pb-DxrYsXYw1DvvYENDJ_y3jlt2nGWSp2lbA';
 
@@ -36,6 +37,15 @@ exports.handler = async function(event) {
   const auth = await validateRequest(event);
   if (!auth.ok) {
     return { statusCode: 401, body: JSON.stringify({ error: 'unauthorized', reason: auth.reason }) };
+  }
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!serviceKey) return { statusCode: 500, body: JSON.stringify({ error: 'config' }) };
+  const credit = await deductCredit(auth.user.id, serviceKey);
+  if (!credit.ok) {
+    const msg = credit.reason === 'no_credits'
+      ? "You're out of credits for this month. Your balance tops up on your monthly renewal date."
+      : 'No credit account found. Subscribe at /member-login.';
+    return { statusCode: 402, body: JSON.stringify({ error: credit.reason, message: msg }) };
   }
   let body;
   try { body = JSON.parse(event.body || '{}'); }

@@ -369,6 +369,7 @@ function openDrawer(){updateDrawer();document.getElementById('drawer').classList
 function closeAll(){document.getElementById('drawer').classList.remove('show');document.getElementById('bd').classList.remove('show');closeModal();}
 
 var imAgent=null,imHistory=[];
+function getEtlToken(){try{var raw=localStorage.getItem('sb-ulvrnermyuvzanxhxoib-auth-token');var sess=raw?JSON.parse(raw):null;return(sess&&sess.access_token)||null;}catch(_){return null;}}
 function openIM(i){
   imAgent=AGENTS[i];imHistory=[];
   var feed=document.getElementById('im-feed');feed.innerHTML='';
@@ -377,9 +378,11 @@ function openIM(i){
   document.getElementById('im-head').innerHTML=av+'<div class="im-hinfo"><strong>'+esc(imAgent.name)+'</strong><span>'+esc(imAgent.role)+'</span></div><button class="im-x" onclick="closeIM()">&times;</button>';
   document.getElementById('im-chat').classList.add('open');
   var typ=document.getElementById('im-typing');typ.style.display='block';
-  fetch('/.netlify/functions/hiring-pool-im',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({agentName:imAgent.name,agentRole:imAgent.role||'',agentTagline:imAgent.tagline||'',agentPlatform:imAgent.platform||'',agentSkills:(imAgent.skills||[]).join(', '),message:'__greet__',history:[]})})
-    .then(function(r){return r.json();})
-    .then(function(d){typ.style.display='none';var opener=d.reply||'hello.';addBubble(opener,'them');imHistory=[{role:'assistant',content:opener}];document.getElementById('im-inp').focus();})
+  var tok=getEtlToken();
+  if(!tok){typ.style.display='none';addBubble('Sign in at emerging-tech-lab.com/member-login to talk to the staff.','them');imHistory=[{role:'assistant',content:'Sign in at emerging-tech-lab.com/member-login to talk to the staff.'}];document.getElementById('im-inp').focus();return;}
+  fetch('/.netlify/functions/hiring-pool-im',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify({agentName:imAgent.name,agentRole:imAgent.role||'',agentTagline:imAgent.tagline||'',agentPlatform:imAgent.platform||'',agentSkills:(imAgent.skills||[]).join(', '),message:'__greet__',history:[]})})
+    .then(function(r){return r.json().then(function(d){return{status:r.status,data:d};});})
+    .then(function(res){typ.style.display='none';if(res.status===401){addBubble('Sign in at emerging-tech-lab.com/member-login to talk to the staff.','them');return;}if(res.status===402){addBubble("You're out of credits for this month. Top up at emerging-tech-lab.com/member-login.",'them');return;}var opener=res.data.reply||'hello.';addBubble(opener,'them');imHistory=[{role:'assistant',content:opener}];document.getElementById('im-inp').focus();})
     .catch(function(){typ.style.display='none';addBubble('hello.','them');imHistory=[{role:'assistant',content:'hello.'}];});
 }
 function closeIM(){document.getElementById('im-chat').classList.remove('open');imAgent=null;imHistory=[];}
@@ -395,13 +398,15 @@ function sendIM(){
     setTimeout(closeIM,1800);
     return;
   }
+  var tok=getEtlToken();
+  if(!tok){addBubble('Sign in at emerging-tech-lab.com/member-login to talk to the staff.','them');return;}
   inp.value='';
   addBubble(text,'me');
   imHistory.push({role:'user',content:text});
   var typ=document.getElementById('im-typing');typ.style.display='block';
-  fetch('/.netlify/functions/hiring-pool-im',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({agentName:imAgent.name,agentRole:imAgent.role||'',agentTagline:imAgent.tagline||'',agentPlatform:imAgent.platform||'',agentSkills:(imAgent.skills||[]).join(', '),message:text,history:imHistory.slice(-10)})})
-    .then(function(r){return r.json();})
-    .then(function(d){typ.style.display='none';var reply=d.reply||"sorry, missed that. try again?";addBubble(reply,'them');imHistory.push({role:'assistant',content:reply});})
+  fetch('/.netlify/functions/hiring-pool-im',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify({agentName:imAgent.name,agentRole:imAgent.role||'',agentTagline:imAgent.tagline||'',agentPlatform:imAgent.platform||'',agentSkills:(imAgent.skills||[]).join(', '),message:text,history:imHistory.slice(-10)})})
+    .then(function(r){return r.json().then(function(d){return{status:r.status,data:d};});})
+    .then(function(res){typ.style.display='none';if(res.status===401){addBubble('Sign in at emerging-tech-lab.com/member-login to talk to the staff.','them');return;}if(res.status===402){addBubble("You're out of credits for this month. Top up at emerging-tech-lab.com/member-login.",'them');return;}var reply=res.data.reply||"sorry, missed that. try again?";addBubble(reply,'them');imHistory.push({role:'assistant',content:reply});})
     .catch(function(){typ.style.display='none';addBubble("hey, something went wrong on my end. try again in a sec.",'them');});
 }
 function updateDrawer(){

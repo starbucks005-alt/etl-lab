@@ -410,11 +410,14 @@ document.getElementById('shake').addEventListener('click',()=>{
   const i=Math.floor(Math.random()*CASES.length);
   sel.value=i; rule(i,true);
 });
+function getEtlToken(){try{var raw=localStorage.getItem('sb-ulvrnermyuvzanxhxoib-auth-token');var sess=raw?JSON.parse(raw):null;return(sess&&sess.access_token)||null;}catch(_){return null;}}
 document.getElementById('file').addEventListener('click', async ()=>{
   const raw=document.getElementById('ff').value.trim();
   const note=document.getElementById('ffnote');
   const verdict=document.getElementById('verdict');
   if(!raw){ note.classList.add('shown'); note.innerHTML='The court needs to hear the dispute first. Type what you two are arguing about.'; verdict.classList.remove('shown'); return; }
+  const tok=getEtlToken();
+  if(!tok){ note.classList.add('shown'); note.innerHTML='Sign in at <a href="/member-login" style="color:inherit;text-decoration:underline;">emerging-tech-lab.com/member-login</a> to bring your case to Judge Roz.'; verdict.classList.remove('shown'); return; }
   verdict.classList.remove('shown');
   note.classList.add('shown');
   note.innerHTML='&#9878;&#65039; The court is reviewing your case. Judge Roz is deliberating&hellip;';
@@ -422,9 +425,11 @@ document.getElementById('file').addEventListener('click', async ()=>{
   try{
     const res=await fetch('/.netlify/functions/roz-ruling',{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},
       body:JSON.stringify({dispute:raw})
     });
+    if(res.status===401){note.classList.add('shown');note.innerHTML='Sign in at <a href="/member-login" style="color:inherit;text-decoration:underline;">emerging-tech-lab.com/member-login</a> to bring your case to Judge Roz.';return;}
+    if(res.status===402){const d=await res.json();note.classList.add('shown');note.innerHTML=d.message||"You're out of credits. The court will reconvene when your balance tops up.";return;}
     if(!res.ok) throw new Error('recess');
     const data=await res.json();
     if(data.error) throw new Error(data.error);

@@ -1,4 +1,6 @@
-/* city-priscilla-ask - public sync trigger for Priscilla Okeke (city services). No auth. */
+/* city-priscilla-ask - sync trigger for Priscilla Okeke (city services). Member auth required. */
+
+const { getUser, extractToken, deductCredit } = require('./_etl-credits-util');
 
 function newJobId() {
   const d = new Date();
@@ -10,6 +12,21 @@ exports.handler = async function(event) {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: JSON.stringify({ error: 'method_not_allowed' }) };
   }
+
+  const token = extractToken((event.headers && (event.headers.authorization || event.headers.Authorization)) || '');
+  if (!token) return { statusCode: 401, body: JSON.stringify({ error: 'no_token', message: 'Sign in at /member-login to talk to the staff.' }) };
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!serviceKey) return { statusCode: 500, body: JSON.stringify({ error: 'config' }) };
+  const user = await getUser(token);
+  if (!user) return { statusCode: 401, body: JSON.stringify({ error: 'invalid_token', message: 'Your session has expired. Sign in again at /member-login.' }) };
+  const credit = await deductCredit(user.id, serviceKey);
+  if (!credit.ok) {
+    const msg = credit.reason === 'no_credits'
+      ? "You're out of credits for this month. Your balance tops up on your monthly renewal date."
+      : 'No credit account found. Subscribe at /member-login.';
+    return { statusCode: 402, body: JSON.stringify({ error: credit.reason, message: msg }) };
+  }
+
   let body;
   try { body = JSON.parse(event.body || '{}'); }
   catch (e) { return { statusCode: 400, body: JSON.stringify({ error: 'bad_json' }) }; }
