@@ -728,7 +728,7 @@
 
   // ---- API ----
   async function callAPI(body){
-    var r = await fetch('/.netlify/functions/proxy-ai', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
+    var r = await fetch('/.netlify/functions/prep-room-ask', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
     var text = await r.text(); var d;
     try{ d = JSON.parse(text); }catch(e){ throw new Error('Server returned an unexpected response.'); }
     if(d.error){ throw new Error(typeof d.error==='string'?d.error:(d.error.message||'API error')); }

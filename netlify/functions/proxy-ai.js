@@ -20,6 +20,16 @@ exports.handler = async (event) => {
     return { statusCode: 405, headers: CORS_HEADERS, body: JSON.stringify({ error: 'Method not allowed' }) };
   }
 
+  // Admin-only. Use PRESS_ADMIN env var as shared secret (Basic auth).
+  const adminKey = process.env.PRESS_ADMIN;
+  if (adminKey) {
+    const authHeader = (event.headers.authorization || event.headers.Authorization || '').trim();
+    const expected = 'Basic ' + Buffer.from('admin:' + adminKey).toString('base64');
+    if (authHeader !== expected) {
+      return { statusCode: 401, headers: CORS_HEADERS, body: JSON.stringify({ error: 'Unauthorized' }) };
+    }
+  }
+
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return { statusCode: 500, headers: CORS_HEADERS, body: JSON.stringify({ error: 'ANTHROPIC_API_KEY not configured' }) };

@@ -1128,7 +1128,7 @@ async function sCallAPI(body, opts) {
   while (attempts < maxAttempts) {
     attempts++;
     try {
-      var r = await fetch('/.netlify/functions/proxy-ai', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
+      var r = await fetch('/.netlify/functions/job-search-ask', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
       console.log('[scanner] attempt', attempts, 'status:', r.status);
       if (r.status === 504 || r.status === 502) {
         // Timeout or upstream error: retry once with a tighter request

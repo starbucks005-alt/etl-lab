@@ -1258,7 +1258,7 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
     if(!q) return;
     helpreply.textContent = 'Processing...';
     helpbtn.disabled = true;
-    fetch('/.netlify/functions/proxy-ai',{
+    fetch('/.netlify/functions/prep-room-ask',{
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',

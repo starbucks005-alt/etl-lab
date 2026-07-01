@@ -10,8 +10,11 @@
      stripe_customer_id   text,
      stripe_subscription_id text,
      subscription_active  boolean NOT NULL DEFAULT false,
+     studio_pass          boolean NOT NULL DEFAULT false,
      created_at           timestamptz DEFAULT now()
    );
+   -- Add studio_pass to existing installs:
+   -- ALTER TABLE etl_credits ADD COLUMN studio_pass boolean NOT NULL DEFAULT false;
    ALTER TABLE etl_credits ENABLE ROW LEVEL SECURITY;
    CREATE POLICY "users see own credits" ON etl_credits
      FOR SELECT USING (auth.uid() = user_id);
@@ -44,12 +47,13 @@ function extractToken(authHeader) {
 /* Deduct 1 credit for a known userId. Returns { ok, balance_remaining } or { ok: false, reason }. */
 async function deductCredit(userId, serviceKey) {
   const sel = await fetch(
-    `${SUPABASE_URL}/rest/v1/etl_credits?user_id=eq.${userId}&select=balance`,
+    `${SUPABASE_URL}/rest/v1/etl_credits?user_id=eq.${userId}&select=balance,studio_pass`,
     { headers: { Authorization: `Bearer ${serviceKey}`, apikey: serviceKey } }
   );
   const rows = await sel.json();
   if (!Array.isArray(rows) || rows.length === 0) return { ok: false, reason: 'no_account' };
   const balance = rows[0].balance;
+  if (rows[0].studio_pass === true) return { ok: true, balance_remaining: balance };
   if (balance <= 0) return { ok: false, reason: 'no_credits' };
 
   const newBalance = balance - 1;

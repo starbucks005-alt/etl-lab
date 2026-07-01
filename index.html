@@ -3351,20 +3351,31 @@ document.addEventListener('DOMContentLoaded', function(){
     if(busy||!agent) return;
     var text = msgInput.value.trim();
     if(!text) return;
+
+    // Non-Iris agents require a Lab Membership.
+    var isIris = agent.name && agent.name.split(' ')[0] === 'Iris';
+    if(!isIris){
+      msgInput.value = '';
+      var notice = document.createElement('div');
+      notice.style.cssText = 'font-family:\'IBM Plex Mono\',monospace;font-size:10px;color:rgba(0,200,255,.6);padding:8px 0;line-height:1.6;';
+      notice.innerHTML = 'Chatting with ETL staff requires a <a href="/join" style="color:rgba(0,200,255,.9);text-decoration:underline;">Lab Membership</a>. Iris is the free demo.';
+      thread.appendChild(notice);
+      thread.scrollTop = thread.scrollHeight;
+      return;
+    }
+
     msgInput.value = '';
     msgInput.disabled = true;
     sendBtn.disabled = true;
     busy = true;
     addBubble('user', text);
     var typing = addTyping();
-    fetch('/.netlify/functions/proxy-ai',{
+    fetch('/.netlify/functions/iris-ask',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-haiku-4-5-20251001',
-        max_tokens:300,
-        system:buildPrompt(agent),
-        messages:hist.slice()
+        message: text,
+        history: hist.slice(-8)
       })
     }).then(function(r){return r.json();}).then(function(data){
       typing.remove();
