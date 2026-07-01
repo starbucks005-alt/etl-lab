@@ -94,6 +94,16 @@
       });
     } catch (_) {}
 
+    // Send welcome email on first signup only
+    if (type === 'signup') {
+      try {
+        await fetch('/.netlify/functions/send-welcome-email', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+      } catch (_) {}
+    }
+
     // Redirect: go to intended destination or member-welcome
     const dest = sessionStorage.getItem('etl_login_dest') || '/member-welcome';
     sessionStorage.removeItem('etl_login_dest');
