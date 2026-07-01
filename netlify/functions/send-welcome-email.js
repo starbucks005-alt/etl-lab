@@ -4,7 +4,7 @@
 
 const SUPABASE_URL = 'https://ulvrnermyuvzanxhxoib.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsdnJuZXJteXV2emFueGh4b2liIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3MzYyMDEsImV4cCI6MjA5NjMxMjIwMX0.tAaXhm_pb-DxrYsXYw1DvvYENDJ_y3jlt2nGWSp2lbA';
-const FROM = 'Dr. O\'s Lab <lab@emerging-tech-lab.com>';
+const FROM = 'Dr. O <drterryoroszi@emerging-tech-lab.com>';
 
 function buildEmail(email) {
   const firstName = email.split('@')[0].split('.')[0];
