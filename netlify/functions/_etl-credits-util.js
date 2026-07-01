@@ -25,8 +25,11 @@ const SUPABASE_URL  = 'https://ulvrnermyuvzanxhxoib.supabase.co';
 const SUPABASE_ANON = process.env.SUPABASE_ANON_KEY
   || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsdnJuZXJteXV2emFueGh4b2liIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3MzYyMDEsImV4cCI6MjA5NjMxMjIwMX0.tAaXhm_pb-DxrYsXYw1DvvYENDJ_y3jlt2nGWSp2lbA';
 
-/* Resolve a Supabase Bearer token to { id, email } or null. */
+/* Resolve a Supabase Bearer token to { id, email } or null.
+   If OWNER_KEY env var is set and token matches, bypasses Supabase lookup. */
 async function getUser(token) {
+  const ownerKey = process.env.OWNER_KEY;
+  if (ownerKey && token === ownerKey) return { id: 'owner', email: 'owner@etl' };
   try {
     const r = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
       headers: { Authorization: `Bearer ${token}`, apikey: SUPABASE_ANON },
@@ -46,6 +49,7 @@ function extractToken(authHeader) {
 
 /* Deduct 1 credit for a known userId. Returns { ok, balance_remaining } or { ok: false, reason }. */
 async function deductCredit(userId, serviceKey) {
+  if (userId === 'owner') return { ok: true, balance_remaining: 9999 };
   const sel = await fetch(
     `${SUPABASE_URL}/rest/v1/etl_credits?user_id=eq.${userId}&select=balance,studio_pass`,
     { headers: { Authorization: `Bearer ${serviceKey}`, apikey: serviceKey } }
