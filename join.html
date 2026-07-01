@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Join the Lab — Emerging Technologies Laboratory</title>
+  <meta name="description" content="Join Dr. O's Emerging Tech Lab. Be part of where education goes next.">
+  <link rel="icon" href="/brand/etl-favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:  #0a0a0f;
+      --bg:     #0e0c08;
+      --blue:   #28527a;
+      --blue-lt:#5c8ab5;
+      --gold:   #c6a667;
+      --green:  #46d6e6;
+      --cream:  #f5f3ee;
+      --warm:   #b8a882;
+      --muted:  #888;
+      --border: rgba(92,138,181,0.2);
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--cream);
+      font-family: 'Public Sans', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .banner {
+      background: var(--blue);
+      text-align: center;
+      padding: 7px 24px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #fff;
+    }
+
+    .top-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 60px;
+      border-bottom: 1px solid var(--border);
+    }
+    .top-nav-logo {
+      font-family: 'Public Sans', sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+    }
+    .top-nav-logo span { color: var(--green); }
+    .top-nav-back {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color .15s;
+    }
+    .top-nav-back:hover { color: var(--cream); }
+
+    .hero {
+      padding: 96px 60px 72px;
+      max-width: 860px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .hero-eyebrow {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--blue-lt);
+      margin-bottom: 20px;
+    }
+    .hero-title {
+      font-family: 'Spectral', serif;
+      font-size: clamp(32px, 4.5vw, 58px);
+      font-weight: 300;
+      color: #fff;
+      line-height: 1.08;
+      margin-bottom: 24px;
+    }
+    .hero-body {
+      font-size: 17px;
+      color: var(--warm);
+      line-height: 1.8;
+      max-width: 620px;
+      margin: 0 auto 64px;
+    }
+
+    .tiers {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      max-width: 800px;
+      margin: 0 auto 64px;
+      padding: 0 60px;
+    }
+
+    .tier {
+      padding: 40px 36px;
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+    }
+    .tier.member {
+      border-color: rgba(198,166,103,0.45);
+      background: rgba(198,166,103,0.03);
+    }
+
+    .tier-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--blue-lt);
+      margin-bottom: 20px;
+    }
+    .tier.member .tier-label { color: var(--gold); }
+
+    .tier-title {
+      font-family: 'Spectral', serif;
+      font-size: 28px;
+      font-weight: 300;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+    .tier-price {
+      font-family: 'Public Sans', sans-serif;
+      font-size: 13px;
+      color: #7a6e5c;
+      margin-bottom: 32px;
+    }
+
+    .tier-features {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 36px;
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+      flex: 1;
+    }
+    .tier-features li {
+      font-size: 13px;
+      color: #c8bfa8;
+      line-height: 1.5;
+    }
+    .tier-features li::before {
+      content: '\2713';
+      color: var(--blue-lt);
+      margin-right: 10px;
+    }
+    .tier.member .tier-features li::before { color: var(--gold); }
+
+    .tier-cta {
+      display: block;
+      text-align: center;
+      padding: 13px;
+      background: var(--cream);
+      color: #0e0c08;
+      font-family: 'Public Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: opacity .15s;
+    }
+    .tier-cta:hover { opacity: .88; }
+    .tier.member .tier-cta { background: var(--gold); }
+
+    .credits-note {
+      max-width: 800px;
+      margin: 0 auto 48px;
+      padding: 0 60px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #5a5040;
+      line-height: 1.9;
+      border-top: 1px solid rgba(92,138,181,0.15);
+      padding-top: 28px;
+    }
+
+    .investor-nudge {
+      max-width: 800px;
+      margin: 0 auto 96px;
+      padding: 0 60px;
+      font-size: 14px;
+      color: #5a5040;
+    }
+    .investor-nudge a {
+      color: var(--gold);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .investor-nudge a:hover { text-decoration: underline; }
+
+    @media (max-width: 640px) {
+      .top-nav { padding: 16px 24px; }
+      .hero { padding: 60px 24px 48px; }
+      .tiers { grid-template-columns: 1fr; padding: 0 24px; }
+      .credits-note, .investor-nudge { padding: 0 24px; }
+      .credits-note { padding-top: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="banner">Emerging Technologies Laboratory &nbsp;&middot;&nbsp; Dayton, Ohio</div>
+
+<nav class="top-nav">
+  <a href="/" class="top-nav-logo">ETL &nbsp;<span>//</span>&nbsp; Dr. O's Lab</a>
+  <a href="/" class="top-nav-back">&larr; Back to the Lab</a>
+</nav>
+
+<section class="hero">
+  <div class="hero-eyebrow">Join Dr. O's Emerging Tech Lab</div>
+  <h1 class="hero-title">Be part of where education goes next.</h1>
+  <p class="hero-body">This lab sits at the intersection of education and emerging technology. Your membership funds that work and keeps these tools free for students who couldn't access them otherwise.</p>
+</section>
+
+<div class="tiers">
+
+  <div class="tier">
+    <div class="tier-label">Lab Volunteer</div>
+    <div class="tier-title">Free</div>
+    <div class="tier-price">20 credits on signup</div>
+    <ul class="tier-features">
+      <li>Talk to any lab agent</li>
+      <li>Prep Room sessions</li>
+      <li>Interview practice</li>
+      <li>Job search assistance</li>
+      <li>Judge Roz's Court</li>
+      <li>Broadcast feed (always free)</li>
+    </ul>
+    <a href="/member-login" class="tier-cta">Join Free</a>
+  </div>
+
+  <div class="tier member">
+    <div class="tier-label">Lab Member</div>
+    <div class="tier-title">$19.99 / mo</div>
+    <div class="tier-price">20 credits renewed monthly, rollover</div>
+    <ul class="tier-features">
+      <li>Everything in volunteer</li>
+      <li>Credits renewed every month</li>
+      <li>Keeps free tools running for students</li>
+      <li>Priority access to new tools</li>
+      <li>Lab newsletter from the staff</li>
+    </ul>
+    <a href="/member-login?plan=member" class="tier-cta">Become a Member</a>
+  </div>
+
+</div>
+
+<div class="credits-note">
+  Credits are used by: Agent IM &nbsp;&middot;&nbsp; Prep Room &nbsp;&middot;&nbsp; Interview Practice &nbsp;&middot;&nbsp; Job Search &nbsp;&middot;&nbsp; Thesis Defense &nbsp;&middot;&nbsp; Judge Roz's Court<br>
+  Broadcast feed is always free.
+</div>
+
+<div class="investor-nudge">
+  Serious about what we're building? <a href="/investors">See where this is going &rarr;</a>
+</div>
+
+</body>
+</html>
