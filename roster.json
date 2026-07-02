@@ -3851,7 +3851,8 @@
         "platforms":  [
                           "ETL",
                           "The Harvest Circuit"
-                      ]
+                      ],
+        "voice_id":  "g1FVKFidZjHPxXdfA89c"
     },
     {
         "name":  "Dr. Helena Ward",
@@ -4802,7 +4803,8 @@
                              ],
         "platforms":  [
                           "The Harvest Circuit"
-                      ]
+                      ],
+        "voice_id":  "aOZ9Pl8uWUTet0DS7PYP"
     },
     {
         "name":  "Camille Lefèvre",
@@ -4842,7 +4844,8 @@
                              ],
         "platforms":  [
                           "The Harvest Circuit"
-                      ]
+                      ],
+        "voice_id":  "xNtG3W2oqJs0cJZuTyBc"
     },
     {
         "name":  "Luca Brunner",

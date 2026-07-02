@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300">
+  <defs>
+    <!-- top arc: left → up through top → right (clockwise) -->
+    <path id="top-arc" d="M 17,150 A 133,133 0 0,1 283,150"/>
+    <!-- bottom arc: right → down through bottom → left (clockwise) -->
+    <path id="bot-arc" d="M 283,150 A 133,133 0 0,1 17,150"/>
+  </defs>
+
+  <!-- Outer ring -->
+  <circle cx="150" cy="150" r="146" fill="none" stroke="#1a2535" stroke-width="7"/>
+  <!-- Inner ring (double) -->
+  <circle cx="150" cy="150" r="123" fill="none" stroke="#1a2535" stroke-width="2.5"/>
+  <circle cx="150" cy="150" r="119" fill="none" stroke="#1a2535" stroke-width="0.8"/>
+
+  <!-- TOP curved text -->
+  <text font-family="Georgia, 'Times New Roman', serif" font-size="13" fill="#1a2535"
+        font-weight="bold" letter-spacing="1.6">
+    <textPath href="#top-arc" startOffset="50%" text-anchor="middle">
+      &#8226; ETL COURT OF JUDGE ROZ &#8226;
+    </textPath>
+  </text>
+
+  <!-- BOTTOM curved text -->
+  <text font-family="Georgia, 'Times New Roman', serif" font-size="9.5" fill="#1a2535"
+        letter-spacing="0.9">
+    <textPath href="#bot-arc" startOffset="50%" text-anchor="middle">
+      &#8226; EST. 2026 / DATA DRIVEN RESOLUTIONS &#8226;
+    </textPath>
+  </text>
+
+  <!-- Blue bar (top) -->
+  <rect x="87" y="107" width="126" height="27" fill="#5f89b0" rx="1.5"/>
+  <!-- Gray bar (middle) -->
+  <rect x="87" y="138" width="126" height="27" fill="#dedad0" rx="1.5"/>
+  <!-- Gray bar (bottom) -->
+  <rect x="87" y="169" width="126" height="27" fill="#d2cec4" rx="1.5"/>
+
+  <!-- ETL label -->
+  <text x="150" y="218" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif"
+        font-size="17" fill="#1a2535" font-weight="bold" letter-spacing="5">ETL</text>
+</svg>
