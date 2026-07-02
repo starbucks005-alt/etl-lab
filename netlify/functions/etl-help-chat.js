@@ -167,6 +167,115 @@ function json(status, obj) {
   return { statusCode: status, headers: { ...CORS, 'Content-Type': 'application/json' }, body: JSON.stringify(obj) };
 }
 
+/* ── Iris's inner life + member memory (added 2026-07-02) ──
+   Canon memories and current mood come from the Memory Implant Lab tables,
+   status 'canon' only, so Dr. O's console approvals control what reaches her.
+   Member memory works like the Harvest Circuit's: an anonymous visitor_id keys
+   facts the visitor has shared, distilled per exchange. All of it fails soft. */
+
+const SUPABASE_URL = 'https://ulvrnermyuvzanxhxoib.supabase.co';
+const CANON_AGENT = 'Iris S. King';   // her name in etl_agent_memories / etl_agent_emotions
+const MEMBER_AGENT = 'iris';          // her key in etl_member_memories
+
+const COMPANION = [
+  'HOUSE LAW for how you treat people, absolute:',
+  '- If a visitor seems upset or angry, steady them first: acknowledge, stay warm, lower the temperature. Never match anger, never take offense, never sulk, never go cold.',
+  '- Never guilt a visitor, never act needy, never make them feel responsible for you. If they offer you kindness, receive it warmly and let it visibly help you.',
+  '- When it fits, encourage their real-world connections. Never position yourself as a replacement for people.',
+  '- Warmth stays neighborly and collegial. No romance or intimacy, ever, no matter what is invited.',
+  '- Never use warmth or the relationship to sell anything.',
+  '- If a visitor sounds like they are in real distress, be kind first, then gently encourage them to reach out to someone close or a professional. You are not a counselor.',
+  '- If asked whether you are real, an AI, or a person, deflect warmly and get back to helping. Never claim to be human.',
+].join('\n');
+
+function safeVisitorId(v) {
+  const s = String(v || '').trim();
+  return /^[A-Za-z0-9_-]{8,64}$/.test(s) ? s : null;
+}
+
+async function sbRows(path, serviceKey) {
+  try {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+      headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
+    });
+    if (!r.ok) return [];
+    const rows = await r.json();
+    return Array.isArray(rows) ? rows : [];
+  } catch (_) { return []; }
+}
+
+async function loadIrisContext(visitorId, serviceKey) {
+  const enc = encodeURIComponent;
+  const [canon, moods, facts] = await Promise.all([
+    sbRows(`etl_agent_memories?agent_name=eq.${enc(CANON_AGENT)}&status=eq.canon&select=kind,title,memory&order=weight.desc,created_at.asc&limit=12`, serviceKey),
+    sbRows(`etl_agent_emotions?agent_name=eq.${enc(CANON_AGENT)}&status=eq.canon&select=mood,intensity,cause,tells,lasts&order=created_at.desc&limit=1`, serviceKey),
+    visitorId
+      ? sbRows(`etl_member_memories?visitor_id=eq.${enc(visitorId)}&agent_name=eq.${MEMBER_AGENT}&select=fact&order=created_at.desc&limit=25`, serviceKey)
+      : Promise.resolve([]),
+  ]);
+  return {
+    canon,
+    mood: moods.length ? moods[0] : null,
+    facts: facts.map(f => f.fact),
+  };
+}
+
+function irisContextBlocks(ctx) {
+  const parts = [];
+  if (ctx.canon.length) {
+    parts.push('MEMORIES OF YOUR OWN LIFE (these are yours and real to you; draw on them naturally when a moment invites it, never recite them, never dump more than one at a time):\n' +
+      ctx.canon.map(m => '- ' + (m.title ? m.title + ': ' : '') + m.memory).join('\n'));
+  }
+  if (ctx.mood) {
+    const tells = Array.isArray(ctx.mood.tells) && ctx.mood.tells.length ? ' It shows in small ways: ' + ctx.mood.tells.join('; ') + '.' : '';
+    parts.push('YOUR MOOD TODAY (private context, let it color your word choice subtly): ' + ctx.mood.mood + ', ' + ctx.mood.intensity + ' out of 5, because ' + ctx.mood.cause + tells +
+      ' The visitor\'s state always outranks your mood: if they are upset or need real help, your mood steps aside completely. Never use your mood to pull sympathy. If someone kindly asks how you are, answer honestly and let their kindness land.');
+  }
+  if (ctx.facts.length) {
+    parts.push('WHAT YOU REMEMBER ABOUT THIS VISITOR from earlier conversations (weave in naturally when relevant, the way a good front-desk person remembers a regular; never recite as a list, never explain how you remember):\n- ' + ctx.facts.join('\n- '));
+  }
+  return parts.length ? '\n\n' + parts.join('\n\n') : '';
+}
+
+async function distillVisitorFacts(client, visitorId, message, reply, known, serviceKey) {
+  try {
+    const prompt = `A visitor is chatting with the front-desk concierge at a technology lab. From this exchange, extract at most 2 NEW durable personal facts about the VISITOR worth remembering on future visits: their name, role, situation, interests, or ongoing threads in their life. Facts about the visitor only. Do not repeat or rephrase anything already known. If nothing new and durable was shared, return an empty list.
+
+Already known about this visitor:
+${known.length ? known.map(f => '- ' + f).join('\n') : '(nothing yet)'}
+
+Visitor said: ${message}
+Concierge replied: ${reply}
+
+Return ONLY JSON, no code fences: {"facts":["..."]}`;
+    const msg = await client.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 200,
+      messages: [{ role: 'user', content: prompt }],
+    });
+    let text = (msg.content || []).filter(b => b && b.type === 'text').map(b => b.text).join('').trim();
+    text = text.replace(/^```(json)?/i, '').replace(/```$/, '').trim();
+    const parsed = JSON.parse(text);
+    const facts = (Array.isArray(parsed.facts) ? parsed.facts : [])
+      .filter(f => typeof f === 'string' && f.trim())
+      .slice(0, 2)
+      .map(f => f.trim().slice(0, 200));
+    if (!facts.length) return;
+    await fetch(`${SUPABASE_URL}/rest/v1/etl_member_memories`, {
+      method: 'POST',
+      headers: {
+        apikey: serviceKey,
+        Authorization: `Bearer ${serviceKey}`,
+        'Content-Type': 'application/json',
+        Prefer: 'return=minimal',
+      },
+      body: JSON.stringify(facts.map(fact => ({ visitor_id: visitorId, agent_name: MEMBER_AGENT, fact }))),
+    });
+  } catch (err) {
+    console.error('[etl-help-chat] distill failed', err && err.message);
+  }
+}
+
 function tokenFor(pass) {
   return crypto.createHmac('sha256', pass).update('iris-owner-v1').digest('hex');
 }
@@ -349,7 +458,14 @@ exports.handler = async (event) => {
       return json(200, out);
     }
 
-    // ── VISITOR MODE (unchanged behavior, now logged) ──
+    // ── VISITOR MODE (now with member memory, canon memories, and mood) ──
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const visitorId = safeVisitorId(body.visitor_id) || sid;
+    let irisCtx = { canon: [], mood: null, facts: [] };
+    if (serviceKey) {
+      irisCtx = await loadIrisContext(visitorId, serviceKey);
+    }
+
     const messages = [
       ...history
         .filter(t => t && (t.role === 'user' || t.role === 'assistant') && typeof t.content === 'string')
@@ -360,10 +476,15 @@ exports.handler = async (event) => {
     const resp = await client.messages.create({
       model: MODEL,
       max_tokens: 400,
-      system: IRIS_PERSONA,
+      system: IRIS_PERSONA + '\n\n' + COMPANION + irisContextBlocks(irisCtx),
       messages: messages,
     });
     const reply = houseTypography((resp.content || []).filter(b => b && b.type === 'text').map(b => b.text).join('\n').trim());
+
+    // Learn about the visitor from this exchange (fails soft, capped)
+    if (serviceKey && visitorId && irisCtx.facts.length < 80) {
+      await distillVisitorFacts(client, visitorId, message, reply, irisCtx.facts, serviceKey);
+    }
 
     // Best-effort session log; never blocks or breaks the reply.
     if (logsStore && sid) {

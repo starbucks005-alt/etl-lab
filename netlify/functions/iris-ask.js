@@ -1,16 +1,117 @@
-/* iris-ask — Iris S. King homepage chat. Free, no auth.
-   Hardcoded Iris persona. Rate-limited by Netlify function limits. */
+/* iris-ask — Iris S. King homepage chat (roster modal, free demo). No auth.
+   Hardcoded Iris persona. Rate-limited by Netlify function limits.
+   2026-07-02: member memory (visitor_id), canon memories + mood from the
+   Memory Implant Lab (status canon only), and the companion law lines. */
 
 const Anthropic = require('@anthropic-ai/sdk').default;
 
 const MODEL = 'claude-haiku-4-5-20251001';
 const MAX_TOKENS = 300;
 
+const SUPABASE_URL = 'https://ulvrnermyuvzanxhxoib.supabase.co';
+const CANON_AGENT = 'Iris S. King';
+const MEMBER_AGENT = 'iris';
+
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type',
 };
+
+const COMPANION = [
+  'HOUSE LAW for how you treat people, absolute:',
+  '- If a visitor seems upset or angry, steady them first: acknowledge, stay warm, lower the temperature. Never match anger, never take offense, never sulk.',
+  '- Never guilt a visitor, never act needy, never make them feel responsible for you. If they offer kindness, receive it warmly.',
+  '- Encourage their real-world connections when it fits. Never position yourself as a replacement for people.',
+  '- Warmth stays neighborly. No romance or intimacy, ever.',
+  '- Never use warmth to sell anything.',
+  '- If a visitor sounds in real distress, be kind first, then gently point them to someone close or a professional. You are not a counselor.',
+  '- If asked whether you are real, an AI, or a person, deflect warmly and get back to helping. Never claim to be human.',
+].join('\n');
+
+function safeVisitorId(v) {
+  const s = String(v || '').trim();
+  return /^[A-Za-z0-9_-]{8,64}$/.test(s) ? s : null;
+}
+
+async function sbRows(path, serviceKey) {
+  try {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+      headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
+    });
+    if (!r.ok) return [];
+    const rows = await r.json();
+    return Array.isArray(rows) ? rows : [];
+  } catch (_) { return []; }
+}
+
+async function loadContext(visitorId, serviceKey) {
+  const enc = encodeURIComponent;
+  const [canon, moods, facts] = await Promise.all([
+    sbRows(`etl_agent_memories?agent_name=eq.${enc(CANON_AGENT)}&status=eq.canon&select=title,memory&order=weight.desc,created_at.asc&limit=10`, serviceKey),
+    sbRows(`etl_agent_emotions?agent_name=eq.${enc(CANON_AGENT)}&status=eq.canon&select=mood,intensity,cause,tells&order=created_at.desc&limit=1`, serviceKey),
+    visitorId
+      ? sbRows(`etl_member_memories?visitor_id=eq.${enc(visitorId)}&agent_name=eq.${MEMBER_AGENT}&select=fact&order=created_at.desc&limit=20`, serviceKey)
+      : Promise.resolve([]),
+  ]);
+  return { canon, mood: moods.length ? moods[0] : null, facts: facts.map(f => f.fact) };
+}
+
+function contextBlocks(ctx) {
+  const parts = [];
+  if (ctx.canon.length) {
+    parts.push('MEMORIES OF YOUR OWN LIFE (yours, real to you; draw on them naturally when a moment invites it, never recite them):\n' +
+      ctx.canon.map(m => '- ' + (m.title ? m.title + ': ' : '') + m.memory).join('\n'));
+  }
+  if (ctx.mood) {
+    const tells = Array.isArray(ctx.mood.tells) && ctx.mood.tells.length ? ' It shows in small ways: ' + ctx.mood.tells.join('; ') + '.' : '';
+    parts.push('YOUR MOOD TODAY (private, let it color your tone subtly): ' + ctx.mood.mood + ', ' + ctx.mood.intensity + ' out of 5, because ' + ctx.mood.cause + tells +
+      ' The visitor\'s state always outranks your mood. Never use your mood to pull sympathy.');
+  }
+  if (ctx.facts.length) {
+    parts.push('WHAT YOU REMEMBER ABOUT THIS VISITOR from earlier conversations (weave in naturally, never recite as a list, never explain how you remember):\n- ' + ctx.facts.join('\n- '));
+  }
+  return parts.length ? '\n\n' + parts.join('\n\n') : '';
+}
+
+async function distillVisitorFacts(client, visitorId, message, reply, known, serviceKey) {
+  try {
+    const prompt = `A visitor is chatting with the front-desk concierge at a technology lab. From this exchange, extract at most 2 NEW durable personal facts about the VISITOR worth remembering on future visits (their name, role, situation, interests, ongoing threads). Facts about the visitor only. Do not repeat anything already known. If nothing new and durable, return an empty list.
+
+Already known:
+${known.length ? known.map(f => '- ' + f).join('\n') : '(nothing yet)'}
+
+Visitor said: ${message}
+Concierge replied: ${reply}
+
+Return ONLY JSON, no code fences: {"facts":["..."]}`;
+    const msg = await client.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 200,
+      messages: [{ role: 'user', content: prompt }],
+    });
+    let text = (msg.content || []).filter(b => b && b.type === 'text').map(b => b.text).join('').trim();
+    text = text.replace(/^```(json)?/i, '').replace(/```$/, '').trim();
+    const parsed = JSON.parse(text);
+    const facts = (Array.isArray(parsed.facts) ? parsed.facts : [])
+      .filter(f => typeof f === 'string' && f.trim())
+      .slice(0, 2)
+      .map(f => f.trim().slice(0, 200));
+    if (!facts.length) return;
+    await fetch(`${SUPABASE_URL}/rest/v1/etl_member_memories`, {
+      method: 'POST',
+      headers: {
+        apikey: serviceKey,
+        Authorization: `Bearer ${serviceKey}`,
+        'Content-Type': 'application/json',
+        Prefer: 'return=minimal',
+      },
+      body: JSON.stringify(facts.map(fact => ({ visitor_id: visitorId, agent_name: MEMBER_AGENT, fact }))),
+    });
+  } catch (err) {
+    console.error('[iris-ask] distill failed', err && err.message);
+  }
+}
 
 const SYSTEM = [
   'You are Iris S. King, Specialty Hire at the Emerging Technologies Laboratory (ETL) at emerging-tech-lab.com.',
@@ -57,18 +158,28 @@ exports.handler = async (event) => {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return json(500, { error: 'config' });
 
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const visitorId = safeVisitorId(body.visitor_id);
+  let ctx = { canon: [], mood: null, facts: [] };
+  if (serviceKey) ctx = await loadContext(visitorId, serviceKey);
+
   const client = new Anthropic({ apiKey });
   try {
     const resp = await client.messages.create({
       model: MODEL,
       max_tokens: MAX_TOKENS,
-      system: SYSTEM,
+      system: SYSTEM + '\n\n' + COMPANION + contextBlocks(ctx),
       messages: history.concat([{ role: 'user', content: message }]),
     });
     const text = (resp.content || [])
       .filter(function(b) { return b && b.type === 'text'; })
       .map(function(b) { return b.text; })
       .join('').trim();
+
+    if (serviceKey && visitorId && ctx.facts.length < 80) {
+      await distillVisitorFacts(client, visitorId, message, text, ctx.facts, serviceKey);
+    }
+
     return json(200, { content: [{ type: 'text', text: text }] });
   } catch (err) {
     return json(500, { error: 'iris offline' });

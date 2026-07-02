@@ -3375,7 +3375,8 @@ document.addEventListener('DOMContentLoaded', function(){
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         message: text,
-        history: hist.slice(-8)
+        history: hist.slice(-8),
+        visitor_id: (function(){ try { var v = localStorage.getItem('etl_visitor_id'); if (!v) { v = 'v' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10); localStorage.setItem('etl_visitor_id', v); } return v; } catch(_) { return null; } })()
       })
     }).then(function(r){return r.json();}).then(function(data){
       typing.remove();
@@ -6392,6 +6393,13 @@ h1 b,h2 b,h1 strong,h2 strong{font-weight:500}
   var OWNER_KEY = 'etl.iris.owner';
   var history = [];
   var sid = null, ownerToken = null;
+  function visitorId(){
+    try {
+      var v = localStorage.getItem('etl_visitor_id');
+      if (!v) { v = 'v' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10); localStorage.setItem('etl_visitor_id', v); }
+      return v;
+    } catch(_) { return null; }
+  }
   try {
     var raw = localStorage.getItem(STORAGE_KEY);
     if (raw) history = JSON.parse(raw) || [];
@@ -6450,8 +6458,6 @@ h1 b,h2 b,h1 strong,h2 strong{font-weight:500}
   if (voiceBtn) voiceBtn.addEventListener('click', playWelcome);
 
   function openPanel(){
-    history = [];
-    try { localStorage.removeItem(STORAGE_KEY); } catch(_){}
     panel.hidden = false;
     bubble.setAttribute('aria-expanded', 'true');
     rehydrate();
@@ -6543,7 +6549,7 @@ h1 b,h2 b,h1 strong,h2 strong{font-weight:500}
       var r = await fetch('/.netlify/functions/etl-help-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: msg, history: history.slice(0, -1), sid: sid, ownerToken: ownerToken }),
+        body: JSON.stringify({ message: msg, history: history.slice(0, -1), sid: sid, ownerToken: ownerToken, visitor_id: visitorId() }),
       });
       var data = await r.json();
       typingEl.remove();
