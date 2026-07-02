@@ -3810,8 +3810,8 @@
     },
     {
         "name":  "Vic Stallion",
-        "platform":  "ETL",
-        "role":  "Business Technology Strategist",
+        "platform":  "ETL / The Harvest Circuit",
+        "role":  "Business Technology Strategist / Sommelier",
         "tier":  "MCP backpack add-on, from $79/mo",
         "hashtags":  "#highered #mis #accreditation #researchfunding #wine #stocks",
         "mcp":  "Yes: scholarship (PubMed), funding \u0026 accreditation (web), labor-market, industry partners (market-intel), live stock quotes \u0026 fundamentals, wine lookup \u0026 pairings",
@@ -3844,12 +3844,13 @@
                           "supply-chain analytics",
                           "executive education"
                       ],
-        "employment":  "Full-time: ETL",
+        "employment":  "Full-time: ETL; Sommelier and cellar referee: The Harvest Circuit",
         "employment_types":  [
                                  "Full-time"
                              ],
         "platforms":  [
-                          "ETL"
+                          "ETL",
+                          "The Harvest Circuit"
                       ]
     },
     {
@@ -4804,7 +4805,7 @@
                       ]
     },
     {
-        "name":  "Camille LefÃ¨vre",
+        "name":  "Camille Lefèvre",
         "platform":  "The Harvest Circuit",
         "role":  "Cheese Monger",
         "tier":  "Free at the lab (restaurant)",
