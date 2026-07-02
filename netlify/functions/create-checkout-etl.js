@@ -40,6 +40,12 @@ exports.handler = async (event) => {
     success_url: 'https://emerging-tech-lab.com/member-welcome?session_id={CHECKOUT_SESSION_ID}',
     cancel_url: 'https://emerging-tech-lab.com/member-login',
     'subscription_data[metadata][source]': 'etl_membership',
+    // Founding-roll recognition question; stripe-supporter-webhook records the answer
+    'custom_fields[0][key]': 'public_name',
+    'custom_fields[0][label][type]': 'custom',
+    'custom_fields[0][label][custom]': 'Public name (blank = stay anonymous)',
+    'custom_fields[0][type]': 'text',
+    'custom_fields[0][optional]': 'true',
   });
 
   if (body.email) params.set('customer_email', body.email);

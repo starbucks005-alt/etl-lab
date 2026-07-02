@@ -418,7 +418,7 @@
 
     <h3 style="font-family:'Spectral',serif; font-size:clamp(22px,2.5vw,30px); font-weight:300; color:#fff; margin:0 0 16px; line-height:1.1;">The people who showed up first.</h3>
 
-    <p style="font-family:'Public Sans',sans-serif; font-size:14px; color:#b8a882; line-height:1.8; margin:0 0 32px; max-width:600px;">Lab Members who joined before this campus was a household name. Members can opt in to public recognition, or stay anonymous. The choice is always yours.</p>
+    <p style="font-family:'Public Sans',sans-serif; font-size:14px; color:#b8a882; line-height:1.8; margin:0 0 32px; max-width:600px;">Members and donors who showed up before this campus was a household name. Anyone can opt in to public recognition, or stay anonymous. The choice is always yours.</p>
 
     <p id="founding-members-list" style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:2px; text-transform:uppercase; color:#5a5040; margin-bottom:40px; line-height:2;">No names yet. Be the first.</p>
 
@@ -439,11 +439,14 @@
     .then(function(data) {
       var el = document.getElementById('founding-members-list');
       if (!el) return;
-      if (!data.names || data.names.length === 0) {
+      var parts = (data.names || []).slice();
+      var anon = data.anonymous || 0;
+      if (anon > 0) parts.push('+ ' + anon + ' anonymous supporter' + (anon === 1 ? '' : 's'));
+      if (parts.length === 0) {
         el.textContent = 'No names yet. Be the first.';
         return;
       }
-      el.textContent = data.names.join('  ·  ');
+      el.textContent = parts.join('  ·  ');
       el.style.color = '#b8a882';
     })
     .catch(function() {});
