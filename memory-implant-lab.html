@@ -53,12 +53,23 @@
   <select id="agent-select" style="min-width:240px;"><option>loading roster...</option></select>
   <select id="pack-count"><option value="9" selected>9 memories</option><option value="6">6 memories</option><option value="12">12 memories</option></select>
   <button id="gen-btn" class="primary">Generate implant pack</button>
+  <button id="hand-btn">Author by hand</button>
   <button id="refresh-btn">Refresh</button>
   <select id="status-filter"><option value="">all statuses</option><option value="draft">drafts</option><option value="canon">canon</option><option value="retired">retired</option></select>
   <span id="status"></span>
 </div>
 <div class="notes-row">
   <textarea id="canon-notes" rows="2" placeholder="Canon notes for this generation (locked facts that override the dossier): e.g. sister Tessa away at college; loves jasmine tea; no children; Devon Sloane is he/him"></textarea>
+</div>
+
+<div id="hand-form" style="display:none; border:1px solid var(--line); padding:16px; margin:0 0 28px;">
+  <div class="eyebrow" style="margin-bottom:12px;">Author by hand · your words, no generator, lands as canon</div>
+  <div id="hand-fields" style="display:grid; gap:10px;"></div>
+  <div style="display:flex; gap:10px; margin-top:12px; align-items:center;">
+    <button id="hand-save" class="primary">Save as canon</button>
+    <label style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--dim);"><input type="checkbox" id="hand-draft"> save as draft instead</label>
+    <button id="hand-cancel">Cancel</button>
+  </div>
 </div>
 
 <div id="list"></div>
@@ -158,6 +169,69 @@
   document.getElementById('status-filter').addEventListener('change', refresh);
   document.getElementById('agent-select').addEventListener('change', refresh);
   document.getElementById('mode').addEventListener('change', syncModeUI);
+
+  // Author by hand: Dr. O dictates, the machine takes dictation.
+  function renderHandForm() {
+    var mem = mode() === 'memories';
+    var f = document.getElementById('hand-fields');
+    if (mem) {
+      f.innerHTML =
+        '<div style="display:flex; gap:10px; flex-wrap:wrap;">' +
+        '<select id="hf-kind"><option>family</option><option>sensory</option><option selected>formative</option><option>relationship</option><option>event</option><option>daily</option></select>' +
+        '<input id="hf-title" placeholder="short title" style="flex:1; min-width:180px;">' +
+        '<input id="hf-when" placeholder="when (loose, e.g. summer 1998)" style="width:220px;">' +
+        '<select id="hf-weight"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select>' +
+        '</div>' +
+        '<textarea id="hf-memory" rows="4" placeholder="The memory, first person, past tense, in their voice."></textarea>';
+    } else {
+      f.innerHTML =
+        '<div style="display:flex; gap:10px; flex-wrap:wrap;">' +
+        '<input id="hf-mood" placeholder="mood, one plain word" style="width:200px;">' +
+        '<select id="hf-intensity"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select>' +
+        '<input id="hf-lasts" placeholder="lasts (e.g. all week)" style="width:200px;">' +
+        '</div>' +
+        '<textarea id="hf-cause" rows="3" placeholder="The cause, first person: why they feel this way."></textarea>' +
+        '<input id="hf-tells" placeholder="tells, separated by semicolons: hums while filing; refreshes the group chat">';
+    }
+  }
+  document.getElementById('hand-btn').addEventListener('click', function () {
+    var wrap = document.getElementById('hand-form');
+    var show = wrap.style.display === 'none';
+    if (show) renderHandForm();
+    wrap.style.display = show ? 'block' : 'none';
+  });
+  document.getElementById('hand-cancel').addEventListener('click', function () {
+    document.getElementById('hand-form').style.display = 'none';
+  });
+  document.getElementById('hand-save').addEventListener('click', function () {
+    var agent = document.getElementById('agent-select').value;
+    if (!agent) { say('pick an agent first'); return; }
+    var mem = mode() === 'memories';
+    var payload = { action: 'add', target: mode(), agent_name: agent,
+      status: document.getElementById('hand-draft').checked ? 'draft' : 'canon' };
+    if (mem) {
+      payload.kind = document.getElementById('hf-kind').value;
+      payload.title = document.getElementById('hf-title').value;
+      payload.happened_at = document.getElementById('hf-when').value;
+      payload.weight = document.getElementById('hf-weight').value;
+      payload.memory = document.getElementById('hf-memory').value;
+      if (!payload.memory.trim()) { say('write the memory first'); return; }
+    } else {
+      payload.mood = document.getElementById('hf-mood').value;
+      payload.intensity = document.getElementById('hf-intensity').value;
+      payload.lasts = document.getElementById('hf-lasts').value;
+      payload.cause = document.getElementById('hf-cause').value;
+      payload.tells = document.getElementById('hf-tells').value;
+      if (!payload.mood.trim() || !payload.cause.trim()) { say('mood and cause are required'); return; }
+    }
+    say('saving...');
+    api('memory-implant-admin', payload).then(function (res) {
+      if (!res.ok) { say(res.j.error || 'error'); return; }
+      say('saved');
+      document.getElementById('hand-form').style.display = 'none';
+      refresh();
+    });
+  });
 
   document.getElementById('gen-btn').addEventListener('click', function () {
     var agent = document.getElementById('agent-select').value;

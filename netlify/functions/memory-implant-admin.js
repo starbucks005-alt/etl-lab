@@ -11,6 +11,8 @@
    - edit    { id, ...fields }                 -> { ok }
      memories fields: memory, title, kind, weight, happened_at
      emotions fields: mood, intensity, cause, lasts
+   - add     { agent_name, status?, ...fields }-> { ok }   (author by hand; Dr. O dictates,
+     no generator paraphrase; status defaults to canon since the author IS the approval)
 
    Nothing here is public; every action requires the owner key.
 */
@@ -73,6 +75,41 @@ exports.handler = async (event) => {
     if (!r.ok) return json(500, { error: 'db_error' });
     const rows = await r.json();
     return json(200, { rows });
+  }
+
+  if (action === 'add') {
+    const agentName = String(body.agent_name || '').trim();
+    if (!agentName) return json(400, { error: 'agent_name_required' });
+    const status = body.status === 'draft' ? 'draft' : 'canon';
+    let row;
+    if (table === TABLES.memories) {
+      if (!body.memory || !String(body.memory).trim()) return json(400, { error: 'memory_required' });
+      row = {
+        agent_name: agentName,
+        kind: ['family', 'sensory', 'formative', 'relationship', 'event', 'daily'].includes(body.kind) ? body.kind : 'formative',
+        title: String(body.title || '').slice(0, 120),
+        memory: String(body.memory).trim(),
+        happened_at: String(body.happened_at || '').slice(0, 80) || null,
+        weight: Math.min(Math.max(parseInt(body.weight, 10) || 3, 1), 5),
+        participants: [],
+        status,
+      };
+    } else {
+      if (!body.mood || !String(body.mood).trim() || !body.cause || !String(body.cause).trim()) {
+        return json(400, { error: 'mood_and_cause_required' });
+      }
+      row = {
+        agent_name: agentName,
+        mood: String(body.mood).trim().slice(0, 40),
+        intensity: Math.min(Math.max(parseInt(body.intensity, 10) || 3, 1), 5),
+        cause: String(body.cause).trim(),
+        tells: String(body.tells || '').split(';').map((s) => s.trim()).filter(Boolean).slice(0, 4),
+        lasts: String(body.lasts || '').slice(0, 80) || null,
+        status,
+      };
+    }
+    const r = await sb(table, { method: 'POST', body: JSON.stringify(row) }, serviceKey);
+    return r.ok ? json(200, { ok: true }) : json(500, { error: 'db_error' });
   }
 
   const id = String(body.id || '').trim();
