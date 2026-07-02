@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Harvest Circuit at ETL</title>
 <meta name="description" content="The Harvest Circuit at ETL: a farm-to-table house wired through with high tech. Learn wine, cheese, and food pairings, and where every ingredient comes from.">
+<link rel="manifest" href="/harvest.webmanifest">
+<link rel="apple-touch-icon" href="/agents/Ruben_Hart_eyes_open.png">
+<meta name="theme-color" content="#140f08">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Harvest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Spectral:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
@@ -265,6 +272,10 @@
   .m-ask{font-family:'IBM Plex Mono',monospace;font-size:.74rem;letter-spacing:.05em;text-transform:uppercase;font-weight:600;background:var(--amber);color:#0d0a05;border:none;border-radius:8px;padding:0 1.1rem;cursor:pointer;}
   .m-resp{margin-top:.8rem;font-size:.92rem;color:var(--text);white-space:pre-wrap;}
   .m-resp.show{background:var(--bg2);border-radius:8px;padding:.8rem .9rem;}
+  .m-tools{display:none;gap:.5rem;margin-top:.6rem;}
+  .m-tools.show{display:flex;flex-wrap:wrap;}
+  .m-tools button{font-family:'IBM Plex Mono',monospace;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;background:var(--panel);border:1px solid var(--line);color:var(--amber);border-radius:999px;padding:.45rem .9rem;cursor:pointer;}
+  .m-tools button:hover{border-color:var(--amber);}
   .m-ft{padding:.8rem 1.2rem;border-top:1px solid var(--line);font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:var(--mute);display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;}
   .m-ft a{color:var(--teal);cursor:pointer;}
 </style>
@@ -277,6 +288,7 @@
       <div class="m-chips" id="mChips"></div>
       <div class="m-row"><input id="mInput" type="text" placeholder="Ask a question..."><button class="m-ask" id="mAsk" type="button">Ask</button></div>
       <div class="m-resp" id="mResp"></div>
+      <div class="m-tools" id="mTools"><button id="mGrocery" type="button">Grocery list</button><button id="mCopy" type="button">Copy</button></div>
     </div>
     <div class="m-ft"><span>Powered by The Harvest Circuit</span><span>Ask another: <a data-go="camille">Camille</a> &middot; <a data-go="ruben">Ruben</a> &middot; <a data-go="luca">Luca</a> &middot; <a data-go="vic">Vic</a></span></div>
   </div>
@@ -306,6 +318,11 @@
     $('mChips').innerHTML=a.chips.map(function(c){return '<span class="m-chip">'+c.replace(/</g,'&lt;')+'</span>';}).join('');
     $('mChips').querySelectorAll('.m-chip').forEach(function(ch){ch.onclick=function(){$('mInput').value=ch.textContent;$('mInput').focus();};});
     $('mInput').value=''; var r=$('mResp'); r.textContent=''; r.className='m-resp';
+    var t=$('mTools'); t.className='m-tools'; lastAns='';
+    var h=HIST[k]||[];
+    for(var i=h.length-1;i>=0;i--){
+      if(h[i].role==='assistant'){ r.textContent=h[i].content; r.className='m-resp show'; lastAns=h[i].content; t.className='m-tools show'; break; }
+    }
     $('ov').classList.add('open');
   }
   function closeModal(){ $('ov').classList.remove('open'); }
@@ -324,8 +341,11 @@
       localStorage.setItem('etl_hc_hist',JSON.stringify(HIST));
     }catch(_){}
   }
-  function ask(){
-    var k=$('ov').dataset.k, a=HC[k], q=$('mInput').value.trim(); if(!q) return;
+  var lastAns='';
+  var GROCERY_Q='Please turn what we have been talking about into a grocery list I can shop from. Every item on its own line starting with a dash, amounts where they help. Keep any advice to one short line at the end.';
+  function ask(qOverride){
+    var k=$('ov').dataset.k, a=HC[k];
+    var q=(typeof qOverride==='string'&&qOverride)||$('mInput').value.trim(); if(!q) return;
     var r=$('mResp'); r.className='m-resp show'; r.textContent=a.name.split(' ')[0]+' is thinking...';
     if(!HIST[k]) HIST[k]=[];
     var msgs=HIST[k].concat([{role:'user',content:q}]);
@@ -334,6 +354,8 @@
       .then(function(d){
         var ans=(d.answer||d.response||'').trim()||(a.name.split(' ')[0]+' did not have an answer for that.');
         r.textContent=ans;
+        lastAns=ans;
+        $('mTools').className='m-tools show';
         HIST[k]=msgs.concat([{role:'assistant',content:ans}]);
         saveHist();
         $('mInput').value='';
@@ -344,8 +366,22 @@
     var k=(b.getAttribute('data-name')||'').toLowerCase();
     b.addEventListener('click',function(){ openModal(k); });
   });
-  $('mAsk').onclick=ask;
+  $('mAsk').onclick=function(){ ask(); };
   $('mInput')&&$('mInput').addEventListener('keydown',function(e){ if(e.key==='Enter') ask(); });
+  $('mGrocery').onclick=function(){ ask(GROCERY_Q); };
+  $('mCopy').onclick=function(){
+    if(!lastAns) return;
+    var b=$('mCopy');
+    function done(ok){ b.textContent=ok?'Copied':'Could not copy'; setTimeout(function(){ b.textContent='Copy'; },1800); }
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(lastAns).then(function(){ done(true); },function(){ done(false); });
+    } else {
+      try{
+        var ta=document.createElement('textarea'); ta.value=lastAns; document.body.appendChild(ta);
+        ta.select(); document.execCommand('copy'); document.body.removeChild(ta); done(true);
+      }catch(_){ done(false); }
+    }
+  };
   $('mX').onclick=closeModal;
   $('ov').addEventListener('click',function(e){ if(e.target===$('ov')) closeModal(); });
   document.querySelectorAll('.m-ft a[data-go]').forEach(function(a){ a.onclick=function(){ openModal(a.getAttribute('data-go')); }; });
