@@ -2959,16 +2959,29 @@ document.addEventListener('DOMContentLoaded', function(){
 <div class="hero">
   <div class="wrap">
     <div class="eyebrow"><span class="dot">&#9670;</span> EMERGING TECHNOLOGIES LABORATORY &nbsp;&middot;&nbsp; DR. TERRY OROSZI &nbsp;&middot;&nbsp; WRIGHT STATE CAMPUS</div>
-    <h1>The lab never closes. <span class="alive">All 122 are in.</span></h1>
+    <h1>The lab never closes. <span class="alive" id="etlAllIn">All 130 are in.</span></h1>
     <div class="sub">A living campus of AI specialists you can actually talk to. Pick a building, read over their shoulders, or <b>talk to any one of them yourself</b>. Free at the lab.</div>
     <div class="readout">
-      <div class="cell"><div class="n">125</div><div class="k"><span class="pulse"></span>Agents on staff</div></div>
+      <div class="cell"><div class="n" id="etlAgentsN">130</div><div class="k"><span class="pulse"></span>Agents on staff</div></div>
       <div class="cell"><div class="n">30</div><div class="k">Travel between buildings</div></div>
       <div class="cell"><div class="n small">20</div><div class="k">Live buildings</div></div>
       <div class="cell"><div class="n small">9</div><div class="k">Free on campus</div></div>
     </div>
   </div>
 </div>
+<script>
+/* Single source: the agent total on this page derives from data/agents.generated.json
+   (built from ETL_Agent_Roster.xlsx by build_agent_data.py). Do not hand-type the count. */
+(function(){
+  fetch('/data/agents.generated.json',{cache:'no-store'})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(!d||!d.total) return;
+      var a=document.getElementById('etlAllIn');   if(a) a.textContent='All '+d.total+' are in.';
+      var n=document.getElementById('etlAgentsN');  if(n) n.textContent=d.total;
+    }).catch(function(){});
+})();
+</script>
 
 <div class="wrap">
 

@@ -297,8 +297,34 @@ const ADAT = [
   ["Yolanda Ferreira","CG",5,0],["Priscilla Okeke","CG",5,0],
   ["Tessa Whitfield","CG",5,0],["Ramon Delgado","CG",5,0],
   ["Desmond Quigley","CG",5,0],
-  ["Ruben Hart","HC",6,0],["Camille Lefèvre","HC",5.5,0],["Luca Brunner","HC",5.5,0]
+  ["Ruben Hart","HC",6,0],["Camille Lefèvre","HC",5.5,0],["Luca Brunner","HC",5.5,0],
+  ["Heidi Kingstone","NW",6,1],["Von Gupta","PR",5.5,0],
+  ["Maddie","GP",5.5,0],["Emir","GP",5.5,0],["Rachel & Adam","GP",6,0],["Michael","GP",5.5,0]
 ];
+// Count comes from the roster, not from the dot array. Cleo (SLR Studio) and Intel
+// (Intel Dashboard) are map-only mascots, drawn but NOT roster agents, so they are
+// excluded from every displayed AGENTS/BACKPACKS figure. Keep this list in sync with
+// ETL_Agent_Roster.xlsx (run build_agent_data.py after any roster change).
+const MASCOTS = ['Cleo','Intel'];
+// AGENT_TOTAL derives from the dot array minus mascots (130) and matches the roster.
+// BACKPACK figures come from the roster (data/agents.generated.json, built from
+// ETL_Agent_Roster.xlsx by build_agent_data.py), because ADAT's own hasMCP flags are
+// under-marked. These are `let` so the fetch below can update them; the render loop
+// reads them every frame. If the fetch fails, the ADAT-derived fallback is used.
+let AGENT_TOTAL    = ADAT.filter(a=>MASCOTS.indexOf(a[0])<0).length;
+let BACKPACK_TOTAL = ADAT.filter(a=>MASCOTS.indexOf(a[0])<0 && a[3]).length;
+let BACKPACK_PCT   = Math.round(100*BACKPACK_TOTAL/AGENT_TOTAL);
+fetch('/data/agents.generated.json',{cache:'no-store'})
+  .then(r=>r.json())
+  .then(d=>{
+    if(d && typeof d.total==='number' && d.total>0) AGENT_TOTAL = d.total;
+    if(d && typeof d.backpack==='number'){
+      BACKPACK_TOTAL = d.backpack;
+      BACKPACK_PCT = (typeof d.backpack_pct==='number') ? d.backpack_pct
+                   : Math.round(100*d.backpack/(d.total||AGENT_TOTAL));
+    }
+  })
+  .catch(()=>{});
 
 const HOME = {FS:18,OG:1,TG:2,TD:5,GY:6,PR:9,NW:12,GP:13,GK:23,XX:20,DR:14,ET:14,CG:26,SL:10,ID:0,HC:28};
 // Per-agent home overrides for XX multi-platform staff who each have a real home building
@@ -1045,7 +1071,7 @@ function drawHUD(){
   ctx.fillStyle='#00c8ff'; ctx.font='bold 15px "Courier New",monospace';
   ctx.textAlign='left'; ctx.fillText('ETL NEIGHBORHOOD  ◆  LIVE CAMPUS', 16, 24);
   ctx.fillStyle='#4080a0'; ctx.textAlign='right'; ctx.font='13px "Courier New",monospace';
-  ctx.fillText(`AGENTS ${agents.length}  ·  ACTIVE ${active}  ·  CHATTING ${chatting}  ·  AT DESKWORKS ${atHub}`, W-16, 24);
+  ctx.fillText(`AGENTS ${AGENT_TOTAL}  ·  ACTIVE ${active}  ·  CHATTING ${chatting}  ·  AT DESKWORKS ${atHub}`, W-16, 24);
   ctx.restore();
 
   // ── DATA panel (top-right) ────────────────────────────────────────────────
@@ -1058,7 +1084,7 @@ function drawHUD(){
     ctx.fillText('DATA', px+10, py+17);
     ctx.strokeStyle='#1a3a5c'; ctx.lineWidth=.5;
     ctx.beginPath(); ctx.moveTo(px+10,py+22); ctx.lineTo(px+pw-10,py+22); ctx.stroke();
-    const rows=[['AGENTS',agents.length],['BACKPACKS','85  (68%)'],['ACTIVE',active],['EN ROUTE',enRoute],['CHATTING',chatting],['AT HUB',atHub],['PAIRS',pairs]];
+    const rows=[['AGENTS',AGENT_TOTAL],['BACKPACKS',BACKPACK_TOTAL+'  ('+BACKPACK_PCT+'%)'],['ACTIVE',active],['EN ROUTE',enRoute],['CHATTING',chatting],['AT HUB',atHub],['PAIRS',pairs]];
     ctx.font='11px "Courier New",monospace';
     rows.forEach(([lbl,val],i)=>{
       ctx.fillStyle='#4080a0'; ctx.textAlign='left';  ctx.fillText(lbl, px+10, py+36+i*rowH);
@@ -1090,7 +1116,7 @@ function drawHUD(){
     ctx.fillText('SYSTEM', px+10, py+17);
     ctx.strokeStyle='#1a3a5c'; ctx.lineWidth=.5;
     ctx.beginPath(); ctx.moveTo(px+10,py+22); ctx.lineTo(px+pw-10,py+22); ctx.stroke();
-    const rows=[['NODES',N.length],['LINKS',EDGES.length],['PLATFORMS',Object.keys(PC).length],['AGENTS',agents.length],['STATUS','ONLINE']];
+    const rows=[['NODES',N.length],['LINKS',EDGES.length],['PLATFORMS',Object.keys(PC).length],['AGENTS',AGENT_TOTAL],['STATUS','ONLINE']];
     ctx.font='11px "Courier New",monospace';
     rows.forEach(([lbl,val],i)=>{
       ctx.fillStyle='#4080a0'; ctx.textAlign='left';  ctx.fillText(lbl, px+10, py+36+i*rowH);
@@ -1222,7 +1248,7 @@ function loop(ts){
   const _hub=agents.filter(a=>a.inHub).length;
   const _route=agents.filter(a=>a.state===ST.G).length;
   const _pairs=Math.floor(agents.filter(a=>a.partner>=0&&a.state===ST.G).length/2);
-  document.getElementById('s-total').textContent=agents.length;
+  document.getElementById('s-total').textContent=AGENT_TOTAL;
   document.getElementById('s-active').textContent=_active;
   document.getElementById('s-enroute').textContent=_route;
   document.getElementById('s-chatting').textContent=_chat;
