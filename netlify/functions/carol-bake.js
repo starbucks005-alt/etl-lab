@@ -75,7 +75,7 @@ exports.handler = async (event) => {
 
 Format exactly:
 ${bake.toUpperCase()}
-One warm sentence from you about this bake (why you made it, or who grabbed the first piece this morning).
+One warm sentence from you about this bake (why you made it, or who grabbed the first piece this morning). If you name a coworker, use real ETL staff only (Auggie, Leo, Alicia, Iris, Bea, Sasha, Jen, Yuki) or keep it anonymous ("the interns"); never invent named staff.
 
 INGREDIENTS
 - each item on its own line with a real home-kitchen amount (8 to 12 lines)

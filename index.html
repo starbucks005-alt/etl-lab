@@ -6423,14 +6423,30 @@ h1 b,h2 b,h1 strong,h2 strong{font-weight:500}
     });
   }
 
+  /* Iris can send links: after escaping, full URLs, bare campus domains, and
+     site paths she types become clickable. */
+  function linkify(s){
+    return s.replace(
+      /(https?:\/\/[^\s<]+)|(^|[\s(])((?:[a-z0-9-]+\.)+(?:com|net|org|studio|online|app)\b(?:\/[^\s<)]*)?)|(^|[\s(])(\/[a-z][a-z0-9\-\/]*(?:\.html)?)\b/gi,
+      function(m, full, pre2, dom, pre3, path){
+        var st = 'color:#28527a;text-decoration:underline;';
+        if (full) return '<a href="' + full + '" target="_blank" rel="noopener" style="' + st + '">' + full + '</a>';
+        if (dom)  return (pre2 || '') + '<a href="https://' + dom + '" target="_blank" rel="noopener" style="' + st + '">' + dom + '</a>';
+        if (path) return (pre3 || '') + '<a href="' + path + '" style="' + st + '">' + path + '</a>';
+        return m;
+      });
+  }
+
   function renderMsg(role, text){
     var who = role === 'user' ? 'You' : 'Iris';
     var cls = role === 'user' ? 'iris-msg iris-msg--mine' : 'iris-msg iris-msg--theirs';
     var div = document.createElement('div');
     div.className = cls;
+    var body = escapeHtml(text);
+    if (role !== 'user') body = linkify(body);
     div.innerHTML =
       '<div class="iris-msg-meta">' + who + '</div>' +
-      '<div>' + escapeHtml(text).replace(/\n/g, '<br>') + '</div>';
+      '<div>' + body.replace(/\n/g, '<br>') + '</div>';
     thread.appendChild(div);
     thread.scrollTop = thread.scrollHeight;
   }
