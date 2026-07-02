@@ -222,6 +222,10 @@ a { color: var(--amber); }
 .boh-card.noimg img { display: none; }
 .boh-card.noimg { min-height: 220px; display: flex; align-items: flex-end; }
 .boh-plate { position: absolute; left: 0; right: 0; bottom: 0; padding: .9rem 1.1rem; background: linear-gradient(0deg, rgba(14,11,7,.95), rgba(14,11,7,0)); display: flex; justify-content: space-between; align-items: baseline; gap: .8rem; flex-wrap: wrap; }
+/* When the machine photo is present, its engraved plate is the name; show only the staff tag. */
+.boh-card:not(.noimg) .boh-name { display: none; }
+.boh-card:not(.noimg) .boh-plate { justify-content: flex-end; background: none; padding: .6rem .8rem; }
+.boh-card:not(.noimg) .boh-tag { background: rgba(14,11,7,.72); border: 1px solid rgba(200,151,58,.35); border-radius: 999px; padding: .28rem .7rem; }
 .boh-card.noimg .boh-plate { position: static; background: none; width: 100%; }
 .boh-name { font-family: 'Spectral', serif; font-size: 1.12rem; color: var(--cream); }
 .boh-tag { font-family: 'IBM Plex Mono', monospace; font-size: .62rem; letter-spacing: .14em; text-transform: uppercase; color: var(--amber); }
