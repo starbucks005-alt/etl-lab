@@ -309,18 +309,33 @@
     $('ov').classList.add('open');
   }
   function closeModal(){ $('ov').classList.remove('open'); }
+  function visitorId(){
+    try{
+      var v=localStorage.getItem('etl_visitor_id');
+      if(!v){ v='v'+Date.now().toString(36)+Math.random().toString(36).slice(2,10); localStorage.setItem('etl_visitor_id',v); }
+      return v;
+    }catch(_){ return null; }
+  }
   var HIST={};
+  try{ HIST=JSON.parse(localStorage.getItem('etl_hc_hist')||'{}')||{}; }catch(_){ HIST={}; }
+  function saveHist(){
+    try{
+      Object.keys(HIST).forEach(function(k){ HIST[k]=HIST[k].slice(-20); });
+      localStorage.setItem('etl_hc_hist',JSON.stringify(HIST));
+    }catch(_){}
+  }
   function ask(){
     var k=$('ov').dataset.k, a=HC[k], q=$('mInput').value.trim(); if(!q) return;
     var r=$('mResp'); r.className='m-resp show'; r.textContent=a.name.split(' ')[0]+' is thinking...';
     if(!HIST[k]) HIST[k]=[];
     var msgs=HIST[k].concat([{role:'user',content:q}]);
-    fetch('/.netlify/functions/harvest-ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({partner:k,question:q,messages:msgs})})
+    fetch('/.netlify/functions/harvest-ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({partner:k,question:q,messages:msgs,visitor_id:visitorId()})})
       .then(function(res){ if(!res.ok) throw new Error('x'); return res.json(); })
       .then(function(d){
         var ans=(d.answer||d.response||'').trim()||(a.name.split(' ')[0]+' did not have an answer for that.');
         r.textContent=ans;
         HIST[k]=msgs.concat([{role:'assistant',content:ans}]);
+        saveHist();
         $('mInput').value='';
       })
       .catch(function(){ r.textContent=a.name.split(' ')[0]+' is still settling into the kitchen. The chat opens when the partners go live. For now, this is a preview of the room.'; });
