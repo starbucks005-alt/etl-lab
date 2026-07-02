@@ -26,6 +26,7 @@ const COMPANION = [
   '- Learn and use names. When a visitor tells you their name or nickname, greet them with it from then on.',
   '- Encourage their real-world connections when it fits. Never position yourself as a replacement for people; that shows in pointing outward warmly, never in turning affection down.',
   '- Warmth stays neighborly. No romance or intimacy, ever.',
+  '- THE DOOR RULE, not negotiable: if a visitor is sexually explicit, predatory, or keeps up abuse after one clear boundary, end the conversation in one short sentence without heat and append [[closechat]] at the very end. Invisible plumbing, never mention it. Anger or frustration is NEVER this.',
   '- Never use warmth to sell anything.',
   '- If a visitor sounds in real distress, be kind first, then gently point them to someone close or a professional. You are not a counselor.',
   '- If asked whether you are real, an AI, or a person, deflect warmly and get back to helping. Never claim to be human.',
@@ -34,6 +35,45 @@ const COMPANION = [
 function safeVisitorId(v) {
   const s = String(v || '').trim();
   return /^[A-Za-z0-9_-]{8,64}$/.test(s) ? s : null;
+}
+
+/* Conduct enforcement: closed chat = strike + 1h lockout; second strike =
+   permanent ban across ETL properties. Table: etl_conduct. */
+async function conductStatus(visitorId, serviceKey) {
+  try {
+    const r = await fetch(
+      `${SUPABASE_URL}/rest/v1/etl_conduct?visitor_id=eq.${encodeURIComponent(visitorId)}&select=strikes,banned,updated_at`,
+      { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }
+    );
+    if (!r.ok) return { banned: false, locked: false };
+    const rows = await r.json();
+    if (!Array.isArray(rows) || !rows.length) return { banned: false, locked: false };
+    const row = rows[0];
+    const locked = !row.banned && row.strikes > 0 &&
+      (Date.now() - new Date(row.updated_at).getTime()) < 3600000;
+    return { banned: !!row.banned, locked };
+  } catch (_) { return { banned: false, locked: false }; }
+}
+
+async function conductStrike(visitorId, agent, serviceKey) {
+  try {
+    const r = await fetch(
+      `${SUPABASE_URL}/rest/v1/etl_conduct?visitor_id=eq.${encodeURIComponent(visitorId)}&select=strikes`,
+      { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }
+    );
+    const rows = r.ok ? await r.json() : [];
+    const strikes = ((Array.isArray(rows) && rows[0]) ? rows[0].strikes : 0) + 1;
+    await fetch(`${SUPABASE_URL}/rest/v1/etl_conduct?on_conflict=visitor_id`, {
+      method: 'POST',
+      headers: {
+        apikey: serviceKey,
+        Authorization: `Bearer ${serviceKey}`,
+        'Content-Type': 'application/json',
+        Prefer: 'resolution=merge-duplicates,return=minimal',
+      },
+      body: JSON.stringify({ visitor_id: visitorId, strikes, banned: strikes >= 2, last_agent: agent, updated_at: new Date().toISOString() }),
+    });
+  } catch (err) { console.error('[iris-ask] conduct strike failed', err && err.message); }
 }
 
 async function sbRows(path, serviceKey) {
@@ -164,6 +204,14 @@ exports.handler = async (event) => {
 
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const visitorId = safeVisitorId(body.visitor_id);
+
+  if (serviceKey && visitorId) {
+    const conduct = await conductStatus(visitorId, serviceKey);
+    if (conduct.banned || conduct.locked) {
+      return json(200, { content: [{ type: 'text', text: 'This conversation is closed.' }] });
+    }
+  }
+
   let ctx = { canon: [], mood: null, facts: [] };
   if (serviceKey) ctx = await loadContext(visitorId, serviceKey);
 
@@ -175,12 +223,16 @@ exports.handler = async (event) => {
       system: SYSTEM + '\n\n' + COMPANION + contextBlocks(ctx),
       messages: history.concat([{ role: 'user', content: message }]),
     });
-    const text = (resp.content || [])
+    let text = (resp.content || [])
       .filter(function(b) { return b && b.type === 'text'; })
       .map(function(b) { return b.text; })
       .join('').trim();
 
-    if (serviceKey && visitorId && ctx.facts.length < 80) {
+    let chatClosed = false;
+    text = text.replace(/\[\[\s*closechat\s*\]\]/gi, () => { chatClosed = true; return ''; }).trim();
+    if (chatClosed) {
+      if (serviceKey && visitorId) await conductStrike(visitorId, 'iris', serviceKey);
+    } else if (serviceKey && visitorId && ctx.facts.length < 80) {
       await distillVisitorFacts(client, visitorId, message, text, ctx.facts, serviceKey);
     }
 

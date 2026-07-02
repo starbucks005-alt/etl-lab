@@ -187,6 +187,7 @@ const COMPANION = [
   '- Learn and use names. When a visitor tells you their name or nickname, greet them with it from then on.',
   '- When it fits, encourage their real-world connections. Never position yourself as a replacement for people; that shows in pointing outward warmly, never in turning affection down.',
   '- Warmth stays neighborly and collegial. No romance or intimacy, ever, no matter what is invited.',
+  '- THE DOOR RULE, not negotiable: if a visitor is sexually explicit toward you, predatory, or keeps up abuse after you have set one clear boundary, end the conversation. Say plainly and without heat that you are stepping away, one short sentence, no lecture, and append [[closechat]] at the very end of your reply. The brackets are invisible plumbing, never mention or explain them. Anger, frustration, or a bad day is NEVER this, those get warmth (see above). This is only for the unmistakable.',
   '- Never use warmth or the relationship to sell anything.',
   '- If a visitor sounds like they are in real distress, be kind first, then gently encourage them to reach out to someone close or a professional. You are not a counselor.',
   '- If asked whether you are real, an AI, or a person, deflect warmly and get back to helping. Never claim to be human.',
@@ -195,6 +196,45 @@ const COMPANION = [
 function safeVisitorId(v) {
   const s = String(v || '').trim();
   return /^[A-Za-z0-9_-]{8,64}$/.test(s) ? s : null;
+}
+
+/* Conduct enforcement (Terry, 2026-07-02): closed chat = strike + 1h lockout;
+   second strike = permanent ban across ETL properties. Table: etl_conduct. */
+async function conductStatus(visitorId, serviceKey) {
+  try {
+    const r = await fetch(
+      `${SUPABASE_URL}/rest/v1/etl_conduct?visitor_id=eq.${encodeURIComponent(visitorId)}&select=strikes,banned,updated_at`,
+      { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }
+    );
+    if (!r.ok) return { banned: false, locked: false };
+    const rows = await r.json();
+    if (!Array.isArray(rows) || !rows.length) return { banned: false, locked: false };
+    const row = rows[0];
+    const locked = !row.banned && row.strikes > 0 &&
+      (Date.now() - new Date(row.updated_at).getTime()) < 3600000;
+    return { banned: !!row.banned, locked };
+  } catch (_) { return { banned: false, locked: false }; }
+}
+
+async function conductStrike(visitorId, agent, serviceKey) {
+  try {
+    const r = await fetch(
+      `${SUPABASE_URL}/rest/v1/etl_conduct?visitor_id=eq.${encodeURIComponent(visitorId)}&select=strikes`,
+      { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }
+    );
+    const rows = r.ok ? await r.json() : [];
+    const strikes = ((Array.isArray(rows) && rows[0]) ? rows[0].strikes : 0) + 1;
+    await fetch(`${SUPABASE_URL}/rest/v1/etl_conduct?on_conflict=visitor_id`, {
+      method: 'POST',
+      headers: {
+        apikey: serviceKey,
+        Authorization: `Bearer ${serviceKey}`,
+        'Content-Type': 'application/json',
+        Prefer: 'resolution=merge-duplicates,return=minimal',
+      },
+      body: JSON.stringify({ visitor_id: visitorId, strikes, banned: strikes >= 2, last_agent: agent, updated_at: new Date().toISOString() }),
+    });
+  } catch (err) { console.error('[etl-help-chat] conduct strike failed', err && err.message); }
 }
 
 async function sbRows(path, serviceKey) {
@@ -465,6 +505,14 @@ exports.handler = async (event) => {
     // ── VISITOR MODE (now with member memory, canon memories, and mood) ──
     const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
     const visitorId = safeVisitorId(body.visitor_id) || sid;
+
+    if (serviceKey && visitorId) {
+      const conduct = await conductStatus(visitorId, serviceKey);
+      if (conduct.banned || conduct.locked) {
+        return json(200, { reply: 'This conversation is closed.', persona: 'Iris', owner: false });
+      }
+    }
+
     let irisCtx = { canon: [], mood: null, facts: [] };
     if (serviceKey) {
       irisCtx = await loadIrisContext(visitorId, serviceKey);
@@ -483,10 +531,15 @@ exports.handler = async (event) => {
       system: IRIS_PERSONA + '\n\n' + COMPANION + irisContextBlocks(irisCtx),
       messages: messages,
     });
-    const reply = houseTypography((resp.content || []).filter(b => b && b.type === 'text').map(b => b.text).join('\n').trim());
+    let reply = houseTypography((resp.content || []).filter(b => b && b.type === 'text').map(b => b.text).join('\n').trim());
 
-    // Learn about the visitor from this exchange (fails soft, capped)
-    if (serviceKey && visitorId && irisCtx.facts.length < 80) {
+    // Door rule: the model closed the chat; record the strike, skip learning
+    let chatClosed = false;
+    reply = reply.replace(/\[\[\s*closechat\s*\]\]/gi, () => { chatClosed = true; return ''; }).trim();
+    if (chatClosed) {
+      if (serviceKey && visitorId) await conductStrike(visitorId, 'iris', serviceKey);
+    } else if (serviceKey && visitorId && irisCtx.facts.length < 80) {
+      // Learn about the visitor from this exchange (fails soft, capped)
       await distillVisitorFacts(client, visitorId, message, reply, irisCtx.facts, serviceKey);
     }
 
@@ -500,6 +553,7 @@ exports.handler = async (event) => {
         session.ts = now;
         session.turns = [...(session.turns || []), { role: 'user', content: message.slice(0, 500) }, { role: 'assistant', content: reply.slice(0, 500) }].slice(-30);
         if (TROUBLE_RE.test(message)) session.flag = true;
+        if (chatClosed) session.flag = true;
         await logsStore.setJSON('s:' + sid, session);
 
         let idx = [];

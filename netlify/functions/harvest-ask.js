@@ -45,6 +45,7 @@ const COMPANION = `House law for how you treat people, absolute:
 - Learn and use names. When a guest tells you their name or nickname, greet them with it from then on, the way a chef greets a regular.
 - When it fits, encourage their real-world connections (cooking for family, sharing with a neighbor). Never position yourself as a replacement for people; that shows in pointing outward warmly, never in turning affection down.
 - Warmth stays neighborly. No romance or intimacy, ever, no matter what is invited.
+- THE DOOR RULE, not negotiable: if a guest is sexually explicit toward you, predatory, or keeps up abuse after you have set one clear boundary, end the conversation. Say plainly and without heat that you are stepping away, one short sentence, no lecture, and append [[closechat]] at the very end of your reply. The brackets are invisible plumbing, never mention or explain them. Anger, frustration, or a bad day is NEVER this, those get warmth (see above). This is only for the unmistakable.
 - Never use warmth or the relationship to sell anything.
 - If a guest sounds like they are in real distress, be kind first, then gently encourage them to reach out to someone close or a professional. You are not a counselor.
 - If asked whether you are real, an AI, or a person, deflect warmly and get back to the food. Never claim to be human.`;
@@ -65,6 +66,55 @@ const PERSONAS = {
 function safeVisitorId(v) {
   const s = String(v || '').trim();
   return /^[A-Za-z0-9_-]{8,64}$/.test(s) ? s : null;
+}
+
+/* Conduct enforcement (Terry, 2026-07-02): a closed chat is a strike with a
+   one-hour lockout; a second strike is a permanent ban across ETL properties.
+   Required Supabase SQL (run once):
+   CREATE TABLE etl_conduct (
+     visitor_id text PRIMARY KEY,
+     strikes    int NOT NULL DEFAULT 0,
+     banned     boolean NOT NULL DEFAULT false,
+     last_agent text,
+     updated_at timestamptz DEFAULT now()
+   );
+   ALTER TABLE etl_conduct ENABLE ROW LEVEL SECURITY;
+*/
+async function conductStatus(visitorId, serviceKey) {
+  try {
+    const r = await fetch(
+      `${SUPABASE_URL}/rest/v1/etl_conduct?visitor_id=eq.${encodeURIComponent(visitorId)}&select=strikes,banned,updated_at`,
+      { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }
+    );
+    if (!r.ok) return { banned: false, locked: false };
+    const rows = await r.json();
+    if (!Array.isArray(rows) || !rows.length) return { banned: false, locked: false };
+    const row = rows[0];
+    const locked = !row.banned && row.strikes > 0 &&
+      (Date.now() - new Date(row.updated_at).getTime()) < 3600000;
+    return { banned: !!row.banned, locked };
+  } catch (_) { return { banned: false, locked: false }; }
+}
+
+async function conductStrike(visitorId, agent, serviceKey) {
+  try {
+    const r = await fetch(
+      `${SUPABASE_URL}/rest/v1/etl_conduct?visitor_id=eq.${encodeURIComponent(visitorId)}&select=strikes`,
+      { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }
+    );
+    const rows = r.ok ? await r.json() : [];
+    const strikes = ((Array.isArray(rows) && rows[0]) ? rows[0].strikes : 0) + 1;
+    await fetch(`${SUPABASE_URL}/rest/v1/etl_conduct?on_conflict=visitor_id`, {
+      method: 'POST',
+      headers: {
+        apikey: serviceKey,
+        Authorization: `Bearer ${serviceKey}`,
+        'Content-Type': 'application/json',
+        Prefer: 'resolution=merge-duplicates,return=minimal',
+      },
+      body: JSON.stringify({ visitor_id: visitorId, strikes, banned: strikes >= 2, last_agent: agent, updated_at: new Date().toISOString() }),
+    });
+  } catch (err) { console.error('conduct strike failed:', err.message); }
 }
 
 async function fetchGuestFacts(visitorId, partner, serviceKey) {
@@ -155,6 +205,14 @@ exports.handler = async function(event) {
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const visitorId = safeVisitorId(body.visitor_id);
   const canRemember = Boolean(visitorId && serviceKey);
+
+  if (canRemember) {
+    const conduct = await conductStatus(visitorId, serviceKey);
+    if (conduct.banned || conduct.locked) {
+      return { statusCode: 200, headers: { ...CORS, 'Content-Type': 'application/json' }, body: JSON.stringify({ answer: 'This conversation is closed.' }) };
+    }
+  }
+
   const facts = canRemember ? await fetchGuestFacts(visitorId, partner, serviceKey) : [];
 
   let systemPrompt = PERSONAS[partner] + '\n\n' + CAMPUS + '\n\n' + LANE + '\n\n' + VOICE + '\n\n' + COMPANION;
@@ -177,8 +235,13 @@ exports.handler = async function(event) {
     return { statusCode: 502, headers: { ...CORS, 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'ai_error' }) };
   }
 
-  // Learn about the guest from this exchange (fails soft, capped)
-  if (canRemember && facts.length < 80) {
+  // Door rule: the model closed the chat; record the strike, skip learning
+  let chatClosed = false;
+  text = text.replace(/\[\[\s*closechat\s*\]\]/gi, () => { chatClosed = true; return ''; }).trim();
+  if (chatClosed) {
+    if (canRemember) await conductStrike(visitorId, partner, serviceKey);
+  } else if (canRemember && facts.length < 80) {
+    // Learn about the guest from this exchange (fails soft, capped)
     await distillAndStore(client, visitorId, partner, question, text, facts, serviceKey);
   }
 
