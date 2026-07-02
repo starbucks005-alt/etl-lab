@@ -207,6 +207,15 @@
     });
   });
 
+  // Deep link: /memory-implant-lab?mode=emotions opens the Emotion Engine view
+  try {
+    var m = new URLSearchParams(location.search).get('mode');
+    if (m === 'emotions') document.getElementById('mode').value = 'emotions';
+  } catch (_) {}
+  var memNow = mode() === 'memories';
+  document.getElementById('pack-count').style.display = memNow ? '' : 'none';
+  document.getElementById('gen-btn').textContent = memNow ? 'Generate implant pack' : 'Generate current mood';
+
   if (keyEl.value) refresh();
 })();
 </script>

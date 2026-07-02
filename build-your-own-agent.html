@@ -209,6 +209,23 @@ a { color: var(--amber); }
 }
 .sb-cta:hover { background: var(--amber); color: #0e0b07; }
 
+/* BACK OF HOUSE */
+.boh { margin-top: 3.2rem; padding-top: 2rem; border-top: 1px solid rgba(200,151,58,0.18); }
+.boh-label { font-family: 'IBM Plex Mono', monospace; font-size: .66rem; letter-spacing: .22em; text-transform: uppercase; color: var(--amber); }
+.boh-title { font-family: 'Spectral', serif; font-weight: 600; font-size: 1.6rem; color: var(--cream); margin: .4rem 0 .3rem; }
+.boh-sub { color: var(--mute); max-width: 62ch; margin: 0 0 1.4rem; font-size: .92rem; }
+.boh-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+@media (max-width: 760px) { .boh-grid { grid-template-columns: 1fr; } }
+.boh-card { position: relative; display: block; border: 1px solid rgba(200,151,58,0.25); border-radius: 12px; overflow: hidden; background: linear-gradient(160deg, #1d150c, #0e0b07); text-decoration: none; transition: border-color .15s, transform .15s; }
+.boh-card:hover { border-color: var(--amber); transform: translateY(-2px); }
+.boh-card img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; display: block; opacity: .92; }
+.boh-card.noimg img { display: none; }
+.boh-card.noimg { min-height: 220px; display: flex; align-items: flex-end; }
+.boh-plate { position: absolute; left: 0; right: 0; bottom: 0; padding: .9rem 1.1rem; background: linear-gradient(0deg, rgba(14,11,7,.95), rgba(14,11,7,0)); display: flex; justify-content: space-between; align-items: baseline; gap: .8rem; flex-wrap: wrap; }
+.boh-card.noimg .boh-plate { position: static; background: none; width: 100%; }
+.boh-name { font-family: 'Spectral', serif; font-size: 1.12rem; color: var(--cream); }
+.boh-tag { font-family: 'IBM Plex Mono', monospace; font-size: .62rem; letter-spacing: .14em; text-transform: uppercase; color: var(--amber); }
+
 /* WIZARD */
 .wizard-main { padding-left: 1.9rem; }
 @media (max-width: 760px) { .wizard-main { padding-left: 0; } }
@@ -675,6 +692,24 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
       <button class="btn btn-back" id="backBtn" type="button">Back</button>
       <button class="btn btn-next" id="nextBtn" type="button">Next</button>
     </div>
+
+    <!-- BACK OF HOUSE: the machines behind the bench. Visible to everyone,
+         openable by staff key only. The wizard behind the curtain. -->
+    <section class="boh">
+      <div class="boh-label">Back of house</div>
+      <h2 class="boh-title">The machines behind the bench.</h2>
+      <p class="boh-sub">Every agent leaves this shop with a life already lived. These two machines write it: one fabricates their memories, the other sets how they feel today. You can see the door. Only staff hold the key.</p>
+      <div class="boh-grid">
+        <a class="boh-card" href="/memory-implant-lab">
+          <img src="/assets/implant-lab-memories.png" alt="The Memory Implant" onerror="this.parentNode.classList.add('noimg')">
+          <div class="boh-plate"><span class="boh-name">The Memory Implant</span><span class="boh-tag">Staff only &middot; Key required</span></div>
+        </a>
+        <a class="boh-card" href="/memory-implant-lab?mode=emotions">
+          <img src="/assets/implant-lab-emotions.png" alt="The Emotion Engine" onerror="this.parentNode.classList.add('noimg')">
+          <div class="boh-plate"><span class="boh-name">The Emotion Engine</span><span class="boh-tag">Staff only &middot; Key required</span></div>
+        </a>
+      </div>
+    </section>
   </main>
 
 </div>
