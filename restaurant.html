@@ -288,29 +288,48 @@
       <div class="m-chips" id="mChips"></div>
       <div class="m-row"><input id="mInput" type="text" placeholder="Ask a question..."><button class="m-ask" id="mAsk" type="button">Ask</button></div>
       <div class="m-resp" id="mResp"></div>
-      <div class="m-tools" id="mTools"><button id="mGrocery" type="button">Grocery list</button><button id="mCopy" type="button">Copy</button></div>
+      <div class="m-tools" id="mTools"><button id="mGrocery" type="button">Grocery list</button><button id="mCopy" type="button">Copy</button><button id="mListen" type="button" style="display:none;">&#128266; Listen</button></div>
     </div>
     <div class="m-ft"><span>Powered by The Harvest Circuit</span><span>Ask another: <a data-go="camille">Camille</a> &middot; <a data-go="ruben">Ruben</a> &middot; <a data-go="luca">Luca</a> &middot; <a data-go="vic">Vic</a></span></div>
   </div>
 </div>
 <script>
   var HC={
-    ruben:{name:'Ruben Hart',role:'The Kitchen · chef',icon:'🔪',mono:'RH',img:'/agents/Ruben_Hart_eyes_open.png',
+    ruben:{name:'Ruben Hart',role:'The Kitchen · chef',icon:'🔪',mono:'RH',img:'/agents/Ruben_Hart_eyes_open.png',voice:true,
       intro:'You are in The Kitchen. I am Ruben. Ask me about cooking methods, ingredients, timing, and how to turn raw materials into a finished dish.',
       chips:['How do I cook this ingredient?','Best method for this cut of meat?','How do I balance flavors?','What should I make with what I have?']},
-    vic:{name:'Vic Stallion',role:'The Cellar · sommelier',icon:'🍷',mono:'VS',img:'/agents/Vic_Stallion_eyes_open.png',
+    vic:{name:'Vic Stallion',role:'The Cellar · sommelier',icon:'🍷',mono:'VS',img:'/agents/Vic_Stallion_eyes_open.png',voice:true,
       intro:'You are in The Cellar. I am Vic. I help you understand wine structure, aroma, pairing, and how to choose the right bottle for the right moment.',
       chips:['What wine pairs with this dish?','Explain tannins in simple terms','A wine for beginners?','Old World vs New World?']},
-    camille:{name:'Camille Lefèvre',role:'The Board · cheese',icon:'🧀',mono:'CL',img:'/agents/Camille_Lefevre_eyes_open.png',
+    camille:{name:'Camille Lefèvre',role:'The Board · cheese',icon:'🧀',mono:'CL',img:'/agents/Camille_Lefevre_eyes_open.png',voice:true,
       intro:'Welcome to The Board. I am Camille. I help you understand cheese, aging, terroir, and how to pair dairy with wine, chocolate, and seasonal dishes.',
       chips:['What cheese pairs with this wine?','Brie vs Camembert?','How does aging change flavor?','Where do I start if I am new?']},
-    luca:{name:'Luca Brunner',role:'The Last Bite · chocolate',icon:'🍫',mono:'LB',img:'/agents/Luca_Brunner_eyes_open.png',
+    luca:{name:'Luca Brunner',role:'The Last Bite · chocolate',icon:'🍫',mono:'LB',img:'/agents/Luca_Brunner_eyes_open.png',voice:true,
       intro:'Welcome to The Last Bite. I am Luca. I guide you through chocolate, dessert structure, temperature control, and how to finish a meal with intention.',
       chips:['How do I temper chocolate?','What dessert pairs with this wine?','Why does chocolate seize?','A balanced dessert plate?']}
   };
   var $=function(s){return document.getElementById(s);};
+  var currentAudio=null;
+  function stopAudio(){ if(currentAudio){ try{currentAudio.pause();}catch(_){} currentAudio=null; } }
+  function resetListenBtn(){ var b=$('mListen'); b.disabled=false; b.innerHTML='&#128266; Listen'; }
+  function playVoice(text,partner){
+    stopAudio();
+    var b=$('mListen'); b.disabled=true; b.textContent='Loading...';
+    fetch('/.netlify/functions/harvest-voice',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({partner:partner,text:text})})
+      .then(function(res){ if(!res.ok) throw new Error('x'); return res.blob(); })
+      .then(function(blob){
+        var url=URL.createObjectURL(blob);
+        var audio=new Audio(url);
+        currentAudio=audio;
+        b.textContent='Playing...';
+        audio.addEventListener('ended',function(){ URL.revokeObjectURL(url); if(currentAudio===audio) currentAudio=null; resetListenBtn(); });
+        audio.play();
+      })
+      .catch(function(){ resetListenBtn(); });
+  }
   function openModal(k){
     var a=HC[k]; if(!a) return;
+    stopAudio();
     $('ov').dataset.k=k;
     $('mAv').innerHTML='<i>'+a.mono+'</i><img src="'+a.img+'" alt="" onerror="this.remove()">';
     $('mName').textContent=a.name; $('mRole').textContent=a.role; $('mIcon').textContent=a.icon;
@@ -319,13 +338,14 @@
     $('mChips').querySelectorAll('.m-chip').forEach(function(ch){ch.onclick=function(){$('mInput').value=ch.textContent;$('mInput').focus();};});
     $('mInput').value=''; var r=$('mResp'); r.textContent=''; r.className='m-resp';
     var t=$('mTools'); t.className='m-tools'; lastAns='';
+    $('mListen').style.display=a.voice?'':'none'; resetListenBtn();
     var h=HIST[k]||[];
     for(var i=h.length-1;i>=0;i--){
       if(h[i].role==='assistant'){ r.textContent=h[i].content; r.className='m-resp show'; lastAns=h[i].content; t.className='m-tools show'; break; }
     }
     $('ov').classList.add('open');
   }
-  function closeModal(){ $('ov').classList.remove('open'); }
+  function closeModal(){ stopAudio(); $('ov').classList.remove('open'); }
   function visitorId(){
     try{
       var v=localStorage.getItem('etl_visitor_id');
@@ -369,6 +389,7 @@
   $('mAsk').onclick=function(){ ask(); };
   $('mInput')&&$('mInput').addEventListener('keydown',function(e){ if(e.key==='Enter') ask(); });
   $('mGrocery').onclick=function(){ ask(GROCERY_Q); };
+  $('mListen').onclick=function(){ if(lastAns) playVoice(lastAns,$('ov').dataset.k); };
   $('mCopy').onclick=function(){
     if(!lastAns) return;
     var b=$('mCopy');
