@@ -32,19 +32,22 @@ const headers = {
      FOR SELECT USING (opt_in_public = true);
 */
 
-const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || SUPABASE_ANON;
-
+/* Try the service key first (sees anonymous rows), fall back to the anon key
+   so a bad service key can never blank the public roll. */
 async function fetchRows(path) {
-  try {
-    const r = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
-      headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` },
-    });
-    if (!r.ok) return [];
-    const rows = await r.json();
-    return Array.isArray(rows) ? rows : [];
-  } catch (_) {
-    return [];
+  const keys = [process.env.SUPABASE_SERVICE_ROLE_KEY, SUPABASE_ANON];
+  for (const key of keys) {
+    if (!key) continue;
+    try {
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+        headers: { apikey: key, Authorization: `Bearer ${key}` },
+      });
+      if (!r.ok) continue;
+      const rows = await r.json();
+      if (Array.isArray(rows)) return rows;
+    } catch (_) {}
   }
+  return [];
 }
 
 exports.handler = async (event) => {
@@ -52,17 +55,16 @@ exports.handler = async (event) => {
   if (event.httpMethod !== 'GET') return { statusCode: 405, headers, body: JSON.stringify({ error: 'method_not_allowed' }) };
 
   const [members, supporters] = await Promise.all([
-    fetchRows('etl_credits?opt_in_public=eq.true&select=display_name,created_at'),
-    fetchRows('etl_supporters?select=display_name,opt_in_public,created_at'),
+    fetchRows('etl_credits?opt_in_public=eq.true&select=display_name&order=created_at.asc'),
+    fetchRows('etl_supporters?select=display_name,opt_in_public&order=created_at.asc'),
   ]);
 
   const named = members
     .concat(supporters.filter(row => row.opt_in_public === true))
-    .map(row => ({ name: (row.display_name || '').trim(), at: row.created_at || '' }))
-    .filter(row => row.name)
-    .sort((a, b) => a.at.localeCompare(b.at));
+    .map(row => (row.display_name || '').trim())
+    .filter(Boolean);
 
-  const names = [...new Set(named.map(row => row.name))];
+  const names = [...new Set(named)];
   const anonymous = supporters.filter(row => row.opt_in_public === false).length;
 
   return { statusCode: 200, headers, body: JSON.stringify({ names, anonymous }) };
