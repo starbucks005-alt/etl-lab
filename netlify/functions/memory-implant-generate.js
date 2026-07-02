@@ -67,6 +67,50 @@ function ownerOk(event, body) {
 
 const PERSONA_FIELDS = ['name', 'platform', 'role', 'tagline', 'bio', 'background', 'backstory', 'floor', 'value', 'interests', 'employment'];
 
+/* Personal notes are CANON (Terry, 2026-07-02): the hand-written profile
+   diaries on The Dose and The Gym. Fetched live so the generator always sees
+   the newest entries. Cross-platform people have notes on both sites. */
+const NOTES_SOURCES = {
+  'dr. henry chen, rph': [{ site: 'https://thedose.net', key: 'pharmacist' }],
+  'maeve "mj" johnson': [{ site: 'https://thedose.net', key: 'gardener' }],
+  'wyatt e. cooper': [{ site: 'https://thedose.net', key: 'mixologist' }, { site: 'https://etl-the-gym.netlify.app', key: 'zero_proof' }],
+  'amara nwosu': [{ site: 'https://thedose.net', key: 'herbalist' }],
+  'dr. claire donnelly': [{ site: 'https://thedose.net', key: 'doctor' }],
+  'silas hill': [{ site: 'https://thedose.net', key: 'forager' }],
+  'eli adler': [{ site: 'https://thedose.net', key: 'factchecker' }, { site: 'https://etl-the-gym.netlify.app', key: 'stoplight' }],
+  'nadia hassan': [{ site: 'https://thedose.net', key: 'nutritionist' }, { site: 'https://etl-the-gym.netlify.app', key: 'fuel' }],
+  'jaque tremblay': [{ site: 'https://thedose.net', key: 'fitness' }],
+  'arun sok': [{ site: 'https://thedose.net', key: 'nurse' }],
+  'ms. ivy (ivy sinclair)': [{ site: 'https://thedose.net', key: 'librarian' }],
+  'reece ashford': [{ site: 'https://thedose.net', key: 'movement' }, { site: 'https://etl-the-gym.netlify.app', key: 'bench' }],
+  'coach dom castellanos': [{ site: 'https://etl-the-gym.netlify.app', key: 'coach' }],
+  'dr. lena brandt, dpt': [{ site: 'https://etl-the-gym.netlify.app', key: 'therapist' }],
+  'noor haddad': [{ site: 'https://etl-the-gym.netlify.app', key: 'breathwork' }],
+  'dr. sana qureshi': [{ site: 'https://etl-the-gym.netlify.app', key: 'recovery' }],
+  'jax rivera': [{ site: 'https://etl-the-gym.netlify.app', key: 'scout' }],
+  'zara cole': [{ site: 'https://etl-the-gym.netlify.app', key: 'social' }],
+};
+
+async function fetchPersonalNotes(agentName) {
+  const sources = NOTES_SOURCES[String(agentName || '').toLowerCase()];
+  if (!sources) return [];
+  const out = [];
+  for (const s of sources) {
+    try {
+      const r = await fetch(`${s.site}/js/data/personal-notes.js`);
+      if (!r.ok) continue;
+      const text = await r.text();
+      const data = new Function(text.replace(/export\s+const\s+PERSONAL_NOTES/, 'const PERSONAL_NOTES') + '; return PERSONAL_NOTES;')();
+      const notes = (data && data[s.key]) || [];
+      const tag = sources.length > 1 ? ', ' + s.site.replace('https://', '') : '';
+      notes.slice(0, 8).forEach((n) => { if (n && n.body) out.push(`[${n.date}${tag}] ${n.body}`); });
+    } catch (err) {
+      console.error('personal notes fetch failed:', s.site, err.message);
+    }
+  }
+  return out;
+}
+
 async function fetchRosterPersona(agentName) {
   const r = await fetch(`${SITE_URL}/roster.json`);
   if (!r.ok) return null;
@@ -89,7 +133,7 @@ async function fetchExistingMemories(agentName, serviceKey) {
   return Array.isArray(rows) ? rows : [];
 }
 
-function buildPrompt(agentName, persona, existing, count, canonNotes) {
+function buildPrompt(agentName, persona, existing, count, canonNotes, diaryNotes) {
   const existingBlock = existing.length
     ? '\n\nMemories this person already has (do not repeat or contradict any fact in them, build on them):\n' +
       existing.map((m) => `- [${m.kind}] ${m.title || ''}: ${m.memory}`).join('\n')
@@ -99,10 +143,15 @@ function buildPrompt(agentName, persona, existing, count, canonNotes) {
     ? `\n\nLocked canon facts from the editor (these OVERRIDE the dossier wherever they conflict, follow them exactly):\n${canonNotes}`
     : '';
 
+  const diaryBlock = (diaryNotes && diaryNotes.length)
+    ? '\n\nTheir personal diary notes (CANON, written in their own voice, dated, newest first; every memory must be consistent with these, and building on their threads is encouraged):\n' +
+      diaryNotes.map((n) => '- ' + n).join('\n')
+    : '';
+
   return `You are the Memory Implant Lab at the Emerging Technologies Laboratory. You fabricate lived memories for staff characters. The character must experience these memories as their real life.
 
 Character dossier:
-${JSON.stringify(persona, null, 2)}${notesBlock}${existingBlock}
+${JSON.stringify(persona, null, 2)}${notesBlock}${diaryBlock}${existingBlock}
 
 Write ${count} memories for ${agentName}, first person, past tense, in their own voice. Spread them across these four kinds:
 - "family": an ongoing family thread (a specific sibling, parent, or relative with a name, doing something concrete; a thread future memories can continue)
@@ -148,8 +197,11 @@ exports.handler = async (event) => {
   if (!persona) return json(404, { error: 'agent_not_in_roster', hint: 'pass a persona object for agents outside roster.json' });
 
   const canonNotes = String(body.canon_notes || '').slice(0, 2000).trim();
-  const existing = await fetchExistingMemories(agentName, serviceKey);
-  const prompt = buildPrompt(agentName, persona, existing, count, canonNotes);
+  const [existing, diaryNotes] = await Promise.all([
+    fetchExistingMemories(agentName, serviceKey),
+    fetchPersonalNotes(agentName),
+  ]);
+  const prompt = buildPrompt(agentName, persona, existing, count, canonNotes, diaryNotes);
 
   let memories;
   try {

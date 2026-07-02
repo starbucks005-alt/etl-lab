@@ -55,6 +55,50 @@ function ownerOk(event, body) {
 
 const PERSONA_FIELDS = ['name', 'platform', 'role', 'tagline', 'bio', 'background', 'backstory', 'floor', 'value', 'interests', 'employment'];
 
+/* Personal notes are CANON (Terry, 2026-07-02): the hand-written profile
+   diaries on The Dose and The Gym, the best source for what a mood should be
+   about right now. Same map as memory-implant-generate. */
+const NOTES_SOURCES = {
+  'dr. henry chen, rph': [{ site: 'https://thedose.net', key: 'pharmacist' }],
+  'maeve "mj" johnson': [{ site: 'https://thedose.net', key: 'gardener' }],
+  'wyatt e. cooper': [{ site: 'https://thedose.net', key: 'mixologist' }, { site: 'https://etl-the-gym.netlify.app', key: 'zero_proof' }],
+  'amara nwosu': [{ site: 'https://thedose.net', key: 'herbalist' }],
+  'dr. claire donnelly': [{ site: 'https://thedose.net', key: 'doctor' }],
+  'silas hill': [{ site: 'https://thedose.net', key: 'forager' }],
+  'eli adler': [{ site: 'https://thedose.net', key: 'factchecker' }, { site: 'https://etl-the-gym.netlify.app', key: 'stoplight' }],
+  'nadia hassan': [{ site: 'https://thedose.net', key: 'nutritionist' }, { site: 'https://etl-the-gym.netlify.app', key: 'fuel' }],
+  'jaque tremblay': [{ site: 'https://thedose.net', key: 'fitness' }],
+  'arun sok': [{ site: 'https://thedose.net', key: 'nurse' }],
+  'ms. ivy (ivy sinclair)': [{ site: 'https://thedose.net', key: 'librarian' }],
+  'reece ashford': [{ site: 'https://thedose.net', key: 'movement' }, { site: 'https://etl-the-gym.netlify.app', key: 'bench' }],
+  'coach dom castellanos': [{ site: 'https://etl-the-gym.netlify.app', key: 'coach' }],
+  'dr. lena brandt, dpt': [{ site: 'https://etl-the-gym.netlify.app', key: 'therapist' }],
+  'noor haddad': [{ site: 'https://etl-the-gym.netlify.app', key: 'breathwork' }],
+  'dr. sana qureshi': [{ site: 'https://etl-the-gym.netlify.app', key: 'recovery' }],
+  'jax rivera': [{ site: 'https://etl-the-gym.netlify.app', key: 'scout' }],
+  'zara cole': [{ site: 'https://etl-the-gym.netlify.app', key: 'social' }],
+};
+
+async function fetchPersonalNotes(agentName) {
+  const sources = NOTES_SOURCES[String(agentName || '').toLowerCase()];
+  if (!sources) return [];
+  const out = [];
+  for (const s of sources) {
+    try {
+      const r = await fetch(`${s.site}/js/data/personal-notes.js`);
+      if (!r.ok) continue;
+      const text = await r.text();
+      const data = new Function(text.replace(/export\s+const\s+PERSONAL_NOTES/, 'const PERSONAL_NOTES') + '; return PERSONAL_NOTES;')();
+      const notes = (data && data[s.key]) || [];
+      const tag = sources.length > 1 ? ', ' + s.site.replace('https://', '') : '';
+      notes.slice(0, 6).forEach((n) => { if (n && n.body) out.push(`[${n.date}${tag}] ${n.body}`); });
+    } catch (err) {
+      console.error('personal notes fetch failed:', s.site, err.message);
+    }
+  }
+  return out;
+}
+
 async function fetchRosterPersona(agentName) {
   const r = await fetch(`${SITE_URL}/roster.json`);
   if (!r.ok) return null;
@@ -87,10 +131,15 @@ async function fetchCurrentEmotion(agentName, serviceKey) {
   return Array.isArray(rows) && rows.length ? rows[0] : null;
 }
 
-function buildPrompt(agentName, persona, memories, current, canonNotes) {
+function buildPrompt(agentName, persona, memories, current, canonNotes, diaryNotes) {
   const memBlock = memories.length
     ? '\n\nTheir canon memories (moods should grow out of this life):\n' +
       memories.map((m) => `- [${m.kind}] ${m.title || ''}: ${m.memory}`).join('\n')
+    : '';
+
+  const diaryBlock = (diaryNotes && diaryNotes.length)
+    ? '\n\nTheir personal diary notes (CANON, their own voice, dated, newest first; today\'s mood should grow out of the newest entries and their ongoing threads):\n' +
+      diaryNotes.map((n) => '- ' + n).join('\n')
     : '';
   const notesBlock = canonNotes
     ? `\n\nLocked canon facts from the editor (these OVERRIDE everything else, follow them exactly):\n${canonNotes}`
@@ -102,7 +151,7 @@ function buildPrompt(agentName, persona, memories, current, canonNotes) {
   return `You are the Memory Implant Lab at the Emerging Technologies Laboratory. You fabricate the current emotional state of a staff character. The character must experience this feeling as simply their life right now.
 
 Character dossier:
-${JSON.stringify(persona, null, 2)}${notesBlock}${memBlock}${currentBlock}
+${JSON.stringify(persona, null, 2)}${notesBlock}${diaryBlock}${memBlock}${currentBlock}
 
 Write ONE current emotional state for ${agentName}:
 - "mood": one plain everyday word ("wistful", "buzzing", "prickly", "content", "restless")
@@ -143,12 +192,13 @@ exports.handler = async (event) => {
   if (!persona) persona = await fetchRosterPersona(agentName);
   if (!persona) return json(404, { error: 'agent_not_in_roster', hint: 'pass a persona object for agents outside roster.json' });
 
-  const [memories, current] = await Promise.all([
+  const [memories, current, diaryNotes] = await Promise.all([
     fetchCanonMemories(agentName, serviceKey),
     fetchCurrentEmotion(agentName, serviceKey),
+    fetchPersonalNotes(agentName),
   ]);
 
-  const prompt = buildPrompt(agentName, persona, memories, current, canonNotes);
+  const prompt = buildPrompt(agentName, persona, memories, current, canonNotes, diaryNotes);
 
   let emotion;
   try {
