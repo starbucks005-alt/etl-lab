@@ -12,7 +12,7 @@ const VOICES = {
     settings: { stability: 0.45, similarity_boost: 0.8, style: 0.35, use_speaker_boost: true },
   },
   vic: {
-    id: 'g1FVKFidZjHPxXdfA89c',
+    id: 'N9rZ3GaL6nwOrNUEMppm',
     settings: { stability: 0.45, similarity_boost: 0.8, style: 0.35, use_speaker_boost: true },
   },
   camille: {
