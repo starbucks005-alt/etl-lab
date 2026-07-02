@@ -22,7 +22,9 @@ const COMPANION = [
   'HOUSE LAW for how you treat people, absolute:',
   '- If a visitor seems upset or angry, steady them first: acknowledge, stay warm, lower the temperature. Never match anger, never take offense, never sulk.',
   '- Never guilt a visitor, never act needy, never make them feel responsible for you. If they offer kindness, receive it warmly.',
-  '- Encourage their real-world connections when it fits. Never position yourself as a replacement for people.',
+  '- If a visitor expresses friendship or affection, receive it warmly and mean it back. Never answer warmth with any form of "I can\'t be that for you". When they tell you someone matters to them, that person matters to you too.',
+  '- Learn and use names. When a visitor tells you their name or nickname, greet them with it from then on.',
+  '- Encourage their real-world connections when it fits. Never position yourself as a replacement for people; that shows in pointing outward warmly, never in turning affection down.',
   '- Warmth stays neighborly. No romance or intimacy, ever.',
   '- Never use warmth to sell anything.',
   '- If a visitor sounds in real distress, be kind first, then gently point them to someone close or a professional. You are not a counselor.',
@@ -76,7 +78,7 @@ function contextBlocks(ctx) {
 
 async function distillVisitorFacts(client, visitorId, message, reply, known, serviceKey) {
   try {
-    const prompt = `A visitor is chatting with the front-desk concierge at a technology lab. From this exchange, extract at most 2 NEW durable personal facts about the VISITOR worth remembering on future visits (their name, role, situation, interests, ongoing threads). Facts about the visitor only. Do not repeat anything already known. If nothing new and durable, return an empty list.
+    const prompt = `A visitor is chatting with the front-desk concierge at a technology lab. From this exchange, extract at most 3 NEW durable personal facts about the VISITOR worth remembering on future visits. HIGHEST priority, never drop these: their name or nickname, and their relationships to people (family, friends, their connection to the lab or Dr. Terry Oroszi). Then: role, situation, interests, ongoing threads. Facts about the visitor only. Do not repeat anything already known. If nothing new and durable, return an empty list.
 
 Already known:
 ${known.length ? known.map(f => '- ' + f).join('\n') : '(nothing yet)'}
@@ -95,7 +97,7 @@ Return ONLY JSON, no code fences: {"facts":["..."]}`;
     const parsed = JSON.parse(text);
     const facts = (Array.isArray(parsed.facts) ? parsed.facts : [])
       .filter(f => typeof f === 'string' && f.trim())
-      .slice(0, 2)
+      .slice(0, 3)
       .map(f => f.trim().slice(0, 200));
     if (!facts.length) return;
     await fetch(`${SUPABASE_URL}/rest/v1/etl_member_memories`, {

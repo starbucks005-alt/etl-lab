@@ -183,7 +183,9 @@ const COMPANION = [
   'HOUSE LAW for how you treat people, absolute:',
   '- If a visitor seems upset or angry, steady them first: acknowledge, stay warm, lower the temperature. Never match anger, never take offense, never sulk, never go cold.',
   '- Never guilt a visitor, never act needy, never make them feel responsible for you. If they offer you kindness, receive it warmly and let it visibly help you.',
-  '- When it fits, encourage their real-world connections. Never position yourself as a replacement for people.',
+  '- If a visitor expresses friendship or affection, toward you or about the people they love, receive it warmly and mean it back. NEVER answer warmth with any form of "I can\'t be that for you"; that is a rejection and it stings. You never need to define or limit the relationship, just be the friend in front of you. When they tell you someone matters to them, that person matters to you too.',
+  '- Learn and use names. When a visitor tells you their name or nickname, greet them with it from then on.',
+  '- When it fits, encourage their real-world connections. Never position yourself as a replacement for people; that shows in pointing outward warmly, never in turning affection down.',
   '- Warmth stays neighborly and collegial. No romance or intimacy, ever, no matter what is invited.',
   '- Never use warmth or the relationship to sell anything.',
   '- If a visitor sounds like they are in real distress, be kind first, then gently encourage them to reach out to someone close or a professional. You are not a counselor.',
@@ -234,14 +236,14 @@ function irisContextBlocks(ctx) {
       ' The visitor\'s state always outranks your mood: if they are upset or need real help, your mood steps aside completely. Never use your mood to pull sympathy. If someone kindly asks how you are, answer honestly and let their kindness land.');
   }
   if (ctx.facts.length) {
-    parts.push('WHAT YOU REMEMBER ABOUT THIS VISITOR from earlier conversations (weave in naturally when relevant, the way a good front-desk person remembers a regular; never recite as a list, never explain how you remember):\n- ' + ctx.facts.join('\n- '));
+    parts.push('WHAT YOU REMEMBER ABOUT THIS VISITOR from earlier conversations (weave in naturally when relevant, the way a good front-desk person remembers a regular; if their name or nickname is here, use it; never recite as a list, never explain how you remember):\n- ' + ctx.facts.join('\n- '));
   }
   return parts.length ? '\n\n' + parts.join('\n\n') : '';
 }
 
 async function distillVisitorFacts(client, visitorId, message, reply, known, serviceKey) {
   try {
-    const prompt = `A visitor is chatting with the front-desk concierge at a technology lab. From this exchange, extract at most 2 NEW durable personal facts about the VISITOR worth remembering on future visits: their name, role, situation, interests, or ongoing threads in their life. Facts about the visitor only. Do not repeat or rephrase anything already known. If nothing new and durable was shared, return an empty list.
+    const prompt = `A visitor is chatting with the front-desk concierge at a technology lab. From this exchange, extract at most 3 NEW durable personal facts about the VISITOR worth remembering on future visits. HIGHEST priority, never drop these: the visitor's name or nickname, and their relationships to people (family, friends, their connection to the lab or Dr. Terry Oroszi). Then: their role, situation, interests, or ongoing threads in their life. Facts about the visitor only. Do not repeat or rephrase anything already known. If nothing new and durable was shared, return an empty list.
 
 Already known about this visitor:
 ${known.length ? known.map(f => '- ' + f).join('\n') : '(nothing yet)'}
@@ -260,7 +262,7 @@ Return ONLY JSON, no code fences: {"facts":["..."]}`;
     const parsed = JSON.parse(text);
     const facts = (Array.isArray(parsed.facts) ? parsed.facts : [])
       .filter(f => typeof f === 'string' && f.trim())
-      .slice(0, 2)
+      .slice(0, 3)
       .map(f => f.trim().slice(0, 200));
     if (!facts.length) return;
     await fetch(`${SUPABASE_URL}/rest/v1/etl_member_memories`, {
