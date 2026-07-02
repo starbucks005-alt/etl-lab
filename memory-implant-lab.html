@@ -13,7 +13,8 @@
   h1 { font-family:'Spectral',serif; font-weight:300; font-size:clamp(26px,3vw,38px); color:#fff; margin:6px 0 4px; }
   .eyebrow { font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:4px; text-transform:uppercase; color:var(--blue); }
   .sub { color:var(--dim); max-width:640px; margin-bottom:32px; }
-  .bar { display:flex; flex-wrap:wrap; gap:10px; align-items:center; padding:16px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); margin-bottom:28px; }
+  .bar { display:flex; flex-wrap:wrap; gap:10px; align-items:center; padding:16px 0 10px; border-top:1px solid var(--line); }
+  .notes-row { padding:0 0 16px; border-bottom:1px solid var(--line); margin-bottom:28px; }
   input, select, textarea, button { font-family:'IBM Plex Mono',monospace; font-size:12px; background:#151209; color:var(--ink); border:1px solid var(--line); padding:8px 12px; }
   textarea { width:100%; font-family:'Public Sans',sans-serif; font-size:13px; line-height:1.6; }
   button { cursor:pointer; letter-spacing:1.5px; text-transform:uppercase; font-size:10px; transition:border-color .15s,color .15s; }
@@ -30,6 +31,7 @@
   .mem-meta .k { color:var(--blue); }
   .mem-meta .s-canon { color:var(--gold); }
   .mem-text { color:var(--ink); }
+  .tells { font-size:12px; color:var(--dim); margin-top:6px; }
   .mem-actions { margin-top:10px; display:flex; gap:8px; }
   #status { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--dim); margin-left:auto; }
   .count-pill { font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--faint); }
@@ -39,16 +41,20 @@
 
 <div class="eyebrow">ETL Internal · Editorial Console</div>
 <h1>Memory Implant Lab</h1>
-<p class="sub">Fabricate, review, and canonize lived memories for the cast. Everything generates as a draft. Nothing enters an agent's head until you approve it. The cast never knows.</p>
+<p class="sub">Fabricate, review, and canonize lived memories and current moods for the cast. Everything generates as a draft. Nothing enters an agent's head until you approve it. The cast never knows.</p>
 
 <div class="bar">
-  <input id="owner-key" type="password" placeholder="owner key" style="width:180px;">
+  <input id="owner-key" type="password" placeholder="owner key" style="width:160px;">
+  <select id="mode"><option value="memories" selected>Memories</option><option value="emotions">Emotions</option></select>
   <select id="agent-select" style="min-width:240px;"><option>loading roster...</option></select>
   <select id="pack-count"><option value="9" selected>9 memories</option><option value="6">6 memories</option><option value="12">12 memories</option></select>
   <button id="gen-btn" class="primary">Generate implant pack</button>
   <button id="refresh-btn">Refresh</button>
   <select id="status-filter"><option value="">all statuses</option><option value="draft">drafts</option><option value="canon">canon</option><option value="retired">retired</option></select>
   <span id="status"></span>
+</div>
+<div class="notes-row">
+  <textarea id="canon-notes" rows="2" placeholder="Canon notes for this generation (locked facts that override the dossier): e.g. sister Tessa away at college; loves jasmine tea; no children; Devon Sloane is he/him"></textarea>
 </div>
 
 <div id="list"></div>
@@ -61,6 +67,7 @@
 
   var statusEl = document.getElementById('status');
   function say(msg) { statusEl.textContent = msg; }
+  function mode() { return document.getElementById('mode').value; }
 
   function api(fn, payload) {
     return fetch('/.netlify/functions/' + fn, {
@@ -83,6 +90,29 @@
 
   function esc(s) { var d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
 
+  function cardHTML(m) {
+    var meta, text, tells = '';
+    if (mode() === 'memories') {
+      meta = '<span class="k">' + esc(m.kind) + '</span><span>' + esc(m.title || '') + '</span>' +
+             '<span>' + esc(m.happened_at || '') + '</span><span>weight ' + esc(m.weight) + '</span>';
+      text = esc(m.memory);
+    } else {
+      meta = '<span class="k">' + esc(m.mood) + ' · ' + esc(m.intensity) + '/5</span>' +
+             '<span>lasts: ' + esc(m.lasts || '?') + '</span>';
+      text = esc(m.cause);
+      if (m.tells && m.tells.length) tells = '<div class="tells">tells: ' + m.tells.map(esc).join(' · ') + '</div>';
+    }
+    return '<div class="mem ' + esc(m.status) + '" data-id="' + esc(m.id) + '">' +
+      '<div class="mem-meta">' + meta + '<span class="s-' + esc(m.status) + '">' + esc(m.status) + '</span></div>' +
+      '<div class="mem-text">' + text + '</div>' + tells +
+      '<div class="mem-actions">' +
+      (m.status === 'draft' ? '<button data-act="approve">Approve to canon</button>' : '') +
+      '<button data-act="edit">Edit</button>' +
+      (m.status !== 'retired' ? '<button data-act="retire">Retire</button>' : '') +
+      '<button data-act="delete">Delete</button>' +
+      '</div></div>';
+  }
+
   function render(rows) {
     var byAgent = {};
     rows.forEach(function (m) { (byAgent[m.agent_name] = byAgent[m.agent_name] || []).push(m); });
@@ -92,30 +122,16 @@
       var canon = ms.filter(function (m) { return m.status === 'canon'; }).length;
       var draft = ms.filter(function (m) { return m.status === 'draft'; }).length;
       out += '<div class="agent-block"><div class="agent-name">' + esc(agent) +
-        ' <span class="count-pill">' + canon + ' canon · ' + draft + ' draft</span></div>';
-      ms.forEach(function (m) {
-        out += '<div class="mem ' + esc(m.status) + '" data-id="' + esc(m.id) + '">' +
-          '<div class="mem-meta"><span class="k">' + esc(m.kind) + '</span>' +
-          '<span>' + esc(m.title || '') + '</span>' +
-          '<span>' + esc(m.happened_at || '') + '</span>' +
-          '<span>weight ' + esc(m.weight) + '</span>' +
-          '<span class="s-' + esc(m.status) + '">' + esc(m.status) + '</span></div>' +
-          '<div class="mem-text">' + esc(m.memory) + '</div>' +
-          '<div class="mem-actions">' +
-          (m.status === 'draft' ? '<button data-act="approve">Approve to canon</button>' : '') +
-          '<button data-act="edit">Edit</button>' +
-          (m.status !== 'retired' ? '<button data-act="retire">Retire</button>' : '') +
-          '<button data-act="delete">Delete</button>' +
-          '</div></div>';
-      });
-      out += '</div>';
+        ' <span class="count-pill">' + canon + ' canon · ' + draft + ' draft</span></div>' +
+        ms.map(cardHTML).join('') + '</div>';
     });
-    document.getElementById('list').innerHTML = out || '<p style="color:var(--faint);">Nothing here yet. Pick an agent and generate a pack.</p>';
+    document.getElementById('list').innerHTML = out ||
+      '<p style="color:var(--faint);">Nothing here yet. Pick an agent and generate.</p>';
   }
 
   function refresh() {
     say('loading...');
-    var payload = { action: 'list' };
+    var payload = { action: 'list', target: mode() };
     var agent = document.getElementById('agent-select').value;
     var st = document.getElementById('status-filter').value;
     if (agent) payload.agent_name = agent;
@@ -123,25 +139,35 @@
     api('memory-implant-admin', payload).then(function (res) {
       if (!res.ok) { say(res.j.error || 'error'); return; }
       render(res.j.rows || []);
-      say((res.j.rows || []).length + ' memories');
+      say((res.j.rows || []).length + ' ' + mode());
     });
+  }
+
+  function syncModeUI() {
+    var mem = mode() === 'memories';
+    document.getElementById('pack-count').style.display = mem ? '' : 'none';
+    document.getElementById('gen-btn').textContent = mem ? 'Generate implant pack' : 'Generate current mood';
+    refresh();
   }
 
   document.getElementById('refresh-btn').addEventListener('click', refresh);
   document.getElementById('status-filter').addEventListener('change', refresh);
   document.getElementById('agent-select').addEventListener('change', refresh);
+  document.getElementById('mode').addEventListener('change', syncModeUI);
 
   document.getElementById('gen-btn').addEventListener('click', function () {
     var agent = document.getElementById('agent-select').value;
     if (!agent) { say('pick an agent first'); return; }
-    var btn = this; btn.disabled = true; say('fabricating memories for ' + agent + '...');
-    api('memory-implant-generate', {
-      agent_name: agent,
-      count: parseInt(document.getElementById('pack-count').value, 10),
-    }).then(function (res) {
+    var btn = this; btn.disabled = true;
+    var notes = document.getElementById('canon-notes').value.trim();
+    var mem = mode() === 'memories';
+    say((mem ? 'fabricating memories for ' : 'reading the mood of ') + agent + '...');
+    var payload = { agent_name: agent, canon_notes: notes };
+    if (mem) payload.count = parseInt(document.getElementById('pack-count').value, 10);
+    api(mem ? 'memory-implant-generate' : 'memory-implant-emotions', payload).then(function (res) {
       btn.disabled = false;
       if (!res.ok) { say(res.j.error || 'generation failed'); return; }
-      say(res.j.inserted + ' drafts fabricated');
+      say(mem ? (res.j.inserted + ' drafts fabricated') : ('mood drafted: ' + (res.j.emotion && res.j.emotion.mood)));
       refresh();
     }).catch(function () { btn.disabled = false; say('network error'); });
   });
@@ -162,18 +188,21 @@
       var save = document.createElement('button');
       save.textContent = 'Save'; save.className = 'primary';
       btn.replaceWith(save);
+      var field = mode() === 'memories' ? 'memory' : 'cause';
       save.addEventListener('click', function () {
         say('saving...');
-        api('memory-implant-admin', { action: 'edit', id: id, memory: ta.value }).then(function (res) {
+        var payload = { action: 'edit', id: id, target: mode() };
+        payload[field] = ta.value;
+        api('memory-implant-admin', payload).then(function (res) {
           say(res.ok ? 'saved' : (res.j.error || 'error')); refresh();
         });
       });
       return;
     }
 
-    if (act === 'delete' && !confirm('Hard delete this memory?')) return;
+    if (act === 'delete' && !confirm('Hard delete this ' + (mode() === 'memories' ? 'memory' : 'mood') + '?')) return;
     say(act + '...');
-    api('memory-implant-admin', { action: act, id: id }).then(function (res) {
+    api('memory-implant-admin', { action: act, id: id, target: mode() }).then(function (res) {
       say(res.ok ? 'done' : (res.j.error || 'error')); refresh();
     });
   });

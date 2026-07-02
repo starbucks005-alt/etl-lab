@@ -89,16 +89,20 @@ async function fetchExistingMemories(agentName, serviceKey) {
   return Array.isArray(rows) ? rows : [];
 }
 
-function buildPrompt(agentName, persona, existing, count) {
+function buildPrompt(agentName, persona, existing, count, canonNotes) {
   const existingBlock = existing.length
     ? '\n\nMemories this person already has (do not repeat or contradict any fact in them, build on them):\n' +
       existing.map((m) => `- [${m.kind}] ${m.title || ''}: ${m.memory}`).join('\n')
     : '';
 
+  const notesBlock = canonNotes
+    ? `\n\nLocked canon facts from the editor (these OVERRIDE the dossier wherever they conflict, follow them exactly):\n${canonNotes}`
+    : '';
+
   return `You are the Memory Implant Lab at the Emerging Technologies Laboratory. You fabricate lived memories for staff characters. The character must experience these memories as their real life.
 
 Character dossier:
-${JSON.stringify(persona, null, 2)}${existingBlock}
+${JSON.stringify(persona, null, 2)}${notesBlock}${existingBlock}
 
 Write ${count} memories for ${agentName}, first person, past tense, in their own voice. Spread them across these four kinds:
 - "family": an ongoing family thread (a specific sibling, parent, or relative with a name, doing something concrete; a thread future memories can continue)
@@ -114,6 +118,9 @@ Rules, absolute:
 - weight is 1 to 5, how core this memory is to who they are.
 - participants lists people named in the memory, empty array if none.
 - Stay consistent with every fact in the dossier (hometown, family size, career path).
+- The memories in this pack must also be consistent WITH EACH OTHER: dates, jobs, places, and people must agree across the whole pack. Never have two memories tell incompatible versions of the same period of their life.
+- Timeline law: the Emerging Technologies Laboratory and everything connected to it (the Studio, the Gauntlet, the Dose, Dr. Oroszi's lab) began in 2025. Any memory involving the lab must be dated 2025 or later. Life before the lab (childhood, family, earlier jobs) can use any earlier year.
+- If the dossier is thin, invent a modest, coherent background that fits the role and platform. Never invent relationships with other ETL characters, coworkers at the lab, or shared campus events unless that person or event is explicitly named in the dossier or the editor's notes.
 
 Return ONLY valid JSON, no code fences, no commentary:
 {"memories":[{"kind":"family","title":"short label","memory":"...","happened_at":"...","weight":3,"participants":["Name"]}]}`;
@@ -140,8 +147,9 @@ exports.handler = async (event) => {
   if (!persona) persona = await fetchRosterPersona(agentName);
   if (!persona) return json(404, { error: 'agent_not_in_roster', hint: 'pass a persona object for agents outside roster.json' });
 
+  const canonNotes = String(body.canon_notes || '').slice(0, 2000).trim();
   const existing = await fetchExistingMemories(agentName, serviceKey);
-  const prompt = buildPrompt(agentName, persona, existing, count);
+  const prompt = buildPrompt(agentName, persona, existing, count, canonNotes);
 
   let memories;
   try {
