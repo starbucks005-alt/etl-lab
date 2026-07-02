@@ -274,6 +274,71 @@ function pickFocus(h) {
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
+/* ── Inner lives feed the floor (Terry, 2026-07-02): canon moods, canon
+   memories, and the Dose/Gym personal diaries color the broadcast. All
+   fail soft; the floor chats fine without them. ── */
+var DIARY_SITES = [
+  ['https://thedose.net', { pharmacist: 'Henry', gardener: 'Maeve', mixologist: 'Wyatt', herbalist: 'Amara', doctor: 'Dr. Claire', forager: 'Silas', factchecker: 'Eli', nutritionist: 'Nadia', fitness: 'Jaque', nurse: 'Arun', librarian: 'Ms. Ivy', movement: 'Reece' }],
+  ['https://etl-the-gym.netlify.app', { coach: 'Coach Dom', therapist: 'Lena', breathwork: 'Noor', recovery: 'Sana', bench: 'Reece', scout: 'Jax Rivera', social: 'Zara Cole', fuel: 'Nadia', zero_proof: 'Wyatt', stoplight: 'Eli' }],
+];
+
+async function loadInnerLives() {
+  var out = { moods: '', memories: '', diary: '' };
+  var serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  var sb = 'https://ulvrnermyuvzanxhxoib.supabase.co/rest/v1/';
+  var sbHeaders = { apikey: serviceKey, Authorization: 'Bearer ' + serviceKey };
+
+  if (serviceKey) {
+    try {
+      var er = await fetch(sb + 'etl_agent_emotions?status=eq.canon&select=agent_name,mood,intensity,cause&order=created_at.desc&limit=40', { headers: sbHeaders });
+      if (er.ok) {
+        var erows = await er.json();
+        var seen = {}; var mlines = [];
+        (erows || []).forEach(function(row) {
+          if (row && row.agent_name && !seen[row.agent_name]) {
+            seen[row.agent_name] = 1;
+            mlines.push(row.agent_name + ': ' + row.mood + ' (' + row.intensity + '/5) because ' + String(row.cause || '').slice(0, 140));
+          }
+        });
+        out.moods = mlines.slice(0, 10).join('\n');
+      }
+    } catch (_) {}
+    try {
+      var mr = await fetch(sb + 'etl_agent_memories?status=eq.canon&select=agent_name,title,memory&order=created_at.desc&limit=30', { headers: sbHeaders });
+      if (mr.ok) {
+        var mrows = await mr.json();
+        var pick = [];
+        (mrows || []).forEach(function(row) {
+          if (row && row.memory && pick.length < 12 && Math.random() < 0.35) {
+            pick.push(row.agent_name + ': ' + String(row.memory).slice(0, 150));
+          }
+        });
+        out.memories = pick.slice(0, 4).join('\n');
+      }
+    } catch (_) {}
+  }
+
+  var dlines = [];
+  for (var i = 0; i < DIARY_SITES.length; i++) {
+    try {
+      var dr = await fetch(DIARY_SITES[i][0] + '/js/data/personal-notes.js');
+      if (!dr.ok) continue;
+      var text = await dr.text();
+      var data = new Function(text.replace(/export\s+const\s+PERSONAL_NOTES/, 'const PERSONAL_NOTES') + '; return PERSONAL_NOTES;')();
+      var names = DIARY_SITES[i][1];
+      Object.keys(names).forEach(function(key) {
+        var notes = data && data[key];
+        if (Array.isArray(notes) && notes[0] && notes[0].body) {
+          dlines.push(names[key] + ' [' + (notes[0].date || '') + ']: ' + String(notes[0].body).slice(0, 200));
+        }
+      });
+    } catch (_) {}
+  }
+  out.diary = dlines.slice(0, 12).join('\n');
+
+  return out;
+}
+
 var CAST_POOL = {
   primary: [
     { name: 'Iris', role: 'Site Concierge' },
@@ -447,6 +512,10 @@ exports.handler = async (event) => {
     drONote = notes[Math.floor(Math.random() * notes.length)];
   }
 
+  // Inner lives: canon moods, memories, and the Dose/Gym diaries (fails soft)
+  var inner = { moods: '', memories: '', diary: '' };
+  try { inner = await loadInnerLives(); } catch (_) {}
+
   var lineCount = 12 + Math.floor(Math.random() * 7); // 12-18 lines per scene (Sonnet speed)
 
   var promptParts = 'Write ' + lineCount + ' lines of #agency-floor chat for right now.\n\n'
@@ -459,6 +528,9 @@ exports.handler = async (event) => {
     + (recentLines || '(none yet)') + '\n\n'
     + (irisAway ? 'Iris is away this week, skip her.\n\n' : '')
     + (drONote ? 'Include Dr. O as one speaker. Her line: "' + drONote + '"\n\n' : '')
+    + (inner.moods ? 'CURRENT MOODS (canon; let these color those speakers\' lines subtly, never announce the mood):\n' + inner.moods + '\n\n' : '')
+    + (inner.diary ? 'CANON DIARY BEATS from the wider campus (Dose and Gym cast; the floor can mention or ask about these naturally, big news travels):\n' + inner.diary + '\n\n' : '')
+    + (inner.memories ? 'THINGS ON PEOPLE\'S MINDS (canon memories; may surface as brief passing references):\n' + inner.memories + '\n\n' : '')
     + 'Return ' + lineCount + ' lines, format  Name: message  only. Build 2 to 4 short connected\n'
     + 'exchanges where people reply to each other, then move on. Keep it PG, no em dashes.';
 
