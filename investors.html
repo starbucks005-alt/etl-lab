@@ -409,7 +409,7 @@
       <div class="card-eyebrow">Architecture &nbsp;02</div>
       <h2>Not personas. Not templates. Staff.</h2>
       <p>Every agent on the ETL campus has a name, a role, a domain lens, a home platform, and a persistent identity that travels with them. Hire Rowan Tate for your Founder Studio and he brings his quant risk framework. Hire Kimberly Pass and she brings her seven-section legal research architecture. These are not skins over a generic model.</p>
-      <p>85 of the 125 carry a live backpack, a Model Context Protocol toolkit they carry across every platform they touch. An agent with a backpack brings PubMed, FDA registries, clinical trial databases, or financial data feeds with them wherever they go. The platform does not have to provide any of it. It is already in the pack.</p>
+      <p><span id="etlBackpack">85</span> of the <span id="etlTotal">132</span> carry a live backpack, a Model Context Protocol toolkit they carry across every platform they touch. An agent with a backpack brings PubMed, FDA registries, clinical trial databases, or financial data feeds with them wherever they go. The platform does not have to provide any of it. It is already in the pack.</p>
     </div>
 
     <!-- 3. Full Pipeline -->
@@ -532,5 +532,18 @@
 </footer>
 
 <script src="https://player.vimeo.com/api/player.js"></script>
+<script>
+/* Single source: agent total and backpack count derive from data/agents.generated.json
+   (built from ETL_Agent_Roster.xlsx by build_agent_data.py). Do not hand-type these. */
+(function(){
+  fetch('/data/agents.generated.json',{cache:'no-store'})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(!d) return;
+      var t=document.getElementById('etlTotal');    if(t&&d.total) t.textContent=d.total;
+      var b=document.getElementById('etlBackpack'); if(b&&typeof d.backpack==='number') b.textContent=d.backpack;
+    }).catch(function(){});
+})();
+</script>
 </body>
 </html>
