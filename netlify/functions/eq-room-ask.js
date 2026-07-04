@@ -308,7 +308,7 @@ exports.handler = async function (event) {
   try {
     const msg = await client.messages.create({
       model: TURN_MODEL,
-      max_tokens: 500,
+      max_tokens: isMara ? 1500 : 500,
       system: turnPrompt,
       messages,
       tools: turnTools,
