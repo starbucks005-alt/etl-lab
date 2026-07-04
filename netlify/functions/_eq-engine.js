@@ -178,6 +178,30 @@ function renderScales(scales) {
   return out;
 }
 
+// Blends the five feeling scales into one 0-100 "vibe" value for the
+// simplified single-gauge display. The five-scale/two-meter engine above
+// still tracks everything underneath for real scoring; this is purely a
+// friendlier visual summary, an unweighted mean of the five scales.
+function gaugeFromScales(scales) {
+  const sum = SCALE_KEYS.reduce((total, key) => total + scales[key], 0);
+  return sum / SCALE_KEYS.length;
+}
+
+const GAUGE_BANDS = [
+  { max: 20, emoji: '😠', label: 'upset' },
+  { max: 40, emoji: '☹️', label: 'cool' },
+  { max: 60, emoji: '😐', label: 'neutral' },
+  { max: 80, emoji: '🙂', label: 'warm' },
+  { max: 100, emoji: '😊', label: 'delighted' },
+];
+
+function gaugeBand(value) {
+  for (const band of GAUGE_BANDS) {
+    if (value <= band.max) return band;
+  }
+  return GAUGE_BANDS[GAUGE_BANDS.length - 1];
+}
+
 module.exports = {
   SCALE_KEYS,
   VOLATILITY,
@@ -190,4 +214,7 @@ module.exports = {
   applyJudge,
   seedOpeningState,
   renderScales,
+  gaugeFromScales,
+  GAUGE_BANDS,
+  gaugeBand,
 };

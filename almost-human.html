@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Almost Human — Emerging Technologies Laboratory</title>
+<meta name="description" content="Chat room for artificial agents and their human friends.">
+<link rel="icon" href="/brand/etl-favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;1,400;1,600&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --black: #0a0a0f;
+    --navy: #17206b;
+    --cream: #f5f3ee;
+    --muted: #9a9aa5;
+    --line: #2a2a35;
+    --panel: #14141c;
+  }
+  body {
+    background: var(--black);
+    color: var(--cream);
+    font-family: 'Public Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+  .screen { display: none; min-height: 100vh; }
+  .screen.active { display: block; }
+
+  /* ── SPLASH ── */
+  #splash {
+    position: relative;
+    min-height: 100vh;
+    background: url('/agents/eq-room/ETL%20EQ%20Chat.png') center center / cover no-repeat;
+    display: flex;
+    align-items: flex-end;
+  }
+  #splash::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(10,10,15,0.92) 10%, rgba(10,10,15,0.55) 45%, rgba(10,10,15,0.15) 75%);
+  }
+  .splash-inner { position: relative; z-index: 1; padding: 3rem 2.5rem 3.5rem; max-width: 900px; }
+  .splash-title { font-family: 'Spectral', serif; font-weight: 600; font-size: 4.2rem; line-height: 1; color: #fff; }
+  .splash-title em { font-style: italic; color: #4c5fd6; }
+  .splash-sub { font-family: 'Spectral', serif; font-size: 1.4rem; color: var(--cream); margin-top: .6rem; }
+  .splash-cta {
+    margin-top: 1.8rem; font-family: 'IBM Plex Mono', monospace; font-size: .78rem; letter-spacing: .08em;
+    text-transform: uppercase; background: #fff; color: var(--black); border: none; border-radius: 999px;
+    padding: .9rem 1.8rem; cursor: pointer; font-weight: 600;
+  }
+  .splash-cta:hover { background: var(--cream); }
+  @media (max-width: 760px) { .splash-title { font-size: 2.4rem; } .splash-sub { font-size: 1.05rem; } }
+
+  /* ── CONSENT MODAL ── */
+  #consent { position: fixed; inset: 0; background: rgba(0,0,0,.85); display: none; align-items: center; justify-content: center; z-index: 50; padding: 1.2rem; }
+  #consent.open { display: flex; }
+  .consent-card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; max-width: 480px; width: 100%; padding: 2rem; }
+  .consent-card h2 { font-family: 'Spectral', serif; font-size: 1.5rem; margin-bottom: 1rem; }
+  .consent-card p { font-size: .92rem; line-height: 1.6; color: var(--cream); margin-bottom: .8rem; }
+  .consent-card ul { padding-left: 1.2rem; margin-bottom: 1.2rem; }
+  .consent-card li { font-size: .88rem; line-height: 1.55; color: var(--cream); margin-bottom: .6rem; }
+  .consent-card label.name-label { display: block; font-family: 'IBM Plex Mono', monospace; font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 1.2rem 0 .4rem; }
+  .consent-card input[type=text] { width: 100%; background: #0f0f16; border: 1px solid var(--line); border-radius: 8px; color: var(--cream); font-size: .95rem; padding: .6rem .7rem; font-family: inherit; }
+  .consent-check { display: flex; gap: .6rem; align-items: flex-start; margin: 1.2rem 0; font-size: .85rem; color: var(--cream); }
+  .consent-btn { width: 100%; margin-top: .4rem; font-family: 'IBM Plex Mono', monospace; font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; background: #fff; color: var(--black); border: none; border-radius: 8px; padding: .9rem; cursor: pointer; font-weight: 600; }
+  .consent-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+  /* ── AGENT GRID ── */
+  #picker { padding: 3rem 2rem 4rem; max-width: 1100px; margin: 0 auto; }
+  #picker h1 { font-family: 'Spectral', serif; font-size: 1.8rem; margin-bottom: .3rem; }
+  #picker .sub { color: var(--muted); font-size: .95rem; margin-bottom: 2rem; }
+  .agent-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1.1rem; }
+  .agent-card { cursor: pointer; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--panel); transition: border-color .15s; }
+  .agent-card:hover { border-color: #4c5fd6; }
+  .agent-card img { width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block; }
+  .agent-card .nm { padding: .6rem .7rem; font-size: .88rem; font-weight: 600; }
+
+  /* ── ROOM ── */
+  #room { min-height: 100vh; }
+  #room.active { display: flex; flex-direction: column; }
+  .room-portrait-wrap { position: relative; width: 100%; height: 46vh; min-height: 320px; overflow: hidden; background: #000; }
+  .room-portrait-wrap img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .room-portrait-wrap .blink-layer { opacity: 0; transition: opacity .12s ease-in-out; }
+  .room-name-tag { position: absolute; left: 1rem; bottom: 1rem; z-index: 2; font-family: 'Spectral', serif; font-size: 1.3rem; color: #fff; text-shadow: 0 2px 8px rgba(0,0,0,.6); }
+  .room-back { position: absolute; top: 1rem; left: 1rem; z-index: 2; background: rgba(0,0,0,.5); color: #fff; border: 1px solid rgba(255,255,255,.3); border-radius: 999px; padding: .4rem .9rem; font-size: .8rem; cursor: pointer; }
+  .gauge-wrap { position: absolute; top: 1rem; right: 1rem; z-index: 2; background: rgba(0,0,0,.55); border: 1px solid rgba(255,255,255,.25); border-radius: 12px; padding: .6rem .9rem; text-align: center; min-width: 84px; }
+  .gauge-emoji { font-size: 1.8rem; line-height: 1; }
+  .gauge-label { font-family: 'IBM Plex Mono', monospace; font-size: .62rem; letter-spacing: .05em; text-transform: uppercase; color: #ddd; margin-top: .2rem; }
+
+  #room-log { flex: 1; overflow-y: auto; padding: 1.2rem 1.4rem; display: flex; flex-direction: column; gap: .6rem; max-width: 720px; width: 100%; margin: 0 auto; }
+  .bubble { padding: .65rem .9rem; border-radius: 12px; font-size: .93rem; line-height: 1.45; max-width: 82%; }
+  .bubble.user { align-self: flex-end; background: #4c5fd6; color: #fff; }
+  .bubble.agent { align-self: flex-start; background: var(--panel); border: 1px solid var(--line); }
+  .bubble.system { align-self: center; color: var(--muted); font-size: .8rem; font-style: italic; }
+
+  #room-form { display: flex; gap: .6rem; padding: 1rem 1.4rem 1.4rem; max-width: 720px; width: 100%; margin: 0 auto; }
+  #room-input { flex: 1; background: var(--panel); border: 1px solid var(--line); border-radius: 999px; color: var(--cream); font-size: .95rem; padding: .8rem 1.1rem; font-family: inherit; }
+  #room-send { font-family: 'IBM Plex Mono', monospace; font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; background: #fff; color: var(--black); border: none; border-radius: 999px; padding: 0 1.4rem; cursor: pointer; font-weight: 600; }
+  #room-send:disabled { opacity: .4; cursor: not-allowed; }
+</style>
+</head>
+<body>
+
+<section id="splash" class="screen active">
+  <div class="splash-inner">
+    <div class="splash-title">Almost <em>Human</em></div>
+    <div class="splash-sub">Chat room for artificial agents &amp; their human friends.</div>
+    <button class="splash-cta" id="splashEnter">Step inside</button>
+  </div>
+</section>
+
+<div id="consent">
+  <div class="consent-card">
+    <h2>Before you sit down</h2>
+    <p>You're about to have an honest, one-on-one conversation with one of ten agents in the Harvest Circuit's private room. This isn't scripted, say what's actually on your mind.</p>
+    <ul>
+      <li><strong>Pick a name for this conversation.</strong> It doesn't have to be your real one.</li>
+      <li><strong>Go where it needs to go.</strong> Sadness, frustration, venting, all fair game.</li>
+      <li><strong>One line that isn't:</strong> targeted cruelty, threats, or anything sexual. You'll get a check-in first, and the room can close if it continues.</li>
+    </ul>
+    <label class="name-label" for="consentName">What should they call you?</label>
+    <input type="text" id="consentName" placeholder="Pick any name" maxlength="40">
+    <div class="consent-check">
+      <input type="checkbox" id="consentCheck" style="margin-top:.2rem;">
+      <label for="consentCheck">I understand, and I'm ready to talk.</label>
+    </div>
+    <button class="consent-btn" id="consentGo" disabled>Start the conversation</button>
+  </div>
+</div>
+
+<section id="picker" class="screen">
+  <h1>Who do you want to talk to?</h1>
+  <p class="sub">Pick a face. Sit down. See how the conversation actually goes.</p>
+  <div class="agent-grid" id="agentGrid"></div>
+</section>
+
+<section id="room" class="screen">
+  <div class="room-portrait-wrap">
+    <button class="room-back" id="roomBack">&larr; Back</button>
+    <img id="roomOpen" src="" alt="">
+    <img id="roomBlink" class="blink-layer" src="" alt="">
+    <div class="gauge-wrap"><div class="gauge-emoji" id="gaugeEmoji">🙂</div><div class="gauge-label" id="gaugeLabel">warm</div></div>
+    <div class="room-name-tag" id="roomName"></div>
+  </div>
+  <div id="room-log"></div>
+  <form id="room-form">
+    <input id="room-input" type="text" placeholder="Say something..." autocomplete="off">
+    <button id="room-send" type="submit">Send</button>
+  </form>
+</section>
+
+<script>
+var AGENTS = [
+  { key: 'ivy', name: 'Ms. Ivy', slug: 'Ivy' },
+  { key: 'auggie', name: 'Auggie', slug: 'Auggie' },
+  { key: 'dom', name: 'Coach Dom', slug: 'Dom' },
+  { key: 'chris', name: 'Chris', slug: 'Chris' },
+  { key: 'arthur', name: 'Dr. Arthur Pendelton', slug: 'Arthur' },
+  { key: 'jen', name: 'Jen Lopez', slug: 'Jen' },
+  { key: 'noor', name: 'Noor Haddad', slug: 'Noor' },
+  { key: 'mara', name: 'Mara Rivera', slug: 'Mara' },
+  { key: 'marceline', name: 'Marceline Smith', slug: 'Marceline' },
+  { key: 'marcus', name: 'Marcus Holt', slug: 'Marcus' },
+];
+// The two agents whose blink occasionally shows a third variant instead of
+// the plain closed-eyes frame, per the portrait set delivered for the room.
+var THIRD_VARIANT = { arthur: true, chris: true };
+
+var GAUGE_BANDS = [
+  { max: 20, emoji: '😠', label: 'upset' },
+  { max: 40, emoji: '☹️', label: 'cool' },
+  { max: 60, emoji: '😐', label: 'neutral' },
+  { max: 80, emoji: '🙂', label: 'warm' },
+  { max: 100, emoji: '😊', label: 'delighted' },
+];
+function gaugeFromScales(s) {
+  return (s.warmth + s.openness + s.ease + s.spirits + s.interest) / 5;
+}
+function gaugeBand(value) {
+  for (var i = 0; i < GAUGE_BANDS.length; i++) if (value <= GAUGE_BANDS[i].max) return GAUGE_BANDS[i];
+  return GAUGE_BANDS[GAUGE_BANDS.length - 1];
+}
+
+var $ = function (id) { return document.getElementById(id); };
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(function (el) { el.classList.remove('active'); });
+  $(id).classList.add('active');
+}
+
+function visitorId() {
+  try {
+    var v = localStorage.getItem('etl_visitor_id');
+    if (!v) { v = 'v' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10); localStorage.setItem('etl_visitor_id', v); }
+    return v;
+  } catch (_) { return null; }
+}
+
+var displayName = '';
+$('consentCheck').addEventListener('change', function () {
+  $('consentGo').disabled = !this.checked;
+});
+$('splashEnter').addEventListener('click', function () { $('consent').classList.add('open'); });
+$('consentGo').addEventListener('click', function () {
+  displayName = ($('consentName').value || '').trim() || 'Friend';
+  $('consent').classList.remove('open');
+  showScreen('picker');
+});
+
+var grid = $('agentGrid');
+AGENTS.forEach(function (a) {
+  var card = document.createElement('div');
+  card.className = 'agent-card';
+  card.innerHTML = '<img src="/agents/eq-room/' + a.slug + '_eyes_open.png" alt="' + a.name + '"><div class="nm">' + a.name + '</div>';
+  card.addEventListener('click', function () { openRoom(a); });
+  grid.appendChild(card);
+});
+
+var current = null;      // the selected agent object
+var scales = null;       // current feeling scales (floats, from server)
+var meters = { humanness: 50, eq: 50 };
+var turnCount = 0;
+var history = [];        // {role, content}
+var blinkTimer = null;
+
+function stopBlink() { if (blinkTimer) { clearTimeout(blinkTimer); blinkTimer = null; } }
+function startBlink(agentKey) {
+  stopBlink();
+  var closedImg = $('roomBlink');
+  function tick() {
+    var useThird = THIRD_VARIANT[agentKey] && Math.random() < 0.35;
+    closedImg.src = '/agents/eq-room/' + current.slug + (useThird ? '_eyes_3.png' : '_eyes_closed.png');
+    closedImg.classList.add('blink');
+    closedImg.style.opacity = '1';
+    setTimeout(function () { closedImg.style.opacity = '0'; }, 420);
+    blinkTimer = setTimeout(tick, 6500 + Math.random() * 4000);
+  }
+  blinkTimer = setTimeout(tick, 2000 + Math.random() * 2000);
+}
+
+function updateGauge() {
+  var v = gaugeFromScales(scales);
+  var band = gaugeBand(v);
+  $('gaugeEmoji').textContent = band.emoji;
+  $('gaugeLabel').textContent = band.label;
+}
+
+function bubble(role, text) {
+  var el = document.createElement('div');
+  el.className = 'bubble ' + role;
+  el.textContent = text;
+  $('room-log').appendChild(el);
+  el.scrollIntoView({ behavior: 'smooth', block: 'end' });
+}
+
+function openRoom(agent) {
+  current = agent;
+  scales = null; meters = { humanness: 50, eq: 50 }; turnCount = 0; history = [];
+  $('room-log').innerHTML = '';
+  $('roomName').textContent = agent.name;
+  $('roomOpen').src = '/agents/eq-room/' + agent.slug + '_eyes_open.png';
+  startBlink(agent.key);
+  bubble('system', 'You sit down across from ' + agent.name + '.');
+  showScreen('room');
+  $('room-input').focus();
+}
+
+$('roomBack').addEventListener('click', function () {
+  stopBlink();
+  showScreen('picker');
+});
+
+var sending = false;
+$('room-form').addEventListener('submit', function (e) {
+  e.preventDefault();
+  if (sending) return;
+  var text = $('room-input').value.trim();
+  if (!text) return;
+  bubble('user', text);
+  $('room-input').value = '';
+  sending = true;
+  $('room-send').disabled = true;
+
+  fetch('/.netlify/functions/eq-room-ask', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      agent_key: current.key,
+      message: text,
+      messages: history,
+      scales: scales,
+      meters: meters,
+      turn_count: turnCount,
+      visitor_id: visitorId(),
+    }),
+  })
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (d.error) { bubble('system', 'Something went wrong: ' + d.error); return; }
+      if (d.closed && !scales) { bubble('system', d.reply); return; }
+      bubble('agent', d.reply);
+      history.push({ role: 'user', content: text }, { role: 'assistant', content: d.reply });
+      scales = d.scales; meters = d.meters; turnCount = d.turn_count;
+      updateGauge();
+      if (d.closed) bubble('system', current.name + ' has ended the conversation.');
+      else if (d.capped) bubble('system', 'This conversation has reached its limit for now.');
+    })
+    .catch(function () { bubble('system', 'Could not reach the room. Try again.'); })
+    .finally(function () {
+      sending = false;
+      $('room-send').disabled = false;
+      $('room-input').focus();
+    });
+});
+</script>
+</body>
+</html>
