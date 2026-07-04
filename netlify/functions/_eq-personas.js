@@ -153,7 +153,13 @@ Set "close" to true only when you are ending the conversation per the guardrails
 every ordinary turn. "felt", "reason", and "close" are out-of-character metadata the room reads; \
 never mention any of them, and nothing in "reply" should ever reference them.`;
 
-function buildSystemPrompt(agentKey) {
+// canonExtras is optional: { mood: {mood, intensity, cause}, memories: [{kind,title,memory}] },
+// fetched from etl_agent_emotions / etl_agent_memories by whoever calls this (eq-room-ask.js).
+// Purely textual, no numeric scale nudge: the spec doesn't define a concrete way to turn an
+// arbitrary mood word into scale deltas the way it does for the per-turn felt mechanic, so
+// rather than invent an untested word-to-number mapping, the canon mood and memories are given
+// to the model as lived-in context and the already-tested per-turn felt math takes it from there.
+function buildSystemPrompt(agentKey, canonExtras) {
   const persona = PERSONAS[agentKey];
   if (!persona) throw new Error(`unknown agent: ${agentKey}`);
 
@@ -161,6 +167,18 @@ function buildSystemPrompt(agentKey) {
     `You are ${persona.name}, ${persona.role}. ${persona.voice}`,
     ROOM_CONTEXT,
   ];
+
+  if (canonExtras && canonExtras.mood && canonExtras.mood.mood) {
+    const m = canonExtras.mood;
+    layers.push(`Right now, before this conversation starts: you're feeling ${m.mood}` +
+      (m.intensity ? ` (about a ${m.intensity} out of 5)` : '') +
+      `. ${m.cause || ''}`.trim());
+  }
+
+  if (canonExtras && Array.isArray(canonExtras.memories) && canonExtras.memories.length) {
+    layers.push('A few things from your life, true and yours:\n' +
+      canonExtras.memories.map((m) => `- ${m.memory}`).join('\n'));
+  }
 
   const identity = IDENTITY_SUPPORT[agentKey];
   if (identity) layers.push(identity);

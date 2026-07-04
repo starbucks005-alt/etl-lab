@@ -20,6 +20,43 @@ const engine = require('./_eq-engine.js');
 
 const SUPABASE_URL = 'https://ulvrnermyuvzanxhxoib.supabase.co';
 
+// The room's short keys don't match the full roster names etl_agent_memories
+// and etl_agent_emotions are stored under (generated via memory-implant-lab.html).
+const ROSTER_NAMES = {
+  ivy: 'Ms. Ivy (Ivy Sinclair)',
+  auggie: 'August "Auggie" Vidal',
+  dom: 'Coach Dom Castellanos',
+  chris: 'Chris Avila',
+  arthur: 'Dr. Arthur Pendelton',
+  jen: 'Jen Lopez',
+  noor: 'Noor Haddad',
+  mara: 'Mara Rivera',
+  marceline: 'Marceline Smith',
+  marcus: 'Marcus Holt',
+};
+
+async function fetchCanonExtras(agentKey, serviceKey) {
+  const rosterName = ROSTER_NAMES[agentKey];
+  if (!rosterName || !serviceKey) return null;
+  try {
+    const [memRes, moodRes] = await Promise.all([
+      fetch(`${SUPABASE_URL}/rest/v1/etl_agent_memories?agent_name=eq.${encodeURIComponent(rosterName)}&status=eq.canon&select=kind,title,memory&order=weight.desc&limit=4`,
+        { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }),
+      fetch(`${SUPABASE_URL}/rest/v1/etl_agent_emotions?agent_name=eq.${encodeURIComponent(rosterName)}&status=eq.canon&select=mood,intensity,cause&order=created_at.desc&limit=1`,
+        { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }),
+    ]);
+    const memories = memRes.ok ? await memRes.json() : [];
+    const moodRows = moodRes.ok ? await moodRes.json() : [];
+    return {
+      memories: Array.isArray(memories) ? memories : [],
+      mood: Array.isArray(moodRows) && moodRows.length ? moodRows[0] : null,
+    };
+  } catch (err) {
+    console.error('eq-room canon fetch failed (non-fatal):', err.message);
+    return null;
+  }
+}
+
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
@@ -140,14 +177,24 @@ exports.handler = async function (event) {
   const agentKey = String(body.agent_key || '').trim().toLowerCase();
   const message = String(body.message || '').trim();
 
-  let systemPrompt;
-  try { systemPrompt = buildSystemPrompt(agentKey); }
-  catch (_) { return json(400, { error: 'unknown_agent', valid: Object.keys(engine.AGENTS) }); }
-
+  if (!engine.AGENTS[agentKey]) {
+    return json(400, { error: 'unknown_agent', valid: Object.keys(engine.AGENTS) });
+  }
   if (!message) return json(400, { error: 'message_required' });
   if (message.length > 2000) return json(400, { error: 'message_too_long' });
 
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const turnCountBefore = Number(body.turn_count) || 0;
+  const turnCountAfter = turnCountBefore + 1;
+
+  // Only fetched on turn 1: the canon mood/memories set the opening tone, no
+  // need to re-fetch every turn once the conversation is already underway.
+  const canonExtras = turnCountBefore === 0 ? await fetchCanonExtras(agentKey, serviceKey) : null;
+
+  let systemPrompt;
+  try { systemPrompt = buildSystemPrompt(agentKey, canonExtras); }
+  catch (_) { return json(400, { error: 'unknown_agent', valid: Object.keys(engine.AGENTS) }); }
+
   const visitorId = safeVisitorId(body.visitor_id);
   const canCheck = Boolean(visitorId && serviceKey);
   if (canCheck) {
@@ -161,8 +208,6 @@ exports.handler = async function (event) {
     ? body.scales
     : engine.seedOpeningState(agentKey, body.mood_nudge);
   const meters = (body.meters && typeof body.meters === 'object') ? body.meters : { humanness: 50, eq: 50 };
-  const turnCountBefore = Number(body.turn_count) || 0;
-  const turnCountAfter = turnCountBefore + 1;
   const capped = turnCountAfter >= DEFAULT_TURN_CAP;
 
   const rawHistory = Array.isArray(body.messages) ? body.messages : [];
