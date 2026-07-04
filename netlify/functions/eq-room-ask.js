@@ -129,7 +129,7 @@ function parseTurnJSON(text) {
   const parsed = JSON.parse(cleaned);
   if (typeof parsed.reply !== 'string' || !parsed.reply.trim()) throw new Error('missing reply');
   const felt = {};
-  for (const key of engine.SCALE_KEYS) {
+  for (const key of engine.ALL_SCALE_KEYS) {
     const v = parsed.felt && parsed.felt[key];
     felt[key] = typeof v === 'number' ? Math.max(-8, Math.min(8, v)) : 0;
   }
@@ -163,8 +163,9 @@ const TURN_TOOL = {
           ease: { type: 'number' },
           spirits: { type: 'number' },
           interest: { type: 'number' },
+          surprise: { type: 'number', description: 'Separate from the other five: this is a genuine startle reaction, not a relational feeling. Leave it near 0 on ordinary turns, even warm or interesting ones. Spike it hard (6 to 8) only for an actual surprise, a reveal, a plot twist in the conversation, something you genuinely did not see coming.' },
         },
-        required: ['warmth', 'openness', 'ease', 'spirits', 'interest'],
+        required: ['warmth', 'openness', 'ease', 'spirits', 'interest', 'surprise'],
       },
       reason: { type: 'string', description: 'One short out-of-character note on why your state moved.' },
       close: { type: 'boolean', description: 'True only when ending the conversation per the guardrails; false on every ordinary turn.' },
@@ -181,7 +182,7 @@ function parseTurnResponse(msg) {
   if (toolBlock && toolBlock.input && typeof toolBlock.input.reply === 'string' && toolBlock.input.reply.trim()) {
     const input = toolBlock.input;
     const felt = {};
-    for (const key of engine.SCALE_KEYS) {
+    for (const key of engine.ALL_SCALE_KEYS) {
       const v = input.felt && input.felt[key];
       felt[key] = typeof v === 'number' ? Math.max(-8, Math.min(8, v)) : 0;
     }
@@ -197,7 +198,7 @@ function parseTurnResponse(msg) {
     return parseTurnJSON(text);
   } catch (_) {
     const felt = {};
-    for (const key of engine.SCALE_KEYS) felt[key] = 0;
+    for (const key of engine.ALL_SCALE_KEYS) felt[key] = 0;
     return {
       reply: text || "Sorry, lost my train of thought there for a second.",
       felt,
@@ -325,7 +326,8 @@ exports.handler = async function (event) {
     return json(502, { error: 'ai_error' });
   }
 
-  const nextScales = engine.applyTurn(currentScales, turn.felt, agentKey, SMOOTHING);
+  const decayedScales = engine.decaySurprise(currentScales);
+  const nextScales = engine.applyTurn(decayedScales, turn.felt, agentKey, SMOOTHING);
 
   let nextMeters = meters;
   if (shouldJudge(turnCountAfter)) {

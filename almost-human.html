@@ -123,6 +123,7 @@
   .gauge-row-label { font-family: 'IBM Plex Mono', monospace; font-size: .58rem; letter-spacing: .04em; text-transform: uppercase; color: #ccc; width: 3.6rem; flex-shrink: 0; }
   .gauge-bar-track { flex: 1; height: 4px; background: rgba(255,255,255,.22); border-radius: 2px; overflow: hidden; }
   .gauge-bar-fill { height: 100%; background: #4c5fd6; transition: width .5s ease; }
+  .gauge-bar-fill.surprise { background: #e8b64c; }
   .gauge-label { font-family: 'IBM Plex Mono', monospace; font-size: .62rem; letter-spacing: .05em; text-transform: uppercase; color: #ddd; margin-top: .2rem; }
 
   #room-log { flex: 1; overflow-y: auto; padding: 1.2rem 1.4rem; display: flex; flex-direction: column; justify-content: flex-end; gap: .6rem; max-width: 720px; width: 100%; margin: 0 auto; }
@@ -192,6 +193,7 @@
       <div class="gauge-row"><div class="gauge-row-label">Ease</div><div class="gauge-bar-track"><div class="gauge-bar-fill" id="gaugeEase" style="width:60%"></div></div></div>
       <div class="gauge-row"><div class="gauge-row-label">Spirits</div><div class="gauge-bar-track"><div class="gauge-bar-fill" id="gaugeSpirits" style="width:60%"></div></div></div>
       <div class="gauge-row"><div class="gauge-row-label">Interest</div><div class="gauge-bar-track"><div class="gauge-bar-fill" id="gaugeInterest" style="width:60%"></div></div></div>
+      <div class="gauge-row"><div class="gauge-row-label">Surprise</div><div class="gauge-bar-track"><div class="gauge-bar-fill surprise" id="gaugeSurprise" style="width:12%"></div></div></div>
     </div>
     <div class="room-name-tag" id="roomName"></div>
   </div>
@@ -340,7 +342,7 @@ function updateGauge() {
   var band = gaugeBand(v);
   $('gaugeEmoji').textContent = band.emoji;
   $('gaugeLabel').textContent = band.label;
-  var barIds = { warmth: 'gaugeWarmth', openness: 'gaugeOpenness', ease: 'gaugeEase', spirits: 'gaugeSpirits', interest: 'gaugeInterest' };
+  var barIds = { warmth: 'gaugeWarmth', openness: 'gaugeOpenness', ease: 'gaugeEase', spirits: 'gaugeSpirits', interest: 'gaugeInterest', surprise: 'gaugeSurprise' };
   Object.keys(barIds).forEach(function (key) {
     var val = Math.max(0, Math.min(100, scales[key]));
     $(barIds[key]).style.width = val + '%';

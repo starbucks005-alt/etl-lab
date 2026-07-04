@@ -5,6 +5,14 @@
 
 const SCALE_KEYS = ['warmth', 'openness', 'ease', 'spirits', 'interest'];
 
+// Surprise is a separate, event-triggered scale, not a steady relational trait like the five
+// above. It's excluded from the blended "vibe" average (gaugeFromScales) and decays hard and
+// fast on its own, since nothing else in the live turn flow pulls scales back toward baseline
+// (decayToward below exists but was never actually wired into eq-room-ask.js).
+const ALL_SCALE_KEYS = SCALE_KEYS.concat(['surprise']);
+const SURPRISE_BASELINE = 12;
+const SURPRISE_DECAY_FRACTION = 0.55;
+
 const VOLATILITY = {
   'very low': 0.5,
   low: 0.7,
@@ -116,11 +124,22 @@ function applyDelta(current, delta, volatility, smoothing) {
 function applyTurn(scales, felt, agentKey, smoothing) {
   const volatility = volatilityFor(agentKey);
   const next = {};
-  for (const key of SCALE_KEYS) {
+  for (const key of ALL_SCALE_KEYS) {
     const delta = felt[key] || 0;
     next[key] = applyDelta(scales[key], delta, volatility, smoothing);
   }
   return next;
+}
+
+// Surprise-only fast decay, applied before this turn's felt reaction so a spike from a real
+// surprise fades hard over the next turn or two instead of sitting stuck at its peak, since
+// nothing else in the live turn flow pulls scales back toward baseline.
+function decaySurprise(scales) {
+  // Falls back to baseline for scales objects from before this scale existed (an in-flight
+  // conversation that started pre-deploy won't have a surprise key at all yet).
+  const current = typeof scales.surprise === 'number' ? scales.surprise : SURPRISE_BASELINE;
+  const next = current + (SURPRISE_BASELINE - current) * SURPRISE_DECAY_FRACTION;
+  return { ...scales, surprise: next };
 }
 
 // current = current + sign(baseline - current) * DECAY_STEP, clamped.
@@ -164,8 +183,10 @@ function seedOpeningState(agentKey, moodNudge) {
   const agent = AGENTS[agentKey];
   if (!agent) throw new Error(`unknown agent: ${agentKey}`);
   const scales = {};
-  for (const key of SCALE_KEYS) {
-    const base = agent.baseline[key];
+  for (const key of ALL_SCALE_KEYS) {
+    // Surprise's resting baseline is a shared engine constant, not per-agent personality
+    // data like the five relational scales, so it isn't in each agent's baseline object.
+    const base = key === 'surprise' ? SURPRISE_BASELINE : agent.baseline[key];
     const nudge = (moodNudge && moodNudge[key]) || 0;
     scales[key] = clamp(base + nudge, 0, 100);
   }
@@ -174,7 +195,7 @@ function seedOpeningState(agentKey, moodNudge) {
 
 function renderScales(scales) {
   const out = {};
-  for (const key of SCALE_KEYS) out[key] = Math.round(scales[key]);
+  for (const key of ALL_SCALE_KEYS) out[key] = Math.round(scales[key]);
   return out;
 }
 
@@ -204,12 +225,15 @@ function gaugeBand(value) {
 
 module.exports = {
   SCALE_KEYS,
+  ALL_SCALE_KEYS,
+  SURPRISE_BASELINE,
   VOLATILITY,
   AGENTS,
   clamp,
   volatilityFor,
   applyDelta,
   applyTurn,
+  decaySurprise,
   decayToward,
   applyJudge,
   seedOpeningState,

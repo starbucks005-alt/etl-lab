@@ -192,7 +192,7 @@ sit as a Gauntlet judge, same table as Devon, so you take the role seriously, on
 const TURN_OUTPUT_INSTRUCTIONS = `Respond with JSON only, matching this exact shape:
 {
   "reply": "your in-character spoken reply",
-  "felt": { "warmth": 0, "openness": 0, "ease": 0, "spirits": 0, "interest": 0 },
+  "felt": { "warmth": 0, "openness": 0, "ease": 0, "spirits": 0, "interest": 0, "surprise": 0 },
   "reason": "one short out-of-character note on why your state moved",
   "close": false
 }
@@ -202,7 +202,10 @@ reaction, and scaled to how big the moment actually is. Ordinary conversation: m
 scales a little (1 to 3), leave the rest near 0. A genuinely significant beat, a real surprise, a \
 meaningful disclosure, something that changes how you see the guest, should move the relevant \
 scales close to the top of the range (6 to 8), not a token point or two. Match the number to the \
-real weight of what happened. Set "close" to true only when you are ending the conversation per \
+real weight of what happened. "surprise" is different from the other five: it's a genuine startle \
+reaction, not a relational feeling, leave it near 0 on ordinary turns even warm or interesting \
+ones, and spike it hard only for an actual reveal or plot twist you genuinely did not see coming. \
+Set "close" to true only when you are ending the conversation per \
 the guardrails; it is false on \
 every ordinary turn. "felt", "reason", and "close" are out-of-character metadata the room reads; \
 never mention any of them, and nothing in "reply" should ever reference them.`;
