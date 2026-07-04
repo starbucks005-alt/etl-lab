@@ -101,10 +101,10 @@
   .coming-soon-card p { font-size: .85rem; color: var(--muted); line-height: 1.5; max-width: 320px; }
 
   /* ── ROOM ── */
-  #room { min-height: 100vh; }
+  #room { height: 100vh; overflow: hidden; }
   #room.active { display: flex; flex-direction: column; }
   .room-portrait-wrap { position: relative; width: 100%; height: 46vh; min-height: 320px; overflow: hidden; background: #000; }
-  .room-portrait-wrap img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .room-portrait-wrap img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
   .room-portrait-wrap .blink-layer { opacity: 0; transition: opacity .12s ease-in-out; }
   .room-name-tag { position: absolute; left: 1rem; bottom: 1rem; z-index: 2; font-family: 'Spectral', serif; font-size: 1.3rem; color: #fff; text-shadow: 0 2px 8px rgba(0,0,0,.6); }
   .room-back { position: absolute; top: 1rem; left: 1rem; z-index: 2; background: rgba(0,0,0,.5); color: #fff; border: 1px solid rgba(255,255,255,.3); border-radius: 999px; padding: .4rem .9rem; font-size: .8rem; cursor: pointer; }
@@ -264,7 +264,7 @@ var current = null;      // the selected agent object
 var scales = null;       // current feeling scales (floats, from server)
 var meters = { humanness: 50, eq: 50 };
 var turnCount = 0;
-var history = [];        // {role, content}
+var chatHistory = [];    // {role, content} -- named to avoid colliding with window.history
 var blinkTimer = null;
 
 function stopBlink() { if (blinkTimer) { clearTimeout(blinkTimer); blinkTimer = null; } }
@@ -295,11 +295,12 @@ function bubble(role, text) {
   el.textContent = text;
   $('room-log').appendChild(el);
   el.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  return el;
 }
 
 function openRoom(agent) {
   current = agent;
-  scales = null; meters = { humanness: 50, eq: 50 }; turnCount = 0; history = [];
+  scales = null; meters = { humanness: 50, eq: 50 }; turnCount = 0; chatHistory = [];
   $('room-log').innerHTML = '';
   $('roomName').textContent = agent.name;
   $('roomOpen').src = '/agents/eq-room/' + agent.slug + '_eyes_open.png';
@@ -324,6 +325,7 @@ $('room-form').addEventListener('submit', function (e) {
   $('room-input').value = '';
   sending = true;
   $('room-send').disabled = true;
+  var typingEl = bubble('system', current.name + ' is typing...');
 
   fetch('/.netlify/functions/eq-room-ask', {
     method: 'POST',
@@ -331,25 +333,32 @@ $('room-form').addEventListener('submit', function (e) {
     body: JSON.stringify({
       agent_key: current.key,
       message: text,
-      messages: history,
+      messages: chatHistory,
       scales: scales,
       meters: meters,
       turn_count: turnCount,
       visitor_id: visitorId(),
     }),
   })
-    .then(function (r) { return r.json(); })
+    .then(function (r) {
+      if (!r.ok) throw new Error('server returned ' + r.status);
+      return r.json();
+    })
     .then(function (d) {
+      typingEl.remove();
       if (d.error) { bubble('system', 'Something went wrong: ' + d.error); return; }
       if (d.closed && !scales) { bubble('system', d.reply); return; }
       bubble('agent', d.reply);
-      history.push({ role: 'user', content: text }, { role: 'assistant', content: d.reply });
+      chatHistory.push({ role: 'user', content: text }, { role: 'assistant', content: d.reply });
       scales = d.scales; meters = d.meters; turnCount = d.turn_count;
-      updateGauge();
+      try { updateGauge(); } catch (gaugeErr) { console.warn('gauge update failed', gaugeErr); }
       if (d.closed) bubble('system', current.name + ' has ended the conversation.');
       else if (d.capped) bubble('system', 'This conversation has reached its limit for now.');
     })
-    .catch(function () { bubble('system', 'Could not reach the room. Try again.'); })
+    .catch(function (err) {
+      typingEl.remove();
+      bubble('system', 'Could not reach the room (' + (err && err.message ? err.message : 'unknown error') + '). Try again.');
+    })
     .finally(function () {
       sending = false;
       $('room-send').disabled = false;
