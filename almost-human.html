@@ -57,12 +57,19 @@
   .splash-title { font-family: 'Spectral', serif; font-weight: 600; font-size: 4.2rem; line-height: 1; color: #fff; }
   .splash-title em { font-style: italic; color: #4c5fd6; }
   .splash-sub { font-family: 'Spectral', serif; font-size: 1.4rem; color: var(--cream); margin-top: .6rem; }
+  .splash-actions { display: flex; align-items: center; gap: 1rem; margin-top: 1.8rem; flex-wrap: wrap; }
   .splash-cta {
-    margin-top: 1.8rem; font-family: 'IBM Plex Mono', monospace; font-size: .78rem; letter-spacing: .08em;
+    font-family: 'IBM Plex Mono', monospace; font-size: .78rem; letter-spacing: .08em;
     text-transform: uppercase; background: #fff; color: var(--black); border: none; border-radius: 999px;
     padding: .9rem 1.8rem; cursor: pointer; font-weight: 600;
   }
   .splash-cta:hover { background: var(--cream); }
+  .splash-share {
+    font-family: 'IBM Plex Mono', monospace; font-size: .74rem; letter-spacing: .06em;
+    text-transform: uppercase; background: none; color: #fff; border: 1px solid rgba(255,255,255,.5);
+    border-radius: 999px; padding: .85rem 1.5rem; cursor: pointer; font-weight: 600;
+  }
+  .splash-share:hover { border-color: #fff; background: rgba(255,255,255,.1); }
   @media (max-width: 760px) { .splash-title { font-size: 2.4rem; } .splash-sub { font-size: 1.05rem; } }
 
   /* ── CONSENT MODAL ── */
@@ -135,7 +142,10 @@
   <div class="splash-inner" id="splashInner">
     <div class="splash-title">Almost <em>Human</em></div>
     <div class="splash-sub">Chat room for artificial agents &amp; their human friends.</div>
-    <button class="splash-cta" id="splashEnter">Step inside</button>
+    <div class="splash-actions">
+      <button class="splash-cta" id="splashEnter">Step inside</button>
+      <button class="splash-share" id="splashShare" type="button">Share with a friend</button>
+    </div>
   </div>
 </section>
 
@@ -240,6 +250,36 @@ $('consentCheck').addEventListener('change', function () {
   $('consentGo').disabled = !this.checked;
 });
 $('splashEnter').addEventListener('click', function () { $('consent').classList.add('open'); });
+
+$('splashShare').addEventListener('click', function () {
+  var shareUrl = 'https://emerging-tech-lab.com/almost-human';
+  var shareText = "You might know someone who needs a friend. Come sit down at Almost Human.";
+  var cardUrl = '/agents/eq-room/almost-human-share-card.png';
+  var btn = this;
+  var originalLabel = btn.textContent;
+
+  function fallbackCopyLink() {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(shareUrl).then(function () {
+        btn.textContent = 'Link copied';
+        setTimeout(function () { btn.textContent = originalLabel; }, 2200);
+      }).catch(function () { window.open(shareUrl, '_blank'); });
+    } else {
+      window.open(shareUrl, '_blank');
+    }
+  }
+
+  fetch(cardUrl).then(function (r) { return r.blob(); }).then(function (blob) {
+    var file = new File([blob], 'almost-human.png', { type: 'image/png' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      navigator.share({ files: [file], title: 'Almost Human', text: shareText, url: shareUrl }).catch(function () {});
+    } else if (navigator.share) {
+      navigator.share({ title: 'Almost Human', text: shareText, url: shareUrl }).catch(function () {});
+    } else {
+      fallbackCopyLink();
+    }
+  }).catch(fallbackCopyLink);
+});
 $('consentGo').addEventListener('click', function () {
   displayName = ($('consentName').value || '').trim() || 'Friend';
   $('consent').classList.remove('open');
