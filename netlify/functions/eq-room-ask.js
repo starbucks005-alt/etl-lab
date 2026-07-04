@@ -136,6 +136,72 @@ function parseTurnJSON(text) {
   };
 }
 
+// Forced structured output for the turn call. Root cause of the turn-2+ 502s: once the
+// conversation history contains the agent's own prior reply as plain text (correctly, since
+// that's what's shown to the guest), the model pattern-matches to "plain-text conversation"
+// and drifts off the JSON-only instruction, even though the system prompt still asks for it.
+// A forced tool call makes the shape a hard API constraint instead of a request, so the model
+// can't drift regardless of what the prior turns look like.
+const TURN_TOOL = {
+  name: 'respond_in_room',
+  description: 'Deliver your in-character reply for this turn and report how it moved your feelings.',
+  input_schema: {
+    type: 'object',
+    properties: {
+      reply: { type: 'string', description: 'Your in-character spoken reply. Never reference felt, reason, or close.' },
+      felt: {
+        type: 'object',
+        description: 'Small signed nudges (-8 to 8) to each feeling this turn. Most turns move only one or two meaningfully; leave the rest at or near 0.',
+        properties: {
+          warmth: { type: 'number' },
+          openness: { type: 'number' },
+          ease: { type: 'number' },
+          spirits: { type: 'number' },
+          interest: { type: 'number' },
+        },
+        required: ['warmth', 'openness', 'ease', 'spirits', 'interest'],
+      },
+      reason: { type: 'string', description: 'One short out-of-character note on why your state moved.' },
+      close: { type: 'boolean', description: 'True only when ending the conversation per the guardrails; false on every ordinary turn.' },
+    },
+    required: ['reply', 'felt', 'close'],
+  },
+};
+
+// Reads the forced tool_use block. Falls back to the old text/JSON.parse path, and then to
+// treating raw text as the reply with feelings unchanged, so a turn never hard-fails the guest
+// just because the model didn't invoke the tool for some edge reason.
+function parseTurnResponse(msg) {
+  const toolBlock = (msg.content || []).find((b) => b.type === 'tool_use' && b.name === 'respond_in_room');
+  if (toolBlock && toolBlock.input && typeof toolBlock.input.reply === 'string' && toolBlock.input.reply.trim()) {
+    const input = toolBlock.input;
+    const felt = {};
+    for (const key of engine.SCALE_KEYS) {
+      const v = input.felt && input.felt[key];
+      felt[key] = typeof v === 'number' ? Math.max(-8, Math.min(8, v)) : 0;
+    }
+    return {
+      reply: input.reply.trim(),
+      felt,
+      reason: typeof input.reason === 'string' ? input.reason.slice(0, 300) : '',
+      close: input.close === true,
+    };
+  }
+  const text = (msg.content || []).filter((b) => b.type === 'text').map((b) => b.text).join('').trim();
+  try {
+    return parseTurnJSON(text);
+  } catch (_) {
+    const felt = {};
+    for (const key of engine.SCALE_KEYS) felt[key] = 0;
+    return {
+      reply: text || "Sorry, lost my train of thought there for a second.",
+      felt,
+      reason: 'fallback: model did not return the expected structure',
+      close: false,
+    };
+  }
+}
+
 function shouldJudge(turnCountAfter) {
   return turnCountAfter % JUDGE_CADENCE === 0;
 }
@@ -229,9 +295,10 @@ exports.handler = async function (event) {
       max_tokens: 500,
       system: turnPrompt,
       messages,
+      tools: [TURN_TOOL],
+      tool_choice: { type: 'tool', name: 'respond_in_room' },
     });
-    const text = (msg.content || []).filter((b) => b.type === 'text').map((b) => b.text).join('').trim();
-    turn = parseTurnJSON(text);
+    turn = parseTurnResponse(msg);
   } catch (err) {
     console.error('eq-room-ask turn error:', err.message);
     return json(502, { error: 'ai_error' });
