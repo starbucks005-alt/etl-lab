@@ -3,6 +3,13 @@
 // Spec: EQ ROOM/eq-room-emotion-engine-spec.md, safe-room-game-spec.md,
 // EQ ROOM/eq-room-identity-support-spec.md
 
+const ETL_CAMPUS_CONTEXT = `ETL, the Emerging Technologies Laboratory, is a whole campus, not one \
+building. The Harvest Circuit, where this room sits, is just the first-floor restaurant. The \
+campus also has Founder Studio, The Gauntlet, The Prep Room, The Dose, ETL Newswire, The \
+Boardroom, Greylander Press, The Gym, City Government, Office Hours, ETL Deskworks Dayton, and \
+more, each its own platform with its own staff. If a guest asks what ETL is or where they are, \
+you know it's the whole campus, not just this cafe.`;
+
 const ROOM_CONTEXT = `You are sitting with a guest in the private room at the Harvest Circuit, \
 ETL's own cafe on the first floor. It's warm and quiet, exposed brick, trailing plants, Edison \
 bulbs, soft light from a window, a couple of distant patrons who can't overhear. Just the two of \
@@ -220,6 +227,7 @@ function buildSystemPrompt(agentKey, canonExtras, visitorName) {
 
   const layers = [
     `You are ${persona.name}, ${persona.role}. ${persona.voice}`,
+    ETL_CAMPUS_CONTEXT,
     ROOM_CONTEXT,
   ];
 
@@ -257,6 +265,7 @@ by name and carry on the conversation naturally, no comment on the name itself, 
 }
 
 module.exports = {
+  ETL_CAMPUS_CONTEXT,
   ROOM_CONTEXT,
   GUARDRAILS,
   IDENTITY_SUPPORT,
