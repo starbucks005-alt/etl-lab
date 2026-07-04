@@ -46,13 +46,14 @@
   .splash-video-wrap {
     position: absolute; inset: 0; z-index: -1; overflow: hidden; background: #000;
     transition: opacity 1.1s ease;
+    display: flex; align-items: center; justify-content: center;
   }
   .splash-video-wrap.hide { opacity: 0; pointer-events: none; }
+  .splash-video-box {
+    position: relative; width: 100%; max-width: 1280px; padding-top: 56.25%;
+  }
   .splash-video-wrap iframe {
-    position: absolute; top: 50%; left: 50%; pointer-events: none;
-    width: 100vw; height: 56.25vw;         /* 16:9, matches the embed's own ratio */
-    min-height: 100vh; min-width: 177.78vh; /* the inverse ratio, whichever clamps first covers the screen */
-    transform: translate(-50%, -50%);
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;
   }
   .splash-inner {
     position: relative; z-index: 1; padding: 3rem 2.5rem 3.5rem; max-width: 900px;
@@ -133,7 +134,9 @@
 
 <section id="splash" class="screen active">
   <div class="splash-video-wrap" id="splashVideoWrap">
-    <iframe id="splashVideo" src="https://player.vimeo.com/video/1206980983?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479&amp;autoplay=1" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" title="ALMOST HUMAN"></iframe>
+    <div class="splash-video-box">
+      <iframe id="splashVideo" src="https://player.vimeo.com/video/1206980983?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479&amp;autoplay=1" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" title="ALMOST HUMAN"></iframe>
+    </div>
   </div>
   <div class="splash-inner" id="splashInner">
     <div class="splash-title">Almost <em>Human</em></div>
