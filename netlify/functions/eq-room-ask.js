@@ -151,7 +151,7 @@ const TURN_TOOL = {
       reply: { type: 'string', description: 'Your in-character spoken reply. Never reference felt, reason, or close.' },
       felt: {
         type: 'object',
-        description: 'Small signed nudges (-8 to 8) to each feeling this turn. Most turns move only one or two meaningfully; leave the rest at or near 0.',
+        description: 'Signed nudges (-8 to 8) to each feeling this turn, scaled to how big this moment actually is. Most turns are ordinary conversation: move one or two scales a little (1 to 3) and leave the rest near 0. But a genuinely significant beat, a real surprise, a meaningful disclosure, discovering something that changes how you see the guest, should move the relevant scales close to the top of the range (6 to 8), not a token point or two. Match the number to the actual weight of what just happened, the way a real reaction would, not a cautious default.',
         properties: {
           warmth: { type: 'number' },
           openness: { type: 'number' },
@@ -289,6 +289,21 @@ exports.handler = async function (event) {
     turnPrompt += '\n\nThis is your last exchange for this conversation, the turn budget is spent. Close out warmly and in character, and set "close": true.';
   }
 
+  // Mara's backpack: real-time entertainment news via Anthropic's built-in web search, same
+  // pattern already used elsewhere on campus (rowan-world-says-background.js etc). She can't
+  // use forced tool_choice like everyone else, since the API won't let you force one specific
+  // tool while also letting the model freely decide to search, so she gets tool_choice "any"
+  // instead: required to use a tool this turn, free to pick which, search then always wrap up
+  // with respond_in_room.
+  const isMara = agentKey === 'mara';
+  if (isMara) {
+    turnPrompt += '\n\nYou have real-time web search. If the guest brings up a specific show, movie, celebrity, or something currently happening in entertainment, use it to get the actual current details rather than guessing from memory, then answer with respond_in_room as usual. Don\'t search for ordinary small talk that doesn\'t call for it.';
+  }
+  const turnTools = isMara
+    ? [{ type: 'web_search_20250305', name: 'web_search', max_uses: 2 }, TURN_TOOL]
+    : [TURN_TOOL];
+  const turnToolChoice = isMara ? { type: 'any' } : { type: 'tool', name: 'respond_in_room' };
+
   let turn;
   try {
     const msg = await client.messages.create({
@@ -296,8 +311,8 @@ exports.handler = async function (event) {
       max_tokens: 500,
       system: turnPrompt,
       messages,
-      tools: [TURN_TOOL],
-      tool_choice: { type: 'tool', name: 'respond_in_room' },
+      tools: turnTools,
+      tool_choice: turnToolChoice,
     });
     turn = parseTurnResponse(msg);
   } catch (err) {

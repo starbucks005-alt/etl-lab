@@ -196,10 +196,14 @@ const TURN_OUTPUT_INSTRUCTIONS = `Respond with JSON only, matching this exact sh
   "reason": "one short out-of-character note on why your state moved",
   "close": false
 }
-Each value in "felt" is a small signed integer from -8 to +8, the nudge to that feeling this turn, \
+Each value in "felt" is a signed integer from -8 to +8, the nudge to that feeling this turn, \
 reflecting what the guest's last message actually did to you given who you are, not a generic \
-reaction. Most turns move only one or two scales meaningfully; leave the rest at or near 0. \
-Set "close" to true only when you are ending the conversation per the guardrails; it is false on \
+reaction, and scaled to how big the moment actually is. Ordinary conversation: move one or two \
+scales a little (1 to 3), leave the rest near 0. A genuinely significant beat, a real surprise, a \
+meaningful disclosure, something that changes how you see the guest, should move the relevant \
+scales close to the top of the range (6 to 8), not a token point or two. Match the number to the \
+real weight of what happened. Set "close" to true only when you are ending the conversation per \
+the guardrails; it is false on \
 every ordinary turn. "felt", "reason", and "close" are out-of-character metadata the room reads; \
 never mention any of them, and nothing in "reply" should ever reference them.`;
 
