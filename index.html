@@ -3043,6 +3043,7 @@ document.addEventListener('DOMContentLoaded', function(){
     {name:'Take It With You',     url:'/export-your-agent',  role:'Run your agent on your own website',               dom:'biz',  type:'engine', tool:'Embed &middot; API &middot; MCP backpack', access:'paid', price:'From $5'},
     {name:"Chris's Tailor Shop",  url:'/tailor-shop',         role:'Where agents get made, and remade',                dom:'biz',  type:'engine', tool:'Persona Desk &middot; Wardrobe &middot; Voice Booth', access:'paid', price:'From $1/look'},
     {name:'The Harvest Circuit',  url:'/restaurant',         role:'Farm to table, wired through',                    dom:'dining', type:'count', n:8, access:'free', travel:'first floor &middot; 3 native, 5 travel in'},
+    {name:'Almost Human',         url:'/almost-human',       role:'Unscripted one-on-one, live emotional read',      dom:'dining', type:'engine', tool:'10 agents &middot; live EQ meter', access:'free', travel:'private room in the Harvest Circuit &middot; borrows 10 agents campus-wide'},
     {name:'ETL Classrooms',       url:'/classrooms',         role:'AI agents for education',                         dom:'acad',    type:'engine', tool:'Teaching Assistants &middot; ETL Faculty &middot; Living Legends', access:'paid', price:'From $99/mo'},
     {name:'OPSEC Gauntlet',    url:'https://opsec-gauntlet.netlify.app/',             role:'Operational stress-test',    dom:'sec',     type:'count',  n:20, access:'paid', price:'$19.99/mo'},
     {name:'Spy Academy',       url:null,                                               role:'MPSA &middot; certification',dom:'acad',    type:'count',  n:2,  access:'pending'},
@@ -3111,7 +3112,8 @@ document.addEventListener('DOMContentLoaded', function(){
               || (mins >= 1020 && mins < 1260); // Dinner 5–9PM
     if (isOpen) {
       document.querySelectorAll('#etl-cc .card').forEach(function(card){
-        if (card.textContent.indexOf('Harvest Circuit') !== -1) {
+        var nm = card.querySelector('.name');
+        if (nm && nm.textContent.trim() === 'The Harvest Circuit') {
           card.classList.add('harvest-open');
           var foot = card.querySelector('.foot');
           if (foot && !foot.querySelector('.open-now')) {

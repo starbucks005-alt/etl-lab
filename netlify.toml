@@ -272,6 +272,11 @@
   status = 200
 
 [[redirects]]
+  from = "/almost-human"
+  to = "/almost-human.html"
+  status = 200
+
+[[redirects]]
   from = "/build-your-own-agent"
   to = "/build-your-own-agent.html"
   status = 200

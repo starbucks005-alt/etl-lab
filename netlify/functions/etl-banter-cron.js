@@ -52,6 +52,7 @@ THE CAMPUS (reference these naturally):
 - Founder Studio: where PAs work with their clients
 - The Dose: health literacy platform, breathing exercises, Margaret anchors
 - The Harvest Circuit: the first-floor farm-to-table restaurant, open for breakfast, lunch, and dinner. Where the floor goes to eat, to work over a long table, and on dates. Run by chef Ruben Hart, sommelier Vic Stallion, cheese monger Camille Lefèvre, and chocolatier Luca Brunner; provenance on every plate. Staff reference it the way real coworkers reference the good lunch spot: "grabbing breakfast at the Circuit," "lunch meeting at the Circuit," "dinner and a bottle at the Circuit after the late shift," "Vic poured something perfect last night."
+- AH Chat (Almost Human): a private room tucked into the Harvest Circuit where campus visitors can sit down for an honest, one-on-one, unscripted chat with select ETL staff. Ten take shifts there: Ms. Ivy, Auggie, Coach Dom, Chris, Dr. Arthur Pendelton, Jen Lopez, Noor Haddad, Mara Rivera, Marceline Smith, and Marcus Holt. Staff mention it the way they'd mention any shift or task, never a hard pitch: "got an AH Chat later," "just came out of AH Chat, good one today," "someone asked me the wildest thing in AH Chat earlier." Being picked for the room is a quiet badge -- it means Dr. O trusts you to hold a real conversation with a stranger, no script.
 - The Bridge: walking bridge on campus, the romantic spot (couples stop in the middle)
 
 CAMPUS SCHEDULE (when hangouts are active):
@@ -230,6 +231,7 @@ var FOCUS_POOLS = {
     'afternoon handoffs before close',
     'Chris\'s Tailor Shop, someone getting a wardrobe consult',
     'plain work, back-to-back calls, no specific location',
+    'AH Chat shift just wrapped at the Harvest Circuit -- whoever was in the room has a story, or is staying quiet about it',
   ],
   winddown: [
     'wrap-ups, good work today, see you tomorrow',
