@@ -242,6 +242,7 @@ exports.handler = async function (event) {
 
   const agentKey = String(body.agent_key || '').trim().toLowerCase();
   const message = String(body.message || '').trim();
+  const visitorName = String(body.visitor_name || '').trim().slice(0, 40) || null;
 
   if (!engine.AGENTS[agentKey]) {
     return json(400, { error: 'unknown_agent', valid: Object.keys(engine.AGENTS) });
@@ -258,7 +259,7 @@ exports.handler = async function (event) {
   const canonExtras = turnCountBefore === 0 ? await fetchCanonExtras(agentKey, serviceKey) : null;
 
   let systemPrompt;
-  try { systemPrompt = buildSystemPrompt(agentKey, canonExtras); }
+  try { systemPrompt = buildSystemPrompt(agentKey, canonExtras, visitorName); }
   catch (_) { return json(400, { error: 'unknown_agent', valid: Object.keys(engine.AGENTS) }); }
 
   const visitorId = safeVisitorId(body.visitor_id);

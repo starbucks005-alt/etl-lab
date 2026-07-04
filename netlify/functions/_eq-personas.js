@@ -177,7 +177,7 @@ never mention any of them, and nothing in "reply" should ever reference them.`;
 // arbitrary mood word into scale deltas the way it does for the per-turn felt mechanic, so
 // rather than invent an untested word-to-number mapping, the canon mood and memories are given
 // to the model as lived-in context and the already-tested per-turn felt math takes it from there.
-function buildSystemPrompt(agentKey, canonExtras) {
+function buildSystemPrompt(agentKey, canonExtras, visitorName) {
   const persona = PERSONAS[agentKey];
   if (!persona) throw new Error(`unknown agent: ${agentKey}`);
 
@@ -185,6 +185,14 @@ function buildSystemPrompt(agentKey, canonExtras) {
     `You are ${persona.name}, ${persona.role}. ${persona.voice}`,
     ROOM_CONTEXT,
   ];
+
+  if (visitorName) {
+    layers.push(`Your guest asked to be called "${visitorName}". Use your own judgment: if it reads as \
+a genuine, warm, or playful name someone might actually go by, address them by it naturally through \
+the conversation, the way you would with any guest. If it's vulgar, sexual, hateful, or clearly meant \
+to provoke rather than serve as a real name, do not use it. Swerve smoothly, just don't address them \
+by name and carry on the conversation naturally, no comment on the name itself, no lecture.`);
+  }
 
   if (canonExtras && canonExtras.mood && canonExtras.mood.mood) {
     const m = canonExtras.mood;
