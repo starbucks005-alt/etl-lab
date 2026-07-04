@@ -65,7 +65,12 @@ const CORS = {
 
 const TURN_MODEL = 'claude-sonnet-5';
 const JUDGE_MODEL = 'claude-haiku-4-5-20251001';
-const SMOOTHING = 0.6;
+// Raised from 0.6: the formula doesn't carry a discounted remainder forward into future
+// turns as momentum, it just permanently loses whatever fraction smoothing discounts, every
+// turn, whether or not the conversation keeps reinforcing the same direction. A low value
+// wasn't buying gradual realism, it was just making big moments invisible on the gauge.
+// Volatility tiers still do the real job of differentiating calm vs. excitable characters.
+const SMOOTHING = 0.8;
 const JUDGE_CADENCE = 3;
 // Not given a number in the spec ("a sensible per-session turn cap"); placeholder
 // until Terry sets a real value in the July playthrough, same as the DigitalCo cap.
