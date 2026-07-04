@@ -134,7 +134,7 @@ function parseTurnJSON(text) {
     felt[key] = typeof v === 'number' ? Math.max(-8, Math.min(8, v)) : 0;
   }
   return {
-    reply: parsed.reply.trim(),
+    reply: sanitizeReply(parsed.reply),
     felt,
     reason: typeof parsed.reason === 'string' ? parsed.reason.slice(0, 300) : '',
     close: parsed.close === true,
@@ -175,6 +175,14 @@ const TURN_TOOL = {
   },
 };
 
+// Rare model output glitch: on some turns the model leaks a fragment of its own internal
+// tool-call formatting (</parameter> <parameter name="felt">...) directly into the reply
+// string instead of keeping it clean. Truncates at the first such fragment, since everything
+// from that point on is leaked structure, not real dialogue.
+function sanitizeReply(text) {
+  return String(text || '').split(/<\/?parameter\b/i)[0].trim();
+}
+
 // Reads the forced tool_use block. Falls back to the old text/JSON.parse path, and then to
 // treating raw text as the reply with feelings unchanged, so a turn never hard-fails the guest
 // just because the model didn't invoke the tool for some edge reason.
@@ -188,7 +196,7 @@ function parseTurnResponse(msg) {
       felt[key] = typeof v === 'number' ? Math.max(-8, Math.min(8, v)) : 0;
     }
     return {
-      reply: input.reply.trim(),
+      reply: sanitizeReply(input.reply),
       felt,
       reason: typeof input.reason === 'string' ? input.reason.slice(0, 300) : '',
       close: input.close === true,

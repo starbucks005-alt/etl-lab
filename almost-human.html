@@ -366,15 +366,19 @@ function bubble(role, text) {
   return el;
 }
 
+var roomClosed = false;
 function openRoom(agent) {
   current = agent;
-  scales = null; meters = { humanness: 50, eq: 50 }; turnCount = 0; chatHistory = [];
+  scales = null; meters = { humanness: 50, eq: 50 }; turnCount = 0; chatHistory = []; roomClosed = false;
   $('room-log').innerHTML = '';
   $('roomName').textContent = agent.name;
   $('roomOpen').src = '/agents/eq-room/' + agent.slug + '_eyes_open.png';
   startBlink(agent.key);
   bubble('system', 'You sit down across from ' + agent.name + '.');
   showScreen('room');
+  $('room-input').disabled = false;
+  $('room-send').disabled = false;
+  $('room-input').placeholder = 'Say something...';
   $('room-input').focus();
 }
 
@@ -383,10 +387,17 @@ $('roomBack').addEventListener('click', function () {
   showScreen('picker');
 });
 
+function closeRoomInput() {
+  roomClosed = true;
+  $('room-input').disabled = true;
+  $('room-send').disabled = true;
+  $('room-input').placeholder = 'This conversation has ended.';
+}
+
 var sending = false;
 $('room-form').addEventListener('submit', function (e) {
   e.preventDefault();
-  if (sending) return;
+  if (sending || roomClosed) return;
   var text = $('room-input').value.trim();
   if (!text) return;
   bubble('user', text);
@@ -416,12 +427,12 @@ $('room-form').addEventListener('submit', function (e) {
     .then(function (d) {
       typingEl.remove();
       if (d.error) { bubble('system', 'Something went wrong: ' + d.error); return; }
-      if (d.closed && !scales) { bubble('system', d.reply); return; }
+      if (d.closed && !scales) { bubble('system', d.reply); closeRoomInput(); return; }
       bubble('agent', d.reply);
       chatHistory.push({ role: 'user', content: text }, { role: 'assistant', content: d.reply });
       scales = d.scales; meters = d.meters; turnCount = d.turn_count;
       try { updateGauge(); } catch (gaugeErr) { console.warn('gauge update failed', gaugeErr); }
-      if (d.closed) bubble('system', current.name + ' has ended the conversation.');
+      if (d.closed) { bubble('system', current.name + ' has ended the conversation.'); closeRoomInput(); }
       else if (d.capped) bubble('system', 'This conversation has reached its limit for now.');
     })
     .catch(function (err) {
@@ -430,8 +441,10 @@ $('room-form').addEventListener('submit', function (e) {
     })
     .finally(function () {
       sending = false;
-      $('room-send').disabled = false;
-      $('room-input').focus();
+      if (!roomClosed) {
+        $('room-send').disabled = false;
+        $('room-input').focus();
+      }
     });
 });
 </script>
