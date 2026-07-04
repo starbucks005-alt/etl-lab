@@ -156,7 +156,7 @@ const TURN_TOOL = {
       reply: { type: 'string', description: 'Your in-character spoken reply. Never reference felt, reason, or close.' },
       felt: {
         type: 'object',
-        description: 'How strongly each emotion is actually firing in you this turn, on a scale of 0 (not at all) to 8 (as hard as it gets). These are real, felt emotions, not a mood rating, so most turns most of them should sit low or near 0, an ordinary friendly exchange isn\'t sadness or anger or fear. Only report a real number when that specific emotion genuinely fired: happiness for real warmth or delight, sadness for something that actually hurts, fear for a real threat or unease, disgust for something genuinely off-putting, anger for real frustration or offense, surprise for an actual reveal or shock. Scale the number to how strong it actually was, a mild version is 2 to 3, something big is 6 to 8. Don\'t manufacture an emotion that isn\'t really there just to fill in the field.',
+        description: 'How strongly each emotion is actually firing in you this turn, on a scale of 0 (not at all) to 8 (as hard as it gets). These are real, felt emotions, not a mood rating, so most turns most of them should sit low or near 0, an ordinary friendly exchange isn\'t sadness or anger or fear. Only report a real number when that specific emotion genuinely fired: happiness for real warmth or delight, sadness for something that actually hurts, fear for a real threat or unease, disgust for something genuinely off-putting, anger for real frustration or offense, surprise for an actual reveal or shock, curious for genuine interest pulling you toward wanting to know more. Scale the number to how strong it actually was, a mild version is 2 to 3, something big is 6 to 8. Don\'t manufacture an emotion that isn\'t really there just to fill in the field.',
         properties: {
           happiness: { type: 'number' },
           sadness: { type: 'number' },
@@ -164,8 +164,9 @@ const TURN_TOOL = {
           disgust: { type: 'number' },
           anger: { type: 'number' },
           surprise: { type: 'number' },
+          curious: { type: 'number' },
         },
-        required: ['happiness', 'sadness', 'fear', 'disgust', 'anger', 'surprise'],
+        required: ['happiness', 'sadness', 'fear', 'disgust', 'anger', 'surprise', 'curious'],
       },
       reason: { type: 'string', description: 'One short out-of-character note on why your state moved.' },
       close: { type: 'boolean', description: 'True only when ending the conversation per the guardrails; false on every ordinary turn.' },

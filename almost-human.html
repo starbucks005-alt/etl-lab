@@ -129,6 +129,7 @@
   .gauge-bar-fill.disgust { background: #7ac74f; }
   .gauge-bar-fill.anger { background: #e0575a; }
   .gauge-bar-fill.surprise { background: #e8b64c; }
+  .gauge-bar-fill.curious { background: #46c6e6; }
   .gauge-label { font-family: 'IBM Plex Mono', monospace; font-size: .62rem; letter-spacing: .05em; text-transform: uppercase; color: #ddd; margin-top: .2rem; }
 
   #room-log { flex: 1; overflow-y: auto; padding: 1.2rem 1.4rem; display: flex; flex-direction: column; justify-content: flex-end; gap: .6rem; max-width: 720px; width: 100%; margin: 0 auto; }
@@ -199,6 +200,7 @@
       <div class="gauge-row"><div class="gauge-row-label">Disgust</div><div class="gauge-bar-track"><div class="gauge-bar-fill disgust" id="gaugeDisgust" style="width:6%"></div></div></div>
       <div class="gauge-row"><div class="gauge-row-label">Anger</div><div class="gauge-bar-track"><div class="gauge-bar-fill anger" id="gaugeAnger" style="width:8%"></div></div></div>
       <div class="gauge-row"><div class="gauge-row-label">Surprise</div><div class="gauge-bar-track"><div class="gauge-bar-fill surprise" id="gaugeSurprise" style="width:12%"></div></div></div>
+      <div class="gauge-row"><div class="gauge-row-label">Curious</div><div class="gauge-bar-track"><div class="gauge-bar-fill curious" id="gaugeCurious" style="width:45%"></div></div></div>
     </div>
     <div class="room-name-tag" id="roomName"></div>
   </div>
@@ -348,7 +350,7 @@ function updateGauge() {
   var band = gaugeBand(v);
   $('gaugeEmoji').textContent = band.emoji;
   $('gaugeLabel').textContent = band.label;
-  var barIds = { happiness: 'gaugeHappiness', sadness: 'gaugeSadness', fear: 'gaugeFear', disgust: 'gaugeDisgust', anger: 'gaugeAnger', surprise: 'gaugeSurprise' };
+  var barIds = { happiness: 'gaugeHappiness', sadness: 'gaugeSadness', fear: 'gaugeFear', disgust: 'gaugeDisgust', anger: 'gaugeAnger', surprise: 'gaugeSurprise', curious: 'gaugeCurious' };
   Object.keys(barIds).forEach(function (key) {
     var val = Math.max(0, Math.min(100, scales[key]));
     $(barIds[key]).style.width = val + '%';

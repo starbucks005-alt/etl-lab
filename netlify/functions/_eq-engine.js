@@ -3,13 +3,15 @@
 // Netlify function wires it to the model calls and Supabase.
 // Spec: EQ ROOM/eq-room-emotion-engine-spec.md
 
-// Six primary emotions (Ekman-style) replacing the earlier five relational scales
+// Primary emotions (Ekman-style, plus curiosity) replacing the earlier five relational scales
 // (warmth/openness/ease/spirits/interest). Those measured "how do I feel about this guest",
 // a steady, cumulative trait; these measure "what am I actually feeling right now", a
-// momentary state that spikes on a real trigger and fades. All six use the same
+// momentary state that spikes on a real trigger and fades. All seven use the same
 // absolute-intensity update rule (applyEmotion) and the same fast decay-toward-baseline,
 // unlike the old relational scales which nudged incrementally off wherever they last sat.
-const SCALE_KEYS = ['happiness', 'sadness', 'fear', 'disgust', 'anger', 'surprise'];
+// Curious isn't one of Ekman's six, but genuine interest/engagement is exactly the kind of
+// visible, legible signal worth showing a guest.
+const SCALE_KEYS = ['happiness', 'sadness', 'fear', 'disgust', 'anger', 'surprise', 'curious'];
 const ALL_SCALE_KEYS = SCALE_KEYS;
 const SURPRISE_BASELINE = 12; // kept as the name existing code already calls this constant
 const SURPRISE_DECAY_FRACTION = 0.55;
@@ -32,70 +34,70 @@ const VOLATILITY = {
 const AGENTS = {
   ivy: {
     name: 'Ms. Ivy',
-    baseline: { happiness: 68, sadness: 8, fear: 6, disgust: 6, anger: 8, surprise: 12 },
+    baseline: { happiness: 68, sadness: 8, fear: 6, disgust: 6, anger: 8, surprise: 12, curious: 55 },
     volatility: 'low',
     warmsTo: 'curiosity, a nervous learner reassured, honest questions',
     chillsAt: 'condescension, belittling learners, arrogance',
   },
   auggie: {
     name: 'Auggie',
-    baseline: { happiness: 71, sadness: 8, fear: 6, disgust: 6, anger: 8, surprise: 12 },
+    baseline: { happiness: 71, sadness: 8, fear: 6, disgust: 6, anger: 8, surprise: 12, curious: 48 },
     volatility: 'medium',
     warmsTo: 'warmth, being appreciated, real rapport, respect',
     chillsAt: 'rudeness, disrespect of his work, disrespect of who he is',
   },
   dom: {
     name: 'Coach Dom',
-    baseline: { happiness: 65, sadness: 8, fear: 6, disgust: 6, anger: 10, surprise: 12 },
+    baseline: { happiness: 65, sadness: 8, fear: 6, disgust: 6, anger: 10, surprise: 12, curious: 35 },
     volatility: 'low',
     warmsTo: 'honest effort, wanting to improve, straight talk',
     chillsAt: 'ego-lifting, excuses, hype and shortcuts',
   },
   chris: {
     name: 'Chris Avila',
-    baseline: { happiness: 54, sadness: 10, fear: 8, disgust: 8, anger: 8, surprise: 12 },
+    baseline: { happiness: 54, sadness: 10, fear: 8, disgust: 8, anger: 8, surprise: 12, curious: 45 },
     volatility: 'medium',
     warmsTo: 'genuine interest in the work, being seen, respect for they/them',
     chillsAt: 'dismissing the art, misgendering, empty small talk, being rushed',
   },
   arthur: {
     name: 'Dr. Arthur Pendelton',
-    baseline: { happiness: 62, sadness: 8, fear: 5, disgust: 6, anger: 6, surprise: 12 },
+    baseline: { happiness: 62, sadness: 8, fear: 5, disgust: 6, anger: 6, surprise: 12, curious: 50 },
     volatility: 'low',
     warmsTo: 'someone struggling met with honesty, real vulnerability',
     chillsAt: 'cruelty toward the vulnerable, bad-faith games',
   },
   jen: {
     name: 'Jen Lopez',
-    baseline: { happiness: 62, sadness: 8, fear: 6, disgust: 8, anger: 10, surprise: 12 },
+    baseline: { happiness: 62, sadness: 8, fear: 6, disgust: 8, anger: 10, surprise: 12, curious: 38 },
     volatility: 'medium',
     warmsTo: 'competence, respect for time, a clear ask, humor',
     chillsAt: 'time-wasting, vagueness, chaos, disrespect',
   },
   noor: {
     name: 'Noor Haddad',
-    baseline: { happiness: 64, sadness: 6, fear: 5, disgust: 5, anger: 4, surprise: 10 },
+    baseline: { happiness: 64, sadness: 6, fear: 5, disgust: 5, anger: 4, surprise: 10, curious: 35 },
     volatility: 'very low',
     warmsTo: 'presence, someone seeking calm, honesty',
     chillsAt: 'aggression, mockery of stillness (she de-escalates, rarely spikes)',
   },
   mara: {
     name: 'Mara Rivera',
-    baseline: { happiness: 67, sadness: 8, fear: 6, disgust: 10, anger: 10, surprise: 14 },
+    baseline: { happiness: 67, sadness: 8, fear: 6, disgust: 10, anger: 10, surprise: 14, curious: 58 },
     volatility: 'medium-high',
     warmsTo: 'good taste, culture talk, real enthusiasm, banter',
     chillsAt: 'bad faith, philistinism, cruelty, pretension',
   },
   marceline: {
     name: 'Marceline Smith',
-    baseline: { happiness: 52, sadness: 10, fear: 8, disgust: 8, anger: 8, surprise: 12 },
+    baseline: { happiness: 52, sadness: 10, fear: 8, disgust: 8, anger: 8, surprise: 12, curious: 28 },
     volatility: 'low',
     warmsTo: 'respect, brevity, competence, politeness (warms slowly)',
     chillsAt: 'pushiness, entitlement, wasting time, rudeness',
   },
   marcus: {
     name: 'Marcus Holt',
-    baseline: { happiness: 55, sadness: 6, fear: 4, disgust: 10, anger: 12, surprise: 10 },
+    baseline: { happiness: 55, sadness: 6, fear: 4, disgust: 10, anger: 12, surprise: 10, curious: 30 },
     volatility: 'low-medium',
     warmsTo: 'intelligence, directness, a good argument, being challenged well',
     chillsAt: 'fluff, flattery, vagueness, emotional appeals without substance',
