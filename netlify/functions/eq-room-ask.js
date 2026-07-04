@@ -156,16 +156,16 @@ const TURN_TOOL = {
       reply: { type: 'string', description: 'Your in-character spoken reply. Never reference felt, reason, or close.' },
       felt: {
         type: 'object',
-        description: 'Signed nudges (-8 to 8) to each feeling this turn, scaled to how big this moment actually is. Most turns are ordinary conversation: move one or two scales a little (1 to 3) and leave the rest near 0. But a genuinely significant beat, a real surprise, a meaningful disclosure, discovering something that changes how you see the guest, should move the relevant scales close to the top of the range (6 to 8), not a token point or two. Match the number to the actual weight of what just happened, the way a real reaction would, not a cautious default.',
+        description: 'How strongly each emotion is actually firing in you this turn, on a scale of 0 (not at all) to 8 (as hard as it gets). These are real, felt emotions, not a mood rating, so most turns most of them should sit low or near 0, an ordinary friendly exchange isn\'t sadness or anger or fear. Only report a real number when that specific emotion genuinely fired: happiness for real warmth or delight, sadness for something that actually hurts, fear for a real threat or unease, disgust for something genuinely off-putting, anger for real frustration or offense, surprise for an actual reveal or shock. Scale the number to how strong it actually was, a mild version is 2 to 3, something big is 6 to 8. Don\'t manufacture an emotion that isn\'t really there just to fill in the field.',
         properties: {
-          warmth: { type: 'number' },
-          openness: { type: 'number' },
-          ease: { type: 'number' },
-          spirits: { type: 'number' },
-          interest: { type: 'number' },
-          surprise: { type: 'number', description: 'Separate from the other five: this is a genuine startle reaction, not a relational feeling. Leave it near 0 on ordinary turns, even warm or interesting ones. Spike it hard (6 to 8) only for an actual surprise, a reveal, a plot twist in the conversation, something you genuinely did not see coming.' },
+          happiness: { type: 'number' },
+          sadness: { type: 'number' },
+          fear: { type: 'number' },
+          disgust: { type: 'number' },
+          anger: { type: 'number' },
+          surprise: { type: 'number' },
         },
-        required: ['warmth', 'openness', 'ease', 'spirits', 'interest', 'surprise'],
+        required: ['happiness', 'sadness', 'fear', 'disgust', 'anger', 'surprise'],
       },
       reason: { type: 'string', description: 'One short out-of-character note on why your state moved.' },
       close: { type: 'boolean', description: 'True only when ending the conversation per the guardrails; false on every ordinary turn.' },
@@ -326,7 +326,7 @@ exports.handler = async function (event) {
     return json(502, { error: 'ai_error' });
   }
 
-  const decayedScales = engine.decaySurprise(currentScales);
+  const decayedScales = engine.decayEmotions(currentScales, agentKey);
   const nextScales = engine.applyTurn(decayedScales, turn.felt, agentKey, SMOOTHING);
 
   let nextMeters = meters;

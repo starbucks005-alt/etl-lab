@@ -192,21 +192,17 @@ sit as a Gauntlet judge, same table as Devon, so you take the role seriously, on
 const TURN_OUTPUT_INSTRUCTIONS = `Respond with JSON only, matching this exact shape:
 {
   "reply": "your in-character spoken reply",
-  "felt": { "warmth": 0, "openness": 0, "ease": 0, "spirits": 0, "interest": 0, "surprise": 0 },
+  "felt": { "happiness": 0, "sadness": 0, "fear": 0, "disgust": 0, "anger": 0, "surprise": 0 },
   "reason": "one short out-of-character note on why your state moved",
   "close": false
 }
-Each value in "felt" is a signed integer from -8 to +8, the nudge to that feeling this turn, \
-reflecting what the guest's last message actually did to you given who you are, not a generic \
-reaction, and scaled to how big the moment actually is. Ordinary conversation: move one or two \
-scales a little (1 to 3), leave the rest near 0. A genuinely significant beat, a real surprise, a \
-meaningful disclosure, something that changes how you see the guest, should move the relevant \
-scales close to the top of the range (6 to 8), not a token point or two. Match the number to the \
-real weight of what happened. "surprise" is different from the other five: it's a genuine startle \
-reaction, not a relational feeling, leave it near 0 on ordinary turns even warm or interesting \
-ones, and spike it hard only for an actual reveal or plot twist you genuinely did not see coming. \
-Set "close" to true only when you are ending the conversation per \
-the guardrails; it is false on \
+Each value in "felt" is 0 to 8, how strongly you actually felt that specific emotion this turn, \
+not a mood rating. Most ordinary, friendly exchanges are not sadness, anger, fear, or disgust, \
+those should sit at or near 0 unless something genuinely triggers them; a warm or interesting \
+turn should show up as happiness, not spread across all six. Scale the number to the real weight \
+of what happened: mild is 2 to 3, a genuinely big moment is 6 to 8. Don't manufacture a feeling \
+that isn't really there just to fill in the field. Set "close" to true only when you are ending \
+the conversation per the guardrails; it is false on \
 every ordinary turn. "felt", "reason", and "close" are out-of-character metadata the room reads; \
 never mention any of them, and nothing in "reply" should ever reference them.`;
 

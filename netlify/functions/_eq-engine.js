@@ -3,15 +3,17 @@
 // Netlify function wires it to the model calls and Supabase.
 // Spec: EQ ROOM/eq-room-emotion-engine-spec.md
 
-const SCALE_KEYS = ['warmth', 'openness', 'ease', 'spirits', 'interest'];
-
-// Surprise is a separate, event-triggered scale, not a steady relational trait like the five
-// above. It's excluded from the blended "vibe" average (gaugeFromScales) and decays hard and
-// fast on its own, since nothing else in the live turn flow pulls scales back toward baseline
-// (decayToward below exists but was never actually wired into eq-room-ask.js).
-const ALL_SCALE_KEYS = SCALE_KEYS.concat(['surprise']);
-const SURPRISE_BASELINE = 12;
+// Six primary emotions (Ekman-style) replacing the earlier five relational scales
+// (warmth/openness/ease/spirits/interest). Those measured "how do I feel about this guest",
+// a steady, cumulative trait; these measure "what am I actually feeling right now", a
+// momentary state that spikes on a real trigger and fades. All six use the same
+// absolute-intensity update rule (applyEmotion) and the same fast decay-toward-baseline,
+// unlike the old relational scales which nudged incrementally off wherever they last sat.
+const SCALE_KEYS = ['happiness', 'sadness', 'fear', 'disgust', 'anger', 'surprise'];
+const ALL_SCALE_KEYS = SCALE_KEYS;
+const SURPRISE_BASELINE = 12; // kept as the name existing code already calls this constant
 const SURPRISE_DECAY_FRACTION = 0.55;
+const EMOTION_DECAY_FRACTION = 0.55;
 
 const VOLATILITY = {
   'very low': 0.5,
@@ -30,70 +32,70 @@ const VOLATILITY = {
 const AGENTS = {
   ivy: {
     name: 'Ms. Ivy',
-    baseline: { warmth: 70, openness: 65, ease: 75, spirits: 65, interest: 70 },
+    baseline: { happiness: 68, sadness: 8, fear: 6, disgust: 6, anger: 8, surprise: 12 },
     volatility: 'low',
     warmsTo: 'curiosity, a nervous learner reassured, honest questions',
     chillsAt: 'condescension, belittling learners, arrogance',
   },
   auggie: {
     name: 'Auggie',
-    baseline: { warmth: 72, openness: 68, ease: 68, spirits: 70, interest: 70 },
+    baseline: { happiness: 71, sadness: 8, fear: 6, disgust: 6, anger: 8, surprise: 12 },
     volatility: 'medium',
     warmsTo: 'warmth, being appreciated, real rapport, respect',
     chillsAt: 'rudeness, disrespect of his work, disrespect of who he is',
   },
   dom: {
     name: 'Coach Dom',
-    baseline: { warmth: 68, openness: 55, ease: 72, spirits: 62, interest: 68 },
+    baseline: { happiness: 65, sadness: 8, fear: 6, disgust: 6, anger: 10, surprise: 12 },
     volatility: 'low',
     warmsTo: 'honest effort, wanting to improve, straight talk',
     chillsAt: 'ego-lifting, excuses, hype and shortcuts',
   },
   chris: {
     name: 'Chris Avila',
-    baseline: { warmth: 52, openness: 45, ease: 55, spirits: 55, interest: 60 },
+    baseline: { happiness: 54, sadness: 10, fear: 8, disgust: 8, anger: 8, surprise: 12 },
     volatility: 'medium',
     warmsTo: 'genuine interest in the work, being seen, respect for they/them',
     chillsAt: 'dismissing the art, misgendering, empty small talk, being rushed',
   },
   arthur: {
     name: 'Dr. Arthur Pendelton',
-    baseline: { warmth: 70, openness: 62, ease: 80, spirits: 60, interest: 68 },
+    baseline: { happiness: 62, sadness: 8, fear: 5, disgust: 6, anger: 6, surprise: 12 },
     volatility: 'low',
     warmsTo: 'someone struggling met with honesty, real vulnerability',
     chillsAt: 'cruelty toward the vulnerable, bad-faith games',
   },
   jen: {
     name: 'Jen Lopez',
-    baseline: { warmth: 62, openness: 55, ease: 58, spirits: 62, interest: 65 },
+    baseline: { happiness: 62, sadness: 8, fear: 6, disgust: 8, anger: 10, surprise: 12 },
     volatility: 'medium',
     warmsTo: 'competence, respect for time, a clear ask, humor',
     chillsAt: 'time-wasting, vagueness, chaos, disrespect',
   },
   noor: {
     name: 'Noor Haddad',
-    baseline: { warmth: 68, openness: 58, ease: 82, spirits: 60, interest: 60 },
+    baseline: { happiness: 64, sadness: 6, fear: 5, disgust: 5, anger: 4, surprise: 10 },
     volatility: 'very low',
     warmsTo: 'presence, someone seeking calm, honesty',
     chillsAt: 'aggression, mockery of stillness (she de-escalates, rarely spikes)',
   },
   mara: {
     name: 'Mara Rivera',
-    baseline: { warmth: 66, openness: 64, ease: 62, spirits: 68, interest: 72 },
+    baseline: { happiness: 67, sadness: 8, fear: 6, disgust: 10, anger: 10, surprise: 14 },
     volatility: 'medium-high',
     warmsTo: 'good taste, culture talk, real enthusiasm, banter',
     chillsAt: 'bad faith, philistinism, cruelty, pretension',
   },
   marceline: {
     name: 'Marceline Smith',
-    baseline: { warmth: 48, openness: 40, ease: 70, spirits: 55, interest: 52 },
+    baseline: { happiness: 52, sadness: 10, fear: 8, disgust: 8, anger: 8, surprise: 12 },
     volatility: 'low',
     warmsTo: 'respect, brevity, competence, politeness (warms slowly)',
     chillsAt: 'pushiness, entitlement, wasting time, rudeness',
   },
   marcus: {
     name: 'Marcus Holt',
-    baseline: { warmth: 40, openness: 38, ease: 72, spirits: 55, interest: 55 },
+    baseline: { happiness: 55, sadness: 6, fear: 4, disgust: 10, anger: 12, surprise: 10 },
     volatility: 'low-medium',
     warmsTo: 'intelligence, directness, a good argument, being challenged well',
     chillsAt: 'fluff, flattery, vagueness, emotional appeals without substance',
@@ -112,43 +114,60 @@ function volatilityFor(agentKey) {
   return mult;
 }
 
-// target = clamp(current + delta*volatility, 0, 100)
-// newCurrent = current + (target - current) * smoothing
+// Kept for reference/tests; no longer used by the live turn flow now that all six scales are
+// primary emotions rather than steady relational traits.
 function applyDelta(current, delta, volatility, smoothing) {
   const applied = delta * volatility;
   const target = clamp(current + applied, 0, 100);
   return current + (target - current) * smoothing;
 }
 
-// Surprise is an absolute intensity signal, not a relative nudge from wherever it currently
-// sits, unlike the five relational scales. felt.surprise says how surprising this moment was
-// (0 = not at all, 8 = totally blindsided), so it maps straight to a target level instead of
-// pushing off the current value; otherwise, starting from a low resting baseline, even a
-// maximal felt value would barely move it; the same additive-delta formula that works well for
-// a cumulative trait can't produce a real spike.
-function applySurprise(current, feltSurprise, smoothing) {
-  const target = clamp(SURPRISE_BASELINE + feltSurprise * 11, 0, 100);
+// Every emotion is an absolute intensity signal, not a relative nudge off wherever it
+// currently sits: felt says how strongly this emotion fired this turn (0 = not at all, 8 =
+// as hard as it gets), so it maps straight to a target level scaled by the agent's baseline
+// and volatility, the same mechanic originally built for surprise, now shared by all six.
+function applyEmotion(current, baseline, feltValue, volatility, smoothing) {
+  const target = clamp(baseline + feltValue * volatility * 11, 0, 100);
   return current + (target - current) * smoothing;
+}
+
+// Kept for backward compatibility with the surprise-only code path; now just applyEmotion
+// with SURPRISE_BASELINE, superseded by the generic per-emotion baselines in applyTurn.
+function applySurprise(current, feltSurprise, smoothing) {
+  return applyEmotion(current, SURPRISE_BASELINE, feltSurprise, 1, smoothing);
 }
 
 // Applies one turn's full felt object to a scales state (all floats).
 function applyTurn(scales, felt, agentKey, smoothing) {
+  const agent = AGENTS[agentKey];
+  if (!agent) throw new Error(`unknown agent: ${agentKey}`);
   const volatility = volatilityFor(agentKey);
   const next = {};
   for (const key of SCALE_KEYS) {
-    const delta = felt[key] || 0;
-    next[key] = applyDelta(scales[key], delta, volatility, smoothing);
+    const feltValue = felt[key] || 0;
+    next[key] = applyEmotion(scales[key], agent.baseline[key], feltValue, volatility, smoothing);
   }
-  next.surprise = applySurprise(scales.surprise, felt.surprise || 0, smoothing);
   return next;
 }
 
-// Surprise-only fast decay, applied before this turn's felt reaction so a spike from a real
-// surprise fades hard over the next turn or two instead of sitting stuck at its peak, since
-// nothing else in the live turn flow pulls scales back toward baseline.
+// Fast decay toward each emotion's own baseline, applied before this turn's felt reaction so a
+// spike from a real trigger fades hard over the next turn or two instead of sitting stuck at
+// its peak, since nothing else in the live turn flow pulls scales back toward baseline.
+function decayEmotions(scales, agentKey) {
+  const agent = AGENTS[agentKey];
+  if (!agent) throw new Error(`unknown agent: ${agentKey}`);
+  const next = {};
+  for (const key of SCALE_KEYS) {
+    const current = typeof scales[key] === 'number' ? scales[key] : agent.baseline[key];
+    const baseline = agent.baseline[key];
+    next[key] = current + (baseline - current) * EMOTION_DECAY_FRACTION;
+  }
+  return next;
+}
+
+// Deprecated single-scale version, kept only so nothing else importing it breaks; the live
+// flow now calls decayEmotions for all six scales at once.
 function decaySurprise(scales) {
-  // Falls back to baseline for scales objects from before this scale existed (an in-flight
-  // conversation that started pre-deploy won't have a surprise key at all yet).
   const current = typeof scales.surprise === 'number' ? scales.surprise : SURPRISE_BASELINE;
   const next = current + (SURPRISE_BASELINE - current) * SURPRISE_DECAY_FRACTION;
   return { ...scales, surprise: next };
@@ -196,9 +215,7 @@ function seedOpeningState(agentKey, moodNudge) {
   if (!agent) throw new Error(`unknown agent: ${agentKey}`);
   const scales = {};
   for (const key of ALL_SCALE_KEYS) {
-    // Surprise's resting baseline is a shared engine constant, not per-agent personality
-    // data like the five relational scales, so it isn't in each agent's baseline object.
-    const base = key === 'surprise' ? SURPRISE_BASELINE : agent.baseline[key];
+    const base = agent.baseline[key];
     const nudge = (moodNudge && moodNudge[key]) || 0;
     scales[key] = clamp(base + nudge, 0, 100);
   }
@@ -211,13 +228,15 @@ function renderScales(scales) {
   return out;
 }
 
-// Blends the five feeling scales into one 0-100 "vibe" value for the
-// simplified single-gauge display. The five-scale/two-meter engine above
-// still tracks everything underneath for real scoring; this is purely a
-// friendlier visual summary, an unweighted mean of the five scales.
+// Blends the six primary emotions into one 0-100 "vibe" value for the simplified single-emoji
+// display. Happiness and the four negative emotions (sadness/fear/disgust/anger) pull in
+// opposite directions, so this weighs happiness against their inverse rather than just
+// averaging everything together, which would produce nonsense (high happiness and high sadness
+// at once averaging out to a falsely "neutral" reading). Surprise is excluded, since it isn't
+// inherently positive or negative, just intensity of shock.
 function gaugeFromScales(scales) {
-  const sum = SCALE_KEYS.reduce((total, key) => total + scales[key], 0);
-  return sum / SCALE_KEYS.length;
+  const negativeAvg = (scales.sadness + scales.fear + scales.disgust + scales.anger) / 4;
+  return scales.happiness * 0.6 + (100 - negativeAvg) * 0.4;
 }
 
 const GAUGE_BANDS = [
@@ -244,8 +263,10 @@ module.exports = {
   clamp,
   volatilityFor,
   applyDelta,
+  applyEmotion,
   applySurprise,
   applyTurn,
+  decayEmotions,
   decaySurprise,
   decayToward,
   applyJudge,
