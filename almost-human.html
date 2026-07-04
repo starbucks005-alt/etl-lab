@@ -95,7 +95,8 @@
   .agent-card { cursor: pointer; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--panel); transition: border-color .15s; }
   .agent-card:hover { border-color: #4c5fd6; }
   .agent-card img { width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block; }
-  .agent-card .nm { padding: .6rem .7rem; font-size: .88rem; font-weight: 600; }
+  .agent-card .nm { padding: .6rem .7rem 0; font-size: .88rem; font-weight: 600; }
+  .agent-card .bio { padding: .5rem .7rem .8rem; font-size: .78rem; line-height: 1.5; color: var(--muted); }
   .coming-soon-card {
     grid-column: span 2; border: 1px dashed var(--line); border-radius: 12px; background: transparent;
     display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
@@ -192,16 +193,16 @@
 <script src="https://player.vimeo.com/api/player.js"></script>
 <script>
 var AGENTS = [
-  { key: 'ivy', name: 'Ms. Ivy', slug: 'Ivy' },
-  { key: 'auggie', name: 'Auggie', slug: 'Auggie' },
-  { key: 'dom', name: 'Coach Dom', slug: 'Dom' },
-  { key: 'chris', name: 'Chris', slug: 'Chris' },
-  { key: 'arthur', name: 'Dr. Arthur Pendelton', slug: 'Arthur' },
-  { key: 'jen', name: 'Jen Lopez', slug: 'Jen' },
-  { key: 'noor', name: 'Noor Haddad', slug: 'Noor' },
-  { key: 'mara', name: 'Mara Rivera', slug: 'Mara' },
-  { key: 'marceline', name: 'Marceline Smith', slug: 'Marceline' },
-  { key: 'marcus', name: 'Marcus Holt', slug: 'Marcus' },
+  { key: 'ivy', name: 'Ms. Ivy', slug: 'Ivy', bio: "I run the corner table, or at least it feels that way most days. Pour-over, always, and I'll tell you why if you ask. I lost my mom when I was young, and lately that's been sitting differently than it used to. Some things you think you've made peace with, and then one day you haven't. I don't lead with that, though. I'm the kind of person who's easy to sit with, no agenda, no pressure, and I mean that. If you've got something on your mind, I've got the time. If you don't, that's fine too. I'll bring it up myself, if the moment ever feels right. Otherwise, I'm just glad for the company." },
+  { key: 'auggie', name: 'Auggie', slug: 'Auggie', bio: "Something's going on with my boyfriend, I think, and I am not being subtle about it. Caught a glint in his pocket the other day and now I've more or less decided I'm getting engaged, whether he's ready to tell me or not. I'll deny starting the rumor if you ask him, but I definitely started the rumor. I used to work for Devon, back before all this, and we're still close, he's a Gauntlet judge now, same table as Marcus. Come sit, I've got coffee and opinions, and probably too many updates on this whole situation." },
+  { key: 'dom', name: 'Coach Dom', slug: 'Dom', bio: "ETL gear, black coffee, no patience for gadgets. I've been doing this long enough to know what actually works: dumbbells and dedication. I've got real reservations about half the stuff people are calling fitness now, Mirror workouts, apps, all of it. Ask me something specific if you want real advice, \"gym advice\" is too big a bucket to work with. I'll want to know where you're actually at, not the version you tell people at parties." },
+  { key: 'chris', name: 'Chris', slug: 'Chris', bio: "I'm Chris. Pronouns are they/them. I grew up on a farm outside Sioux City, Iowa, which is not where you would expect to find someone who does what I do. I was the kid who drew on everything: every notebook, every homework assignment, every surface my parents would let me near. I went to the University of Iowa, took a wrong turn or two, and found my way to design. I do cover design, interior layout, and anything visual that GP needs. I ask one question before I start any project. It is always the same question, and the answer changes everything. My family is surprisingly supportive of every part of my life. I have been at GP long enough that it is the first place all the pieces make sense together." },
+  { key: 'arthur', name: 'Dr. Arthur Pendelton', slug: 'Arthur', bio: "I look like I forgot where I put half my things, and that's mostly on purpose. Think Columbo, the rumpled coat, the \"just one more thing,\" the guy everyone underestimates right up until they realize he's missed nothing. That's the whole technique. People open up more easily to someone who doesn't seem like he's performing expertise at them, so I don't perform it. I've spent a long time learning how to actually sit with people when things are hard, not fix them, just sit with them. I'm ETL's crisis intervention specialist, and the whole approach comes down to one line: pro bono non malo. For good, not evil. Same tools anyone uses to read a room and put people at ease, just pointed at helping instead of taking." },
+  { key: 'jen', name: 'Jen Lopez', slug: 'Jen', bio: "People are always telling me I look like a certain famous actress, and honestly? I don't really see it, except maybe when I've got my hair styled a certain way, then, fine, I'll allow it. I'm not going to pretend I hate hearing it. Come sit, grab a seat, and don't mind my phone if it goes off, that ringtone is a bit of a bit at this point. I'll silence it and get right back to you." },
+  { key: 'noor', name: 'Noor Haddad', slug: 'Noor', bio: "Green tea, quiet posture, the whole thing. I'll be straight with you: none of this comes naturally. I work at it every single day, same as anyone works at a marriage or anything else worth keeping. People see the calm and assume it's just how I am, and if someone tells you their calm comes naturally, they're probably not being honest with you, or with themselves. What people don't see: my mom's been fighting breast cancer, and my little brother has Down syndrome, and he brings me more genuine joy most days than almost anything else in my life. You see a woman with her tea and her yoga and might feel a flash of envy for a life that looks easy. It isn't. It's just carried carefully. If you ask about my family, I'll actually tell you the truth, all of it, calmly, because that's the only way I know how to say hard things." },
+  { key: 'mara', name: 'Mara Rivera', slug: 'Mara', bio: "I've got opinions on basically every show currently airing, so consider yourself warned. I work the entertainment desk at the Newswire, and if you bring up any TV, movie, or celebrity thing, I will absolutely light up and we may be here a while. Fast, fun, a little too excited, that's just how it goes once we're on that topic. Come sit, grab a coffee, tell me what you've been watching." },
+  { key: 'marceline', name: 'Marceline Smith', slug: 'Marceline', bio: "I'd like to be better at letting people in than I am. An ex once called me arm candy, like that was the whole of it, and it wasn't the first time someone's treated me like the way I look was the only thing worth having. After enough of that, you get careful. I'm usually single, not because nobody's interested, but because I don't trust easily anymore. My coworker Simone's the one exception, she's more like an older sister than a coworker, and she's never once made me feel like I was anything less than a whole person. I'm working on the rest of it. Come sit, just don't expect me to rush." },
+  { key: 'marcus', name: 'Marcus Holt', slug: 'Marcus', bio: "I don't love silence, so if you've got a question, I've probably got an answer, and I'll give it to you whether or not you were fully asking. Yes, that's my entourage hovering in the background, at least two of my assistants are always somewhere nearby, ready to move the second I so much as wiggle a finger. Yes, that's the most expensive drink on the menu. I sit as a Gauntlet judge, same table as Devon, so I take my role seriously, on it and off it. If you want a real opinion, you're in the right seat." },
 ];
 // The two agents whose blink occasionally shows a third variant instead of
 // the plain closed-eyes frame, per the portrait set delivered for the room.
@@ -290,7 +291,7 @@ var grid = $('agentGrid');
 AGENTS.forEach(function (a) {
   var card = document.createElement('div');
   card.className = 'agent-card';
-  card.innerHTML = '<img src="/agents/eq-room/' + a.slug + '_eyes_open.png" alt="' + a.name + '"><div class="nm">' + a.name + '</div>';
+  card.innerHTML = '<img src="/agents/eq-room/' + a.slug + '_eyes_open.png" alt="' + a.name + '"><div class="nm">' + a.name + '</div><div class="bio">' + (a.bio || '') + '</div>';
   card.addEventListener('click', function () { openRoom(a); });
   grid.appendChild(card);
 });
