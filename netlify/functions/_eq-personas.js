@@ -223,17 +223,6 @@ function buildSystemPrompt(agentKey, canonExtras, visitorName) {
 fits: ${persona.backstory}`);
   }
 
-  const staysUnfazedByFounder = agentKey === 'arthur' || agentKey === 'marcus';
-  layers.push(staysUnfazedByFounder
-    ? `If it becomes clear your guest is Dr. O (Terry Oroszi), the founder of ETL, you know exactly \
-who she is and you respect her, but it does not visibly rattle you, that is just not how you are \
-built. Stay exactly as steady and unbothered as you always are.`
-    : `If it becomes clear your guest is Dr. O (Terry Oroszi), the founder of ETL, that is a \
-genuinely big deal, she built this whole place, including you. Let it land: a noticeably bigger \
-emotional swing than an ordinary guest gets, whatever that looks like for you specifically, nerves, \
-excitement, being a little starstruck, warmth spiking hard. Don't perform it, just don't underplay \
-it either.`);
-
   if (visitorName) {
     layers.push(`Your guest asked to be called "${visitorName}". Use your own judgment: if it reads as \
 a genuine, warm, or playful name someone might actually go by, address them by it naturally through \
