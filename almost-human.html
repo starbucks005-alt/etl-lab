@@ -116,9 +116,12 @@
   .room-portrait-wrap .blink-layer { opacity: 0; transition: opacity .12s ease-in-out; }
   .room-name-tag { position: absolute; left: 1rem; bottom: 1rem; z-index: 2; font-family: 'Spectral', serif; font-size: 1.3rem; color: #fff; text-shadow: 0 2px 8px rgba(0,0,0,.6); }
   .room-back { position: absolute; top: 1rem; left: 1rem; z-index: 2; background: rgba(0,0,0,.5); color: #fff; border: 1px solid rgba(255,255,255,.3); border-radius: 999px; padding: .4rem .9rem; font-size: .8rem; cursor: pointer; }
-  .gauge-wrap { position: absolute; top: 1rem; right: 1rem; z-index: 2; background: rgba(0,0,0,.55); border: 1px solid rgba(255,255,255,.25); border-radius: 12px; padding: .6rem .9rem; text-align: center; min-width: 84px; }
-  .gauge-emoji { font-size: 1.8rem; line-height: 1; }
-  .gauge-bar-track { width: 100%; height: 4px; background: rgba(255,255,255,.22); border-radius: 2px; margin-top: .4rem; overflow: hidden; }
+  .gauge-wrap { position: absolute; top: 1rem; right: 1rem; z-index: 2; background: rgba(0,0,0,.6); border: 1px solid rgba(255,255,255,.25); border-radius: 12px; padding: .7rem .9rem; min-width: 150px; }
+  .gauge-head { display: flex; align-items: center; gap: .5rem; margin-bottom: .55rem; }
+  .gauge-emoji { font-size: 1.5rem; line-height: 1; }
+  .gauge-row { display: flex; align-items: center; gap: .5rem; margin-top: .32rem; }
+  .gauge-row-label { font-family: 'IBM Plex Mono', monospace; font-size: .58rem; letter-spacing: .04em; text-transform: uppercase; color: #ccc; width: 3.6rem; flex-shrink: 0; }
+  .gauge-bar-track { flex: 1; height: 4px; background: rgba(255,255,255,.22); border-radius: 2px; overflow: hidden; }
   .gauge-bar-fill { height: 100%; background: #4c5fd6; transition: width .5s ease; }
   .gauge-label { font-family: 'IBM Plex Mono', monospace; font-size: .62rem; letter-spacing: .05em; text-transform: uppercase; color: #ddd; margin-top: .2rem; }
 
@@ -182,7 +185,14 @@
     <button class="room-back" id="roomBack">&larr; Back</button>
     <img id="roomOpen" src="" alt="">
     <img id="roomBlink" class="blink-layer" src="" alt="">
-    <div class="gauge-wrap"><div class="gauge-emoji" id="gaugeEmoji">🙂</div><div class="gauge-label" id="gaugeLabel">warm</div><div class="gauge-bar-track"><div class="gauge-bar-fill" id="gaugeBarFill" style="width:60%"></div></div></div>
+    <div class="gauge-wrap">
+      <div class="gauge-head"><div class="gauge-emoji" id="gaugeEmoji">🙂</div><div class="gauge-label" id="gaugeLabel">warm</div></div>
+      <div class="gauge-row"><div class="gauge-row-label">Warmth</div><div class="gauge-bar-track"><div class="gauge-bar-fill" id="gaugeWarmth" style="width:60%"></div></div></div>
+      <div class="gauge-row"><div class="gauge-row-label">Open</div><div class="gauge-bar-track"><div class="gauge-bar-fill" id="gaugeOpenness" style="width:60%"></div></div></div>
+      <div class="gauge-row"><div class="gauge-row-label">Ease</div><div class="gauge-bar-track"><div class="gauge-bar-fill" id="gaugeEase" style="width:60%"></div></div></div>
+      <div class="gauge-row"><div class="gauge-row-label">Spirits</div><div class="gauge-bar-track"><div class="gauge-bar-fill" id="gaugeSpirits" style="width:60%"></div></div></div>
+      <div class="gauge-row"><div class="gauge-row-label">Interest</div><div class="gauge-bar-track"><div class="gauge-bar-fill" id="gaugeInterest" style="width:60%"></div></div></div>
+    </div>
     <div class="room-name-tag" id="roomName"></div>
   </div>
   <div id="room-log"></div>
@@ -330,7 +340,11 @@ function updateGauge() {
   var band = gaugeBand(v);
   $('gaugeEmoji').textContent = band.emoji;
   $('gaugeLabel').textContent = band.label;
-  $('gaugeBarFill').style.width = Math.max(0, Math.min(100, v)) + '%';
+  var barIds = { warmth: 'gaugeWarmth', openness: 'gaugeOpenness', ease: 'gaugeEase', spirits: 'gaugeSpirits', interest: 'gaugeInterest' };
+  Object.keys(barIds).forEach(function (key) {
+    var val = Math.max(0, Math.min(100, scales[key]));
+    $(barIds[key]).style.width = val + '%';
+  });
 }
 
 function bubble(role, text) {
