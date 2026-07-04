@@ -88,11 +88,22 @@
   #picker { padding: 3rem 2rem 4rem; max-width: 1100px; margin: 0 auto; }
   #picker h1 { font-family: 'Spectral', serif; font-size: 1.8rem; margin-bottom: .3rem; }
   #picker .sub { color: var(--muted); font-size: .95rem; margin-bottom: 2rem; }
-  .agent-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1.1rem; }
+  .agent-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.1rem; }
+  @media (max-width: 640px) { .agent-grid { grid-template-columns: repeat(2, 1fr); } .coming-soon-card { grid-column: span 2; } }
   .agent-card { cursor: pointer; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--panel); transition: border-color .15s; }
   .agent-card:hover { border-color: #4c5fd6; }
   .agent-card img { width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block; }
   .agent-card .nm { padding: .6rem .7rem; font-size: .88rem; font-weight: 600; }
+  .coming-soon-card {
+    grid-column: span 2; border: 1px dashed var(--line); border-radius: 12px; background: transparent;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+    padding: 1.5rem 1.2rem; gap: .3rem; min-height: 100%;
+  }
+  .coming-soon-card .tag {
+    font-family: 'IBM Plex Mono', monospace; font-size: .68rem; letter-spacing: .08em; text-transform: uppercase;
+    color: #4c5fd6; margin-bottom: .3rem;
+  }
+  .coming-soon-card p { font-size: .85rem; color: var(--muted); line-height: 1.5; max-width: 320px; }
 
   /* ── ROOM ── */
   #room { min-height: 100vh; }
@@ -258,6 +269,11 @@ AGENTS.forEach(function (a) {
   card.addEventListener('click', function () { openRoom(a); });
   grid.appendChild(card);
 });
+
+var comingSoon = document.createElement('div');
+comingSoon.className = 'coming-soon-card';
+comingSoon.innerHTML = '<div class="tag">Coming soon</div><p>A members\' contest to pick who joins this room next, out of all 130 ETL agents.</p>';
+grid.appendChild(comingSoon);
 
 var current = null;      // the selected agent object
 var scales = null;       // current feeling scales (floats, from server)
