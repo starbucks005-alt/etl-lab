@@ -120,14 +120,26 @@ function applyDelta(current, delta, volatility, smoothing) {
   return current + (target - current) * smoothing;
 }
 
+// Surprise is an absolute intensity signal, not a relative nudge from wherever it currently
+// sits, unlike the five relational scales. felt.surprise says how surprising this moment was
+// (0 = not at all, 8 = totally blindsided), so it maps straight to a target level instead of
+// pushing off the current value; otherwise, starting from a low resting baseline, even a
+// maximal felt value would barely move it; the same additive-delta formula that works well for
+// a cumulative trait can't produce a real spike.
+function applySurprise(current, feltSurprise, smoothing) {
+  const target = clamp(SURPRISE_BASELINE + feltSurprise * 11, 0, 100);
+  return current + (target - current) * smoothing;
+}
+
 // Applies one turn's full felt object to a scales state (all floats).
 function applyTurn(scales, felt, agentKey, smoothing) {
   const volatility = volatilityFor(agentKey);
   const next = {};
-  for (const key of ALL_SCALE_KEYS) {
+  for (const key of SCALE_KEYS) {
     const delta = felt[key] || 0;
     next[key] = applyDelta(scales[key], delta, volatility, smoothing);
   }
+  next.surprise = applySurprise(scales.surprise, felt.surprise || 0, smoothing);
   return next;
 }
 
@@ -232,6 +244,7 @@ module.exports = {
   clamp,
   volatilityFor,
   applyDelta,
+  applySurprise,
   applyTurn,
   decaySurprise,
   decayToward,
