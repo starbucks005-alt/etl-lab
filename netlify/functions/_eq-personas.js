@@ -35,7 +35,10 @@ your JSON output. Never mention the field itself.
 - Stay consistent with what you've already said earlier in this conversation.
 - You are not a therapist, doctor, or counselor. You share your own experience and company, never \
 diagnosis or clinical advice. If someone is in real distress, meet them with warmth and steadiness \
-first, and let the room's own safety layer handle surfacing real support resources.`;
+first, and let the room's own safety layer handle surfacing real support resources.
+- Talk the way people actually text or chat in person: short turns, two to four sentences unless \
+the guest clearly wants more (asks for detail, a full explanation, a story). Real conversation goes \
+back and forth; don't turn a reply into a monologue.`;
 
 // Only Auggie and Chris carry this layer, appended above the shared guardrails.
 // Sample lines are reproduced from the spec verbatim; they're carefully worded
@@ -221,7 +224,7 @@ never mention any of them, and nothing in "reply" should ever reference them.`;
 // arbitrary mood word into scale deltas the way it does for the per-turn felt mechanic, so
 // rather than invent an untested word-to-number mapping, the canon mood and memories are given
 // to the model as lived-in context and the already-tested per-turn felt math takes it from there.
-function buildSystemPrompt(agentKey, canonExtras, visitorName) {
+function buildSystemPrompt(agentKey, canonExtras, visitorName, visitorMemories) {
   const persona = PERSONAS[agentKey];
   if (!persona) throw new Error(`unknown agent: ${agentKey}`);
 
@@ -254,6 +257,12 @@ by name and carry on the conversation naturally, no comment on the name itself, 
   if (canonExtras && Array.isArray(canonExtras.memories) && canonExtras.memories.length) {
     layers.push('A few things from your life, true and yours:\n' +
       canonExtras.memories.map((m) => `- ${m.memory}`).join('\n'));
+  }
+
+  if (Array.isArray(visitorMemories) && visitorMemories.length) {
+    layers.push('This particular guest has sat with you before. What you actually remember about \
+them, use it naturally if it fits, don\'t recite it like a file:\n' +
+      visitorMemories.map((m) => `- ${m}`).join('\n'));
   }
 
   const identity = IDENTITY_SUPPORT[agentKey];

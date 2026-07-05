@@ -35,6 +35,64 @@ const ROSTER_NAMES = {
   marcus: 'Marcus Holt',
 };
 
+// Visitor-scoped memory, opt-in (body.remember). Separate table from etl_agent_memories
+// (canon lore about the agent), keyed by visitor_id + agent_key instead of agent_name.
+async function fetchVisitorMemories(agentKey, visitorId, serviceKey) {
+  try {
+    const r = await fetch(
+      `${SUPABASE_URL}/rest/v1/etl_visitor_memories?visitor_id=eq.${encodeURIComponent(visitorId)}&agent_key=eq.${encodeURIComponent(agentKey)}&select=memory&order=created_at.desc&limit=4`,
+      { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }
+    );
+    if (!r.ok) return [];
+    const rows = await r.json();
+    return Array.isArray(rows) ? rows.map((row) => row.memory).filter(Boolean) : [];
+  } catch (err) {
+    console.error('eq-room visitor memory fetch failed (non-fatal):', err.message);
+    return [];
+  }
+}
+
+// Fires once, when a conversation actually ends (guardrail close or turn cap), never mid-chat.
+// Cheap model, since this is background/ambient generation, not the demo-facing reply itself.
+async function saveVisitorMemory(client, agentKey, agentName, visitorId, serviceKey, transcript) {
+  try {
+    const prompt = `You are ${agentName}. This conversation with a guest just ended. Write 1 to 3 \
+short, first-person notes you'd genuinely carry with you about THIS specific guest if they came \
+back, things they told you, how they seemed, anything real and specific, not a recap of the whole \
+chat. Return ONLY JSON, no code fences: {"memories": ["...", "..."]}. If honestly nothing \
+memorable happened, return {"memories": []}.
+
+Transcript:
+${transcript.map((m) => `${m.role === 'user' ? 'GUEST' : agentName.toUpperCase()}: ${m.content}`).join('\n')}`;
+
+    const msg = await client.messages.create({
+      model: JUDGE_MODEL,
+      max_tokens: 300,
+      messages: [{ role: 'user', content: prompt }],
+    });
+    const text = (msg.content || []).filter((b) => b.type === 'text').map((b) => b.text).join('').trim();
+    const cleaned = text.replace(/^```(json)?/i, '').replace(/```$/, '').trim();
+    const parsed = JSON.parse(cleaned);
+    const memories = Array.isArray(parsed.memories)
+      ? parsed.memories.filter((m) => typeof m === 'string' && m.trim()).slice(0, 3)
+      : [];
+    if (!memories.length) return;
+
+    await fetch(`${SUPABASE_URL}/rest/v1/etl_visitor_memories`, {
+      method: 'POST',
+      headers: {
+        apikey: serviceKey,
+        Authorization: `Bearer ${serviceKey}`,
+        'Content-Type': 'application/json',
+        Prefer: 'return=minimal',
+      },
+      body: JSON.stringify(memories.map((memory) => ({ visitor_id: visitorId, agent_key: agentKey, memory }))),
+    });
+  } catch (err) {
+    console.error('eq-room visitor memory save failed (non-fatal):', err.message);
+  }
+}
+
 async function fetchCanonExtras(agentKey, serviceKey) {
   const rosterName = ROSTER_NAMES[agentKey];
   if (!rosterName || !serviceKey) return null;
@@ -180,7 +238,10 @@ const TURN_TOOL = {
 // string instead of keeping it clean. Truncates at the first such fragment, since everything
 // from that point on is leaked structure, not real dialogue.
 function sanitizeReply(text) {
-  return String(text || '').split(/<\/?parameter\b/i)[0].trim();
+  const truncated = String(text || '').split(/<\/?parameter\b/i)[0];
+  // Web search (Mara) sometimes echoes Anthropic's citation markup straight into the reply.
+  // Strip the tags but keep the quoted text inside them.
+  return truncated.replace(/<\/?cite[^>]*>/gi, '').trim();
 }
 
 // Reads the forced tool_use block. Falls back to the old text/JSON.parse path, and then to
@@ -268,16 +329,20 @@ exports.handler = async function (event) {
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const turnCountBefore = Number(body.turn_count) || 0;
   const turnCountAfter = turnCountBefore + 1;
+  const visitorId = safeVisitorId(body.visitor_id);
+  const remember = body.remember === true;
 
-  // Only fetched on turn 1: the canon mood/memories set the opening tone, no
-  // need to re-fetch every turn once the conversation is already underway.
+  // Only fetched on turn 1: the canon mood/memories (and, if opted in, this visitor's own
+  // memories with this agent) set the opening tone, no need to re-fetch once underway.
   const canonExtras = turnCountBefore === 0 ? await fetchCanonExtras(agentKey, serviceKey) : null;
+  const visitorMemories = (turnCountBefore === 0 && remember && visitorId && serviceKey)
+    ? await fetchVisitorMemories(agentKey, visitorId, serviceKey)
+    : null;
 
   let systemPrompt;
-  try { systemPrompt = buildSystemPrompt(agentKey, canonExtras, visitorName); }
+  try { systemPrompt = buildSystemPrompt(agentKey, canonExtras, visitorName, visitorMemories); }
   catch (_) { return json(400, { error: 'unknown_agent', valid: Object.keys(engine.AGENTS) }); }
 
-  const visitorId = safeVisitorId(body.visitor_id);
   const canCheck = Boolean(visitorId && serviceKey);
   if (canCheck) {
     const conduct = await conductStatus(visitorId, serviceKey);
@@ -353,6 +418,13 @@ exports.handler = async function (event) {
   // Only a guardrail-triggered close (not a turn-cap close) is a conduct strike.
   if (turn.close && !capped && canCheck) {
     await conductStrike(visitorId, agentKey, serviceKey);
+  }
+
+  // Opt-in only: the conversation is actually over (guardrail close or turn cap), so this is
+  // the one point to distill it into a few lines the agent can recall on a future visit.
+  if (remember && visitorId && serviceKey && (turn.close || capped)) {
+    const fullTranscript = [...messages, { role: 'assistant', content: turn.reply }];
+    await saveVisitorMemory(client, agentKey, engine.AGENTS[agentKey].name, visitorId, serviceKey, fullTranscript);
   }
 
   return json(200, {
