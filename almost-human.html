@@ -96,7 +96,10 @@
   .agent-card:hover { border-color: #4c5fd6; }
   .agent-card img { width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block; }
   .agent-card .nm { padding: .6rem .7rem 0; font-size: .88rem; font-weight: 600; }
-  .agent-card .bio { padding: .5rem .7rem .8rem; font-size: .78rem; line-height: 1.5; color: var(--muted); }
+  .agent-card .bio-btn { display: block; margin: .5rem .7rem 0; background: none; border: 1px solid var(--line); color: var(--muted); font-family: 'IBM Plex Mono', monospace; font-size: .68rem; letter-spacing: .05em; text-transform: uppercase; padding: .3rem .6rem; border-radius: 999px; cursor: pointer; }
+  .agent-card .bio-btn:hover { border-color: #4c5fd6; color: var(--cream); }
+  .agent-card .bio { display: none; padding: .5rem .7rem .8rem; font-size: .78rem; line-height: 1.5; color: var(--muted); }
+  .agent-card .bio.open { display: block; }
   .coming-soon-card {
     grid-column: span 2; border: 1px dashed var(--line); border-radius: 12px; background: transparent;
     display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
@@ -331,7 +334,14 @@ var grid = $('agentGrid');
 AGENTS.forEach(function (a) {
   var card = document.createElement('div');
   card.className = 'agent-card';
-  card.innerHTML = '<img src="/agents/eq-room/' + a.slug + '_eyes_open.png" alt="' + a.name + '"><div class="nm">' + a.name + '</div><div class="bio">' + (a.bio || '') + '</div>';
+  card.innerHTML = '<img src="/agents/eq-room/' + a.slug + '_eyes_open.png" alt="' + a.name + '"><div class="nm">' + a.name + '</div><button class="bio-btn" type="button">Bio</button><div class="bio">' + (a.bio || '') + '</div>';
+  var bioBtn = card.querySelector('.bio-btn');
+  var bioEl = card.querySelector('.bio');
+  bioBtn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    var isOpen = bioEl.classList.toggle('open');
+    bioBtn.textContent = isOpen ? 'Close bio' : 'Bio';
+  });
   card.addEventListener('click', function () { openRoom(a); });
   grid.appendChild(card);
 });
