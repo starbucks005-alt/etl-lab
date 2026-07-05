@@ -49,10 +49,11 @@ header.top{border-bottom:1px solid var(--line);background:var(--surface)}
 .companybtn b{color:var(--gold)}
 .topnav{display:flex;gap:20px;align-items:center;flex-wrap:wrap}.topnav a{color:var(--ink);text-decoration:none;font-weight:600;font-size:13px}.topnav a:hover{color:var(--gold)}
 .hero{padding:34px 0 8px}
-.hero-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:36px;align-items:center}
+.hero-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:36px;align-items:stretch}
+.hero-left{display:flex;flex-direction:column}
 .hero h1{font-size:68px;margin:0 0 12px;font-weight:500;line-height:1.03}
 .hero p{margin:0;color:var(--muted);max-width:560px;line-height:1.5;font-size:16px}
-.hero-art{position:relative;border-radius:16px;overflow:hidden;aspect-ratio:4/5;background:var(--surface2);width:100%;max-width:300px;max-height:360px;margin-left:auto}
+.hero-art{position:relative;border-radius:16px;overflow:hidden;background:var(--surface2);width:100%;max-width:360px;min-height:300px;margin-left:auto;align-self:stretch}
 .hero-art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 3s ease}
 .hero-art img.active{opacity:1}
 .hero-im-badge{position:absolute;bottom:14px;right:14px;background:var(--gold);color:#fff;font-family:Spectral,serif;font-style:italic;font-weight:300;font-size:26px;padding:6px 18px;border-radius:999px;box-shadow:0 6px 18px rgba(0,0,0,.25);z-index:2}
@@ -186,10 +187,22 @@ h1 em,h2 em{font-weight:300;color:#28527a}
 
 <div class="wrap hero">
   <div class="hero-grid">
-    <div class="hero-copy">
-      <h1>ETL Messenger</h1>
-      <p>Pick anyone on staff below and start talking, free, right now.</p>
-      <div class="carol-callout">Enjoy talking with our staff? Want to hire them? Head over to <a href="https://emerging-tech-lab.com/etl-staffing">Carol's</a> and learn more (Founders Studio and ETL Deskworks Dayton).</div>
+    <div class="hero-left">
+      <div class="hero-copy">
+        <h1>ETL Messenger</h1>
+        <p>Pick anyone on staff below and start talking, free, right now.</p>
+        <div class="carol-callout">Enjoy talking with our staff? Want to hire them? Head over to <a href="https://emerging-tech-lab.com/etl-staffing">Carol's</a> and learn more (Founders Studio and ETL Deskworks Dayton).</div>
+      </div>
+      <div class="hire-secondary">
+        <p class="label">Want to hire them onto your own company instead?</p>
+        <p><b>$99/mo</b> gets your PA and your Studio. That is the only thing you ever have to buy, and a company can run on it. We suggest the essential six-pack (six staff for another $99, a no-brainer) and a few specialists, but you choose. The machine is $99; the staff are the cups. Even a full ten-person company stays under $250/mo, salaries included, less than one intern.</p>
+        <div class="valbar">
+          <span class="pill"><b>PA + Studio</b> &middot; $99/mo &middot; all you must buy</span>
+          <span class="pill"><b>Essential six-pack</b> &middot; +$99/mo &middot; suggested</span>
+          <span class="pill"><b>Standard</b> &middot; $25 &middot; <b>MCP</b> &middot; $35 (backpack)</span>
+          <span class="pill"><b>C-suite</b> &middot; $45, or $119 with a backpack &middot; free assistant</span>
+        </div>
+      </div>
     </div>
     <div class="hero-art" id="heroArt">
       <img src="/agents/messenger-hero/Antonio.jpg" alt="Antonio messaging" class="active">
@@ -206,16 +219,6 @@ h1 em,h2 em{font-weight:300;color:#28527a}
       <img src="/agents/messenger-hero/Priya.jpg" alt="Priya messaging">
       <img src="/agents/messenger-hero/Walt.jpg" alt="Walt messaging">
       <div class="hero-im-badge">IM</div>
-    </div>
-  </div>
-  <div class="hire-secondary">
-    <p class="label">Want to hire them onto your own company instead?</p>
-    <p><b>$99/mo</b> gets your PA and your Studio. That is the only thing you ever have to buy, and a company can run on it. We suggest the essential six-pack (six staff for another $99, a no-brainer) and a few specialists, but you choose. The machine is $99; the staff are the cups. Even a full ten-person company stays under $250/mo, salaries included, less than one intern.</p>
-    <div class="valbar">
-      <span class="pill"><b>PA + Studio</b> &middot; $99/mo &middot; all you must buy</span>
-      <span class="pill"><b>Essential six-pack</b> &middot; +$99/mo &middot; suggested</span>
-      <span class="pill"><b>Standard</b> &middot; $25 &middot; <b>MCP</b> &middot; $35 (backpack)</span>
-      <span class="pill"><b>C-suite</b> &middot; $45, or $119 with a backpack &middot; free assistant</span>
     </div>
   </div>
 </div>
