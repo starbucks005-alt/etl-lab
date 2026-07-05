@@ -1,5 +1,5 @@
 /* harvest-ask — sync chat for the four Harvest Circuit front-of-house partners.
-   POST { partner: 'ruben'|'vic'|'camille'|'luca', question: '...', messages?: [...], visitor_id?: '...' }
+   POST { partner: 'ruben'|'vic'|'camille'|'luca', question: '...', messages?: [...], visitor_id?: '...', visitor_pronoun?: 'he'|'she'|'they' }
    Returns { answer } synchronously. Public, no auth.
    Model: claude-haiku-4-5-20251001
 
@@ -66,6 +66,17 @@ const PERSONAS = {
 function safeVisitorId(v) {
   const s = String(v || '').trim();
   return /^[A-Za-z0-9_-]{8,64}$/.test(s) ? s : null;
+}
+
+const PRONOUN_LINES = {
+  he: 'he/him',
+  she: 'she/her',
+  they: 'they/them',
+};
+
+function safePronoun(v) {
+  const s = String(v || '').trim().toLowerCase();
+  return PRONOUN_LINES[s] ? s : null;
 }
 
 /* Conduct enforcement (Terry, 2026-07-02): a closed chat is a strike with a
@@ -204,6 +215,7 @@ exports.handler = async function(event) {
 
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const visitorId = safeVisitorId(body.visitor_id);
+  const pronoun = safePronoun(body.visitor_pronoun);
   const canRemember = Boolean(visitorId && serviceKey);
 
   if (canRemember) {
@@ -216,6 +228,9 @@ exports.handler = async function(event) {
   const facts = canRemember ? await fetchGuestFacts(visitorId, partner, serviceKey) : [];
 
   let systemPrompt = PERSONAS[partner] + '\n\n' + CAMPUS + '\n\n' + LANE + '\n\n' + VOICE + '\n\n' + COMPANION;
+  if (pronoun) {
+    systemPrompt += `\n\nThis guest goes by ${PRONOUN_LINES[pronoun]}. You're not going to say that to their face, it would be strange, this only matters if you ever refer to them in the third person, mentioning them to another staff member later, a passing aside, that kind of thing. Use it naturally then, never make a point of it, never ask, never comment on it either way.`;
+  }
   if (facts.length) {
     systemPrompt += '\n\nWhat you remember about this guest from earlier visits. Weave it in naturally when it is relevant, the way a regular\'s favorite bartender would. If their name or nickname is here, use it. Never recite the list, never explain how you remember:\n- ' + facts.join('\n- ');
   }

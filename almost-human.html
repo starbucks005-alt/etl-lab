@@ -109,7 +109,7 @@
   .coming-soon-card p { font-size: .85rem; color: var(--muted); line-height: 1.5; max-width: 320px; }
 
   /* ── ROOM ── */
-  #room { height: 100vh; overflow: hidden; }
+  #room { height: 100vh; height: 100dvh; overflow: hidden; }
   #room.active { display: flex; flex-direction: column; }
   .room-portrait-wrap { position: relative; width: 100%; height: 46vh; min-height: 320px; overflow: hidden; background: #000; }
   .room-portrait-wrap img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
@@ -139,9 +139,21 @@
   .bubble.system { align-self: center; color: var(--muted); font-size: .8rem; font-style: italic; }
 
   #room-form { display: flex; gap: .6rem; padding: 1rem 1.4rem 1.4rem; max-width: 720px; width: 100%; margin: 0 auto; }
-  #room-input { flex: 1; background: var(--panel); border: 1px solid var(--line); border-radius: 999px; color: var(--cream); font-size: .95rem; padding: .8rem 1.1rem; font-family: inherit; }
+  #room-input { flex: 1; background: var(--panel); border: 1px solid var(--line); border-radius: 999px; color: var(--cream); font-size: 1rem; padding: .8rem 1.1rem; font-family: inherit; }
   #room-send { font-family: 'IBM Plex Mono', monospace; font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; background: #fff; color: var(--black); border: none; border-radius: 999px; padding: 0 1.4rem; cursor: pointer; font-weight: 600; }
   #room-send:disabled { opacity: .4; cursor: not-allowed; }
+
+  @media (max-width: 480px) {
+    .room-portrait-wrap { height: 26vh; min-height: 170px; }
+    .gauge-wrap { top: .6rem; right: .6rem; min-width: 118px; padding: .5rem .6rem; }
+    .gauge-emoji { font-size: 1.15rem; }
+    .gauge-label { font-size: .56rem; }
+    .gauge-row { margin-top: .22rem; gap: .35rem; }
+    .gauge-row-label { font-size: .5rem; width: 2.7rem; }
+    .room-name-tag { font-size: 1.05rem; left: .7rem; bottom: .7rem; }
+    #room-log { padding: .8rem 1rem; }
+    #room-form { padding: .7rem 1rem 1rem; }
+  }
 </style>
 </head>
 <body>

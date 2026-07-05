@@ -267,6 +267,9 @@
   .m-chips{display:flex;flex-wrap:wrap;gap:.45rem;margin:.2rem 0 .9rem;}
   .m-chip{font-size:.8rem;background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:999px;padding:.35rem .75rem;cursor:pointer;}
   .m-chip:hover{border-color:var(--amber);}
+  .m-chip.active{border-color:var(--amber);color:var(--amber);}
+  .m-pron{margin:0 0 .8rem;}
+  .m-pron-label{font-family:'IBM Plex Mono',monospace;font-size:.68rem;letter-spacing:.05em;text-transform:uppercase;color:var(--mute);display:block;margin-bottom:.4rem;}
   .m-row{display:flex;gap:.5rem;}
   .m-row input{flex:1;background:var(--bg2);border:1px solid var(--line);border-radius:8px;color:var(--text);font-family:'Inter';font-size:.95rem;padding:.6rem .7rem;}
   .m-ask{font-family:'IBM Plex Mono',monospace;font-size:.74rem;letter-spacing:.05em;text-transform:uppercase;font-weight:600;background:var(--amber);color:#0d0a05;border:none;border-radius:8px;padding:0 1.1rem;cursor:pointer;}
@@ -284,6 +287,14 @@
     <div class="m-hd"><span class="av av-sm" id="mAv"></span><span><span class="nm" id="mName"></span><br><span class="rl" id="mRole"></span></span><span class="m-ic" id="mIcon"></span><button class="m-x" id="mX" aria-label="Close">&times;</button></div>
     <div class="m-bd">
       <p class="m-intro" id="mIntro"></p>
+      <div class="m-pron">
+        <span class="m-pron-label">How should they refer to you? (optional)</span>
+        <div class="m-chips" id="mPronChips">
+          <span class="m-chip" data-p="he">He</span>
+          <span class="m-chip" data-p="she">She</span>
+          <span class="m-chip" data-p="they">They</span>
+        </div>
+      </div>
       <p class="m-start">Start here, or ask your own.</p>
       <div class="m-chips" id="mChips"></div>
       <div class="m-row"><input id="mInput" type="text" placeholder="Ask a question..."><button class="m-ask" id="mAsk" type="button">Ask</button></div>
@@ -339,6 +350,7 @@
     $('mInput').value=''; var r=$('mResp'); r.textContent=''; r.className='m-resp';
     var t=$('mTools'); t.className='m-tools'; lastAns='';
     $('mListen').style.display=a.voice?'':'none'; resetListenBtn();
+    renderPronChips();
     var h=HIST[k]||[];
     for(var i=h.length-1;i>=0;i--){
       if(h[i].role==='assistant'){ r.textContent=h[i].content; r.className='m-resp show'; lastAns=h[i].content; t.className='m-tools show'; break; }
@@ -353,6 +365,19 @@
       return v;
     }catch(_){ return null; }
   }
+  function visitorPronoun(){ try{ return localStorage.getItem('etl_hc_pronoun')||''; }catch(_){ return ''; } }
+  function setVisitorPronoun(p){ try{ if(p) localStorage.setItem('etl_hc_pronoun',p); else localStorage.removeItem('etl_hc_pronoun'); }catch(_){} }
+  function renderPronChips(){
+    var cur=visitorPronoun();
+    $('mPronChips').querySelectorAll('.m-chip').forEach(function(ch){ ch.classList.toggle('active', ch.dataset.p===cur); });
+  }
+  $('mPronChips').querySelectorAll('.m-chip').forEach(function(ch){
+    ch.addEventListener('click',function(){
+      var p=ch.dataset.p;
+      setVisitorPronoun(visitorPronoun()===p ? '' : p);
+      renderPronChips();
+    });
+  });
   var HIST={};
   try{ HIST=JSON.parse(localStorage.getItem('etl_hc_hist')||'{}')||{}; }catch(_){ HIST={}; }
   function saveHist(){
@@ -369,7 +394,7 @@
     var r=$('mResp'); r.className='m-resp show'; r.textContent=a.name.split(' ')[0]+' is thinking...';
     if(!HIST[k]) HIST[k]=[];
     var msgs=HIST[k].concat([{role:'user',content:q}]);
-    fetch('/.netlify/functions/harvest-ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({partner:k,question:q,messages:msgs,visitor_id:visitorId()})})
+    fetch('/.netlify/functions/harvest-ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({partner:k,question:q,messages:msgs,visitor_id:visitorId(),visitor_pronoun:visitorPronoun()})})
       .then(function(res){ if(!res.ok) throw new Error('x'); return res.json(); })
       .then(function(d){
         var ans=(d.answer||d.response||'').trim()||(a.name.split(' ')[0]+' did not have an answer for that.');
