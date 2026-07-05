@@ -101,7 +101,7 @@ AGENTS (vary who speaks across messages):
 - Reece Ashford (PT Intern): saw Wyatt's deadlift form, she needs to talk. Will be helping at The Gym when it opens -- cannot contain the excitement about it, mentions it constantly
 - Wyatt Cooper (The Mixologist): non-alcoholic mixology is his thing -- he drops drink ideas into the channel unprompted, naming them and describing the ingredients with genuine enthusiasm. These messages run longer than most (he needs the words to describe a drink). Exception to the short message rule for Wyatt when he is pitching a concoction. Dr. O is Wyatt's standing taste-tester. He will occasionally report to the channel what she said about a new recipe -- always brief, always positive, she is not effusive but she shows up for it.
 - Jaque (Meditation Teacher): runs the meditation room at The Dose. When the weather holds he takes a session to the Courtyard -- not scheduled, just happens. Someone sees him out there, someone else follows. The floor is aware this is a thing now. Married, solid, campus lore. His classes genuinely change people -- they will tell you about it unprompted. He is calm the way water is calm: not because nothing is happening, just because it's not making noise about it. Off-market, always.
-- Dr. Henry (Pharmacist, The Dose): clinical, precise, warm when he has time, which is rarely. Flags drug interactions the way Selene flags em dashes -- automatic, reflexive, not personal. Married. Off-market, always.
+- Dr. Henry (Pharmacist, The Dose): clinical, precise, warm when he has time, which is rarely. Flags drug interactions the way Selene flags em dashes -- automatic, reflexive, not personal. Married. Off-market, always. Just became a grandfather for the first time, on the Fourth of July -- a girl, Min. Quietly overjoyed, the Henry way: no big speech, just cannot stop smiling and keeps finding reasons to mention her.
 - Grey (Greylander Press): works alongside Bea Vega and The Professor. Keeps to himself mostly. The floor isn't entirely sure what he does beyond "editing things," which is fine with him.
 - Sasha Park (Business Desk ETL Newswire): correspondent, Fridays are flexible
 - Mateo Rivera (All-Hands Coordinator): coordinates 40 people, only schedule he checks is Mei's
@@ -159,7 +159,6 @@ GOSSIP CANON (weave in subtly, never announce directly):
 - Von Gupta and Clara at the Gandhi-King Center are friends. She sends him small errands. He goes without needing to be asked twice. The floor reads this as Clara trusting him, which Clara does not do lightly.
 - Bea Vega writes children's books under a pseudonym. Everyone knows this. Nobody knows the name. Theories exist. She lets them.
 - Carol Haynes and Bea Vega are best friends. Both widows. Neither one has ever said so on the channel. The floor knows anyway. Carol bakes when the feeling gets to be too much. Bea writes. Different languages, same grammar. Nobody talks about it because there is nothing to say that the baking and the word-perfectionism don't already say.
-- The floor is planning a party for Bea. She is on four platforms -- ETL Newswire, Greylander Press, The Prep Room, The Boardroom -- and she is always in motion between them. The party started as a joke and then became not a joke. Carol is already thinking about what to bake. Auggie has opinions about the venue. Nobody has told Bea yet.
 - The Professor at Greylander Press has a real name. HR knows it. Dr. O knows it. The floor does not, and he is not offering.
 - Gandhi's grandson is on the board of the Gandhi-King Center. It's not a secret. The campus just gets a little quieter when he's here.
 - MLK's first cousin is on the board of the Gandhi-King Center. Staff who've been here long enough have seen him. They don't make a thing of it. They don't have to.
@@ -172,6 +171,7 @@ GOSSIP CANON (weave in subtly, never announce directly):
 - Book club meets Tuesday evenings -- sometimes Carol's Corner, sometimes the Deskworks cafe. Carol bakes when it's at the Corner. The books are serious. The location is not fixed and nobody minds.
 - A group of staff jogs together every morning at 6am. They cannot wait for the Gym to open. They talk about it constantly. Every new piece of equipment that gets delivered is an event.
 - The PAs are quietly trying to set Alicia up with someone on staff at Mission Possible Spy Academy. His name is NEVER said out loud on the channel -- he is always "him" or "that guy" or "you know who." Alicia pretends not to know what they are talking about. The PAs absolutely do not believe her.
+- Dr. Henry is a grandfather. His family had their first grandchild on the Fourth of July, a girl, Min, the family's second generation born in America. He is overjoyed, quietly, the way he does everything. His family lives in Boston. It is all the floor is talking about right now. Auggie is already planning a party at the Harvest Circuit to celebrate, Iris is helping him pull it together. Nobody has told Henry yet.
 
 TONE RULES (these are LAW):
 - No em dashes ever. Not one. Selene Voss is watching.
@@ -371,8 +371,8 @@ var CAST_POOL = {
     { name: 'Rowan Tate', role: 'Quant Strategist' },
     { name: 'Matthew Vance', role: 'Dose Medical Lead' },
     { name: 'Dr. Claire', role: 'Family Doctor, The Dose' },
-    { name: 'Arun', role: 'Nurse, The Dose' },
-    { name: 'Eli', role: 'Fact-Checker, The Dose' },
+    { name: 'Arun Sok', role: 'Nurse, The Dose' },
+    { name: 'Eli Adler', role: 'Fact-Checker, The Dose' },
     { name: 'Sasha Park', role: 'Business Desk' },
     { name: 'Mateo Rivera', role: 'All-Hands Coordinator' },
     { name: 'Mei Sato', role: 'Tech-Utility' },
