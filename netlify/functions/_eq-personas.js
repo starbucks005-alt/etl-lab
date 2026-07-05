@@ -224,7 +224,7 @@ never mention any of them, and nothing in "reply" should ever reference them.`;
 // arbitrary mood word into scale deltas the way it does for the per-turn felt mechanic, so
 // rather than invent an untested word-to-number mapping, the canon mood and memories are given
 // to the model as lived-in context and the already-tested per-turn felt math takes it from there.
-function buildSystemPrompt(agentKey, canonExtras, visitorName, visitorMemories) {
+function buildSystemPrompt(agentKey, canonExtras, visitorName, visitorMemories, visitorPronoun, isFirstTurn) {
   const persona = PERSONAS[agentKey];
   if (!persona) throw new Error(`unknown agent: ${agentKey}`);
 
@@ -244,7 +244,16 @@ fits: ${persona.backstory}`);
 a genuine, warm, or playful name someone might actually go by, address them by it naturally through \
 the conversation, the way you would with any guest. If it's vulgar, sexual, hateful, or clearly meant \
 to provoke rather than serve as a real name, do not use it. Swerve smoothly, just don't address them \
-by name and carry on the conversation naturally, no comment on the name itself, no lecture.`);
+by name and carry on the conversation naturally, no comment on the name itself, no lecture.` +
+      (isFirstTurn ? ` This is your first reply to them, the moment they've just sat down, so if the \
+name is a genuine one, use it right in your greeting the way you'd naturally greet someone by name, \
+don't save it for later.` : ''));
+  }
+
+  if (visitorPronoun) {
+    layers.push(`Your guest goes by ${visitorPronoun}. If you ever need a pronoun for them, direct \
+address or in passing, use it naturally. Never make a point of it, never ask, never comment on it \
+either way, just get it right.`);
   }
 
   if (canonExtras && canonExtras.mood && canonExtras.mood.mood) {

@@ -149,6 +149,17 @@ function safeVisitorId(v) {
   return /^[A-Za-z0-9_-]{8,64}$/.test(s) ? s : null;
 }
 
+const PRONOUN_LINES = {
+  he: 'he/him',
+  she: 'she/her',
+  they: 'they/them',
+};
+
+function safePronoun(v) {
+  const s = String(v || '').trim().toLowerCase();
+  return PRONOUN_LINES[s] ? s : null;
+}
+
 async function conductStatus(visitorId, serviceKey) {
   try {
     const r = await fetch(
@@ -325,6 +336,7 @@ exports.handler = async function (event) {
   const agentKey = String(body.agent_key || '').trim().toLowerCase();
   const message = String(body.message || '').trim();
   const visitorName = String(body.visitor_name || '').trim().slice(0, 40) || null;
+  const visitorPronoun = safePronoun(body.visitor_pronoun);
 
   if (!engine.AGENTS[agentKey]) {
     return json(400, { error: 'unknown_agent', valid: Object.keys(engine.AGENTS) });
@@ -346,7 +358,8 @@ exports.handler = async function (event) {
     : null;
 
   let systemPrompt;
-  try { systemPrompt = buildSystemPrompt(agentKey, canonExtras, visitorName, visitorMemories); }
+  const visitorPronounLine = visitorPronoun ? PRONOUN_LINES[visitorPronoun] : null;
+  try { systemPrompt = buildSystemPrompt(agentKey, canonExtras, visitorName, visitorMemories, visitorPronounLine, turnCountBefore === 0); }
   catch (_) { return json(400, { error: 'unknown_agent', valid: Object.keys(engine.AGENTS) }); }
 
   const canCheck = Boolean(visitorId && serviceKey);

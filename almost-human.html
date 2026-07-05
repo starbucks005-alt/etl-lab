@@ -82,6 +82,10 @@
   .consent-card li { font-size: .88rem; line-height: 1.55; color: var(--cream); margin-bottom: .6rem; }
   .consent-card label.name-label { display: block; font-family: 'IBM Plex Mono', monospace; font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 1.2rem 0 .4rem; }
   .consent-card input[type=text] { width: 100%; background: #0f0f16; border: 1px solid var(--line); border-radius: 8px; color: var(--cream); font-size: .95rem; padding: .6rem .7rem; font-family: inherit; }
+  .pron-chips { display: flex; flex-wrap: wrap; gap: .5rem; }
+  .pron-chip { font-size: .85rem; background: #0f0f16; border: 1px solid var(--line); color: var(--cream); border-radius: 999px; padding: .4rem .9rem; cursor: pointer; }
+  .pron-chip:hover { border-color: #4c5fd6; }
+  .pron-chip.active { border-color: #4c5fd6; color: #9fb0ff; }
   .consent-check { display: flex; gap: .6rem; align-items: flex-start; margin: 1.2rem 0; font-size: .85rem; color: var(--cream); }
   .consent-btn { width: 100%; margin-top: .4rem; font-family: 'IBM Plex Mono', monospace; font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; background: #fff; color: var(--black); border: none; border-radius: 8px; padding: .9rem; cursor: pointer; font-weight: 600; }
   .consent-btn:disabled { opacity: .4; cursor: not-allowed; }
@@ -188,6 +192,12 @@
     </ul>
     <label class="name-label" for="consentName">What should they call you?</label>
     <input type="text" id="consentName" placeholder="Pick any name" maxlength="40">
+    <label class="name-label">How should they refer to you? (optional)</label>
+    <div class="pron-chips" id="consentPronounChips">
+      <span class="pron-chip" data-p="he">He</span>
+      <span class="pron-chip" data-p="she">She</span>
+      <span class="pron-chip" data-p="they">They</span>
+    </div>
     <div class="consent-check">
       <input type="checkbox" id="consentRemember" style="margin-top:.2rem;">
       <label for="consentRemember">Remember me here next time, so whoever I talk to can recall we've met.</label>
@@ -289,8 +299,18 @@ function visitorId() {
 
 var displayName = '';
 var rememberMe = false;
+var visitorPronoun = '';
 $('consentCheck').addEventListener('change', function () {
   $('consentGo').disabled = !this.checked;
+});
+$('consentPronounChips').querySelectorAll('.pron-chip').forEach(function (chip) {
+  chip.addEventListener('click', function () {
+    var p = chip.dataset.p;
+    visitorPronoun = (visitorPronoun === p) ? '' : p;
+    $('consentPronounChips').querySelectorAll('.pron-chip').forEach(function (c) {
+      c.classList.toggle('active', c.dataset.p === visitorPronoun);
+    });
+  });
 });
 $('splashEnter').addEventListener('click', function () { $('consent').classList.add('open'); });
 
@@ -446,6 +466,7 @@ $('room-form').addEventListener('submit', function (e) {
       turn_count: turnCount,
       visitor_id: visitorId(),
       visitor_name: displayName,
+      visitor_pronoun: visitorPronoun,
       remember: rememberMe,
     }),
   })
