@@ -2922,8 +2922,6 @@ document.addEventListener('DOMContentLoaded', function(){
 #etl-cc .travel{font-family:var(--mono);font-size:10px;color:var(--rose);letter-spacing:.04em;display:flex;align-items:center;gap:6px;margin-top:2px;width:100%}
 #etl-cc .card.pending-card{opacity:.62;border-style:dashed}
 #etl-cc .card.pending-card:hover{opacity:.85}
-#etl-cc .card.harvest-open{box-shadow:0 0 0 1px rgba(168,181,74,.45),0 0 22px rgba(168,181,74,.2),0 0 52px rgba(168,181,74,.09);border-color:rgba(168,181,74,.5);animation:harvest-pulse 3.2s ease-in-out infinite}
-@keyframes harvest-pulse{0%,100%{box-shadow:0 0 0 1px rgba(168,181,74,.45),0 0 22px rgba(168,181,74,.2),0 0 52px rgba(168,181,74,.09)}50%{box-shadow:0 0 0 1px rgba(168,181,74,.7),0 0 38px rgba(168,181,74,.32),0 0 72px rgba(168,181,74,.14)}}
 #etl-cc .pill.open-now{color:#a8b54a;border-color:rgba(168,181,74,.45);background:rgba(168,181,74,.1);animation:harvest-pulse-pill 3.2s ease-in-out infinite}
 @keyframes harvest-pulse-pill{0%,100%{opacity:1}50%{opacity:.65}}
 #etl-cc .etlcc-hidden{display:none !important}
@@ -2987,7 +2985,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
   <div id="viewA" class="etlcc-hidden">
     <div class="secthead"><h2>Find your building</h2><div class="meta">ROUTES BY WHO YOU ARE</div></div>
-    <p class="lede">Eight neighborhoods. You arrive knowing what you came for and you go straight to the door. Each card's left edge is its neighborhood color &mdash; meant to match the building's color on your map just below.</p>
+    <p class="lede">Nine neighborhoods. You arrive knowing what you came for and you go straight to the door. Each card's left edge is its neighborhood color &mdash; meant to match the building's color on your map just below.</p>
     <div id="domainGrid"></div>
     <div class="legend">
       <span><span class="sw" style="background:var(--green)"></span>Free everywhere</span>
@@ -3018,10 +3016,10 @@ document.addEventListener('DOMContentLoaded', function(){
 
 <script>
 (function(){
-  const C = {sec:'#46d6e6',health:'#5bd6a0',acad:'#e8b659',news:'#9b8cf0',biz:'#f0975a',mission:'#e8728c',gov:'#4a6fa5',dining:'#a8b54a'};
+  const C = {sec:'#46d6e6',health:'#5bd6a0',acad:'#e8b659',news:'#9b8cf0',biz:'#f0975a',mission:'#e8728c',gov:'#4a6fa5',dining:'#a8b54a',friends:'#f2765c'};
   const DOM = {
     sec:'Security & Eval', health:'Health', acad:'Academia',
-    news:'News & Pub', biz:'Professional', mission:'Mission', gov:'Government', dining:'Dining'
+    news:'News & Pub', biz:'Professional', mission:'Mission', gov:'Government', dining:'Dining', friends:'Friends'
   };
 
   const platforms = [
@@ -3031,10 +3029,11 @@ document.addEventListener('DOMContentLoaded', function(){
     {name:'The Dose',          url:'https://thedose.net/',                             role:'Health literacy, verified',  dom:'health',  type:'count',  n:13, access:'free',    travel:'2 travel in from Newswire'},
     {name:'ETL Newswire',      url:'/press',                                           role:'AI-staffed newsroom',        dom:'news',    type:'count',  n:12, access:'free'},
     {name:'The Boardroom',     url:'/boardroom',                                       role:'For professionals',          dom:'biz',     type:'count',  n:10, access:'paid',   travel:'9 of 10 also work the Prep Room'},
-    {name:'Almost Human',      url:'/almost-human',                                    role:'Unscripted one-on-one, live emotional read', dom:'dining', type:'count', n:10, access:'free', travel:'private room in the Harvest Circuit &middot; borrows 10 agents campus-wide'},
+    {name:'Almost Human',      url:'/almost-human',                                    role:'The friend experience, and so much more', dom:'friends', type:'count', n:10, access:'free', travel:'private room in the Harvest Circuit &middot; borrows 10 agents campus-wide'},
     {name:'Greylander Press',  url:'https://greylanderpress.com/',                     role:'Independent imprint',        dom:'news',    type:'count',  n:9,  access:'paid', price:'From $19/mo'},
     {name:'The Gym',           url:'/gym',                                             role:'Movement & wellness',        dom:'health',  type:'count',  n:6,  access:'free'},
     {name:'City Government',   url:'/city-government',                                  role:'For residents',              dom:'gov',     type:'count',  n:5,  access:'free'},
+    {name:'The Court of Judge Roz', url:'/court',                                       role:'You thought Judge Judy was tough', dom:'gov', type:'count', n:1, access:'free', travel:'a real citation under every ruling'},
     {name:'Gandhi-King Center',url:'https://gandhi-king-center-for-nonviolence.org/',  role:'Peace & civic leadership',   dom:'mission', type:'count',  n:4,  access:'free'},
     {name:'Intel Dashboard',   url:'https://inteldashboard.org/',                      role:'Signal-gap engine',          dom:'sec',     type:'engine', n:1, tool:'18 modules &middot; live MCP', access:'free'},
     {name:'SLR Studio',        url:'https://slrstudio.online/',                        role:'Research engine &middot; Cleo', dom:'acad', type:'engine', n:1, tool:'6 modes &middot; 10 tools',    access:'paid', price:'From $19/mo'},
@@ -3043,9 +3042,10 @@ document.addEventListener('DOMContentLoaded', function(){
     {name:'Build Your Own Agent', url:'/build-your-own-agent', role:'Build a new agent from scratch',                  dom:'biz',  type:'engine', tool:'Purpose &middot; backpack &middot; voice', access:'paid', price:'From $5'},
     {name:'Take It With You',     url:'/export-your-agent',  role:'Run your agent on your own website',               dom:'biz',  type:'engine', tool:'Embed &middot; API &middot; MCP backpack', access:'paid', price:'From $5'},
     {name:"Chris's Tailor Shop",  url:'/tailor-shop',         role:'Where agents get made, and remade',                dom:'biz',  type:'engine', tool:'Persona Desk &middot; Wardrobe &middot; Voice Booth', access:'paid', price:'From $1/look'},
+    {name:'ETL Chat',             url:'/hiring-pool',         role:'Chat with a staff member',                         dom:'friends', type:'engine', tool:'Open the staff catalog &middot; pick a staff member &middot; IM them', access:'free'},
     {name:'The Harvest Circuit',  url:'/restaurant',         role:'Farm to table, wired through',                    dom:'dining', type:'count', n:8, access:'free', travel:'first floor &middot; 3 native, 5 travel in'},
     {name:'ETL Classrooms',       url:'/classrooms',         role:'AI agents for education',                         dom:'acad',    type:'engine', tool:'Teaching Assistants &middot; ETL Faculty &middot; Living Legends', access:'paid', price:'From $99/mo'},
-    {name:'OPSEC Gauntlet',    url:'https://opsec-gauntlet.netlify.app/',             role:'Operational stress-test',    dom:'sec',     type:'count',  n:20, access:'paid', price:'$19.99/mo'},
+    {name:'OPSEC Gauntlet',    url:'https://opsec-gauntlet.netlify.app/',             role:'Have an idea or skill that could protect your country?',    dom:'sec',     type:'count',  n:20, access:'paid', price:'$19.99/mo'},
     {name:'Spy Academy',       url:null,                                               role:'MPSA &middot; certification',dom:'acad',    type:'count',  n:2,  access:'pending'},
   ];
 
@@ -3058,6 +3058,7 @@ document.addEventListener('DOMContentLoaded', function(){
     {key:'mission', label:'Mission',                  color:C.mission},
     {key:'gov',     label:'Government',                color:C.gov},
     {key:'dining',  label:'Dining',                   color:C.dining},
+    {key:'friends', label:'Friends',                  color:C.friends},
   ];
 
   document.getElementById('domKey').innerHTML = domains.map(d =>
