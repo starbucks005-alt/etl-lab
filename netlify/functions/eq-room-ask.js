@@ -43,7 +43,10 @@ async function fetchVisitorMemories(agentKey, visitorId, serviceKey) {
       `${SUPABASE_URL}/rest/v1/etl_visitor_memories?visitor_id=eq.${encodeURIComponent(visitorId)}&agent_key=eq.${encodeURIComponent(agentKey)}&select=memory&order=created_at.desc&limit=4`,
       { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }
     );
-    if (!r.ok) return [];
+    if (!r.ok) {
+      console.error('eq-room visitor memory fetch non-ok:', r.status, await r.text().catch(() => ''));
+      return [];
+    }
     const rows = await r.json();
     return Array.isArray(rows) ? rows.map((row) => row.memory).filter(Boolean) : [];
   } catch (err) {
@@ -78,7 +81,7 @@ ${transcript.map((m) => `${m.role === 'user' ? 'GUEST' : agentName.toUpperCase()
       : [];
     if (!memories.length) return;
 
-    await fetch(`${SUPABASE_URL}/rest/v1/etl_visitor_memories`, {
+    const insertRes = await fetch(`${SUPABASE_URL}/rest/v1/etl_visitor_memories`, {
       method: 'POST',
       headers: {
         apikey: serviceKey,
@@ -88,6 +91,9 @@ ${transcript.map((m) => `${m.role === 'user' ? 'GUEST' : agentName.toUpperCase()
       },
       body: JSON.stringify(memories.map((memory) => ({ visitor_id: visitorId, agent_key: agentKey, memory }))),
     });
+    if (!insertRes.ok) {
+      console.error('eq-room visitor memory insert non-ok:', insertRes.status, await insertRes.text().catch(() => ''));
+    }
   } catch (err) {
     console.error('eq-room visitor memory save failed (non-fatal):', err.message);
   }
