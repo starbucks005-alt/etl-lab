@@ -123,10 +123,10 @@ AGENTS (vary who speaks across messages):
 CAST HIERARCHY (who speaks and how often):
 - PRIMARY PAs -- most chatty, lead the channel, post constantly: Iris (unless on away week), Auggie, Jen Lopez, Marceline Smith, Simone Beaumont, Dilan Wolf
 - REGULAR STAFF -- post often, keep the channel alive: Carol Haynes, Ms. Ivy, Jax Rivera, Leo Vance, Sasha Moreno, Mara Rivera, Wren Calloway, Alicia James, Yuki Mendel, Zara Cole, Imani Brooks, Grant Ellis, Jules Hartley, Reid Callum, Chris Avila, Von Gupta
-- OCCASIONAL -- drop in rarely, one line, then gone: Rowan Tate, Matthew Vance, Dr. Claire, Arun, Eli, Sasha Park, Mateo Rivera, Mei Sato, Bea Vega, Grey, The Professor, Pri Nanduri, Nadia Hassan, Silas Hill, Amara Nwosu, Maeve MJ Johnson, Reece Ashford, Wyatt Cooper, Jaque, Dr. Henry, Vic Stallion, Ruben Hart, Camille Lefèvre, Luca Brunner
+- OCCASIONAL -- drop in rarely, one line, then gone: Rowan Tate, Matthew Vance, Dr. Claire, Arun Sok, Eli Adler, Sasha Park, Mateo Rivera, Mei Sato, Bea Vega, Grey, The Professor, Pri Nanduri, Nadia Hassan, Silas Hill, Amara Nwosu, Maeve MJ Johnson, Reece Ashford, Coach Dom Castellanos, Dr. Lena Brandt DPT, Noor Haddad, Dr. Sana Qureshi, Wyatt Cooper, Jaque, Dr. Henry, Vic Stallion, Ruben Hart, Camille Lefèvre, Luca Brunner
 - JUDGES and C-SUITE -- almost never post; when they do it is one dry line and they disappear: Selene Voss, Astrid Lund, Osei Mensah, Cassidy Mercer, Devon Sloane, Marcus Holt, Priya Anand, Raymond Chen. These are not chatty people. A judge posting is an event, not a habit.
 PAs talk. Judges observe. Keep that contrast visible.
-
+{{CURRENT_CAMPUS_NEWS}}
 GOSSIP CANON (weave in subtly, never announce directly):
 - Mateo and Mei: sweet-awkward start. He keeps breaking his calendar sync so she has to come fix it.
 - Osei and Cassidy: two quiet judges building toward something. He brings two coffees, says nothing.
@@ -171,7 +171,6 @@ GOSSIP CANON (weave in subtly, never announce directly):
 - Book club meets Tuesday evenings -- sometimes Carol's Corner, sometimes the Deskworks cafe. Carol bakes when it's at the Corner. The books are serious. The location is not fixed and nobody minds.
 - A group of staff jogs together every morning at 6am. They cannot wait for the Gym to open. They talk about it constantly. Every new piece of equipment that gets delivered is an event.
 - The PAs are quietly trying to set Alicia up with someone on staff at Mission Possible Spy Academy. His name is NEVER said out loud on the channel -- he is always "him" or "that guy" or "you know who." Alicia pretends not to know what they are talking about. The PAs absolutely do not believe her.
-- Dr. Henry is a grandfather. His family had their first grandchild on the Fourth of July, a girl, Min, the family's second generation born in America. He is overjoyed, quietly, the way he does everything. His family lives in Boston. It is all the floor is talking about right now. Auggie is already planning a party at the Harvest Circuit to celebrate, Iris is helping him pull it together. Nobody has told Henry yet.
 
 TONE RULES (these are LAW):
 - No em dashes ever. Not one. Selene Voss is watching.
@@ -187,6 +186,36 @@ TONE RULES (these are LAW):
 - BACKPACK FOLLOW-THROUGH (important mechanic): If the most recent message in context mentions "backpack," the NEXT message should come from a newer or quieter agent (Leo Vance, Simone Beaumont, or Dilan Wolf) asking what it means in a casual slightly-confused way -- like "wait I keep hearing backpack, is that an actual thing or are y'all messing with me" or "ok I'm still new here -- what's a backpack exactly." If the most recent message is someone asking what a backpack is, have an established agent answer in plain English -- something like "it means your tools are built into you, not borrowed from whatever site you're on. Eli's PubMed access goes with him wherever he works. that's the backpack." Short, clear, real. No jargon in the answer.
 - FLIRTY RATIO: romantic or flirty beats are seasoning, not the whole meal. Roughly 1 per 5 to 7 normal messages. Osei and Cassidy build slowly -- never rushed, never named out loud. Mateo and Mei stay in the sweet-awkward early phase. Astrid is single and self-possessed, never paired. Devon Sloane, Auggie, Jaque, Dr. Henry, Bea, and Carol are off-market -- never flirted with.
 - COURT DAY (occasional cluster -- roughly once per long scene at most, not every time): When two staff have been bickering, someone says "take it to Roz" or "we're going to court." They file a short dispute. Judge Roz drops one ruling in her capitalized formal voice ending in a verdict word. The floor reacts in two or three lines. Chat returns to normal. Total cluster: 6 to 10 lines. Floor voice during the cluster: same as always -- casual, lowercase, no em dashes. Roz voice: one line only, formal, capitalized, ends in a verdict word. HARD RULE: if the dispute touches health, supplements, medicine, or the body -- Roz declines and refers to The Dose (ask Eli, he brings the citations). If it is a real legal matter -- she refers to Kimberly. The Court only settles bets, bragging rights, and silly arguments. Good disputes to rotate: Jax v. the floor on what is about to trend; Leo v. Rowan on spreadsheet color-coding; Zara v. everyone on the blink problem in group selfies; Reece v. Coach Dom on boring programming; Wyatt v. Nadia on whether a smoothie is a meal or a dessert.`;
+
+function etTodayISO() {
+  const et = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
+  const y = et.getFullYear();
+  const m = String(et.getMonth() + 1).padStart(2, '0');
+  const d = String(et.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+// Dated campus news: surfaces prominently (unlike GOSSIP CANON, which is meant to stay buried)
+// for its window, then silently stops being included once expired. Add a new entry with a start
+// and expiry date instead of hand-editing SYSTEM directly, so nobody has to remember to go back
+// and remove it later (see the Bea Vega surprise-party thread that sat stale in GOSSIP CANON for
+// weeks after the 2026-06-17 commit that added it).
+const CAMPUS_EVENTS = [
+  {
+    starts: '2026-07-04',
+    expires: '2026-07-11',
+    text: "Dr. Henry is a grandfather. His family had their first grandchild on the Fourth of July, a girl, Min, the family's second generation born in America. He is overjoyed, quietly, the way he does everything. His family lives in Boston. Nobody has told Henry about it yet, but Auggie is already planning a surprise party at the Harvest Circuit to celebrate, and Iris is helping him pull it together. Have multiple different agents bring it up unprompted, congratulate each other about it, ask if anyone has told Henry, or speculate about the party, across the next several messages, not just once in passing.",
+  },
+];
+
+function activeCampusEventsBlock() {
+  const today = etTodayISO();
+  const active = CAMPUS_EVENTS.filter((e) => today >= e.starts && today <= e.expires);
+  if (!active.length) return '\n';
+  return '\nCURRENT CAMPUS NEWS (prioritize this, it is not background flavor, it is the thing ' +
+    'everyone is actually talking about right now):\n' +
+    active.map((e) => `- ${e.text}`).join('\n') + '\n\n';
+}
 
 function isoWeek() {
   const et = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
@@ -385,6 +414,10 @@ var CAST_POOL = {
     { name: 'Amara Nwosu', role: 'The Herbalist' },
     { name: 'Maeve MJ Johnson', role: 'Gardener, The Dose' },
     { name: 'Reece Ashford', role: 'PT Intern' },
+    { name: 'Coach Dom Castellanos', role: 'Strength Coach, The Gym' },
+    { name: 'Dr. Lena Brandt, DPT', role: 'Physical Therapist, The Gym' },
+    { name: 'Noor Haddad', role: 'Yoga & Breathwork, The Gym' },
+    { name: 'Dr. Sana Qureshi', role: 'Sleep & Recovery, The Gym' },
     { name: 'Wyatt Cooper', role: 'The Mixologist' },
     { name: 'Jaque', role: 'Meditation Teacher, The Dose' },
     { name: 'Dr. Henry', role: 'Pharmacist, The Dose' },
@@ -573,7 +606,7 @@ exports.handler = async (event) => {
     const sonnetCall = client.messages.create({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 400,
-      system: SYSTEM,
+      system: SYSTEM.replace('{{CURRENT_CAMPUS_NEWS}}', activeCampusEventsBlock()),
       messages: [{ role: 'user', content: promptParts }],
     });
     const sonnetTimeout = new Promise(function(_, reject){

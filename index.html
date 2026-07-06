@@ -2700,13 +2700,13 @@ document.addEventListener('DOMContentLoaded', function(){
 </section>
 <script src="https://player.vimeo.com/api/player.js"></script>
 <!-- ─────────────────────────────────────────────────────────────────────────
-     THE ETL NEIGHBORHOOD. Four rooms in the same building: staffing,
+     THE ETL QUAD. Four rooms in the same building: staffing,
      the studio, a real desk, and the workshop where agents get made.
      Lives on the platforms tab as the second block after Live Platforms.
      ───────────────────────────────────────────────────────────────────── -->
-<section id="neighborhood" class="section-full" data-tab="platforms" style="background:#f4ebd6; color:#1a1612; padding:80px 24px;">
+<section id="etl-quad" class="section-full" data-tab="platforms" style="background:#f4ebd6; color:#1a1612; padding:80px 24px;">
   <div class="section-full-inner">
-    <div class="section-tag" style="color:#8a6a2a;">The ETL Neighborhood</div>
+    <div class="section-tag" style="color:#8a6a2a;">The ETL Quad</div>
     <h2 class="section-title" style="color:#1a1612;">Portable autonomous workers.<br><span style="color:#28527a;">Four rooms. One address.</span></h2>
     <p class="section-subtitle" style="color:#4a3f30; max-width:640px;">Hire them. Build them. Dress them. Give them a desk. Every step in the journey has a room here.</p>
     <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:20px; margin-top:48px;">
@@ -2845,7 +2845,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
 <!-- ─────────────────────────────────────────────────────────────────────────
      ETL COMMAND CENTER — arrival layer above the campus map.
-     Two views: A = by domain/neighborhood, B = by scale + color.
+     Two views: A = by category (default), B = by scale + color.
      All CSS scoped under #etl-cc to avoid conflicts with page globals.
      ───────────────────────────────────────────────────────────────────── -->
 <section id="etl-cc" data-tab="home">
@@ -2948,8 +2948,8 @@ document.addEventListener('DOMContentLoaded', function(){
   <div class="wrap">
     <div class="left">&#9670; ETL &nbsp;&middot;&nbsp; <b>COMMAND CENTER</b> &nbsp;&middot;&nbsp; NEW ARRIVAL LAYER ONLY</div>
     <div class="toggle">
-      <button id="btnA" onclick="etlccView('A')">A &middot; By domain</button>
-      <button id="btnB" class="on" onclick="etlccView('B')">B &middot; By scale + color</button>
+      <button id="btnA" class="on" onclick="etlccView('A')">A &middot; By category</button>
+      <button id="btnB" onclick="etlccView('B')">B &middot; By agent size</button>
     </div>
   </div>
 </div>
@@ -2983,9 +2983,9 @@ document.addEventListener('DOMContentLoaded', function(){
 
 <div class="wrap">
 
-  <div id="viewA" class="etlcc-hidden">
+  <div id="viewA">
     <div class="secthead"><h2>Find your building</h2><div class="meta">ROUTES BY WHO YOU ARE</div></div>
-    <p class="lede">Nine neighborhoods. You arrive knowing what you came for and you go straight to the door. Each card's left edge is its neighborhood color &mdash; meant to match the building's color on your map just below.</p>
+    <p class="lede">Nine campus categories. You arrive knowing what you came for and you go straight to the door. Each card's left edge is its campus color &mdash; meant to match the building's color on your map just below.</p>
     <div id="domainGrid"></div>
     <div class="legend">
       <span><span class="sw" style="background:var(--green)"></span>Free everywhere</span>
@@ -2996,9 +2996,9 @@ document.addEventListener('DOMContentLoaded', function(){
     </div>
   </div>
 
-  <div id="viewB">
-    <div class="secthead"><h2>The campus.</h2><div class="meta">RANKED BY SIZE &middot; COLORED BY NEIGHBORHOOD</div></div>
-    <p class="lede">Biggest crew first, so you feel the scale &mdash; but every card carries its neighborhood color and tag, so a security or academia visitor can still pick out their buildings in the ranked grid. Best of both front doors.</p>
+  <div id="viewB" class="etlcc-hidden">
+    <div class="secthead"><h2>The campus.</h2><div class="meta">RANKED BY SIZE &middot; COLORED BY CAMPUS</div></div>
+    <p class="lede">Biggest crew first, so you feel the scale &mdash; but every card carries its campus color and tag, so a security or academia visitor can still pick out their buildings in the ranked grid. Best of both front doors.</p>
     <div class="domkey" id="domKey"></div>
     <div class="grid cols" id="scaleGrid"></div>
     <p class="etlcc-more"><a href="#platforms">Full platform profiles on the Platforms tab &rarr;</a></p>

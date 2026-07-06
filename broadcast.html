@@ -176,7 +176,7 @@ var AGENT_COLOR = {
   'Reece Ashford':'#22d47a',
   // The Gym #14d4b0
   'Coach Dom Castellanos':'#14d4b0',
-  'Dr. Lena Brandt':'#14d4b0',
+  'Dr. Lena Brandt, DPT':'#14d4b0','Lena Martinez':'#14d4b0',
   'Noor Haddad':'#14d4b0',
   'Dr. Sana Qureshi':'#14d4b0',
   // ETL Newswire #ff7a30
@@ -243,7 +243,8 @@ var CAST_IMG = {
   'Amara Nwosu':   'herbalist_eyes_open.jpg',
   'Reece Ashford':        'Reece_eyes_open.jpg',
   'Coach Dom Castellanos':'Coach_Dom_Eyes_open.png',
-  'Dr. Lena Brandt DPT':  'Dr_Lena_eyes_open.png',
+  'Dr. Lena Brandt, DPT': 'Dr_Lena_eyes_open.png',
+  'Lena Martinez':        'Dr_Lena_eyes_open.png',
   'Noor Haddad':           'Noor_eyes_open.png',
   'Dr. Sana Qureshi':      'Sana_eyes_open.png',
   'Wyatt Cooper':  'mixologist_eyes_open.jpg',
@@ -314,7 +315,7 @@ function avatar(name, img0){
   var fb  = '<span style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:'+bg+';color:#fff;font-size:15px;font-weight:700;">'+esc(initials(name))+'</span>';
   var wrap= 'position:relative;flex:0 0 46px;height:46px;';
   var circle = 'width:46px;height:46px;border-radius:50%;overflow:hidden;background:'+bg+';';
-  if(img) return '<span style="'+wrap+'"><span style="'+circle+'"><img src="/agents/'+img+'" alt="'+esc(name)+'" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;" onerror="this.parentNode.innerHTML=\''+fb.replace(/'/g,"\\'")+'\'"></span>'+DOT+'</span>';
+  if(img) return '<span style="'+wrap+'"><span style="'+circle+'"><img src="/agents/'+img+'" alt="'+esc(name)+'" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;" onerror="this.parentNode.innerHTML=\''+fb.replace(/'/g,"\\'").replace(/"/g,'&quot;')+'\'"></span>'+DOT+'</span>';
   return '<span style="'+wrap+'"><span style="'+circle+'">'+fb+'</span>'+DOT+'</span>';
 }
 function fmtNow(){
