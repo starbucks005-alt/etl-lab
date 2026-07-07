@@ -160,6 +160,13 @@
   .bubble.agent { align-self: flex-start; background: var(--panel); border: 1px solid var(--line); }
   .bubble.system { align-self: center; color: var(--muted); font-size: .8rem; font-style: italic; }
 
+  .grade-reveal { align-self: center; text-align: center; }
+  .grade-btn { background: none; border: 1px solid var(--line); color: var(--muted); font-family: 'IBM Plex Mono', monospace; font-size: .68rem; letter-spacing: .05em; text-transform: uppercase; padding: .4rem .9rem; border-radius: 999px; cursor: pointer; }
+  .grade-btn:hover { border-color: #4c5fd6; color: var(--cream); }
+  .grade-card { margin-top: .5rem; font-size: .85rem; color: var(--muted); }
+  .grade-card b { color: var(--cream); }
+  .grade-card .fine-print { display: block; margin-top: .3rem; font-size: .7rem; font-style: italic; }
+
   #room-form { display: flex; gap: .6rem; padding: 1rem 1.4rem 1.4rem; max-width: 720px; width: 100%; margin: 0 auto; }
   #room-input { flex: 1; background: var(--panel); border: 1px solid var(--line); border-radius: 999px; color: var(--cream); font-size: 1rem; padding: .8rem 1.1rem; font-family: inherit; }
   #room-send { font-family: 'IBM Plex Mono', monospace; font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; background: #fff; color: var(--black); border: none; border-radius: 999px; padding: 0 1.4rem; cursor: pointer; font-weight: 600; }
@@ -429,6 +436,34 @@ function bubble(role, text) {
   return el;
 }
 
+// Opt-in only: never shown automatically. A quiet button the guest can choose to press
+// once the room has actually ended; the grade itself is the agent's own self-read, not an
+// outside audit, so the card says so rather than presenting it as a verified score.
+function showGradeReveal(grade) {
+  var wrap = document.createElement('div');
+  wrap.className = 'grade-reveal';
+  var btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'grade-btn';
+  btn.textContent = 'See how this went';
+  btn.addEventListener('click', function () {
+    var card = document.createElement('div');
+    card.className = 'grade-card';
+    var line1 = document.createElement('div');
+    line1.innerHTML = '<b>Humanness: ' + grade.humanness + '</b>';
+    var line2 = document.createElement('div');
+    line2.innerHTML = '<b>Emotional intelligence: ' + grade.eq + '</b>';
+    var fine = document.createElement('span');
+    fine.className = 'fine-print';
+    fine.textContent = "The agent's own read on this conversation, not an outside audit.";
+    card.appendChild(line1); card.appendChild(line2); card.appendChild(fine);
+    wrap.replaceChild(card, btn);
+  });
+  wrap.appendChild(btn);
+  $('room-log').appendChild(wrap);
+  wrap.scrollIntoView({ behavior: 'smooth', block: 'end' });
+}
+
 var roomClosed = false;
 function openRoom(agent) {
   current = agent;
@@ -499,6 +534,7 @@ $('room-form').addEventListener('submit', function (e) {
       try { updateGauge(); } catch (gaugeErr) { console.warn('gauge update failed', gaugeErr); }
       if (d.closed) { bubble('system', current.name + ' has ended the conversation.'); closeRoomInput(); }
       else if (d.capped) bubble('system', 'This conversation has reached its limit for now.');
+      if (d.grade) showGradeReveal(d.grade);
     })
     .catch(function (err) {
       typingEl.remove();

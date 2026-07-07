@@ -256,6 +256,24 @@ function gaugeBand(value) {
   return GAUGE_BANDS[GAUGE_BANDS.length - 1];
 }
 
+// Whole letters only, no plus/minus. The meter itself is a smoothed blend of a single judge
+// call, not a precise measurement, plus/minus bands would just dress that up as more exact
+// than it is.
+const GRADE_BANDS = [
+  { min: 90, grade: 'A' },
+  { min: 80, grade: 'B' },
+  { min: 70, grade: 'C' },
+  { min: 60, grade: 'D' },
+  { min: 0, grade: 'F' },
+];
+
+function letterGrade(value) {
+  for (const band of GRADE_BANDS) {
+    if (value >= band.min) return band.grade;
+  }
+  return 'F';
+}
+
 module.exports = {
   SCALE_KEYS,
   ALL_SCALE_KEYS,
@@ -277,4 +295,5 @@ module.exports = {
   gaugeFromScales,
   GAUGE_BANDS,
   gaugeBand,
+  letterGrade,
 };

@@ -446,6 +446,8 @@ exports.handler = async function (event) {
     await saveVisitorMemory(client, agentKey, engine.AGENTS[agentKey].name, visitorId, serviceKey, fullTranscript);
   }
 
+  const ending = turn.close || capped;
+
   return json(200, {
     reply: houseTypography(turn.reply),
     scales: nextScales,
@@ -454,6 +456,11 @@ exports.handler = async function (event) {
     turn_count: turnCountAfter,
     capped,
     closed: turn.close,
+    // Only present once the conversation is actually over, opt-in reveal on the front end,
+    // not a mid-conversation readout.
+    grade: ending
+      ? { humanness: engine.letterGrade(nextMeters.humanness), eq: engine.letterGrade(nextMeters.eq) }
+      : null,
   });
 };
 
