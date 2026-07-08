@@ -33,6 +33,16 @@ const ROSTER_NAMES = {
   mara: 'Mara Rivera',
   marceline: 'Marceline Smith',
   marcus: 'Marcus Holt',
+  jax: 'Jax Rivera',
+  reece: 'Reece',
+  wyatt: 'Wyatt Cooper',
+  zara: 'Zara Cole',
+  walt: 'Walt Brenner',
+  nadia: 'Nadia',
+  arun: 'Arun',
+  margo: 'Margo',
+  arch: 'Archibald Baxter',
+  amina: 'Amina',
 };
 
 // Visitor-scoped memory, opt-in (body.remember). Separate table from etl_agent_memories

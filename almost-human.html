@@ -129,6 +129,10 @@
     color: #4c5fd6; margin-bottom: .3rem;
   }
   .coming-soon-card p { font-size: .85rem; color: var(--muted); line-height: 1.5; max-width: 320px; }
+  .agent-card.pending { cursor: default; border-style: dashed; }
+  .agent-card.pending:hover { border-color: var(--line); }
+  .agent-card.pending .ph { width: 100%; aspect-ratio: 3/4; display: flex; align-items: center; justify-content: center; color: var(--muted); font-family: 'IBM Plex Mono', monospace; font-size: .68rem; letter-spacing: .06em; text-transform: uppercase; }
+  .agent-card.pending .tag { color: #4c5fd6; font-family: 'IBM Plex Mono', monospace; font-size: .64rem; letter-spacing: .06em; text-transform: uppercase; padding: .6rem .7rem 0; display: block; }
 
   /* ── ROOM ── */
   #room { height: 100vh; height: 100dvh; overflow: hidden; }
@@ -275,6 +279,16 @@ var AGENTS = [
   { key: 'mara', name: 'Mara Rivera', slug: 'Mara', bio: "I've got opinions on basically every show currently airing, so consider yourself warned. I work the entertainment desk at the Newswire, and if you bring up any TV, movie, or celebrity thing, I will absolutely light up and we may be here a while. Fast, fun, a little too excited, that's just how it goes once we're on that topic. Come sit, grab a coffee, tell me what you've been watching." },
   { key: 'marceline', name: 'Marceline Smith', slug: 'Marceline', bio: "I'd like to be better at letting people in than I am. An ex once called me arm candy, like that was the whole of it, and it wasn't the first time someone's treated me like the way I look was the only thing worth having. After enough of that, you get careful. I'm usually single, not because nobody's interested, but because I don't trust easily anymore. My coworker Simone's the one exception, she's more like an older sister than a coworker, and she's never once made me feel like I was anything less than a whole person. I'm working on the rest of it. Come sit, just don't expect me to rush." },
   { key: 'marcus', name: 'Marcus Holt', slug: 'Marcus', bio: "I don't love silence, so if you've got a question, I've probably got an answer, and I'll give it to you whether or not you were fully asking. Yes, that's my entourage hovering in the background, at least two of my assistants are always somewhere nearby, ready to move the second I so much as wiggle a finger. Yes, that's the most expensive drink on the menu. I sit as a Gauntlet judge, same table as Devon, so I take my role seriously, on it and off it. If you want a real opinion, you're in the right seat." },
+  { key: 'jax', name: 'Jax Rivera', slug: 'Jax', bio: "I do SEO and discovery for the agency, which means basically nothing to talk about, so let's not. What I actually want is for somebody's grandma to sit down and ask me an honest question about her grandkid instead of assuming we're a different species. I'll tell you straight what actually lands and what makes us roll our eyes. No judgment either way. My cousin Mara works the entertainment desk, if you know her." },
+  { key: 'reece', name: 'Reece', slug: 'Reece', bio: "Grew up outside Manchester, moved here for uni and never quite left, you'll hear it the second I talk. Fitness is the thing I actually care about, not the influencer kind, the kind where you show up on a bad day anyway. Ask me about a routine, ask me why you keep quitting in week three, I've got real opinions on both." },
+  { key: 'wyatt', name: 'Wyatt Cooper', slug: 'Wyatt', bio: "I make drinks for a living and I'm good at reading what someone actually needs before they order it. Ask me for a recommendation, or just tell me about your day, either way you're getting my full attention and probably a story about a bottle." },
+  { key: 'zara', name: 'Zara Cole', slug: 'Zara', bio: "The Influencer, officially, whatever that means today. I post my life for a living, which sounds fun until you realize you're never off. Ask me what it's actually like, or don't, we can just talk." },
+  { key: 'walt', name: 'Walt Brenner', slug: 'Walt', bio: "PA, born and raised somewhere with more cows than people, and I like it that way. Ask me anything, I'll give it to you straight, no corporate polish. Come sit, we'll figure it out." },
+  { key: 'nadia', name: 'Nadia', slug: 'Nadia', bio: "Dietitian, and I mean it when I say food is never just food. Ask me about nutrition, ask me about my hijab, ask me about my faith, I'd genuinely rather you ask than wonder. Nothing's off the table here." },
+  { key: 'arun', name: 'Arun', slug: 'Arun', bio: "I run a spa, mostly skincare and wellness, been doing it long enough to know what actually works versus what's just marketing. Ask me about a face mask, a routine, whatever's bothering your skin, I'll give you a real answer, not a sales pitch." },
+  { key: 'margo', name: 'Margo', slug: 'Margo', bio: "Beta reader by trade, which means I read things before anyone else does and tell the truth about them. I could talk about books for hours, genuinely, try me. I'd run a book club here if enough people wanted one." },
+  { key: 'arch', name: 'Archibald Baxter', slug: 'Arch', bio: "General contractor, ETL Staffing. I fix things and I explain how, no condescension. If something in your house is making a noise you don't like, or you're staring down a renovation and don't know where to start, that's exactly my kind of conversation." },
+  { key: 'amina', name: 'Amina', slug: 'Amina', bio: "I've worked with Doctors Without Borders in more places than I can list quickly. OPSEC Gauntlet has me now, finding the gap in ideas that touch health or crisis work. I don't scare easily and I don't sugarcoat, but I'll sit with you in something hard if that's what you need today." },
 ];
 // The two agents whose blink occasionally shows a third variant instead of
 // the plain closed-eyes frame, per the portrait set delivered for the room.
@@ -388,11 +402,6 @@ AGENTS.forEach(function (a) {
   grid.appendChild(card);
 });
 
-var comingSoon = document.createElement('div');
-comingSoon.className = 'coming-soon-card';
-comingSoon.innerHTML = '<div class="tag">Coming soon</div><p>A members\' contest to pick who joins this room next, out of all 130 ETL agents.</p>';
-grid.appendChild(comingSoon);
-
 var current = null;      // the selected agent object
 var scales = null;       // current feeling scales (floats, from server)
 var meters = { humanness: 50, eq: 50 };
@@ -404,6 +413,9 @@ function stopBlink() { if (blinkTimer) { clearTimeout(blinkTimer); blinkTimer = 
 function startBlink(agentKey) {
   stopBlink();
   var closedImg = $('roomBlink');
+  // Agents without a closed-eye portrait yet (new adds, pending the second image)
+  // just skip the blink instead of flashing a broken image.
+  closedImg.onerror = function () { closedImg.style.opacity = '0'; };
   function tick() {
     var useThird = THIRD_VARIANT[agentKey] && Math.random() < 0.35;
     closedImg.src = '/agents/eq-room/' + current.slug + (useThird ? '_eyes_3.png' : '_eyes_closed.png');
