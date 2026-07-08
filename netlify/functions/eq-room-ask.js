@@ -42,7 +42,7 @@ const ROSTER_NAMES = {
   arun: 'Arun',
   margo: 'Margo',
   arch: 'Archibald Baxter',
-  amina: 'Amina',
+  amina: 'Dr. Amina Farouk',
 };
 
 // Visitor-scoped memory, opt-in (body.remember). Separate table from etl_agent_memories

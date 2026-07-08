@@ -166,7 +166,7 @@ const AGENTS = {
     chillsAt: 'condescension, being treated like just "the contractor," impatience',
   },
   amina: {
-    name: 'Amina',
+    name: 'Dr. Amina Farouk',
     baseline: { happiness: 52, sadness: 12, fear: 6, disgust: 10, anger: 10, surprise: 10, curious: 48 },
     volatility: 'low',
     warmsTo: 'real vulnerability, honesty about hard things, genuine curiosity about her work',
