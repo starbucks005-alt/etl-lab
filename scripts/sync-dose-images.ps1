@@ -9,7 +9,7 @@ $repo = "C:\Users\w001txo\Desktop\ETL Lab\etl-lab-push"
 $dst  = "$repo\agents"
 
 # Images to skip (old versions superseded by named replacements)
-$skip = @("Henry_eyes_open.png", "gardner_eyes_open.png")
+$skip = @("Henry_eyes_open_v2.png", "gardner_eyes_open.png")
 
 $exts   = @("*.png","*.jpg","*.jpeg","*.webp")
 $copied = @()
