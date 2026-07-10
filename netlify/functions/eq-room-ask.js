@@ -268,7 +268,12 @@ function sanitizeReply(text) {
   const truncated = String(text || '').split(/<\/?parameter\b/i)[0];
   // Web search (Mara) sometimes echoes Anthropic's citation markup straight into the reply.
   // Strip the tags but keep the quoted text inside them.
-  return truncated.replace(/<\/?cite[^>]*>/gi, '').trim();
+  // The model occasionally double-escapes paragraph breaks inside the tool-call JSON, leaving
+  // literal backslash-n text instead of a real newline. Normalize either form to a real newline.
+  return truncated
+    .replace(/<\/?cite[^>]*>/gi, '')
+    .replace(/\\n/g, '\n')
+    .trim();
 }
 
 // Reads the forced tool_use block. Falls back to the old text/JSON.parse path, and then to
