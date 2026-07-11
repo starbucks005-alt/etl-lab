@@ -46,7 +46,7 @@
 </div>
 <div class="eyebrow">ETL Internal &middot; EQ Room Research</div>
 <h1>EQ Room Ratings</h1>
-<p class="sub">Every "End Conversation" exit survey from Almost Human: the visitor's own 1-5 humanness rating, the conversation's final emotion scales, and the agent's own self-graded read, side by side. Source data for the conference dataset.</p>
+<p class="sub">Every "End Conversation" exit survey from Almost Human: the visitor's own 1-5 humanness rating next to a model-generated score of the same full conversation, run fresh at the moment the visitor leaves. The finding is the gap between the two, not either number alone &mdash; and the model number is a generated output shaped like a self-report, not introspection. Source data for the conference dataset.</p>
 
 <div class="bar">
   <input id="owner-key" type="password" placeholder="owner key" style="width:220px;">
@@ -82,6 +82,30 @@
     return vals.reduce(function (a, b) { return a + b; }, 0) / vals.length;
   }
 
+  // The visitor's 1-5 rating and the model's 0-100 self-report are on
+  // different scales. Normalize the visitor rating onto 0-100 (1->0,
+  // 5->100) so "gap" is a real, comparable number, not two incompatible
+  // units next to each other. This gap, not either number alone, is the
+  // actual finding: positive means the model rates itself more human
+  // than the visitor experienced it; negative means the reverse.
+  function normalizedRating(r) {
+    var v = Number(r.humanness_rating);
+    if (!Number.isFinite(v)) return null;
+    return (v - 1) / 4 * 100;
+  }
+  function gap(r) {
+    var m = r.agent_self_humanness;
+    if (m === null || m === undefined) return null;
+    var nr = normalizedRating(r);
+    if (nr === null) return null;
+    return Number(m) - nr;
+  }
+  function avgGap(rows) {
+    var vals = rows.map(gap).filter(function (v) { return v !== null; });
+    if (!vals.length) return null;
+    return vals.reduce(function (a, b) { return a + b; }, 0) / vals.length;
+  }
+
   function renderSummary(rows) {
     var wrap = document.getElementById('summary');
     wrap.innerHTML = '';
@@ -91,8 +115,9 @@
     var cards = [
       ['Responses', rows.length],
       ['Avg humanness (1-5)', fmt(avg(rows, 'humanness_rating'))],
-      ['Avg agent self-humanness', fmt(avg(rows, 'agent_self_humanness'))],
-      ['Avg agent self-EQ', fmt(avg(rows, 'agent_self_eq'))],
+      ['Avg model-reported humanness', fmt(avg(rows, 'agent_self_humanness'))],
+      ['Avg model-reported EQ', fmt(avg(rows, 'agent_self_eq'))],
+      ['Avg gap (model − visitor)', fmt(avgGap(rows))],
     ];
     cards.forEach(function (c) {
       var card = document.createElement('div');
@@ -116,12 +141,13 @@
     var table = document.createElement('table');
     var thead = '<thead><tr><th>Agent</th><th>Responses</th><th>Avg humanness</th>' +
       EMOTION_KEYS.map(function (k) { return '<th>' + k.slice(0, 1).toUpperCase() + k.slice(1) + '</th>'; }).join('') +
-      '<th>Self-humanness</th><th>Self-EQ</th></tr></thead>';
+      '<th>Model-reported humanness</th><th>Model-reported EQ</th><th>Gap (model − visitor)</th></tr></thead>';
     var tbody = '<tbody>' + agentNames.map(function (name) {
       var rs = byAgent[name];
       return '<tr><td>' + name + '</td><td class="num">' + rs.length + '</td><td class="num">' + fmt(avg(rs, 'humanness_rating')) + '</td>' +
         EMOTION_KEYS.map(function (k) { return '<td class="num">' + fmt(avg(rs, k)) + '</td>'; }).join('') +
-        '<td class="num">' + fmt(avg(rs, 'agent_self_humanness')) + '</td><td class="num">' + fmt(avg(rs, 'agent_self_eq')) + '</td></tr>';
+        '<td class="num">' + fmt(avg(rs, 'agent_self_humanness')) + '</td><td class="num">' + fmt(avg(rs, 'agent_self_eq')) + '</td>' +
+        '<td class="num">' + fmt(avgGap(rs)) + '</td></tr>';
     }).join('') + '</tbody>';
     table.innerHTML = thead + tbody;
     wrap.appendChild(table);
@@ -138,15 +164,25 @@
     }
   }
 
+  // agent_self_humanness/eq keep their original column names in the DB,
+  // but display as "model-reported" everywhere a human reads them — see
+  // the naming note in eq-room-rate.js and supabase-schema.sql.
+  var HEADER_LABELS = {
+    agent_self_humanness: 'model-reported humanness',
+    agent_self_eq: 'model-reported eq',
+    gap: 'gap (model − visitor)',
+  };
+
   function renderRaw(rows) {
     var cols = ['created_at', 'agent_name', 'visitor_name', 'visitor_pronoun', 'humanness_rating', 'turn_count']
-      .concat(EMOTION_KEYS).concat(['agent_self_humanness', 'agent_self_eq']);
+      .concat(EMOTION_KEYS).concat(['agent_self_humanness', 'agent_self_eq', 'gap']);
     var table = document.getElementById('raw-table');
-    table.querySelector('thead').innerHTML = '<tr>' + cols.map(function (c) { return '<th>' + c.replace(/_/g, ' ') + '</th>'; }).join('') + '</tr>';
+    table.querySelector('thead').innerHTML = '<tr>' + cols.map(function (c) { return '<th>' + (HEADER_LABELS[c] || c.replace(/_/g, ' ')) + '</th>'; }).join('') + '</tr>';
     table.querySelector('tbody').innerHTML = rows.map(function (r) {
       return '<tr>' + cols.map(function (c) {
-        var v = r[c];
+        var v = c === 'gap' ? gap(r) : r[c];
         if (c === 'created_at' && v) v = new Date(v).toLocaleString();
+        if (typeof v === 'number') v = fmt(v);
         var numeric = c !== 'created_at' && c !== 'agent_name' && c !== 'visitor_name' && c !== 'visitor_pronoun';
         return '<td' + (numeric ? ' class="num"' : '') + '>' + (v === null || v === undefined || v === '' ? '—' : v) + '</td>';
       }).join('') + '</tr>';
@@ -155,13 +191,13 @@
 
   function toCsv(rows) {
     var cols = ['created_at', 'agent_key', 'agent_name', 'visitor_id', 'visitor_name', 'visitor_pronoun',
-      'humanness_rating', 'turn_count'].concat(EMOTION_KEYS).concat(['agent_self_humanness', 'agent_self_eq']);
+      'humanness_rating', 'turn_count'].concat(EMOTION_KEYS).concat(['agent_self_humanness', 'agent_self_eq', 'gap']);
     var esc = function (v) {
       if (v === null || v === undefined) return '';
       var s = String(v);
       return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
     };
-    var lines = [cols.join(',')].concat(rows.map(function (r) { return cols.map(function (c) { return esc(r[c]); }).join(','); }));
+    var lines = [cols.join(',')].concat(rows.map(function (r) { return cols.map(function (c) { return esc(c === 'gap' ? gap(r) : r[c]); }).join(','); }));
     return lines.join('\n');
   }
 

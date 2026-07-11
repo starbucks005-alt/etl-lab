@@ -67,10 +67,15 @@ CREATE TRIGGER profiles_updated_at
 -- Written by netlify/functions/eq-room-rate.js, service-role only.
 -- One row per End Conversation: the visitor's own 1-5 humanness
 -- rating, next to the final per-turn emotion scales from the chat
--- (set turn-by-turn by eq-room-ask.js) and the agent's own
--- self-graded humanness/eq, if a grade ever fired. Built as a
--- research dataset (visitor perception vs. agent self-read), not
--- just product telemetry.
+-- (set turn-by-turn by eq-room-ask.js) and a model-generated score of
+-- the same full conversation (agent_self_humanness/eq below), run
+-- fresh at the moment the visitor leaves. The value in this dataset
+-- is the GAP between the two numbers, not either alone. NAMING NOTE:
+-- despite the column names, agent_self_humanness/eq is not the model
+-- introspecting, it is a generated output shaped like a self-report,
+-- from the same architecture as every other reply. Describe it in any
+-- external writeup as "model-reported humanness/EQ", not "the agent's
+-- self-assessment" — see the comment in eq-room-rate.js.
 -- ============================================================
 
 CREATE TABLE IF NOT EXISTS public.etl_room_ratings (
@@ -90,7 +95,8 @@ CREATE TABLE IF NOT EXISTS public.etl_room_ratings (
   anger                NUMERIC,
   surprise             NUMERIC,
   curious              NUMERIC,
-  -- The agent's own self-graded read on the conversation, if one fired.
+  -- A model-generated score of its own replies across the full
+  -- conversation (NOT introspection; see the header comment above).
   agent_self_humanness NUMERIC,
   agent_self_eq        NUMERIC,
   created_at           TIMESTAMPTZ NOT NULL DEFAULT NOW()

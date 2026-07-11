@@ -513,7 +513,7 @@ function showGradeReveal(grade) {
     line2.innerHTML = '<b>Emotional intelligence: ' + grade.eq + '</b>';
     var fine = document.createElement('span');
     fine.className = 'fine-print';
-    fine.textContent = "The agent's own read on this conversation, not an outside audit.";
+    fine.textContent = "A number the model generated about itself, not an outside audit or a report of introspection.";
     card.appendChild(line1); card.appendChild(line2); card.appendChild(fine);
     wrap.replaceChild(card, btn);
   });
@@ -581,6 +581,7 @@ $('likertSubmit').addEventListener('click', function () {
       humanness_rating: Number(checked.value),
       turn_count: turnCount,
       scales: scales,
+      messages: chatHistory,
       agent_self_grade: lastGrade,
     }),
   }).catch(function (err) { console.warn('eq-room-rate failed (non-fatal):', err && err.message); });
