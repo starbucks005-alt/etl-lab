@@ -19,6 +19,19 @@ const { buildSystemPrompt } = require('./_eq-personas.js');
 const engine = require('./_eq-engine.js');
 const { ownerUser } = require('./_owner-auth.js');
 
+// Two separate owner-key systems exist on this campus: OWNER_KEYS (plural,
+// _owner-auth.js, studio.html/studios.html) and OWNER_KEY (singular,
+// memory-implant-admin.js / eq-room-ratings-admin.js, X-Owner-Key header).
+// Her browser's saved etl_owner_key value is proven against the singular
+// one (it loads her real data on eq-room-ratings.html), not necessarily
+// the plural one, so check both rather than assume they're the same secret.
+function isOwnerKey(key) {
+  const k = String(key || '').trim();
+  if (!k) return false;
+  if (ownerUser(k)) return true;
+  return !!process.env.OWNER_KEY && k === process.env.OWNER_KEY;
+}
+
 const SUPABASE_URL = 'https://ulvrnermyuvzanxhxoib.supabase.co';
 
 // The room's short keys don't match the full roster names etl_agent_memories
@@ -369,7 +382,7 @@ exports.handler = async function (event) {
   // for studios.html, memory-implant-lab.html, etc. Lets her test the
   // guardrail behavior itself (including deliberately tripping it) without
   // her own visitor_id accumulating real strikes toward a self-inflicted ban.
-  const isOwner = !!ownerUser(String(body.owner_key || '').trim());
+  const isOwner = isOwnerKey(body.owner_key);
 
   // Only fetched on turn 1: the canon mood/memories (and, if opted in, this visitor's own
   // memories with this agent) set the opening tone, no need to re-fetch once underway.
