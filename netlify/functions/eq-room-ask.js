@@ -255,7 +255,7 @@ const TURN_TOOL = {
         required: ['happiness', 'sadness', 'fear', 'disgust', 'anger', 'surprise', 'curious'],
       },
       reason: { type: 'string', description: 'One short out-of-character note on why your state moved.' },
-      close: { type: 'boolean', description: 'True only when ending the conversation per the guardrails; false on every ordinary turn.' },
+      close: { type: 'boolean', description: 'True only for the abuse-guardrail case. A guest saying goodbye or that they have to go is NOT abuse, reply warmly and still set this false; false on every ordinary turn including farewells.' },
     },
     required: ['reply', 'felt', 'close'],
   },
