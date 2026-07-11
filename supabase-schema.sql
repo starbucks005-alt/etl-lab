@@ -61,3 +61,47 @@ DROP TRIGGER IF EXISTS profiles_updated_at ON public.profiles;
 CREATE TRIGGER profiles_updated_at
   BEFORE UPDATE ON public.profiles
   FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
+
+-- ============================================================
+-- Almost Human / EQ Room — exit survey ("End Conversation")
+-- Written by netlify/functions/eq-room-rate.js, service-role only.
+-- One row per End Conversation: the visitor's own 1-5 humanness
+-- rating, next to the final per-turn emotion scales from the chat
+-- (set turn-by-turn by eq-room-ask.js) and the agent's own
+-- self-graded humanness/eq, if a grade ever fired. Built as a
+-- research dataset (visitor perception vs. agent self-read), not
+-- just product telemetry.
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS public.etl_room_ratings (
+  id                   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  visitor_id           TEXT,
+  visitor_name         TEXT,
+  visitor_pronoun      TEXT,
+  agent_key            TEXT NOT NULL,
+  agent_name           TEXT,
+  humanness_rating     SMALLINT NOT NULL CHECK (humanness_rating BETWEEN 1 AND 5),
+  turn_count           INTEGER,
+  -- Final per-turn emotion scales (0-100) at the moment the visitor left.
+  happiness            NUMERIC,
+  sadness              NUMERIC,
+  fear                 NUMERIC,
+  disgust              NUMERIC,
+  anger                NUMERIC,
+  surprise             NUMERIC,
+  curious              NUMERIC,
+  -- The agent's own self-graded read on the conversation, if one fired.
+  agent_self_humanness NUMERIC,
+  agent_self_eq        NUMERIC,
+  created_at           TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS etl_room_ratings_agent_idx
+  ON public.etl_room_ratings(agent_key);
+
+CREATE INDEX IF NOT EXISTS etl_room_ratings_created_idx
+  ON public.etl_room_ratings(created_at);
+
+ALTER TABLE public.etl_room_ratings ENABLE ROW LEVEL SECURITY;
+-- No policies: only the service role (Netlify functions) can read or
+-- write this table. Visitors never query it directly.

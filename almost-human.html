@@ -176,6 +176,29 @@
   #room-send { font-family: 'IBM Plex Mono', monospace; font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; background: #fff; color: var(--black); border: none; border-radius: 999px; padding: 0 1.4rem; cursor: pointer; font-weight: 600; }
   #room-send:disabled { opacity: .4; cursor: not-allowed; }
 
+  /* ── END CONVERSATION / LIKERT EXIT SURVEY ── */
+  .room-end-bar { display: flex; justify-content: center; padding: .5rem 1.4rem 0; max-width: 720px; width: 100%; margin: 0 auto; }
+  .room-end-btn { background: none; border: 1px solid var(--line); color: var(--muted); font-family: 'IBM Plex Mono', monospace; font-size: .68rem; letter-spacing: .05em; text-transform: uppercase; padding: .45rem 1.1rem; border-radius: 999px; cursor: pointer; }
+  .room-end-btn:hover { border-color: #4c5fd6; color: var(--cream); }
+
+  #likertModal { position: fixed; inset: 0; background: rgba(0,0,0,.85); display: none; align-items: center; justify-content: center; z-index: 60; padding: 1.2rem; }
+  #likertModal.open { display: flex; }
+  .likert-card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; max-width: 460px; width: 100%; padding: 2rem; text-align: center; }
+  .likert-card h2 { font-family: 'Spectral', serif; font-size: 1.4rem; margin-bottom: .9rem; }
+  .likert-card p { font-size: .95rem; line-height: 1.6; color: var(--cream); margin-bottom: 1.6rem; }
+  .likert-scale { display: flex; justify-content: space-between; gap: .3rem; margin-bottom: .5rem; }
+  .likert-opt { position: relative; display: flex; flex-direction: column; align-items: center; gap: .55rem; cursor: pointer; flex: 1; }
+  .likert-opt input { position: absolute; opacity: 0; width: 0; height: 0; }
+  .likert-dial { width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--line); position: relative; transition: border-color .15s; }
+  .likert-dial::after { content: ''; position: absolute; inset: 6px; border-radius: 50%; background: #4c5fd6; transform: scale(0); transition: transform .15s; }
+  .likert-opt:hover .likert-dial { border-color: #9fb0ff; }
+  .likert-opt input:checked ~ .likert-dial { border-color: #4c5fd6; }
+  .likert-opt input:checked ~ .likert-dial::after { transform: scale(1); }
+  .likert-num { font-family: 'IBM Plex Mono', monospace; font-size: .72rem; color: var(--muted); }
+  .likert-anchors { display: flex; justify-content: space-between; font-family: 'IBM Plex Mono', monospace; font-size: .64rem; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); margin-bottom: 1.7rem; }
+  .likert-skip { display: block; margin: .9rem auto 0; background: none; border: none; color: var(--muted); font-family: 'IBM Plex Mono', monospace; font-size: .68rem; letter-spacing: .05em; text-transform: uppercase; cursor: pointer; text-decoration: underline; }
+  .likert-skip:hover { color: var(--cream); }
+
   @media (max-width: 480px) {
     .room-portrait-wrap { height: 26vh; min-height: 170px; }
     .gauge-wrap { top: .6rem; right: .6rem; min-width: 118px; padding: .5rem .6rem; }
@@ -186,6 +209,9 @@
     .room-name-tag { font-size: 1.05rem; left: .7rem; bottom: .7rem; }
     #room-log { padding: .8rem 1rem; }
     #room-form { padding: .7rem 1rem 1rem; }
+    .room-end-bar { padding: .4rem 1rem 0; }
+    .likert-card { padding: 1.5rem; }
+    .likert-dial { width: 28px; height: 28px; }
   }
 </style>
 </head>
@@ -260,11 +286,31 @@
     <div class="room-name-tag" id="roomName"></div>
   </div>
   <div id="room-log"></div>
+  <div class="room-end-bar">
+    <button type="button" class="room-end-btn" id="roomEnd">End Conversation</button>
+  </div>
   <form id="room-form">
     <input id="room-input" type="text" placeholder="Say something..." autocomplete="off">
     <button id="room-send" type="submit">Send</button>
   </form>
 </section>
+
+<div id="likertModal">
+  <div class="likert-card">
+    <h2>Before you go</h2>
+    <p>Over the course of this conversation, to what extent did <span id="likertAgentName">this agent</span> come across as human?</p>
+    <div class="likert-scale" id="likertScale">
+      <label class="likert-opt"><input type="radio" name="likert" value="1"><span class="likert-dial"></span><span class="likert-num">1</span></label>
+      <label class="likert-opt"><input type="radio" name="likert" value="2"><span class="likert-dial"></span><span class="likert-num">2</span></label>
+      <label class="likert-opt"><input type="radio" name="likert" value="3"><span class="likert-dial"></span><span class="likert-num">3</span></label>
+      <label class="likert-opt"><input type="radio" name="likert" value="4"><span class="likert-dial"></span><span class="likert-num">4</span></label>
+      <label class="likert-opt"><input type="radio" name="likert" value="5"><span class="likert-dial"></span><span class="likert-num">5</span></label>
+    </div>
+    <div class="likert-anchors"><span>Not at all</span><span>Completely</span></div>
+    <button type="button" class="consent-btn" id="likertSubmit" disabled>Submit</button>
+    <button type="button" class="likert-skip" id="likertSkip">Skip and leave</button>
+  </div>
+</div>
 
 <script src="https://player.vimeo.com/api/player.js"></script>
 <script>
@@ -477,9 +523,10 @@ function showGradeReveal(grade) {
 }
 
 var roomClosed = false;
+var lastGrade = null;  // agent's own self-graded humanness/eq, if a grade has fired this room visit
 function openRoom(agent) {
   current = agent;
-  scales = null; meters = { humanness: 50, eq: 50 }; turnCount = 0; chatHistory = []; roomClosed = false;
+  scales = null; meters = { humanness: 50, eq: 50 }; turnCount = 0; chatHistory = []; roomClosed = false; lastGrade = null;
   $('room-log').innerHTML = '';
   $('roomName').textContent = agent.name;
   $('roomOpen').src = '/agents/eq-room/' + agent.slug + '_eyes_open.png';
@@ -495,6 +542,49 @@ function openRoom(agent) {
 $('roomBack').addEventListener('click', function () {
   stopBlink();
   showScreen('picker');
+});
+
+// End Conversation is the only exit that shows the exit survey. Back leaves
+// silently, same as always; this is the deliberate research-data path.
+$('roomEnd').addEventListener('click', function () {
+  if (!current) { showScreen('picker'); return; }
+  $('likertAgentName').textContent = current.name;
+  document.querySelectorAll('#likertScale input').forEach(function (r) { r.checked = false; });
+  $('likertSubmit').disabled = true;
+  $('likertModal').classList.add('open');
+});
+
+document.querySelectorAll('#likertScale input').forEach(function (r) {
+  r.addEventListener('change', function () { $('likertSubmit').disabled = false; });
+});
+
+function leaveRoomAfterSurvey() {
+  $('likertModal').classList.remove('open');
+  stopBlink();
+  showScreen('picker');
+}
+
+$('likertSkip').addEventListener('click', leaveRoomAfterSurvey);
+
+$('likertSubmit').addEventListener('click', function () {
+  var checked = document.querySelector('#likertScale input:checked');
+  if (!checked || !current) return;
+  fetch('/.netlify/functions/eq-room-rate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      agent_key: current.key,
+      agent_name: current.name,
+      visitor_id: visitorId(),
+      visitor_name: displayName,
+      visitor_pronoun: visitorPronoun,
+      humanness_rating: Number(checked.value),
+      turn_count: turnCount,
+      scales: scales,
+      agent_self_grade: lastGrade,
+    }),
+  }).catch(function (err) { console.warn('eq-room-rate failed (non-fatal):', err && err.message); });
+  leaveRoomAfterSurvey();
 });
 
 function closeRoomInput() {
@@ -546,7 +636,7 @@ $('room-form').addEventListener('submit', function (e) {
       try { updateGauge(); } catch (gaugeErr) { console.warn('gauge update failed', gaugeErr); }
       if (d.closed) { bubble('system', current.name + ' has ended the conversation.'); closeRoomInput(); }
       else if (d.capped) bubble('system', 'This conversation has reached its limit for now.');
-      if (d.grade) showGradeReveal(d.grade);
+      if (d.grade) { lastGrade = d.grade; showGradeReveal(d.grade); }
     })
     .catch(function (err) {
       typingEl.remove();
