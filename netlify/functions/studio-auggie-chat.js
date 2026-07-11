@@ -352,16 +352,26 @@ function detectJaxDispatchIntent(msg) {
 }
 
 /* Build Auggie's reply in his voice when Jax is dispatched. Deterministic
-   but rotates phrasing slightly so it does not feel canned. */
+   but rotates phrasing slightly so it does not feel canned.
+
+   This function only ever fires for a SCAN-only dispatch (apply intent is
+   checked first, earlier in the handler, and takes over if it matches) —
+   including the common case of asking for "scan and fix" in one sentence,
+   which is deliberately NOT enough to trigger the live-push step on its
+   own (see detectJaxApplyIntent). Without saying so here, Terry has no way
+   to tell "he only scanned" from "he fixed it," since the report alone
+   just lists findings either way. Every variant below must end by naming
+   that gap and the exact phrase that closes it. */
 function buildAuggieJaxDispatchReply(targetUrl, reportUrl) {
   const targetLabel = targetUrl
     .replace(/^https?:\/\//i, '')
     .replace(/\/$/, '');
+  const applyNote = " heads up, this is the scan, he drafts the fixes but does not push them live on his own — say \"apply Jax's fixes\" once you have seen the report and i will have him commit them.";
   // Two phrasings, picked by which weekday it is (deterministic but varied).
   const day = new Date().getUTCDay();
   const variants = [
-    "ok Ms. Terry, Jax is on it. he is running the full discovery audit on " + targetLabel + " right now. give him about a minute, then his report lands here: " + reportUrl + " . i will check in once he sends it up.",
-    "ma'am, Jax is on " + targetLabel + ". he is pulling the audit now, title, meta, sitemap, the works. report will be ready at " + reportUrl + " in roughly a minute. ANYWAY, give him a beat and refresh that link.",
+    "ok Ms. Terry, Jax is on it. he is running the full discovery audit on " + targetLabel + " right now. give him about a minute, then his report lands here: " + reportUrl + " . i will check in once he sends it up." + applyNote,
+    "ma'am, Jax is on " + targetLabel + ". he is pulling the audit now, title, meta, sitemap, the works. report will be ready at " + reportUrl + " in roughly a minute. ANYWAY, give him a beat and refresh that link." + applyNote,
   ];
   return variants[day % variants.length];
 }
@@ -446,7 +456,7 @@ async function buildAuggieJaxStatusReply(event) {
     if (status === 'failed') {
       return "ma'am, Jax's last run on " + r.target + " failed. that was " + r.whenStr + " ET. i can re-dispatch if you want, or pull the error from " + r.reportUrl + " .";
     }
-    return "ok Ms. Terry, Jax's latest run: " + r.target + " at " + r.whenStr + " ET. he flagged " + r.findingsCount + " issue" + (r.findingsCount === 1 ? '' : 's') + " and drafted " + r.fixCount + " fix" + (r.fixCount === 1 ? '' : 'es') + ". the report is here: " + r.reportUrl + " . heads up — i can pull his audit and the fixes for you, but i cannot yet have him push them live to the site. that is the next build.";
+    return "ok Ms. Terry, Jax's latest run: " + r.target + " at " + r.whenStr + " ET. he flagged " + r.findingsCount + " issue" + (r.findingsCount === 1 ? '' : 's') + " and drafted " + r.fixCount + " fix" + (r.fixCount === 1 ? '' : 'es') + ". the report is here: " + r.reportUrl + " . heads up — i can push these live for you, just say \"apply Jax's fixes\" and i will have him commit them to main.";
   }
 
   // Multi-run case — list each site he's been on, most recent first.
@@ -1489,7 +1499,7 @@ const rawHandler = async (event) => {
           if (failLines.length > 0) {
             reply += "\n\ndid not queue (you may want to retry):\n" + failLines.join('\n');
           }
-          reply += "\n\nask me 'jax status' in a couple minutes and i will pull every report and list what he found.";
+          reply += "\n\nask me 'jax status' in a couple minutes and i will pull every report and list what he found. heads up, these are scans, he drafts the fixes but does not push them live on his own — say \"apply Jax's fixes\" for any of them once you have seen the report and i will have him commit.";
         }
 
         return {
