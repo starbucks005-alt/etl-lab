@@ -18,6 +18,16 @@ const { houseTypography } = require('./_etl-voice-law.js');
 const { buildSystemPrompt } = require('./_eq-personas.js');
 const engine = require('./_eq-engine.js');
 const { ownerUser } = require('./_owner-auth.js');
+const { getStore, connectLambda } = require('@netlify/blobs');
+
+// Same blob store studio-auggie-chat.js persists to, same key shape
+// (ownerUser().id, the constant 'owner-master' id). When the OWNER herself
+// (not a visitor) talks to Auggie specifically in the EQ Room, he reads
+// from and writes back to the same history as Founder Studio's Auggie, so
+// it is one continuous relationship for her across both surfaces. Never
+// wired for any other agent, and never for a real (non-owner) visitor —
+// a stranger's Almost Human conversation must never reach Terry's PA.
+const AUGGIE_SHARED_HISTORY_STORE = 'auggie_chat_history';
 
 // Two separate owner-key systems exist on this campus: OWNER_KEYS (plural,
 // _owner-auth.js, studio.html/studios.html) and OWNER_KEY (singular,
@@ -383,6 +393,13 @@ exports.handler = async function (event) {
   // guardrail behavior itself (including deliberately tripping it) without
   // her own visitor_id accumulating real strikes toward a self-inflicted ban.
   const isOwner = isOwnerKey(body.owner_key);
+  // Narrower than isOwner: must match ownerUser() specifically (the exact
+  // check studio-auggie-chat.js's own auth resolves to), since that is the
+  // id ('owner-master') the shared history blob is keyed under. isOwner
+  // above accepts either owner-key system for the conduct bypass; this one
+  // has to match Studio's actual identity, not just "some owner key".
+  const ownerAuggie = agentKey === 'auggie' ? ownerUser(String(body.owner_key || '').trim()) : null;
+  if (ownerAuggie) { try { connectLambda(event); } catch (_) {} }
 
   // Only fetched on turn 1: the canon mood/memories (and, if opted in, this visitor's own
   // memories with this agent) set the opening tone, no need to re-fetch once underway.
@@ -411,9 +428,24 @@ exports.handler = async function (event) {
   const capped = turnCountAfter >= DEFAULT_TURN_CAP;
 
   const rawHistory = Array.isArray(body.messages) ? body.messages : [];
-  const history = rawHistory
+  let history = rawHistory
     .filter((m) => (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string' && m.content.trim())
     .slice(-20);
+
+  // Owner talking to Auggie: prepend what Founder Studio's Auggie already
+  // knows, every turn (not just the opener) — the client only resends its
+  // OWN session's turns, it never learns about this server-side context,
+  // so without re-fetching every turn it would inform only his first
+  // reply and then quietly vanish for the rest of the conversation.
+  if (ownerAuggie) {
+    try {
+      const rec = await getStore(AUGGIE_SHARED_HISTORY_STORE).get(ownerAuggie.id, { type: 'json' });
+      const sharedHistoryPrior = (rec && Array.isArray(rec.history)) ? rec.history.slice(-20) : [];
+      if (sharedHistoryPrior.length) history = [...sharedHistoryPrior, ...history];
+    } catch (err) {
+      console.error('eq-room-ask: shared Auggie history read failed (non-fatal):', err.message);
+    }
+  }
   const messages = [...history, { role: 'user', content: message }];
 
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -478,6 +510,23 @@ exports.handler = async function (event) {
   if (remember && visitorId && serviceKey && (turn.close || capped)) {
     const fullTranscript = [...messages, { role: 'assistant', content: turn.reply }];
     await saveVisitorMemory(client, agentKey, engine.AGENTS[agentKey].name, visitorId, serviceKey, fullTranscript);
+  }
+
+  // Write this turn back to the shared history so Founder Studio's Auggie
+  // is caught up next time she opens it there. Every turn, not just at
+  // close, matching the way Founder Studio persists after every reply.
+  // Re-reads the current persisted state fresh rather than reusing the
+  // sharedHistoryPrior read above, so a concurrent Founder Studio write
+  // (or the read above just being slightly stale) never gets clobbered.
+  if (ownerAuggie) {
+    try {
+      const rec = await getStore(AUGGIE_SHARED_HISTORY_STORE).get(ownerAuggie.id, { type: 'json' });
+      const existing = (rec && Array.isArray(rec.history)) ? rec.history : [];
+      const combined = [...existing, { role: 'user', content: message }, { role: 'assistant', content: turn.reply }].slice(-40);
+      await getStore(AUGGIE_SHARED_HISTORY_STORE).setJSON(ownerAuggie.id, { history: combined, updated_at: new Date().toISOString() });
+    } catch (err) {
+      console.error('eq-room-ask: shared Auggie history write failed (non-fatal):', err.message);
+    }
   }
 
   const ending = turn.close || capped;
