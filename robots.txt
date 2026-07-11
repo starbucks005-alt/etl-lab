@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://emerging-tech-lab.com/sitemap.xml
+Sitemap: https://emerging-tech-lab.com/press-sitemap.xml
