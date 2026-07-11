@@ -91,6 +91,17 @@ function loadRosterIndex() {
   return index;
 }
 
+// Same key a staff entry resolves to everywhere else (roster lookup, the
+// Hire More catalog): lowercase, underscores to hyphens. The fixture writes
+// ids with underscores ("yuki_mendel"); the live catalog and persisted hires
+// use hyphens ("yuki-mendel"). Any dedup-by-id check MUST normalize through
+// this first, or the same person can survive as two entries (2026-07-06:
+// exactly this let Yuki show up twice for a real buyer).
+function staffKey(s) {
+  if (!s) return '';
+  return String(s.id || s.name || '').toLowerCase().replace(/_/g, '-').trim();
+}
+
 // Resolve a single hired_staff entry against the roster. Roster wins for
 // display data (name, role); fixture/blob wins for contractual context
 // (contract, hired_at, why). If ID not in roster, entry passes through
@@ -311,10 +322,11 @@ exports.handler = async function(event) {
           merged.no_payment_ui = cfg.no_payment_ui;
         }
         // hired_staff: base/fixture staff always present; user-added staff
-        // appended. Dedup by id first, fall back to name.
+        // appended. Dedup by normalized id (staffKey), fall back to name —
+        // raw id/name alone is not enough, see staffKey's comment.
         if (cfg.hired_staff && cfg.hired_staff.length > 0) {
-          const baseKeys = new Set(cfg.hired_staff.map(s => s.id || s.name));
-          const userAdded = (persisted.hired_staff || []).filter(s => s && !baseKeys.has(s.id || s.name));
+          const baseKeys = new Set(cfg.hired_staff.map(staffKey));
+          const userAdded = (persisted.hired_staff || []).filter(s => s && !baseKeys.has(staffKey(s)));
           merged.hired_staff = [...cfg.hired_staff, ...userAdded];
         }
         // Resolve every entry against the canonical roster so name/role/tier

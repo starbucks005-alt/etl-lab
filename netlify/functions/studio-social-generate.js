@@ -319,8 +319,28 @@ exports.handler = async (event) => {
   try { body = JSON.parse(event.body || '{}'); }
   catch (e) { return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'invalid json' }) }; }
 
-  const { site, agent, platform, subject, cta } = body;
-  const siteData = SITES[site];
+  const { site, agent, platform, subject, cta, customUrl, customContext } = body;
+
+  // Buyers with sites outside the fixed ETL roster (e.g. Vikram Sethi) paste
+  // their own URL instead of picking from SITES. Build siteData on the fly
+  // rather than requiring a SITES entry per buyer's site.
+  let siteData;
+  if (site === 'custom') {
+    const url = (customUrl || '').trim();
+    if (!url) {
+      return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'customUrl is required when site is "custom"' }) };
+    }
+    const normalizedUrl = /^https?:\/\//i.test(url) ? url : 'https://' + url;
+    siteData = {
+      name: (customContext || '').trim() || normalizedUrl.replace(/^https?:\/\//i, '').replace(/\/$/, ''),
+      url: normalizedUrl,
+      context: (customContext || '').trim() || 'A site the client owns outside the ETL campus. No further context was provided, so keep claims general and grounded only in the subject matter given.',
+      fallbackImage: '/site-thumbs/ETL_Lab.png',
+    };
+  } else {
+    siteData = SITES[site];
+  }
+
   const agentData = AGENTS[agent];
   const platformData = PLATFORMS[platform];
 

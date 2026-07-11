@@ -1489,7 +1489,12 @@
             <option value="slr">SLR Studio</option>
             <option value="agents">The ETL AI Staff</option>
             <option value="studio">Dr. O's Studio</option>
+            <option value="custom">Other &mdash; paste a link&hellip;</option>
           </select>
+          <div id="sp-custom-site" style="display:none; margin-top:12px; flex-direction:column; gap:8px;">
+            <input type="text" id="sp-custom-url" class="sp-input" placeholder="Paste the site URL (e.g. https://yoursite.com)">
+            <input type="text" id="sp-custom-context" class="sp-input" placeholder="One line on what it is (optional, helps the writer)">
+          </div>
         </div>
 
         <!-- Q2: tone (agent) -->
@@ -1870,7 +1875,7 @@
 
   <script>
     (function(){
-      var state = { site:'', agent:'', platform:'', subject:'' };
+      var state = { site:'', agent:'', platform:'', subject:'', customUrl:'', customContext:'' };
 
       function showStep(n){
         document.querySelectorAll('.sp-step').forEach(function(el){
@@ -1879,10 +1884,28 @@
         });
       }
 
-      var siteSel = document.getElementById('sp-site');
+      var siteSel     = document.getElementById('sp-site');
+      var customBox   = document.getElementById('sp-custom-site');
+      var customUrl   = document.getElementById('sp-custom-url');
+      var customCtx   = document.getElementById('sp-custom-context');
+
+      function checkCustomReady(){
+        state.customUrl = customUrl.value.trim();
+        state.customContext = customCtx.value.trim();
+        if (state.customUrl) showStep(2); else showStep(1);
+      }
+      customUrl.addEventListener('input', checkCustomReady);
+
       siteSel.addEventListener('change', function(){
         state.site = siteSel.value;
-        if (state.site) showStep(2);
+        if (state.site === 'custom') {
+          customBox.style.display = 'flex';
+          checkCustomReady();
+        } else {
+          customBox.style.display = 'none';
+          state.customUrl = ''; state.customContext = '';
+          if (state.site) showStep(2);
+        }
       });
 
       document.querySelectorAll('.sp-agent').forEach(function(btn){
@@ -3731,11 +3754,13 @@
         // brief for THIS client to verify the feature works for them.
         if (emptyPanel) {
           emptyPanel.style.display = '';
+          var et = emptyPanel.children && emptyPanel.children[1];
           if (preview) {
-            var et = emptyPanel.children && emptyPanel.children[1];
             var eb = document.getElementById('auggie-brief-regen-empty');
             if (et) et.textContent = (window.__companyName || 'This client') + ' has no brief yet. Generate one to verify it works for them.';
             if (eb) eb.textContent = 'generate this client’s brief';
+          } else if (et) {
+            et.textContent = (window.__paFirstName || 'Auggie') + ' has not run a brief yet. The daily one fires at 6am ET. You can ask for one now.';
           }
         }
         return;
