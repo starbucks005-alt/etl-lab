@@ -3921,6 +3921,31 @@
     obs.observe(ws, { attributes: true, attributeFilter: ['class'] });
   }
   whenWorkspaceVisible(loadAuggieBrief);
+
+  // Restore the conversation on load. Before this, "history" only ever
+  // lived in this JS variable, so a refresh silently wiped an in-progress
+  // conversation (e.g. mid-way through Reid drafting something). Backend
+  // persists after every reply in studio-auggie-chat.js; this reseeds both
+  // the thread DOM and the in-memory history array from that.
+  async function loadPersistedChatHistory(){
+    try {
+      var token = await getJwt();
+      if (!token) return;
+      var r = await fetch('/.netlify/functions/studio-auggie-history', {
+        headers: { 'Authorization': 'Bearer ' + token },
+      });
+      if (!r.ok) return;
+      var data = await r.json();
+      var saved = (Array.isArray(data.history) ? data.history : [])
+        .filter(function(m){ return m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string'; });
+      if (!saved.length) return;
+      saved.forEach(function(m){ appendBubble(m.role === 'user' ? 'mine' : 'his', m.content); });
+      history = saved.slice(-40);
+    } catch (e) {
+      console.warn('[studio-auggie-history] restore failed (non-fatal):', e && e.message);
+    }
+  }
+  whenWorkspaceVisible(loadPersistedChatHistory);
 })();
 </script>
 

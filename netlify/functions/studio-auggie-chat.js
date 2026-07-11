@@ -2002,9 +2002,9 @@ const rawHandler = async (event) => {
 // no-op: scrubbing only runs when owner_name is set and is not Dr. Oroszi.
 exports.handler = async (event) => {
   const res = await rawHandler(event);
+  let body = {};
+  try { body = JSON.parse((event && event.body) || '{}'); } catch (_) {}
   try {
-    let body = {};
-    try { body = JSON.parse((event && event.body) || '{}'); } catch (_) {}
     if (!isTerryOwner(body) && res && typeof res.body === 'string') {
       const addr = ownerAddressForm(body);
       const parsed = JSON.parse(res.body); // throws on non-JSON bodies -> caught, returns res as-is
@@ -2014,5 +2014,34 @@ exports.handler = async (event) => {
       }
     }
   } catch (_) {}
+
+  // Persist chat history so a refresh no longer wipes the conversation (this
+  // is the "next commit" the top-of-file comment promised, delivered late).
+  // Every reply shape funnels through this one wrapper — dispatch, status
+  // checks, bespoke Jax/Reid/Rowan channels, and the plain conversational
+  // path alike — so this is the single place that needs to know about it.
+  // Never let a storage hiccup affect the reply Terry actually sees.
+  try {
+    if (res && res.statusCode === 200 && typeof res.body === 'string') {
+      const parsed = JSON.parse(res.body);
+      if (parsed && typeof parsed.reply === 'string' && String(body.message || '').trim()) {
+        const auth = await validateRequest(event);
+        if (auth.ok) {
+          const userId = (auth.user && auth.user.id) || 'default';
+          const priorHistory = Array.isArray(body.history) ? body.history.slice(-20) : [];
+          const nextHistory = [
+            ...priorHistory,
+            { role: 'user', content: String(body.message || '').slice(0, 4000) },
+            { role: 'assistant', content: parsed.reply },
+          ].slice(-40);
+          try { connectLambda(event); } catch (_) {}
+          await getStore('auggie_chat_history').setJSON(userId, { history: nextHistory, updated_at: new Date().toISOString() });
+        }
+      }
+    }
+  } catch (e) {
+    console.error('[studio-auggie-chat] history persist failed (non-fatal)', e && e.message);
+  }
+
   return res;
 };
