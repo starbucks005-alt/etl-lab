@@ -116,6 +116,15 @@ function alreadyApplied(html, fix) {
   if (!fix || !fix.after) return false;
   const snippet = String(fix.after).trim();
   if (!snippet) return false;
+  // Meta description — Jax drafts fresh wording on every scan, so an exact-
+  // text match never catches an existing tag with different copy, and the
+  // generic fallback below would insert a second (then third...) description
+  // tag every time this fix reappears. Presence of ANY description tag
+  // counts as already applied, same as canonical/viewport below (2026-07-11:
+  // this exact gap put 3 competing description tags on almost-human.html).
+  if (/name=["']description["']/i.test(snippet)) {
+    return /<meta\s+[^>]*name=["']description["']/i.test(html);
+  }
   // Canonical
   if (/rel=["']canonical["']/i.test(snippet)) {
     return /<link\s+[^>]*rel=["']canonical["']/i.test(html);
