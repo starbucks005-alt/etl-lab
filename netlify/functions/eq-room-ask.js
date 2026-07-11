@@ -17,6 +17,7 @@ const Anthropic = require('@anthropic-ai/sdk');
 const { houseTypography } = require('./_etl-voice-law.js');
 const { buildSystemPrompt } = require('./_eq-personas.js');
 const engine = require('./_eq-engine.js');
+const { ownerUser } = require('./_owner-auth.js');
 
 const SUPABASE_URL = 'https://ulvrnermyuvzanxhxoib.supabase.co';
 
@@ -364,6 +365,11 @@ exports.handler = async function (event) {
   const turnCountAfter = turnCountBefore + 1;
   const visitorId = safeVisitorId(body.visitor_id);
   const remember = body.remember === true;
+  // Owner/dev testing bypass: same landlord key her browser already carries
+  // for studios.html, memory-implant-lab.html, etc. Lets her test the
+  // guardrail behavior itself (including deliberately tripping it) without
+  // her own visitor_id accumulating real strikes toward a self-inflicted ban.
+  const isOwner = !!ownerUser(String(body.owner_key || '').trim());
 
   // Only fetched on turn 1: the canon mood/memories (and, if opted in, this visitor's own
   // memories with this agent) set the opening tone, no need to re-fetch once underway.
@@ -377,7 +383,7 @@ exports.handler = async function (event) {
   try { systemPrompt = buildSystemPrompt(agentKey, canonExtras, visitorName, visitorMemories, visitorPronounLine, turnCountBefore === 0); }
   catch (_) { return json(400, { error: 'unknown_agent', valid: Object.keys(engine.AGENTS) }); }
 
-  const canCheck = Boolean(visitorId && serviceKey);
+  const canCheck = Boolean(visitorId && serviceKey) && !isOwner;
   if (canCheck) {
     const conduct = await conductStatus(visitorId, serviceKey);
     if (conduct.banned || conduct.locked) {

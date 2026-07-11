@@ -622,6 +622,9 @@ $('room-form').addEventListener('submit', function (e) {
       visitor_name: displayName,
       visitor_pronoun: visitorPronoun,
       remember: rememberMe,
+      // Same landlord key already saved from studios.html / memory-implant-lab.html;
+      // empty for every regular visitor, so this is a no-op for everyone but the owner.
+      owner_key: (function () { try { return localStorage.getItem('etl_owner_key') || ''; } catch (_) { return ''; } })(),
     }),
   })
     .then(function (r) {
