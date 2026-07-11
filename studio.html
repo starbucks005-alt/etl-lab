@@ -2140,9 +2140,9 @@
   </script>
 
   <footer class="studio-foot">
-    Dr. O's Studio is part of the <a href="/">Emerging Technologies Laboratory</a>.
+    <span id="studio-foot-text">Dr. O's Studio is part of the <a href="/">Emerging Technologies Laboratory</a>.
     The same staff serve visitors through the public platforms.
-    Find them in the <a href="/agents/">Agents Directory</a>.
+    Find them in the <a href="/agents/">Agents Directory</a>.</span>
   </footer>
 
 </div>
@@ -5356,6 +5356,20 @@ h1 em,h2 em{font-weight:300;color:#28527a}
     window.__ownerSite        = cfg.owner_site        || '';
     window.__ownerAddressForm = cfg.owner_address_form || '';
     window.__ownerHonorific   = cfg.owner_honorific   || '';
+
+    // The "is part of ETL" line sits right under the hero (flex-ordered
+    // above the PA section, not a page-bottom footer despite the tag).
+    // Static copy names Dr. O by name; any other buyer (Sethi Studio, etc.)
+    // gets their own company name instead.
+    (function updateStudioFootLine(){
+      if (cfg.owner_name === 'Dr. Terry Oroszi') return;
+      var el = document.getElementById('studio-foot-text');
+      if (!el) return;
+      var label = window.__companyName || (window.__ownerName ? window.__ownerName + "'s Studio" : 'This studio');
+      el.innerHTML = label + '’s staff is provided by the <a href="/">Emerging Technologies Laboratory</a>. ' +
+        'The same staff serve visitors through the public platforms. ' +
+        'Find them in the <a href="/agents/">Agents Directory</a>.';
+    })();
 
     // ── OWNER PREVIEW (read only) ─────────────────────────────────────────
     // When Dr. O views a client's studio via ?as=, the config comes back with
