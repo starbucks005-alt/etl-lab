@@ -1897,11 +1897,23 @@
       customUrl.addEventListener('input', checkCustomReady);
 
       siteSel.addEventListener('change', function(){
-        state.site = siteSel.value;
-        if (state.site === 'custom') {
+        var picked = siteSel.value;
+        if (picked === 'own') {
+          // Buyer's own site on file, pre-filled into the same paste box
+          // (still editable) rather than a separate silent code path.
+          state.site = 'custom';
           customBox.style.display = 'flex';
+          customUrl.value = window.__ownerSite || '';
+          customCtx.value = window.__companyName || '';
+          checkCustomReady();
+        } else if (picked === 'custom') {
+          state.site = 'custom';
+          customBox.style.display = 'flex';
+          customUrl.value = '';
+          customCtx.value = '';
           checkCustomReady();
         } else {
+          state.site = picked;
           customBox.style.display = 'none';
           state.customUrl = ''; state.customContext = '';
           if (state.site) showStep(2);
@@ -5375,6 +5387,33 @@ h1 em,h2 em{font-weight:300;color:#28527a}
       el.innerHTML = label + '’s staff is provided by the <a href="/">Emerging Technologies Laboratory</a>. ' +
         'The same staff serve visitors through the public platforms. ' +
         'Find them in the <a href="/agents/">Agents Directory</a>.';
+    })();
+
+    // "Hand it to the girls" site picker: the full ETL campus list is Dr.
+    // O's own multi-platform roster. A buyer has no reason to post about
+    // The Dose or Greylander Press, those are not their sites. Swap it for
+    // just their own site (pre-filled from what's on file) plus the paste
+    // option, instead of the whole campus.
+    (function scopeSitePicker(){
+      if (cfg.owner_name === 'Dr. Terry Oroszi') return;
+      var sel = document.getElementById('sp-site');
+      if (!sel) return;
+      sel.innerHTML = '';
+      var blank = document.createElement('option');
+      blank.value = ''; blank.textContent = 'Pick one...';
+      sel.appendChild(blank);
+      var ownSite = window.__ownerSite || '';
+      var ownLabel = window.__companyName || (window.__ownerName ? window.__ownerName + "'s site" : '');
+      if (ownSite || ownLabel) {
+        var own = document.createElement('option');
+        own.value = 'own';
+        own.textContent = (ownLabel || ownSite) + (ownSite ? ' (' + ownSite.replace(/^https?:\/\//i, '') + ')' : '');
+        sel.appendChild(own);
+      }
+      var custom = document.createElement('option');
+      custom.value = 'custom';
+      custom.textContent = 'Other — paste a link…';
+      sel.appendChild(custom);
     })();
 
     // ── OWNER PREVIEW (read only) ─────────────────────────────────────────
