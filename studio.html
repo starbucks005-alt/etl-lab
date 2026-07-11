@@ -3207,6 +3207,43 @@
     });
   }
 
+  function loadImageEl(file){
+    return new Promise(function(resolve, reject){
+      var img = new Image();
+      var url = URL.createObjectURL(file);
+      img.onload = function(){ URL.revokeObjectURL(url); resolve(img); };
+      img.onerror = function(){ URL.revokeObjectURL(url); reject(new Error('could not read image')); };
+      img.src = url;
+    });
+  }
+
+  function canvasToBlob(canvas, type, quality){
+    return new Promise(function(resolve){ canvas.toBlob(resolve, type, quality); });
+  }
+
+  // Downscales/recompresses an oversized image until it fits under maxBytes.
+  // Several of Terry's own portrait exports run 4-6MB, right around the
+  // Anthropic cap, so this runs automatically instead of making her go find
+  // a smaller copy of the same file. Re-encodes as JPEG (loses PNG
+  // transparency, fine for a chat attachment); the original file on disk is
+  // never touched. Shrinks quality first, then dimensions, a few passes.
+  async function resizeImageToFit(file, maxBytes){
+    var img = await loadImageEl(file);
+    var scale = 1;
+    var quality = 0.85;
+    for (var attempt = 0; attempt < 6; attempt++) {
+      var canvas = document.createElement('canvas');
+      canvas.width = Math.max(1, Math.round(img.width * scale));
+      canvas.height = Math.max(1, Math.round(img.height * scale));
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      var blob = await canvasToBlob(canvas, 'image/jpeg', quality);
+      if (blob && blob.size <= maxBytes) return blob;
+      if (quality > 0.5) quality -= 0.15; else scale *= 0.75;
+    }
+    return null; // could not get under the limit even at low quality/size
+  }
+
   function readAsText(file){
     return new Promise(function(resolve, reject){
       var reader = new FileReader();
@@ -3274,21 +3311,33 @@
   }
 
   async function addImageFile(file){
-    if (file.size > IMG_MAX_BYTES) {
-      errBox.textContent = 'image too big (max 5MB): ' + (file.name || 'pasted image');
-      errBox.style.display = '';
-      return;
-    }
     if (pendingImages.length >= IMG_MAX) {
       errBox.textContent = 'auggie can only see ' + IMG_MAX + ' images at a time. remove one to add another.';
       errBox.style.display = '';
       return;
     }
-    var b64 = await fileToBase64(file);
+    var toSend = file;
+    var mediaType = file.type;
+    if (file.size > IMG_MAX_BYTES) {
+      errBox.textContent = 'resizing ' + (file.name || 'image') + ' to fit...';
+      errBox.style.display = '';
+      var resized = null;
+      try { resized = await resizeImageToFit(file, IMG_MAX_BYTES); }
+      catch (e) { /* fall through to the too-big error below */ }
+      if (!resized) {
+        errBox.textContent = 'image too big (max 5MB), even after compressing: ' + (file.name || 'pasted image');
+        errBox.style.display = '';
+        return;
+      }
+      toSend = resized;
+      mediaType = 'image/jpeg';
+      errBox.style.display = 'none';
+    }
+    var b64 = await fileToBase64(toSend);
     pendingImages.push({
-      mediaType: file.type,
+      mediaType: mediaType,
       base64: b64,
-      previewUrl: URL.createObjectURL(file),
+      previewUrl: URL.createObjectURL(toSend),
     });
   }
 
