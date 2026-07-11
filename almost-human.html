@@ -308,6 +308,8 @@
       <label class="likert-opt"><input type="radio" name="likert" value="5"><span class="likert-dial"></span><span class="likert-num">5</span></label>
     </div>
     <div class="likert-anchors"><span>Not at all</span><span>Completely</span></div>
+    <label class="name-label" for="likertNote" style="text-align:left; display:block;">What made it feel human, or not? (optional)</label>
+    <input type="text" id="likertNote" placeholder="A sentence or two is plenty" maxlength="500" style="width:100%; background:#0f0f16; border:1px solid var(--line); border-radius:8px; color:var(--cream); font-size:.9rem; padding:.6rem .7rem; font-family:inherit; margin-bottom:1.2rem;">
     <button type="button" class="consent-btn" id="likertSubmit" disabled>Submit</button>
     <button type="button" class="likert-skip" id="likertSkip">Skip and leave</button>
   </div>
@@ -551,6 +553,7 @@ $('roomEnd').addEventListener('click', function () {
   if (!current) { showScreen('picker'); return; }
   $('likertAgentName').textContent = current.name;
   document.querySelectorAll('#likertScale input').forEach(function (r) { r.checked = false; });
+  $('likertNote').value = '';
   $('likertSubmit').disabled = true;
   $('likertModal').classList.add('open');
 });
@@ -584,6 +587,7 @@ $('likertSubmit').addEventListener('click', function () {
       scales: scales,
       messages: chatHistory,
       agent_self_grade: lastGrade,
+      visitor_note: ($('likertNote').value || '').trim(),
     }),
   }).catch(function (err) { console.warn('eq-room-rate failed (non-fatal):', err && err.message); });
   leaveRoomAfterSurvey();

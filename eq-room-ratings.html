@@ -36,6 +36,14 @@
   .table-wrap { overflow-x:auto; }
 
   .gate { border:1px solid var(--line); padding:16px; margin-bottom:28px; font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--dim); }
+
+  #transcript-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.85); z-index:100; align-items:center; justify-content:center; padding:20px; }
+  #transcript-modal.open { display:flex; }
+  .transcript-card { background:#151209; border:1px solid var(--line); max-width:640px; width:100%; max-height:80vh; overflow-y:auto; padding:24px; }
+  .transcript-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; gap:12px; }
+  .transcript-turn { margin-bottom:10px; font-size:13px; line-height:1.55; }
+  .transcript-turn .who { font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:1px; text-transform:uppercase; color:var(--blue); margin-bottom:2px; }
+  .view-transcript { font-size:9px; }
 </style>
 </head>
 <body>
@@ -60,6 +68,16 @@
 <div id="summary"></div>
 <h2>All responses</h2>
 <div class="table-wrap"><table id="raw-table"><thead></thead><tbody></tbody></table></div>
+
+<div id="transcript-modal">
+  <div class="transcript-card">
+    <div class="transcript-head">
+      <div class="eyebrow" id="transcript-modal-title">Transcript</div>
+      <button id="transcript-modal-close">Close</button>
+    </div>
+    <div id="transcript-modal-body"></div>
+  </div>
+</div>
 
 <script>
 (function () {
@@ -107,6 +125,14 @@
     return vals.reduce(function (a, b) { return a + b; }, 0) / vals.length;
   }
 
+  // "25 responses" could be 25 people or one person testing 25 times.
+  // Distinct visitor_id is the honest denominator for sample-size claims.
+  function uniqueVisitors(rows) {
+    var seen = {};
+    rows.forEach(function (r) { if (r.visitor_id) seen[r.visitor_id] = true; });
+    return Object.keys(seen).length;
+  }
+
   function renderSummary(rows) {
     var wrap = document.getElementById('summary');
     wrap.innerHTML = '';
@@ -115,9 +141,10 @@
     statRow.className = 'stat-row';
     var cards = [
       ['Responses', rows.length],
-      ['Avg humanness (1-5)', fmt(avg(rows, 'humanness_rating'))],
-      ['Avg model-reported humanness', fmt(avg(rows, 'agent_self_humanness'))],
-      ['Avg model-reported EQ', fmt(avg(rows, 'agent_self_eq'))],
+      ['Unique visitors', uniqueVisitors(rows)],
+      ['Avg humanness rating (1-5)', fmt(avg(rows, 'humanness_rating'))],
+      ['Avg model-reported humanness (0-100)', fmt(avg(rows, 'agent_self_humanness'))],
+      ['Avg model-reported EQ (0-100)', fmt(avg(rows, 'agent_self_eq'))],
       ['Avg gap (model − visitor)', fmt(avgGap(rows))],
     ];
     cards.forEach(function (c) {
@@ -140,9 +167,9 @@
     var agentNames = Object.keys(byAgent).sort();
 
     var table = document.createElement('table');
-    var thead = '<thead><tr><th>Agent</th><th>Responses</th><th>Avg humanness</th>' +
+    var thead = '<thead><tr><th>Agent</th><th>Responses</th><th>Avg humanness rating</th>' +
       EMOTION_KEYS.map(function (k) { return '<th>' + k.slice(0, 1).toUpperCase() + k.slice(1) + '</th>'; }).join('') +
-      '<th>Model-reported humanness</th><th>Model-reported EQ</th><th>Gap (model − visitor)</th></tr></thead>';
+      '<th>Model-reported humanness (0-100)</th><th>Model-reported EQ (0-100)</th><th>Gap (model − visitor)</th></tr></thead>';
     var tbody = '<tbody>' + agentNames.map(function (name) {
       var rs = byAgent[name];
       return '<tr><td>' + name + '</td><td class="num">' + rs.length + '</td><td class="num">' + fmt(avg(rs, 'humanness_rating')) + '</td>' +
@@ -169,36 +196,75 @@
   // but display as "model-reported" everywhere a human reads them — see
   // the naming note in eq-room-rate.js and supabase-schema.sql.
   var HEADER_LABELS = {
-    agent_self_humanness: 'model-reported humanness',
-    agent_self_eq: 'model-reported eq',
+    visitor_id: 'visitor id',
+    humanness_rating: 'humanness rating (1-5)',
+    agent_self_humanness: 'model-reported humanness (0-100)',
+    agent_self_eq: 'model-reported eq (0-100)',
     gap: 'gap (model − visitor)',
+    visitor_note: 'why (visitor’s words)',
+    persona_version: 'persona ver.',
+    judge_model: 'judge model',
+    transcript: 'transcript',
   };
+  var NON_NUMERIC_COLS = { created_at: 1, agent_name: 1, visitor_id: 1, visitor_name: 1, visitor_pronoun: 1, visitor_note: 1, persona_version: 1, judge_model: 1, transcript: 1 };
+
+  function escH(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
 
   function renderRaw(rows) {
-    var cols = ['created_at', 'agent_name', 'visitor_name', 'visitor_pronoun', 'humanness_rating', 'turn_count']
-      .concat(EMOTION_KEYS).concat(['agent_self_humanness', 'agent_self_eq', 'gap']);
+    var cols = ['created_at', 'agent_name', 'visitor_id', 'visitor_name', 'visitor_pronoun', 'humanness_rating', 'turn_count']
+      .concat(EMOTION_KEYS).concat(['agent_self_humanness', 'agent_self_eq', 'gap', 'visitor_note', 'persona_version', 'judge_model', 'transcript']);
     var table = document.getElementById('raw-table');
     table.querySelector('thead').innerHTML = '<tr>' + cols.map(function (c) { return '<th>' + (HEADER_LABELS[c] || c.replace(/_/g, ' ')) + '</th>'; }).join('') + '</tr>';
-    table.querySelector('tbody').innerHTML = rows.map(function (r) {
+    table.querySelector('tbody').innerHTML = rows.map(function (r, i) {
       return '<tr>' + cols.map(function (c) {
+        if (c === 'transcript') {
+          var has = Array.isArray(r.transcript) && r.transcript.length;
+          return '<td>' + (has ? '<button type="button" class="view-transcript" data-idx="' + i + '">View (' + r.transcript.length + ')</button>' : '—') + '</td>';
+        }
         var v = c === 'gap' ? gap(r) : r[c];
         if (c === 'created_at' && v) v = new Date(v).toLocaleString();
         if (typeof v === 'number') v = fmt(v);
-        var numeric = c !== 'created_at' && c !== 'agent_name' && c !== 'visitor_name' && c !== 'visitor_pronoun';
-        return '<td' + (numeric ? ' class="num"' : '') + '>' + (v === null || v === undefined || v === '' ? '—' : v) + '</td>';
+        var numeric = !NON_NUMERIC_COLS[c];
+        return '<td' + (numeric ? ' class="num"' : '') + '>' + (v === null || v === undefined || v === '' ? '—' : escH(v)) + '</td>';
       }).join('') + '</tr>';
     }).join('');
   }
 
+  function renderTranscript(idx) {
+    var r = allRows[idx];
+    if (!r || !Array.isArray(r.transcript)) return;
+    document.getElementById('transcript-modal-title').textContent = (r.agent_name || r.agent_key || 'agent') + ' · ' + (r.visitor_name || 'visitor');
+    var body = document.getElementById('transcript-modal-body');
+    body.innerHTML = r.transcript.map(function (m) {
+      var who = m.role === 'user' ? (r.visitor_name || 'Visitor') : (r.agent_name || 'Agent');
+      return '<div class="transcript-turn"><div class="who">' + escH(who) + '</div>' + escH(m.content) + '</div>';
+    }).join('');
+    document.getElementById('transcript-modal').classList.add('open');
+  }
+  document.getElementById('raw-table').addEventListener('click', function (e) {
+    var btn = e.target.closest ? e.target.closest('.view-transcript') : null;
+    if (btn) renderTranscript(Number(btn.getAttribute('data-idx')));
+  });
+  document.getElementById('transcript-modal-close').addEventListener('click', function () {
+    document.getElementById('transcript-modal').classList.remove('open');
+  });
+
   function toCsv(rows) {
     var cols = ['created_at', 'agent_key', 'agent_name', 'visitor_id', 'visitor_name', 'visitor_pronoun',
-      'humanness_rating', 'turn_count'].concat(EMOTION_KEYS).concat(['agent_self_humanness', 'agent_self_eq', 'gap']);
+      'humanness_rating', 'turn_count'].concat(EMOTION_KEYS)
+      .concat(['agent_self_humanness', 'agent_self_eq', 'gap', 'visitor_note', 'persona_version', 'judge_model', 'transcript']);
     var esc = function (v) {
       if (v === null || v === undefined) return '';
       var s = String(v);
       return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
     };
-    var lines = [cols.join(',')].concat(rows.map(function (r) { return cols.map(function (c) { return esc(c === 'gap' ? gap(r) : r[c]); }).join(','); }));
+    var lines = [cols.join(',')].concat(rows.map(function (r) {
+      return cols.map(function (c) {
+        if (c === 'gap') return esc(gap(r));
+        if (c === 'transcript') return esc(Array.isArray(r.transcript) ? JSON.stringify(r.transcript) : '');
+        return esc(r[c]);
+      }).join(',');
+    }));
     return lines.join('\n');
   }
 

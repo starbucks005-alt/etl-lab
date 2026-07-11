@@ -3,6 +3,12 @@
 // Spec: EQ ROOM/eq-room-emotion-engine-spec.md, safe-room-game-spec.md,
 // EQ ROOM/eq-room-identity-support-spec.md
 
+// Bump this (any string, a date is fine) whenever GUARDRAILS, personas, or
+// TURN_OUTPUT_INSTRUCTIONS meaningfully change. Stored on every EQ Room
+// rating row so a persona edit later doesn't silently mix with old data
+// under the same column — see supabase-schema.sql.
+const PERSONA_VERSION = '2026-07-11';
+
 const ETL_CAMPUS_CONTEXT = `ETL, the Emerging Technologies Laboratory, is a whole campus, not one \
 building. The Harvest Circuit, where this room sits, is just the first-floor restaurant. The \
 campus also has Founder Studio, The Gauntlet, The Prep Room, The Dose, ETL Newswire, The \
@@ -559,6 +565,7 @@ them, use it naturally if it fits, don\'t recite it like a file:\n' +
 }
 
 module.exports = {
+  PERSONA_VERSION,
   ETL_CAMPUS_CONTEXT,
   ROOM_CONTEXT,
   GUARDRAILS,

@@ -99,6 +99,19 @@ CREATE TABLE IF NOT EXISTS public.etl_room_ratings (
   -- conversation (NOT introspection; see the header comment above).
   agent_self_humanness NUMERIC,
   agent_self_eq        NUMERIC,
+  -- The full transcript this rating and score were computed from, so a
+  -- reviewer (or Terry) can trace any number back to what was actually
+  -- said, not just trust an average. [{role, content}, ...].
+  transcript           JSONB,
+  -- Optional one-line free text from the exit survey: what made it feel
+  -- human or not, in the visitor's own words.
+  visitor_note          TEXT,
+  -- Version stamps so a persona/model change later doesn't silently mix
+  -- with old data under the same column. Bump PERSONA_VERSION in
+  -- _eq-personas.js whenever GUARDRAILS/TURN_OUTPUT_INSTRUCTIONS/personas
+  -- change; judge_model is whatever ran the exit-judge call for this row.
+  persona_version       TEXT,
+  judge_model           TEXT,
   created_at           TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -111,3 +124,13 @@ CREATE INDEX IF NOT EXISTS etl_room_ratings_created_idx
 ALTER TABLE public.etl_room_ratings ENABLE ROW LEVEL SECURITY;
 -- No policies: only the service role (Netlify functions) can read or
 -- write this table. Visitors never query it directly.
+
+-- ── MIGRATION (2026-07-11): run once against the already-live table ────
+-- CREATE TABLE above is IF NOT EXISTS, so it will not add these columns
+-- to a table that already exists. Run this block once in the SQL editor:
+--
+-- ALTER TABLE public.etl_room_ratings
+--   ADD COLUMN IF NOT EXISTS transcript      JSONB,
+--   ADD COLUMN IF NOT EXISTS visitor_note    TEXT,
+--   ADD COLUMN IF NOT EXISTS persona_version TEXT,
+--   ADD COLUMN IF NOT EXISTS judge_model     TEXT;

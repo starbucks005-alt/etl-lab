@@ -2,8 +2,14 @@
    "End Conversation" in the EQ Room (Almost Human).
 
    POST { agent_key, agent_name, visitor_id, visitor_name?, visitor_pronoun?,
-          humanness_rating (1-5), turn_count?, scales?, messages? }
+          humanness_rating (1-5), turn_count?, scales?, messages?, visitor_note? }
    Returns { ok: true }
+
+   Also stores, per row: the full transcript (messages, as sent), so any
+   number is traceable back to what was actually said; visitor_note, an
+   optional one-line free-text reason from the visitor; and persona_version
+   / judge_model, so a later prompt or model change doesn't silently mix
+   with old data under the same column.
 
    Captures two numbers side by side, on purpose:
    - humanness_rating: the VISITOR's own 1-5 read on the conversation.
@@ -31,6 +37,7 @@
 
 const Anthropic = require('@anthropic-ai/sdk');
 const engine = require('./_eq-engine.js');
+const { PERSONA_VERSION } = require('./_eq-personas.js');
 
 const SUPABASE_URL = 'https://ulvrnermyuvzanxhxoib.supabase.co';
 const JUDGE_MODEL = 'claude-haiku-4-5-20251001';
@@ -115,6 +122,8 @@ exports.handler = async function (event) {
     return json(400, { error: 'humanness_rating_must_be_1_to_5' });
   }
 
+  const visitorNote = String(body.visitor_note || '').trim().slice(0, 500) || null;
+
   const scales = body.scales && typeof body.scales === 'object' ? body.scales : {};
   const row = {
     visitor_id: visitorId,
@@ -124,8 +133,16 @@ exports.handler = async function (event) {
     agent_name: agentName || null,
     humanness_rating: rating,
     turn_count: turnCount,
+    visitor_note: visitorNote,
+    persona_version: PERSONA_VERSION,
   };
   EMOTION_KEYS.forEach((k) => { row[k] = clampEmotion(scales[k]); });
+
+  // Full transcript this rating and the model score below were computed
+  // from, so a specific number is traceable back to what was actually
+  // said, not just an average with nothing behind it.
+  const messages = Array.isArray(body.messages) ? body.messages : [];
+  row.transcript = messages.length ? messages : null;
 
   // Fresh whole-conversation score, preferred. Falls back to whatever
   // mid-chat cache the frontend sent if the live call fails or there is
@@ -133,9 +150,9 @@ exports.handler = async function (event) {
   const fallbackGrade = body.agent_self_grade && typeof body.agent_self_grade === 'object' ? body.agent_self_grade : null;
   row.agent_self_humanness = fallbackGrade ? clampEmotion(fallbackGrade.humanness) : null;
   row.agent_self_eq = fallbackGrade ? clampEmotion(fallbackGrade.eq) : null;
+  row.judge_model = (row.agent_self_humanness !== null || row.agent_self_eq !== null) ? JUDGE_MODEL : null;
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
-  const messages = Array.isArray(body.messages) ? body.messages : [];
   const rosterName = (engine.AGENTS[agentKey] && engine.AGENTS[agentKey].name) || agentName;
   if (apiKey && messages.length && rosterName) {
     try {
@@ -144,6 +161,7 @@ exports.handler = async function (event) {
       if (fresh && (fresh.humanness !== null || fresh.eq !== null)) {
         row.agent_self_humanness = fresh.humanness;
         row.agent_self_eq = fresh.eq;
+        row.judge_model = JUDGE_MODEL;
       }
     } catch (err) {
       console.error('eq-room-rate exit judge failed (falling back to cached grade):', err.message);
