@@ -94,7 +94,11 @@ function resolveTargetRepo(targetUrl) {
     if (host === 'thedose.net') {
       return { owner: 'starbucks005-alt', repo: 'the-dose', path: 'index.html' };
     }
-    if (host === 'gandhi-king.netlify.app') {
+    // The real live domain is gandhi-king-center-for-nonviolence.org (see
+    // index.html's platforms array / the Social Posts site picker). The old
+    // netlify.app hostname was never the actual site, so any real scan of
+    // the live domain silently found no repo mapping at all.
+    if (host === 'gandhi-king-center-for-nonviolence.org' || host === 'gandhi-king.netlify.app') {
       return { owner: 'starbucks005-alt', repo: 'gandhi-king-center', path: 'index.html' };
     }
     if (host === 'slrstudio.online') {
