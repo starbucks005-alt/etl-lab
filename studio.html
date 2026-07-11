@@ -1948,9 +1948,15 @@
           } catch (_) {}
           var headers = {'Content-Type':'application/json'};
           if (session && session.access_token) headers['Authorization'] = 'Bearer ' + session.access_token;
+          // Tell the backend whose voice this is. Without this every buyer's
+          // posts get written in Dr. O's own Forbes-article voice fingerprint.
+          var payload = Object.assign({}, state, {
+            ownerName: window.__ownerName || '',
+            companyName: window.__companyName || '',
+          });
           var r = await fetch('/.netlify/functions/studio-social-generate', {
             method:'POST', headers: headers,
-            body: JSON.stringify(state),
+            body: JSON.stringify(payload),
           });
           var data = await r.json();
           if (!r.ok || data.error) {

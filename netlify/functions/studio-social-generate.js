@@ -173,6 +173,56 @@ const TERRY_VOICE_CORE = [
   '- exclamation points (she does not use them)',
 ].join('\n');
 
+/* buyerVoiceCore / buyerAgentPrompt
+   TERRY_VOICE_CORE and every AGENTS[key].prompt below are written to
+   literally claim the post is "AS Dr. Terry Oroszi" and match HER Forbes
+   writing fingerprint, first-person, with example posts about HER
+   platforms (OPSEC Gauntlet, Greylander Press, The Dose). That is correct
+   only when the requesting buyer IS Dr. Oroszi. Every other buyer (Sethi
+   Studio, etc.) gets these generic, owner-aware equivalents instead, so
+   their posts speak as themselves, not as Terry. Persona flavor (Zara =
+   fun/casual, Sneha = SME, Ayanna = teacher) is kept; the Terry-specific
+   identity claims and example posts are dropped. */
+function buyerVoiceCore(ownerName, companyName) {
+  var who = ownerName || 'the site owner';
+  return [
+    'BASELINE VOICE: you are writing AS ' + who + (companyName ? (', who runs ' + companyName) : '') + '. Confident, direct, first person. Short declarative sentences. State the real thing plainly instead of hedging.',
+    '',
+    'VOICE BANS (corporate-AI tells, avoid these):',
+    '- "In today\'s fast-paced world"',
+    '- "It is important to note"',
+    '- "leverage", "synergize", "unlock", "empower", "elevate", "transform" used as verbs about platforms',
+    '- "game-changer", "revolutionary", "cutting-edge", "next-generation"',
+    '- starting with "As a [title], I..."',
+    '- soft hedges like "I think", "it seems", "perhaps", "maybe" when you would just state it',
+    '- exclamation points',
+  ].join('\n');
+}
+
+const BUYER_AGENT_VOICES = {
+  zara: 'VOICE: fun, casual, influencer energy. Lowercase openings sometimes. Non-sequitur hooks ("ok so", "no but actually", "wait", "POV:"). Fragments and casual asides in parens. State opinions like a person, never like a press release. Hashtags read like inside jokes, not SEO categories.',
+  sneha: 'VOICE: subject-matter-expert, inside-the-field, technical but not academic. Lead with the observation a practitioner would recognize. Assume the reader already knows the basics; skip the 101 explanation. Precise, a little dry, no hype words.',
+  ayanna: 'VOICE: informed and educational, professorial and warm. Open with the lesson, then the reasoning, then the application. Patient, not condescending. End with a takeaway the reader can act on.',
+};
+
+const HONORIFICS = new Set(['dr', 'dr.', 'mr', 'mr.', 'mrs', 'mrs.', 'ms', 'ms.', 'prof', 'prof.']);
+
+function firstNameOf(fullName) {
+  var parts = (fullName || '').trim().split(/\s+/).filter(Boolean);
+  var first = parts.find(function(p) { return !HONORIFICS.has(p.toLowerCase()); });
+  return first || null;
+}
+
+function buyerAgentPrompt(agentKey, ownerName, companyName) {
+  var name = ownerName || 'the site owner';
+  var first = firstNameOf(ownerName);
+  var voicePossessive = first ? (first + '’s') : 'their';
+  var co = companyName || 'their site';
+  var intro = 'You are writing a social post AS ' + name + '. ' + name + ' owns ' + co + ' and is posting about their own work. Write in FIRST PERSON ("I built this", "my team", "we just shipped"). Never refer to them in the third person ("someone", "the founder", "they").\n\n';
+  return intro + (BUYER_AGENT_VOICES[agentKey] || '') +
+    '\n\nNow write a post on the subject below in ' + voicePossessive + ' first-person voice, about ' + co + '.';
+}
+
 const AGENTS = {
   zara: {
     name: 'Zara', fullName: 'Zara Cole', voice: 'Fun / influencer',
@@ -319,7 +369,15 @@ exports.handler = async (event) => {
   try { body = JSON.parse(event.body || '{}'); }
   catch (e) { return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'invalid json' }) }; }
 
-  const { site, agent, platform, subject, cta, customUrl, customContext } = body;
+  const { site, agent, platform, subject, cta, customUrl, customContext, ownerName, companyName } = body;
+
+  // Which buyer is asking. Dr. O gets her own Forbes-voice fingerprint
+  // (TERRY_VOICE_CORE) and the Terry-specific agent personas below; every
+  // other buyer gets the generic owner-aware equivalents so their posts
+  // read as themselves, not as Terry.
+  const ownerNameTrimmed = (ownerName || '').trim();
+  const companyNameTrimmed = (companyName || '').trim();
+  const isTerry = !ownerNameTrimmed || ownerNameTrimmed === 'Dr. Terry Oroszi';
 
   // Buyers with sites outside the fixed ETL roster (e.g. Vikram Sethi) paste
   // their own URL instead of picking from SITES. Build siteData on the fly
@@ -357,10 +415,13 @@ exports.handler = async (event) => {
   }
   const client = new Anthropic({ apiKey });
 
-  const sys = TERRY_VOICE_CORE + '\n\n' +
+  const voiceCore = isTerry ? TERRY_VOICE_CORE : buyerVoiceCore(ownerNameTrimmed, companyNameTrimmed);
+  const agentPromptText = isTerry ? agentData.prompt : buyerAgentPrompt(agent, ownerNameTrimmed, companyNameTrimmed);
+
+  const sys = voiceCore + '\n\n' +
     '---\n\n' +
-    'STYLE TILT for this post (your job is to apply this tilt ON TOP OF Terry\'s baseline voice above, not to replace it):\n\n' +
-    agentData.prompt + '\n\n' +
+    'STYLE TILT for this post (your job is to apply this tilt ON TOP OF the baseline voice above, not to replace it):\n\n' +
+    agentPromptText + '\n\n' +
     'CONTEXT, the platform this post is about:\n' +
     'Name: ' + siteData.name + '\n' +
     'URL: ' + siteData.url + '\n' +
