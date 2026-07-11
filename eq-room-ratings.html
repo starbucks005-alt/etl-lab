@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>EQ Room Ratings · ETL Internal</title>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@300;400&family=Public+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --blue:#5c8ab5; --gold:#c6a667; --ink:#c8bfa8; --dim:#7a6e5c; --faint:#5a5040; --line:rgba(92,138,181,0.15); }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:#0d0b08; color:var(--ink); font-family:'Public Sans',sans-serif; font-size:14px; line-height:1.7; padding:40px 5vw 120px; }
+  h1 { font-family:'Spectral',serif; font-weight:300; font-size:clamp(26px,3vw,38px); color:#fff; margin:6px 0 4px; }
+  .eyebrow { font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:4px; text-transform:uppercase; color:var(--blue); }
+  .sub { color:var(--dim); max-width:640px; margin-bottom:32px; }
+  .bar { display:flex; flex-wrap:wrap; gap:10px; align-items:center; padding:16px 0 10px; border-top:1px solid var(--line); margin-bottom:28px; }
+  input, select, button { font-family:'IBM Plex Mono',monospace; font-size:12px; background:#151209; color:var(--ink); border:1px solid var(--line); padding:8px 12px; }
+  button { cursor:pointer; letter-spacing:1.5px; text-transform:uppercase; font-size:10px; transition:border-color .15s,color .15s; }
+  button:hover { border-color:var(--blue); color:#8ab4d8; }
+  button.primary { border-color:rgba(198,166,103,0.5); color:var(--gold); }
+  button:disabled { opacity:.4; cursor:wait; }
+  #status { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--dim); margin-left:auto; }
+
+  .stat-row { display:flex; flex-wrap:wrap; gap:14px; margin-bottom:32px; }
+  .stat-card { border:1px solid var(--line); padding:14px 18px; min-width:150px; }
+  .stat-card .n { font-family:'Spectral',serif; font-size:28px; color:#fff; }
+  .stat-card .l { font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:1.5px; text-transform:uppercase; color:var(--faint); margin-top:4px; }
+
+  h2 { font-family:'Spectral',serif; font-weight:300; font-size:20px; color:#fff; border-bottom:1px solid var(--line); padding-bottom:6px; margin:32px 0 14px; }
+
+  table { border-collapse:collapse; width:100%; font-size:12.5px; }
+  th, td { border:1px solid var(--line); padding:7px 10px; text-align:left; white-space:nowrap; }
+  th { font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:1px; text-transform:uppercase; color:var(--blue); background:#120f0a; }
+  tbody tr:hover { background:#151209; }
+  .num { text-align:right; font-family:'IBM Plex Mono',monospace; }
+  .table-wrap { overflow-x:auto; }
+
+  .gate { border:1px solid var(--line); padding:16px; margin-bottom:28px; font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--dim); }
+</style>
+</head>
+<body>
+
+<div style="margin-bottom:20px; font-family:'IBM Plex Mono',monospace; font-size:11px;">
+  <a href="/almost-human" style="color:var(--dim); text-decoration:none; margin-right:18px;" onmouseover="this.style.color='#8ab4d8'" onmouseout="this.style.color='#7a6e5c'">&larr; Almost Human</a>
+  <a href="/" style="color:var(--dim); text-decoration:none;" onmouseover="this.style.color='#8ab4d8'" onmouseout="this.style.color='#7a6e5c'">ETL campus</a>
+</div>
+<div class="eyebrow">ETL Internal &middot; EQ Room Research</div>
+<h1>EQ Room Ratings</h1>
+<p class="sub">Every "End Conversation" exit survey from Almost Human: the visitor's own 1-5 humanness rating, the conversation's final emotion scales, and the agent's own self-graded read, side by side. Source data for the conference dataset.</p>
+
+<div class="bar">
+  <input id="owner-key" type="password" placeholder="owner key" style="width:220px;">
+  <select id="agent-filter"><option value="">all agents</option></select>
+  <button id="refresh-btn" class="primary">Refresh</button>
+  <button id="csv-btn">Download CSV</button>
+  <span id="status"></span>
+</div>
+
+<div id="summary"></div>
+<h2>All responses</h2>
+<div class="table-wrap"><table id="raw-table"><thead></thead><tbody></tbody></table></div>
+
+<script>
+(function () {
+  var keyEl = document.getElementById('owner-key');
+  keyEl.value = localStorage.getItem('etl_owner_key') || '';
+  keyEl.addEventListener('change', function () { localStorage.setItem('etl_owner_key', keyEl.value.trim()); });
+
+  var statusEl = document.getElementById('status');
+  function say(msg) { statusEl.textContent = msg; }
+
+  var EMOTION_KEYS = ['happiness', 'sadness', 'fear', 'disgust', 'anger', 'surprise', 'curious'];
+  var allRows = [];
+
+  function fmt(n) {
+    return (n === null || n === undefined || n === '') ? '—' : (Math.round(Number(n) * 10) / 10).toString();
+  }
+
+  function avg(rows, key) {
+    var vals = rows.map(function (r) { return r[key]; }).filter(function (v) { return v !== null && v !== undefined; }).map(Number);
+    if (!vals.length) return null;
+    return vals.reduce(function (a, b) { return a + b; }, 0) / vals.length;
+  }
+
+  function renderSummary(rows) {
+    var wrap = document.getElementById('summary');
+    wrap.innerHTML = '';
+
+    var statRow = document.createElement('div');
+    statRow.className = 'stat-row';
+    var cards = [
+      ['Responses', rows.length],
+      ['Avg humanness (1-5)', fmt(avg(rows, 'humanness_rating'))],
+      ['Avg agent self-humanness', fmt(avg(rows, 'agent_self_humanness'))],
+      ['Avg agent self-EQ', fmt(avg(rows, 'agent_self_eq'))],
+    ];
+    cards.forEach(function (c) {
+      var card = document.createElement('div');
+      card.className = 'stat-card';
+      card.innerHTML = '<div class="n">' + c[1] + '</div><div class="l">' + c[0] + '</div>';
+      statRow.appendChild(card);
+    });
+    wrap.appendChild(statRow);
+
+    var h2 = document.createElement('h2');
+    h2.textContent = 'By agent';
+    wrap.appendChild(h2);
+
+    var byAgent = {};
+    rows.forEach(function (r) {
+      var k = r.agent_name || r.agent_key || 'unknown';
+      (byAgent[k] = byAgent[k] || []).push(r);
+    });
+    var agentNames = Object.keys(byAgent).sort();
+
+    var table = document.createElement('table');
+    var thead = '<thead><tr><th>Agent</th><th>Responses</th><th>Avg humanness</th>' +
+      EMOTION_KEYS.map(function (k) { return '<th>' + k.slice(0, 1).toUpperCase() + k.slice(1) + '</th>'; }).join('') +
+      '<th>Self-humanness</th><th>Self-EQ</th></tr></thead>';
+    var tbody = '<tbody>' + agentNames.map(function (name) {
+      var rs = byAgent[name];
+      return '<tr><td>' + name + '</td><td class="num">' + rs.length + '</td><td class="num">' + fmt(avg(rs, 'humanness_rating')) + '</td>' +
+        EMOTION_KEYS.map(function (k) { return '<td class="num">' + fmt(avg(rs, k)) + '</td>'; }).join('') +
+        '<td class="num">' + fmt(avg(rs, 'agent_self_humanness')) + '</td><td class="num">' + fmt(avg(rs, 'agent_self_eq')) + '</td></tr>';
+    }).join('') + '</tbody>';
+    table.innerHTML = thead + tbody;
+    wrap.appendChild(table);
+
+    // Agent filter options (once, from the full unfiltered set on first load)
+    var sel = document.getElementById('agent-filter');
+    if (sel.options.length <= 1) {
+      agentNames.forEach(function (name) {
+        var opt = document.createElement('option');
+        opt.value = byAgent[name][0].agent_key || name;
+        opt.textContent = name;
+        sel.appendChild(opt);
+      });
+    }
+  }
+
+  function renderRaw(rows) {
+    var cols = ['created_at', 'agent_name', 'visitor_name', 'visitor_pronoun', 'humanness_rating', 'turn_count']
+      .concat(EMOTION_KEYS).concat(['agent_self_humanness', 'agent_self_eq']);
+    var table = document.getElementById('raw-table');
+    table.querySelector('thead').innerHTML = '<tr>' + cols.map(function (c) { return '<th>' + c.replace(/_/g, ' ') + '</th>'; }).join('') + '</tr>';
+    table.querySelector('tbody').innerHTML = rows.map(function (r) {
+      return '<tr>' + cols.map(function (c) {
+        var v = r[c];
+        if (c === 'created_at' && v) v = new Date(v).toLocaleString();
+        var numeric = c !== 'created_at' && c !== 'agent_name' && c !== 'visitor_name' && c !== 'visitor_pronoun';
+        return '<td' + (numeric ? ' class="num"' : '') + '>' + (v === null || v === undefined || v === '' ? '—' : v) + '</td>';
+      }).join('') + '</tr>';
+    }).join('');
+  }
+
+  function toCsv(rows) {
+    var cols = ['created_at', 'agent_key', 'agent_name', 'visitor_id', 'visitor_name', 'visitor_pronoun',
+      'humanness_rating', 'turn_count'].concat(EMOTION_KEYS).concat(['agent_self_humanness', 'agent_self_eq']);
+    var esc = function (v) {
+      if (v === null || v === undefined) return '';
+      var s = String(v);
+      return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+    };
+    var lines = [cols.join(',')].concat(rows.map(function (r) { return cols.map(function (c) { return esc(r[c]); }).join(','); }));
+    return lines.join('\n');
+  }
+
+  document.getElementById('csv-btn').addEventListener('click', function () {
+    if (!allRows.length) { say('nothing to export yet, refresh first'); return; }
+    var blob = new Blob([toCsv(allRows)], { type: 'text/csv' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'eq-room-ratings-' + new Date().toISOString().slice(0, 10) + '.csv';
+    document.body.appendChild(a); a.click(); a.remove();
+  });
+
+  function load() {
+    if (!keyEl.value.trim()) { say('enter the owner key'); return; }
+    say('loading...');
+    var agentKey = document.getElementById('agent-filter').value;
+    fetch('/.netlify/functions/eq-room-ratings-admin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Owner-Key': keyEl.value.trim() },
+      body: JSON.stringify({ action: 'list', agent_key: agentKey || undefined }),
+    })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (res) {
+        if (!res.ok) { say('error: ' + (res.j.error || res.ok)); return; }
+        allRows = res.j.rows || [];
+        renderSummary(allRows);
+        renderRaw(allRows);
+        say(allRows.length + ' responses loaded');
+      })
+      .catch(function (err) { say('network error: ' + err.message); });
+  }
+
+  document.getElementById('refresh-btn').addEventListener('click', load);
+  document.getElementById('agent-filter').addEventListener('change', load);
+  if (keyEl.value.trim()) load();
+})();
+</script>
+</body>
+</html>
