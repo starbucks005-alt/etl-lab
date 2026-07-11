@@ -44,10 +44,23 @@ const SUBPATH_FILE = {
   '/office-hours': 'office-hours.html',
   '/prep-room': 'prep-room.html',
   '/boardroom': 'boardroom.html',
+  '/job-fair': 'job-fair.html',
   '/press': 'press.html',
   '/studio': 'studio.html',
+  '/studios': 'studios.html',
   '/founder-studio.html': 'founder-studio.html',
   '/from-the-gauntlet.html': 'from-the-gauntlet.html',
+  '/almost-human': 'almost-human.html',
+  '/gym': 'gym.html',
+  '/restaurant': 'restaurant.html',
+  '/classrooms': 'classrooms.html',
+  '/deskworks': 'deskworks.html',
+  '/tailor-shop': 'tailor-shop.html',
+  '/build-your-own-agent': 'build-your-own-agent.html',
+  '/export-your-agent': 'export-your-agent.html',
+  '/hiring-pool': 'hiring-pool.html',
+  '/court': 'court.html',
+  '/city-government': 'city-government.html',
 };
 
 function resolveTargetRepo(targetUrl) {
@@ -57,7 +70,14 @@ function resolveTargetRepo(targetUrl) {
     const path = u.pathname.replace(/\/$/, '');
 
     if (host === 'emerging-tech-lab.com') {
-      const file = SUBPATH_FILE[path] || SUBPATH_FILE[''];
+      // No silent fallback to index.html for an unmapped path — that was
+      // the bug: any page not explicitly listed here (e.g. /almost-human,
+      // before this fix) resolved to the campus HOMEPAGE, so Jax would
+      // have committed the wrong page's title/meta/OG tags onto index.html
+      // the moment GITHUB_APPLY_TOKEN actually had write access. Only ''
+      // and '/' mean the homepage; anything else must be an explicit entry
+      // or apply fails with no_repo_mapping instead of hitting the wrong file.
+      const file = SUBPATH_FILE[path];
       if (!file) return null;
       return { owner: 'starbucks005-alt', repo: 'etl-lab', path: file };
     }
