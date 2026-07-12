@@ -241,27 +241,34 @@ function buildMessagesFor(agentKey, transcript) {
   });
 }
 
-// One cheap Haiku call: who should speak next, or "none" if this beat is over.
-// Forced tool choice, same reliability pattern already proven in eq-room-ask.js.
-async function pickNextSpeaker(client, activeAgents, transcript, beatIndex) {
+// One cheap Haiku call: who should speak next. When forced=true there is no
+// "none" option, since the first two beats of every round are guaranteed
+// (see the caller): a room with 2+ agents should never come back with only
+// one reply, or it just reads as everyone answering the guest in parallel,
+// never actually talking to each other. The director only gets real
+// discretion to stay silent once the guaranteed beats are already spoken for.
+async function pickNextSpeaker(client, activeAgents, transcript, beatIndex, forced) {
   const roster = activeAgents.map((k) => `${k}: ${PERSONAS[k].name}, ${PERSONAS[k].role}. ${ROOM_HOOKS[k] || ''}`).join('\n');
   const transcriptText = transcript
     .slice(-16)
     .map((e) => `${e.name}: ${e.content}`)
     .join('\n');
-  const prompt = `You're directing a group chat. People at the table:\n${roster}\n\n` +
-    `Recent conversation:\n${transcriptText}\n\n` +
-    (beatIndex === 0
-      ? 'The guest just said something new. Someone should almost always respond. Pick whoever would naturally jump in first.'
-      : `${beatIndex + 1} people have already replied to the guest's message this round. Most of the time that's enough and it should go back to the guest now. Only pick another speaker if someone at the table would genuinely and naturally have something to add right now, like reacting to what the last person just said.`) +
-    ' Pick exactly one agent key from the roster above, or "none".';
+  const instruction = beatIndex === 0
+    ? 'The guest just said something new. Pick whoever at the table would naturally jump in first.'
+    : 'Someone else at the table should react now, specifically to what the LAST person just said, the way a coworker actually jumps into a conversation, agreeing, teasing, adding a detail, not just answering the guest again from scratch. Pick who at the table would genuinely have something to say about that.';
+  const prompt = `You're directing a real group conversation at a table: several coworkers and one guest, actually talking to each other, not taking turns answering the guest one at a time. People at the table:\n${roster}\n\n` +
+    `Recent conversation:\n${transcriptText}\n\n${instruction}` +
+    (forced
+      ? ' Pick exactly one agent key from the roster above.'
+      : ' Pick exactly one agent key from the roster above, or "none" if nobody would genuinely add anything right now.');
 
+  const enumValues = forced ? [...activeAgents] : [...activeAgents, 'none'];
   const tool = {
     name: 'pick_speaker',
-    description: 'Choose who speaks next in the room, or none.',
+    description: forced ? 'Choose who speaks next in the room.' : 'Choose who speaks next in the room, or none.',
     input_schema: {
       type: 'object',
-      properties: { speaker: { type: 'string', enum: [...activeAgents, 'none'] } },
+      properties: { speaker: { type: 'string', enum: enumValues } },
       required: ['speaker'],
     },
   };
@@ -277,10 +284,10 @@ async function pickNextSpeaker(client, activeAgents, transcript, beatIndex) {
     const toolBlock = (msg.content || []).find((b) => b.type === 'tool_use' && b.name === 'pick_speaker');
     const speaker = toolBlock && toolBlock.input && toolBlock.input.speaker;
     if (speaker && activeAgents.includes(speaker)) return speaker;
-    return null;
+    return forced ? activeAgents[0] : null;
   } catch (err) {
-    console.error('eq-room-group director failed (non-fatal, ending beat):', err.message);
-    return null;
+    console.error('eq-room-group director failed (non-fatal):', err.message);
+    return forced ? activeAgents[0] : null;
   }
 }
 
@@ -344,6 +351,11 @@ exports.handler = async function (event) {
   // 1:1 turn-cap behavior), then the room ends for everyone, rather than the
   // room silently stalling with input still open but nothing left to say.
   const beatLimit = capped ? 1 : CASCADE_CAP;
+  // The first two beats are guaranteed (when the room has that many agents to
+  // give): real back-and-forth, not the director quietly opting out after one
+  // reply every time, which is what "agents only talk to me" looks like from
+  // the guest's side. Only a possible third beat is left to real discretion.
+  const guaranteedBeats = capped ? 0 : Math.min(2, activeAgents.length);
   {
     for (let beat = 0; beat < beatLimit && stillActive.length; beat++) {
       const candidates = stillActive.filter((a) => !usedThisBeat.includes(a));
@@ -352,9 +364,10 @@ exports.handler = async function (event) {
       if (capped) {
         speaker = candidates[0];
       } else {
+        const forced = beat < guaranteedBeats;
         try {
-          speaker = await pickNextSpeaker(client, candidates, transcript, beat);
-        } catch (_) { speaker = null; }
+          speaker = await pickNextSpeaker(client, candidates, transcript, beat, forced);
+        } catch (_) { speaker = forced ? candidates[0] : null; }
         if (!speaker) break;
       }
       usedThisBeat.push(speaker);
