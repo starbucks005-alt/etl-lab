@@ -1,8 +1,19 @@
 /* eq-room-rate — records the exit survey shown when a visitor presses
    "End Conversation" in the EQ Room (Almost Human).
 
+   Also the one reliable place a REAL, ordinary conversation-end gets saved
+   as visitor memory (Terry, per a live memory-persistence gap found in
+   testing): eq-room-ask.js's saveVisitorMemory only ever fired on a
+   guardrail close or the 20-turn cap, never on the guest just finishing a
+   normal conversation and leaving. Clicking "Back" or closing the tab still
+   saves nothing (no network signal at all), but "End Conversation" is the
+   product's actual designated ending affordance, same one the exit survey
+   already relies on, so it's the right, and only reliably reachable, place
+   to also distill and store memory.
+
    POST { agent_key, agent_name, visitor_id, visitor_name?, visitor_pronoun?,
-          humanness_rating (1-5), turn_count?, scales?, messages?, visitor_note? }
+          humanness_rating (1-5), turn_count?, scales?, messages?,
+          visitor_note?, remember? }
    Returns { ok: true }
 
    Also stores, per row: the full transcript (messages, as sent), so any
@@ -101,6 +112,54 @@ ${transcript}`;
   };
 }
 
+// Same shape as eq-room-ask.js's saveVisitorMemory, duplicated rather than
+// imported cross-file (same reasoning as the group room: keep this endpoint
+// self-contained so it can never destabilize the live turn handler). Cheap
+// model, background/ambient generation, not the demo-facing reply itself.
+async function saveVisitorMemory(client, agentKey, agentName, visitorId, serviceKey, messages) {
+  try {
+    const transcript = messages.filter((m) => m && typeof m.content === 'string' && m.content.trim());
+    if (!transcript.length) return;
+    const prompt = `You are ${agentName}. This conversation with a guest just ended. Write 1 to 3 \
+short, first-person notes you'd genuinely carry with you about THIS specific guest if they came \
+back, things they told you, how they seemed, anything real and specific, not a recap of the whole \
+chat. Return ONLY JSON, no code fences: {"memories": ["...", "..."]}. If honestly nothing \
+memorable happened, return {"memories": []}.
+
+Transcript:
+${transcript.map((m) => `${m.role === 'user' ? 'GUEST' : agentName.toUpperCase()}: ${m.content}`).join('\n')}`;
+
+    const msg = await client.messages.create({
+      model: JUDGE_MODEL,
+      max_tokens: 300,
+      messages: [{ role: 'user', content: prompt }],
+    });
+    const text = (msg.content || []).filter((b) => b.type === 'text').map((b) => b.text).join('').trim();
+    const cleaned = text.replace(/^```(json)?/i, '').replace(/```$/, '').trim();
+    const parsed = JSON.parse(cleaned);
+    const memories = Array.isArray(parsed.memories)
+      ? parsed.memories.filter((m) => typeof m === 'string' && m.trim()).slice(0, 3)
+      : [];
+    if (!memories.length) return;
+
+    const insertRes = await fetch(`${SUPABASE_URL}/rest/v1/etl_visitor_memories`, {
+      method: 'POST',
+      headers: {
+        apikey: serviceKey,
+        Authorization: `Bearer ${serviceKey}`,
+        'Content-Type': 'application/json',
+        Prefer: 'return=minimal',
+      },
+      body: JSON.stringify(memories.map((memory) => ({ visitor_id: visitorId, agent_key: agentKey, memory }))),
+    });
+    if (!insertRes.ok) {
+      console.error('eq-room-rate visitor memory insert non-ok:', insertRes.status, await insertRes.text().catch(() => ''));
+    }
+  } catch (err) {
+    console.error('eq-room-rate visitor memory save failed (non-fatal):', err.message);
+  }
+}
+
 exports.handler = async function (event) {
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: CORS, body: '' };
   if (event.httpMethod !== 'POST') return json(405, { error: 'method_not_allowed' });
@@ -153,10 +212,12 @@ exports.handler = async function (event) {
   row.judge_model = (row.agent_self_humanness !== null || row.agent_self_eq !== null) ? JUDGE_MODEL : null;
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const rosterName = (engine.AGENTS[agentKey] && engine.AGENTS[agentKey].name) || agentName;
-  if (apiKey && messages.length && rosterName) {
+  const client = apiKey ? new Anthropic({ apiKey }) : null;
+
+  if (client && messages.length && rosterName) {
     try {
-      const client = new Anthropic({ apiKey });
       const fresh = await runExitJudge(client, rosterName, messages);
       if (fresh && (fresh.humanness !== null || fresh.eq !== null)) {
         row.agent_self_humanness = fresh.humanness;
@@ -168,7 +229,18 @@ exports.handler = async function (event) {
     }
   }
 
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  // The fix for the real memory-persistence gap: this is the one place a
+  // normal, deliberate conversation-end reliably reaches the server. Opt-in
+  // only (body.remember), same as the live turn handler.
+  const remember = body.remember === true;
+  if (remember && client && serviceKey && visitorId && messages.length && rosterName) {
+    try {
+      await saveVisitorMemory(client, agentKey, rosterName, visitorId, serviceKey, messages);
+    } catch (err) {
+      console.error('eq-room-rate memory save failed (non-fatal):', err.message);
+    }
+  }
+
   if (!serviceKey) {
     console.error('eq-room-rate: SUPABASE_SERVICE_ROLE_KEY not set, rating dropped');
     return json(200, { ok: false, stored: false });
