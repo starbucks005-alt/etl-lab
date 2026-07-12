@@ -337,6 +337,15 @@ const AGENTS = {
   },
 };
 
+// Dr. O's explicit standing instruction (2026-07-12): every social post
+// generated in her own voice, regardless of which of "the girls" wrote it,
+// must always carry these three hashtags. Enforced twice: as a prompt
+// instruction below, AND server-side after the model responds (see
+// REQUIRED_TERRY_HASHTAGS usage in the handler), since a hard "always
+// include" rule is too important to leave to model compliance alone.
+// Scoped to isTerry only, never injected into another buyer's posts.
+const REQUIRED_TERRY_HASHTAGS = ['#drterryoroszi', '#emergingtechnologieslaboratory', '#anthropic'];
+
 const PLATFORMS = {
   x: {
     name: 'X (Twitter)', charLimit: 280, idealLength: 240,
@@ -472,6 +481,9 @@ exports.handler = async (event) => {
        ? 'DAILY CLOSER, REQUIRED: end the post with a short, voice-matched reminder pointing readers to today\'s news-classification puzzle, "Deskline" (Terry sometimes calls it "from the desk"). The reminder must include the URL emerging-tech-lab.com/press/deskline exactly as written, no other URL. Keep the closer one or two sentences, matching the rest of the post\'s voice, not a separate disclaimer. Count it inside the character budget.\n\n'
        : '') +
     'EM-DASH RULE: do not use em dashes or en dashes anywhere in the post or hashtags. Use commas or periods instead. This is a hard rule across all of Dr. Oroszi\'s public surfaces.\n\n' +
+    (isTerry
+       ? 'REQUIRED HASHTAGS, HARD RULE: the hashtags string MUST always include these three, exactly as written, in addition to whatever others fit the voice or platform: ' + REQUIRED_TERRY_HASHTAGS.join(' ') + '. Never omit them, and never let a platform\'s usual low hashtag count (e.g. X, Bluesky) push them out, they take priority over stylistic hashtags if space is tight.\n\n'
+       : '') +
     'Return ONLY valid JSON, no markdown, no prose around it, in this exact shape: {"post": "the post text without hashtags", "hashtags": "the hashtags as a single space-separated string or empty string if none fit the voice or platform", "notes": "one short sentence on why this post works for this platform and this audience"}';
 
   const user = 'SUBJECT MATTER: ' + subject.trim() + '\n\nWrite the post for ' + platformData.name + ' in your voice.';
@@ -489,7 +501,19 @@ exports.handler = async (event) => {
     }
 
     const post = (data.post || '').trim();
-    const hashtags = (data.hashtags || '').trim();
+    let hashtags = (data.hashtags || '').trim();
+
+    // Belt-and-suspenders: guarantee the three required tags regardless of
+    // model compliance with the prompt instruction above. Scoped to isTerry
+    // only, same as the prompt rule, so a buyer's post is never touched.
+    if (isTerry) {
+      const hashtagsLower = hashtags.toLowerCase();
+      const missing = REQUIRED_TERRY_HASHTAGS.filter((h) => hashtagsLower.indexOf(h.toLowerCase()) === -1);
+      if (missing.length) {
+        hashtags = (hashtags ? hashtags + ' ' : '') + missing.join(' ');
+      }
+    }
+
     const fullText = hashtags ? (post + '\n\n' + hashtags) : post;
     const charCount = fullText.length;
 
