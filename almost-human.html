@@ -351,9 +351,7 @@
 <section id="picker" class="screen">
   <h1>Who do you want to talk to?</h1>
   <p class="sub">Pick a face. Sit down. See how the conversation actually goes.</p>
-  <div class="agent-grid" id="agentGrid"></div>
 
-  <div class="group-divider"><hr><span>Or</span><hr></div>
   <button type="button" class="group-toggle" id="groupToggle">Bring a few to the table together</button>
   <div class="group-panel" id="groupPanel">
     <p class="hint">Pick 2 to 4 agents. They'll talk to each other, not just to you.</p>
@@ -363,6 +361,9 @@
       <button type="button" class="group-start-btn" id="groupStart" disabled>Start table chat</button>
     </div>
   </div>
+  <div class="group-divider"><hr><span>Or pick just one</span><hr></div>
+
+  <div class="agent-grid" id="agentGrid"></div>
 </section>
 
 <section id="table" class="screen">
@@ -705,6 +706,28 @@ var tableAgentState = {};     // {[key]: {scales, meters, turn_count}}
 var tableVisitorMsgCount = 0;
 var tableClosed = false;
 var tableSending = false;
+// Ambient continuation: without this the room is pure request/response, dead
+// silent unless the guest types something, which reads as fake for a room
+// that's supposed to feel alive. After a quiet pause with no new message,
+// the client checks in once for a chance at an unprompted beat. Capped per
+// idle stretch (reset the moment the guest sends a real message) so an
+// abandoned tab can't run the table indefinitely on its own.
+var ambientTimer = null;
+var ambientRoundsSinceVisitor = 0;
+var AMBIENT_MAX_ROUNDS = 3;
+var AMBIENT_MIN_DELAY = 5000;
+var AMBIENT_MAX_DELAY = 9000;
+
+function cancelAmbientCheck() {
+  if (ambientTimer) { clearTimeout(ambientTimer); ambientTimer = null; }
+}
+function scheduleAmbientCheck() {
+  cancelAmbientCheck();
+  if (tableClosed || !tableActiveAgents.length) return;
+  if (ambientRoundsSinceVisitor >= AMBIENT_MAX_ROUNDS) return;
+  var delay = AMBIENT_MIN_DELAY + Math.random() * (AMBIENT_MAX_DELAY - AMBIENT_MIN_DELAY);
+  ambientTimer = setTimeout(runAmbientCheck, delay);
+}
 
 function renderTableAvatars() {
   var wrap = $('tableAvatars');
@@ -739,6 +762,7 @@ function tableBubble(role, text, speakerAgent) {
 
 function closeTableInput() {
   tableClosed = true;
+  cancelAmbientCheck();
   $('table-input').disabled = true;
   $('table-send').disabled = true;
   $('table-input').placeholder = 'This conversation has ended.';
@@ -746,6 +770,8 @@ function closeTableInput() {
 
 function openTable(keys) {
   uiMode = 'group';
+  cancelAmbientCheck();
+  ambientRoundsSinceVisitor = 0;
   tableAgentKeys = keys.slice();
   tableActiveAgents = keys.map(agentByKey).filter(Boolean);
   tableHistory = [];
@@ -763,7 +789,100 @@ function openTable(keys) {
   $('table-input').focus();
 }
 
+// Shared by a real send and an ambient check-in: reveals each reply on its
+// own staggered beat, updates roster/state, and hands control back once the
+// whole round has actually finished playing out.
+function revealTableReplies(replies, activeKeysBefore, d, onDone) {
+  var stillKeys = d.active_agents || activeKeysBefore;
+  var leftKeys = activeKeysBefore.filter(function (k) { return stillKeys.indexOf(k) === -1; });
+
+  function finish() {
+    leftKeys.forEach(function (k) {
+      var a = agentByKey(k);
+      if (a) tableBubble('system', a.name + ' has stepped away from the table.', null);
+    });
+    tableActiveAgents = stillKeys.map(agentByKey).filter(Boolean);
+    renderTableAvatars();
+    tableAgentState = d.agent_state || tableAgentState;
+    tableVisitorMsgCount = d.visitor_message_count || tableVisitorMsgCount;
+    if (d.closed || !tableActiveAgents.length) {
+      tableBubble('system', 'The table has emptied out.', null);
+      closeTableInput();
+    }
+    if (onDone) onDone();
+  }
+
+  function revealNext(i) {
+    if (i >= replies.length) { finish(); return; }
+    var r2 = replies[i];
+    var agent = agentByKey(r2.agent_key);
+    var thinking = tableBubble('system', (agent ? agent.name : 'Someone') + ' is typing...', null);
+    // Longer, and scaled to how long the reply actually is, like someone
+    // really typing it: a one-liner lands quick, a real paragraph takes a
+    // while. Same number of API calls either way, just paced out, so this
+    // stretches session time without costing anything extra.
+    var typingSpeedDelay = Math.min((r2.reply || '').length * 18, 3500);
+    var thinkDelay = 900 + Math.random() * 1400 + typingSpeedDelay;
+    setTimeout(function () {
+      thinking.remove();
+      tableBubble('agent', r2.reply, agent);
+      var pauseBeforeNext = 800 + Math.random() * 1400;
+      setTimeout(function () { revealNext(i + 1); }, pauseBeforeNext);
+    }, thinkDelay);
+  }
+
+  revealNext(0);
+}
+
+// Fires after a quiet pause (see scheduleAmbientCheck). No new guest message
+// is sent; the server runs at most one genuinely-discretionary speaker and
+// most of the time comes back empty, which is the correct, common outcome,
+// not an error, so an empty result just quietly reschedules the next check.
+function runAmbientCheck() {
+  ambientTimer = null;
+  if (tableSending || tableClosed || !tableActiveAgents.length) return;
+  var activeKeysBefore = tableActiveAgents.map(function (a) { return a.key; });
+
+  fetch('/.netlify/functions/eq-room-group-ask', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      ambient: true,
+      active_agents: activeKeysBefore,
+      transcript: tableHistory,
+      agent_state: tableAgentState,
+      visitor_message_count: tableVisitorMsgCount,
+      visitor_id: visitorId(),
+      visitor_name: displayName,
+      visitor_pronoun: visitorPronoun,
+      remember: rememberMe,
+      owner_key: (function () { try { return localStorage.getItem('etl_owner_key') || ''; } catch (_) { return ''; } })(),
+    }),
+  })
+    .then(function (r) { if (!r.ok) throw new Error('server returned ' + r.status); return r.json(); })
+    .then(function (d) {
+      ambientRoundsSinceVisitor++;
+      if (!d.replies || !d.replies.length) {
+        scheduleAmbientCheck();
+        return;
+      }
+      tableSending = true;
+      $('table-send').disabled = true;
+      (d.transcript_append || []).forEach(function (entry) { tableHistory.push(entry); });
+      revealTableReplies(d.replies, activeKeysBefore, d, function () {
+        tableSending = false;
+        if (!tableClosed) { $('table-send').disabled = false; }
+        scheduleAmbientCheck();
+      });
+    })
+    .catch(function (err) {
+      console.warn('ambient table check failed (non-fatal):', err && err.message);
+      scheduleAmbientCheck();
+    });
+}
+
 $('tableBack').addEventListener('click', function () {
+  cancelAmbientCheck();
   showScreen('picker');
 });
 
@@ -772,6 +891,8 @@ $('table-form').addEventListener('submit', function (e) {
   if (tableSending || tableClosed) return;
   var text = $('table-input').value.trim();
   if (!text) return;
+  cancelAmbientCheck();
+  ambientRoundsSinceVisitor = 0; // a real message resets the idle-check budget
   tableBubble('user', text, null);
   $('table-input').value = '';
   tableSending = true;
@@ -812,49 +933,14 @@ $('table-form').addEventListener('submit', function (e) {
       tableHistory.push({ speaker: 'visitor', name: displayName || 'Guest', content: text });
       (d.transcript_append || []).forEach(function (entry) { tableHistory.push(entry); });
 
-      var replies = d.replies || [];
-      var stillKeys = d.active_agents || activeKeysBeforeSend;
-      var leftKeys = activeKeysBeforeSend.filter(function (k) { return stillKeys.indexOf(k) === -1; });
-
-      // Replies come back from the server all at once, but revealing them
-      // all at once is what made a real agent-to-agent exchange still read
-      // as a pasted script. Stagger each one behind its own "typing" beat so
-      // it plays out like people actually taking turns, not a batch dump.
-      function finishTableTurn() {
-        leftKeys.forEach(function (k) {
-          var a = agentByKey(k);
-          if (a) tableBubble('system', a.name + ' has stepped away from the table.', null);
-        });
-        tableActiveAgents = stillKeys.map(agentByKey).filter(Boolean);
-        renderTableAvatars();
-        tableAgentState = d.agent_state || tableAgentState;
-        tableVisitorMsgCount = d.visitor_message_count || tableVisitorMsgCount;
-        if (d.closed || !tableActiveAgents.length) {
-          tableBubble('system', 'The table has emptied out.', null);
-          closeTableInput();
-        }
+      revealTableReplies(d.replies || [], activeKeysBeforeSend, d, function () {
         tableSending = false;
         if (!tableClosed) {
           $('table-send').disabled = false;
           $('table-input').focus();
         }
-      }
-
-      function revealNextReply(i) {
-        if (i >= replies.length) { finishTableTurn(); return; }
-        var r2 = replies[i];
-        var agent = agentByKey(r2.agent_key);
-        var thinking = tableBubble('system', (agent ? agent.name : 'Someone') + ' is typing...', null);
-        var thinkDelay = 650 + Math.random() * 900;
-        setTimeout(function () {
-          thinking.remove();
-          tableBubble('agent', r2.reply, agent);
-          var pauseBeforeNext = 500 + Math.random() * 650;
-          setTimeout(function () { revealNextReply(i + 1); }, pauseBeforeNext);
-        }, thinkDelay);
-      }
-
-      revealNextReply(0);
+        scheduleAmbientCheck();
+      });
     })
     .catch(function (err) {
       typingEl.remove();
@@ -868,6 +954,7 @@ $('table-form').addEventListener('submit', function (e) {
 });
 
 $('tableEnd').addEventListener('click', function () {
+  cancelAmbientCheck();
   if (!tableAgentKeys.length) { showScreen('picker'); return; }
   uiMode = 'group';
   $('likertAgentName').textContent = 'the table';

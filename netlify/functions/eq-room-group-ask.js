@@ -10,7 +10,10 @@
      active_agents:  string[]   — 2 to MAX_ROOM_AGENTS known agent keys
      transcript:     [{speaker, name, content}]  — shared room log so far
                        (speaker is an agent key, or "visitor")
-     message:        string     — the guest's new message
+     message:        string     — the guest's new message (omit when ambient)
+     ambient?:       boolean    — true for an idle-pause check-in with no new
+                       guest message; at most one discretionary speaker, never
+                       spends the guest's turn budget, see pickNextSpeaker
      agent_state:    { [agentKey]: { scales, meters, turn_count } }
      visitor_message_count?: number
      visitor_id?, visitor_name?, visitor_pronoun?, remember?, owner_key?
@@ -26,7 +29,9 @@
    speak next (or "none"), that agent's reply always goes through the full,
    unmodified persona pipeline (buildSystemPrompt + forced respond_in_room tool +
    the real emotion-engine math), then the director runs again to decide whether
-   another agent chimes in, up to CASCADE_CAP replies per guest message.
+   another agent chimes in, up to CASCADE_CAP replies per guest message. Only the
+   first beat is ever guaranteed; every beat after that is genuine discretion, so
+   the room doesn't lock into the same reply count every single time.
 */
 
 const Anthropic = require('@anthropic-ai/sdk');
@@ -242,20 +247,23 @@ function buildMessagesFor(agentKey, transcript) {
 }
 
 // One cheap Haiku call: who should speak next. When forced=true there is no
-// "none" option, since the first two beats of every round are guaranteed
-// (see the caller): a room with 2+ agents should never come back with only
-// one reply, or it just reads as everyone answering the guest in parallel,
-// never actually talking to each other. The director only gets real
-// discretion to stay silent once the guaranteed beats are already spoken for.
-async function pickNextSpeaker(client, activeAgents, transcript, beatIndex, forced) {
+// "none" option (only beat 0 is ever forced, see the caller: someone should
+// always respond to the guest). Every beat after that is real discretion,
+// judged honestly per moment, not floored at a guaranteed count. An earlier
+// version forced the first two beats, which fixed "agents only talk to me"
+// but overcorrected into a rigid, metronomic "always exactly 2-3 replies,
+// same shape every time," which reads just as fake as one reply always did.
+async function pickNextSpeaker(client, activeAgents, transcript, beatIndex, forced, ambient) {
   const roster = activeAgents.map((k) => `${k}: ${PERSONAS[k].name}, ${PERSONAS[k].role}. ${ROOM_HOOKS[k] || ''}`).join('\n');
   const transcriptText = transcript
     .slice(-16)
     .map((e) => `${e.name}: ${e.content}`)
     .join('\n');
-  const instruction = beatIndex === 0
+  const instruction = ambient
+    ? 'The guest has gone quiet for a few seconds, nobody has said anything new. Most of the time nobody needs to add anything right now, and that is completely fine, a real room sits quiet sometimes. Only pick a name if a specific person at this table would genuinely have an unprompted thought right now: a late reaction to what was said, a follow-up on their own last point. This should be rare, not a habit.'
+    : beatIndex === 0
     ? 'The guest just said something new. Pick whoever at the table would naturally jump in first.'
-    : 'Someone else at the table should react now, specifically to what the LAST person just said, the way a coworker actually jumps into a conversation, agreeing, teasing, adding a detail, not just answering the guest again from scratch. Pick who at the table would genuinely have something to say about that.';
+    : 'Judge this specific moment honestly, the way a real table actually works: sometimes one reply is plenty and the conversation naturally pauses there, sometimes someone can\'t help reacting to what was just said, occasionally a third person jumps in too, but that\'s the rare case, not the default. Don\'t reach for a reaction just to keep the beat going. Only pick a name if a specific person at this table would genuinely, naturally have something to say about what the LAST person just said.';
   const prompt = `You're directing a real group conversation at a table: several coworkers and one guest, actually talking to each other, not taking turns answering the guest one at a time. People at the table:\n${roster}\n\n` +
     `Recent conversation:\n${transcriptText}\n\n${instruction}` +
     (forced
@@ -305,9 +313,17 @@ exports.handler = async function (event) {
   if (activeAgents.length < 2) return json(400, { error: 'need_at_least_two_agents' });
   if (activeAgents.length > MAX_ROOM_AGENTS) return json(400, { error: 'too_many_agents', max: MAX_ROOM_AGENTS });
 
+  // Ambient mode: the client checks in after a quiet pause with no new guest
+  // message, giving the table a chance to add an unprompted beat on its own,
+  // the way a real room doesn't go dead the second you stop talking. At most
+  // one genuinely-discretionary speaker, never counts against the guest's
+  // turn budget, and the client caps how many of these it asks for in a row.
+  const isAmbient = body.ambient === true;
   const message = String(body.message || '').trim();
-  if (!message) return json(400, { error: 'message_required' });
-  if (message.length > 2000) return json(400, { error: 'message_too_long' });
+  if (!isAmbient) {
+    if (!message) return json(400, { error: 'message_required' });
+    if (message.length > 2000) return json(400, { error: 'message_too_long' });
+  }
 
   const visitorName = String(body.visitor_name || '').trim().slice(0, 40) || null;
   const visitorPronoun = safePronoun(body.visitor_pronoun);
@@ -326,8 +342,11 @@ exports.handler = async function (event) {
   }
 
   const visitorMessageCountBefore = Number(body.visitor_message_count) || 0;
-  const visitorMessageCountAfter = visitorMessageCountBefore + 1;
-  const capped = visitorMessageCountAfter >= GROUP_VISITOR_TURN_CAP;
+  // Ambient checks never spend any of the guest's turn budget and can never
+  // trigger the turn-cap closing beat, that mechanic is about the guest's own
+  // messages running out, not idle table chatter.
+  const visitorMessageCountAfter = isAmbient ? visitorMessageCountBefore : visitorMessageCountBefore + 1;
+  const capped = !isAmbient && visitorMessageCountAfter >= GROUP_VISITOR_TURN_CAP;
 
   const rawTranscript = Array.isArray(body.transcript) ? body.transcript : [];
   let transcript = rawTranscript
@@ -336,7 +355,9 @@ exports.handler = async function (event) {
     .slice(-MAX_TRANSCRIPT_ENTRIES);
 
   const seenAgentBefore = new Set(transcript.filter((e) => e.speaker !== 'visitor').map((e) => e.speaker));
-  transcript.push({ speaker: 'visitor', name: visitorName || 'Guest', content: message });
+  if (!isAmbient) {
+    transcript.push({ speaker: 'visitor', name: visitorName || 'Guest', content: message });
+  }
 
   const agentStateIn = (body.agent_state && typeof body.agent_state === 'object') ? body.agent_state : {};
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -350,12 +371,13 @@ exports.handler = async function (event) {
   // agent wraps up warmly on behalf of the whole table (mirrors eq-room-ask.js's
   // 1:1 turn-cap behavior), then the room ends for everyone, rather than the
   // room silently stalling with input still open but nothing left to say.
-  const beatLimit = capped ? 1 : CASCADE_CAP;
-  // The first two beats are guaranteed (when the room has that many agents to
-  // give): real back-and-forth, not the director quietly opting out after one
-  // reply every time, which is what "agents only talk to me" looks like from
-  // the guest's side. Only a possible third beat is left to real discretion.
-  const guaranteedBeats = capped ? 0 : Math.min(2, activeAgents.length);
+  const beatLimit = capped ? 1 : (isAmbient ? 1 : CASCADE_CAP);
+  // Only beat 0 is guaranteed: someone should always respond to the guest.
+  // Every beat after that is genuine director discretion (see
+  // pickNextSpeaker) so the reply count actually varies turn to turn instead
+  // of hitting the same floor every single time. Ambient beats are never
+  // forced, full discretion, since most quiet pauses should just stay quiet.
+  const guaranteedBeats = (capped || isAmbient) ? 0 : 1;
   {
     for (let beat = 0; beat < beatLimit && stillActive.length; beat++) {
       const candidates = stillActive.filter((a) => !usedThisBeat.includes(a));
@@ -366,7 +388,7 @@ exports.handler = async function (event) {
       } else {
         const forced = beat < guaranteedBeats;
         try {
-          speaker = await pickNextSpeaker(client, candidates, transcript, beat, forced);
+          speaker = await pickNextSpeaker(client, candidates, transcript, beat, forced, isAmbient);
         } catch (_) { speaker = forced ? candidates[0] : null; }
         if (!speaker) break;
       }
@@ -396,6 +418,14 @@ exports.handler = async function (event) {
       let turnPrompt = systemPrompt;
       if (capped) {
         turnPrompt += '\n\nThis is the last exchange, the table\'s turn budget is spent. Close out warmly and in character, on behalf of the whole table, and set "close": true.';
+      } else if (isAmbient) {
+        const lastEntry = transcript[transcript.length - 1];
+        const who = lastEntry ? lastEntry.name : 'the table';
+        turnPrompt += `\n\nA few quiet seconds have passed. Nobody prompted you and the guest hasn't said \
+anything new. This is only worth speaking up for if you genuinely have an unprompted thought right now: a \
+late reaction to what ${who} said, a follow-up on your own last point, something that occurred to you just \
+sitting here. Keep it short, this is a quiet aside, not a fresh topic, and do not address the guest with a \
+question, this isn't their turn to respond to you.`;
       } else if (beat > 0) {
         // v1 of this instruction still let every agent open by reacting to the
         // prior agent, then pivot the rest of the reply back to the guest with
