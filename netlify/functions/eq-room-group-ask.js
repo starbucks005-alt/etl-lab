@@ -397,12 +397,18 @@ exports.handler = async function (event) {
       if (capped) {
         turnPrompt += '\n\nThis is the last exchange, the table\'s turn budget is spent. Close out warmly and in character, on behalf of the whole table, and set "close": true.';
       } else if (beat > 0) {
-        // Without this, every agent still defaults to answering the guest, since
-        // that's who's grammatically "asking" from their training's point of view,
-        // even with the prior agent's line right there in the transcript.
+        // v1 of this instruction still let every agent open by reacting to the
+        // prior agent, then pivot the rest of the reply back to the guest with
+        // a question or a "good to have you" line, the guest-service instinct
+        // winning out every time. This version forbids the pivot outright.
         const lastEntry = transcript[transcript.length - 1];
         if (lastEntry && lastEntry.speaker !== 'visitor') {
-          turnPrompt += `\n\n${lastEntry.name} just spoke, not the guest. This is your moment to turn and reply to ${lastEntry.name}, to them directly, the way you would at a real table when a coworker sitting right there just said something, not a fresh answer to the guest's original message. You can still bring the guest back in, but ${lastEntry.name} is who you're actually responding to right now.`;
+          turnPrompt += `\n\n${lastEntry.name} just spoke, not the guest, and this reply is to them, not \
+to the guest. Do not address the guest in this reply: no question to them, no "good to have you," no \
+turning back to greet them, save that for your next real turn. For this one beat, react only to \
+${lastEntry.name}, the way you actually would if a coworker sitting right next to you just said that \
+out loud: agree, argue, correct them, build on it, tease them, whatever's true to you. The guest is \
+sitting right there watching this happen, not being spoken to this turn.`;
         }
       }
 
