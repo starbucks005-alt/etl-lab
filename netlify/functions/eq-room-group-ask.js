@@ -396,6 +396,14 @@ exports.handler = async function (event) {
       let turnPrompt = systemPrompt;
       if (capped) {
         turnPrompt += '\n\nThis is the last exchange, the table\'s turn budget is spent. Close out warmly and in character, on behalf of the whole table, and set "close": true.';
+      } else if (beat > 0) {
+        // Without this, every agent still defaults to answering the guest, since
+        // that's who's grammatically "asking" from their training's point of view,
+        // even with the prior agent's line right there in the transcript.
+        const lastEntry = transcript[transcript.length - 1];
+        if (lastEntry && lastEntry.speaker !== 'visitor') {
+          turnPrompt += `\n\n${lastEntry.name} just spoke, not the guest. This is your moment to turn and reply to ${lastEntry.name}, to them directly, the way you would at a real table when a coworker sitting right there just said something, not a fresh answer to the guest's original message. You can still bring the guest back in, but ${lastEntry.name} is who you're actually responding to right now.`;
+        }
       }
 
       const messages = buildMessagesFor(speaker, transcript);

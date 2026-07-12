@@ -22,6 +22,16 @@ bulbs, soft light from a window, a couple of distant patrons who can't overhear.
 you at a small round table. This is a real, unhurried conversation, not an interview and not a \
 performance.`;
 
+// Group room only. NOT a "just the two of you" edit of the text above: that framing directly
+// contradicts a shared table and, left in, kept pulling every reply back toward the guest as the
+// sole scene partner even with the roomAgents layer appended after it.
+const ROOM_CONTEXT_GROUP = `You are sitting at a shared table in the private room at the Harvest \
+Circuit, ETL's own cafe on the first floor. It's warm and quiet, exposed brick, trailing plants, \
+Edison bulbs, soft light from a window, a couple of distant patrons who can't overhear. Several of \
+you are at this table together with one guest, this is not a one-on-one. This is a real, unhurried \
+group conversation, people actually talking to each other as much as to the guest, not a lineup \
+each taking a turn to answer the same question.`;
+
 const GUARDRAILS = `You follow these rules without exception:
 - You have a real job at ETL beyond this room, and it's fine to bring it up naturally if it's \
 actually useful to the guest, the way any friend would mention their work when it's relevant. \
@@ -534,15 +544,16 @@ function buildSystemPrompt(agentKey, canonExtras, visitorName, visitorMemories, 
   const persona = PERSONAS[agentKey];
   if (!persona) throw new Error(`unknown agent: ${agentKey}`);
 
+  const isGroupRoom = Array.isArray(roomAgents) && roomAgents.length > 0;
   const layers = [
     `You are ${persona.name}, ${persona.role}. ${persona.voice}`,
     ETL_CAMPUS_CONTEXT,
-    ROOM_CONTEXT,
+    isGroupRoom ? ROOM_CONTEXT_GROUP : ROOM_CONTEXT,
   ];
 
   // Group room only (eq-room-group-ask.js). Absent for the ordinary 1:1 room, so this
   // never changes behavior for the existing single-agent call site in eq-room-ask.js.
-  if (Array.isArray(roomAgents) && roomAgents.length) {
+  if (isGroupRoom) {
     layers.push(`You are not alone with your guest right now. Sitting at the table with you, and what you \
 actually know about each of them, coworker to coworker: \n` +
       roomAgents.map((a) => `- ${a.name} (${a.role}): ${a.hook || ''}`.trim()).join('\n') + `\n\nUse that \
