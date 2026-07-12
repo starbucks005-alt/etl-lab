@@ -805,38 +805,60 @@ $('table-form').addEventListener('submit', function (e) {
       if (d.message && (!d.replies || !d.replies.length) && d.closed) {
         tableBubble('system', d.message, null);
         closeTableInput();
+        tableSending = false;
         return;
       }
 
       tableHistory.push({ speaker: 'visitor', name: displayName || 'Guest', content: text });
       (d.transcript_append || []).forEach(function (entry) { tableHistory.push(entry); });
 
-      (d.replies || []).forEach(function (r2) {
-        tableBubble('agent', r2.reply, agentByKey(r2.agent_key));
-      });
-
-      tableAgentState = d.agent_state || tableAgentState;
-      tableVisitorMsgCount = d.visitor_message_count || tableVisitorMsgCount;
-
+      var replies = d.replies || [];
       var stillKeys = d.active_agents || activeKeysBeforeSend;
       var leftKeys = activeKeysBeforeSend.filter(function (k) { return stillKeys.indexOf(k) === -1; });
-      leftKeys.forEach(function (k) {
-        var a = agentByKey(k);
-        if (a) tableBubble('system', a.name + ' has stepped away from the table.', null);
-      });
-      tableActiveAgents = stillKeys.map(agentByKey).filter(Boolean);
-      renderTableAvatars();
 
-      if (d.closed || !tableActiveAgents.length) {
-        tableBubble('system', 'The table has emptied out.', null);
-        closeTableInput();
+      // Replies come back from the server all at once, but revealing them
+      // all at once is what made a real agent-to-agent exchange still read
+      // as a pasted script. Stagger each one behind its own "typing" beat so
+      // it plays out like people actually taking turns, not a batch dump.
+      function finishTableTurn() {
+        leftKeys.forEach(function (k) {
+          var a = agentByKey(k);
+          if (a) tableBubble('system', a.name + ' has stepped away from the table.', null);
+        });
+        tableActiveAgents = stillKeys.map(agentByKey).filter(Boolean);
+        renderTableAvatars();
+        tableAgentState = d.agent_state || tableAgentState;
+        tableVisitorMsgCount = d.visitor_message_count || tableVisitorMsgCount;
+        if (d.closed || !tableActiveAgents.length) {
+          tableBubble('system', 'The table has emptied out.', null);
+          closeTableInput();
+        }
+        tableSending = false;
+        if (!tableClosed) {
+          $('table-send').disabled = false;
+          $('table-input').focus();
+        }
       }
+
+      function revealNextReply(i) {
+        if (i >= replies.length) { finishTableTurn(); return; }
+        var r2 = replies[i];
+        var agent = agentByKey(r2.agent_key);
+        var thinking = tableBubble('system', (agent ? agent.name : 'Someone') + ' is typing...', null);
+        var thinkDelay = 650 + Math.random() * 900;
+        setTimeout(function () {
+          thinking.remove();
+          tableBubble('agent', r2.reply, agent);
+          var pauseBeforeNext = 500 + Math.random() * 650;
+          setTimeout(function () { revealNextReply(i + 1); }, pauseBeforeNext);
+        }, thinkDelay);
+      }
+
+      revealNextReply(0);
     })
     .catch(function (err) {
       typingEl.remove();
       tableBubble('system', 'Could not reach the table (' + (err && err.message ? err.message : 'unknown error') + '). Try again.', null);
-    })
-    .finally(function () {
       tableSending = false;
       if (!tableClosed) {
         $('table-send').disabled = false;
