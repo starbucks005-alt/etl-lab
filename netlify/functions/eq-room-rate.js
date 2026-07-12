@@ -177,8 +177,40 @@ exports.handler = async function (event) {
   const turnCount = Number.isFinite(Number(body.turn_count)) ? Number(body.turn_count) : null;
 
   if (!agentKey) return json(400, { error: 'agent_key_required' });
-  if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+  // humanness_rating is now OPTIONAL: a silent-exit save (tab closed, Back
+  // clicked, no survey answered) has no rating to give, and that must not
+  // block memory-saving, which is the whole point of this path existing.
+  // Only reject a rating that was actually SENT but is invalid.
+  const ratingProvided = body.humanness_rating !== undefined && body.humanness_rating !== null;
+  const hasValidRating = Number.isInteger(rating) && rating >= 1 && rating <= 5;
+  if (ratingProvided && !hasValidRating) {
     return json(400, { error: 'humanness_rating_must_be_1_to_5' });
+  }
+
+  const messages = Array.isArray(body.messages) ? body.messages : [];
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const rosterName = (engine.AGENTS[agentKey] && engine.AGENTS[agentKey].name) || agentName;
+  const client = apiKey ? new Anthropic({ apiKey }) : null;
+
+  // The fix for the real memory-persistence gap: this now covers both the
+  // survey-submit path (rating present) and the silent-exit beacon path
+  // (no rating) — see almost-human.html's pagehide handler and Back button.
+  // Opt-in only (body.remember), same as the live turn handler.
+  const remember = body.remember === true;
+  if (remember && client && serviceKey && visitorId && messages.length && rosterName) {
+    try {
+      await saveVisitorMemory(client, agentKey, rosterName, visitorId, serviceKey, messages);
+    } catch (err) {
+      console.error('eq-room-rate memory save failed (non-fatal):', err.message);
+    }
+  }
+
+  // Silent exit: memory-save (above) is the entire point of the call, there
+  // is no rating to record. Nothing to insert into etl_room_ratings, whose
+  // humanness_rating column is NOT NULL, so don't attempt a row at all.
+  if (!hasValidRating) {
+    return json(200, { ok: true, stored: false, memory_only: true });
   }
 
   const visitorNote = String(body.visitor_note || '').trim().slice(0, 500) || null;
@@ -200,7 +232,6 @@ exports.handler = async function (event) {
   // Full transcript this rating and the model score below were computed
   // from, so a specific number is traceable back to what was actually
   // said, not just an average with nothing behind it.
-  const messages = Array.isArray(body.messages) ? body.messages : [];
   row.transcript = messages.length ? messages : null;
 
   // Fresh whole-conversation score, preferred. Falls back to whatever
@@ -210,11 +241,6 @@ exports.handler = async function (event) {
   row.agent_self_humanness = fallbackGrade ? clampEmotion(fallbackGrade.humanness) : null;
   row.agent_self_eq = fallbackGrade ? clampEmotion(fallbackGrade.eq) : null;
   row.judge_model = (row.agent_self_humanness !== null || row.agent_self_eq !== null) ? JUDGE_MODEL : null;
-
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const rosterName = (engine.AGENTS[agentKey] && engine.AGENTS[agentKey].name) || agentName;
-  const client = apiKey ? new Anthropic({ apiKey }) : null;
 
   if (client && messages.length && rosterName) {
     try {
@@ -226,18 +252,6 @@ exports.handler = async function (event) {
       }
     } catch (err) {
       console.error('eq-room-rate exit judge failed (falling back to cached grade):', err.message);
-    }
-  }
-
-  // The fix for the real memory-persistence gap: this is the one place a
-  // normal, deliberate conversation-end reliably reaches the server. Opt-in
-  // only (body.remember), same as the live turn handler.
-  const remember = body.remember === true;
-  if (remember && client && serviceKey && visitorId && messages.length && rosterName) {
-    try {
-      await saveVisitorMemory(client, agentKey, rosterName, visitorId, serviceKey, messages);
-    } catch (err) {
-      console.error('eq-room-rate memory save failed (non-fatal):', err.message);
     }
   }
 

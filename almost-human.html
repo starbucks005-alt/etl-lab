@@ -676,10 +676,49 @@ function showGradeReveal(grade) {
 
 var roomClosed = false;
 var lastGrade = null;  // agent's own self-graded humanness/eq, if a grade has fired this room visit
+var roomMemorySaved = false; // set once ANY memory save has fired for this room visit, survey or silent-exit, so pagehide/Back never double-saves after End Conversation already did
+
+// Fire-and-forget memory save. useBeacon=true for page-unload (sendBeacon
+// survives navigation, a normal fetch gets cancelled); false for an
+// in-app click like Back, where a normal fetch completes fine since the
+// page keeps running. No humanness_rating field on either path: this is
+// the "silent exit" shape eq-room-rate.js accepts specifically to save
+// memory without requiring a survey rating.
+function postMemorySave(payload, useBeacon) {
+  var url = '/.netlify/functions/eq-room-rate';
+  if (useBeacon && navigator.sendBeacon) {
+    try {
+      var blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+      navigator.sendBeacon(url, blob);
+      return;
+    } catch (_) { /* fall through to fetch */ }
+  }
+  fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+    keepalive: true,
+  }).catch(function () {});
+}
+
+function roomSilentSavePayload() {
+  return {
+    agent_key: current.key,
+    agent_name: current.name,
+    visitor_id: visitorId(),
+    visitor_name: displayName,
+    visitor_pronoun: visitorPronoun,
+    turn_count: turnCount,
+    scales: scales,
+    messages: chatHistory,
+    remember: rememberMe,
+  };
+}
+
 function openRoom(agent) {
   uiMode = 'single';
   current = agent;
-  scales = null; meters = { humanness: 50, eq: 50 }; turnCount = 0; chatHistory = []; roomClosed = false; lastGrade = null;
+  scales = null; meters = { humanness: 50, eq: 50 }; turnCount = 0; chatHistory = []; roomClosed = false; lastGrade = null; roomMemorySaved = false;
   $('room-log').innerHTML = '';
   $('roomName').textContent = agent.name;
   $('roomOpen').src = '/agents/eq-room/' + agent.slug + '_eyes_open.png';
@@ -693,6 +732,10 @@ function openRoom(agent) {
 }
 
 $('roomBack').addEventListener('click', function () {
+  if (current && rememberMe && chatHistory.length && !roomMemorySaved) {
+    roomMemorySaved = true;
+    postMemorySave(roomSilentSavePayload(), false);
+  }
   stopBlink();
   showScreen('picker');
 });
@@ -706,6 +749,33 @@ var tableAgentState = {};     // {[key]: {scales, meters, turn_count}}
 var tableVisitorMsgCount = 0;
 var tableClosed = false;
 var tableSending = false;
+var tableMemorySaved = false; // set once ANY memory save has fired for this table visit
+
+function tableSilentSavePayloads() {
+  // One payload per originally-selected advisor, same per-agent transcript
+  // reshaping the group End Conversation flow already uses.
+  return tableAgentKeys.map(function (key) {
+    var a = agentByKey(key);
+    if (!a) return null;
+    var state = tableAgentState[key] || {};
+    var messagesForAgent = tableHistory.map(function (entry) {
+      return entry.speaker === key
+        ? { role: 'assistant', content: entry.content }
+        : { role: 'user', content: entry.name + ': ' + entry.content };
+    });
+    return {
+      agent_key: key,
+      agent_name: a.name,
+      visitor_id: visitorId(),
+      visitor_name: displayName,
+      visitor_pronoun: visitorPronoun,
+      turn_count: state.turn_count || 0,
+      scales: state.scales || null,
+      messages: messagesForAgent,
+      remember: rememberMe,
+    };
+  }).filter(Boolean);
+}
 // Ambient continuation: without this the room is pure request/response, dead
 // silent unless the guest types something, which reads as fake for a room
 // that's supposed to feel alive. After a quiet pause with no new message,
@@ -772,6 +842,7 @@ function openTable(keys) {
   uiMode = 'group';
   cancelAmbientCheck();
   ambientRoundsSinceVisitor = 0;
+  tableMemorySaved = false;
   tableAgentKeys = keys.slice();
   tableActiveAgents = keys.map(agentByKey).filter(Boolean);
   tableHistory = [];
@@ -883,6 +954,10 @@ function runAmbientCheck() {
 
 $('tableBack').addEventListener('click', function () {
   cancelAmbientCheck();
+  if (tableAgentKeys.length && rememberMe && tableHistory.length && !tableMemorySaved) {
+    tableMemorySaved = true;
+    tableSilentSavePayloads().forEach(function (p) { postMemorySave(p, false); });
+  }
   showScreen('picker');
 });
 
@@ -964,8 +1039,10 @@ $('tableEnd').addEventListener('click', function () {
   $('likertModal').classList.add('open');
 });
 
-// End Conversation is the only exit that shows the exit survey. Back leaves
-// silently, same as always; this is the deliberate research-data path.
+// End Conversation is the only exit that shows the exit survey (the
+// deliberate research-data path). Back and closing the tab still save
+// memory silently if opted in, just without the survey, see
+// roomSilentSavePayload/postMemorySave and the pagehide handler below.
 $('roomEnd').addEventListener('click', function () {
   if (!current) { showScreen('picker'); return; }
   uiMode = 'single';
@@ -986,7 +1063,21 @@ function leaveRoomAfterSurvey() {
   showScreen('picker');
 }
 
-$('likertSkip').addEventListener('click', leaveRoomAfterSurvey);
+$('likertSkip').addEventListener('click', function () {
+  // Skipping the survey is still "End Conversation," the product's real
+  // designated exit path, just without a star rating. Memory should still
+  // save if the visitor opted in, same silent-exit shape as pagehide/Back.
+  if (uiMode === 'group') {
+    if (tableAgentKeys.length && rememberMe && tableHistory.length && !tableMemorySaved) {
+      tableMemorySaved = true;
+      tableSilentSavePayloads().forEach(function (p) { postMemorySave(p, false); });
+    }
+  } else if (current && rememberMe && chatHistory.length && !roomMemorySaved) {
+    roomMemorySaved = true;
+    postMemorySave(roomSilentSavePayload(), false);
+  }
+  leaveRoomAfterSurvey();
+});
 
 $('likertSubmit').addEventListener('click', function () {
   var checked = document.querySelector('#likertScale input:checked');
@@ -995,6 +1086,7 @@ $('likertSubmit').addEventListener('click', function () {
   var note = ($('likertNote').value || '').trim();
 
   if (uiMode === 'group') {
+    tableMemorySaved = true;
     // One shared rating for the room, filed as one eq-room-rate row per agent
     // that sat at the table (reuses the endpoint unchanged), each row's
     // messages reshaped to that agent's own point of view so the existing
@@ -1031,6 +1123,7 @@ $('likertSubmit').addEventListener('click', function () {
   }
 
   if (!current) { leaveRoomAfterSurvey(); return; }
+  roomMemorySaved = true;
   fetch('/.netlify/functions/eq-room-rate', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -1117,6 +1210,23 @@ $('room-form').addEventListener('submit', function (e) {
         $('room-input').focus();
       }
     });
+});
+
+// The actual fix for "closing the tab saves nothing": pagehide fires on a
+// real navigation away or tab close (never on the in-app screen-switching
+// showScreen() does, so this can't double-fire just from clicking around
+// the picker). sendBeacon is the only way to reliably queue a request that
+// survives the page going away; a normal fetch gets cancelled.
+window.addEventListener('pagehide', function () {
+  var activeEl = document.querySelector('.screen.active');
+  var activeId = activeEl ? activeEl.id : null;
+  if (activeId === 'room' && current && rememberMe && chatHistory.length && !roomMemorySaved) {
+    roomMemorySaved = true;
+    postMemorySave(roomSilentSavePayload(), true);
+  } else if (activeId === 'table' && tableAgentKeys.length && rememberMe && tableHistory.length && !tableMemorySaved) {
+    tableMemorySaved = true;
+    tableSilentSavePayloads().forEach(function (p) { postMemorySave(p, true); });
+  }
 });
 </script>
 </body>
