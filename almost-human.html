@@ -354,6 +354,10 @@
   <p class="sub">Pick a face. Sit down. See how the conversation actually goes.</p>
 
   <button type="button" class="group-toggle" id="groupToggle">Bring a few to the table together</button>
+  <div class="group-panel" id="groupGateUpsell" style="display:none">
+    <p class="hint">The table is part of the $9.99/mo tier. One-on-one chat has a daily free limit; upgrading removes it and opens the table.</p>
+    <button type="button" class="group-start-btn" id="groupGateUpgradeBtn">Upgrade — $9.99/mo</button>
+  </div>
   <div class="group-panel" id="groupPanel">
     <p class="hint">Pick 2 to 4 agents. They'll talk to each other, not just to you.</p>
     <div class="group-check-grid" id="groupCheckGrid"></div>
@@ -495,6 +499,53 @@ function visitorId() {
   } catch (_) { return null; }
 }
 
+// Paywall: opaque access token minted by verify-checkout-ah.js once a Stripe
+// checkout is confirmed paid (almost-human-welcome.html saves it here).
+// Empty string for anyone who's never subscribed, same shape as visitorId().
+function accessToken() {
+  try { return localStorage.getItem('ah_access_token') || ''; } catch (_) { return ''; }
+}
+
+function startUpgradeCheckout() {
+  fetch('/.netlify/functions/create-checkout-ah', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({}),
+  })
+    .then(function (r) { return r.json(); })
+    .then(function (d) { if (d.url) window.location.href = d.url; })
+    .catch(function () {});
+}
+
+function startAddonCheckout() {
+  var token = accessToken();
+  if (!token) { startUpgradeCheckout(); return; }
+  fetch('/.netlify/functions/create-checkout-ah-addon', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ access_token: token }),
+  })
+    .then(function (r) { return r.json(); })
+    .then(function (d) { if (d.url) window.location.href = d.url; })
+    .catch(function () {});
+}
+
+// Appended after a daily_capped / credits_exhausted / subscription_required
+// response, in the room or table log. isAddon picks the CTA: a subscriber
+// who ran out mid-cycle tops up, everyone else starts a new subscription.
+function showUpsell(logId, isAddon) {
+  var wrap = document.createElement('div');
+  wrap.className = 'grade-reveal';
+  var btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'group-start-btn';
+  btn.textContent = isAddon ? 'Add credits — $4.99' : 'Upgrade — $9.99/mo';
+  btn.addEventListener('click', isAddon ? startAddonCheckout : startUpgradeCheckout);
+  wrap.appendChild(btn);
+  $(logId).appendChild(wrap);
+  wrap.scrollIntoView({ behavior: 'smooth', block: 'end' });
+}
+
 var displayName = '';
 var rememberMe = false;
 var visitorPronoun = '';
@@ -591,8 +642,17 @@ function updateGroupPanel() {
 groupGrid.addEventListener('change', updateGroupPanel);
 
 $('groupToggle').addEventListener('click', function () {
+  // Client-side convenience only — the real, unbypassable gate is the
+  // subscription_required check eq-room-group-ask.js does server-side.
+  if (!accessToken()) {
+    $('groupPanel').classList.remove('open');
+    $('groupGateUpsell').style.display = ($('groupGateUpsell').style.display === 'none') ? 'block' : 'none';
+    return;
+  }
+  $('groupGateUpsell').style.display = 'none';
   $('groupPanel').classList.toggle('open');
 });
+$('groupGateUpgradeBtn').addEventListener('click', startUpgradeCheckout);
 
 $('groupStart').addEventListener('click', function () {
   var checked = Array.prototype.slice.call(groupGrid.querySelectorAll('input:checked')).map(function (cb) { return cb.value; });
@@ -928,6 +988,7 @@ function runAmbientCheck() {
       visitor_name: displayName,
       visitor_pronoun: visitorPronoun,
       remember: rememberMe,
+      access_token: accessToken(),
       owner_key: (function () { try { return localStorage.getItem('etl_owner_key') || ''; } catch (_) { return ''; } })(),
     }),
   })
@@ -990,6 +1051,7 @@ $('table-form').addEventListener('submit', function (e) {
       visitor_name: displayName,
       visitor_pronoun: visitorPronoun,
       remember: rememberMe,
+      access_token: accessToken(),
       owner_key: (function () { try { return localStorage.getItem('etl_owner_key') || ''; } catch (_) { return ''; } })(),
     }),
   })
@@ -999,6 +1061,13 @@ $('table-form').addEventListener('submit', function (e) {
     })
     .then(function (d) {
       typingEl.remove();
+      if (d.error === 'subscription_required' || d.error === 'credits_exhausted') {
+        tableBubble('system', d.message, null);
+        showUpsell('table-log', d.error === 'credits_exhausted');
+        tableSending = false;
+        $('table-send').disabled = false;
+        return;
+      }
       if (d.message && (!d.replies || !d.replies.length) && d.closed) {
         tableBubble('system', d.message, null);
         closeTableInput();
@@ -1179,6 +1248,7 @@ $('room-form').addEventListener('submit', function (e) {
       visitor_name: displayName,
       visitor_pronoun: visitorPronoun,
       remember: rememberMe,
+      access_token: accessToken(),
       // Same landlord key already saved from studios.html / memory-implant-lab.html;
       // empty for every regular visitor, so this is a no-op for everyone but the owner.
       owner_key: (function () { try { return localStorage.getItem('etl_owner_key') || ''; } catch (_) { return ''; } })(),
@@ -1190,6 +1260,11 @@ $('room-form').addEventListener('submit', function (e) {
     })
     .then(function (d) {
       typingEl.remove();
+      if (d.daily_capped || d.credits_exhausted) {
+        bubble('system', d.reply);
+        showUpsell('room-log', !!d.credits_exhausted);
+        return;
+      }
       if (d.error) { bubble('system', 'Something went wrong: ' + d.error); return; }
       if (d.closed && !scales) { bubble('system', d.reply); closeRoomInput(); return; }
       bubble('agent', d.reply);

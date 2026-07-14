@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>You're in — Almost Human</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="/brand/etl-favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Spectral:wght@300;400&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --black: #0a0a0f; --blue: #28527a; --gold: #c6a667; --green: #46d6e6; --cream: #f4f3ee; --muted: #888; }
+    body { background: var(--black); color: var(--cream); font-family: 'Public Sans', sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; -webkit-font-smoothing: antialiased; text-align: center; padding: 24px; }
+    .banner { position: fixed; top: 0; left: 0; right: 0; background: var(--blue); text-align: center; padding: 7px 24px; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: #fff; }
+    .card { max-width: 460px; }
+    .eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 3.5px; text-transform: uppercase; color: var(--gold); margin-bottom: 20px; }
+    h1 { font-family: 'Spectral', serif; font-size: clamp(28px, 5vw, 44px); font-weight: 300; line-height: 1.15; color: #fff; margin-bottom: 16px; }
+    .sub { font-size: 15px; line-height: 1.7; color: #999; margin-bottom: 40px; }
+    .credit-bar { display: inline-flex; align-items: center; gap: 16px; background: rgba(40,82,122,0.15); border: 1px solid rgba(92,138,181,0.25); border-radius: 8px; padding: 14px 24px; margin-bottom: 40px; }
+    .credit-label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+    .credit-val { font-family: 'IBM Plex Mono', monospace; font-size: 22px; color: var(--green); font-weight: 500; }
+    .go-btn { display: inline-block; font-family: 'IBM Plex Mono', monospace; font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; background: #fff; color: var(--black); border: none; border-radius: 999px; padding: .9rem 2rem; cursor: pointer; font-weight: 600; text-decoration: none; }
+    .err { color: #d98e93; font-size: 13px; margin-top: 12px; }
+  </style>
+</head>
+<body>
+
+<div class="banner">EMERGING TECHNOLOGIES LABORATORY &nbsp;&middot;&nbsp; ALMOST HUMAN</div>
+
+<div class="card">
+  <div class="eyebrow" id="eyebrow">Almost Human</div>
+  <h1 id="headline">Activating&hellip;</h1>
+  <p class="sub" id="sub-text">Confirming your purchase.</p>
+
+  <div class="credit-bar" id="credit-bar" style="display:none">
+    <div>
+      <div class="credit-label">Credits available</div>
+      <div class="credit-val" id="credit-count">&mdash;</div>
+    </div>
+  </div>
+
+  <a href="/almost-human" class="go-btn" id="go-btn" style="display:none">Back to Almost Human</a>
+  <p class="err" id="err-text" style="display:none"></p>
+</div>
+
+<script>
+  var urlParams = new URLSearchParams(window.location.search);
+  var sessionId = urlParams.get('session_id');
+
+  function show(headline, sub) {
+    document.getElementById('headline').textContent = headline;
+    document.getElementById('sub-text').textContent = sub;
+  }
+
+  if (!sessionId) {
+    show('Nothing to activate.', 'No checkout session was found.');
+    document.getElementById('go-btn').style.display = 'inline-block';
+  } else {
+    fetch('/.netlify/functions/verify-checkout-ah', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session_id: sessionId }),
+    })
+      .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, data: d }; }); })
+      .then(function (res) {
+        history.replaceState({}, '', '/almost-human-welcome');
+        if (!res.ok || !res.data || !res.data.ok || !res.data.access_token) {
+          show('Something went wrong.', 'We could not confirm this purchase.');
+          document.getElementById('err-text').textContent = (res.data && res.data.error) || 'unknown_error';
+          document.getElementById('err-text').style.display = 'block';
+          document.getElementById('go-btn').style.display = 'inline-block';
+          return;
+        }
+        try { localStorage.setItem('ah_access_token', res.data.access_token); } catch (_) {}
+        show("You're in.", 'Group chat is open, and your daily limit is gone.');
+        document.getElementById('credit-count').textContent = res.data.balance;
+        document.getElementById('credit-bar').style.display = 'inline-flex';
+        document.getElementById('go-btn').style.display = 'inline-block';
+      })
+      .catch(function () {
+        show('Could not reach the server.', 'Try reloading this page.');
+        document.getElementById('go-btn').style.display = 'inline-block';
+      });
+  }
+</script>
+
+</body>
+</html>

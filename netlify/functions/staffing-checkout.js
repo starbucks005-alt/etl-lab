@@ -7,6 +7,17 @@
    the hosted checkout URL. Named staff live in the proposal/Studio config;
    the paperwork bills the seats.
 
+   The "full" tier's first BUNDLE_SPECIALIST_SEATS specialist picks (mcp or
+   addon, any mix, customer's choice — no restriction between backpack and
+   standard) are billed as one flat $250/mo bundle price rather than
+   itemized separately — added 2026-07-14 so the marketing "$250/mo, pick
+   any 2 specialists" claim is the actual charge, not just a round number
+   sitting next to itemized math that didn't match it. Specialists beyond
+   that count, and C-Suite/C-Suite MCP/Premium seats (Ivy's SLR Method
+   tier included), are always itemized separately at real price — those
+   are deliberately excluded from the flat bundle regardless of specialist
+   count, confirmed 2026-07-14.
+
    POST { tier: "found"|"full", counts: { mcp: 2, addon: 1, board_mcp: 1, ... } }
    -> { url }
 
@@ -21,7 +32,17 @@ const PRICE = {
   board:     'price_1Tkq9zBpqKA2T6wFt4sxlco4', // C-Suite $45/mo
   board_mcp: 'price_1TgviyBpqKA2T6wFlKmbEegY', // C-Suite MCP $119/mo (unchanged)
   premium:   'price_1TgviyBpqKA2T6wFM7taYrQn', // Premium SLR Method $549/mo (unchanged)
+  bundle:    'price_1TtD1IBpqKA2T6wFC2u8XVvl', // Full Build: PA + Six-Pack + any 2 specialists (mcp or addon, any mix), flat $250/mo
 };
+
+// The flat bundle covers this many specialist seats, picked from either
+// specialist tier (backpack or standard, customer's choice, no restriction).
+// Anything beyond this count is billed as an individual add-on at its real
+// price, same as before. C-Suite / C-Suite MCP / Premium are never part of
+// the flat bundle, always itemized separately regardless of specialist count.
+const BUNDLE_SPECIALIST_SEATS = 2;
+const SPECIALIST_CATS = ['mcp', 'addon'];
+const ALWAYS_ITEMIZED_CATS = ['board', 'board_mcp', 'premium'];
 
 exports.handler = async function (event) {
   if (event.httpMethod !== 'POST') {
@@ -54,17 +75,44 @@ exports.handler = async function (event) {
     i++;
   };
 
-  // The foundation is always the base of the paperwork.
-  add(PRICE.starter, 1);
-  add(PRICE.sixpack, 1);
-
-  // Full team adds the proposed specialist seats by category.
   if (tier === 'full') {
-    for (const cat of Object.keys(counts)) {
-      const price = PRICE[cat];
+    // Flatten the two specialist categories into individual seats (e.g.
+    // { mcp: 2, addon: 1 } -> ['mcp','mcp','addon']) so the first
+    // BUNDLE_SPECIALIST_SEATS picks, in whatever mix the customer chose,
+    // are covered by the flat bundle price.
+    const specialistPicks = [];
+    for (const cat of SPECIALIST_CATS) {
       const qty = parseInt(counts[cat], 10) || 0;
-      if (price && qty > 0 && qty <= 9) add(price, qty);
+      if (qty > 0 && qty <= 9) for (let n = 0; n < qty; n++) specialistPicks.push(cat);
     }
+
+    if (specialistPicks.length >= BUNDLE_SPECIALIST_SEATS) {
+      add(PRICE.bundle, 1);
+      const extraCounts = {};
+      specialistPicks.slice(BUNDLE_SPECIALIST_SEATS).forEach((cat) => {
+        extraCounts[cat] = (extraCounts[cat] || 0) + 1;
+      });
+      for (const cat of Object.keys(extraCounts)) add(PRICE[cat], extraCounts[cat]);
+    } else {
+      // Fewer than the bundle's specialist seats picked: the flat price
+      // doesn't apply to a partial build, itemize as before.
+      add(PRICE.starter, 1);
+      add(PRICE.sixpack, 1);
+      const fallbackCounts = {};
+      specialistPicks.forEach((cat) => { fallbackCounts[cat] = (fallbackCounts[cat] || 0) + 1; });
+      for (const cat of Object.keys(fallbackCounts)) add(PRICE[cat], fallbackCounts[cat]);
+    }
+
+    // C-Suite / C-Suite MCP / Premium seats are always itemized on top,
+    // never absorbed into the flat bundle.
+    for (const cat of ALWAYS_ITEMIZED_CATS) {
+      const qty = parseInt(counts[cat], 10) || 0;
+      if (qty > 0 && qty <= 9) add(PRICE[cat], qty);
+    }
+  } else {
+    // 'found' tier: the foundation only, no specialists.
+    add(PRICE.starter, 1);
+    add(PRICE.sixpack, 1);
   }
 
   const r = await fetch('https://api.stripe.com/v1/checkout/sessions', {

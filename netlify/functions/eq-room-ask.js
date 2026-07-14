@@ -19,6 +19,7 @@ const { buildSystemPrompt } = require('./_eq-personas.js');
 const engine = require('./_eq-engine.js');
 const { ownerUser } = require('./_owner-auth.js');
 const { getStore, connectLambda } = require('@netlify/blobs');
+const { getCreditRow, deductCredits, ONE_TO_ONE_COST, safeToken } = require('./_ah-credits.js');
 
 // Same blob store studio-auggie-chat.js persists to, same key shape
 // (ownerUser().id, the constant 'owner-master' id). When the OWNER herself
@@ -173,6 +174,15 @@ const JUDGE_CADENCE = 3;
 // Not given a number in the spec ("a sensible per-session turn cap"); placeholder
 // until Terry sets a real value in the July playthrough, same as the DigitalCo cap.
 const DEFAULT_TURN_CAP = 20;
+
+// Paywall: free-tier daily message cap for guests with no active ah_credits
+// subscription. Confirmed against real Sonnet 5 pricing during planning
+// (2026-07-12) alongside the $9.99/mo tier's 300-credit allotment.
+const DAILY_FREE_LIMIT = 15;
+
+function todayKey(visitorId) {
+  return `${visitorId}:${new Date().toISOString().slice(0, 10)}`;
+}
 
 function json(status, obj) {
   return { statusCode: status, headers: { ...CORS, 'Content-Type': 'application/json' }, body: JSON.stringify(obj) };
@@ -421,6 +431,34 @@ exports.handler = async function (event) {
     }
   }
 
+  // Paywall: a valid, funded ah_credits token skips the free daily cap
+  // entirely (1 credit deducted per message instead, see below); everyone
+  // else draws from a rolling per-day counter. Owner bypasses both, same as
+  // the conduct check above.
+  const accessToken = safeToken(body.access_token);
+  let creditsRow = null;
+  if (!isOwner && accessToken && serviceKey) {
+    creditsRow = await getCreditRow(accessToken, serviceKey);
+  }
+  const isSubscriber = Boolean(!isOwner && creditsRow && creditsRow.subscription_active);
+
+  if (isSubscriber && creditsRow.balance < ONE_TO_ONE_COST) {
+    return json(200, { reply: "You're out of credits for this cycle. Add more, or wait for next month's top-up.", credits_exhausted: true });
+  }
+
+  const usingFreeDailyCap = !isOwner && !isSubscriber;
+  let dayKey = null;
+  if (usingFreeDailyCap && visitorId && serviceKey) {
+    try { connectLambda(event); } catch (_) {}
+    dayKey = todayKey(visitorId);
+    let usage = null;
+    try { usage = await getStore('ah_daily_usage').get(dayKey, { type: 'json' }); } catch (_) {}
+    const countSoFar = (usage && usage.count) || 0;
+    if (countSoFar >= DAILY_FREE_LIMIT) {
+      return json(200, { reply: "That's today's free messages. Come back tomorrow, or upgrade for unlimited chat and the group table.", daily_capped: true });
+    }
+  }
+
   const currentScales = (body.scales && typeof body.scales === 'object')
     ? body.scales
     : engine.seedOpeningState(agentKey, body.mood_nudge);
@@ -526,6 +564,19 @@ exports.handler = async function (event) {
       await getStore(AUGGIE_SHARED_HISTORY_STORE).setJSON(ownerAuggie.id, { history: combined, updated_at: new Date().toISOString() });
     } catch (err) {
       console.error('eq-room-ask: shared Auggie history write failed (non-fatal):', err.message);
+    }
+  }
+
+  // Only a message that actually went through costs anything — never on a
+  // blocked/capped attempt, which returns before this point.
+  if (isSubscriber) {
+    await deductCredits(accessToken, ONE_TO_ONE_COST, serviceKey);
+  } else if (usingFreeDailyCap && dayKey) {
+    try {
+      const usage = await getStore('ah_daily_usage').get(dayKey, { type: 'json' });
+      await getStore('ah_daily_usage').setJSON(dayKey, { count: ((usage && usage.count) || 0) + 1 });
+    } catch (err) {
+      console.error('eq-room-ask: daily usage increment failed (non-fatal):', err.message);
     }
   }
 

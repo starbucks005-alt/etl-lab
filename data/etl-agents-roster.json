@@ -8,14 +8,14 @@
                   "Tier enum: founding_sponsor | board_level | pa_base | core_six_pack | specialty_hire | lab_staff | owner.",
                   "Renames from earlier code: Bea Reyes -\u003e Bea Vega (surname clash w/ Marcus Reyes); Jules Rivera -\u003e Mara Rivera (editorial-Jules clash).",
                   "Iris S. King reclassified from \u0027lab staff\u0027 to \u0027specialty_hire\u0027 (public-facing chatbot, /mo).",
-                  "Dr. O AI Twin reclassified to \u0027founding_sponsor\u0027 (inquiry-only, no public price).",
+                  "Dr. O reclassified to \u0027founding_sponsor\u0027 (inquiry-only, no public price).",
                   "MCP staff per roster: face wall avatars with mcp=true get the gold pulsing ring + ðŸŽ’ corner badge."
               ],
     "tier_ladder":  {
                         "founding_sponsor":  {
                                                  "label":  "Founding Sponsor / Patron",
                                                  "price":  null,
-                                                 "notes":  "Dr. O AI Twin sole resident.",
+                                                 "notes":  "Dr. O sole resident.",
                                                  "inquiry_only":  true
                                              },
                         "pa_base":  {
@@ -972,7 +972,7 @@
                        "voice_id":  "TRlWg9aKJrzCDaEFF7Bz",
                        "voice_label":  "Dr. O (cloned voice)",
                        "tagline":  "She runs the place.",
-                       "bio":  "The lab\u0027s human founder and PI, owner/EIC of Greylander Press, represented on the platforms by her AI Twin. Sets editorial standards and signs off on every title.",
+                       "bio":  "The lab\u0027s human founder and PI, owner/EIC of Greylander Press, represented on the platforms in her own voice. Sets editorial standards and signs off on every title.",
                        "background":  "Harvard-trained on leadership and emerging tech; Forbes Technology Council; two decades in pharmacology, toxicology, and CBRN biodefense.",
                        "floor_chat":  "The person the entire AI staff works for. Not a fictional persona; takes no assigned surname.",
                        "raw_tier_label":  "Owner / PI (not an employee)",

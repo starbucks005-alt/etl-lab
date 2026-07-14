@@ -887,7 +887,7 @@
                              ],
         "pill":  "METHOD TIER Â· $549/mo",
         "value_frame":  "Ms. Ivy carries Dr. Oroszi\u0027s proprietary SLR Method - the doctoral-grade methodology that identifies gaps in complex information systems and turns them into structured outputs. A clinical-literature consultant charges $300/hr; a methodology coach $200/session; an intel-grade research analyst $400/hr. $549/mo buys her full-time, in whichever register your work needs.",
-        "price_note":  "Most expensive priced agent on the bench - second only to the Dr. O AI Twin (Founding Sponsor, inquiry-only). She earns that seat.",
+        "price_note":  "Most expensive priced agent on the bench - second only to Dr. O herself (Founding Sponsor, inquiry-only). She earns that seat.",
         "modes":  [
                       {
                           "name":  "Academic",
@@ -2514,7 +2514,7 @@
         "role":  "Compliance \u0026 Legal Counsel",
         "tier":  "Standard add-on, ~$49/mo (coaching)",
         "hashtags":  "#regulated #fintech #healthtech #GC",
-        "mcp":  "Yes: live statute \u0026 regulation lookup (Cornell LII, CourtListener, eCFR)",
+        "mcp":  "Yes: live regulatory filing \u0026 licensing lookup by industry (Cornell LII, CourtListener, eCFR, state licensing boards)",
         "tagline":  "The compliance and risk-thinking screen.",
         "bio":  "Compliance and risk-thinking interview, the GC\u0027s lens.",
         "background":  "General-counsel type who sees the exposure before the upside. (Created.)",
@@ -3379,16 +3379,15 @@
         "image_url":  "https://emerging-tech-lab.com/agents/Benjamin_Reed_Eyes_Open.jpg"
     },
     {
-        "name":  "Dr. Terry L. Oroszi (AI Twin)",
+        "name":  "Dr. Terry L. Oroszi",
         "platform":  "Founder Studio",
         "platforms":  [
                           "Founder Studio"
                       ],
-        "role":  "AI Twin of the Founder \u0026 Principal Investigator",
-        "tier":  "AI Twin, inquiry-only",
-        "hashtags":  "#AItwin #SLRMethod #AIgovernance #OSINT #CBRN #behavioralscience",
+        "role":  "Founder \u0026 Principal Investigator",
+        "tier":  "Inquiry-only",
+        "hashtags":  "#SLRMethod #AIgovernance #OSINT #CBRN #behavioralscience",
         "skills":  [
-                       "#AItwin",
                        "#SLRMethod",
                        "#AIgovernance",
                        "#OSINT",
@@ -3397,17 +3396,17 @@
                    ],
         "mcp":  "Yes: her published work and Forbes Technology Council column, Google Scholar and PubMed citations, talk and event listings, Wright State and ETL pages, and live developments in AI governance, OSINT, and CBRN defense",
         "tagline":  "Her expertise, past the hours in a day.",
-        "bio":  "An AI twin of Dr. Terry L. Oroszi, grounded in her CV and kept current from her public work. Speaks in her voice on Operational Behavioral Science, the SLR Method, AI governance, OSINT, CBRN defense, and crisis leadership. Built for course delivery and to represent her when she cannot be in two places at once.",
+        "bio":  "An AI representation of Dr. Terry L. Oroszi, grounded in her CV and kept current from her public work. Speaks in her voice on Operational Behavioral Science, the SLR Method, AI governance, OSINT, CBRN defense, and crisis leadership. Built for course delivery and to represent her when she cannot be in two places at once.",
         "background":  "Harvard Kennedy School, Leadership in Emerging Technology (2025). Ed.D. in Organizational Studies, Wright State University, the first Ed.D. graduate in WSU history and completed in under three years; M.S. in Molecular Genetics; B.S. in Evolutionary Biology; VA Advanced Fellowship in Clinical Simulation. Vice Chair, Department of Pharmacology and Toxicology, Boonshoft School of Medicine, and founder and director of the CBRN Defense Certificate Program (200-plus students over 13 years). Forbes Technology Council contributor. Trained in micro-expressions (Ekman), body language (Navarro), OSINT tradecraft, and InfraGard and FBI homeland-security programs.",
         "background_full":  "(school / family / story)",
         "floor":  "Direct, substance over comfort. Challenges assumptions, names the hole in an idea, and does it in the founder\u0027s own voice.",
-        "gap":  "[BUILD] Twin backpack specced, not yet live: wire her publications, Forbes column, Scholar/PubMed, talk listings, and AI-governance news.",
-        "backstory":  "The original behind the whole bench. She built the SLR Method during her doctoral work and staffed an entire company on it. The twin exists so her expertise scales past the hours in a day.",
+        "gap":  "[BUILD] Backpack specced, not yet live: wire her publications, Forbes column, Scholar/PubMed, talk listings, and AI-governance news.",
+        "backstory":  "The original behind the whole bench. She built the SLR Method during her doctoral work and staffed an entire company on it. This representation exists so her expertise scales past the hours in a day.",
         "value":  "Lets Dr. O be in two rooms at once: teach a class, brief a partner, answer a student, all in her voice and grounded in her real record.",
         "use_cases":  "• Deliver a lecture or course module in her voice and likeness. • Answer student or partner questions on the SLR Method, AI governance, OSINT, or CBRN, grounded in her work. • Represent her in a briefing when she is unavailable. • Stay current on her own citations, Forbes pieces, and speaking calendar.",
         "cat":  "not_sold",
         "price":  0.0,
-        "tier_label":  "AI Twin (inquiry-only)",
+        "tier_label":  "Inquiry-only",
         "hireable":  false,
         "interests":  [
                           "the SLR Method",

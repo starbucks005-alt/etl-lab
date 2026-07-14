@@ -39,6 +39,7 @@ const { houseTypography } = require('./_etl-voice-law.js');
 const { buildSystemPrompt, PERSONAS, ROOM_HOOKS } = require('./_eq-personas.js');
 const engine = require('./_eq-engine.js');
 const { ownerUser } = require('./_owner-auth.js');
+const { getCreditRow, deductCredits, GROUP_MESSAGE_COST, safeToken } = require('./_ah-credits.js');
 
 const SUPABASE_URL = 'https://ulvrnermyuvzanxhxoib.supabase.co';
 
@@ -341,6 +342,32 @@ exports.handler = async function (event) {
     }
   }
 
+  // Paywall: the group table is 100% behind the $9.99/mo tier, no free
+  // access at all. Owner bypasses, same as the conduct check above.
+  const accessToken = safeToken(body.access_token);
+  let creditsRow = null;
+  if (!isOwner && accessToken && serviceKey) {
+    creditsRow = await getCreditRow(accessToken, serviceKey);
+  }
+  const isSubscriber = Boolean(!isOwner && creditsRow && creditsRow.subscription_active);
+  const hasEnoughForGroup = isSubscriber && creditsRow.balance >= GROUP_MESSAGE_COST;
+
+  if (!isOwner && !hasEnoughForGroup) {
+    if (isAmbient) {
+      // Ambient checks are a background nicety, never worth surfacing an
+      // error for; just come back empty so the client quietly reschedules.
+      return json(200, { replies: [], transcript_append: [], active_agents: activeAgents, closed: false });
+    }
+    const reason = !isSubscriber ? 'subscription_required' : 'credits_exhausted';
+    return json(200, {
+      replies: [], transcript_append: [], active_agents: activeAgents, closed: false,
+      error: reason,
+      message: reason === 'subscription_required'
+        ? 'The table is a member perk. Upgrade to join.'
+        : "You're out of credits for this cycle. Add more, or wait for next month's top-up.",
+    });
+  }
+
   const visitorMessageCountBefore = Number(body.visitor_message_count) || 0;
   // Ambient checks never spend any of the guest's turn budget and can never
   // trigger the turn-cap closing beat, that mechanic is about the guest's own
@@ -516,6 +543,12 @@ sitting right there watching this happen, not being spoken to this turn.`;
   // The turn budget is spent for the table as a whole once capped, not just
   // for whichever one agent delivered the closing line.
   if (capped) stillActive = [];
+
+  // One deduction per guest message round, not per cascaded reply, and never
+  // for an ambient beat (that never required credits to begin with).
+  if (!isOwner && isSubscriber && !isAmbient) {
+    await deductCredits(accessToken, GROUP_MESSAGE_COST, serviceKey);
+  }
 
   return json(200, {
     replies,
