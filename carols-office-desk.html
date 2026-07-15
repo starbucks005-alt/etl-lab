@@ -344,7 +344,7 @@
     <div class="desk-info">
       <h2 id="desk-company">Your Desk</h2>
       <div class="desk-meta">
-        <strong>Address:</strong> <span id="desk-address"></span><br>
+        <strong>Location:</strong> <span id="desk-address"></span><br>
         <strong>Front desk:</strong> Carol Haynes
       </div>
     </div>
@@ -486,7 +486,7 @@
 
     chatHistory = [];
     var greeting = isNew
-      ? 'Welcome to Carol\'s Office! Your desk is all set. Your US address is ' + (desk.address || 'Dayton, Ohio') + ' — use it for any business correspondence, your website, whatever you need. Coffee\'s on, and I\'m here whenever you need anything. What can I help you with today?'
+      ? 'Welcome to Carol\'s Office! Your desk is all set, right here in Dayton, Ohio. Coffee\'s on, and I\'m here whenever you need anything. What can I help you with today?'
       : 'Hey, welcome back! Good to see you. What do you need?';
     appendMessage('carol', 'Carol', greeting);
     chatHistory.push({ role: 'assistant', content: greeting });
