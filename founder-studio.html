@@ -195,7 +195,7 @@
   .staff-line img {
     width: 100%; aspect-ratio: 1/1; object-fit: cover;
     display: block;
-    filter: grayscale(0.15);
+    filter: grayscale(0.9); opacity: .55; transition: filter .3s, opacity .3s;
   }
   .staff-line-text {
     padding: 14px 16px 16px;
@@ -259,7 +259,9 @@
     font-family: 'Public Sans', sans-serif;
     font-size: 13px; letter-spacing: 0.12em;
     color: var(--brass); white-space: nowrap;
+    text-decoration: none; cursor: pointer;
   }
+  .step-price:hover { text-decoration: underline; }
   .step-price strong { color: var(--ink); font-weight: 700; }
   @media (max-width: 720px) {
     .step { grid-template-columns: 1fr; gap: 10px; }
@@ -389,8 +391,15 @@
   .pa-card-check { display: none; position: absolute; top: 6px; right: 6px; width: 22px; height: 22px; border-radius: 50%; background: var(--brass-bright); color: #0e0c08; font-size: 13px; font-weight: 700; align-items: center; justify-content: center; }
   .pa-card.selected .pa-card-check { display: flex; }
 
-  .staff-line { cursor: default; position: relative; transition: box-shadow .15s, border-color .15s; }
+  .staff-line { cursor: default; position: relative; transition: box-shadow .3s, border-color .3s; }
   .staff-line.accepted { border-color: var(--brass-bright); box-shadow: 0 0 0 2px var(--brass-bright); }
+  .staff-line.accepted img { filter: none; opacity: 1; transition: filter .3s, opacity .3s; }
+  .staff-line:not(.accepted) .staff-line-name,
+  .staff-line:not(.accepted) .staff-line-role,
+  .staff-line:not(.accepted) .staff-line-tagline { opacity: .5; transition: opacity .3s; }
+  .staff-line.accepted .staff-line-name,
+  .staff-line.accepted .staff-line-role,
+  .staff-line.accepted .staff-line-tagline { opacity: 1; transition: opacity .3s; }
   .staff-line-check { display: none; position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; border-radius: 50%; background: var(--brass-bright); color: #0e0c08; font-size: 14px; font-weight: 700; align-items: center; justify-content: center; }
   .staff-line.accepted .staff-line-check { display: flex; }
   .accept-sixpack-btn { margin-top: 24px; background: var(--brass-bright); color: #0e0c08; border: none; padding: 14px 28px; font-family: 'Public Sans', sans-serif; font-weight: 700; font-size: 14px; border-radius: 4px; cursor: pointer; }
@@ -462,10 +471,60 @@
   </div>
 </section>
 
+<!-- HOW YOUR COMPANY IS BUILT -->
+<section class="fs-section light">
+  <div class="section-inner">
+    <div class="section-eyebrow">How your company is built</div>
+    <h2 class="section-title">Four steps to a <span style="color:var(--brass);">10‑seat company</span></h2>
+    <p class="section-lede">
+      Build it in the order that makes sense. PA first. Then the core team. Then your two specialty hires. Then you take the tenth seat.
+    </p>
+
+    <div class="step-list">
+      <div class="step">
+        <div class="step-body">
+          <div class="step-title">Your PA (pick from 12, or go custom)</div>
+          Your personal AI Chief of Staff.
+        </div>
+        <a href="#build-your-pa" class="step-price"><strong>Included</strong></a>
+      </div>
+
+      <div class="step">
+        <div class="step-body">
+          <div class="step-title">The 6‑Pack Essentials</div>
+          Six foundational AI staff roles that every company needs, bundled in.
+        </div>
+        <a href="#six-pack-section" class="step-price"><strong>Included</strong></a>
+      </div>
+
+      <div class="step">
+        <div class="step-body">
+          <div class="step-title">Any two specialists</div>
+          Pick any two specialists from the full bench, backpack or standard tier, your call. C‑Suite and Premium seats are priced separately.
+        </div>
+        <a href="#specialists-section" class="step-price"><strong>Included</strong></a>
+      </div>
+
+      <div class="step">
+        <div class="step-body">
+          <div class="step-title">You</div>
+          You are the founder. You are the tenth seat. You lead the company.
+        </div>
+        <a href="#company-name-input" class="step-price"><strong>Included</strong></a>
+      </div>
+    </div>
+
+    <div class="total-row">
+      <div class="total-line">$250 a month, flat. Pick any 2.</div>
+      <div class="total-sub">One human. Nine AI staff. First month 50% off.</div>
+    </div>
+  </div>
+</section>
+
 <!-- CHOOSE YOUR PA -->
 <section class="fs-section light" id="build-your-pa">
   <div class="section-inner">
-    <div class="section-eyebrow">Seat one</div>
+    <div class="section-eyebrow">Step 1</div>
     <h2 class="section-title">Choose your <span style="color:var(--brass);">Personal Assistant</span></h2>
     <p class="section-lede">Personal Assistant (PA) or Chief of Staff, you decide the title, it comes with the job. Same four standard functions, twelve different people to run them. Auggie is the default, not the only option. You pick the voice that fits how you actually work, or ask for a custom one.</p>
     <div class="pa-grid">
@@ -487,9 +546,9 @@
 
 
 <!-- SEE THE SIX-PACK -->
-<section class="fs-section light" style="padding-left:14px; padding-right:14px;">
+<section class="fs-section light" id="six-pack-section" style="padding-left:14px; padding-right:14px;">
   <div class="section-inner" style="max-width:1400px;">
-    <div class="section-eyebrow">Seats two through seven</div>
+    <div class="section-eyebrow">Step 2</div>
     <h2 class="section-title">See the <span style="color:var(--brass);">Six-Pack</span></h2>
     <p class="section-lede">Six foundational AI staff roles that every company needs, bundled in with every build. Strategy, operations, compliance, marketing, design, people. Not optional add-ons, the core team.</p>
     <div class="staff-list" id="sixpack-grid">
@@ -525,9 +584,9 @@
 </section>
 
 <!-- CHOOSE YOUR TWO SPECIALISTS -->
-<section class="fs-section">
+<section class="fs-section" id="specialists-section">
   <div class="section-inner">
-    <div class="section-eyebrow">Seats eight and nine</div>
+    <div class="section-eyebrow">Step 3</div>
     <h2 class="section-title">Choose your <span style="color:var(--brass-bright); font-style:italic;">two specialists</span></h2>
     <p class="section-lede">You have over 100 choices on the bench, and we do not want you to choose lightly. It is your business. So we will hold the spots for you, take your time. Carol is always here to help if you want a hand.</p>
     <div class="pa-grid" style="grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); margin-top:32px;">
@@ -646,55 +705,7 @@
 
 
 
-<!-- HOW YOUR COMPANY IS BUILT -->
-<section class="fs-section light">
-  <div class="section-inner">
-    <div class="section-eyebrow">How your company is built</div>
-    <h2 class="section-title">Four steps to a <span style="color:var(--brass);">10‑seat company</span></h2>
-    <p class="section-lede">
-      Build it in the order that makes sense. PA first. Then the core team. Then your two specialty hires. Then you take the tenth seat.
-    </p>
 
-    <div class="step-list">
-      <div class="step">
-        <div class="step-body">
-          <div class="step-title">Your PA (pick from 12, or go custom)</div>
-          Your personal AI Chief of Staff.
-        </div>
-        <div class="step-price"><strong>Included</strong></div>
-      </div>
-
-      <div class="step">
-        <div class="step-body">
-          <div class="step-title">The 6‑Pack Essentials</div>
-          Six foundational AI staff roles that every company needs, bundled in.
-        </div>
-        <div class="step-price"><strong>Included</strong></div>
-      </div>
-
-      <div class="step">
-        <div class="step-body">
-          <div class="step-title">Any two specialists</div>
-          Pick any two specialists from the full bench, backpack or standard tier, your call. C‑Suite and Premium seats are priced separately.
-        </div>
-        <div class="step-price"><strong>Included</strong></div>
-      </div>
-
-      <div class="step">
-        <div class="step-body">
-          <div class="step-title">You</div>
-          You are the founder. You are the tenth seat. You lead the company.
-        </div>
-        <div class="step-price"><strong>Included</strong></div>
-      </div>
-    </div>
-
-    <div class="total-row">
-      <div class="total-line">$250 a month, flat. Pick any 2.</div>
-      <div class="total-sub">One human. Nine AI staff. First month 50% off.</div>
-    </div>
-  </div>
-</section>
 
 <!-- HOW IT WORKS -->
 <section class="fs-section">
