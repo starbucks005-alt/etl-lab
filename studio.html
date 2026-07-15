@@ -759,7 +759,7 @@
   }
   [data-theme="ops"] .ops-ticker-text {
     font-family: var(--skin-font-mono); font-size: 11px; letter-spacing: 0.14em;
-    color: var(--skin-accent); white-space: nowrap; padding-right: 48px;
+    color: var(--skin-accent-2); white-space: nowrap; padding-right: 48px;
   }
   @keyframes ops-ticker-scroll {
     from { transform: translateX(0); }
@@ -781,6 +781,157 @@
   }
   @media (max-width: 720px) {
     [data-theme="ops"] .ops-stamp { top: 14px; right: 22px; font-size: 10px; padding: 4px 10px; }
+  }
+
+  /* ──────────────────────────────────────────────────────────────────
+     STEAMPUNK ENHANCEMENTS — same rule as Dark Ops above: everything
+     here is [data-theme="steampunk"]-scoped or hidden by default, so
+     it's inert everywhere else. Gears, riveted section borders, a
+     traveling spark, steam wisps, an engraved-plaque emboss on
+     headings, a gaslight flicker, a boiler-gauge ticker, and a real
+     ticking brass clock in the hero corner.
+     ────────────────────────────────────────────────────────────────── */
+  [data-theme="steampunk"] .ws-hero { position: relative; overflow: hidden; }
+  /* Riveted section border instead of a plain line. */
+  [data-theme="steampunk"] section.ws-section {
+    border-top: none; position: relative;
+  }
+  [data-theme="steampunk"] section.ws-section::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background-image: repeating-linear-gradient(to right, var(--skin-accent) 0 3px, transparent 3px 26px);
+    opacity: 0.55;
+  }
+  /* Engraved-plaque emboss on headings. */
+  [data-theme="steampunk"] .ws-h1,
+  [data-theme="steampunk"] .ws-section-h {
+    text-shadow: 0 1px 0 rgba(0,0,0,0.5), 0 -1px 0 rgba(255,255,255,0.06);
+  }
+  /* Gaslight flicker on the eyebrow -- irregular, never dims enough to
+     threaten the contrast already verified for --skin-accent. */
+  [data-theme="steampunk"] .ws-eyebrow {
+    animation: steam-gaslight-flicker 5s ease-in-out infinite;
+  }
+  @keyframes steam-gaslight-flicker {
+    0%, 100% { opacity: 1; }
+    8%  { opacity: 0.85; }
+    10% { opacity: 1; }
+    22% { opacity: 0.9; }
+    24% { opacity: 1; }
+    60% { opacity: 0.95; }
+    62% { opacity: 1; }
+  }
+  /* Meshed gears, hero corner. Pure CSS clip-path, no image asset. */
+  .steam-gear { display: none; }
+  [data-theme="steampunk"] .steam-gear {
+    display: block; position: absolute;
+    background: var(--skin-accent); opacity: 0.28;
+    clip-path: polygon(50% 0%, 63.4% 17.7%, 85.4% 14.6%, 82.3% 36.6%, 100% 50%, 82.3% 63.4%, 85.4% 85.4%, 63.4% 82.3%, 50% 100%, 36.6% 82.3%, 14.6% 85.4%, 17.7% 63.4%, 0% 50%, 17.7% 36.6%, 14.6% 14.6%, 36.6% 17.7%);
+    pointer-events: none;
+  }
+  [data-theme="steampunk"] .steam-gear-lg {
+    width: 60px; height: 60px; top: 10px; left: 24px;
+    animation: steam-gear-spin 40s linear infinite;
+  }
+  [data-theme="steampunk"] .steam-gear-sm {
+    width: 34px; height: 34px; top: 48px; left: 58px;
+    animation: steam-gear-spin-rev 24s linear infinite;
+  }
+  @keyframes steam-gear-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  @keyframes steam-gear-spin-rev { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
+  /* Traveling spark, zigzagging across the hero. */
+  .steam-spark { display: none; }
+  [data-theme="steampunk"] .steam-spark {
+    display: block; position: absolute; width: 5px; height: 5px; border-radius: 50%;
+    background: var(--skin-accent); box-shadow: 0 0 8px 2px var(--skin-accent);
+    animation: steam-spark-travel 7s linear infinite;
+    pointer-events: none;
+  }
+  @keyframes steam-spark-travel {
+    0%   { left: 0%;   top: 60%; opacity: 0; }
+    5%   { opacity: 1; }
+    20%  { left: 20%;  top: 15%; }
+    40%  { left: 45%;  top: 70%; }
+    60%  { left: 65%;  top: 20%; }
+    80%  { left: 85%;  top: 55%; }
+    95%  { opacity: 1; }
+    100% { left: 100%; top: 40%; opacity: 0; }
+  }
+  /* Steam wisps drifting up near the header. */
+  .steam-wisp { display: none; }
+  [data-theme="steampunk"] .steam-wisp {
+    display: block; position: absolute; bottom: 10%; left: 45%;
+    width: 40px; height: 60px;
+    background: radial-gradient(ellipse at center, rgba(232,217,181,0.18), transparent 70%);
+    filter: blur(4px); pointer-events: none;
+    animation: steam-wisp-rise 6s ease-in infinite;
+  }
+  [data-theme="steampunk"] .steam-wisp:nth-of-type(2) { left: 55%; animation-delay: 2s; }
+  [data-theme="steampunk"] .steam-wisp:nth-of-type(3) { left: 38%; animation-delay: 4s; }
+  @keyframes steam-wisp-rise {
+    0%   { transform: translateY(0) scale(0.8); opacity: 0; }
+    20%  { opacity: 0.5; }
+    80%  { opacity: 0.2; }
+    100% { transform: translateY(-70px) scale(1.3); opacity: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    [data-theme="steampunk"] .steam-gear-lg,
+    [data-theme="steampunk"] .steam-gear-sm,
+    [data-theme="steampunk"] .steam-spark,
+    [data-theme="steampunk"] .steam-wisp,
+    [data-theme="steampunk"] .ws-eyebrow { animation: none; }
+  }
+  /* Boiler-gauge ticker, just under the header. */
+  .steam-ticker { display: none; }
+  [data-theme="steampunk"] .steam-ticker {
+    display: block; overflow: hidden;
+    background: #0e0a06; border-bottom: 1px solid var(--skin-border);
+    padding: 6px 0; position: relative; z-index: 1;
+  }
+  [data-theme="steampunk"] .steam-ticker-track {
+    display: flex; width: max-content;
+    animation: steam-ticker-scroll 34s linear infinite;
+  }
+  [data-theme="steampunk"] .steam-ticker-text {
+    font-family: var(--skin-font-mono); font-size: 11px; letter-spacing: 0.14em;
+    color: var(--skin-accent); white-space: nowrap; padding-right: 48px;
+  }
+  @keyframes steam-ticker-scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    [data-theme="steampunk"] .steam-ticker-track { animation: none; }
+  }
+  /* Real ticking brass clock, hero corner (opposite side from where Ops
+     puts its stamp, so nothing collides if a future skin combines both). */
+  .steam-clock { display: none; }
+  [data-theme="steampunk"] .steam-clock {
+    display: block; position: absolute; top: 20px; right: 40px;
+    width: 64px; height: 64px; border-radius: 50%;
+    background:
+      radial-gradient(circle, var(--skin-surface) 0 60%, transparent 61%),
+      repeating-conic-gradient(var(--skin-accent) 0deg 2deg, transparent 2deg 30deg);
+    border: 2px solid var(--skin-accent);
+    box-shadow: 0 0 10px var(--skin-glow);
+    pointer-events: none;
+  }
+  [data-theme="steampunk"] .steam-clock-hand {
+    position: absolute; bottom: 50%; left: 50%;
+    transform-origin: bottom center;
+    background: var(--skin-accent); border-radius: 2px;
+  }
+  [data-theme="steampunk"] .steam-clock-hand-hour { width: 3px; height: 16px; margin-left: -1.5px; }
+  [data-theme="steampunk"] .steam-clock-hand-minute { width: 2px; height: 22px; margin-left: -1px; }
+  [data-theme="steampunk"] .steam-clock-pin {
+    position: absolute; top: 50%; left: 50%; width: 6px; height: 6px; margin: -3px;
+    border-radius: 50%; background: var(--skin-accent);
+  }
+  @media (max-width: 720px) {
+    [data-theme="steampunk"] .steam-clock { top: 12px; right: 20px; width: 48px; height: 48px; }
+    [data-theme="steampunk"] .steam-clock-hand-hour { height: 12px; }
+    [data-theme="steampunk"] .steam-clock-hand-minute { height: 16px; }
+    [data-theme="steampunk"] .steam-gear-lg { width: 40px; height: 40px; }
+    [data-theme="steampunk"] .steam-gear-sm { width: 24px; height: 24px; top: 32px; left: 38px; }
   }
 </style>
 </head>
@@ -837,15 +988,51 @@
       <span class="ops-ticker-text">SIGNAL ACQUIRED &middot; CHANNEL SECURE &middot; DECRYPTING FEED &middot; ASSET STATUS: ACTIVE &middot; STANDBY FOR BRIEFING &middot; UPLINK STABLE &middot; </span>
     </div>
   </div>
+  <div class="steam-ticker" aria-hidden="true">
+    <div class="steam-ticker-track">
+      <span class="steam-ticker-text">PRESSURE NOMINAL &middot; BOILER 2 ONLINE &middot; MAIN SPRING WOUND &middot; GEARS ALIGNED &middot; VALVE 3 HOLDING &middot; </span>
+      <span class="steam-ticker-text">PRESSURE NOMINAL &middot; BOILER 2 ONLINE &middot; MAIN SPRING WOUND &middot; GEARS ALIGNED &middot; VALVE 3 HOLDING &middot; </span>
+    </div>
+  </div>
 
   <header class="ws-hero">
     <div class="ops-stamp" aria-hidden="true">Classified</div>
+
+    <div class="steam-gear steam-gear-lg" aria-hidden="true"></div>
+    <div class="steam-gear steam-gear-sm" aria-hidden="true"></div>
+    <div class="steam-spark" aria-hidden="true"></div>
+    <div class="steam-wisp" aria-hidden="true"></div>
+    <div class="steam-wisp" aria-hidden="true"></div>
+    <div class="steam-wisp" aria-hidden="true"></div>
+    <div class="steam-clock" aria-hidden="true">
+      <div class="steam-clock-hand steam-clock-hand-hour"></div>
+      <div class="steam-clock-hand steam-clock-hand-minute"></div>
+      <div class="steam-clock-pin"></div>
+    </div>
+
     <div class="ws-eyebrow">A working studio. The staff is at the bench.</div>
     <h1 class="ws-h1">Your Studio</h1>
     <p class="ws-sub">
       Your AI staff is here and ready.
     </p>
   </header>
+  <script>
+  (function(){
+    // Steampunk hero clock -- real time, hidden unless [data-theme="steampunk"]
+    // (cheap no-op otherwise, harmless to run regardless of active skin).
+    function updateSteamClock(){
+      var hourHand = document.querySelector('.steam-clock-hand-hour');
+      var minHand = document.querySelector('.steam-clock-hand-minute');
+      if (!hourHand || !minHand) return;
+      var now = new Date();
+      var h = now.getHours() % 12, m = now.getMinutes();
+      hourHand.style.transform = 'rotate(' + ((h + m/60) * 30) + 'deg)';
+      minHand.style.transform = 'rotate(' + (m * 6) + 'deg)';
+    }
+    updateSteamClock();
+    setInterval(updateSteamClock, 30000);
+  })();
+  </script>
 
   <!-- AUGGIE: chief of staff. Chat panel sits up here, ahead of the staff
        grid, because he runs the day. Persona, backstory, and voice live in
