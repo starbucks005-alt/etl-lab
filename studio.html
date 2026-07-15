@@ -87,7 +87,7 @@
     --skin-ink: #e8d9b5;
     --skin-ink-muted: #a8916a;
     --skin-accent: #c9a961;
-    --skin-accent-2: #8b6914;
+    --skin-accent-2: #5a9c86;
     --skin-glow: rgba(201,169,97,0.35);
     --skin-font-display: 'Cinzel', 'Spectral', serif;
     --skin-font-mono: 'IBM Plex Mono', monospace;
@@ -833,6 +833,7 @@
     animation: steam-gear-spin 40s linear infinite;
   }
   [data-theme="steampunk"] .steam-gear-sm {
+    background: var(--skin-accent-2);
     width: 34px; height: 34px; top: 48px; left: 58px;
     animation: steam-gear-spin-rev 24s linear infinite;
   }
@@ -861,7 +862,7 @@
   [data-theme="steampunk"] .steam-wisp {
     display: block; position: absolute; bottom: 10%; left: 45%;
     width: 40px; height: 60px;
-    background: radial-gradient(ellipse at center, rgba(232,217,181,0.18), transparent 70%);
+    background: radial-gradient(ellipse at center, rgba(216,224,220,0.20), transparent 70%);
     filter: blur(4px); pointer-events: none;
     animation: steam-wisp-rise 6s ease-in infinite;
   }
@@ -933,6 +934,371 @@
     [data-theme="steampunk"] .steam-gear-lg { width: 40px; height: 40px; }
     [data-theme="steampunk"] .steam-gear-sm { width: 24px; height: 24px; top: 32px; left: 38px; }
   }
+
+  /* ──────────────────────────────────────────────────────────────────
+     CYBER TOKYO ENHANCEMENTS — same rule as the other two skins above:
+     everything here is [data-theme="cybertokyo"]-scoped or hidden by
+     default, inert everywhere else. Blinking robot eyes, a sweeping
+     drone scanlight, falling rain, a buzzing neon flicker, an
+     occasional glitch pulse on the heading, a neon shop-sign ticker,
+     and a holographic scan-line down panel edges.
+     ────────────────────────────────────────────────────────────────── */
+  [data-theme="cybertokyo"] .ws-hero { position: relative; overflow: hidden; }
+  /* Rain streaks over the whole workspace. */
+  #workspace[data-theme="cybertokyo"] { position: relative; }
+  #workspace[data-theme="cybertokyo"]::before {
+    content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    background-image: repeating-linear-gradient(115deg, rgba(0,229,255,0.06) 0px, rgba(0,229,255,0.06) 1px, transparent 1px, transparent 14px);
+    animation: cyber-rain-fall 0.6s linear infinite;
+  }
+  @keyframes cyber-rain-fall {
+    from { background-position: 0 0; }
+    to   { background-position: -20px 40px; }
+  }
+  /* Robot eye pair, hero corner. */
+  .cyber-eyes { display: none; }
+  [data-theme="cybertokyo"] .cyber-eyes {
+    display: flex; gap: 10px; position: absolute; top: 26px; right: 44px;
+  }
+  [data-theme="cybertokyo"] .cyber-eye {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--skin-accent);
+    box-shadow: 0 0 8px 2px var(--skin-accent);
+    animation: cyber-eye-blink 4.5s ease-in-out infinite;
+  }
+  [data-theme="cybertokyo"] .cyber-eye-2 {
+    background: var(--skin-accent-2);
+    box-shadow: 0 0 8px 2px var(--skin-accent-2);
+    animation-delay: 0.15s;
+  }
+  @keyframes cyber-eye-blink {
+    0%, 92%, 100% { transform: scaleY(1); opacity: 1; }
+    95%           { transform: scaleY(0.1); opacity: 0.6; }
+  }
+  /* Scanning drone light, sweeping across the hero. */
+  .cyber-scanbeam { display: none; }
+  [data-theme="cybertokyo"] .cyber-scanbeam {
+    display: block; position: absolute; top: 0; bottom: 0; width: 120px; left: -10%;
+    background: linear-gradient(90deg, transparent, rgba(255,46,136,0.10), transparent);
+    animation: cyber-scan-sweep 9s ease-in-out infinite;
+    pointer-events: none;
+  }
+  @keyframes cyber-scan-sweep {
+    0%, 100% { left: -10%; }
+    50%      { left: 90%; }
+  }
+  /* Buzzing neon flicker on the eyebrow -- more erratic than Steampunk's
+     gaslight, like a dying neon tube. */
+  [data-theme="cybertokyo"] .ws-eyebrow {
+    animation: cyber-neon-flicker 3.2s linear infinite;
+  }
+  @keyframes cyber-neon-flicker {
+    0%, 100% { opacity: 1; }
+    3%  { opacity: 0.4; }
+    4%  { opacity: 1; }
+    7%  { opacity: 0.3; }
+    8%  { opacity: 1; }
+    52% { opacity: 1; }
+    53% { opacity: 0.5; }
+    54% { opacity: 1; }
+  }
+  /* Occasional glitch pulse on the main heading -- brief RGB-split. */
+  [data-theme="cybertokyo"] .ws-h1 {
+    animation: cyber-glitch 8s infinite;
+  }
+  @keyframes cyber-glitch {
+    0%, 96%, 100% { text-shadow: none; transform: translate(0,0); }
+    97% { text-shadow: 2px 0 var(--skin-accent), -2px 0 var(--skin-accent-2); transform: translate(-1px,0); }
+    98% { text-shadow: -2px 0 var(--skin-accent), 2px 0 var(--skin-accent-2); transform: translate(1px,0); }
+    99% { text-shadow: none; transform: translate(0,0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #workspace[data-theme="cybertokyo"]::before,
+    [data-theme="cybertokyo"] .cyber-eye,
+    [data-theme="cybertokyo"] .cyber-scanbeam,
+    [data-theme="cybertokyo"] .ws-eyebrow,
+    [data-theme="cybertokyo"] .ws-h1 { animation: none; }
+  }
+  /* Holographic scan-line down panel edges. */
+  [data-theme="cybertokyo"] .ws-section,
+  [data-theme="cybertokyo"] #floor-column {
+    position: relative;
+  }
+  [data-theme="cybertokyo"] .ws-section::after,
+  [data-theme="cybertokyo"] #floor-column::after {
+    content: ''; position: absolute; left: 0; right: 0; top: -5%; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--skin-accent-2), transparent);
+    animation: cyber-holo-scan 5s linear infinite;
+    opacity: 0.6; pointer-events: none;
+  }
+  @keyframes cyber-holo-scan {
+    from { top: -5%; }
+    to   { top: 105%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    [data-theme="cybertokyo"] .ws-section::after,
+    [data-theme="cybertokyo"] #floor-column::after { animation: none; display: none; }
+  }
+  /* Neon shop-sign ticker, just under the header. */
+  .cyber-ticker { display: none; }
+  [data-theme="cybertokyo"] .cyber-ticker {
+    display: block; overflow: hidden;
+    background: #0a0714; border-bottom: 1px solid var(--skin-border);
+    padding: 6px 0; position: relative; z-index: 1;
+  }
+  [data-theme="cybertokyo"] .cyber-ticker-track {
+    display: flex; width: max-content;
+    animation: cyber-ticker-scroll 30s linear infinite;
+  }
+  [data-theme="cybertokyo"] .cyber-ticker-text {
+    font-family: var(--skin-font-mono); font-size: 11px; letter-spacing: 0.14em;
+    color: var(--skin-accent); white-space: nowrap; padding-right: 48px;
+  }
+  @keyframes cyber-ticker-scroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    [data-theme="cybertokyo"] .cyber-ticker-track { animation: none; }
+  }
+
+  /* ──────────────────────────────────────────────────────────────────
+     TECH ENHANCEMENTS — same rule as the other skins: [data-theme=
+     "tech"]-scoped or hidden by default, inert everywhere else.
+     Holographic corner brackets, a faint projection grid, a pulsing
+     neural node, a breathing memory-core glow, floating system
+     readouts, a hologram-stabilize flicker on the heading, and a
+     system-health scrolling ticker.
+     ────────────────────────────────────────────────────────────────── */
+  [data-theme="tech"] .ws-hero { position: relative; overflow: hidden; }
+  /* Faint holographic projection grid over the whole workspace. */
+  #workspace[data-theme="tech"] { position: relative; }
+  #workspace[data-theme="tech"]::before {
+    content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      repeating-linear-gradient(0deg, rgba(63,169,255,0.025) 0px, rgba(63,169,255,0.025) 1px, transparent 1px, transparent 40px),
+      repeating-linear-gradient(90deg, rgba(63,169,255,0.025) 0px, rgba(63,169,255,0.025) 1px, transparent 1px, transparent 40px);
+  }
+  /* Holographic corner brackets on panels (never on staff cards). */
+  [data-theme="tech"] .ws-section,
+  [data-theme="tech"] #floor-column,
+  [data-theme="tech"] .activity-card {
+    position: relative;
+  }
+  [data-theme="tech"] .ws-section::before,
+  [data-theme="tech"] #floor-column::before,
+  [data-theme="tech"] .activity-card::before {
+    content: ''; position: absolute; top: 0; left: 0;
+    width: 14px; height: 14px;
+    border-top: 2px solid var(--skin-accent);
+    border-left: 2px solid var(--skin-accent);
+    opacity: 0.6; pointer-events: none;
+  }
+  [data-theme="tech"] .ws-section::after,
+  [data-theme="tech"] #floor-column::after,
+  [data-theme="tech"] .activity-card::after {
+    content: ''; position: absolute; bottom: 0; right: 0;
+    width: 14px; height: 14px;
+    border-bottom: 2px solid var(--skin-accent);
+    border-right: 2px solid var(--skin-accent);
+    opacity: 0.6; pointer-events: none;
+  }
+  /* Pulsing neural node, hero corner. */
+  .tech-node { display: none; }
+  [data-theme="tech"] .tech-node {
+    display: block; position: absolute; top: 24px; right: 100px;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--skin-accent);
+    animation: tech-node-pulse 2.5s ease-out infinite;
+  }
+  @keyframes tech-node-pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(63,169,255,0.5); }
+    70%  { box-shadow: 0 0 0 16px rgba(63,169,255,0); }
+    100% { box-shadow: 0 0 0 0 rgba(63,169,255,0); }
+  }
+  /* Soft breathing memory-core glow orb. */
+  .tech-orb { display: none; }
+  [data-theme="tech"] .tech-orb {
+    display: block; position: absolute; top: -20px; right: 40px;
+    width: 90px; height: 90px; border-radius: 50%;
+    background: radial-gradient(circle, var(--skin-glow), transparent 70%);
+    filter: blur(6px); pointer-events: none;
+    animation: tech-orb-breathe 4s ease-in-out infinite;
+  }
+  @keyframes tech-orb-breathe {
+    0%, 100% { opacity: 0.5; transform: scale(1); }
+    50%      { opacity: 0.9; transform: scale(1.15); }
+  }
+  /* Floating system-readout badges. */
+  .tech-readout { display: none; }
+  [data-theme="tech"] .tech-readout {
+    display: block; position: absolute;
+    font-family: var(--skin-font-mono); font-size: 9px; letter-spacing: 0.14em;
+    color: var(--skin-ink-muted); text-transform: uppercase;
+    border: 1px solid var(--skin-border); padding: 3px 8px;
+    background: var(--skin-surface); opacity: 0.75; pointer-events: none;
+  }
+  [data-theme="tech"] .tech-readout-1 { top: 20px; left: 24px; }
+  [data-theme="tech"] .tech-readout-2 { top: 46px; left: 24px; }
+  /* Hologram-stabilize flicker on the heading -- rarer and gentler than
+     Cyber Tokyo's glitch, like a projection settling into focus. */
+  [data-theme="tech"] .ws-h1 {
+    animation: tech-holo-stabilize 6s ease-in-out infinite;
+  }
+  @keyframes tech-holo-stabilize {
+    0%, 92%, 100% { opacity: 1; text-shadow: none; }
+    93% { opacity: 0.7; text-shadow: 0 0 8px var(--skin-accent); }
+    94% { opacity: 1; text-shadow: 0 0 2px var(--skin-accent); }
+    95% { opacity: 0.85; text-shadow: 0 0 12px var(--skin-accent); }
+    96% { opacity: 1; text-shadow: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #workspace[data-theme="tech"]::before,
+    [data-theme="tech"] .tech-node,
+    [data-theme="tech"] .tech-orb,
+    [data-theme="tech"] .ws-h1 { animation: none; }
+  }
+  /* System-health scrolling ticker, just under the header. */
+  .tech-ticker { display: none; }
+  [data-theme="tech"] .tech-ticker {
+    display: block; overflow: hidden;
+    background: #060810; border-bottom: 1px solid var(--skin-border);
+    padding: 6px 0; position: relative; z-index: 1;
+  }
+  [data-theme="tech"] .tech-ticker-track {
+    display: flex; width: max-content;
+    animation: tech-ticker-scroll 30s linear infinite;
+  }
+  [data-theme="tech"] .tech-ticker-text {
+    font-family: var(--skin-font-mono); font-size: 11px; letter-spacing: 0.14em;
+    color: var(--skin-accent); white-space: nowrap; padding-right: 48px;
+  }
+  @keyframes tech-ticker-scroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    [data-theme="tech"] .tech-ticker-track { animation: none; }
+  }
+
+  /* ──────────────────────────────────────────────────────────────────
+     ZEN ENHANCEMENTS — restrained and slow, matching the skin's own
+     calm register (no ticker-as-scrolling-marquee, no hard brackets).
+     Soft ink-wash corner smudges, a slow breathing pulse on the
+     eyebrow, a thin bamboo accent with two leaf marks, a single petal
+     drifting across rarely, and a quiet expanding ripple ring. Plus
+     the real centerpiece: a guided-meditation card, Zen-exclusive.
+     ────────────────────────────────────────────────────────────────── */
+  [data-theme="zen"] .ws-hero { position: relative; overflow: hidden; }
+  [data-theme="zen"] .ws-eyebrow {
+    animation: zen-breathe 8s ease-in-out infinite;
+  }
+  @keyframes zen-breathe {
+    0%, 100% { opacity: 0.75; }
+    50%      { opacity: 1; }
+  }
+  /* Soft ink-wash corner smudge instead of a hard bracket. */
+  [data-theme="zen"] .ws-section,
+  [data-theme="zen"] .activity-card {
+    position: relative;
+  }
+  [data-theme="zen"] .ws-section::before,
+  [data-theme="zen"] .activity-card::before {
+    content: ''; position: absolute; top: 0; right: 0;
+    width: 90px; height: 90px;
+    background: radial-gradient(circle at top right, var(--skin-accent), transparent 70%);
+    opacity: 0.06; pointer-events: none;
+  }
+  /* Bamboo accent, hero corner, with two small leaf marks. */
+  .zen-bamboo { display: none; }
+  [data-theme="zen"] .zen-bamboo {
+    display: block; position: absolute; top: 10px; left: 40px;
+    width: 3px; height: 90px;
+    background: linear-gradient(to bottom, var(--skin-accent), var(--skin-accent-2));
+    opacity: 0.35; border-radius: 2px; pointer-events: none;
+  }
+  [data-theme="zen"] .zen-bamboo::before,
+  [data-theme="zen"] .zen-bamboo::after {
+    content: ''; position: absolute; width: 16px; height: 6px;
+    background: var(--skin-accent); opacity: 0.35; border-radius: 50% 50% 50% 0;
+  }
+  [data-theme="zen"] .zen-bamboo::before { top: 20px; left: 3px; transform: rotate(-30deg); }
+  [data-theme="zen"] .zen-bamboo::after  { top: 46px; left: 3px; transform: rotate(-40deg); }
+  /* A single petal drifting across, rarely. */
+  .zen-petal { display: none; }
+  [data-theme="zen"] .zen-petal {
+    display: block; position: absolute; width: 8px; height: 8px;
+    background: var(--skin-accent-2); border-radius: 60% 0 60% 0;
+    opacity: 0; pointer-events: none;
+    animation: zen-petal-drift 22s ease-in-out infinite;
+  }
+  @keyframes zen-petal-drift {
+    0%   { left: -5%;  top: 10%; opacity: 0;   transform: rotate(0deg); }
+    8%   { opacity: 0.5; }
+    50%  { left: 50%;  top: 55%; transform: rotate(180deg); }
+    92%  { opacity: 0.4; }
+    100% { left: 105%; top: 30%; opacity: 0;   transform: rotate(360deg); }
+  }
+  /* A quiet expanding ripple ring, like a stone dropped in still water. */
+  .zen-ripple { display: none; }
+  [data-theme="zen"] .zen-ripple {
+    display: block; position: absolute; top: 40px; left: 40px;
+    width: 12px; height: 12px; border-radius: 50%;
+    border: 1px solid var(--skin-accent);
+    opacity: 0; pointer-events: none;
+    animation: zen-ripple-expand 6s ease-out infinite;
+  }
+  @keyframes zen-ripple-expand {
+    0%   { transform: scale(1); opacity: 0.5; }
+    80%  { transform: scale(6); opacity: 0; }
+    100% { transform: scale(6); opacity: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    [data-theme="zen"] .ws-eyebrow,
+    [data-theme="zen"] .zen-petal,
+    [data-theme="zen"] .zen-ripple { animation: none; }
+  }
+  /* Guided-meditation card, Zen-exclusive. */
+  .zen-meditation { display: none; }
+  [data-theme="zen"] .zen-meditation { display: block; }
+  .zen-med-row { display: grid; grid-template-columns: 1fr 280px; gap: 32px; align-items: start; }
+  .zen-med-panel { background: var(--skin-surface); border: 1px solid var(--skin-border); padding: 28px 32px; }
+  .zen-med-field { margin-bottom: 16px; }
+  .zen-med-field label {
+    display: block; font-family: var(--skin-font-mono); font-size: 10px;
+    letter-spacing: 0.2em; text-transform: uppercase; color: var(--skin-accent);
+    margin-bottom: 8px;
+  }
+  .zen-med-field select {
+    width: 100%; padding: 12px 14px; font-family: var(--skin-font-display); font-size: 16px;
+    color: var(--skin-ink); background: var(--skin-bg-alt); border: 1px solid var(--skin-border);
+  }
+  .zen-med-desc { font-family: 'Spectral', serif; font-style: italic; font-size: 15px; color: var(--skin-ink-muted); margin: 10px 0 20px; }
+  .zen-med-actions { display: flex; gap: 12px; }
+  .zen-med-start, .zen-med-stop {
+    font-family: var(--skin-font-mono); font-size: 11px; letter-spacing: 0.14em;
+    text-transform: uppercase; padding: 12px 22px; cursor: pointer; border: none;
+  }
+  .zen-med-start { background: var(--skin-accent); color: #fff; }
+  .zen-med-start:hover { opacity: 0.9; }
+  .zen-med-start:disabled { opacity: 0.5; cursor: wait; }
+  .zen-med-stop { background: transparent; border: 1px solid var(--skin-border); color: var(--skin-ink-muted); display: none; }
+  .zen-med-stop.shown { display: inline-block; }
+  .zen-med-status { margin-top: 16px; font-family: var(--skin-font-mono); font-size: 11px; letter-spacing: 0.1em; color: var(--skin-ink); min-height: 1em; }
+  .zen-med-elapsed { margin-left: 8px; color: var(--skin-ink-muted); }
+  .zen-med-reassure { font-family: 'Spectral', serif; font-style: italic; font-size: 13px; color: var(--skin-ink-muted); min-height: 1.2em; margin-top: 4px; }
+  .zen-med-error { color: #a02525; font-size: 13px; margin-top: 8px; }
+  .zen-med-player { display: none; margin-top: 16px; }
+  .zen-med-player.shown { display: block; }
+  .zen-med-player audio { width: 100%; }
+  .zen-med-host { text-align: center; }
+  .zen-med-portrait { width: 100%; aspect-ratio: 1/1; overflow: hidden; border: 1px solid var(--skin-border); margin-bottom: 12px; }
+  .zen-med-portrait img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+  .zen-med-host-name { font-family: var(--skin-font-display); font-size: 16px; font-weight: 700; color: var(--skin-ink); margin-bottom: 6px; }
+  .zen-med-host-bio { font-family: 'Spectral', serif; font-size: 13px; font-style: italic; color: var(--skin-ink-muted); line-height: 1.5; }
+  @media (max-width: 720px) {
+    .zen-med-row { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
 <body>
@@ -994,7 +1360,18 @@
       <span class="steam-ticker-text">PRESSURE NOMINAL &middot; BOILER 2 ONLINE &middot; MAIN SPRING WOUND &middot; GEARS ALIGNED &middot; VALVE 3 HOLDING &middot; </span>
     </div>
   </div>
-
+  <div class="cyber-ticker" aria-hidden="true">
+    <div class="cyber-ticker-track">
+      <span class="cyber-ticker-text">ネオン街 &middot; CLUB NEON &middot; RAMENYA &middot; TECH-SHOP &middot; 24HRS &middot; </span>
+      <span class="cyber-ticker-text">ネオン街 &middot; CLUB NEON &middot; RAMENYA &middot; TECH-SHOP &middot; 24HRS &middot; </span>
+    </div>
+  </div>
+  <div class="tech-ticker" aria-hidden="true">
+    <div class="tech-ticker-track">
+      <span class="tech-ticker-text">SYSTEM HEALTH 97.2% &middot; AGENT NETWORK 42 ACTIVE &middot; MEMORY SYNC 98.7% &middot; UPLINK NOMINAL &middot; </span>
+      <span class="tech-ticker-text">SYSTEM HEALTH 97.2% &middot; AGENT NETWORK 42 ACTIVE &middot; MEMORY SYNC 98.7% &middot; UPLINK NOMINAL &middot; </span>
+    </div>
+  </div>
   <header class="ws-hero">
     <div class="ops-stamp" aria-hidden="true">Classified</div>
 
@@ -1010,12 +1387,231 @@
       <div class="steam-clock-pin"></div>
     </div>
 
+    <div class="cyber-scanbeam" aria-hidden="true"></div>
+    <div class="cyber-eyes" aria-hidden="true">
+      <span class="cyber-eye cyber-eye-1"></span>
+      <span class="cyber-eye cyber-eye-2"></span>
+    </div>
+
+    <div class="tech-orb" aria-hidden="true"></div>
+    <div class="tech-node" aria-hidden="true"></div>
+    <div class="tech-readout tech-readout-1" aria-hidden="true">CPU 67%</div>
+    <div class="tech-readout tech-readout-2" aria-hidden="true">SYNC 98%</div>
+
+    <div class="zen-bamboo" aria-hidden="true"></div>
+    <div class="zen-petal" aria-hidden="true"></div>
+    <div class="zen-ripple" aria-hidden="true"></div>
+
     <div class="ws-eyebrow">A working studio. The staff is at the bench.</div>
     <h1 class="ws-h1">Your Studio</h1>
     <p class="ws-sub">
       Your AI staff is here and ready.
     </p>
   </header>
+
+  <!-- ZEN-EXCLUSIVE: guided meditation, hosted by Jaque. Same Claude +
+       ElevenLabs pipeline already proven at thedose.net/guided-meditation
+       (Jaque already hosts it there, per his own roster bio), ported to
+       Studio's own Netlify functions (studio-meditation-start/-status/
+       -generate-background) and its own Blobs cache. Visible only under
+       [data-theme="zen"] -- see .zen-meditation display rule below. -->
+  <section class="ws-section zen-meditation" id="zen-meditation-section">
+    <div class="ws-section-head">
+      <div class="ws-section-h">Take a moment</div>
+      <div class="ws-section-tag">Hosted by Jaque</div>
+    </div>
+    <div class="zen-med-row">
+      <div class="zen-med-panel">
+        <div class="zen-med-field">
+          <label for="zen-med-leader">Leader</label>
+          <select id="zen-med-leader">
+            <option value="jaque" selected>Jaque, the Host (meditation)</option>
+          </select>
+        </div>
+        <div class="zen-med-field">
+          <label for="zen-med-length">Session</label>
+          <select id="zen-med-length">
+            <option value="3" selected>Quick Reset</option>
+            <option value="5">Short Session</option>
+            <option value="8">Deeper Reset</option>
+          </select>
+        </div>
+        <p class="zen-med-desc" id="zen-med-desc">A short pause to settle your mind.</p>
+        <div class="zen-med-actions">
+          <button type="button" class="zen-med-start" id="zen-med-start">Begin the session</button>
+          <button type="button" class="zen-med-stop" id="zen-med-stop">Stop</button>
+        </div>
+        <div class="zen-med-status" id="zen-med-status"></div>
+        <div class="zen-med-reassure" id="zen-med-reassure"></div>
+        <div class="zen-med-error" id="zen-med-error"></div>
+        <div class="zen-med-player" id="zen-med-player">
+          <audio id="zen-med-audio" controls preload="none"></audio>
+        </div>
+      </div>
+      <div class="zen-med-host">
+        <div class="zen-med-portrait">
+          <img src="/agents/jaque_eyes_open.png" alt="Jaque, the Host">
+        </div>
+        <div class="zen-med-host-name">Jaque, the Host</div>
+        <div class="zen-med-host-bio">Voice actor turned coach. He hosts the guided meditation here the same way he does at The Dose.</div>
+      </div>
+    </div>
+  </section>
+  <script>
+  (function(){
+    var SESSION_DESC = {
+      '3': 'A short pause to settle your mind.',
+      '5': 'A few minutes to breathe and refocus.',
+      '8': 'A longer moment to fully unwind.',
+    };
+    var lengthEl = document.getElementById('zen-med-length');
+    var descEl = document.getElementById('zen-med-desc');
+    if (lengthEl && descEl) {
+      lengthEl.addEventListener('change', function(){ descEl.textContent = SESSION_DESC[lengthEl.value] || ''; });
+    }
+
+    var startBtn = document.getElementById('zen-med-start');
+    var stopBtn = document.getElementById('zen-med-stop');
+    var statusEl = document.getElementById('zen-med-status');
+    var reassureEl = document.getElementById('zen-med-reassure');
+    var errorEl = document.getElementById('zen-med-error');
+    var playerWrap = document.getElementById('zen-med-player');
+    var audioEl = document.getElementById('zen-med-audio');
+    if (!startBtn) return; // section not on this page build
+
+    var REASSURANCE = ['Composing your session.', 'Choosing the pauses.', 'Tuning the voice.', 'Almost ready.', 'Just a moment longer.'];
+    var reassureIdx = 0, reassureTimer = null, elapsedTimer = null, startedAt = 0, currentReq = null;
+
+    function startProgress(){
+      statusEl.classList.add('loading');
+      statusEl.innerHTML = 'Preparing your meditation<span class="zen-med-elapsed" id="zen-med-elapsed">0s</span>';
+      reassureIdx = 0;
+      reassureEl.textContent = REASSURANCE[0];
+      startedAt = Date.now();
+      elapsedTimer = setInterval(function(){
+        var s = Math.floor((Date.now() - startedAt) / 1000);
+        var el = document.getElementById('zen-med-elapsed');
+        if (el) el.textContent = s + 's';
+      }, 500);
+      reassureTimer = setInterval(function(){
+        reassureIdx = (reassureIdx + 1) % REASSURANCE.length;
+        reassureEl.textContent = REASSURANCE[reassureIdx];
+      }, 4000);
+    }
+    function stopProgress(){
+      statusEl.classList.remove('loading');
+      statusEl.innerHTML = '';
+      reassureEl.textContent = '';
+      if (reassureTimer) { clearInterval(reassureTimer); reassureTimer = null; }
+      if (elapsedTimer) { clearInterval(elapsedTimer); elapsedTimer = null; }
+    }
+    function sleep(ms, signal){
+      return new Promise(function(resolve, reject){
+        var t = setTimeout(resolve, ms);
+        if (signal) signal.addEventListener('abort', function(){
+          clearTimeout(t);
+          var e = new Error('aborted'); e.name = 'AbortError'; reject(e);
+        }, { once: true });
+      });
+    }
+    function base64ToBlob(b64, mime){
+      var bin = atob(b64), len = bin.length, bytes = new Uint8Array(len);
+      for (var i = 0; i < len; i++) bytes[i] = bin.charCodeAt(i);
+      return new Blob([bytes], { type: mime });
+    }
+    async function authHeader(){
+      try {
+        var s = await window.studioSb.auth.getSession();
+        var token = s && s.data && s.data.session && s.data.session.access_token;
+        return token ? { 'Authorization': 'Bearer ' + token } : {};
+      } catch (_) { return {}; }
+    }
+    async function fetchCompletedAudio(jobId, signal, headers){
+      var res = await fetch('/.netlify/functions/studio-meditation-status?jobId=' + encodeURIComponent(jobId), { signal: signal, headers: headers });
+      if (!res.ok) throw new Error('Server returned ' + res.status);
+      var body = await res.json();
+      if (body.status !== 'complete' || !body.audioBase64) throw new Error(body.error || 'Audio missing.');
+      return base64ToBlob(body.audioBase64, 'audio/mpeg');
+    }
+    async function renderViaBackground(leader, length, signal){
+      var headers = await authHeader();
+      var startRes = await fetch('/.netlify/functions/studio-meditation-start?leader=' + encodeURIComponent(leader) + '&length=' + encodeURIComponent(length), { signal: signal, headers: headers });
+      if (!startRes.ok) {
+        var detail = '';
+        try { detail = (await startRes.json()).error || ''; } catch (_) {}
+        throw new Error(detail || ('Server returned ' + startRes.status));
+      }
+      var startBody = await startRes.json();
+      var jobId = startBody.jobId, status = startBody.status;
+      if (!jobId) throw new Error('Server did not return a jobId.');
+      if (status === 'complete') return await fetchCompletedAudio(jobId, signal, headers);
+
+      var deadline = Date.now() + 3 * 60 * 1000;
+      while (Date.now() < deadline) {
+        if (signal.aborted) { var e = new Error('aborted'); e.name = 'AbortError'; throw e; }
+        await sleep(2000, signal);
+        var statusRes = await fetch('/.netlify/functions/studio-meditation-status?jobId=' + encodeURIComponent(jobId), { signal: signal, headers: headers });
+        if (!statusRes.ok) continue;
+        var body = await statusRes.json();
+        if (body.status === 'complete') {
+          if (body.audioBase64) return base64ToBlob(body.audioBase64, 'audio/mpeg');
+          return await fetchCompletedAudio(jobId, signal, headers);
+        }
+        if (body.status === 'failed') throw new Error(body.error || 'Render failed.');
+      }
+      throw new Error('Render timed out.');
+    }
+
+    async function beginSession(){
+      errorEl.textContent = '';
+      playerWrap.classList.remove('shown');
+      stopBtn.classList.remove('shown');
+      audioEl.pause();
+      audioEl.removeAttribute('src');
+
+      var leader = document.getElementById('zen-med-leader').value;
+      var length = document.getElementById('zen-med-length').value;
+
+      startBtn.disabled = true;
+      startBtn.textContent = 'Preparing...';
+      startProgress();
+
+      var ac = new AbortController();
+      currentReq = ac;
+      try {
+        var blob = await renderViaBackground(leader, length, ac.signal);
+        var objUrl = URL.createObjectURL(blob);
+        audioEl.src = objUrl;
+        audioEl.load();
+        playerWrap.classList.add('shown');
+        stopBtn.classList.add('shown');
+        stopProgress();
+        statusEl.textContent = 'Ready. Press play when you are.';
+        try { await audioEl.play(); } catch (_) { /* user can press play manually */ }
+      } catch (err) {
+        stopProgress();
+        if (err.name === 'AbortError') statusEl.textContent = 'Cancelled.';
+        else errorEl.textContent = 'Could not prepare your meditation. ' + err.message;
+      } finally {
+        startBtn.disabled = false;
+        startBtn.textContent = 'Begin the session';
+        currentReq = null;
+      }
+    }
+    function stopSession(){
+      if (currentReq) { currentReq.abort(); currentReq = null; }
+      audioEl.pause();
+      audioEl.removeAttribute('src');
+      playerWrap.classList.remove('shown');
+      stopBtn.classList.remove('shown');
+      stopProgress();
+      errorEl.textContent = '';
+      statusEl.textContent = '';
+    }
+    startBtn.addEventListener('click', beginSession);
+    stopBtn.addEventListener('click', stopSession);
+  })();
+  </script>
   <script>
   (function(){
     // Steampunk hero clock -- real time, hidden unless [data-theme="steampunk"]
