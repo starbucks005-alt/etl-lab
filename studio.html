@@ -60,6 +60,7 @@
     --skin-call-accent: #5c8ab5;
     --skin-bg-image: none;
     --skin-bg-scrim: none;
+    --skin-link: var(--navy-mid);
   }
   [data-theme="tech"] {
     --skin-bg: #10141b;
@@ -74,6 +75,7 @@
     --skin-font-display: 'Orbitron', 'Spectral', serif;
     --skin-font-mono: 'IBM Plex Mono', monospace;
     --skin-call-accent: #3fa9ff;
+    --skin-link: #7fb8ff;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -84,7 +86,7 @@
     line-height: 1.55;
     min-height: 100vh;
   }
-  a { color: var(--navy-mid); text-decoration: none; }
+  a { color: var(--skin-link); text-decoration: none; }
   a:hover { color: var(--skin-accent); }
 
   /* NAVY HEADER BAND (matches Prep Room) — themed via --skin-* so the chrome
@@ -419,7 +421,7 @@
     font-family: 'Spectral', serif;
     font-size: 15px; font-style: italic;
   }
-  footer.studio-foot a { color: var(--navy-mid); }
+  footer.studio-foot a { color: var(--skin-link); }
 
   @media (max-width: 720px) {
     header.studio-top { padding: 14px 22px; }
@@ -688,23 +690,23 @@
             </div>
           </div>
         </button>
-        <div id="pa-name-display" style="font-family:'Spectral',serif; font-size:18px; font-weight:700; color:var(--ink); margin-top:14px;">August "Auggie" Vidal</div>
-        <div id="pa-role-display" style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.12em; color:var(--brass); margin-top:4px;">Personal Assistant (PA)</div>
-        <p id="pa-bio-display" style="font-family:'Spectral',serif; font-size:14px; color:var(--ink-soft); font-style:italic; line-height:1.55; margin-top:10px;">
+        <div id="pa-name-display" style="font-family:'Spectral',serif; font-size:18px; font-weight:700; color:var(--skin-ink); margin-top:14px;">August "Auggie" Vidal</div>
+        <div id="pa-role-display" style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.12em; color:var(--skin-accent); margin-top:4px;">Personal Assistant (PA)</div>
+        <p id="pa-bio-display" style="font-family:'Spectral',serif; font-size:14px; color:var(--skin-ink-muted); font-style:italic; line-height:1.55; margin-top:10px;">
           Late twenties, Cuban-American, Coral Gables family with Palm Springs summers. Three years as Devon's personal assistant on the Gauntlet bench before Dr. Oroszi hired him into the Studio. He holds your week and the editorial calendar. He watches the overlap.
         </p>
 
         <!-- CV / résumé upload. The PA reads it once; studio-cv-ingest saves a
              profile to owner_context, which the chat + the morning brief web
              sweep already use to know the owner and search for what fits them. -->
-        <details style="margin-top:14px; border:1px solid var(--linen-edge); background:#fff;">
-          <summary style="cursor:pointer; padding:10px 12px; font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.14em; text-transform:uppercase; color:var(--brass);">Give your PA your CV / résumé</summary>
-          <div style="padding:4px 14px 14px; font-family:'Spectral',serif; font-size:14px; line-height:1.6; color:var(--ink-soft);">
+        <details style="margin-top:14px; border:1px solid var(--skin-border); background:var(--skin-surface);">
+          <summary style="cursor:pointer; padding:10px 12px; font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.14em; text-transform:uppercase; color:var(--skin-accent);">Give your PA your CV / résumé</summary>
+          <div style="padding:4px 14px 14px; font-family:'Spectral',serif; font-size:14px; line-height:1.6; color:var(--skin-ink-muted);">
             <p style="margin:8px 0;">Upload your CV or résumé and your PA reads it once, so they know who you are, your field, and what you are working on, and the morning brief starts searching the web for what fits you.</p>
             <input type="file" id="cv-upload-input" accept="application/pdf,.pdf,text/plain,.txt,.md,.markdown" style="display:none;">
-            <button type="button" id="cv-upload-btn" style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--brass); background:transparent; border:1px solid var(--brass); padding:8px 14px; cursor:pointer;">Upload CV / résumé</button>
+            <button type="button" id="cv-upload-btn" style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--skin-accent); background:transparent; border:1px solid var(--skin-accent); padding:8px 14px; cursor:pointer;">Upload CV / résumé</button>
             <span id="cv-upload-status" style="margin-left:10px; font-size:12.5px; font-style:italic;"></span>
-            <div id="cv-upload-result" style="margin-top:12px; display:none; white-space:pre-wrap; font-family:'IBM Plex Mono',monospace; font-size:11.5px; line-height:1.5; color:var(--ink); background:var(--linen-light); border:1px solid var(--linen-edge); padding:10px 12px;"></div>
+            <div id="cv-upload-result" style="margin-top:12px; display:none; white-space:pre-wrap; font-family:'IBM Plex Mono',monospace; font-size:11.5px; line-height:1.5; color:var(--skin-ink); background:var(--skin-bg-alt); border:1px solid var(--skin-border); padding:10px 12px;"></div>
             <p style="margin:10px 0 0; font-size:12px;">PDF or plain text for now. Stored privately, never shown on any page.</p>
           </div>
         </details>
@@ -738,15 +740,15 @@
         <!-- Calendar hookup instructions. The PA reads the owner's REAL week
              from a published Outlook ICS feed; pasting the link into the chat
              stores it (studio-auggie-chat) and the morning brief reads it. -->
-        <details style="margin-top:14px; border:1px solid var(--linen-edge); background:#fff;">
-          <summary style="cursor:pointer; padding:10px 12px; font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.14em; text-transform:uppercase; color:var(--brass);">Give your PA your calendar</summary>
-          <div style="padding:4px 14px 14px; font-family:'Spectral',serif; font-size:14px; line-height:1.6; color:var(--ink-soft);">
+        <details style="margin-top:14px; border:1px solid var(--skin-border); background:var(--skin-surface);">
+          <summary style="cursor:pointer; padding:10px 12px; font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.14em; text-transform:uppercase; color:var(--skin-accent);">Give your PA your calendar</summary>
+          <div style="padding:4px 14px 14px; font-family:'Spectral',serif; font-size:14px; line-height:1.6; color:var(--skin-ink-muted);">
             <p style="margin:8px 0;">Your PA can read your actual calendar, so the morning brief talks about your real week. Works with Outlook and Google; have more than one calendar? Paste each link, your PA holds them all.</p>
-            <p style="margin:10px 0 4px; font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:var(--brass);">Outlook</p>
+            <p style="margin:10px 0 4px; font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:var(--skin-accent);">Outlook</p>
             <p style="margin:6px 0;">1. In Outlook on the web: <b>Settings &rarr; Calendar &rarr; Shared calendars</b>.</p>
             <p style="margin:6px 0;">2. Under <b>Publish a calendar</b>, pick your calendar, set <b>Can view all details</b>, click <b>Publish</b>.</p>
             <p style="margin:6px 0;">3. Copy the <b>ICS</b> link and paste it into the chat here. Your PA confirms and keeps it.</p>
-            <p style="margin:10px 0 4px; font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:var(--brass);">Google Calendar</p>
+            <p style="margin:10px 0 4px; font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:var(--skin-accent);">Google Calendar</p>
             <p style="margin:6px 0;">1. At calendar.google.com (on a computer): gear icon &rarr; <b>Settings</b>.</p>
             <p style="margin:6px 0;">2. In the left list under <b>Settings for my calendars</b>, click your calendar, then <b>Integrate calendar</b>.</p>
             <p style="margin:6px 0;">3. Copy the <b>Secret address in iCal format</b> and paste it into the chat here. Your PA confirms and keeps it.</p>
@@ -873,7 +875,7 @@
     .auggie-bubble { padding:10px 14px; border-left:3px solid transparent; }
     .auggie-bubble--his   { border-left-color: var(--skin-accent); background:#fbf4e0; }
     .auggie-bubble--mine  { border-left-color: var(--navy-mid); background:#f3f1ec; margin-left:24px; }
-    .auggie-bubble-meta   { font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.18em; color:var(--skin-accent); text-transform:uppercase; margin-bottom:4px; }
+    .auggie-bubble-meta   { font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.18em; color:var(--brass); text-transform:uppercase; margin-bottom:4px; } /* sits on the fixed cream bubble bg (#fbf4e0), not the skin backdrop, so stays fixed */
     .auggie-bubble--mine .auggie-bubble-meta { color: var(--navy-mid); }
     #auggie-chat-input:focus { outline:1px solid var(--skin-accent); }
     /* Slow blink on the Zoom portrait. Same 8.4-second cycle the Newswire
@@ -898,9 +900,10 @@
        for her name on demand. */
     .auggie-preset-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
     .auggie-preset-chip {
+      /* fixed cream background (#fbf4e0), not skin-backed, so text/border stay fixed too */
       font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.12em;
-      text-transform:uppercase; color:var(--skin-accent);
-      background:#fbf4e0; border:1px solid var(--skin-accent); padding:6px 12px;
+      text-transform:uppercase; color:var(--brass);
+      background:#fbf4e0; border:1px solid var(--brass); padding:6px 12px;
       cursor:pointer;
     }
     .auggie-preset-chip:hover { background:var(--skin-accent); color:#fff; }
@@ -1397,7 +1400,7 @@
       <div class="ws-section-h">What your team can do</div>
       <div class="ws-section-tag">Just ask your PA</div>
     </div>
-    <p style="font-family:'Spectral',serif;font-style:italic;color:var(--ink-soft);font-size:16px;margin:0 0 22px;max-width:700px;">
+    <p style="font-family:'Spectral',serif;font-style:italic;color:var(--skin-ink-muted);font-size:16px;margin:0 0 22px;max-width:700px;">
       One conversation. You talk to your PA, your PA hands the work to the right person and brings it back. Here is what to say.
     </p>
     <div id="team-cap-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;"></div>
@@ -1916,22 +1919,28 @@
   })();
   </script>
 
+  <!-- These sp- rules deliberately stay on the frozen tokens, NOT --skin-*.
+       The wizard's own container (#cc-social etc.) is a fixed light card
+       (inline background:var(--linen-light), same pattern as staff-card),
+       so its contents must stay matched to that fixed light surface no
+       matter which skin is active, or the text goes near-invisible against
+       its own unshifted white card. -->
   <style>
-    .sp-q { display:block; font-family:'Spectral',serif; font-size:17px; font-weight:600; color:var(--skin-ink); margin-bottom:8px; }
-    .sp-input { width:100%; padding:12px 14px; font-family:'Spectral',serif; font-size:16px; color:var(--skin-ink); background:var(--skin-surface); border:1px solid var(--skin-border); }
-    .sp-input:focus { outline:none; border-color:var(--skin-accent); }
+    .sp-q { display:block; font-family:'Spectral',serif; font-size:17px; font-weight:600; color:var(--ink); margin-bottom:8px; }
+    .sp-input { width:100%; padding:12px 14px; font-family:'Spectral',serif; font-size:16px; color:var(--ink); background:#fff; border:1px solid var(--linen-edge); }
+    .sp-input:focus { outline:none; border-color:var(--brass); }
     select.sp-input { cursor:pointer; }
     textarea.sp-input { resize:vertical; min-height:80px; }
-    .sp-agent { padding:14px 16px; background:var(--skin-surface); border:1px solid var(--skin-border); cursor:pointer; text-align:left; transition:border-color 0.15s, transform 0.15s; }
-    .sp-agent:hover { border-color:var(--skin-accent); transform:translateY(-1px); }
-    .sp-agent.is-picked { border-color:var(--skin-accent); background:#fbf4e0; }
-    .sp-agent-name { font-family:'Spectral',serif; font-size:16px; font-weight:700; color:var(--skin-ink); margin-bottom:3px; }
-    .sp-agent-vibe { font-family:'Spectral',serif; font-size:13px; color:var(--skin-ink-muted); font-style:italic; }
-    .sp-cta { display:inline-block; margin-top:14px; padding:12px 24px; font-family:var(--skin-font-mono); font-size:11px; letter-spacing:0.16em; text-transform:uppercase; color:var(--linen); background:var(--navy); border:none; cursor:pointer; }
+    .sp-agent { padding:14px 16px; background:#fff; border:1px solid var(--linen-edge); cursor:pointer; text-align:left; transition:border-color 0.15s, transform 0.15s; }
+    .sp-agent:hover { border-color:var(--brass); transform:translateY(-1px); }
+    .sp-agent.is-picked { border-color:var(--brass); background:#fbf4e0; }
+    .sp-agent-name { font-family:'Spectral',serif; font-size:16px; font-weight:700; color:var(--ink); margin-bottom:3px; }
+    .sp-agent-vibe { font-family:'Spectral',serif; font-size:13px; color:var(--ink-soft); font-style:italic; }
+    .sp-cta { display:inline-block; margin-top:14px; padding:12px 24px; font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.16em; text-transform:uppercase; color:var(--linen); background:var(--navy); border:none; cursor:pointer; }
     .sp-cta:hover { background:var(--navy-mid); }
     .sp-cta-sm { padding:9px 18px; font-size:10px; margin-top:0; }
-    .sp-cta-ghost { background:transparent; color:var(--skin-ink-muted); border:1px solid var(--skin-border); }
-    .sp-cta-ghost:hover { background:var(--skin-bg-alt); color:var(--skin-ink); border-color:var(--skin-accent); }
+    .sp-cta-ghost { background:transparent; color:var(--ink-soft); border:1px solid var(--linen-edge); }
+    .sp-cta-ghost:hover { background:var(--linen-light); color:var(--ink); border-color:var(--brass); }
     .sp-cta:disabled { opacity:0.5; cursor:wait; }
   </style>
 
