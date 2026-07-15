@@ -312,11 +312,19 @@ exports.handler = async function(event) {
         });
         // Provisioned fixture fields are canonical — the blob cannot override
         // them. A stale blob written before a fixture was set up would otherwise
-        // shadow company_name, pa, owner_name, and billing with defaults.
+        // shadow company_name, owner_name, and billing with defaults.
+        //
+        // pa is deliberately EXCLUDED from this list (fixed 2026-07-15): it
+        // was here too, which meant every PA swap and every PA/Chief-of-Staff
+        // title change silently reverted on the very next reload for any
+        // fixture-backed account (Dr. O's own studio included — her fixture's
+        // pa has no "label" at all, so Object.assign already merges the
+        // persisted pa correctly on its own, same as this function's own
+        // stated goal above: "a seat swap changes the seat and nothing else,
+        // for every config source." This override was fighting that goal.
         if (cfg.source === 'fixture') {
           merged.company_name = cfg.company_name;
           merged.owner_name   = cfg.owner_name;
-          merged.pa           = cfg.pa;
           merged.billing      = cfg.billing;
           merged.sponsorship  = cfg.sponsorship;
           merged.no_payment_ui = cfg.no_payment_ui;
