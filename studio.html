@@ -683,6 +683,105 @@
     z-index: 9100;
   }
   .fire-toast.is-on { opacity: 1; transform: translateX(-50%) translateY(-6px); }
+
+  /* ──────────────────────────────────────────────────────────────────
+     DARK OPS ENHANCEMENTS — every rule here is [data-theme="ops"]-scoped
+     (or hidden by default and shown only under ops), so it's completely
+     inert for every other skin. Pure decoration: corner brackets, a
+     scanline texture, an edge vignette layered into the scrim, a "REC"
+     status pill, a scrolling intel ticker, and a classified watermark.
+     ────────────────────────────────────────────────────────────────── */
+  [data-theme="ops"] {
+    --skin-bg-scrim: radial-gradient(ellipse at center, transparent 40%, rgba(10,10,10,0.5) 100%), linear-gradient(rgba(10,10,10,0.75), rgba(10,10,10,0.75));
+  }
+  /* Corner brackets on chrome frames (never on staff cards). */
+  [data-theme="ops"] .ws-section,
+  [data-theme="ops"] #floor-column,
+  [data-theme="ops"] .activity-card,
+  [data-theme="ops"] .command-block {
+    position: relative;
+  }
+  [data-theme="ops"] .ws-section::before,
+  [data-theme="ops"] #floor-column::before,
+  [data-theme="ops"] .activity-card::before,
+  [data-theme="ops"] .command-block::before {
+    content: ''; position: absolute; top: 0; left: 0;
+    width: 14px; height: 14px;
+    border-top: 2px solid var(--skin-accent);
+    border-left: 2px solid var(--skin-accent);
+    opacity: 0.7; pointer-events: none;
+  }
+  [data-theme="ops"] .ws-section::after,
+  [data-theme="ops"] #floor-column::after,
+  [data-theme="ops"] .activity-card::after,
+  [data-theme="ops"] .command-block::after {
+    content: ''; position: absolute; bottom: 0; right: 0;
+    width: 14px; height: 14px;
+    border-bottom: 2px solid var(--skin-accent);
+    border-right: 2px solid var(--skin-accent);
+    opacity: 0.7; pointer-events: none;
+  }
+  /* Faint scanline texture over the whole workspace. Low enough opacity
+     (2.5%) that it never competes with the already-verified text contrast. */
+  #workspace[data-theme="ops"] { position: relative; }
+  #workspace[data-theme="ops"]::before {
+    content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    background-image: repeating-linear-gradient(to bottom, rgba(255,255,255,0.025) 0px, rgba(255,255,255,0.025) 1px, transparent 1px, transparent 3px);
+  }
+  /* Stamped/stenciled label treatment -- just wider letter-spacing, no color change. */
+  [data-theme="ops"] .ws-eyebrow,
+  [data-theme="ops"] .ws-section-tag,
+  [data-theme="ops"] .activity-status {
+    letter-spacing: 0.32em;
+  }
+  /* "REC" live indicator, header. */
+  .ops-rec { display: none; }
+  [data-theme="ops"] .ops-rec {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--skin-font-mono); font-size: 10px; letter-spacing: 0.16em;
+    color: var(--skin-accent); text-transform: uppercase;
+  }
+  [data-theme="ops"] .ops-rec-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--skin-accent);
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+  /* Scrolling intel ticker, just under the header. */
+  .ops-ticker { display: none; }
+  [data-theme="ops"] .ops-ticker {
+    display: block; overflow: hidden;
+    background: #000; border-bottom: 1px solid var(--skin-border);
+    padding: 6px 0; position: relative; z-index: 1;
+  }
+  [data-theme="ops"] .ops-ticker-track {
+    display: flex; width: max-content;
+    animation: ops-ticker-scroll 32s linear infinite;
+  }
+  [data-theme="ops"] .ops-ticker-text {
+    font-family: var(--skin-font-mono); font-size: 11px; letter-spacing: 0.14em;
+    color: var(--skin-accent); white-space: nowrap; padding-right: 48px;
+  }
+  @keyframes ops-ticker-scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    [data-theme="ops"] .ops-ticker-track { animation: none; }
+  }
+  /* Classified watermark stamp, hero corner. */
+  .ops-stamp { display: none; }
+  [data-theme="ops"] .ws-hero { position: relative; }
+  [data-theme="ops"] .ops-stamp {
+    display: block; position: absolute; top: 24px; right: 40px;
+    font-family: var(--skin-font-display); font-size: 13px; font-weight: 700;
+    letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--skin-accent); border: 2px solid var(--skin-accent);
+    padding: 6px 14px; transform: rotate(8deg); opacity: 0.55;
+    pointer-events: none;
+  }
+  @media (max-width: 720px) {
+    [data-theme="ops"] .ops-stamp { top: 14px; right: 22px; font-size: 10px; padding: 4px 10px; }
+  }
 </style>
 </head>
 <body>
@@ -692,6 +791,7 @@
   <a href="/" class="studio-brand">The <em>Studio</em></a>
   <div class="studio-top-right">
     <span class="session-pill" id="session-pill">Not signed in</span>
+    <span class="ops-rec" aria-hidden="true"><span class="ops-rec-dot"></span>Rec</span>
     <button type="button" id="theme-picker-btn" style="display:none;background:none;border:1px solid rgba(255,255,255,0.35);color:inherit;font:inherit;font-size:0.78rem;padding:2px 8px;border-radius:4px;cursor:pointer;opacity:0.75;" title="Change the mood/backdrop behind your staff" onclick="pickTheme()">Skin</button>
     <button type="button" id="copy-studio-id-btn" style="display:none;background:none;border:1px solid rgba(255,255,255,0.35);color:inherit;font:inherit;font-size:0.78rem;padding:2px 8px;border-radius:4px;cursor:pointer;opacity:0.75;" title="Share this ID with a friend to connect your PA with theirs" onclick="copyStudioId()">Copy Studio ID</button>
     <a href="#" id="signout-btn" style="display:none;" onclick="event.preventDefault(); signOut();">Sign out</a>
@@ -731,7 +831,15 @@
 <!-- WORKSPACE (the post-login state) -->
 <div class="workspace" id="workspace">
 
+  <div class="ops-ticker" aria-hidden="true">
+    <div class="ops-ticker-track">
+      <span class="ops-ticker-text">SIGNAL ACQUIRED &middot; CHANNEL SECURE &middot; DECRYPTING FEED &middot; ASSET STATUS: ACTIVE &middot; STANDBY FOR BRIEFING &middot; UPLINK STABLE &middot; </span>
+      <span class="ops-ticker-text">SIGNAL ACQUIRED &middot; CHANNEL SECURE &middot; DECRYPTING FEED &middot; ASSET STATUS: ACTIVE &middot; STANDBY FOR BRIEFING &middot; UPLINK STABLE &middot; </span>
+    </div>
+  </div>
+
   <header class="ws-hero">
+    <div class="ops-stamp" aria-hidden="true">Classified</div>
     <div class="ws-eyebrow">A working studio. The staff is at the bench.</div>
     <h1 class="ws-h1">Your Studio</h1>
     <p class="ws-sub">
