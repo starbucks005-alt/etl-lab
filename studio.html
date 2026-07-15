@@ -1668,7 +1668,10 @@
           </div>
         </button>
         <div id="pa-name-display" style="font-family:'Spectral',serif; font-size:18px; font-weight:700; color:var(--skin-ink); margin-top:14px;">August "Auggie" Vidal</div>
-        <div id="pa-role-display" style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.12em; color:var(--skin-accent); margin-top:4px;">Personal Assistant (PA)</div>
+        <div style="display:flex; align-items:center; gap:10px; margin-top:4px;">
+          <div id="pa-role-display" style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.12em; color:var(--skin-accent);">Personal Assistant (PA)</div>
+          <button type="button" id="pa-title-toggle-btn" onclick="pickPATitle()" style="font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.1em; text-transform:uppercase; color:var(--skin-ink-muted); background:transparent; border:1px solid var(--skin-border); padding:2px 8px; cursor:pointer;">Change title</button>
+        </div>
         <p id="pa-bio-display" style="font-family:'Spectral',serif; font-size:14px; color:var(--skin-ink-muted); font-style:italic; line-height:1.55; margin-top:10px;">
           Late twenties, Cuban-American, Coral Gables family with Palm Springs summers. Loud laugh, honest opinion, will absolutely tell you the dress is wrong. He holds your week, makes the calendar work glamorous instead of a chore, and gossips with you about everyone else.
         </p>
@@ -6305,6 +6308,27 @@ h1 em,h2 em{font-weight:300;color:var(--skin-accent)}
       alert('Title update failed at ' + stage + ': ' + (e && e.message ? e.message : e));
     }
   }
+
+  // Direct title toggle, called from the "Change title" button that sits
+  // right on the featured PA card in the hero -- the "Swap your PA" dialog
+  // (openSwap's pa branch, below) also offers this same action, but buried
+  // several clicks into a different section further down the page. This is
+  // the same one-line setPALabel() call, just reachable from where the
+  // owner is actually looking.
+  function pickPATitle(){
+    var currentLabel = window.__paLabel || 'Personal Assistant';
+    var otherLabel = currentLabel === 'Chief of Staff' ? 'Personal Assistant' : 'Chief of Staff';
+    showDialog(
+      'Your PA’s title',
+      'Call them ' + otherLabel + '?',
+      'Same person, same job. You just decide what to call them. Currently: ' + currentLabel + '.',
+      [
+        { label: 'Cancel' },
+        { label: 'Call them ' + otherLabel, cls: 'fire-dialog-btn-primary', action: function(){ setPALabel(otherLabel); } }
+      ]
+    );
+  }
+  window.pickPATitle = pickPATitle; // called from an inline onclick on the hero PA card, same pattern as window.pickTheme
 
   // ─── STUDIO SKIN ─────────────────────────────────────────────────────
   // Mood-lighting/backdrop only, layered via [data-theme] on #workspace —
