@@ -1,60 +1,60 @@
 <!DOCTYPE html><html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ETL Staffing - Tell us what you're building</title>
+<title>The Concourse - Tell us where you're headed</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{--ink:#1c1a17;--blue:#28527a;--blue2:#5c8ab5;--cream:#f4f3ee;--card:#fff;--line:#d8d6cc;--muted:#7c756a;--good:#2e7d4f;--amber:#b5813a;--amber-l:#f5e8d0;--black:#16202b;--black-d:#10161d;}
+:root{--ink:#f4f3ee;--blue:#28527a;--blue2:#7fa8c9;--cream:#10161d;--card:#16202b;--line:rgba(127,168,201,.2);--muted:rgba(244,243,238,.55);--good:#3ddb92;--amber:#b5813a;--amber-l:rgba(181,129,58,.14);--black:#16202b;--black-d:#10161d;}
 *{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font-family:'Public Sans',system-ui,sans-serif}
 h1,h2,h3,.serif{font-family:Spectral,Georgia,serif}
 .wrap{max-width:940px;margin:0 auto;padding:0 22px}
-header.top{border-bottom:1px solid var(--line);background:#fff}
+header.top{border-bottom:1px solid var(--line);background:var(--card)}
 .top .wrap{display:flex;align-items:center;justify-content:space-between;padding:16px 22px}
 .brand{font-family:Spectral,serif;font-size:24px;font-weight:700}
-.brand small{display:block;font-family:'Public Sans',sans-serif;font-weight:500;letter-spacing:.16em;text-transform:uppercase;font-size:10px;color:var(--blue);margin-top:2px}
-.cat-link{font-size:13px;color:var(--blue);text-decoration:none;border:1px solid var(--blue);border-radius:8px;padding:9px 14px;font-weight:600}
+.brand small{display:block;font-family:'Public Sans',sans-serif;font-weight:500;letter-spacing:.16em;text-transform:uppercase;font-size:10px;color:var(--blue2);margin-top:2px}
+.cat-link{font-size:13px;color:var(--blue2);text-decoration:none;border:1px solid var(--blue2);border-radius:8px;padding:9px 14px;font-weight:600}
 .hero{display:flex;gap:20px;align-items:center;padding:34px 0 8px}
-.am{width:96px;height:96px;border-radius:50%;object-fit:cover;flex:none;border:3px solid #fff;box-shadow:0 4px 16px rgba(0,0,0,.12)}
-.amini{width:96px;height:96px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#6b7280,#374151);color:#fff;font-family:Spectral,serif;font-size:40px}
+.am{width:96px;height:96px;border-radius:50%;object-fit:cover;flex:none;border:3px solid #d8b25a;box-shadow:0 0 20px rgba(213,178,90,.35)}
+.amini{width:96px;height:96px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#b5813a,#d8b25a);color:#2b1f10;font-family:Spectral,serif;font-size:40px}
 .hero h1{font-size:30px;margin:0 0 4px}
 .hero p{margin:0;color:var(--muted);font-size:15px;line-height:1.5}
-.hero .by{font-size:12px;color:var(--blue);font-weight:600;margin-top:6px}
-.treat{font-size:13.5px;font-style:italic;color:#4a5664;margin-top:8px}
-.askbox{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;margin-top:18px;box-shadow:0 6px 20px rgba(30,25,15,.05)}
-.askbox label{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);font-weight:600}
+.hero .by{font-size:12px;color:#d8b25a;font-weight:600;margin-top:6px}
+.treat{font-size:13.5px;font-style:italic;color:#c9a563;margin-top:8px}
+.askbox{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-top:18px;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+.askbox label{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--blue2);font-weight:600}
 .askrow{display:flex;gap:10px;margin-top:8px}
-#goal{flex:1;border:1px solid var(--line);border-radius:10px;padding:13px 14px;font-size:15px;font-family:'Public Sans',sans-serif}
-.go{border:0;background:var(--ink);color:#fff;border-radius:10px;padding:0 20px;font-weight:600;font-size:14px;cursor:pointer}
+#goal{flex:1;border:1px solid var(--line);border-radius:10px;padding:13px 14px;font-size:15px;font-family:'Public Sans',sans-serif;background:var(--card);color:var(--ink)}
+.go{border:0;background:var(--blue);color:#fff;border-radius:10px;padding:0 20px;font-weight:600;font-size:14px;cursor:pointer}
 .ex{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px}
-.ex span{font-size:12.5px;border:1px solid var(--line);background:#faf8f4;border-radius:999px;padding:6px 12px;cursor:pointer;color:#544e45}
-.ex span:hover{border-color:var(--blue)}
+.ex span{font-size:12.5px;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 12px;cursor:pointer;color:rgba(244,243,238,.72)}
+.ex span:hover{border-color:var(--blue2)}
 #out{margin:24px 0 70px}
 #out:empty{margin:0}
-.reply{background:#faf6ec;border:1px solid #ecdfc0;border-radius:12px;padding:18px 20px;font-size:16px;line-height:1.55;color:#5a4e2e;display:flex;gap:14px}
+.reply{background:var(--amber-l);border:1px solid var(--amber);border-radius:12px;padding:18px 20px;font-size:16px;line-height:1.55;color:rgba(244,243,238,.9);display:flex;gap:14px}
 .reply .av{width:46px;height:46px;border-radius:50%;object-fit:cover;flex:none}
 .reply b{color:var(--ink)}
 .sec{font-family:Spectral,serif;font-size:18px;margin:24px 0 4px}
 .sub{color:var(--muted);font-size:13px;margin:0 0 12px}
 .team{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media(max-width:640px){.team{grid-template-columns:1fr}.hero{flex-direction:column;text-align:center}}
-.member{display:flex;gap:12px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px}
+.member{display:flex;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px}
 .member img{width:54px;height:54px;border-radius:10px;object-fit:cover;flex:none}
-.member .mi{width:54px;height:54px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#6b7280,#374151);color:#fff;font-weight:600;flex:none}
+.member .mi{width:54px;height:54px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#28527a,#7fa8c9);color:#fff;font-weight:600;flex:none}
 .member .nm{font-family:Spectral,serif;font-weight:700;font-size:15px;line-height:1.15}
-.member .rl{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);font-weight:600;margin:2px 0 4px}
-.member .why{font-size:12.5px;color:#3b362e;line-height:1.4}
+.member .rl{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--blue2);font-weight:600;margin:2px 0 4px}
+.member .why{font-size:12.5px;color:rgba(244,243,238,.82);line-height:1.4}
 .member .pr{font-size:11px;color:var(--muted);margin-top:4px}
-.tally{display:flex;flex-wrap:wrap;gap:18px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 20px;margin-top:18px}
+.tally{display:flex;flex-wrap:wrap;gap:18px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 20px;margin-top:18px}
 .tally .big{font-family:Spectral,serif;font-size:26px}
 .tally .lbl{font-size:12px;color:var(--muted)}
 .tally .cta{margin-left:auto;border:0;background:var(--blue);color:#fff;border-radius:10px;padding:12px 18px;font-weight:600;cursor:pointer;text-decoration:none;font-size:14px}
 .note{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.5}
 .steps{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
-.steps span{font-size:11.5px;color:#6a6354;background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px 11px}
+.steps span{font-size:11.5px;color:rgba(244,243,238,.65);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:5px 11px}
 
 /* HOUSE - Stamped Dossier */
 h1,h2,h3{font-family:'Spectral',serif;font-weight:300;letter-spacing:0;text-transform:none}
-h1 em,h2 em{font-weight:300;color:#28527a}
+h1 em,h2 em{font-weight:300;color:var(--blue2)}
 
 /* ── COMMAND CENTER ──────────────────────────────────────────────────────── */
 .cc-section{background:#050c14;padding:0}
@@ -126,7 +126,7 @@ h1 em,h2 em{font-weight:300;color:#28527a}
 <header class="top"><div class="wrap">
   <div style="display:flex;align-items:center;gap:14px;">
     <a class="cat-link" href="https://emerging-tech-lab.com/" style="padding:7px 12px;white-space:nowrap;">&larr; ETL</a>
-    <div class="brand">ETL Staffing<small>Your AI staffing agency</small></div>
+    <div class="brand">The Concourse<small>Your route through campus</small></div>
   </div>
   <div style="display:flex;align-items:center;gap:10px;">
     <a class="cat-link" href="/deskworks" style="padding:9px 12px;">ETL DeskWorks Dayton</a>
@@ -136,25 +136,26 @@ h1 em,h2 em{font-weight:300;color:#28527a}
 </div></header>
 
 <div class="wrap">
+  <img src="/brand/the-concourse-hero.jpg" alt="The Concourse, connecting Founder Studio, The Gauntlet, and ETL Deskworks" style="width:100%;border-radius:14px;margin-top:22px;box-shadow:0 12px 36px rgba(0,0,0,.4);">
   <div class="hero">
     <img class="am" src="https://emerging-tech-lab.com/agents/Carol_eyes_open.jpg" alt="Carol Haynes" onerror="this.outerHTML='<div class=amini>CH</div>'">
-    <div><h1>Tell us what you're building. We'll staff it.</h1>
-    <p>We are a staffing agency for AI staff. Describe your venture in plain words and we assemble the crew to run it, place them on your team, and re-staff as you grow.</p>
-    <div class="by">Carol Haynes · Account Manager, ETL Staffing</div>
+    <div><h1>Tell us where you're headed. Carol will find your platform.</h1>
+    <p>Carol runs the check-in desk at the Concourse, the stop between Deskworks and the Studio. Tell her what you're building and she'll size it: one desk if that's really all the job needs, the full Studio if you're building a company, and she'll tell you plainly if you're about to overpay for more than you need.</p>
+    <div class="by">Carol Haynes · Check-In Desk, The Concourse</div>
     <div class="treat" id="treat"></div>
-    <div style="margin-top:12px;background:#28527a;color:#fff;padding:10px 14px;font-size:13.5px;max-width:560px;"><b>First month, half salary.</b> Enter code <b style="font-family:monospace;letter-spacing:.5px;">FIRSTMONTH50</b> at the paperwork and your whole first month is 50% off. Any hire, any team.</div></div>
+    <div style="margin-top:12px;background:var(--blue);color:#fff;padding:10px 14px;font-size:13.5px;max-width:560px;"><b>First month, half salary.</b> Enter code <b style="font-family:monospace;letter-spacing:.5px;">FIRSTMONTH50</b> at the paperwork and your whole first month is 50% off. Any hire, any team.</div></div>
   </div>
 
-  <div style="margin:34px 0;padding:26px 24px;background:#fff;border:1px solid var(--line);border-radius:14px;">
-    <div style="font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--blue);margin-bottom:14px;">Pick one.</div>
+  <div style="margin:34px 0;padding:26px 24px;background:var(--card);border:1px solid var(--line);border-radius:14px;">
+    <div style="font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--blue2);margin-bottom:14px;">Pick one.</div>
     <div style="display:flex;gap:16px;flex-wrap:wrap;">
       <a href="/deskworks" style="flex:1;min-width:260px;display:block;text-decoration:none;color:inherit;border:2px solid var(--amber);border-radius:12px;padding:18px 20px;background:var(--amber-l);">
-        <div style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--amber);">1 &middot; Desk</div>
-        <div style="font-family:'Spectral',serif;font-size:22px;font-weight:600;margin:6px 0 8px;color:#3a2a12;">Just you, or one hire at a time.</div>
-        <div style="font-size:14px;color:#6b5a3f;line-height:1.5;">A real Dayton, Ohio address and one AI specialist per desk. $89/mo per desk. Start with one, add more as you grow.</div>
-        <div style="margin-top:12px;font-size:13px;font-weight:600;color:var(--amber);">Leave for Deskworks, order there &rarr;</div>
+        <div style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#d8b25a;">1 &middot; Desk</div>
+        <div style="font-family:'Spectral',serif;font-size:22px;font-weight:600;margin:6px 0 8px;color:#f3e6c8;">Just you, or one hire at a time.</div>
+        <div style="font-size:14px;color:#c9b696;line-height:1.5;">A real Dayton, Ohio address and one AI specialist per desk. $89/mo per desk. Start with one, add more as you grow.</div>
+        <div style="margin-top:12px;font-size:13px;font-weight:600;color:#d8b25a;">Leave for Deskworks, order there &rarr;</div>
       </a>
-      <a href="#askbox" style="flex:1;min-width:260px;display:block;text-decoration:none;color:#f4f3ee;border:2px solid var(--black);border-radius:12px;padding:18px 20px;background:var(--black-d);">
+      <a href="#askbox" style="flex:1;min-width:260px;display:block;text-decoration:none;color:#f4f3ee;border:2px solid var(--blue2);border-radius:12px;padding:18px 20px;background:var(--black-d);">
         <div style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#7fa8c9;">2 &middot; Studio</div>
         <div style="font-family:'Spectral',serif;font-size:22px;font-weight:600;margin:6px 0 8px;color:#fff;">The whole company, staffed at once.</div>
         <div style="font-size:14px;color:#a8b4c0;line-height:1.5;">Your PA, the Essential Six-Pack, and any two specialists. $250/mo flat. Nine AI staff, one founder.</div>
@@ -176,9 +177,9 @@ h1 em,h2 em{font-weight:300;color:#28527a}
 
   <div id="agency-channel" style="margin-top:20px;">
     <div id="carol-bake-wrap" style="display:none;margin:0 0 14px;">
-      <button id="carol-bake-btn" type="button" style="text-align:left;background:#fff8ee;border:1px solid #d8b25a;border-radius:999px;padding:8px 14px;font-family:'Public Sans',sans-serif;font-size:12.5px;color:#5a4a1a;cursor:pointer;">&#129472; Fresh from Carol's oven: <b id="carol-bake-name"></b> &middot; <span style="text-decoration:underline;">Get the recipe</span></button>
-      <div id="carol-bake-recipe" style="display:none;white-space:pre-wrap;background:#fffdf7;border:1px solid #e8d9b0;border-radius:10px;padding:14px 16px;margin-top:8px;font-family:'Public Sans',sans-serif;font-size:13px;line-height:1.6;color:#3a3226;max-width:640px;"></div>
-      <button id="carol-bake-copy" type="button" style="display:none;margin-top:8px;background:#fff8ee;border:1px solid #d8b25a;border-radius:999px;padding:6px 14px;font-family:'Public Sans',sans-serif;font-size:11.5px;color:#5a4a1a;cursor:pointer;">Copy recipe</button>
+      <button id="carol-bake-btn" type="button" style="text-align:left;background:var(--amber-l);border:1px solid #d8b25a;border-radius:999px;padding:8px 14px;font-family:'Public Sans',sans-serif;font-size:12.5px;color:rgba(244,243,238,.85);cursor:pointer;">&#129472; Fresh from Carol's oven: <b id="carol-bake-name"></b> &middot; <span style="text-decoration:underline;">Get the recipe</span></button>
+      <div id="carol-bake-recipe" style="display:none;white-space:pre-wrap;background:var(--card);border:1px solid rgba(216,178,90,.35);border-radius:10px;padding:14px 16px;margin-top:8px;font-family:'Public Sans',sans-serif;font-size:13px;line-height:1.6;color:rgba(244,243,238,.85);max-width:640px;"></div>
+      <button id="carol-bake-copy" type="button" style="display:none;margin-top:8px;background:var(--amber-l);border:1px solid #d8b25a;border-radius:999px;padding:6px 14px;font-family:'Public Sans',sans-serif;font-size:11.5px;color:rgba(244,243,238,.85);cursor:pointer;">Copy recipe</button>
     </div>
     <script>
     (function(){
@@ -282,10 +283,10 @@ const INVITES={
      <div>${inv.greeting} Grab a ${CURTREAT} while you read it over.</div></div>
    <div class="sec">${inv.title}</div>
    <div class="sub">${inv.intro}</div>
-   <div style="background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px 22px;">
+   <div style="background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 22px;">
      ${rows}
-     <div style="display:flex;justify-content:space-between;gap:14px;padding:12px 0 2px;font-size:16px;font-weight:700;"><span>Total</span><span style="color:var(--blue)">${inv.total}</span></div>
-     ${inv.trial?`<div style="margin-top:10px;font-size:13px;color:#4a5664;font-style:italic;">${inv.trial}</div>`:''}
+     <div style="display:flex;justify-content:space-between;gap:14px;padding:12px 0 2px;font-size:16px;font-weight:700;"><span>Total</span><span style="color:var(--blue2)">${inv.total}</span></div>
+     ${inv.trial?`<div style="margin-top:10px;font-size:13px;color:#c9a563;font-style:italic;">${inv.trial}</div>`:''}
      <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:18px;">
        <a class="cta" href="${inv.pay}" target="_blank" rel="noopener">Finish the paperwork &rarr;</a>
        <a href="hiring-pool.html" style="font-size:13px;color:var(--blue);text-decoration:none;font-weight:600">Take a look around the catalog first &rarr;</a>
@@ -329,7 +330,7 @@ function run(){
     });
     return bestScore>0?best:null;
   };
-  const card=(a,role,why,price)=>{const bp=/^\s*yes/i.test(a.mcp||'')?`<div class="why" style="margin-top:4px;color:#1f7a5c">🎒 <b>Backpack:</b> ${(''+a.mcp).replace(/^\s*yes:?\s*/i,'')}</div>`:'';
+  const card=(a,role,why,price)=>{const bp=/^\s*yes/i.test(a.mcp||'')?`<div class="why" style="margin-top:4px;color:var(--good)">🎒 <b>Backpack:</b> ${(''+a.mcp).replace(/^\s*yes:?\s*/i,'')}</div>`:'';
     return `<div class="member">${avatar(a,'','mi')}<div><div class="nm">${a.name}</div><div class="rl">${role||a.role||a.tier_label||''}</div><div class="why">${why}</div>${bp}${price!==undefined?`<div class="pr">${price}</div>`:''}</div></div>`;};
   const seatCounts={};team.forEach(t=>{const c=(t.a&&t.a.cat)||'addon';seatCounts[c]=(seatCounts[c]||0)+1;});
   window.__place={full,head,counts:seatCounts};window.__placeTier='full';
@@ -351,7 +352,7 @@ function run(){
    <div class="team">${team.map(t=>card(t.a,null,t.why+'.',bundled?'included':fmtPrice(t.a))).join('')}</div>
 
    <div class="sec" style="margin-top:24px">3 &middot; Your build</div>
-   <div style="border:2px solid var(--blue);border-radius:12px;padding:18px 20px;background:#fdf8ee;max-width:560px;margin-top:6px">
+   <div style="border:2px solid var(--blue);border-radius:12px;padding:18px 20px;background:var(--black);max-width:560px;margin-top:6px">
      <div class="big">${bundled?'$250':'$'+Math.round(full)}<span style="font-size:14px">/mo</span></div>
      <div class="lbl">${bundled?'<b>Full team</b> &mdash; flat $250/mo, pick any 2. PA, the six essential staff, and your 2 specialists, '+head+' people, salaries included.':'<b>Full team</b> &mdash; PA, the six essential staff, and your '+team.length+' specialist, '+head+' people, salaries included.'}</div>
    </div>
