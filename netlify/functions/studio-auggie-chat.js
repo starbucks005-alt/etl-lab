@@ -1792,6 +1792,20 @@ const rawHandler = async (event) => {
   const ownerName = paContactsData.ownerName;
 
   let systemPrompt = isJen ? JEN_PERSONA : AUGGIE_PERSONA;
+
+  // PA handoff framing: if the seated PA changed since the last turn, the
+  // incoming history still contains the previous PA speaking in their own
+  // first-person voice. Replaying that cold reads like the new PA is
+  // impersonating their predecessor, not being briefed by them. One stored
+  // marker (last persona per user) is enough to catch the swap and frame it.
+  try {
+    const handoffStore = getStore('pa_last_persona');
+    const lastPersonaId = await handoffStore.get(userId, { type: 'text' });
+    if (lastPersonaId && lastPersonaId !== personaId && history.length > 0) {
+      systemPrompt += "\n\nHANDOFF NOTE: the conversation history below was with the previous PA, not you. Read it as your predecessor's notes on this company, briefed to you, not as something you said yourself. Do not speak in their voice or claim their memories as your own first-hand experience.";
+    }
+    await handoffStore.set(userId, personaId);
+  } catch (_) {}
   // Spreadsheets in and out. The owner can attach an Excel/CSV file; its rows
   // arrive inline in their message as CSV between "--- begin file ---" markers.
   // When the owner asks you to BUILD, fill, or modify a spreadsheet (add a
