@@ -76,6 +76,8 @@
     --skin-font-mono: 'IBM Plex Mono', monospace;
     --skin-call-accent: #3fa9ff;
     --skin-link: #7fb8ff;
+    --skin-bg-image: url('/assets/skins/tech-bg.jpg');
+    --skin-bg-scrim: linear-gradient(rgba(16,20,27,0.92), rgba(16,20,27,0.92));
   }
   [data-theme="steampunk"] {
     --skin-bg: #1a1410;
@@ -91,6 +93,8 @@
     --skin-font-mono: 'IBM Plex Mono', monospace;
     --skin-call-accent: #c9a961;
     --skin-link: #d4b878;
+    --skin-bg-image: url('/assets/skins/steampunk-bg.jpg');
+    --skin-bg-scrim: linear-gradient(rgba(26,20,16,0.92), rgba(26,20,16,0.92));
   }
   [data-theme="ops"] {
     --skin-bg: #0a0a0a;
@@ -106,6 +110,44 @@
     --skin-font-mono: 'IBM Plex Mono', monospace;
     --skin-call-accent: #e8443c;
     --skin-link: #ff6b5b;
+    --skin-bg-image: url('/assets/skins/ops-bg.jpg');
+    --skin-bg-scrim: linear-gradient(rgba(10,10,10,0.92), rgba(10,10,10,0.92));
+  }
+  [data-theme="cybertokyo"] {
+    --skin-bg: #0d0a14;
+    --skin-bg-alt: #150f1f;
+    --skin-surface: #1a1327;
+    --skin-border: #3d2a52;
+    --skin-ink: #f0e6ff;
+    --skin-ink-muted: #a891c4;
+    --skin-accent: #ff2e88;
+    --skin-accent-2: #00e5ff;
+    --skin-glow: rgba(255,46,136,0.35);
+    --skin-font-display: 'Orbitron', 'Spectral', serif;
+    --skin-font-mono: 'IBM Plex Mono', monospace;
+    --skin-call-accent: #ff2e88;
+    --skin-link: #ff6fb0;
+    --skin-bg-image: url('/assets/skins/cybertokyo-bg.jpg');
+    --skin-bg-scrim: linear-gradient(rgba(13,10,20,0.92), rgba(13,10,20,0.92));
+  }
+  [data-theme="zen"] {
+    /* The one light skin -- same variable set, so no new rules needed
+       anywhere else in the file for it to work correctly. */
+    --skin-bg: #f2ede3;
+    --skin-bg-alt: #e8e0d0;
+    --skin-surface: #ffffff;
+    --skin-border: #d8cfc0;
+    --skin-ink: #2b2822;
+    --skin-ink-muted: #8a8375;
+    --skin-accent: #6b7a5e;
+    --skin-accent-2: #4a4640;
+    --skin-glow: rgba(107,122,94,0.25);
+    --skin-font-display: 'Public Sans', sans-serif;
+    --skin-font-mono: 'IBM Plex Mono', monospace;
+    --skin-call-accent: #6b7a5e;
+    --skin-link: #55624a;
+    --skin-bg-image: url('/assets/skins/zen-bg.jpg');
+    --skin-bg-scrim: linear-gradient(rgba(242,237,227,0.92), rgba(242,237,227,0.92));
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -209,7 +251,21 @@
      element) actually paints behind the content — body's background is a
      PARENT and can't see this element's data-theme override, since CSS vars
      only inherit downward. */
-  .workspace.is-visible { display: flex; flex-direction: column; background: var(--skin-bg); }
+  /* var(--skin-bg-scrim) is a gradient of the SAME solid color as --skin-bg,
+     painted between the flat color and the image -- so a skin with no image
+     (bg-image:none) just gets a flat --skin-bg like before, and a skin WITH
+     an image gets it as a faint texture behind the same dark tone, not a
+     loud photo. Text-contrast verification already done against the flat
+     color holds either way, since the scrim keeps the effective backdrop
+     tone the same. */
+  .workspace.is-visible {
+    display: flex; flex-direction: column;
+    background-color: var(--skin-bg);
+    background-image: var(--skin-bg-scrim), var(--skin-bg-image);
+    background-size: cover;
+    background-position: center top;
+    background-repeat: no-repeat;
+  }
   .workspace .ws-hero { order: 0; }
   .workspace #auggie-section { order: 1; }
   .workspace > section.ws-section:not(#auggie-section) { order: 2; }
@@ -5365,10 +5421,12 @@ h1 em,h2 em{font-weight:300;color:var(--skin-accent)}
   // <head>). Applies live on pick, no reload needed since it's pure CSS,
   // then persists in the background the same way seatPA()/setPALabel() do.
   var THEME_OPTIONS = [
-    { id: 'classic',    label: 'Classic' },
-    { id: 'tech',       label: 'Tech' },
-    { id: 'steampunk',  label: 'Steampunk' },
-    { id: 'ops',        label: 'Dark Ops' }
+    { id: 'classic',     label: 'Classic' },
+    { id: 'tech',        label: 'Tech' },
+    { id: 'steampunk',   label: 'Steampunk' },
+    { id: 'ops',         label: 'Dark Ops' },
+    { id: 'cybertokyo',  label: 'Cyber Tokyo' },
+    { id: 'zen',         label: 'Minimal Zen' }
   ];
 
   function setTheme(themeId){
