@@ -23,6 +23,7 @@ const ALLOWED_FIELDS = new Set([
   'cv_provided', 'cv_summary',
   'owner_site', 'website',
   'pa_contacts',
+  'theme',
 ]);
 
 async function validateRequest(event) {
