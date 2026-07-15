@@ -18,7 +18,7 @@
 <meta name="apple-mobile-web-app-title" content="Studio">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Orbitron:wght@500;700&family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
 <!-- SheetJS: lets the PA chat IMPORT Excel files (parsed to CSV client-side so
      the team reads the rows) and EXPORT a reply's table/CSV back to a real
      .xlsx the owner can download. Loaded from CDN; used only on file attach
@@ -76,6 +76,21 @@
     --skin-font-mono: 'IBM Plex Mono', monospace;
     --skin-call-accent: #3fa9ff;
     --skin-link: #7fb8ff;
+  }
+  [data-theme="steampunk"] {
+    --skin-bg: #1a1410;
+    --skin-bg-alt: #241c15;
+    --skin-surface: #2b2118;
+    --skin-border: #4a3a24;
+    --skin-ink: #e8d9b5;
+    --skin-ink-muted: #a8916a;
+    --skin-accent: #c9a961;
+    --skin-accent-2: #8b6914;
+    --skin-glow: rgba(201,169,97,0.35);
+    --skin-font-display: 'Cinzel', 'Spectral', serif;
+    --skin-font-mono: 'IBM Plex Mono', monospace;
+    --skin-call-accent: #c9a961;
+    --skin-link: #d4b878;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -5335,8 +5350,9 @@ h1 em,h2 em{font-weight:300;color:var(--skin-accent)}
   // <head>). Applies live on pick, no reload needed since it's pure CSS,
   // then persists in the background the same way seatPA()/setPALabel() do.
   var THEME_OPTIONS = [
-    { id: 'classic', label: 'Classic' },
-    { id: 'tech',    label: 'Tech' }
+    { id: 'classic',    label: 'Classic' },
+    { id: 'tech',       label: 'Tech' },
+    { id: 'steampunk',  label: 'Steampunk' }
   ];
 
   function setTheme(themeId){
