@@ -18,7 +18,7 @@
 <meta name="apple-mobile-web-app-title" content="Studio">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Orbitron:wght@500;700&family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Orbitron:wght@500;700&family=Cinzel:wght@500;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
 <!-- SheetJS: lets the PA chat IMPORT Excel files (parsed to CSV client-side so
      the team reads the rows) and EXPORT a reply's table/CSV back to a real
      .xlsx the owner can download. Loaded from CDN; used only on file attach
@@ -91,6 +91,21 @@
     --skin-font-mono: 'IBM Plex Mono', monospace;
     --skin-call-accent: #c9a961;
     --skin-link: #d4b878;
+  }
+  [data-theme="ops"] {
+    --skin-bg: #0a0a0a;
+    --skin-bg-alt: #121212;
+    --skin-surface: #161616;
+    --skin-border: #3a3a3a;
+    --skin-ink: #d4d4d4;
+    --skin-ink-muted: #7a7a7a;
+    --skin-accent: #e8443c;
+    --skin-accent-2: #c9a227;
+    --skin-glow: rgba(232,68,60,0.35);
+    --skin-font-display: 'Oswald', 'Spectral', serif;
+    --skin-font-mono: 'IBM Plex Mono', monospace;
+    --skin-call-accent: #e8443c;
+    --skin-link: #ff6b5b;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -5352,7 +5367,8 @@ h1 em,h2 em{font-weight:300;color:var(--skin-accent)}
   var THEME_OPTIONS = [
     { id: 'classic',    label: 'Classic' },
     { id: 'tech',       label: 'Tech' },
-    { id: 'steampunk',  label: 'Steampunk' }
+    { id: 'steampunk',  label: 'Steampunk' },
+    { id: 'ops',        label: 'Dark Ops' }
   ];
 
   function setTheme(themeId){
