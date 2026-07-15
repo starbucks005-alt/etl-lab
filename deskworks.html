@@ -17,17 +17,17 @@
 :root {
   --blue:    #28527a;
   --blue-d:  #1a3a57;
-  --blue-l:  #e8f0f7;
-  --warm:    #f7f4ef;
-  --sand:    #e5ddd0;
-  --sand-d:  #c8bfb0;
-  --ink:     #1a1714;
-  --charcoal:#2e2a26;
-  --mid:     #5c5650;
-  --light:   #9a9088;
-  --cream:   #faf7f2;
+  --blue-l:  rgba(127,168,201,.16);
+  --warm:    #10161d;
+  --sand:    rgba(244,243,238,.14);
+  --sand-d:  rgba(244,243,238,.22);
+  --ink:     #f4f3ee;
+  --charcoal:#16202b;
+  --mid:     rgba(244,243,238,.62);
+  --light:   rgba(244,243,238,.4);
+  --cream:   #16202b;
   --amber:   #b5813a;
-  --amber-l: #f5e8d0;
+  --amber-l: rgba(181,129,58,.16);
 }
 
 html { scroll-behavior: smooth; }
@@ -522,7 +522,7 @@ body {
   align-items: start;
 }
 .form-card {
-  background: #fff;
+  background: var(--charcoal);
   border: 1px solid var(--sand);
   border-radius: 8px;
   padding: 40px 36px;
@@ -531,7 +531,7 @@ body {
   font-family: 'Spectral', serif;
   font-size: 1.5rem;
   font-weight: 600;
-  color: var(--blue-d);
+  color: #7fa8c9;
   margin-bottom: 6px;
 }
 .form-card .form-sub {
@@ -561,14 +561,14 @@ body {
   transition: border-color 0.15s;
   color: var(--ink);
 }
-.form-row input:focus { border-color: var(--blue); background: #fff; }
+.form-row input:focus { border-color: var(--blue); background: var(--charcoal); }
 .form-err {
-  background: #fff0f0;
-  border: 1px solid #f5c0c0;
+  background: rgba(192,57,43,.14);
+  border: 1px solid rgba(192,57,43,.4);
   border-radius: 3px;
   padding: 10px 13px;
   font-size: 0.85rem;
-  color: #c0392b;
+  color: #e0897c;
   margin-top: 12px;
   display: none;
 }
@@ -781,9 +781,9 @@ footer a { color: rgba(255,255,255,0.4); }
       <div class="carol-name">Carol Haynes &middot; Front Desk</div>
       <blockquote>"The desk is yours the moment the paperwork clears. I'll have the coffee on."</blockquote>
       <div id="carol-bake-wrap" style="display:none;margin-top:12px;">
-        <button id="carol-bake-btn" type="button" style="width:100%;text-align:left;background:#fff8ee;border:1px solid #d8b25a;border-radius:999px;padding:8px 14px;font-family:'Public Sans',sans-serif;font-size:12.5px;color:#5a4a1a;cursor:pointer;">&#129472; Fresh from Carol's oven: <b id="carol-bake-name"></b> &middot; <span style="text-decoration:underline;">Get the recipe</span></button>
-        <div id="carol-bake-recipe" style="display:none;white-space:pre-wrap;background:#fffdf7;border:1px solid #e8d9b0;border-radius:10px;padding:14px 16px;margin-top:8px;font-family:'Public Sans',sans-serif;font-size:13px;line-height:1.6;color:#3a3226;"></div>
-        <button id="carol-bake-copy" type="button" style="display:none;margin-top:8px;background:#fff8ee;border:1px solid #d8b25a;border-radius:999px;padding:6px 14px;font-family:'Public Sans',sans-serif;font-size:11.5px;color:#5a4a1a;cursor:pointer;">Copy recipe</button>
+        <button id="carol-bake-btn" type="button" style="width:100%;text-align:left;background:rgba(181,129,58,.16);border:1px solid #d8b25a;border-radius:999px;padding:8px 14px;font-family:'Public Sans',sans-serif;font-size:12.5px;color:rgba(255,255,255,.85);cursor:pointer;">&#129472; Fresh from Carol's oven: <b id="carol-bake-name"></b> &middot; <span style="text-decoration:underline;">Get the recipe</span></button>
+        <div id="carol-bake-recipe" style="display:none;white-space:pre-wrap;background:rgba(0,0,0,.25);border:1px solid rgba(216,178,90,.35);border-radius:10px;padding:14px 16px;margin-top:8px;font-family:'Public Sans',sans-serif;font-size:13px;line-height:1.6;color:rgba(255,255,255,.85);"></div>
+        <button id="carol-bake-copy" type="button" style="display:none;margin-top:8px;background:rgba(181,129,58,.16);border:1px solid #d8b25a;border-radius:999px;padding:6px 14px;font-family:'Public Sans',sans-serif;font-size:11.5px;color:rgba(255,255,255,.85);cursor:pointer;">Copy recipe</button>
       </div>
       <script>
       (function(){

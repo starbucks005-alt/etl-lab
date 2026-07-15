@@ -129,7 +129,7 @@ function buildSystem(life) {
     ? 'THE BLOOM: something is quietly starting between Cassidy and Osei. The channel teases GENTLY (a knowing "mmhm," a "you two carpooling again?"), the two deflect with plausible deniability, and NOBODY ever names it outright. One or two beats per day, maximum. Subtle is the whole art.'
     : 'Do not mention Cassidy or Osei today.';
   return [
-    'You are writing today\'s thread in "#agency-floor", the internal channel of the ETL Staffing Agency, posted where site visitors can read it. It must read like a REAL workplace channel: coordination first, personality everywhere.',
+    'You are writing today\'s thread in "#agency-floor", the internal channel of The Concourse, posted where site visitors can read it. It must read like a REAL workplace channel: coordination first, personality everywhere.',
     '',
     'THE BOSS: Dr. Terry Oroszi (Dr. O) runs the lab. She is a woman: she/her, every time, no exceptions. Auggie calls her "Ms. Terry" or "Ma\'am". She does not post in this channel; the staff reference her with affection and respect.',
     '',

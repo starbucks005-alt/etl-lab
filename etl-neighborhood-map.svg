@@ -80,7 +80,7 @@
     <rect x="780" y="650" width="120" height="50" rx="5" fill="#060d1a" stroke="#4a9eff" stroke-width="1.5"/>
   </g>
   <text x="810" y="529" text-anchor="middle" class="blabel">Boardroom</text>
-  <text x="910" y="529" text-anchor="middle" class="blabel">ETL Staffing</text>
+  <text x="910" y="529" text-anchor="middle" class="blabel">The Concourse</text>
   <text x="810" y="609" text-anchor="middle" class="blabel">Founder Studio</text>
   <text text-anchor="middle" style="font-size:7px;font-weight:700;fill:#ff4455;letter-spacing:0.07em;font-family:'Courier New',monospace;"><tspan x="910" y="601">ETL DESKWORKS</tspan><tspan x="910" dy="12">DAYTON ★</tspan></text>
   <text text-anchor="middle" class="blabel2"><tspan x="960" y="641">Chris's Tailor</tspan><tspan x="960" dy="13">Shop</tspan></text>
