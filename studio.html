@@ -5188,7 +5188,7 @@ h1 em,h2 em{font-weight:300;color:#28527a}
         body: JSON.stringify({ pa: {
           persona_id: seat.persona_id,
           display_name: seat.display_name,
-          label: 'Personal Assistant',
+          label: window.__paLabel || 'Personal Assistant',
           backpack: true,
           voice_enabled: true
         }})
@@ -5218,11 +5218,68 @@ h1 em,h2 em{font-weight:300;color:#28527a}
     }
   }
 
+  // Title toggle, same seat, same person, just what you call the job.
+  // Mirrors seatPA's shape exactly (sign-in check, save, verify, reload) so
+  // failures surface the same way instead of failing silently.
+  async function setPALabel(label){
+    if (window.__previewMode) { toast('Read-only preview'); return; }
+    toast('Updating title...');
+    var stage = 'sign-in check';
+    try {
+      var session = null;
+      try {
+        var s = await window.studioSb.auth.getSession();
+        session = s && s.data && s.data.session;
+      } catch(e){
+        alert('Title update failed at sign-in check: ' + (e && e.message ? e.message : e));
+        return;
+      }
+      if (!session || !session.access_token) {
+        alert('Title update: this page does not have a signed-in session. Sign in to the Studio, then try again.');
+        return;
+      }
+      stage = 'save';
+      var r = await fetch('/.netlify/functions/studio-config-set', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
+        body: JSON.stringify({ pa: {
+          persona_id: window.__paPersonaId || 'auggie_vidal',
+          display_name: window.__paDisplayName || 'Auggie',
+          label: label,
+          backpack: true,
+          voice_enabled: true
+        }})
+      });
+      var data = null;
+      try { data = await r.json(); } catch(_){}
+      if (!r.ok || !data || !data.ok) {
+        alert('Title update failed at save: HTTP ' + r.status + ' ' + (data ? JSON.stringify(data) : '(no response body)'));
+        return;
+      }
+      var savedLabel = data.config && data.config.pa && data.config.pa.label;
+      if (savedLabel !== label) {
+        alert('Title update: the server saved "' + savedLabel + '" instead of "' + label + '". Screenshot this for CC.');
+        return;
+      }
+      toast('Title set to ' + label + '. Reloading...');
+      setTimeout(function(){ window.location.reload(); }, 1200);
+    } catch (e) {
+      alert('Title update failed at ' + stage + ': ' + (e && e.message ? e.message : e));
+    }
+  }
+
   function openSwap(name, cfg){
     if (cfg.pool === 'pa') {
       var current = (window.__paPersonaId || 'auggie_vidal');
-      var bodyHtml = 'The PA is the helm of your Company. You always have one; you just pick which voice. The change is real and immediate: chat, Zoom call, and voice all become your new PA.';
+      var currentLabel = window.__paLabel || 'Personal Assistant';
+      var otherLabel = currentLabel === 'Chief of Staff' ? 'Personal Assistant' : 'Chief of Staff';
+      var bodyHtml = 'The PA is the helm of your Company. You always have one; you just pick which voice. The change is real and immediate: chat, Zoom call, and voice all become your new PA. You also decide their title, it comes with the job.';
       var buttons = [{ label: 'Cancel' }];
+      buttons.push({
+        label: 'Call them ' + otherLabel,
+        cls: 'fire-dialog-btn-primary',
+        action: function(){ setPALabel(otherLabel); }
+      });
       WIRED_PA_SEATS.forEach(function(seat){
         if (seat.persona_id === current) return; // already seated
         buttons.push({
@@ -5454,6 +5511,7 @@ h1 em,h2 em{font-weight:300;color:#28527a}
     // (Auggie for Dr. O, Jen Lopez for Sethi Studio, any of the 12).
     window.__paPersonaId = (cfg.pa && cfg.pa.persona_id) || 'auggie_vidal';
     window.__paDisplayName = paName;
+    window.__paLabel = paLabel;
     window.__ownerName        = cfg.owner_name        || '';
     window.__companyName      = cfg.company_name      || '';
     window.__ownerContext     = cfg.owner_context     || '';
