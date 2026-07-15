@@ -1670,7 +1670,7 @@
         <div id="pa-name-display" style="font-family:'Spectral',serif; font-size:18px; font-weight:700; color:var(--skin-ink); margin-top:14px;">August "Auggie" Vidal</div>
         <div id="pa-role-display" style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.12em; color:var(--skin-accent); margin-top:4px;">Personal Assistant (PA)</div>
         <p id="pa-bio-display" style="font-family:'Spectral',serif; font-size:14px; color:var(--skin-ink-muted); font-style:italic; line-height:1.55; margin-top:10px;">
-          Late twenties, Cuban-American, Coral Gables family with Palm Springs summers. Three years as Devon's personal assistant on the Gauntlet bench before Dr. Oroszi hired him into the Studio. He holds your week and the editorial calendar. He watches the overlap.
+          Late twenties, Cuban-American, Coral Gables family with Palm Springs summers. Loud laugh, honest opinion, will absolutely tell you the dress is wrong. He holds your week, makes the calendar work glamorous instead of a chore, and gossips with you about everyone else.
         </p>
 
         <!-- CV / résumé upload. The PA reads it once; studio-cv-ingest saves a
@@ -6873,6 +6873,14 @@ h1 em,h2 em{font-weight:300;color:var(--skin-accent)}
           el.textContent = paLabel;
         }
       });
+    }
+    // The small tag under the PA's own name/portrait -- this is the actual
+    // spelled-out label the comment above refers to, but the update was
+    // never wired to it (bug: setPALabel() saved fine, this element just
+    // never repainted). Fixed here.
+    var paRoleDisplayEl = document.getElementById('pa-role-display');
+    if (paRoleDisplayEl) {
+      paRoleDisplayEl.textContent = (paLabel === 'Personal Assistant') ? 'Personal Assistant (PA)' : paLabel;
     }
 
     // Sponsorship / in-kind banner
