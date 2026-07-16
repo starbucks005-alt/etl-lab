@@ -816,12 +816,19 @@
   };
 
   window.acceptSixPack = function(){
-    document.querySelectorAll('.staff-line').forEach(function(el){ el.classList.add('accepted'); });
-    var btn = document.getElementById('accept-sixpack-btn');
-    if (btn) { btn.textContent = 'Six-Pack accepted ✓'; btn.classList.add('is-accepted'); btn.disabled = true; }
-    state.sixPackAccepted = true;
-    persist();
-    render();
+    try {
+      var lines = document.querySelectorAll('.staff-line');
+      if (!lines.length) { alert('Accept Six-Pack: found 0 staff cards on the page. Screenshot this for CC.'); return; }
+      lines.forEach(function(el){ el.classList.add('accepted'); });
+      var btn = document.getElementById('accept-sixpack-btn');
+      if (!btn) { alert('Accept Six-Pack: the button itself is missing from the page. Screenshot this for CC.'); return; }
+      btn.textContent = 'Six-Pack accepted ✓'; btn.classList.add('is-accepted'); btn.disabled = true;
+      state.sixPackAccepted = true;
+      persist();
+      render();
+    } catch (e) {
+      alert('Accept Six-Pack failed: ' + (e && e.message ? e.message : e) + '. Screenshot this for CC.');
+    }
   };
 
   window.onCompanyNameChange = function(valueFromCaller){
