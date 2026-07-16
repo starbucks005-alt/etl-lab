@@ -331,6 +331,16 @@
   to = "/deskworks"
   status = 301
 
+[[redirects]]
+  from = "/etl-staffing"
+  to = "/the-concourse.html"
+  status = 301
+
+[[redirects]]
+  from = "/etl-staffing.html"
+  to = "/the-concourse.html"
+  status = 301
+
 [[headers]]
   for = "/app.html"
   [headers.values]

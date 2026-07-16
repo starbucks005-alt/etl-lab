@@ -62,8 +62,8 @@ exports.handler = async function (event) {
   const params = new URLSearchParams();
   params.set('mode', 'subscription');
   params.set('allow_promotion_codes', 'true');
-  params.set('success_url', origin + '/etl-staffing.html?paid=1');
-  params.set('cancel_url', origin + '/etl-staffing.html?canceled=1');
+  params.set('success_url', origin + '/the-concourse.html?paid=1');
+  params.set('cancel_url', origin + '/the-concourse.html?canceled=1');
   params.set('allow_promotion_codes', 'true');
   params.set('custom_text[submit][message]',
     'You are not checking out. You are finishing the paperwork on your staff. The moment it clears, your Studio is set up and your PA walks you in.');

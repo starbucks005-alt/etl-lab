@@ -26,7 +26,7 @@ function json(status, obj) {
 
 /* ── Canonical agent -> portrait map ──────────────────────────────────────────
    SINGLE SOURCE OF TRUTH for chat avatars. Every surface that shows this feed
-   (broadcast.html, studio.html The Floor, etl-staffing.html) renders the
+   (broadcast.html, studio.html The Floor, the-concourse.html) renders the
    `image` field this function attaches, with its own initials fallback. Add an
    agent or fix a portrait HERE and every surface updates. Filenames resolve to
    /agents/<file> on the site / CDN. Lifted from broadcast.html's proven map.
