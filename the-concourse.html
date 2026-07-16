@@ -191,13 +191,20 @@ h1 em,h2 em{font-weight:300;color:var(--blue2)}
       if (window.Vimeo) {
         var player = new Vimeo.Player(frame);
         var started = false;
+        // 'play' fires the moment playback genuinely begins -- earlier and
+        // more reliable than waiting for a 'timeupdate' tick.
+        player.on('play', function(){ started = true; });
         player.on('timeupdate', function(){ started = true; });
         player.on('ended', function(){ concourseTransitGo(myGen); });
-        // If it hasn't actually started playing within 4s of load, autoplay
-        // was blocked -- don't make anyone wait out the full 20s for that.
+        // First real load has to fetch the player chrome AND buffer enough
+        // of the video to start -- that's routinely several seconds on a
+        // real connection (confirmed: the loading spinner was showing, not
+        // a frozen frame, meaning it was still buffering when the old 4s
+        // check cut it off). 10s gives it real room without still being the
+        // old 20s stall if autoplay is genuinely blocked.
         concourseTransitStartCheck = setTimeout(function(){
           if (!started) concourseTransitGo(myGen);
-        }, 4000);
+        }, 10000);
       }
       return false;
     }
