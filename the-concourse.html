@@ -148,40 +148,42 @@ h1 em,h2 em{font-weight:300;color:var(--blue2)}
        escalator and the subway to get there" illusion is felt instead of
        just an instant page jump.
 
-       Two earlier approaches both failed for the same underlying reason --
-       cold-starting the video AT the moment of the click, whether via a
-       postMessage .play() call or via a freshly-assigned autoplay=1 src,
-       gives the browser zero time to buffer before it needs to be playing.
-       The first attempt never started at all; the second worked exactly
-       once and then went back to "spinner, then straight to the site" --
-       real evidence it was a buffering-time race, not a hard autoplay
-       block, since it depends on how much the connection had already
-       buffered by the time the safety-net timeout fired.
+       Three earlier approaches, in order, and why each failed:
+       1. postMessage .play() at click time -- never started, frozen on
+          frame 1 until the safety-net timeout moved on. Cross-origin
+          programmatic play() is just not reliable here.
+       2. Fresh autoplay=1 src at click time (no .play() call) -- this is
+          the one that actually worked, proving native browser autoplay
+          IS the reliable mechanism -- but cold-starting it AT the click
+          meant it was a coin flip against real buffering time: worked
+          once, then back to spinner-then-navigate.
+       3. "Preload" that still finished with a .play() call at click time --
+          reintroduced approach 1's exact failure (frozen frame again),
+          because the actual start-of-playback trigger was still the
+          unreliable postMessage call, preload or not.
 
-       Fix: PRELOAD the video the moment this page loads, muted and paused,
-       invisible behind the still-hidden overlay -- so it has the entire
-       time a visitor spends looking at the hallway (which is usually many
-       seconds) to buffer, instead of starting from zero at click time. By
-       the time someone actually clicks a door, playback should already be
-       ready to start instantly via a real .play() call on the
-       already-loaded player, backed by a genuine trusted click. -->
+       Fix: commit fully to what's actually proven -- native autoplay --
+       and remove .play() from the equation entirely. The clip autoplays
+       muted AND LOOPS from the moment the page loads, invisible behind
+       the still-hidden overlay, so by the time anyone clicks a door it
+       is already genuinely playing, buffered, mid-loop. A click just
+       reveals the overlay and SEEKS back to 0 (a seek on an
+       already-playing video, not a cold start -- a much lighter, more
+       reliable operation than starting playback from scratch) and
+       navigates after one real playthrough's duration, read directly
+       off the player rather than guessed. -->
   <div id="concourse-transit" style="display:none;position:fixed;inset:0;z-index:9999;background:#000;opacity:0;transition:opacity .4s ease;">
-    <iframe id="concourse-transit-frame" src="https://player.vimeo.com/video/1210631750?badge=0&autopause=0&player_id=0&app_id=58479&controls=0&muted=1" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="Riding to your destination"></iframe>
+    <iframe id="concourse-transit-frame" src="https://player.vimeo.com/video/1210631750?badge=0&autopause=0&player_id=0&app_id=58479&controls=0&muted=1&autoplay=1&loop=1" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="Riding to your destination"></iframe>
     <button type="button" onclick="concourseTransitSkip()" style="position:absolute;bottom:24px;right:24px;z-index:2;background:rgba(0,0,0,.55);color:#fff;border:1px solid rgba(255,255,255,.4);padding:9px 18px;font-family:'Public Sans',sans-serif;font-size:12px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;border-radius:6px;">Skip &rarr;</button>
   </div>
   <script src="https://player.vimeo.com/api/player.js"></script>
   <script>
-    var concourseTransitDest = null, concourseTransitFallback = null, concourseTransitStartCheck = null, concourseTransitGen = 0;
-    var concourseTransitPlayer = null, concourseTransitPreloaded = false;
-    // Kick off buffering the instant the SDK is available -- do NOT wait for
-    // a click. The overlay stays display:none/opacity:0 the whole time, so
-    // this is invisible; it's purely giving the video a head start.
-    (function preload(){
-      if (!window.Vimeo) { setTimeout(preload, 200); return; }
-      var frame = document.getElementById('concourse-transit-frame');
-      concourseTransitPlayer = new Vimeo.Player(frame);
-      concourseTransitPlayer.setCurrentTime(0).catch(function(){});
-      concourseTransitPlayer.ready().then(function(){ concourseTransitPreloaded = true; }).catch(function(){});
+    var concourseTransitDest = null, concourseTransitFallback = null, concourseTransitNavTimer = null, concourseTransitGen = 0;
+    var concourseTransitPlayer = null, concourseTransitDuration = null;
+    (function initPlayer(){
+      if (!window.Vimeo) { setTimeout(initPlayer, 200); return; }
+      concourseTransitPlayer = new Vimeo.Player(document.getElementById('concourse-transit-frame'));
+      concourseTransitPlayer.getDuration().then(function(d){ concourseTransitDuration = d; }).catch(function(){});
     })();
     function concourseTransit(e, destUrl){
       if (e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1) return true; // let power-users open in a new tab, no video
@@ -192,38 +194,26 @@ h1 em,h2 em{font-weight:300;color:var(--blue2)}
       overlay.style.display = 'block';
       requestAnimationFrame(function(){ overlay.style.opacity = '1'; });
       if (concourseTransitFallback) clearTimeout(concourseTransitFallback);
-      if (concourseTransitStartCheck) clearTimeout(concourseTransitStartCheck);
-      // Safety net: if playback never actually starts or 'ended' never
-      // fires, still land the visitor on their destination rather than
-      // stranding them on a frozen frame.
+      if (concourseTransitNavTimer) clearTimeout(concourseTransitNavTimer);
+      // Safety net regardless of everything below -- always land the
+      // visitor on their destination even if something above goes wrong.
       concourseTransitFallback = setTimeout(function(){ concourseTransitGo(myGen); }, 20000);
-      if (!window.Vimeo || !concourseTransitPlayer) { concourseTransitStartCheck = setTimeout(function(){ concourseTransitGo(myGen); }, 6000); return false; }
-      var started = false;
-      concourseTransitPlayer.off('play'); concourseTransitPlayer.off('timeupdate'); concourseTransitPlayer.off('ended');
-      concourseTransitPlayer.on('play', function(){ started = true; });
-      concourseTransitPlayer.on('timeupdate', function(){ started = true; });
-      concourseTransitPlayer.on('ended', function(){ concourseTransitGo(myGen); });
-      // This is a genuine, trusted click -- a real .play() call on an
-      // already-preloaded (or at least already-loading) player should be
-      // fast and reliable. Still fall through to the src-reassignment path
-      // as a backup if the preloaded player somehow rejects.
-      concourseTransitPlayer.setCurrentTime(0)
-        .then(function(){ return concourseTransitPlayer.play(); })
-        .catch(function(){
-          var frame = document.getElementById('concourse-transit-frame');
-          frame.src = 'https://player.vimeo.com/video/1210631750?badge=0&autopause=0&player_id=0&app_id=58479&controls=0&muted=1&autoplay=1&_r=' + new Date().getTime();
-        });
-      // Give it real room to have started even if it was NOT fully
-      // preloaded yet (e.g. an extremely fast click right after page load).
-      concourseTransitStartCheck = setTimeout(function(){
-        if (!started) concourseTransitGo(myGen);
-      }, concourseTransitPreloaded ? 6000 : 12000);
+      if (concourseTransitPlayer) {
+        // Seek only -- the video is already playing in the background, so
+        // this is a lightweight reposition, not starting playback cold.
+        concourseTransitPlayer.setCurrentTime(0).catch(function(){});
+      }
+      // Navigate after one real playthrough. Prefer the duration actually
+      // read off the player; fall back to a reasonable guess if that
+      // never resolved (e.g. the SDK failed to load at all).
+      var waitMs = (concourseTransitDuration ? concourseTransitDuration * 1000 : 8000) + 300;
+      concourseTransitNavTimer = setTimeout(function(){ concourseTransitGo(myGen); }, waitMs);
       return false;
     }
     function concourseTransitGo(gen){
       if (gen !== undefined && gen !== concourseTransitGen) return; // superseded by a newer click
       if (concourseTransitFallback) { clearTimeout(concourseTransitFallback); concourseTransitFallback = null; }
-      if (concourseTransitStartCheck) { clearTimeout(concourseTransitStartCheck); concourseTransitStartCheck = null; }
+      if (concourseTransitNavTimer) { clearTimeout(concourseTransitNavTimer); concourseTransitNavTimer = null; }
       if (concourseTransitDest) window.location.href = concourseTransitDest;
     }
     function concourseTransitSkip(){ concourseTransitGo(); }
