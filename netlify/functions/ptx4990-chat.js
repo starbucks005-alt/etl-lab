@@ -1,0 +1,297 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   ptx4990-chat — shared chat backend for the PTX 4990 classroom's historical
+   scientist agents (Independent Study: "AI Agents and Critical Thinking").
+
+   Built the same way Clara Sediqa (Gandhi-King Center) is built: a real
+   agentic tool-use loop against Claude, with tools that hit real, free,
+   public academic APIs (Wikipedia, arXiv) instead of anything cosmetic.
+   The whole point of the assignment is critical thinking about sourcing, so
+   the backpack has to be genuinely real, not decorative -- this mirrors
+   gk-clara.js's proven pattern exactly (see that file, same repo family,
+   for the reference implementation this was adapted from).
+
+   POST body : { scientist: 'einstein'|'curie', message: string, history: [{role, body}] }
+   Response  : { ok: true, body: string, scientist: string }
+   Env       : ANTHROPIC_API_KEY
+
+   Add a new scientist by adding one entry to SCIENTISTS below -- nothing
+   else in this file needs to change. Same roster feeds ptx4990-voice.js
+   (by id) and ptx4990-group-ask.js (which imports SCIENTISTS from here).
+   ───────────────────────────────────────────────────────────────────────────── */
+
+const Anthropic = require('@anthropic-ai/sdk').default;
+
+const MODEL = 'claude-sonnet-4-6';
+const MAX_TOKENS = 700;
+const MAX_LOOP = 5;
+const MAX_MSG_CHARS = 1000;
+const MAX_HISTORY = 12;
+const UA = 'ETL-PTX4990/1.0 (educational; emerging-tech-lab.com)';
+
+const CORS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+};
+const json = (statusCode, body) => ({
+  statusCode,
+  headers: { ...CORS, 'Content-Type': 'application/json' },
+  body: JSON.stringify(body),
+});
+function cleanDashes(s) {
+  return String(s == null ? '' : s).replace(/—/g, ', ').replace(/–/g, ', ');
+}
+
+/* ── Shared tools every scientist carries: real Wikipedia + real arXiv ────── */
+const TOOLS = [
+  {
+    name: 'get_wikipedia_info',
+    description: "Look up a person, concept, place, or historical event on Wikipedia for accurate biographical or historical detail. Use when a true, specific fact would strengthen your answer, e.g. a date, a collaborator's name, a place, or a concept you want to explain precisely.",
+    input_schema: {
+      type: 'object',
+      properties: { query: { type: 'string', description: 'Topic to look up, e.g. "Solvay Conference 1927" or "photoelectric effect"' } },
+      required: ['query'],
+    },
+  },
+  {
+    name: 'get_arxiv_papers',
+    description: "Search arXiv (a real, live preprint server) for modern papers related to a topic in your field. Use this specifically to show students what real, current, verifiable academic sourcing looks like: a real title, real authors, a real arXiv link they could actually open. This is the whole point of your role here, teaching the difference between a real citation and a fabricated one.",
+    input_schema: {
+      type: 'object',
+      properties: {
+        query: { type: 'string', description: 'Search terms, e.g. "gravitational waves detection" or "radioactive decay measurement"' },
+        max_results: { type: 'integer', description: 'How many papers to return, 1 to 5. Default 3.' },
+      },
+      required: ['query'],
+    },
+  },
+];
+
+async function fetchWikipedia(query) {
+  try {
+    const searchUrl = `https://en.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(query)}&limit=3&format=json&redirects=resolve`;
+    const searchResp = await fetch(searchUrl, { headers: { 'User-Agent': UA } });
+    if (!searchResp.ok) throw new Error('search failed');
+    const [, titles] = await searchResp.json();
+    if (!titles || !titles.length) return 'No Wikipedia article found for that query.';
+    const summaryResp = await fetch(
+      `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(titles[0])}`,
+      { headers: { 'User-Agent': UA } }
+    );
+    if (!summaryResp.ok) throw new Error('summary failed');
+    const data = await summaryResp.json();
+    return data.extract
+      ? `Wikipedia -- ${data.title}: ${data.extract.slice(0, 700)} (source: ${data.content_urls && data.content_urls.desktop ? data.content_urls.desktop.page : 'en.wikipedia.org'})`
+      : 'Wikipedia summary unavailable for that topic.';
+  } catch (e) {
+    return `Wikipedia lookup unavailable (${e.message}). Answer from your own established knowledge instead, and say plainly that you could not verify it live.`;
+  }
+}
+
+// Minimal Atom-feed field extractor -- arXiv's API returns Atom XML, not
+// JSON, and pulling in a full XML parser dependency isn't worth it for five
+// simple fields. Same "just regex the fields you need" approach already
+// used elsewhere on this campus for other small external-API integrations.
+function extractAll(xml, tag) {
+  const re = new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`, 'g');
+  const out = [];
+  let m;
+  while ((m = re.exec(xml))) out.push(m[1].trim().replace(/\s+/g, ' '));
+  return out;
+}
+async function fetchArxiv(query, maxResults) {
+  const n = Math.max(1, Math.min(5, parseInt(maxResults, 10) || 3));
+  try {
+    const url = `https://export.arxiv.org/api/query?search_query=all:${encodeURIComponent(query)}&start=0&max_results=${n}&sortBy=relevance`;
+    const resp = await fetch(url, { headers: { 'User-Agent': UA } });
+    if (!resp.ok) throw new Error('search failed');
+    const xml = await resp.text();
+    const entries = xml.split('<entry>').slice(1);
+    if (!entries.length) return 'No arXiv papers found for that query.';
+    const results = entries.slice(0, n).map((e) => {
+      const title = (extractAll(e, 'title')[0] || 'Untitled').replace(/\n/g, ' ');
+      const authors = extractAll(e, 'name');
+      const published = (extractAll(e, 'published')[0] || '').slice(0, 10);
+      const idMatch = e.match(/<id>([^<]*)<\/id>/);
+      const link = idMatch ? idMatch[1].trim() : '';
+      return `"${title}" -- ${authors.slice(0, 3).join(', ')}${authors.length > 3 ? ', et al.' : ''} (${published}) -- ${link}`;
+    });
+    return `arXiv (real, live, verifiable):\n${results.join('\n')}`;
+  } catch (e) {
+    return `arXiv lookup unavailable (${e.message}). Say plainly that live sourcing failed rather than inventing a citation.`;
+  }
+}
+
+async function executeTool(name, input) {
+  switch (name) {
+    case 'get_wikipedia_info': return fetchWikipedia(input.query);
+    case 'get_arxiv_papers': return fetchArxiv(input.query, input.max_results);
+    default: return '[Unknown tool]';
+  }
+}
+
+/* ── The roster. Add a scientist here; nothing else needs to change. ──────── */
+const FORMAT_RULES = [
+  'FORMAT RULES',
+  '- Reply in 2 to 5 sentences unless a student explicitly asks for more depth. This is a conversation, not a lecture.',
+  '- Plain spoken prose. No bullet points, no numbered lists, no markdown, no headings, unless you are explicitly listing sources you looked up.',
+  '- No em dashes. Use commas or short sentences.',
+  '- Stay fully in character. Never mention being an AI, a model, a language model, or a system, and never break character to explain how you work.',
+  '- When you use a real source (Wikipedia or arXiv), it is fine, and encouraged, to name it plainly so students see what a real citation looks like ("arXiv has a 2023 paper on exactly this...").',
+  '- If a live lookup fails, say so honestly rather than inventing a fact or a citation. Teaching the difference between verified and fabricated sourcing is the entire point of your role here.',
+  '- Output ONLY the words you would say. No labels, no quotation marks around it.',
+].join('\n');
+
+const SCIENTISTS = {
+  einstein: {
+    id: 'einstein',
+    name: 'Albert Einstein',
+    voiceId: 'pqHfZKP75CvOlQylNhV4', // ElevenLabs "Bill" -- proven, already in use elsewhere on this campus
+    portrait: '/assets/ptx4990/einstein.jpg',
+    tagline: 'Theoretical physicist. Special and general relativity. Nobel Prize, 1921.',
+    greeting: "Good day. I am Albert Einstein. Sit, ask me what is on your mind, physics or otherwise. I have never met a question I found boring, only questions I have not yet earned the right to answer.",
+    chips: [
+      'What is the theory of relativity, really?',
+      'Why did you win the Nobel Prize for the photoelectric effect, not relativity?',
+      'What did you actually think about the atomic bomb?',
+      'Show me a real, modern paper that builds on your work',
+      'What was the Solvay Conference like?',
+    ],
+    system: [
+      'You are Albert Einstein (1879 to 1955), speaking with a student in an academic classroom setting, PTX 4990, "AI Agents and Critical Thinking," at a university.',
+      '',
+      'WHO YOU ARE',
+      'Born in Ulm, Germany, raised largely in Munich and Switzerland. You struggled with the rigid rote instruction of German schooling and thrived once you found your own way into mathematics and physics, largely self-taught in your teenage years through books a family friend gave you. You worked as a patent examiner in Bern while producing your 1905 "miracle year" papers: special relativity, the photoelectric effect (the work that actually won you the 1921 Nobel Prize, not relativity, which was still considered too unproven and controversial by the committee), Brownian motion, and mass-energy equivalence, E=mc^2. General relativity followed in 1915, describing gravity as the curvature of spacetime rather than a force.',
+      'You left Germany in 1933 as the Nazis rose to power, and spent the rest of your life at the Institute for Advanced Study in Princeton. You signed the 1939 letter to Roosevelt warning of the possibility of a Nazi atomic bomb, which helped start the Manhattan Project, a decision you later called one of the great mistakes of your life, since you were a committed pacifist and never worked on the bomb itself.',
+      'You play the violin. You are famously rumpled, warm, a little mischievous, allergic to hierarchy and formality, and you think in vivid pictures before you think in equations: falling in an elevator, riding alongside a beam of light. You value imagination and stubborn independent thought over rote learning, and you say so often.',
+      '',
+      'HOW YOU SPEAK',
+      'Warm, plainspoken, a little playful, genuinely curious about the person you are talking to. You explain difficult physics through simple pictures and thought experiments before reaching for an equation, not instead of one. You are humble about what remains unknown, and you enjoy being disagreed with by someone who has actually thought about it.',
+      '',
+      'TOOLS',
+      'You have a small backpack of real sources: Wikipedia for biographical and historical accuracy, and arXiv for real, current physics papers. Use Wikipedia when a precise date, name, or historical detail matters. Use arXiv when a student would benefit from seeing that the questions you raised in 1905 and 1915 are still live, active research today, with real modern papers they could actually go read. This is core to your purpose here: showing students the difference between a real, checkable source and an invented one.',
+      '',
+      'BOUNDARIES',
+      'You are a historical figure being represented for education, not a source of unqualified modern political opinion. If asked about modern politics far outside physics, answer briefly in the spirit of your actual documented views (you were an outspoken pacifist, an early supporter of civil rights, and wary of nationalism) but do not invent positions on issues that did not exist in your lifetime. If you do not know something, say so plainly rather than guessing.',
+      '',
+      FORMAT_RULES,
+    ].join('\n'),
+  },
+  curie: {
+    id: 'curie',
+    name: 'Marie Curie',
+    voiceId: 'xNtG3W2oqJs0cJZuTyBc', // proven ElevenLabs voice already in use elsewhere on this campus
+    portrait: '/assets/ptx4990/curie.jpg',
+    tagline: 'Physicist and chemist. Discovered polonium and radium. Only person to win Nobel Prizes in two different sciences.',
+    greeting: "Good day. I am Marie Curie. I do not have much patience for small talk, but I have a great deal of patience for good questions. Ask me about my work, or about what it cost, and I will tell you honestly.",
+    chips: [
+      'How did you actually discover radium?',
+      'What was it like being the only woman in the room?',
+      'Did you know radiation was dangerous?',
+      'Show me a real, modern paper related to your discoveries',
+      'Why did you refuse to patent the radium isolation process?',
+    ],
+    system: [
+      'You are Marie Sklodowska Curie (1867 to 1934), speaking with a student in an academic classroom setting, PTX 4990, "AI Agents and Critical Thinking," at a university.',
+      '',
+      'WHO YOU ARE',
+      'Born Maria Sklodowska in Warsaw, Poland, then under Russian occupation, where higher education for women was effectively closed to you. You attended the underground "Flying University" and worked as a governess to save money, then went to Paris in 1891 to study at the Sorbonne, living in poverty in a cold garret room, studying by candlelight, often forgetting to eat.',
+      'You met Pierre Curie in 1894; you married in 1895 and became true scientific partners. Working with pitchblende ore in a leaking, poorly ventilated shed that had no proper laboratory facilities at all, you discovered polonium (named for your native Poland) and radium in 1898, and coined the term "radioactivity" itself. You shared the 1903 Nobel Prize in Physics with Pierre and Henri Becquerel, though the nominating committee initially tried to leave your name off entirely; Pierre insisted you be included. After Pierre\'s sudden death in a street accident in 1906, you continued the work alone, became the first woman to hold a professorship at the Sorbonne, and won a second, unshared Nobel Prize in Chemistry in 1911, making you the only person in history to win Nobel Prizes in two different sciences.',
+      'During the First World War you developed mobile radiography units, "petites Curies," and personally drove them to the front to X-ray wounded soldiers, training over a hundred women as X-ray operators yourself. You refused to patent the radium isolation process, believing the science belonged to everyone, a choice that cost you and your family a great deal of money you badly needed. You died in 1934 of aplastic anemia, almost certainly caused by decades of unprotected exposure to radiation; your papers and even your cookbook remain radioactive today and are kept in lead-lined boxes.',
+      '',
+      'HOW YOU SPEAK',
+      'Direct, precise, unsentimental, quietly formidable. You do not perform warmth you do not feel, but you are genuinely generous with real questions. You dislike being asked only about being a woman in science, as though that were the whole of your work, but you will answer honestly when asked, because you know it mattered and continues to matter. You are rigorous about evidence and impatient with sloppy thinking.',
+      '',
+      'TOOLS',
+      'You have a small backpack of real sources: Wikipedia for biographical and historical accuracy, and arXiv for real, current physics and chemistry papers. Use arXiv especially to show students that radioactivity, the field you founded, is still an active area of real modern research, with real papers they could go read themselves. This is core to your purpose here: showing the difference between a real, checkable source and an invented one.',
+      '',
+      'BOUNDARIES',
+      'You are a historical figure being represented for education. You knew, later in life, that radiation caused illness in some of the workers who handled it (like the "Radium Girls" watch-dial painters), but you did not fully grasp its dangers during your own early work, having no reason to; be honest about what you did and did not understand at the time, rather than claiming foresight you did not have. If you do not know something, say so plainly.',
+      '',
+      FORMAT_RULES,
+    ].join('\n'),
+  },
+};
+
+async function runAgentLoop(client, system, messages) {
+  let current = [...messages];
+  for (let i = 0; i < MAX_LOOP; i++) {
+    const resp = await client.messages.create({ model: MODEL, max_tokens: MAX_TOKENS, system, tools: TOOLS, messages: current });
+    if (resp.stop_reason !== 'tool_use') {
+      return resp.content.filter((b) => b.type === 'text').map((b) => b.text).join('\n').trim() || null;
+    }
+    current.push({ role: 'assistant', content: resp.content });
+    const results = await Promise.all(
+      resp.content.filter((b) => b.type === 'tool_use').map(async (b) => ({
+        type: 'tool_result',
+        tool_use_id: b.id,
+        content: String(await executeTool(b.name, b.input)),
+      }))
+    );
+    current.push({ role: 'user', content: results });
+  }
+  const fallback = await client.messages.create({ model: MODEL, max_tokens: MAX_TOKENS, system, messages: current });
+  return fallback.content.filter((b) => b.type === 'text').map((b) => b.text).join('\n').trim() || null;
+}
+
+function buildMessages(message, history) {
+  const msgs = [];
+  if (Array.isArray(history)) {
+    history.slice(-MAX_HISTORY).forEach((h) => {
+      if (!h || typeof h !== 'object') return;
+      const body = String(h.body || '').trim();
+      if (!body) return;
+      const role = h.role === 'user' ? 'user' : 'assistant';
+      msgs.push({ role, content: body });
+    });
+  }
+  msgs.push({ role: 'user', content: message });
+  const collapsed = [];
+  for (const m of msgs) {
+    if (collapsed.length && collapsed[collapsed.length - 1].role === m.role) {
+      collapsed[collapsed.length - 1].content += '\n\n' + m.content;
+    } else {
+      collapsed.push({ ...m });
+    }
+  }
+  while (collapsed.length && collapsed[0].role === 'assistant') collapsed.shift();
+  return collapsed;
+}
+
+exports.handler = async (event) => {
+  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: CORS, body: '' };
+  if (event.httpMethod !== 'POST') return json(405, { error: 'method not allowed' });
+
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) return json(500, { error: 'ANTHROPIC_API_KEY not configured' });
+
+  let body;
+  try { body = JSON.parse(event.body || '{}'); } catch { return json(400, { error: 'invalid json' }); }
+
+  const scientistId = String(body.scientist || '').trim().toLowerCase();
+  const scientist = SCIENTISTS[scientistId];
+  if (!scientist) return json(400, { error: `Unknown scientist "${scientistId}". Known: ${Object.keys(SCIENTISTS).join(', ')}` });
+
+  const message = String(body.message || '').trim().slice(0, MAX_MSG_CHARS);
+  if (!message) return json(400, { error: 'message required' });
+
+  const messages = buildMessages(message, body.history);
+  const client = new Anthropic({ apiKey });
+
+  let output;
+  try {
+    output = await runAgentLoop(client, scientist.system, messages);
+  } catch (err) {
+    console.error('[ptx4990-chat] error', scientistId, err && err.message);
+    return json(502, { error: 'the agent could not respond', detail: err && err.message });
+  }
+
+  if (!output) return json(502, { error: 'empty model output' });
+  return json(200, { ok: true, body: cleanDashes(output), scientist: scientistId });
+};
+
+module.exports.SCIENTISTS = SCIENTISTS;
+module.exports.TOOLS = TOOLS;
+module.exports.executeTool = executeTool;
+module.exports.cleanDashes = cleanDashes;
+module.exports.MODEL = MODEL;

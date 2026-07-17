@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PTX 4990 Classroom &middot; Emerging Technologies Laboratory</title>
+<meta name="description" content="The PTX 4990 classroom: AI Agents and Critical Thinking. Talk with historical scientist agents built with real, live, verifiable sources, not fabricated ones.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Public+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #080c11;
+  --bg2:     #0d1219;
+  --panel:   #111820;
+  --panel2:  #161e28;
+  --line:    #1e2c3a;
+  --blue:    #28527a;
+  --blue-br: #4c7ba3;
+  --gold:    #c8973a;
+  --gold-br: #e0ac50;
+  --cream:   #f0ead8;
+  --text:    #c8d4de;
+  --mute:    #5a7a94;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Public Sans', sans-serif; line-height: 1.65; }
+a { color: var(--blue-br); text-decoration: none; }
+a:hover { color: var(--cream); }
+
+.ribbon {
+  background: #050709;
+  border-bottom: 1px solid var(--line);
+  text-align: center;
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  font-size: .62rem;
+  color: var(--mute);
+  padding: .5rem 1rem;
+}
+.ribbon b { color: var(--blue-br); }
+
+.wrap { max-width: 960px; margin: 0 auto; padding: 0 1.4rem 6rem; }
+.backlink {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .72rem;
+  color: var(--mute);
+  text-decoration: none;
+  display: inline-block;
+  margin: 1.6rem 0 .4rem;
+  letter-spacing: .04em;
+}
+.backlink:hover { color: var(--text); }
+
+.hero {
+  margin-top: .6rem;
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--blue);
+  background: linear-gradient(180deg, rgba(8,12,17,.55), rgba(8,12,17,.9)), url('/assets/classrooms/ai-agents-room.jpg') center / cover no-repeat, var(--panel);
+  padding: 3rem 2.6rem 2.6rem;
+}
+.eyebrow {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .58rem;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: var(--blue-br);
+  margin-bottom: 1rem;
+}
+.hero h1 {
+  font-family: 'Spectral', serif;
+  font-size: clamp(2rem, 4.6vw, 3rem);
+  font-weight: 700;
+  color: var(--cream);
+  margin: 0 0 .9rem;
+  line-height: 1.12;
+  max-width: 20ch;
+}
+.hero p { font-size: 1rem; color: var(--text); max-width: 62ch; margin: 0 0 .5rem; line-height: 1.75; }
+
+.sec-head { margin: 3rem 0 .2rem; display: flex; align-items: baseline; gap: 1rem; }
+.sec-head h2 { font-family: 'Spectral', serif; font-size: 1.4rem; font-weight: 600; color: var(--cream); margin: 0; }
+.sec-rule { flex: 1; height: 1px; background: var(--line); }
+.sec-sub { font-size: .88rem; color: var(--mute); margin: .4rem 0 1.6rem; max-width: 62ch; }
+
+.cards { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; border: 1px solid var(--line); }
+.card { background: var(--panel); padding: 1.8rem; display: flex; gap: 1.2rem; align-items: center; transition: background .18s; }
+.card:hover { background: var(--panel2); }
+.card img { width: 76px; height: 76px; border-radius: 50%; object-fit: cover; border: 1px solid var(--line); flex-shrink: 0; }
+.card-name { font-family: 'Spectral', serif; font-size: 1.2rem; font-weight: 600; color: var(--cream); margin: 0 0 .3rem; }
+.card-role { font-family: 'IBM Plex Mono', monospace; font-size: .68rem; color: var(--gold-br); letter-spacing: .04em; margin: 0 0 .5rem; }
+.card-desc { font-size: .84rem; color: var(--mute); line-height: 1.6; margin: 0; }
+
+.table-card {
+  margin-top: 1px;
+  border: 1px solid var(--line);
+  border-top: none;
+  background: var(--panel);
+  padding: 1.8rem;
+  display: flex;
+  gap: 1.2rem;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+.table-card .left { max-width: 56ch; }
+.table-card h3 { font-family: 'Spectral', serif; font-size: 1.15rem; color: var(--cream); margin: 0 0 .4rem; }
+.table-card p { font-size: .86rem; color: var(--mute); margin: 0; line-height: 1.65; }
+.btn-primary {
+  display: inline-block;
+  padding: .8rem 1.6rem;
+  background: var(--gold);
+  color: #1a1305;
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 700;
+  font-size: .68rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.btn-primary:hover { background: var(--gold-br); color: #1a1305; }
+
+.about-block {
+  margin-top: 3rem;
+  border-left: 3px solid var(--blue);
+  padding: 1.4rem 1.8rem;
+  background: var(--panel);
+}
+.about-block p { font-size: .9rem; color: var(--text); line-height: 1.75; max-width: 66ch; margin: 0 0 .8rem; }
+.about-block p:last-child { margin-bottom: 0; }
+.about-block b { color: var(--cream); }
+
+@media (max-width: 720px) {
+  .cards { grid-template-columns: 1fr; }
+  .hero { padding: 2.2rem 1.4rem 1.8rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="ribbon">
+  Emerging Technologies Laboratory &nbsp;&middot;&nbsp; <b>ETL Classrooms</b> &nbsp;&middot;&nbsp; PTX 4990, Independent Study
+</div>
+
+<div class="wrap">
+  <a class="backlink" href="/">&larr; ETL campus</a>
+
+  <div class="hero">
+    <div class="eyebrow">PTX 4990 &nbsp;&middot;&nbsp; AI Agents and Critical Thinking</div>
+    <h1>The classroom's Living Legends.</h1>
+    <p>Two historical scientists, built as real agents with a real backpack of live, checkable sources, not invented facts. Ask them about their work. Watch how they cite a real source, and how they handle it honestly when a lookup fails. That gap, between a real citation and a fabricated one, is the whole point of this exercise.</p>
+  </div>
+
+  <div class="sec-head">
+    <h2>Talk to a scientist one-on-one</h2>
+    <div class="sec-rule"></div>
+  </div>
+  <p class="sec-sub">Each carries their own backpack: Wikipedia for biography and history, arXiv for real, current papers in their field.</p>
+
+  <div class="cards">
+    <a class="card" href="/ptx4990-einstein.html">
+      <img src="/assets/ptx4990/einstein.jpg" alt="Albert Einstein">
+      <div>
+        <p class="card-name">Albert Einstein</p>
+        <p class="card-role">Theoretical Physicist, 1879&ndash;1955</p>
+        <p class="card-desc">Special and general relativity. The 1905 miracle year. A Nobel Prize for the photoelectric effect, not the theory everyone assumes.</p>
+      </div>
+    </a>
+    <a class="card" href="/ptx4990-curie.html">
+      <img src="/assets/ptx4990/curie.jpg" alt="Marie Curie">
+      <div>
+        <p class="card-name">Marie Curie</p>
+        <p class="card-role">Physicist and Chemist, 1867&ndash;1934</p>
+        <p class="card-desc">Discovered polonium and radium. The only person to win Nobel Prizes in two different sciences.</p>
+      </div>
+    </a>
+  </div>
+
+  <div class="table-card">
+    <div class="left">
+      <h3>Or bring them to one table.</h3>
+      <p>The Roundtable: both scientists in one room, answering you and answering each other. A director model decides who speaks next, so it plays out like a real seminar, not a scripted rotation.</p>
+    </div>
+    <a class="btn-primary" href="/ptx4990-room.html">Enter the roundtable</a>
+  </div>
+
+  <div class="about-block">
+    <p><b>About this classroom.</b> Built for PTX 4990, Independent Study: AI Agents and Critical Thinking. This is the first assignment: create scientist agents with real MCP-style backpacks, expert in a particular science area, housed in a classroom so students can talk to them and watch them talk to each other.</p>
+    <p>Every agent here uses real tool calls against real, free, public APIs (Wikipedia, arXiv), the same pattern already proven on Clara Sediqa at the <a href="https://gandhi-king-center-for-nonviolence.org/clara">Gandhi-King Center</a>. When a live lookup fails, the agent says so plainly rather than inventing a citation, which is the actual lesson: knowing the difference between a real source and a fabricated one.</p>
+  </div>
+
+</div>
+
+</body>
+</html>

@@ -61,7 +61,7 @@ a:hover { color: var(--cream); }
   margin-top: .6rem;
   border: 1px solid var(--line);
   border-top: 3px solid var(--blue);
-  background: var(--panel);
+  background: linear-gradient(180deg, rgba(8,12,17,.55), rgba(8,12,17,.9)), url('/assets/classrooms/hallway.jpg') center 38% / cover no-repeat, var(--panel);
   padding: 3.4rem 2.8rem 3rem;
   position: relative;
   overflow: hidden;
@@ -243,11 +243,11 @@ a:hover { color: var(--cream); }
   padding: .18rem .6rem;
 }
 
-/* ── IMAGE PLACEHOLDER ── */
+/* ── CLASSROOM GALLERY ── */
 .img-row {
   margin-top: 2.8rem;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: 1px;
   border: 1px solid var(--line);
 }
@@ -281,10 +281,6 @@ a:hover { color: var(--cream); }
   text-align: center;
   padding: .4rem .8rem;
   background: rgba(8,12,17,.7);
-}
-.img-placeholder-icon {
-  font-size: 1.6rem;
-  opacity: .18;
 }
 
 /* ── HOW IT WORKS ── */
@@ -605,14 +601,16 @@ a:hover { color: var(--cream); }
   <!-- IMAGE ROW -->
   <div class="img-row">
     <div class="img-slot">
-      <img src="/assets/classrooms-photo-1.jpg" alt="Students using ETL agents at laptops" onerror="this.style.display='none'">
-      <div class="img-placeholder-icon">&#9654;</div>
-      <div class="img-cap">Students interacting with ETL agents in the classroom</div>
+      <img src="/assets/classrooms/room-lab-1.jpg" alt="An ETL classroom built out as a robotics and AI lab">
+      <div class="img-cap">One of the classrooms available to reserve, built out as a robotics and AI lab</div>
     </div>
     <div class="img-slot">
-      <img src="/assets/classrooms-photo-2.jpg" alt="Faculty and students with agent on laptop" onerror="this.style.display='none'">
-      <div class="img-placeholder-icon">&#9654;</div>
-      <div class="img-cap">A Living Legend answers questions in real time</div>
+      <img src="/assets/classrooms/room-lab-2.jpg" alt="An ETL classroom with a build bench where agents are fabricated">
+      <div class="img-cap">Where new agents are built and tested before they move into a classroom</div>
+    </div>
+    <div class="img-slot">
+      <img src="/assets/classrooms/room-briefing.jpg" alt="An ETL classroom set up as a briefing room">
+      <div class="img-cap">A briefing room, ready to reserve</div>
     </div>
   </div>
 
