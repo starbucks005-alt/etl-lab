@@ -505,6 +505,11 @@ function visitorId() {
 function accessToken() {
   try { return localStorage.getItem('ah_access_token') || ''; } catch (_) { return ''; }
 }
+// Landlord bypass key (same one studios.html / memory-implant-lab.html save).
+// Empty for every regular visitor, so this is a no-op for everyone but the owner.
+function ownerKey() {
+  try { return localStorage.getItem('etl_owner_key') || ''; } catch (_) { return ''; }
+}
 
 function startUpgradeCheckout() {
   fetch('/.netlify/functions/create-checkout-ah', {
@@ -644,7 +649,10 @@ groupGrid.addEventListener('change', updateGroupPanel);
 $('groupToggle').addEventListener('click', function () {
   // Client-side convenience only — the real, unbypassable gate is the
   // subscription_required check eq-room-group-ask.js does server-side.
-  if (!accessToken()) {
+  // Owner key bypasses this client-side gate too, same as it bypasses the
+  // server-side one, so the landlord isn't blocked from ever reaching the
+  // picker just for lacking a real paid subscription token.
+  if (!accessToken() && !ownerKey()) {
     $('groupPanel').classList.remove('open');
     $('groupGateUpsell').style.display = ($('groupGateUpsell').style.display === 'none') ? 'block' : 'none';
     return;
@@ -989,7 +997,7 @@ function runAmbientCheck() {
       visitor_pronoun: visitorPronoun,
       remember: rememberMe,
       access_token: accessToken(),
-      owner_key: (function () { try { return localStorage.getItem('etl_owner_key') || ''; } catch (_) { return ''; } })(),
+      owner_key: ownerKey(),
     }),
   })
     .then(function (r) { if (!r.ok) throw new Error('server returned ' + r.status); return r.json(); })
@@ -1052,7 +1060,7 @@ $('table-form').addEventListener('submit', function (e) {
       visitor_pronoun: visitorPronoun,
       remember: rememberMe,
       access_token: accessToken(),
-      owner_key: (function () { try { return localStorage.getItem('etl_owner_key') || ''; } catch (_) { return ''; } })(),
+      owner_key: ownerKey(),
     }),
   })
     .then(function (r) {
@@ -1249,9 +1257,7 @@ $('room-form').addEventListener('submit', function (e) {
       visitor_pronoun: visitorPronoun,
       remember: rememberMe,
       access_token: accessToken(),
-      // Same landlord key already saved from studios.html / memory-implant-lab.html;
-      // empty for every regular visitor, so this is a no-op for everyone but the owner.
-      owner_key: (function () { try { return localStorage.getItem('etl_owner_key') || ''; } catch (_) { return ''; } })(),
+      owner_key: ownerKey(),
     }),
   })
     .then(function (r) {

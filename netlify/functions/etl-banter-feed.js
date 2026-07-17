@@ -63,7 +63,7 @@ const CAST_IMG = {
   'Amara Nwosu': 'herbalist_eyes_open.jpg',
   'Reece Ashford': 'Reece_eyes_open.jpg',
   'Coach Dom Castellanos': 'Coach_Dom_Eyes_open.png',
-  'Dr. Lena Brandt DPT': 'Dr_Lena_eyes_open.png',
+  'Dr. Lena Brandt, DPT': 'Dr_Lena_eyes_open.png',
   'Noor Haddad': 'Noor_eyes_open.png',
   'Dr. Sana Qureshi': 'Sana_eyes_open.png',
   'Wyatt Cooper': 'mixologist_eyes_open.jpg',
