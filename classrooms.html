@@ -113,6 +113,30 @@ a:hover { color: var(--cream); }
 }
 .hero-note b { color: var(--blue-br); }
 
+/* ── ROOM STATUS ── */
+.room-status { margin-top: 1rem; border: 1px solid var(--line); overflow: hidden; }
+.room-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: .9rem;
+  padding: 1rem 1.4rem;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel);
+  text-decoration: none;
+  color: var(--text);
+  transition: background .15s;
+}
+.room-row:last-child { border-bottom: none; }
+a.room-row:hover { background: var(--panel2); }
+.room-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--mute); border: 1px solid var(--line); }
+.room-row.is-occupied .room-dot { background: var(--blue-br); box-shadow: 0 0 0 3px rgba(76,123,163,.28); }
+.room-name { font-family: 'Spectral', serif; font-size: 1.02rem; color: var(--cream); }
+.room-name small { display: block; font-family: 'IBM Plex Mono', monospace; font-size: .68rem; color: var(--mute); letter-spacing: .03em; margin-top: .2rem; }
+.room-tag { font-family: 'IBM Plex Mono', monospace; font-size: .62rem; letter-spacing: .12em; text-transform: uppercase; padding: .3rem .7rem; border-radius: 999px; white-space: nowrap; }
+.room-row.is-occupied .room-tag { color: var(--blue-br); border: 1px solid var(--blue); background: rgba(40,82,122,.15); }
+.room-row:not(.is-occupied) .room-tag { color: var(--mute); border: 1px solid var(--line); }
+
 /* ── SECTION HEADING ── */
 .sec-head {
   margin: 3.6rem 0 .2rem;
@@ -489,6 +513,36 @@ a:hover { color: var(--cream); }
     <p class="hero-note">
       <b>Build once.</b> &nbsp;Host here. &nbsp;Your department handles the ideas. &nbsp;We handle the infrastructure.
     </p>
+  </div>
+
+  <!-- ROOM STATUS -->
+  <div class="sec-head" style="margin-top:2.8rem;">
+    <h2>Room status</h2>
+    <div class="sec-rule"></div>
+  </div>
+  <p class="sec-sub">Live classrooms on the ETL campus right now.</p>
+
+  <div class="room-status">
+    <a class="room-row is-occupied" href="/ptx4990.html">
+      <span class="room-dot"></span>
+      <span class="room-name">Room 1 <small>PTX 4990 &middot; AI Agents and Critical Thinking, Independent Study</small></span>
+      <span class="room-tag">Occupied</span>
+    </a>
+    <div class="room-row">
+      <span class="room-dot"></span>
+      <span class="room-name">Room 2 <small>Teaching Assistants classroom</small></span>
+      <span class="room-tag">Available</span>
+    </div>
+    <div class="room-row">
+      <span class="room-dot"></span>
+      <span class="room-name">Room 3 <small>ETL Faculty classroom</small></span>
+      <span class="room-tag">Available</span>
+    </div>
+    <div class="room-row">
+      <span class="room-dot"></span>
+      <span class="room-name">Room 4 <small>Living Legends classroom</small></span>
+      <span class="room-tag">Available</span>
+    </div>
   </div>
 
   <!-- CONTEXT BLOCK -->
