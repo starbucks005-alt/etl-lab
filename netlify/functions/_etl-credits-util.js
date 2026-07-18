@@ -21,14 +21,21 @@
    ─────────────────────────────────────────────────
 */
 
+const { ownerUser } = require('./_owner-auth.js');
+
 const SUPABASE_URL  = 'https://ulvrnermyuvzanxhxoib.supabase.co';
 const SUPABASE_ANON = process.env.SUPABASE_ANON_KEY;
 
 /* Resolve a Supabase Bearer token to { id, email } or null.
-   If OWNER_KEY env var is set and token matches, bypasses Supabase lookup. */
+   Checks the shared owner master key first (same key Studio already uses,
+   baked-in default, no env var required) -- if a browser sends that as its
+   bearer token, it's Dr. O, full stop, no Supabase round trip needed.
+   OWNER_KEY env var (legacy, single-key) still works too if set. */
 async function getUser(token) {
-  const ownerKey = process.env.OWNER_KEY;
-  if (ownerKey && token === ownerKey) return { id: 'owner', email: 'owner@etl' };
+  const owner = ownerUser(token);
+  if (owner) return owner;
+  const legacyOwnerKey = process.env.OWNER_KEY;
+  if (legacyOwnerKey && token === legacyOwnerKey) return { id: 'owner', email: 'owner@etl' };
   try {
     const r = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
       headers: { Authorization: `Bearer ${token}`, apikey: SUPABASE_ANON },
@@ -48,7 +55,7 @@ function extractToken(authHeader) {
 
 /* Deduct 1 credit for a known userId. Returns { ok, balance_remaining } or { ok: false, reason }. */
 async function deductCredit(userId, serviceKey) {
-  if (userId === 'owner') return { ok: true, balance_remaining: 9999 };
+  if (userId === 'owner' || userId === 'owner-master') return { ok: true, balance_remaining: 9999 };
   const sel = await fetch(
     `${SUPABASE_URL}/rest/v1/etl_credits?user_id=eq.${userId}&select=balance,studio_pass`,
     { headers: { Authorization: `Bearer ${serviceKey}`, apikey: serviceKey } }

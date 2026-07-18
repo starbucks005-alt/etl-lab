@@ -414,7 +414,7 @@ document.getElementById('shake').addEventListener('click',()=>{
   const i=Math.floor(Math.random()*CASES.length);
   sel.value=i; rule(i,true);
 });
-function getEtlToken(){try{var raw=localStorage.getItem('sb-ulvrnermyuvzanxhxoib-auth-token');var sess=raw?JSON.parse(raw):null;return(sess&&sess.access_token)||null;}catch(_){return null;}}
+function getEtlToken(){try{var raw=localStorage.getItem('sb-ulvrnermyuvzanxhxoib-auth-token');var sess=raw?JSON.parse(raw):null;var real=(sess&&sess.access_token)||null;if(real)return real;return localStorage.getItem('etl_owner_key')||null;}catch(_){return localStorage.getItem('etl_owner_key')||null;}}
 document.getElementById('file').addEventListener('click', async ()=>{
   const raw=document.getElementById('ff').value.trim();
   const note=document.getElementById('ffnote');
