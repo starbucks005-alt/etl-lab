@@ -128,7 +128,8 @@ a:hover { color: var(--green); }
 .royal-gallery.is-visible { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
 .royal-gallery img {
   width: 100%;
-  height: 260px;
+  height: auto;
+  max-height: 420px;
   object-fit: contain;
   display: block;
   border: 1px solid var(--line);
@@ -273,7 +274,7 @@ a:hover { color: var(--green); }
   .portrait--villager { height: 44vw; }
   .page-grid--royal .portrait { flex: none; height: 90vw; min-height: 0; }
   .page-grid--royal .left-col { align-self: start; }
-  .royal-gallery img { height: 44vw; }
+  .royal-gallery img { max-height: 70vw; }
   .bubble--you { align-self: flex-end; }
 }
 </style>
