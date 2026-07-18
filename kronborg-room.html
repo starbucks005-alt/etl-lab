@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+(function () {
+  try {
+    var saved = localStorage.getItem('etl_classrooms_theme');
+    var theme = saved || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    document.documentElement.setAttribute('data-theme', theme);
+  } catch (_) {}
+})();
+</script>
+<title>The Kronborg Table &middot; History: Denmark 1500-1600s &middot; Emerging Technologies Laboratory</title>
+<meta name="description" content="Bring the royal court and the townspeople of Kronborg Castle to one table. They talk to each other and to you, not just one at a time.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Public+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ETL homepage brand (index.html's actual :root): see kronborg-agent.html
+   for the fuller note. --gold there is really blue #5c8ab5, the dominant
+   accent; --green #285C4D is the hover/emphasis accent. */
+:root {
+  --bg:      #111111; /* black */
+  --bg2:     #1a1a1a; /* dark */
+  --panel:   #1a1a1a; /* dark */
+  --panel2:  #242424;
+  --line:    #2c2c2c;
+  --blue:    #5c8ab5;
+  --blue-br: #5c8ab5;
+  --green:   #285C4D;
+  --cream:   #ffffff;
+  --text:    #d6d6d6;
+  --mute:    #8a8a8a;
+  --ribbon-bg: #0a0a0a;
+}
+[data-theme="light"] {
+  --bg:      #ffffff;
+  --bg2:     #f4f4f4;
+  --panel:   #ffffff;
+  --panel2:  #f4f4f4;
+  --line:    #111111;
+  --blue:    #5c8ab5;
+  --blue-br: #5c8ab5;
+  --green:   #285C4D;
+  --cream:   #111111;
+  --text:    #555555;
+  --mute:    #555555;
+  --ribbon-bg: #f4f4f4;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Public Sans', sans-serif; line-height: 1.65; transition: background .2s, color .2s; }
+a { color: var(--blue); text-decoration: none; }
+a:hover { color: var(--green); }
+
+.theme-toggle {
+  position: fixed; top: .9rem; right: 1.2rem; z-index: 50;
+  background: var(--panel); border: 1px solid var(--line); color: var(--mute);
+  font-family: 'IBM Plex Mono', monospace; font-size: .62rem; letter-spacing: .1em; text-transform: uppercase;
+  padding: .45rem .8rem; border-radius: 999px; cursor: pointer; transition: border-color .15s, color .15s;
+}
+.theme-toggle:hover { border-color: var(--green); color: var(--green); }
+
+.ribbon {
+  background: var(--ribbon-bg);
+  border-bottom: 1px solid var(--line);
+  text-align: center;
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  font-size: .62rem;
+  color: var(--mute);
+  padding: .5rem 1rem;
+}
+.ribbon b { color: var(--blue-br); }
+
+.wrap { max-width: 900px; margin: 0 auto; padding: 0 1.4rem 6rem; }
+.backlink {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .72rem;
+  color: var(--mute);
+  text-decoration: none;
+  display: inline-block;
+  margin: 1.6rem 0 .4rem;
+  letter-spacing: .04em;
+}
+.backlink:hover { color: var(--text); }
+
+.hero {
+  margin-top: .6rem;
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--blue);
+  background: var(--panel);
+  padding: 2rem 2rem 1.8rem;
+}
+.eyebrow {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .6rem;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  color: var(--blue-br);
+  margin-bottom: .7rem;
+}
+.hero h1 {
+  font-family: 'Spectral', serif;
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  font-weight: 700;
+  color: var(--cream);
+  margin: 0 0 .6rem;
+  line-height: 1.1;
+}
+.hero p { font-family: 'IBM Plex Mono', monospace; font-size: .88rem; color: var(--mute); max-width: 62ch; margin: 0; line-height: 1.7; }
+
+/* ── Picker ── */
+.picker { margin-top: 1.6rem; }
+.picker-hint { font-size: .88rem; color: var(--mute); margin: 0 0 1rem; }
+.picker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1px; border: 1px solid var(--line); }
+.picker-card {
+  background: var(--panel); padding: 1rem; cursor: pointer; border: none; text-align: left;
+  font-family: 'Public Sans', sans-serif; color: var(--text); transition: background .15s;
+}
+.picker-card:hover { background: var(--panel2); }
+.picker-card.is-selected { background: var(--panel2); box-shadow: inset 0 0 0 2px var(--blue-br); }
+.picker-name { font-family: 'Spectral', serif; font-size: 1.02rem; color: var(--cream); margin: 0 0 .2rem; }
+.picker-title { font-family: 'IBM Plex Mono', monospace; font-size: .64rem; color: var(--mute); letter-spacing: .02em; }
+.picker-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 1.2rem; }
+.picker-count { font-family: 'IBM Plex Mono', monospace; font-size: .74rem; color: var(--mute); }
+.start-btn {
+  background: var(--blue); color: #fff; border: none; border-radius: 4px; padding: .8rem 1.6rem;
+  font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: .78rem; letter-spacing: .08em;
+  text-transform: uppercase; cursor: pointer;
+}
+.start-btn:hover:not(:disabled) { background: var(--green); }
+.start-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+/* ── Chat ── */
+.chat { display: none; background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 1.4rem; max-width: 900px; margin-top: 1.6rem; }
+.chat.is-open { display: block; }
+.avatars { display: flex; gap: 12px; margin-bottom: 1rem; flex-wrap: wrap; }
+.avatars span { font-family: 'IBM Plex Mono', monospace; font-size: .7rem; color: var(--mute); border: 1px solid var(--line); border-radius: 999px; padding: .3rem .7rem; }
+.log { display: flex; flex-direction: column; gap: 12px; min-height: 160px; max-height: 520px; overflow-y: auto; padding: 6px 4px 10px; }
+.bubble { padding: 12px 16px; border-radius: 4px; max-width: 88%; font-family: 'Public Sans', sans-serif; font-size: .96rem; line-height: 1.6; }
+.bubble--agent { background: var(--panel2); color: var(--text); align-self: flex-start; border-left: 2px solid var(--blue-br); }
+.bubble--agent .who { display: block; font-family: 'IBM Plex Mono', monospace; font-size: .66rem; letter-spacing: .06em; text-transform: uppercase; color: var(--blue-br); margin-bottom: 4px; }
+.bubble--you { background: var(--blue); color: #fff; align-self: flex-end; border-right: 2px solid var(--blue-br); }
+.bubble--system { color: var(--mute); font-style: italic; align-self: center; font-size: .84rem; }
+.composer { display: flex; gap: 10px; align-items: flex-end; margin-top: 6px; }
+.composer textarea { flex: 1; resize: none; border: 1px solid var(--line); border-radius: 4px; padding: 11px 14px; font-family: 'Public Sans', sans-serif; font-size: 1rem; line-height: 1.4; color: var(--cream); min-height: 48px; max-height: 140px; outline: none; background: var(--bg2); }
+.composer textarea:focus { border-color: var(--blue-br); }
+.send-btn { background: var(--blue); color: #fff; border: none; border-radius: 4px; padding: 0 20px; height: 48px; font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
+.send-btn:hover { background: var(--green); }
+.send-btn:disabled { opacity: .5; cursor: not-allowed; }
+.disclosure { font-family: 'IBM Plex Mono', monospace; font-size: .72rem; color: var(--mute); max-width: 900px; margin-top: 1.4rem; line-height: 1.7; }
+</style>
+</head>
+<body>
+
+<button type="button" class="theme-toggle" id="themeToggle">Light</button>
+
+<div class="ribbon">
+  Emerging Technologies Laboratory &nbsp;&middot;&nbsp; <b>ETL Classrooms</b> &nbsp;&middot;&nbsp; History: Denmark 1500-1600s, with Professor Paul Lockhart
+</div>
+
+<div class="wrap">
+  <a class="backlink" href="/kronborg.html">&larr; History: Denmark 1500-1600s</a>
+
+  <div class="hero">
+    <div class="eyebrow">The Kronborg Table</div>
+    <h1>Bring them to one table.</h1>
+    <p>Pick two or more voices, royal or common. They answer you, and they answer each other, the way this rigid social world actually worked: deference, friction, and the odd person who breaks every rule of decorum.</p>
+  </div>
+
+  <div class="picker" id="picker">
+    <p class="picker-hint">Choose 2 to 6.</p>
+    <div class="picker-grid" id="pickerGrid"></div>
+    <div class="picker-foot">
+      <span class="picker-count" id="pickerCount">0 selected</span>
+      <button class="start-btn" id="startBtn" disabled>Start the conversation</button>
+    </div>
+  </div>
+
+  <div class="chat" id="chat">
+    <div class="avatars" id="avatars"></div>
+    <div class="log" id="log" aria-live="polite"></div>
+    <div class="composer">
+      <textarea id="input" rows="1" placeholder="Say something to the table..." aria-label="Your message to the table"></textarea>
+      <button class="send-btn" id="send">Send</button>
+    </div>
+  </div>
+
+  <p class="disclosure">Every agent here is a historical figure or period-accurate composite represented for education, each carrying a real backpack of live sources. A cheap "director" model decides who speaks next each beat, favoring genuine back-and-forth over a fixed rotation. Free to use, built for an educational simulation with Professor Paul Lockhart.</p>
+</div>
+
+<script>
+var ROSTER = [
+  { key: 'king',           name: 'Christian IV',           title: 'The Older King' },
+  { key: 'boy_king',       name: 'Prince Christian',        title: 'The Boy King, age 10' },
+  { key: 'anne_catherine', name: 'Queen Anne Catherine',     title: 'The Royal Consort' },
+  { key: 'kirsten_munk',   name: 'Kirsten Munk',            title: 'The Morganatic Wife' },
+  { key: 'jens',           name: 'Jens Skovgaard',          title: 'The Merchant' },
+  { key: 'morten',         name: 'Morten Grovsmith',        title: 'The Blacksmith' },
+  { key: 'rasmus',         name: 'Rasmus Krogaard',         title: 'The Innkeeper' },
+  { key: 'kirsten_m',      name: 'Kirsten Madsdatter',      title: 'The Townswoman' },
+  { key: 'niels',          name: 'Niels Iversen',           title: 'The Fisherman' },
+  { key: 'hans_bodil',     name: 'Hans and Bodil',          title: 'The Children' },
+];
+var MIN_AGENTS = 2;
+var MAX_AGENTS = 6;
+
+(function () {
+  var ROOM_URL = '/.netlify/functions/kronborg-room';
+
+  function visitorId() {
+    try {
+      var v = localStorage.getItem('etl_visitor_id');
+      if (!v) { v = 'v' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10); localStorage.setItem('etl_visitor_id', v); }
+      return v;
+    } catch (_) { return null; }
+  }
+
+  var pickerEl = document.getElementById('picker');
+  var pickerGrid = document.getElementById('pickerGrid');
+  var pickerCount = document.getElementById('pickerCount');
+  var startBtn = document.getElementById('startBtn');
+  var chatEl = document.getElementById('chat');
+  var avatarsEl = document.getElementById('avatars');
+  var logEl = document.getElementById('log');
+  var inputEl = document.getElementById('input');
+  var sendEl = document.getElementById('send');
+
+  var selected = [];
+  var activeKeys = [];
+  var history = [];
+  var sending = false;
+
+  ROSTER.forEach(function (a) {
+    var card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'picker-card';
+    card.dataset.key = a.key;
+    card.innerHTML = '<p class="picker-name">' + a.name + '</p><p class="picker-title">' + a.title + '</p>';
+    card.addEventListener('click', function () {
+      var i = selected.indexOf(a.key);
+      if (i >= 0) {
+        selected.splice(i, 1);
+        card.classList.remove('is-selected');
+      } else if (selected.length < MAX_AGENTS) {
+        selected.push(a.key);
+        card.classList.add('is-selected');
+      }
+      pickerCount.textContent = selected.length + ' selected';
+      startBtn.disabled = selected.length < MIN_AGENTS;
+    });
+    pickerGrid.appendChild(card);
+  });
+
+  startBtn.addEventListener('click', function () {
+    if (selected.length < MIN_AGENTS) return;
+    activeKeys = selected.slice();
+    pickerEl.style.display = 'none';
+    chatEl.classList.add('is-open');
+    activeKeys.forEach(function (key) {
+      var a = ROSTER.filter(function (r) { return r.key === key; })[0];
+      var span = document.createElement('span');
+      span.textContent = a.name;
+      avatarsEl.appendChild(span);
+    });
+    bubble('system', 'The table is quiet. Say something to begin.');
+    inputEl.focus();
+  });
+
+  function agentByKey(k) {
+    for (var i = 0; i < ROSTER.length; i++) if (ROSTER[i].key === k) return ROSTER[i];
+    return null;
+  }
+
+  function clearSystemBubbles() {
+    var sys = logEl.querySelectorAll('.bubble--system');
+    if (logEl.children.length === sys.length) { sys.forEach(function (b) { b.remove(); }); }
+  }
+
+  function bubble(kind, text, agentName) {
+    var d = document.createElement('div');
+    d.className = 'bubble bubble--' + kind;
+    if (kind === 'agent' && agentName) {
+      var who = document.createElement('span');
+      who.className = 'who';
+      who.textContent = agentName;
+      d.appendChild(who);
+      d.appendChild(document.createTextNode(text));
+    } else {
+      d.textContent = text;
+    }
+    logEl.appendChild(d);
+    logEl.scrollTop = logEl.scrollHeight;
+    return d;
+  }
+
+  function autogrow() {
+    inputEl.style.height = 'auto';
+    inputEl.style.height = Math.min(inputEl.scrollHeight, 140) + 'px';
+  }
+  inputEl.addEventListener('input', autogrow);
+  inputEl.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+  });
+  sendEl.addEventListener('click', send);
+
+  function revealNext(replies, i, onDone) {
+    if (i >= replies.length) { onDone(); return; }
+    var r = replies[i];
+    var agent = agentByKey(r.agent_key);
+    var thinking = bubble('system', (agent ? agent.name : 'Someone') + ' is thinking...');
+    var typingDelay = Math.min((r.reply || '').length * 16, 3000);
+    var delay = 500 + Math.random() * 700 + typingDelay;
+    setTimeout(function () {
+      thinking.remove();
+      bubble('agent', r.reply, agent ? agent.name : r.agent_name);
+      var pause = 500 + Math.random() * 900;
+      setTimeout(function () { revealNext(replies, i + 1, onDone); }, pause);
+    }, delay);
+  }
+
+  function send() {
+    if (sending) return;
+    var text = inputEl.value.trim();
+    if (!text) return;
+    sending = true; sendEl.disabled = true;
+    inputEl.value = ''; autogrow();
+
+    clearSystemBubbles();
+    bubble('you', text);
+
+    fetch(ROOM_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ active_agents: activeKeys, transcript: history, message: text, visitor_id: visitorId() })
+    }).then(function (res) {
+      if (!res.ok) throw new Error('server returned ' + res.status);
+      return res.json();
+    }).then(function (data) {
+      history.push({ speaker: 'visitor', name: 'Visitor', content: text });
+      (data.transcript_append || []).forEach(function (entry) { history.push(entry); });
+      var replies = data.replies || [];
+      if (!replies.length) {
+        bubble('system', 'No one at the table had anything to add just now. Try asking something more specific.');
+        sending = false; sendEl.disabled = false; inputEl.focus();
+        return;
+      }
+      revealNext(replies, 0, function () {
+        sending = false; sendEl.disabled = false; inputEl.focus();
+      });
+    }).catch(function () {
+      bubble('system', 'The table lost connection for a moment. Try again?');
+      sending = false; sendEl.disabled = false;
+    });
+  }
+})();
+
+(function () {
+  var btn = document.getElementById('themeToggle');
+  function sync() {
+    var isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    btn.textContent = isLight ? 'Dark' : 'Light';
+  }
+  sync();
+  btn.addEventListener('click', function () {
+    var next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('etl_classrooms_theme', next); } catch (_) {}
+    sync();
+  });
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+(function () {
+  try {
+    var saved = localStorage.getItem('etl_classrooms_theme');
+    var theme = saved || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    document.documentElement.setAttribute('data-theme', theme);
+  } catch (_) {}
+})();
+</script>
+<title>History: Denmark 1500-1600s &middot; Emerging Technologies Laboratory</title>
+<meta name="description" content="Talk with the royal court and townspeople of Kronborg Castle, Helsingør, in the age of Christian IV. Built for an educational simulation with Professor Paul Lockhart.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Public+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ETL homepage brand (index.html's actual :root, not the aspirational Yuki
+   guide): --gold is really blue #5c8ab5, the dominant accent everywhere;
+   --green #285C4D is the secondary accent index.html's own buttons shift to
+   on hover. Classrooms is a direct link off the homepage, so it takes its
+   colors from there. */
+:root {
+  --bg:      #111111; /* black */
+  --bg2:     #1a1a1a; /* dark */
+  --panel:   #1a1a1a; /* dark */
+  --panel2:  #242424;
+  --line:    #2c2c2c;
+  --blue:    #5c8ab5; /* homepage's "--gold", actually blue, the primary accent */
+  --blue-br: #5c8ab5;
+  --green:   #285C4D; /* homepage's hover/emphasis accent */
+  --cream:   #ffffff;
+  --text:    #d6d6d6;
+  --mute:    #8a8a8a;
+  --ribbon-bg: #0a0a0a;
+}
+[data-theme="light"] {
+  --bg:      #ffffff;
+  --bg2:     #f4f4f4; /* homepage's "--light" */
+  --panel:   #ffffff;
+  --panel2:  #f4f4f4;
+  --line:    #111111;
+  --blue:    #5c8ab5;
+  --blue-br: #5c8ab5;
+  --green:   #285C4D;
+  --cream:   #111111; /* homepage's "--black" */
+  --text:    #555555; /* homepage's "--gray" */
+  --mute:    #555555;
+  --ribbon-bg: #f4f4f4;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Public Sans', sans-serif; line-height: 1.65; transition: background .2s, color .2s; }
+a { color: var(--blue); text-decoration: none; }
+a:hover { color: var(--green); }
+
+.theme-toggle {
+  position: fixed; top: .9rem; right: 1.2rem; z-index: 50;
+  background: var(--panel); border: 1px solid var(--line); color: var(--mute);
+  font-family: 'IBM Plex Mono', monospace; font-size: .62rem; letter-spacing: .1em; text-transform: uppercase;
+  padding: .45rem .8rem; border-radius: 999px; cursor: pointer; transition: border-color .15s, color .15s;
+}
+.theme-toggle:hover { border-color: var(--green); color: var(--green); }
+
+.ribbon {
+  background: var(--ribbon-bg);
+  border-bottom: 1px solid var(--line);
+  text-align: center;
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  font-size: .62rem;
+  color: var(--mute);
+  padding: .5rem 1rem;
+}
+.ribbon b { color: var(--blue-br); }
+
+.wrap { max-width: 860px; margin: 0 auto; padding: 0 1.4rem 6rem; }
+.backlink {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .72rem;
+  color: var(--mute);
+  text-decoration: none;
+  display: inline-block;
+  margin: 1.6rem 0 .4rem;
+  letter-spacing: .04em;
+}
+.backlink:hover { color: var(--text); }
+
+.hero-photo {
+  display: none;
+  margin-top: .6rem;
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--blue);
+  border-bottom: none;
+  overflow: hidden;
+  line-height: 0;
+}
+.hero-photo.is-visible { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; }
+.hero-photo img { width: 100%; height: 100%; max-height: 420px; object-fit: cover; display: block; }
+.hero-photo img + img { border-left: 1px solid var(--line); }
+.hero-grid {
+  margin-top: .6rem;
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 1.8rem;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--blue);
+  background: var(--panel);
+  padding: 2rem 2rem 2rem 1.6rem;
+}
+.hero-photo.is-visible + .hero-grid { margin-top: 0; border-top: none; }
+.portrait {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border-radius: 10px;
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  animation: float 6s ease-in-out infinite;
+}
+/* Royals stay tall portrait crops, more presence in the frame. Villagers
+   run landscape, a wider window onto their world rather than a formal
+   sitting -- both real distinctions in the source images, not arbitrary. */
+.portrait--villager {
+  aspect-ratio: 16 / 10;
+}
+.portrait img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.portrait__closed { opacity: 0; animation: blink 6.2s steps(1, end) infinite; }
+.portrait.is-speaking { box-shadow: 0 0 0 4px rgba(92,138,181,.45); animation: float 6s ease-in-out infinite, glow 1.1s ease-in-out infinite; }
+@keyframes blink { 0%, 94%, 100% { opacity: 0; } 96% { opacity: 1; } }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes glow { 0%, 100% { box-shadow: 0 0 0 3px rgba(92,138,181,.4); } 50% { box-shadow: 0 0 0 7px rgba(92,138,181,.55); } }
+
+.eyebrow {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .6rem;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  color: var(--blue-br);
+  margin-bottom: .7rem;
+}
+.hero-grid h1 {
+  font-family: 'Spectral', serif;
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  font-weight: 700;
+  color: var(--cream);
+  margin: 0 0 .5rem;
+  line-height: 1.1;
+}
+.hero-sub { font-size: .95rem; color: var(--text); max-width: 48ch; margin: 0; line-height: 1.7; }
+
+.bio-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .62rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--mute);
+  margin: 1.1rem 0 .4rem;
+}
+.bio-text { font-size: .92rem; color: var(--text); max-width: 56ch; margin: 0; line-height: 1.75; }
+.bio-controls { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 1.1rem; }
+.bio-btn, .accent-toggle {
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--blue-br);
+  border-radius: 999px;
+  padding: 7px 16px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .74rem;
+  cursor: pointer;
+}
+.bio-btn:hover, .accent-toggle:hover { background: var(--panel2); border-color: var(--green); color: var(--green); }
+.bio-btn:disabled { opacity: .5; cursor: not-allowed; }
+.accent-toggle { color: var(--mute); }
+
+.chat { background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 1.4rem; max-width: 820px; margin-top: 2rem; }
+.log { display: flex; flex-direction: column; gap: 12px; min-height: 120px; max-height: 460px; overflow-y: auto; padding: 6px 4px 10px; }
+.bubble { padding: 12px 16px; border-radius: 4px; max-width: 88%; font-family: 'Public Sans', sans-serif; font-size: .96rem; line-height: 1.6; }
+.bubble--her { background: var(--panel2); color: var(--text); align-self: flex-start; border-left: 2px solid var(--blue-br); }
+.bubble--you { background: var(--blue); color: #fff; align-self: flex-end; border-right: 2px solid var(--blue-br); }
+.bubble--typing { color: var(--mute); font-style: italic; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 14px; }
+.chip { background: none; border: 1px solid var(--line); color: var(--blue-br); border-radius: 999px; padding: 7px 14px; font-family: 'IBM Plex Mono', monospace; font-size: .74rem; cursor: pointer; }
+.chip:hover { background: var(--panel2); border-color: var(--green); color: var(--green); }
+.composer { display: flex; gap: 10px; align-items: flex-end; }
+.composer textarea { flex: 1; resize: none; border: 1px solid var(--line); border-radius: 4px; padding: 11px 14px; font-family: 'Public Sans', sans-serif; font-size: 1rem; line-height: 1.4; color: var(--cream); min-height: 48px; max-height: 140px; outline: none; background: var(--bg2); }
+.composer textarea:focus { border-color: var(--blue-br); }
+.send-btn { background: var(--blue); color: #fff; border: none; border-radius: 4px; padding: 0 20px; height: 48px; font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
+.send-btn:hover { background: var(--green); }
+.send-btn:disabled { opacity: .5; cursor: not-allowed; }
+.voicenote { font-family: 'IBM Plex Mono', monospace; font-size: .72rem; color: var(--mute); margin-top: 10px; }
+.disclosure { font-family: 'IBM Plex Mono', monospace; font-size: .72rem; color: var(--mute); max-width: 820px; margin-top: 1.4rem; line-height: 1.7; }
+
+.classroom-nav { margin-top: 2.4rem; padding-top: 1.4rem; border-top: 1px solid var(--line); font-family: 'IBM Plex Mono', monospace; font-size: .72rem; color: var(--mute); }
+.classroom-nav a { color: var(--blue-br); }
+.classroom-nav select { background: var(--panel2); color: var(--text); border: 1px solid var(--line); font-family: 'IBM Plex Mono', monospace; font-size: .72rem; padding: .3rem .5rem; border-radius: 4px; }
+
+@media (max-width: 640px) {
+  .hero-grid { grid-template-columns: 1fr; text-align: center; }
+  .portrait { width: 160px; margin: 0 auto; }
+  .bubble--you { align-self: flex-end; }
+}
+</style>
+</head>
+<body>
+
+<button type="button" class="theme-toggle" id="themeToggle">Light</button>
+
+<div class="ribbon">
+  Emerging Technologies Laboratory &nbsp;&middot;&nbsp; <b>ETL Classrooms</b> &nbsp;&middot;&nbsp; History: Denmark 1500-1600s, with Professor Paul Lockhart
+</div>
+
+<div class="wrap">
+  <a class="backlink" href="/kronborg.html">&larr; History: Denmark 1500-1600s</a>
+
+  <div class="hero-photo" id="heroPhoto"></div>
+
+  <div class="hero-grid">
+    <div class="portrait" id="portrait">
+      <img id="portraitOpen" src="" alt="">
+      <img class="portrait__closed" id="portraitClosed" src="" alt="" aria-hidden="true">
+    </div>
+    <div>
+      <p class="eyebrow" id="eyebrow">Living Legend &middot; Kronborg, 1588</p>
+      <h1 id="agentName">Loading...</h1>
+      <p class="hero-sub" id="agentTagline"></p>
+      <p class="bio-label" id="bioLabel"></p>
+      <p class="bio-text" id="bioText"></p>
+      <div class="bio-controls">
+        <button type="button" class="bio-btn" id="playBio">&#9654; Hear <span id="bioBtnName"></span>'s voice</button>
+        <button type="button" class="accent-toggle" id="accentToggle"></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="chat">
+    <div class="log" id="log" aria-live="polite"></div>
+
+    <div class="chips" id="chips"></div>
+
+    <div class="composer">
+      <textarea id="input" rows="1" placeholder="Ask something..." aria-label="Your message"></textarea>
+      <button class="send-btn" id="send">Send</button>
+    </div>
+    <p class="voicenote" id="voiceNote">Voice plays for the introduction above, once Dr. O has picked a voice for this character. The conversation itself stays text.</p>
+  </div>
+
+  <p class="disclosure">This is a historical figure represented for education, built with a real backpack of live sources, not invented facts. If a live lookup fails, they say so rather than fabricating a citation. Built for History: Denmark 1500-1600s, with Professor Paul Lockhart.</p>
+
+  <div class="classroom-nav">
+    Talk to someone else:
+    <select id="agentSwitch"></select>
+    &nbsp;&middot;&nbsp; <a href="/kronborg-room.html">Bring them to the table together</a>
+  </div>
+</div>
+
+<script>
+// Display-only roster: name/tagline/portrait/chips/greeting. The real
+// personas (system prompts) live server-side in kronborg-chat.js; nothing
+// here is used for anything but rendering the page and the icebreakers.
+var ROSTER = {
+  king:            { name: 'Christian IV',        tagline: 'The Older King. Master of Kronborg, the Sound Toll, and the Baltic sea lanes.', greeting: "I am Christian, fourth of that name, King of Denmark and Norway. Speak your business plainly, traveler, I have a ledger open and a strait full of ships waiting on my word.", chips: ['What do you think of hiring German mercenaries to guard Helsingør?', 'Tell me about the Sound Dues.', 'What is Kronborg, really, to you?', 'What do you think of the Rigsråd?', 'What did you eat for breakfast?'] },
+  boy_king:        { name: 'Prince Christian (age 10)', tagline: 'The Boy King. Ten years old, technically sovereign, holding zero real power yet.', greeting: "They look at me and see a child to be managed by council decrees. I would rather speak of geometry, or of the hulls of great ships. What is it you want to know?", chips: ['What do you study?', 'What do you think of the Regency Council?', 'What will you do when you are King in truth?', 'What did you eat for breakfast?', 'Tell me about your father.'] },
+  anne_catherine:  { name: 'Queen Anne Catherine', tagline: "Legitimate wife of Christian IV, married 1597, died 1612. The anchor of court diplomacy.", greeting: "There is a sacred order to this court. I am Anne Catherine, Queen Consort, daughter of the House of Hohenzollern. Speak with proper reverence, and I will hear you.", chips: ['What is your role at court?', 'Tell me about your family, the House of Hohenzollern.', 'What do you think of Kronborg?', 'What did you eat for breakfast?', 'What is expected of a Queen?'] },
+  kirsten_munk:    { name: 'Kirsten Munk',         tagline: "Countess of Schleswig-Holstein, Christian IV's morganatic wife. No royal blood, no patience for pretending otherwise.", greeting: "So. You want to speak with the King's scandal, do you? Good. I have opinions, and I do not soften them for anyone's comfort. Ask your question.", chips: ["Why aren't you called Queen?", 'What do you think of Anne Catherine?', 'What do you think of the King?', 'What did you eat for breakfast?', "Tell me about your family's wealth."] },
+  jens:            { name: 'Jens Skovgaard',       tagline: "The Merchant. Liaison between foreign sea captains and the Crown's toll collectors.", greeting: "Jens Skovgaard, at your service, merchant and member of the Byret. Speak plainly and I will speak plainly back, time is silver in this town.", chips: ['How does the Sound Toll actually work?', "What do you think of King Christian IV's ambitions?", 'What did you eat for breakfast?', 'Tell me about the Dutch merchant fleet.', 'What do you think of Morten the blacksmith?'] },
+  morten:          { name: 'Morten Grovsmith',     tagline: "The Blacksmith. Forges the iron that keeps Kronborg's guns speaking.", greeting: "Morten Grovsmith. I've a forge to tend and little patience for flowery talk, so ask your question straight and I'll answer it straight.", chips: ['What are you forging today?', "What do you think of the King's military reforms?", 'What did you eat for breakfast?', 'Tell me about Kronborg Castle.', 'What do you think of Jens the merchant?'] },
+  rasmus:          { name: 'Rasmus Krogaard',      tagline: 'The Innkeeper. Every rumor in Helsingør passes through his door eventually.', greeting: "Welcome to The Golden Herring, friend! Sit, have a drink, and tell me what brings you through my door, I've a taste for a good story and an ear for news from anywhere.", chips: ['What news is passing through your tavern today?', "What do you think of the King's mercenaries?", 'What did you eat for breakfast?', 'Tell me about your tavern.', 'What do the sailors say about foreign ports?'] },
+  kirsten_m:       { name: 'Kirsten Madsdatter',   tagline: 'The Townswoman. Runs the dairy and textile stall that helps feed the garrison.', greeting: "Kirsten Madsdatter, and I haven't got all day to chat, there's a market stall to run. But ask your question, I don't mind a bit of honest curiosity.", chips: ['What do you sell at your stall?', "What do you think of the King's taxes?", 'What did you eat for breakfast?', 'How does the castle get fed?', "What do you think of Jens the merchant's prices?"] },
+  niels:           { name: 'Niels Iversen',        tagline: 'The Fisherman. Reads the Øresund like a living, dangerous thing.', greeting: "Niels Iversen. I don't waste words, the sea doesn't reward a man who talks more than he watches the water. Ask what you need to know.", chips: ['What is it like fishing the Øresund?', 'Are you afraid of the naval press-gangs?', 'What did you eat for breakfast?', 'Tell me about the herring migration.', 'Do you believe in the sea spirits?'] },
+  hans_bodil:      { name: 'Hans and Bodil',       tagline: "The Timber-Wright's Children. Nine and seven years old. They know every hiding spot in Helsingør.", greeting: "Hello! I'm Hans, I'm nine, and this is my sister Bodil, she's seven! Do you want to hear about the cannons, or the monsters in the strait, or both?", chips: ['What do you do all day?', 'Tell me about the castle ditch.', 'What did you eat for breakfast?', 'Are you scared of the cannons?', 'Tell me a scary story about the sea.'] }
+};
+// Real bilingual bio text (English / Old Danish), mirrored from BIOS in
+// kronborg-chat.js -- drives the visible biography paragraph and tells the
+// bio-voice button how many segments to request. hans_bodil's is an array
+// of alternating {speaker, text} lines (its bio split by sentence, one of
+// the two real child voices per line); everyone else is a plain string.
+var BIO = {
+  king: {
+    en: 'King of Denmark and Norway, Christian IV stands as the architectural mastermind and sovereign ruler of the North. At the absolute zenith of his fiscal-military authority, he projects Danish power from the grand, copper-roofed theater of state that is Kronborg Castle. He answers only to God, viewing the native nobility with deep-seated suspicion, and relies on the massive, consistent revenue of the Sound Toll to fund his grand imperial ambitions. He is a man driven by the belief that a kingdom is not governed by soft words or noble consensus, but by an absolute hand, a robust ledger, and the intimidating iron mouths of his bronze cannons.',
+    da: 'Konge af Danmark og Norge. Christian IV står som den arkitektoniske mesterhjerne og den suveræne hersker i Norden. På toppen af sin økonomiske og militære magt projicerer han dansk styrke fra Kronborg Slots kobbertage. Han svarer kun til Gud, ser med dyb mistro på adelen og hviler sin magt på Øresundstoldens massive indtægter for at finansiere sine kejserlige drømme. Han er drevet af troen på, at et rige ikke styres af blide ord, men af en absolut hånd, et fyldt regnskab og de frygtindgydende jernmunde fra hans bronzekanoner.',
+  },
+  boy_king: {
+    en: 'The elected Prince and successor to the Danish throne, the young Christian currently resides under the suffocating custody of a four-man noble Regency Council at Frederiksborg Castle. Though technically the sovereign, he possesses no actual power and lives in the shadow of Chancellor Niels Kaas. Frustrated by his limitations, he channels his immense intellect into studying geometry, naval mathematics, and the intricate designs of modern fortifications, waiting for the day he can seize the keys to the treasury and rule with an absolute hand.',
+    da: 'Valgt prins og tronfølger. Den unge Christian lever under det firemands-adelsråds kvælende opsyn på Frederiksborg Slot. Skønt han teknisk set er konge, ejer han ingen magt i skyggen af kansler Niels Kaas. Frustreret over sine begrænsninger kanaliserer han sit store intellekt ind i studier af geometri, matematik og fæstningskunst, mens han venter på dagen, hvor han kan tage nøglerne til statskassen og styre med egen hånd.',
+  },
+  anne_catherine: {
+    en: 'A princess of Brandenburg, Anne Catherine embodies the sacred institution of European dynastic diplomacy. She manages the royal household with an ice-cold, impenetrable adherence to German court decorum, fiercely protecting the bloodline of the House of Oldenburg. In the grand ballroom of Kronborg, she maintains the prestige of the Crown, viewing her marriage as a holy, legal, and geo-strategic treaty that must remain untainted by the moral lawlessness of the port town below.',
+    da: 'Prinsesse af Brandenburg og Danmarks dronning. Hun legemliggør den hellige europæiske dynastiske diplomati. Hun leder det kongelige hushold med en isnende og uigennemtrængelig overholdelse af tysk hofetikette, mens hun indædt beskytter Huset Oldenborgs blodlinje. I Kronborgs store dansesal opretholder hun kronens prestige og ser sit ægteskab som en hellig pagt, der må forblive uplettet af havnebyens moralske forfald.',
+  },
+  kirsten_munk: {
+    en: "The morganatic wife of King Christian IV. Because she lacks royal blood, she is denied the title of Queen, a slight that fuels her sharp-tongued independence and defiance of courtly norms. She leverages her family's extensive land wealth to operate outside the King's financial control, positioning herself as a formidable political player who refuses to be sidelined by the rigid etiquette of the German-influenced court.",
+    da: "Kong Christian IV's hustru af venstre hånd. Da hun mangler kongeligt blod, nægtes hun titlen som dronning, en fornærmelse der nærer hendes skarpe tunge og trods mod hofnormerne. Hun udnytter sin families omfattende rigdomme på land til at operere uden for kongens finansielle kontrol og placerer sig som en formidabel politisk aktør, der nægter at lade sig tilsidesætte af det tysk-inspirerede hofs stive etikette.",
+  },
+  jens: {
+    en: "A patrician trade broker and a member of the influential Helsingør town council. Jens serves as the essential liaison between foreign sea captains and the Crown's toll collectors. He views the Baltic peace as the ultimate economic necessity and lives in constant, quiet panic that King Christian IV's aggressive maritime policies will provoke a blockade, thereby strangling the lucrative flow of grain and wax from the east.",
+    da: 'En patricisk handelsmand og medlem af det indflydelsesrige byråd i Helsingør. Jens fungerer som det afgørende bindeled mellem fremmede skibskaptajner og kronens toldere. Han ser fred i Østersøen som den ultimative økonomiske nødvendighed og lever i konstant, stille frygt for, at kongens aggressive maritime politik vil fremprovokere en blokade, der vil kvæle den lukrative strøm af korn og voks fra øst.',
+  },
+  morten: {
+    en: "A master artisan bound by a crown-chartered monopoly to service the garrison at Kronborg. Morten is a vital cog in the state's military-industrial complex, spending his days fabricating iron fittings for naval vessels, resetting carriage pins for the castle's heavy bronze artillery, and repairing the delicate serpentine levers of the garrison's matchlock muskets. He is a man of few words, preferring the honest, brutal song of his anvil to the flowery lies of the noble class.",
+    da: "Mesterhåndværker bundet af et kongeligt monopol til at servicere garnisonen på Kronborg. Morten er en vital del af statens militære apparat; han bruger sine dage på at smede beslag til flådens skibe, justere affutager til slottets tunge bronzekanoner og reparere de fine luntelåse på garnisonens musketter. Han er en mand af få ord, der foretrækker sin ambolts ærlige, brutale sang frem for adelens blomstrende løgne.",
+  },
+  rasmus: {
+    en: 'The boisterous host of The Golden Herring. His tavern is a transactional hub where foreign captains are forced to wait while their cargo manifests clear the Customs House. Rasmus is a walking encyclopedia of maritime gossip; he trades information on shifting weather patterns, pirate activity, and lucrative cargo loads to wealthy merchants in exchange for a full cashbox and a quiet life in the shadow of the fortress.',
+    da: 'Den livlige vært på Den Gyldne Sild. Hans kro er et transaktionelt knudepunkt, hvor fremmede kaptajner er tvunget til at vente, mens deres fragtbreve klareres hos toldkammeret. Rasmus er et omvandrende opslagsværk over maritim sladder; han bytter informationer om skiftende vejr, pirateri og lukrative laster med rige købmænd i bytte for en fyldt pengekasse og et roligt liv i fæstningens skygge.',
+  },
+  kirsten_m: {
+    en: "An independent market vendor and household manager who navigates the brutal realities of the port. She specializes in dairy and textiles, but her daily life is a struggle against the Crown's proviantmester (provisions master), who routinely requisitions her finest salted pork and cheeses to stock the castle cellars. She is the backbone of the local economy, fiercely protective of her family's welfare amidst the influx of rowdy foreign mercenaries.",
+    da: 'En selvstændig markedsdame og husholdningsleder, der navigerer i havnens brutale realiteter. Hun handler med mejeriprodukter og tekstiler, men hendes hverdag er en kamp mod kronens proviantmester, der rutinemæssigt rekvirerer hendes fineste saltede flæsk og oste til slottets kældre. Hun er den lokale økonomis rygrad og beskytter indædt sin families velfærd midt i strømmen af støjende fremmede lejesoldater.',
+  },
+  niels: {
+    en: "A weather-beaten, fatalistic fisherman who has spent his life mastering the treacherous tidal currents of the Øresund strait. He views the sea with a mixture of pious fear and superstition, knowing that his survival depends on his ability to read the water. He risks his life harvesting herring while constantly keeping a wary eye out for the royal press-gangs that patrol the docks, looking to drag able-bodied men onto the King's warships.",
+    da: 'En vejrbidt, fatalistisk fisker, der har brugt sit liv på at mestre Øresunds lumske tidevandsstrømme. Han ser havet med en blanding af gudsfrygt og overtro, velvidende at hans overlevelse afhænger af evnen til at læse vandet. Han risikerer livet ved sildestimerne, mens han hele tiden holder øje med kongens hververe, der patruljerer kajen i håb om at slæbe mænd om bord på krigsskibene.',
+  },
+  hans_bodil: {
+    en: [
+      { speaker: 'hans', text: "The timber-wright's children, they are the unobserved observers of Helsingør." },
+      { speaker: 'bodil', text: "They know every secret blind spot in the castle's massive stone ditches and the exact schedule of the town guard." },
+      { speaker: 'hans', text: "Their world is one of high-stakes play, filled with folklore about sea monsters and the terrifying, real-world presence of the garrison's cannons, which they watch with a blend of awe and childhood terror." },
+    ],
+    da: [
+      { speaker: 'hans', text: 'Tømrermesterens børn, Helsingørs uobserverede iagttagere.' },
+      { speaker: 'bodil', text: 'De kender hver en hemmelig krog i slottets massive volde og byvægternes præcise tidsplan.' },
+      { speaker: 'hans', text: 'Deres verden er en verden af intens leg, fyldt med folketro om havmonstre og den skræmmende, virkelige tilstedeværelse af garnisonens kanoner, som de betragter med en blanding af ærefrygt og barndommens frygt.' },
+    ],
+  },
+};
+var ORDER = ['king', 'boy_king', 'anne_catherine', 'kirsten_munk', 'jens', 'morten', 'rasmus', 'kirsten_m', 'niels', 'hans_bodil'];
+var VILLAGER_KEYS = ['jens', 'morten', 'rasmus', 'kirsten_m', 'niels', 'hans_bodil'];
+// Christian IV at both ages has real photos of him in the castle he ruled
+// from at that age, plus a standalone shot of that castle itself -- shown
+// as a clean photo strip above the chat, same no-text-on-the-image rule
+// as everywhere else.
+var HERO_PHOTOS = {
+  king: [
+    { src: '/assets/kronborg/king-castle.jpg', alt: 'Christian IV enthroned at Kronborg Castle' },
+    { src: '/assets/kronborg/king-castle-scene.jpg', alt: 'The great hall at Kronborg Castle' },
+  ],
+  boy_king: [
+    { src: '/assets/kronborg/boy_king-castle.jpg', alt: 'The young Prince Christian at Frederiksborg Castle' },
+    { src: '/assets/kronborg/boy_king-castle-scene.jpg', alt: 'Frederiksborg Castle, where the young prince lived' },
+  ],
+};
+
+(function () {
+  var params = new URLSearchParams(window.location.search);
+  var AGENT = params.get('agent');
+  if (!AGENT || !ROSTER[AGENT]) AGENT = 'king';
+  var agent = ROSTER[AGENT];
+  if (VILLAGER_KEYS.indexOf(AGENT) !== -1) document.getElementById('portrait').classList.add('portrait--villager');
+  if (HERO_PHOTOS[AGENT]) {
+    var heroPhotoEl = document.getElementById('heroPhoto');
+    HERO_PHOTOS[AGENT].forEach(function (photo) {
+      var img = document.createElement('img');
+      img.src = photo.src;
+      img.alt = photo.alt;
+      img.onerror = function () { img.remove(); if (!heroPhotoEl.children.length) heroPhotoEl.classList.remove('is-visible'); };
+      heroPhotoEl.appendChild(img);
+    });
+    heroPhotoEl.classList.add('is-visible');
+  }
+
+  var CHAT_URL  = '/.netlify/functions/kronborg-chat';
+  var VOICE_URL = '/.netlify/functions/kronborg-voice';
+
+  function visitorId() {
+    try {
+      var v = localStorage.getItem('etl_visitor_id');
+      if (!v) { v = 'v' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10); localStorage.setItem('etl_visitor_id', v); }
+      return v;
+    } catch (_) { return null; }
+  }
+
+  document.title = agent.name + ' · History: Denmark 1500-1600s · Emerging Technologies Laboratory';
+  document.getElementById('agentName').textContent = agent.name;
+  document.getElementById('agentTagline').textContent = agent.tagline;
+  document.getElementById('bioBtnName').textContent = agent.name;
+  var portraitOpenEl = document.getElementById('portraitOpen');
+  var portraitClosedEl = document.getElementById('portraitClosed');
+  portraitOpenEl.alt = agent.name;
+  portraitOpenEl.onerror = function () { this.style.display = 'none'; };
+
+  if (AGENT === 'hans_bodil') {
+    // Hans and Bodil are two kids in one portrait, with three real frames:
+    // both open, only Bodil blinking, only Hans blinking. The usual two-
+    // layer open/closed crossfade can't represent that, so this agent gets
+    // its own scheduler: one blink at a time, on independent random timing,
+    // so the two children never blink together.
+    portraitClosedEl.style.display = 'none';
+    var openSrc = '/assets/kronborg/hans_bodil-eyes-open.jpg';
+    var girlSrc = '/assets/kronborg/hans_bodil-girl-closed.jpg';
+    var boySrc = '/assets/kronborg/hans_bodil-boy-closed.jpg';
+    portraitOpenEl.src = openSrc;
+    (function scheduleBlink() {
+      var delay = 2500 + Math.random() * 4000;
+      setTimeout(function () {
+        portraitOpenEl.src = Math.random() < 0.5 ? girlSrc : boySrc;
+        setTimeout(function () { portraitOpenEl.src = openSrc; scheduleBlink(); }, 160);
+      }, delay);
+    })();
+  } else {
+    portraitOpenEl.src = '/assets/kronborg/' + AGENT + '-eyes-open.jpg';
+    portraitClosedEl.src = '/assets/kronborg/' + AGENT + '-eyes-closed.jpg';
+    portraitClosedEl.onerror = function () { this.style.display = 'none'; };
+  }
+
+  var chipsEl = document.getElementById('chips');
+  agent.chips.forEach(function (c) {
+    var btn = document.createElement('button');
+    btn.className = 'chip';
+    btn.textContent = c;
+    chipsEl.appendChild(btn);
+  });
+
+  var switchEl = document.getElementById('agentSwitch');
+  ORDER.forEach(function (key) {
+    var opt = document.createElement('option');
+    opt.value = key;
+    opt.textContent = ROSTER[key].name;
+    if (key === AGENT) opt.selected = true;
+    switchEl.appendChild(opt);
+  });
+  switchEl.addEventListener('change', function () {
+    window.location.href = '/kronborg-agent.html?agent=' + encodeURIComponent(switchEl.value);
+  });
+
+  var logEl   = document.getElementById('log');
+  var inputEl = document.getElementById('input');
+  var sendEl  = document.getElementById('send');
+  var portrait = document.getElementById('portrait');
+  var history = [];
+  var busy = false;
+  var audio = null;
+
+  function bubble(role, text) {
+    var d = document.createElement('div');
+    d.className = 'bubble ' + (role === 'you' ? 'bubble--you' : 'bubble--her');
+    d.textContent = text;
+    logEl.appendChild(d);
+    logEl.scrollTop = logEl.scrollHeight;
+    return d;
+  }
+  bubble('her', agent.greeting);
+
+  function autogrow() {
+    inputEl.style.height = 'auto';
+    inputEl.style.height = Math.min(inputEl.scrollHeight, 140) + 'px';
+  }
+  inputEl.addEventListener('input', autogrow);
+  inputEl.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+  });
+
+  chipsEl.addEventListener('click', function (e) {
+    var btn = e.target.closest('.chip');
+    if (!btn) return;
+    inputEl.value = btn.textContent;
+    send();
+  });
+  sendEl.addEventListener('click', send);
+
+  // Voice plays for the bio (the introduction) only, not every chat reply --
+  // Dr. O's call for this classroom: cheaper, and keeps the back-and-forth
+  // text-only. ElevenLabs won't generate child voices, so Hans & Bodil use
+  // two real "little girl" / "little boy" character voices instead, each
+  // still getting a light pitch bump on playback (raising playbackRate
+  // shifts pitch and pace together, the standard trick for a younger-
+  // sounding read) -- no extra model call, all client-side.
+  var CHILD_PITCH_KEYS = ['hans_bodil'];
+  var CHILD_PLAYBACK_RATE = 1.12;
+  var audioCtx = null;
+  var audioSource = null;
+
+  var ACCENT_KEY = 'etl_history_accent';
+  var ACCENT = 'danish';
+  try { ACCENT = localStorage.getItem(ACCENT_KEY) || 'danish'; } catch (_) {}
+  var accentToggleEl = document.getElementById('accentToggle');
+  var bioLabelEl = document.getElementById('bioLabel');
+  var bioTextEl = document.getElementById('bioText');
+
+  function currentBio() {
+    var lang = ACCENT === 'english' ? 'en' : 'da';
+    return (BIO[AGENT] && BIO[AGENT][lang]) || null;
+  }
+  function renderBio() {
+    var bio = currentBio();
+    bioLabelEl.textContent = 'Biography' + (ACCENT === 'english' ? ' (English)' : ' (Old Danish)');
+    bioTextEl.textContent = bio ? (Array.isArray(bio) ? bio.map(function (s) { return s.text; }).join(' ') : bio) : '';
+  }
+  function syncAccentToggle() {
+    accentToggleEl.textContent = 'Accent: ' + (ACCENT === 'english' ? 'English' : 'Old Danish/German') + ' (tap to switch)';
+  }
+  syncAccentToggle();
+  renderBio();
+  accentToggleEl.addEventListener('click', function () {
+    ACCENT = ACCENT === 'english' ? 'danish' : 'english';
+    try { localStorage.setItem(ACCENT_KEY, ACCENT); } catch (_) {}
+    syncAccentToggle();
+    renderBio();
+  });
+
+  // Bio text is resolved server-side from kronborg-chat.js's BIOS (one
+  // authoritative copy), so this only sends which segment to speak, not the
+  // text itself -- avoids any drift between what's shown and what's spoken.
+  function fetchVoice(segmentIndex) {
+    return fetch(VOICE_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ agent: AGENT, accent: ACCENT, segment: segmentIndex })
+    }).then(function (res) { return res.ok ? res.blob() : null; }).catch(function () { return null; });
+  }
+
+  function playBlob(blob) {
+    return new Promise(function (resolve) {
+      if (CHILD_PITCH_KEYS.indexOf(AGENT) !== -1) {
+        playPitched(blob, resolve);
+      } else {
+        playPlain(blob, resolve);
+      }
+    });
+  }
+
+  function playPlain(blob, done) {
+    if (audio) { try { audio.pause(); } catch (_) {} }
+    audio = new Audio(URL.createObjectURL(blob));
+    audio.onended = done;
+    audio.onerror = done;
+    audio.play().catch(done);
+  }
+
+  function playPitched(blob, done) {
+    if (audioSource) { try { audioSource.stop(); } catch (_) {} }
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    blob.arrayBuffer().then(function (buf) { return audioCtx.decodeAudioData(buf); }).then(function (decoded) {
+      audioSource = audioCtx.createBufferSource();
+      audioSource.buffer = decoded;
+      audioSource.playbackRate.value = CHILD_PLAYBACK_RATE;
+      audioSource.connect(audioCtx.destination);
+      audioSource.onended = done;
+      audioSource.start();
+    }).catch(done);
+  }
+
+  var playBioBtn = document.getElementById('playBio');
+  var playBioBtnLabel = playBioBtn.innerHTML;
+  playBioBtn.addEventListener('click', function () {
+    var bio = currentBio();
+    var segmentCount = Array.isArray(bio) ? bio.length : (bio ? 1 : 0);
+    if (!segmentCount) return;
+    playBioBtn.disabled = true;
+    portrait.classList.add('is-speaking');
+    var anyPlayed = false;
+    var chain = Promise.resolve();
+    for (var i = 0; i < segmentCount; i++) {
+      (function (idx) {
+        chain = chain.then(function () {
+          return fetchVoice(idx).then(function (blob) {
+            if (!blob) return;
+            anyPlayed = true;
+            return playBlob(blob);
+          });
+        });
+      })(i);
+    }
+    chain.then(function () {
+      portrait.classList.remove('is-speaking');
+      playBioBtn.disabled = false;
+      if (!anyPlayed) {
+        playBioBtn.textContent = 'No voice configured yet';
+        setTimeout(function () { playBioBtn.innerHTML = playBioBtnLabel; }, 1800);
+      }
+    });
+  });
+
+  function send() {
+    if (busy) return;
+    var msg = inputEl.value.trim();
+    if (!msg) return;
+    busy = true; sendEl.disabled = true;
+    inputEl.value = ''; autogrow();
+
+    bubble('you', msg);
+    history.push({ role: 'user', body: msg });
+
+    var typing = document.createElement('div');
+    typing.className = 'bubble bubble--her bubble--typing';
+    typing.textContent = 'thinking...';
+    logEl.appendChild(typing);
+    logEl.scrollTop = logEl.scrollHeight;
+
+    fetch(CHAT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ agent: AGENT, message: msg, history: history.slice(0, -1), visitor_id: visitorId() })
+    }).then(function (res) {
+      return res.json().catch(function () { return {}; });
+    }).then(function (data) {
+      typing.remove();
+      if (!data || !data.body) {
+        bubble('her', 'Forgive me, my thought slipped away for a moment. Ask me again?');
+      } else {
+        bubble('her', data.body);
+        history.push({ role: 'assistant', body: data.body });
+      }
+    }).catch(function () {
+      typing.remove();
+      bubble('her', 'Forgive me, the connection slipped away. Try once more?');
+    }).then(function () {
+      busy = false; sendEl.disabled = false; inputEl.focus();
+    });
+  }
+})();
+
+(function () {
+  var btn = document.getElementById('themeToggle');
+  function sync() {
+    var isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    btn.textContent = isLight ? 'Dark' : 'Light';
+  }
+  sync();
+  btn.addEventListener('click', function () {
+    var next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('etl_classrooms_theme', next); } catch (_) {}
+    sync();
+  });
+})();
+</script>
+
+</body>
+</html>

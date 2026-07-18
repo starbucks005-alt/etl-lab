@@ -1,27 +1,24 @@
 /* ─────────────────────────────────────────────────────────────────────────────
-   ptx4990-group-ask -- the PTX 4990 classroom's group table: several historical
-   scientist agents in one shared room, actually talking to each other and to
-   the student, not just answering one at a time.
+   kronborg-room -- the Kronborg 1588 classroom's group table: any mix of the
+   royal court and the townspeople of Helsingør, actually talking to each
+   other and to the visitor, not just answering one at a time.
 
-   Same director+cascade mechanic as Almost Human's eq-room-group-ask.js (a
-   cheap director call picks who speaks next, up to a small cascade cap, only
-   the first beat is guaranteed), stripped down for a free, ungated classroom
-   tool: no paywall, no credit ledger, no conduct-strike system, no emotion
-   engine. This is a self-contained file, adapted from that pattern rather
-   than importing it, so nothing here can put the paid Almost Human room at
-   risk. Roster and real backpack tools (Wikipedia + arXiv) come from
-   ptx4990-chat.js, so adding a scientist there automatically makes them
-   available here too.
+   Same director+cascade mechanic as ptx4990-group-ask.js (itself adapted
+   from Almost Human's eq-room-group-ask.js): a cheap director call picks who
+   speaks next, up to a small cascade cap, only the first beat is guaranteed.
+   Free, ungated, self-contained -- imports the roster and tools from
+   kronborg-chat.js, but duplicates nothing else, so this file can't put that
+   one at risk.
 
    POST {
-     active_agents: string[]              -- 2+ keys from SCIENTISTS
+     active_agents: string[]              -- 2+ keys from AGENTS
      transcript: [{speaker, name, content}]  -- shared room log so far
-                    (speaker is a scientist key, or "student")
-     message: string                       -- the student's new message
-     student_name?: string
+                    (speaker is an agent key, or "visitor")
+     message: string                       -- the visitor's new message
+     visitor_name?: string
    }
    Returns {
-     replies: [{agent_key, agent_name, reply}],
+     replies: [{agent_key, agent_name, reply, audio_script}],
      transcript_append: [{speaker, name, content}],
      active_agents: string[]
    }
@@ -30,7 +27,7 @@
    ───────────────────────────────────────────────────────────────────────────── */
 
 const Anthropic = require('@anthropic-ai/sdk').default;
-const { SCIENTISTS, TOOLS, executeTool, cleanDashes, MODEL, safeVisitorId, fetchVisitorMemory, saveVisitorMemory } = require('./ptx4990-chat.js');
+const { AGENTS, TOOLS, executeTool, cleanDashes, MODEL, phoneticVoiceScript, safeVisitorId, fetchVisitorMemory, saveVisitorMemory } = require('./kronborg-chat.js');
 
 const DIRECTOR_MODEL = 'claude-haiku-4-5-20251001';
 const CASCADE_CAP = 3;
@@ -48,10 +45,10 @@ function json(status, obj) {
   return { statusCode: status, headers: { ...CORS, 'Content-Type': 'application/json' }, body: JSON.stringify(obj) };
 }
 
-// Formats the shared transcript from ONE scientist's point of view: their
-// own past lines stay role:'assistant' (unprefixed), everyone else's lines
-// (the student's and every other scientist's) become role:'user', prefixed
-// with who said it. Same pattern as eq-room-group-ask.js's buildMessagesFor.
+// Formats the shared transcript from ONE agent's point of view: their own
+// past lines stay role:'assistant' (unprefixed), everyone else's lines
+// (the visitor's and every other agent's) become role:'user', prefixed with
+// who said it. Same pattern as ptx4990-group-ask.js's buildMessagesFor.
 function buildMessagesFor(agentKey, transcript) {
   return transcript.map((entry) => {
     if (entry.speaker === agentKey) return { role: 'assistant', content: entry.content };
@@ -60,22 +57,22 @@ function buildMessagesFor(agentKey, transcript) {
 }
 
 // One cheap Haiku call: who should speak next. Only beat 0 is forced (someone
-// should always answer the student); every beat after that is genuine
+// should always answer the visitor); every beat after that is genuine
 // discretion, so the room doesn't lock into the same reply count every turn.
 async function pickNextSpeaker(client, activeAgents, transcript, beatIndex, forced) {
-  const roster = activeAgents.map((k) => `${k}: ${SCIENTISTS[k].name}. ${SCIENTISTS[k].tagline}`).join('\n');
+  const roster = activeAgents.map((k) => `${k}: ${AGENTS[k].name}, ${AGENTS[k].title}. ${AGENTS[k].tagline}`).join('\n');
   const transcriptText = transcript.slice(-16).map((e) => `${e.name}: ${e.content}`).join('\n');
   const instruction = beatIndex === 0
-    ? 'The student just said something new. Pick whoever at the table would naturally respond first.'
-    : 'Judge this moment honestly, the way a real seminar table works: often one reply is plenty and the room naturally pauses there, sometimes another scientist can\'t help adding to or disputing what was just said, especially if it touches their own work or era. Only pick a name if that scientist would genuinely, naturally have something to say about what the LAST person just said.';
-  const prompt = `You're directing a small academic roundtable: a few historical scientists and one student, actually talking to each other, not taking turns answering the student one at a time. People at the table:\n${roster}\n\n` +
+    ? 'The visitor just said something new. Pick whoever at the table would naturally respond first, given the rigid social hierarchy of 1600s Denmark: royals are rarely interrupted, commoners generally defer unless the moment calls for bluntness.'
+    : 'Judge this moment honestly, the way this specific social world actually works: often one reply is plenty and the room naturally pauses there, sometimes someone can\'t help reacting to what was just said, especially across the class divide between the castle and the town. Only pick a name if that person would genuinely, naturally have something to say about what the LAST person just said.';
+  const prompt = `You're directing a real conversation in and around Kronborg Castle, Helsingør, in the age of Christian IV: a mix of royals and townspeople, and one visitor, actually talking to each other, not taking turns answering the visitor one at a time. People at the table:\n${roster}\n\n` +
     `Recent conversation:\n${transcriptText}\n\n${instruction}` +
     (forced ? ' Pick exactly one agent key from the roster above.' : ' Pick exactly one agent key from the roster above, or "none" if nobody would genuinely add anything right now.');
 
   const enumValues = forced ? [...activeAgents] : [...activeAgents, 'none'];
   const tool = {
     name: 'pick_speaker',
-    description: forced ? 'Choose who speaks next at the table.' : 'Choose who speaks next at the table, or none.',
+    description: forced ? 'Choose who speaks next.' : 'Choose who speaks next, or none.',
     input_schema: { type: 'object', properties: { speaker: { type: 'string', enum: enumValues } }, required: ['speaker'] },
   };
 
@@ -92,14 +89,14 @@ async function pickNextSpeaker(client, activeAgents, transcript, beatIndex, forc
     if (speaker && activeAgents.includes(speaker)) return speaker;
     return forced ? activeAgents[0] : null;
   } catch (err) {
-    console.error('[ptx4990-group-ask] director failed (non-fatal):', err.message);
+    console.error('[kronborg-room] director failed (non-fatal):', err.message);
     return forced ? activeAgents[0] : null;
   }
 }
 
-// Bounded tool-use turn: same agentic loop as ptx4990-chat.js's
+// Bounded tool-use turn: same agentic loop as kronborg-chat.js's
 // runAgentLoop, but capped lower (TURN_TOOL_LOOP) since a single group
-// request can cascade through several scientists' turns already.
+// request can cascade through several agents' turns already.
 async function runTurn(client, system, messages) {
   let current = [...messages];
   for (let i = 0; i < TURN_TOOL_LOOP; i++) {
@@ -132,7 +129,7 @@ exports.handler = async (event) => {
   try { body = JSON.parse(event.body || '{}'); } catch { return json(400, { error: 'invalid json' }); }
 
   const activeAgents = Array.isArray(body.active_agents)
-    ? [...new Set(body.active_agents.map((a) => String(a || '').trim().toLowerCase()))].filter((a) => SCIENTISTS[a])
+    ? [...new Set(body.active_agents.map((a) => String(a || '').trim().toLowerCase()))].filter((a) => AGENTS[a])
     : [];
   if (activeAgents.length < 2) return json(400, { error: 'need_at_least_two_agents' });
   if (activeAgents.length > MAX_ROOM_AGENTS) return json(400, { error: 'too_many_agents', max: MAX_ROOM_AGENTS });
@@ -140,16 +137,16 @@ exports.handler = async (event) => {
   const message = String(body.message || '').trim().slice(0, 2000);
   if (!message) return json(400, { error: 'message required' });
 
-  const studentName = String(body.student_name || '').trim().slice(0, 40) || 'the student';
+  const visitorName = String(body.visitor_name || '').trim().slice(0, 40) || 'the visitor';
   const visitorId = safeVisitorId(body.visitor_id);
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   const rawTranscript = Array.isArray(body.transcript) ? body.transcript : [];
   const transcript = rawTranscript
     .filter((e) => e && typeof e.content === 'string' && e.content.trim() && typeof e.name === 'string')
-    .map((e) => ({ speaker: String(e.speaker || 'student'), name: e.name, content: e.content.trim() }))
+    .map((e) => ({ speaker: String(e.speaker || 'visitor'), name: e.name, content: e.content.trim() }))
     .slice(-MAX_TRANSCRIPT_ENTRIES);
-  transcript.push({ speaker: 'student', name: studentName, content: message });
+  transcript.push({ speaker: 'visitor', name: visitorName, content: message });
 
   const client = new Anthropic({ apiKey });
   const replies = [];
@@ -167,20 +164,20 @@ exports.handler = async (event) => {
     if (!speaker) break;
     usedThisBeat.push(speaker);
 
-    const scientist = SCIENTISTS[speaker];
-    const roommates = activeAgents.filter((k) => k !== speaker).map((k) => `${SCIENTISTS[k].name} (${SCIENTISTS[k].tagline})`);
-    let turnPrompt = scientist.system +
-      `\n\nROOM CONTEXT\nYou are seated at a roundtable in the "Biology: Albert Einstein and Marie Curie Come Alive" classroom with ${studentName} and, also at the table: ${roommates.join('; ')}. This is a group conversation, not a private one-on-one.`;
+    const agent = AGENTS[speaker];
+    const roommates = activeAgents.filter((k) => k !== speaker).map((k) => `${AGENTS[k].name} (${AGENTS[k].title})`);
+    let turnPrompt = agent.system +
+      `\n\nROOM CONTEXT\nYou are in a shared room in and around Kronborg with ${visitorName} and, also present: ${roommates.join('; ')}. This is a group conversation, not a private one-on-one.`;
 
     const visitorMemory = await fetchVisitorMemory(speaker, visitorId, serviceKey);
     if (visitorMemory) {
-      turnPrompt += `\n\nWHAT YOU REMEMBER ABOUT ${studentName.toUpperCase()}\n${visitorMemory}\nYou've spoken with them before, one on one or at this table; let that show naturally, without making a show of it.`;
+      turnPrompt += `\n\nWHAT YOU REMEMBER ABOUT ${visitorName.toUpperCase()}\n${visitorMemory}\nYou've spoken with them before; let that show naturally, without making a show of it.`;
     }
 
     if (beat > 0) {
       const lastEntry = transcript[transcript.length - 1];
-      if (lastEntry && lastEntry.speaker !== 'student') {
-        turnPrompt += `\n\n${lastEntry.name} just spoke, not the student, and this reply is to them, not to the student. React only to ${lastEntry.name}, the way you actually would if a colleague sitting right next to you just said that out loud: agree, disagree, correct them, build on it, whatever is true to your actual views and era. Do not turn back to address the student this beat, save that for your next real turn.`;
+      if (lastEntry && lastEntry.speaker !== 'visitor') {
+        turnPrompt += `\n\n${lastEntry.name} just spoke, not the visitor, and this reply is to them, not to the visitor. React only to ${lastEntry.name}, the way you actually would given your real relationship and station relative to them (see ROOM DYNAMICS above): agree, disagree, correct them, defer, mock, whatever is true to your character. Do not turn back to address the visitor this beat, save that for your next real turn.`;
       }
     }
 
@@ -189,18 +186,18 @@ exports.handler = async (event) => {
     try {
       replyText = await runTurn(client, turnPrompt, messages);
     } catch (err) {
-      console.error('[ptx4990-group-ask] turn error for', speaker, err.message);
+      console.error('[kronborg-room] turn error for', speaker, err.message);
       continue;
     }
     if (!replyText) continue;
     replyText = cleanDashes(replyText);
 
-    const entry = { speaker, name: scientist.name, content: replyText };
+    const entry = { speaker, name: agent.name, content: replyText };
     transcript.push(entry);
     transcriptAppend.push(entry);
-    replies.push({ agent_key: speaker, agent_name: scientist.name, reply: replyText });
+    replies.push({ agent_key: speaker, agent_name: agent.name, reply: replyText, audio_script: phoneticVoiceScript(replyText) });
 
-    await saveVisitorMemory(client, speaker, scientist.name, visitorId, serviceKey, [...messages, { role: 'assistant', content: replyText }]);
+    await saveVisitorMemory(client, speaker, agent.name, visitorId, serviceKey, [...messages, { role: 'assistant', content: replyText }]);
   }
 
   return json(200, {

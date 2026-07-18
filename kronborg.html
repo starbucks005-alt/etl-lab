@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+(function () {
+  try {
+    var saved = localStorage.getItem('etl_classrooms_theme');
+    var theme = saved || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    document.documentElement.setAttribute('data-theme', theme);
+  } catch (_) {}
+})();
+</script>
+<title>History: Denmark 1500-1600s &middot; Emerging Technologies Laboratory</title>
+<meta name="description" content="History: Denmark 1500-1600s, built with Professor Paul Lockhart: the royal court and townspeople of Kronborg Castle, Helsingør, in the age of Christian IV.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Public+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ETL homepage brand (index.html's actual :root): see kronborg-agent.html
+   for the fuller note. --gold there is really blue #5c8ab5, the dominant
+   accent; --green #285C4D is the hover/emphasis accent. */
+:root {
+  --bg:      #111111; /* black */
+  --bg2:     #1a1a1a; /* dark */
+  --panel:   #1a1a1a; /* dark */
+  --panel2:  #242424;
+  --line:    #2c2c2c;
+  --blue:    #5c8ab5;
+  --blue-br: #5c8ab5;
+  --green:   #285C4D;
+  --cream:   #ffffff;
+  --text:    #d6d6d6;
+  --mute:    #8a8a8a;
+  --ribbon-bg: #0a0a0a;
+}
+[data-theme="light"] {
+  --bg:      #ffffff;
+  --bg2:     #f4f4f4;
+  --panel:   #ffffff;
+  --panel2:  #f4f4f4;
+  --line:    #111111;
+  --blue:    #5c8ab5;
+  --blue-br: #5c8ab5;
+  --green:   #285C4D;
+  --cream:   #111111;
+  --text:    #555555;
+  --mute:    #555555;
+  --ribbon-bg: #f4f4f4;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Public Sans', sans-serif; line-height: 1.65; transition: background .2s, color .2s; }
+a { color: var(--blue); text-decoration: none; }
+a:hover { color: var(--green); }
+
+.theme-toggle {
+  position: fixed; top: .9rem; right: 1.2rem; z-index: 50;
+  background: var(--panel); border: 1px solid var(--line); color: var(--mute);
+  font-family: 'IBM Plex Mono', monospace; font-size: .62rem; letter-spacing: .1em; text-transform: uppercase;
+  padding: .45rem .8rem; border-radius: 999px; cursor: pointer; transition: border-color .15s, color .15s;
+}
+.theme-toggle:hover { border-color: var(--green); color: var(--green); }
+
+.ribbon {
+  background: var(--ribbon-bg);
+  border-bottom: 1px solid var(--line);
+  text-align: center;
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  font-size: .62rem;
+  color: var(--mute);
+  padding: .5rem 1rem;
+}
+.ribbon b { color: var(--blue-br); }
+
+.wrap { max-width: 1000px; margin: 0 auto; padding: 0 1.4rem 6rem; }
+.backlink {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .72rem;
+  color: var(--mute);
+  text-decoration: none;
+  display: inline-block;
+  margin: 1.6rem 0 .4rem;
+  letter-spacing: .04em;
+}
+.backlink:hover { color: var(--text); }
+
+.hero {
+  margin-top: .6rem;
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--blue);
+  background: var(--panel);
+  padding: 3rem 2.6rem 2.6rem;
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 2.2rem;
+  align-items: center;
+}
+.hero-cover {
+  border: 1px solid var(--line);
+  overflow: hidden;
+  line-height: 0;
+  align-self: start;
+}
+.hero-cover img { width: 100%; height: auto; display: block; }
+@media (max-width: 720px) {
+  .hero { grid-template-columns: 1fr; }
+  .hero-cover { max-width: 260px; margin: 0 auto; }
+}
+.eyebrow {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .58rem;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: var(--blue-br);
+  margin-bottom: 1rem;
+}
+.hero h1 {
+  font-family: 'Spectral', serif;
+  font-size: clamp(2rem, 4.6vw, 3rem);
+  font-weight: 700;
+  color: var(--cream);
+  margin: 0 0 .9rem;
+  line-height: 1.12;
+  max-width: 22ch;
+}
+.hero p { font-size: 1rem; color: var(--text); max-width: 66ch; margin: 0 0 .5rem; line-height: 1.75; }
+
+.sec-head { margin: 3rem 0 .2rem; display: flex; align-items: baseline; gap: 1rem; }
+.sec-head h2 { font-family: 'Spectral', serif; font-size: 1.4rem; font-weight: 600; color: var(--cream); margin: 0; }
+.sec-rule { flex: 1; height: 1px; background: var(--line); }
+.sec-sub { font-size: .88rem; color: var(--mute); margin: .4rem 0 1.6rem; max-width: 66ch; }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1px; border: 1px solid var(--line); }
+.card { background: var(--panel); padding: 1.4rem; display: block; transition: background .18s; }
+.card:hover { background: var(--panel2); }
+.card-name { font-family: 'Spectral', serif; font-size: 1.1rem; font-weight: 600; color: var(--cream); margin: 0 0 .2rem; }
+.card-role { font-family: 'IBM Plex Mono', monospace; font-size: .64rem; color: var(--blue-br); letter-spacing: .04em; margin: 0 0 .5rem; text-transform: uppercase; }
+.card-desc { font-size: .82rem; color: var(--mute); line-height: 1.6; margin: 0; }
+
+.table-card {
+  margin-top: 1px;
+  border: 1px solid var(--line);
+  border-top: none;
+  background: var(--panel);
+  padding: 1.8rem;
+  display: flex;
+  gap: 1.2rem;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+.table-card .left { max-width: 56ch; }
+.table-card h3 { font-family: 'Spectral', serif; font-size: 1.15rem; color: var(--cream); margin: 0 0 .4rem; }
+.table-card p { font-size: .86rem; color: var(--mute); margin: 0; line-height: 1.65; }
+.btn-primary {
+  display: inline-block;
+  padding: .8rem 1.6rem;
+  background: var(--blue);
+  color: #fff;
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 700;
+  font-size: .68rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.btn-primary:hover { background: var(--green); color: #fff; }
+
+.about-block {
+  margin-top: 3rem;
+  border-left: 3px solid var(--blue);
+  padding: 1.4rem 1.8rem;
+  background: var(--panel);
+}
+.about-block p { font-size: .9rem; color: var(--text); line-height: 1.75; max-width: 70ch; margin: 0 0 .8rem; }
+.about-block p:last-child { margin-bottom: 0; }
+.about-block b { color: var(--cream); }
+
+@media (max-width: 720px) {
+  .hero { padding: 2.2rem 1.4rem 1.8rem; }
+}
+</style>
+</head>
+<body>
+
+<button type="button" class="theme-toggle" id="themeToggle">Light</button>
+
+<div class="ribbon">
+  Emerging Technologies Laboratory &nbsp;&middot;&nbsp; <b>ETL Classrooms</b> &nbsp;&middot;&nbsp; History: Denmark 1500-1600s, with Professor Paul Lockhart
+</div>
+
+<div class="wrap">
+  <a class="backlink" href="/classrooms.html">&larr; ETL Classrooms</a>
+
+  <div class="hero">
+    <div class="hero-cover">
+      <img src="/assets/kronborg/royal-villager-life.jpg" alt="Royal Life and Villager Life at Kronborg Castle">
+    </div>
+    <div>
+      <div class="eyebrow">History: Denmark 1500-1600s &nbsp;&middot;&nbsp; Built with Professor Paul Lockhart</div>
+      <h1>The court and the town, Kronborg Castle.</h1>
+      <p>Ten voices from the age of Christian IV: the King at ten years old and at the height of his power, his Queen, his morganatic countess, and the merchant, blacksmith, innkeeper, townswoman, fisherman, and children who actually lived in the shadow of the castle. Ask any of them about their world, or bring several to one table and watch a rigid social hierarchy argue with itself.</p>
+    </div>
+  </div>
+
+  <div class="sec-head">
+    <h2>The Royal Court</h2>
+    <div class="sec-rule"></div>
+  </div>
+  <div class="cards">
+    <a class="card" href="/kronborg-agent.html?agent=king">
+      <p class="card-name">Christian IV</p>
+      <p class="card-role">The Older King</p>
+      <p class="card-desc">Master of Kronborg, the Sound Toll, and the Baltic sea lanes.</p>
+    </a>
+    <a class="card" href="/kronborg-agent.html?agent=boy_king">
+      <p class="card-name">Prince Christian</p>
+      <p class="card-role">The Boy King, age 10</p>
+      <p class="card-desc">Technically sovereign, holding zero real power yet.</p>
+    </a>
+    <a class="card" href="/kronborg-agent.html?agent=anne_catherine">
+      <p class="card-name">Queen Anne Catherine</p>
+      <p class="card-role">The Royal Consort</p>
+      <p class="card-desc">Legitimate wife of Christian IV, the anchor of court diplomacy.</p>
+    </a>
+    <a class="card" href="/kronborg-agent.html?agent=kirsten_munk">
+      <p class="card-name">Kirsten Munk</p>
+      <p class="card-role">The Morganatic Wife</p>
+      <p class="card-desc">No royal blood, and no patience for pretending otherwise.</p>
+    </a>
+  </div>
+
+  <div class="sec-head">
+    <h2>The Townspeople of Helsingør</h2>
+    <div class="sec-rule"></div>
+  </div>
+  <div class="cards">
+    <a class="card" href="/kronborg-agent.html?agent=jens">
+      <p class="card-name">Jens Skovgaard</p>
+      <p class="card-role">The Merchant</p>
+      <p class="card-desc">Liaison between foreign sea captains and the Crown's toll collectors.</p>
+    </a>
+    <a class="card" href="/kronborg-agent.html?agent=morten">
+      <p class="card-name">Morten Grovsmith</p>
+      <p class="card-role">The Blacksmith</p>
+      <p class="card-desc">Forges the iron that keeps Kronborg's guns speaking.</p>
+    </a>
+    <a class="card" href="/kronborg-agent.html?agent=rasmus">
+      <p class="card-name">Rasmus Krogaard</p>
+      <p class="card-role">The Innkeeper</p>
+      <p class="card-desc">Every rumor in Helsingør passes through his door eventually.</p>
+    </a>
+    <a class="card" href="/kronborg-agent.html?agent=kirsten_m">
+      <p class="card-name">Kirsten Madsdatter</p>
+      <p class="card-role">The Townswoman</p>
+      <p class="card-desc">Runs the dairy and textile stall that helps feed the garrison.</p>
+    </a>
+    <a class="card" href="/kronborg-agent.html?agent=niels">
+      <p class="card-name">Niels Iversen</p>
+      <p class="card-role">The Fisherman</p>
+      <p class="card-desc">Reads the Øresund like a living, dangerous thing.</p>
+    </a>
+    <a class="card" href="/kronborg-agent.html?agent=hans_bodil">
+      <p class="card-name">Hans and Bodil</p>
+      <p class="card-role">The Children</p>
+      <p class="card-desc">Nine and seven years old. They know every hiding spot in town.</p>
+    </a>
+  </div>
+
+  <div class="table-card">
+    <div class="left">
+      <h3>Or bring them to one table.</h3>
+      <p>The Kronborg Table: pick 2 to 6 of these ten, royal or common, and watch them answer you and each other. A director model decides who speaks next, so it plays out like a real room, not a scripted rotation.</p>
+    </div>
+    <a class="btn-primary" href="/kronborg-room.html">Enter the table</a>
+  </div>
+
+  <div class="about-block">
+    <p><b>About this classroom.</b> Built with Professor Paul Lockhart around Kronborg Castle, Helsingør, in the age of Christian IV. Every agent carries real, live tool use, not baked-in trivia, and never fabricates a source; if a lookup fails, they say so plainly.</p>
+    <p>The King appears at two ages at once, ten years old and at the height of his reign, so the room can hold a real conversation across his own lifetime. The townspeople are period-accurate composites built from the real economic and social structure of Sound Toll-era Helsingør, not documented individuals.</p>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  var btn = document.getElementById('themeToggle');
+  function sync() {
+    var isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    btn.textContent = isLight ? 'Dark' : 'Light';
+  }
+  sync();
+  btn.addEventListener('click', function () {
+    var next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('etl_classrooms_theme', next); } catch (_) {}
+    sync();
+  });
+})();
+</script>
+
+</body>
+</html>
