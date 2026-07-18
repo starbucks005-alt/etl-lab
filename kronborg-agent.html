@@ -106,16 +106,32 @@ a:hover { color: var(--green); }
 /* Royals: a tall, full-height portrait instead of a landscape strip, with
    the bio and chat sitting side by side at the top next to it -- Dr. O's
    call, since a wide landscape crop doesn't suit a formal royal sitting the
-   way it does a villager street scene. Leaves real blank space below the
-   bio/chat, on purpose: reserved for the additional images she's adding. */
+   way it does a villager street scene. The space below bio/chat holds a
+   small gallery of additional real portraits for that agent. */
 .page-grid--royal {
   grid-template-columns: 620px 1fr 1fr;
   grid-template-areas:
-    "image bio  chat"
-    "image .    .";
+    "image bio     chat"
+    "image gallery gallery";
 }
 .page-grid--royal .left-col { align-self: stretch; }
 .page-grid--royal .portrait { flex: 1; height: auto; min-height: 700px; }
+
+.royal-gallery {
+  grid-area: gallery;
+  display: none;
+  gap: .8rem;
+  margin-top: .2rem;
+}
+.royal-gallery.is-visible { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.royal-gallery img {
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+  display: block;
+  border: 1px solid var(--line);
+  background: var(--bg2);
+}
 
 .hero-photo {
   display: none;
@@ -249,12 +265,13 @@ a:hover { color: var(--green); }
 @media (max-width: 900px) {
   .page-grid, .page-grid--royal {
     grid-template-columns: 1fr;
-    grid-template-areas: "image" "bio" "chat";
+    grid-template-areas: "image" "bio" "chat" "gallery";
   }
   .portrait { height: 52vw; }
   .portrait--villager { height: 44vw; }
   .page-grid--royal .portrait { flex: none; height: 90vw; min-height: 0; }
   .page-grid--royal .left-col { align-self: start; }
+  .royal-gallery img { height: 44vw; }
   .bubble--you { align-self: flex-end; }
 }
 </style>
@@ -309,6 +326,8 @@ a:hover { color: var(--green); }
         <p class="voicenote" id="voiceNote">Voice plays for the introduction above, once Dr. O has picked a voice for this character. The conversation itself stays text.</p>
       </div>
     </div>
+
+    <div class="royal-gallery" id="royalGallery"></div>
   </div>
 
   <p class="disclosure">This is a historical figure represented for education, built with a real backpack of live sources, not invented facts. If a live lookup fails, they say so rather than fabricating a citation. Built for History: Denmark 1500-1600s, with Professor Paul Lockhart.</p>
@@ -408,6 +427,28 @@ var HERO_PHOTOS = {
   ],
 };
 
+// Extra portraits for the royals, filling the space below bio/chat. King
+// and boy_king share the same pair (Dr. O's call: the family portrait and
+// the young-man-in-uniform image work for both his ages).
+var ROYAL_GALLERY = {
+  king: [
+    { src: '/assets/kronborg/king-family.jpg', alt: 'Christian IV with Queen Anne Catherine and the young Prince Christian' },
+    { src: '/assets/kronborg/boy_king-uniform.jpg', alt: 'Prince Christian in formal uniform' },
+  ],
+  boy_king: [
+    { src: '/assets/kronborg/king-family.jpg', alt: 'Christian IV with Queen Anne Catherine and the young Prince Christian' },
+    { src: '/assets/kronborg/boy_king-uniform.jpg', alt: 'Prince Christian in formal uniform' },
+  ],
+  anne_catherine: [
+    { src: '/assets/kronborg/anne_catherine-sitting.jpg', alt: 'Queen Anne Catherine seated' },
+    { src: '/assets/kronborg/anne_catherine-and-son.jpg', alt: 'Queen Anne Catherine with her son' },
+  ],
+  kirsten_munk: [
+    { src: '/assets/kronborg/kirsten_munk-alt.jpg', alt: 'Kirsten Munk' },
+    { src: '/assets/kronborg/kirsten_munk-children.jpg', alt: 'Kirsten Munk with her children' },
+  ],
+};
+
 (function () {
   var params = new URLSearchParams(window.location.search);
   var AGENT = params.get('agent');
@@ -430,6 +471,17 @@ var HERO_PHOTOS = {
       heroPhotoEl.appendChild(img);
     });
     heroPhotoEl.classList.add('is-visible');
+  }
+  if (ROYAL_GALLERY[AGENT]) {
+    var galleryEl = document.getElementById('royalGallery');
+    ROYAL_GALLERY[AGENT].forEach(function (photo) {
+      var img = document.createElement('img');
+      img.src = photo.src;
+      img.alt = photo.alt;
+      img.onerror = function () { img.remove(); if (!galleryEl.children.length) galleryEl.classList.remove('is-visible'); };
+      galleryEl.appendChild(img);
+    });
+    galleryEl.classList.add('is-visible');
   }
 
   var CHAT_URL  = '/.netlify/functions/kronborg-chat';
