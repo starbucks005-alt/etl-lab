@@ -13,7 +13,7 @@
 })();
 </script>
 <title>History: Denmark 1500-1600s &middot; Emerging Technologies Laboratory</title>
-<meta name="description" content="Talk with the royal court and townspeople of Kronborg Castle, Helsingør, in the age of Christian IV. Built for an educational simulation with Professor Paul Lockhart.">
+<meta name="description" content="Talk with the royal court and townspeople of Kronborg Castle, Helsingør, in the age of Christian IV.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Public+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -115,7 +115,10 @@ a:hover { color: var(--green); }
     "image gallery .";
 }
 .page-grid--royal .left-col { align-self: stretch; }
-.page-grid--royal .portrait { flex: 1; height: auto; min-height: 600px; }
+.page-grid--royal .portrait { flex: 1; height: auto; min-height: 760px; }
+/* contain, not cover: cover was cropping into the figure to fill the box;
+   contain always shows the whole portrait, letterboxed if needed. */
+.page-grid--royal .portrait img { object-fit: contain; }
 
 .royal-gallery {
   grid-area: gallery;
@@ -125,8 +128,8 @@ a:hover { color: var(--green); }
 .royal-gallery.is-visible { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
 .royal-gallery img {
   width: 100%;
-  height: 220px;
-  object-fit: cover;
+  height: 260px;
+  object-fit: contain;
   display: block;
   border: 1px solid var(--line);
   background: var(--bg2);
@@ -280,7 +283,7 @@ a:hover { color: var(--green); }
 <button type="button" class="theme-toggle" id="themeToggle">Light</button>
 
 <div class="ribbon">
-  Emerging Technologies Laboratory &nbsp;&middot;&nbsp; <b>ETL Classrooms</b> &nbsp;&middot;&nbsp; History: Denmark 1500-1600s, with Professor Paul Lockhart
+  Emerging Technologies Laboratory &nbsp;&middot;&nbsp; <b>ETL Classrooms</b> &nbsp;&middot;&nbsp; History: Denmark 1500-1600s
 </div>
 
 <div class="wrap">
@@ -329,7 +332,7 @@ a:hover { color: var(--green); }
     <div class="royal-gallery" id="royalGallery"></div>
   </div>
 
-  <p class="disclosure">This is a historical figure represented for education, built with a real backpack of live sources, not invented facts. If a live lookup fails, they say so rather than fabricating a citation. Built for History: Denmark 1500-1600s, with Professor Paul Lockhart.</p>
+  <p class="disclosure">This is a historical figure represented for education, built with a real backpack of live sources, not invented facts. If a live lookup fails, they say so rather than fabricating a citation. Built for History: Denmark 1500-1600s.</p>
 
   <div class="classroom-nav">
     Talk to someone else:
@@ -419,10 +422,12 @@ var HERO_PHOTOS = {
   king: [
     { src: '/assets/kronborg/king-castle.jpg', alt: 'Christian IV enthroned at Kronborg Castle' },
     { src: '/assets/kronborg/king-castle-scene.jpg', alt: 'The great hall at Kronborg Castle' },
+    { src: '/assets/kronborg/king-castle-3.jpg', alt: 'Kronborg Castle at dusk' },
   ],
   boy_king: [
     { src: '/assets/kronborg/boy_king-castle.jpg', alt: 'The young Prince Christian at Frederiksborg Castle' },
     { src: '/assets/kronborg/boy_king-castle-scene.jpg', alt: 'Frederiksborg Castle, where the young prince lived' },
+    { src: '/assets/kronborg/boy_king-castle-3.jpg', alt: 'Frederiksborg Castle in autumn' },
   ],
 };
 
