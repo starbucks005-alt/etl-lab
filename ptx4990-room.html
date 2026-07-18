@@ -97,12 +97,20 @@ a:hover { color: var(--cream); }
 }
 .backlink:hover { color: var(--text); }
 
-.hero {
+.hero-photo {
   margin-top: .6rem;
   border: 1px solid var(--line);
   border-top: 3px solid var(--gold);
-  background: linear-gradient(180deg, rgba(8,12,17,.55), rgba(8,12,17,.9)), url('/assets/ptx4990/einstein-curie-study.jpg') center 25% / cover no-repeat, var(--panel);
-  padding: 2rem 2rem 1.8rem;
+  border-bottom: none;
+  overflow: hidden;
+  line-height: 0;
+}
+.hero-photo img { width: 100%; height: auto; display: block; }
+.hero-heading {
+  border: 1px solid var(--line);
+  border-top: none;
+  background: var(--panel);
+  padding: 1.6rem 2rem 1.8rem;
 }
 .eyebrow {
   font-family: 'IBM Plex Mono', monospace;
@@ -112,19 +120,14 @@ a:hover { color: var(--cream); }
   color: var(--gold-br);
   margin-bottom: .7rem;
 }
-.hero h1 {
+.hero-heading h1 {
   font-family: 'Spectral', serif;
   font-size: clamp(1.8rem, 4vw, 2.5rem);
   font-weight: 700;
   color: var(--cream);
-  margin: 0 0 .6rem;
+  margin: 0;
   line-height: 1.1;
 }
-.hero p { font-family: 'IBM Plex Mono', monospace; font-size: .95rem; color: var(--text); max-width: 58ch; margin: 0; line-height: 1.7; }
-/* Photo hero, fixed dark overlay -- text stays fixed-light regardless of theme. */
-.hero .eyebrow { color: #f0c887; }
-.hero h1 { color: #f5f1e6; }
-.hero p { color: #dfe6ec; }
 
 .avatars { display: flex; gap: 14px; margin-top: 1.4rem; }
 .avatar { display: flex; align-items: center; gap: 8px; }
@@ -162,16 +165,18 @@ a:hover { color: var(--cream); }
 <div class="wrap">
   <a class="backlink" href="/ptx4990.html">&larr; PTX 4990 classroom</a>
 
-  <div class="hero">
+  <div class="hero-photo">
+    <img src="/assets/ptx4990/einstein-curie-study.jpg" alt="Albert Einstein and Marie Curie in conversation">
+  </div>
+  <div class="hero-heading">
     <div class="eyebrow">The Roundtable</div>
     <h1>Einstein and Curie, at one table.</h1>
-    <p>Say something to the table. They answer you, and they answer each other, the way a real seminar table works, not a queue of one-at-a-time replies. Everyone here carries a real backpack of live sources, Wikipedia and arXiv, so watch for how they cite (or refuse to invent) a source.</p>
     <div class="avatars" id="avatars"></div>
   </div>
 
   <div class="chat">
     <div class="log" id="log" aria-live="polite">
-      <div class="bubble bubble--system">The table is quiet. Say something to begin.</div>
+      <div class="bubble bubble--system">Pull up a chair. There's tea, if you'd like some.</div>
     </div>
     <div class="composer">
       <textarea id="input" rows="1" placeholder="Say something to the table..." aria-label="Your message to the table"></textarea>
@@ -179,7 +184,7 @@ a:hover { color: var(--cream); }
     </div>
   </div>
 
-  <p class="disclosure">Both scientists are historical figures represented for education, each carrying a real backpack of live sources. A cheap "director" model decides who speaks next each beat, favoring genuine back-and-forth over a fixed rotation. Free to use, built for PTX 4990: Independent Study, AI Agents and Critical Thinking.</p>
+  <p class="disclosure">Say something to the table. They answer you, and they answer each other, the way a real seminar table works, not a queue of one-at-a-time replies. Both scientists are historical figures represented for education, each carrying a real backpack of live sources, Wikipedia and arXiv, so watch for how they cite (or refuse to invent) a source. A cheap "director" model decides who speaks next each beat, favoring genuine back-and-forth over a fixed rotation. Free to use, built for PTX 4990: Independent Study, AI Agents and Critical Thinking.</p>
 
   <div class="classroom-nav">
     Talk one-on-one instead: <a href="/ptx4990-einstein.html">Albert Einstein</a> &nbsp;&middot;&nbsp; <a href="/ptx4990-curie.html">Marie Curie</a>

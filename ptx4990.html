@@ -97,12 +97,20 @@ a:hover { color: var(--cream); }
 }
 .backlink:hover { color: var(--text); }
 
-.hero {
+.hero-photo {
   margin-top: .6rem;
   border: 1px solid var(--line);
   border-top: 3px solid var(--blue);
-  background: linear-gradient(180deg, rgba(8,12,17,.55), rgba(8,12,17,.9)), url('/assets/classrooms/ai-agents-room.jpg') center / cover no-repeat, var(--panel);
-  padding: 3rem 2.6rem 2.6rem;
+  border-bottom: none;
+  overflow: hidden;
+  line-height: 0;
+}
+.hero-photo img { width: 100%; height: auto; display: block; }
+.hero {
+  border: 1px solid var(--line);
+  border-top: none;
+  background: var(--panel);
+  padding: 2.2rem 2.6rem 2.4rem;
 }
 .eyebrow {
   font-family: 'IBM Plex Mono', monospace;
@@ -122,10 +130,6 @@ a:hover { color: var(--cream); }
   max-width: 20ch;
 }
 .hero p { font-size: 1rem; color: var(--text); max-width: 62ch; margin: 0 0 .5rem; line-height: 1.75; }
-/* Photo hero, fixed dark overlay -- text stays fixed-light regardless of theme. */
-.hero .eyebrow { color: #8fc4ee; }
-.hero h1 { color: #f5f1e6; }
-.hero p { color: #dfe6ec; }
 
 .sec-head { margin: 3rem 0 .2rem; display: flex; align-items: baseline; gap: 1rem; }
 .sec-head h2 { font-family: 'Spectral', serif; font-size: 1.4rem; font-weight: 600; color: var(--cream); margin: 0; }
@@ -199,6 +203,9 @@ a:hover { color: var(--cream); }
 <div class="wrap">
   <a class="backlink" href="/classrooms.html">&larr; ETL Classrooms</a>
 
+  <div class="hero-photo">
+    <img src="/assets/classrooms/ai-agents-room.jpg" alt="An ETL classroom set up for AI Agents and Critical Thinking">
+  </div>
   <div class="hero">
     <div class="eyebrow">PTX 4990 &nbsp;&middot;&nbsp; AI Agents and Critical Thinking</div>
     <h1>The classroom's Living Legends.</h1>
