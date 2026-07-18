@@ -3,6 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+(function () {
+  try {
+    var saved = localStorage.getItem('etl_classrooms_theme');
+    var theme = saved || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    document.documentElement.setAttribute('data-theme', theme);
+  } catch (_) {}
+})();
+</script>
 <title>PTX 4990 Classroom &middot; Emerging Technologies Laboratory</title>
 <meta name="description" content="The PTX 4990 classroom: AI Agents and Critical Thinking. Talk with historical scientist agents built with real, live, verifiable sources, not fabricated ones.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,14 +31,49 @@
   --cream:   #f0ead8;
   --text:    #c8d4de;
   --mute:    #5a7a94;
+  --ribbon-bg: #050709;
+}
+[data-theme="light"] {
+  --bg:      #f6f3ec;
+  --bg2:     #eeeadf;
+  --panel:   #ffffff;
+  --panel2:  #f3f0e8;
+  --line:    #ddd6c5;
+  --blue:    #2a5580;
+  --blue-br: #1f6fa8;
+  --gold:    #a9761f;
+  --gold-br: #8f6516;
+  --cream:   #1a1f26;
+  --text:    #33393f;
+  --mute:    #6b7280;
+  --ribbon-bg: #ece7da;
 }
 *, *::before, *::after { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Public Sans', sans-serif; line-height: 1.65; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Public Sans', sans-serif; line-height: 1.65; transition: background .2s, color .2s; }
 a { color: var(--blue-br); text-decoration: none; }
 a:hover { color: var(--cream); }
 
+.theme-toggle {
+  position: fixed;
+  top: .9rem;
+  right: 1.2rem;
+  z-index: 50;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  color: var(--mute);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .62rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  padding: .45rem .8rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: border-color .15s, color .15s;
+}
+.theme-toggle:hover { border-color: var(--blue-br); color: var(--text); }
+
 .ribbon {
-  background: #050709;
+  background: var(--ribbon-bg);
   border-bottom: 1px solid var(--line);
   text-align: center;
   font-family: 'IBM Plex Mono', monospace;
@@ -78,6 +122,10 @@ a:hover { color: var(--cream); }
   max-width: 20ch;
 }
 .hero p { font-size: 1rem; color: var(--text); max-width: 62ch; margin: 0 0 .5rem; line-height: 1.75; }
+/* Photo hero, fixed dark overlay -- text stays fixed-light regardless of theme. */
+.hero .eyebrow { color: #8fc4ee; }
+.hero h1 { color: #f5f1e6; }
+.hero p { color: #dfe6ec; }
 
 .sec-head { margin: 3rem 0 .2rem; display: flex; align-items: baseline; gap: 1rem; }
 .sec-head h2 { font-family: 'Spectral', serif; font-size: 1.4rem; font-weight: 600; color: var(--cream); margin: 0; }
@@ -142,6 +190,8 @@ a:hover { color: var(--cream); }
 </head>
 <body>
 
+<button type="button" class="theme-toggle" id="themeToggle">Light</button>
+
 <div class="ribbon">
   Emerging Technologies Laboratory &nbsp;&middot;&nbsp; <b>ETL Classrooms</b> &nbsp;&middot;&nbsp; PTX 4990, Independent Study
 </div>
@@ -163,7 +213,7 @@ a:hover { color: var(--cream); }
 
   <div class="cards">
     <a class="card" href="/ptx4990-einstein.html">
-      <img src="/assets/ptx4990/einstein.jpg" alt="Albert Einstein">
+      <img src="/assets/ptx4990/einstein-eyes-open.jpg" alt="Albert Einstein">
       <div>
         <p class="card-name">Albert Einstein</p>
         <p class="card-role">Theoretical Physicist, 1879&ndash;1955</p>
@@ -171,7 +221,7 @@ a:hover { color: var(--cream); }
       </div>
     </a>
     <a class="card" href="/ptx4990-curie.html">
-      <img src="/assets/ptx4990/curie.jpg" alt="Marie Curie">
+      <img src="/assets/ptx4990/curie-eyes-open.jpg" alt="Marie Curie">
       <div>
         <p class="card-name">Marie Curie</p>
         <p class="card-role">Physicist and Chemist, 1867&ndash;1934</p>
@@ -194,6 +244,23 @@ a:hover { color: var(--cream); }
   </div>
 
 </div>
+
+<script>
+(function () {
+  var btn = document.getElementById('themeToggle');
+  function sync() {
+    var isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    btn.textContent = isLight ? 'Dark' : 'Light';
+  }
+  sync();
+  btn.addEventListener('click', function () {
+    var next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('etl_classrooms_theme', next); } catch (_) {}
+    sync();
+  });
+})();
+</script>
 
 </body>
 </html>

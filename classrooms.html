@@ -3,6 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+// Applied synchronously, before CSS paints, so there is no flash of the
+// wrong theme on load. Shared key across every ETL Classrooms page so the
+// choice persists as you move between them.
+(function () {
+  try {
+    var saved = localStorage.getItem('etl_classrooms_theme');
+    var theme = saved || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    document.documentElement.setAttribute('data-theme', theme);
+  } catch (_) {}
+})();
+</script>
 <title>ETL Classrooms · Emerging Technologies Laboratory</title>
 <meta name="description" content="Rent a classroom for your agents. Teaching assistants, faculty, and living legends built for education and hosted on the ETL campus.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,15 +35,32 @@
   --text:    #c8d4de;
   --mute:    #5a7a94;
   --legend:  #9b7a3a;
+  --ribbon-bg: #050709;
+}
+[data-theme="light"] {
+  --bg:      #f6f3ec;
+  --bg2:     #eeeadf;
+  --panel:   #ffffff;
+  --panel2:  #f3f0e8;
+  --line:    #ddd6c5;
+  --blue:    #2a5580;
+  --blue-br: #1f6fa8;
+  --gold:    #a9761f;
+  --gold-br: #8f6516;
+  --cream:   #1a1f26;
+  --text:    #33393f;
+  --mute:    #6b7280;
+  --legend:  #8a6118;
+  --ribbon-bg: #ece7da;
 }
 *, *::before, *::after { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Public Sans', sans-serif; line-height: 1.65; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Public Sans', sans-serif; line-height: 1.65; transition: background .2s, color .2s; }
 a { color: var(--blue-br); text-decoration: none; }
 a:hover { color: var(--cream); }
 
 /* ── RIBBON ── */
 .ribbon {
-  background: #050709;
+  background: var(--ribbon-bg);
   border-bottom: 1px solid var(--line);
   text-align: center;
   font-family: 'IBM Plex Mono', monospace;
@@ -42,6 +71,26 @@ a:hover { color: var(--cream); }
   padding: .5rem 1rem;
 }
 .ribbon b { color: var(--blue-br); }
+
+/* ── THEME TOGGLE ── */
+.theme-toggle {
+  position: fixed;
+  top: .9rem;
+  right: 1.2rem;
+  z-index: 50;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  color: var(--mute);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .62rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  padding: .45rem .8rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: border-color .15s, color .15s;
+}
+.theme-toggle:hover { border-color: var(--blue-br); color: var(--text); }
 
 /* ── WRAP ── */
 .wrap { max-width: 960px; margin: 0 auto; padding: 0 1.4rem 6rem; }
@@ -112,6 +161,14 @@ a:hover { color: var(--cream); }
   text-transform: uppercase;
 }
 .hero-note b { color: var(--blue-br); }
+/* The hero sits on a photo with a fixed dark gradient overlay (see .hero
+   background above), so its text stays fixed-light regardless of theme --
+   otherwise light mode would put dark ink on a dark photo and vanish. */
+.hero .eyebrow { color: #8fc4ee; }
+.hero h1 { color: #f5f1e6; }
+.hero .hero-lede { color: #dfe6ec; }
+.hero .hero-note { color: #9fb3c4; }
+.hero .hero-note b { color: #8fc4ee; }
 
 /* ── ROOM STATUS ── */
 .room-status { margin-top: 1rem; border: 1px solid var(--line); overflow: hidden; }
@@ -198,6 +255,8 @@ a.room-row:hover { background: var(--panel2); }
 .tier-name.ta-name  { color: #8fa3b8; }
 .tier-name.fac-name { color: #b8cdd8; }
 .tier-name.leg-name { color: var(--gold-br); }
+[data-theme="light"] .tier-name.ta-name  { color: #3f6a8a; }
+[data-theme="light"] .tier-name.fac-name { color: #2c5570; }
 
 .tier-body {
   padding: 1.8rem 1.8rem 1.8rem 2rem;
@@ -494,6 +553,8 @@ a.room-row:hover { background: var(--panel2); }
 </head>
 <body>
 
+<button type="button" class="theme-toggle" id="themeToggle">Light</button>
+
 <div class="ribbon">
   Emerging Technologies Laboratory &nbsp;&middot;&nbsp; <b>ETL Classrooms</b> &nbsp;&middot;&nbsp; Education &amp; Research
 </div>
@@ -766,5 +827,23 @@ a.room-row:hover { background: var(--panel2); }
   </div>
 
 </div><!-- /wrap -->
+
+<script>
+(function () {
+  var btn = document.getElementById('themeToggle');
+  function sync() {
+    var isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    btn.textContent = isLight ? 'Dark' : 'Light';
+  }
+  sync();
+  btn.addEventListener('click', function () {
+    var next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('etl_classrooms_theme', next); } catch (_) {}
+    sync();
+  });
+})();
+</script>
+
 </body>
 </html>

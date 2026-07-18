@@ -3,6 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+(function () {
+  try {
+    var saved = localStorage.getItem('etl_classrooms_theme');
+    var theme = saved || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    document.documentElement.setAttribute('data-theme', theme);
+  } catch (_) {}
+})();
+</script>
 <title>The Roundtable &middot; PTX 4990 Classroom &middot; Emerging Technologies Laboratory</title>
 <meta name="description" content="Bring the PTX 4990 classroom's historical scientist agents to one table. They talk to each other and to you, not just to each other one at a time.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,14 +31,49 @@
   --cream:   #f0ead8;
   --text:    #c8d4de;
   --mute:    #5a7a94;
+  --ribbon-bg: #050709;
+}
+[data-theme="light"] {
+  --bg:      #f6f3ec;
+  --bg2:     #eeeadf;
+  --panel:   #ffffff;
+  --panel2:  #f3f0e8;
+  --line:    #ddd6c5;
+  --blue:    #2a5580;
+  --blue-br: #1f6fa8;
+  --gold:    #a9761f;
+  --gold-br: #8f6516;
+  --cream:   #1a1f26;
+  --text:    #33393f;
+  --mute:    #6b7280;
+  --ribbon-bg: #ece7da;
 }
 *, *::before, *::after { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Public Sans', sans-serif; line-height: 1.65; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Public Sans', sans-serif; line-height: 1.65; transition: background .2s, color .2s; }
 a { color: var(--blue-br); text-decoration: none; }
 a:hover { color: var(--cream); }
 
+.theme-toggle {
+  position: fixed;
+  top: .9rem;
+  right: 1.2rem;
+  z-index: 50;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  color: var(--mute);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .62rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  padding: .45rem .8rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: border-color .15s, color .15s;
+}
+.theme-toggle:hover { border-color: var(--blue-br); color: var(--text); }
+
 .ribbon {
-  background: #050709;
+  background: var(--ribbon-bg);
   border-bottom: 1px solid var(--line);
   text-align: center;
   font-family: 'IBM Plex Mono', monospace;
@@ -57,7 +101,7 @@ a:hover { color: var(--cream); }
   margin-top: .6rem;
   border: 1px solid var(--line);
   border-top: 3px solid var(--gold);
-  background: var(--panel);
+  background: linear-gradient(180deg, rgba(8,12,17,.55), rgba(8,12,17,.9)), url('/assets/ptx4990/einstein-curie-study.jpg') center 25% / cover no-repeat, var(--panel);
   padding: 2rem 2rem 1.8rem;
 }
 .eyebrow {
@@ -77,6 +121,10 @@ a:hover { color: var(--cream); }
   line-height: 1.1;
 }
 .hero p { font-size: .95rem; color: var(--text); max-width: 58ch; margin: 0; line-height: 1.7; }
+/* Photo hero, fixed dark overlay -- text stays fixed-light regardless of theme. */
+.hero .eyebrow { color: #f0c887; }
+.hero h1 { color: #f5f1e6; }
+.hero p { color: #dfe6ec; }
 
 .avatars { display: flex; gap: 14px; margin-top: 1.4rem; }
 .avatar { display: flex; align-items: center; gap: 8px; }
@@ -104,6 +152,8 @@ a:hover { color: var(--cream); }
 </style>
 </head>
 <body>
+
+<button type="button" class="theme-toggle" id="themeToggle">Light</button>
 
 <div class="ribbon">
   Emerging Technologies Laboratory &nbsp;&middot;&nbsp; <b>PTX 4990 Classroom</b> &nbsp;&middot;&nbsp; AI Agents and Critical Thinking
@@ -140,8 +190,8 @@ a:hover { color: var(--cream); }
 (function () {
   var ROOM_URL = '/.netlify/functions/ptx4990-group-ask';
   var ROSTER = [
-    { key: 'einstein', name: 'Albert Einstein', portrait: '/assets/ptx4990/einstein.jpg' },
-    { key: 'curie',    name: 'Marie Curie',      portrait: '/assets/ptx4990/curie.jpg' },
+    { key: 'einstein', name: 'Albert Einstein', portrait: '/assets/ptx4990/einstein-eyes-open.jpg' },
+    { key: 'curie',    name: 'Marie Curie',      portrait: '/assets/ptx4990/curie-eyes-open.jpg' },
   ];
   var activeKeys = ROSTER.map(function (a) { return a.key; });
 
@@ -245,6 +295,23 @@ a:hover { color: var(--cream); }
       sending = false; sendEl.disabled = false;
     });
   }
+})();
+</script>
+
+<script>
+(function () {
+  var btn = document.getElementById('themeToggle');
+  function sync() {
+    var isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    btn.textContent = isLight ? 'Dark' : 'Light';
+  }
+  sync();
+  btn.addEventListener('click', function () {
+    var next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('etl_classrooms_theme', next); } catch (_) {}
+    sync();
+  });
 })();
 </script>
 
