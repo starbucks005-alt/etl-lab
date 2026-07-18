@@ -194,6 +194,17 @@ a:hover { color: var(--cream); }
 <script>
 (function () {
   var ROOM_URL = '/.netlify/functions/ptx4990-group-ask';
+
+  // Same shared visitor id already used campus-wide (Almost Human etc.), so
+  // Einstein and Curie remember the same student across every ETL surface.
+  function visitorId() {
+    try {
+      var v = localStorage.getItem('etl_visitor_id');
+      if (!v) { v = 'v' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10); localStorage.setItem('etl_visitor_id', v); }
+      return v;
+    } catch (_) { return null; }
+  }
+
   var ROSTER = [
     { key: 'einstein', name: 'Albert Einstein', portrait: '/assets/ptx4990/einstein-eyes-open.jpg' },
     { key: 'curie',    name: 'Marie Curie',      portrait: '/assets/ptx4990/curie-eyes-open.jpg' },
@@ -279,7 +290,7 @@ a:hover { color: var(--cream); }
     fetch(ROOM_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ active_agents: activeKeys, transcript: history, message: text })
+      body: JSON.stringify({ active_agents: activeKeys, transcript: history, message: text, visitor_id: visitorId() })
     }).then(function (res) {
       if (!res.ok) throw new Error('server returned ' + res.status);
       return res.json();

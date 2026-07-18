@@ -30,7 +30,7 @@
    ───────────────────────────────────────────────────────────────────────────── */
 
 const Anthropic = require('@anthropic-ai/sdk').default;
-const { SCIENTISTS, TOOLS, executeTool, cleanDashes, MODEL } = require('./ptx4990-chat.js');
+const { SCIENTISTS, TOOLS, executeTool, cleanDashes, MODEL, safeVisitorId, fetchVisitorMemory, saveVisitorMemory } = require('./ptx4990-chat.js');
 
 const DIRECTOR_MODEL = 'claude-haiku-4-5-20251001';
 const CASCADE_CAP = 3;
@@ -141,6 +141,8 @@ exports.handler = async (event) => {
   if (!message) return json(400, { error: 'message required' });
 
   const studentName = String(body.student_name || '').trim().slice(0, 40) || 'the student';
+  const visitorId = safeVisitorId(body.visitor_id);
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   const rawTranscript = Array.isArray(body.transcript) ? body.transcript : [];
   const transcript = rawTranscript
@@ -170,6 +172,11 @@ exports.handler = async (event) => {
     let turnPrompt = scientist.system +
       `\n\nROOM CONTEXT\nYou are seated at a roundtable in the PTX 4990 classroom with ${studentName} and, also at the table: ${roommates.join('; ')}. This is a group conversation, not a private one-on-one.`;
 
+    const visitorMemory = await fetchVisitorMemory(speaker, visitorId, serviceKey);
+    if (visitorMemory) {
+      turnPrompt += `\n\nWHAT YOU REMEMBER ABOUT ${studentName.toUpperCase()}\n${visitorMemory}\nYou've spoken with them before, one on one or at this table; let that show naturally, without making a show of it.`;
+    }
+
     if (beat > 0) {
       const lastEntry = transcript[transcript.length - 1];
       if (lastEntry && lastEntry.speaker !== 'student') {
@@ -192,6 +199,8 @@ exports.handler = async (event) => {
     transcript.push(entry);
     transcriptAppend.push(entry);
     replies.push({ agent_key: speaker, agent_name: scientist.name, reply: replyText });
+
+    await saveVisitorMemory(client, speaker, scientist.name, visitorId, serviceKey, [...messages, { role: 'assistant', content: replyText }]);
   }
 
   return json(200, {

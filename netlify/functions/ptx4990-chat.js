@@ -42,6 +42,67 @@ function cleanDashes(s) {
   return String(s == null ? '' : s).replace(/—/g, ', ').replace(/–/g, ', ');
 }
 
+/* ── Visitor memory: same etl_visitor_memories table and shared visitor_id
+   pattern already proven on eq-room-ask.js (Almost Human). Opt-in is
+   implicit here since there's no paywall/consent flow on this classroom;
+   a returning student's scientist just remembers them, same as a real TA
+   would. Keyed by (visitor_id, agent_key), newest row wins. ──────────── */
+const SUPABASE_URL = 'https://ulvrnermyuvzanxhxoib.supabase.co';
+const MEMORY_MODEL = 'claude-haiku-4-5-20251001';
+
+function safeVisitorId(v) {
+  const s = String(v || '').trim();
+  return /^[A-Za-z0-9_-]{4,64}$/.test(s) ? s : null;
+}
+
+async function fetchVisitorMemory(agentKey, visitorId, serviceKey) {
+  if (!visitorId || !serviceKey) return null;
+  try {
+    const r = await fetch(
+      `${SUPABASE_URL}/rest/v1/etl_visitor_memories?visitor_id=eq.${encodeURIComponent(visitorId)}&agent_key=eq.${encodeURIComponent(agentKey)}&select=memory&order=created_at.desc&limit=1`,
+      { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }
+    );
+    if (!r.ok) return null;
+    const rows = await r.json();
+    return Array.isArray(rows) && rows.length ? String(rows[0].memory || '').trim() || null : null;
+  } catch (err) {
+    console.error('[ptx4990-chat] visitor memory fetch failed (non-fatal):', err.message);
+    return null;
+  }
+}
+
+// Awaited by the caller, but cheap (Haiku, short prompt) so it doesn't add
+// much latency. Regenerates a full running summary each turn rather than
+// appending notes, so fetch only ever needs the single newest row.
+async function saveVisitorMemory(client, agentKey, agentName, visitorId, serviceKey, transcript) {
+  if (!visitorId || !serviceKey || transcript.length < 2) return;
+  try {
+    const prompt = `You are ${agentName}. This is your running memory of one specific student across your \
+conversations with them. Write 1 to 3 short, first-person notes you would genuinely carry with you about \
+THIS student: what they asked about, what they seemed curious or confused about, anything real and specific. \
+Not a transcript recap. Return ONLY JSON, no code fences: {"memories": ["...", "..."]}. If honestly nothing \
+memorable has come up yet, return {"memories": []}.
+
+Conversation so far:
+${transcript.map((m) => `${m.role === 'user' ? 'STUDENT' : agentName.toUpperCase()}: ${m.content}`).join('\n')}`;
+
+    const msg = await client.messages.create({ model: MEMORY_MODEL, max_tokens: 250, messages: [{ role: 'user', content: prompt }] });
+    const text = (msg.content || []).filter((b) => b.type === 'text').map((b) => b.text).join('').trim();
+    const cleaned = text.replace(/^```(json)?/i, '').replace(/```$/, '').trim();
+    const parsed = JSON.parse(cleaned);
+    const memories = Array.isArray(parsed.memories) ? parsed.memories.filter((m) => typeof m === 'string' && m.trim()).slice(0, 3) : [];
+    if (!memories.length) return;
+
+    await fetch(`${SUPABASE_URL}/rest/v1/etl_visitor_memories`, {
+      method: 'POST',
+      headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+      body: JSON.stringify(memories.map((memory) => ({ visitor_id: visitorId, agent_key: agentKey, memory }))),
+    });
+  } catch (err) {
+    console.error('[ptx4990-chat] visitor memory save failed (non-fatal):', err.message);
+  }
+}
+
 /* ── Shared tools every scientist carries: real Wikipedia + real arXiv ────── */
 const TOOLS = [
   {
@@ -281,18 +342,30 @@ exports.handler = async (event) => {
   const message = String(body.message || '').trim().slice(0, MAX_MSG_CHARS);
   if (!message) return json(400, { error: 'message required' });
 
+  const visitorId = safeVisitorId(body.visitor_id);
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
   const messages = buildMessages(message, body.history);
   const client = new Anthropic({ apiKey });
 
+  const visitorMemory = await fetchVisitorMemory(scientistId, visitorId, serviceKey);
+  const system = visitorMemory
+    ? `${scientist.system}\n\nWHAT YOU REMEMBER ABOUT THIS STUDENT\n${visitorMemory}\nGreet them like someone you've actually spoken with before, naturally, without making a show of it.`
+    : scientist.system;
+
   let output;
   try {
-    output = await runAgentLoop(client, scientist.system, messages);
+    output = await runAgentLoop(client, system, messages);
   } catch (err) {
     console.error('[ptx4990-chat] error', scientistId, err && err.message);
     return json(502, { error: 'the agent could not respond', detail: err && err.message });
   }
 
   if (!output) return json(502, { error: 'empty model output' });
+
+  // Awaited, not fire-and-forget: Netlify can freeze the function once the
+  // handler returns, so a dangling unawaited save is not reliable here.
+  await saveVisitorMemory(client, scientistId, scientist.name, visitorId, serviceKey, [...messages, { role: 'assistant', content: output }]);
   return json(200, { ok: true, body: cleanDashes(output), scientist: scientistId });
 };
 
@@ -301,3 +374,6 @@ module.exports.TOOLS = TOOLS;
 module.exports.executeTool = executeTool;
 module.exports.cleanDashes = cleanDashes;
 module.exports.MODEL = MODEL;
+module.exports.safeVisitorId = safeVisitorId;
+module.exports.fetchVisitorMemory = fetchVisitorMemory;
+module.exports.saveVisitorMemory = saveVisitorMemory;

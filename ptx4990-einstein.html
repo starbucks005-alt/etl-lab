@@ -229,6 +229,16 @@ a:hover { color: var(--cream); }
   var CHAT_URL  = '/.netlify/functions/ptx4990-chat';
   var VOICE_URL = '/.netlify/functions/ptx4990-voice';
 
+  // Same shared visitor id already used campus-wide (Almost Human etc.), so
+  // Einstein remembers the same student across every ETL surface they visit.
+  function visitorId() {
+    try {
+      var v = localStorage.getItem('etl_visitor_id');
+      if (!v) { v = 'v' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10); localStorage.setItem('etl_visitor_id', v); }
+      return v;
+    } catch (_) { return null; }
+  }
+
   var logEl   = document.getElementById('log');
   var inputEl = document.getElementById('input');
   var sendEl  = document.getElementById('send');
@@ -301,7 +311,7 @@ a:hover { color: var(--cream); }
     fetch(CHAT_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ scientist: SCIENTIST, message: msg, history: history.slice(0, -1) })
+      body: JSON.stringify({ scientist: SCIENTIST, message: msg, history: history.slice(0, -1), visitor_id: visitorId() })
     }).then(function (res) {
       return res.json().catch(function () { return {}; });
     }).then(function (data) {
