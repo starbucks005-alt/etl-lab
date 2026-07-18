@@ -585,13 +585,14 @@ var ROYAL_GALLERY = {
 
   // Voice plays for the bio (the introduction) only, not every chat reply --
   // Dr. O's call for this classroom: cheaper, and keeps the back-and-forth
-  // text-only. ElevenLabs won't generate child voices, so Hans & Bodil use
-  // two real "little girl" / "little boy" character voices instead, each
-  // still getting a light pitch bump on playback (raising playbackRate
-  // shifts pitch and pace together, the standard trick for a younger-
-  // sounding read) -- no extra model call, all client-side.
-  var CHILD_PITCH_KEYS = ['hans_bodil'];
-  var CHILD_PLAYBACK_RATE = 1.12;
+  // text-only. ElevenLabs won't generate child voices, so young-sounding
+  // agents get a pitch bump on playback instead (raising playbackRate shifts
+  // pitch and pace together, the standard de-aging trick) -- no extra model
+  // call, all client-side. Hans & Bodil already use real, somewhat-youthful
+  // "little girl"/"little boy" voices, so they only need a light nudge.
+  // boy_king's voiceId is a full adult voice reused from another purpose, so
+  // it needs a much stronger shift to read as ten years old at all.
+  var PITCH_RATES = { hans_bodil: 1.12, boy_king: 1.3 };
   var audioCtx = null;
   var audioSource = null;
 
@@ -642,7 +643,7 @@ var ROYAL_GALLERY = {
 
   function playBlob(blob) {
     return new Promise(function (resolve) {
-      if (CHILD_PITCH_KEYS.indexOf(AGENT) !== -1) {
+      if (PITCH_RATES[AGENT]) {
         playPitched(blob, resolve);
       } else {
         playPlain(blob, resolve);
@@ -664,7 +665,7 @@ var ROYAL_GALLERY = {
     blob.arrayBuffer().then(function (buf) { return audioCtx.decodeAudioData(buf); }).then(function (decoded) {
       audioSource = audioCtx.createBufferSource();
       audioSource.buffer = decoded;
-      audioSource.playbackRate.value = CHILD_PLAYBACK_RATE;
+      audioSource.playbackRate.value = PITCH_RATES[AGENT] || 1;
       audioSource.connect(audioCtx.destination);
       audioSource.onended = done;
       audioSource.start();
