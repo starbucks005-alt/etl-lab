@@ -106,20 +106,27 @@ a:hover { color: var(--cream); }
 .backlink:hover { color: var(--text); }
 
 /* ── HERO ── */
-.hero-photo {
+.hero {
   margin-top: .6rem;
   border: 1px solid var(--line);
   border-top: 3px solid var(--blue);
-  border-bottom: none;
+  background: linear-gradient(180deg, rgba(8,12,17,.55), rgba(8,12,17,.9)), url('/assets/classrooms/hallway.jpg') center 38% / cover no-repeat, var(--panel);
+  padding: 3.4rem 2.8rem 3rem;
+  position: relative;
   overflow: hidden;
-  line-height: 0;
 }
-.hero-photo img { width: 100%; height: auto; display: block; }
-.hero {
-  border: 1px solid var(--line);
-  border-top: none;
-  background: var(--panel);
-  padding: 2.4rem 2.8rem 2.6rem;
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 27px,
+    rgba(40,82,122,.045) 27px,
+    rgba(40,82,122,.045) 28px
+  );
+  pointer-events: none;
 }
 .eyebrow {
   font-family: 'IBM Plex Mono', monospace;
@@ -154,6 +161,14 @@ a:hover { color: var(--cream); }
   text-transform: uppercase;
 }
 .hero-note b { color: var(--blue-br); }
+/* The hero sits on a photo with a fixed dark gradient overlay (see .hero
+   background above), so its text stays fixed-light regardless of theme --
+   otherwise light mode would put dark ink on a dark photo and vanish. */
+.hero .eyebrow { color: #8fc4ee; }
+.hero h1 { color: #f5f1e6; }
+.hero .hero-lede { color: #dfe6ec; }
+.hero .hero-note { color: #9fb3c4; }
+.hero .hero-note b { color: #8fc4ee; }
 
 /* ── ROOM STATUS ── */
 .room-status { margin-top: 1rem; border: 1px solid var(--line); overflow: hidden; }
@@ -548,9 +563,6 @@ a.room-row:hover { background: var(--panel2); }
   <a class="backlink" href="/">&larr; ETL campus</a>
 
   <!-- HERO -->
-  <div class="hero-photo">
-    <img src="/assets/classrooms/hallway.jpg" alt="An ETL classrooms hallway">
-  </div>
   <div class="hero">
     <div class="eyebrow">ETL Classrooms &nbsp;&middot;&nbsp; Built for Education</div>
     <h1>Rent a classroom for your agents.</h1>
