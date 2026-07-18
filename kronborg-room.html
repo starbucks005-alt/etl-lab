@@ -87,6 +87,15 @@ a:hover { color: var(--green); }
 }
 .backlink:hover { color: var(--text); }
 
+.hero-photo {
+  margin-top: .6rem;
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--blue);
+  border-bottom: none;
+  overflow: hidden;
+  line-height: 0;
+}
+.hero-photo img { width: 100%; height: auto; display: block; }
 .hero {
   margin-top: .6rem;
   border: 1px solid var(--line);
@@ -94,6 +103,7 @@ a:hover { color: var(--green); }
   background: var(--panel);
   padding: 2rem 2rem 1.8rem;
 }
+.hero-photo + .hero { margin-top: 0; border-top: none; }
 .eyebrow {
   font-family: 'IBM Plex Mono', monospace;
   font-size: .6rem;
@@ -164,6 +174,10 @@ a:hover { color: var(--green); }
 
 <div class="wrap">
   <a class="backlink" href="/kronborg.html">&larr; History: Denmark 1500-1600s</a>
+
+  <div class="hero-photo">
+    <img src="/assets/kronborg/room-hero.jpg" alt="The royal court and townspeople of Helsingør gathered at one table">
+  </div>
 
   <div class="hero">
     <div class="eyebrow">The Kronborg Table</div>
