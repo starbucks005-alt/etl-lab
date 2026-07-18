@@ -103,30 +103,29 @@ a:hover { color: var(--green); }
 .bio-panel { grid-area: bio; align-self: start; }
 .right-col { grid-area: chat; align-self: start; }
 
-/* Royals: a tall, full-height portrait instead of a landscape strip, with
-   the bio and chat sitting side by side at the top next to it -- Dr. O's
-   call, since a wide landscape crop doesn't suit a formal royal sitting the
-   way it does a villager street scene. The space below bio/chat holds a
-   small gallery of additional real portraits for that agent. */
+/* Royals: a tall, vertical portrait in its own column on the left, bio in
+   the middle column, chat on the right -- a real 3-column layout, not the
+   villagers' image-then-bio stack. The extra gallery portraits sit below
+   the bio, in the bio's own column only (chat's column stays clear beside
+   it), per Dr. O's exact layout. */
 .page-grid--royal {
   grid-template-columns: 620px 1fr 1fr;
   grid-template-areas:
     "image bio     chat"
-    "image gallery gallery";
+    "image gallery .";
 }
 .page-grid--royal .left-col { align-self: stretch; }
-.page-grid--royal .portrait { flex: 1; height: auto; min-height: 700px; }
+.page-grid--royal .portrait { flex: 1; height: auto; min-height: 600px; }
 
 .royal-gallery {
   grid-area: gallery;
   display: none;
   gap: .8rem;
-  margin-top: .2rem;
 }
-.royal-gallery.is-visible { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.royal-gallery.is-visible { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
 .royal-gallery img {
   width: 100%;
-  height: 260px;
+  height: 220px;
   object-fit: cover;
   display: block;
   border: 1px solid var(--line);
@@ -265,7 +264,7 @@ a:hover { color: var(--green); }
 @media (max-width: 900px) {
   .page-grid, .page-grid--royal {
     grid-template-columns: 1fr;
-    grid-template-areas: "image" "bio" "chat" "gallery";
+    grid-template-areas: "image" "bio" "gallery" "chat";
   }
   .portrait { height: 52vw; }
   .portrait--villager { height: 44vw; }
@@ -427,16 +426,12 @@ var HERO_PHOTOS = {
   ],
 };
 
-// Extra portraits for the royals, filling the space below bio/chat. King
-// and boy_king share the same pair (Dr. O's call: the family portrait and
-// the young-man-in-uniform image work for both his ages).
+// Extra portraits for the royals, filling the space below bio/chat.
 var ROYAL_GALLERY = {
   king: [
     { src: '/assets/kronborg/king-family.jpg', alt: 'Christian IV with Queen Anne Catherine and the young Prince Christian' },
-    { src: '/assets/kronborg/boy_king-uniform.jpg', alt: 'Prince Christian in formal uniform' },
   ],
   boy_king: [
-    { src: '/assets/kronborg/king-family.jpg', alt: 'Christian IV with Queen Anne Catherine and the young Prince Christian' },
     { src: '/assets/kronborg/boy_king-uniform.jpg', alt: 'Prince Christian in formal uniform' },
   ],
   anne_catherine: [
