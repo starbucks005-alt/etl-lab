@@ -163,8 +163,8 @@ a:hover { color: var(--green); }
   margin: 1.1rem 0 .4rem;
 }
 .bio-text { font-size: .92rem; color: var(--text); max-width: 56ch; margin: 0; line-height: 1.75; }
-.bio-controls { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 1.1rem; }
-.bio-btn, .accent-toggle {
+.bio-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 1.1rem; }
+.bio-btn {
   background: none;
   border: 1px solid var(--line);
   color: var(--blue-br);
@@ -174,9 +174,33 @@ a:hover { color: var(--green); }
   font-size: .74rem;
   cursor: pointer;
 }
-.bio-btn:hover, .accent-toggle:hover { background: var(--panel2); border-color: var(--green); color: var(--green); }
+.bio-btn:hover { background: var(--panel2); border-color: var(--green); color: var(--green); }
 .bio-btn:disabled { opacity: .5; cursor: not-allowed; }
-.accent-toggle { color: var(--mute); }
+.bio-btn--stop { display: none; color: #d97a6c; border-color: #d97a6c; }
+.bio-btn--stop:hover { background: var(--panel2); border-color: #d97a6c; color: #d97a6c; }
+
+/* A real two-state switch, not another pill that looks like the play
+   button -- Dr. O flagged that the old single-button toggle read as just
+   another action, not a language switch. */
+.accent-switch {
+  display: inline-flex;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .7rem;
+}
+.accent-opt {
+  background: none;
+  border: none;
+  color: var(--mute);
+  padding: 7px 14px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.accent-opt + .accent-opt { border-left: 1px solid var(--line); }
+.accent-opt.is-active { background: var(--blue); color: #fff; }
+.accent-opt:hover:not(.is-active) { color: var(--green); }
 
 .chat { background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 1.4rem; max-width: 820px; margin-top: 2rem; }
 .log { display: flex; flex-direction: column; gap: 12px; min-height: 120px; max-height: 460px; overflow-y: auto; padding: 6px 4px 10px; }
@@ -233,7 +257,11 @@ a:hover { color: var(--green); }
       <p class="bio-text" id="bioText"></p>
       <div class="bio-controls">
         <button type="button" class="bio-btn" id="playBio">&#9654; Hear <span id="bioBtnName"></span>'s voice</button>
-        <button type="button" class="accent-toggle" id="accentToggle"></button>
+        <button type="button" class="bio-btn bio-btn--stop" id="stopBio">&#9632; Stop</button>
+        <div class="accent-switch" role="group" aria-label="Biography language">
+          <button type="button" class="accent-opt" id="accentDanish">Old Danish/German</button>
+          <button type="button" class="accent-opt" id="accentEnglish">English</button>
+        </div>
       </div>
     </div>
   </div>
@@ -479,7 +507,8 @@ var HERO_PHOTOS = {
   var ACCENT_KEY = 'etl_history_accent';
   var ACCENT = 'danish';
   try { ACCENT = localStorage.getItem(ACCENT_KEY) || 'danish'; } catch (_) {}
-  var accentToggleEl = document.getElementById('accentToggle');
+  var accentDanishEl = document.getElementById('accentDanish');
+  var accentEnglishEl = document.getElementById('accentEnglish');
   var bioLabelEl = document.getElementById('bioLabel');
   var bioTextEl = document.getElementById('bioText');
 
@@ -492,17 +521,22 @@ var HERO_PHOTOS = {
     bioLabelEl.textContent = 'Biography' + (ACCENT === 'english' ? ' (English)' : ' (Old Danish)');
     bioTextEl.textContent = bio ? (Array.isArray(bio) ? bio.map(function (s) { return s.text; }).join(' ') : bio) : '';
   }
-  function syncAccentToggle() {
-    accentToggleEl.textContent = 'Accent: ' + (ACCENT === 'english' ? 'English' : 'Old Danish/German') + ' (tap to switch)';
+  function syncAccentSwitch() {
+    accentDanishEl.classList.toggle('is-active', ACCENT !== 'english');
+    accentEnglishEl.classList.toggle('is-active', ACCENT === 'english');
   }
-  syncAccentToggle();
-  renderBio();
-  accentToggleEl.addEventListener('click', function () {
-    ACCENT = ACCENT === 'english' ? 'danish' : 'english';
+  function setAccent(next) {
+    if (ACCENT === next) return;
+    stopBio();
+    ACCENT = next;
     try { localStorage.setItem(ACCENT_KEY, ACCENT); } catch (_) {}
-    syncAccentToggle();
+    syncAccentSwitch();
     renderBio();
-  });
+  }
+  syncAccentSwitch();
+  renderBio();
+  accentDanishEl.addEventListener('click', function () { setAccent('danish'); });
+  accentEnglishEl.addEventListener('click', function () { setAccent('english'); });
 
   // Bio text is resolved server-side from kronborg-chat.js's BIOS (one
   // authoritative copy), so this only sends which segment to speak, not the
@@ -547,20 +581,40 @@ var HERO_PHOTOS = {
   }
 
   var playBioBtn = document.getElementById('playBio');
+  var stopBioBtn = document.getElementById('stopBio');
   var playBioBtnLabel = playBioBtn.innerHTML;
+  // A token, not a boolean: bumping it makes every step of an in-flight
+  // segment chain (already-fetched or mid-fetch) recognize it's stale and
+  // bail out, so Stop and switching languages mid-playback both actually
+  // stop the audio instead of letting the old chain keep going underneath.
+  var playToken = 0;
+
+  function stopBio() {
+    playToken++;
+    if (audio) { try { audio.pause(); } catch (_) {} }
+    if (audioSource) { try { audioSource.stop(); } catch (_) {} }
+    portrait.classList.remove('is-speaking');
+    playBioBtn.disabled = false;
+    stopBioBtn.style.display = 'none';
+  }
+  stopBioBtn.addEventListener('click', stopBio);
+
   playBioBtn.addEventListener('click', function () {
     var bio = currentBio();
     var segmentCount = Array.isArray(bio) ? bio.length : (bio ? 1 : 0);
     if (!segmentCount) return;
+    var myToken = ++playToken;
     playBioBtn.disabled = true;
+    stopBioBtn.style.display = 'inline-block';
     portrait.classList.add('is-speaking');
     var anyPlayed = false;
     var chain = Promise.resolve();
     for (var i = 0; i < segmentCount; i++) {
       (function (idx) {
         chain = chain.then(function () {
+          if (myToken !== playToken) return;
           return fetchVoice(idx).then(function (blob) {
-            if (!blob) return;
+            if (myToken !== playToken || !blob) return;
             anyPlayed = true;
             return playBlob(blob);
           });
@@ -568,8 +622,10 @@ var HERO_PHOTOS = {
       })(i);
     }
     chain.then(function () {
+      if (myToken !== playToken) return;
       portrait.classList.remove('is-speaking');
       playBioBtn.disabled = false;
+      stopBioBtn.style.display = 'none';
       if (!anyPlayed) {
         playBioBtn.textContent = 'No voice configured yet';
         setTimeout(function () { playBioBtn.innerHTML = playBioBtnLabel; }, 1800);
