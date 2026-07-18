@@ -13,6 +13,15 @@
 [functions."carol-channel-audio"]
   timeout = 60
 
+# The Kronborg Table's per-beat cascade (director pick -> visitor-memory
+# fetch -> agent turn, possibly with a tool call -> visitor-memory save,
+# each awaited in sequence, up to CASCADE_CAP beats) measured at 15-20s for
+# a single reply on the live site -- past the platform default, causing the
+# "table lost connection" error visitors were hitting. Same fix as the other
+# multi-call functions above.
+[functions."kronborg-room"]
+  timeout = 60
+
 # Scheduled functions. The exports.config.schedule syntax inside the function
 # files does not always register; declaring the schedule here is the reliable
 # pattern. Cron in UTC.
