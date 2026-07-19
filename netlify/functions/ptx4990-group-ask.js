@@ -174,7 +174,7 @@ exports.handler = async (event) => {
 
     const visitorMemory = await fetchVisitorMemory(speaker, visitorId, serviceKey);
     if (visitorMemory) {
-      turnPrompt += `\n\nWHAT YOU REMEMBER ABOUT ${studentName.toUpperCase()}\n${visitorMemory}\nYou've spoken with them before, one on one or at this table; let that show naturally, without making a show of it.`;
+      turnPrompt += `\n\nWHAT YOU REMEMBER ABOUT ${studentName.toUpperCase()}\n${visitorMemory}\nYou've spoken with them before, one on one or at this table; let that show naturally, without making a show of it. But only reference a specific topic, question, or exchange if it is actually named in the note above; never tell them they are returning to, repeating, or circling back to something unless the note explicitly says so. If what they just asked isn't covered above, treat it as new, even if it feels related.`;
     }
 
     if (beat > 0) {

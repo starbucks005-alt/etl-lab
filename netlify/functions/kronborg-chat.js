@@ -773,7 +773,7 @@ exports.handler = async (event) => {
 
   const visitorMemory = await fetchVisitorMemory(agentId, visitorId, serviceKey);
   const system = visitorMemory
-    ? `${agent.system}\n\nWHAT YOU REMEMBER ABOUT THIS VISITOR\n${visitorMemory}\nGreet them like someone you've actually spoken with before, naturally, without making a show of it.`
+    ? `${agent.system}\n\nWHAT YOU REMEMBER ABOUT THIS VISITOR\n${visitorMemory}\nLet this shape how warm and familiar you are with them, naturally, without making a show of it. But only reference a specific topic, question, or exchange if it is actually named in the note above; never tell them they are returning to, repeating, or circling back to something unless the note explicitly says so. If what they just asked isn't covered above, treat it as new, even if it feels related.`
     : agent.system;
 
   let output;
