@@ -327,6 +327,25 @@ a.room-row:hover { background: var(--panel2); }
   padding: .18rem .6rem;
 }
 
+/* Bespoke tier special treatment (same weight as the legend flagship badge) */
+.tier.bespoke-tier {
+  border-top: 1px solid var(--blue-br);
+  position: relative;
+}
+.tier.bespoke-tier::before {
+  content: 'FLEXIBLE';
+  position: absolute;
+  top: 0; right: 0;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .54rem;
+  letter-spacing: .18em;
+  background: var(--blue-br);
+  color: #fff;
+  padding: .18rem .6rem;
+}
+.tier-name.besp-name { color: var(--blue-br); }
+.tier-price.tier-price-cta { display: flex; align-items: center; justify-content: flex-end; }
+
 /* ── CLASSROOM GALLERY ── */
 .img-row {
   margin-top: 2.8rem;
@@ -543,6 +562,7 @@ a.room-row:hover { background: var(--panel2); }
   }
   .tier-left { border-right: none; border-bottom: 1px solid var(--line); }
   .tier-price { border-left: none; border-top: 1px solid var(--line); text-align: left; }
+  .tier-price.tier-price-cta { justify-content: flex-start; }
   .img-row { grid-template-columns: 1fr; }
   .steps { grid-template-columns: 1fr; }
   .hg-head, .hg-row { grid-template-columns: 1fr 100px; }
@@ -712,6 +732,28 @@ a.room-row:hover { background: var(--panel2); }
       </div>
     </div>
 
+    <!-- Bespoke -->
+    <div class="tier bespoke-tier">
+      <div class="tier-left">
+        <div class="tier-tag">Custom</div>
+        <div class="tier-name besp-name">Bespoke<br>Build</div>
+      </div>
+      <div class="tier-body">
+        <p class="tier-desc">
+          Something from scratch: real historical or living personas, a shared emotion engine
+          across your whole classroom, a full instructor syllabus built in.
+          If it doesn't fit the three tiers above, it fits here.
+        </p>
+        <p class="tier-detail">
+          <b>Best for:</b> Departments with a specific vision, not a standard build.<br>
+          Describe the project and get agent count, tier, and systems suggested back instantly.
+        </p>
+      </div>
+      <div class="tier-price tier-price-cta">
+        <a href="/bespoke-quote.html" class="btn-primary">Get instant estimate</a>
+      </div>
+    </div>
+
   </div><!-- /tiers -->
 
   <!-- IMAGE ROW -->
@@ -810,7 +852,6 @@ a.room-row:hover { background: var(--panel2); }
       Multi-classroom departments: contact for institutional rate
     </div>
   </div>
-  <p style="font-size:.86rem; color:var(--mute); margin:.9rem 0 0;">Need something from scratch, real personas, a shared emotion engine, a full instructor syllabus? <a href="/bespoke-quote.html" style="color:var(--blue-br);">Get an instant bespoke build estimate &rarr;</a></p>
 
   <!-- CTA -->
   <div class="cta-block">
