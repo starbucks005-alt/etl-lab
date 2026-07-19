@@ -16,18 +16,24 @@
                     (speaker is an agent key, or "visitor")
      message: string                       -- the visitor's new message
      visitor_name?: string
+     agent_state?: { [agentKey]: { scales } }  -- resent each turn, session-only
    }
    Returns {
-     replies: [{agent_key, agent_name, reply, audio_script}],
+     replies: [{agent_key, agent_name, reply, audio_script, mood}],
      transcript_append: [{speaker, name, content}],
-     active_agents: string[]
+     active_agents: string[],
+     agent_state: { [agentKey]: { scales } }
    }
 
    Env: ANTHROPIC_API_KEY
    ───────────────────────────────────────────────────────────────────────────── */
 
 const Anthropic = require('@anthropic-ai/sdk').default;
-const { AGENTS, TOOLS, executeTool, cleanDashes, MODEL, phoneticVoiceScript, safeVisitorId, fetchVisitorMemory, saveVisitorMemory } = require('./kronborg-chat.js');
+const {
+  AGENTS, TOOLS, DELIVER_REPLY_TOOL, extractDeliverReply, extractPlainText,
+  executeTool, cleanDashes, MODEL, phoneticVoiceScript, safeVisitorId, fetchVisitorMemory, saveVisitorMemory,
+} = require('./kronborg-chat.js');
+const engine = require('./_kronborg-engine.js');
 
 const DIRECTOR_MODEL = 'claude-haiku-4-5-20251001';
 const CASCADE_CAP = 3;
@@ -96,14 +102,16 @@ async function pickNextSpeaker(client, activeAgents, transcript, beatIndex, forc
 
 // Bounded tool-use turn: same agentic loop as kronborg-chat.js's
 // runAgentLoop, but capped lower (TURN_TOOL_LOOP) since a single group
-// request can cascade through several agents' turns already.
+// request can cascade through several agents' turns already. Returns
+// { text, felt } -- same forced deliver_reply pattern as the 1:1 chat, so
+// group-room agents feel things too, not just their 1:1 selves.
 async function runTurn(client, system, messages) {
   let current = [...messages];
   for (let i = 0; i < TURN_TOOL_LOOP; i++) {
     const resp = await client.messages.create({ model: MODEL, max_tokens: TURN_MAX_TOKENS, system, tools: TOOLS, messages: current });
-    if (resp.stop_reason !== 'tool_use') {
-      return resp.content.filter((b) => b.type === 'text').map((b) => b.text).join('\n').trim();
-    }
+    const delivered = extractDeliverReply(resp);
+    if (delivered) return delivered;
+    if (resp.stop_reason !== 'tool_use') return extractPlainText(resp);
     current.push({ role: 'assistant', content: resp.content });
     const results = await Promise.all(
       resp.content.filter((b) => b.type === 'tool_use').map(async (b) => ({
@@ -114,8 +122,11 @@ async function runTurn(client, system, messages) {
     );
     current.push({ role: 'user', content: results });
   }
-  const fallback = await client.messages.create({ model: MODEL, max_tokens: TURN_MAX_TOKENS, system, messages: current });
-  return fallback.content.filter((b) => b.type === 'text').map((b) => b.text).join('\n').trim();
+  const fallback = await client.messages.create({
+    model: MODEL, max_tokens: TURN_MAX_TOKENS, system, messages: current,
+    tools: [DELIVER_REPLY_TOOL], tool_choice: { type: 'tool', name: 'deliver_reply' },
+  });
+  return extractDeliverReply(fallback) || extractPlainText(fallback);
 }
 
 exports.handler = async (event) => {
@@ -147,6 +158,9 @@ exports.handler = async (event) => {
     .map((e) => ({ speaker: String(e.speaker || 'visitor'), name: e.name, content: e.content.trim() }))
     .slice(-MAX_TRANSCRIPT_ENTRIES);
   transcript.push({ speaker: 'visitor', name: visitorName, content: message });
+
+  const rawAgentState = (body.agent_state && typeof body.agent_state === 'object') ? body.agent_state : {};
+  const nextAgentState = {};
 
   const client = new Anthropic({ apiKey });
   const replies = [];
@@ -182,25 +196,45 @@ exports.handler = async (event) => {
     }
 
     const messages = buildMessagesFor(speaker, transcript);
-    let replyText;
+    let turn;
     try {
-      replyText = await runTurn(client, turnPrompt, messages);
+      turn = await runTurn(client, turnPrompt, messages);
     } catch (err) {
       console.error('[kronborg-room] turn error for', speaker, err.message);
       continue;
     }
-    if (!replyText) continue;
-    replyText = cleanDashes(replyText);
+    if (!turn || !turn.text) continue;
+    const replyText = cleanDashes(turn.text);
 
     const entry = { speaker, name: agent.name, content: replyText };
     transcript.push(entry);
     transcriptAppend.push(entry);
-    replies.push({ agent_key: speaker, agent_name: agent.name, reply: replyText, audio_script: phoneticVoiceScript(replyText) });
+
+    const decayedScales = engine.decayEmotions(rawAgentState[speaker] && rawAgentState[speaker].scales, speaker);
+    const nextScales = engine.applyTurn(decayedScales, turn.felt, speaker, engine.SMOOTHING);
+    nextAgentState[speaker] = { scales: nextScales };
+
+    replies.push({
+      agent_key: speaker,
+      agent_name: agent.name,
+      reply: replyText,
+      audio_script: phoneticVoiceScript(replyText),
+      mood: engine.dominantEmotion(nextScales),
+    });
 
     await saveVisitorMemory(client, speaker, agent.name, visitorId, serviceKey, [...messages, { role: 'assistant', content: replyText }]);
   }
 
+  // Carry forward scales for any active agent who didn't speak this turn,
+  // so the state a client already has for them isn't dropped.
+  activeAgents.forEach((key) => {
+    if (!nextAgentState[key]) {
+      nextAgentState[key] = { scales: engine.sanitizeScales(rawAgentState[key] && rawAgentState[key].scales, key) };
+    }
+  });
+
   return json(200, {
+    agent_state: nextAgentState,
     replies,
     transcript_append: transcriptAppend,
     active_agents: activeAgents,

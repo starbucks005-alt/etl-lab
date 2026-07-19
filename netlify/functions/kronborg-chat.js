@@ -19,6 +19,7 @@
    ───────────────────────────────────────────────────────────────────────────── */
 
 const Anthropic = require('@anthropic-ai/sdk').default;
+const engine = require('./_kronborg-engine.js');
 
 const MODEL = 'claude-sonnet-4-6';
 const MAX_TOKENS = 700;
@@ -46,17 +47,49 @@ function cleanDashes(s) {
    Dues, the Rigsråd...). The commoners are period-accurate composites, not
    real documented individuals, so the point of the tool for them is
    grounding the WORLD they live in, not inventing biography for themselves. */
-const TOOLS = [
-  {
-    name: 'get_wikipedia_info',
-    description: "Look up a real person, place, institution, or historical event from your era (Christian IV, Kronborg Castle, the Sound Dues, the Rigsråd, the Thirty Years' War, etc.) for accurate historical detail. Use when a true, specific fact would strengthen your answer.",
-    input_schema: {
-      type: 'object',
-      properties: { query: { type: 'string', description: 'Topic to look up, e.g. "Christian IV of Denmark" or "Sound Dues"' } },
-      required: ['query'],
-    },
+const WIKIPEDIA_TOOL = {
+  name: 'get_wikipedia_info',
+  description: "Look up a real person, place, institution, or historical event from your era (Christian IV, Kronborg Castle, the Sound Dues, the Rigsråd, the Thirty Years' War, etc.) for accurate historical detail. Use when a true, specific fact would strengthen your answer.",
+  input_schema: {
+    type: 'object',
+    properties: { query: { type: 'string', description: 'Topic to look up, e.g. "Christian IV of Denmark" or "Sound Dues"' } },
+    required: ['query'],
   },
-];
+};
+
+// The emotion engine's per-turn input: same shape as Almost Human's "felt"
+// mechanic (_eq-personas.js/_eq-engine.js), reimplemented in
+// _kronborg-engine.js. Forcing this as a tool call (rather than asking for
+// free-text JSON) means the reply and the felt reading arrive in one
+// structured turn, same pattern kronborg-room.js's director already uses
+// for pick_speaker.
+const DELIVER_REPLY_TOOL = {
+  name: 'deliver_reply',
+  description: 'Deliver your finished in-character reply for this turn, along with how strongly you actually felt each emotion. Always call this last, exactly once, to finish your turn.',
+  input_schema: {
+    type: 'object',
+    properties: {
+      reply: { type: 'string', description: 'Your in-character spoken reply. No labels, no quotation marks around it.' },
+      felt: {
+        type: 'object',
+        description: 'How strongly you actually felt each emotion this turn, 0 to 8, not a mood rating. Most ordinary, friendly exchanges are not sadness, anger, fear, or disgust; those sit at or near 0 unless something genuinely triggers them. A warm or interesting turn should show up as happiness and/or curious, not spread across all seven. Mild is 2 to 3, a genuinely big moment is 6 to 8. Do not manufacture a feeling that is not really there.',
+        properties: {
+          happiness: { type: 'integer', minimum: 0, maximum: 8 },
+          sadness: { type: 'integer', minimum: 0, maximum: 8 },
+          fear: { type: 'integer', minimum: 0, maximum: 8 },
+          disgust: { type: 'integer', minimum: 0, maximum: 8 },
+          anger: { type: 'integer', minimum: 0, maximum: 8 },
+          surprise: { type: 'integer', minimum: 0, maximum: 8 },
+          curious: { type: 'integer', minimum: 0, maximum: 8, description: 'Genuine interest pulling you toward wanting to know more, an intriguing question or an unusual thing said, distinct from general happiness.' },
+        },
+        required: ['happiness', 'sadness', 'fear', 'disgust', 'anger', 'surprise', 'curious'],
+      },
+    },
+    required: ['reply', 'felt'],
+  },
+};
+
+const TOOLS = [WIKIPEDIA_TOOL, DELIVER_REPLY_TOOL];
 
 async function fetchWikipedia(query) {
   try {
@@ -133,6 +166,7 @@ const FORMAT_RULES = [
   '- If you use a real source lookup, never name the modern platform itself out loud (no "Wikipedia"); describe what you found in your own voice instead, but keep the actual fact accurate.',
   '- If a live lookup fails, say so honestly rather than inventing a fact.',
   '- Output ONLY the words you would say. No labels, no quotation marks around it.',
+  '- Always finish your turn by calling deliver_reply exactly once. "felt" is out-of-character bookkeeping the room reads to track your emotional state; never mention it, and nothing in your reply should reference it.',
 ].join('\n');
 
 /* Shared context every agent needs about the room's one deliberate fiction:
@@ -594,13 +628,28 @@ const BIOS = {
   },
 };
 
+// Returns { text, felt }. felt is the deliver_reply tool's emotion reading
+// (null if the model never called it, which the emotion engine treats as no
+// movement this turn rather than erroring).
+function extractDeliverReply(resp) {
+  const block = (resp.content || []).find((b) => b.type === 'tool_use' && b.name === 'deliver_reply');
+  if (!block) return null;
+  const input = block.input || {};
+  const text = String(input.reply || '').trim();
+  return text ? { text, felt: input.felt || null } : null;
+}
+function extractPlainText(resp) {
+  const text = (resp.content || []).filter((b) => b.type === 'text').map((b) => b.text).join('\n').trim();
+  return text ? { text, felt: null } : { text: null, felt: null };
+}
+
 async function runAgentLoop(client, system, messages) {
   let current = [...messages];
   for (let i = 0; i < MAX_LOOP; i++) {
     const resp = await client.messages.create({ model: MODEL, max_tokens: MAX_TOKENS, system, tools: TOOLS, messages: current });
-    if (resp.stop_reason !== 'tool_use') {
-      return resp.content.filter((b) => b.type === 'text').map((b) => b.text).join('\n').trim() || null;
-    }
+    const delivered = extractDeliverReply(resp);
+    if (delivered) return delivered;
+    if (resp.stop_reason !== 'tool_use') return extractPlainText(resp);
     current.push({ role: 'assistant', content: resp.content });
     const results = await Promise.all(
       resp.content.filter((b) => b.type === 'tool_use').map(async (b) => ({
@@ -611,8 +660,12 @@ async function runAgentLoop(client, system, messages) {
     );
     current.push({ role: 'user', content: results });
   }
-  const fallback = await client.messages.create({ model: MODEL, max_tokens: MAX_TOKENS, system, messages: current });
-  return fallback.content.filter((b) => b.type === 'text').map((b) => b.text).join('\n').trim() || null;
+  // MAX_LOOP exhausted without a deliver_reply call -- force one.
+  const fallback = await client.messages.create({
+    model: MODEL, max_tokens: MAX_TOKENS, system, messages: current,
+    tools: [DELIVER_REPLY_TOOL], tool_choice: { type: 'tool', name: 'deliver_reply' },
+  });
+  return extractDeliverReply(fallback) || extractPlainText(fallback);
 }
 
 function buildMessages(message, history) {
@@ -731,17 +784,34 @@ exports.handler = async (event) => {
     return json(502, { error: 'the agent could not respond', detail: err && err.message });
   }
 
-  if (!output) return json(502, { error: 'empty model output' });
+  if (!output || !output.text) return json(502, { error: 'empty model output' });
 
-  await saveVisitorMemory(client, agentId, agent.name, visitorId, serviceKey, [...messages, { role: 'assistant', content: output }]);
+  await saveVisitorMemory(client, agentId, agent.name, visitorId, serviceKey, [...messages, { role: 'assistant', content: output.text }]);
 
-  const cleaned = cleanDashes(output);
-  return json(200, { ok: true, body: cleaned, audio_script: phoneticVoiceScript(cleaned), agent: agentId });
+  // Emotion engine: client resends the scales it got back last turn (session-
+  // only, same pattern as Almost Human's live "felt" scales); seeded from
+  // this agent's baseline the first time. Decay settles toward baseline,
+  // then this turn's felt reading nudges it.
+  const decayedScales = engine.decayEmotions(body.scales, agentId);
+  const nextScales = engine.applyTurn(decayedScales, output.felt, agentId, engine.SMOOTHING);
+
+  const cleaned = cleanDashes(output.text);
+  return json(200, {
+    ok: true,
+    body: cleaned,
+    audio_script: phoneticVoiceScript(cleaned),
+    agent: agentId,
+    scales: nextScales,
+    mood: engine.dominantEmotion(nextScales),
+  });
 };
 
 module.exports.AGENTS = AGENTS;
 module.exports.BIOS = BIOS;
 module.exports.TOOLS = TOOLS;
+module.exports.DELIVER_REPLY_TOOL = DELIVER_REPLY_TOOL;
+module.exports.extractDeliverReply = extractDeliverReply;
+module.exports.extractPlainText = extractPlainText;
 module.exports.executeTool = executeTool;
 module.exports.cleanDashes = cleanDashes;
 module.exports.MODEL = MODEL;

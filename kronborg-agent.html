@@ -185,6 +185,20 @@ a:hover { color: var(--green); }
   color: var(--blue-br);
   margin-bottom: .7rem;
 }
+/* Reveals only once the agent has actually felt something in this
+   conversation -- no baseline shown before the first reply, since there's
+   nothing real to report yet. */
+.mood-tag {
+  display: none;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .62rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--mute);
+  margin: -.35rem 0 .9rem;
+}
+.mood-tag.is-visible { display: block; }
+.mood-tag b { color: var(--blue-br); font-weight: 600; }
 .bio-panel h1 {
   font-family: 'Spectral', serif;
   font-size: clamp(1.8rem, 3vw, 2.3rem);
@@ -302,6 +316,7 @@ a:hover { color: var(--green); }
 
     <div class="bio-panel">
       <p class="eyebrow" id="eyebrow">Living Legend &middot; Kronborg, 1588</p>
+      <p class="mood-tag" id="moodTag">Feeling <b id="moodWord"></b> right now</p>
       <h1 id="agentName">Loading...</h1>
       <p class="hero-sub" id="agentTagline"></p>
       <p class="bio-label" id="bioLabel"></p>
@@ -556,6 +571,9 @@ var ROYAL_GALLERY = {
   var history = [];
   var busy = false;
   var audio = null;
+  var scales = null; // emotion engine state, session-only, resent each turn once the agent has felt a first turn
+  var moodTagEl = document.getElementById('moodTag');
+  var moodWordEl = document.getElementById('moodWord');
 
   function bubble(role, text) {
     var d = document.createElement('div');
@@ -745,7 +763,7 @@ var ROYAL_GALLERY = {
     fetch(CHAT_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ agent: AGENT, message: msg, history: history.slice(0, -1), visitor_id: visitorId() })
+      body: JSON.stringify({ agent: AGENT, message: msg, history: history.slice(0, -1), visitor_id: visitorId(), scales: scales })
     }).then(function (res) {
       return res.json().catch(function () { return {}; });
     }).then(function (data) {
@@ -755,6 +773,11 @@ var ROYAL_GALLERY = {
       } else {
         bubble('her', data.body);
         history.push({ role: 'assistant', body: data.body });
+        if (data.scales) scales = data.scales;
+        if (data.mood) {
+          moodWordEl.textContent = data.mood;
+          moodTagEl.classList.add('is-visible');
+        }
       }
     }).catch(function () {
       typing.remove();
