@@ -156,6 +156,23 @@ a:hover { color: var(--green); }
 .bubble--agent .who { display: block; font-family: 'IBM Plex Mono', monospace; font-size: .66rem; letter-spacing: .06em; text-transform: uppercase; color: var(--blue-br); margin-bottom: 4px; }
 .bubble--you { background: var(--blue); color: #fff; align-self: flex-end; border-right: 2px solid var(--blue-br); }
 .bubble--system { color: var(--mute); font-style: italic; align-self: center; font-size: .84rem; }
+/* Two cells per reply: the line an agent actually said, and a small read on
+   what they felt saying it, right beside it, so the room's mood is legible
+   turn by turn as it moves between agents, not hidden in one agent's page. */
+.bubble-row { display: flex; align-items: flex-end; gap: 8px; max-width: 96%; align-self: flex-start; }
+.bubble-row .bubble--agent { max-width: none; flex: 0 1 auto; }
+.bubble-mood {
+  flex: 0 0 auto;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .62rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--mute);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 6px 10px;
+  white-space: nowrap;
+}
 .composer { display: flex; gap: 10px; align-items: flex-end; margin-top: 6px; }
 .composer textarea { flex: 1; resize: none; border: 1px solid var(--line); border-radius: 4px; padding: 11px 14px; font-family: 'Public Sans', sans-serif; font-size: 1rem; line-height: 1.4; color: var(--cream); min-height: 48px; max-height: 140px; outline: none; background: var(--bg2); }
 .composer textarea:focus { border-color: var(--blue-br); }
@@ -295,7 +312,7 @@ var MAX_AGENTS = 6;
     if (logEl.children.length === sys.length) { sys.forEach(function (b) { b.remove(); }); }
   }
 
-  function bubble(kind, text, agentName) {
+  function bubble(kind, text, agentName, mood) {
     var d = document.createElement('div');
     d.className = 'bubble bubble--' + kind;
     if (kind === 'agent' && agentName) {
@@ -306,6 +323,18 @@ var MAX_AGENTS = 6;
       d.appendChild(document.createTextNode(text));
     } else {
       d.textContent = text;
+    }
+    if (kind === 'agent' && mood) {
+      var row = document.createElement('div');
+      row.className = 'bubble-row';
+      var m = document.createElement('div');
+      m.className = 'bubble-mood';
+      m.textContent = mood;
+      row.appendChild(d);
+      row.appendChild(m);
+      logEl.appendChild(row);
+      logEl.scrollTop = logEl.scrollHeight;
+      return d;
     }
     logEl.appendChild(d);
     logEl.scrollTop = logEl.scrollHeight;
@@ -331,7 +360,7 @@ var MAX_AGENTS = 6;
     var delay = 500 + Math.random() * 700 + typingDelay;
     setTimeout(function () {
       thinking.remove();
-      bubble('agent', r.reply, agent ? agent.name : r.agent_name);
+      bubble('agent', r.reply, agent ? agent.name : r.agent_name, r.mood);
       var pause = 500 + Math.random() * 900;
       setTimeout(function () { revealNext(replies, i + 1, onDone); }, pause);
     }, delay);

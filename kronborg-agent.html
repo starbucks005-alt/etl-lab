@@ -185,20 +185,6 @@ a:hover { color: var(--green); }
   color: var(--blue-br);
   margin-bottom: .7rem;
 }
-/* Reveals only once the agent has actually felt something in this
-   conversation -- no baseline shown before the first reply, since there's
-   nothing real to report yet. */
-.mood-tag {
-  display: none;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: .62rem;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  color: var(--mute);
-  margin: -.35rem 0 .9rem;
-}
-.mood-tag.is-visible { display: block; }
-.mood-tag b { color: var(--blue-br); font-weight: 600; }
 .bio-panel h1 {
   font-family: 'Spectral', serif;
   font-size: clamp(1.8rem, 3vw, 2.3rem);
@@ -263,6 +249,23 @@ a:hover { color: var(--green); }
 .bubble--her { background: var(--panel2); color: var(--text); align-self: flex-start; border-left: 2px solid var(--blue-br); }
 .bubble--you { background: var(--blue); color: #fff; align-self: flex-end; border-right: 2px solid var(--blue-br); }
 .bubble--typing { color: var(--mute); font-style: italic; }
+/* Two cells per reply: the line she actually said, and a small read on what
+   she felt saying it, right beside it rather than a single tag up by the
+   portrait, so the mood is legible turn by turn, not just as one snapshot. */
+.bubble-row { display: flex; align-items: flex-end; gap: 8px; max-width: 96%; align-self: flex-start; }
+.bubble-row .bubble--her { max-width: none; flex: 0 1 auto; }
+.bubble-mood {
+  flex: 0 0 auto;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .62rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--mute);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 6px 10px;
+  white-space: nowrap;
+}
 .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 14px; }
 .chip { background: none; border: 1px solid var(--line); color: var(--blue-br); border-radius: 999px; padding: 7px 14px; font-family: 'IBM Plex Mono', monospace; font-size: .74rem; cursor: pointer; }
 .chip:hover { background: var(--panel2); border-color: var(--green); color: var(--green); }
@@ -316,7 +319,6 @@ a:hover { color: var(--green); }
 
     <div class="bio-panel">
       <p class="eyebrow" id="eyebrow">Living Legend &middot; Kronborg, 1588</p>
-      <p class="mood-tag" id="moodTag">Feeling <b id="moodWord"></b> right now</p>
       <h1 id="agentName">Loading...</h1>
       <p class="hero-sub" id="agentTagline"></p>
       <p class="bio-label" id="bioLabel"></p>
@@ -572,13 +574,26 @@ var ROYAL_GALLERY = {
   var busy = false;
   var audio = null;
   var scales = null; // emotion engine state, session-only, resent each turn once the agent has felt a first turn
-  var moodTagEl = document.getElementById('moodTag');
-  var moodWordEl = document.getElementById('moodWord');
 
-  function bubble(role, text) {
+  // mood is only ever passed for a real reply that actually went through the
+  // felt-state engine; the static greeting below has none, since there's
+  // nothing real to report yet.
+  function bubble(role, text, mood) {
     var d = document.createElement('div');
     d.className = 'bubble ' + (role === 'you' ? 'bubble--you' : 'bubble--her');
     d.textContent = text;
+    if (role === 'her' && mood) {
+      var row = document.createElement('div');
+      row.className = 'bubble-row';
+      var m = document.createElement('div');
+      m.className = 'bubble-mood';
+      m.textContent = mood;
+      row.appendChild(d);
+      row.appendChild(m);
+      logEl.appendChild(row);
+      logEl.scrollTop = logEl.scrollHeight;
+      return d;
+    }
     logEl.appendChild(d);
     logEl.scrollTop = logEl.scrollHeight;
     return d;
@@ -771,13 +786,9 @@ var ROYAL_GALLERY = {
       if (!data || !data.body) {
         bubble('her', 'Forgive me, my thought slipped away for a moment. Ask me again?');
       } else {
-        bubble('her', data.body);
+        bubble('her', data.body, data.mood);
         history.push({ role: 'assistant', body: data.body });
         if (data.scales) scales = data.scales;
-        if (data.mood) {
-          moodWordEl.textContent = data.mood;
-          moodTagEl.classList.add('is-visible');
-        }
       }
     }).catch(function () {
       typing.remove();
