@@ -382,3 +382,32 @@
   for = "/agents/*"
   [headers.values]
     Cache-Control = "no-store"
+
+# The pages themselves, not just their images, were also being served
+# stale: no-store on /assets/* and /agents/* alone didn't stop hard-refresh
+# being needed, because the HTML document was the thing cached. Same
+# no-store treatment for every actively-iterated Classrooms page.
+[[headers]]
+  for = "/classrooms.html"
+  [headers.values]
+    Cache-Control = "no-store"
+
+[[headers]]
+  for = "/kronborg.html"
+  [headers.values]
+    Cache-Control = "no-store"
+
+[[headers]]
+  for = "/kronborg-agent.html"
+  [headers.values]
+    Cache-Control = "no-store"
+
+[[headers]]
+  for = "/kronborg-room.html"
+  [headers.values]
+    Cache-Control = "no-store"
+
+[[headers]]
+  for = "/bespoke-quote.html"
+  [headers.values]
+    Cache-Control = "no-store"
