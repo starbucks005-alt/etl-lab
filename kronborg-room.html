@@ -346,6 +346,7 @@ var MAX_AGENTS = 6;
 
     clearSystemBubbles();
     bubble('you', text);
+    var waiting = bubble('system', 'The table is talking...');
 
     fetch(ROOM_URL, {
       method: 'POST',
@@ -355,21 +356,52 @@ var MAX_AGENTS = 6;
       if (!res.ok) throw new Error('server returned ' + res.status);
       return res.json();
     }).then(function (data) {
-      history.push({ speaker: 'visitor', name: 'Visitor', content: text });
-      (data.transcript_append || []).forEach(function (entry) { history.push(entry); });
-      var replies = data.replies || [];
-      if (!replies.length) {
-        bubble('system', 'No one at the table had anything to add just now. Try asking something more specific.');
-        sending = false; sendEl.disabled = false; inputEl.focus();
-        return;
-      }
-      revealNext(replies, 0, function () {
-        sending = false; sendEl.disabled = false; inputEl.focus();
-      });
+      if (!data.job_id) throw new Error('no job_id returned');
+      pollRoomJob(data.job_id, text, waiting);
     }).catch(function () {
+      waiting.remove();
       bubble('system', 'The table lost connection for a moment. Try again?');
       sending = false; sendEl.disabled = false;
     });
+  }
+
+  // Same dispatcher + poll pattern used elsewhere on the ETL campus (Bea on
+  // GLP, the generic agent-ask export API): the room's real work now runs in
+  // a background function, so this just checks back until it's done. No max
+  // attempts, recursive setTimeout, slightly longer backoff on a network
+  // error than on a normal "still running" tick.
+  function pollRoomJob(jobId, text, waiting) {
+    fetch('/.netlify/functions/kronborg-room-status?job_id=' + encodeURIComponent(jobId))
+      .then(function (res) {
+        if (!res.ok) throw new Error('status ' + res.status);
+        return res.json();
+      })
+      .then(function (job) {
+        if (job.status === 'pending' || job.status === 'running') {
+          setTimeout(function () { pollRoomJob(jobId, text, waiting); }, 2500);
+          return;
+        }
+        waiting.remove();
+        if (job.status === 'error') {
+          bubble('system', 'The table lost connection for a moment. Try again?');
+          sending = false; sendEl.disabled = false;
+          return;
+        }
+        history.push({ speaker: 'visitor', name: 'Visitor', content: text });
+        (job.transcript_append || []).forEach(function (entry) { history.push(entry); });
+        var replies = job.replies || [];
+        if (!replies.length) {
+          bubble('system', 'No one at the table had anything to add just now. Try asking something more specific.');
+          sending = false; sendEl.disabled = false; inputEl.focus();
+          return;
+        }
+        revealNext(replies, 0, function () {
+          sending = false; sendEl.disabled = false; inputEl.focus();
+        });
+      })
+      .catch(function () {
+        setTimeout(function () { pollRoomJob(jobId, text, waiting); }, 4000);
+      });
   }
 })();
 

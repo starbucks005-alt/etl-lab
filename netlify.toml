@@ -15,12 +15,14 @@
 
 # The Kronborg Table's per-beat cascade (director pick -> visitor-memory
 # fetch -> agent turn, possibly with a tool call -> visitor-memory save,
-# each awaited in sequence, up to CASCADE_CAP beats) measured at 15-20s for
-# a single reply on the live site -- past the platform default, causing the
-# "table lost connection" error visitors were hitting. Same fix as the other
-# multi-call functions above.
-[functions."kronborg-room"]
-  timeout = 60
+# each awaited in sequence, up to CASCADE_CAP beats) measured at 15-20s for a
+# single reply on the live site, which kept exceeding this platform's real
+# ceiling for synchronous functions no matter what timeout was declared here,
+# causing the "table lost connection" error visitors were hitting. Fixed by
+# splitting into kronborg-room.js (thin dispatcher, no longer needs an
+# extended timeout) + kronborg-room-background.js (does the actual cascade,
+# gets its execution budget from the "-background" filename suffix, no
+# netlify.toml entry needed, same as agent-background/heidi-background above).
 
 # Scheduled functions. The exports.config.schedule syntax inside the function
 # files does not always register; declaring the schedule here is the reliable
