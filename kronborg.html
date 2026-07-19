@@ -195,6 +195,16 @@ a:hover { color: var(--green); }
 .about-block p:last-child { margin-bottom: 0; }
 .about-block b { color: var(--cream); }
 
+.obj-blocks { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line); margin-top: 1.6rem; border: 1px solid var(--line); }
+.obj-block { background: var(--panel); padding: 1.4rem 1.6rem; }
+.obj-block h3 { font-family: 'IBM Plex Mono', monospace; font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; color: var(--blue-br); margin: 0 0 .9rem; }
+.obj-block ul { margin: 0; padding-left: 1.1rem; }
+.obj-block li { font-size: .86rem; color: var(--text); line-height: 1.65; margin-bottom: .6rem; }
+.obj-block li:last-child { margin-bottom: 0; }
+@media (max-width: 640px) {
+  .obj-blocks { grid-template-columns: 1fr; }
+}
+
 .syllabus { margin-top: 1.6rem; border: 1px solid var(--line); background: var(--panel); }
 .syllabus-item { display: grid; grid-template-columns: 56px 1fr; gap: 1.4rem; padding: 1.5rem 1.7rem; border-top: 1px solid var(--line); }
 .syllabus-item:first-child { border-top: none; }
@@ -341,7 +351,28 @@ a:hover { color: var(--green); }
     <h2>For Educators: A 10-Hour Unit</h2>
     <div class="sec-rule"></div>
   </div>
-  <p class="sec-sub">Ten one-hour sessions built entirely on the cast above, no additional reading required. Every session pairs a citation-required interview with a critical-thinking prompt, so a student has to actually use the agents, not the internet, to complete it: the questions ask what a specific character believes and why, not facts that can be looked up. Several sessions loop back to earlier ones, so the capstone essay has real, cumulative material to argue from.</p>
+  <p class="sec-sub">Ten one-hour sessions built entirely on the cast above, no additional reading required. Every session pairs a citation-required interview with a critical-thinking prompt, so a student has to actually use the agents, not the internet, to complete it: the questions ask what a specific character believes and why, not facts that can be looked up. Every Analyze prompt expects a written paragraph, not a one-line answer: name the claim, then argue the counterpoint before settling on a position. Several sessions loop back to earlier ones, so the capstone essay has real, cumulative material to argue from.</p>
+
+  <div class="obj-blocks">
+    <div class="obj-block">
+      <h3>Learning Objectives</h3>
+      <ul>
+        <li>Practice source criticism: weighing a first-person account by whose interests it serves.</li>
+        <li>Practice perspective-taking across a rigid social hierarchy, royal and common, male and female.</li>
+        <li>Practice building a written argument from conflicting evidence, not just summarizing it.</li>
+        <li>Practice reasoning about what an AI reconstruction can and cannot stand in for as a historical source.</li>
+      </ul>
+    </div>
+    <div class="obj-block">
+      <h3>Learning Outcomes</h3>
+      <ul>
+        <li>Identify self-interest in a testimony and explain how it shapes what was said.</li>
+        <li>Compare two or more accounts of the same event or institution and articulate exactly where and why they diverge.</li>
+        <li>Write a paragraph-length argument that cites specific evidence and reaches a defensible conclusion.</li>
+        <li>Distinguish, in writing, between an AI reconstruction's plausible characterization and an actual historical record.</li>
+      </ul>
+    </div>
+  </div>
 
   <div class="syllabus">
     <div class="syllabus-item">
@@ -350,7 +381,7 @@ a:hover { color: var(--green); }
         <h3>Orientation and the King</h3>
         <p class="syllabus-agents">Solo: Christian IV</p>
         <p class="syllabus-step"><b>Gather.</b> Ask him why he answers "only to God," and what the Sound Toll pays for.</p>
-        <p class="syllabus-step"><b>Analyze.</b> A ruler justifying his own power isn't neutral evidence. Name one claim he makes that a nobleman or a toll-paying merchant would dispute.</p>
+        <p class="syllabus-step"><b>Analyze.</b> A ruler justifying his own power isn't neutral evidence. Name one claim he makes that a nobleman or a toll-paying merchant would dispute, then write out what that person would say instead and why they would see it differently.</p>
       </div>
     </div>
     <div class="syllabus-item">
@@ -359,7 +390,7 @@ a:hover { color: var(--green); }
         <h3>The Boy Who Would Rule</h3>
         <p class="syllabus-agents">Solo: Prince Christian</p>
         <p class="syllabus-step"><b>Gather.</b> Ask him what the Regency Council actually lets him decide, and what he'll do once he holds real power.</p>
-        <p class="syllabus-step"><b>Analyze.</b> Compare his answer to the King's Session 1 answer on why a kingdom needs an absolute hand. Continuity, or change?</p>
+        <p class="syllabus-step"><b>Analyze.</b> Compare his answer to the King's Session 1 answer on why a kingdom needs an absolute hand. Continuity, or change? Lay out what stays the same, what shifts, and quote each man's own words as your proof.</p>
       </div>
     </div>
     <div class="syllabus-item">
@@ -368,7 +399,7 @@ a:hover { color: var(--green); }
         <h3>The Two Wives</h3>
         <p class="syllabus-agents">Anne Catherine + Kirsten Munk</p>
         <p class="syllabus-step"><b>Gather.</b> Ask each what makes her position at court legitimate.</p>
-        <p class="syllabus-step"><b>Analyze.</b> Two opposite justifications for standing with no independent power. Which is more secure, and why?</p>
+        <p class="syllabus-step"><b>Analyze.</b> Two opposite justifications for standing with no independent power. Which is more secure, and why? Make the strongest case for the other woman first, then explain specifically why it fails to change your answer.</p>
       </div>
     </div>
     <div class="syllabus-item">
@@ -377,7 +408,7 @@ a:hover { color: var(--green); }
         <h3>The Merchant's Ledger</h3>
         <p class="syllabus-agents">Solo: Jens</p>
         <p class="syllabus-step"><b>Gather.</b> Ask Jens to justify his cut of the toll revenue, then ask the King the same question.</p>
-        <p class="syllabus-step"><b>Analyze.</b> Whose account is more self-interested? Does that make it less trustworthy, or does the self-interest itself reveal how the system worked?</p>
+        <p class="syllabus-step"><b>Analyze.</b> Whose account is more self-interested? Argue it could be either man before settling on a position, then explain whether the self-interest makes the account less trustworthy, or actually reveals how the system worked.</p>
       </div>
     </div>
     <div class="syllabus-item">
@@ -386,7 +417,7 @@ a:hover { color: var(--green); }
         <h3>Labor and Craft</h3>
         <p class="syllabus-agents">Solo: Morten</p>
         <p class="syllabus-step"><b>Gather.</b> Ask him about the King's military reforms.</p>
-        <p class="syllabus-step"><b>Analyze.</b> His livelihood depends on royal military spending. Does that make his opinion more or less believable than a nobleman's?</p>
+        <p class="syllabus-step"><b>Analyze.</b> His livelihood depends on royal military spending. Does that make his opinion more or less believable than a nobleman's? Quote the specific line where his self-interest shows, and explain what it would take for him to say something different.</p>
       </div>
     </div>
     <div class="syllabus-item">
@@ -395,7 +426,7 @@ a:hover { color: var(--green); }
         <h3>The Tavern and the Sea</h3>
         <p class="syllabus-agents">Rasmus + Kirsten Madsdatter</p>
         <p class="syllabus-step"><b>Gather.</b> Ask Rasmus what he trades in besides ale, then ask Kirsten what she hears at her market stall.</p>
-        <p class="syllabus-step"><b>Analyze.</b> One sells information, one passes it along for free. Which is the more reliable source, and what does "reliable" mean when neither is neutral?</p>
+        <p class="syllabus-step"><b>Analyze.</b> One sells information, one passes it along for free. Which is the more reliable source, and what does "reliable" mean when neither is neutral? Walk through what each of them stands to gain or lose from what they told you before you decide.</p>
       </div>
     </div>
     <div class="syllabus-item">
@@ -404,7 +435,7 @@ a:hover { color: var(--green); }
         <h3>The Fisherman and the Press Gang</h3>
         <p class="syllabus-agents">Solo: Niels</p>
         <p class="syllabus-step"><b>Gather.</b> Ask how he feels about the royal press-gangs, and whether the sea or the Crown is the greater danger to his life.</p>
-        <p class="syllabus-step"><b>Analyze.</b> Unlike Jens with his seat on the Byret, Niels has no formal voice. Does the King actually control men like him, or just extract from them? Tie this back to Session 1's claim.</p>
+        <p class="syllabus-step"><b>Analyze.</b> Unlike Jens with his seat on the Byret, Niels has no formal voice. Does the King actually control men like him, or just extract from them? Tie this back to Session 1's claim, and point to the specific place where the King's own words break down against Niels's account.</p>
       </div>
     </div>
     <div class="syllabus-item">
@@ -413,7 +444,7 @@ a:hover { color: var(--green); }
         <h3>A Family at the Margins</h3>
         <p class="syllabus-agents">Hans and Bodil</p>
         <p class="syllabus-step"><b>Gather.</b> Ask about their daily life and what they know of the castle.</p>
-        <p class="syllabus-step"><b>Analyze.</b> Formal histories rarely mention children like these. Why does that absence matter? Use something specific they said that no court record would ever capture.</p>
+        <p class="syllabus-step"><b>Analyze.</b> Formal histories rarely mention children like these. Use something specific they said that no court record would ever capture, and explain what a historian relying only on official records would have missed by leaving them out.</p>
       </div>
     </div>
     <div class="syllabus-item">
@@ -422,7 +453,7 @@ a:hover { color: var(--green); }
         <h3>Bring Them to the Table</h3>
         <p class="syllabus-agents">Group room: mixed royals and villagers</p>
         <p class="syllabus-step"><b>Gather.</b> Each student raises one assigned question (Sound Toll fairness, German mercenaries, the Rigsråd) and records how three or more agents answer differently.</p>
-        <p class="syllabus-step"><b>Analyze.</b> Where does the hierarchy contradict itself, and whose interests does each version serve?</p>
+        <p class="syllabus-step"><b>Analyze.</b> Where does the hierarchy contradict itself? Lay out each speaker's version in full, explain exactly where and why they conflict, and argue what the gap between them reveals about whose interests the social order actually serves.</p>
       </div>
     </div>
     <div class="syllabus-item">
