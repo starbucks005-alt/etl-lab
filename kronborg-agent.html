@@ -175,10 +175,11 @@ a:hover { color: var(--green); }
    ported verbatim so the two products read as one system: a corner card
    over the portrait with a dominant-mood emoji/word plus all seven scales,
    not just a single word. */
-/* Hidden until the agent has actually felt something in this conversation --
-   no baseline shown before a real reply, since there's nothing real yet. */
-.gauge-wrap { display: none; position: absolute; top: 1rem; right: 1rem; z-index: 2; background: rgba(0,0,0,.6); border: 1px solid rgba(255,255,255,.25); border-radius: 12px; padding: .7rem .9rem; min-width: 150px; }
-.gauge-wrap.is-visible { display: block; }
+/* Visible from page load, seeded with this agent's own real resting
+   baseline (same per-character values _kronborg-engine.js decays toward),
+   same as Almost Human's Ivy: a genuine, individual starting point, not a
+   blank slate or a shared default. */
+.gauge-wrap { position: absolute; top: 1rem; right: 1rem; z-index: 2; background: rgba(0,0,0,.6); border: 1px solid rgba(255,255,255,.25); border-radius: 12px; padding: .7rem .9rem; min-width: 150px; }
 .gauge-head { display: flex; align-items: center; gap: .5rem; margin-bottom: .55rem; }
 .gauge-emoji { font-size: 1.5rem; line-height: 1; }
 .gauge-row { display: flex; align-items: center; gap: .5rem; margin-top: .32rem; }
@@ -626,13 +627,11 @@ var ROYAL_GALLERY = {
     for (var i = 0; i < GAUGE_BANDS.length; i++) if (value <= GAUGE_BANDS[i].max) return GAUGE_BANDS[i];
     return GAUGE_BANDS[GAUGE_BANDS.length - 1];
   }
-  var gaugeWrapEl = document.getElementById('gaugeWrap');
   var gaugeEmojiEl = document.getElementById('gaugeEmoji');
   var gaugeLabelEl = document.getElementById('gaugeLabel');
   var GAUGE_BAR_IDS = { happiness: 'gaugeHappiness', sadness: 'gaugeSadness', fear: 'gaugeFear', disgust: 'gaugeDisgust', anger: 'gaugeAnger', surprise: 'gaugeSurprise', curious: 'gaugeCurious' };
   function updateGauge() {
     if (!scales) return;
-    gaugeWrapEl.classList.add('is-visible');
     var v = gaugeFromScales(scales);
     var band = gaugeBand(v);
     gaugeEmojiEl.textContent = band.emoji;
@@ -642,6 +641,26 @@ var ROYAL_GALLERY = {
       document.getElementById(GAUGE_BAR_IDS[key]).style.width = val + '%';
     });
   }
+
+  // Each agent's real resting baseline, same values _kronborg-engine.js
+  // (server-side) decays every conversation toward. Shown from page load,
+  // same as Almost Human's Ivy: a genuine individual starting point, not a
+  // blank slate. Source of truth is _kronborg-engine.js's AGENTS[key].baseline;
+  // keep these in sync if that file changes.
+  var BASELINES = {
+    king:           { happiness: 55, sadness: 15, fear: 10, disgust: 40, anger: 45, surprise: 20, curious: 35 },
+    boy_king:       { happiness: 35, sadness: 40, fear: 25, disgust: 20, anger: 30, surprise: 30, curious: 70 },
+    anne_catherine: { happiness: 30, sadness: 20, fear: 10, disgust: 55, anger: 25, surprise: 15, curious: 25 },
+    kirsten_munk:   { happiness: 45, sadness: 30, fear: 15, disgust: 35, anger: 60, surprise: 30, curious: 40 },
+    jens:           { happiness: 40, sadness: 20, fear: 45, disgust: 25, anger: 20, surprise: 25, curious: 50 },
+    morten:         { happiness: 35, sadness: 15, fear: 10, disgust: 30, anger: 40, surprise: 10, curious: 20 },
+    rasmus:         { happiness: 65, sadness: 15, fear: 15, disgust: 20, anger: 15, surprise: 35, curious: 60 },
+    kirsten_m:      { happiness: 45, sadness: 20, fear: 20, disgust: 35, anger: 40, surprise: 20, curious: 30 },
+    niels:          { happiness: 25, sadness: 35, fear: 40, disgust: 15, anger: 20, surprise: 15, curious: 25 },
+    hans_bodil:     { happiness: 65, sadness: 15, fear: 35, disgust: 10, anger: 15, surprise: 55, curious: 70 },
+  };
+  scales = BASELINES[AGENT] || null;
+  updateGauge();
 
   function autogrow() {
     inputEl.style.height = 'auto';
