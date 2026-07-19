@@ -7,7 +7,7 @@
 (function () {
   try {
     var saved = localStorage.getItem('etl_classrooms_theme');
-    var theme = saved || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    var theme = saved || 'dark';
     document.documentElement.setAttribute('data-theme', theme);
   } catch (_) {}
 })();
