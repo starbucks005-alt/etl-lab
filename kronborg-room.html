@@ -126,15 +126,18 @@ a:hover { color: var(--green); }
 /* ── Picker ── */
 .picker { margin-top: 1.6rem; }
 .picker-hint { font-size: .88rem; color: var(--mute); margin: 0 0 1rem; }
-.picker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1px; border: 1px solid var(--line); }
+.picker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1px; border: 1px solid var(--line); }
 .picker-card {
-  background: var(--panel); padding: 1rem; cursor: pointer; border: none; text-align: left;
+  background: var(--panel); padding: 0; cursor: pointer; border: none; text-align: left; display: block;
   font-family: 'Public Sans', sans-serif; color: var(--text); transition: background .15s;
 }
 .picker-card:hover { background: var(--panel2); }
 .picker-card.is-selected { background: var(--panel2); box-shadow: inset 0 0 0 2px var(--blue-br); }
-.picker-name { font-family: 'Spectral', serif; font-size: 1.02rem; color: var(--cream); margin: 0 0 .2rem; }
-.picker-title { font-family: 'IBM Plex Mono', monospace; font-size: .64rem; color: var(--mute); letter-spacing: .02em; }
+.picker-portrait { aspect-ratio: 3 / 4; overflow: hidden; background: var(--bg2); line-height: 0; }
+.picker-portrait img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.picker-body { padding: .5rem .6rem .6rem; }
+.picker-name { font-family: 'Spectral', serif; font-size: .92rem; color: var(--cream); margin: 0 0 .1rem; }
+.picker-title { font-family: 'IBM Plex Mono', monospace; font-size: .6rem; color: var(--mute); letter-spacing: .02em; }
 .picker-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 1.2rem; }
 .picker-count { font-family: 'IBM Plex Mono', monospace; font-size: .74rem; color: var(--mute); }
 .start-btn {
@@ -375,7 +378,7 @@ var MAX_AGENTS = 6;
     card.type = 'button';
     card.className = 'picker-card';
     card.dataset.key = a.key;
-    card.innerHTML = '<p class="picker-name">' + a.name + '</p><p class="picker-title">' + a.title + '</p>';
+    card.innerHTML = '<div class="picker-portrait"><img src="/assets/kronborg/' + a.key + '-eyes-open.jpg" alt="' + a.name + '" onerror="this.parentElement.style.display=\'none\'"></div><div class="picker-body"><p class="picker-name">' + a.name + '</p><p class="picker-title">' + a.title + '</p></div>';
     card.addEventListener('click', function () {
       var i = selected.indexOf(a.key);
       if (i >= 0) {
