@@ -148,8 +148,34 @@ a:hover { color: var(--green); }
 /* ── Chat ── */
 .chat { display: none; background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 1.4rem; max-width: 900px; margin-top: 1.6rem; }
 .chat.is-open { display: block; }
-.avatars { display: flex; gap: 12px; margin-bottom: 1rem; flex-wrap: wrap; }
-.avatars span { font-family: 'IBM Plex Mono', monospace; font-size: .7rem; color: var(--mute); border: 1px solid var(--line); border-radius: 999px; padding: .3rem .7rem; }
+.avatars-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: .5rem; }
+.avatars { display: flex; gap: 12px; flex-wrap: wrap; }
+.avatars span { font-family: 'IBM Plex Mono', monospace; font-size: .7rem; color: var(--mute); border: 1px solid var(--line); border-radius: 999px; padding: .3rem .7rem; cursor: pointer; transition: border-color .15s, color .15s; }
+.avatars span:hover { border-color: var(--blue-br); }
+.avatars span.is-pinned { border-color: var(--blue-br); color: var(--blue-br); }
+.avatars-hint { font-family: 'IBM Plex Mono', monospace; font-size: .62rem; color: var(--mute); margin: 0 0 .6rem; }
+
+/* Same emotion-gauge widget as the solo chat pages (kronborg-agent.html) and
+   Almost Human's Ivy, but inline next to the avatars rather than absolutely
+   positioned over a portrait, since the room has no single portrait to
+   anchor to and, unlike the solo page, only shows for whichever one agent a
+   student pins to track (click a name above). */
+.gauge-wrap { display: none; background: rgba(0,0,0,.6); border: 1px solid rgba(255,255,255,.25); border-radius: 12px; padding: .7rem .9rem; min-width: 150px; flex: 0 0 auto; }
+.gauge-wrap.is-visible { display: block; }
+.gauge-head { display: flex; align-items: center; gap: .5rem; margin-bottom: .55rem; }
+.gauge-emoji { font-size: 1.5rem; line-height: 1; }
+.gauge-row { display: flex; align-items: center; gap: .5rem; margin-top: .32rem; }
+.gauge-row-label { font-family: 'IBM Plex Mono', monospace; font-size: .58rem; letter-spacing: .04em; text-transform: uppercase; color: #ccc; width: 3.6rem; flex-shrink: 0; }
+.gauge-bar-track { flex: 1; height: 4px; background: rgba(255,255,255,.22); border-radius: 2px; overflow: hidden; }
+.gauge-bar-fill { height: 100%; background: #4c5fd6; transition: width .5s ease; }
+.gauge-bar-fill.happiness { background: #5bd6a0; }
+.gauge-bar-fill.sadness { background: #4c8fd6; }
+.gauge-bar-fill.fear { background: #9b6cf0; }
+.gauge-bar-fill.disgust { background: #7ac74f; }
+.gauge-bar-fill.anger { background: #e0575a; }
+.gauge-bar-fill.surprise { background: #e8b64c; }
+.gauge-bar-fill.curious { background: #46c6e6; }
+.gauge-label { font-family: 'IBM Plex Mono', monospace; font-size: .62rem; letter-spacing: .05em; text-transform: uppercase; color: #ddd; margin-top: .2rem; }
 .log { display: flex; flex-direction: column; gap: 12px; min-height: 160px; max-height: 520px; overflow-y: auto; padding: 6px 4px 10px; }
 .bubble { padding: 12px 16px; border-radius: 4px; max-width: 88%; font-family: 'Public Sans', sans-serif; font-size: .96rem; line-height: 1.6; }
 .bubble--agent { background: var(--panel2); color: var(--text); align-self: flex-start; border-left: 2px solid var(--blue-br); }
@@ -213,7 +239,20 @@ a:hover { color: var(--green); }
   </div>
 
   <div class="chat" id="chat">
-    <div class="avatars" id="avatars"></div>
+    <p class="avatars-hint">Click a name to track their mood scale.</p>
+    <div class="avatars-row">
+      <div class="avatars" id="avatars"></div>
+      <div class="gauge-wrap" id="gaugeWrap">
+        <div class="gauge-head"><div class="gauge-emoji" id="gaugeEmoji">🙂</div><div class="gauge-label" id="gaugeLabel">warm</div></div>
+        <div class="gauge-row"><div class="gauge-row-label">Happy</div><div class="gauge-bar-track"><div class="gauge-bar-fill happiness" id="gaugeHappiness" style="width:0%"></div></div></div>
+        <div class="gauge-row"><div class="gauge-row-label">Sad</div><div class="gauge-bar-track"><div class="gauge-bar-fill sadness" id="gaugeSadness" style="width:0%"></div></div></div>
+        <div class="gauge-row"><div class="gauge-row-label">Fear</div><div class="gauge-bar-track"><div class="gauge-bar-fill fear" id="gaugeFear" style="width:0%"></div></div></div>
+        <div class="gauge-row"><div class="gauge-row-label">Disgust</div><div class="gauge-bar-track"><div class="gauge-bar-fill disgust" id="gaugeDisgust" style="width:0%"></div></div></div>
+        <div class="gauge-row"><div class="gauge-row-label">Anger</div><div class="gauge-bar-track"><div class="gauge-bar-fill anger" id="gaugeAnger" style="width:0%"></div></div></div>
+        <div class="gauge-row"><div class="gauge-row-label">Surprise</div><div class="gauge-bar-track"><div class="gauge-bar-fill surprise" id="gaugeSurprise" style="width:0%"></div></div></div>
+        <div class="gauge-row"><div class="gauge-row-label">Curious</div><div class="gauge-bar-track"><div class="gauge-bar-fill curious" id="gaugeCurious" style="width:0%"></div></div></div>
+      </div>
+    </div>
     <div class="log" id="log" aria-live="polite"></div>
     <div class="composer">
       <textarea id="input" rows="1" placeholder="Say something to the table..." aria-label="Your message to the table"></textarea>
@@ -266,6 +305,71 @@ var MAX_AGENTS = 6;
   var history = [];
   var sending = false;
 
+  // Same emotion-gauge widget as the solo chat pages, but pinned to whichever
+  // one agent a student clicks in the avatars row, since a multi-agent room
+  // has no single "the portrait" to always show one for.
+  var GAUGE_BANDS = [
+    { max: 20, emoji: '😠', label: 'upset' },
+    { max: 40, emoji: '☹️', label: 'cool' },
+    { max: 60, emoji: '😐', label: 'neutral' },
+    { max: 80, emoji: '🙂', label: 'warm' },
+    { max: 100, emoji: '😊', label: 'delighted' },
+  ];
+  function gaugeFromScales(s) {
+    var negativeAvg = (s.sadness + s.fear + s.disgust + s.anger) / 4;
+    return s.happiness * 0.6 + (100 - negativeAvg) * 0.4;
+  }
+  function gaugeBand(value) {
+    for (var i = 0; i < GAUGE_BANDS.length; i++) if (value <= GAUGE_BANDS[i].max) return GAUGE_BANDS[i];
+    return GAUGE_BANDS[GAUGE_BANDS.length - 1];
+  }
+  var gaugeWrapEl = document.getElementById('gaugeWrap');
+  var gaugeEmojiEl = document.getElementById('gaugeEmoji');
+  var gaugeLabelEl = document.getElementById('gaugeLabel');
+  var GAUGE_BAR_IDS = { happiness: 'gaugeHappiness', sadness: 'gaugeSadness', fear: 'gaugeFear', disgust: 'gaugeDisgust', anger: 'gaugeAnger', surprise: 'gaugeSurprise', curious: 'gaugeCurious' };
+  function updateGauge(scales) {
+    if (!scales) { gaugeWrapEl.classList.remove('is-visible'); return; }
+    gaugeWrapEl.classList.add('is-visible');
+    var v = gaugeFromScales(scales);
+    var band = gaugeBand(v);
+    gaugeEmojiEl.textContent = band.emoji;
+    gaugeLabelEl.textContent = band.label;
+    Object.keys(GAUGE_BAR_IDS).forEach(function (key) {
+      var val = Math.max(0, Math.min(100, scales[key]));
+      document.getElementById(GAUGE_BAR_IDS[key]).style.width = val + '%';
+    });
+  }
+  // Each agent's real resting baseline, same values _kronborg-engine.js
+  // (server-side) decays every conversation toward. Source of truth is
+  // _kronborg-engine.js's AGENTS[key].baseline; keep these in sync if that
+  // file changes.
+  var BASELINES = {
+    king:           { happiness: 55, sadness: 15, fear: 10, disgust: 40, anger: 45, surprise: 20, curious: 35 },
+    boy_king:       { happiness: 35, sadness: 40, fear: 25, disgust: 20, anger: 30, surprise: 30, curious: 70 },
+    anne_catherine: { happiness: 30, sadness: 20, fear: 10, disgust: 55, anger: 25, surprise: 15, curious: 25 },
+    kirsten_munk:   { happiness: 45, sadness: 30, fear: 15, disgust: 35, anger: 60, surprise: 30, curious: 40 },
+    jens:           { happiness: 40, sadness: 20, fear: 45, disgust: 25, anger: 20, surprise: 25, curious: 50 },
+    morten:         { happiness: 35, sadness: 15, fear: 10, disgust: 30, anger: 40, surprise: 10, curious: 20 },
+    rasmus:         { happiness: 65, sadness: 15, fear: 15, disgust: 20, anger: 15, surprise: 35, curious: 60 },
+    kirsten_m:      { happiness: 45, sadness: 20, fear: 20, disgust: 35, anger: 40, surprise: 20, curious: 30 },
+    niels:          { happiness: 25, sadness: 35, fear: 40, disgust: 15, anger: 20, surprise: 15, curious: 25 },
+    hans_bodil:     { happiness: 65, sadness: 15, fear: 35, disgust: 10, anger: 15, surprise: 55, curious: 70 },
+  };
+  var pinnedKey = null;
+  var lastAgentState = {}; // agentKey -> scales, refreshed from each room response
+  function pinAgent(key, spanEl) {
+    var wasAlreadyPinned = pinnedKey === key;
+    Array.prototype.forEach.call(avatarsEl.querySelectorAll('span'), function (s) { s.classList.remove('is-pinned'); });
+    if (wasAlreadyPinned) {
+      pinnedKey = null;
+      updateGauge(null);
+      return;
+    }
+    pinnedKey = key;
+    spanEl.classList.add('is-pinned');
+    updateGauge(lastAgentState[key] || BASELINES[key] || null);
+  }
+
   ROSTER.forEach(function (a) {
     var card = document.createElement('button');
     card.type = 'button';
@@ -296,6 +400,7 @@ var MAX_AGENTS = 6;
       var a = ROSTER.filter(function (r) { return r.key === key; })[0];
       var span = document.createElement('span');
       span.textContent = a.name;
+      span.addEventListener('click', function () { pinAgent(key, span); });
       avatarsEl.appendChild(span);
     });
     bubble('system', 'The table is quiet. Say something to begin.');
@@ -418,6 +523,12 @@ var MAX_AGENTS = 6;
         }
         history.push({ speaker: 'visitor', name: 'Visitor', content: text });
         (job.transcript_append || []).forEach(function (entry) { history.push(entry); });
+        if (job.agent_state) {
+          Object.keys(job.agent_state).forEach(function (key) {
+            if (job.agent_state[key] && job.agent_state[key].scales) lastAgentState[key] = job.agent_state[key].scales;
+          });
+          if (pinnedKey && lastAgentState[pinnedKey]) updateGauge(lastAgentState[pinnedKey]);
+        }
         var replies = job.replies || [];
         if (!replies.length) {
           bubble('system', 'No one at the table had anything to add just now. Try asking something more specific.');
