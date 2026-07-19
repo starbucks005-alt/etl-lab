@@ -137,6 +137,14 @@ a:hover { color: var(--cream); }
   color: var(--blue-br);
   margin-bottom: 1rem;
 }
+.hero-question {
+  font-family: 'Spectral', serif;
+  font-style: italic;
+  font-size: 1.28rem;
+  line-height: 1.55;
+  max-width: 42ch;
+  margin: 0 0 1.3rem;
+}
 .hero h1 {
   font-family: 'Spectral', serif;
   font-size: clamp(2.2rem, 5vw, 3.4rem);
@@ -166,6 +174,7 @@ a:hover { color: var(--cream); }
    background above), so its text stays fixed-light regardless of theme --
    otherwise light mode would put dark ink on a dark photo and vanish. */
 .hero .eyebrow { color: #8fc4ee; }
+.hero .hero-question { color: #f0ead8; }
 .hero h1 { color: #f5f1e6; }
 .hero .hero-lede { color: #dfe6ec; }
 .hero .hero-note { color: #9fb3c4; }
@@ -586,11 +595,13 @@ a.room-row:hover { background: var(--panel2); }
   <!-- HERO -->
   <div class="hero">
     <div class="eyebrow">ETL Classrooms &nbsp;&middot;&nbsp; Built for Education</div>
+    <p class="hero-question">"If you could sit at the table with two people, deceased or famous, and ask them anything, who would it be, and what would you ask?" For years, that question had no real answer. Now it does.</p>
     <h1>Rent a classroom for your agents.</h1>
     <p class="hero-lede">
       Teaching assistants that never miss office hours. Faculty who remember every student.
-      Living legends who walked out of the textbook and into the room.
-      Your agents live here, on the ETL campus, permanently.
+      Living legends who walked out of the textbook and into the room, it's already happened twice
+      here: two Nobel laureates over tea, a Danish king's royal court arguing with the townspeople
+      who lived in its shadow. Your agents live here, on the ETL campus, permanently.
     </p>
     <p class="hero-note">
       <b>Build once.</b> &nbsp;Host here. &nbsp;Your department handles the ideas. &nbsp;We handle the infrastructure.
@@ -636,19 +647,6 @@ a.room-row:hover { background: var(--panel2); }
       Budget cuts, hiring freezes, retiring faculty not being replaced. The students still show up.
       The courses still run. The office hours still need to happen.
       ETL Classrooms puts an always-on presence in every course, so when the faculty-to-student ratio doesn't work, the learning still does.
-    </p>
-  </div>
-
-  <!-- LIVING LEGENDS PITCH -->
-  <div style="margin-top:1.4rem;border-left:3px solid var(--legend);padding:1.4rem 1.8rem;background:var(--panel);">
-    <p style="font-size:.78rem;color:var(--mute);letter-spacing:.04em;margin:0 0 .7rem;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;">
-      For years, people have asked a simple question, but the answer was never attainable. Until now.
-    </p>
-    <p style="font-family:'Spectral',serif;font-size:1.18rem;color:var(--cream);line-height:1.7;margin:0 0 .8rem;font-style:italic;">
-      "If you could sit at the table with two people, deceased or famous, and ask them anything, who would it be, and what would you ask?"
-    </p>
-    <p style="font-size:.9rem;color:var(--mute);line-height:1.7;margin:0;max-width:64ch;">
-      Living Legends makes it real. Real historical figures, real sources, real voices, sitting at your table, not just answering one at a time. It's already happened twice on this campus: two Nobel laureates over tea, and the royal court of a 17th-century Danish king, arguing with the townspeople who lived in its shadow.
     </p>
   </div>
 
