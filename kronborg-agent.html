@@ -128,9 +128,8 @@ a:hover { color: var(--green); }
 .royal-gallery.is-visible { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
 .royal-gallery img {
   width: 100%;
-  height: auto;
-  max-height: 420px;
-  object-fit: contain;
+  height: 260px;
+  object-fit: cover;
   display: block;
   border: 1px solid var(--line);
   background: var(--bg2);
@@ -144,7 +143,7 @@ a:hover { color: var(--green); }
   overflow: hidden;
   line-height: 0;
 }
-.hero-photo.is-visible { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; grid-template-rows: 220px; height: 220px; }
+.hero-photo.is-visible { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; grid-template-rows: 150px; height: 150px; }
 .hero-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .hero-photo img + img { border-left: 1px solid var(--line); }
 
@@ -165,9 +164,9 @@ a:hover { color: var(--green); }
    neither blows out the layout at this larger size. */
 .portrait--villager { height: 540px; }
 .portrait img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
-.portrait__closed { opacity: 0; animation: blink 6.2s steps(1, end) infinite; }
+.portrait__closed { opacity: 0; animation: blink 6.2s ease-in-out infinite; }
 .portrait.is-speaking { box-shadow: inset 0 0 0 4px rgba(92,138,181,.45); animation: float 6s ease-in-out infinite, glow 1.1s ease-in-out infinite; }
-@keyframes blink { 0%, 94%, 100% { opacity: 0; } 96% { opacity: 1; } }
+@keyframes blink { 0%, 88%, 100% { opacity: 0; } 93% { opacity: 1; } }
 @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
 @keyframes glow { 0%, 100% { box-shadow: inset 0 0 0 3px rgba(92,138,181,.4); } 50% { box-shadow: inset 0 0 0 7px rgba(92,138,181,.55); } }
 
@@ -288,7 +287,7 @@ a:hover { color: var(--green); }
   .portrait--villager { height: 44vw; }
   .page-grid--royal .portrait { flex: none; height: 90vw; min-height: 0; }
   .page-grid--royal .left-col { align-self: start; }
-  .royal-gallery img { max-height: 70vw; }
+  .royal-gallery img { height: 55vw; }
   .bubble--you { align-self: flex-end; }
 }
 </style>
@@ -450,7 +449,7 @@ var HERO_PHOTOS = {
 // Extra portraits for the royals, filling the space below bio/chat.
 var ROYAL_GALLERY = {
   king: [
-    { src: '/assets/kronborg/king-family.jpg', alt: 'Christian IV with Queen Anne Catherine and the young Prince Christian' },
+    { src: '/assets/kronborg/king-family-portrait.jpg', alt: 'Christian IV' },
   ],
   boy_king: [
     { src: '/assets/kronborg/boy_king-uniform.jpg', alt: 'Prince Christian in formal uniform' },
