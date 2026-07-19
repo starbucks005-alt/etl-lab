@@ -127,10 +127,16 @@ a:hover { color: var(--green); }
   gap: .8rem;
 }
 .royal-gallery.is-visible { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+/* height: auto (not a fixed box) so this always exactly wraps whatever the
+   image scales to at 100% width -- no dead space for a landscape composite,
+   no cropped face for a tall portrait, regardless of source aspect ratio.
+   object-fit: contain is load-bearing: never crop a person's face out of
+   frame (2026-07-18 fix for Prince Christian's uniform photo; regressed to
+   cover earlier in this session while fixing an unrelated gap, reverted). */
 .royal-gallery img {
   width: 100%;
-  height: 260px;
-  object-fit: cover;
+  height: auto;
+  object-fit: contain;
   display: block;
   border: 1px solid var(--line);
   background: var(--bg2);
@@ -274,7 +280,7 @@ a:hover { color: var(--green); }
 .accent-opt.is-active { background: var(--blue); color: #fff; }
 .accent-opt:hover:not(.is-active) { color: var(--green); }
 
-.chat { background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 1.4rem; }
+.chat { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 1.4rem; }
 .log { display: flex; flex-direction: column; gap: 12px; min-height: 120px; max-height: 460px; overflow-y: auto; padding: 6px 4px 10px; }
 .bubble { padding: 12px 16px; border-radius: 4px; max-width: 88%; font-family: 'Public Sans', sans-serif; font-size: .96rem; line-height: 1.6; }
 .bubble--her { background: var(--panel2); color: var(--text); align-self: flex-start; border-left: 2px solid var(--blue-br); }
@@ -305,7 +311,6 @@ a:hover { color: var(--green); }
   .portrait--villager { height: 44vw; }
   .page-grid--royal .portrait { flex: none; height: 90vw; min-height: 0; }
   .page-grid--royal .left-col { align-self: start; }
-  .royal-gallery img { height: 55vw; }
   .bubble--you { align-self: flex-end; }
 }
 </style>
@@ -328,16 +333,6 @@ a:hover { color: var(--green); }
       <div class="portrait" id="portrait">
         <img id="portraitOpen" src="" alt="">
         <img class="portrait__closed" id="portraitClosed" src="" alt="" aria-hidden="true">
-        <div class="gauge-wrap" id="gaugeWrap">
-          <div class="gauge-head"><div class="gauge-emoji" id="gaugeEmoji">🙂</div><div class="gauge-label" id="gaugeLabel">warm</div></div>
-          <div class="gauge-row"><div class="gauge-row-label">Happy</div><div class="gauge-bar-track"><div class="gauge-bar-fill happiness" id="gaugeHappiness" style="width:0%"></div></div></div>
-          <div class="gauge-row"><div class="gauge-row-label">Sad</div><div class="gauge-bar-track"><div class="gauge-bar-fill sadness" id="gaugeSadness" style="width:0%"></div></div></div>
-          <div class="gauge-row"><div class="gauge-row-label">Fear</div><div class="gauge-bar-track"><div class="gauge-bar-fill fear" id="gaugeFear" style="width:0%"></div></div></div>
-          <div class="gauge-row"><div class="gauge-row-label">Disgust</div><div class="gauge-bar-track"><div class="gauge-bar-fill disgust" id="gaugeDisgust" style="width:0%"></div></div></div>
-          <div class="gauge-row"><div class="gauge-row-label">Anger</div><div class="gauge-bar-track"><div class="gauge-bar-fill anger" id="gaugeAnger" style="width:0%"></div></div></div>
-          <div class="gauge-row"><div class="gauge-row-label">Surprise</div><div class="gauge-bar-track"><div class="gauge-bar-fill surprise" id="gaugeSurprise" style="width:0%"></div></div></div>
-          <div class="gauge-row"><div class="gauge-row-label">Curious</div><div class="gauge-bar-track"><div class="gauge-bar-fill curious" id="gaugeCurious" style="width:0%"></div></div></div>
-        </div>
       </div>
     </div>
 
@@ -359,6 +354,16 @@ a:hover { color: var(--green); }
 
     <div class="right-col">
       <div class="chat">
+        <div class="gauge-wrap" id="gaugeWrap">
+          <div class="gauge-head"><div class="gauge-emoji" id="gaugeEmoji">🙂</div><div class="gauge-label" id="gaugeLabel">warm</div></div>
+          <div class="gauge-row"><div class="gauge-row-label">Happy</div><div class="gauge-bar-track"><div class="gauge-bar-fill happiness" id="gaugeHappiness" style="width:0%"></div></div></div>
+          <div class="gauge-row"><div class="gauge-row-label">Sad</div><div class="gauge-bar-track"><div class="gauge-bar-fill sadness" id="gaugeSadness" style="width:0%"></div></div></div>
+          <div class="gauge-row"><div class="gauge-row-label">Fear</div><div class="gauge-bar-track"><div class="gauge-bar-fill fear" id="gaugeFear" style="width:0%"></div></div></div>
+          <div class="gauge-row"><div class="gauge-row-label">Disgust</div><div class="gauge-bar-track"><div class="gauge-bar-fill disgust" id="gaugeDisgust" style="width:0%"></div></div></div>
+          <div class="gauge-row"><div class="gauge-row-label">Anger</div><div class="gauge-bar-track"><div class="gauge-bar-fill anger" id="gaugeAnger" style="width:0%"></div></div></div>
+          <div class="gauge-row"><div class="gauge-row-label">Surprise</div><div class="gauge-bar-track"><div class="gauge-bar-fill surprise" id="gaugeSurprise" style="width:0%"></div></div></div>
+          <div class="gauge-row"><div class="gauge-row-label">Curious</div><div class="gauge-bar-track"><div class="gauge-bar-fill curious" id="gaugeCurious" style="width:0%"></div></div></div>
+        </div>
         <div class="log" id="log" aria-live="polite"></div>
 
         <div class="chips" id="chips"></div>
@@ -681,14 +686,15 @@ var ROYAL_GALLERY = {
 
   // Voice plays for the bio (the introduction) only, not every chat reply --
   // Dr. O's call for this classroom: cheaper, and keeps the back-and-forth
-  // text-only. ElevenLabs won't generate child voices, so young-sounding
-  // agents get a pitch bump on playback instead (raising playbackRate shifts
-  // pitch and pace together, the standard de-aging trick) -- no extra model
-  // call, all client-side. Hans & Bodil already use real, somewhat-youthful
-  // "little girl"/"little boy" voices, so they only need a light nudge.
-  // boy_king's voiceId is a full adult voice reused from another purpose, so
-  // it needs a much stronger shift to read as ten years old at all.
-  var PITCH_RATES = { hans_bodil: 1.12, boy_king: 1.3 };
+  // text-only. ElevenLabs won't generate child voices, so Hans & Bodil use
+  // real, somewhat-youthful "little girl"/"little boy" voices with a light
+  // playback-rate nudge (raising playbackRate shifts pitch and pace
+  // together, the standard de-aging trick). boy_king's voiceId is a full
+  // adult voice with no youthful starting point, so a 1.3x shift strong
+  // enough to read as ten read as a cartoon instead (2026-07-18); reverted
+  // to his original unshifted voice per Dr. O -- sounds like a young man,
+  // not literally ten, which she preferred over the pitched-up version.
+  var PITCH_RATES = { hans_bodil: 1.12 };
   var audioCtx = null;
   var audioSource = null;
 
