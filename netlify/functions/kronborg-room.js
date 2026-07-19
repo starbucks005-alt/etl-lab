@@ -67,7 +67,14 @@ exports.handler = async (event) => {
 
   const bgUrl = base + '/.netlify/functions/kronborg-room-background';
   try {
-    fetch(bgUrl, {
+    // Netlify Background Functions ack with an immediate 202 regardless of
+    // how long the real work takes, so awaiting this is still fast. A
+    // fire-and-forget, un-awaited fetch can get killed the instant this
+    // handler returns (the Lambda container freezes right away), which is
+    // what was silently dropping every room request before this fix -- the
+    // background worker never actually started, so the poll endpoint just
+    // sat on "pending" forever.
+    await fetch(bgUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -79,10 +86,9 @@ exports.handler = async (event) => {
         visitor_id: body.visitor_id,
         agent_state: body.agent_state,
       }),
-      keepalive: true,
-    }).catch((err) => console.error('[kronborg-room] background trigger failed:', err && err.message));
+    });
   } catch (err) {
-    console.error('[kronborg-room] background trigger threw:', err && err.message);
+    console.error('[kronborg-room] background trigger failed:', err && err.message);
   }
 
   return json(200, {
