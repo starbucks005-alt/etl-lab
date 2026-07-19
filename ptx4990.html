@@ -183,9 +183,36 @@ a:hover { color: var(--cream); }
 .about-block p:last-child { margin-bottom: 0; }
 .about-block b { color: var(--cream); }
 
+.obj-blocks { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line); margin-top: 1.6rem; border: 1px solid var(--line); }
+.obj-block { background: var(--panel); padding: 1.4rem 1.6rem; }
+.obj-block h3 { font-family: 'IBM Plex Mono', monospace; font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; color: var(--blue-br); margin: 0 0 .9rem; }
+.obj-block ul { margin: 0; padding-left: 1.1rem; }
+.obj-block li { font-size: .86rem; color: var(--text); line-height: 1.65; margin-bottom: .6rem; }
+.obj-block li:last-child { margin-bottom: 0; }
+
+.syllabus { margin-top: 1.6rem; border: 1px solid var(--line); background: var(--panel); }
+.syllabus-item { display: grid; grid-template-columns: 56px 1fr; gap: 1.4rem; padding: 1.5rem 1.7rem; border-top: 1px solid var(--line); }
+.syllabus-item:first-child { border-top: none; }
+.syllabus-num { font-family: 'IBM Plex Mono', monospace; font-size: 1.15rem; font-weight: 600; color: var(--blue-br); }
+.syllabus-body h3 { font-family: 'Spectral', serif; font-size: 1.08rem; font-weight: 600; color: var(--cream); margin: 0 0 .3rem; }
+.syllabus-agents { font-family: 'IBM Plex Mono', monospace; font-size: .62rem; letter-spacing: .1em; text-transform: uppercase; color: var(--mute); margin: 0 0 .8rem; }
+.syllabus-body p.syllabus-step { font-size: .86rem; color: var(--text); line-height: 1.65; margin: 0 0 .5rem; max-width: 72ch; }
+.syllabus-body p.syllabus-step:last-child { margin-bottom: 0; }
+.syllabus-body b { color: var(--cream); }
+
+.ec-list { margin-top: 1.6rem; border: 1px solid var(--gold); background: var(--panel); }
+.ec-item { display: grid; grid-template-columns: 56px 1fr; gap: 1.4rem; padding: 1.5rem 1.7rem; border-top: 1px solid var(--line); }
+.ec-item:first-child { border-top: none; }
+.ec-tag { font-family: 'IBM Plex Mono', monospace; font-size: .8rem; font-weight: 600; color: var(--gold-br); }
+@media (max-width: 720px) {
+  .ec-item { grid-template-columns: 1fr; gap: .5rem; }
+}
+
 @media (max-width: 720px) {
   .cards { grid-template-columns: 1fr; }
   .hero { padding: 2.2rem 1.4rem 1.8rem; }
+  .obj-blocks { grid-template-columns: 1fr; }
+  .syllabus-item { grid-template-columns: 1fr; gap: .5rem; }
 }
 </style>
 </head>
@@ -237,6 +264,202 @@ a:hover { color: var(--cream); }
       <p>Both scientists in one room, answering you and answering each other. A director model decides who speaks next, so it plays out like a real seminar, not a scripted rotation.</p>
     </div>
     <a class="btn-primary" href="/ptx4990-room.html">Enter the library</a>
+  </div>
+
+  <div class="sec-head">
+    <h2>For Educators: A 15-Hour Unit</h2>
+    <div class="sec-rule"></div>
+  </div>
+  <p class="sec-sub">Fifteen one-hour sessions built entirely on the two scientists above and the library room: six on Einstein, six on Curie, three together. Every solo session pairs a citation-required interview with a critical-thinking prompt, so a student has to actually use the agent, not the internet, to complete it: the questions ask what a specific scientist said and did, and why, not facts that can be looked up. Every Analyze prompt expects a written paragraph, not a one-line answer: name the claim, argue the counterpoint, then close by naming a real modern equivalent, a scientist, technologist, or institution making a similar choice today, and explaining what the comparison does and doesn't hold up. The three joint sessions build toward a synthesis essay that draws on the full unit.</p>
+
+  <div class="obj-blocks">
+    <div class="obj-block">
+      <h3>Learning Objectives</h3>
+      <ul>
+        <li>Practice source criticism: distinguishing a verified citation from a plausible-sounding fabrication.</li>
+        <li>Practice weighing institutional recognition, a prize, a title, a rejection, against the actual substance of a discovery.</li>
+        <li>Practice reasoning about a scientist's ethical responsibility for the downstream use and personal risk of their own work.</li>
+        <li>Practice comparing two historical figures' differing responses to the same question, not just summarizing each in isolation.</li>
+        <li>Practice reasoning about what an AI reconstruction can and cannot stand in for as a historical source.</li>
+      </ul>
+    </div>
+    <div class="obj-block">
+      <h3>Learning Outcomes</h3>
+      <ul>
+        <li>Identify a real citation versus a fabricated one, and explain how to tell the difference.</li>
+        <li>Explain a specific historical instance where institutional recognition diverged from actual scientific merit.</li>
+        <li>Write a paragraph-length argument weighing the ethical stakes of a specific scientific choice.</li>
+        <li>Compare two historical figures' positions on the same question and articulate exactly where and why they diverge.</li>
+        <li>Distinguish, in writing, between an AI reconstruction's plausible characterization and an actual historical record.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="syllabus">
+    <div class="syllabus-item">
+      <div class="syllabus-num">01</div>
+      <div class="syllabus-body">
+        <h3>The Miracle Year</h3>
+        <p class="syllabus-agents">Solo: Albert Einstein</p>
+        <p class="syllabus-step"><b>Gather.</b> Ask him how a single year, 1905, produced four separate revolutionary papers, and which one he considered most important at the time versus which one actually changed physics most.</p>
+        <p class="syllabus-step"><b>Analyze.</b> Name what he says mattered most to him in 1905, then argue why history settled on a different answer, relativity, and what that gap reveals about the difference between immediate scientific impact and long-term reputation. Then name a modern case where a person's own view of their most important work differs from how it's actually remembered, and explain the gap.</p>
+      </div>
+    </div>
+    <div class="syllabus-item">
+      <div class="syllabus-num">02</div>
+      <div class="syllabus-body">
+        <h3>The Photoelectric Effect and the Nobel Snub</h3>
+        <p class="syllabus-agents">Solo: Albert Einstein</p>
+        <p class="syllabus-step"><b>Gather.</b> Ask him about the photoelectric effect, and why it won him the Nobel Prize in 1921 instead of relativity.</p>
+        <p class="syllabus-step"><b>Analyze.</b> The Nobel committee's caution wasn't neutral: name what made the photoelectric effect a "safer" citation than relativity, then argue whether that caution reflects sound scientific standards or institutional risk-aversion. Then name a modern case where an institution credits the safer, provable version of a discovery over the more radical one, and explain what that choice reveals about how credit gets allocated today.</p>
+      </div>
+    </div>
+    <div class="syllabus-item">
+      <div class="syllabus-num">03</div>
+      <div class="syllabus-body">
+        <h3>General Relativity and the 1919 Eclipse</h3>
+        <p class="syllabus-agents">Solo: Albert Einstein</p>
+        <p class="syllabus-step"><b>Gather.</b> Ask him what it felt like waiting for the 1919 eclipse expedition results that would confirm or destroy his theory, and how he reacted when they confirmed it.</p>
+        <p class="syllabus-step"><b>Analyze.</b> A theory isn't accepted just because it's elegant. Name what the eclipse actually measured and why that specific test mattered, then argue whether science today still holds new ideas to that same standard of falsifiable proof, or has grown more willing to accept elegant theories on reputation alone. Then name a modern scientific claim that is accepted or rejected based on reputation rather than a decisive test, and explain the difference.</p>
+      </div>
+    </div>
+    <div class="syllabus-item">
+      <div class="syllabus-num">04</div>
+      <div class="syllabus-body">
+        <h3>The Letter to Roosevelt</h3>
+        <p class="syllabus-agents">Solo: Albert Einstein</p>
+        <p class="syllabus-step"><b>Gather.</b> Ask him about his 1939 letter warning President Roosevelt about the possibility of an atomic bomb, and how he felt afterward about Hiroshima and Nagasaki.</p>
+        <p class="syllabus-step"><b>Analyze.</b> He warned about a danger he didn't build, then watched it happen anyway. Argue whether writing that letter makes him responsible for what followed, or whether the responsibility lies entirely with those who acted on the warning. Then name a modern researcher or technologist who raised an early warning about a technology's danger, and explain whether their warning changed anything, or followed the same pattern.</p>
+      </div>
+    </div>
+    <div class="syllabus-item">
+      <div class="syllabus-num">05</div>
+      <div class="syllabus-body">
+        <h3>Refusing the Presidency of Israel</h3>
+        <p class="syllabus-agents">Solo: Albert Einstein</p>
+        <p class="syllabus-step"><b>Gather.</b> Ask him why he turned down the presidency of Israel in 1952, and what he believed a scientist's role in politics should be.</p>
+        <p class="syllabus-step"><b>Analyze.</b> He had immense public authority but chose not to convert it into formal political power. Name his stated reason, then argue whether declining power out of a stated belief in staying outside politics is a principled stance or an abdication of responsibility, given the influence he actually had. Then name a modern public figure with major cultural or technological authority who has made or refused a similar leap into formal power, and explain which choice Einstein's case more resembles.</p>
+      </div>
+    </div>
+    <div class="syllabus-item">
+      <div class="syllabus-num">06</div>
+      <div class="syllabus-body">
+        <h3>Legacy and the Myths</h3>
+        <p class="syllabus-agents">Solo: Albert Einstein</p>
+        <p class="syllabus-step"><b>Gather.</b> Ask him to correct one popular myth about himself that isn't true, and explain why he thinks the myth persists anyway.</p>
+        <p class="syllabus-step"><b>Analyze.</b> Name the myth and the actual historical record that contradicts it, then argue why a false but appealing story about a famous figure can outlast the true, more complicated one. Then name a modern public figure with a persistent myth about them that doesn't match the record, and explain why that myth has staying power.</p>
+      </div>
+    </div>
+    <div class="syllabus-item">
+      <div class="syllabus-num">07</div>
+      <div class="syllabus-body">
+        <h3>The Elements She Found</h3>
+        <p class="syllabus-agents">Solo: Marie Curie</p>
+        <p class="syllabus-step"><b>Gather.</b> Ask her about discovering polonium and radium, and why she named polonium after her native Poland.</p>
+        <p class="syllabus-step"><b>Analyze.</b> Naming polonium was a political act disguised as a scientific one: her homeland was under foreign occupation and erased from the map at the time. Name what she says the name was meant to do, then argue whether embedding a political statement inside a "neutral" scientific naming convention compromises the science or is a legitimate use of the platform a discovery provides. Then name a modern case of a scientist or researcher using a discovery's naming rights or public platform to make a political statement, and explain what it cost or gained them.</p>
+      </div>
+    </div>
+    <div class="syllabus-item">
+      <div class="syllabus-num">08</div>
+      <div class="syllabus-body">
+        <h3>Radiation</h3>
+        <p class="syllabus-agents">Solo: Marie Curie</p>
+        <p class="syllabus-step"><b>Gather.</b> Ask her about her daily working conditions in the lab, and whether she understood the risk radiation posed to her own health.</p>
+        <p class="syllabus-step"><b>Analyze.</b> She died of the very thing she discovered, in an era with no safety standards for it. Argue whether that makes her death a preventable tragedy of negligence, or an unavoidable cost of working at the edge of the unknown. Then name a modern case where workers or researchers operate ahead of the safety standards that would protect them, and explain what, if anything, has actually changed.</p>
+      </div>
+    </div>
+    <div class="syllabus-item">
+      <div class="syllabus-num">09</div>
+      <div class="syllabus-body">
+        <h3>Giving Up the Patent</h3>
+        <p class="syllabus-agents">Solo: Marie Curie</p>
+        <p class="syllabus-step"><b>Gather.</b> Ask her why she and Pierre chose not to patent the radium isolation process, even though it would have made them enormously wealthy.</p>
+        <p class="syllabus-step"><b>Analyze.</b> Name her stated reason for refusing the patent, then argue whether that choice was a principled stand for open science, or a decision that let others profit from her labor while she and her family struggled financially. Then name a modern researcher or company facing the same choice, patent an important discovery for profit or release it openly, and explain which path they took and why.</p>
+      </div>
+    </div>
+    <div class="syllabus-item">
+      <div class="syllabus-num">10</div>
+      <div class="syllabus-body">
+        <h3>Working With Partners</h3>
+        <p class="syllabus-agents">Solo: Marie Curie</p>
+        <p class="syllabus-step"><b>Gather.</b> Ask her about her scientific partnership with Pierre: how they divided the work, and whether she felt the world credited them equally for it.</p>
+        <p class="syllabus-step"><b>Analyze.</b> Name a specific way she describes the partnership as equal or unequal, then argue whether shared credit in a marriage-based scientific partnership is ever actually equal, given how the outside world assigns credit regardless of the real division of labor. Then name a modern scientific or professional partnership, married or not, where public credit doesn't match the real division of the work, and explain the gap.</p>
+      </div>
+    </div>
+    <div class="syllabus-item">
+      <div class="syllabus-num">11</div>
+      <div class="syllabus-body">
+        <h3>First Woman in France With a Doctorate</h3>
+        <p class="syllabus-agents">Solo: Marie Curie</p>
+        <p class="syllabus-step"><b>Gather.</b> Ask her about becoming the first woman in France to earn a doctorate, and what she had to get through, Russian-occupied Poland, the underground Flying University, poverty in Paris, to reach the Sorbonne at all.</p>
+        <p class="syllabus-step"><b>Analyze.</b> Name the specific barriers she names, then argue whether being "first" mattered more for what it proved to the institution, or for what it actually opened up for the women who came after her. Then name a modern "first," the first woman or first person of a given background in a field, and argue whether their being first changed the institution, or the institution mostly just tolerated one exception.</p>
+      </div>
+    </div>
+    <div class="syllabus-item">
+      <div class="syllabus-num">12</div>
+      <div class="syllabus-body">
+        <h3>The Rosalind Franklin Parallel</h3>
+        <p class="syllabus-agents">Solo: Marie Curie</p>
+        <p class="syllabus-step"><b>Gather.</b> Ask her about her own struggle to be taken seriously and credited fairly in the male-dominated science of her era.</p>
+        <p class="syllabus-step"><b>Analyze.</b> Marie Curie's own answer only covers her own lifetime, 1867 to 1934. Name what she says about being underestimated or under-credited, then research and explain how Rosalind Franklin, a scientist born after Curie's death, faced a strikingly similar pattern: essential X-ray crystallography work toward discovering the structure of DNA, credited far less than Watson and Crick, and a death from cancer likely linked to the same kind of radiation exposure that killed Curie. Argue whether the fact that this pattern repeated a generation later means nothing changed, or means something did, just not enough.</p>
+      </div>
+    </div>
+    <div class="syllabus-item">
+      <div class="syllabus-num">13</div>
+      <div class="syllabus-body">
+        <h3>Responsibility for a Discovery's Consequences</h3>
+        <p class="syllabus-agents">Group room: Einstein and Curie</p>
+        <p class="syllabus-step"><b>Gather.</b> Ask them together whether a scientist is responsible for how their discovery gets used once it leaves their hands, and have them respond to each other's answer, not just to yours.</p>
+        <p class="syllabus-step"><b>Analyze.</b> Lay out where their answers to the same question align and where they diverge, cite each in their own words, and argue whether the difference comes from their different discoveries, relativity versus radioactivity, or from something else about how each of them saw their own responsibility. Then name a modern pair of researchers or institutions who would likely answer the same question differently, and explain why.</p>
+      </div>
+    </div>
+    <div class="syllabus-item">
+      <div class="syllabus-num">14</div>
+      <div class="syllabus-body">
+        <h3>Fame Versus the Work</h3>
+        <p class="syllabus-agents">Group room: Einstein and Curie</p>
+        <p class="syllabus-step"><b>Gather.</b> Ask each how being world-famous changed the way people understood their actual scientific work, and have them respond to each other's answer.</p>
+        <p class="syllabus-step"><b>Analyze.</b> Lay out where they align and diverge on fame distorting their work, cite each in their own words, and argue whether the distortion came from the nature of their discoveries, relativity being abstract and philosophical versus radioactivity being physical and medical, or from something else entirely, gender, personality, era. Then name a modern scientist or technologist whose fame distorts public understanding of their actual work, and explain how.</p>
+      </div>
+    </div>
+    <div class="syllabus-item">
+      <div class="syllabus-num">15</div>
+      <div class="syllabus-body">
+        <h3>Synthesis Essay</h3>
+        <p class="syllabus-agents">Synthesis essay, choose one track</p>
+        <p class="syllabus-step"><b>Track A: Credit and Institutions.</b> Using Sessions 2 and 12, argue whether the pattern of institutions crediting the safer or more convenient narrative over the real breakthrough, Einstein's photoelectric Nobel over relativity, Watson and Crick over Franklin, is a one-time historical quirk or a repeating structural pattern.</p>
+        <p class="syllabus-step"><b>Track B: Danger and Sacrifice.</b> Using Sessions 4 and 8, argue whether a scientist's responsibility for their discovery's consequences depends on whether the danger falls on others, Einstein and the bomb, or on themselves, Curie and radiation, or whether the same standard should apply either way.</p>
+        <p class="syllabus-step"><b>Track C: Principle Over Profit.</b> Using Sessions 5 and 9, argue whether declining power or profit out of principle, Einstein refusing the presidency, Curie refusing the patent, is a stronger form of integrity than using the platform to maximize personal gain, or a missed chance to do more good with more resources.</p>
+        <p class="syllabus-step">800 to 1000 words, any track. The final paragraph is required to address what an AI reconstruction can and cannot stand in for as historical evidence.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-head" style="margin-top:2.6rem;">
+    <h2>Extra Credit</h2>
+    <div class="sec-rule"></div>
+  </div>
+  <p class="sec-sub">Optional, beyond the 15-hour core. Both draw on real, documented material the agents already carry, not invented enrichment.</p>
+
+  <div class="ec-list">
+    <div class="ec-item">
+      <div class="ec-tag">EC</div>
+      <div class="syllabus-body">
+        <h3>The Reptiles Letter</h3>
+        <p class="syllabus-agents">Group room: Einstein and Curie</p>
+        <p class="syllabus-step"><b>Gather.</b> Ask them together about the real letter Einstein wrote Curie in November 1911, while the French press was tearing her apart over her relationship with Paul Langevin, the one where he called the sensationalist press "reptiles" and told her not to read the hogwash.</p>
+        <p class="syllabus-step"><b>Analyze.</b> Cite the letter directly in both of their own words, then argue whether private solidarity from a respected peer meaningfully protects someone against a public character assault, or whether it only makes the target feel less alone without changing the outcome. Then name a modern case of a public figure receiving private support from a respected peer during a public scandal, and explain whether it changed anything.</p>
+      </div>
+    </div>
+    <div class="ec-item">
+      <div class="ec-tag">EC</div>
+      <div class="syllabus-body">
+        <h3>The Women: Franklin, Potter, and Curie</h3>
+        <p class="syllabus-agents">Solo: Marie Curie, plus independent research</p>
+        <p class="syllabus-step"><b>Gather.</b> Ask Curie about her own experience of being underestimated or under-credited as a woman in science.</p>
+        <p class="syllabus-step"><b>Analyze.</b> Curie's own testimony only covers her own lifetime, 1867 to 1934. Research two other women scientists whose careers followed a strikingly similar pattern: Rosalind Franklin, whose X-ray crystallography was essential to discovering the structure of DNA and who was credited far less than Watson and Crick, later dying of a cancer likely linked to the same kind of radiation exposure that killed Curie; and Beatrix Potter, who decades earlier did real scientific work on fungal spore germination and proposed that lichens are a symbiotic partnership between fungus and algae, a theory the Linnean Society would not even let her present in person because she was a woman, only for it to be proven correct decades later. Write a comparative essay arguing whether three women across three different eras facing the same pattern means it was one era's problem, or something structural that outlasted all three of their lifetimes.</p>
+      </div>
+    </div>
   </div>
 
   <div class="about-block">
