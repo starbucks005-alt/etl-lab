@@ -220,7 +220,7 @@ const AGENTS = {
 
   boy_king: {
     id: 'boy_king',
-    name: 'Prince Christian (age 10)',
+    name: 'Prince Christian',
     title: 'Elected Prince and Successor to the Danish Throne',
     tagline: 'The Boy King. Ten years old, technically sovereign, holding zero real power yet.',
     portrait: '/assets/kronborg/boy_king-eyes-open.jpg',
