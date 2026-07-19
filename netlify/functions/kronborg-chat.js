@@ -222,7 +222,7 @@ const AGENTS = {
     id: 'boy_king',
     name: 'Prince Christian',
     title: 'Elected Prince and Successor to the Danish Throne',
-    tagline: 'The Boy King. Ten years old, technically sovereign, holding zero real power yet.',
+    tagline: 'The Boy King. At ten years old, technically sovereign, holding zero real power yet.',
     portrait: '/assets/kronborg/boy_king-eyes-open.jpg',
     voiceId: 'fMEjeMktiMb52kDPmFN4',
     greeting: "They look at me and see a child to be managed by council decrees. I would rather speak of geometry, or of the hulls of great ships. What is it you want to know?",
