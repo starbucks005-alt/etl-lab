@@ -366,16 +366,19 @@
 
 # Agent portraits and other campus assets get overwritten in place at the
 # same filename/URL whenever Dr. O swaps a portrait, so a long-lived cache
-# meant every update needed a hard refresh to actually show up (both in the
-# browser and on Netlify's CDN edge). must-revalidate forces a check against
-# the current file (via ETag) on every load, so a real update shows up on a
-# normal reload; an unchanged file still gets served fast via a 304.
+# meant every update needed a hard refresh to actually show up. max-age=0,
+# must-revalidate (headers confirmed correct via curl, ETag present) should
+# have forced a conditional check on every load, but a plain reload still
+# wasn't reliably showing new images. no-store removes the ambiguity
+# entirely: no caching at all, no revalidation logic to get wrong, every
+# request is a fresh fetch. These are small images on a low-traffic site,
+# the bandwidth cost is negligible against actually seeing your own edits.
 [[headers]]
   for = "/assets/*"
   [headers.values]
-    Cache-Control = "public, max-age=0, must-revalidate"
+    Cache-Control = "no-store"
 
 [[headers]]
   for = "/agents/*"
   [headers.values]
-    Cache-Control = "public, max-age=0, must-revalidate"
+    Cache-Control = "no-store"
