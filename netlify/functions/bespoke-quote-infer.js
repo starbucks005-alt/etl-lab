@@ -19,6 +19,7 @@
 const Anthropic = require('@anthropic-ai/sdk').default;
 
 const MODEL = 'claude-sonnet-4-6';
+function cleanDashes(s) { return String(s == null ? '' : s).replace(/—/g, ', ').replace(/–/g, ', '); }
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -65,7 +66,7 @@ exports.handler = async (event) => {
 
 "${description}"
 
-Based ONLY on what they actually described, suggest calculator parameters using the suggest_build tool. Do not invent scope they did not describe or imply. If the description is vague about agent count, pick a reasonable, defensible default for the scale implied and say so plainly in your reasoning rather than guessing wildly high or low.`;
+Based ONLY on what they actually described, suggest calculator parameters using the suggest_build tool. Do not invent scope they did not describe or imply. If the description is vague about agent count, pick a reasonable, defensible default for the scale implied and say so plainly in your reasoning rather than guessing wildly high or low. Write the reasoning in plain sentences with commas or periods; never use an em dash or en dash.`;
 
   try {
     const msg = await client.messages.create({
@@ -90,7 +91,7 @@ Based ONLY on what they actually described, suggest calculator parameters using 
         room: !!out.room,
         curriculum: !!out.curriculum,
       },
-      reasoning: String(out.reasoning || '').trim().slice(0, 800),
+      reasoning: cleanDashes(String(out.reasoning || '').trim().slice(0, 800)),
     });
   } catch (err) {
     console.error('[bespoke-quote-infer] error', err && err.message);
