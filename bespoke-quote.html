@@ -128,6 +128,35 @@ a:hover { color: var(--cream); }
 .sec-rule { flex: 1; height: 1px; background: var(--line); }
 .sec-sub { font-size: .86rem; color: var(--mute); margin: .35rem 0 1.6rem; max-width: 62ch; }
 
+/* ── DESCRIBE BLOCK ── */
+.describe-block { border: 1px solid var(--line); background: var(--panel); padding: 1.3rem 1.4rem; }
+.describe-chips { display: flex; flex-wrap: wrap; gap: .5rem; margin: 0 0 .9rem; }
+.describe-chip {
+  background: none; border: 1px solid var(--line); color: var(--blue-br); border-radius: 999px;
+  padding: .5rem 1rem; font-family: 'IBM Plex Mono', monospace; font-size: .72rem; cursor: pointer;
+  text-align: left; max-width: 100%;
+}
+.describe-chip:hover { background: var(--panel2); border-color: var(--blue-br); }
+#describeText {
+  width: 100%; min-height: 90px; resize: vertical; background: var(--bg2); border: 1px solid var(--line);
+  color: var(--cream); font-family: 'Public Sans', sans-serif; font-size: .92rem; padding: .8rem .9rem;
+  border-radius: 4px; line-height: 1.6;
+}
+#describeText:focus { outline: none; border-color: var(--blue-br); }
+.describe-foot { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: .9rem; flex-wrap: wrap; }
+.btn-suggest {
+  background: var(--blue); color: #fff; border: none; border-radius: 4px; padding: .7rem 1.3rem;
+  font-family: 'IBM Plex Mono', monospace; font-size: .74rem; letter-spacing: .04em; cursor: pointer;
+}
+.btn-suggest:hover { background: var(--blue-br); }
+.btn-suggest:disabled { opacity: .5; cursor: not-allowed; }
+.describe-status { font-size: .8rem; color: var(--mute); font-family: 'IBM Plex Mono', monospace; }
+.reasoning-box {
+  display: none; margin-top: 1rem; border-left: 3px solid var(--blue-br); background: var(--bg2);
+  padding: .9rem 1.1rem; font-size: .86rem; color: var(--text); line-height: 1.65;
+}
+.reasoning-box.is-visible { display: block; }
+
 /* ── FORM ── */
 .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line); border: 1px solid var(--line); }
 .calc-field { background: var(--panel); padding: 1.1rem 1.4rem; }
@@ -192,6 +221,25 @@ a:hover { color: var(--cream); }
     <div class="eyebrow">Estimate Only &nbsp;&middot;&nbsp; Not A Final Invoice</div>
     <h1>What would a bespoke build cost?</h1>
     <p>A from-scratch classroom, like The Kronborg History Comes Alive Project, is real custom development: individually designed agents, a shared emotion and memory engine, live API integrations, and often a full instructor syllabus. This estimates that cost using ETL's actual pricing structure. Every number below is an assumption you can adjust, especially the design hours; treat this as a starting point for a conversation, not a locked price.</p>
+  </div>
+
+  <div class="sec-head">
+    <h2>Describe what you want to create</h2>
+    <div class="sec-rule"></div>
+  </div>
+  <p class="sec-sub">Tell it in plain words, not a spec. It'll suggest agent count, tier, and which bespoke systems fit, then you can adjust anything below.</p>
+
+  <div class="describe-block">
+    <div class="describe-chips">
+      <button type="button" class="describe-chip" data-fill="I want to create a class for year 3 medical students to demonstrate difficult patient conversations: breaking bad news, discussing end-of-life care, and handling a hostile family member.">Medical students &middot; difficult conversations</button>
+      <button type="button" class="describe-chip" data-fill="I want to show my high school government class what politics were like in 1775 USA, so they can talk to the founding fathers and colonists directly.">High school government &middot; 1775 USA</button>
+    </div>
+    <textarea id="describeText" placeholder="e.g. I want my nursing students to practice a hard conversation with a patient's family..."></textarea>
+    <div class="describe-foot">
+      <button type="button" class="btn-suggest" id="suggestBtn">Suggest my build</button>
+      <span class="describe-status" id="describeStatus"></span>
+    </div>
+    <div class="reasoning-box" id="reasoningBox"></div>
   </div>
 
   <div class="sec-head">
@@ -371,6 +419,52 @@ a:hover { color: var(--cream); }
     document.getElementById(id).addEventListener('change', recalc);
   });
   recalc();
+
+  // Chips fill the textarea with a real example; clicking one doesn't
+  // auto-submit, so the person can edit it to actually match their project.
+  document.querySelectorAll('.describe-chip').forEach(function (chip) {
+    chip.addEventListener('click', function () {
+      $('describeText').value = chip.dataset.fill;
+      $('describeText').focus();
+    });
+  });
+
+  var TIER_TO_OPTION = {
+    teaching_assistants: '150|99|10',
+    etl_faculty: '215|99|10',
+    living_legends: '315|149|15',
+  };
+
+  $('suggestBtn').addEventListener('click', function () {
+    var description = $('describeText').value.trim();
+    if (!description) { $('describeStatus').textContent = 'Describe the project first.'; return; }
+    $('suggestBtn').disabled = true;
+    $('describeStatus').textContent = 'Thinking...';
+    $('reasoningBox').classList.remove('is-visible');
+
+    fetch('/.netlify/functions/bespoke-quote-infer', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ description: description }),
+    }).then(function (res) {
+      if (!res.ok) throw new Error('server returned ' + res.status);
+      return res.json();
+    }).then(function (data) {
+      $('agents').value = data.agents;
+      $('tier').value = TIER_TO_OPTION[data.tier] || TIER_TO_OPTION.living_legends;
+      $('sysEmotion').checked = !!(data.systems && data.systems.emotion);
+      $('sysRoom').checked = !!(data.systems && data.systems.room);
+      $('sysCurriculum').checked = !!(data.systems && data.systems.curriculum);
+      recalc();
+      $('reasoningBox').textContent = data.reasoning || '';
+      $('reasoningBox').classList.add('is-visible');
+      $('describeStatus').textContent = 'Suggested below, adjust anything that looks off.';
+      $('suggestBtn').disabled = false;
+    }).catch(function () {
+      $('describeStatus').textContent = 'Could not get a suggestion just now. Try again, or fill in the build below by hand.';
+      $('suggestBtn').disabled = false;
+    });
+  });
 })();
 </script>
 
