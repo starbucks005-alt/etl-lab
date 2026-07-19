@@ -3,7 +3,7 @@
   "short_name": "INMA Studio",
   "description": "Caroline's INMA Events Studio. Sponsored by Dr. Terry L. Oroszi and the Emerging Technologies Laboratory.",
   "start_url": "/studio.html",
-  "scope": "/",
+  "scope": "/studio.html",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#0e1828",

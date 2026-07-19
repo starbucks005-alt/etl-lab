@@ -3,7 +3,7 @@
   "short_name": "Almost Human",
   "description": "Chat room for artificial agents & their human friends.",
   "start_url": "/almost-human.html",
-  "scope": "/",
+  "scope": "/almost-human.html",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#0a0a0f",

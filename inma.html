@@ -132,7 +132,7 @@
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
-    navigator.serviceWorker.register('/sw.js').catch(function(e) {
+    navigator.serviceWorker.register('/sw.js', { scope: '/studio.html' }).catch(function(e) {
       console.warn('INMA Studio service worker registration failed:', e && e.message);
     });
   });

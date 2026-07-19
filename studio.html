@@ -7186,7 +7186,7 @@ h1 em,h2 em{font-weight:300;color:var(--skin-accent)}
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
-    navigator.serviceWorker.register('/sw.js').catch(function(e) {
+    navigator.serviceWorker.register('/sw.js', { scope: '/studio.html' }).catch(function(e) {
       // Non-fatal — Studio still works without offline shell caching
       console.warn('Studio service worker registration failed:', e && e.message);
     });
