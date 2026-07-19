@@ -204,6 +204,30 @@ a:hover { color: var(--cream); }
 .about-block p { font-size: .88rem; color: var(--text); line-height: 1.75; max-width: 72ch; margin: 0 0 .8rem; }
 .about-block p:last-child { margin-bottom: 0; }
 .about-block b { color: var(--cream); }
+
+.grants-block {
+  margin-top: 1.6rem;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  padding: 1.3rem 1.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+.grants-title { font-family: 'Spectral', serif; font-size: 1.05rem; color: var(--cream); margin: 0 0 .3rem; }
+.grants-body { font-size: .86rem; color: var(--mute); margin: 0; max-width: 52ch; line-height: 1.6; }
+.btn-grants {
+  display: inline-block;
+  background: var(--blue); color: #fff; border: none; border-radius: 4px; padding: .7rem 1.3rem;
+  font-family: 'IBM Plex Mono', monospace; font-size: .74rem; letter-spacing: .04em;
+  text-decoration: none; white-space: nowrap;
+}
+.btn-grants:hover { background: var(--blue-br); color: #fff; }
+@media (max-width: 700px) {
+  .grants-block { flex-direction: column; align-items: flex-start; }
+}
 </style>
 </head>
 <body>
@@ -338,6 +362,14 @@ a:hover { color: var(--cream); }
       <div class="rr-value" id="rGrand">$0</div>
     </div>
     <div class="result-note">This is a planning estimate, not an invoice. Final pricing is set per engagement and may reflect scope, timeline, or institutional agreements not captured here.</div>
+  </div>
+
+  <div class="grants-block">
+    <div>
+      <div class="grants-title">That number isn't the end of the conversation.</div>
+      <p class="grants-body">Departments fund builds like this with AI-literacy and education-technology grants more often than you'd think. Before you decide it's out of reach, see what's actually being awarded right now.</p>
+    </div>
+    <a class="btn-grants" href="https://www.google.com/search?q=grants+to+fund+ai+in+the+classroom" target="_blank" rel="noopener">Search for grants that fund this &rarr;</a>
   </div>
 
   <div class="about-block">
