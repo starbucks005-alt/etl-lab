@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+// Applied synchronously, before CSS paints, so there is no flash of the
+// wrong theme on load. Same shared key as the rest of ETL Classrooms, so
+// the choice persists moving between pages.
+(function () {
+  try {
+    var saved = localStorage.getItem('etl_classrooms_theme');
+    var theme = saved || 'dark';
+    document.documentElement.setAttribute('data-theme', theme);
+  } catch (_) {}
+})();
+</script>
+<title>Bespoke Build Quote &middot; ETL Classrooms &middot; Emerging Technologies Laboratory</title>
+<link rel="icon" type="image/png" href="/favicon_etl_512.png">
+<meta name="description" content="Estimate the cost of a custom ETL Classrooms build: agent build fees, bespoke systems, design time, and monthly hosting.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Public+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #080c11;
+  --bg2:     #0d1219;
+  --panel:   #111820;
+  --panel2:  #161e28;
+  --line:    #1e2c3a;
+  --blue:    #28527a;
+  --blue-br: #4c7ba3;
+  --gold:    #c8973a;
+  --gold-br: #e0ac50;
+  --cream:   #f0ead8;
+  --text:    #c8d4de;
+  --mute:    #5a7a94;
+  --legend:  #9b7a3a;
+  --ribbon-bg: #050709;
+}
+[data-theme="light"] {
+  --bg:      #f6f3ec;
+  --bg2:     #eeeadf;
+  --panel:   #ffffff;
+  --panel2:  #f3f0e8;
+  --line:    #ddd6c5;
+  --blue:    #2a5580;
+  --blue-br: #1f6fa8;
+  --gold:    #a9761f;
+  --gold-br: #8f6516;
+  --cream:   #1a1f26;
+  --text:    #33393f;
+  --mute:    #6b7280;
+  --legend:  #8a6118;
+  --ribbon-bg: #ece7da;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Public Sans', sans-serif; line-height: 1.65; transition: background .2s, color .2s; }
+a { color: var(--blue-br); text-decoration: none; }
+a:hover { color: var(--cream); }
+
+.ribbon {
+  background: var(--ribbon-bg);
+  border-bottom: 1px solid var(--line);
+  text-align: center;
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  font-size: .62rem;
+  color: var(--mute);
+  padding: .5rem 1rem;
+}
+.ribbon b { color: var(--blue-br); }
+
+.theme-toggle {
+  position: fixed;
+  top: .9rem;
+  right: 1.2rem;
+  z-index: 50;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  color: var(--mute);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .62rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  padding: .45rem .8rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: border-color .15s, color .15s;
+}
+.theme-toggle:hover { border-color: var(--blue-br); color: var(--text); }
+
+.wrap { max-width: 1040px; margin: 0 auto; padding: 0 1.4rem 6rem; }
+.backlink {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .72rem;
+  color: var(--mute);
+  text-decoration: none;
+  display: inline-block;
+  margin: .9rem 0 .7rem;
+  letter-spacing: .04em;
+}
+.backlink:hover { color: var(--text); }
+
+.hero { margin-top: .6rem; }
+.eyebrow {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .6rem;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  color: var(--blue-br);
+  margin-bottom: .9rem;
+}
+.hero h1 {
+  font-family: 'Spectral', serif;
+  font-size: clamp(1.9rem, 4vw, 2.6rem);
+  font-weight: 700;
+  color: var(--cream);
+  margin: 0 0 .8rem;
+  line-height: 1.14;
+  max-width: 20ch;
+}
+.hero p { font-size: .96rem; color: var(--text); max-width: 68ch; margin: 0; line-height: 1.75; }
+
+.sec-head { margin: 3rem 0 .2rem; display: flex; align-items: baseline; gap: 1rem; }
+.sec-head h2 { font-family: 'Spectral', serif; font-size: 1.35rem; font-weight: 600; color: var(--cream); margin: 0; }
+.sec-rule { flex: 1; height: 1px; background: var(--line); }
+.sec-sub { font-size: .86rem; color: var(--mute); margin: .35rem 0 1.6rem; max-width: 62ch; }
+
+/* ── FORM ── */
+.calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line); border: 1px solid var(--line); }
+.calc-field { background: var(--panel); padding: 1.1rem 1.4rem; }
+.calc-field.span-2 { grid-column: 1 / -1; }
+.calc-label { font-family: 'IBM Plex Mono', monospace; font-size: .64rem; letter-spacing: .08em; text-transform: uppercase; color: var(--mute); margin: 0 0 .55rem; display: block; }
+.calc-help { font-size: .78rem; color: var(--mute); margin: .4rem 0 0; line-height: 1.5; }
+.calc-field input[type="number"], .calc-field select {
+  width: 100%;
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  color: var(--cream);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .92rem;
+  padding: .55rem .7rem;
+  border-radius: 4px;
+}
+.calc-field input[type="number"]:focus, .calc-field select:focus { outline: none; border-color: var(--blue-br); }
+.check-row { display: flex; align-items: flex-start; gap: .6rem; padding: .5rem 0; }
+.check-row:not(:last-child) { border-bottom: 1px solid var(--line); }
+.check-row input { margin-top: .25rem; accent-color: var(--blue-br); }
+.check-row label { font-size: .88rem; color: var(--text); cursor: pointer; }
+.check-row .check-price { font-family: 'IBM Plex Mono', monospace; font-size: .76rem; color: var(--gold-br); display: block; margin-top: .15rem; }
+@media (max-width: 700px) {
+  .calc-grid { grid-template-columns: 1fr; }
+}
+
+/* ── RESULTS ── */
+.results { margin-top: 1.6rem; border: 1px solid var(--line); background: var(--panel); }
+.result-row { display: grid; grid-template-columns: 1fr auto; gap: 1rem; padding: .8rem 1.4rem; border-bottom: 1px solid var(--line); align-items: baseline; }
+.result-row .rr-label { font-size: .88rem; color: var(--text); }
+.result-row .rr-label small { display: block; font-size: .74rem; color: var(--mute); margin-top: .1rem; }
+.result-row .rr-value { font-family: 'IBM Plex Mono', monospace; font-size: .92rem; color: var(--text); white-space: nowrap; }
+.result-row.total { background: var(--panel2); }
+.result-row.total .rr-label { font-family: 'Spectral', serif; font-size: 1.05rem; color: var(--cream); }
+.result-row.total .rr-value { font-size: 1.15rem; color: var(--gold-br); font-weight: 600; }
+.result-row.grand { border-bottom: none; }
+.result-note { padding: .8rem 1.4rem; font-size: .76rem; color: var(--mute); background: var(--bg2); font-family: 'IBM Plex Mono', monospace; letter-spacing: .02em; line-height: 1.6; }
+
+.about-block {
+  margin-top: 2.6rem;
+  border-left: 3px solid var(--blue-br);
+  padding: 1.3rem 1.7rem;
+  background: var(--panel);
+}
+.about-block p { font-size: .88rem; color: var(--text); line-height: 1.75; max-width: 72ch; margin: 0 0 .8rem; }
+.about-block p:last-child { margin-bottom: 0; }
+.about-block b { color: var(--cream); }
+</style>
+</head>
+<body>
+
+<button type="button" class="theme-toggle" id="themeToggle">Light</button>
+
+<div class="ribbon">
+  Emerging Technologies Laboratory &nbsp;&middot;&nbsp; <b>ETL Classrooms</b> &nbsp;&middot;&nbsp; Bespoke Build Quote
+</div>
+
+<div class="wrap">
+  <a class="backlink" href="/classrooms.html">&larr; ETL Classrooms</a>
+
+  <div class="hero">
+    <div class="eyebrow">Estimate Only &nbsp;&middot;&nbsp; Not A Final Invoice</div>
+    <h1>What would a bespoke build cost?</h1>
+    <p>A from-scratch classroom, like The Kronborg History Comes Alive Project, is real custom development: individually designed agents, a shared emotion and memory engine, live API integrations, and often a full instructor syllabus. This estimates that cost using ETL's actual pricing structure. Every number below is an assumption you can adjust, especially the design hours; treat this as a starting point for a conversation, not a locked price.</p>
+  </div>
+
+  <div class="sec-head">
+    <h2>Your build</h2>
+    <div class="sec-rule"></div>
+  </div>
+  <p class="sec-sub">Agents, classroom tier, and the systems this build actually needs.</p>
+
+  <div class="calc-grid">
+    <div class="calc-field">
+      <label class="calc-label" for="agents">Number of agents</label>
+      <input type="number" id="agents" min="1" max="50" value="10">
+    </div>
+    <div class="calc-field">
+      <label class="calc-label" for="tier">Classroom tier</label>
+      <select id="tier">
+        <option value="150|99|10">Teaching Assistants ($150/agent, $99/mo, cap 10)</option>
+        <option value="215|99|10">ETL Faculty ($215/agent, $99/mo, cap 10)</option>
+        <option value="315|149|15" selected>Living Legends ($315/agent, $149/mo, cap 15)</option>
+      </select>
+      <p class="calc-help" id="capNote"></p>
+    </div>
+
+    <div class="calc-field span-2">
+      <label class="calc-label">Bespoke systems needed</label>
+      <div class="check-row">
+        <input type="checkbox" id="sysEmotion" checked>
+        <label for="sysEmotion">Custom emotion &amp; memory engine (per-character baselines, cross-session recall)<span class="check-price">$750 flat</span></label>
+      </div>
+      <div class="check-row">
+        <input type="checkbox" id="sysRoom" checked>
+        <label for="sysRoom">Multi-agent room orchestration (director model, async job architecture)<span class="check-price">$900 flat</span></label>
+      </div>
+      <div class="check-row">
+        <input type="checkbox" id="sysCurriculum" checked>
+        <label for="sysCurriculum">Instructor syllabus / curriculum (objectives, outcomes, session plans)<span class="check-price">$100 flat</span></label>
+      </div>
+    </div>
+
+    <div class="calc-field">
+      <label class="calc-label" for="hoursPerAgent">Design &amp; testing hours per agent</label>
+      <input type="number" id="hoursPerAgent" min="0" max="20" step="0.5" value="4">
+      <p class="calc-help">Default assumes real per-agent QA: personality, voice, portrait/blink, and tool-use checks, rounded up on purpose so a build doesn't get underquoted.</p>
+    </div>
+    <div class="calc-field">
+      <label class="calc-label" for="rate">Hourly rate</label>
+      <input type="number" id="rate" min="0" step="5" value="150">
+      <p class="calc-help">Rate for the specialized design and testing work, not generalist dev or UX rates.</p>
+    </div>
+
+    <div class="calc-field">
+      <label class="calc-label" for="students">Enrolled students</label>
+      <input type="number" id="students" min="1" max="2000" value="30">
+      <p class="calc-help">Hosting is metered by real use, every message is a live model call, every bio playback is a live voice call, so it scales with how many students actually show up, not a flat shelf price.</p>
+    </div>
+    <div class="calc-field">
+      <div class="check-row" style="border-bottom:none;">
+        <input type="checkbox" id="processing" checked>
+        <label for="processing">Add payment processing (~3%)<span class="check-price">Applied to the one-time total</span></label>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-head">
+    <h2>Estimated cost</h2>
+    <div class="sec-rule"></div>
+  </div>
+
+  <div class="results">
+    <div class="result-row">
+      <div class="rr-label">Agent build fee<small id="buildDetail"></small></div>
+      <div class="rr-value" id="rBuild">$0</div>
+    </div>
+    <div class="result-row">
+      <div class="rr-label">Bespoke systems<small id="sysDetail"></small></div>
+      <div class="rr-value" id="rSystems">$0</div>
+    </div>
+    <div class="result-row">
+      <div class="rr-label">Design &amp; testing time<small id="hoursDetail"></small></div>
+      <div class="rr-value" id="rHours">$0</div>
+    </div>
+    <div class="result-row">
+      <div class="rr-label">Payment processing<small>~3% of the one-time total</small></div>
+      <div class="rr-value" id="rProcessing">$0</div>
+    </div>
+    <div class="result-row total">
+      <div class="rr-label">One-time total</div>
+      <div class="rr-value" id="rOneTime">$0</div>
+    </div>
+    <div class="result-row">
+      <div class="rr-label">Monthly hosting<small id="hostDetail"></small></div>
+      <div class="rr-value" id="rHosting">$0 / mo</div>
+    </div>
+    <div class="result-row grand total">
+      <div class="rr-label">First month, all in</div>
+      <div class="rr-value" id="rGrand">$0</div>
+    </div>
+    <div class="result-note">This is a planning estimate, not an invoice. Final pricing is set per engagement and may reflect scope, timeline, or institutional agreements not captured here.</div>
+  </div>
+
+  <div class="about-block">
+    <p><b>Why hosting is metered, not flat.</b> Every chat exchange is a live model call and every bio playback is a live voice call; cost tracks real engagement, not time on a shelf. A flat rate either overcharges a small section or quietly loses money on a large one.</p>
+    <p><b>Why bespoke work is priced separately from a standard build.</b> A standard agent build (spec, portrait, voice, blink, tool wiring, deployment) is one thing. A shared emotion engine, cross-session memory, multi-agent orchestration, and a real instructor syllabus are systems, not agents, and they take real design and testing time beyond any single agent.</p>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  var btn = document.getElementById('themeToggle');
+  function syncTheme() {
+    var isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    btn.textContent = isLight ? 'Dark' : 'Light';
+  }
+  syncTheme();
+  btn.addEventListener('click', function () {
+    var next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('etl_classrooms_theme', next); } catch (_) {}
+    syncTheme();
+  });
+})();
+
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var fmt = function (n) { return '$' + n.toLocaleString('en-US', { maximumFractionDigits: 0 }); };
+
+  function recalc() {
+    var agents = Math.max(1, parseFloat($('agents').value) || 0);
+    var tierParts = $('tier').value.split('|').map(Number);
+    var buildRate = tierParts[0], hostBase = tierParts[1], cap = tierParts[2];
+    var tierLabel = $('tier').selectedOptions[0].textContent.split(' (')[0];
+
+    var build = agents * buildRate;
+    $('rBuild').textContent = fmt(build);
+    $('buildDetail').textContent = agents + ' agent' + (agents === 1 ? '' : 's') + ' × ' + fmt(buildRate) + ' (' + tierLabel + ')';
+
+    var sysTotal = 0, sysLabels = [];
+    if ($('sysEmotion').checked) { sysTotal += 750; sysLabels.push('emotion + memory'); }
+    if ($('sysRoom').checked) { sysTotal += 900; sysLabels.push('room orchestration'); }
+    if ($('sysCurriculum').checked) { sysTotal += 100; sysLabels.push('curriculum'); }
+    $('rSystems').textContent = fmt(sysTotal);
+    $('sysDetail').textContent = sysLabels.length ? sysLabels.join(', ') : 'none selected';
+
+    var hoursPerAgent = Math.max(0, parseFloat($('hoursPerAgent').value) || 0);
+    var rate = Math.max(0, parseFloat($('rate').value) || 0);
+    var totalHours = agents * hoursPerAgent;
+    var hoursCost = totalHours * rate;
+    $('rHours').textContent = fmt(hoursCost);
+    $('hoursDetail').textContent = totalHours + ' hrs (' + hoursPerAgent + '/agent) × ' + fmt(rate) + '/hr';
+
+    var oneTimeBeforeFees = build + sysTotal + hoursCost;
+    var processing = $('processing').checked ? oneTimeBeforeFees * 0.03 : 0;
+    $('rProcessing').textContent = fmt(processing);
+
+    var oneTime = oneTimeBeforeFees + processing;
+    $('rOneTime').textContent = fmt(oneTime);
+
+    var students = Math.max(1, parseFloat($('students').value) || 0);
+    var overage = Math.max(0, students - 30) * 4;
+    var hosting = hostBase + overage;
+    var capOverage = Math.max(0, agents - cap);
+    var capFee = capOverage * 15;
+    hosting += capFee;
+    $('rHosting').textContent = fmt(hosting) + ' / mo';
+    var hostDetailParts = [fmt(hostBase) + ' base (up to 30 students)'];
+    if (overage > 0) hostDetailParts.push('+' + fmt(overage) + ' for ' + (students - 30) + ' additional students');
+    if (capFee > 0) hostDetailParts.push('+' + fmt(capFee) + ' for ' + capOverage + ' agent' + (capOverage === 1 ? '' : 's') + ' over the ' + cap + '-agent cap');
+    $('hostDetail').textContent = hostDetailParts.join(', ');
+    $('capNote').textContent = 'Cap: ' + cap + ' agents included; $15/agent/mo beyond that.';
+
+    $('rGrand').textContent = fmt(oneTime + hosting);
+  }
+
+  ['agents', 'tier', 'sysEmotion', 'sysRoom', 'sysCurriculum', 'hoursPerAgent', 'rate', 'students', 'processing'].forEach(function (id) {
+    document.getElementById(id).addEventListener('input', recalc);
+    document.getElementById(id).addEventListener('change', recalc);
+  });
+  recalc();
+})();
+</script>
+
+</body>
+</html>
