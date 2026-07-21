@@ -101,9 +101,12 @@
   .pron-chip { font-size: .85rem; background: #0f0f16; border: 1px solid var(--line); color: var(--cream); border-radius: 999px; padding: .4rem .9rem; cursor: pointer; }
   .pron-chip:hover { border-color: #4c5fd6; }
   .pron-chip.active { border-color: #4c5fd6; color: #9fb0ff; }
-  .consent-check { display: flex; gap: .6rem; align-items: flex-start; margin: 1.2rem 0; font-size: .85rem; color: var(--cream); }
+  .consent-check { display: flex; gap: .6rem; align-items: flex-start; margin: 1.2rem 0; font-size: .85rem; color: var(--cream); border-radius: 6px; transition: background-color .2s; }
+  .consent-check.flag { background-color: rgba(220,80,80,.18); }
   .consent-btn { width: 100%; margin-top: .4rem; font-family: 'IBM Plex Mono', monospace; font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; background: #fff; color: var(--black); border: none; border-radius: 8px; padding: .9rem; cursor: pointer; font-weight: 600; }
   .consent-btn:disabled { opacity: .4; cursor: not-allowed; }
+  .consent-nudge { display: none; font-size: .78rem; color: #e08a8a; margin: -.6rem 0 .8rem; }
+  .consent-nudge.show { display: block; }
 
   /* ── AGENT GRID ── */
   #picker { padding: 3rem 2rem 4rem; max-width: 1100px; margin: 0 auto; }
@@ -340,12 +343,13 @@
       <input type="checkbox" id="consentRemember" style="margin-top:.2rem;">
       <label for="consentRemember">Remember me here next time, so whoever I talk to can recall we've met.</label>
     </div>
-    <div class="consent-check">
+    <div class="consent-check" id="consentCheckRow">
       <input type="checkbox" id="consentCheck" style="margin-top:.2rem;">
       <label for="consentCheck">I understand, and I'm ready to talk.</label>
     </div>
     <p style="font-size:.78rem; color:var(--muted); margin-top:-.4rem;">By continuing, you agree to our <a href="/almost-human-terms" style="color:var(--cream); text-decoration:underline;" target="_blank" rel="noopener">Terms of Service</a> and <a href="/privacy.html" style="color:var(--cream); text-decoration:underline;" target="_blank" rel="noopener">Privacy Statement</a>.</p>
-    <button class="consent-btn" id="consentGo" disabled>Start the conversation</button>
+    <div class="consent-nudge" id="consentNudge">Check the box above to continue.</div>
+    <button class="consent-btn" id="consentGo">Start the conversation</button>
   </div>
 </div>
 
@@ -555,7 +559,10 @@ var displayName = '';
 var rememberMe = false;
 var visitorPronoun = '';
 $('consentCheck').addEventListener('change', function () {
-  $('consentGo').disabled = !this.checked;
+  if (this.checked) {
+    $('consentCheckRow').classList.remove('flag');
+    $('consentNudge').classList.remove('show');
+  }
 });
 $('consentPronounChips').querySelectorAll('.pron-chip').forEach(function (chip) {
   chip.addEventListener('click', function () {
@@ -598,6 +605,12 @@ $('splashShare').addEventListener('click', function () {
   }).catch(fallbackCopyLink);
 });
 $('consentGo').addEventListener('click', function () {
+  if (!$('consentCheck').checked) {
+    $('consentCheckRow').classList.add('flag');
+    $('consentNudge').classList.add('show');
+    $('consentCheckRow').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
   displayName = ($('consentName').value || '').trim() || 'Friend';
   rememberMe = $('consentRemember').checked;
   $('consent').classList.remove('open');
