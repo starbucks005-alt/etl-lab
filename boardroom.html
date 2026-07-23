@@ -354,9 +354,15 @@
 <script>
   // Auth gate: Lab Members only. Check before any content renders.
   (function(){
-    var raw = null;
-    try { raw = localStorage.getItem('etl_session'); } catch(_) {}
     var _ok = false;
+    try {
+      var sbRaw = localStorage.getItem('sb-ulvrnermyuvzanxhxoib-auth-token');
+      var sbSess = sbRaw ? JSON.parse(sbRaw) : null;
+      var real = (sbSess && sbSess.access_token) || null;
+      if (real) { window._boardroom_token = real; _ok = true; }
+    } catch(_) {}
+    var raw = null;
+    if (!_ok) { try { raw = localStorage.getItem('etl_session'); } catch(_) {} }
     if (raw) {
       try {
         var sess = JSON.parse(raw);

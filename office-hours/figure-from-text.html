@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<script>(function(){var r=null;try{r=localStorage.getItem('etl_session');}catch(_){}var ok=false;if(r){try{var s=JSON.parse(r);ok=!!(s&&s.access_token&&(!s.expires_at||Date.now()<s.expires_at));if(ok)window._oh_token=s.access_token;}catch(_){}}if(!ok){try{var k=localStorage.getItem('etl_owner_key');if(k){window._oh_token=k;ok=true;}}catch(_){}}if(!ok){window.location.replace('/member-login?next='+encodeURIComponent(window.location.pathname));}})();</script>
+<script>(function(){var ok=false;try{var raw=localStorage.getItem('sb-ulvrnermyuvzanxhxoib-auth-token');var sess=raw?JSON.parse(raw):null;var real=(sess&&sess.access_token)||null;if(real){window._oh_token=real;ok=true;}}catch(_){}if(!ok){var r=null;try{r=localStorage.getItem('etl_session');}catch(_){}if(r){try{var s=JSON.parse(r);ok=!!(s&&s.access_token&&(!s.expires_at||Date.now()<s.expires_at));if(ok)window._oh_token=s.access_token;}catch(_){}}}if(!ok){try{var k=localStorage.getItem('etl_owner_key');if(k){window._oh_token=k;ok=true;}}catch(_){}}if(!ok){window.location.replace('/member-login?next='+encodeURIComponent(window.location.pathname));}})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Figure from Text &mdash; Office Hours | Emerging Technologies Laboratory</title>
 <meta name="description" content="Describe a diagram you need (concept map, flow chart, causal model, variable map, theoretical framework, timeline). Get a clean publication-ready SVG figure you can download and refine.">
