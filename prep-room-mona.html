@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mona Bahrami, MD — Premed Readiness Advisor | The Prep Room</title>
+<meta name="description" content="Talk to Mona Bahrami, MD, ETL's premed readiness advisor. A structured evaluation across academics, experience, professionalism, and identity, with a real coaching plan.">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Oswald:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1a1d24; --muted:#5a6072; --line:#e2e1dc; --paper:#f7f6f2;
+    --card:#ffffff; --gold:#28527a; --gold-dim:#8f7220; --navy:#243049;
+    --green:#285C4D; --danger:#a3402f; --soft:#f4f3ee;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);line-height:1.6;}
+  a{color:var(--gold-dim);}
+  .wrap{max-width:820px;margin:0 auto;padding:0 20px;}
+
+  header{background:var(--navy);color:#fff;padding:14px 0;border-bottom:3px solid var(--gold);}
+  header .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+  .brand{font-family:'Oswald',sans-serif;font-weight:700;letter-spacing:3px;text-transform:uppercase;font-size:15px;}
+  .brand span{color:var(--gold);}
+  .home-link{font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#cdd3e0;text-decoration:none;}
+  .home-link:hover{color:#fff;}
+
+  .hero{padding:38px 0 18px;text-align:center;}
+  .kicker{font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--gold-dim);margin-bottom:14px;}
+  .portrait-wrap{position:relative;width:112px;height:112px;margin:0 auto 16px;border-radius:50%;overflow:hidden;border:3px solid var(--navy);box-shadow:0 2px 10px rgba(0,0,0,.12);}
+  .portrait-wrap img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:center 15%;transition:opacity .12s ease;}
+  .portrait-wrap img.closed{opacity:0;}
+  .hero h1{font-family:'Spectral',serif;font-size:clamp(26px,4.5vw,36px);font-weight:700;letter-spacing:-0.5px;}
+  .hero .role{font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--gold-dim);margin-top:6px;}
+  .hero p{max-width:560px;margin:14px auto 0;color:var(--muted);font-size:15px;font-weight:400;}
+
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:22px;margin:22px 0;box-shadow:0 1px 3px rgba(0,0,0,.03);}
+  .chat{display:flex;flex-direction:column;gap:16px;margin-bottom:18px;min-height:120px;}
+  .msg{max-width:88%;}
+  .msg .who{font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;}
+  .msg.mona .who{color:var(--gold-dim);}
+  .msg.you{align-self:flex-end;text-align:right;}
+  .msg.you .who{color:var(--green);}
+  .bubble{padding:13px 16px;border-radius:8px;font-size:15px;line-height:1.55;white-space:pre-wrap;}
+  .msg.mona .bubble{background:#fff;border:1px solid var(--line);border-left:3px solid var(--gold);}
+  .msg.you .bubble{background:var(--navy);color:#fff;display:inline-block;text-align:left;}
+  .listen-btn{margin-top:6px;font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold-dim);background:none;border:1px solid var(--line);border-radius:4px;padding:5px 10px;cursor:pointer;}
+  .listen-btn:hover{border-color:var(--gold);}
+  .listen-btn:disabled{opacity:.5;cursor:wait;}
+  .answer-area{display:flex;gap:10px;align-items:flex-end;}
+  .answer-area textarea{flex:1;resize:vertical;min-height:64px;font-family:'DM Sans',sans-serif;font-size:15px;padding:12px 14px;border:1.5px solid var(--line);border-radius:6px;background:#fff;}
+  .answer-area textarea:focus{outline:none;border-color:var(--gold);}
+  .btn{font-family:'Oswald',sans-serif;font-size:13px;font-weight:600;letter-spacing:2px;text-transform:uppercase;padding:13px 22px;background:var(--gold);color:#1a1a1a;border:2px solid var(--gold);border-radius:3px;cursor:pointer;}
+  .btn:hover{background:var(--gold-dim);border-color:var(--gold-dim);color:#fff;}
+  .btn:disabled{opacity:.4;cursor:not-allowed;}
+  .thinking{font-style:italic;color:var(--muted);font-size:14px;}
+  .dots::after{content:'';animation:dots 1.4s steps(4,end) infinite;}
+  @keyframes dots{0%{content:'';}25%{content:'.';}50%{content:'..';}75%{content:'...';}}
+  .err{background:#fbeeea;border:1px solid #e3b9ae;color:var(--danger);padding:12px 14px;border-radius:6px;font-size:14px;margin-top:14px;display:none;}
+  .disclaimer{font-size:12px;color:#9a9a93;text-align:center;margin-top:10px;line-height:1.5;}
+  .foot{text-align:center;padding:40px 0;color:#9a9a93;font-size:12px;}
+  @media(max-width:600px){ .panel{padding:16px;} .msg{max-width:96%;} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="brand">The Prep <span>Room</span></div>
+    <a class="home-link" href="/prep-room.html">&larr; Prep Room</a>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div class="kicker">Emerging Technologies Laboratory</div>
+    <div class="portrait-wrap">
+      <img id="portrait-open" src="/agents/Mona_eyes_open.jpg" alt="Mona Bahrami, MD">
+      <img id="portrait-closed" class="closed" src="/agents/Mona_eyes_closed.jpg" alt="">
+    </div>
+    <h1>Mona Bahrami, MD</h1>
+    <div class="role">Lead Advisor, The Prep Room</div>
+    <p>Physician-turned-advisor, three years on her medical school's admissions committee. She'll run a real readiness evaluation across academics, experience, professionalism, and identity, and hand you a short, specific plan, not a pep talk.</p>
+  </div>
+
+  <div class="panel">
+    <div class="chat" id="chat"></div>
+    <div class="answer-area">
+      <textarea id="input" placeholder="Tell Mona where you're at, your year, your GPA, what's worrying you, anything." maxlength="4000"></textarea>
+      <button class="btn" id="send-btn">Send</button>
+    </div>
+    <div class="err" id="err"></div>
+    <div class="disclaimer">Mona is an ETL advising tool, not a substitute for your school's pre-health advising office or a licensed physician. She never predicts admissions outcomes.</div>
+  </div>
+
+  <div class="foot">&copy; Emerging Technologies Laboratory &middot; <a href="/prep-room.html">Back to the Prep Room</a></div>
+</div>
+
+<script>
+(function(){
+  function $(id){ return document.getElementById(id); }
+
+  function visitorId(){
+    try{
+      var v = localStorage.getItem('etl_visitor_id');
+      if(!v){ v = 'v'+Date.now().toString(36)+Math.random().toString(36).slice(2,10); localStorage.setItem('etl_visitor_id', v); }
+      return v;
+    }catch(_){ return null; }
+  }
+
+  // Idle blink animation, same open/closed swap pattern used across the campus.
+  (function blink(){
+    var open = $('portrait-open'), closed = $('portrait-closed');
+    function cycle(){
+      closed.classList.remove('closed');
+      setTimeout(function(){ closed.classList.add('closed'); }, 140);
+      setTimeout(cycle, 3800 + Math.random()*3000);
+    }
+    setTimeout(cycle, 2500 + Math.random()*2000);
+  })();
+
+  var HIST_KEY = 'etl_mona_hist';
+  var history = [];
+  try{ history = JSON.parse(localStorage.getItem(HIST_KEY) || '[]') || []; }catch(_){ history = []; }
+
+  var chatEl = $('chat'), inputEl = $('input'), sendBtn = $('send-btn'), errEl = $('err');
+
+  function renderMsg(role, text){
+    var wrap = document.createElement('div');
+    wrap.className = 'msg ' + (role === 'user' ? 'you' : 'mona');
+    var who = document.createElement('div');
+    who.className = 'who';
+    who.textContent = role === 'user' ? 'You' : 'Mona';
+    var bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    bubble.textContent = text;
+    wrap.appendChild(who);
+    wrap.appendChild(bubble);
+    if(role !== 'user'){
+      var listenBtn = document.createElement('button');
+      listenBtn.className = 'listen-btn';
+      listenBtn.type = 'button';
+      listenBtn.textContent = 'Listen';
+      listenBtn.addEventListener('click', function(){ playVoice(text, listenBtn); });
+      wrap.appendChild(listenBtn);
+    }
+    chatEl.appendChild(wrap);
+    chatEl.scrollTop = chatEl.scrollHeight;
+  }
+
+  var currentAudio = null;
+  async function playVoice(text, btn){
+    try{
+      if(currentAudio){ currentAudio.pause(); currentAudio = null; }
+      btn.disabled = true;
+      btn.textContent = 'Loading...';
+      var r = await fetch('/.netlify/functions/prep-room-mona-voice', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ text: text.slice(0, 2000) })
+      });
+      if(!r.ok) throw new Error('voice unavailable');
+      var blob = await r.blob();
+      var url = URL.createObjectURL(blob);
+      currentAudio = new Audio(url);
+      btn.textContent = 'Playing...';
+      currentAudio.addEventListener('ended', function(){ btn.textContent = 'Listen'; btn.disabled = false; });
+      currentAudio.play();
+    }catch(e){
+      btn.textContent = 'Listen';
+    }finally{
+      btn.disabled = false;
+    }
+  }
+
+  history.forEach(function(m){ renderMsg(m.role, m.content); });
+  if(!history.length){
+    renderMsg('assistant', "Hi, I'm Mona. Before we get into a full readiness read, tell me roughly where you are: what year you are, and what's on your mind today, whether that's a specific worry or just \"I don't know where I stand.\"");
+  }
+
+  function setBusy(b){
+    sendBtn.disabled = b;
+    inputEl.disabled = b;
+    if(b){
+      var t = document.createElement('div');
+      t.className = 'thinking dots';
+      t.id = 'thinking-row';
+      t.textContent = 'Mona is thinking';
+      chatEl.appendChild(t);
+      chatEl.scrollTop = chatEl.scrollHeight;
+    } else {
+      var row = $('thinking-row');
+      if(row) row.remove();
+    }
+  }
+
+  async function send(){
+    var q = inputEl.value.trim();
+    if(!q) return;
+    errEl.style.display = 'none';
+    renderMsg('user', q);
+    history.push({role:'user', content:q});
+    inputEl.value = '';
+    setBusy(true);
+    try{
+      var r = await fetch('/.netlify/functions/prep-room-mona-ask', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ question: q, messages: history, visitor_id: visitorId() })
+      });
+      var d = await r.json();
+      if(!r.ok || !d.answer){ throw new Error((d && d.message) || 'Mona had trouble answering that.'); }
+      renderMsg('assistant', d.answer);
+      history.push({role:'assistant', content:d.answer});
+      try{ localStorage.setItem(HIST_KEY, JSON.stringify(history.slice(-40))); }catch(_){}
+    }catch(e){
+      errEl.textContent = e.message || 'Something went wrong. Try again in a moment.';
+      errEl.style.display = 'block';
+    }finally{
+      setBusy(false);
+      inputEl.focus();
+    }
+  }
+
+  sendBtn.addEventListener('click', send);
+  inputEl.addEventListener('keydown', function(e){
+    if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); send(); }
+  });
+})();
+</script>
+
+</body>
+</html>

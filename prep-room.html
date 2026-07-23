@@ -46,7 +46,7 @@
   .mode.inactive:hover{opacity:1;}
   .more-tools{margin:18px auto 8px;max-width:980px;}
   .more-tools-label{font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#888;text-align:center;margin-bottom:10px;}
-  .link-tiles{display:grid;grid-template-columns:repeat(3, 1fr);gap:10px;}
+  .link-tiles{display:grid;grid-template-columns:repeat(4, 1fr);gap:10px;}
   @media (max-width:760px){.link-tiles{grid-template-columns:1fr;}}
   .link-tile{display:flex;flex-direction:column;justify-content:space-between;padding:16px 18px;border:1px solid #d0d4d9;background:#fafbfc;color:var(--navy);text-decoration:none;border-radius:2px;transition:border-color .12s, background .12s;min-height:88px;position:relative;}
   .link-tile:hover{border-color:var(--navy);background:#fff;}
@@ -214,6 +214,11 @@
       <a class="link-tile" id="tile-leadership" href="/leadership-programs.html?audience=students">
         <span class="link-tile-name">Leadership Certificates</span>
         <span class="link-tile-sub">Four programs by Dr. Oroszi</span>
+        <span class="link-tile-arrow">&rarr;</span>
+      </a>
+      <a class="link-tile" id="tile-mona" href="/prep-room-mona.html">
+        <span class="link-tile-name">Talk to Mona</span>
+        <span class="link-tile-sub">Premed readiness advisor &middot; MD, admissions committee</span>
         <span class="link-tile-arrow">&rarr;</span>
       </a>
     </div>
@@ -1691,6 +1696,9 @@
     if (jfTile) jfTile.href = '/leadership-cert.html?audience=' + AUDIENCE;
     if (jsTile) jsTile.href = '/job-fair.html?audience=' + AUDIENCE;
     if (ldTile) ldTile.href = '/leadership-programs.html?audience=' + AUDIENCE;
+    // Mona (premed readiness advisor) is student-only, like Defense mode.
+    var monaTile = $('tile-mona');
+    if (monaTile) monaTile.style.display = (AUDIENCE === 'pros') ? 'none' : '';
     // Companion-tools label flips to match the audience-facing room name.
     var mLabel = $('more-tools-label');
     if (mLabel) mLabel.textContent = (AUDIENCE === 'pros') ? 'More from the Boardroom' : 'More from the Prep Room';
