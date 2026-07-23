@@ -367,7 +367,7 @@
       } catch(_) {}
     }
     if (!_ok) {
-      try { var k = localStorage.getItem('etl_owner'); if (k) { window._boardroom_token = k; _ok = true; } } catch(_) {}
+      try { var k = localStorage.getItem('etl_owner_key'); if (k) { window._boardroom_token = k; _ok = true; } } catch(_) {}
     }
     if (!_ok) { window.location.replace('/member-login?next=/boardroom'); return; }
   })();

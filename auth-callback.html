@@ -104,8 +104,10 @@
       } catch (_) {}
     }
 
-    // Redirect: go to intended destination or member-welcome
-    const dest = sessionStorage.getItem('etl_login_dest') || '/member-welcome';
+    // Redirect: prefer ?next= on this URL (survives the magic link opening in
+    // a fresh tab, which sessionStorage does not), then sessionStorage from
+    // the original tab as a fallback, then member-welcome.
+    const dest = qParams.get('next') || sessionStorage.getItem('etl_login_dest') || '/member-welcome';
     sessionStorage.removeItem('etl_login_dest');
     window.location.replace(dest);
   }

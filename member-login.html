@@ -88,6 +88,13 @@
   const SUPABASE_URL  = 'https://ulvrnermyuvzanxhxoib.supabase.co';
   const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsdnJuZXJteXV2emFueGh4b2liIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3MzYyMDEsImV4cCI6MjA5NjMxMjIwMX0.tAaXhm_pb-DxrYsXYw1DvvYENDJ_y3jlt2nGWSp2lbA';
 
+  // Preserve where the visitor was trying to go (?next=/office-hours) so the
+  // magic link sends them back there instead of the generic welcome page.
+  // Passed as a query param on the redirect URL itself, not sessionStorage,
+  // since the magic link is very often opened in a brand new tab (webmail,
+  // Mail app) where sessionStorage from this tab would not be visible.
+  const NEXT = new URLSearchParams(window.location.search).get('next') || '';
+
   function showMsg(type, text) {
     const el = document.getElementById('msg');
     el.className = 'msg ' + type;
@@ -108,7 +115,7 @@
         headers: { 'Content-Type': 'application/json', apikey: SUPABASE_ANON },
         body: JSON.stringify({
           email,
-          options: { emailRedirectTo: 'https://emerging-tech-lab.com/auth-callback' },
+          options: { emailRedirectTo: 'https://emerging-tech-lab.com/auth-callback' + (NEXT ? '?next=' + encodeURIComponent(NEXT) : '') },
         }),
       });
       if (r.ok || r.status === 200) {
