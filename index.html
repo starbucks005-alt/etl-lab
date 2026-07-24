@@ -3046,10 +3046,12 @@ document.addEventListener('DOMContentLoaded', function(){
     {name:'ETL Classrooms',       url:'/classrooms',         role:'AI agents for education',                         dom:'acad',    type:'engine', tool:'Teaching Assistants &middot; ETL Faculty &middot; Living Legends', access:'paid', price:'From $99/mo'},
     {name:'OPSEC Gauntlet',    url:'https://opsec-gauntlet.netlify.app/',             role:'Have an idea or skill that could protect your country?',    dom:'sec',     type:'count',  n:20, access:'paid', price:'$19.99/mo'},
     {name:'Spy Academy',       url:null,                                               role:'MPSA &middot; certification',dom:'acad',    type:'count',  n:2,  access:'pending'},
+    {name:'M.E. (My Echo)',    url:'https://me-myecho.netlify.app/',                   role:'Standing in your place',     dom:'friends', type:'engine', tool:'Private, invite-only &middot; build your own', access:'paid', price:'Custom estimate'},
   ];
 
   const domains = [
     {key:'sec',     label:'Security & Evaluation',    color:C.sec},
+    {key:'friends', label:'Friends',                  color:C.friends},
     {key:'health',  label:'Health',                   color:C.health},
     {key:'acad',    label:'Academia',                 color:C.acad},
     {key:'news',    label:'News & Publishing',        color:C.news},
@@ -3057,7 +3059,6 @@ document.addEventListener('DOMContentLoaded', function(){
     {key:'mission', label:'Mission',                  color:C.mission},
     {key:'gov',     label:'Government',                color:C.gov},
     {key:'dining',  label:'Dining',                   color:C.dining},
-    {key:'friends', label:'Friends',                  color:C.friends},
   ];
 
   document.getElementById('domKey').innerHTML = domains.map(d =>
