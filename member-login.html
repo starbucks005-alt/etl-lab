@@ -164,6 +164,14 @@
     e.preventDefault();
     document.getElementById('subscribe-btn').click();
   });
+
+  // ?plan=member (from /join's "Start Your Free Month" button) means the
+  // visitor already chose to subscribe on the previous page, so continue
+  // straight into checkout instead of showing the login-or-subscribe choice
+  // again.
+  if (new URLSearchParams(window.location.search).get('plan') === 'member') {
+    document.getElementById('subscribe-btn').click();
+  }
 </script>
 
 </body>
