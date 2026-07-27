@@ -36,7 +36,7 @@
 
 const Anthropic = require('@anthropic-ai/sdk');
 const { houseTypography } = require('./_etl-voice-law.js');
-const { buildSystemPrompt, PERSONAS, ROOM_HOOKS } = require('./_eq-personas.js');
+const { buildSystemPrompt, PERSONAS, ROOM_HOOKS, etlKnowledgeNote } = require('./_eq-personas.js');
 const engine = require('./_eq-engine.js');
 const { ownerUser } = require('./_owner-auth.js');
 const { getCreditRow, deductCredits, GROUP_MESSAGE_COST, safeToken } = require('./_ah-credits.js');
@@ -468,6 +468,8 @@ out loud: agree, argue, correct them, build on it, tease them, whatever's true t
 sitting right there watching this happen, not being spoken to this turn.`;
         }
       }
+
+      turnPrompt += await etlKnowledgeNote(speaker);
 
       const messages = buildMessagesFor(speaker, transcript);
 

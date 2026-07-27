@@ -15,7 +15,7 @@
 
 const Anthropic = require('@anthropic-ai/sdk');
 const { houseTypography } = require('./_etl-voice-law.js');
-const { buildSystemPrompt } = require('./_eq-personas.js');
+const { buildSystemPrompt, etlKnowledgeNote } = require('./_eq-personas.js');
 const engine = require('./_eq-engine.js');
 const { ownerUser } = require('./_owner-auth.js');
 const { getStore, connectLambda } = require('@netlify/blobs');
@@ -491,6 +491,7 @@ exports.handler = async function (event) {
   if (capped) {
     turnPrompt += '\n\nThis is your last exchange for this conversation, the turn budget is spent. Close out warmly and in character, and set "close": true.';
   }
+  turnPrompt += await etlKnowledgeNote(agentKey);
 
   // Mara's backpack: real-time entertainment news via Anthropic's built-in web search, same
   // pattern already used elsewhere on campus (rowan-world-says-background.js etc). She can't

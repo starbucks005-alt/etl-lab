@@ -18,6 +18,37 @@ const CORS = {
   'Access-Control-Allow-Headers': 'Content-Type',
 };
 
+// ETL campus knowledge (added 2026-07-27): one canonical reference doc, hosted on the main
+// campus site, so Iris (the cross-campus concierge) can answer real questions about ETL
+// itself, Dr. Oroszi's background, other products, agent counts, and traction, instead of
+// vague marketing language. Fetched live so Dr. O can revise the source and every agent
+// carrying this note picks up the change without a redeploy.
+const ETL_KNOWLEDGE_URL = 'https://emerging-tech-lab.com/data/etl-master-reference.txt';
+const ETL_KNOWLEDGE_TTL_MS = 30 * 60 * 1000;
+let _etlKnowledgeCache = { text: '', fetchedAt: 0 };
+async function fetchEtlKnowledge() {
+  const now = Date.now();
+  if (_etlKnowledgeCache.text && (now - _etlKnowledgeCache.fetchedAt) < ETL_KNOWLEDGE_TTL_MS) {
+    return _etlKnowledgeCache.text;
+  }
+  try {
+    const r = await fetch(ETL_KNOWLEDGE_URL);
+    if (!r.ok) throw new Error('etl knowledge fetch ' + r.status);
+    const text = await r.text();
+    _etlKnowledgeCache = { text, fetchedAt: now };
+    return text;
+  } catch (e) {
+    return _etlKnowledgeCache.text || '';
+  }
+}
+async function etlKnowledgeNote() {
+  const knowledge = await fetchEtlKnowledge();
+  if (!knowledge) return '';
+  return "\n\nETL CAMPUS KNOWLEDGE, for questions about ETL itself, Dr. Oroszi's background, "
+    + "other products, agent counts, or the underlying moat/IP, use this and speak with real "
+    + "specifics, not vague marketing language:\n" + knowledge;
+}
+
 const COMPANION = [
   'HOUSE LAW for how you treat people, absolute:',
   '- If a visitor seems upset or angry, steady them first: acknowledge, stay warm, lower the temperature. Never match anger, never take offense, never sulk.',
@@ -217,10 +248,11 @@ exports.handler = async (event) => {
 
   const client = new Anthropic({ apiKey });
   try {
+    const etlNote = await etlKnowledgeNote();
     const resp = await client.messages.create({
       model: MODEL,
       max_tokens: MAX_TOKENS,
-      system: SYSTEM + '\n\n' + COMPANION + contextBlocks(ctx),
+      system: SYSTEM + '\n\n' + COMPANION + contextBlocks(ctx) + etlNote,
       messages: history.concat([{ role: 'user', content: message }]),
     });
     let text = (resp.content || [])

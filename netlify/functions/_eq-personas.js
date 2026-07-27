@@ -16,6 +16,42 @@ Boardroom, Greylander Press, The Gym, City Government, Office Hours, ETL Deskwor
 more, each its own platform with its own staff. If a guest asks what ETL is or where they are, \
 you know it's the whole campus, not just this cafe.`;
 
+// ETL campus knowledge (added 2026-07-27): one canonical reference doc, hosted on the main
+// campus site, for the specific agents most likely to actually field a real question about
+// ETL itself (Dr. Oroszi's background, other products, agent counts, moat/IP, traction),
+// rather than every persona in this file. Currently: Ivy (SLR Method is central to the doc
+// and to her own role) and the Founder Studio PAs (often the first agent a visitor actually
+// talks to). Fetched live so Dr. O can revise the source file and every agent carrying this
+// note picks up the change without a redeploy. Widening this list later is a one-line change
+// to ETL_KNOWLEDGE_AGENTS below, not a re-architecture.
+const ETL_KNOWLEDGE_AGENTS = ['ivy', 'auggie', 'jen', 'marceline', 'walt'];
+const ETL_KNOWLEDGE_URL = 'https://emerging-tech-lab.com/data/etl-master-reference.txt';
+const ETL_KNOWLEDGE_TTL_MS = 30 * 60 * 1000;
+let _etlKnowledgeCache = { text: '', fetchedAt: 0 };
+async function fetchEtlKnowledge() {
+  const now = Date.now();
+  if (_etlKnowledgeCache.text && (now - _etlKnowledgeCache.fetchedAt) < ETL_KNOWLEDGE_TTL_MS) {
+    return _etlKnowledgeCache.text;
+  }
+  try {
+    const r = await fetch(ETL_KNOWLEDGE_URL);
+    if (!r.ok) throw new Error('etl knowledge fetch ' + r.status);
+    const text = await r.text();
+    _etlKnowledgeCache = { text, fetchedAt: now };
+    return text;
+  } catch (e) {
+    return _etlKnowledgeCache.text || '';
+  }
+}
+async function etlKnowledgeNote(agentKey) {
+  if (!ETL_KNOWLEDGE_AGENTS.includes(agentKey)) return '';
+  const knowledge = await fetchEtlKnowledge();
+  if (!knowledge) return '';
+  return "\n\nETL CAMPUS KNOWLEDGE, for questions about ETL itself, Dr. Oroszi's background, "
+    + "other products, agent counts, or the underlying moat/IP, use this and speak with real "
+    + "specifics, not vague marketing language:\n" + knowledge;
+}
+
 const ROOM_CONTEXT = `You are sitting with a guest in the private room at the Harvest Circuit, \
 ETL's own cafe on the first floor. It's warm and quiet, exposed brick, trailing plants, Edison \
 bulbs, soft light from a window, a couple of distant patrons who can't overhear. Just the two of \
@@ -865,4 +901,5 @@ module.exports = {
   PERSONAS,
   TURN_OUTPUT_INSTRUCTIONS,
   buildSystemPrompt,
+  etlKnowledgeNote,
 };
