@@ -396,14 +396,14 @@ a:hover { color: var(--green); }
           <textarea id="input" rows="1" placeholder="Ask something..." aria-label="Your message"></textarea>
           <button class="send-btn" id="send">Send</button>
         </div>
-        <p class="voicenote" id="voiceNote">No recording of this person's real voice exists; this is a voice imagined for them, once Dr. O has picked one for this character. The conversation itself stays text.</p>
+        <p class="voicenote" id="voiceNote">No recording of this person's real voice exists; this is a voice imagined for them.</p>
       </div>
     </div>
 
     <div class="royal-gallery" id="royalGallery"></div>
   </div>
 
-  <p class="disclosure">This is a historical figure represented for education, built with a real backpack of live sources, not invented facts. If a live lookup fails, they say so rather than fabricating a citation. Built for Denmark Under the Rule of King Christian IV.</p>
+  <p class="disclosure" id="disclosureNote">This is a historical figure represented for education, built with a real backpack of live sources, not invented facts. If a live lookup fails, they say so rather than fabricating a citation. Built for Denmark Under the Rule of King Christian IV.</p>
 
   <div class="classroom-nav">
     Talk to someone else:
@@ -525,12 +525,24 @@ var ROYAL_GALLERY = {
   var AGENT = params.get('agent');
   if (!AGENT || !ROSTER[AGENT]) AGENT = 'king';
   var agent = ROSTER[AGENT];
-  if (VILLAGER_KEYS.indexOf(AGENT) !== -1) {
+  var isVillager = VILLAGER_KEYS.indexOf(AGENT) !== -1;
+  if (isVillager) {
     document.getElementById('portrait').classList.add('portrait--villager');
   } else {
     // Royals: tall full-height portrait, bio + chat side by side at the
     // top next to it, instead of the villagers' image-then-bio-below stack.
     document.getElementById('pageGrid').classList.add('page-grid--royal');
+  }
+  // Villagers are invented composites, not documented individuals (unlike
+  // the four royals, who are real historical figures). The "no recording
+  // exists" framing only makes sense for someone who really lived; swap
+  // both disclaimers so a villager page never implies it's a documented
+  // person whose voice just wasn't captured.
+  var voiceNoteEl = document.getElementById('voiceNote');
+  var disclosureNoteEl = document.getElementById('disclosureNote');
+  if (isVillager) {
+    if (voiceNoteEl) voiceNoteEl.style.display = 'none';
+    if (disclosureNoteEl) disclosureNoteEl.textContent = 'This character is an invented composite representing everyday life in 1588 Helsingør, not a documented individual. The world and facts around them are real and sourced. If a live lookup fails, they say so rather than fabricating a citation. Built for Denmark Under the Rule of King Christian IV.';
   }
   if (HERO_PHOTOS[AGENT]) {
     var heroPhotoEl = document.getElementById('heroPhoto');

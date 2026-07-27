@@ -292,14 +292,16 @@ const PLATFORM_URL_MAP = [
   // Longer / more specific phrases FIRST so "the dose" wins over "dose"
   // and subpaths win over the root ETL match.
   // ── Standalone-domain platforms ──────────────────────────────────────
-  { match: /\b(mission possible spy academy|mpsa|spy academy)/i,                  url: 'https://www.missionpossibleacademy.org' },
+  { match: /\b(mission possible spy academy|mpsa|spy academy)/i,                  url: 'https://missionpossibleacademy.org' },
   { match: /\b(intel dashboard|inteldashboard)/i,                                  url: 'https://inteldashboard.org' },
   { match: /\b(the dose|thedose|the\s+dose\.net)/i,                                url: 'https://thedose.net' },
   { match: /\b(greylander press|greylanderpress)/i,                                url: 'https://greylanderpress.com' },
   { match: /\b(the gauntlet|thegauntlet)/i,                                        url: 'https://thegauntlet.studio' },
-  { match: /\b(opsec gauntlet|opsec-gauntlet|opsecgauntlet)/i,                      url: 'https://opsec-gauntlet.netlify.app' },
+  { match: /\b(opsec gauntlet|opsec-gauntlet|opsecgauntlet)/i,                      url: 'https://opsec-gauntlet.com' },
   { match: /\b(gandhi-?king|gandhi king center)/i,                                  url: 'https://gandhi-king-center-for-nonviolence.org' },
   { match: /\b(slr studio|slrstudio)/i,                                              url: 'https://slrstudio.online' },
+  { match: /\b(the gym|thegym)/i,                                                  url: 'https://the-gym.net' },
+  { match: /\b(m\.?e\.?\s*\(?my echo\)?|my-echo|my echo)/i,                        url: 'https://my-echo.me' },
   // ── ETL subpath products — must be listed BEFORE the root ETL match
   // so they win when Terry names them specifically. Each has its own
   // <head> (title, meta, canonical) that deserves its own scan, even

@@ -87,7 +87,7 @@ function resolveTargetRepo(targetUrl) {
     if (host === 'greylanderpress.com') {
       return { owner: 'starbucks005-alt', repo: 'greylander-press', path: 'index.html' };
     }
-    if (host === 'opsec-gauntlet.netlify.app') {
+    if (host === 'opsec-gauntlet.com' || host === 'opsec-gauntlet.netlify.app') {
       return { owner: 'starbucks005-alt', repo: 'opsec-gauntlet', path: 'index.html' };
     }
     // Locked 2026-06-08 (Terry provided the full repo list).

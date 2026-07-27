@@ -61,7 +61,7 @@ const SITES = {
   gauntlet:     { name: 'The Gauntlet', url: 'https://thegauntlet.studio',
                   fallbackImage: '/site-thumbs/The_Gauntlet.png',
                   context: 'Diagnostic critique engine for early-stage ideas. Nine AI judge personas, panel-style evaluation. Creative/business audience.' },
-  opsec:        { name: 'OPSEC Gauntlet', url: 'https://opsec-gauntlet.netlify.app',
+  opsec:        { name: 'OPSEC Gauntlet', url: 'https://opsec-gauntlet.com',
                   fallbackImage: '/site-thumbs/ETL_Lab.png',
                   context: 'Civilian-SME intelligence triage platform. Routes vetted ideas from US civilians to the US Intelligence Community. Uses Dr. Oroszi\'s proprietary SLR method.' },
   // Intel Dashboard intentionally kept off the public social picker.
@@ -97,7 +97,7 @@ const SITES = {
   almostHuman:  { name: 'Almost Human', url: 'https://emerging-tech-lab.com/almost-human',
                   fallbackImage: '/site-thumbs/ETL_Lab.png',
                   context: 'The friend experience. 20 AI agents with real backstory, voice, and each other\'s inside jokes, installable as an app. A private room in the Harvest Circuit that borrows agents from across the whole campus. Free.' },
-  gym:          { name: 'The Gym', url: 'https://emerging-tech-lab.com/gym',
+  gym:          { name: 'The Gym', url: 'https://the-gym.net',
                   fallbackImage: '/site-thumbs/ETL_Lab.png',
                   context: 'Movement and wellness coaching from a crew of AI trainers. Free.' },
   cityGov:      { name: 'City Government', url: 'https://emerging-tech-lab.com/city-government',
