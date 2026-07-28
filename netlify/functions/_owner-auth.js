@@ -26,8 +26,14 @@
 
 const OWNER_EMAIL = (process.env.OWNER_EMAIL || 'starbucks005@gmail.com').toLowerCase();
 
-const OWNER_KEYS = (process.env.OWNER_KEYS ||
-  'etlkey_01363047be8a3084f527b8cb63cbe51a089930f5495c55da282b42b2e875')
+/* Reads OWNER_KEYS, falling back to OWNER_KEY (singular), which is the name actually set in
+   Netlify and the one the other eight functions on this site already use. Until 2026-07-28 this
+   read only the plural, which was never set, so all 45 functions importing this module ran on a
+   hardcoded default instead. That default has been removed: this repo is public, so it was a
+   master key to every studio sitting in plain sight, and nothing about the setup made that
+   visible. The dashboard showed a key present and the page said it was the one in use.
+   Comma-separated still works, for rotating without a gap. */
+const OWNER_KEYS = (process.env.OWNER_KEYS || process.env.OWNER_KEY || '')
   .split(',').map(s => s.trim()).filter(Boolean);
 
 // Returns a synthetic owner user when the bearer token is a valid owner key,
