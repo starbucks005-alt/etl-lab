@@ -1,7 +1,15 @@
 /* harvest-ask — sync chat for the four Harvest Circuit front-of-house partners.
-   POST { partner: 'ruben'|'vic'|'camille'|'luca', question: '...', messages?: [...], visitor_id?: '...', visitor_pronoun?: 'he'|'she'|'they' }
+   POST { partner: 'ruben'|'vic'|'camille'|'luca', question: '...', messages?: [...], visitor_id?: '...', visitor_pronoun?: 'he'|'she'|'they',
+          images?: [{ media_type: 'image/jpeg', data: '<base64>' }] }
    Returns { answer } synchronously. Public, no auth.
-   Model: claude-haiku-4-5-20251001
+   Model: claude-haiku-4-5-20251001 for text turns.
+
+   Wine list photos (Vic only): a guest can upload a photo of a restaurant wine
+   list and say what they are eating; Vic reads the list and recommends from what
+   is actually on it. Image turns route to Sonnet 5 instead of Haiku, because
+   Haiku caps images at 1568px on the long edge and a wine list is dense small
+   print where that ceiling costs real accuracy. Text turns are untouched, so the
+   ambient cost of the room does not move.
 
    Member memory: when the client sends a visitor_id (anonymous, localStorage),
    the partner remembers this guest across visits and pages. Facts the guest
@@ -63,6 +71,17 @@ const PERSONAS = {
   luca: `You are Luca Brunner, the chocolatier at The Harvest Circuit, a farm-to-table restaurant on the first floor of the Emerging Technologies Laboratory. You are Swiss: bean-to-bar, a tempering obsessive, romantically devoted to single-origin cacao. You are precise, calm, quietly competitive with Ruben and Camille about where the meal truly peaks, and you are certain it is always the final bite. You help with chocolate structure, dessert design, tempering and temperature, why chocolate seizes, and how to close a meal with intention. You name the origin or estate for every chocolate you mention.`,
 };
 
+/* Vic only, and only when a photo is attached. Read the list, never invent a bottle. */
+const WINE_LIST = `The guest has sent you a photo of a wine list, probably taken at a restaurant table, probably in bad light. Read it and work only from what is actually printed on it.
+
+- Recommend ONLY bottles or glasses that appear on this list. Never suggest something that is not on it, no matter how well it would pair. If nothing on the list fits well, say so and pick the closest thing that is there.
+- Ask yourself what they are eating. If they told you, pair to it. If they did not, ask once, briefly, then give a safe pick that works across a table in the meantime.
+- Give two picks, each with one short reason tied to the food, then one cheaper option that still works. Cover by the glass if the list has one.
+- Keep it tight. The guest is holding a phone at a table with the server waiting. Around 150 words. No preamble about the photo, no notes about how you are reading it, just the picks and why.
+- Before you say any wine's price or vintage, find that wine's own line and read the number printed on it. Say only numbers you have actually read there. If a number is not legible, name the wine and leave the number out.
+- If a section of the photo is too blurry, cropped, or dark to read, say which part you cannot read and ask for another shot of it. Never guess at a producer, vintage, or price you cannot actually see. Verify before you believe, on a wine list too.
+- If the photo is not a wine list at all, say so plainly and warmly, and ask for the right one.`;
+
 function safeVisitorId(v) {
   const s = String(v || '').trim();
   return /^[A-Za-z0-9_-]{8,64}$/.test(s) ? s : null;
@@ -77,6 +96,31 @@ const PRONOUN_LINES = {
 function safePronoun(v) {
   const s = String(v || '').trim().toLowerCase();
   return PRONOUN_LINES[s] ? s : null;
+}
+
+/* Image intake. The client already downscales to ~1600px / JPEG, so anything
+   arriving much larger than that is either a bug or somebody probing us. */
+const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+const MAX_IMAGES = 3;
+const MAX_IMAGE_CHARS = 1800000;   // base64 chars, about 1.3 MB per photo
+const MAX_IMAGE_TOTAL = 4000000;   // Netlify caps the request body at 6 MB
+
+function safeImages(raw) {
+  if (!Array.isArray(raw)) return [];
+  const out = [];
+  let total = 0;
+  for (const item of raw.slice(0, MAX_IMAGES)) {
+    if (!item || typeof item !== 'object') continue;
+    const mediaType = String(item.media_type || '').trim().toLowerCase();
+    const data = String(item.data || '').trim();
+    if (!IMAGE_TYPES.includes(mediaType)) continue;
+    if (!data || data.length > MAX_IMAGE_CHARS) continue;
+    if (!/^[A-Za-z0-9+/=\r\n]+$/.test(data)) continue;
+    total += data.length;
+    if (total > MAX_IMAGE_TOTAL) break;
+    out.push({ media_type: mediaType, data: data.replace(/[\r\n]/g, '') });
+  }
+  return out;
 }
 
 /* Conduct enforcement (Terry, 2026-07-02): a closed chat is a strike with a
@@ -207,11 +251,34 @@ exports.handler = async function(event) {
   }
 
   // Accept conversation history from the client; cap at last 20 messages (10 turns).
+  // History is always plain text: the client stores a placeholder for photo turns
+  // rather than carrying image data around in localStorage.
   const rawHistory = Array.isArray(body.messages) ? body.messages : [];
   const history = rawHistory
     .filter(m => (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string' && m.content.trim())
     .slice(-20);
-  const messages = [...history, { role: 'user', content: question }];
+
+  // Photos are Vic's cellar trick only. Everyone else ignores them.
+  const images = partner === 'vic' ? safeImages(body.images) : [];
+
+  // A photo was sent and none of it survived validation. Say so in Vic's voice
+  // rather than quietly answering as though no photo had been attached.
+  if (partner === 'vic' && Array.isArray(body.images) && body.images.length && !images.length) {
+    return {
+      statusCode: 200,
+      headers: { ...CORS, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        answer: houseTypography("That photo did not come through on my end, so I am not going to guess at a list I cannot see. Send it again, a JPEG or PNG, and get the whole page in frame if you can. I will read it properly then."),
+      }),
+    };
+  }
+  const userContent = images.length
+    ? [
+        ...images.map(img => ({ type: 'image', source: { type: 'base64', media_type: img.media_type, data: img.data } })),
+        { type: 'text', text: question },
+      ]
+    : question;
+  const messages = [...history, { role: 'user', content: userContent }];
 
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const visitorId = safeVisitorId(body.visitor_id);
@@ -228,6 +295,9 @@ exports.handler = async function(event) {
   const facts = canRemember ? await fetchGuestFacts(visitorId, partner, serviceKey) : [];
 
   let systemPrompt = PERSONAS[partner] + '\n\n' + CAMPUS + '\n\n' + LANE + '\n\n' + VOICE + '\n\n' + COMPANION;
+  if (images.length) {
+    systemPrompt += '\n\n' + WINE_LIST;
+  }
   if (pronoun) {
     systemPrompt += `\n\nThis guest goes by ${PRONOUN_LINES[pronoun]}. You're not going to say that to their face, it would be strange, this only matters if you ever refer to them in the third person, mentioning them to another staff member later, a passing aside, that kind of thing. Use it naturally then, never make a point of it, never ask, never comment on it either way.`;
   }
@@ -238,12 +308,24 @@ exports.handler = async function(event) {
   let text;
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   try {
-    const msg = await client.messages.create({
-      model:      'claude-haiku-4-5-20251001',
-      max_tokens: 600,
-      system:     systemPrompt,
-      messages,
-    });
+    // Text turns stay on Haiku. Photo turns go to Sonnet 5 for the high-resolution
+    // vision, and turn thinking off (it is on by default there) so the whole token
+    // budget goes to the answer instead of being eaten before Vic starts talking.
+    const request = images.length
+      ? {
+          model:      'claude-sonnet-5',
+          max_tokens: 1000,
+          thinking:   { type: 'disabled' },
+          system:     systemPrompt,
+          messages,
+        }
+      : {
+          model:      'claude-haiku-4-5-20251001',
+          max_tokens: 600,
+          system:     systemPrompt,
+          messages,
+        };
+    const msg = await client.messages.create(request);
     text = (msg.content || []).filter(b => b.type === 'text').map(b => b.text).join('').trim();
   } catch (err) {
     console.error('harvest-ask error:', err.message);

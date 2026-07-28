@@ -275,6 +275,17 @@
   .m-ask{font-family:'IBM Plex Mono',monospace;font-size:.74rem;letter-spacing:.05em;text-transform:uppercase;font-weight:600;background:var(--amber);color:#0d0a05;border:none;border-radius:8px;padding:0 1.1rem;cursor:pointer;}
   .m-resp{margin-top:.8rem;font-size:.92rem;color:var(--text);white-space:pre-wrap;}
   .m-resp.show{background:var(--bg2);border-radius:8px;padding:.8rem .9rem;}
+  .m-attach{display:none;margin-top:.75rem;}
+  .m-attach.show{display:block;}
+  .m-attach-btn{font-family:'IBM Plex Mono',monospace;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;font-weight:600;background:var(--panel);border:1px dashed var(--line);color:var(--amber);border-radius:8px;padding:.55rem .9rem;cursor:pointer;width:100%;}
+  .m-attach-btn:hover{border-color:var(--amber);}
+  .m-attach-btn:disabled{opacity:.6;cursor:default;}
+  .m-shots{display:flex;flex-wrap:wrap;gap:.45rem;}
+  .m-shots:not(:empty){margin-top:.55rem;}
+  .m-shot{position:relative;width:58px;height:58px;border-radius:6px;overflow:hidden;border:1px solid var(--line);}
+  .m-shot img{width:100%;height:100%;object-fit:cover;display:block;}
+  .m-shot button{position:absolute;top:0;right:0;background:rgba(8,5,2,.78);border:none;color:#fff;font-size:.85rem;line-height:1;padding:.05rem .32rem;cursor:pointer;}
+  .m-hint{font-size:.76rem;color:var(--mute);margin:.5rem 0 0;line-height:1.4;}
   .m-tools{display:none;gap:.5rem;margin-top:.6rem;}
   .m-tools.show{display:flex;flex-wrap:wrap;}
   .m-tools button{font-family:'IBM Plex Mono',monospace;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;background:var(--panel);border:1px solid var(--line);color:var(--amber);border-radius:999px;padding:.45rem .9rem;cursor:pointer;}
@@ -297,6 +308,12 @@
       </div>
       <p class="m-start">Start here, or ask your own.</p>
       <div class="m-chips" id="mChips"></div>
+      <div class="m-attach" id="mAttach">
+        <button class="m-attach-btn" id="mShotBtn" type="button">&#128247; Wine list photo</button>
+        <input type="file" id="mShotInput" accept="image/*" multiple style="display:none;">
+        <div class="m-shots" id="mShots"></div>
+        <p class="m-hint" id="mShotHint">Photograph the restaurant's list, tell me what you are eating, and I will pick from what is actually on it.</p>
+      </div>
       <div class="m-row"><input id="mInput" type="text" placeholder="Ask a question..."><button class="m-ask" id="mAsk" type="button">Ask</button></div>
       <div class="m-resp" id="mResp"></div>
       <div class="m-tools" id="mTools"><button id="mGrocery" type="button">Grocery list</button><button id="mCopy" type="button">Copy</button><button id="mListen" type="button" style="display:none;">&#128266; Listen</button></div>
@@ -309,8 +326,8 @@
     ruben:{name:'Ruben Hart',role:'The Kitchen · chef',icon:'🔪',mono:'RH',img:'/agents/Ruben_Hart_eyes_open.png',voice:true,
       intro:'You are in The Kitchen. I am Ruben. Ask me about cooking methods, ingredients, timing, and how to turn raw materials into a finished dish.',
       chips:['How do I cook this ingredient?','Best method for this cut of meat?','How do I balance flavors?','What should I make with what I have?']},
-    vic:{name:'Vic Stallion',role:'The Cellar · sommelier',icon:'🍷',mono:'VS',img:'/agents/Vic_Stallion_eyes_open.png',voice:true,
-      intro:'You are in The Cellar. I am Vic. I help you understand wine structure, aroma, pairing, and how to choose the right bottle for the right moment.',
+    vic:{name:'Vic Stallion',role:'The Cellar · sommelier',icon:'🍷',mono:'VS',img:'/agents/Vic_Stallion_eyes_open.png',voice:true,photo:true,
+      intro:'You are in The Cellar. I am Vic. I help you understand wine structure, aroma, pairing, and how to choose the right bottle for the right moment. Out to dinner? Send me a photo of the restaurant’s wine list and what you are ordering, and I will pick from it.',
       chips:['What wine pairs with this dish?','Explain tannins in simple terms','A wine for beginners?','Old World vs New World?']},
     camille:{name:'Camille Lefèvre',role:'The Board · cheese',icon:'🧀',mono:'CL',img:'/agents/Camille_Lefevre_eyes_open.png',voice:true,
       intro:'Welcome to The Board. I am Camille. I help you understand cheese, aging, terroir, and how to pair dairy with wine, chocolate, and seasonal dishes.',
@@ -350,6 +367,8 @@
     $('mInput').value=''; var r=$('mResp'); r.textContent=''; r.className='m-resp';
     var t=$('mTools'); t.className='m-tools'; lastAns='';
     $('mListen').style.display=a.voice?'':'none'; resetListenBtn();
+    $('mAttach').className=a.photo?'m-attach show':'m-attach';
+    clearShots();
     renderPronChips();
     var h=HIST[k]||[];
     for(var i=h.length-1;i>=0;i--){
@@ -378,6 +397,89 @@
       renderPronChips();
     });
   });
+  /* Wine list photos (Vic only). Shrunk in the browser before upload, but only
+     down to 2560px on the long edge: that is the ceiling the model can actually
+     see, and a wine list is small print, so squeezing further would throw away
+     the resolution we are paying for. Quality steps down if the file is still
+     too heavy for the request budget. */
+  var MAX_SHOTS=3, SHOTS=[], MAX_CHARS=1200000;
+  function shrinkImage(file){
+    return new Promise(function(resolve,reject){
+      var DIMS=[2560,2048,1600,1280], QUALS=[0.82,0.7,0.6,0.5];
+      function pack(url){ return {media_type:'image/jpeg',data:url.slice(url.indexOf(',')+1),url:url}; }
+      function draw(src,w,h){
+        if(!w||!h){ reject(new Error('empty')); return; }
+        // Normal photos fit on the first try. Step down only if they do not,
+        // so a busy or noisy shot still arrives instead of being dropped.
+        var url=null, lastLong=Infinity;
+        for(var d=0;d<DIMS.length;d++){
+          var scale=Math.min(1,DIMS[d]/Math.max(w,h));
+          var longEdge=Math.round(Math.max(w,h)*scale);
+          if(longEdge>=lastLong) continue; // this step would not actually shrink it
+          lastLong=longEdge;
+          var c=document.createElement('canvas');
+          c.width=Math.round(w*scale); c.height=Math.round(h*scale);
+          c.getContext('2d').drawImage(src,0,0,c.width,c.height);
+          for(var q=0;q<QUALS.length;q++){
+            url=c.toDataURL('image/jpeg',QUALS[q]);
+            if(url.length-url.indexOf(',')-1<=MAX_CHARS){ resolve(pack(url)); return; }
+          }
+        }
+        resolve(pack(url));
+      }
+      function viaImg(){
+        var img=new Image(), u=URL.createObjectURL(file);
+        img.onload=function(){ try{ draw(img,img.naturalWidth,img.naturalHeight); }catch(e){ reject(e); } URL.revokeObjectURL(u); };
+        img.onerror=function(){ URL.revokeObjectURL(u); reject(new Error('unreadable')); };
+        img.src=u;
+      }
+      // createImageBitmap honors EXIF rotation, so photos taken sideways stay upright.
+      if(window.createImageBitmap){
+        try{
+          createImageBitmap(file,{imageOrientation:'from-image'}).then(function(bm){
+            try{ draw(bm,bm.width,bm.height); }catch(e){ reject(e); }
+            if(bm.close) bm.close();
+          },viaImg);
+        }catch(_){ viaImg(); }
+      } else viaImg();
+    });
+  }
+  function renderShots(){
+    var box=$('mShots');
+    box.innerHTML='';
+    SHOTS.forEach(function(s,i){
+      var d=document.createElement('div'); d.className='m-shot';
+      var im=document.createElement('img'); im.src=s.url; im.alt='Wine list photo '+(i+1);
+      var x=document.createElement('button'); x.type='button'; x.innerHTML='&times;';
+      x.setAttribute('aria-label','Remove photo '+(i+1));
+      x.onclick=function(){ SHOTS.splice(i,1); renderShots(); };
+      d.appendChild(im); d.appendChild(x); box.appendChild(d);
+    });
+    $('mShotBtn').disabled=SHOTS.length>=MAX_SHOTS;
+    $('mShotBtn').innerHTML=SHOTS.length
+      ? '&#128247; '+SHOTS.length+' photo'+(SHOTS.length>1?'s':'')+' attached'+(SHOTS.length<MAX_SHOTS?', add another':'')
+      : '&#128247; Wine list photo';
+    $('mShotHint').textContent=SHOTS.length
+      ? 'Now tell me what you are eating, then hit Ask.'
+      : 'Photograph the restaurant’s list, tell me what you are eating, and I will pick from what is actually on it.';
+  }
+  function clearShots(){ SHOTS=[]; $('mShotInput').value=''; renderShots(); }
+  $('mShotBtn').onclick=function(){ $('mShotInput').click(); };
+  $('mShotInput').addEventListener('change',function(){
+    var files=Array.prototype.slice.call(this.files||[],0,MAX_SHOTS-SHOTS.length);
+    var input=this;
+    if(!files.length){ input.value=''; return; }
+    $('mShotHint').textContent='Reading the photo...';
+    Promise.all(files.map(function(f){ return shrinkImage(f).then(function(s){ return s; },function(){ return null; }); }))
+      .then(function(list){
+        var kept=list.filter(Boolean);
+        SHOTS=SHOTS.concat(kept).slice(0,MAX_SHOTS);
+        input.value='';
+        renderShots();
+        if(kept.length<files.length){ $('mShotHint').textContent='One of those would not open. Try another photo.'; }
+      });
+  });
+
   var HIST={};
   try{ HIST=JSON.parse(localStorage.getItem('etl_hc_hist')||'{}')||{}; }catch(_){ HIST={}; }
   function saveHist(){
@@ -390,22 +492,34 @@
   var GROCERY_Q='Please turn what we have been talking about into a grocery list I can shop from. Every item on its own line starting with a dash, amounts where they help. Keep any advice to one short line at the end.';
   function ask(qOverride){
     var k=$('ov').dataset.k, a=HC[k];
-    var q=(typeof qOverride==='string'&&qOverride)||$('mInput').value.trim(); if(!q) return;
-    var r=$('mResp'); r.className='m-resp show'; r.textContent=a.name.split(' ')[0]+' is thinking...';
+    // Photos ride along only on Vic's own turns, never on a hand-off to someone else.
+    var shots=(a.photo&&typeof qOverride!=='string')?SHOTS.slice(0):[];
+    var q=(typeof qOverride==='string'&&qOverride)||$('mInput').value.trim();
+    if(!q&&shots.length) q='Here is the wine list. What should I order?';
+    if(!q) return;
+    var first=a.name.split(' ')[0];
+    var r=$('mResp'); r.className='m-resp show';
+    r.textContent=shots.length?first+' is reading the list...':first+' is thinking...';
     if(!HIST[k]) HIST[k]=[];
-    var msgs=HIST[k].concat([{role:'user',content:q}]);
-    fetch('/.netlify/functions/harvest-ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({partner:k,question:q,messages:msgs,visitor_id:visitorId(),visitor_pronoun:visitorPronoun()})})
+    // History stays text-only; the image never goes into localStorage.
+    var noted=shots.length?q+'\n\n[the guest sent '+(shots.length>1?shots.length+' photos':'a photo')+' of a restaurant wine list]':q;
+    // Send prior turns only. The function appends this question itself, so
+    // including it here would hand the model the same question twice.
+    var payload={partner:k,question:q,messages:HIST[k],visitor_id:visitorId(),visitor_pronoun:visitorPronoun()};
+    if(shots.length) payload.images=shots.map(function(s){ return {media_type:s.media_type,data:s.data}; });
+    fetch('/.netlify/functions/harvest-ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
       .then(function(res){ if(!res.ok) throw new Error('x'); return res.json(); })
       .then(function(d){
-        var ans=(d.answer||d.response||'').trim()||(a.name.split(' ')[0]+' did not have an answer for that.');
+        var ans=(d.answer||d.response||'').trim()||(first+' did not have an answer for that.');
         r.textContent=ans;
         lastAns=ans;
         $('mTools').className='m-tools show';
-        HIST[k]=msgs.concat([{role:'assistant',content:ans}]);
+        HIST[k]=HIST[k].concat([{role:'user',content:noted},{role:'assistant',content:ans}]);
         saveHist();
         $('mInput').value='';
+        if(shots.length) clearShots();
       })
-      .catch(function(){ r.textContent=a.name.split(' ')[0]+' is still settling into the kitchen. The chat opens when the partners go live. For now, this is a preview of the room.'; });
+      .catch(function(){ r.textContent=first+' is still settling into the kitchen. The chat opens when the partners go live. For now, this is a preview of the room.'; });
   }
   document.querySelectorAll('.talk').forEach(function(b){
     var k=(b.getAttribute('data-name')||'').toLowerCase();
