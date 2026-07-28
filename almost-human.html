@@ -107,6 +107,8 @@
   .consent-btn:disabled { opacity: .4; cursor: not-allowed; }
   .consent-nudge { display: none; font-size: .78rem; color: #e08a8a; margin: -.6rem 0 .8rem; }
   .consent-nudge.show { display: block; }
+  #groupNudge { margin: .5rem 0 0; text-align: right; }
+  #likertNudge { margin: -.8rem 0 .8rem; }
 
   /* ── AGENT GRID ── */
   #picker { padding: 3rem 2rem 4rem; max-width: 1100px; margin: 0 auto; }
@@ -373,8 +375,9 @@
     <div class="group-check-grid" id="groupCheckGrid"></div>
     <div class="group-panel-foot">
       <span class="group-count" id="groupCount">0 of 4 selected</span>
-      <button type="button" class="group-start-btn" id="groupStart" disabled>Start table chat</button>
+      <button type="button" class="group-start-btn" id="groupStart">Start table chat</button>
     </div>
+    <div class="consent-nudge" id="groupNudge">Pick at least 2 agents to start the table.</div>
   </div>
   <div class="group-divider"><hr><span>Or pick just one</span><hr></div>
 
@@ -437,7 +440,8 @@
     <div class="likert-anchors"><span>Not at all</span><span>Completely</span></div>
     <label class="name-label" for="likertNote" style="text-align:left; display:block;">What made it feel human, or not? (optional)</label>
     <input type="text" id="likertNote" placeholder="A sentence or two is plenty" maxlength="500" style="width:100%; background:#0f0f16; border:1px solid var(--line); border-radius:8px; color:var(--cream); font-size:.9rem; padding:.6rem .7rem; font-family:inherit; margin-bottom:1.2rem;">
-    <button type="button" class="consent-btn" id="likertSubmit" disabled>Submit</button>
+    <div class="consent-nudge" id="likertNudge">Choose a rating above to submit.</div>
+    <button type="button" class="consent-btn" id="likertSubmit">Submit</button>
     <button type="button" class="likert-skip" id="likertSkip">Skip and leave</button>
   </div>
 </div>
@@ -657,7 +661,9 @@ AGENTS.forEach(function (a) {
 function updateGroupPanel() {
   var checked = Array.prototype.slice.call(groupGrid.querySelectorAll('input:checked'));
   $('groupCount').textContent = checked.length + ' of ' + MAX_GROUP_AGENTS + ' selected';
-  $('groupStart').disabled = checked.length < MIN_GROUP_AGENTS;
+  // Start stays tappable at every count. Below the minimum it explains itself
+  // rather than sitting dead, same pattern as the consent button.
+  if (checked.length >= MIN_GROUP_AGENTS) { $('groupNudge').classList.remove('show'); }
   var atCap = checked.length >= MAX_GROUP_AGENTS;
   Array.prototype.forEach.call(groupGrid.querySelectorAll('input'), function (cb) {
     cb.disabled = atCap && !cb.checked;
@@ -683,7 +689,11 @@ $('groupGateUpgradeBtn').addEventListener('click', startUpgradeCheckout);
 
 $('groupStart').addEventListener('click', function () {
   var checked = Array.prototype.slice.call(groupGrid.querySelectorAll('input:checked')).map(function (cb) { return cb.value; });
-  if (checked.length < MIN_GROUP_AGENTS) return;
+  if (checked.length < MIN_GROUP_AGENTS) {
+    $('groupNudge').classList.add('show');
+    return;
+  }
+  $('groupNudge').classList.remove('show');
   openTable(checked);
 });
 
@@ -1132,7 +1142,7 @@ $('tableEnd').addEventListener('click', function () {
   $('likertAgentName').textContent = 'the table';
   document.querySelectorAll('#likertScale input').forEach(function (r) { r.checked = false; });
   $('likertNote').value = '';
-  $('likertSubmit').disabled = true;
+  $('likertNudge').classList.remove('show');
   $('likertModal').classList.add('open');
 });
 
@@ -1146,12 +1156,12 @@ $('roomEnd').addEventListener('click', function () {
   $('likertAgentName').textContent = current.name;
   document.querySelectorAll('#likertScale input').forEach(function (r) { r.checked = false; });
   $('likertNote').value = '';
-  $('likertSubmit').disabled = true;
+  $('likertNudge').classList.remove('show');
   $('likertModal').classList.add('open');
 });
 
 document.querySelectorAll('#likertScale input').forEach(function (r) {
-  r.addEventListener('change', function () { $('likertSubmit').disabled = false; });
+  r.addEventListener('change', function () { $('likertNudge').classList.remove('show'); });
 });
 
 function leaveRoomAfterSurvey() {
@@ -1178,7 +1188,11 @@ $('likertSkip').addEventListener('click', function () {
 
 $('likertSubmit').addEventListener('click', function () {
   var checked = document.querySelector('#likertScale input:checked');
-  if (!checked) return;
+  if (!checked) {
+    $('likertNudge').classList.add('show');
+    return;
+  }
+  $('likertNudge').classList.remove('show');
   var rating = Number(checked.value);
   var note = ($('likertNote').value || '').trim();
 
