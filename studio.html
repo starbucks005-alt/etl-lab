@@ -3412,6 +3412,47 @@
     showLoginWall();
   }
 
+  // One shared expired-session handler.
+  //
+  // The studio makes ~36 authenticated calls and each panel catches its own
+  // failure and prints a raw string ("network error reaching Auggie: ...").
+  // So a single expired token produced a screen covered in error text with
+  // nothing anywhere telling the buyer to just sign in again. It reads as a
+  // broken product rather than a timed-out session. Reported by a client
+  // 2026-07-29.
+  //
+  // Rather than touch 36 call sites, wrap fetch once. Every response is passed
+  // through completely unchanged, so all existing .ok/.status/.catch logic
+  // still runs exactly as before, and rejected promises are not intercepted at
+  // all. The only added behavior: a 401 from a studio-* function drops the page
+  // to the login wall with an explanation, once, no matter how many panels fail
+  // at the same moment.
+  (function installExpiredSessionHandler() {
+    var announced = false;
+    var nativeFetch = window.fetch;
+
+    window.fetch = function (input) {
+      var url = typeof input === 'string' ? input : (input && input.url) || '';
+      return nativeFetch.apply(window, arguments).then(function (res) {
+        if (res && res.status === 401 && url.indexOf('/.netlify/functions/studio-') !== -1) {
+          announceExpiredSession();
+        }
+        return res;
+      });
+    };
+
+    function announceExpiredSession() {
+      if (announced) return;   // one message for the whole page, not one per panel
+      announced = true;
+      signOut();
+      var status = document.getElementById('login-status');
+      if (status) {
+        status.textContent = 'Your session ended. Sign in again and you will land right back where you were.';
+      }
+      try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (_) { window.scrollTo(0, 0); }
+    }
+  })();
+
   async function copyStudioId() {
     try {
       var s = await sb.auth.getSession();
