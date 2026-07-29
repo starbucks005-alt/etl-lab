@@ -5066,7 +5066,15 @@
       // studio, which made preview an unreliable picture of what a buyer sees.
       // (It was never visible to the buyer; their session returns their own
       // history. This is about preview being faithful.)
-      if (window.__previewMode) return;
+      //
+      // The flag is checked again just before rendering, NOT only here: this
+      // function is queued by whenWorkspaceVisible and can start before
+      // applyConfig has set __previewMode, so an entry-only guard silently
+      // failed and the history still painted.
+      // ?as= in the URL is the race-free signal: it is present from the first
+      // byte, whereas __previewMode is only set once applyConfig has run.
+      var previewing = /[?&]as=/.test(location.search) || window.__previewMode;
+      if (previewing) return;
       var token = await getJwt();
       if (!token) return;
       var r = await fetch('/.netlify/functions/studio-auggie-history', {
@@ -5074,6 +5082,7 @@
       });
       if (!r.ok) return;
       var data = await r.json();
+      if (/[?&]as=/.test(location.search) || window.__previewMode) return;
       var saved = (Array.isArray(data.history) ? data.history : [])
         .filter(function(m){ return m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string'; });
       if (!saved.length) return;
