@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Studio | Emerging Technologies Laboratory</title>
-<meta name="description" content="Dr. Terry Oroszi's private workspace where the AI staff works on her books, manuscripts, ideas, and outreach.">
+<meta name="description" content="Your private workspace, where your AI staff works on your books, manuscripts, ideas, and outreach.">
 <meta name="robots" content="noindex,nofollow">
 <!-- PWA install metadata. Lets the buyer install the Studio as an app from
      their browser; one-time setup gives them a desktop icon that opens
@@ -1778,9 +1778,9 @@
 
           <div class="auggie-bubble auggie-bubble--his" style="margin-bottom:14px;">
             <div class="auggie-bubble-meta" id="pa-greeting-speaker">Auggie</div>
-            <div id="pa-greeting-text">hi Ms. Terry. what are we doing today.</div>
+            <div id="pa-greeting-text">what are we doing today.</div>
             <div style="margin-top:8px;">
-              <button type="button" class="auggie-play-btn" id="pa-greeting-play" data-text="hi Ms. Terry. what are we doing today.">▶ hear it</button>
+              <button type="button" class="auggie-play-btn" id="pa-greeting-play" data-text="what are we doing today.">▶ hear it</button>
             </div>
           </div>
         </div>
@@ -1812,11 +1812,11 @@
              rewrites "New mentions" to the buyer's own name and hides the
              Terry-academic chips (citations / Forbes / field news). -->
         <div class="auggie-preset-row">
-          <button type="button" class="auggie-preset-chip" id="preset-mentions" data-preset="search the web for new mentions of Dr. Terry Oroszi or Dr. Terry L. Oroszi in the last 14 days. tell me anything new.">New mentions of me</button>
-          <button type="button" class="auggie-preset-chip" id="preset-citations" data-preset="scan for recent papers that cite my research. search semanticscholar.org for Oroszi cited 2025. list every citing paper you find with title, first author, and their affiliation. flag any first author who looks like a graduate student or early-career researcher with no faculty title. for each flagged student paper, draft a linkedin post ready to copy-paste.">Citations this week</button>
-          <button type="button" class="auggie-preset-chip" id="preset-forbes" data-preset="search for any new Forbes Technology Council pieces under my byline or commentary I am quoted in.">New Forbes pieces</button>
+          <button type="button" class="auggie-preset-chip" id="preset-mentions" data-preset="search the web for new mentions of me in the last 14 days. tell me anything new.">New mentions of me</button>
+          <button type="button" class="auggie-preset-chip" id="preset-citations" style="display:none;" data-preset="scan for recent papers that cite my research. list every citing paper you find with title, first author, and their affiliation. flag any first author who looks like a graduate student or early-career researcher with no faculty title. for each flagged student paper, draft a linkedin post ready to copy-paste.">Citations this week</button>
+          <button type="button" class="auggie-preset-chip" id="preset-forbes" style="display:none;" data-preset="search for any new Forbes Technology Council pieces under my byline or commentary I am quoted in.">New Forbes pieces</button>
           <button type="button" class="auggie-preset-chip" id="preset-speaking" data-preset="search for any upcoming speaking engagements, conference appearances, or panels where I am listed as a speaker in the next 90 days.">Upcoming speaking</button>
-          <button type="button" class="auggie-preset-chip" id="preset-fieldnews" data-preset="search for news in AI governance, federal AI policy, or research security in the last 7 days that I should be aware of for the lab.">Field news this week</button>
+          <button type="button" class="auggie-preset-chip" id="preset-fieldnews" style="display:none;" data-preset="search for news in AI governance, federal AI policy, or research security in the last 7 days that I should be aware of for the lab.">Field news this week</button>
         </div>
 
         <div id="auggie-chat-error" style="display:none; margin-top:10px; padding:10px 14px; background:#fdecec; border:1px solid #f0b8b8; color:#7d2828; font-family:'IBM Plex Mono',monospace; font-size:11px;"></div>
@@ -5612,12 +5612,12 @@
       var channelLabel = (activeMode === 'watercooler') ? 'Watercooler' : 'Workfloor';
       var d = new Date();
       var dateStr = d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-      // Whose studio this moment belongs to. Terry's own keeps her exact byline;
-      // any other owner gets their company name (so Caroline never pastes
-      // "Dr. Terry Oroszi's Studio" into a sponsor deck).
-      var studioLabel = (window.__ownerName && window.__ownerName !== 'Dr. Terry Oroszi')
-        ? (window.__companyName || (window.__ownerName + "'s Studio"))
-        : 'Dr. Terry Oroszi\'s Studio';
+      // Whose studio this moment belongs to, read from config for everyone.
+      // No owner name is hardcoded here: the old version fell back to a literal
+      // "Dr. Terry Oroszi's Studio" whenever owner_name was missing, so a buyer
+      // whose config had not loaded pasted HER byline into their own deck.
+      var studioLabel = window.__companyName
+        || (window.__ownerName ? window.__ownerName + "'s Studio" : 'The Studio');
       var lines = [
         '**The Floor · ' + channelLabel + ' · ' + dateStr + '**',
         '',
@@ -6689,7 +6689,7 @@ h1 em,h2 em{font-weight:300;color:var(--skin-accent)}
     // Static copy names Dr. O by name; any other buyer (Sethi Studio, etc.)
     // gets their own company name instead.
     (function updateStudioFootLine(){
-      if (cfg.owner_name === 'Dr. Terry Oroszi') return;
+      if (cfg.is_owner) return;
       var el = document.getElementById('studio-foot-text');
       if (!el) return;
       var label = window.__companyName || (window.__ownerName ? window.__ownerName + "'s Studio" : 'This studio');
@@ -6704,7 +6704,7 @@ h1 em,h2 em{font-weight:300;color:var(--skin-accent)}
     // just their own site (pre-filled from what's on file) plus the paste
     // option, instead of the whole campus.
     (function scopeSitePicker(){
-      if (cfg.owner_name === 'Dr. Terry Oroszi') return;
+      if (cfg.is_owner) return;
       var sel = document.getElementById('sp-site');
       if (!sel) return;
       sel.innerHTML = '';
@@ -6777,7 +6777,12 @@ h1 em,h2 em{font-weight:300;color:var(--skin-accent)}
         var ownerNm = window.__ownerName || '';
         var addr = window.__ownerAddressForm || '';
         if (!addr) {
-          if (!ownerNm || ownerNm === 'Dr. Terry Oroszi') addr = 'Ms. Terry';
+          // Absence must never resolve to the owner. This previously read
+          // "if (!ownerNm || ownerNm === 'Dr. Terry Oroszi')", so a buyer whose
+          // owner_name failed to resolve was greeted by their own assistant as
+          // "Ms. Terry".
+          if (cfg.is_owner) addr = 'Ms. Terry';
+          else if (!ownerNm) addr = 'there';
           else if (/^dr\.?\s/i.test(ownerNm))   addr = 'Dr. ' + ownerNm.trim().split(/\s+/).pop();
           else if (/^prof\.?\s/i.test(ownerNm)) addr = 'Prof. ' + ownerNm.trim().split(/\s+/).pop();
           else addr = ownerNm.trim().split(/\s+/)[0];
@@ -6792,7 +6797,7 @@ h1 em,h2 em{font-weight:300;color:var(--skin-accent)}
         // which is only true in Terry's own studio. For any other owner with
         // Auggie seated, read it neutral (no sponsor reference). Other PAs get
         // their own bio from the roster fetch below, so this only touches Auggie.
-        if (window.__paPersonaId === 'auggie_vidal' && ownerNm && ownerNm !== 'Dr. Terry Oroszi') {
+        if (window.__paPersonaId === 'auggie_vidal' && !cfg.is_owner) {
           var bioN = document.getElementById('pa-bio-display');
           if (bioN) bioN.textContent = 'Late twenties, Cuban-American, Coral Gables family with Palm Springs summers. He spent three years as a personal assistant on the Gauntlet bench before joining the Studio as your right hand. He holds your week and your editorial calendar. He watches the overlap.';
         }
@@ -6833,11 +6838,38 @@ h1 em,h2 em{font-weight:300;color:var(--skin-accent)}
     // "New mentions" at THEIR name + company and hide the Terry-academic chips
     // so the studio never offers to search "Dr. Terry Oroszi" or her byline.
     (function tunePresets(){
-      var ownerNm = window.__ownerName || '';
-      if (!ownerNm || ownerNm === 'Dr. Terry Oroszi') return; // Terry keeps hers
+      // Only the actual owner keeps the ETL-tuned chips. This used to read
+      // "if (!ownerNm || ownerNm === 'Dr. Terry Oroszi') return", which meant a
+      // buyer whose owner_name was merely MISSING fell through to the owner
+      // branch and kept chips that search "Dr. Terry Oroszi". Absence of data
+      // must never resolve to owner. Unknown is treated as buyer, always.
       var mentions = document.getElementById('preset-mentions');
-      if (mentions) mentions.setAttribute('data-preset',
-        'search the web for new mentions of ' + ownerNm + (window.__companyName ? ' or ' + window.__companyName : '') + ' in the last 14 days. tell me anything new.');
+      if (cfg.is_owner) {
+        // The owner's ETL-tuned chips are switched ON here rather than shipped
+        // in the static HTML. That way a config failure leaves a buyer with a
+        // neutral studio instead of one searching the owner's name.
+        if (mentions) mentions.setAttribute('data-preset',
+          'search the web for new mentions of Dr. Terry Oroszi or Dr. Terry L. Oroszi in the last 14 days. tell me anything new.');
+        var cite = document.getElementById('preset-citations');
+        if (cite) cite.setAttribute('data-preset',
+          'scan for recent papers that cite my research. search semanticscholar.org for Oroszi cited 2025. list every citing paper you find with title, first author, and their affiliation. flag any first author who looks like a graduate student or early-career researcher with no faculty title. for each flagged student paper, draft a linkedin post ready to copy-paste.');
+        ['preset-citations','preset-forbes','preset-fieldnews'].forEach(function(id){
+          var el = document.getElementById(id);
+          if (el) el.style.display = '';
+        });
+        return;
+      }
+      var ownerNm = window.__ownerName || window.__companyName || '';
+      if (mentions) {
+        if (ownerNm) {
+          mentions.setAttribute('data-preset',
+            'search the web for new mentions of ' + ownerNm + (window.__companyName && window.__companyName !== ownerNm ? ' or ' + window.__companyName : '') + ' in the last 14 days. tell me anything new.');
+        } else {
+          // No name resolved. Hide the chip rather than leave the shipped
+          // default pointed at the owner's name.
+          mentions.style.display = 'none';
+        }
+      }
       ['preset-citations','preset-forbes','preset-fieldnews'].forEach(function(id){
         var el = document.getElementById(id);
         if (el) el.style.display = 'none';
@@ -7186,7 +7218,7 @@ h1 em,h2 em{font-weight:300;color:var(--skin-accent)}
     // failed to parse and she landed on 'default' (which kept the bench); now
     // that it loads as 'fixture' we exclude the owner explicitly so the bench
     // does not vanish. Only real buyers rebuild from their hired_staff.
-    var isOwner = (cfg.owner_name === 'Dr. Terry Oroszi');
+    var isOwner = !!cfg.is_owner;
     var isBuyer = !isOwner && (src.indexOf('fixture') === 0 || src.indexOf('self_serve') === 0);
     var hired = Array.isArray(cfg.hired_staff) ? cfg.hired_staff : [];
     if (isBuyer) {

@@ -268,6 +268,20 @@ exports.handler = async function(event) {
   const asParam = (event.queryStringParameters && (event.queryStringParameters.as || '')).toLowerCase().trim();
   const previewing = !!asParam && realEmail === OWNER_PREVIEW_EMAIL && asParam !== realEmail;
 
+  // ── TENANCY IS DECIDED ONCE, HERE ────────────────────────────────────────
+  // Every config returned by this endpoint carries is_owner. The page reads
+  // that flag and nothing else. Before 2026-07-29 the browser decided tenancy
+  // by string-matching the display name ("Dr. Terry Oroszi"), in several
+  // separate places, which meant a buyer whose owner_name was merely absent or
+  // different rendered down the owner branch, and the owner branch assumes
+  // data buyers do not have. That is the defect class behind the recurring
+  // "every time I log in I get errors" reports.
+  //
+  // Preview counts as NOT owner on purpose: when the landlord views a client
+  // with ?as=, she should see exactly the buyer path, errors included. That is
+  // the only way to exercise a buyer's studio without the buyer's password.
+  const isOwnerSession = realEmail === OWNER_PREVIEW_EMAIL && !previewing;
+
   // Resolve the BASE config first (fixture > self-serve > default), then
   // overlay the per-user blob from studio-config-set ON TOP of it.
   //
@@ -343,6 +357,7 @@ exports.handler = async function(event) {
           .map(s => resolveStaffEntry(s, rosterIndex))
           .filter(Boolean);
         injectOwnerStaff(merged, email);
+        merged.is_owner = isOwnerSession;   // authoritative, never from the blob
         return merged;
       }
     } catch (_) {}
@@ -354,6 +369,7 @@ exports.handler = async function(event) {
         .filter(Boolean),
     };
     injectOwnerStaff(noBlobResult, email);
+    noBlobResult.is_owner = isOwnerSession;
     return noBlobResult;
   }
 
@@ -367,6 +383,7 @@ exports.handler = async function(event) {
       baseCfg.source = (baseCfg.source || 'fixture') + '+preview';
       const resolved = {
         ...baseCfg,
+        is_owner: false,   // previewing a client IS the buyer path, see above
         hired_staff: (baseCfg.hired_staff || []).map(s => resolveStaffEntry(s, rosterIndex)).filter(Boolean),
       };
       return {
