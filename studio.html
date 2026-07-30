@@ -6095,23 +6095,34 @@ h1 em,h2 em{font-weight:300;color:var(--skin-accent)}
   //
   // Every hired_staff entry already carries contract and hired_at, which is
   // all Swap and Fire need. buildCard stamps them on the card, and we derive
-  // from those when the name is not in STAFF. New hires now work with no
-  // hand-maintenance, which is the whole point.
+  // from those. New hires work with no hand-maintenance, which is the point.
+  //
+  // ORDER MATTERS, and it is: saved override, then the card's real data, then
+  // STAFF. STAFF was checked second and won over real data, which is how four
+  // of the owner's standing staff (Carol, Reid, Ayanna, Jax) were labelled
+  // "Temp Hire" and had Fire locked. Their fixture said standing; this map
+  // said temp. Worse, the lock was manufactured: dayOffset here is demo
+  // staging (8, 12, 25, 27 days), so each one landed under the 30-day minimum
+  // while the real hire date was months back. Demo defaults must never
+  // outrank what an owner actually has (2026-07-30).
   function getConfig(name, card){
     var override = lsGet(LS_OVERRIDE)[name];
     if (override) return override;
+    var raw = card ? (card.getAttribute('data-contract') || '') : '';
+    if (raw) {
+      return {
+        // 'bundled' is the Six-Pack's wire value; 'gift' is a comped hire and
+        // behaves like any standing one.
+        pool:     raw === 'pa' ? 'pa' : (raw === 'bundled' ? 'sixpack' : 'specialty'),
+        contract: raw === 'temp' ? 'temp' : 'standing',
+        hiredOn:  card.getAttribute('data-hired-at') || null,
+      };
+    }
+    // No real data on the card: the shipped demo bench (signed out) and any
+    // legacy card still in markup. This is what STAFF is for.
     var base = STAFF[name];
     if (base) return { pool: base.pool, contract: base.contract, hiredOn: daysAgo(base.dayOffset) };
-    if (!card) return null;
-    var raw = card.getAttribute('data-contract') || '';
-    if (!raw) return null;
-    return {
-      // 'bundled' is the Six-Pack's wire value; 'gift' is a comped hire and
-      // behaves like any standing one.
-      pool:     raw === 'pa' ? 'pa' : (raw === 'bundled' ? 'sixpack' : 'specialty'),
-      contract: raw === 'temp' ? 'temp' : 'standing',
-      hiredOn:  card.getAttribute('data-hired-at') || null,
-    };
+    return null;
   }
 
   function daysSince(iso){
