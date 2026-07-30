@@ -1,0 +1,379 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ETL Design — a four-person studio for one piece</title>
+<meta name="description" content="Describe what you are promoting. Yuki sets the look, Reid finds the angle, Zara writes the post, Chris makes the visual. You see it before you buy it.">
+<link rel="icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  /* Own room, own palette. The house system is deliberately varied per
+     product; this one is ink + signal red, the studio wall. */
+  :root{--bg:#0e0e10;--bg2:#151517;--panel:#1b1b1f;--line:#2e2e34;
+        --sig:#ff5a3c;--sig-br:#ff7a5f;--ice:#7fd4e8;--cream:#f4f1ea;--text:#e6e3dc;--mute:#9a958c;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6;}
+  a{color:var(--ice);}
+  .wrap{max-width:980px;margin:0 auto;padding:0 1.2rem 5rem;}
+  .ribbon{background:#08080a;border-bottom:1px solid var(--line);text-align:center;font-family:'IBM Plex Mono',monospace;letter-spacing:.18em;text-transform:uppercase;font-size:.66rem;color:var(--mute);padding:.5rem;}
+  .ribbon b{color:var(--sig);}
+  .backlink{font-family:'IBM Plex Mono',monospace;font-size:.74rem;color:var(--mute);text-decoration:none;display:inline-block;margin:1.4rem 0 .2rem;}
+  .eyebrow{font-family:'IBM Plex Mono',monospace;letter-spacing:.22em;text-transform:uppercase;font-size:.68rem;color:var(--sig);}
+  h1{font-family:'Spectral',serif;font-weight:700;font-size:clamp(2rem,5vw,3.1rem);line-height:1.08;margin:.4rem 0 .6rem;color:var(--cream);}
+  h2{font-family:'Spectral',serif;font-weight:600;font-size:1.4rem;color:var(--cream);margin:0 0 .5rem;}
+  .lede{font-size:1.08rem;color:var(--mute);max-width:60ch;}
+  .hero{border:1px solid var(--line);border-radius:16px;background:linear-gradient(180deg,#17171a,#0e0e10);padding:2rem 1.8rem;margin-top:1rem;}
+
+  /* The crew */
+  .crew{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:1.8rem 0 0;}
+  .who{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;transition:border-color .3s,transform .3s;}
+  .who img{width:100%;aspect-ratio:1;object-fit:cover;display:block;filter:grayscale(1) contrast(1.05);transition:filter .4s;}
+  .who .n{font-weight:600;font-size:.9rem;color:var(--cream);padding:.6rem .7rem 0;}
+  .who .r{font-family:'IBM Plex Mono',monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);padding:0 .7rem .7rem;}
+  .who.on{border-color:var(--sig);transform:translateY(-3px);}
+  .who.on img{filter:none;}
+  .who.done{border-color:#3f7d4f;}
+  .who.done img{filter:none;}
+  .who .tick{float:right;color:#5fbf75;font-size:.8rem;padding:.6rem .7rem 0 0;}
+
+  /* Form */
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:1.6rem 1.5rem;margin-top:1.6rem;}
+  label{display:block;font-family:'IBM Plex Mono',monospace;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin:1.1rem 0 .4rem;}
+  label:first-of-type{margin-top:0;}
+  input,textarea,select{width:100%;background:#101013;border:1px solid var(--line);color:var(--text);border-radius:9px;padding:.7rem .8rem;font-family:'Inter',sans-serif;font-size:.95rem;}
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--sig);}
+  textarea{min-height:88px;resize:vertical;}
+  .hint{font-size:.78rem;color:var(--mute);margin-top:.3rem;}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .cta{margin-top:1.4rem;background:var(--sig);color:#12100f;border:0;border-radius:10px;padding:.85rem 1.6rem;font-weight:700;font-size:1rem;cursor:pointer;font-family:'Inter',sans-serif;}
+  .cta:hover{background:var(--sig-br);}
+  .cta[disabled]{opacity:.5;cursor:not-allowed;}
+  .ghost{background:transparent;color:var(--ice);border:1px solid var(--line);}
+
+  .err{background:#3a1512;border:1px solid #7a2a20;color:#ffb4a6;border-radius:9px;padding:.7rem .9rem;margin-top:1rem;font-size:.9rem;}
+  .note{font-family:'IBM Plex Mono',monospace;font-size:.75rem;color:var(--mute);margin-top:1rem;}
+
+  /* Result */
+  .swatches{display:flex;gap:10px;flex-wrap:wrap;margin:.6rem 0 0;}
+  .sw{border:1px solid var(--line);border-radius:8px;overflow:hidden;width:104px;}
+  .sw .chip{height:44px;display:block;}
+  .sw .lab{font-family:'IBM Plex Mono',monospace;font-size:.6rem;padding:.35rem .4rem;color:var(--mute);line-height:1.35;}
+  .post{background:#101013;border:1px solid var(--line);border-radius:10px;padding:1rem 1.1rem;white-space:pre-wrap;font-size:.98rem;}
+  .tags{color:var(--ice);font-size:.9rem;margin-top:.6rem;word-break:break-word;}
+  .shot{position:relative;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#101013;}
+  .shot img{width:100%;display:block;}
+  .shot.locked img{filter:blur(7px) saturate(.7);transform:scale(1.04);}
+  .shot .stamp{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-family:'IBM Plex Mono',monospace;letter-spacing:.3em;text-transform:uppercase;font-size:.8rem;color:#fff;
+    background:repeating-linear-gradient(45deg,rgba(0,0,0,.34) 0 14px,rgba(0,0,0,.18) 14px 28px);}
+  .paybar{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-top:1.2rem;}
+  .price{font-family:'Spectral',serif;font-size:1.5rem;color:var(--cream);}
+  .credits{font-size:.8rem;color:var(--mute);margin-top:1.2rem;line-height:1.5;}
+  .hide{display:none;}
+  @media(max-width:760px){.crew{grid-template-columns:repeat(2,minmax(0,1fr));}.row{grid-template-columns:1fr;}}
+</style></head>
+<body>
+
+<div class="ribbon">Emerging Technologies Laboratory &middot; <b>ETL Design</b></div>
+
+<div class="wrap">
+  <a class="backlink" href="/">&larr; back to the lab</a>
+
+  <div class="hero">
+    <div class="eyebrow">Four people, one piece</div>
+    <h1>Tell us what you are promoting.<br>Walk out with something you can post.</h1>
+    <p class="lede">
+      Not a template and not a stock photo with your name on it. A designer sets the look,
+      a strategist finds the angle, a writer writes it for the platform you actually use,
+      and an artist makes the visual inside the look the designer just set. You see the
+      whole thing finished before you decide to buy it.
+    </p>
+
+    <div class="crew" id="crew">
+      <div class="who" data-step="1"><img src="/agents/Yuki_Mendel_eyes_open.png" alt="Yuki Mendel" loading="lazy"><div class="n">Yuki Mendel <span class="tick hide">&#10003;</span></div><div class="r">Sets the look</div></div>
+      <div class="who" data-step="2"><img src="/agents/Reid_eyes_open.jpg" alt="Reid Callum" loading="lazy"><div class="n">Reid Callum <span class="tick hide">&#10003;</span></div><div class="r">Finds the angle</div></div>
+      <div class="who" data-step="3"><img src="/agents/Zara_eyes_open.jpg" alt="Zara Cole" loading="lazy"><div class="n">Zara Cole <span class="tick hide">&#10003;</span></div><div class="r">Writes the post</div></div>
+      <div class="who" data-step="4"><img src="/agents/Chris_DIGArtist_Eyes3_Open.png" alt="Chris Avila" loading="lazy"><div class="n">Chris Avila <span class="tick hide">&#10003;</span></div><div class="r">Makes the visual</div></div>
+    </div>
+  </div>
+
+  <!-- ── THE BRIEF ──────────────────────────────────────────────────── -->
+  <div class="card" id="form-card">
+    <h2>The brief</h2>
+    <label for="f-promoting">What are you promoting?</label>
+    <textarea id="f-promoting" placeholder="A yoga studio opening a second location in Dayton. First month is free for founding members."></textarea>
+    <div class="hint">The more specific you are, the less generic it comes back. Real details beat adjectives.</div>
+
+    <label for="f-audience">Who is it for?</label>
+    <input id="f-audience" placeholder="Parents in their 30s and 40s who used to have a practice and stopped">
+
+    <div class="row">
+      <div>
+        <label for="f-name">Your business name</label>
+        <input id="f-name" placeholder="Second Wind Yoga">
+      </div>
+      <div>
+        <label for="f-site">Your website (optional)</label>
+        <input id="f-site" placeholder="secondwindyoga.com">
+        <div class="hint">Left blank, no link goes in the post. Nothing gets invented.</div>
+      </div>
+    </div>
+
+    <label for="f-platform">Where are you posting it?</label>
+    <select id="f-platform">
+      <option value="linkedin">LinkedIn</option>
+      <option value="instagram">Instagram</option>
+      <option value="x">X</option>
+      <option value="facebook">Facebook</option>
+    </select>
+
+    <button class="cta" id="go">Put the team on it</button>
+    <div class="note" id="running-note"></div>
+    <div class="err hide" id="err"></div>
+  </div>
+
+  <!-- ── THE WORK ───────────────────────────────────────────────────── -->
+  <div id="out" class="hide">
+
+    <div class="card">
+      <div class="eyebrow">Yuki Mendel &middot; the look</div>
+      <h2 id="r-wordmark"></h2>
+      <div class="swatches" id="r-palette"></div>
+      <p class="hint" id="r-fonts"></p>
+      <p id="r-look" style="margin-top:.8rem;"></p>
+    </div>
+
+    <div class="card">
+      <div class="eyebrow">Reid Callum &middot; the angle</div>
+      <h2 id="r-hook"></h2>
+      <p id="r-positioning"></p>
+      <ul id="r-proof" style="color:var(--mute);font-size:.92rem;"></ul>
+    </div>
+
+    <div class="card">
+      <div class="eyebrow">Zara Cole &middot; the post <span id="r-platform" style="color:var(--mute)"></span></div>
+      <div class="post" id="r-post"></div>
+      <div class="tags" id="r-tags"></div>
+      <div class="hint" id="r-why" style="margin-top:.7rem;"></div>
+    </div>
+
+    <div class="card">
+      <div class="eyebrow">Chris Avila &middot; the visual</div>
+      <div class="shot locked" id="r-shot">
+        <img id="r-img" alt="Your marketing visual">
+        <div class="stamp" id="r-stamp">Preview</div>
+      </div>
+      <div class="hint" id="r-imgnote" style="margin-top:.7rem;"></div>
+    </div>
+
+    <div class="card" id="pay-card">
+      <h2>Take it with you</h2>
+      <p class="lede">The full-size image with the watermark removed, the copy, and Yuki's brand sheet, so you can use the same look on the next one.</p>
+      <div class="paybar">
+        <span class="price" id="price">&nbsp;</span>
+        <button class="cta" id="buy">Buy this piece</button>
+        <button class="cta ghost" id="again">Start another brief</button>
+      </div>
+      <div class="err hide" id="payerr"></div>
+    </div>
+
+    <div class="card hide" id="done-card">
+      <div class="eyebrow">Paid &middot; yours</div>
+      <h2>Here it is.</h2>
+      <p class="lede">Right click the image to save it, and copy the text below.</p>
+      <div class="paybar">
+        <a class="cta" id="dl" href="#" download target="_blank" rel="noopener">Download the image</a>
+        <button class="cta ghost" id="copy">Copy the post</button>
+      </div>
+      <div class="credits" id="credits"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var jobId = null, poll = null, priceLabel = '';
+
+  function show(el, on){ el.classList[on ? 'remove' : 'add']('hide'); }
+  function fail(msg){ var e=$('err'); e.textContent = msg; show(e,true); }
+
+  /* Price comes from the checkout function, never typed into this page. One
+     constant drives the button and the charge, so they cannot disagree. */
+  fetch('/.netlify/functions/etl-design-checkout')
+    .then(function(r){ return r.json(); })
+    .then(function(d){ priceLabel = d.price_label || ''; $('price').textContent = priceLabel; })
+    .catch(function(){ $('price').textContent = ''; });
+
+  function markCrew(step, finished){
+    var cards = document.querySelectorAll('#crew .who');
+    Array.prototype.forEach.call(cards, function(c){
+      var n = parseInt(c.getAttribute('data-step'), 10);
+      c.classList.toggle('done', n <= step);
+      c.classList.toggle('on', !finished && n === step + 1);
+      var tick = c.querySelector('.tick');
+      if (tick) tick.classList[n <= step ? 'remove' : 'add']('hide');
+    });
+  }
+
+  $('go').addEventListener('click', function(){
+    var promoting = $('f-promoting').value.trim();
+    if (!promoting) { fail('Tell us what you are promoting first.'); return; }
+    show($('err'), false);
+    $('go').disabled = true;
+    $('running-note').textContent = 'Starting the team...';
+
+    fetch('/.netlify/functions/etl-design-ask', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        promoting: promoting,
+        audience: $('f-audience').value.trim(),
+        business_name: $('f-name').value.trim(),
+        business_site: $('f-site').value.trim(),
+        platform: $('f-platform').value
+      })
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (!d.ok || !d.job_id) throw new Error(d.error || 'could not start');
+      jobId = d.job_id;
+      history.replaceState(null, '', '/etl-design?job=' + encodeURIComponent(jobId));
+      startPolling();
+    })
+    .catch(function(e){ $('go').disabled = false; $('running-note').textContent=''; fail('Could not start: ' + e.message); });
+  });
+
+  function startPolling(){
+    if (poll) clearInterval(poll);
+    poll = setInterval(tick, 2500);
+    tick();
+  }
+
+  function tick(){
+    if (!jobId) return;
+    fetch('/.netlify/functions/etl-design-status?job_id=' + encodeURIComponent(jobId))
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if (d.error && d.error !== null && !d.status) return;
+        var finished = d.status === 'done';
+        markCrew(d.step || 0, finished);
+        $('running-note').textContent = d.status === 'error' ? '' : (d.note || '');
+
+        if (d.status === 'error') {
+          clearInterval(poll); $('go').disabled = false;
+          fail(d.error || 'Something went wrong. Nothing was charged.');
+          return;
+        }
+        render(d);
+        // Keep polling past "done" only while the image is still cooking.
+        if (finished && d.image_state !== 'working') { clearInterval(poll); $('running-note').textContent = ''; }
+      })
+      .catch(function(){});
+  }
+
+  function render(d){
+    var r = d.result || {};
+    if (!r.brand && !r.copy) return;
+    show($('out'), true);
+
+    if (r.brand) {
+      $('r-wordmark').textContent = r.brand.wordmark || '';
+      $('r-look').textContent = r.brand.look || '';
+      var f = r.brand.fonts || {};
+      $('r-fonts').textContent = (f.display || f.body) ? ('Type: ' + (f.display||'') + ' for display, ' + (f.body||'') + ' for body.') : '';
+      var pal = $('r-palette'); pal.innerHTML = '';
+      (r.brand.palette || []).forEach(function(p){
+        var d1 = document.createElement('div'); d1.className = 'sw';
+        var c = document.createElement('span'); c.className='chip'; c.style.background = p.hex || '#000';
+        var l = document.createElement('div'); l.className='lab';
+        l.textContent = (p.name||'') + ' ' + (p.hex||'');
+        d1.appendChild(c); d1.appendChild(l); pal.appendChild(d1);
+      });
+    }
+    if (r.angle) {
+      $('r-hook').textContent = r.angle.hook || '';
+      $('r-positioning').textContent = r.angle.positioning || '';
+      var ul = $('r-proof'); ul.innerHTML = '';
+      (r.angle.proof_points || []).forEach(function(p){ var li=document.createElement('li'); li.textContent=p; ul.appendChild(li); });
+    }
+    if (r.copy) {
+      $('r-post').textContent = r.copy.post || '';
+      $('r-tags').textContent = r.copy.hashtags || '';
+      $('r-why').textContent = r.copy.notes || '';
+      $('r-platform').textContent = r.platform ? ('· ' + r.platform) : '';
+    }
+    if (r.image_url) {
+      $('r-img').src = r.image_url;
+      $('r-imgnote').textContent = '';
+    } else if (r.image_error) {
+      $('r-imgnote').textContent = 'The visual did not come back this time, so the copy above is yours to use as is. Nothing was charged.';
+    } else if (d.image_state === 'working') {
+      $('r-imgnote').textContent = 'Chris is still working. The words above are already final.';
+    }
+    if (d.paid) unlock(null);
+  }
+
+  /* ── Buying ─────────────────────────────────────────────────────── */
+  $('buy').addEventListener('click', function(){
+    if (!jobId) return;
+    $('buy').disabled = true;
+    fetch('/.netlify/functions/etl-design-checkout', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ job_id: jobId })
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (!d.url) throw new Error(d.error || 'checkout unavailable');
+      window.location.href = d.url;
+    })
+    .catch(function(e){
+      $('buy').disabled = false;
+      var pe = $('payerr'); pe.textContent = 'Could not open checkout: ' + e.message; show(pe, true);
+    });
+  });
+
+  $('again').addEventListener('click', function(){ window.location.href = '/etl-design'; });
+
+  $('copy').addEventListener('click', function(){
+    var t = $('r-post').textContent + '\n\n' + $('r-tags').textContent;
+    navigator.clipboard.writeText(t).then(function(){ $('copy').textContent = 'Copied'; });
+  });
+
+  function unlock(pack){
+    $('r-shot').classList.remove('locked');
+    show($('r-stamp'), false);
+    show($('pay-card'), false);
+    show($('done-card'), true);
+    var img = (pack && pack.image_url) || $('r-img').src;
+    if (img) { $('dl').href = img; }
+    if (pack) {
+      if (pack.post) $('r-post').textContent = pack.post;
+      if (pack.hashtags) $('r-tags').textContent = pack.hashtags;
+      $('credits').textContent = pack.credits || '';
+    }
+  }
+
+  /* Returning from Stripe. Payment is confirmed server-side against the
+     session; the query string alone never unlocks anything. */
+  var qs = new URLSearchParams(location.search);
+  var qJob = qs.get('job');
+  if (qJob) {
+    jobId = qJob;
+    startPolling();
+    if (qs.get('paid') === '1') {
+      fetch('/.netlify/functions/etl-design-deliver', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ job_id: qJob, session_id: qs.get('session_id') || '' })
+      })
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if (d.ok && d.paid) { show($('out'), true); unlock(d.pack); }
+        else { var pe=$('payerr'); pe.textContent='We could not confirm that payment yet. If you were charged, email us and we will send it over.'; show(pe,true); }
+      })
+      .catch(function(){});
+    }
+  }
+})();
+</script>
+</body></html>

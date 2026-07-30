@@ -103,61 +103,12 @@ function loadVoiceProfile(id) {
   return null;
 }
 
-/* The generic voice. Parameterized by whoever is asking, so it belongs to
-   nobody. Persona flavor (Zara = fun/casual, Sneha = SME, Ayanna = teacher)
-   is kept; identity claims and worked examples come from a profile or not
-   at all. */
-function buyerVoiceCore(ownerName, companyName) {
-  var who = ownerName || 'the site owner';
-  return [
-    'BASELINE VOICE: you are writing AS ' + who + (companyName ? (', who runs ' + companyName) : '') + '. Confident, direct, first person. Short declarative sentences. State the real thing plainly instead of hedging.',
-    '',
-    'VOICE BANS (corporate-AI tells, avoid these):',
-    '- "In today\'s fast-paced world"',
-    '- "It is important to note"',
-    '- "leverage", "synergize", "unlock", "empower", "elevate", "transform" used as verbs about platforms',
-    '- "game-changer", "revolutionary", "cutting-edge", "next-generation"',
-    '- starting with "As a [title], I..."',
-    '- soft hedges like "I think", "it seems", "perhaps", "maybe" when you would just state it',
-    '- exclamation points',
-  ].join('\n');
-}
-
-const BUYER_AGENT_VOICES = {
-  zara: 'VOICE: fun, casual, influencer energy. Lowercase openings sometimes. Non-sequitur hooks ("ok so", "no but actually", "wait", "POV:"). Fragments and casual asides in parens. State opinions like a person, never like a press release. Hashtags read like inside jokes, not SEO categories.',
-  sneha: 'VOICE: subject-matter-expert, inside-the-field, technical but not academic. Lead with the observation a practitioner would recognize. Assume the reader already knows the basics; skip the 101 explanation. Precise, a little dry, no hype words.',
-  ayanna: 'VOICE: informed and educational, professorial and warm. Open with the lesson, then the reasoning, then the application. Patient, not condescending. End with a takeaway the reader can act on.',
-};
-
-const HONORIFICS = new Set(['dr', 'dr.', 'mr', 'mr.', 'mrs', 'mrs.', 'ms', 'ms.', 'prof', 'prof.']);
-
-function firstNameOf(fullName) {
-  var parts = (fullName || '').trim().split(/\s+/).filter(Boolean);
-  var first = parts.find(function(p) { return !HONORIFICS.has(p.toLowerCase()); });
-  return first || null;
-}
-
-function buyerAgentPrompt(agentKey, ownerName, companyName) {
-  var name = ownerName || 'the site owner';
-  var first = firstNameOf(ownerName);
-  var voicePossessive = first ? (first + '’s') : 'their';
-  var co = companyName || 'their site';
-  var intro = 'You are writing a social post AS ' + name + '. ' + name + ' owns ' + co + ' and is posting about their own work. Write in FIRST PERSON ("I built this", "my team", "we just shipped"). Never refer to them in the third person ("someone", "the founder", "they").\n\n';
-  return intro + (BUYER_AGENT_VOICES[agentKey] || '') +
-    '\n\nNow write a post on the subject below in ' + voicePossessive + ' first-person voice, about ' + co + '.';
-}
-
-/* Who the three writers ARE. This is agent identity, not owner identity, so
-   it stays in the engine: Zara, Sneha and Ayanna are ETL staff on every
-   studio that uses this. What they SAY on any given owner's behalf comes
-   from that owner's profile (or from the generic builders above). Their
-   worked-example posts used to live here written as Dr. O; those moved to
-   data/voice-profiles/terry-oroszi.json. */
-const AGENTS = {
-  zara:   { name: 'Zara',   fullName: 'Zara Cole',   voice: 'Fun / influencer' },
-  sneha:  { name: 'Sneha',  fullName: 'Sneha Desai', voice: 'SME / inside the field' },
-  ayanna: { name: 'Ayanna', fullName: 'Ayanna Cole', voice: 'Informed / educational' },
-};
+/* The generic voice and the three writers now live in _social-voice.js so
+   the ETL Design relay and this tool share one copy. A second copy is how a
+   persona quietly drifts into two different people (2026-07-30). Nothing in
+   that module belongs to any owner; personal voice data stays in
+   data/voice-profiles/<id>.json. */
+const { AGENTS, buyerVoiceCore, buyerAgentPrompt } = require('./_social-voice.js');
 
 const PLATFORMS = {
   x: {
