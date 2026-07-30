@@ -32,6 +32,13 @@ exports.handler = async (event) => {
     if (!key) return { statusCode: 404, body: 'no image yet' };
     buf = await store.get(key, { type: 'arrayBuffer' });
     if (!buf) return { statusCode: 404, body: 'no image yet' };
+    // A base64 body has a hard ceiling (~6MB) and exceeding it returns a 502
+    // with no explanation, which is exactly how the first oversized render
+    // failed. Say so plainly rather than letting the platform swallow it.
+    if (buf.byteLength > 4 * 1024 * 1024) {
+      console.error('[etl-design-image] render too large to serve: ' + buf.byteLength + ' bytes for ' + jobId);
+      return { statusCode: 413, body: 'render too large' };
+    }
   } catch (e) {
     console.error('[etl-design-image] read failed', e && e.message);
     return { statusCode: 500, body: 'store unavailable' };

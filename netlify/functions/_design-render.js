@@ -22,6 +22,39 @@
       caller can retry rather than ship a piece with words hanging off it.
 */
 
+const path = require('path');
+const fs = require('fs');
+
+/* FONTS MUST BE POINTED AT BEFORE sharp LOADS.
+   ─────────────────────────────────────────────────────────────────────────
+   Netlify's Lambda image ships with no font files. librsvg draws text through
+   pango/fontconfig, so the first live render produced a piece with correct
+   artwork, correct colours, correct composition, and every single letter as a
+   missing-glyph box. Rewriting families to generics cannot help when there is
+   nothing to fall back TO.
+
+   Four faces now travel with the function. fontconfig reads its config once,
+   lazily, on first use, so FONTCONFIG_PATH has to be set before anything
+   triggers that, which means before sharp is required. */
+(function pointFontconfigAtOurFonts() {
+  const candidates = [
+    path.join(__dirname, 'fonts'),
+    path.join(process.cwd(), 'netlify', 'functions', 'fonts'),
+    path.join(process.cwd(), 'fonts'),
+  ];
+  for (const dir of candidates) {
+    try {
+      if (fs.existsSync(path.join(dir, 'fonts.conf'))) {
+        process.env.FONTCONFIG_PATH = dir;
+        process.env.FONTCONFIG_FILE = path.join(dir, 'fonts.conf');
+        try { fs.mkdirSync('/tmp/fontconfig', { recursive: true }); } catch (_) {}
+        return;
+      }
+    } catch (_) {}
+  }
+  console.warn('[design-render] no bundled fonts found; text will render as boxes');
+})();
+
 const sharp = require('sharp');
 
 /* Canvas sizes. Social in pixels, print at 300 DPI with a safe margin the
@@ -130,7 +163,12 @@ async function renderSvg(svg, canvasKey, conceptDataUrl) {
 
   const overflow = findOverflow(out, c.w);
 
-  const png = await sharp(Buffer.from(out), { density: 300 })
+  // NO density option. The SVG already carries explicit pixel width/height,
+  // and density RESCALES that by density/72: at 300 it turned a 1080 square
+  // into 4500, which then blew the function's response cap and returned a 502
+  // instead of a picture. Print sizes are already expressed in pixels at
+  // 300 DPI in the canvas table, so the artboard is the artboard (2026-07-30).
+  const png = await sharp(Buffer.from(out))
     .png({ compressionLevel: 9 })
     .toBuffer();
 

@@ -1,0 +1,6 @@
+Inter and Source Serif Pro are distributed under the SIL Open Font License 1.1,
+which permits bundling and redistribution with software.
+  Inter: https://github.com/rsms/inter  (OFL-1.1)
+  Source Serif Pro: https://github.com/adobe-fonts/source-serif  (OFL-1.1)
+Bundled here because Netlify's Lambda runtime has no fonts installed and
+librsvg renders every glyph as a box without them.

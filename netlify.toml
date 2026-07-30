@@ -423,3 +423,9 @@
 # generic voice, which is the failure that looks like nothing is wrong.
 [functions."studio-social-generate"]
   included_files = ["data/voice-profiles/*.json"]
+
+# ETL Design relay. The fonts MUST be bundled: Netlify's Lambda image has none,
+# and librsvg draws every glyph as a box without them. The renderer points
+# FONTCONFIG_PATH at this directory before sharp loads.
+[functions."etl-design-background"]
+  included_files = ["netlify/functions/fonts/**"]
