@@ -269,8 +269,10 @@ exports.handler = async (event) => {
       '5. Every colour must be a hex from the palette above.',
       '6. Do not invent copy. Use only the words given below, though you may drop a block if the composition is stronger without it.',
       '7. CONTRAST IS NOT OPTIONAL. Wherever text sits over the artwork you MUST first lay a solid or gradient <rect> from the palette across that whole region, at 0.72 opacity or heavier. Asking the artwork to leave room does not work; it did not. Every line of text must sit on a flat field, not on a photograph.',
-      '8. No decorative element below 0.15 opacity. A ghosted giant numeral at 0.05 does not read as design, it reads as a smudge, and nobody can tell what it refers to. If a decorative mark cannot be seen clearly, leave it out.',
+      '8. DECORATIVE TYPE MUST NOT TOUCH ANYTHING. An oversized background word or numeral has to clear every block, rule, panel and text element by at least 40 units on all sides. If it cannot, do not draw it. Filling an awkward gap with a giant ghosted word is not composition, and it has now produced both a stray 6 and a HEAT lying under the content blocks. Restructure the layout instead.',
       '9. Any decorative numeral or symbol must be labelled by adjacent text, or omitted. A lone 6 means nothing to someone who did not read the brief.',
+      '10. THE NAME AND THE URL ARE THE RESPONSE MECHANISM. They must be the highest contrast small text on the piece: set them on a plain field in the lightest palette colour against the darkest, or the reverse. They may never sit on artwork, on a rule, on a band edge, or in a colour close to what is behind them. Losing the URL loses the whole point of the piece, and dark red on near black across a rule line is exactly how that happened.',
+      '11. Leave a clear margin between the last content block and the footer. Do not fill that band with decoration.',
     ].join('\n');
 
     const composeUser = [
