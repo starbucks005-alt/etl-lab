@@ -230,7 +230,11 @@ exports.handler = async (event) => {
         // MEPPERS onto a bottle label doing exactly that. Steer it off the
         // surfaces that invite lettering in the first place (2026-07-30).
         'Do not depict product labels, packaging, signage, posters, menus, price tags or storefronts, since those invite lettering. Show the subject matter itself, materials, ingredients, hands, texture, place.',
-        'Composition must work as a BACKGROUND: even tone, no single dominant focal object, nothing important in the top third or along the left edge.',
+        // Not a full-canvas wash. Asking for an even-toned background is how
+        // the picture ended up crushed under a global scrim until the piece
+        // was effectively black, which is the complaint this product started
+        // from: "I just see the words" (2026-07-30).
+        'This image OWNS A BAND of the finished piece, not the whole canvas. Make it a real photograph or illustration with a clear subject, well lit, worth looking at on its own. Do not flatten it into a texture and do not leave it empty for text.',
         'Photographic or richly illustrated, confident composition, not a flat icon and not clip art.',
         concept ? 'Match the look, setting and colouring of the reference the client supplied.' : '',
       ].filter(Boolean).join(' ');
@@ -258,7 +262,7 @@ exports.handler = async (event) => {
       'TYPE: ' + ((yuki.fonts && yuki.fonts.display) || 'a serif') + ' for display, ' + ((yuki.fonts && yuki.fonts.body) || 'a sans-serif') + ' for body. Set font-family to a stack ending in "serif" or "sans-serif".',
       '',
       artHref
-        ? 'ARTWORK: place <image href="CONCEPT_IMAGE" .../> as a major element. Use the literal string CONCEPT_IMAGE as the href; it is substituted at render time. Give it a real role in the composition: full bleed behind the type, a strong band, or a confident crop. Use <clipPath> or a translucent <rect> in a palette colour over it so the headline stays readable.'
+        ? 'ARTWORK: place <image href="CONCEPT_IMAGE" .../> as a MAJOR, CLEARLY VISIBLE element. Use the literal string CONCEPT_IMAGE as the href; it is substituted at render time. Give it a defined region of at least a third of the canvas, a band or a confident crop, and show it at FULL STRENGTH there: no scrim, no tint, no opacity, nothing over it. Put the type on flat colour fields ELSEWHERE. Never wash the whole canvas with the image and then darken all of it, which leaves a black rectangle and no picture.'
         : 'There is no photograph. Build a strong type-led composition using rules, blocks, and generous negative space.',
       '',
       'HARD RULES, these break the piece if ignored:',
@@ -268,8 +272,8 @@ exports.handler = async (event) => {
       '4. No em dashes or en dashes anywhere.',
       '5. Every colour must be a hex from the palette above.',
       '6. Do not invent copy. Use only the words given below, though you may drop a block if the composition is stronger without it.',
-      '7. CONTRAST IS NOT OPTIONAL. Wherever text sits over the artwork you MUST first lay a solid or gradient <rect> from the palette across that whole region, at 0.72 opacity or heavier. Asking the artwork to leave room does not work; it did not. Every line of text must sit on a flat field, not on a photograph.',
-      '8. DECORATIVE TYPE MUST NOT TOUCH ANYTHING. An oversized background word or numeral has to clear every block, rule, panel and text element by at least 40 units on all sides. If it cannot, do not draw it. Filling an awkward gap with a giant ghosted word is not composition, and it has now produced both a stray 6 and a HEAT lying under the content blocks. Restructure the layout instead.',
+      '7. CONTRAST IS NOT OPTIONAL, BUT IT IS LOCAL. Every line of text sits on a flat colour field, never on a photograph. Achieve that by putting the type on its own solid panel, NOT by laying a scrim across the whole canvas. The artwork region stays clean and untinted. If text and picture want the same space, move the text.',
+      '8. NO DECORATIVE OR BACKGROUND TYPE. AT ALL. Do not set any word, letter or numeral that is not one of the strings given below, and never repeat a headline as an oversized ghost behind or beside itself. Three separate rules have tried to make this safe and it has come back three times: a stray 6, a HEAT under the blocks, and a ghost headline bleeding off the top right. It has never once improved a piece. Every glyph on the canvas must be copy that was handed to you.',
       '9. Any decorative numeral or symbol must be labelled by adjacent text, or omitted. A lone 6 means nothing to someone who did not read the brief.',
       '10. THE NAME AND THE URL ARE THE RESPONSE MECHANISM. They must be the highest contrast small text on the piece: set them on a plain field in the lightest palette colour against the darkest, or the reverse. They may never sit on artwork, on a rule, on a band edge, or in a colour close to what is behind them. Losing the URL loses the whole point of the piece, and dark red on near black across a rule line is exactly how that happened.',
       '11. Leave a clear margin between the last content block and the footer. Do not fill that band with decoration.',
