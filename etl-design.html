@@ -23,6 +23,14 @@
   h2{font-family:'Spectral',serif;font-weight:600;font-size:1.4rem;color:var(--cream);margin:0 0 .5rem;}
   .lede{font-size:1.08rem;color:var(--mute);max-width:60ch;}
   .hero{border:1px solid var(--line);border-radius:16px;background:linear-gradient(180deg,#17171a,#0e0e10);padding:2rem 1.8rem;margin-top:1rem;}
+  /* The four of them, above the fold. This is what you are hiring, so it
+     leads. Photo carries its own warm tone, so no grayscale treatment. */
+  .team-shot{border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-top:1rem;line-height:0;}
+  .team-shot img{width:100%;display:block;}
+  .studio{position:relative;border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-top:1.6rem;}
+  .studio img{width:100%;display:block;}
+  .studio .cap{position:absolute;left:0;right:0;bottom:0;padding:1.2rem 1.4rem;
+    background:linear-gradient(0deg,rgba(8,8,10,.94),rgba(8,8,10,0));font-size:.9rem;color:var(--cream);}
 
   /* The crew */
   .crew{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:1.8rem 0 0;}
@@ -89,6 +97,11 @@
       finished before you decide to buy it.
     </p>
 
+    <div class="team-shot">
+      <img src="/assets/etl-design-team.jpg" width="1600" height="900"
+           alt="Chris Avila, Zara Cole, Reid Callum and Yuki Mendel of ETL Design" loading="eager">
+    </div>
+
     <div class="crew" id="crew">
       <div class="who" data-step="1"><img src="/agents/Yuki_Mendel_eyes_open.png" alt="Yuki Mendel" loading="lazy"><div class="n">Yuki Mendel <span class="tick hide">&#10003;</span></div><div class="r">Sets the look</div></div>
       <div class="who" data-step="2"><img src="/agents/Reid_eyes_open.jpg" alt="Reid Callum" loading="lazy"><div class="n">Reid Callum <span class="tick hide">&#10003;</span></div><div class="r">Finds the angle</div></div>
@@ -97,24 +110,30 @@
     </div>
   </div>
 
+  <div class="studio">
+    <img src="/assets/etl-design-studio.jpg" width="1800" height="1005"
+         alt="The ETL Design studio, the four of them reviewing a client presentation" loading="lazy">
+    <div class="cap">One studio, one brief at a time. You pay for the piece, not a subscription.</div>
+  </div>
+
   <!-- ── THE BRIEF ──────────────────────────────────────────────────── -->
   <div class="card" id="form-card">
     <h2>The brief</h2>
     <label for="f-promoting">What are you promoting?</label>
-    <textarea id="f-promoting" placeholder="A yoga studio opening a second location in Dayton. First month is free for founding members."></textarea>
+    <textarea id="f-promoting" placeholder="A small-batch hot sauce we make in Dayton. Six peppers, no sugar, sold at the Second Street Market and shipped anywhere."></textarea>
     <div class="hint">The more specific you are, the less generic it comes back. Real details beat adjectives.</div>
 
     <label for="f-audience">Who is it for?</label>
-    <input id="f-audience" placeholder="Parents in their 30s and 40s who used to have a practice and stopped">
+    <input id="f-audience" placeholder="People who already buy hot sauce and are bored of the supermarket shelf">
 
     <div class="row">
       <div>
         <label for="f-name">Your business name</label>
-        <input id="f-name" placeholder="Second Wind Yoga">
+        <input id="f-name" placeholder="Gem City Heat">
       </div>
       <div>
         <label for="f-site">Your website (optional)</label>
-        <input id="f-site" placeholder="secondwindyoga.com">
+        <input id="f-site" placeholder="gemcityheat.com">
         <div class="hint">Left blank, no link goes in the post. Nothing gets invented.</div>
       </div>
     </div>
