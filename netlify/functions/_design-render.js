@@ -104,28 +104,87 @@ function estimateWidth(text, fontSize, weightAttr, familyAttr) {
   return String(text).length * fontSize * per;
 }
 
-/* Find <text> elements that would run past the right edge. Returns a list of
-   plain-language complaints for the model to fix on a retry. */
-function findOverflow(svg, canvasW) {
+/* Collect every <rect> so text can be measured against the PANEL it sits on
+   rather than against the canvas.
+
+   This is the fix for a piece that shipped with two visible overruns while
+   reporting overflow: null. Both lines were comfortably inside 1080 wide, so a
+   canvas-width check passed them. What they actually overran was the cream
+   panel and the green block they were sitting on. Measuring against the canvas
+   answers a question nobody asked (2026-07-30). */
+function collectRects(svg) {
+  const rects = [];
+  const re = /<rect\b([^>]*)>/gi;
+  let m;
+  while ((m = re.exec(svg))) {
+    const a = m[1];
+    const num = (name) => {
+      const hit = new RegExp('\\b' + name + '\\s*=\\s*["\']([-\\d.]+)').exec(a);
+      return hit ? parseFloat(hit[1]) : NaN;
+    };
+    const x = num('x'), y = num('y'), w = num('width'), h = num('height');
+    if (![x, y, w, h].every((v) => isFinite(v))) continue;
+    rects.push({ x, y, w, h });
+  }
+  return rects;
+}
+
+/* The tightest rect containing this baseline point, ignoring anything the size
+   of the whole artboard, which is the background rather than a panel. */
+function panelUnder(rects, x, y, canvasW, canvasH) {
+  let best = null;
+  for (const r of rects) {
+    if (r.w >= canvasW * 0.98 && r.h >= canvasH * 0.98) continue;
+    // A baseline sits near the bottom of the cap-height box, so allow slack
+    // above and below rather than demanding strict containment.
+    if (x >= r.x - 2 && x <= r.x + r.w + 2 && y >= r.y - 4 && y <= r.y + r.h + 8) {
+      if (!best || r.w * r.h < best.w * best.h) best = r;
+    }
+  }
+  return best;
+}
+
+/* Find text that would run past its container: its panel when it has one, the
+   canvas when it does not. Returns plain-language complaints for the retry. */
+function findOverflow(svg, canvasW, canvasH) {
   const problems = [];
+  const rects = collectRects(svg);
   const re = /<text\b([^>]*)>([\s\S]*?)<\/text>/gi;
   let m;
   while ((m = re.exec(svg))) {
     const attrs = m[1];
     const content = m[2].replace(/<[^>]*>/g, '').trim();
     if (!content) continue;
-    const x = parseFloat((/\bx\s*=\s*["']([-\d.]+)/.exec(attrs) || [])[1] || '0');
-    const size = parseFloat((/\bfont-size\s*=\s*["']([\d.]+)/.exec(attrs) || [])[1] || '16');
-    const weight = (/\bfont-weight\s*=\s*["']([^"']+)/.exec(attrs) || [])[1];
-    const family = (/\bfont-family\s*=\s*["']([^"']+)/.exec(attrs) || [])[1];
-    const anchor = ((/\btext-anchor\s*=\s*["']([^"']+)/.exec(attrs) || [])[1] || 'start').toLowerCase();
+    const attr = (name) => {
+      const hit = new RegExp('\\b' + name + '\\s*=\\s*["\']([^"\']+)').exec(attrs);
+      return hit ? hit[1] : '';
+    };
+    const x = parseFloat(attr('x')) || 0;
+    const y = parseFloat(attr('y')) || 0;
+    const size = parseFloat(attr('font-size')) || 16;
+    const weight = attr('font-weight');
+    const family = attr('font-family');
+    const anchor = (attr('text-anchor') || 'start').toLowerCase();
     const w = estimateWidth(content, size, weight, family);
+
     let right = x + w;
     if (anchor === 'middle') right = x + w / 2;
     else if (anchor === 'end') right = x;
+
+    const panel = panelUnder(rects, x, y, canvasW, canvasH);
+    if (panel) {
+      // Demand real padding inside the panel, not a hairline miss.
+      const limit = panel.x + panel.w - Math.max(8, size * 0.25);
+      if (right > limit) {
+        problems.push('"' + content.slice(0, 42) + '" is wider than the panel it sits on. That panel ends at x=' +
+          Math.round(panel.x + panel.w) + ' and the text reaches about x=' + Math.round(right) +
+          '. Widen the panel to fit the text with padding, shorten the line, or reduce the size.');
+        continue;
+      }
+    }
     if (right > canvasW * 1.02) {
-      problems.push('"' + content.slice(0, 42) + '" is too long for one line at ' + Math.round(size) +
-                    'px starting at x=' + Math.round(x) + '. Break it into shorter lines or reduce the size.');
+      problems.push('"' + content.slice(0, 42) + '" runs off the canvas at ' + Math.round(size) +
+        'px starting at x=' + Math.round(x) + '. Break it into shorter lines or reduce the size.');
     }
   }
   return problems;
@@ -161,7 +220,7 @@ async function renderSvg(svg, canvasKey, conceptDataUrl) {
   });
   if (!/xmlns=/i.test(out)) out = out.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
 
-  const overflow = findOverflow(out, c.w);
+  const overflow = findOverflow(out, c.w, c.h);
 
   // NO density option. The SVG already carries explicit pixel width/height,
   // and density RESCALES that by density/72: at 300 it turned a 1080 square
