@@ -151,33 +151,49 @@ exports.handler = async (event) => {
         'Clean geometric composition, generous negative space, flat modern illustration, ' +
         'no text, no words, no letterforms, no logos, no watermarks. ' +
         (yuki.look || '');
-      const gammaPayload = {
+      const buildPayload = (dims) => ({
         inputText: ('Marketing visual for ' + co + '. Subject: ' + brief.promoting + '. Mood: ' + (yuki.look || '') + '.').slice(0, 4000),
         format: 'social', textMode: 'none', numCards: 1,
-        cardOptions: { dimensions: P.dims },
+        cardOptions: { dimensions: dims },
         imageOptions: { source: 'aiGenerated', model: 'imagen-4-pro', style: style.slice(0, 2000) },
         exportAs: 'png',
-      };
-      try {
-        const gr = await fetch(GAMMA, {
-          method: 'POST',
-          headers: { 'X-API-KEY': gammaKey, 'Content-Type': 'application/json' },
-          body: JSON.stringify(gammaPayload),
-        });
-        const gd = await gr.json().catch(() => ({}));
-        if (gr.ok && gd.generationId) {
-          await save({ result: Object.assign(state.result, { gamma_generation_id: gd.generationId }) });
-        } else {
-          // A failed image must not discard three good text steps. Same
-          // lesson as the brief generator dropping a whole brief on a TTS
-          // failure (2026-07-30).
-          console.error('[etl-design] gamma refused', gr.status, JSON.stringify(gd).slice(0, 300));
-          await save({ result: Object.assign(state.result, { image_error: 'gamma_' + gr.status }) });
+      });
+
+      // Two attempts. The per-platform aspect ratio is what we WANT (4x5 reads
+      // better in a LinkedIn feed, 16x9 on X), but the only Gamma call proven
+      // on this campus uses 1x1, and a first live run came back gamma_400. So
+      // try the good ratio, and on a 4xx fall back to the known-good square
+      // rather than losing the visual entirely. The refusal detail is stored,
+      // not just the status code, so the cause is visible without shell access
+      // to the logs (2026-07-30).
+      const attempts = P.dims === '1x1' ? ['1x1'] : [P.dims, '1x1'];
+      let lastDetail = '';
+      for (let i = 0; i < attempts.length; i++) {
+        try {
+          const gr = await fetch(GAMMA, {
+            method: 'POST',
+            headers: { 'X-API-KEY': gammaKey, 'Content-Type': 'application/json' },
+            body: JSON.stringify(buildPayload(attempts[i])),
+          });
+          const gd = await gr.json().catch(() => ({}));
+          if (gr.ok && gd.generationId) {
+            await save({ result: Object.assign(state.result, {
+              gamma_generation_id: gd.generationId, image_dims: attempts[i],
+            }) });
+            lastDetail = '';
+            break;
+          }
+          lastDetail = 'gamma_' + gr.status + ' @' + attempts[i] + ': ' +
+                       String((gd && (gd.message || gd.error)) || JSON.stringify(gd)).slice(0, 240);
+          console.error('[etl-design] gamma refused', lastDetail);
+        } catch (e) {
+          lastDetail = 'gamma_threw @' + attempts[i] + ': ' + String(e && e.message);
+          console.error('[etl-design]', lastDetail);
         }
-      } catch (e) {
-        console.error('[etl-design] gamma threw', e && e.message);
-        await save({ result: Object.assign(state.result, { image_error: String(e && e.message) }) });
       }
+      // A failed image must never discard three good text steps. Same lesson
+      // as the brief generator dropping a finished brief on a TTS failure.
+      if (lastDetail) await save({ result: Object.assign(state.result, { image_error: lastDetail }) });
     } else {
       console.warn('[etl-design] no GAMMA key set; delivering copy without a visual');
       await save({ result: Object.assign(state.result, { image_error: 'no_gamma_key' }) });
