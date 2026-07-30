@@ -254,8 +254,21 @@ exports.handler = async function(event) {
       totalTokens += (response.usage && (response.usage.output_tokens + response.usage.input_tokens)) || 0;
       const turnText = (response.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n').trim();
       if (turnText) finalText = turnText;
-      // web_search is server-side; the model only pauses for client tools (none here),
-      // so once it stops searching it returns the final text. Break when not searching.
+
+      // pause_turn: the SERVER-SIDE web_search loop hit its own iteration cap
+      // mid-task. It is not completion. The old code treated it as completion
+      // ("break when not searching"), so a recipient that needed more research
+      // than the cap allowed returned truncated text, parseTokens failed, and
+      // the run died in the silent no_valid_tokens branch below. It worked for
+      // the owner and failed for a buyer purely because an unfamiliar recipient
+      // needs more searches. Resume by re-sending with the assistant turn
+      // appended and NO extra user message: the server picks up where it left
+      // off, and injecting a "Continue." here derails that resumption.
+      if (response.stop_reason === 'pause_turn') {
+        messages.push({ role: 'assistant', content: response.content });
+        continue;
+      }
+
       if (response.stop_reason !== 'tool_use') break;
       messages.push({ role: 'assistant', content: response.content });
       messages.push({ role: 'user', content: 'Continue. When done researching, output only the JSON object.' });
@@ -263,6 +276,16 @@ exports.handler = async function(event) {
 
     const tokens = parseTokens(finalText);
     if (!tokens || !tokens.headline_html) {
+      // Logged (added 2026-07-30). This branch wrote the reason into the job
+      // blob and returned 200 without a single log line, so in Netlify it looked
+      // like a successful 28-43s run that simply produced no page. The length
+      // and shape of what Reid actually returned is what tells you whether the
+      // output was truncated, empty, or just malformed.
+      console.error('[studio-reid-slick-background] no valid tokens.'
+        + ' parsed=' + !!tokens
+        + ' finalTextLen=' + (finalText ? finalText.length : 0)
+        + ' totalTokens=' + totalTokens
+        + ' head=' + JSON.stringify((finalText || '').slice(0, 200)));
       await jobs.setJSON(jobKey, { job_id: jobId, status: 'error', error: 'reid_returned_no_valid_tokens', finished_at: new Date().toISOString(), owner_id: auth.user.id });
       return { statusCode: 200, body: JSON.stringify({ ok: false, error: 'no_valid_tokens' }) };
     }
