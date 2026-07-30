@@ -45,8 +45,8 @@ function buildPack(job) {
       fonts:    b.fonts || {},
       look:     b.look || '',
     },
-    image_url: r.image_url || '',
-    credits: 'Brand direction by Yuki Mendel. Positioning by Reid Callum. Copy by Zara Cole. Visual by Chris Avila, made in Gamma. ETL Design, Emerging Technologies Laboratory.',
+    image_url: r.image_key ? ('/.netlify/functions/etl-design-image?job_id=' + encodeURIComponent(job.job_id)) : '',
+    credits: 'Brand direction by Yuki Mendel. Positioning by Reid Callum. Copy by Zara Cole. Visual by Chris Avila, drawn with gpt-image-1 and composed by Yuki. ETL Design, Emerging Technologies Laboratory.',
   };
 }
 

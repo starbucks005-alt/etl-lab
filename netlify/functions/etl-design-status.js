@@ -13,7 +13,6 @@
 
 const { getStore, connectLambda } = require('@netlify/blobs');
 
-const GAMMA = 'https://public-api.gamma.app/v1.0/generations';
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -48,38 +47,12 @@ exports.handler = async (event) => {
 
   const res = job.result || {};
 
-  // Chase the image if it is still cooking.
-  if (res.gamma_generation_id && !res.image_url && !res.image_error) {
-    const key = process.env.GAMMA_API_KEY || process.env.GAMMA_KEY || process.env.BUILD_YOUR_AGENT_GAMMA;
-    if (key) {
-      try {
-        const r = await fetch(GAMMA + '/' + encodeURIComponent(res.gamma_generation_id), { headers: { 'X-API-KEY': key } });
-        const d = await r.json().catch(() => ({}));
-        let st = d.status;
-        if (st && typeof st === 'object') st = st.status || st.state || '';
-        if (d.exportUrl) {
-          res.image_url = d.exportUrl;
-          res.gamma_url = d.gammaUrl || '';
-          job.result = res;
-          try { await store.setJSON(jobId, job); } catch (_) {}
-        } else if (d.error || /fail|error/i.test(String(st || ''))) {
-          res.image_error = String(d.error || st);
-          job.result = res;
-          try { await store.setJSON(jobId, job); } catch (_) {}
-        }
-      } catch (e) {
-        console.warn('[etl-design-status] gamma poll failed (non-fatal)', e && e.message);
-      }
-    }
-  }
-
-  // The image is a separate track from the text: the copy can be finished
-  // and usable while Gamma is still working, so report both rather than
-  // making one wait on the other.
-  const imageState = res.image_url ? 'ready'
+  // The piece is a separate track from the words: the caption is finished and
+  // usable while Chris is still drawing and Yuki is still composing, so report
+  // both rather than making one wait on the other.
+  const imageState = res.image_key ? 'ready'
     : res.image_error ? 'failed'
-    : res.gamma_generation_id ? 'working'
-    : 'none';
+    : 'working';
 
   return json(200, {
     job_id: jobId,

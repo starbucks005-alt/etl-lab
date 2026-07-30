@@ -7,20 +7,25 @@
                                             image when one is uploaded
      2. Reid Callum   finds the angle       positioning, hook, proof points
      3. Zara Cole     writes the caption    the words BESIDE the graphic
-     4. Chris Avila   builds the graphic    Gamma, laid out in Yuki's system
+     4. Chris Avila   makes the artwork     gpt-image-1, then Yuki composes
+                                            the finished piece around it
 
-   WHAT THE PRODUCT IS (changed 2026-07-30, on Dr. O's call): the deliverable
-   is a DESIGNED CARD with copy on it, not a wordless illustration. The first
-   build asked Gamma for artwork with no text, which Gamma cannot do: its
-   textMode is generate | condense | preserve and nothing else, because Gamma
-   makes cards, not pictures. Fighting that produced a slide that ignored
-   Yuki's palette, ignored her type, and wrote its own copy with em dashes in
-   it. So the tool now does what it is actually for.
+   WHAT THE PRODUCT IS: a VISUAL for social media, with the caption beside it.
+   Dr. O: "I like visuals for Social Media, that is why I want it."
 
-   The consequence is that the card's own copy is authored HERE, by Reid and
-   Yuki, and handed to Gamma with textMode 'preserve' so it lays out our words
-   instead of inventing its own. Zara's post becomes the caption that goes
-   beside the graphic, which is the job a social writer actually does.
+   HOW IT GOT HERE, so nobody re-litigates it (2026-07-30):
+   Gamma was step 4 for three live runs. It honoured the palette and nothing
+   else. It ignored the typography, broke "Month 1 Free" into "Mon th 1 Free"
+   mid-layout, added chips in colours Yuki never chose, and never placed a
+   visual at all, so the deliverable was type in coloured boxes. Gamma builds
+   decks; it cannot hold a 6x4 postcard at 300 DPI either. Asking it to be a
+   design system was the mistake.
+
+   Now the designer emits the design. Chris generates real artwork, Yuki
+   composes the piece around it as SVG, and we rasterise with sharp, so the
+   palette, the type, the layout and the canvas are the ones she specified.
+   Zara's post is the caption beside the graphic, which is the job a social
+   writer actually does.
 
    Chris Avila uses they/them.
 
@@ -31,9 +36,10 @@
 const Anthropic = require('@anthropic-ai/sdk').default;
 const { getStore, connectLambda } = require('@netlify/blobs');
 const { buyerVoiceCore, buyerAgentPrompt } = require('./_social-voice.js');
+const { renderSvg, CANVASES } = require('./_design-render.js');
+const openaiImage = require('./_openai-image.js');
 
 const MODEL = 'claude-sonnet-4-6';
-const GAMMA = 'https://public-api.gamma.app/v1.0/generations';
 
 const PLATFORMS = {
   linkedin:  { name: 'LinkedIn',  charLimit: 3000, ideal: 1300, dims: '4x5',
@@ -173,79 +179,111 @@ exports.handler = async (event) => {
       'SUBJECT: ' + brief.promoting + '\n\nWrite the caption for ' + P.name + '.', 1500));
     await save({ step: 3, note: 'Chris is building the graphic.', result: Object.assign(state.result, { copy: zara, platform: P.name }) });
 
-    /* ── 4. Chris: the graphic, laid out in Yuki's system ──────────────── */
-    const gammaKey = process.env.GAMMA_API_KEY || process.env.GAMMA_KEY || process.env.BUILD_YOUR_AGENT_GAMMA;
-    if (gammaKey) {
-      const card = reid.card || {};
-      const blocks = Array.isArray(card.blocks) ? card.blocks : [];
-      const pal = Array.isArray(yuki.palette) ? yuki.palette : [];
-      const fonts = yuki.fonts || {};
+    /* ── 4. Chris: real artwork, then the piece composed around it ─────── */
+    // Two moves, because the point of the product is a VISUAL. The first
+    // build handed a description to Gamma and got type in coloured boxes
+    // back, which is not design. Chris makes an actual image; Yuki composes
+    // the finished piece around it in SVG and we rasterise that ourselves,
+    // so the palette, the type and the layout are the ones she specified
+    // rather than a deck tool's approximation of them (2026-07-30).
+    const canvasKey = CANVASES[brief.platform] ? brief.platform : 'instagram';
+    const canvas = CANVASES[canvasKey];
+    const pal = Array.isArray(yuki.palette) ? yuki.palette : [];
+    const paletteText = pal.map(p => (p.name || '') + ' ' + (p.hex || '')).join(', ');
+    const card = reid.card || {};
+    const blocks = Array.isArray(card.blocks) ? card.blocks : [];
 
-      // The exact words to set. Every string de-dashed before it can be
-      // rendered into a PNG nobody can edit afterwards.
-      const cardText = [
-        '# ' + deDash(card.headline || reid.hook || co),
-        '', deDash(card.subhead || reid.positioning || ''), '',
-      ].concat(blocks.map(b => '## ' + deDash(b.title || '') + '\n' + deDash(b.body || '')))
-       .concat(['', deDash(co) + (brief.businessSite ? ' · ' + deDash(brief.businessSite) : '')])
-       .join('\n');
+    let artB64 = '';
+    try {
+      const orient = canvas.w > canvas.h ? 'landscape' : (canvas.h > canvas.w ? 'portrait' : 'square');
+      const artPrompt = [
+        'Editorial marketing artwork for ' + co + '. Subject: ' + brief.promoting + '.',
+        'Mood: ' + (yuki.look || '') + '.',
+        'Use this colour palette and nothing else: ' + paletteText + '.',
+        'Absolutely NO text, NO words, NO letters, NO numbers, NO logos, NO watermarks anywhere in the image.',
+        'Leave calm, uncluttered space in the upper third where a headline will be placed over it.',
+        'Photographic or richly illustrated, confident composition, not a flat icon and not clip art.',
+        concept ? 'Match the look, setting and colouring of the reference the client supplied.' : '',
+      ].filter(Boolean).join(' ');
+      artB64 = await openaiImage.generate(artPrompt, openaiImage.SIZES[orient], 'medium');
+      await save({ note: 'Yuki is composing the piece.' });
+    } catch (e) {
+      // No artwork is survivable: Yuki can compose a strong type-led piece
+      // in her own palette. Losing the whole job over it is not.
+      console.error('[etl-design] artwork failed', e && e.message);
+      await save({ result: Object.assign(state.result, { art_error: String(e && e.message).slice(0, 200) }) });
+    }
 
-      // Yuki's system, stated as design direction. Gamma controls its own
-      // theme, so this steers rather than dictates; the palette and type are
-      // named explicitly to give it every chance to comply.
-      const styleDirection = [
-        'Design system to follow exactly.',
-        'Palette: ' + pal.map(p => (p.name || '') + ' ' + (p.hex || '') + (p.use ? ' for ' + p.use : '')).join('; ') + '.',
-        'Typography: ' + (fonts.display || '') + ' for headlines, ' + (fonts.body || '') + ' for body.',
-        'Feel: ' + (yuki.look || ''),
-        'Generous negative space, strong type hierarchy, one accent colour used sparingly.',
-        'Use only the words given. Do not add copy, taglines, statistics or contact details.',
-        'Never use em dashes or en dashes.',
-      ].join(' ');
+    /* Yuki composes. She is given the exact canvas, the exact words, and the
+       artwork to build around. */
+    const artHref = artB64 ? ('data:image/png;base64,' + artB64) : '';
+    const composeSys = [
+      'You are Yuki Mendel, a type-first graphic designer. You are producing FINISHED ARTWORK as a single SVG document. Output ONLY the SVG, starting with <svg and ending with </svg>. No markdown fence, no commentary.',
+      '',
+      'CANVAS: exactly ' + canvas.w + ' by ' + canvas.h + ' (' + canvas.label + '). Use viewBox="0 0 ' + canvas.w + ' ' + canvas.h + '".',
+      (canvas.kind === 'print'
+        ? 'THIS IS PRINT. Anything meant to reach the edge must bleed to the artboard edge, and NOTHING readable may sit within ' + canvas.safe + ' units of any edge, or it will be trimmed off.'
+        : 'Keep important elements clear of the outer 40 units so nothing is cropped by a feed.'),
+      '',
+      'PALETTE, use these and nothing else: ' + paletteText + '.',
+      'TYPE: ' + ((yuki.fonts && yuki.fonts.display) || 'a serif') + ' for display, ' + ((yuki.fonts && yuki.fonts.body) || 'a sans-serif') + ' for body. Set font-family to a stack ending in "serif" or "sans-serif".',
+      '',
+      artHref
+        ? 'ARTWORK: place <image href="CONCEPT_IMAGE" .../> as a major element. Use the literal string CONCEPT_IMAGE as the href; it is substituted at render time. Give it a real role in the composition: full bleed behind the type, a strong band, or a confident crop. Use <clipPath> or a translucent <rect> in a palette colour over it so the headline stays readable.'
+        : 'There is no photograph. Build a strong type-led composition using rules, blocks, and generous negative space.',
+      '',
+      'HARD RULES, these break the piece if ignored:',
+      '1. SVG <text> DOES NOT WRAP. Emit each line as its own <text>. Never put a long sentence in one <text>.',
+      '2. Keep display lines under about 28 characters and body lines under about 48.',
+      '3. Never break a word across lines.',
+      '4. No em dashes or en dashes anywhere.',
+      '5. Every colour must be a hex from the palette above.',
+      '6. Do not invent copy. Use only the words given below, though you may drop a block if the composition is stronger without it.',
+    ].join('\n');
 
-      const buildPayload = (dims) => ({
-        inputText: cardText.slice(0, 4000),
-        format: 'social',
-        // 'preserve' takes our words as written. 'generate' is what let Gamma
-        // author its own copy, off-palette and full of em dashes, on the first
-        // live run. Valid values are generate | condense | preserve only.
-        textMode: 'preserve',
-        numCards: 1,
-        cardOptions: { dimensions: dims },
-        imageOptions: { source: 'aiGenerated', model: 'imagen-4-pro', style: styleDirection.slice(0, 2000) },
-        additionalInstructions: styleDirection.slice(0, 2000),
-        exportAs: 'png',
-      });
+    const composeUser = [
+      'HEADLINE: ' + deDash(card.headline || reid.hook || co),
+      'SUBHEAD: ' + deDash(card.subhead || reid.positioning || ''),
+      '',
+      'BLOCKS:',
+      blocks.map((b, i) => (i + 1) + '. ' + deDash(b.title || '') + ' :: ' + deDash(b.body || '')).join('\n'),
+      '',
+      'FOOTER: ' + deDash(co) + (brief.businessSite ? '  ·  ' + deDash(brief.businessSite) : ''),
+      '',
+      'Compose the piece.',
+    ].join('\n');
 
-      const attempts = P.dims === '1x1' ? ['1x1'] : [P.dims, '1x1'];
-      let lastDetail = '';
-      for (let i = 0; i < attempts.length; i++) {
-        try {
-          const gr = await fetch(GAMMA, {
-            method: 'POST',
-            headers: { 'X-API-KEY': gammaKey, 'Content-Type': 'application/json' },
-            body: JSON.stringify(buildPayload(attempts[i])),
-          });
-          const gd = await gr.json().catch(() => ({}));
-          if (gr.ok && gd.generationId) {
-            await save({ result: Object.assign(state.result, {
-              gamma_generation_id: gd.generationId, image_dims: attempts[i], card_text: cardText,
-            }) });
-            lastDetail = '';
-            break;
-          }
-          lastDetail = 'gamma_' + gr.status + ' @' + attempts[i] + ': ' +
-                       String((gd && (gd.message || gd.error)) || JSON.stringify(gd)).slice(0, 240);
-          console.error('[etl-design] gamma refused', lastDetail);
-        } catch (e) {
-          lastDetail = 'gamma_threw @' + attempts[i] + ': ' + String(e && e.message);
-          console.error('[etl-design]', lastDetail);
+    let svg = await ask(client, composeSys, composeUser, 4000);
+    svg = svg.replace(/^```(?:svg|xml|html)?\s*/i, '').replace(/```\s*$/, '').trim();
+
+    try {
+      let out = await renderSvg(svg, canvasKey, artHref);
+      // One retry, with the measured complaints handed back. Text running off
+      // the canvas is the single most likely way this ships something broken,
+      // and it is exactly what "Mon th 1 Free" looked like under Gamma.
+      if (out.overflow.length) {
+        console.warn('[etl-design] overflow, retrying:', out.overflow.join(' | '));
+        const fixed = await ask(client,
+          composeSys + '\n\nYOUR PREVIOUS ATTEMPT OVERRAN THE CANVAS. Fix these and return the corrected SVG only:\n' +
+          out.overflow.map(o => '- ' + o).join('\n'),
+          composeUser, 4000);
+        const cleaned = fixed.replace(/^```(?:svg|xml|html)?\s*/i, '').replace(/```\s*$/, '').trim();
+        if (/^<svg/i.test(cleaned)) {
+          const retry = await renderSvg(cleaned, canvasKey, artHref);
+          if (retry.overflow.length <= out.overflow.length) out = retry;
         }
       }
-      if (lastDetail) await save({ result: Object.assign(state.result, { image_error: lastDetail }) });
-    } else {
-      console.warn('[etl-design] no GAMMA key set; delivering copy without a graphic');
-      await save({ result: Object.assign(state.result, { image_error: 'no_gamma_key' }) });
+      const key = jobId + '.png';
+      await store.set(key, out.png, { metadata: { contentType: 'image/png' } });
+      await save({ result: Object.assign(state.result, {
+        image_key: key,
+        image_w: out.canvas.w, image_h: out.canvas.h,
+        image_kind: out.canvas.kind, image_label: out.canvas.label,
+        overflow_notes: out.overflow.length ? out.overflow : null,
+      }) });
+    } catch (e) {
+      console.error('[etl-design] compose/render failed', e && e.message);
+      await save({ result: Object.assign(state.result, { image_error: String(e && e.message).slice(0, 240) }) });
     }
 
     await save({ status: 'done', step: 4, note: 'Ready.' });
