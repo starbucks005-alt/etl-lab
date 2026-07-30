@@ -378,6 +378,19 @@
     grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
     gap: 24px;
   }
+
+  /* "What your team can do" is five across and "Command the staff" three, set
+     inline on those two grids so they line up with the staff grid instead of
+     each section tapering narrower than the one above it. Both are inline
+     styles, so the responsive step-downs need !important to win. */
+  @media (max-width: 1240px) {
+    #team-cap-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+    #cc-tools-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  }
+  @media (max-width: 860px) {
+    #team-cap-grid,
+    #cc-tools-grid { grid-template-columns: 1fr !important; }
+  }
   .staff-card {
     background: var(--linen-light);
     border: 1px solid var(--linen-edge);
@@ -2383,7 +2396,12 @@
     <p style="font-family:'Spectral',serif;font-style:italic;color:var(--skin-ink-muted);font-size:16px;margin:0 0 22px;max-width:700px;">
       One conversation. You talk to your PA, your PA hands the work to the right person and brings it back. Here is what to say.
     </p>
-    <div id="team-cap-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;"></div>
+    <!-- Five across, matching the staff grid above it. auto-fill with a 220px
+         minimum was collapsing to three or four on a normal screen, so this
+         section read as narrower than the one above and the page appeared to
+         taper as you scrolled. Fixed counts keep the sections aligned; the
+         media queries below hand it back down on smaller screens. -->
+    <div id="team-cap-grid" style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;align-items:start;"></div>
   </section>
 
   <script>
@@ -2489,9 +2507,11 @@
       <div class="ws-section-tag">Tools online</div>
     </div>
 
-    <!-- Tools laid out two-up. Hidden tools (display:none until their agent is
-         on staff) drop out of the grid automatically, so the row count adapts. -->
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:24px;align-items:start;">
+    <!-- Three across. Hidden tools (display:none until their agent is on staff)
+         drop out of the grid automatically, so the row count adapts. Fixed at
+         three rather than auto-fill so this section lines up with the ones
+         above instead of tapering. -->
+    <div id="cc-tools-grid" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;align-items:start;">
     <!-- Tool: Social Posts -->
     <div id="cc-social" style="background:var(--linen-light);border:1px solid var(--linen-edge);border-left:3px solid var(--brass);padding:28px 32px;">
       <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.18em;color:var(--brass);text-transform:uppercase;margin-bottom:10px;">Social Posts</div>
