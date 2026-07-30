@@ -36,8 +36,24 @@
 const Anthropic = require('@anthropic-ai/sdk').default;
 const { getStore, connectLambda } = require('@netlify/blobs');
 const { buyerVoiceCore, buyerAgentPrompt } = require('./_social-voice.js');
-const { renderSvg, CANVASES } = require('./_design-render.js');
-const openaiImage = require('./_openai-image.js');
+/* Loaded LAZILY, inside step 4, and deliberately so.
+   _design-render pulls in sharp, a native module. When sharp was missing from
+   package.json this require threw at MODULE LOAD, which killed the function
+   before it could write a single line of job state, so the page polled a job
+   that had never existed and showed nothing at all. Steps 1 to 3 are useful on
+   their own; a broken renderer should cost the picture, not the whole job
+   (2026-07-30). */
+let renderSvg = null, CANVASES = null, openaiImage = null, renderLoadError = null;
+try {
+  ({ renderSvg, CANVASES } = require('./_design-render.js'));
+  openaiImage = require('./_openai-image.js');
+} catch (e) {
+  renderLoadError = 'design renderer unavailable: ' + (e && e.message);
+  console.error('[etl-design] ' + renderLoadError);
+}
+/* Canvas fallback so the rest of the relay can still reason about platform
+   even when the renderer failed to load. */
+const CANVAS_FALLBACK = { instagram: { w: 1080, h: 1080, kind: 'social', label: 'Instagram square' } };
 
 const MODEL = 'claude-sonnet-4-6';
 
@@ -186,8 +202,17 @@ exports.handler = async (event) => {
     // the finished piece around it in SVG and we rasterise that ourselves,
     // so the palette, the type and the layout are the ones she specified
     // rather than a deck tool's approximation of them (2026-07-30).
-    const canvasKey = CANVASES[brief.platform] ? brief.platform : 'instagram';
-    const canvas = CANVASES[canvasKey];
+    if (renderLoadError) {
+      // Steps 1 to 3 already landed and are worth having. Say plainly that the
+      // picture is missing rather than failing the job the client just waited
+      // through, and charge nothing for it.
+      await save({ result: Object.assign(state.result, { image_error: renderLoadError }) });
+      await save({ status: 'done', step: 4, note: 'Ready, without the graphic.' });
+      return { statusCode: 200, body: 'ok (no renderer)' };
+    }
+    const CANVAS_TABLE = CANVASES || CANVAS_FALLBACK;
+    const canvasKey = CANVAS_TABLE[brief.platform] ? brief.platform : 'instagram';
+    const canvas = CANVAS_TABLE[canvasKey];
     const pal = Array.isArray(yuki.palette) ? yuki.palette : [];
     const paletteText = pal.map(p => (p.name || '') + ' ' + (p.hex || '')).join(', ');
     const card = reid.card || {};

@@ -2,7 +2,12 @@
   functions = "netlify/functions"
 
 [functions]
-  external_node_modules = ["@supabase/supabase-js", "@netlify/blobs"]
+  # sharp is a NATIVE module (libvips). esbuild cannot bundle it, so it must
+  # be external or every function that requires it throws at module load. It
+  # also has to be a real dependency in package.json, or Netlify never installs
+  # it at all: that is what killed the first ETL Design render, silently, before
+  # the relay wrote a single line of state (2026-07-30).
+  external_node_modules = ["@supabase/supabase-js", "@netlify/blobs", "sharp"]
 
 [functions."proxy-ai"]
   timeout = 60
