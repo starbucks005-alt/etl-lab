@@ -2675,13 +2675,50 @@
 
       <div style="display:flex;flex-direction:column;gap:16px;max-width:640px;">
         <div>
-          <label class="sp-q">1. Who is it for?</label>
-          <input id="reid-recipient" class="sp-input" type="text" placeholder="A sponsor, a company, a person, an organization...">
+          <label class="sp-q">1. What are you advertising?</label>
+          <input id="reid-subject" class="sp-input" type="text" placeholder="https://...">
+          <div style="font-family:'Spectral',serif;font-style:italic;color:var(--ink-quiet);font-size:13px;margin-top:6px;">Reid reads this site to learn what he is selling. Change it to advertise something else.</div>
         </div>
         <div>
-          <label class="sp-q">2. The angle and details <span style="color:var(--ink-quiet);font-style:italic;font-weight:400;">(optional)</span></label>
+          <label class="sp-q">2. Who is it for?</label>
+          <input id="reid-recipient" class="sp-input" type="text" placeholder="A named company, person, or a specific group like 'primary care physicians in Dayton, Ohio'">
+          <div style="font-family:'Spectral',serif;font-style:italic;color:var(--ink-quiet);font-size:13px;margin-top:6px;">Be specific enough that Reid can research them. A broad label like &ldquo;potential clients&rdquo; gives him nothing to find.</div>
+        </div>
+        <div>
+          <label class="sp-q">3. The angle and details <span style="color:var(--ink-quiet);font-style:italic;font-weight:400;">(optional)</span></label>
           <textarea id="reid-brief" class="sp-input" rows="3" placeholder="What should Reid emphasize? Real numbers, the ask, the value to them, the audience. Or say 'like the INMA example.'"></textarea>
         </div>
+        <!-- Branding and pricing: prefilled from this owner's own config and
+             usually left alone. Blank means the element is omitted from the
+             sheet; nothing here ever falls back to ETL's branding, because a
+             buyer must never hand a prospect a one-pager headed with someone
+             else's company and legal entity. -->
+        <details style="border-top:1px solid var(--linen-edge);padding-top:14px;">
+          <summary style="cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.12em;color:var(--brass);text-transform:uppercase;">Branding &amp; pricing on the sheet</summary>
+          <div style="display:flex;flex-direction:column;gap:14px;margin-top:16px;">
+            <div>
+              <label class="sp-q">Name in the header</label>
+              <input id="reid-brand-name" class="sp-input" type="text" placeholder="Leave blank for no header brand">
+            </div>
+            <div>
+              <label class="sp-q">Line under the name <span style="color:var(--ink-quiet);font-style:italic;font-weight:400;">(optional)</span></label>
+              <input id="reid-brand-tagline" class="sp-input" type="text" placeholder="e.g. A Mission Possible Institute company">
+            </div>
+            <div>
+              <label class="sp-q">Website in the footer <span style="color:var(--ink-quiet);font-style:italic;font-weight:400;">(optional)</span></label>
+              <input id="reid-brand-site" class="sp-input" type="text" placeholder="e.g. emerging-tech-lab.com">
+            </div>
+            <div>
+              <label class="sp-q">Legal line in the footer <span style="color:var(--ink-quiet);font-style:italic;font-weight:400;">(optional)</span></label>
+              <input id="reid-brand-footer" class="sp-input" type="text" placeholder="e.g. A property of Your Company LLC, City, State">
+            </div>
+            <div>
+              <label class="sp-q">Pricing <span style="color:var(--ink-quiet);font-style:italic;font-weight:400;">(optional, one tier per line)</span></label>
+              <textarea id="reid-tiers" class="sp-input" rows="3" placeholder="THE COMPANY | ~$500 | /mo | PA, the six-pack, and your core specialists"></textarea>
+              <div style="font-family:'Spectral',serif;font-style:italic;color:var(--ink-quiet);font-size:13px;margin-top:6px;">Name, amount, unit, description, separated by |. Leave blank and the pricing block is left off entirely. Reid never makes up a price.</div>
+            </div>
+          </div>
+        </details>
         <div><button type="button" id="reid-build" class="sp-cta">Build the one-pager</button></div>
         <div id="reid-status" style="display:none;font-family:'Spectral',serif;font-style:italic;color:var(--ink-soft);font-size:15px;"></div>
         <div id="reid-result" style="display:none;"></div>
@@ -2725,6 +2762,44 @@
     var briefEl     = document.getElementById('reid-brief');
     var buildBtn    = document.getElementById('reid-build');
     var statusEl    = document.getElementById('reid-status');
+
+    function reidVal(id){ var e = document.getElementById(id); return e ? (e.value || '').trim() : ''; }
+
+    // "NAME | AMOUNT | UNIT | DESCRIPTION" per line. Prices are the owner's to
+    // state; Reid is told not to invent any, and an empty box means the pricing
+    // block is left off the sheet entirely.
+    function parseReidTiers(text){
+      return (text || '').split('\n').map(function(line){
+        var p = line.split('|').map(function(s){ return (s || '').trim(); });
+        if (!p[0] && !p[1]) return null;
+        return { name: p[0] || '', amount: p[1] || '', unit: p[2] || '', desc: p[3] || '', best: false };
+      }).filter(Boolean).slice(0, 4);
+    }
+
+    // Prefill branding from THIS owner's config, so the sheet carries their
+    // identity rather than the landlord's. Only fills blanks, so anything typed
+    // is never overwritten. Waits for applyConfig to have run.
+    function reidPrefill(){
+      if (!window.__ownerName && !window.__companyName && !window.__ownerSite) return false;
+      var set = function(id, v){
+        var e = document.getElementById(id);
+        if (e && !(e.value || '').trim() && v) e.value = v;
+      };
+      set('reid-subject', window.__ownerSite || '');
+      set('reid-brand-name', window.__companyName || window.__ownerName || '');
+      set('reid-brand-site', (window.__ownerSite || '').replace(/^https?:\/\//, '').replace(/\/$/, ''));
+      if (Array.isArray(window.__hiredStaff) && window.__hiredStaff.length) {
+        window.__crewReference = 'The team available for this offering (map each need to the right people by name):\n'
+          + window.__hiredStaff.map(function(s){
+              return '- ' + (s.name || '') + (s.role ? ' (' + s.role + ')' : '');
+            }).join('\n');
+      }
+      return true;
+    }
+    (function waitForConfig(tries){
+      if (reidPrefill() || tries > 40) return;
+      setTimeout(function(){ waitForConfig(tries + 1); }, 250);
+    })(0);
     var resultEl    = document.getElementById('reid-result');
     var tmplEl      = document.getElementById('cc-reid-templates');
     function escH(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
@@ -2784,7 +2859,17 @@
         var r = await fetch('/.netlify/functions/studio-reid-slick-ask', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-          body: JSON.stringify({ recipient: recipient, brief: (briefEl.value || '').trim() || null })
+          body: JSON.stringify({
+            recipient: recipient,
+            brief: (briefEl.value || '').trim() || null,
+            subject_url: reidVal('reid-subject'),
+            brand_name: reidVal('reid-brand-name'),
+            brand_tagline: reidVal('reid-brand-tagline'),
+            brand_site: reidVal('reid-brand-site'),
+            brand_footer: reidVal('reid-brand-footer'),
+            tiers: parseReidTiers(reidVal('reid-tiers')),
+            crew_reference: window.__crewReference || '',
+          })
         });
         var data = await r.json();
         if (!r.ok || !data.polling_endpoint) { statusEl.textContent = 'Reid hit a snag starting that. Try again.'; buildBtn.disabled = false; return; }

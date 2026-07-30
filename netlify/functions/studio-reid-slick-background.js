@@ -114,12 +114,61 @@ function slugify(name) {
 
 function buildValueRows(rows) {
   return (rows || []).slice(0, 3).map((r, i) => {
+    // The crew line renders only when there is a crew. Selling a staffed studio
+    // it is the whole point; advertising a medical practice or a product page
+    // there is nobody to name, and a bare "Your crew:" label reads as a defect.
+    const crew = r.crew && String(r.crew).trim()
+      ? '<div class="crew">Your crew: ' + inlineHtml(r.crew) + '</div>'
+      : '';
     return '<div class="row"><div class="num">' + (i + 1) + '</div><div>'
       + '<h3>' + inlineHtml(r.title) + '</h3>'
       + '<p>' + inlineHtml(r.body_html) + '</p>'
-      + '<div class="crew">Your crew: ' + inlineHtml(r.crew) + '</div>'
+      + crew
       + '</div></div>';
   }).join('\n');
+}
+
+/* Branding is per-slick and NEVER falls back to the landlord's own.
+   Before 2026-07-30 the template hardcoded "FOUNDER STUDIO", "A Mission
+   Possible Institute company" and a footer naming Mission Possible Institute
+   LLC, so a buyer advertising their own business handed their prospect a sheet
+   branded as someone else's company, with someone else's legal entity on it.
+   Blank now means the element is omitted. An unbranded sheet is fine; a sheet
+   branded as the wrong company is not. */
+function buildBrandBlock(b) {
+  const name = String(b.brand_name || '').trim();
+  const tagline = String(b.brand_tagline || '').trim();
+  if (!name && !tagline) return '';
+  return '<div class="brand">'
+    + (name ? '<div class="wm">' + esc(name) + '</div>' : '')
+    + (tagline ? '<div class="sub">' + esc(tagline) + '</div>' : '')
+    + '</div>';
+}
+
+function buildFooterBlock(b) {
+  const parts = [];
+  const site = String(b.brand_site || '').trim();
+  const legal = String(b.brand_footer || '').trim();
+  if (site) parts.push('Visit <b>' + esc(site) + '</b>');
+  if (legal) parts.push(esc(legal));
+  if (!parts.length) return '';
+  return '<div class="foot">' + parts.join(' &nbsp;&middot;&nbsp; ') + '</div>';
+}
+
+/* Pricing is the owner's to state, never Reid's to infer: an agent inventing a
+   price on a sheet handed to a prospect is the worst failure this document can
+   have. No tiers supplied means the whole block, heading and blurb included,
+   does not render. */
+function buildPricingBlock(t) {
+  const tiers = buildTiers(t.tiers);
+  if (!tiers) return '';
+  const heading = String(t.pricing_heading || '').trim();
+  const blurb = String(t.pricing_blurb || '').trim();
+  return '<div class="price">'
+    + (heading ? '<h2>' + esc(heading) + '</h2>' : '')
+    + (blurb ? '<p>' + inlineHtml(blurb) + '</p>' : '')
+    + '<div class="tiers">' + tiers + '</div>'
+    + '</div>';
 }
 function buildTiers(tiers) {
   return (tiers || []).slice(0, 4).map(t => {
@@ -131,19 +180,40 @@ function buildTiers(tiers) {
   }).join('\n');
 }
 
-function fillTemplate(tpl, t) {
-  const moat = t.moat_body && String(t.moat_body).trim()
-    ? inlineHtml(t.moat_body)
-    : 'Your staff know each other and they know the field. They have history, banter, and the odd rivalry; when one has a rough day, the others rally. A chatbot is a single voice pretending to be a crew. This is a real team, with the texture of a real workplace, and that is the one thing a competitor cannot clone.';
+/* The moat section used to hardcode "Why this is not just another tool" / "It is
+   a real team, and it has your back", plus a default body about your staff
+   having banter and rivalries. All of that is true of a staffed studio and
+   nonsense on a sheet advertising a medical practice, so the copy now comes
+   from Reid and the block is omitted when there is no body. */
+function buildMoatBlock(t) {
+  const body = String(t.moat_body || '').trim();
+  if (!body) return '';
+  const eyebrow = String(t.moat_eyebrow || '').trim();
+  const heading = String(t.moat_heading || '').trim();
+  return '<div class="moat">'
+    + (eyebrow ? '<div class="eyebrow">' + esc(eyebrow) + '</div>' : '')
+    + (heading ? '<h2>' + esc(heading) + '</h2>' : '')
+    + '<p>' + inlineHtml(body) + '</p>'
+    + '</div>';
+}
+
+function fillTemplate(tpl, t, brand) {
+  brand = brand || {};
+  const docTitle = String(brand.brand_name || '').trim()
+    ? String(brand.brand_name).trim() + ' - one-pager'
+    : 'One-pager';
   return tpl
+    .replace(/\{\{DOC_TITLE\}\}/g, esc(docTitle))
+    .replace(/\{\{BRAND_BLOCK\}\}/g, buildBrandBlock(brand))
+    .replace(/\{\{FOOTER_BLOCK\}\}/g, buildFooterBlock(brand))
     .replace(/\{\{AUDIENCE_LINE\}\}/g, esc(t.audience_line))
     .replace(/\{\{HEADLINE_HTML\}\}/g, inlineHtml(t.headline_html))
     .replace(/\{\{LEDE_HTML\}\}/g, inlineHtml(t.lede_html))
     .replace(/\{\{VALUE_ROWS\}\}/g, buildValueRows(t.value_rows))
-    .replace(/\{\{MOAT_BODY\}\}/g, moat)
-    .replace(/\{\{TIERS\}\}/g, buildTiers(t.tiers))
+    .replace(/\{\{MOAT_BLOCK\}\}/g, buildMoatBlock(t))
+    .replace(/\{\{PRICING_BLOCK\}\}/g, buildPricingBlock(t))
     .replace(/\{\{CTA_LINE_HTML\}\}/g, inlineHtml(t.cta_line_html))
-    .replace(/\{\{CTA_BUTTON\}\}/g, esc(t.cta_button || 'Build your studio'));
+    .replace(/\{\{CTA_BUTTON\}\}/g, esc(t.cta_button || 'Get in touch'));
 }
 
 // Inject a small print-to-PDF bar above the sheet (screen only; hidden in print).
@@ -169,33 +239,56 @@ function parseTokens(text) {
   try { return JSON.parse(raw); } catch (_) { return null; }
 }
 
-const SLICK_SYSTEM = `You are Reid Callum, the Marketing Expert on the ETL Founders Studio bench. You are generating a TAILORED MARKETING SLICK: a one-page sell sheet built for one specific recipient, the way a great development director would tailor a pitch.
+/* The system prompt is built per run (2026-07-30). It used to open "You are Reid
+   Callum, the Marketing Expert on the ETL Founders Studio bench" and carried a
+   hardcoded ETL crew roster and ETL price list, with no input for whose product
+   was being sold. Reid could therefore only ever advertise Founder Studio: a
+   buyer asking for a sheet about their own services got a pitch for the
+   landlord's product instead. WHAT is being advertised is now an input like
+   WHO it is for. */
+function buildSlickSystem(opts) {
+  const subjectUrl = String(opts.subjectUrl || '').trim();
+  const crewRef = String(opts.crewReference || '').trim();
+  const tiersSupplied = !!opts.tiersSupplied;
+
+  const subjectStep = subjectUrl
+    ? `1. Research the ADVERTISED SITE with web search: ${subjectUrl}. Learn what it actually sells, who it serves, and how it describes itself. Everything you write is selling THIS, in ITS voice. Never substitute another company's offering.`
+    : `1. The advertised offering is described in the brief below. Sell that, and nothing else.`;
+
+  return `You are Reid Callum, a marketing expert. You are generating a TAILORED MARKETING SLICK: a one-page sell sheet advertising one specific offering to one specific recipient, the way a great development director would tailor a pitch.
 
 Your job:
-1. Research and VERIFY the recipient with web search. Find their real work, role, goals, and pains. Use only what you can verify. Never invent a quote or a fact. If you cannot verify something, leave it out.
-2. Pull their two or three real goals or pains.
-3. Map each one to specific ETL crew by name. The specificity is the whole point: it shows the team doing their job, not a generic pitch.
+${subjectStep}
+2. Research and VERIFY the recipient with web search. Find their real work, role, goals, and pains. Use only what you can verify. Never invent a quote or a fact. If you cannot verify something, leave it out.
+3. Pull their two or three real goals or pains, and map each to what the advertised offering actually does about it.
 4. Pick a headline from THEIR situation, not a stock line.
-5. Choose only the pricing tiers that fit them.
 
-${CREW_REFERENCE}
+${crewRef
+  ? crewRef + `\nWhen a need maps to specific named people above, name them in that row's "crew". If a row has no obvious person, leave "crew" as an empty string.`
+  : `There is no named team to reference for this offering. Leave every "crew" field as an empty string.`}
 
-${TIER_REFERENCE}
+${tiersSupplied
+  ? `Pricing has been supplied by the owner and is passed through verbatim. Do not restate, adjust, or invent prices anywhere in your copy. You may write a short heading and one-line intro for the pricing section.`
+  : `NO pricing has been supplied. Return "tiers" as an empty array and do not mention prices, rates, or costs anywhere in your copy. Never infer a price from the site you researched.`}
 
 Brand rules (do not break): honest claims only, no invented quotes, no em dashes (use commas, periods, semicolons). On sensitive subjects (grief, conflict, illness), lead with gravity and respect, never salesy.
 
 OUTPUT: When your research is done, output ONLY a single JSON object, nothing before or after it, with exactly these keys:
 {
-  "audience_line": "short eyebrow, e.g. 'Prepared for Jane Doe' or 'For Leaders in Security'",
+  "audience_line": "short eyebrow, e.g. 'Prepared for Jane Doe' or 'For Primary Care Physicians in Dayton, Ohio'",
   "headline_html": "the headline; wrap the gold phrase in <em>...</em>",
   "lede_html": "1 to 3 sentences; you may use <b>...</b>",
-  "value_rows": [ { "title": "row title", "body_html": "the need and how the team solves it, with a <b>bold hook</b>", "crew": "Name (role) and Name and Name, the specific people" } ],
-  "moat_body": "leave as empty string to use the default, or write a recipient-specific angle",
-  "tiers": [ { "name": "THE COMPANY", "amount": "~$500", "unit": "/mo", "desc": "one line", "best": false } ],
+  "value_rows": [ { "title": "row title", "body_html": "the need and how the offering solves it, with a <b>bold hook</b>", "crew": "Name (role) and Name, the specific people, or an empty string" } ],
+  "moat_eyebrow": "short label above the differentiator, or empty string",
+  "moat_heading": "the differentiator headline, or empty string",
+  "moat_body": "why this offering is hard to copy; empty string to omit the section entirely",
+  "pricing_heading": "heading for the pricing block, or empty string",
+  "pricing_blurb": "one line above the prices, or empty string",
   "cta_line_html": "closing line; you may use <em>...</em>",
-  "cta_button": "button label, e.g. 'Build your studio' or 'Staff your next event'"
+  "cta_button": "button label, e.g. 'Get in touch' or 'Book a consult'"
 }
-Provide 2 or 3 value_rows and only the tiers that fit. Output the JSON and nothing else.`;
+Provide 2 or 3 value_rows. Output the JSON and nothing else.`;
+}
 
 exports.handler = async function(event) {
   try { connectLambda(event); } catch (_) {}
@@ -214,6 +307,19 @@ exports.handler = async function(event) {
 
   const jobId = String(body.job_id || '').trim();
   const recipient = String(body.recipient || '').trim();
+  // WHAT is being advertised, and whose branding goes on the sheet. All
+  // optional, all supplied by the caller, none defaulting to the landlord's.
+  const subjectUrl = String(body.subject_url || '').trim();
+  const brand = {
+    brand_name: String(body.brand_name || '').trim(),
+    brand_tagline: String(body.brand_tagline || '').trim(),
+    brand_footer: String(body.brand_footer || '').trim(),
+    brand_site: String(body.brand_site || '').trim(),
+  };
+  // Prices are passed through verbatim from the owner. Reid never sets them.
+  const ownerTiers = Array.isArray(body.tiers)
+    ? body.tiers.filter(t => t && (t.name || t.amount)).slice(0, 4)
+    : [];
   if (!jobId)     return { statusCode: 400, body: JSON.stringify({ error: 'job_id_required' }) };
   if (!recipient) return { statusCode: 400, body: JSON.stringify({ error: 'recipient_required' }) };
 
@@ -236,8 +342,22 @@ exports.handler = async function(event) {
   const briefBlock = body.brief && typeof body.brief === 'object'
     ? '\n\nBrief from the owner (use verbatim where useful):\n' + JSON.stringify(body.brief).slice(0, 2000)
     : (body.brief ? '\n\nBrief from the owner:\n' + String(body.brief).slice(0, 2000) : '');
-  const userMsg = 'Generate a tailored marketing slick for this recipient: ' + recipient
-    + briefBlock + '\n\nResearch them first, then output only the JSON.';
+  // The crew comes from the caller (the buyer's own hired staff), not from a
+  // hardcoded ETL roster. That is what stopped a buyer's sheet naming Auggie as
+  // their assistant when their assistant is someone else entirely.
+  const crewReference = String(body.crew_reference || '').trim();
+  const slickSystem = buildSlickSystem({
+    subjectUrl,
+    crewReference,
+    tiersSupplied: ownerTiers.length > 0,
+  });
+
+  const subjectLine = subjectUrl
+    ? 'You are advertising what is sold at: ' + subjectUrl + '\n\n'
+    : '';
+  const userMsg = subjectLine
+    + 'Generate a tailored marketing slick for this recipient: ' + recipient
+    + briefBlock + '\n\nResearch first, then output only the JSON.';
 
   const client = new Anthropic({ apiKey });
   const tools = [{ type: 'web_search_20250305', name: 'web_search', max_uses: MAX_WEB_SEARCHES }];
@@ -249,7 +369,7 @@ exports.handler = async function(event) {
 
     for (let turn = 0; turn < MAX_TURNS; turn++) {
       const response = await client.messages.create({
-        model: MODEL, max_tokens: MAX_TOKENS, system: SLICK_SYSTEM + VOICE_LAW_PROSE, tools, messages,
+        model: MODEL, max_tokens: MAX_TOKENS, system: slickSystem + VOICE_LAW_PROSE, tools, messages,
       });
       totalTokens += (response.usage && (response.usage.output_tokens + response.usage.input_tokens)) || 0;
       const turnText = (response.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n').trim();
@@ -290,7 +410,10 @@ exports.handler = async function(event) {
       return { statusCode: 200, body: JSON.stringify({ ok: false, error: 'no_valid_tokens' }) };
     }
 
-    const filled = withPrintBar(fillTemplate(tpl, tokens));
+    // Owner-supplied prices win outright; Reid's "tiers" are ignored so a
+    // generated number can never reach a sheet handed to a prospect.
+    tokens.tiers = ownerTiers;
+    const filled = withPrintBar(fillTemplate(tpl, tokens, brand));
     const slug = slugify(recipient) + '-' + jobId.slice(-4);
 
     const slicks = getStore('studio_slicks');

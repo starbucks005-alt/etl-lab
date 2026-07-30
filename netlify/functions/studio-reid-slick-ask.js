@@ -56,7 +56,21 @@ exports.handler = async function(event) {
     fetch(base + '/.netlify/functions/studio-reid-slick-background', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + auth.token },
-      body: JSON.stringify({ job_id: jobId, recipient, brief: body.brief || null }),
+      body: JSON.stringify({
+        job_id: jobId,
+        recipient,
+        brief: body.brief || null,
+        // What is being advertised, whose branding goes on it, and the owner's
+        // own prices. All pass-through: this function does not default any of
+        // them, so a blank field means "omit", never "use the landlord's".
+        subject_url: String(body.subject_url || '').trim().slice(0, 500),
+        brand_name: String(body.brand_name || '').trim().slice(0, 120),
+        brand_tagline: String(body.brand_tagline || '').trim().slice(0, 200),
+        brand_footer: String(body.brand_footer || '').trim().slice(0, 300),
+        brand_site: String(body.brand_site || '').trim().slice(0, 200),
+        crew_reference: String(body.crew_reference || '').trim().slice(0, 4000),
+        tiers: Array.isArray(body.tiers) ? body.tiers.slice(0, 4) : [],
+      }),
       keepalive: true,
     }).catch(() => {});
   } catch (_) {}

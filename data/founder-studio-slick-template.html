@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Founder Studio - Slick (template)</title>
+<title>{{DOC_TITLE}}</title>
 <!--
   TAILORED MARKETING SLICK, FILL TEMPLATE
   Owner of this capability: Reid Callum (Marketing). Designer: Yuki Mendel.
@@ -9,15 +9,21 @@
     2. Replace every {{TOKEN}} below. Honest claims only, no invented quotes, no em dashes. On sensitive topics, grave and respectful.
     3. Map each need to specific studio crew in the row "crew" line. That specificity is what makes it land.
     4. Output a self-contained HTML file (and a PDF) named for the recipient.
-  Tokens:
-    {{AUDIENCE_LINE}}   short eyebrow, e.g. "Prepared for Jane Doe" or "For founders"
+  Tokens (all filled by studio-reid-slick-background.js; nothing here is
+  hardcoded to any one company, and a blank block is omitted rather than
+  falling back to the landlord's branding):
+    {{DOC_TITLE}}       browser/PDF title, from the brand name
+    {{BRAND_BLOCK}}     header brand + tagline; omitted entirely when both blank
+    {{AUDIENCE_LINE}}   short eyebrow, e.g. "Prepared for Jane Doe"
     {{HEADLINE_HTML}}   the headline; may include <em>...</em> for the gold phrase
     {{LEDE_HTML}}       1 to 3 sentences; may include <b>...</b>
-    {{VALUE_ROWS}}      2 or 3 rows; copy the ROW BLOCK below once per need
-    {{MOAT_BODY}}       leave default unless a recipient needs a different angle
-    {{TIERS}}           leave default, or trim to the tiers that fit
+    {{VALUE_ROWS}}      2 or 3 rows; the per-row crew line is dropped when empty
+    {{MOAT_BLOCK}}      differentiator section; omitted when there is no body
+    {{PRICING_BLOCK}}   heading, blurb and tiers; omitted unless the OWNER
+                        supplied prices. Reid never invents a price.
     {{CTA_LINE_HTML}}   closing line; may include <em>...</em>
-    {{CTA_BUTTON}}      button label, e.g. "Build your studio"
+    {{CTA_BUTTON}}      button label, e.g. "Get in touch"
+    {{FOOTER_BLOCK}}    site + legal line; omitted when both blank
   ROW BLOCK (duplicate, increment the number):
     <div class="row"><div class="num">N</div><div>
       <h3>ROW TITLE</h3><p>ROW BODY with a <b>bold hook</b>.</p>
@@ -77,7 +83,7 @@ h1,h2,h3{font-family:"Playfair Display",Georgia,serif}
 <div class="sheet">
 
   <div class="hero">
-    <div class="brand"><div class="wm">FOUNDER <b>STUDIO</b></div><div class="sub">A Mission Possible Institute company</div></div>
+    {{BRAND_BLOCK}}
     <div class="eyebrow">{{AUDIENCE_LINE}}</div>
     <h1>{{HEADLINE_HTML}}</h1>
     <p class="lede">{{LEDE_HTML}}</p>
@@ -87,26 +93,16 @@ h1,h2,h3{font-family:"Playfair Display",Georgia,serif}
     {{VALUE_ROWS}}
   </div>
 
-  <div class="moat">
-    <div class="eyebrow">Why this is not just another tool</div>
-    <h2>It is a real team, and it has your back.</h2>
-    <p>{{MOAT_BODY}}</p>
-  </div>
+  {{MOAT_BLOCK}}
 
-  <div class="price">
-    <h2>Start small. Grow when it earns it.</h2>
-    <p>Begin with just your assistant, or stand up the whole crew. Change it anytime, and your studio can be set up for you so day one is ready, not a blank screen.</p>
-    <div class="tiers">
-      {{TIERS}}
-    </div>
-  </div>
+  {{PRICING_BLOCK}}
 
   <div class="cta">
     <div class="big">{{CTA_LINE_HTML}}</div>
     <a class="btn" href="https://emerging-tech-lab.com/the-concourse.html">{{CTA_BUTTON}}</a>
   </div>
 
-  <div class="foot">Visit <b>emerging-tech-lab.com</b> &nbsp;&middot;&nbsp; Founder Studio is a property of <b>Mission Possible Institute LLC</b>, Dayton, Ohio &nbsp;&middot;&nbsp; (c) 2026</div>
+  {{FOOTER_BLOCK}}
 
 </div>
 </body></html>
