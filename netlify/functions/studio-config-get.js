@@ -113,8 +113,18 @@ function resolveStaffEntry(entry, rosterIndex) {
   if (!r) return entry;
   return {
     id: r.id,
-    name: r.name,
-    role: r.role || entry.role || '',
+    // Same precedence as role, and for a sharper reason: the display name is a
+    // KEY on the front end. STAFF (swap/fire config), PORTRAIT_PAIRS and the
+    // capability map are all written against the shown name, so letting the
+    // roster override it ("Jules" -> "Jules Hartley", "Ms. Ivy" -> "Ms. Ivy
+    // (Ivy Sinclair)") silently strips those cards of their buttons and photo.
+    name: entry.name || r.name,
+    // An explicitly written role wins over the roster's. The roster carries
+    // flavor titles ("The Wire", "The Copy Editor") while a fixture usually
+    // states the functional label the owner actually wants on the card. Roster
+    // only fills the blank (2026-07-30: roster-wins silently relabelled 11 of
+    // the owner's 13 cards the moment her bench moved into the data path).
+    role: entry.role || r.role || '',
     tier: entry.tier || r.tier || 'specialty_hire',
     price: entry.price != null ? entry.price : (r.price_monthly || 0),
     backpack: entry.backpack != null ? !!entry.backpack : !!(r.mcp),

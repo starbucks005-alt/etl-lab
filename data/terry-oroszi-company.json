@@ -15,20 +15,96 @@
     },
     "staff": [
       {
-        "name": "Dr. Henry Chen, RPh",
-        "role": "The Pharmacist",
-        "tier": "addon",
-        "price": 25,
-        "backpack": false,
-        "why": "Health Sciences pharmacology expert on The Dose cast; handles drug interactions, supplement evidence, and medication literacy."
+        "id": "charles-monroe",
+        "name": "Charles Monroe",
+        "role": "CV Coach",
+        "backpack": true,
+        "contract": "standing"
       },
       {
-        "name": "Maeve \"MJ\" Johnson",
-        "role": "The Gardener",
-        "tier": "addon",
-        "price": 25,
+        "id": "beatriz-bea-vega",
+        "name": "Beatriz \"Bea\" Vega",
+        "role": "Senior Copy Editor",
         "backpack": false,
-        "why": "The Dose cast; nutrition, home growing, whole-food wellness, and practical plant-based guidance."
+        "contract": "standing"
+      },
+      {
+        "id": "ms-ivy-ivy-sinclair",
+        "name": "Ms. Ivy",
+        "role": "Librarian · Idea Generator",
+        "backpack": true,
+        "contract": "standing"
+      },
+      {
+        "id": "jules-hartley",
+        "name": "Jules",
+        "role": "Pre-Submission Editor",
+        "backpack": false,
+        "contract": "standing"
+      },
+      {
+        "id": "jess-ramirez",
+        "name": "Jess Ramirez",
+        "role": "Publicist",
+        "backpack": true,
+        "contract": "standing"
+      },
+      {
+        "id": "imani-brooks",
+        "name": "Imani Brooks",
+        "role": "Newswire Correspondent",
+        "backpack": true,
+        "contract": "standing"
+      },
+      {
+        "id": "reid-callum",
+        "name": "Reid Callum",
+        "role": "Marketing · Positioning",
+        "backpack": true,
+        "contract": "standing"
+      },
+      {
+        "id": "wren-calloway",
+        "name": "Wren Calloway",
+        "role": "Scout",
+        "backpack": true,
+        "contract": "standing"
+      },
+      {
+        "id": "carol-haynes",
+        "name": "Carol Haynes",
+        "role": "Screener",
+        "backpack": false,
+        "contract": "standing"
+      },
+      {
+        "id": "ayanna-cole",
+        "name": "Ayanna Cole",
+        "role": "Director of Communications",
+        "backpack": false,
+        "contract": "standing"
+      },
+      {
+        "id": "sneha-desai",
+        "name": "Sneha Desai",
+        "role": "Peace News Correspondent",
+        "backpack": true,
+        "contract": "standing"
+      },
+      {
+        "id": "arjun-mehta",
+        "name": "Arjun Mehta",
+        "role": "Operations · Delivery",
+        "backpack": true,
+        "contract": "standing"
+      },
+      {
+        "id": "jax-rivera",
+        "name": "Jax Rivera",
+        "role": "SEO · Discovery",
+        "backpack": true,
+        "contract": "standing",
+        "why": "On retainer. Tell your PA to put him on discoverability."
       }
     ],
     "sixpack_members": []
