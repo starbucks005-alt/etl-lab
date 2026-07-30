@@ -57,12 +57,24 @@ const json = (statusCode, body) => ({
   body: JSON.stringify(body),
 });
 
+// Every rejection below is logged (added 2026-07-30). These four branches each
+// mean something different and none of them said so: from outside, a missing
+// env var, a mismatched credential and a cron that never fired all looked
+// identical. The daily briefing stopped generating on 2026-07-27 and narrowing
+// it took comparing timestamps across unrelated crons. Presence and reason only,
+// never the credential values.
 function requireBasicAuth(event) {
   const user = process.env.PRESS_ADMIN_USER;
   const pass = process.env.PRESS_ADMIN_PASS;
-  if (!user || !pass) return { ok: false, response: { statusCode: 503, body: 'admin disabled' } };
+  if (!user || !pass) {
+    console.error('[briefing] REJECTED 503: admin creds not configured.'
+      + ' PRESS_ADMIN_USER set=' + !!user + ' PRESS_ADMIN_PASS set=' + !!pass);
+    return { ok: false, response: { statusCode: 503, body: 'admin disabled' } };
+  }
   const header = (event.headers && (event.headers.authorization || event.headers.Authorization)) || '';
   if (!header.toLowerCase().startsWith('basic ')) {
+    console.error('[briefing] REJECTED 401: caller sent no basic auth header'
+      + ' (header present=' + !!header + ')');
     return { ok: false, response: { statusCode: 401, headers: { 'WWW-Authenticate': 'Basic realm="ETL Press Admin"' }, body: 'auth required' } };
   }
   try {
@@ -70,9 +82,13 @@ function requireBasicAuth(event) {
     const idx = decoded.indexOf(':');
     if (idx === -1) throw new Error('malformed');
     if (decoded.slice(0, idx) !== user || decoded.slice(idx + 1) !== pass) {
+      console.error('[briefing] REJECTED 401: credentials did not match the'
+        + ' configured PRESS_ADMIN_USER/PASS'
+        + ' (user matched=' + (decoded.slice(0, idx) === user) + ')');
       return { ok: false, response: { statusCode: 401, headers: { 'WWW-Authenticate': 'Basic realm="ETL Press Admin"' }, body: 'invalid credentials' } };
     }
-  } catch {
+  } catch (err) {
+    console.error('[briefing] REJECTED 401: malformed basic auth header:', err && err.message);
     return { ok: false, response: { statusCode: 401, headers: { 'WWW-Authenticate': 'Basic realm="ETL Press Admin"' }, body: 'invalid auth' } };
   }
   return { ok: true };

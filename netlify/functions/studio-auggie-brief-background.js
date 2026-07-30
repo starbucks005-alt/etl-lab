@@ -248,10 +248,25 @@ async function loadCalendarLines(calKey) {
 exports.handler = async (event) => {
   // Auth: require admin basic auth for any caller (cron + manual reruns).
   if (!checkAdminAuth(event)) {
+    // Log the rejection (added 2026-07-30). This path used to return 401 with no
+    // log line at all, so from the outside a credential problem was
+    // indistinguishable from "the cron never fired" or "the model call failed".
+    // Briefs were dead from 2026-07-27 and narrowing it took comparing
+    // timestamps across unrelated crons, purely because this was silent.
+    // Presence only, never values.
+    console.error('[auggie-brief-bg] REJECTED: admin basic auth failed.'
+      + ' PRESS_ADMIN_USER set=' + !!process.env.PRESS_ADMIN_USER
+      + ' PRESS_ADMIN_PASS set=' + !!process.env.PRESS_ADMIN_PASS);
     return { statusCode: 401, body: 'unauthorized' };
   }
 
   try { connectLambda(event); } catch (_) {}
+
+  // Which external dependencies are configured, so a missing key is visible in
+  // the log on the very first line instead of being inferred from a 502 later.
+  console.log('[auggie-brief-bg] deps configured:'
+    + ' anthropic=' + !!process.env.ANTHROPIC_API_KEY
+    + ' elevenlabs=' + !!process.env.ELEVENLABS_API_KEY);
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
@@ -396,8 +411,17 @@ exports.handler = async (event) => {
       audioBuf = await ttsAuggie(monologue);
       console.log('[auggie-brief-bg] elevenlabs ok, bytes=', audioBuf.length);
     } catch (err) {
-      console.error('[auggie-brief-bg] elevenlabs failed', err && err.message);
-      return { statusCode: 502, body: 'elevenlabs failed: ' + (err && err.message) };
+      // Degrade to transcript-only instead of aborting (changed 2026-07-30).
+      // This used to `return 502` here, which threw away a brief that had
+      // already been generated: the Anthropic call had succeeded and the
+      // monologue was sitting in memory, and one TTS failure discarded it and
+      // wrote nothing. The buyer then saw a stale brief with no explanation.
+      // Audio is an enhancement; the transcript is the product. The persistence
+      // block below already handles audioBuf === null (it is the skip_audio
+      // path), so falling through needs no other change.
+      console.error('[auggie-brief-bg] elevenlabs failed, writing transcript'
+        + ' without audio:', err && err.message);
+      audioBuf = null;
     }
   } else {
     console.log('[auggie-brief-bg] skip_audio set (test brief), no TTS');
