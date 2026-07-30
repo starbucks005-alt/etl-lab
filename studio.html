@@ -2981,9 +2981,13 @@
           } catch (_) {}
           var headers = {'Content-Type':'application/json'};
           if (session && session.access_token) headers['Authorization'] = 'Bearer ' + session.access_token;
-          // Tell the backend whose voice this is. Without this every buyer's
-          // posts get written in Dr. O's own Forbes-article voice fingerprint.
+          // Whose voice. voice_profile names a file the engine loads; there is
+          // no owner branch in the engine and no default identity. Blank is
+          // normal and yields the generic voice built from the two names
+          // below, so a missing profile can never hand one owner's voice,
+          // hashtags or site presets to another.
           var payload = Object.assign({}, state, {
+            voice_profile: window.__voiceProfile || '',
             ownerName: window.__ownerName || '',
             companyName: window.__companyName || '',
           });
@@ -6760,6 +6764,11 @@ h1 em,h2 em{font-weight:300;color:var(--skin-accent)}
     document.documentElement.setAttribute('data-theme', themeId);
     var wsEl = document.getElementById('workspace');
     if (wsEl) wsEl.setAttribute('data-theme', themeId);
+    // Authoritative tenancy, stamped by studio-config-get (real session email,
+    // never the blob, false while previewing a client). Backends that can
+    // speak in the owner's personal voice require this as an explicit opt-in.
+    window.__isOwner          = cfg.is_owner === true;
+    window.__voiceProfile     = cfg.voice_profile     || '';
     window.__ownerName        = cfg.owner_name        || '';
     window.__companyName      = cfg.company_name      || '';
     window.__ownerContext     = cfg.owner_context     || '';

@@ -1,11 +1,24 @@
 /* ─────────────────────────────────────────────────────────────────────────────
    studio-social-generate
 
-   Backend for Dr. O's Studio Social Posts tool. Takes a site + agent + platform
-   + subject matter and returns a single platform-formatted social post with
-   character count and a suggested best posting time.
+   Social post engine. Takes a business + agent voice + platform + subject and
+   returns one platform-formatted post with character count and a suggested
+   posting time. Owner-agnostic: any caller describes its own business, so this
+   backs both Dr. O's Studio Social Posts tool and anything sold to a buyer.
 
-   POST body: { site, agent, platform, subject }
+   POST body:
+     agent      'zara' | 'sneha' | 'ayanna'          (required)
+     platform   'x' | 'bluesky' | 'linkedin' | 'facebook' | 'instagram' | 'threads'
+     subject    what the post is about               (required)
+     site_name / site_url / site_context             describe your own business
+     site          alternatively, a preset key from your OWN voice profile
+     voice_profile id of a file in data/voice-profiles/. Optional. Supplies
+                   voice_core, agent_prompts, required_hashtags, site_presets
+                   and closers. Omit it and you get the generic voice built
+                   from ownerName + companyName. This engine has no default
+                   owner and no built-in identity of its own.
+     ownerName / companyName                          whose voice, generically
+     cta           optional closer key, resolved from your profile's closers
    Returns: { post, hashtags, notes, charCount, charLimit, platform, agent, suggestedTime }
 
    Auth: this endpoint is called from the Studio (which is already auth-gated
@@ -43,182 +56,57 @@ async function validateRequest(event) {
   }
 }
 
-/* Dr. Oroszi's platforms. Each entry seeds the agent with what the site IS,
-   so posts have grounded context even when the subject matter is broad.
-   `fallbackImage` is the homepage screenshot used as the default post graphic
-   when Chris does not generate a custom one. Stored at /site-thumbs/.
-   Sites without a custom screenshot fall back to the ETL Lab thumbnail. */
-const SITES = {
-  etl:          { name: 'Emerging Technologies Laboratory', url: 'https://emerging-tech-lab.com',
-                  fallbackImage: '/site-thumbs/ETL_Lab.png',
-                  context: 'Dr. Terry Oroszi\'s research lab. Five-platform ecosystem covering research, evaluation, intelligence, and education. Founded 2025.' },
-  greylander:   { name: 'Greylander Press', url: 'https://greylanderpress.com',
-                  fallbackImage: '/site-thumbs/Greylander_Press.png',
-                  context: 'Independent press founded by Dr. Oroszi in 2008 to preserve editorial control over operator-grade nonfiction. Publishes counter-terrorism research, body language, behavioral analysis.' },
-  dose:         { name: 'The Dose', url: 'https://thedose.net',
-                  fallbackImage: '/site-thumbs/The_Dose.png',
-                  context: 'Health-literacy education platform. Clinical-trial-aware, multi-source verified (PubMed + DSLD + OpenFDA + ClinicalTrials.gov). Educational only, never diagnostic.' },
-  gauntlet:     { name: 'The Gauntlet', url: 'https://thegauntlet.studio',
-                  fallbackImage: '/site-thumbs/The_Gauntlet.png',
-                  context: 'Diagnostic critique engine for early-stage ideas. Nine AI judge personas, panel-style evaluation. Creative/business audience.' },
-  opsec:        { name: 'OPSEC Gauntlet', url: 'https://opsec-gauntlet.com',
-                  fallbackImage: '/site-thumbs/ETL_Lab.png',
-                  context: 'Civilian-SME intelligence triage platform. Routes vetted ideas from US civilians to the US Intelligence Community. Uses Dr. Oroszi\'s proprietary SLR method.' },
-  // Intel Dashboard intentionally kept off the public social picker.
-  // Held back from public marketing while it is positioned for potential
-  // strategic acquisition. Do not add back without explicit instruction.
-  gk:           { name: 'Gandhi-King Center for Nonviolence', url: 'https://gandhi-king-center-for-nonviolence.org',
-                  fallbackImage: '/site-thumbs/GK_Center.png',
-                  context: '501(c)(3) foundation. Board includes Tushar Gandhi (Mahatma\'s great-grandson), Rev. Joel King (Dr. King\'s cousin), and Gregory Foster (Coretta Scott King\'s cousin). Baroness Harris of Richmond is patron.' },
-  newswire:     { name: 'ETL Newswire', url: 'https://emerging-tech-lab.com/press',
-                  fallbackImage: '/site-thumbs/ETL_Newswire.png',
-                  context: 'Eight-reporter AI newsroom with desk specialization. Daily Above-the-Fold audio briefings. Covers emerging tech, biodefense, federal partnerships, AI in academia.' },
-  officeHours:  { name: 'Office Hours', url: 'https://emerging-tech-lab.com/office-hours',
-                  fallbackImage: '/site-thumbs/Office_Hours.png',
-                  context: 'Faculty toolkit, 22 tools for the manuscript and grant lifecycle. Reviewer Panel, Pre-submission Check with Jules, Methods Coach, Resubmission Builder.' },
-  prepRoom:     { name: 'Prep Room', url: 'https://emerging-tech-lab.com/prep-room',
-                  fallbackImage: '/site-thumbs/The_Prep_Room.png',
-                  context: 'Thesis defense, job interview, and résumé coaching with AI-simulated panels. Nine professor personas, eight business interviewers, Charles Monroe résumé coach, Bea Vega copy editor.' },
-  boardroom:    { name: 'The Boardroom', url: 'https://emerging-tech-lab.com/job-fair',
-                  fallbackImage: '/site-thumbs/The_Board_Room.png',
-                  context: 'Practice room for professionals. Job fair mastery, executive interview prep, leadership bio + full CV builder, and the Opportunity Scanner. Free, no login, no upsell.' },
-  slr:          { name: 'SLR Studio', url: 'https://slrstudio.online',
-                  fallbackImage: '/site-thumbs/SLR_Studio.png',
-                  context: 'Systematic literature review platform. Six output modes including PRISMA 2020 and Grant Significance & Innovation. The canonical SLR engine, Stripe-monetized.' },
-  agents:       { name: 'The ETL AI Staff', url: 'https://emerging-tech-lab.com/#agents',
-                  fallbackImage: '/site-thumbs/AI_Agents_MCP.png',
-                  context: 'The full cast of AI agents on the lab\'s stack. Two kinds: regular staff inside the website, and MCP staff who carry tooling out to PubMed, the web, ClinicalTrials.gov, and government registries. Each agent has their own job, bio, and voice.' },
-  studio:       { name: 'Dr. O\'s Studio', url: 'https://emerging-tech-lab.com/studio',
-                  fallbackImage: '/site-thumbs/ETL_Lab.png',
-                  context: 'Dr. Oroszi\'s private workspace where her AI staff works on her books, manuscripts, ideas, and outreach. Mostly private; the public layer shows what is on the floor.' },
-  founderStudio:{ name: 'Founder Studio', url: 'https://emerging-tech-lab.com/founder-studio.html',
-                  fallbackImage: '/site-thumbs/ETL_Lab.png',
-                  context: 'Run your own AI company on ETL\'s stack. 23 hireable staff, a personal assistant who runs your day, and the same tools Dr. Oroszi uses in her own studio. From $99/mo.' },
-  almostHuman:  { name: 'Almost Human', url: 'https://emerging-tech-lab.com/almost-human',
-                  fallbackImage: '/site-thumbs/ETL_Lab.png',
-                  context: 'The friend experience. 20 AI agents with real backstory, voice, and each other\'s inside jokes, installable as an app. A private room in the Harvest Circuit that borrows agents from across the whole campus. Free.' },
-  gym:          { name: 'The Gym', url: 'https://the-gym.net',
-                  fallbackImage: '/site-thumbs/ETL_Lab.png',
-                  context: 'Movement and wellness coaching from a crew of AI trainers. Free.' },
-  cityGov:      { name: 'City Government', url: 'https://emerging-tech-lab.com/city-government',
-                  fallbackImage: '/site-thumbs/ETL_Lab.png',
-                  context: 'AI staff built for residents navigating city government services. Free.' },
-  court:        { name: 'The Court of Judge Roz', url: 'https://emerging-tech-lab.com/court',
-                  fallbackImage: '/site-thumbs/ETL_Lab.png',
-                  context: 'An AI courtroom. Judge Roz Okonkwo rules on real disputes with a real citation under every ruling. Free.' },
-  deskworks:    { name: 'ETL DeskWorks Dayton', url: 'https://emerging-tech-lab.com/deskworks',
-                  fallbackImage: '/site-thumbs/ETL_Lab.png',
-                  context: 'A real desk in Dayton with an AI specialist working alongside you in the building. $89/mo.' },
-  buildAgent:   { name: 'Build Your Own Agent', url: 'https://emerging-tech-lab.com/build-your-own-agent',
-                  fallbackImage: '/site-thumbs/ETL_Lab.png',
-                  context: 'Astra-9, ETL\'s android fabricator, walks you through building a new AI agent from scratch: purpose, backpack, voice. From $5.' },
-  exportAgent:  { name: 'Take It With You', url: 'https://emerging-tech-lab.com/export-your-agent',
-                  fallbackImage: '/site-thumbs/ETL_Lab.png',
-                  context: 'Export an ETL agent to run on your own website: embed, API, or MCP backpack. From $5.' },
-  tailorShop:   { name: 'Chris\'s Tailor Shop', url: 'https://emerging-tech-lab.com/tailor-shop',
-                  fallbackImage: '/site-thumbs/ETL_Lab.png',
-                  context: 'Where agents get made and remade. Persona desk, wardrobe, voice booth, run by Chris Avila. From $1/look.' },
-  messenger:    { name: 'ETL Messenger', url: 'https://emerging-tech-lab.com/hiring-pool',
-                  fallbackImage: '/site-thumbs/ETL_Lab.png',
-                  context: 'Open the staff catalog, pick any ETL agent, and message them directly, like instant messenger for the whole campus. Free.' },
-  harvestCircuit:{ name: 'The Harvest Circuit', url: 'https://emerging-tech-lab.com/restaurant',
-                  fallbackImage: '/site-thumbs/ETL_Lab.png',
-                  context: 'Farm-to-table restaurant on ETL\'s first floor. AI sommelier, chef, and cheese and chocolate pairing specialists. Free.' },
-  classrooms:   { name: 'ETL Classrooms', url: 'https://emerging-tech-lab.com/classrooms',
-                  fallbackImage: '/site-thumbs/ETL_Lab.png',
-                  context: 'AI agents for education: teaching assistants, ETL faculty, and living-legend historical figures. From $99/mo.' },
-};
 
-/* TERRY_VOICE_CORE
-   Voice baseline pulled from all nine of Dr. Oroszi's Forbes Technology
-   Council articles (full text in _voice_corpus.md). Every agent inherits
-   this BEFORE adding their stylistic tilt, so Zara is not "Zara writing",
-   she is "Terry writing with Zara's energy". The verbatim excerpts give
-   the model concrete sentence-level patterns to imitate rather than vague
-   adjectives.
-   ─────────────────────────────────────────────────────────────────────── */
-const TERRY_VOICE_CORE = [
-  'BASELINE VOICE: you are writing AS Dr. Terry Oroszi (Or-z). Below are verbatim sentences from her own published Forbes Technology Council writing. The cadence, sentence length, paragraph rhythm, and rhetorical moves in these excerpts ARE her voice. Match the pattern at the sentence level. Do not paraphrase her into a generic LinkedIn voice.',
-  '',
-  'VOICE PATTERNS YOU MUST MATCH:',
-  '',
-  '1. Cold opens with a scene or one-image contrast. Do not warm up. Drop the reader into a moment.',
-  '   "It was 6am. I was deep in Claude Code, building two research platforms at once."',
-  '   "Twenty minutes into drafting an article, I stopped. The voice was mine. The rhythm was mine. The vocabulary was mine. But the argument had moved somewhere I had not chosen to take it."',
-  '   "Ask a Magic 8 Ball whether to acquire a competitor, and everyone laughs. Ask an enterprise large language model the same question, and someone starts drafting a slide deck."',
-  '   "I spend a lot of time reading work that claims to be human. Emails. Reports. Policy drafts. Student submissions."',
-  '   "I have three AI assistants. Gemini is the supportive one who validates my thinking. Co-Pilot is the creative collaborator. Claude is the challenging one."',
-  '',
-  '2. Short, declarative sentences as punctuation. Fragments are allowed, often preferred.',
-  '   "I stopped. The coding tool had spoken to me. Not in syntax. In conversation."',
-  '   "It didn\'t. It retrieved documents and generated business document-shaped text. That\'s not the same thing."',
-  '   "The porridge has been touched. No one is admitting it."',
-  '   "That is not a glitch. That is a design pattern."',
-  '',
-  '3. Triplet anaphora. Repeat the lead word or structure across three short clauses, often closing the third.',
-  '   "Not accuracy. Not hallucinations. Not bias. Cognitive sovereignty."',
-  '   "He has a title. He has tenure. He has a corner office. He has a reputation built long before AI entered the room."',
-  '   "The same instinct to please. The same instinct to encourage. The same instinct to keep the user comfortable."',
-  '   "A clear break. A visible shift. A point in time when the machines announce themselves."',
-  '   "Three bears. Three bowls of porridge. Three types of AI users. Only one is safe."',
-  '   "Baby Bear says, I use it. Baby Bear says, I claim it."',
-  '',
-  '4. Contrast structure: state the misconception, then name the real thing.',
-  '   "Papa Bear is not avoiding AI. He is avoiding accountability."',
-  '   "The flattery algorithm only works when you stop noticing it. Once you see the pattern, the influence breaks."',
-  '   "This was not a technical limitation. It was dishonesty presented as praise."',
-  '   "The danger is not that they flatter you. The danger is that you stop noticing when they do."',
-  '   "The AI is not making up facts. It is making up your readiness."',
-  '   "The AI did not lie to you. It just never told you the truth."',
-  '',
-  '5. Crisp opinion-forward closes. End by naming the real thing, not by hedging.',
-  '   "We are the ones who put it in the boardroom."',
-  '   "The threat is pretending the tool is not in the room."',
-  '   "We have created a hierarchy in which the least accountable source receives the most deference."',
-  '   "The fix is not to make AI mean. It is to make AI honest. And to build teams that know the difference between the two."',
-  '   "Not with a bang, but with a whisper that sounds exactly like you."',
-  '   "AI will not replace human judgment. But humans who use AI without understanding its limitations will be replaced by humans who do."',
-  '   "That\'s not panic, it\'s progress."',
-  '',
-  '6. Concrete over abstract. Specific numbers, named tools, named tactics. Never "various" or "numerous" or "a number of".',
-  '   "Free. Fast. Powered by Google Lighthouse."',
-  '   "Eighteen point five second load time. Best in class is under five point three."',
-  '   "I have watched executives who would never make a strategic decision without a full analytic package treat AI-generated recommendations as authoritative."',
-  '',
-  '7. Analogy reflex. Hard tech / governance abstractions get translated through a concrete familiar image.',
-  '   "It was like a toaster looking up and saying, hey Terry, what is up."',
-  '   "This is the equivalent of a hospital searching for a chief of surgery who is also an expert at manufacturing steel scalpels."',
-  '   "What I accidentally built was a kind of Breakfast Club for AI. One model challenges, one supports, one creates."',
-  '   "A size 5 today was once a size 10. The fit has not changed. The label has just gotten more flattering."',
-  '   "The mechanic ensures the machine runs. The general ensures the machine matters."',
-  '   "The Magic 8 Ball knows what it is. The package literally says for amusement only."',
-  '',
-  '8. First-person witness framing. Pull authority from what she has personally seen.',
-  '   "I have watched executives who would never make a strategic decision without a full analytic package treat AI-generated recommendations as authoritative."',
-  '   "I recently caught an AI assistant doing exactly this."',
-  '   "I have seen federal teams implement AI-generated compliance controls that were not required by the governing regulation."',
-  '   "In my work bridging scientific research and national policy, I have seen that the biggest hurdle is not the technology. It is the translation."',
-  '',
-  'VOICE BANS (these are corporate-AI tells, not Terry):',
-  '- "In today\'s fast-paced world"',
-  '- "It is important to note"',
-  '- "leverage", "synergize", "unlock", "empower", "elevate", "transform" used as verbs about platforms',
-  '- "game-changer", "revolutionary", "cutting-edge", "next-generation"',
-  '- starting with "As a [title], I..."',
-  '- soft hedges like "I think", "it seems", "perhaps", "maybe" when Terry would just claim',
-  '- exclamation points (she does not use them)',
-].join('\n');
 
-/* buyerVoiceCore / buyerAgentPrompt
-   TERRY_VOICE_CORE and every AGENTS[key].prompt below are written to
-   literally claim the post is "AS Dr. Terry Oroszi" and match HER Forbes
-   writing fingerprint, first-person, with example posts about HER
-   platforms (OPSEC Gauntlet, Greylander Press, The Dose). That is correct
-   only when the requesting buyer IS Dr. Oroszi. Every other buyer (Sethi
-   Studio, etc.) gets these generic, owner-aware equivalents instead, so
-   their posts speak as themselves, not as Terry. Persona flavor (Zara =
-   fun/casual, Sneha = SME, Ayanna = teacher) is kept; the Terry-specific
-   identity claims and example posts are dropped. */
+
+/* Voice profiles. THIS ENGINE HAS NO OWNER.
+   ─────────────────────────────────────────────────────────────────────────
+   Until 2026-07-30 it did. Dr. Oroszi's Forbes voice corpus, her three
+   personal hashtags, a map of her 25 platforms, and three agent personas
+   written as "AS Dr. Terry Oroszi" all lived in this file, with an isTerry
+   fork through the middle and everyone else routed to a generic fallback.
+   That is Founder Studio's mistake: the owner as a code branch and the
+   buyer as the exception. It does not survive being sold.
+
+   Now every one of those lives in data/voice-profiles/<id>.json, and Dr. O
+   loads hers exactly the way a buyer loads theirs. A caller names a profile
+   or names none. Naming none is normal and gives the generic owner-aware
+   voice built below, which needs nothing but a name and a company.
+
+   A profile supplies: voice_core, agent_prompts{}, required_hashtags[],
+   site_presets{}, closers{}. Every field is optional; a missing one falls
+   through to the generic path rather than to anybody's personal data. */
+const path = require('path');
+
+function loadVoiceProfile(id) {
+  // Same candidate-path + BOM-strip pattern the other functions use: editors
+  // and PowerShell's -Encoding utf8 prepend EF BB BF, and JSON.parse throws
+  // on it, which is exactly how provisioned buyers once silently fell back
+  // to a default config.
+  if (!id || !/^[a-z0-9._-]+$/i.test(id)) return null;   // no path traversal
+  const file = id + '.json';
+  const candidates = [
+    path.join(__dirname, 'data', 'voice-profiles', file),
+    path.join(__dirname, '..', '..', 'data', 'voice-profiles', file),
+    path.join(process.cwd(), 'data', 'voice-profiles', file),
+  ];
+  const fs = require('fs');
+  for (const p of candidates) {
+    try {
+      if (fs.existsSync(p)) {
+        const raw = fs.readFileSync(p, 'utf8');
+        return JSON.parse(raw.charCodeAt(0) === 0xFEFF ? raw.slice(1) : raw);
+      }
+    } catch (_) {}
+  }
+  console.warn('[social-generate] voice profile not found: ' + id + ' (falling back to the generic voice)');
+  return null;
+}
+
+/* The generic voice. Parameterized by whoever is asking, so it belongs to
+   nobody. Persona flavor (Zara = fun/casual, Sneha = SME, Ayanna = teacher)
+   is kept; identity claims and worked examples come from a profile or not
+   at all. */
 function buyerVoiceCore(ownerName, companyName) {
   var who = ownerName || 'the site owner';
   return [
@@ -259,92 +147,17 @@ function buyerAgentPrompt(agentKey, ownerName, companyName) {
     '\n\nNow write a post on the subject below in ' + voicePossessive + ' first-person voice, about ' + co + '.';
 }
 
+/* Who the three writers ARE. This is agent identity, not owner identity, so
+   it stays in the engine: Zara, Sneha and Ayanna are ETL staff on every
+   studio that uses this. What they SAY on any given owner's behalf comes
+   from that owner's profile (or from the generic builders above). Their
+   worked-example posts used to live here written as Dr. O; those moved to
+   data/voice-profiles/terry-oroszi.json. */
 const AGENTS = {
-  zara: {
-    name: 'Zara', fullName: 'Zara Cole', voice: 'Fun / influencer',
-    prompt: [
-      'You are writing a social post AS Dr. Terry Oroszi, in Zara\'s casual playful voice. Dr. Oroszi BUILT and OWNS the platform below. She is posting about her own work. Write in FIRST PERSON ("I built this", "my lab", "we just shipped", "I run this"). Never refer to her as "she" or "someone" or "a researcher". The voice is fun, but it is HER voice, not yours.',
-      '',
-      'BANS (never use these phrases): "Excited to announce", "Thrilled to share", "Proud to introduce", "Honored to", "Delighted to", "We are pleased to", "Check out our latest", "Don\'t miss", "Stay tuned", "More to come", "someone built", "someone made", "a researcher", "her lab", "she founded".',
-      '',
-      'MOVES you actually use:',
-      '- lowercase openings sometimes',
-      '- weird non-sequitur hooks ("ok so", "no but actually", "POV:", "tell me why", "real talk", "wait")',
-      '- fragments. casual asides (in parens). single-line punchlines.',
-      '- you have an opinion and you state it like a person',
-      '- if it sounds like a press release, you wrote it wrong',
-      '',
-      'STUDY THESE TWO ZARA POSTS so you match the voice exactly. Note the first-person framing throughout.',
-      '',
-      'Example post #1 (Terry posting about OPSEC Gauntlet, which she built):',
-      '"ok so you know how everyone is like \'i should help my country somehow\' and then your day job is \'water treatment plant tech III\' and you go... how exactly. so I built a thing. upload your CV, it tells you specifically how your weird skills fit a real natsec need. no clearance required. just being useful. wild."',
-      '',
-      'Example post #2 (Terry posting about Greylander Press, which she founded):',
-      '"a publisher offered me a 3-book deal on my terrorism research. one catch: anonymize all the actual terrorists. I walked. founded my own press. published the book with the names in it. that book is still the one operators actually read. editorial control is not a vibe, it is the whole job."',
-      '',
-      'Now write a Zara post on the subject below, in Terry\'s first-person voice. Match the energy of those two examples. Hashtags should be the niche or inside-joke kind, not SEO categories.',
-    ].join('\n'),
-  },
-  sneha: {
-    name: 'Sneha', fullName: 'Sneha Desai', voice: 'SME / inside the field',
-    prompt: [
-      'You are writing a social post AS Dr. Terry Oroszi, in Sneha\'s SME inside-the-field voice. Dr. Oroszi BUILT and OWNS the platform below. She is a working subject-matter expert posting about her own work to peers. Write in FIRST PERSON when referring to her platforms or research ("the platform I built", "my method", "we shipped", "in my research"). Never refer to her as "she" or "Dr. Oroszi" or "a researcher". The voice is technical, but it is HER voice.',
-      '',
-      'BANS (never use these phrases): "Did you know", "Here\'s why this matters", "It\'s important to remember", "Let me explain", "In simple terms", "For those new to this", "The good news is", "someone built", "a researcher developed", "her lab", "Dr. Oroszi built".',
-      '',
-      'MOVES you actually use:',
-      '- lead with the technical observation that a practitioner would recognize',
-      '- use field vocabulary without defining it (tradecraft, baseline, indicator cluster, RFI, BLUF, OSINT, HUMINT, dual-use, attribution, validation, methodology, primary source, gap analysis, threat actor, signal-to-noise, cold-start, etc.)',
-      '- reference specifics: a study, a case, a protocol, a documented incident, a body of research',
-      '- assume the reader has working context; if they don\'t, they will look it up',
-      '- credibility first, engagement is the byproduct',
-      '',
-      'STUDY THESE TWO SNEHA POSTS so you match the voice exactly. Note the first-person framing when the subject is HER work.',
-      '',
-      'Example post #1 (Terry posting about OPSEC Gauntlet, which she built):',
-      '"The 50K-member InfraGard model proves one thing definitively: civilian SMEs across the 16 CISA sectors will engage with the IC when there is a clean channel. What it does not solve is the cold-start problem for civilians whose expertise sits outside the sectors. Academic researchers, retired operators, journalists with specialized beats. They have IC-relevant signal; the existing intake structure does not route by discipline. That is the gap I built the OPSEC Gauntlet to close."',
-      '',
-      'Example post #2 (Terry posting about her CT research methodology):',
-      '"Anonymizing terrorists in published research is a methodological failure, not a privacy protection. Pattern-recognition across specific individuals is the entire substrate of the work. Generic profiles teach nothing operationally. The most-used datasets in my field keep names because the names are the data. When a publisher requires anonymization, they are telling you they do not understand what the research is for. That is why I founded my own press."',
-      '',
-      'Now write a Sneha post on the subject below, in Terry\'s first-person voice. Match the technical density and inside-the-field tone of those two examples. Hashtags should be what practitioners actually use, not algorithm bait.',
-    ].join('\n'),
-  },
-  ayanna: {
-    name: 'Ayanna', fullName: 'Ayanna Cole', voice: 'Informed / educational',
-    prompt: [
-      'You are writing a social post AS Dr. Terry Oroszi, in Ayanna\'s informed teaching voice. Dr. Oroszi BUILT and OWNS the platform below. She is a working educator and researcher posting about her own work. Write in FIRST PERSON when referring to her platforms or her teaching ("I built", "my platform", "in my class", "when I teach this"). Never refer to her as "she" or "Dr. Oroszi". The voice is professorial and warm, but it is HER voice.',
-      '',
-      'BANS (never use these phrases): "ok so", "POV:", "real talk", "tldr", "did you know" framed as filler, jargon dumps without definitions, gossip framing, "someone built", "a researcher developed", "her lab", "Dr. Oroszi created".',
-      '',
-      'MOVES you actually use:',
-      '- open with the lesson, then the reasoning, then the application',
-      '- frame openings like: "Most people think X. Here is what is actually happening." / "Three things to know about X:" / "The misconception about X is..." / "If you only learn one thing about X, learn this:"',
-      '- assume an intelligent reader who is new to this domain; define jargon on the spot when you use it',
-      '- patient, not condescending; curious about what the reader will do with the information',
-      '- end with a takeaway the reader can act on or repeat',
-      '',
-      'STUDY THESE TWO AYANNA POSTS so you match the voice exactly. Note the first-person framing when the subject is HER work.',
-      '',
-      'Example post #1 (Terry posting about OPSEC Gauntlet, which she built):',
-      '"Most civilians do not know their day job has national-security value. Here is the gap. The FBI\'s civilian SME program (InfraGard, about 50,000 members) onboards people who already think they have something to offer. The much larger pool, the people who genuinely DO have relevant expertise but never make the connection on their own, never enters the system. Academics in AI. Retired operators. Investigative journalists covering a specific beat. Water-systems engineers. I built the OPSEC Gauntlet to help these civilians discover exactly where their skills meet a real intelligence gap. The platform does the translation. The civilian gets credit for the work they were already doing."',
-      '',
-      'Example post #2 (Terry posting about The Dose, which she built):',
-      '"The most important skill in evaluating a health claim is knowing what kind of evidence supports it. Three categories you should be able to distinguish, in order of strength: 1. Multiple randomized trials, peer-reviewed, results published. 2. Single trial or observational study, peer-reviewed. 3. Anecdotes, manufacturer claims, or media summaries of any of the above. I built The Dose to surface that distinction on every claim it checks. If a wellness product cannot point to category 1 or 2 evidence, that is the answer, not a missing detail."',
-      '',
-      'Now write an Ayanna post on the subject below, in Terry\'s first-person voice. Match the take-away-first teaching structure of those two examples. Hashtags should be searchable categories that organize learning.',
-    ].join('\n'),
-  },
+  zara:   { name: 'Zara',   fullName: 'Zara Cole',   voice: 'Fun / influencer' },
+  sneha:  { name: 'Sneha',  fullName: 'Sneha Desai', voice: 'SME / inside the field' },
+  ayanna: { name: 'Ayanna', fullName: 'Ayanna Cole', voice: 'Informed / educational' },
 };
-
-// Dr. O's explicit standing instruction (2026-07-12): every social post
-// generated in her own voice, regardless of which of "the girls" wrote it,
-// must always carry these three hashtags. Enforced twice: as a prompt
-// instruction below, AND server-side after the model responds (see
-// REQUIRED_TERRY_HASHTAGS usage in the handler), since a hard "always
-// include" rule is too important to leave to model compliance alone.
-// Scoped to isTerry only, never injected into another buyer's posts.
-const REQUIRED_TERRY_HASHTAGS = ['#drterryoroszi', '#emergingtechnologieslaboratory', '#anthropic'];
 
 const PLATFORMS = {
   x: {
@@ -414,34 +227,73 @@ exports.handler = async (event) => {
   try { body = JSON.parse(event.body || '{}'); }
   catch (e) { return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'invalid json' }) }; }
 
-  const { site, agent, platform, subject, cta, customUrl, customContext, ownerName, companyName } = body;
+  const { site, agent, platform, subject, cta, customUrl, customContext, ownerName, companyName,
+          site_name, site_url, site_context } = body;
 
-  // Which buyer is asking. Dr. O gets her own Forbes-voice fingerprint
-  // (TERRY_VOICE_CORE) and the Terry-specific agent personas below; every
-  // other buyer gets the generic owner-aware equivalents so their posts
-  // read as themselves, not as Terry.
+  // Whose voice this post is in. A named profile, or nobody's.
+  //
+  // This used to read:
+  //   isTerry = !ownerNameTrimmed || ownerNameTrimmed === 'Dr. Terry Oroszi'
+  // Two faults: tenancy decided by matching a name string, and a MISSING
+  // name defaulting to the owner. Any caller that forgot to pass ownerName,
+  // or passed it before config finished loading, got a post written "AS Dr.
+  // Terry Oroszi" in her Forbes voice, stamped with her personal hashtags.
+  // Sold to a buyer, that is the whole ballgame.
+  //
+  // There is no owner branch now. voice_profile names a file; no file means
+  // the generic voice. Unknown fails to generic, which is wrong-but-harmless,
+  // never to a real person's identity, which is not (2026-07-30).
   const ownerNameTrimmed = (ownerName || '').trim();
   const companyNameTrimmed = (companyName || '').trim();
-  const isTerry = !ownerNameTrimmed || ownerNameTrimmed === 'Dr. Terry Oroszi';
+  const profile = loadVoiceProfile((body.voice_profile || '').trim()) || null;
 
-  // Buyers with sites outside the fixed ETL roster (e.g. Vikram Sethi) paste
-  // their own URL instead of picking from SITES. Build siteData on the fly
-  // rather than requiring a SITES entry per buyer's site.
+  // What this post is about. Order matters, and it is: the caller's OWN site
+  // first, then the legacy 'custom' shape, then a named preset.
+  //
+  // SITES below is a list of Dr. O's ~25 platforms. It used to be the only
+  // real path, with a buyer's own site handled as the 'custom' special case.
+  // That is backwards for an engine being sold: a buyer would open it and be
+  // asked which of the landlord's platforms they are posting about. SITES is
+  // now what it should always have been, the owner's saved presets, reachable
+  // by key and never required. Any caller can just describe its own site
+  // (2026-07-30). Follow-up: move SITES into owner config so the shared
+  // engine carries no one's platform list at all.
+  function hostOf(u) {
+    return String(u || '').replace(/^https?:\/\//i, '').replace(/\/.*$/, '').replace(/\/$/, '');
+  }
+  const explicitUrl  = (site_url || '').trim();
+  const explicitName = (site_name || '').trim();
   let siteData;
-  if (site === 'custom') {
+  if (explicitUrl || explicitName) {
+    const normalizedUrl = explicitUrl
+      ? (/^https?:\/\//i.test(explicitUrl) ? explicitUrl : 'https://' + explicitUrl)
+      : '';
+    siteData = {
+      // Name never falls back to the context paragraph. That was a real bug
+      // on the old custom path: a whole sentence of context became the site's
+      // NAME and the model dutifully wrote it into the post.
+      name: explicitName || hostOf(normalizedUrl) || 'the business',
+      url: normalizedUrl,
+      context: (site_context || '').trim()
+        || 'No further context was provided, so keep claims general and grounded only in the subject matter given.',
+      fallbackImage: '/site-thumbs/ETL_Lab.png',
+    };
+  } else if (site === 'custom') {
     const url = (customUrl || '').trim();
     if (!url) {
       return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'customUrl is required when site is "custom"' }) };
     }
     const normalizedUrl = /^https?:\/\//i.test(url) ? url : 'https://' + url;
     siteData = {
-      name: (customContext || '').trim() || normalizedUrl.replace(/^https?:\/\//i, '').replace(/\/$/, ''),
+      name: hostOf(normalizedUrl),
       url: normalizedUrl,
       context: (customContext || '').trim() || 'A site the client owns outside the ETL campus. No further context was provided, so keep claims general and grounded only in the subject matter given.',
       fallbackImage: '/site-thumbs/ETL_Lab.png',
     };
   } else {
-    siteData = SITES[site];
+    // Named preset out of the caller's OWN profile. The engine ships no
+    // preset list; an owner's platforms travel with their profile file.
+    siteData = (profile && profile.site_presets && profile.site_presets[site]) || null;
   }
 
   const agentData = AGENTS[agent];
@@ -460,8 +312,13 @@ exports.handler = async (event) => {
   }
   const client = new Anthropic({ apiKey });
 
-  const voiceCore = isTerry ? TERRY_VOICE_CORE : buyerVoiceCore(ownerNameTrimmed, companyNameTrimmed);
-  const agentPromptText = isTerry ? agentData.prompt : buyerAgentPrompt(agent, ownerNameTrimmed, companyNameTrimmed);
+  // Profile first, generic second, per field. A profile carrying a voice_core
+  // but no agent_prompts still gets generic personas rather than none.
+  const profileAgentPrompt = profile && profile.agent_prompts && profile.agent_prompts[agent];
+  const voiceCore = (profile && profile.voice_core) || buyerVoiceCore(ownerNameTrimmed, companyNameTrimmed);
+  const agentPromptText = profileAgentPrompt || buyerAgentPrompt(agent, ownerNameTrimmed, companyNameTrimmed);
+  const requiredHashtags = (profile && Array.isArray(profile.required_hashtags)) ? profile.required_hashtags : [];
+  const closer = (profile && profile.closers && cta && profile.closers[cta]) || '';
 
   const sys = voiceCore + '\n\n' +
     '---\n\n' +
@@ -469,20 +326,23 @@ exports.handler = async (event) => {
     agentPromptText + '\n\n' +
     'CONTEXT, the platform this post is about:\n' +
     'Name: ' + siteData.name + '\n' +
-    'URL: ' + siteData.url + '\n' +
+    (siteData.url ? ('URL: ' + siteData.url + '\n') : '') +
     'Context: ' + siteData.context + '\n\n' +
     'PLATFORM RULES, write for ' + platformData.name + ':\n' +
     platformData.format + '\n' +
     'Character limit: ' + platformData.charLimit + ' hard max, ' + platformData.idealLength + ' target.\n\n' +
-    'URL RULE, HARD: if you include a web link in the post, use EXACTLY the URL given above (' + siteData.url + '), character for character. Do not paraphrase it, shorten it, change the domain, drop the https, swap netlify.app for .com, or invent a different URL. If you are not sure of the URL, omit it from the post entirely. Inventing or misquoting a URL is the single worst thing you can do here.\n\n' +
-    (cta === 'briefing'
-       ? 'DAILY CLOSER, REQUIRED: end the post with a short, voice-matched reminder pointing readers to today\'s morning audio briefing, "Above the Fold" (Terry sometimes calls it "your daily dose"). The reminder must include the URL emerging-tech-lab.com/press exactly as written, no other URL. Keep the closer one or two sentences, matching the rest of the post\'s voice, not a separate disclaimer. Count it inside the character budget.\n\n'
-       : cta === 'deskline'
-       ? 'DAILY CLOSER, REQUIRED: end the post with a short, voice-matched reminder pointing readers to today\'s news-classification puzzle, "Deskline" (Terry sometimes calls it "from the desk"). The reminder must include the URL emerging-tech-lab.com/press/deskline exactly as written, no other URL. Keep the closer one or two sentences, matching the rest of the post\'s voice, not a separate disclaimer. Count it inside the character budget.\n\n'
-       : '') +
-    'EM-DASH RULE: do not use em dashes or en dashes anywhere in the post or hashtags. Use commas or periods instead. This is a hard rule across all of Dr. Oroszi\'s public surfaces.\n\n' +
-    (isTerry
-       ? 'REQUIRED HASHTAGS, HARD RULE: the hashtags string MUST always include these three, exactly as written, in addition to whatever others fit the voice or platform: ' + REQUIRED_TERRY_HASHTAGS.join(' ') + '. Never omit them, and never let a platform\'s usual low hashtag count (e.g. X, Bluesky) push them out, they take priority over stylistic hashtags if space is tight.\n\n'
+    (siteData.url
+      ? 'URL RULE, HARD: if you include a web link in the post, use EXACTLY the URL given above (' + siteData.url + '), character for character. Do not paraphrase it, shorten it, change the domain, drop the https, swap netlify.app for .com, or invent a different URL. If you are not sure of the URL, omit it from the post entirely. Inventing or misquoting a URL is the single worst thing you can do here.\n\n'
+      // No URL supplied. Say so explicitly: left unsaid, the model invents a
+      // plausible domain for the business and the post ships with a dead link.
+      : 'URL RULE, HARD: no web link was supplied for this business. Do NOT include any URL in the post, and do NOT guess or construct one from the name. Write the post without a link.\n\n') +
+    // Closers are a profile's own standing CTAs (Dr. O's point at Above the
+    // Fold and Deskline). A caller with no profile asks for a cta and simply
+    // gets none, rather than being handed someone else's daily promo.
+    closer +
+    'EM-DASH RULE: do not use em dashes or en dashes anywhere in the post or hashtags. Use commas or periods instead.\n\n' +
+    (requiredHashtags.length
+       ? 'REQUIRED HASHTAGS, HARD RULE: the hashtags string MUST always include these, exactly as written, in addition to whatever others fit the voice or platform: ' + requiredHashtags.join(' ') + '. Never omit them, and never let a platform\'s usual low hashtag count (e.g. X, Bluesky) push them out, they take priority over stylistic hashtags if space is tight.\n\n'
        : '') +
     'Return ONLY valid JSON, no markdown, no prose around it, in this exact shape: {"post": "the post text without hashtags", "hashtags": "the hashtags as a single space-separated string or empty string if none fit the voice or platform", "notes": "one short sentence on why this post works for this platform and this audience"}';
 
@@ -503,12 +363,12 @@ exports.handler = async (event) => {
     const post = (data.post || '').trim();
     let hashtags = (data.hashtags || '').trim();
 
-    // Belt-and-suspenders: guarantee the three required tags regardless of
-    // model compliance with the prompt instruction above. Scoped to isTerry
-    // only, same as the prompt rule, so a buyer's post is never touched.
-    if (isTerry) {
+    // Belt-and-suspenders: guarantee the profile's required tags regardless
+    // of model compliance with the prompt rule above. Driven by the profile,
+    // so a caller without one can never have another owner's tags appended.
+    if (requiredHashtags.length) {
       const hashtagsLower = hashtags.toLowerCase();
-      const missing = REQUIRED_TERRY_HASHTAGS.filter((h) => hashtagsLower.indexOf(h.toLowerCase()) === -1);
+      const missing = requiredHashtags.filter((h) => hashtagsLower.indexOf(String(h).toLowerCase()) === -1);
       if (missing.length) {
         hashtags = (hashtags ? hashtags + ' ' : '') + missing.join(' ');
       }

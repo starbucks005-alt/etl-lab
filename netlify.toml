@@ -411,3 +411,10 @@
   for = "/bespoke-quote.html"
   [headers.values]
     Cache-Control = "no-store"
+
+# Social post engine. Voice profiles (voice corpus, required hashtags,
+# site presets, closers) live in data/voice-profiles/ so the engine itself
+# carries no owner. Bundle them or every caller silently falls back to the
+# generic voice, which is the failure that looks like nothing is wrong.
+[functions."studio-social-generate"]
+  included_files = ["data/voice-profiles/*.json"]

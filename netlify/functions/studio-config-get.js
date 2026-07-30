@@ -186,6 +186,11 @@ function fixtureToStudioConfig(fixture, user) {
     brief_beat: co.beat || '',
     domain_addon: co.domain_addon || null,
     owner_site: co.owner_site || acct.owner_site || null,
+    // Which voice profile this studio's copy is written in (a file in
+    // data/voice-profiles/). Null is normal and correct: it means the
+    // generic owner-aware voice, built from owner_name + company_name.
+    // Never defaulted to anyone, which is the whole point of the profile.
+    voice_profile: co.voice_profile || null,
     plan: co.plan || null,
     sponsorship: {
       sponsored: !!sp.sponsored,
