@@ -128,7 +128,14 @@ exports.handler = async (event) => {
     // Owner: kick a regen so the next pageview has content. Buyer: no auto
     // regen (the daily cron is owner-only), but tell the UI it can generate
     // one on demand via the "generate one now" button.
-    if (isOwner && !previewing) fireRegen(eventHost);
+    // Awaited (fixed 2026-07-30): fireRegen is async and this call site did not
+    // await it, so the handler returned immediately and the runtime froze before
+    // the fetch inside it was sent. The regen was never actually invoked, which
+    // is why the background function's log was empty while this endpoint kept
+    // reporting regenFired: true. fireRegen only awaits the invocation itself
+    // (~100ms, returns 202), never the 60-90s generation, so awaiting it here
+    // stays well inside the sync function's budget.
+    if (isOwner && !previewing) await fireRegen(eventHost);
     return {
       statusCode: 200,
       headers: { ...CORS, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
@@ -143,7 +150,7 @@ exports.handler = async (event) => {
   const isStale = meta.dateKey && meta.dateKey !== expectedDateKey;
   if (isStale && isOwner && !previewing) {
     console.log('[brief-latest] stale brief detected: stored=' + meta.dateKey + ' expected=' + expectedDateKey + ' — firing regen');
-    fireRegen(eventHost);
+    await fireRegen(eventHost);   // see the note on the other call site: must be awaited
   }
 
   return {
