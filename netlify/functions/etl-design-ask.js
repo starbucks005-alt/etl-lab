@@ -39,6 +39,20 @@ exports.handler = async (event) => {
   if (!promoting) return json(400, { error: 'promoting_required' });
   if (promoting.length > 1200) return json(400, { error: 'promoting_too_long' });
 
+  // Optional concept image the client uploads for Yuki to work from. The page
+  // downscales before sending; this is the backstop. An oversized or
+  // malformed one is DROPPED rather than failing the brief, since the relay
+  // works perfectly well without it.
+  let conceptImage = String(body.concept_image || '');
+  if (conceptImage && !/^data:image\/(png|jpeg|jpg|webp|gif);base64,/.test(conceptImage)) {
+    console.warn('[etl-design-ask] concept image ignored: not an inline image data URL');
+    conceptImage = '';
+  }
+  if (conceptImage.length > 4500000) {          // ~3.3MB decoded
+    console.warn('[etl-design-ask] concept image ignored: too large (' + conceptImage.length + ' chars)');
+    conceptImage = '';
+  }
+
   const jobId = newJobId();
 
   const host = (event.headers && (event.headers.host || event.headers.Host)) || '';
@@ -57,6 +71,7 @@ exports.handler = async (event) => {
         business_name: String(body.business_name || '').trim().slice(0, 160),
         business_site: String(body.business_site || '').trim().slice(0, 300),
         platform:      String(body.platform || 'linkedin').trim(),
+        concept_image: conceptImage,
       }),
     });
     console.log('[etl-design-ask] background invoke status', r.status, 'job', jobId);

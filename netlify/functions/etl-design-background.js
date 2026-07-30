@@ -1,24 +1,31 @@
 /* etl-design-background — the ETL Design relay.
    ─────────────────────────────────────────────────────────────────────────
    Four agents, one brief, in order. Each one's output is the next one's
-   input, which is the entire point: the visual matches the copy because
-   Chris is briefed with Zara's post and Yuki's palette, not with the raw
-   request.
+   input, which is the entire point.
 
-     1. Yuki Mendel   sets the house look     (wordmark, palette, type)
-     2. Reid Callum   sets the angle          (positioning, hook, proof)
-     3. Zara Cole     writes the post         (platform-native, hashtags)
-     4. Chris Avila   makes the visual        (Gamma, inside Yuki's system)
+     1. Yuki Mendel   sets the house look   palette + type, from the concept
+                                            image when one is uploaded
+     2. Reid Callum   finds the angle       positioning, hook, proof points
+     3. Zara Cole     writes the caption    the words BESIDE the graphic
+     4. Chris Avila   builds the graphic    Gamma, laid out in Yuki's system
+
+   WHAT THE PRODUCT IS (changed 2026-07-30, on Dr. O's call): the deliverable
+   is a DESIGNED CARD with copy on it, not a wordless illustration. The first
+   build asked Gamma for artwork with no text, which Gamma cannot do: its
+   textMode is generate | condense | preserve and nothing else, because Gamma
+   makes cards, not pictures. Fighting that produced a slide that ignored
+   Yuki's palette, ignored her type, and wrote its own copy with em dashes in
+   it. So the tool now does what it is actually for.
+
+   The consequence is that the card's own copy is authored HERE, by Reid and
+   Yuki, and handed to Gamma with textMode 'preserve' so it lays out our words
+   instead of inventing its own. Zara's post becomes the caption that goes
+   beside the graphic, which is the job a social writer actually does.
 
    Chris Avila uses they/them.
 
-   THERE IS NO OWNER HERE. Every field comes from the requester's own brief.
-   The generic voice builders in _social-voice.js are shared with the
-   Studio's Social Posts tool so Zara sounds like Zara in both places.
-
-   POST { job_id, promoting, audience, business_name, business_site, platform }
-   Writes progress + result to the etl_design_jobs blob store as it goes, so
-   the page can show each agent finishing rather than one long spinner.
+   POST { job_id, promoting, audience, business_name, business_site, platform,
+          concept_image (optional data URL) }
 */
 
 const Anthropic = require('@anthropic-ai/sdk').default;
@@ -49,12 +56,30 @@ function extractJson(raw) {
 
 const NO_EM_DASH = 'Do not use em dashes or en dashes anywhere. Use commas or periods.';
 
-async function ask(client, system, user, maxTokens) {
+/* Belt and braces on the house rule. Gamma lays out exactly what we send, so
+   whatever slips past the prompt ends up rendered into a PNG a customer
+   posts, where it cannot be edited. Strip at the door. */
+function deDash(s) {
+  return String(s == null ? '' : s).replace(/\s*[—–]\s*/g, ', ');
+}
+
+async function ask(client, system, content, maxTokens) {
   const r = await client.messages.create({
     model: MODEL, max_tokens: maxTokens || 1200, system,
-    messages: [{ role: 'user', content: user }],
+    messages: [{ role: 'user', content }],
   });
   return (r.content || []).filter(b => b && b.type === 'text').map(b => b.text).join('\n').trim();
+}
+
+/* A data URL from the browser -> an Anthropic image block. Returns null for
+   anything that is not a plausible inline image, so a malformed paste
+   degrades to "no concept image" instead of failing the whole job. */
+function imageBlock(dataUrl) {
+  const m = /^data:(image\/(?:png|jpeg|jpg|webp|gif));base64,([A-Za-z0-9+/=]+)$/.exec(String(dataUrl || '').trim());
+  if (!m) return null;
+  const media = m[1] === 'image/jpg' ? 'image/jpeg' : m[1];
+  if (m[2].length > 7000000) return null;            // ~5MB decoded, Anthropic's ceiling
+  return { type: 'image', source: { type: 'base64', media_type: media, data: m[2] } };
 }
 
 exports.handler = async (event) => {
@@ -82,97 +107,116 @@ exports.handler = async (event) => {
   };
   const P = PLATFORMS[brief.platform];
   const co = brief.businessName || 'this business';
+  const concept = imageBlock(body.concept_image);
 
-  // Progress is written after every step. The page renders each agent as it
-  // lands, so a 60-90 second relay reads as four people working rather than
-  // one stalled spinner.
   const state = {
     job_id: jobId, status: 'running', step: 0, of: 4,
     created_at: new Date().toISOString(),
-    brief, result: {}, error: null,
+    brief: Object.assign({}, brief, { had_concept_image: !!concept }),
+    result: {}, error: null,
   };
   const save = async (patch) => {
     Object.assign(state, patch || {});
     state.updated_at = new Date().toISOString();
     try { await store.setJSON(jobId, state); } catch (e) { console.error('[etl-design] save failed', e && e.message); }
   };
-  await save({ step: 0, note: 'Yuki is setting the look.' });
+  await save({ step: 0, note: concept ? 'Yuki is reading your concept image.' : 'Yuki is setting the look.' });
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) { await save({ status: 'error', error: 'ANTHROPIC_API_KEY not set' }); return { statusCode: 500, body: 'no key' }; }
   const client = new Anthropic({ apiKey });
 
   try {
-    /* ── 1. Yuki: the house look ───────────────────────────────────────── */
-    const yuki = extractJson(await ask(client,
-      'You are Yuki Mendel, a type-first graphic designer. You make wordmarks, not mascots. You build a small brand system a one-person shop can actually hold together: a typeface pairing, a tight palette, and the spacing logic that makes it look deliberate. You do not design logos with icons in them unless asked. ' + NO_EM_DASH +
-      '\n\nReturn ONLY JSON: {"wordmark":"how the name should be set, one sentence","palette":[{"name":"Ink","hex":"#111111","use":"body text"}],"fonts":{"display":"a real, widely available typeface","body":"a real, widely available typeface"},"look":"two sentences on the overall feel and why it fits this audience"}. Give exactly 4 palette entries with real hex values.',
+    /* ── 1. Yuki: the house look, anchored to the concept image ────────── */
+    const yukiText =
       'BUSINESS: ' + co + (brief.businessSite ? ' (' + brief.businessSite + ')' : '') +
       '\nWHAT THEY ARE PROMOTING: ' + brief.promoting +
       '\nAUDIENCE: ' + (brief.audience || 'not specified') +
-      '\n\nSet the brand direction.', 1200));
+      (concept
+        ? '\n\nThe attached image is the client\'s own concept reference. Pull the palette and the mood FROM IT. Name colours you can actually see in it, with hex values you have judged from the image, and choose type that suits it. If the image is a photo of their space, product or work, treat it as the truth about who they are.'
+        : '') +
+      '\n\nSet the brand direction.';
+    const yuki = extractJson(await ask(client,
+      'You are Yuki Mendel, a type-first graphic designer. You make wordmarks, not mascots. You build a small brand system a one-person shop can hold together: a typeface pairing, a tight palette, and the spacing logic that makes it look deliberate. ' + NO_EM_DASH +
+      '\n\nReturn ONLY JSON: {"wordmark":"how the name should be set, one sentence","palette":[{"name":"Ink","hex":"#111111","use":"body text"}],"fonts":{"display":"a real, widely available typeface","body":"a real, widely available typeface"},"look":"two sentences on the overall feel and why it fits this audience"}. Give exactly 4 palette entries with real hex values.',
+      concept ? [concept, { type: 'text', text: yukiText }] : yukiText, 1200));
     await save({ step: 1, note: 'Reid is finding the angle.', result: Object.assign(state.result, { brand: yuki }) });
 
-    /* ── 2. Reid: the angle ────────────────────────────────────────────── */
+    /* ── 2. Reid: the angle, AND the words that go on the graphic ──────── */
+    // Reid writes the card copy here rather than letting Gamma invent it.
+    // Gamma is given this verbatim under textMode 'preserve'.
     const reid = extractJson(await ask(client,
-      'You are Reid Callum, a go-to-market strategist. You tell people how to actually sell the thing, not how to describe it. You find the one clear reason a customer picks them over the alternative. You never invent statistics, awards, customer counts, or prices. ' + NO_EM_DASH +
-      '\n\nReturn ONLY JSON: {"positioning":"one sentence, the clear reason to pick them","hook":"the single sharpest line to lead with","proof_points":["2 to 3 short, concrete, non-invented points drawn only from what the brief actually says"]}',
+      'You are Reid Callum, a go-to-market strategist. You tell people how to sell the thing, not how to describe it. You never invent statistics, awards, customer counts, testimonials or prices. ' + NO_EM_DASH +
+      '\n\nYou are also writing the words that will be SET IN TYPE on a single marketing graphic, so they must be short enough to read at a glance. Return ONLY JSON: ' +
+      '{"positioning":"one sentence, the clear reason to pick them","hook":"the single sharpest line to lead with","proof_points":["2 to 3 short concrete points, drawn only from the brief"],' +
+      '"card":{"headline":"6 to 9 words maximum","subhead":"one sentence, 18 words maximum","blocks":[{"title":"2 to 4 words","body":"one sentence, 14 words maximum"}]}}. Give exactly 3 blocks.',
       'BUSINESS: ' + co +
       '\nWHAT THEY ARE PROMOTING: ' + brief.promoting +
       '\nAUDIENCE: ' + (brief.audience || 'not specified') +
-      '\n\nFind the angle.', 1000));
-    await save({ step: 2, note: 'Zara is writing the post.', result: Object.assign(state.result, { angle: reid }) });
+      '\n\nFind the angle and write the graphic.', 1400));
+    await save({ step: 2, note: 'Zara is writing the caption.', result: Object.assign(state.result, { angle: reid }) });
 
-    /* ── 3. Zara: the post ─────────────────────────────────────────────── */
+    /* ── 3. Zara: the caption that goes beside the graphic ─────────────── */
     const zaraSys = buyerVoiceCore('', co) + '\n\n---\n\nSTYLE TILT (apply on top of the baseline voice):\n\n' +
       buyerAgentPrompt('zara', '', co) +
+      '\n\nThis is the CAPTION that sits beside a finished graphic. The graphic already carries the headline "' +
+      deDash((reid.card && reid.card.headline) || reid.hook || '') + '". Do not simply repeat it; say the thing the picture cannot.' +
       '\n\nPLATFORM RULES, write for ' + P.name + ':\n' + P.format +
       '\nCharacter limit: ' + P.charLimit + ' hard max, ' + P.ideal + ' target.\n\n' +
-      'ANGLE TO USE (from the strategist, do not contradict it):\n' +
-      'Positioning: ' + (reid.positioning || '') + '\nHook: ' + (reid.hook || '') + '\n\n' +
+      'ANGLE (from the strategist, do not contradict it):\nPositioning: ' + (reid.positioning || '') + '\n\n' +
       (brief.businessSite
         ? 'URL RULE, HARD: if you include a link use EXACTLY ' + brief.businessSite + ', character for character. Never invent or alter it.\n\n'
         : 'URL RULE, HARD: no link was supplied. Do NOT include any URL and do NOT guess one from the name.\n\n') +
       'Never invent statistics, testimonials, prices, or customer counts. ' + NO_EM_DASH + '\n\n' +
-      'Return ONLY JSON: {"post":"the post text without hashtags","hashtags":"space separated, or empty","notes":"one sentence on why this lands for this platform"}';
+      'Return ONLY JSON: {"post":"the caption without hashtags","hashtags":"space separated, or empty","notes":"one sentence on why this lands for this platform"}';
     const zara = extractJson(await ask(client, zaraSys,
-      'SUBJECT: ' + brief.promoting + '\n\nWrite the post for ' + P.name + '.', 1500));
-    await save({ step: 3, note: 'Chris is making the visual.', result: Object.assign(state.result, { copy: zara, platform: P.name }) });
+      'SUBJECT: ' + brief.promoting + '\n\nWrite the caption for ' + P.name + '.', 1500));
+    await save({ step: 3, note: 'Chris is building the graphic.', result: Object.assign(state.result, { copy: zara, platform: P.name }) });
 
-    /* ── 4. Chris: the visual, inside Yuki's system ────────────────────── */
-    // Briefed with the palette and the actual post, so the image belongs to
-    // the piece rather than being generic stock that happens to sit above it.
+    /* ── 4. Chris: the graphic, laid out in Yuki's system ──────────────── */
     const gammaKey = process.env.GAMMA_API_KEY || process.env.GAMMA_KEY || process.env.BUILD_YOUR_AGENT_GAMMA;
     if (gammaKey) {
-      const paletteText = Array.isArray(yuki.palette)
-        ? yuki.palette.map(p => (p.name || '') + ' ' + (p.hex || '')).join(', ') : '';
-      const style = 'Editorial marketing graphic, not a photograph of a person. ' +
-        'Colour palette strictly: ' + paletteText + '. ' +
-        'Clean geometric composition, generous negative space, flat modern illustration, ' +
-        'no text, no words, no letterforms, no logos, no watermarks. ' +
-        (yuki.look || '');
+      const card = reid.card || {};
+      const blocks = Array.isArray(card.blocks) ? card.blocks : [];
+      const pal = Array.isArray(yuki.palette) ? yuki.palette : [];
+      const fonts = yuki.fonts || {};
+
+      // The exact words to set. Every string de-dashed before it can be
+      // rendered into a PNG nobody can edit afterwards.
+      const cardText = [
+        '# ' + deDash(card.headline || reid.hook || co),
+        '', deDash(card.subhead || reid.positioning || ''), '',
+      ].concat(blocks.map(b => '## ' + deDash(b.title || '') + '\n' + deDash(b.body || '')))
+       .concat(['', deDash(co) + (brief.businessSite ? ' · ' + deDash(brief.businessSite) : '')])
+       .join('\n');
+
+      // Yuki's system, stated as design direction. Gamma controls its own
+      // theme, so this steers rather than dictates; the palette and type are
+      // named explicitly to give it every chance to comply.
+      const styleDirection = [
+        'Design system to follow exactly.',
+        'Palette: ' + pal.map(p => (p.name || '') + ' ' + (p.hex || '') + (p.use ? ' for ' + p.use : '')).join('; ') + '.',
+        'Typography: ' + (fonts.display || '') + ' for headlines, ' + (fonts.body || '') + ' for body.',
+        'Feel: ' + (yuki.look || ''),
+        'Generous negative space, strong type hierarchy, one accent colour used sparingly.',
+        'Use only the words given. Do not add copy, taglines, statistics or contact details.',
+        'Never use em dashes or en dashes.',
+      ].join(' ');
+
       const buildPayload = (dims) => ({
-        inputText: ('Marketing visual for ' + co + '. Subject: ' + brief.promoting + '. Mood: ' + (yuki.look || '') + '.').slice(0, 4000),
-        // textMode MUST be one of generate | condense | preserve. 'none' is
-        // rejected outright: "Input validation errors: 1. textMode must be one
-        // of: generate, condense, preserve" (live 400, 2026-07-30). 'preserve'
-        // is the right one here, it takes inputText as written instead of
-        // letting Gamma expand it into copy that would compete with Zara's.
-        // NOTE: gamma-image-ask.js still sends 'none', so Build Your Own
-        // Agent's portrait generation is failing the same way.
-        format: 'social', textMode: 'preserve', numCards: 1,
+        inputText: cardText.slice(0, 4000),
+        format: 'social',
+        // 'preserve' takes our words as written. 'generate' is what let Gamma
+        // author its own copy, off-palette and full of em dashes, on the first
+        // live run. Valid values are generate | condense | preserve only.
+        textMode: 'preserve',
+        numCards: 1,
         cardOptions: { dimensions: dims },
-        imageOptions: { source: 'aiGenerated', model: 'imagen-4-pro', style: style.slice(0, 2000) },
+        imageOptions: { source: 'aiGenerated', model: 'imagen-4-pro', style: styleDirection.slice(0, 2000) },
+        additionalInstructions: styleDirection.slice(0, 2000),
         exportAs: 'png',
       });
 
-      // Two attempts. The per-platform aspect ratio is what we WANT (4x5 reads
-      // better in a LinkedIn feed, 16x9 on X), but the only Gamma call proven
-      // on this campus uses 1x1, and a first live run came back gamma_400. So
-      // try the good ratio, and on a 4xx fall back to the known-good square
-      // rather than losing the visual entirely. The refusal detail is stored,
-      // not just the status code, so the cause is visible without shell access
-      // to the logs (2026-07-30).
       const attempts = P.dims === '1x1' ? ['1x1'] : [P.dims, '1x1'];
       let lastDetail = '';
       for (let i = 0; i < attempts.length; i++) {
@@ -185,7 +229,7 @@ exports.handler = async (event) => {
           const gd = await gr.json().catch(() => ({}));
           if (gr.ok && gd.generationId) {
             await save({ result: Object.assign(state.result, {
-              gamma_generation_id: gd.generationId, image_dims: attempts[i],
+              gamma_generation_id: gd.generationId, image_dims: attempts[i], card_text: cardText,
             }) });
             lastDetail = '';
             break;
@@ -198,11 +242,9 @@ exports.handler = async (event) => {
           console.error('[etl-design]', lastDetail);
         }
       }
-      // A failed image must never discard three good text steps. Same lesson
-      // as the brief generator dropping a finished brief on a TTS failure.
       if (lastDetail) await save({ result: Object.assign(state.result, { image_error: lastDetail }) });
     } else {
-      console.warn('[etl-design] no GAMMA key set; delivering copy without a visual');
+      console.warn('[etl-design] no GAMMA key set; delivering copy without a graphic');
       await save({ result: Object.assign(state.result, { image_error: 'no_gamma_key' }) });
     }
 
