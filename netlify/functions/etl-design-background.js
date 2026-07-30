@@ -226,7 +226,11 @@ exports.handler = async (event) => {
         'Mood: ' + (yuki.look || '') + '.',
         'Use this colour palette and nothing else: ' + paletteText + '.',
         'Absolutely NO text, NO words, NO letters, NO numbers, NO logos, NO watermarks anywhere in the image.',
-        'Leave calm, uncluttered space in the upper third where a headline will be placed over it.',
+        // Asking for "no text" is not enough on its own: gpt-image-1 wrote
+        // MEPPERS onto a bottle label doing exactly that. Steer it off the
+        // surfaces that invite lettering in the first place (2026-07-30).
+        'Do not depict product labels, packaging, signage, posters, menus, price tags or storefronts, since those invite lettering. Show the subject matter itself, materials, ingredients, hands, texture, place.',
+        'Composition must work as a BACKGROUND: even tone, no single dominant focal object, nothing important in the top third or along the left edge.',
         'Photographic or richly illustrated, confident composition, not a flat icon and not clip art.',
         concept ? 'Match the look, setting and colouring of the reference the client supplied.' : '',
       ].filter(Boolean).join(' ');
@@ -264,6 +268,9 @@ exports.handler = async (event) => {
       '4. No em dashes or en dashes anywhere.',
       '5. Every colour must be a hex from the palette above.',
       '6. Do not invent copy. Use only the words given below, though you may drop a block if the composition is stronger without it.',
+      '7. CONTRAST IS NOT OPTIONAL. Wherever text sits over the artwork you MUST first lay a solid or gradient <rect> from the palette across that whole region, at 0.72 opacity or heavier. Asking the artwork to leave room does not work; it did not. Every line of text must sit on a flat field, not on a photograph.',
+      '8. No decorative element below 0.15 opacity. A ghosted giant numeral at 0.05 does not read as design, it reads as a smudge, and nobody can tell what it refers to. If a decorative mark cannot be seen clearly, leave it out.',
+      '9. Any decorative numeral or symbol must be labelled by adjacent text, or omitted. A lone 6 means nothing to someone who did not read the brief.',
     ].join('\n');
 
     const composeUser = [
@@ -300,6 +307,13 @@ exports.handler = async (event) => {
       }
       const key = jobId + '.png';
       await store.set(key, out.png, { metadata: { contentType: 'image/png' } });
+      // Keep the SVG. It is the DESIGN SOURCE: the PNG is just a picture of
+      // it. Without this, a question as basic as "why is there a 6 on my
+      // piece" cannot be answered except by guessing, and a defect cannot be
+      // traced to the element that caused it (2026-07-30). It also makes an
+      // editable hand-off possible later.
+      try { await store.set(jobId + '.svg', out.svg, { metadata: { contentType: 'image/svg+xml' } }); }
+      catch (e) { console.warn('[etl-design] svg not stored (non-fatal)', e && e.message); }
       await save({ result: Object.assign(state.result, {
         image_key: key,
         image_w: out.canvas.w, image_h: out.canvas.h,
