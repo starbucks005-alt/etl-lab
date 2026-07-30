@@ -4943,12 +4943,49 @@
       // doesn't match today (ET). Backend already fired a regen — we just
       // tell Terry what's happening and auto-poll for the fresh one.
       if (meta.stale) {
+        // The backend only auto-fires a regen for the OWNER (brief-latest gates
+        // fireRegen on isOwner, and the daily cron posts an empty body, which
+        // that path treats as the owner's global brief). So for a buyer nothing
+        // was ever fired, and this panel told them their PA was "generating
+        // today's brief now" while nothing generated, on every visit, forever.
+        // Vikram's sat at 2026-06-26 for 33 days saying exactly that.
+        //
+        // Fire the real regen here when the backend did not, reusing the same
+        // trigger the "generate a fresh brief" button uses. That call carries
+        // the owner context and, for a buyer, writes to THEIR namespace keyed
+        // off their own JWT. preview_as is deliberately omitted: previews must
+        // not spend a generation, so they get an honest label instead.
+        var regenRunning = !!meta.regenFired;
+        if (!regenRunning && !preview && !window.__briefAutoRegenFired) {
+          window.__briefAutoRegenFired = true;
+          regenRunning = true;
+          (async function(){
+            try {
+              var tk = await getJwt();
+              if (!tk) return;
+              await fetch('/.netlify/functions/studio-auggie-brief-trigger', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tk },
+                body: JSON.stringify({
+                  owner_name: window.__ownerName || '',
+                  company_name: window.__companyName || '',
+                  owner_context: window.__ownerContext || '',
+                  owner_site: window.__ownerSite || '',
+                  owner_address_form: window.__ownerAddressForm || '',
+                  pa_first_name: window.__paFirstName || window.__paDisplayName || '',
+                }),
+              });
+            } catch (_) {}
+          })();
+        }
         lengthLabel.innerHTML = (lengthStr ? (lengthStr + ' · ') : '') +
           '<span style="color:#5c8ab5; font-weight:700;">' +
-          'STALE — ' + (window.__paFirstName || 'your PA') + ' is generating today\'s brief now, refresh in ~90s' +
+          (regenRunning
+            ? ('STALE — ' + (window.__paFirstName || 'your PA') + ' is generating today\'s brief now, refresh in ~90s')
+            : ('STALE — this brief is from an earlier day. Use “generate a fresh brief” below.')) +
           '</span>';
         // Auto-poll for the fresh brief: try at +90s, +150s, +210s.
-        if (!window.__briefStalePolls) {
+        if (regenRunning && !window.__briefStalePolls) {
           window.__briefStalePolls = true;
           setTimeout(function(){ loadAuggieBrief(); }, 90000);
           setTimeout(function(){ loadAuggieBrief(); }, 150000);
