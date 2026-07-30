@@ -2225,7 +2225,12 @@
     </div>
     <div class="staff-grid">
 
-      <div class="staff-card">
+      <!-- data-contract="pa" is what earns this card its Swap button. The seated
+           PA's display name is set at runtime by setGenericPAIdentity, so it
+           rarely matches the STAFF map and used to resolve to no config at all,
+           leaving the one seat you are most likely to want to change with no
+           control on it. Fire is correctly absent: you always have a PA. -->
+      <div class="staff-card" data-contract="pa">
         <div class="staff-portrait">
           <img id="pa-staff-portrait" src="/agents/Auggie_profile.png" alt="August Vidal" onerror="this.outerHTML='<div class=&quot;staff-portrait-placeholder&quot;>AV</div>'">
         </div>
@@ -6081,12 +6086,32 @@ h1 em,h2 em{font-weight:300;color:var(--skin-accent)}
   function lsGet(k){ try { return JSON.parse(localStorage.getItem(k) || '{}'); } catch(e){ return {}; } }
   function lsSet(k,v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} }
 
-  function getConfig(name){
+  // Swap/Fire config for one card. STAFF above is the shipped demo bench and
+  // is a FALLBACK, not the gate. It used to be the gate: no entry in that
+  // 15-name map meant getConfig returned null and decorateCard bailed before
+  // adding any buttons. So anyone actually hired, on any studio, had a card
+  // they could not swap or fire, and the only way to grant controls was for
+  // someone to hand-add their name to a literal in this file (2026-07-30).
+  //
+  // Every hired_staff entry already carries contract and hired_at, which is
+  // all Swap and Fire need. buildCard stamps them on the card, and we derive
+  // from those when the name is not in STAFF. New hires now work with no
+  // hand-maintenance, which is the whole point.
+  function getConfig(name, card){
     var override = lsGet(LS_OVERRIDE)[name];
     if (override) return override;
     var base = STAFF[name];
-    if (!base) return null;
-    return { pool: base.pool, contract: base.contract, hiredOn: daysAgo(base.dayOffset) };
+    if (base) return { pool: base.pool, contract: base.contract, hiredOn: daysAgo(base.dayOffset) };
+    if (!card) return null;
+    var raw = card.getAttribute('data-contract') || '';
+    if (!raw) return null;
+    return {
+      // 'bundled' is the Six-Pack's wire value; 'gift' is a comped hire and
+      // behaves like any standing one.
+      pool:     raw === 'pa' ? 'pa' : (raw === 'bundled' ? 'sixpack' : 'specialty'),
+      contract: raw === 'temp' ? 'temp' : 'standing',
+      hiredOn:  card.getAttribute('data-hired-at') || null,
+    };
   }
 
   function daysSince(iso){
@@ -6104,7 +6129,7 @@ h1 em,h2 em{font-weight:300;color:var(--skin-accent)}
     var nameEl = card.querySelector('.staff-name');
     if (!nameEl) return;
     var name = nameEl.textContent.trim();
-    var cfg = getConfig(name);
+    var cfg = getConfig(name, card);
     if (!cfg) return;
 
     var fired = lsGet(LS_FIRED);
@@ -6120,7 +6145,11 @@ h1 em,h2 em{font-weight:300;color:var(--skin-accent)}
 
     card.setAttribute('data-staff', name);
     card.setAttribute('data-pool', cfg.pool);
-    card.setAttribute('data-contract', cfg.contract);
+    // Do NOT overwrite an existing data-contract. It holds the RAW wire value
+    // ('pa', 'bundled', 'gift'), which is what getConfig derives from; cfg
+    // .contract is the normalized 'standing'/'temp'. Clobbering it turned the
+    // PA card into a specialty hire on any re-derivation.
+    if (!card.hasAttribute('data-contract')) card.setAttribute('data-contract', cfg.contract);
 
     var body = card.querySelector('.staff-body');
     if (!body) return;
@@ -6136,15 +6165,22 @@ h1 em,h2 em{font-weight:300;color:var(--skin-accent)}
     var preChips = body.querySelector('.staff-contract');
     if (preChips) preChips.remove();
 
-    var days = daysSince(cfg.hiredOn);
-    var eligible = days >= 30;
+    // A derived config may have no hire date (nothing recorded one). Unknown
+    // must not read as "hired today": that would lock the owner out of firing
+    // for 30 days on a date we invented. No date means no day counter and no
+    // lock.
+    var hasDate = !!cfg.hiredOn && !isNaN(new Date(cfg.hiredOn).getTime());
+    var days = hasDate ? daysSince(cfg.hiredOn) : null;
+    var eligible = hasDate ? days >= 30 : true;
     var poolLabel = cfg.pool === 'pa' ? 'PA' : cfg.pool === 'sixpack' ? 'Six-Pack' : 'Specialty';
     var poolClass = cfg.pool === 'pa' ? 'staff-chip-pa' : cfg.pool === 'sixpack' ? 'staff-chip-pack' : '';
     var contractClass = cfg.contract === 'temp' ? 'staff-chip-temp' : 'staff-chip-stand';
     var contractLabel = cfg.contract === 'temp' ? 'Temp Hire' : 'Standing';
 
     var meta = '';
-    if (cfg.pool !== 'pa') {
+    if (!hasDate) {
+      meta = '';
+    } else if (cfg.pool !== 'pa') {
       if (eligible) {
         meta = cfg.contract === 'temp'
           ? 'Day ' + days + ' &middot; eligible to release'
@@ -7185,7 +7221,7 @@ h1 em,h2 em{font-weight:300;color:var(--skin-accent)}
         .slice(0, 2).map(function(w){ return w[0]; }).join('').toUpperCase() || name[0];
     }
 
-    function buildCard(name, role, backpack, contract, why){
+    function buildCard(name, role, backpack, contract, why, hiredAt){
       var agent = lookupAgent(name);
       var displayRole = role || (agent && agent.role) || '';
 
@@ -7227,6 +7263,11 @@ h1 em,h2 em{font-weight:300;color:var(--skin-accent)}
 
       var card = document.createElement('div');
       card.className = 'staff-card';
+      // Swap/Fire reads these off the card (see getConfig). Without them a
+      // hire has no controls, because there is nothing else on the page that
+      // knows what kind of hire they are.
+      card.setAttribute('data-contract', contract || 'standing');
+      if (hiredAt) card.setAttribute('data-hired-at', hiredAt);
       card.innerHTML =
         '<div class="staff-portrait">' + portraitHtml + '</div>' +
         '<div class="staff-body">' +
@@ -7268,7 +7309,7 @@ h1 em,h2 em{font-weight:300;color:var(--skin-accent)}
       } else if (cfg.pa && cfg.pa.display_name) {
         grid.appendChild(buildCard(cfg.pa.display_name, cfg.pa.label || 'Personal Assistant', cfg.pa.backpack, 'pa', null));
       }
-      hired.forEach(function(s){ grid.appendChild(buildCard(s.name, s.role || '', s.backpack, s.contract || 'standing', s.why || s.note || null)); });
+      hired.forEach(function(s){ grid.appendChild(buildCard(s.name, s.role || '', s.backpack, s.contract || 'standing', s.why || s.note || null, s.hired_at || null)); });
       if (window.__studioDecorateStaff) window.__studioDecorateStaff();
     } else {
       // No config to rebuild from (signed out / default): keep whatever the
@@ -7277,7 +7318,7 @@ h1 em,h2 em{font-weight:300;color:var(--skin-accent)}
       Array.prototype.forEach.call(grid.querySelectorAll('.staff-name'), function(n){ shown[n.textContent.trim()] = true; });
       hired.forEach(function(s){
         if (shown[s.name]) return;
-        grid.appendChild(buildCard(s.name, s.role || '', s.backpack, s.contract || 'standing', s.why || s.note || null));
+        grid.appendChild(buildCard(s.name, s.role || '', s.backpack, s.contract || 'standing', s.why || s.note || null, s.hired_at || null));
       });
       if (window.__studioDecorateStaff) window.__studioDecorateStaff();
     }

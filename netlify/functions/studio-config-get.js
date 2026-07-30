@@ -245,20 +245,15 @@ function defaultStudioConfig(user) {
   };
 }
 
-const OWNER_GUARANTEED_STAFF = [
-  { name: 'Dr. Henry Chen, RPh', role: 'The Pharmacist', backpack: false, contract: 'standing', tier: 'addon', price: 25, why: 'Health Sciences pharmacology expert on The Dose cast; handles drug interactions, supplement evidence, and medication literacy.' },
-  { name: 'Maeve "MJ" Johnson',  role: 'The Gardener',   backpack: false, contract: 'standing', tier: 'addon', price: 25, why: 'The Dose cast; nutrition, home growing, whole-food wellness, and practical plant-based guidance.' },
-];
-
-function injectOwnerStaff(cfg, email) {
-  const ownerEmail = (process.env.OWNER_EMAIL || '').toLowerCase();
-  if (!ownerEmail || email !== ownerEmail) return;
-  const existing = new Set((cfg.hired_staff || []).map(s => s.name));
-  const missing = OWNER_GUARANTEED_STAFF.filter(s => !existing.has(s.name));
-  if (missing.length > 0) {
-    cfg.hired_staff = [...missing, ...(cfg.hired_staff || [])];
-  }
-}
+/* REMOVED 2026-07-30: OWNER_GUARANTEED_STAFF / injectOwnerStaff.
+   Two staff (Dr. Henry Chen, Maeve "MJ" Johnson) were hardcoded here by name
+   and force-injected into hired_staff on every load for the owner's email,
+   AFTER the fixture merge. That made them unremovable: taking them out of
+   terry-oroszi-company.json had no effect, because this put them straight
+   back on the next request. Dr. O asked to be rid of them and could not be.
+   A studio's bench is its fixture plus what its owner has actually hired.
+   If someone should be on a bench, add them to that bench's fixture, where
+   the owner can then fire them, and never re-add a person in server code. */
 
 exports.handler = async function(event) {
   try { connectLambda(event); } catch (_) {}
@@ -366,7 +361,6 @@ exports.handler = async function(event) {
         merged.hired_staff = (merged.hired_staff || [])
           .map(s => resolveStaffEntry(s, rosterIndex))
           .filter(Boolean);
-        injectOwnerStaff(merged, email);
         merged.is_owner = isOwnerSession;   // authoritative, never from the blob
         return merged;
       }
@@ -378,7 +372,6 @@ exports.handler = async function(event) {
         .map(s => resolveStaffEntry(s, rosterIndex))
         .filter(Boolean),
     };
-    injectOwnerStaff(noBlobResult, email);
     noBlobResult.is_owner = isOwnerSession;
     return noBlobResult;
   }
