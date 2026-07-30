@@ -36,6 +36,7 @@
 const Anthropic = require('@anthropic-ai/sdk').default;
 const { getStore, connectLambda } = require('@netlify/blobs');
 const { buyerVoiceCore, buyerAgentPrompt } = require('./_social-voice.js');
+const composeBrief = require('./_design-compose.js');
 /* Loaded LAZILY, inside step 4, and deliberately so.
    _design-render pulls in sharp, a native module. When sharp was missing from
    package.json this require threw at MODULE LOAD, which killed the function
@@ -250,34 +251,13 @@ exports.handler = async (event) => {
     /* Yuki composes. She is given the exact canvas, the exact words, and the
        artwork to build around. */
     const artHref = artB64 ? ('data:image/png;base64,' + artB64) : '';
-    const composeSys = [
-      'You are Yuki Mendel, a type-first graphic designer. You are producing FINISHED ARTWORK as a single SVG document. Output ONLY the SVG, starting with <svg and ending with </svg>. No markdown fence, no commentary.',
-      '',
-      'CANVAS: exactly ' + canvas.w + ' by ' + canvas.h + ' (' + canvas.label + '). Use viewBox="0 0 ' + canvas.w + ' ' + canvas.h + '".',
-      (canvas.kind === 'print'
-        ? 'THIS IS PRINT. Anything meant to reach the edge must bleed to the artboard edge, and NOTHING readable may sit within ' + canvas.safe + ' units of any edge, or it will be trimmed off.'
-        : 'Keep important elements clear of the outer 40 units so nothing is cropped by a feed.'),
-      '',
-      'PALETTE, use these and nothing else: ' + paletteText + '.',
-      'TYPE: ' + ((yuki.fonts && yuki.fonts.display) || 'a serif') + ' for display, ' + ((yuki.fonts && yuki.fonts.body) || 'a sans-serif') + ' for body. Set font-family to a stack ending in "serif" or "sans-serif".',
-      '',
-      artHref
-        ? 'ARTWORK: place <image href="CONCEPT_IMAGE" .../> as a MAJOR, CLEARLY VISIBLE element. Use the literal string CONCEPT_IMAGE as the href; it is substituted at render time. Give it a defined region of at least a third of the canvas, a band or a confident crop, and show it at FULL STRENGTH there: no scrim, no tint, no opacity, nothing over it. Put the type on flat colour fields ELSEWHERE. Never wash the whole canvas with the image and then darken all of it, which leaves a black rectangle and no picture.'
-        : 'There is no photograph. Build a strong type-led composition using rules, blocks, and generous negative space.',
-      '',
-      'HARD RULES, these break the piece if ignored:',
-      '1. SVG <text> DOES NOT WRAP. Emit each line as its own <text>. Never put a long sentence in one <text>.',
-      '2. Keep display lines under about 28 characters and body lines under about 48.',
-      '3. Never break a word across lines.',
-      '4. No em dashes or en dashes anywhere.',
-      '5. Every colour must be a hex from the palette above.',
-      '6. Do not invent copy. Use only the words given below, though you may drop a block if the composition is stronger without it.',
-      '7. CONTRAST IS NOT OPTIONAL, BUT IT IS LOCAL. Every line of text sits on a flat colour field, never on a photograph. Achieve that by putting the type on its own solid panel, NOT by laying a scrim across the whole canvas. The artwork region stays clean and untinted. If text and picture want the same space, move the text.',
-      '8. NO DECORATIVE OR BACKGROUND TYPE. AT ALL. Do not set any word, letter or numeral that is not one of the strings given below, and never repeat a headline as an oversized ghost behind or beside itself. Three separate rules have tried to make this safe and it has come back three times: a stray 6, a HEAT under the blocks, and a ghost headline bleeding off the top right. It has never once improved a piece. Every glyph on the canvas must be copy that was handed to you.',
-      '9. Any decorative numeral or symbol must be labelled by adjacent text, or omitted. A lone 6 means nothing to someone who did not read the brief.',
-      '10. THE NAME AND THE URL ARE THE RESPONSE MECHANISM. They must be the highest contrast small text on the piece: set them on a plain field in the lightest palette colour against the darkest, or the reverse. They may never sit on artwork, on a rule, on a band edge, or in a colour close to what is behind them. Losing the URL loses the whole point of the piece, and dark red on near black across a rule line is exactly how that happened.',
-      '11. Leave a clear margin between the last content block and the footer. Do not fill that band with decoration.',
-    ].join('\n');
+    // The compose brief lives in _design-compose.js, shared with the revision
+    // path. One copy on purpose: a revision that quietly forgot a rule would
+    // put a fixed defect straight back while telling the client it was fixed.
+    const composeSys = composeBrief.composeSystem({
+      canvas, paletteText, fonts: yuki.fonts, hasArt: !!artHref,
+    });
+
 
     const composeUser = [
       'HEADLINE: ' + deDash(card.headline || reid.hook || co),

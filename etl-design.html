@@ -191,6 +191,19 @@
         <div class="stamp" id="r-stamp">Preview</div>
       </div>
       <div class="hint" id="r-imgnote" style="margin-top:.7rem;"></div>
+
+      <!-- Revisions are the service, not an apology for a bad first pass.
+           A studio expects to be told "warmer, less text, make the bottle the
+           hero" and to come back with a second round. Free and unlimited
+           before purchase: a revision is one model call against Yuki's own
+           previous file, a fraction of the first pass. -->
+      <div style="margin-top:1.4rem;border-top:1px solid var(--line);padding-top:1.2rem;">
+        <label for="r-note">Tell the team what to change</label>
+        <textarea id="r-note" placeholder="Make the bottle the hero. Warmer. Lose the middle block and give the offer more room."></textarea>
+        <div class="hint">Yuki keeps everything else as it is and changes only what you ask for. As many rounds as you like, and you still only pay when you are happy with it.</div>
+        <button class="cta ghost" id="revise">Send it back for changes</button>
+        <span class="note" id="revise-note" style="margin-left:.8rem;"></span>
+      </div>
     </div>
 
     <div class="card" id="pay-card">
@@ -386,6 +399,32 @@
   });
 
   $('again').addEventListener('click', function(){ window.location.href = '/etl-design'; });
+
+  /* Round two and onward. The button stays disabled while Yuki works, because
+     a second request against the same job would race the first one's write. */
+  $('revise').addEventListener('click', function(){
+    var note = $('r-note').value.trim();
+    if (!jobId) return;
+    if (!note) { $('revise-note').textContent = 'Tell them what to change first.'; return; }
+    $('revise').disabled = true;
+    $('revise-note').textContent = 'Yuki is making the changes...';
+    fetch('/.netlify/functions/etl-design-revise', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ job_id: jobId, note: note })
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      $('revise').disabled = false;
+      if (!d.ok) throw new Error(d.error || 'revision failed');
+      $('revise-note').textContent = 'Round ' + (d.revision + 1) + ' is up.';
+      $('r-note').value = '';
+      tick();   // status returns a version-stamped image url, so this repaints
+    })
+    .catch(function(e){
+      $('revise').disabled = false;
+      $('revise-note').textContent = 'Could not make that change: ' + e.message;
+    });
+  });
 
   $('f-concept').addEventListener('change', function(e){ loadConcept(e.target.files && e.target.files[0]); });
   $('concept-clear').addEventListener('click', function(){

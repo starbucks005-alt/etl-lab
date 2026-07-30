@@ -63,12 +63,25 @@ exports.handler = async (event) => {
     error: job.error || null,
     image_state: imageState,
     paid: !!job.paid,
+    revision: job.revision || 0,
     result: {
       brand: res.brand || null,
       angle: res.angle || null,
       copy: res.copy || null,
       platform: res.platform || '',
-      image_url: res.image_url || '',
+      // res.image_url is a leftover from the Gamma era, when the picture lived
+      // at a third-party URL. It has not existed since the render moved
+      // in-house, so this field was silently always empty and the PAGE could
+      // never show the piece: every test fetched the image endpoint directly
+      // and missed it (2026-07-30).
+      //
+      // The revision number rides in the URL because etl-design-image caches
+      // immutable. That is right for one render and wrong across a revision,
+      // where the same URL would keep serving the previous picture while the
+      // client was told it had changed.
+      image_url: res.image_key
+        ? ('/.netlify/functions/etl-design-image?job_id=' + encodeURIComponent(jobId) + '&v=' + (job.revision || 0))
+        : '',
       image_error: res.image_error || null,
     },
   });
