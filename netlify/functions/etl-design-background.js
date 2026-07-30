@@ -153,7 +153,14 @@ exports.handler = async (event) => {
         (yuki.look || '');
       const buildPayload = (dims) => ({
         inputText: ('Marketing visual for ' + co + '. Subject: ' + brief.promoting + '. Mood: ' + (yuki.look || '') + '.').slice(0, 4000),
-        format: 'social', textMode: 'none', numCards: 1,
+        // textMode MUST be one of generate | condense | preserve. 'none' is
+        // rejected outright: "Input validation errors: 1. textMode must be one
+        // of: generate, condense, preserve" (live 400, 2026-07-30). 'preserve'
+        // is the right one here, it takes inputText as written instead of
+        // letting Gamma expand it into copy that would compete with Zara's.
+        // NOTE: gamma-image-ask.js still sends 'none', so Build Your Own
+        // Agent's portrait generation is failing the same way.
+        format: 'social', textMode: 'preserve', numCards: 1,
         cardOptions: { dimensions: dims },
         imageOptions: { source: 'aiGenerated', model: 'imagen-4-pro', style: style.slice(0, 2000) },
         exportAs: 'png',
