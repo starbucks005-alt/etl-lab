@@ -262,6 +262,31 @@
     return '';
   }
 
+  /* THE OWNER NEVER PAYS FOR HER OWN PRODUCT.
+     The credits layer knew who the owner was and gated generation; delivery
+     did not, so the only route to a clean file was Stripe. Dr. O hit a $49
+     checkout for ETL Design and asked "i have to pay?" (2026-07-31).
+
+     If this browser carries the master key, the finished piece unlocks the
+     moment it is ready and the Buy button never appears. A browser without
+     that key never fires this at all, and a signed-in member who is not the
+     owner gets a 402 and the pay bar behaves exactly as before. */
+  var ownerTried = false;
+  function tryOwnerUnlock(){
+    if (ownerTried || !jobId) return;
+    var tok = memberToken();
+    if (!tok) return;
+    ownerTried = true;
+    fetch('/.netlify/functions/etl-design-deliver', {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json', 'Authorization': 'Bearer ' + tok },
+      body: JSON.stringify({ job_id: jobId })
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(d){ if (d && d.ok && d.paid) unlock(d.pack); })
+    .catch(function(){});
+  }
+
   /* Downscale in the browser before sending. A phone photo is several
      megabytes, which would blow the function payload; 1024px on the long
      edge is plenty for reading a palette and a mood off it. */
@@ -418,6 +443,7 @@
       $('r-imgnote').textContent = 'Chris is drawing and Yuki is composing. The caption above is already final.';
     }
     if (d.paid) unlock(null);
+    else if (d.status === 'done') tryOwnerUnlock();
   }
 
   /* ── Buying ─────────────────────────────────────────────────────── */

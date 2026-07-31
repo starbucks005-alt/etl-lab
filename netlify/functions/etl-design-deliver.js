@@ -12,6 +12,7 @@
 
 const Stripe = require('stripe');
 const { getStore, connectLambda } = require('@netlify/blobs');
+const { getUser, extractToken } = require('./_etl-credits-util.js');
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -73,6 +74,31 @@ exports.handler = async (event) => {
 
   // Already paid for on a previous visit.
   if (job.paid) return json(200, { ok: true, paid: true, pack: buildPack(job) });
+
+  /* THE OWNER NEVER PAYS FOR HER OWN PRODUCT.
+     The credits layer gates generation and this path gates delivery, and only
+     the first one knew who the owner was, so the only way to unlock a finished
+     piece was Stripe. Dr. O hit a $49 checkout for ETL Design and asked "i
+     have to pay?" (2026-07-31). She should not, and neither should anything
+     else running under the owner key.
+
+     Checked against the same master key Studio and the credits layer already
+     use, so there is one definition of owner rather than a third. */
+  const ownerTok = extractToken((event.headers && (event.headers.authorization || event.headers.Authorization)) || '');
+  if (ownerTok) {
+    try {
+      const u = await getUser(ownerTok);
+      if (u && (u.id === 'owner' || u.id === 'owner-master')) {
+        job.paid = true;
+        job.paid_at = new Date().toISOString();
+        job.released_to = 'owner';
+        try { await store.setJSON(jobId, job); } catch (_) {}
+        return json(200, { ok: true, paid: true, owner: true, pack: buildPack(job) });
+      }
+    } catch (e) {
+      console.warn('[etl-design-deliver] owner check failed (non-fatal)', e && e.message);
+    }
+  }
 
   if (!sessionId) return json(402, { ok: false, paid: false, error: 'payment_required' });
 
