@@ -31,8 +31,7 @@
 */
 
 const crypto = require('crypto');
-const { getStore, connectLambda } = require('@netlify/blobs');
-const { getUser, extractToken, deductCredit } = require('./_etl-credits-util.js');
+const { getUser, extractToken, deductCredit, SUPABASE_URL } = require('./_etl-credits-util.js');
 
 // The two numbers worth tuning, kept here rather than scattered through copy.
 const GUEST_FREE_BRIEFS = 1;   // finished pieces a stranger gets before paying
@@ -47,24 +46,47 @@ function safeGuestId(v) {
   return /^g-[a-f0-9]{24}$/.test(s) ? s : null;
 }
 
-/* Guest counters live in their own blob store rather than in etl_credits, so
-   an anonymous visitor never creates a half-real membership row. */
-async function guestState(event, guestId) {
-  try { connectLambda(event); } catch (_) {}
-  /* STRONG consistency is mandatory here, and the default is not.
-     First live test: the write landed (the response said remaining 0) and the
-     very next request read used = 0 anyway, so the same guest ran three paid
-     jobs in a row. Eventual consistency is fine for polling a job, where the
-     next poll fixes it, and useless for a spend counter, where the stale read
-     IS the bug (2026-07-31). */
-  /* Consistency is requested PER READ, not by constructing the store with a
-     config object. The object form threw in the Netlify runtime and, because
-     the caller fails open so a public page cannot be taken down by
-     bookkeeping, every request sailed through with a freshly minted guest id.
-     The gate looked present and gated nothing (2026-07-31). */
-  const store = getStore('etl_design_guests');
-  const row = await store.get(guestId, { type: 'json', consistency: 'strong' });
-  return { store, used: (row && row.used) || 0 };
+/* Guest counters live in Supabase, not Netlify Blobs.
+
+   Blobs cannot do this job. It defaults to eventual consistency, which let the
+   same guest run three paid briefs (write landed, next read did not see it),
+   and asking for strong consistency fails outright in this runtime:
+   "Netlify Blobs has failed to perform a read using strong consistency
+   because the environment has not been configured with a 'uncachedEdgeURL'
+   property". A spend counter needs read-after-write, and Supabase already is
+   that store for etl_credits (2026-07-31).
+
+   Requires supabase_design_credits_migration.sql to have been run. Until it
+   has, these calls fail and the caller fails OPEN and reports credit_fault,
+   so the page keeps working and the broken gate is visible. */
+async function guestUsed(guestId) {
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!serviceKey) throw new Error('SUPABASE_SERVICE_ROLE_KEY not set');
+  const r = await fetch(
+    SUPABASE_URL + '/rest/v1/etl_design_guests?guest_id=eq.' + encodeURIComponent(guestId) + '&select=used',
+    { headers: { Authorization: 'Bearer ' + serviceKey, apikey: serviceKey } }
+  );
+  if (!r.ok) throw new Error('guest read failed: ' + r.status + ' ' + (await r.text()).slice(0, 120));
+  const rows = await r.json();
+  return (Array.isArray(rows) && rows.length) ? (rows[0].used || 0) : 0;
+}
+
+/* Atomic increment via the SQL function, so two briefs fired at once cannot
+   both read the same count and write back the same value. */
+async function guestSpend(guestId, amount) {
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!serviceKey) throw new Error('SUPABASE_SERVICE_ROLE_KEY not set');
+  const r = await fetch(SUPABASE_URL + '/rest/v1/rpc/etl_design_guest_spend', {
+    method: 'POST',
+    headers: {
+      Authorization: 'Bearer ' + serviceKey,
+      apikey: serviceKey,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ p_guest_id: guestId, p_amount: amount }),
+  });
+  if (!r.ok) throw new Error('guest spend failed: ' + r.status + ' ' + (await r.text()).slice(0, 120));
+  return Number(await r.json()) || 0;
 }
 
 /* Decide whether this caller may run a brief. Does NOT spend anything: call
@@ -89,7 +111,7 @@ async function check(event, body) {
   }
 
   const guestId = safeGuestId(body && body.guest_id) || newGuestId();
-  const { used } = await guestState(event, guestId);
+  const used = await guestUsed(guestId);
   const left = Math.max(0, GUEST_FREE_BRIEFS - used);
   if (left <= 0) {
     return {
@@ -116,9 +138,7 @@ async function spend(event, verdict) {
     return { ok: true, remaining: res.balance_remaining };
   }
 
-  const { store, used } = await guestState(event, verdict.guestId);
-  const next = used + BRIEF_COST;
-  await store.setJSON(verdict.guestId, { used: next, last: new Date().toISOString() });
+  const next = await guestSpend(verdict.guestId, BRIEF_COST);
   return { ok: true, remaining: Math.max(0, GUEST_FREE_BRIEFS - next) };
 }
 
