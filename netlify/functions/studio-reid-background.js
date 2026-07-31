@@ -336,6 +336,24 @@ exports.handler = async function(event) {
       const turnText = (response.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n').trim();
       if (turnText) finalText = turnText; // keep the latest substantive text as the answer
 
+      /* Anthropic PAUSES a long server-side tool run (Reid's web_search) with
+         stop_reason 'pause_turn' instead of finishing it. That is not an end
+         state, it is "ask me again to keep going".
+
+         The check below breaks on any stop_reason that is not 'tool_use', and
+         a paused turn carries no custom tool_use blocks, so without this the
+         loop exited early and returned whatever partial text happened to
+         exist. No error, no warning, just research that stopped halfway. That
+         is what truncated Reid's one-pager for Vikram (2026-07-30).
+
+         Resume by echoing the assistant turn back with NO new user message.
+         Adding one restarts the research instead of continuing it. */
+      if (response.stop_reason === 'pause_turn') {
+        console.log('[reid] pause_turn on turn ' + turn + ', resuming');
+        messages.push({ role: 'assistant', content: response.content });
+        continue;
+      }
+
       const customToolUses = (response.content || []).filter(b => b.type === 'tool_use');
       if (response.stop_reason !== 'tool_use' || customToolUses.length === 0) break;
 
