@@ -180,8 +180,13 @@ exports.handler = async (event) => {
          had three things to say. A buyer who runs two briefs sees the same
          skeleton twice and correctly reads it as a template. */
       'BLOCKS ARE OPTIONAL AND YOU DECIDE HOW MANY. Give 0, 1, 2 or 3, based on how much this business genuinely has to say. ' +
-      'Prefer FEWER. A single sharp line with room around it looks more expensive than three padded ones, and an empty blocks array is the right answer whenever the headline and subhead already carry the argument. ' +
-      'Only add a block for a point that is concrete and specific to this business. Never pad to reach a number.',
+      /* Said "prefer FEWER" for one day. That over-corrected: shown a
+         three-block piece and a one-block piece side by side, Dr. O picked
+         the three-block one (2026-07-31). The defect was never the count, it
+         was that the count was FIXED. Let the content decide and three stays
+         reachable when three points earn their place. */
+      'Let the content decide, not a target. Three is right when there are genuinely three concrete points; one is right when there is one; none is right when the headline and subhead already carry the argument. ' +
+      'Only add a block for a point that is concrete and specific to this business. Never pad to reach a number, and never drop a real point to look spare.',
       'BUSINESS: ' + co +
       '\nWHAT THEY ARE PROMOTING: ' + brief.promoting +
       '\nAUDIENCE: ' + (brief.audience || 'not specified') +
@@ -235,11 +240,30 @@ exports.handler = async (event) => {
         'Editorial marketing artwork for ' + co + '. Subject: ' + brief.promoting + '.',
         'Mood: ' + (yuki.look || '') + '.',
         'Use this colour palette and nothing else: ' + paletteText + '.',
+        /* DRAW THE IDEA, NOT THE NOUNS. Chris was handed the promoting line
+           and illustrated it literally. On a My Echo brief mentioning
+           "memories" and "voice" he drew a handwritten letter, an open
+           notebook and a phone, and Dr. O read the result instantly as
+           "digital diary" (2026-07-31). Props assign a product to a category
+           faster than any headline can argue it out of one, so the prop set
+           has to be chosen against what the business IS. */
+        'DEPICT THE IDEA, NOT THE NOUNS. Do not illustrate the words of the brief object by object. Work out what this business actually IS and show that. If a prop would make a viewer file this under the wrong category, it is the wrong prop, however well it matches the wording.',
         'Absolutely NO text, NO words, NO letters, NO numbers, NO logos, NO watermarks anywhere in the image.',
         // Asking for "no text" is not enough on its own: gpt-image-1 wrote
         // MEPPERS onto a bottle label doing exactly that. Steer it off the
         // surfaces that invite lettering in the first place (2026-07-30).
-        'Do not depict product labels, packaging, signage, posters, menus, price tags or storefronts, since those invite lettering. Show the subject matter itself, materials, ingredients, hands, texture, place.',
+        'Do not depict product labels, packaging, signage, posters, menus, price tags or storefronts, since those invite lettering.',
+        /* The "no text" rule was obeyed and the piece still came back covered
+           in writing: pages of illegible pseudo-script, which the model does
+           not count as letters. It passes at thumbnail size and reads as
+           nonsense at full size, which is exactly the defect a design firm
+           cannot ship. Ban the SHAPE, not just the words (2026-07-31). */
+        'NO HANDWRITING and NO SCRIPT OF ANY KIND, including illegible, decorative or background writing. No letters, no documents, no open books, no notebooks, no manuscript pages. Writing-shaped marks count as text even when they spell nothing.',
+        /* Same piece put a fabricated app interface on a phone screen. That
+           invents a product screen the client would then have to live up to,
+           the same objection as inventing a business name. */
+        'NO SCREENS SHOWING A USER INTERFACE. No app mockups, no dashboards, no chat windows, no placeholder bars. Any device in frame must be off, blank, or turned away.',
+        'Show the subject matter itself: materials, hands, texture, place, light, scale.',
         // Not a full-canvas wash. Asking for an even-toned background is how
         // the picture ended up crushed under a global scrim until the piece
         // was effectively black, which is the complaint this product started
