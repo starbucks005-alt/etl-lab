@@ -85,7 +85,9 @@ exports.handler = async (event) => {
   // to move or resize it. No image spend on a revision.
   const hasArt = /<image\b/i.test(prevSvg);
 
-  const sys = composeBrief.reviseSystem({ canvas, paletteText, fonts: yuki.fonts, hasArt });
+  const sys = composeBrief.reviseSystem({ canvas, paletteText, fonts: yuki.fonts, hasArt,
+    // Same seed as round one, so a revision keeps the layout it was assigned.
+    archetype: composeBrief.chooseArchetype(jobId, hasArt) });
   const user = [
     'THE CLIENT SAYS:', note, '',
     'YOUR PREVIOUS SVG:', prevSvg,

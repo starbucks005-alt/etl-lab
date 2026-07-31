@@ -161,6 +161,28 @@ exports.handler = async (event) => {
       '\n\nSet the brand direction.';
     const yuki = extractJson(await ask(client,
       'You are Yuki Mendel, a type-first graphic designer. You make wordmarks, not mascots. You build a small brand system a one-person shop can hold together: a typeface pairing, a tight palette, and the spacing logic that makes it look deliberate. ' + NO_EM_DASH +
+      /* THE ONE-NOTE PROBLEM. Six runs, and runs three to six were the same
+         warm sepia illustration with the furniture rearranged. Dr. O: "we are
+         a 1-note firm" (2026-07-31). The layout archetypes gave the pieces
+         different SHAPES while the tone never moved, and tone is what a
+         client actually sees. Cause: nothing asked Yuki to CHOOSE a register.
+         She read the emotion in a brief and went warm, every time. Same fix
+         that worked for the block count and the layout: replace a default
+         with a real choice. Yuki is upstream of Chris, who is handed her
+         "look" as his mood line, so this is also the only place the category
+         rule can actually bite. */
+      '\n\nCHOOSE A VISUAL REGISTER. This is the decision that makes one firm look like a firm and not a filter. Pick the one that fits THIS business and audience, commit to it in the palette, the type and the look, and do not blend them:\n' +
+      'A. MODERN EDITORIAL. Stark grid, enormous type, flat unmodulated colour, no texture, no warmth for its own sake.\n' +
+      'B. TECHNICAL. High contrast, precise, monospaced or grotesque type, hard edges, the confidence of an instrument panel.\n' +
+      'C. LUXE. Deep saturated colour, a fine serif, wide margins, restraint that reads as expensive.\n' +
+      'D. ARCHIVAL. Engraved, etched or printed, one or two inks, the authority of an old plate rendered sharply.\n' +
+      'E. CLINICAL. Near white, sharp, minimal, one accent, the clarity of good medical or scientific work.\n' +
+      'F. WARM. Soft light, illustrated, human and intimate.\n' +
+      'DO NOT DEFAULT TO F. It is the easiest answer for any brief with a feeling in it and it has been chosen far too often. A tender subject does not require a tender treatment: warmth in the words against restraint in the design is usually stronger than both at once. ' +
+      /* Placed here rather than in Chris's art prompt, where it was first
+         written and could not work: by the time Chris runs, Yuki's look has
+         already set the direction he is told to match. */
+      'A TECHNOLOGY BUSINESS MUST NOT BE STYLED AS A HERITAGE ONE. No nostalgia, no antique or period feel, no storybook softness standing in for emotion. If this business is about something new, the look has to be contemporary. ' + NO_EM_DASH +
       '\n\nReturn ONLY JSON: {"wordmark":"how the name should be set, one sentence","palette":[{"name":"Ink","hex":"#111111","use":"body text"}],"fonts":{"display":"a real, widely available typeface","body":"a real, widely available typeface"},"look":"two sentences on the overall feel and why it fits this audience"}. Give exactly 4 palette entries with real hex values.',
       concept ? [concept, { type: 'text', text: yukiText }] : yukiText, 1200));
     await save({ step: 1, note: 'Reid is finding the angle.', result: Object.assign(state.result, { brand: yuki }) });
@@ -179,7 +201,7 @@ exports.handler = async (event) => {
          words. Kept general on purpose: a florist, a gym and a law firm all
          have accidental-funeral registers available to them, and a business
          that genuinely is about loss will say so in its brief. */
-      '\n\nMATCH THE EMOTIONAL REGISTER OF THE BRIEF. Do not import a mood it did not ask for. If the brief is present tense and practical, stay there. Never imply absence, loss, illness, ageing out, or death unless the brief is explicitly about those things: no "when you cannot be", "when you are gone", "one day", "forever", "still", "left behind", "in memory", "always be with them". Sentimentality that the client did not request is a defect, not a bonus, and on the wrong business it is offensive. ' +
+      '\n\nMATCH THE EMOTIONAL REGISTER OF THE BRIEF. Do not import a mood it did not ask for. If the brief is present tense and practical, stay there. APPLY THIS TEST TO EVERY LINE YOU WRITE: could a reader take it as meaning the person is gone, dying, or unable to come back? If yes, rewrite it, however the words are arranged. A list of forbidden phrases does not work, because the meaning survives rephrasing: "when you cannot be" and "even when you cannot" fail identically. When someone is not in the room, the REASON must be ordinary, temporary and visible in the line itself: working late, travelling, a meeting, tonight. Sentimentality the client did not request is a defect, not a bonus, and on the wrong business it is offensive. ' +
       '\n\nYou are also writing the words that will be SET IN TYPE on a single marketing graphic, so they must be short enough to read at a glance. Return ONLY JSON: ' +
       '{"positioning":"one sentence, the clear reason to pick them","hook":"the single sharpest line to lead with","proof_points":["2 to 3 short concrete points, drawn only from the brief"],' +
       '"card":{"headline":"6 to 9 words maximum","subhead":"one sentence, 18 words maximum","blocks":[{"title":"2 to 4 words","body":"one sentence, 14 words maximum"}]}}. ' +
@@ -320,6 +342,9 @@ exports.handler = async (event) => {
     // put a fixed defect straight back while telling the client it was fixed.
     const composeSys = composeBrief.composeSystem({
       canvas, paletteText, fonts: yuki.fonts, hasArt: !!artHref,
+      // Assigned, not chosen. Seeded on the job id so a revision lands on the
+      // same layout instead of quietly redesigning the piece.
+      archetype: composeBrief.chooseArchetype(jobId, !!artHref),
     });
 
 

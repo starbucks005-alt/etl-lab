@@ -32,7 +32,44 @@ function hardRules(canvas) {
   ].join('\n');
 }
 
-function composeSystem({ canvas, paletteText, fonts, hasArt }) {
+/* The assigned layouts. Written as GEOMETRY rather than adjectives, because
+   "editorial" was interpreted as "a band with more space above it" and the
+   piece did not move. Each one says where the artwork sits and where the type
+   sits, so there is nothing left to default to. */
+const ARCHETYPES_ART = [
+  { key: 'band_bottom', brief: 'BAND, INVERTED. Type occupies the TOP half of the canvas on a flat field: headline large, set high, with real space above it. The artwork is a full width band across the BOTTOM, at least a third of the height, running to the left, right and bottom edges. No type over the artwork.' },
+  { key: 'full_bleed',  brief: 'FULL BLEED. The artwork covers the ENTIRE canvas, edge to edge, at full strength and untouched. All type sits inside ONE solid plate placed in a single corner or along one edge, sized tightly to its contents with real padding. The plate covers no more than a third of the canvas. The rest of the picture stays completely clear.' },
+  { key: 'split_vert',  brief: 'VERTICAL SPLIT. A single hard edge divides the canvas top to bottom. Artwork fills one side completely, edge to edge. All type sits on the flat colour field on the other side, aligned to the split. The division is decisive and unequal, roughly 40/60, never centred.' },
+  { key: 'editorial',   brief: 'EDITORIAL. A dominant headline is the largest thing on the canvas, set against wide empty margins, like the title page of a book. The artwork is a SMALL, precisely placed rectangle occupying roughly a quarter of the canvas, offset rather than centred. Most of this piece is empty field, and that is the point.' },
+  { key: 'stack',       brief: 'STACK. Three or four full width horizontal bands of differing heights, each a flat palette colour, filling the canvas top to bottom. The artwork IS one of those bands. Type sits inside the other bands at sharply contrasting sizes. No margins between the bands, no rounded corners, no floating boxes.' },
+];
+
+const ARCHETYPES_NOART = [
+  { key: 'type_only', brief: 'TYPE ONLY. No image region. An enormous headline, one rule, one accent colour, and a great deal of empty field. The type is the entire design.' },
+  { key: 'editorial', brief: 'EDITORIAL. A dominant headline against wide empty margins, like the title page of a book, with one rule and generous space. Most of the canvas is empty.' },
+  { key: 'stack',     brief: 'STACK. Three or four full width horizontal bands of differing heights, each a flat palette colour, filling the canvas. Type sits inside them at sharply contrasting sizes. No margins between bands.' },
+];
+
+/* Resolve an assigned key to its brief. Unknown or missing falls back to the
+   first entry rather than throwing: a layout we did not expect is not a
+   reason to fail a job somebody is waiting on. */
+function pickArchetype(key, hasArt) {
+  const table = hasArt ? ARCHETYPES_ART : ARCHETYPES_NOART;
+  return table.find(a => a.key === key) || table[0];
+}
+
+/* Derive the assignment from a stable seed, normally the job id. Deterministic
+   on purpose: a REVISION must land on the same layout, or a one line note from
+   the client would silently redesign the piece. */
+function chooseArchetype(seed, hasArt) {
+  const table = hasArt ? ARCHETYPES_ART : ARCHETYPES_NOART;
+  const s = String(seed || '');
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return table[h % table.length].key;
+}
+
+function composeSystem({ canvas, paletteText, fonts, hasArt, archetype }) {
   return [
     'You are Yuki Mendel, a type-first graphic designer. You are producing FINISHED ARTWORK as a single SVG document. Output ONLY the SVG, starting with <svg and ending with </svg>. No markdown fence, no commentary.',
     '',
@@ -42,7 +79,7 @@ function composeSystem({ canvas, paletteText, fonts, hasArt }) {
     'TYPE: ' + ((fonts && fonts.display) || 'a serif') + ' for display, ' + ((fonts && fonts.body) || 'a sans-serif') + ' for body. Set font-family to a stack ending in "serif" or "sans-serif".',
     '',
     hasArt
-      ? 'ARTWORK: place <image href="CONCEPT_IMAGE" .../> as a MAJOR, CLEARLY VISIBLE element. Use the literal string CONCEPT_IMAGE as the href; it is substituted at render time. Give it a defined region of at least a third of the canvas, a band or a confident crop, and show it at FULL STRENGTH there: no scrim, no tint, no opacity, nothing over it. Put the type on flat colour fields ELSEWHERE. Never wash the whole canvas with the image and then darken all of it, which leaves a black rectangle and no picture.\n' +
+      ? 'ARTWORK: place <image href="CONCEPT_IMAGE" .../> as a MAJOR, CLEARLY VISIBLE element. Use the literal string CONCEPT_IMAGE as the href; it is substituted at render time. THE ASSIGNED LAYOUT BELOW DECIDES ITS REGION, so follow that rather than any instinct about size, and show it at FULL STRENGTH there: no scrim, no tint, no opacity, nothing over it. Put the type on flat colour fields ELSEWHERE. Never wash the whole canvas with the image and then darken all of it, which leaves a black rectangle and no picture.\n' +
         /* The My Echo piece (2026-07-31) sliced the top off both heads: the
            art region was treated as a fixed band and the picture was jammed
            into it. The artwork is usually the strongest thing on the piece,
@@ -73,23 +110,22 @@ function composeSystem({ canvas, paletteText, fonts, hasArt }) {
     /* Named starting points, because "be creative" produces the model's
        house style every time while a concrete choice produces range. Yuki
        already wrote the brand direction, so she has the basis to choose. */
-    'LAYOUT: choose the archetype that suits the brand direction, then commit to it fully. Do not blend them and do not default to the first one.',
+    /* THE ARCHETYPE IS ASSIGNED, NOT OFFERED. Given four to choose from,
+       Yuki chose "band" six runs out of six: artwork across the top, type
+       underneath, one to three boxes. Dr. O described the output as its own
+       spec, "image up top, text, 1-3 boxes", and called the firm one-note
+       (2026-07-31). A menu still has a safe answer on it, and a model will
+       take the safe answer every time. So the caller picks, deterministically
+       from the job id, and hands over exactly one. Range stops being
+       something we hope for. Deriving it from the job id rather than at
+       random also means a REVISION lands on the same layout, so a small note
+       cannot silently redesign the piece. */
+    'LAYOUT, ASSIGNED. Build this one. It is not a suggestion and there is nothing to choose between.',
     /* The artwork is a real generation that has already been paid for and is
        usually the best thing on the piece, so a type-only archetype is
        offered ONLY when there is no picture to throw away. */
-    ...(hasArt
-      ? [
-        'A. BAND. Artwork across the top or bottom third, type stacked in the flat field opposite.',
-        'B. FULL BLEED. Artwork fills the canvas, type in one corner plate sized exactly to it, the rest of the picture untouched.',
-        'C. SPLIT. A hard vertical or diagonal division, artwork one side, type the other.',
-        'D. EDITORIAL. Small, precisely placed artwork with a dominant headline and wide margins, like a title page.',
-        'Every one of these SHOWS the artwork. It is the strongest element you have; there is no version of this piece that discards it.',
-      ]
-      : [
-        'D. EDITORIAL. A dominant headline with wide margins and one rule, like a title page.',
-        'E. TYPE ONLY. Enormous headline, one rule, one accent, and a great deal of empty field.',
-        'F. STACK. Strong horizontal bands of flat colour, the type sitting in them at contrasting scales.',
-      ]),
+    pickArchetype(archetype, hasArt).brief,
+    hasArt ? 'The artwork is a real generation and it is the strongest element you have. Show it at full strength inside the region above. There is no version of this piece that discards it.' : '',
     '',
     hardRules(canvas),
   ].join('\n');
@@ -99,9 +135,9 @@ function composeSystem({ canvas, paletteText, fonts, hasArt }) {
    of it, so a small note produces a small change instead of a fresh design the
    client did not ask for. That is the difference between a design firm and a
    slot machine, which is Dr. O's framing and the reason this exists. */
-function reviseSystem({ canvas, paletteText, fonts, hasArt }) {
+function reviseSystem({ canvas, paletteText, fonts, hasArt, archetype }) {
   return [
-    composeSystem({ canvas, paletteText, fonts, hasArt }),
+    composeSystem({ canvas, paletteText, fonts, hasArt, archetype }),
     '',
     'THIS IS A REVISION, NOT A NEW DESIGN.',
     'You are given your own previous SVG and a note from the client. Change what they asked for and LEAVE EVERYTHING ELSE ALONE. Keep the same structure, the same palette, the same type, the same artwork placement, unless the note is specifically about those. Do not take the opportunity to redesign.',
@@ -110,4 +146,4 @@ function reviseSystem({ canvas, paletteText, fonts, hasArt }) {
   ].join('\n');
 }
 
-module.exports = { hardRules, composeSystem, reviseSystem };
+module.exports = { hardRules, composeSystem, reviseSystem, chooseArchetype, pickArchetype };
