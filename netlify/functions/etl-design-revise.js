@@ -85,12 +85,33 @@ exports.handler = async (event) => {
   // to move or resize it. No image spend on a revision.
   const hasArt = /<image\b/i.test(prevSvg);
 
+  /* PULL THE ARTWORK BACK OUT BEFORE SHOWING YUKI HER OWN FILE.
+     ─────────────────────────────────────────────────────────────────────
+     The stored SVG carries the picture inline as a base64 data URL, and this
+     path was posting the whole thing to the model as the user message. On any
+     piece with real artwork that is roughly two megabytes of text, far past
+     what the request will take, so it threw and the client saw
+     "Could not make that change: revision_failed" (2026-07-31).
+
+     Round one never had this problem: it hands Yuki the literal string
+     CONCEPT_IMAGE and the renderer substitutes the picture afterwards. The
+     revision path just never did the same. Doing it here fixes the failure
+     and makes a revision cost a few cents instead of a fortune in input
+     tokens. */
+  let artHref = '';
+  let svgForModel = prevSvg;
+  const dataHref = /href\s*=\s*["'](data:image\/[^"']+)["']/i.exec(prevSvg);
+  if (dataHref) {
+    artHref = dataHref[1];
+    svgForModel = prevSvg.replace(dataHref[1], 'CONCEPT_IMAGE');
+  }
+
   const sys = composeBrief.reviseSystem({ canvas, paletteText, fonts: yuki.fonts, hasArt,
     // Same seed as round one, so a revision keeps the layout it was assigned.
     archetype: composeBrief.chooseArchetype(jobId, hasArt) });
   const user = [
     'THE CLIENT SAYS:', note, '',
-    'YOUR PREVIOUS SVG:', prevSvg,
+    'YOUR PREVIOUS SVG:', svgForModel,
   ].join('\n');
 
   const client = new Anthropic({ apiKey });
@@ -109,10 +130,8 @@ exports.handler = async (event) => {
   if (!/^<svg/i.test(svg)) return json(502, { error: 'revision_not_svg' });
 
   try {
-    // The artwork already lives inside the SVG as a data URL, so nothing is
-    // substituted on a revision; pass an empty concept so the placeholder
-    // stripper leaves the existing <image> alone.
-    let out = await renderSvg(svg, canvasKey, '');
+    // The picture goes back in here, exactly as round one does it.
+    let out = await renderSvg(svg, canvasKey, artHref);
     if (out.overflow.length) {
       const fixed = await client.messages.create({
         model: MODEL, max_tokens: 8000,
@@ -123,7 +142,7 @@ exports.handler = async (event) => {
       const cleaned = (fixed.content || []).filter(b => b && b.type === 'text').map(b => b.text).join('\n').trim()
         .replace(/^```(?:svg|xml|html)?\s*/i, '').replace(/```\s*$/, '').trim();
       if (/^<svg/i.test(cleaned)) {
-        const retry = await renderSvg(cleaned, canvasKey, '');
+        const retry = await renderSvg(cleaned, canvasKey, artHref);
         if (retry.overflow.length <= out.overflow.length) out = retry;
       }
     }
