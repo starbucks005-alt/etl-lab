@@ -468,7 +468,19 @@ exports.handler = async (event) => {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) { console.error('[etl-banter-cron] ANTHROPIC_API_KEY not set'); return { statusCode: 500, body: 'no key' }; }
 
-  if (event.httpMethod) { try { connectLambda(event); } catch (_) {} }
+  /* connectLambda ALWAYS, not only for HTTP invocations.
+     ─────────────────────────────────────────────────────────────────────
+     This used to read `if (event.httpMethod) { connectLambda(event) }`. A
+     SCHEDULED event carries no httpMethod, so on every cron fire Blobs was
+     never connected and the write below failed. Manual GETs connected fine
+     and wrote fine, which is exactly why the feed looked alive right up
+     until nobody hit it by hand any more: last entry 2026-07-29, found
+     2026-07-31.
+
+     It is wrapped because connectLambda on a scheduled event has nothing to
+     read; the call is harmless either way and the runtime supplies the
+     context when it can. */
+  try { connectLambda(event); } catch (_) {}
   const store = getStore('etl_banter');
 
   const now = Date.now();
