@@ -31,6 +31,10 @@
      team shot: "looks stretched and too big" (2026-07-31). */
   .team-shot{border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-top:1.4rem;line-height:0;}
   .team-shot img{width:100%;height:auto;display:block;}
+  /* 16:9 by padding rather than a fixed height, so it scales with the column
+     instead of letterboxing. */
+  .team-video{position:relative;padding-top:56.25%;height:0;}
+  .team-video iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0;display:block;}
   .studio{position:relative;border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-top:1.4rem;}
   .studio img{width:100%;height:auto;display:block;}
   .studio .cap{position:absolute;left:0;right:0;bottom:0;padding:1.2rem 1.4rem;
@@ -245,9 +249,15 @@
        happening and this is a design firm?" A studio photograph is
        reassurance, not an argument, so it belongs after the ask rather than
        in front of it (2026-07-31). -->
-  <div class="team-shot">
-    <img src="/assets/etl-design-team.jpg" width="1600" height="900"
-         alt="Chris Avila, Zara Cole, Reid Callum and Yuki Mendel of ETL Design" loading="lazy">
+  <!-- The team, moving. Replaces the still photograph that used to sit here.
+       Vimeo's own 56.25% padding wrapper keeps 16:9 without a fixed height, so
+       it holds its shape at any width instead of letterboxing on a phone. -->
+  <div class="team-shot team-video">
+    <iframe src="https://player.vimeo.com/video/1214727926?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479"
+            title="ETL Design team"
+            allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
+            referrerpolicy="strict-origin-when-cross-origin"
+            loading="lazy" frameborder="0"></iframe>
   </div>
 
   <div class="studio">
