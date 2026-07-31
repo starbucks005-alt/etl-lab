@@ -51,7 +51,13 @@ function safeGuestId(v) {
    an anonymous visitor never creates a half-real membership row. */
 async function guestState(event, guestId) {
   try { connectLambda(event); } catch (_) {}
-  const store = getStore('etl_design_guests');
+  /* STRONG consistency is mandatory here, and the default is not.
+     First live test: the write landed (the response said remaining 0) and the
+     very next request read used = 0 anyway, so the same guest ran three paid
+     jobs in a row. Eventual consistency is fine for polling a job, where the
+     next poll fixes it, and useless for a spend counter, where the stale read
+     IS the bug (2026-07-31). */
+  const store = getStore({ name: 'etl_design_guests', consistency: 'strong' });
   const row = await store.get(guestId, { type: 'json' });
   return { store, used: (row && row.used) || 0 };
 }
