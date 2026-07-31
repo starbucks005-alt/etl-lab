@@ -63,6 +63,9 @@ exports.handler = async (event) => {
     error: job.error || null,
     image_state: imageState,
     paid: !!job.paid,
+    /* So the page can SAY whether we matched the brand. A silent fallback to
+       an invented palette is the failure this whole path exists to end. */
+    brand_source: job.brand_source || null,
     revision: job.revision || 0,
     result: {
       brand: res.brand || null,

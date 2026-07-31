@@ -112,6 +112,32 @@
   <!-- ── THE BRIEF ──────────────────────────────────────────────────── -->
   <div class="card" id="form-card">
     <h2>The brief</h2>
+
+    <!-- ── YOUR BRAND, FIRST ────────────────────────────────────────────
+         This used to be the last field on the form, called "a concept image
+         to work from (optional)" and described as "a look you like", so it
+         read as a nice-to-have and went unused.
+
+         It is the single input that decided everything. Six pieces were made
+         for My Echo; the one Dr. O kept was the one run where she had
+         uploaded the logo, and Yuki came back with the real brand instead of
+         an invented palette. So it leads now, and it says what it is. -->
+    <div style="border:1px solid var(--line);border-left:3px solid var(--sig);border-radius:10px;padding:.9rem 1rem;margin-bottom:1.1rem;background:#141417;">
+      <label for="f-site" style="margin-top:0;">Your website, so we match your brand</label>
+      <input id="f-site" placeholder="yourbusiness.com">
+      <div class="hint">We read your logo, your colours and your type off your own site, so the piece comes back looking like you and not like a template. This is also the only link that will appear on the piece; nothing gets invented.</div>
+
+      <label for="f-concept">Or upload your logo</label>
+      <input id="f-concept" type="file" accept="image/png,image/jpeg,image/webp">
+      <div class="hint">Your logo, a screenshot of your site, or a piece you already use. An upload always wins over the website, so use this when you want one specific look matched.</div>
+      <div id="concept-preview" class="hide" style="margin-top:.7rem;display:flex;gap:.8rem;align-items:center;">
+        <img id="concept-thumb" alt="Your concept image" style="width:76px;height:76px;object-fit:cover;border-radius:9px;border:1px solid var(--line);">
+        <button type="button" class="cta ghost" id="concept-clear" style="margin-top:0;padding:.45rem 1rem;font-size:.85rem;">Remove</button>
+      </div>
+
+      <div class="hint" style="margin-top:.7rem;color:var(--sig);">Give us neither and Yuki will invent a look from scratch. It will be a good look. It will not be yours.</div>
+    </div>
+
     <label for="f-promoting">What are you promoting?</label>
     <textarea id="f-promoting" placeholder="A small-batch hot sauce. Six peppers, no sugar, fermented ninety days. Sold at our local market and shipped anywhere."></textarea>
     <div class="hint">The more specific you are, the less generic it comes back. Real details beat adjectives.</div>
@@ -125,29 +151,18 @@
         <input id="f-name" placeholder="Your business name">
       </div>
       <div>
-        <label for="f-site">Your website (optional)</label>
-        <input id="f-site" placeholder="yourbusiness.com">
-        <div class="hint">Left blank, no link goes in the post. Nothing gets invented.</div>
+        <label for="f-platform">Where is it going?</label>
+        <select id="f-platform">
+          <option value="linkedin">LinkedIn</option>
+          <option value="instagram">Instagram</option>
+          <option value="x">X</option>
+          <option value="facebook">Facebook</option>
+        </select>
       </div>
     </div>
 
-    <label for="f-platform">Where are you posting it?</label>
-    <select id="f-platform">
-      <option value="linkedin">LinkedIn</option>
-      <option value="instagram">Instagram</option>
-      <option value="x">X</option>
-      <option value="facebook">Facebook</option>
-    </select>
-
-    <label for="f-concept">A concept image to work from (optional)</label>
-    <input id="f-concept" type="file" accept="image/png,image/jpeg,image/webp">
-    <div class="hint">A photo of your space, your product, your existing work, or a look you like. Yuki takes the palette and the mood from it. Skip it and she sets the direction herself.</div>
-    <div id="concept-preview" class="hide" style="margin-top:.7rem;display:flex;gap:.8rem;align-items:center;">
-      <img id="concept-thumb" alt="Your concept image" style="width:76px;height:76px;object-fit:cover;border-radius:9px;border:1px solid var(--line);">
-      <button type="button" class="cta ghost" id="concept-clear" style="margin-top:0;padding:.45rem 1rem;font-size:.85rem;">Remove</button>
-    </div>
-
     <button class="cta" id="go">Put the team on it</button>
+    <div class="note hide" id="brand-note"></div>
     <div class="note" id="running-note"></div>
     <div class="err hide" id="err"></div>
   </div>
@@ -452,6 +467,26 @@
       $('r-imgnote').textContent = 'The graphic did not come back this time, so the caption above is yours to use as is. Nothing was charged.';
     } else if (d.image_state === 'working') {
       $('r-imgnote').textContent = 'Chris is drawing and Yuki is composing. The caption above is already final.';
+    }
+    /* SAY WHETHER WE MATCHED THE BRAND, both ways. The whole reason the
+       website field exists is that an invented palette looks like somebody
+       else's product, so a client must never be left assuming we matched
+       them when we could not read their site. */
+    var bs = d.brand_source, bn = $('brand-note');
+    if (bs && bn) {
+      if (bs.ok) {
+        var got = [];
+        if (bs.got_logo) got.push('your logo');
+        if (bs.palette && bs.palette.length) got.push(bs.palette.length + ' of your colours');
+        if (bs.fonts && bs.fonts.length) got.push('your type');
+        bn.textContent = 'Matched to your brand from ' + bs.source + ': ' + got.join(', ') + '.';
+        bn.style.color = '#5fbf75';
+      } else {
+        bn.textContent = 'We could not read your brand off your site (' + (bs.error || 'unreadable') +
+                         '), so Yuki set the look herself. Upload your logo and run it again to match you properly.';
+        bn.style.color = 'var(--sig)';
+      }
+      show(bn, true);
     }
     if (d.paid) unlock(null);
     else if (d.status === 'done') tryOwnerUnlock();

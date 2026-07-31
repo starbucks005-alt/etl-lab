@@ -37,6 +37,7 @@ const Anthropic = require('@anthropic-ai/sdk').default;
 const { getStore, connectLambda } = require('@netlify/blobs');
 const { buyerVoiceCore, buyerAgentPrompt } = require('./_social-voice.js');
 const composeBrief = require('./_design-compose.js');
+const brandExtract = require('./_brand-extract.js');
 /* Loaded LAZILY, inside step 4, and deliberately so.
    _design-render pulls in sharp, a native module. When sharp was missing from
    package.json this require threw at MODULE LOAD, which killed the function
@@ -130,12 +131,13 @@ exports.handler = async (event) => {
   };
   const P = PLATFORMS[brief.platform];
   const co = brief.businessName || 'this business';
-  const concept = imageBlock(body.concept_image);
+  let concept = imageBlock(body.concept_image);
+  const uploadedConcept = !!concept;
 
   const state = {
     job_id: jobId, status: 'running', step: 0, of: 4,
     created_at: new Date().toISOString(),
-    brief: Object.assign({}, brief, { had_concept_image: !!concept }),
+    brief: Object.assign({}, brief, { had_concept_image: uploadedConcept }),
     result: {}, error: null,
   };
   const save = async (patch) => {
@@ -143,7 +145,50 @@ exports.handler = async (event) => {
     state.updated_at = new Date().toISOString();
     try { await store.setJSON(jobId, state); } catch (e) { console.error('[etl-design] save failed', e && e.message); }
   };
-  await save({ step: 0, note: concept ? 'Yuki is reading your concept image.' : 'Yuki is setting the look.' });
+  await save({ step: 0, note: uploadedConcept ? 'Yuki is reading your concept image.' : 'Yuki is setting the look.' });
+
+  /* READ THE CLIENT'S EXISTING BRAND OFF THEIR OWN SITE.
+     ─────────────────────────────────────────────────────────────────────
+     Six pieces were made for My Echo and Dr. O kept one. The keeper was the
+     run where she had uploaded the M.E. logo: Yuki came back with the actual
+     brand, near-black and antique gold in a serif. The five that invented a
+     palette all looked like somebody else's product. "What made this one
+     work so well is how much it looked in sync with the product."
+
+     The website was on the form the whole time and touched nothing but the
+     footer. Now it does the job the uploaded logo did. An upload still wins,
+     because a client who hands us a specific file means that file. */
+  let brandFacts = '';
+  if (brief.businessSite) {
+    let ex = null;
+    try {
+      await save({ note: 'Yuki is looking at your website.' });
+      ex = await brandExtract.extractBrand(brief.businessSite);
+    } catch (e) {
+      ex = { ok: false, error: (e && e.message) || 'brand read failed' };
+    }
+    /* Recorded either way. A silent fallback to an invented palette is the
+       exact failure this feature exists to end, so the page must be able to
+       tell the client we could not read their brand. */
+    state.brand_source = ex && ex.ok
+      ? { ok: true, source: ex.source, palette: ex.palette, fonts: ex.fonts,
+          got_logo: !!ex.concept_data_url, image_url: ex.image_url || null,
+          used_as_concept: !uploadedConcept && !!ex.concept_data_url }
+      : { ok: false, error: (ex && ex.error) || 'unknown' };
+
+    if (ex && ex.ok) {
+      if (!uploadedConcept && ex.concept_data_url) concept = imageBlock(ex.concept_data_url);
+      const bits = [];
+      if (ex.palette && ex.palette.length) bits.push('Colours actually used on ' + ex.source + ', most frequent first: ' + ex.palette.join(', ') + '.');
+      if (ex.fonts && ex.fonts.length) bits.push('Typefaces their site declares: ' + ex.fonts.join(', ') + '.');
+      if (bits.length) {
+        brandFacts = '\n\nTHIS CLIENT ALREADY HAS A BRAND. It was read from their own website, so it is fact, not preference. ' +
+          bits.join(' ') +
+          ' Build the direction ON these. Use their colours as your palette, adjusting only for contrast where a value is unusable for text, and keep their typefaces unless one genuinely cannot set a headline. Do not invent a new identity for a business that already has one.';
+      }
+    }
+    await save({});
+  }
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) { await save({ status: 'error', error: 'ANTHROPIC_API_KEY not set' }); return { statusCode: 500, body: 'no key' }; }
@@ -184,7 +229,7 @@ exports.handler = async (event) => {
          already set the direction he is told to match. */
       'A TECHNOLOGY BUSINESS MUST NOT BE STYLED AS A HERITAGE ONE. No nostalgia, no antique or period feel, no storybook softness standing in for emotion. If this business is about something new, the look has to be contemporary. ' + NO_EM_DASH +
       '\n\nReturn ONLY JSON: {"wordmark":"how the name should be set, one sentence","palette":[{"name":"Ink","hex":"#111111","use":"body text"}],"fonts":{"display":"a real, widely available typeface","body":"a real, widely available typeface"},"look":"two sentences on the overall feel and why it fits this audience"}. Give exactly 4 palette entries with real hex values.',
-      concept ? [concept, { type: 'text', text: yukiText }] : yukiText, 1200));
+      concept ? [concept, { type: 'text', text: yukiText + brandFacts }] : (yukiText + brandFacts), 1200));
     await save({ step: 1, note: 'Reid is finding the angle.', result: Object.assign(state.result, { brand: yuki }) });
 
     /* ── 2. Reid: the angle, AND the words that go on the graphic ──────── */
