@@ -236,6 +236,32 @@
   var $ = function(id){ return document.getElementById(id); };
   var jobId = null, poll = null, priceLabel = '', conceptData = '';
 
+  /* Guest identity. Persisted so the free allowance survives a reload; a new
+     id per visit would hand out unlimited free briefs. This is a spend cap,
+     not security, and it is meant to be clearable. */
+  var GUEST_KEY = 'etl_design_guest';
+  function guestId(){
+    try { return localStorage.getItem(GUEST_KEY) || ''; } catch(e){ return ''; }
+  }
+  function rememberGuest(id){
+    if (!id) return;
+    try { localStorage.setItem(GUEST_KEY, id); } catch(e){}
+  }
+
+  /* An ETL membership token if this browser has one. Membership BUYS credits
+     here, it has never been required: with no token you are a guest and the
+     page still works. */
+  function memberToken(){
+    try {
+      var keys = ['etl_owner_key','etl_access_token','sb-access-token'];
+      for (var i=0;i<keys.length;i++){
+        var v = localStorage.getItem(keys[i]);
+        if (v) return v;
+      }
+    } catch(e){}
+    return '';
+  }
+
   /* Downscale in the browser before sending. A phone photo is several
      megabytes, which would blow the function payload; 1024px on the long
      edge is plenty for reading a palette and a mood off it. */
@@ -288,19 +314,34 @@
     $('go').disabled = true;
     $('running-note').textContent = 'Starting the team...';
 
+    var headers = {'Content-Type':'application/json'};
+    var tok = memberToken();
+    if (tok) headers['Authorization'] = 'Bearer ' + tok;
+
     fetch('/.netlify/functions/etl-design-ask', {
-      method:'POST', headers:{'Content-Type':'application/json'},
+      method:'POST', headers: headers,
       body: JSON.stringify({
         promoting: promoting,
         audience: $('f-audience').value.trim(),
         business_name: $('f-name').value.trim(),
         business_site: $('f-site').value.trim(),
         platform: $('f-platform').value,
-        concept_image: conceptData
+        concept_image: conceptData,
+        guest_id: guestId()
       })
     })
-    .then(function(r){ return r.json(); })
+    .then(function(r){ return r.json().then(function(d){ d.__status = r.status; return d; }); })
     .then(function(d){
+      rememberGuest(d.guest_id);
+      // 402 is the credit refusal, and it deserves a real explanation rather
+      // than "could not start". Nothing was generated and nothing was charged.
+      if (d.__status === 402) {
+        $('go').disabled = false; $('running-note').textContent = '';
+        fail(d.error === 'no_credits'
+          ? 'That is your ETL credits used up for now. Topping up puts the team straight back to work.'
+          : 'You have used your free piece. An ETL membership comes with credits for more, or buy this one and start another brief.');
+        return;
+      }
       if (!d.ok || !d.job_id) throw new Error(d.error || 'could not start');
       jobId = d.job_id;
       history.replaceState(null, '', '/etl-design?job=' + encodeURIComponent(jobId));

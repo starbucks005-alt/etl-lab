@@ -11,10 +11,15 @@
    background returns 202 immediately; we never await the work itself.
 */
 
+const credits = require('./_design-credits.js');
+
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
+  // Authorization so a signed-in ETL member spends from their membership
+  // rather than the guest allowance. Membership buys something here; it has
+  // never been required to use the page.
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
 
 function json(status, obj) {
@@ -53,6 +58,28 @@ exports.handler = async (event) => {
     conceptImage = '';
   }
 
+  /* Credit check BEFORE anything is spent. A brief is three model calls plus
+     a gpt-image-1 generation, and this page is linked from the homepage now,
+     so it is reachable by anyone. Checking here rather than inside the relay
+     means a refusal costs nothing at all. */
+  let verdict;
+  try {
+    verdict = await credits.check(event, body);
+  } catch (e) {
+    // The credit layer failing shut would take a public page down over
+    // bookkeeping. Let the brief through and say so in the log.
+    console.error('[etl-design-ask] credit check failed, allowing through:', e && e.message);
+    verdict = { ok: true, kind: 'guest', guestId: credits.newGuestId(), remaining: null };
+  }
+  if (!verdict.ok) {
+    return json(402, {
+      error: verdict.reason || 'out_of_credits',
+      kind: verdict.kind,
+      guest_id: verdict.guestId || null,
+      remaining: 0,
+    });
+  }
+
   const jobId = newJobId();
 
   const host = (event.headers && (event.headers.host || event.headers.Host)) || '';
@@ -80,5 +107,22 @@ exports.handler = async (event) => {
     return json(502, { error: 'could_not_start' });
   }
 
-  return json(200, { ok: true, job_id: jobId });
+  /* Spend only now, once the relay is genuinely running. Spending before the
+     background invoke would charge somebody for a job that never started. */
+  let spent = { ok: true, remaining: null };
+  try {
+    spent = await credits.spend(event, verdict);
+  } catch (e) {
+    console.error('[etl-design-ask] credit spend failed (work already started):', e && e.message);
+  }
+
+  return json(200, {
+    ok: true,
+    job_id: jobId,
+    kind: verdict.kind,
+    // Handed back so the browser can keep using the same guest identity. A
+    // new id every visit would hand out unlimited free briefs.
+    guest_id: verdict.guestId || null,
+    remaining: spent.remaining,
+  });
 };
