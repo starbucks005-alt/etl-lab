@@ -262,7 +262,18 @@ exports.handler = async (event) => {
         /* Same piece put a fabricated app interface on a phone screen. That
            invents a product screen the client would then have to live up to,
            the same objection as inventing a business name. */
-        'NO SCREENS SHOWING A USER INTERFACE. No app mockups, no dashboards, no chat windows, no placeholder bars. Any device in frame must be off, blank, or turned away.',
+        'NO SCREENS SHOWING A USER INTERFACE. No app mockups, no dashboards, no chat windows, no placeholder bars.',
+        /* Banning fake screens was too narrow: Chris moved the same instinct
+           to a physical object and drew a smart speaker, a dark cylinder with
+           a glowing ring, for a product called My ECHO. Dr. O, immediately:
+           "you have ECHO (ALEXA), and we are talking about your digital
+           twin." It implies hardware the client does not make and leans on a
+           trademark they do not own (2026-07-31). */
+        'NO HARDWARE THE BUSINESS DOES NOT MAKE. No smart speakers, no headsets, no wearables, no laptops, tablets or phones used as a stand-in for the product, and nothing that resembles a recognisable consumer device. If the business sells software or a service, there is no object to photograph, so do not invent one.',
+        /* The deeper error, worth stating positively: a gadget was put where
+           the PERSON belonged. For a product that is a version of someone,
+           that substitution destroys the pitch. */
+        'IF THE PRODUCT IS A PERSON, A VOICE, A PRESENCE OR A RELATIONSHIP, THE PICTURE MUST CARRY A HUMAN PRESENCE. Faces, hands, two people, the space between them. Never let a device or an object stand in for the person, because the person IS the product.',
         'Show the subject matter itself: materials, hands, texture, place, light, scale.',
         // Not a full-canvas wash. Asking for an even-toned background is how
         // the picture ended up crushed under a global scrim until the piece

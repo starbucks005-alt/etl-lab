@@ -62,6 +62,13 @@ function composeSystem({ canvas, paletteText, fonts, hasArt }) {
     'Scale should be decisive. If the headline matters, set it far larger than everything else rather than slightly larger.',
     'Prefer fewer elements set well over more elements set adequately. If a block, rule, box or panel is not earning its place, delete it. You are allowed to use less than you were given.',
     'A container is a choice, not a default. Text can sit directly on a flat field. Reach for a box only when it is doing work the spacing cannot.',
+    /* Restraint kept winning arguments it should have lost. Three pieces
+       running, the footer came back as thin low-contrast text because
+       "fewer elements, quieter" read as permission to tone down the name and
+       the URL. Rule 10 is the response mechanism: it is the only thing on the
+       piece that tells a reader where to go, and a beautiful piece nobody can
+       act on has failed at the one job it was hired for (2026-07-31). */
+    'RESTRAINT NEVER OVERRIDES THE HARD RULES BELOW, AND RULE 10 IN PARTICULAR. Quiet everything else if you like, but the name and the URL stay the highest contrast small text on the piece. They are the response mechanism, not decoration, and they are the last thing you are allowed to soften.',
     '',
     /* Named starting points, because "be creative" produces the model's
        house style every time while a concrete choice produces range. Yuki
