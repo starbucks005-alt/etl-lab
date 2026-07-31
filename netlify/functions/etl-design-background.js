@@ -284,6 +284,16 @@ exports.handler = async (event) => {
            the PERSON belonged. For a product that is a version of someone,
            that substitution destroys the pitch. */
         'IF THE PRODUCT IS A PERSON, A VOICE, A PRESENCE OR A RELATIONSHIP, THE PICTURE MUST CARRY A HUMAN PRESENCE. Faces, hands, two people, the space between them. Never let a device or an object stand in for the person, because the person IS the product.',
+        /* Banning gadgets sent Chris the other way: soft pencil, sepia, a
+           storybook grandmother. Warm, and it could have been advertising a
+           nanny agency. Dr. O: "it does not demonstrate tech, we are the
+           future." The piece she kept, by contrast, had no device in it
+           either, just two identical profiles facing each other, an
+           IMPOSSIBLE FACT that could only be about this technology. That is
+           how the future gets shown without equipment (2026-07-31). */
+        'SIGNAL THE CATEGORY THE BUSINESS COMPETES IN. A technology business must not be drawn as a heritage one. No soft storybook pencil, no sepia, no antique or period styling, no nostalgic warmth standing in for emotion. Contemporary rendering, contemporary light, a confident modern hand.',
+        'SHOW WHAT ONLY THIS TECHNOLOGY MAKES POSSIBLE. Convey the future through an impossible or uncanny FACT in the picture, never through equipment: a person present and absent at once, one person in two places, a voice with no speaker, a presence with no body, a self meeting itself. Depict the impossible thing plainly and let it be the whole idea.',
+        'BANNED VISUAL CLICHES, these read as stock AI and cheapen the piece: circuit boards, glowing brains, neural networks, robots, androids, humanoid machines, holograms, blue neon grids, binary, streaming data, wireframe or polygonal faces.',
         'Show the subject matter itself: materials, hands, texture, place, light, scale.',
         // Not a full-canvas wash. Asking for an even-toned background is how
         // the picture ended up crushed under a global scrim until the piece
