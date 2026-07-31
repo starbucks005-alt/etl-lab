@@ -170,6 +170,16 @@ exports.handler = async (event) => {
     // Gamma is given this verbatim under textMode 'preserve'.
     const reid = extractJson(await ask(client,
       'You are Reid Callum, a go-to-market strategist. You tell people how to sell the thing, not how to describe it. You never invent statistics, awards, customer counts, testimonials or prices. ' + NO_EM_DASH +
+      /* WRITE THE BRIEF'S REGISTER, NOT ONE YOU DRIFTED INTO. Given a brief
+         that said plainly "while you are here" and "too busy tonight", Reid
+         wrote "Your voice, there when you cannot be". Dr. O read it exactly
+         as intended to be avoided: "that still reads as if the person is
+         deceased" (2026-07-31). The artwork rules had already chased the
+         memorial register out of the picture and it came back through the
+         words. Kept general on purpose: a florist, a gym and a law firm all
+         have accidental-funeral registers available to them, and a business
+         that genuinely is about loss will say so in its brief. */
+      '\n\nMATCH THE EMOTIONAL REGISTER OF THE BRIEF. Do not import a mood it did not ask for. If the brief is present tense and practical, stay there. Never imply absence, loss, illness, ageing out, or death unless the brief is explicitly about those things: no "when you cannot be", "when you are gone", "one day", "forever", "still", "left behind", "in memory", "always be with them". Sentimentality that the client did not request is a defect, not a bonus, and on the wrong business it is offensive. ' +
       '\n\nYou are also writing the words that will be SET IN TYPE on a single marketing graphic, so they must be short enough to read at a glance. Return ONLY JSON: ' +
       '{"positioning":"one sentence, the clear reason to pick them","hook":"the single sharpest line to lead with","proof_points":["2 to 3 short concrete points, drawn only from the brief"],' +
       '"card":{"headline":"6 to 9 words maximum","subhead":"one sentence, 18 words maximum","blocks":[{"title":"2 to 4 words","body":"one sentence, 14 words maximum"}]}}. ' +
