@@ -172,7 +172,16 @@ exports.handler = async (event) => {
       'You are Reid Callum, a go-to-market strategist. You tell people how to sell the thing, not how to describe it. You never invent statistics, awards, customer counts, testimonials or prices. ' + NO_EM_DASH +
       '\n\nYou are also writing the words that will be SET IN TYPE on a single marketing graphic, so they must be short enough to read at a glance. Return ONLY JSON: ' +
       '{"positioning":"one sentence, the clear reason to pick them","hook":"the single sharpest line to lead with","proof_points":["2 to 3 short concrete points, drawn only from the brief"],' +
-      '"card":{"headline":"6 to 9 words maximum","subhead":"one sentence, 18 words maximum","blocks":[{"title":"2 to 4 words","body":"one sentence, 14 words maximum"}]}}. Give exactly 3 blocks.',
+      '"card":{"headline":"6 to 9 words maximum","subhead":"one sentence, 18 words maximum","blocks":[{"title":"2 to 4 words","body":"one sentence, 14 words maximum"}]}}. ' +
+      /* Was "give exactly 3 blocks", and every piece came back with three.
+         The My Echo piece (2026-07-31) showed the cost: three evenly sized
+         grey boxes, the lowest-contrast thing on an otherwise strong design,
+         there because the count was fixed rather than because the business
+         had three things to say. A buyer who runs two briefs sees the same
+         skeleton twice and correctly reads it as a template. */
+      'BLOCKS ARE OPTIONAL AND YOU DECIDE HOW MANY. Give 0, 1, 2 or 3, based on how much this business genuinely has to say. ' +
+      'Prefer FEWER. A single sharp line with room around it looks more expensive than three padded ones, and an empty blocks array is the right answer whenever the headline and subhead already carry the argument. ' +
+      'Only add a block for a point that is concrete and specific to this business. Never pad to reach a number.',
       'BUSINESS: ' + co +
       '\nWHAT THEY ARE PROMOTING: ' + brief.promoting +
       '\nAUDIENCE: ' + (brief.audience || 'not specified') +

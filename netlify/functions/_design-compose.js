@@ -42,8 +42,47 @@ function composeSystem({ canvas, paletteText, fonts, hasArt }) {
     'TYPE: ' + ((fonts && fonts.display) || 'a serif') + ' for display, ' + ((fonts && fonts.body) || 'a sans-serif') + ' for body. Set font-family to a stack ending in "serif" or "sans-serif".',
     '',
     hasArt
-      ? 'ARTWORK: place <image href="CONCEPT_IMAGE" .../> as a MAJOR, CLEARLY VISIBLE element. Use the literal string CONCEPT_IMAGE as the href; it is substituted at render time. Give it a defined region of at least a third of the canvas, a band or a confident crop, and show it at FULL STRENGTH there: no scrim, no tint, no opacity, nothing over it. Put the type on flat colour fields ELSEWHERE. Never wash the whole canvas with the image and then darken all of it, which leaves a black rectangle and no picture.'
+      ? 'ARTWORK: place <image href="CONCEPT_IMAGE" .../> as a MAJOR, CLEARLY VISIBLE element. Use the literal string CONCEPT_IMAGE as the href; it is substituted at render time. Give it a defined region of at least a third of the canvas, a band or a confident crop, and show it at FULL STRENGTH there: no scrim, no tint, no opacity, nothing over it. Put the type on flat colour fields ELSEWHERE. Never wash the whole canvas with the image and then darken all of it, which leaves a black rectangle and no picture.\n' +
+        /* The My Echo piece (2026-07-31) sliced the top off both heads: the
+           art region was treated as a fixed band and the picture was jammed
+           into it. The artwork is usually the strongest thing on the piece,
+           so a careless crop is the most expensive mistake available. */
+        'SIZE THE REGION TO THE PICTURE, not the picture to the region. The artwork is composed around a subject. Do not cut a face, a head, a hand or the focal object at the canvas edge or at the band boundary. If the subject will not fit the band you had in mind, MOVE THE BAND: make it taller, make it full width, or push the type further down. Use preserveAspectRatio deliberately, and crop into empty background rather than through the subject.'
       : 'There is no photograph. Build a strong type-led composition using rules, blocks, and generous negative space.',
+    '',
+    /* Everything below rule 12 is a list of ways to fail, and a brief made
+       only of prohibitions produces work that is safe, competent and dull.
+       That is the "it reads as a template, not a firm" problem: at $49 the
+       artifact has to look art-directed, and nothing here was telling Yuki
+       what art-directed means (2026-07-31). */
+    'WHAT GOOD LOOKS LIKE:',
+    'This should look like it was made for THIS client and nobody else. Someone who runs two briefs must not be able to see the same skeleton twice.',
+    'Commit to one idea. One dominant element, one clear entry point, and real emptiness around it. Crowding every zone is what cheap work looks like; confident negative space is what expensive work looks like.',
+    'Use the palette unevenly. One colour should dominate, one should be rare and land somewhere that matters. Four colours spread evenly is a swatch card, not a design.',
+    'Scale should be decisive. If the headline matters, set it far larger than everything else rather than slightly larger.',
+    'Prefer fewer elements set well over more elements set adequately. If a block, rule, box or panel is not earning its place, delete it. You are allowed to use less than you were given.',
+    'A container is a choice, not a default. Text can sit directly on a flat field. Reach for a box only when it is doing work the spacing cannot.',
+    '',
+    /* Named starting points, because "be creative" produces the model's
+       house style every time while a concrete choice produces range. Yuki
+       already wrote the brand direction, so she has the basis to choose. */
+    'LAYOUT: choose the archetype that suits the brand direction, then commit to it fully. Do not blend them and do not default to the first one.',
+    /* The artwork is a real generation that has already been paid for and is
+       usually the best thing on the piece, so a type-only archetype is
+       offered ONLY when there is no picture to throw away. */
+    ...(hasArt
+      ? [
+        'A. BAND. Artwork across the top or bottom third, type stacked in the flat field opposite.',
+        'B. FULL BLEED. Artwork fills the canvas, type in one corner plate sized exactly to it, the rest of the picture untouched.',
+        'C. SPLIT. A hard vertical or diagonal division, artwork one side, type the other.',
+        'D. EDITORIAL. Small, precisely placed artwork with a dominant headline and wide margins, like a title page.',
+        'Every one of these SHOWS the artwork. It is the strongest element you have; there is no version of this piece that discards it.',
+      ]
+      : [
+        'D. EDITORIAL. A dominant headline with wide margins and one rule, like a title page.',
+        'E. TYPE ONLY. Enormous headline, one rule, one accent, and a great deal of empty field.',
+        'F. STACK. Strong horizontal bands of flat colour, the type sitting in them at contrasting scales.',
+      ]),
     '',
     hardRules(canvas),
   ].join('\n');
