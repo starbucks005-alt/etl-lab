@@ -130,6 +130,49 @@ function findBrandImage(html, base) {
   return null;
 }
 
+/* THE PHOTOGRAPHY IS MOST OF THE BRAND, AND WE WERE IGNORING IT.
+   ─────────────────────────────────────────────────────────────────────────
+   Reading the palette and the type got the colours right and the world
+   wrong. Almost Human's actual visual language is a warm café: brick, string
+   lights, window light, real-looking people at wooden tables, sitting inside
+   a near-black UI. Chris, given only hex values, invented a glowing neon head
+   that appears nowhere in the product. Dr. O: "a good design team would deep
+   dive into the assets, the look of the brand/the site, and design from
+   there."
+
+   So collect the real content images too, and let Yuki look at them. Capped
+   at a handful: each one costs vision tokens, and three is plenty to read a
+   lighting style off. Tiny files are skipped because icons and spacers say
+   nothing about how a brand photographs. */
+function findContentImages(html, base, exclude) {
+  const seen = new Set(exclude || []);
+  const out = [];
+  const consider = (src) => {
+    if (!src || /^data:/i.test(src) || out.length >= 8) return;
+    if (/sprite|spacer|pixel|1x1|blank|favicon|icon-|\/icons?\//i.test(src)) return;
+    let abs;
+    try { abs = new URL(src, base).toString(); } catch (_) { return; }
+    if (seen.has(abs)) return;
+    seen.add(abs);
+    out.push(abs);
+  };
+
+  for (const t of (html.match(/<img\b[^>]*>/gi) || [])) {
+    consider(attr(t, 'src') || attr(t, 'data-src'));
+  }
+
+  /* <img> alone finds nothing on a JS-rendered page. Both ETL sites build
+     their galleries from JSON after load, so a server-side fetch sees zero
+     image tags while the markup is full of image PATHS, sitting in inline
+     JSON, in script arrays and in CSS background rules. Take them from
+     anywhere: we only need to look at the pictures, not to understand the
+     page (2026-07-31). */
+  for (const m of html.matchAll(/["'(]([^"'()\s]+\.(?:png|jpe?g|webp))(?:\?[^"'()\s]*)?["')]/gi)) {
+    consider(m[1]);
+  }
+  return out;
+}
+
 function findThemeColor(html) {
   for (const t of (html.match(/<meta\b[^>]*>/gi) || [])) {
     if ((attr(t, 'name') || '').toLowerCase() === 'theme-color') {
@@ -232,13 +275,48 @@ async function extractBrand(rawUrl) {
     }
   }
 
-  if (!conceptDataUrl && !palette.length && !fonts.length) {
+  /* THE MARK OFTEN LIVES ON THE ROOT, NOT THE PAGE YOU WERE GIVEN.
+     emerging-tech-lab.com/almost-human carries no og:image or touch icon of
+     its own, so a brand read of that URL came back with got_logo:false while
+     the site root had the mark all along. Ask the root before giving up. */
+  if (!conceptDataUrl && u.pathname && u.pathname !== '/') {
+    const rootUrl = u.origin + '/';
+    const root = await fetchCapped(rootUrl, HTML_CAP, false);
+    if (root.text) {
+      const rootImg = findBrandImage(root.text, rootUrl);
+      if (rootImg) {
+        const got = await fetchCapped(rootImg, IMG_CAP, true);
+        if (!got.error && /^image\/(png|jpeg|jpg|webp|gif)$/i.test(got.type || '')) {
+          const media = /jpg$/i.test(got.type) ? 'image/jpeg' : got.type.toLowerCase();
+          conceptDataUrl = 'data:' + media + ';base64,' + got.buf.toString('base64');
+          imageUrl = rootImg;
+          imageError = null;
+        }
+      }
+    }
+  }
+
+  /* Real photographs from the page, so Yuki can read the lighting, the
+     setting and the way people are framed rather than guessing a world from
+     four hex values. Two is enough and keeps the vision cost near a cent. */
+  const references = [];
+  for (const src of findContentImages(html, u, [imageUrl].filter(Boolean))) {
+    if (references.length >= 2) break;
+    const got = await fetchCapped(src, IMG_CAP, true);
+    if (got.error || !/^image\/(png|jpeg|jpg|webp)$/i.test(got.type || '')) continue;
+    if (got.buf.length < 20000) continue;          // an icon, not a photograph
+    const media = /jpg$/i.test(got.type) ? 'image/jpeg' : got.type.toLowerCase();
+    references.push({ url: src, data_url: 'data:' + media + ';base64,' + got.buf.toString('base64') });
+  }
+
+  if (!conceptDataUrl && !palette.length && !fonts.length && !references.length) {
     return { ok: false, error: 'nothing on ' + u.hostname + ' told us what the brand looks like' };
   }
 
   return {
     ok: true,
     concept_data_url: conceptDataUrl,
+    references,
     palette, fonts,
     theme_color: theme || null,
     image_url: imageUrl,

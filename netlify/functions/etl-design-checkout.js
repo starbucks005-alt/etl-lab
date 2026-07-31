@@ -16,7 +16,16 @@ const Stripe = require('stripe');
 // ── The one number to change. Cents. ────────────────────────────────────────
 // Kept as a single named constant, not sprinkled through copy, because a
 // price written into prose rots the moment it changes.
-const PRICE_CENTS = 4900;
+/* $4.90, set 2026-07-31. It was $49 for one day and Dr. O: "the price,
+   $49, not even close. maybe $4.90", then "4.90 per product".
+
+   That is a different business, not just a smaller number. At $49 a buyer
+   deliberates; at $4.90 nobody does, so volume carries it and the free
+   preview matters less than the funnel does. Worth knowing: Stripe takes
+   2.9% + $0.30, and that fixed 30 cents was 0.6% of a $49 sale but is 6% of
+   this one. Compute is about 12 cents a piece, so the margin is still near
+   88%. PER PRODUCT, not per set: a multi-size set is priced as a set. */
+const PRICE_CENTS = 490;
 const PRODUCT_NAME = 'ETL Design — finished marketing piece';
 
 const CORS = {

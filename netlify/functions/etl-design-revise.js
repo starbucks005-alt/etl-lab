@@ -52,6 +52,20 @@ exports.handler = async (event) => {
 
   const jobId = String(body.job_id || '').trim();
   if (!/^dsn-[0-9a-z-]+$/i.test(jobId)) return json(400, { error: 'job_id_required' });
+  /* THREE ROUNDS, THEN STOP.
+     Revisions are free and stay free: back and forth IS the service, and
+     charging for it on a $4.90 piece would read as nickel-and-diming. But
+     unlimited was the only version with an open tail, which was Dr. O's
+     worry: "revisions free, if they do not end up costing a lot of $, that
+     is my fear." Three rounds is what a small studio gives on a job this
+     size, and at roughly 3 cents a round it caps the exposure at 9 cents on
+     a $4.90 sale, under 2%.
+
+     Counted AFTER success only, so a failed round costs the client nothing.
+     The automatic overflow and collision retries are not revisions: those
+     are us fixing our own output before anyone sees it (2026-07-31). */
+  const MAX_REVISIONS = 3;
+
   const note = String(body.note || '').trim().slice(0, 700);
   if (!note) return json(400, { error: 'note_required' });
 
@@ -66,6 +80,10 @@ exports.handler = async (event) => {
   } catch (e) {
     console.error('[etl-design-revise] store read failed', e && e.message);
     return json(500, { error: 'store_unavailable' });
+  }
+  if ((job.revision || 0) >= MAX_REVISIONS) {
+    return json(409, { error: 'revision_limit', limit: MAX_REVISIONS,
+      message: 'That is ' + MAX_REVISIONS + ' rounds, which is where we stop on a single piece. Start a new brief and we will take it from the top.' });
   }
   // Jobs rendered before the SVG was kept cannot be revised, only re-run.
   if (!prevSvg) return json(409, { error: 'no_source_to_revise' });

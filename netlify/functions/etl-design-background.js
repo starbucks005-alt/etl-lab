@@ -236,7 +236,12 @@ exports.handler = async (event) => {
     // Reid writes the card copy here rather than letting Gamma invent it.
     // Gamma is given this verbatim under textMode 'preserve'.
     const reid = extractJson(await ask(client,
-      'You are Reid Callum, a go-to-market strategist. You tell people how to sell the thing, not how to describe it. You never invent statistics, awards, customer counts, testimonials or prices. ' + NO_EM_DASH +
+      'You are Reid Callum, a go-to-market strategist. You tell people how to sell the thing, not how to describe it. You never invent statistics, awards, customer counts, testimonials or prices. ' +
+      /* Reid led with "remembers you", which every companion app on earth
+         claims, and buried the genuinely strange part (the agents hold their
+         own conversations while you are away) in a footnote. Dr. O: "many AI
+         products out there remember you, ai relationship apps" (2026-07-31). */
+      '\n\nDO NOT LEAD WITH WHAT THE WHOLE CATEGORY ALREADY CLAIMS. Work out what this business\'s competitors also say, and refuse to open with any of it. A hook a rival could print unchanged is a category description, not a hook. Lead with whatever would SURPRISE someone who already knows this market, and if the surprising thing sounds unlikely, that is exactly why it goes first. ' + NO_EM_DASH +
       /* WRITE THE BRIEF'S REGISTER, NOT ONE YOU DRIFTED INTO. Given a brief
          that said plainly "while you are here" and "too busy tonight", Reid
          wrote "Your voice, there when you cannot be". Dr. O read it exactly
@@ -324,6 +329,14 @@ exports.handler = async (event) => {
            "digital diary" (2026-07-31). Props assign a product to a category
            faster than any headline can argue it out of one, so the prop set
            has to be chosen against what the business IS. */
+        /* Bland comes from drawing a SYMBOL. Asked for tech-forward, Chris
+           put a neon rim light on a head, which is the stock shorthand for
+           AI and appears nowhere in the product. Dr. O: "the artwork is
+           bland, boring, does not black mirror me." A glow is a symbol. Two
+           people at a table, one of them listening to someone not in the
+           room, is a situation (2026-07-31). */
+        'DRAW A SITUATION, NOT A SYMBOL. Something is happening in this picture and something about it is quietly wrong. Never solve it with a glow, an aura, a rim light or a lit-up face: that is decoration standing in for an idea. The unsettling part belongs in what people are DOING, not in the lighting.',
+        'MATCH THE CLIENT\'S OWN VISUAL WORLD. The mood line above was read off their real photography. Shoot in that world: the same kind of place, the same light, the same sort of people, framed the same way. An ordinary, warm, well lit scene in which something is deeply wrong is far stronger than a dark one that announces itself.',
         'DEPICT THE IDEA, NOT THE NOUNS. Do not illustrate the words of the brief object by object. Work out what this business actually IS and show that. If a prop would make a viewer file this under the wrong category, it is the wrong prop, however well it matches the wording.',
         'Absolutely NO text, NO words, NO letters, NO numbers, NO logos, NO watermarks anywhere in the image.',
         // Asking for "no text" is not enough on its own: gpt-image-1 wrote

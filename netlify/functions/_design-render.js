@@ -148,6 +148,7 @@ function panelUnder(rects, x, y, canvasW, canvasH) {
    canvas when it does not. Returns plain-language complaints for the retry. */
 function findOverflow(svg, canvasW, canvasH) {
   const problems = [];
+  const boxes = [];
   const rects = collectRects(svg);
   const re = /<text\b([^>]*)>([\s\S]*?)<\/text>/gi;
   let m;
@@ -185,6 +186,52 @@ function findOverflow(svg, canvasW, canvasH) {
     if (right > canvasW * 1.02) {
       problems.push('"' + content.slice(0, 42) + '" runs off the canvas at ' + Math.round(size) +
         'px starting at x=' + Math.round(x) + '. Break it into shorter lines or reduce the size.');
+    }
+
+    /* Kept for the collision pass below. A baseline sits near the bottom of
+       the cap-height box, so the box runs mostly upward from y. */
+    let left = x;
+    if (anchor === 'middle') left = x - w / 2;
+    else if (anchor === 'end') left = x - w;
+    boxes.push({
+      text: content, size,
+      left, right: left + w,
+      top: y - size * 0.8, bottom: y + size * 0.22,
+    });
+  }
+
+  problems.push(...findCollisions(boxes));
+  return problems;
+}
+
+/* TWO LINES PRINTED ON TOP OF EACH OTHER.
+   ─────────────────────────────────────────────────────────────────────────
+   findOverflow asks whether a line overruns its container. It has no opinion
+   about whether two lines overrun EACH OTHER, so a revision that gave the
+   third and fourth headline lines nearly the same y passed every check and
+   shipped with "remembers" printed through "you" (2026-07-31). Individually
+   both were comfortably inside their panel; together they were unreadable.
+
+   Deliberately not strict about touching. Tight leading is a design choice
+   and cap-height boxes are an estimate, so this only complains when the pair
+   genuinely sits on top of each other: a real share of the smaller line's
+   height AND a real share of its width. */
+function findCollisions(boxes) {
+  const problems = [];
+  for (let i = 0; i < boxes.length; i++) {
+    for (let j = i + 1; j < boxes.length; j++) {
+      const a = boxes[i], b = boxes[j];
+      const vOverlap = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
+      const hOverlap = Math.min(a.right, b.right) - Math.max(a.left, b.left);
+      if (vOverlap <= 0 || hOverlap <= 0) continue;
+      const minH = Math.min(a.bottom - a.top, b.bottom - b.top);
+      const minW = Math.min(a.right - a.left, b.right - b.left);
+      if (vOverlap < minH * 0.35) continue;   // ordinary tight leading
+      if (hOverlap < minW * 0.18) continue;   // a clipped corner, not a collision
+      problems.push('"' + a.text.slice(0, 30) + '" and "' + b.text.slice(0, 30) +
+        '" are printed on top of each other. Give them separate lines with real leading between the baselines, ' +
+        'or shorten them so they do not occupy the same space. Text must never overlap other text.');
+      if (problems.length >= 4) return problems;   // enough to fix on the retry
     }
   }
   return problems;
