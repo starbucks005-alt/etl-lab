@@ -57,8 +57,13 @@ async function guestState(event, guestId) {
      jobs in a row. Eventual consistency is fine for polling a job, where the
      next poll fixes it, and useless for a spend counter, where the stale read
      IS the bug (2026-07-31). */
-  const store = getStore({ name: 'etl_design_guests', consistency: 'strong' });
-  const row = await store.get(guestId, { type: 'json' });
+  /* Consistency is requested PER READ, not by constructing the store with a
+     config object. The object form threw in the Netlify runtime and, because
+     the caller fails open so a public page cannot be taken down by
+     bookkeeping, every request sailed through with a freshly minted guest id.
+     The gate looked present and gated nothing (2026-07-31). */
+  const store = getStore('etl_design_guests');
+  const row = await store.get(guestId, { type: 'json', consistency: 'strong' });
   return { store, used: (row && row.used) || 0 };
 }
 

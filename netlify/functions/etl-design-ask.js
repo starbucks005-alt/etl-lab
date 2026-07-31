@@ -62,14 +62,19 @@ exports.handler = async (event) => {
      a gpt-image-1 generation, and this page is linked from the homepage now,
      so it is reachable by anyone. Checking here rather than inside the relay
      means a refusal costs nothing at all. */
-  let verdict;
+  let verdict, creditFault = null;
   try {
     verdict = await credits.check(event, body);
   } catch (e) {
-    // The credit layer failing shut would take a public page down over
-    // bookkeeping. Let the brief through and say so in the log.
-    console.error('[etl-design-ask] credit check failed, allowing through:', e && e.message);
-    verdict = { ok: true, kind: 'guest', guestId: credits.newGuestId(), remaining: null };
+    /* Failing OPEN is deliberate: bookkeeping should not take a public page
+       down. But a silent fail-open is indistinguishable from a working gate,
+       and that is exactly how this hid across two deploys, waving every
+       request through while looking installed. The reason is now returned as
+       well as logged, so a broken gate is visible from the outside without
+       log access. */
+    creditFault = String((e && e.message) || e).slice(0, 200);
+    console.error('[etl-design-ask] credit check failed, allowing through:', creditFault);
+    verdict = { ok: true, kind: 'guest', guestId: credits.safeGuestId(body && body.guest_id) || credits.newGuestId(), remaining: null };
   }
   if (!verdict.ok) {
     return json(402, {
@@ -113,7 +118,8 @@ exports.handler = async (event) => {
   try {
     spent = await credits.spend(event, verdict);
   } catch (e) {
-    console.error('[etl-design-ask] credit spend failed (work already started):', e && e.message);
+    if (!creditFault) creditFault = String((e && e.message) || e).slice(0, 200);
+    console.error('[etl-design-ask] credit spend failed (work already started):', creditFault);
   }
 
   return json(200, {
@@ -124,5 +130,8 @@ exports.handler = async (event) => {
     // new id every visit would hand out unlimited free briefs.
     guest_id: verdict.guestId || null,
     remaining: spent.remaining,
+    // Present only when the credit layer itself broke. Its absence is the
+    // evidence the gate actually ran.
+    credit_fault: creditFault,
   });
 };
