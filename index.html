@@ -3042,6 +3042,11 @@ document.addEventListener('DOMContentLoaded', function(){
     {name:'Build Your Own Agent', url:'/build-your-own-agent', role:'Build a new agent from scratch',                  dom:'biz',  type:'engine', tool:'Purpose &middot; backpack &middot; voice', access:'paid', price:'From $5'},
     {name:'Take It With You',     url:'/export-your-agent',  role:'Run your agent on your own website',               dom:'biz',  type:'engine', tool:'Embed &middot; API &middot; MCP backpack', access:'paid', price:'From $5'},
     {name:"Chris's Tailor Shop",  url:'/tailor-shop',         role:'Where agents get made, and remade',                dom:'biz',  type:'engine', tool:'Persona Desk &middot; Wardrobe &middot; Voice Booth', access:'paid', price:'From $1/look'},
+    // Price deliberately reads "Per piece" rather than a figure. The real
+    // number lives in one constant in etl-design-checkout.js and the page
+    // fetches it, so a number typed here would be a second copy free to rot
+    // and disagree with what the customer is actually charged.
+    {name:'ETL Design',           url:'/etl-design',         role:'Social graphics, made to brief',                  dom:'biz',  type:'count',  n:4, access:'paid', price:'Per piece', travel:'all 4 travel in &middot; Yuki, Reid, Zara, Chris'},
     {name:'ETL Messenger',        url:'/hiring-pool',         role:'Chat with a staff member',                         dom:'friends', type:'engine', tool:'Open the staff catalog &middot; pick a staff member &middot; IM them', access:'free'},
     {name:'The Harvest Circuit',  url:'/restaurant',         role:'Farm to table, wired through',                    dom:'dining', type:'count', n:8, access:'free', travel:'first floor &middot; 3 native, 5 travel in'},
     {name:'ETL Classrooms',       url:'/classrooms',         role:'AI agents for education',                         dom:'acad',    type:'engine', tool:'Teaching Assistants &middot; ETL Faculty &middot; Living Legends', access:'paid', price:'From $99/mo'},
