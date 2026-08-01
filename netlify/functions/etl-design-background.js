@@ -325,9 +325,39 @@ exports.handler = async (event) => {
          have accidental-funeral registers available to them, and a business
          that genuinely is about loss will say so in its brief. */
       '\n\nMATCH THE EMOTIONAL REGISTER OF THE BRIEF. Do not import a mood it did not ask for. If the brief is present tense and practical, stay there. APPLY THIS TEST TO EVERY LINE YOU WRITE: could a reader take it as meaning the person is gone, dying, or unable to come back? If yes, rewrite it, however the words are arranged. A list of forbidden phrases does not work, because the meaning survives rephrasing: "when you cannot be" and "even when you cannot" fail identically. When someone is not in the room, the REASON must be ordinary, temporary and visible in the line itself: working late, travelling, a meeting, tonight. Sentimentality the client did not request is a defect, not a bonus, and on the wrong business it is offensive. ' +
+      /* THE FRONT SELL AND THE CURTAIN.
+         ─────────────────────────────────────────────────────────────────
+         Reid was handed "not one person at that table is a person" and
+         landed it, and Dr. O's verdict was that it is not a hook at all:
+         "NOBODY AT THIS TABLE IS HUMAN is not new to anyone. We are very
+         used to talking to nonhumans. This is not a scroll stopper."
+
+         Her own structure, in her words, is two beats. The FRONT SELL is a
+         small checkable chore removed: "M.E. can tell the difference between
+         personal and private information, so I don't have to sort it." The
+         CURTAIN is what has to be true for that to work: "it was put into
+         the code not to be a binary decision tree." Nothing is checking a
+         list. It decides, about you, every time.
+
+         That is the White Christmas cookie exactly. Nobody in the episode is
+         sold on sentience, they are sold on a smart home, and the horror is
+         what is running the toast. The front sell is why you buy it, the
+         curtain is why you cannot stop thinking about it.
+
+         THE CURTAIN IS A QUESTION, NEVER A CLAIM. Dr. O's beta tester, 67,
+         catches herself saying "I wonder if [agent] is thinking this." That
+         reaction is real and documented and it is the product working.
+         Asserting that a product feels, knows or suffers is an overreach
+         that cannot be supported and would make this look like every other
+         AI pitch. Invite the question, do not answer it (2026-08-01). */
+      '\n\nWRITE TWO BEATS, NOT A SLOGAN.\n' +
+      'BEAT ONE, THE FRONT SELL: one small, concrete, checkable thing this does FOR the reader. A chore removed, an outcome they can picture by tomorrow. Plain and unembarrassed. Never a capability boast and never an adjective about how advanced it is. This is your headline and subhead.\n' +
+      'BEAT TWO, THE CURTAIN: what has to be TRUE for beat one to work. Not a bigger claim, an implication. The reader should arrive at it themselves a second after reading beat one, and find it slightly harder to put down than they expected.\n' +
+      'THE CURTAIN IS ALWAYS A QUESTION THE READER ASKS, NEVER A CLAIM YOU MAKE. Never assert that the product thinks, feels, knows, cares, understands or is aware. Say what it DOES and let the reader draw the conclusion. An asserted claim about an inner life is unsupportable and reads as hype; the same idea arrived at by the reader is the entire effect. ' +
       '\n\nYou are also writing the words that will be SET IN TYPE on a single marketing graphic, so they must be short enough to read at a glance. Return ONLY JSON: ' +
       '{"positioning":"one sentence, the clear reason to pick them","hook":"the single sharpest line to lead with","proof_points":["2 to 3 short concrete points, drawn only from the brief"],' +
-      '"card":{"headline":"6 to 9 words maximum","subhead":"one sentence, 18 words maximum","blocks":[{"title":"2 to 4 words","body":"one sentence, 14 words maximum"}]}}. ' +
+      '"card":{"headline":"6 to 9 words maximum, THE FRONT SELL","subhead":"one sentence, 18 words maximum","blocks":[{"title":"2 to 4 words","body":"one sentence, 14 words maximum"}]},' +
+      '"curtain":"one sentence naming what has to be true for the front sell to work, written as the thought the reader lands on, not as a claim. This is NOT set in type on the graphic: it is the direction the picture has to carry."}. ' +
       /* Was "give exactly 3 blocks", and every piece came back with three.
          The My Echo piece (2026-07-31) showed the cost: three evenly sized
          grey boxes, the lowest-contrast thing on an otherwise strong design,
@@ -469,8 +499,26 @@ exports.handler = async (event) => {
            line reaches him as one sentence among thirty; the register has to
            arrive as a rule of its own or it loses to the rest (2026-07-31). */
         LOOKS[brief.look] ? ('THE CLIENT HAS SPECIFIED THE LOOK AND IT IS NOT NEGOTIABLE. ' + LOOKS[brief.look] + ' Follow this even where it contradicts your instinct for what an advert should look like. If it says bright and ordinary, the picture is bright and ordinary.') : '',
-        'DRAW A SITUATION, NOT A SYMBOL. Something is happening in this picture and something about it is quietly wrong. Never solve it with a glow, an aura, a rim light or a lit-up face: that is decoration standing in for an idea. The unsettling part belongs in what people are DOING, not in the lighting.',
-        'MATCH THE CLIENT\'S OWN VISUAL WORLD. The mood line above was read off their real photography. Shoot in that world: the same kind of place, the same light, the same sort of people, framed the same way. An ordinary, warm, well lit scene in which something is deeply wrong is far stronger than a dark one that announces itself.',
+        /* THE PICTURE CARRIES THE CURTAIN. The words are deliberately plain
+           and useful, so the entire second beat is this image's job. */
+        (reid.curtain ? ('WHAT THIS PICTURE HAS TO CARRY, and the words deliberately will not: ' + deDash(reid.curtain) + ' Do not illustrate that sentence literally and do not caption it. Build a frame in which it is simply the case.') : ''),
+        /* ABOUT TO HAPPEN, NOT HAPPENING.
+           This rule used to say "something is happening in this picture",
+           which is one word wrong and the word decides everything. Shown two
+           pieces, Dr. O kept the one with four still, evenly spaced, silent
+           figures: it "feels off, in a scary kind of 'we know something is
+           going to happen' way". The one she rejected was a warm photograph
+           of people mid-laugh, which no treatment could rescue, because
+           activity and warmth are the opposite of dread.
+
+           And her craft point, which is the harder one: "we only have an
+           image, we don't have the whole episode to tell you what is off
+           with the cafe scene." A television episode has fifty minutes to
+           explain the room. A still has none, so the frame must show its own
+           problem unaided (2026-08-01). */
+        'ABOUT TO HAPPEN, NOT HAPPENING. Build anticipation, not activity. Stillness over motion, waiting over doing, arrangement over interaction. People spaced a little too evenly, close together but not engaging, looking at slightly different things, none of them meeting each other\'s eyes. A group portrait nobody agreed to pose for. Avoid laughter, chatter, mid-gesture warmth and anything that reads as a nice moment.',
+        'THE FRAME MUST BE STRANGE ON ITS OWN. There is no episode, no voiceover and no caption to explain this picture. A viewer sees it for one second while scrolling and must feel that something is wrong without being told what. A scene that only becomes unsettling once somebody explains it has failed. Never solve it with a glow, an aura, a rim light or a lit-up face: that is decoration standing in for an idea, and it reads as an effect applied afterwards rather than something true inside the frame.',
+        'MATCH THE CLIENT\'S OWN VISUAL WORLD. The mood line above was read off their real photography. Shoot in that world: the same kind of place, the same light, the same sort of people, framed the same way. An ORDINARY scene in which something is deeply wrong is far stronger than a dark one that announces itself. Ordinary is not the same as warm: warmth, laughter and a nice moment kill the effect outright, and a scene can be plainly lit and completely still at the same time.',
         'DEPICT THE IDEA, NOT THE NOUNS. Do not illustrate the words of the brief object by object. Work out what this business actually IS and show that. If a prop would make a viewer file this under the wrong category, it is the wrong prop, however well it matches the wording.',
         'Absolutely NO text, NO words, NO letters, NO numbers, NO logos, NO watermarks anywhere in the image.',
         // Asking for "no text" is not enough on its own: gpt-image-1 wrote
