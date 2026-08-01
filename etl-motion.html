@@ -149,8 +149,30 @@
         </select>
         <div class="hint">Square and vertical are what the feeds actually want.</div>
       </div>
+      <div>
+        <!-- 24 IS THE DEFAULT ON PURPOSE. Dr. O's commercial is a 24fps
+             Premiere sequence, and 30fps clips dropped into it judder on
+             every move. It reads as cheap without anyone being able to say
+             why (2026-08-01). -->
+        <label for="f-fps">Frame rate</label>
+        <select id="f-fps">
+          <option value="24" selected>24fps, film and Premiere</option>
+          <option value="30">30fps, web</option>
+        </select>
+        <div class="hint">Match your sequence. Mixing rates is what makes a move judder.</div>
+      </div>
+      <div>
+        <!-- Veo returns clips with audio and ETL Motion did not, so a mixed
+             timeline had silent gaps she was filling with ElevenLabs by hand.
+             Laying the voice on here means the clip arrives finished. -->
+        <label for="f-audio">Voiceover or music</label>
+        <input id="f-audio" type="file" accept="audio/*">
+        <div class="hint">Optional. The clip stretches to the length of the audio, so the shots divide across it.</div>
+        <div id="audio-note" class="hint" style="color:var(--sig);"></div>
+      </div>
     </div>
   </div>
+  <audio id="track" style="display:none;"></audio>
 
   <canvas id="stage" width="1280" height="720"></canvas>
 
@@ -166,7 +188,8 @@
 <script>
 (function(){
   var $ = function(id){ return document.getElementById(id); };
-  var FPS = 30;
+  var FPS = 24;                 // overwritten by the selector
+  var audioEl = null, audioDur = 0;
 
   /* A shot is a plain object and the timeline is a plain array. That is the
      whole point of this tool: everything is data she owns, so a change to one
@@ -193,7 +216,17 @@
   function totalSecs(){
     // Shots overlap by the crossfade, so the clip is shorter than the sum.
     var t = shots.reduce(function(a, s){ return a + s.secs; }, 0);
-    return Math.max(0.5, t - fade() * Math.max(0, shots.length - 1));
+    var own = Math.max(0.5, t - fade() * Math.max(0, shots.length - 1));
+    /* THE AUDIO DECIDES THE LENGTH. A voiceover cut off mid-sentence is the
+       one thing worse than a silent clip, so when there is a track the clip
+       runs to it and drawFrame scales the shot plan to fit. */
+    return audioDur > 0.2 ? audioDur : own;
+  }
+  // How much the shot plan has to be stretched or squeezed to fill the audio.
+  function timeScale(){
+    var t = shots.reduce(function(a, s){ return a + s.secs; }, 0);
+    var own = Math.max(0.5, t - fade() * Math.max(0, shots.length - 1));
+    return (audioDur > 0.2 && own > 0.01) ? (audioDur / own) : 1;
   }
 
   function ready(){
@@ -400,10 +433,13 @@
 
   /* Shot start times, with each one overlapping the last by the crossfade. */
   function schedule(){
-    var f = fade(), out = [], at = 0;
+    // Scaled so the plan fills the audio exactly when there is any.
+    var k = timeScale();
+    var f = fade() * k, out = [], at = 0;
     shots.forEach(function(s, i){
-      out.push({ s: s, start: at, end: at + s.secs });
-      at += s.secs - (i < shots.length - 1 ? f : 0);
+      var len = s.secs * k;
+      out.push({ s: s, start: at, end: at + len });
+      at += len - (i < shots.length - 1 ? f : 0);
     });
     return out;
   }
@@ -413,7 +449,7 @@
     ctx.fillStyle = '#000'; ctx.fillRect(0, 0, cw, ch);
     if (!shots.length) return;
 
-    var plan = schedule(), f = fade();
+    var plan = schedule(), f = fade() * timeScale();
     plan.forEach(function(k, i){
       if (t < k.start || t > k.end) return;
       var p = (t - k.start) / Math.max(0.001, k.end - k.start);
@@ -437,6 +473,7 @@
      rather than turning the clip into slow motion (2026-08-01). */
   function run(done){
     busy = true; ready();
+    if (audioEl) { try { audioEl.currentTime = 0; audioEl.play(); } catch (_) {} }
     var dur = totalSecs();
     var start = performance.now();
     var finished = false, lastTick = start;
@@ -450,6 +487,7 @@
         if (finished) return;
         finished = true;
         clearInterval(watchdog);
+        if (audioEl) { try { audioEl.pause(); } catch (_) {} }
         busy = false; ready();
         if (done) done();
       }
@@ -486,6 +524,19 @@
   $('f-move').addEventListener('input', function(){ $('v-move').textContent = $('f-move').value; drawFrame(0); });
   $('f-fade').addEventListener('input', function(){ $('v-fade').textContent = fade().toFixed(1); ready(); drawFrame(0); });
   $('f-size').addEventListener('change', function(){ sizeCanvas(); drawFrame(0); });
+  $('f-fps').addEventListener('change', function(){ FPS = parseInt($('f-fps').value, 10) || 24; ready(); });
+  $('f-audio').addEventListener('change', function(e){
+    var file = e.target.files && e.target.files[0];
+    if (!file) { audioEl = null; audioDur = 0; $('audio-note').textContent = ''; ready(); return; }
+    var el = $('track');
+    el.src = URL.createObjectURL(file);
+    el.onloadedmetadata = function(){
+      audioEl = el; audioDur = el.duration || 0;
+      $('audio-note').textContent = 'Clip will run ' + audioDur.toFixed(1) + 's to match the audio.';
+      ready(); drawFrame(0);
+    };
+    el.onerror = function(){ audioEl = null; audioDur = 0; $('audio-note').textContent = 'That audio could not be read.'; ready(); };
+  });
 
   $('preview').addEventListener('click', function(){
     $('err').textContent = ''; $('note').textContent = 'Playing.';
@@ -497,7 +548,15 @@
     var mime = pickMime();
     if (!mime) { $('err').textContent = 'This browser cannot record video. Chrome or Edge will.'; return; }
 
-    var stream = canvas.captureStream(FPS), chunks = [], rec;
+    var tracks = canvas.captureStream(FPS).getVideoTracks(), chunks = [], rec;
+    /* Veo hands back clips with audio and this tool did not, so a mixed
+       timeline had silent gaps Dr. O was patching with ElevenLabs by hand.
+       Captured from the element rather than mixed here: the browser keeps it
+       in sync with playback for free (2026-08-01). */
+    if (audioEl && audioEl.captureStream) {
+      try { audioEl.captureStream().getAudioTracks().forEach(function(t){ tracks.push(t); }); } catch (_) {}
+    }
+    var stream = new MediaStream(tracks);
     try { rec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 8000000 }); }
     catch (e) { $('err').textContent = 'Could not start the recorder: ' + e.message; return; }
 
