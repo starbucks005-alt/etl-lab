@@ -31,6 +31,8 @@
 
 const https = require('https');
 
+// Redeploy marker: Netlify functions read env vars at deploy time, so a
+// changed GEMINI_API_KEY needs a build to take effect (2026-08-01).
 const HOST = 'generativelanguage.googleapis.com';
 const MODEL_FAST = 'veo-3.1-fast-generate-preview';
 const MODEL_FULL = 'veo-3.1-generate-preview';
