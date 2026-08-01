@@ -3,16 +3,24 @@
    POST { job_id, action }  -> { ok, status }        starts the render
    GET  ?job_id=...         -> { ok, animation }     progress and result
 
-   The dispatcher exists for the same reason etl-design-ask does: Veo takes
-   minutes and a synchronous handler dies at ten seconds, so this validates,
-   AWAITS the background invoke, and returns. Awaiting the invoke and not the
-   work is the part that matters. The Lambda runtime freezes the moment a
-   handler returns, so an un-awaited fetch is simply abandoned, which is how
-   a job silently never starts.
+   NO BACKGROUND FUNCTION. Starting a Veo render is a sub-second call that
+   returns an operation name, so POST does it directly. GET then polls that
+   operation and, when it is done, downloads the file and stores it. The page
+   already polls, so the thing that finishes the job is the thing that was
+   already asking about it.
 
-   Animation is an ADD-ON, not part of the $4.90 piece. Veo 3.1 Fast at
-   1080p is 12 cents a second and an 8 second clip is 96 cents, so bundling
-   it would take a twelve cent product past a dollar.
+   It used to hand off to a background function, and six runs in a row said
+   'running' and then sat on 'queued' until the worker was POSTed by hand.
+   Netlify answered the invocation with 202 and never executed it. Three
+   theories were wrong before I stopped debugging it and removed the
+   dependency instead.
+
+   Animation is an ADD-ON, not part of the $4.90 piece. Veo 3.1 Lite takes an
+   input frame at 5 cents a second, so four seconds is 20 cents.
+
+   ONE THING GOOGLE DOES NOT OFFER HERE: lastFrame. Proven by trying it, six
+   combinations of model and field. So this is one frame plus an action, not
+   frame A to frame B.
 */
 
 const { getStore, connectLambda } = require('@netlify/blobs');
@@ -89,9 +97,45 @@ exports.handler = async (event) => {
 
   if (!job) return json(404, { error: 'not_found' });
 
-  /* Progress. */
+  /* Progress, AND the thing that finishes the job.
+     ─────────────────────────────────────────────────────────────────────
+     This used to only report. Now it also drives: if Veo is still working it
+     polls, and the moment the operation is done it downloads the file and
+     stores it. Veo's URI sits behind the API key so it can never be handed
+     to a browser, and a four second clip is under two megabytes, which is
+     comfortably inside a synchronous handler.
+
+     Doing the work here rather than in a background function means the thing
+     that completes the job is the thing already asking about it, so there is
+     no invocation left to fail silently. */
   if (event.httpMethod === 'GET') {
-    const a = job.animation || null;
+    let a = job.animation || null;
+    if (a && a.status === 'running' && a.operation) {
+      try {
+        const res = await veo.check(a.operation);
+        if (res.done && res.error) {
+          a = Object.assign(a, { status: 'error', error: String(res.error).slice(0, 1200) });
+          await store.setJSON(jobId, job);
+        } else if (res.done && res.uri) {
+          // Claim it first, so two overlapping polls cannot both download.
+          if (a.step !== 'saving') {
+            a = Object.assign(a, { step: 'saving', note: 'Saving your clip.' });
+            await store.setJSON(jobId, job);
+            const mp4 = await veo.download(res.uri);
+            await store.set(jobId + '.mp4', mp4, { metadata: { contentType: 'video/mp4' } });
+            a = Object.assign(a, {
+              status: 'ready', step: 'done', note: 'Your animation is ready.',
+              video_key: jobId + '.mp4', bytes: mp4.length, error: null,
+            });
+            await store.setJSON(jobId, job);
+          }
+        }
+      } catch (e) {
+        // A poll failure is not a job failure: Veo can be briefly unreachable
+        // and the next poll will pick it up. Only recorded.
+        console.warn('[etl-design-animate] poll/save failed (will retry)', e && e.message);
+      }
+    }
     return json(200, {
       ok: true,
       animation: a && {
@@ -153,34 +197,64 @@ exports.handler = async (event) => {
   if (process.env.URL && bases.indexOf(process.env.URL) < 0) bases.push(process.env.URL);
   if (!bases.length) return json(500, { error: 'no_base_url' });
 
-  let started = null, attempts = [];
-  for (const base of bases) {
-    try {
-      // AWAIT the invoke, never the work. A background function answers 202
-      // immediately; anything else means it did not accept the job.
-      const r = await fetch(base + '/.netlify/functions/etl-design-animate-background', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        // redirect:'manual' so a 3xx is reported rather than followed, since
-        // following it is what turns the POST into a GET.
-        redirect: 'manual',
-        body: JSON.stringify({ job_id: jobId, action }),
-      });
-      attempts.push(base + ' -> ' + r.status);
-      console.log('[etl-design-animate] background invoke', r.status, base, jobId);
-      if (r.status >= 200 && r.status < 300) { started = base; break; }
-    } catch (e) {
-      attempts.push(base + ' -> ' + ((e && e.message) || 'threw'));
-      console.error('[etl-design-animate] invoke failed', base, e && e.message);
+  /* NO BACKGROUND FUNCTION ON THE CRITICAL PATH.
+     ─────────────────────────────────────────────────────────────────────
+     Six runs in a row reported "running" and then sat on "queued" until I
+     POSTed the worker by hand. Netlify accepts the background invocation
+     with a 202 and does not execute it, and after three wrong theories
+     (eventual consistency, an unchecked status, a redirect losing the POST)
+     I stopped debugging it and deleted the dependency instead.
+
+     Starting a Veo render is a sub-second call that returns an operation
+     name. It never needed a background function. So this handler starts it
+     directly, and the GET below finishes the job: it polls the operation and,
+     when Veo is done, downloads the file and stores it. The page already
+     polls, so the thing that drives the work to completion is the thing that
+     was already asking about it (2026-08-01). */
+  let frameA = null, frameB = null;
+  try {
+    const readDataUrl = async (key) => {
+      const txt = await store.get(key, { type: 'text' });
+      const m = /^data:image\/[a-z+]+;base64,(.+)$/i.exec(String(txt || ''));
+      return m ? m[1] : null;
+    };
+    if (job.result.frame_a_key) {
+      frameA = await readDataUrl(job.result.frame_a_key);
+      if (job.result.frame_b_key) frameB = await readDataUrl(job.result.frame_b_key);
     }
+    if (!frameA && job.result.plate_key) {
+      const buf = await store.get(job.result.plate_key, { type: 'arrayBuffer' });
+      if (buf) frameA = Buffer.from(buf).toString('base64');
+    }
+  } catch (e) {
+    console.error('[etl-design-animate] frames unreadable', e && e.message);
   }
+  if (!frameA) return json(409, { error: 'no_frames', message: 'The starting frame could not be read.' });
 
-  if (!started) {
-    // Do not leave the job claiming to be running when nothing is.
-    job.animation = { status: 'error', step: 'queued', error: 'the renderer could not be started', attempts };
+  const prompt = action
+    ? action + '. Slow, cinematic, one continuous take, no camera cuts, no text on screen.'
+    : 'A slow cinematic move through the scene, one continuous take, no camera cuts, no text on screen.';
+
+  let startedVeo;
+  try {
+    startedVeo = await veo.start({ prompt, firstFrameB64: frameA, lastFrameB64: frameB, seconds: 4, resolution: '720p' });
+  } catch (e) {
+    job.animation = { status: 'error', step: 'render', error: String((e && e.message) || e).slice(0, 1200) };
     try { await store.setJSON(jobId, job); } catch (_) {}
-    return json(502, { error: 'could_not_start', attempts });
+    return json(502, { error: 'veo_refused', message: String((e && e.message) || e).slice(0, 600) });
   }
 
-  return json(200, { ok: true, status: 'running', invoked_via: started, attempts, estimate_cents: veo.estimateCents(4, false, true) });
+  job.animation = {
+    status: 'running', step: 'render', note: 'Veo is rendering.',
+    operation: startedVeo.operation, model: startedVeo.model,
+    image_field: startedVeo.image_field, frames: startedVeo.frames_used || 1,
+    cost_cents: startedVeo.cost_cents, started_at: new Date().toISOString(),
+  };
+  try { await store.setJSON(jobId, job); } catch (_) {}
+
+  return json(200, {
+    ok: true, status: 'running',
+    model: startedVeo.model, image_field: startedVeo.image_field,
+    frames: startedVeo.frames_used || 1, cost_cents: startedVeo.cost_cents,
+  });
 };
