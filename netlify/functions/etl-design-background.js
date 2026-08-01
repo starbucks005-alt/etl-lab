@@ -80,6 +80,34 @@ function extractJson(raw) {
 
 const NO_EM_DASH = 'Do not use em dashes or en dashes anywhere. Use commas or periods.';
 
+/* NAMED LOOKS A CLIENT CAN ASK FOR BY NAME.
+   ─────────────────────────────────────────────────────────────────────────
+   "I want them all to feel tech forward, think Blade Runner & Black Mirror."
+   Those are two OPPOSITE looks and it is worth keeping them apart, because
+   asking for both at once is how you get neither. Blade Runner is night,
+   rain, scale and neon through smoke. Black Mirror is the reverse: bright,
+   clean, ordinary, shot like a furniture catalogue, and the horror is that
+   one detail in a pleasant scene is deeply wrong. Nobody in Black Mirror
+   glows (2026-07-31). */
+const LOOKS = {
+  'black mirror':
+    'BLACK MIRROR. Bright, clean and entirely ordinary. Contemporary rooms, contemporary clothes, even neutral light, shot like a furniture catalogue or a product launch. Cool near-neutral palette, one restrained accent, a precise grotesque or a sharp modern serif. The unease is never in the lighting: it is that one fact about an otherwise pleasant scene is deeply wrong. Nothing glows.',
+  'blade runner':
+    'BLADE RUNNER. Night, depth and scale. Hard practical light, deep shadow, wet reflective surfaces, one saturated colour burning out of the dark. Dense and cinematic rather than clean. Type is confident and slightly cold. No daylight, no cosiness.',
+  'modern editorial':
+    'MODERN EDITORIAL. Stark grid, enormous type, flat unmodulated colour, no texture, no warmth for its own sake.',
+  'technical':
+    'TECHNICAL. High contrast, precise, monospaced or grotesque type, hard edges, the confidence of an instrument panel.',
+  'luxe':
+    'LUXE. Deep saturated colour, a fine serif, wide margins, restraint that reads as expensive.',
+  'archival':
+    'ARCHIVAL. Engraved, etched or printed, one or two inks, the authority of an old plate rendered sharply.',
+  'clinical':
+    'CLINICAL. Near white, sharp, minimal, one accent, the clarity of good medical or scientific work.',
+  'warm':
+    'WARM. Soft light, illustrated, human and intimate.',
+};
+
 /* Belt and braces on the house rule. Gamma lays out exactly what we send, so
    whatever slips past the prompt ends up rendered into a PNG a customer
    posts, where it cannot be edited. Strip at the door. */
@@ -128,6 +156,19 @@ exports.handler = async (event) => {
     businessName:  String(body.business_name || '').trim().slice(0, 160),
     businessSite:  String(body.business_site || '').trim().slice(0, 300),
     platform:      PLATFORMS[body.platform] ? body.platform : 'linkedin',
+    /* THE REGISTER LOCK.
+       ─────────────────────────────────────────────────────────────────
+       Yuki picks a register from a list, and left to choose she goes warm
+       every time, which is how five My Echo pieces came back as sepia
+       storybook illustration for a product about frontier AI. Dr. O has
+       said what she wants more than once: "I want them all to feel tech
+       forward, think Blade Runner & Black Mirror," and then, watching me
+       set up another run without it, "what you are going to make is going
+       to be another piece that will be wasted."
+
+       So the register becomes an INPUT rather than a choice. Blank keeps
+       the old behaviour for a client with no view (2026-07-31). */
+    look:          String(body.look || '').trim().slice(0, 60).toLowerCase(),
   };
   const P = PLATFORMS[brief.platform];
   const co = brief.businessName || 'this business';
@@ -216,14 +257,21 @@ exports.handler = async (event) => {
          with a real choice. Yuki is upstream of Chris, who is handed her
          "look" as his mood line, so this is also the only place the category
          rule can actually bite. */
-      '\n\nCHOOSE A VISUAL REGISTER. This is the decision that makes one firm look like a firm and not a filter. Pick the one that fits THIS business and audience, commit to it in the palette, the type and the look, and do not blend them:\n' +
+      (LOOKS[brief.look]
+        /* ASSIGNED, so there is nothing to default to. Same lesson as the
+           layout archetypes: given a menu, the model takes the safe answer
+           every time. */
+        ? ('\n\nTHE CLIENT HAS SPECIFIED THE LOOK. Build this one. It is not a choice and there is nothing to weigh up.\n' +
+           LOOKS[brief.look] +
+           '\nCommit to it in the palette, the type and the look line. Do not soften it toward something warmer or safer. ')
+        : '\n\nCHOOSE A VISUAL REGISTER. This is the decision that makes one firm look like a firm and not a filter. Pick the one that fits THIS business and audience, commit to it in the palette, the type and the look, and do not blend them:\n' +
       'A. MODERN EDITORIAL. Stark grid, enormous type, flat unmodulated colour, no texture, no warmth for its own sake.\n' +
       'B. TECHNICAL. High contrast, precise, monospaced or grotesque type, hard edges, the confidence of an instrument panel.\n' +
       'C. LUXE. Deep saturated colour, a fine serif, wide margins, restraint that reads as expensive.\n' +
       'D. ARCHIVAL. Engraved, etched or printed, one or two inks, the authority of an old plate rendered sharply.\n' +
       'E. CLINICAL. Near white, sharp, minimal, one accent, the clarity of good medical or scientific work.\n' +
       'F. WARM. Soft light, illustrated, human and intimate.\n' +
-      'DO NOT DEFAULT TO F. It is the easiest answer for any brief with a feeling in it and it has been chosen far too often. A tender subject does not require a tender treatment: warmth in the words against restraint in the design is usually stronger than both at once. ' +
+      'DO NOT DEFAULT TO F. It is the easiest answer for any brief with a feeling in it and it has been chosen far too often. A tender subject does not require a tender treatment: warmth in the words against restraint in the design is usually stronger than both at once. ') +
       /* Placed here rather than in Chris's art prompt, where it was first
          written and could not work: by the time Chris runs, Yuki's look has
          already set the direction he is told to match. */
