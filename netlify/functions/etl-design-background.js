@@ -345,27 +345,40 @@ exports.handler = async (event) => {
          have to sort it." CURTAIN is what was actually built so that claim
          holds: "it was put into the code not to be a binary decision tree."
 
-         Why it matters commercially. Every AI product on the market claims
-         memory, and Dr. O has already rejected a hook on those grounds:
-         "many AI products out there remember you, ai relationship apps." A
-         claim is free and anyone can print it. The mechanism is not, and a
-         competitor who has not built it cannot bluff it. The curtain is what
-         turns a claim into a proof.
+         AND THE CURTAIN STAYS SHUT. Corrected twice on 2026-08-01. First I
+         built it as atmosphere, then as proof to print in the caption, and
+         Dr. O: "no, we do not share what is behind the curtain, did you not
+         watch wizard of oz? or every magician alive?"
 
-         THE CURTAIN IS ONLY EVER WHAT THE BRIEF SAYS WAS BUILT. Inventing an
-         architecture is inventing a fact, which is the same defect as
-         inventing a statistic, and worse here because it is checkable. If
-         the brief does not describe the mechanism, there is no curtain and
-         the field comes back empty. */
+         She is right, and it is the point of the metaphor. The machinery is
+         why the claim is fair to make. It is not a thing to say. An advert
+         that explains the database has become documentation, and a magician
+         who explains the method has stopped being one.
+
+         So the field is INTERNAL. It never reaches the graphic, the caption
+         or the reader. Its whole job is to keep Reid honest: he must be able
+         to name the work that earns each claim, and any claim he cannot back
+         that way does not go on the piece. A claim is free and every AI
+         product prints one, which is why Dr. O rejected "remembers you"
+         outright: "many AI products out there remember you, ai relationship
+         apps." The curtain is what stops us printing a free claim we have
+         not earned.
+
+         ONLY EVER WHAT THE BRIEF SAYS WAS BUILT. Inventing an architecture
+         is inventing a fact, the same defect as inventing a statistic and
+         worse because it is checkable. No mechanism in the brief means an
+         empty curtain, and an empty curtain means the claims have to stand
+         on what the brief actually supports. */
       '\n\nWRITE TWO BEATS, NOT A SLOGAN.\n' +
       'BEAT ONE, THE FRONT SELL: the claim, in the reader\'s own language. One small, concrete, checkable thing this does FOR them. A chore removed, an outcome they can picture by tomorrow. Plain and unembarrassed, never a capability boast and never an adjective about how advanced it is. This is your headline and subhead.\n' +
-      'BEAT TWO, THE CURTAIN: the WORK BEHIND THE CLAIM. What was actually built so that beat one is a fair thing to say. The engineering, the deliberate design decision, the thing that had to exist. This is what separates the claim from the same sentence printed by a competitor who has not built it.\n' +
-      'ONLY FROM THE BRIEF, NEVER INVENTED. Name only mechanisms the brief actually describes. Do not name a database, a model, a technique or an architecture that is not in front of you. Inventing how something works is inventing a fact, it is checkable, and it is worse than inventing a statistic. If the brief does not say how it works, return an empty curtain and lose nothing.\n' +
-      'STATE WHAT IS BUILT, NOT WHAT IT FEELS. Never assert that the product thinks, feels, knows, cares or is aware. Say what was made and what it does. ' +
+      'BEAT TWO, THE CURTAIN: the WORK BEHIND THE CLAIM. What was actually built so that beat one is a fair thing to say. The engineering, the deliberate design decision, the thing that had to exist.\n' +
+      'THE CURTAIN IS NEVER PUBLISHED. It does not go in the headline, the subhead, a block or anywhere a reader will see it. It exists so you can check yourself: if you cannot name the work that earns a claim, do not make that claim. Anyone can print "it remembers you" and most of this market already has. Write only what this build actually supports.\n' +
+      'ONLY FROM THE BRIEF, NEVER INVENTED. Name only mechanisms the brief actually describes. Do not name a database, a model, a technique or an architecture that is not in front of you. Inventing how something works is inventing a fact, it is checkable, and it is worse than inventing a statistic. If the brief does not say how it works, return an empty curtain and let the claims stand on what the brief does support.\n' +
+      'AND NOTHING ON THE PIECE EXPLAINS THE MECHANISM EITHER. The headline, subhead and blocks say what it DOES for the reader, never how it works inside. Never assert that the product thinks, feels, knows, cares or is aware. ' +
       '\n\nYou are also writing the words that will be SET IN TYPE on a single marketing graphic, so they must be short enough to read at a glance. Return ONLY JSON: ' +
       '{"positioning":"one sentence, the clear reason to pick them","hook":"the single sharpest line to lead with","proof_points":["2 to 3 short concrete points, drawn only from the brief"],' +
       '"card":{"headline":"6 to 9 words maximum, THE FRONT SELL","subhead":"one sentence, 18 words maximum","blocks":[{"title":"2 to 4 words","body":"one sentence, 14 words maximum"}]},' +
-      '"curtain":"one sentence naming the WORK BEHIND THE CLAIM: what was actually built so the headline is a fair thing to say. Only mechanisms the brief describes. Empty string if the brief does not say how it works."}. ' +
+      '"curtain":"INTERNAL, never shown to anyone. One sentence naming the work that earns the headline: what was actually built so it is a fair thing to say. Only mechanisms the brief describes. Empty string if the brief does not say how it works."}. ' +
       /* Was "give exactly 3 blocks", and every piece came back with three.
          The My Echo piece (2026-07-31) showed the cost: three evenly sized
          grey boxes, the lowest-contrast thing on an otherwise strong design,
@@ -394,16 +407,19 @@ exports.handler = async (event) => {
       '\n\nPLATFORM RULES, write for ' + P.name + ':\n' + P.format +
       '\nCharacter limit: ' + P.charLimit + ' hard max, ' + P.ideal + ' target.\n\n' +
       'ANGLE (from the strategist, do not contradict it):\nPositioning: ' + (reid.positioning || '') + '\n\n' +
-      /* THE CAPTION IS WHERE THE PROOF GOES.
-         The graphic stops the scroll and makes the claim. The caption is the
-         only place with room to say what was built so the claim holds, and
-         that is the difference between this and the same sentence from a
-         competitor who has not built it. Dr. O: every AI product claims
-         memory, so the claim is free; the mechanism is not (2026-08-01). */
-      (reid.curtain
-        ? ('BEHIND THE CURTAIN, the work that makes the claim fair to make: ' + deDash(reid.curtain) +
-           '\nWork this into the caption in plain language, as the reason the claim holds up rather than as a spec sheet. It is what a reader who has heard this promise before needs in order to believe it this time. Do NOT add any mechanism beyond this sentence: never name a database, model, technique or architecture that is not in it.\n\n')
-        : '') +
+      /* THE CURTAIN IS NOT PUBLISHED. Corrected 2026-08-01, twice, and this
+         is the version that stands. Dr. O: "no, we do not share what is
+         behind the curtain, did you not watch wizard of oz?"
+
+         The whole point of the curtain is that it stays shut. It is why the
+         claim is fair to make, not a thing to say. Showing the machinery is
+         how the trick stops working, and a caption that explains the
+         database has turned an advert into documentation.
+
+         It stays internal, and it is not a wasted field: it is the check
+         that every claim on the piece was earned. Nothing here hands it to
+         the reader. */
+      'NEVER EXPLAIN THE MECHANISM. Do not describe how the product works internally, and never name a database, a model, a technique or an architecture. Say what it does for the reader. The engineering is the reason the claim is honest, not something the reader is shown.\n\n' +
       (brief.businessSite
         ? 'URL RULE, HARD: if you include a link use EXACTLY ' + brief.businessSite + ', character for character. Never invent or alter it.\n\n'
         : 'URL RULE, HARD: no link was supplied. Do NOT include any URL and do NOT guess one from the name.\n\n') +
