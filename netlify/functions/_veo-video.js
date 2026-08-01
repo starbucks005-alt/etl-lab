@@ -34,6 +34,24 @@ const https = require('https');
 const HOST = 'generativelanguage.googleapis.com';
 const MODEL_FAST = 'veo-3.1-fast-generate-preview';
 const MODEL_FULL = 'veo-3.1-generate-preview';
+/* Veo 3.1 Lite, 5 cents a second at 720p, half of Fast and an eighth of
+   standard. Found on Google's pricing page 2026-08-01 while checking the
+   per-second figure, and it changes the whole economics IF it takes an input
+   frame: 4 seconds becomes 20 cents rather than $1.60. Fast quietly does not
+   take one, so this is not assumed, it is tried and fallen back from. */
+const MODEL_LITE = 'veo-3.1-lite-generate-preview';
+
+const PER_SECOND = {                 // cents, 720p
+  [MODEL_LITE]: 5,
+  [MODEL_FAST]: 10,
+  [MODEL_FULL]: 40,
+};
+
+/* A model that will not do the job, as opposed to a real failure. Both look
+   like an HTTP 400, and only one of them is worth retrying on. */
+function isUnsupported(msg) {
+  return /isn't supported|is not supported|not found|unsupported|invalid.*model|does not exist/i.test(String(msg || ''));
+}
 
 /* Accepts the names a key is plausibly stored under, because the variable is
    set in the Netlify dashboard and this file cannot see it. Reports which one
@@ -100,8 +118,14 @@ async function start({ prompt, firstFrameB64, lastFrameB64, seconds, fast, aspec
      top of this file was written on the wrong number: an 8 second clip from
      a frame is $3.20, not 96 cents. Duration is where that gets managed, not
      the tier, because the tier is no longer a choice (2026-08-01). */
-  const needsImage = !!firstFrameB64;
-  const model = (needsImage || fast === false) ? MODEL_FULL : MODEL_FAST;
+  /* CHEAPEST FIRST, THEN FALL BACK.
+     Lite at 5 cents a second is the whole reason animation is affordable, and
+     Fast has already proved that a tier's price says nothing about whether it
+     accepts a frame. So try them in ascending cost and step up only on a
+     refusal, which costs nothing: an unsupported model is rejected before any
+     video is generated. Fast is skipped for image work, having already told
+     us it will not do it. */
+  const ladder = (fast === false) ? [MODEL_FULL] : [MODEL_LITE, MODEL_FULL];
   const instance = {
     prompt: String(prompt || '').slice(0, 2000),
     image: { inlineData: { mimeType: 'image/png', data: firstFrameB64 } },
@@ -110,17 +134,34 @@ async function start({ prompt, firstFrameB64, lastFrameB64, seconds, fast, aspec
   // one frame and invents the destination, which is the unreliable mode.
   if (lastFrameB64) instance.lastFrame = { inlineData: { mimeType: 'image/png', data: lastFrameB64 } };
 
-  const res = await request('POST', '/v1beta/models/' + model + ':predictLongRunning', {
-    instances: [instance],
-    parameters: {
-      durationSeconds: Math.min(8, Math.max(4, Number(seconds) || 8)),
-      aspectRatio: aspect || '16:9',
-      resolution: resolution || '1080p',
-      personGeneration: 'allow_adult',
-    },
-  });
-  if (!res.name) throw new Error('Veo did not return an operation name');
-  return { operation: res.name, model };
+  const secs = Math.min(8, Math.max(4, Number(seconds) || 8));
+  const parameters = {
+    durationSeconds: secs,
+    aspectRatio: aspect || '16:9',
+    resolution: resolution || '1080p',
+    personGeneration: 'allow_adult',
+  };
+
+  let lastErr = null;
+  for (const model of ladder) {
+    try {
+      const res = await request('POST', '/v1beta/models/' + model + ':predictLongRunning', {
+        instances: [instance], parameters,
+      });
+      if (!res.name) throw new Error('Veo did not return an operation name');
+      const cents = Math.round((PER_SECOND[model] || 40) * secs);
+      console.log('[veo] started on', model, '~' + cents + 'c for ' + secs + 's');
+      return { operation: res.name, model, cost_cents: cents };
+    } catch (e) {
+      lastErr = e;
+      // Only step up in price when the model genuinely will not do the job.
+      // A quota error or a bad payload must NOT silently escalate to the
+      // tier that costs eight times as much.
+      if (!isUnsupported(e && e.message)) throw e;
+      console.warn('[veo]', model, 'will not take this request, trying the next tier:', e && e.message);
+    }
+  }
+  throw lastErr || new Error('Veo: no model accepted the request');
 }
 
 /* Poll. Returns { done, uri, error }. The caller owns the waiting: this is

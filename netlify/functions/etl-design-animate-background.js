@@ -102,7 +102,10 @@ exports.handler = async (event) => {
        (2026-08-01). */
     const SECONDS = 4;
     const started = await veo.start({ prompt, firstFrameB64: frameA, lastFrameB64: frameB, seconds: SECONDS, resolution: '720p' });
-    await save({ operation: started.operation, model: started.model, cost_cents: veo.estimateCents(SECONDS, false, true) });
+    // The real cost comes back from start(), because which tier accepted the
+    // request is only known after it accepted it. An estimate made before the
+    // call would be a guess between 20 cents and $1.60.
+    await save({ operation: started.operation, model: started.model, cost_cents: started.cost_cents });
 
     const deadline = Date.now() + MAX_WAIT_MS;
     let uri = null;
