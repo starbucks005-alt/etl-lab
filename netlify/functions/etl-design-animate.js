@@ -45,6 +45,48 @@ exports.handler = async (event) => {
   } catch (e) {
     return json(500, { error: 'store_unavailable' });
   }
+  /* TWO FRAMES AND AN ACTION, WHICH WAS THE ASK ALL ALONG.
+     ─────────────────────────────────────────────────────────────────────
+     Dr. O: "Build the original ask - image 1 and image 2 and ETL generates
+     the animation video." Until now this endpoint could only animate a
+     finished ETL Design job, reading frame A off its stored plate and
+     generating frame B. That is a useful mode and it is not the one she
+     described, and it made her own material unusable: she had the two
+     frames already and there was nowhere to put them.
+
+     Supplying frames also SKIPS the generated frame B entirely, which is
+     both cheaper and more faithful. Her instinct was right: the moment the
+     two ends are her own files, nothing has to be invented, and the failure
+     mode where frame B quietly comes back with different clothes cannot
+     happen (2026-08-01).
+
+     Frames go in via the store, never through the invoke: a background
+     function is an async Lambda call and those cap at 256KB, which is how
+     an upload silently killed a whole job earlier today. */
+  const frameAIn = String(body.frame_a || '');
+  const frameBIn = String(body.frame_b || '');
+  const IMG_RE = /^data:image\/(png|jpeg|jpg|webp);base64,/;
+
+  if (!job && frameAIn) {
+    if (!IMG_RE.test(frameAIn)) return json(400, { error: 'bad_frame_a', message: 'frame_a must be an inline image data URL.' });
+    if (frameBIn && !IMG_RE.test(frameBIn)) return json(400, { error: 'bad_frame_b', message: 'frame_b must be an inline image data URL.' });
+    try {
+      await store.set(jobId + '-frame-a', frameAIn, { metadata: { contentType: 'text/plain' } });
+      if (frameBIn) await store.set(jobId + '-frame-b', frameBIn, { metadata: { contentType: 'text/plain' } });
+      job = {
+        job_id: jobId,
+        status: 'done',
+        kind: 'animation_only',
+        created_at: new Date().toISOString(),
+        result: { frame_a_key: jobId + '-frame-a', frame_b_key: frameBIn ? (jobId + '-frame-b') : null },
+      };
+      await store.setJSON(jobId, job);
+    } catch (e) {
+      console.error('[etl-design-animate] could not store supplied frames', e && e.message);
+      return json(500, { error: 'frames_not_stored' });
+    }
+  }
+
   if (!job) return json(404, { error: 'not_found' });
 
   /* Progress. */
@@ -76,8 +118,8 @@ exports.handler = async (event) => {
   if (job.animation && job.animation.status === 'ready') {
     return json(200, { ok: true, status: 'ready', video_url: '/.netlify/functions/etl-design-video?job_id=' + encodeURIComponent(jobId) });
   }
-  if (!(job.result && (job.result.plate_key))) {
-    return json(409, { error: 'no_plate', message: 'This piece was made before the artwork was kept separately, so there is nothing to animate. Run a new brief.' });
+  if (!(job.result && (job.result.plate_key || job.result.frame_a_key))) {
+    return json(409, { error: 'no_plate', message: 'This piece was made before the artwork was kept separately, so there is nothing to animate. Run a new brief, or post frame_a and frame_b directly.' });
   }
 
   const action = String(body.action || '').trim().slice(0, 600);

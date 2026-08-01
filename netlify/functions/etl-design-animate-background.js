@@ -5,21 +5,29 @@
    hand: two stills of the same room, one holding a mug and one holding a
    book, plus a sentence for the movement between them.
 
-   THE PIPELINE
-     1. Frame A is Chris's artwork, already generated and stored with the job.
-     2. Frame B is an EDIT of frame A, so the room and the person survive.
-        A fresh generation would give a different room, which is what makes a
+   TWO WAYS IN
+     A. The client supplies both frames. Nothing is invented and this is the
+        mode she described. It is also the only one immune to the failure she
+        spotted immediately in a hand-made pair: "they have on different
+        clothes." Two files of the same people in the same clothes cannot
+        drift, because neither end was reconstructed.
+     B. A finished ETL Design job. Frame A is Chris's stored artwork and
+        frame B is an EDIT of it, so the room and the people survive. A fresh
+        generation would give a different room, which is exactly what makes a
         two-frame animation fall apart.
-     3. Veo 3.1 Fast interpolates between them, guided by the action line.
+
+   Then Veo interpolates between the ends, guided by the action line.
 
    WHY THIS IS A BACKGROUND FUNCTION. Veo takes 11 seconds to 6 minutes. A
    synchronous handler dies at 10. The page polls the job the same way it
    already polls a brief.
 
-   COST. Veo 3.1 Fast at 1080p is 12 cents a second, so 8 seconds is 96
-   cents, plus a few cents for the frame B edit. That is why animation is an
-   ADD-ON and not part of the $4.90 piece: bundling it would take a twelve
-   cent product to well over a dollar and gut the margin.
+   COST, corrected 2026-08-01 after the first live call. Veo Fast is 12 cents
+   a second and REFUSES an input frame, so image-to-video cannot use it. The
+   ladder in _veo-video.js tries Lite at 5 cents a second first and falls back
+   to standard at 40. A 4 second clip is therefore 20 cents at best and $1.60
+   at worst, which is why animation is an ADD-ON and not part of the $4.90
+   piece, and why the default is 4 seconds at 720p.
 */
 
 const { getStore, connectLambda } = require('@netlify/blobs');
@@ -57,33 +65,66 @@ exports.handler = async (event) => {
   try {
     /* FRAME A. Stored during the brief precisely so this is possible without
        paying to draw the scene twice. */
-    const plateKey = (job.result && job.result.plate_key) || (jobId + '-plate.png');
-    let frameA;
-    try {
-      const buf = await store.get(plateKey, { type: 'arrayBuffer' });
-      frameA = Buffer.from(buf).toString('base64');
-    } catch (_) { frameA = null; }
+    /* SUPPLIED FRAMES WIN. When the client hands over both ends there is
+       nothing to invent, which is cheaper and strictly more faithful: the
+       room, the people and the clothes are theirs in both frames rather than
+       reconstructed in one of them (2026-08-01). */
+    const res0 = job.result || {};
+    let frameA = null, frameB = null, framesSupplied = false;
+
+    const readDataUrl = async (key) => {
+      const txt = await store.get(key, { type: 'text' });
+      const m = /^data:image\/[a-z+]+;base64,(.+)$/i.exec(String(txt || ''));
+      return m ? m[1] : null;
+    };
+
+    if (res0.frame_a_key) {
+      try {
+        frameA = await readDataUrl(res0.frame_a_key);
+        if (res0.frame_b_key) frameB = await readDataUrl(res0.frame_b_key);
+        framesSupplied = !!frameA;
+      } catch (e) {
+        console.error('[etl-design-animate] supplied frames unreadable', e && e.message);
+      }
+    }
+
+    const plateKey = res0.plate_key || (jobId + '-plate.png');
+    if (!frameA) {
+      try {
+        const buf = await store.get(plateKey, { type: 'arrayBuffer' });
+        frameA = Buffer.from(buf).toString('base64');
+      } catch (_) { frameA = null; }
+    }
     if (!frameA) {
       await save({ status: 'error', error: 'this piece has no stored artwork to animate; run a new brief' });
       return { statusCode: 200, body: 'no plate' };
     }
 
-    /* FRAME B. An edit, not a generation. The prompt says what to change and,
-       just as importantly, what to leave alone. */
-    await save({ status: 'running', step: 'frame_b', note: 'Chris is drawing the second frame.' });
-    const editPrompt =
-      'Keep this exact scene, the same room, the same lighting, the same people, the same framing and the same style. ' +
-      'Change only this: ' + (action || 'the subject completes the action they had begun, a moment later in time') + '. ' +
-      'This is the SECOND frame of a two frame animation and the first frame is the image supplied, so everything ' +
-      'other than the described change must match it precisely.';
-    let frameB = null;
-    try {
-      frameB = await gem.edit(frameA, editPrompt, 'image/png');
-    } catch (e) {
-      // Survivable: Veo will animate from one frame, it is just less
-      // controlled. Recorded so the client is told which mode ran.
-      console.warn('[etl-design-animate] frame B failed, single-frame fallback', e && e.message);
-      await save({ frame_b_error: String(e && e.message).slice(0, 200) });
+    /* FRAME B. An edit, not a generation, and ONLY when the client did not
+       supply one. A supplied second frame is the client's own file: editing
+       or regenerating over the top of it would throw away the exact thing
+       that makes it trustworthy, and it is what she asked for in the first
+       place (2026-08-01). */
+    if (frameB) {
+      await save({ status: 'running', step: 'frames', note: 'Using both of your frames.', frames: 2 });
+    } else {
+      await save({ status: 'running', step: 'frame_b', note: 'Chris is drawing the second frame.' });
+      const editPrompt =
+        'Keep this exact scene, the same room, the same lighting, the same people, the same framing and the same style. ' +
+        'Change only this: ' + (action || 'the subject completes the action they had begun, a moment later in time') + '. ' +
+        'This is the SECOND frame of a two frame animation and the first frame is the image supplied, so everything ' +
+        'other than the described change must match it precisely.';
+      try {
+        // NOT `let frameB` here. Re-declaring shadows the outer binding, so a
+        // successfully generated frame would be dropped on leaving this block
+        // and every job would silently render single-frame.
+        frameB = await gem.edit(frameA, editPrompt, 'image/png');
+      } catch (e) {
+        // Survivable: Veo will animate from one frame, it is just less
+        // controlled. Recorded so the client is told which mode ran.
+        console.warn('[etl-design-animate] frame B failed, single-frame fallback', e && e.message);
+        await save({ frame_b_error: String(e && e.message).slice(0, 200) });
+      }
     }
     if (frameB) {
       try { await store.set(jobId + '-plate-b.png', Buffer.from(frameB, 'base64'), { metadata: { contentType: 'image/png' } }); }
