@@ -126,13 +126,25 @@ async function start({ prompt, firstFrameB64, lastFrameB64, seconds, fast, aspec
      video is generated. Fast is skipped for image work, having already told
      us it will not do it. */
   const ladder = (fast === false) ? [MODEL_FULL] : [MODEL_LITE, MODEL_FULL];
-  const instance = {
-    prompt: String(prompt || '').slice(0, 2000),
-    image: { inlineData: { mimeType: 'image/png', data: firstFrameB64 } },
-  };
-  // The second half of Dr. O's ask. Optional: without it Veo animates from
-  // one frame and invents the destination, which is the unreliable mode.
-  if (lastFrameB64) instance.lastFrame = { inlineData: { mimeType: 'image/png', data: lastFrameB64 } };
+
+  /* THE IMAGE FIELD NAME, TRIED RATHER THAN ASSUMED.
+     ─────────────────────────────────────────────────────────────────────
+     Two live runs came back with "`inlineData` isn't supported by this
+     model", first on Fast and then on BOTH Lite and standard. Three models
+     refusing the same key means the key is wrong, not the model, and my
+     first diagnosis (that Fast could not take a frame) was wrong.
+
+     predictLongRunning is a predict-family endpoint, and those carry image
+     bytes under their own names rather than the generateContent-style
+     inlineData. Rather than guess a fourth time, try the candidates in
+     order. A rejected request costs NOTHING, because it is refused before
+     any video is generated, so this is free to get wrong and expensive only
+     to keep guessing about (2026-08-01). */
+  const SHAPES = [
+    { name: 'imageBytes',          wrap: (b) => ({ imageBytes: b, mimeType: 'image/png' }) },
+    { name: 'bytesBase64Encoded',  wrap: (b) => ({ bytesBase64Encoded: b, mimeType: 'image/png' }) },
+    { name: 'inlineData',          wrap: (b) => ({ inlineData: { mimeType: 'image/png', data: b } }) },
+  ];
 
   const secs = Math.min(8, Math.max(4, Number(seconds) || 8));
   const parameters = {
@@ -143,25 +155,44 @@ async function start({ prompt, firstFrameB64, lastFrameB64, seconds, fast, aspec
   };
 
   let lastErr = null;
-  for (const model of ladder) {
-    try {
-      const res = await request('POST', '/v1beta/models/' + model + ':predictLongRunning', {
-        instances: [instance], parameters,
-      });
-      if (!res.name) throw new Error('Veo did not return an operation name');
-      const cents = Math.round((PER_SECOND[model] || 40) * secs);
-      console.log('[veo] started on', model, '~' + cents + 'c for ' + secs + 's');
-      return { operation: res.name, model, cost_cents: cents };
-    } catch (e) {
-      lastErr = e;
-      // Only step up in price when the model genuinely will not do the job.
-      // A quota error or a bad payload must NOT silently escalate to the
-      // tier that costs eight times as much.
-      if (!isUnsupported(e && e.message)) throw e;
-      console.warn('[veo]', model, 'will not take this request, trying the next tier:', e && e.message);
+  const tried = [];
+  /* Shape is the OUTER loop and model the inner one, deliberately. The wrong
+     field name is refused by every tier, so iterating models first would burn
+     through the ladder three times over on a fault that has nothing to do
+     with the model, and could land on the expensive tier for the wrong
+     reason. */
+  for (const shape of SHAPES) {
+    const instance = {
+      prompt: String(prompt || '').slice(0, 2000),
+      image: shape.wrap(firstFrameB64),
+    };
+    // The second half of Dr. O's ask. Optional: without it Veo animates from
+    // one frame and invents the destination, which is the unreliable mode.
+    if (lastFrameB64) instance.lastFrame = shape.wrap(lastFrameB64);
+
+    for (const model of ladder) {
+      try {
+        const res = await request('POST', '/v1beta/models/' + model + ':predictLongRunning', {
+          instances: [instance], parameters,
+        });
+        if (!res.name) throw new Error('Veo did not return an operation name');
+        const cents = Math.round((PER_SECOND[model] || 40) * secs);
+        console.log('[veo] started on', model, 'via', shape.name, '~' + cents + 'c for ' + secs + 's');
+        return { operation: res.name, model, image_field: shape.name, cost_cents: cents };
+      } catch (e) {
+        lastErr = e;
+        tried.push(model + '/' + shape.name + ': ' + (e && e.message));
+        /* Only keep going when the API is telling us this combination is not
+           supported. A quota error, an auth failure or a malformed payload
+           must NOT silently escalate to the tier that costs eight times as
+           much, nor churn through every shape. */
+        if (!isUnsupported(e && e.message)) throw e;
+      }
     }
   }
-  throw lastErr || new Error('Veo: no model accepted the request');
+  const err = new Error('Veo refused every model and image field. Tried: ' + tried.join(' | '));
+  err.tried = tried;
+  throw lastErr && !tried.length ? lastErr : err;
 }
 
 /* Poll. Returns { done, uri, error }. The caller owns the waiting: this is

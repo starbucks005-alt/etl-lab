@@ -146,7 +146,7 @@ exports.handler = async (event) => {
     // The real cost comes back from start(), because which tier accepted the
     // request is only known after it accepted it. An estimate made before the
     // call would be a guess between 20 cents and $1.60.
-    await save({ operation: started.operation, model: started.model, cost_cents: started.cost_cents });
+    await save({ operation: started.operation, model: started.model, image_field: started.image_field, cost_cents: started.cost_cents });
 
     const deadline = Date.now() + MAX_WAIT_MS;
     let uri = null;
