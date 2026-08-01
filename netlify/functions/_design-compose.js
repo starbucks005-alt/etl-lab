@@ -26,6 +26,13 @@ function hardRules(canvas) {
     '9. TEXT MUST FIT THE PANEL IT SITS ON. Size each panel to its text with real padding on both sides. A line that overruns its own panel onto the background, or into the block beside it, is the most visible defect this piece can have.',
     '10. THE NAME AND THE URL ARE THE RESPONSE MECHANISM. They must be the highest contrast small text on the piece: the lightest palette colour on the darkest, or the reverse. Never on artwork, never on a rule, never on a band edge, never in a colour close to what is behind them.',
     '11. Leave a clear margin between the last content block and the footer. Do not fill that band with decoration.',
+    /* Rule 11 says leave a margin and says nothing about how big, so a piece
+       came back with its blocks clustered in the top two thirds and a third
+       of the canvas empty underneath. Dr. O: "to much space in the 3 boxes
+       area". Empty field is a legitimate device, which is why the editorial
+       archetype asks for it, but it has to be composed rather than left over
+       (2026-08-01). */
+    '11b. EMPTY SPACE IS EITHER COMPOSED OR IT IS A MISTAKE. Never leave a gap taller than a fifth of the canvas between the last content block and the footer margin. If the words do not fill the space, make them larger or open the spacing between them until the composition sits across the whole canvas. Never solve it by adding decoration, and never solve it by cramming everything into the top and abandoning the bottom.',
     (canvas && canvas.kind === 'print'
       ? '12. THIS IS PRINT. Anything meant to reach the edge must bleed to the artboard edge, and NOTHING readable may sit within ' + canvas.safe + ' units of any edge, or it will be trimmed off.'
       : '12. Keep important elements clear of the outer 40 units so nothing is cropped by a feed.'),
@@ -126,6 +133,20 @@ function composeSystem({ canvas, paletteText, fonts, hasArt, archetype }) {
        offered ONLY when there is no picture to throw away. */
     pickArchetype(archetype, hasArt).brief,
     hasArt ? 'The artwork is a real generation and it is the strongest element you have. Show it at full strength inside the region above. There is no version of this piece that discards it.' : '',
+    /* YUKI IS THE ONLY ONE HOLDING EVERY PART.
+       ─────────────────────────────────────────────────────────────────────
+       Reid writes the words without seeing the picture. Chris draws without
+       seeing the layout. Each station does its own slice well and nobody was
+       ever asked whether the finished thing hangs together, which is exactly
+       the gap Dr. O found by looking at one piece and asking whether the
+       promise and the picture agreed. They did not.
+
+       She composes last and has the words and the artwork in front of her at
+       once, so the question belongs to her. Deliberately NOT a licence to
+       rewrite: she can drop a block and she can change the emphasis, and
+       everything else is a note back to the client (2026-08-01). */
+    '',
+    'BEFORE YOU EMIT, READ THE PIECE AS A STRANGER WOULD. Do the words and the picture want the same thing? A warm promise over a cold picture, or a hard-edged line over a comfortable one, reads as two pieces stapled together, and it will lose a viewer faster than any typographic fault. If they disagree, close the gap with what you control: the palette, the type, the weight, the amount of air, which block leads and which one you drop. Never redraw the artwork and never rewrite the copy.',
     '',
     hardRules(canvas),
   ].join('\n');

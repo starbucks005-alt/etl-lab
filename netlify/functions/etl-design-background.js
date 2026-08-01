@@ -396,6 +396,17 @@ exports.handler = async (event) => {
       'BUSINESS: ' + co +
       '\nWHAT THEY ARE PROMOTING: ' + brief.promoting +
       '\nAUDIENCE: ' + (brief.audience || 'not specified') +
+      /* THE LOOK IS DECIDED BEFORE THE WORDS EXIST, so Reid has to know it.
+         Yuki sets the register at step 1 and Reid writes at step 2, and with
+         the chips on the form a client now locks it before a single word is
+         written. Left unaware, Reid writes a promise that fights the world it
+         will be printed in, which is the same mismatch from the other side:
+         "if you lead with 'rehearse the conversation' you want warmth"
+         (2026-08-01). */
+      (LOOKS[brief.look]
+        ? ('\n\nTHE CLIENT HAS ALREADY FIXED THE LOOK OF THIS PIECE, AND YOU CANNOT CHANGE IT:\n' + LOOKS[brief.look] +
+           '\nWrite a promise that belongs in that world. The words and the picture have to want the same thing, so do not offer warmth, comfort or reassurance inside a cold register, and do not write something clipped and clinical inside a warm one. If the strongest angle genuinely fights the look, find the second strongest that does not.')
+        : '') +
       '\n\nFind the angle and write the graphic.', 1400));
     await save({ step: 2, note: 'Zara is writing the caption.', result: Object.assign(state.result, { angle: reid }) });
 
@@ -512,6 +523,24 @@ exports.handler = async (event) => {
       const artPrompt = [
         'Editorial marketing artwork for ' + co + '. Subject: ' + brief.promoting + '.',
         'Mood: ' + (yuki.look || '') + '.',
+        /* CHRIS COULD NOT SEE THE HEADLINE. Found 2026-08-01 by stripping the
+           comments out of this prompt and searching it: nothing from Reid
+           reached here at all. He was handed the raw brief, Yuki's mood line
+           and the palette, and asked to illustrate a sentence he had never
+           been shown.
+
+           The cost was exactly what you would predict. A piece promising
+           "Rehearse the conversation before it counts" came back as a cold,
+           still, silent room. Dr. O: "if you lead with 'rehearse the
+           conversation' you want warmth. The other image worked because of
+           the text." The picture was not wrong on its own, it was wrong
+           against words it had never seen. An assembly line where one
+           station cannot see the part the last one made. */
+        ((reid.card && reid.card.headline)
+          ? ('THE PIECE WILL CARRY THIS HEADLINE, SET IN LARGE TYPE BESIDE YOUR IMAGE: "' + deDash(reid.card.headline) + '"' +
+             (reid.card.subhead ? ' And underneath it: "' + deDash(reid.card.subhead) + '"' : '') +
+             ' YOUR PICTURE MUST MAKE THAT PROMISE FEEL TRUE. Read what those words offer a reader and give them the world it happens in. A warm promise needs a warm room; a cold promise needs a cold one. A picture that contradicts the headline kills the piece even when it is a good picture, and it is the single most common way this goes wrong. Do not depict the headline literally and never put those words in the image.')
+          : ''),
         'Use this colour palette and nothing else: ' + paletteText + '.',
         /* DRAW THE IDEA, NOT THE NOUNS. Chris was handed the promoting line
            and illustrated it literally. On a My Echo brief mentioning
