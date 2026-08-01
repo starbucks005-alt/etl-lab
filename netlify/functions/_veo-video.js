@@ -151,11 +151,28 @@ async function start({ prompt, firstFrameB64, lastFrameB64, seconds, fast, aspec
      order. A rejected request costs NOTHING, because it is refused before
      any video is generated, so this is free to get wrong and expensive only
      to keep guessing about (2026-08-01). */
+  /* THE FIELD IS bytesBase64Encoded, AND THE ERRORS PROVED IT.
+     Running all three against both tiers gave two distinct messages, and the
+     difference is the whole answer:
+       imageBytes   -> "`imageBytes` isn't supported by this model"
+       inlineData   -> "`inlineData` isn't supported by this model"
+       bytesBase64Encoded -> "Your use case is currently not supported"
+     The first two are rejected at the FIELD. The third got past parsing and
+     was refused on what we asked for, which means the key is right and
+     something about the request is not offered.
+
+     The likeliest candidate is lastFrame, so the ladder now varies the
+     REQUEST as well as the field: both ends first, because that is what Dr.
+     O asked for, then first frame only. Still free to be wrong, since a
+     refusal never generates (2026-08-01). */
   const SHAPES = [
-    { name: 'imageBytes',          wrap: (b) => ({ imageBytes: b, mimeType: 'image/png' }) },
     { name: 'bytesBase64Encoded',  wrap: (b) => ({ bytesBase64Encoded: b, mimeType: 'image/png' }) },
+    { name: 'imageBytes',          wrap: (b) => ({ imageBytes: b, mimeType: 'image/png' }) },
     { name: 'inlineData',          wrap: (b) => ({ inlineData: { mimeType: 'image/png', data: b } }) },
   ];
+  // Both ends is the goal. First frame only is the fallback that tells us
+  // whether lastFrame is the unsupported part.
+  const VARIANTS = lastFrameB64 ? ['both', 'first-only'] : ['first-only'];
 
   const secs = Math.min(8, Math.max(4, Number(seconds) || 8));
   const parameters = {
@@ -173,13 +190,16 @@ async function start({ prompt, firstFrameB64, lastFrameB64, seconds, fast, aspec
      with the model, and could land on the expensive tier for the wrong
      reason. */
   for (const shape of SHAPES) {
+   for (const variant of VARIANTS) {
     const instance = {
       prompt: String(prompt || '').slice(0, 2000),
       image: shape.wrap(firstFrameB64),
     };
-    // The second half of Dr. O's ask. Optional: without it Veo animates from
-    // one frame and invents the destination, which is the unreliable mode.
-    if (lastFrameB64) instance.lastFrame = shape.wrap(lastFrameB64);
+    // The second half of Dr. O's ask. Dropped in the 'first-only' variant so
+    // we can tell whether lastFrame is the thing being refused; without it
+    // Veo animates from one frame and invents the destination, which is the
+    // unreliable mode and the reason it is tried second.
+    if (lastFrameB64 && variant === 'both') instance.lastFrame = shape.wrap(lastFrameB64);
 
     for (const model of ladder) {
       try {
@@ -188,11 +208,11 @@ async function start({ prompt, firstFrameB64, lastFrameB64, seconds, fast, aspec
         });
         if (!res.name) throw new Error('Veo did not return an operation name');
         const cents = Math.round((PER_SECOND[model] || 40) * secs);
-        console.log('[veo] started on', model, 'via', shape.name, '~' + cents + 'c for ' + secs + 's');
-        return { operation: res.name, model, image_field: shape.name, cost_cents: cents };
+        console.log('[veo] started on', model, 'via', shape.name, variant, '~' + cents + 'c for ' + secs + 's');
+        return { operation: res.name, model, image_field: shape.name, frames_used: variant === 'both' ? 2 : 1, cost_cents: cents };
       } catch (e) {
         lastErr = e;
-        tried.push(model + '/' + shape.name + ': ' + (e && e.message));
+        tried.push(model + '/' + shape.name + '/' + variant + ': ' + (e && e.message));
         /* Only keep going when the API is telling us this combination is not
            supported. A quota error, an auth failure or a malformed payload
            must NOT silently escalate to the tier that costs eight times as
@@ -200,6 +220,7 @@ async function start({ prompt, firstFrameB64, lastFrameB64, seconds, fast, aspec
         if (!isUnsupported(e && e.message)) throw e;
       }
     }
+   }
   }
   const err = new Error('Veo refused every model and image field. Tried: ' + tried.join(' | '));
   err.tried = tried;
