@@ -307,8 +307,25 @@ async function renderOverlay(svg, canvasKey) {
       return hit ? parseFloat(hit[1]) : NaN;
     };
     const w = num('width'), h = num('height');
-    const isBackdrop = isFinite(w) && isFinite(h) && w >= c.w * 0.98 && h >= c.h * 0.98;
-    return isBackdrop ? '' : whole;
+    if (!isFinite(w) || !isFinite(h)) return whole;
+
+    /* GROUND, NOT PANEL.
+       ─────────────────────────────────────────────────────────────────────
+       The test used to be "as wide AND as tall as the artboard", which only
+       catches a single full-canvas rect. The vertical-split layout paints its
+       ground as TWO full-height panels either side of a divider, 528 and 672
+       wide on a 1200 canvas, and neither is 98% wide. Both survived, and the
+       overlay came back 0% transparent: laid over a video it would hide the
+       video completely.
+
+       The honest test is full-bleed on EITHER axis AND large. That removes a
+       backdrop and the halves of a split, while keeping the things that are
+       genuinely part of the type block: the 4px divider (full height but
+       0.3% of the canvas) and the accent band behind a headline (large but
+       full-bleed on neither axis) (2026-08-01). */
+    const fullBleed = w >= c.w * 0.98 || h >= c.h * 0.98;
+    const big = (w * h) >= (c.w * c.h) * 0.25;
+    return (fullBleed && big) ? '' : whole;
   });
 
   return sharp(Buffer.from(out), { density: 72 })

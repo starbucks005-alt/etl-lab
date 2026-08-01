@@ -541,10 +541,24 @@ exports.handler = async (event) => {
            the text." The picture was not wrong on its own, it was wrong
            against words it had never seen. An assembly line where one
            station cannot see the part the last one made. */
-        ((reid.card && reid.card.headline)
-          ? ('THE PIECE WILL CARRY THIS HEADLINE, SET IN LARGE TYPE BESIDE YOUR IMAGE: "' + deDash(reid.card.headline) + '"' +
-             (reid.card.subhead ? ' And underneath it: "' + deDash(reid.card.subhead) + '"' : '') +
-             ' YOUR PICTURE MUST MAKE THAT PROMISE FEEL TRUE. Read what those words offer a reader and give them the world it happens in. A warm promise needs a warm room; a cold promise needs a cold one. A picture that contradicts the headline kills the piece even when it is a good picture, and it is the single most common way this goes wrong. Do not depict the headline literally and never put those words in the image.')
+        /* HE IS TOLD THE PROMISE, NEVER THE WORDS.
+           ─────────────────────────────────────────────────────────────────
+           This block used to quote the headline and subhead so the picture
+           would match what the piece says. It matched it by TYPING it: the
+           next piece came back with "They have no idea what you are doing"
+           set enormous across the artwork and clipped at the edge, which is
+           the one thing his rules absolutely forbid.
+
+           The history here is clear enough to design around. Banning text
+           produced illegible pseudo-script. Banning it harder produced a
+           fabricated app interface. Handing him the text produced the text.
+           An instruction cannot fix this, so he simply never receives the
+           strings: Reid's positioning is a prose sentence about what the
+           business offers, not display copy, and it carries the promise
+           without carrying anything to set (2026-08-01). */
+        (reid.positioning
+          ? ('WHAT THE WORDS ON THIS PIECE PROMISE THE READER: ' + deDash(reid.positioning) +
+             ' YOUR PICTURE MUST MAKE THAT PROMISE FEEL TRUE. Give the reader the world in which it happens. A warm promise needs a warm room, a cold promise needs a cold one, and a picture that contradicts the promise kills the piece even when it is a good picture. The actual headline is set in type BESIDE your image by someone else, you will never see it, and your image must contain no writing whatsoever.')
           : ''),
         'Use this colour palette and nothing else: ' + paletteText + '.',
         /* DRAW THE IDEA, NOT THE NOUNS. Chris was handed the promoting line
