@@ -178,7 +178,20 @@ exports.handler = async (event) => {
   };
   const P = PLATFORMS[brief.platform];
   const co = brief.businessName || 'this business';
-  let concept = imageBlock(body.concept_image);
+  /* The upload arrives as a STORE KEY, not inline. An async Lambda invoke
+     caps at 256KB and a downscaled photograph is past that, so passing the
+     data URL through the invoke silently dropped the whole job: the caller
+     got a job id and a 200 and the job never existed (2026-08-01). Inline
+     is still accepted so a direct caller keeps working. */
+  let conceptImage = String(body.concept_image || '');
+  if (!conceptImage && body.concept_key) {
+    try {
+      conceptImage = (await store.get(String(body.concept_key), { type: 'text' })) || '';
+    } catch (e) {
+      console.error('[etl-design] concept image could not be read back', e && e.message);
+    }
+  }
+  let concept = imageBlock(conceptImage);
   const uploadedConcept = !!concept;
 
   const state = {
@@ -401,9 +414,9 @@ exports.handler = async (event) => {
        card (2026-07-31). */
     let artPhoto = null;
     if (uploadedConcept) {
-      const upBuf = designPlate.bufferFromDataUrl(body.concept_image);
+      const upBuf = designPlate.bufferFromDataUrl(conceptImage);
       if (upBuf && await designPlate.looksLikePhotograph(upBuf)) {
-        artPhoto = { data_url: body.concept_image, url: 'client upload', width: 0, height: 0 };
+        artPhoto = { data_url: conceptImage, url: 'client upload', width: 0, height: 0 };
       }
     }
     if (!artPhoto) artPhoto = designPlate.chooseArtPhoto(brandRefs);

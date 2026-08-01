@@ -12,6 +12,7 @@
 */
 
 const credits = require('./_design-credits.js');
+const { getStore, connectLambda } = require('@netlify/blobs');
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -92,6 +93,31 @@ exports.handler = async (event) => {
   const base = process.env.URL || (host ? proto + '://' + host : '');
   if (!base) return json(500, { error: 'no_base_url' });
 
+  /* THE IMAGE GOES VIA THE STORE, NOT THROUGH THE INVOKE.
+     ─────────────────────────────────────────────────────────────────────
+     A background function is an ASYNCHRONOUS Lambda invocation, and those
+     cap at 256KB of payload. A downscaled photograph is comfortably past
+     that, so the invoke was being dropped before the relay ever ran: the
+     caller got a job id and a 200, and the job then did not exist. Silent,
+     and indistinguishable from the relay crashing.
+
+     So the upload is written to the job store here and the invoke carries
+     only a key. The relay reads it back (2026-08-01). */
+  let conceptKey = null;
+  if (conceptImage) {
+    try {
+      connectLambda(event);
+      const store = getStore('etl_design_jobs');
+      await store.set(jobId + '-concept', conceptImage, { metadata: { contentType: 'text/plain' } });
+      conceptKey = jobId + '-concept';
+    } catch (e) {
+      // Survivable: the brief runs without a concept image, which is the
+      // normal path for most clients anyway.
+      console.error('[etl-design-ask] concept image not stored, continuing without it:', e && e.message);
+      conceptKey = null;
+    }
+  }
+
   try {
     const r = await fetch(base + '/.netlify/functions/etl-design-background', {
       method: 'POST',
@@ -106,7 +132,7 @@ exports.handler = async (event) => {
         // The assigned visual register, when the brief carries one. Blank
         // leaves Yuki to choose, which is the old behaviour.
         look:          String(body.look || '').trim().slice(0, 60),
-        concept_image: conceptImage,
+        concept_key:   conceptKey,
       }),
     });
     console.log('[etl-design-ask] background invoke status', r.status, 'job', jobId);
