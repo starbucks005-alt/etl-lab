@@ -332,32 +332,40 @@ exports.handler = async (event) => {
          "NOBODY AT THIS TABLE IS HUMAN is not new to anyone. We are very
          used to talking to nonhumans. This is not a scroll stopper."
 
-         Her own structure, in her words, is two beats. The FRONT SELL is a
-         small checkable chore removed: "M.E. can tell the difference between
-         personal and private information, so I don't have to sort it." The
-         CURTAIN is what has to be true for that to work: "it was put into
-         the code not to be a binary decision tree." Nothing is checking a
-         list. It decides, about you, every time.
+         Her own structure, in her words, is two beats, and the second one is
+         ENGINEERING, not atmosphere. Corrected 2026-08-01 after I built it
+         as the unsettling implication and she said plainly: "the curtain is
+         the work we do behind the scenes so we can make those plausible
+         claims. 'Our agents have memory and emotion, they will remember you'
+         are the claims. Behind the curtain Supabase stores data that makes
+         it possible."
 
-         That is the White Christmas cookie exactly. Nobody in the episode is
-         sold on sentience, they are sold on a smart home, and the horror is
-         what is running the toast. The front sell is why you buy it, the
-         curtain is why you cannot stop thinking about it.
+         FRONT SELL is the claim, in the reader's language: "M.E. can tell
+         the difference between personal and private information, so I don't
+         have to sort it." CURTAIN is what was actually built so that claim
+         holds: "it was put into the code not to be a binary decision tree."
 
-         THE CURTAIN IS A QUESTION, NEVER A CLAIM. Dr. O's beta tester, 67,
-         catches herself saying "I wonder if [agent] is thinking this." That
-         reaction is real and documented and it is the product working.
-         Asserting that a product feels, knows or suffers is an overreach
-         that cannot be supported and would make this look like every other
-         AI pitch. Invite the question, do not answer it (2026-08-01). */
+         Why it matters commercially. Every AI product on the market claims
+         memory, and Dr. O has already rejected a hook on those grounds:
+         "many AI products out there remember you, ai relationship apps." A
+         claim is free and anyone can print it. The mechanism is not, and a
+         competitor who has not built it cannot bluff it. The curtain is what
+         turns a claim into a proof.
+
+         THE CURTAIN IS ONLY EVER WHAT THE BRIEF SAYS WAS BUILT. Inventing an
+         architecture is inventing a fact, which is the same defect as
+         inventing a statistic, and worse here because it is checkable. If
+         the brief does not describe the mechanism, there is no curtain and
+         the field comes back empty. */
       '\n\nWRITE TWO BEATS, NOT A SLOGAN.\n' +
-      'BEAT ONE, THE FRONT SELL: one small, concrete, checkable thing this does FOR the reader. A chore removed, an outcome they can picture by tomorrow. Plain and unembarrassed. Never a capability boast and never an adjective about how advanced it is. This is your headline and subhead.\n' +
-      'BEAT TWO, THE CURTAIN: what has to be TRUE for beat one to work. Not a bigger claim, an implication. The reader should arrive at it themselves a second after reading beat one, and find it slightly harder to put down than they expected.\n' +
-      'THE CURTAIN IS ALWAYS A QUESTION THE READER ASKS, NEVER A CLAIM YOU MAKE. Never assert that the product thinks, feels, knows, cares, understands or is aware. Say what it DOES and let the reader draw the conclusion. An asserted claim about an inner life is unsupportable and reads as hype; the same idea arrived at by the reader is the entire effect. ' +
+      'BEAT ONE, THE FRONT SELL: the claim, in the reader\'s own language. One small, concrete, checkable thing this does FOR them. A chore removed, an outcome they can picture by tomorrow. Plain and unembarrassed, never a capability boast and never an adjective about how advanced it is. This is your headline and subhead.\n' +
+      'BEAT TWO, THE CURTAIN: the WORK BEHIND THE CLAIM. What was actually built so that beat one is a fair thing to say. The engineering, the deliberate design decision, the thing that had to exist. This is what separates the claim from the same sentence printed by a competitor who has not built it.\n' +
+      'ONLY FROM THE BRIEF, NEVER INVENTED. Name only mechanisms the brief actually describes. Do not name a database, a model, a technique or an architecture that is not in front of you. Inventing how something works is inventing a fact, it is checkable, and it is worse than inventing a statistic. If the brief does not say how it works, return an empty curtain and lose nothing.\n' +
+      'STATE WHAT IS BUILT, NOT WHAT IT FEELS. Never assert that the product thinks, feels, knows, cares or is aware. Say what was made and what it does. ' +
       '\n\nYou are also writing the words that will be SET IN TYPE on a single marketing graphic, so they must be short enough to read at a glance. Return ONLY JSON: ' +
       '{"positioning":"one sentence, the clear reason to pick them","hook":"the single sharpest line to lead with","proof_points":["2 to 3 short concrete points, drawn only from the brief"],' +
       '"card":{"headline":"6 to 9 words maximum, THE FRONT SELL","subhead":"one sentence, 18 words maximum","blocks":[{"title":"2 to 4 words","body":"one sentence, 14 words maximum"}]},' +
-      '"curtain":"one sentence naming what has to be true for the front sell to work, written as the thought the reader lands on, not as a claim. This is NOT set in type on the graphic: it is the direction the picture has to carry."}. ' +
+      '"curtain":"one sentence naming the WORK BEHIND THE CLAIM: what was actually built so the headline is a fair thing to say. Only mechanisms the brief describes. Empty string if the brief does not say how it works."}. ' +
       /* Was "give exactly 3 blocks", and every piece came back with three.
          The My Echo piece (2026-07-31) showed the cost: three evenly sized
          grey boxes, the lowest-contrast thing on an otherwise strong design,
@@ -386,6 +394,16 @@ exports.handler = async (event) => {
       '\n\nPLATFORM RULES, write for ' + P.name + ':\n' + P.format +
       '\nCharacter limit: ' + P.charLimit + ' hard max, ' + P.ideal + ' target.\n\n' +
       'ANGLE (from the strategist, do not contradict it):\nPositioning: ' + (reid.positioning || '') + '\n\n' +
+      /* THE CAPTION IS WHERE THE PROOF GOES.
+         The graphic stops the scroll and makes the claim. The caption is the
+         only place with room to say what was built so the claim holds, and
+         that is the difference between this and the same sentence from a
+         competitor who has not built it. Dr. O: every AI product claims
+         memory, so the claim is free; the mechanism is not (2026-08-01). */
+      (reid.curtain
+        ? ('BEHIND THE CURTAIN, the work that makes the claim fair to make: ' + deDash(reid.curtain) +
+           '\nWork this into the caption in plain language, as the reason the claim holds up rather than as a spec sheet. It is what a reader who has heard this promise before needs in order to believe it this time. Do NOT add any mechanism beyond this sentence: never name a database, model, technique or architecture that is not in it.\n\n')
+        : '') +
       (brief.businessSite
         ? 'URL RULE, HARD: if you include a link use EXACTLY ' + brief.businessSite + ', character for character. Never invent or alter it.\n\n'
         : 'URL RULE, HARD: no link was supplied. Do NOT include any URL and do NOT guess one from the name.\n\n') +
@@ -499,9 +517,11 @@ exports.handler = async (event) => {
            line reaches him as one sentence among thirty; the register has to
            arrive as a rule of its own or it loses to the rest (2026-07-31). */
         LOOKS[brief.look] ? ('THE CLIENT HAS SPECIFIED THE LOOK AND IT IS NOT NEGOTIABLE. ' + LOOKS[brief.look] + ' Follow this even where it contradicts your instinct for what an advert should look like. If it says bright and ordinary, the picture is bright and ordinary.') : '',
-        /* THE PICTURE CARRIES THE CURTAIN. The words are deliberately plain
-           and useful, so the entire second beat is this image's job. */
-        (reid.curtain ? ('WHAT THIS PICTURE HAS TO CARRY, and the words deliberately will not: ' + deDash(reid.curtain) + ' Do not illustrate that sentence literally and do not caption it. Build a frame in which it is simply the case.') : ''),
+        /* The curtain does NOT come here. It is the engineering behind the
+           claim, and engineering is unpaintable: handed it, Chris draws a
+           server rack or a dashboard, which the rules above already ban for
+           good reason. It goes to Zara, whose caption is where a proof
+           belongs (corrected 2026-08-01). */
         /* ABOUT TO HAPPEN, NOT HAPPENING.
            This rule used to say "something is happening in this picture",
            which is one word wrong and the word decides everything. Shown two
