@@ -29,8 +29,20 @@
    five pieces nobody wanted.
 */
 
-// Only for reading dimensions off a candidate photograph, never for output.
-const sharp = require('sharp');
+/* sharp, ONLY for reading dimensions off a candidate photograph.
+   ─────────────────────────────────────────────────────────────────────────
+   REQUIRED LAZILY, AND THAT IS NOT A STYLE CHOICE. _design-render.js points
+   FONTCONFIG_PATH at the bundled fonts and it can only do that BEFORE sharp
+   is first loaded, because sharp reads the font configuration once at load
+   and never again. This module is imported at the top of the relay, so a
+   top-level require here loaded sharp first and took the whole function down
+   before it wrote a single line of state (2026-08-01). Keep it inside the
+   function. */
+let _sharp = null;
+function sharpLib() {
+  if (!_sharp) _sharp = require('sharp');
+  return _sharp;
+}
 
 const HTML_CAP  = 1_500_000;   // bytes of markup we will read
 const CSS_CAP   =   400_000;   // per stylesheet
@@ -335,7 +347,7 @@ async function extractBrand(rawUrl) {
        shipping a soft hero is worse than drawing one. */
     let w = 0, h = 0;
     try {
-      const meta = await sharp(got.buf).metadata();
+      const meta = await sharpLib()(got.buf).metadata();
       w = meta.width || 0; h = meta.height || 0;
     } catch (_) { /* unreadable: it stays a look-at reference, never a plate */ }
 

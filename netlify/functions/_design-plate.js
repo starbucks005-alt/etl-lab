@@ -25,7 +25,16 @@
    pulled off their live site.
 */
 
-const sharp = require('sharp');
+/* REQUIRED LAZILY ON PURPOSE. _design-render.js points FONTCONFIG_PATH at
+   the bundled fonts, and that only works if it happens BEFORE sharp is first
+   loaded, since sharp reads font configuration once at load. This module is
+   imported at the top of the relay, so a top-level require here pulled sharp
+   in first and killed the function before it wrote any state (2026-08-01). */
+let _sharp = null;
+function sharp(input, opts) {
+  if (!_sharp) _sharp = require('sharp');
+  return _sharp(input, opts);
+}
 
 /* #rrggbb or #rgb -> {r,g,b}. Anything else is refused rather than guessed,
    because a wrong accent is worse than a neutral one. */
