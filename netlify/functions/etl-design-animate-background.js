@@ -202,7 +202,7 @@ exports.handler = async (event) => {
 
   } catch (e) {
     console.error('[etl-design-animate] failed', e && e.message);
-    await save({ status: 'error', error: String(e && e.message).slice(0, 240) });
+    await save({ status: "error", error: String(e && e.message).slice(0, 1200) });
     return { statusCode: 200, body: 'error recorded' };
   }
 };
