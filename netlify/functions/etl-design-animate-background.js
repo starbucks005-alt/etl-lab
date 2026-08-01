@@ -50,12 +50,32 @@ exports.handler = async (event) => {
   let store, job;
   try {
     store = getStore('etl_design_jobs');
-    job = await store.get(jobId, { type: 'json' });
   } catch (e) {
     console.error('[etl-design-animate] store unavailable', e && e.message);
     return { statusCode: 500, body: 'no store' };
   }
-  if (!job) return { statusCode: 404, body: 'not found' };
+
+  /* READ WITH RETRY, BECAUSE BLOBS IS EVENTUALLY CONSISTENT.
+     ─────────────────────────────────────────────────────────────────────
+     The dispatcher writes the job and then invokes this function, and the
+     invoke regularly arrives before the write is visible. A single read got
+     null, returned 404 and wrote nothing, so the job sat on the dispatcher's
+     "queued" for ever: no error, no progress, nothing to look at. Two runs
+     died this way and both came back to life when invoked again by hand a
+     minute later, which is the tell.
+
+     Strong consistency is not available here (uncachedEdgeURL is not
+     configured and asking for it throws), so the fix is to wait for the
+     write to land rather than to demand it (2026-08-01). */
+  for (let attempt = 0; attempt < 6 && !job; attempt++) {
+    if (attempt) await new Promise(r => setTimeout(r, 400 * attempt));
+    try { job = await store.get(jobId, { type: 'json' }); }
+    catch (e) { console.warn('[etl-design-animate] job read failed, retrying', e && e.message); }
+  }
+  if (!job) {
+    console.error('[etl-design-animate] job never became visible', jobId);
+    return { statusCode: 404, body: 'not found' };
+  }
 
   const save = async (patch) => {
     job.animation = Object.assign({}, job.animation, patch, { updated_at: new Date().toISOString() });
@@ -72,8 +92,14 @@ exports.handler = async (event) => {
     const res0 = job.result || {};
     let frameA = null, frameB = null, framesSupplied = false;
 
+    // Same consistency problem, same answer: the frames are written moments
+    // before the invoke, so a first read can legitimately miss them.
     const readDataUrl = async (key) => {
-      const txt = await store.get(key, { type: 'text' });
+      let txt = null;
+      for (let attempt = 0; attempt < 5 && !txt; attempt++) {
+        if (attempt) await new Promise(r => setTimeout(r, 400 * attempt));
+        try { txt = await store.get(key, { type: 'text' }); } catch (_) {}
+      }
       const m = /^data:image\/[a-z+]+;base64,(.+)$/i.exec(String(txt || ''));
       return m ? m[1] : null;
     };
