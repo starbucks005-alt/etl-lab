@@ -50,9 +50,18 @@ const PER_SECOND = {                 // cents, 720p
 };
 
 /* A model that will not do the job, as opposed to a real failure. Both look
-   like an HTTP 400, and only one of them is worth retrying on. */
+   like an HTTP 400, and only one of them is worth retrying on.
+
+   Matched too narrowly at first: the pattern wanted "is not supported" and
+   Google returned "Your use case is currently not supported", so the ladder
+   stopped on Lite and never tried standard. One adverb. The test is now the
+   phrase "not supported" wherever it appears, which cannot collide with the
+   two errors that must NOT retry, since those say "quota" and
+   "authentication" (2026-08-01). */
 function isUnsupported(msg) {
-  return /isn't supported|is not supported|not found|unsupported|invalid.*model|does not exist/i.test(String(msg || ''));
+  var m = String(msg || '');
+  if (/quota|billing|credit|authentication|permission|api key/i.test(m)) return false;
+  return /not supported|isn't supported|unsupported|not found|invalid.*model|does not exist|use case/i.test(m);
 }
 
 /* Accepts the names a key is plausibly stored under, because the variable is
