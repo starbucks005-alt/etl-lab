@@ -48,7 +48,12 @@ exports.handler = async (event) => {
               // there was nothing to debug with (2026-08-01).
               : layer === 'svg'   ? (job.result && job.result.svg_key)
               : (job.result && job.result.image_key);
-    if (!key) return { statusCode: 404, body: layer ? ('no ' + layer + ' layer for this piece') : 'no image yet' };
+    if (!key) {
+      // Say WHY the layer is missing when the relay recorded a reason. A bare
+      // 404 sent me looking for a bug in the renderer that was not there.
+      const why = layer === 'type' && job.result && job.result.type_error;
+      return { statusCode: 404, body: layer ? ('no ' + layer + ' layer for this piece' + (why ? ': ' + why : '')) : 'no image yet' };
+    }
     buf = await store.get(key, { type: 'arrayBuffer' });
     if (!buf) return { statusCode: 404, body: 'no image yet' };
     // A base64 body has a hard ceiling (~6MB) and exceeding it returns a 502

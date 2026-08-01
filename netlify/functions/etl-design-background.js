@@ -716,16 +716,30 @@ exports.handler = async (event) => {
           await store.set(plateKey, Buffer.from(artB64, 'base64'), { metadata: { contentType: 'image/png' } });
         } catch (e) { plateKey = null; console.warn('[etl-design] plate not stored (non-fatal)', e && e.message); }
       }
+      /* RECORD WHY, not just THAT.
+         The type layer came back missing on a live piece, and this catch only
+         logged. Rerunning renderOverlay locally against that job's own stored
+         SVG produced a perfectly good 93KB overlay, 75% transparent, so the
+         function is fine and something else failed here: the store write, the
+         renderer failing to load, or memory. Guessing has cost several build
+         cycles today, so the reason now rides on the job (2026-08-01). */
+      let typeError = null;
       try {
+        if (!renderOverlay) throw new Error(renderLoadError || 'renderer not loaded');
         const overlay = await renderOverlay(out.svg, canvasKey);
         typeKey = jobId + '-type.png';
         await store.set(typeKey, overlay, { metadata: { contentType: 'image/png' } });
-      } catch (e) { typeKey = null; console.warn('[etl-design] type overlay not stored (non-fatal)', e && e.message); }
+      } catch (e) {
+        typeKey = null;
+        typeError = String((e && e.message) || e).slice(0, 300);
+        console.warn('[etl-design] type overlay not stored (non-fatal)', typeError);
+      }
 
       await save({ result: Object.assign(state.result, {
         image_key: key,
         plate_key: plateKey,
         type_key: typeKey,
+        type_error: typeError,
         svg_key: jobId + '.svg',
         image_w: out.canvas.w, image_h: out.canvas.h,
         image_kind: out.canvas.kind, image_label: out.canvas.label,
