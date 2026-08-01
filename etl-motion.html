@@ -3,110 +3,151 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ETL Motion &middot; two stills, one clip</title>
-<meta name="description" content="Turn two images into a slow cinematic clip. A push in, a crossfade, a pull out. Renders in your browser, nothing is uploaded and nothing is generated.">
+<title>ETL Motion &middot; stills into a real clip</title>
+<meta name="description" content="Turn your own images into an edited clip. Pushes, pulls, pans and tilts, timed per shot, with title cards. Renders in your browser: nothing is uploaded, nothing is generated, nothing is invented.">
 <link rel="icon" type="image/png" href="/favicon.png">
 <style>
   /* ─────────────────────────────────────────────────────────────────────
-     WHY THIS IS NOT VEO (2026-08-01)
+     WHY THIS IS NOT A VIDEO MODEL (2026-08-01)
 
-     Half a day went into wiring Google Veo for this, and Dr. O worked out
-     what the reference clip actually was: "It is literally just a Premiere
-     Pro animation. The image zooms in then fades to next image and that one
+     Half a day went into wiring Google Veo, and Dr. O worked out what the
+     reference clip actually was: "It is literally just a Premiere Pro
+     animation. The image zooms in then fades to next image and that one
      zooms out. that's it, it is not really a video in the way that Gemini
      and the others make them."
 
-     She is right, and it explains why the Claude Design version "worked
-     beautifully for me" while every generative attempt drifted. Nothing is
-     invented, so nothing can drift. Her own objection to a generated pair,
-     "they have on different clothes", cannot occur here: both frames stay
-     exactly the files you hand over.
+     Then she tested the generative path properly, in Google Flow, and it
+     failed in exactly the ways that matter to a design firm: one agent
+     appearing twice in the same shot, invented faces on the monitors, text
+     that is nearly words, and a whole clip that wandered into a photography
+     studio because the word "studio" was in the prompt. Her verdict, and it
+     is the design of this tool: "it is very time consuming. have chris twice
+     in a scene, typos, made up people on the screen. made up characters."
 
-     Reference clip, measured rather than guessed: 16.00s, 30fps, no audio
-     track.
+     And the one that decides the architecture: "omg... this process is such
+     a pain, I make a correction and they lose the good parts."
 
-     COST. Veo bills per second of footage, so that same 16 seconds is $6.40
-     at the standard tier. This is a canvas and a MediaRecorder. It costs
-     nothing, it cannot be refused on policy, and it finishes in real time
-     instead of up to six minutes.
+     That is structural. A generated clip is not a file, so a correction is a
+     fresh roll of the dice and the parts that worked were never held
+     anywhere. This is the same problem ETL Design solved for stills by
+     handing Yuki her own previous SVG rather than a description of it.
+
+     A composited timeline gets that property for free. Every frame is a file
+     she owns and every move is a number, so shortening one shot cannot
+     disturb another and swapping one image re-rolls nothing. Nothing is
+     generated, so nobody appears twice, no screen grows fake text, and no
+     scene relocates.
+
+     Reference clip, measured rather than guessed: 16.00s, 30fps, no audio.
 
      IN THE BROWSER, ON PURPOSE. No upload, no function, no storage, no bill.
-     The images never leave the machine. It also means the render is exactly
-     what you previewed, because it is the same code drawing both.
+     The images never leave the machine, and the render is exactly what was
+     previewed because it is the same code drawing both.
      ───────────────────────────────────────────────────────────────────── */
   :root{
     --bg:#0e0e10; --bg2:#151517; --panel:#1b1b1f; --line:#2e2e34;
-    --sig:#ff5a3c; --sig-br:#ff7a5f; --text:#e6e3dc; --mute:#9a958c;
+    --sig:#ff5a3c; --sig-br:#ff7a5f; --ice:#7fd4e8;
+    --text:#e6e3dc; --mute:#9a958c;
   }
   *{box-sizing:border-box;}
-  body{
-    margin:0; background:var(--bg); color:var(--text);
-    font:16px/1.55 "Public Sans", system-ui, -apple-system, sans-serif;
-  }
-  .wrap{max-width:1080px; margin:0 auto; padding:2.2rem 1.2rem 4rem;}
+  body{margin:0; background:var(--bg); color:var(--text);
+       font:16px/1.55 "Public Sans", system-ui, -apple-system, sans-serif;}
+  .wrap{max-width:1180px; margin:0 auto; padding:2.2rem 1.2rem 5rem;}
   h1{font-size:1.9rem; margin:0 0 .3rem; letter-spacing:-.01em;}
-  .sub{color:var(--mute); margin:0 0 2rem; max-width:62ch;}
-  .panel{background:var(--bg2); border:1px solid var(--line); border-radius:12px; padding:1.1rem 1.2rem; margin-bottom:1.1rem;}
-  label{display:block; font-weight:600; font-size:.9rem; margin:0 0 .35rem;}
+  .sub{color:var(--mute); margin:0 0 1.8rem; max-width:64ch;}
+  h2{font-size:1.05rem; margin:0 0 .8rem;}
+  .panel{background:var(--bg2); border:1px solid var(--line); border-radius:12px;
+         padding:1.1rem 1.2rem; margin-bottom:1.1rem;}
+  label{display:block; font-weight:600; font-size:.88rem; margin:0 0 .3rem;}
   .hint{font-size:.78rem; color:var(--mute); margin-top:.3rem;}
-  input[type=file]{width:100%; color:var(--mute); font-size:.9rem;}
+  input[type=file]{width:100%; color:var(--mute); font-size:.88rem;}
   input[type=range]{width:100%; accent-color:var(--sig);}
-  .row{display:grid; grid-template-columns:1fr 1fr; gap:1.1rem;}
-  @media(max-width:640px){ .row{grid-template-columns:1fr;} }
-  .thumb{margin-top:.7rem; width:100%; aspect-ratio:16/9; object-fit:cover;
-         border-radius:8px; border:1px solid var(--line); background:#000; display:none;}
-  .thumb.on{display:block;}
-  canvas{width:100%; aspect-ratio:16/9; background:#000; border-radius:10px;
-         border:1px solid var(--line); display:block;}
-  button{
-    font:inherit; font-weight:600; padding:.7rem 1.4rem; border-radius:999px;
-    background:var(--sig); color:#17110f; border:1px solid var(--sig); cursor:pointer;
-  }
+  input[type=text]{width:100%; padding:.5rem .7rem; border-radius:8px;
+                   background:var(--panel); border:1px solid var(--line); color:var(--text); font:inherit; font-size:.9rem;}
+  select{padding:.4rem .6rem; border-radius:8px; background:var(--panel);
+         border:1px solid var(--line); color:var(--text); font:inherit; font-size:.85rem;}
+  canvas{width:100%; background:#000; border-radius:10px; border:1px solid var(--line); display:block;}
+  button{font:inherit; font-weight:600; padding:.65rem 1.3rem; border-radius:999px;
+         background:var(--sig); color:#17110f; border:1px solid var(--sig); cursor:pointer;}
   button:hover{background:var(--sig-br); border-color:var(--sig-br);}
   button[disabled]{opacity:.45; cursor:not-allowed;}
   button.ghost{background:transparent; color:var(--text); border-color:var(--line);}
+  button.tiny{padding:.28rem .7rem; font-size:.78rem; font-weight:600;}
   .controls{display:flex; gap:.7rem; flex-wrap:wrap; align-items:center; margin-top:1rem;}
   .note{color:var(--mute); font-size:.85rem; margin-top:.8rem; min-height:1.3em;}
-  .err{color:var(--sig-br); font-size:.9rem; margin-top:.8rem;}
+  .err{color:var(--sig-br); font-size:.9rem; margin-top:.6rem;}
   .val{color:var(--sig); font-weight:600;}
+
+  /* THE TIMELINE. One row per shot, because that is the unit she thinks in:
+     a picture, a move, a length. */
+  .shot{display:grid; grid-template-columns:104px 1fr auto; gap:.9rem;
+        align-items:center; padding:.7rem; border:1px solid var(--line);
+        border-radius:10px; background:var(--panel); margin-bottom:.6rem;}
+  .shot.dragging{opacity:.4;}
+  .shot.over{border-color:var(--sig);}
+  .shot img{width:104px; height:59px; object-fit:cover; border-radius:6px;
+            border:1px solid var(--line); background:#000; cursor:grab;}
+  .shot .card{width:104px; height:59px; border-radius:6px; border:1px dashed var(--line);
+              display:flex; align-items:center; justify-content:center;
+              font-size:.68rem; color:var(--mute); text-align:center; padding:.2rem; cursor:grab;}
+  .shot .fields{display:flex; gap:.9rem; flex-wrap:wrap; align-items:center;}
+  .shot .fields > div{min-width:0;}
+  .shot .len{width:150px;}
+  .shot .ttl{flex:1 1 220px;}
+  .shot .num{font-size:.78rem; color:var(--mute); white-space:nowrap;}
+  .shot .rm{background:transparent; border:1px solid var(--line); color:var(--mute);
+            border-radius:999px; padding:.25rem .6rem; font-size:.78rem; cursor:pointer;}
+  .shot .rm:hover{border-color:var(--sig); color:var(--sig);}
+  .empty{color:var(--mute); font-size:.9rem; padding:.6rem 0;}
+  @media(max-width:720px){ .shot{grid-template-columns:76px 1fr; } .shot .rm{grid-column:2; justify-self:start;} .shot img,.shot .card{width:76px;height:43px;} }
 </style>
 </head>
 <body>
 <div class="wrap">
 
   <h1>ETL Motion</h1>
-  <p class="sub">Two stills become one slow clip: a push in on the first, a crossfade, a pull out on the
-  second. Everything happens in this browser, so nothing is uploaded, nothing is generated, and nothing
-  costs anything. The people in your images stay exactly the people in your images.</p>
+  <p class="sub">Your own stills, edited into a clip. Each shot gets a move and a length, and they cut
+  together with crossfades. Nothing is generated, so nobody appears twice, no screen grows text that is
+  nearly words, and no scene wanders off somewhere you never photographed. Change one shot and every
+  other shot stays exactly as it was.</p>
 
   <div class="panel">
-    <div class="row">
-      <div>
-        <label for="f-a">First image</label>
-        <input id="f-a" type="file" accept="image/png,image/jpeg,image/webp">
-        <img id="t-a" class="thumb" alt="First frame">
-      </div>
-      <div>
-        <label for="f-b">Second image</label>
-        <input id="f-b" type="file" accept="image/png,image/jpeg,image/webp">
-        <img id="t-b" class="thumb" alt="Second frame">
-      </div>
+    <h2>Shots</h2>
+    <div id="timeline"></div>
+    <div class="empty" id="empty">Nothing yet. Add images below.</div>
+    <div class="controls" style="margin-top:.9rem;">
+      <label for="f-add" style="margin:0;">
+        <span class="tiny" style="display:inline-block; padding:.45rem 1rem; border-radius:999px; background:var(--sig); color:#17110f; cursor:pointer; font-weight:600;">Add images</span>
+      </label>
+      <input id="f-add" type="file" accept="image/png,image/jpeg,image/webp" multiple style="display:none;">
+      <button class="ghost tiny" id="add-card" style="padding:.45rem 1rem;">Add a title card</button>
+      <span class="hint" id="total" style="margin:0;"></span>
     </div>
-    <div class="hint">Same people, same clothes, same room works best. The whole point of this over a
-    generated clip is that neither end is reinvented.</div>
+    <div class="hint">Drag a thumbnail to reorder. Pick several images at once and they arrive in order.</div>
   </div>
 
   <div class="panel">
-    <div class="row">
+    <h2>The whole clip</h2>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:1.1rem;">
       <div>
-        <label for="f-secs">Length: <span class="val" id="v-secs">16</span> seconds</label>
-        <input id="f-secs" type="range" min="4" max="30" step="1" value="16">
-        <div class="hint">The reference clip was 16 seconds at 30fps.</div>
+        <label for="f-move">Move: <span class="val" id="v-move">12</span>%</label>
+        <input id="f-move" type="range" min="0" max="30" step="1" value="12">
+        <div class="hint">How far a push or a pan travels. Gentle reads cinematic, hard reads as a slideshow.</div>
       </div>
       <div>
-        <label for="f-zoom">Zoom: <span class="val" id="v-zoom">12</span>%</label>
-        <input id="f-zoom" type="range" min="0" max="30" step="1" value="12">
-        <div class="hint">How far the push in travels. Gentle reads as cinematic, hard reads as a slideshow.</div>
+        <label for="f-fade">Crossfade: <span class="val" id="v-fade">0.8</span>s</label>
+        <input id="f-fade" type="range" min="0" max="20" step="1" value="8">
+        <div class="hint">Overlap between shots. Zero gives hard cuts.</div>
+      </div>
+      <div>
+        <label for="f-size">Frame</label>
+        <select id="f-size">
+          <option value="16:9">16:9 landscape</option>
+          <option value="1:1">1:1 square</option>
+          <option value="9:16">9:16 vertical</option>
+          <option value="4:5">4:5 portrait</option>
+        </select>
+        <div class="hint">Square and vertical are what the feeds actually want.</div>
       </div>
     </div>
   </div>
@@ -117,7 +158,7 @@
     <button id="preview" disabled>Preview</button>
     <button id="render" class="ghost" disabled>Render and download</button>
   </div>
-  <div class="note" id="note">Add two images to begin.</div>
+  <div class="note" id="note">Add images to begin.</div>
   <div class="err" id="err"></div>
 
 </div>
@@ -126,135 +167,329 @@
 (function(){
   var $ = function(id){ return document.getElementById(id); };
   var FPS = 30;
-  var imgA = null, imgB = null, busy = false;
+
+  /* A shot is a plain object and the timeline is a plain array. That is the
+     whole point of this tool: everything is data she owns, so a change to one
+     shot cannot disturb another and nothing is ever regenerated. */
+  var shots = [];          // { kind:'image'|'card', img, url, move, secs, title }
+  var busy = false;
+  var MOVES = ['push in','pull out','pan left','pan right','tilt down','tilt up','hold'];
 
   var canvas = $('stage'), ctx = canvas.getContext('2d');
 
-  function secs(){ return parseInt($('f-secs').value, 10); }
-  function zoom(){ return parseInt($('f-zoom').value, 10) / 100; }
+  function moveAmt(){ return parseInt($('f-move').value, 10) / 100; }
+  function fade(){ return parseInt($('f-fade').value, 10) / 10; }
+
+  function sizeCanvas(){
+    var ratio = $('f-size').value.split(':');
+    var w = 1280, h = Math.round(1280 * (+ratio[1]) / (+ratio[0]));
+    if (h > 1280) { h = 1280; w = Math.round(1280 * (+ratio[0]) / (+ratio[1])); }
+    // H.264 refuses odd dimensions.
+    canvas.width  = w % 2 ? w - 1 : w;
+    canvas.height = h % 2 ? h - 1 : h;
+    canvas.style.aspectRatio = canvas.width + ' / ' + canvas.height;
+  }
+
+  function totalSecs(){
+    // Shots overlap by the crossfade, so the clip is shorter than the sum.
+    var t = shots.reduce(function(a, s){ return a + s.secs; }, 0);
+    return Math.max(0.5, t - fade() * Math.max(0, shots.length - 1));
+  }
 
   function ready(){
-    var ok = !!(imgA && imgB) && !busy;
+    var ok = shots.length > 0 && !busy;
     $('preview').disabled = !ok;
     $('render').disabled = !ok;
+    $('empty').style.display = shots.length ? 'none' : '';
+    $('total').textContent = shots.length
+      ? (shots.length + ' shot' + (shots.length > 1 ? 's' : '') + ', ' + totalSecs().toFixed(1) + 's')
+      : '';
     return ok;
   }
 
-  function load(file, slot){
-    if (!file) return;
-    var url = URL.createObjectURL(file);
-    var img = new Image();
-    img.onload = function(){
-      if (slot === 'a') { imgA = img; $('t-a').src = url; $('t-a').classList.add('on'); }
-      else              { imgB = img; $('t-b').src = url; $('t-b').classList.add('on'); }
-      // Match the canvas to the FIRST image's shape, so a 16:9 pair renders
-      // 16:9 and a square pair renders square. Cropping a portrait into a
-      // fixed landscape frame is how you lose the top of someone's head.
-      if (imgA) {
-        var w = Math.min(1280, imgA.naturalWidth);
-        var h = Math.round(w * imgA.naturalHeight / imgA.naturalWidth);
-        // Even dimensions: H.264 refuses odd ones.
-        canvas.width  = w % 2 ? w - 1 : w;
-        canvas.height = h % 2 ? h - 1 : h;
-        canvas.style.aspectRatio = canvas.width + ' / ' + canvas.height;
+  /* ── the timeline UI ─────────────────────────────────────────────────── */
+  function drawTimeline(){
+    var tl = $('timeline');
+    tl.innerHTML = '';
+    shots.forEach(function(s, i){
+      var row = document.createElement('div');
+      row.className = 'shot';
+      row.draggable = true;
+      row.dataset.i = i;
+
+      var thumb;
+      if (s.kind === 'image') {
+        thumb = document.createElement('img');
+        thumb.src = s.url; thumb.alt = 'Shot ' + (i + 1);
+      } else {
+        thumb = document.createElement('div');
+        thumb.className = 'card';
+        thumb.textContent = s.title || 'Title card';
       }
-      drawFrame(0);
-      $('note').textContent = ready() ? 'Ready. Preview it, or render and download.' : 'Add the other image.';
-      ready();
-    };
-    img.onerror = function(){ $('err').textContent = 'That file could not be read as an image.'; };
-    img.src = url;
+      row.appendChild(thumb);
+
+      var fields = document.createElement('div');
+      fields.className = 'fields';
+
+      if (s.kind === 'image') {
+        var mv = document.createElement('div');
+        mv.innerHTML = '<label>Move</label>';
+        var sel = document.createElement('select');
+        MOVES.forEach(function(m){
+          var o = document.createElement('option');
+          o.value = m; o.textContent = m; if (m === s.move) o.selected = true;
+          sel.appendChild(o);
+        });
+        sel.addEventListener('change', function(){ s.move = sel.value; drawFrame(0); });
+        mv.appendChild(sel);
+        fields.appendChild(mv);
+      } else {
+        var tt = document.createElement('div');
+        tt.className = 'ttl';
+        tt.innerHTML = '<label>Words</label>';
+        var inp = document.createElement('input');
+        inp.type = 'text'; inp.value = s.title || ''; inp.placeholder = 'Almost Human';
+        inp.addEventListener('input', function(){ s.title = inp.value; thumb.textContent = inp.value || 'Title card'; drawFrame(0); });
+        tt.appendChild(inp);
+        fields.appendChild(tt);
+      }
+
+      var ln = document.createElement('div');
+      ln.className = 'len';
+      var lab = document.createElement('label');
+      lab.textContent = 'Length ' + s.secs.toFixed(1) + 's';
+      var rng = document.createElement('input');
+      rng.type = 'range'; rng.min = 10; rng.max = 100; rng.step = 1; rng.value = Math.round(s.secs * 10);
+      rng.addEventListener('input', function(){
+        s.secs = (+rng.value) / 10;
+        lab.textContent = 'Length ' + s.secs.toFixed(1) + 's';
+        ready();
+      });
+      ln.appendChild(lab); ln.appendChild(rng);
+      fields.appendChild(ln);
+
+      var num = document.createElement('div');
+      num.className = 'num';
+      num.textContent = 'shot ' + (i + 1);
+      fields.appendChild(num);
+
+      row.appendChild(fields);
+
+      var rm = document.createElement('button');
+      rm.className = 'rm'; rm.textContent = 'Remove';
+      rm.addEventListener('click', function(){ shots.splice(i, 1); drawTimeline(); ready(); drawFrame(0); });
+      row.appendChild(rm);
+
+      /* Reordering by drag, because the order IS the edit and retyping it
+         would be the slowest part of the tool. */
+      row.addEventListener('dragstart', function(e){
+        row.classList.add('dragging');
+        e.dataTransfer.setData('text/plain', String(i));
+        e.dataTransfer.effectAllowed = 'move';
+      });
+      row.addEventListener('dragend', function(){ row.classList.remove('dragging'); });
+      row.addEventListener('dragover', function(e){ e.preventDefault(); row.classList.add('over'); });
+      row.addEventListener('dragleave', function(){ row.classList.remove('over'); });
+      row.addEventListener('drop', function(e){
+        e.preventDefault(); row.classList.remove('over');
+        var from = parseInt(e.dataTransfer.getData('text/plain'), 10);
+        var to = i;
+        if (isNaN(from) || from === to) return;
+        var moved = shots.splice(from, 1)[0];
+        shots.splice(to, 0, moved);
+        drawTimeline(); drawFrame(0);
+      });
+
+      tl.appendChild(row);
+    });
   }
 
-  /* COVER, not stretch. The image fills the frame and overflows on one axis,
-     which is also what gives the zoom something to travel into. */
-  function drawCover(img, scale, alpha){
+  /* ── loading ─────────────────────────────────────────────────────────── */
+  function addFiles(files){
+    var list = Array.prototype.slice.call(files || []);
+    if (!list.length) return;
+    var pending = list.length;
+    list.forEach(function(file, n){
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function(){
+        // A default move that alternates, so a run of images is already an
+        // edit rather than the same zoom repeated.
+        var alt = ['push in', 'pull out', 'pan right', 'push in', 'pan left', 'pull out'];
+        shots.push({ kind: 'image', img: img, url: url, move: alt[(shots.length) % alt.length], secs: 4 });
+        if (--pending === 0) { drawTimeline(); ready(); drawFrame(0); $('note').textContent = 'Ready. Preview it, or render and download.'; }
+      };
+      img.onerror = function(){
+        $('err').textContent = 'One file could not be read as an image.';
+        if (--pending === 0) { drawTimeline(); ready(); drawFrame(0); }
+      };
+      img.src = url;
+    });
+  }
+
+  /* ── drawing ─────────────────────────────────────────────────────────── */
+
+  /* Cover, not stretch. The image fills the frame and overflows on one axis,
+     and that overflow is exactly what a pan has to travel through. */
+  function drawShot(s, p, alpha){          // p is 0..1 within this shot
     var cw = canvas.width, ch = canvas.height;
-    var base = Math.max(cw / img.naturalWidth, ch / img.naturalHeight);
-    var s = base * scale;
-    var w = img.naturalWidth * s, h = img.naturalHeight * s;
     ctx.globalAlpha = alpha;
-    ctx.drawImage(img, (cw - w) / 2, (ch - h) / 2, w, h);
+
+    if (s.kind === 'card') {
+      ctx.fillStyle = '#0e0e10';
+      ctx.fillRect(0, 0, cw, ch);
+      var words = String(s.title || '').trim();
+      if (words) {
+        // Scaled to the frame rather than fixed, so a square and a vertical
+        // both get type that fits.
+        var size = Math.round(Math.min(cw, ch) * 0.085);
+        ctx.fillStyle = '#e6e3dc';
+        ctx.font = '600 ' + size + 'px "Public Sans", system-ui, sans-serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        var lines = wrap(words, cw * 0.82, size);
+        var y0 = ch / 2 - (lines.length - 1) * size * 0.65;
+        lines.forEach(function(ln, k){ ctx.fillText(ln, cw / 2, y0 + k * size * 1.3); });
+        // A single accent rule, the one piece of ETL furniture on the card.
+        ctx.fillStyle = '#ff5a3c';
+        ctx.fillRect(cw / 2 - size * 1.2, y0 + lines.length * size * 1.3 - size * 0.2, size * 2.4, Math.max(2, size * 0.06));
+      }
+      ctx.globalAlpha = 1;
+      return;
+    }
+
+    var img = s.img;
+    var m = moveAmt();
+    var e = ease(p);
+    var base = Math.max(cw / img.naturalWidth, ch / img.naturalHeight);
+    var scale = 1, dx = 0, dy = 0;
+
+    // Pans and tilts need somewhere to travel, so they zoom in slightly and
+    // then slide within that overscan. Without it a cover-fit image has no
+    // spare pixels on the moving axis and a pan does nothing at all.
+    switch (s.move) {
+      case 'push in':   scale = 1 + m * e; break;
+      case 'pull out':  scale = 1 + m * (1 - e); break;
+      case 'pan left':  scale = 1 + m; dx =  (e - 0.5) * m * cw; break;
+      case 'pan right': scale = 1 + m; dx = -(e - 0.5) * m * cw; break;
+      case 'tilt down': scale = 1 + m; dy = -(e - 0.5) * m * ch; break;
+      case 'tilt up':   scale = 1 + m; dy =  (e - 0.5) * m * ch; break;
+      default:          scale = 1; break;                    // hold
+    }
+
+    var s2 = base * scale;
+    var w = img.naturalWidth * s2, h = img.naturalHeight * s2;
+    ctx.drawImage(img, (cw - w) / 2 + dx, (ch - h) / 2 + dy, w, h);
     ctx.globalAlpha = 1;
   }
 
-  /* Ease in and out, so the move starts and stops rather than running at a
-     constant speed. A linear zoom is the thing that reads as a slideshow. */
-  function ease(t){ return t < 0.5 ? 2*t*t : 1 - Math.pow(-2*t + 2, 2) / 2; }
-
-  function drawFrame(t){                 // t is 0..1 across the whole clip
-    var z = zoom();
-    var cw = canvas.width, ch = canvas.height;
-    ctx.fillStyle = '#000';
-    ctx.fillRect(0, 0, cw, ch);
-    if (!imgA) return;
-
-    /* The crossfade sits in the middle fifth. Before it, A is pushing in.
-       After it, B is pulling out, which is what makes the second half feel
-       like a release rather than more of the same. */
-    var FADE = 0.20;
-    var mid0 = 0.5 - FADE / 2, mid1 = 0.5 + FADE / 2;
-
-    var aProg = Math.min(1, t / mid1);            // A keeps moving through the fade
-    var aScale = 1 + z * ease(aProg);
-    var bProg = Math.max(0, (t - mid0) / (1 - mid0));
-    var bScale = (1 + z) - z * ease(bProg);
-
-    if (t <= mid0) {
-      drawCover(imgA, aScale, 1);
-    } else if (t >= mid1 && imgB) {
-      drawCover(imgB, bScale, 1);
-    } else if (imgB) {
-      var k = (t - mid0) / (mid1 - mid0);
-      drawCover(imgA, aScale, 1);
-      drawCover(imgB, bScale, k);
-    } else {
-      drawCover(imgA, aScale, 1);
+  function wrap(text, maxW, size){
+    var words = text.split(/\s+/), lines = [], line = '';
+    ctx.font = '600 ' + size + 'px "Public Sans", system-ui, sans-serif';
+    for (var i = 0; i < words.length; i++) {
+      var test = line ? line + ' ' + words[i] : words[i];
+      if (ctx.measureText(test).width > maxW && line) { lines.push(line); line = words[i]; }
+      else line = test;
     }
+    if (line) lines.push(line);
+    return lines.slice(0, 4);
   }
 
-  function run(onFrame, done){
+  /* Ease in and out, so a move starts and stops. A linear zoom is the single
+     thing that makes a sequence read as a slideshow. */
+  function ease(t){ return t < 0.5 ? 2*t*t : 1 - Math.pow(-2*t + 2, 2) / 2; }
+
+  /* Shot start times, with each one overlapping the last by the crossfade. */
+  function schedule(){
+    var f = fade(), out = [], at = 0;
+    shots.forEach(function(s, i){
+      out.push({ s: s, start: at, end: at + s.secs });
+      at += s.secs - (i < shots.length - 1 ? f : 0);
+    });
+    return out;
+  }
+
+  function drawFrame(t){                    // t is seconds into the clip
+    var cw = canvas.width, ch = canvas.height;
+    ctx.fillStyle = '#000'; ctx.fillRect(0, 0, cw, ch);
+    if (!shots.length) return;
+
+    var plan = schedule(), f = fade();
+    plan.forEach(function(k, i){
+      if (t < k.start || t > k.end) return;
+      var p = (t - k.start) / Math.max(0.001, k.end - k.start);
+      var a = 1;
+      // Fade in over the overlap, except the first shot, which is simply there.
+      if (f > 0 && i > 0 && t < k.start + f) a = (t - k.start) / f;
+      drawShot(k.s, Math.min(1, Math.max(0, p)), Math.min(1, Math.max(0, a)));
+    });
+  }
+
+  /* NOT rAF ALONE.
+     ─────────────────────────────────────────────────────────────────────
+     requestAnimationFrame stops firing when the tab is not compositing, and
+     a render driven only by it stalls on the first frame and still writes a
+     file: twelve seconds of one still image, with no error anywhere. Found
+     while testing in a preview pane where rAF never fired at all.
+
+     So rAF drives it when it is running, because that is the smoothest, and
+     a timer takes over the moment rAF goes quiet. Either way the WALL CLOCK
+     decides what is drawn, so a slow or throttled machine drops frames
+     rather than turning the clip into slow motion (2026-08-01). */
+  function run(done){
     busy = true; ready();
-    var total = secs() * FPS, i = 0;
+    var dur = totalSecs();
     var start = performance.now();
-    (function step(){
-      // Wall clock, not frame count, so the preview plays at real speed on a
-      // slow machine instead of turning into slow motion.
-      var elapsed = (performance.now() - start) / 1000;
-      var t = Math.min(1, elapsed / secs());
-      drawFrame(t);
-      if (onFrame) onFrame(t);
-      i++;
-      if (t < 1) requestAnimationFrame(step);
-      else { busy = false; ready(); if (done) done(); }
-    })();
+    var finished = false, lastTick = start;
+
+    function frame(){
+      var now = performance.now();
+      lastTick = now;
+      var t = (now - start) / 1000;
+      drawFrame(Math.min(dur, t));
+      if (t >= dur) {
+        if (finished) return;
+        finished = true;
+        clearInterval(watchdog);
+        busy = false; ready();
+        if (done) done();
+      }
+    }
+
+    function raf(){ if (finished) return; frame(); if (!finished) requestAnimationFrame(raf); }
+    requestAnimationFrame(raf);
+
+    // If rAF has not fired for 250ms, drive it here instead. Harmless when
+    // rAF is healthy, because lastTick keeps being refreshed.
+    var watchdog = setInterval(function(){
+      if (finished) { clearInterval(watchdog); return; }
+      if (performance.now() - lastTick > 250) frame();
+    }, 1000 / FPS);
   }
 
   /* MP4 if the browser will give us one. Chrome has supported H.264 in
      MediaRecorder since 126, and mp4 is what drops straight into Premiere.
      WebM is the fallback rather than the target. */
   function pickMime(){
-    var candidates = [
-      'video/mp4;codecs=avc1.42E01E',
-      'video/mp4',
-      'video/webm;codecs=vp9',
-      'video/webm'
-    ];
-    for (var i = 0; i < candidates.length; i++) {
-      if (window.MediaRecorder && MediaRecorder.isTypeSupported(candidates[i])) return candidates[i];
+    var c = ['video/mp4;codecs=avc1.42E01E', 'video/mp4', 'video/webm;codecs=vp9', 'video/webm'];
+    for (var i = 0; i < c.length; i++) {
+      if (window.MediaRecorder && MediaRecorder.isTypeSupported(c[i])) return c[i];
     }
     return null;
   }
 
-  $('f-a').addEventListener('change', function(e){ $('err').textContent=''; load(e.target.files[0], 'a'); });
-  $('f-b').addEventListener('change', function(e){ $('err').textContent=''; load(e.target.files[0], 'b'); });
-  $('f-secs').addEventListener('input', function(){ $('v-secs').textContent = secs(); drawFrame(0); });
-  $('f-zoom').addEventListener('input', function(){ $('v-zoom').textContent = $('f-zoom').value; drawFrame(0); });
+  /* ── wiring ──────────────────────────────────────────────────────────── */
+  $('f-add').addEventListener('change', function(e){ $('err').textContent=''; addFiles(e.target.files); e.target.value = ''; });
+  $('add-card').addEventListener('click', function(){
+    shots.push({ kind: 'card', title: '', secs: 2.5 });
+    drawTimeline(); ready(); drawFrame(0);
+  });
+  $('f-move').addEventListener('input', function(){ $('v-move').textContent = $('f-move').value; drawFrame(0); });
+  $('f-fade').addEventListener('input', function(){ $('v-fade').textContent = fade().toFixed(1); ready(); drawFrame(0); });
+  $('f-size').addEventListener('change', function(){ sizeCanvas(); drawFrame(0); });
 
   $('preview').addEventListener('click', function(){
-    $('err').textContent = '';
-    $('note').textContent = 'Playing.';
-    run(null, function(){ $('note').textContent = 'That is the clip. Render it when you are happy.'; });
+    $('err').textContent = ''; $('note').textContent = 'Playing.';
+    run(function(){ $('note').textContent = 'That is the clip. Render it when you are happy.'; });
   });
 
   $('render').addEventListener('click', function(){
@@ -262,14 +497,10 @@
     var mime = pickMime();
     if (!mime) { $('err').textContent = 'This browser cannot record video. Chrome or Edge will.'; return; }
 
-    var stream = canvas.captureStream(FPS);
-    var chunks = [];
-    var rec;
-    try {
-      rec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 8000000 });
-    } catch (e) {
-      $('err').textContent = 'Could not start the recorder: ' + e.message; return;
-    }
+    var stream = canvas.captureStream(FPS), chunks = [], rec;
+    try { rec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 8000000 }); }
+    catch (e) { $('err').textContent = 'Could not start the recorder: ' + e.message; return; }
+
     rec.ondataavailable = function(e){ if (e.data && e.data.size) chunks.push(e.data); };
     rec.onstop = function(){
       var ext = mime.indexOf('mp4') >= 0 ? 'mp4' : 'webm';
@@ -279,19 +510,18 @@
       a.download = 'etl-motion.' + ext;
       a.click();
       $('note').textContent = 'Saved as etl-motion.' + ext + ', ' +
-        (blob.size / 1024 / 1024).toFixed(1) + 'MB, ' + secs() + 's at ' + FPS + 'fps.' +
+        (blob.size / 1024 / 1024).toFixed(1) + 'MB, ' + totalSecs().toFixed(1) + 's at ' + FPS + 'fps.' +
         (ext === 'webm' ? ' This browser would not give us mp4.' : '');
     };
 
-    $('note').textContent = 'Rendering in real time, ' + secs() + ' seconds.';
+    $('note').textContent = 'Rendering in real time, ' + totalSecs().toFixed(1) + ' seconds.';
     rec.start();
-    run(null, function(){
-      // A beat before stopping, so the last frame is definitely in the file.
-      setTimeout(function(){ rec.stop(); }, 250);
-    });
+    run(function(){ setTimeout(function(){ rec.stop(); }, 250); });
   });
 
+  sizeCanvas();
   drawFrame(0);
+  ready();
 })();
 </script>
 </body>
