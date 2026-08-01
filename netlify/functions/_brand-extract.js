@@ -29,6 +29,9 @@
    five pieces nobody wanted.
 */
 
+// Only for reading dimensions off a candidate photograph, never for output.
+const sharp = require('sharp');
+
 const HTML_CAP  = 1_500_000;   // bytes of markup we will read
 const CSS_CAP   =   400_000;   // per stylesheet
 const IMG_CAP   = 4_000_000;   // ~3MB decoded, under Anthropic's ceiling
@@ -150,6 +153,12 @@ function findContentImages(html, base, exclude) {
   const consider = (src) => {
     if (!src || /^data:/i.test(src) || out.length >= 8) return;
     if (/sprite|spacer|pixel|1x1|blank|favicon|icon-|\/icons?\//i.test(src)) return;
+    /* Share cards are the one class of site image guaranteed to have the
+       brand's own headline burned into it, because that is what they are
+       for. Almost Human's card carries five lines of type, and plating it
+       would have printed a second headline underneath Reid's. Naming is
+       conventional enough to filter on (2026-07-31). */
+    if (/share-card|sharecard|social-card|og[-_]image|[-_]og\.|opengraph|twitter-card|splash/i.test(src)) return;
     let abs;
     try { abs = new URL(src, base).toString(); } catch (_) { return; }
     if (seen.has(abs)) return;
@@ -296,18 +305,50 @@ async function extractBrand(rawUrl) {
     }
   }
 
-  /* Real photographs from the page, so Yuki can read the lighting, the
-     setting and the way people are framed rather than guessing a world from
-     four hex values. Two is enough and keeps the vision cost near a cent. */
+  /* Real photographs from the page.
+     ───────────────────────────────────────────────────────────────────────
+     These started as something for Yuki to LOOK at, so she could read the
+     lighting and the framing instead of guessing a world from four hex
+     values. They are now also candidates to BE the artwork.
+
+     Dr. O, on a piece whose composition worked but whose picture was four
+     invented strangers in an invented room: "the art would work if it were
+     the real Agents. random graphics ruin it." A client who has photographed
+     their own product has already answered the question Chris was guessing
+     at, and a generated approximation of their world is strictly worse than
+     the world (2026-07-31).
+
+     So they come back MEASURED and ranked, largest first, because the one
+     that can carry a full-width band is almost always the hero rather than a
+     thumbnail. Buffers ride along so a caller can use one as the plate
+     without fetching it a second time. */
   const references = [];
   for (const src of findContentImages(html, u, [imageUrl].filter(Boolean))) {
-    if (references.length >= 2) break;
+    if (references.length >= 4) break;
     const got = await fetchCapped(src, IMG_CAP, true);
     if (got.error || !/^image\/(png|jpeg|jpg|webp)$/i.test(got.type || '')) continue;
     if (got.buf.length < 20000) continue;          // an icon, not a photograph
     const media = /jpg$/i.test(got.type) ? 'image/jpeg' : got.type.toLowerCase();
-    references.push({ url: src, data_url: 'data:' + media + ';base64,' + got.buf.toString('base64') });
+
+    /* Dimensions decide whether a picture can hold a band at full bleed. A
+       600px wide asset stretched across a 1024px canvas is visibly soft, and
+       shipping a soft hero is worse than drawing one. */
+    let w = 0, h = 0;
+    try {
+      const meta = await sharp(got.buf).metadata();
+      w = meta.width || 0; h = meta.height || 0;
+    } catch (_) { /* unreadable: it stays a look-at reference, never a plate */ }
+
+    references.push({
+      url: src,
+      data_url: 'data:' + media + ';base64,' + got.buf.toString('base64'),
+      width: w, height: h, bytes: got.buf.length,
+      usable_as_art: w >= 900 && h >= 600,
+    });
   }
+  // Largest area first. Ties and unmeasurable files sink, which is what we
+  // want: an unknown size is not a hero.
+  references.sort((a, b) => (b.width * b.height) - (a.width * a.height));
 
   if (!conceptDataUrl && !palette.length && !fonts.length && !references.length) {
     return { ok: false, error: 'nothing on ' + u.hostname + ' told us what the brand looks like' };

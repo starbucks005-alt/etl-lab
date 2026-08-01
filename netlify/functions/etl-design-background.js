@@ -37,6 +37,7 @@ const Anthropic = require('@anthropic-ai/sdk').default;
 const { getStore, connectLambda } = require('@netlify/blobs');
 const { buyerVoiceCore, buyerAgentPrompt } = require('./_social-voice.js');
 const composeBrief = require('./_design-compose.js');
+const designPlate  = require('./_design-plate.js');
 const brandExtract = require('./_brand-extract.js');
 /* Loaded LAZILY, inside step 4, and deliberately so.
    _design-render pulls in sharp, a native module. When sharp was missing from
@@ -79,6 +80,11 @@ function extractJson(raw) {
 }
 
 const NO_EM_DASH = 'Do not use em dashes or en dashes anywhere. Use commas or periods.';
+
+// Sentinel, not an error. Thrown to skip the generation block when the
+// client's own photograph has already supplied the plate, so a real failure
+// in that block stays distinguishable from a deliberate skip.
+const SKIP_GENERATION = Symbol('art already supplied');
 
 /* NAMED LOOKS A CLIENT CAN ASK FOR BY NAME.
    ─────────────────────────────────────────────────────────────────────────
@@ -200,6 +206,10 @@ exports.handler = async (event) => {
      footer. Now it does the job the uploaded logo did. An upload still wins,
      because a client who hands us a specific file means that file. */
   let brandFacts = '';
+  // The client's own photographs, kept so one of them can BE the artwork
+  // rather than merely inform it.
+  let brandRefs = [];
+  let brandPalette = [];
   if (brief.businessSite) {
     let ex = null;
     try {
@@ -218,6 +228,8 @@ exports.handler = async (event) => {
       : { ok: false, error: (ex && ex.error) || 'unknown' };
 
     if (ex && ex.ok) {
+      brandRefs = Array.isArray(ex.references) ? ex.references : [];
+      brandPalette = Array.isArray(ex.palette) ? ex.palette : [];
       if (!uploadedConcept && ex.concept_data_url) concept = imageBlock(ex.concept_data_url);
       const bits = [];
       if (ex.palette && ex.palette.length) bits.push('Colours actually used on ' + ex.source + ', most frequent first: ' + ex.palette.join(', ') + '.');
@@ -364,7 +376,61 @@ exports.handler = async (event) => {
     const blocks = Array.isArray(card.blocks) ? card.blocks : [];
 
     let artB64 = '';
+    let artSource = 'generated';
+
+    /* THE CLIENT'S OWN PHOTOGRAPH, WHERE THERE IS ONE.
+       ───────────────────────────────────────────────────────────────────
+       Dr. O, on a piece whose layout and copy she kept and whose picture she
+       did not: "the art would work if it were the real Agents. random
+       graphics ruin it." A business that has photographed its own product
+       has answered the question Chris was guessing at, so when the brand
+       reader brings back a photograph large enough to hold a band, that
+       photograph IS the artwork and nothing is generated.
+
+       It is graded rather than dropped in raw, because an ungraded site
+       photo makes the piece look like a screenshot of the homepage. Mono
+       with one accent out of the client's own palette is what turns it into
+       art direction, and it is what she asked for: "do the same black and
+       white with a blue" (2026-07-31). */
+    /* An UPLOADED photograph outranks anything scraped off the site. A client
+       who hands over a specific file means that file, which is already the
+       rule for the logo, and it is the only route that works when the good
+       photography is not reachable from the page markup. Almost Human is
+       exactly that case: the cast photo exists, and the page builds its
+       gallery from script so a server-side read finds nothing but the share
+       card (2026-07-31). */
+    let artPhoto = null;
+    if (uploadedConcept) {
+      const upBuf = designPlate.bufferFromDataUrl(body.concept_image);
+      if (upBuf && await designPlate.looksLikePhotograph(upBuf)) {
+        artPhoto = { data_url: body.concept_image, url: 'client upload', width: 0, height: 0 };
+      }
+    }
+    if (!artPhoto) artPhoto = designPlate.chooseArtPhoto(brandRefs);
+
+    if (artPhoto) {
+      try {
+        await save({ note: 'Chris is grading your photography.' });
+        const src = designPlate.bufferFromDataUrl(artPhoto.data_url);
+        const graded = await designPlate.gradePlate(src, {
+          width: canvas.w, height: canvas.h,
+          palette: brandPalette,
+          accentHex: (Array.isArray(yuki.palette) && yuki.palette.length)
+            ? (yuki.palette.find(p => p && p.hex) || {}).hex : null,
+        });
+        artB64 = graded.toString('base64');
+        artSource = 'client_photo';
+        console.log('[etl-design] plate from client photo', artPhoto.url, artPhoto.width + 'x' + artPhoto.height);
+      } catch (e) {
+        // Falls through to generation. A failed grade must not cost the job.
+        console.error('[etl-design] photo grade failed, generating instead', e && e.message);
+        artB64 = '';
+        artSource = 'generated';
+      }
+    }
+
     try {
+      if (artB64) throw SKIP_GENERATION;   // the photo above already did it
       const orient = canvas.w > canvas.h ? 'landscape' : (canvas.h > canvas.w ? 'portrait' : 'square');
       const artPrompt = [
         'Editorial marketing artwork for ' + co + '. Subject: ' + brief.promoting + '.',
@@ -383,6 +449,13 @@ exports.handler = async (event) => {
            bland, boring, does not black mirror me." A glow is a symbol. Two
            people at a table, one of them listening to someone not in the
            room, is a situation (2026-07-31). */
+        /* THE ASSIGNED REGISTER, REPEATED TO THE ARTIST.
+           Yuki received the lock and wrote it back correctly, and Chris still
+           returned a near-black room with a blue rim light on a face for a
+           register whose text says bright, ordinary, nothing glows. Her mood
+           line reaches him as one sentence among thirty; the register has to
+           arrive as a rule of its own or it loses to the rest (2026-07-31). */
+        LOOKS[brief.look] ? ('THE CLIENT HAS SPECIFIED THE LOOK AND IT IS NOT NEGOTIABLE. ' + LOOKS[brief.look] + ' Follow this even where it contradicts your instinct for what an advert should look like. If it says bright and ordinary, the picture is bright and ordinary.') : '',
         'DRAW A SITUATION, NOT A SYMBOL. Something is happening in this picture and something about it is quietly wrong. Never solve it with a glow, an aura, a rim light or a lit-up face: that is decoration standing in for an idea. The unsettling part belongs in what people are DOING, not in the lighting.',
         'MATCH THE CLIENT\'S OWN VISUAL WORLD. The mood line above was read off their real photography. Shoot in that world: the same kind of place, the same light, the same sort of people, framed the same way. An ordinary, warm, well lit scene in which something is deeply wrong is far stronger than a dark one that announces itself.',
         'DEPICT THE IDEA, NOT THE NOUNS. Do not illustrate the words of the brief object by object. Work out what this business actually IS and show that. If a prop would make a viewer file this under the wrong category, it is the wrong prop, however well it matches the wording.',
@@ -434,11 +507,14 @@ exports.handler = async (event) => {
       artB64 = await openaiImage.generate(artPrompt, openaiImage.SIZES[orient], 'medium');
       await save({ note: 'Yuki is composing the piece.' });
     } catch (e) {
-      // No artwork is survivable: Yuki can compose a strong type-led piece
-      // in her own palette. Losing the whole job over it is not.
-      console.error('[etl-design] artwork failed', e && e.message);
-      await save({ result: Object.assign(state.result, { art_error: String(e && e.message).slice(0, 200) }) });
+      if (e !== SKIP_GENERATION) {
+        // No artwork is survivable: Yuki can compose a strong type-led piece
+        // in her own palette. Losing the whole job over it is not.
+        console.error('[etl-design] artwork failed', e && e.message);
+        await save({ result: Object.assign(state.result, { art_error: String(e && e.message).slice(0, 200) }) });
+      }
     }
+    state.result.art_source = artSource;
 
     /* Yuki composes. She is given the exact canvas, the exact words, and the
        artwork to build around. */
