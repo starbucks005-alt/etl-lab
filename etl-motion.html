@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ETL Motion &middot; two stills, one clip</title>
+<meta name="description" content="Turn two images into a slow cinematic clip. A push in, a crossfade, a pull out. Renders in your browser, nothing is uploaded and nothing is generated.">
+<link rel="icon" type="image/png" href="/favicon.png">
+<style>
+  /* ─────────────────────────────────────────────────────────────────────
+     WHY THIS IS NOT VEO (2026-08-01)
+
+     Half a day went into wiring Google Veo for this, and Dr. O worked out
+     what the reference clip actually was: "It is literally just a Premiere
+     Pro animation. The image zooms in then fades to next image and that one
+     zooms out. that's it, it is not really a video in the way that Gemini
+     and the others make them."
+
+     She is right, and it explains why the Claude Design version "worked
+     beautifully for me" while every generative attempt drifted. Nothing is
+     invented, so nothing can drift. Her own objection to a generated pair,
+     "they have on different clothes", cannot occur here: both frames stay
+     exactly the files you hand over.
+
+     Reference clip, measured rather than guessed: 16.00s, 30fps, no audio
+     track.
+
+     COST. Veo bills per second of footage, so that same 16 seconds is $6.40
+     at the standard tier. This is a canvas and a MediaRecorder. It costs
+     nothing, it cannot be refused on policy, and it finishes in real time
+     instead of up to six minutes.
+
+     IN THE BROWSER, ON PURPOSE. No upload, no function, no storage, no bill.
+     The images never leave the machine. It also means the render is exactly
+     what you previewed, because it is the same code drawing both.
+     ───────────────────────────────────────────────────────────────────── */
+  :root{
+    --bg:#0e0e10; --bg2:#151517; --panel:#1b1b1f; --line:#2e2e34;
+    --sig:#ff5a3c; --sig-br:#ff7a5f; --text:#e6e3dc; --mute:#9a958c;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font:16px/1.55 "Public Sans", system-ui, -apple-system, sans-serif;
+  }
+  .wrap{max-width:1080px; margin:0 auto; padding:2.2rem 1.2rem 4rem;}
+  h1{font-size:1.9rem; margin:0 0 .3rem; letter-spacing:-.01em;}
+  .sub{color:var(--mute); margin:0 0 2rem; max-width:62ch;}
+  .panel{background:var(--bg2); border:1px solid var(--line); border-radius:12px; padding:1.1rem 1.2rem; margin-bottom:1.1rem;}
+  label{display:block; font-weight:600; font-size:.9rem; margin:0 0 .35rem;}
+  .hint{font-size:.78rem; color:var(--mute); margin-top:.3rem;}
+  input[type=file]{width:100%; color:var(--mute); font-size:.9rem;}
+  input[type=range]{width:100%; accent-color:var(--sig);}
+  .row{display:grid; grid-template-columns:1fr 1fr; gap:1.1rem;}
+  @media(max-width:640px){ .row{grid-template-columns:1fr;} }
+  .thumb{margin-top:.7rem; width:100%; aspect-ratio:16/9; object-fit:cover;
+         border-radius:8px; border:1px solid var(--line); background:#000; display:none;}
+  .thumb.on{display:block;}
+  canvas{width:100%; aspect-ratio:16/9; background:#000; border-radius:10px;
+         border:1px solid var(--line); display:block;}
+  button{
+    font:inherit; font-weight:600; padding:.7rem 1.4rem; border-radius:999px;
+    background:var(--sig); color:#17110f; border:1px solid var(--sig); cursor:pointer;
+  }
+  button:hover{background:var(--sig-br); border-color:var(--sig-br);}
+  button[disabled]{opacity:.45; cursor:not-allowed;}
+  button.ghost{background:transparent; color:var(--text); border-color:var(--line);}
+  .controls{display:flex; gap:.7rem; flex-wrap:wrap; align-items:center; margin-top:1rem;}
+  .note{color:var(--mute); font-size:.85rem; margin-top:.8rem; min-height:1.3em;}
+  .err{color:var(--sig-br); font-size:.9rem; margin-top:.8rem;}
+  .val{color:var(--sig); font-weight:600;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>ETL Motion</h1>
+  <p class="sub">Two stills become one slow clip: a push in on the first, a crossfade, a pull out on the
+  second. Everything happens in this browser, so nothing is uploaded, nothing is generated, and nothing
+  costs anything. The people in your images stay exactly the people in your images.</p>
+
+  <div class="panel">
+    <div class="row">
+      <div>
+        <label for="f-a">First image</label>
+        <input id="f-a" type="file" accept="image/png,image/jpeg,image/webp">
+        <img id="t-a" class="thumb" alt="First frame">
+      </div>
+      <div>
+        <label for="f-b">Second image</label>
+        <input id="f-b" type="file" accept="image/png,image/jpeg,image/webp">
+        <img id="t-b" class="thumb" alt="Second frame">
+      </div>
+    </div>
+    <div class="hint">Same people, same clothes, same room works best. The whole point of this over a
+    generated clip is that neither end is reinvented.</div>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div>
+        <label for="f-secs">Length: <span class="val" id="v-secs">16</span> seconds</label>
+        <input id="f-secs" type="range" min="4" max="30" step="1" value="16">
+        <div class="hint">The reference clip was 16 seconds at 30fps.</div>
+      </div>
+      <div>
+        <label for="f-zoom">Zoom: <span class="val" id="v-zoom">12</span>%</label>
+        <input id="f-zoom" type="range" min="0" max="30" step="1" value="12">
+        <div class="hint">How far the push in travels. Gentle reads as cinematic, hard reads as a slideshow.</div>
+      </div>
+    </div>
+  </div>
+
+  <canvas id="stage" width="1280" height="720"></canvas>
+
+  <div class="controls">
+    <button id="preview" disabled>Preview</button>
+    <button id="render" class="ghost" disabled>Render and download</button>
+  </div>
+  <div class="note" id="note">Add two images to begin.</div>
+  <div class="err" id="err"></div>
+
+</div>
+
+<script>
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var FPS = 30;
+  var imgA = null, imgB = null, busy = false;
+
+  var canvas = $('stage'), ctx = canvas.getContext('2d');
+
+  function secs(){ return parseInt($('f-secs').value, 10); }
+  function zoom(){ return parseInt($('f-zoom').value, 10) / 100; }
+
+  function ready(){
+    var ok = !!(imgA && imgB) && !busy;
+    $('preview').disabled = !ok;
+    $('render').disabled = !ok;
+    return ok;
+  }
+
+  function load(file, slot){
+    if (!file) return;
+    var url = URL.createObjectURL(file);
+    var img = new Image();
+    img.onload = function(){
+      if (slot === 'a') { imgA = img; $('t-a').src = url; $('t-a').classList.add('on'); }
+      else              { imgB = img; $('t-b').src = url; $('t-b').classList.add('on'); }
+      // Match the canvas to the FIRST image's shape, so a 16:9 pair renders
+      // 16:9 and a square pair renders square. Cropping a portrait into a
+      // fixed landscape frame is how you lose the top of someone's head.
+      if (imgA) {
+        var w = Math.min(1280, imgA.naturalWidth);
+        var h = Math.round(w * imgA.naturalHeight / imgA.naturalWidth);
+        // Even dimensions: H.264 refuses odd ones.
+        canvas.width  = w % 2 ? w - 1 : w;
+        canvas.height = h % 2 ? h - 1 : h;
+        canvas.style.aspectRatio = canvas.width + ' / ' + canvas.height;
+      }
+      drawFrame(0);
+      $('note').textContent = ready() ? 'Ready. Preview it, or render and download.' : 'Add the other image.';
+      ready();
+    };
+    img.onerror = function(){ $('err').textContent = 'That file could not be read as an image.'; };
+    img.src = url;
+  }
+
+  /* COVER, not stretch. The image fills the frame and overflows on one axis,
+     which is also what gives the zoom something to travel into. */
+  function drawCover(img, scale, alpha){
+    var cw = canvas.width, ch = canvas.height;
+    var base = Math.max(cw / img.naturalWidth, ch / img.naturalHeight);
+    var s = base * scale;
+    var w = img.naturalWidth * s, h = img.naturalHeight * s;
+    ctx.globalAlpha = alpha;
+    ctx.drawImage(img, (cw - w) / 2, (ch - h) / 2, w, h);
+    ctx.globalAlpha = 1;
+  }
+
+  /* Ease in and out, so the move starts and stops rather than running at a
+     constant speed. A linear zoom is the thing that reads as a slideshow. */
+  function ease(t){ return t < 0.5 ? 2*t*t : 1 - Math.pow(-2*t + 2, 2) / 2; }
+
+  function drawFrame(t){                 // t is 0..1 across the whole clip
+    var z = zoom();
+    var cw = canvas.width, ch = canvas.height;
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, cw, ch);
+    if (!imgA) return;
+
+    /* The crossfade sits in the middle fifth. Before it, A is pushing in.
+       After it, B is pulling out, which is what makes the second half feel
+       like a release rather than more of the same. */
+    var FADE = 0.20;
+    var mid0 = 0.5 - FADE / 2, mid1 = 0.5 + FADE / 2;
+
+    var aProg = Math.min(1, t / mid1);            // A keeps moving through the fade
+    var aScale = 1 + z * ease(aProg);
+    var bProg = Math.max(0, (t - mid0) / (1 - mid0));
+    var bScale = (1 + z) - z * ease(bProg);
+
+    if (t <= mid0) {
+      drawCover(imgA, aScale, 1);
+    } else if (t >= mid1 && imgB) {
+      drawCover(imgB, bScale, 1);
+    } else if (imgB) {
+      var k = (t - mid0) / (mid1 - mid0);
+      drawCover(imgA, aScale, 1);
+      drawCover(imgB, bScale, k);
+    } else {
+      drawCover(imgA, aScale, 1);
+    }
+  }
+
+  function run(onFrame, done){
+    busy = true; ready();
+    var total = secs() * FPS, i = 0;
+    var start = performance.now();
+    (function step(){
+      // Wall clock, not frame count, so the preview plays at real speed on a
+      // slow machine instead of turning into slow motion.
+      var elapsed = (performance.now() - start) / 1000;
+      var t = Math.min(1, elapsed / secs());
+      drawFrame(t);
+      if (onFrame) onFrame(t);
+      i++;
+      if (t < 1) requestAnimationFrame(step);
+      else { busy = false; ready(); if (done) done(); }
+    })();
+  }
+
+  /* MP4 if the browser will give us one. Chrome has supported H.264 in
+     MediaRecorder since 126, and mp4 is what drops straight into Premiere.
+     WebM is the fallback rather than the target. */
+  function pickMime(){
+    var candidates = [
+      'video/mp4;codecs=avc1.42E01E',
+      'video/mp4',
+      'video/webm;codecs=vp9',
+      'video/webm'
+    ];
+    for (var i = 0; i < candidates.length; i++) {
+      if (window.MediaRecorder && MediaRecorder.isTypeSupported(candidates[i])) return candidates[i];
+    }
+    return null;
+  }
+
+  $('f-a').addEventListener('change', function(e){ $('err').textContent=''; load(e.target.files[0], 'a'); });
+  $('f-b').addEventListener('change', function(e){ $('err').textContent=''; load(e.target.files[0], 'b'); });
+  $('f-secs').addEventListener('input', function(){ $('v-secs').textContent = secs(); drawFrame(0); });
+  $('f-zoom').addEventListener('input', function(){ $('v-zoom').textContent = $('f-zoom').value; drawFrame(0); });
+
+  $('preview').addEventListener('click', function(){
+    $('err').textContent = '';
+    $('note').textContent = 'Playing.';
+    run(null, function(){ $('note').textContent = 'That is the clip. Render it when you are happy.'; });
+  });
+
+  $('render').addEventListener('click', function(){
+    $('err').textContent = '';
+    var mime = pickMime();
+    if (!mime) { $('err').textContent = 'This browser cannot record video. Chrome or Edge will.'; return; }
+
+    var stream = canvas.captureStream(FPS);
+    var chunks = [];
+    var rec;
+    try {
+      rec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 8000000 });
+    } catch (e) {
+      $('err').textContent = 'Could not start the recorder: ' + e.message; return;
+    }
+    rec.ondataavailable = function(e){ if (e.data && e.data.size) chunks.push(e.data); };
+    rec.onstop = function(){
+      var ext = mime.indexOf('mp4') >= 0 ? 'mp4' : 'webm';
+      var blob = new Blob(chunks, { type: mime.split(';')[0] });
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'etl-motion.' + ext;
+      a.click();
+      $('note').textContent = 'Saved as etl-motion.' + ext + ', ' +
+        (blob.size / 1024 / 1024).toFixed(1) + 'MB, ' + secs() + 's at ' + FPS + 'fps.' +
+        (ext === 'webm' ? ' This browser would not give us mp4.' : '');
+    };
+
+    $('note').textContent = 'Rendering in real time, ' + secs() + ' seconds.';
+    rec.start();
+    run(null, function(){
+      // A beat before stopping, so the last frame is definitely in the file.
+      setTimeout(function(){ rec.stop(); }, 250);
+    });
+  });
+
+  drawFrame(0);
+})();
+</script>
+</body>
+</html>
