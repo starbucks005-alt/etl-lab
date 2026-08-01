@@ -28,8 +28,22 @@ exports.handler = async (event) => {
     store = getStore('etl_design_jobs');
     job = await store.get(jobId, { type: 'json' });
     if (!job) return { statusCode: 404, body: 'not found' };
-    const key = job.result && job.result.image_key;
-    if (!key) return { statusCode: 404, body: 'no image yet' };
+    /* LAYERS, so the animator can composite.
+       ─────────────────────────────────────────────────────────────────────
+       The relay has stored three things for every piece since yesterday: the
+       finished render, Chris's artwork on its own (plate) and the type on
+       transparency (type). Only the first was ever reachable, so the type
+       layer has existed unused this whole time.
+
+       It matters now because Veo can animate the artwork but turns lettering
+       into nonsense, which is the one defect a design firm cannot ship. So
+       the plate moves, and the type is composited back over it crisp. That
+       needs both layers addressable (2026-08-01). */
+    const layer = String((event.queryStringParameters && event.queryStringParameters.layer) || '').toLowerCase();
+    const key = layer === 'plate' ? (job.result && job.result.plate_key)
+              : layer === 'type'  ? (job.result && job.result.type_key)
+              : (job.result && job.result.image_key);
+    if (!key) return { statusCode: 404, body: layer ? ('no ' + layer + ' layer for this piece') : 'no image yet' };
     buf = await store.get(key, { type: 'arrayBuffer' });
     if (!buf) return { statusCode: 404, body: 'no image yet' };
     // A base64 body has a hard ceiling (~6MB) and exceeding it returns a 502

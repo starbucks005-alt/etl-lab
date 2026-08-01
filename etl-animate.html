@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ETL Design &middot; put your piece in motion</title>
+<meta name="description" content="Turn a finished ETL Design piece into a short clip. The artwork moves, the type stays crisp.">
+<link rel="icon" type="image/png" href="/favicon.png">
+<style>
+  /* ─────────────────────────────────────────────────────────────────────
+     WHY THE TYPE IS COMPOSITED RATHER THAN ANIMATED (2026-08-01)
+
+     Veo will happily animate a finished piece. It also turns every letter
+     into approximate nonsense while it does it, which is the one defect a
+     design firm cannot ship: Dr. O saw exactly that in Flow, "typos, made up
+     people on the screen".
+
+     The relay has stored the piece as separate layers since yesterday, and
+     nothing had ever used the second one:
+       plate  Chris's artwork alone
+       type   the headline and blocks on transparency
+
+     So the PLATE goes to Veo and moves, and the TYPE is drawn back over
+     every frame here, at full resolution, untouched. Moving artwork, crisp
+     lettering, and the words are the ones Reid actually wrote rather than a
+     model's impression of them.
+
+     The compositing happens in the browser for the same reasons as ETL
+     Motion: no upload, no function, no storage, no bill, and the render is
+     exactly what was previewed because it is the same code drawing both.
+     ───────────────────────────────────────────────────────────────────── */
+  :root{
+    --bg:#0e0e10; --bg2:#151517; --panel:#1b1b1f; --line:#2e2e34;
+    --sig:#ff5a3c; --sig-br:#ff7a5f; --text:#e6e3dc; --mute:#9a958c;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--text);
+       font:16px/1.55 "Public Sans", system-ui, -apple-system, sans-serif;}
+  .wrap{max-width:900px; margin:0 auto; padding:2.2rem 1.2rem 4rem;}
+  h1{font-size:1.7rem; margin:0 0 .3rem;}
+  .sub{color:var(--mute); margin:0 0 1.6rem; max-width:60ch;}
+  .panel{background:var(--bg2); border:1px solid var(--line); border-radius:12px;
+         padding:1.1rem 1.2rem; margin-bottom:1.1rem;}
+  label{display:block; font-weight:600; font-size:.88rem; margin:0 0 .3rem;}
+  input[type=text]{width:100%; padding:.6rem .8rem; border-radius:8px; background:var(--panel);
+                   border:1px solid var(--line); color:var(--text); font:inherit;}
+  .hint{font-size:.78rem; color:var(--mute); margin-top:.35rem;}
+  canvas{width:100%; background:#000; border-radius:10px; border:1px solid var(--line); display:block;}
+  button{font:inherit; font-weight:600; padding:.65rem 1.3rem; border-radius:999px;
+         background:var(--sig); color:#17110f; border:1px solid var(--sig); cursor:pointer;}
+  button:hover{background:var(--sig-br); border-color:var(--sig-br);}
+  button[disabled]{opacity:.45; cursor:not-allowed;}
+  button.ghost{background:transparent; color:var(--text); border-color:var(--line);}
+  .controls{display:flex; gap:.7rem; flex-wrap:wrap; align-items:center; margin-top:1rem;}
+  .note{color:var(--mute); font-size:.88rem; margin-top:.8rem; min-height:1.3em;}
+  .err{color:var(--sig-br); font-size:.9rem; margin-top:.6rem;}
+  .steps{font-size:.82rem; color:var(--mute); margin-top:.5rem;}
+  .steps b{color:var(--text); font-weight:600;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Put your piece in motion</h1>
+  <p class="sub">The artwork moves. The type does not, because it is drawn back over every frame at full
+  resolution rather than regenerated. So the words stay the words.</p>
+
+  <div class="panel">
+    <label for="f-job">Your piece</label>
+    <input id="f-job" type="text" placeholder="dsn-20260801...">
+    <div class="hint">The job id from your brief. It is in the address of your finished piece.</div>
+
+    <label for="f-action" style="margin-top:1rem;">What should happen?</label>
+    <input id="f-action" type="text" placeholder="she sets the cup down and looks up">
+    <div class="hint"><b>Keep it small and concrete.</b> A short, believable movement holds. Asking for a
+    journey to somewhere not in the picture is how a clip wanders off into a room that does not exist.</div>
+  </div>
+
+  <canvas id="stage" width="1080" height="1080"></canvas>
+
+  <div class="controls">
+    <button id="go">Make the clip</button>
+    <button id="save" class="ghost" disabled>Download</button>
+  </div>
+  <div class="note" id="note">Enter a job id to begin.</div>
+  <div class="steps" id="steps"></div>
+  <div class="err" id="err"></div>
+
+</div>
+
+<video id="src" playsinline muted style="display:none;"></video>
+
+<script>
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var FPS = 30;
+  var canvas = $('stage'), ctx = canvas.getContext('2d');
+  var video = $('src');
+  var typeImg = null, ready = false, blobUrl = null;
+
+  var params = new URLSearchParams(location.search);
+  if (params.get('job')) $('f-job').value = params.get('job');
+
+  function say(s){ $('note').textContent = s; }
+  function step(s){ $('steps').innerHTML = s; }
+  function fail(s){ $('err').textContent = s; $('go').disabled = false; }
+
+  function loadImage(url){
+    return new Promise(function(res, rej){
+      var i = new Image();
+      // Same origin, so the canvas stays untainted and can be recorded.
+      i.onload = function(){ res(i); };
+      i.onerror = function(){ rej(new Error('could not load ' + url)); };
+      i.src = url;
+    });
+  }
+
+  /* The type layer is optional on purpose: a piece animated straight from
+     supplied frames has no type, and that is a perfectly good clip. */
+  function typeUrl(job){ return '/.netlify/functions/etl-design-image?job_id=' + encodeURIComponent(job) + '&layer=type'; }
+  function videoUrl(job){ return '/.netlify/functions/etl-design-video?job_id=' + encodeURIComponent(job); }
+
+  function poll(job){
+    return new Promise(function(res, rej){
+      var tries = 0;
+      (function tick(){
+        tries++;
+        fetch('/.netlify/functions/etl-design-animate?job_id=' + encodeURIComponent(job))
+          .then(function(r){ return r.json(); })
+          .then(function(d){
+            var a = d.animation || {};
+            if (a.status === 'ready') return res(a);
+            if (a.status === 'error') return rej(new Error(a.error || 'the render failed'));
+            say('Rendering. ' + (a.note || '') + ' (' + tries * 8 + 's)');
+            // 8s between polls: Veo takes from about 11 seconds to 6 minutes,
+            // and every poll is also what drives the job to completion.
+            if (tries > 60) return rej(new Error('the render did not finish in time'));
+            setTimeout(tick, 8000);
+          })
+          .catch(function(e){ if (tries > 60) rej(e); else setTimeout(tick, 8000); });
+      })();
+    });
+  }
+
+  function pickMime(){
+    var c = ['video/mp4;codecs=avc1.42E01E', 'video/mp4', 'video/webm;codecs=vp9', 'video/webm'];
+    for (var i = 0; i < c.length; i++) {
+      if (window.MediaRecorder && MediaRecorder.isTypeSupported(c[i])) return c[i];
+    }
+    return null;
+  }
+
+  /* Composite: the clip underneath, the type over it, recorded as it plays.
+     Real time, because MediaRecorder captures a live stream. A four second
+     piece takes four seconds. */
+  function composite(){
+    return new Promise(function(res, rej){
+      var mime = pickMime();
+      if (!mime) return rej(new Error('This browser cannot record video. Chrome or Edge will.'));
+
+      canvas.width  = video.videoWidth  % 2 ? video.videoWidth  - 1 : video.videoWidth;
+      canvas.height = video.videoHeight % 2 ? video.videoHeight - 1 : video.videoHeight;
+
+      var tracks = canvas.captureStream(FPS).getVideoTracks();
+      // Veo returns a clip WITH audio, and it would be thrown away by
+      // capturing the canvas alone. Carry it across when the browser allows.
+      try {
+        var vs = video.captureStream ? video.captureStream() : null;
+        if (vs) vs.getAudioTracks().forEach(function(t){ tracks.push(t); });
+      } catch (_) {}
+      var stream = new MediaStream(tracks);
+
+      var rec, chunks = [];
+      try { rec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 8000000 }); }
+      catch (e) { return rej(e); }
+      rec.ondataavailable = function(e){ if (e.data && e.data.size) chunks.push(e.data); };
+      rec.onstop = function(){
+        var ext = mime.indexOf('mp4') >= 0 ? 'mp4' : 'webm';
+        res({ blob: new Blob(chunks, { type: mime.split(';')[0] }), ext: ext });
+      };
+
+      function draw(){
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        // Full resolution, unscaled by the model: the whole point.
+        if (typeImg) ctx.drawImage(typeImg, 0, 0, canvas.width, canvas.height);
+        if (!video.ended) requestAnimationFrame(draw);
+      }
+
+      video.onended = function(){ setTimeout(function(){ try { rec.stop(); } catch (_) {} }, 200); };
+      video.currentTime = 0;
+      video.muted = false;
+      rec.start();
+      video.play().then(function(){ draw(); }).catch(rej);
+    });
+  }
+
+  $('go').addEventListener('click', function(){
+    var job = $('f-job').value.trim();
+    var action = $('f-action').value.trim();
+    $('err').textContent = '';
+    if (!/^dsn-[0-9a-z-]+$/i.test(job)) { fail('That does not look like a job id.'); return; }
+    $('go').disabled = true; $('save').disabled = true; ready = false;
+
+    step('<b>1</b> asking Veo to move the artwork &nbsp; <b>2</b> laying your type back over it');
+    say('Starting the render.');
+
+    fetch('/.netlify/functions/etl-design-animate', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ job_id: job, action: action })
+    })
+      .then(function(r){ return r.json().then(function(d){ d.__s = r.status; return d; }); })
+      .then(function(d){
+        if (d.__s >= 400 && d.__s !== 409) throw new Error(d.message || d.error || ('could not start (' + d.__s + ')'));
+        say('Rendering.');
+        return poll(job);
+      })
+      .then(function(){
+        say('Fetching the clip and your type layer.');
+        // The type layer is optional: a piece with no stored type still
+        // animates, it just has nothing to lay over it.
+        return Promise.all([
+          new Promise(function(res, rej){
+            video.onloadedmetadata = function(){ res(); };
+            video.onerror = function(){ rej(new Error('the clip could not be loaded')); };
+            video.src = videoUrl(job);
+          }),
+          loadImage(typeUrl(job)).then(function(i){ typeImg = i; }).catch(function(){ typeImg = null; })
+        ]);
+      })
+      .then(function(){
+        say('Compositing in real time' + (typeImg ? ', type on top.' : '. This piece has no stored type layer, so it is artwork only.'));
+        return composite();
+      })
+      .then(function(out){
+        if (blobUrl) URL.revokeObjectURL(blobUrl);
+        blobUrl = URL.createObjectURL(out.blob);
+        $('save').disabled = false; $('go').disabled = false; ready = true;
+        $('save').dataset.ext = out.ext;
+        say('Done. ' + (out.blob.size / 1024 / 1024).toFixed(1) + 'MB' + (typeImg ? ', type crisp over moving artwork.' : '.'));
+        step('');
+      })
+      .catch(function(e){ fail(e.message || String(e)); say(''); step(''); });
+  });
+
+  $('save').addEventListener('click', function(){
+    if (!ready || !blobUrl) return;
+    var a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = 'etl-design-motion.' + ($('save').dataset.ext || 'mp4');
+    a.click();
+  });
+})();
+</script>
+</body>
+</html>

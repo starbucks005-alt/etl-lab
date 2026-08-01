@@ -271,7 +271,13 @@
       <div class="paybar">
         <a class="cta" id="dl" href="#" download target="_blank" rel="noopener">Download the graphic</a>
         <button class="cta ghost" id="copy">Copy the caption</button>
+        <!-- The artwork moves and the type is laid back over it crisp, which
+             is why this is a separate page rather than a checkbox: it needs a
+             sentence describing the movement, and it renders in real time in
+             the browser (2026-08-01). -->
+        <a class="cta ghost" id="animate" href="#" target="_blank" rel="noopener">Put it in motion</a>
       </div>
+      <div class="hint" style="margin-top:.5rem;">Motion is an add-on and costs a little more, since the clip is genuinely rendered rather than assembled.</div>
       <div class="credits" id="credits"></div>
     </div>
 
@@ -659,6 +665,9 @@
     show($('done-card'), true);
     var img = (pack && pack.image_url) || $('r-img').src;
     if (img) { $('dl').href = img; }
+    // The motion page needs the job, nothing else: it fetches the layers and
+    // starts the render itself.
+    if (jobId) { $('animate').href = '/etl-animate?job=' + encodeURIComponent(jobId); }
     if (pack) {
       if (pack.post) $('r-post').textContent = pack.post;
       if (pack.hashtags) $('r-tags').textContent = pack.hashtags;
