@@ -78,7 +78,24 @@ function accentFrom(palette, fallback) {
    would have been so nothing downstream has to know the difference. */
 async function gradePlate(buf, { width, height, accentHex, palette, strength }) {
   const a = accentFrom(palette, accentHex);
-  const mix = Math.min(0.95, Math.max(0.05, Number(strength) || 0.34));
+  /* THE GRADE MUST NOT BECOME THE EFFECT.
+     ─────────────────────────────────────────────────────────────────────
+     Chris is already told that the unease belongs in what people are DOING
+     and never in the lighting. That rule binds the grader too, and the
+     first version broke it: at 34% the colour was the loudest thing in the
+     frame and the piece read as edited rather than photographed.
+
+     Dr. O, comparing a graded real photograph against a generated one with
+     a blue light on a single face: the good one feels off "in a black
+     mirror way" because of the SPACING BETWEEN THE PEOPLE, and the other
+     "looks like you went into photoshop and played around." Everything
+     uncanny in the second one had been applied afterwards, and an edit is
+     something a person did to a picture rather than something happening
+     inside it.
+
+     So the accent is deliberately quiet. It should be noticed on the
+     second look, not the first (2026-08-01). */
+  const mix = Math.min(0.95, Math.max(0.05, Number(strength) || 0.18));
 
   /* A flat tint is NOT a duotone. sharp's tint multiplies every pixel toward
      the accent, so the first attempt came back drowned in blue: the picture
@@ -88,7 +105,16 @@ async function gradePlate(buf, { width, height, accentHex, palette, strength }) 
      keeps its full tonal range and the colour only lives where the darks are
      (2026-07-31). */
   const mono = await sharp(buf)
-    .resize(width, height, { fit: 'cover', position: 'attention' })
+    /* CENTRE, not 'attention'. sharp's attention strategy hunts for the most
+       salient region, which on a wide photograph of a group means it locks
+       onto the nearest two faces and throws the rest of the cast out of the
+       frame. That is exactly what happened to Almost Human: a table of eight
+       came back as two. Centre keeps the composition the photographer chose,
+       which on a group shot is the whole point of the shot (2026-08-01).
+
+       Note the artwork is still cropped a SECOND time by whichever layout
+       archetype Yuki lands on, so a band can take a slice of this. */
+    .resize(width, height, { fit: 'cover', position: 'centre' })
     .greyscale()
     .linear(1.14, -20)                      // contrast up, blacks down
     .png()

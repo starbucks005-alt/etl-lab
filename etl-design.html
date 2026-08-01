@@ -60,6 +60,11 @@
   input:focus,textarea:focus,select:focus{outline:none;border-color:var(--sig);}
   textarea{min-height:88px;resize:vertical;}
   .hint{font-size:.78rem;color:var(--mute);margin-top:.3rem;}
+  .look-chip{font:inherit;font-size:.84rem;padding:.42rem .9rem;border-radius:999px;
+             background:var(--panel);color:var(--text);border:1px solid var(--line);
+             cursor:pointer;transition:border-color .15s,background .15s;}
+  .look-chip:hover{border-color:var(--sig-br);}
+  .look-chip.is-on{background:var(--sig);border-color:var(--sig);color:#17110f;font-weight:600;}
   .row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
   .cta{margin-top:1.4rem;background:var(--sig);color:#12100f;border:0;border-radius:10px;padding:.85rem 1.6rem;font-weight:700;font-size:1rem;cursor:pointer;font-family:'Inter',sans-serif;}
   .cta:hover{background:var(--sig-br);}
@@ -131,9 +136,16 @@
       <input id="f-site" placeholder="yourbusiness.com">
       <div class="hint">We read your logo, your colours and your type off your own site, so the piece comes back looking like you and not like a template. This is also the only link that will appear on the piece; nothing gets invented.</div>
 
-      <label for="f-concept">Or upload your logo</label>
+      <!-- IT SAID "Or upload your logo", SO PEOPLE UPLOADED LOGOS.
+           Chris now grades a real photograph instead of drawing a scene when
+           one is supplied, and that is by a distance the biggest jump in
+           quality the firm has: your own room, your own people, instead of an
+           invented approximation of them. But a client with good photography
+           had no reason to think we wanted it. The label was quietly costing
+           us the best thing we do (2026-08-01). -->
+      <label for="f-concept">Or upload a logo, a photograph, anything you already use</label>
       <input id="f-concept" type="file" accept="image/png,image/jpeg,image/webp">
-      <div class="hint">Your logo, a screenshot of your site, or a piece you already use. An upload always wins over the website, so use this when you want one specific look matched.</div>
+      <div class="hint"><strong>Send a photograph if you have one.</strong> A real photo of your product, your room or your people becomes the artwork itself, graded to the piece, instead of us drawing something like it. A logo or a screenshot works too, and sets the look. An upload always wins over the website.</div>
       <div id="concept-preview" class="hide" style="margin-top:.7rem;display:flex;gap:.8rem;align-items:center;">
         <img id="concept-thumb" alt="Your concept image" style="width:76px;height:76px;object-fit:cover;border-radius:9px;border:1px solid var(--line);">
         <button type="button" class="cta ghost" id="concept-clear" style="margin-top:0;padding:.45rem 1rem;font-size:.85rem;">Remove</button>
@@ -163,6 +175,27 @@
           <option value="facebook">Facebook</option>
         </select>
       </div>
+    </div>
+
+    <!-- ── THE LOOK, AS CHIPS ───────────────────────────────────────────
+         Yuki used to pick the register herself from a list of six, and left
+         to choose she went warm every time: five My Echo pieces came back as
+         sepia storybook illustration for a product about frontier AI. A menu
+         always has a safe answer on it and a model takes the safe answer.
+
+         The register is now an input, and this is where it gets set. Blank is
+         a real choice, not a gap: it hands the decision back to Yuki, which
+         is right for a client who has no view. -->
+    <label>The look</label>
+    <div class="hint" style="margin-bottom:.5rem;">Optional. Pick one and the team builds it. Leave it and Yuki chooses for you.</div>
+    <div id="look-chips" style="display:flex;flex-wrap:wrap;gap:.45rem;margin-bottom:1rem;">
+      <button type="button" class="look-chip is-on" data-look="">Yuki decides</button>
+      <button type="button" class="look-chip" data-look="black mirror">Black Mirror</button>
+      <button type="button" class="look-chip" data-look="blade runner">Blade Runner</button>
+      <button type="button" class="look-chip" data-look="modern editorial">Editorial</button>
+      <button type="button" class="look-chip" data-look="technical">Technical</button>
+      <button type="button" class="look-chip" data-look="luxe">Luxe</button>
+      <button type="button" class="look-chip" data-look="warm">Warm</button>
     </div>
 
     <button class="cta" id="go">Put the team on it</button>
@@ -273,6 +306,8 @@
 (function(){
   var $ = function(id){ return document.getElementById(id); };
   var jobId = null, poll = null, priceLabel = '', conceptData = '';
+  // Empty string is the deliberate default: Yuki chooses, exactly as before.
+  var chosenLook = '';
 
   /* Guest identity. Persisted so the free allowance survives a reload; a new
      id per visit would hand out unlimited free briefs. This is a spend cap,
@@ -389,6 +424,7 @@
         business_name: $('f-name').value.trim(),
         business_site: $('f-site').value.trim(),
         platform: $('f-platform').value,
+        look: chosenLook,
         concept_image: conceptData,
         guest_id: guestId()
       })
@@ -594,6 +630,16 @@
       $('revise').disabled = false;
       $('revise-note').textContent = 'Could not make that change: ' + e.message;
     });
+  });
+
+  // One chip on at a time. Delegated so the row can grow without rewiring.
+  $('look-chips').addEventListener('click', function(e){
+    var chip = e.target.closest ? e.target.closest('.look-chip') : null;
+    if (!chip) return;
+    var all = this.querySelectorAll('.look-chip');
+    Array.prototype.forEach.call(all, function(c){ c.classList.remove('is-on'); });
+    chip.classList.add('is-on');
+    chosenLook = chip.getAttribute('data-look') || '';
   });
 
   $('f-concept').addEventListener('change', function(e){ loadConcept(e.target.files && e.target.files[0]); });
