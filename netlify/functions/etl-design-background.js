@@ -46,9 +46,14 @@ const brandExtract = require('./_brand-extract.js');
    that had never existed and showed nothing at all. Steps 1 to 3 are useful on
    their own; a broken renderer should cost the picture, not the whole job
    (2026-07-30). */
-let renderSvg = null, CANVASES = null, openaiImage = null, renderLoadError = null;
+/* renderOverlay MUST be in this list. It was not, from the day the layer
+   export was written until 2026-08-01, so every call to it threw a
+   ReferenceError into a catch that only logged, and the type layer was never
+   produced for a single piece. It looked like a renderer bug for hours; the
+   renderer was fine and had simply never been handed over. */
+let renderSvg = null, renderOverlay = null, CANVASES = null, openaiImage = null, renderLoadError = null;
 try {
-  ({ renderSvg, CANVASES } = require('./_design-render.js'));
+  ({ renderSvg, renderOverlay, CANVASES } = require('./_design-render.js'));
   openaiImage = require('./_openai-image.js');
 } catch (e) {
   renderLoadError = 'design renderer unavailable: ' + (e && e.message);
