@@ -127,23 +127,60 @@ exports.handler = async (event) => {
   job.animation = { status: 'running', step: 'queued', note: 'Starting the render.', started_at: new Date().toISOString() };
   try { await store.setJSON(jobId, job); } catch (_) {}
 
+  /* THE INVOKE WAS NEVER CHECKED, WHICH IS WHY IT FAILED SILENTLY.
+     ─────────────────────────────────────────────────────────────────────
+     Three consecutive runs reported "running" and then sat on this
+     function's own "queued" for ever. Each one came alive the moment I
+     POSTed the worker by hand. The old code awaited the invoke, logged
+     r.status, and returned success whatever that status was, so a 405, a
+     redirect that turned POST into GET, or a 404 on the wrong host looked
+     exactly like the 202 we want.
+
+     Two changes. The status is now VERIFIED, and the base URL is tried
+     rather than assumed: process.env.URL is the site's primary address,
+     which is not necessarily the host this request arrived on, and a
+     cross-host redirect on a POST is silently downgraded to GET, which the
+     worker answers with "POST only".
+
+     The invoke status is also returned to the caller, so a failure to start
+     is visible from outside without log access. That is the same lesson the
+     credit gate taught: a silent fail-open is indistinguishable from
+     working (2026-08-01). */
   const host = (event.headers && (event.headers.host || event.headers.Host)) || '';
   const proto = (event.headers && (event.headers['x-forwarded-proto'] || 'https')) || 'https';
-  const base = process.env.URL || (host ? proto + '://' + host : '');
-  if (!base) return json(500, { error: 'no_base_url' });
+  const bases = [];
+  if (host) bases.push(proto + '://' + host);          // the host we were actually called on
+  if (process.env.URL && bases.indexOf(process.env.URL) < 0) bases.push(process.env.URL);
+  if (!bases.length) return json(500, { error: 'no_base_url' });
 
-  try {
-    // AWAIT the invoke, never the work.
-    const r = await fetch(base + '/.netlify/functions/etl-design-animate-background', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ job_id: jobId, action }),
-    });
-    console.log('[etl-design-animate] background invoke', r.status, jobId);
-  } catch (e) {
-    console.error('[etl-design-animate] invoke failed', e && e.message);
-    return json(502, { error: 'could_not_start' });
+  let started = null, attempts = [];
+  for (const base of bases) {
+    try {
+      // AWAIT the invoke, never the work. A background function answers 202
+      // immediately; anything else means it did not accept the job.
+      const r = await fetch(base + '/.netlify/functions/etl-design-animate-background', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        // redirect:'manual' so a 3xx is reported rather than followed, since
+        // following it is what turns the POST into a GET.
+        redirect: 'manual',
+        body: JSON.stringify({ job_id: jobId, action }),
+      });
+      attempts.push(base + ' -> ' + r.status);
+      console.log('[etl-design-animate] background invoke', r.status, base, jobId);
+      if (r.status >= 200 && r.status < 300) { started = base; break; }
+    } catch (e) {
+      attempts.push(base + ' -> ' + ((e && e.message) || 'threw'));
+      console.error('[etl-design-animate] invoke failed', base, e && e.message);
+    }
   }
 
-  return json(200, { ok: true, status: 'running', estimate_cents: veo.estimateCents(4, false, true) });
+  if (!started) {
+    // Do not leave the job claiming to be running when nothing is.
+    job.animation = { status: 'error', step: 'queued', error: 'the renderer could not be started', attempts };
+    try { await store.setJSON(jobId, job); } catch (_) {}
+    return json(502, { error: 'could_not_start', attempts });
+  }
+
+  return json(200, { ok: true, status: 'running', invoked_via: started, attempts, estimate_cents: veo.estimateCents(4, false, true) });
 };
