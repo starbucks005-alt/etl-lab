@@ -84,11 +84,24 @@ function request(method, path, body) {
 
 /* Kick off a generation. Returns the long-running operation name, which is
    the only handle to the result; store it before doing anything else. */
-async function start({ prompt, firstFrameB64, lastFrameB64, seconds, fast, aspect }) {
+async function start({ prompt, firstFrameB64, lastFrameB64, seconds, fast, aspect, resolution }) {
   if (!apiKey()) throw new Error('no Gemini API key in the environment');
   if (!firstFrameB64) throw new Error('a first frame is required');
 
-  const model = fast === false ? MODEL_FULL : MODEL_FAST;
+  /* FAST CANNOT TAKE AN IMAGE.
+     ─────────────────────────────────────────────────────────────────────
+     The first live call ever made returned: "`inlineData` isn't supported by
+     this model." The field is right, the docs use exactly that shape, but
+     they use veo-3.1-generate-preview and we were calling the fast variant.
+     Fast appears to be text-to-video only.
+
+     Image-to-video is the entire point here, so a frame forces the standard
+     model. That is 40 cents a second against 12, and the cost note at the
+     top of this file was written on the wrong number: an 8 second clip from
+     a frame is $3.20, not 96 cents. Duration is where that gets managed, not
+     the tier, because the tier is no longer a choice (2026-08-01). */
+  const needsImage = !!firstFrameB64;
+  const model = (needsImage || fast === false) ? MODEL_FULL : MODEL_FAST;
   const instance = {
     prompt: String(prompt || '').slice(0, 2000),
     image: { inlineData: { mimeType: 'image/png', data: firstFrameB64 } },
@@ -102,7 +115,7 @@ async function start({ prompt, firstFrameB64, lastFrameB64, seconds, fast, aspec
     parameters: {
       durationSeconds: Math.min(8, Math.max(4, Number(seconds) || 8)),
       aspectRatio: aspect || '16:9',
-      resolution: '1080p',
+      resolution: resolution || '1080p',
       personGeneration: 'allow_adult',
     },
   });
@@ -150,8 +163,10 @@ function download(uri) {
 
 /* What a clip actually costs, so the caller can record it rather than guess.
    Fast 1080p is 12 cents a second. */
-function estimateCents(seconds, fast) {
-  const perSec = (fast === false) ? 40 : 12;
+function estimateCents(seconds, fast, hasImage) {
+  // Fast is 12 cents a second and cannot take a frame. Anything driven by an
+  // image is the standard model at 40, whatever the caller asked for.
+  const perSec = (hasImage || fast === false) ? 40 : 12;
   return Math.round(perSec * (Number(seconds) || 8));
 }
 

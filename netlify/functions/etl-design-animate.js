@@ -55,6 +55,12 @@ exports.handler = async (event) => {
       animation: a && {
         status: a.status || null, step: a.step || null, note: a.note || '',
         frames: a.frames || null, error: a.error || null,
+        // The frame B failure used to be recorded and never returned, so a
+        // silent fall back to single frame looked identical to success. The
+        // first live run fell back and there was no way to see why from
+        // outside (2026-08-01).
+        frame_b_error: a.frame_b_error || null,
+        model: a.model || null,
         cost_cents: a.cost_cents || null,
         video_url: a.video_key
           ? ('/.netlify/functions/etl-design-video?job_id=' + encodeURIComponent(jobId))
@@ -97,5 +103,5 @@ exports.handler = async (event) => {
     return json(502, { error: 'could_not_start' });
   }
 
-  return json(200, { ok: true, status: 'running', estimate_cents: veo.estimateCents(8, true) });
+  return json(200, { ok: true, status: 'running', estimate_cents: veo.estimateCents(4, false, true) });
 };

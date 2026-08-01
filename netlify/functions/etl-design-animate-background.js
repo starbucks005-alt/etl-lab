@@ -95,8 +95,14 @@ exports.handler = async (event) => {
     const prompt = action
       ? action + '. Slow, cinematic, one continuous take, no camera cuts, no text on screen.'
       : 'A slow cinematic move through the scene, one continuous take, no camera cuts, no text on screen.';
-    const started = await veo.start({ prompt, firstFrameB64: frameA, lastFrameB64: frameB, seconds: 8, fast: true });
-    await save({ operation: started.operation, model: started.model, cost_cents: veo.estimateCents(8, true) });
+    /* FOUR SECONDS, 720p, and both are cost decisions rather than taste.
+       Image-to-video forces the standard model at 40 cents a second, so 8
+       seconds is .20 and 4 is .60. Dr. O is cost-cutting in demo mode
+       and a clip nobody has approved yet is the wrong place to spend triple
+       (2026-08-01). */
+    const SECONDS = 4;
+    const started = await veo.start({ prompt, firstFrameB64: frameA, lastFrameB64: frameB, seconds: SECONDS, resolution: '720p' });
+    await save({ operation: started.operation, model: started.model, cost_cents: veo.estimateCents(SECONDS, false, true) });
 
     const deadline = Date.now() + MAX_WAIT_MS;
     let uri = null;
