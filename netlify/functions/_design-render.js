@@ -281,4 +281,40 @@ async function renderSvg(svg, canvasKey, conceptDataUrl) {
   return { png, overflow, canvas: c, svg: out };
 }
 
-module.exports = { CANVASES, renderSvg, normalizeFonts, findOverflow, SERIF, SANS, MONO };
+/* THE TYPE, ON TRANSPARENT ALPHA.
+   ─────────────────────────────────────────────────────────────────────────
+   A flattened PNG is a dead asset to an animator: the words are baked into
+   the picture, so the only available move is to push in on the whole frame,
+   type and all. Dr. O animates in Claude Design by handing it frames and an
+   action, and an overlay is what lets the plate move while the type holds
+   still.
+
+   Strips the artwork, and any rect the size of the artboard, which is the
+   background rather than a panel and is the same test panelUnder already
+   uses. Content panels SURVIVE on purpose: they are part of the type block,
+   and an overlay without them is unreadable over a moving picture.
+
+   Rasterised without flattening, so the alpha comes through (2026-07-31). */
+async function renderOverlay(svg, canvasKey) {
+  const c = CANVASES[canvasKey] || CANVASES.instagram;
+  let out = normalizeFonts(String(svg));
+
+  out = out.replace(/<image\b[^>]*>/gi, '').replace(/<\/image>/gi, '');
+
+  out = out.replace(/<rect\b([^>]*)>/gi, (whole, attrs) => {
+    const num = (name) => {
+      const hit = new RegExp('\\b' + name + '\\s*=\\s*["\']([-\\d.]+)').exec(attrs);
+      return hit ? parseFloat(hit[1]) : NaN;
+    };
+    const w = num('width'), h = num('height');
+    const isBackdrop = isFinite(w) && isFinite(h) && w >= c.w * 0.98 && h >= c.h * 0.98;
+    return isBackdrop ? '' : whole;
+  });
+
+  return sharp(Buffer.from(out), { density: 72 })
+    .resize(c.w, c.h, { fit: 'fill' })
+    .png()
+    .toBuffer();
+}
+
+module.exports = { CANVASES, renderSvg, renderOverlay, normalizeFonts, findOverflow, SERIF, SANS, MONO };

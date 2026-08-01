@@ -180,6 +180,8 @@
       <div class="swatches" id="r-palette"></div>
       <p class="hint" id="r-fonts"></p>
       <p id="r-look" style="margin-top:.8rem;"></p>
+      <button type="button" class="cta ghost" id="copy-brand" style="margin-top:1rem;padding:.5rem 1.1rem;font-size:.85rem;">Copy the brand sheet</button>
+      <span class="hint" id="copy-brand-note" style="margin-left:.6rem;"></span>
     </div>
 
     <div class="card">
@@ -454,7 +456,11 @@
         var d1 = document.createElement('div'); d1.className = 'sw';
         var c = document.createElement('span'); c.className='chip'; c.style.background = p.hex || '#000';
         var l = document.createElement('div'); l.className='lab';
-        l.textContent = (p.name||'') + ' ' + (p.hex||'');
+        /* Yuki says what each colour is FOR, and that line was being dropped.
+           "Ink #111111" is a swatch; "Ink #111111, body text" is a brand
+           sheet, and the second one is the part Dr. O actually uses. */
+        l.textContent = (p.name||'') + ' ' + (p.hex||'') + (p.use ? ('\n' + p.use) : '');
+        l.style.whiteSpace = 'pre-line';
         d1.appendChild(c); d1.appendChild(l); pal.appendChild(d1);
       });
     }
@@ -519,6 +525,47 @@
       $('buy').disabled = false;
       var pe = $('payerr'); pe.textContent = 'Could not open checkout: ' + e.message; show(pe, true);
     });
+  });
+
+  /* THE BRAND SHEET IS A DELIVERABLE, NOT A DISPLAY.
+     Dr. O, on Yuki's palette and reasoning: "do you know how often I use that
+     brand sheet? ALL THE TIME." It was on screen and nowhere else, so using
+     it meant retyping hex values off a page. Laid out as plain text with the
+     colours aligned, which is what pastes cleanly into a design system, a
+     brief, or a note to somebody else (2026-07-31). */
+  function brandSheetText(){
+    var r = (lastStatus && lastStatus.result) || {};
+    var b = r.brand || {}, f = b.fonts || {};
+    var name = ($('f-name').value || '').trim() || (r.business || 'This business');
+    var out = ['BRAND DIRECTION — ' + name, 'by Yuki Mendel, ETL Design', ''];
+    if (b.wordmark) out.push('WORDMARK', b.wordmark, '');
+    if (f.display || f.body) out.push('TYPE', (f.display||'') + ' for display', (f.body||'') + ' for body', '');
+    var pal = b.palette || [];
+    if (pal.length) {
+      out.push('PALETTE');
+      pal.forEach(function(p){
+        var n = (p.name||'').padEnd(16, ' ');
+        var h = (p.hex||'').padEnd(10, ' ');
+        out.push('  ' + n + h + (p.use||''));
+      });
+      out.push('');
+    }
+    if (b.look) out.push('THE LOOK', b.look, '');
+    return out.join('\n').trim();
+  }
+
+  $('copy-brand').addEventListener('click', function(){
+    var txt = brandSheetText(), note = $('copy-brand-note');
+    function ok(){ note.textContent = 'Copied.'; setTimeout(function(){ note.textContent = ''; }, 2500); }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt).then(ok, function(){ note.textContent = 'Could not copy, select it by hand.'; });
+    } else {
+      // Older browsers and any page not on https still get the text.
+      var ta = document.createElement('textarea');
+      ta.value = txt; document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); ok(); } catch(e){ note.textContent = 'Could not copy.'; }
+      document.body.removeChild(ta);
+    }
   });
 
   $('again').addEventListener('click', function(){ window.location.href = '/etl-design'; });

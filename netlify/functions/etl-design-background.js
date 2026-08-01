@@ -447,8 +447,36 @@ exports.handler = async (event) => {
       // editable hand-off possible later.
       try { await store.set(jobId + '.svg', out.svg, { metadata: { contentType: 'image/svg+xml' } }); }
       catch (e) { console.warn('[etl-design] svg not stored (non-fatal)', e && e.message); }
+
+      /* LAYERS, NOT A FLATTENED PICTURE.
+         ─────────────────────────────────────────────────────────────────
+         A composed PNG is a dead asset to an animator: the words are baked
+         into the plate, so the only move available is to push in on the
+         whole frame. Dr. O animates in Claude Design by handing it frames
+         and an action, which needs the picture and the type apart.
+
+         Both of these already existed and were being thrown away. Chris's
+         artwork was generated, embedded and discarded, and the type block
+         is just the same SVG with the backdrop and the artwork removed.
+         Neither costs a model call (2026-07-31). */
+      let plateKey = null, typeKey = null;
+      if (artB64) {
+        try {
+          plateKey = jobId + '-plate.png';
+          await store.set(plateKey, Buffer.from(artB64, 'base64'), { metadata: { contentType: 'image/png' } });
+        } catch (e) { plateKey = null; console.warn('[etl-design] plate not stored (non-fatal)', e && e.message); }
+      }
+      try {
+        const overlay = await renderOverlay(out.svg, canvasKey);
+        typeKey = jobId + '-type.png';
+        await store.set(typeKey, overlay, { metadata: { contentType: 'image/png' } });
+      } catch (e) { typeKey = null; console.warn('[etl-design] type overlay not stored (non-fatal)', e && e.message); }
+
       await save({ result: Object.assign(state.result, {
         image_key: key,
+        plate_key: plateKey,
+        type_key: typeKey,
+        svg_key: jobId + '.svg',
         image_w: out.canvas.w, image_h: out.canvas.h,
         image_kind: out.canvas.kind, image_label: out.canvas.label,
         overflow_notes: out.overflow.length ? out.overflow : null,
