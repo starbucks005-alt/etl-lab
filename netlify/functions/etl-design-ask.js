@@ -103,6 +103,9 @@ exports.handler = async (event) => {
         business_name: String(body.business_name || '').trim().slice(0, 160),
         business_site: String(body.business_site || '').trim().slice(0, 300),
         platform:      String(body.platform || 'linkedin').trim(),
+        // The assigned visual register, when the brief carries one. Blank
+        // leaves Yuki to choose, which is the old behaviour.
+        look:          String(body.look || '').trim().slice(0, 60),
         concept_image: conceptImage,
       }),
     });
