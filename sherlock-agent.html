@@ -200,10 +200,17 @@ a:hover { color: var(--green); }
       <p class="bio-label">In their own words</p>
       <p class="bio-text" id="bioText"></p>
       <div class="bio-controls">
-        <button type="button" class="bio-btn" id="playBio">&#9654; Hear a voice imagined for <span id="bioBtnName"></span></button>
+        <button type="button" class="bio-btn" id="playBio">&#9654; Hear <span id="bioBtnName"></span></button>
         <button type="button" class="bio-btn bio-btn--stop" id="stopBio">&#9632; Stop</button>
       </div>
-      <p class="bio-note" id="bioNote">This is a fictional character. The voice is one imagined for them, not a recording of anyone.</p>
+      <!-- Empty by default. Kronborg says "a voice imagined for them" because
+           those are real historical people and no recording of them exists, so
+           the disclosure is honest and necessary there. Everyone here is
+           invented, so the same line answers a question nobody asked and
+           breaks the character at the moment you meet them. The page-level
+           disclosure below already covers what is fictional. This element
+           stays because the voice error handler writes into it. -->
+      <p class="bio-note" id="bioNote"></p>
     </div>
 
     <div>
