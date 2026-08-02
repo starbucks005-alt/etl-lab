@@ -211,6 +211,57 @@ function findOverflow(svg, canvasW, canvasH) {
   }
 
   problems.push(...findCollisions(boxes));
+  problems.push(...findArtOverlap(svg, boxes));
+  return problems;
+}
+
+/* TYPE RUNNING UNDER THE PICTURE.
+   ─────────────────────────────────────────────────────────────────────────
+   Rule 7 has said since the beginning that type sits on a flat field and
+   never on a photograph, and rule 7b restated it as geometry. A headline ran
+   under the artwork anyway, twice, on the same piece, and was clipped by it:
+   "The agent that walks in ready to teach." lost its last word behind the
+   image both times.
+
+   Asking has now failed twice, which is the pattern for everything that ever
+   got fixed here. The layout archetypes, the visual register and the
+   collision check all only worked once they were enforced in code rather
+   than requested, so this is a check with a retry behind it (2026-08-02).
+
+   Same tolerance philosophy as findCollisions: cap-height boxes are an
+   estimate and a letter grazing the edge of an image is a design choice, so
+   this only complains when a real share of the line is genuinely inside the
+   picture. */
+function findArtOverlap(svg, boxes) {
+  const problems = [];
+  const images = [];
+  const re = /<image\b([^>]*)>/gi;
+  let m;
+  while ((m = re.exec(svg))) {
+    const a = m[1];
+    const num = (name) => {
+      const hit = new RegExp('\\b' + name + '\\s*=\\s*["\']([-\\d.]+)').exec(a);
+      return hit ? parseFloat(hit[1]) : NaN;
+    };
+    const x = num('x'), y = num('y'), w = num('width'), h = num('height');
+    if ([x, y, w, h].every((v) => isFinite(v))) images.push({ x, y, w, h });
+  }
+  if (!images.length) return problems;
+
+  for (const b of boxes) {
+    for (const im of images) {
+      const ox = Math.min(b.right, im.x + im.w) - Math.max(b.left, im.x);
+      const oy = Math.min(b.bottom, im.y + im.h) - Math.max(b.top, im.y);
+      if (ox <= 0 || oy <= 0) continue;
+      const share = (ox * oy) / Math.max(1, (b.right - b.left) * (b.bottom - b.top));
+      if (share < 0.18) continue;          // a graze, not an overlap
+      problems.push('"' + b.text.slice(0, 42) + '" sits on top of the artwork, which runs from x=' +
+        Math.round(im.x) + ' to x=' + Math.round(im.x + im.w) + ' and y=' + Math.round(im.y) +
+        ' to y=' + Math.round(im.y + im.h) + '. Text must be entirely outside the artwork rectangle. ' +
+        'Move the text clear of it, or make the artwork smaller, or make the type smaller. Do not put a panel behind it and do not fade the picture.');
+      break;
+    }
+  }
   return problems;
 }
 
