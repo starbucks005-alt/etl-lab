@@ -25,6 +25,12 @@
    ───────────────────────────────────────────────────────────────────────────── */
 
 const { AGENTS, BIOS } = require('./kronborg-chat.js');
+const { getStore, connectLambda } = require('@netlify/blobs');
+
+const AUDIO_STORE = 'kronborg_bio_audio';
+// Bump this whenever a bio's TEXT or an agent's voiceId changes, or the store
+// will keep serving a recording of the words that used to be there.
+const CACHE_VERSION = 'v1';
 
 const MODEL_ID = 'eleven_multilingual_v2';
 const VOICE_SETTINGS = { stability: 0.45, similarity_boost: 0.85, style: 0.2, use_speaker_boost: true };
@@ -36,6 +42,8 @@ const CORS = {
 };
 
 exports.handler = async (event) => {
+  try { connectLambda(event); } catch (_) {}
+
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: CORS, body: '' };
   if (event.httpMethod !== 'POST') return jsonError(405, 'method not allowed');
 
@@ -75,6 +83,34 @@ exports.handler = async (event) => {
   // browser clips the first word (same fix proven on gk-clara-voice.js).
   text = '. ' + text;
 
+  /* ── Cache ────────────────────────────────────────────────────────────────
+     A bio is fixed text and a voice ID is fixed, so the audio is a pure
+     function of the two and can only ever come out identical. Generating it
+     again on every play was buying the same bytes over and over, which this
+     endpoint did from launch (2026-07-18) until it was noticed.
+
+     Resolving the bio text server-side is still right, so the words on screen
+     and the words spoken cannot drift. That was never the same thing as
+     re-synthesising them. First play now generates and stores; every play
+     after that is served from the store and never reaches ElevenLabs.
+
+     The key carries everything that changes the audio: agent, language, and
+     for Hans and Bodil the specific child and line. Change the bio text and
+     you must bump CACHE_VERSION, or the store will keep serving the old
+     recording of the old words. */
+  const cacheKey = [CACHE_VERSION, agentId, lang, speaker || '-', Array.isArray(bioEntry) ? (Number(body.segment) || 0) : '-', voiceId].join('|');
+  let store = null;
+  try { store = getStore(AUDIO_STORE); } catch (_) { /* Blobs unavailable: fall through and synthesise */ }
+
+  if (store) {
+    try {
+      const hit = await store.get(cacheKey, { type: 'arrayBuffer' });
+      if (hit && hit.byteLength) return audioResponse(Buffer.from(hit));
+    } catch (err) {
+      console.error('[kronborg-voice] cache read failed (non-fatal):', err && err.message);
+    }
+  }
+
   let resp;
   try {
     resp = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
@@ -94,14 +130,35 @@ exports.handler = async (event) => {
   }
 
   const buf = Buffer.from(await resp.arrayBuffer());
+
+  // Store for next time. A failure here costs nothing but a repeat charge, so
+  // it never blocks handing this listener their audio.
+  if (store) {
+    try {
+      await store.set(cacheKey, buf, { metadata: { contentType: 'audio/mpeg', agent: agentId, lang } });
+    } catch (err) {
+      console.error('[kronborg-voice] cache write failed (non-fatal):', err && err.message);
+    }
+  }
+
+  return audioResponse(buf);
+};
+
+function audioResponse(buf) {
   return {
     statusCode: 200,
-    headers: { 'Content-Type': 'audio/mpeg', 'Content-Length': String(buf.length), 'Cache-Control': 'no-store', 'Access-Control-Allow-Origin': '*' },
+    headers: {
+      'Content-Type': 'audio/mpeg',
+      'Content-Length': String(buf.length),
+      // A given agent's bio never changes without a CACHE_VERSION bump, so the
+      // browser can hold it too and skip the round trip entirely.
+      'Cache-Control': 'public, max-age=31536000, immutable',
+      'Access-Control-Allow-Origin': '*',
+    },
     body: buf.toString('base64'),
     isBase64Encoded: true,
   };
-};
-
+}
 function jsonError(statusCode, message) {
   return { statusCode, headers: { ...CORS, 'Content-Type': 'application/json' }, body: JSON.stringify({ error: message }) };
 }

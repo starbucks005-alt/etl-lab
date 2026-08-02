@@ -18,6 +18,12 @@
    ───────────────────────────────────────────────────────────────────────────── */
 
 const { AGENTS, BIOS } = require('./sherlock-chat.js');
+const { getStore, connectLambda } = require('@netlify/blobs');
+
+const AUDIO_STORE = 'sherlock_bio_audio';
+// Bump whenever a bio's TEXT or an agent's voiceId changes, or the store will
+// keep serving a recording of the words that used to be there.
+const CACHE_VERSION = 'v1';
 
 const MODEL_ID = 'eleven_multilingual_v2';
 const VOICE_SETTINGS = { stability: 0.45, similarity_boost: 0.85, style: 0.2, use_speaker_boost: true };
@@ -29,6 +35,8 @@ const CORS = {
 };
 
 exports.handler = async (event) => {
+  try { connectLambda(event); } catch (_) {}
+
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: CORS, body: '' };
   if (event.httpMethod !== 'POST') return jsonError(405, 'method not allowed');
 
@@ -52,6 +60,29 @@ exports.handler = async (event) => {
   // browser clips the first word (same fix proven on gk-clara-voice.js).
   const text = '. ' + bio;
 
+  /* ── Cache ────────────────────────────────────────────────────────────────
+     A bio is fixed text and a voice ID is fixed, so the audio can only ever
+     come out identical. Synthesising it again on every play buys the same
+     bytes twice. First play generates and stores; every play after is served
+     from the store and never reaches ElevenLabs.
+
+     Resolving the bio text server-side is still right, so what is shown and
+     what is spoken cannot drift. That was never the same thing as
+     re-synthesising it, and conflating the two is what quietly billed the
+     Kronborg classroom on every play from launch. */
+  const cacheKey = [CACHE_VERSION, agentId, voiceId].join('|');
+  let store = null;
+  try { store = getStore(AUDIO_STORE); } catch (_) { /* Blobs unavailable: synthesise anyway */ }
+
+  if (store) {
+    try {
+      const hit = await store.get(cacheKey, { type: 'arrayBuffer' });
+      if (hit && hit.byteLength) return audioResponse(Buffer.from(hit));
+    } catch (err) {
+      console.error('[sherlock-voice] cache read failed (non-fatal):', err && err.message);
+    }
+  }
+
   let resp;
   try {
     resp = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
@@ -71,14 +102,34 @@ exports.handler = async (event) => {
   }
 
   const buf = Buffer.from(await resp.arrayBuffer());
+
+  // A failed write costs one repeat charge, never this listener's audio.
+  if (store) {
+    try {
+      await store.set(cacheKey, buf, { metadata: { contentType: 'audio/mpeg', agent: agentId } });
+    } catch (err) {
+      console.error('[sherlock-voice] cache write failed (non-fatal):', err && err.message);
+    }
+  }
+
+  return audioResponse(buf);
+};
+
+function audioResponse(buf) {
   return {
     statusCode: 200,
-    headers: { 'Content-Type': 'audio/mpeg', 'Content-Length': String(buf.length), 'Cache-Control': 'no-store', 'Access-Control-Allow-Origin': '*' },
+    headers: {
+      'Content-Type': 'audio/mpeg',
+      'Content-Length': String(buf.length),
+      // Never changes without a CACHE_VERSION bump, so the browser can hold it
+      // too and skip the round trip entirely.
+      'Cache-Control': 'public, max-age=31536000, immutable',
+      'Access-Control-Allow-Origin': '*',
+    },
     body: buf.toString('base64'),
     isBase64Encoded: true,
   };
-};
-
+}
 function jsonError(statusCode, message) {
   return { statusCode, headers: { ...CORS, 'Content-Type': 'application/json' }, body: JSON.stringify({ error: message }) };
 }
