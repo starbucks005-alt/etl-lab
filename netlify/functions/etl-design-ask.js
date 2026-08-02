@@ -149,6 +149,7 @@ exports.handler = async (event) => {
         // leaves Yuki to choose, which is the old behaviour.
         look:          String(body.look || '').trim().slice(0, 60),
         caption_note:  String(body.caption_note || '').trim().slice(0, 400),
+        brand_colours: String(body.brand_colours || '').trim().slice(0, 200),
         // 'Use my image, draw nothing.' Explicit, so it does not depend on a
         // heuristic deciding the upload looks photographic (2026-08-02).
         use_upload_as_art: !!body.use_upload_as_art,

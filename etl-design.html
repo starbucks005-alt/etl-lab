@@ -191,6 +191,13 @@
         <button type="button" class="cta ghost" id="logo-clear" style="margin-top:0;padding:.45rem 1rem;font-size:.85rem;">Remove</button>
       </div>
 
+      <!-- EXACT COLOURS BEAT A SCRAPE. Dr. O: "we have brand font and
+           colors. we should be able to specify this." Reading them off a
+           site is a good guess; being told them is a fact (2026-08-02). -->
+      <label for="f-colours">Your brand colours</label>
+      <input id="f-colours" placeholder="#0d0d0d, #b07030, #5c8ab5">
+      <div class="hint">Hex values, separated by commas. Given these, Yuki builds the palette from them instead of reading your site or inventing one.</div>
+
       <div class="hint" style="margin-top:.7rem;color:var(--sig);">Give us neither and Yuki will invent a look from scratch. It will be a good look. It will not be yours.</div>
     </div>
 
@@ -481,6 +488,7 @@
         business_site: $('f-site').value.trim(),
         platform: $('f-platform').value,
         look: chosenLook,
+        brand_colours: $('f-colours').value.trim(),
         use_upload_as_art: $('f-own-art').checked,
         logo_image: logoData,
         concept_image: conceptData,

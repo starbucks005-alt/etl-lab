@@ -188,6 +188,10 @@ exports.handler = async (event) => {
     // Optional steer for Zara's caption, so the client is not stuck with
     // whatever voice comes out (2026-08-02).
     captionNote:   String(body.caption_note || '').trim().slice(0, 400),
+    /* Exact colours beat a scrape. Dr. O: 'we have brand font and colors. we
+       should be able to specify this.' Reading them off a site is a good
+       guess; being told them is a fact (2026-08-02). */
+    brandColours:  String(body.brand_colours || '').trim().slice(0, 200),
   };
   const P = PLATFORMS[brief.platform];
   const co = brief.businessName || 'this business';
@@ -231,7 +235,21 @@ exports.handler = async (event) => {
      The website was on the form the whole time and touched nothing but the
      footer. Now it does the job the uploaded logo did. An upload still wins,
      because a client who hands us a specific file means that file. */
+  /* TOLD BEATS SCRAPED. Exact hex values are a fact, and the site read is a
+     good guess; when both exist the fact wins, and it is stated before the
+     scrape so there is no ambiguity about which to follow (2026-08-02). */
   let brandFacts = '';
+  if (brief.brandColours) {
+    const hexes = (brief.brandColours.match(/#?[0-9a-f]{6}\b/gi) || [])
+      .map(h => (h[0] === '#' ? h : '#' + h).toLowerCase())
+      .slice(0, 8);
+    if (hexes.length) {
+      brandFacts = '\n\nTHE CLIENT HAS GIVEN YOU THEIR EXACT BRAND COLOURS, AND THEY ARE NOT NEGOTIABLE: ' +
+        hexes.join(', ') +
+        '. Build the palette from these. You may add a near-white or a near-black for text contrast if none of them can carry type, and nothing else. Do not substitute, do not "improve" them, and do not add an accent they did not give you.';
+      state.brand_given = hexes;
+    }
+  }
   // The client's own photographs, kept so one of them can BE the artwork
   // rather than merely inform it.
   let brandRefs = [];
