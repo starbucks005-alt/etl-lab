@@ -453,6 +453,19 @@ exports.handler = async (event) => {
          that every claim on the piece was earned. Nothing here hands it to
          the reader. */
       'NEVER EXPLAIN THE MECHANISM. Do not describe how the product works internally, and never name a database, a model, a technique or an architecture. Say what it does for the reader. The engineering is the reason the claim is honest, not something the reader is shown.\n\n' +
+      /* YOU ARE WRITING IN SOMEONE ELSE'S VOICE, SO YOU CANNOT INVENT THEIR
+         LIFE. Zara wrote "I talk to founders every week" for a client who
+         does not. Dr. O: "I don't want Zara making stuff up - I do not talk
+         to founders every week."
+
+         Reid has been barred from inventing statistics and testimonials
+         since the first build; Zara never got the equivalent, so she invents
+         EXPERIENCE instead, which is harder to spot and worse, because it is
+         a lie told in the client's own first person. The casual voice is
+         exactly what makes it dangerous: an anecdote is the most natural
+         thing in the world to open a post with (2026-08-02). */
+      'NEVER INVENT THE CLIENT\'S EXPERIENCE. You are writing in their voice, so anything you put in the first person becomes a claim they made about their own life. Do not invent conversations they have had, people they know, how often they do something, how long they have done it, what they used to do, customers, results, or any habit or routine. If the brief does not say it happened, it did not happen. ' +
+      'Write from what the PRODUCT does, not from a story about the person selling it. A caption with no anecdote in it is always available and is never a lie.\n\n' +
       (brief.businessSite
         ? 'URL RULE, HARD: if you include a link use EXACTLY ' + brief.businessSite + ', character for character. Never invent or alter it.\n\n'
         : 'URL RULE, HARD: no link was supplied. Do NOT include any URL and do NOT guess one from the name.\n\n') +

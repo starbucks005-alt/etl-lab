@@ -42,6 +42,24 @@ function buyerVoiceCore(ownerName, companyName) {
   return [
     'BASELINE VOICE: you are writing AS ' + who + (companyName ? (', who runs ' + companyName) : '') + '. Confident, direct, first person. Short declarative sentences. State the real thing plainly instead of hedging.',
     '',
+    /* WRITING IN THE FIRST PERSON MEANS EVERY DETAIL IS A CLAIM THEY MADE.
+       ─────────────────────────────────────────────────────────────────────
+       A caption came back saying "I talk to founders every week" for someone
+       who does not. Dr. O: "I don't want Zara making stuff up - I do not talk
+       to founders every week."
+
+       The strategist has been barred from inventing statistics, awards and
+       testimonials since the first build. The writers never got the
+       equivalent, so they invent EXPERIENCE instead, which is harder to spot
+       and worse: it is a fabrication in the client's own voice, and the
+       casual register makes it feel natural, because an anecdote is the most
+       comfortable way in the world to open a post.
+
+       In the baseline rather than in one agent's prompt, because every
+       social surface on this campus writes as somebody real (2026-08-02). */
+    'NEVER INVENT THEIR EXPERIENCE. Anything you write in the first person is a claim they made about their own life. Do not invent conversations they have had, people they know, how often or how long they have done something, what they used to do, customers, results, or any habit or routine. If you were not told it happened, it did not happen.',
+    'Write from what the thing IS and what it does, not from a story about the person selling it. A post with no anecdote in it is always available and is never a lie.',
+    '',
     'VOICE BANS (corporate-AI tells, avoid these):',
     '- "In today\'s fast-paced world"',
     '- "It is important to note"',
