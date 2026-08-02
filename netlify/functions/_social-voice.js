@@ -11,7 +11,20 @@
    data/voice-profiles/<id>.json, never here. */
 
 const BUYER_AGENT_VOICES = {
-  zara: 'VOICE: fun, casual, influencer energy. Lowercase openings sometimes. Non-sequitur hooks ("ok so", "no but actually", "wait", "POV:"). Fragments and casual asides in parens. State opinions like a person, never like a press release. Hashtags read like inside jokes, not SEO categories.',
+  /* THE OPENERS WERE LISTED, SO SHE USED THE LIST.
+     ─────────────────────────────────────────────────────────────────────
+     This said: 'Non-sequitur hooks ("ok so", "no but actually", "wait",
+     "POV:")'. Four examples, offered as flavour, taken as a menu. Dr. O:
+     "Zara's SM post all sound the say, 'so I did a thing...' can she change
+     it up a bit". Every caption opened off that list.
+
+     Same lesson as the layout archetypes and the visual register: given
+     examples, a model picks from them rather than being inspired by them. So
+     the examples are gone and the RULE is stated instead, with the one thing
+     that actually varies a voice: start somewhere different each time
+     (2026-08-02). */
+  zara: 'VOICE: fun, casual, influencer energy. Lowercase openings sometimes. Fragments and casual asides in parens. State opinions like a person, never like a press release. Hashtags read like inside jokes, not SEO categories. ' +
+        'OPEN SOMEWHERE NEW EVERY TIME. Do not begin with a throat-clearing filler phrase, and never open two posts the same way. Vary the ENTRY POINT itself: sometimes the detail, sometimes the objection a reader already has, sometimes the outcome, sometimes a question, sometimes straight into the middle of the thought. A caption that opens like the last one reads as a template, which is the opposite of a person.',
   sneha: 'VOICE: subject-matter-expert, inside-the-field, technical but not academic. Lead with the observation a practitioner would recognize. Assume the reader already knows the basics; skip the 101 explanation. Precise, a little dry, no hype words.',
   ayanna: 'VOICE: informed and educational, professorial and warm. Open with the lesson, then the reasoning, then the application. Patient, not condescending. End with a takeaway the reader can act on.',
 };

@@ -185,6 +185,9 @@ exports.handler = async (event) => {
        So the register becomes an INPUT rather than a choice. Blank keeps
        the old behaviour for a client with no view (2026-07-31). */
     look:          String(body.look || '').trim().slice(0, 60).toLowerCase(),
+    // Optional steer for Zara's caption, so the client is not stuck with
+    // whatever voice comes out (2026-08-02).
+    captionNote:   String(body.caption_note || '').trim().slice(0, 400),
   };
   const P = PLATFORMS[brief.platform];
   const co = brief.businessName || 'this business';
@@ -427,6 +430,15 @@ exports.handler = async (event) => {
       deDash((reid.card && reid.card.headline) || reid.hook || '') + '". Do not simply repeat it; say the thing the picture cannot.' +
       '\n\nPLATFORM RULES, write for ' + P.name + ':\n' + P.format +
       '\nCharacter limit: ' + P.charLimit + ' hard max, ' + P.ideal + ' target.\n\n' +
+      /* THE CLIENT CAN STEER THE CAPTION. Dr. O: "can she change it up a bit,
+         maybe let us give some direction?" Placed above the angle so it is
+         read as an instruction rather than as background, and bounded so it
+         cannot override the things that exist for a reason: the platform's
+         limits, the URL rule, and never explaining the mechanism. */
+      (brief.captionNote
+        ? ('WHAT THE CLIENT WANTS FROM THIS CAPTION, follow it: ' + deDash(brief.captionNote) +
+           '\nThis steers the tone, the angle of entry and what to emphasise. It does not override the platform rules above, the URL rule below, or the ban on explaining how the product works.\n\n')
+        : '') +
       'ANGLE (from the strategist, do not contradict it):\nPositioning: ' + (reid.positioning || '') + '\n\n' +
       /* THE CURTAIN IS NOT PUBLISHED. Corrected 2026-08-01, twice, and this
          is the version that stands. Dr. O: "no, we do not share what is

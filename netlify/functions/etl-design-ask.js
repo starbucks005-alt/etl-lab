@@ -132,6 +132,7 @@ exports.handler = async (event) => {
         // The assigned visual register, when the brief carries one. Blank
         // leaves Yuki to choose, which is the old behaviour.
         look:          String(body.look || '').trim().slice(0, 60),
+        caption_note:  String(body.caption_note || '').trim().slice(0, 400),
         concept_key:   conceptKey,
       }),
     });
