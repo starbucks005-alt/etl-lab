@@ -134,6 +134,22 @@ a:hover { color: var(--green); }
 .hero p:last-child { margin-bottom: 0; }
 .hero b { color: var(--cream); }
 
+/* ── NEIGHBOURHOOD STRIP ──
+   Three more of the Oregon District under the hero. Establishing shots, not
+   case images: no crime in this classroom is ever set here, by rule. */
+.hood { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; border: 1px solid var(--line); border-top: none; }
+.hood figure { margin: 0; background: var(--panel); position: relative; overflow: hidden; line-height: 0; }
+.hood img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; transition: transform .5s ease; }
+.hood figure:hover img { transform: scale(1.03); }
+.hood figcaption {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  font-family: 'IBM Plex Mono', monospace; font-size: .58rem; letter-spacing: .1em;
+  text-transform: uppercase; color: #cfd8e0; line-height: 1.6;
+  padding: 1.6rem .9rem .7rem;
+  background: linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.78));
+}
+@media (max-width: 760px) { .hood { grid-template-columns: 1fr; } }
+
 .sec-head { margin: 3rem 0 .2rem; display: flex; align-items: baseline; gap: 1rem; }
 .sec-head h2 { font-family: 'Spectral', serif; font-size: 1.4rem; font-weight: 600; color: var(--cream); margin: 0; }
 .sec-rule { flex: 1; height: 1px; background: var(--line); }
@@ -247,6 +263,21 @@ a:hover { color: var(--green); }
       <p><b>Here is the hook.</b> Holmes has no badge, which means the Fourth Amendment does not restrain him, which is exactly why a stalled department keeps calling him. The moment DPD starts telling him where to look, he is a state agent, and everything he touched becomes suppressible. He is right in all three cases. In all three, the conviction is in trouble.</p>
       <p>That gap is the curriculum: chain of custody, device attribution, Ohio's eyewitness identification statute, confessions obtained by a promise in a hallway, expert opinion with no error rate, Brady, and the moment an investigator stops testing a theory and starts confirming it.</p>
     </div>
+  </div>
+
+  <div class="hood">
+    <figure>
+      <img src="/assets/sherlock/oregon-district-1.jpg" alt="Brick storefronts on a wet corner in the Oregon District at dusk" loading="lazy">
+      <figcaption>The corner Holmes walks past every morning</figcaption>
+    </figure>
+    <figure>
+      <img src="/assets/sherlock/oregon-district-2.jpg" alt="Lit shopfronts and string lights along a rainy Oregon District sidewalk" loading="lazy">
+      <figcaption>Fifth Street, where Wiggins knows every doorway</figcaption>
+    </figure>
+    <figure>
+      <img src="/assets/sherlock/oregon-district-3.jpg" alt="A lamplit gazebo in a Dayton park under a storm sky" loading="lazy">
+      <figcaption>Nothing in this course happens here. It is simply the neighborhood.</figcaption>
+    </figure>
   </div>
 
   <div class="sec-head">
