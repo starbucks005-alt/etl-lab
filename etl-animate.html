@@ -56,6 +56,11 @@
   .err{color:var(--sig-br); font-size:.9rem; margin-top:.6rem;}
   .steps{font-size:.82rem; color:var(--mute); margin-top:.5rem;}
   .steps b{color:var(--text); font-weight:600;}
+  .hide{display:none;}
+  .modes{display:flex;gap:.5rem;flex-wrap:wrap;margin:0 0 1.2rem;}
+  .modes a{font-family:ui-monospace,monospace;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;
+           text-decoration:none;color:var(--mute);border:1px solid var(--line);border-radius:999px;padding:.4rem .9rem;}
+  .modes a.on{color:#17110f;background:var(--sig);border-color:var(--sig);font-weight:600;}
 </style>
 </head>
 <body>
@@ -65,10 +70,28 @@
   <p class="sub">The artwork moves. The type does not, because it is drawn back over every frame at full
   resolution rather than regenerated. So the words stay the words.</p>
 
+  <div class="modes">
+    <a href="/etl-design">A finished piece</a>
+    <a href="/etl-image">Just an image</a>
+    <a href="/etl-animate" class="on">Put it in motion</a>
+    <a href="/etl-motion">Stills into a clip</a>
+  </div>
+
   <div class="panel">
-    <label for="f-job">Your piece</label>
+    <!-- AN UPLOAD, NOT ONLY A JOB ID.
+         This required a finished ETL Design piece, so motion was unreachable
+         on its own. Dr. O: "I want standalone image generation and motion
+         generation, without having to do a flyer." The endpoint has accepted
+         supplied frames since yesterday; the page just never offered it
+         (2026-08-02). -->
+    <label for="f-still">Start from an image</label>
+    <input id="f-still" type="file" accept="image/png,image/jpeg,image/webp">
+    <div class="hint">Any still. Yours, or one Chris drew. This is the first frame and the clip moves out of it.</div>
+    <img id="still-thumb" class="hide" alt="Your first frame" style="margin-top:.7rem;max-width:220px;border-radius:9px;border:1px solid var(--line);display:block;">
+
+    <label for="f-job" style="margin-top:1.2rem;">Or a piece you already made</label>
     <input id="f-job" type="text" placeholder="dsn-20260801...">
-    <div class="hint">The job id from your brief. It is in the address of your finished piece.</div>
+    <div class="hint">The job id from a brief. Its artwork moves and your type is laid back over it crisp.</div>
 
     <label for="f-action" style="margin-top:1rem;">What should happen?</label>
     <input id="f-action" type="text" placeholder="she sets the cup down and looks up">
@@ -82,7 +105,7 @@
     <button id="go">Make the clip</button>
     <button id="save" class="ghost" disabled>Download</button>
   </div>
-  <div class="note" id="note">Enter a job id to begin.</div>
+  <div class="note" id="note">Add an image, or paste the job id of a piece you made.</div>
   <div class="steps" id="steps"></div>
   <div class="err" id="err"></div>
 
@@ -97,9 +120,31 @@
   var canvas = $('stage'), ctx = canvas.getContext('2d');
   var video = $('src');
   var typeImg = null, ready = false, blobUrl = null;
+  var stillData = '';
+
+  /* A supplied still needs a job to hang on. The id is minted here in the
+     same shape the relay expects, and the endpoint creates the record from
+     the frame we post with it. */
+  function newJobId(){
+    var d = new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14);
+    return 'dsn-' + d + '-' + Math.random().toString(36).slice(2, 8);
+  }
 
   var params = new URLSearchParams(location.search);
   if (params.get('job')) $('f-job').value = params.get('job');
+
+  $('f-still').addEventListener('change', function(e){
+    var file = e.target.files && e.target.files[0];
+    if (!file) { stillData = ''; $('still-thumb').classList.add('hide'); return; }
+    var rd = new FileReader();
+    rd.onload = function(){
+      stillData = rd.result;
+      $('still-thumb').src = stillData;
+      $('still-thumb').classList.remove('hide');
+      $('note').textContent = 'Ready. Say what should happen, then make the clip.';
+    };
+    rd.readAsDataURL(file);
+  });
 
   function say(s){ $('note').textContent = s; }
   function step(s){ $('steps').innerHTML = s; }
@@ -198,7 +243,10 @@
     var job = $('f-job').value.trim();
     var action = $('f-action').value.trim();
     $('err').textContent = '';
-    if (!/^dsn-[0-9a-z-]+$/i.test(job)) { fail('That does not look like a job id.'); return; }
+    /* An uploaded still wins: it is the more direct instruction, and it is
+       the whole point of being able to reach this page without a brief. */
+    if (stillData) job = newJobId();
+    if (!/^dsn-[0-9a-z-]+$/i.test(job)) { fail('Add an image, or paste a job id.'); return; }
     $('go').disabled = true; $('save').disabled = true; ready = false;
 
     step('<b>1</b> asking Veo to move the artwork &nbsp; <b>2</b> laying your type back over it');
@@ -206,7 +254,9 @@
 
     fetch('/.netlify/functions/etl-design-animate', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ job_id: job, action: action })
+      body: JSON.stringify(stillData
+        ? { job_id: job, action: action, frame_a: stillData }
+        : { job_id: job, action: action })
     })
       .then(function(r){ return r.json().then(function(d){ d.__s = r.status; return d; }); })
       .then(function(d){

@@ -91,6 +91,9 @@
   .price{font-family:'Spectral',serif;font-size:1.5rem;color:var(--cream);}
   .credits{font-size:.8rem;color:var(--mute);margin-top:1.2rem;line-height:1.5;}
   .hide{display:none;}
+  .modes a{font-family:'IBM Plex Mono',monospace;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;
+           text-decoration:none;color:var(--mute);border:1px solid var(--line);border-radius:999px;padding:.4rem .9rem;}
+  .modes a.on{color:#17110f;background:var(--sig);border-color:var(--sig);font-weight:600;}
   @media(max-width:760px){.crew{grid-template-columns:repeat(2,minmax(0,1fr));}.row{grid-template-columns:1fr;}}
 </style></head>
 <body>
@@ -101,6 +104,15 @@
   <a class="backlink" href="/">&larr; back to the lab</a>
 
   <div class="hero">
+    <!-- All four things reachable on their own. Dr. O: "I want standalone
+         image generation and motion generation, without having to do a
+         flyer" (2026-08-02). -->
+    <div class="modes" style="display:flex;gap:.5rem;flex-wrap:wrap;margin:0 0 1rem;">
+      <a href="/etl-design" class="on">A finished piece</a>
+      <a href="/etl-image">Just an image</a>
+      <a href="/etl-animate">Put it in motion</a>
+      <a href="/etl-motion">Stills into a clip</a>
+    </div>
     <div class="eyebrow">Four people, one piece</div>
     <h1>Tell us what you are promoting.<br>Walk out with something you can post.</h1>
     <p class="lede">
@@ -447,6 +459,12 @@
     var promoting = $('f-promoting').value.trim();
     if (!promoting) { fail('Tell us what you are promoting first.'); return; }
     show($('err'), false);
+    // The brand note is written after a run and used to survive into the
+    // next one, so a new brief briefly showed the LAST brief's site. Dr. O,
+    // running the Gauntlet: "why does it say matched from your brand at the
+    // dose" (2026-08-02).
+    show($('brand-note'), false);
+    $('brand-note').textContent = '';
     $('go').disabled = true;
     $('running-note').textContent = 'Starting the team...';
 

@@ -1,0 +1,181 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ETL Design &middot; just an image</title>
+<meta name="description" content="Describe an image and Chris draws it. No headline, no layout, just the picture.">
+<link rel="icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  /* ─────────────────────────────────────────────────────────────────────
+     WHY THIS IS A PAGE AND NOT A CHECKBOX (2026-08-02)
+
+     Dr. O, on the design page: "I did not get option to do anything but make
+     the same flyer we've been making. not generate videos or images." Then,
+     plainly: "I want standalone image generation and motion generation,
+     without having to do a flyer."
+
+     The flyer relay is four agents in sequence and has been fragile all
+     week. Bolting two more modes onto that form would put all three at risk
+     of one bad edit. Three small pages sharing the same endpoints and the
+     same credits is the version where breaking one cannot break the others.
+     ───────────────────────────────────────────────────────────────────── */
+  :root{--bg:#0e0e10;--bg2:#151517;--panel:#1b1b1f;--line:#2e2e34;
+        --sig:#ff5a3c;--sig-br:#ff7a5f;--ice:#7fd4e8;--cream:#f4f1ea;--text:#e6e3dc;--mute:#9a958c;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6;}
+  a{color:var(--ice);}
+  .wrap{max-width:900px;margin:0 auto;padding:0 1.2rem 4rem;}
+  .ribbon{background:#08080a;border-bottom:1px solid var(--line);text-align:center;font-family:'IBM Plex Mono',monospace;letter-spacing:.18em;text-transform:uppercase;font-size:.66rem;color:var(--mute);padding:.5rem;}
+  .ribbon b{color:var(--sig);}
+  .backlink{font-family:'IBM Plex Mono',monospace;font-size:.74rem;color:var(--mute);text-decoration:none;display:inline-block;margin:.8rem 0 .1rem;}
+  .eyebrow{font-family:'IBM Plex Mono',monospace;letter-spacing:.22em;text-transform:uppercase;font-size:.68rem;color:var(--sig);}
+  h1{font-family:'Spectral',serif;font-weight:700;font-size:clamp(1.9rem,4.4vw,2.7rem);line-height:1.1;margin:.4rem 0 .5rem;color:var(--cream);}
+  .lede{font-size:1.05rem;color:var(--mute);max-width:58ch;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:1.2rem;margin-top:1.2rem;}
+  label{display:block;font-family:'IBM Plex Mono',monospace;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin:1.1rem 0 .4rem;}
+  label:first-of-type{margin-top:0;}
+  textarea,select{width:100%;background:#101013;border:1px solid var(--line);color:var(--text);border-radius:9px;padding:.7rem .8rem;font-family:'Inter',sans-serif;font-size:.95rem;}
+  textarea{min-height:104px;resize:vertical;}
+  textarea:focus,select:focus{outline:none;border-color:var(--sig);}
+  .hint{font-size:.78rem;color:var(--mute);margin-top:.3rem;}
+  .cta{margin-top:1.3rem;background:var(--sig);color:#12100f;border:0;border-radius:10px;padding:.85rem 1.6rem;font-weight:700;font-size:1rem;cursor:pointer;font-family:'Inter',sans-serif;}
+  .cta:hover{background:var(--sig-br);} .cta[disabled]{opacity:.5;cursor:not-allowed;}
+  .ghost{background:transparent;color:var(--ice);border:1px solid var(--line);}
+  .note{font-family:'IBM Plex Mono',monospace;font-size:.75rem;color:var(--mute);margin-top:1rem;min-height:1.2em;}
+  .err{background:#3a1512;border:1px solid #7a2a20;color:#ffb4a6;border-radius:9px;padding:.7rem .9rem;margin-top:1rem;font-size:.9rem;}
+  .out{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#101013;margin-top:1.2rem;}
+  .out img{width:100%;height:auto;display:block;}
+  .hide{display:none;}
+  .modes{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem;}
+  .modes a{font-family:'IBM Plex Mono',monospace;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;
+           text-decoration:none;color:var(--mute);border:1px solid var(--line);border-radius:999px;padding:.4rem .9rem;}
+  .modes a.on{color:#17110f;background:var(--sig);border-color:var(--sig);font-weight:600;}
+</style></head>
+<body>
+
+<div class="ribbon">Emerging Technologies Laboratory &middot; <b>ETL Design</b></div>
+
+<div class="wrap">
+  <a class="backlink" href="/etl-design">&larr; back to ETL Design</a>
+
+  <div class="eyebrow">Chris Avila &middot; the artwork</div>
+  <h1>Just an image.</h1>
+  <p class="lede">Describe it and Chris draws it. No headline, no layout, nothing wrapped around it. One
+  credit, the same as a piece.</p>
+
+  <div class="modes">
+    <a href="/etl-design">A finished piece</a>
+    <a href="/etl-image" class="on">Just an image</a>
+    <a href="/etl-animate">Put it in motion</a>
+    <a href="/etl-motion">Stills into a clip</a>
+  </div>
+
+  <div class="card">
+    <label for="f-prompt">What should it be?</label>
+    <textarea id="f-prompt" placeholder="Four people at a long table in a bright ordinary office, all still, none of them looking at each other."></textarea>
+    <div class="hint">Say what is in the frame, not what it should feel like. Concrete beats atmospheric,
+    and a specific room beats a mood word every time.</div>
+
+    <label for="f-aspect">Shape</label>
+    <select id="f-aspect">
+      <option value="square">Square, 1:1</option>
+      <option value="portrait">Portrait, 4:5</option>
+      <option value="landscape">Landscape, 16:9</option>
+      <option value="vertical">Vertical, 9:16</option>
+    </select>
+
+    <button class="cta" id="go">Draw it</button>
+    <div class="note" id="note"></div>
+    <div class="err hide" id="err"></div>
+  </div>
+
+  <div class="out hide" id="out"><img id="img" alt="Your image"></div>
+  <div id="after" class="hide" style="margin-top:1rem;display:flex;gap:.7rem;flex-wrap:wrap;">
+    <a class="cta ghost" id="dl" href="#" download="etl-image.png">Download</a>
+    <a class="cta ghost" id="motion" href="#">Put it in motion</a>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var show = function(el, on){ el.classList.toggle('hide', !on); };
+  var poll = null, jobId = null;
+
+  /* The guest identity is a browser-scoped id, shared with the flyer page so
+     one person does not get two free allowances by using both. */
+  function guestId(){
+    try {
+      var k = 'etl_design_guest';
+      var v = localStorage.getItem(k);
+      return v || '';
+    } catch (_) { return ''; }
+  }
+  function rememberGuest(v){
+    if (!v) return;
+    try { localStorage.setItem('etl_design_guest', v); } catch (_) {}
+  }
+  function memberToken(){
+    try { return localStorage.getItem('etl_token') || localStorage.getItem('etl_member_token') || ''; }
+    catch (_) { return ''; }
+  }
+
+  function fail(msg){
+    $('err').textContent = msg;
+    show($('err'), true);
+    $('go').disabled = false;
+    $('note').textContent = '';
+  }
+
+  $('go').addEventListener('click', function(){
+    var prompt = $('f-prompt').value.trim();
+    show($('err'), false);
+    if (!prompt) { fail('Tell Chris what to draw first.'); return; }
+    $('go').disabled = true;
+    $('note').textContent = 'Chris is drawing.';
+    show($('out'), false); show($('after'), false);
+    if (poll) { clearInterval(poll); poll = null; }
+
+    var headers = { 'Content-Type': 'application/json' };
+    var tok = memberToken();
+    if (tok) headers['Authorization'] = 'Bearer ' + tok;
+
+    fetch('/.netlify/functions/etl-image', {
+      method: 'POST', headers: headers,
+      body: JSON.stringify({ prompt: prompt, aspect: $('f-aspect').value, guest_id: guestId() })
+    })
+      .then(function(r){ return r.json().then(function(d){ d.__s = r.status; return d; }); })
+      .then(function(d){
+        rememberGuest(d.guest_id);
+        if (d.__s === 402) throw new Error('That is your free one. A Lab membership gives you credits every month.');
+        if (d.__s >= 400) throw new Error(d.message || d.error || 'could not start');
+        jobId = d.job_id;
+        // Chris takes 10 to 30 seconds, so this polls rather than waits.
+        poll = setInterval(check, 3000);
+        check();
+      })
+      .catch(function(e){ fail(e.message || String(e)); });
+  });
+
+  function check(){
+    if (!jobId) return;
+    fetch('/.netlify/functions/etl-image?job_id=' + encodeURIComponent(jobId))
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if (d.status === 'error') { clearInterval(poll); poll = null; fail(d.error || 'Chris could not draw that one.'); return; }
+        if (d.status !== 'done' || !d.image_url) return;
+        clearInterval(poll); poll = null;
+        $('img').src = d.image_url;
+        $('dl').href = d.image_url;
+        $('motion').href = '/etl-animate?job=' + encodeURIComponent(jobId);
+        show($('out'), true); show($('after'), true);
+        $('go').disabled = false;
+        $('note').textContent = 'Done' + (d.engine ? ', drawn by ' + d.engine : '') + '.';
+      })
+      .catch(function(){ /* a dropped poll is not a failure; the next one runs */ });
+  }
+})();
+</script>
+</body></html>

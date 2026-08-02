@@ -526,7 +526,19 @@ exports.handler = async (event) => {
         }
       }
     }
-    if (!artPhoto) artPhoto = designPlate.chooseArtPhoto(brandRefs);
+    /* SCRAPED SITE IMAGES ARE REFERENCE, NEVER THE ARTWORK.
+       ─────────────────────────────────────────────────────────────────────
+       This used to fall back to whatever the brand reader found on the
+       client's site, which was meant to mean their photography. On The
+       Gauntlet it meant a SCREENSHOT OF THE SITE, so the piece came back
+       with a picture of a web page in it, judges' name cards and all.
+
+       Every test I wrote passes a screenshot: big enough, detailed enough,
+       not named like a share card. Telling a photograph from a page capture
+       reliably is not a heuristic I can write, and Dr. O already gave the
+       rule when I offered to generate comparison images: "then get it from
+       me." So scraped images inform Yuki's look and never become the plate.
+       An upload does, because an upload is a decision (2026-08-02). */
 
     if (artPhoto) {
       try {
