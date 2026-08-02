@@ -96,4 +96,65 @@ function edit(imageB64, prompt, mimeType) {
   });
 }
 
-module.exports = { edit, apiKey, MODEL };
+/* GENERATE, not just edit.
+   ─────────────────────────────────────────────────────────────────────────
+   Dr. O: "Can they generate an image? a gemini image, like gamma?" then
+   "have Chris make an image", then "make it happen."
+
+   This is the model behind the images she has said outright that she likes:
+   "Gamma uses gemini and I love Gamma's images." Gamma's Standard tier is
+   Nano Banana 2, which is this model.
+
+   It also goes at the defect that has cost the most rework in ETL Design.
+   Every text failure has come from the other engine: illegible pseudo-script,
+   a fabricated app interface, and finally the headline itself typed across
+   the artwork and clipped at the edge. This model is markedly better at
+   knowing when NOT to write, and it did her four-agent cast swap in Gamma in
+   one shot.
+
+   Cost is a wash rather than a saving: roughly 4.5 to 6.7 cents an image
+   against about 4 for gpt-image-1. This is a quality decision (2026-08-01).
+
+   Same endpoint as edit, with no image in the input. Returns base64. */
+function generate(prompt, aspect) {
+  const key = apiKey();
+  if (!key) return Promise.reject(new Error('no Gemini API key in the environment'));
+
+  const input = [{ type: 'text', text: String(prompt || '').slice(0, 4000) }];
+  const payload = JSON.stringify(
+    aspect ? { model: MODEL, input, image_config: { aspect_ratio: aspect } }
+           : { model: MODEL, input }
+  );
+
+  return new Promise((resolve, reject) => {
+    const req = https.request({
+      hostname: HOST,
+      path: '/v1beta/interactions',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-goog-api-key': key,
+        'Content-Length': Buffer.byteLength(payload),
+      },
+    }, res => {
+      let data = '';
+      res.on('data', c => data += c);
+      res.on('end', () => {
+        let parsed = null;
+        try { parsed = JSON.parse(data); } catch (_) {}
+        if (res.statusCode >= 400) {
+          const msg = (parsed && parsed.error && parsed.error.message) || ('HTTP ' + res.statusCode);
+          return reject(new Error('Gemini image: ' + msg));
+        }
+        const img = findImage(parsed);
+        if (!img) return reject(new Error('Gemini image: no image in the response'));
+        resolve(img);
+      });
+    });
+    req.on('error', reject);
+    req.write(payload);
+    req.end();
+  });
+}
+
+module.exports = { edit, generate, apiKey, MODEL };

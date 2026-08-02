@@ -38,6 +38,11 @@ const { getStore, connectLambda } = require('@netlify/blobs');
 const { buyerVoiceCore, buyerAgentPrompt } = require('./_social-voice.js');
 const composeBrief = require('./_design-compose.js');
 const designPlate  = require('./_design-plate.js');
+/* Safe at module scope: this one pulls in nothing but https. Anything that
+   touches sharp must stay lazy, because _design-render sets FONTCONFIG_PATH
+   before sharp loads and an eager import upstream of it took the whole relay
+   down this morning. */
+const geminiImage  = require('./_gemini-image.js');
 const brandExtract = require('./_brand-extract.js');
 /* Loaded LAZILY, inside step 4, and deliberately so.
    _design-render pulls in sharp, a native module. When sharp was missing from
@@ -649,7 +654,33 @@ exports.handler = async (event) => {
         'Photographic or richly illustrated, confident composition, not a flat icon and not clip art.',
         concept ? 'Match the look, setting and colouring of the reference the client supplied.' : '',
       ].filter(Boolean).join(' ');
-      artB64 = await openaiImage.generate(artPrompt, openaiImage.SIZES[orient], 'medium');
+      /* GEMINI FIRST, gpt-image-1 AS THE FALLBACK.
+         ───────────────────────────────────────────────────────────────────
+         Dr. O asked for this outright: "Can they generate an image? a gemini
+         image, like gamma?" and then "make it happen." It is the model behind
+         the only images she has said she likes, "Gamma uses gemini and I love
+         Gamma's images", and Gamma's Standard tier is this same Nano Banana 2.
+
+         It also targets the defect that has cost the most rework here. Every
+         text failure came from the other engine: illegible pseudo-script, a
+         fabricated app interface, and finally the headline typed across the
+         artwork and clipped at the edge. This model is better at knowing when
+         not to write.
+
+         Cost is a wash, roughly 4.5 to 6.7 cents against about 4, so this is
+         a quality decision rather than a saving. gpt-image-1 stays as the
+         fallback because it is proven and a failed image should cost the
+         picture, not the job (2026-08-01). */
+      const ASPECT = { square: '1:1', portrait: '4:5', landscape: '16:9' };
+      try {
+        artB64 = await geminiImage.generate(artPrompt, ASPECT[orient] || '1:1');
+        state.result.art_engine = 'gemini-3.1-flash-image';
+      } catch (e) {
+        console.warn('[etl-design] gemini image failed, falling back to gpt-image-1:', e && e.message);
+        state.result.art_engine_error = String((e && e.message) || e).slice(0, 300);
+        artB64 = await openaiImage.generate(artPrompt, openaiImage.SIZES[orient], 'medium');
+        state.result.art_engine = 'gpt-image-1';
+      }
       await save({ note: 'Yuki is composing the piece.' });
     } catch (e) {
       if (e !== SKIP_GENERATION) {
