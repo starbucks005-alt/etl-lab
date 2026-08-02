@@ -69,7 +69,14 @@ exports.handler = async (event) => {
        case. JPEG at 92 takes the same picture to a fraction of the size with
        no visible loss, which is a far better answer than refusing to hand
        over something already generated (2026-08-02). */
-    if (buf.byteLength > 4 * 1024 * 1024) {
+    /* Never re-encode the svg layer. It is requested as SOURCE, to reproduce
+       an overlay failure against the real input, and rasterising it to a JPEG
+       would hand back a picture of the thing being debugged instead of the
+       thing itself. The size guard sits ahead of the content-type branch
+       below, so without this check an oversized SVG came back as image/jpeg,
+       which is silently wrong in precisely the case big enough to be worth
+       looking at (2026-08-02). */
+    if (buf.byteLength > 4 * 1024 * 1024 && layer !== 'svg') {
       try {
         const sharp = require('sharp');
         const jpeg = await sharp(Buffer.from(buf)).jpeg({ quality: 92 }).toBuffer();
