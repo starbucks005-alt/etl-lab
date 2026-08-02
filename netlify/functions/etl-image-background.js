@@ -66,9 +66,30 @@ exports.handler = async (event) => {
     const aspect = job.aspect || '1:1';
     const prompt = String(job.prompt || '').slice(0, 1200) + ' ' + HOUSE_RULES;
 
+    /* EDIT when there is a source, generate when there is not. The edit
+       prompt is deliberately different: it says what to CHANGE and insists
+       everything unmentioned survives, which is the whole reason someone
+       starts from a picture rather than a blank (2026-08-02). */
+    let source = null;
+    if (job.source_key) {
+      try {
+        const raw = await store.get(job.source_key, { type: 'text' });
+        const m = /^data:image\/[a-z+]+;base64,(.+)$/i.exec(String(raw || ''));
+        if (m) source = m[1];
+      } catch (e) { console.warn('[etl-image] source unreadable', e && e.message); }
+    }
+
     let b64 = null, engine = null, firstError = null;
     try {
-      b64 = await geminiImage.generate(prompt, aspect);
+      if (source) {
+        const editPrompt =
+          'Use the supplied image as the starting point. ' + String(job.prompt || '').slice(0, 1200) +
+          ' KEEP EVERYTHING ELSE EXACTLY AS IT IS: the same room, the same lighting, the same framing, the same style, the same people unless the change asks otherwise. Change only what was asked for. ' +
+          HOUSE_RULES;
+        b64 = await geminiImage.edit(source, editPrompt, 'image/jpeg');
+      } else {
+        b64 = await geminiImage.generate(prompt, aspect);
+      }
       engine = geminiImage.MODEL;
     } catch (e) {
       firstError = String((e && e.message) || e).slice(0, 300);

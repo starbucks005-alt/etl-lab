@@ -73,12 +73,22 @@ const CANVASES = {
                  label: 'Postcard 6x9 at 300 DPI', kind: 'print' },
 };
 
-/* Generic families librsvg will always resolve on a bare Linux box. Yuki
-   names a real typeface for the brand sheet; what actually renders is the
-   generic, and saying so out loud beats pretending otherwise. */
-const SERIF = "'DejaVu Serif', Georgia, 'Times New Roman', serif";
-const SANS  = "'DejaVu Sans', Helvetica, Arial, sans-serif";
-const MONO  = "'DejaVu Sans Mono', 'Courier New', monospace";
+/* THE HOUSE FACES, WHICH ARE NOW ACTUALLY IN THE BUNDLE (2026-08-02).
+   ─────────────────────────────────────────────────────────────────────────
+   This used to name DejaVu, with a comment admitting that Yuki names a real
+   typeface for the brand sheet while the render substitutes a generic. That
+   was honest about the gap and did not close it: the Gauntlet piece's sheet
+   said "IBM Plex Mono for display, Public Sans for body" and the piece was
+   set in neither.
+
+   Dr. O: "we have brand font and colors. we should be able to specify this."
+   So the three faces from Yuki's own portfolio now travel with the function
+   and lead here: Spectral for display, Public Sans for body, IBM Plex Mono
+   for data readouts. The previous two stay behind them as fallbacks, so a
+   missing file degrades to something readable rather than to boxes. */
+const SERIF = "'Spectral', 'Source Serif Pro', Georgia, serif";
+const SANS  = "'Public Sans', 'Inter', Helvetica, Arial, sans-serif";
+const MONO  = "'IBM Plex Mono', 'DejaVu Sans Mono', 'Courier New', monospace";
 
 function normalizeFonts(svg) {
   return String(svg).replace(/font-family\s*=\s*(["'])(.*?)\1/gi, (m, q, val) => {

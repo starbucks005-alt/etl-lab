@@ -103,12 +103,26 @@ exports.handler = async (event) => {
     return json(402, { error: verdict.reason || 'out_of_credits', kind: verdict.kind, guest_id: verdict.guestId || null, remaining: 0 });
   }
 
+  /* A SOURCE IMAGE MAKES THIS AN EDIT, NOT A GENERATION. Dr. O: "never do
+     I have an image generated that doesn't stem from some other image." It
+     rides the store rather than the invoke, like every other upload here,
+     because a background call caps at 256KB (2026-08-02). */
+  const sourceImage = String(body.source_image || '');
   const jobId = newJobId();
+  let sourceKey = null;
+  if (sourceImage && /^data:image\/(png|jpeg|jpg|webp);base64,/.test(sourceImage) && sourceImage.length < 4000000) {
+    try {
+      await store.set(jobId + '-source', sourceImage, { metadata: { contentType: 'text/plain' } });
+      sourceKey = jobId + '-source';
+    } catch (e) {
+      console.error('[etl-image] source not stored, generating instead:', e && e.message);
+    }
+  }
   try {
     await store.setJSON(jobId, {
       job_id: jobId, kind: 'image_only', status: 'running',
       note: 'Chris is drawing.', created_at: new Date().toISOString(),
-      prompt, aspect, result: {},
+      prompt, aspect, source_key: sourceKey, result: {},
     });
   } catch (e) {
     return json(500, { error: 'store_write_failed' });

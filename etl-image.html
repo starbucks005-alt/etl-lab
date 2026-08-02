@@ -72,10 +72,14 @@
   </div>
 
   <div class="card">
-    <label for="f-prompt">What should it be?</label>
+    <label for="f-source">Start from an image</label>
+    <input id="f-source" type="file" accept="image/png,image/jpeg,image/webp">
+    <div class="hint">Optional. Give Chris a picture and they work FROM it, keeping what is there and changing what you ask for. This is how you swap a cast, restyle a room, or take a piece you already like somewhere new.</div>
+    <img id="src-thumb" class="hide" alt="Your starting image" style="margin-top:.7rem;max-width:200px;border-radius:9px;border:1px solid var(--line);display:block;">
+
+    <label for="f-prompt" id="prompt-label">What should it be?</label>
     <textarea id="f-prompt" placeholder="Four people at a long table in a bright ordinary office, all still, none of them looking at each other."></textarea>
-    <div class="hint">Say what is in the frame, not what it should feel like. Concrete beats atmospheric,
-    and a specific room beats a mood word every time.</div>
+    <div class="hint" id="prompt-hint">Say what is in the frame, not what it should feel like. Concrete beats atmospheric, and a specific room beats a mood word every time.</div>
 
     <label for="f-aspect">Shape</label>
     <select id="f-aspect">
@@ -102,7 +106,7 @@
 (function(){
   var $ = function(id){ return document.getElementById(id); };
   var show = function(el, on){ el.classList.toggle('hide', !on); };
-  var poll = null, jobId = null;
+  var poll = null, jobId = null, sourceData = '';
 
   /* The guest identity is a browser-scoped id, shared with the flyer page so
      one person does not get two free allowances by using both. */
@@ -122,12 +126,55 @@
     catch (_) { return ''; }
   }
 
+  /* DOWNSCALE BEFORE SENDING, ALWAYS.
+     A full-size PNG as a data URL is several megabytes, and the platform
+     rejects the request before the function ever sees it, so the browser gets
+     HTML back and JSON.parse dies with "Unexpected end of JSON input". The
+     flyer page has downscaled uploads since it was built; these newer pages
+     did not (2026-08-02). */
+  function shrink(file, maxEdge){
+    return new Promise(function(res, rej){
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function(){
+        var w = img.naturalWidth, h = img.naturalHeight;
+        var k = Math.min(1, maxEdge / Math.max(w, h));
+        var c = document.createElement("canvas");
+        c.width = Math.round(w * k); c.height = Math.round(h * k);
+        c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(url);
+        res(c.toDataURL("image/jpeg", 0.9));
+      };
+      img.onerror = function(){ URL.revokeObjectURL(url); rej(new Error("that file could not be read as an image")); };
+      img.src = url;
+    });
+  }
   function fail(msg){
     $('err').textContent = msg;
     show($('err'), true);
     $('go').disabled = false;
     $('note').textContent = '';
   }
+
+  /* SHE NEVER STARTS FROM NOTHING. Dr. O: "never do I have an image
+     generated that doesn't stem from some other image. I need to be able to
+     upload an image and say.... use this image to ..." The edit path has
+     existed in _gemini-image since it was written for the animation frames;
+     no page had ever offered it. The wording changes with the mode, because
+     'what should it be' is the wrong question once there is a picture in
+     front of you (2026-08-02). */
+  $('f-source').addEventListener('change', function(e){
+    var file = e.target.files && e.target.files[0];
+    if (!file) { sourceData = ''; $('src-thumb').classList.add('hide'); return; }
+    shrink(file, 1280).then(function(d){
+      sourceData = d;
+      $('src-thumb').src = d;
+      $('src-thumb').classList.remove('hide');
+      $('prompt-label').textContent = 'Use this image to...';
+      $('prompt-hint').textContent = 'Say what to CHANGE. Everything you do not mention should survive, so name the change and nothing else.';
+      $('f-prompt').placeholder = 'swap the four people for the four in the photo, keep the room and the lighting exactly as they are';
+    }).catch(function(e){ fail(e.message); });
+  });
 
   $('go').addEventListener('click', function(){
     var prompt = $('f-prompt').value.trim();
@@ -144,7 +191,7 @@
 
     fetch('/.netlify/functions/etl-image', {
       method: 'POST', headers: headers,
-      body: JSON.stringify({ prompt: prompt, aspect: $('f-aspect').value, guest_id: guestId() })
+      body: JSON.stringify({ prompt: prompt, aspect: $('f-aspect').value, guest_id: guestId(), source_image: sourceData })
     })
       .then(function(r){ return r.json().then(function(d){ d.__s = r.status; return d; }); })
       .then(function(d){

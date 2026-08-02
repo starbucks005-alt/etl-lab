@@ -136,16 +136,37 @@
   $('f-still').addEventListener('change', function(e){
     var file = e.target.files && e.target.files[0];
     if (!file) { stillData = ''; $('still-thumb').classList.add('hide'); return; }
-    var rd = new FileReader();
-    rd.onload = function(){
-      stillData = rd.result;
-      $('still-thumb').src = stillData;
+    shrink(file, 1280).then(function(d){
+      stillData = d;
+      $('still-thumb').src = d;
       $('still-thumb').classList.remove('hide');
       $('note').textContent = 'Ready. Say what should happen, then make the clip.';
-    };
-    rd.readAsDataURL(file);
+    }).catch(function(e){ fail(e.message); });
   });
 
+  /* DOWNSCALE BEFORE SENDING, ALWAYS.
+     A full-size PNG as a data URL is several megabytes, and the platform
+     rejects the request before the function ever sees it, so the browser gets
+     HTML back and JSON.parse dies with "Unexpected end of JSON input". The
+     flyer page has downscaled uploads since it was built; these newer pages
+     did not (2026-08-02). */
+  function shrink(file, maxEdge){
+    return new Promise(function(res, rej){
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function(){
+        var w = img.naturalWidth, h = img.naturalHeight;
+        var k = Math.min(1, maxEdge / Math.max(w, h));
+        var c = document.createElement("canvas");
+        c.width = Math.round(w * k); c.height = Math.round(h * k);
+        c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(url);
+        res(c.toDataURL("image/jpeg", 0.9));
+      };
+      img.onerror = function(){ URL.revokeObjectURL(url); rej(new Error("that file could not be read as an image")); };
+      img.src = url;
+    });
+  }
   function say(s){ $('note').textContent = s; }
   function step(s){ $('steps').innerHTML = s; }
   function fail(s){ $('err').textContent = s; $('go').disabled = false; }
