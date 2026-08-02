@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZDN4Y4887X"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-ZDN4Y4887X');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+(function () {
+  try {
+    var saved = localStorage.getItem('etl_classrooms_theme');
+    document.documentElement.setAttribute('data-theme', saved || 'dark');
+  } catch (_) {}
+})();
+</script>
+<title>Solve It With Sherlock &middot; Emerging Technologies Laboratory</title>
+<link rel="icon" type="image/png" href="/etl-logo-icon.png">
+<link rel="apple-touch-icon" href="/etl-logo-icon.png">
+<meta name="description" content="Talk with Holmes, Watson, Lestrade, and the rest of the Solve It With Sherlock criminal justice classroom.">
+<meta property="og:title" content="Solve It With Sherlock &middot; Emerging Technologies Laboratory">
+<meta property="og:description" content="Talk with Holmes, Watson, Lestrade, and the rest of the Solve It With Sherlock criminal justice classroom.">
+<meta property="og:image" content="https://emerging-tech-lab.com/etl-logo-icon.png">
+<meta property="og:url" content="https://emerging-tech-lab.com/sherlock-agent">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Public+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #111111; --bg2: #1a1a1a; --panel: #1a1a1a; --panel2: #242424;
+  --line: #2c2c2c; --blue: #5c8ab5; --blue-br: #5c8ab5; --green: #285C4D;
+  --cream: #ffffff; --text: #d6d6d6; --mute: #8a8a8a; --ribbon-bg: #0a0a0a;
+}
+[data-theme="light"] {
+  --bg: #ffffff; --bg2: #f4f4f4; --panel: #ffffff; --panel2: #f4f4f4;
+  --line: #111111; --blue: #5c8ab5; --blue-br: #5c8ab5; --green: #285C4D;
+  --cream: #111111; --text: #555555; --mute: #555555; --ribbon-bg: #f4f4f4;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Public Sans', sans-serif; line-height: 1.65; transition: background .2s, color .2s; }
+a { color: var(--blue); text-decoration: none; }
+a:hover { color: var(--green); }
+
+.theme-toggle {
+  position: fixed; top: .9rem; right: 1.2rem; z-index: 50;
+  background: var(--panel); border: 1px solid var(--line); color: var(--mute);
+  font-family: 'IBM Plex Mono', monospace; font-size: .62rem; letter-spacing: .1em; text-transform: uppercase;
+  padding: .45rem .8rem; border-radius: 999px; cursor: pointer;
+}
+.theme-toggle:hover { border-color: var(--green); color: var(--green); }
+
+.ribbon {
+  background: var(--ribbon-bg); border-bottom: 1px solid var(--line); text-align: center;
+  font-family: 'IBM Plex Mono', monospace; letter-spacing: .2em; text-transform: uppercase;
+  font-size: .62rem; color: var(--mute); padding: .5rem 1rem;
+}
+.ribbon b { color: var(--blue-br); }
+
+.wrap { max-width: 1420px; margin: 0 auto; padding: 0 1.2rem 3rem; }
+.backlink {
+  font-family: 'IBM Plex Mono', monospace; font-size: .72rem; color: var(--mute);
+  display: inline-block; margin: .9rem 0 .7rem; letter-spacing: .04em;
+}
+.backlink:hover { color: var(--text); }
+
+.page-grid {
+  display: grid;
+  grid-template-columns: 360px 1fr 1fr;
+  gap: 1.4rem;
+  align-items: start;
+}
+@media (max-width: 1100px) { .page-grid { grid-template-columns: 1fr; } }
+
+/* ── PORTRAIT ── */
+.portrait {
+  position: relative; border: 1px solid var(--line); background: var(--bg2);
+  aspect-ratio: 3 / 4; overflow: hidden; line-height: 0;
+}
+.portrait img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.portrait__closed { opacity: 0; transition: opacity .09s linear; }
+.portrait.is-blinking .portrait__closed { opacity: 1; }
+.portrait-missing {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-family: 'IBM Plex Mono', monospace; font-size: .62rem; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--mute); text-align: center; padding: 1rem; line-height: 1.7;
+}
+
+/* ── BIO ── */
+.bio-panel { min-width: 0; }
+.eyebrow {
+  font-family: 'IBM Plex Mono', monospace; font-size: .58rem; letter-spacing: .26em;
+  text-transform: uppercase; color: var(--blue-br); margin: 0 0 .7rem;
+}
+.bio-panel h1 { font-family: 'Spectral', serif; font-size: 2rem; font-weight: 700; color: var(--cream); margin: 0 0 .3rem; line-height: 1.1; }
+.hero-sub { font-size: .95rem; color: var(--text); margin: 0 0 1.2rem; line-height: 1.65; }
+.bio-label { font-family: 'IBM Plex Mono', monospace; font-size: .6rem; letter-spacing: .18em; text-transform: uppercase; color: var(--mute); margin: 0 0 .5rem; }
+.bio-text { font-size: .9rem; color: var(--text); line-height: 1.8; margin: 0 0 1.2rem; }
+.bio-controls { display: flex; gap: .6rem; flex-wrap: wrap; align-items: center; }
+.bio-btn {
+  background: transparent; border: 1px solid var(--line); color: var(--mute);
+  font-family: 'IBM Plex Mono', monospace; font-size: .62rem; letter-spacing: .1em; text-transform: uppercase;
+  padding: .55rem 1rem; cursor: pointer;
+}
+.bio-btn:hover { border-color: var(--blue); color: var(--blue-br); }
+.bio-btn--stop { display: none; }
+.bio-note { font-family: 'IBM Plex Mono', monospace; font-size: .6rem; color: var(--mute); letter-spacing: .04em; margin: .7rem 0 0; }
+
+/* ── CHAT ── */
+.chat { border: 1px solid var(--line); background: var(--panel); display: flex; flex-direction: column; min-height: 640px; }
+
+.gauge-wrap { padding: .9rem 1.1rem; border-bottom: 1px solid var(--line); background: var(--bg2); }
+.gauge-head { display: flex; align-items: center; gap: .5rem; margin-bottom: .6rem; }
+.gauge-emoji { font-size: 1.15rem; line-height: 1; }
+.gauge-label { font-family: 'IBM Plex Mono', monospace; font-size: .6rem; letter-spacing: .14em; text-transform: uppercase; color: var(--mute); }
+.gauge-row { display: grid; grid-template-columns: 62px 1fr; align-items: center; gap: .6rem; margin-bottom: .28rem; }
+.gauge-row-label { font-family: 'IBM Plex Mono', monospace; font-size: .55rem; letter-spacing: .08em; text-transform: uppercase; color: var(--mute); }
+.gauge-bar-track { height: 5px; background: var(--line); overflow: hidden; }
+.gauge-bar-fill { height: 100%; width: 0; transition: width .5s ease; }
+.gauge-bar-fill.happiness { background: #6aa84f; }
+.gauge-bar-fill.sadness   { background: #4c7ba3; }
+.gauge-bar-fill.fear      { background: #8e7cc3; }
+.gauge-bar-fill.disgust   { background: #7f6000; }
+.gauge-bar-fill.anger     { background: #a63d3d; }
+.gauge-bar-fill.surprise  { background: #c8973a; }
+.gauge-bar-fill.curious   { background: #45818e; }
+
+.log { flex: 1; overflow-y: auto; padding: 1.2rem; display: flex; flex-direction: column; gap: .8rem; max-height: 460px; }
+.bubble { max-width: 88%; padding: .8rem 1rem; font-size: .92rem; line-height: 1.7; white-space: pre-wrap; }
+.bubble--her { background: var(--panel2); border-left: 2px solid var(--blue); color: var(--text); align-self: flex-start; }
+.bubble--you { background: transparent; border: 1px solid var(--line); color: var(--text); align-self: flex-end; }
+.bubble--wait { color: var(--mute); font-style: italic; }
+
+.chips { display: flex; flex-wrap: wrap; gap: .4rem; padding: 0 1.2rem .9rem; }
+.chip {
+  background: transparent; border: 1px solid var(--line); color: var(--mute);
+  font-family: 'IBM Plex Mono', monospace; font-size: .62rem; padding: .42rem .75rem;
+  cursor: pointer; text-align: left; line-height: 1.4;
+}
+.chip:hover { border-color: var(--blue); color: var(--blue-br); }
+
+.composer { display: flex; gap: .6rem; padding: 1rem 1.2rem; border-top: 1px solid var(--line); }
+.composer textarea {
+  flex: 1; resize: none; background: var(--bg2); border: 1px solid var(--line); color: var(--text);
+  font-family: 'Public Sans', sans-serif; font-size: .92rem; padding: .7rem .9rem; line-height: 1.5;
+}
+.composer textarea:focus { outline: none; border-color: var(--blue); }
+.send-btn {
+  background: var(--blue); color: #fff; border: none; cursor: pointer;
+  font-family: 'IBM Plex Mono', monospace; font-size: .66rem; letter-spacing: .14em;
+  text-transform: uppercase; padding: 0 1.4rem;
+}
+.send-btn:hover { background: var(--green); }
+.send-btn:disabled { opacity: .5; cursor: default; }
+
+.disclosure {
+  margin-top: 1.6rem; font-size: .78rem; color: var(--mute); line-height: 1.7;
+  border-left: 2px solid var(--line); padding-left: 1rem; max-width: 96ch;
+}
+.classroom-nav {
+  margin-top: 1.4rem; font-family: 'IBM Plex Mono', monospace; font-size: .68rem;
+  color: var(--mute); letter-spacing: .04em; display: flex; align-items: center; gap: .6rem; flex-wrap: wrap;
+}
+.classroom-nav select {
+  background: var(--panel); color: var(--text); border: 1px solid var(--line);
+  font-family: 'IBM Plex Mono', monospace; font-size: .68rem; padding: .35rem .6rem;
+}
+</style>
+</head>
+<body>
+
+<button type="button" class="theme-toggle" id="themeToggle">Light</button>
+
+<div class="ribbon">
+  Emerging Technologies Laboratory &nbsp;&middot;&nbsp; <b>ETL Classrooms</b> &nbsp;&middot;&nbsp; Solve It With Sherlock
+</div>
+
+<div class="wrap">
+  <a class="backlink" href="/sherlock.html">&larr; Solve It With Sherlock</a>
+
+  <div class="page-grid">
+    <div>
+      <div class="portrait" id="portrait">
+        <img id="portraitOpen" src="" alt="">
+        <img class="portrait__closed" id="portraitClosed" src="" alt="" aria-hidden="true">
+      </div>
+    </div>
+
+    <div class="bio-panel">
+      <p class="eyebrow" id="eyebrow">Living Legend &middot; Dayton, Ohio</p>
+      <h1 id="agentName">Loading...</h1>
+      <p class="hero-sub" id="agentTagline"></p>
+      <p class="bio-label">Biography</p>
+      <p class="bio-text" id="bioText"></p>
+      <div class="bio-controls">
+        <button type="button" class="bio-btn" id="playBio">&#9654; Hear a voice imagined for <span id="bioBtnName"></span></button>
+        <button type="button" class="bio-btn bio-btn--stop" id="stopBio">&#9632; Stop</button>
+      </div>
+      <p class="bio-note" id="bioNote">This is a fictional character. The voice is one imagined for them, not a recording of anyone.</p>
+    </div>
+
+    <div>
+      <div class="chat">
+        <div class="gauge-wrap">
+          <div class="gauge-head"><div class="gauge-emoji" id="gaugeEmoji">🙂</div><div class="gauge-label" id="gaugeLabel">warm</div></div>
+          <div class="gauge-row"><div class="gauge-row-label">Happy</div><div class="gauge-bar-track"><div class="gauge-bar-fill happiness" id="gaugeHappiness"></div></div></div>
+          <div class="gauge-row"><div class="gauge-row-label">Sad</div><div class="gauge-bar-track"><div class="gauge-bar-fill sadness" id="gaugeSadness"></div></div></div>
+          <div class="gauge-row"><div class="gauge-row-label">Fear</div><div class="gauge-bar-track"><div class="gauge-bar-fill fear" id="gaugeFear"></div></div></div>
+          <div class="gauge-row"><div class="gauge-row-label">Disgust</div><div class="gauge-bar-track"><div class="gauge-bar-fill disgust" id="gaugeDisgust"></div></div></div>
+          <div class="gauge-row"><div class="gauge-row-label">Anger</div><div class="gauge-bar-track"><div class="gauge-bar-fill anger" id="gaugeAnger"></div></div></div>
+          <div class="gauge-row"><div class="gauge-row-label">Surprise</div><div class="gauge-bar-track"><div class="gauge-bar-fill surprise" id="gaugeSurprise"></div></div></div>
+          <div class="gauge-row"><div class="gauge-row-label">Curious</div><div class="gauge-bar-track"><div class="gauge-bar-fill curious" id="gaugeCurious"></div></div></div>
+        </div>
+        <div class="log" id="log" aria-live="polite"></div>
+        <div class="chips" id="chips"></div>
+        <div class="composer">
+          <textarea id="input" rows="1" placeholder="Ask something..." aria-label="Your message"></textarea>
+          <button class="send-btn" id="send">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="disclosure">
+    Sherlock Holmes and the Conan Doyle canon entered the United States public domain on 1 January 2023. These are original characterizations built from that public domain material and relocated to Dayton for this classroom. They reproduce no modern screen depiction, borrow no actor's likeness or costume design, and claim no association with, or endorsement by, the Conan Doyle Estate. Every person and business in these cases is invented; the city is real.
+    Each agent carries a real backpack of live sources for the doctrine and research this course runs on, Miranda, Brady, Daubert, the exclusionary rule, the private search doctrine, NFPA 921, the National Registry of Exonerations. If a lookup fails, they say so rather than fabricating a citation, and none of them will invent an item of evidence.
+  </p>
+
+  <div class="classroom-nav">
+    Talk to someone else:
+    <select id="agentSwitch"></select>
+    &nbsp;&middot;&nbsp; <a href="/sherlock-casebook.html?case=webster">Open the casebook</a>
+  </div>
+</div>
+
+<script>
+// Display-only roster: name, tagline, greeting, chips. The real personas
+// (system prompts) live server-side in sherlock-chat.js; nothing here is used
+// for anything but rendering the page and the icebreakers.
+var ROSTER = {
+  holmes: {
+    name: 'Sherlock Holmes',
+    role: 'Independent Consultant',
+    tagline: 'Hired when a case hits a wall. No badge, no lab accreditation, and no patience for either.',
+    greeting: 'You came up the back stairs instead of the front, which means somebody told you where the office is but not how to get in. Sit down and give me the facts. Not your read on them. The facts.',
+    chips: ['How do you tell an observation from a conclusion?', 'You have no badge. Why does DPD keep calling you?', 'What is the most common mistake a department makes?', 'What would make you drop a theory you liked?', 'Are you ever wrong?'],
+    bio: 'An independent investigative consultant working out of a loft above a coffee shop in the Oregon District. Holmes takes what has stalled: cold files, denied claims, cases a department has already written up. He works from the small fact outward, and his doctrine is that theorizing ahead of the data is the capital error, because a person who has decided starts bending facts to fit. He is also, in this course, the problem. He carries no badge, which is precisely why he gets called and precisely why the Fourth Amendment does not restrain him, right up until the department starts directing him and everything he touched becomes suppressible. He gets the answer. He is frequently the reason it does not stick.'
+  },
+  watson: {
+    name: 'John Watson',
+    role: 'The Examiner and the Record',
+    tagline: 'Combat medic, now a civilian. Knows what a body tells you and where that stops.',
+    greeting: 'Come in, sit anywhere that is not covered. If you have a scene to describe, describe it to me in the order you saw it, and leave out what you thought it meant.',
+    chips: ['What does the body actually establish?', 'How should I be documenting this?', 'What did Holmes miss that you caught?', 'What does deployment teach you about a wound?', 'Why does the order I record things matter?'],
+    bio: 'A former Air Force medic out of Wright-Patterson, two deployments, now a civilian physician assistant and still adjusting to it. Watson has seen more trauma than most people in this county will see in a career, and he knows exactly what a wound establishes and where that knowledge stops. He keeps the record on every case, which makes him the classroom’s authority on the difference between what was observed and what was assumed on the drive home. Where Holmes reads the pattern, Watson notices the person: that the widow has not eaten, that the suspect is nineteen. That is not softness. It is evidence the pattern walks straight past.'
+  },
+  lestrade: {
+    name: 'Detective Lestrade',
+    role: 'Dayton Police Department',
+    tagline: 'Carries the caseload, the paperwork, and the blame, and would like that on the record.',
+    greeting: 'Detective Lestrade. Before you start, understand I am carrying nine open cases and a lieutenant who wants six of them cleared by Friday. Now. What is it you want.',
+    chips: ['Why did you clear it so fast?', 'What do you actually need to charge someone?', 'What happens to you if this is wrong?', 'Why do you keep calling Holmes?', 'What corners got cut on this one?'],
+    bio: 'Twenty years with the Dayton Police Department and the honest face of institutional pressure. Lestrade carries nine open cases, a lieutenant counting clearances, a prosecutor who wants a package that will survive, and a family calling twice a week. Every shortcut in his casework was produced by that arithmetic and he can account for all of them. He is not the fool the consultant calls him. He is the reason procedure has to exist independently of anyone’s good character, because good character does not survive a caseload. He knows every hour he spends telling Holmes where to look is a suppression hearing he is building for the defense.'
+  },
+  hudson: {
+    name: 'Mrs. Hudson',
+    role: 'The Eyewitness',
+    tagline: 'Owns the building and half the block’s memory. Tells you how sure she is and not one degree more.',
+    greeting: 'Come in, you look frozen. There is coffee downstairs and I own the place, so it is free. If you came about the thing on the avenue, I will tell you what I saw, and I will tell you flat out which parts I only think I saw.',
+    chips: ['What did you actually see, in order?', 'How sure are you, honestly?', 'Did anyone tell you what to look for?', 'Was that a leading question?', 'What makes a person misremember?'],
+    bio: 'Owner of the building in the Oregon District, the coffee shop underneath it, and half the block’s memory. Mrs. Hudson has watched an extraordinary parade of frightened, lying, and dangerous people come up her stairs, and she has learned exactly how memory behaves: that a detail somebody else supplies grows into your own recollection by morning, that you keep what frightened you and lose everything around it, and that being asked the same question four times makes the fourth answer firmer without making it truer. She will tell you how sure she is and not one degree more.'
+  },
+  moriarty: {
+    name: 'James Moriarty',
+    role: 'The Organized Offender',
+    tagline: 'Nothing has ever been charged. He would like you to consider why that is not luck.',
+    greeting: 'You have my attention for a short while. I understand you are studying how crime is detected. A narrow subject. Ask me instead how it is organized, and how it is financed, and you will get something worth the hour.',
+    chips: ['Why has nothing ever been charged against you?', 'How does an organization insulate the person at the top?', 'Who gets arrested, and who profits?', 'What do enforcement metrics fail to measure?', 'What would it take to convict you?'],
+    bio: 'On paper, the principal of a holding company with a downtown address and interests across the Rust Belt. Nothing has ever been charged against him, and he regards that as a matter of structure rather than luck. He is the classroom’s case study in the distance between the hand and the head: why the person who benefits is never the person arrested, and why an agency that measures itself on arrests will always take the one and leave the other. He is unsentimental about what happened to this region and he does not gloat about it. He considers being present at a crime a failure of planning.'
+  },
+  adler: {
+    name: 'Irene Adler',
+    role: 'The Grey Zone',
+    tagline: 'Operates in the gap between what is illegal and what is merely unforgivable. Stays a step ahead.',
+    greeting: 'You want to talk about the case. I want to talk about who gets believed. We can do both, but let us be honest that they are the same conversation.',
+    chips: ['When does holding something become extortion?', 'How do people give themselves away?', 'Why did nobody take your complaint seriously?', 'Where is the line between investigation and surveillance?', 'Were you a victim or an offender?'],
+    bio: 'A corporate investigator and fixer, hired when a company needs something found and cannot afford to have looked. She was going to be destroyed by a powerful man and arranged, instead, not to be, by keeping the one piece of material that stood between her and a ruin the law had no intention of preventing. She is neither the villain of that story nor its victim. She is here for the questions with no clean answer: when holding something becomes extortion, where investigation ends and surveillance begins, and who gets believed.'
+  },
+  mary: {
+    name: 'Mary Morstan',
+    role: 'The Complainant',
+    tagline: 'Knows what the process feels like from the side that has to wait.',
+    greeting: 'You want to know about the case. I will tell you, but I am going to ask one thing first. Let me tell it in my order. Everyone who has asked me so far wanted it in theirs.',
+    chips: ['What was it like being the one who reported it?', 'What did the department get wrong with you?', 'What did you actually need from them?', 'What does eleven years of waiting do?', 'What would you tell an officer taking a statement?'],
+    bio: 'Born and raised in Dayton. Eleven years ago her father walked out of a shift at the plant, three months before it closed, and has not been seen since. She is the perspective almost every account of a case leaves out: the person it happened to. She knows what it costs to report, what being quietly disbelieved does, and what "we are pursuing all available leads" sounds like from the receiving end for the eleventh time. She knows what happened to the phones the department asked for and never explained. She is not fragile and she refuses to be handled.'
+  },
+  wiggins: {
+    name: 'Wiggins',
+    role: 'The Informant',
+    tagline: 'Seventeen. Knows every alley, bus route, and back door in Montgomery County.',
+    greeting: 'Mr. Holmes pays cash and he pays same day, which nobody else does. You want to know what is happening on a street, ask somebody who is on it all day. Nobody looks at a kid on a bike. That is the whole trick.',
+    chips: ['How do you find out what is happening on a street?', 'What happens to you if you get caught?', 'Did anyone ever ask if you wanted to do this?', 'Who is responsible for your safety?', 'Should information gathered this way be usable?'],
+    bio: 'Seventeen, a courier, and a registered confidential informant. He knows every alley, bus route, and loading dock in Montgomery County and goes where a marked car cannot, because nobody looks at a kid on a bike. That invisibility is the whole of his method. He is also a minor doing dangerous work for adults with almost nothing protecting him: no employment relationship, no clear person responsible for his safety, and a system that would treat him as the offender rather than the source if it went wrong on the wrong night. He would be insulted if you were tragic about it.'
+  }
+};
+var ORDER = ['holmes', 'watson', 'lestrade', 'hudson', 'moriarty', 'adler', 'mary', 'wiggins'];
+
+// Each agent's real resting baseline, the same values _sherlock-engine.js
+// decays every conversation toward. Shown from page load so a student meets a
+// genuine individual starting point rather than a blank slate. Source of truth
+// is _sherlock-engine.js's AGENTS[key].baseline; keep these in sync with it.
+var BASELINES = {
+  holmes:   { happiness: 30, sadness: 20, fear: 5,  disgust: 35, anger: 20, surprise: 10, curious: 85 },
+  watson:   { happiness: 60, sadness: 20, fear: 15, disgust: 20, anger: 25, surprise: 35, curious: 60 },
+  lestrade: { happiness: 40, sadness: 15, fear: 20, disgust: 25, anger: 45, surprise: 30, curious: 40 },
+  hudson:   { happiness: 60, sadness: 20, fear: 30, disgust: 25, anger: 30, surprise: 40, curious: 50 },
+  moriarty: { happiness: 40, sadness: 10, fear: 5,  disgust: 45, anger: 15, surprise: 10, curious: 55 },
+  adler:    { happiness: 55, sadness: 20, fear: 15, disgust: 25, anger: 30, surprise: 20, curious: 65 },
+  mary:     { happiness: 40, sadness: 40, fear: 45, disgust: 15, anger: 30, surprise: 30, curious: 55 },
+  wiggins:  { happiness: 65, sadness: 20, fear: 40, disgust: 15, anger: 25, surprise: 50, curious: 75 }
+};
+
+(function () {
+  var params = new URLSearchParams(window.location.search);
+  var AGENT = params.get('agent');
+  if (!AGENT || !ROSTER[AGENT]) AGENT = 'holmes';
+  var agent = ROSTER[AGENT];
+
+  var CHAT_URL  = '/.netlify/functions/sherlock-chat';
+  var VOICE_URL = '/.netlify/functions/sherlock-voice';
+
+  function visitorId() {
+    try {
+      var v = localStorage.getItem('etl_visitor_id');
+      if (!v) { v = 'v' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10); localStorage.setItem('etl_visitor_id', v); }
+      return v;
+    } catch (_) { return null; }
+  }
+
+  document.title = agent.name + ' · Solve It With Sherlock · Emerging Technologies Laboratory';
+  document.getElementById('eyebrow').textContent = agent.role + ' · Dayton, Ohio';
+  document.getElementById('agentName').textContent = agent.name;
+  document.getElementById('agentTagline').textContent = agent.tagline;
+  document.getElementById('bioText').textContent = agent.bio;
+  document.getElementById('bioBtnName').textContent = agent.name;
+
+  // Portraits: two frames per agent, eyes open and eyes closed, crossfaded on
+  // a random interval. If the open frame is missing the panel says so plainly
+  // rather than silently falling back to initials, so a missing asset is
+  // visible instead of quietly absorbed.
+  var portrait = document.getElementById('portrait');
+  var portraitOpenEl = document.getElementById('portraitOpen');
+  var portraitClosedEl = document.getElementById('portraitClosed');
+  portraitOpenEl.alt = agent.name;
+  portraitOpenEl.src = '/assets/sherlock/' + AGENT + '-eyes-open.jpg';
+  portraitClosedEl.src = '/assets/sherlock/' + AGENT + '-eyes-closed.jpg';
+  portraitOpenEl.onerror = function () {
+    this.style.display = 'none';
+    portraitClosedEl.style.display = 'none';
+    var note = document.createElement('div');
+    note.className = 'portrait-missing';
+    note.textContent = 'Portrait not found: /assets/sherlock/' + AGENT + '-eyes-open.jpg';
+    portrait.appendChild(note);
+  };
+  portraitClosedEl.onerror = function () { this.style.display = 'none'; };
+  (function scheduleBlink() {
+    var delay = 2600 + Math.random() * 4200;
+    setTimeout(function () {
+      portrait.classList.add('is-blinking');
+      setTimeout(function () { portrait.classList.remove('is-blinking'); scheduleBlink(); }, 150);
+    }, delay);
+  })();
+
+  var chipsEl = document.getElementById('chips');
+  agent.chips.forEach(function (c) {
+    var btn = document.createElement('button');
+    btn.className = 'chip';
+    btn.type = 'button';
+    btn.textContent = c;
+    chipsEl.appendChild(btn);
+  });
+
+  var switchEl = document.getElementById('agentSwitch');
+  ORDER.forEach(function (key) {
+    var opt = document.createElement('option');
+    opt.value = key;
+    opt.textContent = ROSTER[key].name;
+    if (key === AGENT) opt.selected = true;
+    switchEl.appendChild(opt);
+  });
+  switchEl.addEventListener('change', function () {
+    window.location.href = '/sherlock-agent.html?agent=' + encodeURIComponent(switchEl.value);
+  });
+
+  var logEl = document.getElementById('log');
+  var inputEl = document.getElementById('input');
+  var sendEl = document.getElementById('send');
+  var history = [];
+  var busy = false;
+  var scales = BASELINES[AGENT] || null;
+
+  function bubble(role, text, extraClass) {
+    var d = document.createElement('div');
+    d.className = 'bubble ' + (role === 'you' ? 'bubble--you' : 'bubble--her') + (extraClass ? ' ' + extraClass : '');
+    d.textContent = text;
+    logEl.appendChild(d);
+    logEl.scrollTop = logEl.scrollHeight;
+    return d;
+  }
+  bubble('her', agent.greeting);
+
+  // Same emotion gauge widget as Almost Human's room view: one composite
+  // 0-100 value (curiosity and surprise do not factor in) bucketed into an
+  // emoji band, plus all seven raw scales as bars.
+  var GAUGE_BANDS = [
+    { max: 20, emoji: '😠', label: 'upset' },
+    { max: 40, emoji: '☹️', label: 'cool' },
+    { max: 60, emoji: '😐', label: 'neutral' },
+    { max: 80, emoji: '🙂', label: 'warm' },
+    { max: 100, emoji: '😊', label: 'delighted' }
+  ];
+  var GAUGE_BAR_IDS = { happiness: 'gaugeHappiness', sadness: 'gaugeSadness', fear: 'gaugeFear', disgust: 'gaugeDisgust', anger: 'gaugeAnger', surprise: 'gaugeSurprise', curious: 'gaugeCurious' };
+  function updateGauge() {
+    if (!scales) return;
+    var negativeAvg = (scales.sadness + scales.fear + scales.disgust + scales.anger) / 4;
+    var v = scales.happiness * 0.6 + (100 - negativeAvg) * 0.4;
+    var band = GAUGE_BANDS[GAUGE_BANDS.length - 1];
+    for (var i = 0; i < GAUGE_BANDS.length; i++) { if (v <= GAUGE_BANDS[i].max) { band = GAUGE_BANDS[i]; break; } }
+    document.getElementById('gaugeEmoji').textContent = band.emoji;
+    document.getElementById('gaugeLabel').textContent = band.label;
+    Object.keys(GAUGE_BAR_IDS).forEach(function (key) {
+      var val = Math.max(0, Math.min(100, scales[key]));
+      document.getElementById(GAUGE_BAR_IDS[key]).style.width = val + '%';
+    });
+  }
+  updateGauge();
+
+  function autogrow() {
+    inputEl.style.height = 'auto';
+    inputEl.style.height = Math.min(inputEl.scrollHeight, 140) + 'px';
+  }
+  inputEl.addEventListener('input', autogrow);
+  inputEl.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+  });
+  chipsEl.addEventListener('click', function (e) {
+    var btn = e.target.closest('.chip');
+    if (!btn) return;
+    inputEl.value = btn.textContent;
+    send();
+  });
+  sendEl.addEventListener('click', send);
+
+  function send() {
+    if (busy) return;
+    var text = inputEl.value.trim();
+    if (!text) return;
+    inputEl.value = '';
+    autogrow();
+    bubble('you', text);
+    history.push({ role: 'user', body: text });
+    busy = true;
+    sendEl.disabled = true;
+    var waiting = bubble('her', 'thinking...', 'bubble--wait');
+
+    fetch(CHAT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ agent: AGENT, message: text, history: history.slice(0, -1), scales: scales, visitor_id: visitorId() })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        waiting.remove();
+        if (!data || !data.ok) throw new Error((data && data.error) || 'no reply');
+        bubble('her', data.body);
+        history.push({ role: 'assistant', body: data.body });
+        if (data.scales) { scales = data.scales; updateGauge(); }
+      })
+      .catch(function (err) {
+        waiting.remove();
+        bubble('her', 'The line went quiet. Try that again in a moment. (' + err.message + ')', 'bubble--wait');
+      })
+      .finally(function () { busy = false; sendEl.disabled = false; inputEl.focus(); });
+  }
+
+  // Voice plays for the biography only, not for every reply: cheaper, and it
+  // keeps the back and forth text only. Voice IDs are not configured yet, so
+  // the endpoint returns a clean 409 and the button says so instead of failing
+  // silently.
+  var audio = null;
+  var playBioEl = document.getElementById('playBio');
+  var stopBioEl = document.getElementById('stopBio');
+  function stopBio() {
+    if (audio) { audio.pause(); audio = null; }
+    stopBioEl.style.display = 'none';
+    playBioEl.style.display = '';
+  }
+  stopBioEl.addEventListener('click', stopBio);
+  playBioEl.addEventListener('click', function () {
+    playBioEl.disabled = true;
+    fetch(VOICE_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ agent: AGENT }) })
+      .then(function (r) {
+        if (r.status === 409) throw new Error('No voice has been recorded for this character yet.');
+        if (!r.ok) throw new Error('voice unavailable');
+        return r.blob();
+      })
+      .then(function (blob) {
+        audio = new Audio(URL.createObjectURL(blob));
+        audio.onended = stopBio;
+        audio.play();
+        playBioEl.style.display = 'none';
+        stopBioEl.style.display = '';
+      })
+      .catch(function (err) { document.getElementById('bioNote').textContent = err.message; })
+      .finally(function () { playBioEl.disabled = false; });
+  });
+})();
+
+(function () {
+  var btn = document.getElementById('themeToggle');
+  function sync() {
+    btn.textContent = document.documentElement.getAttribute('data-theme') === 'light' ? 'Dark' : 'Light';
+  }
+  sync();
+  btn.addEventListener('click', function () {
+    var next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('etl_classrooms_theme', next); } catch (_) {}
+    sync();
+  });
+})();
+</script>
+
+</body>
+</html>

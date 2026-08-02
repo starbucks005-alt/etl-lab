@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZDN4Y4887X"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-ZDN4Y4887X');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+(function () {
+  try {
+    var saved = localStorage.getItem('etl_classrooms_theme');
+    document.documentElement.setAttribute('data-theme', saved || 'dark');
+  } catch (_) {}
+})();
+</script>
+<title>The Casebook &middot; Solve It With Sherlock</title>
+<link rel="icon" type="image/png" href="/etl-logo-icon.png">
+<link rel="apple-touch-icon" href="/etl-logo-icon.png">
+<meta name="description" content="Work the case yourself: examine the scene, interview the witnesses, commit to a suspect, and find out what a modern court would do to your evidence.">
+<meta property="og:title" content="The Casebook &middot; Solve It With Sherlock">
+<meta property="og:description" content="Work the case yourself: examine the scene, interview the witnesses, commit to a suspect, and find out what a modern court would do to your evidence.">
+<meta property="og:image" content="https://emerging-tech-lab.com/etl-logo-icon.png">
+<meta property="og:url" content="https://emerging-tech-lab.com/sherlock-casebook">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Public+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #111111; --bg2: #1a1a1a; --panel: #1a1a1a; --panel2: #242424;
+  --line: #2c2c2c; --blue: #5c8ab5; --blue-br: #5c8ab5; --green: #285C4D;
+  --cream: #ffffff; --text: #d6d6d6; --mute: #8a8a8a; --ribbon-bg: #0a0a0a;
+  --good: #6aa84f; --warn: #c8973a; --bad: #a63d3d;
+}
+[data-theme="light"] {
+  --bg: #ffffff; --bg2: #f4f4f4; --panel: #ffffff; --panel2: #f4f4f4;
+  --line: #111111; --blue: #5c8ab5; --blue-br: #5c8ab5; --green: #285C4D;
+  --cream: #111111; --text: #555555; --mute: #555555; --ribbon-bg: #f4f4f4;
+  --good: #3d7a28; --warn: #8f6516; --bad: #8a2b2b;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Public Sans', sans-serif; line-height: 1.65; transition: background .2s, color .2s; }
+a { color: var(--blue); text-decoration: none; }
+a:hover { color: var(--green); }
+
+.theme-toggle {
+  position: fixed; top: .9rem; right: 1.2rem; z-index: 50;
+  background: var(--panel); border: 1px solid var(--line); color: var(--mute);
+  font-family: 'IBM Plex Mono', monospace; font-size: .62rem; letter-spacing: .1em; text-transform: uppercase;
+  padding: .45rem .8rem; border-radius: 999px; cursor: pointer;
+}
+.theme-toggle:hover { border-color: var(--green); color: var(--green); }
+
+.ribbon {
+  background: var(--ribbon-bg); border-bottom: 1px solid var(--line); text-align: center;
+  font-family: 'IBM Plex Mono', monospace; letter-spacing: .2em; text-transform: uppercase;
+  font-size: .62rem; color: var(--mute); padding: .5rem 1rem;
+}
+.ribbon b { color: var(--blue-br); }
+
+.wrap { max-width: 1240px; margin: 0 auto; padding: 0 1.2rem 4rem; }
+.backlink { font-family: 'IBM Plex Mono', monospace; font-size: .72rem; color: var(--mute); display: inline-block; margin: .9rem 0 .7rem; letter-spacing: .04em; }
+.backlink:hover { color: var(--text); }
+
+/* ── CASE HEAD ── */
+.casehead { border: 1px solid var(--line); border-top: 3px solid var(--blue); background: var(--panel); padding: 2.2rem 2.2rem 2rem; }
+.case-num { font-family: 'IBM Plex Mono', monospace; font-size: .58rem; letter-spacing: .26em; text-transform: uppercase; color: var(--blue-br); margin-bottom: .8rem; }
+.casehead h1 { font-family: 'Spectral', serif; font-size: clamp(1.7rem, 3.6vw, 2.4rem); font-weight: 700; color: var(--cream); margin: 0 0 .5rem; line-height: 1.14; }
+.casehead .sub { font-family: 'Spectral', serif; font-style: italic; font-size: 1.06rem; color: var(--text); margin: 0 0 1.4rem; }
+.brief p { font-size: .95rem; color: var(--text); line-height: 1.8; margin: 0 0 .8rem; max-width: 82ch; }
+.brief p:last-child { margin-bottom: 0; }
+.case-switch { margin-top: 1.4rem; font-family: 'IBM Plex Mono', monospace; font-size: .64rem; letter-spacing: .06em; color: var(--mute); }
+.case-switch a { margin-left: .7rem; }
+
+/* ── TABS ── */
+.tabs { display: flex; gap: 1px; border: 1px solid var(--line); border-top: none; background: var(--line); }
+.tab {
+  flex: 1; background: var(--panel); border: none; cursor: pointer; color: var(--mute);
+  font-family: 'IBM Plex Mono', monospace; font-size: .66rem; letter-spacing: .14em; text-transform: uppercase;
+  padding: .95rem .6rem; transition: background .15s, color .15s;
+}
+.tab:hover { background: var(--panel2); color: var(--text); }
+.tab.is-active { background: var(--blue); color: #fff; }
+.tab-count { display: block; font-size: .55rem; letter-spacing: .1em; opacity: .75; margin-top: .2rem; }
+@media (max-width: 700px) { .tabs { flex-wrap: wrap; } .tab { flex: 1 1 46%; } }
+
+.panel { display: none; border: 1px solid var(--line); border-top: none; background: var(--panel); padding: 1.8rem 2rem 2.2rem; }
+.panel.is-active { display: block; }
+.panel h2 { font-family: 'Spectral', serif; font-size: 1.3rem; font-weight: 600; color: var(--cream); margin: 0 0 .4rem; }
+.panel .lede { font-size: .88rem; color: var(--mute); margin: 0 0 1.5rem; max-width: 76ch; }
+
+/* ── SCENE ── */
+.evidence { border: 1px solid var(--line); }
+.ev { border-bottom: 1px solid var(--line); }
+.ev:last-child { border-bottom: none; }
+.ev-head { display: grid; grid-template-columns: auto 1fr auto; gap: .9rem; align-items: start; padding: 1.1rem 1.3rem; }
+.ev-tag { font-family: 'IBM Plex Mono', monospace; font-size: .6rem; color: var(--blue-br); letter-spacing: .1em; padding-top: .18rem; }
+.ev-name { font-family: 'Spectral', serif; font-size: 1.05rem; color: var(--cream); margin: 0 0 .3rem; }
+.ev-visible { font-size: .88rem; color: var(--text); line-height: 1.7; margin: 0; }
+.ev-btn {
+  background: transparent; border: 1px solid var(--line); color: var(--mute); cursor: pointer;
+  font-family: 'IBM Plex Mono', monospace; font-size: .58rem; letter-spacing: .1em; text-transform: uppercase;
+  padding: .45rem .8rem; white-space: nowrap;
+}
+.ev-btn:hover { border-color: var(--blue); color: var(--blue-br); }
+.ev-close { display: none; padding: 0 1.3rem 1.2rem 4.1rem; }
+.ev.is-open .ev-close { display: block; }
+.ev.is-open .ev-btn { border-color: var(--blue); color: var(--blue-br); }
+.ev-close-inner { border-left: 2px solid var(--blue); padding: .3rem 0 .3rem 1rem; font-size: .88rem; line-height: 1.75; color: var(--text); }
+.ev-close-label { font-family: 'IBM Plex Mono', monospace; font-size: .56rem; letter-spacing: .16em; text-transform: uppercase; color: var(--blue-br); display: block; margin-bottom: .35rem; }
+@media (max-width: 620px) { .ev-head { grid-template-columns: 1fr; } .ev-close { padding-left: 1.3rem; } }
+
+/* ── PEOPLE ── */
+.people { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1px; border: 1px solid var(--line); margin-bottom: 1.6rem; }
+.person { background: var(--panel); border: none; cursor: pointer; text-align: left; padding: 0; display: flex; flex-direction: column; transition: background .15s; }
+.person:hover { background: var(--panel2); }
+.person.is-active { background: var(--panel2); box-shadow: inset 3px 0 0 var(--blue); }
+.person-portrait { aspect-ratio: 1 / 1; background: var(--bg2); overflow: hidden; line-height: 0; }
+.person-portrait img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.person-portrait .missing {
+  width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+  font-family: 'IBM Plex Mono', monospace; font-size: .52rem; color: var(--mute); text-align: center;
+  padding: .6rem; line-height: 1.6; letter-spacing: .04em;
+}
+.person-body { padding: .8rem .9rem 1rem; }
+.person-name { font-family: 'Spectral', serif; font-size: .98rem; color: var(--cream); margin: 0 0 .2rem; }
+.person-title { font-family: 'IBM Plex Mono', monospace; font-size: .56rem; letter-spacing: .06em; text-transform: uppercase; color: var(--blue-br); margin: 0 0 .4rem; }
+.person-tag { font-size: .78rem; color: var(--mute); line-height: 1.55; margin: 0; }
+
+/* ── CHAT ── */
+.chat { border: 1px solid var(--line); background: var(--bg2); display: flex; flex-direction: column; }
+.chat-head { padding: .8rem 1.1rem; border-bottom: 1px solid var(--line); font-family: 'IBM Plex Mono', monospace; font-size: .62rem; letter-spacing: .1em; text-transform: uppercase; color: var(--mute); display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.chat-head b { color: var(--blue-br); }
+.log { flex: 1; overflow-y: auto; padding: 1.1rem; display: flex; flex-direction: column; gap: .8rem; min-height: 260px; max-height: 480px; }
+.bubble { max-width: 88%; padding: .75rem 1rem; font-size: .9rem; line-height: 1.7; white-space: pre-wrap; }
+.bubble--them { background: var(--panel); border-left: 2px solid var(--blue); align-self: flex-start; }
+.bubble--you { border: 1px solid var(--line); align-self: flex-end; }
+.bubble--wait { color: var(--mute); font-style: italic; }
+.bubble-who { display: block; font-family: 'IBM Plex Mono', monospace; font-size: .55rem; letter-spacing: .12em; text-transform: uppercase; color: var(--blue-br); margin-bottom: .35rem; }
+.chips { display: flex; flex-wrap: wrap; gap: .4rem; padding: 0 1.1rem .9rem; }
+.chip { background: transparent; border: 1px solid var(--line); color: var(--mute); font-family: 'IBM Plex Mono', monospace; font-size: .6rem; padding: .4rem .7rem; cursor: pointer; text-align: left; line-height: 1.4; }
+.chip:hover { border-color: var(--blue); color: var(--blue-br); }
+.composer { display: flex; gap: .6rem; padding: .9rem 1.1rem; border-top: 1px solid var(--line); }
+.composer textarea { flex: 1; resize: none; background: var(--panel); border: 1px solid var(--line); color: var(--text); font-family: 'Public Sans', sans-serif; font-size: .9rem; padding: .65rem .85rem; line-height: 1.5; }
+.composer textarea:focus { outline: none; border-color: var(--blue); }
+.send-btn { background: var(--blue); color: #fff; border: none; cursor: pointer; font-family: 'IBM Plex Mono', monospace; font-size: .64rem; letter-spacing: .14em; text-transform: uppercase; padding: 0 1.3rem; }
+.send-btn:hover { background: var(--green); }
+.send-btn:disabled { opacity: .5; cursor: default; }
+.empty-note { padding: 2.4rem 1.2rem; text-align: center; color: var(--mute); font-size: .86rem; }
+
+/* ── TABLE (group) ── */
+.table-pickers { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: 1.2rem; }
+.pick {
+  background: transparent; border: 1px solid var(--line); color: var(--mute); cursor: pointer;
+  font-family: 'IBM Plex Mono', monospace; font-size: .62rem; letter-spacing: .06em; padding: .5rem .85rem;
+}
+.pick:hover { border-color: var(--blue); color: var(--blue-br); }
+.pick.is-on { background: var(--blue); border-color: var(--blue); color: #fff; }
+
+/* ── SUBMIT ── */
+.form-row { margin-bottom: 1.4rem; }
+.form-label { font-family: 'IBM Plex Mono', monospace; font-size: .62rem; letter-spacing: .14em; text-transform: uppercase; color: var(--blue-br); display: block; margin-bottom: .4rem; }
+.form-help { font-size: .82rem; color: var(--mute); margin: 0 0 .6rem; line-height: 1.6; max-width: 78ch; }
+.form-row input, .form-row textarea {
+  width: 100%; background: var(--bg2); border: 1px solid var(--line); color: var(--text);
+  font-family: 'Public Sans', sans-serif; font-size: .92rem; padding: .75rem .9rem; line-height: 1.65; resize: vertical;
+}
+.form-row input:focus, .form-row textarea:focus { outline: none; border-color: var(--blue); }
+.submit-btn {
+  background: var(--blue); color: #fff; border: none; cursor: pointer;
+  font-family: 'IBM Plex Mono', monospace; font-weight: 700; font-size: .8rem; letter-spacing: .14em;
+  text-transform: uppercase; padding: 1rem 2rem;
+}
+.submit-btn:hover { background: var(--green); }
+.submit-btn:disabled { opacity: .5; cursor: default; }
+.submit-note { font-family: 'IBM Plex Mono', monospace; font-size: .64rem; color: var(--mute); margin: .9rem 0 0; letter-spacing: .04em; }
+
+/* ── VERDICT ── */
+.scores { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1px; border: 1px solid var(--line); margin-bottom: 1.8rem; }
+.score { background: var(--bg2); padding: 1.3rem 1.4rem; }
+.score-label { font-family: 'IBM Plex Mono', monospace; font-size: .58rem; letter-spacing: .16em; text-transform: uppercase; color: var(--mute); margin-bottom: .4rem; }
+.score-value { font-family: 'Spectral', serif; font-size: 2rem; font-weight: 600; color: var(--cream); line-height: 1; }
+.score-value.good { color: var(--good); }
+.score-value.warn { color: var(--warn); }
+.score-value.bad  { color: var(--bad); }
+.score-sub { font-size: .8rem; color: var(--mute); margin-top: .4rem; line-height: 1.55; }
+@media (max-width: 700px) { .scores { grid-template-columns: 1fr; } }
+
+.review-list { border: 1px solid var(--line); margin-bottom: 1.8rem; }
+.review-item { border-bottom: 1px solid var(--line); padding: 1.05rem 1.3rem; display: grid; grid-template-columns: 92px 1fr; gap: 1rem; }
+.review-item:last-child { border-bottom: none; }
+.review-verdict { font-family: 'IBM Plex Mono', monospace; font-size: .56rem; letter-spacing: .12em; text-transform: uppercase; padding-top: .2rem; }
+.review-verdict.reached, .review-verdict.caught { color: var(--good); }
+.review-verdict.partial { color: var(--warn); }
+.review-verdict.missed { color: var(--bad); }
+.review-link { font-size: .89rem; color: var(--cream); margin: 0 0 .3rem; line-height: 1.6; }
+.review-note { font-size: .84rem; color: var(--mute); margin: 0; line-height: 1.68; }
+@media (max-width: 620px) { .review-item { grid-template-columns: 1fr; gap: .3rem; } }
+
+.quote-block { border-left: 3px solid var(--blue); background: var(--bg2); padding: 1.2rem 1.5rem; margin-bottom: 1.2rem; }
+.quote-who { font-family: 'IBM Plex Mono', monospace; font-size: .58rem; letter-spacing: .16em; text-transform: uppercase; color: var(--blue-br); margin: 0 0 .5rem; }
+.quote-text { font-family: 'Spectral', serif; font-size: 1.02rem; color: var(--text); line-height: 1.75; margin: 0; font-style: italic; }
+
+.modern-head { font-family: 'Spectral', serif; font-size: 1.15rem; color: var(--cream); margin: 2rem 0 .3rem; }
+.modern-lede { font-size: .88rem; color: var(--mute); margin: 0 0 1.2rem; max-width: 78ch; }
+.modern-list { border: 1px solid var(--line); }
+.modern-item { border-bottom: 1px solid var(--line); padding: 1.05rem 1.3rem; }
+.modern-item:last-child { border-bottom: none; }
+.modern-label { font-family: 'IBM Plex Mono', monospace; font-size: .6rem; letter-spacing: .14em; text-transform: uppercase; color: var(--blue-br); margin: 0 0 .4rem; }
+.modern-body { font-size: .87rem; color: var(--text); line-height: 1.72; margin: 0; }
+.modern-prompt { border: 1px solid var(--blue); background: var(--bg2); padding: 1.3rem 1.5rem; margin-top: 1.4rem; }
+.modern-prompt .label { font-family: 'IBM Plex Mono', monospace; font-size: .58rem; letter-spacing: .16em; text-transform: uppercase; color: var(--blue-br); margin: 0 0 .5rem; }
+.modern-prompt p { font-size: .92rem; color: var(--text); line-height: 1.72; margin: 0; }
+
+.loading { padding: 3rem 1rem; text-align: center; color: var(--mute); font-family: 'IBM Plex Mono', monospace; font-size: .7rem; letter-spacing: .14em; text-transform: uppercase; }
+.errorbox { border: 1px solid var(--bad); background: var(--bg2); padding: 1rem 1.2rem; color: var(--text); font-size: .86rem; margin-bottom: 1.2rem; }
+</style>
+</head>
+<body>
+
+<button type="button" class="theme-toggle" id="themeToggle">Light</button>
+
+<div class="ribbon">
+  Emerging Technologies Laboratory &nbsp;&middot;&nbsp; <b>ETL Classrooms</b> &nbsp;&middot;&nbsp; Solve It With Sherlock
+</div>
+
+<div class="wrap">
+  <a class="backlink" href="/sherlock.html">&larr; Solve It With Sherlock</a>
+
+  <div id="caseRoot">
+    <div class="loading">Opening the file...</div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var CASE_URL   = '/.netlify/functions/sherlock-case';
+  var CHAT_URL   = '/.netlify/functions/sherlock-chat';
+  var JOB_URL    = '/.netlify/functions/sherlock-job';
+  var STATUS_URL = '/.netlify/functions/sherlock-job-status';
+
+  // Display-only detail for the standing cast. Everything that matters (their
+  // personas) lives server-side in sherlock-chat.js; this is only what the
+  // page needs to draw a card and offer icebreakers.
+  var CAST = {
+    holmes:   { name: 'Sherlock Holmes',    title: 'Independent Consultant', tagline: 'Will not give you an answer. Will tell you which step failed.', greeting: 'Well? You have the scene in front of you. Tell me what you observed, and be careful to leave out what you concluded.', chips: ['What should I be looking at first?', 'Here is my theory. Tear it apart.', 'What am I treating as a fact that is really an assumption?', 'Which item at this scene is the one that matters?'] },
+    watson:   { name: 'John Watson',        title: 'Examiner and Record',    tagline: 'Knows what a body establishes and where that stops.', greeting: 'Describe what you saw in the order you saw it, and I will tell you where your notes stop being observation and start being story.', chips: ['What does the body actually establish?', 'How should I be documenting this?', 'What did I fail to record?', 'What can the medicine not tell us here?'] },
+    lestrade: { name: 'Detective Lestrade', title: 'Dayton Police Dept.',    tagline: 'Nine open cases and a lieutenant counting clearances.', greeting: 'You read the file, then. Before you tell me what the department should have done, tell me which of my other cases you would have had me drop.', chips: ['Why did you clear it so fast?', 'What would you need to charge someone?', 'What corners got cut here?', 'What happens to you if this is wrong?'] },
+    hudson:   { name: 'Mrs. Hudson',        title: 'The Eyewitness',         tagline: 'Tells you how sure she is and not one degree more.', greeting: 'Sit down, there is coffee. Ask me what I saw and I will tell you, but I will tell you flat out which parts I only think I saw.', chips: ['How does a memory change?', 'Was that a leading question?', 'How sure should this witness be?', 'What would I have needed to notice at the time?'] },
+    moriarty: { name: 'James Moriarty',     title: 'The Organized Offender', tagline: 'Nothing has ever been charged. Consider why.', greeting: 'A small, provincial matter. Still, it will do. Tell me what you imagine the difficulty is, and I will tell you where the difficulty actually sits.', chips: ['Why is this hard to prove?', 'Who benefits, and who gets arrested?', 'What would you have done differently?', 'What does the department fail to see here?'] },
+    adler:    { name: 'Irene Adler',        title: 'The Grey Zone',          tagline: 'Where investigation ends and surveillance begins.', greeting: 'You want my read on this. You will get it, but you have to be honest with me about who you already decided to believe.', chips: ['Who is being believed here, and why?', 'Is this person a victim or an offender?', 'Where is the ethical line here?', 'What would you have done in their place?'] },
+    mary:     { name: 'Mary Morstan',       title: 'The Complainant',        tagline: 'Knows what the process feels like from the side that waits.', greeting: 'You are working the case. Good. Before you go on, tell me what you would say to the family this week, because somebody is going to have to.', chips: ['What does this feel like from the inside?', 'What would you have needed from the department?', 'What did this cost the family?', 'What are we forgetting about the people in this?'] },
+    wiggins:  { name: 'Wiggins',            title: 'The Informant',          tagline: 'Seventeen, paid same-day cash, no protection at all.', greeting: 'You want to know what the street says about it? I can get you that. What it costs me to get it, that is a different question, and nobody asks it.', chips: ['What is being said on the street?', 'What happens to you if you get caught?', 'How do you find things out?', 'Should information gathered this way be usable?'] }
+  };
+
+  var params = new URLSearchParams(window.location.search);
+  var CASE_ID = params.get('case') || 'webster';
+  var root = document.getElementById('caseRoot');
+  var CASE = null;
+  var PEOPLE = {};        // key -> { name, title, tagline, greeting, chips, portrait }
+  var examined = {};      // evidence id -> true
+  var chats = {};         // key -> { history: [], scales: null }
+  var activePerson = null;
+  var tableSelection = [];
+  var tableTranscript = [];
+  var tableState = {};
+  var verdict = null;
+
+  function visitorId() {
+    try {
+      var v = localStorage.getItem('etl_visitor_id');
+      if (!v) { v = 'v' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10); localStorage.setItem('etl_visitor_id', v); }
+      return v;
+    } catch (_) { return null; }
+  }
+  function el(html) { var d = document.createElement('div'); d.innerHTML = html.trim(); return d.firstChild; }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+
+  fetch(CASE_URL + '?id=' + encodeURIComponent(CASE_ID))
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (!data || !data.ok || !data.case) throw new Error((data && data.error) || 'case not found');
+      CASE = data.case;
+      CASE.cast.forEach(function (k) { if (CAST[k]) PEOPLE[k] = Object.assign({ portrait: '/assets/sherlock/' + k + '-eyes-open.jpg' }, CAST[k]); });
+      CASE.witnesses.forEach(function (w) { PEOPLE[w.key] = w; });
+      render();
+    })
+    .catch(function (err) {
+      root.innerHTML = '';
+      root.appendChild(el('<div class="errorbox">Could not open the case file: ' + esc(err.message) + '</div>'));
+    });
+
+  function render() {
+    document.title = CASE.title + ' · Solve It With Sherlock';
+    root.innerHTML = '';
+
+    /* ── head ── */
+    var head = el('<div class="casehead"></div>');
+    head.appendChild(el('<div class="case-num">Case ' + esc(CASE.number) + ' &nbsp;&middot;&nbsp; ' + esc(CASE.difficulty) + ' &nbsp;&middot;&nbsp; ' + esc(CASE.date) + '</div>'));
+    head.appendChild(el('<h1>' + esc(CASE.title) + '</h1>'));
+    head.appendChild(el('<p class="sub">' + esc(CASE.subtitle) + '</p>'));
+    var brief = el('<div class="brief"></div>');
+    CASE.brief.forEach(function (p) { brief.appendChild(el('<p>' + esc(p) + '</p>')); });
+    head.appendChild(brief);
+    head.appendChild(el('<div class="case-switch">Other cases:<a href="/sherlock-casebook.html?case=webster">01 Webster Station</a><a href="/sherlock-casebook.html?case=wayne">02 Wayne Avenue</a><a href="/sherlock-casebook.html?case=third">03 Third Street</a></div>'));
+    root.appendChild(head);
+
+    /* ── tabs ── */
+    var tabs = el('<div class="tabs"></div>');
+    var TAB_DEFS = [
+      { id: 'scene',   label: 'The Scene' },
+      { id: 'people',  label: 'Interviews' },
+      { id: 'table',   label: 'The Table' },
+      { id: 'submit',  label: 'Commit' },
+      { id: 'review',  label: 'Review' }
+    ];
+    TAB_DEFS.forEach(function (t) {
+      var b = el('<button type="button" class="tab" data-tab="' + t.id + '">' + t.label + '<span class="tab-count" id="count-' + t.id + '"></span></button>');
+      b.addEventListener('click', function () { showTab(t.id); });
+      tabs.appendChild(b);
+    });
+    root.appendChild(tabs);
+
+    root.appendChild(buildScene());
+    root.appendChild(buildPeople());
+    root.appendChild(buildTable());
+    root.appendChild(buildSubmit());
+    root.appendChild(buildReview());
+
+    showTab('scene');
+    updateCounts();
+  }
+
+  function showTab(id) {
+    Array.prototype.forEach.call(root.querySelectorAll('.tab'), function (b) { b.classList.toggle('is-active', b.getAttribute('data-tab') === id); });
+    Array.prototype.forEach.call(root.querySelectorAll('.panel'), function (p) { p.classList.toggle('is-active', p.getAttribute('data-panel') === id); });
+  }
+  function updateCounts() {
+    var seen = Object.keys(examined).length;
+    document.getElementById('count-scene').textContent = seen + ' of ' + CASE.scene.length + ' examined';
+    var spoken = Object.keys(chats).filter(function (k) { return chats[k].history.length; }).length;
+    document.getElementById('count-people').textContent = spoken + ' of ' + Object.keys(PEOPLE).length + ' interviewed';
+    document.getElementById('count-review').textContent = verdict ? 'complete' : 'not yet submitted';
+  }
+
+  /* ═══ SCENE ═══ */
+  function buildScene() {
+    var panel = el('<div class="panel" data-panel="scene"></div>');
+    panel.appendChild(el('<h2>The scene as it stands</h2>'));
+    panel.appendChild(el('<p class="lede">Every item is listed twice. What is plainly visible is free. What is only true on close examination is yours to go and look for, item by item, and nobody is going to point at the one that matters.</p>'));
+    var list = el('<div class="evidence"></div>');
+    CASE.scene.forEach(function (item) {
+      var ev = el('<div class="ev"></div>');
+      var headRow = el('<div class="ev-head"></div>');
+      headRow.appendChild(el('<div class="ev-tag">' + esc(item.id.toUpperCase()) + '</div>'));
+      var mid = el('<div></div>');
+      mid.appendChild(el('<p class="ev-name">' + esc(item.name) + '</p>'));
+      mid.appendChild(el('<p class="ev-visible">' + esc(item.visible) + '</p>'));
+      headRow.appendChild(mid);
+      var btn = el('<button type="button" class="ev-btn">Examine closely</button>');
+      headRow.appendChild(btn);
+      ev.appendChild(headRow);
+      var closeBox = el('<div class="ev-close"><div class="ev-close-inner"><span class="ev-close-label">On close examination</span>' + esc(item.close) + '</div></div>');
+      ev.appendChild(closeBox);
+      btn.addEventListener('click', function () {
+        var open = ev.classList.toggle('is-open');
+        btn.textContent = open ? 'Step back' : 'Examine closely';
+        if (open) { examined[item.id] = true; updateCounts(); }
+      });
+      list.appendChild(ev);
+    });
+    panel.appendChild(list);
+    return panel;
+  }
+
+  /* ═══ INTERVIEWS ═══ */
+  function buildPeople() {
+    var panel = el('<div class="panel" data-panel="people"></div>');
+    panel.appendChild(el('<h2>Who you can question</h2>'));
+    panel.appendChild(el('<p class="lede">Some of these people are honest and mistaken. Some are hiding exactly one thing, and will keep hiding it until you put the right piece of evidence in front of them. None of them has been told the answer, and none of them will invent a fact to please you.</p>'));
+
+    var grid = el('<div class="people"></div>');
+    Object.keys(PEOPLE).forEach(function (key) {
+      var p = PEOPLE[key];
+      var card = el('<button type="button" class="person" data-person="' + key + '"></button>');
+      var pic = el('<div class="person-portrait"></div>');
+      var img = document.createElement('img');
+      img.src = p.portrait || ('/assets/sherlock/' + key + '-eyes-open.jpg');
+      img.alt = p.name;
+      img.onerror = function () {
+        pic.innerHTML = '';
+        pic.appendChild(el('<div class="missing">Portrait not found:<br>' + esc(img.getAttribute('src')) + '</div>'));
+      };
+      pic.appendChild(img);
+      card.appendChild(pic);
+      var body = el('<div class="person-body"></div>');
+      body.appendChild(el('<p class="person-name">' + esc(p.name) + '</p>'));
+      body.appendChild(el('<p class="person-title">' + esc(p.title) + '</p>'));
+      body.appendChild(el('<p class="person-tag">' + esc(p.tagline) + '</p>'));
+      card.appendChild(body);
+      card.addEventListener('click', function () { openPerson(key); });
+      grid.appendChild(card);
+    });
+    panel.appendChild(grid);
+    panel.appendChild(el('<div id="personChat"><div class="empty-note">Choose someone above to begin an interview.</div></div>'));
+    return panel;
+  }
+
+  function openPerson(key) {
+    activePerson = key;
+    Array.prototype.forEach.call(root.querySelectorAll('.person'), function (c) {
+      c.classList.toggle('is-active', c.getAttribute('data-person') === key);
+    });
+    var p = PEOPLE[key];
+    if (!chats[key]) chats[key] = { history: [], scales: null };
+    var host = document.getElementById('personChat');
+    host.innerHTML = '';
+
+    var chat = el('<div class="chat"></div>');
+    chat.appendChild(el('<div class="chat-head"><span>Interview &nbsp;&middot;&nbsp; <b>' + esc(p.name) + '</b></span><span>' + esc(p.title) + '</span></div>'));
+    var log = el('<div class="log"></div>');
+    chat.appendChild(log);
+    var chips = el('<div class="chips"></div>');
+    (p.chips || []).forEach(function (c) { chips.appendChild(el('<button type="button" class="chip">' + esc(c) + '</button>')); });
+    chat.appendChild(chips);
+    var composer = el('<div class="composer"></div>');
+    var ta = el('<textarea rows="1" placeholder="Put a question to ' + esc(p.name) + '..." aria-label="Your question"></textarea>');
+    var send = el('<button type="button" class="send-btn">Ask</button>');
+    composer.appendChild(ta); composer.appendChild(send);
+    chat.appendChild(composer);
+    host.appendChild(chat);
+
+    function bubble(who, text, cls) {
+      var d = document.createElement('div');
+      d.className = 'bubble ' + (who === 'you' ? 'bubble--you' : 'bubble--them') + (cls ? ' ' + cls : '');
+      if (who !== 'you') d.appendChild(el('<span class="bubble-who">' + esc(p.name) + '</span>'));
+      d.appendChild(document.createTextNode(text));
+      log.appendChild(d);
+      log.scrollTop = log.scrollHeight;
+      return d;
+    }
+
+    if (!chats[key].history.length) {
+      bubble('them', p.greeting);
+    } else {
+      chats[key].history.forEach(function (h) { bubble(h.role === 'user' ? 'you' : 'them', h.body); });
+    }
+
+    var busy = false;
+    function ask() {
+      if (busy) return;
+      var text = ta.value.trim();
+      if (!text) return;
+      ta.value = '';
+      bubble('you', text);
+      chats[key].history.push({ role: 'user', body: text });
+      busy = true; send.disabled = true;
+      var waiting = bubble('them', 'thinking...', 'bubble--wait');
+      fetch(CHAT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          agent: key, case_id: CASE.id, message: text,
+          history: chats[key].history.slice(0, -1),
+          scales: chats[key].scales, visitor_id: visitorId()
+        })
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          waiting.remove();
+          if (!data || !data.ok) throw new Error((data && data.error) || 'no reply');
+          bubble('them', data.body);
+          chats[key].history.push({ role: 'assistant', body: data.body });
+          if (data.scales) chats[key].scales = data.scales;
+          updateCounts();
+        })
+        .catch(function (err) {
+          waiting.remove();
+          bubble('them', 'The line went quiet. Try that again in a moment. (' + err.message + ')', 'bubble--wait');
+        })
+        .finally(function () { busy = false; send.disabled = false; ta.focus(); });
+    }
+    send.addEventListener('click', ask);
+    ta.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); ask(); } });
+    chips.addEventListener('click', function (e) {
+      var b = e.target.closest('.chip');
+      if (!b) return;
+      ta.value = b.textContent;
+      ask();
+    });
+    ta.focus();
+  }
+
+  /* ═══ THE TABLE ═══ */
+  function buildTable() {
+    var panel = el('<div class="panel" data-panel="table"></div>');
+    panel.appendChild(el('<h2>Put them in one room</h2>'));
+    panel.appendChild(el('<p class="lede">Choose two to six people and put a single question to all of them. A director decides who speaks next and who cannot help cutting in, so it plays out like a real room rather than a rotation. Watch where they contradict each other; that gap is usually the case.</p>'));
+
+    var pickers = el('<div class="table-pickers"></div>');
+    Object.keys(PEOPLE).forEach(function (key) {
+      var b = el('<button type="button" class="pick" data-pick="' + key + '">' + esc(PEOPLE[key].name) + '</button>');
+      b.addEventListener('click', function () {
+        var i = tableSelection.indexOf(key);
+        if (i === -1) {
+          if (tableSelection.length >= 6) return;
+          tableSelection.push(key);
+        } else {
+          tableSelection.splice(i, 1);
+        }
+        b.classList.toggle('is-on');
+        note.textContent = tableSelection.length + ' at the table. Two to six.';
+      });
+      pickers.appendChild(b);
+    });
+    panel.appendChild(pickers);
+    var note = el('<p class="submit-note">0 at the table. Two to six.</p>');
+    panel.appendChild(note);
+
+    var chat = el('<div class="chat" style="margin-top:1.2rem"></div>');
+    chat.appendChild(el('<div class="chat-head"><span>The table</span><span>Director model picks who speaks</span></div>'));
+    var log = el('<div class="log"></div>');
+    chat.appendChild(log);
+    var composer = el('<div class="composer"></div>');
+    var ta = el('<textarea rows="1" placeholder="Put a question to the room..." aria-label="Your question to the room"></textarea>');
+    var send = el('<button type="button" class="send-btn">Ask</button>');
+    composer.appendChild(ta); composer.appendChild(send);
+    chat.appendChild(composer);
+    panel.appendChild(chat);
+
+    function bubble(name, text, cls) {
+      var d = document.createElement('div');
+      d.className = 'bubble ' + (name ? 'bubble--them' : 'bubble--you') + (cls ? ' ' + cls : '');
+      if (name) d.appendChild(el('<span class="bubble-who">' + esc(name) + '</span>'));
+      d.appendChild(document.createTextNode(text));
+      log.appendChild(d);
+      log.scrollTop = log.scrollHeight;
+      return d;
+    }
+
+    var busy = false;
+    function ask() {
+      if (busy) return;
+      if (tableSelection.length < 2) { note.textContent = 'Choose at least two people before you ask the room.'; return; }
+      var text = ta.value.trim();
+      if (!text) return;
+      ta.value = '';
+      bubble(null, text);
+      busy = true; send.disabled = true;
+      var waiting = bubble('the room', 'the room is thinking...', 'bubble--wait');
+
+      fetch(JOB_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          kind: 'room', case_id: CASE.id, active_agents: tableSelection,
+          transcript: tableTranscript, message: text,
+          visitor_name: 'the student', visitor_id: visitorId(), agent_state: tableState
+        })
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (!data || !data.ok || !data.job_id) throw new Error((data && data.error) || 'the table did not open');
+          return poll(data.job_id, 90);
+        })
+        .then(function (result) {
+          waiting.remove();
+          tableTranscript.push({ speaker: 'visitor', name: 'the student', content: text });
+          (result.replies || []).forEach(function (r) {
+            bubble(r.agent_name, r.reply);
+          });
+          (result.transcript_append || []).forEach(function (e) { tableTranscript.push(e); });
+          if (result.agent_state) tableState = result.agent_state;
+          if (!result.replies || !result.replies.length) bubble('the room', 'Nobody had anything to add to that.', 'bubble--wait');
+        })
+        .catch(function (err) {
+          waiting.remove();
+          bubble('the room', 'The room lost the thread. Try that again. (' + err.message + ')', 'bubble--wait');
+        })
+        .finally(function () { busy = false; send.disabled = false; ta.focus(); });
+    }
+    send.addEventListener('click', ask);
+    ta.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); ask(); } });
+
+    return panel;
+  }
+
+  // Shared poller for both background job kinds.
+  function poll(jobId, tries) {
+    return new Promise(function (resolve, reject) {
+      var left = tries;
+      (function tick() {
+        if (left-- <= 0) return reject(new Error('timed out'));
+        fetch(STATUS_URL + '?job_id=' + encodeURIComponent(jobId))
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            if (!data) return setTimeout(tick, 1500);
+            if (data.status === 'done') return resolve(data);
+            if (data.status === 'error') return reject(new Error(data.error || 'job failed'));
+            setTimeout(tick, 1500);
+          })
+          .catch(function () { setTimeout(tick, 1500); });
+      })();
+    });
+  }
+
+  /* ═══ COMMIT ═══ */
+  function buildSubmit() {
+    var panel = el('<div class="panel" data-panel="submit"></div>');
+    panel.appendChild(el('<h2>Commit to an answer</h2>'));
+    panel.appendChild(el('<p class="lede">All three sections, in writing. You cannot submit a hunch, and a right name with no chain behind it scores badly on purpose. Your submission is graded twice and separately: once on the reasoning, once on what a present-day court would do to it.</p>'));
+
+    var f1 = el('<div class="form-row"></div>');
+    f1.appendChild(el('<label class="form-label" for="fSuspect">1. Who did it</label>'));
+    f1.appendChild(el('<p class="form-help">Name one person. If you believe the person in custody is innocent, say so and name who you think it actually is.</p>'));
+    var suspect = el('<input id="fSuspect" type="text" placeholder="Name, and their role">');
+    f1.appendChild(suspect);
+    panel.appendChild(f1);
+
+    var f2 = el('<div class="form-row"></div>');
+    f2.appendChild(el('<label class="form-label" for="fChain">2. Your chain of inference</label>'));
+    f2.appendChild(el('<p class="form-help">Step by step, each step resting on a specific item of evidence or something a specific person said. Include the step that rules out the obvious alternative. If a step is a guess, mark it as one; unmarked guesses are graded as claims.</p>'));
+    var chain = el('<textarea id="fChain" rows="9" placeholder="1. The four November journal entries are logged to his account but were made from..."></textarea>');
+    f2.appendChild(chain);
+    panel.appendChild(f2);
+
+    var f3 = el('<div class="form-row"></div>');
+    f3.appendChild(el('<label class="form-label" for="fModern">3. What a courtroom does to this</label>'));
+    f3.appendChild(el('<p class="form-help">Assume you are the defense. Which pieces of your own chain get excluded, attacked, or shown to be unreliable, and on what basis. Chain of custody, authentication, identification procedure, voluntariness, expert method, Brady, and whether the consultant was acting as an agent of the state. This is graded on its own and is worth as much as the deduction.</p>'));
+    var modern = el('<textarea id="fModern" rows="8" placeholder="The tumbler was handled bare-handed by the first officer, which means..."></textarea>');
+    f3.appendChild(modern);
+    panel.appendChild(f3);
+
+    var btn = el('<button type="button" class="submit-btn">Submit to review</button>');
+    panel.appendChild(btn);
+    var note = el('<p class="submit-note">The review reads your actual words. It takes about half a minute.</p>');
+    panel.appendChild(note);
+
+    btn.addEventListener('click', function () {
+      var s = suspect.value.trim();
+      var c = chain.value.trim();
+      if (!s) { note.textContent = 'Name a suspect before you submit.'; return; }
+      if (c.length < 40) { note.textContent = 'Write out your chain of inference. A sentence is not a chain.'; return; }
+      btn.disabled = true;
+      note.textContent = 'The review is reading your submission...';
+      fetch(JOB_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ kind: 'verdict', case_id: CASE.id, suspect: s, chain: c, inadmissible: modern.value.trim() })
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (!data || !data.ok || !data.job_id) throw new Error((data && data.error) || 'review did not start');
+          return poll(data.job_id, 90);
+        })
+        .then(function (result) {
+          if (!result.verdict) throw new Error('review returned nothing');
+          verdict = result.verdict;
+          renderVerdict();
+          updateCounts();
+          note.textContent = 'Review complete. See the Review tab.';
+          showTab('review');
+        })
+        .catch(function (err) { note.textContent = 'The review could not be completed: ' + err.message; })
+        .finally(function () { btn.disabled = false; });
+    });
+
+    return panel;
+  }
+
+  /* ═══ REVIEW ═══ */
+  function buildReview() {
+    var panel = el('<div class="panel" data-panel="review"></div>');
+    panel.appendChild(el('<div id="verdictHost"><div class="empty-note">Nothing to review yet. Work the scene, question the people, then commit to an answer.</div></div>'));
+    return panel;
+  }
+
+  function scoreClass(n) { return n >= 70 ? 'good' : (n >= 40 ? 'warn' : 'bad'); }
+
+  function renderVerdict() {
+    var host = document.getElementById('verdictHost');
+    host.innerHTML = '';
+    var v = verdict;
+
+    host.appendChild(el('<h2>Case review</h2>'));
+    host.appendChild(el('<p class="lede">' + esc(v.named_summary) + '</p>'));
+
+    var scores = el('<div class="scores"></div>');
+    scores.appendChild(el(
+      '<div class="score"><div class="score-label">The name</div>' +
+      '<div class="score-value ' + (v.named_correctly ? 'good' : 'bad') + '">' + (v.named_correctly ? 'Correct' : 'Wrong') + '</div>' +
+      '<div class="score-sub">Naming the right person is the smallest part of this grade, and it is deliberately weighted that way.</div></div>'
+    ));
+    scores.appendChild(el(
+      '<div class="score"><div class="score-label">Deduction</div>' +
+      '<div class="score-value ' + scoreClass(v.deduction_score) + '">' + v.deduction_score + '</div>' +
+      '<div class="score-sub">How much of the real chain you actually reconstructed and supported.</div></div>'
+    ));
+    scores.appendChild(el(
+      '<div class="score"><div class="score-label">Procedure</div>' +
+      '<div class="score-value ' + scoreClass(v.procedure_score) + '">' + v.procedure_score + '</div>' +
+      '<div class="score-sub">What you saw of what a present-day court, lab, and defense would do to this evidence.</div></div>'
+    ));
+    host.appendChild(scores);
+
+    host.appendChild(el('<div class="quote-block"><p class="quote-who">Holmes, on your reasoning</p><p class="quote-text">' + esc(v.holmes_note) + '</p></div>'));
+    host.appendChild(el('<div class="quote-block"><p class="quote-who">Lestrade, on whether it survives a courtroom</p><p class="quote-text">' + esc(v.lestrade_note) + '</p></div>'));
+
+    host.appendChild(el('<h3 class="modern-head">The chain, link by link</h3>'));
+    host.appendChild(el('<p class="modern-lede">Every link in the real chain of inference, whether or not you reached it.</p>'));
+    var chainList = el('<div class="review-list"></div>');
+    (v.chain_review || []).forEach(function (r) {
+      chainList.appendChild(el(
+        '<div class="review-item"><div class="review-verdict ' + esc(r.verdict) + '">' + esc(r.verdict) + '</div>' +
+        '<div><p class="review-link">' + esc(r.link) + '</p><p class="review-note">' + esc(r.note) + '</p></div></div>'
+      ));
+    });
+    host.appendChild(chainList);
+
+    if (v.unsupported_claims && v.unsupported_claims.length) {
+      host.appendChild(el('<h3 class="modern-head">Claims the evidence does not support</h3>'));
+      host.appendChild(el('<p class="modern-lede">Statements in your submission that go past what is actually in the case.</p>'));
+      var unsup = el('<div class="review-list"></div>');
+      v.unsupported_claims.forEach(function (u) {
+        unsup.appendChild(el('<div class="review-item"><div class="review-verdict missed">unsupported</div><div><p class="review-note">' + esc(u) + '</p></div></div>'));
+      });
+      host.appendChild(unsup);
+    }
+
+    host.appendChild(el('<h3 class="modern-head">' + esc(CASE.modern.headline) + '</h3>'));
+    host.appendChild(el('<p class="modern-lede">The procedure half of the grade, point by point, with what you caught and what you walked past.</p>'));
+    var procList = el('<div class="review-list"></div>');
+    (v.procedure_review || []).forEach(function (r) {
+      var point = CASE.modern.points.filter(function (p) { return p.label === r.issue; })[0] || {};
+      procList.appendChild(el(
+        '<div class="review-item"><div class="review-verdict ' + esc(r.verdict) + '">' + esc(r.verdict) + '</div>' +
+        '<div><p class="review-link">' + esc(r.issue) + '</p><p class="review-note">' + esc(r.note) + '</p>' +
+        (point.body ? '<p class="review-note" style="margin-top:.5rem">' + esc(point.body) + '</p>' : '') +
+        (point.local ? '<p class="review-note" style="margin-top:.5rem"><b style="color:var(--blue-br)">In practice:</b> ' + esc(point.local) + '</p>' : '') +
+        '</div></div>'
+      ));
+    });
+    host.appendChild(procList);
+
+    host.appendChild(el('<div class="modern-prompt"><p class="label">Go back into the case and answer this</p><p>' + esc(v.next_question) + '</p></div>'));
+    host.appendChild(el('<div class="modern-prompt" style="margin-top:.8rem"><p class="label">Written prompt for this case</p><p>' + esc(CASE.modern.prompt) + '</p></div>'));
+  }
+})();
+
+(function () {
+  var btn = document.getElementById('themeToggle');
+  function sync() { btn.textContent = document.documentElement.getAttribute('data-theme') === 'light' ? 'Dark' : 'Light'; }
+  sync();
+  btn.addEventListener('click', function () {
+    var next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('etl_classrooms_theme', next); } catch (_) {}
+    sync();
+  });
+})();
+</script>
+
+</body>
+</html>

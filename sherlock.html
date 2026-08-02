@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZDN4Y4887X"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-ZDN4Y4887X');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+(function () {
+  try {
+    var saved = localStorage.getItem('etl_classrooms_theme');
+    var theme = saved || 'dark';
+    document.documentElement.setAttribute('data-theme', theme);
+  } catch (_) {}
+})();
+</script>
+<title>Solve It With Sherlock &middot; Emerging Technologies Laboratory</title>
+<link rel="icon" type="image/png" href="/etl-logo-icon.png">
+<link rel="apple-touch-icon" href="/etl-logo-icon.png">
+<meta name="description" content="An interactive criminal justice classroom set in Dayton, Ohio. Work three original cases with Holmes, Watson, Lestrade, and the witnesses, then find out what a courtroom would do to your evidence.">
+<meta property="og:title" content="Solve It With Sherlock &middot; Emerging Technologies Laboratory">
+<meta property="og:description" content="An interactive criminal justice classroom set in Dayton, Ohio. Work three original cases with Holmes, Watson, Lestrade, and the witnesses, then find out what a courtroom would do to your evidence.">
+<meta property="og:image" content="https://emerging-tech-lab.com/etl-logo-icon.png">
+<meta property="og:url" content="https://emerging-tech-lab.com/sherlock">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Solve It With Sherlock &middot; Emerging Technologies Laboratory">
+<meta name="twitter:description" content="An interactive criminal justice classroom set in Dayton, Ohio. Work three original cases with Holmes, Watson, Lestrade, and the witnesses, then find out what a courtroom would do to your evidence.">
+<meta name="twitter:image" content="https://emerging-tech-lab.com/etl-logo-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Public+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ETL homepage brand, same :root the Kronborg classroom uses so the two
+   rooms read as the same building. --blue #5c8ab5 is the dominant accent,
+   --green #285C4D is the hover/emphasis accent. */
+:root {
+  --bg:      #111111;
+  --bg2:     #1a1a1a;
+  --panel:   #1a1a1a;
+  --panel2:  #242424;
+  --line:    #2c2c2c;
+  --blue:    #5c8ab5;
+  --blue-br: #5c8ab5;
+  --green:   #285C4D;
+  --cream:   #ffffff;
+  --text:    #d6d6d6;
+  --mute:    #8a8a8a;
+  --ribbon-bg: #0a0a0a;
+}
+[data-theme="light"] {
+  --bg:      #ffffff;
+  --bg2:     #f4f4f4;
+  --panel:   #ffffff;
+  --panel2:  #f4f4f4;
+  --line:    #111111;
+  --blue:    #5c8ab5;
+  --blue-br: #5c8ab5;
+  --green:   #285C4D;
+  --cream:   #111111;
+  --text:    #555555;
+  --mute:    #555555;
+  --ribbon-bg: #f4f4f4;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Public Sans', sans-serif; line-height: 1.65; transition: background .2s, color .2s; }
+a { color: var(--blue); text-decoration: none; }
+a:hover { color: var(--green); }
+
+.theme-toggle {
+  position: fixed; top: .9rem; right: 1.2rem; z-index: 50;
+  background: var(--panel); border: 1px solid var(--line); color: var(--mute);
+  font-family: 'IBM Plex Mono', monospace; font-size: .62rem; letter-spacing: .1em; text-transform: uppercase;
+  padding: .45rem .8rem; border-radius: 999px; cursor: pointer; transition: border-color .15s, color .15s;
+}
+.theme-toggle:hover { border-color: var(--green); color: var(--green); }
+
+.ribbon {
+  background: var(--ribbon-bg);
+  border-bottom: 1px solid var(--line);
+  text-align: center;
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  font-size: .62rem;
+  color: var(--mute);
+  padding: .5rem 1rem;
+}
+.ribbon b { color: var(--blue-br); }
+
+.wrap { max-width: 1180px; margin: 0 auto; padding: 0 1.2rem 4rem; }
+.backlink {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .72rem; color: var(--mute); text-decoration: none;
+  display: inline-block; margin: .9rem 0 .7rem; letter-spacing: .04em;
+}
+.backlink:hover { color: var(--text); }
+
+.hero {
+  margin-top: .6rem;
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--blue);
+  background: var(--panel);
+  padding: 3rem 2.6rem 2.6rem;
+  display: grid;
+  grid-template-columns: 520px 1fr;
+  gap: 2.2rem;
+  align-items: center;
+}
+.hero-cover { border: 1px solid var(--line); overflow: hidden; line-height: 0; align-self: start; }
+.hero-cover img { width: 100%; height: auto; display: block; }
+@media (max-width: 820px) {
+  .hero { grid-template-columns: 1fr; padding: 2.2rem 1.4rem 1.8rem; }
+}
+.eyebrow {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .58rem; letter-spacing: .28em; text-transform: uppercase;
+  color: var(--blue-br); margin-bottom: 1rem;
+}
+.hero h1 {
+  font-family: 'Spectral', serif;
+  font-size: clamp(2rem, 4.6vw, 3rem);
+  font-weight: 700; color: var(--cream);
+  margin: 0 0 .9rem; line-height: 1.12; max-width: 20ch;
+}
+.hero p { font-size: 1rem; color: var(--text); max-width: 66ch; margin: 0 0 .8rem; line-height: 1.75; }
+.hero p:last-child { margin-bottom: 0; }
+.hero b { color: var(--cream); }
+
+.sec-head { margin: 3rem 0 .2rem; display: flex; align-items: baseline; gap: 1rem; }
+.sec-head h2 { font-family: 'Spectral', serif; font-size: 1.4rem; font-weight: 600; color: var(--cream); margin: 0; }
+.sec-rule { flex: 1; height: 1px; background: var(--line); }
+.sec-sub { font-size: .88rem; color: var(--mute); margin: .4rem 0 1.6rem; max-width: 72ch; }
+
+/* ── CASES ── */
+.cases { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; border: 1px solid var(--line); }
+.case-card { background: var(--panel); display: flex; flex-direction: column; transition: background .18s; }
+.case-card:hover { background: var(--panel2); }
+.case-cover { aspect-ratio: 16 / 10; overflow: hidden; background: var(--bg2); line-height: 0; }
+.case-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.case-body { padding: 1.2rem 1.4rem 1.5rem; flex: 1; display: flex; flex-direction: column; }
+.case-num { font-family: 'IBM Plex Mono', monospace; font-size: .6rem; letter-spacing: .18em; text-transform: uppercase; color: var(--blue-br); margin-bottom: .5rem; }
+.case-title { font-family: 'Spectral', serif; font-size: 1.2rem; font-weight: 600; color: var(--cream); margin: 0 0 .35rem; }
+.case-sub { font-size: .85rem; color: var(--text); line-height: 1.6; margin: 0 0 .8rem; }
+.case-teaches { font-size: .78rem; color: var(--mute); line-height: 1.55; margin: 0 0 1.1rem; }
+.case-teaches b { color: var(--text); }
+.case-open {
+  margin-top: auto; align-self: flex-start;
+  font-family: 'IBM Plex Mono', monospace; font-size: .64rem; letter-spacing: .14em; text-transform: uppercase;
+  border: 1px solid var(--blue); color: var(--blue-br); padding: .55rem 1.1rem;
+}
+.case-card:hover .case-open { background: var(--blue); color: #fff; border-color: var(--blue); }
+@media (max-width: 900px) { .cases { grid-template-columns: 1fr; } }
+
+/* ── CAST ── */
+.cards { display: grid; gap: 1px; border: 1px solid var(--line); grid-template-columns: repeat(4, 1fr); }
+.card { background: var(--panel); display: block; transition: background .18s; }
+.card:hover { background: var(--panel2); }
+.card-portrait { aspect-ratio: 3 / 4; overflow: hidden; background: var(--bg2); line-height: 0; }
+.card-portrait img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.card-body { padding: 1.1rem 1.3rem 1.4rem; }
+.card-name { font-family: 'Spectral', serif; font-size: 1.1rem; font-weight: 600; color: var(--cream); margin: 0 0 .2rem; }
+.card-role { font-family: 'IBM Plex Mono', monospace; font-size: .64rem; color: var(--blue-br); letter-spacing: .04em; margin: 0 0 .5rem; text-transform: uppercase; }
+.card-desc { font-size: .82rem; color: var(--mute); line-height: 1.6; margin: 0; }
+@media (max-width: 900px) { .cards { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 520px) { .cards { grid-template-columns: 1fr; } }
+
+.table-card {
+  margin-top: 1px;
+  border: 2px solid var(--blue); border-top: none;
+  background: var(--panel); padding: 2.4rem;
+  display: flex; gap: 1.2rem; align-items: center; justify-content: space-between; flex-wrap: wrap;
+}
+.table-card .left { max-width: 58ch; }
+.table-card h3 { font-family: 'Spectral', serif; font-size: 1.6rem; color: var(--cream); margin: 0 0 .5rem; }
+.table-card p { font-size: 1rem; color: var(--mute); margin: 0; line-height: 1.65; }
+.btn-primary {
+  display: inline-block; padding: 1.1rem 2.2rem;
+  background: var(--blue); color: #fff;
+  font-family: 'IBM Plex Mono', monospace; font-weight: 700; font-size: .92rem;
+  letter-spacing: .14em; text-transform: uppercase;
+  border: none; cursor: pointer; text-decoration: none; white-space: nowrap;
+}
+.btn-primary:hover { background: var(--green); color: #fff; }
+
+/* ── HOW A CASE RUNS ── */
+.steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; border: 1px solid var(--line); margin-top: 1rem; }
+.step { background: var(--panel); padding: 1.5rem 1.4rem; }
+.step-num { font-family: 'IBM Plex Mono', monospace; font-size: .6rem; letter-spacing: .18em; text-transform: uppercase; color: var(--blue-br); margin-bottom: .5rem; }
+.step-title { font-family: 'Spectral', serif; font-size: 1.08rem; font-weight: 600; color: var(--cream); margin: 0 0 .4rem; }
+.step-body { font-size: .85rem; color: var(--mute); line-height: 1.62; margin: 0; }
+@media (max-width: 900px) { .steps { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 560px) { .steps { grid-template-columns: 1fr; } }
+
+.about-block { margin-top: 3rem; border-left: 3px solid var(--blue); padding: 1.4rem 1.8rem; background: var(--panel); }
+.about-block p { font-size: .9rem; color: var(--text); line-height: 1.75; max-width: 74ch; margin: 0 0 .8rem; }
+.about-block p:last-child { margin-bottom: 0; }
+.about-block b { color: var(--cream); }
+
+.obj-blocks { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line); margin-top: 1.6rem; border: 1px solid var(--line); }
+.obj-block { background: var(--panel); padding: 1.4rem 1.6rem; }
+.obj-block h3 { font-family: 'IBM Plex Mono', monospace; font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; color: var(--blue-br); margin: 0 0 .9rem; }
+.obj-block ul { margin: 0; padding-left: 1.1rem; }
+.obj-block li { font-size: .86rem; color: var(--text); line-height: 1.65; margin-bottom: .6rem; }
+.obj-block li:last-child { margin-bottom: 0; }
+@media (max-width: 640px) { .obj-blocks { grid-template-columns: 1fr; } }
+
+.syllabus { margin-top: 1.6rem; border: 1px solid var(--line); background: var(--panel); }
+.syllabus-item { display: grid; grid-template-columns: 56px 1fr; gap: 1.4rem; padding: 1.5rem 1.7rem; border-top: 1px solid var(--line); }
+.syllabus-item:first-child { border-top: none; }
+.syllabus-num { font-family: 'IBM Plex Mono', monospace; font-size: 1.15rem; font-weight: 600; color: var(--blue-br); }
+.syllabus-body h3 { font-family: 'Spectral', serif; font-size: 1.08rem; font-weight: 600; color: var(--cream); margin: 0 0 .3rem; }
+.syllabus-agents { font-family: 'IBM Plex Mono', monospace; font-size: .62rem; letter-spacing: .1em; text-transform: uppercase; color: var(--mute); margin: 0 0 .8rem; }
+.syllabus-body p.syllabus-step { font-size: .86rem; color: var(--text); line-height: 1.65; margin: 0 0 .5rem; max-width: 76ch; }
+.syllabus-body p.syllabus-step:last-child { margin-bottom: 0; }
+.syllabus-body b { color: var(--cream); }
+@media (max-width: 640px) { .syllabus-item { grid-template-columns: 1fr; gap: .5rem; } }
+</style>
+</head>
+<body>
+
+<button type="button" class="theme-toggle" id="themeToggle">Light</button>
+
+<div class="ribbon">
+  Emerging Technologies Laboratory &nbsp;&middot;&nbsp; <b>ETL Classrooms</b> &nbsp;&middot;&nbsp; Solve It With Sherlock
+</div>
+
+<div class="wrap">
+  <a class="backlink" href="/classrooms.html">&larr; ETL Classrooms</a>
+
+  <div class="hero">
+    <div class="hero-cover">
+      <img src="/assets/sherlock/oregon-district.jpg" alt="The Oregon District, Dayton, at dusk">
+    </div>
+    <div>
+      <div class="eyebrow">Solve It With Sherlock &nbsp;&middot;&nbsp; Criminal Justice &nbsp;&middot;&nbsp; Dayton, Ohio</div>
+      <h1>He gets the right answer. He is also why you lose it.</h1>
+      <p>Three original cases, written for this classroom and found in no story anywhere. Set here: Webster Station, Wayne Avenue, East Third Street. You walk the scene, examine the evidence, and interview the witnesses yourself, including the ones lying to you. Holmes will not hand you the answer. He will tell you exactly which step of your reasoning failed, and then wait.</p>
+      <p>Then comes the part that makes this criminal justice and not a puzzle. <b>You commit to a suspect, and the case goes to review.</b> One panel grades your deduction. The other grades what a prosecutor, a defense attorney, and a suppression hearing would do to the evidence you just relied on.</p>
+      <p><b>Here is the hook.</b> Holmes has no badge, which means the Fourth Amendment does not restrain him, which is exactly why a stalled department keeps calling him. The moment DPD starts telling him where to look, he is a state agent, and everything he touched becomes suppressible. He is right in all three cases. In all three, the conviction is in trouble.</p>
+      <p>That gap is the curriculum: chain of custody, device attribution, Ohio's eyewitness identification statute, confessions obtained by a promise in a hallway, expert opinion with no error rate, Brady, and the moment an investigator stops testing a theory and starts confirming it.</p>
+    </div>
+  </div>
+
+  <div class="sec-head">
+    <h2>The Casebook</h2>
+    <div class="sec-rule"></div>
+  </div>
+  <p class="sec-sub">Three cases, escalating. Each one is worked the same way and graded the same way, and each one fails in a different, real, documented direction.</p>
+
+  <div class="cases">
+    <a class="case-card" href="/sherlock-casebook.html?case=webster">
+      <div class="case-cover"><img src="/assets/sherlock/case-webster.jpg" alt="A converted industrial office building in Webster Station at dawn"></div>
+      <div class="case-body">
+        <div class="case-num">Case 01 &nbsp;&middot;&nbsp; Foundations</div>
+        <p class="case-title">The Webster Station Ledger</p>
+        <p class="case-sub">A locked office, a text from the dead man's phone, and a conclusion reached before the shift changed.</p>
+        <p class="case-teaches"><b>Teaches:</b> chain of custody, device attribution versus person attribution, digital retention windows, and the private search doctrine.</p>
+        <span class="case-open">Open the file</span>
+      </div>
+    </a>
+    <a class="case-card" href="/sherlock-casebook.html?case=wayne">
+      <div class="case-cover"><img src="/assets/sherlock/case-wayne.jpg" alt="A storefront on Wayne Avenue at dusk"></div>
+      <div class="case-body">
+        <div class="case-num">Case 02 &nbsp;&middot;&nbsp; Intermediate</div>
+        <p class="case-title">The Wayne Avenue ID</p>
+        <p class="case-sub">Three witnesses, one description, and a confession from a nineteen year old nobody asked which hand he writes with.</p>
+        <p class="case-teaches"><b>Teaches:</b> photo array procedure under Ohio's eyewitness identification statute, co-witness contamination, voluntariness, and contaminated confessions.</p>
+        <span class="case-open">Open the file</span>
+      </div>
+    </a>
+    <a class="case-card" href="/sherlock-casebook.html?case=third">
+      <div class="case-cover"><img src="/assets/sherlock/case-third.jpg" alt="A burned brick office building off East Third Street"></div>
+      <div class="case-body">
+        <div class="case-num">Case 03 &nbsp;&middot;&nbsp; Advanced</div>
+        <p class="case-title">The Third Street Fire</p>
+        <p class="case-sub">A body, a signet ring, and an expert who is certain. Two of the three are wrong.</p>
+        <p class="case-teaches"><b>Teaches:</b> expert method and error rates, presumptive identification, incentive, Brady, and the negative corpus fallacy.</p>
+        <span class="case-open">Open the file</span>
+      </div>
+    </a>
+  </div>
+
+  <div class="sec-head">
+    <h2>How a case runs</h2>
+    <div class="sec-rule"></div>
+  </div>
+  <p class="sec-sub">The same four steps every time, so a student learns the process and not just the answer to one puzzle.</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">Step 01</div>
+      <div class="step-title">Work the scene</div>
+      <p class="step-body">Every item is listed twice: what is plainly visible, and what only careful examination reveals. You choose what to look at closely. Nobody points.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">Step 02</div>
+      <div class="step-title">Interview</div>
+      <p class="step-body">Talk to the cast and to the case's own witnesses. Some are honest and mistaken. Some are hiding one specific thing and will only give it up when you confront them with the right evidence.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">Step 03</div>
+      <div class="step-title">Commit</div>
+      <p class="step-body">Name the culprit, write out your chain of inference, and state what a modern court would exclude. All three, in writing. You cannot submit a hunch.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">Step 04</div>
+      <div class="step-title">Review</div>
+      <p class="step-body">Two separate grades: did you reconstruct the chain, and did you see the procedural failures. Every link is marked reached, partial, or missed, against your own words.</p>
+    </div>
+  </div>
+
+  <div class="sec-head">
+    <h2>Who you can talk to</h2>
+    <div class="sec-rule"></div>
+  </div>
+  <p class="sec-sub">Eight standing agents, available inside any case or on their own. Each one exists because a criminal justice course needs that seat filled: the investigator, the examiner, the institution, the eyewitness, the organized offender, the ethical grey zone, the complainant, and the confidential informant.</p>
+
+  <div class="cards">
+    <a class="card" href="/sherlock-agent.html?agent=holmes">
+      <div class="card-portrait"><img src="/assets/sherlock/holmes-eyes-open.jpg" alt="Sherlock Holmes"></div>
+      <div class="card-body">
+        <p class="card-name">Sherlock Holmes</p>
+        <p class="card-role">Independent Consultant</p>
+        <p class="card-desc">No badge, which is why they call him and why the case may not survive it.</p>
+      </div>
+    </a>
+    <a class="card" href="/sherlock-agent.html?agent=watson">
+      <div class="card-portrait"><img src="/assets/sherlock/watson-eyes-open.jpg" alt="John Watson"></div>
+      <div class="card-body">
+        <p class="card-name">John Watson</p>
+        <p class="card-role">The Examiner and the Record</p>
+        <p class="card-desc">Former Air Force medic, Wright-Patt. Knows what a body establishes and where that stops.</p>
+      </div>
+    </a>
+    <a class="card" href="/sherlock-agent.html?agent=lestrade">
+      <div class="card-portrait"><img src="/assets/sherlock/lestrade-eyes-open.jpg" alt="Detective Lestrade"></div>
+      <div class="card-body">
+        <p class="card-name">Detective Lestrade</p>
+        <p class="card-role">Dayton Police Department</p>
+        <p class="card-desc">Nine open cases and a lieutenant counting clearances. Every shortcut has a reason.</p>
+      </div>
+    </a>
+    <a class="card" href="/sherlock-agent.html?agent=hudson">
+      <div class="card-portrait"><img src="/assets/sherlock/hudson-eyes-open.jpg" alt="Mrs. Hudson"></div>
+      <div class="card-body">
+        <p class="card-name">Mrs. Hudson</p>
+        <p class="card-role">The Eyewitness</p>
+        <p class="card-desc">Tells you how sure she is and not one degree more. Calls out your leading questions.</p>
+      </div>
+    </a>
+    <a class="card" href="/sherlock-agent.html?agent=moriarty">
+      <div class="card-portrait"><img src="/assets/sherlock/moriarty-eyes-open.jpg" alt="James Moriarty"></div>
+      <div class="card-body">
+        <p class="card-name">James Moriarty</p>
+        <p class="card-role">The Organized Offender</p>
+        <p class="card-desc">Nothing has ever been charged. He considers that a matter of structure, not luck.</p>
+      </div>
+    </a>
+    <a class="card" href="/sherlock-agent.html?agent=adler">
+      <div class="card-portrait"><img src="/assets/sherlock/adler-eyes-open.jpg" alt="Irene Adler"></div>
+      <div class="card-body">
+        <p class="card-name">Irene Adler</p>
+        <p class="card-role">The Grey Zone</p>
+        <p class="card-desc">Where investigation ends and surveillance begins. She will make you define your terms.</p>
+      </div>
+    </a>
+    <a class="card" href="/sherlock-agent.html?agent=mary">
+      <div class="card-portrait"><img src="/assets/sherlock/mary-eyes-open.jpg" alt="Mary Morstan"></div>
+      <div class="card-body">
+        <p class="card-name">Mary Morstan</p>
+        <p class="card-role">The Complainant</p>
+        <p class="card-desc">Eleven years of "we are pursuing all available leads," heard from the receiving end.</p>
+      </div>
+    </a>
+    <a class="card" href="/sherlock-agent.html?agent=wiggins">
+      <div class="card-portrait"><img src="/assets/sherlock/wiggins-eyes-open.jpg" alt="Wiggins"></div>
+      <div class="card-body">
+        <p class="card-name">Wiggins</p>
+        <p class="card-role">The Informant</p>
+        <p class="card-desc">Seventeen, paid same-day cash, and nobody is clearly responsible for his safety.</p>
+      </div>
+    </a>
+  </div>
+
+  <div class="table-card">
+    <div class="left">
+      <h3>Or put them in one room.</h3>
+      <p>Inside any case you can convene two to six of them at once and watch them argue the evidence with each other. A director model decides who speaks next, so Lestrade cuts in on Holmes and Mary Morstan interrupts them both, and it plays out like a real room rather than a scripted rotation.</p>
+    </div>
+    <a class="btn-primary" href="/sherlock-casebook.html?case=webster">Start Case 01</a>
+  </div>
+
+  <div class="sec-head">
+    <h2>For Educators: An 11-Hour Unit</h2>
+    <div class="sec-rule"></div>
+  </div>
+  <p class="sec-sub">Eleven one-hour sessions built entirely on the three cases and the standing cast, no additional reading required. Every session pairs a citation-required interview with a written argument, so a student has to actually work the agents rather than search the internet: the questions ask what a specific person said and why it can or cannot be relied on, not facts that can be looked up. Every Analyze prompt expects a paragraph, not a line: state the claim, argue the strongest counterpoint, then name the real modern case, rule, or study the situation maps onto and explain where the comparison holds and where it breaks. Sessions build, so the capstone has cumulative material to argue from.</p>
+
+  <div class="obj-blocks">
+    <div class="obj-block">
+      <h3>Learning Objectives</h3>
+      <ul>
+        <li>Distinguish observation, inference, and conclusion, and identify where a student's own reasoning silently collapses the three.</li>
+        <li>Evaluate testimonial evidence by how it was obtained rather than by how confident the witness sounds.</li>
+        <li>Apply chain of custody, Ohio's eyewitness identification statute, voluntariness, Brady, and Evid.R. 702 to evidence gathered without them.</li>
+        <li>Analyze the private search doctrine and the point at which a private investigator becomes an agent of the state.</li>
+        <li>Analyze how institutional incentive, caseload, and confirmation bias shape outcomes independently of anyone's honesty.</li>
+        <li>Reason about what an AI reconstruction of a fictional investigator can and cannot stand in for in professional training.</li>
+      </ul>
+    </div>
+    <div class="obj-block">
+      <h3>Learning Outcomes</h3>
+      <ul>
+        <li>Reconstruct a chain of inference from physical and digital evidence and defend each link in writing.</li>
+        <li>Separate device attribution from person attribution and state what closes the gap.</li>
+        <li>Identify a suggestive identification procedure and name the specific statutory requirement it violated.</li>
+        <li>Distinguish a reliable confession from a contaminated one by testing for facts only the offender could know.</li>
+        <li>Cross-examine an expert on method and error rate rather than on credentials and experience.</li>
+        <li>Draft a motion to suppress that separates whether a conclusion is true from whether it is provable.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="syllabus">
+    <div class="syllabus-item">
+      <div class="syllabus-num">01</div>
+      <div class="syllabus-body">
+        <h3>Observation, Inference, Conclusion</h3>
+        <p class="syllabus-agents">Solo: Sherlock Holmes</p>
+        <p class="syllabus-step"><b>Gather.</b> Ask him to read you, then make him separate what he observed from what he inferred. Push until you have the two lists apart.</p>
+        <p class="syllabus-step"><b>Analyze.</b> Take one of his inferences and write out the alternative explanation he skipped. Then write a paragraph on a moment in your own life where you presented an inference as an observation, and what would have shown you the difference at the time.</p>
+      </div>
+    </div>
+    <div class="syllabus-item">
+      <div class="syllabus-num">02</div>
+      <div class="syllabus-body">
+        <h3>Case 01: Work the Scene</h3>
+        <p class="syllabus-agents">Casebook: The Webster Station Ledger</p>
+        <p class="syllabus-step"><b>Gather.</b> Examine every item and record, for each, one thing that is visible and one thing that is only true on close examination. Do not talk to anyone yet.</p>
+        <p class="syllabus-step"><b>Analyze.</b> Before any interview, write your first theory and the single piece of evidence that would destroy it. Keep that page. You will be asked for it again in Session 04.</p>
+      </div>
+    </div>
+    <div class="syllabus-item">
+      <div class="syllabus-num">03</div>
+      <div class="syllabus-body">
+        <h3>The Phone Is Not the Person</h3>
+        <p class="syllabus-agents">Webster witnesses: Abel Ferreira + Jane Coombe</p>
+        <p class="syllabus-step"><b>Gather.</b> Ferreira's patrol log looks like continuous coverage of the whole building. Get him to tell you when he actually wrote it, without accusing him of anything. Then get Jane Coombe to show you, specifically, what is wrong with the text message.</p>
+        <p class="syllabus-step"><b>Analyze.</b> Ferreira is not lying; he recorded an assumption as an observation, which is Session 01's error committed by a witness instead of an investigator. Then list everything that would have to be true for "sent from his phone" to become "sent by him," and say which of those the file actually establishes.</p>
+      </div>
+    </div>
+    <div class="syllabus-item">
+      <div class="syllabus-num">04</div>
+      <div class="syllabus-body">
+        <h3>Case 01: Commit, Review, and Suppress</h3>
+        <p class="syllabus-agents">Casebook submission + Simon Finch</p>
+        <p class="syllabus-step"><b>Gather.</b> Submit the case: suspect, chain, and what a court would exclude. Then go back and confront Finch with whichever link the review marked missed.</p>
+        <p class="syllabus-step"><b>Analyze.</b> Compare your Session 02 theory with your final answer. What changed it, and at what point did you have enough to change it and not do so? Then write the suppression argument: was Holmes acting on his own, or as an agent of the department, and what falls if the defense wins that motion?</p>
+      </div>
+    </div>
+    <div class="syllabus-item">
+      <div class="syllabus-num">05</div>
+      <div class="syllabus-body">
+        <h3>The Cost of Doing It Properly</h3>
+        <p class="syllabus-agents">Solo: Detective Lestrade</p>
+        <p class="syllabus-step"><b>Gather.</b> Ask why Webster Station was cleared by nine in the morning and what he would have had to drop to work it properly. Then ask him why he keeps calling a consultant with no badge, and whether he knows what that costs him at a hearing.</p>
+        <p class="syllabus-step"><b>Analyze.</b> Lestrade is neither corrupt nor stupid, which is the difficulty. Argue whether his decision was reasonable given what he knew and what he carried, then name a present-day system where the same arithmetic applies and explain what would actually have to change for the outcome to change.</p>
+      </div>
+    </div>
+    <div class="syllabus-item">
+      <div class="syllabus-num">06</div>
+      <div class="syllabus-body">
+        <h3>Case 02: The Certain Witness</h3>
+        <p class="syllabus-agents">Casebook: The Wayne Avenue ID &middot; Ada Pyle + Mrs. Hudson</p>
+        <p class="syllabus-step"><b>Gather.</b> Get Ada Pyle to tell you how many seconds she had the man in view and whether she ever saw his face from the front. Then take the same questions to Mrs. Hudson and watch a witness who volunteers her own uncertainty.</p>
+        <p class="syllabus-step"><b>Analyze.</b> Ada Pyle is completely honest and completely wrong. Write out how her account hardened, hour by hour, from the sidewalk to the group chat to the array. Then read Ohio's eyewitness identification statute and list every requirement this procedure failed.</p>
+      </div>
+    </div>
+    <div class="syllabus-item">
+      <div class="syllabus-num">07</div>
+      <div class="syllabus-body">
+        <h3>Case 02: The Nine Minutes</h3>
+        <p class="syllabus-agents">Jack Ruddle + Detective Boyce</p>
+        <p class="syllabus-step"><b>Gather.</b> Ask Ruddle what he was told on the walk from the cell. Then ask Boyce, in her own words, what she said. The two accounts will not conflict, which is the point.</p>
+        <p class="syllabus-step"><b>Analyze.</b> Find the two facts in the confession that came from the interrogator rather than the offender. Then argue: the Miranda warning was given and waived on camera, so what exactly is the legal defect, and would a rule requiring recording from first contact have saved Ruddle or simply produced a recording of the same nine minutes?</p>
+      </div>
+    </div>
+    <div class="syllabus-item">
+      <div class="syllabus-num">08</div>
+      <div class="syllabus-body">
+        <h3>Case 03: Cross-Examining an Expert</h3>
+        <p class="syllabus-agents">Casebook: The Third Street Fire &middot; Captain Crewe</p>
+        <p class="syllabus-step"><b>Gather.</b> Ask Crewe for one positive piece of evidence that the fire was set, as opposed to an absence. Then ask him how he would ever come to know his method had been wrong.</p>
+        <p class="syllabus-step"><b>Analyze.</b> Crewe reaches the right answer by a method that could not have produced any other. Write the cross-examination you would run, then argue whether a correct conclusion from an unvalidated method survives Evid.R. 702, and apply your own rule to a real forensic discipline of your choosing.</p>
+      </div>
+    </div>
+    <div class="syllabus-item">
+      <div class="syllabus-num">09</div>
+      <div class="syllabus-body">
+        <h3>The Metric and the County</h3>
+        <p class="syllabus-agents">Moriarty, then Lestrade, then Watson &middot; separately, in that order</p>
+        <p class="syllabus-step"><b>Gather.</b> Ask Moriarty why a decade of enforcement did not reach the layer where the money settles. Then put the same question to Lestrade, who was the one making the arrests. Then ask Watson what an overdose call actually looks like and why an apparent overdose death does not get the scene discipline a homicide gets. Make each of them source their figures, and record any they say they cannot verify.</p>
+        <p class="syllabus-step"><b>Analyze.</b> Montgomery County was among the hardest hit places in the country, and the steep decline that followed is credited far more to naloxone, treatment access, and quick response teams than to enforcement. Lay out all three positions, name exactly where they conflict, and argue what the county's arrest numbers were actually measuring. Then connect it back to Case 01: if an opioid in a toxicology screen is the most ordinary finding on the page here, what does that hand an offender, and what would it cost to close that gap?</p>
+      </div>
+    </div>
+    <div class="syllabus-item">
+      <div class="syllabus-num">10</div>
+      <div class="syllabus-body">
+        <h3>Put Them in One Room</h3>
+        <p class="syllabus-agents">Group room: Holmes + Lestrade + Mary Morstan, or Moriarty + Wiggins + Adler</p>
+        <p class="syllabus-step"><b>Gather.</b> Convene one of the two rooms and put a single question to it: what is this case actually for, and who is it serving. Record where the three of them diverge.</p>
+        <p class="syllabus-step"><b>Analyze.</b> Lay out each speaker's position in full and explain exactly where and why they conflict. Then argue what the gap reveals about whose interests an investigation serves by default, and name a present-day institution in this region where the same three positions are audibly in the room.</p>
+      </div>
+    </div>
+    <div class="syllabus-item">
+      <div class="syllabus-num">11</div>
+      <div class="syllabus-body">
+        <h3>Capstone</h3>
+        <p class="syllabus-agents">Synthesis essay, choose one track</p>
+        <p class="syllabus-step"><b>Track A: The Motion to Suppress.</b> Take whichever case you solved most confidently and write the defense motion against your own conclusion. Attack the single strongest link. Then answer honestly whether the state survives without it.</p>
+        <p class="syllabus-step"><b>Track B: The Private Actor.</b> Holmes is useful precisely because the Fourth Amendment does not bind him. Argue where the line should sit between a private investigator acting on his own and one acting as an agent of the state, apply your line to all three cases, and say plainly whether your rule would have let the guilty parties walk.</p>
+        <p class="syllabus-step"><b>Track C: True but Unprovable.</b> Holmes is right in all three cases and all three convictions are in trouble. Argue what a justice system should do with a conclusion that is almost certainly true and cannot be proved by admissible means, and what the alternative costs.</p>
+        <p class="syllabus-step"><b>Track D: The Source and the Complainant.</b> Interview Wiggins and Mary Morstan on opposite sides of the same process: the seventeen year old informant an investigator uses, and the complainant an investigator keeps waiting eleven years. Argue what duty is owed to each, where those duties conflict with clearing the case, and which one the institution sacrifices first.</p>
+        <p class="syllabus-step"><b>Track E: The Honest Failure.</b> Ferreira, Ada Pyle, Boyce, and Crewe are all sincere and all wrong. Pick three, identify the mechanism of failure in each, and argue which is hardest to write a rule against, and why.</p>
+        <p class="syllabus-step"><b>Track F: What the Number Was Measuring.</b> Montgomery County counted arrests through the worst of the overdose crisis, and the decline that eventually came is credited far more to naloxone, treatment access, and quick response teams. Using Moriarty, Lestrade, and Watson, argue what the arrest figure was actually measuring, what a better measure would have been, and who would have had to give something up for the county to adopt it. Source every figure you use, and say plainly where you could not verify one.</p>
+        <p class="syllabus-step">800 to 1000 words, any track. The final paragraph is required to address what an AI reconstruction of a fictional investigator can and cannot stand in for in professional criminal justice training.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="about-block">
+    <p><b>About this classroom.</b> The three cases are original, written for this course. They are not retellings of any published story, because a case a student can look up is not a case a student has to work. Each has one correct answer, a documented chain of inference, and a set of deliberate traps that behave the way real ones do.</p>
+    <p>Every agent carries a real backpack of live sources for the doctrine and research this course runs on, Miranda, Brady, Daubert, the exclusionary rule, the private search doctrine, NFPA 921, the 2009 National Academy of Sciences forensic science report, the National Registry of Exonerations, and never fabricates one. If a lookup fails, they say so plainly rather than inventing a citation or a case name. None of them will invent an item of evidence, and none of them has been told the answer to the case they are standing in.</p>
+    <p><b>On the city.</b> Every person, firm, and business in these files is invented. The neighborhoods, roadways, and institutions of Dayton are real; nothing here is attributed to any real business or any real person.</p>
+    <p><b>On the character.</b> Sherlock Holmes and the whole of the Conan Doyle canon entered the United States public domain on 1 January 2023, when the last of the Case-Book stories expired. These are original characterizations built from that public domain material and relocated to Dayton for this classroom. They reproduce no modern screen depiction, borrow no actor's likeness or costume design, and claim no association with, or endorsement by, the Conan Doyle Estate.</p>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  var btn = document.getElementById('themeToggle');
+  function sync() {
+    var isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    btn.textContent = isLight ? 'Dark' : 'Light';
+  }
+  sync();
+  btn.addEventListener('click', function () {
+    var next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('etl_classrooms_theme', next); } catch (_) {}
+    sync();
+  });
+})();
+</script>
+
+</body>
+</html>
