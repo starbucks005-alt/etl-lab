@@ -319,7 +319,7 @@
       <h2>Here it is.</h2>
       <p class="lede">Right click the graphic to save it, and copy the caption below.</p>
       <div class="paybar">
-        <a class="cta" id="dl" href="#" download target="_blank" rel="noopener">Download the graphic</a>
+        <button class="cta" id="dl">Download the graphic</button>
         <button class="cta ghost" id="copy">Copy the caption</button>
         <!-- The artwork moves and the type is laid back over it crisp, which
              is why this is a separate page rather than a checkbox: it needs a
@@ -442,6 +442,30 @@
   }
 
   function show(el, on){ el.classList[on ? 'remove' : 'add']('hide'); }
+  /* DOWNLOAD BY FETCH, NOT BY ANCHOR.
+     A plain <a download> saves whatever comes back, including an error body.
+     An oversized render returned 413 "render too large" and the browser wrote
+     those 17 bytes to disk as etl-image.png, so Photos reported an unsupported
+     format and it looked like the image was lost. It never was. Check the
+     status and the content type before anything touches the disk (2026-08-02). */
+  function saveFrom(url, base, onErr){
+    return fetch(url).then(function(r){
+      var ct = r.headers.get("content-type") || "";
+      if (!r.ok || ct.indexOf("image/") !== 0) {
+        return r.text().then(function(t){
+          throw new Error((t || ("the server returned " + r.status)).slice(0, 160));
+        });
+      }
+      return r.blob().then(function(b){
+        var ext = ct.indexOf("jpeg") > -1 ? "jpg" : ct.indexOf("png") > -1 ? "png" : "img";
+        var a = document.createElement("a");
+        a.href = URL.createObjectURL(b);
+        a.download = base + "." + ext;
+        a.click();
+        setTimeout(function(){ URL.revokeObjectURL(a.href); }, 4000);
+      });
+    }).catch(function(e){ if (onErr) onErr(e.message || String(e)); });
+  }
   function fail(msg){ var e=$('err'); e.textContent = msg; show(e,true); }
 
   /* Price comes from the checkout function, never typed into this page. One
@@ -746,7 +770,7 @@
     show($('pay-card'), false);
     show($('done-card'), true);
     var img = (pack && pack.image_url) || $('r-img').src;
-    if (img) { $('dl').href = img; }
+    if (img) { $('dl').onclick = function(){ saveFrom(img, 'etl-design', fail); }; }
     // The motion page needs the job, nothing else: it fetches the layers and
     // starts the render itself.
     if (jobId) { $('animate').href = '/etl-animate?job=' + encodeURIComponent(jobId); }

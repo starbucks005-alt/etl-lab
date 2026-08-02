@@ -56,10 +56,37 @@ exports.handler = async (event) => {
     }
     buf = await store.get(key, { type: 'arrayBuffer' });
     if (!buf) return { statusCode: 404, body: 'no image yet' };
-    // A base64 body has a hard ceiling (~6MB) and exceeding it returns a 502
-    // with no explanation, which is exactly how the first oversized render
-    // failed. Say so plainly rather than letting the platform swallow it.
+    /* OVER THE CEILING, SO RE-ENCODE RATHER THAN REFUSE.
+       ─────────────────────────────────────────────────────────────────────
+       A base64 body has a hard ~6MB platform ceiling, and this used to return
+       413 "render too large" past 4MB. That was honest at the server and
+       useless at the browser: the download link is a plain anchor, so it
+       saved the refusal itself to disk as a 17 byte file called
+       etl-image.png, and Photos said it was not a supported format. Dr. O
+       had paid a credit for an image that existed the whole time.
+
+       A photoreal square from Chris clears 4MB easily, so this is not an edge
+       case. JPEG at 92 takes the same picture to a fraction of the size with
+       no visible loss, which is a far better answer than refusing to hand
+       over something already generated (2026-08-02). */
     if (buf.byteLength > 4 * 1024 * 1024) {
+      try {
+        const sharp = require('sharp');
+        const jpeg = await sharp(Buffer.from(buf)).jpeg({ quality: 92 }).toBuffer();
+        console.log('[etl-design-image] re-encoded ' + buf.byteLength + ' bytes to ' + jpeg.length + ' as jpeg for ' + jobId);
+        return {
+          statusCode: 200,
+          headers: {
+            'Content-Type': 'image/jpeg',
+            'Cache-Control': 'public, max-age=31536000, immutable',
+            'Access-Control-Allow-Origin': '*',
+          },
+          body: jpeg.toString('base64'),
+          isBase64Encoded: true,
+        };
+      } catch (e) {
+        console.error('[etl-design-image] re-encode failed', e && e.message);
+      }
       console.error('[etl-design-image] render too large to serve: ' + buf.byteLength + ' bytes for ' + jobId);
       return { statusCode: 413, body: 'render too large' };
     }

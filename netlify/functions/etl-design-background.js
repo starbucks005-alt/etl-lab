@@ -630,7 +630,23 @@ exports.handler = async (event) => {
           ? ('WHAT THE WORDS ON THIS PIECE PROMISE THE READER: ' + deDash(reid.positioning) +
              ' YOUR PICTURE MUST MAKE THAT PROMISE FEEL TRUE. Give the reader the world in which it happens. A warm promise needs a warm room, a cold promise needs a cold one, and a picture that contradicts the promise kills the piece even when it is a good picture. The actual headline is set in type BESIDE your image by someone else, you will never see it, and your image must contain no writing whatsoever.')
           : ''),
-        'Use this colour palette and nothing else: ' + paletteText + '.',
+        /* THIS IS WHY EVERY PICTURE CAME BACK BLACK AND WHITE.
+           ─────────────────────────────────────────────────────────────────
+           It used to read "Use this colour palette and nothing else", with
+           Yuki's palette pasted in. That constraint exists for the LAYOUT,
+           where every rect and every line must be a brand colour. Handing it
+           to a photographer means "shoot using only these four inks", and on
+           a dark technical palette those are two blacks, a grey and one
+           accent. Chris was obeying it exactly.
+
+           Dr. O: "Chris is making all images B/W and I am colorizing them in
+           PS." She has been undoing an instruction, by hand, every time.
+
+           A photograph is not a design element. It should SIT WITH the
+           palette, not be built from it (2026-08-02). */
+        'COLOUR: this is a photograph or an illustration, not a design element, so use full natural colour. Real skin, real fabric, real light, whatever the scene actually contains.',
+        'The finished piece will be laid out around you in these colours: ' + paletteText + '. Shoot something that SITS WELL beside them, so the picture and the layout look like one object rather than two. That means a compatible temperature and one or two tones in common, NOT restricting yourself to those values.',
+        'DO NOT MAKE IT MONOCHROME, black and white, sepia, duotone or single-accent unless the mood line above explicitly calls for it. A colour photograph is the default.',
         /* DRAW THE IDEA, NOT THE NOUNS. Chris was handed the promoting line
            and illustrated it literally. On a My Echo brief mentioning
            "memories" and "voice" he drew a handwritten letter, an open

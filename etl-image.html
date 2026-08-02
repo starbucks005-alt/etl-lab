@@ -96,7 +96,7 @@
 
   <div class="out hide" id="out"><img id="img" alt="Your image"></div>
   <div id="after" class="hide" style="margin-top:1rem;display:flex;gap:.7rem;flex-wrap:wrap;">
-    <a class="cta ghost" id="dl" href="#" download="etl-image.png">Download</a>
+    <button class="cta ghost" id="dl">Download</button>
     <a class="cta ghost" id="motion" href="#">Put it in motion</a>
   </div>
 
@@ -148,6 +148,30 @@
       img.onerror = function(){ URL.revokeObjectURL(url); rej(new Error("that file could not be read as an image")); };
       img.src = url;
     });
+  }
+  /* DOWNLOAD BY FETCH, NOT BY ANCHOR.
+     A plain <a download> saves whatever comes back, including an error body.
+     An oversized render returned 413 "render too large" and the browser wrote
+     those 17 bytes to disk as etl-image.png, so Photos reported an unsupported
+     format and it looked like the image was lost. It never was. Check the
+     status and the content type before anything touches the disk (2026-08-02). */
+  function saveFrom(url, base, onErr){
+    return fetch(url).then(function(r){
+      var ct = r.headers.get("content-type") || "";
+      if (!r.ok || ct.indexOf("image/") !== 0) {
+        return r.text().then(function(t){
+          throw new Error((t || ("the server returned " + r.status)).slice(0, 160));
+        });
+      }
+      return r.blob().then(function(b){
+        var ext = ct.indexOf("jpeg") > -1 ? "jpg" : ct.indexOf("png") > -1 ? "png" : "img";
+        var a = document.createElement("a");
+        a.href = URL.createObjectURL(b);
+        a.download = base + "." + ext;
+        a.click();
+        setTimeout(function(){ URL.revokeObjectURL(a.href); }, 4000);
+      });
+    }).catch(function(e){ if (onErr) onErr(e.message || String(e)); });
   }
   function fail(msg){
     $('err').textContent = msg;
@@ -215,7 +239,7 @@
         if (d.status !== 'done' || !d.image_url) return;
         clearInterval(poll); poll = null;
         $('img').src = d.image_url;
-        $('dl').href = d.image_url;
+        $('dl').onclick = function(){ saveFrom(d.image_url, 'etl-image', fail); };
         $('motion').href = '/etl-animate?job=' + encodeURIComponent(jobId);
         show($('out'), true); show($('after'), true);
         $('go').disabled = false;

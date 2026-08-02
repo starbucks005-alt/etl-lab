@@ -154,7 +154,13 @@ exports.handler = async (event) => {
         'Editorial marketing artwork for ' + (b.business_name || b.businessName || 'this business') + '.',
         'Subject: ' + String(b.promoting || '').slice(0, 600) + '.',
         'Mood: ' + (yuki.look || '') + '.',
-        'Use this colour palette and nothing else: ' + paletteText + '.',
+        // Same fault as the first draw: a palette meant for the layout was
+        // being handed to a photographer, which is an instruction to shoot in
+        // four inks. It is why every picture came back black and white
+        // (2026-08-02).
+        'COLOUR: this is a photograph or an illustration, not a design element, so use full natural colour. Real skin, real fabric, real light.',
+        'The piece around it is laid out in these colours: ' + paletteText + '. Sit well beside them, sharing a temperature and a tone or two, rather than being built from them.',
+        'DO NOT MAKE IT MONOCHROME, black and white, sepia or duotone unless the mood explicitly calls for it.',
         'THE CLIENT HAS REJECTED THE PREVIOUS IMAGE AND ASKED FOR THIS: ' + note,
         'Make something GENUINELY DIFFERENT from a standard portrait or headshot. A different subject, a different distance, a different composition.',
         'Absolutely NO text, NO words, NO letters, NO numbers, NO logos and NO watermarks anywhere in the image.',
