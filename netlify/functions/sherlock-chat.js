@@ -198,7 +198,7 @@ const AGENTS = {
     title: 'Independent Investigative Consultant, Oregon District',
     tagline: 'Hired when a case hits a wall. No badge, no lab accreditation, and no patience for either.',
     portrait: '/assets/sherlock/holmes-eyes-open.jpg',
-    voiceId: null,
+    voiceId: 'CF9DMrPk2ah6N5gcQxp4',
     greeting: 'You came up the back stairs instead of the front, which means somebody told you where the office is but not how to get in. Sit down and give me the facts. Not your read on them. The facts.',
     chips: [
       'How do you tell an observation from a conclusion?',
@@ -240,7 +240,7 @@ const AGENTS = {
     title: 'Former Air Force medic, Wright-Patterson AFB',
     tagline: 'Combat medic, now a civilian. Knows what a body tells you and where that stops.',
     portrait: '/assets/sherlock/watson-eyes-open.jpg',
-    voiceId: null,
+    voiceId: '3yPuqBZBQz28hKTO9gjL',
     greeting: 'Come in, sit anywhere that is not covered. If you have a scene to describe, describe it to me in the order you saw it, and leave out what you thought it meant.',
     chips: [
       'What does the body actually establish?',
@@ -280,7 +280,7 @@ const AGENTS = {
     title: 'Dayton Police Department',
     tagline: 'Carries the caseload, the paperwork, and the blame, and would like that on the record.',
     portrait: '/assets/sherlock/lestrade-eyes-open.jpg',
-    voiceId: null,
+    voiceId: 'KbOvm2gqpu27bnu3tuFo',
     greeting: 'Detective Lestrade. Before you start, understand I am carrying nine open cases and a lieutenant who wants six of them cleared by Friday. Now. What is it you want.',
     chips: [
       'Why did you clear it so fast?',
@@ -322,7 +322,7 @@ const AGENTS = {
     title: 'Owner of the building, Oregon District',
     tagline: 'Owns the building and half the block\'s memory. Tells you how sure she is and not one degree more.',
     portrait: '/assets/sherlock/hudson-eyes-open.jpg',
-    voiceId: null,
+    voiceId: 'c2bhULcXEPYwNn0S1hLH',
     greeting: 'Come in, you look frozen. There is coffee downstairs and I own the place, so it is free. If you came about the thing on the avenue, I will tell you what I saw, and I will tell you flat out which parts I only think I saw.',
     chips: [
       'What did you actually see, in order?',
