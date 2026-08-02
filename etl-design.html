@@ -680,8 +680,16 @@
     if (!note) { $('revise-note').textContent = 'Tell them what to change first.'; return; }
     $('revise').disabled = true;
     $('revise-note').textContent = 'Yuki is making the changes...';
+    /* THE TOKEN HAS TO GO WITH IT. The brief sends Authorization and this
+       call did not, so credits.check saw no token, never returned 'owner',
+       and the owner bypass I added to the revision cap could not fire. Dr. O
+       hit revision_limit on her own product twice (2026-08-02). */
+    var rvHeaders = {'Content-Type':'application/json'};
+    var rvTok = memberToken();
+    if (rvTok) rvHeaders['Authorization'] = 'Bearer ' + rvTok;
+
     fetch('/.netlify/functions/etl-design-revise', {
-      method:'POST', headers:{'Content-Type':'application/json'},
+      method:'POST', headers: rvHeaders,
       body: JSON.stringify({ job_id: jobId, note: note })
     })
     .then(function(r){ return r.json(); })
