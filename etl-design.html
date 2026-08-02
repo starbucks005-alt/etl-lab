@@ -143,9 +143,15 @@
            invented approximation of them. But a client with good photography
            had no reason to think we wanted it. The label was quietly costing
            us the best thing we do (2026-08-01). -->
-      <label for="f-concept">Or upload a logo, a photograph, anything you already use</label>
+      <!-- CONCEPT ART AND A LOGO ARE NOT THE SAME UPLOAD.
+           This field asked for "a logo, a photograph, anything you already
+           use", so a logo arrived here and got treated as artwork. Dr. O:
+           "instead of asking for the logo just say concept art. and ask for
+           logo separately so it can be placed at the bottom right every
+           time" (2026-08-02). -->
+      <label for="f-concept">Or upload concept art</label>
       <input id="f-concept" type="file" accept="image/png,image/jpeg,image/webp">
-      <div class="hint"><strong>Send a photograph if you have one.</strong> A real photo of your product, your room or your people becomes the artwork itself, graded to the piece, instead of us drawing something like it. A logo or a screenshot works too, and sets the look. An upload always wins over the website.</div>
+      <div class="hint"><strong>Send a photograph if you have one.</strong> A real photo of your product, your room or your people becomes the artwork itself, graded to the piece, instead of us drawing something like it. A sketch or a piece you already like works too, and sets the look. An upload always wins over the website. <em>Not your logo, that goes below.</em></div>
       <!-- USE MINE, FULL STOP.
            An uploaded photograph could already become the artwork, but only
            if it passed a test for looking photographic, and there was no way
@@ -161,6 +167,16 @@
       <div id="concept-preview" class="hide" style="margin-top:.7rem;display:flex;gap:.8rem;align-items:center;">
         <img id="concept-thumb" alt="Your concept image" style="width:76px;height:76px;object-fit:cover;border-radius:9px;border:1px solid var(--line);">
         <button type="button" class="cta ghost" id="concept-clear" style="margin-top:0;padding:.45rem 1rem;font-size:.85rem;">Remove</button>
+      </div>
+
+      <!-- Its own field, and placed by arithmetic rather than by Yuki, so it
+           lands in the same corner on every piece. -->
+      <label for="f-logo">Your logo</label>
+      <input id="f-logo" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml">
+      <div class="hint">Goes bottom right on every piece, at the same size, every time. A PNG with a transparent background works best.</div>
+      <div id="logo-preview" class="hide" style="margin-top:.7rem;display:flex;gap:.8rem;align-items:center;">
+        <img id="logo-thumb" alt="Your logo" style="width:76px;height:76px;object-fit:contain;border-radius:9px;border:1px solid var(--line);background:#101013;">
+        <button type="button" class="cta ghost" id="logo-clear" style="margin-top:0;padding:.45rem 1rem;font-size:.85rem;">Remove</button>
       </div>
 
       <div class="hint" style="margin-top:.7rem;color:var(--sig);">Give us neither and Yuki will invent a look from scratch. It will be a good look. It will not be yours.</div>
@@ -329,6 +345,7 @@
   var jobId = null, poll = null, priceLabel = '', conceptData = '';
   // Empty string is the deliberate default: Yuki chooses, exactly as before.
   var chosenLook = '';
+  var logoData = '';
 
   /* Guest identity. Persisted so the free allowance survives a reload; a new
      id per visit would hand out unlimited free briefs. This is a spend cap,
@@ -447,6 +464,7 @@
         platform: $('f-platform').value,
         look: chosenLook,
         use_upload_as_art: $('f-own-art').checked,
+        logo_image: logoData,
         concept_image: conceptData,
         guest_id: guestId()
       })
@@ -665,6 +683,20 @@
   });
 
   $('f-concept').addEventListener('change', function(e){ loadConcept(e.target.files && e.target.files[0]); });
+  $('f-logo').addEventListener('change', function(e){
+    var file = e.target.files && e.target.files[0];
+    if (!file) return;
+    var rd = new FileReader();
+    rd.onload = function(){
+      logoData = rd.result;
+      $('logo-thumb').src = logoData;
+      show($('logo-preview'), true);
+    };
+    rd.readAsDataURL(file);
+  });
+  $('logo-clear').addEventListener('click', function(){
+    logoData = ''; $('f-logo').value = ''; show($('logo-preview'), false);
+  });
   $('concept-clear').addEventListener('click', function(){
     conceptData = ''; $('f-concept').value = ''; show($('concept-preview'), false);
   });

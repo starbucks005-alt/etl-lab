@@ -334,4 +334,39 @@ async function renderOverlay(svg, canvasKey) {
     .toBuffer();
 }
 
-module.exports = { CANVASES, renderSvg, renderOverlay, normalizeFonts, findOverflow, SERIF, SANS, MONO };
+/* THE LOGO GOES BOTTOM RIGHT, EVERY TIME, IN CODE.
+   ─────────────────────────────────────────────────────────────────────────
+   Dr. O: "ask for logo separately so it can be placed at the bottom right
+   every time." Every time is the operative part. Handing a logo to Yuki and
+   asking her to place it would put it somewhere different on every piece,
+   which is the opposite of a mark, and the layout archetypes exist because
+   she does not hold a position consistently.
+
+   So it is composited after the raster, by arithmetic. Sized to a share of
+   the canvas width rather than a fixed pixel count, so a square and a
+   portrait both get a mark that reads the same. Aspect preserved, alpha
+   preserved, and inset by the same margin the footer already respects
+   (2026-08-02). */
+async function stampLogo(pngBuffer, logoBuffer, canvasKey) {
+  const c = CANVASES[canvasKey] || CANVASES.instagram;
+  const margin = Math.round(Math.min(c.w, c.h) * 0.035);
+  const maxW = Math.round(c.w * 0.16);
+  const maxH = Math.round(c.h * 0.075);
+
+  const mark = await sharp(logoBuffer)
+    .resize(maxW, maxH, { fit: 'inside', withoutEnlargement: false })
+    .png()
+    .toBuffer();
+  const m = await sharp(mark).metadata();
+
+  return sharp(pngBuffer)
+    .composite([{
+      input: mark,
+      left: c.w - (m.width || maxW) - margin,
+      top:  c.h - (m.height || maxH) - margin,
+    }])
+    .png()
+    .toBuffer();
+}
+
+module.exports = { CANVASES, renderSvg, renderOverlay, stampLogo, normalizeFonts, findOverflow, SERIF, SANS, MONO };

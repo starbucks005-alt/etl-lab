@@ -103,6 +103,11 @@ exports.handler = async (event) => {
 
      So the upload is written to the job store here and the invoke carries
      only a key. The relay reads it back (2026-08-01). */
+  /* The logo is a separate upload and a separate key. It is small, but it
+     rides the store for the same reason the concept image does: the invoke
+     is an async Lambda call capped at 256KB (2026-08-02). */
+  let logoKey = null;
+  const logoImage = String(body.logo_image || '');
   let conceptKey = null;
   if (conceptImage) {
     try {
@@ -115,6 +120,17 @@ exports.handler = async (event) => {
       // normal path for most clients anyway.
       console.error('[etl-design-ask] concept image not stored, continuing without it:', e && e.message);
       conceptKey = null;
+    }
+  }
+
+  if (logoImage && /^data:image\/(png|jpeg|jpg|webp|svg\+xml);base64,/.test(logoImage) && logoImage.length < 3000000) {
+    try {
+      connectLambda(event);
+      const store = getStore('etl_design_jobs');
+      await store.set(jobId + '-logo', logoImage, { metadata: { contentType: 'text/plain' } });
+      logoKey = jobId + '-logo';
+    } catch (e) {
+      console.error('[etl-design-ask] logo not stored, continuing without it:', e && e.message);
     }
   }
 
@@ -137,6 +153,7 @@ exports.handler = async (event) => {
         // heuristic deciding the upload looks photographic (2026-08-02).
         use_upload_as_art: !!body.use_upload_as_art,
         concept_key:   conceptKey,
+        logo_key:      logoKey,
       }),
     });
     console.log('[etl-design-ask] background invoke status', r.status, 'job', jobId);

@@ -56,9 +56,9 @@ const brandExtract = require('./_brand-extract.js');
    ReferenceError into a catch that only logged, and the type layer was never
    produced for a single piece. It looked like a renderer bug for hours; the
    renderer was fine and had simply never been handed over. */
-let renderSvg = null, renderOverlay = null, CANVASES = null, openaiImage = null, renderLoadError = null;
+let renderSvg = null, renderOverlay = null, stampLogo = null, CANVASES = null, openaiImage = null, renderLoadError = null;
 try {
-  ({ renderSvg, renderOverlay, CANVASES } = require('./_design-render.js'));
+  ({ renderSvg, renderOverlay, stampLogo, CANVASES } = require('./_design-render.js'));
   openaiImage = require('./_openai-image.js');
 } catch (e) {
   renderLoadError = 'design renderer unavailable: ' + (e && e.message);
@@ -760,8 +760,31 @@ exports.handler = async (event) => {
           if (retry.overflow.length <= out.overflow.length) out = retry;
         }
       }
+      /* THE LOGO, BOTTOM RIGHT, EVERY TIME.
+         ─────────────────────────────────────────────────────────────────
+         Stamped here by arithmetic rather than placed by Yuki, because
+         "every time" is the requirement and she does not hold a position
+         across layouts. It goes on AFTER the raster, so it is never part of
+         what the model composes and can never be redrawn, warped or moved by
+         a revision (2026-08-02). */
+      let finalPng = out.png;
+      if (body.logo_key) {
+        try {
+          const raw = await store.get(String(body.logo_key), { type: 'text' });
+          const m = /^data:image\/[a-z+]+;base64,(.+)$/i.exec(String(raw || ''));
+          if (m) {
+            finalPng = await stampLogo(finalPng, Buffer.from(m[1], 'base64'), canvasKey);
+            state.result.logo_stamped = true;
+          }
+        } catch (e) {
+          // Survivable: a piece without its mark beats no piece at all.
+          console.warn('[etl-design] logo not stamped', e && e.message);
+          state.result.logo_error = String((e && e.message) || e).slice(0, 200);
+        }
+      }
+
       const key = jobId + '.png';
-      await store.set(key, out.png, { metadata: { contentType: 'image/png' } });
+      await store.set(key, finalPng, { metadata: { contentType: 'image/png' } });
       // Keep the SVG. It is the DESIGN SOURCE: the PNG is just a picture of
       // it. Without this, a question as basic as "why is there a 6 on my
       // piece" cannot be answered except by guessing, and a defect cannot be
