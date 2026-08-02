@@ -595,7 +595,7 @@ const WAYNE = {
       {
         label: 'Photo array procedure',
         body: 'Fillers must resemble the description the witness gave, not the suspect the detective has in mind, and the array should be administered by someone who does not know which photograph is the suspect. Five tall fillers, one red hoodie, and the case detective running it is not an identification procedure, it is a prompt with a form attached.',
-        local: 'Ohio has this in statute. R.C. 2933.83 requires a blind or blinded administrator, specifies how fillers are selected, and requires a witness confidence statement in the witness\'s own words at the time of the identification. Failure to comply is admissible evidence of unreliability and supports a jury instruction, and can support suppression. Verify the current text before teaching from it.',
+        local: 'Ohio does not leave this to good practice, it is in statute. R.C. 2933.83 requires that unless impracticable, a blind or blinded administrator shall conduct the lineup, and that when it is impracticable the administrator must put the reason in writing. It requires five filler photographs of persons not suspected of the offense "that match the description of the suspected perpetrator but do not cause the suspect photograph to unduly stand out." Every element of this array fails that sentence twice over: the fillers do not match the description, and the one red hoodie makes the suspect stand out. Noncompliance is admissible in support of a motion to suppress and at trial, and the jury shall be instructed that it may consider credible evidence of noncompliance in determining the reliability of the identification.',
       },
       {
         label: 'Co-witness contamination',
@@ -605,7 +605,7 @@ const WAYNE = {
       {
         label: 'Confidence at the moment of identification',
         body: 'Ada Pyle is completely honest, completely certain, and completely wrong. Confidence recorded after feedback and rehearsal carries almost no information about accuracy. A confidence statement in the witness\'s own words, taken at the moment of the identification and before anybody says anything, is one of the few measures that does.',
-        local: 'Ohio\'s statute requires exactly this statement. It was not taken here, which means the "no hesitation" in the report is the detective\'s characterization, not the witness\'s.',
+        local: 'R.C. 2933.83 requires exactly this: a statement of the eyewitness\'s confidence "in the eyewitness\'s own words," taken immediately upon the reaction. None was taken here, which means the "no hesitation" in the report is the detective\'s characterization of the witness rather than the witness\'s own account of herself.',
       },
       {
         label: 'Voluntariness and what happens off camera',
