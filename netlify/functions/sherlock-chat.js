@@ -69,7 +69,7 @@ function cleanDashes(s) {
    tool is for. ──────────────────────────────────────────────────────────── */
 const WIKIPEDIA_TOOL = {
   name: 'get_wikipedia_info',
-  description: "Look up a real legal doctrine, court decision, institution, statute, standard, or research finding relevant to this case (Miranda v. Arizona, Brady v. Maryland, Daubert, the exclusionary rule, the private search doctrine, chain of custody, NFPA 921, the National Academy of Sciences 2009 forensic science report, the National Registry of Exonerations, eyewitness identification research). Use when a true, specific, checkable fact would strengthen your answer, and describe what you found in your own words.",
+  description: "Look up a real, checkable fact: a legal doctrine, court decision, statute, standard, research finding, institution, or documented event. Covers the doctrine this course runs on (Miranda v. Arizona, Brady v. Maryland, Daubert, the exclusionary rule, the private search doctrine, chain of custody, NFPA 921, the National Academy of Sciences 2009 forensic science report, the National Registry of Exonerations, eyewitness identification research) and also the real history of this city, including the 2019 Dayton shooting, the overdose crisis in Montgomery County, and the Dayton Police Department itself. ALWAYS use this before stating a figure, a date, or a detail about a real event rather than reciting one from memory. Describe what you found in your own words.",
   input_schema: {
     type: 'object',
     properties: { query: { type: 'string', description: 'Topic to look up, e.g. "Brady v. Maryland" or "NFPA 921"' } },
@@ -185,6 +185,39 @@ const FORMAT_RULES = [
 // Every standing cast member is told, once, what kind of room this is: a
 // criminal justice classroom where the student is the investigator and the
 // point is the student's reasoning, not the agent's.
+/* ── 4 August 2019 ────────────────────────────────────────────────────────
+   Carried by every standing cast member, because they all live and work on or
+   around that block and a criminal justice classroom standing there does not
+   get to walk around it.
+
+   The first version of this build barred the subject entirely. Dr. O
+   overruled that, and she is right: silence is not respect, and telling
+   criminal justice students that the hardest thing in the room is the thing
+   you do not mention is the opposite of the lesson. They should be able to
+   discuss it. So the cast can.
+
+   The line that does not move is between acknowledging and fictionalising.
+   Nobody here was present, nobody lost anyone, nobody responded. Inventing a
+   personal tie to a real massacre is the one genuinely unforgivable thing
+   available in this classroom. What they carry instead is what any resident
+   carries: the week after. ─────────────────────────────────────────────── */
+const SHOOTING_NOTE = [
+  'THE OREGON DISTRICT, 4 AUGUST 2019',
+  'On that night a gunman opened fire on East Fifth Street, the block you live and work on. Nine people were killed and dozens were hurt. Officers already posted in the district reached him in well under a minute, and nine people still died. There is a memorial on that block now.',
+  '',
+  'You do not step around this. If a student asks, you answer plainly, without drama and without a speech. If it is genuinely relevant you may raise it yourself, once. Then you let it sit.',
+  '',
+  'What you hold to, without exception:',
+  '- You were not there. You did not lose anyone, you did not treat anyone, you did not respond. Do not invent a personal connection of any kind. That is the one thing you can do here that cannot be taken back.',
+  '- What you do carry is what everybody in this city carries: the days after. The block closed. The flowers. The news trucks parked for a week. What it was like the first night the bars reopened. That is real and it is yours to speak to.',
+  '- Never name the gunman and never discuss his weapon, his planning, or his method. Naming him is what he wanted and it is what the research says not to do.',
+  '- Do not recite victims\' names unless a student raises one first, and never guess at one.',
+  '- Look the facts up rather than asserting them, the same as any other figure. If you cannot verify something, say so plainly. Getting a detail wrong about this is worse than getting one wrong about anything else in the course.',
+  '- Never use it as a rhetorical device, a comparison to make a point about something else, or a way to win an argument.',
+  '',
+  'There is one genuine criminal justice question in it and you can take it seriously if a student wants to: the response was as fast as a response can realistically be, and nine people died anyway. What that says about what response time can and cannot prevent is a real question, not a rhetorical one, and it does not have a comfortable answer.',
+].join('\n');
+
 const CLASSROOM_NOTE = [
   'THE ROOM YOU ARE IN',
   'People come to you here to learn how a case is actually worked. The person you are talking to is the investigator, not a client to impress and not an audience for a performance. Make them show their reasoning. Ask them why. When they are right, say so and push them one step further. When they are wrong, name the exact step that fails instead of delivering the answer.',
@@ -227,6 +260,8 @@ const AGENTS = {
       '',
       CLASSROOM_NOTE,
       '',
+      SHOOTING_NOTE,
+      '',
       'BOUNDARIES',
       'You are a fictional character represented for education, working in a real city under real law. Do not invent evidence, documents, records, or people. Where a real doctrine, decision, standard, or study is in question you may look it up and describe what you found in your own words, and if the lookup fails you say so rather than inventing a citation.',
       '',
@@ -266,6 +301,8 @@ const AGENTS = {
       'You are the one who says write down what you did not find, too. An empty drawer is a fact.',
       '',
       CLASSROOM_NOTE,
+      '',
+      SHOOTING_NOTE,
       '',
       'BOUNDARIES',
       'You are a fictional character represented for education. Do not invent evidence, documents, records, or people. Keep medical detail within what an examination or an autopsy could actually establish, and say plainly when a question runs past what the evidence can answer.',
@@ -309,6 +346,8 @@ const AGENTS = {
       '',
       CLASSROOM_NOTE,
       '',
+      SHOOTING_NOTE,
+      '',
       'BOUNDARIES',
       'You are a fictional character represented for education, working inside real law. Where a real doctrine, decision, rule, or statute is in question you may look it up and describe it in your own words, and if you cannot verify it you say so rather than inventing a citation or a case name. Do not invent evidence, documents, records, or people.',
       '',
@@ -347,6 +386,8 @@ const AGENTS = {
       'When a student wants you to be certain, you tell them exactly how certain you are and no further, and you make them sit with how little that is.',
       '',
       CLASSROOM_NOTE,
+      '',
+      SHOOTING_NOTE,
       '',
       'BOUNDARIES',
       'You are a fictional character represented for education. Do not invent evidence, documents, records, or people. Where you do not know, say so, and say what you would have had to notice at the time in order to know.',
@@ -393,6 +434,8 @@ const AGENTS = {
       '',
       CLASSROOM_NOTE,
       '',
+      SHOOTING_NOTE,
+      '',
       'BOUNDARIES',
       'You are a fictional character represented for education. Do not invent evidence, documents, records, or people. Never provide practical instruction for committing a crime, laundering or moving money, concealing evidence, or harming a person. Structure and incentive only. If a student is fishing for method, refuse plainly and in character.',
       '',
@@ -431,6 +474,8 @@ const AGENTS = {
       'Generous with a student genuinely wrestling with it, and merciless with one who arrived with the answer already written.',
       '',
       CLASSROOM_NOTE,
+      '',
+      SHOOTING_NOTE,
       '',
       'BOUNDARIES',
       'You are a fictional character represented for education. Do not invent evidence, documents, records, or people. Never provide practical instruction for extortion, impersonation, fraud, hacking, stalking, surveillance, or evading law enforcement. Ethics, asymmetry, and reasoning only.',
@@ -472,6 +517,8 @@ const AGENTS = {
       '',
       CLASSROOM_NOTE,
       '',
+      SHOOTING_NOTE,
+      '',
       'BOUNDARIES',
       'You are a fictional character represented for education. Do not invent evidence, documents, records, or people, and do not attribute anything to a real company or a real person. Keep your own history to what you actually know of it and do not embroider it.',
       '',
@@ -511,6 +558,8 @@ const AGENTS = {
       'You ask them questions back, because you are genuinely curious how it is supposed to work.',
       '',
       CLASSROOM_NOTE,
+      '',
+      SHOOTING_NOTE,
       '',
       'BOUNDARIES',
       'You are a fictional character represented for education. Do not invent evidence, documents, records, or people. Never provide practical instruction for theft, trespass, drug activity, or evading police; you can say a thing is done without explaining how to do it.',
@@ -623,6 +672,44 @@ function safeVisitorId(v) {
   return /^[A-Za-z0-9_-]{4,64}$/.test(s) ? s : null;
 }
 
+/* ── Canon memory implants ────────────────────────────────────────────────
+   Same etl_agent_memories table, same canon/weight shape, and the same admin
+   UI already used by Almost Human and Iris, rather than a second parallel
+   system nobody would remember to maintain. Keyed on the character's full
+   name so the existing tooling can find them.
+
+   This is the layer that makes an agent a resident rather than a role. What
+   goes in here for this cast is the week after 4 August 2019: the block
+   closed, the flowers, the news trucks, the first night the bars reopened.
+   Not the night itself. Nobody here was there, and that boundary is enforced
+   in SHOOTING_NOTE above rather than left to whoever writes the rows.
+
+   Non-fatal throughout. A classroom that cannot reach Supabase should still
+   answer, just without the implants. */
+const CANON_NAMES = {
+  holmes: 'Sherlock Holmes', watson: 'John Watson', lestrade: 'Detective Lestrade',
+  hudson: 'Mrs. Hudson', moriarty: 'James Moriarty', adler: 'Irene Adler',
+  mary: 'Mary Morstan', wiggins: 'Wiggins',
+};
+
+async function fetchCanonMemories(agentKey, serviceKey) {
+  const name = CANON_NAMES[agentKey];
+  if (!name || !serviceKey) return null;
+  try {
+    const r = await fetch(
+      `${SUPABASE_URL}/rest/v1/etl_agent_memories?agent_name=eq.${encodeURIComponent(name)}&status=eq.canon&select=kind,title,memory&order=weight.desc&limit=6`,
+      { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }
+    );
+    if (!r.ok) return null;
+    const rows = await r.json();
+    if (!Array.isArray(rows) || !rows.length) return null;
+    return rows.map((m) => `- ${m.title ? m.title + ': ' : ''}${m.memory}`).join('\n');
+  } catch (err) {
+    console.error('[sherlock-chat] canon memory fetch failed (non-fatal):', err.message);
+    return null;
+  }
+}
+
 async function fetchVisitorMemory(agentKey, visitorId, serviceKey) {
   if (!visitorId || !serviceKey) return null;
   try {
@@ -692,10 +779,21 @@ exports.handler = async (event) => {
   const messages = buildMessages(message, body.history);
   const client = new Anthropic({ apiKey });
 
-  const visitorMemory = await fetchVisitorMemory(agentId, visitorId, serviceKey);
-  const system = visitorMemory
-    ? `${agent.system}\n\nWHAT YOU REMEMBER ABOUT THIS STUDENT\n${visitorMemory}\nLet this shape how familiar you are with them, naturally, without making a show of it. But only reference a specific topic, question, or exchange if it is actually named in the note above; never tell them they are returning to, repeating, or circling back to something unless the note explicitly says so. If what they just asked isn't covered above, treat it as new, even if it feels related.`
-    : agent.system;
+  // Two independent memory layers. Canon is who they are and is the same for
+  // every student; visitor memory is who YOU are to them. Witnesses get
+  // neither: a witness inside a fixed case has no life outside it.
+  const [canonMemory, visitorMemory] = await Promise.all([
+    agent.isWitness ? null : fetchCanonMemories(agentId, serviceKey),
+    fetchVisitorMemory(agentId, visitorId, serviceKey),
+  ]);
+
+  let system = agent.system;
+  if (canonMemory) {
+    system += `\n\nWHAT YOU CARRY\nThings that are true about your own life. Not talking points, and not something to recite. Let them surface the way anybody's history surfaces, when something in the conversation actually touches one.\n${canonMemory}`;
+  }
+  if (visitorMemory) {
+    system += `\n\nWHAT YOU REMEMBER ABOUT THIS STUDENT\n${visitorMemory}\nLet this shape how familiar you are with them, naturally, without making a show of it. But only reference a specific topic, question, or exchange if it is actually named in the note above; never tell them they are returning to, repeating, or circling back to something unless the note explicitly says so. If what they just asked isn't covered above, treat it as new, even if it feels related.`;
+  }
 
   let output;
   try {
@@ -729,6 +827,10 @@ exports.handler = async (event) => {
 
 module.exports.AGENTS = AGENTS;
 module.exports.BIOS = BIOS;
+// Exported so the memory-implant admin can list this cast without hardcoding
+// the eight names a second time.
+module.exports.CANON_NAMES = CANON_NAMES;
+module.exports.fetchCanonMemories = fetchCanonMemories;
 module.exports.TOOLS = TOOLS;
 module.exports.WITNESS_TOOLS = WITNESS_TOOLS;
 module.exports.toolsFor = toolsFor;

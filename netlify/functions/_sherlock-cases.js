@@ -26,11 +26,22 @@
    attributed to any real business or any real person.
 
    ─── A HARD RULE ABOUT THE OREGON DISTRICT ───────────────────────────────
-   On 4 August 2019 a mass shooting on East Fifth Street in the Oregon
-   District killed nine people. That block is a real place where real people
-   were murdered, it carries a memorial, and the neighborhood lives with it.
+   On 4 August 2019 a gunman opened fire on East Fifth Street in the Oregon
+   District. Nine people were killed. That block is a real place where real
+   people were murdered, it carries a memorial, and the neighborhood lives
+   with it.
 
-   So, for this classroom, permanently:
+   An earlier version of this rule said the event was never to be referenced
+   at all. That was wrong, and Dr. O corrected it. Silence is not respect. A
+   criminal justice classroom standing on that block that pretends nothing
+   happened there is being squeamish, and it teaches students that the hardest
+   thing in the room is the thing you walk around. So the rule now separates
+   two things that are not the same:
+
+   ACKNOWLEDGED, always. The cast know it happened, they live there, and they
+   answer honestly when asked. See SHOOTING_NOTE in sherlock-chat.js for how.
+
+   FICTIONALIZED, never. Specifically:
 
      1. The Oregon District is HOME BASE ONLY. Holmes's loft, Mrs. Hudson's
         building, the coffee shop underneath it. It is never a crime scene.
@@ -39,9 +50,10 @@
      3. No case in this classroom involves gun violence. The three that exist
         turn on a poisoning, a blow from behind, and an arson, and that is
         deliberate rather than incidental.
-     4. The 2019 shooting is never referenced, adapted, alluded to, or
-        fictionalized. Not as background, not as a cold case, not as
-        something a character was present for.
+     4. The 2019 shooting is never adapted into a case, a cold case, a
+        subplot, or a character's backstory. No character was present for it,
+        lost someone in it, or responded to it. Inventing a personal tie to a
+        real massacre is the one genuinely unforgivable move available here.
 
    If you are adding a fourth case, these four rules are not negotiable and
    are not a matter of taste. Read them before you write a word.
