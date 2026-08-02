@@ -8,9 +8,14 @@
    sherlock-chat.js's BIOS, not trusted from the client, so there is one
    authoritative copy and no drift between what is shown and what is spoken.
 
-   Voice IDs are not set yet. AGENTS[key].voiceId is null across the cast
-   until Dr. O sources them, and this endpoint returns a clean 409 with the
-   agent key until then rather than failing obscurely.
+   The bios are written first person, in spoken register, because this
+   recording is how the character introduces themselves and it carries them
+   for the whole course. A third person biography read aloud in a Midwestern
+   voice fights the voice instead of selling it: the page was describing the
+   person while the person was supposedly talking (2026-08-02).
+
+   All eight voices are configured. An agent with no voiceId still returns a
+   clean 409 naming the agent, rather than failing obscurely.
 
    POST { agent: <key> } -> audio/mpeg
 
@@ -23,7 +28,7 @@ const { getStore, connectLambda } = require('@netlify/blobs');
 const AUDIO_STORE = 'sherlock_bio_audio';
 // Bump whenever a bio's TEXT or an agent's voiceId changes, or the store will
 // keep serving a recording of the words that used to be there.
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v2'; // bumped when the bios were rewritten in first person
 
 const MODEL_ID = 'eleven_multilingual_v2';
 const VOICE_SETTINGS = { stability: 0.45, similarity_boost: 0.85, style: 0.2, use_speaker_boost: true };
