@@ -359,7 +359,10 @@ async function renderOverlay(svg, canvasKey) {
    (2026-08-02). */
 async function stampLogo(pngBuffer, logoBuffer, canvasKey) {
   const c = CANVASES[canvasKey] || CANVASES.instagram;
-  const margin = Math.round(Math.min(c.w, c.h) * 0.035);
+  /* A larger inset than the footer's own padding, because the mark lands on
+     top of whatever is already there and the composer cannot see it. Paired
+     with rule 10b, which reserves this corner (2026-08-02). */
+  const margin = Math.round(Math.min(c.w, c.h) * 0.045);
   const maxW = Math.round(c.w * 0.16);
   const maxH = Math.round(c.h * 0.075);
 

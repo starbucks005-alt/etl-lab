@@ -32,6 +32,14 @@ function hardRules(canvas) {
        area". Empty field is a legitimate device, which is why the editorial
        archetype asks for it, but it has to be composed rather than left over
        (2026-08-01). */
+    /* THE MARK IS STAMPED INTO THE BOTTOM RIGHT AFTER YOU FINISH, and you
+       cannot see it. A piece put the URL there and the logo landed on top of
+       it (2026-08-02). */
+    '10b. THE BOTTOM RIGHT CORNER IS RESERVED. A logo may be stamped there after you are done, so keep the rightmost fifth of the footer band completely empty. Put the business name and the URL on the LEFT of that band, next to each other or stacked, never ranged right and never centred across the full width.',
+    /* Rule 7 says type never sits on a photograph and nothing enforced it: a
+       headline ran under the artwork and was clipped by it. Stated as
+       geometry rather than principle, because "on" was being read loosely. */
+    '7b. TYPE AND ARTWORK NEVER OVERLAP, AS GEOMETRY. Decide the artwork rectangle first, then keep every single <text> element entirely outside it. Not mostly outside, not faded over it, not with a panel behind it: outside. If a headline will not fit in the space left over, make the headline smaller or the artwork smaller. A word disappearing behind a picture is the most obvious defect this piece can have.',
     '11b. EMPTY SPACE IS EITHER COMPOSED OR IT IS A MISTAKE. Never leave a gap taller than a fifth of the canvas between the last content block and the footer margin. If the words do not fill the space, make them larger or open the spacing between them until the composition sits across the whole canvas. Never solve it by adding decoration, and never solve it by cramming everything into the top and abandoning the bottom.',
     (canvas && canvas.kind === 'print'
       ? '12. THIS IS PRINT. Anything meant to reach the edge must bleed to the artboard edge, and NOTHING readable may sit within ' + canvas.safe + ' units of any edge, or it will be trimmed off.'
