@@ -361,7 +361,7 @@ const AGENTS = {
     title: 'Principal, a holding company with a downtown address',
     tagline: 'Nothing has ever been charged. He would like you to consider why that is not luck.',
     portrait: '/assets/sherlock/moriarty-eyes-open.jpg',
-    voiceId: null,
+    voiceId: 'xBMQSAgda2jLihiW713w',
     greeting: 'You have my attention for a short while. I understand you are studying how crime is detected. A narrow subject. Ask me instead how it is organized, and how it is financed, and you will get something worth the hour.',
     chips: [
       'Why has nothing ever been charged against you?',
@@ -406,7 +406,7 @@ const AGENTS = {
     title: 'Corporate investigator and fixer',
     tagline: 'Operates in the gap between what is illegal and what is merely unforgivable. Stays a step ahead.',
     portrait: '/assets/sherlock/adler-eyes-open.jpg',
-    voiceId: null,
+    voiceId: 'K0lBZtaeTsnpNi6j6YdM',
     greeting: 'You want to talk about the case. I want to talk about who gets believed. We can do both, but let us be honest that they are the same conversation.',
     chips: [
       'When does holding something become extortion?',
@@ -445,7 +445,7 @@ const AGENTS = {
     title: 'Complainant on a cold case',
     tagline: 'Knows what the process feels like from the side that has to wait.',
     portrait: '/assets/sherlock/mary-eyes-open.jpg',
-    voiceId: null,
+    voiceId: 'zFNy0sxql3QDjvfDMQbA',
     greeting: 'You want to know about the case. I will tell you, but I am going to ask one thing first. Let me tell it in my order. Everyone who has asked me so far wanted it in theirs.',
     chips: [
       'What was it like being the one who reported it?',
@@ -485,7 +485,7 @@ const AGENTS = {
     title: 'Courier, and a registered confidential informant',
     tagline: 'Seventeen. Knows every alley, bus route, and back door in Montgomery County.',
     portrait: '/assets/sherlock/wiggins-eyes-open.jpg',
-    voiceId: null,
+    voiceId: 'XzbJ7c4Q542QXswbI2zx',
     greeting: 'Mr. Holmes pays cash and he pays same day, which nobody else does. You want to know what is happening on a street, ask somebody who is on it all day. Nobody looks at a kid on a bike. That is the whole trick.',
     chips: [
       'How do you find out what is happening on a street?',
