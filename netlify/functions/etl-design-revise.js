@@ -20,6 +20,8 @@
 
 const Anthropic = require('@anthropic-ai/sdk').default;
 const { getStore, connectLambda } = require('@netlify/blobs');
+const credits = require('./_design-credits.js');
+const geminiImage = require('./_gemini-image.js');
 const composeBrief = require('./_design-compose.js');
 
 let renderSvg = null, CANVASES = null, renderLoadError = null;
@@ -81,7 +83,14 @@ exports.handler = async (event) => {
     console.error('[etl-design-revise] store read failed', e && e.message);
     return json(500, { error: 'store_unavailable' });
   }
-  if ((job.revision || 0) >= MAX_REVISIONS) {
+  /* The owner is not a customer. The cap exists to bound what a stranger can
+     spend of ours, and Dr. O testing her own product hit it while the page
+     underneath still promised "as many rounds as you like". She is the one
+     person who needs to iterate without a ceiling (2026-08-02). */
+  let isOwner = false;
+  try { isOwner = (await credits.check(event, body)).kind === 'owner'; } catch (_) {}
+
+  if (!isOwner && (job.revision || 0) >= MAX_REVISIONS) {
     return json(409, { error: 'revision_limit', limit: MAX_REVISIONS,
       message: 'That is ' + MAX_REVISIONS + ' rounds, which is where we stop on a single piece. Start a new brief and we will take it from the top.' });
   }
@@ -122,6 +131,51 @@ exports.handler = async (event) => {
   if (dataHref) {
     artHref = dataHref[1];
     svgForModel = prevSvg.replace(dataHref[1], 'CONCEPT_IMAGE');
+  }
+
+  /* A REVISION CAN NOW ASK FOR A DIFFERENT PICTURE.
+     ─────────────────────────────────────────────────────────────────────
+     Until now every revision reused the stored artwork, so a note saying
+     "create a different image" was a request the system could not honour and
+     did not say it could not honour. Dr. O, on a fifth round: "you repeated
+     this one, and it is just as bad, create a different image that takes up
+     the space."
+
+     Detected by intent rather than by a menu, and deliberately narrow: this
+     is the one revision that costs real money, about five cents, so it must
+     not fire on "make the headline warmer". */
+  const WANTS_NEW_ART = /\b(different|new|another|other|fresh|change the|replace the|redo the|re-?draw)\b[^.]{0,30}\b(image|picture|photo|photograph|artwork|graphic|visual|shot)\b|\b(image|picture|photo|artwork|graphic)\b[^.]{0,20}\b(again|repeated|same one|duplicate)\b/i;
+  let artRegenerated = false, artRegenError = null;
+
+  if (artHref && WANTS_NEW_ART.test(note)) {
+    try {
+      const b = job.brief || {};
+      const prompt = [
+        'Editorial marketing artwork for ' + (b.business_name || b.businessName || 'this business') + '.',
+        'Subject: ' + String(b.promoting || '').slice(0, 600) + '.',
+        'Mood: ' + (yuki.look || '') + '.',
+        'Use this colour palette and nothing else: ' + paletteText + '.',
+        'THE CLIENT HAS REJECTED THE PREVIOUS IMAGE AND ASKED FOR THIS: ' + note,
+        'Make something GENUINELY DIFFERENT from a standard portrait or headshot. A different subject, a different distance, a different composition.',
+        'Absolutely NO text, NO words, NO letters, NO numbers, NO logos and NO watermarks anywhere in the image.',
+        'NO HANDWRITING and NO SCRIPT OF ANY KIND, including illegible or background writing.',
+        'NO SCREENS SHOWING A USER INTERFACE.',
+        'BANNED, these read as stock AI: circuit boards, glowing brains, neural networks, robots, androids, holograms, blue neon grids, binary, streaming data, wireframe faces.',
+        'Photographic or richly illustrated, confident composition, real light, not a flat icon and not clip art.',
+      ].join(' ');
+      const ASPECT = { instagram: '1:1', facebook: '1:1', linkedin: '4:5', x: '16:9' };
+      const b64 = await geminiImage.generate(prompt, ASPECT[canvasKey] || '1:1');
+      if (b64) {
+        artHref = 'data:image/png;base64,' + b64;
+        artRegenerated = true;
+        // Kept so the animator can use the new plate rather than the old one.
+        try { await store.set(jobId + '-plate.png', Buffer.from(b64, 'base64'), { metadata: { contentType: 'image/png' } }); } catch (_) {}
+      }
+    } catch (e) {
+      // Survivable: the layout revision still happens, with the old picture.
+      artRegenError = String((e && e.message) || e).slice(0, 240);
+      console.warn('[etl-design-revise] artwork regeneration failed', artRegenError);
+    }
   }
 
   const sys = composeBrief.reviseSystem({ canvas, paletteText, fonts: yuki.fonts, hasArt,
@@ -176,7 +230,10 @@ exports.handler = async (event) => {
     });
     await store.setJSON(jobId, job);
 
-    return json(200, { ok: true, revision: job.revision, image_state: 'ready' });
+    // Say whether the picture was redrawn, so a client who asked for a new
+    // one is not left guessing whether it happened.
+    return json(200, { ok: true, revision: job.revision, image_state: 'ready',
+      artwork: artRegenerated ? 'redrawn' : 'unchanged', artwork_error: artRegenError });
   } catch (e) {
     console.error('[etl-design-revise] render failed', e && e.message);
     return json(500, { error: 'render_failed' });

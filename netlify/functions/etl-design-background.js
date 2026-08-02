@@ -511,9 +511,19 @@ exports.handler = async (event) => {
        card (2026-07-31). */
     let artPhoto = null;
     if (uploadedConcept) {
-      const upBuf = designPlate.bufferFromDataUrl(conceptImage);
-      if (upBuf && await designPlate.looksLikePhotograph(upBuf)) {
-        artPhoto = { data_url: conceptImage, url: 'client upload', width: 0, height: 0 };
+      /* "USE THIS ONE." When the client ticks the box there is nothing left
+         to decide: their file IS the artwork and Chris draws nothing. The
+         heuristic below is a decent guess, and a guess is not what she asked
+         for. Dr. O, on a fifth attempt where Chris reused an image from an
+         earlier brief: "the graphic is bad, on 5th try and she's sent this
+         one twice, can I have a button to upload my own?" (2026-08-02). */
+      if (body.use_upload_as_art) {
+        artPhoto = { data_url: conceptImage, url: 'client upload (chosen)', width: 0, height: 0 };
+      } else {
+        const upBuf = designPlate.bufferFromDataUrl(conceptImage);
+        if (upBuf && await designPlate.looksLikePhotograph(upBuf)) {
+          artPhoto = { data_url: conceptImage, url: 'client upload', width: 0, height: 0 };
+        }
       }
     }
     if (!artPhoto) artPhoto = designPlate.chooseArtPhoto(brandRefs);
