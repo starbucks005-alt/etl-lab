@@ -83,7 +83,7 @@
 <div id="map-title"><span class="pulse"></span> ETL Agents — Live Campus <span class="pulse"></span></div>
 <div id="wrap">
   <canvas id="map-bg" width="1200" height="900"></canvas>
-  <img id="tech-map-overlay" src="/tech-map.png?v=20260720" alt="">
+  <img id="tech-map-overlay" src="/tech-map.png?v=20260803" alt="">
   <canvas id="map-fg" width="1200" height="900"></canvas>
   <button id="legend-btn" onclick="document.getElementById('legend-modal').classList.toggle('open')">◆ KEY</button>
   <div id="legend-modal">
@@ -154,8 +154,16 @@ const N = [
   [1082,492], // 13 Greylander Press
   [596,548],  // 14 ETL Building
   [926,506],  // 15 SE Junction
-  [132,718],  // 16 Boardroom
-  [278,718],  // 17 The Concourse
+  // SWAPPED 2026-08-03 with the new tech-map.png. The old art labelled the
+  // bottom-left row Boardroom / ETL Staffing / Founder Studio, left to right,
+  // and node 16 sat on the leftmost building. The new art relabels that row
+  // Concourse / Boardroom / Founder Studio, so the leftmost building is now
+  // the Concourse and these two coordinates had to trade places. Positions
+  // are unchanged, only which node claims which building. If the map art is
+  // ever replaced again, re-check this row before pushing: nothing errors when
+  // it is wrong, agents just stand in the wrong building on the broadcast.
+  [278,718],  // 16 Boardroom      (middle building)
+  [132,718],  // 17 The Concourse  (leftmost building)
   [390,688],  // 18 Founder Studio
   [455,768],  // 19 SW Junction
   [155,818],  // 20 ETL Deskworks Dayton  ← HUB
