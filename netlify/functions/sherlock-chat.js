@@ -697,7 +697,12 @@ async function fetchCanonMemories(agentKey, serviceKey) {
   if (!name || !serviceKey) return null;
   try {
     const r = await fetch(
-      `${SUPABASE_URL}/rest/v1/etl_agent_memories?agent_name=eq.${encodeURIComponent(name)}&status=eq.canon&select=kind,title,memory&order=weight.desc&limit=6`,
+      // Weight-ordered, so the strongest surface and the tail sits in reserve.
+      // Holmes carries sixteen rows and Wiggins four, which is honest to the
+      // source rather than padded; a fixed limit lets both be right. Eight is
+      // roughly 2k characters against a 7k prompt, which buys real depth
+      // without crowding out the case.
+      `${SUPABASE_URL}/rest/v1/etl_agent_memories?agent_name=eq.${encodeURIComponent(name)}&status=eq.canon&select=kind,title,memory&order=weight.desc&limit=8`,
       { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }
     );
     if (!r.ok) return null;
