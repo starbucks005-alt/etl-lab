@@ -30,6 +30,15 @@ const AUDIO_STORE = 'sherlock_bio_audio';
 // keep serving a recording of the words that used to be there.
 const CACHE_VERSION = 'v2'; // bumped when the bios were rewritten in first person
 
+/* Per-agent override, for when one bio's TEXT changes and the others do not.
+   The cache key carries the voice ID but not the words, so a rewritten bio
+   would otherwise keep serving a recording of the old text. Bumping
+   CACHE_VERSION fixes that by re-rendering all eight and billing for seven
+   that did not change; listing the one agent here retires only that agent's
+   audio. Watson: v3 on 2026-08-04, when he became a retired Air Force
+   physician rather than a combat medic working as a physician assistant. */
+const BIO_VERSION = { watson: 'v3' };
+
 const MODEL_ID = 'eleven_multilingual_v2';
 const VOICE_SETTINGS = { stability: 0.45, similarity_boost: 0.85, style: 0.2, use_speaker_boost: true };
 
@@ -75,7 +84,7 @@ exports.handler = async (event) => {
      what is spoken cannot drift. That was never the same thing as
      re-synthesising it, and conflating the two is what quietly billed the
      Kronborg classroom on every play from launch. */
-  const cacheKey = [CACHE_VERSION, agentId, voiceId].join('|');
+  const cacheKey = [BIO_VERSION[agentId] || CACHE_VERSION, agentId, voiceId].join('|');
   let store = null;
   try { store = getStore(AUDIO_STORE); } catch (_) { /* Blobs unavailable: synthesise anyway */ }
 
