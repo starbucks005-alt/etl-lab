@@ -37,7 +37,7 @@ const CACHE_VERSION = 'v2'; // bumped when the bios were rewritten in first pers
    that did not change; listing the one agent here retires only that agent's
    audio. Watson: v3 on 2026-08-04, when he became a retired Air Force
    physician rather than a combat medic working as a physician assistant. */
-const BIO_VERSION = { watson: 'v3' };
+const BIO_VERSION = { watson: 'v4' };
 
 const MODEL_ID = 'eleven_multilingual_v2';
 const VOICE_SETTINGS = { stability: 0.45, similarity_boost: 0.85, style: 0.2, use_speaker_boost: true };
