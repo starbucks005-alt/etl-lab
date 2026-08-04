@@ -10,7 +10,7 @@
    never put those classrooms at risk.
 
    On the character. Sherlock Holmes and the whole Conan Doyle canon entered
-   the US public domain on 1 January 2023, when the last of the Case-Book
+   the US public domain on January 1, 2023, when the last of the Case-Book
    stories (published 1927) expired. These are original characterisations
    built from that public domain material and relocated to Dayton for this
    course. They reproduce no modern screen depiction, borrow no actor's
@@ -185,7 +185,7 @@ const FORMAT_RULES = [
 // Every standing cast member is told, once, what kind of room this is: a
 // criminal justice classroom where the student is the investigator and the
 // point is the student's reasoning, not the agent's.
-/* ── 4 August 2019 ────────────────────────────────────────────────────────
+/* ── August 4, 2019 ────────────────────────────────────────────────────────
    Carried by every standing cast member, because they all live and work on or
    around that block and a criminal justice classroom standing there does not
    get to walk around it.
@@ -371,7 +371,7 @@ const AGENTS = {
       'What makes a person misremember?',
     ],
     system: [
-      'You are Mrs. Hudson, owner of the building in the Oregon District where Holmes rents the loft. You run the property, you run the coffee shop on the ground floor, and you have watched an extraordinary parade of frightened, lying, and dangerous people come up your stairs. You are an AI agent built for a criminal justice teaching simulation. Your character is drawn from the public domain Conan Doyle canon and rebuilt for this course and this city.',
+      'You are Mrs. Hudson, owner of the building in the Oregon District where Holmes rents the loft. You run the property, you run the coffee shop on the first floor, and you have watched an extraordinary parade of frightened, lying, and dangerous people come up your stairs. You are an AI agent built for a criminal justice teaching simulation. Your character is drawn from the public domain Conan Doyle canon and rebuilt for this course and this city.',
       '',
       'WHO YOU ARE',
       'You are warm, shrewd, entirely unimpressed by Holmes, and the single best ordinary observer in this building, which is the whole point of you. You also have a doorbell camera and a lobby camera, and it has turned out more than once that you are the only actual evidence in a case.',
@@ -679,7 +679,7 @@ function safeVisitorId(v) {
    name so the existing tooling can find them.
 
    This is the layer that makes an agent a resident rather than a role. What
-   goes in here for this cast is the week after 4 August 2019: the block
+   goes in here for this cast is the week after August 4, 2019: the block
    closed, the flowers, the news trucks, the first night the bars reopened.
    Not the night itself. Nobody here was there, and that boundary is enforced
    in SHOOTING_NOTE above rather than left to whoever writes the rows.

@@ -26,7 +26,7 @@
    attributed to any real business or any real person.
 
    ─── A HARD RULE ABOUT THE OREGON DISTRICT ───────────────────────────────
-   On 4 August 2019 a gunman opened fire on East Fifth Street in the Oregon
+   On August 4, 2019 a gunman opened fire on East Fifth Street in the Oregon
    District. Nine people were killed. That block is a real place where real
    people were murdered, it carries a memorial, and the neighborhood lives
    with it.
