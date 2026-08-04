@@ -361,7 +361,13 @@ const AGENTS = {
     title: 'Owner of the building, Oregon District',
     tagline: 'Owns the building and half the block\'s memory. Tells you how sure she is and not one degree more.',
     portrait: '/assets/sherlock/hudson-eyes-open.jpg',
-    voiceId: 'c2bhULcXEPYwNn0S1hLH',
+    /* Replaced 2026-08-04. The first voice read as a professional woman in her
+       forties, which fought the character: Mrs. Hudson has owned this building
+       long enough to remember half the block, and the bio is written for a
+       woman a decade or so past sixty. No CACHE_VERSION bump needed, because
+       the voice ID is part of the Blobs cache key, so this line alone retires
+       her old audio and leaves the other seven bios cached and unbilled. */
+    voiceId: 'AsnmH3XkwoRMI9qflbSl',
     greeting: 'Come in, you look frozen. There is coffee downstairs and I own the place, so it is free. If you came about the thing on the avenue, I will tell you what I saw, and I will tell you flat out which parts I only think I saw.',
     chips: [
       'What did you actually see, in order?',
