@@ -205,6 +205,10 @@ a:hover { color: var(--green); }
 .review-note { font-size: .84rem; color: var(--mute); margin: 0; line-height: 1.68; }
 @media (max-width: 620px) { .review-item { grid-template-columns: 1fr; gap: .3rem; } }
 
+.reward { margin: 1.6rem 0 0.4rem; }
+.reward-kicker { font-family: 'IBM Plex Mono', monospace; font-size: .56rem; letter-spacing: .18em; text-transform: uppercase; color: var(--blue); margin-bottom: .5rem; }
+.reward-frame { position: relative; padding-top: 75%; background: #000; border: 1px solid var(--line); }
+.reward-frame iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
 .quote-block { border-left: 3px solid var(--blue); background: var(--bg2); padding: 1.2rem 1.5rem; margin-bottom: 1.2rem; }
 .quote-who { font-family: 'IBM Plex Mono', monospace; font-size: .58rem; letter-spacing: .16em; text-transform: uppercase; color: var(--blue-br); margin: 0 0 .5rem; }
 .quote-text { font-family: 'Spectral', serif; font-size: 1.02rem; color: var(--text); line-height: 1.75; margin: 0; font-style: italic; }
@@ -263,6 +267,11 @@ a:hover { color: var(--green); }
 
   var params = new URLSearchParams(window.location.search);
   var CASE_ID = params.get('case') || 'webster';
+
+  /* Reward videos, one per case, played on the review screen when the student
+     named the right person. Keyed by case id so cases 02 and 03 only need a
+     line each when their videos exist. */
+  var REWARD_VIDEO = { webster: '1216510694' };
   var root = document.getElementById('caseRoot');
   var CASE = null;
   var PEOPLE = {};        // key -> { name, title, tagline, greeting, chips, portrait }
@@ -710,6 +719,26 @@ a:hover { color: var(--green); }
       '<div class="score-sub">What you saw of what a present-day court, lab, and defense would do to this evidence.</div></div>'
     ));
     host.appendChild(scores);
+
+    /* The reward. A student who named the right person gets the book they just
+       lived through, as an object, standing on the street the case happened on.
+       Gated on naming correctly rather than on the scores, because "You solved
+       the case" has to be true when it says so; a student who reached the wrong
+       person still gets the full review below, just not the celebration.
+       Muted and not autoplaying: it sits under a poster until they choose it,
+       which also keeps it from talking over a classroom. */
+    var reward = REWARD_VIDEO[CASE_ID];
+    if (reward && v.named_correctly) {
+      var rw = el('<div class="reward"></div>');
+      rw.appendChild(el('<p class="reward-kicker">Case closed</p>'));
+      rw.appendChild(el(
+        '<div class="reward-frame"><iframe src="https://player.vimeo.com/video/' + reward +
+        '?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479&amp;muted=1" ' +
+        'frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" ' +
+        'referrerpolicy="strict-origin-when-cross-origin" title="You solved the case" loading="lazy"></iframe></div>'
+      ));
+      host.appendChild(rw);
+    }
 
     host.appendChild(el('<div class="quote-block"><p class="quote-who">Holmes, on your reasoning</p><p class="quote-text">' + esc(v.holmes_note) + '</p></div>'));
     host.appendChild(el('<div class="quote-block"><p class="quote-who">Lestrade, on whether it survives a courtroom</p><p class="quote-text">' + esc(v.lestrade_note) + '</p></div>'));
