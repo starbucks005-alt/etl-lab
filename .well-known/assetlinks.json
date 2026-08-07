@@ -1,0 +1,11 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.emergingtechlab.almosthuman",
+      "sha256_cert_fingerprints":
+        ["35:DB:8F:CC:99:35:10:15:65:21:3A:29:27:19:CB:27:D1:AB:A0:84:DF:10:9E:55:31:CB:3F:0A:B1:11:0D:8B"]
+    }
+  }
+]
