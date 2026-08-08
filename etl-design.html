@@ -14,7 +14,7 @@
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6;}
   a{color:var(--ice);}
-  .wrap{max-width:980px;margin:0 auto;padding:0 1.2rem 3rem;}
+  .wrap{max-width:980px;margin:0 auto;padding:0 1.2rem 1.2rem;}
   .ribbon{background:#08080a;border-bottom:1px solid var(--line);text-align:center;font-family:'IBM Plex Mono',monospace;letter-spacing:.18em;text-transform:uppercase;font-size:.66rem;color:var(--mute);padding:.5rem;}
   .ribbon b{color:var(--sig);}
   .backlink{font-family:'IBM Plex Mono',monospace;font-size:.74rem;color:var(--mute);text-decoration:none;display:inline-block;margin:.8rem 0 .1rem;}
@@ -29,19 +29,22 @@
      to reserve space, and without this the attribute height wins: a 16:9
      photo rendered at container width by a literal 900px tall. Dr. O, on the
      team shot: "looks stretched and too big" (2026-07-31). */
-  .team-shot{border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-top:1.4rem;line-height:0;}
+  .team-shot{border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-top:.7rem;line-height:0;}
   .team-shot img{width:100%;height:auto;display:block;}
   /* 16:9 by padding rather than a fixed height, so it scales with the column
      instead of letterboxing. */
   .team-video{position:relative;padding-top:56.25%;height:0;}
   .team-video iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0;display:block;}
-  .studio{position:relative;border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-top:1.4rem;}
+  .studio{position:relative;border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-top:.7rem;}
   .studio img{width:100%;height:auto;display:block;}
   .studio .cap{position:absolute;left:0;right:0;bottom:0;padding:1.2rem 1.4rem;
     background:linear-gradient(0deg,rgba(8,8,10,.94),rgba(8,8,10,0));font-size:.9rem;color:var(--cream);}
 
   /* The crew */
   .crew{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:1.1rem 0 0;}
+/* Plain, and the same weight as the lede. A box or a warning colour would read as a legal
+   disclaimer; this is a fact about who does the work, not a caveat about it. */
+.crew-note{margin:.85rem 0 0;font-size:.95rem;color:var(--mute);max-width:60ch;}
   .who{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;transition:border-color .3s,transform .3s;}
   .who img{width:100%;aspect-ratio:1;object-fit:cover;display:block;filter:grayscale(1) contrast(1.05);transition:filter .4s;}
   .who .n{font-weight:600;font-size:.9rem;color:var(--cream);padding:.6rem .7rem 0;}
@@ -53,7 +56,7 @@
   .who .tick{float:right;color:#5fbf75;font-size:.8rem;padding:.6rem .7rem 0 0;}
 
   /* Form */
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:1.2rem 1.2rem;margin-top:1.1rem;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:1.2rem 1.2rem;margin-top:.7rem;}
   label{display:block;font-family:'IBM Plex Mono',monospace;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin:1.1rem 0 .4rem;}
   label:first-of-type{margin-top:0;}
   input,textarea,select{width:100%;background:#101013;border:1px solid var(--line);color:var(--text);border-radius:9px;padding:.7rem .8rem;font-family:'Inter',sans-serif;font-size:.95rem;}
@@ -128,6 +131,20 @@
       <div class="who" data-step="3"><img src="/agents/Zara_eyes_open.jpg" alt="Zara Cole" loading="lazy"><div class="n">Zara Cole <span class="tick hide">&#10003;</span></div><div class="r">Writes the caption</div></div>
       <div class="who" data-step="4"><img src="/agents/Chris_DIGArtist_Eyes3_Open.png" alt="Chris Avila" loading="lazy"><div class="n">Chris Avila <span class="tick hide">&#10003;</span></div><div class="r">Builds the graphic</div></div>
     </div>
+
+    <!-- SAY WHAT THEY ARE. Dr. O asked where the page discloses this and the answer was nowhere:
+         four photorealistic portraits, four real-sounding names, four job titles, and "four people,
+         one piece" above them. A buyer had no way to know. The word "agents" appeared only in the
+         image file paths, which nobody sees.
+
+         Stated plainly and without apology, immediately under the faces where it cannot be missed.
+         Not a disclaimer at the foot of the page: somebody deciding whether to buy should know
+         before they read the brief, not after. -->
+    <p class="crew-note">
+      These four are AI agents, not people. They work the way a studio team works, each one taking
+      the piece further before handing it on, and what comes back is built for your brief rather
+      than pulled off a shelf.
+    </p>
   </div>
 
   <!-- ── THE BRIEF ──────────────────────────────────────────────────── -->
