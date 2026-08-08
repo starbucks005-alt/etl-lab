@@ -537,10 +537,14 @@ exports.handler = async (event) => {
   try {
     const cached = await store.get('messages', { type: 'json' });
     if (Array.isArray(cached)) msgs = cached;
-  } catch (_) {}
+    console.log('[etl-banter-cron] DIAG store.get ok, msgs.length=' + msgs.length + ' tokenPresent=' + Boolean(process.env.NETLIFY_BLOBS_TOKEN));
+  } catch (getErr) {
+    console.error('[etl-banter-cron] DIAG store.get FAILED:', getErr && getErr.name, getErr && getErr.message);
+  }
 
   // Only generate a new scene when the future queue is running low
   var futureCount = msgs.filter(function(m) { return (m.ts || 0) > now; }).length;
+  console.log('[etl-banter-cron] DIAG futureCount=' + futureCount + ' manual=' + manual + ' now=' + now);
   if (futureCount >= 20 && !manual) {
     return { statusCode: 200, body: 'queue ok (' + futureCount + ' future)' };
   }
@@ -683,6 +687,7 @@ exports.handler = async (event) => {
 
   try {
     await store.set('messages', JSON.stringify(msgs));
+    console.log('[etl-banter-cron] DIAG store.set OK, wrote ' + msgs.length + ' total');
   } catch (err) {
     console.error('[etl-banter-cron] blob write failed:', err && err.message);
     return { statusCode: 500, body: 'blob write failed' };
