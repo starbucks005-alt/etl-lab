@@ -462,6 +462,7 @@ function pickSpacing(h) {
 }
 
 exports.handler = async (event) => {
+  console.log('[etl-banter-cron] DIAG handler start, httpMethod=' + event.httpMethod);
   const manual = event.httpMethod === 'GET';
   if (event.httpMethod && event.httpMethod !== 'GET') return { statusCode: 405, body: 'method not allowed' };
 
@@ -485,9 +486,16 @@ exports.handler = async (event) => {
   // which has an unresolved platform bug where it silently fails to wire up
   // for scheduled/cron invocations (writes fail, no error). See NETLIFY_BLOBS_TOKEN
   // in env vars; falls back to auto-injection if that var isn't set (local dev).
-  const store = process.env.NETLIFY_BLOBS_TOKEN
-    ? getStore('etl_banter', { siteID: '56ff3439-93b5-4ec7-ace5-1caba6e8abcd', token: process.env.NETLIFY_BLOBS_TOKEN })
-    : getStore('etl_banter');
+  let store;
+  try {
+    store = process.env.NETLIFY_BLOBS_TOKEN
+      ? getStore('etl_banter', { siteID: '56ff3439-93b5-4ec7-ace5-1caba6e8abcd', token: process.env.NETLIFY_BLOBS_TOKEN })
+      : getStore('etl_banter');
+    console.log('[etl-banter-cron] DIAG getStore ok, tokenPresent=' + Boolean(process.env.NETLIFY_BLOBS_TOKEN));
+  } catch (storeErr) {
+    console.error('[etl-banter-cron] DIAG getStore THREW:', storeErr && storeErr.name, storeErr && storeErr.message);
+    return { statusCode: 500, body: 'getStore threw: ' + (storeErr && storeErr.message) };
+  }
 
   const now = Date.now();
 
