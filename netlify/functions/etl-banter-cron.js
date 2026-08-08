@@ -464,7 +464,14 @@ function pickSpacing(h) {
 exports.handler = async (event) => {
   console.log('[etl-banter-cron] DIAG handler start, httpMethod=' + event.httpMethod);
   const manual = event.httpMethod === 'GET';
-  if (event.httpMethod && event.httpMethod !== 'GET') return { statusCode: 405, body: 'method not allowed' };
+  // NOTE: do NOT reject non-GET here. Netlify scheduled/cron invocations
+  // arrive with httpMethod === 'POST' (confirmed via DIAG logging 2026-08-08),
+  // not empty/undefined as previously assumed. A method guard here was
+  // silently 405-ing every single cron fire before it ever reached getStore(),
+  // which is why the feed was frozen from 2026-07-29 despite the earlier
+  // connectLambda fix. If you need to block arbitrary external POSTs, do it
+  // some other way (e.g. checking for a Netlify-only header) -- do not gate
+  // on httpMethod !== 'GET'.
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) { console.error('[etl-banter-cron] ANTHROPIC_API_KEY not set'); return { statusCode: 500, body: 'no key' }; }
