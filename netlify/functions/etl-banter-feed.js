@@ -140,7 +140,7 @@ exports.handler = async (event) => {
   // for scheduled/cron invocations (writes fail, no error). See NETLIFY_BLOBS_TOKEN
   // in env vars; falls back to auto-injection if that var isn't set (local dev).
   const store = process.env.NETLIFY_BLOBS_TOKEN
-    ? getStore({ name: 'etl_banter', siteID: '56ff3439-93b5-4ec7-ace5-1caba6e8abcd', token: process.env.NETLIFY_BLOBS_TOKEN })
+    ? getStore('etl_banter', { siteID: '56ff3439-93b5-4ec7-ace5-1caba6e8abcd', token: process.env.NETLIFY_BLOBS_TOKEN })
     : getStore('etl_banter');
 
   try {
