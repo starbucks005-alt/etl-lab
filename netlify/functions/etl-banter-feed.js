@@ -135,7 +135,13 @@ exports.handler = async (event) => {
   if (event.httpMethod !== 'GET') return json(405, { error: 'method not allowed' });
 
   try { connectLambda(event); } catch (_) {}
-  const store = getStore('etl_banter');
+  // Explicit siteID + token bypass Netlify's auto-injected Blobs context,
+  // which has an unresolved platform bug where it silently fails to wire up
+  // for scheduled/cron invocations (writes fail, no error). See NETLIFY_BLOBS_TOKEN
+  // in env vars; falls back to auto-injection if that var isn't set (local dev).
+  const store = process.env.NETLIFY_BLOBS_TOKEN
+    ? getStore({ name: 'etl_banter', siteID: '56ff3439-93b5-4ec7-ace5-1caba6e8abcd', token: process.env.NETLIFY_BLOBS_TOKEN })
+    : getStore('etl_banter');
 
   try {
     const msgs = await store.get('messages', { type: 'json' });
