@@ -137,7 +137,7 @@ body{
    judge whether this is any good. What changes from Kronborg is everything to
    do with size and weight: light instead of dark, enormous instead of dense. */
 .stage{
-  flex:1;min-height:0;width:100%;max-width:1100px;margin:0 auto;
+  flex:1;min-height:0;width:100%;max-width:1500px;margin:0 auto;
   padding:6px 14px 14px;display:grid;gap:12px;
   /* Phone: one column. The game is moved ahead of the story, because the game
      is the thing a child's thumb has to reach and the story is something she
@@ -159,7 +159,7 @@ body{
     grid-template-columns:58fr 42fr;
     /* Top row takes the slack; the bottom row sizes to its contents, because
        how much room the game needs depends entirely on which game it is. */
-    grid-template-rows:minmax(180px,1fr) minmax(0,auto);
+    grid-template-rows:minmax(200px,auto) minmax(0,1fr);
     grid-template-areas:
       'princess speech'
       'story    game';
@@ -197,8 +197,19 @@ body{
 .face video{width:100%;height:100%;object-fit:cover;display:block}
 /* Vimeo panel. The embed is 16:9 and the artwork is 7:8, so the frame changes
    shape rather than letterboxing a portrait panel around a landscape video. */
-.face.has-embed{flex:0 0 auto;aspect-ratio:16/9;background:#000;align-self:stretch}
-.face.has-embed iframe{width:100%;height:100%;border:0;display:block}
+.face.has-embed{
+  flex:0 0 auto;align-self:stretch;position:relative;overflow:hidden;
+  background:#000;
+  --embed-crop:.64;                 /* content width within the 16:9 canvas */
+  aspect-ratio:calc(16 * var(--embed-crop) / 9);
+}
+.face.has-embed iframe{
+  position:absolute;top:0;left:50%;height:100%;
+  width:calc(100% / var(--embed-crop));
+  transform:translateX(-50%);
+  border:0;display:block;
+}
+
 .w-princess:has(.has-embed){justify-content:flex-start}
 /* The still, used ONLY when this princess has no clip yet, and mounted only
    after the video element has been removed. See fallToStill(). */
@@ -207,6 +218,9 @@ body{
 
 /* 2. The speech window. Scrolls, oldest at the top, same as Kronborg's log. */
 .w-speech{display:flex;flex-direction:column;min-height:130px}
+/* With a cropped embed the princess panel sizes to the video, so the speech
+   column should not stretch to match a tall portrait that is no longer there. */
+.stage.has-embed .w-princess{align-self:start}
 
 /* The simplified emotion scale. One face, one word. A four-year-old cannot
    read Kronborg's seven labelled bars and would not look at them if she

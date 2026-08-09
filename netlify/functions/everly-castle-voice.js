@@ -37,7 +37,16 @@ const { getStore, connectLambda } = require('@netlify/blobs');
 const crypto = require('crypto');
 
 const AUDIO_STORE = 'everly_castle_audio';
-const CACHE_VERSION = 'v1';
+/* v2: all ten stories were rewritten into first person and every princess
+   gained a language, so every cached 'story' recording was of words that no
+   longer exist. The header above warns about exactly this and it still got
+   missed once. If you change a SCRIPT line, bump this in the same commit. */
+const CACHE_VERSION = 'v2';
+// Fingerprint of SCRIPT at the time CACHE_VERSION was last set. The
+// consistency check compares this against the live SCRIPT and fails if the
+// words moved without the version moving, which is how stale audio survived
+// a text rewrite once already.
+const SCRIPT_HASH = '98678c2cc946';
 
 const MODEL_ID = 'eleven_multilingual_v2';
 /* Warmer and more expressive than the Kronborg settings. These are storybook

@@ -152,7 +152,7 @@ header{text-align:center;padding:16px 18px 4px}
   background:var(--card);color:var(--ink);cursor:pointer;font-family:inherit
 }
 .whoami:active{transform:scale(.97)}
-.whoami-crest{color:var(--blue);line-height:0}
+.whoami-crest{color:var(--blue);line-height:0;display:flex}
 .whoami-name{font-size:14.5px;font-weight:700}
 .whoami-dot{width:16px;height:16px;border-radius:50%;border:1px solid rgba(0,0,0,.15)}
 .whoami-more{font-size:11px;letter-spacing:.08em;text-transform:uppercase;opacity:.45}
@@ -355,7 +355,7 @@ dialog button{
 }
 .pick.on{opacity:1;box-shadow:0 0 0 3px var(--gold),var(--shadow)}
 .pick:active{transform:scale(.94)}
-.pick-crest{font-size:32px;line-height:1}
+.pick-crest{line-height:0;color:var(--blue)}
 .pick-name{font-size:11.5px;font-weight:700;opacity:.65}
 .theme-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 .swatch{
@@ -1110,7 +1110,7 @@ function drawWhoAmI(){
   crestHost.innerHTML = "";
   crestHost.appendChild(crestSvg((p && p.crest) || CRESTS[0], 22));
   const t = visitorTitle();
-  document.getElementById("whoamiName").textContent = p && p.name ? t + " " + p.name : t;
+  document.getElementById("whoamiName").textContent = p && p.name ? t + " " + p.name : "Tap to set up";
   const th = THEMES.filter(function(x){ return x.id === ((p && p.theme) || ""); })[0] || THEMES[0];
   document.getElementById("whoamiDot").style.background = th.swatch;
   // Only offer switching children when there is more than one.
@@ -1131,6 +1131,8 @@ function drawPicker(){
   const host = document.getElementById('pickerRow');
 
   wrap.hidden = false;
+  host.hidden = list.length < 2;
+  document.getElementById('switchCap').hidden = list.length < 2;
   host.innerHTML = '';
   list.forEach((p) => {
     const b = document.createElement('button');
@@ -1176,10 +1178,7 @@ function ensureProfile(){
   save(state);
 }
 
-function redraw(){ ensureProfile(); migrateCrests(); const ap=activeProfile(); applyTheme((ap&&ap.theme)||''); drawThemes(); drawCrests(); drawTitles(); drawPicker(); drawWhoAmI(); drawDoors(); drawCharms(); drawGreeting();
-  // A brand new profile opens expanded, because then this really is setup.
-  const ap2 = activeProfile();
-  if (ap2 && !ap2.name) { document.getElementById("setup").hidden = false; document.getElementById("whoamiMore").textContent = "done"; } }
+function redraw(){ ensureProfile(); migrateCrests(); const ap=activeProfile(); applyTheme((ap&&ap.theme)||''); drawThemes(); drawCrests(); drawTitles(); drawPicker(); drawWhoAmI(); drawDoors(); drawCharms(); drawGreeting(); }
 redraw();
 
 // Coming back from a wing should show a charm that was just earned without a
