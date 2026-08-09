@@ -514,6 +514,17 @@ A name not on that list shows nothing, which is the broken promise all over agai
 
 For anything that CHANGES, send steps rather than one picture: planting a seed, water freezing, the moon filling up, a bone coming out of the ground. She taps to move it along, which turns watching into doing. "Shall we plant a carrot?" should put a seed on screen that becomes a carrot in her own hands, not a picture of a carrot that was always there. Use it freely, whenever a thing would be better looked at than described. What appears is a single large picture, so choose one thing, not a scene.
 
+WHEN SHE SAYS YES, DO THE THING. IN THAT TURN.
+This is the single most important rule on this page, because breaking it is how you lose her without either of you noticing.
+
+If you asked "shall we look in the rock pool?" and she said yes, the next thing out of your mouth is the rock pool. Not "shall we reach in and see what is hiding?" Not "ooh, shall we?" Not a nicer version of the same question. She already said yes. Asking again is taking it away from her.
+
+So: a yes is answered with the thing itself, plus the show or find or count that puts it on her screen. Never with another question about whether to do it.
+
+The same goes for a subject. If you have talked about pebbles, you have talked about pebbles. Do not come back to them with a new question. Go somewhere else, or go deeper into the same place with something she can actually touch, but do not circle.
+
+A four-year-old will say yes to absolutely anything, cheerfully, forever. She cannot rescue a conversation that is going nowhere and she will not tell you it is. That is your job, every turn.
+
 YES AND NO ARE ALWAYS ON HER SCREEN
 Two buttons, permanently, whatever else is showing. So ask her things. "Shall we plant it?" and "do you want to hear about my snail?" can always be answered, and you never need to offer yes and no as choices yourself because they are already there. Spend your choices on the interesting options instead.
 
@@ -615,16 +626,50 @@ exports.handler = async (event) => {
 
   const client = new Anthropic({ apiKey });
 
+  /* How much ground a reply shares with something she said a moment ago.
+
+     Deliberately crude: the words that matter, compared as a set. An offer
+     loop does not repeat a sentence, it repeats a SUBJECT, so "shall we look
+     in the rock pool" and "shall we see what is under these pebbles" have to
+     read as close even though they share almost no phrasing. Short words are
+     dropped because "shall we" is in every question a princess asks. */
+  const SMALL = new Set(['the','a','an','and','or','but','so','we','you','i','it','is','are','do','does','shall','will','can','to','in','on','at','of','for','with','my','your','this','that','what','how','if','be','have','has','me','us','they','them','there','here','one','some','like','just','little','look','see']);
+  function ground(text) {
+    return new Set(String(text).toLowerCase().replace(/[^a-z ]/g, ' ').split(/\s+/)
+      .filter((w) => w.length > 3 && !SMALL.has(w)));
+  }
+  function samePlace(a, b) {
+    const A = ground(a), B = ground(b);
+    if (A.size < 3 || B.size < 3) return false;
+    let shared = 0;
+    A.forEach((w) => { if (B.has(w)) shared += 1; });
+    return shared / Math.min(A.size, B.size) >= 0.5;
+  }
+
+  const ask = (extra) => client.messages.create({
+    model: MODEL,
+    max_tokens: MAX_TOKENS,
+    system: systemPrompt(agent, body.student, body.remembers, body.title) + (extra || ''),
+    tools: [SPEAK_TOOL],
+    tool_choice: { type: 'tool', name: 'speak' },
+    messages,
+  });
+
   let resp;
   try {
-    resp = await client.messages.create({
-      model: MODEL,
-      max_tokens: MAX_TOKENS,
-      system: systemPrompt(agent, body.student, body.remembers, body.title),
-      tools: [SPEAK_TOOL],
-      tool_choice: { type: 'tool', name: 'speak' },
-      messages,
-    });
+    resp = await ask();
+
+    /* Has she landed on the same ground again? Compared against the last few
+       things she said rather than only the previous one, because a loop tends
+       to alternate between two subjects rather than repeat one. The second
+       call happens only on the turns that would otherwise have circled. */
+    const said = messages.filter((m) => m.role === 'assistant').slice(-3).map((m) => m.content);
+    const first = resp.content && resp.content.find((c) => c.type === 'tool_use');
+    const firstReply = first && first.input && first.input.reply;
+    if (firstReply && said.some((s) => samePlace(firstReply, s))) {
+      console.warn('[everly-castle-chat] circled, asking again: ' + String(firstReply).slice(0, 60));
+      resp = await ask('\n\nURGENT, THIS OVERRIDES EVERYTHING ELSE: you have just circled back to something you already said. She is four, and she will keep agreeing to it forever without ever telling you she is bored. Drop that subject completely. Go somewhere new in your wing, and put something on her screen this turn with show or find or count, so there is something for her to do rather than something to agree to.');
+    }
   } catch (err) {
     console.error('[everly-castle-chat] upstream failure', err && err.message);
     // A four-year-old cannot be shown an error. She gets a line from the
