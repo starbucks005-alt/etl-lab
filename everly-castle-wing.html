@@ -137,7 +137,7 @@ body{
    judge whether this is any good. What changes from Kronborg is everything to
    do with size and weight: light instead of dark, enormous instead of dense. */
 .stage{
-  flex:1;min-height:0;width:100%;max-width:1180px;margin:0 auto;
+  flex:0 0 auto;min-height:0;width:100%;max-width:1180px;margin:0 auto;
   padding:6px 14px 14px;display:grid;gap:12px;
   /* Phone: one column. The game is moved ahead of the story, because the game
      is the thing a child's thumb has to reach and the story is something she
@@ -159,7 +159,7 @@ body{
     grid-template-columns:58fr 42fr;
     /* Top row takes the slack; the bottom row sizes to its contents, because
        how much room the game needs depends entirely on which game it is. */
-    grid-template-rows:minmax(180px,auto) minmax(0,auto);
+    grid-template-rows:auto auto;
     grid-template-areas:
       'princess speech'
       'story    game';
@@ -211,7 +211,7 @@ body{
 .face.talking{transform:scale(1.012)}
 
 /* 2. The speech window. Scrolls, oldest at the top, same as Kronborg's log. */
-.w-speech{display:flex;flex-direction:column;min-height:130px}
+.w-speech{display:flex;flex-direction:column;min-height:min(52vh,420px)}
 /* With a cropped embed the princess panel sizes to the video, so the speech
    column should not stretch to match a tall portrait that is no longer there. */
 .stage.has-embed .w-princess{align-self:start}
