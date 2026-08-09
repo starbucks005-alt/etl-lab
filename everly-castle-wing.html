@@ -320,6 +320,22 @@ body{
 .show-dots i{width:8px;height:8px;border-radius:50%;background:var(--rule)}
 .show-dots i.on{background:var(--blue)}
 
+/* Seek and find. Things sitting under a surface, waiting to be turned over. */
+.find{display:flex;flex-direction:column;align-items:center;gap:12px;padding:4px 0 10px;width:100%}
+.find-label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;opacity:.45}
+.find-grid{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.found{
+  width:82px;height:82px;border:1px solid var(--rule);border-radius:20px;
+  background:var(--stone);box-shadow:var(--shadow);cursor:pointer;
+  display:grid;place-items:center;transition:transform .16s ease,background .3s ease
+}
+.found:active{transform:scale(.92)}
+/* Turned over. It stays on the screen, because taking it away would read as
+   having lost the thing she just found. */
+.found.on{background:var(--card);transform:scale(1.04)}
+.found svg{opacity:.22;transition:opacity .3s ease}
+.found.on svg{opacity:1}
+
 /* The shape-fit puzzle. A plate with a hole, and pieces under it. */
 .puzzle{display:flex;flex-direction:column;align-items:center;gap:14px;padding:4px 0 10px}
 .puzzle-plate{
@@ -365,6 +381,7 @@ body{
   font-weight:700;letter-spacing:.04em;transition:transform .12s ease
 }
 .yn:active{transform:scale(.94)}
+.yn:disabled{opacity:.4}
 .yn.yes{color:#3f7a4a}
 /* Not red. Red means wrong, and saying no to a princess is not being wrong. */
 .yn.no{color:#5a6a78}
@@ -438,6 +455,7 @@ body{
   <!-- 4. Game window -->
   <section class="window w-game">
     <div class="showcard" id="showcard" hidden></div>
+    <div class="find" id="find" hidden></div>
     <div class="puzzle" id="puzzle" hidden></div>
     <div class="counting" id="counting" hidden></div>
     <div class="count-total" id="countTotal"></div>
@@ -1010,6 +1028,53 @@ function setShow(spec){
   }
 }
 
+/* Lays out a seek and find.
+
+   Each thing is drawn faintly until she taps it, then it comes up bright and
+   the princess names it out loud. Nothing disappears and nothing is scored:
+   the only state a tile has is found or not yet. */
+function setFind(spec){
+  const host = document.getElementById('find');
+  host.innerHTML = '';
+  if (!spec || !Array.isArray(spec.things) || !spec.things.length) { host.hidden = true; return; }
+  host.hidden = false;
+
+  const things = spec.things.filter((t) => PICS[t]).slice(0, 6);
+  if (!things.length) { host.hidden = true; return; }
+
+  if (spec.label) {
+    const cap = document.createElement('div');
+    cap.className = 'find-label';
+    cap.textContent = spec.label;
+    host.appendChild(cap);
+  }
+
+  const grid = document.createElement('div');
+  grid.className = 'find-grid';
+  let left = things.length;
+
+  things.forEach((thing) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'found';
+    b.setAttribute('aria-label', thing);
+    b.appendChild(picSvg(thing, 52));
+    b.addEventListener('click', () => {
+      if (b.classList.contains('on')) return;
+      b.classList.add('on');
+      // She hears the name at the moment she is looking at the thing she chose.
+      speak('', 'found-' + thing);
+      left -= 1;
+      // Only when the last one is turned over, so the princess is not
+      // interrupting her every few seconds.
+      if (left === 0) setTimeout(() => turn('I found them all'), 1400);
+    });
+    grid.appendChild(b);
+  });
+
+  host.appendChild(grid);
+}
+
 /* Shapes for the puzzle, drawn rather than emoji so they read cleanly at
    size and match the badge set already in the castle. */
 const SHAPES = {
@@ -1225,7 +1290,7 @@ function logIt(said, flag){
 async function turn(message){
   if (busy) return;
   busy = true;
-  document.querySelectorAll('.answer').forEach((b) => { b.disabled = true; });
+  document.querySelectorAll('.answer, .yn').forEach((b) => { b.disabled = true; });
   addBubble('you', message);
   logIt(message);
 
@@ -1279,6 +1344,7 @@ async function turn(message){
   setCounting(data.count);
   setShow(data.show);
   setPuzzle(data.puzzle);
+  setFind(data.find);
   setAnswers(data.choices);
   speak(data.body);
 }

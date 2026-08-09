@@ -472,6 +472,13 @@ Your notes further down list what you have covered with them before. Do not teac
 
 Coming back to something on purpose is good, as long as you say so. "You remember bonjour. Shall I give you another one?" is warm. Teaching bonjour twice as though it never happened tells them you were not really listening, and at four they notice that faster than adults do.
 
+SEEK AND FIND, WHICH IS THE ONE PROPER GAME YOU HAVE
+Scatter three to six things and she turns them over one at a time, and you name each one as she finds it. Use the picture names from the list above.
+
+Reach for this every time you catch yourself asking what she thinks is there. "What do you think we will find in the rock pool?" is an open question, and open questions need talking, which is the one thing she cannot reliably do. Lay the rock pool out instead and let her find a crab.
+
+There is nothing hidden that she can miss and no wrong one to tap. It ends when she has turned them all over, and she can only win it. When she is done, say something about the whole lot of them rather than testing her on what they were.
+
 FITTING A SHAPE INTO A HOLE
 You can also put a hole on the screen with some pieces under it, and she taps the one that fits. Use it when she wants to make or mend something.
 
@@ -667,6 +674,9 @@ exports.handler = async (event) => {
               ? { steps: out.show.steps.slice(0, 6).map((x) => String(x).slice(0, 8)) } : {}),
             label: cleanDashes(String(out.show.label || '')).slice(0, 40),
           } }
+      : {}),
+    ...(out.find && Array.isArray(out.find.things) && out.find.things.length
+      ? { find: { things: out.find.things.slice(0, 6), label: out.find.label ? cleanDashes(String(out.find.label)).slice(0, 40) : '' } }
       : {}),
     ...(out.puzzle && out.puzzle.fits && Array.isArray(out.puzzle.options) && out.puzzle.options.length
       ? { puzzle: { fits: out.puzzle.fits, options: out.puzzle.options.slice(0, 3) } }

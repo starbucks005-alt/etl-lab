@@ -224,6 +224,52 @@ const LANG_OF = {
   "bex": "Portuguese"
 };
 
+const FOUND_NAMES = {
+  "seed": "a seed",
+  "sprout": "a little sprout",
+  "leafy": "a leafy plant",
+  "carrot": "a carrot",
+  "sunflower": "a sunflower",
+  "tree": "a tree",
+  "raindrop": "a raindrop",
+  "snowflake": "a snowflake",
+  "ice": "ice",
+  "wave": "a wave",
+  "cloud": "a cloud",
+  "sun": "the sun",
+  "moonFull": "a full moon",
+  "moonHalf": "a half moon",
+  "moonThin": "a thin little moon",
+  "star": "a star",
+  "snail": "a snail",
+  "bee": "a bee",
+  "butterfly": "a butterfly",
+  "fish": "a fish",
+  "bird": "a bird",
+  "rabbit": "a rabbit",
+  "apple": "an apple",
+  "carrotFood": "a carrot",
+  "bread": "bread",
+  "milk": "milk",
+  "book": "a book",
+  "house": "a house",
+  "mountain": "a mountain",
+  "shadow": "a shadow",
+  "gear": "a cog",
+  "bone": "a bone",
+  "rock": "a rock",
+  "drum": "a drum",
+  "starfish": "a starfish",
+  "shell": "a shell",
+  "shellOpen": "an open shell",
+  "crab": "a crab",
+  "jellyfish": "a jellyfish",
+  "seaweed": "seaweed",
+  "tidepool": "a rock pool",
+  "sea": "the sea",
+  "pearl": "a pearl"
+};
+
 const NUMBER_WORDS = ['zero', 'one', 'two', 'three', 'four', 'five',
                       'six', 'seven', 'eight', 'nine', 'ten'];
 
@@ -271,6 +317,12 @@ exports.handler = async (event) => {
 
   /* num-3 is "trois" in Posy's wing and "tatu" in Almasi's. Counting in the
      language is the promise the castle already makes out loud. */
+  /* found-crab -> "a crab", in this princess's voice. One clip per thing per
+     princess, bought once and then free forever, which is what makes a game
+     she can play forty times affordable. */
+  if (/^found-[A-Za-z]+$/.test(lineKey)) {
+    text = FOUND_NAMES[lineKey.slice(6)] || '';
+  }
   if (/^num-([1-9]|10)$/.test(lineKey)) {
     const set = NUMBERS[LANG_OF[agentId]] || NUMBERS.English;
     text = set[Number(lineKey.split('-')[1])] || '';
