@@ -320,6 +320,36 @@ body{
 .show-dots i{width:8px;height:8px;border-radius:50%;background:var(--rule)}
 .show-dots i.on{background:var(--blue)}
 
+/* Reveal. Something underneath, and a covering that comes away in pieces. */
+.reveal{display:flex;flex-direction:column;align-items:center;gap:12px;padding:4px 0 10px}
+.reveal-label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;opacity:.45}
+.reveal-stage{position:relative;width:150px;height:150px;display:grid;place-items:center}
+.reveal-stage svg{position:absolute}
+.reveal-cover{
+  position:absolute;inset:0;display:grid;
+  grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:3px
+}
+.reveal-cover span{
+  background:var(--stone);border-radius:7px;cursor:pointer;
+  transition:opacity .45s ease,transform .45s ease
+}
+.reveal-cover span.off{opacity:0;transform:scale(.55);pointer-events:none}
+
+/* Reveal. Something underneath, and a covering that comes away in pieces. */
+.reveal{display:flex;flex-direction:column;align-items:center;gap:12px;padding:4px 0 10px}
+.reveal-label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;opacity:.45}
+.reveal-stage{position:relative;width:150px;height:150px;display:grid;place-items:center}
+.reveal-stage svg{position:absolute}
+.reveal-cover{
+  position:absolute;inset:0;display:grid;
+  grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:3px
+}
+.reveal-cover span{
+  background:var(--stone);border-radius:7px;cursor:pointer;
+  transition:opacity .45s ease,transform .45s ease
+}
+.reveal-cover span.off{opacity:0;transform:scale(.55);pointer-events:none}
+
 /* Seek and find. Things sitting under a surface, waiting to be turned over. */
 .find{display:flex;flex-direction:column;align-items:center;gap:12px;padding:4px 0 10px;width:100%}
 .find-label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;opacity:.45}
@@ -480,6 +510,8 @@ body{
   <!-- 4. Game window -->
   <section class="window w-game">
     <div class="showcard" id="showcard" hidden></div>
+    <div class="reveal" id="reveal" hidden></div>
+    <div class="reveal" id="reveal" hidden></div>
     <div class="find" id="find" hidden></div>
     <div class="puzzle" id="puzzle" hidden></div>
     <div class="counting" id="counting" hidden></div>
@@ -1100,6 +1132,98 @@ function setShow(spec){
   }
 }
 
+/* Uncovers something.
+
+   Nine pieces over a picture, and each tap takes one away. There is nothing
+   to get right, nothing to choose and no order to follow, which is the point:
+   it is the only game in the castle that asks nothing of her at all. She just
+   brushes, and a thing appears that she did not know was there.
+
+   The princess is told when the last piece is gone, quietly, so she can name
+   what it turned out to be. */
+function setReveal(spec){
+  const host = document.getElementById('reveal');
+  host.innerHTML = '';
+  if (!spec || !spec.thing || !PICS[spec.thing]) { host.hidden = true; return; }
+  host.hidden = false;
+
+  if (spec.label) {
+    const cap = document.createElement('div');
+    cap.className = 'reveal-label';
+    cap.textContent = spec.label;
+    host.appendChild(cap);
+  }
+
+  const stage = document.createElement('div');
+  stage.className = 'reveal-stage';
+  stage.appendChild(picSvg(spec.thing, 132));
+
+  const cover = document.createElement('div');
+  cover.className = 'reveal-cover';
+  let left = 9;
+  for (let i = 0; i < 9; i++) {
+    const piece = document.createElement('span');
+    piece.addEventListener('click', () => {
+      if (piece.classList.contains('off')) return;
+      piece.classList.add('off');
+      left -= 1;
+      if (left === 0) {
+        speak('', 'found-' + spec.thing);
+        setTimeout(() => turn('I uncovered it', true), 1500);
+      }
+    });
+    cover.appendChild(piece);
+  }
+  stage.appendChild(cover);
+  host.appendChild(stage);
+}
+
+/* Uncovers something.
+
+   Nine pieces over a picture, and each tap takes one away. There is nothing
+   to get right, nothing to choose and no order to follow, which is the point:
+   it is the only game in the castle that asks nothing of her at all. She just
+   brushes, and a thing appears that she did not know was there.
+
+   The princess is told when the last piece is gone, quietly, so she can name
+   what it turned out to be. */
+function setReveal(spec){
+  const host = document.getElementById('reveal');
+  host.innerHTML = '';
+  if (!spec || !spec.thing || !PICS[spec.thing]) { host.hidden = true; return; }
+  host.hidden = false;
+
+  if (spec.label) {
+    const cap = document.createElement('div');
+    cap.className = 'reveal-label';
+    cap.textContent = spec.label;
+    host.appendChild(cap);
+  }
+
+  const stage = document.createElement('div');
+  stage.className = 'reveal-stage';
+  stage.appendChild(picSvg(spec.thing, 132));
+
+  const cover = document.createElement('div');
+  cover.className = 'reveal-cover';
+  let left = 9;
+  for (let i = 0; i < 9; i++) {
+    const piece = document.createElement('span');
+    piece.addEventListener('click', () => {
+      if (piece.classList.contains('off')) return;
+      piece.classList.add('off');
+      left -= 1;
+      if (left === 0) {
+        speak('', 'found-' + spec.thing);
+        setTimeout(() => turn('I uncovered it', true), 1500);
+      }
+    });
+    cover.appendChild(piece);
+  }
+  stage.appendChild(cover);
+  host.appendChild(stage);
+}
+
 /* Lays out a seek and find.
 
    Each thing is drawn faintly until she taps it, then it comes up bright and
@@ -1437,6 +1561,8 @@ async function turn(message, quiet){
   setShow(data.show);
   setPuzzle(data.puzzle);
   setFind(data.find);
+  setReveal(data.reveal);
+  setReveal(data.reveal);
   setAnswers(data.choices);
   yourGo();
   speak(data.body);

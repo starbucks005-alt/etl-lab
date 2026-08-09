@@ -110,6 +110,7 @@ function cleanDashes(s) {
    systemPrompt(), which is where the age actually reaches the model. */
 const AGENTS = {
   posy: {
+    signature: "YOURS IS GROWING. Lead with show and steps: seed, sprout, leafy, bud, halfOpen, sunflower. Things in your wing get bigger while she watches, and that is what she comes back for.",
     name: 'Posy',
     wing: 'the Wild Garden',
     place: 'France',
@@ -123,6 +124,7 @@ const AGENTS = {
     voiceId: '57FJZvcA7oUgsQqM9Eod',
   },
   nerida: {
+    signature: "YOURS IS FINDING. Lead with find. Your whole wing is reaching into a pool and pulling out something surprising, so scatter crabs, shells, starfish and seaweed and let her turn them over.",
     name: 'Nerida',
     wing: 'the Coral Court',
     place: 'Greece',
@@ -142,6 +144,7 @@ const AGENTS = {
     voiceId: 'B7BENmcfC3Vgsz8sWYLz',
   },
   zephyra: {
+    signature: "YOURS IS THE SKY FILLING UP. Lead with find for things the wind carries, and with show for a kite going up. Nothing in your tower sits still.",
     name: 'Zephyra',
     wing: 'the Windward Tower',
     place: 'Nepal',
@@ -155,6 +158,7 @@ const AGENTS = {
     voiceId: 'GkoDuN3miiq5W5FKquih',
   },
   neva: {
+    signature: "YOURS IS UNCOVERING. Lead with reveal. The window is frosted and she brushes it clear to see what is out there, which is the thing you have always described and could never show.",
     name: 'Neva',
     wing: 'the Frost Conservatory',
     place: 'Norway',
@@ -168,6 +172,7 @@ const AGENTS = {
     voiceId: 'Bd01P4xfLY7GmRvDvOgT',
   },
   lenora: {
+    signature: "YOURS IS THE SKY CHANGING. Lead with show and steps for the moon, moonThin then moonHalf then moonFull, and with the constellations. She taps and a month goes by.",
     name: 'Lenora',
     wing: 'the Star Balcony',
     place: 'Mongolia',
@@ -181,6 +186,7 @@ const AGENTS = {
     voiceId: 'DmeRZmR1p95klb3adnSr',
   },
   elowyn: {
+    signature: "YOURS IS CHOOSING. Lead with choices, and make them real forks in the story rather than two ways of saying yes. The story goes where she sends it.",
     name: 'Elowyn',
     wing: 'the Story Loft',
     place: 'New Zealand',
@@ -201,6 +207,7 @@ const AGENTS = {
      plate and carrots in a hand, so early number stays in the castle as the
      incidental thing it should be at four, rather than as its own lesson. */
   clementine: {
+    signature: "YOURS IS PICKING. Lead with find and put real food in it, then talk about what each one does for her. Never say a food is bad.",
     name: 'Clementine',
     wing: 'the Copper Kitchen',
     place: 'the United States',
@@ -240,6 +247,7 @@ g. When you offer the two foods to pick between, put them in the choices as two 
     voiceId: '0AAjBpT8oAQiR4ZcdSPZ',
   },
   piper: {
+    signature: "YOURS IS PATTERNS. Lead with count, and count in rhythm: two drums, then four, then a rest. Say the numbers like a beat and let her tap them out.",
     name: 'Piper',
     wing: 'the Music Hall',
     place: 'Germany',
@@ -253,6 +261,7 @@ g. When you offer the two foods to pick between, put them in the choices as two 
     voiceId: 'dlmDI1OF5pX2WTrRX0Gf',
   },
   almasi: {
+    signature: "YOURS IS BRUSHING. Lead with reveal. A bone under the soil is exactly what reveal is for, and nobody else in this castle digs.",
     name: 'Almasi',
     /* Was the Deep Caves until the artwork put her on a dig in the open,
        brushing a skull out of red earth. The art was right and the wing
@@ -271,6 +280,7 @@ g. When you offer the two foods to pick between, put them in the choices as two 
     voiceId: 'nkNHeQyzbbTlzCRUUetV',
   },
   bex: {
+    signature: "YOURS IS TAKING THINGS APART. Lead with puzzle and with reveal: open a thing up, find out what is inside, fit the piece back.",
     name: 'Bex',
     wing: 'the Workshop',
     place: 'Brazil',
@@ -626,7 +636,7 @@ THE RULES, AND THESE DO NOT BEND
 6. Never tell them they are wrong. A wrong answer is an interesting answer that you look at together until it is right.
 7. Never mention time limits, credits, subscriptions or anything about the app.
 8. Never mention pictures, screens, buttons or anything you cannot do. She heard "the fox does not have a picture" tonight and that is worse than no fox: it tells her the world she is in is a thing that is missing parts. If you cannot show something, say nothing about it and talk about something you CAN show.
-${agent.extraRules ? `
+${agent.signature ? agent.signature + "\n\n" : ""}${agent.extraRules ? `
 ${agent.extraRules}
 ` : ''}
 ${remembers ? `WHAT YOU REMEMBER ABOUT ${address.toUpperCase()}
@@ -743,7 +753,7 @@ exports.handler = async (event) => {
        most: an empty screen, then a promise not kept, then going in circles. */
     let reasked = false;
     const nothingToSee = first && first.input &&
-      !first.input.show && !first.input.find && !first.input.count && !first.input.puzzle;
+      !first.input.show && !first.input.find && !first.input.count && !first.input.puzzle && !first.input.reveal;
     if (!reasked && firstReply && nothingToSee) {
       reasked = true;
       console.warn('[everly-castle-chat] empty screen, asking again');
@@ -751,7 +761,7 @@ exports.handler = async (event) => {
     }
 
     const showed = first && first.input &&
-      (first.input.show || first.input.find || first.input.count || first.input.puzzle);
+      (first.input.show || first.input.find || first.input.count || first.input.puzzle || first.input.reveal);
     if (!reasked && firstReply && promised(firstReply) && !showed) {
       reasked = true;
       console.warn('[everly-castle-chat] promised nothing: ' + String(firstReply).slice(0, 60));
@@ -812,6 +822,9 @@ exports.handler = async (event) => {
               ? { steps: out.show.steps.slice(0, 6).map((x) => String(x).slice(0, 8)) } : {}),
             label: cleanDashes(String(out.show.label || '')).slice(0, 40),
           } }
+      : {}),
+    ...(out.reveal && drawable(out.reveal.thing) && PICTURES.has(String(out.reveal.thing))
+      ? { reveal: { thing: String(out.reveal.thing), label: out.reveal.label ? cleanDashes(String(out.reveal.label)).slice(0, 40) : '' } }
       : {}),
     ...(out.find && cleanSteps(out.find.things).length
       ? { find: { things: cleanSteps(out.find.things), label: out.find.label ? cleanDashes(String(out.find.label)).slice(0, 40) : '' } }
