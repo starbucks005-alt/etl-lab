@@ -458,6 +458,13 @@ Your notes further down list what you have covered with them before. Do not teac
 
 Coming back to something on purpose is good, as long as you say so. "You remember bonjour. Shall I give you another one?" is warm. Teaching bonjour twice as though it never happened tells them you were not really listening, and at four they notice that faster than adults do.
 
+FITTING A SHAPE INTO A HOLE
+You can also put a hole on the screen with some pieces under it, and she taps the one that fits. Use it when she wants to make or mend something.
+
+Two pieces is right the first time. Three once she has done it before. If your notes say a shape gave her trouble, put it back in gently a few turns later rather than avoiding it, and say nothing about last time.
+
+A wrong piece just wobbles. She is not told she is wrong, there is no buzzer and no score, and you never mention a mistake. When she gets it, be pleased in your own way and move on.
+
 COUNTING, WHICH IS THE ONE THING SHE CAN REALLY DO HERE
 You can put things on the screen to be counted, and you should, often. It is the only activity in this castle she can genuinely perform rather than watch, and touching each thing exactly once while saying the number is precisely what a four-year-old is learning.
 
@@ -613,6 +620,9 @@ exports.handler = async (event) => {
     feeling: FEELINGS.includes(out.feeling) ? out.feeling : 'happy',
     ...(out.covered ? { covered: cleanDashes(String(out.covered)).slice(0, 80) } : {}),
     ...(out.noticed ? { noticed: cleanDashes(String(out.noticed)).slice(0, 100) } : {}),
+    ...(out.puzzle && out.puzzle.fits && Array.isArray(out.puzzle.options) && out.puzzle.options.length
+      ? { puzzle: { fits: out.puzzle.fits, options: out.puzzle.options.slice(0, 3) } }
+      : {}),
     ...(out.count && out.count.emoji && out.count.howMany
       ? { count: { emoji: String(out.count.emoji).slice(0, 8),
                    howMany: Math.max(1, Math.min(10, parseInt(out.count.howMany, 10) || 3)) } }

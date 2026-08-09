@@ -299,6 +299,33 @@ body{
   color:var(--blue);min-height:36px
 }
 
+/* The shape-fit puzzle. A plate with a hole, and pieces under it. */
+.puzzle{display:flex;flex-direction:column;align-items:center;gap:14px;padding:4px 0 10px}
+.puzzle-plate{
+  width:132px;height:132px;border-radius:22px;background:var(--stone);
+  box-shadow:inset 0 0 0 3px var(--rule);display:grid;place-items:center;
+  color:var(--card);transition:transform .25s ease
+}
+.puzzle-plate.filled{transform:scale(1.06)}
+.puzzle-plate .hole{color:var(--card)}
+.puzzle-plate.filled .hole{color:var(--blue)}
+.puzzle-pieces{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.piece{
+  width:74px;height:74px;border:0;border-radius:18px;background:var(--card);
+  box-shadow:var(--shadow);cursor:pointer;display:grid;place-items:center;
+  color:var(--blue);transition:transform .14s ease,opacity .2s ease
+}
+.piece:active{transform:scale(.92)}
+.piece.gone{opacity:0;pointer-events:none;transform:scale(.4)}
+/* A wrong piece wobbles. That is the entire negative feedback in this game:
+   no buzz, no red, no counter, nothing a child could read as failing. */
+.piece.wobble{animation:wobble .4s ease}
+@keyframes wobble{
+  0%,100%{transform:translateX(0)}
+  25%{transform:translateX(-7px) rotate(-4deg)}
+  75%{transform:translateX(7px) rotate(4deg)}
+}
+
 /* 4. The game window: what is growing, and the things you can tap. How much
    room it needs depends on the game, so it sizes to its contents rather than
    being pinned to a share of the screen. */
@@ -374,6 +401,7 @@ body{
 
   <!-- 4. Game window -->
   <section class="window w-game">
+    <div class="puzzle" id="puzzle" hidden></div>
     <div class="counting" id="counting" hidden></div>
     <div class="count-total" id="countTotal"></div>
     <div class="thing" id="thing"></div>
@@ -779,6 +807,82 @@ function addBubble(who, text){
   log.scrollTop = log.scrollHeight;
 }
 
+/* Shapes for the puzzle, drawn rather than emoji so they read cleanly at
+   size and match the badge set already in the castle. */
+const SHAPES = {
+  circle:   'M32 6a26 26 0 1 0 0 52a26 26 0 1 0 0-52z',
+  square:   'M8 8h48v48H8z',
+  triangle: 'M32 6L60 56H4z',
+  star:     'M32 6l7.6 16.4L57 24.6 44 36.8l3.4 17.6L32 46 16.6 54.4 20 36.8 7 24.6l17.4-2.2z',
+  heart:    'M32 57S7 41 7 25a12.5 12.5 0 0125-6 12.5 12.5 0 0125 6c0 16-25 32-25 32z',
+  hexagon:  'M32 4l24 14v28L32 60 8 46V18z',
+};
+function shapeSvg(kind, size){
+  const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  s.setAttribute('viewBox', '0 0 64 64');
+  s.setAttribute('width', size); s.setAttribute('height', size);
+  s.setAttribute('aria-hidden', 'true'); s.style.display = 'block';
+  const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  p.setAttribute('d', SHAPES[kind] || SHAPES.circle);
+  p.setAttribute('fill', 'currentColor');
+  s.appendChild(p);
+  return s;
+}
+
+/* Builds the hole and the pieces.
+
+   Wrong taps are counted but never shown. The number goes to the princess at
+   the end so she can put that shape back in gently another day, which is the
+   memory implant doing something useful rather than decorative. The child
+   sees only a wobble. */
+function setPuzzle(spec){
+  const host = document.getElementById('puzzle');
+  host.innerHTML = '';
+  if (!spec || !spec.fits) { host.hidden = true; return; }
+  host.hidden = false;
+
+  const plate = document.createElement('div');
+  plate.className = 'puzzle-plate';
+  const hole = shapeSvg(spec.fits, 84);
+  hole.classList.add('hole');
+  plate.appendChild(hole);
+
+  const row = document.createElement('div');
+  row.className = 'puzzle-pieces';
+
+  let misses = 0;
+  let solved = false;
+  const opts = (spec.options && spec.options.length ? spec.options : [spec.fits]).slice(0, 3);
+
+  opts.forEach((kind) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'piece';
+    b.setAttribute('aria-label', kind);
+    b.appendChild(shapeSvg(kind, 44));
+    b.addEventListener('click', () => {
+      if (solved) return;
+      if (kind === spec.fits) {
+        solved = true;
+        b.classList.add('gone');
+        plate.classList.add('filled');
+        setTimeout(() => {
+          turn(misses ? 'I found the ' + kind : 'I got it, the ' + kind);
+        }, 700);
+      } else {
+        // The whole of the negative feedback. No sound, no colour, no count.
+        misses += 1;
+        b.classList.remove('wobble');
+        void b.offsetWidth;              // restart the animation
+        b.classList.add('wobble');
+      }
+    });
+    row.appendChild(b);
+  });
+
+  host.append(plate, row);
+}
+
 /* Lays out things to count. One tap per thing, in any order: a four-year-old
    who counts them out of sequence has still counted them, and being corrected
    for it is how you teach her that counting is a test she can fail.
@@ -915,6 +1019,7 @@ async function turn(message){
   rememberNoticed(data.noticed);
   rememberMood(data.feeling);
   setCounting(data.count);
+  setPuzzle(data.puzzle);
   setAnswers(data.choices);
   speak(data.body);
 }
