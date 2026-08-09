@@ -442,6 +442,12 @@ body{
 .thinking i:nth-child(3){animation-delay:.32s}
 @keyframes think{0%,100%{opacity:.25;transform:translateY(0)}50%{opacity:.9;transform:translateY(-6px)}}
 
+.build{
+  position:fixed;right:6px;bottom:4px;z-index:5;
+  font-size:9px;letter-spacing:.06em;opacity:.28;pointer-events:none;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace
+}
+
 .answers{
   display:flex;flex-wrap:wrap;gap:10px;justify-content:center;
   padding:8px 0 2px;width:100%
@@ -1722,6 +1728,14 @@ function clearEmoji(host){
 window.EVERLY_BUILD = '2026-08-09 build, 69 pictures';
 console.log('[everly] ' + window.EVERLY_BUILD);
 document.documentElement.setAttribute('data-build', window.EVERLY_BUILD);
+(function(){
+  const tag = document.createElement('div');
+  tag.className = 'build';
+  // Which princesses actually have a cartoon on THIS copy of the page, which is
+  // the question a screenshot could not answer tonight.
+  tag.textContent = window.EVERLY_BUILD + ' · ' + Object.keys(VIMEO).length + ' clips';
+  document.body.appendChild(tag);
+})();
 buildYesNo();
 drawThing();
 drawMyMood();
