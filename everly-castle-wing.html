@@ -122,8 +122,8 @@ body{
   box-shadow:var(--shadow);font-size:26px;cursor:pointer;flex:0 0 auto
 }
 .home:active{transform:scale(.94)}
-.who{font-family:var(--serif);font-size:18px;font-weight:700;color:var(--blue)}
-.who small{display:block;font-family:var(--serif);font-style:italic;font-size:12px;font-weight:400;color:var(--ink-soft)}
+.who{font-family:'Public Sans','Trebuchet MS',Verdana,sans-serif;font-size:18px;font-weight:700;color:var(--blue)}
+.who small{display:block;font-family:'Public Sans','Trebuchet MS',Verdana,sans-serif;font-size:12px;font-weight:400;color:var(--ink-soft)}
 
 /* ── Three windows ─────────────────────────────────────────────────────────
    The same three-part shape as kronborg-room.html: who is speaking on top,
@@ -190,6 +190,11 @@ body{
   transition:transform .25s ease
 }
 .face video{width:100%;height:100%;object-fit:cover;display:block}
+/* Vimeo panel. The embed is 16:9 and the artwork is 7:8, so the frame changes
+   shape rather than letterboxing a portrait panel around a landscape video. */
+.face.has-embed{aspect-ratio:16/9;background:#000}
+.face.has-embed iframe{width:100%;height:100%;border:0;display:block}
+.w-princess:has(.has-embed){justify-content:flex-start}
 /* The still, used ONLY when this princess has no clip yet, and mounted only
    after the video element has been removed. See fallToStill(). */
 .face img{width:100%;height:100%;object-fit:cover;display:block}
@@ -236,10 +241,10 @@ body{
 /* 3. The princess' story. Two sentences, and a big button to hear them,
    because the child cannot read a word of it. */
 .w-story{display:flex;flex-direction:column;justify-content:center;gap:8px;text-align:center}
-.story-text{font-family:var(--serif);font-size:13.5px;line-height:1.6;color:var(--ink-soft)}
+.story-text{font-family:'Public Sans','Trebuchet MS',Verdana,sans-serif;font-size:13.5px;line-height:1.6;color:var(--ink-soft)}
 .story-play{
   align-self:center;border:0;border-radius:20px;padding:10px 18px;
-  background:var(--blue);color:#fff;font-family:var(--serif);font-size:13px;
+  background:var(--blue);color:#fff;font-family:'Public Sans','Trebuchet MS',Verdana,sans-serif;font-size:13px;
   font-weight:700;cursor:pointer
 }
 .story-play:active{transform:scale(.95)}
@@ -340,6 +345,26 @@ const clipTalk = (n) => 'agents/' + n + '_talk.mp4';
 // The stills, for princesses who have been drawn but not yet animated. Both
 // extensions are tried so the artwork can be exported as either.
 const stillsFor = (n) => ['agents/' + n + '.png', 'agents/' + n + '.jpg'];
+
+/* ── Cartoons on Vimeo ─────────────────────────────────────────────────────
+   The clips are being delivered as Vimeo embeds rather than files in /agents,
+   which is the same way every other ETL platform ships its video. An iframe
+   cannot go through the video/still ladder below, so a princess with a Vimeo
+   id takes a separate path: the iframe replaces the panel outright, and no
+   still is ever mounted behind it.
+
+   That last part matters. The rule is that a still must never sit under a
+   video, because a still hiding a dead player looks like a working one. So
+   when a Vimeo id is present there is no fallback image in this panel at all.
+   If the embed fails, the panel is empty and obviously broken, which is the
+   correct outcome.
+
+   The hub keeps using stills on its door thumbnails. Ten autoplaying iframes
+   in 92px circles would be heavy and Vimeo will not crop to a circle, and a
+   deliberate thumbnail is not the same thing as a still masking a failure. */
+const VIMEO = {
+  posy: '1216816124',
+};
 
 const params = new URLSearchParams(location.search);
 const wingId = (params.get('wing') || 'posy').toLowerCase();
@@ -796,6 +821,24 @@ function clearEmoji(host){
 (function drawFace(){
   const el = document.getElementById('face');
   el.textContent = AGENT.emoji;
+
+  /* A princess with a cartoon on Vimeo takes the iframe and stops here. No
+     local video is probed and no still is mounted, so nothing can end up
+     layered behind the player. */
+  const vid = VIMEO[wingId];
+  if (vid) {
+    clearEmoji(el);
+    el.classList.add('has-embed');
+    const frame = document.createElement('iframe');
+    frame.src = 'https://player.vimeo.com/video/' + vid +
+                '?badge=0&autopause=0&player_id=0&app_id=58479&autoplay=1&muted=1&loop=1&background=1';
+    frame.title = AGENT.name + ' in ' + AGENT.wing;
+    frame.setAttribute('frameborder', '0');
+    frame.setAttribute('allow', 'autoplay; fullscreen; picture-in-picture');
+    frame.setAttribute('allowfullscreen', '');
+    el.appendChild(frame);
+    return;
+  }
 
   const v = document.createElement('video');
   v.muted = true; v.defaultMuted = true; v.loop = true; v.autoplay = true; v.playsInline = true;
