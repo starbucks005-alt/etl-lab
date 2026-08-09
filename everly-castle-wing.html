@@ -337,11 +337,6 @@ const WINGS = {
   almasi:      { name:'Almasi',      wing:'the Fossil Field',       emoji:'🦴' , lang:'Swahili', topic:'fossils' },
   bex:        { name:'Bex',        wing:'the Workshop',           emoji:'🔧' , lang:'Portuguese', topic:'how things work' },
 };
-// Cartoon clips, derived from the name so a new wing needs no extra wiring.
-// _idle.mp4 is required; _talk.mp4 is optional and simply is not used if it
-// has not been drawn yet.
-const clipIdle = (n) => 'agents/' + n + '_idle.mp4';
-const clipTalk = (n) => 'agents/' + n + '_talk.mp4';
 // The stills, for princesses who have been drawn but not yet animated. Both
 // extensions are tried so the artwork can be exported as either.
 const stillsFor = (n) => ['agents/' + n + '.png', 'agents/' + n + '.jpg'];
@@ -363,7 +358,8 @@ const stillsFor = (n) => ['agents/' + n + '.png', 'agents/' + n + '.jpg'];
    in 92px circles would be heavy and Vimeo will not crop to a circle, and a
    deliberate thumbnail is not the same thing as a still masking a failure. */
 const VIMEO = {
-  posy: '1216816124',
+  posy:   '1216816124',
+  nerida: '1216817116',
 };
 
 const params = new URLSearchParams(location.search);
@@ -490,8 +486,12 @@ function remembers(){
    single ElevenLabs voice has been chosen. */
 let audioEl = null;
 async function speak(text, scriptLine){
-  setFaceTalking(true);
-  const done = () => setFaceTalking(false);
+  /* A small scale nudge while she speaks. The old version also swapped to a
+     _talk.mp4, which no longer exists: cartoons are Vimeo embeds now and the
+     player owns its own loop. */
+  const faceEl = document.getElementById('face');
+  faceEl.classList.add('talking');
+  const done = () => faceEl.classList.remove('talking');
 
   try {
     const r = await fetch('/.netlify/functions/everly-castle-voice', {
@@ -802,8 +802,6 @@ document.getElementById('home').addEventListener('click', () => {
    So the emoji only ever holds the space, and it is removed BEFORE the video
    is revealed, never underneath it. If the clip cannot play, the video element
    is torn out entirely and the emoji stays, loudly, in the console. */
-let faceVideo = null;
-let hasTalkClip = true;   // assumed until a talk clip actually fails to load
 
 /* Removes the placeholder emoji and NOTHING ELSE.
 
@@ -818,13 +816,23 @@ function clearEmoji(host){
   });
 }
 
+/* ── The princess's face ───────────────────────────────────────────────────
+   Vimeo or a still. Nothing else.
+
+   Cartoons ship as Vimeo embeds, which is ETL's path for video everywhere.
+   An earlier version also probed for a local agents/<Name>_idle.mp4 first and
+   fell back through it; that was never going to be used and cost a 404 per
+   princess on every load, so it is gone.
+
+   The rule that survives: a still must never sit under a video, because a
+   still hiding a dead player looks exactly like a working one. So the two are
+   mutually exclusive here. A princess with a Vimeo id gets the iframe and no
+   image at all, and if that embed fails the panel is empty and obviously
+   broken, which is correct. A princess without one gets her portrait. */
 (function drawFace(){
   const el = document.getElementById('face');
   el.textContent = AGENT.emoji;
 
-  /* A princess with a cartoon on Vimeo takes the iframe and stops here. No
-     local video is probed and no still is mounted, so nothing can end up
-     layered behind the player. */
   const vid = VIMEO[wingId];
   if (vid) {
     clearEmoji(el);
@@ -836,90 +844,30 @@ function clearEmoji(host){
     frame.setAttribute('frameborder', '0');
     frame.setAttribute('allow', 'autoplay; fullscreen; picture-in-picture');
     frame.setAttribute('allowfullscreen', '');
+    frame.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
     el.appendChild(frame);
     return;
   }
 
-  const v = document.createElement('video');
-  v.muted = true; v.defaultMuted = true; v.loop = true; v.autoplay = true; v.playsInline = true;
-  v.setAttribute('muted',''); v.setAttribute('playsinline',''); v.setAttribute('webkit-playsinline','');
-  v.preload = 'auto';
-  v.setAttribute('aria-hidden','true');
-  v.style.display = 'none';
-  v.src = clipIdle(AGENT.name);
-
-  let settled = false;
-
-  /* No clip for this princess yet, so show her picture instead. NOT the banned
-     pattern: the video is asked first and torn out completely before the image
-     exists, so the two are never both in the DOM and a still can never hide a
-     dead clip. A ladder, not a layer.
-
-     This is what lets ten stills go in now and the cartoons arrive one at a
-     time later, with no code change: the clip is always asked first, so the
-     day Clementine_idle.mp4 lands, she starts moving on her own. */
-  const fallToStill = (why) => {
-    if (settled) return; settled = true;
-    if (v.parentNode) v.parentNode.removeChild(v);
-    faceVideo = null;
-
-    const cands = stillsFor(AGENT.name);
-    let i = 0;
-    const tryNext = () => {
-      if (i >= cands.length) {
-        console.warn('[everly] nothing to show for ' + AGENT.name + ': no ' + clipIdle(AGENT.name) + ', no ' + cands.join(', '));
-        return;
-      }
-      const img = new Image();
-      img.alt = '';
-      img.style.display = 'none';
-      img.onload = () => {
-        clearEmoji(el);              // emoji out
-        img.style.display = 'block'; // picture in
-        console.info('[everly] no clip for ' + AGENT.name + ' yet (' + why + '), showing the still:', img.getAttribute('src'));
-      };
-      img.onerror = () => { if (img.parentNode) img.parentNode.removeChild(img); i++; tryNext(); };
-      el.appendChild(img);
-      img.src = cands[i];
-    };
-    tryNext();
-  };
-
-  v.addEventListener('loadeddata', () => {
-    if (settled) return; settled = true;
-    clearEmoji(el);       // emoji out first
-    v.style.display = 'block'; // video in second
-    faceVideo = v;
-  }, { once:true });
-  v.addEventListener('error', () => fallToStill('no clip file'), { once:true });
-
-  el.appendChild(v);
-  const p = v.play();
-  if (p && p.catch) p.catch(() => {});
-  setTimeout(() => { if (!settled && v.readyState < 2) fallToStill('timed out'); }, 6000);
+  // No cartoon yet: her portrait, trying both export formats.
+  const cands = stillsFor(AGENT.name);
+  let i = 0;
+  (function tryNext(){
+    if (i >= cands.length) {
+      console.warn('[everly] nothing to show for ' + AGENT.name + ': no Vimeo id and no ' + cands.join(', '));
+      return;
+    }
+    const img = new Image();
+    img.alt = '';
+    img.style.display = 'none';
+    img.onload = () => { clearEmoji(el); img.style.display = 'block'; };
+    img.onerror = () => { if (img.parentNode) img.parentNode.removeChild(img); i++; tryNext(); };
+    el.appendChild(img);
+    img.src = cands[i];
+  })();
 })();
 
-/* Swap to the talking loop while she speaks, back to idle when she stops.
-   One element, src swapped, so there is never a second layer to go stale.
-   If _talk.mp4 has not been drawn for this princess, the swap fails once,
-   hasTalkClip goes false, and it is never attempted again this session. */
-function setFaceTalking(on){
-  const el = document.getElementById('face');
-  el.classList.toggle('talking', on);
-  if (!faceVideo || !hasTalkClip) return;
-  const want = on ? clipTalk(AGENT.name) : clipIdle(AGENT.name);
-  if (faceVideo.getAttribute('src') === want) return;
-  const onErr = () => {
-    hasTalkClip = false;
-    console.warn('[everly] no talking clip for ' + AGENT.name + ', using the idle loop:', clipTalk(AGENT.name));
-    faceVideo.removeEventListener('error', onErr);
-    faceVideo.src = clipIdle(AGENT.name);
-    faceVideo.play().catch(() => {});
-  };
-  faceVideo.addEventListener('error', onErr, { once:true });
-  faceVideo.src = want;
-  faceVideo.play().catch(() => {});
-}
+
 
 drawThing();
 drawMyMood();

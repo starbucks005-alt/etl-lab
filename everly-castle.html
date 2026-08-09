@@ -529,38 +529,38 @@ dialog button{
    second column, and the grown-up never has to wonder whether it is in there,
    because the panel behind the gate shows it. */
 const WINGS = [
-  { id:'posy',       name:'Posy',       wing:'the Wild Garden',        emoji:'🌻', video:'agents/Posy_idle.mp4',
+  { id:'posy',       name:'Posy',       wing:'the Wild Garden',        emoji:'🌻',
     place:'France',
     sees:'Growing a sunflower',           learns:'Botany: seeds, roots, what a plant needs, insects' },
-  { id:'nerida',     name:'Nerida',     wing:'the Coral Court',        emoji:'🐚', video:'agents/Nerida_idle.mp4',
+  { id:'nerida',     name:'Nerida',     wing:'the Coral Court',        emoji:'🐚',
     place:'Greece',
     sees:'Rummaging in a tide pool',      learns:'Water and sea life: tides, habitats, ocean animals' },
   /* focus overrides the default crop point for one princess when her artwork
      is framed differently from the rest. Zephyra stands off to the right of
      her tower and further back, so a centred crop lands on the parapet. Only
      needed for outliers; everyone else uses the 50%/26% default. */
-  { id:'zephyra',    name:'Zephyra',    wing:'the Windward Tower',     emoji:'🪁', video:'agents/Zephyra_idle.mp4',
+  { id:'zephyra',    name:'Zephyra',    wing:'the Windward Tower',     emoji:'🪁',
     place:'Nepal',
     sees:'Flying a kite',                 learns:'Air: wind, weather, breathing, why things fly' },
-  { id:'neva',       name:'Neva',       wing:'the Frost Conservatory', emoji:'❄️', video:'agents/Neva_idle.mp4',
+  { id:'neva',       name:'Neva',       wing:'the Frost Conservatory', emoji:'❄️',
     place:'Norway',
     sees:'Drawing on a frosty window',    learns:'States of matter: ice, water, steam, the seasons' },
-  { id:'lenora',      name:'Lenora',      wing:'the Star Balcony',       emoji:'🌙', video:'agents/Lenora_idle.mp4',
+  { id:'lenora',      name:'Lenora',      wing:'the Star Balcony',       emoji:'🌙',
     place:'Mongolia',
     sees:'Looking at the moon tonight',   learns:'Astronomy: moon phases, stars, constellations' },
-  { id:'elowyn',     name:'Elowyn',     wing:'the Story Loft',         emoji:'📖', video:'agents/Elowyn_idle.mp4',
+  { id:'elowyn',     name:'Elowyn',     wing:'the Story Loft',         emoji:'📖',
     place:'New Zealand',
     sees:'Making up a story together',    learns:'Literacy: letter sounds, vocabulary, story structure' },
-  { id:'clementine', name:'Clementine', wing:'the Copper Kitchen',     emoji:'🥕', video:'agents/Clementine_idle.mp4',
+  { id:'clementine', name:'Clementine', wing:'the Copper Kitchen',     emoji:'🥕',
     place:'the United States',
     sees:'Picking between two foods',     learns:'Eating well: what food does for you, everyday and sometimes foods, trying new tastes' },
-  { id:'piper',      name:'Piper',      wing:'the Music Hall',         emoji:'🎵', video:'agents/Piper_idle.mp4',
+  { id:'piper',      name:'Piper',      wing:'the Music Hall',         emoji:'🎵',
     place:'Germany',
     sees:'Clapping games',                learns:'Pattern and rhythm: sequence, repetition, tempo' },
-  { id:'almasi',      name:'Almasi',      wing:'the Fossil Field',       emoji:'🦴', video:'agents/Almasi_idle.mp4',
+  { id:'almasi',      name:'Almasi',      wing:'the Fossil Field',       emoji:'🦴',
     place:'Kenya',
     sees:'Digging up a dinosaur',         learns:'Geology and fossils: what is buried, how bones survive, deep time' },
-  { id:'bex',        name:'Bex',        wing:'the Workshop',           emoji:'🔧', video:'agents/Bex_idle.mp4',
+  { id:'bex',        name:'Bex',        wing:'the Workshop',           emoji:'🔧',
     place:'Brazil',
     sees:'Taking something apart',        learns:'Engineering: how things work, cause and effect, fixing' },
 ];
@@ -709,8 +709,8 @@ let missingFaces = [];
    never on screen at the same moment. If the clip fails, the video element is
    torn out completely, the emoji stays, and the failure is reported.
 
-   Naming convention: agents/<Name>_idle.mp4 for the ambient loop, and
-   optionally agents/<Name>_talk.mp4 for the speaking loop (used in the wing). */
+   Naming convention: agents/<Name>.png or .jpg. Cartoons are Vimeo embeds
+   and play in the wing, not here. */
 /* Removes the placeholder emoji and NOTHING ELSE.
 
    This exists because `host.textContent = ''` does not clear the text, it
@@ -743,68 +743,24 @@ function mountFirstImage(host, candidates, onLoad, onAllFailed){
   tryNext();
 }
 
-function mountFace(host, src, name, onMissing){
-  const stills = [src.replace(/_idle\.mp4$/, '.png'), src.replace(/_idle\.mp4$/, '.jpg')];
-  const v = document.createElement('video');
-  v.muted = true;            // required, or mobile refuses to autoplay
-  v.defaultMuted = true;
-  v.loop = true;
-  v.autoplay = true;
-  v.playsInline = true;
-  v.setAttribute('muted','');
-  v.setAttribute('playsinline','');
-  v.setAttribute('webkit-playsinline','');
-  v.preload = 'auto';
-  v.setAttribute('aria-hidden','true');
-  v.style.display = 'none';   // hidden until it has a real frame
-  v.src = src;
+/* Door portraits.
 
-  let settled = false;
+   The doors show stills, deliberately, and this is the one place that needs
+   saying out loud so nobody 'fixes' it later. Cartoons ship as Vimeo embeds
+   and play in the wing at full size. Ten autoplaying iframes in 92px circles
+   would be heavy, Vimeo will not crop to a circle, and a chosen thumbnail is
+   not the same thing as a still hiding a dead player.
 
-  /* The clip did not load, so fall back to the still. This is NOT the banned
-     pattern: the rule is that an image must never sit behind, over, or as the
-     poster of a video, because a still hiding a dead clip makes a broken face
-     look fine. Here the video is asked first and torn out completely before
-     the image is even created, so the two never coexist and a still can never
-     mask a failure. It is a ladder, not a layer.
-
-     This is what lets the art land in two passes. Ten stills go in now and
-     every door works; a clip dropped in later takes over on its own with no
-     code change, because the video is always asked first. */
-  const fallToStill = (why) => {
-    if (settled) return; settled = true;
-    if (v.parentNode) v.parentNode.removeChild(v);   // video gone first
-
-    mountFirstImage(host, stills,
-      (img) => {
-        clearEmoji(host);            // emoji out
-        img.style.display = 'block'; // picture in
-        console.info('[everly] no clip for ' + name + ' yet (' + why + '), showing the still:', img.getAttribute('src'));
-      },
-      () => {
-        console.warn('[everly] nothing to show for ' + name + ': no ' + src + ', no ' + stills.join(', '));
-        if (onMissing) onMissing();
-      });
-  };
-
-  v.addEventListener('loadeddata', () => {
-    if (settled) return; settled = true;
-    clearEmoji(host);    // emoji out first
-    v.style.display = 'block';// video in second
-  }, { once:true });
-  // A missing .mp4 404s in milliseconds, so the still appears immediately for
-  // the princesses who do not have a clip yet. The timeout below is only a
-  // backstop for a genuinely stalled load.
-  v.addEventListener('error', () => fallToStill('no clip file'), { once:true });
-
-  host.appendChild(v);
-  const p = v.play();
-  if (p && p.catch) p.catch(() => { /* a paused first frame is still a frame */ });
-  // A clip that never fires either event (missing file served as HTML, a
-  // stalled network) would otherwise sit invisible forever behind an emoji
-  // that looks intentional. Give it a bounded wait, then call it missing.
-  setTimeout(() => { if (!settled && v.readyState < 2) fallToStill('timed out'); }, 6000);
-  return v;
+   An earlier version probed for a local agents/<Name>_idle.mp4 before falling
+   back here. Those files were never going to exist, so it was buying a 404
+   per door on every single load. */
+function mountFace(host, srcs, name, onMissing){
+  mountFirstImage(host, srcs,
+    (img) => { clearEmoji(host); img.style.display = 'block'; },
+    () => {
+      console.warn('[everly] no portrait for ' + name + ': tried ' + srcs.join(', '));
+      if (onMissing) onMissing();
+    });
 }
 
 function drawDoors(){
@@ -823,7 +779,7 @@ function drawDoors(){
       face.style.setProperty('--fx', w.focus[0] + '%');
       face.style.setProperty('--fy', w.focus[1] + '%');
     }
-    mountFace(face, w.video, w.name, () => {
+    mountFace(face, ['agents/' + w.name + '.png', 'agents/' + w.name + '.jpg'], w.name, () => {
       missingFaces.push(w.name);
       refreshAssetWarning();
     });
@@ -903,7 +859,7 @@ function refreshAssetWarning(){
   el.textContent = missingFaces.length + ' princess' + (missingFaces.length > 1 ? 'es have' : ' has') +
     ' no artwork at all, so ' + (missingFaces.length > 1 ? 'those doors are' : 'that door is') +
     ' showing an emoji: ' + missingFaces.join(', ') +
-    '. Add agents/<Name>.png for the picture, or agents/<Name>_idle.mp4 for the cartoon.';
+    '. Add agents/<Name>.png or agents/<Name>.jpg.';
 }
 
 /* ── The curtain ───────────────────────────────────────────────────────────
