@@ -155,7 +155,7 @@ body{
 }
 
 /* 1. The princess window. */
-.w-princess{display:flex;flex-direction:column;align-items:center;justify-content:center}
+.w-princess{display:flex;flex-direction:column;align-items:stretch;justify-content:stretch;padding:6px}
 /* Portrait, matching the artwork. The pieces are roughly 7:8 and they are
    ENVIRONMENTAL: Clementine is not a cut-out on a background, she is standing
    in the Copper Kitchen with the fire and the hanging pans around her, and
@@ -165,7 +165,7 @@ body{
    The clips are cartoon but made to Almost Human's standard, so the panel has
    to be worth what went into them. */
 .face{
-  width:100%;aspect-ratio:7/8;border-radius:12px;
+  width:100%;flex:1;min-height:150px;border-radius:12px;
   background:var(--stone);display:grid;place-items:center;overflow:hidden;
   font-size:min(14vw,64px);box-shadow:inset 0 0 0 1px rgba(22,32,43,.12);
   transition:transform .25s ease
@@ -186,8 +186,8 @@ body{
   display:flex;align-items:center;gap:8px;justify-content:center;
   padding:2px 0 8px;border-bottom:1px solid var(--rule);margin-bottom:8px
 }
-.mood-face{font-size:30px;line-height:1;transition:transform .3s ease}
-.mood-word{font-size:12px;letter-spacing:.1em;text-transform:uppercase;opacity:.45}
+.mood-face{font-size:46px;line-height:1;transition:transform .3s ease}
+.mood-word{font-size:14px;letter-spacing:.1em;text-transform:uppercase;opacity:.45}
 
 /* The other direction: the child taps how SHE feels. Same four faces, so the
    vocabulary she is being taught to read is the vocabulary she answers in.
@@ -196,10 +196,10 @@ body{
   display:flex;gap:8px;justify-content:center;align-items:center;
   padding-top:8px;margin-top:8px;border-top:1px solid var(--rule)
 }
-.mymood-cap{font-size:10px;letter-spacing:.1em;text-transform:uppercase;opacity:.38;margin-right:2px}
+.mymood-cap{font-size:11px;letter-spacing:.1em;text-transform:uppercase;opacity:.38;margin-right:2px}
 .mymood button{
-  border:1px solid var(--rule);background:var(--card);border-radius:14px;width:46px;height:46px;
-  font-size:24px;line-height:1;cursor:pointer;box-shadow:var(--shadow);
+  border:1px solid var(--rule);background:var(--card);border-radius:18px;width:64px;height:64px;
+  font-size:36px;line-height:1;cursor:pointer;box-shadow:var(--shadow);
   transition:transform .12s ease
 }
 .mymood button:active{transform:scale(.9)}
