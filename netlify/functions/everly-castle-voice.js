@@ -41,7 +41,7 @@ const AUDIO_STORE = 'everly_castle_audio';
    gained a language, so every cached 'story' recording was of words that no
    longer exist. The header above warns about exactly this and it still got
    missed once. If you change a SCRIPT line, bump this in the same commit. */
-const CACHE_VERSION = 'v2';
+const CACHE_VERSION = 'v3';
 // Fingerprint of SCRIPT at the time CACHE_VERSION was last set. The
 // consistency check compares this against the live SCRIPT and fails if the
 // words moved without the version moving, which is how stale audio survived
@@ -109,23 +109,41 @@ exports.handler = async (event) => {
     cacheKey = [CACHE_VERSION, agentId, 'live', hash, voiceId].join('|');
   }
 
+  /* If the store is unavailable this endpoint still works, but every single
+     play is a fresh ElevenLabs charge. That used to fail silently, which is
+     the worst way for a billing problem to behave: nothing breaks, it just
+     costs money forever. It is loud now, and the response says so in a header
+     so it can be checked from the browser without reading logs. */
   let store = null;
-  try { store = getStore(AUDIO_STORE); } catch (_) { /* Blobs unavailable: synthesise anyway */ }
+  let storeError = null;
+  try {
+    store = getStore(AUDIO_STORE);
+  } catch (err) {
+    storeError = (err && err.message) || 'unavailable';
+    console.error('[everly-voice] BLOBS UNAVAILABLE, every play will be billed:', storeError);
+  }
 
   if (store) {
     try {
       const hit = await store.get(cacheKey, { type: 'arrayBuffer' });
-      if (hit && hit.byteLength) return audioResponse(Buffer.from(hit), true);
+      if (hit && hit.byteLength) return audioResponse(Buffer.from(hit), true, 'ok');
     } catch (err) {
       console.error('[everly-castle-voice] cache read failed (non-fatal):', err && err.message);
     }
   }
 
-  // Leading pause buffer. Without it ElevenLabs starts mid-phoneme and the
-  // browser clips the first word, which matters far more here than elsewhere:
-  // a four-year-old who misses the first word of a question does not ask for
-  // it again, she just stops. Same fix as kronborg-voice and gk-clara-voice.
-  const spoken = '. ' + text;
+  /* Leading pause, without feeding the model a word.
+
+     This used to prepend a full stop: '. ' + text. On the multilingual model
+     that is not read as punctuation, it is read as something to say, and every
+     clip opened with a syllable of nonsense that sounded like a foreign
+     language. Whitespace gives the encoder the same run-up without giving the
+     voice anything to pronounce.
+
+     The run-up is still needed: without it ElevenLabs starts mid-phoneme and
+     the browser clips the first word, and a four-year-old who misses the first
+     word of a question does not ask again, she just stops. */
+  const spoken = '  ' + text;
 
   let resp;
   try {
@@ -155,10 +173,10 @@ exports.handler = async (event) => {
     }
   }
 
-  return audioResponse(buf, false);
+  return audioResponse(buf, false, storeError ? 'DOWN: ' + storeError : 'ok');
 };
 
-function audioResponse(buf, cached) {
+function audioResponse(buf, cached, storeState) {
   return {
     statusCode: 200,
     headers: {
@@ -168,6 +186,7 @@ function audioResponse(buf, cached) {
       // without the key changing. The browser can hold it and skip the trip.
       'Cache-Control': 'public, max-age=31536000, immutable',
       'X-Everly-Castle-Cache': cached ? 'hit' : 'miss',
+      'X-Everly-Castle-Store': storeState || 'ok',
       'Access-Control-Allow-Origin': '*',
     },
     body: buf.toString('base64'),
