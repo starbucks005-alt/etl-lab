@@ -233,6 +233,14 @@ const LANG_OF = {
 };
 
 const FOUND_NAMES = {
+  "rice": "rice",
+  "banana": "a banana",
+  "egg": "an egg",
+  "tomato": "a tomato",
+  "corn": "corn",
+  "beans": "beans",
+  "soup": "soup",
+  "cheese": "cheese",
   "bud": "a bud",
   "halfOpen": "a flower opening",
   "plough": "the Plough",

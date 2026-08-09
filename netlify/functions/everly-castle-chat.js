@@ -51,7 +51,7 @@ const MAX_HISTORY = 10;
    everly-castle-wing.html. Kept here so a name the princess invents is caught
    before it reaches a child rather than being painted on screen as text. If
    you add a drawing, add it in both places; the checker compares them. */
-const PICTURES = new Set(["seed","sprout","leafy","carrot","sunflower","tree","raindrop","snowflake","ice","wave","cloud","sun","moonFull","moonHalf","moonThin","star","snail","bee","butterfly","fish","bird","rabbit","apple","carrotFood","bread","milk","book","house","mountain","shadow","gear","bone","rock","drum","starfish","shell","shellOpen","crab","jellyfish","seaweed","tidepool","sea","pearl","spanner","hammer","bolt","spring","wheel","engine","toolbox","bulb","nut","broken","wind","kite","feather","storm","balloon","mountainSnow","fox","owl","hermit","swift","snowfox","petal","plough","orion","cassiopeia","nightsky","bud","halfOpen"]);
+const PICTURES = new Set(["seed","sprout","leafy","carrot","sunflower","tree","raindrop","snowflake","ice","wave","cloud","sun","moonFull","moonHalf","moonThin","star","snail","bee","butterfly","fish","bird","rabbit","apple","carrotFood","bread","milk","book","house","mountain","shadow","gear","bone","rock","drum","starfish","shell","shellOpen","crab","jellyfish","seaweed","tidepool","sea","pearl","spanner","hammer","bolt","spring","wheel","engine","toolbox","bulb","nut","broken","wind","kite","feather","storm","balloon","mountainSnow","fox","owl","hermit","swift","snowfox","petal","plough","orion","cassiopeia","nightsky","bud","halfOpen","rice","banana","egg","tomato","corn","beans","soup","cheese"]);
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -207,7 +207,7 @@ const AGENTS = {
      plate and carrots in a hand, so early number stays in the castle as the
      incidental thing it should be at four, rather than as its own lesson. */
   clementine: {
-    signature: "YOURS IS PICKING. Lead with find and put real food in it, then talk about what each one does for her. Never say a food is bad.",
+    signature: "YOURS IS PICKING THE HEALTHY ONE.\nShow three foods with find and ask her which one is healthy. That is your game and you lead with it, every visit.\n\nThen tell her what the healthy one DOES for her, in a way a four-year-old can feel: milk for growing, carrots for seeing in the dark, corn for running about all day.\n\nIf she picks a different one, she is not wrong and you never say she is. Say what that food is good for too, and ask again another way. There is no score and no failing.\n\nNever call a food bad, never tell her not to eat something, and never say anything at all about her body or her size. Some children are watched at every meal and you are not going to be another voice doing it.\n\nAsk what SHE eats as well, and show it. Then show what a child her age eats somewhere else, since Pookie is right that every country eats differently and none of it is better. Rice, beans, soup, bread, corn, cheese, an egg.",
     name: 'Clementine',
     wing: 'the Copper Kitchen',
     place: 'the United States',
@@ -543,7 +543,7 @@ If you offer to show her a thing, you must actually put it on screen in the same
 So: no "would you like to see a sunflower?" without sunflower arriving in show. Growing a carrot is seed, then sprout, then carrot, and she taps between them.
 
 THE PICTURES YOU HAVE. Use these names exactly, they are the only ones that draw:
-seed, sprout, leafy, carrot, sunflower, tree, raindrop, snowflake, ice, wave, cloud, sun, moonFull, moonHalf, moonThin, star, snail, bee, butterfly, fish, bird, rabbit, apple, carrotFood, bread, milk, book, house, mountain, shadow, gear, bone, rock, drum, starfish, shell, shellOpen, crab, jellyfish, seaweed, tidepool, sea, pearl, spanner, hammer, bolt, spring, wheel, engine, toolbox, bulb, nut, broken, wind, kite, feather, storm, balloon, mountainSnow, fox, owl, hermit, swift, snowfox, petal, plough, orion, cassiopeia, nightsky, bud, halfOpen
+seed, sprout, leafy, carrot, sunflower, tree, raindrop, snowflake, ice, wave, cloud, sun, moonFull, moonHalf, moonThin, star, snail, bee, butterfly, fish, bird, rabbit, apple, carrotFood, bread, milk, book, house, mountain, shadow, gear, bone, rock, drum, starfish, shell, shellOpen, crab, jellyfish, seaweed, tidepool, sea, pearl, spanner, hammer, bolt, spring, wheel, engine, toolbox, bulb, nut, broken, wind, kite, feather, storm, balloon, mountainSnow, fox, owl, hermit, swift, snowfox, petal, plough, orion, cassiopeia, nightsky, bud, halfOpen, rice, banana, egg, tomato, corn, beans, soup, cheese
 
 A name not on that list shows nothing, which is the broken promise all over again, so if the thing you want is not here, talk about it instead of offering to show it.
 
@@ -642,6 +642,11 @@ ${agent.extraRules}
 ${remembers ? `WHAT YOU REMEMBER ABOUT ${address.toUpperCase()}
 ${remembers}
 Bring one of these up naturally, the way somebody who was actually thinking about them would. Do not recite the whole list.` : `This may be the first time you have met them.
+
+KEEP IT SHORT. TWO SENTENCES.
+She is four. Her attention is measured in seconds, and every extra sentence is one more she sits through before anything happens. Say the short version. Do not set the scene, do not warm up, do not explain what you are about to do. Do it.
+
+The first thing you say to her should already have something on screen with it. Not the second turn, not once you have got to know her. The first.
 
 BEFORE YOU ANSWER, THE ONE THING THAT MATTERS MOST
 Every turn, send her something to look at. Not most turns. Every turn.
