@@ -998,6 +998,8 @@ const PICS = {
   orion: [["M18 10a3 3 0 100 6 3 3 0 000-6zM46 12a3 3 0 100 6 3 3 0 000-6zM26 30a3 3 0 100 6 3 3 0 000-6zM32 32a3 3 0 100 6 3 3 0 000-6zM38 34a3 3 0 100 6 3 3 0 000-6zM20 52a3 3 0 100 6 3 3 0 000-6zM46 50a3 3 0 100 6 3 3 0 000-6z","#f0d97a"],["M21 13l8 20M49 15l-6 18M29 33l12 4M29 33l-6 20M41 37l6 16","#8ecae6",1]],
   cassiopeia: [["M8 18a3 3 0 100 6 3 3 0 000-6zM22 36a3 3 0 100 6 3 3 0 000-6zM34 20a3 3 0 100 6 3 3 0 000-6zM46 38a3 3 0 100 6 3 3 0 000-6zM56 22a3 3 0 100 6 3 3 0 000-6z","#f0d97a"],["M11 21l14 18 12-16 12 18 8-16","#8ecae6",1]],
   nightsky: [["M4 8h56v48H4z","#1c2740"],["M14 18a2 2 0 100 4 2 2 0 000-4zM30 14a2 2 0 100 4 2 2 0 000-4zM46 22a2 2 0 100 4 2 2 0 000-4zM20 34a2 2 0 100 4 2 2 0 000-4zM40 40a2 2 0 100 4 2 2 0 000-4zM52 34a2 2 0 100 4 2 2 0 000-4z","#f0d97a"],["M14 44a6 6 0 006-8 8 8 0 11-6 8z","#e8e2cf"]],
+  bud: [["M32 58V30","#4a7c3f",1],["M32 8c7 0 11 7 11 14s-4 10-11 10-11-3-11-10S25 8 32 8z","#6cb45a"],["M32 12c3 4 3 12 0 18-3-6-3-14 0-18z","#8ac47a"]],
+  halfOpen: [["M32 58V34","#4a7c3f",1],["M32 10c6 0 9 6 9 12s-3 10-9 10-9-4-9-10 3-12 9-12z","#f0b429"],["M23 22c-5-3-8-1-9 2 4 3 8 3 11 1zM41 22c5-3 8-1 9 2-4 3-8 3-11 1z","#f0c95e"],["M32 26a6 6 0 100 12 6 6 0 000-12z","#7a5230"]],
 };
 
 /* Builds one picture. Returns null for a name we do not have, so the caller
@@ -1092,7 +1094,7 @@ function setShow(spec){
       paintDots();
       // Tell her when it is finished, so she can react to the thing they grew.
       if (at === steps.length - 1) {
-        setTimeout(() => turn('it finished growing'), 800);
+        setTimeout(() => turn('it finished growing', true), 800);
       }
     });
   }
@@ -1137,7 +1139,7 @@ function setFind(spec){
       left -= 1;
       // Only when the last one is turned over, so the princess is not
       // interrupting her every few seconds.
-      if (left === 0) setTimeout(() => turn('I found them all'), 1400);
+      if (left === 0) setTimeout(() => turn('I found them all', true), 1400);
     });
     grid.appendChild(b);
   });
@@ -1205,7 +1207,7 @@ function setPuzzle(spec){
         b.classList.add('gone');
         plate.classList.add('filled');
         setTimeout(() => {
-          turn(misses ? 'I found the ' + kind : 'I got it, the ' + kind);
+          turn(misses ? 'I found the ' + kind : 'I got it, the ' + kind, true);
         }, 700);
       } else {
         // The whole of the negative feedback. No sound, no colour, no count.
@@ -1265,7 +1267,7 @@ function setCounting(spec){
       if (counted === n) {
         total.textContent = String(n);
         // Tell the princess, so she can react and it goes in her notes.
-        setTimeout(() => turn('I counted ' + n), 900);
+        setTimeout(() => turn('I counted ' + n, true), 900);
       }
     });
     host.appendChild(b);
@@ -1374,15 +1376,14 @@ function logIt(said, flag){
   prof.log = merged.log;
 }
 
-async function turn(message){
+async function turn(message, quiet){
   if (busy) return;
   clearTimeout(nudgeTimer);
   (document.getElementById('chat') || document.body).classList.remove('yourgo');
   busy = true;
   document.querySelectorAll('.answer, .yn').forEach((b) => { b.disabled = true; });
   document.getElementById('thinking').classList.add('on');
-  addBubble('you', message);
-  logIt(message);
+  if (!quiet) { addBubble('you', message); logIt(message); }
 
   let data;
   try {

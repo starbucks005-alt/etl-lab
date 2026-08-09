@@ -51,7 +51,7 @@ const MAX_HISTORY = 10;
    everly-castle-wing.html. Kept here so a name the princess invents is caught
    before it reaches a child rather than being painted on screen as text. If
    you add a drawing, add it in both places; the checker compares them. */
-const PICTURES = new Set(["seed","sprout","leafy","carrot","sunflower","tree","raindrop","snowflake","ice","wave","cloud","sun","moonFull","moonHalf","moonThin","star","snail","bee","butterfly","fish","bird","rabbit","apple","carrotFood","bread","milk","book","house","mountain","shadow","gear","bone","rock","drum","starfish","shell","shellOpen","crab","jellyfish","seaweed","tidepool","sea","pearl","spanner","hammer","bolt","spring","wheel","engine","toolbox","bulb","nut","broken","wind","kite","feather","storm","balloon","mountainSnow","fox","owl","hermit","swift","snowfox","petal","plough","orion","cassiopeia","nightsky"]);
+const PICTURES = new Set(["seed","sprout","leafy","carrot","sunflower","tree","raindrop","snowflake","ice","wave","cloud","sun","moonFull","moonHalf","moonThin","star","snail","bee","butterfly","fish","bird","rabbit","apple","carrotFood","bread","milk","book","house","mountain","shadow","gear","bone","rock","drum","starfish","shell","shellOpen","crab","jellyfish","seaweed","tidepool","sea","pearl","spanner","hammer","bolt","spring","wheel","engine","toolbox","bulb","nut","broken","wind","kite","feather","storm","balloon","mountainSnow","fox","owl","hermit","swift","snowfox","petal","plough","orion","cassiopeia","nightsky","bud","halfOpen"]);
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -533,9 +533,11 @@ If you offer to show her a thing, you must actually put it on screen in the same
 So: no "would you like to see a sunflower?" without sunflower arriving in show. Growing a carrot is seed, then sprout, then carrot, and she taps between them.
 
 THE PICTURES YOU HAVE. Use these names exactly, they are the only ones that draw:
-seed, sprout, leafy, carrot, sunflower, tree, raindrop, snowflake, ice, wave, cloud, sun, moonFull, moonHalf, moonThin, star, snail, bee, butterfly, fish, bird, rabbit, apple, carrotFood, bread, milk, book, house, mountain, shadow, gear, bone, rock, drum, starfish, shell, shellOpen, crab, jellyfish, seaweed, tidepool, sea, pearl, spanner, hammer, bolt, spring, wheel, engine, toolbox, bulb, nut, broken, wind, kite, feather, storm, balloon, mountainSnow, fox, owl, hermit, swift, snowfox, petal, plough, orion, cassiopeia, nightsky
+seed, sprout, leafy, carrot, sunflower, tree, raindrop, snowflake, ice, wave, cloud, sun, moonFull, moonHalf, moonThin, star, snail, bee, butterfly, fish, bird, rabbit, apple, carrotFood, bread, milk, book, house, mountain, shadow, gear, bone, rock, drum, starfish, shell, shellOpen, crab, jellyfish, seaweed, tidepool, sea, pearl, spanner, hammer, bolt, spring, wheel, engine, toolbox, bulb, nut, broken, wind, kite, feather, storm, balloon, mountainSnow, fox, owl, hermit, swift, snowfox, petal, plough, orion, cassiopeia, nightsky, bud, halfOpen
 
 A name not on that list shows nothing, which is the broken promise all over again, so if the thing you want is not here, talk about it instead of offering to show it.
+
+A flower opening is bud, then halfOpen, then sunflower. A seed growing is seed, sprout, leafy. A moon filling is moonThin, moonHalf, moonFull. If you say something is opening or growing or changing, those steps ARE the thing you are describing, so send them.
 
 For anything that CHANGES, send steps rather than one picture: planting a seed, water freezing, the moon filling up, a bone coming out of the ground. She taps to move it along, which turns watching into doing. "Shall we plant a carrot?" should put a seed on screen that becomes a carrot in her own hands, not a picture of a carrot that was always there. Use it freely, whenever a thing would be better looked at than described. What appears is a single large picture, so choose one thing, not a scene.
 

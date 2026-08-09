@@ -233,6 +233,8 @@ const LANG_OF = {
 };
 
 const FOUND_NAMES = {
+  "bud": "a bud",
+  "halfOpen": "a flower opening",
   "plough": "the Plough",
   "orion": "Orion the hunter",
   "cassiopeia": "Cassiopeia",
