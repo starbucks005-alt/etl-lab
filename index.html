@@ -2697,8 +2697,13 @@ document.addEventListener('DOMContentLoaded', function(){
            them are still being made. No poster, no still layered under a
            video, because there is no video here yet. -->
       <div class="etl-net-card etl-net-card--wide" style="order: 19;">
+        <!-- .etl-net-video is a 4:3 padding-box with a black background, and
+             every other card fills it with absolutely-positioned media. A
+             normal-flow image sat BELOW that box, leaving a tall black gap
+             above it. Absolute + cover fills the frame the way the iframes do,
+             with the crop biased to the faces. -->
         <div class="etl-net-video">
-          <img src="/agents/Posy.jpg" alt="Posy, princess of the Wild Garden, Everly Castle" loading="lazy" style="width:100%;height:auto;display:block;">
+          <img src="/agents/Everly_Castle_cast.jpg" alt="The ten princesses of Everly Castle" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 34%;display:block;">
         </div>
         <div class="etl-net-body">
           <div class="etl-net-num">Platform // 13 <span style="display:inline-block;background:#c9a23f;color:#16202b;font-family:'Public Sans',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;padding:3px 9px;margin-left:6px;border-radius:2px;">ETL YOU</span></div>
@@ -3701,15 +3706,11 @@ That&rsquo;s the job. If she&rsquo;s having a bad day I can remind her that I do
         <a href="/everly-castle" style="display:inline-block; background:#28527a; color:#fff; font-family:'Public Sans',sans-serif; font-size:12px; font-weight:700; letter-spacing:2.5px; text-transform:uppercase; padding:14px 28px; text-decoration:none; border:2px solid #16202b;">Open Everly Castle &rarr;</a>
       </div>
 
-      <!-- Six of the ten. An even number, and enough to show the cast is not
-           one face repainted. -->
-      <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:14px;">
-        <img src="/agents/Posy.jpg"       alt="Posy, the Wild Garden, France"          loading="lazy" style="width:100%;aspect-ratio:1;object-fit:cover;object-position:50% 36%;display:block;border:2px solid #16202b;">
-        <img src="/agents/Nerida.jpg"     alt="Nerida, the Coral Court, Greece"        loading="lazy" style="width:100%;aspect-ratio:1;object-fit:cover;object-position:50% 36%;display:block;border:2px solid #16202b;">
-        <img src="/agents/Lenora.jpg"     alt="Lenora, the Star Balcony, Mongolia"     loading="lazy" style="width:100%;aspect-ratio:1;object-fit:cover;object-position:50% 36%;display:block;border:2px solid #16202b;">
-        <img src="/agents/Almasi.jpg"     alt="Almasi, the Fossil Field, Kenya"        loading="lazy" style="width:100%;aspect-ratio:1;object-fit:cover;object-position:50% 36%;display:block;border:2px solid #16202b;">
-        <img src="/agents/Elowyn.jpg"     alt="Elowyn, the Story Loft, New Zealand"    loading="lazy" style="width:100%;aspect-ratio:1;object-fit:cover;object-position:50% 36%;display:block;border:2px solid #16202b;">
-        <img src="/agents/Bex.jpg"        alt="Bex, the Workshop, Brazil"              loading="lazy" style="width:100%;aspect-ratio:1;object-fit:cover;object-position:50% 36%;display:block;border:2px solid #16202b;">
+      <!-- The whole cast in one frame. This replaced a grid of six cropped
+           thumbnails: the group shot says "ten different people" in a single
+           glance, which six circles never quite did. -->
+      <div>
+        <img src="/agents/Everly_Castle_cast.jpg" alt="The ten princesses of Everly Castle together: Neva, Bex, Clementine, Almasi, Elowyn, Lenora, Nerida, Piper, Posy and Zephyra" loading="lazy" style="width:100%;height:auto;display:block;border:2px solid #16202b;">
       </div>
 
     </div>

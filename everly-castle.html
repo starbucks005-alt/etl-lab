@@ -9,6 +9,9 @@
      its job is to say plainly that there is a real curriculum in here. The
      child is never told any of it. -->
 <meta name="description" content="Ten princesses, ten real subjects: botany, marine science, air and weather, states of matter, astronomy, literacy, early number, rhythm, geology and engineering. Built for children who cannot read yet. They think they are playing.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600;700&family=Public+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 /* ─────────────────────────────────────────────────────────────────────────
    Everly Castle -- the castle hub.
@@ -110,7 +113,7 @@ html[data-theme="starry"]{
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0}
 body{
-  font-family:'Trebuchet MS','Avenir Next',Verdana,sans-serif;
+  font-family:'Public Sans','Trebuchet MS',Verdana,sans-serif;
   color:var(--ink);
   /* A clear day-sky wash. The grain is a CSS gradient, not an image:
      nothing to load, nothing to go missing, and it retints itself with the
@@ -129,16 +132,22 @@ body{
 }
 
 header{text-align:center;padding:18px 18px 6px}
-.etlyou{display:inline-block;width:112px;margin:0 auto 10px;opacity:.85;text-decoration:none}
+/* ETL YOU. Spectral for the wordmark and Public Sans for YOU, per the brand
+   sheet; the three-bar stack is ETL's own mark, inherited unchanged. It takes
+   currentColor so it retints with the child's chosen castle colour instead of
+   sitting on the page as a foreign object. */
+.etlyou{
+  display:inline-block;width:96px;margin:0 auto 8px;
+  color:var(--ink);opacity:.9;text-decoration:none
+}
 .etlyou svg{width:100%;height:auto;display:block}
 .etlyou .etl{
-  font-family:'Trebuchet MS',Verdana,sans-serif;font-size:25px;font-weight:700;
-  letter-spacing:1.5px;fill:var(--ink)
+  font-family:var(--serif);font-size:30px;font-weight:600;
+  letter-spacing:2px;fill:currentColor
 }
-.etlyou .badge{fill:var(--gold)}
 .etlyou .you{
-  font-family:'Trebuchet MS',Verdana,sans-serif;font-size:19px;font-weight:700;
-  letter-spacing:1px;fill:#fffdf9
+  font-family:'Public Sans','Trebuchet MS',sans-serif;font-size:15px;font-weight:700;
+  letter-spacing:1.2px;fill:currentColor
 }
 .crest{color:var(--blue);line-height:0;filter:drop-shadow(0 4px 6px rgba(22,32,43,.25))}
 .crest svg{display:inline-block}
@@ -365,11 +374,20 @@ dialog button{
        product name stays the loud thing on the page. It is drawn inline
        rather than loaded as a file so it can never be the missing asset that
        leaves a masthead blank. -->
+  <!-- The real ETL YOU mark, per Dr. O's brand sheet, replacing a gold pill I
+       had invented. ETL's own three-bar stack sits above the wordmark, drawn
+       as offset rounded outlines climbing left to right, with YOU set small
+       and raised against ETL in Spectral. Pure geometry plus type: nothing to
+       load, and it holds at any size. -->
   <a class="etlyou" href="#" aria-label="ETL YOU, Emerging Technologies Laboratory Youth" onclick="return false">
-    <svg viewBox="0 0 150 36" role="img" aria-hidden="true">
-      <text x="0" y="26" class="etl">ETL</text>
-      <rect x="64" y="4" width="84" height="28" rx="14" class="badge"/>
-      <text x="106" y="24" class="you" text-anchor="middle">YOU</text>
+    <svg viewBox="0 0 132 74" role="img" aria-hidden="true">
+      <g fill="none" stroke="currentColor" stroke-width="3.4">
+        <rect x="8"  y="30" width="34" height="15" rx="7.5"/>
+        <rect x="19" y="17" width="34" height="15" rx="7.5"/>
+        <rect x="30" y="4"  width="34" height="15" rx="7.5"/>
+      </g>
+      <text x="4" y="70" class="etl">ETL</text>
+      <text x="72" y="59" class="you">YOU</text>
     </svg>
   </a>
   <!-- Engraved castle, not the pink emoji. Same reasoning as the crests and as
