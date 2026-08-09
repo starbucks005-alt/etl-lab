@@ -269,6 +269,34 @@ body{
 }
 .story-play:active{transform:scale(.95)}
 
+/* The counting game. Big things, one tap each, a number popping as it lands.
+   This is the first thing in the castle a child can actually DO rather than
+   watch, which was the gap: the princesses described breathing on windows and
+   brushing bones while the screen showed a growth emoji and some buttons. */
+.counting{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;padding:4px 0 10px}
+.countable{
+  position:relative;width:74px;height:74px;border:0;border-radius:20px;
+  background:var(--stone);box-shadow:var(--shadow);
+  font-size:40px;line-height:1;cursor:pointer;display:grid;place-items:center;
+  transition:transform .14s ease,opacity .2s ease
+}
+.countable:active{transform:scale(.9)}
+.countable.done{opacity:.45}
+/* The number that pops when a thing is counted. Deliberately enormous: it is
+   the whole point of the exercise and she cannot read the word for it. */
+.countable .num{
+  position:absolute;inset:0;display:grid;place-items:center;
+  font-family:var(--serif);font-size:38px;font-weight:700;
+  color:var(--blue);background:var(--card);border-radius:20px;
+  box-shadow:inset 0 0 0 3px var(--gold);
+  animation:pop .32s ease
+}
+@keyframes pop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+.count-total{
+  text-align:center;font-family:var(--serif);font-size:30px;font-weight:700;
+  color:var(--blue);min-height:36px
+}
+
 /* 4. The game window: what is growing, and the things you can tap. How much
    room it needs depends on the game, so it sizes to its contents rather than
    being pinned to a share of the screen. */
@@ -338,6 +366,8 @@ body{
 
   <!-- 4. Game window -->
   <section class="window w-game">
+    <div class="counting" id="counting" hidden></div>
+    <div class="count-total" id="countTotal"></div>
     <div class="thing" id="thing"></div>
     <div class="answers" id="answers"></div>
   </section>
@@ -698,6 +728,51 @@ function addBubble(who, text){
   log.scrollTop = log.scrollHeight;
 }
 
+/* Lays out things to count. One tap per thing, in any order: a four-year-old
+   who counts them out of sequence has still counted them, and being corrected
+   for it is how you teach her that counting is a test she can fail.
+
+   Numbers are spoken in the princess's own voice through the scripted-line
+   path, so each one is bought once per princess and cached forever. */
+function setCounting(spec){
+  const host = document.getElementById('counting');
+  const total = document.getElementById('countTotal');
+  host.innerHTML = '';
+  total.textContent = '';
+  if (!spec || !spec.howMany) { host.hidden = true; return; }
+
+  host.hidden = false;
+  let counted = 0;
+  const n = Math.max(1, Math.min(10, spec.howMany));
+
+  for (let i = 0; i < n; i++) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'countable';
+    b.textContent = spec.emoji || '⭐';
+    b.setAttribute('aria-label', 'one to count');
+    b.addEventListener('click', () => {
+      if (b.classList.contains('done')) return;   // each thing counts once
+      b.classList.add('done');
+      counted += 1;
+
+      const num = document.createElement('span');
+      num.className = 'num';
+      num.textContent = String(counted);
+      b.appendChild(num);
+
+      speak(String(counted), 'count-' + counted);
+
+      if (counted === n) {
+        total.textContent = String(n);
+        // Tell the princess, so she can react and it goes in her notes.
+        setTimeout(() => turn('I counted ' + n), 900);
+      }
+    });
+    host.appendChild(b);
+  }
+}
+
 function setAnswers(choices){
   const host = document.getElementById('answers');
   host.innerHTML = '';
@@ -784,6 +859,7 @@ async function turn(message){
   addBubble('agent', data.body);
   setMood(data.feeling);
   rememberTaught(data.covered);
+  setCounting(data.count);
   setAnswers(data.choices);
   speak(data.body);
 }

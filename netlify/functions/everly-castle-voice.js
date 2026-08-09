@@ -73,6 +73,12 @@ const VOICE_SETTINGS = { stability: 0.40, similarity_boost: 0.80, style: 0.45, u
    deliberately loose for expressiveness and that suits most of the cast, but a
    voice whose whole character is talking too fast and tripping over herself
    rambles into noise at low stability. Tune her rather than re-cast her. */
+/* Spoken numbers for the counting game, served through the scripted-line
+   path so each one is generated once per princess and cached forever after.
+   A child counting to five every day for a year costs five clips, total. */
+const NUMBER_WORDS = ['zero', 'one', 'two', 'three', 'four', 'five',
+                      'six', 'seven', 'eight', 'nine', 'ten'];
+
 function settingsFor(agent) {
   return Object.assign({}, VOICE_SETTINGS, agent.voiceSettings || {});
 }
@@ -115,7 +121,11 @@ exports.handler = async (event) => {
   let text, cacheKey;
   const lineKey = String(body.line || '').trim();
 
-  if (lineKey) {
+  if (/^count-([0-9]|10)$/.test(lineKey)) {
+    // count-3 -> "three", in this princess's voice.
+    text = NUMBER_WORDS[Number(lineKey.split('-')[1])];
+    cacheKey = audioKey(agentId, 'count', text, voiceId, settings);
+  } else if (lineKey) {
     const bank = SCRIPT[agentId];
     if (!bank || !bank[lineKey]) return jsonError(404, `No scripted line "${lineKey}" for "${agentId}"`);
     text = bank[lineKey];

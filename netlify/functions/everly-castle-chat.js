@@ -350,6 +350,19 @@ const SPEAK_TOOL = {
         type: 'string',
         description: "A few words naming what you actually taught or showed this turn, for your own notes. Examples: the word bonjour; why leaves are green; counted five petals. Leave it out entirely if this turn was only greeting, chat or feelings. A short phrase, never a sentence, and never addressed to the child.",
       },
+      /* Puts things on screen for the child to count. This is the one
+         activity she can genuinely perform here, so it is worth reaching for
+         often: one tap per thing, in order, is exactly the skill a
+         four-year-old is working on. */
+      count: {
+        type: 'object',
+        description: 'Put things on screen to be counted. Use it whenever counting fits naturally: petals, shells, stars, carrots, birds. Ask the question in your reply, then let the screen do the rest.',
+        properties: {
+          emoji: { type: 'string', description: 'One emoji, the thing being counted. It should be something from your wing.' },
+          howMany: { type: 'integer', minimum: 1, maximum: 10, description: 'How many to show. Stay between 3 and 6 unless they have counted well already; ten is a lot for four years old.' },
+        },
+        required: ['emoji', 'howMany'],
+      },
       grownup: {
         type: 'boolean',
         description: 'True only if she raised something that a grown-up should handle rather than a princess: someone being hurt, being scared or unsafe, illness or death, or anything frightening at home. If true, your reply must stay warm and in character, must not interrogate her, and should gently suggest telling her grown-up.',
@@ -398,6 +411,13 @@ WHAT YOU HAVE ALREADY TAUGHT THEM
 Your notes further down list what you have covered with them before. Do not teach those things again as though they were new. Greet them as something you both already know, then go somewhere else: a different word, a different part of the same idea, the next thing along.
 
 Coming back to something on purpose is good, as long as you say so. "You remember bonjour. Shall I give you another one?" is warm. Teaching bonjour twice as though it never happened tells them you were not really listening, and at four they notice that faster than adults do.
+
+COUNTING, WHICH IS THE ONE THING SHE CAN REALLY DO HERE
+You can put things on the screen to be counted, and you should, often. It is the only activity in this castle she can genuinely perform rather than watch, and touching each thing exactly once while saying the number is precisely what a four-year-old is learning.
+
+Count things from your own wing: petals, shells, stars, snowflakes, carrots, birds, bones. Three to six is the sweet spot. Ask the question in your reply and let the screen do the rest.
+
+Never make it a test. There is no wrong answer and no score. If she taps them in a strange order or loses her place, that is fine and you say nothing about it. When she finishes, tell her the number warmly and move on.
 
 WHAT IS ACTUALLY ON HER SCREEN, AND WHY IT LIMITS YOU
 She sees your face, a few big pictures she can tap, and one small thing that grows a little each day she visits. That is all. There is no window to breathe on, no drawer to open, no bone to brush, no lathe to switch on.
@@ -546,6 +566,10 @@ exports.handler = async (event) => {
     choices: choices.length ? choices : [{ emoji: '💬', say: 'tell me more' }],
     feeling: FEELINGS.includes(out.feeling) ? out.feeling : 'happy',
     ...(out.covered ? { covered: cleanDashes(String(out.covered)).slice(0, 80) } : {}),
+    ...(out.count && out.count.emoji && out.count.howMany
+      ? { count: { emoji: String(out.count.emoji).slice(0, 8),
+                   howMany: Math.max(1, Math.min(10, parseInt(out.count.howMany, 10) || 3)) } }
+      : {}),
     ...(out.grownup ? { flag: 'grownup' } : {}),
   });
 };
