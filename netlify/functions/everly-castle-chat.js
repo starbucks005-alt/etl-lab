@@ -300,6 +300,34 @@ const SCRIPT = {
    kronborg-chat.js forces deliver_reply: the spoken line and the picture
    choices have to arrive together in one structured turn, or the page has to
    guess which part of a blob of prose is the choices. */
+/* ── The book on the shelf ─────────────────────────────────────────────────
+   Tap the book and the princess tells a story about her country, about a
+   minute long. Both of Dr. O's grandchildren love stories, which is the
+   observation this is built on.
+
+   These are FIXED text, and that is deliberate: it is where the paid line
+   sits. A fixed story is a pure function of its words and its voice, so it is
+   synthesised once ever and served from the cache forever after, which makes
+   the free tier genuinely cheap to run rather than artificially limited. What
+   costs money per child is a princess generating speech aimed at one child,
+   and that is what the paid tier buys.
+
+   Rules they all follow: 120 to 140 words, which reads aloud in 45 to 60
+   seconds; gentle stakes only, nobody lost or frightened; and true enough to
+   be worth knowing. */
+const TALES = {
+  "posy": "Here is a small story. In my garden in France there is a snail who lives under the third watering can. I call him Monsieur Escargot, which just means Mister Snail. Every morning he crosses the path, and it takes him all day. All day, to cross one path. One morning I decided to help, so I picked him up and put him on the other side. And do you know what he did? He turned around and went back. He was not going where I thought he was going at all. He was going somewhere only he knew about. So now I leave him alone, and I say bonjour, and I let him take all day. Some things are slow because slow is how they work.",
+  "nerida": "Here is a small story. In Greece the sea is so clear you can see your own feet standing in it. One summer a dolphin started following the fishing boats out of our harbour, every single morning. The fishermen named her Elpida, which means hope. She was not begging for fish. She just liked the company. When the boats turned home, she turned home. When they stopped, she stopped. For a whole summer she was part of the fleet. Then one day she brought another dolphin with her, a small one, and everybody understood: she had been busy. That is why the boats here still slow down when they leave the harbour. Just in case somebody is waiting to come along.",
+  "zephyra": "Here is a small story. In Nepal, where I live, the mountains are so tall that clouds get stuck on them. Once a year, when the rains finish, everybody goes up on the roofs and flies kites. Not a few people. Everybody. The whole sky fills up with them, hundreds and hundreds, red and yellow and green. My grandmother taught me on that roof. She said the trick is not pulling harder. The trick is feeling which way the wind already wants to go, and going there with it. I was six and I thought that was a silly answer. Now I have a tower full of birds who do exactly the same thing, every day, without being taught at all.",
+  "neva": "Here is a small story. In the north of Norway, in the summer, the sun does not go down. It just goes round and round the sky and never sets. Children play outside at midnight because it is still bright, and the grown-ups give up telling them to come in. But in the winter it is the other way. The sun does not come up at all, for weeks. So people put candles in every window, all along the street, and the snow catches the light and carries it. The whole village glows. I like that we did not fix the dark by making it go away. We fixed it by everybody putting one small light where it could be seen.",
+  "lenora": "Here is a small story. In Mongolia there are almost no towns, so at night there are almost no lights, and that means you can see everything up there. Everything. My grandfather could find his way home across the grass with no road and no map at all, just by looking up. He showed me how. He said the stars were the oldest map anybody has, and they still work, and nobody has to charge them. One night I asked him what happens if it is cloudy. He laughed and said then you stay where you are, and you wait, and you have a cup of tea. Some things you cannot hurry. You just wait for the sky to open.",
+  "elowyn": "Here is a small story. In New Zealand there is a bird called a kiwi. It is about as big as a chicken, it is brown and round and fluffy, and it cannot fly at all. Not even a little. It has wings, but they are tiny, hidden under the feathers, and it never uses them. Kiwi come out at night and they find food with their noses, which is very unusual for a bird. Their nostrils are right at the tip of the beak, so they walk along going snuffle, snuffle, snuffle in the leaves. New Zealanders love them so much that they call themselves Kiwis too. A whole country named after a small round bird that cannot fly.",
+  "clementine": "Here is a small story. In America there are gardens on top of buildings. Right on the roof, in the middle of the city, with cars going past underneath. I visited one where the children from the school grew tomatoes and beans and enormous sunflowers, ten floors up in the air. One boy showed me his pumpkin. It was the size of his head and he had grown it himself, and he told me its name, which was Gerald. He was extremely serious about Gerald. And I thought, this is the whole thing, is it not? You put a seed in some dirt on the roof of a building, and you wait, and something enormous turns up and you give it a name.",
+  "piper": "Here is a small story. In Germany there is an old story about four animals: a donkey, a dog, a cat and a rooster. They were all getting older, and they were all told they were not useful any more, so they left. They decided they would go to a town called Bremen and become musicians, because nobody there had heard them sing. They never actually got to Bremen. They stopped on the way, found somewhere to stay, and lived there happily instead. There is a statue of them in Bremen anyway, all four standing on top of each other, and people rub the donkey nose for luck. A statue in a town they never reached, of four animals who did not become musicians.",
+  "almasi": "Here is a small story. In Kenya there is a cave on the side of a mountain, and at night elephants walk into it. Right into the dark, deep inside, further than you could see. For years nobody knew why. Then somebody worked it out: the walls of that cave are full of salt, and elephants need salt, and they had been going in there and scraping it off the rock with their tusks. For hundreds of years. Maybe longer. The cave is bigger now than it used to be, and it is bigger because the elephants have been quietly eating it. When I dig up an old bone I always think about that. Everything down there was somebody, doing something, for a reason.",
+  "bex": "Here is a small story. In Brazil there is a bird called a toucan, and it has a beak nearly as long as the rest of it. Bright orange, enormous, ridiculous. For a long time people thought it must be for fighting, because it looks like it should be. It is not. It is full of tiny air pockets, so it hardly weighs anything, and it is criss-crossed with blood so the bird can let out heat through it when the day gets hot. It is a radiator. The most spectacular beak in the forest, and the reason it is there is plumbing. That is my favourite kind of answer: the thing looks like showing off, and then you open it up, and it turns out to be sensible."
+};
+
 const SPEAK_TOOL = {
   name: 'speak',
   description: 'Say your finished line out loud to the child and offer her up to three things she can tap to answer. Always call this exactly once to finish your turn.',
@@ -595,4 +623,5 @@ exports.handler = async (event) => {
 
 module.exports.AGENTS = AGENTS;
 module.exports.SCRIPT = SCRIPT;
+module.exports.TALES = TALES;
 module.exports.handler = exports.handler;

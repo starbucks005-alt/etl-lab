@@ -31,7 +31,7 @@
    Env: ELEVENLABS_API_KEY
    ───────────────────────────────────────────────────────────────────────────── */
 
-const { AGENTS, SCRIPT } = require('./everly-castle-chat.js');
+const { AGENTS, SCRIPT, TALES } = require('./everly-castle-chat.js');
 const { getStore, connectLambda } = require('@netlify/blobs');
 const crypto = require('crypto');
 
@@ -86,7 +86,7 @@ function settingsFor(agent) {
 // A generated princess line is short by design (MAX_TOKENS in everly-castle-chat is
 // 300). Anything materially longer than a few sentences means something has
 // gone wrong upstream, and synthesising it would be paying for the bug.
-const MAX_TEXT_CHARS = 600;
+const MAX_TEXT_CHARS = 600;   // live replies only; tales are fixed text and bypass this
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -125,6 +125,13 @@ exports.handler = async (event) => {
     // count-3 -> "three", in this princess's voice.
     text = NUMBER_WORDS[Number(lineKey.split('-')[1])];
     cacheKey = audioKey(agentId, 'count', text, voiceId, settings);
+  } else if (lineKey === 'tale') {
+    /* The minute-long country story. Fixed text, so it is synthesised once per
+       princess and served from the cache forever after: this is the free
+       tier's whole cost model. */
+    text = TALES[agentId];
+    if (!text) return jsonError(404, 'No tale for "' + agentId + '"');
+    cacheKey = audioKey(agentId, 'tale', text, voiceId, settings);
   } else if (lineKey) {
     const bank = SCRIPT[agentId];
     if (!bank || !bank[lineKey]) return jsonError(404, `No scripted line "${lineKey}" for "${agentId}"`);

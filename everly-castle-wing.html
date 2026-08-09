@@ -268,6 +268,8 @@ body{
   font-weight:700;cursor:pointer
 }
 .story-play:active{transform:scale(.95)}
+.story-buttons{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.story-play.book{background:var(--gold);color:#1f1704}
 
 /* The counting game. Big things, one tap each, a number popping as it lands.
    This is the first thing in the castle a child can actually DO rather than
@@ -361,7 +363,13 @@ body{
   <section class="window w-story">
     <div class="window-cap">Her story</div>
     <p class="story-text" id="storyText"></p>
-    <button class="story-play" id="storyPlay" type="button">▶ Hear it</button>
+    <div class="story-buttons">
+      <button class="story-play" id="storyPlay" type="button">▶ Hear it</button>
+      <!-- The book. Free on every tier: it is fixed text, cached once, and
+           costs nothing to serve. What the paid tier buys is a princess
+           talking to one particular child, not this. -->
+      <button class="story-play book" id="bookPlay" type="button">📖 Tell me a story</button>
+    </div>
   </section>
 
   <!-- 4. Game window -->
@@ -1054,6 +1062,23 @@ document.getElementById('begin').addEventListener('click', begin);
 /* Her story. The text is for the grown-up, the button is for the child, and
    the audio is a scripted line so it is generated once ever and served from
    the cache every time after that. */
+/* The book. One story per princess, a minute long, about her country. Fixed
+   text so it is bought once and cached forever, which is why it sits on the
+   free side of the line. */
+(function wireBook(){
+  const btn = document.getElementById('bookPlay');
+  if (!btn) return;
+  btn.addEventListener('click', () => {
+    btn.disabled = true;
+    addBubble('agent', '(telling a story about ' + (AGENT.place || 'home') + ')');
+    speak('', 'tale');
+    // She remembers she told it, so she can offer a different one another day
+    // once there is more than one to offer.
+    rememberTaught('told the story about ' + (AGENT.place || 'home'));
+    setTimeout(() => { btn.disabled = false; }, 4000);
+  });
+})();
+
 (function wireStory(){
   const bank = SCRIPT_TEXT[wingId] || SCRIPT_TEXT.posy;
   document.getElementById('storyText').textContent = bank.story;
