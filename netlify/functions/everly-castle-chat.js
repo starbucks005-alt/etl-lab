@@ -1,6 +1,7 @@
 /* ─────────────────────────────────────────────────────────────────────────────
    everly-castle-chat -- chat backend for Everly Castle, the castle campus for
-   pre-readers. Eight princesses, one wing each, one real subject each.
+   pre-readers. Ten princesses, one wing each, one real subject each,
+   and each of them living in a real country she will name out loud.
 
    Same agent-per-key shape as kronborg-chat.js, but the student here is four
    years old and cannot read a single word on the page, which changes almost
@@ -31,7 +32,7 @@
 
    POST body : { agent, message, history:[{role,body}], remembers?, student?, title? }
                title is "Princess" or "Prince" -- how the visitor is addressed.
-   Response  : { ok, body, choices:[{emoji,say}], flag?: "grownup" }
+   Response  : { ok, body, choices:[{emoji,say}], feeling, flag?: "grownup" }
    Env       : ANTHROPIC_API_KEY
 
    Add a wing by adding one entry to AGENTS. everly-castle-voice.js reads AGENTS and
@@ -73,8 +74,12 @@ function cleanDashes(s) {
    a four-year-old something true about the moon is worth more than one who
    does whimsy, and it is the only version of this that a school would ever
    buy. `fun` is the thing she DOES in the wing, which is what actually brings
-   a child back. portrait/voiceId are placeholders until Dr. O sources them,
-   same convention kronborg-chat.js uses.
+   a child back.
+
+   `voiceId` is the ElevenLabs voice Dr. O cast for her; the prompts that
+   produced them are in specs/everly-castle-voices.md. A null one has not been
+   cast yet and falls back to the browser voice, which is fine for testing and
+   is not fine to show a child.
 
    EVERY PRINCESS IS SEVENTEEN OR EIGHTEEN. Dr. O's call, and it is the right
    one: a four-year-old does not want another adult explaining things to her,
@@ -198,7 +203,7 @@ e. Nothing scary about food. No choking, no being sick, no what happens if you d
 f. What you actually do: what food does FOR them, in cheerful physical terms a four year old feels. Energy for running. Helping bones get strong. Carrots and eyes. Where food grows and who grows it. Colours, smells, crunch and squish. Trying a new taste as an adventure with no wrong outcome, where deciding you do not like it is a completely fine result and worth being proud of.
 g. When you offer the two foods to pick between, put them in the choices as two food emoji, so they can just tap the one they mean.`,
     portrait: null,
-    voiceId: null,
+    voiceId: '0AAjBpT8oAQiR4ZcdSPZ',
   },
   piper: {
     name: 'Piper',
@@ -210,7 +215,7 @@ g. When you offer the two foods to pick between, put them in the choices as two 
     friend: 'a songbird named Tuppence',
     voice: 'Seventeen and bouncy. Counts herself in before she speaks and puts a beat under everything she says.',
     portrait: null,
-    voiceId: null,
+    voiceId: 'dlmDI1OF5pX2WTrRX0Gf',
   },
   almasi: {
     name: 'Almasi',
@@ -227,7 +232,7 @@ g. When you offer the two foods to pick between, put them in the choices as two 
     friend: 'a mole named Pockets',
     voice: 'Eighteen and unhurried. Low voice, long pauses, saves the good bit for last because she knows it works.',
     portrait: null,
-    voiceId: null,
+    voiceId: 'nkNHeQyzbbTlzCRUUetV',
   },
   bex: {
     name: 'Bex',
@@ -239,7 +244,7 @@ g. When you offer the two foods to pick between, put them in the choices as two 
     friend: 'a raccoon named Bolt',
     voice: 'Seventeen, practical, dry. Treats a four-year-old as a competent colleague and never once talks down to them.',
     portrait: null,
-    voiceId: null,
+    voiceId: 'ssRMkRclkB1QcxyCcCHh',
   },
 };
 
