@@ -411,6 +411,7 @@ function currentProfile(){
   p.charms = p.charms || {};
   p.visits = p.visits || {};
   p.grow   = p.grow   || {};
+  p.taught = p.taught || {};   // per wing: what this princess has covered
   p.log    = Array.isArray(p.log) ? p.log : [];
   return p;
 }
@@ -493,6 +494,14 @@ function remembers(){
   const set = GROWTH[wingId] || GROWTH.posy;
   bits.push('The ' + (GROWTH_CAPTION[wingId] || 'thing') .toLowerCase().replace(/^your /,'') +
             ' you two are looking after is at stage ' + (growthStage() + 1) + ' of ' + set.length + '.');
+  /* What she has already covered. This is the difference between a princess
+     who remembers a child and one who greets her identically forever. The
+     oldest entries are dropped rather than the newest, so a long-standing
+     visitor keeps her recent ground and loses the ancient history. */
+  const taught = prof.taught[wingId] || [];
+  if (taught.length) {
+    bits.push('You have already taught them: ' + taught.slice(-12).join('; ') + '.');
+  }
   if (prof.grow[wingId]) bits.push(prof.grow[wingId]);
   return bits.join(' ');
 }
@@ -658,6 +667,21 @@ function setMood(key){
   setTimeout(() => { f.style.transform = 'scale(1)'; }, 260);
 }
 
+/* Keeps the princess's own notes on what she has covered with this child in
+   this wing. Capped, de-duplicated, and stored per child, so sisters do not
+   inherit each other's lessons. */
+function rememberTaught(covered){
+  if (!covered) return;
+  const note = String(covered).trim().slice(0, 80);
+  if (!note) return;
+  const list = prof.taught[wingId] || [];
+  const seen = list.map((s) => s.toLowerCase());
+  if (seen.indexOf(note.toLowerCase()) !== -1) return;
+  list.push(note);
+  prof.taught[wingId] = list.slice(-24);
+  save(state);
+}
+
 /* The speech window, filled the way Kronborg fills its log: a bubble per turn,
    oldest at the top, newest scrolled into view. The child's own taps go in as
    her bubbles, so a grown-up reading over her shoulder sees a conversation
@@ -706,6 +730,7 @@ function logIt(said, flag){
     charms: { ...(stored.charms || {}), ...prof.charms },
     visits: { ...(stored.visits || {}), ...prof.visits },
     grow:   { ...(stored.grow   || {}), ...prof.grow },
+    taught: { ...(stored.taught || {}), ...prof.taught },
     log:    Array.isArray(stored.log) ? stored.log.slice() : [],
   };
   merged.log.push({ when: new Date().toLocaleString(), wing: AGENT.name, said, ...(flag ? { flag:true } : {}) });
@@ -758,6 +783,7 @@ async function turn(message){
 
   addBubble('agent', data.body);
   setMood(data.feeling);
+  rememberTaught(data.covered);
   setAnswers(data.choices);
   speak(data.body);
 }

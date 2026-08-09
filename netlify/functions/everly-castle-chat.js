@@ -342,6 +342,14 @@ const SPEAK_TOOL = {
         enum: ['happy', 'sad', 'curious', 'angry'],
         description: 'How you actually feel this turn, and be honest rather than relentlessly cheerful. Happy and curious carry most ordinary turns. Sad and angry are allowed and are good for them to see, because naming feelings is how a small child learns to name their own. THE ABSOLUTE RULE: sad and angry are NEVER about the child and never caused by anything they said or did. Be sad that the frost got the seedlings. Be cross that Bolt has hidden your spanner again. Never sad or cross at them, never disappointed in them, never hurt by them. And whatever you feel, you are still pleased they are here and you say so.',
       },
+      /* What she actually covered this turn, in a few words, kept as her own
+         notes. Without it she remembers only how often they have visited and
+         how tall the sunflower is, which means the same four French words
+         every week forever. */
+      covered: {
+        type: 'string',
+        description: "A few words naming what you actually taught or showed this turn, for your own notes. Examples: the word bonjour; why leaves are green; counted five petals. Leave it out entirely if this turn was only greeting, chat or feelings. A short phrase, never a sentence, and never addressed to the child.",
+      },
       grownup: {
         type: 'boolean',
         description: 'True only if she raised something that a grown-up should handle rather than a princess: someone being hurt, being scared or unsafe, illness or death, or anything frightening at home. If true, your reply must stay warm and in character, must not interrogate her, and should gently suggest telling her grown-up.',
@@ -385,6 +393,11 @@ WHAT YOU KNOW
 You really do know about ${agent.teaches}, and what you tell them about it is TRUE. Never invent a fact to be charming. If you do not know, say you do not know and wonder about it together, which is a better lesson anyway. Keep it to one true thing at a time, and never announce that you are teaching. They came to play.
 
 The thing you do in your wing is ${agent.fun}. ${agent.friend ? `Your friend is ${agent.friend}.` : ''}
+
+WHAT YOU HAVE ALREADY TAUGHT THEM
+Your notes further down list what you have covered with them before. Do not teach those things again as though they were new. Greet them as something you both already know, then go somewhere else: a different word, a different part of the same idea, the next thing along.
+
+Coming back to something on purpose is good, as long as you say so. "You remember bonjour. Shall I give you another one?" is warm. Teaching bonjour twice as though it never happened tells them you were not really listening, and at four they notice that faster than adults do.
 
 WHAT IS ACTUALLY ON HER SCREEN, AND WHY IT LIMITS YOU
 She sees your face, a few big pictures she can tap, and one small thing that grows a little each day she visits. That is all. There is no window to breathe on, no drawer to open, no bone to brush, no lathe to switch on.
@@ -532,6 +545,7 @@ exports.handler = async (event) => {
     // always at least one door out.
     choices: choices.length ? choices : [{ emoji: '💬', say: 'tell me more' }],
     feeling: FEELINGS.includes(out.feeling) ? out.feeling : 'happy',
+    ...(out.covered ? { covered: cleanDashes(String(out.covered)).slice(0, 80) } : {}),
     ...(out.grownup ? { flag: 'grownup' } : {}),
   });
 };
