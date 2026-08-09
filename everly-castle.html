@@ -138,7 +138,25 @@ body{
   touch-action:manipulation;
 }
 
-header{text-align:center;padding:18px 18px 6px}
+header{text-align:center;padding:16px 18px 4px}
+/* Castle and name side by side. Wraps to stacked on a narrow phone. */
+.masthead{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap}
+.masthead h1{margin:0}
+/* The division mark, at the foot and quiet. */
+.etlyou-foot{text-align:center;padding:18px 0 30px;opacity:.6}
+.etlyou-foot .etlyou{width:78px;margin:0 auto}
+/* One strip instead of three rows. Shows who she is; opens the choices. */
+.whoami{
+  display:flex;align-items:center;gap:10px;margin:0 auto;
+  padding:8px 16px;border:1px solid var(--rule);border-radius:999px;
+  background:var(--card);color:var(--ink);cursor:pointer;font-family:inherit
+}
+.whoami:active{transform:scale(.97)}
+.whoami-crest{color:var(--blue);line-height:0}
+.whoami-name{font-size:14.5px;font-weight:700}
+.whoami-dot{width:16px;height:16px;border-radius:50%;border:1px solid rgba(0,0,0,.15)}
+.whoami-more{font-size:11px;letter-spacing:.08em;text-transform:uppercase;opacity:.45}
+.setup{margin-top:14px}
 /* ETL YOU. Spectral for the wordmark and Public Sans for YOU, per the brand
    sheet; the three-bar stack is ETL's own mark, inherited unchanged. It takes
    currentColor so it retints with the child's chosen castle colour instead of
@@ -384,32 +402,11 @@ dialog button{
 <body>
 
 <header>
-  <!-- ETL YOU: Emerging Technologies Laboratory YOUTH. The division mark sits
-       above the product, not instead of it. Everly Castle is one castle
-       inside ETL YOU, so the mark stays small and constant here and the
-       product name stays the loud thing on the page. It is drawn inline
-       rather than loaded as a file so it can never be the missing asset that
-       leaves a masthead blank. -->
-  <!-- The real ETL YOU mark, per Dr. O's brand sheet, replacing a gold pill I
-       had invented. ETL's own three-bar stack sits above the wordmark, drawn
-       as offset rounded outlines climbing left to right, with YOU set small
-       and raised against ETL in Spectral. Pure geometry plus type: nothing to
-       load, and it holds at any size. -->
-  <a class="etlyou" href="#" aria-label="ETL YOU, Emerging Technologies Laboratory Youth" onclick="return false">
-    <svg viewBox="0 0 132 74" role="img" aria-hidden="true">
-      <g fill="none" stroke="currentColor" stroke-width="3.4">
-        <rect x="8"  y="30" width="34" height="15" rx="7.5"/>
-        <rect x="19" y="17" width="34" height="15" rx="7.5"/>
-        <rect x="30" y="4"  width="34" height="15" rx="7.5"/>
-      </g>
-      <text x="4" y="70" class="etl">ETL</text>
-      <text x="72" y="59" class="you">YOU</text>
-    </svg>
-  </a>
-  <!-- Engraved castle, not the pink emoji. Same reasoning as the crests and as
-       ETL's own mark: pure geometry, so nothing has to load for it to render
-       and it never looks like a sticker next to painterly artwork. -->
-  <div class="crest" aria-hidden="true">
+  <!-- Castle and name on one line, not stacked. Left to right reads as a
+       lockup; stacked and centred it read as a title card and pushed the
+       doors below the fold. -->
+  <div class="masthead">
+<div class="crest" aria-hidden="true">
     <svg viewBox="0 0 64 64" width="60" height="60">
       <g fill="currentColor">
         <path d="M6 30h4v-5h4v5h4v-5h4v5h4v26H6z"/>
@@ -420,43 +417,41 @@ dialog button{
       <path d="M28 56V44a4 4 0 018 0v12z" fill="var(--gate,#28527a)"/>
     </svg>
   </div>
-  <h1 id="castleName">Everly Castle</h1>
-  <!-- "Pick a door" used to live here, which was wasted: the child navigates
-       by the faces and never reads it. The line a parent needs goes here
-       instead, and the curriculum sits one tap away, ungated. -->
-  <!-- Says what this IS. An earlier draft read "and not one lesson that feels
-       like one", which defined the product by what it is not. House rule. -->
+    <h1 id="castleName">Everly Castle</h1>
+  </div>
   <p class="sub">Ten princesses. Ten real subjects. Learned by playing.</p>
-  <!-- Says what everyone IS. Two earlier drafts were framed as negatives, and
-       the second one landed as a slight on the child rather than a compliment
-       to her: "the children won't need one" reads as too little to use a
-       guide, not too quick to want one. -->
   <button class="peek" id="peek" type="button">Guide for parents (the children already worked it out)</button>
 </header>
 
 <!-- Shown only when more than one child lives on this device. Crest first,
      name second: the child picks the picture, the grown-up reads the word. -->
+<!-- ── Who is visiting ──────────────────────────────────────────────────
+     Three stacked choice rows used to sit here on every single visit, which
+     meant a returning child walked past a setup screen to reach a princess.
+     Now there is one strip showing who she is, and the choices open only if
+     she taps it. A brand new profile opens expanded, because then it really
+     is a setup screen. -->
 <section class="picker" id="picker" hidden>
-  <div class="picker-cap">Who is visiting?</div>
-  <div class="picker-row" id="pickerRow"></div>
-  <!-- Chosen right here, at the moment she says who she is. Not buried in a
-       settings panel she cannot open. -->
-  <!-- The child picks her own mark. It is how she finds herself in a line-up
-       she cannot read, so it should be hers by choice, not assigned to her by
-       whoever set the tablet up. -->
-  <!-- Everything the child chooses about herself now lives in one place, at
-       the moment she says who she is: what she is called, her badge, her
-       colour. The title used to sit in the grown-up panel behind a maths gate,
-       which made it the one thing about her that somebody else decided. -->
-  <div class="picker-cap" style="margin-top:14px">Are you a princess or a prince?</div>
-  <div class="theme-row" id="titleRow"></div>
+  <button class="whoami" id="whoami" type="button">
+    <span class="whoami-crest" id="whoamiCrest"></span>
+    <span class="whoami-name" id="whoamiName"></span>
+    <span class="whoami-dot" id="whoamiDot"></span>
+    <span class="whoami-more" id="whoamiMore">change</span>
+  </button>
 
-  <!-- "Your mark" was heraldry-speak. A four-year-old knows what a badge is. -->
-  <div class="picker-cap" style="margin-top:14px">Your badge</div>
-  <div class="theme-row" id="crestRow"></div>
+  <div class="setup" id="setup" hidden>
+    <div class="picker-cap" id="switchCap">Who is visiting?</div>
+    <div class="picker-row" id="pickerRow"></div>
 
-  <div class="picker-cap" style="margin-top:14px">Your castle’s colour</div>
-  <div class="theme-row" id="themeRow"></div>
+    <div class="picker-cap" style="margin-top:14px">Princess or prince?</div>
+    <div class="theme-row" id="titleRow"></div>
+
+    <div class="picker-cap" style="margin-top:14px">Your badge</div>
+    <div class="theme-row" id="crestRow"></div>
+
+    <div class="picker-cap" style="margin-top:14px">Your castle&rsquo;s colour</div>
+    <div class="theme-row" id="themeRow"></div>
+  </div>
 </section>
 
 <div class="greet" id="greet"></div>
@@ -467,6 +462,20 @@ dialog button{
   <div class="row" id="charmRow"></div>
   <div class="cap" id="charmCap">Charms you have earned</div>
 </section>
+
+<!-- The division mark sits at the foot. At the top it was the first thing a
+     visitor read, competing with the product it belongs to. -->
+<footer class="etlyou-foot"><a class="etlyou" href="#" aria-label="ETL YOU, Emerging Technologies Laboratory Youth" onclick="return false">
+    <svg viewBox="0 0 132 74" role="img" aria-hidden="true">
+      <g fill="none" stroke="currentColor" stroke-width="3.4">
+        <rect x="8"  y="30" width="34" height="15" rx="7.5"/>
+        <rect x="19" y="17" width="34" height="15" rx="7.5"/>
+        <rect x="30" y="4"  width="34" height="15" rx="7.5"/>
+      </g>
+      <text x="4" y="70" class="etl">ETL</text>
+      <text x="72" y="59" class="you">YOU</text>
+    </svg>
+  </a></footer>
 
 <button class="grown" id="grownBtn" aria-label="Grown-ups">⚙</button>
 
@@ -1092,15 +1101,36 @@ function drawCrests(){
   });
 }
 
+/* The identity strip: badge, name, colour, and a way in to change them.
+   It replaces three permanently-open choice rows that a returning child had
+   to scroll past every visit to reach a princess. */
+function drawWhoAmI(){
+  const p = activeProfile();
+  const crestHost = document.getElementById("whoamiCrest");
+  crestHost.innerHTML = "";
+  crestHost.appendChild(crestSvg((p && p.crest) || CRESTS[0], 22));
+  const t = visitorTitle();
+  document.getElementById("whoamiName").textContent = p && p.name ? t + " " + p.name : t;
+  const th = THEMES.filter(function(x){ return x.id === ((p && p.theme) || ""); })[0] || THEMES[0];
+  document.getElementById("whoamiDot").style.background = th.swatch;
+  // Only offer switching children when there is more than one.
+  const many = profileList().length > 1;
+  document.getElementById("switchCap").hidden = !many;
+  document.getElementById("pickerRow").hidden = !many;
+}
+
+document.getElementById("whoami").addEventListener("click", function(){
+  const s = document.getElementById("setup");
+  s.hidden = !s.hidden;
+  document.getElementById("whoamiMore").textContent = s.hidden ? "change" : "done";
+});
+
 function drawPicker(){
   const list = profileList();
   const wrap = document.getElementById('picker');
   const host = document.getElementById('pickerRow');
 
-  // The colour row lives in this section, so the section itself is always on.
   wrap.hidden = false;
-  document.getElementById('pickerRow').style.display = list.length < 2 ? 'none' : '';
-  wrap.querySelector('.picker-cap').style.display = list.length < 2 ? 'none' : '';
   host.innerHTML = '';
   list.forEach((p) => {
     const b = document.createElement('button');
@@ -1146,7 +1176,10 @@ function ensureProfile(){
   save(state);
 }
 
-function redraw(){ ensureProfile(); migrateCrests(); const ap=activeProfile(); applyTheme((ap&&ap.theme)||''); drawThemes(); drawCrests(); drawTitles(); drawPicker(); drawDoors(); drawCharms(); drawGreeting(); }
+function redraw(){ ensureProfile(); migrateCrests(); const ap=activeProfile(); applyTheme((ap&&ap.theme)||''); drawThemes(); drawCrests(); drawTitles(); drawPicker(); drawWhoAmI(); drawDoors(); drawCharms(); drawGreeting();
+  // A brand new profile opens expanded, because then this really is setup.
+  const ap2 = activeProfile();
+  if (ap2 && !ap2.name) { document.getElementById("setup").hidden = false; document.getElementById("whoamiMore").textContent = "done"; } }
 redraw();
 
 // Coming back from a wing should show a charm that was just earned without a

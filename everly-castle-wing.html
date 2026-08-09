@@ -152,6 +152,11 @@ body{
        suits the narrow column, so this went back down to 38 after a brief
        detour at 44 for a 16:9 draft of the artwork. */
     grid-template-columns:38fr 62fr;
+  }
+  /* A wing with a cartoon flips the emphasis: the video is landscape and is
+     the thing worth looking at, so it takes the wider column. */
+  .stage.has-embed{
+    grid-template-columns:58fr 42fr;
     /* Top row takes the slack; the bottom row sizes to its contents, because
        how much room the game needs depends entirely on which game it is. */
     grid-template-rows:minmax(180px,1fr) minmax(0,auto);
@@ -192,7 +197,7 @@ body{
 .face video{width:100%;height:100%;object-fit:cover;display:block}
 /* Vimeo panel. The embed is 16:9 and the artwork is 7:8, so the frame changes
    shape rather than letterboxing a portrait panel around a landscape video. */
-.face.has-embed{aspect-ratio:16/9;background:#000}
+.face.has-embed{flex:0 0 auto;aspect-ratio:16/9;background:#000;align-self:stretch}
 .face.has-embed iframe{width:100%;height:100%;border:0;display:block}
 .w-princess:has(.has-embed){justify-content:flex-start}
 /* The still, used ONLY when this princess has no clip yet, and mounted only
@@ -837,9 +842,10 @@ function clearEmoji(host){
   if (vid) {
     clearEmoji(el);
     el.classList.add('has-embed');
+    document.querySelector('.stage').classList.add('has-embed');
     const frame = document.createElement('iframe');
     frame.src = 'https://player.vimeo.com/video/' + vid +
-                '?badge=0&autopause=0&player_id=0&app_id=58479&autoplay=1&muted=1&loop=1&background=1';
+                '?badge=0&autopause=0&player_id=0&app_id=58479&autoplay=1&muted=1&loop=1&controls=0&dnt=1';
     frame.title = AGENT.name + ' in ' + AGENT.wing;
     frame.setAttribute('frameborder', '0');
     frame.setAttribute('allow', 'autoplay; fullscreen; picture-in-picture');
