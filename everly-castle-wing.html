@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Everly Castle</title>
+<style>
+/* ─────────────────────────────────────────────────────────────────────────
+   A wing of Everly Castle. One princess, one subject, one thing to do.
+
+   Everything on this page assumes a child who cannot read a word of it. The
+   three rules that shaped it:
+
+   1. SHE NEVER READS. The princess's line is spoken. The transcript on screen
+      is for the grown-up sitting next to her, and it is deliberately small and
+      quiet so it does not compete with the picture.
+
+   2. SHE NEVER TYPES. She answers by tapping one of two or three big emoji.
+      The microphone is a bonus on top of that, never the way through, for the
+      reason documented at listen() below.
+
+   3. SHE IS NEVER TOLD SHE FAILED. There is no wrong answer, no error message,
+      no "I did not understand", no empty state. Every path forward is a warm
+      line from the princess, including the ones that only exist because the
+      network fell over.
+   ───────────────────────────────────────────────────────────────────────── */
+:root{
+  /* Straight from ETL's own sheet, not invented here: ink, stamp blue, blue
+     tint and the Greylander gold. An earlier pass at this used a parchment
+     palette that belonged to no ETL product and was simply wrong.
+
+     Blue is also what the artwork is actually made of. Nerida's Aegean,
+     Zephyra's sky, Neva's ice and Lenora's night sky are all this family, and
+     every nameplate in every picture is brass. The UI now agrees with its own
+     cast instead of arguing with it.
+
+     It stays LIGHT. A four-year-old gets a bright day-sky, not a dark theme,
+     and the portraits supply the saturation. */
+  --ink:#16202b;          /* ETL ink */
+  --ink-soft:#51637a;
+  --blue:#28527a;         /* ETL stamp blue */
+  --blue-lit:#7fa8c9;     /* ETL blue tint */
+  --sky1:#eaf3fa;
+  --sky2:#cfe3f2;
+  --sky3:#aecde6;
+  --card:#ffffff;
+  --gold:#c9a23f;         /* ETL gold */
+  --gold-lit:#e6c877;
+  --rule:#bcd4e6;
+  --stone:#dce9f4;
+  --shadow:0 8px 22px rgba(22,32,43,.16);
+  --shadow-deep:0 14px 34px rgba(22,32,43,.26);
+  --serif:Spectral,Georgia,'Iowan Old Style',Palatino,serif;
+}
+html[data-theme="mermaid"]{        /* Mermaid Green */
+  --blue:#1d6b6f; --blue-lit:#7cc3c4;
+  --sky1:#e6f5f4; --sky2:#c3e6e4; --sky3:#9dd4d2; --rule:#a9d6d4; --stone:#d6efee;
+}
+html[data-theme="sunshine"]{       /* Sunshine Yellow */
+  --blue:#8a6a12; --blue-lit:#e3c469;
+  --sky1:#fffaea; --sky2:#fdefc4; --sky3:#f7de97; --rule:#e8d29a; --stone:#fdf3d6;
+}
+html[data-theme="petal"]{          /* Petal Pink */
+  --blue:#9c3f66; --blue-lit:#e2a1bd;
+  --sky1:#fdeef4; --sky2:#f8d6e4; --sky3:#f0b8ce; --rule:#e9bfd2; --stone:#fbe4ee;
+}
+html[data-theme="snowflake"]{      /* Snowflake White */
+  --blue:#4a6f8c; --blue-lit:#a9c8dc;
+  --sky1:#f7fbfd; --sky2:#e6f0f7; --sky3:#d2e3ef; --rule:#d3e2ec; --stone:#eef5fa;
+}
+/* Starry Night is deliberately dark, the one theme that inverts. A castle at
+   bedtime is a lovely thing to hand a four-year-old, and Lenora's whole wing
+   is the night sky. Ink and paper swap so contrast stays high. */
+html[data-theme="starry"]{
+  --ink:#f2f6fb; --ink-soft:#b9c9dc;
+  --blue:#f0d9a0; --blue-lit:#8fb4d8;
+  --sky1:#1b2740; --sky2:#131d31; --sky3:#0d1524;
+  --card:#22304c; --rule:#3c5175; --stone:#2b3a58;
+  --shadow:0 8px 22px rgba(0,0,0,.45);
+  --shadow-deep:0 14px 34px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%}
+body{
+  font-family:'Trebuchet MS','Avenir Next',Verdana,sans-serif;
+  color:var(--ink);
+  background:
+    repeating-linear-gradient(90deg, rgba(40,82,122,.028) 0 2px, transparent 2px 4px),
+    repeating-linear-gradient(0deg,  rgba(40,82,122,.028) 0 2px, transparent 2px 4px),
+    radial-gradient(120% 80% at 50% 0%, var(--sky1) 0%, var(--sky2) 55%, var(--sky3) 100%);
+  background-attachment:fixed;
+  min-height:100dvh;display:flex;flex-direction:column;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  overscroll-behavior:none;touch-action:manipulation;
+}
+
+.top{display:flex;align-items:center;gap:10px;padding:12px 14px 4px}
+.home{
+  width:52px;height:52px;border-radius:50%;border:1px solid var(--rule);background:var(--card);color:var(--blue);
+  box-shadow:var(--shadow);font-size:26px;cursor:pointer;flex:0 0 auto
+}
+.home:active{transform:scale(.94)}
+.who{font-family:var(--serif);font-size:18px;font-weight:700;color:var(--blue)}
+.who small{display:block;font-family:var(--serif);font-style:italic;font-size:12px;font-weight:400;color:var(--ink-soft)}
+
+/* ── Three windows ─────────────────────────────────────────────────────────
+   The same three-part shape as kronborg-room.html: who is speaking on top,
+   the conversation in the middle, the thing you act with at the bottom.
+   Kronborg calls them the avatars row, the log and the composer. Here they
+   are the princess window, the speech window and the game window.
+
+   What carries over from Kronborg and matters most is that the middle is a
+   SCROLLING CONVERSATION, not a single line. The child cannot read any of it,
+   but the grown-up next to her can see the whole exchange, which is how they
+   judge whether this is any good. What changes from Kronborg is everything to
+   do with size and weight: light instead of dark, enormous instead of dense. */
+.stage{
+  flex:1;min-height:0;width:100%;max-width:1100px;margin:0 auto;
+  padding:6px 14px 14px;display:grid;gap:12px;
+  /* Phone: one column. The game is moved ahead of the story, because the game
+     is the thing a child's thumb has to reach and the story is something she
+     sits and listens to. On a wide screen the quadrants take their designed
+     positions and the order stops mattering. */
+  grid-template-columns:1fr;
+  grid-template-areas:'princess' 'speech' 'game' 'story';
+}
+@media (min-width:820px){
+  .stage{
+    /* The 2x2. Left column narrower than the right, as drawn. Portrait art
+       suits the narrow column, so this went back down to 38 after a brief
+       detour at 44 for a 16:9 draft of the artwork. */
+    grid-template-columns:38fr 62fr;
+    /* Top row takes the slack; the bottom row sizes to its contents, because
+       how much room the game needs depends entirely on which game it is. */
+    grid-template-rows:minmax(180px,1fr) minmax(0,auto);
+    grid-template-areas:
+      'princess speech'
+      'story    game';
+  }
+}
+.w-princess{grid-area:princess}
+.w-speech{grid-area:speech}
+.w-story{grid-area:story}
+.w-game{grid-area:game}
+.window{
+  background:var(--card);border:1px solid var(--rule);border-radius:18px;
+  box-shadow:var(--shadow);padding:12px;min-height:0
+}
+.window-cap{
+  font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+  opacity:.38;margin-bottom:6px;text-align:center
+}
+
+/* 1. The princess window. */
+.w-princess{display:flex;flex-direction:column;align-items:center;justify-content:center}
+/* Portrait, matching the artwork. The pieces are roughly 7:8 and they are
+   ENVIRONMENTAL: Clementine is not a cut-out on a background, she is standing
+   in the Copper Kitchen with the fire and the hanging pans around her, and
+   Posy is standing in the Wild Garden with the castle behind her. The wing is
+   the room in the picture, so the frame has to keep the room.
+
+   The clips are cartoon but made to Almost Human's standard, so the panel has
+   to be worth what went into them. */
+.face{
+  width:100%;aspect-ratio:7/8;border-radius:12px;
+  background:var(--stone);display:grid;place-items:center;overflow:hidden;
+  font-size:min(14vw,64px);box-shadow:inset 0 0 0 1px rgba(22,32,43,.12);
+  transition:transform .25s ease
+}
+.face video{width:100%;height:100%;object-fit:cover;display:block}
+/* The still, used ONLY when this princess has no clip yet, and mounted only
+   after the video element has been removed. See fallToStill(). */
+.face img{width:100%;height:100%;object-fit:cover;display:block}
+.face.talking{transform:scale(1.012)}
+
+/* 2. The speech window. Scrolls, oldest at the top, same as Kronborg's log. */
+.w-speech{display:flex;flex-direction:column;min-height:130px}
+
+/* The simplified emotion scale. One face, one word. A four-year-old cannot
+   read Kronborg's seven labelled bars and would not look at them if she
+   could, but she reads a face instantly, which is the whole point. */
+.mood{
+  display:flex;align-items:center;gap:8px;justify-content:center;
+  padding:2px 0 8px;border-bottom:1px solid var(--rule);margin-bottom:8px
+}
+.mood-face{font-size:30px;line-height:1;transition:transform .3s ease}
+.mood-word{font-size:12px;letter-spacing:.1em;text-transform:uppercase;opacity:.45}
+
+/* The other direction: the child taps how SHE feels. Same four faces, so the
+   vocabulary she is being taught to read is the vocabulary she answers in.
+   Four buttons, which is the balanced number. */
+.mymood{
+  display:flex;gap:8px;justify-content:center;align-items:center;
+  padding-top:8px;margin-top:8px;border-top:1px solid var(--rule)
+}
+.mymood-cap{font-size:10px;letter-spacing:.1em;text-transform:uppercase;opacity:.38;margin-right:2px}
+.mymood button{
+  border:1px solid var(--rule);background:var(--card);border-radius:14px;width:46px;height:46px;
+  font-size:24px;line-height:1;cursor:pointer;box-shadow:var(--shadow);
+  transition:transform .12s ease
+}
+.mymood button:active{transform:scale(.9)}
+.log{
+  flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;
+  padding:2px 2px 0;scroll-behavior:smooth
+}
+.bubble{
+  padding:9px 13px;border-radius:16px;max-width:86%;
+  font-size:14px;line-height:1.45
+}
+.bubble--agent{background:var(--stone);align-self:flex-start;border-bottom-left-radius:5px}
+.bubble--you{background:var(--blue);color:#fff;align-self:flex-end;border-bottom-right-radius:5px;opacity:.8}
+
+/* 3. The princess' story. Two sentences, and a big button to hear them,
+   because the child cannot read a word of it. */
+.w-story{display:flex;flex-direction:column;justify-content:center;gap:8px;text-align:center}
+.story-text{font-family:var(--serif);font-size:13.5px;line-height:1.6;color:var(--ink-soft)}
+.story-play{
+  align-self:center;border:0;border-radius:20px;padding:10px 18px;
+  background:var(--blue);color:#fff;font-family:var(--serif);font-size:13px;
+  font-weight:700;cursor:pointer
+}
+.story-play:active{transform:scale(.95)}
+
+/* 4. The game window: what is growing, and the things you can tap. How much
+   room it needs depends on the game, so it sizes to its contents rather than
+   being pinned to a share of the screen. */
+.w-game{text-align:center;display:flex;flex-direction:column;justify-content:center}
+.thing{font-size:min(15vw,62px);line-height:1;min-height:1em;filter:drop-shadow(0 5px 6px rgba(0,0,0,.14))}
+.thing small{display:block;font-size:11px;opacity:.5;margin-top:4px;filter:none}
+
+/* Answers. Enormous, because a four-year-old's tap is not precise. */
+.answers{
+  display:flex;flex-wrap:wrap;gap:10px;justify-content:center;
+  padding:8px 0 2px;width:100%
+}
+.answer{border:1px solid var(--rule);
+  flex:1 1 84px;max-width:140px;min-height:88px;
+  border-radius:20px;background:var(--card);box-shadow:var(--shadow);
+  font-size:42px;cursor:pointer;display:grid;place-items:center;
+  transition:transform .12s ease
+}
+.answer:active{transform:scale(.93)}
+.answer:disabled{opacity:.4}
+.mic{background:var(--stone);color:var(--blue)}
+.mic.on{animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+
+.begin{
+  border:0;border-radius:30px;padding:20px 34px;font-size:20px;font-weight:700;font-family:var(--serif);
+  background:var(--blue);color:#fff;box-shadow:var(--shadow);cursor:pointer;
+  font-family:inherit
+}
+.hidden{display:none !important}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <button class="home" id="home" aria-label="Back to the castle">🏰</button>
+  <div class="who"><span id="whoName">…</span><small id="whoWing"></small></div>
+</div>
+
+<main class="stage">
+  <!-- 1. Princess window -->
+  <section class="window w-princess">
+    <div class="face" id="face">🌻</div>
+    <button class="begin" id="begin">Tap to start</button>
+  </section>
+
+  <!-- 2. Speech window, with the simplified emotion scale on top. Every line
+       here is also spoken aloud; the text is for the grown-up sitting
+       alongside, who is the one who can read it. -->
+  <section class="window w-speech">
+    <div class="mood">
+      <span class="mood-face" id="moodFace">🙂</span>
+      <span class="mood-word" id="moodWord">happy</span>
+    </div>
+    <div class="log" id="log"></div>
+    <div class="mymood" id="myMood">
+      <span class="mymood-cap">You</span>
+    </div>
+  </section>
+
+  <!-- 3. The princess' story -->
+  <section class="window w-story">
+    <div class="window-cap">Her story</div>
+    <p class="story-text" id="storyText"></p>
+    <button class="story-play" id="storyPlay" type="button">▶ Hear it</button>
+  </section>
+
+  <!-- 4. Game window -->
+  <section class="window w-game">
+    <div class="thing" id="thing"></div>
+    <div class="answers" id="answers"></div>
+  </section>
+</main>
+
+<script>
+/* ── Cast, mirrored from netlify/functions/everly-castle-chat.js (display only) ──── */
+const WINGS = {
+  posy:       { name:'Posy',       wing:'the Wild Garden',        emoji:'🌻' },
+  nerida:     { name:'Nerida',     wing:'the Coral Court',        emoji:'🐚' },
+  zephyra:    { name:'Zephyra',    wing:'the Windward Tower',     emoji:'🪁' },
+  neva:       { name:'Neva',       wing:'the Frost Conservatory', emoji:'❄️' },
+  lenora:      { name:'Lenora',      wing:'the Star Balcony',       emoji:'🌙' },
+  elowyn:     { name:'Elowyn',     wing:'the Story Loft',         emoji:'📖' },
+  clementine: { name:'Clementine', wing:'the Copper Kitchen',     emoji:'🥕' },
+  piper:      { name:'Piper',      wing:'the Music Hall',         emoji:'🎵' },
+  almasi:      { name:'Almasi',      wing:'the Fossil Field',       emoji:'🦴' },
+  bex:        { name:'Bex',        wing:'the Workshop',           emoji:'🔧' },
+};
+// Cartoon clips, derived from the name so a new wing needs no extra wiring.
+// _idle.mp4 is required; _talk.mp4 is optional and simply is not used if it
+// has not been drawn yet.
+const clipIdle = (n) => 'agents/' + n + '_idle.mp4';
+const clipTalk = (n) => 'agents/' + n + '_talk.mp4';
+// The stills, for princesses who have been drawn but not yet animated. Both
+// extensions are tried so the artwork can be exported as either.
+const stillsFor = (n) => ['agents/' + n + '.png', 'agents/' + n + '.jpg'];
+
+const params = new URLSearchParams(location.search);
+const wingId = (params.get('wing') || 'posy').toLowerCase();
+const AGENT = WINGS[wingId] || WINGS.posy;
+
+/* ── Storage, all local ────────────────────────────────────────────────────
+   Same store the hub reads. Nothing here goes to a server. */
+const KEY = 'everlyCastle';
+function load(){ try { return JSON.parse(localStorage.getItem(KEY) || '{}'); } catch { return {}; } }
+function save(s){ try { localStorage.setItem(KEY, JSON.stringify(s)); } catch(e){ console.warn('[everly] storage unavailable', e); } }
+/* Everything below reads and writes ONE child's slice, never the device's.
+   With sisters sharing a tablet, a wing that wrote to a global would grow one
+   sunflower between three of them and hand whoever opened it last the crowns.
+   `prof` is the child who was picked on the hub. */
+let state = load();
+state.profiles = state.profiles || {};
+
+function currentProfile(){
+  let p = state.profiles[state.activeId];
+  if (!p) {
+    // Reached the wing without a child selected, e.g. a deep link or a fresh
+    // install. Make one rather than dropping her crowns on the floor.
+    const id = 'p' + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36);
+    state.activeId = id;
+    p = state.profiles[id] = { name:'', title:'Princess', crest:'🦋', charms:{}, visits:{}, grow:{}, log:[] };
+    save(state);
+  }
+  p.charms = p.charms || {};
+  p.visits = p.visits || {};
+  p.grow   = p.grow   || {};
+  p.log    = Array.isArray(p.log) ? p.log : [];
+  return p;
+}
+let prof = currentProfile();
+
+/* The wing wears whatever colour she chose on the hub. Applied before first
+   paint rather than after, so a child on Starry Night never gets a flash of
+   daylight on her way through the door. */
+(function applyChosenTheme(){
+  const t = prof && prof.theme;
+  if (t) document.documentElement.setAttribute('data-theme', t);
+})();
+
+const today = new Date().toISOString().slice(0,10);
+
+/* ── The thing that grows ──────────────────────────────────────────────────
+   The single most important mechanic in the product, and the cheapest: it is
+   five emoji and a counter. A child comes back tomorrow because the seed she
+   planted is taller, not because anything clever happened.
+
+   It advances on DISTINCT DAYS, not on visits, deliberately. Opening the app
+   eleven times in one afternoon must not race the sunflower to full bloom and
+   spend the whole hook in an hour, and a child who tries it will find that
+   plants do not work that way, which is the lesson anyway. */
+/* Six stages each, not five. Everything in Everly Castle comes in even numbers: ten
+   princesses, six stages, an even number of buttons on screen. It is a house
+   rule, and it happens to be the right one here anyway, because a child can
+   halve an even row of things and cannot halve an odd one. */
+const GROWTH = {
+  posy:       ['🌰','🌱','🌿','🪴','🌷','🌻'],
+  nerida:     ['🫧','🐚','🦀','🐠','🐡','🐙'],
+  // A leaf, a feather, a windchime, a balloon, a kite, a bird. The sequence is
+  // the lesson: each one needs more air under it than the last.
+  zephyra:    ['🍃','🪶','🎐','🎈','🪁','🦅'],
+  neva:       ['💧','🧊','❄️','⛄','🏔️','🦊'],
+  lenora:      ['🌑','🌒','🌓','🌔','🌖','🌕'],
+  elowyn:     ['📄','✏️','📃','📒','📔','📚'],
+  // Colours collected onto a plate. "Eat a rainbow" is the framing preschool
+  // nutrition programmes actually use, and it sorts food by variety rather
+  // than by virtue, which is the whole point of this wing.
+  clementine: ['🥕','🍎','🥦','🫐','🌽','🍽️'],
+  piper:      ['🎵','🎶','🥁','🎹','🎻','🎺'],
+  almasi:     ['🪨','🖌️','🦴','🔍','🦖','🦕'],
+  bex:        ['🔩','🔧','⚙️','🪛','🛠️','🤖'],
+};
+const GROWTH_CAPTION = {
+  posy:'Your sunflower', nerida:'Your tide pool', zephyra:'Your kite', neva:'Your window',
+  lenora:'Tonight’s moon', elowyn:'Your story shelf', clementine:'Your rainbow plate',
+  piper:'Your song', almasi:'Your dig', bex:'What you are building',
+};
+
+function growthStage(){
+  const days = prof.visits[wingId] || [];
+  return Math.min(days.length ? days.length - 1 : 0, (GROWTH[wingId] || GROWTH.posy).length - 1);
+}
+function recordVisit(){
+  const days = prof.visits[wingId] || [];
+  if (!days.includes(today)) { days.push(today); prof.visits[wingId] = days; save(state); }
+}
+function drawThing(){
+  const set = GROWTH[wingId] || GROWTH.posy;
+  const el = document.getElementById('thing');
+  el.textContent = set[growthStage()];
+  const cap = document.createElement('small');
+  cap.textContent = GROWTH_CAPTION[wingId] || '';
+  el.appendChild(cap);
+}
+
+/* ── What the princess remembers ───────────────────────────────────────────
+   A short plain-language note passed up per turn and handed straight to the
+   system prompt. Kept small on purpose: it is cheap, it is readable by the
+   grown-up in the panel, and there is no version of this where a four-year-
+   old's transcript belongs in a database. */
+function remembers(){
+  const bits = [];
+  const days = (prof.visits[wingId] || []).length;
+  // No "she". A prince visits this castle too, and the grown-up sets a title,
+  // not a pronoun, so the only safe thing to write here is "they".
+  if (days > 1) bits.push('They have visited you ' + days + ' times.');
+  const set = GROWTH[wingId] || GROWTH.posy;
+  bits.push('The ' + (GROWTH_CAPTION[wingId] || 'thing') .toLowerCase().replace(/^your /,'') +
+            ' you two are looking after is at stage ' + (growthStage() + 1) + ' of ' + set.length + '.');
+  if (prof.grow[wingId]) bits.push(prof.grow[wingId]);
+  return bits.join(' ');
+}
+
+/* ── Voice out ─────────────────────────────────────────────────────────────
+   Two tiers. everly-castle-voice.js gives the real princess voice; if no voice ID is
+   configured yet, or the network is down, the browser's own speech synthesis
+   reads the line instead. That fallback is NOT good enough to ship as the
+   product, but it is far better than a four-year-old sitting in front of a
+   silent screen, and it means the whole wing is testable today, before a
+   single ElevenLabs voice has been chosen. */
+let audioEl = null;
+async function speak(text, scriptLine){
+  setFaceTalking(true);
+  const done = () => setFaceTalking(false);
+
+  try {
+    const r = await fetch('/.netlify/functions/everly-castle-voice', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(scriptLine ? { agent: wingId, line: scriptLine } : { agent: wingId, text }),
+    });
+    if (!r.ok) throw new Error('voice ' + r.status);
+    const blob = await r.blob();
+    if (audioEl) { audioEl.pause(); URL.revokeObjectURL(audioEl.src); }
+    audioEl = new Audio(URL.createObjectURL(blob));
+    audioEl.onended = done;
+    await audioEl.play();
+    return;
+  } catch (e) {
+    console.warn('[everly] princess voice unavailable, using the browser voice:', e.message);
+  }
+
+  try {
+    const u = new SpeechSynthesisUtterance(text);
+    u.rate = 0.95; u.pitch = 1.15;
+    u.onend = done;
+    speechSynthesis.cancel();
+    speechSynthesis.speak(u);
+  } catch (_) { done(); }
+}
+
+/* ── Voice in ──────────────────────────────────────────────────────────────
+   Read this before making the microphone the main way through, because it is
+   tempting and it is wrong.
+
+   Speech recognition is trained overwhelmingly on adult speech. A four-year-
+   old has a smaller vocal tract, less consistent articulation and a habit of
+   trailing off, and recognition accuracy on preschoolers is dramatically
+   worse than on adults. Any design that REQUIRES her to be understood will
+   fail her several times a minute, and a small child who is not understood
+   does not retry, she gives up and goes away.
+
+   So: the emoji buttons are the guaranteed path and are always on screen. The
+   microphone sits alongside them as a bonus. When it hears nothing, mishears,
+   errors, or is not supported at all, nothing is announced and nothing is
+   blamed. The turn simply carries on with the buttons already sitting there.
+
+   The princesses are also briefed (rule 2 in everly-castle-chat.js) to write lines
+   that survive a garbled answer, which is the other half of the same fix. */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let listening = false;
+function listen(btn){
+  if (!SR || listening) return;
+  let rec;
+  try { rec = new SR(); } catch { return; }
+  rec.lang = 'en-US';
+  rec.interimResults = false;
+  rec.maxAlternatives = 3;
+  rec.continuous = false;
+
+  listening = true;
+  btn.classList.add('on');
+  const stop = () => { listening = false; btn.classList.remove('on'); };
+
+  rec.onresult = (ev) => {
+    stop();
+    const said = ev.results && ev.results[0] && ev.results[0][0] && ev.results[0][0].transcript;
+    if (said && said.trim()) turn(said.trim());
+    // No transcript means we say nothing at all. The buttons are still there.
+  };
+  rec.onerror = stop;
+  rec.onend = stop;
+  // Four-year-olds pause mid-thought. Give her longer than the default before
+  // the browser decides she has finished.
+  setTimeout(() => { try { rec.stop(); } catch(_){} }, 7000);
+  try { rec.start(); } catch { stop(); }
+}
+
+/* ── A turn ────────────────────────────────────────────────────────────────── */
+let history = [];
+let busy = false;
+
+/* Buttons always come out to an even number. House rule, and it earns its
+   keep on this page in particular: an even row wraps into two clean columns
+   on a phone with nothing stranded on its own line, and a four-year-old
+   choosing between a tidy pair is calmer than one facing a ragged three.
+
+   The mic counts as a button, so whether it is present changes the padding.
+   Anything short is filled with a "something else" door, which is never a
+   dead end: it is a real answer the princess can pick up. */
+/* ── Mirror of everly-castle-chat.js's SCRIPT ─────────────────────────────────
+   Fixed lines, held here so the page can show and speak them before it has
+   called any backend, and so the browser-voice fallback says exactly the words
+   the cached princess audio would. If you edit one, edit BOTH, and bump
+   CACHE_VERSION in everly-castle-voice.js. The consistency check enforces this. */
+const SCRIPT_TEXT = {
+  posy:       { hello:'Oh good, you came back. Clover and I were just checking on things.', again:'There you are. Come and look, something happened while you were gone.', story:'Nobody planted the Wild Garden. It turned up one spring all at once, and Clover and I have looked after it ever since.' },
+  nerida:     { hello:'You found the Coral Court. Careful, it is slippery.', again:'Back again. The tide came in and left us something.', story:'The Coral Court floods twice a day, and it always brings something back. Pebble arrived in one of those floods and simply never left.' },
+  zephyra:    { hello:'Hold on to something. It is windy up here.', again:'You are back. Good, the wind has swung right round since yesterday.', story:'They built this tower far too tall and the wind has never forgiven them. Gust taught me that if you stop fighting it, it holds you up.' },
+  neva:       { hello:'Come in. Mind the cold, it bites a little at first.', again:'You came back. Wisp knew you would.', story:'Everything in this room is water wearing something different. Wisp knows all of its outfits better than I do.' },
+  lenora:      { hello:'Shh. Come and stand here, where you can see.', again:'There you are. The moon has changed since you left.', story:'I found the Star Balcony by getting lost, which is the best way to find anything. Vesper was already up here, keeping the sky company on her own.' },
+  elowyn:     { hello:'A visitor. Inkwell, we have a visitor, and the story is not finished.', again:'You are back, and just in time, I was stuck.', story:'Every story anyone in this castle started and did not finish ends up in my loft. Inkwell sleeps on the good ones, so I always know which they are.' },
+  clementine: { hello:'Perfect timing. I am building a plate and I have run clean out of colours.', again:'You came back. Good, because I have done it again, look at this.', story:'I cook for ten princesses who all want something different, which is harder than it sounds. Crumb tastes everything first and has never once said no.' },
+  piper:      { hello:'Two, three, four, and you are here.', again:'Back again. I have a new pattern and it is a tricky one.', story:'The echo in here comes back a bit late, so when you sing you end up singing along with yourself. Tuppence joins in and never needed teaching.' },
+  almasi:     { hello:'Mind where you kneel. There are bones under all of this.', again:'You came back. Good, I found something yesterday and I have not touched it yet.' },
+  bex:        { hello:'Good, another pair of hands. Hold this.', again:'You are back. It is still broken. I left it for you.', story:'If it broke anywhere in this castle, it ends up here. Bolt steals the small parts, so half my job is finding what he did with them.' },
+};
+
+/* ── The simplified emotion scale ──────────────────────────────────────────
+   Kronborg and Almost Human run seven emotions on 0-8 bars. This is the same
+   idea reduced to what a four-year-old can actually read: one face and one
+   word. Every state is warm or neutral, deliberately, because a small child
+   should never be shown that she made someone sad. */
+const MOODS = {
+  happy:   { face:'😊', word:'happy',   say:'I feel happy today' },
+  sad:     { face:'😢', word:'sad',     say:'I feel sad today' },
+  curious: { face:'🤔', word:'curious', say:'I feel curious today' },
+  angry:   { face:'😠', word:'cross',   say:'I feel cross today' },
+};
+
+/* The child's own mood row. Tapping a face sends it as if she had said it,
+   which is the only way a four-year-old can tell anyone how she feels without
+   being able to write or reliably be understood by a microphone.
+
+   Every tap is logged for the grown-up, and sad or cross is marked, not as an
+   alarm but because "she told a princess she was sad on Tuesday" is exactly
+   the kind of thing a parent wants to know and would otherwise never hear. */
+function drawMyMood(){
+  const host = document.getElementById('myMood');
+  Object.entries(MOODS).forEach(([key, m]) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = m.face;
+    b.setAttribute('aria-label', 'I feel ' + m.word);
+    b.addEventListener('click', () => {
+      logIt(m.say, key === 'sad' || key === 'angry');
+      turn(m.say);
+    });
+    host.appendChild(b);
+  });
+}
+function setMood(key){
+  const m = MOODS[key] || MOODS.happy;
+  const f = document.getElementById('moodFace');
+  f.textContent = m.face;
+  document.getElementById('moodWord').textContent = m.word;
+  // A tiny pop, so a change of feeling is noticed by someone not reading.
+  f.style.transform = 'scale(1.28)';
+  setTimeout(() => { f.style.transform = 'scale(1)'; }, 260);
+}
+
+/* The speech window, filled the way Kronborg fills its log: a bubble per turn,
+   oldest at the top, newest scrolled into view. The child's own taps go in as
+   her bubbles, so a grown-up reading over her shoulder sees a conversation
+   rather than a series of disconnected princess lines. */
+function addBubble(who, text){
+  const log = document.getElementById('log');
+  const b = document.createElement('div');
+  b.className = 'bubble bubble--' + (who === 'you' ? 'you' : 'agent');
+  b.textContent = text;
+  log.appendChild(b);
+  // Keep it bounded. Nothing here is worth remembering past the session, and
+  // an unbounded log on a tablet a child never closes will grow all day.
+  while (log.children.length > 40) log.removeChild(log.firstChild);
+  log.scrollTop = log.scrollHeight;
+}
+
+function setAnswers(choices){
+  const host = document.getElementById('answers');
+  host.innerHTML = '';
+
+  const items = (choices || []).slice(0, 3).map((c) => ({ emoji:c.emoji, say:c.say, mic:false }));
+  if (SR) items.push({ emoji:'🎤', say:null, mic:true });
+  if (items.length % 2 === 1) items.push({ emoji:'🤷', say:'something else', mic:false });
+
+  items.forEach((it) => {
+    const b = document.createElement('button');
+    b.className = 'answer' + (it.mic ? ' mic' : '');
+    b.textContent = it.emoji;
+    b.setAttribute('aria-label', it.mic ? 'Say something' : it.say);
+    b.addEventListener('click', () => { if (it.mic) listen(b); else turn(it.say); });
+    host.appendChild(b);
+  });
+}
+
+/* Writes into THIS child's log and nobody else's. Re-reads first so a name or
+   a crest the grown-up changed in another tab is not clobbered, then merges
+   only the fields this wing actually owns. */
+function logIt(said, flag){
+  const s = load();
+  s.profiles = s.profiles || {};
+  const id = state.activeId;
+  const stored = s.profiles[id] || {};
+
+  const merged = {
+    ...stored,
+    charms: { ...(stored.charms || {}), ...prof.charms },
+    visits: { ...(stored.visits || {}), ...prof.visits },
+    grow:   { ...(stored.grow   || {}), ...prof.grow },
+    log:    Array.isArray(stored.log) ? stored.log.slice() : [],
+  };
+  merged.log.push({ when: new Date().toLocaleString(), wing: AGENT.name, said, ...(flag ? { flag:true } : {}) });
+  merged.log = merged.log.slice(-200);
+
+  s.profiles[id] = merged;
+  s.activeId = id;
+  save(s);
+  prof.log = merged.log;
+}
+
+async function turn(message){
+  if (busy) return;
+  busy = true;
+  document.querySelectorAll('.answer').forEach((b) => { b.disabled = true; });
+  addBubble('you', message);
+  logIt(message);
+
+  let data;
+  try {
+    const r = await fetch('/.netlify/functions/everly-castle-chat', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        agent: wingId,
+        message,
+        history: history.slice(-10),
+        student: prof.name || undefined,
+        title: prof.title === 'Prince' ? 'Prince' : 'Princess',
+        remembers: remembers(),
+      }),
+    });
+    data = await r.json();
+  } catch (e) {
+    console.warn('[everly] chat unreachable', e);
+    // She is four. She does not get an error, she gets the princess.
+    data = { ok:true, body:'Hold on, my hands are full of soil. Say that again in a moment.', choices:[{emoji:'👋', say:'hello'}] };
+  }
+
+  busy = false;
+  if (!data || !data.ok) data = { body:'Come and look at this instead.', choices:[{emoji:'👀', say:'let me see'}] };
+
+  history.push({ role:'user', body: message });
+  history.push({ role:'agent', body: data.body });
+
+  if (data.flag === 'grownup') {
+    // Flagged in the grown-up log so somebody can follow it up later. She is
+    // never told that anything was flagged.
+    logIt(message, true);
+  }
+
+  addBubble('agent', data.body);
+  setMood(data.feeling);
+  setAnswers(data.choices);
+  speak(data.body);
+}
+
+/* ── Opening ───────────────────────────────────────────────────────────────
+   Browsers will not play audio until the user has touched the page, so the
+   wing opens behind one big button. That is not a workaround here, it is the
+   right shape anyway: tapping the princess to wake her up is a nicer way in
+   than a screen that starts talking at a child on its own. */
+function begin(){
+  document.getElementById('begin').classList.add('hidden');
+  recordVisit();
+  drawThing();
+
+  const returning = (prof.visits[wingId] || []).length > 1;
+  const lineKey = returning ? 'again' : 'hello';
+  /* Every visit opens by name and ends on the feelings question, so the first
+     thing that happens in the castle is somebody asking her how she is. The
+     mood row underneath is the answer, which means her very first tap of the
+     session is always available and always means something.
+
+     This cannot be a purely scripted line any more, because it carries her
+     name. It is still cached: everly-castle-voice hashes live text, and the name
+     and title are fixed per device, so it is generated once for a family and
+     served from the store every time after that. */
+  const bank = SCRIPT_TEXT[wingId] || SCRIPT_TEXT.posy;
+  const rank = prof.title === 'Prince' ? 'Prince' : 'Princess';
+  /* Falls back to the bare title, never to "your highness". A four-year-old
+     has no hook for that word, and a greeting she cannot parse is a greeting
+     that teaches her the castle talks over her head. */
+  const who = prof.name ? rank + ' ' + prof.name : rank;
+  const opening = 'Hello, ' + who + '. ' + bank[lineKey] + ' How are you feeling today?';
+
+  addBubble('agent', opening);
+  history.push({ role:'agent', body: opening });
+  setAnswers([{ emoji:'👋', say:'hello' }, { emoji:'👀', say:'what happened?' }]);
+  speak(opening);
+
+  /* The charm is for showing up, not for performing. There is no test to pass
+     in a wing, and there must never be one: the moment a four-year-old can
+     fail at this, it stops being somewhere she wants to go. */
+  if (!prof.charms[wingId]) {
+    prof.charms[wingId] = today;
+    save(state);
+  }
+}
+
+/* ── Wire up ───────────────────────────────────────────────────────────────── */
+document.getElementById('whoName').textContent = AGENT.name;
+document.getElementById('whoWing').textContent = AGENT.wing;
+document.getElementById('home').addEventListener('click', () => {
+  try { if (audioEl) audioEl.pause(); speechSynthesis.cancel(); } catch(_){}
+  location.href = 'everly-castle.html';
+});
+
+/* ── The face is a cartoon loop, never a still ──────────────────────────────
+   House rule, and it is absolute: NO image behind, over, or as the poster of
+   a video. Not a portrait, not a CSS background, not the emoji. A still under
+   a clip makes a dead video look alive, and that exact failure has cost this
+   shop weeks more than once.
+
+   So the emoji only ever holds the space, and it is removed BEFORE the video
+   is revealed, never underneath it. If the clip cannot play, the video element
+   is torn out entirely and the emoji stays, loudly, in the console. */
+let faceVideo = null;
+let hasTalkClip = true;   // assumed until a talk clip actually fails to load
+
+/* Removes the placeholder emoji and NOTHING ELSE.
+
+   `el.textContent = ''` does not clear the text, it clears every child node,
+   and by the time we want the emoji gone the video or the image is already a
+   child. So the line written to reveal the artwork was deleting the artwork
+   and leaving a blank panel. It stayed invisible until a real file was put on
+   disk to load, because with nothing to load it never got the chance to fire. */
+function clearEmoji(host){
+  Array.prototype.slice.call(host.childNodes).forEach((n) => {
+    if (n.nodeType === 3) host.removeChild(n);
+  });
+}
+
+(function drawFace(){
+  const el = document.getElementById('face');
+  el.textContent = AGENT.emoji;
+
+  const v = document.createElement('video');
+  v.muted = true; v.defaultMuted = true; v.loop = true; v.autoplay = true; v.playsInline = true;
+  v.setAttribute('muted',''); v.setAttribute('playsinline',''); v.setAttribute('webkit-playsinline','');
+  v.preload = 'auto';
+  v.setAttribute('aria-hidden','true');
+  v.style.display = 'none';
+  v.src = clipIdle(AGENT.name);
+
+  let settled = false;
+
+  /* No clip for this princess yet, so show her picture instead. NOT the banned
+     pattern: the video is asked first and torn out completely before the image
+     exists, so the two are never both in the DOM and a still can never hide a
+     dead clip. A ladder, not a layer.
+
+     This is what lets ten stills go in now and the cartoons arrive one at a
+     time later, with no code change: the clip is always asked first, so the
+     day Clementine_idle.mp4 lands, she starts moving on her own. */
+  const fallToStill = (why) => {
+    if (settled) return; settled = true;
+    if (v.parentNode) v.parentNode.removeChild(v);
+    faceVideo = null;
+
+    const cands = stillsFor(AGENT.name);
+    let i = 0;
+    const tryNext = () => {
+      if (i >= cands.length) {
+        console.warn('[everly] nothing to show for ' + AGENT.name + ': no ' + clipIdle(AGENT.name) + ', no ' + cands.join(', '));
+        return;
+      }
+      const img = new Image();
+      img.alt = '';
+      img.style.display = 'none';
+      img.onload = () => {
+        clearEmoji(el);              // emoji out
+        img.style.display = 'block'; // picture in
+        console.info('[everly] no clip for ' + AGENT.name + ' yet (' + why + '), showing the still:', img.getAttribute('src'));
+      };
+      img.onerror = () => { if (img.parentNode) img.parentNode.removeChild(img); i++; tryNext(); };
+      el.appendChild(img);
+      img.src = cands[i];
+    };
+    tryNext();
+  };
+
+  v.addEventListener('loadeddata', () => {
+    if (settled) return; settled = true;
+    clearEmoji(el);       // emoji out first
+    v.style.display = 'block'; // video in second
+    faceVideo = v;
+  }, { once:true });
+  v.addEventListener('error', () => fallToStill('no clip file'), { once:true });
+
+  el.appendChild(v);
+  const p = v.play();
+  if (p && p.catch) p.catch(() => {});
+  setTimeout(() => { if (!settled && v.readyState < 2) fallToStill('timed out'); }, 6000);
+})();
+
+/* Swap to the talking loop while she speaks, back to idle when she stops.
+   One element, src swapped, so there is never a second layer to go stale.
+   If _talk.mp4 has not been drawn for this princess, the swap fails once,
+   hasTalkClip goes false, and it is never attempted again this session. */
+function setFaceTalking(on){
+  const el = document.getElementById('face');
+  el.classList.toggle('talking', on);
+  if (!faceVideo || !hasTalkClip) return;
+  const want = on ? clipTalk(AGENT.name) : clipIdle(AGENT.name);
+  if (faceVideo.getAttribute('src') === want) return;
+  const onErr = () => {
+    hasTalkClip = false;
+    console.warn('[everly] no talking clip for ' + AGENT.name + ', using the idle loop:', clipTalk(AGENT.name));
+    faceVideo.removeEventListener('error', onErr);
+    faceVideo.src = clipIdle(AGENT.name);
+    faceVideo.play().catch(() => {});
+  };
+  faceVideo.addEventListener('error', onErr, { once:true });
+  faceVideo.src = want;
+  faceVideo.play().catch(() => {});
+}
+
+drawThing();
+drawMyMood();
+document.getElementById('begin').addEventListener('click', begin);
+
+/* Her story. The text is for the grown-up, the button is for the child, and
+   the audio is a scripted line so it is generated once ever and served from
+   the cache every time after that. */
+(function wireStory(){
+  const bank = SCRIPT_TEXT[wingId] || SCRIPT_TEXT.posy;
+  document.getElementById('storyText').textContent = bank.story;
+  document.getElementById('storyPlay').addEventListener('click', () => {
+    addBubble('agent', bank.story);
+    speak(bank.story, 'story');
+  });
+})();
+</script>
+</body>
+</html>

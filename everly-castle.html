@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Everly Castle | ETL YOU</title>
+<!-- Parent-facing on purpose. The child cannot read a word of this page, so
+     every line of text on it is aimed at the grown-up holding the phone, and
+     its job is to say plainly that there is a real curriculum in here. The
+     child is never told any of it. -->
+<meta name="description" content="Ten princesses, ten real subjects: botany, marine science, air and weather, states of matter, astronomy, literacy, early number, rhythm, geology and engineering. Built for children who cannot read yet. They think they are playing.">
+<style>
+/* ─────────────────────────────────────────────────────────────────────────
+   Everly Castle -- the castle hub.
+
+   The student is four and CANNOT READ. That is not a styling note, it is the
+   whole specification for this page:
+
+     - Nothing a child must read to navigate. She finds Posy by Posy's FACE.
+       The names under the doors are for the grown-up holding the phone.
+     - Doors are enormous. A four-year-old's tap lands within about 20mm of
+       where she meant, so every target here is far bigger than the 44px
+       guidance written for adults.
+     - No back button, no menu, no settings she can reach. The only way out of
+       a wing is the big castle door, and the only way into the grown-up panel
+       is through a gate she cannot pass.
+     - No timers, no scores, no streaks, nothing that can make a small child
+       feel she is losing.
+   ───────────────────────────────────────────────────────────────────────── */
+/* ── Palette ───────────────────────────────────────────────────────────────
+   Reskinned to sit with the artwork instead of arguing with it. The pieces
+   are painterly storybook illustration: warm light, deep shadow, brass
+   nameplates, wood and stone. The first pass at this UI was pastel lilac with
+   rounded emoji cards, which looked like a different product bolted onto the
+   same page, and next to Almasi's red earth or Lenora's midnight sky it read
+   as cheap.
+
+   So: parchment rather than lilac, brass rather than candy gold, an engraved
+   serif for display rather than Trebuchet. What does NOT change is that a
+   four-year-old has to use it, so nothing got darker, smaller or lower
+   contrast. Warm and rich, never moody. */
+:root{
+  /* Straight from ETL's own sheet, not invented here: ink, stamp blue, blue
+     tint and the Greylander gold. An earlier pass at this used a parchment
+     palette that belonged to no ETL product and was simply wrong.
+
+     Blue is also what the artwork is actually made of. Nerida's Aegean,
+     Zephyra's sky, Neva's ice and Lenora's night sky are all this family, and
+     every nameplate in every picture is brass. The UI now agrees with its own
+     cast instead of arguing with it.
+
+     It stays LIGHT. A four-year-old gets a bright day-sky, not a dark theme,
+     and the portraits supply the saturation. */
+  --ink:#16202b;          /* ETL ink */
+  --ink-soft:#51637a;
+  --blue:#28527a;         /* ETL stamp blue */
+  --blue-lit:#7fa8c9;     /* ETL blue tint */
+  --sky1:#eaf3fa;
+  --sky2:#cfe3f2;
+  --sky3:#aecde6;
+  --card:#ffffff;
+  --gold:#c9a23f;         /* ETL gold */
+  --gold-lit:#e6c877;
+  --rule:#bcd4e6;
+  --stone:#dce9f4;
+  --shadow:0 8px 22px rgba(22,32,43,.16);
+  --shadow-deep:0 14px 34px rgba(22,32,43,.26);
+  --serif:Spectral,Georgia,'Iowan Old Style',Palatino,serif;
+}
+/* ── The child picks her castle's colour ───────────────────────────────────
+   Chosen at the crest picker, the moment she says who she is, and remembered
+   against her own profile. Sisters get different castles out of the same
+   install, which is the whole point of "Charlotte's Castle" being hers.
+
+   Every theme is lifted from the artwork rather than invented: the sea is
+   Nerida's Aegean, night is Lenora's sky, garden is Posy's, sunset is
+   Almasi's red earth, snow is Neva's. Six of them, which is the even number
+   the house rule wants, and no wrong choice among them. */
+/* Names a four-year-old would actually say. She cannot read them, so the
+   colour IS the choice, but the names are what she will call it out loud and
+   what a grown-up sees in the settings. */
+html[data-theme="mermaid"]{        /* Mermaid Green */
+  --blue:#1d6b6f; --blue-lit:#7cc3c4;
+  --sky1:#e6f5f4; --sky2:#c3e6e4; --sky3:#9dd4d2; --rule:#a9d6d4; --stone:#d6efee;
+}
+html[data-theme="sunshine"]{       /* Sunshine Yellow */
+  --blue:#8a6a12; --blue-lit:#e3c469;
+  --sky1:#fffaea; --sky2:#fdefc4; --sky3:#f7de97; --rule:#e8d29a; --stone:#fdf3d6;
+}
+html[data-theme="petal"]{          /* Petal Pink */
+  --blue:#9c3f66; --blue-lit:#e2a1bd;
+  --sky1:#fdeef4; --sky2:#f8d6e4; --sky3:#f0b8ce; --rule:#e9bfd2; --stone:#fbe4ee;
+}
+html[data-theme="snowflake"]{      /* Snowflake White */
+  --blue:#4a6f8c; --blue-lit:#a9c8dc;
+  --sky1:#f7fbfd; --sky2:#e6f0f7; --sky3:#d2e3ef; --rule:#d3e2ec; --stone:#eef5fa;
+}
+/* Starry Night is deliberately dark, the one theme that inverts. A castle at
+   bedtime is a lovely thing to hand a four-year-old, and Lenora's whole wing
+   is the night sky. Ink and paper swap so contrast stays high. */
+html[data-theme="starry"]{
+  --ink:#f2f6fb; --ink-soft:#b9c9dc;
+  --blue:#f0d9a0; --blue-lit:#8fb4d8;
+  --sky1:#1b2740; --sky2:#131d31; --sky3:#0d1524;
+  --card:#22304c; --rule:#3c5175; --stone:#2b3a58;
+  --shadow:0 8px 22px rgba(0,0,0,.45);
+  --shadow-deep:0 14px 34px rgba(0,0,0,.6);
+}
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  font-family:'Trebuchet MS','Avenir Next',Verdana,sans-serif;
+  color:var(--ink);
+  /* A clear day-sky wash. The grain is a CSS gradient, not an image:
+     nothing to load, nothing to go missing, and it retints itself with the
+     theme because it is built from the same variables. */
+  background:
+    repeating-linear-gradient(90deg, rgba(40,82,122,.028) 0 2px, transparent 2px 4px),
+    repeating-linear-gradient(0deg,  rgba(40,82,122,.028) 0 2px, transparent 2px 4px),
+    radial-gradient(120% 80% at 50% 0%, var(--sky1) 0%, var(--sky2) 55%, var(--sky3) 100%);
+  background-attachment:fixed;
+  min-height:100vh;
+  min-height:100dvh;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  /* A child will drag on everything. Nothing here should rubber-band or zoom. */
+  overscroll-behavior:none;
+  touch-action:manipulation;
+}
+
+header{text-align:center;padding:18px 18px 6px}
+.etlyou{display:inline-block;width:112px;margin:0 auto 10px;opacity:.85;text-decoration:none}
+.etlyou svg{width:100%;height:auto;display:block}
+.etlyou .etl{
+  font-family:'Trebuchet MS',Verdana,sans-serif;font-size:25px;font-weight:700;
+  letter-spacing:1.5px;fill:var(--ink)
+}
+.etlyou .badge{fill:var(--gold)}
+.etlyou .you{
+  font-family:'Trebuchet MS',Verdana,sans-serif;font-size:19px;font-weight:700;
+  letter-spacing:1px;fill:#fffdf9
+}
+.crest{color:var(--blue);line-height:0;filter:drop-shadow(0 4px 6px rgba(22,32,43,.25))}
+.crest svg{display:inline-block}
+/* Engraved serif, like the brass plates hanging in every wing. */
+h1{
+  font-family:var(--serif);font-weight:700;
+  font-size:clamp(26px,6vw,40px);margin:6px 0 4px;letter-spacing:.5px;
+  color:var(--blue);
+}
+.sub{
+  font-family:var(--serif);font-style:italic;
+  font-size:clamp(14px,2.4vw,16.5px);color:var(--ink-soft);
+  margin:0 auto;max-width:470px;line-height:1.5
+}
+.peek{
+  margin-top:12px;border:1px solid var(--rule);border-radius:999px;
+  background:var(--card);color:var(--blue);font-family:var(--serif);
+  font-size:13px;font-weight:700;cursor:pointer;padding:7px 16px;
+  letter-spacing:.2px
+}
+.peek:active{transform:scale(.97)}
+
+/* The greeting strip is the only text on this page aimed at the child, and
+   it is spoken, not read. It exists so a grown-up can see what she heard. */
+.greet{
+  max-width:620px;margin:16px auto 0;padding:13px 20px;
+  background:var(--card);
+  border:1px solid var(--rule);border-radius:14px;
+  font-family:var(--serif);font-size:clamp(15px,2.6vw,17px);
+  color:var(--ink);text-align:center;min-height:22px;
+  box-shadow:0 2px 8px rgba(74,50,26,.10)
+}
+
+/* Ten doors, and the grid has to divide them without stranding one on its own
+   line: two across on a phone gives five clean pairs, five across on a wide
+   screen gives two clean rows. Four across would leave a widowed pair, which
+   is exactly the kind of lopsidedness the house rule exists to stop. If the
+   cast ever grows to twelve, four across becomes the right desktop grid. */
+.doors{
+  display:grid;gap:16px;
+  grid-template-columns:repeat(2,1fr);
+  max-width:620px;margin:18px auto 0;padding:0 16px 28px;
+}
+@media (min-width:760px){ .doors{grid-template-columns:repeat(5,1fr);max-width:1040px} }
+
+/* A framed panel rather than a flat card: vellum, a thin brass rule, and a
+   warm drop. Still enormous and still round-cornered, because the tap target
+   and the friendliness are not up for negotiation. */
+.door{
+  position:relative;display:flex;flex-direction:column;align-items:center;
+  gap:9px;padding:16px 10px 15px;
+  background:var(--card);
+  border:1px solid var(--rule);border-radius:18px;box-shadow:var(--shadow);
+  cursor:pointer;transition:transform .12s ease,box-shadow .12s ease;
+  /* Deliberately tall. This is the tap target, and it is the size of a fist. */
+  min-height:176px;
+}
+.door:active{transform:scale(.96);box-shadow:var(--shadow-deep)}
+/* The portrait sits in a brass ring, the way every princess has a brass plate
+   in her own wing. Double ring: bright inner edge, darker outer, so it reads
+   as metal and not as a coloured outline. */
+.door .face{
+  width:92px;height:92px;border-radius:50%;object-fit:cover;
+  background:var(--stone);display:grid;place-items:center;
+  font-size:44px;line-height:1;overflow:hidden;
+  box-shadow:
+    inset 0 0 0 2px var(--gold-lit),
+    inset 0 0 0 5px var(--gold),
+    0 3px 8px rgba(74,50,26,.28);
+}
+/* Video first; there is deliberately no `poster` and nothing layered behind
+   it. A still sitting under a video hides the fact that the video never
+   played, and that failure mode has cost this shop weeks more than once. The
+   still below is the rung BELOW the clip, mounted only after the video
+   element has been removed. See fallToStill().
+
+   object-position is the important part here. The artwork is a full portrait
+   with the princess standing in her wing, so a centred square crop of it
+   lands on her apron and cuts her head off. Biasing the crop upward keeps the
+   face, which is the entire way a child who cannot read finds Posy. */
+.door .face video,
+.door .face img{
+  width:100%;height:100%;object-fit:cover;display:block;
+  /* --fy is where the princess's FACE sits, as a percentage down her artwork.
+     Both the crop point and the zoom origin use it, so scaling zooms straight
+     in on her face and leaves it centred.
+
+     ONE value for the whole cast, because the artwork is deliberately framed
+     with every princess's face in the same spot. That is Dr. O's doing and it
+     is worth protecting: keep new pieces to the same framing and nobody ever
+     needs an override. The per-princess 'focus' escape hatch is still wired up
+     in the cast below for the day one piece has to be different. */
+  object-position:var(--fx,50%) var(--fy,36%);
+  transform-origin:var(--fx,50%) var(--fy,36%);
+  transform:scale(var(--fz,2));
+}
+/* Her name set like the engraved plate in her own picture. */
+.door .nm{
+  font-family:var(--serif);font-size:16.5px;font-weight:700;
+  color:var(--ink);letter-spacing:.3px
+}
+.door .wg{
+  font-family:var(--serif);font-style:italic;font-size:12px;
+  color:var(--ink-soft);text-align:center;line-height:1.3
+}
+.door .charm{
+  position:absolute;top:8px;right:10px;font-size:20px;
+  filter:drop-shadow(0 2px 3px rgba(0,0,0,.18))
+}
+
+/* Charm shelf. The only progress display, and it can only ever go up. */
+.shelf{
+  max-width:620px;margin:0 auto 34px;padding:14px 18px;
+  background:rgba(255,255,255,.55);border-radius:20px;text-align:center
+}
+.shelf .row{font-size:26px;letter-spacing:6px;min-height:32px}
+.shelf .cap{font-size:12px;opacity:.55;margin-top:4px}
+
+/* Grown-up corner. Small, dull, and behind a gate on purpose. */
+.grown{
+  position:fixed;bottom:10px;right:10px;
+  width:38px;height:38px;border-radius:50%;border:0;
+  background:rgba(255,255,255,.55);color:var(--ink);
+  font-size:16px;opacity:.45;cursor:pointer
+}
+dialog{
+  border:0;border-radius:22px;padding:22px;max-width:420px;width:calc(100% - 36px);
+  box-shadow:var(--shadow);color:var(--ink);font-family:inherit
+}
+dialog::backdrop{background:rgba(42,33,64,.45)}
+dialog h2{margin:0 0 6px;font-size:18px}
+dialog p{font-size:13.5px;line-height:1.5;opacity:.75}
+dialog label{display:block;font-size:13px;margin:12px 0 4px;font-weight:700}
+dialog input{
+  width:100%;padding:11px 12px;border-radius:12px;border:1px solid #d8cee6;
+  font-size:16px;font-family:inherit
+}
+dialog .btns{display:flex;gap:8px;margin-top:16px}
+dialog button{
+  flex:1;padding:11px;border-radius:12px;border:0;font-size:14px;
+  font-weight:700;cursor:pointer;font-family:inherit
+}
+.ok{background:var(--gold);color:#3a2a08}
+.no{background:var(--stone)}
+.log{
+  margin-top:14px;max-height:180px;overflow:auto;font-size:12.5px;
+  background:#faf7fd;border-radius:12px;padding:10px;line-height:1.5
+}
+.log .flagged{color:#a8324f;font-weight:700}
+/* One row per child in the grown-up panel. */
+.childrow{display:flex;gap:6px;align-items:center;margin-bottom:8px}
+.childrow input{flex:1;min-width:0;padding:9px 10px;border-radius:10px;border:1px solid #d8cee6;font-size:15px;font-family:inherit}
+.crestbtn{
+  width:44px;height:42px;flex:0 0 auto;border:1px solid #d8cee6;border-radius:10px;
+  background:#fff;font-size:22px;line-height:1;cursor:pointer
+}
+.titlebtn{
+  flex:0 0 auto;padding:9px 11px;border:1px solid #d8cee6;border-radius:10px;background:#fdf3e0;
+  font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;color:var(--ink)
+}
+.delbtn{
+  width:34px;height:42px;flex:0 0 auto;border:0;border-radius:10px;background:#f7eef2;
+  color:#a8324f;font-size:14px;font-weight:700;cursor:pointer
+}
+.addchild{
+  width:100%;padding:10px;border:1px dashed #c9b8dd;border-radius:12px;background:#fff;
+  font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;color:#5a3f8a
+}
+
+/* The who-is-visiting row on the hub. Big crests, names underneath in small
+   text for whoever can read them. */
+.picker{max-width:620px;margin:14px auto 0;padding:0 16px}
+.picker-cap{font-size:12px;letter-spacing:.1em;text-transform:uppercase;opacity:.45;text-align:center;margin-bottom:8px}
+.picker-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.pick{
+  border:0;border-radius:20px;background:var(--card);box-shadow:var(--shadow);
+  padding:10px 12px 8px;min-width:78px;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  opacity:.55;transition:transform .12s ease,opacity .2s ease
+}
+.pick.on{opacity:1;box-shadow:0 0 0 3px var(--gold),var(--shadow)}
+.pick:active{transform:scale(.94)}
+.pick-crest{font-size:32px;line-height:1}
+.pick-name{font-size:11.5px;font-weight:700;opacity:.65}
+.theme-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.swatch{
+  width:46px;height:46px;border-radius:50%;cursor:pointer;
+  border:2px solid rgba(255,255,255,.7);
+  box-shadow:0 2px 8px rgba(22,32,43,.28);transition:transform .12s ease
+}
+.crestpick{
+  width:46px;height:46px;border-radius:14px;cursor:pointer;
+  border:1px solid var(--rule);background:var(--card);color:var(--blue);
+  display:grid;place-items:center;transition:transform .12s ease
+}
+.crestpick.on{box-shadow:0 0 0 3px var(--gold);transform:scale(1.08)}
+.crestpick.used{opacity:.25;cursor:default}
+.crestpick:not(.used):active{transform:scale(.92)}
+.swatch.on{box-shadow:0 0 0 3px var(--gold),0 2px 8px rgba(22,32,43,.3);transform:scale(1.08)}
+.swatch:active{transform:scale(.92)}
+.curric{max-height:200px;overflow:auto;background:#faf7fd;border-radius:12px;padding:4px 10px}
+.crow{padding:8px 0;border-bottom:1px solid #ece4f4;font-size:12.5px;line-height:1.45}
+.crow:last-child{border-bottom:0}
+.crow b{display:inline-block;min-width:78px}
+.crow span{opacity:.6}
+.crow em{display:block;font-style:normal;color:#5a3f8a;font-weight:600;margin-top:2px}
+.crow .place{
+  display:inline-block;font-style:normal;font-size:10.5px;font-weight:700;
+  letter-spacing:.06em;text-transform:uppercase;color:#2a6b5f;
+  background:#e3f2ee;border-radius:6px;padding:2px 7px;margin-top:4px
+}
+.warn{
+  background:#fff4e0;border-left:4px solid var(--gold);
+  padding:9px 11px;border-radius:8px;font-size:12.5px;margin-top:12px
+}
+</style>
+</head>
+<body>
+
+<header>
+  <!-- ETL YOU: Emerging Technologies Laboratory YOUTH. The division mark sits
+       above the product, not instead of it. Everly Castle is one castle
+       inside ETL YOU, so the mark stays small and constant here and the
+       product name stays the loud thing on the page. It is drawn inline
+       rather than loaded as a file so it can never be the missing asset that
+       leaves a masthead blank. -->
+  <a class="etlyou" href="#" aria-label="ETL YOU, Emerging Technologies Laboratory Youth" onclick="return false">
+    <svg viewBox="0 0 150 36" role="img" aria-hidden="true">
+      <text x="0" y="26" class="etl">ETL</text>
+      <rect x="64" y="4" width="84" height="28" rx="14" class="badge"/>
+      <text x="106" y="24" class="you" text-anchor="middle">YOU</text>
+    </svg>
+  </a>
+  <!-- Engraved castle, not the pink emoji. Same reasoning as the crests and as
+       ETL's own mark: pure geometry, so nothing has to load for it to render
+       and it never looks like a sticker next to painterly artwork. -->
+  <div class="crest" aria-hidden="true">
+    <svg viewBox="0 0 64 64" width="60" height="60">
+      <g fill="currentColor">
+        <path d="M6 30h4v-5h4v5h4v-5h4v5h4v26H6z"/>
+        <path d="M42 30h4v-5h4v5h4v-5h4v5h4v26H42z"/>
+        <path d="M22 18h4v-5h4v5h4v-5h4v5h4v38H22z"/>
+        <path d="M32 8l3 6h-6z"/>
+      </g>
+      <path d="M28 56V44a4 4 0 018 0v12z" fill="var(--gate,#28527a)"/>
+    </svg>
+  </div>
+  <h1 id="castleName">Everly Castle</h1>
+  <!-- "Pick a door" used to live here, which was wasted: the child navigates
+       by the faces and never reads it. The line a parent needs goes here
+       instead, and the curriculum sits one tap away, ungated. -->
+  <!-- Says what this IS. An earlier draft read "and not one lesson that feels
+       like one", which defined the product by what it is not. House rule. -->
+  <p class="sub">Ten princesses. Ten real subjects. Learned by playing.</p>
+  <!-- Says what everyone IS. Two earlier drafts were framed as negatives, and
+       the second one landed as a slight on the child rather than a compliment
+       to her: "the children won't need one" reads as too little to use a
+       guide, not too quick to want one. -->
+  <button class="peek" id="peek" type="button">Guide for parents (the children already worked it out)</button>
+</header>
+
+<!-- Shown only when more than one child lives on this device. Crest first,
+     name second: the child picks the picture, the grown-up reads the word. -->
+<section class="picker" id="picker" hidden>
+  <div class="picker-cap">Who is visiting?</div>
+  <div class="picker-row" id="pickerRow"></div>
+  <!-- Chosen right here, at the moment she says who she is. Not buried in a
+       settings panel she cannot open. -->
+  <!-- The child picks her own mark. It is how she finds herself in a line-up
+       she cannot read, so it should be hers by choice, not assigned to her by
+       whoever set the tablet up. -->
+  <!-- "Your mark" was heraldry-speak. A four-year-old knows what a badge is. -->
+  <div class="picker-cap" style="margin-top:14px">Your badge</div>
+  <div class="theme-row" id="crestRow"></div>
+
+  <div class="picker-cap" style="margin-top:14px">Your castle’s colour</div>
+  <div class="theme-row" id="themeRow"></div>
+</section>
+
+<div class="greet" id="greet"></div>
+
+<main class="doors" id="doors"></main>
+
+<section class="shelf">
+  <div class="row" id="charmRow"></div>
+  <div class="cap" id="charmCap">Charms you have earned</div>
+</section>
+
+<button class="grown" id="grownBtn" aria-label="Grown-ups">⚙</button>
+
+<dialog id="gate">
+  <h2>Grown-ups only</h2>
+  <p>Answer to continue. This keeps the settings out of small hands.</p>
+  <label id="gateQ" for="gateA">Question</label>
+  <input id="gateA" type="text" inputmode="numeric" autocomplete="off">
+  <div class="btns">
+    <button class="no" id="gateCancel" type="button">Back</button>
+    <button class="ok" id="gateGo" type="button">Continue</button>
+  </div>
+</dialog>
+
+<dialog id="panel">
+  <h2>Grown-up settings</h2>
+  <p>Everything here stays on this device. Nothing a child says is sent anywhere or stored on a server.</p>
+
+  <label>Who lives here?</label>
+  <p style="margin:0 0 8px">Every child gets their own crowns, their own garden and their own castle name. Tap a crest to change it, tap the title to swap it.</p>
+  <div id="children"></div>
+  <button class="addchild" id="addChild" type="button">+ Add a child</button>
+
+  <div class="warn" id="assetWarn" hidden></div>
+
+  <h2 style="margin-top:18px" id="logWho">What they have been saying</h2>
+  <p>Kept on this device only, so you can see how it is going and follow up on anything worth a conversation.</p>
+  <div class="log" id="logBox"></div>
+
+  <div class="btns">
+    <button class="no" id="panelClose" type="button">Close</button>
+    <button class="ok" id="panelSave" type="button">Save</button>
+  </div>
+</dialog>
+
+<!-- Ungated on purpose. A parent deciding whether to hand this over should be
+     able to see the whole curriculum in one tap, and there is nothing in here
+     a child could break or should be protected from. Only the settings and
+     the transcript sit behind the gate. -->
+<dialog id="peekDlg">
+  <h2>Guide for parents</h2>
+  <p>Children tap a princess and they are away. Grown-ups, in our experience, would like a manual first. Here it is.</p>
+  <p>Ten wings, ten real subjects. As far as the child is concerned, they are helping a princess with something she was doing anyway, and that is exactly where the learning lives.</p>
+  <p>Each princess also lives somewhere real, and she will tell your child where. That is the second thing they pick up here: Nerida's tide pools are in Greece, Neva's frozen window looks out over Norway.</p>
+  <div class="curric" id="curriculum"></div>
+  <div class="btns">
+    <button class="ok" id="peekClose" type="button">Close</button>
+  </div>
+</dialog>
+
+<script>
+/* ── The cast, mirrored from netlify/functions/everly-castle-chat.js ───────────────
+   Kept as a small display-only copy: the hub has to draw eight doors before
+   it has spoken to any backend, and a child staring at a blank castle while a
+   function cold-starts is a child who wanders off. The authoritative cast,
+   the subjects and the voices all live in everly-castle-chat.js. If you add a wing
+   there, add its door here. Nothing else on this page needs to change. */
+/* `sees` is what the child thinks she is doing. `learns` is what she is
+   actually being taught. That gap is the entire product: she never hears the
+   second column, and the grown-up never has to wonder whether it is in there,
+   because the panel behind the gate shows it. */
+const WINGS = [
+  { id:'posy',       name:'Posy',       wing:'the Wild Garden',        emoji:'🌻', video:'agents/Posy_idle.mp4',
+    place:'France',
+    sees:'Growing a sunflower',           learns:'Botany: seeds, roots, what a plant needs, insects' },
+  { id:'nerida',     name:'Nerida',     wing:'the Coral Court',        emoji:'🐚', video:'agents/Nerida_idle.mp4',
+    place:'Greece',
+    sees:'Rummaging in a tide pool',      learns:'Water and sea life: tides, habitats, ocean animals' },
+  /* focus overrides the default crop point for one princess when her artwork
+     is framed differently from the rest. Zephyra stands off to the right of
+     her tower and further back, so a centred crop lands on the parapet. Only
+     needed for outliers; everyone else uses the 50%/26% default. */
+  { id:'zephyra',    name:'Zephyra',    wing:'the Windward Tower',     emoji:'🪁', video:'agents/Zephyra_idle.mp4',
+    place:'Nepal',
+    sees:'Flying a kite',                 learns:'Air: wind, weather, breathing, why things fly' },
+  { id:'neva',       name:'Neva',       wing:'the Frost Conservatory', emoji:'❄️', video:'agents/Neva_idle.mp4',
+    place:'Norway',
+    sees:'Drawing on a frosty window',    learns:'States of matter: ice, water, steam, the seasons' },
+  { id:'lenora',      name:'Lenora',      wing:'the Star Balcony',       emoji:'🌙', video:'agents/Lenora_idle.mp4',
+    place:'Mongolia',
+    sees:'Looking at the moon tonight',   learns:'Astronomy: moon phases, stars, constellations' },
+  { id:'elowyn',     name:'Elowyn',     wing:'the Story Loft',         emoji:'📖', video:'agents/Elowyn_idle.mp4',
+    place:'New Zealand',
+    sees:'Making up a story together',    learns:'Literacy: letter sounds, vocabulary, story structure' },
+  { id:'clementine', name:'Clementine', wing:'the Copper Kitchen',     emoji:'🥕', video:'agents/Clementine_idle.mp4',
+    place:'the United States',
+    sees:'Picking between two foods',     learns:'Eating well: what food does for you, everyday and sometimes foods, trying new tastes' },
+  { id:'piper',      name:'Piper',      wing:'the Music Hall',         emoji:'🎵', video:'agents/Piper_idle.mp4',
+    place:'Germany',
+    sees:'Clapping games',                learns:'Pattern and rhythm: sequence, repetition, tempo' },
+  { id:'almasi',      name:'Almasi',      wing:'the Fossil Field',       emoji:'🦴', video:'agents/Almasi_idle.mp4',
+    place:'Kenya',
+    sees:'Digging up a dinosaur',         learns:'Geology and fossils: what is buried, how bones survive, deep time' },
+  { id:'bex',        name:'Bex',        wing:'the Workshop',           emoji:'🔧', video:'agents/Bex_idle.mp4',
+    place:'Brazil',
+    sees:'Taking something apart',        learns:'Engineering: how things work, cause and effect, fixing' },
+];
+
+/* ── Storage ───────────────────────────────────────────────────────────────
+   All of it local. A four-year-old's conversation does not go in a database,
+   and the moment it does this stops being something you can hand to another
+   grandmother without a privacy conversation. The tradeoff is honest and
+   worth stating: clear the browser and the princesses forget her.
+
+   PROFILES, and this is the whole reason this file has a picker in it. The
+   first cut of this app held one name, one set of charms and one sunflower.
+   Hand that to a family with three daughters and they are all growing the
+   same plant: whoever opened it last owns the garden, the crowns and the mood
+   log. Sisters do not share a childhood toy that way, and a four-year-old
+   finding her sunflower already in bloom because her big sister got there
+   first is a small heartbreak the code caused.
+
+   So every child gets her own everything, under her own id. */
+const KEY = 'everlyCastle';
+const MAX_PROFILES = 6;
+
+function load(){
+  try { return JSON.parse(localStorage.getItem(KEY) || '{}'); } catch { return {}; }
+}
+function save(s){
+  try { localStorage.setItem(KEY, JSON.stringify(s)); } catch(e){ console.warn('[everly] storage unavailable', e); }
+}
+
+let state = load();
+state.profiles = state.profiles || {};
+
+function profileList(){
+  return Object.keys(state.profiles).map((id) => ({ id, ...state.profiles[id] }));
+}
+function activeProfile(){
+  return state.profiles[state.activeId] || null;
+}
+/* A blank profile is a whole child's worth of state, created together so no
+   part of it can be missing later. */
+function newProfile(name, title, crest){
+  const id = 'p' + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36);
+  state.profiles[id] = {
+    name: String(name || '').trim().slice(0, 24),
+    title: title === 'Prince' ? 'Prince' : 'Princess',
+    crest: crest || CRESTS[0],
+    charms: {}, visits: {}, grow: {}, log: [],
+  };
+  return id;
+}
+
+/* The crest is how a child who cannot read picks herself out of a line-up.
+   She does not know her name written down, but she knows with total certainty
+   that she is the butterfly and her sister is the cat. */
+/* ── Crests ────────────────────────────────────────────────────────────────
+   Engraved brass emblems, not emoji. Emoji were the most cartoonish thing
+   left on the page and sat badly next to painterly artwork, but the reason
+   they were there still holds: a child who cannot read her own name knows
+   with total certainty that she is the star and her sister is the moon.
+
+   So these are heraldic devices, drawn as flat silhouettes the way a device
+   would be stamped into a plate. Same recognisability, none of the plastic.
+   Inline SVG paths, so nothing has to load for a crest to render, which is
+   the same reasoning behind ETL's own geometric mark. */
+const CRESTS = ['star','moon','leaf','feather','heart','key','sun','bee','crown','anchor'];
+
+/* The castle colours, in the order they appear under the crests. Six, and
+   there is no wrong one: this is a choice a child gets to make about her own
+   castle, not a setting with a correct answer. `swatch` is what the button
+   looks like; the theme itself is the CSS block up top. */
+const THEMES = [
+  { id:'',          name:'Butterfly Blue',  swatch:'#28527a' },
+  { id:'mermaid',   name:'Mermaid Green',   swatch:'#1d6b6f' },
+  { id:'sunshine',  name:'Sunshine Yellow', swatch:'#e3b93f' },
+  { id:'petal',     name:'Petal Pink',      swatch:'#d9749f' },
+  { id:'snowflake', name:'Snowflake White', swatch:'#dbe9f2' },
+  { id:'starry',    name:'Starry Night',    swatch:'#1b2740' },
+];
+
+function applyTheme(id){
+  if (id) document.documentElement.setAttribute('data-theme', id);
+  else document.documentElement.removeAttribute('data-theme');
+}
+
+const CREST_PATHS = {
+  star:    'M32 6l7.6 16.4L57 24.6 44 36.8l3.4 17.6L32 46 16.6 54.4 20 36.8 7 24.6l17.4-2.2z',
+  /* Crescent as one path: a big outer arc, then a smaller inner arc curving
+     back. The first attempt used two arcs whose sweep flags cancelled, which
+     collapsed it to a sliver that looked blank at 34px. */
+  moon:    'M32 32m-26 0a26 26 0 1 0 52 0a26 26 0 1 0-52 0M46 32m-22 0a22 22 0 1 0 44 0a22 22 0 1 0-44 0',
+  /* A vesica, pointed at both ends, which is what actually reads as a leaf.
+     The first attempt had an inner counter that filled solid and came out a
+     teardrop blob. */
+  leaf:    'M32 4Q54 26 32 60Q10 26 32 4z',
+  feather: 'M46 8c-16 2-28 12-32 28l-6 18 5 2 6-16c14 2 26-6 30-20zM20 42c3-12 12-20 22-23-4 10-12 17-22 23z',
+  heart:   'M32 57S7 41 7 25a12.5 12.5 0 0125-6 12.5 12.5 0 0125 6c0 16-25 32-25 32z',
+  key:     'M40 6a14 14 0 00-13 19L8 44v12h12v-6h6v-6h6l5-5a14 14 0 003-33zm2 8a5 5 0 110 10 5 5 0 010-10z',
+  sun:     'M32 18a14 14 0 100 28 14 14 0 000-28zm0-14l4 8h-8zm0 56l4-8h-8zM4 32l8-4v8zm56 0l-8 4v-8zM12 12l8 4-4 4zm40 40l-8-4 4-4zM52 12l-4 8-4-4zM12 52l4-8 4 4z',
+  bee:     'M32 8a10 10 0 00-9 6h18a10 10 0 00-9-6zM14 20c-5 2-8 7-6 11 8-2 12-6 6-11zm36 0c-6 5-2 9 6 11 2-4-1-9-6-11zM22 20h20v6H22zm0 10h20v6H22zm0 10h20a10 10 0 01-20 0z',
+  crown:   'M6 48h52l5-28-16 11L32 12 17 31 1 20z',
+  anchor:  'M32 6a7 7 0 00-4 13v7h-9v7h9v17c-8-2-13-8-14-16l-7 2c2 13 11 21 25 22 14-1 23-9 25-22l-7-2c-1 8-6 14-14 16V33h9v-7h-9v-7a7 7 0 00-4-13z',
+};
+
+function crestSvg(kind, size){
+  const d = CREST_PATHS[kind] || CREST_PATHS.star;
+  const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  s.setAttribute('viewBox', '0 0 64 64');
+  s.setAttribute('width', size); s.setAttribute('height', size);
+  s.setAttribute('aria-hidden', 'true');
+  s.style.display = 'block';
+  const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  p.setAttribute('d', d);
+  p.setAttribute('fill', 'currentColor');
+  p.setAttribute('fill-rule', 'evenodd');
+  s.appendChild(p);
+  return s;
+}
+
+/* ── Missing portraits are reported, never papered over ─────────────────────
+   A door that quietly falls back to an emoji looks fine and hides the fact
+   that eight portraits were never made. The emoji IS the working fallback so
+   a child is never shown a broken image, but the grown-up panel says plainly
+   which faces are missing. */
+// Reset by drawDoors on every pass. It has to be, because the hub redraws on
+// pageshow when a phone restores it from cache, and an accumulating list
+// reported ten missing cartoons as twenty the second time round.
+let missingFaces = [];
+
+/* ── Faces are cartoon video, never a still ────────────────────────────────
+   Dr. O is animating each princess, so the face is a looping clip, not the
+   eyes_open / eyes_closed blink pair used everywhere else in the estate.
+
+   The house rule that shapes this function: NEVER put an image behind, over,
+   or as the poster of a video. Not a portrait, not a CSS background, not even
+   the emoji. A still sitting under a clip makes a dead video look like a
+   working one, which is precisely how a broken face survives a review.
+
+   So the sequence is strict. The emoji holds the space while the clip loads.
+   The clip is mounted hidden. Only once it has actually decoded a frame does
+   the emoji get removed and the video revealed, in that order, so the two are
+   never on screen at the same moment. If the clip fails, the video element is
+   torn out completely, the emoji stays, and the failure is reported.
+
+   Naming convention: agents/<Name>_idle.mp4 for the ambient loop, and
+   optionally agents/<Name>_talk.mp4 for the speaking loop (used in the wing). */
+/* Removes the placeholder emoji and NOTHING ELSE.
+
+   This exists because `host.textContent = ''` does not clear the text, it
+   clears every child node, and by the time we want the emoji gone the video
+   or the image is already a child. So the line written to reveal the artwork
+   was deleting the artwork, leaving a blank panel. It was invisible until a
+   real file was put on disk to load, because with nothing to load the bug
+   never got the chance to fire. */
+function clearEmoji(host){
+  Array.prototype.slice.call(host.childNodes).forEach((n) => {
+    if (n.nodeType === 3) host.removeChild(n);
+  });
+}
+
+/* Tries each candidate in turn and stops at the first that loads. Exists so
+   the artwork can be exported as either .png or .jpg without anyone having to
+   remember which the code wants. */
+function mountFirstImage(host, candidates, onLoad, onAllFailed){
+  let i = 0;
+  const tryNext = () => {
+    if (i >= candidates.length) { onAllFailed(); return; }
+    const img = new Image();
+    img.alt = '';
+    img.style.display = 'none';
+    img.onload = () => { onLoad(img); };
+    img.onerror = () => { if (img.parentNode) img.parentNode.removeChild(img); i++; tryNext(); };
+    host.appendChild(img);
+    img.src = candidates[i];
+  };
+  tryNext();
+}
+
+function mountFace(host, src, name, onMissing){
+  const stills = [src.replace(/_idle\.mp4$/, '.png'), src.replace(/_idle\.mp4$/, '.jpg')];
+  const v = document.createElement('video');
+  v.muted = true;            // required, or mobile refuses to autoplay
+  v.defaultMuted = true;
+  v.loop = true;
+  v.autoplay = true;
+  v.playsInline = true;
+  v.setAttribute('muted','');
+  v.setAttribute('playsinline','');
+  v.setAttribute('webkit-playsinline','');
+  v.preload = 'auto';
+  v.setAttribute('aria-hidden','true');
+  v.style.display = 'none';   // hidden until it has a real frame
+  v.src = src;
+
+  let settled = false;
+
+  /* The clip did not load, so fall back to the still. This is NOT the banned
+     pattern: the rule is that an image must never sit behind, over, or as the
+     poster of a video, because a still hiding a dead clip makes a broken face
+     look fine. Here the video is asked first and torn out completely before
+     the image is even created, so the two never coexist and a still can never
+     mask a failure. It is a ladder, not a layer.
+
+     This is what lets the art land in two passes. Ten stills go in now and
+     every door works; a clip dropped in later takes over on its own with no
+     code change, because the video is always asked first. */
+  const fallToStill = (why) => {
+    if (settled) return; settled = true;
+    if (v.parentNode) v.parentNode.removeChild(v);   // video gone first
+
+    mountFirstImage(host, stills,
+      (img) => {
+        clearEmoji(host);            // emoji out
+        img.style.display = 'block'; // picture in
+        console.info('[everly] no clip for ' + name + ' yet (' + why + '), showing the still:', img.getAttribute('src'));
+      },
+      () => {
+        console.warn('[everly] nothing to show for ' + name + ': no ' + src + ', no ' + stills.join(', '));
+        if (onMissing) onMissing();
+      });
+  };
+
+  v.addEventListener('loadeddata', () => {
+    if (settled) return; settled = true;
+    clearEmoji(host);    // emoji out first
+    v.style.display = 'block';// video in second
+  }, { once:true });
+  // A missing .mp4 404s in milliseconds, so the still appears immediately for
+  // the princesses who do not have a clip yet. The timeout below is only a
+  // backstop for a genuinely stalled load.
+  v.addEventListener('error', () => fallToStill('no clip file'), { once:true });
+
+  host.appendChild(v);
+  const p = v.play();
+  if (p && p.catch) p.catch(() => { /* a paused first frame is still a frame */ });
+  // A clip that never fires either event (missing file served as HTML, a
+  // stalled network) would otherwise sit invisible forever behind an emoji
+  // that looks intentional. Give it a bounded wait, then call it missing.
+  setTimeout(() => { if (!settled && v.readyState < 2) fallToStill('timed out'); }, 6000);
+  return v;
+}
+
+function drawDoors(){
+  const host = document.getElementById('doors');
+  host.innerHTML = '';
+  missingFaces = [];
+  WINGS.forEach((w) => {
+    const b = document.createElement('button');
+    b.className = 'door';
+    b.setAttribute('aria-label', 'Talk to ' + w.name + ' in ' + w.wing);
+
+    const face = document.createElement('span');
+    face.className = 'face';
+    face.textContent = w.emoji;
+    if (w.focus) {
+      face.style.setProperty('--fx', w.focus[0] + '%');
+      face.style.setProperty('--fy', w.focus[1] + '%');
+    }
+    mountFace(face, w.video, w.name, () => {
+      missingFaces.push(w.name);
+      refreshAssetWarning();
+    });
+
+    const nm = document.createElement('span'); nm.className = 'nm'; nm.textContent = w.name;
+    const wg = document.createElement('span'); wg.className = 'wg'; wg.textContent = w.wing;
+
+    b.append(face, nm, wg);
+
+    const prof = activeProfile();
+    if (prof && prof.charms[w.id]) {
+      const c = document.createElement('span');
+      c.className = 'charm'; c.textContent = '👑';
+      c.setAttribute('aria-label','charm earned');
+      b.appendChild(c);
+    }
+
+    b.addEventListener('click', () => {
+      location.href = 'everly-castle-wing.html?wing=' + encodeURIComponent(w.id);
+    });
+    host.appendChild(b);
+  });
+}
+
+function drawCharms(){
+  const prof = activeProfile();
+  const earned = prof ? WINGS.filter((w) => prof.charms[w.id]) : [];
+  document.getElementById('charmRow').textContent = earned.length ? earned.map(() => '👑').join('') : '·····';
+  document.getElementById('charmCap').textContent =
+    earned.length ? earned.length + ' of ' + WINGS.length + ' wings visited' : 'Charms you have earned';
+}
+
+/* The visitor is royalty too, and is addressed that way everywhere. The
+   faculty are all princesses; the title here is only about the child, which
+   is what lets a small boy visit as a prince without changing anything else. */
+function visitorTitle(){
+  const p = activeProfile();
+  return p && p.title === 'Prince' ? 'Prince' : 'Princess';
+}
+
+/* ── The castle takes the child's name ─────────────────────────────────────
+   The wish behind this was to call the whole product "Charlotte's Castle",
+   which would have baked one child into a thing other families are meant to
+   buy, and put a named grandchild on a public store listing. So the personal
+   part happens HERE instead, at runtime, from a name a grown-up typed on their
+   own device: the shop sells Everly Castle, and every child who opens it
+   walks into a castle with their own name over the door.
+
+   Same rule as the visitor title, and the same rule Founder Studio had to be
+   rebuilt to obey: the mechanism is generic, the experience is personal.
+
+   With sisters, the door changes name depending on who walked in, which is
+   the only version of this that does not pick a favourite child. */
+function castleName(){
+  const p = activeProfile();
+  return p && p.name ? p.name + '’s Castle' : 'Everly Castle';
+}
+
+function drawGreeting(){
+  document.getElementById('castleName').textContent = castleName();
+  const p = activeProfile();
+  document.getElementById('greet').textContent = p && p.name
+    /* Not "which door". A child does not come here to pick a room, she comes
+       to talk to somebody, and the greeting should say so. The doors are a
+       layout detail; the princesses are the point. */
+    ? 'Welcome back, ' + visitorTitle() + ' ' + p.name + '. Who shall we talk to today?'
+    : 'Welcome to the castle, ' + visitorTitle() + '. Who shall we talk to today?';
+}
+
+function refreshAssetWarning(){
+  const el = document.getElementById('assetWarn');
+  if (!missingFaces.length) { el.hidden = true; return; }
+  el.hidden = false;
+  /* Only fires when a princess has NEITHER a clip nor a still. A princess who
+     simply has not been animated yet is not a fault and is not reported here,
+     she just shows her picture. */
+  el.textContent = missingFaces.length + ' princess' + (missingFaces.length > 1 ? 'es have' : ' has') +
+    ' no artwork at all, so ' + (missingFaces.length > 1 ? 'those doors are' : 'that door is') +
+    ' showing an emoji: ' + missingFaces.join(', ') +
+    '. Add agents/<Name>.png for the picture, or agents/<Name>_idle.mp4 for the cartoon.';
+}
+
+/* ── The curtain ───────────────────────────────────────────────────────────
+   The child is never told she is being taught anything, which is the point.
+   The grown-up gets the whole curriculum in one place, behind the gate, so
+   nobody has to take it on faith that the lesson is really in there. */
+function drawCurriculum(){
+  document.getElementById('curriculum').innerHTML = WINGS.map((w) =>
+    '<div class="crow"><b>' + escapeHtml(w.name) + '</b>' +
+    '<span>' + escapeHtml(w.sees) + '</span>' +
+    '<em>' + escapeHtml(w.learns) + '</em>' +
+    // The second curriculum. Each wing sits in a real country, and the child
+    // is told which one, so a parent should be able to see that here rather
+    // than find out when their four-year-old mentions Norway at tea.
+    (w.place ? '<i class="place">' + escapeHtml(w.place) + '</i>' : '') +
+    '</div>').join('');
+}
+
+/* ── The grown-up gate ─────────────────────────────────────────────────────
+   Two-digit addition. A four-year-old cannot do it; anyone who can read this
+   sentence can. Deliberately not a password, because the person holding the
+   phone is often a grandparent who did not set the thing up. */
+let gateAnswer = 0;
+const gate = document.getElementById('gate');
+const panel = document.getElementById('panel');
+const peekDlg = document.getElementById('peekDlg');
+
+document.getElementById('peek').addEventListener('click', () => { drawCurriculum(); peekDlg.showModal(); });
+document.getElementById('peekClose').addEventListener('click', () => peekDlg.close());
+
+document.getElementById('grownBtn').addEventListener('click', () => {
+  const a = 7 + Math.floor(Math.random() * 9);
+  const b = 6 + Math.floor(Math.random() * 9);
+  gateAnswer = a + b;
+  document.getElementById('gateQ').textContent = 'What is ' + a + ' plus ' + b + '?';
+  document.getElementById('gateA').value = '';
+  gate.showModal();
+});
+document.getElementById('gateCancel').addEventListener('click', () => gate.close());
+document.getElementById('gateGo').addEventListener('click', () => {
+  if (parseInt(document.getElementById('gateA').value, 10) !== gateAnswer) {
+    document.getElementById('gateA').value = '';
+    return;
+  }
+  gate.close();
+  openPanel();
+});
+
+/* ── The children, in the grown-up panel ───────────────────────────────────
+   Add, rename, retitle, re-crest and remove. Removing takes that child's
+   charms and garden with it, so it asks first: a sister deleted by a
+   mis-tap loses months of sunflower. */
+function drawChildren(){
+  const host = document.getElementById('children');
+  const list = profileList();
+  host.innerHTML = '';
+
+  list.forEach((p) => {
+    const row = document.createElement('div');
+    row.className = 'childrow';
+
+    const crest = document.createElement('button');
+    crest.type = 'button'; crest.className = 'crestbtn';
+    crest.appendChild(crestSvg(p.crest, 24));
+    crest.title = 'Change crest';
+    crest.addEventListener('click', () => {
+      const i = CRESTS.indexOf(state.profiles[p.id].crest);
+      state.profiles[p.id].crest = CRESTS[(i + 1) % CRESTS.length];
+      save(state); drawChildren(); drawPicker();
+    });
+
+    const nm = document.createElement('input');
+    nm.type = 'text'; nm.value = p.name; nm.maxLength = 24; nm.placeholder = 'First name only';
+    nm.addEventListener('change', () => {
+      state.profiles[p.id].name = nm.value.trim().slice(0, 24);
+      save(state); drawGreeting(); drawPicker();
+    });
+
+    const ttl = document.createElement('button');
+    ttl.type = 'button'; ttl.className = 'titlebtn'; ttl.textContent = p.title;
+    ttl.addEventListener('click', () => {
+      state.profiles[p.id].title = state.profiles[p.id].title === 'Prince' ? 'Princess' : 'Prince';
+      save(state); drawChildren(); drawGreeting();
+    });
+
+    const del = document.createElement('button');
+    del.type = 'button'; del.className = 'delbtn'; del.textContent = '✕';
+    del.setAttribute('aria-label', 'Remove ' + (p.name || 'this child'));
+    del.addEventListener('click', () => {
+      if (!confirm('Remove ' + (p.name || 'this child') + '? Their crowns and their garden go too, and that cannot be undone.')) return;
+      delete state.profiles[p.id];
+      if (state.activeId === p.id) state.activeId = Object.keys(state.profiles)[0];
+      save(state); drawChildren(); drawPicker(); drawDoors(); drawCharms(); drawGreeting(); drawLog();
+    });
+
+    row.append(crest, nm, ttl, del);
+    host.appendChild(row);
+  });
+
+  document.getElementById('addChild').hidden = list.length >= MAX_PROFILES;
+}
+
+document.getElementById('addChild').addEventListener('click', () => {
+  const used = profileList().map((p) => p.crest);
+  const crest = CRESTS.find((c) => !used.includes(c)) || CRESTS[0];
+  const id = newProfile('', 'Princess', crest);
+  if (!state.activeId) state.activeId = id;
+  save(state); drawChildren(); drawPicker(); drawGreeting();
+});
+
+function drawLog(){
+  const box = document.getElementById('logBox');
+  const p = activeProfile();
+  const entries = ((p && p.log) || []).slice(-40).reverse();
+  box.innerHTML = entries.length
+    ? entries.map((e) =>
+        '<div' + (e.flag ? ' class="flagged"' : '') + '>' +
+        escapeHtml(e.when) + ' &middot; ' + escapeHtml(e.wing) + ': ' + escapeHtml(e.said) +
+        (e.flag ? ' &nbsp;&larr; worth asking about' : '') +
+        '</div>').join('')
+    : '<div style="opacity:.6">Nothing yet. What they say in the wings shows up here.</div>';
+  document.getElementById('logWho').textContent = p && p.name ? 'What ' + p.name + ' has been saying' : 'What they have been saying';
+}
+
+function openPanel(){
+  refreshAssetWarning();
+  drawChildren();
+  drawLog();
+  panel.showModal();
+}
+// Everything in this panel writes as it is changed, so Close is just Close.
+document.getElementById('panelClose').addEventListener('click', () => { save(state); panel.close(); });
+
+/* ── Who is visiting? ──────────────────────────────────────────────────────
+   Shown whenever more than one child lives on this device. A four-year-old
+   cannot read her own name, so she taps her crest: she does not know how
+   "Charlotte" is spelled but she knows for certain that she is the butterfly
+   and her sister is the cat. Names are printed underneath for the grown-up. */
+/* Six big colour discs. Always shown, even for an only child, because picking
+   your castle's colour is part of arriving rather than an admin task. */
+function drawThemes(){
+  const host = document.getElementById('themeRow');
+  const p = activeProfile();
+  const current = (p && p.theme) || '';
+  host.innerHTML = '';
+  THEMES.forEach((t) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'swatch' + (t.id === current ? ' on' : '');
+    b.style.background = t.swatch;
+    b.title = t.name;
+    b.setAttribute('aria-label', t.name);
+    b.setAttribute('aria-pressed', String(t.id === current));
+    b.addEventListener('click', () => {
+      const prof = activeProfile();
+      if (prof) { prof.theme = t.id; save(state); }
+      applyTheme(t.id);
+      drawThemes();
+    });
+    host.appendChild(b);
+  });
+}
+
+/* Ten marks, tapped by the child herself. A mark already taken by a sister is
+   dimmed and refuses the tap, because two identical crests would break the
+   one thing the crest exists to do. */
+function drawCrests(){
+  const host = document.getElementById('crestRow');
+  const p = activeProfile();
+  const taken = profileList().filter((q) => q.id !== (p && state.activeId)).map((q) => q.crest);
+  host.innerHTML = '';
+  CRESTS.forEach((kind) => {
+    const mine = p && p.crest === kind;
+    const used = taken.includes(kind);
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'crestpick' + (mine ? ' on' : '') + (used ? ' used' : '');
+    b.disabled = used;
+    b.setAttribute('aria-label', kind + (used ? ', already taken' : ''));
+    b.setAttribute('aria-pressed', String(!!mine));
+    b.appendChild(crestSvg(kind, 28));
+    b.addEventListener('click', () => {
+      const prof = activeProfile();
+      if (!prof) return;
+      prof.crest = kind;
+      save(state);
+      drawCrests(); drawPicker();
+    });
+    host.appendChild(b);
+  });
+}
+
+function drawPicker(){
+  const list = profileList();
+  const wrap = document.getElementById('picker');
+  const host = document.getElementById('pickerRow');
+
+  // The colour row lives in this section, so the section itself is always on.
+  wrap.hidden = false;
+  document.getElementById('pickerRow').style.display = list.length < 2 ? 'none' : '';
+  wrap.querySelector('.picker-cap').style.display = list.length < 2 ? 'none' : '';
+  host.innerHTML = '';
+  list.forEach((p) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'pick' + (p.id === state.activeId ? ' on' : '');
+    b.setAttribute('aria-label', p.name || 'this child');
+    b.setAttribute('aria-pressed', String(p.id === state.activeId));
+    const c = document.createElement('span'); c.className = 'pick-crest'; c.appendChild(crestSvg(p.crest, 34));
+    const n = document.createElement('span'); n.className = 'pick-name'; n.textContent = p.name || '—';
+    b.append(c, n);
+    b.addEventListener('click', () => {
+      state.activeId = p.id;
+      save(state);
+      applyTheme(p.theme || '');
+      drawThemes(); drawCrests(); drawPicker(); drawDoors(); drawCharms(); drawGreeting();
+    });
+    host.appendChild(b);
+  });
+}
+
+function escapeHtml(s){
+  return String(s == null ? '' : s).replace(/[&<>"']/g, (c) =>
+    ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+}
+
+/* An empty castle still has to work. One blank profile is created so the very
+   first child through the door has somewhere for her crowns to go before any
+   grown-up has opened the settings. */
+/* Older saves hold an emoji crest from before these became engraved emblems.
+   An unknown crest has no path and would render as an empty circle, so any
+   profile carrying one is moved to a real emblem on load. */
+function migrateCrests(){
+  const ids = Object.keys(state.profiles);
+  ids.forEach((id, i) => {
+    const p = state.profiles[id];
+    if (!CRESTS.includes(p.crest)) p.crest = CRESTS[i % CRESTS.length];
+  });
+}
+
+function ensureProfile(){
+  if (!Object.keys(state.profiles).length) state.activeId = newProfile('', 'Princess', CRESTS[0]);
+  if (!state.profiles[state.activeId]) state.activeId = Object.keys(state.profiles)[0];
+  save(state);
+}
+
+function redraw(){ ensureProfile(); migrateCrests(); const ap=activeProfile(); applyTheme((ap&&ap.theme)||''); drawThemes(); drawCrests(); drawPicker(); drawDoors(); drawCharms(); drawGreeting(); }
+redraw();
+
+// Coming back from a wing should show a charm that was just earned without a
+// manual reload, and phones aggressively restore this page from cache.
+window.addEventListener('pageshow', () => { state = load(); state.profiles = state.profiles || {}; redraw(); });
+</script>
+</body>
+</html>
