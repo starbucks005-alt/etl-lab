@@ -1589,6 +1589,17 @@ async function turn(message, quiet){
    than a screen that starts talking at a child on its own. */
 function begin(){
   document.getElementById('begin').classList.add('hidden');
+  /* Some browsers refuse to autoplay even a muted video, leaving Vimeo's own
+     first frame frozen on screen looking like a still. This is the one gesture
+     they will accept a play on, so spend it. */
+  const frame = document.querySelector('.face iframe');
+  if (frame && frame.contentWindow) {
+    try {
+      frame.contentWindow.postMessage(JSON.stringify({ method: 'play' }), 'https://player.vimeo.com');
+    } catch (e) {
+      console.warn('[everly] could not start the cartoon', e);
+    }
+  }
   recordVisit();
   drawThing();
 
