@@ -382,6 +382,12 @@ dialog button{
 .crestpick:not(.used):active{transform:scale(.92)}
 .swatch.on{box-shadow:0 0 0 3px var(--gold),0 2px 8px rgba(22,32,43,.3);transform:scale(1.08)}
 .swatch:active{transform:scale(.92)}
+.tierpick{display:flex;gap:8px;margin:10px 0}
+.tierpick button{
+  flex:1;padding:10px;border-radius:12px;border:2px solid var(--rule);background:var(--card);
+  font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;color:var(--ink)
+}
+.tierpick button[aria-pressed="true"]{border-color:var(--gold);background:var(--stone)}
 .curric{max-height:200px;overflow:auto;background:#faf7fd;border-radius:12px;padding:4px 10px}
 .crow{padding:8px 0;border-bottom:1px solid #ece4f4;font-size:12.5px;line-height:1.45}
 .crow:last-child{border-bottom:0}
@@ -521,6 +527,20 @@ dialog button{
   <p>Ten wings, ten real subjects. As far as the child is concerned, they are helping a princess with something she was doing anyway, and that is exactly where the learning lives.</p>
   <p>Each princess also lives somewhere real, and she will tell your child where. That is the second thing they pick up here: Nerida's tide pools are in Greece, Neva's frozen window looks out over Norway.</p>
   <div class="curric" id="curriculum"></div>
+
+  <!-- The offer, and the only place in the product it appears. Written as a
+       description of what changes rather than a pitch, and carrying no price:
+       a number baked into copy is a number somebody has to remember to
+       change. -->
+  <h2 style="margin-top:20px">Free, and what a subscription changes</h2>
+  <p>Everything the children play with is free and stays free: all ten princesses, their voices, the ten stories about their countries, the counting, the puzzles. Nothing is locked, and no child is ever shown a locked door.</p>
+  <p>A subscription changes one thing. The princesses learn who your child is. They use their name, they remember what you talked about last time and do not teach it twice, and they carry on from the mood they parted in. A free princess is warm to a child she has just met. A subscribed princess is warm to <em>this</em> child.</p>
+  <div class="tierpick" id="tierPick">
+    <button type="button" data-tier="free">Free</button>
+    <button type="button" data-tier="family">Subscribed</button>
+  </div>
+  <p style="font-size:12px;opacity:.6">This switch is here while payment is being wired up.</p>
+
   <div class="btns">
     <button class="ok" id="peekClose" type="button">Close</button>
   </div>
@@ -850,7 +870,7 @@ function castleName(){
 function drawGreeting(){
   document.getElementById('castleName').textContent = castleName();
   const p = activeProfile();
-  document.getElementById('greet').textContent = p && p.name
+  document.getElementById('greet').textContent = (isPaid() && p && p.name)
     /* Not "which door". A child does not come here to pick a room, she comes
        to talk to somebody, and the greeting should say so. The doors are a
        layout detail; the princesses are the point. */
@@ -896,7 +916,7 @@ const gate = document.getElementById('gate');
 const panel = document.getElementById('panel');
 const peekDlg = document.getElementById('peekDlg');
 
-document.getElementById('peek').addEventListener('click', () => { drawCurriculum(); peekDlg.showModal(); });
+document.getElementById('peek').addEventListener('click', () => { drawCurriculum(); drawTier(); peekDlg.showModal(); });
 document.getElementById('peekClose').addEventListener('click', () => peekDlg.close());
 
 document.getElementById('grownBtn').addEventListener('click', () => {
@@ -921,6 +941,24 @@ document.getElementById('gateGo').addEventListener('click', () => {
    Add, rename, retitle, re-crest and remove. Removing takes that child's
    charms and garden with it, so it asks first: a sister deleted by a
    mis-tap loses months of sunflower. */
+/* Free or subscribed, stored per device: a family pays once and every child
+   in it is known by name. Never rendered anywhere the child can see it. */
+function isPaid(){ return (state.tier || 'free') === 'family'; }
+
+function drawTier(){
+  document.querySelectorAll('#tierPick button').forEach((b) => {
+    b.setAttribute('aria-pressed', String(b.dataset.tier === (state.tier || 'free')));
+  });
+}
+document.getElementById('tierPick').addEventListener('click', (e) => {
+  const b = e.target.closest('button[data-tier]');
+  if (!b) return;
+  state.tier = b.dataset.tier;
+  save(state);
+  drawTier();
+  drawGreeting();
+});
+
 function drawChildren(){
   const host = document.getElementById('children');
   const list = profileList();
@@ -996,6 +1034,7 @@ function drawLog(){
 function openPanel(){
   refreshAssetWarning();
   drawChildren();
+  drawTier();
   drawLog();
   panel.showModal();
 }

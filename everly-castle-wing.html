@@ -299,6 +299,26 @@ body{
   color:var(--blue);min-height:36px
 }
 
+/* Something to look at. A single big picture, or a sequence she taps through.
+
+   The sequence is the better half. "Shall we plant a carrot?" puts a seed on
+   screen that becomes a carrot in her own hands, which turns watching into
+   doing, and doing is the only thing a four-year-old can really have here. */
+.showcard{
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  padding:4px 0 12px;cursor:default
+}
+.showcard.tappable{cursor:pointer}
+.show-pic{font-size:96px;line-height:1;transition:transform .28s ease}
+.show-pic.grew{animation:grow .4s ease}
+@keyframes grow{from{transform:scale(.55);opacity:.3}to{transform:scale(1);opacity:1}}
+.show-label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;opacity:.45}
+/* Dots showing how far along the sequence is. No numbers, no "3 of 5": she
+   cannot read either, and a progress count is a thing you can be behind on. */
+.show-dots{display:flex;gap:6px}
+.show-dots i{width:8px;height:8px;border-radius:50%;background:var(--rule)}
+.show-dots i.on{background:var(--blue)}
+
 /* The shape-fit puzzle. A plate with a hole, and pieces under it. */
 .puzzle{display:flex;flex-direction:column;align-items:center;gap:14px;padding:4px 0 10px}
 .puzzle-plate{
@@ -401,6 +421,7 @@ body{
 
   <!-- 4. Game window -->
   <section class="window w-game">
+    <div class="showcard" id="showcard" hidden></div>
     <div class="puzzle" id="puzzle" hidden></div>
     <div class="counting" id="counting" hidden></div>
     <div class="count-total" id="countTotal"></div>
@@ -449,6 +470,8 @@ const VIMEO = {
   neva:   { id: '1216832962', file: '4/3', content: '16/9' },
   elowyn: { id: '1216836207', file: '4/3', content: '16/9' },
   lenora: { id: '1216838790', file: '4/3', content: '16/9' },
+  clementine: { id: '1216840815', file: '4/3', content: '16/9' },
+  piper:  { id: '1216842418', file: '4/3', content: '16/9' },
   almasi: { id: '1216839089', file: '4/3', content: '16/9' },
   bex:    { id: '1216837850', file: '4/3', content: '16/9' },
 };
@@ -489,6 +512,18 @@ function currentProfile(){
   return p;
 }
 let prof = currentProfile();
+
+/* Free or paid, stored per device rather than per child: a family subscribes
+   once and every child in it is known by name.
+
+   Nothing here is ever shown to the child. She sees no lock, no greyed-out
+   door and no upgrade prompt, because a four-year-old who meets a locked door
+   does not conclude that her grown-up should subscribe, she concludes she did
+   something wrong. The only difference she can perceive is whether the
+   princess uses her name. The offer lives in the parents' guide. */
+function isPaid(){
+  return (state.tier || 'free') === 'family';
+}
 
 /* The wing wears whatever colour she chose on the hub. Applied before first
    paint rather than after, so a child on Starry Night never gets a flash of
@@ -809,6 +844,65 @@ function addBubble(who, text){
   log.scrollTop = log.scrollHeight;
 }
 
+/* Puts one big thing on screen, or a sequence she advances by tapping.
+
+   She kept offering to show things, a sunflower, a snail, and nothing ever
+   appeared. That is the same broken promise as asking a child to hold a
+   spanner: she does not conclude the app is empty, she concludes she missed
+   it. Now the offer has something behind it. */
+function setShow(spec){
+  const host = document.getElementById('showcard');
+  host.innerHTML = '';
+  host.classList.remove('tappable');
+  if (!spec || (!spec.emoji && !(spec.steps && spec.steps.length))) { host.hidden = true; return; }
+  host.hidden = false;
+
+  const steps = (spec.steps && spec.steps.length) ? spec.steps : [spec.emoji];
+  let at = 0;
+
+  const pic = document.createElement('div');
+  pic.className = 'show-pic';
+  pic.textContent = steps[0];
+
+  const label = document.createElement('div');
+  label.className = 'show-label';
+  label.textContent = spec.label || '';
+
+  const dots = document.createElement('div');
+  dots.className = 'show-dots';
+  const paintDots = () => {
+    dots.innerHTML = '';
+    if (steps.length < 2) return;
+    steps.forEach((_, i) => {
+      const d = document.createElement('i');
+      if (i <= at) d.classList.add('on');
+      dots.appendChild(d);
+    });
+  };
+  paintDots();
+
+  host.append(pic, label, dots);
+
+  if (steps.length > 1) {
+    host.classList.add('tappable');
+    host.setAttribute('role', 'button');
+    host.setAttribute('aria-label', 'tap to see what happens next');
+    host.addEventListener('click', () => {
+      if (at >= steps.length - 1) return;
+      at += 1;
+      pic.textContent = steps[at];
+      pic.classList.remove('grew');
+      void pic.offsetWidth;
+      pic.classList.add('grew');
+      paintDots();
+      // Tell her when it is finished, so she can react to the thing they grew.
+      if (at === steps.length - 1) {
+        setTimeout(() => turn('it finished growing'), 800);
+      }
+    });
+  }
+}
+
 /* Shapes for the puzzle, drawn rather than emoji so they read cleanly at
    size and match the badge set already in the castle. */
 const SHAPES = {
@@ -991,9 +1085,19 @@ async function turn(message){
         agent: wingId,
         message,
         history: history.slice(-10),
-        student: prof.name || undefined,
+        /* THE PAID LINE.
+
+           Free accounts send no name and no notes, so the princess speaks to a
+           child she does not know and the reply is one that would suit any
+           child anywhere. That is why it is cheap: a generic line is cached
+           once and served to everybody forever, while a line containing a
+           name belongs to one child and can never be shared.
+
+           The title still goes, because Princess or Prince is not personal
+           information and getting it wrong would be worse than free. */
+        student: isPaid() ? (prof.name || undefined) : undefined,
         title: prof.title === 'Prince' ? 'Prince' : 'Princess',
-        remembers: remembers(),
+        remembers: isPaid() ? remembers() : undefined,
       }),
     });
     data = await r.json();
@@ -1021,6 +1125,7 @@ async function turn(message){
   rememberNoticed(data.noticed);
   rememberMood(data.feeling);
   setCounting(data.count);
+  setShow(data.show);
   setPuzzle(data.puzzle);
   setAnswers(data.choices);
   speak(data.body);
@@ -1052,12 +1157,12 @@ function begin(){
   /* Falls back to the bare title, never to "your highness". A four-year-old
      has no hook for that word, and a greeting she cannot parse is a greeting
      that teaches her the castle talks over her head. */
-  const who = prof.name ? rank + ' ' + prof.name : rank;
+  const who = (isPaid() && prof.name) ? rank + ' ' + prof.name : rank;
   const opening = 'Hello, ' + who + '. ' + bank[lineKey] + ' How are you feeling today?';
 
   /* She opens in the mood she was left in. Without this the face resets to
      happy on every visit, which is the tell that a gauge is decorative. */
-  const parted = prof.mood[wingId];
+  const parted = isPaid() ? prof.mood[wingId] : null;
   if (parted && parted.felt) setMood(parted.felt);
 
   addBubble('agent', opening);
