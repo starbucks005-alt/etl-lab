@@ -302,16 +302,16 @@ body{
 <script>
 /* ── Cast, mirrored from netlify/functions/everly-castle-chat.js (display only) ──── */
 const WINGS = {
-  posy:       { name:'Posy',       wing:'the Wild Garden',        emoji:'🌻' },
-  nerida:     { name:'Nerida',     wing:'the Coral Court',        emoji:'🐚' },
-  zephyra:    { name:'Zephyra',    wing:'the Windward Tower',     emoji:'🪁' },
-  neva:       { name:'Neva',       wing:'the Frost Conservatory', emoji:'❄️' },
-  lenora:      { name:'Lenora',      wing:'the Star Balcony',       emoji:'🌙' },
-  elowyn:     { name:'Elowyn',     wing:'the Story Loft',         emoji:'📖' },
-  clementine: { name:'Clementine', wing:'the Copper Kitchen',     emoji:'🥕' },
-  piper:      { name:'Piper',      wing:'the Music Hall',         emoji:'🎵' },
-  almasi:      { name:'Almasi',      wing:'the Fossil Field',       emoji:'🦴' },
-  bex:        { name:'Bex',        wing:'the Workshop',           emoji:'🔧' },
+  posy:       { name:'Posy',       wing:'the Wild Garden',        emoji:'🌻' , lang:'French', topic:'flowers' },
+  nerida:     { name:'Nerida',     wing:'the Coral Court',        emoji:'🐚' , lang:'Greek', topic:'sea creatures' },
+  zephyra:    { name:'Zephyra',    wing:'the Windward Tower',     emoji:'🪁' , lang:'Nepali', topic:'the wind' },
+  neva:       { name:'Neva',       wing:'the Frost Conservatory', emoji:'❄️' , lang:'Norwegian', topic:'snow' },
+  lenora:      { name:'Lenora',      wing:'the Star Balcony',       emoji:'🌙' , lang:'Mongolian', topic:'the moon' },
+  elowyn:     { name:'Elowyn',     wing:'the Story Loft',         emoji:'📖' , lang:'Māori', topic:'stories' },
+  clementine: { name:'Clementine', wing:'the Copper Kitchen',     emoji:'🥕' , lang:'Spanish', topic:'food' },
+  piper:      { name:'Piper',      wing:'the Music Hall',         emoji:'🎵' , lang:'German', topic:'music' },
+  almasi:      { name:'Almasi',      wing:'the Fossil Field',       emoji:'🦴' , lang:'Swahili', topic:'fossils' },
+  bex:        { name:'Bex',        wing:'the Workshop',           emoji:'🔧' , lang:'Portuguese', topic:'how things work' },
 };
 // Cartoon clips, derived from the name so a new wing needs no extra wiring.
 // _idle.mp4 is required; _talk.mp4 is optional and simply is not used if it
@@ -539,16 +539,16 @@ let busy = false;
    the cached princess audio would. If you edit one, edit BOTH, and bump
    CACHE_VERSION in everly-castle-voice.js. The consistency check enforces this. */
 const SCRIPT_TEXT = {
-  posy:       { hello:'Oh good, you came back. Clover and I were just checking on things.', again:'There you are. Come and look, something happened while you were gone.', story:'Nobody planted the Wild Garden. It turned up one spring all at once, and Clover and I have looked after it ever since.' },
-  nerida:     { hello:'You found the Coral Court. Careful, it is slippery.', again:'Back again. The tide came in and left us something.', story:'The Coral Court floods twice a day, and it always brings something back. Pebble arrived in one of those floods and simply never left.' },
-  zephyra:    { hello:'Hold on to something. It is windy up here.', again:'You are back. Good, the wind has swung right round since yesterday.', story:'They built this tower far too tall and the wind has never forgiven them. Gust taught me that if you stop fighting it, it holds you up.' },
-  neva:       { hello:'Come in. Mind the cold, it bites a little at first.', again:'You came back. Wisp knew you would.', story:'Everything in this room is water wearing something different. Wisp knows all of its outfits better than I do.' },
-  lenora:      { hello:'Shh. Come and stand here, where you can see.', again:'There you are. The moon has changed since you left.', story:'I found the Star Balcony by getting lost, which is the best way to find anything. Vesper was already up here, keeping the sky company on her own.' },
-  elowyn:     { hello:'A visitor. Inkwell, we have a visitor, and the story is not finished.', again:'You are back, and just in time, I was stuck.', story:'Every story anyone in this castle started and did not finish ends up in my loft. Inkwell sleeps on the good ones, so I always know which they are.' },
-  clementine: { hello:'Perfect timing. I am building a plate and I have run clean out of colours.', again:'You came back. Good, because I have done it again, look at this.', story:'I cook for ten princesses who all want something different, which is harder than it sounds. Crumb tastes everything first and has never once said no.' },
-  piper:      { hello:'Two, three, four, and you are here.', again:'Back again. I have a new pattern and it is a tricky one.', story:'The echo in here comes back a bit late, so when you sing you end up singing along with yourself. Tuppence joins in and never needed teaching.' },
-  almasi:     { hello:'Mind where you kneel. There are bones under all of this.', again:'You came back. Good, I found something yesterday and I have not touched it yet.' },
-  bex:        { hello:'Good, another pair of hands. Hold this.', again:'You are back. It is still broken. I left it for you.', story:'If it broke anywhere in this castle, it ends up here. Bolt steals the small parts, so half my job is finding what he did with them.' },
+  posy:       { hello:'Oh good, you came back. Clover and I were just checking on things.', again:'There you are. Come and look, something happened while you were gone.', story:'I am Princess Posy. I live in France, and I love plants and flowers. I speak French. Would you like to learn about flowers? Or would you like to learn some French words?' },
+  nerida:     { hello:'You found the Coral Court. Careful, it is slippery.', again:'Back again. The tide came in and left us something.', story:'I am Princess Nerida. I live in Greece, and I love the sea and everything living in it. I speak Greek. Would you like to learn about sea creatures? Or would you like to learn some Greek words?' },
+  zephyra:    { hello:'Hold on to something. It is windy up here.', again:'You are back. Good, the wind has swung right round since yesterday.', story:'I am Princess Zephyra. I live in Nepal, high up in the mountains, and I love the wind. I speak Nepali. Would you like to learn about the wind? Or would you like to learn some Nepali words?' },
+  neva:       { hello:'Come in. Mind the cold, it bites a little at first.', again:'You came back. Wisp knew you would.', story:'I am Princess Neva. I live in Norway, where it snows, and I love ice and snowflakes. I speak Norwegian. Would you like to learn about snow? Or would you like to learn some Norwegian words?' },
+  lenora:      { hello:'Shh. Come and stand here, where you can see.', again:'There you are. The moon has changed since you left.', story:'I am Princess Lenora. I live in Mongolia, where the night sky is very dark, and I love the moon and the stars. I speak Mongolian. Would you like to learn about the moon? Or would you like to learn some Mongolian words?' },
+  elowyn:     { hello:'A visitor. Inkwell, we have a visitor, and the story is not finished.', again:'You are back, and just in time, I was stuck.', story:'I am Princess Elowyn. I live in New Zealand, and I love stories. I speak English and Māori. Would you like to make up a story? Or would you like to learn some Māori words?' },
+  clementine: { hello:'Perfect timing. I am building a plate and I have run clean out of colours.', again:'You came back. Good, because I have done it again, look at this.', story:'I am Princess Clementine. I live in America, and I love cooking and finding out what food does for you. I speak English and Spanish. Would you like to learn about food? Or would you like to learn some Spanish words?' },
+  piper:      { hello:'Two, three, four, and you are here.', again:'Back again. I have a new pattern and it is a tricky one.', story:'I am Princess Piper. I live in Germany, and I love music. I speak German. Would you like to learn about music? Or would you like to learn some German words?' },
+  almasi:     { hello:'Mind where you kneel. There are bones under all of this.', again:'You came back. Good, I found something yesterday and I have not touched it yet.', story:'I am Princess Almasi. I live in Kenya, and I love digging up bones from a very long time ago. I speak Swahili. Would you like to learn about fossils? Or would you like to learn some Swahili words?' },
+  bex:        { hello:'Good, another pair of hands. Hold this.', again:'You are back. It is still broken. I left it for you.', story:'I am Princess Bex. I live in Brazil, and I love fixing things and finding out how they work. I speak Portuguese. Would you like to learn how something works? Or would you like to learn some Portuguese words?' },
 };
 
 /* ── The simplified emotion scale ──────────────────────────────────────────
@@ -869,9 +869,17 @@ document.getElementById('begin').addEventListener('click', begin);
 (function wireStory(){
   const bank = SCRIPT_TEXT[wingId] || SCRIPT_TEXT.posy;
   document.getElementById('storyText').textContent = bank.story;
+  /* Her story now ENDS in two questions, so playing it has to leave two
+     things to tap. Without this a four-year-old hears "would you like to
+     learn about flowers, or some French words?" and has no way to answer
+     either one. */
   document.getElementById('storyPlay').addEventListener('click', () => {
     addBubble('agent', bank.story);
     speak(bank.story, 'story');
+    setAnswers([
+      { emoji: AGENT.emoji, say: 'tell me about ' + (AGENT.topic || 'your wing') },
+      { emoji: '🗣️',        say: 'teach me some ' + (AGENT.lang || 'new') + ' words' },
+    ]);
   });
 })();
 </script>
