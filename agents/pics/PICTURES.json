@@ -1,0 +1,23 @@
+{
+  "_readme": [
+    "Curated pictures the princesses may show a child. Nothing here is fetched",
+    "at runtime and no image search is ever run, because you cannot guarantee",
+    "what a search returns and this is in front of a four-year-old.",
+    "",
+    "Every entry MUST record where the file came from and under what licence.",
+    "That is not bureaucracy: this repo is public and the app is paid, so an",
+    "unlicensed photo is a real problem, and 'I found it online' is not a",
+    "licence. If the source and licence are not filled in, the picture is not",
+    "used, and the checker will say so.",
+    "",
+    "Safe sources, in rough order of how little thought they need:",
+    "  NASA                  public domain. Moon, planets, Earth from orbit.",
+    "  NOAA / USGS           public domain. Tides, weather, rocks, fossils.",
+    "  Pexels / Pixabay      free for commercial use, no attribution needed.",
+    "  Wikimedia Commons     per-file licence, check each one, many need credit.",
+    "",
+    "Not safe: anything from a web search, Getty, Google Images, or a site that",
+    "does not state a licence on the file itself."
+  ],
+  "pictures": {}
+}

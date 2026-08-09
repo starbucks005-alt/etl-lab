@@ -387,6 +387,10 @@ const SPEAK_TOOL = {
         description: 'Put things on screen to be counted. Use it whenever counting fits naturally: petals, shells, stars, carrots, birds. Ask the question in your reply, then let the screen do the rest.',
         properties: {
           emoji: { type: 'string', description: 'One emoji, the thing being counted. It should be something from your wing.' },
+          inMyLanguage: {
+            type: 'boolean',
+            description: 'Count aloud in your own language instead of English. Use it often: this is the easiest real language lesson in the castle and it does not feel like one.',
+          },
           howMany: { type: 'integer', minimum: 1, maximum: 10, description: 'How many to show. Stay between 3 and 6 unless they have counted well already; ten is a lot for four years old.' },
         },
         required: ['emoji', 'howMany'],
@@ -480,6 +484,10 @@ You can put things on the screen to be counted, and you should, often. It is the
 
 Count things from your own wing: petals, shells, stars, snowflakes, carrots, birds, bones. Three to six is the sweet spot. Ask the question in your reply and let the screen do the rest.
 
+COUNT IN YOUR OWN LANGUAGE, OFTEN. Set inMyLanguage and each thing she taps is spoken in your language instead of English: un, deux, trois in France, moja, mbili, tatu in Kenya. This is the best teaching in the whole castle, because she is not learning French, she is counting shells and the numbers happen to be French. Do it roughly every other time you count, and say the number warmly in your reply as well so she hears it twice.
+
+DO NOT SET THE SAME COUNT TWICE. If your notes or the conversation show she has just counted, do not put the same things up again. She finished it. Repeating it reads as her having got it wrong the first time. Move to something else, or count something different, or count the same things in your language if the first go was in English.
+
 Never make it a test. There is no wrong answer and no score. If she taps them in a strange order or loses her place, that is fine and you say nothing about it. When she finishes, tell her the number warmly and move on.
 
 YOU CANNOT SEE HER SCREEN, SO NEVER POINT AT IT
@@ -490,7 +498,12 @@ The ONLY things on her screen are the ones you put there this turn, with show, c
 SHOWING HER SOMETHING
 If you offer to show her a thing, you must actually put it on screen in the same turn. Every single time. An offer with nothing behind it is the same broken promise as asking her to hold a spanner: she does not conclude the app is empty, she concludes she missed it or did it wrong.
 
-So: no "would you like to see a sunflower?" without a sunflower arriving.
+So: no "would you like to see a sunflower?" without sunflower arriving in show. Growing a carrot is seed, then sprout, then carrot, and she taps between them.
+
+THE PICTURES YOU HAVE. Use these names exactly, they are the only ones that draw:
+seed, sprout, leafy, carrot, sunflower, tree, raindrop, snowflake, ice, wave, cloud, sun, moonFull, moonHalf, moonThin, star, snail, bee, butterfly, fish, bird, rabbit, apple, carrotFood, bread, milk, book, house, mountain, shadow, gear, bone, rock, drum, starfish, shell, shellOpen, crab, jellyfish, seaweed, tidepool, sea, pearl
+
+A name not on that list shows nothing, which is the broken promise all over again, so if the thing you want is not here, talk about it instead of offering to show it.
 
 For anything that CHANGES, send steps rather than one picture: planting a seed, water freezing, the moon filling up, a bone coming out of the ground. She taps to move it along, which turns watching into doing. "Shall we plant a carrot?" should put a seed on screen that becomes a carrot in her own hands, not a picture of a carrot that was always there. Use it freely, whenever a thing would be better looked at than described. What appears is a single large picture, so choose one thing, not a scene.
 
@@ -654,7 +667,7 @@ exports.handler = async (event) => {
       ? { puzzle: { fits: out.puzzle.fits, options: out.puzzle.options.slice(0, 3) } }
       : {}),
     ...(out.count && out.count.emoji && out.count.howMany
-      ? { count: { emoji: String(out.count.emoji).slice(0, 8),
+      ? { count: { inMyLanguage: !!out.count.inMyLanguage, emoji: String(out.count.emoji).slice(0, 8),
                    howMany: Math.max(1, Math.min(10, parseInt(out.count.howMany, 10) || 3)) } }
       : {}),
     ...(out.grownup ? { flag: 'grownup' } : {}),

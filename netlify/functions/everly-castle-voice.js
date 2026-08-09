@@ -76,6 +76,154 @@ const VOICE_SETTINGS = { stability: 0.40, similarity_boost: 0.80, style: 0.45, u
 /* Spoken numbers for the counting game, served through the scripted-line
    path so each one is generated once per princess and cached forever after.
    A child counting to five every day for a year costs five clips, total. */
+/* One to ten in each princess's own language, spelled for reading aloud
+   rather than for print. See the note in the counting rules about why Nepali
+   and Mongolian are in Latin letters. */
+const NUMBERS = {
+  "French": [
+    "",
+    "un",
+    "deux",
+    "trois",
+    "quatre",
+    "cinq",
+    "six",
+    "sept",
+    "huit",
+    "neuf",
+    "dix"
+  ],
+  "Greek": [
+    "",
+    "ένα",
+    "δύο",
+    "τρία",
+    "τέσσερα",
+    "πέντε",
+    "έξι",
+    "εφτά",
+    "οχτώ",
+    "εννιά",
+    "δέκα"
+  ],
+  "Nepali": [
+    "",
+    "ek",
+    "dui",
+    "teen",
+    "char",
+    "panch",
+    "chha",
+    "saat",
+    "aath",
+    "nau",
+    "das"
+  ],
+  "Norwegian": [
+    "",
+    "en",
+    "to",
+    "tre",
+    "fire",
+    "fem",
+    "seks",
+    "sju",
+    "åtte",
+    "ni",
+    "ti"
+  ],
+  "Mongolian": [
+    "",
+    "neg",
+    "hoyor",
+    "gurav",
+    "duruv",
+    "tav",
+    "zurgaa",
+    "doloo",
+    "naim",
+    "yus",
+    "arav"
+  ],
+  "Maori": [
+    "",
+    "tahi",
+    "rua",
+    "toru",
+    "whā",
+    "rima",
+    "ono",
+    "whitu",
+    "waru",
+    "iwa",
+    "tekau"
+  ],
+  "English": [
+    "",
+    "one",
+    "two",
+    "three",
+    "four",
+    "five",
+    "six",
+    "seven",
+    "eight",
+    "nine",
+    "ten"
+  ],
+  "German": [
+    "",
+    "eins",
+    "zwei",
+    "drei",
+    "vier",
+    "fünf",
+    "sechs",
+    "sieben",
+    "acht",
+    "neun",
+    "zehn"
+  ],
+  "Swahili": [
+    "",
+    "moja",
+    "mbili",
+    "tatu",
+    "nne",
+    "tano",
+    "sita",
+    "saba",
+    "nane",
+    "tisa",
+    "kumi"
+  ],
+  "Portuguese": [
+    "",
+    "um",
+    "dois",
+    "três",
+    "quatro",
+    "cinco",
+    "seis",
+    "sete",
+    "oito",
+    "nove",
+    "dez"
+  ]
+};
+const LANG_OF = {
+  "posy": "French",
+  "nerida": "Greek",
+  "zephyra": "Nepali",
+  "neva": "Norwegian",
+  "lenora": "Mongolian",
+  "elowyn": "Maori",
+  "clementine": "English",
+  "piper": "German",
+  "almasi": "Swahili",
+  "bex": "Portuguese"
+};
+
 const NUMBER_WORDS = ['zero', 'one', 'two', 'three', 'four', 'five',
                       'six', 'seven', 'eight', 'nine', 'ten'];
 
@@ -121,6 +269,12 @@ exports.handler = async (event) => {
   let text, cacheKey;
   const lineKey = String(body.line || '').trim();
 
+  /* num-3 is "trois" in Posy's wing and "tatu" in Almasi's. Counting in the
+     language is the promise the castle already makes out loud. */
+  if (/^num-([1-9]|10)$/.test(lineKey)) {
+    const set = NUMBERS[LANG_OF[agentId]] || NUMBERS.English;
+    text = set[Number(lineKey.split('-')[1])] || '';
+  }
   if (/^count-([0-9]|10)$/.test(lineKey)) {
     // count-3 -> "three", in this princess's voice.
     text = NUMBER_WORDS[Number(lineKey.split('-')[1])];
