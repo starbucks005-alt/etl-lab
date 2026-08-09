@@ -55,30 +55,49 @@
   --shadow-deep:0 14px 34px rgba(22,32,43,.26);
   --serif:Spectral,Georgia,'Iowan Old Style',Palatino,serif;
 }
-html[data-theme="mermaid"]{        /* Mermaid Green */
-  --blue:#1d6b6f; --blue-lit:#7cc3c4;
-  --sky1:#e6f5f4; --sky2:#c3e6e4; --sky3:#9dd4d2; --rule:#a9d6d4; --stone:#d6efee;
+/* ── The child picks her castle's colour ───────────────────────────────────
+   Chosen at the crest picker, the moment she says who she is, and remembered
+   against her own profile. Sisters get different castles out of the same
+   install, which is the whole point of "Charlotte's Castle" being hers.
+
+   EVERY COLOUR HERE IS A REAL ETL COLOUR, wearing a name a four-year-old would
+   actually say. Dr. O's call, and it is the right one: the brand stays exactly
+   itself underneath, and the child gets Mermaid Green instead of #35806f. An
+   earlier pass invented its own hexes, which drifted from ETL for no gain.
+
+     Butterfly Blue  #28527a  stamp blue      (default)
+     Mermaid Green   #35806f  evergreen
+     Petal Pink      #e8756b  ETL YOU Coral Reef
+     Sunshine Yellow #c9a23f  Greylander gold
+     Snowflake White #f4f3ee  paper
+     Starry Night    #10161d  night
+
+   Six, which is the even number the house rule wants, and no wrong choice
+   among them. */
+html[data-theme="mermaid"]{        /* Mermaid Green, ETL evergreen */
+  --blue:#35806f; --blue-lit:#63b3a0;
+  --sky1:#e9f4f1; --sky2:#cbe6df; --sky3:#a7d3c8; --rule:#b3dbd0; --stone:#dcefe9;
 }
-html[data-theme="sunshine"]{       /* Sunshine Yellow */
-  --blue:#8a6a12; --blue-lit:#e3c469;
-  --sky1:#fffaea; --sky2:#fdefc4; --sky3:#f7de97; --rule:#e8d29a; --stone:#fdf3d6;
+html[data-theme="petal"]{          /* Petal Pink, from ETL YOU's Coral Reef */
+  --blue:#a84c4c; --blue-lit:#f0a49c;
+  --sky1:#fdf0ee; --sky2:#fadad5; --sky3:#f4bcb4; --rule:#eec4bd; --stone:#fbe4e0;
 }
-html[data-theme="petal"]{          /* Petal Pink */
-  --blue:#9c3f66; --blue-lit:#e2a1bd;
-  --sky1:#fdeef4; --sky2:#f8d6e4; --sky3:#f0b8ce; --rule:#e9bfd2; --stone:#fbe4ee;
+html[data-theme="sunshine"]{       /* Sunshine Yellow, ETL Greylander gold */
+  --blue:#8a6c1f; --blue-lit:#e2c469;
+  --sky1:#fdf8e8; --sky2:#f7ecc6; --sky3:#eeda9c; --rule:#e6d5a1; --stone:#faf1d8;
 }
-html[data-theme="snowflake"]{      /* Snowflake White */
-  --blue:#4a6f8c; --blue-lit:#a9c8dc;
-  --sky1:#f7fbfd; --sky2:#e6f0f7; --sky3:#d2e3ef; --rule:#d3e2ec; --stone:#eef5fa;
+html[data-theme="snowflake"]{      /* Snowflake White, ETL paper */
+  --blue:#4a5b6b; --blue-lit:#b7bfc6;
+  --sky1:#fbfbf8; --sky2:#f4f3ee; --sky3:#e6e5dd; --rule:#dedcd2; --stone:#f7f6f1;
 }
 /* Starry Night is deliberately dark, the one theme that inverts. A castle at
    bedtime is a lovely thing to hand a four-year-old, and Lenora's whole wing
-   is the night sky. Ink and paper swap so contrast stays high. */
+   is the night sky. ETL night and ETL paper, swapped. */
 html[data-theme="starry"]{
-  --ink:#f2f6fb; --ink-soft:#b9c9dc;
-  --blue:#f0d9a0; --blue-lit:#8fb4d8;
-  --sky1:#1b2740; --sky2:#131d31; --sky3:#0d1524;
-  --card:#22304c; --rule:#3c5175; --stone:#2b3a58;
+  --ink:#f4f3ee; --ink-soft:#a9b6c4;
+  --blue:#c9a23f; --blue-lit:#7fa8c9;
+  --sky1:#1b2635; --sky2:#131b26; --sky3:#10161d;
+  --card:#1f2b3a; --rule:#38485c; --stone:#27354a;
   --shadow:0 8px 22px rgba(0,0,0,.45);
   --shadow-deep:0 14px 34px rgba(0,0,0,.6);
 }

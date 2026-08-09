@@ -75,37 +75,44 @@
    against her own profile. Sisters get different castles out of the same
    install, which is the whole point of "Charlotte's Castle" being hers.
 
-   Every theme is lifted from the artwork rather than invented: the sea is
-   Nerida's Aegean, night is Lenora's sky, garden is Posy's, sunset is
-   Almasi's red earth, snow is Neva's. Six of them, which is the even number
-   the house rule wants, and no wrong choice among them. */
-/* Names a four-year-old would actually say. She cannot read them, so the
-   colour IS the choice, but the names are what she will call it out loud and
-   what a grown-up sees in the settings. */
-html[data-theme="mermaid"]{        /* Mermaid Green */
-  --blue:#1d6b6f; --blue-lit:#7cc3c4;
-  --sky1:#e6f5f4; --sky2:#c3e6e4; --sky3:#9dd4d2; --rule:#a9d6d4; --stone:#d6efee;
+   EVERY COLOUR HERE IS A REAL ETL COLOUR, wearing a name a four-year-old would
+   actually say. Dr. O's call, and it is the right one: the brand stays exactly
+   itself underneath, and the child gets Mermaid Green instead of #35806f. An
+   earlier pass invented its own hexes, which drifted from ETL for no gain.
+
+     Butterfly Blue  #28527a  stamp blue      (default)
+     Mermaid Green   #35806f  evergreen
+     Petal Pink      #e8756b  ETL YOU Coral Reef
+     Sunshine Yellow #c9a23f  Greylander gold
+     Snowflake White #f4f3ee  paper
+     Starry Night    #10161d  night
+
+   Six, which is the even number the house rule wants, and no wrong choice
+   among them. */
+html[data-theme="mermaid"]{        /* Mermaid Green, ETL evergreen */
+  --blue:#35806f; --blue-lit:#63b3a0;
+  --sky1:#e9f4f1; --sky2:#cbe6df; --sky3:#a7d3c8; --rule:#b3dbd0; --stone:#dcefe9;
 }
-html[data-theme="sunshine"]{       /* Sunshine Yellow */
-  --blue:#8a6a12; --blue-lit:#e3c469;
-  --sky1:#fffaea; --sky2:#fdefc4; --sky3:#f7de97; --rule:#e8d29a; --stone:#fdf3d6;
+html[data-theme="petal"]{          /* Petal Pink, from ETL YOU's Coral Reef */
+  --blue:#a84c4c; --blue-lit:#f0a49c;
+  --sky1:#fdf0ee; --sky2:#fadad5; --sky3:#f4bcb4; --rule:#eec4bd; --stone:#fbe4e0;
 }
-html[data-theme="petal"]{          /* Petal Pink */
-  --blue:#9c3f66; --blue-lit:#e2a1bd;
-  --sky1:#fdeef4; --sky2:#f8d6e4; --sky3:#f0b8ce; --rule:#e9bfd2; --stone:#fbe4ee;
+html[data-theme="sunshine"]{       /* Sunshine Yellow, ETL Greylander gold */
+  --blue:#8a6c1f; --blue-lit:#e2c469;
+  --sky1:#fdf8e8; --sky2:#f7ecc6; --sky3:#eeda9c; --rule:#e6d5a1; --stone:#faf1d8;
 }
-html[data-theme="snowflake"]{      /* Snowflake White */
-  --blue:#4a6f8c; --blue-lit:#a9c8dc;
-  --sky1:#f7fbfd; --sky2:#e6f0f7; --sky3:#d2e3ef; --rule:#d3e2ec; --stone:#eef5fa;
+html[data-theme="snowflake"]{      /* Snowflake White, ETL paper */
+  --blue:#4a5b6b; --blue-lit:#b7bfc6;
+  --sky1:#fbfbf8; --sky2:#f4f3ee; --sky3:#e6e5dd; --rule:#dedcd2; --stone:#f7f6f1;
 }
 /* Starry Night is deliberately dark, the one theme that inverts. A castle at
    bedtime is a lovely thing to hand a four-year-old, and Lenora's whole wing
-   is the night sky. Ink and paper swap so contrast stays high. */
+   is the night sky. ETL night and ETL paper, swapped. */
 html[data-theme="starry"]{
-  --ink:#f2f6fb; --ink-soft:#b9c9dc;
-  --blue:#f0d9a0; --blue-lit:#8fb4d8;
-  --sky1:#1b2740; --sky2:#131d31; --sky3:#0d1524;
-  --card:#22304c; --rule:#3c5175; --stone:#2b3a58;
+  --ink:#f4f3ee; --ink-soft:#a9b6c4;
+  --blue:#c9a23f; --blue-lit:#7fa8c9;
+  --sky1:#1b2635; --sky2:#131b26; --sky3:#10161d;
+  --card:#1f2b3a; --rule:#38485c; --stone:#27354a;
   --shadow:0 8px 22px rgba(0,0,0,.45);
   --shadow-deep:0 14px 34px rgba(0,0,0,.6);
 }
@@ -338,6 +345,15 @@ dialog button{
   border:2px solid rgba(255,255,255,.7);
   box-shadow:0 2px 8px rgba(22,32,43,.28);transition:transform .12s ease
 }
+.titlepick{
+  min-width:88px;padding:8px 14px 6px;border-radius:16px;cursor:pointer;
+  border:1px solid var(--rule);background:var(--card);color:var(--blue);
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  font-family:var(--serif);transition:transform .12s ease
+}
+.titlepick.on{box-shadow:0 0 0 3px var(--gold);transform:scale(1.06)}
+.titlepick:active{transform:scale(.94)}
+.titlepick-cap{font-size:12px;font-weight:700}
 .crestpick{
   width:46px;height:46px;border-radius:14px;cursor:pointer;
   border:1px solid var(--rule);background:var(--card);color:var(--blue);
@@ -428,6 +444,13 @@ dialog button{
   <!-- The child picks her own mark. It is how she finds herself in a line-up
        she cannot read, so it should be hers by choice, not assigned to her by
        whoever set the tablet up. -->
+  <!-- Everything the child chooses about herself now lives in one place, at
+       the moment she says who she is: what she is called, her badge, her
+       colour. The title used to sit in the grown-up panel behind a maths gate,
+       which made it the one thing about her that somebody else decided. -->
+  <div class="picker-cap" style="margin-top:14px">Are you a princess or a prince?</div>
+  <div class="theme-row" id="titleRow"></div>
+
   <!-- "Your mark" was heraldry-speak. A four-year-old knows what a badge is. -->
   <div class="picker-cap" style="margin-top:14px">Your badge</div>
   <div class="theme-row" id="crestRow"></div>
@@ -602,19 +625,19 @@ function newProfile(name, title, crest){
    would be stamped into a plate. Same recognisability, none of the plastic.
    Inline SVG paths, so nothing has to load for a crest to render, which is
    the same reasoning behind ETL's own geometric mark. */
-const CRESTS = ['star','moon','leaf','feather','heart','key','sun','bee','crown','anchor'];
+const CRESTS = ['star','moon','sun','heart','crown','flower','butterfly','ladybug','fish','bee'];
 
 /* The castle colours, in the order they appear under the crests. Six, and
    there is no wrong one: this is a choice a child gets to make about her own
    castle, not a setting with a correct answer. `swatch` is what the button
    looks like; the theme itself is the CSS block up top. */
 const THEMES = [
-  { id:'',          name:'Butterfly Blue',  swatch:'#28527a' },
-  { id:'mermaid',   name:'Mermaid Green',   swatch:'#1d6b6f' },
-  { id:'sunshine',  name:'Sunshine Yellow', swatch:'#e3b93f' },
-  { id:'petal',     name:'Petal Pink',      swatch:'#d9749f' },
-  { id:'snowflake', name:'Snowflake White', swatch:'#dbe9f2' },
-  { id:'starry',    name:'Starry Night',    swatch:'#1b2740' },
+  { id:'',          name:'Butterfly Blue',  swatch:'#28527a' },  // ETL stamp blue
+  { id:'mermaid',   name:'Mermaid Green',   swatch:'#35806f' },  // ETL evergreen
+  { id:'petal',     name:'Petal Pink',      swatch:'#e8756b' },  // ETL YOU Coral Reef
+  { id:'sunshine',  name:'Sunshine Yellow', swatch:'#c9a23f' },  // ETL Greylander gold
+  { id:'snowflake', name:'Snowflake White', swatch:'#f4f3ee' },  // ETL paper
+  { id:'starry',    name:'Starry Night',    swatch:'#10161d' },  // ETL night
 ];
 
 function applyTheme(id){
@@ -623,23 +646,28 @@ function applyTheme(id){
 }
 
 const CREST_PATHS = {
-  star:    'M32 6l7.6 16.4L57 24.6 44 36.8l3.4 17.6L32 46 16.6 54.4 20 36.8 7 24.6l17.4-2.2z',
-  /* Crescent as one path: a big outer arc, then a smaller inner arc curving
-     back. The first attempt used two arcs whose sweep flags cancelled, which
-     collapsed it to a sliver that looked blank at 34px. */
-  moon:    'M32 32m-26 0a26 26 0 1 0 52 0a26 26 0 1 0-52 0M46 32m-22 0a22 22 0 1 0 44 0a22 22 0 1 0-44 0',
-  /* A vesica, pointed at both ends, which is what actually reads as a leaf.
-     The first attempt had an inner counter that filled solid and came out a
-     teardrop blob. */
-  leaf:    'M32 4Q54 26 32 60Q10 26 32 4z',
-  feather: 'M46 8c-16 2-28 12-32 28l-6 18 5 2 6-16c14 2 26-6 30-20zM20 42c3-12 12-20 22-23-4 10-12 17-22 23z',
-  heart:   'M32 57S7 41 7 25a12.5 12.5 0 0125-6 12.5 12.5 0 0125 6c0 16-25 32-25 32z',
-  key:     'M40 6a14 14 0 00-13 19L8 44v12h12v-6h6v-6h6l5-5a14 14 0 003-33zm2 8a5 5 0 110 10 5 5 0 010-10z',
-  sun:     'M32 18a14 14 0 100 28 14 14 0 000-28zm0-14l4 8h-8zm0 56l4-8h-8zM4 32l8-4v8zm56 0l-8 4v-8zM12 12l8 4-4 4zm40 40l-8-4 4-4zM52 12l-4 8-4-4zM12 52l4-8 4 4z',
-  bee:     'M32 8a10 10 0 00-9 6h18a10 10 0 00-9-6zM14 20c-5 2-8 7-6 11 8-2 12-6 6-11zm36 0c-6 5-2 9 6 11 2-4-1-9-6-11zM22 20h20v6H22zm0 10h20v6H22zm0 10h20a10 10 0 01-20 0z',
-  crown:   'M6 48h52l5-28-16 11L32 12 17 31 1 20z',
-  anchor:  'M32 6a7 7 0 00-4 13v7h-9v7h9v17c-8-2-13-8-14-16l-7 2c2 13 11 21 25 22 14-1 23-9 25-22l-7-2c-1 8-6 14-14 16V33h9v-7h-9v-7a7 7 0 00-4-13z',
+  star:      'M32 6l7.6 16.4L57 24.6 44 36.8l3.4 17.6L32 46 16.6 54.4 20 36.8 7 24.6l17.4-2.2z',
+  /* Two circles, offset. Arithmetic rather than arc-flag guesswork: a
+     hand-written crescent measured a sane box but drew a lens. */
+  moon:      'M32 32m-26 0a26 26 0 1 0 52 0a26 26 0 1 0-52 0M46 32m-22 0a22 22 0 1 0 44 0a22 22 0 1 0-44 0',
+  sun:       'M32 18a14 14 0 100 28 14 14 0 000-28zm0-14l4 8h-8zm0 56l4-8h-8zM4 32l8-4v8zm56 0l-8 4v-8zM12 12l8 4-4 4zm40 40l-8-4 4-4zM52 12l-4 8-4-4zM12 52l4-8 4 4z',
+  heart:     'M32 57S7 41 7 25a12.5 12.5 0 0125-6 12.5 12.5 0 0125 6c0 16-25 32-25 32z',
+  crown:     'M6 48h52l5-28-16 11L32 12 17 31 1 20z',
+  /* Five petals just touching a small centre, so nothing overlaps and the
+     shape holds however it is filled. */
+  flower:    'M20 15a12 12 0 1 0 24 0a12 12 0 1 0-24 0M38 28a12 12 0 1 0 24 0a12 12 0 1 0-24 0M31 49a12 12 0 1 0 24 0a12 12 0 1 0-24 0M9 49a12 12 0 1 0 24 0a12 12 0 1 0-24 0M2 28a12 12 0 1 0 24 0a12 12 0 1 0-24 0M27 32a5 5 0 1 0 10 0a5 5 0 1 0-10 0',
+  butterfly: 'M31 20C26 8 14 6 8 12s-2 20 8 22c-9 3-13 14-6 19s18 0 21-9zM33 20c5-12 17-14 23-8s2 20-8 22c9 3 13 14 6 19s-18 0-21-9zM32 16c2 0 3 2 3 5v22c0 3-1 5-3 5s-3-2-3-5V21c0-3 1-5 3-5z',
+  /* Body, head and four spots. The spots are holes, which is why this one is
+     drawn even-odd. */
+  ladybug:   'M12 37a20 22 0 1 0 40 0a20 22 0 1 0-40 0M22 14a10 10 0 1 0 20 0a10 10 0 1 0-20 0M19 31a4 4 0 1 0 8 0a4 4 0 1 0-8 0M37 31a4 4 0 1 0 8 0a4 4 0 1 0-8 0M20 46a4 4 0 1 0 8 0a4 4 0 1 0-8 0M36 46a4 4 0 1 0 8 0a4 4 0 1 0-8 0',
+  fish:      'M4 32c9-13 23-19 35-17 7 1 12 5 15 9l10-9v34l-10-9c-3 4-8 8-15 9C27 51 13 45 4 32z',
+  bee:       'M32 8a10 10 0 00-9 6h18a10 10 0 00-9-6zM14 20c-5 2-8 7-6 11 8-2 12-6 6-11zm36 0c-6 5-2 9 6 11 2-4-1-9-6-11zM22 20h20v6H22zm0 10h20v6H22zm0 10h20a10 10 0 01-20 0z',
 };
+
+/* Only these two are built from nested subpaths that must cut out rather than
+   fill solid. Applying even-odd to every crest turned the butterfly's body
+   into a hole in its own wings. */
+const CREST_EVENODD = ['moon', 'ladybug'];
 
 function crestSvg(kind, size){
   const d = CREST_PATHS[kind] || CREST_PATHS.star;
@@ -651,7 +679,7 @@ function crestSvg(kind, size){
   const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
   p.setAttribute('d', d);
   p.setAttribute('fill', 'currentColor');
-  p.setAttribute('fill-rule', 'evenodd');
+  if (CREST_EVENODD.indexOf(kind) !== -1) p.setAttribute('fill-rule', 'evenodd');
   s.appendChild(p);
   return s;
 }
@@ -1042,6 +1070,46 @@ function drawThemes(){
 /* Ten marks, tapped by the child herself. A mark already taken by a sister is
    dimmed and refuses the tap, because two identical crests would break the
    one thing the crest exists to do. */
+const TITLES = [
+  { id:'Princess', label:'Princess', d:'M6 48h52v6H6zM8 44C8 30 18 20 32 20s24 10 24 24a10 10 0 00-14-6 12 12 0 00-20 0 10 10 0 00-14 6zM32 8a6 6 0 110 12 6 6 0 010-12z' },
+  { id:'Prince',   label:'Prince',   d:'M6 48h52v6H6zM6 44l4-26 12 10L32 12l10 16 12-10 4 26z' },
+];
+
+/* The title is the child's to pick, same as her badge and her colour. It used
+   to live in the grown-up panel, which made it the one thing about her that
+   somebody else decided. */
+function drawTitles(){
+  const host = document.getElementById('titleRow');
+  const p = activeProfile();
+  const current = (p && p.title) || 'Princess';
+  host.innerHTML = '';
+  TITLES.forEach((t) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'titlepick' + (t.id === current ? ' on' : '');
+    b.setAttribute('aria-label', t.label);
+    b.setAttribute('aria-pressed', String(t.id === current));
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 64 64');
+    svg.setAttribute('width', '30'); svg.setAttribute('height', '30');
+    svg.setAttribute('aria-hidden', 'true');
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', t.d); path.setAttribute('fill', 'currentColor');
+    svg.appendChild(path);
+    const cap = document.createElement('span');
+    cap.className = 'titlepick-cap'; cap.textContent = t.label;
+    b.append(svg, cap);
+    b.addEventListener('click', () => {
+      const prof = activeProfile();
+      if (!prof) return;
+      prof.title = t.id;
+      save(state);
+      drawTitles(); drawGreeting(); drawPicker();
+    });
+    host.appendChild(b);
+  });
+}
+
 function drawCrests(){
   const host = document.getElementById('crestRow');
   const p = activeProfile();
@@ -1091,7 +1159,7 @@ function drawPicker(){
       state.activeId = p.id;
       save(state);
       applyTheme(p.theme || '');
-      drawThemes(); drawCrests(); drawPicker(); drawDoors(); drawCharms(); drawGreeting();
+      drawThemes(); drawCrests(); drawTitles(); drawPicker(); drawDoors(); drawCharms(); drawGreeting();
     });
     host.appendChild(b);
   });
@@ -1122,7 +1190,7 @@ function ensureProfile(){
   save(state);
 }
 
-function redraw(){ ensureProfile(); migrateCrests(); const ap=activeProfile(); applyTheme((ap&&ap.theme)||''); drawThemes(); drawCrests(); drawPicker(); drawDoors(); drawCharms(); drawGreeting(); }
+function redraw(){ ensureProfile(); migrateCrests(); const ap=activeProfile(); applyTheme((ap&&ap.theme)||''); drawThemes(); drawCrests(); drawTitles(); drawPicker(); drawDoors(); drawCharms(); drawGreeting(); }
 redraw();
 
 // Coming back from a wing should show a charm that was just earned without a
