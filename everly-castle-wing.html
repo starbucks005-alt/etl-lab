@@ -442,6 +442,8 @@ function currentProfile(){
   p.visits = p.visits || {};
   p.grow   = p.grow   || {};
   p.taught = p.taught || {};   // per wing: what this princess has covered
+  p.notes  = p.notes  || {};   // per wing: what she has noticed about this child
+  p.mood   = p.mood   || {};   // per wing: how she felt when they last parted
   p.log    = Array.isArray(p.log) ? p.log : [];
   return p;
 }
@@ -524,6 +526,21 @@ function remembers(){
   const set = GROWTH[wingId] || GROWTH.posy;
   bits.push('The ' + (GROWTH_CAPTION[wingId] || 'thing') .toLowerCase().replace(/^your /,'') +
             ' you two are looking after is at stage ' + (growthStage() + 1) + ' of ' + set.length + '.');
+  /* How she felt when they last parted, and how long ago that was. She opens
+     in this state rather than resetting to cheerful, which is the whole
+     difference between an emotion implant and a mood badge. */
+  const parted = prof.mood[wingId];
+  if (parted && parted.felt) {
+    const gap = parted.when === today ? 'earlier today'
+      : (prof.visits[wingId] || []).length > 1 ? 'last time' : 'when you first met';
+    bits.push('When you parted ' + gap + ' you were feeling ' + parted.felt + '.');
+  }
+
+  /* What she has noticed about this child. This is the half that makes her
+     seem to know someone rather than to have taught someone. */
+  const notes = prof.notes[wingId] || [];
+  if (notes.length) bits.push('Things you have noticed about them: ' + notes.join('; ') + '.');
+
   /* What she has already covered. This is the difference between a princess
      who remembers a child and one who greets her identically forever. The
      oldest entries are dropped rather than the newest, so a long-standing
@@ -700,6 +717,29 @@ function setMood(key){
 /* Keeps the princess's own notes on what she has covered with this child in
    this wing. Capped, de-duplicated, and stored per child, so sisters do not
    inherit each other's lessons. */
+/* The emotion implant. Her feeling is stored when the turn ends and handed
+   back when the child returns, so she opens in the state she was left in
+   rather than resetting to cheerful. Cosmetic gauges reset; implants do not. */
+function rememberMood(feeling){
+  if (!feeling) return;
+  prof.mood[wingId] = { felt: feeling, when: today };
+  save(state);
+}
+
+/* What she noticed about the child, as opposed to what she taught them. Kept
+   shorter and fresher than the lesson list: a relationship is made of recent
+   things, and a note from four months ago is not insight, it is a database. */
+function rememberNoticed(note){
+  if (!note) return;
+  const n = String(note).trim().slice(0, 100);
+  if (!n) return;
+  const list = prof.notes[wingId] || [];
+  if (list.map((s) => s.toLowerCase()).indexOf(n.toLowerCase()) !== -1) return;
+  list.push(n);
+  prof.notes[wingId] = list.slice(-8);
+  save(state);
+}
+
 function rememberTaught(covered){
   if (!covered) return;
   const note = String(covered).trim().slice(0, 80);
@@ -806,6 +846,8 @@ function logIt(said, flag){
     visits: { ...(stored.visits || {}), ...prof.visits },
     grow:   { ...(stored.grow   || {}), ...prof.grow },
     taught: { ...(stored.taught || {}), ...prof.taught },
+    notes:  { ...(stored.notes  || {}), ...prof.notes },
+    mood:   { ...(stored.mood   || {}), ...prof.mood },
     log:    Array.isArray(stored.log) ? stored.log.slice() : [],
   };
   merged.log.push({ when: new Date().toLocaleString(), wing: AGENT.name, said, ...(flag ? { flag:true } : {}) });
@@ -859,6 +901,8 @@ async function turn(message){
   addBubble('agent', data.body);
   setMood(data.feeling);
   rememberTaught(data.covered);
+  rememberNoticed(data.noticed);
+  rememberMood(data.feeling);
   setCounting(data.count);
   setAnswers(data.choices);
   speak(data.body);
@@ -892,6 +936,11 @@ function begin(){
      that teaches her the castle talks over her head. */
   const who = prof.name ? rank + ' ' + prof.name : rank;
   const opening = 'Hello, ' + who + '. ' + bank[lineKey] + ' How are you feeling today?';
+
+  /* She opens in the mood she was left in. Without this the face resets to
+     happy on every visit, which is the tell that a gauge is decorative. */
+  const parted = prof.mood[wingId];
+  if (parted && parted.felt) setMood(parted.felt);
 
   addBubble('agent', opening);
   history.push({ role:'agent', body: opening });

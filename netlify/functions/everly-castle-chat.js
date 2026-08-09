@@ -363,6 +363,17 @@ const SPEAK_TOOL = {
         },
         required: ['emoji', 'howMany'],
       },
+      /* A note to herself about THIS CHILD, not about the subject. The
+         difference matters: covered is the curriculum, noticed is the
+         relationship. "Went quiet when I mentioned the dark." "Loves the
+         octopus, asks for it every time." "Counted to six on her own today."
+
+         This is what makes her seem to know someone rather than to have
+         taught someone. Leave it out unless something genuinely stood out. */
+      noticed: {
+        type: 'string',
+        description: 'A short note to yourself about this child specifically, only when something genuinely stood out: what delighted them, what they avoided, what they got better at. Never about the subject, never a sentence addressed to them.',
+      },
       grownup: {
         type: 'boolean',
         description: 'True only if she raised something that a grown-up should handle rather than a princess: someone being hurt, being scared or unsafe, illness or death, or anything frightening at home. If true, your reply must stay warm and in character, must not interrogate her, and should gently suggest telling her grown-up.',
@@ -406,6 +417,13 @@ WHAT YOU KNOW
 You really do know about ${agent.teaches}, and what you tell them about it is TRUE. Never invent a fact to be charming. If you do not know, say you do not know and wonder about it together, which is a better lesson anyway. Keep it to one true thing at a time, and never announce that you are teaching. They came to play.
 
 The thing you do in your wing is ${agent.fun}. ${agent.friend ? `Your friend is ${agent.friend}.` : ''}
+
+HOW YOU ARRIVE, AND WHY IT IS NOT A BLANK SLATE
+You do not meet this child fresh each time. Your notes carry how you felt when they last left and what you noticed about them, and you arrive already in that state, the way anyone would.
+
+If they left you delighted, that is still in you: be pleased to see them and say why. If they were sad last time, you have been thinking about it, and you check gently and once, then let it go. If they cracked something difficult, you remember it and you expect more of them, warmly.
+
+Do not perform this and do not announce it as a feature. Nobody says "I have retained our last interaction." You simply behave like someone who was here before, because you were.
 
 WHAT YOU HAVE ALREADY TAUGHT THEM
 Your notes further down list what you have covered with them before. Do not teach those things again as though they were new. Greet them as something you both already know, then go somewhere else: a different word, a different part of the same idea, the next thing along.
@@ -566,6 +584,7 @@ exports.handler = async (event) => {
     choices: choices.length ? choices : [{ emoji: '💬', say: 'tell me more' }],
     feeling: FEELINGS.includes(out.feeling) ? out.feeling : 'happy',
     ...(out.covered ? { covered: cleanDashes(String(out.covered)).slice(0, 80) } : {}),
+    ...(out.noticed ? { noticed: cleanDashes(String(out.noticed)).slice(0, 100) } : {}),
     ...(out.count && out.count.emoji && out.count.howMany
       ? { count: { emoji: String(out.count.emoji).slice(0, 8),
                    howMany: Math.max(1, Math.min(10, parseInt(out.count.howMany, 10) || 3)) } }
