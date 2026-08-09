@@ -137,7 +137,7 @@ body{
    judge whether this is any good. What changes from Kronborg is everything to
    do with size and weight: light instead of dark, enormous instead of dense. */
 .stage{
-  flex:1;min-height:0;width:100%;max-width:1500px;margin:0 auto;
+  flex:1;min-height:0;width:100%;max-width:1180px;margin:0 auto;
   padding:6px 14px 14px;display:grid;gap:12px;
   /* Phone: one column. The game is moved ahead of the story, because the game
      is the thing a child's thumb has to reach and the story is something she
@@ -159,7 +159,7 @@ body{
     grid-template-columns:58fr 42fr;
     /* Top row takes the slack; the bottom row sizes to its contents, because
        how much room the game needs depends entirely on which game it is. */
-    grid-template-rows:minmax(200px,auto) minmax(0,1fr);
+    grid-template-rows:minmax(180px,auto) minmax(0,auto);
     grid-template-areas:
       'princess speech'
       'story    game';
@@ -195,20 +195,14 @@ body{
   transition:transform .25s ease
 }
 .face video{width:100%;height:100%;object-fit:cover;display:block}
-/* Vimeo panel. The embed is 16:9 and the artwork is 7:8, so the frame changes
-   shape rather than letterboxing a portrait panel around a landscape video. */
+/* Vimeo panel. The shape comes from the clip itself, set inline by drawFace,
+   because the exports are not all the same: Posy is 4:3, Nerida is 16:9.
+   Hardcoding one ratio here and cropping the difference in CSS was the earlier
+   approach, and it assumed every clip was padded identically and centred. */
 .face.has-embed{
-  flex:0 0 auto;align-self:stretch;position:relative;overflow:hidden;
-  background:#000;
-  --embed-crop:.64;                 /* content width within the 16:9 canvas */
-  aspect-ratio:calc(16 * var(--embed-crop) / 9);
+  flex:0 0 auto;align-self:stretch;background:#000;overflow:hidden;
 }
-.face.has-embed iframe{
-  position:absolute;top:0;left:50%;height:100%;
-  width:calc(100% / var(--embed-crop));
-  transform:translateX(-50%);
-  border:0;display:block;
-}
+.face.has-embed iframe{width:100%;height:100%;border:0;display:block}
 
 .w-princess:has(.has-embed){justify-content:flex-start}
 /* The still, used ONLY when this princess has no clip yet, and mounted only
@@ -377,8 +371,8 @@ const stillsFor = (n) => ['agents/' + n + '.png', 'agents/' + n + '.jpg'];
    in 92px circles would be heavy and Vimeo will not crop to a circle, and a
    deliberate thumbnail is not the same thing as a still masking a failure. */
 const VIMEO = {
-  posy:   '1216816124',
-  nerida: '1216817116',
+  posy:   { id: '1216824336', aspect: '4/3'  },
+  nerida: { id: '1216824863', aspect: '4/3'  },
 };
 
 const params = new URLSearchParams(location.search);
@@ -852,13 +846,14 @@ function clearEmoji(host){
   const el = document.getElementById('face');
   el.textContent = AGENT.emoji;
 
-  const vid = VIMEO[wingId];
-  if (vid) {
+  const clip = VIMEO[wingId];
+  if (clip) {
     clearEmoji(el);
     el.classList.add('has-embed');
     document.querySelector('.stage').classList.add('has-embed');
     const frame = document.createElement('iframe');
-    frame.src = 'https://player.vimeo.com/video/' + vid +
+    el.style.aspectRatio = clip.aspect;
+    frame.src = 'https://player.vimeo.com/video/' + clip.id +
                 '?badge=0&autopause=0&player_id=0&app_id=58479&autoplay=1&muted=1&loop=1&controls=0&dnt=1';
     frame.title = AGENT.name + ' in ' + AGENT.wing;
     frame.setAttribute('frameborder', '0');
