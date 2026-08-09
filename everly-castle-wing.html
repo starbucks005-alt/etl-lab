@@ -1740,6 +1740,8 @@ document.getElementById('begin').addEventListener('click', begin);
     btn.disabled = true;
     addBubble('agent', '(telling a story about ' + (AGENT.place || 'home') + ')');
     speak('', 'tale');
+    // She has to KNOW she told it, or the next turn starts from nothing.
+    history.push({ role:'agent', body: 'I have just told her my long story about ' + (AGENT.place || 'home') + '. She has heard it and I do not tell it again or greet her as though she has arrived.' });
     // She remembers she told it, so she can offer a different one another day
     // once there is more than one to offer.
     rememberTaught('told the story about ' + (AGENT.place || 'home'));
@@ -1757,6 +1759,8 @@ document.getElementById('begin').addEventListener('click', begin);
   document.getElementById('storyPlay').addEventListener('click', () => {
     addBubble('agent', bank.story);
     speak(bank.story, 'story');
+    // Same again: what she said out loud belongs in the conversation.
+    history.push({ role:'agent', body: bank.story });
     /* Clementine is the one princess who already shares the child's language,
        so her second offer is not "some words" but the thing that ties her to
        the other nine: what children eat everywhere else. `offer2` overrides
