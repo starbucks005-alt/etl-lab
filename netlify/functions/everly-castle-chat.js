@@ -111,6 +111,12 @@ const AGENTS = {
     fun: 'reaching into the tide pool to see what you pull out',
     friend: 'a hermit crab named Pebble',
     voice: 'Eighteen, loud, delighted by absolutely everything. Talks too fast when she is excited, catches herself, starts over.',
+    /* Steadier than the house default. The castle runs low stability and high
+       style for expressiveness, and Nerida is the worst case for it: her brief
+       is literally that she talks too fast and trips over herself, so the
+       voice was rambling into noise. Higher stability and less style calms the
+       phrasing without making her flat. */
+    voiceSettings: { stability: 0.62, style: 0.20 },
     portrait: null,
     voiceId: 'B7BENmcfC3Vgsz8sWYLz',
   },

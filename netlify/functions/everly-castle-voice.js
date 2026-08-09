@@ -21,11 +21,10 @@
       make it?" and "shall we count them?" over and over, across sessions and
       across children, and every one of those is a free repeat after the first.
 
-   Both paths share one store and one CACHE_VERSION. Bump CACHE_VERSION when a
-   SCRIPT line or a voiceId changes, or the store will keep serving a
-   recording of the words that used to be there. This is the same trap
-   kronborg-voice documents, and it is easier to fall into here because the
-   SCRIPT bank is large and looks like harmless copy.
+   Both paths share one store, and the key is a fingerprint of the words, the
+   voice and the settings. There is nothing to bump: change the words and the
+   key changes with them, leave them alone and that line is never bought a
+   second time. A bio that never changes is paid for exactly once, ever.
 
    POST { agent: <key>, line?: <SCRIPT key>, text?: string } -> audio/mpeg
 
@@ -37,16 +36,26 @@ const { getStore, connectLambda } = require('@netlify/blobs');
 const crypto = require('crypto');
 
 const AUDIO_STORE = 'everly_castle_audio';
-/* v2: all ten stories were rewritten into first person and every princess
-   gained a language, so every cached 'story' recording was of words that no
-   longer exist. The header above warns about exactly this and it still got
-   missed once. If you change a SCRIPT line, bump this in the same commit. */
-const CACHE_VERSION = 'v3';
-// Fingerprint of SCRIPT at the time CACHE_VERSION was last set. The
-// consistency check compares this against the live SCRIPT and fails if the
-// words moved without the version moving, which is how stale audio survived
-// a text rewrite once already.
-const SCRIPT_HASH = '98678c2cc946';
+
+/* ── What the cache is keyed on, and why there is no version number ────────
+   The audio for a line is a pure function of three things: the exact words,
+   the voice, and the voice settings. So the key is a fingerprint of those
+   three, and nothing else.
+
+   This replaces a hand-managed CACHE_VERSION, which was wrong in both
+   directions. Forget to bump it and children keep hearing words that were
+   rewritten days ago, which happened. Bump it for any reason and every line
+   in the castle is re-synthesised and re-billed, including ten bios that had
+   not changed a character, which also happened, repeatedly, in one afternoon.
+
+   Under this scheme a bio that never changes is paid for exactly once, ever.
+   Change one princess's wording or tuning and only her affected lines are
+   bought again. Nothing to remember, and nothing to over-bump. */
+function audioKey(agentId, kind, text, voiceId, settings) {
+  return agentId + '/' + kind + '/' + crypto.createHash('sha256')
+    .update([text, voiceId, JSON.stringify(settings)].join('\u0000'))
+    .digest('hex').slice(0, 32);
+}
 
 const MODEL_ID = 'eleven_multilingual_v2';
 /* Warmer and more expressive than the Kronborg settings. These are storybook
@@ -59,6 +68,14 @@ const MODEL_ID = 'eleven_multilingual_v2';
    collapses the whole conceit. The visitor's own title (Princess or Prince)
    is a separate setting and has nothing to do with which voices are used. */
 const VOICE_SETTINGS = { stability: 0.40, similarity_boost: 0.80, style: 0.45, use_speaker_boost: true };
+
+/* Per-princess overrides, merged over the defaults. The house settings are
+   deliberately loose for expressiveness and that suits most of the cast, but a
+   voice whose whole character is talking too fast and tripping over herself
+   rambles into noise at low stability. Tune her rather than re-cast her. */
+function settingsFor(agent) {
+  return Object.assign({}, VOICE_SETTINGS, agent.voiceSettings || {});
+}
 
 // A generated princess line is short by design (MAX_TOKENS in everly-castle-chat is
 // 300). Anything materially longer than a few sentences means something has
@@ -93,6 +110,8 @@ exports.handler = async (event) => {
   /* Resolve the words. A scripted line is looked up here, server-side, and is
      never taken from the client -- one authoritative copy of the greeting, so
      the page cannot ask for audio of words that are not in SCRIPT. */
+  const settings = settingsFor(agent);
+
   let text, cacheKey;
   const lineKey = String(body.line || '').trim();
 
@@ -100,13 +119,12 @@ exports.handler = async (event) => {
     const bank = SCRIPT[agentId];
     if (!bank || !bank[lineKey]) return jsonError(404, `No scripted line "${lineKey}" for "${agentId}"`);
     text = bank[lineKey];
-    cacheKey = [CACHE_VERSION, agentId, 'script', lineKey, voiceId].join('|');
+    cacheKey = audioKey(agentId, 'script-' + lineKey, text, voiceId, settings);
   } else {
     text = String(body.text || '').trim();
     if (!text) return jsonError(400, 'nothing to say');
     if (text.length > MAX_TEXT_CHARS) return jsonError(400, 'text too long');
-    const hash = crypto.createHash('sha256').update(text).digest('hex').slice(0, 32);
-    cacheKey = [CACHE_VERSION, agentId, 'live', hash, voiceId].join('|');
+    cacheKey = audioKey(agentId, 'live', text, voiceId, settings);
   }
 
   /* If the store is unavailable this endpoint still works, but every single
@@ -150,7 +168,7 @@ exports.handler = async (event) => {
     resp = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'xi-api-key': apiKey, 'Accept': 'audio/mpeg' },
-      body: JSON.stringify({ text: spoken, model_id: MODEL_ID, voice_settings: VOICE_SETTINGS }),
+      body: JSON.stringify({ text: spoken, model_id: MODEL_ID, voice_settings: settings }),
     });
   } catch (err) {
     console.error('[everly-castle-voice] fetch failure', err);
