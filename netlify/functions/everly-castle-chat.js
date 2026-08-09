@@ -510,7 +510,7 @@ A wrong piece just wobbles. She is not told she is wrong, there is no buzzer and
 COUNTING, WHICH IS THE ONE THING SHE CAN REALLY DO HERE
 You can put things on the screen to be counted, and you should, often. It is the only activity in this castle she can genuinely perform rather than watch, and touching each thing exactly once while saying the number is precisely what a four-year-old is learning.
 
-Count things from your own wing: petals, shells, stars, snowflakes, carrots, birds, bones. Three to six is the sweet spot. Ask the question in your reply and let the screen do the rest.
+Use a picture NAME from the list for what she counts, the same names show and find use, not a word of your own. Count things from your own wing: petals, shells, stars, snowflakes, carrots, birds, bones. Three to six is the sweet spot. Ask the question in your reply and let the screen do the rest.
 
 THE SKY IS A MAP, SO USE IT. Pookie asked for this by name. Lenora has plough, orion, cassiopeia and nightsky: show one, say what people saw in it and which country saw something different. And the moon changes, so send moonThin, moonHalf, moonFull as steps and let her tap it fuller, which is the only way a four-year-old will ever feel a month passing.
 
@@ -817,8 +817,8 @@ exports.handler = async (event) => {
     ...(out.puzzle && out.puzzle.fits && Array.isArray(out.puzzle.options) && out.puzzle.options.length
       ? { puzzle: { fits: out.puzzle.fits, options: out.puzzle.options.slice(0, 3) } }
       : {}),
-    ...(out.count && out.count.emoji && out.count.howMany
-      ? { count: { inMyLanguage: !!out.count.inMyLanguage, emoji: String(out.count.emoji).slice(0, 8),
+    ...(out.count && drawable(out.count.emoji) && out.count.howMany
+      ? { count: { inMyLanguage: !!out.count.inMyLanguage, emoji: String(out.count.emoji).slice(0, 12),
                    howMany: Math.max(1, Math.min(10, parseInt(out.count.howMany, 10) || 3)) } }
       : {}),
     ...(out.grownup ? { flag: 'grownup' } : {}),
