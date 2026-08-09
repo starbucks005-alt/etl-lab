@@ -354,6 +354,21 @@ body{
 .thing{font-size:min(15vw,62px);line-height:1;min-height:1em;filter:drop-shadow(0 5px 6px rgba(0,0,0,.14))}
 .thing small{display:block;font-size:11px;opacity:.5;margin-top:4px;filter:none}
 
+/* Yes and No. Permanent, and always in these two positions, because a child
+   who cannot read navigates by where a thing lives. */
+.yesno{display:flex;gap:12px;justify-content:center;width:100%;padding:4px 0 0}
+.yn{
+  border:1px solid var(--rule);flex:1 1 0;max-width:190px;min-height:82px;
+  border-radius:20px;background:var(--card);box-shadow:var(--shadow);
+  cursor:pointer;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:2px;font-family:var(--serif);font-size:19px;
+  font-weight:700;letter-spacing:.04em;transition:transform .12s ease
+}
+.yn:active{transform:scale(.94)}
+.yn.yes{color:#3f7a4a}
+/* Not red. Red means wrong, and saying no to a princess is not being wrong. */
+.yn.no{color:#5a6a78}
+
 /* Answers. Enormous, because a four-year-old's tap is not precise. */
 .answers{
   display:flex;flex-wrap:wrap;gap:10px;justify-content:center;
@@ -427,6 +442,7 @@ body{
     <div class="counting" id="counting" hidden></div>
     <div class="count-total" id="countTotal"></div>
     <div class="thing" id="thing"></div>
+    <div class="yesno" id="yesno"></div>
     <div class="answers" id="answers"></div>
   </section>
 </main>
@@ -1121,13 +1137,52 @@ function setCounting(spec){
   }
 }
 
+/* Built one time on load. Nothing in a reply can move, hide or relabel
+   these, which is the point of them. */
+function buildYesNo(){
+  const host = document.getElementById('yesno');
+  if (!host || host.childElementCount) return;
+  const NS = 'http://www.w3.org/2000/svg';
+  const marks = {
+    // A tick, and a flat line. Both readable at a glance, neither punitive.
+    yes: 'M12 34l14 14 26-30',
+    no:  'M14 32h36',
+  };
+  [['yes', 'Yes'], ['no', 'No']].forEach(([kind, word]) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'yn ' + kind;
+    b.setAttribute('aria-label', word);
+
+    const svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 64 64');
+    svg.setAttribute('width', '38'); svg.setAttribute('height', '38');
+    svg.setAttribute('aria-hidden', 'true');
+    const path = document.createElementNS(NS, 'path');
+    path.setAttribute('d', marks[kind]);
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke', 'currentColor');
+    path.setAttribute('stroke-width', '7');
+    path.setAttribute('stroke-linecap', 'round');
+    path.setAttribute('stroke-linejoin', 'round');
+    svg.appendChild(path);
+
+    const label = document.createElement('span');
+    label.textContent = word;
+
+    b.append(svg, label);
+    b.addEventListener('click', () => turn(word.toLowerCase()));
+    host.appendChild(b);
+  });
+}
+
 function setAnswers(choices){
   const host = document.getElementById('answers');
   host.innerHTML = '';
 
   const items = (choices || []).slice(0, 3).map((c) => ({ emoji:c.emoji, say:c.say, mic:false }));
   if (SR) items.push({ emoji:'🎤', say:null, mic:true });
-  if (items.length % 2 === 1) items.push({ emoji:'🤷', say:'something else', mic:false });
+  if (items.length && items.length % 2 === 1) items.push({ emoji:'🤷', say:'something else', mic:false });
 
   items.forEach((it) => {
     const b = document.createElement('button');
@@ -1367,6 +1422,8 @@ function clearEmoji(host){
 
 
 
+// Yes and No exist before the princess has said a word.
+buildYesNo();
 drawThing();
 drawMyMood();
 document.getElementById('begin').addEventListener('click', begin);
