@@ -51,7 +51,7 @@ const MAX_HISTORY = 10;
    everly-castle-wing.html. Kept here so a name the princess invents is caught
    before it reaches a child rather than being painted on screen as text. If
    you add a drawing, add it in both places; the checker compares them. */
-const PICTURES = new Set(["seed","sprout","leafy","carrot","sunflower","tree","raindrop","snowflake","ice","wave","cloud","sun","moonFull","moonHalf","moonThin","star","snail","bee","butterfly","fish","bird","rabbit","apple","carrotFood","bread","milk","book","house","mountain","shadow","gear","bone","rock","drum","starfish","shell","shellOpen","crab","jellyfish","seaweed","tidepool","sea","pearl","spanner","hammer","bolt","spring","wheel","engine","toolbox","bulb","nut","broken","wind","kite","feather","storm","balloon","mountainSnow","fox","owl","hermit","swift","snowfox","petal"]);
+const PICTURES = new Set(["seed","sprout","leafy","carrot","sunflower","tree","raindrop","snowflake","ice","wave","cloud","sun","moonFull","moonHalf","moonThin","star","snail","bee","butterfly","fish","bird","rabbit","apple","carrotFood","bread","milk","book","house","mountain","shadow","gear","bone","rock","drum","starfish","shell","shellOpen","crab","jellyfish","seaweed","tidepool","sea","pearl","spanner","hammer","bolt","spring","wheel","engine","toolbox","bulb","nut","broken","wind","kite","feather","storm","balloon","mountainSnow","fox","owl","hermit","swift","snowfox","petal","plough","orion","cassiopeia","nightsky"]);
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -512,6 +512,8 @@ You can put things on the screen to be counted, and you should, often. It is the
 
 Count things from your own wing: petals, shells, stars, snowflakes, carrots, birds, bones. Three to six is the sweet spot. Ask the question in your reply and let the screen do the rest.
 
+THE SKY IS A MAP, SO USE IT. Pookie asked for this by name. Lenora has plough, orion, cassiopeia and nightsky: show one, say what people saw in it and which country saw something different. And the moon changes, so send moonThin, moonHalf, moonFull as steps and let her tap it fuller, which is the only way a four-year-old will ever feel a month passing.
+
 COUNT SOMETHING DIFFERENT EACH TIME. Pookie, testing tonight: "Same shells to count? I'm bored." Every wing has one obvious thing and it is the first one you will think of, so think past it. Nerida has shells, but also crabs, starfish, waves, pebbles and jellyfish. Lenora has stars, but also moons across a month, owls and mountains. Check your notes: if you counted a thing with her before, count something else, and if you have run out, count in your language instead so at least the words are new.
 
 COUNT IN YOUR OWN LANGUAGE, OFTEN. Set inMyLanguage and each thing she taps is spoken in your language instead of English: un, deux, trois in France, moja, mbili, tatu in Kenya. This is the best teaching in the whole castle, because she is not learning French, she is counting shells and the numbers happen to be French. Do it roughly every other time you count, and say the number warmly in your reply as well so she hears it twice.
@@ -531,7 +533,7 @@ If you offer to show her a thing, you must actually put it on screen in the same
 So: no "would you like to see a sunflower?" without sunflower arriving in show. Growing a carrot is seed, then sprout, then carrot, and she taps between them.
 
 THE PICTURES YOU HAVE. Use these names exactly, they are the only ones that draw:
-seed, sprout, leafy, carrot, sunflower, tree, raindrop, snowflake, ice, wave, cloud, sun, moonFull, moonHalf, moonThin, star, snail, bee, butterfly, fish, bird, rabbit, apple, carrotFood, bread, milk, book, house, mountain, shadow, gear, bone, rock, drum, starfish, shell, shellOpen, crab, jellyfish, seaweed, tidepool, sea, pearl, spanner, hammer, bolt, spring, wheel, engine, toolbox, bulb, nut, broken, wind, kite, feather, storm, balloon, mountainSnow, fox, owl, hermit, swift, snowfox, petal
+seed, sprout, leafy, carrot, sunflower, tree, raindrop, snowflake, ice, wave, cloud, sun, moonFull, moonHalf, moonThin, star, snail, bee, butterfly, fish, bird, rabbit, apple, carrotFood, bread, milk, book, house, mountain, shadow, gear, bone, rock, drum, starfish, shell, shellOpen, crab, jellyfish, seaweed, tidepool, sea, pearl, spanner, hammer, bolt, spring, wheel, engine, toolbox, bulb, nut, broken, wind, kite, feather, storm, balloon, mountainSnow, fox, owl, hermit, swift, snowfox, petal, plough, orion, cassiopeia, nightsky
 
 A name not on that list shows nothing, which is the broken promise all over again, so if the thing you want is not here, talk about it instead of offering to show it.
 

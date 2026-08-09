@@ -981,6 +981,10 @@ const PICS = {
   swift: [["M6 26c10-4 22-2 30 6l14-10-6 14 14 4-16 6c-8 6-20 6-28 0z","#5a6a78"],["M22 30a2 2 0 100 4 2 2 0 000-4z","#16202b"]],
   snowfox: [["M10 20l6 16 16 4 16-4 6-16-12 8H22z","#dbe7ee"],["M16 36c0 10 7 18 16 18s16-8 16-18l-16 4z","#eef3f6"],["M24 34a3 3 0 100 6 3 3 0 000-6zM40 34a3 3 0 100 6 3 3 0 000-6z","#3b4a5a"]],
   petal: [["M32 12c8 0 12 6 12 12s-4 14-12 20c-8-6-12-12-12-20s4-12 12-12z","#e8756b"]],
+  plough: [["M8 44a3 3 0 100 6 3 3 0 000-6zM20 40a3 3 0 100 6 3 3 0 000-6zM32 38a3 3 0 100 6 3 3 0 000-6zM42 32a3 3 0 100 6 3 3 0 000-6zM44 20a3 3 0 100 6 3 3 0 000-6zM34 14a3 3 0 100 6 3 3 0 000-6zM22 18a3 3 0 100 6 3 3 0 000-6z","#f0d97a"],["M11 47l12-4 12-2 10-6 2-12-10-6-12 4","#8ecae6",1]],
+  orion: [["M18 10a3 3 0 100 6 3 3 0 000-6zM46 12a3 3 0 100 6 3 3 0 000-6zM26 30a3 3 0 100 6 3 3 0 000-6zM32 32a3 3 0 100 6 3 3 0 000-6zM38 34a3 3 0 100 6 3 3 0 000-6zM20 52a3 3 0 100 6 3 3 0 000-6zM46 50a3 3 0 100 6 3 3 0 000-6z","#f0d97a"],["M21 13l8 20M49 15l-6 18M29 33l12 4M29 33l-6 20M41 37l6 16","#8ecae6",1]],
+  cassiopeia: [["M8 18a3 3 0 100 6 3 3 0 000-6zM22 36a3 3 0 100 6 3 3 0 000-6zM34 20a3 3 0 100 6 3 3 0 000-6zM46 38a3 3 0 100 6 3 3 0 000-6zM56 22a3 3 0 100 6 3 3 0 000-6z","#f0d97a"],["M11 21l14 18 12-16 12 18 8-16","#8ecae6",1]],
+  nightsky: [["M4 8h56v48H4z","#1c2740"],["M14 18a2 2 0 100 4 2 2 0 000-4zM30 14a2 2 0 100 4 2 2 0 000-4zM46 22a2 2 0 100 4 2 2 0 000-4zM20 34a2 2 0 100 4 2 2 0 000-4zM40 40a2 2 0 100 4 2 2 0 000-4zM52 34a2 2 0 100 4 2 2 0 000-4z","#f0d97a"],["M14 44a6 6 0 006-8 8 8 0 11-6 8z","#e8e2cf"]],
 };
 
 /* Builds one picture. Returns null for a name we do not have, so the caller
@@ -1018,6 +1022,13 @@ function paintPic(host, thing){
   host.textContent = '';
   const drawn = picSvg(thing, 104);
   if (drawn) { host.classList.add('drawn'); host.appendChild(drawn); }
+  else if (/^[A-Za-z ]+$/.test(String(thing))) {
+    /* A plain word with no drawing behind it. Show nothing at all rather than
+       printing it: she cannot read it, and a word where a picture belongs is
+       how she learns the screen lies to her. */
+    host.classList.remove('drawn');
+    console.warn('[everly] no drawing for ' + thing + ', showing nothing');
+  }
   else { host.classList.remove('drawn'); host.textContent = thing; }
 }
 

@@ -233,6 +233,10 @@ const LANG_OF = {
 };
 
 const FOUND_NAMES = {
+  "plough": "the Plough",
+  "orion": "Orion the hunter",
+  "cassiopeia": "Cassiopeia",
+  "nightsky": "the night sky",
   "fox": "a fox",
   "owl": "an owl",
   "hermit": "a hermit crab",
