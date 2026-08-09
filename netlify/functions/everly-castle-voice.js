@@ -225,6 +225,12 @@ const LANG_OF = {
 };
 
 const FOUND_NAMES = {
+  "fox": "a fox",
+  "owl": "an owl",
+  "hermit": "a hermit crab",
+  "swift": "a swift",
+  "snowfox": "a snow fox",
+  "petal": "a petal",
   "wind": "the wind",
   "kite": "a kite",
   "feather": "a feather",
