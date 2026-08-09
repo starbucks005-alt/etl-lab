@@ -392,6 +392,26 @@
 # stale: no-store on /assets/* and /agents/* alone didn't stop hard-refresh
 # being needed, because the HTML document was the thing cached. Same
 # no-store treatment for every actively-iterated Classrooms page.
+
+# Everly Castle, added 2026-08-09 for exactly the reason above and then
+# demonstrated the hard way. During a live beta the backend was updated many
+# times while the tester's browser held an old copy of the page, and the two
+# then disagreed about what a reply MEANT: the new backend sends picture
+# names, the old page printed whatever it was handed, so a four-year-old's
+# screen showed the words "owl" and "sprout" where an owl and a sprout should
+# have been. Every server-side fix landed and not one of them could be seen.
+# A stale page here is not a cosmetic lag, it is a different product talking
+# to the same API.
+[[headers]]
+  for = "/everly-castle.html"
+  [headers.values]
+    Cache-Control = "no-store"
+
+[[headers]]
+  for = "/everly-castle-wing.html"
+  [headers.values]
+    Cache-Control = "no-store"
+
 [[headers]]
   for = "/classrooms.html"
   [headers.values]

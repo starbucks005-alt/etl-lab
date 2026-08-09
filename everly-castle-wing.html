@@ -1566,6 +1566,12 @@ function clearEmoji(host){
 
 
 // Yes and No exist before the princess has said a word.
+/* So a stale page can be identified from a screenshot rather than guessed
+   at. Tonight most of the reported faults were an old page misreading a new
+   reply, and there was no way to tell which build was on screen. */
+window.EVERLY_BUILD = '2026-08-09 build, 69 pictures';
+console.log('[everly] ' + window.EVERLY_BUILD);
+document.documentElement.setAttribute('data-build', window.EVERLY_BUILD);
 buildYesNo();
 drawThing();
 drawMyMood();
