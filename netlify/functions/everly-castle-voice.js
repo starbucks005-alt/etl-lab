@@ -225,6 +225,22 @@ const LANG_OF = {
 };
 
 const FOUND_NAMES = {
+  "wind": "the wind",
+  "kite": "a kite",
+  "feather": "a feather",
+  "storm": "a storm",
+  "balloon": "a balloon",
+  "mountainSnow": "a snowy mountain",
+  "spanner": "a spanner",
+  "hammer": "a hammer",
+  "bolt": "a bolt",
+  "spring": "a spring",
+  "wheel": "a wheel",
+  "engine": "an engine",
+  "toolbox": "a toolbox",
+  "bulb": "a light bulb",
+  "nut": "a nut",
+  "broken": "something broken",
   "seed": "a seed",
   "sprout": "a little sprout",
   "leafy": "a leafy plant",

@@ -387,6 +387,19 @@ body{
 .yn.no{color:#5a6a78}
 
 /* Answers. Enormous, because a four-year-old's tap is not precise. */
+/* It is her turn now.
+
+   A grown-up knows the princess has stopped talking and it is their go. A
+   four-year-old who cannot read waits to be asked. So the buttons breathe
+   once when the reply lands, and again if she has not touched anything for a
+   while: enough to draw an eye, not enough to be a nag. */
+@keyframes yourgo{
+  0%,100%{transform:translateY(0)}
+  30%{transform:translateY(-7px)}
+  60%{transform:translateY(0)}
+}
+.yourgo .yn, .yourgo .answer{animation:yourgo .62s ease 2}
+
 .answers{
   display:flex;flex-wrap:wrap;gap:10px;justify-content:center;
   padding:8px 0 2px;width:100%
@@ -811,11 +824,22 @@ function drawMyMood(){
     b.setAttribute('aria-label', 'I feel ' + m.word);
     b.addEventListener('click', () => {
       logIt(m.say, key === 'sad' || key === 'angry');
+      // Hers, immediately, before the princess has said anything back.
+      setMood(key);
+      childMood = key;
       turn(m.say);
     });
     host.appendChild(b);
   });
 }
+/* Whose feeling the badge shows.
+
+   It shows the CHILD's. It sits above the row of faces labelled YOU, so that
+   is what a person reading the screen takes it to mean, and a badge saying
+   HAPPY while she has just said she is cross is worse than no badge. The
+   princess's own feeling still drives how she talks and is still stored
+   between visits as the emotion implant; it simply is not this badge. */
+let childMood = 'happy';
 function setMood(key){
   const m = MOODS[key] || MOODS.happy;
   const f = document.getElementById('moodFace');
@@ -935,6 +959,22 @@ const PICS = {
   tidepool: [["M6 38c0-10 12-16 26-16s26 6 26 16-12 16-26 16S6 48 6 38z","#4a90c4"],["M6 38c0-10 12-16 26-16s26 6 26 16","#8ecae6",1],["M20 40a4 4 0 100 8 4 4 0 000-8z","#e8756b"],["M40 36a5 5 0 100 10 5 5 0 000-10z","#f0d9b5"],["M30 44a3 3 0 100 6 3 3 0 000-6z","#5fa04e"]],
   sea: [["M4 20c7 0 7-6 14-6s7 6 14 6 7-6 14-6 7 6 14 6v34H4z","#4a90c4"],["M4 32c7 0 7-6 14-6s7 6 14 6 7-6 14-6 7 6 14 6","#7ab8d9",1],["M4 44c7 0 7-6 14-6s7 6 14 6 7-6 14-6 7 6 14 6","#7ab8d9",1]],
   pearl: [["M32 14a18 18 0 100 36 18 18 0 000-36z","#eef3f6"],["M25 24a5 5 0 100 10 5 5 0 000-10z","#ffffff"]],
+  spanner: [["M44 8a12 12 0 00-14 16L10 44a5 5 0 007 7l20-20a12 12 0 0016-14l-8 8-8-2-2-8z","#8a97a3"]],
+  hammer: [["M14 50l20-20 6 6-20 20z","#7a5230"],["M32 14l18 10-8 12-18-10z","#8a97a3"]],
+  bolt: [["M32 12l14 8v16l-14 8-14-8V20z","#8a97a3"],["M32 24a8 8 0 100 16 8 8 0 000-16z","#5a6a78"]],
+  spring: [["M20 12h24M22 20h20M20 28h24M22 36h20M20 44h24M24 52h16","#8a97a3",1]],
+  wheel: [["M32 6a26 26 0 100 52 26 26 0 000-52z","#5a6a78"],["M32 20a12 12 0 100 24 12 12 0 000-24z","#cfd9e2"],["M32 6v14M32 44v14M6 32h14M44 32h14","#cfd9e2",1]],
+  engine: [["M10 26h32v22H10z","#5a6a78"],["M42 32h12v10H42z","#7a8b99"],["M16 14h8v12h-8zM30 14h8v12h-8z","#8a97a3"],["M14 52h6v6h-6zM34 52h6v6h-6z","#3b4a5a"]],
+  toolbox: [["M8 26h48v26H8z","#c96a4a"],["M8 26h48v8H8z","#a8543a"],["M24 12h16v8H24z","#8a97a3",1],["M28 34h8v10h-8z","#a8543a"]],
+  bulb: [["M32 6a16 16 0 00-9 29v7h18v-7a16 16 0 00-9-29z","#f0d97a"],["M25 46h14v5H25z","#8a97a3"],["M27 54h10","#8a97a3",1]],
+  nut: [["M32 8l21 12v24L32 56 11 44V20z","#8a97a3"],["M32 22a10 10 0 100 20 10 10 0 000-20z","#3b4a5a"]],
+  broken: [["M30 6l-12 24h12l-4 28 20-30H32l6-22z","#f0b429"],["M8 44l10-6M56 44l-10-6","#8a97a3",1]],
+  wind: [["M6 22h30a8 8 0 10-8-8","#8ecae6",1],["M6 34h38a8 8 0 11-8 8","#8ecae6",1],["M6 46h22a6 6 0 10-6-6","#a8d8ea",1]],
+  kite: [["M32 4l18 20-18 30-18-30z","#e8756b"],["M32 4v50M14 24h36","#c9544a",1],["M32 54c6 4-6 8 0 12","#7a5230",1]],
+  feather: [["M40 8c10 10 6 28-8 38l-8 6 2-10C26 28 30 14 40 8z","#dbe7ee"],["M38 12c-6 12-10 26-12 40","#a8bccd",1]],
+  storm: [["M18 34a11 11 0 010-22 15 15 0 0129-4 10 10 0 011 26z","#8a97a3"],["M30 38l-6 12h8l-4 12 14-16h-8l4-8z","#f0b429"]],
+  balloon: [["M32 6a16 18 0 100 36 16 18 0 000-36z","#e8756b"],["M29 42h6l-3 4z","#c9544a"],["M32 46c4 6-4 8 0 12","#8a97a3",1]],
+  mountainSnow: [["M4 54L24 16l14 22 6-8 16 24z","#7a8b99"],["M24 16l8 13-8 5-7-6z","#eef3f6"],["M44 30l4 5-5 3-3-4z","#eef3f6"]],
 };
 
 /* Builds one picture. Returns null for a name we do not have, so the caller
@@ -1241,6 +1281,23 @@ function buildYesNo(){
   });
 }
 
+/* Nudges the buttons when the princess has finished and nothing has been
+   pressed. Cleared the moment she touches anything. */
+let nudgeTimer = null;
+function yourGo(){
+  const shell = document.getElementById('chat') || document.body;
+  shell.classList.remove('yourgo');
+  void shell.offsetWidth;               // restart the animation
+  shell.classList.add('yourgo');
+  clearTimeout(nudgeTimer);
+  // If she has still not pressed anything, ask once more and then leave her be.
+  nudgeTimer = setTimeout(() => {
+    shell.classList.remove('yourgo');
+    void shell.offsetWidth;
+    shell.classList.add('yourgo');
+  }, 14000);
+}
+
 function setAnswers(choices){
   const host = document.getElementById('answers');
   host.innerHTML = '';
@@ -1289,6 +1346,8 @@ function logIt(said, flag){
 
 async function turn(message){
   if (busy) return;
+  clearTimeout(nudgeTimer);
+  (document.getElementById('chat') || document.body).classList.remove('yourgo');
   busy = true;
   document.querySelectorAll('.answer, .yn').forEach((b) => { b.disabled = true; });
   addBubble('you', message);
@@ -1337,7 +1396,7 @@ async function turn(message){
   }
 
   addBubble('agent', data.body);
-  setMood(data.feeling);
+  rememberMood(data.feeling);
   rememberTaught(data.covered);
   rememberNoticed(data.noticed);
   rememberMood(data.feeling);
@@ -1346,6 +1405,7 @@ async function turn(message){
   setPuzzle(data.puzzle);
   setFind(data.find);
   setAnswers(data.choices);
+  yourGo();
   speak(data.body);
 }
 

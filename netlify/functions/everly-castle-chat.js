@@ -318,7 +318,7 @@ const SCRIPT = {
 const TALES = {
   "posy": "Here is a small story. In my garden in France there is a snail who lives under the third watering can. I call him Monsieur Escargot, which just means Mister Snail. Every morning he crosses the path, and it takes him all day. All day, to cross one path. One morning I decided to help, so I picked him up and put him on the other side. And do you know what he did? He turned around and went back. He was not going where I thought he was going at all. He was going somewhere only he knew about. So now I leave him alone, and I say bonjour, and I let him take all day. Some things are slow because slow is how they work.",
   "nerida": "Here is a small story. In Greece the sea is so clear you can see your own feet standing in it. One summer a dolphin started following the fishing boats out of our harbour, every single morning. The fishermen named her Elpida, which means hope. She was not begging for fish. She just liked the company. When the boats turned home, she turned home. When they stopped, she stopped. For a whole summer she was part of the fleet. Then one day she brought another dolphin with her, a small one, and everybody understood: she had been busy. That is why the boats here still slow down when they leave the harbour. Just in case somebody is waiting to come along.",
-  "zephyra": "Here is a small story. In Nepal, where I live, the mountains are so tall that clouds get stuck on them. Once a year, when the rains finish, everybody goes up on the roofs and flies kites. Not a few people. Everybody. The whole sky fills up with them, hundreds and hundreds, red and yellow and green. My grandmother taught me on that roof. She said the trick is not pulling harder. The trick is feeling which way the wind already wants to go, and going there with it. I was six and I thought that was a silly answer. Now I have a tower full of birds who do exactly the same thing, every day, without being taught at all.",
+  "zephyra": "Here is a small story. In Nepal, where I live, the mountains are so tall that the clouds get stuck on them. When the rains finish, everybody goes up on the roofs to fly kites. Not a few people. Everybody. My grandmother taught me on that roof, and my kite went straight into the ground, again and again, until I was furious with it. She said I was pulling too hard. She said the wind already knows where it wants to go, and my job was to find out where that was and go with it. So I stopped pulling. I let the string out slow, and I felt it. And my kite went up over the whole village and stayed there all afternoon, and I have never once forgotten how that felt.",
   "neva": "Here is a small story. In the north of Norway, in the summer, the sun does not go down. It just goes round and round the sky and never sets. Children play outside at midnight because it is still bright, and the grown-ups give up telling them to come in. But in the winter it is the other way. The sun does not come up at all, for weeks. So people put candles in every window, all along the street, and the snow catches the light and carries it. The whole village glows. I like that we did not fix the dark by making it go away. We fixed it by everybody putting one small light where it could be seen.",
   "lenora": "Here is a small story. In Mongolia there are almost no towns, so at night there are almost no lights, and that means you can see everything up there. Everything. My grandfather could find his way home across the grass with no road and no map at all, just by looking up. He showed me how. He said the stars were the oldest map anybody has, and they still work, and nobody has to charge them. One night I asked him what happens if it is cloudy. He laughed and said then you stay where you are, and you wait, and you have a cup of tea. Some things you cannot hurry. You just wait for the sky to open.",
   "elowyn": "Here is a small story. In New Zealand there is a bird called a kiwi. It is about as big as a chicken, it is brown and round and fluffy, and it cannot fly at all. Not even a little. It has wings, but they are tiny, hidden under the feathers, and it never uses them. Kiwi come out at night and they find food with their noses, which is very unusual for a bird. Their nostrils are right at the tip of the beak, so they walk along going snuffle, snuffle, snuffle in the leaves. New Zealanders love them so much that they call themselves Kiwis too. A whole country named after a small round bird that cannot fly.",
@@ -638,6 +638,22 @@ exports.handler = async (event) => {
     return new Set(String(text).toLowerCase().replace(/[^a-z ]/g, ' ').split(/\s+/)
       .filter((w) => w.length > 3 && !SMALL.has(w)));
   }
+  /* Did she just promise the child a look at something?
+
+     Only unambiguous promises are listed. "Look how tall it is" is a turn of
+     phrase and must not trip this; "let me show you" is a debt. The cost of a
+     false positive is one wasted call, and the cost of a miss is a
+     four-year-old staring at a screen waiting for something that is never
+     coming, so the list is allowed to be a little greedy. */
+  const PROMISES = [
+    /let me show you/i, /i(?:'| wi)?ll show you/i, /shall i show you/i,
+    /would you like to see/i, /do you want to see/i,
+    /come and (?:see|look)/i, /have a look at/i, /take a look at/i,
+    /watch (?:this|it|carefully|closely)/i, /you(?:'| wi)?ll see it/i,
+    /let me find/i, /let(?:'|)s look at/i, /here(?:'| i)s (?:one|it|what)/i,
+  ];
+  const promised = (text) => PROMISES.some((re) => re.test(String(text)));
+
   function samePlace(a, b) {
     const A = ground(a), B = ground(b);
     if (A.size < 3 || B.size < 3) return false;
@@ -666,6 +682,20 @@ exports.handler = async (event) => {
     const said = messages.filter((m) => m.role === 'assistant').slice(-3).map((m) => m.content);
     const first = resp.content && resp.content.find((c) => c.type === 'tool_use');
     const firstReply = first && first.input && first.input.reply;
+    /* A promise with nothing behind it. Ask again, and quote it back.
+
+       This has now been reported four separate times in one evening, in four
+       different wings, against three increasingly stern versions of the rule.
+       A rule the model can forget is not a fix for a fault that costs a child
+       her trust in what she is looking at, so it is checked rather than
+       requested. */
+    const showed = first && first.input &&
+      (first.input.show || first.input.find || first.input.count || first.input.puzzle);
+    if (firstReply && promised(firstReply) && !showed) {
+      console.warn('[everly-castle-chat] promised nothing: ' + String(firstReply).slice(0, 60));
+      resp = await ask('\n\nURGENT, THIS OVERRIDES EVERYTHING ELSE: you just said "' + String(firstReply).slice(0, 120) + '" and sent her nothing to look at. She is four. She is staring at the screen right now waiting for it, and when it does not come she will not decide the app is broken, she will decide she missed it. Say it again AND send it, this turn, using show or find with a picture name from the list. If there is no picture for it, do not promise it: say something you can keep instead.');
+    }
+
     if (firstReply && said.some((s) => samePlace(firstReply, s))) {
       console.warn('[everly-castle-chat] circled, asking again: ' + String(firstReply).slice(0, 60));
       resp = await ask('\n\nURGENT, THIS OVERRIDES EVERYTHING ELSE: you have just circled back to something you already said. She is four, and she will keep agreeing to it forever without ever telling you she is bored. Drop that subject completely. Go somewhere new in your wing, and put something on her screen this turn with show or find or count, so there is something for her to do rather than something to agree to.');
