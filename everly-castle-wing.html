@@ -308,7 +308,7 @@ const WINGS = {
   neva:       { name:'Neva',       wing:'the Frost Conservatory', emoji:'❄️' , lang:'Norwegian', topic:'snow' },
   lenora:      { name:'Lenora',      wing:'the Star Balcony',       emoji:'🌙' , lang:'Mongolian', topic:'the moon' },
   elowyn:     { name:'Elowyn',     wing:'the Story Loft',         emoji:'📖' , lang:'Māori', topic:'stories' },
-  clementine: { name:'Clementine', wing:'the Copper Kitchen',     emoji:'🥕' , lang:'Spanish', topic:'food' },
+  clementine: { name:'Clementine', wing:'the Copper Kitchen',     emoji:'🥕' , lang:null, topic:'food', offer2:'tell me what children eat in other countries' },
   piper:      { name:'Piper',      wing:'the Music Hall',         emoji:'🎵' , lang:'German', topic:'music' },
   almasi:      { name:'Almasi',      wing:'the Fossil Field',       emoji:'🦴' , lang:'Swahili', topic:'fossils' },
   bex:        { name:'Bex',        wing:'the Workshop',           emoji:'🔧' , lang:'Portuguese', topic:'how things work' },
@@ -545,7 +545,7 @@ const SCRIPT_TEXT = {
   neva:       { hello:'Come in. Mind the cold, it bites a little at first.', again:'You came back. Wisp knew you would.', story:'I am Princess Neva. I live in Norway, where it snows, and I love ice and snowflakes. I speak Norwegian. Would you like to learn about snow? Or would you like to learn some Norwegian words?' },
   lenora:      { hello:'Shh. Come and stand here, where you can see.', again:'There you are. The moon has changed since you left.', story:'I am Princess Lenora. I live in Mongolia, where the night sky is very dark, and I love the moon and the stars. I speak Mongolian. Would you like to learn about the moon? Or would you like to learn some Mongolian words?' },
   elowyn:     { hello:'A visitor. Inkwell, we have a visitor, and the story is not finished.', again:'You are back, and just in time, I was stuck.', story:'I am Princess Elowyn. I live in New Zealand, and I love stories. I speak English and Māori. Would you like to make up a story? Or would you like to learn some Māori words?' },
-  clementine: { hello:'Perfect timing. I am building a plate and I have run clean out of colours.', again:'You came back. Good, because I have done it again, look at this.', story:'I am Princess Clementine. I live in America, and I love cooking and finding out what food does for you. I speak English and Spanish. Would you like to learn about food? Or would you like to learn some Spanish words?' },
+  clementine: { hello:'Perfect timing. I am building a plate and I have run clean out of colours.', again:'You came back. Good, because I have done it again, look at this.', story:'I am Princess Clementine. I live in America, and I love cooking and finding out what food does for you. I speak English. Would you like to learn about food? Or shall I tell you what children eat in other countries?' },
   piper:      { hello:'Two, three, four, and you are here.', again:'Back again. I have a new pattern and it is a tricky one.', story:'I am Princess Piper. I live in Germany, and I love music. I speak German. Would you like to learn about music? Or would you like to learn some German words?' },
   almasi:     { hello:'Mind where you kneel. There are bones under all of this.', again:'You came back. Good, I found something yesterday and I have not touched it yet.', story:'I am Princess Almasi. I live in Kenya, and I love digging up bones from a very long time ago. I speak Swahili. Would you like to learn about fossils? Or would you like to learn some Swahili words?' },
   bex:        { hello:'Good, another pair of hands. Hold this.', again:'You are back. It is still broken. I left it for you.', story:'I am Princess Bex. I live in Brazil, and I love fixing things and finding out how they work. I speak Portuguese. Would you like to learn how something works? Or would you like to learn some Portuguese words?' },
@@ -876,9 +876,14 @@ document.getElementById('begin').addEventListener('click', begin);
   document.getElementById('storyPlay').addEventListener('click', () => {
     addBubble('agent', bank.story);
     speak(bank.story, 'story');
+    /* Clementine is the one princess who already shares the child's language,
+       so her second offer is not "some words" but the thing that ties her to
+       the other nine: what children eat everywhere else. `offer2` overrides
+       the language button for any princess who needs a different second door. */
     setAnswers([
       { emoji: AGENT.emoji, say: 'tell me about ' + (AGENT.topic || 'your wing') },
-      { emoji: '🗣️',        say: 'teach me some ' + (AGENT.lang || 'new') + ' words' },
+      { emoji: AGENT.offer2 ? '🌍' : '🗣️',
+        say: AGENT.offer2 || ('teach me some ' + (AGENT.lang || 'new') + ' words') },
     ]);
   });
 })();
