@@ -47,6 +47,12 @@ const MAX_TOKENS = 300;          // ~3 short spoken sentences. Also the TTS bill
 const MAX_MSG_CHARS = 300;
 const MAX_HISTORY = 10;
 
+/* Every picture the page can draw, mirrored from the PICS table in
+   everly-castle-wing.html. Kept here so a name the princess invents is caught
+   before it reaches a child rather than being painted on screen as text. If
+   you add a drawing, add it in both places; the checker compares them. */
+const PICTURES = new Set(["seed","sprout","leafy","carrot","sunflower","tree","raindrop","snowflake","ice","wave","cloud","sun","moonFull","moonHalf","moonThin","star","snail","bee","butterfly","fish","bird","rabbit","apple","carrotFood","bread","milk","book","house","mountain","shadow","gear","bone","rock","drum","starfish","shell","shellOpen","crab","jellyfish","seaweed","tidepool","sea","pearl","spanner","hammer","bolt","spring","wheel","engine","toolbox","bulb","nut","broken","wind","kite","feather","storm","balloon","mountainSnow","fox","owl","hermit","swift","snowfox","petal"]);
+
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
@@ -60,6 +66,21 @@ const json = (statusCode, body) => ({
 
 // Em dashes read as a hard stop in ElevenLabs and come out as an odd gulp
 // mid-sentence. Same scrub kronborg-chat.js runs, for the same reason.
+/* Is this something the page can actually draw? An emoji still passes, since
+   a princess may reasonably reach for one the library has no drawing of, but an
+   invented NAME must not: "moonHalf" typed as "moon half" was painted onto the
+   screen as words. */
+function drawable(x) {
+  if (!x) return false;
+  const s = String(x);
+  if (PICTURES.has(s)) return true;
+  // An emoji is fine. A run of plain letters that is not a known name is not.
+  return !/^[A-Za-z ]+$/.test(s) && s.length <= 8;
+}
+function cleanSteps(arr) {
+  return (Array.isArray(arr) ? arr : []).map((x) => String(x)).filter(drawable).slice(0, 6);
+}
+
 function cleanDashes(s) {
   return String(s == null ? '' : s).replace(/—/g, ', ').replace(/–/g, ', ');
 }
@@ -491,6 +512,8 @@ You can put things on the screen to be counted, and you should, often. It is the
 
 Count things from your own wing: petals, shells, stars, snowflakes, carrots, birds, bones. Three to six is the sweet spot. Ask the question in your reply and let the screen do the rest.
 
+COUNT SOMETHING DIFFERENT EACH TIME. Pookie, testing tonight: "Same shells to count? I'm bored." Every wing has one obvious thing and it is the first one you will think of, so think past it. Nerida has shells, but also crabs, starfish, waves, pebbles and jellyfish. Lenora has stars, but also moons across a month, owls and mountains. Check your notes: if you counted a thing with her before, count something else, and if you have run out, count in your language instead so at least the words are new.
+
 COUNT IN YOUR OWN LANGUAGE, OFTEN. Set inMyLanguage and each thing she taps is spoken in your language instead of English: un, deux, trois in France, moja, mbili, tatu in Kenya. This is the best teaching in the whole castle, because she is not learning French, she is counting shells and the numbers happen to be French. Do it roughly every other time you count, and say the number warmly in your reply as well so she hears it twice.
 
 DO NOT SET THE SAME COUNT TWICE. If your notes or the conversation show she has just counted, do not put the same things up again. She finished it. Repeating it reads as her having got it wrong the first time. Move to something else, or count something different, or count the same things in your language if the first go was in English.
@@ -710,21 +733,29 @@ exports.handler = async (event) => {
        more common failure, which is a princess talking pleasantly about the
        wind and sending an empty screen. One extra call on those turns, and
        none on turns that already carry something. */
+    /* At most one of these fires. Each was a fair guard on its own, and
+       running all three in sequence turned a bad turn into four round trips
+       and the dead air Pookie sat through. Ordered by what costs the child
+       most: an empty screen, then a promise not kept, then going in circles. */
+    let reasked = false;
     const nothingToSee = first && first.input &&
       !first.input.show && !first.input.find && !first.input.count && !first.input.puzzle;
-    if (firstReply && nothingToSee) {
+    if (!reasked && firstReply && nothingToSee) {
+      reasked = true;
       console.warn('[everly-castle-chat] empty screen, asking again');
       resp = await ask('\n\nURGENT, THIS OVERRIDES EVERYTHING ELSE: you sent her nothing to look at, so she is listening to a voice and staring at an empty space. Say the same thing again, and this time send find, count, show or puzzle with it. Name something you just mentioned and put it on the screen. Do not explain any of this to her.');
     }
 
     const showed = first && first.input &&
       (first.input.show || first.input.find || first.input.count || first.input.puzzle);
-    if (firstReply && promised(firstReply) && !showed) {
+    if (!reasked && firstReply && promised(firstReply) && !showed) {
+      reasked = true;
       console.warn('[everly-castle-chat] promised nothing: ' + String(firstReply).slice(0, 60));
       resp = await ask('\n\nURGENT, THIS OVERRIDES EVERYTHING ELSE: you just said "' + String(firstReply).slice(0, 120) + '" and sent her nothing to look at. She is four. She is staring at the screen right now waiting for it, and when it does not come she will not decide the app is broken, she will decide she missed it. Say it again AND send it, this turn, using show or find with a picture name from the list. If there is no picture for it, do not promise it: say something you can keep instead.');
     }
 
-    if (firstReply && said.some((s) => samePlace(firstReply, s))) {
+    if (!reasked && firstReply && said.some((s) => samePlace(firstReply, s))) {
+      reasked = true;
       console.warn('[everly-castle-chat] circled, asking again: ' + String(firstReply).slice(0, 60));
       resp = await ask('\n\nURGENT, THIS OVERRIDES EVERYTHING ELSE: you have just circled back to something you already said. She is four, and she will keep agreeing to it forever without ever telling you she is bored. Drop that subject completely. Go somewhere new in your wing, and put something on her screen this turn with show or find or count, so there is something for her to do rather than something to agree to.');
     }
@@ -770,16 +801,16 @@ exports.handler = async (event) => {
     feeling: FEELINGS.includes(out.feeling) ? out.feeling : 'happy',
     ...(out.covered ? { covered: cleanDashes(String(out.covered)).slice(0, 80) } : {}),
     ...(out.noticed ? { noticed: cleanDashes(String(out.noticed)).slice(0, 100) } : {}),
-    ...(out.show && (out.show.emoji || (Array.isArray(out.show.steps) && out.show.steps.length))
+    ...(out.show && (drawable(out.show.emoji) || cleanSteps(out.show.steps).length)
       ? { show: {
-            ...(out.show.emoji ? { emoji: String(out.show.emoji).slice(0, 8) } : {}),
+            ...(drawable(out.show.emoji) ? { emoji: String(out.show.emoji).slice(0, 12) } : {}),
             ...(Array.isArray(out.show.steps) && out.show.steps.length
               ? { steps: out.show.steps.slice(0, 6).map((x) => String(x).slice(0, 8)) } : {}),
             label: cleanDashes(String(out.show.label || '')).slice(0, 40),
           } }
       : {}),
-    ...(out.find && Array.isArray(out.find.things) && out.find.things.length
-      ? { find: { things: out.find.things.slice(0, 6), label: out.find.label ? cleanDashes(String(out.find.label)).slice(0, 40) : '' } }
+    ...(out.find && cleanSteps(out.find.things).length
+      ? { find: { things: cleanSteps(out.find.things), label: out.find.label ? cleanDashes(String(out.find.label)).slice(0, 40) : '' } }
       : {}),
     ...(out.puzzle && out.puzzle.fits && Array.isArray(out.puzzle.options) && out.puzzle.options.length
       ? { puzzle: { fits: out.puzzle.fits, options: out.puzzle.options.slice(0, 3) } }

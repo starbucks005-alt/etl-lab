@@ -67,7 +67,15 @@ const MODEL_ID = 'eleven_multilingual_v2';
    rather than the teacher. Do not cast a mature or maternal voice here, it
    collapses the whole conceit. The visitor's own title (Princess or Prince)
    is a separate setting and has nothing to do with which voices are used. */
-const VOICE_SETTINGS = { stability: 0.40, similarity_boost: 0.80, style: 0.45, use_speaker_boost: true };
+/* Reported twice on 2026-08-09: "The story is too slow" and "Tone is too
+   slow". Teenage girls talking to a small child do not speak at reading pace.
+   Nudged up rather than thrown up, because too fast is worse than too slow for
+   a four-year-old following a second language.
+
+   If this model will not take a speed, the call below drops it and tries once
+   more, so an unsupported parameter costs one retry instead of silencing every
+   princess in the castle. */
+const VOICE_SETTINGS = { stability: 0.40, similarity_boost: 0.80, style: 0.45, use_speaker_boost: true, speed: 1.12 };
 
 /* Per-princess overrides, merged over the defaults. The house settings are
    deliberately loose for expressiveness and that suits most of the cast, but a
@@ -415,6 +423,19 @@ exports.handler = async (event) => {
       headers: { 'Content-Type': 'application/json', 'xi-api-key': apiKey, 'Accept': 'audio/mpeg' },
       body: JSON.stringify({ text: spoken, model_id: MODEL_ID, voice_settings: settings }),
     });
+
+    /* Older voice models reject an unknown setting outright. Losing every
+       spoken line in the castle over a pacing tweak is not a trade worth
+       making, so on a rejection we drop the speed and go again. */
+    if (!resp.ok && resp.status >= 400 && resp.status < 500 && settings && settings.speed) {
+      const { speed, ...noSpeed } = settings;
+      console.warn('[everly-castle-voice] speed rejected, retrying without it');
+      resp = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'xi-api-key': apiKey, 'Accept': 'audio/mpeg' },
+        body: JSON.stringify({ text: spoken, model_id: MODEL_ID, voice_settings: noSpeed }),
+      });
+    }
   } catch (err) {
     console.error('[everly-castle-voice] fetch failure', err);
     return jsonError(502, 'tts network failure');
