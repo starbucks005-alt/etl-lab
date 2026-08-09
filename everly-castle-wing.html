@@ -147,22 +147,24 @@ body{
   grid-template-areas:'princess' 'speech' 'game' 'story';
 }
 @media (min-width:820px){
+  /* The 2x2. Every wing gets this, with or without a cartoon.
+
+     It briefly did not: adding the has-embed variant below closed this rule
+     early, so grid-template-areas ended up ONLY on the embed version and the
+     eight princesses without clips fell back to the single mobile column.
+     Areas and rows belong here; has-embed changes the column split and
+     nothing else. */
   .stage{
-    /* The 2x2. Left column narrower than the right, as drawn. Portrait art
-       suits the narrow column, so this went back down to 38 after a brief
-       detour at 44 for a 16:9 draft of the artwork. */
     grid-template-columns:38fr 62fr;
+    grid-template-rows:auto auto;
+    grid-template-areas:
+      'princess speech'
+      'story    game';
   }
   /* A wing with a cartoon flips the emphasis: the video is landscape and is
      the thing worth looking at, so it takes the wider column. */
   .stage.has-embed{
     grid-template-columns:58fr 42fr;
-    /* Top row takes the slack; the bottom row sizes to its contents, because
-       how much room the game needs depends entirely on which game it is. */
-    grid-template-rows:auto auto;
-    grid-template-areas:
-      'princess speech'
-      'story    game';
   }
 }
 .w-princess{grid-area:princess}
