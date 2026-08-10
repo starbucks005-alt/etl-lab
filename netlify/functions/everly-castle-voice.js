@@ -31,7 +31,7 @@
    Env: ELEVENLABS_API_KEY
    ───────────────────────────────────────────────────────────────────────────── */
 
-const { AGENTS, SCRIPT, TALES, TALES2 } = require('./everly-castle-chat.js');
+const { AGENTS, SCRIPT, TALES, STORIES, ABOUTS, TALES2 } = require('./everly-castle-chat.js');
 const { getStore, connectLambda } = require('@netlify/blobs');
 const crypto = require('crypto');
 
@@ -391,6 +391,19 @@ exports.handler = async (event) => {
     // count-3 -> "three", in this princess's voice.
     text = NUMBER_WORDS[Number(lineKey.split('-')[1])];
     cacheKey = audioKey(agentId, 'count', text, voiceId, settings);
+  } else if (/^about-(pet|family|country)$/.test(lineKey)) {
+    /* Bought once per princess, then free for every child after that. */
+    const bank = ABOUTS[agentId] || {};
+    text = bank[lineKey.split('-')[1]];
+    if (!text) return jsonError(404, 'No ' + lineKey + ' for ' + agentId);
+    cacheKey = audioKey(agentId, lineKey, text, voiceId, settings);
+  } else if (/^tale-[1-5]$/.test(lineKey)) {
+    /* One of her five. Fixed text, bought once, then free forever, which is
+       what lets the free tier hand out fifty of them. */
+    const bank = STORIES[agentId] || [];
+    text = bank[Number(lineKey.split('-')[1]) - 1];
+    if (!text) return jsonError(404, 'No story ' + lineKey + ' for ' + agentId);
+    cacheKey = audioKey(agentId, lineKey, text, voiceId, settings);
   } else if (lineKey === 'tale2') {
     // Her second story. Same cost model as the first: fixed, bought once.
     text = TALES2[agentId];

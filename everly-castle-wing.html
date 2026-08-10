@@ -167,6 +167,37 @@ body{
     grid-template-columns:58fr 42fr;
   }
 }
+/* The free wing.
+
+   Not the paid wing with pieces taken out: a different, complete shape. The
+   princess and her stories, side by side, filling the space. A child who has
+   never seen the other version cannot tell anything is absent, which is the
+   point. There is no lock, no grey button and no prompt anywhere she looks. */
+@media (min-width:900px){
+  .stage.free{
+    grid-template-columns:1fr 1fr;
+    grid-template-areas:'princess story';
+  }
+  .stage.free.has-embed{ grid-template-columns:58fr 42fr; }
+}
+.stage.free .w-speech, .stage.free .w-game{ display:none; }
+.stage.free /* The three things she can ask a princess about herself. */
+.abouts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:10px}
+.about-btn{
+  border:1px solid var(--rule);border-radius:22px;background:var(--card);
+  padding:9px 14px;font-family:var(--serif);font-size:14px;color:var(--ink);
+  cursor:pointer;box-shadow:var(--shadow);transition:transform .12s ease
+}
+.about-btn:active{transform:scale(.94)}
+.about-btn.on{background:var(--stone)}
+/* Where her photographs go once they exist. Nothing is drawn here until a
+   real file loads, so a missing one is invisible to the child. */
+.about-pic{margin-top:10px;display:none}
+.about-pic.shown{display:block}
+.about-pic img{width:100%;max-width:340px;border-radius:14px;display:block;margin:0 auto}
+
+.w-story{ justify-content:center; }
+
 .w-princess{grid-area:princess}
 .w-speech{grid-area:speech}
 .w-story{grid-area:story}
@@ -564,7 +595,9 @@ body{
       <!-- The book. Free on every tier: it is fixed text, cached once, and
            costs nothing to serve. What the paid tier buys is a princess
            talking to one particular child, not this. -->
-      <button class="story-play book" id="bookPlay" type="button">📖 Tell me a story</button>
+      <div class="abouts" id="abouts"></div>
+    <div class="about-pic" id="aboutPic"></div>
+    <button class="story-play book" id="bookPlay" type="button">📖 Tell me a story</button>
     </div>
   </section>
 
@@ -683,6 +716,16 @@ let prof = currentProfile();
 function isPaid(){
   return (state.tier || 'free') === 'family';
 }
+
+/* Applied before anything is drawn or spoken.
+
+   It matters that this happens FIRST: the free wing must never call the chat
+   function even once, because that is the cost being avoided, and a child
+   must never see the conversation panel appear and then vanish. */
+(function applyTier(){
+  if (isPaid()) return;
+  document.querySelector('.stage').classList.add('free');
+})();
 
 /* The wing wears whatever colour she chose on the hub. Applied before first
    paint rather than after, so a child on Starry Night never gets a flash of
@@ -1693,6 +1736,75 @@ function setCounting(spec){
 
 /* Built one time on load. Nothing in a reply can move, hide or relabel
    these, which is the point of them. */
+/* My pet, my family, life in my country.
+
+   All three are recorded lines, so they cost nothing after the first child
+   in the world has heard them. That is what makes them free, and it is why
+   the free wing has ninety recorded things in it rather than a demo.
+
+   Her photograph appears with it when the file exists, and nothing at all
+   appears when it does not: a missing picture is silent to the child and
+   noisy to us. */
+const ABOUT_LABELS = [
+  ['pet', 'My pet'],
+  ['family', 'My family'],
+  ['country', 'Life in my country'],
+];
+
+function showAboutPicture(kind){
+  const host = document.getElementById('aboutPic');
+  host.innerHTML = '';
+  host.classList.remove('shown');
+  const stems = ['/agents/everly/' + wingId + '-' + kind + '.jpg',
+                 '/agents/everly/' + wingId + '-' + kind + '.png'];
+  let i = 0;
+  (function tryNext(){
+    if (i >= stems.length) {
+      // Loud for us, invisible to her. A picture that silently fails to
+      // appear is the fault that has cost the most time on this product.
+      console.warn('[everly] no ' + kind + ' picture for ' + wingId + ': looked for ' + stems.join(' and '));
+      return;
+    }
+    const img = new Image();
+    img.alt = '';
+    img.onload = () => {
+      host.appendChild(img);
+      host.classList.add('shown');
+    };
+    img.onerror = () => { i += 1; tryNext(); };
+    img.src = stems[i];
+  })();
+}
+
+function buildAbouts(){
+  const host = document.getElementById('abouts');
+  if (!host || host.childElementCount) return;
+  ABOUT_LABELS.forEach(([kind, label]) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'about-btn';
+    b.textContent = label;
+    b.addEventListener('click', () => {
+      host.querySelectorAll('.about-btn').forEach((x) => x.classList.remove('on'));
+      b.classList.add('on');
+      showAboutPicture(kind);
+      speak('', 'about-' + kind);
+      /* On the paid side the princess should know what she just said, so the
+         conversation does not double back on it a moment later. */
+      if (isPaid()) {
+        history.push({ role: 'agent', body: ABOUT_SAID[kind] });
+      }
+    });
+    host.appendChild(b);
+  });
+}
+
+const ABOUT_SAID = {
+  pet: 'I have just told her all about my animal friend, so I do not introduce him again.',
+  family: 'I have just told her who is in my family, so I do not list them again.',
+  country: 'I have just told her what my country is like, so I do not describe it again.',
+};
+
 function buildYesNo(){
   const host = document.getElementById('yesno');
   if (!host || host.childElementCount) return;
@@ -1870,8 +1982,26 @@ async function turn(message, quiet){
    wing opens behind one big button. That is not a workaround here, it is the
    right shape anyway: tapping the princess to wake her up is a nicer way in
    than a screen that starts talking at a child on its own. */
+/* Starts the cartoon on the one gesture a browser will accept a play on.
+   Shared by both tiers, since a free princess still moves. */
+function startCartoonIfAny(){
+  const frame = document.querySelector('.face iframe');
+  if (!frame || !frame.contentWindow) return;
+  try {
+    frame.contentWindow.postMessage(JSON.stringify({ method: 'play' }), 'https://player.vimeo.com');
+  } catch (e) { console.warn('[everly] could not start the cartoon', e); }
+}
+
 function begin(){
   document.getElementById('begin').classList.add('hidden');
+  /* Free: her hello, her bio, her stories, and no live turn is ever taken.
+     Everything spoken on this side is fixed text out of the cache. */
+  if (!isPaid()) {
+    startCartoonIfAny();
+    speak('', 'hello');
+    recordVisit();
+    return;
+  }
   /* Some browsers refuse to autoplay even a muted video, leaving Vimeo's own
      first frame frozen on screen looking like a still. This is the one gesture
      they will accept a play on, so spend it. */
@@ -2031,6 +2161,7 @@ document.documentElement.setAttribute('data-build', window.EVERLY_BUILD);
   document.body.appendChild(tag);
 })();
 buildYesNo();
+buildAbouts();
 drawThing();
 drawMyMood();
 document.getElementById('begin').addEventListener('click', begin);
@@ -2050,14 +2181,23 @@ document.getElementById('begin').addEventListener('click', begin);
     /* Two stories now, and the book never hands back the one she just
        heard. Which she has had is kept with her other notes, so it survives
        leaving the wing and coming back tomorrow. */
-    const heard = (prof.taught[wingId] || []).some((t) => /second story/.test(t));
-    const key = heard ? 'tale' : (((prof.taught[wingId] || []).some((t) => /the story about/.test(t))) ? 'tale2' : 'tale');
+    /* One of her five, chosen from the ones this child has not had yet.
+
+       Kept with her other notes, so it survives leaving the wing and coming
+       back tomorrow. When she has heard all five they come round again in a
+       fresh order, which at four is not a repeat, it is a favourite. */
+    const told = (prof.taught[wingId] || [])
+      .map((t) => /^story ([1-5])$/.exec(t)).filter(Boolean).map((x) => Number(x[1]));
+    let left = [1, 2, 3, 4, 5].filter((n) => !told.includes(n));
+    if (!left.length) left = [1, 2, 3, 4, 5].filter((n) => n !== told[told.length - 1]);
+    const pickN = left[Math.floor(Math.random() * left.length)];
+    const key = 'tale-' + pickN;
     speak('', key);
     // She has to KNOW she told it, or the next turn starts from nothing.
     history.push({ role:'agent', body: 'I have just told her one of my long stories about ' + (AGENT.place || 'home') + '. She has heard it and I do not tell it again or greet her as though she has arrived.' });
     // She remembers she told it, so she can offer a different one another day
     // once there is more than one to offer.
-    rememberTaught(key === 'tale2' ? 'told her the second story' : 'told the story about ' + (AGENT.place || 'home'));
+    rememberTaught('story ' + pickN);
     setTimeout(() => { btn.disabled = false; }, 4000);
   });
 })();
