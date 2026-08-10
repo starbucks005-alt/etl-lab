@@ -51,6 +51,17 @@ two days closing.
 - **No writing anywhere in the picture.** No names on dresses, no signs, no
   labels. She cannot read, so text is meaningless marks to her, and a name
   printed on a costume reads as a label rather than as clothing.
+- **A country is not one face, and this is deliberate.** Posy is Asian and
+  French. That is not an error to be corrected in later images, it is the
+  point: children who live in France look like all sorts of people, and a
+  four-year-old learning what a country is should learn that first, before
+  anybody teaches her otherwise.
+
+  It only works if it is consistent. **Her family must match her**, because a
+  princess who does not resemble her own grandmother reads as a mistake rather
+  than as a decision, and the mistake reading is the one that undoes the
+  intent. Whoever she is, her family are her family.
+
 - The princess is **in** the picture, matching her portrait, so a
   four-year-old knows whose family this is.
 - Set it where they actually live, in their own palace or grounds. The room
