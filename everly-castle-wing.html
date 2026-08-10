@@ -1918,6 +1918,18 @@ function showAboutPicture(kind){
   })();
 }
 
+/* What sits in the emoji cell before the first turn.
+
+   The chips normally arrive with a reply, so this cell was empty until the
+   princess spoke, and an emoji cell with no emoji in it reads as broken. It
+   also wasted the moment a child is most likely to press something: the
+   moment she arrives. The first real reply replaces these. */
+const OPENING_CHOICES = [
+  { emoji: '👋', say: 'hello' },
+  { emoji: '👀', say: 'show me something' },
+  { emoji: '📖', say: 'tell me a story' },
+];
+
 function buildAbouts(){
   const host = document.getElementById('abouts');
   if (!host || host.childElementCount) return;
@@ -2304,6 +2316,7 @@ document.documentElement.setAttribute('data-build', window.EVERLY_BUILD);
 })();
 buildYesNo();
 buildAbouts();
+setAnswers(OPENING_CHOICES);
 drawThing();
 drawMyMood();
 document.getElementById('begin').addEventListener('click', begin);
