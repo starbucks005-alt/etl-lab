@@ -233,6 +233,9 @@ const LANG_OF = {
 };
 
 const FOUND_NAMES = {
+  "grapes": "grapes",
+  "plum": "a plum",
+  "berry": "a berry",
   "rice": "rice",
   "banana": "a banana",
   "egg": "an egg",
