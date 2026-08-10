@@ -778,27 +778,122 @@ const today = new Date().toISOString().slice(0,10);
    princesses, six stages, an even number of buttons on screen. It is a house
    rule, and it happens to be the right one here anyway, because a child can
    halve an even row of things and cannot halve an odd one. */
+/* What the child is growing, one stage per visit, drawn from the picture
+   library like everything else on the screen. It used to be emoji, which was
+   fine when there was nothing else to compare it with and looked wrong the
+   moment ninety drawings arrived beside it. */
 const GROWTH = {
-  posy:       ['🌰','🌱','🌿','🪴','🌷','🌻'],
-  nerida:     ['🫧','🐚','🦀','🐠','🐡','🐙'],
-  // A leaf, a feather, a windchime, a balloon, a kite, a bird. The sequence is
-  // the lesson: each one needs more air under it than the last.
-  zephyra:    ['🍃','🪶','🎐','🎈','🪁','🦅'],
-  neva:       ['💧','🧊','❄️','⛄','🏔️','🦊'],
-  lenora:      ['🌑','🌒','🌓','🌔','🌖','🌕'],
-  elowyn:     ['📄','✏️','📃','📒','📔','📚'],
-  // Colours collected onto a plate. "Eat a rainbow" is the framing preschool
-  // nutrition programmes actually use, and it sorts food by variety rather
-  // than by virtue, which is the whole point of this wing.
-  clementine: ['🥕','🍎','🥦','🫐','🌽','🍽️'],
-  piper:      ['🎵','🎶','🥁','🎹','🎻','🎺'],
-  almasi:     ['🪨','🖌️','🦴','🔍','🦖','🦕'],
-  bex:        ['🔩','🔧','⚙️','🪛','🛠️','🤖'],
+  "posy": [
+    "seed",
+    "sprout",
+    "leafy",
+    "bud",
+    "halfOpen",
+    "sunflower"
+  ],
+  "nerida": [
+    "shell",
+    "starfish",
+    "crab",
+    "jellyfish",
+    "seaweed",
+    "tidepool"
+  ],
+  "zephyra": [
+    "feather",
+    "wind",
+    "balloon",
+    "bird",
+    "kite",
+    "storm"
+  ],
+  "neva": [
+    "raindrop",
+    "ice",
+    "snowflake",
+    "snowfox",
+    "tree",
+    "mountainSnow"
+  ],
+  "lenora": [
+    "moonThin",
+    "moonHalf",
+    "moonFull",
+    "star",
+    "plough",
+    "nightsky"
+  ],
+  "elowyn": [
+    "book",
+    "bird",
+    "fish",
+    "tree",
+    "mountain",
+    "sea"
+  ],
+  "clementine": [
+    "carrotFood",
+    "apple",
+    "tomato",
+    "grapes",
+    "corn",
+    "soup"
+  ],
+  "piper": [
+    "drum",
+    "bee",
+    "butterfly",
+    "bird",
+    "bulb",
+    "star"
+  ],
+  "almasi": [
+    "rock",
+    "bone",
+    "tooth",
+    "footprint",
+    "ammonite",
+    "skull"
+  ],
+  "bex": [
+    "bolt",
+    "spring",
+    "gear",
+    "wheel",
+    "engine",
+    "toolbox"
+  ]
 };
+/* One caption for the whole sequence where that stays honest, six where it
+   does not. The old version named the END at every stage, so a child on day
+   one was told a two-leaf sprout was her sunflower, learned the word for it,
+   and then met an actual sunflower on day six. A seed is a seed until it is
+   a sunflower. */
 const GROWTH_CAPTION = {
-  posy:'Your sunflower', nerida:'Your tide pool', zephyra:'Your kite', neva:'Your window',
-  lenora:'Tonight’s moon', elowyn:'Your story shelf', clementine:'Your rainbow plate',
-  piper:'Your song', almasi:'Your dig', bex:'What you are building',
+  "posy": [
+    "Your seed",
+    "Your sprout",
+    "Your little plant",
+    "Your bud",
+    "Your flower opening",
+    "Your sunflower"
+  ],
+  "nerida": "Your tide pool",
+  "zephyra": "Your sky",
+  "neva": "Your window",
+  "lenora": [
+    "Tonight’s moon",
+    "Tonight’s moon",
+    "Tonight’s moon",
+    "Your stars",
+    "Your stars",
+    "Your night sky"
+  ],
+  "elowyn": "Your story shelf",
+  "clementine": "Your rainbow plate",
+  "piper": "Your song",
+  "almasi": "Your dig",
+  "bex": "What you are building"
 };
 
 function growthStage(){
@@ -809,12 +904,20 @@ function recordVisit(){
   const days = prof.visits[wingId] || [];
   if (!days.includes(today)) { days.push(today); prof.visits[wingId] = days; save(state); }
 }
+function stageCaption(id, stage){
+  const c = GROWTH_CAPTION[id];
+  return Array.isArray(c) ? (c[stage] || c[c.length - 1]) : (c || '');
+}
+
 function drawThing(){
   const set = GROWTH[wingId] || GROWTH.posy;
+  const stage = growthStage();
   const el = document.getElementById('thing');
-  el.textContent = set[growthStage()];
+  el.textContent = '';
+  const pic = picSvg(set[stage], 64);
+  if (pic) el.appendChild(pic);
   const cap = document.createElement('small');
-  cap.textContent = GROWTH_CAPTION[wingId] || '';
+  cap.textContent = stageCaption(wingId, stage);
   el.appendChild(cap);
 }
 
@@ -830,8 +933,8 @@ function remembers(){
   // not a pronoun, so the only safe thing to write here is "they".
   if (days > 1) bits.push('They have visited you ' + days + ' times.');
   const set = GROWTH[wingId] || GROWTH.posy;
-  bits.push('The ' + (GROWTH_CAPTION[wingId] || 'thing') .toLowerCase().replace(/^your /,'') +
-            ' you two are looking after is at stage ' + (growthStage() + 1) + ' of ' + set.length + '.');
+  bits.push('The thing you two are looking after is a ' + set[growthStage()] +
+            ' now, stage ' + (growthStage() + 1) + ' of ' + set.length + '.');
   /* How she felt when they last parted, and how long ago that was. She opens
      in this state rather than resetting to cheerful, which is the whole
      difference between an emotion implant and a mood badge. */
