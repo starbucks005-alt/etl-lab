@@ -1372,56 +1372,64 @@ const PICS = {
   tooth: [["M22 10h20l-3 26c-1 10-3 18-7 18s-6-8-7-18z","#eef3f6"],["M26 16h12","#cfd9e2",1]],
 };
 
-/* Other names a photograph might reasonably have been saved under.
+/* What is actually in assets/everly, fetched once.
 
-   Whoever names a file should not have to know how the code spells it, so
-   the code does the work. Plurals, spaces, underscores and hyphens are all
-   handled by rule; this list is only for the ones no rule would guess. */
+   A manifest rather than guesswork. Her files mix separators, so generating
+   candidate spellings caught most of them and would keep missing whichever
+   one was named differently next. Reading the folder and normalising both
+   sides means she can call a file anything she likes.
+
+   It also means the page never requests a photograph that does not exist:
+   it knows before it asks. Regenerate with scratchpad/manifest.js whenever
+   photographs are added. */
+let PHOTO_FILES = null;
+const photoReady = fetch('/assets/everly/index.json')
+  .then((r) => (r.ok ? r.json() : []))
+  .then((list) => { PHOTO_FILES = list; })
+  .catch(() => { PHOTO_FILES = []; });
+
+/* Letters and digits only, so separators and capitals stop mattering. */
+const flatten = (x) => String(x).toLowerCase().replace(/[^a-z0-9]/g, '');
+
+/* Other names a photograph might reasonably have been saved under. Only for
+   the ones no amount of normalising would connect. */
 const PHOTO_ALIASES = {
   tidepool: ['tide pool', 'rock pool'],
   urchin: ['sea urchin'],
   anemone: ['sea anemone'],
-  mussels: ['mussel'],
-  nightsky: ['night sky'],
-  hotdog: ['hot dog'],
   snowfox: ['snow fox', 'arctic fox'],
   carrotFood: ['carrot'],
-  macCheese: ['mac cheese', 'macaroni cheese'],
-  moonFull: ['full moon'], moonHalf: ['half moon'], moonThin: ['thin moon', 'crescent moon'],
+  macCheese: ['macaroni cheese'],
+  moonFull: ['full moon'], moonHalf: ['half moon'], moonThin: ['crescent moon'],
   shellOpen: ['open shell'],
   mountainSnow: ['snowy mountain'],
+  sprout: ['sunflower sprout'],
+  leafy: ['sunflower sprout more leaves', 'more leaves'],
+  bud: ['sunflower sprout bud'],
+  halfOpen: ['sunflower opening', 'sunflower half open'],
+  sunflower: ['sunflower full bloom'],
+  seed: ['sunflower seed'],
 };
 
-/* Every file name a photograph for this picture might have. */
-function photoCandidates(name){
-  const n = String(name);
-  const spaced = n.replace(/([a-z0-9])([A-Z])/g, '$1 $2').toLowerCase();
-  const words = [n, spaced].concat(PHOTO_ALIASES[n] || []);
-  const stems = [];
-  words.forEach((word) => {
-    [word, word + 's'].forEach((form) => {
-      stems.push(form, form.replace(/ /g, '_'), form.replace(/ /g, '-'), form.replace(/ /g, ''));
-    });
+/* The file for this picture, or nothing. */
+function photoFile(name){
+  if (!PHOTO_FILES || !PHOTO_FILES.length) return null;
+  const wanted = [name].concat(PHOTO_ALIASES[name] || []).map(flatten);
+  const hit = PHOTO_FILES.find((f) => {
+    const stem = flatten(f.replace(/\.[^.]+$/, ''));
+    return wanted.some((w) => stem === w || stem === w + 's' || stem + 's' === w);
   });
-  const out = [];
-  [...new Set(stems)].forEach((stem) => {
-    ['jpg', 'jpeg', 'png', 'webp'].forEach((ext) => out.push('/assets/everly/' + stem + '.' + ext));
-  });
-  return out;
+  return hit ? '/assets/everly/' + encodeURIComponent(hit) : null;
 }
-
-/* Lays a real photograph over the drawing, if one exists.
+/* Lays a real photograph over the drawing, if she has made one.
 
    The drawing is already on screen when this runs, deliberately: a child
-   must never be looking at an empty box while a file downloads. If there is
-   no photograph we simply keep the drawing, which is a complete picture in
-   its own right, and say nothing: a missing photograph is not a fault, it is
-   just one she has not made yet. */
+   must never be looking at an empty box while a file downloads. No
+   photograph is not a fault, it is simply one she has not made yet. */
 function photoFor(host, name){
-  const urls = photoCandidates(name);
-  let i = 0;
-  (function tryNext(){
-    if (i >= urls.length) return;
+  photoReady.then(() => {
+    const url = photoFile(name);
+    if (!url) return;
     const img = new Image();
     img.alt = '';
     img.onload = () => {
@@ -1429,9 +1437,9 @@ function photoFor(host, name){
       host.classList.remove('drawn');
       host.appendChild(img);
     };
-    img.onerror = () => { i += 1; tryNext(); };
-    img.src = urls[i];
-  })();
+    img.onerror = () => console.warn('[everly] photograph listed but would not load: ' + url);
+    img.src = url;
+  });
 }
 
 /* Builds one picture. Returns null for a name we do not have, so the caller
