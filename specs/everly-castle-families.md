@@ -57,10 +57,21 @@ two days closing.
   four-year-old learning what a country is should learn that first, before
   anybody teaches her otherwise.
 
-  It only works if it is consistent. **Her family must match her**, because a
-  princess who does not resemble her own grandmother reads as a mistake rather
-  than as a decision, and the mistake reading is the one that undoes the
-  intent. Whoever she is, her family are her family.
+  And a family does not have to look alike, which is the second half of the
+  same idea: you can be adopted and still be somebody's family. Bex already
+  says it out loud, that her aunt brought her up, and it is the most ordinary
+  sentence in her recording.
+
+  **Two rules make this work, and the second one matters more.**
+
+  Be consistent. The same person looks the same in every image of that family,
+  so it reads as a decision rather than as a slip.
+
+  **Never remark on it.** No princess explains why her family looks the way it
+  does, nobody says "even though we do not look alike", and no picture makes a
+  point of it. A child who is adopted, or whose family does not match, should
+  meet ten families where this is simply true and nobody mentions it. The
+  moment it is explained it becomes a topic, and she is the reason it came up.
 
 - The princess is **in** the picture, matching her portrait, so a
   four-year-old knows whose family this is.
