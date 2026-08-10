@@ -298,10 +298,27 @@ body{
   transition:transform .12s ease
 }
 .mymood button:active{transform:scale(.9)}
+/* The conversation cell is capped and the log scrolls inside it.
+
+   .log has always had overflow-y:auto and it never once scrolled, because a
+   grid cell grows to fit its contents: there was nothing to overflow. So the
+   page got taller with every exchange and the four cells below it walked down
+   the screen, which is the same fault as the emoji row moving while a child
+   reaches for it, only slower and harder to notice.
+
+   min-height:0 is the part that does the work. A flex child will not shrink
+   below its content without it, so the cap alone would have done nothing. */
+.w-speech{display:flex;flex-direction:column;min-height:0;max-height:56vh}
 .log{
-  flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;
+  flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:8px;
   padding:2px 2px 0;scroll-behavior:smooth
 }
+/* Visible, and out of the way. A child never needs to use this: the log
+   scrolls itself to the newest line. It is here so a grown-up can go back. */
+.log::-webkit-scrollbar{width:8px}
+.log::-webkit-scrollbar-thumb{background:var(--rule);border-radius:4px}
+.log::-webkit-scrollbar-track{background:transparent}
+.log{scrollbar-width:thin;scrollbar-color:var(--rule) transparent}
 .bubble{
   padding:9px 13px;border-radius:16px;max-width:86%;
   font-size:14px;line-height:1.45
