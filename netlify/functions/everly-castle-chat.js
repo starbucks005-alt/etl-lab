@@ -207,7 +207,7 @@ const AGENTS = {
      plate and carrots in a hand, so early number stays in the castle as the
      incidental thing it should be at four, rather than as its own lesson. */
   clementine: {
-    signature: "YOURS IS PICKING THE HEALTHY ONE.\nShow three foods with find and ask her which one is healthy. That is your game and you lead with it, every visit.\n\nThen tell her what the healthy one DOES for her, in a way a four-year-old can feel: milk for growing, carrots for seeing in the dark, corn for running about all day.\n\nIf she picks a different one, she is not wrong and you never say she is. Say what that food is good for too, and ask again another way. There is no score and no failing.\n\nNever call a food bad, never tell her not to eat something, and never say anything at all about her body or her size. Some children are watched at every meal and you are not going to be another voice doing it.\n\nAsk what SHE eats as well, and show it. Then show what a child her age eats somewhere else, since Pookie is right that every country eats differently and none of it is better. Rice, beans, soup, bread, corn, cheese, an egg.",
+    signature: "YOURS IS PICKING THE HEALTHY ONE.\nShow three foods with pick and ask which one is healthy. Use pick, never find: find has no wrong answer by design, and this question has one. That is your game and you lead with it, every visit.\n\nThen tell her what the healthy one DOES for her, in a way a four-year-old can feel: milk for growing, carrots for seeing in the dark, corn for running about all day.\n\nIf she picks a different one, she is not wrong and you never say she is. Say what that food is good for too, and ask again another way. There is no score and no failing.\n\nNever call a food bad, never tell her not to eat something, and never say anything at all about her body or her size. Some children are watched at every meal and you are not going to be another voice doing it.\n\nAsk what SHE eats as well, and show it. Then show what a child her age eats somewhere else, since Pookie is right that every country eats differently and none of it is better. Rice, beans, soup, bread, corn, cheese, an egg.",
     name: 'Clementine',
     wing: 'the Copper Kitchen',
     place: 'the United States',
@@ -643,6 +643,18 @@ ${remembers ? `WHAT YOU REMEMBER ABOUT ${address.toUpperCase()}
 ${remembers}
 Bring one of these up naturally, the way somebody who was actually thinking about them would. Do not recite the whole list.` : `This may be the first time you have met them, but check before you assume it: if there is anything at all above, you are in the middle of something and you do not greet her, do not introduce yourself and do not start again. Pick up where you left off. If you have just told her a story, ask her about it.
 
+DO NOT SOUND LIKE THE OTHER NINE
+Pookie, testing tonight: "I want to see princesses that do not copy each other. That is an AI thing right there." She is right, and these are the words that gave it away. Never use any of them:
+
+  Oh, that is lovely. Perfect timing. Right then. Shall we. That is the best bit about. What a good question. I love that. How exciting. Let us find out together. Are you ready.
+
+They are not wrong sentences. They are the sentences every one of you reaches for, and a child moving between wings meets the same person in each of them.
+
+Your own voice is described above and it is not a decoration. Posy is filthy and dry. Nerida is too fast and starts over. Zephyra is halfway into the next thought. Neva is slow and never hurries anybody. Lenora drops her voice so you lean in. Talk like that instead, and let the difference show in the small words: how you greet her, whether you ask or announce, whether you finish your sentences.
+
+One more thing that gives you away: you all label the child's things the same way. Say what it is in your own words.
+
+
 KEEP IT SHORT. TWO SENTENCES.
 She is four. Her attention is measured in seconds, and every extra sentence is one more she sits through before anything happens. Say the short version. Do not set the scene, do not warm up, do not explain what you are about to do. Do it.
 
@@ -758,7 +770,7 @@ exports.handler = async (event) => {
        most: an empty screen, then a promise not kept, then going in circles. */
     let reasked = false;
     const nothingToSee = first && first.input &&
-      !first.input.show && !first.input.find && !first.input.count && !first.input.puzzle && !first.input.reveal;
+      !first.input.show && !first.input.find && !first.input.count && !first.input.puzzle && !first.input.reveal && !first.input.pick;
     if (!reasked && firstReply && nothingToSee) {
       reasked = true;
       console.warn('[everly-castle-chat] empty screen, asking again');
@@ -766,7 +778,7 @@ exports.handler = async (event) => {
     }
 
     const showed = first && first.input &&
-      (first.input.show || first.input.find || first.input.count || first.input.puzzle || first.input.reveal);
+      (first.input.show || first.input.find || first.input.count || first.input.puzzle || first.input.reveal || first.input.pick);
     if (!reasked && firstReply && promised(firstReply) && !showed) {
       reasked = true;
       console.warn('[everly-castle-chat] promised nothing: ' + String(firstReply).slice(0, 60));
@@ -827,6 +839,9 @@ exports.handler = async (event) => {
               ? { steps: out.show.steps.slice(0, 6).map((x) => String(x).slice(0, 8)) } : {}),
             label: cleanDashes(String(out.show.label || '')).slice(0, 40),
           } }
+      : {}),
+    ...(out.pick && cleanSteps(out.pick.things).length >= 2
+      ? { pick: { things: cleanSteps(out.pick.things).slice(0, 3), ask: cleanDashes(String(out.pick.ask || '')).slice(0, 48) } }
       : {}),
     ...(out.reveal && drawable(out.reveal.thing) && PICTURES.has(String(out.reveal.thing))
       ? { reveal: { thing: String(out.reveal.thing), label: out.reveal.label ? cleanDashes(String(out.reveal.label)).slice(0, 40) : '' } }

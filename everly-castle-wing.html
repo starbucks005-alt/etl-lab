@@ -320,6 +320,21 @@ body{
 .show-dots i{width:8px;height:8px;border-radius:50%;background:var(--rule)}
 .show-dots i.on{background:var(--blue)}
 
+/* Pick one. Three things side by side and a question over them. */
+.pick{display:flex;flex-direction:column;align-items:center;gap:12px;padding:4px 0 10px;width:100%}
+.pick-label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;opacity:.45;text-align:center}
+.pick-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.pick-one{
+  width:88px;height:88px;border:1px solid var(--rule);border-radius:20px;
+  background:var(--card);box-shadow:var(--shadow);cursor:pointer;
+  display:grid;place-items:center;transition:transform .14s ease
+}
+.pick-one:active{transform:scale(.92)}
+/* Nothing here goes red. The one she taps lifts, and that is all that
+   happens on screen; Clementine does the rest in words. */
+.pick-one.chosen{transform:scale(1.08)}
+.pick-one:disabled{opacity:.55}
+
 /* Reveal. Something underneath, and a covering that comes away in pieces. */
 .reveal{display:flex;flex-direction:column;align-items:center;gap:12px;padding:4px 0 10px}
 .reveal-label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;opacity:.45}
@@ -516,6 +531,7 @@ body{
   <!-- 4. Game window -->
   <section class="window w-game">
     <div class="showcard" id="showcard" hidden></div>
+    <div class="pick" id="pick" hidden></div>
     <div class="reveal" id="reveal" hidden></div>
     <div class="reveal" id="reveal" hidden></div>
     <div class="find" id="find" hidden></div>
@@ -1146,6 +1162,55 @@ function setShow(spec){
   }
 }
 
+/* Three things and one question.
+
+   The only game here with a right answer, so it is also the only one where a
+   wrong tap has to be handled with care. It is not marked, not scored and not
+   corrected on screen: what she tapped goes to the princess as words, and the
+   princess answers it. She is never told she was wrong, because being told you
+   are wrong at four is how a thing stops being fun.
+
+   What she picked IS her own choice, so unlike the game-over messages this one
+   is shown as hers, which is exactly what she did. */
+function setPick(spec){
+  const host = document.getElementById('pick');
+  host.innerHTML = '';
+  const things = (spec && Array.isArray(spec.things) ? spec.things : []).filter((t) => PICS[t]).slice(0, 3);
+  if (!things.length) { host.hidden = true; return; }
+  host.hidden = false;
+
+  if (spec.ask) {
+    const cap = document.createElement('div');
+    cap.className = 'pick-label';
+    cap.textContent = spec.ask;
+    host.appendChild(cap);
+  }
+
+  const row = document.createElement('div');
+  row.className = 'pick-row';
+  let done = false;
+
+  things.forEach((thing) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'pick-one';
+    b.setAttribute('aria-label', thing);
+    b.appendChild(picSvg(thing, 58));
+    b.addEventListener('click', () => {
+      if (done) return;
+      done = true;
+      b.classList.add('chosen');
+      row.querySelectorAll('button').forEach((x) => { x.disabled = true; });
+      speak('', 'found-' + thing);
+      // Her own choice, so it is hers to have made and is shown as such.
+      setTimeout(() => turn('I picked the ' + thing), 700);
+    });
+    row.appendChild(b);
+  });
+
+  host.appendChild(row);
+}
+
 /* Uncovers something.
 
    Nine pieces over a picture, and each tap takes one away. There is nothing
@@ -1576,6 +1641,7 @@ async function turn(message, quiet){
   setPuzzle(data.puzzle);
   setFind(data.find);
   setReveal(data.reveal);
+  setPick(data.pick);
   setReveal(data.reveal);
   setAnswers(data.choices);
   yourGo();
