@@ -233,6 +233,11 @@ const LANG_OF = {
 };
 
 const FOUND_NAMES = {
+  "skull": "a skull",
+  "footprint": "a footprint",
+  "ammonite": "an ammonite",
+  "fern": "a fern",
+  "tooth": "a tooth",
   "sandwich": "a sandwich",
   "pizza": "pizza",
   "macCheese": "macaroni cheese",
