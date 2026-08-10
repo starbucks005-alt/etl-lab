@@ -2031,18 +2031,35 @@ const ABOUT_LABELS = [
   ['country', 'Life in my country'],
 ];
 
+/* What is actually in agents/everly, fetched once.
+
+   Read rather than guessed, for the same reason as the picture library and
+   with better cause: ten of her images were named with capitals or a space
+   before the hyphen, which Windows ignores and Linux does not. Every one of
+   those would have been a 404 on the live site while working perfectly on
+   the machine that made them. */
+let ABOUT_FILES = null;
+const aboutReady = fetch('/agents/everly/index.json')
+  .then((r) => (r.ok ? r.json() : []))
+  .then((list) => { ABOUT_FILES = list; })
+  .catch(() => { ABOUT_FILES = []; });
+
+/* Her photograph for this wing, if she has made one.
+
+   Matched with capitals, spaces, hyphens and underscores stripped, so
+   "Lenora -pet.jpg" answers to lenora-pet and nobody has to remember a
+   convention while making thirty images. */
 function showAboutPicture(kind){
   const host = document.getElementById('aboutPic');
   host.innerHTML = '';
   host.classList.remove('shown');
-  const stems = ['/agents/everly/' + wingId + '-' + kind + '.jpg',
-                 '/agents/everly/' + wingId + '-' + kind + '.png'];
-  let i = 0;
-  (function tryNext(){
-    if (i >= stems.length) {
-      // Loud for us, invisible to her. A picture that silently fails to
-      // appear is the fault that has cost the most time on this product.
-      console.warn('[everly] no ' + kind + ' picture for ' + wingId + ': looked for ' + stems.join(' and '));
+  aboutReady.then(() => {
+    const want = flatten(wingId + kind);
+    const hit = (ABOUT_FILES || []).find((f) => flatten(f.replace(/\.[^.]+$/, '')) === want);
+    if (!hit) {
+      // Loud for us, invisible to her: a picture that silently fails to
+      // appear is the fault that has cost this product the most time.
+      console.warn('[everly] no ' + kind + ' picture for ' + wingId + ' in agents/everly');
       return;
     }
     const img = new Image();
@@ -2051,9 +2068,9 @@ function showAboutPicture(kind){
       host.appendChild(img);
       host.classList.add('shown');
     };
-    img.onerror = () => { i += 1; tryNext(); };
-    img.src = stems[i];
-  })();
+    img.onerror = () => console.warn('[everly] listed but would not load: ' + hit);
+    img.src = '/agents/everly/' + encodeURIComponent(hit);
+  });
 }
 
 /* What sits in the emoji cell before the first turn.
