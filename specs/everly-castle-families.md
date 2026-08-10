@@ -66,8 +66,7 @@ setting and how they are listened to, not through borrowed regalia.
 **Four people.** Posy; **Luc**, 19, tall, clean hands, clearly giving advice;
 **Margot**, 6, gripping her own small trowel, right at Posy's elbow; and
 **Grandmother**, older, the one who actually knows.
-**Royal:** Royal setting: the formal gardens of a French chateau, box hedges and gravel walks, the house behind. They are dressed for court and Posy is filthy anyway, which is the joke.
-**Setting:** the walled garden, soil everywhere, late afternoon.
+**Setting:** the formal gardens of a French chateau, box hedges and gravel walks, the house behind. They are dressed for court and Posy is filthy anyway, which is the joke.
 
 ## Nerida — Greece
 
@@ -79,8 +78,7 @@ setting and how they are listened to, not through borrowed regalia.
 oldest, slightly apart — she is the one who has left. **Kosta**, 4, holding a
 bucket he will not surrender. Two more siblings [**Stavros**, 12, and
 **Ioanna**, 9] anywhere in frame.
-**Royal:** Royal setting: a marble sea terrace above the rocks, columns and worn steps down to the water. Fine cloth, circlets, and five children barefoot on wet stone regardless.
-**Setting:** rocks by the sea, everybody barefoot, bright hard light.
+**Setting:** a marble sea terrace above the rocks, columns and worn steps down to the water. Fine cloth, circlets, and five children barefoot on wet stone regardless.
 
 ## Zephyra — Nepal
 
@@ -91,9 +89,7 @@ bucket he will not surrender. Two more siblings [**Stavros**, 12, and
 **Three people.** Zephyra; **Dawa**, 15, holding the better kite and knowing
 it; **Grandmother**, at the bottom of the stairs, mid-shout, entirely
 affectionate.
-**Royal:** Royal setting: the roof and courtyard of a Nepali palace, carved wood and brickwork, mountains beyond. Court dress in the Nepali manner, and a grandmother shouting up a staircase in it.
-**Setting:** a rooftop and the stairs up to it, mountains behind, kites in the
-sky.
+**Setting:** the roof and courtyard of a Nepali palace, carved wood and brickwork, mountains beyond. Court dress in the Nepali manner, and a grandmother shouting up a staircase in it.
 
 ## Neva — Norway
 
@@ -104,8 +100,7 @@ sky.
 **Twin brothers** [**Even** and **Elias**], 7, identical, in motion, causing
 something. **Mother**, tired and warm, in a work coat, either arriving or
 leaving.
-**Royal:** Royal setting: a Norwegian royal hall in timber, carved and painted, snow through the windows. Furs, silver, and two seven-year-old princes wrecking the calm.
-**Setting:** a wooden house at the blue hour, snow outside, one lamp on.
+**Setting:** a Norwegian royal hall in timber, carved and painted, snow through the windows. Furs, silver, and two seven-year-old princes wrecking the calm.
 
 ## Lenora — Mongolia
 
@@ -115,8 +110,7 @@ leaving.
 **Three people.** Lenora looking up; **Batu**, 11, also looking up and
 competing about it; **Father**, in the middle distance with horses, because he
 is the one who is away.
-**Royal:** Royal setting: a great ger of the Mongolian court, painted poles and rich hangings, horses and open steppe outside. Mongolian royal dress, headdress included, at dusk.
-**Setting:** outside the ger at dusk, enormous sky, first stars out.
+**Setting:** a great ger of the Mongolian court, painted poles and rich hangings, horses and open steppe outside. Mongolian royal dress, headdress included, at dusk.
 
 ## Elowyn — New Zealand
 
@@ -127,8 +121,7 @@ is the one who is away.
 **Eight or more, all talking at once.** Elowyn; **Tane**, her age, opposite
 her, rivalry visible; **Nan**, the still point, clearly the one being listened
 to. Everyone else mid-conversation.
-**Royal:** Setting: a great meeting house, full of her family and full of noise. Read the status through how the room defers to her nan, NOT through sacred dress. No korowai, no hei tiki, no pou.
-**Setting:** a long table indoors, food out, nobody sitting properly.
+**Setting:** a great meeting house, full of her family and full of noise. Read the status through how the room defers to her nan, NOT through sacred dress. No korowai, no hei tiki, no pou.
 
 ## Clementine — United States
 
@@ -140,8 +133,7 @@ to. Everyone else mid-conversation.
 the football on the floor **exactly where she needs to stand**; **Dad**,
 cheerful, something smoking behind him; **Grandmother**, arms folded, watching
 Clementine's hands.
-**Royal:** Royal setting: the enormous kitchen of a great house, copper and stone, a cook's domain. She is a princess in an apron with her sleeves up, and the finery is underneath it.
-**Setting:** a warm American kitchen, copper pans, mid-cooking chaos.
+**Setting:** the enormous kitchen of a great house, copper and stone, a cook's domain. She is a princess in an apron with her sleeves up, and the finery is underneath it.
 
 ## Piper — Germany
 
@@ -152,9 +144,7 @@ Clementine's hands.
 **No siblings.** Piper, the youngest and smallest, with **four or five older
 cousins** [**Jonas**, **Mirela**, **Anton**, **Katrin**], every one holding an
 instrument. **Uncle** [**Wim**] to one side, looking anywhere but at her.
-**Royal:** Royal setting: a gilded music room in a German palace, mirrors and a painted ceiling, instruments everywhere. Court dress, and the youngest cousin holding the biggest instrument.
-**Setting:** a music room mid-gathering, cases open, everyone slightly
-competing.
+**Setting:** a gilded music room in a German palace, mirrors and a painted ceiling, instruments everywhere. Court dress, and the youngest cousin holding the biggest instrument.
 
 ## Almasi — Kenya
 
@@ -164,8 +154,7 @@ competing.
 
 **Three children.** Almasi; **Zuri**, 5, mid-question, hand up; **Brother**
 [**Kip**], about 13, present but bored, not helping.
-**Royal:** Royal setting: a Kenyan royal household, beadwork and fine cloth in the colours of the region, the dig visible beyond the compound. She is in her good clothes and covered in red dust.
-**Setting:** the dig, red dust, brushes and a screen, hot light.
+**Setting:** a Kenyan royal household, beadwork and fine cloth in the colours of the region, the dig visible beyond the compound. She is in her good clothes and covered in red dust.
 
 ## Bex — Brazil
 
@@ -176,9 +165,7 @@ competing.
 **Three people.** Bex with a screwdriver; **Aunt** [**Dona Lu**], warm,
 surrounded by broken things she will not throw out; **Rafa**, 17, grinning,
 holding something he has just broken.
-**Royal:** Royal setting: a workshop inside a palace, marble floor and broken machines all over it. A princess in an apron with a screwdriver, and her aunt refusing to throw anything away regardless of rank.
-**Setting:** a workshop-cum-living-room, shelves of dead appliances, doors
-open to a warm street.
+**Setting:** a workshop inside a palace, marble floor and broken machines all over it. A princess in an apron with a screwdriver, and her aunt refusing to throw anything away regardless of rank.
 
 ---
 
