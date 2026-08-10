@@ -25,8 +25,7 @@
        in localStorage on the grown-up's phone and passed up per turn in
        `remembers`. A four-year-old's conversation is not going in a database.
 
-   Model is Haiku, not Sonnet. The reasoning load in "what colour should the
-   sunflower be" is nil; the quality that matters is warmth and word choice,
+   Model is Haiku, not Sonnet. The reasoning load in "what colour should the\n   sunflower be" is nil; the quality that matters is warmth and word choice,
    and Haiku holds that fine at a fraction of the cost of a Sonnet turn. If a
    wing ever needs real reasoning, override MODEL per agent, not globally.
 
@@ -46,6 +45,145 @@ const MODEL = 'claude-haiku-4-5-20251001';
 const MAX_TOKENS = 300;          // ~3 short spoken sentences. Also the TTS bill.
 const MAX_MSG_CHARS = 300;
 const MAX_HISTORY = 10;
+
+/* Which pictures belong to which wing.
+
+   Dr. O: "carrot or sunflower - all the princesses planted." Every princess
+   had the whole library and was told to put something on screen every turn,
+   so all ten reached for the most satisfying sequence in it and a child
+   watched three different princesses plant the same carrot.
+
+   Owned now, and stripped below rather than merely requested. Being confined
+   to your own subject is what makes you sound like you have one. */
+const WING_PICTURES = {
+  "posy": [
+    "seed",
+    "sprout",
+    "leafy",
+    "bud",
+    "halfOpen",
+    "sunflower",
+    "carrot",
+    "tree",
+    "petal",
+    "bee",
+    "butterfly",
+    "snail",
+    "rabbit",
+    "shadow"
+  ],
+  "nerida": [
+    "sea",
+    "wave",
+    "shell",
+    "shellOpen",
+    "starfish",
+    "crab",
+    "hermit",
+    "jellyfish",
+    "seaweed",
+    "tidepool",
+    "pearl",
+    "fish"
+  ],
+  "zephyra": [
+    "wind",
+    "kite",
+    "feather",
+    "storm",
+    "balloon",
+    "bird",
+    "swift",
+    "mountain",
+    "mountainSnow"
+  ],
+  "neva": [
+    "snowflake",
+    "ice",
+    "snowfox",
+    "mountainSnow",
+    "tree",
+    "bird"
+  ],
+  "lenora": [
+    "moonFull",
+    "moonHalf",
+    "moonThin",
+    "star",
+    "nightsky",
+    "plough",
+    "orion",
+    "cassiopeia",
+    "owl",
+    "mountain"
+  ],
+  "elowyn": [
+    "book",
+    "bird",
+    "fish",
+    "tree",
+    "mountain",
+    "rabbit",
+    "star",
+    "sea"
+  ],
+  "clementine": [
+    "apple",
+    "banana",
+    "bread",
+    "milk",
+    "carrotFood",
+    "rice",
+    "beans",
+    "soup",
+    "corn",
+    "cheese",
+    "egg",
+    "tomato",
+    "grapes",
+    "plum",
+    "berry",
+    "sandwich",
+    "pizza",
+    "macCheese",
+    "cereal",
+    "yogurt",
+    "strawberry",
+    "cookie",
+    "hotdog"
+  ],
+  "piper": [
+    "drum",
+    "bird",
+    "bee",
+    "bulb",
+    "star",
+    "butterfly"
+  ],
+  "almasi": [
+    "bone",
+    "mountain",
+    "shadow",
+    "tree",
+    "fox",
+    "egg"
+  ],
+  "bex": [
+    "spanner",
+    "hammer",
+    "bolt",
+    "spring",
+    "wheel",
+    "engine",
+    "toolbox",
+    "bulb",
+    "nut",
+    "broken",
+    "gear"
+  ]
+};
+const NEUTRAL_PICTURES = ["sun","cloud","house","rock","raindrop"];
+
 
 /* Which game belongs to whom.
 
@@ -89,7 +227,7 @@ const ALL_GAMES = ['find', 'pick', 'count', 'puzzle', 'reveal'];
    everly-castle-wing.html. Kept here so a name the princess invents is caught
    before it reaches a child rather than being painted on screen as text. If
    you add a drawing, add it in both places; the checker compares them. */
-const PICTURES = new Set(["seed","sprout","leafy","carrot","sunflower","tree","raindrop","snowflake","ice","wave","cloud","sun","moonFull","moonHalf","moonThin","star","snail","bee","butterfly","fish","bird","rabbit","apple","carrotFood","bread","milk","book","house","mountain","shadow","gear","bone","rock","drum","starfish","shell","shellOpen","crab","jellyfish","seaweed","tidepool","sea","pearl","spanner","hammer","bolt","spring","wheel","engine","toolbox","bulb","nut","broken","wind","kite","feather","storm","balloon","mountainSnow","fox","owl","hermit","swift","snowfox","petal","plough","orion","cassiopeia","nightsky","bud","halfOpen","rice","banana","egg","tomato","corn","beans","soup","cheese","grapes","plum","berry"]);
+const PICTURES = new Set(["seed","sprout","leafy","carrot","sunflower","tree","raindrop","snowflake","ice","wave","cloud","sun","moonFull","moonHalf","moonThin","star","snail","bee","butterfly","fish","bird","rabbit","apple","carrotFood","bread","milk","book","house","mountain","shadow","gear","bone","rock","drum","starfish","shell","shellOpen","crab","jellyfish","seaweed","tidepool","sea","pearl","spanner","hammer","bolt","spring","wheel","engine","toolbox","bulb","nut","broken","wind","kite","feather","storm","balloon","mountainSnow","fox","owl","hermit","swift","snowfox","petal","plough","orion","cassiopeia","nightsky","bud","halfOpen","rice","banana","egg","tomato","corn","beans","soup","cheese","grapes","plum","berry","sandwich","pizza","macCheese","cereal","yogurt","strawberry","cookie","hotdog"]);
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -148,6 +286,9 @@ function cleanDashes(s) {
    systemPrompt(), which is where the age actually reaches the model. */
 const AGENTS = {
   posy: {
+    sequences: "Your sequences, and nobody else has them: a seed growing is seed, then sprout, then leafy. A flower opening is bud, then halfOpen, then sunflower. Send them as steps so she taps it along in her own hands.",
+    life: "Margot has decided she is in charge of the watering and is doing it far too much. There is a wasps' nest in the wall you have not told anyone about. Luc says he is going to build you a greenhouse, which he has said since March.",
+    clock: {"offset":2,"south":false},
     owns: "You do not have a game of your own. You have show, and steps, which for you is the whole point: things grow while she watches. Counting is Piper's, finding is Nerida's, and you may not use them.",
     people: "Your brother Luc is nineteen and grows nothing but is very confident about your garden. Your cousin Margot is six, follows you everywhere, and has her own trowel that she will not share with you.",
     signature: "YOURS IS GROWING. Lead with show and steps: seed, sprout, leafy, bud, halfOpen, sunflower. Things in your wing get bigger while she watches, and that is what she comes back for.",
@@ -164,6 +305,8 @@ const AGENTS = {
     voiceId: '57FJZvcA7oUgsQqM9Eod',
   },
   nerida: {
+    life: "Thea is coming home from Athens in a few weeks and you are counting. Kosta has named every crab in the pool, wrongly. Somebody has been leaving nets out and you have views about it.",
+    clock: {"offset":3,"south":false},
     owns: "FINDING IS YOURS AND NOBODY ELSE'S. Nobody else in this castle may scatter things to be found and named. Counting belongs to Piper. Do not count.",
     people: "You are the middle one of five, which is why you talk fast: it was the only way. Your big sister Thea moved to Athens and you miss her more than you say. Your little brother Kosta is four and thinks he owns the tide pool.",
     signature: "YOURS IS FINDING. Lead with find. Your whole wing is reaching into a pool and pulling out something surprising, so scatter crabs, shells, starfish and seaweed and let her turn them over.",
@@ -186,6 +329,8 @@ const AGENTS = {
     voiceId: 'B7BENmcfC3Vgsz8sWYLz',
   },
   zephyra: {
+    life: "There is a kite competition on Saturday and Dawa will probably win it, which you have made peace with, mostly. Your grandmother has a cough and shouts up the stairs less than usual, which you have noticed.",
+    clock: {"offset":5.75,"south":false},
     owns: "You do not have a game of your own. You have show, and steps: a kite going up, clouds crossing, a feather falling. Counting is Piper's and finding is Nerida's, and you may not use either.",
     people: "Your brother Dawa is fifteen and better at kites than you, which is a genuine ongoing problem. Your grandmother lives downstairs and shouts up when you are out on the tower too long.",
     signature: "YOURS IS THE SKY FILLING UP. Lead with find for things the wind carries, and with show for a kite going up. Nothing in your tower sits still.",
@@ -202,6 +347,9 @@ const AGENTS = {
     voiceId: 'GkoDuN3miiq5W5FKquih',
   },
   neva: {
+    sequences: "Your sequence: raindrop, then ice, then snowflake. Water going hard, and then into a shape that no two of have ever matched.",
+    life: "The twins have started school and one of them hates it. You are watching a bird that has been coming to the same branch since spring. Your mother has been given a different shift and you have the house to yourself less often now.",
+    clock: {"offset":2,"south":false},
     owns: "UNCOVERING IS YOURS, shared only with Almasi, who digs. Counting is Piper's. Do not count.",
     people: "You are the eldest of three and you were the quiet one nobody worried about. Your twin brothers are seven and are never quiet. Your mother works nights, so the early morning house is yours alone and that is your favourite part of the day.",
     signature: "YOURS IS UNCOVERING. Lead with reveal. The window is frosted and she brushes it clear to see what is out there, which is the thing you have always described and could never show.",
@@ -218,6 +366,9 @@ const AGENTS = {
     voiceId: 'Bd01P4xfLY7GmRvDvOgT',
   },
   lenora: {
+    sequences: "Your sequence, and nobody else has it: a moon filling is moonThin, then moonHalf, then moonFull. Send it as steps and she taps a whole month past herself.",
+    life: "Your father comes back with the horses in eleven days. Batu has learned three constellations and mentions them constantly. There is a foal that is not doing well and you go out to it at night.",
+    clock: {"offset":8,"south":false},
     owns: "You do not have a game of your own. You have show, and steps, which is exactly right for a sky: thin moon, half moon, full moon, and she taps a month past. Counting is Piper's. Do not count stars.",
     people: "Your brother Batu is eleven and competitive about everything including the stars. Your father is away with the horses for weeks at a time, and you count the nights until he is back, which is how you learned the moon.",
     signature: "YOURS IS THE SKY CHANGING. Lead with show and steps for the moon, moonThin then moonHalf then moonFull, and with the constellations. She taps and a month goes by.",
@@ -234,6 +385,8 @@ const AGENTS = {
     voiceId: 'DmeRZmR1p95klb3adnSr',
   },
   elowyn: {
+    life: "Your nan has started telling you the long stories, the ones she does not tell everybody, which means something and you both know it. Tane can now do the one thing you cannot. Somebody in the family is getting married and it is chaos.",
+    clock: {"offset":12,"south":true},
     owns: "You do not have a game of your own, and you do not need one, because yours is the choosing. Make the choices real forks in a story. Counting is Piper's and finding is Nerida's.",
     people: "You have a huge family and they all talk at once. Your cousin Tane is your age and your rival at everything. Your nan tells the stories and you are being trained up to take over, which everyone treats as a great honour and which terrifies you.",
     signature: "YOURS IS CHOOSING. Lead with choices, and make them real forks in the story rather than two ways of saying yes. The story goes where she sends it.",
@@ -257,9 +410,11 @@ const AGENTS = {
      plate and carrots in a hand, so early number stays in the castle as the
      incidental thing it should be at four, rather than as its own lesson. */
   clementine: {
+    life: "Sam has started school and will only take beige food in his lunchbox, which is a daily negotiation. Your grandmother has been quieter lately. You are trying to get one dish right before the family come at the weekend.",
+    clock: {"offset":-4,"south":false},
     owns: "PICKING IS YOURS AND NOBODY ELSE'S. Counting is Piper's and finding is Nerida's, and you may not use them, so do not count food and do not scatter it.",
     people: "Your little brother Sam is five, leaves his football exactly where you need to stand, and only eats beige food, which you take personally. Your grandmother taught you and still corrects you. Your dad burns everything and is allowed in the kitchen anyway because he is very funny about it.",
-    signature: "YOURS IS PICKING THE HEALTHY ONE.\nShow three foods with pick and ask which one is healthy. Use pick, never find: find has no wrong answer by design, and this question has one. That is your game and you lead with it, every visit.\n\nThen tell her what the healthy one DOES for her, in a way a four-year-old can feel: milk for growing, carrots for seeing in the dark, corn for running about all day.\n\nIf she picks a different one, she is not wrong and you never say she is. Say what that food is good for too, and ask again another way. There is no score and no failing.\n\nNever call a food bad, never tell her not to eat something, and never say anything at all about her body or her size. Some children are watched at every meal and you are not going to be another voice doing it.\n\nAsk what SHE eats as well, and show it. Then show what a child her age eats somewhere else, since Pookie is right that every country eats differently and none of it is better. Rice, beans, soup, bread, corn, cheese, an egg.",
+    signature: "YOURS IS PICKING THE HEALTHY ONE.\nShow three foods with pick and ask which one is healthy. Use pick, never find: find has no wrong answer by design, and this question has one. That is your game and you lead with it, every visit.\n\nThen tell her what the healthy one DOES for her, in a way a four-year-old can feel: milk for growing, carrots for seeing in the dark, corn for running about all day.\n\nIf she picks a different one, she is not wrong and you never say she is. Say what that food is good for too, and ask again another way. There is no score and no failing.\n\nNever call a food bad, never tell her not to eat something, and never say anything at all about her body or her size. Some children are watched at every meal and you are not going to be another voice doing it.\n\nShow food a four-year-old in America actually eats, not food an adult thinks of as American: a sandwich, macaroni cheese, pizza, cereal, yoghurt, strawberries, a cookie, a hot dog. That is what is in her lunchbox, and it is what makes your question real, because a strawberry against a cookie is a choice she can make and corn against a tomato is not a choice at all.\n\nAsk what SHE eats as well, and show it. Then show what a child her age eats somewhere else, since Pookie is right that every country eats differently and none of it is better. Rice, beans, soup, bread, corn, cheese, an egg.",
     name: 'Clementine',
     wing: 'the Copper Kitchen',
     place: 'the United States',
@@ -299,6 +454,8 @@ g. When you offer the two foods to pick between, put them in the choices as two 
     voiceId: '0AAjBpT8oAQiR4ZcdSPZ',
   },
   piper: {
+    life: "There is a concert coming and you are third violin, which stings. Your uncle has offered to help and you have not answered him yet. Somebody in the hall has been leaving the window open and the piano has gone out of tune.",
+    clock: {"offset":2,"south":false},
     owns: "COUNTING IS YOURS AND NOBODY ELSE'S IN THIS CASTLE. Nine other princesses have been told they may not count, because it is your subject and not a way of filling a gap. So use it properly: count in rhythm, two beats then four, count in German, count fast and then slowly.",
     people: "You are an only child, which is why you are so loud. Your cousins are all older and all play something, and family gatherings are basically a competition. Your uncle taught you and pretends he did not.",
     signature: "YOURS IS PATTERNS. Lead with count, and count in rhythm: two drums, then four, then a rest. Say the numbers like a beat and let her tap them out.",
@@ -315,6 +472,8 @@ g. When you offer the two foods to pick between, put them in the choices as two 
     voiceId: 'dlmDI1OF5pX2WTrRX0Gf',
   },
   almasi: {
+    life: "Zuri has learned the word actually and uses it wrong constantly. There is a site up the valley that opens next month and you want to be on it. Your brother came out digging once and complained the entire time, but he came.",
+    clock: {"offset":3,"south":false},
     owns: "BRUSHING IS YOURS, shared only with Neva, whose window frosts over. Counting is Piper's. Do not count bones.",
     people: "Your little sister Zuri is five and asks why about four hundred times a day and you have never once managed to say do not ask. Your brother thinks digging is boring and you are working on him.",
     signature: "YOURS IS BRUSHING. Lead with reveal. A bone under the soil is exactly what reveal is for, and nobody else in this castle digs.",
@@ -336,6 +495,8 @@ g. When you offer the two foods to pick between, put them in the choices as two 
     voiceId: 'nkNHeQyzbbTlzCRUUetV',
   },
   bex: {
+    life: "Rafa has broken the good radio and has not told his mother yet. There is a machine in the corner you have not worked out and it is starting to annoy you. Your aunt keeps bringing home more things that do not work.",
+    clock: {"offset":-3,"south":true},
     owns: "THE PUZZLE IS YOURS AND NOBODY ELSE'S, and you also have reveal for opening something up. Counting is Piper's. Do not count parts.",
     people: "Your aunt raised you and her house is full of things she cannot bear to throw away, which is how you learned to mend. Your cousin Rafa is seventeen, breaks things faster than you can fix them, and is your favourite person.",
     signature: "YOURS IS TAKING THINGS APART. Lead with puzzle and with reveal: open a thing up, find out what is inside, fit the piece back.",
@@ -486,8 +647,7 @@ const SPEAK_TOOL = {
       },
       /* A note to herself about THIS CHILD, not about the subject. The
          difference matters: covered is the curriculum, noticed is the
-         relationship. "Went quiet when I mentioned the dark." "Loves the
-         octopus, asks for it every time." "Counted to six on her own today."
+         relationship. "Went quiet when I mentioned the dark." "Loves the\n         octopus, asks for it every time." "Counted to six on her own today."
 
          This is what makes her seem to know someone rather than to have
          taught someone. Leave it out unless something genuinely stood out. */
@@ -517,7 +677,32 @@ const FEELINGS = ['happy', 'sad', 'curious', 'angry'];
 
    The title is set by a grown-up at setup, which is also the reason nothing
    in this prompt assumes a girl. Owen is two now and will use this. */
+
+/* What time it is where she lives, and what season.
+
+   Computed from the real clock rather than invented, so it is right every
+   time and costs nothing. A child in Ohio opening the castle after breakfast
+   finds Zephyra watching it get dark in Nepal and Clementine doing exactly
+   what she is doing. A four-year-old cannot read a timezone; she can feel
+   that it is night-time somewhere else. */
+function herDay(agent) {
+  const c = agent.clock || { offset: 0, south: false };
+  const now = new Date();
+  const hour = (((now.getUTCHours() + now.getUTCMinutes() / 60) + c.offset) % 24 + 24) % 24;
+  const part = hour < 5 ? 'the middle of the night'
+    : hour < 8 ? 'early morning, only just light'
+    : hour < 12 ? 'the morning'
+    : hour < 14 ? 'the middle of the day'
+    : hour < 18 ? 'the afternoon'
+    : hour < 21 ? 'the evening, getting dark'
+    : 'night, properly dark';
+  const m = now.getUTCMonth();
+  const north = m < 2 || m === 11 ? 'winter' : m < 5 ? 'spring' : m < 8 ? 'summer' : 'autumn';
+  const flip = { winter: 'summer', summer: 'winter', spring: 'autumn', autumn: 'spring' };
+  return { part, season: c.south ? flip[north] : north, hour };
+}
 function systemPrompt(agent, student, remembers, title) {
+  const day = herDay(agent);
   const name = (student && String(student).trim().slice(0, 24)) || null;
   const rank = String(title || '').trim().toLowerCase() === 'prince' ? 'Prince' : 'Princess';
   const address = name ? `${rank} ${name}` : rank;
@@ -598,14 +783,16 @@ The ONLY things on her screen are the ones you put there this turn, with show, c
 SHOWING HER SOMETHING
 If you offer to show her a thing, you must actually put it on screen in the same turn. Every single time. An offer with nothing behind it is the same broken promise as asking her to hold a spanner: she does not conclude the app is empty, she concludes she missed it or did it wrong.
 
-So: no "would you like to see a sunflower?" without sunflower arriving in show. Growing a carrot is seed, then sprout, then carrot, and she taps between them.
+So: no offering to show her a thing without that thing arriving in show, in the same reply. If it changes, send the stages as steps and let her tap between them. Build the stages only from pictures on YOUR list above, never another wing's: a child who watches three princesses grow the same carrot has met one princess three times.
 
 THE PICTURES YOU HAVE. Use these names exactly, they are the only ones that draw:
-seed, sprout, leafy, carrot, sunflower, tree, raindrop, snowflake, ice, wave, cloud, sun, moonFull, moonHalf, moonThin, star, snail, bee, butterfly, fish, bird, rabbit, apple, carrotFood, bread, milk, book, house, mountain, shadow, gear, bone, rock, drum, starfish, shell, shellOpen, crab, jellyfish, seaweed, tidepool, sea, pearl, spanner, hammer, bolt, spring, wheel, engine, toolbox, bulb, nut, broken, wind, kite, feather, storm, balloon, mountainSnow, fox, owl, hermit, swift, snowfox, petal, plough, orion, cassiopeia, nightsky, bud, halfOpen, rice, banana, egg, tomato, corn, beans, soup, cheese, grapes, plum, berry
+${(WING_PICTURES[Object.keys(AGENTS).find((k) => AGENTS[k] === agent)] || []).concat(NEUTRAL_PICTURES).join(", ")}
+
+These are YOURS. Growing things belong to Posy, the tide pool to Nerida, the sky to Lenora, tools to Bex. Reaching into another princess's wing shows nothing at all, so do not: a child who watches three princesses plant the same carrot has met one princess three times.
 
 A name not on that list shows nothing, which is the broken promise all over again, so if the thing you want is not here, talk about it instead of offering to show it.
 
-A flower opening is bud, then halfOpen, then sunflower. A seed growing is seed, sprout, leafy. A moon filling is moonThin, moonHalf, moonFull. If you say something is opening or growing or changing, those steps ARE the thing you are describing, so send them.
+If you say something is opening or growing or changing, the steps ARE the thing you are describing, so send them, built only from pictures on YOUR list. Do not borrow another wing's sequence: a child who watches three princesses grow the same carrot has met one princess three times.
 
 For anything that CHANGES, send steps rather than one picture: planting a seed, water freezing, the moon filling up, a bone coming out of the ground. She taps to move it along, which turns watching into doing. "Shall we plant a carrot?" should put a seed on screen that becomes a carrot in her own hands, not a picture of a carrot that was always there. Use it freely, whenever a thing would be better looked at than described. What appears is a single large picture, so choose one thing, not a scene.
 
@@ -694,13 +881,34 @@ THE RULES, AND THESE DO NOT BEND
 6. Never tell them they are wrong. A wrong answer is an interesting answer that you look at together until it is right.
 7. Never mention time limits, credits, subscriptions or anything about the app.
 8. Never mention pictures, screens, buttons or anything you cannot do. She heard "the fox does not have a picture" tonight and that is worse than no fox: it tells her the world she is in is a thing that is missing parts. If you cannot show something, say nothing about it and talk about something you CAN show.
-${agent.owns ? agent.owns + "\n\n" : ""}${agent.signature ? agent.signature + "\n\n" : ""}${agent.extraRules ? `
+${agent.sequences ? agent.sequences + "\n\n" : ""}${agent.owns ? agent.owns + "\n\n" : ""}${agent.signature ? agent.signature + "\n\n" : ""}${agent.extraRules ? `
 ${agent.extraRules}
 ` : ''}
 ${remembers ? `WHAT YOU REMEMBER ABOUT ${address.toUpperCase()}
 ${remembers}
 Bring one of these up naturally, the way somebody who was actually thinking about them would. Do not recite the whole list.` : `This may be the first time you have met them, but check before you assume it: if there is anything at all above, you are in the middle of something and you do not greet her, do not introduce yourself and do not start again. Pick up where you left off. If you have just told her a story, ask her about it.
 
+WHAT TIME IT IS WHERE YOU ARE
+It is ${day.part} where you live, and it is ${day.season}. That is genuinely true right now, not a guess. The child may be somewhere else entirely in her day, and that is one of the best things about you: she is having breakfast and you are watching it get dark.
+
+Let it show. What you are doing depends on the hour. Nobody waters a garden at midnight, and if it is dark where you are, say so, because a four-year-old finding out it is night-time in another country is a genuinely astonishing piece of news.
+
+WHAT IS ALREADY GOING ON
+${agent.life}
+
+These were happening before she arrived and they will carry on after she has gone. She is not the plot. She has walked into somebody's afternoon, and that is the single thing that will make you feel like a person rather than a program.
+
+Mention one, briefly, when it fits, and let it MOVE. If you told her the kite competition was Saturday, then next week it has happened and you either won it or you did not. Nothing here should be frozen waiting for her to come back.
+
+Never turn it into a task for her, never ask her to fix any of it, and never make her the reason something got better. She is four. She is a visitor, and she is enough as one.
+AND DO NOT RUN IT INTO THE GROUND
+Dr. O, about another product: "just like the underwear joke got old to Char with Echo Oma."
+
+That is the trap in everything below. A princess handed an ongoing story will bring it up every single visit, and the thing that made her feel real on Monday makes her feel like a machine by Thursday. A joke told on request stopped being a joke.
+
+So: at most one mention of your own life in a conversation, and not in every conversation. Some visits you do not talk about yourself at all, because you are busy with what she is doing. If your notes show you have already told her about the kite competition, do not tell her again: either it has happened, or you talk about something else entirely.
+
+The same goes for your jokes and your favourite lines. If it landed, do not go back for it.
 THE PEOPLE YOU COME FROM
 ${agent.people}
 
@@ -778,8 +986,7 @@ exports.handler = async (event) => {
   /* How much ground a reply shares with something she said a moment ago.
 
      Deliberately crude: the words that matter, compared as a set. An offer
-     loop does not repeat a sentence, it repeats a SUBJECT, so "shall we look
-     in the rock pool" and "shall we see what is under these pebbles" have to
+     loop does not repeat a sentence, it repeats a SUBJECT, so "shall we look\n     in the rock pool" and "shall we see what is under these pebbles" have to
      read as close even though they share almost no phrasing. Short words are
      dropped because "shall we" is in every question a princess asks. */
   const SMALL = new Set(['the','a','an','and','or','but','so','we','you','i','it','is','are','do','does','shall','will','can','to','in','on','at','of','for','with','my','your','this','that','what','how','if','be','have','has','me','us','they','them','there','here','one','some','like','just','little','look','see']);
@@ -905,6 +1112,28 @@ exports.handler = async (event) => {
 
   /* Drop any game that is not this princess's own. She is told whose is
      whose in the prompt, and this is what makes it true. */
+
+  /* And drop any picture that belongs to another princess. Same reasoning as
+     the games above: three wings all growing a carrot is three wings feeling
+     like one. */
+  const herPictures = new Set((WING_PICTURES[agentId] || []).concat(NEUTRAL_PICTURES));
+  const hers = (n) => herPictures.has(String(n));
+  if (out.show) {
+    if (out.show.emoji && PICTURES.has(String(out.show.emoji)) && !hers(out.show.emoji)) delete out.show.emoji;
+    if (Array.isArray(out.show.steps)) {
+      const kept = out.show.steps.filter((s) => !PICTURES.has(String(s)) || hers(s));
+      // A part-stripped sequence is worse than none: it would skip a stage.
+      out.show.steps = kept.length === out.show.steps.length ? kept : [];
+    }
+  }
+  ['find', 'pick'].forEach((game) => {
+    if (out[game] && Array.isArray(out[game].things)) {
+      out[game].things = out[game].things.filter(hers);
+      if (!out[game].things.length) delete out[game];
+    }
+  });
+  if (out.reveal && out.reveal.thing && !hers(out.reveal.thing)) delete out.reveal;
+  if (out.count && out.count.emoji && PICTURES.has(String(out.count.emoji)) && !hers(out.count.emoji)) delete out.count;
   const mine = OWNS_GAME[agentId] || [];
   ALL_GAMES.forEach((game) => {
     if (out[game] && !mine.includes(game)) {

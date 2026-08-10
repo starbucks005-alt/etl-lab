@@ -233,6 +233,14 @@ const LANG_OF = {
 };
 
 const FOUND_NAMES = {
+  "sandwich": "a sandwich",
+  "pizza": "pizza",
+  "macCheese": "macaroni cheese",
+  "cereal": "cereal",
+  "yogurt": "yoghurt",
+  "strawberry": "a strawberry",
+  "cookie": "a cookie",
+  "hotdog": "a hot dog",
   "grapes": "grapes",
   "plum": "a plum",
   "berry": "a berry",
