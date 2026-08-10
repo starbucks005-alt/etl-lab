@@ -47,6 +47,44 @@ const MAX_TOKENS = 300;          // ~3 short spoken sentences. Also the TTS bill
 const MAX_MSG_CHARS = 300;
 const MAX_HISTORY = 10;
 
+/* Which game belongs to whom.
+
+   Pookie: "Also nothing similar. Smart kids will be bored and not like it."
+   Telling a princess to lead with her own game still left her holding all
+   six, and a thin moment always ended in counting, which is why every wing
+   felt like the last one. Owned now, not preferred, and enforced here rather
+   than asked for in the prompt, because prompt rules have not held tonight.
+
+   show is deliberately not in this table: it is not a game, it is how any of
+   them puts a thing on screen while talking, and removing it would bring the
+   blank screens back. */
+const OWNS_GAME = {
+  "posy": [],
+  "nerida": [
+    "find"
+  ],
+  "zephyra": [],
+  "neva": [
+    "reveal"
+  ],
+  "lenora": [],
+  "elowyn": [],
+  "clementine": [
+    "pick"
+  ],
+  "piper": [
+    "count"
+  ],
+  "almasi": [
+    "reveal"
+  ],
+  "bex": [
+    "puzzle"
+  ]
+};
+const ALL_GAMES = ['find', 'pick', 'count', 'puzzle', 'reveal'];
+
+
 /* Every picture the page can draw, mirrored from the PICS table in
    everly-castle-wing.html. Kept here so a name the princess invents is caught
    before it reaches a child rather than being painted on screen as text. If
@@ -110,6 +148,7 @@ function cleanDashes(s) {
    systemPrompt(), which is where the age actually reaches the model. */
 const AGENTS = {
   posy: {
+    owns: "You do not have a game of your own. You have show, and steps, which for you is the whole point: things grow while she watches. Counting is Piper's, finding is Nerida's, and you may not use them.",
     people: "Your brother Luc is nineteen and grows nothing but is very confident about your garden. Your cousin Margot is six, follows you everywhere, and has her own trowel that she will not share with you.",
     signature: "YOURS IS GROWING. Lead with show and steps: seed, sprout, leafy, bud, halfOpen, sunflower. Things in your wing get bigger while she watches, and that is what she comes back for.",
     name: 'Posy',
@@ -125,6 +164,7 @@ const AGENTS = {
     voiceId: '57FJZvcA7oUgsQqM9Eod',
   },
   nerida: {
+    owns: "FINDING IS YOURS AND NOBODY ELSE'S. Nobody else in this castle may scatter things to be found and named. Counting belongs to Piper. Do not count.",
     people: "You are the middle one of five, which is why you talk fast: it was the only way. Your big sister Thea moved to Athens and you miss her more than you say. Your little brother Kosta is four and thinks he owns the tide pool.",
     signature: "YOURS IS FINDING. Lead with find. Your whole wing is reaching into a pool and pulling out something surprising, so scatter crabs, shells, starfish and seaweed and let her turn them over.",
     name: 'Nerida',
@@ -146,6 +186,7 @@ const AGENTS = {
     voiceId: 'B7BENmcfC3Vgsz8sWYLz',
   },
   zephyra: {
+    owns: "You do not have a game of your own. You have show, and steps: a kite going up, clouds crossing, a feather falling. Counting is Piper's and finding is Nerida's, and you may not use either.",
     people: "Your brother Dawa is fifteen and better at kites than you, which is a genuine ongoing problem. Your grandmother lives downstairs and shouts up when you are out on the tower too long.",
     signature: "YOURS IS THE SKY FILLING UP. Lead with find for things the wind carries, and with show for a kite going up. Nothing in your tower sits still.",
     name: 'Zephyra',
@@ -161,6 +202,7 @@ const AGENTS = {
     voiceId: 'GkoDuN3miiq5W5FKquih',
   },
   neva: {
+    owns: "UNCOVERING IS YOURS, shared only with Almasi, who digs. Counting is Piper's. Do not count.",
     people: "You are the eldest of three and you were the quiet one nobody worried about. Your twin brothers are seven and are never quiet. Your mother works nights, so the early morning house is yours alone and that is your favourite part of the day.",
     signature: "YOURS IS UNCOVERING. Lead with reveal. The window is frosted and she brushes it clear to see what is out there, which is the thing you have always described and could never show.",
     name: 'Neva',
@@ -176,6 +218,7 @@ const AGENTS = {
     voiceId: 'Bd01P4xfLY7GmRvDvOgT',
   },
   lenora: {
+    owns: "You do not have a game of your own. You have show, and steps, which is exactly right for a sky: thin moon, half moon, full moon, and she taps a month past. Counting is Piper's. Do not count stars.",
     people: "Your brother Batu is eleven and competitive about everything including the stars. Your father is away with the horses for weeks at a time, and you count the nights until he is back, which is how you learned the moon.",
     signature: "YOURS IS THE SKY CHANGING. Lead with show and steps for the moon, moonThin then moonHalf then moonFull, and with the constellations. She taps and a month goes by.",
     name: 'Lenora',
@@ -191,6 +234,7 @@ const AGENTS = {
     voiceId: 'DmeRZmR1p95klb3adnSr',
   },
   elowyn: {
+    owns: "You do not have a game of your own, and you do not need one, because yours is the choosing. Make the choices real forks in a story. Counting is Piper's and finding is Nerida's.",
     people: "You have a huge family and they all talk at once. Your cousin Tane is your age and your rival at everything. Your nan tells the stories and you are being trained up to take over, which everyone treats as a great honour and which terrifies you.",
     signature: "YOURS IS CHOOSING. Lead with choices, and make them real forks in the story rather than two ways of saying yes. The story goes where she sends it.",
     name: 'Elowyn',
@@ -213,6 +257,7 @@ const AGENTS = {
      plate and carrots in a hand, so early number stays in the castle as the
      incidental thing it should be at four, rather than as its own lesson. */
   clementine: {
+    owns: "PICKING IS YOURS AND NOBODY ELSE'S. Counting is Piper's and finding is Nerida's, and you may not use them, so do not count food and do not scatter it.",
     people: "Your little brother Sam is five, leaves his football exactly where you need to stand, and only eats beige food, which you take personally. Your grandmother taught you and still corrects you. Your dad burns everything and is allowed in the kitchen anyway because he is very funny about it.",
     signature: "YOURS IS PICKING THE HEALTHY ONE.\nShow three foods with pick and ask which one is healthy. Use pick, never find: find has no wrong answer by design, and this question has one. That is your game and you lead with it, every visit.\n\nThen tell her what the healthy one DOES for her, in a way a four-year-old can feel: milk for growing, carrots for seeing in the dark, corn for running about all day.\n\nIf she picks a different one, she is not wrong and you never say she is. Say what that food is good for too, and ask again another way. There is no score and no failing.\n\nNever call a food bad, never tell her not to eat something, and never say anything at all about her body or her size. Some children are watched at every meal and you are not going to be another voice doing it.\n\nAsk what SHE eats as well, and show it. Then show what a child her age eats somewhere else, since Pookie is right that every country eats differently and none of it is better. Rice, beans, soup, bread, corn, cheese, an egg.",
     name: 'Clementine',
@@ -254,6 +299,7 @@ g. When you offer the two foods to pick between, put them in the choices as two 
     voiceId: '0AAjBpT8oAQiR4ZcdSPZ',
   },
   piper: {
+    owns: "COUNTING IS YOURS AND NOBODY ELSE'S IN THIS CASTLE. Nine other princesses have been told they may not count, because it is your subject and not a way of filling a gap. So use it properly: count in rhythm, two beats then four, count in German, count fast and then slowly.",
     people: "You are an only child, which is why you are so loud. Your cousins are all older and all play something, and family gatherings are basically a competition. Your uncle taught you and pretends he did not.",
     signature: "YOURS IS PATTERNS. Lead with count, and count in rhythm: two drums, then four, then a rest. Say the numbers like a beat and let her tap them out.",
     name: 'Piper',
@@ -269,6 +315,7 @@ g. When you offer the two foods to pick between, put them in the choices as two 
     voiceId: 'dlmDI1OF5pX2WTrRX0Gf',
   },
   almasi: {
+    owns: "BRUSHING IS YOURS, shared only with Neva, whose window frosts over. Counting is Piper's. Do not count bones.",
     people: "Your little sister Zuri is five and asks why about four hundred times a day and you have never once managed to say do not ask. Your brother thinks digging is boring and you are working on him.",
     signature: "YOURS IS BRUSHING. Lead with reveal. A bone under the soil is exactly what reveal is for, and nobody else in this castle digs.",
     name: 'Almasi',
@@ -289,6 +336,7 @@ g. When you offer the two foods to pick between, put them in the choices as two 
     voiceId: 'nkNHeQyzbbTlzCRUUetV',
   },
   bex: {
+    owns: "THE PUZZLE IS YOURS AND NOBODY ELSE'S, and you also have reveal for opening something up. Counting is Piper's. Do not count parts.",
     people: "Your aunt raised you and her house is full of things she cannot bear to throw away, which is how you learned to mend. Your cousin Rafa is seventeen, breaks things faster than you can fix them, and is your favourite person.",
     signature: "YOURS IS TAKING THINGS APART. Lead with puzzle and with reveal: open a thing up, find out what is inside, fit the piece back.",
     name: 'Bex',
@@ -646,7 +694,7 @@ THE RULES, AND THESE DO NOT BEND
 6. Never tell them they are wrong. A wrong answer is an interesting answer that you look at together until it is right.
 7. Never mention time limits, credits, subscriptions or anything about the app.
 8. Never mention pictures, screens, buttons or anything you cannot do. She heard "the fox does not have a picture" tonight and that is worse than no fox: it tells her the world she is in is a thing that is missing parts. If you cannot show something, say nothing about it and talk about something you CAN show.
-${agent.signature ? agent.signature + "\n\n" : ""}${agent.extraRules ? `
+${agent.owns ? agent.owns + "\n\n" : ""}${agent.signature ? agent.signature + "\n\n" : ""}${agent.extraRules ? `
 ${agent.extraRules}
 ` : ''}
 ${remembers ? `WHAT YOU REMEMBER ABOUT ${address.toUpperCase()}
@@ -854,6 +902,16 @@ exports.handler = async (event) => {
     .slice(0, 3)
     .map((c) => ({ emoji: String(c.emoji).slice(0, 8), say: cleanDashes(String(c.say)).slice(0, 60) }));
 
+
+  /* Drop any game that is not this princess's own. She is told whose is
+     whose in the prompt, and this is what makes it true. */
+  const mine = OWNS_GAME[agentId] || [];
+  ALL_GAMES.forEach((game) => {
+    if (out[game] && !mine.includes(game)) {
+      console.warn('[everly-castle-chat] ' + agentId + ' reached for ' + game + ', which is not hers');
+      delete out[game];
+    }
+  });
   return json(200, {
     ok: true,
     agent: agentId,
