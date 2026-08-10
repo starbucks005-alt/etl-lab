@@ -57,8 +57,9 @@ two days closing.
   four-year-old learning what a country is should learn that first, before
   anybody teaches her otherwise.
 
-  And a family does not have to look alike, which is the second half of the
-  same idea: you can be adopted and still be somebody's family. Bex already
+  And a family does not have to look alike. Adopted, mixed race, second
+  generation: all of it is ordinary and all of it belongs here. It is a
+  running theme across ETL's whole cast, not a one-off for this product. Bex already
   says it out loud, that her aunt brought her up, and it is the most ordinary
   sentence in her recording.
 
