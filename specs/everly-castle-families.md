@@ -38,6 +38,19 @@ two days closing.
 - **Royal in the manner of that country**, not a single European default.
   Mongolia has its own court dress and so does Nepal, Greece, Kenya and
   Brazil. Ten palaces, not one palace ten times.
+- **These are families living NOW, not in history.** Royal pulls towards
+  costume drama and it must not. Nerida talks about dropped ice creams and
+  lemonade bottle tops; her family cannot be in chitons and laurel. Modern
+  clothes with real richness in them, good cloth, embroidery, colour, and a
+  circlet if a royal marker is wanted, because a circlet reads as princess
+  without reading as BC. The countries in this castle are real and current,
+  which is the whole difference between this and every other princess app.
+- **They must look like they belong in her portrait.** Each princess already
+  has one, and it is storybook, colourful and warm. A family rendered as a
+  museum diorama beside her reads as a different product.
+- **No writing anywhere in the picture.** No names on dresses, no signs, no
+  labels. She cannot read, so text is meaningless marks to her, and a name
+  printed on a costume reads as a label rather than as clothing.
 - The princess is **in** the picture, matching her portrait, so a
   four-year-old knows whose family this is.
 - Set it where they actually live, in their own palace or grounds. The room
@@ -78,7 +91,7 @@ setting and how they are listened to, not through borrowed regalia.
 oldest, slightly apart — she is the one who has left. **Kosta**, 4, holding a
 bucket he will not surrender. Two more siblings [**Stavros**, 12, and
 **Ioanna**, 9] anywhere in frame.
-**Setting:** a marble sea terrace above the rocks, columns and worn steps down to the water. Fine cloth, circlets, and five children barefoot on wet stone regardless.
+**Setting:** a marble sea terrace above the rocks, columns and worn steps down to the water. Fine cloth, circlets, and five children barefoot on wet stone regardless. The terrace, the light and the bare feet on wet stone are right and worth keeping; the clothes are modern Greek summer, not antiquity. Thea should look like a girl who has moved to Athens, because that is who she is.
 
 ## Zephyra — Nepal
 
