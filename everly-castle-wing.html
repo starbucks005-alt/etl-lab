@@ -144,7 +144,11 @@ body{
      sits and listens to. On a wide screen the quadrants take their designed
      positions and the order stops mattering. */
   grid-template-columns:1fr;
-  grid-template-areas:'princess' 'speech' 'game' 'story';
+  /* The emoji row sits directly under the games it answers, and above the
+     story, which is the one thing on a phone she scrolls down to rather than
+     reaches for. Leaving it out of this list was enough to throw the whole
+     grid into a third implicit column. */
+  grid-template-areas:'princess' 'speech' 'game' 'emoji' 'story';
 }
 @media (min-width:820px){
   /* The 2x2. Every wing gets this, with or without a cartoon.
@@ -159,7 +163,8 @@ body{
     grid-template-rows:auto auto;
     grid-template-areas:
       'princess speech'
-      'story    game';
+      'story    game'
+      'emoji    emoji';
   }
   /* A wing with a cartoon flips the emphasis: the video is landscape and is
      the thing worth looking at, so it takes the wider column. */
@@ -180,8 +185,16 @@ body{
   }
   .stage.free.has-embed{ grid-template-columns:58fr 42fr; }
 }
-.stage.free .w-speech, .stage.free .w-game{ display:none; }
-.stage.free /* The three things she can ask a princess about herself. */
+.stage.free .w-speech, .stage.free .w-game, .stage.free .w-emoji{ display:none; }
+.stage.free .w-story{ justify-content:center; }
+
+/* The three things she can ask a princess about herself.
+
+   This rule spent a while accidentally scoped to `.stage.free`, because an
+   insert landed inside the selector above it, so the buttons had no container
+   styling anywhere except the free wing. Nothing looked obviously broken,
+   which is why it survived: `.about-btn` was styled either way and only the
+   row's spacing was missing. */
 .abouts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:10px}
 .about-btn{
   border:1px solid var(--rule);border-radius:22px;background:var(--card);
@@ -200,6 +213,11 @@ body{
 
 .w-story{ justify-content:center; }
 
+.w-emoji{grid-area:emoji}
+/* How she answers. Its own cell so it never moves: a picture appearing in
+   the games cell used to push these buttons down the screen while a child
+   was reaching for them. */
+.w-emoji{display:flex;flex-direction:column;justify-content:center;gap:8px}
 .w-princess{grid-area:princess}
 .w-speech{grid-area:speech}
 .w-story{grid-area:story}
@@ -617,6 +635,11 @@ body{
     <div class="counting" id="counting" hidden></div>
     <div class="count-total" id="countTotal"></div>
     <div class="thing" id="thing"></div>
+  </section>
+
+  <!-- 5. How she answers. Always in the same place, whatever is being shown
+       in the games cell above it. -->
+  <section class="window w-emoji">
     <div class="thinking" id="thinking"><i></i><i></i><i></i></div>
     <div class="yesno" id="yesno"></div>
     <div class="answers" id="answers"></div>
