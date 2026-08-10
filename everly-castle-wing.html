@@ -2133,6 +2133,15 @@ async function turn(message, quiet){
   }
 
   busy = false;
+  /* Wake Yes and No back up.
+
+     They are built once at load and never rebuilt, unlike the emoji chips
+     which setAnswers replaces every turn. So disabling them while the princess
+     thought killed them permanently: after the first reply a child could press
+     Yes forever and nothing would happen, which is exactly what it did. The
+     chips kept working, which is what made it look like the princess was
+     ignoring one particular answer rather than that the button was dead. */
+  document.querySelectorAll('.yn').forEach((b) => { b.disabled = false; });
   document.getElementById('thinking').classList.remove('on');
   if (!data || !data.ok) data = { body:'Come and look at this instead.', choices:[{emoji:'👀', say:'let me see'}] };
 
