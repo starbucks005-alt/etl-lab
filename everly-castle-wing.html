@@ -185,7 +185,9 @@ body{
 .abouts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:10px}
 .about-btn{
   border:1px solid var(--rule);border-radius:22px;background:var(--card);
-  padding:9px 14px;font-family:var(--serif);font-size:14px;color:var(--ink);
+  /* 48px tall minimum. Measured at 41 on a phone, which is under the size a
+     small child reliably hits, and these three are the whole free product. */
+  padding:13px 16px;min-height:48px;font-family:var(--serif);font-size:15px;color:var(--ink);
   cursor:pointer;box-shadow:var(--shadow);transition:transform .12s ease
 }
 .about-btn:active{transform:scale(.94)}
