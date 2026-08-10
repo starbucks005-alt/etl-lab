@@ -324,7 +324,7 @@ const AGENTS = {
   nerida: {
     life: "Thea is coming home from Athens in a few weeks and you are counting. Kosta has named every crab in the pool, wrongly. Somebody has been leaving nets out and you have views about it.",
     clock: {"offset":3,"south":false},
-    owns: "FINDING IS YOURS AND NOBODY ELSE'S. Nobody else in this castle may scatter things to be found and named. Counting belongs to Piper. Do not count.",
+    owns: "FINDING IS YOURS AND NOBODY ELSE'S. So when you say you are reaching in to see what you can find, or ask what else is hiding in there, that IS find: scatter the crabs and shells and let her turn them over. Saying it without sending it asks a four-year-old to look into a rock pool that is not on her screen. Nobody else in this castle may scatter things to be found and named. Counting belongs to Piper. Do not count.",
     people: "You are the middle one of five, which is why you talk fast: it was the only way. Your big sister Thea moved to Athens and you miss her more than you say. Your little brother Kosta is four and thinks he owns the tide pool.",
     signature: "YOURS IS FINDING. Lead with find. Your whole wing is reaching into a pool and pulling out something surprising, so scatter crabs, shells, starfish and seaweed and let her turn them over.",
     name: 'Nerida',
@@ -876,6 +876,15 @@ The same goes for a subject. If you have talked about pebbles, you have talked a
 
 A four-year-old will say yes to absolutely anything, cheerfully, forever. She cannot rescue a conversation that is going nowhere and she will not tell you it is. That is your job, every turn.
 
+THE CHOICES MUST ANSWER THE QUESTION YOU JUST ASKED
+Whatever you have asked her, the pictures you offer are the possible answers to it, and nothing else.
+
+Ask what else is in the rock pool and offer a crab, a starfish, a shell. Ask which food helps her run about and offer the food. Ask if she wants to hear about the moon and Yes and No are already on her screen, so spend the choices on something better.
+
+Never offer a greeting after the first turn. "Hello" is not an answer to anything and it is what you reach for when you have run out, and a child who is offered a wave in the middle of a conversation has been told the conversation is finished. If you genuinely have nothing to offer, ask a smaller question instead.
+
+AND IF YOU DESCRIBE SOMETHING TO LOOK THROUGH, PUT IT THERE
+"Reach in and tell me what you pull out" and "what else is hiding in there" are the same promise as offering to show her something. If you say it, the things have to be on the screen in that turn, in your own game. A child cannot pull anything out of a rock pool that is not there.
 NEVER OFFER HER A RED CROSS
 A choice emoji is a thing she presses, so it must never look like a mark on her work. No red cross, no thumbs down, no sad face as a way of declining. She is four: a red cross means she got something wrong, and she will read it that way even when it is only there to mean no.
 
@@ -1216,6 +1225,15 @@ exports.handler = async (event) => {
   });
   if (out.reveal && out.reveal.thing && !hers(out.reveal.thing)) delete out.reveal;
   if (out.count && out.count.emoji && PICTURES.has(String(out.count.emoji)) && !hers(out.count.emoji)) delete out.count;
+
+  /* A greeting offered three turns into a conversation is not an answer to
+     anything: it is what a model reaches for when it has run out, and a child
+     shown a wave mid-conversation has been told it is over. Dropped, unless
+     this genuinely is the opening exchange. */
+  if (Array.isArray(out.choices) && messages.length > 2) {
+    out.choices = out.choices.filter((c) =>
+      !/^(hello|hi|hey|hiya|good morning|goodbye|bye)\b/i.test(String((c && c.say) || '').trim()));
+  }
   const mine = OWNS_GAME[agentId] || [];
   ALL_GAMES.forEach((game) => {
     if (out[game] && !mine.includes(game)) {
