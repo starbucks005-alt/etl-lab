@@ -1830,12 +1830,17 @@ document.getElementById('begin').addEventListener('click', begin);
   btn.addEventListener('click', () => {
     btn.disabled = true;
     addBubble('agent', '(telling a story about ' + (AGENT.place || 'home') + ')');
-    speak('', 'tale');
+    /* Two stories now, and the book never hands back the one she just
+       heard. Which she has had is kept with her other notes, so it survives
+       leaving the wing and coming back tomorrow. */
+    const heard = (prof.taught[wingId] || []).some((t) => /second story/.test(t));
+    const key = heard ? 'tale' : (((prof.taught[wingId] || []).some((t) => /the story about/.test(t))) ? 'tale2' : 'tale');
+    speak('', key);
     // She has to KNOW she told it, or the next turn starts from nothing.
-    history.push({ role:'agent', body: 'I have just told her my long story about ' + (AGENT.place || 'home') + '. She has heard it and I do not tell it again or greet her as though she has arrived.' });
+    history.push({ role:'agent', body: 'I have just told her one of my long stories about ' + (AGENT.place || 'home') + '. She has heard it and I do not tell it again or greet her as though she has arrived.' });
     // She remembers she told it, so she can offer a different one another day
     // once there is more than one to offer.
-    rememberTaught('told the story about ' + (AGENT.place || 'home'));
+    rememberTaught(key === 'tale2' ? 'told her the second story' : 'told the story about ' + (AGENT.place || 'home'));
     setTimeout(() => { btn.disabled = false; }, 4000);
   });
 })();
