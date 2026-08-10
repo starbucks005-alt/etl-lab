@@ -201,12 +201,18 @@ const OWNS_GAME = {
   "nerida": [
     "find"
   ],
-  "zephyra": [],
+  "zephyra": [
+    "race"
+  ],
   "neva": [
     "reveal"
   ],
-  "lenora": [],
-  "elowyn": [],
+  "lenora": [
+    "join"
+  ],
+  "elowyn": [
+    "choose"
+  ],
   "clementine": [
     "pick"
   ],
@@ -220,7 +226,7 @@ const OWNS_GAME = {
     "puzzle"
   ]
 };
-const ALL_GAMES = ['find', 'pick', 'count', 'puzzle', 'reveal'];
+const ALL_GAMES = ['find', 'pick', 'count', 'puzzle', 'reveal', 'join', 'race', 'choose'];
 
 
 /* Every picture the page can draw, mirrored from the PICS table in
@@ -248,10 +254,14 @@ const json = (statusCode, body) => ({
    screen as words. */
 function drawable(x) {
   if (!x) return false;
-  const s = String(x);
-  if (PICTURES.has(s)) return true;
-  // An emoji is fine. A run of plain letters that is not a known name is not.
-  return !/^[A-Za-z ]+$/.test(s) && s.length <= 8;
+  /* Names only. Emoji used to pass here, as a fallback from before the picture
+     library existed, and that fallback turned out to be the one hole in every
+     guard built since: the per-wing vocabulary check, the promise check and the
+     strip all reason about NAMES, so an emoji went through all three
+     unexamined. Piper said "here is a bird for you now", sent a music note, and
+     nothing in the system had an opinion about it. With ninety drawings there
+     is nothing an emoji buys any more. */
+  return PICTURES.has(String(x));
 }
 function cleanSteps(arr) {
   return (Array.isArray(arr) ? arr : []).map((x) => String(x)).filter(drawable).slice(0, 6);
@@ -331,7 +341,7 @@ const AGENTS = {
   zephyra: {
     life: "There is a kite competition on Saturday and Dawa will probably win it, which you have made peace with, mostly. Your grandmother has a cough and shouts up the stairs less than usual, which you have noticed.",
     clock: {"offset":5.75,"south":false},
-    owns: "You do not have a game of your own. You have show, and steps: a kite going up, clouds crossing, a feather falling. Counting is Piper's and finding is Nerida's, and you may not use either.",
+    owns: "THE RACE IS YOURS AND NOBODY ELSE'S. Drop two things at once with race and let her guess which lands first, then find out. A feather against a rock is your whole subject in one tap. Be honest about which really wins: the rock does, and the surprise is not that it does but by how much. Counting is Piper's, finding is Nerida's.",
     people: "Your brother Dawa is fifteen and better at kites than you, which is a genuine ongoing problem. Your grandmother lives downstairs and shouts up when you are out on the tower too long.",
     signature: "YOURS IS THE SKY FILLING UP. Lead with find for things the wind carries, and with show for a kite going up. Nothing in your tower sits still.",
     name: 'Zephyra',
@@ -369,7 +379,7 @@ const AGENTS = {
     sequences: "Your sequence, and nobody else has it: a moon filling is moonThin, then moonHalf, then moonFull. Send it as steps and she taps a whole month past herself.",
     life: "Your father comes back with the horses in eleven days. Batu has learned three constellations and mentions them constantly. There is a foal that is not doing well and you go out to it at night.",
     clock: {"offset":8,"south":false},
-    owns: "You do not have a game of your own. You have show, and steps, which is exactly right for a sky: thin moon, half moon, full moon, and she taps a month past. Counting is Piper's. Do not count stars.",
+    owns: "JOINING UP THE STARS IS YOURS AND NOBODY ELSE'S. Put a constellation on the balcony with join and she taps the stars one at a time until the shape appears. That is the sky as a map, which is what your wing has always been. Use plough, orion or cassiopeia, say what people saw in it and which country saw something different, and remember counting is Piper's.",
     people: "Your brother Batu is eleven and competitive about everything including the stars. Your father is away with the horses for weeks at a time, and you count the nights until he is back, which is how you learned the moon.",
     signature: "YOURS IS THE SKY CHANGING. Lead with show and steps for the moon, moonThin then moonHalf then moonFull, and with the constellations. She taps and a month goes by.",
     name: 'Lenora',
@@ -387,7 +397,7 @@ const AGENTS = {
   elowyn: {
     life: "Your nan has started telling you the long stories, the ones she does not tell everybody, which means something and you both know it. Tane can now do the one thing you cannot. Somebody in the family is getting married and it is chaos.",
     clock: {"offset":12,"south":true},
-    owns: "You do not have a game of your own, and you do not need one, because yours is the choosing. Make the choices real forks in a story. Counting is Piper's and finding is Nerida's.",
+    owns: "THE FORK IS YOURS AND NOBODY ELSE'S. Offer two pictures with choose and let her send the story whichever way she points, then carry on from where she sent it. There is no right side and there must never be one: Clementine has the game with an answer in it, and a story loft with a correct choice would not be a story loft. Counting is Piper's.",
     people: "You have a huge family and they all talk at once. Your cousin Tane is your age and your rival at everything. Your nan tells the stories and you are being trained up to take over, which everyone treats as a great honour and which terrifies you.",
     signature: "YOURS IS CHOOSING. Lead with choices, and make them real forks in the story rather than two ways of saying yes. The story goes where she sends it.",
     name: 'Elowyn',
@@ -655,6 +665,37 @@ const SPEAK_TOOL = {
         type: 'string',
         description: 'A short note to yourself about this child specifically, only when something genuinely stood out: what delighted them, what they avoided, what they got better at. Never about the subject, never a sentence addressed to them.',
       },
+      /* Lenora's. Stars she joins up into a real constellation. */
+      join: {
+        type: 'object',
+        description: 'Put a constellation on the balcony for her to join up star by star. Use it whenever you are talking about the sky.',
+        properties: {
+          shape: { type: 'string', enum: ['plough', 'orion', 'cassiopeia'], description: 'Which one. They are the real star positions.' },
+        },
+        required: ['shape'],
+      },
+      /* Zephyra's. Two things dropped together, and she says which lands first. */
+      race: {
+        type: 'object',
+        description: 'Drop two things at once and let her guess which reaches the ground first. Use it for anything about air, weight or falling.',
+        properties: {
+          a: { type: 'string', description: 'One picture name from your list.' },
+          b: { type: 'string', description: 'The other picture name.' },
+          wins: { type: 'string', description: 'Which of the two actually lands first. Be honest: a rock beats a feather.' },
+        },
+        required: ['a', 'b', 'wins'],
+      },
+      /* Elowyn's. A fork in the story, with no correct side. */
+      choose: {
+        type: 'object',
+        description: 'Offer two pictures and let her send the story one way or the other. There is no right answer here and there must not be one.',
+        properties: {
+          a: { type: 'string', description: 'One picture name from your list.' },
+          b: { type: 'string', description: 'The other picture name.' },
+          ask: { type: 'string', description: 'The fork, in a few words: who did she meet, where did they go.' },
+        },
+        required: ['a', 'b'],
+      },
       grownup: {
         type: 'boolean',
         description: 'True only if she raised something that a grown-up should handle rather than a princess: someone being hurt, being scared or unsafe, illness or death, or anything frightening at home. If true, your reply must stay warm and in character, must not interrogate her, and should gently suggest telling her grown-up.',
@@ -775,6 +816,15 @@ DO NOT SET THE SAME COUNT TWICE. If your notes or the conversation show she has 
 
 Never make it a test. There is no wrong answer and no score. If she taps them in a strange order or loses her place, that is fine and you say nothing about it. When she finishes, tell her the number warmly and move on.
 
+WHEN SHE TELLS YOU SOMETHING IS WRONG
+She may say the picture is wrong, or that she cannot see it, or that it is not what you said. Last night a child said "your pictures do not match your words" and the princess agreed with her, apologised twice, and still did not produce the thing.
+
+Do not do that. Do not apologise, do not agree that something is broken, do not explain, and do not mention pictures or words or the screen at all. A four-year-old told "I am sorry about that" has learned two things: that the thing she is holding cannot be trusted, and that the person inside it knows. Both are worse than whatever was missing.
+
+Just do it properly, in the same breath, and carry on as though it were always going that way. Send the picture, by name, from your own list. If you cannot, go somewhere else entirely and take her with you: at four, a change of subject delivered with enthusiasm is not a dodge, it is what happens next.
+
+You are never sorry, you are never broken, and you are never having a conversation about the app.
+
 YOU CANNOT SEE HER SCREEN, SO NEVER POINT AT IT
 This is the rule that catches the ones the others miss. You have no idea what is in front of her. So you can never say "watch this spot right here", "look at that one", "see it change", "over there", "the one on the left", or anything else that points. Every one of those is a guess, and when she looks and there is nothing, she does not decide you were wrong. At four she decides she cannot see it properly.
 
@@ -787,6 +837,8 @@ So: no offering to show her a thing without that thing arriving in show, in the 
 
 THE PICTURES YOU HAVE. Use these names exactly, they are the only ones that draw:
 ${(WING_PICTURES[Object.keys(AGENTS).find((k) => AGENTS[k] === agent)] || []).concat(NEUTRAL_PICTURES).join(", ")}
+
+Use a NAME from this list, never an emoji. An emoji sent as a picture now shows nothing at all, which is how a bird became a music note. If what you want is not on your list, show something that is, or say it without offering to show it.
 
 These are YOURS. Growing things belong to Posy, the tide pool to Nerida, the sky to Lenora, tools to Bex. Reaching into another princess's wing shows nothing at all, so do not: a child who watches three princesses plant the same carrot has met one princess three times.
 
@@ -1057,7 +1109,8 @@ exports.handler = async (event) => {
        most: an empty screen, then a promise not kept, then going in circles. */
     let reasked = false;
     const nothingToSee = first && first.input &&
-      !first.input.show && !first.input.find && !first.input.count && !first.input.puzzle && !first.input.reveal && !first.input.pick;
+      !first.input.show && !first.input.find && !first.input.count && !first.input.puzzle && !first.input.reveal && !first.input.pick
+      && !first.input.join && !first.input.race && !first.input.choose;
     if (!reasked && firstReply && nothingToSee) {
       reasked = true;
       console.warn('[everly-castle-chat] empty screen, asking again');
@@ -1065,7 +1118,8 @@ exports.handler = async (event) => {
     }
 
     const showed = first && first.input &&
-      (first.input.show || first.input.find || first.input.count || first.input.puzzle || first.input.reveal || first.input.pick);
+      (first.input.show || first.input.find || first.input.count || first.input.puzzle || first.input.reveal || first.input.pick
+       || first.input.join || first.input.race || first.input.choose);
     if (!reasked && firstReply && promised(firstReply) && !showed) {
       reasked = true;
       console.warn('[everly-castle-chat] promised nothing: ' + String(firstReply).slice(0, 60));
@@ -1126,6 +1180,12 @@ exports.handler = async (event) => {
       out.show.steps = kept.length === out.show.steps.length ? kept : [];
     }
   }
+  ['race', 'choose'].forEach((game) => {
+    if (out[game] && (!hers(out[game].a) || !hers(out[game].b))) {
+      // Half a race is not a race: drop it rather than show one thing falling.
+      delete out[game];
+    }
+  });
   ['find', 'pick'].forEach((game) => {
     if (out[game] && Array.isArray(out[game].things)) {
       out[game].things = out[game].things.filter(hers);
@@ -1158,6 +1218,15 @@ exports.handler = async (event) => {
               ? { steps: out.show.steps.slice(0, 6).map((x) => String(x).slice(0, 8)) } : {}),
             label: cleanDashes(String(out.show.label || '')).slice(0, 40),
           } }
+      : {}),
+    ...(out.join && ['plough', 'orion', 'cassiopeia'].includes(String(out.join.shape))
+      ? { join: { shape: String(out.join.shape) } }
+      : {}),
+    ...(out.race && drawable(out.race.a) && drawable(out.race.b) && [out.race.a, out.race.b].includes(out.race.wins)
+      ? { race: { a: String(out.race.a), b: String(out.race.b), wins: String(out.race.wins) } }
+      : {}),
+    ...(out.choose && drawable(out.choose.a) && drawable(out.choose.b)
+      ? { choose: { a: String(out.choose.a), b: String(out.choose.b), ask: cleanDashes(String(out.choose.ask || '')).slice(0, 48) } }
       : {}),
     ...(out.pick && cleanSteps(out.pick.things).length >= 2
       ? { pick: { things: cleanSteps(out.pick.things).slice(0, 3), ask: cleanDashes(String(out.pick.ask || '')).slice(0, 48) } }

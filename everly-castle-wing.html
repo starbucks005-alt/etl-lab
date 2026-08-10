@@ -320,6 +320,46 @@ body{
 .show-dots i{width:8px;height:8px;border-radius:50%;background:var(--rule)}
 .show-dots i.on{background:var(--blue)}
 
+/* Lenora: stars to join up. */
+.join{display:flex;flex-direction:column;align-items:center;gap:10px;padding:4px 0 10px;width:100%}
+.join-label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;opacity:.45}
+.join-sky{position:relative;width:min(280px,86%);aspect-ratio:1;border-radius:18px;background:var(--stone)}
+.join-sky svg{position:absolute;inset:0;width:100%;height:100%}
+.join-star{
+  position:absolute;width:34px;height:34px;margin:-17px 0 0 -17px;border:0;padding:0;
+  border-radius:50%;background:transparent;cursor:pointer;display:grid;place-items:center
+}
+.join-star i{
+  width:12px;height:12px;border-radius:50%;background:var(--rule);display:block;
+  transition:transform .25s ease,background .25s ease
+}
+.join-star.lit i{background:var(--gold);transform:scale(1.7)}
+
+/* Zephyra: two things dropped at once. */
+.race{display:flex;flex-direction:column;align-items:center;gap:10px;padding:4px 0 10px;width:100%}
+.race-track{display:flex;gap:26px;justify-content:center;align-items:flex-start;height:150px}
+.race-lane{width:78px;height:150px;position:relative}
+.race-runner{
+  position:absolute;top:0;left:0;width:78px;border:1px solid var(--rule);border-radius:18px;
+  background:var(--card);box-shadow:var(--shadow);cursor:pointer;display:grid;place-items:center;
+  height:78px;transition:transform .16s ease
+}
+.race-runner:active{transform:scale(.93)}
+.race-runner.picked{outline:3px solid var(--gold);outline-offset:2px}
+.race-ground{border-top:2px dashed var(--rule);width:190px;margin-top:2px}
+
+/* Elowyn: a fork in the story. */
+.choose{display:flex;flex-direction:column;align-items:center;gap:12px;padding:4px 0 10px;width:100%}
+.choose-ask{font-size:12px;letter-spacing:.08em;text-transform:uppercase;opacity:.45;text-align:center}
+.choose-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.choose-one{
+  width:92px;height:92px;border:1px solid var(--rule);border-radius:20px;background:var(--card);
+  box-shadow:var(--shadow);cursor:pointer;display:grid;place-items:center;transition:transform .14s ease
+}
+.choose-one:active{transform:scale(.92)}
+.choose-one.taken{transform:scale(1.06)}
+.choose-one:disabled{opacity:.5}
+
 /* Pick one. Three things side by side and a question over them. */
 .pick{display:flex;flex-direction:column;align-items:center;gap:12px;padding:4px 0 10px;width:100%}
 .pick-label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;opacity:.45;text-align:center}
@@ -531,6 +571,9 @@ body{
   <!-- 4. Game window -->
   <section class="window w-game">
     <div class="showcard" id="showcard" hidden></div>
+    <div class="join" id="join" hidden></div>
+    <div class="race" id="race" hidden></div>
+    <div class="choose" id="choose" hidden></div>
     <div class="pick" id="pick" hidden></div>
     <div class="reveal" id="reveal" hidden></div>
     <div class="reveal" id="reveal" hidden></div>
@@ -1173,6 +1216,161 @@ function setShow(spec){
   }
 }
 
+/* Real star positions, as fractions of the sky panel. Held here rather than
+   generated, because a Plough that is not the Plough is worth nothing, and a
+   model asked for coordinates will eventually give you one. */
+const SKIES = {
+  plough:     { name: 'the Plough',  stars: [[12,74],[29,66],[46,61],[63,50],[70,32],[54,19],[35,27]] },
+  orion:      { name: 'Orion',       stars: [[24,13],[72,17],[38,46],[50,48],[62,50],[28,85],[72,81]] },
+  cassiopeia: { name: 'Cassiopeia',  stars: [[9,30],[30,60],[52,31],[73,61],[91,35]] },
+};
+
+/* Lenora: she taps the stars and the lines follow her.
+
+   In tap order rather than a fixed order, because there is nothing to get
+   wrong here. Whichever way she goes round it, the shape arrives. */
+function setJoin(spec){
+  const host = document.getElementById('join');
+  host.innerHTML = '';
+  const sky = spec && SKIES[spec.shape];
+  if (!sky) { host.hidden = true; return; }
+  host.hidden = false;
+
+  const cap = document.createElement('div');
+  cap.className = 'join-label';
+  cap.textContent = 'tap the stars';
+  host.appendChild(cap);
+
+  const panel = document.createElement('div');
+  panel.className = 'join-sky';
+  const NS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('viewBox', '0 0 100 100');
+  svg.setAttribute('preserveAspectRatio', 'none');
+  const line = document.createElementNS(NS, 'polyline');
+  line.setAttribute('fill', 'none');
+  line.setAttribute('stroke', 'var(--blue-lit)');
+  line.setAttribute('stroke-width', '1.2');
+  line.setAttribute('stroke-linecap', 'round');
+  line.setAttribute('stroke-linejoin', 'round');
+  svg.appendChild(line);
+  panel.appendChild(svg);
+
+  const order = [];
+  sky.stars.forEach(([x, y]) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'join-star';
+    b.style.left = x + '%';
+    b.style.top = y + '%';
+    b.setAttribute('aria-label', 'a star');
+    b.appendChild(document.createElement('i'));
+    b.addEventListener('click', () => {
+      if (b.classList.contains('lit')) return;
+      b.classList.add('lit');
+      order.push(x + ',' + y);
+      line.setAttribute('points', order.join(' '));
+      if (order.length === sky.stars.length) {
+        setTimeout(() => turn('I joined up ' + sky.name, true), 1200);
+      }
+    });
+    panel.appendChild(b);
+  });
+
+  host.appendChild(panel);
+}
+
+/* Zephyra: she guesses first, then it runs.
+
+   Guessing before it happens is the whole difference between watching a thing
+   and having an opinion about it. The loser still lands a moment later,
+   because something that never arrives just looks broken. */
+function setRace(spec){
+  const host = document.getElementById('race');
+  host.innerHTML = '';
+  if (!spec || !PICS[spec.a] || !PICS[spec.b]) { host.hidden = true; return; }
+  host.hidden = false;
+
+  const cap = document.createElement('div');
+  cap.className = 'join-label';
+  cap.textContent = 'which lands first?';
+  host.appendChild(cap);
+
+  const track = document.createElement('div');
+  track.className = 'race-track';
+  let done = false;
+
+  [spec.a, spec.b].forEach((thing) => {
+    const lane = document.createElement('div');
+    lane.className = 'race-lane';
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'race-runner';
+    b.setAttribute('aria-label', thing);
+    b.appendChild(picSvg(thing, 54));
+    b.addEventListener('click', () => {
+      if (done) return;
+      done = true;
+      b.classList.add('picked');
+      const winner = spec.wins === spec.a ? spec.a : spec.b;
+      track.querySelectorAll('.race-runner').forEach((r, i) => {
+        const isWinner = [spec.a, spec.b][i] === winner;
+        r.style.transition = 'transform ' + (isWinner ? 0.7 : 1.8) + 's cubic-bezier(.5,0,.9,1)';
+        r.style.transform = 'translateY(72px)';
+      });
+      speak('', 'found-' + winner);
+      setTimeout(() => turn('I said the ' + thing, true), 2400);
+    });
+    lane.appendChild(b);
+    track.appendChild(lane);
+  });
+
+  const ground = document.createElement('div');
+  ground.className = 'race-ground';
+  host.append(track, ground);
+}
+
+/* Elowyn: two ways for the story to go, neither of them wrong.
+
+   What she picked is shown as hers, because it was. This is the one place a
+   child changes what happens next rather than answering something. */
+function setChoose(spec){
+  const host = document.getElementById('choose');
+  host.innerHTML = '';
+  if (!spec || !PICS[spec.a] || !PICS[spec.b]) { host.hidden = true; return; }
+  host.hidden = false;
+
+  if (spec.ask) {
+    const cap = document.createElement('div');
+    cap.className = 'choose-ask';
+    cap.textContent = spec.ask;
+    host.appendChild(cap);
+  }
+
+  const row = document.createElement('div');
+  row.className = 'choose-row';
+  let done = false;
+
+  [spec.a, spec.b].forEach((thing) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'choose-one';
+    b.setAttribute('aria-label', thing);
+    b.appendChild(picSvg(thing, 60));
+    b.addEventListener('click', () => {
+      if (done) return;
+      done = true;
+      b.classList.add('taken');
+      row.querySelectorAll('button').forEach((x) => { x.disabled = true; });
+      speak('', 'found-' + thing);
+      setTimeout(() => turn('I chose the ' + thing), 700);
+    });
+    row.appendChild(b);
+  });
+
+  host.appendChild(row);
+}
+
 /* Three things and one question.
 
    The only game here with a right answer, so it is also the only one where a
@@ -1653,6 +1851,9 @@ async function turn(message, quiet){
   setFind(data.find);
   setReveal(data.reveal);
   setPick(data.pick);
+  setJoin(data.join);
+  setRace(data.race);
+  setChoose(data.choose);
   setReveal(data.reveal);
   setAnswers(data.choices);
   yourGo();
