@@ -860,7 +860,9 @@ seed, sprout, leafy, carrot, sunflower, tree, raindrop, snowflake, ice, wave, cl
 
 Use a NAME from this list, never an emoji. An emoji sent as a picture now shows nothing at all, which is how a bird became a music note. If what you want is not on your list, show something that is, or say it without offering to show it.
 
-These are YOURS. Growing things belong to Posy, the tide pool to Nerida, the sky to Lenora, tools to Bex. Reaching into another princess's wing shows nothing at all, so do not: a child who watches three princesses plant the same carrot has met one princess three times.
+Every one of these draws, and you may show any of them. Lead with your own subject, and do not borrow another princess's sequence: growing things are Posy's, the moon is Lenora's, tools are Bex's. But if the thing you are talking about is on this list, show it rather than leaving her screen empty.
+
+Your own wing first, then. Growing things belong to Posy, the tide pool to Nerida, the sky to Lenora, tools to Bex. Reaching into another princess's wing shows nothing at all, so do not: a child who watches three princesses plant the same carrot has met one princess three times.
 
 A name not on that list shows nothing, which is the broken promise all over again, so if the thing you want is not here, talk about it instead of offering to show it.
 
@@ -1201,25 +1203,20 @@ exports.handler = async (event) => {
   /* Drop any game that is not this princess's own. She is told whose is
      whose in the prompt, and this is what makes it true. */
 
-  /* And drop any picture that belongs to another princess. Same reasoning as
-     the games above: three wings all growing a carrot is three wings feeling
-     like one. */
+  /* Her own wing for the GAMES, the whole library for anything she shows.
+
+     This used to strip every picture outside her wing, which stopped ten
+     princesses planting the same carrot and simultaneously left Neva and
+     Piper with eleven of ninety eight pictures. Posy could not show beans
+     while offering to plant a bean seed, or the sky while saying "let us
+     look up", and every one of those became an empty screen.
+
+     Sameness is a cosmetic fault a grown-up notices. A princess who
+     describes something and shows nothing is the fault this whole build
+     exists to close. So show is unrestricted and the games stay owned,
+     which is what made the wings feel different in the first place. */
   const herPictures = new Set((WING_PICTURES[agentId] || []).concat(NEUTRAL_PICTURES));
   const hers = (n) => herPictures.has(String(n));
-  if (out.show) {
-    if (out.show.emoji && PICTURES.has(String(out.show.emoji)) && !hers(out.show.emoji)) delete out.show.emoji;
-    if (Array.isArray(out.show.steps)) {
-      const kept = out.show.steps.filter((s) => !PICTURES.has(String(s)) || hers(s));
-      // A part-stripped sequence is worse than none: it would skip a stage.
-      out.show.steps = kept.length === out.show.steps.length ? kept : [];
-    }
-  }
-  ['race', 'choose'].forEach((game) => {
-    if (out[game] && (!hers(out[game].a) || !hers(out[game].b))) {
-      // Half a race is not a race: drop it rather than show one thing falling.
-      delete out[game];
-    }
-  });
   ['find', 'pick'].forEach((game) => {
     if (out[game] && Array.isArray(out[game].things)) {
       out[game].things = out[game].things.filter(hers);
@@ -1227,7 +1224,6 @@ exports.handler = async (event) => {
     }
   });
   if (out.reveal && out.reveal.thing && !hers(out.reveal.thing)) delete out.reveal;
-  if (out.count && out.count.emoji && PICTURES.has(String(out.count.emoji)) && !hers(out.count.emoji)) delete out.count;
 
   /* A greeting offered three turns into a conversation is not an answer to
      anything: it is what a model reaches for when it has run out, and a child

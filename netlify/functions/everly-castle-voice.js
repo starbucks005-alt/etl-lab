@@ -376,10 +376,25 @@ exports.handler = async (event) => {
   /* Resolve the words. A scripted line is looked up here, server-side, and is
      never taken from the client -- one authoritative copy of the greeting, so
      the page cannot ask for audio of words that are not in SCRIPT. */
-  const settings = settingsFor(agent);
+  let settings = settingsFor(agent);
 
   let text, cacheKey;
   const lineKey = String(body.line || '').trim();
+
+  /* The three about-her recordings are read too fast.
+
+     The castle voice was lifted to 1.12 yesterday after two reports that the
+     stories dragged. Today the report is the opposite and specific: 'my pet my
+     family life in my country... she talks too fast', and 'it is like reading a
+     book you do not want to read'. Both are true, because these are different
+     kinds of speech. A story has room in it. These three are a girl answering
+     a question about herself, and rushing them makes her sound bored of her
+     own family.
+
+     So only these slow down. Doing it here rather than globally also means
+     thirty clips are re-synthesised instead of the entire castle, since the
+     voice settings are part of the cache key. */
+  if (/^about-/.test(lineKey)) settings = { ...settings, speed: 1.0 };
 
   /* num-3 is "trois" in Posy's wing and "tatu" in Almasi's. Counting in the
      language is the promise the castle already makes out loud. */
