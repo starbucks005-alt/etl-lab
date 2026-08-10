@@ -968,6 +968,23 @@ document.getElementById('gateGo').addEventListener('click', () => {
    mis-tap loses months of sunflower. */
 /* Free or subscribed, stored per device: a family pays once and every child
    in it is known by name. Never rendered anywhere the child can see it. */
+/* A tier set by link, so a tester can be sent straight to the right side.
+
+   ?tier=family turns the full product on for this browser, ?tier=free puts
+   it back to what a stranger sees. It sticks afterwards. This is exactly the
+   toggle in the parents' guide, made shareable, because a tester should not
+   have to find a dialog to see the thing she is testing.
+
+   Goes when payment is wired: entitlement belongs on the server. */
+(function tierFromLink(){
+  try {
+    const t = new URLSearchParams(location.search).get('tier');
+    if (t !== 'family' && t !== 'free') return;
+    state.tier = t;
+    save(state);
+    console.log('[everly] tier set to ' + t + ' for this browser');
+  } catch (e) { /* storage unavailable; the default stands */ }
+})();
 function isPaid(){ return (state.tier || 'free') === 'family'; }
 
 function drawTier(){

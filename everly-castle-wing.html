@@ -755,6 +755,23 @@ let prof = currentProfile();
    does not conclude that her grown-up should subscribe, she concludes she did
    something wrong. The only difference she can perceive is whether the
    princess uses her name. The offer lives in the parents' guide. */
+/* A tier set by link, so a tester can be sent straight to the right side.
+
+   ?tier=family turns the full product on for this browser, ?tier=free puts
+   it back to what a stranger sees. It sticks afterwards. This is exactly the
+   toggle in the parents' guide, made shareable, because a tester should not
+   have to find a dialog to see the thing she is testing.
+
+   Goes when payment is wired: entitlement belongs on the server. */
+(function tierFromLink(){
+  try {
+    const t = new URLSearchParams(location.search).get('tier');
+    if (t !== 'family' && t !== 'free') return;
+    state.tier = t;
+    save(state);
+    console.log('[everly] tier set to ' + t + ' for this browser');
+  } catch (e) { /* storage unavailable; the default stands */ }
+})();
 /* Owner access, using the key this browser already carries.
 
    The same `etl_owner_key` that Almost Human, the Boardroom, ETL Design and
