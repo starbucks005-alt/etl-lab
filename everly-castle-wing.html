@@ -379,6 +379,12 @@ body{
 .showcard.tappable{cursor:pointer}
 .show-pic{font-size:96px;line-height:1;transition:transform .28s ease}
 .show-pic.drawn{font-size:0}
+/* A real photograph, where she has made one. Same footprint as the drawing
+   it replaces, so nothing on the screen moves when it arrives. */
+.show-pic img{width:104px;height:104px;object-fit:cover;border-radius:16px;display:block}
+.found img, .pick-one img, .countable img{
+  width:100%;height:100%;object-fit:cover;border-radius:13px;display:block
+}
 .show-pic.grew{animation:grow .4s ease}
 @keyframes grow{from{transform:scale(.55);opacity:.3}to{transform:scale(1);opacity:1}}
 .show-label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;opacity:.45}
@@ -1309,6 +1315,9 @@ const PICS = {
   tidepool: [["M6 38c0-10 12-16 26-16s26 6 26 16-12 16-26 16S6 48 6 38z","#4a90c4"],["M6 38c0-10 12-16 26-16s26 6 26 16","#8ecae6",1],["M20 40a4 4 0 100 8 4 4 0 000-8z","#e8756b"],["M40 36a5 5 0 100 10 5 5 0 000-10z","#f0d9b5"],["M30 44a3 3 0 100 6 3 3 0 000-6z","#5fa04e"]],
   sea: [["M4 20c7 0 7-6 14-6s7 6 14 6 7-6 14-6 7 6 14 6v34H4z","#4a90c4"],["M4 32c7 0 7-6 14-6s7 6 14 6 7-6 14-6 7 6 14 6","#7ab8d9",1],["M4 44c7 0 7-6 14-6s7 6 14 6 7-6 14-6 7 6 14 6","#7ab8d9",1]],
   pearl: [["M32 14a18 18 0 100 36 18 18 0 000-36z","#eef3f6"],["M25 24a5 5 0 100 10 5 5 0 000-10z","#ffffff"]],
+  urchin: [["M32 20a12 12 0 100 24 12 12 0 000-24z","#6b3fa0"],["M32 6v10M32 48v10M6 32h10M48 32h10M13 13l7 7M44 44l7 7M51 13l-7 7M20 44l-7 7M20 9l4 9M44 9l-4 9M20 55l4-9M44 55l-4-9M9 20l9 4M9 44l9-4M55 20l-9 4M55 44l-9-4","#4a2b73",1]],
+  anemone: [["M32 40a10 8 0 100 16 10 8 0 000-16z","#5fa04e"],["M32 40V22M32 40l-10-14M32 40l10-14M32 40l-16-8M32 40l16-8M32 40l-14 2M32 40l14 2","#7ac46a",1],["M32 18a4 4 0 100 8 4 4 0 000-8z","#a8d89a"]],
+  mussels: [["M10 34c0-10 8-18 16-18s10 8 10 18-6 16-14 16-12-6-12-16z","#2b3a5c"],["M28 40c0-9 7-16 14-16s10 6 10 14-5 14-12 14-12-5-12-12z","#3d4f75"],["M18 22c-3 8-3 18 0 26M40 30c-2 7-2 14 0 20","#5a6f99",1]],
   spanner: [["M44 8a12 12 0 00-14 16L10 44a5 5 0 007 7l20-20a12 12 0 0016-14l-8 8-8-2-2-8z","#8a97a3"]],
   hammer: [["M14 50l20-20 6 6-20 20z","#7a5230"],["M32 14l18 10-8 12-18-10z","#8a97a3"]],
   bolt: [["M32 12l14 8v16l-14 8-14-8V20z","#8a97a3"],["M32 24a8 8 0 100 16 8 8 0 000-16z","#5a6a78"]],
@@ -1363,6 +1372,68 @@ const PICS = {
   tooth: [["M22 10h20l-3 26c-1 10-3 18-7 18s-6-8-7-18z","#eef3f6"],["M26 16h12","#cfd9e2",1]],
 };
 
+/* Other names a photograph might reasonably have been saved under.
+
+   Whoever names a file should not have to know how the code spells it, so
+   the code does the work. Plurals, spaces, underscores and hyphens are all
+   handled by rule; this list is only for the ones no rule would guess. */
+const PHOTO_ALIASES = {
+  tidepool: ['tide pool', 'rock pool'],
+  urchin: ['sea urchin'],
+  anemone: ['sea anemone'],
+  mussels: ['mussel'],
+  nightsky: ['night sky'],
+  hotdog: ['hot dog'],
+  snowfox: ['snow fox', 'arctic fox'],
+  carrotFood: ['carrot'],
+  macCheese: ['mac cheese', 'macaroni cheese'],
+  moonFull: ['full moon'], moonHalf: ['half moon'], moonThin: ['thin moon', 'crescent moon'],
+  shellOpen: ['open shell'],
+  mountainSnow: ['snowy mountain'],
+};
+
+/* Every file name a photograph for this picture might have. */
+function photoCandidates(name){
+  const n = String(name);
+  const spaced = n.replace(/([a-z0-9])([A-Z])/g, '$1 $2').toLowerCase();
+  const words = [n, spaced].concat(PHOTO_ALIASES[n] || []);
+  const stems = [];
+  words.forEach((word) => {
+    [word, word + 's'].forEach((form) => {
+      stems.push(form, form.replace(/ /g, '_'), form.replace(/ /g, '-'), form.replace(/ /g, ''));
+    });
+  });
+  const out = [];
+  [...new Set(stems)].forEach((stem) => {
+    ['jpg', 'jpeg', 'png', 'webp'].forEach((ext) => out.push('/assets/everly/' + stem + '.' + ext));
+  });
+  return out;
+}
+
+/* Lays a real photograph over the drawing, if one exists.
+
+   The drawing is already on screen when this runs, deliberately: a child
+   must never be looking at an empty box while a file downloads. If there is
+   no photograph we simply keep the drawing, which is a complete picture in
+   its own right, and say nothing: a missing photograph is not a fault, it is
+   just one she has not made yet. */
+function photoFor(host, name){
+  const urls = photoCandidates(name);
+  let i = 0;
+  (function tryNext(){
+    if (i >= urls.length) return;
+    const img = new Image();
+    img.alt = '';
+    img.onload = () => {
+      host.textContent = '';
+      host.classList.remove('drawn');
+      host.appendChild(img);
+    };
+    img.onerror = () => { i += 1; tryNext(); };
+    img.src = urls[i];
+  })();
+}
+
 /* Builds one picture. Returns null for a name we do not have, so the caller
    can fall back to the emoji rather than showing her an empty box. */
 function picSvg(name, size){
@@ -1406,6 +1477,10 @@ function paintPic(host, thing){
     console.warn('[everly] no drawing for ' + thing + ', showing nothing');
   }
   else { host.classList.remove('drawn'); host.textContent = thing; }
+
+  /* And a real photograph over the top, if she has made one. After the
+     drawing rather than instead of it, so nothing is ever blank. */
+  photoFor(host, thing);
 }
 
 function setShow(spec){

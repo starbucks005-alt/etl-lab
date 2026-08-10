@@ -233,6 +233,12 @@ const LANG_OF = {
 };
 
 const FOUND_NAMES = {
+  "urchin": "a sea urchin",
+  "anemone": "an anemone",
+  "mussels": "mussels",
+  "urchin": "a sea urchin",
+  "anemone": "an anemone",
+  "mussels": "mussels",
   "skull": "a skull",
   "footprint": "a footprint",
   "ammonite": "an ammonite",
