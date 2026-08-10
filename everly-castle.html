@@ -388,6 +388,10 @@ dialog button{
   font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;color:var(--ink)
 }
 .tierpick button[aria-pressed="true"]{border-color:var(--gold);background:var(--stone)}
+.parent-list{margin:8px 0 0 0;padding-left:18px}
+.parent-list li{margin-bottom:9px;line-height:1.55}
+.parent-list strong{color:var(--ink)}
+
 .curric{max-height:200px;overflow:auto;background:#faf7fd;border-radius:12px;padding:4px 10px}
 .crow{padding:8px 0;border-bottom:1px solid #ece4f4;font-size:12.5px;line-height:1.45}
 .crow:last-child{border-bottom:0}
@@ -532,9 +536,30 @@ dialog button{
        description of what changes rather than a pitch, and carrying no price:
        a number baked into copy is a number somebody has to remember to
        change. -->
-  <h2 style="margin-top:20px">Free, and what a subscription changes</h2>
-  <p>Everything the children play with is free and stays free: all ten princesses, their voices, the ten stories about their countries, the counting, the puzzles. Nothing is locked, and no child is ever shown a locked door.</p>
-  <p>A subscription changes one thing. The princesses learn who your child is. They use their name, they remember what you talked about last time and do not teach it twice, and they carry on from the mood they parted in. A free princess is warm to a child she has just met. A subscribed princess is warm to <em>this</em> child.</p>
+  <h2 style="margin-top:20px">What is free</h2>
+  <p>A great deal, and none of it expires. Every princess introduces herself, tells your child where she lives and what she loves, and offers to teach her a few words of her language. Each of them has five stories about her own country, and your child gets a different one each time she asks.</p>
+  <p>Each princess will also tell her about her animal friend, about her family, and about what life is like where she lives. That is ninety recorded pieces across the castle, and a child can spend a long time in there without ever meeting a locked door, because there are none.</p>
+  <p>What they pick up while that is happening:</p>
+  <ul class="parent-list">
+    <li><strong>Ten languages, one hello at a time.</strong> Bonjour in France, yassou in Greece, namaste in Nepal, jambo in Kenya, ol&aacute; in Brazil. Not a lesson: a girl telling your child how she greets people at home.</li>
+    <li><strong>Geography that sticks, because it is somebody&rsquo;s house.</strong> Nepal is where the clouds get stuck halfway up the mountains. Norway is where the sun does not set in summer and nobody can sleep. Mongolia is where the whole house comes apart and goes on a truck.</li>
+    <li><strong>Real things, told properly.</strong> Bees dance to give each other directions. Hermit crabs move house when they outgrow their shell. Flamingos are not born pink. None of it is dressed down, and all of it is true.</li>
+    <li><strong>Families that sound like families.</strong> Ten princesses with brothers who are better at things than they are, little sisters who ask why four hundred times a day, and days that do not all go well.</li>
+    <li><strong>Listening, for as long as a four-year-old can.</strong> Every story is under a minute, and every one of them ends with something happening rather than something explained.</li>
+  </ul>
+
+  <h2 style="margin-top:20px">What a subscription adds</h2>
+  <p>The free side is ten princesses talking <em>to children</em>. A subscription is ten princesses talking <em>to yours</em>, which is a different thing and is the part that cannot be recorded in advance.</p>
+  <ul class="parent-list">
+    <li><strong>She is spoken to, not spoken at.</strong> The princesses answer what your child actually says, in her own conversation, out loud. This is the whole of the paid product and everything below follows from it.</li>
+    <li><strong>Her name, and her memory.</strong> They know who she is, remember what they covered last time so they do not teach it twice, and pick up in the mood they parted in.</li>
+    <li><strong>Counting in ten languages.</strong> Un, deux, trois in France. Moja, mbili, tatu in Kenya. She is not learning French, she is counting shells, and the numbers happen to be French.</li>
+    <li><strong>Ten things to do, one per wing.</strong> Joining up real constellations, brushing soil off a fossil, fitting a shape into a hole, dropping a feather against a stone to see which lands first, sending a story whichever way she likes.</li>
+    <li><strong>Food, without a word about her body.</strong> Clementine shows three things and asks which one is healthy, then says what it helps her <em>do</em>. Nothing is ever called bad and nothing is forbidden.</li>
+    <li><strong>Pictures for what is being said.</strong> Ninety drawings, so when a princess talks about a seed growing your child taps it from seed to sprout to flower herself.</li>
+    <li><strong>A record you can read.</strong> What she said, what she was taught, and anything a princess thought a grown-up should know about.</li>
+  </ul>
+  <p style="font-size:13px;opacity:.75">One castle per child, so brothers and sisters keep their own gardens, crowns and colours. And a child on the free side is never told there is another side: no locks, no greyed-out doors, no prompts. A four-year-old who meets a locked door does not conclude that a grown-up should subscribe. She concludes she did something wrong.</p>
   <div class="tierpick" id="tierPick">
     <button type="button" data-tier="free">Free</button>
     <button type="button" data-tier="family">Subscribed</button>
