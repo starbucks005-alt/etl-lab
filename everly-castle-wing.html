@@ -2116,6 +2116,13 @@ function logIt(said, flag){
 
 async function turn(message, quiet){
   if (busy) return;
+  /* She pressed something before the start button. Do the opening first, so
+     she is greeted and asked how she is, and then send what she pressed. She
+     never needs to know a start button was there. */
+  if (!hasBegun) {
+    begin();
+    await new Promise((r) => setTimeout(r, 1200));
+  }
   clearTimeout(nudgeTimer);
   (document.getElementById('chat') || document.body).classList.remove('yourgo');
   busy = true;
@@ -2210,7 +2217,13 @@ function startCartoonIfAny(){
   } catch (e) { console.warn('[everly] could not start the cartoon', e); }
 }
 
+/* Whether the opening has happened yet. A child can press an emoji before
+   she presses the start button, and if she does the greeting has to come
+   first rather than be skipped. */
+let hasBegun = false;
+
 function begin(){
+  hasBegun = true;
   document.getElementById('begin').classList.add('hidden');
   /* Free: her hello, her bio, her stories, and no live turn is ever taken.
      Everything spoken on this side is fixed text out of the cache. */
