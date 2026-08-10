@@ -715,7 +715,33 @@ let prof = currentProfile();
    does not conclude that her grown-up should subscribe, she concludes she did
    something wrong. The only difference she can perceive is whether the
    princess uses her name. The offer lives in the parents' guide. */
+/* Owner access, using the key this browser already carries.
+
+   The same `etl_owner_key` that Almost Human, the Boardroom, ETL Design and
+   the EQ room read. One key per browser, planted once, every product. There
+   is nothing to set up here: if the key is present, the paid side is on.
+
+   ?visitor=1 turns owner access off for this page only, so the free wing can
+   be seen as a stranger sees it. It does NOT remove the key, because that
+   would sign her out of every other ETL product at once. ?visitor=0 restores.
+
+   THIS IS NOT AN ENTITLEMENT CHECK. Presence of a key in localStorage is a UI
+   convenience. When payment is wired, whether somebody may hear a princess
+   talk has to be decided server-side, and this has to be revisited. */
+(function visitorPreview(){
+  const q = new URLSearchParams(location.search).get('visitor');
+  if (q === '1') { try { localStorage.setItem('everly-as-visitor', '1'); } catch (e) {} }
+  if (q === '0') { try { localStorage.removeItem('everly-as-visitor'); } catch (e) {} }
+})();
+
+function isOwner(){
+  try {
+    if (localStorage.getItem('everly-as-visitor') === '1') return false;
+    return !!(localStorage.getItem('etl_owner_key') || '').trim();
+  } catch (e) { return false; }
+}
 function isPaid(){
+  if (isOwner()) return true;
   return (state.tier || 'free') === 'family';
 }
 
