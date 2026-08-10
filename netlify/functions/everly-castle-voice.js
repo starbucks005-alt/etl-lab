@@ -233,6 +233,8 @@ const LANG_OF = {
 };
 
 const FOUND_NAMES = {
+  "trilobite": "a trilobite",
+  "dig": "the dig",
   "urchin": "a sea urchin",
   "anemone": "an anemone",
   "mussels": "mussels",

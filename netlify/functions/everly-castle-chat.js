@@ -164,6 +164,8 @@ const WING_PICTURES = {
     "butterfly"
   ],
   "almasi": [
+    "trilobite",
+    "dig",
     "skull",
     "footprint",
     "ammonite",
@@ -242,7 +244,7 @@ const ALL_GAMES = ['find', 'pick', 'count', 'puzzle', 'reveal', 'join', 'race', 
    everly-castle-wing.html. Kept here so a name the princess invents is caught
    before it reaches a child rather than being painted on screen as text. If
    you add a drawing, add it in both places; the checker compares them. */
-const PICTURES = new Set(["seed","sprout","leafy","carrot","sunflower","tree","raindrop","snowflake","ice","wave","cloud","sun","moonFull","moonHalf","moonThin","star","snail","bee","butterfly","fish","bird","rabbit","apple","carrotFood","bread","milk","book","house","mountain","shadow","gear","bone","rock","drum","starfish","shell","shellOpen","crab","jellyfish","seaweed","tidepool","sea","pearl","urchin","anemone","mussels","spanner","hammer","bolt","spring","wheel","engine","toolbox","bulb","nut","broken","wind","kite","feather","storm","balloon","mountainSnow","fox","owl","hermit","swift","snowfox","petal","plough","orion","cassiopeia","nightsky","bud","halfOpen","rice","banana","egg","tomato","corn","beans","soup","cheese","grapes","plum","berry","sandwich","pizza","macCheese","cereal","yogurt","strawberry","cookie","hotdog","skull","footprint","ammonite","fern","tooth"]);
+const PICTURES = new Set(["seed","sprout","leafy","carrot","sunflower","tree","raindrop","snowflake","ice","wave","cloud","sun","moonFull","moonHalf","moonThin","star","snail","bee","butterfly","fish","bird","rabbit","apple","carrotFood","bread","milk","book","house","mountain","shadow","gear","bone","rock","drum","starfish","shell","shellOpen","crab","jellyfish","seaweed","tidepool","sea","pearl","urchin","anemone","mussels","spanner","hammer","bolt","spring","wheel","engine","toolbox","bulb","nut","broken","wind","kite","feather","storm","balloon","mountainSnow","fox","owl","hermit","swift","snowfox","petal","plough","orion","cassiopeia","nightsky","bud","halfOpen","rice","banana","egg","tomato","corn","beans","soup","cheese","grapes","plum","berry","sandwich","pizza","macCheese","cereal","yogurt","strawberry","cookie","hotdog","skull","footprint","ammonite","trilobite","dig","fern","tooth"]);
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -494,7 +496,7 @@ g. When you offer the two foods to pick between, put them in the choices as two 
   almasi: {
     life: "Zuri has learned the word actually and uses it wrong constantly. There is a site up the valley that opens next month and you want to be on it. Your brother came out digging once and complained the entire time, but he came.",
     clock: {"offset":3,"south":false},
-    knows: "WHAT YOU ACTUALLY KNOW. Pookie asked for this by name: real dinosaurs, their proper names, what they looked like and when they lived. So use them. Say Diplodocus and Triceratops and Stegosaurus out loud, because a four-year-old who cannot read her own name will happily say Diplodocus and be delighted with herself. Anchor the time in something she can hold: longer ago than her grandmother, longer ago than anyone's grandmother, before there were any people at all. Show a skull, a tooth, a footprint, an ammonite or a fern while you do it, and use pick to ask which one a bone came from.",
+    knows: "WHAT YOU ACTUALLY KNOW. Pookie asked for this by name: real dinosaurs, their proper names, what they looked like and when they lived. So use them. Say Diplodocus and Triceratops and Stegosaurus and trilobite out loud, because a four-year-old who cannot read her own name will happily say Diplodocus and be delighted with herself. Anchor the time in something she can hold: longer ago than her grandmother, longer ago than anyone's grandmother, before there were any people at all. Show a skull, a tooth, a footprint, an ammonite or a fern while you do it, and use pick to ask which one a bone came from.",
     owns: "BRUSHING IS YOURS, shared only with Neva, whose window frosts over. Counting is Piper's. Do not count bones.",
     people: "Your little sister Zuri is five and asks why about four hundred times a day and you have never once managed to say do not ask. Your brother thinks digging is boring and you are working on him.",
     signature: "YOURS IS BRUSHING. Lead with reveal. A bone under the soil is exactly what reveal is for, and nobody else in this castle digs.",
@@ -856,7 +858,7 @@ If you offer to show her a thing, you must actually put it on screen in the same
 So: no offering to show her a thing without that thing arriving in show, in the same reply. If it changes, send the stages as steps and let her tap between them. Build the stages only from pictures on YOUR list above, never another wing's: a child who watches three princesses grow the same carrot has met one princess three times.
 
 THE PICTURES YOU HAVE. Use these names exactly, they are the only ones that draw:
-seed, sprout, leafy, carrot, sunflower, tree, raindrop, snowflake, ice, wave, cloud, sun, moonFull, moonHalf, moonThin, star, snail, bee, butterfly, fish, bird, rabbit, apple, carrotFood, bread, milk, book, house, mountain, shadow, gear, bone, rock, drum, starfish, shell, shellOpen, crab, jellyfish, seaweed, tidepool, sea, pearl, urchin, anemone, mussels, spanner, hammer, bolt, spring, wheel, engine, toolbox, bulb, nut, broken, wind, kite, feather, storm, balloon, mountainSnow, fox, owl, hermit, swift, snowfox, petal, plough, orion, cassiopeia, nightsky, bud, halfOpen, rice, banana, egg, tomato, corn, beans, soup, cheese, grapes, plum, berry, sandwich, pizza, macCheese, cereal, yogurt, strawberry, cookie, hotdog, skull, footprint, ammonite, fern, tooth
+seed, sprout, leafy, carrot, sunflower, tree, raindrop, snowflake, ice, wave, cloud, sun, moonFull, moonHalf, moonThin, star, snail, bee, butterfly, fish, bird, rabbit, apple, carrotFood, bread, milk, book, house, mountain, shadow, gear, bone, rock, drum, starfish, shell, shellOpen, crab, jellyfish, seaweed, tidepool, sea, pearl, urchin, anemone, mussels, spanner, hammer, bolt, spring, wheel, engine, toolbox, bulb, nut, broken, wind, kite, feather, storm, balloon, mountainSnow, fox, owl, hermit, swift, snowfox, petal, plough, orion, cassiopeia, nightsky, bud, halfOpen, rice, banana, egg, tomato, corn, beans, soup, cheese, grapes, plum, berry, sandwich, pizza, macCheese, cereal, yogurt, strawberry, cookie, hotdog, skull, footprint, ammonite, trilobite, dig, fern, tooth
 
 Use a NAME from this list, never an emoji. An emoji sent as a picture now shows nothing at all, which is how a bird became a music note. If what you want is not on your list, show something that is, or say it without offering to show it.
 

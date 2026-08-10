@@ -1368,6 +1368,8 @@ const PICS = {
   skull: [["M14 26c0-11 8-18 18-18s18 7 18 18c0 7-3 12-8 15l-2 9H22l-2-9c-5-3-6-8-6-15z","#e8e2d8"],["M22 26a5 5 0 100 10 5 5 0 000-10zM42 26a5 5 0 100 10 5 5 0 000-10z","#3b4a5a"],["M28 44h8M26 50h12","#c9c2b4",1]],
   footprint: [["M20 40c0-10 5-18 12-18s12 8 12 18c0 8-5 14-12 14s-12-6-12-14z","#8a6a45"],["M22 20a5 6 0 100 12 5 6 0 000-12zM32 14a5 6 0 100 12 5 6 0 000-12zM42 20a5 6 0 100 12 5 6 0 000-12z","#8a6a45"]],
   ammonite: [["M32 8a24 24 0 10 0 48 24 24 0 000-48zm0 8a16 16 0 110 32 16 16 0 010-32z","#c9a86a"],["M32 22a10 10 0 100 20 10 10 0 000-20z","#a8865c"],["M32 8v8M56 32h-8M32 56v-8M8 32h8","#a8865c",1]],
+  trilobite: [["M32 8c9 0 15 8 15 20s-6 28-15 28-15-16-15-28S23 8 32 8z","#c98a4a"],["M32 12v44","#a06a34",1],["M20 22h24M19 30h26M20 38h24M22 46h20","#a06a34",1],["M26 14a3 3 0 100 6 3 3 0 000-6zM38 14a3 3 0 100 6 3 3 0 000-6z","#5a3a1c"]],
+  dig: [["M4 44c8-6 18-9 28-9s20 3 28 9v14H4z","#a8613a"],["M14 40l10-14 8 6 10-12","#7a4327",1],["M24 46a10 6 0 0116 0z","#e8e2d8"],["M46 20l10 6-4 6-10-6z","#8a97a3"]],
   fern: [["M32 58V14","#4a7c3f",1],["M32 20c-7-4-12-3-14 0 4 4 10 5 14 3zM32 20c7-4 12-3 14 0-4 4-10 5-14 3zM32 32c-7-4-12-3-14 0 4 4 10 5 14 3zM32 32c7-4 12-3 14 0-4 4-10 5-14 3zM32 44c-6-3-10-2-12 1 4 3 8 4 12 2zM32 44c6-3 10-2 12 1-4 3-8 4-12 2z","#5fa04e"]],
   tooth: [["M22 10h20l-3 26c-1 10-3 18-7 18s-6-8-7-18z","#eef3f6"],["M26 16h12","#cfd9e2",1]],
 };
@@ -1396,6 +1398,7 @@ const flatten = (x) => String(x).toLowerCase().replace(/[^a-z0-9]/g, '');
 const PHOTO_ALIASES = {
   tidepool: ['tide pool', 'rock pool'],
   urchin: ['sea urchin'],
+  dig: ['almasi fossils1', 'almasi fossils', 'fossil sheet'],
   /* Her file is spelled mussles. Left as it is rather than renamed, because
      the whole point of the manifest is that she should not have to match a
      spelling to make a picture appear. */
