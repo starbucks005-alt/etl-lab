@@ -1039,8 +1039,29 @@ async function speak(text, scriptLine){
     console.warn('[everly] princess voice unavailable, using the browser voice:', e.message);
   }
 
+  /* The browser voice, and only if it can be a woman.
+
+     This fallback was written before any princess had a real voice, when any
+     speech beat silence. That is no longer the trade. If the voice service
+     fails, the default browser voice on Windows is a man, and a four-year-old
+     who cannot read the words on screen has nothing to compare it against: as
+     far as she is concerned that IS Posy today. A princess who sounds wrong is
+     worse than a princess who is briefly quiet, because the wrong voice breaks
+     the person, and the person is the product.
+
+     So we hunt for a female voice and use it. If there is not one, we say
+     nothing and make a noise about it in the console instead. */
   try {
+    const voices = speechSynthesis.getVoices() || [];
+    const female = voices.find((v) => /female|zira|hazel|susan|samantha|karen|moira|tessa|fiona|serena|victoria/i.test(v.name))
+      || voices.find((v) => /^en/i.test(v.lang) && !/male|david|mark|george|daniel|alex|fred|thomas/i.test(v.name));
+    if (!female) {
+      console.warn('[everly] no female browser voice available, staying silent rather than speaking as a man');
+      done();
+      return;
+    }
     const u = new SpeechSynthesisUtterance(text);
+    u.voice = female;
     u.rate = 0.95; u.pitch = 1.15;
     u.onend = done;
     speechSynthesis.cancel();
