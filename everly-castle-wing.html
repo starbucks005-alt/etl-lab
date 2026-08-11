@@ -1395,6 +1395,13 @@ const flatten = (x) => String(x).toLowerCase().replace(/[^a-z0-9]/g, '');
 
 /* Other names a photograph might reasonably have been saved under. Only for
    the ones no amount of normalising would connect. */
+const PHOTO_EXACT = {
+  /* Two carrots, and they are different pictures. Posy grows hers in the
+     ground; Clementine serves hers on a plate. Without this the garden one
+     is never shown and Posy plants a seed and produces dinner. */
+  carrot: 'garden-carrot.jpg',
+  carrotFood: 'carrot.jpg',
+};
 const PHOTO_ALIASES = {
   tidepool: ['tide pool', 'rock pool'],
   urchin: ['sea urchin'],
@@ -1407,7 +1414,7 @@ const PHOTO_ALIASES = {
   anemone: ['sea anemone'],
   snowfox: ['snow fox', 'arctic fox'],
   carrotFood: ['carrot'],
-  macCheese: ['macaroni cheese'],
+  macCheese: ['macaroni cheese', 'mac n cheese', 'mac and cheese'],
   moonFull: ['full moon'], moonHalf: ['half moon'], moonThin: ['crescent moon'],
   shellOpen: ['open shell'],
   mountainSnow: ['snowy mountain'],
@@ -1416,12 +1423,17 @@ const PHOTO_ALIASES = {
   bud: ['sunflower sprout bud'],
   halfOpen: ['sunflower opening', 'sunflower half open'],
   sunflower: ['sunflower full bloom'],
-  seed: ['sunflower seed'],
+  seed: ['sunflower seed', 'seed sprout'],
 };
 
 /* The file for this picture, or nothing. */
 function photoFile(name){
   if (!PHOTO_FILES || !PHOTO_FILES.length) return null;
+  /* A pinned picture takes the file it was given and nothing else. */
+  if (PHOTO_EXACT[name]) {
+    var pinned = PHOTO_FILES.indexOf(PHOTO_EXACT[name]);
+    return pinned < 0 ? null : '/assets/everly/' + encodeURIComponent(PHOTO_EXACT[name]);
+  }
   const wanted = [name].concat(PHOTO_ALIASES[name] || []).map(flatten);
   const hit = PHOTO_FILES.find((f) => {
     const stem = flatten(f.replace(/\.[^.]+$/, ''));
