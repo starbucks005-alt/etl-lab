@@ -763,6 +763,11 @@ body{
 .show-dots i{background:transparent;box-shadow:inset 0 0 0 1.5px var(--rule)}
 .show-dots i.on{background:var(--gold);box-shadow:none}
 .thing .show-dots i.on{background:var(--gold)}
+/* A country face floats on the chip like the emoji it replaces, rather than
+   filling it like a photograph. It is transparent, so there is no background
+   to fill with, and cover would crop the top of her head to make a square. */
+.answer.is-face{padding:6px}
+.answer.is-face img{width:100%;height:100%;object-fit:contain;border-radius:0}
 </style>
 </head>
 <body>
@@ -2661,6 +2666,7 @@ function setAnswers(choices){
     const url = face || (fresh && photoFile(named));
     if (url) {
       b.classList.add('has-photo');
+      if (face) b.classList.add('is-face');
       const img = new Image();
       img.alt = '';
       img.src = url;
