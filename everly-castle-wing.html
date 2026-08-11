@@ -148,7 +148,7 @@ body{
      story, which is the one thing on a phone she scrolls down to rather than
      reaches for. Leaving it out of this list was enough to throw the whole
      grid into a third implicit column. */
-  grid-template-areas:'princess' 'speech' 'game' 'emoji' 'story';
+  grid-template-areas:'princess' 'speech' 'game' 'grow' 'emoji' 'story';
 }
 @media (min-width:820px){
   /* The 2x2. Every wing gets this, with or without a cartoon.
@@ -163,8 +163,18 @@ body{
     grid-template-rows:auto auto;
     grid-template-areas:
       'princess speech'
-      'story    game'
-      'emoji    emoji';
+      'game     story'
+      'grow     emoji';
+    /* Exactly one screen, shared between the three rows.
+
+       These were all auto, so every cell took the height its contents wanted
+       and the page ran 368px past the bottom of a 1512x860 window. The whole
+       point of this layout is seeing the princess and the answer buttons at
+       the same time, and it could not. The princess keeps the most because she
+       is the thing worth looking at; the answers keep the least because they
+       are buttons. */
+    height:calc(100dvh - 84px);
+    grid-template-rows:minmax(0,1.3fr) minmax(0,1fr) minmax(0,0.85fr);
   }
   /* A wing with a cartoon flips the emphasis: the video is landscape and is
      the thing worth looking at, so it takes the wider column. */
@@ -185,14 +195,13 @@ body{
   }
   .stage.free.has-embed{ grid-template-columns:58fr 42fr; }
 }
-.stage.free .w-speech, .stage.free .w-game, .stage.free .w-emoji{ display:none; }
+.stage.free .w-speech, .stage.free .w-game, .stage.free .w-emoji, .stage.free .w-grow{ display:none; }
 /* Except while a free picture is in it. Her pet, her family and her country
    are recorded lines that cost nothing to serve, so they are free, and they
    now live in the image window with everything else. The window comes back
    for exactly as long as one of them is on screen, and the paid things inside
    it stay hidden. */
 .stage.free.showing-about .w-game{ display:flex; }
-.stage.free.showing-about .w-game .thing,
 .stage.free.showing-about .w-game .showcard,
 .stage.free.showing-about .w-game .join,
 .stage.free.showing-about .w-game .race,
@@ -236,6 +245,8 @@ body{
 .w-speech{grid-area:speech}
 .w-story{grid-area:story}
 .w-game{grid-area:game}
+/* Beside the answers, not inside the pictures. */
+.w-grow{grid-area:grow;display:flex;align-items:center;justify-content:center}
 .window{
   background:var(--card);border:1px solid var(--rule);border-radius:18px;
   box-shadow:var(--shadow);padding:12px;min-height:0
@@ -395,7 +406,13 @@ body{
 .show-pic.drawn{font-size:0}
 /* A real photograph, where she has made one. Same footprint as the drawing
    it replaces, so nothing on the screen moves when it arrives. */
-.show-pic img{width:104px;height:104px;object-fit:cover;border-radius:16px;display:block}
+/* It owns the window now, so it is sized to the window. It was 104px because
+   it used to share a crowded cell, which made the thing being described the
+   smallest picture on screen. */
+.show-pic img{width:min(60%,240px);aspect-ratio:1;object-fit:cover;border-radius:20px;display:block;
+  box-shadow:0 8px 24px rgba(0,0,0,.32)}
+.show-pic{display:flex;align-items:center;justify-content:center;width:100%}
+.show-pic svg{width:min(60%,220px);height:auto;aspect-ratio:1}
 .found img, .pick-one img, .countable img{
   width:100%;height:100%;object-fit:cover;border-radius:13px;display:block
 }
@@ -543,12 +560,27 @@ body{
 /* Centred properly. This used to rely on text-align, which centres a caption
    and leaves an SVG sitting in the corner, because an SVG is a block. */
 .thing{display:flex;flex-direction:column;align-items:center;gap:8px}
-.thing-pic{min-height:120px;display:flex;align-items:center;justify-content:center}
-.thing-pic svg{width:120px;height:120px}
-.thing-pic img{width:132px;height:132px;object-fit:cover;border-radius:18px;display:block;
-  box-shadow:0 6px 18px rgba(0,0,0,.28)}
+.thing-pic{display:flex;align-items:center;justify-content:center;width:100%}
+/* Sized to the window rather than pinned, so it is the thing in the cell
+   rather than a stamp in the corner of one. Capped so it never crowds the
+   caption and the dots underneath it. */
+.thing-pic svg{width:min(60%,220px);height:auto;aspect-ratio:1}
+.thing-pic img{width:min(60%,240px);aspect-ratio:1;object-fit:cover;border-radius:20px;display:block;
+  box-shadow:0 8px 24px rgba(0,0,0,.32)}
 .thing-cap{display:block;font-size:12px;opacity:.55;letter-spacing:.04em}
 /* Her pet, her family, her country, in the same window as everything else. */
+/* Seven of them on one row. Emoji for the child, word for the grown-up.
+   As text pills these wrapped onto four rows and pushed the page past the
+   bottom of the screen, which is why she had to view it at 67%. */
+.story-buttons{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:stretch}
+.story-buttons .abouts{display:contents}
+.about-btn, .story-play{
+  flex:0 1 auto;min-width:0;padding:7px 8px;border-radius:14px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;line-height:1
+}
+.btn-emoji{font-size:26px;line-height:1.1}
+.btn-word{font-size:10px;letter-spacing:.03em;opacity:.6;font-family:var(--sans, inherit);white-space:nowrap}
+.story-play .btn-word{opacity:.75}
 /* The two that start a conversation, marked apart from the three that play a
    recording. A child reads the difference as position, not colour. */
 .about-btn.ask{border-color:var(--gold);color:var(--gold)}
@@ -624,7 +656,35 @@ body{
   background:var(--blue);color:#fff;box-shadow:var(--shadow);cursor:pointer;
   font-family:inherit
 }
+/* The attribute, not just the class. Every panel here is display:flex or
+   display:block from an author rule, which beats the browser default for
+   [hidden], so el.hidden = true was setting an attribute that changed
+   nothing on screen while reading back as hidden in JavaScript. */
+[hidden]{display:none !important}
 .hidden{display:none !important}
+
+/* ── Desktop overrides. Last on purpose: everything here exists to beat a
+   base rule of equal specificity, and the only thing that decides that is
+   source order. This block sat at line 260 and lost to rules at 300 and 319. */
+@media (min-width:820px){
+  /* Without min-height:0 a grid item refuses to shrink below its contents,
+     which is what made the rows above ignore their sizes. */
+  .stage > .window{min-height:0}
+  .w-story{overflow-y:auto}
+  /* The portrait scales to the room it has instead of setting it. */
+  .w-princess img, .w-princess video, .w-princess iframe, .w-princess .face img{
+    max-height:100%;max-width:100%;object-fit:contain
+  }
+  .w-princess{overflow:hidden}
+  /* Stretch to the row rather than to the clip. With auto rows align-self:start
+     only meant "do not grow"; with a row height it means "ignore the row", and
+     the cell overlapped the pictures below it by 140px. */
+  .stage.has-embed .w-princess{align-self:stretch}
+  .w-princess .face{min-height:0;flex:1 1 auto;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .w-princess .face > *{max-height:100%;max-width:100%}
+  /* Both pictures size to their cell now that the cell has a height. */
+  .thing-pic img, .thing-pic svg, .show-pic img, .show-pic svg{max-height:26vh}
+}
 </style>
 </head>
 <body>
@@ -660,12 +720,12 @@ body{
     <div class="window-cap">Her story</div>
     <p class="story-text" id="storyText"></p>
     <div class="story-buttons">
-      <button class="story-play" id="storyPlay" type="button">▶ Hear it</button>
+      <button class="story-play" id="storyPlay" type="button"><span class="btn-emoji">🔊</span><small class="btn-word">Hear</small></button>
       <!-- The book. Free on every tier: it is fixed text, cached once, and
            costs nothing to serve. What the paid tier buys is a princess
            talking to one particular child, not this. -->
       <div class="abouts" id="abouts"></div>
-    <button class="story-play book" id="bookPlay" type="button">📖 Tell me a story</button>
+    <button class="story-play book" id="bookPlay" type="button"><span class="btn-emoji">📖</span><small class="btn-word">Story</small></button>
     </div>
   </section>
 
@@ -687,13 +747,6 @@ body{
     <div class="count-total" id="countTotal"></div>
     <!-- Her pet, her family, her country. -->
     <div class="about-shot" id="aboutShot" hidden></div>
-    <!-- What she is growing. Last, because it is what the cell falls back to
-         when nothing else is being shown. -->
-    <div class="thing" id="thing">
-      <div class="thing-pic" id="thingPic"></div>
-      <small class="thing-cap" id="thingCap"></small>
-      <div class="show-dots" id="thingDots"></div>
-    </div>
   </section>
 
   <!-- 5. How she answers. Always in the same place, whatever is being shown
@@ -702,6 +755,19 @@ body{
     <div class="thinking" id="thinking"><i></i><i></i><i></i></div>
     <div class="yesno" id="yesno"></div>
     <div class="answers" id="answers"></div>
+  </section>
+
+  <!-- 6. What she is growing. Its own window, because it answers a different
+       question from the image window: not "what is the princess showing me
+       now" but "what has changed since yesterday". Sharing one cell made them
+       take turns, and the one that lost was always the one being talked
+       about. -->
+  <section class="window w-grow">
+    <div class="thing" id="thing">
+      <div class="thing-pic" id="thingPic"></div>
+      <small class="thing-cap" id="thingCap"></small>
+      <div class="show-dots" id="thingDots"></div>
+    </div>
   </section>
 </main>
 
@@ -1022,13 +1088,16 @@ function drawThing(){
    being talked about, and the growing thing comes back afterwards. Without
    this the picture simply stayed, which is what Dr. O saw: a French bakery
    still on screen while Posy had moved on to something else. */
-function showGrowing(){
+/* Empties the image window. Named for what it used to do, which was hand the
+   cell back to the growing thing; the growing thing now has its own window and
+   never leaves it, so all this does is clear the picture a button put there. */
+function clearImageWindow(){
   const shot = document.getElementById('aboutShot');
   if (shot) { shot.hidden = true; shot.textContent = ''; }
   document.querySelector('.stage').classList.remove('showing-about');
-  const thing = document.getElementById('thing');
-  if (thing) thing.hidden = false;
   document.querySelectorAll('#abouts .about-btn.on').forEach((b) => b.classList.remove('on'));
+  /* One decision point, so this cannot disagree with what a reply just did. */
+  settleWindow();
 }
 
 /* ── What the princess remembers ───────────────────────────────────────────
@@ -1583,6 +1652,32 @@ function paintPic(host, thing){
   photoFor(host, thing);
 }
 
+/* Who owns the image window right now.
+
+   Everything visual lives in one cell, so exactly one thing may be in it. A
+   reply wins: if it carried a picture, a sequence or a game, that is what the
+   princess is talking about and that is what the child must be looking at. The
+   growing thing is the fallback and comes back when the window is otherwise
+   empty, which is most of the time.
+
+   Measured before this existed: a reply put its picture on screen at 104px
+   directly above the growing photograph at 453px, so the biggest thing in the
+   window was never the thing being described. */
+const WINDOW_PANELS = ['showcard', 'join', 'race', 'choose', 'pick', 'reveal',
+                       'find', 'puzzle', 'counting', 'aboutShot'];
+function settleWindow(){
+  const busyNow = WINDOW_PANELS.some((id) => {
+    const el = document.getElementById(id);
+    return el && !el.hidden && el.childElementCount > 0;
+  });
+  /* The growing thing is not in here any more, so nothing has to give way.
+     What is left is making sure her pet, family or country steps aside the
+     moment a reply puts something in the window. */
+  const shot = document.getElementById('aboutShot');
+  if (busyNow && shot && !shot.hidden) { shot.hidden = true; shot.textContent = ''; }
+  if (busyNow) document.querySelector('.stage').classList.remove('showing-about');
+}
+
 function setShow(spec){
   const host = document.getElementById('showcard');
   host.innerHTML = '';
@@ -2118,9 +2213,9 @@ function setCounting(spec){
    appears when it does not: a missing picture is silent to the child and
    noisy to us. */
 const ABOUT_LABELS = [
-  ['pet', 'My pet'],
-  ['family', 'My family'],
-  ['country', 'Life in my country'],
+  ['pet', '🐾', 'Pet'],
+  ['family', '👪', 'Family'],
+  ['country', '🌍', 'Country'],
 ];
 
 /* The two that start a conversation rather than playing a recording.
@@ -2131,8 +2226,8 @@ const ABOUT_LABELS = [
    game" has to reach whichever one this princess owns, not the one the wording
    happened to suggest. */
 const ASK_LABELS = [
-  ['speak', 'Teach me to speak', 'teach me some words in your language'],
-  ['game', 'Play a game', 'can we play your game'],
+  ['speak', '💬', 'Speak', 'teach me some words in your language'],
+  ['game', '🎲', 'Game', 'can we play your game'],
 ];
 
 /* What is actually in agents/everly, fetched once.
@@ -2171,10 +2266,7 @@ function showAboutPicture(kind){
     img.onload = () => {
       host.appendChild(img);
       host.hidden = false;
-      /* It takes the window while it is being talked about, and on the free
-         tier it is the reason the window is on screen at all. */
-      const thing = document.getElementById('thing');
-      if (thing) thing.hidden = true;
+      /* On the free tier this picture is the reason the window is on screen. */
       document.querySelector('.stage').classList.add('showing-about');
     };
     img.onerror = () => console.warn('[everly] listed but would not load: ' + hit);
@@ -2194,24 +2286,39 @@ const OPENING_CHOICES = [
   { emoji: '📖', say: 'tell me a story' },
 ];
 
+/* Every button in this row is an emoji she can read and a word the grown-up
+   can. Built in one place so they cannot drift apart. */
+function bigEmoji(ch){
+  const e = document.createElement('span');
+  e.className = 'btn-emoji';
+  e.textContent = ch;
+  return e;
+}
+function smallWord(text){
+  const e = document.createElement('small');
+  e.className = 'btn-word';
+  e.textContent = text;
+  return e;
+}
+
 function buildAbouts(){
   const host = document.getElementById('abouts');
   if (!host || host.childElementCount) return;
-  ASK_LABELS.forEach(([kind, label, say]) => {
+  ASK_LABELS.forEach(([kind, emoji, word, say]) => {
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'about-btn ask';
-    b.textContent = label;
+    b.append(bigEmoji(emoji), smallWord(word));
     /* A turn, not a recording. The image window clears itself on the way,
-       because turn() calls showGrowing(). */
+       because turn() calls clearImageWindow(). */
     b.addEventListener('click', () => { turn(say, true); });
     host.appendChild(b);
   });
-  ABOUT_LABELS.forEach(([kind, label]) => {
+  ABOUT_LABELS.forEach(([kind, emoji, word]) => {
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'about-btn';
-    b.textContent = label;
+    b.append(bigEmoji(emoji), smallWord(word));
     b.addEventListener('click', () => {
       host.querySelectorAll('.about-btn').forEach((x) => x.classList.remove('on'));
       b.classList.add('on');
@@ -2344,7 +2451,7 @@ async function turn(message, quiet){
   }
   /* The image window goes back to her, so a picture from a button never
      outlives the moment it belonged to. */
-  showGrowing();
+  clearImageWindow();
   clearTimeout(nudgeTimer);
   (document.getElementById('chat') || document.body).classList.remove('yourgo');
   busy = true;
@@ -2418,6 +2525,8 @@ async function turn(message, quiet){
   setJoin(data.join);
   setRace(data.race);
   setChoose(data.choose);
+  /* Last, once every panel has decided whether it is on screen. */
+  settleWindow();
   setReveal(data.reveal);
   setAnswers(data.choices);
   yourGo();
