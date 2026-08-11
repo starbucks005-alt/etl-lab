@@ -2377,10 +2377,15 @@ const aboutReady = fetch('/agents/everly/index.json')
    Matched with capitals, spaces, hyphens and underscores stripped, so
    "Lenora -pet.jpg" answers to lenora-pet and nobody has to remember a
    convention while making thirty images. */
+let aboutWanted = 0;
 function showAboutPicture(kind){
   const host = document.getElementById('aboutShot');
   host.textContent = '';
   host.hidden = true;
+  /* Two presses in quick succession cleared the window once and appended
+     twice, because the clear is immediate and the append waits for the file.
+     A load that is no longer the current request throws itself away. */
+  const mine = ++aboutWanted;
   aboutReady.then(() => {
     const want = flatten(wingId + kind);
     const hit = (ABOUT_FILES || []).find((f) => flatten(f.replace(/\.[^.]+$/, '')) === want);
@@ -2393,6 +2398,8 @@ function showAboutPicture(kind){
     const img = new Image();
     img.alt = '';
     img.onload = () => {
+      if (mine !== aboutWanted) return;
+      host.textContent = '';
       host.appendChild(img);
       host.hidden = false;
       /* On the free tier this picture is the reason the window is on screen. */
