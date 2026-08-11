@@ -186,6 +186,23 @@ body{
   .stage.free.has-embed{ grid-template-columns:58fr 42fr; }
 }
 .stage.free .w-speech, .stage.free .w-game, .stage.free .w-emoji{ display:none; }
+/* Except while a free picture is in it. Her pet, her family and her country
+   are recorded lines that cost nothing to serve, so they are free, and they
+   now live in the image window with everything else. The window comes back
+   for exactly as long as one of them is on screen, and the paid things inside
+   it stay hidden. */
+.stage.free.showing-about .w-game{ display:flex; }
+.stage.free.showing-about .w-game .thing,
+.stage.free.showing-about .w-game .showcard,
+.stage.free.showing-about .w-game .join,
+.stage.free.showing-about .w-game .race,
+.stage.free.showing-about .w-game .choose,
+.stage.free.showing-about .w-game .pick,
+.stage.free.showing-about .w-game .reveal,
+.stage.free.showing-about .w-game .find,
+.stage.free.showing-about .w-game .puzzle,
+.stage.free.showing-about .w-game .counting,
+.stage.free.showing-about .w-game .count-total{ display:none; }
 .stage.free .w-story{ justify-content:center; }
 
 /* The three things she can ask a princess about herself.
@@ -207,9 +224,6 @@ body{
 .about-btn.on{background:var(--stone)}
 /* Where her photographs go once they exist. Nothing is drawn here until a
    real file loads, so a missing one is invisible to the child. */
-.about-pic{margin-top:10px;display:none}
-.about-pic.shown{display:block}
-.about-pic img{width:100%;max-width:340px;border-radius:14px;display:block;margin:0 auto}
 
 .w-story{ justify-content:center; }
 
@@ -525,9 +539,21 @@ body{
 /* 4. The game window: what is growing, and the things you can tap. How much
    room it needs depends on the game, so it sizes to its contents rather than
    being pinned to a share of the screen. */
-.w-game{text-align:center;display:flex;flex-direction:column;justify-content:center}
-.thing{font-size:min(15vw,62px);line-height:1;min-height:1em;filter:drop-shadow(0 5px 6px rgba(0,0,0,.14))}
-.thing small{display:block;font-size:11px;opacity:.5;margin-top:4px;filter:none}
+.w-game{text-align:center;display:flex;flex-direction:column;justify-content:center;align-items:center}
+/* Centred properly. This used to rely on text-align, which centres a caption
+   and leaves an SVG sitting in the corner, because an SVG is a block. */
+.thing{display:flex;flex-direction:column;align-items:center;gap:8px}
+.thing-pic{min-height:120px;display:flex;align-items:center;justify-content:center}
+.thing-pic svg{width:120px;height:120px}
+.thing-pic img{width:132px;height:132px;object-fit:cover;border-radius:18px;display:block;
+  box-shadow:0 6px 18px rgba(0,0,0,.28)}
+.thing-cap{display:block;font-size:12px;opacity:.55;letter-spacing:.04em}
+/* Her pet, her family, her country, in the same window as everything else. */
+/* The two that start a conversation, marked apart from the three that play a
+   recording. A child reads the difference as position, not colour. */
+.about-btn.ask{border-color:var(--gold);color:var(--gold)}
+.about-shot img{width:100%;max-width:340px;border-radius:16px;display:block;margin:0 auto;
+  box-shadow:0 6px 18px rgba(0,0,0,.28)}
 
 /* Yes and No. Permanent, and always in these two positions, because a child
    who cannot read navigates by where a thing lives. */
@@ -639,25 +665,35 @@ body{
            costs nothing to serve. What the paid tier buys is a princess
            talking to one particular child, not this. -->
       <div class="abouts" id="abouts"></div>
-    <div class="about-pic" id="aboutPic"></div>
     <button class="story-play book" id="bookPlay" type="button">📖 Tell me a story</button>
     </div>
   </section>
 
-  <!-- 4. Game window -->
+  <!-- 4. The image window. EVERY picture in this product arrives here and
+       nowhere else: the games, the thing she is growing, and her pet, her
+       family and her country. A child who cannot read navigates by where
+       things live, so there is exactly one place to look. -->
   <section class="window w-game">
+    <div class="window-cap">Pictures</div>
     <div class="showcard" id="showcard" hidden></div>
     <div class="join" id="join" hidden></div>
     <div class="race" id="race" hidden></div>
     <div class="choose" id="choose" hidden></div>
     <div class="pick" id="pick" hidden></div>
     <div class="reveal" id="reveal" hidden></div>
-    <div class="reveal" id="reveal" hidden></div>
     <div class="find" id="find" hidden></div>
     <div class="puzzle" id="puzzle" hidden></div>
     <div class="counting" id="counting" hidden></div>
     <div class="count-total" id="countTotal"></div>
-    <div class="thing" id="thing"></div>
+    <!-- Her pet, her family, her country. -->
+    <div class="about-shot" id="aboutShot" hidden></div>
+    <!-- What she is growing. Last, because it is what the cell falls back to
+         when nothing else is being shown. -->
+    <div class="thing" id="thing">
+      <div class="thing-pic" id="thingPic"></div>
+      <small class="thing-cap" id="thingCap"></small>
+      <div class="show-dots" id="thingDots"></div>
+    </div>
   </section>
 
   <!-- 5. How she answers. Always in the same place, whatever is being shown
@@ -963,13 +999,36 @@ function stageCaption(id, stage){
 function drawThing(){
   const set = GROWTH[wingId] || GROWTH.posy;
   const stage = growthStage();
-  const el = document.getElementById('thing');
-  el.textContent = '';
-  const pic = picSvg(set[stage], 64);
-  if (pic) el.appendChild(pic);
-  const cap = document.createElement('small');
-  cap.textContent = stageCaption(wingId, stage);
-  el.appendChild(cap);
+  /* paintPic, so this gets the photograph like every other picture in the
+     castle. It used to call picSvg and stop, which made the thing she is
+     growing the only drawing left on a screen full of photographs. */
+  paintPic(document.getElementById('thingPic'), set[stage]);
+  document.getElementById('thingCap').textContent = stageCaption(wingId, stage);
+  /* One dot per stage, filled up to where she has got to. No numbers: she
+     cannot read them, and a count is a thing you can be behind on. What this
+     has to say is "there is more of this", not "you are on step two". */
+  const dots = document.getElementById('thingDots');
+  dots.textContent = '';
+  set.forEach((_, i) => {
+    const d = document.createElement('i');
+    if (i <= stage) d.className = 'on';
+    dots.appendChild(d);
+  });
+}
+
+/* Only one thing is ever in the image window.
+
+   Her pet, her family and her country take the whole cell while they are
+   being talked about, and the growing thing comes back afterwards. Without
+   this the picture simply stayed, which is what Dr. O saw: a French bakery
+   still on screen while Posy had moved on to something else. */
+function showGrowing(){
+  const shot = document.getElementById('aboutShot');
+  if (shot) { shot.hidden = true; shot.textContent = ''; }
+  document.querySelector('.stage').classList.remove('showing-about');
+  const thing = document.getElementById('thing');
+  if (thing) thing.hidden = false;
+  document.querySelectorAll('#abouts .about-btn.on').forEach((b) => b.classList.remove('on'));
 }
 
 /* ── What the princess remembers ───────────────────────────────────────────
@@ -2064,6 +2123,18 @@ const ABOUT_LABELS = [
   ['country', 'Life in my country'],
 ];
 
+/* The two that start a conversation rather than playing a recording.
+
+   Posy's own greeting offers to teach French words and then left a child with
+   no way to say yes to that, which is the same broken promise as offering a
+   picture and showing nothing. Neither of these names a game: asking for "a
+   game" has to reach whichever one this princess owns, not the one the wording
+   happened to suggest. */
+const ASK_LABELS = [
+  ['speak', 'Teach me to speak', 'teach me some words in your language'],
+  ['game', 'Play a game', 'can we play your game'],
+];
+
 /* What is actually in agents/everly, fetched once.
 
    Read rather than guessed, for the same reason as the picture library and
@@ -2083,9 +2154,9 @@ const aboutReady = fetch('/agents/everly/index.json')
    "Lenora -pet.jpg" answers to lenora-pet and nobody has to remember a
    convention while making thirty images. */
 function showAboutPicture(kind){
-  const host = document.getElementById('aboutPic');
-  host.innerHTML = '';
-  host.classList.remove('shown');
+  const host = document.getElementById('aboutShot');
+  host.textContent = '';
+  host.hidden = true;
   aboutReady.then(() => {
     const want = flatten(wingId + kind);
     const hit = (ABOUT_FILES || []).find((f) => flatten(f.replace(/\.[^.]+$/, '')) === want);
@@ -2099,7 +2170,12 @@ function showAboutPicture(kind){
     img.alt = '';
     img.onload = () => {
       host.appendChild(img);
-      host.classList.add('shown');
+      host.hidden = false;
+      /* It takes the window while it is being talked about, and on the free
+         tier it is the reason the window is on screen at all. */
+      const thing = document.getElementById('thing');
+      if (thing) thing.hidden = true;
+      document.querySelector('.stage').classList.add('showing-about');
     };
     img.onerror = () => console.warn('[everly] listed but would not load: ' + hit);
     img.src = '/agents/everly/' + encodeURIComponent(hit);
@@ -2121,6 +2197,16 @@ const OPENING_CHOICES = [
 function buildAbouts(){
   const host = document.getElementById('abouts');
   if (!host || host.childElementCount) return;
+  ASK_LABELS.forEach(([kind, label, say]) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'about-btn ask';
+    b.textContent = label;
+    /* A turn, not a recording. The image window clears itself on the way,
+       because turn() calls showGrowing(). */
+    b.addEventListener('click', () => { turn(say, true); });
+    host.appendChild(b);
+  });
   ABOUT_LABELS.forEach(([kind, label]) => {
     const b = document.createElement('button');
     b.type = 'button';
@@ -2256,6 +2342,9 @@ async function turn(message, quiet){
     begin();
     await new Promise((r) => setTimeout(r, 1200));
   }
+  /* The image window goes back to her, so a picture from a button never
+     outlives the moment it belonged to. */
+  showGrowing();
   clearTimeout(nudgeTimer);
   (document.getElementById('chat') || document.body).classList.remove('yourgo');
   busy = true;
