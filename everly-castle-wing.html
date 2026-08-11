@@ -2729,6 +2729,9 @@ function logIt(said, flag){
   prof.log = merged.log;
 }
 
+/* Second model calls spent in this conversation, counted for the ceiling. */
+let retriesUsed = 0;
+
 async function turn(message, quiet){
   if (busy) return;
   /* She pressed something before the start button. Do the opening first, so
@@ -2756,6 +2759,12 @@ async function turn(message, quiet){
         agent: wingId,
         message,
         history: history.slice(-10),
+        /* How many second calls this conversation has already spent. Each one
+           is a whole extra model call, and on a bad evening the empty-screen
+           guard fired on nearly every turn and roughly doubled the cost. Past
+           the ceiling the guards go quiet and the free fallback keeps filling
+           the screen. */
+        retriesSoFar: retriesUsed,
         /* THE PAID LINE.
 
            Free accounts send no name and no notes, so the princess speaks to a
@@ -2800,6 +2809,7 @@ async function turn(message, quiet){
     logIt(message, true);
   }
 
+  if (data.retried) retriesUsed += 1;
   addBubble('agent', data.body);
   rememberMood(data.feeling);
   rememberTaught(data.covered);

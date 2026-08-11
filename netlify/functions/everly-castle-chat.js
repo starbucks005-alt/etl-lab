@@ -1150,6 +1150,17 @@ exports.handler = async (event) => {
      false positive is one wasted call, and the cost of a miss is a
      four-year-old staring at a screen waiting for something that is never
      coming, so the list is allowed to be a little greedy. */
+  /* At most this many second calls in one conversation.
+
+     Generous enough to cover the opening turns, where a princess is most
+     likely to send an empty screen and where losing the child costs most, and
+     low enough that a bad evening cannot quietly double the bill. Past it the
+     guards stop asking and the free last-resort keeps filling the screen. */
+  const RETRY_CEILING = 6;
+  const retriesSoFar = Math.max(0, Number(body.retriesSoFar) || 0);
+  const mayRetry = retriesSoFar < RETRY_CEILING;
+  if (!mayRetry) console.warn('[everly-castle-chat] retry ceiling reached, guards are quiet for this conversation');
+
   const PROMISES = [
     /let me show you/i, /i(?:'| wi)?ll show you/i, /shall i show you/i,
     /would you like to see/i, /do you want to see/i,
@@ -1179,6 +1190,9 @@ exports.handler = async (event) => {
   });
 
   let resp;
+  /* Whether a second model call was spent on this turn. Reported to the page,
+     which keeps the running total for the conversation and sends it back. */
+  let reasked = false;
   try {
     resp = await ask();
 
@@ -1206,11 +1220,11 @@ exports.handler = async (event) => {
        running all three in sequence turned a bad turn into four round trips
        and the dead air Pookie sat through. Ordered by what costs the child
        most: an empty screen, then a promise not kept, then going in circles. */
-    let reasked = false;
+    /* Declared at handler scope below, so the response can report it. */
     const nothingToSee = first && first.input &&
       !first.input.show && !first.input.find && !first.input.count && !first.input.puzzle && !first.input.reveal && !first.input.pick
       && !first.input.join && !first.input.race && !first.input.choose;
-    if (!reasked && firstReply && nothingToSee) {
+    if (mayRetry && !reasked && firstReply && nothingToSee) {
       reasked = true;
       console.warn('[everly-castle-chat] empty screen, asking again');
       resp = await ask('\n\nURGENT, THIS OVERRIDES EVERYTHING ELSE: you sent her nothing to look at, so she is listening to a voice and staring at an empty space. Say the same thing again, and this time send find, count, show or puzzle with it. Name something you just mentioned and put it on the screen. Do not explain any of this to her.');
@@ -1219,13 +1233,13 @@ exports.handler = async (event) => {
     const showed = first && first.input &&
       (first.input.show || first.input.find || first.input.count || first.input.puzzle || first.input.reveal || first.input.pick
        || first.input.join || first.input.race || first.input.choose);
-    if (!reasked && firstReply && promised(firstReply) && !showed) {
+    if (mayRetry && !reasked && firstReply && promised(firstReply) && !showed) {
       reasked = true;
       console.warn('[everly-castle-chat] promised nothing: ' + String(firstReply).slice(0, 60));
       resp = await ask('\n\nURGENT, THIS OVERRIDES EVERYTHING ELSE: you just said "' + String(firstReply).slice(0, 120) + '" and sent her nothing to look at. She is four. She is staring at the screen right now waiting for it, and when it does not come she will not decide the app is broken, she will decide she missed it. Say it again AND send it, this turn, using show or find with a picture name from the list. If there is no picture for it, do not promise it: say something you can keep instead.');
     }
 
-    if (!reasked && firstReply && said.some((s) => samePlace(firstReply, s))) {
+    if (mayRetry && !reasked && firstReply && said.some((s) => samePlace(firstReply, s))) {
       reasked = true;
       console.warn('[everly-castle-chat] circled, asking again: ' + String(firstReply).slice(0, 60));
       resp = await ask('\n\nURGENT, THIS OVERRIDES EVERYTHING ELSE: you have just circled back to something you already said. She is four, and she will keep agreeing to it forever without ever telling you she is bored. Drop that subject completely. Go somewhere new in your wing, and put something on her screen this turn with show or find or count, so there is something for her to do rather than something to agree to.');
@@ -1335,6 +1349,8 @@ exports.handler = async (event) => {
   });
   return json(200, {
     ok: true,
+    /* So the page can keep a running total and stop asking for more. */
+    retried: reasked,
     agent: agentId,
     body: cleanDashes(out.reply || ''),
     // She cannot read, so a turn with no way to answer is a dead end. There is
