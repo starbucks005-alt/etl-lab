@@ -712,8 +712,15 @@ body{
 .w-game > :empty{display:none}
 /* And the picture uses the window rather than its own natural size. It was
    flex:0 1 auto, so a 502px cell showed a 254px photograph. */
-.about-shot{flex:1 1 auto;min-height:0}
-.about-shot img{max-height:100%;max-width:100%}
+.about-shot{flex:1 1 auto;min-height:0;overflow:hidden}
+/* Viewport units, not percentages. max-height:100% is only a cap when the
+   parent height is definite; where the chain went indefinite it evaluated to
+   no cap at all and a pet photograph covered three cells at full resolution. */
+.about-shot img{max-width:100%;max-height:min(30vh,100%);width:auto;height:auto;object-fit:contain}
+/* Backstop. Nothing in the image window may exceed the image window, whatever
+   else is wrong. */
+.w-game{overflow:hidden}
+.w-game img, .w-game svg{max-width:100%}
 .showcard{min-height:0}
 /* Padding was eating the room the words and the buttons needed. The cards keep
    enough to read as cards and no more. */
@@ -723,6 +730,17 @@ body{
 .story-buttons{gap:10px}
 .about-btn, .story-play{padding:7px 12px}
 .log{padding-right:4px}
+/* The growing window is a toy, not a display. It only looks pressable once
+   there is a stage behind today to walk back to. */
+.thing.tappable{cursor:pointer}
+.thing.tappable .thing-pic{transition:transform .16s ease}
+.thing.tappable:active .thing-pic{transform:scale(.94)}
+.show-dots i.now{outline:2px solid var(--gold);outline-offset:2px}
+/* The window caption is a label, so nothing may sit on top of it. */
+.w-game{padding-top:26px}
+/* A chip showing a real photograph fills itself with it. */
+.answer.has-photo{padding:0;overflow:hidden}
+.answer.has-photo img{width:100%;height:100%;object-fit:cover;border-radius:19px;display:block}
 </style>
 </head>
 <body>
@@ -1118,6 +1136,10 @@ function stageCaption(id, stage){
   return Array.isArray(c) ? (c[stage] || c[c.length - 1]) : (c || '');
 }
 
+/* Which stage the growing window is showing right now. Today's by default;
+   she can walk back through the ones she has already earned. */
+let thingShowing = null;
+
 function drawThing(){
   const set = GROWTH[wingId] || GROWTH.posy;
   const stage = growthStage();
@@ -1136,6 +1158,51 @@ function drawThing(){
     if (i <= stage) d.className = 'on';
     dots.appendChild(d);
   });
+}
+
+/* Tap it to see what it used to be.
+
+   Walks back through the stages she has already reached and returns to today.
+   It cannot go past today, so the one-step-a-day promise is untouched: this
+   spends nothing and shows her the part of the sequence she has never seen,
+   which is that today's tomato used to be an empty plate.
+
+   Not tappable on the first visit, because there is nothing behind it yet and
+   a control that does nothing is worse than no control. */
+function paintThingAt(i){
+  const set = GROWTH[wingId] || GROWTH.posy;
+  const today = growthStage();
+  const at = Math.max(0, Math.min(i, today));
+  thingShowing = at;
+  paintPic(document.getElementById('thingPic'), set[at]);
+  document.getElementById('thingCap').textContent = stageCaption(wingId, today);
+  const dots = document.getElementById('thingDots');
+  dots.textContent = '';
+  set.forEach((_, n) => {
+    const d = document.createElement('i');
+    if (n <= today) d.className = 'on';
+    if (n === at) d.className = (d.className + ' now').trim();
+    dots.appendChild(d);
+  });
+}
+
+function wireThingTap(){
+  const host = document.getElementById('thing');
+  if (!host || host.dataset.wired) return;
+  host.dataset.wired = '1';
+  host.addEventListener('click', () => {
+    const today = growthStage();
+    if (today < 1) return;
+    const at = thingShowing === null ? today : thingShowing;
+    paintThingAt(at >= today ? 0 : at + 1);
+  });
+}
+
+/* The affordance, and only when there is something behind it. */
+function markThingTappable(){
+  const host = document.getElementById('thing');
+  if (!host) return;
+  host.classList.toggle('tappable', growthStage() >= 1);
 }
 
 /* Only one thing is ever in the image window.
@@ -2467,11 +2534,46 @@ function setAnswers(choices){
   items.forEach((it) => {
     const b = document.createElement('button');
     b.className = 'answer' + (it.mic ? ' mic' : '');
-    b.textContent = it.emoji;
     b.setAttribute('aria-label', it.mic ? 'Say something' : it.say);
+    /* Our photograph beats the model's emoji every time we have one. It picks
+       the emoji freely and nothing checks it, which is how a child who cannot
+       read was shown a pickle and told it was lettuce. */
+    const named = it.mic ? null : pictureInPhrase(it.say);
+    const url = named && photoFile(named);
+    if (url) {
+      b.classList.add('has-photo');
+      const img = new Image();
+      img.alt = '';
+      img.src = url;
+      b.appendChild(img);
+    } else {
+      b.textContent = it.emoji;
+    }
     b.addEventListener('click', () => { if (it.mic) listen(b); else turn(it.say); });
     host.appendChild(b);
   });
+}
+
+/* The picture named in a phrase, if there is one.
+
+   "the carrot" and "a cookie please" both find their picture. Longest name
+   first, so "mountainSnow" is not beaten by "mountain", and camelCase names
+   are matched as the words a person would actually say. */
+const PHRASE_PICTURE = Object.keys(PICS)
+  .sort((a, b) => b.length - a.length)
+  .map((name) => [name, new RegExp('\\b' + String(name).replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase().replace(/\s+/g, '\\s+') + 's?\\b', 'i')]);
+
+/* Where one word means two different pictures, the wing decides. In
+   Clementine's kitchen a carrot is food on a board; in Posy's garden it is a
+   carrot in the ground. */
+const WING_PREFERS = { clementine: { carrot: 'carrotFood' } };
+
+function pictureInPhrase(text){
+  if (!text) return null;
+  const hit = PHRASE_PICTURE.find(([, re]) => re.test(String(text)));
+  if (!hit) return null;
+  const prefer = (WING_PREFERS[wingId] || {})[hit[0]];
+  return prefer || hit[0];
 }
 
 /* Writes into THIS child's log and nobody else's. Re-reads first so a name or
@@ -2788,6 +2890,8 @@ buildYesNo();
 buildAbouts();
 setAnswers(OPENING_CHOICES);
 drawThing();
+wireThingTap();
+markThingTappable();
 drawMyMood();
 document.getElementById('begin').addEventListener('click', begin);
 

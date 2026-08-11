@@ -1221,7 +1221,14 @@ exports.handler = async (event) => {
       !finalIn.puzzle && !finalIn.reveal && !finalIn.pick && !finalIn.join &&
       !finalIn.race && !finalIn.choose;
     if (stillEmpty && finalIn.reply) {
-      const found = namedPictures(finalIn.reply);
+      /* The choices first. They are the two or three things she is asking the
+         child to pick between, which is a far stronger signal than a noun that
+         happened to appear in the sentence. */
+      const offered = (finalIn.choices || [])
+        .map((c) => namedPictures(c && c.say))
+        .reduce((all, one) => all.concat(one), [])
+        .filter((n, i, a) => a.indexOf(n) === i);
+      const found = offered.length ? offered : namedPictures(finalIn.reply);
       if (found.length) {
         finalIn.show = found.length > 1
           ? { steps: found.slice(0, 4), label: '' }
