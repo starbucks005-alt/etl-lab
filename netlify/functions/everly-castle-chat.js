@@ -263,6 +263,34 @@ const json = (statusCode, body) => ({
    a princess may reasonably reach for one the library has no drawing of, but an
    invented NAME must not: "moonHalf" typed as "moon half" was painted onto the
    screen as words. */
+/* Picture names appearing in something she said.
+
+   Built from PICTURES itself so a new picture is understood here the day it is
+   added. Matches whole words only and forgives a plural, because she says
+   "beans" and "shells" and the pictures are called beans and shell. camelCase
+   names are matched as two words as well, since nobody says "macCheese" out
+   loud: the reply says "macaroni cheese" or "mac and cheese".
+
+   Order follows the sentence, so what she showed matches what she said. */
+const SPOKEN_PICTURE = (() => {
+  const forms = [];
+  PICTURES.forEach((name) => {
+    const words = String(name).replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase();
+    forms.push([name, new RegExp('\\b' + words.replace(/\s+/g, '\\s+') + 's?\\b', 'i')]);
+  });
+  return forms;
+})();
+
+function namedPictures(text) {
+  const t = String(text || '');
+  const hits = [];
+  SPOKEN_PICTURE.forEach(([name, re]) => {
+    const m = t.match(re);
+    if (m) hits.push([t.indexOf(m[0]), name]);
+  });
+  return hits.sort((a, b) => a[0] - b[0]).map((h) => h[1]);
+}
+
 function drawable(x) {
   if (!x) return false;
   /* Names only. Emoji used to pass here, as a fallback from before the picture
@@ -1104,6 +1132,8 @@ exports.handler = async (event) => {
     /come and (?:see|look)/i, /have a look at/i, /take a look at/i,
     /watch (?:this|it|carefully|closely)/i, /you(?:'| wi)?ll see it/i,
     /let me find/i, /let(?:'|)s look at/i, /here(?:'| i)s (?:one|it|what)/i,
+    /want to see/i, /here we go/i, /coming (?:right )?up/i, /ready\?/i,
+    /look at (?:this|these|them)/i, /see what (?:it|they|some)/i,
   ];
   const promised = (text) => PROMISES.some((re) => re.test(String(text)));
 
@@ -1175,6 +1205,29 @@ exports.handler = async (event) => {
       reasked = true;
       console.warn('[everly-castle-chat] circled, asking again: ' + String(firstReply).slice(0, 60));
       resp = await ask('\n\nURGENT, THIS OVERRIDES EVERYTHING ELSE: you have just circled back to something you already said. She is four, and she will keep agreeing to it forever without ever telling you she is bored. Drop that subject completely. Go somewhere new in your wing, and put something on her screen this turn with show or find or count, so there is something for her to do rather than something to agree to.');
+    }
+    /* Last resort: she named a picture, so send it.
+
+       Both guards above ask the model to try again, and the model is allowed
+       to fail twice. This does not ask anybody. It reads the final reply for
+       picture names and attaches them, because a princess who says "rice and
+       beans and corn" and sends an empty screen has already told us exactly
+       what belongs on it.
+
+       Only ever fires when there would otherwise be nothing to look at. */
+    const finalUse = resp.content && resp.content.find((c) => c.type === 'tool_use');
+    const finalIn = finalUse && finalUse.input;
+    const stillEmpty = finalIn && !finalIn.show && !finalIn.find && !finalIn.count &&
+      !finalIn.puzzle && !finalIn.reveal && !finalIn.pick && !finalIn.join &&
+      !finalIn.race && !finalIn.choose;
+    if (stillEmpty && finalIn.reply) {
+      const found = namedPictures(finalIn.reply);
+      if (found.length) {
+        finalIn.show = found.length > 1
+          ? { steps: found.slice(0, 4), label: '' }
+          : { emoji: found[0], label: '' };
+        console.warn('[everly-castle-chat] empty screen after retry; sent what she named: ' + found.join(', '));
+      }
     }
   } catch (err) {
     console.error('[everly-castle-chat] upstream failure', err && err.message);

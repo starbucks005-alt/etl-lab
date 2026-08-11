@@ -159,7 +159,7 @@ body{
      Areas and rows belong here; has-embed changes the column split and
      nothing else. */
   .stage{
-    grid-template-columns:38fr 62fr;
+    grid-template-columns:34fr 66fr;
     grid-template-rows:auto auto;
     grid-template-areas:
       'princess speech'
@@ -184,7 +184,7 @@ body{
      everything you touch. Buttons need room to sit apart from each other and
      pictures do not, so the width goes where the fingers are. */
   .stage.has-embed{
-    grid-template-columns:44fr 56fr;
+    grid-template-columns:36fr 64fr;
   }
 }
 /* The free wing.
@@ -715,6 +715,14 @@ body{
 .about-shot{flex:1 1 auto;min-height:0}
 .about-shot img{max-height:100%;max-width:100%}
 .showcard{min-height:0}
+/* Padding was eating the room the words and the buttons needed. The cards keep
+   enough to read as cards and no more. */
+.stage{gap:9px;padding:4px 10px 10px}
+.window{padding:8px}
+.w-story{padding:8px 10px}
+.story-buttons{gap:10px}
+.about-btn, .story-play{padding:7px 12px}
+.log{padding-right:4px}
 </style>
 </head>
 <body>
