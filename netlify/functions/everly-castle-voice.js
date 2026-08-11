@@ -233,6 +233,7 @@ const LANG_OF = {
 };
 
 const FOUND_NAMES = {
+  "diplodocus": "a Diplodocus",
   "brush": "a brush",
   "trilobite": "a trilobite",
   "dig": "the dig",
