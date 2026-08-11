@@ -176,10 +176,15 @@ body{
     height:calc(100dvh - 84px);
     grid-template-rows:minmax(0,1.3fr) minmax(0,1fr) minmax(0,0.85fr);
   }
-  /* A wing with a cartoon flips the emphasis: the video is landscape and is
-     the thing worth looking at, so it takes the wider column. */
+  /* The right column is the wider one, cartoon or not.
+
+     It used to be the left, because the left held only the princess and the
+     clip is landscape. The left now holds the princess, the image window and
+     the growing thing, all of which are things you look at; the right holds
+     everything you touch. Buttons need room to sit apart from each other and
+     pictures do not, so the width goes where the fingers are. */
   .stage.has-embed{
-    grid-template-columns:58fr 42fr;
+    grid-template-columns:44fr 56fr;
   }
 }
 /* The free wing.
@@ -584,14 +589,15 @@ body{
 /* The two that start a conversation, marked apart from the three that play a
    recording. A child reads the difference as position, not colour. */
 .about-btn.ask{border-color:var(--gold);color:var(--gold)}
-.about-shot img{width:100%;max-width:340px;border-radius:16px;display:block;margin:0 auto;
-  box-shadow:0 6px 18px rgba(0,0,0,.28)}
+.about-shot{display:flex;align-items:center;justify-content:center;width:100%;min-height:0}
+.about-shot img{max-width:100%;max-height:100%;width:auto;height:auto;border-radius:16px;display:block;
+  box-shadow:0 8px 24px rgba(0,0,0,.32)}
 
 /* Yes and No. Permanent, and always in these two positions, because a child
    who cannot read navigates by where a thing lives. */
-.yesno{display:flex;gap:12px;justify-content:center;width:100%;padding:4px 0 0}
+.yesno{display:flex;gap:10px;justify-content:center;width:100%;max-width:100%;padding:2px 0 0}
 .yn{
-  border:1px solid var(--rule);flex:1 1 0;max-width:190px;min-height:82px;
+  border:1px solid var(--rule);flex:1 1 0;min-width:0;max-width:190px;min-height:64px;
   border-radius:20px;background:var(--card);box-shadow:var(--shadow);
   cursor:pointer;display:flex;flex-direction:column;align-items:center;
   justify-content:center;gap:2px;font-family:var(--serif);font-size:19px;
@@ -636,11 +642,11 @@ body{
 }
 
 .answers{
-  display:flex;flex-wrap:wrap;gap:10px;justify-content:center;
-  padding:8px 0 2px;width:100%
+  display:flex;flex-wrap:nowrap;gap:10px;justify-content:center;
+  padding:8px 0 2px;width:100%;max-width:100%
 }
 .answer{border:1px solid var(--rule);
-  flex:1 1 84px;max-width:140px;min-height:88px;
+  flex:1 1 0;min-width:0;max-width:140px;min-height:64px;
   border-radius:20px;background:var(--card);box-shadow:var(--shadow);
   font-size:42px;cursor:pointer;display:grid;place-items:center;
   transition:transform .12s ease
@@ -685,6 +691,30 @@ body{
   /* Both pictures size to their cell now that the cell has a height. */
   .thing-pic img, .thing-pic svg, .show-pic img, .show-pic svg{max-height:26vh}
 }
+/* The window caption is a label on the cell, not an item in it.
+
+   Left in the flow it takes the top of the flex column, so centring the
+   contents centres the caption and the picture together and the picture lands
+   below the middle: measured at 67px above and 13px below. Out of the flow,
+   the picture centres in the whole cell. */
+.w-game{position:relative}
+.w-game > .window-cap{position:absolute;top:10px;left:0;right:0;text-align:center;pointer-events:none}
+.w-game > .showcard, .w-game > .about-shot{max-height:100%}
+/* The answer chips scale to the row instead of setting its width. At a fixed
+   42px they, their borders and their gaps came to more than the card and ran
+   over its edge. */
+.answer{font-size:clamp(26px,3.4vw,42px)}
+.w-emoji{overflow:hidden}
+.w-emoji .yn{font-size:clamp(15px,1.2vw,19px)}
+/* Nothing empty may take up room in the image window. countTotal has no
+   hidden attribute and sat there at 36px high, pushing every picture below the
+   middle of its cell. */
+.w-game > :empty{display:none}
+/* And the picture uses the window rather than its own natural size. It was
+   flex:0 1 auto, so a 502px cell showed a 254px photograph. */
+.about-shot{flex:1 1 auto;min-height:0}
+.about-shot img{max-height:100%;max-width:100%}
+.showcard{min-height:0}
 </style>
 </head>
 <body>
@@ -1049,6 +1079,24 @@ const GROWTH_CAPTION = {
   piper: 'Your song', almasi: 'Your dig', bex: 'What you are building',
 };
 
+/* What each princess is actually doing with the thing in that window, in her
+   own words. Without this the line said only "looking after" and every wing
+   reached for the same verb: Clementine, who cooks, told a child to look at
+   what they had GROWN together. Growing is Posy's, like everything else in
+   this castle is somebody's. */
+const GROWTH_DOING = {
+  posy: 'the sunflower the two of you are growing from a seed',
+  nerida: 'the tide pool the two of you are filling, one creature at a time',
+  zephyra: 'the sky the two of you are watching change',
+  neva: 'the window the two of you are watching frost over',
+  lenora: 'tonight\'s moon, which is a different shape every time she comes',
+  elowyn: 'the story shelf the two of you are filling',
+  clementine: 'the rainbow plate the two of you are building, one food at a time',
+  piper: 'the song the two of you are building up',
+  almasi: 'the dig the two of you are uncovering',
+  bex: 'the thing the two of you are building in the workshop',
+};
+
 function growthStage(){
   const days = prof.visits[wingId] || [];
   return Math.min(days.length ? days.length - 1 : 0, (GROWTH[wingId] || GROWTH.posy).length - 1);
@@ -1112,8 +1160,14 @@ function remembers(){
   // not a pronoun, so the only safe thing to write here is "they".
   if (days > 1) bits.push('They have visited you ' + days + ' times.');
   const set = GROWTH[wingId] || GROWTH.posy;
-  bits.push('The thing you two are looking after is a ' + set[growthStage()] +
-            ' now, stage ' + (growthStage() + 1) + ' of ' + set.length + '.');
+  bits.push('In its own window, always on her screen, is ' +
+            (GROWTH_DOING[wingId] || GROWTH_DOING.posy) + '. It is at the ' +
+            set[growthStage()] + ' stage, ' + (growthStage() + 1) + ' of ' + set.length +
+            '. It moves on one step each day she visits and cannot be hurried, so ' +
+            'point at it and say what has happened to it. Never offer to reveal it or ' +
+            'promise it will change now, because it will not, and a promise that ' +
+            'produces nothing is the one thing that loses her. Use your own words for ' +
+            'what it is doing: growing belongs to Posy alone.');
   /* How she felt when they last parted, and how long ago that was. She opens
      in this state rather than resetting to cheerful, which is the whole
      difference between an emotion implant and a mood badge. */
