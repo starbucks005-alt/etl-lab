@@ -2576,6 +2576,52 @@ function yourGo(){
    never shipped the glyphs, so a Kenyan flag renders as the letters KE. A
    globe means the same thing to a child who cannot read and draws everywhere.
    Anything empty falls back to a face rather than a blank square. */
+/* A smiling face per country, for choosing a language.
+
+   Keyed by the two-letter code a flag emoji is actually built from, so
+   decoding one is exact rather than a guess, and by the country name for
+   choices that say it in words. */
+const COUNTRY_FACE = {
+  fr: 'france', gr: 'greece', np: 'nepal', no: 'norway', mn: 'mongolia',
+  nz: 'new-zealand', us: 'usa', de: 'germany', ke: 'kenya', br: 'brazil',
+  dk: 'denmark',
+};
+const COUNTRY_WORD = {
+  france: 'france', french: 'france',
+  greece: 'greece', greek: 'greece',
+  nepal: 'nepal', nepali: 'nepal',
+  norway: 'norway', norwegian: 'norway',
+  mongolia: 'mongolia', mongolian: 'mongolia',
+  'new zealand': 'new-zealand',
+  america: 'usa', american: 'usa', english: 'usa',
+  germany: 'germany', german: 'germany',
+  kenya: 'kenya', swahili: 'kenya', kenyan: 'kenya',
+  brazil: 'brazil', portuguese: 'brazil', brazilian: 'brazil',
+  denmark: 'denmark', danish: 'denmark',
+};
+
+/* The file, preferring a transparent png over a jpg wherever she has made one,
+   so re-exporting needs no code change. */
+function countryFace(slug){
+  if (!slug || !PHOTO_FILES) return null;
+  const want = [slug + '-smiley.png', slug + '-smiley.jpg', slug + '-smiley.jpeg'];
+  const hit = want.find((f) => PHOTO_FILES.some((x) => x.toLowerCase() === f));
+  return hit ? '/assets/everly/' + encodeURIComponent(PHOTO_FILES.find((x) => x.toLowerCase() === hit)) : null;
+}
+
+/* The country a choice is about, from its flag or from its words. */
+function countryInChoice(emoji, say){
+  const e = String(emoji || '');
+  const pair = [...e].filter((c) => /[🇦-🇿]/u.test(c))
+    .map((c) => String.fromCharCode(c.codePointAt(0) - 0x1F1E6 + 97)).join('');
+  if (pair.length === 2 && COUNTRY_FACE[pair]) return COUNTRY_FACE[pair];
+  const t = String(say || '').toLowerCase();
+  /* \\b, not \b. The latter is a backspace character, and the word match
+     silently never fired: "teach me some French" found nothing. */
+  const word = Object.keys(COUNTRY_WORD).find((w) => new RegExp('\\b' + w + '\\b').test(t));
+  return word ? COUNTRY_WORD[word] : null;
+}
+
 function safeEmoji(ch){
   const e = String(ch || '').trim();
   if (!e) return '🙂';
@@ -2587,7 +2633,8 @@ function setAnswers(choices){
   const host = document.getElementById('answers');
   host.innerHTML = '';
 
-  const items = (choices || []).slice(0, 3).map((c) => ({ emoji:safeEmoji(c.emoji), say:c.say, mic:false }));
+  const items = (choices || []).slice(0, 3)
+    .map((c) => ({ emoji:safeEmoji(c.emoji), rawEmoji:c.emoji, say:c.say, mic:false }));
   /* Which photographs this row has already spent. */
   const usedPictures = new Set();
   if (SR) items.push({ emoji:'🎤', say:null, mic:true });
@@ -2600,14 +2647,18 @@ function setAnswers(choices){
     /* Our photograph beats the model's emoji every time we have one. It picks
        the emoji freely and nothing checks it, which is how a child who cannot
        read was shown a pickle and told it was lettuce. */
-    const named = it.mic ? null : pictureInPhrase(it.say);
+    /* A country or a language: her flag face, which is the one thing that says
+       "this is the language we would be speaking" to somebody who cannot read.
+       It also replaces the flag emoji Windows draws as two capital letters. */
+    const face = it.mic ? null : countryFace(countryInChoice(it.rawEmoji, it.say));
+    const named = (it.mic || face) ? null : pictureInPhrase(it.say);
     /* Once per row. Two choices that both mention the wind resolved to the
        same photograph and the child was asked to choose between two identical
        pictures, which is worse than a rough emoji: it makes the choice
        impossible rather than merely inaccurate. */
     const fresh = named && !usedPictures.has(named);
     if (fresh) usedPictures.add(named);
-    const url = fresh && photoFile(named);
+    const url = face || (fresh && photoFile(named));
     if (url) {
       b.classList.add('has-photo');
       const img = new Image();
