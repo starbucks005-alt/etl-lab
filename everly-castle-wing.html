@@ -768,6 +768,14 @@ body{
    to fill with, and cover would crop the top of her head to make a square. */
 .answer.is-face{padding:6px}
 .answer.is-face img{width:100%;height:100%;object-fit:contain;border-radius:0}
+/* Chips settle into the row instead of stretching it. A flex row stretches
+   its items to the tallest, so these grew to 162px each and pushed 35px of
+   the card off the bottom: Yes and No lost their tops and a chip burst out
+   underneath. */
+.answers{align-items:center}
+.answer{height:clamp(54px,8.5vh,86px);min-height:0}
+.yesno{align-items:center}
+.yn{height:clamp(46px,7vh,74px);min-height:0}
 </style>
 </head>
 <body>
@@ -2693,12 +2701,19 @@ const PHRASE_PICTURE = Object.keys(PICS)
    carrot in the ground. */
 const WING_PREFERS = { clementine: { carrot: 'carrotFood' } };
 
+/* Pictures that are a scene rather than a single thing. Fine to show large,
+   useless in a chip, where the whole job is telling one thing from the thing
+   next to it. Almasi's dig is half a dozen fossils and her kneeling among
+   them; a rock pool is everything in it at once. */
+const NOT_A_CHIP = new Set(['dig', 'tidepool', 'nightsky']);
+
 function pictureInPhrase(text){
   if (!text) return null;
   const hit = PHRASE_PICTURE.find(([, re]) => re.test(String(text)));
   if (!hit) return null;
   const prefer = (WING_PREFERS[wingId] || {})[hit[0]];
-  return prefer || hit[0];
+  const name = prefer || hit[0];
+  return NOT_A_CHIP.has(name) ? null : name;
 }
 
 /* Writes into THIS child's log and nobody else's. Re-reads first so a name or
