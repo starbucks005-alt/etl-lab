@@ -164,6 +164,7 @@ const WING_PICTURES = {
     "butterfly"
   ],
   "almasi": [
+    "brush",
     "trilobite",
     "dig",
     "skull",
@@ -244,7 +245,7 @@ const ALL_GAMES = ['find', 'pick', 'count', 'puzzle', 'reveal', 'join', 'race', 
    everly-castle-wing.html. Kept here so a name the princess invents is caught
    before it reaches a child rather than being painted on screen as text. If
    you add a drawing, add it in both places; the checker compares them. */
-const PICTURES = new Set(["seed","sprout","leafy","carrot","sunflower","tree","raindrop","snowflake","ice","wave","cloud","sun","moonFull","moonHalf","moonThin","star","snail","bee","butterfly","fish","bird","rabbit","apple","carrotFood","bread","milk","book","house","mountain","shadow","gear","bone","rock","drum","starfish","shell","shellOpen","crab","jellyfish","seaweed","tidepool","sea","pearl","urchin","anemone","mussels","wrench","hammer","bolt","spring","wheel","engine","toolbox","bulb","nut","broken","wind","kite","feather","storm","balloon","mountainSnow","fox","owl","hermit","swift","snowfox","petal","plough","orion","cassiopeia","nightsky","bud","halfOpen","rice","banana","egg","tomato","corn","beans","soup","cheese","grapes","plum","berry","sandwich","pizza","macCheese","cereal","yogurt","strawberry","cookie","hotdog","skull","footprint","ammonite","trilobite","dig","fern","tooth"]);
+const PICTURES = new Set(["seed","sprout","leafy","carrot","sunflower","tree","raindrop","snowflake","ice","wave","cloud","sun","moonFull","moonHalf","moonThin","star","snail","bee","butterfly","fish","bird","rabbit","apple","carrotFood","bread","milk","book","house","mountain","shadow","gear","bone","rock","drum","starfish","shell","shellOpen","crab","jellyfish","seaweed","tidepool","sea","pearl","urchin","anemone","mussels","wrench","hammer","bolt","spring","wheel","engine","toolbox","bulb","nut","broken","wind","kite","feather","storm","balloon","mountainSnow","fox","owl","hermit","swift","snowfox","petal","plough","orion","cassiopeia","nightsky","bud","halfOpen","rice","banana","egg","tomato","corn","beans","soup","cheese","grapes","plum","berry","sandwich","pizza","macCheese","cereal","yogurt","strawberry","cookie","hotdog","skull","footprint","ammonite","trilobite","brush","dig","fern","tooth"]);
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -910,7 +911,7 @@ If you offer to show her a thing, you must actually put it on screen in the same
 So: no offering to show her a thing without that thing arriving in show, in the same reply. If it changes, send the stages as steps and let her tap between them. Build the stages only from pictures on YOUR list above, never another wing's: a child who watches three princesses grow the same carrot has met one princess three times.
 
 THE PICTURES YOU HAVE. Use these names exactly, they are the only ones that draw:
-seed, sprout, leafy, carrot, sunflower, tree, raindrop, snowflake, ice, wave, cloud, sun, moonFull, moonHalf, moonThin, star, snail, bee, butterfly, fish, bird, rabbit, apple, carrotFood, bread, milk, book, house, mountain, shadow, gear, bone, rock, drum, starfish, shell, shellOpen, crab, jellyfish, seaweed, tidepool, sea, pearl, urchin, anemone, mussels, wrench, hammer, bolt, spring, wheel, engine, toolbox, bulb, nut, broken, wind, kite, feather, storm, balloon, mountainSnow, fox, owl, hermit, swift, snowfox, petal, plough, orion, cassiopeia, nightsky, bud, halfOpen, rice, banana, egg, tomato, corn, beans, soup, cheese, grapes, plum, berry, sandwich, pizza, macCheese, cereal, yogurt, strawberry, cookie, hotdog, skull, footprint, ammonite, trilobite, dig, fern, tooth
+seed, sprout, leafy, carrot, sunflower, tree, raindrop, snowflake, ice, wave, cloud, sun, moonFull, moonHalf, moonThin, star, snail, bee, butterfly, fish, bird, rabbit, apple, carrotFood, bread, milk, book, house, mountain, shadow, gear, bone, rock, drum, starfish, shell, shellOpen, crab, jellyfish, seaweed, tidepool, sea, pearl, urchin, anemone, mussels, wrench, hammer, bolt, spring, wheel, engine, toolbox, bulb, nut, broken, wind, kite, feather, storm, balloon, mountainSnow, fox, owl, hermit, swift, snowfox, petal, plough, orion, cassiopeia, nightsky, bud, halfOpen, rice, banana, egg, tomato, corn, beans, soup, cheese, grapes, plum, berry, sandwich, pizza, macCheese, cereal, yogurt, strawberry, cookie, hotdog, skull, footprint, ammonite, trilobite, brush, dig, fern, tooth
 
 Use a NAME from this list, never an emoji. An emoji sent as a picture now shows nothing at all, which is how a bird became a music note. If what you want is not on your list, show something that is, or say it without offering to show it.
 
