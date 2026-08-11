@@ -2759,6 +2759,13 @@ function logIt(said, flag){
 /* Second model calls spent in this conversation, counted for the ceiling. */
 let retriesUsed = 0;
 
+/* Turns since anything to play with arrived.
+
+   A child who cannot read should not have to ask for the only part of this
+   that is play, and pressing the dice is asking. Two of these and the next
+   turn brings a game whether she asked or not. */
+let sinceGame = 0;
+
 async function turn(message, quiet, pressed){
   if (busy) return;
   /* She pressed something before the start button. Do the opening first, so
@@ -2795,6 +2802,8 @@ async function turn(message, quiet, pressed){
         /* "game" or "speak" when she pressed one of those two buttons. A
            press is a specific request and the turn has to keep it. */
         ...(pressed ? { pressed } : {}),
+        /* How many turns since she had something to play with. */
+        sinceGame,
         /* THE PAID LINE.
 
            Free accounts send no name and no notes, so the princess speaks to a
@@ -2840,6 +2849,13 @@ async function turn(message, quiet, pressed){
   }
 
   if (data.retried) retriesUsed += 1;
+  /* Anything she can actually do with her hands counts. Showing her a picture
+     does not: looking is not playing, which is the whole of what Pookie has
+     been reporting as boring. */
+  const camePlayable = !!(data.find || data.count || data.puzzle || data.reveal ||
+                          data.pick || data.join || data.race || data.choose ||
+                          (data.show && data.show.steps && data.show.steps.length > 1));
+  sinceGame = camePlayable ? 0 : sinceGame + 1;
   addBubble('agent', data.body);
   rememberMood(data.feeling);
   rememberTaught(data.covered);

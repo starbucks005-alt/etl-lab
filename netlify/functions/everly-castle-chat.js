@@ -1202,12 +1202,22 @@ exports.handler = async (event) => {
     race: 'race: drop two things at once and let her guess which lands first',
     choose: 'choose: offer two pictures and let her send the story either way',
   };
+  /* Or nobody asked, and it has been long enough.
+
+     Two turns of talking is the most a four-year-old should have to sit
+     through before something to do arrives. She will not ask: she cannot read
+     the button, and asking is not her job. */
+  const waited = Math.max(0, Number(body.sinceGame) || 0) >= 2;
+
   let owed = '';
-  if (pressed === 'game') {
+  if (pressed === 'game' || (waited && !pressed)) {
     const mine = (OWNS_GAME[agentId] || []);
+    const why = pressed === 'game'
+      ? 'SHE PRESSED THE GAME BUTTON.'
+      : 'IT HAS BEEN TWO TURNS OF TALKING. Bring her something to do, as your own idea rather than as an offer, and do not ask her whether she would like to: she has been agreeing to things for two turns and agreeing is not playing.';
     owed = mine.length
-      ? '\n\nSHE PRESSED THE GAME BUTTON. She has asked for one specific thing and you must send it THIS TURN, not offer it and not describe it. Your game is ' + HER_GAME[mine[0]] + '. Send it with your reply. A button that produces a sentence instead of a game is a broken promise, and she is four: she will not decide the app is wrong, she will decide she pressed it wrong.'
-      : '\n\nSHE PRESSED THE GAME BUTTON. You have no game of your own, on purpose: yours is showing and stepping. So send a sequence with steps THIS TURN and let her tap it along, which is your version of the same thing. Do not offer it, send it.';
+      ? '\n\n' + why + ' Send it THIS TURN. Do not offer it, do not describe it, do not ask whether she would like it. Your game is ' + HER_GAME[mine[0]] + '. A turn that talks about a game instead of sending one is a broken promise, and she is four: she will not decide the app is wrong, she will decide she did it wrong.'
+      : '\n\n' + why + ' You have no game of your own, on purpose: yours is showing and stepping. So send a sequence with steps THIS TURN and let her tap it along, which is your version of the same thing. Do not offer it, send it.';
   }
   if (pressed === 'speak') {
     owed = '\n\nSHE PRESSED THE TEACH ME BUTTON. Teach her one word in your language THIS TURN: say it, say what it means, and put a picture of the thing on screen with show so the word has something to attach to. One word, not a list.';
