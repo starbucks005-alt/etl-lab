@@ -17,7 +17,7 @@
 
    2. LIVE LINES. Pass { agent, text } for a generated reply. These are cached
       too, keyed on a hash of the exact words. That looks pointless until you
-      watch a four-year-old use it: the princesses ask "what colour shall we
+      watch a four-year-old use it: the princesses ask "what color shall we
       make it?" and "shall we count them?" over and over, across sessions and
       across children, and every one of those is a free repeat after the first.
 
@@ -283,7 +283,7 @@ const FOUND_NAMES = {
   "storm": "a storm",
   "balloon": "a balloon",
   "mountainSnow": "a snowy mountain",
-  "spanner": "a spanner",
+  "wrench": "a wrench",
   "hammer": "a hammer",
   "bolt": "a bolt",
   "spring": "a spring",

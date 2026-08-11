@@ -55,12 +55,12 @@
   --shadow-deep:0 14px 34px rgba(22,32,43,.26);
   --serif:Spectral,Georgia,'Iowan Old Style',Palatino,serif;
 }
-/* ── The child picks her castle's colour ───────────────────────────────────
+/* ── The child picks her castle's color ───────────────────────────────────
    Chosen at the crest picker, the moment she says who she is, and remembered
    against her own profile. Sisters get different castles out of the same
    install, which is the whole point of "Charlotte's Castle" being hers.
 
-   EVERY COLOUR HERE IS A REAL ETL COLOUR, wearing a name a four-year-old would
+   EVERY COLOR HERE IS A REAL ETL COLOR, wearing a name a four-year-old would
    actually say. Dr. O's call, and it is the right one: the brand stays exactly
    itself underneath, and the child gets Mermaid Green instead of #35806f. An
    earlier pass invented its own hexes, which drifted from ETL for no gain.
@@ -177,7 +177,7 @@ body{
    Not the paid wing with pieces taken out: a different, complete shape. The
    princess and her stories, side by side, filling the space. A child who has
    never seen the other version cannot tell anything is absent, which is the
-   point. There is no lock, no grey button and no prompt anywhere she looks. */
+   point. There is no lock, no gray button and no prompt anywhere she looks. */
 @media (min-width:900px){
   .stage.free{
     grid-template-columns:1fr 1fr;
@@ -818,7 +818,7 @@ function isPaid(){
   document.querySelector('.stage').classList.add('free');
 })();
 
-/* The wing wears whatever colour she chose on the hub. Applied before first
+/* The wing wears whatever color she chose on the hub. Applied before first
    paint rather than after, so a child on Starry Night never gets a flash of
    daylight on her way through the door. */
 (function applyChosenTheme(){
@@ -1146,7 +1146,7 @@ const SCRIPT_TEXT = {
   neva:       { hello:'Come in. Mind the cold, it bites a little at first.', again:'You came back. Wisp knew you would.', story:'I am Princess Neva. I live in Norway, where it snows, and I love ice and snowflakes. I speak Norwegian. Would you like to learn about snow? Or would you like to learn some Norwegian words?' },
   lenora:      { hello:'Shh. Come and stand here, where you can see.', again:'There you are. The moon has changed since you left.', story:'I am Princess Lenora. I live in Mongolia, where the night sky is very dark, and I love the moon and the stars. I speak Mongolian. Would you like to learn about the moon? Or would you like to learn some Mongolian words?' },
   elowyn:     { hello:'A visitor. Inkwell, we have a visitor, and the story is not finished.', again:'You are back, and just in time, I was stuck.', story:'I am Princess Elowyn. I live in New Zealand, and I love stories. I speak English and Māori. Would you like to make up a story? Or would you like to learn some Māori words?' },
-  clementine: { hello:'Perfect timing. I am building a plate and I have run clean out of colours.', again:'You came back. Good, because I have done it again, look at this.', story:'I am Princess Clementine. I live in America, and I love cooking and finding out what food does for you. I speak English. Would you like to learn about food? Or shall I tell you what children eat in other countries?' },
+  clementine: { hello:'Perfect timing. I am building a plate and I have run clean out of colors.', again:'You came back. Good, because I have done it again, look at this.', story:'I am Princess Clementine. I live in America, and I love cooking and finding out what food does for you. I speak English. Would you like to learn about food? Or shall I tell you what children eat in other countries?' },
   piper:      { hello:'Two, three, four, and you are here.', again:'Back again. I have a new pattern and it is a tricky one.', story:'I am Princess Piper. I live in Germany, and I love music. I speak German. Would you like to learn about music? Or would you like to learn some German words?' },
   almasi:     { hello:'Mind where you kneel. There are bones under all of this.', again:'You came back. Good, I found something yesterday and I have not touched it yet.', story:'I am Princess Almasi. I live in Kenya, and I love digging up bones from a very long time ago. I speak Swahili. Would you like to learn about fossils? Or would you like to learn some Swahili words?' },
   bex:        { hello:'Good, another pair of hands. Hold this.', again:'You are back. It is still broken. I left it for you.', story:'I am Princess Bex. I live in Brazil, and I love fixing things and finding out how they work. I speak Portuguese. Would you like to learn how something works? Or would you like to learn some Portuguese words?' },
@@ -1264,12 +1264,12 @@ function addBubble(who, text){
 
    She kept offering to show things, a sunflower, a snail, and nothing ever
    appeared. That is the same broken promise as asking a child to hold a
-   spanner: she does not conclude the app is empty, she concludes she missed
+   wrench: she does not conclude the app is empty, she concludes she missed
    it. Now the offer has something behind it. */
 /* Every picture a princess is allowed to put on the screen.
 
-   Each entry is a list of [path, colour] or [path, colour, 1] where the 1
-   means stroke it rather than fill it. Colours are literal on purpose: a
+   Each entry is a list of [path, color] or [path, color, 1] where the 1
+   means stroke it rather than fill it. Colors are literal on purpose: a
    carrot is orange in Butterfly Blue and in Starry Night alike. */
 const PICS = {
   seed: [["M32 40c-6 0-10-4-10-9s4-9 10-9 10 4 10 9-4 9-10 9z","#8a6a45"],["M28 30c2-2 5-3 8-3","#a8865c"]],
@@ -1318,7 +1318,7 @@ const PICS = {
   urchin: [["M32 20a12 12 0 100 24 12 12 0 000-24z","#6b3fa0"],["M32 6v10M32 48v10M6 32h10M48 32h10M13 13l7 7M44 44l7 7M51 13l-7 7M20 44l-7 7M20 9l4 9M44 9l-4 9M20 55l4-9M44 55l-4-9M9 20l9 4M9 44l9-4M55 20l-9 4M55 44l-9-4","#4a2b73",1]],
   anemone: [["M32 40a10 8 0 100 16 10 8 0 000-16z","#5fa04e"],["M32 40V22M32 40l-10-14M32 40l10-14M32 40l-16-8M32 40l16-8M32 40l-14 2M32 40l14 2","#7ac46a",1],["M32 18a4 4 0 100 8 4 4 0 000-8z","#a8d89a"]],
   mussels: [["M10 34c0-10 8-18 16-18s10 8 10 18-6 16-14 16-12-6-12-16z","#2b3a5c"],["M28 40c0-9 7-16 14-16s10 6 10 14-5 14-12 14-12-5-12-12z","#3d4f75"],["M18 22c-3 8-3 18 0 26M40 30c-2 7-2 14 0 20","#5a6f99",1]],
-  spanner: [["M44 8a12 12 0 00-14 16L10 44a5 5 0 007 7l20-20a12 12 0 0016-14l-8 8-8-2-2-8z","#8a97a3"]],
+  wrench: [["M44 8a12 12 0 00-14 16L10 44a5 5 0 007 7l20-20a12 12 0 0016-14l-8 8-8-2-2-8z","#8a97a3"]],
   hammer: [["M14 50l20-20 6 6-20 20z","#7a5230"],["M32 14l18 10-8 12-18-10z","#8a97a3"]],
   bolt: [["M32 12l14 8v16l-14 8-14-8V20z","#8a97a3"],["M32 24a8 8 0 100 16 8 8 0 000-16z","#5a6a78"]],
   spring: [["M20 12h24M22 20h20M20 28h24M22 36h20M20 44h24M24 52h16","#8a97a3",1]],
@@ -1406,6 +1406,13 @@ const PHOTO_EXACT = {
   carrotFood: 'carrot.jpg',
 };
 const PHOTO_ALIASES = {
+  /* Her file is wrench.jpg; the picture is called wrench because
+     that is the word the child knows. */
+  /* Her file is wrench.jpg; the picture is called wrench because
+     that is the word the child knows. */
+  /* Her file is spanner.jpg; the picture is called wrench because
+     that is the word the child knows. */
+  wrench: ['spanner'],
   gear: ['cog'],
   fox: ['red fox'],
   bird: ['bird bullfinch', 'bullfinch'],
@@ -1479,17 +1486,17 @@ function picSvg(name, size){
   svg.setAttribute('width', size); svg.setAttribute('height', size);
   svg.setAttribute('aria-hidden', 'true');
   svg.style.display = 'block';
-  paths.forEach(([d, colour, stroked]) => {
+  paths.forEach(([d, color, stroked]) => {
     const p = document.createElementNS(NS, 'path');
     p.setAttribute('d', d);
     if (stroked) {
       p.setAttribute('fill', 'none');
-      p.setAttribute('stroke', colour);
+      p.setAttribute('stroke', color);
       p.setAttribute('stroke-width', '3');
       p.setAttribute('stroke-linecap', 'round');
       p.setAttribute('stroke-linejoin', 'round');
     } else {
-      p.setAttribute('fill', colour);
+      p.setAttribute('fill', color);
     }
     svg.appendChild(p);
   });
@@ -1976,7 +1983,7 @@ function setPuzzle(spec){
           turn(misses ? 'I found the ' + kind : 'I got it, the ' + kind, true);
         }, 700);
       } else {
-        // The whole of the negative feedback. No sound, no colour, no count.
+        // The whole of the negative feedback. No sound, no color, no count.
         misses += 1;
         b.classList.remove('wobble');
         void b.offsetWidth;              // restart the animation
@@ -2543,7 +2550,7 @@ document.getElementById('begin').addEventListener('click', begin);
 
        Kept with her other notes, so it survives leaving the wing and coming
        back tomorrow. When she has heard all five they come round again in a
-       fresh order, which at four is not a repeat, it is a favourite. */
+       fresh order, which at four is not a repeat, it is a favorite. */
     const told = (prof.taught[wingId] || [])
       .map((t) => /^story ([1-5])$/.exec(t)).filter(Boolean).map((x) => Number(x[1]));
     let left = [1, 2, 3, 4, 5].filter((n) => !told.includes(n));
