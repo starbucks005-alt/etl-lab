@@ -272,11 +272,35 @@ const json = (statusCode, body) => ({
    loud: the reply says "macaroni cheese" or "mac and cheese".
 
    Order follows the sentence, so what she showed matches what she said. */
+/* Irregular plurals and the handful of words she says instead of the picture
+   name. Kept deliberately tight: a picture that appears for a loose reason is
+   as bad as one that does not appear at all. */
+const SPOKEN_ALSO = {
+  tooth: ["teeth"],
+  leafy: ["leaves"],
+  gear: ["cog", "cogs"],
+  fish: ["fishes"],
+  footprint: ["footprints", "tracks"],
+  mussels: ["mussel"],
+  jellyfish: ["jellyfishes"],
+  moonFull: ["full moon"], moonHalf: ["half moon"], moonThin: ["crescent moon", "crescent"],
+  mountainSnow: ["snowy mountain"],
+  plough: ["big dipper", "the plough", "ursa major"],
+  nightsky: ["night sky", "stars", "milky way"],
+  shellOpen: ["open shell"],
+  carrotFood: ["carrot"],
+  macCheese: ["macaroni cheese", "mac and cheese", "mac n cheese"],
+};
+
 const SPOKEN_PICTURE = (() => {
   const forms = [];
   PICTURES.forEach((name) => {
     const words = String(name).replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase();
-    forms.push([name, new RegExp('\\b' + words.replace(/\s+/g, '\\s+') + 's?\\b', 'i')]);
+    /* Every spelling she might actually say, not only the one we called it.
+       "teeth" was invisible here, and tooth is a picture with a photograph. */
+    [words].concat(SPOKEN_ALSO[name] || []).forEach((w) => {
+      forms.push([name, new RegExp('\\b' + String(w).toLowerCase().replace(/\s+/g, '\\s+') + 's?\\b', 'i')]);
+    });
   });
   return forms;
 })();
