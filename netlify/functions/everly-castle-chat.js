@@ -1186,10 +1186,37 @@ exports.handler = async (event) => {
     return shared / Math.min(A.size, B.size) >= 0.5;
   }
 
+  /* She pressed a button, so the turn owes her one specific thing.
+
+     Carried on the call that was already happening rather than checked
+     afterwards, because a guard costs a second call and the ceiling exists to
+     stop us paying for those. */
+  const pressed = String(body.pressed || '');
+  const HER_GAME = {
+    find: 'find: scatter things in your wing and let her turn them over',
+    pick: 'pick: offer her three things and ask which one',
+    count: 'count: put things on screen and count them with her',
+    puzzle: 'puzzle: give her the shapes to fit together',
+    reveal: 'reveal: cover something and let her brush it clear',
+    join: 'join: put a constellation up and let her tap the stars in order',
+    race: 'race: drop two things at once and let her guess which lands first',
+    choose: 'choose: offer two pictures and let her send the story either way',
+  };
+  let owed = '';
+  if (pressed === 'game') {
+    const mine = (OWNS_GAME[agentId] || []);
+    owed = mine.length
+      ? '\n\nSHE PRESSED THE GAME BUTTON. She has asked for one specific thing and you must send it THIS TURN, not offer it and not describe it. Your game is ' + HER_GAME[mine[0]] + '. Send it with your reply. A button that produces a sentence instead of a game is a broken promise, and she is four: she will not decide the app is wrong, she will decide she pressed it wrong.'
+      : '\n\nSHE PRESSED THE GAME BUTTON. You have no game of your own, on purpose: yours is showing and stepping. So send a sequence with steps THIS TURN and let her tap it along, which is your version of the same thing. Do not offer it, send it.';
+  }
+  if (pressed === 'speak') {
+    owed = '\n\nSHE PRESSED THE TEACH ME BUTTON. Teach her one word in your language THIS TURN: say it, say what it means, and put a picture of the thing on screen with show so the word has something to attach to. One word, not a list.';
+  }
+
   const ask = (extra) => client.messages.create({
     model: MODEL,
     max_tokens: MAX_TOKENS,
-    system: systemPrompt(agent, body.student, body.remembers, body.title) + (extra || ''),
+    system: systemPrompt(agent, body.student, body.remembers, body.title) + owed + (extra || ''),
     tools: [SPEAK_TOOL],
     tool_choice: { type: 'tool', name: 'speak' },
     messages,

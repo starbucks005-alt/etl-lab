@@ -2510,7 +2510,9 @@ function buildAbouts(){
     b.append(bigEmoji(emoji), smallWord(word));
     /* A turn, not a recording. The image window clears itself on the way,
        because turn() calls clearImageWindow(). */
-    b.addEventListener('click', () => { turn(say, true); });
+    /* Which button, so the turn can be told what it owes her. A button is a
+       promise in a way a sentence is not. */
+    b.addEventListener('click', () => { turn(say, true, kind); });
     host.appendChild(b);
   });
   ABOUT_LABELS.forEach(([kind, emoji, word]) => {
@@ -2757,7 +2759,7 @@ function logIt(said, flag){
 /* Second model calls spent in this conversation, counted for the ceiling. */
 let retriesUsed = 0;
 
-async function turn(message, quiet){
+async function turn(message, quiet, pressed){
   if (busy) return;
   /* She pressed something before the start button. Do the opening first, so
      she is greeted and asked how she is, and then send what she pressed. She
@@ -2790,6 +2792,9 @@ async function turn(message, quiet){
            the ceiling the guards go quiet and the free fallback keeps filling
            the screen. */
         retriesSoFar: retriesUsed,
+        /* "game" or "speak" when she pressed one of those two buttons. A
+           press is a specific request and the turn has to keep it. */
+        ...(pressed ? { pressed } : {}),
         /* THE PAID LINE.
 
            Free accounts send no name and no notes, so the princess speaks to a
