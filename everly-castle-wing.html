@@ -2575,6 +2575,8 @@ function setAnswers(choices){
   host.innerHTML = '';
 
   const items = (choices || []).slice(0, 3).map((c) => ({ emoji:c.emoji, say:c.say, mic:false }));
+  /* Which photographs this row has already spent. */
+  const usedPictures = new Set();
   if (SR) items.push({ emoji:'🎤', say:null, mic:true });
   if (items.length && items.length % 2 === 1) items.push({ emoji:'🤷', say:'something else', mic:false });
 
@@ -2586,7 +2588,13 @@ function setAnswers(choices){
        the emoji freely and nothing checks it, which is how a child who cannot
        read was shown a pickle and told it was lettuce. */
     const named = it.mic ? null : pictureInPhrase(it.say);
-    const url = named && photoFile(named);
+    /* Once per row. Two choices that both mention the wind resolved to the
+       same photograph and the child was asked to choose between two identical
+       pictures, which is worse than a rough emoji: it makes the choice
+       impossible rather than merely inaccurate. */
+    const fresh = named && !usedPictures.has(named);
+    if (fresh) usedPictures.add(named);
+    const url = fresh && photoFile(named);
     if (url) {
       b.classList.add('has-photo');
       const img = new Image();
