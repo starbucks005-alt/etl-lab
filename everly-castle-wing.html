@@ -1268,6 +1268,8 @@ function markThingTappable(){
    cell back to the growing thing; the growing thing now has its own window and
    never leaves it, so all this does is clear the picture a button put there. */
 function clearImageWindow(){
+  /* Anything still downloading is stale the moment the window is cleared. */
+  aboutWanted += 1;
   const shot = document.getElementById('aboutShot');
   if (shot) { shot.hidden = true; shot.textContent = ''; }
   document.querySelector('.stage').classList.remove('showing-about');
@@ -1857,6 +1859,8 @@ function settleWindow(){
      What is left is making sure her pet, family or country steps aside the
      moment a reply puts something in the window. */
   const shot = document.getElementById('aboutShot');
+  /* A reply has taken the window, so a picture still on its way is stale. */
+  if (busyNow) aboutWanted += 1;
   if (busyNow && shot && !shot.hidden) { shot.hidden = true; shot.textContent = ''; }
   if (busyNow) document.querySelector('.stage').classList.remove('showing-about');
 }
