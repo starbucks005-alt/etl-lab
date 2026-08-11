@@ -2570,11 +2570,24 @@ function yourGo(){
   }, 14000);
 }
 
+/* An emoji this machine can actually draw.
+
+   Flags are built from pairs of regional indicator letters and Windows has
+   never shipped the glyphs, so a Kenyan flag renders as the letters KE. A
+   globe means the same thing to a child who cannot read and draws everywhere.
+   Anything empty falls back to a face rather than a blank square. */
+function safeEmoji(ch){
+  const e = String(ch || '').trim();
+  if (!e) return '🙂';
+  if (/[🇦-🇿]/u.test(e)) return '🌍';
+  return e;
+}
+
 function setAnswers(choices){
   const host = document.getElementById('answers');
   host.innerHTML = '';
 
-  const items = (choices || []).slice(0, 3).map((c) => ({ emoji:c.emoji, say:c.say, mic:false }));
+  const items = (choices || []).slice(0, 3).map((c) => ({ emoji:safeEmoji(c.emoji), say:c.say, mic:false }));
   /* Which photographs this row has already spent. */
   const usedPictures = new Set();
   if (SR) items.push({ emoji:'🎤', say:null, mic:true });
