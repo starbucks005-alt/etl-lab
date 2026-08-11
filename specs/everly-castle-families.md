@@ -25,32 +25,28 @@ two days closing.
 
 **House rules for all ten**
 
-- **These are royal families.** She is a princess, so her grandmother is a
-  queen, her brother is a prince, her small cousin is a princess too. Crowns,
-  circlets, fine cloth, a palace or a great house behind them. A child hears
-  the word princess and pictures exactly this, and the pictures should not
-  argue with the word.
-- **The people inside the finery are ordinary.** This is the whole trick of
-  these ten. Luc is a prince who knows nothing about gardening and advises
-  anyway. Margot is a princess who will not share her trowel. Sam is a prince
-  of five who leaves his football exactly where his sister needs to stand.
-  Grand room, real family.
-- **Royal in the manner of that country**, not a single European default.
-  Mongolia has its own court dress and so does Nepal, Greece, Kenya and
-  Brazil. Ten palaces, not one palace ten times.
-- **These are families living NOW, not in history.** Royal pulls towards
-  costume drama and it must not. Nerida talks about dropped ice creams and
-  lemonade bottle tops; her family cannot be in chitons and laurel. Modern
-  clothes with real richness in them, good cloth, embroidery, colour, and a
-  circlet if a royal marker is wanted, because a circlet reads as princess
-  without reading as BC. The countries in this castle are real and current,
-  which is the whole difference between this and every other princess app.
+- **They are not royalty, and that is the point.** Every girl is a princess:
+  it is what she IS, not a rank she was born into. So these are ordinary
+  families in real countries, with no crowns, no thrones and no palaces. The
+  castle calls every child who arrives Princess before it knows her name,
+  and that only means something if princess is a thing you can already be.
+- **Ordinary is not the same as plain.** Warm, specific, real households with
+  good things in them: a garden somebody actually tends, a kitchen in use, a
+  music room full of instruments, a workshop full of half-mended machines.
+  Not grand, not poor. Somebody's family.
+- **Real in the manner of that country**, not one look ten times. A house in
+  Mongolia is not a house in Norway, and the room is half the geography.
+- **These are families living NOW, not in history.** Nerida talks about
+  dropped ice creams and lemonade bottle tops; her family cannot be in
+  chitons and laurel. Modern clothes, modern rooms. The countries in this
+  castle are real and current, which is the whole difference between this and
+  every other princess app.
 - **They must look like they belong in her portrait.** Each princess already
   has one, and it is storybook, colourful and warm. A family rendered as a
   museum diorama beside her reads as a different product.
-- **No writing anywhere in the picture.** No names on dresses, no signs, no
-  labels. She cannot read, so text is meaningless marks to her, and a name
-  printed on a costume reads as a label rather than as clothing.
+- **No writing anywhere in the picture.** No names on clothes, no signs, no
+  labels. She cannot read, so text is meaningless marks to her.
+
 - **A country is not one face, and this is deliberate.** Posy is Asian and
   French. That is not an error to be corrected in later images, it is the
   point: children who live in France look like all sorts of people, and a
@@ -102,7 +98,7 @@ setting and how they are listened to, not through borrowed regalia.
 **Four people.** Posy; **Luc**, 19, tall, clean hands, clearly giving advice;
 **Margot**, 6, gripping her own small trowel, right at Posy's elbow; and
 **Grandmother**, older, the one who actually knows.
-**Setting:** the formal gardens of a French chateau, box hedges and gravel walks, the house behind. They are dressed for court and Posy is filthy anyway, which is the joke.
+**Setting:** the family garden behind their house in France, rows and a wall and a gravel path. Everybody in ordinary summer clothes and Posy filthy anyway, which is the joke.
 
 ## Nerida — Greece
 
@@ -114,7 +110,7 @@ setting and how they are listened to, not through borrowed regalia.
 oldest, slightly apart — she is the one who has left. **Kosta**, 4, holding a
 bucket he will not surrender. Two more siblings [**Stavros**, 12, and
 **Ioanna**, 9] anywhere in frame.
-**Setting:** a marble sea terrace above the rocks, columns and worn steps down to the water. Fine cloth, circlets, and five children barefoot on wet stone regardless. The terrace, the light and the bare feet on wet stone are right and worth keeping; the clothes are modern Greek summer, not antiquity. Thea should look like a girl who has moved to Athens, because that is who she is.
+**Setting:** a stone terrace above the rocks with worn steps down to the water. Ordinary Greek summer clothes, five children barefoot on wet stone. The terrace, the light and the bare feet on wet stone are right and worth keeping; the clothes are modern Greek summer, not antiquity. Thea should look like a girl who has moved to Athens, because that is who she is.
 
 ## Zephyra — Nepal
 
@@ -125,7 +121,7 @@ bucket he will not surrender. Two more siblings [**Stavros**, 12, and
 **Three people.** Zephyra; **Dawa**, 15, holding the better kite and knowing
 it; **Grandmother**, at the bottom of the stairs, mid-shout, entirely
 affectionate.
-**Setting:** the roof and courtyard of a Nepali palace, carved wood and brickwork, mountains beyond. Court dress in the Nepali manner, and a grandmother shouting up a staircase in it.
+**Setting:** the roof and courtyard of their house in Nepal, carved wood and brickwork, mountains beyond, and a grandmother shouting up the stairs.
 
 ## Neva — Norway
 
@@ -136,7 +132,7 @@ affectionate.
 **Twin brothers** [**Even** and **Elias**], 7, identical, in motion, causing
 something. **Mother**, tired and warm, in a work coat, either arriving or
 leaving.
-**Setting:** a Norwegian royal hall in timber, carved and painted, snow through the windows. Furs, silver, and two seven-year-old princes wrecking the calm.
+**Setting:** a Norwegian timber house at the blue hour, snow through the windows, one lamp on, and two seven-year-olds wrecking the calm.
 
 ## Lenora — Mongolia
 
@@ -146,7 +142,7 @@ leaving.
 **Three people.** Lenora looking up; **Batu**, 11, also looking up and
 competing about it; **Father**, in the middle distance with horses, because he
 is the one who is away.
-**Setting:** a great ger of the Mongolian court, painted poles and rich hangings, horses and open steppe outside. Mongolian royal dress, headdress included, at dusk.
+**Setting:** their ger at dusk, painted poles and bright hangings, horses and open steppe outside, enormous sky.
 
 ## Elowyn — New Zealand
 
@@ -169,7 +165,7 @@ to. Everyone else mid-conversation.
 the football on the floor **exactly where she needs to stand**; **Dad**,
 cheerful, something smoking behind him; **Grandmother**, arms folded, watching
 Clementine's hands.
-**Setting:** the enormous kitchen of a great house, copper and stone, a cook's domain. She is a princess in an apron with her sleeves up, and the finery is underneath it.
+**Setting:** a big warm American kitchen in use, copper pans and mid-cooking chaos, Clementine in an apron with her sleeves up.
 
 ## Piper — Germany
 
@@ -180,7 +176,7 @@ Clementine's hands.
 **No siblings.** Piper, the youngest and smallest, with **four or five older
 cousins** [**Jonas**, **Mirela**, **Anton**, **Katrin**], every one holding an
 instrument. **Uncle** [**Wim**] to one side, looking anywhere but at her.
-**Setting:** a gilded music room in a German palace, mirrors and a painted ceiling, instruments everywhere. Court dress, and the youngest cousin holding the biggest instrument.
+**Setting:** a room full of instruments and open cases mid-gathering, and the youngest cousin holding the biggest one.
 
 ## Almasi — Kenya
 
@@ -190,7 +186,7 @@ instrument. **Uncle** [**Wim**] to one side, looking anywhere but at her.
 
 **Three children.** Almasi; **Zuri**, 5, mid-question, hand up; **Brother**
 [**Kip**], about 13, present but bored, not helping.
-**Setting:** a Kenyan royal household, beadwork and fine cloth in the colours of the region, the dig visible beyond the compound. She is in her good clothes and covered in red dust.
+**Setting:** their home in Kenya, the dig visible beyond it, red dust everywhere. Almasi in her good clothes and covered in it.
 
 ## Bex — Brazil
 
@@ -201,7 +197,7 @@ instrument. **Uncle** [**Wim**] to one side, looking anywhere but at her.
 **Three people.** Bex with a screwdriver; **Aunt** [**Dona Lu**], warm,
 surrounded by broken things she will not throw out; **Rafa**, 17, grinning,
 holding something he has just broken.
-**Setting:** a workshop inside a palace, marble floor and broken machines all over it. A princess in an apron with a screwdriver, and her aunt refusing to throw anything away regardless of rank.
+**Setting:** a workshop that is also the living room, shelves of dead appliances, doors open to a warm street.
 
 ---
 
