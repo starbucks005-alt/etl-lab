@@ -47,21 +47,25 @@ const roster = read('roster.json').data;
 if (!Array.isArray(roster)) throw new Error('roster.json is not an array any more');
 
 let problems = 0;
+/* Counted separately, because only these can fail a deploy: they are faults in
+   the source that this script cannot repair. See the exit code at the bottom. */
+let sourceProblems = 0;
 const say = (ok, line) => { if (!ok) problems++; console.log((ok ? '  ok    ' : '  FAIL  ') + line); };
+const saySource = (ok, line) => { if (!ok) sourceProblems++; say(ok, line); };
 
 console.log('\nroster.json  ' + roster.length + ' characters   (the source)');
 
 /* ── 1. Integrity of the source itself. ─────────────────────────────────── */
 console.log('\nthe source');
 const names = roster.map((a) => a.name);
-say(new Set(names).size === names.length, 'every name is unique');
+saySource(new Set(names).size === names.length, 'every name is unique');
 
 const missing = roster.filter((a) => {
   const u = String(a.image_url || '');
   if (!u) return true;
   return !fs.existsSync(path.join(ROOT, decodeURIComponent(u.replace(/^https?:\/\/[^/]+\//, ''))));
 });
-say(missing.length === 0, 'every portrait resolves' + (missing.length ? ' (' + missing.length + ' do not: ' + missing.slice(0, 4).map((a) => a.name).join(', ') + ')' : ''));
+saySource(missing.length === 0, 'every portrait resolves' + (missing.length ? ' (' + missing.length + ' do not: ' + missing.slice(0, 4).map((a) => a.name).join(', ') + ')' : ''));
 
 const byFile = {};
 roster.forEach((a) => {
@@ -69,13 +73,13 @@ roster.forEach((a) => {
   if (f) (byFile[f] = byFile[f] || []).push(a.name);
 });
 const shared = Object.entries(byFile).filter(([, who]) => who.length > 1);
-say(shared.length === 0, 'nobody is wearing anybody else’s face' +
+saySource(shared.length === 0, 'nobody is wearing anybody else’s face' +
   (shared.length ? ' (' + shared.map(([f, w]) => f + ' <- ' + w.join(' + ')).join('; ') + ')' : ''));
 
 /* Mis-encoded text. Ã and Â before another high character mean UTF-8 was read
    once as Latin-1: that is how "Ben-SaÃ¯d" and "Core Â· six-pack" happened. */
 const mojibake = read('roster.json').raw.match(/[Â-Ã][-¿]/g) || [];
-say(mojibake.length === 0, 'no mis-encoded characters' + (mojibake.length ? ' (' + mojibake.length + ' found)' : ''));
+saySource(mojibake.length === 0, 'no mis-encoded characters' + (mojibake.length ? ' (' + mojibake.length + ' found)' : ''));
 
 /* ── 2. The derived index. Rebuilt from the roster. ─────────────────────── */
 console.log('\ndata/agents.generated.json   derived, safe to rebuild');
@@ -144,5 +148,23 @@ dead.forEach((p) => {
 });
 console.log('  it last ran 2026-06-08 and predates roster.json as the working file.');
 
+/* What is worth failing a deploy over, and what is not.
+ *
+ * This runs as the Netlify build command, so a non-zero exit here stops the
+ * site from deploying. That is a serious thing to hand to a script, and the
+ * line is drawn deliberately:
+ *
+ *   A STALE DERIVED INDEX IS NOT A FAILURE. In --write mode it was just
+ *   rebuilt, so the deploy carries the correct file. Failing over a problem
+ *   the script has already fixed would block an urgent change for no reason.
+ *
+ *   A BROKEN SOURCE IS A FAILURE. A missing portrait, two characters sharing
+ *   one face, a duplicate name, mis-encoded text: those cannot be fixed here
+ *   and they are exactly the faults that have shipped unnoticed before,
+ *   because nothing about them looks broken on the page. Better a failed
+ *   deploy than another month of an agent wearing somebody else's face.
+ */
+const sourceBroken = problems > 0 && (WRITE ? sourceProblems > 0 : true);
 console.log('\n' + (problems ? problems + ' problem(s)' : 'all checks pass') + (WRITE ? '' : '   (report only; pass --write to rebuild the derived index)'));
-process.exit(problems && !WRITE ? 1 : 0);
+if (WRITE && sourceProblems > 0) console.log('FAILING THE BUILD: the source itself has ' + sourceProblems + ' problem(s), which this script cannot fix.');
+process.exit(sourceBroken ? 1 : 0);

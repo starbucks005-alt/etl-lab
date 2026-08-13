@@ -1,6 +1,29 @@
 [build]
   functions = "netlify/functions"
 
+  # Rebuild what is derived from roster.json, on every deploy.
+  #
+  # roster.json is the cast. data/agents.generated.json is an index built from
+  # it and read by index, investors and the neighbourhood map. Keeping the two
+  # in step by hand is what failed for months: the copy carried "do not
+  # hand-edit" and pointed at a spreadsheet that had stopped being updated, so
+  # every attempt to reconcile it by hand was editing a build output and could
+  # not hold. Now the deploy rebuilds it and the question does not arise.
+  #
+  # It does NOT touch data/etl-agents-roster.json. That file looks like a copy
+  # and is not: it carries consent records and six people who exist nowhere
+  # else, Dr. O among them. See CAST.md.
+  #
+  # WHEN THIS FAILS THE DEPLOY, and it can: only on a fault in roster.json that
+  # no script can fix. A portrait that 404s, two characters wearing one face, a
+  # duplicate name, mis-encoded text. Those are the faults that have shipped
+  # unnoticed here before, because nothing about them looks broken on the page.
+  # A stale index does NOT fail the build, because it was just rebuilt.
+  #
+  # No publish directory is set here on purpose: that is configured in the
+  # Netlify UI and adding it here would silently override it.
+  command = "node tools/cast-sync.js --write"
+
 [functions]
   # sharp is a NATIVE module (libvips). esbuild cannot bundle it, so it must
   # be external or every function that requires it throws at module load. It

@@ -3,8 +3,18 @@
 `roster.json` is the source. Everything about a character is edited there and
 nowhere else.
 
-Run `node tools/cast-sync.js` after any cast change. It reports; add `--write`
-and it rebuilds what is safe to rebuild.
+**The deploy runs it.** `netlify.toml` sets
+`command = "node tools/cast-sync.js --write"`, so the derived index is rebuilt
+from `roster.json` on every deploy and cannot drift.
+
+Run `node tools/cast-sync.js` yourself after a cast change if you want the
+report first. It only reports; `--write` rebuilds.
+
+**It can fail a deploy**, and only on a fault in `roster.json` that no script
+can fix: a portrait that 404s, two characters wearing one face, a duplicate
+name, mis-encoded text. Those are the faults that have shipped unnoticed here
+before, because nothing about them looks broken on the page. A stale index does
+not fail the build, because it was just rebuilt.
 
 ## Why this file exists
 
