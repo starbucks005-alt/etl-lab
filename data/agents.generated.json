@@ -9,786 +9,1281 @@
     {
       "name": "August \"Auggie\" Vidal",
       "platform": "Founder Studio",
+      "platforms": [
+        "Founder Studio"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Alicia James",
       "platform": "Founder Studio",
+      "platforms": [
+        "Founder Studio"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Leo Vance",
       "platform": "Founder Studio",
+      "platforms": [
+        "Founder Studio"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Kimberly Pass",
       "platform": "Founder Studio",
+      "platforms": [
+        "Founder Studio"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Sasha Moreno",
       "platform": "Founder Studio",
+      "platforms": [
+        "Founder Studio"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Yuki Mendel",
       "platform": "Founder Studio",
+      "platforms": [
+        "Founder Studio"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Rowan Tate",
       "platform": "Founder Studio",
+      "platforms": [
+        "Founder Studio"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Iris S. King",
       "platform": "Founder Studio",
+      "platforms": [
+        "Founder Studio"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Jax Rivera",
       "platform": "Founder Studio",
+      "platforms": [
+        "Founder Studio"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Margaret Applewood",
       "platform": "The Dose",
+      "platforms": [
+        "The Dose"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Eli Adler",
       "platform": "The Dose",
+      "platforms": [
+        "The Dose"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Nadia Hassan",
       "platform": "The Dose",
+      "platforms": [
+        "The Dose"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Dr. Henry Chen, RPh",
       "platform": "The Dose",
+      "platforms": [
+        "The Dose"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Maeve \"MJ\" Johnson",
       "platform": "The Dose",
+      "platforms": [
+        "The Dose"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Wyatt E. Cooper",
-      "platform": "The Dose / The Gym",
+      "platform": "The Dose / The Gym / Almost Human",
+      "platforms": [
+        "The Dose",
+        "The Gym",
+        "Almost Human"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Amara Nwosu",
       "platform": "The Dose",
+      "platforms": [
+        "The Dose"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Dr. Claire Donnelly",
       "platform": "The Dose",
+      "platforms": [
+        "The Dose"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Silas Hill",
       "platform": "The Dose",
+      "platforms": [
+        "The Dose"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Arun Sok",
       "platform": "The Dose",
+      "platforms": [
+        "The Dose"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Reece Ashford",
       "platform": "The Dose / The Gym",
+      "platforms": [
+        "The Dose",
+        "The Gym"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Jaque Tremblay",
       "platform": "The Dose / Greylander Press",
+      "platforms": [
+        "The Dose",
+        "Greylander Press"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Ms. Ivy (Ivy Sinclair)",
       "platform": "The Dose / The Gauntlet",
+      "platforms": [
+        "The Dose",
+        "The Gauntlet"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Goh Kai-Mun (Mun)",
       "platform": "Greylander Press",
+      "platforms": [
+        "Greylander Press"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Grey Hollis",
       "platform": "Greylander Press",
+      "platforms": [
+        "Greylander Press"
+      ],
       "hasMCP": 0
     },
     {
       "name": "The Professor",
       "platform": "Greylander Press",
+      "platforms": [
+        "Greylander Press"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Beatriz \"Bea\" Vega",
       "platform": "Greylander Press / ETL Newswire",
+      "platforms": [
+        "Greylander Press",
+        "ETL Newswire"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Margo Bennett",
       "platform": "Greylander Press / ETL Newswire",
+      "platforms": [
+        "Greylander Press",
+        "ETL Newswire"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Chris Avila",
       "platform": "Greylander Press",
+      "platforms": [
+        "Greylander Press"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Jess Ramirez",
       "platform": "Greylander Press",
+      "platforms": [
+        "Greylander Press"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Selene Voss",
       "platform": "The Gauntlet",
+      "platforms": [
+        "The Gauntlet"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Marcus Holt",
       "platform": "The Gauntlet",
+      "platforms": [
+        "The Gauntlet"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Dr. Priya Anand",
       "platform": "The Gauntlet",
+      "platforms": [
+        "The Gauntlet"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Raymond Chen",
       "platform": "The Gauntlet",
+      "platforms": [
+        "The Gauntlet"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Astrid Lund",
       "platform": "The Gauntlet",
+      "platforms": [
+        "The Gauntlet"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Dr. Osei Mensah",
       "platform": "The Gauntlet",
+      "platforms": [
+        "The Gauntlet"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Admiral Grace Nakamura (Ret.)",
       "platform": "The Gauntlet / OPSEC Gauntlet",
+      "platforms": [
+        "The Gauntlet",
+        "OPSEC Gauntlet"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Devon Sloane",
       "platform": "The Gauntlet",
+      "platforms": [
+        "The Gauntlet"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Dr. Cassidy Mercer",
       "platform": "The Gauntlet",
+      "platforms": [
+        "The Gauntlet"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Wren Calloway",
       "platform": "The Gauntlet",
+      "platforms": [
+        "The Gauntlet"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Carol Haynes",
       "platform": "The Gauntlet",
+      "platforms": [
+        "The Gauntlet"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Matthew Vance",
       "platform": "The Gauntlet",
+      "platforms": [
+        "The Gauntlet"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Arjun Mehta",
       "platform": "The Gauntlet",
+      "platforms": [
+        "The Gauntlet"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Zara Cole",
       "platform": "The Gauntlet",
+      "platforms": [
+        "The Gauntlet"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Reid Callum",
       "platform": "The Gauntlet",
+      "platforms": [
+        "The Gauntlet"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Jules Hartley",
       "platform": "Greylander Press / The Gauntlet / Office Hours",
+      "platforms": [
+        "Greylander Press",
+        "The Gauntlet",
+        "Office Hours"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Grant Ellis",
       "platform": "The Gauntlet",
+      "platforms": [
+        "The Gauntlet"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Imani Brooks",
       "platform": "The Gauntlet",
+      "platforms": [
+        "The Gauntlet"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Dr. Victoria Vance",
       "platform": "The Prep Room",
+      "platforms": [
+        "The Prep Room"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Mona Bahrami, MD",
       "platform": "The Prep Room",
+      "platforms": [
+        "The Prep Room"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Dr. Lawrence Cole",
       "platform": "The Prep Room",
+      "platforms": [
+        "The Prep Room"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Dr. Marcus Thorne",
       "platform": "The Prep Room",
+      "platforms": [
+        "The Prep Room"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Dr. Maya Patel",
       "platform": "The Prep Room",
+      "platforms": [
+        "The Prep Room"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Dr. Charles Sterling",
       "platform": "The Prep Room",
+      "platforms": [
+        "The Prep Room"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Dr. Alan Zhao",
       "platform": "The Prep Room",
+      "platforms": [
+        "The Prep Room"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Dr. Meredith Vance-Giles",
       "platform": "The Prep Room",
+      "platforms": [
+        "The Prep Room"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Dr. Tariq Khan",
       "platform": "The Prep Room",
+      "platforms": [
+        "The Prep Room"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Dr. Arthur Pendelton",
       "platform": "The Prep Room",
+      "platforms": [
+        "The Prep Room"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Robert Chen",
       "platform": "The Prep Room / The Boardroom",
+      "platforms": [
+        "The Prep Room",
+        "The Boardroom"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Dev Srinivasan",
       "platform": "The Prep Room / The Boardroom",
+      "platforms": [
+        "The Prep Room",
+        "The Boardroom"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Deidre Jenkins",
       "platform": "The Prep Room / The Boardroom",
+      "platforms": [
+        "The Prep Room",
+        "The Boardroom"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Bradley Cooper-Smith",
       "platform": "The Prep Room / The Boardroom",
+      "platforms": [
+        "The Prep Room",
+        "The Boardroom"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Karen Kowalski",
       "platform": "The Prep Room / The Boardroom",
+      "platforms": [
+        "The Prep Room",
+        "The Boardroom"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Fiona Gallagher",
       "platform": "The Prep Room / The Boardroom",
+      "platforms": [
+        "The Prep Room",
+        "The Boardroom"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Alistair Montgomery",
       "platform": "The Prep Room / The Boardroom",
+      "platforms": [
+        "The Prep Room",
+        "The Boardroom"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Elena Rostova",
       "platform": "The Prep Room / The Boardroom",
+      "platforms": [
+        "The Prep Room",
+        "The Boardroom"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Harrison Vance-Giles III",
       "platform": "The Boardroom",
+      "platforms": [
+        "The Boardroom"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Charles Monroe",
       "platform": "The Prep Room / The Boardroom",
+      "platforms": [
+        "The Prep Room",
+        "The Boardroom"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Marcus Reyes",
       "platform": "ETL Newswire",
+      "platforms": [
+        "ETL Newswire"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Elke Vogel",
       "platform": "ETL Newswire",
+      "platforms": [
+        "ETL Newswire"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Sasha Park",
       "platform": "ETL Newswire",
+      "platforms": [
+        "ETL Newswire"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Theo Okafor",
       "platform": "ETL Newswire",
+      "platforms": [
+        "ETL Newswire"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Renee Kovac",
       "platform": "ETL Newswire / OPSEC Gauntlet",
+      "platforms": [
+        "ETL Newswire",
+        "OPSEC Gauntlet"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Dr. Maya Iyer",
       "platform": "ETL Newswire",
+      "platforms": [
+        "ETL Newswire"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Karen Bishop",
       "platform": "ETL Newswire",
+      "platforms": [
+        "ETL Newswire"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Mara Rivera",
       "platform": "ETL Newswire",
+      "platforms": [
+        "ETL Newswire"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Frank Donovan",
       "platform": "ETL Newswire",
+      "platforms": [
+        "ETL Newswire"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Sneha Desai",
       "platform": "Gandhi-King Center",
+      "platforms": [
+        "Gandhi-King Center"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Ayanna Cole",
       "platform": "Gandhi-King Center",
+      "platforms": [
+        "Gandhi-King Center"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Coach Dom Castellanos",
       "platform": "The Gym",
+      "platforms": [
+        "The Gym"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Dr. Lena Brandt, DPT",
       "platform": "The Gym",
+      "platforms": [
+        "The Gym"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Noor Haddad",
       "platform": "The Gym",
+      "platforms": [
+        "The Gym"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Dr. Sana Qureshi",
       "platform": "The Gym",
+      "platforms": [
+        "The Gym"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Benjamin Reed",
       "platform": "Founder Studio",
+      "platforms": [
+        "Founder Studio"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Dr. Terry L. Oroszi",
       "platform": "Founder Studio",
+      "platforms": [
+        "Founder Studio"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Delia Marsh",
       "platform": "Founder Studio",
+      "platforms": [
+        "Founder Studio"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Mateo \"Teo\" Rivera",
       "platform": "Founder Studio",
+      "platforms": [
+        "Founder Studio"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Simone Beaumont",
       "platform": "Founder Studio",
+      "platforms": [
+        "Founder Studio"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Mei Sato",
       "platform": "Founder Studio",
+      "platforms": [
+        "Founder Studio"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Marceline Smith",
       "platform": "Founder Studio",
+      "platforms": [
+        "Founder Studio"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Antonio Crosby",
       "platform": "Founder Studio",
+      "platforms": [
+        "Founder Studio"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Amelie Griffith",
       "platform": "Founder Studio",
+      "platforms": [
+        "Founder Studio"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Ezra Doyle",
       "platform": "Founder Studio",
+      "platforms": [
+        "Founder Studio"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Dilan Wolf",
       "platform": "Founder Studio",
+      "platforms": [
+        "Founder Studio"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Annika Bender",
       "platform": "Founder Studio",
+      "platforms": [
+        "Founder Studio"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Walt Brenner",
       "platform": "Founder Studio",
+      "platforms": [
+        "Founder Studio"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Jen Lopez",
       "platform": "Founder Studio",
+      "platforms": [
+        "Founder Studio"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Vic Stallion",
       "platform": "ETL / The Harvest Circuit",
+      "platforms": [
+        "ETL",
+        "The Harvest Circuit"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Dr. Helena Ward",
       "platform": "OPSEC Gauntlet",
+      "platforms": [
+        "OPSEC Gauntlet"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Col. Rafael \"Rafe\" Dominguez (Ret.)",
       "platform": "OPSEC Gauntlet",
+      "platforms": [
+        "OPSEC Gauntlet"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Dr. Liyun Zhao",
       "platform": "OPSEC Gauntlet",
+      "platforms": [
+        "OPSEC Gauntlet"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Miles Harrington",
       "platform": "OPSEC Gauntlet",
+      "platforms": [
+        "OPSEC Gauntlet"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Dr. Amina Farouk",
       "platform": "OPSEC Gauntlet",
+      "platforms": [
+        "OPSEC Gauntlet"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Jonas McCrae",
       "platform": "OPSEC Gauntlet",
+      "platforms": [
+        "OPSEC Gauntlet"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Dr. Priyanka \"Pri\" Nanduri",
       "platform": "OPSEC Gauntlet",
+      "platforms": [
+        "OPSEC Gauntlet"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Elias \"Eli\" Kade",
       "platform": "OPSEC Gauntlet",
+      "platforms": [
+        "OPSEC Gauntlet"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Dr. Mirela Stanescu",
       "platform": "OPSEC Gauntlet",
+      "platforms": [
+        "OPSEC Gauntlet"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Gunnar Thorsen",
       "platform": "OPSEC Gauntlet",
+      "platforms": [
+        "OPSEC Gauntlet"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Victor Hale",
       "platform": "OPSEC Gauntlet",
+      "platforms": [
+        "OPSEC Gauntlet"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Dr. Yara Ben-Saïd",
       "platform": "OPSEC Gauntlet",
+      "platforms": [
+        "OPSEC Gauntlet"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Owen Kessler",
       "platform": "OPSEC Gauntlet",
+      "platforms": [
+        "OPSEC Gauntlet"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Dr. Marisol Quintero",
       "platform": "OPSEC Gauntlet",
+      "platforms": [
+        "OPSEC Gauntlet"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Soren Veldt",
       "platform": "OPSEC Gauntlet",
+      "platforms": [
+        "OPSEC Gauntlet"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Dr. Sahini Rao",
       "platform": "OPSEC Gauntlet",
+      "platforms": [
+        "OPSEC Gauntlet"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Dr. Ali Malik",
       "platform": "OPSEC Gauntlet",
+      "platforms": [
+        "OPSEC Gauntlet"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Yolanda Ferreira",
       "platform": "City Solutions Lab",
+      "platforms": [
+        "City Solutions Lab"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Desmond \"Dez\" Quigley",
       "platform": "City Project Oversight Hub",
+      "platforms": [
+        "City Project Oversight Hub"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Tessa Whitfield",
       "platform": "City Talent Reserve",
+      "platforms": [
+        "City Talent Reserve"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Priscilla Okeke",
       "platform": "City Solutions Lab",
+      "platforms": [
+        "City Solutions Lab"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Ramon Delgado",
       "platform": "City Talent Reserve",
+      "platforms": [
+        "City Talent Reserve"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Heidi Kingstone",
       "platform": "ETL Newswire / Gandhi-King Center",
+      "platforms": [
+        "ETL Newswire",
+        "Gandhi-King Center"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Clara Sediqa",
       "platform": "Gandhi-King Center",
+      "platforms": [
+        "Gandhi-King Center"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Judge Roz Okonkwo",
       "platform": "The Court, in the city government building on the ETL campus",
+      "platforms": [
+        "The Court, in the city government building on the ETL campus"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Ruben Hart",
       "platform": "The Harvest Circuit",
+      "platforms": [
+        "The Harvest Circuit"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Camille Lefèvre",
       "platform": "The Harvest Circuit",
+      "platforms": [
+        "The Harvest Circuit"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Luca Brunner",
       "platform": "The Harvest Circuit",
+      "platforms": [
+        "The Harvest Circuit"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Von Gupta",
-      "platform": "The Prep Room",
+      "platform": "The Prep Room / ETL / Gandhi-King Center",
+      "platforms": [
+        "The Prep Room",
+        "ETL",
+        "Gandhi-King Center"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Archibald Baxter",
       "platform": "The Concourse",
+      "platforms": [
+        "The Concourse"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Princess Posy",
       "platform": "Everly Castle",
+      "platforms": [
+        "Everly Castle"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Princess Nerida",
       "platform": "Everly Castle",
+      "platforms": [
+        "Everly Castle"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Princess Zephyra",
       "platform": "Everly Castle",
+      "platforms": [
+        "Everly Castle"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Princess Neva",
       "platform": "Everly Castle",
+      "platforms": [
+        "Everly Castle"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Princess Lenora",
       "platform": "Everly Castle",
+      "platforms": [
+        "Everly Castle"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Princess Elowyn",
       "platform": "Everly Castle",
+      "platforms": [
+        "Everly Castle"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Princess Clementine",
       "platform": "Everly Castle",
+      "platforms": [
+        "Everly Castle"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Princess Piper",
       "platform": "Everly Castle",
+      "platforms": [
+        "Everly Castle"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Princess Almasi",
       "platform": "Everly Castle",
+      "platforms": [
+        "Everly Castle"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Princess Bex",
       "platform": "Everly Castle",
+      "platforms": [
+        "Everly Castle"
+      ],
       "hasMCP": 0
     },
     {
       "name": "Christian IV",
-      "platform": "ETL Classrooms / Kronborg 1588",
+      "platform": "ETL Classrooms · Kronborg 1588",
+      "platforms": [
+        "ETL Classrooms · Kronborg 1588"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Prince Christian",
-      "platform": "ETL Classrooms / Kronborg 1588",
+      "platform": "ETL Classrooms · Kronborg 1588",
+      "platforms": [
+        "ETL Classrooms · Kronborg 1588"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Queen Anne Catherine",
-      "platform": "ETL Classrooms / Kronborg 1588",
+      "platform": "ETL Classrooms · Kronborg 1588",
+      "platforms": [
+        "ETL Classrooms · Kronborg 1588"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Kirsten Munk",
-      "platform": "ETL Classrooms / Kronborg 1588",
+      "platform": "ETL Classrooms · Kronborg 1588",
+      "platforms": [
+        "ETL Classrooms · Kronborg 1588"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Jens Skovgaard",
-      "platform": "ETL Classrooms / Kronborg 1588",
+      "platform": "ETL Classrooms · Kronborg 1588",
+      "platforms": [
+        "ETL Classrooms · Kronborg 1588"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Morten Grovsmith",
-      "platform": "ETL Classrooms / Kronborg 1588",
+      "platform": "ETL Classrooms · Kronborg 1588",
+      "platforms": [
+        "ETL Classrooms · Kronborg 1588"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Rasmus Krogaard",
-      "platform": "ETL Classrooms / Kronborg 1588",
+      "platform": "ETL Classrooms · Kronborg 1588",
+      "platforms": [
+        "ETL Classrooms · Kronborg 1588"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Kirsten Madsdatter",
-      "platform": "ETL Classrooms / Kronborg 1588",
+      "platform": "ETL Classrooms · Kronborg 1588",
+      "platforms": [
+        "ETL Classrooms · Kronborg 1588"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Niels Iversen",
-      "platform": "ETL Classrooms / Kronborg 1588",
+      "platform": "ETL Classrooms · Kronborg 1588",
+      "platforms": [
+        "ETL Classrooms · Kronborg 1588"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Hans and Bodil",
-      "platform": "ETL Classrooms / Kronborg 1588",
+      "platform": "ETL Classrooms · Kronborg 1588",
+      "platforms": [
+        "ETL Classrooms · Kronborg 1588"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Sherlock Holmes",
-      "platform": "ETL Classrooms / Sherlock",
+      "platform": "ETL Classrooms · Sherlock",
+      "platforms": [
+        "ETL Classrooms · Sherlock"
+      ],
       "hasMCP": 1
     },
     {
       "name": "John Watson",
-      "platform": "ETL Classrooms / Sherlock",
+      "platform": "ETL Classrooms · Sherlock",
+      "platforms": [
+        "ETL Classrooms · Sherlock"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Detective Lestrade",
-      "platform": "ETL Classrooms / Sherlock",
+      "platform": "ETL Classrooms · Sherlock",
+      "platforms": [
+        "ETL Classrooms · Sherlock"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Mrs. Hudson",
-      "platform": "ETL Classrooms / Sherlock",
+      "platform": "ETL Classrooms · Sherlock",
+      "platforms": [
+        "ETL Classrooms · Sherlock"
+      ],
       "hasMCP": 1
     },
     {
       "name": "James Moriarty",
-      "platform": "ETL Classrooms / Sherlock",
+      "platform": "ETL Classrooms · Sherlock",
+      "platforms": [
+        "ETL Classrooms · Sherlock"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Irene Adler",
-      "platform": "ETL Classrooms / Sherlock",
+      "platform": "ETL Classrooms · Sherlock",
+      "platforms": [
+        "ETL Classrooms · Sherlock"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Mary Morstan",
-      "platform": "ETL Classrooms / Sherlock",
+      "platform": "ETL Classrooms · Sherlock",
+      "platforms": [
+        "ETL Classrooms · Sherlock"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Wiggins",
-      "platform": "ETL Classrooms / Sherlock",
+      "platform": "ETL Classrooms · Sherlock",
+      "platforms": [
+        "ETL Classrooms · Sherlock"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Albert Einstein",
-      "platform": "ETL Classrooms / PTX 4990",
+      "platform": "ETL Classrooms · PTX 4990",
+      "platforms": [
+        "ETL Classrooms · PTX 4990"
+      ],
       "hasMCP": 1
     },
     {
       "name": "Marie Curie",
-      "platform": "ETL Classrooms / PTX 4990",
+      "platform": "ETL Classrooms · PTX 4990",
+      "platforms": [
+        "ETL Classrooms · PTX 4990"
+      ],
       "hasMCP": 1
     }
   ]

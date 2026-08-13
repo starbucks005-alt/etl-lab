@@ -76,6 +76,20 @@ const shared = Object.entries(byFile).filter(([, who]) => who.length > 1);
 saySource(shared.length === 0, 'nobody is wearing anybody else’s face' +
   (shared.length ? ' (' + shared.map(([f, w]) => f + ' <- ' + w.join(' + ')).join('; ') + ')' : ''));
 
+/* Where an agent works, said twice and having to match.
+
+   platform is a display string joined with " / " and platforms is the array.
+   Nothing had ever compared them, so Von Gupta spent months recorded as
+   working in one place by the string and two by the array, when the answer was
+   three. A field nobody checks is a field that quietly rots. */
+const placeMismatch = roster.filter((a) => {
+  const fromString = String(a.platform || "").split(" / ").map((x) => x.trim()).filter(Boolean);
+  const list = Array.isArray(a.platforms) ? a.platforms : [];
+  return fromString.length !== list.length || !fromString.every((x) => list.includes(x));
+});
+saySource(placeMismatch.length === 0, "platform and platforms agree" +
+  (placeMismatch.length ? " (" + placeMismatch.length + " do not: " + placeMismatch.slice(0, 3).map((a) => a.name).join(", ") + ")" : ""));
+
 /* Mis-encoded text. Ã and Â before another high character mean UTF-8 was read
    once as Latin-1: that is how "Ben-SaÃ¯d" and "Core Â· six-pack" happened. */
 const mojibake = read('roster.json').raw.match(/[Â-Ã][-¿]/g) || [];
@@ -111,7 +125,16 @@ const rebuilt = {
   backpack,
   /* Of the whole cast, which is what it has always meant. */
   backpack_pct: Math.round((backpack / roster.length) * 100),
-  agents: roster.map((a) => ({ name: a.name, platform: a.platform, hasMCP: hasMcp(a) })),
+  /* platforms as well as platform. Twenty-one agents work in more than one
+     place, and the string joins them with " / ", so anything grouping by the
+     string alone invents a platform called "The Dose / The Gym" and files
+     Wyatt under it instead of under both. */
+  agents: roster.map((a) => ({
+    name: a.name,
+    platform: a.platform,
+    platforms: Array.isArray(a.platforms) && a.platforms.length ? a.platforms : [a.platform],
+    hasMCP: hasMcp(a),
+  })),
 };
 const same = JSON.stringify(gen) === JSON.stringify(rebuilt);
 if (same) say(true, 'already matches the roster (' + gen.agents.length + ')');

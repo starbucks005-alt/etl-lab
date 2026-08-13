@@ -562,7 +562,7 @@
     },
     {
         "name":  "Wyatt E. Cooper",
-        "platform":  "The Dose / The Gym",
+        "platform":  "The Dose / The Gym / Almost Human",
         "role":  "The Mixologist",
         "tier":  "Standard add-on, ~$49/mo",
         "hashtags":  "#beveragebrand #smoothiebar #DTC",
@@ -597,10 +597,7 @@
                                  "Full-time",
                                  "Part-time"
                              ],
-        "platforms":  [
-                          "The Dose",
-                          "The Gym"
-                      ]
+        "platforms":  ["The Dose","The Gym","Almost Human"]
     },
     {
         "name":  "Amara Nwosu",
@@ -4897,7 +4894,7 @@
     },
     {
         "name":  "Von Gupta",
-        "platform":  "The Prep Room",
+        "platform":  "The Prep Room / ETL / Gandhi-King Center",
         "role":  "Premed Student / Prep Room Scribe",
         "tier":  "Lab staff (in-framework)",
         "hashtags":  "#student #preproom #premed #gkcenter",
@@ -4930,10 +4927,7 @@
         "employment_types":  [
                                  "Volunteer"
                              ],
-        "platforms":  [
-                          "The Prep Room",
-                          "Gandhi-King Center"
-                      ],
+        "platforms":  ["The Prep Room","ETL","Gandhi-King Center"],
         "voice_id":  "SMLavDGdZd5mgefKUcjD"
     },
     {
@@ -5167,7 +5161,7 @@
     },
     {
         "name":  "Christian IV",
-        "platform":  "ETL Classrooms / Kronborg 1588",
+        "platform":  "ETL Classrooms · Kronborg 1588",
         "role":  "The Older King",
         "tier":  "ETL Classrooms. Free where it costs no API: recorded and cached material. Paid where it does: live conversation and tool calls.",
         "hashtags":  "#history #denmark #kronborg #livinglegends #classrooms",
@@ -5182,11 +5176,11 @@
         "hireable":  false,
         "interests":  [],
         "employment":  "Product cast: ETL Classrooms / Kronborg 1588",
-        "platforms":  ["ETL Classrooms / Kronborg 1588"]
+        "platforms":  ["ETL Classrooms · Kronborg 1588"]
     },
     {
         "name":  "Prince Christian",
-        "platform":  "ETL Classrooms / Kronborg 1588",
+        "platform":  "ETL Classrooms · Kronborg 1588",
         "role":  "The Boy King",
         "tier":  "ETL Classrooms. Free where it costs no API: recorded and cached material. Paid where it does: live conversation and tool calls.",
         "hashtags":  "#history #denmark #kronborg #livinglegends #classrooms",
@@ -5201,11 +5195,11 @@
         "hireable":  false,
         "interests":  [],
         "employment":  "Product cast: ETL Classrooms / Kronborg 1588",
-        "platforms":  ["ETL Classrooms / Kronborg 1588"]
+        "platforms":  ["ETL Classrooms · Kronborg 1588"]
     },
     {
         "name":  "Queen Anne Catherine",
-        "platform":  "ETL Classrooms / Kronborg 1588",
+        "platform":  "ETL Classrooms · Kronborg 1588",
         "role":  "Legitimate wife of Christian IV, married 1597, died 1612",
         "tier":  "ETL Classrooms. Free where it costs no API: recorded and cached material. Paid where it does: live conversation and tool calls.",
         "hashtags":  "#history #denmark #kronborg #livinglegends #classrooms",
@@ -5220,11 +5214,11 @@
         "hireable":  false,
         "interests":  [],
         "employment":  "Product cast: ETL Classrooms / Kronborg 1588",
-        "platforms":  ["ETL Classrooms / Kronborg 1588"]
+        "platforms":  ["ETL Classrooms · Kronborg 1588"]
     },
     {
         "name":  "Kirsten Munk",
-        "platform":  "ETL Classrooms / Kronborg 1588",
+        "platform":  "ETL Classrooms · Kronborg 1588",
         "role":  "Kronborg 1588",
         "tier":  "ETL Classrooms. Free where it costs no API: recorded and cached material. Paid where it does: live conversation and tool calls.",
         "hashtags":  "#history #denmark #kronborg #livinglegends #classrooms",
@@ -5239,11 +5233,11 @@
         "hireable":  false,
         "interests":  [],
         "employment":  "Product cast: ETL Classrooms / Kronborg 1588",
-        "platforms":  ["ETL Classrooms / Kronborg 1588"]
+        "platforms":  ["ETL Classrooms · Kronborg 1588"]
     },
     {
         "name":  "Jens Skovgaard",
-        "platform":  "ETL Classrooms / Kronborg 1588",
+        "platform":  "ETL Classrooms · Kronborg 1588",
         "role":  "Kronborg 1588",
         "tier":  "ETL Classrooms. Free where it costs no API: recorded and cached material. Paid where it does: live conversation and tool calls.",
         "hashtags":  "#history #denmark #kronborg #livinglegends #classrooms",
@@ -5258,11 +5252,11 @@
         "hireable":  false,
         "interests":  [],
         "employment":  "Product cast: ETL Classrooms / Kronborg 1588",
-        "platforms":  ["ETL Classrooms / Kronborg 1588"]
+        "platforms":  ["ETL Classrooms · Kronborg 1588"]
     },
     {
         "name":  "Morten Grovsmith",
-        "platform":  "ETL Classrooms / Kronborg 1588",
+        "platform":  "ETL Classrooms · Kronborg 1588",
         "role":  "Kronborg 1588",
         "tier":  "ETL Classrooms. Free where it costs no API: recorded and cached material. Paid where it does: live conversation and tool calls.",
         "hashtags":  "#history #denmark #kronborg #livinglegends #classrooms",
@@ -5277,11 +5271,11 @@
         "hireable":  false,
         "interests":  [],
         "employment":  "Product cast: ETL Classrooms / Kronborg 1588",
-        "platforms":  ["ETL Classrooms / Kronborg 1588"]
+        "platforms":  ["ETL Classrooms · Kronborg 1588"]
     },
     {
         "name":  "Rasmus Krogaard",
-        "platform":  "ETL Classrooms / Kronborg 1588",
+        "platform":  "ETL Classrooms · Kronborg 1588",
         "role":  "The Innkeeper",
         "tier":  "ETL Classrooms. Free where it costs no API: recorded and cached material. Paid where it does: live conversation and tool calls.",
         "hashtags":  "#history #denmark #kronborg #livinglegends #classrooms",
@@ -5296,11 +5290,11 @@
         "hireable":  false,
         "interests":  [],
         "employment":  "Product cast: ETL Classrooms / Kronborg 1588",
-        "platforms":  ["ETL Classrooms / Kronborg 1588"]
+        "platforms":  ["ETL Classrooms · Kronborg 1588"]
     },
     {
         "name":  "Kirsten Madsdatter",
-        "platform":  "ETL Classrooms / Kronborg 1588",
+        "platform":  "ETL Classrooms · Kronborg 1588",
         "role":  "The Townswoman",
         "tier":  "ETL Classrooms. Free where it costs no API: recorded and cached material. Paid where it does: live conversation and tool calls.",
         "hashtags":  "#history #denmark #kronborg #livinglegends #classrooms",
@@ -5315,11 +5309,11 @@
         "hireable":  false,
         "interests":  [],
         "employment":  "Product cast: ETL Classrooms / Kronborg 1588",
-        "platforms":  ["ETL Classrooms / Kronborg 1588"]
+        "platforms":  ["ETL Classrooms · Kronborg 1588"]
     },
     {
         "name":  "Niels Iversen",
-        "platform":  "ETL Classrooms / Kronborg 1588",
+        "platform":  "ETL Classrooms · Kronborg 1588",
         "role":  "The Fisherman",
         "tier":  "ETL Classrooms. Free where it costs no API: recorded and cached material. Paid where it does: live conversation and tool calls.",
         "hashtags":  "#history #denmark #kronborg #livinglegends #classrooms",
@@ -5334,11 +5328,11 @@
         "hireable":  false,
         "interests":  [],
         "employment":  "Product cast: ETL Classrooms / Kronborg 1588",
-        "platforms":  ["ETL Classrooms / Kronborg 1588"]
+        "platforms":  ["ETL Classrooms · Kronborg 1588"]
     },
     {
         "name":  "Hans and Bodil",
-        "platform":  "ETL Classrooms / Kronborg 1588",
+        "platform":  "ETL Classrooms · Kronborg 1588",
         "role":  "Kronborg 1588",
         "tier":  "ETL Classrooms. Free where it costs no API: recorded and cached material. Paid where it does: live conversation and tool calls.",
         "hashtags":  "#history #denmark #kronborg #livinglegends #classrooms",
@@ -5353,11 +5347,11 @@
         "hireable":  false,
         "interests":  [],
         "employment":  "Product cast: ETL Classrooms / Kronborg 1588",
-        "platforms":  ["ETL Classrooms / Kronborg 1588"]
+        "platforms":  ["ETL Classrooms · Kronborg 1588"]
     },
     {
         "name":  "Sherlock Holmes",
-        "platform":  "ETL Classrooms / Sherlock",
+        "platform":  "ETL Classrooms · Sherlock",
         "role":  "Hired when a case hits a wall",
         "tier":  "ETL Classrooms. Free where it costs no API: recorded and cached material. Paid where it does: live conversation and tool calls.",
         "hashtags":  "#sherlock #reasoning #investigation #classrooms",
@@ -5372,11 +5366,11 @@
         "hireable":  false,
         "interests":  [],
         "employment":  "Product cast: ETL Classrooms / Sherlock",
-        "platforms":  ["ETL Classrooms / Sherlock"]
+        "platforms":  ["ETL Classrooms · Sherlock"]
     },
     {
         "name":  "John Watson",
-        "platform":  "ETL Classrooms / Sherlock",
+        "platform":  "ETL Classrooms · Sherlock",
         "role":  "Two deployments, then medical school",
         "tier":  "ETL Classrooms. Free where it costs no API: recorded and cached material. Paid where it does: live conversation and tool calls.",
         "hashtags":  "#sherlock #reasoning #investigation #classrooms",
@@ -5391,11 +5385,11 @@
         "hireable":  false,
         "interests":  [],
         "employment":  "Product cast: ETL Classrooms / Sherlock",
-        "platforms":  ["ETL Classrooms / Sherlock"]
+        "platforms":  ["ETL Classrooms · Sherlock"]
     },
     {
         "name":  "Detective Lestrade",
-        "platform":  "ETL Classrooms / Sherlock",
+        "platform":  "ETL Classrooms · Sherlock",
         "role":  "Carries the caseload, the paperwork, and the blame, and would like that on the record",
         "tier":  "ETL Classrooms. Free where it costs no API: recorded and cached material. Paid where it does: live conversation and tool calls.",
         "hashtags":  "#sherlock #reasoning #investigation #classrooms",
@@ -5410,11 +5404,11 @@
         "hireable":  false,
         "interests":  [],
         "employment":  "Product cast: ETL Classrooms / Sherlock",
-        "platforms":  ["ETL Classrooms / Sherlock"]
+        "platforms":  ["ETL Classrooms · Sherlock"]
     },
     {
         "name":  "Mrs. Hudson",
-        "platform":  "ETL Classrooms / Sherlock",
+        "platform":  "ETL Classrooms · Sherlock",
         "role":  "Owns the building and half the block’s memory",
         "tier":  "ETL Classrooms. Free where it costs no API: recorded and cached material. Paid where it does: live conversation and tool calls.",
         "hashtags":  "#sherlock #reasoning #investigation #classrooms",
@@ -5429,11 +5423,11 @@
         "hireable":  false,
         "interests":  [],
         "employment":  "Product cast: ETL Classrooms / Sherlock",
-        "platforms":  ["ETL Classrooms / Sherlock"]
+        "platforms":  ["ETL Classrooms · Sherlock"]
     },
     {
         "name":  "James Moriarty",
-        "platform":  "ETL Classrooms / Sherlock",
+        "platform":  "ETL Classrooms · Sherlock",
         "role":  "Nothing has ever been charged",
         "tier":  "ETL Classrooms. Free where it costs no API: recorded and cached material. Paid where it does: live conversation and tool calls.",
         "hashtags":  "#sherlock #reasoning #investigation #classrooms",
@@ -5448,11 +5442,11 @@
         "hireable":  false,
         "interests":  [],
         "employment":  "Product cast: ETL Classrooms / Sherlock",
-        "platforms":  ["ETL Classrooms / Sherlock"]
+        "platforms":  ["ETL Classrooms · Sherlock"]
     },
     {
         "name":  "Irene Adler",
-        "platform":  "ETL Classrooms / Sherlock",
+        "platform":  "ETL Classrooms · Sherlock",
         "role":  "Operates in the gap between what is illegal and what is merely unforgivable",
         "tier":  "ETL Classrooms. Free where it costs no API: recorded and cached material. Paid where it does: live conversation and tool calls.",
         "hashtags":  "#sherlock #reasoning #investigation #classrooms",
@@ -5467,11 +5461,11 @@
         "hireable":  false,
         "interests":  [],
         "employment":  "Product cast: ETL Classrooms / Sherlock",
-        "platforms":  ["ETL Classrooms / Sherlock"]
+        "platforms":  ["ETL Classrooms · Sherlock"]
     },
     {
         "name":  "Mary Morstan",
-        "platform":  "ETL Classrooms / Sherlock",
+        "platform":  "ETL Classrooms · Sherlock",
         "role":  "Knows what the process feels like from the side that has to wait",
         "tier":  "ETL Classrooms. Free where it costs no API: recorded and cached material. Paid where it does: live conversation and tool calls.",
         "hashtags":  "#sherlock #reasoning #investigation #classrooms",
@@ -5486,11 +5480,11 @@
         "hireable":  false,
         "interests":  [],
         "employment":  "Product cast: ETL Classrooms / Sherlock",
-        "platforms":  ["ETL Classrooms / Sherlock"]
+        "platforms":  ["ETL Classrooms · Sherlock"]
     },
     {
         "name":  "Wiggins",
-        "platform":  "ETL Classrooms / Sherlock",
+        "platform":  "ETL Classrooms · Sherlock",
         "role":  "Seventeen",
         "tier":  "ETL Classrooms. Free where it costs no API: recorded and cached material. Paid where it does: live conversation and tool calls.",
         "hashtags":  "#sherlock #reasoning #investigation #classrooms",
@@ -5505,11 +5499,11 @@
         "hireable":  false,
         "interests":  [],
         "employment":  "Product cast: ETL Classrooms / Sherlock",
-        "platforms":  ["ETL Classrooms / Sherlock"]
+        "platforms":  ["ETL Classrooms · Sherlock"]
     },
     {
         "name":  "Albert Einstein",
-        "platform":  "ETL Classrooms / PTX 4990",
+        "platform":  "ETL Classrooms · PTX 4990",
         "role":  "Physicist",
         "tier":  "ETL Classrooms. Free where it costs no API: recorded and cached material. Paid where it does: live conversation and tool calls.",
         "hashtags":  "#science #livinglegends #ptx4990 #classrooms",
@@ -5524,11 +5518,11 @@
         "hireable":  false,
         "interests":  [],
         "employment":  "Product cast: ETL Classrooms / PTX 4990",
-        "platforms":  ["ETL Classrooms / PTX 4990"]
+        "platforms":  ["ETL Classrooms · PTX 4990"]
     },
     {
         "name":  "Marie Curie",
-        "platform":  "ETL Classrooms / PTX 4990",
+        "platform":  "ETL Classrooms · PTX 4990",
         "role":  "Physicist and chemist",
         "tier":  "ETL Classrooms. Free where it costs no API: recorded and cached material. Paid where it does: live conversation and tool calls.",
         "hashtags":  "#science #livinglegends #ptx4990 #classrooms",
@@ -5543,6 +5537,6 @@
         "hireable":  false,
         "interests":  [],
         "employment":  "Product cast: ETL Classrooms / PTX 4990",
-        "platforms":  ["ETL Classrooms / PTX 4990"]
+        "platforms":  ["ETL Classrooms · PTX 4990"]
     }
 ]
