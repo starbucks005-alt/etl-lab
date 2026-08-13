@@ -3,8 +3,8 @@
   "total": 157,
   "staff": 86,
   "safe_floor": "150+",
-  "backpack": 52,
-  "backpack_pct": 60,
+  "backpack": 105,
+  "backpack_pct": 67,
   "agents": [
     {
       "name": "August \"Auggie\" Vidal",
@@ -694,102 +694,102 @@
     {
       "name": "Christian IV",
       "platform": "ETL Classrooms / Kronborg 1588",
-      "hasMCP": 0
+      "hasMCP": 1
     },
     {
       "name": "Prince Christian",
       "platform": "ETL Classrooms / Kronborg 1588",
-      "hasMCP": 0
+      "hasMCP": 1
     },
     {
       "name": "Queen Anne Catherine",
       "platform": "ETL Classrooms / Kronborg 1588",
-      "hasMCP": 0
+      "hasMCP": 1
     },
     {
       "name": "Kirsten Munk",
       "platform": "ETL Classrooms / Kronborg 1588",
-      "hasMCP": 0
+      "hasMCP": 1
     },
     {
       "name": "Jens Skovgaard",
       "platform": "ETL Classrooms / Kronborg 1588",
-      "hasMCP": 0
+      "hasMCP": 1
     },
     {
       "name": "Morten Grovsmith",
       "platform": "ETL Classrooms / Kronborg 1588",
-      "hasMCP": 0
+      "hasMCP": 1
     },
     {
       "name": "Rasmus Krogaard",
       "platform": "ETL Classrooms / Kronborg 1588",
-      "hasMCP": 0
+      "hasMCP": 1
     },
     {
       "name": "Kirsten Madsdatter",
       "platform": "ETL Classrooms / Kronborg 1588",
-      "hasMCP": 0
+      "hasMCP": 1
     },
     {
       "name": "Niels Iversen",
       "platform": "ETL Classrooms / Kronborg 1588",
-      "hasMCP": 0
+      "hasMCP": 1
     },
     {
       "name": "Hans and Bodil",
       "platform": "ETL Classrooms / Kronborg 1588",
-      "hasMCP": 0
+      "hasMCP": 1
     },
     {
       "name": "Sherlock Holmes",
       "platform": "ETL Classrooms / Sherlock",
-      "hasMCP": 0
+      "hasMCP": 1
     },
     {
       "name": "John Watson",
       "platform": "ETL Classrooms / Sherlock",
-      "hasMCP": 0
+      "hasMCP": 1
     },
     {
       "name": "Detective Lestrade",
       "platform": "ETL Classrooms / Sherlock",
-      "hasMCP": 0
+      "hasMCP": 1
     },
     {
       "name": "Mrs. Hudson",
       "platform": "ETL Classrooms / Sherlock",
-      "hasMCP": 0
+      "hasMCP": 1
     },
     {
       "name": "James Moriarty",
       "platform": "ETL Classrooms / Sherlock",
-      "hasMCP": 0
+      "hasMCP": 1
     },
     {
       "name": "Irene Adler",
       "platform": "ETL Classrooms / Sherlock",
-      "hasMCP": 0
+      "hasMCP": 1
     },
     {
       "name": "Mary Morstan",
       "platform": "ETL Classrooms / Sherlock",
-      "hasMCP": 0
+      "hasMCP": 1
     },
     {
       "name": "Wiggins",
       "platform": "ETL Classrooms / Sherlock",
-      "hasMCP": 0
+      "hasMCP": 1
     },
     {
       "name": "Albert Einstein",
       "platform": "ETL Classrooms / PTX 4990",
-      "hasMCP": 0
+      "hasMCP": 1
     },
     {
       "name": "Marie Curie",
       "platform": "ETL Classrooms / PTX 4990",
-      "hasMCP": 0
+      "hasMCP": 1
     }
   ]
 }
