@@ -866,7 +866,7 @@ function drawDoors(){
       face.style.setProperty('--fx', w.focus[0] + '%');
       face.style.setProperty('--fy', w.focus[1] + '%');
     }
-    mountFace(face, ['agents/' + w.name + '.png', 'agents/' + w.name + '.jpg'], w.name, () => {
+    mountFace(face, ['agents/' + w.name + '.jpg', 'agents/' + w.name + '.png'], w.name, () => {
       missingFaces.push(w.name);
       refreshAssetWarning();
     });
