@@ -25,6 +25,30 @@
      visitor_message_count, capped, closed
    }
 
+   TWO HUMANS AT THE TABLE (the "bring a friend" mode)
+   ---------------------------------------------------
+   POST { seat_token } instead of { transcript, agent_state, active_agents,
+   access_token } and this endpoint runs the SAME cascade against a room in
+   Postgres rather than against state posted from a browser. See
+   supabase_ah_table_migration.sql and _ah-table.js.
+
+   The cascade itself is deliberately not duplicated. Everything below the
+   "── the cascade ──" line is one copy of the director, the persona pipeline,
+   and the emotion-engine math, and it does not know or care where its state
+   came from. A second copy of this file for shared rooms would have meant two
+   emotion engines drifting apart, which is a far worse outcome than one
+   function with two ways of loading its inputs.
+
+   WHY THE STATE HAD TO MOVE. The solo table keeps each agent's scales, meters
+   and turn count in the browser and posts them back every turn. With two humans
+   there are two copies of that and they diverge on the very first turn: whoever
+   asks sends their stale copy and silently overwrites the other person's. So in
+   shared mode agent_state is read from and written to the room row, under the
+   turn lock, and no browser is trusted with it. Nothing renders those numbers at
+   the table today, which means the divergence would have been invisible while
+   still corrupting the exit grades and the memory saves — a reason to be more
+   careful here, not less.
+
    Mechanic: a cheap Haiku "director" call reads the room and picks ONE agent to
    speak next (or "none"), that agent's reply always goes through the full,
    unmodified persona pipeline (buildSystemPrompt + forced respond_in_room tool +
@@ -39,7 +63,11 @@ const { houseTypography } = require('./_etl-voice-law.js');
 const { buildSystemPrompt, PERSONAS, ROOM_HOOKS, etlKnowledgeNote } = require('./_eq-personas.js');
 const engine = require('./_eq-engine.js');
 const { ownerUser } = require('./_owner-auth.js');
-const { getCreditRow, deductCredits, GROUP_MESSAGE_COST, safeToken } = require('./_ah-credits.js');
+const {
+  getCreditRow, getCreditRowByRef, deductCredits, deductCreditsByRef,
+  GROUP_MESSAGE_COST, safeToken,
+} = require('./_ah-credits.js');
+const table = require('./_ah-table.js');
 
 const SUPABASE_URL = 'https://ulvrnermyuvzanxhxoib.supabase.co';
 
@@ -300,6 +328,50 @@ async function pickNextSpeaker(client, activeAgents, transcript, beatIndex, forc
   }
 }
 
+/* The cast still generates from the WHOLE thread — otherwise the host has to
+   re-explain herself the moment her friend sits down, which is the clerical
+   work this feature exists to delete. So what the guest cannot SEE is enforced
+   in ah-table-poll.js, and what the cast may not SAY about it is this.
+
+   Be honest about the difference: the first is enforced, the second is an
+   instruction to a language model. The UI copy promises only the first. */
+function privacyNoteFor(people, transcriptRows) {
+  const guests = people.filter((p) => !p.is_host);
+  if (!guests.length) return '';
+  const latestJoin = guests
+    .map((p) => new Date(p.joined_at).getTime())
+    .reduce((a, b) => Math.max(a, b), 0);
+  const priorLines = transcriptRows.filter(
+    (e) => e.created_at && new Date(e.created_at).getTime() < latestJoin
+  ).length;
+  if (!priorLines) return '';
+
+  const host = people.find((p) => p.is_host);
+  const hostName = (host && host.display_name) || 'the person who opened this table';
+  const guestNames = guests.map((p) => p.display_name || 'their friend').join(' and ');
+
+  return `\n\nPRIVACY AT THIS TABLE, absolute:\n` +
+    `${guestNames} joined partway through. Everything said before that was between ${hostName} and this table, and they cannot see any of it.\n` +
+    `- Do NOT repeat, quote, summarize, or allude to anything from before they joined while they are here.\n` +
+    `- That includes anything ${hostName} told you about herself earlier, and anything you remember about her from other visits.\n` +
+    `- You may still USE what you know to be good company. You may not SAY it. Take what is in front of you on its own terms.\n` +
+    `- If ${hostName} raises something from earlier herself, it is hers to raise and you can follow her lead.\n` +
+    `- Never mention that there is an earlier part of the conversation. Do not hint at it, and do not say that you cannot discuss it.`;
+}
+
+/* Two people at a table is a different social situation than one, and the cast
+   should be told so plainly rather than left to infer it from name prefixes. */
+function roomPeopleNote(people, askerName) {
+  if (people.length < 2) return '';
+  const names = people.map((p) => p.display_name || 'Guest');
+  const list = names.slice(0, -1).join(', ') + ' and ' + names[names.length - 1];
+  return `\n\nTHERE ARE ${names.length} PEOPLE AT THIS TABLE, not one: ${list}. ` +
+    `Every line in the conversation is labelled with who said it. Treat them as two different people who ` +
+    `know each other but do not know everything about each other: something one of them told you is not ` +
+    `something the other one has heard.` +
+    (askerName ? ` ${askerName} is the one who just spoke.` : '');
+}
+
 exports.handler = async function (event) {
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: CORS, body: '' };
   if (event.httpMethod !== 'POST') return json(405, { error: 'method_not_allowed' });
@@ -308,17 +380,40 @@ exports.handler = async function (event) {
   try { body = JSON.parse(event.body || '{}'); }
   catch (_) { return json(400, { error: 'bad_json' }); }
 
-  const activeAgents = Array.isArray(body.active_agents)
-    ? [...new Set(body.active_agents.map((a) => String(a || '').trim().toLowerCase()))].filter((a) => engine.AGENTS[a])
-    : [];
-  if (activeAgents.length < 2) return json(400, { error: 'need_at_least_two_agents' });
-  if (activeAgents.length > MAX_ROOM_AGENTS) return json(400, { error: 'too_many_agents', max: MAX_ROOM_AGENTS });
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  // ── which table is this? ────────────────────────────────────────────────
+  // A seat token means a shared room: two humans, state in Postgres. Anything
+  // else is the solo table, unchanged, entirely in one browser.
+  //
+  // Note the room is read from the SEAT, never from the request body. A caller
+  // cannot name a room they are not sitting at.
+  let shared = null;
+  if (body.seat_token) {
+    if (!serviceKey) return json(500, { error: 'not_configured' });
+    shared = await table.identify(serviceKey, body.seat_token);
+    if (!shared) return json(401, { error: 'not_at_this_table' });
+    const usable = table.roomIsUsable(shared.room);
+    if (!usable.ok) {
+      // seat_closed, not just closed: it tells the client nothing further is
+      // coming for THIS person, so it can stop rather than waiting on a poll
+      // for a last line that will never be written. See the conduct branch
+      // below for the other case that needs the distinction.
+      return json(200, {
+        ok: true, shared: true, replies: [], transcript_append: [],
+        active_agents: [], closed: true, seat_closed: true,
+        message: 'This conversation has ended.',
+      });
+    }
+  }
 
   // Ambient mode: the client checks in after a quiet pause with no new guest
   // message, giving the table a chance to add an unprompted beat on its own,
   // the way a real room doesn't go dead the second you stop talking. At most
   // one genuinely-discretionary speaker, never counts against the guest's
   // turn budget, and the client caps how many of these it asks for in a row.
+  // In a shared room only the HOST's browser schedules these, so two people
+  // sitting quietly don't run the table twice as fast as one.
   const isAmbient = body.ambient === true;
   const message = String(body.message || '').trim();
   if (!isAmbient) {
@@ -326,67 +421,171 @@ exports.handler = async function (event) {
     if (message.length > 2000) return json(400, { error: 'message_too_long' });
   }
 
-  const visitorName = String(body.visitor_name || '').trim().slice(0, 40) || null;
-  const visitorPronoun = safePronoun(body.visitor_pronoun);
+  // Two different questions that used to be one. `callerIsOwner` is about the
+  // person holding this browser (conduct). `freeRoom` is about who pays, which
+  // in a shared room is always the host, whoever asked. Without the split, a
+  // guest at an owner-hosted table would inherit the owner's conduct bypass.
+  const callerIsOwner = isOwnerKey(body.owner_key);
+  const freeRoom = shared ? Boolean(shared.room.host_is_owner) : callerIsOwner;
+  const iAmHost = shared ? Boolean(shared.seat.is_host) : true;
+
+  const visitorName = shared
+    ? (shared.seat.display_name || null)
+    : (String(body.visitor_name || '').trim().slice(0, 40) || null);
+  const visitorPronoun = safePronoun(shared ? shared.seat.pronoun : body.visitor_pronoun);
   const visitorPronounLine = visitorPronoun ? PRONOUN_LINES[visitorPronoun] : null;
 
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const visitorId = safeVisitorId(body.visitor_id);
-  const isOwner = isOwnerKey(body.owner_key);
-  const canCheck = Boolean(visitorId && serviceKey) && !isOwner;
+  const visitorId = safeVisitorId(shared ? shared.seat.visitor_id : body.visitor_id);
+  const canCheck = Boolean(visitorId && serviceKey) && !callerIsOwner;
 
   if (canCheck) {
     const conduct = await conductStatus(visitorId, serviceKey);
     if (conduct.banned || conduct.locked) {
-      return json(200, { replies: [], transcript_append: [], active_agents: activeAgents, closed: true, message: 'This conversation is closed.' });
+      // Conduct is per person, not per room. At a shared table this shuts the
+      // door on THIS person and deliberately leaves the room open: one guest
+      // earning a strike is not a reason to end the host's conversation. So
+      // seat_closed, and the room row is not touched.
+      return json(200, {
+        replies: [], transcript_append: [],
+        active_agents: shared ? (shared.room.active_agents || []) : [],
+        closed: true, seat_closed: true, message: 'This conversation is closed.',
+      });
     }
   }
 
-  // Paywall: the group table is 100% behind the $9.99/mo tier, no free
-  // access at all. Owner bypasses, same as the conduct check above.
-  const accessToken = safeToken(body.access_token);
-  let creditsRow = null;
-  if (!isOwner && accessToken && serviceKey) {
-    creditsRow = await getCreditRow(accessToken, serviceKey);
+  // ── the turn lock ───────────────────────────────────────────────────────
+  // Claimed BEFORE the credit read, not after, and that ordering is the point:
+  // two people asking at the same instant would otherwise both read the same
+  // balance and both deduct from it. Everything from here to the finally block
+  // runs with the room held.
+  if (shared) {
+    const got = await table.claimTurn(serviceKey, shared.room.id);
+    if (!got) {
+      if (isAmbient) {
+        // A quiet-pause check that lost the race is nothing; the person who won
+        // it is mid-cascade and that is exactly what should be happening.
+        return json(200, { ok: true, shared: true, replies: [], transcript_append: [], closed: false });
+      }
+      return json(409, {
+        error: 'table_busy',
+        message: 'Someone else is asking the table something. Give it a second and try again.',
+      });
+    }
   }
-  const isSubscriber = Boolean(!isOwner && creditsRow && creditsRow.subscription_active);
+
+  // Whatever the cascade changes about the room accumulates here and is written
+  // back exactly once, at the bottom of this handler, in the same statement
+  // that drops the lock. Every exit path from runTurn() goes through it,
+  // including the ones that throw.
+  const roomPatch = {};
+
+  async function runTurn() {
+
+  // ── the paywall ─────────────────────────────────────────────────────────
+  // The group table is 100% behind the $9.99/mo tier, no free access at all.
+  //
+  // In a shared room the HOST pays for every question regardless of who asked,
+  // and the guest must never see a balance, a paywall, or a top-up prompt: being
+  // asked to buy credits for somebody else's room is a bad moment. So the charge
+  // is made against the reference on the room row rather than against a token
+  // the caller sent, and a guest's browser has no way to reach either.
+  let creditsRow = null;
+  if (!freeRoom && serviceKey) {
+    creditsRow = shared
+      ? await getCreditRowByRef(shared.room.host_credit_ref, serviceKey)
+      : await getCreditRow(safeToken(body.access_token), serviceKey);
+  }
+  const isSubscriber = Boolean(!freeRoom && creditsRow && creditsRow.subscription_active);
   const hasEnoughForGroup = isSubscriber && creditsRow.balance >= GROUP_MESSAGE_COST;
 
-  if (!isOwner && !hasEnoughForGroup) {
+  if (!freeRoom && !hasEnoughForGroup) {
     if (isAmbient) {
       // Ambient checks are a background nicety, never worth surfacing an
       // error for; just come back empty so the client quietly reschedules.
-      return json(200, { replies: [], transcript_append: [], active_agents: activeAgents, closed: false });
+      return json(200, { replies: [], transcript_append: [], active_agents: [], closed: false });
     }
     const reason = !isSubscriber ? 'subscription_required' : 'credits_exhausted';
+    const hostFacing = reason === 'subscription_required'
+      ? 'The table is a member perk. Upgrade to join.'
+      : "You're out of credits for this cycle. Add more, or wait for next month's top-up.";
+    // Both people need to know the table stopped, not just whoever happened to
+    // hit the wall. The 'system:credits' speaker is rendered as a plain note by
+    // everyone and additionally raises the top-up button in the host's browser.
+    if (shared) {
+      await table.insertMessage(serviceKey, shared.room.id, {
+        speaker: 'system:credits',
+        name: 'The table',
+        content: 'The table is out of turns for now.',
+      });
+    }
     return json(200, {
-      replies: [], transcript_append: [], active_agents: activeAgents, closed: false,
+      replies: [], transcript_append: [], active_agents: [], closed: false,
       error: reason,
-      message: reason === 'subscription_required'
-        ? 'The table is a member perk. Upgrade to join.'
-        : "You're out of credits for this cycle. Add more, or wait for next month's top-up.",
+      // The one thing a guest must not be offered. Absent in solo mode, where
+      // the person asking is always the person who pays.
+      can_top_up: iAmHost,
+      message: iAmHost ? hostFacing : 'The table is out of turns for now.',
     });
   }
 
-  const visitorMessageCountBefore = Number(body.visitor_message_count) || 0;
+  // ── inputs: from Postgres in a shared room, from the browser otherwise ──
+  const transcriptRows = shared
+    ? await table.loadTranscript(serviceKey, shared.room.id, MAX_TRANSCRIPT_ENTRIES)
+    : (Array.isArray(body.transcript) ? body.transcript : []);
+
+  let transcript = transcriptRows
+    .filter((e) => e && typeof e.content === 'string' && e.content.trim() && typeof e.name === 'string')
+    .map((e) => ({ speaker: String(e.speaker || 'visitor'), name: e.name, content: e.content.trim() }))
+    .filter((e) => e.speaker === 'visitor' || engine.AGENTS[e.speaker])
+    .slice(-MAX_TRANSCRIPT_ENTRIES);
+
+  const activeAgents = (shared
+    ? (shared.room.active_agents || [])
+    : (Array.isArray(body.active_agents) ? body.active_agents : []))
+    .map((a) => String(a || '').trim().toLowerCase())
+    .filter((a, i, all) => engine.AGENTS[a] && all.indexOf(a) === i);
+
+  // Two is the minimum to START a table; it is not the minimum to keep one
+  // going. An agent who walks out under the abuse guardrail used to leave the
+  // room at one agent and every later message answered 400, which read as the
+  // table breaking rather than as somebody leaving.
+  const alreadyStarted = transcript.length > 0;
+  if (activeAgents.length < (alreadyStarted ? 1 : 2)) {
+    return json(400, { error: 'need_at_least_two_agents' });
+  }
+  if (activeAgents.length > MAX_ROOM_AGENTS) return json(400, { error: 'too_many_agents', max: MAX_ROOM_AGENTS });
+
+  const people = shared ? await table.loadPeople(serviceKey, shared.room.id) : [];
+  const sharedNotes = shared
+    ? roomPeopleNote(people, visitorName) + privacyNoteFor(people, transcriptRows)
+    : '';
+
+  const visitorMessageCountBefore = shared
+    ? (Number(shared.room.visitor_message_count) || 0)
+    : (Number(body.visitor_message_count) || 0);
   // Ambient checks never spend any of the guest's turn budget and can never
   // trigger the turn-cap closing beat, that mechanic is about the guest's own
   // messages running out, not idle table chatter.
   const visitorMessageCountAfter = isAmbient ? visitorMessageCountBefore : visitorMessageCountBefore + 1;
   const capped = !isAmbient && visitorMessageCountAfter >= GROUP_VISITOR_TURN_CAP;
 
-  const rawTranscript = Array.isArray(body.transcript) ? body.transcript : [];
-  let transcript = rawTranscript
-    .filter((e) => e && typeof e.content === 'string' && e.content.trim() && typeof e.name === 'string')
-    .map((e) => ({ speaker: String(e.speaker || 'visitor'), name: e.name, content: e.content.trim() }))
-    .slice(-MAX_TRANSCRIPT_ENTRIES);
-
   const seenAgentBefore = new Set(transcript.filter((e) => e.speaker !== 'visitor').map((e) => e.speaker));
   if (!isAmbient) {
-    transcript.push({ speaker: 'visitor', name: visitorName || 'Guest', content: message });
+    const entry = { speaker: 'visitor', name: visitorName || 'Guest', content: message };
+    transcript.push(entry);
+    // Written straight away rather than at the end of the round, so the other
+    // person watches the question appear the moment it is asked instead of it
+    // materialising along with the answers a minute later.
+    if (shared) {
+      await table.insertMessage(serviceKey, shared.room.id, {
+        speaker: 'visitor', authorId: shared.seat.id, name: entry.name, content: entry.content,
+      });
+    }
   }
 
-  const agentStateIn = (body.agent_state && typeof body.agent_state === 'object') ? body.agent_state : {};
+  const agentStateIn = shared
+    ? ((shared.room.agent_state && typeof shared.room.agent_state === 'object') ? shared.room.agent_state : {})
+    : ((body.agent_state && typeof body.agent_state === 'object') ? body.agent_state : {});
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
   let stillActive = [...activeAgents];
@@ -471,6 +670,14 @@ sitting right there watching this happen, not being spoken to this turn.`;
 
       turnPrompt += await etlKnowledgeNote(speaker);
 
+      // LAST on purpose, and this is not a style choice. An empty string in a
+      // solo table, so that prompt is byte for byte what it has always been. In
+      // a shared room it is who else is sitting here and, more importantly,
+      // what the newest arrival must not overhear — and instructions buried in
+      // the middle of a long prompt are the ones that quietly stop being
+      // followed. The most consequential rule goes where it is read last.
+      turnPrompt += sharedNotes;
+
       const messages = buildMessagesFor(speaker, transcript);
 
       let turn;
@@ -528,6 +735,16 @@ sitting right there watching this happen, not being spoken to this turn.`;
       transcript.push(entry);
       transcriptAppend.push(entry);
 
+      // Written the moment it exists, not batched at the end of the cascade.
+      // Each beat is its own Sonnet call taking real seconds, so writing as we
+      // go means both people watch the table talk at the pace it is actually
+      // talking. Batching would land three replies in one silent lump.
+      if (shared) {
+        await table.insertMessage(serviceKey, shared.room.id, {
+          speaker, name: persona.name, content: replyText,
+        });
+      }
+
       replies.push({
         agent_key: speaker,
         agent_name: persona.name,
@@ -547,9 +764,33 @@ sitting right there watching this happen, not being spoken to this turn.`;
   if (capped) stillActive = [];
 
   // One deduction per guest message round, not per cascaded reply, and never
-  // for an ambient beat (that never required credits to begin with).
-  if (!isOwner && isSubscriber && !isAmbient) {
-    await deductCredits(accessToken, GROUP_MESSAGE_COST, serviceKey);
+  // for an ambient beat (that never required credits to begin with). In a
+  // shared room this charges the HOST, by reference, no matter which of the two
+  // people asked — Dr. O's decision, and the reason the guest never needs an
+  // account, a card, or a balance of her own.
+  if (!freeRoom && isSubscriber && !isAmbient) {
+    if (shared) await deductCreditsByRef(shared.room.host_credit_ref, GROUP_MESSAGE_COST, serviceKey);
+    else await deductCredits(safeToken(body.access_token), GROUP_MESSAGE_COST, serviceKey);
+  }
+
+  if (shared) {
+    roomPatch.agent_state = agentStateIn;
+    roomPatch.active_agents = stillActive;
+    roomPatch.visitor_message_count = visitorMessageCountAfter;
+    roomPatch.closed = stillActive.length === 0;
+
+    // Replies are deliberately NOT returned here. Both browsers render the room
+    // from ah-table-poll.js, including the one that just asked, so the same
+    // lines arrive in the same order at the same moment on both screens.
+    // Handing the asker a private, faster copy is how the two views drift.
+    return json(200, {
+      ok: true,
+      shared: true,
+      active_agents: stillActive,
+      visitor_message_count: visitorMessageCountAfter,
+      capped,
+      closed: stillActive.length === 0,
+    });
   }
 
   return json(200, {
@@ -561,4 +802,16 @@ sitting right there watching this happen, not being spoken to this turn.`;
     capped,
     closed: stillActive.length === 0,
   });
+
+  } // ── end runTurn ──────────────────────────────────────────────────────────
+
+  try {
+    return await runTurn();
+  } finally {
+    // One write: persists whatever the cascade changed AND drops the turn lock.
+    // In the finally so a cascade that throws frees the room immediately rather
+    // than leaving the other person staring at "the table is talking" until the
+    // lock deadline passes.
+    if (shared) await table.releaseTurn(serviceKey, shared.room.id, roomPatch);
+  }
 };

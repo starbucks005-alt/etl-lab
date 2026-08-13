@@ -33,17 +33,43 @@ function safeToken(v) {
   return /^AH-[a-f0-9]{32}$/.test(s) ? s : null;
 }
 
-/* Reads (and, if due, rolls over) a subscriber's credit row. Returns null if
-   the token doesn't resolve to a row at all. Rollover mirrors
-   get-credits-etl.js's existing logic: adds TIER2_MONTHLY_CREDITS once
-   ROLLOVER_DAYS have passed since the last top-up, never replaces the
-   balance, just accumulates. */
-async function getCreditRow(token, serviceKey) {
+/* An opaque, non-credential handle on a credit row.
+
+   The shared table (see supabase_ah_table_migration.sql) has to charge the
+   HOST for a question her invited friend asked, at a moment when the friend's
+   browser is the only one talking to the server and the host's token is
+   nowhere near the request. So the room row carries this instead of the token:
+   a sha256 that names the row without being able to open it.
+
+   ah_credits.token_ref is written by ah-table-open.js at the one moment it
+   matters, from the live token, so nothing here ever needs a backfill. */
+function tokenRef(token) {
   const t = safeToken(token);
-  if (!t || !serviceKey) return null;
+  if (!t) return null;
+  return crypto.createHash('sha256').update(t).digest('hex');
+}
+
+/* Filter clauses, so read-by-token and read-by-ref share one implementation
+   rather than two copies of the rollover math drifting apart. */
+function byToken(token) {
+  const t = safeToken(token);
+  return t ? `access_token=eq.${encodeURIComponent(t)}` : null;
+}
+function byRef(ref) {
+  const r = String(ref || '').trim();
+  return /^[a-f0-9]{64}$/.test(r) ? `token_ref=eq.${r}` : null;
+}
+
+/* Reads (and, if due, rolls over) a subscriber's credit row, given a PostgREST
+   filter clause naming exactly one row. Returns null if it doesn't resolve to a
+   row at all. Rollover mirrors get-credits-etl.js's existing logic: adds
+   TIER2_MONTHLY_CREDITS once ROLLOVER_DAYS have passed since the last top-up,
+   never replaces the balance, just accumulates. */
+async function readCreditRow(filter, serviceKey) {
+  if (!filter || !serviceKey) return null;
   try {
     const r = await fetch(
-      `${SUPABASE_URL}/rest/v1/ah_credits?access_token=eq.${encodeURIComponent(t)}&select=balance,last_topped_up_at,subscription_active`,
+      `${SUPABASE_URL}/rest/v1/ah_credits?${filter}&select=balance,last_topped_up_at,subscription_active`,
       { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }
     );
     if (!r.ok) return null;
@@ -55,7 +81,7 @@ async function getCreditRow(token, serviceKey) {
     const daysSince = (Date.now() - new Date(row.last_topped_up_at).getTime()) / (1000 * 60 * 60 * 24);
     if (daysSince >= ROLLOVER_DAYS) {
       const balance = row.balance + TIER2_MONTHLY_CREDITS;
-      await fetch(`${SUPABASE_URL}/rest/v1/ah_credits?access_token=eq.${encodeURIComponent(t)}`, {
+      await fetch(`${SUPABASE_URL}/rest/v1/ah_credits?${filter}`, {
         method: 'PATCH',
         headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
         body: JSON.stringify({ balance, last_topped_up_at: new Date().toISOString(), updated_at: new Date().toISOString() }),
@@ -64,33 +90,73 @@ async function getCreditRow(token, serviceKey) {
     }
     return { balance: row.balance, subscription_active: true };
   } catch (err) {
-    console.error('_ah-credits getCreditRow failed:', err.message);
+    console.error('_ah-credits readCreditRow failed:', err.message);
     return null;
   }
 }
 
-/* Deducts `amount` credits for a token. Returns { ok, balance_remaining } or
-   { ok: false, reason: 'no_account' | 'insufficient_credits' }. Re-checks the
-   balance server-side before writing, so callers don't need to trust a
-   balance they read earlier in the same request. */
-async function deductCredits(token, amount, serviceKey) {
-  const row = await getCreditRow(token, serviceKey);
+async function getCreditRow(token, serviceKey) {
+  return readCreditRow(byToken(token), serviceKey);
+}
+
+/* Same read, reached by reference instead of by token. What the shared table
+   uses on every turn, whoever asked the question. */
+async function getCreditRowByRef(ref, serviceKey) {
+  return readCreditRow(byRef(ref), serviceKey);
+}
+
+/* Deducts `amount` credits from the row named by `filter`. Returns
+   { ok, balance_remaining } or { ok: false, reason: 'no_account' |
+   'insufficient_credits' }. Re-reads the balance server-side before writing, so
+   callers don't need to trust a balance they read earlier in the same request. */
+async function deductBy(filter, amount, serviceKey) {
+  const row = await readCreditRow(filter, serviceKey);
   if (!row || !row.subscription_active) return { ok: false, reason: 'no_account' };
   if (row.balance < amount) return { ok: false, reason: 'insufficient_credits', balance_remaining: row.balance };
 
   const balance = row.balance - amount;
-  const t = safeToken(token);
   try {
-    await fetch(`${SUPABASE_URL}/rest/v1/ah_credits?access_token=eq.${encodeURIComponent(t)}`, {
+    await fetch(`${SUPABASE_URL}/rest/v1/ah_credits?${filter}`, {
       method: 'PATCH',
       headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
       body: JSON.stringify({ balance, updated_at: new Date().toISOString() }),
     });
   } catch (err) {
-    console.error('_ah-credits deductCredits failed:', err.message);
+    console.error('_ah-credits deduct failed:', err.message);
     return { ok: false, reason: 'write_failed' };
   }
   return { ok: true, balance_remaining: balance };
+}
+
+async function deductCredits(token, amount, serviceKey) {
+  return deductBy(byToken(token), amount, serviceKey);
+}
+
+async function deductCreditsByRef(ref, amount, serviceKey) {
+  return deductBy(byRef(ref), amount, serviceKey);
+}
+
+/* Stamps the reference onto the host's own row, so a later request holding only
+   the reference can find it. Called once, when a room is opened. Idempotent:
+   the ref is a pure function of the token, so re-running writes the same value.
+   Returns the ref, or null if the token doesn't resolve to a real row. */
+async function linkTokenRef(token, serviceKey) {
+  const filter = byToken(token);
+  const ref = tokenRef(token);
+  if (!filter || !ref || !serviceKey) return null;
+  try {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/ah_credits?${filter}`, {
+      method: 'PATCH',
+      headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}`, 'Content-Type': 'application/json', Prefer: 'return=representation' },
+      body: JSON.stringify({ token_ref: ref, updated_at: new Date().toISOString() }),
+    });
+    if (!r.ok) return null;
+    const rows = await r.json();
+    return (Array.isArray(rows) && rows.length) ? ref : null;
+  } catch (err) {
+    console.error('_ah-credits linkTokenRef failed:', err.message);
+    return null;
+  }
 }
 
 module.exports = {
@@ -101,6 +167,10 @@ module.exports = {
   ADDON_CREDITS,
   randomToken,
   safeToken,
+  tokenRef,
+  linkTokenRef,
   getCreditRow,
+  getCreditRowByRef,
   deductCredits,
+  deductCreditsByRef,
 };

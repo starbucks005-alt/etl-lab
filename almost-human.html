@@ -265,6 +265,25 @@
   .bubble .spk img { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; }
   .bubble .spk-name { font-family: 'IBM Plex Mono', monospace; font-size: .62rem; letter-spacing: .05em; text-transform: uppercase; color: #9fb0ff; }
 
+  /* ── bring a friend ── the other human's lines, the roster of who is
+     actually sitting here, and the invite tray. Deliberately a third bubble
+     style: an unlabelled bubble on the left would read as an agent, and a
+     bubble on the right would read as you. */
+  .bubble.their { align-self: flex-end; background: #2b3a7a; color: #fff; }
+  .bubble.their .spk-name { color: #cdd6ff; }
+  .table-invite-btn { background: rgba(255,255,255,.06); color: #fff; border: 1px solid var(--line); border-radius: 999px; padding: .4rem .9rem; font-size: .8rem; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
+  .table-roster { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; padding: .5rem 1.4rem 0; max-width: 720px; width: 100%; margin: 0 auto; font-size: .72rem; color: var(--muted); }
+  .table-roster-label { font-family: 'IBM Plex Mono', monospace; font-size: .62rem; letter-spacing: .06em; text-transform: uppercase; }
+  .table-roster-one { background: rgba(255,255,255,.06); border: 1px solid var(--line); border-radius: 999px; padding: .15rem .6rem; color: var(--cream); }
+  .table-invite-tray { max-width: 720px; width: 100%; margin: 0 auto; padding: .7rem 1.4rem 0; }
+  .table-invite-tray .hint { font-size: .8rem; color: var(--muted); line-height: 1.5; margin-bottom: .6rem; }
+  .table-invite-tray input { width: 100%; background: #0f0f16; border: 1px solid var(--line); border-radius: 8px; color: var(--cream); font-size: .82rem; padding: .55rem .7rem; font-family: 'IBM Plex Mono', monospace; margin-bottom: .5rem; }
+  .table-invite-note { font-size: .78rem; color: var(--muted); line-height: 1.5; }
+  .table-invite-note.warn { color: #e2a0a0; }
+  .join-intro { border: 1px solid var(--line); border-radius: 10px; padding: .9rem 1rem; margin-bottom: 1.2rem; background: rgba(255,255,255,.03); }
+  .join-intro h3 { font-family: 'Spectral', serif; font-size: 1.15rem; margin-bottom: .4rem; }
+  .join-intro p { font-size: .85rem; color: var(--muted); line-height: 1.55; margin: 0; }
+
   .table-end-bar { display: flex; justify-content: center; padding: .5rem 1.4rem 0; max-width: 720px; width: 100%; margin: 0 auto; }
   #table-form { display: flex; gap: .6rem; padding: 1rem 1.4rem 1.4rem; max-width: 720px; width: 100%; margin: 0 auto; }
   #table-input { flex: 1; background: var(--panel); border: 1px solid var(--line); border-radius: 999px; color: var(--cream); font-size: 1rem; padding: .8rem 1.1rem; font-family: inherit; }
@@ -331,8 +350,16 @@
 
 <div id="consent">
   <div class="consent-card">
-    <h2>Before you sit down</h2>
-    <p>You're about to have an honest, one-on-one conversation with one of the Almost Human agents in the Harvest Circuit's private room. This isn't scripted, say what's actually on your mind.</p>
+    <!-- Only shown to somebody arriving on an invite link. The rest of this
+         card is the same consent gate everyone else passes, deliberately: an
+         invited guest agrees to the same terms and the same research note as
+         the person who invited her. -->
+    <div class="join-intro" id="joinIntro" style="display:none">
+      <h3 id="joinIntroTitle">You've been invited to a table</h3>
+      <p id="joinIntroSub">Reading the invite...</p>
+    </div>
+    <h2 id="consentTitle">Before you sit down</h2>
+    <p id="consentLead">You're about to have an honest, one-on-one conversation with one of the Almost Human agents in the Harvest Circuit's private room. This isn't scripted, say what's actually on your mind.</p>
     <ul>
       <li><strong>Pick a name for this conversation.</strong> It doesn't have to be your real one.</li>
       <li><strong>Go where it needs to go.</strong> Sadness, frustration, venting, all fair game.</li>
@@ -388,7 +415,14 @@
   <div class="table-header">
     <button class="table-back" id="tableBack">&larr; Back</button>
     <div class="table-avatars" id="tableAvatars"></div>
+    <button type="button" class="table-invite-btn" id="tableInvite">Bring a friend</button>
   </div>
+  <div class="table-invite-tray" id="tableInviteTray" style="display:none">
+    <p class="hint">Send this link to one person. They tap it once and they're sitting here with you, no sign-up. They'll see the conversation from the moment they arrive, not before.</p>
+    <input type="text" id="tableInviteLink" readonly>
+    <div class="table-invite-note" id="tableInviteNote"></div>
+  </div>
+  <div class="table-roster" id="tableRoster" style="display:none"></div>
   <div id="table-log"></div>
   <div class="table-end-bar">
     <button type="button" class="room-end-btn" id="tableEnd">End Conversation</button>
@@ -623,6 +657,12 @@ $('consentGo').addEventListener('click', function () {
   }
   displayName = ($('consentName').value || '').trim() || 'Friend';
   rememberMe = $('consentRemember').checked;
+  // An invited guest passes the same gate as everyone else and then goes
+  // straight to her seat instead of the picker. THIS TAP is what claims the
+  // invite: nothing has been spent until now, which is what stops a mail
+  // scanner or a messaging app prefetching the link from burning it before the
+  // person it was sent to ever opens it.
+  if (pendingJoinToken) { claimInvite(pendingJoinToken); return; }
   $('consent').classList.remove('open');
   showScreen('picker');
 });
@@ -874,6 +914,551 @@ function tableSilentSavePayloads() {
     };
   }).filter(Boolean);
 }
+/* ── BRING A FRIEND ────────────────────────────────────────────────────────
+
+   Everything above this line is the solo table, and a solo table never touches
+   any of it: no room, no polling, no database, exactly as it shipped. All of
+   this comes alive only when the host actually invites somebody, which is why
+   the common case costs nothing and carries none of this risk.
+
+   Once a room exists, BOTH browsers render the log from ah-table-poll.js,
+   including the one that just asked. Nothing is drawn optimistically. That is
+   deliberate: an optimistic copy is a private, faster copy, and two people
+   watching the same conversation drift apart is the whole failure this feature
+   has to avoid.
+
+   It also means the paced, staggered reveal above (which exists to stretch a
+   solo session) does not apply here. The cast's replies are written one at a
+   time as each is generated, so the real pace of the conversation is the pace
+   it actually arrives at. Two people waiting on invented typing delays would be
+   two people waiting.
+
+   THE GUEST NEVER SIGNS IN and never sees a paywall. She taps the link, says
+   what to call her, agrees to the same terms everyone else does, and sits down.
+   The host's credits pay for every question, whoever asked.
+*/
+var TABLE_POLL_MS = 2500;
+var TABLE_SESSION_KEY = 'ah_table_session';
+var tableRoomId = null;
+var tableSeatToken = null;
+var tableIsHost = true;
+var tableHostName = '';
+var tableInviteUrl = null;
+var tableCursor = null;       // last created_at rendered; advances only on a
+                              // successful poll, so a dropped one re-reads
+var tableSeenIds = {};        // polls overlap; render each row once
+var tablePollTimer = null;
+var tableBusyNote = null;
+var pendingJoinToken = null;  // set when this page was opened from an invite
+
+/* Room id and seat token live in sessionStorage, not in a variable. A reload
+   would otherwise strand a guest whose invite is already spent: she would come
+   back to "this invite has already been used" and read it as being thrown out.
+   sessionStorage rather than localStorage on purpose, since it dies with the
+   tab, which is the right lifetime for a key to somebody else's conversation on
+   a phone that might not be hers. */
+function saveTableSession() {
+  try {
+    if (!tableRoomId || !tableSeatToken) { sessionStorage.removeItem(TABLE_SESSION_KEY); return; }
+    sessionStorage.setItem(TABLE_SESSION_KEY, JSON.stringify({
+      roomId: tableRoomId, seatToken: tableSeatToken, isHost: tableIsHost,
+      hostName: tableHostName, agentKeys: tableAgentKeys,
+      name: displayName, pronoun: visitorPronoun, remember: rememberMe,
+    }));
+  } catch (_) { /* private mode; the table still works for this tab's life */ }
+}
+function readTableSession() {
+  try {
+    var raw = JSON.parse(sessionStorage.getItem(TABLE_SESSION_KEY) || 'null');
+    if (raw && raw.roomId && raw.seatToken && raw.agentKeys && raw.agentKeys.length) return raw;
+  } catch (_) {}
+  return null;
+}
+function clearTableSession() {
+  try { sessionStorage.removeItem(TABLE_SESSION_KEY); } catch (_) {}
+}
+
+// Getting up from the table. The host leaving closes it for both people, since
+// she is the one paying; a guest leaving only removes herself. That decision
+// lives in ah-table-close.js, not here.
+//
+// Fire and forget: she is leaving either way, and a request that fails should
+// never hold up the screen change in front of her.
+function leaveSharedTable() {
+  if (tableSeatToken) {
+    try {
+      fetch('/.netlify/functions/ah-table-close', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ seat_token: tableSeatToken }),
+      }).catch(function () {});
+    } catch (_) {}
+  }
+  stopTablePolling();
+  clearTableSession();
+  tableRoomId = null;
+  tableSeatToken = null;
+  tableIsHost = true;
+  tableHostName = '';
+  tableInviteUrl = null;
+  tableCursor = null;
+  tableSeenIds = {};
+  tableBusyNote = null;
+  $('tableInviteTray').style.display = 'none';
+  $('tableRoster').style.display = 'none';
+  $('tableInvite').style.display = '';
+  inviteNote('');
+}
+
+/* ── the invite ─────────────────────────────────────────────────────────── */
+
+function inviteNote(msg, warn) {
+  var el = $('tableInviteNote');
+  el.textContent = msg || '';
+  el.classList.toggle('warn', !!warn);
+}
+
+// Shows the link as well as copying it. Clipboard writes fail silently on
+// plenty of mobile browsers, and a copy button that quietly did nothing is
+// worse than no button.
+function showInviteLink(link) {
+  $('tableInviteTray').style.display = 'block';
+  $('tableInviteLink').value = link;
+  try {
+    navigator.clipboard.writeText(link).then(
+      function () { inviteNote('Link copied. Send it however you like. It works once.'); },
+      function () { inviteNote('Here is the link. Copy it and send it however you like.'); }
+    );
+  } catch (_) {
+    inviteNote('Here is the link. Copy it and send it however you like.');
+  }
+}
+
+/* Turns the table she is already sitting at into a shared one, carrying the
+   conversation so far with it: the transcript AND where the agents' feelings
+   had got to. The moment somebody wants company is usually not before they sit
+   down, it is twenty minutes in, when something is worth showing someone.
+
+   Those carried lines land before any guest's arrival, so the arrival-forward
+   rule hides them from her while the cast keeps them. */
+function inviteFriend() {
+  $('tableInviteTray').style.display = 'block';
+  if (tableInviteUrl) { showInviteLink(tableInviteUrl); return; }
+  if (tableRoomId) { inviteNote('This table is already open, but its invite has been used.'); return; }
+  inviteNote('Setting up the table...');
+
+  fetch('/.netlify/functions/ah-table-open', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      agent_keys: tableAgentKeys,
+      display_name: displayName,
+      pronoun: visitorPronoun,
+      visitor_id: visitorId(),
+      access_token: accessToken(),
+      owner_key: ownerKey(),
+      seed: tableHistory,
+      agent_state: tableAgentState,
+      visitor_message_count: tableVisitorMsgCount,
+    }),
+  })
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (d.error === 'subscription_required' || d.error === 'credits_exhausted') {
+        inviteNote(d.message, true);
+        showUpsell('table-log', d.error === 'credits_exhausted');
+        return;
+      }
+      if (!d.room_id || !d.seat_token) {
+        inviteNote('Could not set that up just now. Try again in a moment.', true);
+        return;
+      }
+      tableRoomId = d.room_id;
+      tableSeatToken = d.seat_token;
+      tableIsHost = true;
+      tableHostName = displayName;
+      // The lines already on screen are in the room now too. Starting the
+      // cursor past them is what stops the first poll rendering the whole
+      // conversation a second time underneath itself.
+      tableCursor = d.cursor || new Date().toISOString();
+      tableSeenIds = {};
+      saveTableSession();
+
+      if (!d.invite_token && !d.join_url) {
+        inviteNote('The table is open, but the invite link did not come back. Try again.', true);
+        startTablePolling();
+        return;
+      }
+      // Built from the origin this page is actually on, so it never depends on
+      // what Netlify thinks the site's primary URL is.
+      tableInviteUrl = d.invite_token
+        ? location.origin + '/almost-human?table=' + encodeURIComponent(d.invite_token)
+        : d.join_url;
+      showInviteLink(tableInviteUrl);
+      tableBubble('system', 'The table is open. Send that link to one person.', null);
+      startTablePolling();
+    })
+    .catch(function () {
+      inviteNote('Could not set that up just now. Try again in a moment.', true);
+    });
+}
+
+/* ── polling ────────────────────────────────────────────────────────────── */
+
+function stopTablePolling() {
+  if (tablePollTimer) { clearTimeout(tablePollTimer); tablePollTimer = null; }
+}
+function scheduleTablePoll() {
+  stopTablePolling();
+  if (!tableRoomId || tableClosed) return;
+  tablePollTimer = setTimeout(tablePollOnce, TABLE_POLL_MS);
+}
+function startTablePolling() {
+  renderSharedChrome();
+  tablePollOnce();
+}
+
+// Which controls make sense for the person actually holding this browser. A
+// guest has no room to invite anyone else into and no invite tray to look at.
+function renderSharedChrome() {
+  $('tableInvite').style.display = (tableRoomId && !tableIsHost) ? 'none' : '';
+  if (tableRoomId && !tableIsHost) $('tableInviteTray').style.display = 'none';
+}
+
+function tablePollOnce() {
+  stopTablePolling();
+  if (!tableRoomId || !tableSeatToken || tableClosed) return;
+
+  fetch('/.netlify/functions/ah-table-poll', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ seat_token: tableSeatToken, since: tableCursor }),
+  })
+    .then(function (r) {
+      if (r.status === 401) { var e = new Error('gone'); e.gone = true; throw e; }
+      if (!r.ok) throw new Error('poll ' + r.status);
+      return r.json();
+    })
+    .then(function (d) {
+      // Lifted before rendering and put back after, so it always sits at the
+      // bottom of the log instead of being stranded above the replies it was
+      // announcing.
+      if (tableBusyNote) { tableBusyNote.remove(); tableBusyNote = null; }
+
+      (d.messages || []).forEach(renderTableIncoming);
+      if (d.messages && d.messages.length) {
+        tableCursor = d.messages[d.messages.length - 1].created_at;
+      }
+      if (d.active_agents && d.active_agents.length) {
+        var still = d.active_agents.map(agentByKey).filter(Boolean);
+        if (still.length !== tableActiveAgents.length) {
+          tableActiveAgents = still;
+          renderTableAvatars();
+        }
+      }
+      renderTableRoster(d.roster);
+      // Read-only here; the room is the only writer. Kept up to date so the
+      // exit survey and the silent memory save still file each agent's real
+      // scales and turn count on the way out.
+      if (d.agent_state) tableAgentState = d.agent_state;
+
+      if (d.closed && !tableClosed) {
+        tableBubble('system', d.reason === 'expired'
+          ? 'This table has expired.'
+          : 'The table has closed.', null);
+        closeTableInput();
+        return;
+      }
+      if (d.busy) {
+        tableBusyNote = tableBubble('system', 'the table is talking...', null);
+      }
+      scheduleTablePoll();
+    })
+    .catch(function (err) {
+      if (err && err.gone) {
+        // A stored session the server no longer recognises. Say so rather than
+        // going quiet, and stop polling a table she is not at.
+        clearTableSession();
+        tableBubble('system', "You're not at this table any more. Ask them for a new link.", null);
+        closeTableInput();
+        return;
+      }
+      // A dropped poll isn't worth surfacing: the cursor only advances on
+      // success, so the next one picks up whatever was missed.
+      scheduleTablePoll();
+    });
+}
+
+// One renderer for everything that arrives, so a line looks the same whoever
+// sent it and whichever browser is showing it. `mine` is resolved server-side,
+// so no browser is ever handed anyone else's identifier in order to compare.
+function renderTableIncoming(row) {
+  if (!row || !row.id || tableSeenIds[row.id]) return;
+  tableSeenIds[row.id] = true;
+
+  if (row.speaker === 'visitor') {
+    tableBubble(row.mine ? 'user' : 'their', row.content, null, row.mine ? null : row.name);
+    tableHistory.push({ speaker: 'visitor', name: row.name, content: row.content });
+    return;
+  }
+  if (row.speaker.indexOf('system') === 0) {
+    tableBubble('system', row.content, null);
+    // Both people are told the table stopped. Only the host is offered a way to
+    // fix it: a guest being asked to buy credits for somebody else's room is a
+    // bad moment, and she cannot top up an account she does not have.
+    if (row.speaker === 'system:credits' && tableIsHost) showUpsell('table-log', true);
+    return;
+  }
+  var a = agentByKey(row.speaker);
+  if (!a) return;
+  tableBubble('agent', row.content, a);
+  tableHistory.push({ speaker: row.speaker, name: a.name, content: row.content });
+}
+
+// Only shown once somebody else is actually here, so a host waiting on a friend
+// isn't looking at a list of one.
+function renderTableRoster(roster) {
+  var el = $('tableRoster');
+  if (!roster || roster.length < 2) { el.style.display = 'none'; el.innerHTML = ''; return; }
+  el.innerHTML = '';
+  var label = document.createElement('span');
+  label.className = 'table-roster-label';
+  label.textContent = 'At the table:';
+  el.appendChild(label);
+  roster.forEach(function (p) {
+    var chip = document.createElement('span');
+    chip.className = 'table-roster-one';
+    chip.textContent = p.name;
+    el.appendChild(chip);
+  });
+  el.style.display = 'flex';
+}
+
+/* ── asking, with somebody else at the table ────────────────────────────── */
+
+function sendSharedMessage(text) {
+  tableSending = true;
+  $('table-send').disabled = true;
+  cancelAmbientCheck();
+  ambientRoundsSinceVisitor = 0;
+
+  fetch('/.netlify/functions/eq-room-group-ask', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ seat_token: tableSeatToken, message: text }),
+  })
+    .then(function (r) {
+      return r.json().then(function (d) { return { status: r.status, d: d }; });
+    })
+    .then(function (res) {
+      var d = res.d || {};
+      if (res.status === 409 && d.error === 'table_busy') {
+        // The other person is mid-question. Hand the text back rather than
+        // eating it, and let them finish.
+        tableBubble('system', d.message, null);
+        $('table-input').value = text;
+        return;
+      }
+      if (res.status === 401) {
+        clearTableSession();
+        tableBubble('system', "You're not at this table any more. Ask them for a new link.", null);
+        closeTableInput();
+        return;
+      }
+      if (d.error === 'subscription_required' || d.error === 'credits_exhausted') {
+        // The note itself is already in the room for both people; can_top_up is
+        // false for a guest, who has nothing to top up.
+        if (d.can_top_up) showUpsell('table-log', d.error === 'credits_exhausted');
+        return;
+      }
+      // The door has shut on this person specifically: the conduct guardrail,
+      // or a room that had already ended. Nothing further is coming, so stop
+      // here rather than leaving her typing into it.
+      if (d.seat_closed) {
+        if (d.message) tableBubble('system', d.message, null);
+        closeTableInput();
+        return;
+      }
+      // The ROOM ended on this turn: the turn budget ran out, or the last agent
+      // walked. The closing line is already written and still on its way, so
+      // the input is deliberately left alone here — the poll in .finally
+      // renders that last line and closes up once it actually has it. Closing
+      // now would stop the polling and swallow the table's goodbye.
+      if (d.closed) return;
+      if (d.error || res.status >= 400) {
+        tableBubble('system', 'Something went wrong at the table. Try again.', null);
+        $('table-input').value = text;
+      }
+    })
+    .catch(function () {
+      tableBubble('system', 'Could not reach the table. Try again.', null);
+      $('table-input').value = text;
+    })
+    .finally(function () {
+      tableSending = false;
+      if (!tableClosed) {
+        $('table-send').disabled = false;
+        $('table-input').focus();
+      }
+      tablePollOnce();
+      // Only the host runs the quiet-pause check-ins, so two people sitting
+      // quietly don't burn her credits' worth of table chatter twice as fast.
+      if (tableIsHost) scheduleAmbientCheck();
+    });
+}
+
+/* ── arriving on an invite ──────────────────────────────────────────────── */
+
+var JOIN_ERRORS = {
+  claimed: 'This invite has already been used. Ask them to send you a new one.',
+  expired: 'This invite has expired. Ask them to send you a new one.',
+  closed: 'That conversation has already ended.',
+  not_found: "We couldn't find that invite. Check the link, or ask for a new one.",
+};
+
+// Reads who invited you WITHOUT claiming anything, so a mail scanner or a
+// messaging app prefetching the link cannot spend the invite before the person
+// it was meant for ever taps it. The claim happens on the button, never here.
+function peekInvite(token) {
+  $('joinIntro').style.display = 'block';
+  $('consent').classList.add('open');
+
+  fetch('/.netlify/functions/ah-table-join', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token: token, peek: true }),
+  })
+    .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+    .then(function (res) {
+      if (!res.ok) {
+        pendingJoinToken = null;
+        $('joinIntroTitle').textContent = 'This invite did not work';
+        $('joinIntroSub').textContent = JOIN_ERRORS[res.d.error] || 'Something went wrong with this link.';
+        $('consentGo').textContent = 'Look around instead';
+        return;
+      }
+      var names = (res.d.agent_keys || []).map(function (k) {
+        var a = agentByKey(k);
+        return a ? a.name : null;
+      }).filter(Boolean);
+      var list = names.length > 1
+        ? names.slice(0, -1).join(', ') + ' and ' + names[names.length - 1]
+        : (names[0] || 'the table');
+      $('joinIntroTitle').textContent = res.d.host_name + ' saved you a seat';
+      $('joinIntroSub').textContent = 'They\'re sitting with ' + list +
+        '. You\'ll see the conversation from the moment you sit down, not what was said before.';
+      $('consentGo').textContent = 'Take your seat';
+    })
+    .catch(function () {
+      pendingJoinToken = null;
+      $('joinIntroTitle').textContent = 'This invite did not work';
+      $('joinIntroSub').textContent = "We couldn't reach the table just now. Try the link again in a moment.";
+      $('consentGo').textContent = 'Look around instead';
+    });
+}
+
+function claimInvite(token) {
+  $('consentGo').disabled = true;
+  $('joinIntroSub').textContent = 'Taking your seat...';
+
+  fetch('/.netlify/functions/ah-table-join', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      token: token,
+      display_name: displayName,
+      pronoun: visitorPronoun,
+      visitor_id: visitorId(),
+    }),
+  })
+    .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+    .then(function (res) {
+      $('consentGo').disabled = false;
+      if (!res.ok) {
+        pendingJoinToken = null;
+        $('joinIntroSub').textContent = JOIN_ERRORS[res.d.error] || 'That did not work. Ask them for a new link.';
+        $('consentGo').textContent = 'Look around instead';
+        return;
+      }
+      var d = res.d;
+      pendingJoinToken = null;
+      $('consent').classList.remove('open');
+      $('joinIntro').style.display = 'none';
+
+      uiMode = 'group';
+      tableRoomId = d.room_id;
+      tableSeatToken = d.seat_token;
+      tableIsHost = false;
+      tableHostName = d.host_name || 'your host';
+      tableAgentKeys = (d.agent_keys || []).slice();
+      tableActiveAgents = (d.active_agents || d.agent_keys || []).map(agentByKey).filter(Boolean);
+      tableHistory = [];
+      tableAgentState = {};
+      tableVisitorMsgCount = 0;
+      tableClosed = false;
+      tableSending = false;
+      tableMemorySaved = false;
+      tableCursor = null;
+      tableSeenIds = {};
+
+      $('table-log').innerHTML = '';
+      renderTableAvatars();
+      var names = tableActiveAgents.map(function (a) { return a.name; }).join(', ');
+      tableBubble('system', 'You sit down at ' + tableHostName + "'s table with " + names +
+        '. You can see the conversation from here on.', null);
+      showScreen('table');
+      $('table-input').disabled = false;
+      $('table-send').disabled = false;
+      $('table-input').placeholder = 'Say something to the table...';
+      $('table-input').focus();
+
+      // Her invite is spent now, so a reload without this would strand her.
+      saveTableSession();
+      startTablePolling();
+    })
+    .catch(function () {
+      $('consentGo').disabled = false;
+      $('joinIntroSub').textContent = "Couldn't join just now. Try again in a moment.";
+    });
+}
+
+/* Puts somebody back at the table they were already at, after a reload. The
+   first poll refills the log, and a guest's is bounded server-side by when she
+   arrived, so coming back can never show her more than she could see before. */
+function resumeTableSession(saved) {
+  displayName = saved.name || 'Friend';
+  visitorPronoun = saved.pronoun || '';
+  rememberMe = !!saved.remember;
+
+  uiMode = 'group';
+  tableRoomId = saved.roomId;
+  tableSeatToken = saved.seatToken;
+  tableIsHost = !!saved.isHost;
+  tableHostName = saved.hostName || '';
+  tableAgentKeys = saved.agentKeys.slice();
+  tableActiveAgents = tableAgentKeys.map(agentByKey).filter(Boolean);
+  tableHistory = [];
+  tableAgentState = {};
+  tableVisitorMsgCount = 0;
+  tableClosed = false;
+  tableSending = false;
+  tableMemorySaved = false;
+  tableCursor = null;
+  tableSeenIds = {};
+
+  $('table-log').innerHTML = '';
+  renderTableAvatars();
+  tableBubble('system', 'Back at the table.', null);
+  showScreen('table');
+  $('table-input').disabled = false;
+  $('table-send').disabled = false;
+  $('table-input').placeholder = 'Say something to the table...';
+  startTablePolling();
+  if (tableIsHost) scheduleAmbientCheck();
+}
+
+$('tableInvite').addEventListener('click', inviteFriend);
+
 // Ambient continuation: without this the room is pure request/response, dead
 // silent unless the guest types something, which reads as fake for a room
 // that's supposed to feel alive. After a quiet pause with no new message,
@@ -892,6 +1477,10 @@ function cancelAmbientCheck() {
 function scheduleAmbientCheck() {
   cancelAmbientCheck();
   if (tableClosed || !tableActiveAgents.length) return;
+  // In a shared room only the host's browser does this. Two browsers each
+  // running quiet-pause check-ins would double the table's idle chatter, and
+  // every one of those beats is spent out of the host's credits.
+  if (tableRoomId && !tableIsHost) return;
   if (ambientRoundsSinceVisitor >= AMBIENT_MAX_ROUNDS) return;
   var delay = AMBIENT_MIN_DELAY + Math.random() * (AMBIENT_MAX_DELAY - AMBIENT_MIN_DELAY);
   ambientTimer = setTimeout(runAmbientCheck, delay);
@@ -911,7 +1500,10 @@ function renderTableAvatars() {
   });
 }
 
-function tableBubble(role, text, speakerAgent) {
+// speakerName is the other human at the table, when there is one. Set with
+// textContent, not innerHTML: unlike an agent name it is whatever a guest
+// typed into the name field.
+function tableBubble(role, text, speakerAgent, speakerName) {
   var el = document.createElement('div');
   el.className = 'bubble ' + role;
   if (speakerAgent) {
@@ -919,6 +1511,14 @@ function tableBubble(role, text, speakerAgent) {
     spk.className = 'spk';
     spk.innerHTML = '<img src="/agents/eq-room/' + speakerAgent.slug + '_eyes_open.png" alt=""><span class="spk-name">' + speakerAgent.name + '</span>';
     el.appendChild(spk);
+  } else if (speakerName) {
+    var who = document.createElement('div');
+    who.className = 'spk';
+    var nm = document.createElement('span');
+    nm.className = 'spk-name';
+    nm.textContent = speakerName;
+    who.appendChild(nm);
+    el.appendChild(who);
   }
   var txt = document.createElement('div');
   txt.textContent = text;
@@ -931,6 +1531,7 @@ function tableBubble(role, text, speakerAgent) {
 function closeTableInput() {
   tableClosed = true;
   cancelAmbientCheck();
+  stopTablePolling();
   $('table-input').disabled = true;
   $('table-send').disabled = true;
   $('table-input').placeholder = 'This conversation has ended.';
@@ -939,6 +1540,7 @@ function closeTableInput() {
 function openTable(keys) {
   uiMode = 'group';
   cancelAmbientCheck();
+  leaveSharedTable();
   ambientRoundsSinceVisitor = 0;
   tableMemorySaved = false;
   tableAgentKeys = keys.slice();
@@ -1012,26 +1614,40 @@ function runAmbientCheck() {
   if (tableSending || tableClosed || !tableActiveAgents.length) return;
   var activeKeysBefore = tableActiveAgents.map(function (a) { return a.key; });
 
+  // In a shared room the seat token is the whole payload: the transcript, the
+  // roster and the agents' emotional state all live server-side, and a browser
+  // is not trusted with any of them.
+  var payload = tableRoomId
+    ? { ambient: true, seat_token: tableSeatToken }
+    : {
+        ambient: true,
+        active_agents: activeKeysBefore,
+        transcript: tableHistory,
+        agent_state: tableAgentState,
+        visitor_message_count: tableVisitorMsgCount,
+        visitor_id: visitorId(),
+        visitor_name: displayName,
+        visitor_pronoun: visitorPronoun,
+        remember: rememberMe,
+        access_token: accessToken(),
+        owner_key: ownerKey(),
+      };
+
   fetch('/.netlify/functions/eq-room-group-ask', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      ambient: true,
-      active_agents: activeKeysBefore,
-      transcript: tableHistory,
-      agent_state: tableAgentState,
-      visitor_message_count: tableVisitorMsgCount,
-      visitor_id: visitorId(),
-      visitor_name: displayName,
-      visitor_pronoun: visitorPronoun,
-      remember: rememberMe,
-      access_token: accessToken(),
-      owner_key: ownerKey(),
-    }),
+    body: JSON.stringify(payload),
   })
     .then(function (r) { if (!r.ok) throw new Error('server returned ' + r.status); return r.json(); })
     .then(function (d) {
       ambientRoundsSinceVisitor++;
+      // Anything the table said during a shared ambient beat is already written
+      // to the room and arrives on the poll, the same way every other line does.
+      if (tableRoomId) {
+        tablePollOnce();
+        scheduleAmbientCheck();
+        return;
+      }
       if (!d.replies || !d.replies.length) {
         scheduleAmbientCheck();
         return;
@@ -1057,6 +1673,7 @@ $('tableBack').addEventListener('click', function () {
     tableMemorySaved = true;
     tableSilentSavePayloads().forEach(function (p) { postMemorySave(p, false); });
   }
+  leaveSharedTable();
   showScreen('picker');
 });
 
@@ -1065,10 +1682,16 @@ $('table-form').addEventListener('submit', function (e) {
   if (tableSending || tableClosed) return;
   var text = $('table-input').value.trim();
   if (!text) return;
+  $('table-input').value = '';
+
+  // Somebody else is at this table. The question goes to the room, is written
+  // there, and comes back to BOTH of us on the next poll. Nothing is drawn
+  // here: see the note at the top of the bring-a-friend section.
+  if (tableRoomId) { sendSharedMessage(text); return; }
+
   cancelAmbientCheck();
   ambientRoundsSinceVisitor = 0; // a real message resets the idle-check budget
   tableBubble('user', text, null);
-  $('table-input').value = '';
   tableSending = true;
   $('table-send').disabled = true;
   var typingEl = tableBubble('system', 'the table is talking...', null);
@@ -1167,6 +1790,9 @@ document.querySelectorAll('#likertScale input').forEach(function (r) {
 function leaveRoomAfterSurvey() {
   $('likertModal').classList.remove('open');
   stopBlink();
+  // "End Conversation" at a shared table is a real exit, not a screen change,
+  // so it gets up from the room too rather than leaving a seat still polling.
+  if (uiMode === 'group') leaveSharedTable();
   showScreen('picker');
 }
 
@@ -1343,6 +1969,41 @@ window.addEventListener('pagehide', function () {
     tableSilentSavePayloads().forEach(function (p) { postMemorySave(p, true); });
   }
 });
+
+/* ── who is arriving, decided LAST, after every handler above is wired ──────
+
+   This block belongs at the very bottom and nowhere else. On The Dose the
+   equivalent sat near the top of init() and returned early for a guest, which
+   skipped every listener below it, including the one on the message form. An
+   invited guest could join, appear in the roster, type a question and press
+   send into nothing: with no submit handler the browser did a native form
+   submission, navigated the page, and threw away her session. It looked like
+   three separate bugs and was one. Nothing here may run before the wiring. */
+(function bootTable() {
+  // Already at a table and the tab reloaded. Resume rather than start over:
+  // a guest's invite is already spent, so "start over" would tell her the
+  // invite had been used and read as being thrown out.
+  var saved = readTableSession();
+  if (saved) {
+    $('splashVideoWrap').classList.add('hide');
+    $('splashInner').classList.add('show');
+    resumeTableSession(saved);
+    return;
+  }
+
+  // ?table=TOKEN is an invited guest arriving. She is not signed in and never
+  // will be; the token in the link is her credential. Only peek here.
+  var token = null;
+  try { token = new URLSearchParams(location.search).get('table'); } catch (_) {}
+  if (!token) return;
+
+  pendingJoinToken = token;
+  // Skip the ten-second splash film for someone who was sent here to join
+  // something already in progress. She is not browsing.
+  $('splashVideoWrap').classList.add('hide');
+  $('splashInner').classList.add('show');
+  peekInvite(token);
+})();
 </script>
 </body>
 </html>
