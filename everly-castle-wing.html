@@ -954,52 +954,52 @@ let prof = currentProfile();
    does not conclude that her grown-up should subscribe, she concludes she did
    something wrong. The only difference she can perceive is whether the
    princess uses her name. The offer lives in the parents' guide. */
-/* A tier set by link, so a tester can be sent straight to the right side.
+/* Who has paid, and where that is actually decided.
 
-   ?tier=family turns the full product on for this browser, ?tier=free puts
-   it back to what a stranger sees. It sticks afterwards. This is exactly the
-   toggle in the parents' guide, made shareable, because a tester should not
-   have to find a dialog to see the thing she is testing.
+   Not here. everly-castle-chat.js and everly-castle-voice.js check the token
+   themselves and answer 402 without one, so this function only decides what to
+   DRAW. A browser that lies to itself sees the conversation panel and gets 402
+   the moment it tries to use it.
 
-   Goes when payment is wired: entitlement belongs on the server. */
-(function tierFromLink(){
+   Two back doors were removed to get here, and both had written in their own
+   comments that they were temporary. ?tier=family turned the full product on
+   from any browser by typing eight characters into the address bar. The
+   etl_owner_key shortcut opened it for anyone who had ever been given a key
+   for a different product. Dr. O's own access is a real token now, minted once
+   and planted, so there is exactly one way in and no code path that trusts a
+   browser.
+
+   ?visitor=1 still previews the free wing without spending anything, because
+   seeing what a stranger sees is a thing worth being able to do. It hides the
+   token for this page only and never deletes it. */
+function everlyToken(){
   try {
-    const t = new URLSearchParams(location.search).get('tier');
-    if (t !== 'family' && t !== 'free') return;
-    state.tier = t;
-    save(state);
-    console.log('[everly] tier set to ' + t + ' for this browser');
-  } catch (e) { /* storage unavailable; the default stands */ }
-})();
-/* Owner access, using the key this browser already carries.
+    if (new URLSearchParams(location.search).get('visitor') === '1') return '';
+    return (localStorage.getItem('everly_token') || '').trim();
+  } catch (e) { return ''; }
+}
+function isPaid(){ return !!everlyToken(); }
 
-   The same `etl_owner_key` that Almost Human, the Boardroom, ETL Design and
-   the EQ room read. One key per browser, planted once, every product. There
-   is nothing to set up here: if the key is present, the paid side is on.
+/* The token rides in a header. Never a query string: a URL ends up in browser
+   history, in server logs, and in the Referer sent to any other origin. */
+function paidHeaders(){
+  const t = everlyToken();
+  return t ? { 'X-Everly-Token': t } : {};
+}
 
-   ?visitor=1 turns owner access off for this page only, so the free wing can
-   be seen as a stranger sees it. It does NOT remove the key, because that
-   would sign her out of every other ETL product at once. ?visitor=0 restores.
-
-   THIS IS NOT AN ENTITLEMENT CHECK. Presence of a key in localStorage is a UI
-   convenience. When payment is wired, whether somebody may hear a princess
-   talk has to be decided server-side, and this has to be revisited. */
-(function visitorPreview(){
-  const q = new URLSearchParams(location.search).get('visitor');
-  if (q === '1') { try { localStorage.setItem('everly-as-visitor', '1'); } catch (e) {} }
-  if (q === '0') { try { localStorage.removeItem('everly-as-visitor'); } catch (e) {} }
-})();
-
-function isOwner(){
+/* Checkout hands the token back on the welcome page; this catches it if a
+   parent lands here with one on the URL, and cleans it out of the address bar
+   immediately so it is not left sitting in history. */
+(function tokenFromLink(){
   try {
-    if (localStorage.getItem('everly-as-visitor') === '1') return false;
-    return !!(localStorage.getItem('etl_owner_key') || '').trim();
-  } catch (e) { return false; }
-}
-function isPaid(){
-  if (isOwner()) return true;
-  return (state.tier || 'free') === 'family';
-}
+    const q = new URLSearchParams(location.search);
+    const t = (q.get('everly_token') || '').trim();
+    if (!/^evr_[A-Za-z0-9_-]{10,}$/.test(t)) return;
+    localStorage.setItem('everly_token', t);
+    q.delete('everly_token');
+    history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q : '') + location.hash);
+  } catch (e) { /* storage unavailable; the free wing still works */ }
+})();
 
 /* Applied before anything is drawn or spoken.
 
@@ -1343,7 +1343,7 @@ async function speak(text, scriptLine){
 
   try {
     const r = await fetch('/.netlify/functions/everly-castle-voice', {
-      method:'POST', headers:{'Content-Type':'application/json'},
+      method:'POST', headers:{'Content-Type':'application/json', ...paidHeaders() },
       body: JSON.stringify(scriptLine ? { agent: wingId, line: scriptLine } : { agent: wingId, text }),
     });
     if (!r.ok) throw new Error('voice ' + r.status);
@@ -2788,7 +2788,7 @@ async function turn(message, quiet, pressed){
   let data;
   try {
     const r = await fetch('/.netlify/functions/everly-castle-chat', {
-      method:'POST', headers:{'Content-Type':'application/json'},
+      method:'POST', headers:{'Content-Type':'application/json', ...paidHeaders()},
       body: JSON.stringify({
         agent: wingId,
         message,

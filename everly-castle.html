@@ -309,6 +309,10 @@ h1{
 .shelf .row{font-size:26px;letter-spacing:6px;min-height:32px}
 .shelf .cap{font-size:12px;opacity:.55;margin-top:4px}
 
+/* The offer, behind the same gate as the settings. A child never sees it. */
+.offer{border-top:1px solid var(--rule,#e6dfd0);padding-top:6px}
+.offer .tiny{font-size:12px;opacity:.7;margin-top:8px}
+
 /* Grown-up corner. Small, dull, and behind a gate on purpose. */
 .grown{
   position:fixed;bottom:10px;right:10px;
@@ -532,6 +536,17 @@ dialog button{
   <h2 style="margin-top:18px" id="logWho">What they have been saying</h2>
   <p>Kept on this device only, so you can see how it is going and follow up on anything worth a conversation.</p>
   <div class="log" id="logBox"></div>
+
+  <div class="offer" id="offer" hidden>
+    <h2 style="margin-top:18px">Talking with her by name</h2>
+    <p id="offerBody">Right now the princesses tell their stories, show their pets and families,
+      and teach words in their own languages. All of that is free and stays free.
+      What the monthly family plan adds is the part that costs something every time
+      it happens: a princess talking with your child directly, using her name and
+      remembering her from one visit to the next.</p>
+    <button class="ok" id="buyBtn" type="button">See the family plan</button>
+    <p class="tiny" id="offerNote">Cancel any time. The free side is unaffected either way.</p>
+  </div>
 
   <div class="btns">
     <button class="no" id="panelClose" type="button">Close</button>
@@ -962,6 +977,45 @@ const peekDlg = document.getElementById('peekDlg');
 document.getElementById('peek').addEventListener('click', () => { drawCurriculum(); drawTier(); peekDlg.showModal(); });
 document.getElementById('peekClose').addEventListener('click', () => peekDlg.close());
 
+/* The offer. Only ever shown to somebody who has already passed the gate, and
+   hidden entirely once they have paid: a parent who is already paying should
+   not be sold to every time they open the settings. */
+function everlyPaid(){
+  try { return !!(localStorage.getItem('everly_token') || '').trim(); }
+  catch (e) { return false; }
+}
+
+function refreshOffer(){
+  const box = document.getElementById('offer');
+  if (!box) return;
+  box.hidden = everlyPaid();
+}
+
+(function wireOffer(){
+  const btn = document.getElementById('buyBtn');
+  if (!btn) return;
+  btn.addEventListener('click', async () => {
+    btn.disabled = true;
+    const said = btn.textContent;
+    btn.textContent = 'One moment…';
+    try {
+      const r = await fetch('/.netlify/functions/create-checkout-everly', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: '{}',
+      });
+      const data = await r.json();
+      if (data && data.url) { location.href = data.url; return; }
+      throw new Error((data && data.error) || 'no url');
+    } catch (e) {
+      console.error('[everly] checkout failed:', e && e.message);
+      btn.textContent = 'That did not open. Try again?';
+      btn.disabled = false;
+      setTimeout(() => { btn.textContent = said; }, 4000);
+    }
+  });
+})();
+
 document.getElementById('grownBtn').addEventListener('click', () => {
   const a = 7 + Math.floor(Math.random() * 9);
   const b = 6 + Math.floor(Math.random() * 9);
@@ -1096,6 +1150,7 @@ function openPanel(){
   drawChildren();
   drawTier();
   drawLog();
+  refreshOffer();
   panel.showModal();
 }
 // Everything in this panel writes as it is changed, so Close is just Close.

@@ -447,6 +447,19 @@ exports.handler = async (event) => {
     text = bank[lineKey];
     cacheKey = audioKey(agentId, 'script-' + lineKey, text, voiceId, settings);
   } else {
+    /* Free-form speech, which is where the money is.
+
+       A tale or a scripted line is fixed text: rendered once, cached by
+       content hash, and free forever no matter how many children play it.
+       This branch is different. Every distinct sentence is a fresh
+       ElevenLabs charge, and until now it took whatever text it was handed
+       from anybody at all, which made this endpoint an open text-to-speech
+       proxy on Dr. O's account. It is the paid side of the same line the chat
+       function draws. */
+    const access = require('./_everly-access');
+    if (!(await access.isPaid(event, access.tokenFrom(event)))) {
+      return jsonError(402, 'Live speech is the paid part of Everly Castle. The recorded stories are free.');
+    }
     text = String(body.text || '').trim();
     if (!text) return jsonError(400, 'nothing to say');
     if (text.length > MAX_TEXT_CHARS) return jsonError(400, 'text too long');

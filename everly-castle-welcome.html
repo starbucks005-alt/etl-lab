@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Welcome to Everly Castle</title>
+<meta name="robots" content="noindex">
+<!-- Where Stripe sends a parent after payment. Its only job is to turn the
+     checkout session into an access token and put it in this browser, then get
+     out of the way. The child never sees this page. -->
+<style>
+  :root{
+    --ink:#1d2430; --soft:#5b6675; --card:#fffdf8; --page:#f4efe4;
+    --gold:#d8a534; --rule:#e6dfd0;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; min-height:100dvh; background:var(--page); color:var(--ink);
+    font-family:ui-serif,Georgia,'Times New Roman',serif;
+    display:grid; place-items:center; padding:24px;
+  }
+  .card{
+    background:var(--card); border:1px solid var(--rule); border-radius:22px;
+    box-shadow:0 10px 40px rgba(0,0,0,.08); padding:34px 30px; max-width:520px;
+    width:100%; text-align:center;
+  }
+  h1{font-size:26px; margin:0 0 6px}
+  p{color:var(--soft); line-height:1.55; margin:10px 0}
+  .go{
+    display:inline-block; margin-top:18px; padding:14px 26px; border-radius:999px;
+    background:var(--gold); color:#2a2200; font-weight:700; text-decoration:none;
+    font-family:ui-sans-serif,system-ui,sans-serif; letter-spacing:.01em;
+  }
+  .quiet{font-size:13px; margin-top:18px}
+  .bad{color:#a3402f}
+  code{font-family:ui-monospace,Menlo,Consolas,monospace; font-size:12px}
+</style>
+</head>
+<body>
+  <main class="card">
+    <h1 id="head">One moment…</h1>
+    <p id="body">Setting up your family's access.</p>
+    <a class="go" id="go" href="/everly-castle" hidden>Into the castle</a>
+    <p class="quiet" id="quiet" hidden></p>
+  </main>
+
+<script>
+/* Turn ?session_id=… into a token, once.
+
+   The server is the authority: verify-checkout-everly asks Stripe whether the
+   session was actually paid, and mints the token only if it was. Nothing here
+   can grant access by itself, which is the point. Reloading is safe: the
+   verify endpoint is idempotent and returns the same token rather than
+   minting a second one for one payment. */
+(async function () {
+  const head = document.getElementById('head');
+  const body = document.getElementById('body');
+  const go = document.getElementById('go');
+  const quiet = document.getElementById('quiet');
+
+  const fail = (msg, detail) => {
+    head.textContent = 'That did not go through';
+    head.classList.add('bad');
+    body.textContent = msg;
+    if (detail) { quiet.hidden = false; quiet.innerHTML = 'If you were charged, nothing is lost. Send this and it can be sorted out: <code>' + detail + '</code>'; }
+    go.hidden = false;
+    go.textContent = 'Back to the castle';
+  };
+
+  const session_id = new URLSearchParams(location.search).get('session_id');
+  if (!session_id) return fail('This page is where Stripe sends you after paying, and it was opened without a payment.');
+
+  let data;
+  try {
+    const r = await fetch('/.netlify/functions/verify-checkout-everly', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session_id }),
+    });
+    data = await r.json();
+  } catch (e) {
+    return fail('We could not reach the castle to confirm it. Try reloading in a moment.', session_id);
+  }
+
+  if (!data || !data.ok || !data.access_token) {
+    return fail('The payment could not be confirmed.', session_id);
+  }
+
+  try {
+    localStorage.setItem('everly_token', data.access_token);
+  } catch (e) {
+    /* Private browsing, or storage refused. The token is real but cannot be
+       kept here, so hand it over rather than lose it silently. */
+    return fail('Your access is paid for, but this browser will not let us remember it. Keep this and open the castle from it.', data.access_token);
+  }
+
+  head.textContent = 'Welcome to Everly Castle';
+  body.textContent = 'The princesses can talk with your child by name now, and they will remember them. Everything that was free stays free.';
+  go.hidden = false;
+})();
+</script>
+</body>
+</html>

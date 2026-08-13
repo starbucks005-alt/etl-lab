@@ -1120,6 +1120,23 @@ exports.handler = async (event) => {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return json(500, { ok: false, error: 'ANTHROPIC_API_KEY not configured' });
 
+  /* THE PAID LINE, enforced here rather than in the browser.
+
+     Live conversation is the part that costs a call every single time, so it
+     is the part that is sold. Until now this endpoint had no check of any
+     kind: anyone who found the URL got the whole paid product, and isPaid()
+     in the page only decided whether the child's name travelled with it.
+
+     Free is everything that costs nothing to serve again: her story, her five
+     stories, her pet, her family, her country. Those are fixed text rendered
+     to audio once and cached by content hash, and they never come through
+     here. */
+  const access = require('./_everly-access');
+  if (!(await access.isPaid(event, access.tokenFrom(event)))) {
+    return json(402, { ok: false, error: 'paid_only',
+      message: 'Live conversation is the paid part of Everly Castle. The stories, pets, families and countries are free.' });
+  }
+
   let body;
   try { body = JSON.parse(event.body || '{}'); } catch { return json(400, { ok: false, error: 'invalid json' }); }
 
