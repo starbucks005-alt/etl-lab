@@ -131,6 +131,26 @@ html,body{ height:100%; }
 .msg.mine{ margin-left:auto; border-color:var(--accent); }
 
 .row{ display:flex; gap:.45rem; padding:.5rem 1rem; align-items:center; }
+/* The occasional controls, small and wrapping rather than stacked full-width. */
+.row.tools{ flex-wrap:wrap; padding-top:0; }
+.row.tools .btn{ flex:0 0 auto; font-size:10.5px; padding:.45rem .6rem; }
+
+/* The doorstep. Scrolls on its own so a long panel never traps the button. */
+.gate{ padding:1rem 1rem 1.4rem; overflow-y:auto; }
+.gate h3{ font-family:Georgia,serif; font-weight:400; font-size:1.35rem; margin:0 0 .3rem; }
+.gate-say{ color:var(--ink-dim); font-size:14.5px; margin:0 0 .6rem; }
+.gate .you-panel{ border-top:none; padding-left:0; padding-right:0; }
+.chat{ display:flex; flex-direction:column; min-height:0; flex:1; }
+/* The occasional controls, small and wrapping rather than stacked full-width. */
+.row.tools{ flex-wrap:wrap; padding-top:0; }
+.row.tools .btn{ flex:0 0 auto; font-size:10.5px; padding:.45rem .6rem; }
+
+/* The doorstep. Scrolls on its own so a long panel never traps the button. */
+.gate{ padding:1rem 1rem 1.4rem; overflow-y:auto; }
+.gate h3{ font-family:Georgia,serif; font-weight:400; font-size:1.35rem; margin:0 0 .3rem; }
+.gate-say{ color:var(--ink-dim); font-size:14.5px; margin:0 0 .6rem; }
+.gate .you-panel{ border-top:none; padding-left:0; padding-right:0; }
+.chat{ display:flex; flex-direction:column; min-height:0; flex:1; }
 .row.tight{ padding-top:0; }
 .btn{
   font-family:var(--mono); font-size:11.5px; letter-spacing:.1em; text-transform:uppercase;
@@ -217,24 +237,40 @@ html,body{ height:100%; }
   </div>
 
   <div class="side">
-    <div class="log" id="log"></div>
 
-    <div class="row">
-      <button class="btn" id="micBtn" title="Speak instead of typing">&#127908;</button>
-      <input type="text" id="say" placeholder="Say whatever's on your mind&hellip;" autocomplete="off">
-      <button class="btn go" id="sendBtn">Send</button>
+    <!-- THE DOORSTEP. Who you are is asked once, here, not from six stacked
+         bars inside the conversation. Same reason M.E. has a gate: the chat
+         column has to hold a conversation, and every permanent control parked
+         in it is a line of talk you cannot see. -->
+    <div class="gate" id="gate">
+      <h3 id="gateTitle">Before you sit down</h3>
+      <p class="gate-say" id="gateSay"></p>
+      <div id="youPanel"></div>
+      <div class="row tight"><button class="btn go wide" id="startBtn">Sit down</button></div>
     </div>
 
-    <div class="row tight"><button class="btn wide" id="replyBtn">&#127911; Reply as: Text</button></div>
-    <div class="row tight"><button class="btn wide" id="earBtn">&#128066; Listen for my name: off</button></div>
-    <div class="hint" id="earHint"></div>
+    <div class="chat" id="chat" style="display:none">
+      <div class="log" id="log"></div>
 
-    <div class="row tight"><button class="btn wide" id="bringBtn">&#128100; Bring someone with you</button></div>
-    <div class="row tight"><button class="btn wide" id="albumBtn">&#128247; Photos</button></div>
-    <div class="row tight"><button class="btn wide" id="youBtn">&#128100; Who you are</button></div>
-    <div id="youPanel" style="display:none"></div>
-    <div class="row tight"><button class="btn wide" id="memBtn">&#128206; Add a memory</button></div>
-    <div style="height:.8rem"></div>
+      <div class="row">
+        <button class="btn" id="micBtn" title="Speak instead of typing">&#127908;</button>
+        <input type="text" id="say" placeholder="Say whatever's on your mind&hellip;" autocomplete="off">
+        <button class="btn go" id="sendBtn">Send</button>
+      </div>
+
+      <!-- ONE ROW, SMALL, WRAPPING. These are reached for occasionally; the
+           conversation is what the column is for. -->
+      <div class="row tools">
+        <button class="btn" id="bringBtn">&#128100; Bring someone</button>
+        <button class="btn" id="replyBtn">&#127911; Text</button>
+        <button class="btn" id="earBtn">&#128066; Listen</button>
+        <button class="btn" id="albumBtn">&#128247; Photos</button>
+        <button class="btn" id="memBtn">&#128206; Memory</button>
+        <button class="btn" id="youBtn">&#128100; You</button>
+      </div>
+      <div class="hint" id="earHint" style="display:none"></div>
+      <div style="height:.8rem"></div>
+    </div>
   </div>
 
 </div>
@@ -426,17 +462,30 @@ function post(who, text, mine) {
 var YOU = gcLoadYou();
 function youLabel(){ return YOU.name || "You"; }
 
-gcMountYou($("youPanel"), function (saved) {
-  YOU = saved;
-  $("youPanel").style.display = "none";
-  post("Saved", "They will call you " + youLabel() + ", and use " + YOU.pronouns + ".");
-});
+$("gateSay").textContent = "Tell " + FRIEND.name + " who you are. You only do this once.";
+$("startBtn").textContent = "Sit down with " + FRIEND.name;
+
+gcMountYou($("youPanel"), function (saved) { YOU = saved; sitDown(); });
+
+/* Leaving the doorstep. The gate goes, the conversation arrives, and the friend
+   speaks first. Coming back to it from the room shows the same panel rather
+   than a second copy of it, and the conversation is still there afterwards. */
+function sitDown() {
+  $("gate").style.display = "none";
+  $("chat").style.display = "flex";
+  if (!$("log").children.length) {
+    post(FRIEND.name, FRIEND.hello || "You came. Sit down, I want to hear about your day.");
+  }
+}
+$("startBtn").addEventListener("click", sitDown);
 $("youBtn").addEventListener("click", function () {
-  var p = $("youPanel");
-  p.style.display = (p.style.display === "none") ? "block" : "none";
+  $("chat").style.display = "none";
+  $("gate").style.display = "block";
+  $("gateTitle").textContent = "Who you are";
+  $("gateSay").textContent = "Change any of it. " + FRIEND.name + " will keep talking after.";
 });
 
-post(FRIEND.name, FRIEND.hello || "You came. Sit down, I want to hear about your day.");
+
 
 function send() {
   var v = $('say').value.trim();
@@ -479,12 +528,14 @@ $('closeBtn').addEventListener('click', function () { location.href = 'index.htm
 var asAudio = false;
 $('replyBtn').addEventListener('click', function () {
   asAudio = !asAudio;
-  this.innerHTML = asAudio ? '&#127911; Reply as: Audio' : '&#127911; Reply as: Text';
+  this.innerHTML = asAudio ? '&#127911; Audio' : '&#127911; Text';
 });
 var ear = false;
 $('earBtn').addEventListener('click', function () {
   ear = !ear;
-  this.innerHTML = '&#128066; Listen for my name: ' + (ear ? 'on' : 'off');
+  this.innerHTML = '&#128066; Listen' + (ear ? ': on' : '');
+  /* The explanation is only worth column space while the thing is running. */
+  $('earHint').style.display = ear ? 'block' : 'none';
 });
 </script>
 

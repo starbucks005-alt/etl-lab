@@ -66,12 +66,13 @@ var GC_DEMO = {
   portrait: 'photos/arch-onsite.png',
 
   /* HIS PLACES, NOT THE APP'S. Coffee and Game night are generic rooms that
-     belong to the product; a fireplace and a workshop belong to him. A friend
+     belong to the product; a fireplace, a workshop and a kitchen he actually
+     cooks in belong to him. A friend
      with somewhere of their own to sit is more of a person than a friend
      standing in the same five rooms as everybody else. */
   scenes: [
     { key:'fireplace',label:'The fireplace', src:'video/arch-fireplace.mp4' },
-    { key:'kitchen',  label:'Kitchen table', src:'video/arch-kitchen.mp4' },
+    { key:'kitchen',  label:'The kitchen',  src:'video/arch-kitchen.mp4' },
     { key:'porch',    label:'The porch',     src:'video/arch-porch.mp4' },
     { key:'workshop', label:'The workshop',  src:'video/arch-workshop.mp4' },
     { key:'walk',     label:'The walk',      src:'video/arch-walk.mp4' }
