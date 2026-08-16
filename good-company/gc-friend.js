@@ -86,8 +86,8 @@ var GC_DEMO = {
     { key:'kitchen',  label:'The kitchen',   src:'video/arch-kitchen.mp4',
       where:'The cabin kitchen, timber walls, morning light. He is making an omelet in a cast iron pan. Tomatoes and mushrooms chopped on the board.' },
     { key:'porch',    label:'The porch',     src:'video/arch-porch.mp4',
-      where:'The cabin porch. Trees right up to it, late in the day. Archibald the dog is ' +
-            'asleep on the boards a few feet away, as usual.' },
+      where:'The cabin porch. Trees right up to it, late in the day. Gus, his old yellow lab, is asleep ' +
+            'on the boards a few feet away, as usual.' },
     { key:'workshop', label:'The workshop',  src:'video/arch-workshop.mp4',
       where:'His workshop. Hand planes on the bench, chisels and hammers racked on the wall, ' +
             'a drill press in the corner. He is sanding a board by hand. If asked what he is ' +
@@ -101,17 +101,14 @@ var GC_DEMO = {
      vague about exactly where in the way people are about their own address. */
   place: 'He built most of the cabin himself, over years, and is still not finished with it.',
 
-  /* THE DOG IS CALLED ARCHIBALD. An old yellow lab, mostly asleep on the porch.
-     He gave the family name to the dog: it stays in the family, it stays off
-     him, and when anybody asks he says somebody had to take it. Deadpan, every
-     time, and he enjoys it every time.
+  /* GUS. An old yellow lab, and he has been on that porch the whole time, in
+     the clip, before anybody thought to name him.
 
-     Worth more than a joke. A dog is the easiest true thing to ask about, it
-     gives him something to mention when it goes quiet, and an old dog is a
-     thing you can talk around when you cannot talk about yourself. */
-  dog: 'An old yellow lab called Archibald, who is mostly asleep. He named the dog after ' +
-       'the grandfather too, so the name stayed in the family and off him. If anybody asks, ' +
-       'he says somebody had to take it, deadpan.',
+     Written down because a dog is the easiest true thing for a stranger to ask
+     about, it gives Arch something to mention when it goes quiet, and an old
+     dog is a thing a man can talk around when he cannot talk about himself
+     yet. */
+  dog: 'An old yellow lab called Gus, who is mostly asleep. He has had him a long time.',
 
   /* ── THE ALBUM ─────────────────────────────────────────────────────────────
      Every picture that exists of him, newest first.
