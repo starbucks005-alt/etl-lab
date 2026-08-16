@@ -74,7 +74,29 @@ input[type=text]:focus, textarea:focus{ outline:none; border-color:var(--accent)
   display:grid; place-content:center; text-align:center; padding:.8rem;
   font-family:var(--mono); font-size:10px; letter-spacing:.12em; text-transform:uppercase;
   color:var(--ink-dim);
+  position:relative; overflow:hidden;
 }
+/* A drawn face fills its card. The button is the whole picture, because at
+   this size a small tick target is the wrong ask of anybody with unsteady
+   hands, and this audience skews older. */
+button.face{ cursor:pointer; padding:0; font:inherit; }
+.face img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
+.face:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+button.face:hover{ border-color:var(--accent); }
+
+/* CHOSEN IS OBVIOUS WITHOUT COLOUR ALONE. Dr. O on the pronoun chips: "I cannot
+   tell when I click on it, it has to be more clear." A ring, a lift, and a word. */
+button.face.on{ border-color:var(--accent); box-shadow:0 0 0 2px var(--accent); }
+.face .tick{
+  position:absolute; left:0; right:0; bottom:0; padding:.4rem;
+  background:var(--accent); color:var(--paper);
+  font-family:var(--mono); font-size:10px; letter-spacing:.12em; text-transform:uppercase;
+}
+.face .tick[hidden]{ display:none; }
+
+/* Waiting, and saying which of the four is still coming. */
+.face.drawing{ color:var(--ink-dim); }
+.face.failed{ border-style:dashed; }
 .summary{
   border:1px solid var(--line); background:var(--panel); border-radius:4px;
   padding:1rem 1.1rem; margin-top:1.2rem;
@@ -204,18 +226,15 @@ footer{ padding:2rem 0 3rem; color:var(--ink-dim); font-size:.9rem; }
   <div class="faces" id="faces">
     <div class="sec-head">Their face</div>
 
-    <!-- NOT WIRED, AND SAYS SO RATHER THAN SHOWING FOUR STOCK PHOTOS. Faces are
-         generated from the answers above, which is a real cost and a real
-         backend. A convincing mock here is how a layout gets signed off on
-         behaviour that does not exist yet. -->
-    <div class="face-grid">
-      <div class="face">Face 1<br>not wired</div>
-      <div class="face">Face 2<br>not wired</div>
-      <div class="face">Face 3<br>not wired</div>
-      <div class="face">Face 4<br>not wired</div>
-    </div>
-    <p class="lede">Generation is not built yet. Everything above it is: your answers are
-      saved on this device and the room will read them.</p>
+    <!-- Filled by gc-face from the answers above. Empty until then, rather
+         than four stock photographs: a convincing mock here is how a layout
+         gets signed off on behaviour that does not exist. -->
+    <div class="face-grid" id="faceGrid"></div>
+    <p class="lede" id="faceNote">Pick the one that looks like them. You can draw another four
+      if none of them do.</p>
+    <p style="margin:0 0 .4rem">
+      <button class="btn" type="button" id="redrawBtn">Draw four more</button>
+    </p>
 
     <div class="summary">
       <h3>What you built</h3>
@@ -343,7 +362,137 @@ $('makeBtn').addEventListener('click', function () {
 
   $('faces').classList.add('on');
   $('faces').scrollIntoView({ behavior:'smooth', block:'start' });
+  drawFaces();
 });
+
+/* ── THEIR FACE ──────────────────────────────────────────────────────────────
+   The last unwired step. Everything above it already worked, which made this
+   the one place the build stopped being real.
+
+   FOUR, AND YOU PICK. Not a verdict handed down. The choosing is where a form
+   turns into somebody, and no model gets a face right first time from a
+   paragraph of text.
+
+   IT COSTS. Around five to seven cents a face, so roughly a quarter each time
+   this runs, and it is the only thing in the build that spends anything. So it
+   runs when asked and not on a page load, it cannot be double-pressed, and
+   drawing another four is a deliberate second press with the price of it said
+   out loud rather than a refresh that quietly bills again. */
+var FACE_COUNT = 4;
+var drawing = false;
+
+function faceCard(content, cls) {
+  var d = document.createElement('div');
+  d.className = 'face' + (cls ? ' ' + cls : '');
+  d.innerHTML = content;
+  return d;
+}
+
+/* FOUR REQUESTS, NOT ONE. Each face is its own call, fired together, and each
+   card fills the moment its own face lands. One long call returning all four
+   would sit on this platform's real ceiling for a synchronous function, which
+   is the fault that used to drop the Kronborg table, and it would also mean
+   staring at four empty boxes until the slowest one finished. */
+function drawFaces() {
+  if (drawing || !friend) return;
+  drawing = true;
+  $('redrawBtn').disabled = true;
+  $('faceNote').textContent = 'Drawing four faces from your answers. They arrive one at a time.';
+
+  var grid = $('faceGrid');
+  grid.innerHTML = '';
+  var cards = [];
+  for (var i = 0; i < FACE_COUNT; i++) {
+    var c = faceCard('Drawing', 'drawing');
+    cards.push(c);
+    grid.appendChild(c);
+  }
+
+  var done = 0, drawn = 0, firstProblem = null;
+
+  cards.forEach(function (card, i) {
+    fetch('/.netlify/functions/gc-face', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ friend: friend, variation: i })
+    }).then(function (r) { return r.json().then(function (j) { return { s: r.status, j: j }; }); })
+      .then(function (res) {
+        var j = res.j || {};
+        if (res.s !== 200 || !j.face) {
+          /* A GAP IS SHOWN AS A GAP. Three faces out of four is still a
+             choice, and quietly rendering three is how somebody ends up
+             wondering what they missed. */
+          if (!firstProblem) firstProblem = (j.error === 'no_image_key')
+            ? 'no_image_key' : ((j && j.detail) || (j && j.error) || 'unknown');
+          swap(card, faceCard('This one<br>did not draw', 'failed'));
+          return;
+        }
+        drawn++;
+        swap(card, faceButton('data:image/png;base64,' + j.face));
+      })
+      .catch(function (err) {
+        if (!firstProblem) firstProblem = err.message;
+        swap(card, faceCard('This one<br>did not draw', 'failed'));
+      })
+      .then(function () {
+        done++;
+        if (done < FACE_COUNT) return;
+        drawing = false; $('redrawBtn').disabled = false;
+        if (!drawn) {
+          $('faceNote').textContent = (firstProblem === 'no_image_key')
+            ? 'Faces are not connected to a drawing key yet. Everything else you built is saved.'
+            : 'Could not draw the faces: ' + firstProblem + '. Your answers are saved.';
+        } else if (drawn < FACE_COUNT) {
+          $('faceNote').textContent = 'Pick the one that looks like them. ' +
+            (FACE_COUNT - drawn) + ' did not draw; you can draw four more.';
+        } else {
+          $('faceNote').textContent = 'Pick the one that looks like them. ' +
+            'You can draw another four if none of them do.';
+        }
+      });
+  });
+
+  function swap(oldEl, newEl) { grid.replaceChild(newEl, oldEl); }
+}
+
+function faceButton(src) {
+  var b = document.createElement('button');
+  b.type = 'button'; b.className = 'face';
+  var im = document.createElement('img');
+  im.src = src;
+  im.alt = 'One of four faces for ' + friend.name;
+  b.appendChild(im);
+  var tick = document.createElement('span');
+  tick.className = 'tick'; tick.hidden = true; tick.textContent = 'Chosen';
+  b.appendChild(tick);
+  b.addEventListener('click', function () { chooseFace(b, src); });
+  return b;
+}
+
+function chooseFace(btn, src) {
+  Array.prototype.forEach.call($('faceGrid').children, function (c) {
+    c.classList.remove('on');
+    var t = c.querySelector && c.querySelector('.tick');
+    if (t) t.hidden = true;
+  });
+  btn.classList.add('on');
+  var tick = btn.querySelector('.tick');
+  if (tick) tick.hidden = false;
+
+  /* THE PICKED FACE IS PART OF THE FRIEND, saved the same way the answers
+     are, under the same key, in the shape room.html already reads. */
+  friend.portrait = src;
+  try { localStorage.setItem('gc-friend', JSON.stringify(friend)); }
+  catch (e) {
+    /* A data URI of a face is not small, and a full quota is a real outcome
+       on a device somebody has been using for years. */
+    $('faceNote').textContent = 'That face is chosen, but this device would not save it: ' +
+      'storage is full. Everything else you built is saved.';
+    return;
+  }
+  $('faceNote').textContent = 'That is them. Open the room whenever you are ready.';
+}
+
+$('redrawBtn').addEventListener('click', drawFaces);
 
 $('roomBtn').addEventListener('click', function () { location.href = 'room.html'; });
 

@@ -48,6 +48,12 @@
 [functions."gc-voice"]
   timeout = 30
 
+# One face per invocation, deliberately: the browser fires four of these at
+# once rather than asking one function to await four image generations, which
+# would sit on the platform's real synchronous ceiling described further down.
+[functions."gc-face"]
+  timeout = 60
+
 [functions."carol-channel"]
   timeout = 60
 
