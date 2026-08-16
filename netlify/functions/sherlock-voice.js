@@ -25,7 +25,15 @@
 const { AGENTS, BIOS } = require('./sherlock-chat.js');
 const { getStore, connectLambda } = require('@netlify/blobs');
 
+const capper = require('./_sherlock-cap.js');
+
 const AUDIO_STORE = 'sherlock_bio_audio';
+
+/* Cache misses only. There are eight bios, so a legitimate device warms the
+   whole cast well inside this and never sees it again. */
+const CAP_STORE = 'sherlock_voice_daily';
+const DAILY_SYNTH_PER_VISITOR = 25;
+const DAILY_SYNTH_PER_ADDRESS = 200;
 // Bump whenever a bio's TEXT or an agent's voiceId changes, or the store will
 // keep serving a recording of the words that used to be there.
 const CACHE_VERSION = 'v2'; // bumped when the bios were rewritten in first person
@@ -97,6 +105,18 @@ exports.handler = async (event) => {
     }
   }
 
+  /* Past the cache, so this call is about to bill ElevenLabs. The bios are a
+     fixed set and each one bills once per version, which makes this a narrow
+     surface — but a cold cache plus a hammering client can still synthesise
+     the whole cast repeatedly, so the misses are capped. Cache hits above
+     never reach here and are never counted. */
+  const cap = await capper.check(event, CAP_STORE, {
+    visitorId: body.visitor_id,
+    perVisitor: DAILY_SYNTH_PER_VISITOR,
+    perAddress: DAILY_SYNTH_PER_ADDRESS,
+  });
+  if (!cap.allowed) return jsonError(429, 'voice synthesis limit reached for today');
+
   let resp;
   try {
     resp = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
@@ -116,6 +136,9 @@ exports.handler = async (event) => {
   }
 
   const buf = Buffer.from(await resp.arrayBuffer());
+
+  // Charged only for a synthesis that actually produced audio.
+  await capper.bump(cap);
 
   // A failed write costs one repeat charge, never this listener's audio.
   if (store) {

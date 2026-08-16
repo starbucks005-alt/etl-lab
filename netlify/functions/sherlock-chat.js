@@ -39,8 +39,18 @@ const engine = require('./_sherlock-engine.js');
 const cases = require('./_sherlock-cases.js');
 const conditions = require('./_sherlock-conditions.js');
 
+const capper = require('./_sherlock-cap.js');
+
 const MODEL = 'claude-sonnet-4-6';
 const MAX_TOKENS = 700;
+
+/* Daily ceilings, per device and per network address. A student working a case
+   properly runs somewhere under a hundred turns across eight people, so these
+   sit above real use and below a loop. The address ceiling is the backstop for
+   a cleared localStorage, set wide enough for a full class on one connection. */
+const CAP_STORE = 'sherlock_chat_daily';
+const DAILY_TURNS_PER_VISITOR = 120;
+const DAILY_TURNS_PER_ADDRESS = 1500;
 const MAX_LOOP = 5;
 const MAX_MSG_CHARS = 1000;
 const MAX_HISTORY = 12;
@@ -787,6 +797,32 @@ exports.handler = async (event) => {
   const visitorId = agent.isWitness ? null : safeVisitorId(body.visitor_id);
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
+  /* Daily ceiling. Checked against the raw visitor id rather than `visitorId`
+     above, which is deliberately null for witnesses — witness turns are the
+     bulk of a case and the most expensive thing here, so they are exactly what
+     must be counted. Charged only after the model call succeeds. */
+  const cap = await capper.check(event, CAP_STORE, {
+    visitorId: body.visitor_id,
+    perVisitor: DAILY_TURNS_PER_VISITOR,
+    perAddress: DAILY_TURNS_PER_ADDRESS,
+  });
+  if (!cap.allowed) {
+    /* Same response shape as a real turn. The client renders `data.body` and
+       nothing else, so a cap that answered with `reply` would show the student
+       an empty bubble and look like a broken app rather than a limit. */
+    const capMessage = cap.reason === 'visitor'
+      ? "That is as far as the interviews go today. The case file keeps your place, so come back tomorrow and pick it up where you left it."
+      : "This network has run its interviews for today. The case file keeps your place, so try again tomorrow.";
+    return json(200, {
+      ok: true,
+      body: capMessage,
+      audio_script: capMessage,
+      agent: agentId,
+      scales: body.scales || engine.seedOpeningState(agentId),
+      daily_capped: true,
+    });
+  }
+
   const messages = buildMessages(message, body.history);
   const client = new Anthropic({ apiKey });
 
@@ -815,6 +851,10 @@ exports.handler = async (event) => {
   }
 
   if (!output || !output.text) return json(502, { error: 'empty model output' });
+
+  // The turn is only charged once it produced something. A failed or empty
+  // call costs us money but must not cost the student one of their turns.
+  await capper.bump(cap);
 
   await saveVisitorMemory(client, agentId, agent.name, visitorId, serviceKey, [...messages, { role: 'assistant', content: output.text }]);
 

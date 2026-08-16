@@ -37,7 +37,15 @@ figure{ margin:0; }
   background:var(--panel); border:1px solid var(--line); border-radius:4px;
   cursor:zoom-in; display:block; padding:0;
 }
-.shot img{ width:100%; height:100%; object-fit:cover; display:block; }
+.shot img, .shot video{ width:100%; height:100%; object-fit:cover; display:block; }
+
+/* A CLIP IS LANDSCAPE AND A PHOTOGRAPH IS NOT. Cropping a 16:9 family shot
+   into a 4:5 tile keeps the middle 45% and throws the family away, which is
+   exactly what happened: the album showed tree trunks. Moving pictures get
+   their own ratio and two columns, so they are seen whole. */
+figure.moving{ grid-column:span 2; }
+figure.moving .shot{ aspect-ratio:16/9; }
+@media (max-width:520px){ figure.moving{ grid-column:span 1; } }
 .shot:hover{ border-color:var(--accent); }
 /* A MISSING PICTURE SAYS WHICH PICTURE IS MISSING. No stand-in, no initials,
    no grey silhouette that looks deliberate. */
@@ -121,6 +129,7 @@ if (!shots.length) { $('empty').style.display = 'block'; }
 
 shots.forEach(function (shot, i) {
   var fig = document.createElement('figure');
+  if (/.mp4$/i.test(shot.src)) fig.className = 'moving';
 
   var btn = document.createElement('button');
   btn.type = 'button'; btn.className = 'shot';
