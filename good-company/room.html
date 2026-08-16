@@ -361,8 +361,9 @@ var $ = function (id) { return document.getElementById(id); };
 function nameEverything() {
   $('gaugeTitle').textContent = 'How ' + FRIEND.name + ' is feeling right now';
   $('gaugeLabel').textContent = FRIEND.mood || 'Easy, glad you came by';
-  $('earHint').textContent = 'Say "' + FRIEND.name + '" to get their attention from across the room, ' +
-    'once this is on and this tab is in front. Off by default, and audio leaves the browser only while it is on.';
+  /* The wake word hint used to be written here, describing a feature that does
+     not exist and telling the reader their audio was being sent away while it
+     did not exist. Removed rather than reworded: the button says what it is. */
   $('gateSay').textContent = 'Tell ' + FRIEND.name + ' who you are. You only do this once.';
   $('startBtn').textContent = 'Sit down with ' + FRIEND.name;
 }
@@ -794,7 +795,14 @@ function inviteLink(token) {
 
 function showInvite(token) {
   var url = inviteLink(token);
-  post("Bring someone", "Send them this. They tap it once and they are in the room with you, no sign in and no account. They will see the conversation from the moment they arrive, not before it.");
+  /* SAYS IT IS SINGLE USE, because it is, and nothing said so. One link lets in
+     one person and is then spent, so testing your own link burns it and two
+     people sent the same one means the second is turned away. That was being
+     discovered by being turned away. */
+  post("Bring someone", "Send them this. They tap it once and they are in the room with you, " +
+       "no sign in and no account. It lets in one person and is then used up, so do not open it " +
+       "yourself to test it. Press this again for another. They will see the conversation from " +
+       "the moment they arrive, not before it.");
   var box = document.createElement("div");
   box.className = "msg";
   var a = document.createElement("input");
@@ -908,16 +916,34 @@ function joinThenSit() {
     btn.disabled = false;
     if (!j || !j.seat_token) {
       /* Says which problem rather than silently dumping them into a room of
-         their own, which is the failure this whole rewrite exists to stop. */
+         their own, which is the failure this whole rewrite exists to stop.
+
+         AN INVITE IS FOR ONE PERSON AND IS USED UP. A second tap on the same
+         link is the ORDINARY case, not an edge one: the host tests their own
+         link, or two people are sent the same one. The server calls a spent
+         link invite_not_found, which was missing from this list, so the
+         commonest failure of all fell through to "something went wrong" and
+         then offered the wrong person as a consolation. */
       PENDING_INVITE = null;
-      $("gateTitle").textContent = "That invite did not work";
+      var spent = "That link has already been used. They are single use, one per " +
+                  "person, so ask for a fresh one.";
+      $("gateTitle").textContent = "That invite has been used";
       $("gateSay").textContent =
-        ({ invite_already_used: "Somebody has already used that link. Ask them for a fresh one.",
-           room_full: "That room is full.",
-           expired: "That room has closed.",
-           closed: "That room has closed." }[j && j.error]) ||
-        "Something went wrong joining. You can still sit with " + FRIEND.name + " on your own.";
-      btn.textContent = "Sit down with " + FRIEND.name;
+        ({ invite_not_found:    spent,
+           invite_already_used: spent,
+           bad_invite:          "That link is not complete. Copying it again usually fixes it.",
+           room_full:           "That room is full.",
+           expired:             "That room has closed.",
+           closed:              "That room has closed." }[j && j.error]) ||
+        "Something went wrong joining. Ask them for a fresh link.";
+
+      /* NOT OFFERED SOMEBODY ELSE AS A CONSOLATION. This used to say "you can
+         still sit with Hollis on your own" to a person who had come here to
+         join a particular room, naming whoever happened to be built on this
+         device. You came to see somebody. Being handed a different person is
+         not a smaller version of that. */
+      btn.textContent = "Wait for a new link";
+      btn.disabled = true;
       return;
     }
     SEAT = j.seat_token; ROOM = j.room_id; MY_SEAT_ID = j.seat_id || null;
@@ -1062,12 +1088,27 @@ function startListening() {
     if (finalBit) {
       pending = (pending + ' ' + finalBit).trim();
       $('say').value = pending;
-      /* A pause is the send. Short enough not to feel laggy, long enough that
-         thinking mid-sentence does not cut you off. */
+      /* A PAUSE IS THE SEND, AND 1.4 SECONDS IS NOT A PAUSE. It is the gap in
+         the middle of an ordinary sentence.
+
+         Pookie, mid-sentence, into the room: "it's not letting me finish what
+         I was sending". Her side of that conversation arrived as "Okay so",
+         "well", "well", "because one is listen and", "where if you". Every one
+         of those is somebody thinking, chopped off and posted as though it
+         were a finished thought, and it reads back to her as a machine talking
+         over her.
+
+         Nearly three seconds now, and longer still when what is held is short
+         enough to obviously be the start of something. "Okay so" is never a
+         complete thing anybody meant to say. Waiting too long only costs a
+         moment; cutting somebody off costs them the sentence. */
+      var held = $('say').value.trim();
+      var wait = held.length < 25 ? 4500 : 2800;
+
       clearTimeout(rec._pause);
       rec._pause = setTimeout(function () {
         if ($('say').value.trim()) { send(); pending = ''; }
-      }, 1400);
+      }, wait);
     }
   };
 
@@ -1160,12 +1201,21 @@ $('replyBtn').addEventListener('click', function () {
   this.innerHTML = asAudio ? '&#127911; Audio' : '&#127911; Text';
   if (!asAudio) hush();
 });
-var ear = false;
+/* THIS BUTTON WAS DOING NOTHING, AND SAYING SOMETHING UNTRUE WHILE IT DID IT.
+
+   It set a flag no code ever read. There is one speech recogniser in this file
+   and it belongs to the microphone; nothing anywhere listens for a wake word.
+   So "Listen: on" lit up, and the hint underneath told the person that audio
+   was leaving their browser, which was not happening. A dead switch is bad. A
+   dead switch making a false claim about a microphone is not something to
+   leave sitting on a live page.
+
+   Pookie turned it on and talked to it. It says what it is now, until it is
+   built. */
 $('earBtn').addEventListener('click', function () {
-  ear = !ear;
-  this.innerHTML = '&#128066; Listen' + (ear ? ': on' : '');
-  /* The explanation is only worth column space while the thing is running. */
-  $('earHint').style.display = ear ? 'block' : 'none';
+  notYet('Saying "' + FRIEND.name + '" from across the room',
+         'Not built yet. To talk, press the microphone next to the box. ' +
+         'Nothing is listening until you do.');
 });
 </script>
 

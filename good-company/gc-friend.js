@@ -353,21 +353,42 @@ var GC_BUILT = (function () {
    answer sticks for the tab so that stepping into the photo album and back
    does not quietly swap who you are sitting with. */
 var GC_WHO = (function () {
-  var asked = null;
-  try { asked = new URLSearchParams(location.search).get('who'); } catch (e) {}
+  var q = null;
+  try { q = new URLSearchParams(location.search); } catch (e) {}
+
+  var asked = q && q.get('who');
   if (asked === 'arch' || asked === 'demo') asked = 'arch';
   else if (asked === 'mine' || asked === 'built') asked = 'mine';
   else asked = null;
 
-  try {
-    if (asked) sessionStorage.setItem('gc-who', asked);
-    else asked = sessionStorage.getItem('gc-who');
-  } catch (e) {}
+  /* 1. AN EXPLICIT ?who= WINS OVER EVERYTHING and is remembered for the tab. */
+  if (asked) {
+    try { sessionStorage.setItem('gc-who', asked); } catch (e) {}
+    return (asked === 'mine' && !GC_BUILT) ? 'arch' : asked;
+  }
 
-  /* Asking for your own friend when you have not built one is not an error,
-     it just means the demo. */
-  if (asked === 'mine' && !GC_BUILT) return 'arch';
-  return asked || (GC_BUILT ? 'mine' : 'arch');
+  /* 2. ARRIVING ON AN INVITE BEATS WHAT THE TAB REMEMBERS, and this ordering is
+     the whole fix. Somebody who taps a link has come to join a particular room,
+     and the page greeted them with whoever they happened to have built: an
+     invite to Arch's fireplace opened on "how Hollis is feeling", offering to
+     sit down with Hollis. Checking this after the remembered value would have
+     left it broken for exactly the person it was written for, because their tab
+     already remembered "mine".
+
+     The room's real friend arrives with the join response and replaces this.
+     Until then the house demo is the honest thing to show, being the one friend
+     every device has. */
+  if (q && q.get('join')) return 'arch';
+
+  /* 3. What the tab remembers, so stepping into the photo album and back does
+     not quietly swap who you are sitting with. */
+  var remembered = null;
+  try { remembered = sessionStorage.getItem('gc-who'); } catch (e) {}
+  if (remembered === 'mine' && !GC_BUILT) return 'arch';
+  if (remembered) return remembered;
+
+  /* 4. Your own friend if you have one, the demo if you do not. */
+  return GC_BUILT ? 'mine' : 'arch';
 })();
 
 var GC_FRIEND = (GC_WHO === 'mine' && GC_BUILT) ? GC_BUILT : GC_DEMO;
