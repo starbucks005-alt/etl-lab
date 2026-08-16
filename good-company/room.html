@@ -12,6 +12,7 @@
      to know the words "light" and "dark" to get the brightness they wanted. -->
 <script src="gc-friend.js"></script>
 <script src="gc-skin.js"></script>
+<script src="gc-you.js"></script>
 <link rel="stylesheet" href="gc-skin.css">
 
 <style>
@@ -230,6 +231,8 @@ html,body{ height:100%; }
 
     <div class="row tight"><button class="btn wide" id="bringBtn">&#128100; Bring someone with you</button></div>
     <div class="row tight"><button class="btn wide" id="albumBtn">&#128247; Photos</button></div>
+    <div class="row tight"><button class="btn wide" id="youBtn">&#128100; Who you are</button></div>
+    <div id="youPanel" style="display:none"></div>
     <div class="row tight"><button class="btn wide" id="memBtn">&#128206; Add a memory</button></div>
     <div style="height:.8rem"></div>
   </div>
@@ -399,7 +402,17 @@ function post(who, text, mine) {
   var d = document.createElement('div');
   d.className = 'msg' + (mine ? ' mine' : '');
   var w = document.createElement('span');
-  w.className = 'who'; w.textContent = who;
+  w.className = 'who';
+  /* Your own lines carry your face, so a room with two humans in it shows at a
+     glance who said what. */
+  if (mine) {
+    var f = document.createElement('span');
+    f.className = 'who-face';
+    if (YOU.photo) { var im = document.createElement('img'); im.src = YOU.photo; im.alt = ''; f.appendChild(im); }
+    else { f.textContent = YOU.emoji; }
+    w.appendChild(f);
+  }
+  w.appendChild(document.createTextNode(who));
   d.appendChild(w); d.appendChild(document.createTextNode(text));
   $('log').appendChild(d);
   $('log').scrollTop = $('log').scrollHeight;
@@ -407,12 +420,28 @@ function post(who, text, mine) {
 
 /* His own line if he has one, a neutral one if the user built somebody who
    does not. Never a line written for a different person. */
-post(FRIEND.name, FRIEND.hello || 'You came. Sit down, I want to hear about your day.');
+/* WHO YOU ARE. The friend needs your pronouns to talk about you correctly,
+   and a room with two humans in it needs to show which line came from whom.
+   The same panel serves a guest who arrived on a link with no account. */
+var YOU = gcLoadYou();
+function youLabel(){ return YOU.name || "You"; }
+
+gcMountYou($("youPanel"), function (saved) {
+  YOU = saved;
+  $("youPanel").style.display = "none";
+  post("Saved", "They will call you " + youLabel() + ", and use " + YOU.pronouns + ".");
+});
+$("youBtn").addEventListener("click", function () {
+  var p = $("youPanel");
+  p.style.display = (p.style.display === "none") ? "block" : "none";
+});
+
+post(FRIEND.name, FRIEND.hello || "You came. Sit down, I want to hear about your day.");
 
 function send() {
   var v = $('say').value.trim();
   if (!v) return;
-  post('You', v, true);
+  post(youLabel(), v, true);
   $('say').value = '';
   post('Not wired yet', 'This is the layout shell. The reply comes from the chat function once it exists.');
 }
