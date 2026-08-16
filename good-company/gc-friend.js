@@ -88,7 +88,10 @@ var GC_DEMO = {
     { key:'porch',    label:'The porch',     src:'video/arch-porch.mp4',
       where:'The cabin porch. Trees right up to it, late in the day.' },
     { key:'workshop', label:'The workshop',  src:'video/arch-workshop.mp4',
-      where:'His workshop. Bench, tools on the wall, sawdust. Where he actually works.' },
+      where:'His workshop. Hand planes on the bench, chisels and hammers racked on the wall, ' +
+            'a drill press in the corner. He is sanding a board by hand. If asked what he is ' +
+            'building: a small cabinet for the cabin, walnut, and he is taking his time with it ' +
+            'because there is nobody waiting on it.' },
     { key:'walk',     label:'The walk',      src:'video/arch-walk.mp4',
       where:'A dirt path through the woods near the cabin. He walks it most days.' }
   ],
