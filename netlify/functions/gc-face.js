@@ -158,23 +158,29 @@ function facePrompt(f, variation, nonce) {
      somebody's actual likeness, a real living person who did not agree to be
      anybody's companion. And it breaks the only promise this screen makes,
      which is that this friend is theirs: a face you have seen in films is the
-     opposite of a friend nobody else has. */
+     opposite of a friend nobody else has.
+
      NOT FAMOUS IS NOT THE SAME AS NOT NICE, and the first version of this
      confused the two. It said "not conventionally handsome, not styled, the
      kind of face you would pass in a supermarket", which is a fine way to
      avoid an actor and a terrible way to offer somebody a friend. Pookie's
-     four came back drab. She is choosing who to spend time with; they should
-     look like somebody she would be glad to see. Ordinary means not famous,
-     never plain on purpose. */
-  bits.push('This must be an ordinary private individual, not a celebrity, not an actor, ' +
-            'not a model, not a public figure, and not resembling any recognisable ' +
-            'person. A real face rather than a magazine one: a face with a life behind ' +
-            'it, its own particular features, nothing airbrushed or symmetrical.');
+     four came back drab, and she said plainly that she wants good looking
+     companions even if it is not romantic. She is right, and the two are not
+     in tension: you are allowed to want your friend to be lovely to look at.
+     Wanting that is not wanting a date. Ordinary means not famous. It has
+     never meant plain on purpose. */
+  bits.push('Not a celebrity, not an actor, not a model, not a public figure, and not ' +
+            'resembling any recognisable person. A real face rather than a magazine ' +
+            'one: its own particular features, a life behind it, nothing airbrushed.');
 
-  bits.push('They have made an effort. Clean, well kept, dressed in good clothes they ' +
-            'chose and like, hair done, the way you turn out to see somebody you are ' +
-            'pleased to see. Warm and approachable. Not scruffy, not dishevelled, ' +
-            'not in work-stained or gym clothing.');
+  bits.push('Within that, an attractive and appealing person. Good looking in an ' +
+            'ordinary human way, the sort of face people are drawn to and are glad ' +
+            'to see. Kind eyes, an open expression.');
+
+  bits.push('They have made an effort. Clean and well kept, hair done, dressed in good ' +
+            'clothes they chose and like and that suit them, the way you turn out to ' +
+            'see somebody you are pleased to see. Not scruffy, not dishevelled, not in ' +
+            'work-stained clothing or gym clothing, no heavy coat.');
 
   /* Same brief, different day. Without these the prompt is identical every
      time and so is what comes back. */
