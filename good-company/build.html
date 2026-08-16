@@ -107,6 +107,12 @@ button.face.on{ border-color:var(--accent); box-shadow:0 0 0 2px var(--accent); 
 .summary dt{ font-family:var(--mono); font-size:10.5px; letter-spacing:.1em;
   text-transform:uppercase; color:var(--ink-dim); }
 .summary dd{ margin:0; }
+.already{
+  border:1px solid var(--accent); background:var(--panel); border-radius:4px;
+  padding:1rem 1.1rem; margin:0 0 1.6rem;
+}
+.already p{ margin:0 0 .8rem; }
+.already p:last-child{ margin:0; }
 footer{ padding:2rem 0 3rem; color:var(--ink-dim); font-size:.9rem; }
 </style>
 </head>
@@ -122,6 +128,18 @@ footer{ padding:2rem 0 3rem; color:var(--ink-dim); font-size:.9rem; }
 </header>
 
 <main class="wrap">
+
+  <!-- SOMEBODY IS ALREADY HERE. This page used to behave as though every visit
+       were the first, so a friend you had already made was invisible from the
+       one screen that makes friends, and there was no way anywhere to be rid of
+       one. A half-finished friend just sat there taking over the room. -->
+  <div class="already" id="already" style="display:none">
+    <p id="alreadySay"></p>
+    <p>
+      <button class="btn" type="button" id="theirRoomBtn">Open their room</button>
+      <button class="btn" type="button" id="forgetBtn">Start over</button>
+    </p>
+  </div>
 
   <p class="mins">About two minutes</p>
   <h1>Who would you like to meet?</h1>
@@ -343,6 +361,49 @@ function assemble() {
 }
 
 var friend = null;
+
+/* ── SOMEBODY IS ALREADY HERE ────────────────────────────────────────────────
+   A friend already on this device is named at the top of the page, with the way
+   into their room and the way to be rid of them.
+
+   THERE WAS NO WAY TO BE RID OF ONE. Nothing anywhere could delete a built
+   friend, so a half-finished Hollis, created by a name box left blank, sat
+   there taking over the room with no way out but clearing site data.
+
+   HOW EMPTY THEY ARE IS SAID OUT LOUD. "This one is blank" is the difference
+   between a friend you meant to make and one that happened to you. */
+(function () {
+  var built = null;
+  try { built = JSON.parse(localStorage.getItem('gc-friend') || 'null'); } catch (e) {}
+  if (!built || !built.name) return;
+
+  /* Answered, out of everything the questions actually ask. */
+  var filled = ['age','gender','from','work','into','been'].filter(function (k) {
+    return built[k] && String(built[k]).length;
+  }).length;
+
+  document.getElementById('alreadySay').textContent = filled
+    ? 'You have already made someone: ' + built.name + '. Making another replaces them, ' +
+      'because you get one friend at a time for now.'
+    : 'There is a ' + built.name + ' on this device with nothing filled in, made by ' +
+      'pressing through with the name box empty. Start over and they are gone.';
+
+  document.getElementById('already').style.display = 'block';
+
+  document.getElementById('theirRoomBtn').addEventListener('click', function () {
+    location.href = 'room.html?who=mine';
+  });
+
+  var forget = document.getElementById('forgetBtn');
+  forget.addEventListener('click', function () {
+    /* DELETING A PERSON YOU MADE ASKS FIRST, and asks using their name, because
+       for somebody further in than this that is not a blank record. */
+    if (!confirm('Forget ' + built.name + '? Everything about them goes, and this cannot be undone.')) return;
+    try { localStorage.removeItem('gc-friend'); } catch (e) {}
+    try { sessionStorage.removeItem('gc-who'); } catch (e) {}
+    location.href = 'build.html';
+  });
+})();
 
 /* Asked once, then it stops nagging. */
 var nameOffered = false;
