@@ -71,6 +71,8 @@ exports.handler = async function (event) {
 
   return R.json(200, {
     seat_token: seatToken,
+    /* See gc-room-open: this is how the browser knows its own lines. */
+    seat_id: claimed[0].id,
     room_id: room.id,
     friend: room.friend,
     scene_key: room.scene_key,

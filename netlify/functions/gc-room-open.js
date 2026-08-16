@@ -106,6 +106,12 @@ exports.handler = async function (event) {
   return R.json(200, {
     room_id: room.id,
     seat_token: seatToken,
+    /* WHICH LINES ARE MINE. The browser needs this to recognise its own
+       messages coming back on the poll, so they sit on the right and are not
+       drawn a second time. Matching on display name was doing that job and
+       failed the moment somebody arrived without one. The seat id is not a
+       credential; the seat TOKEN is, and that is a different value. */
+    seat_id: seatRows[0].id,
     invite_token: inviteToken,
     carried: prior.length,
   });

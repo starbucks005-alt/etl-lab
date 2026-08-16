@@ -35,6 +35,19 @@
 [functions."proxy-ai"]
   timeout = 60
 
+# GOOD COMPANY. A friend answering is a full Sonnet turn with a long system
+# prompt behind it, and the default ten seconds is not enough: it surfaced in
+# the room as "Could not reach Arch. Failed to fetch", intermittently, on the
+# longer replies. gc-room-say is worse, because it calls gc-chat and waits on it.
+[functions."gc-chat"]
+  timeout = 60
+
+[functions."gc-room-say"]
+  timeout = 60
+
+[functions."gc-voice"]
+  timeout = 30
+
 [functions."carol-channel"]
   timeout = 60
 

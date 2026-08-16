@@ -153,6 +153,10 @@ function gcMountYou(host, onSave) {
   var name = document.createElement('input');
   name.type = 'text'; name.value = you.name; name.placeholder = 'Any name you like';
   name.autocomplete = 'off';
+  /* Named so the door can put the cursor here. Somebody arriving on an invite
+     without filling this in joins the room anonymous, and everything they say
+     then goes up under no name at all. */
+  name.className = 'you-name-input';
   nameRow.appendChild(name);
   host.appendChild(nameRow);
 
@@ -208,15 +212,26 @@ function gcMountYou(host, onSave) {
   host.appendChild(pRow);
 
   /* ── done ── */
-  var save = document.createElement('button');
-  save.type = 'button'; save.className = 'btn go you-save'; save.textContent = 'Save';
-  save.addEventListener('click', function () {
+  /* WHAT IS TYPED COUNTS, WHETHER OR NOT SAVE WAS PRESSED. There are two ways
+     off the doorstep, this button and the big one below it, and only this one
+     used to read the fields. Someone who typed their name and then pressed the
+     other button walked in as nobody. Hung on the host element so the page can
+     take what is in the boxes before it does anything. */
+  function commit() {
     you.name = name.value.trim();
     you.saidAs = saidAs.value.trim();
     var typed = other.value.trim();
     if (typed) you.pronouns = typed;
     if (!you.pronouns) you.pronouns = 'they / them';
     gcSaveYou(you);
+    return you;
+  }
+  host.gcCommit = commit;
+
+  var save = document.createElement('button');
+  save.type = 'button'; save.className = 'btn go you-save'; save.textContent = 'Save';
+  save.addEventListener('click', function () {
+    commit();
     if (onSave) onSave(you);
   });
   host.appendChild(save);

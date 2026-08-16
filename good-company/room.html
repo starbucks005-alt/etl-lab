@@ -533,6 +533,18 @@ var YOU = gcLoadYou();
 /* Room state, declared here because sitDown() reads SEAT and relying on var
    hoisting to make that undefined-but-falsy is luck rather than intent. */
 var SEAT = null, ROOM = null, lastSeen = null, polling = null;
+
+/* WHAT IS ALREADY ON SCREEN, AND WHICH OF IT IS MINE.
+
+   Your own line is drawn the instant you press send, and then the poll reads
+   it straight back out of the room and drew it again. Every single thing the
+   host said appeared twice. The old guard tested m.mine_local, a flag nothing
+   in this file ever set.
+
+   MY_SEAT_ID is how a line is recognised as yours. That used to be done by
+   comparing display names, which breaks two ways: two people called Jen, and
+   worse, a guest who never typed a name at all. */
+var seen = {}, MY_SEAT_ID = null;
 function youLabel(){ return YOU.name || "You"; }
 
 gcMountYou($("youPanel"), function (saved) {
@@ -554,6 +566,10 @@ function sitDown() {
   }
 }
 $("startBtn").addEventListener("click", function () {
+  /* Take whatever is in the boxes first. Pressing this instead of Save is not
+     a mistake anybody should be punished for. */
+  var p = $("youPanel");
+  if (p.gcCommit) YOU = p.gcCommit();
   if (PENDING_INVITE) joinThenSit(); else sitDown();
 });
 $("youBtn").addEventListener("click", function () {
@@ -647,8 +663,11 @@ function sayInRoom(text) {
   }).then(function (r) { return r.json(); }).then(function (j) {
     thinking = false; $("sendBtn").disabled = false;
     lastSpoke = Date.now();
+    /* Mine is on screen already. Claiming its id here is what stops the next
+       poll drawing a second copy of it. */
+    if (j && j.said && j.said.id) { seen[j.said.id] = true; MY_SEAT_ID = j.said.author_id || MY_SEAT_ID; }
     /* A null reply is correct and common in a room with several people in it.
-       Nothing is rendered. The poll will bring anything he did say. */
+       Nothing is rendered. The poll will bring anything he did say, and speak it. */
     if (j && j.feelings) setFeelings(j.feelings);
     if (j && j.mood) $("gaugeLabel").textContent = j.mood;
   }).catch(function (err) {
@@ -755,7 +774,7 @@ $("bringBtn").addEventListener("click", function () {
   }).then(function (r) { return r.json(); }).then(function (j) {
     $("bringBtn").disabled = false;
     if (!j || !j.seat_token) { post("Not wired yet", "Could not open the room: " + ((j && j.error) || "unknown")); return; }
-    SEAT = j.seat_token; ROOM = j.room_id;
+    SEAT = j.seat_token; ROOM = j.room_id; MY_SEAT_ID = j.seat_id || null;
     /* THE CARRIED THREAD IS ALREADY ON SCREEN. Opening a room writes the prior
        conversation up to the server, and without this the very next poll reads
        it straight back and posts every line a second time. His greeting
@@ -792,8 +811,30 @@ if (PENDING_INVITE) {
 }
 
 /* Called instead of sitDown() when there is an invite in hand. */
+/* Asked once, and only of somebody arriving on an invite. */
+var nameAsked = false;
+
 function joinThenSit() {
   var btn = $("startBtn");
+
+  /* ARRIVE AS SOMEBODY. A guest who presses straight through without filling
+     the name in lands in the room anonymous: their seat carries no name, so
+     every line they say goes up under no name and the friend has nothing to
+     call them by. Pookie arrived this way and the room could not tell her
+     apart from Arch.
+
+     Asked once, never enforced. Wanting to be in the room without giving a
+     name is allowed; not being asked is the bug. */
+  if (!nameAsked && !(YOU.name || "").trim()) {
+    nameAsked = true;
+    $("gateSay").textContent =
+      "Put a name in first so they know who just walked in, then press it again. " +
+      "Any name you like.";
+    var f = $("youPanel").querySelector(".you-name-input");
+    if (f) f.focus();
+    return;
+  }
+
   btn.disabled = true; btn.textContent = "Joining";
 
   fetch("/.netlify/functions/gc-room-join", {
@@ -818,7 +859,7 @@ function joinThenSit() {
       btn.textContent = "Sit down with " + FRIEND.name;
       return;
     }
-    SEAT = j.seat_token; ROOM = j.room_id;
+    SEAT = j.seat_token; ROOM = j.room_id; MY_SEAT_ID = j.seat_id || null;
     if (j.friend) { FRIEND = j.friend; nameEverything(); }
     if (j.scene_key) {
       var sc = (FRIEND.scenes || []).filter(function (x) { return x.key === j.scene_key; })[0];
@@ -843,11 +884,35 @@ function startPolling() {
       body: JSON.stringify({ seat_token: SEAT, since: lastSeen })
     }).then(function (r) { return r.json(); }).then(function (j) {
       if (!j || !j.messages) return;
+      var lastHeard = null;
       j.messages.forEach(function (m) {
         lastSeen = m.created_at;
-        if (m.mine_local) return;
-        post(m.name || FRIEND.name, m.content, m.speaker === "person" && m.name === YOU.name);
+
+        if (seen[m.id]) return;      /* already drawn, by this browser or a prior poll */
+        seen[m.id] = true;
+
+        /* WHO SAID IT COMES FROM speaker, NEVER FROM A MISSING NAME. The old
+           fallback was (m.name || FRIEND.name), so a guest who joined without
+           typing a name had every word they said attributed to the friend.
+           Pookie's line about her dog appeared over Arch's name. A person
+           without a name is "Someone"; only the friend is ever the friend. */
+        var label = (m.speaker === "friend")
+          ? (FRIEND.name || "Friend")
+          : (m.name || "Someone");
+
+        post(label, m.content, m.speaker === "person" && m.author_id && m.author_id === MY_SEAT_ID);
+
+        if (m.speaker === "friend") lastHeard = m.content;
       });
+
+      /* HE STAYS AUDIBLE IN A ROOM. Once a room exists his reply no longer
+         comes back to the person who spoke; it arrives here, on everyone's
+         poll, and nothing here used to speak it. So he went quiet the moment
+         anybody was invited, which is precisely when being heard matters most.
+
+         Only the last line of a batch is spoken, because speak() interrupts
+         whatever is playing and a queue of two would talk over itself. */
+      if (lastHeard) speak(lastHeard);
       /* THE SCENE IS SHARED. The host changes rooms and everybody follows,
          because if you are both sitting with him at the fireplace then you are
          both at the fireplace. */
