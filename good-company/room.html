@@ -535,7 +535,10 @@ var YOU = gcLoadYou();
 var SEAT = null, ROOM = null, lastSeen = null, polling = null;
 function youLabel(){ return YOU.name || "You"; }
 
-gcMountYou($("youPanel"), function (saved) { YOU = saved; sitDown(); });
+gcMountYou($("youPanel"), function (saved) {
+  YOU = saved;
+  if (PENDING_INVITE) joinThenSit(); else sitDown();
+});
 
 /* Leaving the doorstep. The gate goes, the conversation arrives, and the friend
    speaks first. Coming back to it from the room shows the same panel rather
@@ -550,7 +553,9 @@ function sitDown() {
     post(FRIEND.name, FRIEND.hello || "You came. Sit down, I want to hear about your day.");
   }
 }
-$("startBtn").addEventListener("click", sitDown);
+$("startBtn").addEventListener("click", function () {
+  if (PENDING_INVITE) joinThenSit(); else sitDown();
+});
 $("youBtn").addEventListener("click", function () {
   $("chat").style.display = "none";
   $("gate").style.display = "block";
@@ -765,23 +770,52 @@ $("bringBtn").addEventListener("click", function () {
 });
 
 /* ── ARRIVING ON A LINK ──────────────────────────────────────────────────────
-   Same page, same friend, same scene, mid-conversation. Not a separate view:
-   the whole point is joining where somebody already is. */
-(function joinIfInvited() {
-  var token = new URLSearchParams(location.search).get("join");
-  if (!token) return;
-  history.replaceState({}, "", location.pathname);   // the link is spent, keep it out of the bar
+   THE DOORSTEP COMES FIRST, AND THIS WAS WRONG THE FIRST TIME.
+
+   The original version joined the room the instant the page loaded, before
+   the guest had told us anything, and only then showed them the doorstep. Two
+   failures fell out of that: they arrived nameless, so whatever they typed
+   into the panel never reached the room; and if they pressed Sit down before
+   the fetch came back, SEAT was still null and they went down the local path
+   into a private conversation of their own. Which is exactly what happened.
+
+   So the token is held, the doorstep is shown, and joining happens when they
+   are ready and have a name and pronouns to arrive with. */
+var PENDING_INVITE = new URLSearchParams(location.search).get("join");
+if (PENDING_INVITE) {
+  history.replaceState({}, "", location.pathname);   // the link is spent
+  $("gateTitle").textContent = "You have been invited";
+  $("gateSay").textContent =
+    "Tell them who you are and you will be in the room. No sign in, no account. " +
+    "You will see the conversation from the moment you arrive, not before it.";
+  $("startBtn").textContent = "Join them";
+}
+
+/* Called instead of sitDown() when there is an invite in hand. */
+function joinThenSit() {
+  var btn = $("startBtn");
+  btn.disabled = true; btn.textContent = "Joining";
 
   fetch("/.netlify/functions/gc-room-join", {
     method: "POST", headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      invite_token: token,
+      invite_token: PENDING_INVITE,
       you: { name: YOU.name, pronouns: YOU.pronouns, avatar: YOU.photo || YOU.emoji, remember_me: false }
     })
   }).then(function (r) { return r.json(); }).then(function (j) {
+    btn.disabled = false;
     if (!j || !j.seat_token) {
-      sitDown();
-      post("Not wired yet", "That invite did not work: " + ((j && j.error) || "unknown"));
+      /* Says which problem rather than silently dumping them into a room of
+         their own, which is the failure this whole rewrite exists to stop. */
+      PENDING_INVITE = null;
+      $("gateTitle").textContent = "That invite did not work";
+      $("gateSay").textContent =
+        ({ invite_already_used: "Somebody has already used that link. Ask them for a fresh one.",
+           room_full: "That room is full.",
+           expired: "That room has closed.",
+           closed: "That room has closed." }[j && j.error]) ||
+        "Something went wrong joining. You can still sit with " + FRIEND.name + " on your own.";
+      btn.textContent = "Sit down with " + FRIEND.name;
       return;
     }
     SEAT = j.seat_token; ROOM = j.room_id;
@@ -790,11 +824,14 @@ $("bringBtn").addEventListener("click", function () {
       var sc = (FRIEND.scenes || []).filter(function (x) { return x.key === j.scene_key; })[0];
       if (sc) play(sc);
     }
+    PENDING_INVITE = null;
     sitDown();
     startPolling();
+  }).catch(function (err) {
+    btn.disabled = false; btn.textContent = "Try again";
+    $("gateSay").textContent = "Could not reach the room. " + err.message;
   });
-})();
-
+}
 /* Everybody in the room reads from the same place. A guest is bounded below by
    their own arrival, which is enforced server side and cannot be argued down
    from here. */
