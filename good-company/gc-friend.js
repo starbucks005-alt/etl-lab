@@ -333,7 +333,28 @@ var GC_DEMO = {
 var GC_BUILT = (function () {
   try {
     var saved = JSON.parse(localStorage.getItem('gc-friend') || 'null');
-    if (saved && saved.name && saved.scenes && saved.scenes.length) return saved;
+    if (!saved || !saved.name || !saved.scenes || !saved.scenes.length) return null;
+
+    /* FRIENDS BUILT BEFORE TODAY CARRY FILENAMES THAT NEVER EXISTED.
+
+       The build page used to write src:'video/kitchen.mp4' and the rest, for
+       clips that are never made, because scene generation is not built. The
+       room dutifully asked for them, the video failed, and every built friend
+       sat behind a black rectangle reading "missing: video/kitchen.mp4". Cal
+       held a whole conversation from behind one.
+
+       The page writes null now, but somebody's friend is already saved on
+       their device with the old values, and they would keep the black
+       rectangle forever. These five names are only ever placeholders: a real
+       clip of Arch is video/arch-fireplace.mp4 and is left exactly alone, so a
+       genuinely broken video is still a broken video and still says so. */
+    var NEVER_MADE = { 'video/kitchen.mp4':1, 'video/porch.mp4':1, 'video/coffee.mp4':1,
+                       'video/game.mp4':1, 'video/walk.mp4':1 };
+    saved.scenes.forEach(function (s) {
+      if (s && s.src && NEVER_MADE[s.src]) s.src = null;
+    });
+
+    return saved;
   } catch (e) { /* storage disabled */ }
   return null;
 })();

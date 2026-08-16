@@ -97,6 +97,16 @@ html,body{ height:100%; }
   text-transform:uppercase; color:#9A8A78;
 }
 
+/* A scene that has no film of it yet. Not layered over the video: the video is
+   emptied and taken out of the layout before this goes in. See showStill. */
+.portrait .still{ position:absolute; inset:0; }
+.portrait .still img{ width:100%; height:100%; object-fit:cover; display:block; }
+.portrait .still-say{
+  position:absolute; left:0; right:0; bottom:0; padding:.45rem .6rem;
+  background:rgba(0,0,0,.62); color:#F0E7DA;
+  font-family:var(--mono); font-size:10px; letter-spacing:.12em; text-transform:uppercase;
+}
+
 /* ── scenes ──────────────────────────────────────────────────────────────── */
 .scene-bar{ display:flex; flex-wrap:wrap; gap:.4rem; padding:.55rem .6rem .7rem; }
 .scene-chip{
@@ -492,18 +502,76 @@ function makeScene(scene, btn, line) {
   }
 }
 
+/* ── A SCENE WITH NO FILM OF IT YET ──────────────────────────────────────────
+   NOT A BREACH OF "NO IMAGES UNDER VIDEO", AND THE DIFFERENCE IS THE WHOLE
+   POINT OF THIS COMMENT.
+
+   That rule exists because a still placed behind, over or as the poster of a
+   video hides the video failing, and a hidden video failure has cost weeks
+   more than once. Every part of it still holds: where a scene HAS a source and
+   that source breaks, this room shows "missing: <file>" and never a picture,
+   exactly as before.
+
+   This is the other case. A friend somebody built has scenes with no source at
+   all, because scene generation is not built, so there is no film to hide and
+   no failure to mask. There is no video element in play here either: it is
+   emptied and taken out of the layout, and what shows is the portrait they
+   chose, with a line saying plainly that the moving scene is not made yet.
+
+   Until now that case put up a black rectangle reading "missing:
+   video/kitchen.mp4" for every friend anybody built. Cal held a real
+   conversation from behind it. */
+function showStill(scene) {
+  var n = document.createElement('div');
+  n.className = 'still';
+
+  if (FRIEND.portrait) {
+    var im = document.createElement('img');
+    im.src = FRIEND.portrait;
+    im.alt = FRIEND.name;
+    n.appendChild(im);
+  }
+
+  var line = document.createElement('div');
+  line.className = 'still-say';
+  /* SAYS WHICH THING IS MISSING rather than letting a still pass for a scene.
+     And if there is no picture either, it says that too, instead of falling
+     back to initials in a box and letting a missing image go unnoticed. */
+  line.textContent = FRIEND.portrait
+    ? 'No film of ' + scene.label.toLowerCase() + ' yet'
+    : 'No picture of ' + FRIEND.name + ' yet, and no film of ' + scene.label.toLowerCase();
+  n.appendChild(line);
+
+  portrait.appendChild(n);
+}
+
 function play(scene) {
   current = scene;
   var old = portrait.querySelector('.missing');
   if (old) old.remove();
-  video.src = scene.src;
-  video.muted = !wantSound;      // the choice survives changing rooms
-  video.play().catch(function () {});
+  var oldStill = portrait.querySelector('.still');
+  if (oldStill) oldStill.remove();
+
+  if (!scene.src) {
+    /* Emptied and hidden, so nothing is layered over anything. */
+    video.removeAttribute('src');
+    try { video.load(); } catch (e) {}
+    video.style.display = 'none';
+    showStill(scene);
+  } else {
+    video.style.display = '';
+    video.src = scene.src;
+    video.muted = !wantSound;      // the choice survives changing rooms
+    video.play().catch(function () {});
+  }
+
   Array.prototype.forEach.call(bar.children, function (chip) {
     chip.classList.toggle('on', chip.dataset.key === scene.key);
   });
 }
-video.addEventListener('error', function () { if (current) showMissing(current.src); });
+/* Only where a source was actually asked for. Emptying the element to get it
+   out of the way fires this too, and a scene with no film is not a failure. */
+video.addEventListener('error', function () { if (current && current.src) showMissing(current.src); });
 
 /* SOUND. Starts off because no browser will autoplay audio, and stays off
    until somebody asks for it. Once on it stays on across scene changes, so

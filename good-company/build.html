@@ -350,14 +350,23 @@ function assemble() {
     voice:  picked.voice.slice(),
     been:   val('fBeen'),
     user:   { call: val('uName'), want: picked.want, about: val('uAbout') },
-    /* Scenes are named now and have no clips yet. The room shows the missing
-       file rather than a stand-in, which is how we find out generation ran. */
+    /* NO src, BECAUSE THERE IS NO FILM. These used to carry filenames like
+       video/kitchen.mp4 that have never existed for a friend somebody built,
+       so the room asked for them, the video element failed, and every built
+       friend sat behind a black rectangle reading "missing: video/kitchen.mp4".
+       Cal talked like a person from behind it.
+
+       A name with no source says "this scene is real and there is no film of
+       it yet", which is the truth and is a thing the room can show properly.
+       When scene generation is built it fills the src in and the video path
+       takes over untouched. A filename that is present but broken still means
+       a broken video and is still reported as one. */
     scenes: [
-      { key:'kitchen', label:'Kitchen table', src:'video/kitchen.mp4' },
-      { key:'porch',   label:'Porch',        src:'video/porch.mp4' },
-      { key:'coffee',  label:'Coffee',       src:'video/coffee.mp4' },
-      { key:'game',    label:'Game night',   src:'video/game.mp4' },
-      { key:'walk',    label:'The walk',     src:'video/walk.mp4' }
+      { key:'kitchen', label:'Kitchen table', src:null },
+      { key:'porch',   label:'Porch',        src:null },
+      { key:'coffee',  label:'Coffee',       src:null },
+      { key:'game',    label:'Game night',   src:null },
+      { key:'walk',    label:'The walk',     src:null }
     ]
   };
 }
