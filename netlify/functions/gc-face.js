@@ -95,20 +95,24 @@ const VARIATIONS = [
    change the photograph without touching the brief: same person, different day
    and different corner of their life. Picked by a nonce the browser sends, so
    every press is a genuinely different set. */
+/* WARM, ALL OF THEM. The first set of these included grey winter daylight and
+   the street outside, and every face came back gloomy and cold in a dark coat.
+   Somebody is choosing a friend from these. Every option here has to be a
+   light and a place you would be pleased to walk into. */
 const LIGHT = [
-  'Overcast afternoon light, soft and even.',
-  'Low evening sun coming in from one side, warm.',
-  'Bright flat morning light.',
-  'Indoors, light from a window off to one side, the rest of the room dim.',
-  'Grey winter daylight, cool and plain.',
+  'Warm afternoon light, soft and flattering.',
+  'Low golden evening sun coming in from one side.',
+  'Bright, clear morning light, cheerful.',
+  'Lamplight indoors in the evening, warm and comfortable.',
+  'Soft daylight through a big window, gentle on the face.',
 ];
 
 const SETTING = [
-  'On their own doorstep.',
-  'In their kitchen, leaning against the counter.',
-  'Just inside the front room, coat still on.',
-  'Outside, in the street where they live.',
-  'At the back of the house, door open behind them.',
+  'In their own kitchen, comfortable, a warm room behind them.',
+  'In a bright front room, sitting near the window.',
+  'At a table in a nice cafe, cup in front of them.',
+  'In a garden on a good day, greenery behind them.',
+  'In a comfortable living room, lamps on, home behind them.',
 ];
 
 const FRAME = [
@@ -133,8 +137,13 @@ function facePrompt(f, variation, nonce) {
   if (f.gender) who.push(String(f.gender).replace(/^A /, '').toLowerCase());
   if (who.length) bits.push('They are ' + who.join(', ') + '.');
 
-  if (f.work) bits.push('They work as: ' + f.work + '. They look like somebody who ' +
-                        'actually does that for a living, in the clothes that job leaves you in.');
+  /* THE JOB IS IN THE FACE, NOT IN THE OUTFIT. This used to end "in the clothes
+     that job leaves you in", which dressed everybody in work coats and put
+     them on a building site. You are not meeting them at work. You are meeting
+     them because they came to see you. */
+  if (f.work) bits.push('They work as: ' + f.work + '. That shows in their bearing and ' +
+                        'their hands, not in their clothes. They are not at work here ' +
+                        'and not wearing work clothing.');
   if (f.from) bits.push('They are from ' + f.from + '.');
   if (f.into) bits.push('Outside work they are into ' + (Array.isArray(f.into) ? f.into.join(', ') : f.into) + '.');
 
@@ -150,11 +159,22 @@ function facePrompt(f, variation, nonce) {
      anybody's companion. And it breaks the only promise this screen makes,
      which is that this friend is theirs: a face you have seen in films is the
      opposite of a friend nobody else has. */
-  bits.push('This must be an ordinary private individual with an unremarkable, ' +
-            'un-famous face. Not a celebrity, not an actor, not a model, not a public ' +
-            'figure, and not resembling any recognisable person. Not conventionally ' +
-            'handsome or beautiful, not styled, not a professional photograph. ' +
-            'The kind of face you would pass in a supermarket and not look at twice.');
+     NOT FAMOUS IS NOT THE SAME AS NOT NICE, and the first version of this
+     confused the two. It said "not conventionally handsome, not styled, the
+     kind of face you would pass in a supermarket", which is a fine way to
+     avoid an actor and a terrible way to offer somebody a friend. Pookie's
+     four came back drab. She is choosing who to spend time with; they should
+     look like somebody she would be glad to see. Ordinary means not famous,
+     never plain on purpose. */
+  bits.push('This must be an ordinary private individual, not a celebrity, not an actor, ' +
+            'not a model, not a public figure, and not resembling any recognisable ' +
+            'person. A real face rather than a magazine one: a face with a life behind ' +
+            'it, its own particular features, nothing airbrushed or symmetrical.');
+
+  bits.push('They have made an effort. Clean, well kept, dressed in good clothes they ' +
+            'chose and like, hair done, the way you turn out to see somebody you are ' +
+            'pleased to see. Warm and approachable. Not scruffy, not dishevelled, ' +
+            'not in work-stained or gym clothing.');
 
   /* Same brief, different day. Without these the prompt is identical every
      time and so is what comes back. */
