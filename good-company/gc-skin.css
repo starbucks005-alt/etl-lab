@@ -1,0 +1,123 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   GOOD COMPANY — SKINS AND SHARED PRIMITIVES
+   The one place a color is decided. Linked by room.html, build.html and
+   album.html.
+
+   EXTRACTED BECAUSE IT WAS ABOUT TO BE COPIED A THIRD TIME. It already lived
+   in two files, and the first skin fix (deepening the seaside coral for
+   contrast) would have had to be made twice. Three copies is where a palette
+   starts drifting between pages without anybody noticing.
+
+   Pattern is Founder Studio's: one block per skin, all redefining the same
+   names, and adding a skin is one more block plus one entry in the SKINS list
+   in the page script. Nothing else changes.
+
+   THE RULE FOUNDER STUDIO WROTE IN ITS OWN MARGIN, applied to what matters
+   here: a skin dresses the ROOM. It never touches the friend and it never
+   touches whether the conversation can be read.
+     * No skin variable may appear in the .portrait block. Nothing tints,
+       filters, overlays or borders that face.
+     * Chat text is full-strength ink on the panel in every skin, and the
+       pairs below are contrast-measured rather than eyeballed. The weakest
+       thing on the page sits at 5.2:1; these readers are mostly older.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root{
+  --mono:'Courier New', ui-monospace, monospace;
+
+  /* Emotion colors for the LIGHT skins. Only Fireside overrides the set; no
+     other skin should, because seven more values per skin is how a palette
+     rots. */
+  --happy:#4F7040; --sad:#3F6685; --fear:#6B5C90;
+  --disgust:#6E6733; --anger:#9C4630; --surprise:#8A6E1E; --curious:#8A5B21;
+}
+
+/* ── HARVEST. Pumpkin spice, falling leaves, browns and greens. ──────────── */
+[data-skin="harvest"]{
+  --paper:#F7F1E6; --panel:#EFE5D3; --chrome:rgba(247,241,230,.93);
+  --ink:#241C12; --ink-dim:#665441; --line:#DDCEB6;
+  --accent:#9E4E27; --accent-hover:#7A3A1B; --accent-ink:#FFF8ED;
+  --moss:#5C6B3F;
+}
+
+/* ── SEASIDE. Blues, coral, sea green. ───────────────────────────────────── */
+[data-skin="seaside"]{
+  --paper:#F1F7F8; --panel:#E1EFF1; --chrome:rgba(241,247,248,.93);
+  --ink:#0F2429; --ink-dim:#4A666D; --line:#C7DDE1;
+  /* Coral, deepened. The brighter seaside coral measured 4.59:1 on the scene
+     chips, which passes on paper and is too thin for 11px letter-spaced caps
+     read at arm's length. Still coral, still the seaside. */
+  --accent:#9A4630; --accent-hover:#7C3323; --accent-ink:#FFF6F3;
+  --moss:#2F6B62;
+}
+
+/* ── SNOWLINE. Mountaintop whites, pine, cold light. ─────────────────────── */
+[data-skin="snowline"]{
+  --paper:#F6F8FA; --panel:#EAEEF3; --chrome:rgba(246,248,250,.93);
+  --ink:#171A1F; --ink-dim:#555C67; --line:#D8DEE7;
+  --accent:#3A6355; --accent-hover:#274740; --accent-ink:#F4F9F7;
+  --moss:#3A6355;
+}
+
+/* ── FIRESIDE. The dark one. Embers, char, brass. ────────────────────────── */
+[data-skin="fireside"]{
+  --paper:#171310; --panel:#221C17; --chrome:rgba(23,19,16,.93);
+  --ink:#F4ECE0; --ink-dim:#AC9D8B; --line:#382E24;
+  --accent:#E08A4E; --accent-hover:#EFA871; --accent-ink:#1A1410;
+  --moss:#8FA86A;
+
+  --happy:#8FBF74; --sad:#7FA8CE; --fear:#B2A2D4;
+  --disgust:#BDB05E; --anger:#E08A70; --surprise:#E0BE55; --curious:#E0A458;
+}
+
+/* ── shared primitives ───────────────────────────────────────────────────── */
+*{ box-sizing:border-box; }
+html,body{ margin:0; padding:0; }
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:Georgia,'Iowan Old Style','Palatino Linotype',serif;
+  line-height:1.6; font-size:17px;   /* a notch large: read at arm's length */
+}
+
+.btn{
+  font-family:var(--mono); font-size:11.5px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--ink-dim); background:var(--chrome); border:1px solid var(--line);
+  border-radius:3px; padding:.6rem .85rem; cursor:pointer;
+}
+.btn:hover{ color:var(--accent); border-color:var(--accent); }
+.btn.wide{ flex:1; }
+.btn.go{ color:var(--accent-ink); background:var(--accent); border-color:var(--accent); }
+.btn.go:hover{ background:var(--accent-hover); border-color:var(--accent-hover); color:var(--accent-ink); }
+
+.mark{ font-family:Georgia,serif; font-size:1rem; letter-spacing:.15em; text-transform:uppercase; }
+.mark b{ font-weight:400; color:var(--accent); }
+
+.sec-head{
+  font-family:var(--mono); font-size:11px; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--accent);
+  border-bottom:1px solid var(--line); padding-bottom:.5rem; margin-bottom:1.3rem;
+}
+
+/* ── the skin picker ─────────────────────────────────────────────────────────
+   Built by gcMountSkinPicker() in gc-skin.js. The host needs position:relative
+   and to contain the button; everything else is here. */
+.picker{ position:relative; }
+.skins{
+  position:absolute; top:calc(100% + 6px); right:0; z-index:40;
+  background:var(--chrome); border:1px solid var(--line); border-radius:4px;
+  padding:.35rem; min-width:215px; display:none;
+  box-shadow:0 10px 30px rgba(0,0,0,.18);
+}
+.skins.open{ display:block; }
+.skin-opt{
+  display:flex; align-items:center; gap:.55rem; width:100%;
+  background:transparent; border:1px solid transparent; border-radius:3px;
+  padding:.45rem .5rem; cursor:pointer; text-align:left;
+  font-family:var(--mono); font-size:11px; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--ink-dim);
+}
+.skin-opt:hover{ color:var(--ink); border-color:var(--line); }
+.skin-opt.on{ color:var(--accent); border-color:var(--accent); }
+.swatch{ display:flex; gap:3px; flex:none; }
+.swatch i{ width:11px; height:11px; border-radius:2px; display:block;
+  border:1px solid rgba(128,128,128,.35); }

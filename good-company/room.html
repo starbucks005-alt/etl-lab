@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Good Company</title>
+
+<!-- Who is in the room, then the skin they bring, then the paint. Both before
+     the stylesheet so nobody eats a flash of the wrong room. GC_SKIN resolves
+     an explicit choice first, then the friend's own room, then the system
+     preference. That chain is what replaced the light/dark toggle: nobody has
+     to know the words "light" and "dark" to get the brightness they wanted. -->
+<script src="gc-friend.js"></script>
+<script src="gc-skin.js"></script>
+<link rel="stylesheet" href="gc-skin.css">
+
+<style>
+/* ═══════════════════════════════════════════════════════════════════════════
+   LAYOUT IS M.E.'s, SKIN SYSTEM IS FOUNDER STUDIO's.
+
+   Layout: two columns on a laptop, one on a phone. The video sizes the left
+   column and everything in it inherits that width. The conversation takes the
+   rest. Those are M.E.'s hard-won shapes, inherited rather than re-derived.
+
+   Skins: gc-skin.css and gc-skin.js, shared with every other page. Adding one
+   is a block there plus an entry in GC_SKINS. Nothing changes here.
+
+   THE RULE FOUNDER STUDIO WROTE IN ITS OWN MARGIN, applied to what matters
+   here: a skin dresses the ROOM. It never touches the friend and it never
+   touches whether the conversation can be read.
+     * The video is never tinted, filtered, overlaid or bordered by a skin.
+       Nothing goes on top of that face.
+     * Chat text keeps its contrast floor in every skin. These readers are
+       mostly older, and a pretty palette that costs legibility is not pretty.
+   Both are enforced by the variables the protected rules are allowed to use,
+   not by remembering.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Palette, base body and shared primitives now live in gc-skin.css, linked
+   above. Only the room's own layout is below. */
+
+/* html and body need a height here that gc-skin.css does not set, because
+   this page is a full-viewport room rather than a scrolling document. */
+html,body{ height:100%; }
+/* ── the room ────────────────────────────────────────────────────────────── */
+.room{ height:100vh; display:grid; grid-template-columns:auto 1fr; grid-template-rows:1fr; }
+.stage{ display:flex; flex-direction:column; width:min(58vw, calc(52vh * 16 / 9)); min-width:0; }
+
+.topline{ display:flex; align-items:center; gap:.8rem; padding:.5rem .6rem; }
+.brandbar{ display:flex; justify-content:center; padding:.4rem .2rem; }
+.gcmark{
+  width:52px; height:52px; flex:none; border-radius:50%;
+  border:1px solid var(--line); display:grid; place-content:center;
+  font-family:Georgia,serif; font-size:15px; letter-spacing:.06em; color:var(--accent);
+}
+.gauge-wrap{ flex:1; min-width:0; }
+
+/* ── the feeling scale ───────────────────────────────────────────────────── */
+.gauge-title{ font-family:var(--mono); font-size:12px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--accent); margin-bottom:.45rem; }
+.gauge-head{ display:flex; align-items:center; gap:.5rem; }
+.gauge-emoji{ font-size:19px; }
+.gauge-label{ font-family:var(--mono); font-size:12px; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--accent); }
+.gauge-sub{ font-size:12px; color:var(--ink-dim); margin:.2rem 0 .5rem; }
+.gauge-row{ display:flex; align-items:center; gap:.6rem; margin-bottom:3px; }
+.gauge-row-label{ font-family:var(--mono); font-size:10.5px; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--ink-dim); width:66px; flex:none; }
+.gauge-bar-track{ flex:1; height:4px; background:var(--line); border-radius:2px; overflow:hidden; }
+.gauge-bar-fill{ height:100%; border-radius:2px; transition:width .5s ease; }
+.f-happy{background:var(--happy);} .f-sad{background:var(--sad);} .f-fear{background:var(--fear);}
+.f-disgust{background:var(--disgust);} .f-anger{background:var(--anger);}
+.f-surprise{background:var(--surprise);} .f-curious{background:var(--curious);}
+
+/* ── the face ────────────────────────────────────────────────────────────────
+   PROTECTED. No skin variable appears in this block and none may be added.
+   No tint, no filter, no overlay, no border, no radius.
+
+   And no image, ever: no poster attribute, no still underneath, no CSS
+   background standing in while it loads. A fallback image under a video loads
+   first, the swap reads as a jump, and the video gets blamed for a bug the
+   image caused. If a clip is missing the box names the file and stays black. */
+.portrait{ position:relative; background:#000; width:100%; aspect-ratio:16/9; overflow:hidden; }
+.portrait video{ display:block; width:100%; height:100%; object-fit:cover; }
+.portrait .missing{
+  position:absolute; inset:0; display:grid; place-content:center; text-align:center;
+  padding:1rem; font-family:var(--mono); font-size:11px; letter-spacing:.12em;
+  text-transform:uppercase; color:#9A8A78;
+}
+
+/* ── scenes ──────────────────────────────────────────────────────────────── */
+.scene-bar{ display:flex; flex-wrap:wrap; gap:.4rem; padding:.55rem .6rem .7rem; }
+.scene-chip{
+  font-family:var(--mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--ink-dim); background:transparent; border:1px solid var(--line);
+  border-radius:3px; padding:.32rem .6rem; cursor:pointer;
+}
+.scene-chip:hover{ color:var(--accent); border-color:var(--accent); }
+.scene-chip.on{ color:var(--accent); border-color:var(--accent); }
+
+/* ── the conversation ────────────────────────────────────────────────────── */
+.side{
+  min-height:0; overflow-y:auto; display:flex; flex-direction:column;
+  border-left:1px solid var(--line);
+  scrollbar-width:none; -ms-overflow-style:none;
+}
+.side::-webkit-scrollbar{ width:0; height:0; }
+
+/* THE CHROME FLOATS OVER THIS COLUMN, so the conversation has to start below
+   it or the first thing the friend ever says sits underneath three buttons.
+   Caught by testing whether the chrome's box intersects any message, not by
+   looking: at 1440 it was covering Arch's opening line.
+
+   --chrome-h is MEASURED at runtime, never a number typed here. The buttons
+   carry labels that change length ("Fullscreen" becomes "Exit fullscreen") and
+   the row wraps on narrow windows, so any constant I wrote would be wrong the
+   first time a label changed. Same lesson M.E. learned when three hand-computed
+   right offsets started landing on top of each other. */
+.log{
+  flex:1; min-height:0;
+  padding:calc(var(--chrome-h, 51px) + 1.4rem) 1rem .5rem;
+}
+/* PROTECTED. Chat text is --ink on --panel in every skin, and that pair is
+   contrast-checked per skin rather than eyeballed. No skin may give this rule
+   a softer color: a dimmed message is where a palette starts costing reading. */
+.msg{ border:1px solid var(--line); background:var(--panel); color:var(--ink);
+  padding:.55rem .8rem .7rem; margin-bottom:.55rem; max-width:52ch; }
+.msg .who{ display:block; font-family:var(--mono); font-size:10px; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--ink-dim); margin-bottom:.15rem; }
+.msg.mine{ margin-left:auto; border-color:var(--accent); }
+
+.row{ display:flex; gap:.45rem; padding:.5rem 1rem; align-items:center; }
+.row.tight{ padding-top:0; }
+.btn{
+  font-family:var(--mono); font-size:11.5px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--ink-dim); background:transparent; border:1px solid var(--line);
+  border-radius:3px; padding:.55rem .8rem; cursor:pointer;
+}
+.btn:hover{ color:var(--accent); border-color:var(--accent); }
+.btn.wide{ flex:1; }
+.btn.go{ color:var(--accent-ink); background:var(--accent); border-color:var(--accent); }
+.btn.go:hover{ background:var(--accent-hover); border-color:var(--accent-hover); color:var(--accent-ink); }
+#say{
+  flex:1; min-width:0; font:inherit; font-size:16px;
+  color:var(--ink); background:var(--paper);
+  border:1px solid var(--line); border-radius:3px; padding:.6rem .7rem;
+}
+#say:focus{ outline:none; border-color:var(--accent); }
+.hint{ padding:0 1rem .7rem; font-size:12px; color:var(--ink-dim); }
+
+/* ── chrome ──────────────────────────────────────────────────────────────── */
+.chrome{ position:fixed; top:16px; right:16px; z-index:20;
+  display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+.chrome .btn{ background:var(--chrome); }
+
+/* ── phone ───────────────────────────────────────────────────────────────────
+   HAS TO SIT LAST. On M.E. this block lived earlier in the file, tied on
+   specificity, lost on source order, and left the phone broken while the media
+   query matched perfectly. */
+@media (max-width:820px){
+  .room{ grid-template-columns:1fr; grid-template-rows:auto auto; height:100vh; overflow-y:auto;
+         -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+  .room::-webkit-scrollbar{ width:0; }
+  .stage{ width:100%; }
+  .side{ overflow:visible; min-height:auto; border-left:none; border-top:1px solid var(--line); }
+  /* Chrome moves to the bottom on a phone, so the clearance moves with it. */
+  .log{ padding-top:1rem; }
+  .side{ padding-bottom:calc(var(--chrome-h, 51px) + 1.4rem); }
+  .chrome{ top:auto; bottom:12px; right:12px; }
+  .skins{ top:auto; bottom:calc(100% + 6px); }
+}
+</style>
+</head>
+
+<body>
+
+<div class="chrome">
+  <div class="picker" id="picker">
+    <button class="btn" id="skinBtn" type="button">&#9752; Room</button>
+  </div>
+  <button class="btn" id="fsBtn" type="button">&#9974; Fullscreen</button>
+  <button class="btn" id="closeBtn" type="button">&times; Close</button>
+</div>
+
+<div class="room">
+
+  <div class="stage">
+    <div class="topline">
+      <div class="brandbar"><div class="gcmark">GC</div></div>
+
+      <div class="gauge-wrap">
+        <!-- NAMED, NEVER PRONOUNED. The friend is whoever the user built, so
+             the title is written from their name at runtime. -->
+        <div class="gauge-title" id="gaugeTitle">How they are feeling right now</div>
+        <div class="gauge-head">
+          <div class="gauge-emoji" id="gaugeEmoji">&#128522;</div>
+          <div class="gauge-label" id="gaugeLabel">&nbsp;</div>
+        </div>
+        <div class="gauge-sub">Shifts with what you say, and with the time of day</div>
+
+        <div class="gauge-row"><div class="gauge-row-label">Happy</div><div class="gauge-bar-track"><div class="gauge-bar-fill f-happy" style="width:62%"></div></div></div>
+        <div class="gauge-row"><div class="gauge-row-label">Sad</div><div class="gauge-bar-track"><div class="gauge-bar-fill f-sad" style="width:14%"></div></div></div>
+        <div class="gauge-row"><div class="gauge-row-label">Fear</div><div class="gauge-bar-track"><div class="gauge-bar-fill f-fear" style="width:8%"></div></div></div>
+        <div class="gauge-row"><div class="gauge-row-label">Disgust</div><div class="gauge-bar-track"><div class="gauge-bar-fill f-disgust" style="width:5%"></div></div></div>
+        <div class="gauge-row"><div class="gauge-row-label">Anger</div><div class="gauge-bar-track"><div class="gauge-bar-fill f-anger" style="width:6%"></div></div></div>
+        <div class="gauge-row"><div class="gauge-row-label">Surprise</div><div class="gauge-bar-track"><div class="gauge-bar-fill f-surprise" style="width:22%"></div></div></div>
+        <div class="gauge-row"><div class="gauge-row-label">Curious</div><div class="gauge-bar-track"><div class="gauge-bar-fill f-curious" style="width:58%"></div></div></div>
+      </div>
+    </div>
+
+    <div class="portrait" id="portrait">
+      <video id="loop" muted loop playsinline autoplay preload="auto"></video>
+    </div>
+
+    <div class="scene-bar" id="sceneBar"></div>
+  </div>
+
+  <div class="side">
+    <div class="log" id="log"></div>
+
+    <div class="row">
+      <button class="btn" id="micBtn" title="Speak instead of typing">&#127908;</button>
+      <input type="text" id="say" placeholder="Say whatever's on your mind&hellip;" autocomplete="off">
+      <button class="btn go" id="sendBtn">Send</button>
+    </div>
+
+    <div class="row tight"><button class="btn wide" id="replyBtn">&#127911; Reply as: Text</button></div>
+    <div class="row tight"><button class="btn wide" id="earBtn">&#128066; Listen for my name: off</button></div>
+    <div class="hint" id="earHint"></div>
+
+    <div class="row tight"><button class="btn wide" id="bringBtn">&#128100; Bring someone with you</button></div>
+    <div class="row tight"><button class="btn wide" id="albumBtn">&#128247; Photos</button></div>
+    <div class="row tight"><button class="btn wide" id="memBtn">&#128206; Add a memory</button></div>
+    <div style="height:.8rem"></div>
+  </div>
+
+</div>
+
+<script>
+/* ── the friend ────────────────────────────────────────────────────────────
+   Arch and the loader now live in gc-friend.js, shared with album.html, so his
+   canon exists in exactly one file. GC_FRIEND is the friend you built if there
+   is one, the house demo otherwise. */
+var FRIEND = GC_FRIEND;
+/* Skins: resolution and the picker both live in gc-skin.js, shared with every
+   other page, so these four surfaces cannot drift apart. */
+gcMountSkinPicker(document.getElementById("picker"), document.getElementById("skinBtn"));
+
+/* Publishes the chrome's real height so the conversation can clear it. Re-run
+   on resize and whenever a label changes, because both change the box. */
+function fitChrome() {
+  var c = document.querySelector('.chrome');
+  document.documentElement.style.setProperty('--chrome-h', c.offsetHeight + 'px');
+}
+window.addEventListener('resize', fitChrome);
+fitChrome();
+
+/* ── fullscreen ──────────────────────────────────────────────────────────── */
+$('fsBtn').addEventListener('click', function () {
+  if (document.fullscreenElement) document.exitFullscreen();
+  else document.documentElement.requestFullscreen().catch(function () {});
+});
+document.addEventListener('fullscreenchange', function () {
+  $('fsBtn').innerHTML = document.fullscreenElement ? '&#9974; Exit fullscreen' : '&#9974; Fullscreen';
+  fitChrome();   // the label just changed length, so the row may have rewrapped
+});
+
+/* ── scenes ──────────────────────────────────────────────────────────────────
+   A MISSING CLIP SAYS WHICH CLIP IS MISSING. No poster, no still, no stand-in.
+   A placeholder that looks deliberate is how a broken asset reaches production. */
+var bar = $('sceneBar'), video = $('loop'), portrait = $('portrait'), current = null;
+
+/* Is there a generation API behind this page? False on the deployed campus
+   copy, true when running against the local server with a key. Asked once,
+   and any failure at all means no. */
+var CAN_GENERATE = false;
+fetch('/api/status', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })
+  .then(function (r) { return r.ok ? r.json() : null; })
+  .then(function (j) {
+    CAN_GENERATE = !!(j && j.configured);
+    if (CAN_GENERATE && current) { var m = portrait.querySelector('.missing'); if (m) showMissing(current.src); }
+  })
+  .catch(function () { CAN_GENERATE = false; });
+
+function showMissing(src) {
+  var old = portrait.querySelector('.missing');
+  if (old) old.remove();
+  var n = document.createElement('div');
+  n.className = 'missing';
+
+  var line = document.createElement('div');
+  line.textContent = 'missing: ' + src;
+  n.appendChild(line);
+
+  /* MAKE IT, FROM HERE, BUT ONLY WHERE THERE IS SOMETHING TO MAKE IT WITH.
+     The generation API is a local Node server; the deployed campus copy has no
+     /api at all. So the button appears only once CAN_GENERATE has come back
+     true. A dead button on a live page is worse than no button, and this is
+     the same file in both places rather than two that drift.
+
+     Every press spends real money, so the server holds the ceilings and
+     nothing here retries on its own. A retry loop on a per-second bill is how
+     a bounded feature becomes an overnight one. */
+  if (CAN_GENERATE) {
+    var make = document.createElement('button');
+    make.className = 'btn';
+    make.style.marginTop = '.9rem';
+    make.textContent = 'Make this scene';
+    make.addEventListener('click', function () { makeScene(current, make, line); });
+    n.appendChild(make);
+  }
+
+  portrait.appendChild(n);
+  console.warn('[good-company] scene clip not found: ' + src);
+}
+
+/* Start, then poll. Veo takes minutes and a serverless function has ten
+   seconds, so the browser waits rather than the server. */
+function makeScene(scene, btn, line) {
+  if (!scene) return;
+  btn.disabled = true;
+  btn.textContent = 'Starting';
+
+  var name = scene.src.replace(/^video\//, '').replace(/\.mp4$/, '');
+  var where = (FRIEND.name + ' at ' + scene.label.toLowerCase() +
+               (FRIEND.been ? '. ' + FRIEND.been : ''));
+
+  fetch('/api/scene/start', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ source: FRIEND.portrait, description: where })
+  }).then(function (r) { return r.json(); }).then(function (j) {
+    if (!j.ok) { fail(j); return; }
+    line.textContent = 'making it, this takes a few minutes';
+    poll(j.operation, 0);
+  }).catch(fail);
+
+  function poll(op, n) {
+    btn.textContent = 'Working (' + (n * 15) + 's)';
+    fetch('/api/scene/poll', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ operation: op, name: name })
+    }).then(function (r) { return r.json(); }).then(function (j) {
+      if (!j.ok) { fail(j); return; }
+      if (!j.done) {
+        if (n > 40) { fail({ error: 'gave up waiting' }); return; }  // ~10 min, then stop
+        setTimeout(function () { poll(op, n + 1); }, 15000);
+        return;
+      }
+      play(scene);          // the file is now exactly where the room looks for it
+    }).catch(fail);
+  }
+
+  function fail(j) {
+    btn.disabled = false;
+    btn.textContent = 'Try again';
+    line.textContent = 'could not make it: ' + (j && (j.error || j.message) || 'unknown');
+    console.warn('[good-company] scene generation failed', j);
+  }
+}
+
+function play(scene) {
+  current = scene;
+  var old = portrait.querySelector('.missing');
+  if (old) old.remove();
+  video.src = scene.src;
+  video.play().catch(function () {});
+  Array.prototype.forEach.call(bar.children, function (chip) {
+    chip.classList.toggle('on', chip.dataset.key === scene.key);
+  });
+}
+video.addEventListener('error', function () { if (current) showMissing(current.src); });
+
+FRIEND.scenes.forEach(function (scene, i) {
+  var chip = document.createElement('button');
+  chip.className = 'scene-chip' + (i === 0 ? ' on' : '');
+  chip.dataset.key = scene.key;
+  chip.textContent = scene.label;
+  chip.addEventListener('click', function () { play(scene); });
+  bar.appendChild(chip);
+});
+if (FRIEND.scenes.length) play(FRIEND.scenes[0]);
+
+/* ── conversation ────────────────────────────────────────────────────────────
+   SHELL ONLY. Nothing here talks to a model. Your line goes in the log so the
+   layout can be judged with real content in it, and the reply says plainly
+   that the backend is not wired rather than faking one. */
+function post(who, text, mine) {
+  var d = document.createElement('div');
+  d.className = 'msg' + (mine ? ' mine' : '');
+  var w = document.createElement('span');
+  w.className = 'who'; w.textContent = who;
+  d.appendChild(w); d.appendChild(document.createTextNode(text));
+  $('log').appendChild(d);
+  $('log').scrollTop = $('log').scrollHeight;
+}
+
+/* His own line if he has one, a neutral one if the user built somebody who
+   does not. Never a line written for a different person. */
+post(FRIEND.name, FRIEND.hello || 'You came. Sit down, I want to hear about your day.');
+
+function send() {
+  var v = $('say').value.trim();
+  if (!v) return;
+  post('You', v, true);
+  $('say').value = '';
+  post('Not wired yet', 'This is the layout shell. The reply comes from the chat function once it exists.');
+}
+$('sendBtn').addEventListener('click', send);
+$('say').addEventListener('keydown', function (e) { if (e.key === 'Enter') send(); });
+
+$('albumBtn').addEventListener('click', function () { location.href = 'album.html'; });
+
+var asAudio = false;
+$('replyBtn').addEventListener('click', function () {
+  asAudio = !asAudio;
+  this.innerHTML = asAudio ? '&#127911; Reply as: Audio' : '&#127911; Reply as: Text';
+});
+var ear = false;
+$('earBtn').addEventListener('click', function () {
+  ear = !ear;
+  this.innerHTML = '&#128066; Listen for my name: ' + (ear ? 'on' : 'off');
+});
+</script>
+
+</body>
+</html>

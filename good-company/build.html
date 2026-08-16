@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Good Company</title>
+
+<!-- The friend resolves the opening skin, then the shared palette paints. -->
+<script src="gc-friend.js"></script>
+<script src="gc-skin.js"></script>
+<link rel="stylesheet" href="gc-skin.css">
+
+<style>
+/* Palette, base body and shared primitives are in gc-skin.css. Only this
+   page's own layout is below. */
+.wrap{ padding-inline:clamp(.9rem,2.2vw,1.75rem); max-width:840px; margin:0 auto; }
+
+header{ display:flex; align-items:center; justify-content:space-between;
+  gap:1rem; padding:1.1rem clamp(.9rem,2.2vw,1.75rem); }
+h1{ font-family:Georgia,serif; font-weight:400; letter-spacing:-.012em; line-height:1.12;
+  font-size:clamp(2rem,5vw,3.1rem); margin:.4rem 0 .5rem; }
+.lede{ color:var(--ink-dim); max-width:52ch; margin:0 0 .5rem; }
+.mins{ font-family:var(--mono); font-size:11px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--accent); }
+
+/* ── the pitch, said at build time ───────────────────────────────────────────
+   THE BOUNDARY IS CARRIED BY THE WORD "FRIEND", NOT BY A DISCLAIMER. An
+   earlier draft here listed what this is not (not partners, not dates) and it
+   read like a warning label on the one screen where somebody is doing
+   something hopeful. Say what a friend IS, warmly and specifically, and there
+   is nothing left to wonder about. The flat factual line lives in the footer,
+   which is the right altitude for it. */
+.pitch{
+  border:1px solid var(--line); border-left:3px solid var(--accent);
+  background:var(--panel); padding:.85rem 1rem; margin:1.5rem 0 0; max-width:60ch;
+}
+.pitch b{ font-weight:400; color:var(--accent); }
+
+section{ margin-top:2.6rem; }
+
+.q{ margin-bottom:1.4rem; }
+label.q-label{ display:block; margin-bottom:.4rem; }
+.q-note{ font-size:13.5px; color:var(--ink-dim); margin:-.2rem 0 .45rem; }
+
+input[type=text], textarea{
+  width:100%; font:inherit; font-size:16.5px; color:var(--ink);
+  background:var(--panel); border:1px solid var(--line); border-radius:3px;
+  padding:.65rem .75rem;
+}
+textarea{ min-height:5.2rem; resize:vertical; line-height:1.5; }
+input[type=text]:focus, textarea:focus{ outline:none; border-color:var(--accent); }
+
+.with-btn{ display:flex; gap:.45rem; }
+.with-btn input{ flex:1; min-width:0; }
+
+.chips{ display:flex; flex-wrap:wrap; gap:.4rem; }
+.chip{
+  font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--ink-dim); background:transparent; border:1px solid var(--line);
+  border-radius:3px; padding:.45rem .7rem; cursor:pointer;
+}
+.chip:hover{ color:var(--accent); border-color:var(--accent); }
+.chip.on{ color:var(--accent); border-color:var(--accent); }
+
+/* Buttons come from gc-skin.css. Only the one override this page needs: the
+   commit button at the end of a two-minute form should be bigger than a chrome
+   button. */
+.btn.go{ font-size:13px; padding:.9rem 1.6rem; }
+
+.end{ margin:2.8rem 0 1rem; padding-top:1.8rem; border-top:1px solid var(--line); }
+.end p{ color:var(--ink-dim); max-width:54ch; margin:.7rem 0 1.3rem; }
+
+/* ── the faces step ──────────────────────────────────────────────────────── */
+.faces{ display:none; margin-top:1.6rem; }
+.faces.on{ display:block; }
+.face-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:.7rem; margin:1.1rem 0; }
+@media (max-width:700px){ .face-grid{ grid-template-columns:repeat(2,1fr); } }
+.face{
+  aspect-ratio:4/5; background:var(--panel); border:1px solid var(--line); border-radius:4px;
+  display:grid; place-content:center; text-align:center; padding:.8rem;
+  font-family:var(--mono); font-size:10px; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--ink-dim);
+}
+.summary{
+  border:1px solid var(--line); background:var(--panel); border-radius:4px;
+  padding:1rem 1.1rem; margin-top:1.2rem;
+}
+.summary h3{ font-family:var(--mono); font-size:11px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--accent); font-weight:400; margin:0 0 .7rem; }
+.summary dl{ margin:0; display:grid; grid-template-columns:auto 1fr; gap:.35rem .9rem; }
+.summary dt{ font-family:var(--mono); font-size:10.5px; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--ink-dim); }
+.summary dd{ margin:0; }
+footer{ padding:2rem 0 3rem; color:var(--ink-dim); font-size:.9rem; }
+</style>
+</head>
+
+<body>
+
+<header>
+  <span class="mark">Good <b>Company</b></span>
+  <span class="picker" id="picker"><span class="picker" id="picker"><button class="btn" id="skinBtn" type="button">&#9752; Room</button></span></span>
+</header>
+
+<main class="wrap">
+
+  <p class="mins">About two minutes</p>
+  <h1>Who would you like to meet?</h1>
+  <p class="lede">Answer what you feel like answering. Anything you skip, they will fill in themselves, and you can change any of it later.</p>
+
+  <div class="pitch">
+    <b>Making friends is hard these days. So here, you make one.</b>
+    Literally. Answer a few questions and somebody turns up who remembers your
+    week, asks about the people in your life, and is glad when you walk in.
+  </div>
+
+  <!-- ── WHO THEY ARE ────────────────────────────────────────────────────── -->
+  <section>
+    <div class="sec-head">Who they are</div>
+
+    <div class="q">
+      <label class="q-label" for="fName">Their name</label>
+      <div class="with-btn">
+        <input type="text" id="fName" placeholder="Anything at all" autocomplete="off">
+        <button class="btn" type="button" id="nameBtn">Give me one</button>
+      </div>
+    </div>
+
+    <div class="q">
+      <label class="q-label">Roughly how old</label>
+      <div class="chips" id="ageChips"></div>
+    </div>
+
+    <div class="q">
+      <label class="q-label">Gender</label>
+      <div class="chips" id="genderChips"></div>
+    </div>
+
+    <div class="q">
+      <!-- FREE TEXT, NOT A DROPDOWN, ON PURPOSE. A list has to start somewhere
+           and whatever sits at the top becomes the default nobody edits. The
+           friend this product makes should not have a hometown I picked. -->
+      <label class="q-label" for="fFrom">Where they are from</label>
+      <input type="text" id="fFrom" placeholder="A town, a country, anywhere" autocomplete="off">
+    </div>
+
+    <div class="q">
+      <label class="q-label" for="fWork">What they do, or used to do</label>
+      <input type="text" id="fWork" placeholder="A job, a trade, retired from something" autocomplete="off">
+    </div>
+
+    <div class="q">
+      <label class="q-label" for="fInto">Something they are into</label>
+      <input type="text" id="fInto" placeholder="Gardening, old films, football, birds" autocomplete="off">
+    </div>
+  </section>
+
+  <!-- ── HOW THEY TALK ───────────────────────────────────────────────────── -->
+  <section>
+    <div class="sec-head">How they talk</div>
+
+    <div class="q">
+      <label class="q-label">Pick as many as fit</label>
+      <div class="chips" id="voiceChips"></div>
+    </div>
+
+    <div class="q">
+      <label class="q-label" for="fBeen">One thing they have been through</label>
+      <p class="q-note">This is the question that makes them feel like a person instead of a personality. It can be small.</p>
+      <textarea id="fBeen" placeholder="Lost someone. Raised a kid alone. Started over at fifty."></textarea>
+    </div>
+  </section>
+
+  <!-- ── ABOUT YOU ───────────────────────────────────────────────────────── -->
+  <section>
+    <div class="sec-head">About you</div>
+
+    <div class="q">
+      <label class="q-label" for="uName">What should they call you</label>
+      <input type="text" id="uName" placeholder="Any name you like" autocomplete="off">
+    </div>
+
+    <div class="q">
+      <label class="q-label">What are you after</label>
+      <div class="chips" id="wantChips"></div>
+    </div>
+
+    <div class="q">
+      <label class="q-label" for="uAbout">Anything they should know about your days</label>
+      <textarea id="uAbout" placeholder="Who is around, what the week looks like, what is hard right now"></textarea>
+    </div>
+  </section>
+
+  <div class="end">
+    <button class="btn go" id="makeBtn" type="button">Meet the faces</button>
+    <p id="endNote">Four faces, built from your answers. You pick the one that looks like them.</p>
+  </div>
+
+  <!-- ── FACES ───────────────────────────────────────────────────────────── -->
+  <div class="faces" id="faces">
+    <div class="sec-head">Their face</div>
+
+    <!-- NOT WIRED, AND SAYS SO RATHER THAN SHOWING FOUR STOCK PHOTOS. Faces are
+         generated from the answers above, which is a real cost and a real
+         backend. A convincing mock here is how a layout gets signed off on
+         behaviour that does not exist yet. -->
+    <div class="face-grid">
+      <div class="face">Face 1<br>not wired</div>
+      <div class="face">Face 2<br>not wired</div>
+      <div class="face">Face 3<br>not wired</div>
+      <div class="face">Face 4<br>not wired</div>
+    </div>
+    <p class="lede">Generation is not built yet. Everything above it is: your answers are
+      saved on this device and the room will read them.</p>
+
+    <div class="summary">
+      <h3>What you built</h3>
+      <dl id="sumList"></dl>
+    </div>
+
+    <p style="margin-top:1.2rem">
+      <button class="btn" type="button" id="roomBtn">Open the room &rarr;</button>
+      <button class="btn" type="button" id="copyBtn">Copy as JSON</button>
+    </p>
+  </div>
+
+  <footer>Good Company is a companion app. It is not a dating app, and it will not become one.</footer>
+</main>
+
+<script>
+/* ── options ─────────────────────────────────────────────────────────────────
+   ORDER IS NOT NEUTRAL. Whatever sits first reads as the default and gets
+   picked more, so these lists are deliberately not arranged to lead anywhere:
+   no "normal" option at the top of gender, no youngest-first on age. Anything
+   left blank is filled in by the friend, not by a default I chose. */
+var AGES    = ['20s','30s','40s','50s','60s','70s','80s or so','About my age'];
+var GENDERS = ['A woman','A man','Nonbinary','Let them decide'];
+var VOICES  = ['Gentle','Blunt','Funny','Quiet','Warm','Dry','Patient','Talks a lot'];
+var WANTS   = ['Someone to talk to','Someone who checks in','Someone to keep me on track',
+               'Someone to sit with','I am not sure yet'];
+
+/* A DELIBERATELY WIDE POOL. If the name button leans one way, so does every
+   friend built by somebody who taps it, and this cast is meant to look like
+   the people using it. */
+var NAMES = ['Ruth','Amara','Yusuf','Iris','Dev','Marisol','Tomas','Nadia','Frank','Mei',
+             'Odette','Samir','Greta','Kofi','Rosalind','Ivan','Priya','Hollis','Zaina',
+             'Bea','Emeka','Astrid','Rafael','June','Hana','Walter','Leila','Osman','Pearl'];
+
+var $ = function (id) { return document.getElementById(id); };
+var picked = { age:null, gender:null, voice:[], want:null };
+
+function chips(host, list, key, multi) {
+  list.forEach(function (v) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'chip'; b.textContent = v;
+    b.addEventListener('click', function () {
+      if (multi) {
+        var i = picked[key].indexOf(v);
+        if (i > -1) picked[key].splice(i, 1); else picked[key].push(v);
+        b.classList.toggle('on');
+      } else {
+        picked[key] = (picked[key] === v) ? null : v;
+        Array.prototype.forEach.call(host.children, function (c) {
+          c.classList.toggle('on', c.textContent === picked[key]);
+        });
+      }
+    });
+    host.appendChild(b);
+  });
+}
+chips($('ageChips'), AGES, 'age', false);
+chips($('genderChips'), GENDERS, 'gender', false);
+chips($('voiceChips'), VOICES, 'voice', true);
+chips($('wantChips'), WANTS, 'want', false);
+
+$('nameBtn').addEventListener('click', function () {
+  var pool = NAMES.filter(function (n) { return n !== $('fName').value.trim(); });
+  $('fName').value = pool[Math.floor(Math.random() * pool.length)];
+});
+
+/* ── skins ───────────────────────────────────────────────────────────────── */
+/* Skins: resolution and the picker both live in gc-skin.js, shared with every
+   other page, so these four surfaces cannot drift apart. */
+gcMountSkinPicker(document.getElementById("picker"), document.getElementById("skinBtn"));
+
+/* ── build ───────────────────────────────────────────────────────────────────
+   Writes the SAME SHAPE room.html reads. That is the whole point of this file
+   existing before generation does: the intake costs nothing to run, and the
+   answers are the input the face and scene calls will take later. */
+function val(id) { return $(id).value.trim(); }
+
+function assemble() {
+  return {
+    name:   val('fName') || NAMES[Math.floor(Math.random() * NAMES.length)],
+    age:    picked.age,
+    gender: picked.gender,
+    from:   val('fFrom'),
+    work:   val('fWork'),
+    into:   val('fInto'),
+    voice:  picked.voice.slice(),
+    been:   val('fBeen'),
+    user:   { call: val('uName'), want: picked.want, about: val('uAbout') },
+    /* Scenes are named now and have no clips yet. The room shows the missing
+       file rather than a stand-in, which is how we find out generation ran. */
+    scenes: [
+      { key:'kitchen', label:'Kitchen table', src:'video/kitchen.mp4' },
+      { key:'porch',   label:'Porch',        src:'video/porch.mp4' },
+      { key:'coffee',  label:'Coffee',       src:'video/coffee.mp4' },
+      { key:'game',    label:'Game night',   src:'video/game.mp4' },
+      { key:'walk',    label:'The walk',     src:'video/walk.mp4' }
+    ]
+  };
+}
+
+var friend = null;
+
+$('makeBtn').addEventListener('click', function () {
+  friend = assemble();
+  try { localStorage.setItem('gc-friend', JSON.stringify(friend)); } catch (e) {}
+
+  var dl = $('sumList'); dl.innerHTML = '';
+  [['Name', friend.name],
+   ['Age', friend.age],
+   ['Gender', friend.gender],
+   ['From', friend.from],
+   ['Does', friend.work],
+   ['Into', friend.into],
+   ['Talks', friend.voice.join(', ')],
+   ['Been through', friend.been],
+   ['Calls you', friend.user.call],
+   ['You want', friend.user.want],
+   ['Your days', friend.user.about]
+  ].forEach(function (row) {
+    if (!row[1]) return;                       // blanks stay blank, never guessed at
+    var dt = document.createElement('dt'); dt.textContent = row[0];
+    var dd = document.createElement('dd'); dd.textContent = row[1];
+    dl.appendChild(dt); dl.appendChild(dd);
+  });
+
+  $('faces').classList.add('on');
+  $('faces').scrollIntoView({ behavior:'smooth', block:'start' });
+});
+
+$('roomBtn').addEventListener('click', function () { location.href = 'room.html'; });
+
+$('copyBtn').addEventListener('click', function () {
+  var t = JSON.stringify(friend, null, 2);
+  navigator.clipboard.writeText(t).then(function () {
+    $('copyBtn').textContent = 'Copied';
+    setTimeout(function () { $('copyBtn').textContent = 'Copy as JSON'; }, 1600);
+  }).catch(function () { console.log(t); $('copyBtn').textContent = 'In the console'; });
+});
+</script>
+
+</body>
+</html>

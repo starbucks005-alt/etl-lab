@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Good Company</title>
+
+<script src="gc-friend.js"></script>
+<script src="gc-skin.js"></script>
+<link rel="stylesheet" href="gc-skin.css">
+
+<style>
+/* THE ONE PLACE STILLS ARE ALLOWED, AND WHY THAT IS NOT A CONTRADICTION.
+   The standing rule is that no image goes behind, over, or as a poster for a
+   video: a fallback still loads before the clip, the swap reads as a jump, and
+   the video gets blamed for a bug the image caused. The album is its own page
+   with no video on it. These are photographs being looked at as photographs.
+
+   Nothing here may ever be reused as a scene poster. If a future hand wants a
+   still under the loop in room.html, the answer is still no. */
+
+.wrap{ padding-inline:clamp(.9rem,2.2vw,1.75rem); max-width:1100px; margin:0 auto; }
+header{ display:flex; align-items:center; justify-content:space-between; gap:1rem;
+  padding:1.1rem clamp(.9rem,2.2vw,1.75rem); }
+header nav{ display:flex; gap:.45rem; }
+
+h1{ font-family:Georgia,serif; font-weight:400; letter-spacing:-.012em; line-height:1.12;
+  font-size:clamp(1.9rem,4.5vw,2.8rem); margin:.4rem 0 .3rem; }
+.sub{ color:var(--ink-dim); margin:0 0 2rem; max-width:54ch; }
+
+.grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(230px, 1fr));
+  gap:clamp(.8rem,1.8vw,1.3rem); padding-bottom:3rem; }
+
+figure{ margin:0; }
+.shot{
+  position:relative; width:100%; aspect-ratio:4/5; overflow:hidden;
+  background:var(--panel); border:1px solid var(--line); border-radius:4px;
+  cursor:zoom-in; display:block; padding:0;
+}
+.shot img{ width:100%; height:100%; object-fit:cover; display:block; }
+.shot:hover{ border-color:var(--accent); }
+/* A MISSING PICTURE SAYS WHICH PICTURE IS MISSING. No stand-in, no initials,
+   no grey silhouette that looks deliberate. */
+.shot .gone{
+  position:absolute; inset:0; display:grid; place-content:center; text-align:center;
+  padding:1rem; font-family:var(--mono); font-size:10px; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--accent);
+}
+figcaption{ margin-top:.5rem; font-size:15px; line-height:1.45; }
+figcaption .when{ display:block; font-family:var(--mono); font-size:10px;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--ink-dim); margin-top:.3rem; }
+
+/* ── empty ───────────────────────────────────────────────────────────────── */
+.empty{ border:1px solid var(--line); background:var(--panel); border-radius:4px;
+  padding:2rem 1.5rem; max-width:52ch; }
+.empty p{ margin:.6rem 0 0; color:var(--ink-dim); }
+
+/* ── the big view ────────────────────────────────────────────────────────── */
+.big{
+  position:fixed; inset:0; z-index:60; display:none;
+  background:rgba(0,0,0,.9); padding:clamp(1rem,4vw,3rem);
+  grid-template-rows:1fr auto; gap:1rem; cursor:zoom-out;
+}
+.big.on{ display:grid; }
+.big img{ width:100%; height:100%; object-fit:contain; min-height:0; }
+.big figcaption{ color:#EFE7DC; text-align:center; margin:0; }
+.big .when{ color:#A99A88; }
+.big-close{ position:fixed; top:16px; right:16px; z-index:61; }
+
+footer{ padding:1.5rem 0 3rem; color:var(--ink-dim); font-size:.9rem; }
+</style>
+</head>
+
+<body>
+
+<header>
+  <span class="mark">Good <b>Company</b></span>
+  <nav>
+    <span class="picker" id="picker"><span class="picker" id="picker"><button class="btn" id="skinBtn" type="button">&#9752; Room</button></span></span>
+    <button class="btn" id="backBtn" type="button">&larr; Back to the room</button>
+  </nav>
+</header>
+
+<main class="wrap">
+  <h1 id="title">Photos</h1>
+  <p class="sub" id="sub"></p>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="empty" id="empty" style="display:none">
+    <strong id="emptyHead">No pictures yet.</strong>
+    <p>This fills up as you go. Every picture made of them lands here, and
+       stays.</p>
+  </div>
+
+  <footer>Good Company is a companion app. It is not a dating app, and it will not become one.</footer>
+</main>
+
+<div class="big" id="big" role="dialog" aria-modal="true" aria-label="Photo">
+  <img id="bigImg" alt="">
+  <figcaption><span id="bigCap"></span><span class="when" id="bigWhen"></span></figcaption>
+</div>
+<button class="btn big-close" id="bigClose" type="button" style="display:none">&times; Close</button>
+
+<script>
+var $ = function (id) { return document.getElementById(id); };
+var F = GC_FRIEND;
+var shots = Array.isArray(F.album) ? F.album : [];
+
+$('title').textContent = shots.length ? 'Photos of ' + F.name : 'Photos';
+$('sub').textContent = shots.length
+  ? 'Every picture there is of ' + F.name + ', newest first.'
+  : '';
+$('emptyHead').textContent = 'No pictures of ' + F.name + ' yet.';
+
+if (!shots.length) { $('empty').style.display = 'block'; }
+
+shots.forEach(function (shot, i) {
+  var fig = document.createElement('figure');
+
+  var btn = document.createElement('button');
+  btn.type = 'button'; btn.className = 'shot';
+
+  var img = document.createElement('img');
+  img.alt = shot.caption || (F.name + ', photo ' + (i + 1));
+  img.src = shot.src;
+  img.addEventListener('error', function () {
+    var g = document.createElement('div');
+    g.className = 'gone'; g.textContent = 'missing: ' + shot.src;
+    btn.appendChild(g);
+    img.style.display = 'none';
+    console.warn('[good-company] photo not found: ' + shot.src);
+  });
+  btn.appendChild(img);
+
+  var cap = document.createElement('figcaption');
+  cap.appendChild(document.createTextNode(shot.caption || ''));
+  if (shot.on) {
+    var w = document.createElement('span');
+    w.className = 'when'; w.textContent = shot.on;
+    cap.appendChild(w);
+  }
+
+  btn.addEventListener('click', function () { open(shot); });
+  fig.appendChild(btn); fig.appendChild(cap);
+  $('grid').appendChild(fig);
+});
+
+/* ── the big view ────────────────────────────────────────────────────────── */
+function open(shot) {
+  $('bigImg').src = shot.src;
+  $('bigImg').alt = shot.caption || '';
+  $('bigCap').textContent = shot.caption || '';
+  $('bigWhen').textContent = shot.on || '';
+  $('big').classList.add('on');
+  $('bigClose').style.display = 'block';
+}
+function shut() {
+  $('big').classList.remove('on');
+  $('bigClose').style.display = 'none';
+  $('bigImg').removeAttribute('src');
+}
+$('big').addEventListener('click', shut);
+$('bigClose').addEventListener('click', shut);
+document.addEventListener('keydown', function (e) { if (e.key === 'Escape') shut(); });
+
+/* ── chrome ──────────────────────────────────────────────────────────────── */
+$('backBtn').addEventListener('click', function () { location.href = 'room.html'; });
+/* Skins: resolution and the picker both live in gc-skin.js, shared with every
+   other page, so these four surfaces cannot drift apart. */
+gcMountSkinPicker(document.getElementById("picker"), document.getElementById("skinBtn"));
+</script>
+
+</body>
+</html>
