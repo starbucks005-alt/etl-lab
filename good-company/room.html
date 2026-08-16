@@ -49,11 +49,11 @@ html,body{ height:100%; }
 
 .topline{ display:flex; align-items:center; gap:.8rem; padding:.5rem .6rem; }
 .brandbar{ display:flex; justify-content:center; padding:.4rem .2rem; }
-.gcmark{
-  width:52px; height:52px; flex:none; border-radius:50%;
-  border:1px solid var(--line); display:grid; place-content:center;
-  font-family:Georgia,serif; font-size:15px; letter-spacing:.06em; color:var(--accent);
-}
+/* The real mark replaces the GC placeholder circle. Sized by height because a
+   wordmark is wide: a 52px round slot was shaped for two letters and would
+   crush it. The ink swap by skin is in gc-skin.css and applies here too. */
+.brandbar .mark{ flex:none; }
+.brandbar .logo{ height:30px; width:auto; display:block; }
 .gauge-wrap{ flex:1; min-width:0; }
 
 /* ── the feeling scale ───────────────────────────────────────────────────── */
@@ -239,7 +239,12 @@ html,body{ height:100%; }
 
   <div class="stage">
     <div class="topline">
-      <div class="brandbar"><div class="gcmark">GC</div></div>
+      <div class="brandbar">
+        <a class="mark" href="index.html" title="Good Company">
+          <img class="logo logo-dark-ink"  src="brand/logo-dark-ink.png"  alt="Good Company" width="560" height="244">
+          <img class="logo logo-light-ink" src="brand/logo-light-ink.png" alt="Good Company" width="560" height="260">
+        </a>
+      </div>
 
       <div class="gauge-wrap">
         <!-- NAMED, NEVER PRONOUNED. The friend is whoever the user built, so
@@ -288,6 +293,7 @@ html,body{ height:100%; }
       <div class="row">
         <button class="btn" id="micBtn" title="Speak instead of typing">&#127908;</button>
         <input type="text" id="say" placeholder="Say whatever's on your mind&hellip;" autocomplete="off">
+        <button class="btn" id="stopBtn" type="button" style="display:none" title="Stop him talking">&#9209;</button>
         <button class="btn go" id="sendBtn">Send</button>
       </div>
 
@@ -584,7 +590,7 @@ function ask(payload) {
     /* A NULL REPLY IS A REAL ANSWER, not a failure. Nothing is rendered: no
        bubble, no apology, no dots. If silence cannot be produced the room
        always feels like a demo. */
-    if (j && j.reply) post(FRIEND.name, j.reply);
+    if (j && j.reply) { post(FRIEND.name, j.reply); speak(j.reply); }
     else if (j && j.error) post("Not wired yet", "The chat function said: " + j.error);
     if (j && j.mood) $("gaugeLabel").textContent = j.mood;
     if (j && j.feelings) setFeelings(j.feelings);
@@ -628,6 +634,7 @@ setInterval(function () {
 
 /* Anything said by anybody resets the whole ladder. */
 $("say").addEventListener("input", function () { lastSpoke = Date.now(); idleStep = 0; });
+$("stopBtn").addEventListener("click", hush);
 $('sendBtn').addEventListener('click', send);
 $('say').addEventListener('keydown', function (e) { if (e.key === 'Enter') send(); });
 
@@ -651,18 +658,132 @@ $('bringBtn').addEventListener('click', function () {
 $('memBtn').addEventListener('click', function () {
   notYet('Add a memory', 'It needs somewhere to keep what you tell them between visits.');
 });
+/* ── SPEAKING INSTEAD OF TYPING ──────────────────────────────────────────────
+   The browser's own speech recognition. No API, no key, no per-minute cost,
+   which matters for a product whose audience will use it a lot.
+
+   IT STAYS ON. Press once and it keeps listening: you pause, it sends what you
+   said, and it carries on. Press again to stop. Somebody with arthritis or a
+   tremor should not have to hold a button down, and somebody mid-thought
+   should not lose the end of a sentence to a timer.
+
+   Chrome does this by sending audio to Google, which is exactly what the hint
+   under the wake word already says: audio leaves the browser only while it is
+   on. Off by default, and visibly on when it is on. */
+var Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
+var rec = null, listening = false;
+
+function micLabel() {
+  $('micBtn').innerHTML = listening ? '&#128308;' : '&#127908;';
+  $('micBtn').title = listening
+    ? 'Listening. Pause and it sends. Press to stop.'
+    : 'Speak instead of typing. It stays on: pause and it sends, then keeps listening.';
+}
+
+function startListening() {
+  if (!Rec) {
+    notYet('Speaking instead of typing',
+      'This browser will not do speech recognition. Chrome and Edge will.');
+    return;
+  }
+  rec = new Rec();
+  rec.continuous = true;
+  rec.interimResults = true;
+  rec.lang = navigator.language || 'en-US';
+
+  var pending = '';
+  rec.onresult = function (e) {
+    var finalBit = '';
+    for (var i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) finalBit += e.results[i][0].transcript;
+      else $('say').value = pending + e.results[i][0].transcript;   // show it forming
+    }
+    if (finalBit) {
+      pending = (pending + ' ' + finalBit).trim();
+      $('say').value = pending;
+      /* A pause is the send. Short enough not to feel laggy, long enough that
+         thinking mid-sentence does not cut you off. */
+      clearTimeout(rec._pause);
+      rec._pause = setTimeout(function () {
+        if ($('say').value.trim()) { send(); pending = ''; }
+      }, 1400);
+    }
+  };
+
+  /* Chrome ends the session on its own after a while. If we are still meant to
+     be listening, start it again, so 'it stays on' is actually true. */
+  rec.onend = function () { if (listening) { try { rec.start(); } catch (_) {} } };
+
+  rec.onerror = function (e) {
+    if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+      listening = false; micLabel();
+      notYet('The microphone', 'The browser refused access. It can be allowed from the address bar.');
+    }
+    /* no-speech and aborted are ordinary. onend restarts. */
+  };
+
+  try { rec.start(); listening = true; micLabel(); }
+  catch (_) { listening = false; micLabel(); }
+}
+
+function stopListening() {
+  listening = false;
+  if (rec) { try { rec.stop(); } catch (_) {} }
+  micLabel();
+}
+
 $('micBtn').addEventListener('click', function () {
-  notYet('Speaking instead of typing', 'It needs speech capture wiring up.');
+  if (listening) stopListening(); else startListening();
 });
+micLabel();
 
 /* Close was wired to nothing. In a full-screen room with no wordmark it is the
    only way out, so it goes home. */
 $('closeBtn').addEventListener('click', function () { location.href = 'index.html'; });
 
+
+/* ── ARCH SPEAKS ────────────────────────────────────────────────────────────
+   Off by default and opted into, because speech is billed per character and
+   this audience talks a lot. Text costs nothing; audio is a choice.
+
+   His voice id lives with the rest of him in gc-friend.js, not in a lookup
+   table here, because a voice is part of a person rather than a setting.
+
+   ALWAYS INTERRUPTIBLE. Somebody who wants to say something should never
+   have to wait for him to finish, so any new line stops the old audio, and
+   there is a visible Stop while he is talking. */
+var speaking = null;
+
+function hush() {
+  if (speaking) { try { speaking.pause(); } catch (_) {} speaking = null; }
+  $("stopBtn").style.display = "none";
+}
+
+function speak(text) {
+  if (!asAudio || !FRIEND.voiceId || !text) return;
+  hush();
+  fetch("/.netlify/functions/gc-voice", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text: text, voice_id: FRIEND.voiceId })
+  }).then(function (r) { return r.json(); }).then(function (j) {
+    if (!j || !j.audio) {
+      /* Says which problem rather than failing silently, and only once: a
+         missing voice key should not nag on every single line. */
+      if (!speak._warned) { speak._warned = true; post("Not wired yet", "Could not fetch his voice: " + ((j && j.error) || "unknown") + ". Text still works."); }
+      return;
+    }
+    speaking = new Audio("data:audio/mpeg;base64," + j.audio);
+    $("stopBtn").style.display = "inline-block";
+    speaking.onended = hush;
+    speaking.play().catch(function () { hush(); });
+  }).catch(function () { hush(); });
+}
+
 var asAudio = false;
 $('replyBtn').addEventListener('click', function () {
   asAudio = !asAudio;
   this.innerHTML = asAudio ? '&#127911; Audio' : '&#127911; Text';
+  if (!asAudio) hush();
 });
 var ear = false;
 $('earBtn').addEventListener('click', function () {
