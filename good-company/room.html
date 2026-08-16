@@ -292,6 +292,9 @@ html,body{ height:100%; }
       <h3 id="gateTitle">Before you sit down</h3>
       <p class="gate-say" id="gateSay"></p>
       <div id="youPanel"></div>
+      <!-- Shares the doorstep rather than adding a surface, the same way Who
+           you are does: the chat column has to hold a conversation. -->
+      <div id="memPanel" style="display:none"></div>
       <div class="row tight"><button class="btn go wide" id="startBtn">Sit down</button></div>
     </div>
 
@@ -596,10 +599,11 @@ $("startBtn").addEventListener("click", function () {
   if (PENDING_INVITE) joinThenSit(); else sitDown();
 });
 $("youBtn").addEventListener("click", function () {
-  $("chat").style.display = "none";
-  $("gate").style.display = "block";
-  $("gateTitle").textContent = "Who you are";
-  $("gateSay").textContent = "Change any of it. " + FRIEND.name + " will keep talking after.";
+  /* Through the same switch as the memory panel, so the doorstep never shows
+     both at once. */
+  showGate("you", "Who you are",
+    "Change any of it. " + FRIEND.name + " will keep talking after.");
+  $("startBtn").textContent = "Back to " + FRIEND.name;
 });
 
 
@@ -1029,8 +1033,127 @@ function startPolling() {
     }).catch(function () {});
   }, 3000);
 }
+/* ── WHAT THEY REMEMBER ──────────────────────────────────────────────────────
+   The second thing this product promises, and the last thing in the room that
+   was still a button apologising for itself.
+
+   ON THIS DEVICE AND NOWHERE ELSE. There are no accounts here, so there is no
+   server that could hold this without inventing one, and what somebody tells a
+   friend to remember is the most personal thing in the product: who died, what
+   they are frightened of, which day is hard. It is kept in this browser and
+   sent nowhere except the request that produces their next reply. That is a
+   real limit, said plainly in the panel rather than discovered later: clear
+   the browser and it is gone.
+
+   TYPED IN DELIBERATELY, NOT HARVESTED. Nothing is quietly extracted from the
+   conversation and filed. You decide what they keep, you can read all of it
+   back, and you can take any of it away. Being remembered is only a good thing
+   when you know what is being remembered.
+
+   Kept per friend, because Arch and the friend you built are different people
+   and should not share a head. */
+function memKey() { return 'gc-mem-' + (GC_WHO === 'mine' ? 'mine' : 'arch'); }
+
+function loadMemories() {
+  try {
+    var v = JSON.parse(localStorage.getItem(memKey()) || '[]');
+    return Array.isArray(v) ? v.filter(function (x) { return typeof x === 'string' && x.trim(); }) : [];
+  } catch (e) { return []; }
+}
+
+function saveMemories(list) {
+  try { localStorage.setItem(memKey(), JSON.stringify(list)); } catch (e) {}
+  /* Carried on the friend, which is what gets sent to the model and what gets
+     written into the room when somebody is invited, so a memory holds in both
+     places without a second path to keep in step. */
+  FRIEND.memories = list;
+}
+
+FRIEND.memories = loadMemories();
+
+function renderMemories() {
+  var host = $('memPanel');
+  host.innerHTML = '';
+  host.className = 'you-panel';
+
+  var list = loadMemories();
+
+  var note = document.createElement('p');
+  note.className = 'gate-say';
+  note.textContent = list.length
+    ? FRIEND.name + ' has these in mind whenever you talk. Kept on this device only, ' +
+      'and never anywhere else.'
+    : 'Anything you put here, ' + FRIEND.name + ' will know next time without you having to ' +
+      'say it again. Kept on this device only, and never anywhere else.';
+  host.appendChild(note);
+
+  list.forEach(function (text, i) {
+    var row = document.createElement('div');
+    row.className = 'you-row';
+
+    var p = document.createElement('div');
+    p.style.cssText = 'flex:1;min-width:0';
+    p.textContent = text;
+    row.appendChild(p);
+
+    var x = document.createElement('button');
+    x.type = 'button'; x.className = 'btn';
+    x.textContent = 'Forget';
+    x.title = 'Take this one away';
+    x.addEventListener('click', function () {
+      var next = loadMemories();
+      next.splice(i, 1);
+      saveMemories(next);
+      renderMemories();
+    });
+    row.appendChild(x);
+    host.appendChild(row);
+  });
+
+  var addRow = document.createElement('div');
+  addRow.className = 'you-row';
+  var label = document.createElement('label');
+  label.className = 'you-label';
+  label.textContent = 'Something for ' + FRIEND.name + ' to remember';
+  addRow.appendChild(label);
+
+  var box = document.createElement('textarea');
+  box.rows = 3;
+  box.placeholder = 'My daughter is called Nell. Tuesdays are hard.';
+  box.style.cssText = 'width:100%;font:inherit;padding:.5rem;border:1px solid var(--line);' +
+                      'background:var(--paper);color:var(--ink);border-radius:3px;resize:vertical';
+  addRow.appendChild(box);
+  host.appendChild(addRow);
+
+  var add = document.createElement('button');
+  add.type = 'button'; add.className = 'btn go'; add.textContent = 'Remember this';
+  add.addEventListener('click', function () {
+    var v = box.value.trim();
+    if (!v) { box.focus(); return; }
+    var next = loadMemories();
+    next.push(v.slice(0, 600));
+    saveMemories(next);
+    box.value = '';
+    renderMemories();
+  });
+  host.appendChild(add);
+}
+
+/* Which of the two panels the doorstep is showing. */
+function showGate(panel, title, say) {
+  $('chat').style.display = 'none';
+  $('gate').style.display = 'block';
+  $('youPanel').style.display = (panel === 'you') ? 'block' : 'none';
+  $('memPanel').style.display = (panel === 'mem') ? 'block' : 'none';
+  $('gateTitle').textContent = title;
+  $('gateSay').textContent = say;
+}
+
 $('memBtn').addEventListener('click', function () {
-  notYet('Add a memory', 'It needs somewhere to keep what you tell them between visits.');
+  renderMemories();
+  showGate('mem', 'What ' + FRIEND.name + ' remembers',
+    'Things you have asked ' + FRIEND.name + ' to keep. Add or remove any of it.');
+  $('startBtn').textContent = 'Back to ' + FRIEND.name;
 });
 /* ── SPEAKING INSTEAD OF TYPING ──────────────────────────────────────────────
    The browser's own speech recognition. No API, no key, no per-minute cost,

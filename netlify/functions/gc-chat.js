@@ -110,6 +110,26 @@ function buildSystem(friend, you, idle, scene) {
     bits.push(`You are into: ${Array.isArray(f.into) ? f.into.join(', ') : f.into}.`);
   }
   if (f.been)  bits.push(`Something you have been through: ${f.been}`);
+
+  /* WHAT THEY ASKED YOU TO REMEMBER. Typed in deliberately by the person, one
+     at a time, and the whole second promise of this product rests on them
+     landing properly.
+
+     "Known, not recited" is the entire instruction here. The failure mode is a
+     friend who opens with "How is Nell?" every single time because Nell is in
+     the prompt, which is not remembering, it is reading notes back at somebody
+     and it makes the room feel like a form. A real friend holds it and uses it
+     when it fits. */
+  if (Array.isArray(f.memories) && f.memories.length) {
+    bits.push(
+      'THINGS THEY HAVE TOLD YOU TO REMEMBER. You know these the way you know ' +
+      'anything about somebody you have known a while:\n' +
+      f.memories.slice(0, 40).map(m => '- ' + String(m).slice(0, 600)).join('\n') +
+      '\nDo not recite these, do not list them, and do not work through them. ' +
+      'Do not greet them by asking after every one. Most turns will touch none ' +
+      'of it. Bring a thing up only where it genuinely belongs, the way you ' +
+      'would with anybody whose life you know.');
+  }
   if (f.place) bits.push(f.place);
   if (f.dog)    bits.push(f.dog);
   if (f.kids)   bits.push(f.kids);
