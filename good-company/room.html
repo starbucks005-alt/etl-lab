@@ -100,12 +100,17 @@ html,body{ height:100%; }
 .scene-chip.on{ color:var(--accent); border-color:var(--accent); }
 
 /* ── the conversation ────────────────────────────────────────────────────── */
+/* THE COLUMN DOES NOT SCROLL. THE TRANSCRIPT DOES.
+   This was the wrong way round and it showed: .side scrolled the whole column
+   including the input row, .log was overflow:visible, so a long conversation
+   ran straight underneath the text box with no way to reach it. 2732px of talk
+   in a 749px window and nothing to drag.
+
+   The input row and the tools have to stay put. Only the conversation moves. */
 .side{
-  min-height:0; overflow-y:auto; display:flex; flex-direction:column;
+  min-height:0; overflow:hidden; display:flex; flex-direction:column;
   border-left:1px solid var(--line);
-  scrollbar-width:none; -ms-overflow-style:none;
 }
-.side::-webkit-scrollbar{ width:0; height:0; }
 
 /* THE CHROME FLOATS OVER THIS COLUMN, so the conversation has to start below
    it or the first thing the friend ever says sits underneath three buttons.
@@ -119,8 +124,35 @@ html,body{ height:100%; }
    right offsets started landing on top of each other. */
 .log{
   flex:1; min-height:0;
+  overflow-y:auto;                     /* the one thing in this column that moves */
   padding:calc(var(--chrome-h, 51px) + 1.4rem) 1rem .5rem;
 }
+/* A VISIBLE SCROLLBAR, deliberately. M.E. hides its bar because a grey track
+   is browser furniture in a built room, and that was right for a page you
+   read. This is a conversation that grows past the window, and somebody who
+   cannot see that there is more above has simply lost it. Slim and skinned,
+   but present. */
+.log{ scrollbar-width:thin; scrollbar-color:var(--line) transparent; }
+.log::-webkit-scrollbar{ width:10px; }
+.log::-webkit-scrollbar-track{ background:transparent; }
+.log::-webkit-scrollbar-thumb{
+  background:var(--line); border-radius:6px;
+  border:3px solid transparent; background-clip:content-box;
+}
+.log::-webkit-scrollbar-thumb:hover{ background:var(--ink-dim); background-clip:content-box; }
+
+/* ── the sound ───────────────────────────────────────────────────────────────
+   The room has a fire in it, and birds, and a kettle. None of it was audible
+   because the clip is muted, and it is muted because no browser will autoplay
+   a video with sound. So it starts silent and one tap turns the room on.
+   Sits on the video, bottom centre, out of the way of his face. */
+.sound-on{
+  position:absolute; left:50%; bottom:14px; transform:translateX(-50%); z-index:3;
+  font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase;
+  color:#F4ECE0; background:rgba(0,0,0,.55); border:1px solid rgba(255,255,255,.28);
+  border-radius:999px; padding:.5rem 1rem; cursor:pointer; backdrop-filter:blur(2px);
+}
+.sound-on:hover{ background:rgba(0,0,0,.72); border-color:rgba(255,255,255,.5); }
 /* PROTECTED. Chat text is --ink on --panel in every skin, and that pair is
    contrast-checked per skin rather than eyeballed. No skin may give this rule
    a softer color: a dimmed message is where a palette starts costing reading. */
@@ -231,6 +263,7 @@ html,body{ height:100%; }
 
     <div class="portrait" id="portrait">
       <video id="loop" muted loop playsinline autoplay preload="auto"></video>
+      <button class="sound-on" id="soundBtn" type="button">&#128264; Sound on</button>
     </div>
 
     <div class="scene-bar" id="sceneBar"></div>
@@ -319,6 +352,10 @@ document.addEventListener('fullscreenchange', function () {
    A MISSING CLIP SAYS WHICH CLIP IS MISSING. No poster, no still, no stand-in.
    A placeholder that looks deliberate is how a broken asset reaches production. */
 var bar = $('sceneBar'), video = $('loop'), portrait = $('portrait'), current = null;
+
+/* Declared here, not down with the button: play() reads it, and relying on var
+   hoisting to make that undefined-but-falsy is luck rather than intent. */
+var wantSound = false;
 
 /* Is there a generation API behind this page? False on the deployed campus
    copy, true when running against the local server with a key. Asked once,
@@ -413,12 +450,23 @@ function play(scene) {
   var old = portrait.querySelector('.missing');
   if (old) old.remove();
   video.src = scene.src;
+  video.muted = !wantSound;      // the choice survives changing rooms
   video.play().catch(function () {});
   Array.prototype.forEach.call(bar.children, function (chip) {
     chip.classList.toggle('on', chip.dataset.key === scene.key);
   });
 }
 video.addEventListener('error', function () { if (current) showMissing(current.src); });
+
+/* SOUND. Starts off because no browser will autoplay audio, and stays off
+   until somebody asks for it. Once on it stays on across scene changes, so
+   walking from the fire to the porch does not silence the room. */
+$('soundBtn').addEventListener('click', function () {
+  wantSound = !wantSound;
+  video.muted = !wantSound;
+  if (wantSound) video.play().catch(function () {});
+  this.innerHTML = wantSound ? '&#128263; Sound off' : '&#128264; Sound on';
+});
 
 FRIEND.scenes.forEach(function (scene, i) {
   var chip = document.createElement('button');
@@ -511,7 +559,8 @@ function ask(payload) {
     body: JSON.stringify(Object.assign({
       friend: FRIEND,
       you: { name: YOU.name, pronouns: YOU.pronouns },
-      messages: transcript()
+      messages: transcript(),
+      scene: current ? { label: current.label, where: current.where } : null
     }, payload))
   }).then(function (r) { return r.json(); }).then(function (j) {
     thinking = false; $("sendBtn").disabled = false;

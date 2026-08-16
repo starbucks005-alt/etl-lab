@@ -75,13 +75,27 @@ var GC_DEMO = {
      cooks in belong to him. A friend
      with somewhere of their own to sit is more of a person than a friend
      standing in the same five rooms as everybody else. */
+  /* HE HAS TO KNOW WHERE HE IS. People ask what you are building, or where the
+     cabin is, and a friend who cannot answer that is a friend caught out. The
+     room on screen is passed to the chat function every turn and `where` is
+     what he is told about it. Never narrated at him: he just knows, the way
+     you know your own kitchen. */
   scenes: [
-    { key:'fireplace',label:'The fireplace', src:'video/arch-fireplace.mp4' },
-    { key:'kitchen',  label:'The kitchen',  src:'video/arch-kitchen.mp4' },
-    { key:'porch',    label:'The porch',     src:'video/arch-porch.mp4' },
-    { key:'workshop', label:'The workshop',  src:'video/arch-workshop.mp4' },
-    { key:'walk',     label:'The walk',      src:'video/arch-walk.mp4' }
+    { key:'fireplace',label:'The fireplace', src:'video/arch-fireplace.mp4',
+      where:'His own log cabin. Stone fireplace with real wood burning in it, not gas. Old leather armchair he will not replace.' },
+    { key:'kitchen',  label:'The kitchen',   src:'video/arch-kitchen.mp4',
+      where:'The cabin kitchen, timber walls, morning light. He is making an omelet in a cast iron pan. Tomatoes and mushrooms chopped on the board.' },
+    { key:'porch',    label:'The porch',     src:'video/arch-porch.mp4',
+      where:'The cabin porch. Trees right up to it, late in the day.' },
+    { key:'workshop', label:'The workshop',  src:'video/arch-workshop.mp4',
+      where:'His workshop. Bench, tools on the wall, sawdust. Where he actually works.' },
+    { key:'walk',     label:'The walk',      src:'video/arch-walk.mp4',
+      where:'A dirt path through the woods near the cabin. He walks it most days.' }
   ],
+
+  /* The cabin is his and it is where he lives. Somewhere wooded, and he is
+     vague about exactly where in the way people are about their own address. */
+  place: 'He built most of the cabin himself, over years, and is still not finished with it.',
 
   /* ── THE ALBUM ─────────────────────────────────────────────────────────────
      Every picture that exists of him, newest first.

@@ -89,7 +89,7 @@ async function classify(client, text) {
 }
 
 /* ── who they are ────────────────────────────────────────────────────────── */
-function buildSystem(friend, you, idle) {
+function buildSystem(friend, you, idle, scene) {
   const f = friend || {}, u = you || {};
   const name = f.name || 'your friend';
   const bits = [];
@@ -109,7 +109,18 @@ function buildSystem(friend, you, idle) {
   if (f.into && f.into.length) {
     bits.push(`You are into: ${Array.isArray(f.into) ? f.into.join(', ') : f.into}.`);
   }
-  if (f.been) bits.push(`Something you have been through: ${f.been}`);
+  if (f.been)  bits.push(`Something you have been through: ${f.been}`);
+  if (f.place) bits.push(f.place);
+
+  /* WHERE HE IS RIGHT NOW. Somebody will ask what he is building, or where the
+     cabin is, and a friend who cannot answer is a friend caught out. He knows
+     it the way you know your own kitchen: he does not describe it unprompted. */
+  if (scene && scene.where) {
+    bits.push(`
+RIGHT NOW YOU ARE HERE: ${scene.where}` +
+              ` They can see you there. Do not describe it at them, you live here.` +
+              ` But if they ask about it, answer properly.`);
+  }
   if (f.voice && f.voice.length) {
     bits.push(`How you talk: ${Array.isArray(f.voice) ? f.voice.join(', ').toLowerCase() : f.voice}.`);
   }
@@ -223,7 +234,7 @@ exports.handler = async function (event) {
     out = await client.messages.create({
       model: TURN_MODEL,
       max_tokens: 400,
-      system: buildSystem(friend, you, idle),
+      system: buildSystem(friend, you, idle, body.scene),
       messages: turns,
     });
   } catch (err) {
