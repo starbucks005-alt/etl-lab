@@ -242,6 +242,17 @@ html,body{ height:100%; }
    canon exists in exactly one file. GC_FRIEND is the friend you built if there
    is one, the house demo otherwise. */
 var FRIEND = GC_FRIEND;
+
+var $ = function (id) { return document.getElementById(id); };
+
+/* The friend's name, written into every place the room says it, from the one
+   source. Never a hardcoded name and never a pronoun: this product makes a
+   different person for everybody. */
+$('gaugeTitle').textContent = 'How ' + FRIEND.name + ' is feeling right now';
+$('gaugeLabel').textContent = FRIEND.mood || 'Easy, glad you came by';
+$('earHint').textContent = 'Say "' + FRIEND.name + '" to get their attention from across the room, ' +
+  'once this is on and this tab is in front. Off by default, and audio leaves the browser only while it is on.';
+
 /* Skins: resolution and the picker both live in gc-skin.js, shared with every
    other page, so these four surfaces cannot drift apart. */
 gcMountSkinPicker(document.getElementById("picker"), document.getElementById("skinBtn"));
