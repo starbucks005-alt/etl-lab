@@ -527,7 +527,9 @@ function chooseFace(btn, src) {
 
 $('redrawBtn').addEventListener('click', drawFaces);
 
-$('roomBtn').addEventListener('click', function () { location.href = 'room.html'; });
+/* ?who=mine, for the same reason the front page says ?who=arch: this button
+   means the friend you have just built, whoever the tab was last showing. */
+$('roomBtn').addEventListener('click', function () { location.href = 'room.html?who=mine'; });
 
 $('copyBtn').addEventListener('click', function () {
   var t = JSON.stringify(friend, null, 2);

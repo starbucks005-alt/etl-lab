@@ -328,15 +328,49 @@ var GC_DEMO = {
   ]
 };
 
-/* The friend actually in the room. Built one wins, demo is the fallback.
-   Nothing else is consulted. */
-var GC_FRIEND = (function () {
+/* Is there a built friend on this device at all? Asked separately because the
+   room needs to know whether there is anybody to switch BETWEEN. */
+var GC_BUILT = (function () {
   try {
     var saved = JSON.parse(localStorage.getItem('gc-friend') || 'null');
     if (saved && saved.name && saved.scenes && saved.scenes.length) return saved;
-  } catch (e) { /* storage disabled, fall through to the demo */ }
-  return GC_DEMO;
+  } catch (e) { /* storage disabled */ }
+  return null;
 })();
+
+/* The friend actually in the room.
+
+   ARCH HAS TO STAY REACHABLE. A built friend used to win unconditionally, with
+   nothing anywhere able to override it, so the moment anybody built somebody
+   the demo was gone for good. The link on the front page still said "or sit
+   with Arch first" and quietly delivered whoever you had built instead. Dr. O
+   went looking for Arch's room and met a stranger called Hollis.
+
+   That matters past the confusion: Arch is what gets shown to people. A demo
+   that disappears the first time you use the product is not a demo.
+
+   ?who=arch asks for the demo, ?who=mine asks for the built friend, and the
+   answer sticks for the tab so that stepping into the photo album and back
+   does not quietly swap who you are sitting with. */
+var GC_WHO = (function () {
+  var asked = null;
+  try { asked = new URLSearchParams(location.search).get('who'); } catch (e) {}
+  if (asked === 'arch' || asked === 'demo') asked = 'arch';
+  else if (asked === 'mine' || asked === 'built') asked = 'mine';
+  else asked = null;
+
+  try {
+    if (asked) sessionStorage.setItem('gc-who', asked);
+    else asked = sessionStorage.getItem('gc-who');
+  } catch (e) {}
+
+  /* Asking for your own friend when you have not built one is not an error,
+     it just means the demo. */
+  if (asked === 'mine' && !GC_BUILT) return 'arch';
+  return asked || (GC_BUILT ? 'mine' : 'arch');
+})();
+
+var GC_FRIEND = (GC_WHO === 'mine' && GC_BUILT) ? GC_BUILT : GC_DEMO;
 
 /* Which skin the page opens on. An explicit choice always wins and wins
    permanently; otherwise the friend's own room; otherwise the system

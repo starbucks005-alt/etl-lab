@@ -314,6 +314,9 @@ html,body{ height:100%; }
         <button class="btn" id="albumBtn">&#128247; Photos</button>
         <button class="btn" id="memBtn">&#128206; Memory</button>
         <button class="btn" id="youBtn">&#128100; You</button>
+        <!-- Only shown when there is somebody to swap to. Hidden by default so
+             a person with one friend never sees a control about having two. -->
+        <button class="btn" id="swapBtn" style="display:none"></button>
       </div>
       <div class="hint" id="earHint" style="display:none"></div>
       <div style="height:.8rem"></div>
@@ -325,9 +328,28 @@ html,body{ height:100%; }
 <script>
 /* ── the friend ────────────────────────────────────────────────────────────
    Arch and the loader now live in gc-friend.js, shared with album.html, so his
-   canon exists in exactly one file. GC_FRIEND is the friend you built if there
-   is one, the house demo otherwise. */
+   canon exists in exactly one file. Which friend this is, demo or built, is
+   decided there too and answers to ?who=. */
 var FRIEND = GC_FRIEND;
+
+/* THE WAY BACK TO ARCH. Building somebody used to hide the demo permanently,
+   with no control anywhere to return, so the only way back was clearing site
+   data. This appears only when there are actually two people to move between,
+   and it names the one you would be going to rather than saying "switch". */
+if (typeof GC_BUILT !== 'undefined' && GC_BUILT) {
+  var swap = document.getElementById('swapBtn');
+  var goingToDemo = (GC_WHO === 'mine');
+  swap.textContent = goingToDemo
+    ? '⇄ ' + GC_DEMO.name
+    : '⇄ ' + GC_BUILT.name;
+  swap.title = goingToDemo
+    ? 'Sit with ' + GC_DEMO.name + ' instead. ' + GC_BUILT.name + ' stays exactly as they are.'
+    : 'Back to ' + GC_BUILT.name + '.';
+  swap.style.display = 'inline-block';
+  swap.addEventListener('click', function () {
+    location.href = 'room.html?who=' + (goingToDemo ? 'arch' : 'mine');
+  });
+}
 
 var $ = function (id) { return document.getElementById(id); };
 
