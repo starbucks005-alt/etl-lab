@@ -663,12 +663,35 @@ function ask(payload) {
   });
 }
 
+var lastSent = '', lastSentAt = 0;
+
 function send() {
   var v = $("say").value.trim();
   if (!v || thinking) return;
+
+  /* THE SAME WORDS TWICE IN A MOMENT ARE A BUG, NOT A PERSON.
+
+     This is the last line of defence and it has to be, because the cause
+     upstream cannot be told apart from ordinary speech: when Chrome restarts
+     recognition it may replay what it already finalised, and it looks
+     identical to somebody saying it again. Refusing to reset the consumed mark
+     on a restart would swallow the first real sentence of every new session,
+     which is worse.
+
+     HOW LONG DEPENDS ON HOW MUCH WAS SAID. "Yes" twice in five seconds is a
+     person agreeing twice, and it goes through. A whole sentence repeated word
+     for word inside fifteen seconds is a machine, every time. */
+  var window = v.length < 12 ? 2000 : 15000;
+  if (v === lastSent && (Date.now() - lastSentAt) < window) { $("say").value = ""; return; }
+  lastSent = v; lastSentAt = Date.now();
+
   post(youLabel(), v, true);
   $("say").value = "";
   lastSpoke = Date.now();
+  /* SPEAKING RESETS HOW SOON HE BREAKS A SILENCE. Only typing did, and typing
+     is not how everybody talks: a person using the microphone never fired the
+     input event, so the ladder never went back to the bottom for them. */
+  idleStep = 0;
 
   /* Once there is a room, everything goes through it: the line has to reach the
      other browsers, and whether the friend answers at all is decided server
@@ -708,7 +731,23 @@ function sayInRoom(text) {
    decline, and declining is normal. Backing off each time and stopping after
    a few, so an abandoned tab is not talking to an empty chair, and only while
    the tab is actually in front. */
-var IDLE_STEPS = [40, 120, 300];   // seconds, then it stops
+/* HOW LONG A SILENCE HAS TO BE BEFORE IT IS ONE.
+
+   This was 40 seconds, and Dr. O: "Arch is overdoing the me not talking, he is
+   saying it every minute or so." Forty seconds is not a silence. It is less
+   time than it takes to read the paragraph he just wrote, and the clock starts
+   from HIS reply, so sitting and reading was enough to get asked whether you
+   were still there. Being checked on that often is not company, it is being
+   hovered over, and it teaches you the room cannot be sat in quietly.
+
+   Five minutes, Dr. O's number, then fifteen, then forty, then he leaves it
+   alone. A person who has gone to make tea comes back to the room as they left
+   it. Nothing here is allowed to make sitting quietly feel like being watched.
+
+   If this ever needs shortening again, it does not. Being left in peace is the
+   feature; the nudge is only for somebody who genuinely does not know how to
+   start. */
+var IDLE_STEPS = [300, 900, 2400];   // seconds, then it stops
 var idleStep = 0;
 
 setInterval(function () {
@@ -910,6 +949,25 @@ function startPolling() {
       j.messages.forEach(function (m) {
         lastSeen = m.created_at;
 
+        /* MY OWN LINES ARE NEVER DRAWN FROM THE POLL. They went up the instant
+           I pressed send and they are already on screen.
+
+           Claiming the id when gc-room-say answers is too late, and that was
+           the race putting typed messages up twice: that function writes the
+           line to the room STRAIGHT AWAY and only then waits on the model, so
+           for the ten seconds he is thinking the line is sitting there
+           readable, and the poll fires every three. It would fetch my own
+           sentence back and draw a second copy of it before the response
+           carrying its id ever arrived. Whether it happened came down to where
+           the three-second tick fell, which is why some typed lines doubled
+           and others did not.
+
+           The seat id is known at the door now, so this needs no round trip. */
+        if (m.speaker === "person" && m.author_id && m.author_id === MY_SEAT_ID) {
+          seen[m.id] = true;
+          return;
+        }
+
         if (seen[m.id]) return;      /* already drawn, by this browser or a prior poll */
         seen[m.id] = true;
 
@@ -982,10 +1040,23 @@ function startListening() {
   rec.lang = navigator.language || 'en-US';
 
   var pending = '';
+
+  /* NOTHING IS READ TWICE. This is what was sending every spoken line to the
+     room in duplicate while typing was fine.
+
+     With continuous on, e.results holds EVERY result of the session, not just
+     the new ones, and the loop below trusts e.resultIndex to say where the new
+     ones begin. Chrome resets that index when it restarts recognition, which
+     onend does on purpose so that "it stays on" is true. After a restart the
+     loop therefore walks back over speech that was already finalised and sends
+     it again. "I am still here, Arch", twice. */
+  var taken = 0;
+
   rec.onresult = function (e) {
     var finalBit = '';
-    for (var i = e.resultIndex; i < e.results.length; i++) {
-      if (e.results[i].isFinal) finalBit += e.results[i][0].transcript;
+    /* Never behind what has already been consumed, whatever the index claims. */
+    for (var i = Math.max(e.resultIndex, taken); i < e.results.length; i++) {
+      if (e.results[i].isFinal) { finalBit += e.results[i][0].transcript; taken = i + 1; }
       else $('say').value = pending + e.results[i][0].transcript;   // show it forming
     }
     if (finalBit) {
@@ -1001,8 +1072,13 @@ function startListening() {
   };
 
   /* Chrome ends the session on its own after a while. If we are still meant to
-     be listening, start it again, so 'it stays on' is actually true. */
-  rec.onend = function () { if (listening) { try { rec.start(); } catch (_) {} } };
+     be listening, start it again, so 'it stays on' is actually true. The new
+     session gets a fresh results array, so the consumed mark starts over with
+     it. Getting this wrong in the other direction would swallow speech. */
+  rec.onend = function () {
+    taken = 0;
+    if (listening) { try { rec.start(); } catch (_) {} }
+  };
 
   rec.onerror = function (e) {
     if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
