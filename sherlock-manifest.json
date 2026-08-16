@@ -1,0 +1,31 @@
+{
+  "name": "Solve It With Sherlock",
+  "short_name": "Sherlock",
+  "description": "Three cases. Real evidence. Question the witnesses yourself, then name who did it and show your reasoning.",
+  "start_url": "/sherlock.html",
+  "scope": "/sherlock",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#111111",
+  "theme_color": "#111111",
+  "categories": ["games", "education", "puzzle"],
+  "icons": [
+    {
+      "src": "/sherlock-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/sherlock-icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/sherlock-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}

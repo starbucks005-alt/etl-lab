@@ -194,6 +194,28 @@ a:hover { color: var(--green); }
 .score-sub { font-size: .8rem; color: var(--mute); margin-top: .4rem; line-height: 1.55; }
 @media (max-width: 700px) { .scores { grid-template-columns: 1fr; } }
 
+/* ── GAME LAYER ── */
+.gamebar { display: flex; gap: 1.6rem; align-items: center; border: 1px solid var(--line); background: var(--bg2); padding: 1.4rem 1.5rem; margin-bottom: 1.6rem; }
+.gb-main { text-align: center; flex: 0 0 auto; padding-right: 1.6rem; border-right: 1px solid var(--line); }
+.gb-score { font-family: 'Spectral', serif; font-size: 3rem; font-weight: 600; line-height: 1; color: var(--cream); }
+.gb-score.good { color: var(--good); } .gb-score.warn { color: var(--warn); } .gb-score.bad { color: var(--bad); }
+.gb-scorelab { font-family: 'IBM Plex Mono', monospace; font-size: .55rem; letter-spacing: .16em; text-transform: uppercase; color: var(--mute); margin-top: .5rem; }
+.gb-right { flex: 1 1 auto; min-width: 0; }
+.gb-state { font-family: 'IBM Plex Mono', monospace; font-size: .68rem; letter-spacing: .14em; text-transform: uppercase; margin-bottom: .5rem; }
+.gb-state.good { color: var(--good); } .gb-state.warn { color: var(--warn); }
+.gb-note { font-size: .82rem; color: var(--mute); line-height: 1.55; margin-bottom: .3rem; }
+.gb-rank { font-size: .9rem; color: var(--cream); margin-top: .6rem; }
+.gb-nav { display: flex; gap: .7rem; flex-wrap: wrap; margin-bottom: 1.8rem; }
+.gb-btn { display: inline-block; padding: .75rem 1.3rem; border: 1px solid var(--line); color: var(--cream); text-decoration: none; font-size: .85rem; transition: background .18s, border-color .18s; }
+.gb-btn:hover { background: var(--bg2); }
+.gb-btn.primary { border-color: var(--good); color: var(--good); }
+.gb-btn.primary:hover { background: var(--good); color: var(--bg); }
+@media (max-width: 700px) {
+  .gamebar { flex-direction: column; align-items: stretch; gap: 1.1rem; text-align: center; }
+  .gb-main { padding-right: 0; padding-bottom: 1.1rem; border-right: 0; border-bottom: 1px solid var(--line); }
+  .gb-btn { flex: 1 1 100%; text-align: center; }
+}
+
 .review-list { border: 1px solid var(--line); margin-bottom: 1.8rem; }
 .review-item { border-bottom: 1px solid var(--line); padding: 1.05rem 1.3rem; display: grid; grid-template-columns: 92px 1fr; gap: 1rem; }
 .review-item:last-child { border-bottom: none; }
@@ -227,6 +249,9 @@ a:hover { color: var(--green); }
 .loading { padding: 3rem 1rem; text-align: center; color: var(--mute); font-family: 'IBM Plex Mono', monospace; font-size: .7rem; letter-spacing: .14em; text-transform: uppercase; }
 .errorbox { border: 1px solid var(--bad); background: var(--bg2); padding: 1rem 1.2rem; color: var(--text); font-size: .86rem; margin-bottom: 1.2rem; }
 </style>
+<link rel="manifest" href="/sherlock-manifest.json">
+<meta name="theme-color" content="#111111">
+<script src="/sherlock-progress.js"></script>
 </head>
 <body>
 
@@ -694,6 +719,11 @@ a:hover { color: var(--green); }
 
   function scoreClass(n) { return n >= 70 ? 'good' : (n >= 40 ? 'warn' : 'bad'); }
 
+  /* The detective record. Absent if storage is blocked, in which case the case
+     still plays and grades exactly as before, it just does not accumulate. */
+  var global_progress = window.SherlockProgress || null;
+  var recorded = false;
+
   function renderVerdict() {
     var host = document.getElementById('verdictHost');
     host.innerHTML = '';
@@ -719,6 +749,61 @@ a:hover { color: var(--green); }
       '<div class="score-sub">What you saw of what a present-day court, lab, and defense would do to this evidence.</div></div>'
     ));
     host.appendChild(scores);
+
+    /* The game layer. The engine grades the reasoning; this turns one grading
+       into a move in a longer game — a case score, a file that closes or stays
+       open, a rank, and the next case unlocking behind it.
+
+       Recorded once per verdict, guarded, because renderVerdict can be called
+       again by a re-render and a case must not count twice. */
+    if (global_progress && !recorded) {
+      recorded = true;
+      var res = global_progress.record(CASE_ID, v);
+      var rk = global_progress.rank();
+      var hint = global_progress.nextRankHint();
+      var nCases = global_progress.CASES.length;
+      var nClosed = global_progress.closedCases().length;
+
+      var gp = el('<div class="gamebar"></div>');
+      gp.appendChild(el(
+        '<div class="gb-main">' +
+          '<div class="gb-score ' + scoreClass(res.score) + '">' + res.score + '</div>' +
+          '<div class="gb-scorelab">Case score</div>' +
+        '</div>'
+      ));
+
+      var right = el('<div class="gb-right"></div>');
+      right.appendChild(el(
+        '<div class="gb-state ' + (res.closed ? 'good' : 'warn') + '">' +
+        (res.closed ? 'File closed' : 'File stays open') + '</div>'
+      ));
+      right.appendChild(el(
+        '<div class="gb-note">' +
+        (res.closed
+          ? 'The reasoning held. ' + nClosed + ' of ' + nCases + ' files closed.'
+          : 'The reasoning did not hold up yet. Reopen the file and work it again — attempts are not counted against you.') +
+        '</div>'
+      ));
+      if (res.attempts > 1) {
+        right.appendChild(el('<div class="gb-note">Attempt ' + res.attempts + ' &middot; your best on this case is ' + res.best + '.</div>'));
+      }
+      right.appendChild(el('<div class="gb-rank">Rank: <b>' + esc(rk.name) + '</b></div>'));
+      if (hint) right.appendChild(el('<div class="gb-note">' + esc(hint) + '</div>'));
+      gp.appendChild(right);
+      host.appendChild(gp);
+
+      var nextCase = null;
+      for (var ci = 0; ci < global_progress.CASES.length; ci++) {
+        var cc = global_progress.CASES[ci];
+        if (cc.id !== CASE_ID && global_progress.isUnlocked(cc.id) && global_progress.status(cc.id).state !== 'closed') { nextCase = cc; break; }
+      }
+      var nav = el('<div class="gb-nav"></div>');
+      if (nextCase) {
+        nav.appendChild(el('<a class="gb-btn primary" href="/sherlock-casebook.html?case=' + nextCase.id + '">Open Case ' + nextCase.num + ' &middot; ' + esc(nextCase.name) + '</a>'));
+      }
+      nav.appendChild(el('<a class="gb-btn" href="/sherlock.html">Your record</a>'));
+      host.appendChild(nav);
+    }
 
     /* The reward. A student who named the right person gets the book they just
        lived through, as an object, standing on the street the case happened on.

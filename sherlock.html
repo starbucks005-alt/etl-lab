@@ -242,7 +242,41 @@ a:hover { color: var(--green); }
 .syllabus-body p.syllabus-step:last-child { margin-bottom: 0; }
 .syllabus-body b { color: var(--cream); }
 @media (max-width: 640px) { .syllabus-item { grid-template-columns: 1fr; gap: .5rem; } }
+
+/* ── DETECTIVE RECORD ── */
+.record { border: 1px solid var(--line); background: var(--panel); margin: 0 0 2.2rem; display: grid; grid-template-columns: auto 1fr; }
+.record-rank { padding: 1.6rem 1.8rem; border-right: 1px solid var(--line); text-align: center; min-width: 210px; }
+.record-rank-lab { font-family: 'IBM Plex Mono', monospace; font-size: .55rem; letter-spacing: .16em; text-transform: uppercase; color: var(--mute); }
+.record-rank-name { font-family: 'Spectral', serif; font-size: 1.35rem; color: var(--cream); line-height: 1.25; margin-top: .5rem; }
+.record-body { padding: 1.6rem 1.8rem; display: flex; flex-direction: column; justify-content: center; }
+.record-stats { display: flex; gap: 2.2rem; flex-wrap: wrap; margin-bottom: .8rem; }
+.record-stat-num { font-family: 'Spectral', serif; font-size: 1.6rem; color: var(--cream); line-height: 1; }
+.record-stat-lab { font-family: 'IBM Plex Mono', monospace; font-size: .55rem; letter-spacing: .14em; text-transform: uppercase; color: var(--mute); margin-top: .4rem; }
+.record-hint { font-size: .86rem; color: var(--mute); line-height: 1.55; }
+.record-cta { display: inline-block; margin-top: .9rem; padding: .8rem 1.4rem; border: 1px solid var(--blue); color: var(--blue); text-decoration: none; font-size: .86rem; align-self: flex-start; }
+.record-cta:hover { background: var(--blue); color: #fff; }
+.record-reset { background: none; border: 0; color: var(--mute); font-size: .72rem; text-decoration: underline; cursor: pointer; padding: 0; margin-top: .9rem; align-self: flex-start; }
+@media (max-width: 640px) {
+  .record { grid-template-columns: 1fr; }
+  .record-rank { border-right: 0; border-bottom: 1px solid var(--line); min-width: 0; }
+}
+
+/* Status flag on each case card */
+.case-flag { font-family: 'IBM Plex Mono', monospace; font-size: .56rem; letter-spacing: .14em; text-transform: uppercase; padding: .3rem .6rem; border: 1px solid var(--line); color: var(--mute); display: inline-block; margin-bottom: .6rem; }
+.case-flag.closed { color: #6aa84f; border-color: currentColor; }
+.case-flag.open { color: #c8973a; border-color: currentColor; }
+.case-card.is-locked { opacity: .45; pointer-events: none; }
+
+/* Installed-app view: no "back" out of the app, and no instructor material.
+   The IP and public-domain notices in .about-block deliberately stay. */
+@media (display-mode: standalone) {
+  .backlink { display: none; }
+  .for-educators { display: none; }
+}
 </style>
+<link rel="manifest" href="/sherlock-manifest.json">
+<meta name="theme-color" content="#111111">
+<script src="/sherlock-progress.js"></script>
 </head>
 <body>
 
@@ -288,6 +322,10 @@ a:hover { color: var(--green); }
     <h2>The Casebook</h2>
     <div class="sec-rule"></div>
   </div>
+
+  <!-- The detective record. Filled in by script; hidden entirely if storage
+       is unavailable, so the page never shows an empty frame. -->
+  <div class="record" id="record" hidden></div>
   <p class="sec-sub">Three cases, escalating. Each one is worked the same way and graded the same way, and each one fails in a different, real, documented direction.</p>
 
   <div class="cases">
@@ -433,6 +471,10 @@ a:hover { color: var(--green); }
     <a class="btn-primary" href="/sherlock-casebook.html?case=webster">Start Case 01</a>
   </div>
 
+  <!-- Everything from here down is the instructor's material. It stays on the
+       web, where the course is sold, and is hidden inside the installed app,
+       where the same three cases are just a game. One page, two audiences. -->
+  <div class="for-educators">
   <div class="sec-head">
     <h2>For Educators: A 12-Hour Unit</h2>
     <div class="sec-rule"></div>
@@ -586,6 +628,8 @@ a:hover { color: var(--green); }
     </div>
   </div>
 
+  </div><!-- /for-educators -->
+
   <div class="about-block">
     <p><b>About this classroom.</b> The three cases are original, written for this course. They are not retellings of any published story, because a case a student can look up is not a case a student has to work. Each has one correct answer, a documented chain of inference, and a set of deliberate traps that behave the way real ones do.</p>
     <p>Every agent carries a real backpack of live sources for the doctrine and research this course runs on, Miranda, Brady, Daubert, the exclusionary rule, the private search doctrine, NFPA 921, the 2009 National Academy of Sciences forensic science report, the National Registry of Exonerations, and never fabricates one. If a lookup fails, they say so plainly rather than inventing a citation or a case name. None of them will invent an item of evidence, and none of them has been told the answer to the case they are standing in.</p>
@@ -608,6 +652,109 @@ a:hover { color: var(--green); }
     document.documentElement.setAttribute('data-theme', next);
     try { localStorage.setItem('etl_classrooms_theme', next); } catch (_) {}
     sync();
+  });
+})();
+</script>
+
+<script>
+/* ─────────────────────────────────────────────────────────────────────────────
+   The record panel and the case flags.
+
+   Purely additive: if SherlockProgress is missing or storage is blocked, the
+   panel stays hidden and every case card behaves exactly as it did before.
+   ───────────────────────────────────────────────────────────────────────────── */
+(function () {
+  var P = window.SherlockProgress;
+  if (!P) return;
+
+  var host = document.getElementById('record');
+  if (!host) return;
+
+  var rec     = P.load();
+  var closed  = P.closedCases(rec);
+  var rank    = P.rank(rec);
+  var avg     = P.averageBest(rec);
+  var hint    = P.nextRankHint(rec);
+  var total   = P.CASES.length;
+  var started = closed.length > 0 || Object.keys(rec.cases).length > 0;
+
+  function esc(s) {
+    return String(s).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+
+  /* Which case to push them toward: the first unlocked one they have not closed,
+     falling back to the first case for a replay once everything is closed. */
+  var nextCase = null;
+  for (var i = 0; i < P.CASES.length; i++) {
+    var c = P.CASES[i];
+    if (P.isUnlocked(c.id, rec) && P.status(c.id, rec).state !== 'closed') { nextCase = c; break; }
+  }
+
+  var html =
+    '<div class="record-rank">' +
+      '<div class="record-rank-lab">' + (started ? 'Your rank' : 'Starting rank') + '</div>' +
+      '<div class="record-rank-name">' + esc(rank.name) + '</div>' +
+    '</div>' +
+    '<div class="record-body">';
+
+  if (started) {
+    html +=
+      '<div class="record-stats">' +
+        '<div><div class="record-stat-num">' + closed.length + ' / ' + total + '</div>' +
+             '<div class="record-stat-lab">Files closed</div></div>' +
+        '<div><div class="record-stat-num">' + (avg || '&mdash;') + '</div>' +
+             '<div class="record-stat-lab">Average case score</div></div>' +
+        '<div><div class="record-stat-num">' + rec.best_streak + '</div>' +
+             '<div class="record-stat-lab">Best streak</div></div>' +
+      '</div>' +
+      '<div class="record-hint">' + esc(hint || rank.blurb) + '</div>';
+    if (nextCase) {
+      html += '<a class="record-cta" href="/sherlock-casebook.html?case=' + nextCase.id +
+              '">Continue &middot; Case ' + nextCase.num + '</a>';
+    }
+    html += '<button type="button" class="record-reset" id="recordReset">Clear my record</button>';
+  } else {
+    html +=
+      '<div class="record-hint">Nothing on your record yet. Three files, worked in order. ' +
+      'Closing one opens the next.</div>' +
+      '<a class="record-cta" href="/sherlock-casebook.html?case=' + P.CASES[0].id +
+      '">Start Case 01</a>';
+  }
+
+  html += '</div>';
+  host.innerHTML = html;
+  host.hidden = false;
+
+  var resetBtn = document.getElementById('recordReset');
+  if (resetBtn) {
+    resetBtn.addEventListener('click', function () {
+      if (window.confirm('Clear your rank, scores, and closed files? This cannot be undone.')) {
+        P.reset();
+        window.location.reload();
+      }
+    });
+  }
+
+  /* Flag every case card with its state, and dim the ones still locked. */
+  var cards = document.querySelectorAll('.case-card[href*="sherlock-casebook.html?case="]');
+  Array.prototype.forEach.call(cards, function (card) {
+    var m = card.getAttribute('href').match(/case=([a-z0-9_-]+)/i);
+    if (!m) return;
+    var st = P.status(m[1], rec);
+    var body = card.querySelector('.case-body');
+    if (!body) return;
+
+    var flag = document.createElement('div');
+    flag.className = 'case-flag' + (st.state === 'closed' ? ' closed' : (st.state === 'open' ? ' open' : ''));
+    if (st.state === 'closed')      flag.textContent = 'Closed · best ' + st.best;
+    else if (st.state === 'open')   flag.textContent = 'Still open · best ' + st.best;
+    else if (st.state === 'locked') flag.textContent = 'Locked';
+    else                            flag.textContent = 'Unopened';
+    body.insertBefore(flag, body.firstChild);
+
+    if (st.state === 'locked') card.classList.add('is-locked');
   });
 })();
 </script>
