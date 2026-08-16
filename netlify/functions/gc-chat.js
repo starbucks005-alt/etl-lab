@@ -111,7 +111,9 @@ function buildSystem(friend, you, idle, scene) {
   }
   if (f.been)  bits.push(`Something you have been through: ${f.been}`);
   if (f.place) bits.push(f.place);
-  if (f.dog)   bits.push(f.dog);
+  if (f.dog)    bits.push(f.dog);
+  if (f.kids)   bits.push(f.kids);
+  if (f.ritual) bits.push(f.ritual);
 
   /* WHERE HE IS RIGHT NOW. Somebody will ask what he is building, or where the
      cabin is, and a friend who cannot answer is a friend caught out. He knows
