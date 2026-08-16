@@ -62,7 +62,7 @@ figcaption .when{ display:block; font-family:var(--mono); font-size:10px;
   grid-template-rows:1fr auto; gap:1rem; cursor:zoom-out;
 }
 .big.on{ display:grid; }
-.big img{ width:100%; height:100%; object-fit:contain; min-height:0; }
+.big img, .big video{ width:100%; height:100%; object-fit:contain; min-height:0; }
 .big figcaption{ color:#EFE7DC; text-align:center; margin:0; }
 .big .when{ color:#A99A88; }
 .big-close{ position:fixed; top:16px; right:16px; z-index:61; }
@@ -96,11 +96,12 @@ footer{ padding:1.5rem 0 3rem; color:var(--ink-dim); font-size:.9rem; }
        stays.</p>
   </div>
 
-  <footer>Good Company is a companion app. It is not a dating app.</footer>
+  <footer>Good Company is a companion app. It is not a dating app, and it will not become one.</footer>
 </main>
 
 <div class="big" id="big" role="dialog" aria-modal="true" aria-label="Photo">
   <img id="bigImg" alt="">
+  <video id="bigVid" muted loop playsinline style="display:none"></video>
   <figcaption><span id="bigCap"></span><span class="when" id="bigWhen"></span></figcaption>
 </div>
 <button class="btn big-close" id="bigClose" type="button" style="display:none">&times; Close</button>
@@ -124,8 +125,18 @@ shots.forEach(function (shot, i) {
   var btn = document.createElement('button');
   btn.type = 'button'; btn.className = 'shot';
 
-  var img = document.createElement('img');
-  img.alt = shot.caption || (F.name + ', photo ' + (i + 1));
+  /* A MOVING PICTURE IS STILL A PICTURE. Some of what exists of somebody is a
+     short clip rather than a still, and a family standing on a path breathing
+     is worth more here than a frame grabbed out of it. Muted and looping: this
+     is a page of photographs, not a player.
+
+     The no-image-under-video rule is untouched. That rule is about a still
+     standing in FOR a video and hiding its failure. Nothing here stands in for
+     anything. */
+  var moving = /.mp4$/i.test(shot.src);
+  var img = document.createElement(moving ? 'video' : 'img');
+  if (moving) { img.muted = true; img.loop = true; img.autoplay = true; img.playsInline = true; }
+  else { img.alt = shot.caption || (F.name + ', photo ' + (i + 1)); }
   img.src = shot.src;
   img.addEventListener('error', function () {
     var g = document.createElement('div');
@@ -151,7 +162,11 @@ shots.forEach(function (shot, i) {
 
 /* ── the big view ────────────────────────────────────────────────────────── */
 function open(shot) {
-  $('bigImg').src = shot.src;
+  var moving = /.mp4$/i.test(shot.src);
+  $('bigImg').style.display = moving ? 'none' : 'block';
+  $('bigVid').style.display = moving ? 'block' : 'none';
+  if (moving) { $('bigVid').src = shot.src; $('bigVid').play().catch(function(){}); }
+  else { $('bigImg').src = shot.src; }
   $('bigImg').alt = shot.caption || '';
   $('bigCap').textContent = shot.caption || '';
   $('bigWhen').textContent = shot.on || '';
@@ -162,6 +177,7 @@ function shut() {
   $('big').classList.remove('on');
   $('bigClose').style.display = 'none';
   $('bigImg').removeAttribute('src');
+  $('bigVid').removeAttribute('src');
 }
 $('big').addEventListener('click', shut);
 $('bigClose').addEventListener('click', shut);

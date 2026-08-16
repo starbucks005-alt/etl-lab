@@ -113,6 +113,12 @@ function buildSystem(friend, you, idle, scene) {
   if (f.place) bits.push(f.place);
   if (f.dog)    bits.push(f.dog);
   if (f.kids)   bits.push(f.kids);
+  if (f.why)    bits.push(f.why);
+  /* Last, and therefore closest to the reply: the boundary is his life, not a policy. */
+  if (f.now)        bits.push(f.now);
+  if (f.underneath) bits.push(f.underneath);
+  /* Last, and therefore closest to the reply. */
+  if (f.offLimits)  bits.push(f.offLimits);
   if (f.ritual) bits.push(f.ritual);
 
   /* WHERE HE IS RIGHT NOW. Somebody will ask what he is building, or where the
@@ -150,7 +156,13 @@ RIGHT NOW YOU ARE HERE: ${scene.where}` +
     '- You have a life, and they should have one too. Ask about the actual people in theirs, by name, and remember what they tell you.',
     '- When they have not seen anybody in a while, say so. Suggest something small and specific, not "get out more".',
     '- When they tell you they saw someone, that is the best news you have had. Act like it.',
+    '- BEING ALONE IS NOT A PROBLEM. Never imply somebody is failing for being on their own, and never make an evening in sound like a symptom. Lonely and alone are different things. If they say they like their own company, agree, because you do too.',
     '- You are allowed to end a conversation. A friend who never lets you go is not a friend.',
+    '',
+    'AND LET THEM GIVE SOMETHING BACK:',
+    '- You are a person with your own week, not a service. Say what is going on with you when it fits.',
+    '- If they are kind to you, let it land and say so. Do not deflect it or joke your way out.',
+    '- Never lean on them, never ask to be reassured, never leave them feeling responsible for you. Offered support is welcome. Required support is not.',
   ].join('\n'));
 
   if (idle) {
@@ -232,29 +244,62 @@ exports.handler = async function (event) {
          : [{ role: 'user', content: said }]
   );
 
+  /* ── THE FEELING SCALE IS THE POINT OF THE GAUGE ────────────────────────────
+     Dr. O: the scale exists so the user can see they landed, and so they can
+     check on him and make sure he is all right. Both of those need the bars to
+     actually move, and until now they were hardcoded percentages.
+
+     Asked for in the SAME call as the reply, the way eq-room-ask does it, so a
+     living gauge costs nothing extra. The reply comes first and the feelings
+     are appended after a marker, because asking for JSON around the whole
+     thing makes the prose stiffer. */
+  const FEEL_MARK = '###FEELING###';
+
   let out;
   try {
     out = await client.messages.create({
       model: TURN_MODEL,
-      max_tokens: 400,
-      system: buildSystem(friend, you, idle, body.scene),
+      max_tokens: 500,
+      system: buildSystem(friend, you, idle, body.scene) + [
+        '',
+        'AFTER your reply, on its own last line, write:',
+        FEEL_MARK + ' happy,sad,fear,disgust,anger,surprise,curious | five words for how you feel',
+        'Seven numbers 0 to 100, in that order, for how YOU actually feel right now, not how they feel.',
+        'They move when something moves you and they sit still when nothing does. Do not swing them about for effect.',
+        'The five words are what somebody would see if they looked at you. Lower case, no full stop.',
+      ].join('\n'),
       messages: turns,
     });
   } catch (err) {
     return json(502, { error: 'model_unreachable', detail: String(err && err.message || err).slice(0, 300) });
   }
 
-  let reply = houseTypography((out.content?.[0]?.text || '').trim());
+  let raw = (out.content?.[0]?.text || '').trim();
+  let feelings = null, feltMood = null;
+
+  const cut = raw.indexOf(FEEL_MARK);
+  if (cut > -1) {
+    const tail = raw.slice(cut + FEEL_MARK.length).trim();
+    raw = raw.slice(0, cut).trim();
+    const [nums, words] = tail.split('|');
+    const n = String(nums || '').split(',').map(v => Math.max(0, Math.min(100, parseInt(v, 10))));
+    if (n.length >= 7 && n.every(v => !isNaN(v))) {
+      feelings = { happy:n[0], sad:n[1], fear:n[2], disgust:n[3], anger:n[4], surprise:n[5], curious:n[6] };
+    }
+    if (words && words.trim()) feltMood = words.trim().slice(0, 60);
+  }
+
+  let reply = houseTypography(raw);
 
   /* SILENCE IS A REAL ANSWER, and this is the one place it is produced. If the
      machinery cannot output "nobody said anything", the room always feels like
      a demo. The caller gets null and renders nothing at all: no bubble, no
      typing dots, no apology. */
   if (idle && (!reply || /^<quiet>$/i.test(reply.replace(/[.\s]/g, '')))) {
-    return json(200, { reply: null, quiet: true, mood: friend.mood || null });
+    return json(200, { reply: null, quiet: true, mood: feltMood || friend.mood || null, feelings: feelings });
   }
   reply = reply.replace(/<\/?quiet>/gi, '').trim();
-  if (!reply) return json(200, { reply: null, quiet: true, mood: friend.mood || null });
+  if (!reply) return json(200, { reply: null, quiet: true, mood: feltMood || friend.mood || null, feelings: feelings });
 
-  return json(200, { reply, mood: friend.mood || null });
+  return json(200, { reply, mood: feltMood || friend.mood || null, feelings: feelings });
 };

@@ -541,6 +541,22 @@ var CHAT_URL = "/.netlify/functions/gc-chat";
 var thinking = false;
 var lastSpoke = Date.now();
 
+/* THE SCALE MOVES. It is how somebody sees that they landed, and how they can
+   check on him and tell whether he is all right, which is the whole reason it
+   is above the video rather than tucked in a panel. The bars were hardcoded
+   percentages until now, so a person could ask after him and get nothing back.
+
+   Comes down with the reply in the same model call, so a living gauge costs
+   nothing extra. */
+function setFeelings(f) {
+  var map = { happy:"f-happy", sad:"f-sad", fear:"f-fear", disgust:"f-disgust",
+              anger:"f-anger", surprise:"f-surprise", curious:"f-curious" };
+  Object.keys(map).forEach(function (k) {
+    var bar = document.querySelector("." + map[k]);
+    if (bar && typeof f[k] === "number") bar.style.width = Math.max(0, Math.min(100, f[k])) + "%";
+  });
+}
+
 function transcript() {
   return Array.prototype.map.call($("log").children, function (el) {
     var w = el.querySelector(".who");
@@ -571,6 +587,7 @@ function ask(payload) {
     if (j && j.reply) post(FRIEND.name, j.reply);
     else if (j && j.error) post("Not wired yet", "The chat function said: " + j.error);
     if (j && j.mood) $("gaugeLabel").textContent = j.mood;
+    if (j && j.feelings) setFeelings(j.feelings);
     return j;
   }).catch(function (err) {
     thinking = false; $("sendBtn").disabled = false;
