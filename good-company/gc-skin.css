@@ -89,8 +89,19 @@ body{
 .btn.go{ color:var(--accent-ink); background:var(--accent); border-color:var(--accent); }
 .btn.go:hover{ background:var(--accent-hover); border-color:var(--accent-hover); color:var(--accent-ink); }
 
-.mark{ font-family:Georgia,serif; font-size:1rem; letter-spacing:.15em; text-transform:uppercase; }
-.mark b{ font-weight:400; color:var(--accent); }
+/* ── the mark ────────────────────────────────────────────────────────────────
+   TWO FILES, ONE PER INK, AND EXACTLY ONE IS EVER SHOWN. Both were rendering
+   stacked because the markup carried the pair and nothing decided between
+   them. Navy ink on the three pale skins, cream ink on Fireside.
+
+   Not a colour swap on one file: the mark is a photograph-quality PNG with
+   antialiased serifs, and recolouring it with a filter muddies the edges. Two
+   files is the honest way, and it is what the brand sheet draws. */
+.mark{ display:inline-flex; align-items:center; text-decoration:none; }
+.mark .logo{ height:34px; width:auto; display:block; }
+.mark .logo-light-ink{ display:none; }
+[data-skin="fireside"] .mark .logo-dark-ink{ display:none; }
+[data-skin="fireside"] .mark .logo-light-ink{ display:block; }
 
 .sec-head{
   font-family:var(--mono); font-size:11px; letter-spacing:.16em;
