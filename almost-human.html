@@ -152,10 +152,17 @@
   .group-check { display: flex; align-items: center; gap: .5rem; font-size: .85rem; padding: .4rem .5rem; border-radius: 8px; cursor: pointer; }
   .group-check:hover { background: rgba(255,255,255,.04); }
   .group-check input:disabled ~ span { color: var(--muted); }
-  .group-panel-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 1.1rem; gap: 1rem; }
+  /* wraps: with two actions on this row, a narrow phone should drop the count
+     onto its own line rather than crushing the buttons together. */
+  .group-panel-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 1.1rem; gap: 1rem; flex-wrap: wrap; }
   .group-count { font-family: 'IBM Plex Mono', monospace; font-size: .72rem; color: var(--muted); }
   .group-start-btn { font-family: 'IBM Plex Mono', monospace; font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; background: #fff; color: var(--black); border: none; border-radius: 999px; padding: .8rem 1.6rem; cursor: pointer; font-weight: 600; }
   .group-start-btn:disabled { opacity: .4; cursor: not-allowed; }
+  /* Second action on the same row, so bringing someone is a choice you make
+     when you pick the table, not something you have to discover afterwards.
+     Outlined rather than filled: still one primary button on this screen. */
+  .group-start-btn.ghost { background: transparent; color: var(--cream); border: 1px solid var(--line); }
+  .group-panel-actions { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; justify-content: flex-end; }
 
   /* ── ROOM ── */
   #room { height: 100vh; height: 100dvh; overflow: hidden; }
@@ -291,6 +298,10 @@
   #table-send:disabled { opacity: .4; cursor: not-allowed; }
 
   @media (max-width: 480px) {
+    /* Two equal actions on their own full-width row, so neither gets clipped
+       and both stay a real tap target. */
+    .group-panel-actions { width: 100%; }
+    .group-panel-actions .group-start-btn { flex: 1; padding: .8rem 1rem; }
     .table-header { padding: .7rem 1rem; gap: .6rem; }
     .table-avatar { width: 46px; }
     .table-avatar img { width: 38px; height: 38px; }
@@ -398,11 +409,14 @@
     <button type="button" class="group-start-btn" id="groupGateUpgradeBtn">Upgrade — $9.99/mo</button>
   </div>
   <div class="group-panel" id="groupPanel">
-    <p class="hint">Pick 2 to 4 agents. They'll talk to each other, not just to you.</p>
+    <p class="hint">Pick 2 to 4 agents. They'll talk to each other, not just to you. Sit down on your own, or bring one other person with you and you'll get a link to send them.</p>
     <div class="group-check-grid" id="groupCheckGrid"></div>
     <div class="group-panel-foot">
       <span class="group-count" id="groupCount">0 of 4 selected</span>
-      <button type="button" class="group-start-btn" id="groupStart">Start table chat</button>
+      <div class="group-panel-actions">
+        <button type="button" class="group-start-btn ghost" id="groupStartFriend">Bring a friend</button>
+        <button type="button" class="group-start-btn" id="groupStart">Start table chat</button>
+      </div>
     </div>
     <div class="consent-nudge" id="groupNudge">Pick at least 2 agents to start the table.</div>
   </div>
@@ -727,14 +741,34 @@ $('groupToggle').addEventListener('click', function () {
 });
 $('groupGateUpgradeBtn').addEventListener('click', startUpgradeCheckout);
 
-$('groupStart').addEventListener('click', function () {
+function checkedGroupAgents() {
   var checked = Array.prototype.slice.call(groupGrid.querySelectorAll('input:checked')).map(function (cb) { return cb.value; });
   if (checked.length < MIN_GROUP_AGENTS) {
     $('groupNudge').classList.add('show');
-    return;
+    return null;
   }
   $('groupNudge').classList.remove('show');
+  return checked;
+}
+
+$('groupStart').addEventListener('click', function () {
+  var checked = checkedGroupAgents();
+  if (checked) openTable(checked);
+});
+
+// The same table, with the invite made for her instead of waiting to be found.
+// Inviting somebody is a decision you make when you're picking who to sit with,
+// not one you discover afterwards, and it used to be six clicks deep: splash,
+// consent, picker, the group toggle, the checkboxes, start, and only then a
+// button in the table header. The header button stays for the other real case,
+// which is deciding twenty minutes in that somebody should hear this.
+$('groupStartFriend').addEventListener('click', function () {
+  var checked = checkedGroupAgents();
+  if (!checked) return;
   openTable(checked);
+  // After openTable, never before: it resets the table state that the room is
+  // opened from.
+  inviteFriend();
 });
 
 var uiMode = 'single'; // 'single' | 'group' -- which End Conversation flow the Likert modal serves
