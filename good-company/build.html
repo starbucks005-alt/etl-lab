@@ -415,6 +415,7 @@ var friend = null;
        for somebody further in than this that is not a blank record. */
     if (!confirm('Forget ' + built.name + '? Everything about them goes, and this cannot be undone.')) return;
     try { localStorage.removeItem('gc-friend'); } catch (e) {}
+    try { localStorage.removeItem('gc-face-sets'); } catch (e) {}
     try { sessionStorage.removeItem('gc-who'); } catch (e) {}
     location.href = 'build.html';
   });
@@ -486,6 +487,46 @@ $('makeBtn').addEventListener('click', function () {
 var FACE_COUNT = 4;
 var drawing = false;
 
+/* HOW MANY SETS ONE FRIEND GETS. Faces are the only thing in this build that
+   spends money on every press, at roughly a nickel each, so four of them is
+   about a quarter and an afternoon of pressing is real money. Three sets is
+   twelve faces, which is enough to find somebody now that they are no longer
+   all coming back drab.
+
+   Counted across BOTH buttons, because "Meet the faces" draws four as surely
+   as "Draw four more" does, and capping one of them would cap nothing. Kept in
+   storage so a reload is not a way around it. Cleared when a face is chosen,
+   which means they are done, and when the friend is forgotten, which costs
+   them the whole intake to do. */
+var FACE_SETS = 3;
+
+function setsDrawn() {
+  try { return parseInt(localStorage.getItem('gc-face-sets') || '0', 10) || 0; }
+  catch (e) { return 0; }
+}
+function noteSetDrawn() {
+  try { localStorage.setItem('gc-face-sets', String(setsDrawn() + 1)); } catch (e) {}
+}
+function clearSetsDrawn() {
+  try { localStorage.removeItem('gc-face-sets'); } catch (e) {}
+}
+
+/* Says how many are left rather than going quiet, because a button that stops
+   working without saying why reads as a broken product. */
+function paintRedraw() {
+  var left = Math.max(0, FACE_SETS - setsDrawn());
+  var b = $('redrawBtn');
+  if (left > 0) {
+    b.disabled = false;
+    b.textContent = 'Draw four more';
+    b.title = left + (left === 1 ? ' set left' : ' sets left');
+  } else {
+    b.disabled = true;
+    b.textContent = 'No more for this one';
+    b.title = 'Pick the closest of these, or start over to begin again.';
+  }
+}
+
 function faceCard(content, cls) {
   var d = document.createElement('div');
   d.className = 'face' + (cls ? ' ' + cls : '');
@@ -500,7 +541,18 @@ function faceCard(content, cls) {
    staring at four empty boxes until the slowest one finished. */
 function drawFaces() {
   if (drawing || !friend) return;
+
+  if (setsDrawn() >= FACE_SETS) {
+    /* Named plainly, with the way forward, rather than a dead button. */
+    $('faceNote').textContent =
+      'That is all the faces for this one. Pick the closest of these, or start ' +
+      'over at the top of the page to begin again.';
+    paintRedraw();
+    return;
+  }
+
   drawing = true;
+  noteSetDrawn();
   $('redrawBtn').disabled = true;
   $('faceNote').textContent = 'Drawing four faces from your answers. They arrive one at a time.';
 
@@ -545,7 +597,7 @@ function drawFaces() {
       .then(function () {
         done++;
         if (done < FACE_COUNT) return;
-        drawing = false; $('redrawBtn').disabled = false;
+        drawing = false; paintRedraw();
         if (!drawn) {
           $('faceNote').textContent = (firstProblem === 'no_image_key')
             ? 'Faces are not connected to a drawing key yet. Everything else you built is saved.'
@@ -598,6 +650,8 @@ function chooseFace(btn, src) {
       'storage is full. Everything else you built is saved.';
     return;
   }
+  clearSetsDrawn();
+  paintRedraw();
   $('faceNote').textContent = 'That is them. Open the room whenever you are ready.';
 }
 
