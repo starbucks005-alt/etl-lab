@@ -83,7 +83,44 @@ const VARIATIONS = [
   'This one is Latino or Middle Eastern, or of mixed heritage.',
 ];
 
-function facePrompt(f, variation) {
+/* WHY THESE EXIST AT ALL: "DRAW FOUR MORE" WAS DRAWING THE SAME FOUR.
+
+   The prompt for a given set of answers was byte-identical every time, so the
+   second press asked the model the exact same question and got the same four
+   people back. Pookie pressed it repeatedly and kept meeting the same faces,
+   which makes the button a lie.
+
+   There is no seed parameter to reach for here; image_config is already
+   rejected by this endpoint. So the variety has to be in the words. These
+   change the photograph without touching the brief: same person, different day
+   and different corner of their life. Picked by a nonce the browser sends, so
+   every press is a genuinely different set. */
+const LIGHT = [
+  'Overcast afternoon light, soft and even.',
+  'Low evening sun coming in from one side, warm.',
+  'Bright flat morning light.',
+  'Indoors, light from a window off to one side, the rest of the room dim.',
+  'Grey winter daylight, cool and plain.',
+];
+
+const SETTING = [
+  'On their own doorstep.',
+  'In their kitchen, leaning against the counter.',
+  'Just inside the front room, coat still on.',
+  'Outside, in the street where they live.',
+  'At the back of the house, door open behind them.',
+];
+
+const FRAME = [
+  'Close, head and shoulders, filling the frame.',
+  'A little further back, from the chest up, the room visible around them.',
+  'Slightly to one side, not centred, looking just past the camera.',
+  'Straight on, plain and direct, nothing clever about it.',
+];
+
+function pick(list, n) { return list[Math.abs(n) % list.length]; }
+
+function facePrompt(f, variation, nonce) {
   const bits = [];
 
   bits.push('A photograph of a real person. Natural photography, not an illustration, ' +
@@ -102,6 +139,28 @@ function facePrompt(f, variation) {
   if (f.into) bits.push('Outside work they are into ' + (Array.isArray(f.into) ? f.into.join(', ') : f.into) + '.');
 
   bits.push(variation);
+
+  /* AN ORDINARY PRIVATE PERSON, NOT A FACE ANYBODY RECOGNISES. Pookie's sets
+     came back with two famous actors in them, and our own Arch. Left to itself
+     the model reaches for the handsome, well-lit, familiar face, because that
+     is what photographs of fifty-year-old men mostly are in its training.
+
+     Two things are wrong with that and only one of them is legal. It is
+     somebody's actual likeness, a real living person who did not agree to be
+     anybody's companion. And it breaks the only promise this screen makes,
+     which is that this friend is theirs: a face you have seen in films is the
+     opposite of a friend nobody else has. */
+  bits.push('This must be an ordinary private individual with an unremarkable, ' +
+            'un-famous face. Not a celebrity, not an actor, not a model, not a public ' +
+            'figure, and not resembling any recognisable person. Not conventionally ' +
+            'handsome or beautiful, not styled, not a professional photograph. ' +
+            'The kind of face you would pass in a supermarket and not look at twice.');
+
+  /* Same brief, different day. Without these the prompt is identical every
+     time and so is what comes back. */
+  bits.push(pick(SETTING, nonce + 1));
+  bits.push(pick(LIGHT, nonce + 2));
+  bits.push(pick(FRAME, nonce + 3));
 
   /* THE FRAMING IS ASKED FOR IN WORDS, NOT AS A PARAMETER. The shared module
      will take an aspect ratio and send it as image_config, and this endpoint
@@ -152,9 +211,15 @@ exports.handler = async (event) => {
   const n = Number(body.variation);
   const idx = (Number.isFinite(n) && n >= 0) ? Math.floor(n) % VARIATIONS.length : 0;
 
+  /* Sent by the page, different on every press, so "draw four more" actually
+     draws four more rather than the same four again. Falls back to something
+     that at least differs between the four cards of one set. */
+  const nn = Number(body.nonce);
+  const nonce = Number.isFinite(nn) ? Math.floor(Math.abs(nn)) + idx : idx;
+
   let face;
   try {
-    face = await gemini.generate(facePrompt(f, VARIATIONS[idx]));   // no aspect, see facePrompt
+    face = await gemini.generate(facePrompt(f, VARIATIONS[idx], nonce));   // no aspect, see facePrompt
   } catch (err) {
     /* Reported with the reason the model actually gave. One card fails, the
        other three still land, and the page says which. */

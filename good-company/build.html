@@ -409,11 +409,15 @@ function drawFaces() {
   }
 
   var done = 0, drawn = 0, firstProblem = null;
+  var nonce = Math.floor(Math.random() * 1000000);
 
   cards.forEach(function (card, i) {
     fetch('/.netlify/functions/gc-face', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ friend: friend, variation: i })
+      /* A FRESH NONCE EVERY PRESS. Without it the request is identical each
+         time and so is what comes back: Pookie pressed "draw four more" and
+         met the same four people again. */
+      body: JSON.stringify({ friend: friend, variation: i, nonce: nonce })
     }).then(function (r) { return r.json().then(function (j) { return { s: r.status, j: j }; }); })
       .then(function (res) {
         var j = res.j || {};
