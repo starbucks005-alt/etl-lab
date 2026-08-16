@@ -487,13 +487,81 @@ $("youBtn").addEventListener("click", function () {
 
 
 
-function send() {
-  var v = $('say').value.trim();
-  if (!v) return;
-  post(youLabel(), v, true);
-  $('say').value = '';
-  post('Not wired yet', 'This is the layout shell. The reply comes from the chat function once it exists.');
+/* THE CHAT FUNCTION. Same path locally and on the campus: serve.js aliases it
+   to the very file that deploys, so what is tested is what ships. */
+var CHAT_URL = "/.netlify/functions/gc-chat";
+var thinking = false;
+var lastSpoke = Date.now();
+
+function transcript() {
+  return Array.prototype.map.call($("log").children, function (el) {
+    var w = el.querySelector(".who");
+    var who = w ? w.textContent.trim() : "";
+    return { who: who,
+             text: el.textContent.slice(who.length).trim(),
+             mine: el.classList.contains("mine") };
+  });
 }
+
+function ask(payload) {
+  thinking = true;
+  $("sendBtn").disabled = true;
+  return fetch(CHAT_URL, {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(Object.assign({
+      friend: FRIEND,
+      you: { name: YOU.name, pronouns: YOU.pronouns },
+      messages: transcript()
+    }, payload))
+  }).then(function (r) { return r.json(); }).then(function (j) {
+    thinking = false; $("sendBtn").disabled = false;
+    lastSpoke = Date.now();
+    /* A NULL REPLY IS A REAL ANSWER, not a failure. Nothing is rendered: no
+       bubble, no apology, no dots. If silence cannot be produced the room
+       always feels like a demo. */
+    if (j && j.reply) post(FRIEND.name, j.reply);
+    else if (j && j.error) post("Not wired yet", "The chat function said: " + j.error);
+    if (j && j.mood) $("gaugeLabel").textContent = j.mood;
+    return j;
+  }).catch(function (err) {
+    thinking = false; $("sendBtn").disabled = false;
+    post("Not wired yet", "Could not reach " + FRIEND.name + ". " + err.message);
+  });
+}
+
+function send() {
+  var v = $("say").value.trim();
+  if (!v || thinking) return;
+  post(youLabel(), v, true);
+  $("say").value = "";
+  lastSpoke = Date.now();
+  ask({ message: v });
+}
+
+/* ── BREAKING A SILENCE ──────────────────────────────────────────────────────
+   The complaint that every chat room on this campus has: nobody speaks first.
+   Chat is request and response, so quiet produces nothing, and the moment
+   somebody sits down not knowing how to start is exactly the moment this
+   product is for.
+
+   So the friend gets ASKED whether they want to say something. They may
+   decline, and declining is normal. Backing off each time and stopping after
+   a few, so an abandoned tab is not talking to an empty chair, and only while
+   the tab is actually in front. */
+var IDLE_STEPS = [40, 120, 300];   // seconds, then it stops
+var idleStep = 0;
+
+setInterval(function () {
+  if (thinking || idleStep >= IDLE_STEPS.length) return;
+  if (document.hidden) return;                       // not talking to a background tab
+  if (!$("log").children.length) return;             // nobody has sat down yet
+  if ((Date.now() - lastSpoke) / 1000 < IDLE_STEPS[idleStep]) return;
+  idleStep += 1;
+  ask({ idle: true });
+}, 5000);
+
+/* Anything said by anybody resets the whole ladder. */
+$("say").addEventListener("input", function () { lastSpoke = Date.now(); idleStep = 0; });
 $('sendBtn').addEventListener('click', send);
 $('say').addEventListener('keydown', function (e) { if (e.key === 'Enter') send(); });
 

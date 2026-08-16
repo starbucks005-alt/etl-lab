@@ -52,6 +52,11 @@ var GC_DEMO = {
          "Call me Arch. Come on in, I was putting the kettle on anyway.",
   mood:  'Easy, in no particular hurry',
 
+  /* His voice, for when Reply as: Audio gets wired. ElevenLabs. Kept here with
+     the rest of him rather than in a lookup table somewhere else, because a
+     friend's voice is part of who they are, not a setting. */
+  voiceId: 'PKu46bbccMP1b22TyeI0',
+
   /* THE FRIEND BRINGS THEIR OWN ROOM. Arch is a cabin in the woods, and a
      fireplace with real wood in it rather than the electric kind, so his room
      opens on Fireside. A user's own pick always beats this and beats it
