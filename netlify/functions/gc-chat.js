@@ -291,12 +291,24 @@ exports.handler = async function (event) {
   if (cut > -1) {
     const tail = raw.slice(cut + FEEL_MARK.length).trim();
     raw = raw.slice(0, cut).trim();
-    const [nums, words] = tail.split('|');
-    const n = String(nums || '').split(',').map(v => Math.max(0, Math.min(100, parseInt(v, 10))));
-    if (n.length >= 7 && n.every(v => !isNaN(v))) {
+    /* PARSED BY SHAPE, NOT BY PUNCTUATION. The first version split on a pipe
+       and trusted the model to put the numbers first. It did not, reliably,
+       and the raw digits ended up printed in the mood label on screen:
+       "CONTENT, UNHURRIED, MILDLY CURIOUS, EASY, WARM 60,15,5,5,5,1".
+
+       So: take the first seven integers wherever they are, and take the words
+       from whatever is left once every number has been stripped out. */
+    const n = (tail.match(/d{1,3}/g) || []).slice(0, 7).map(v => Math.max(0, Math.min(100, parseInt(v, 10))));
+    if (n.length === 7 && n.every(v => !isNaN(v))) {
       feelings = { happy:n[0], sad:n[1], fear:n[2], disgust:n[3], anger:n[4], surprise:n[5], curious:n[6] };
     }
-    if (words && words.trim()) feltMood = words.trim().slice(0, 60);
+    const words = tail
+      .replace(/|/g, " ")
+      .replace(/d{1,3}/g, "")     // the numbers are for the bars, never for the label
+      .replace(/[,s]+/g, " ")
+      .replace(/^[s,]+|[s,]+$/g, "")
+      .trim();
+    if (words) feltMood = words.slice(0, 60);
   }
 
   let reply = houseTypography(raw);

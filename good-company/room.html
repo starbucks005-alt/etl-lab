@@ -57,7 +57,11 @@ html,body{ height:100%; }
    the two people part. A wordmark squeezed into the corner of a column sized
    by a video reads as a squashed wordmark; the two figures read as a mark. The
    full lockup stays on the pages that have width for it. */
-.brandbar .logo{ height:34px; width:34px; display:block; }
+/* SIZE ONLY, NEVER display. gc-skin.css decides WHICH ink shows, and setting
+   display here ties on specificity and wins on source order, so both inks
+   rendered at once. Same bug as the wordmark, reintroduced by me two hours
+   later. Size is safe; visibility is not ours to set. */
+.brandbar .logo{ height:34px; width:34px; }
 .gauge-wrap{ flex:1; min-width:0; }
 
 /* ── the feeling scale ───────────────────────────────────────────────────── */
@@ -747,6 +751,11 @@ $("bringBtn").addEventListener("click", function () {
     $("bringBtn").disabled = false;
     if (!j || !j.seat_token) { post("Not wired yet", "Could not open the room: " + ((j && j.error) || "unknown")); return; }
     SEAT = j.seat_token; ROOM = j.room_id;
+    /* THE CARRIED THREAD IS ALREADY ON SCREEN. Opening a room writes the prior
+       conversation up to the server, and without this the very next poll reads
+       it straight back and posts every line a second time. His greeting
+       appeared twice. Start the cursor at now: anything older is already here. */
+    lastSeen = new Date().toISOString();
     startPolling();
     showInvite(j.invite_token);
   }).catch(function (err) {
