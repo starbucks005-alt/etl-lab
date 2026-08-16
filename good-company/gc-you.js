@@ -35,6 +35,7 @@ function gcLoadYou() {
   if (!you || typeof you !== 'object') you = {};
   return {
     name:     you.name || '',
+    saidAs:   you.saidAs || '',
     pronouns: you.pronouns || 'they / them',
     emoji:    you.emoji || '🙂',
     photo:    you.photo || null      // data URL, or null when using the emoji
@@ -155,6 +156,30 @@ function gcMountYou(host, onSave) {
   nameRow.appendChild(name);
   host.appendChild(nameRow);
 
+  /* ── HOW IT SOUNDS ──────────────────────────────────────────────────────────
+     Dr. O, 2026-08-16, after hearing Arch say her name out loud. A friend who
+     says your name often and says it WRONG every time is worse than one who
+     never says it. For a lot of people, having their name mangled IS the
+     experience of not being seen, and this product cannot afford to reproduce
+     that every few lines.
+
+     Written phonetically by the person themselves, because they are the only
+     authority on it. Only the SPOKEN text gets substituted; everything on
+     screen keeps the real spelling, which is the entire point. */
+  var sayRow = row('How do you say it');
+  var sayNote = document.createElement('p');
+  sayNote.className = 'you-note';
+  sayNote.textContent = 'Only if it gets said wrong a lot. Write it how it sounds, like SHAWN-ay. ' +
+                        'Your name stays spelled properly everywhere you can see it.';
+  sayRow.appendChild(sayNote);
+  var saidAs = document.createElement('input');
+  saidAs.type = 'text';
+  saidAs.value = you.saidAs || '';
+  saidAs.autocomplete = 'off';
+  saidAs.placeholder = 'how it sounds';
+  sayRow.appendChild(saidAs);
+  host.appendChild(sayRow);
+
   /* ── pronouns ── */
   var pRow = row('Your pronouns');
   var note = document.createElement('p');
@@ -187,6 +212,7 @@ function gcMountYou(host, onSave) {
   save.type = 'button'; save.className = 'btn go you-save'; save.textContent = 'Save';
   save.addEventListener('click', function () {
     you.name = name.value.trim();
+    you.saidAs = saidAs.value.trim();
     var typed = other.value.trim();
     if (typed) you.pronouns = typed;
     if (!you.pronouns) you.pronouns = 'they / them';

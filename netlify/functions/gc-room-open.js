@@ -28,6 +28,28 @@ exports.handler = async function (event) {
   let body;
   try { body = JSON.parse(event.body || '{}'); } catch (_) { return R.json(400, { error: 'bad_json' }); }
 
+  /* ── ANOTHER INVITE FOR A ROOM THAT ALREADY EXISTS ──────────────────────────
+     Anyone with a seat can mint one, not only the host, because a guest
+     wanting to show their mum is the product spreading on its own. The host
+     can shut that off per room. */
+  if (body.reuse_seat) {
+    const who = await R.identify(key, body.reuse_seat);
+    if (!who) return R.json(403, { error: 'no_seat' });
+    const usable = R.roomIsUsable(who.room);
+    if (!usable.ok) return R.json(410, { error: usable.reason });
+    if (!who.seat.is_host && !who.room.guests_may_invite) {
+      return R.json(403, { error: 'host_has_closed_invites' });
+    }
+    const people = await R.loadPeople(key, who.room.id);
+    if (people.length >= R.MAX_PEOPLE) return R.json(409, { error: 'room_full' });
+
+    const token = R.newToken('GCI');
+    await R.sbInsert(key, 'gc_people', {
+      room_id: who.room.id, token, is_host: false, removed: true,
+    }, false);
+    return R.json(200, { room_id: who.room.id, invite_token: token });
+  }
+
   const friend = body.friend;
   if (!friend || !friend.name) return R.json(400, { error: 'no_friend' });
 

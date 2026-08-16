@@ -53,7 +53,11 @@ html,body{ height:100%; }
    wordmark is wide: a 52px round slot was shaped for two letters and would
    crush it. The ink swap by skin is in gc-skin.css and applies here too. */
 .brandbar .mark{ flex:none; }
-.brandbar .logo{ height:30px; width:auto; display:block; }
+/* THE ICON ALONE IN A NARROW SLOT. Dr. O: when the space is like this, use
+   the two people part. A wordmark squeezed into the corner of a column sized
+   by a video reads as a squashed wordmark; the two figures read as a mark. The
+   full lockup stays on the pages that have width for it. */
+.brandbar .logo{ height:34px; width:34px; display:block; }
 .gauge-wrap{ flex:1; min-width:0; }
 
 /* ── the feeling scale ───────────────────────────────────────────────────── */
@@ -241,8 +245,8 @@ html,body{ height:100%; }
     <div class="topline">
       <div class="brandbar">
         <a class="mark" href="index.html" title="Good Company">
-          <img class="logo logo-dark-ink"  src="brand/logo-dark-ink.png"  alt="Good Company" width="560" height="244">
-          <img class="logo logo-light-ink" src="brand/logo-light-ink.png" alt="Good Company" width="560" height="260">
+          <img class="logo logo-dark-ink"  src="brand/icon-dark-ink.png"  alt="Good Company" width="122" height="122">
+          <img class="logo logo-light-ink" src="brand/icon-light-ink.png" alt="Good Company" width="123" height="123">
         </a>
       </div>
 
@@ -326,10 +330,17 @@ var $ = function (id) { return document.getElementById(id); };
 /* The friend's name, written into every place the room says it, from the one
    source. Never a hardcoded name and never a pronoun: this product makes a
    different person for everybody. */
-$('gaugeTitle').textContent = 'How ' + FRIEND.name + ' is feeling right now';
-$('gaugeLabel').textContent = FRIEND.mood || 'Easy, glad you came by';
-$('earHint').textContent = 'Say "' + FRIEND.name + '" to get their attention from across the room, ' +
-  'once this is on and this tab is in front. Off by default, and audio leaves the browser only while it is on.';
+/* Called again when a guest arrives, because they are handed the host's friend
+   and everything named after them has to catch up. */
+function nameEverything() {
+  $('gaugeTitle').textContent = 'How ' + FRIEND.name + ' is feeling right now';
+  $('gaugeLabel').textContent = FRIEND.mood || 'Easy, glad you came by';
+  $('earHint').textContent = 'Say "' + FRIEND.name + '" to get their attention from across the room, ' +
+    'once this is on and this tab is in front. Off by default, and audio leaves the browser only while it is on.';
+  $('gateSay').textContent = 'Tell ' + FRIEND.name + ' who you are. You only do this once.';
+  $('startBtn').textContent = 'Sit down with ' + FRIEND.name;
+}
+nameEverything();
 
 /* Skins: resolution and the picker both live in gc-skin.js, shared with every
    other page, so these four surfaces cannot drift apart. */
@@ -514,10 +525,11 @@ function post(who, text, mine) {
    and a room with two humans in it needs to show which line came from whom.
    The same panel serves a guest who arrived on a link with no account. */
 var YOU = gcLoadYou();
-function youLabel(){ return YOU.name || "You"; }
 
-$("gateSay").textContent = "Tell " + FRIEND.name + " who you are. You only do this once.";
-$("startBtn").textContent = "Sit down with " + FRIEND.name;
+/* Room state, declared here because sitDown() reads SEAT and relying on var
+   hoisting to make that undefined-but-falsy is luck rather than intent. */
+var SEAT = null, ROOM = null, lastSeen = null, polling = null;
+function youLabel(){ return YOU.name || "You"; }
 
 gcMountYou($("youPanel"), function (saved) { YOU = saved; sitDown(); });
 
@@ -527,7 +539,10 @@ gcMountYou($("youPanel"), function (saved) { YOU = saved; sitDown(); });
 function sitDown() {
   $("gate").style.display = "none";
   $("chat").style.display = "flex";
-  if (!$("log").children.length) {
+  /* His opening line is for somebody arriving alone. A guest joining a room
+     already has a conversation coming down the poll, and greeting them over
+     the top of it would be him talking to himself. */
+  if (!$("log").children.length && !SEAT) {
     post(FRIEND.name, FRIEND.hello || "You came. Sit down, I want to hear about your day.");
   }
 }
@@ -607,7 +622,30 @@ function send() {
   post(youLabel(), v, true);
   $("say").value = "";
   lastSpoke = Date.now();
+
+  /* Once there is a room, everything goes through it: the line has to reach the
+     other browsers, and whether the friend answers at all is decided server
+     side by the room's size, not here. */
+  if (SEAT) { sayInRoom(v); return; }
   ask({ message: v });
+}
+
+function sayInRoom(text) {
+  thinking = true; $("sendBtn").disabled = true;
+  fetch("/.netlify/functions/gc-room-say", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ seat_token: SEAT, message: text })
+  }).then(function (r) { return r.json(); }).then(function (j) {
+    thinking = false; $("sendBtn").disabled = false;
+    lastSpoke = Date.now();
+    /* A null reply is correct and common in a room with several people in it.
+       Nothing is rendered. The poll will bring anything he did say. */
+    if (j && j.feelings) setFeelings(j.feelings);
+    if (j && j.mood) $("gaugeLabel").textContent = j.mood;
+  }).catch(function (err) {
+    thinking = false; $("sendBtn").disabled = false;
+    post("Not wired yet", "Could not reach the room. " + err.message);
+  });
 }
 
 /* ── BREAKING A SILENCE ──────────────────────────────────────────────────────
@@ -651,10 +689,129 @@ $('albumBtn').addEventListener('click', function () { location.href = 'album.htm
 function notYet(what, why) {
   post('Not wired yet', what + ' is not built yet. ' + why);
 }
-$('bringBtn').addEventListener('click', function () {
-  notYet('Bring someone with you',
-    'It needs the invite and seating tables from The Dose conference room, which is the piece that lets somebody join with no account.');
+/* ── BRINGING SOMEBODY IN ────────────────────────────────────────────────────
+   PROMOTE ON INVITE. Up to this point the conversation has been a browser and
+   nothing else, which is right, because talking to your friend on your own is
+   the common case and should cost no database at all. Pressing this is what
+   brings a room into existence, and the whole prior thread goes up with it so
+   he does not forget what you were saying the moment somebody arrives.
+
+   Anyone in the room can do this, not only the host. A guest wanting to show
+   their mum is the product spreading on its own. */
+
+function inviteLink(token) {
+  return location.origin + location.pathname + "?join=" + encodeURIComponent(token);
+}
+
+function showInvite(token) {
+  var url = inviteLink(token);
+  post("Bring someone", "Send them this. They tap it once and they are in the room with you, no sign in and no account. They will see the conversation from the moment they arrive, not before it.");
+  var box = document.createElement("div");
+  box.className = "msg";
+  var a = document.createElement("input");
+  a.type = "text"; a.readOnly = true; a.value = url;
+  a.style.cssText = "width:100%;font:inherit;font-size:13px;padding:.4rem;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:3px";
+  a.addEventListener("focus", function () { this.select(); });
+  box.appendChild(a);
+  var copy = document.createElement("button");
+  copy.className = "btn"; copy.style.marginTop = ".45rem"; copy.textContent = "Copy the link";
+  copy.addEventListener("click", function () {
+    navigator.clipboard.writeText(url).then(function () { copy.textContent = "Copied"; })
+      .catch(function () { a.focus(); });
+  });
+  box.appendChild(copy);
+  $("log").appendChild(box);
+  $("log").scrollTop = $("log").scrollHeight;
+}
+
+$("bringBtn").addEventListener("click", function () {
+  if (SEAT) {  /* already a room: just mint another invite */
+    fetch("/.netlify/functions/gc-room-open", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ friend: FRIEND, reuse_seat: SEAT })
+    }).then(function (r) { return r.json(); }).then(function (j) {
+      if (j.invite_token) showInvite(j.invite_token);
+    });
+    return;
+  }
+  this.disabled = true;
+  fetch("/.netlify/functions/gc-room-open", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      friend: FRIEND,
+      scene_key: current ? current.key : null,
+      you: { name: YOU.name, pronouns: YOU.pronouns, avatar: YOU.photo || YOU.emoji },
+      messages: transcript()
+    })
+  }).then(function (r) { return r.json(); }).then(function (j) {
+    $("bringBtn").disabled = false;
+    if (!j || !j.seat_token) { post("Not wired yet", "Could not open the room: " + ((j && j.error) || "unknown")); return; }
+    SEAT = j.seat_token; ROOM = j.room_id;
+    startPolling();
+    showInvite(j.invite_token);
+  }).catch(function (err) {
+    $("bringBtn").disabled = false;
+    post("Not wired yet", "Could not open the room. " + err.message);
+  });
 });
+
+/* ── ARRIVING ON A LINK ──────────────────────────────────────────────────────
+   Same page, same friend, same scene, mid-conversation. Not a separate view:
+   the whole point is joining where somebody already is. */
+(function joinIfInvited() {
+  var token = new URLSearchParams(location.search).get("join");
+  if (!token) return;
+  history.replaceState({}, "", location.pathname);   // the link is spent, keep it out of the bar
+
+  fetch("/.netlify/functions/gc-room-join", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      invite_token: token,
+      you: { name: YOU.name, pronouns: YOU.pronouns, avatar: YOU.photo || YOU.emoji, remember_me: false }
+    })
+  }).then(function (r) { return r.json(); }).then(function (j) {
+    if (!j || !j.seat_token) {
+      sitDown();
+      post("Not wired yet", "That invite did not work: " + ((j && j.error) || "unknown"));
+      return;
+    }
+    SEAT = j.seat_token; ROOM = j.room_id;
+    if (j.friend) { FRIEND = j.friend; nameEverything(); }
+    if (j.scene_key) {
+      var sc = (FRIEND.scenes || []).filter(function (x) { return x.key === j.scene_key; })[0];
+      if (sc) play(sc);
+    }
+    sitDown();
+    startPolling();
+  });
+})();
+
+/* Everybody in the room reads from the same place. A guest is bounded below by
+   their own arrival, which is enforced server side and cannot be argued down
+   from here. */
+function startPolling() {
+  if (polling) return;
+  polling = setInterval(function () {
+    fetch("/.netlify/functions/gc-room-poll", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ seat_token: SEAT, since: lastSeen })
+    }).then(function (r) { return r.json(); }).then(function (j) {
+      if (!j || !j.messages) return;
+      j.messages.forEach(function (m) {
+        lastSeen = m.created_at;
+        if (m.mine_local) return;
+        post(m.name || FRIEND.name, m.content, m.speaker === "person" && m.name === YOU.name);
+      });
+      /* THE SCENE IS SHARED. The host changes rooms and everybody follows,
+         because if you are both sitting with him at the fireplace then you are
+         both at the fireplace. */
+      if (j.scene_key && (!current || current.key !== j.scene_key)) {
+        var sc = (FRIEND.scenes || []).filter(function (x) { return x.key === j.scene_key; })[0];
+        if (sc) play(sc);
+      }
+    }).catch(function () {});
+  }, 3000);
+}
 $('memBtn').addEventListener('click', function () {
   notYet('Add a memory', 'It needs somewhere to keep what you tell them between visits.');
 });
@@ -762,9 +919,18 @@ function hush() {
 function speak(text) {
   if (!asAudio || !FRIEND.voiceId || !text) return;
   hush();
+
+  /* SAY THE NAME RIGHT. Only the audio is substituted: the transcript keeps
+     the real spelling, because the point is that they are seen properly, not
+     that their name gets rewritten. */
+  var spoken = text;
+  if (YOU.saidAs && YOU.name) {
+    var escaped = YOU.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    spoken = spoken.replace(new RegExp('\\b' + escaped + '\\b', 'g'), YOU.saidAs);
+  }
   fetch("/.netlify/functions/gc-voice", {
     method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text: text, voice_id: FRIEND.voiceId })
+    body: JSON.stringify({ text: spoken, voice_id: FRIEND.voiceId })
   }).then(function (r) { return r.json(); }).then(function (j) {
     if (!j || !j.audio) {
       /* Says which problem rather than failing silently, and only once: a

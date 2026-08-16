@@ -53,14 +53,8 @@ input[type=text]:focus, textarea:focus{ outline:none; border-color:var(--accent)
 .with-btn{ display:flex; gap:.45rem; }
 .with-btn input{ flex:1; min-width:0; }
 
-.chips{ display:flex; flex-wrap:wrap; gap:.4rem; }
-.chip{
-  font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase;
-  color:var(--ink-dim); background:transparent; border:1px solid var(--line);
-  border-radius:3px; padding:.45rem .7rem; cursor:pointer;
-}
-.chip:hover{ color:var(--accent); border-color:var(--accent); }
-.chip.on{ color:var(--accent); border-color:var(--accent); }
+/* Chips come from gc-skin.css, shared with the identity panel in the room.
+   A duplicate here is how the two drift apart. */
 
 /* Buttons come from gc-skin.css. Only the one override this page needs: the
    commit button at the end of a two-minute form should be bigger than a chrome
@@ -234,7 +228,7 @@ footer{ padding:2rem 0 3rem; color:var(--ink-dim); font-size:.9rem; }
     </p>
   </div>
 
-  <footer>Good Company is a companion app. It is not a dating app.</footer>
+  <footer>Good Company is a companion app. It is not a dating app, and it will not become one.</footer>
 </main>
 
 <script>

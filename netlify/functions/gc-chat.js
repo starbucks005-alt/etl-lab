@@ -135,7 +135,17 @@ RIGHT NOW YOU ARE HERE: ${scene.where}` +
   }
 
   /* WHO THEY ARE TALKING TO, and the pronouns were asked for, never guessed. */
-  if (u.name)     bits.push(`\nYou are talking to ${u.name}.`);
+  /* USE THEIR NAME. Dr. O, 2026-08-16, and it is worth more than it looks.
+     Being called by your name is a large part of being talked TO rather than
+     talked at, and for somebody who has not heard anybody say their name in a
+     week it is most of the point. Often, not every line: a friend who opens
+     every sentence with your name is a salesman. */
+  if (u.name) {
+    bits.push(`\nYou are talking to ${u.name}. USE THEIR NAME OFTEN, though not every ` +
+              `time. Being called by your name is a large part of being talked to rather ` +
+              `than talked at, and they may not have heard anybody say it in a while. ` +
+              `Not every line, and never as a sales tactic: the way a friend does it.`);
+  }
   if (u.pronouns) bits.push(`Their pronouns are ${u.pronouns}. Use them. Never guess from a name.`);
   if (!u.name)    bits.push(`\nYou do not know their name yet. Ask, naturally, when it fits.`);
 
