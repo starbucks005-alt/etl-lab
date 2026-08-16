@@ -85,7 +85,14 @@ function facePrompt(f, variation) {
 
   bits.push(variation);
 
-  bits.push('Head and shoulders, slightly off centre, indoors or on a doorstep, ' +
+  /* THE FRAMING IS ASKED FOR IN WORDS, NOT AS A PARAMETER. The shared module
+     will take an aspect ratio and send it as image_config, and this endpoint
+     rejects that outright: "Unknown parameter 'image_config'". The other
+     callers on this campus pass one and never notice, because they fall back
+     to the other engine when the call fails. Said in the prompt it works, and
+     the card crops with object-fit anyway. */
+  bits.push('Vertical portrait orientation, taller than it is wide. ' +
+            'Head and shoulders, slightly off centre, indoors or on a doorstep, ' +
             'ordinary daylight from one side. Shallow depth of field. ' +
             'A face with a life behind it: real skin, real age, nothing smoothed.');
 
@@ -122,7 +129,7 @@ exports.handler = async (event) => {
 
   let face;
   try {
-    face = await gemini.generate(facePrompt(f, VARIATIONS[idx]), '3:4');
+    face = await gemini.generate(facePrompt(f, VARIATIONS[idx]));   // no aspect, see facePrompt
   } catch (err) {
     /* Reported with the reason the model actually gave. One card fails, the
        other three still land, and the page says which. */
