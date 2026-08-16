@@ -275,8 +275,13 @@ exports.handler = async function (event) {
       system: buildSystem(friend, you, idle, body.scene) + [
         '',
         'AFTER your reply, on its own last line, write:',
-        FEEL_MARK + ' happy,sad,fear,disgust,anger,surprise,curious | five words for how you feel',
-        'Seven numbers 0 to 100, in that order, for how YOU actually feel right now, not how they feel.',
+        /* THE SLOT HOLDS DIGITS, NOT THE FIELD NAMES. It used to read
+           "happy,sad,fear,..." and the model copied the line as given, so the
+           gauge label under his face said HAPPY SAD FEAR DISGUST ANGER. What
+           each number means belongs in the sentence below, not in the slot. */
+        FEEL_MARK + ' 00,00,00,00,00,00,00 | five words for how you feel',
+        'The numbers are 0 to 100 in this order: happy, sad, fear, disgust, anger, surprise, curious.',
+        'They are how YOU actually feel right now, not how they feel.',
         'They move when something moves you and they sit still when nothing does. Do not swing them about for effect.',
         'The five words are what somebody would see if they looked at you. Lower case, no full stop.',
       ].join('\n'),
@@ -323,9 +328,17 @@ exports.handler = async function (event) {
   }
 
   /* And stripped in code as well, because a prompt rule is a request and this
-     is the difference between a person and a chatbot playing one. */
-  raw = raw.replace(/*[^*
-]{1,120}*/g, "").replace(/[ 	]{2,}/g, " ").trim();
+     is the difference between a person and a chatbot playing one.
+
+     WRITTEN WITH RegExp AND NOT A LITERAL, ON PURPOSE. The literal form of
+     this needs a backslash before each asterisk, and twice now a regex in this
+     file has reached disk with its backslashes eaten. Without them the slash
+     and asterisk open a COMMENT, the closing pair ends it, and what survived
+     was a bare `g` — every reply in the product died with "g is not defined".
+     A string cannot fail that way, and a stray backslash here would be visible
+     rather than silent. */
+  const STAGE_DIRECTION = new RegExp('\\*[^*\\n]{1,120}\\*', 'g');
+  raw = raw.replace(STAGE_DIRECTION, '').replace(/[ \t]{2,}/g, ' ').trim();
 
   let reply = houseTypography(raw);
 
