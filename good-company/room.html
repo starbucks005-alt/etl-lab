@@ -117,6 +117,13 @@ html,body{ height:100%; }
 .scene-chip:hover{ color:var(--accent); border-color:var(--accent); }
 .scene-chip.on{ color:var(--accent); border-color:var(--accent); }
 
+/* A SCENE THAT COULD EXIST AND DOES NOT YET. Dimmed and dashed, so it reads as
+   an empty slot rather than a button that is broken, and it carries a plus so
+   the state is not being signalled by colour alone. Still pressable: it has to
+   be, because pressing it is how you find out what it costs. */
+.scene-chip.locked{ border-style:dashed; opacity:.62; }
+.scene-chip.locked:hover{ opacity:1; color:var(--accent); border-color:var(--accent); }
+
 /* ── the conversation ────────────────────────────────────────────────────── */
 /* THE COLUMN DOES NOT SCROLL. THE TRANSCRIPT DOES.
    This was the wrong way round and it showed: .side scrolled the whole column
@@ -597,29 +604,38 @@ FRIEND.scenes.forEach(function (scene, i) {
   bar.appendChild(chip);
 });
 
-/* MORE SCENES ARE SOMETHING YOU ADD, NOT SOMETHING MISSING.
+/* THE SCENES THEY DO NOT HAVE YET, SHOWN AS EMPTY SLOTS.
 
-   A friend you build comes with one, the picture you chose. Every extra place
-   is a film that has to be made, which costs real money each time, so it is
-   offered rather than promised: five greyed-out rooms would be five failures
-   on the first screen.
+   A friend you build comes with one, the picture you chose, and the rest are
+   made to order because each is a film that costs real money.
 
-   Only where there is one scene. Arch has his five and needs no upsell in his
-   own front room. */
+   Shown rather than hidden. An empty slot called "Scene two" says both true
+   things at once: there is more, and it is not here yet. Hiding it entirely
+   would leave somebody thinking one picture is all their friend can ever have,
+   and a row of places named for Arch's life ("Porch", "Cabin") was the version
+   that made every friend generic.
+
+   Deliberately unnamed. Where scene two happens is the buyer's to decide, and
+   guessing at it here is the mistake this whole change came from.
+
+   Only where the friend has the one. Arch has his five and needs no upsell in
+   his own front room. */
 if (FRIEND.scenes.length === 1) {
-  var more = document.createElement('button');
-  more.className = 'scene-chip';
-  more.textContent = '+ More scenes';
-  more.title = 'Somewhere else to sit with ' + FRIEND.name;
-  more.addEventListener('click', function () {
-    /* No price and no number written into this. Both change, and copy carrying
-       a number goes stale where nobody is looking. */
-    notYet('More scenes',
-      FRIEND.name + ' comes with the one picture you picked. Other places to sit, ' +
-      'and moving scenes rather than a still, are an add-on: each one has to be ' +
-      'made. It is not on sale yet.');
+  ['two', 'three', 'four', 'five'].forEach(function (ord) {
+    var slot = document.createElement('button');
+    slot.className = 'scene-chip locked';
+    slot.textContent = '+ Scene ' + ord;
+    slot.title = 'Somewhere else to sit with ' + FRIEND.name + ', made to order';
+    slot.addEventListener('click', function () {
+      /* NO PRICE AND NO COUNT WRITTEN IN. Both change, and copy carrying a
+         number goes stale in the one place nobody re-reads. */
+      notYet('Scene ' + ord,
+        'You say where ' + FRIEND.name + ' is and it gets made for you: somewhere ' +
+        'else to sit, moving rather than a still. Each one is made to order, so it ' +
+        'is an add-on rather than something waiting behind a button. Not on sale yet.');
+    });
+    bar.appendChild(slot);
   });
-  bar.appendChild(more);
 }
 
 if (FRIEND.scenes.length) play(FRIEND.scenes[0]);

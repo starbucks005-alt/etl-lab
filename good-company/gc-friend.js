@@ -310,6 +310,17 @@ var GC_DEMO = {
      asset, not a photograph, and a picture of a man with his eyes shut does
      not belong in his album. */
   album: [
+    /* Newest first, and this one arrived after the rest, so `on` says so rather
+       than claiming he brought it with him.
+
+       THE CAPTION CLAIMS ONLY WHAT IS CERTAIN. I have not watched this clip and
+       cannot describe what his hands are doing in it, so it does not pretend
+       to: it says he is in the workshop, working, which is what the file is.
+       Making up the detail would be the album inventing a memory, which is the
+       one thing the rule above forbids. Worth replacing with the real detail by
+       anybody who has seen it. */
+    { src:'video/arch-woodworking.mp4', on:'Added later',
+      caption:'In the workshop, working.' },
     /* A MOVING PICTURE IS STILL A PICTURE, and this one is the whole divorce in
        one frame: all four of them, plus Gus, still standing together. The
        caption says who is in it and nothing else, per the rule above. */
