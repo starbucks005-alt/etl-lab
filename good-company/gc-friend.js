@@ -354,6 +354,17 @@ var GC_BUILT = (function () {
       if (s && s.src && NEVER_MADE[s.src]) s.src = null;
     });
 
+    /* AND COLLAPSED TO ONE, for the same friends. They were built with five
+       scenes and no film of any of them, so the room gave them five buttons
+       that switched between the same single picture, labelled with places that
+       may have nothing to do with them: Cal, photographed in a cafe, offered a
+       cabin and a porch. One scene now, named for what it actually is.
+
+       Only when NONE of them has film. A friend with real clips keeps every
+       one of them, so this can never quietly delete somebody's scenes. */
+    var anyFilm = saved.scenes.some(function (s) { return s && s.src; });
+    if (!anyFilm) saved.scenes = [{ key:'original', label:'The original', src:null }];
+
     return saved;
   } catch (e) { /* storage disabled */ }
   return null;

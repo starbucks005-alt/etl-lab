@@ -534,12 +534,17 @@ function showStill(scene) {
 
   var line = document.createElement('div');
   line.className = 'still-say';
-  /* SAYS WHICH THING IS MISSING rather than letting a still pass for a scene.
-     And if there is no picture either, it says that too, instead of falling
-     back to initials in a box and letting a missing image go unnoticed. */
-  line.textContent = FRIEND.portrait
-    ? 'No film of ' + scene.label.toLowerCase() + ' yet'
-    : 'No picture of ' + FRIEND.name + ' yet, and no film of ' + scene.label.toLowerCase();
+  /* SAYS WHAT IT IS rather than letting a still pass for a scene. If there is
+     no picture either, it says that too, instead of dropping to initials in a
+     box and letting a missing image go unnoticed.
+
+     With one scene, "no film of the original yet" reads like a fault. It is
+     not one: a still picture is what this friend comes with. */
+  line.textContent = !FRIEND.portrait
+    ? 'No picture of ' + FRIEND.name + ' yet'
+    : (FRIEND.scenes.length > 1
+        ? 'No film of ' + scene.label.toLowerCase() + ' yet'
+        : 'A still picture of ' + FRIEND.name);
   n.appendChild(line);
 
   portrait.appendChild(n);
@@ -591,6 +596,32 @@ FRIEND.scenes.forEach(function (scene, i) {
   chip.addEventListener('click', function () { play(scene); });
   bar.appendChild(chip);
 });
+
+/* MORE SCENES ARE SOMETHING YOU ADD, NOT SOMETHING MISSING.
+
+   A friend you build comes with one, the picture you chose. Every extra place
+   is a film that has to be made, which costs real money each time, so it is
+   offered rather than promised: five greyed-out rooms would be five failures
+   on the first screen.
+
+   Only where there is one scene. Arch has his five and needs no upsell in his
+   own front room. */
+if (FRIEND.scenes.length === 1) {
+  var more = document.createElement('button');
+  more.className = 'scene-chip';
+  more.textContent = '+ More scenes';
+  more.title = 'Somewhere else to sit with ' + FRIEND.name;
+  more.addEventListener('click', function () {
+    /* No price and no number written into this. Both change, and copy carrying
+       a number goes stale where nobody is looking. */
+    notYet('More scenes',
+      FRIEND.name + ' comes with the one picture you picked. Other places to sit, ' +
+      'and moving scenes rather than a still, are an add-on: each one has to be ' +
+      'made. It is not on sale yet.');
+  });
+  bar.appendChild(more);
+}
+
 if (FRIEND.scenes.length) play(FRIEND.scenes[0]);
 
 /* ── conversation ────────────────────────────────────────────────────────────

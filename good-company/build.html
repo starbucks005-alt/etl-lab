@@ -350,23 +350,27 @@ function assemble() {
     voice:  picked.voice.slice(),
     been:   val('fBeen'),
     user:   { call: val('uName'), want: picked.want, about: val('uAbout') },
-    /* NO src, BECAUSE THERE IS NO FILM. These used to carry filenames like
-       video/kitchen.mp4 that have never existed for a friend somebody built,
-       so the room asked for them, the video element failed, and every built
-       friend sat behind a black rectangle reading "missing: video/kitchen.mp4".
-       Cal talked like a person from behind it.
+    /* ONE SCENE, AND IT IS CALLED THE ORIGINAL.
 
-       A name with no source says "this scene is real and there is no film of
-       it yet", which is the truth and is a thing the room can show properly.
-       When scene generation is built it fills the src in and the video path
-       takes over untouched. A filename that is present but broken still means
-       a broken video and is still reported as one. */
+       There were five: a kitchen table, a porch, a cabin, game night, a walk.
+       Two things were wrong with that. They all showed the same single picture,
+       because there is one portrait and no film, so five buttons switched
+       between identical images. And the places do not fit everybody. Dr. O:
+       "me in a cabin or at a kitchen table or on a porch may not fit". A porch
+       belongs to Arch. It is not a shape every person's friend comes in, and
+       offering it as though it were makes the friend generic in the one place
+       they are supposed to be specific.
+
+       So one scene, the picture they chose, named for what it is. More scenes
+       are worth having and cost real money to make, so they are an add-on
+       rather than five empty promises in a row.
+
+       No src because there is no film. That is the truth, and the room can show
+       it properly; when scene generation is built it fills the src in and the
+       video path takes over untouched. A filename that is present but broken
+       still means a broken video and is still reported as one. */
     scenes: [
-      { key:'kitchen', label:'Kitchen table', src:null },
-      { key:'porch',   label:'Porch',        src:null },
-      { key:'coffee',  label:'Coffee',       src:null },
-      { key:'game',    label:'Game night',   src:null },
-      { key:'walk',    label:'The walk',     src:null }
+      { key:'original', label:'The original', src:null }
     ]
   };
 }
