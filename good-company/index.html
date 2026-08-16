@@ -207,6 +207,19 @@ header{
 }
 .cta:hover{ background:var(--accent-hover); }
 
+/* The second way in, deliberately quieter: one primary button on this screen.
+   Light on the photograph like everything else in the hero, never skin tokens. */
+.cta-quiet{
+  display:inline-block; margin-top:1.9rem; margin-left:1.1rem;
+  color:rgba(255,255,255,.86); text-decoration:none;
+  font-size:1rem; border-bottom:1px solid rgba(255,255,255,.35);
+  padding-bottom:.15rem; text-shadow:0 1px 18px rgba(0,0,0,.5);
+}
+.cta-quiet:hover{ color:#fff; border-bottom-color:#fff; }
+.hero.no-art .cta-quiet{ color:var(--ink-dim); border-bottom-color:var(--line); text-shadow:none; }
+.hero.no-art .cta-quiet:hover{ color:var(--accent); border-bottom-color:var(--accent); }
+@media (max-width:600px){ .cta-quiet{ display:block; margin-left:0; margin-top:1.2rem; } }
+
 /* ── figure captions ─────────────────────────────────────────────────────────
    WHAT FIXES THE BLUR. Every face on this page is either a friend somebody
    built or a person using the app, and until these captions existed a visitor
@@ -308,7 +321,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
 <body>
 
 <header>
-  <a class="mark" href="#top">Good <b>Company</b></a>
+  <a class="mark" href="index.html">Good <b>Company</b></a>
 
   <!-- The picker, not a toggle. On the front door especially it should show
        that there are four rooms rather than hide them behind a cycle. -->
@@ -332,6 +345,11 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
       <p>Answer a few questions and somebody turns up who remembers your week, asks
          about the people in your life, and is glad when you walk in.</p>
       <a class="cta" href="build.html">Make a friend</a>
+      <!-- The way in for somebody not ready to build one yet, which is most
+           people on a first visit. Arch is the house friend; meeting him costs
+           nothing and asks for nothing. Without this link he was unreachable
+           from the front door unless you knew the URL. -->
+      <a class="cta-quiet" href="room.html">or sit with Arch first</a>
     </div>
 
     <p class="hero-credit">&ldquo;The big sister I never had&rdquo; companion</p>
@@ -431,7 +449,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
 </main>
 
 <footer>
-  <p class="no">Good Company is a companion app. It is not a dating app.</p>
+  <p class="no">Good Company is a companion app. It is not a dating app, and it will not become one.</p>
   <p class="etl">Emerging Technologies Laboratory</p>
 </footer>
 

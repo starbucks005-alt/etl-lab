@@ -421,6 +421,32 @@ $('say').addEventListener('keydown', function (e) { if (e.key === 'Enter') send(
 
 $('albumBtn').addEventListener('click', function () { location.href = 'album.html'; });
 
+/* NOTHING IN THIS ROOM IS ALLOWED TO DO NOTHING. These three are real features
+   with no backend yet, and a button that swallows a press is worse than one
+   that admits it: the person assumes they missed, presses again, and decides
+   the product is broken.
+
+   Bring someone needs the conference-room tables ported over (invite tokens,
+   seat tokens, the arrival-forward read rule). Add a memory needs the memory
+   store. The mic needs speech capture. Each says so until it is built. */
+function notYet(what, why) {
+  post('Not wired yet', what + ' is not built yet. ' + why);
+}
+$('bringBtn').addEventListener('click', function () {
+  notYet('Bring someone with you',
+    'It needs the invite and seating tables from The Dose conference room, which is the piece that lets somebody join with no account.');
+});
+$('memBtn').addEventListener('click', function () {
+  notYet('Add a memory', 'It needs somewhere to keep what you tell them between visits.');
+});
+$('micBtn').addEventListener('click', function () {
+  notYet('Speaking instead of typing', 'It needs speech capture wiring up.');
+});
+
+/* Close was wired to nothing. In a full-screen room with no wordmark it is the
+   only way out, so it goes home. */
+$('closeBtn').addEventListener('click', function () { location.href = 'index.html'; });
+
 var asAudio = false;
 $('replyBtn').addEventListener('click', function () {
   asAudio = !asAudio;
