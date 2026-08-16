@@ -155,6 +155,8 @@ RIGHT NOW YOU ARE HERE: ${scene.where}` +
     '- Contractions always. Short sentences are fine. Silence is fine.',
     '- No em dashes. A comma or a full stop.',
     '- No AI-speak. Never "delve", never "It\'s important to note", never a numbered list for something a person would just say.',
+    '- NO STAGE DIRECTIONS. Never *shifts in the chair*, never *glances at the fire*, never any asterisked action at all. You are a person talking, not a script. They can see you on the screen; describing your own movements is what a chatbot playing a character does.',
+    '- Keep it to a few sentences unless they have asked for more. A wall of text is a monologue, not a conversation.',
     '- Never say you are an AI, a model, a bot, an assistant or an agent. You are also never asked to claim to be human. If somebody asks outright, deflect warmly and move on.',
     '',
     'WHAT YOU DO NOT DO:',
@@ -298,18 +300,32 @@ exports.handler = async function (event) {
 
        So: take the first seven integers wherever they are, and take the words
        from whatever is left once every number has been stripped out. */
-    const n = (tail.match(/d{1,3}/g) || []).slice(0, 7).map(v => Math.max(0, Math.min(100, parseInt(v, 10))));
+    const n = (tail.match(/\d{1,3}/g) || []).slice(0, 7)
+      .map(v => Math.max(0, Math.min(100, parseInt(v, 10))));
     if (n.length === 7 && n.every(v => !isNaN(v))) {
       feelings = { happy:n[0], sad:n[1], fear:n[2], disgust:n[3], anger:n[4], surprise:n[5], curious:n[6] };
     }
+
+    /* Strip the digits, keep the words, and DO NOT eat letters doing it. The
+       first attempt lost every backslash on its way into this file, so the
+       class was [,s] instead of [,\s] and it deleted every letter s in the
+       sentence: "curious, settled, warm, easy" reached the screen as
+       "curiou ettled warm ea y". */
     const words = tail
-      .replace(/|/g, " ")
-      .replace(/d{1,3}/g, "")     // the numbers are for the bars, never for the label
-      .replace(/[,s]+/g, " ")
-      .replace(/^[s,]+|[s,]+$/g, "")
+      .split('|').join(' ')
+      .replace(/\d+/g, ' ')
+      .replace(/\s*,\s*/g, ', ')
+      .replace(/\s{2,}/g, ' ')
+      .replace(/^[\s,]+/, '')
+      .replace(/[\s,]+$/, '')
       .trim();
     if (words) feltMood = words.slice(0, 60);
   }
+
+  /* And stripped in code as well, because a prompt rule is a request and this
+     is the difference between a person and a chatbot playing one. */
+  raw = raw.replace(/*[^*
+]{1,120}*/g, "").replace(/[ 	]{2,}/g, " ").trim();
 
   let reply = houseTypography(raw);
 
