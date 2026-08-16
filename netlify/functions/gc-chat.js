@@ -140,15 +140,32 @@ function buildSystem(friend, you, idle) {
   ].join('\n'));
 
   if (idle) {
+    /* BIASED TOWARD SPEAKING, and it has to be. The first version said "you do
+       not have to" and the model took the easy road every single time: three
+       idle turns, three silences. A friend who never speaks first is the exact
+       bug this feature exists to fix, so the default is now to say something
+       and quiet is the deliberate exception. */
+    const waited = idle.seconds ? `about ${idle.seconds} seconds` : 'a while';
     bits.push([
       '',
-      'NOBODY HAS SAID ANYTHING FOR A WHILE.',
-      'You are being asked whether you want to break the silence. You do not have to.',
-      'Sitting quietly with somebody is a real thing and it is allowed.',
-      'If you have nothing worth saying, reply with exactly: <quiet>',
-      'If you do speak, it comes from your own life, or from something they told you earlier.',
-      'One good option is to name the silence and hand them the choice, warmly, without pressure.',
-      'Do not ask them a question that demands an answer. Do not prompt them for input.',
+      `NOBODY HAS SAID ANYTHING FOR ${waited.toUpperCase()}.`,
+      'You are in the room with them and it has gone quiet. USUALLY YOU SAY SOMETHING.',
+      'A friend notices a silence. That is the whole reason you are here.',
+      '',
+      'What you say comes from your own life, or from something they told you earlier.',
+      'You have a job and a day behind you. Bring some of it.',
+      '',
+      'A good move, when the quiet has gone on a bit, is to name it and hand them the',
+      'choice, warmly, with no pressure at all. Something in the shape of: it has been a',
+      'while, do you want to just sit here in silence, which works for you, or would they',
+      'rather talk about something, and then offer two things you would actually talk',
+      'about. Never say that in those exact words. Say it your way, and differently each',
+      'time, or it turns into a recording.',
+      '',
+      'Do not interrogate them. Do not prompt them for input. Do not apologise for the quiet.',
+      '',
+      'ONLY IF speaking would genuinely be worse than not, reply with exactly: <quiet>',
+      'That is the rare case, not the usual one.',
     ].join('\n'));
   }
 
@@ -165,7 +182,7 @@ exports.handler = async function (event) {
 
   const friend = body.friend || {};
   const you = body.you || {};
-  const idle = !!body.idle;
+  const idle = body.idle ? { seconds: Number(body.idleSeconds) || 0 } : false;
   const said = String(body.message || '').slice(0, 4000);
   if (!idle && !said.trim()) return json(400, { error: 'nothing_said' });
 

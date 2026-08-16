@@ -557,7 +557,7 @@ setInterval(function () {
   if (!$("log").children.length) return;             // nobody has sat down yet
   if ((Date.now() - lastSpoke) / 1000 < IDLE_STEPS[idleStep]) return;
   idleStep += 1;
-  ask({ idle: true });
+  ask({ idle: true, idleSeconds: IDLE_STEPS[idleStep - 1] });
 }, 5000);
 
 /* Anything said by anybody resets the whole ladder. */
