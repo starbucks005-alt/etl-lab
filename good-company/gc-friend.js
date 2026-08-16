@@ -313,6 +313,12 @@ var GC_DEMO = {
     /* A MOVING PICTURE IS STILL A PICTURE, and this one is the whole divorce in
        one frame: all four of them, plus Gus, still standing together. The
        caption says who is in it and nothing else, per the rule above. */
+    { src:'photos/arch-learners.jpg', on:'Added when he joined',
+      caption:'One of the twins at the wheel, learner plates on the tailgate, Gus asleep in the back.' },
+    { src:'photos/arch-building.jpg', on:'Added when he joined',
+      caption:'Building the cabin, with Gus supervising.' },
+    { src:'photos/arch-jobsite.jpg',  on:'Added when he joined',
+      caption:'On a job site.' },
     { src:'video/arch-family.mp4',  on:'Added when he joined',
       caption:'Nell and Josie, their mother, and Gus, out on the path near the cabin.' },
     { src:'photos/arch-desk.jpg',   on:'Added when he joined',
