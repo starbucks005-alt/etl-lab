@@ -57,12 +57,30 @@ const HOW_MANY = 4;
 
 /* The four differ here and nowhere else. Written as directions to a
    photographer rather than a list of attributes, because the second reads as a
-   casting sheet and produces faces that look like one. */
+   casting sheet and produces faces that look like one.
+
+   THEY HAVE TO DIFFER IN ANCESTRY TOO, AND SAYING SO IS THE ONLY THING THAT
+   WORKS. The first version of this file left it unsaid and claimed in a
+   comment that four faces "should not arrive assuming" one kind of person.
+   They did: a woman in her sixties from Ohio came back white four times out of
+   four. Left alone the model has a default and picks it every time, so the
+   person whose friend does not look like that is quietly told to pick anyway.
+
+   Said as a direction to one photographer about one person, never as a list of
+   categories to work through, which produces a casting sheet. Nothing in the
+   interface mentions any of this; the four faces just look like four people.
+   [[etl-cast-diversity-theme]] */
 const VARIATIONS = [
   'Open, easy face. Slight smile, as if you just walked in and they looked up.',
-  'A more weathered, quieter face. Not unhappy, just someone who listens first.',
-  'Warmer and more animated, caught mid-sentence, laugh lines doing the work.',
-  'Calm and steady, looking straight at the camera, entirely unbothered by it.',
+
+  'A more weathered, quieter face. Not unhappy, just someone who listens first. ' +
+  'This one is Black.',
+
+  'Warmer and more animated, caught mid-sentence, laugh lines doing the work. ' +
+  'This one has East Asian or South Asian features.',
+
+  'Calm and steady, looking straight at the camera, entirely unbothered by it. ' +
+  'This one is Latino or Middle Eastern, or of mixed heritage.',
 ];
 
 function facePrompt(f, variation) {
@@ -96,9 +114,16 @@ function facePrompt(f, variation) {
             'ordinary daylight from one side. Shallow depth of field. ' +
             'A face with a life behind it: real skin, real age, nothing smoothed.');
 
-  /* NO WRITING IN THE PICTURE. The text failures on this campus have all been
-     the same failure, and a caption burned into a face is unusable. */
-  bits.push('No text, no lettering, no logos, no watermark, no borders, no captions.');
+  /* NO WRITING IN THE PICTURE, AND LAST BECAUSE THAT IS WHERE IT HOLDS. It was
+     already last and still leaked: a hobby of crosswords put a newspaper in
+     her hands with a real masthead on it. So it now names the way it actually
+     fails, which is a prop carrying words rather than a caption stamped on the
+     image. Interests set the setting, never a thing with writing on it. */
+  bits.push('Absolutely no writing anywhere in the frame. No text, no lettering, no numbers, ' +
+            'no logos, no signage, no watermark, no caption, no border. ' +
+            'Nothing in their hands or behind them that would have words printed on it: ' +
+            'no newspaper, no book cover, no magazine, no packaging, no screen. ' +
+            'Their interests belong in the setting around them, not in a printed prop.');
 
   return bits.join(' ');
 }
