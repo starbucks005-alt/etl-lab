@@ -314,7 +314,14 @@ function val(id) { return $(id).value.trim(); }
 
 function assemble() {
   return {
-    name:   val('fName') || NAMES[Math.floor(Math.random() * NAMES.length)],
+    /* THE NAME IS WHATEVER IS IN THE BOX, and the box is filled in before we
+       ever get here. This used to fall back to a random pick from NAMES if it
+       was blank, which meant somebody who simply had not decided yet had their
+       friend named for them, silently, and only found out in the room: "who
+       the heck is Hollis". There is a "Give me one" button for people who want
+       a suggestion. Taking the choice from people who did not ask is not the
+       same feature. */
+    name:   val('fName'),
     age:    picked.age,
     gender: picked.gender,
     from:   val('fFrom'),
@@ -337,7 +344,29 @@ function assemble() {
 
 var friend = null;
 
+/* Asked once, then it stops nagging. */
+var nameOffered = false;
+
 $('makeBtn').addEventListener('click', function () {
+  /* A BLANK NAME GETS A SUGGESTION YOU CAN SEE AND CHANGE, not one applied
+     behind your back. Filled into the box, pointed at, and it takes a second
+     press to accept it. Whoever they turn out to be, you named them. */
+  if (!val('fName')) {
+    if (!nameOffered) {
+      nameOffered = true;
+      $('fName').value = NAMES[Math.floor(Math.random() * NAMES.length)];
+      $('fName').focus();
+      $('fName').select();
+      $('endNote').textContent = 'They need a name. That is a suggestion, and it is yours to ' +
+        'change. Press again when it is right.';
+      $('fName').scrollIntoView({ behavior:'smooth', block:'center' });
+      return;
+    }
+    /* Second press with it still empty: they cleared the suggestion on
+       purpose, so stop arguing and let them past. */
+    $('fName').value = NAMES[Math.floor(Math.random() * NAMES.length)];
+  }
+
   friend = assemble();
   try { localStorage.setItem('gc-friend', JSON.stringify(friend)); } catch (e) {}
 
