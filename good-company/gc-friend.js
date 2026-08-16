@@ -313,14 +313,17 @@ var GC_DEMO = {
     /* Newest first, and this one arrived after the rest, so `on` says so rather
        than claiming he brought it with him.
 
-       THE CAPTION CLAIMS ONLY WHAT IS CERTAIN. I have not watched this clip and
-       cannot describe what his hands are doing in it, so it does not pretend
-       to: it says he is in the workshop, working, which is what the file is.
-       Making up the detail would be the album inventing a memory, which is the
-       one thing the rule above forbids. Worth replacing with the real detail by
-       anybody who has seen it. */
+       IT WAS MEANT TO BE A SCENE AND COULD NOT BE ONE. Dr. O: "he never looked
+       up. I could not have that for a companion video." A person absorbed in a
+       task is footage of somebody who does not know you are there, and a scene
+       is supposed to be somebody sitting WITH you.
+
+       In an album that is not a fault, it is the point. You are looking at him
+       here, not being looked at, and a man too far into a piece of work to
+       notice the camera is a truer picture of him than one where he poses. So
+       the caption says exactly that, and claims nothing beyond it. */
     { src:'video/arch-woodworking.mp4', on:'Added later',
-      caption:'In the workshop, working.' },
+      caption:'In the workshop, too far into it to look up.' },
     /* A MOVING PICTURE IS STILL A PICTURE, and this one is the whole divorce in
        one frame: all four of them, plus Gus, still standing together. The
        caption says who is in it and nothing else, per the rule above. */

@@ -473,8 +473,26 @@ function makeScene(scene, btn, line) {
   btn.textContent = 'Starting';
 
   var name = scene.src.replace(/^video\//, '').replace(/\.mp4$/, '');
+
+  /* THEY HAVE TO LOOK UP. THIS IS THE WHOLE DIFFERENCE BETWEEN A COMPANION
+     SCENE AND A NICE CLIP.
+
+     Dr. O made a clip of Arch doing woodwork, meant as one of his scenes, and
+     it could not be used: "he never looked up. I could not have that for a
+     companion video." A person absorbed in a task is footage of somebody who
+     does not know you are there, and this room is supposed to be somebody
+     sitting with you. The clip went to the photo album, where not looking up
+     is fine, because an album is a thing you look AT.
+
+     Written into the request so it is not relearned one expensive generation
+     at a time, and so the paid scene add-on cannot quietly produce clips
+     nobody can sit with. */
   var where = (FRIEND.name + ' at ' + scene.label.toLowerCase() +
-               (FRIEND.been ? '. ' + FRIEND.been : ''));
+               (FRIEND.been ? '. ' + FRIEND.been : '') +
+               '. They are facing the camera and looking at it, present with the ' +
+               'person watching, as though sitting with them. Not absorbed in a task, ' +
+               'not looking down, not looking away. Small natural movement, breathing, ' +
+               'blinking, occasional shifts. They are keeping somebody company.');
 
   fetch('/api/scene/start', {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
