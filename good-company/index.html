@@ -209,15 +209,23 @@ header{
 
 /* The second way in, deliberately quieter: one primary button on this screen.
    Light on the photograph like everything else in the hero, never skin tokens. */
+/* THE UNDERLINE MOVED OFF THE WHOLE THING AND ONTO THE NAMES. This was one
+   link and is now a sentence containing two, so underlining the span would
+   underline the word "or" and leave the two things you can actually press
+   looking like plain text, in browser default blue on a dark photograph. */
 .cta-quiet{
   display:inline-block; margin-top:1.9rem; margin-left:1.1rem;
   color:rgba(255,255,255,.86); text-decoration:none;
-  font-size:1rem; border-bottom:1px solid rgba(255,255,255,.35);
-  padding-bottom:.15rem; text-shadow:0 1px 18px rgba(0,0,0,.5);
+  font-size:1rem; padding-bottom:.15rem; text-shadow:0 1px 18px rgba(0,0,0,.5);
 }
-.cta-quiet:hover{ color:#fff; border-bottom-color:#fff; }
-.hero.no-art .cta-quiet{ color:var(--ink-dim); border-bottom-color:var(--line); text-shadow:none; }
-.hero.no-art .cta-quiet:hover{ color:var(--accent); border-bottom-color:var(--accent); }
+.cta-quiet a{
+  color:inherit; text-decoration:none;
+  border-bottom:1px solid rgba(255,255,255,.35); padding-bottom:.15rem;
+}
+.cta-quiet a:hover{ color:#fff; border-bottom-color:#fff; }
+.hero.no-art .cta-quiet{ color:var(--ink-dim); text-shadow:none; }
+.hero.no-art .cta-quiet a{ border-bottom-color:var(--line); }
+.hero.no-art .cta-quiet a:hover{ color:var(--accent); border-bottom-color:var(--accent); }
 @media (max-width:600px){ .cta-quiet{ display:block; margin-left:0; margin-top:1.2rem; } }
 
 /* ── figure captions ─────────────────────────────────────────────────────────
@@ -352,9 +360,15 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
            people on a first visit. Arch is the house friend; meeting him costs
            nothing and asks for nothing. Without this link he was unreachable
            from the front door unless you knew the URL. -->
-      <!-- ?who=arch, because this link means ARCH. Without it, anybody who has
-           built a friend gets taken to theirs instead, and the link is a lie. -->
-      <a class="cta-quiet" href="room.html?who=arch">or sit with Arch first</a>
+      <!-- BOTH OF THEM, because there are two now and offering only Arch tells
+           somebody in their twenties this is a product for their dad. That is
+           the entire reason Sofia exists.
+
+           ?who= on each, because without it anybody who has built a friend gets
+           taken to theirs instead and the link is a lie. -->
+      <span class="cta-quiet">or sit with
+        <a href="room.html?who=arch">Arch</a> or
+        <a href="room.html?who=sofia">Sofia</a> first</span>
     </div>
 
     <p class="hero-credit">&ldquo;The big sister I never had&rdquo; companion</p>

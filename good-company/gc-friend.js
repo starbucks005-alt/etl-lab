@@ -497,8 +497,9 @@ var GC_SOFIA = {
          "or about to say something unhinged. Sit down, I am putting the kettle on.",
   mood:  'Wired, in a good way',
 
-  /* Needs one. Younger, quicker, warmer than Arch's. */
-  voiceId: null,
+  /* Hers, from Dr. O. Kept here with the rest of her rather than in a lookup
+     table, because a voice is part of a person and not a setting. */
+  voiceId: 'yj30vwTGJxSHezdAGsv9',
 
   skin: 'seaside',
   portrait: 'photos/sofia.jpg',
@@ -608,10 +609,15 @@ var GC_SOFIA = {
           'that talking to her is a lesser thing, only that it is not the only thing.',
 
   /* Captions describe the frame and nothing else, the same rule as Arch's:
-     what is in the picture, never a shared past. Five here, and three of her
-     nine photographs are not in yet because I have not looked at them and will
-     not caption a picture I have not seen. */
+     what is in the picture, never a shared past. All nine are here now, each
+     one looked at first. */
   album: [
+    { src: 'photos/sofia-animal-park.jpg', on: 'Added when she joined',
+      caption: 'Feeding a goat out of her hand at a petting farm.' },
+    { src: 'photos/sofia-cafe.jpg', on: 'Added when she joined',
+      caption: 'A window seat, both hands round the cup.' },
+    { src: 'photos/sofia-break-room.jpg', on: 'Added when she joined',
+      caption: 'The break room, somewhere in the middle of a night.' },
     { src: 'photos/sofia-and-sammy.jpg', on: 'Added when she joined',
       caption: 'Her nephew Sammy, out for a drink. He has his own cup.' },
     { src: 'photos/sofia-end-of-shift.jpg', on: 'Added when she joined',
