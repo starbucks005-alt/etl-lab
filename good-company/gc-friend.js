@@ -433,14 +433,30 @@ var GC_BUILT = (function () {
    ?who=arch asks for the demo, ?who=mine asks for the built friend, and the
    answer sticks for the tab so that stepping into the photo album and back
    does not quietly swap who you are sitting with. */
+/* EVERY DEMO'S ID, LISTED WHERE THIS CAN SEE IT.
+
+   GC_DEMOS is built further down, after the friends themselves, and this runs
+   first, so it had no way to know that "sofia" names a demo. It recognised
+   arch, demo, mine and built, and everything else became null and fell through
+   to "show them the friend they built".
+
+   Which is exactly what happened: ?who=sofia opened on Marisol, a friend left
+   over from a test. The second demo was unreachable for anybody who had ever
+   built one, which is most people who would be shown her.
+
+   Adding a friend means adding an id here as well as to GC_DEMOS. Two places
+   is one too many, and it is still better than the resolution order silently
+   deciding a new demo does not exist. */
+var GC_DEMO_IDS = ['arch', 'sofia'];
+
 var GC_WHO = (function () {
   var q = null;
   try { q = new URLSearchParams(location.search); } catch (e) {}
 
   var asked = q && q.get('who');
-  if (asked === 'arch' || asked === 'demo') asked = 'arch';
+  if (asked === 'demo') asked = 'arch';
   else if (asked === 'mine' || asked === 'built') asked = 'mine';
-  else asked = null;
+  else if (GC_DEMO_IDS.indexOf(asked) === -1) asked = null;
 
   /* 1. AN EXPLICIT ?who= WINS OVER EVERYTHING and is remembered for the tab. */
   if (asked) {
@@ -719,13 +735,18 @@ var GC_SOFIA = {
 var GC_DEMOS = { arch: GC_DEMO, sofia: GC_SOFIA };
 
 /* The id in ?who=, if it names a demo we actually have. */
+/* WHICH DEMO, taken from the answer GC_WHO already worked out rather than
+   reading the URL a second time. Two readers of the same parameter is how they
+   disagree, and they did: one of them knew ?who=sofia meant Sofia while the
+   other had already decided it meant "their own friend". */
 var GC_DEMO_ID = (function () {
+  if (GC_WHO !== 'mine' && Object.prototype.hasOwnProperty.call(GC_DEMOS, GC_WHO)) {
+    try { sessionStorage.setItem('gc-demo', GC_WHO); } catch (e) {}
+    return GC_WHO;
+  }
+  /* Sitting with your own friend does not forget which demo you were with, so
+     the swap button still goes back to the right one. */
   try {
-    var asked = new URLSearchParams(location.search).get('who');
-    if (asked && Object.prototype.hasOwnProperty.call(GC_DEMOS, asked)) {
-      try { sessionStorage.setItem('gc-demo', asked); } catch (e) {}
-      return asked;
-    }
     var remembered = sessionStorage.getItem('gc-demo');
     if (remembered && Object.prototype.hasOwnProperty.call(GC_DEMOS, remembered)) return remembered;
   } catch (e) {}
