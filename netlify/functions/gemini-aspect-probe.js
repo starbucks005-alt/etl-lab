@@ -68,10 +68,26 @@ function findImage(o, hit = { b64: null }) {
   return hit;
 }
 
-/* PNG and JPEG dimensions out of the bytes. Accepted is not obeyed. */
+/* PNG, JPEG and WebP dimensions out of the bytes. Accepted is not obeyed.
+
+   WEBP WAS MISSING AND IT MATTERED. The first run came back "unreadable" for
+   every shape that was accepted, and the code then reported that as "the
+   aspect was ignored", which is a different claim: not measured is not the
+   same as measured and wrong. It made the whole probe unsafe to act on, since
+   the one shape that might work would have been written off. This model
+   returns WebP. */
 function dims(buf) {
   if (buf.length > 24 && buf.slice(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))) {
     return { w: buf.readUInt32BE(16), h: buf.readUInt32BE(20) };
+  }
+  if (buf.length > 30 && buf.slice(0, 4).toString() === 'RIFF' && buf.slice(8, 12).toString() === 'WEBP') {
+    const kind = buf.slice(12, 16).toString();
+    if (kind === 'VP8X') return { w: (buf.readUIntLE(24, 3) & 0xFFFFFF) + 1, h: (buf.readUIntLE(27, 3) & 0xFFFFFF) + 1 };
+    if (kind === 'VP8 ') return { w: buf.readUInt16LE(26) & 0x3FFF, h: buf.readUInt16LE(28) & 0x3FFF };
+    if (kind === 'VP8L') {
+      const b = buf.readUInt32LE(21);
+      return { w: (b & 0x3FFF) + 1, h: ((b >> 14) & 0x3FFF) + 1 };
+    }
   }
   if (buf[0] === 0xFF && buf[1] === 0xD8) {
     let i = 2;
@@ -122,9 +138,14 @@ exports.handler = async (event) => {
           row.ratio = d ? (d.w / d.h).toFixed(3) : null;
           /* 3:4 is 0.75. Anything else means the field was accepted and
              ignored, which is the failure that looks like success. */
-          row.result = d && Math.abs(d.w / d.h - 0.75) < 0.02
-            ? 'WORKS, and the aspect was obeyed'
-            : 'accepted, but the aspect was ignored';
+          /* NOT MEASURED IS ITS OWN ANSWER. Reporting an unreadable image as
+             "ignored" is a claim the bytes do not support, and it would write
+             off the one shape that might work. */
+          row.result = !d
+            ? 'accepted, but I could not measure it (' + buf.slice(0, 4).toString().replace(/[^\x20-\x7E]/g, '.') + ')'
+            : Math.abs(d.w / d.h - 0.75) < 0.02
+              ? 'WORKS, and the aspect was obeyed'
+              : 'accepted, but the aspect was ignored';
         }
       }
     } catch (e) {
