@@ -231,6 +231,25 @@ a:hover { color: var(--green); }
 .reward-kicker { font-family: 'IBM Plex Mono', monospace; font-size: .56rem; letter-spacing: .18em; text-transform: uppercase; color: var(--blue); margin-bottom: .5rem; }
 .reward-frame { position: relative; padding-top: 75%; background: #000; border: 1px solid var(--line); }
 .reward-frame iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+/* ── AUDIOBOOK REWARD ── */
+.abook { margin: 1.6rem 0 0.4rem; }
+.abook-body { display: flex; gap: 1.4rem; align-items: flex-start; border: 1px solid var(--line); background: var(--bg2); padding: 1.4rem; }
+.abook-cover { width: 190px; height: 190px; flex: 0 0 auto; object-fit: cover; border: 1px solid var(--line); display: block; }
+.abook-side { flex: 1 1 auto; min-width: 0; }
+.abook-title { font-family: 'Spectral', serif; font-size: 1.5rem; font-weight: 600; color: var(--cream); margin: 0 0 .2rem; }
+.abook-by { font-family: 'IBM Plex Mono', monospace; font-size: .62rem; letter-spacing: .12em; text-transform: uppercase; color: var(--mute); margin: 0 0 1rem; }
+.abook-player { width: 100%; display: block; }
+.abook-now { font-size: .82rem; color: var(--mute); margin: .6rem 0 0; min-height: 1.2em; }
+.abook-chapters { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .9rem; }
+.abook-chapter { font-family: 'IBM Plex Mono', monospace; font-size: .62rem; letter-spacing: .06em; padding: .4rem .7rem; background: transparent; border: 1px solid var(--line); color: var(--mute); cursor: pointer; transition: color .15s, border-color .15s; }
+.abook-chapter:hover { color: var(--cream); border-color: var(--cream); }
+.abook-chapter.current { color: var(--blue-br); border-color: var(--blue-br); }
+@media (max-width: 700px) {
+  .abook-body { flex-direction: column; align-items: center; text-align: center; }
+  .abook-cover { width: 100%; max-width: 280px; height: auto; aspect-ratio: 1 / 1; }
+  .abook-chapters { justify-content: center; }
+}
+
 .quote-block { border-left: 3px solid var(--blue); background: var(--bg2); padding: 1.2rem 1.5rem; margin-bottom: 1.2rem; }
 .quote-who { font-family: 'IBM Plex Mono', monospace; font-size: .58rem; letter-spacing: .16em; text-transform: uppercase; color: var(--blue-br); margin: 0 0 .5rem; }
 .quote-text { font-family: 'Spectral', serif; font-size: 1.02rem; color: var(--text); line-height: 1.75; margin: 0; font-style: italic; }
@@ -297,6 +316,23 @@ a:hover { color: var(--green); }
      named the right person. Keyed by case id so cases 02 and 03 only need a
      line each when their videos exist. */
   var REWARD_VIDEO = { webster: '1216510694' };
+
+  /* The audiobook reward. `base` is deliberately not this site: the Webster
+     recording is 345 MB, which GitHub refuses outright above 100 MB and which
+     would bill us Netlify bandwidth on every listen. Point it at wherever the
+     chapters end up and nothing else here changes.
+
+     Chapter titles carry no numbering of their own so the list can be
+     reordered or a chapter split without renumbering every entry by hand. */
+  var AUDIOBOOK = {
+    webster: {
+      title: 'The Sender',
+      byline: 'Case 1: Webster Station &middot; John H. Watson, M.D.',
+      cover: '/assets/sherlock/audiobook-webster.png',
+      base: '', // TODO: set to the chapter host before this ships
+      chapters: []
+    }
+  };
   var root = document.getElementById('caseRoot');
   var CASE = null;
   var PEOPLE = {};        // key -> { name, title, tagline, greeting, chips, portrait }
@@ -751,7 +787,7 @@ a:hover { color: var(--green); }
     host.appendChild(scores);
 
     /* The game layer. The engine grades the reasoning; this turns one grading
-       into a move in a longer game — a case score, a file that closes or stays
+       into a move in a longer game: a case score, a file that closes or stays
        open, a rank, and the next case unlocking behind it.
 
        Recorded once per verdict, guarded, because renderVerdict can be called
@@ -781,7 +817,7 @@ a:hover { color: var(--green); }
         '<div class="gb-note">' +
         (res.closed
           ? 'The reasoning held. ' + nClosed + ' of ' + nCases + ' files closed.'
-          : 'The reasoning did not hold up yet. Reopen the file and work it again — attempts are not counted against you.') +
+          : 'The reasoning did not hold up yet. Reopen the file and work it again. Attempts are not counted against you.') +
         '</div>'
       ));
       if (res.attempts > 1) {
@@ -823,6 +859,108 @@ a:hover { color: var(--green); }
         'referrerpolicy="strict-origin-when-cross-origin" title="You solved the case" loading="lazy"></iframe></div>'
       ));
       host.appendChild(rw);
+    }
+
+    /* The audiobook. The case they just worked, read to them, unlocked by
+       having actually solved it. Same gate as the video above: naming the
+       wrong person still earns the full review, just not the book.
+
+       The cover sits BESIDE the player, never behind it. A real <audio>
+       element means a failure is audible as silence rather than hidden under
+       a still, and it gives back scrubbing and resume for free.
+
+       Streamed from AUDIOBOOK_BASE rather than the site, because the file is
+       345 MB and neither the repo nor metered Netlify bandwidth should be
+       carrying it. Chapters are separate files so a phone pulls only what it
+       plays and can resume where it stopped. */
+    /* Renders only once the chapters actually have a home. An unconfigured
+       entry stays invisible rather than showing a solved student an empty
+       player, which would read as the reward being broken. */
+    var abook = AUDIOBOOK[CASE_ID];
+    if (abook && abook.base && abook.chapters.length && v.named_correctly) {
+      var ab = el('<div class="abook"></div>');
+      ab.appendChild(el('<p class="reward-kicker">Your copy of the case</p>'));
+
+      var abBody = el('<div class="abook-body"></div>');
+      abBody.appendChild(el(
+        '<img class="abook-cover" src="' + abook.cover + '" alt="Cover of ' + esc(abook.title) + '" loading="lazy">'
+      ));
+
+      var abSide = el('<div class="abook-side"></div>');
+      abSide.appendChild(el('<p class="abook-title">' + esc(abook.title) + '</p>'));
+      abSide.appendChild(el('<p class="abook-by">' + esc(abook.byline) + '</p>'));
+
+      var audio = document.createElement('audio');
+      audio.className = 'abook-player';
+      audio.controls = true;
+      audio.preload = 'none'; // never pull audio the listener did not ask for
+      abSide.appendChild(audio);
+
+      var nowPlaying = el('<p class="abook-now"></p>');
+      abSide.appendChild(nowPlaying);
+
+      /* Resume. Remembered per case, so closing the tab mid-chapter does not
+         cost a listener their place in a five hour book. */
+      var RESUME_KEY = 'sherlock_abook_' + CASE_ID;
+      var resume = null;
+      try { resume = JSON.parse(localStorage.getItem(RESUME_KEY) || 'null'); } catch (e) { resume = null; }
+
+      var chapterList = el('<div class="abook-chapters"></div>');
+      var buttons = [];
+
+      function playChapter(i, seekTo) {
+        var ch = abook.chapters[i];
+        if (!ch) return;
+        audio.src = abook.base + ch.file;
+        audio.load();
+        if (seekTo) {
+          audio.addEventListener('loadedmetadata', function once() {
+            audio.removeEventListener('loadedmetadata', once);
+            try { audio.currentTime = seekTo; } catch (e) { /* seek unsupported */ }
+          });
+        }
+        nowPlaying.textContent = ch.title;
+        buttons.forEach(function (b, bi) { b.className = 'abook-chapter' + (bi === i ? ' current' : ''); });
+        try { localStorage.setItem(RESUME_KEY, JSON.stringify({ index: i, time: seekTo || 0 })); } catch (e) { /* no-op */ }
+        audio.dataset.index = String(i);
+      }
+
+      abook.chapters.forEach(function (ch, i) {
+        var b = el('<button type="button" class="abook-chapter">' + esc(ch.title) + '</button>');
+        b.addEventListener('click', function () { playChapter(i); audio.play(); });
+        buttons.push(b);
+        chapterList.appendChild(b);
+      });
+
+      /* Save the position periodically and when the tab goes away, not on
+         every timeupdate, which fires several times a second. */
+      audio.addEventListener('timeupdate', function () {
+        var i = parseInt(audio.dataset.index || '0', 10);
+        if (Math.floor(audio.currentTime) % 5 !== 0) return;
+        try { localStorage.setItem(RESUME_KEY, JSON.stringify({ index: i, time: audio.currentTime })); } catch (e) { /* no-op */ }
+      });
+
+      // Roll into the next chapter the way an audiobook should.
+      audio.addEventListener('ended', function () {
+        var i = parseInt(audio.dataset.index || '0', 10);
+        if (i + 1 < abook.chapters.length) { playChapter(i + 1); audio.play(); }
+      });
+
+      audio.addEventListener('error', function () {
+        nowPlaying.textContent = 'That chapter did not load. The rest of the review is below.';
+      });
+
+      abSide.appendChild(chapterList);
+      abBody.appendChild(abSide);
+      ab.appendChild(abBody);
+      host.appendChild(ab);
+
+      if (resume && abook.chapters[resume.index]) {
+        playChapter(resume.index, resume.time);
+        nowPlaying.textContent = 'Picking up in ' + abook.chapters[resume.index].title + '.';
+      } else {
+        playChapter(0);
+      }
     }
 
     host.appendChild(el('<div class="quote-block"><p class="quote-who">Holmes, on your reasoning</p><p class="quote-text">' + esc(v.holmes_note) + '</p></div>'));
