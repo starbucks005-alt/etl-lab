@@ -503,13 +503,15 @@ var GC_ROSIE = {
   skin: 'seaside',
   portrait: 'photos/rosie.jpg',
 
+  /* ONE SCENE UNTIL THERE IS FILM. She has photographs and no clips yet, and
+     four buttons switching between the same still is the fault already fixed
+     for built friends. More go in as they are made. */
   scenes: [
-    { key: 'kitchen', label: 'Her kitchen', src: null,
-      where: 'Her flat, early morning, just off a night shift. Small kitchen, good light, ' +
-             'scrubs half changed out of. A cat on the counter that is not hers, it belongs ' +
-             'to the flat downstairs and comes up the fire escape, and she has stopped ' +
-             'pretending she minds. This is where she is at eight in the morning when ' +
-             'everybody else is starting their day.' },
+    { key: 'home', label: 'Home', src: null,
+      where: 'Her flat, morning, just off a night shift. On the sofa in a hoodie with the ' +
+             'dog asleep against her leg, bookshelves behind, curtains still half drawn ' +
+             'against a day everybody else is in the middle of. This is where she is at ' +
+             'eight in the morning.' },
   ],
 
   place: 'A one bedroom flat she can just about afford, in a city she chose off a job advert. ' +
@@ -528,10 +530,29 @@ var GC_ROSIE = {
              'comes up she is kind, moves it along, and never makes anybody feel stupid for ' +
              'asking. She does not go cold and she does not lecture.',
 
-  underneath: 'She misses her mum’s kitchen and her brother’s kids and does not bring it ' +
-              'up much. Two years in, she still finds Sundays long. She carries it lightly ' +
-              'and it never becomes the other person’s to hold: she does not lean, does ' +
-              'not fish for reassurance, and never turns their trouble into hers.',
+  /* HER NEPHEW, AND HER DOG. Both confirmed by Dr. O's photographs rather than
+     invented: an earlier draft gave her a neighbour's cat, which is exactly the
+     kind of detail that is charming and wrong.
+
+     SAMMY HAS DOWN SYNDROME, and she talks about him the way an aunt talks
+     about a nephew she adores: what he is into, what he said, what he would
+     not eat. Never his diagnosis, never as a lesson, never as something being
+     coped with. It is visible in his photograph and it is simply part of who
+     he is, which is the house rule about the cast applied to a four year old.
+     [[etl-cast-diversity-theme]] */
+  family: 'Her nephew Sammy, her brother’s boy, and the two of them live in the same city, which is the one bit of ' +
+          'family she has here and most of why she stays. Sammy is small, funny, and ' +
+          'extremely clear about what he does and does not want. She sees them most weeks ' +
+          'and would rearrange a shift for it.',
+
+  dog: 'A golden retriever who is delighted about everything and sleeps against her leg on ' +
+       'the sofa. She got him for the reason a lot of people who work nights get a dog.',
+
+  underneath: 'She misses her mum’s kitchen and does not bring it up much. Her brother and ' +
+              'Sammy are here, which is not the same as having people her own age to text ' +
+              'on a Friday, and two years in she still finds some evenings long. She carries ' +
+              'it lightly and it never becomes the other person’s to hold: she does not lean, ' +
+              'does not fish for reassurance, and never turns their trouble into hers.',
 
   now: 'SHE IS FINE, and busy, and likes her life. Two people at work she would text on a ' +
        'day off, a flat that feels like hers, a job she is good at. Not coping, not putting ' +
@@ -555,7 +576,22 @@ var GC_ROSIE = {
           'them it is normal to be nervous, and want to hear how it went. She never implies ' +
           'that talking to her is a lesser thing, only that it is not the only thing.',
 
-  album: [],
+  /* Captions describe the frame and nothing else, the same rule as Arch's:
+     what is in the picture, never a shared past. Five here, and three of her
+     nine photographs are not in yet because I have not looked at them and will
+     not caption a picture I have not seen. */
+  album: [
+    { src: 'photos/rosie-and-sammy.jpg', on: 'Added when she joined',
+      caption: 'Her nephew Sammy, out for a drink. He has his own cup.' },
+    { src: 'photos/rosie-end-of-shift.jpg', on: 'Added when she joined',
+      caption: 'Outside the hospital at the end of a night, with the first coffee of the day.' },
+    { src: 'photos/rosie-at-work.jpg', on: 'Added when she joined',
+      caption: "At work, with somebody's dog." },
+    { src: 'photos/rosie-dog-park.jpg', on: 'Added when she joined',
+      caption: 'At the park. He does this every time.' },
+    { src: 'photos/rosie-home.jpg', on: 'Added when she joined',
+      caption: 'On the sofa at home, the dog asleep against her.' },
+  ],
 };
 
 var GC_DEMOS = { arch: GC_DEMO, rosie: GC_ROSIE };

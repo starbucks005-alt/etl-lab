@@ -133,6 +133,12 @@ function buildSystem(friend, you, idle, scene) {
   if (f.place) bits.push(f.place);
   if (f.dog)    bits.push(f.dog);
   if (f.kids)   bits.push(f.kids);
+  /* THE PEOPLE WHO ARE ACTUALLY IN THEIR LIFE. Arch has kids, Rosie has a
+     nephew and a brother in the same city. This field was in her canon and not
+     in this list, so the person she rearranges shifts for would never have
+     reached her: she would have been written as having family and behaved as
+     though she had none. */
+  if (f.family) bits.push(f.family);
   /* Arch has daughters and a dog; Frankie has a ward full of emergencies. Same
      slot in a life, different contents, and a friend without one is a friend
      with nothing to talk about when it goes quiet. */
