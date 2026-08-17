@@ -113,6 +113,9 @@ button.face.on{ border-color:var(--accent); box-shadow:0 0 0 2px var(--accent); 
 }
 .already p{ margin:0 0 .8rem; }
 .already p:last-child{ margin:0; }
+/* One row per built friend, now that there can be more than one. */
+.already-row{ padding:0 0 1rem; margin:0 0 1rem; border-bottom:1px solid var(--accent); }
+.already-row:last-child{ padding-bottom:0; margin-bottom:0; border-bottom:none; }
 footer{ padding:2rem 0 3rem; color:var(--ink-dim); font-size:.9rem; }
 </style>
 </head>
@@ -132,18 +135,14 @@ footer{ padding:2rem 0 3rem; color:var(--ink-dim); font-size:.9rem; }
   <!-- SOMEBODY IS ALREADY HERE. This page used to behave as though every visit
        were the first, so a friend you had already made was invisible from the
        one screen that makes friends, and there was no way anywhere to be rid of
-       one. A half-finished friend just sat there taking over the room. -->
+       one. A half-finished friend just sat there taking over the room.
+
+       NOW A LIST, NOT ONE. Dr. O: "someone can have multiple friends." One row
+       per built friend, each with its own way in and its own way out, rather
+       than a single banner that assumed there could only ever be one. Built by
+       gc-friend.js's array-based storage further down the page. -->
   <div class="already" id="already" style="display:none">
-    <p id="alreadySay"></p>
-    <p>
-      <!-- NEW FACES WITHOUT LOSING THEM. Getting a different face used to mean
-           Start over, which throws away every answer and makes you fill the
-           form in again for the same person. The answers are already saved;
-           only the picture was wrong. -->
-      <button class="btn go" type="button" id="newFacesBtn">Draw new faces</button>
-      <button class="btn" type="button" id="theirRoomBtn">Open their room</button>
-      <button class="btn" type="button" id="forgetBtn">Start over</button>
-    </p>
+    <div id="alreadyList"></div>
   </div>
 
   <p class="mins">About two minutes</p>
@@ -179,11 +178,27 @@ footer{ padding:2rem 0 3rem; color:var(--ink-dim); font-size:.9rem; }
     </div>
 
     <div class="q">
-      <!-- FREE TEXT, NOT A DROPDOWN, ON PURPOSE. A list has to start somewhere
-           and whatever sits at the top becomes the default nobody edits. The
-           friend this product makes should not have a hometown I picked. -->
-      <label class="q-label" for="fFrom">Where they are from</label>
-      <input type="text" id="fFrom" placeholder="A town, a country, anywhere" autocomplete="off">
+      <!-- WAS FREE TEXT ONLY, ON PURPOSE, and the reason is worth keeping: a
+           list has to start somewhere and whatever sits at the top becomes the
+           default nobody edits. Dr. O overrode that on purpose, in her own
+           words: "let them choose what country they are from, from all over
+           the world, learn about different cultures." That is a real feature,
+           not a shortcut, so it is a genuine country list rather than the
+           handful of English-speaking ones a timezone table would strictly
+           need. A SELECT, not chips: chips are for a small set somebody scans
+           in a glance (age has 8, gender has 4), and a global list needs a
+           search field a native select gives you for free. The honoured part
+           of the old rule: the first option is blank, nothing is
+           pre-selected, and it is the neutral opt-out, not a country. -->
+      <label class="q-label" for="fCountry">Which country</label>
+      <p class="q-note">Where they are from shapes them a little: how they talk, what they
+        know, what feels normal to them. Leave it blank and that is a choice too.</p>
+      <select id="fCountry"><option value="">Anywhere. I do not mind.</option></select>
+    </div>
+
+    <div class="q">
+      <label class="q-label" for="fFrom">A town or region, if you want to say</label>
+      <input type="text" id="fFrom" placeholder="Optional. A city, a coastline, up a hill" autocomplete="off">
     </div>
 
     <div class="q">
@@ -265,9 +280,10 @@ footer{ padding:2rem 0 3rem; color:var(--ink-dim); font-size:.9rem; }
     </div>
 
     <p style="margin-top:1.2rem">
-      <button class="btn" type="button" id="roomBtn">Open the room &rarr;</button>
+      <button class="btn go" type="button" id="roomBtn">Open the room &rarr;</button>
       <button class="btn" type="button" id="copyBtn">Copy as JSON</button>
     </p>
+    <p class="q-note" id="roomPriceNote" style="margin-top:.5rem"></p>
   </div>
 
   <footer>If you like Good Company, there is more of it.
@@ -283,6 +299,38 @@ footer{ padding:2rem 0 3rem; color:var(--ink-dim); font-size:.9rem; }
    left blank is filled in by the friend, not by a default I chose. */
 var AGES    = ['20s','30s','40s','50s','60s','70s','80s or so','About my age'];
 var GENDERS = ['A woman','A man','Nonbinary','Let them decide'];
+
+/* ── COUNTRIES ────────────────────────────────────────────────────────────────
+   Genuinely global, not the handful of English-speaking countries a timezone
+   table would strictly need. Sorted alphabetically because alphabetical is the
+   one order that plays no favourites: nothing here is arranged to nudge
+   anybody toward a "default" nationality.
+
+   ONE TIMEZONE PER COUNTRY, the same simplification Arch and Sophia already
+   live with (a whole demo pinned to one city). A country spanning several
+   zones gets its most populous or most-used one; this is a companion knowing
+   roughly what time it is where they live, not a geography exam. */
+var COUNTRIES = [
+  ['Argentina','America/Argentina/Buenos_Aires'], ['Australia','Australia/Sydney'],
+  ['Austria','Europe/Vienna'], ['Bangladesh','Asia/Dhaka'], ['Belgium','Europe/Brussels'],
+  ['Brazil','America/Sao_Paulo'], ['Canada','America/Toronto'], ['Chile','America/Santiago'],
+  ['China','Asia/Shanghai'], ['Colombia','America/Bogota'], ['Czechia','Europe/Prague'],
+  ['Denmark','Europe/Copenhagen'], ['Egypt','Africa/Cairo'], ['Ethiopia','Africa/Addis_Ababa'],
+  ['Finland','Europe/Helsinki'], ['France','Europe/Paris'], ['Germany','Europe/Berlin'],
+  ['Ghana','Africa/Accra'], ['Greece','Europe/Athens'], ['India','Asia/Kolkata'],
+  ['Indonesia','Asia/Jakarta'], ['Ireland','Europe/Dublin'], ['Israel','Asia/Jerusalem'],
+  ['Italy','Europe/Rome'], ['Jamaica','America/Jamaica'], ['Japan','Asia/Tokyo'],
+  ['Kenya','Africa/Nairobi'], ['Malaysia','Asia/Kuala_Lumpur'], ['Mexico','America/Mexico_City'],
+  ['Morocco','Africa/Casablanca'], ['Netherlands','Europe/Amsterdam'], ['New Zealand','Pacific/Auckland'],
+  ['Nigeria','Africa/Lagos'], ['Norway','Europe/Oslo'], ['Pakistan','Asia/Karachi'],
+  ['Peru','America/Lima'], ['Philippines','Asia/Manila'], ['Poland','Europe/Warsaw'],
+  ['Portugal','Europe/Lisbon'], ['Romania','Europe/Bucharest'], ['Saudi Arabia','Asia/Riyadh'],
+  ['Singapore','Asia/Singapore'], ['South Africa','Africa/Johannesburg'], ['South Korea','Asia/Seoul'],
+  ['Spain','Europe/Madrid'], ['Sri Lanka','Asia/Colombo'], ['Sweden','Europe/Stockholm'],
+  ['Switzerland','Europe/Zurich'], ['Thailand','Asia/Bangkok'], ['Turkiye','Europe/Istanbul'],
+  ['Ukraine','Europe/Kyiv'], ['United Arab Emirates','Asia/Dubai'], ['United Kingdom','Europe/London'],
+  ['United States','America/New_York'], ['Vietnam','Asia/Ho_Chi_Minh'],
+];
 var VOICES  = ['Gentle','Blunt','Funny','Quiet','Warm','Dry','Patient','Talks a lot'];
 var WANTS   = ['Someone to talk to','Someone who checks in','Someone to keep me on track',
                'Someone to sit with','I am not sure yet'];
@@ -321,6 +369,16 @@ chips($('genderChips'), GENDERS, 'gender', false);
 chips($('voiceChips'), VOICES, 'voice', true);
 chips($('wantChips'), WANTS, 'want', false);
 
+COUNTRIES.forEach(function (row) {
+  var o = document.createElement('option');
+  o.value = row[0]; o.textContent = row[0];
+  $('fCountry').appendChild(o);
+});
+function countryTimezone(name) {
+  var row = COUNTRIES.filter(function (r) { return r[0] === name; })[0];
+  return row ? row[1] : null;
+}
+
 $('nameBtn').addEventListener('click', function () {
   var pool = NAMES.filter(function (n) { return n !== $('fName').value.trim(); });
   $('fName').value = pool[Math.floor(Math.random() * pool.length)];
@@ -349,7 +407,18 @@ function assemble() {
     name:   val('fName'),
     age:    picked.age,
     gender: picked.gender,
-    from:   val('fFrom'),
+    /* COUNTRY AND TOWN COMBINE INTO ONE from STRING, so buildSystem's existing
+       "You are from ${f.from}" needs no change to use either or both: a
+       country alone reads as "United Kingdom", a town alone as whatever was
+       typed, both together as "Dayton, Ohio, United States". */
+    from:   [val('fFrom'), $('fCountry').value].filter(Boolean).join(', '),
+    /* THE CLOCK, DERIVED FROM THE COUNTRY RATHER THAN ASKED SEPARATELY.
+       Nobody wants an eleventh question naming a timezone; the country they
+       already picked settles it, the same one-city-stands-for-the-country
+       simplification Arch and Sophia already live with. Blank country falls
+       back to _gc-when.js's own default rather than being set here, so
+       "anywhere" genuinely means undecided rather than secretly New York. */
+    timezone: countryTimezone($('fCountry').value) || null,
     work:   val('fWork'),
     into:   val('fInto'),
     voice:  picked.voice.slice(),
@@ -382,6 +451,61 @@ function assemble() {
 
 var friend = null;
 
+/* ── PAYING FOR A FRIEND ──────────────────────────────────────────────────────
+   Dr. O: "we need to set the price per 'friend'." One gate, used everywhere a
+   friend's room gets opened: the "Open the room" button after building, and
+   "Open their room" in the list above for anyone made earlier.
+
+   GATED ON paid === false, SPECIFICALLY, NOT ON paid BEING FALSY. Every
+   friend built from today gets paid:false the moment they are made, so the
+   gate is real for them. Everyone already on this device has friends with no
+   paid field at all, and undefined !== false, so they pass straight through.
+   The alternative, gating on "not paid", would have charged Pookie and Terry
+   for friends they already made for free; that is not a bill this feature
+   gets to send retroactively. */
+function openFriendRoom(f) {
+  if (f.paid !== false) {
+    GC_touchFriend(f.id);
+    location.href = 'room.html?who=' + encodeURIComponent(f.id);
+    return;
+  }
+  fetch('/.netlify/functions/gc-friend-checkout', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ friend_id: f.id, friend_name: f.name }),
+  })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (data && data.url) { location.href = data.url; }
+      else { alert('Could not start payment just now. Try again in a moment.'); }
+    })
+    .catch(function () { alert('Could not start payment just now. Try again in a moment.'); });
+}
+
+/* COMING BACK FROM STRIPE. success_url sends them back here with the session
+   id in ?friend-paid=; Stripe is asked whether it actually paid, never the
+   URL itself, the same way gc-scene-checkout's return trip works. */
+(function () {
+  var q = null;
+  try { q = new URLSearchParams(location.search); } catch (e) {}
+  var sessionId = q && q.get('friend-paid');
+  if (!sessionId) return;
+
+  try { history.replaceState(null, '', location.pathname); } catch (e) {}
+
+  fetch('/.netlify/functions/gc-friend-checkout?session_id=' + encodeURIComponent(sessionId))
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      var f = data && data.paid && data.friend_id ? GC_findBuilt(data.friend_id) : null;
+      if (!f) return;
+      f.paid = true;
+      GC_saveFriend(f);
+      GC_touchFriend(f.id);
+      location.href = 'room.html?who=' + encodeURIComponent(f.id);
+    })
+    .catch(function () {});
+})();
+
 /* ── SOMEBODY IS ALREADY HERE ────────────────────────────────────────────────
    A friend already on this device is named at the top of the page, with the way
    into their room and the way to be rid of them.
@@ -393,58 +517,75 @@ var friend = null;
    HOW EMPTY THEY ARE IS SAID OUT LOUD. "This one is blank" is the difference
    between a friend you meant to make and one that happened to you. */
 (function () {
-  var built = null;
-  try { built = JSON.parse(localStorage.getItem('gc-friend') || 'null'); } catch (e) {}
-  if (!built || !built.name) return;
-
-  /* Answered, out of everything the questions actually ask. */
-  var filled = ['age','gender','from','work','into','been'].filter(function (k) {
-    return built[k] && String(built[k]).length;
-  }).length;
-
-  document.getElementById('alreadySay').textContent = filled
-    ? 'You have already made someone: ' + built.name + '. Making another replaces them, ' +
-      'because you get one friend at a time for now.'
-    : 'There is a ' + built.name + ' on this device with nothing filled in, made by ' +
-      'pressing through with the name box empty. Start over and they are gone.';
-
+  if (!GC_ALL_BUILT.length) return;
   document.getElementById('already').style.display = 'block';
+  var list = document.getElementById('alreadyList');
 
-  document.getElementById('theirRoomBtn').addEventListener('click', function () {
-    location.href = 'room.html?who=mine';
-  });
+  GC_ALL_BUILT.forEach(function (built) {
+    /* Answered, out of everything the questions actually ask. */
+    var filled = ['age','gender','from','work','into','been'].filter(function (k) {
+      return built[k] && String(built[k]).length;
+    }).length;
 
-  /* DRAW NEW FACES FOR THE FRIEND WHO IS ALREADY HERE. Same person, same
-     answers, different picture. Works off the saved friend rather than the
-     form, so it does not matter that the form is empty on a fresh visit, and
-     choosing one writes the new portrait back over the old one. */
-  document.getElementById('newFacesBtn').addEventListener('click', function () {
-    friend = built;
-    var dl = $('sumList');
-    if (dl && !dl.children.length) {
+    var row = document.createElement('div');
+    row.className = 'already-row';
+
+    var say = document.createElement('p');
+    say.textContent = filled
+      ? 'You already made ' + built.name + '.'
+      : built.name + ' is on this device with nothing filled in, made by pressing through ' +
+        'with the name box empty.';
+    row.appendChild(say);
+
+    var actions = document.createElement('p');
+
+    var openBtn = document.createElement('button');
+    openBtn.type = 'button'; openBtn.className = 'btn';
+    openBtn.textContent = (built.paid === false) ? 'Pay & open their room' : 'Open their room';
+    openBtn.addEventListener('click', function () { openFriendRoom(built); });
+    actions.appendChild(openBtn);
+
+    /* DRAW NEW FACES FOR A FRIEND WHO IS ALREADY HERE. Same person, same
+       answers, different picture. Works off the saved friend rather than the
+       form, so it does not matter that the form is empty on a fresh visit, and
+       choosing one writes the new portrait back over the old one. Clears and
+       repaints the summary each time rather than only once, because with a
+       list there can be several friends to choose faces for in one visit. */
+    var facesBtn = document.createElement('button');
+    facesBtn.type = 'button'; facesBtn.className = 'btn go'; facesBtn.textContent = 'Draw new faces';
+    facesBtn.addEventListener('click', function () {
+      friend = built;
+      var dl = $('sumList'); dl.innerHTML = '';
       [['Name', built.name], ['Age', built.age], ['Gender', built.gender],
        ['From', built.from], ['Does', built.work], ['Into', built.into]
-      ].forEach(function (row) {
-        if (!row[1]) return;
-        var dt = document.createElement('dt'); dt.textContent = row[0];
-        var dd = document.createElement('dd'); dd.textContent = row[1];
+      ].forEach(function (r) {
+        if (!r[1]) return;
+        var dt = document.createElement('dt'); dt.textContent = r[0];
+        var dd = document.createElement('dd'); dd.textContent = r[1];
         dl.appendChild(dt); dl.appendChild(dd);
       });
-    }
-    $('faces').classList.add('on');
-    $('faces').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    drawFaces();
-  });
+      $('faces').classList.add('on');
+      $('faces').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      drawFaces();
+      if (typeof paintRoomPrice === 'function') paintRoomPrice();
+    });
+    actions.appendChild(facesBtn);
 
-  var forget = document.getElementById('forgetBtn');
-  forget.addEventListener('click', function () {
-    /* DELETING A PERSON YOU MADE ASKS FIRST, and asks using their name, because
-       for somebody further in than this that is not a blank record. */
-    if (!confirm('Forget ' + built.name + '? Everything about them goes, and this cannot be undone.')) return;
-    try { localStorage.removeItem('gc-friend'); } catch (e) {}
-    try { localStorage.removeItem('gc-face-sets'); } catch (e) {}
-    try { sessionStorage.removeItem('gc-who'); } catch (e) {}
-    location.href = 'build.html';
+    var forgetBtn = document.createElement('button');
+    forgetBtn.type = 'button'; forgetBtn.className = 'btn'; forgetBtn.textContent = 'Forget';
+    forgetBtn.addEventListener('click', function () {
+      /* DELETING A PERSON YOU MADE ASKS FIRST, and asks using their name,
+         because for somebody further in than this that is not a blank
+         record. Removes only this one entry from the list, not the others. */
+      if (!confirm('Forget ' + built.name + '? Everything about them goes, and this cannot be undone.')) return;
+      GC_deleteFriend(built.id);
+      try { sessionStorage.removeItem('gc-who'); } catch (e) {}
+      location.href = 'build.html';
+    });
+    actions.appendChild(forgetBtn);
+
+    row.appendChild(actions);
+    list.appendChild(row);
   });
 })();
 
@@ -472,7 +613,14 @@ $('makeBtn').addEventListener('click', function () {
   }
 
   friend = assemble();
-  try { localStorage.setItem('gc-friend', JSON.stringify(friend)); } catch (e) {}
+  /* A STABLE ID, MINTED ONCE, HERE. Every write from here on saves this friend
+     into the array by id rather than overwriting a single slot, which is what
+     makes more than one friend on a device possible at all. */
+  friend.id = GC_newFriendId();
+  friend.createdAt = new Date().toISOString();
+  friend.paid = false;
+  try { GC_saveFriend(friend); } catch (e) {}
+  if (typeof paintRoomPrice === 'function') paintRoomPrice();
 
   var dl = $('sumList'); dl.innerHTML = '';
   [['Name', friend.name],
@@ -669,7 +817,7 @@ function chooseFace(btn, src) {
   /* THE PICKED FACE IS PART OF THE FRIEND, saved the same way the answers
      are, under the same key, in the shape room.html already reads. */
   friend.portrait = src;
-  try { localStorage.setItem('gc-friend', JSON.stringify(friend)); }
+  try { GC_saveFriend(friend); }
   catch (e) {
     /* A data URI of a face is not small, and a full quota is a real outcome
        on a device somebody has been using for years. */
@@ -684,9 +832,22 @@ function chooseFace(btn, src) {
 
 $('redrawBtn').addEventListener('click', drawFaces);
 
-/* ?who=mine, for the same reason the front page says ?who=arch: this button
-   means the friend you have just built, whoever the tab was last showing. */
-$('roomBtn').addEventListener('click', function () { location.href = 'room.html?who=mine'; });
+/* Same gate as the list above: pay first if this friend has not been paid
+   for, open straight through if they have (or if they predate the paywall
+   entirely, per openFriendRoom's own comment on that). */
+$('roomBtn').addEventListener('click', function () {
+  if (!friend || !friend.id) { location.href = 'room.html?who=mine'; return; }
+  openFriendRoom(friend);
+});
+
+function paintRoomPrice() {
+  var note = $('roomPriceNote');
+  if (!note) return;
+  note.textContent = (friend && friend.paid === false)
+    ? 'Opening the room the first time is $9.99. Everything up to here is free.'
+    : '';
+}
+paintRoomPrice();
 
 $('copyBtn').addEventListener('click', function () {
   var t = JSON.stringify(friend, null, 2);

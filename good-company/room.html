@@ -356,23 +356,87 @@ html,body{ height:100%; }
    decided there too and answers to ?who=. */
 var FRIEND = GC_FRIEND;
 
+/* AN UNPAID FRIEND DOES NOT OPEN HERE, even reached directly by a bookmarked
+   or shared link that skips build.html's own gate entirely. Same paid ===
+   false check as build.html, for the same reason: undefined (everyone who
+   built a friend before this feature existed) passes straight through, only
+   an explicit false, set on friends made from today, sends them back to pay.
+   This is friction, not a real lock, the same honest limit the rest of this
+   product already lives with: nothing here has an account behind it. */
+if (typeof GC_BUILT !== 'undefined' && GC_BUILT && FRIEND === GC_BUILT && GC_BUILT.paid === false) {
+  location.href = 'build.html';
+  throw new Error('gc: unpaid friend, redirecting to build.html');
+}
+
+/* "MINE" MEANS "WHOEVER WAS LAST SAT WITH", so it has to be stamped
+   somewhere, and here, when a built friend's room actually opens, is the one
+   place that is true regardless of how the room was reached. */
+if (typeof GC_touchFriend === 'function' && typeof GC_BUILT !== 'undefined' && GC_BUILT && FRIEND === GC_BUILT) {
+  GC_touchFriend(GC_BUILT.id);
+}
+
 /* THE WAY BACK TO ARCH. Building somebody used to hide the demo permanently,
    with no control anywhere to return, so the only way back was clearing site
-   data. This appears only when there are actually two people to move between,
-   and it names the one you would be going to rather than saying "switch". */
-if (typeof GC_BUILT !== 'undefined' && GC_BUILT) {
+   data. This appears only when there is actually somebody to move between,
+   and it names the one you would be going to rather than saying "switch".
+
+   MORE THAN ONE BUILT FRIEND breaks the old two-way toggle: "the other one"
+   stopped meaning anything specific once there could be several. With
+   exactly one built friend the button still behaves exactly as before, a
+   plain toggle. With two or more it becomes a small picker instead, listing
+   the house demos and every built friend, current one marked, so switching
+   is a click rather than a guess about which "other" person the button
+   would have taken you to. */
+if (typeof GC_ALL_BUILT !== 'undefined' && GC_ALL_BUILT.length) {
   var swap = document.getElementById('swapBtn');
-  var goingToDemo = (GC_WHO === 'mine');
-  swap.textContent = goingToDemo
-    ? '⇄ ' + GC_DEMO.name
-    : '⇄ ' + GC_BUILT.name;
-  swap.title = goingToDemo
-    ? 'Sit with ' + GC_DEMO.name + ' instead. ' + GC_BUILT.name + ' stays exactly as they are.'
-    : 'Back to ' + GC_BUILT.name + '.';
   swap.style.display = 'inline-block';
-  swap.addEventListener('click', function () {
-    location.href = 'room.html?who=' + (goingToDemo ? 'arch' : 'mine');
-  });
+
+  if (GC_ALL_BUILT.length === 1 && GC_BUILT) {
+    var goingToDemo = (GC_WHO === 'mine' || GC_WHO === GC_BUILT.id);
+    swap.textContent = goingToDemo ? '⇄ ' + GC_DEMO.name : '⇄ ' + GC_BUILT.name;
+    swap.title = goingToDemo
+      ? 'Sit with ' + GC_DEMO.name + ' instead. ' + GC_BUILT.name + ' stays exactly as they are.'
+      : 'Back to ' + GC_BUILT.name + '.';
+    swap.addEventListener('click', function () {
+      location.href = 'room.html?who=' + (goingToDemo ? GC_DEMO_ID : GC_BUILT.id);
+    });
+  } else {
+    swap.textContent = '⇄ Switch';
+    swap.title = 'Sit with someone else.';
+
+    var wrap = document.createElement('span');
+    wrap.style.cssText = 'position:relative; display:inline-block;';
+    swap.parentNode.insertBefore(wrap, swap);
+    wrap.appendChild(swap);
+
+    var menu = document.createElement('div');
+    menu.style.cssText = 'display:none; position:absolute; left:0; bottom:100%; z-index:50; ' +
+      'background:var(--panel); border:1px solid var(--accent); border-radius:4px; ' +
+      'padding:.3rem; margin-bottom:.3rem; white-space:nowrap;';
+    function swapItem(label, id, current) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'btn';
+      b.style.cssText = 'display:block; width:100%; text-align:left; margin:.1rem 0;';
+      b.textContent = (current ? '● ' : '') + label;
+      if (current) { b.disabled = true; } else {
+        b.addEventListener('click', function () { location.href = 'room.html?who=' + encodeURIComponent(id); });
+      }
+      menu.appendChild(b);
+    }
+    GC_DEMO_IDS.forEach(function (id) {
+      var d = GC_DEMOS[id];
+      if (d) swapItem(d.name, id, GC_WHO === id);
+    });
+    GC_ALL_BUILT.forEach(function (f) { swapItem(f.name, f.id, FRIEND === f); });
+    wrap.appendChild(menu);
+
+    swap.addEventListener('click', function (e) {
+      menu.style.display = (menu.style.display === 'none') ? 'block' : 'none';
+      e.stopPropagation();
+    });
+    document.addEventListener('click', function () { menu.style.display = 'none'; });
+  }
 }
 
 var $ = function (id) { return document.getElementById(id); };
@@ -850,7 +914,7 @@ function askForScene() {
   var already = (GC_BUILT.scenes || []).some(function (s) { return s && s.src === src; });
   if (!already) {
     GC_BUILT.scenes = (GC_BUILT.scenes || []).concat([{ key: key, label: label, src: src }]);
-    try { localStorage.setItem('gc-friend', JSON.stringify(GC_BUILT)); }
+    try { GC_saveFriend(GC_BUILT); }
     catch (e) {
       post('A scene arrived', 'It could not be saved: this device is out of storage.');
       return;
@@ -1331,14 +1395,14 @@ function notYet(what, why) {
    deserialised from the server's join response (see joinThenSit, "FRIEND =
    j.friend"). So the very first person in a room passed the check and their
    invite carried who=; anybody who joined THAT room and then invited a third
-   person themselves held a FRIEND that was contentwise Sofia but was no
+   person themselves held a FRIEND that was contentwise Sophia but was no
    longer literally GC_SOFIA, the check silently failed, and the link they
    sent defaulted the next arrival to Arch. Dr. O: "the link sent her to Arch
    again."
 
-   Compared by name instead, which survives the reassignment because Sofia's
-   name is always "Sofia" whichever copy of the object it lives on. The one
-   real cost: somebody who builds and names their own friend "Arch" or "Sofia"
+   Compared by name instead, which survives the reassignment because Sophia's
+   name is always "Sophia" whichever copy of the object it lives on. The one
+   real cost: somebody who builds and names their own friend "Arch" or "Sophia"
    would have their room mistaken for the demo. Accepted rather than solved,
    because solving it properly means the server telling a joiner which KIND of
    room they are in, not just which friend, and that is a larger change than
@@ -1904,7 +1968,7 @@ $('replyBtn').addEventListener('click', function () {
    built. */
 $('earBtn').addEventListener('click', function () {
   /* notYet already appends "is not built yet", and this said it again straight
-     after: "Saying Sofia from across the room is not built yet. Not built yet."
+     after: "Saying Sophia from across the room is not built yet. Not built yet."
      The second half only has to say what to do instead. */
   notYet('Saying "' + FRIEND.name + '" from across the room',
          'To talk, press the microphone next to the box. Nothing is listening until ' +

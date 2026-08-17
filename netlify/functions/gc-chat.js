@@ -118,7 +118,7 @@ function buildSystem(friend, you, idle, scene, room) {
   if (f.habit) bits.push(`A habit of yours: ${f.habit}`);
   if (f.been)  bits.push(`Something you have been through: ${f.been}`);
 
-  /* WHAT THEY ACTUALLY KNOW. Dr. O: Sofia needs to know everything about being
+  /* WHAT THEY ACTUALLY KNOW. Dr. O: Sophia needs to know everything about being
      a vet nurse, the way Arch knows about being a general contractor. A friend
      with a job they cannot talk about has nothing to say when it goes quiet,
      and vague competence reads as fake faster than anything else in a persona.
@@ -167,7 +167,7 @@ function buildSystem(friend, you, idle, scene, room) {
   /* Last, and therefore closest to the reply. */
   /* THE LIMIT ON WHAT THEY KNOW, LAST, WITH THE OTHER HARD ONES. Knowing a lot
      makes this MORE necessary rather than less: somebody worried about a real
-     animal at two in the morning ends up talking to Sofia, and a companion who
+     animal at two in the morning ends up talking to Sophia, and a companion who
      sounds authoritative could soothe them into waiting until morning. Same
      shape as the crisis rule for people. */
   if (f.notTheVet)      bits.push(f.notTheVet);
@@ -185,7 +185,7 @@ function buildSystem(friend, you, idle, scene, room) {
   /* NOBODY IS EVER AN IMPOSITION. Late and last, with the other hard rules,
      because it is the same kind of instruction: about what this friendship is
      FOR. Pookie read one line about a night shift and felt she would be
-     bothering Sofia, and somebody who suspects they are a burden is exactly who
+     bothering Sophia, and somebody who suspects they are a burden is exactly who
      is sitting here and will take any excuse to leave. */
   if (f.neverABother) bits.push(f.neverABother);
 
@@ -226,7 +226,7 @@ RIGHT NOW YOU ARE HERE: ${scene.where}` +
      pet in the friend's own life, or nobody.
 
      It guessed wrong live, in front of a real tester. Terry greeted the room
-     "hi Pookie and Sophia", and Sofia answered by saying her OWN dog was
+     "hi Pookie and Sophia", and Sophia answered by saying her OWN dog was
      called Pookie, a dog who had no name in canon and had a naming gap to
      fill with the nearest available noun. The room roster below is what
      removes the guess entirely: an authoritative list beats context clues
@@ -253,7 +253,13 @@ RIGHT NOW YOU ARE HERE: ${scene.where}` +
                 `explain the coincidence out loud unless they bring it up first. This holds ` +
                 `regardless of how a name sounds: talk to and about every person on this list the ` +
                 `way you would talk to any person, never with the warmth, phrasing or actions ` +
-                `(petting, scritches, "good girl/boy", and the like) you would use for an animal.`);
+                `(petting, scritches, "good girl/boy", and the like) you would use for an animal.\n` +
+                `Because more than one of them talks to you, every one of THEIR messages below ` +
+                `starts with "Name: " naming exactly who said it. That name is the only truth ` +
+                `about who is speaking, never guess it from tone, from who spoke last, or from ` +
+                `who a question "sounds like" it is for. Answer the person the label actually ` +
+                `names, and speak back to them without repeating the "Name: " label yourself, ` +
+                `the way a person answers instead of formatting a transcript.`);
     }
   }
 
@@ -354,10 +360,31 @@ exports.handler = async function (event) {
     }
   }
 
+  /* WHOSE TURN IT ACTUALLY IS, NAMED, THE SAME FIX AS THE ROOM ROSTER ABOVE.
+
+     gc-room-say has always computed the real speaker's name per message
+     (who: m.name) and sent it here as body.messages[].who. This function
+     read m.mine to pick a role and m.text for the words, and never once
+     touched m.who: every human in a room collapsed into one undifferentiated
+     "user" turn. With two people talking, the model saw a plain back-and-forth
+     and had no way to know which "user" line was which person, so it guessed.
+     Terry asked "Sophia, where are you from?" and Sophia answered "Why do you
+     ask, Mike?", to Mike, who had not asked.
+
+     Fixed by labelling each human turn with who actually said it, but only
+     when there is more than one named person to tell apart: a solo
+     conversation gains nothing from a name on every line and it would just be
+     noise in front of the one person actually there. */
+  const namedRoom = Array.isArray(body.room) && body.room.filter(p => p && p.name).length > 1;
+  function label(name, text) { return (namedRoom && name) ? `${name}: ${text}` : text; }
+
   const history = (Array.isArray(body.messages) ? body.messages : [])
     .slice(-MAX_TURNS)
     .filter(m => m && m.text)
-    .map(m => ({ role: m.mine ? 'user' : 'assistant', content: String(m.text).slice(0, 4000) }));
+    .map(m => ({
+      role: m.mine ? 'user' : 'assistant',
+      content: m.mine ? label(m.who, String(m.text).slice(0, 4000)) : String(m.text).slice(0, 4000),
+    }));
 
   /* ── THEY CAN BE SHOWN THINGS ────────────────────────────────────────────
      Dr. O: the friend should be able to receive images and files and see
@@ -395,8 +422,8 @@ exports.handler = async function (event) {
     : seen.length
       /* The picture comes first and the words after it, which is the order
          somebody hands you a phone in. */
-      ? { role: 'user', content: seen.concat([{ type: 'text', text: said || 'Look at this.' }]) }
-      : { role: 'user', content: said };
+      ? { role: 'user', content: seen.concat([{ type: 'text', text: label(you.name, said || 'Look at this.') }]) }
+      : { role: 'user', content: label(you.name, said) };
 
   const turns = history.concat([lastTurn]);
 

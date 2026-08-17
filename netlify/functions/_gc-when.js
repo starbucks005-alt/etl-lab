@@ -2,7 +2,7 @@
    ─────────────────────────────────────────────────────────────────────────
    Ported from My Echo's _me-when.js rather than written fresh; that file
    already solved this properly and Dr. O pointed at it directly: "My Echo has
-   a clock." Nothing here had one. Sofia asked what somebody was doing tonight
+   a clock." Nothing here had one. Sophia asked what somebody was doing tonight
    at 11:36 in the morning, because nothing anywhere told either friend what
    time it was. The gauge label under a friend's face has claimed since it
    shipped that mood "shifts... with the time of day", which was aspirational
@@ -10,10 +10,10 @@
 
    A TIMEZONE PER FRIEND, NOT PER VISITOR. Same reasoning as M.E.'s: the friend
    is a person and people are somewhere. "It's evening here" is a fact about
-   Sofia, not about whoever happens to be talking to her, and a friend who
+   Sophia, not about whoever happens to be talking to her, and a friend who
    adopts the visitor's clock is not a person, it is a widget. A room with
-   people in different timezones does not change this: Sofia is still
-   wherever Sofia is.
+   people in different timezones does not change this: Sophia is still
+   wherever Sophia is.
 
    NOTHING HERE THROWS. An invalid IANA zone falls back to a default rather
    than taking a friend off the air over a typo in a canon file.

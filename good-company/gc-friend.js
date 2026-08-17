@@ -389,51 +389,112 @@ var GC_DEMO = {
   ]
 };
 
-/* Is there a built friend on this device at all? Asked separately because the
-   room needs to know whether there is anybody to switch BETWEEN. */
-var GC_BUILT = (function () {
-  try {
-    var saved = JSON.parse(localStorage.getItem('gc-friend') || 'null');
-    if (!saved || !saved.name || !saved.scenes || !saved.scenes.length) return null;
+/* ── MORE THAN ONE BUILT FRIEND ──────────────────────────────────────────────
+   Dr. O: "someone can have multiple friends." Reverses a deliberate earlier
+   decision (the build page used to say outright: "Making another replaces
+   them, because you get one friend at a time for now"), and it lands the same
+   day as "let them choose what country they are from, from all over the
+   world, learn about different cultures" — read together, that is a real
+   product direction: a small collected cast of friends from different places,
+   not one relationship at a time.
 
-    /* FRIENDS BUILT BEFORE TODAY CARRY FILENAMES THAT NEVER EXISTED.
+   MY DESIGN, FLAGGED AS SUCH. Storage moves from one object at gc-friend to
+   an array at gc-friends, each entry with a stable id. Nothing here was
+   specified about a limit, a gallery page, or exactly how switching between
+   several should look, so this is a working judgment call, not a confirmed
+   spec: unlimited friends, selected by ?who=<id>, with a simple list rather
+   than a dedicated page. Say if a different shape was pictured.
 
-       The build page used to write src:'video/kitchen.mp4' and the rest, for
-       clips that are never made, because scene generation is not built. The
-       room dutifully asked for them, the video failed, and every built friend
-       sat behind a black rectangle reading "missing: video/kitchen.mp4". Cal
-       held a whole conversation from behind one.
+   MIGRATED, NOT DISCARDED. Whoever already has one friend under the old
+   singular key keeps them: read once, wrapped with a fresh id, written into
+   the array, the old key removed. Losing somebody's already-built friend to a
+   storage-format change would be a far worse launch than shipping the feature
+   a day late. */
+var GC_ALL_BUILT = (function () {
+  var list = [];
+  try { list = JSON.parse(localStorage.getItem('gc-friends') || 'null') || []; } catch (e) { list = []; }
+  if (!Array.isArray(list)) list = [];
 
-       The page writes null now, but somebody's friend is already saved on
-       their device with the old values, and they would keep the black
-       rectangle forever. These five names are only ever placeholders: a real
-       clip of Arch is video/arch-fireplace.mp4 and is left exactly alone, so a
-       genuinely broken video is still a broken video and still says so. */
-    var NEVER_MADE = { 'video/kitchen.mp4':1, 'video/porch.mp4':1, 'video/coffee.mp4':1,
-                       'video/game.mp4':1, 'video/walk.mp4':1 };
-    saved.scenes.forEach(function (s) {
-      if (s && s.src && NEVER_MADE[s.src]) s.src = null;
-    });
+  if (!list.length) {
+    try {
+      var old = JSON.parse(localStorage.getItem('gc-friend') || 'null');
+      if (old && old.name) {
+        old.id = old.id || ('f-' + Date.now().toString(36));
+        old.createdAt = old.createdAt || new Date(0).toISOString();
+        list = [old];
+        localStorage.setItem('gc-friends', JSON.stringify(list));
+        localStorage.removeItem('gc-friend');
+      }
+    } catch (e) { /* storage disabled, or nothing to migrate */ }
+  }
 
-    /* AND COLLAPSED TO ONE, for the same friends. They were built with five
-       scenes and no film of any of them, so the room gave them five buttons
-       that switched between the same single picture, labelled with places that
-       may have nothing to do with them: Cal, photographed in a cafe, offered a
-       cabin and a porch. One scene now, named for what it actually is.
+  /* Per-friend cleanup, unchanged in substance from the old single-friend
+     version, just applied to every entry rather than one. */
+  var NEVER_MADE = { 'video/kitchen.mp4':1, 'video/porch.mp4':1, 'video/coffee.mp4':1,
+                     'video/game.mp4':1, 'video/walk.mp4':1 };
+  list.forEach(function (f) {
+    if (!f || !Array.isArray(f.scenes)) return;
+    f.scenes.forEach(function (s) { if (s && s.src && NEVER_MADE[s.src]) s.src = null; });
+    var anyFilm = f.scenes.some(function (s) { return s && s.src; });
+    if (!anyFilm) f.scenes = [{ key:'original', label:'The original', src:null }];
+  });
 
-       Only when NONE of them has film. A friend with real clips keeps every
-       one of them, so this can never quietly delete somebody's scenes. */
-    var anyFilm = saved.scenes.some(function (s) { return s && s.src; });
-    if (!anyFilm) saved.scenes = [{ key:'original', label:'The original', src:null }];
-
-    return saved;
-  } catch (e) { /* storage disabled */ }
-  return null;
+  return list.filter(function (f) { return f && f.id && f.name && Array.isArray(f.scenes) && f.scenes.length; });
 })();
 
-/* The friend actually in the room.
+function GC_findBuilt(id) {
+  return GC_ALL_BUILT.filter(function (f) { return f.id === id; })[0] || null;
+}
 
-   ARCH HAS TO STAY REACHABLE. A built friend used to win unconditionally, with
+/* "Mine", carried over from when there was one: the most recently OPENED
+   friend, falling back to the most recently made if none has been opened yet.
+   Old ?who=mine links, including the ones this file's own pages already send,
+   keep meaning something sensible rather than breaking the moment a second
+   friend exists. */
+function GC_mostRecentBuilt() {
+  if (!GC_ALL_BUILT.length) return null;
+  var sorted = GC_ALL_BUILT.slice().sort(function (a, b) {
+    return String(b.lastOpenedAt || b.createdAt || '').localeCompare(String(a.lastOpenedAt || a.createdAt || ''));
+  });
+  return sorted[0];
+}
+
+/* Persisted through one function on both pages that write a friend, so build
+   time and room time can never drift onto two different write shapes. */
+function GC_saveFriend(friend) {
+  if (!friend || !friend.id) return;
+  var i = GC_ALL_BUILT.findIndex ? GC_ALL_BUILT.findIndex(function (f) { return f.id === friend.id; })
+                                  : (function () { for (var k = 0; k < GC_ALL_BUILT.length; k++) if (GC_ALL_BUILT[k].id === friend.id) return k; return -1; })();
+  if (i === -1) GC_ALL_BUILT.push(friend); else GC_ALL_BUILT[i] = friend;
+  try { localStorage.setItem('gc-friends', JSON.stringify(GC_ALL_BUILT)); } catch (e) {}
+}
+
+function GC_newFriendId() {
+  return 'f-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
+
+function GC_deleteFriend(id) {
+  var i = -1;
+  for (var k = 0; k < GC_ALL_BUILT.length; k++) if (GC_ALL_BUILT[k].id === id) { i = k; break; }
+  if (i > -1) GC_ALL_BUILT.splice(i, 1);
+  try { localStorage.setItem('gc-friends', JSON.stringify(GC_ALL_BUILT)); } catch (e) {}
+}
+
+/* Called by the room when it settles on a built friend, so "mine" tracks
+   whoever was actually last sat with rather than only whoever was made most
+   recently. */
+function GC_touchFriend(id) {
+  var f = GC_findBuilt(id);
+  if (!f) return;
+  f.lastOpenedAt = new Date().toISOString();
+  GC_saveFriend(f);
+}
+
+/* Kept for anything still written against the old shape: the ONE friend, if
+   there is exactly a "current" one to speak of. Resolved below, after GC_WHO. */
+var GC_BUILT = null;
+
+/* ARCH HAS TO STAY REACHABLE. A built friend used to win unconditionally, with
    nothing anywhere able to override it, so the moment anybody built somebody
    the demo was gone for good. The link on the front page still said "or sit
    with Arch first" and quietly delivered whoever you had built instead. Dr. O
@@ -442,23 +503,14 @@ var GC_BUILT = (function () {
    That matters past the confusion: Arch is what gets shown to people. A demo
    that disappears the first time you use the product is not a demo.
 
-   ?who=arch asks for the demo, ?who=mine asks for the built friend, and the
-   answer sticks for the tab so that stepping into the photo album and back
-   does not quietly swap who you are sitting with. */
-/* EVERY DEMO'S ID, LISTED WHERE THIS CAN SEE IT.
-
-   GC_DEMOS is built further down, after the friends themselves, and this runs
-   first, so it had no way to know that "sofia" names a demo. It recognised
-   arch, demo, mine and built, and everything else became null and fell through
-   to "show them the friend they built".
-
-   Which is exactly what happened: ?who=sofia opened on Marisol, a friend left
-   over from a test. The second demo was unreachable for anybody who had ever
-   built one, which is most people who would be shown her.
-
-   Adding a friend means adding an id here as well as to GC_DEMOS. Two places
-   is one too many, and it is still better than the resolution order silently
-   deciding a new demo does not exist. */
+   ?who=arch asks for a demo, ?who=<id> asks for a specific built friend,
+   ?who=mine asks for whichever one is "the" one right now, and the answer
+   sticks for the tab so that stepping into the photo album and back does not
+   quietly swap who you are sitting with. */
+/* EVERY DEMO'S ID, LISTED WHERE THIS CAN SEE IT. Adding a demo means adding an
+   id here as well as to GC_DEMOS below; two places is one too many, and it is
+   still better than the resolution order silently deciding a new demo does
+   not exist, which is exactly what happened to Sophia once already. */
 var GC_DEMO_IDS = ['arch', 'sofia'];
 
 var GC_WHO = (function () {
@@ -467,13 +519,13 @@ var GC_WHO = (function () {
 
   var asked = q && q.get('who');
   if (asked === 'demo') asked = 'arch';
-  else if (asked === 'mine' || asked === 'built') asked = 'mine';
-  else if (GC_DEMO_IDS.indexOf(asked) === -1) asked = null;
+  else if (asked === 'built') asked = 'mine';
+  else if (asked !== 'mine' && GC_DEMO_IDS.indexOf(asked) === -1 && !GC_findBuilt(asked)) asked = null;
 
   /* 1. AN EXPLICIT ?who= WINS OVER EVERYTHING and is remembered for the tab. */
   if (asked) {
     try { sessionStorage.setItem('gc-who', asked); } catch (e) {}
-    return (asked === 'mine' && !GC_BUILT) ? 'arch' : asked;
+    return (asked === 'mine' && !GC_mostRecentBuilt()) ? 'arch' : asked;
   }
 
   /* 2. ARRIVING ON AN INVITE BEATS WHAT THE TAB REMEMBERS, and this ordering is
@@ -490,15 +542,23 @@ var GC_WHO = (function () {
   if (q && q.get('join')) return 'arch';
 
   /* 3. What the tab remembers, so stepping into the photo album and back does
-     not quietly swap who you are sitting with. */
+     not quietly swap who you are sitting with. A remembered id for a friend
+     since deleted must not dead-end: fall through past it. */
   var remembered = null;
   try { remembered = sessionStorage.getItem('gc-who'); } catch (e) {}
-  if (remembered === 'mine' && !GC_BUILT) return 'arch';
-  if (remembered) return remembered;
+  if (remembered === 'mine' && !GC_mostRecentBuilt()) return 'arch';
+  if (remembered && (remembered === 'mine' || GC_DEMO_IDS.indexOf(remembered) > -1 || GC_findBuilt(remembered))) {
+    return remembered;
+  }
 
   /* 4. Your own friend if you have one, the demo if you do not. */
-  return GC_BUILT ? 'mine' : 'arch';
+  return GC_mostRecentBuilt() ? 'mine' : 'arch';
 })();
+
+/* NOW GC_WHO IS KNOWN, so the specific built friend (if any) it points at can
+   be resolved once, here, rather than re-derived everywhere GC_BUILT is read. */
+GC_BUILT = (GC_WHO === 'mine') ? GC_mostRecentBuilt()
+         : (GC_DEMO_IDS.indexOf(GC_WHO) === -1 ? GC_findBuilt(GC_WHO) : null);
 
 /* ── THE HOUSE CAST ──────────────────────────────────────────────────────────
    MORE THAN ONE DEMO, because one cannot do the job. Arch demonstrates
@@ -543,10 +603,10 @@ var GC_WHO = (function () {
    is reachable only at ?who=sofia, so nothing on the front page shows her
    half finished. */
 var GC_SOFIA = {
-  name: 'Sofia',
+  name: 'Sophia',
   /* Changeable. The portrait leads on how she looks; this is only what is on
      her lanyard. */
-  full: 'Sofia Reyes',
+  full: 'Sophia Reyes',
   age: '20s',
   gender: 'A woman',
   work: 'Veterinary nurse. Nights, at an emergency animal hospital.',
@@ -581,8 +641,8 @@ var GC_SOFIA = {
   been:  'Moved cities for the job about two years ago and knew nobody when she got ' +
          'here. Has built something since, slowly, and remembers exactly how long it took.',
   /* NOT TIRED, OFF DUTY. Pookie on the first version, which opened "sorry, I
-     have just come off a night": it made her feel she would be bothering Sofia
-     when Sofia should be sleeping. She was right, and it broke the one thing
+     have just come off a night": it made her feel she would be bothering Sophia
+     when Sophia should be sleeping. She was right, and it broke the one thing
      this friend is for. Somebody awake at four in the morning who thinks they
      are keeping you up will close the tab.
 
@@ -756,7 +816,7 @@ var GC_SOFIA = {
      is not neutral, it is a slot the model will fill from whatever is nearby,
      and the nearest thing to hand in a conversation is whoever is talking.
      Barley is a placeholder in the sense that Dr. O can change it in one
-     line, the way Sofia's own name changed twice; it is not a placeholder in
+     line, the way Sophia's own name changed twice; it is not a placeholder in
      the sense of being allowed to stay unnamed again. */
   dog: 'A golden retriever called Barley, who is delighted about everything and sleeps against her leg on ' +
        'the sofa. She got him for the reason a lot of people who work nights get a dog.',
@@ -833,7 +893,7 @@ var GC_DEMOS = { arch: GC_DEMO, sofia: GC_SOFIA };
 /* The id in ?who=, if it names a demo we actually have. */
 /* WHICH DEMO, taken from the answer GC_WHO already worked out rather than
    reading the URL a second time. Two readers of the same parameter is how they
-   disagree, and they did: one of them knew ?who=sofia meant Sofia while the
+   disagree, and they did: one of them knew ?who=sofia meant Sophia while the
    other had already decided it meant "their own friend". */
 var GC_DEMO_ID = (function () {
   if (GC_WHO !== 'mine' && Object.prototype.hasOwnProperty.call(GC_DEMOS, GC_WHO)) {
@@ -851,7 +911,11 @@ var GC_DEMO_ID = (function () {
 
 GC_DEMO = GC_DEMOS[GC_DEMO_ID] || GC_DEMO;
 
-var GC_FRIEND = (GC_WHO === 'mine' && GC_BUILT) ? GC_BUILT : GC_DEMO;
+/* GC_BUILT is already the specific friend GC_WHO points at, whether GC_WHO
+   said "mine" or named a friend's id directly, so no need to re-check "mine"
+   here: that check used to be the only way GC_WHO could mean a built friend,
+   and it stopped being true the moment ?who=<id> became a second way. */
+var GC_FRIEND = GC_BUILT || GC_DEMO;
 
 /* Which skin the page opens on. An explicit choice always wins and wins
    permanently; otherwise the friend's own room; otherwise the system
