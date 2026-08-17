@@ -20,6 +20,7 @@ const engine = require('./_eq-engine.js');
 const { ownerUser } = require('./_owner-auth.js');
 const { getStore, connectLambda } = require('@netlify/blobs');
 const { getCreditRow, deductCredits, ONE_TO_ONE_COST, safeToken } = require('./_ah-credits.js');
+const { isCrisis, crisisReply } = require('./_ah-safety.js');
 
 // Same blob store studio-auggie-chat.js persists to, same key shape
 // (ownerUser().id, the constant 'owner-master' id). When the OWNER herself
@@ -272,7 +273,13 @@ const TURN_TOOL = {
   input_schema: {
     type: 'object',
     properties: {
-      reply: { type: 'string', description: 'Your in-character spoken reply. Never reference felt, reason, or close.' },
+      // The length rule is restated HERE, and that is the whole point of it
+      // being here. With a forced tool the schema is the last thing rendered
+      // before generation, later than the system prompt and later than the
+      // transcript. The rule in GUARDRAILS sits behind the typo rule, the whole
+      // JSON output block, and the per-turn instructions, and a rule that far
+      // upstream loses to whatever is read last. This is that last thing.
+      reply: { type: 'string', description: 'Your in-character spoken reply. Keep it to a couple of sentences unless they actually asked for more. Never reference felt, reason, or close.' },
       felt: {
         type: 'object',
         description: 'How strongly each emotion is actually firing in you this turn, on a scale of 0 (not at all) to 8 (as hard as it gets). These are real, felt emotions, not a mood rating, so most turns most of them should sit low or near 0, an ordinary friendly exchange isn\'t sadness or anger or fear. Only report a real number when that specific emotion genuinely fired: happiness for real warmth or delight, sadness for something that actually hurts, fear for a real threat or unease, disgust for something genuinely off-putting, anger for real frustration or offense, surprise for an actual reveal or shock, curious for genuine interest pulling you toward wanting to know more. Scale the number to how strong it actually was, a mild version is 2 to 3, something big is 6 to 8. Don\'t manufacture an emotion that isn\'t really there just to fill in the field.',
@@ -422,6 +429,30 @@ exports.handler = async function (event) {
   const visitorPronounLine = visitorPronoun ? PRONOUN_LINES[visitorPronoun] : null;
   try { systemPrompt = buildSystemPrompt(agentKey, canonExtras, visitorName, visitorMemories, visitorPronounLine, turnCountBefore === 0); }
   catch (_) { return json(400, { error: 'unknown_agent', valid: Object.keys(engine.AGENTS) }); }
+
+  // ── the safety layer ────────────────────────────────────────────────────
+  // FIRST, ahead of the conduct check, the credit check and the free daily cap,
+  // and the order is the entire point. Every gate below this line is a way of
+  // refusing somebody: "this conversation is closed", "you're out of credits",
+  // "that's today's free messages, come back tomorrow". Any one of those
+  // answering a person who has just said they want to die is the worst thing
+  // this product could do, and until now the daily cap could do exactly that.
+  //
+  // A crisis turn is never billed, never counted against the free cap, and
+  // never blocked by a strike. It costs one Haiku call and it is worth it.
+  const safetyClient = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  if (await isCrisis(safetyClient, message)) {
+    return json(200, {
+      reply: crisisReply(visitorName),
+      // Echoed back unchanged: this reply came from code, so no turn was taken
+      // and nobody's feelings moved. The room carries on exactly where it was.
+      scales: (body.scales && typeof body.scales === 'object') ? body.scales : engine.seedOpeningState(agentKey),
+      meters: (body.meters && typeof body.meters === 'object') ? body.meters : { humanness: 50, eq: 50 },
+      turn_count: turnCountBefore,
+      closed: false,
+      handled: 'crisis',
+    });
+  }
 
   const canCheck = Boolean(visitorId && serviceKey) && !isOwner;
   if (canCheck) {

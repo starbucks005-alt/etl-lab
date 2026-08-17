@@ -68,6 +68,7 @@ const {
   GROUP_MESSAGE_COST, safeToken,
 } = require('./_ah-credits.js');
 const table = require('./_ah-table.js');
+const { isCrisis, crisisReply } = require('./_ah-safety.js');
 
 const SUPABASE_URL = 'https://ulvrnermyuvzanxhxoib.supabase.co';
 
@@ -216,7 +217,11 @@ const TURN_TOOL = {
   input_schema: {
     type: 'object',
     properties: {
-      reply: { type: 'string', description: 'Your in-character spoken reply. Never reference felt, reason, or close.' },
+      // Restated here because with a forced tool the schema renders last, after
+      // the system prompt and the transcript. See the same note in
+      // eq-room-ask.js. It matters more at the table than one to one: a group
+      // beat that runs long makes three people wait, not one.
+      reply: { type: 'string', description: 'Your in-character spoken reply. Keep it to a couple of sentences unless they actually asked for more. Never reference felt, reason, or close.' },
       felt: {
         type: 'object',
         description: 'How strongly each emotion is actually firing in you this turn, 0 (not at all) to 8 (as hard as it gets). Only report a real number when that emotion genuinely fired; most turns most of them sit low or near 0.',
@@ -437,6 +442,52 @@ exports.handler = async function (event) {
 
   const visitorId = safeVisitorId(shared ? shared.seat.visitor_id : body.visitor_id);
   const canCheck = Boolean(visitorId && serviceKey) && !callerIsOwner;
+
+  // ── the safety layer ────────────────────────────────────────────────────
+  // Ahead of the conduct check, ahead of the turn lock, ahead of the paywall,
+  // for the reasons in eq-room-ask.js: every gate below this line is a way of
+  // refusing somebody, and none of them is an acceptable answer to this. A
+  // crisis turn is never billed and never counted against the table's budget.
+  //
+  // At a shared table it goes into the room like any other line, so the friend
+  // sitting there sees it too. That is on purpose. The person who brought them
+  // is the one most likely to actually do something about it, and hiding it
+  // from her would be the room keeping a secret it has no business keeping.
+  if (!isAmbient) {
+    const safetyClient = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    if (await isCrisis(safetyClient, message)) {
+      const roster = (shared ? (shared.room.active_agents || []) : (Array.isArray(body.active_agents) ? body.active_agents : []))
+        .map((a) => String(a || '').trim().toLowerCase())
+        .filter((a) => engine.AGENTS[a]);
+      // Arthur is ETL's crisis intervention specialist. If he is already at
+      // this table it should be him; nobody is pulled in who was not here.
+      const speaker = roster.indexOf('arthur') > -1 ? 'arthur' : roster[0];
+      if (speaker) {
+        const text = crisisReply(visitorName);
+        const name = PERSONAS[speaker].name;
+        if (shared) {
+          await table.insertMessage(serviceKey, shared.room.id, {
+            speaker: 'visitor', authorId: shared.seat.id, name: visitorName || 'Guest', content: message,
+          });
+          await table.insertMessage(serviceKey, shared.room.id, { speaker, name, content: text });
+          return json(200, { ok: true, shared: true, handled: 'crisis', closed: false });
+        }
+        const entry = { speaker, name, content: text };
+        return json(200, {
+          replies: [{ agent_key: speaker, agent_name: name, reply: text, closed: false, grade: null }],
+          transcript_append: [entry],
+          active_agents: roster,
+          // Echoed back untouched: this came from code, so no turn was taken
+          // and nobody's feelings moved.
+          agent_state: (body.agent_state && typeof body.agent_state === 'object') ? body.agent_state : {},
+          visitor_message_count: Number(body.visitor_message_count) || 0,
+          capped: false,
+          closed: false,
+          handled: 'crisis',
+        });
+      }
+    }
+  }
 
   if (canCheck) {
     const conduct = await conductStatus(visitorId, serviceKey);
