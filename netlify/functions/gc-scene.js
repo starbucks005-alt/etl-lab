@@ -50,13 +50,34 @@ const json = (status, obj) => ({
 
 const STORE = 'gc_scene_jobs';
 
-/* Every prompt gets this, whatever the caller asked for. See the note above. */
-const LOOKING_AT_YOU =
-  ' They are facing the camera and looking at it, present with the person watching, ' +
-  'as though sitting with them. Not absorbed in a task, not looking down, not looking ' +
-  'away. Small natural movement: breathing, blinking, an occasional shift or a slight ' +
-  'smile. They are keeping somebody company. No speech, no talking, mouth closed or ' +
-  'barely moving. The camera does not move.';
+/* ── THE PROMPT THAT ALREADY WORKS ───────────────────────────────────────────
+   Not invented here. This is Dr. O's own wording from the Flow sessions that
+   produced Arch's five clips, which she made by hand with no editing after and
+   judged "perfectly fine". Automating that means using her prompt, not a
+   reasonable-sounding one of mine.
+
+   Hers, verbatim in shape: "A seamless infinite loop of this man sitting in
+   front of a wood fireplace in a log cabin, but have him look over at the
+   camera. Static camera, fixed framing, consistent soft lighting throughout.
+   Minimal body movement."
+
+   THE LOOP IS THE PART I HAD MISSED. The room plays these with the loop
+   attribute, so a clip that does not end where it began jumps every few
+   seconds and the person twitches. Every one of her prompts opens with
+   "a seamless infinite loop" and that is why hers sit quietly under a
+   conversation.
+
+   FIXED FRAMING AND CONSISTENT LIGHTING do the same job: across a loop point,
+   a drifting camera or a changing light is exactly where the seam shows.
+
+   LOOKING AT THE CAMERA is hers too, in every prompt, and it is the thing she
+   rejected a finished clip over. */
+const HOW_IT_HAS_TO_LOOK =
+  ' A seamless infinite loop. They look over at the camera and stay with the person ' +
+  'watching, present, as though sitting with them, not absorbed in a task and not ' +
+  'looking away. Static camera, fixed framing, consistent soft lighting throughout. ' +
+  'Minimal body movement, fluid and natural: breathing, blinking, an occasional small ' +
+  'shift. They are not talking, and there is no speech.';
 
 function newJobId() {
   /* Unguessable, because the GET side is not owner-gated: knowing a job id is
@@ -110,7 +131,7 @@ exports.handler = async (event) => {
     let started;
     try {
       started = await veo.start({
-        prompt: where + LOOKING_AT_YOU,
+        prompt: where + HOW_IT_HAS_TO_LOOK,
         firstFrameB64: portrait,
         seconds,
         models: ladder,
@@ -121,6 +142,7 @@ exports.handler = async (event) => {
            scene fills the frame and a vertical one would sit in the middle with
            bars either side. */
         aspect: body.aspect || '16:9',
+        resolution: body.resolution || '720p',
       });
     } catch (e) {
       return json(502, { error: 'veo_refused', detail: String(e && e.message || e).slice(0, 500) });
