@@ -45,6 +45,61 @@ const SCENE_CENTS = 499;
 
 const ORDERS = 'gc_scene_orders';
 
+/* ── TELLING SOMEBODY AN ORDER CAME IN ───────────────────────────────────────
+   A paid order used to land in a Blob and wait to be noticed, which was the
+   weakest thing about this once money could change hands: somebody has paid
+   and is waiting, and the only way to find out was to go and look.
+
+   ON PAYMENT, NOT ON ORDER. Asking is free and costs nobody anything, so an
+   unpaid order is interest rather than an obligation. A paid one is a person
+   waiting for a thing they have bought.
+
+   Resend, because RESEND_API_KEY is already set on this site and the IONOS
+   mailer lives in the My Echo repo. This is an internal note to ourselves, not
+   post from her mailbox, so it does not need to come from the real one.
+
+   NEVER FATAL. Sending is wrapped and awaited but its failure is swallowed: a
+   payment that went through must confirm to the buyer even if the mail does
+   not go, because the alternative is a person who has been charged and told
+   something went wrong. The order is already saved either way. */
+async function tellSomebody(order) {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) { console.warn('[gc-scene-checkout] paid order, no RESEND_API_KEY:', order.order_id); return; }
+
+  const to = (process.env.GC_ORDER_NOTIFY || 'drterryoroszi@emerging-tech-lab.com').trim();
+  const lines = [
+    '<p><b>' + esc(order.friend_name) + '</b> has been paid for.</p>',
+    '<p><b>Where they want them:</b><br>' + esc(order.where) + '</p>',
+    '<p><b>Reach them at:</b> ' + (order.from ? esc(order.from) : 'they did not say') + '</p>',
+    '<p><b>Order:</b> ' + esc(order.order_id) + '</p>',
+    '<p style="color:#666">Make it with gc-scene using that order id, then send them the ' +
+    'add-scene link. Nothing has been generated yet.</p>',
+  ];
+
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + key, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from: 'Good Company <drterryoroszi@emerging-tech-lab.com>',
+        to: [to],
+        subject: 'Scene ordered and paid: ' + order.friend_name,
+        html: lines.join('\n'),
+      }),
+    });
+    if (!res.ok) console.warn('[gc-scene-checkout] resend refused:', res.status, await res.text());
+  } catch (e) {
+    console.warn('[gc-scene-checkout] could not send the order note:', e && e.message);
+  }
+}
+
+/* Their own words go in this email, so they are escaped. */
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
 exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: CORS, body: '' };
 
@@ -86,6 +141,11 @@ exports.handler = async (event) => {
       order.paid_cents = session.amount_total || SCENE_CENTS;
       order.session_id = sessionId;
       await store.setJSON(orderId, order);
+
+      /* Inside the status check on purpose, so refreshing the page they land on
+         does not send the same note again. Saved first, told second: if the
+         mail goes and the save does not, an order is paid for and invisible. */
+      await tellSomebody(order);
     }
     return json(200, { ok: true, paid: true, order_id: orderId, friend_name: order.friend_name });
   }
