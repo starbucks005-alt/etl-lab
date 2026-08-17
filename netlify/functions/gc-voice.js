@@ -1,6 +1,13 @@
 /* gc-voice — the friend speaks.
 
-   POST { text, voice_id, access_token?, owner_key? } -> { audio } (base64 mpeg)
+   POST { text, voice_id, access_token?, credit_ref?, owner_key? } -> { audio } (base64 mpeg)
+
+   credit_ref, ADDED 2026-08-17: the shared-room equivalent of access_token.
+   A guest's browser never holds the host's live token, only a one-way
+   reference to it (see gc-room-open.js), so this is what lets a guest's
+   own voice requests bill the room's shared balance. Checked only when
+   there is no direct access_token, which is always the more trusted,
+   specific identity when present.
 
    ELEVENLABS_API_KEY comes from the campus environment, same as M.E.'s
    me-voice.js, which is the pattern this follows.
@@ -48,8 +55,10 @@ const json = (code, body) => ({
   statusCode: code, headers: { ...CORS, 'Content-Type': 'application/json' }, body: JSON.stringify(body),
 });
 
-const { getCreditRow, deductCredits, safeToken } = require('./_ah-credits.js');
+const { getCreditRow, deductCredits, getCreditRowByRef, deductCreditsByRef, safeToken } = require('./_ah-credits.js');
 const { ownerUser } = require('./_owner-auth.js');
+
+const CREDIT_REF = /^[a-f0-9]{64}$/;
 
 exports.handler = async function (event) {
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: CORS, body: '' };
@@ -68,10 +77,16 @@ exports.handler = async function (event) {
 
   const isOwner = !!ownerUser(String(body.owner_key || '').trim());
   const accessToken = safeToken(body.access_token);
+  const rawRef = String(body.credit_ref || '').trim();
+  const creditRef = (!accessToken && CREDIT_REF.test(rawRef)) ? rawRef : null;
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!isOwner) {
-    const creditsRow = (accessToken && serviceKey) ? await getCreditRow(accessToken, serviceKey) : null;
+    let creditsRow = null;
+    if (serviceKey) {
+      if (accessToken) creditsRow = await getCreditRow(accessToken, serviceKey);
+      else if (creditRef) creditsRow = await getCreditRowByRef(creditRef, serviceKey);
+    }
     if (!creditsRow || creditsRow.balance < AUDIO_MESSAGE_COST) {
       return json(200, { error: 'credits_exhausted', credits_exhausted: true });
     }
@@ -104,8 +119,9 @@ exports.handler = async function (event) {
   /* Billed only now, after ElevenLabs actually returned audio — never on a
      blocked check above, and never on a failed/unreachable call, which
      returned before this point. */
-  if (!isOwner && accessToken && serviceKey) {
-    await deductCredits(accessToken, AUDIO_MESSAGE_COST, serviceKey);
+  if (!isOwner && serviceKey) {
+    if (accessToken) await deductCredits(accessToken, AUDIO_MESSAGE_COST, serviceKey);
+    else if (creditRef) await deductCreditsByRef(creditRef, AUDIO_MESSAGE_COST, serviceKey);
   }
 
   return json(200, { audio: buf.toString('base64'), chars: text.length });

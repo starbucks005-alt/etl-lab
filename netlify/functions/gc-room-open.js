@@ -12,11 +12,21 @@
    BEFORE the guest has a seat, so the friend has the full thread while the
    guest still only ever sees from their own arrival.
 
-   POST { friend, scene_key?, you:{name,pronouns,avatar}, messages:[] }
-     -> { room_id, seat_token, invite_token, invite_url }
+   POST { friend, scene_key?, you:{name,pronouns,avatar}, messages:[], access_token? }
+     -> { room_id, seat_token, invite_token, invite_url, host_credit_ref }
+
+   WHO PAYS, ADDED 2026-08-17. If the friend is built (not a house demo) and
+   the host sends a funded access_token, that token's ah_credits row is
+   stamped with a reference (see _ah-credits.js's linkTokenRef) and the SAME
+   reference is stored on the room, never the live token itself. Every
+   browser in the room, guests included, can then bill against that
+   reference through gc-chat.js/gc-voice.js without ever holding the host's
+   actual credential — the same trust boundary Almost Human's own "bring a
+   friend" already draws.
 */
 
 const R = require('./_gc-room.js');
+const { linkTokenRef, safeToken } = require('./_ah-credits.js');
 
 exports.handler = async function (event) {
   if (event.httpMethod === 'OPTIONS') return R.preflight();
@@ -47,15 +57,27 @@ exports.handler = async function (event) {
     await R.sbInsert(key, 'gc_people', {
       room_id: who.room.id, token, is_host: false, removed: true,
     }, false);
-    return R.json(200, { room_id: who.room.id, invite_token: token });
+    return R.json(200, { room_id: who.room.id, invite_token: token, host_credit_ref: who.room.host_credit_ref || null });
   }
 
   const friend = body.friend;
   if (!friend || !friend.name) return R.json(400, { error: 'no_friend' });
 
+  /* House demos have nothing to bill; a built friend does. Same !friend.id
+     heuristic used everywhere else this distinction is made (gc-chat.js,
+     gc-room-say.js) — demos never get an id, every built friend always has
+     one, minted in build.html. */
+  const isDemo = !friend.id;
+  let hostCreditRef = null;
+  if (!isDemo) {
+    const hostToken = safeToken(body.access_token);
+    if (hostToken) hostCreditRef = await linkTokenRef(hostToken, key);
+  }
+
   const rows = await R.sbInsert(key, 'gc_rooms', {
     friend,
     scene_key: body.scene_key || null,
+    host_credit_ref: hostCreditRef,
   }, true);
   if (!rows || !rows.length) return R.json(500, { error: 'could_not_open_room' });
   const room = rows[0];
@@ -114,5 +136,6 @@ exports.handler = async function (event) {
     seat_id: seatRows[0].id,
     invite_token: inviteToken,
     carried: prior.length,
+    host_credit_ref: hostCreditRef,
   });
 };

@@ -18,7 +18,9 @@ const { houseTypography } = require('./_etl-voice-law.js');
 const web = require('./_gc-web.js');
 const when = require('./_gc-when.js');
 const { getStore, connectLambda } = require('@netlify/blobs');
-const { getCreditRow, deductCredits, safeToken } = require('./_ah-credits.js');
+const { getCreditRow, deductCredits, getCreditRowByRef, deductCreditsByRef, safeToken } = require('./_ah-credits.js');
+
+const CREDIT_REF = /^[a-f0-9]{64}$/;
 const { ownerUser } = require('./_owner-auth.js');
 
 /* Sonnet for the friend, because this is the demo-facing surface and the whole
@@ -398,11 +400,20 @@ exports.handler = async function (event) {
   const visitorId = safeVisitorId(body.visitor_id);
   const isOwner = !!ownerUser(String(body.owner_key || '').trim());
   const accessToken = safeToken(body.access_token);
+  /* THE SHARED-ROOM PATH, ADDED 2026-08-17. gc-room-say.js proxies here on
+     behalf of whoever actually spoke, and no guest's browser holds the
+     host's live access_token — only a one-way reference to the row it
+     stamped when the room opened (gc-room-open.js, _ah-credits.js's
+     tokenRef/linkTokenRef). Checked only when there is no direct token,
+     since a real token is always the more specific, trusted identity. */
+  const rawRef = String(body.credit_ref || '').trim();
+  const creditRef = (!accessToken && CREDIT_REF.test(rawRef)) ? rawRef : null;
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   let creditsRow = null;
-  if (!isOwner && accessToken && serviceKey) {
-    creditsRow = await getCreditRow(accessToken, serviceKey);
+  if (!isOwner && serviceKey) {
+    if (accessToken) creditsRow = await getCreditRow(accessToken, serviceKey);
+    else if (creditRef) creditsRow = await getCreditRowByRef(creditRef, serviceKey);
   }
   const hasCredits = Boolean(!isOwner && creditsRow && creditsRow.balance >= TEXT_MESSAGE_COST);
 
@@ -591,8 +602,10 @@ exports.handler = async function (event) {
      this ends up taking (quiet, idle-declined, or a real reply): all three
      spent the same real API call. */
   if (!isOwner) {
-    if (hasCredits && accessToken && serviceKey) {
+    if (hasCredits && serviceKey && accessToken) {
       await deductCredits(accessToken, TEXT_MESSAGE_COST, serviceKey);
+    } else if (hasCredits && serviceKey && creditRef) {
+      await deductCreditsByRef(creditRef, TEXT_MESSAGE_COST, serviceKey);
     } else if (usingFreeDailyCap && dayKey) {
       try {
         const usage = await getStore('ah_daily_usage').get(dayKey, { type: 'json' });

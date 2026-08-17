@@ -97,19 +97,18 @@ exports.handler = async function (event) {
     const friend = who.room.friend || {};
     const scene = (friend.scenes || []).find(s => s.key === who.room.scene_key) || null;
 
-    /* THE CREDIT CEILING DOES NOT FULLY REACH HERE YET, 2026-08-17, AND THAT
-       IS DELIBERATE, NOT MISSED. gc-chat.js now requires a funded
-       access_token for a built (non-demo) friend, with no free fallback.
-       This function has no such token to offer it: nobody's browser in a
-       shared room holds the host's live credential, on purpose, the same
-       privacy boundary Almost Human's "bring a friend" already draws with
-       host_credit_ref rather than a raw token. Building that same
-       reference-not-credential mechanism for Good Company's shared rooms is
-       real, separate work, not a two-line fix, so until it exists every
-       friend in a shared room rides the free daily cap, scoped per room
-       rather than per device (there is no per-guest device id to read
-       here). A friend already paid for is not blocked by this; it is,
-       for now, one more free thing about sharing a room. */
+    /* WHO PAYS. Same !friend.id heuristic used everywhere else this
+       distinction is made: a house demo never has an id, a built friend
+       always does. A built friend bills the room's host_credit_ref, stamped
+       once when the room opened (gc-room-open.js) — no guest's browser ever
+       holds the host's live token to do this, only a one-way reference to
+       it, the same trust boundary Almost Human's "bring a friend" already
+       draws. A room opened before this existed, or by a host with no
+       account at the time, has no ref yet: falls back to the free daily
+       cap, scoped per room, rather than blocking a friend already paid for. */
+    const isDemo = !friend.id;
+    const creditRef = who.room.host_credit_ref || null;
+
     const base = process.env.URL || process.env.DEPLOY_PRIME_URL || 'https://emerging-tech-lab.com';
     const res = await fetch(base + CHAT_FN, {
       method: 'POST',
@@ -124,8 +123,9 @@ exports.handler = async function (event) {
         messages,
         message: said,
         scene: scene ? { label: scene.label, where: scene.where } : null,
-        is_demo: true,
+        is_demo: isDemo || !creditRef,
         visitor_id: 'room-' + who.room.id,
+        credit_ref: (!isDemo && creditRef) ? creditRef : undefined,
       }),
     });
     out = await res.json();

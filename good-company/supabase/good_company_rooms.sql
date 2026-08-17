@@ -49,8 +49,25 @@ create table if not exists public.gc_rooms (
 
   -- Open by default, because a guest wanting to show their mum is the product
   -- spreading on its own. A host who would rather it did not grow can shut it.
-  guests_may_invite boolean not null default true
+  guests_may_invite boolean not null default true,
+
+  -- WHO PAYS FOR THIS ROOM, ADDED 2026-08-17, WITHOUT A GUEST'S BROWSER EVER
+  -- HOLDING THE HOST'S LIVE ah_access_token. A sha256 of that token (see
+  -- _ah-credits.js's tokenRef/linkTokenRef), stamped once when the room opens
+  -- if the host has a funded account and the friend is not a house demo.
+  -- Safe to hand to every browser in the room, host and guests alike: it is
+  -- one-way, so holding it lets somebody bill THIS room's balance and nothing
+  -- more, the same reasoning Almost Human's own token_ref already relies on.
+  -- Null means either a house demo (nothing to bill) or a host with no
+  -- account yet at the moment the room opened; gc-room-say.js falls back to
+  -- the free daily cap, scoped per room, when this is null.
+  host_credit_ref text
 );
+
+-- ADDITIVE, FOR A gc_rooms THAT ALREADY EXISTS. create table if not exists is
+-- a no-op against a table already there, so the column above never reaches a
+-- deployment that ran this file before 2026-08-17 without this line too.
+alter table public.gc_rooms add column if not exists host_credit_ref text;
 
 
 -- ── who is in it ───────────────────────────────────────────────────────────

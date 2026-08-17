@@ -10,7 +10,12 @@
    is claimed, never supplied by the caller.
 
    POST { invite_token, you:{ name?, pronouns?, avatar?, remember_me? } }
-     -> { seat_token, room_id, friend, scene_key, people }
+     -> { seat_token, room_id, friend, scene_key, people, host_credit_ref }
+
+   host_credit_ref, ADDED 2026-08-17: a guest's own browser never holds the
+   host's live access_token, so this reference (see gc-room-open.js's own
+   note) is how a guest's messages and voice can still bill the room's
+   balance. Safe to hand out: it is a one-way hash, not a credential.
 
    name is OPTIONAL on purpose. Somebody rushing in to see the thing will skip
    it, and then the friend gets to ask what they would like to be called, which
@@ -77,5 +82,6 @@ exports.handler = async function (event) {
     friend: room.friend,
     scene_key: room.scene_key,
     people: people.map(p => ({ name: p.display_name, avatar: p.avatar, is_host: p.is_host })),
+    host_credit_ref: room.host_credit_ref || null,
   });
 };

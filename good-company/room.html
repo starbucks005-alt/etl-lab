@@ -1023,6 +1023,11 @@ var YOU = gcLoadYou();
 /* Room state, declared here because sitDown() reads SEAT and relying on var
    hoisting to make that undefined-but-falsy is luck rather than intent. */
 var SEAT = null, ROOM = null, lastSeen = null, polling = null;
+/* WHO PAYS FOR THIS ROOM, added 2026-08-17. A one-way reference, never the
+   host's real access_token, handed to every browser in the room (host and
+   guests alike) by gc-room-open.js or gc-room-join.js so voice can bill the
+   shared balance directly rather than only through the proxied text path. */
+var ROOM_CREDIT_REF = null;
 
 /* WHAT IS ALREADY ON SCREEN, AND WHICH OF IT IS MINE.
 
@@ -1537,6 +1542,7 @@ $("bringBtn").addEventListener("click", function () {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ friend: FRIEND, reuse_seat: SEAT })
     }).then(function (r) { return r.json(); }).then(function (j) {
+      if (j.host_credit_ref) ROOM_CREDIT_REF = j.host_credit_ref;
       if (j.invite_token) showInvite(j.invite_token);
     });
     return;
@@ -1548,12 +1554,17 @@ $("bringBtn").addEventListener("click", function () {
       friend: FRIEND,
       scene_key: current ? current.key : null,
       you: { name: YOU.name, pronouns: YOU.pronouns, avatar: YOU.photo || YOU.emoji },
-      messages: transcript()
+      messages: transcript(),
+      /* So a built friend's room can bill the host's own balance rather than
+         falling back to the free daily cap. Empty for a house demo or a host
+         with no account yet; gc-room-open.js handles either gracefully. */
+      access_token: GC_accessToken()
     })
   }).then(function (r) { return r.json(); }).then(function (j) {
     $("bringBtn").disabled = false;
     if (!j || !j.seat_token) { post("Not wired yet", "Could not open the room: " + ((j && j.error) || "unknown")); return; }
     SEAT = j.seat_token; ROOM = j.room_id; MY_SEAT_ID = j.seat_id || null;
+    ROOM_CREDIT_REF = j.host_credit_ref || null;
     /* THE CARRIED THREAD IS ALREADY ON SCREEN. Opening a room writes the prior
        conversation up to the server, and without this the very next poll reads
        it straight back and posts every line a second time. His greeting
@@ -1657,6 +1668,7 @@ function joinThenSit() {
       return;
     }
     SEAT = j.seat_token; ROOM = j.room_id; MY_SEAT_ID = j.seat_id || null;
+    ROOM_CREDIT_REF = j.host_credit_ref || null;
     if (j.friend) { FRIEND = j.friend; nameEverything(); }
     if (j.scene_key) {
       var sc = (FRIEND.scenes || []).filter(function (x) { return x.key === j.scene_key; })[0];
@@ -2017,7 +2029,10 @@ function speak(text) {
     method: "POST", headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       text: spoken, voice_id: FRIEND.voiceId,
-      access_token: GC_accessToken(), owner_key: GC_ownerKey()
+      /* access_token covers a solo conversation or the host; credit_ref
+         covers a guest, who never holds the host's real token. gc-voice.js
+         tries the token first and only falls back to the reference. */
+      access_token: GC_accessToken(), credit_ref: ROOM_CREDIT_REF, owner_key: GC_ownerKey()
     })
   }).then(function (r) { return r.json(); }).then(function (j) {
     if (j && j.credits_exhausted) {

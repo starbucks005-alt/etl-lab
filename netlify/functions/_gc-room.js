@@ -111,7 +111,7 @@ function safeToken(v, prefix) {
 }
 
 /* ── reads ─────────────────────────────────────────────────────────────────── */
-const ROOM_COLUMNS = 'id,friend,scene_key,busy_until,closed,created_at,expires_at,guests_may_invite';
+const ROOM_COLUMNS = 'id,friend,scene_key,busy_until,closed,created_at,expires_at,guests_may_invite,host_credit_ref';
 
 async function loadRoom(key, roomId) {
   const rows = await sbSelect(key, `gc_rooms?id=eq.${encodeURIComponent(roomId)}&select=${ROOM_COLUMNS}&limit=1`);
