@@ -501,3 +501,7 @@
 # model call, so this is quick, but the upload itself wants room.
 [functions."gc-scene-order"]
   timeout = 30
+
+# Two Stripe round trips, one to create a session and one to read it back.
+[functions."gc-scene-checkout"]
+  timeout = 30

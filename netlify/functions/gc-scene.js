@@ -179,6 +179,21 @@ exports.handler = async (event) => {
       const orders = getStore('gc_scene_orders');
       order = await orders.get(String(body.order_id), { type: 'json' });
       if (!order) return json(404, { error: 'order_not_found' });
+
+      /* TAKE THE MONEY, THEN MAKE THE THING, ENFORCED HERE RATHER THAN
+         REMEMBERED. Without this the payment step is decorative: anybody
+         fulfilling a queue at speed would render whatever is in front of them,
+         and an unpaid order looks exactly like a paid one at a glance.
+
+         Overridable on purpose, because there are real reasons to make a scene
+         nobody paid for: a demo, an apology, a fix for one that came out wrong.
+         It has to be asked for in so many words. */
+      if (order.status === 'waiting' && !body.unpaid_on_purpose) {
+        return json(402, {
+          error: 'not_paid',
+          detail: 'That order has not been paid for. Send unpaid_on_purpose to make it anyway.',
+        });
+      }
       if (!portrait) {
         portrait = String(await orders.get(order.portrait_key, { type: 'text' }) || '').trim();
       }

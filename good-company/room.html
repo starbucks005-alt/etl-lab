@@ -622,6 +622,33 @@ FRIEND.scenes.forEach(function (scene, i) {
   bar.appendChild(chip);
 });
 
+/* ── COMING BACK FROM PAYING ─────────────────────────────────────────────────
+   Stripe sends them back here with a session id and nothing else. Whether it
+   was actually paid is a question for Stripe, asked server side, because a
+   query parameter that unlocks something is not a payment. */
+(function () {
+  var q;
+  try { q = new URLSearchParams(location.search); } catch (e) { return; }
+  var sid = q.get('scene-paid');
+  if (!sid) return;
+
+  history.replaceState({}, '', location.pathname + '?who=mine');
+
+  fetch('/.netlify/functions/gc-scene-checkout?session_id=' + encodeURIComponent(sid))
+    .then(function (r) { return r.json(); }).then(function (j) {
+      if (j && j.paid) {
+        post('Your scene', 'Paid, thank you. It gets made by hand rather than by a machine ' +
+             'the moment you press a button, so it will not be instant. When it is ready you ' +
+             'will get a link that puts it straight into this room.');
+      } else {
+        post('Your scene', 'That did not come back as paid. If you were charged, nothing is ' +
+             'lost: the request is still here and can be picked up.');
+      }
+    }).catch(function () {
+      post('Your scene', 'Could not check that payment just now. The request is still here.');
+    });
+})();
+
 /* ── ASKING FOR A SCENE ──────────────────────────────────────────────────────
    The half that was missing. A scene is made from the picture they chose, that
    picture lives in this browser and nowhere else, and nothing ever sent it
@@ -704,12 +731,42 @@ function askForScene() {
         note.textContent = 'That did not send: ' + ((j && j.error) || 'unknown') + '.';
         return;
       }
+      /* ASKED, NOW PAY FOR IT. The order and the picture are already stored
+         and nothing has been charged or made. Paying is what releases it to be
+         made, which is the same order as everywhere else here: take the money,
+         then make the thing. */
       host.innerHTML = '';
       var ok = document.createElement('p');
       ok.className = 'gate-say';
-      ok.textContent = 'Asked. Nothing has been charged and nothing is being made yet. ' +
-        'When the scene exists you will get a link that puts it in this room.';
+      ok.textContent = 'That is noted, and nothing has been charged yet. ' +
+        FRIEND.name + ' is not being made into anything until you say so.';
       host.appendChild(ok);
+
+      var pay = document.createElement('button');
+      pay.type = 'button'; pay.className = 'btn go'; pay.textContent = 'Pay for it';
+      pay.addEventListener('click', function () {
+        pay.disabled = true; pay.textContent = 'Opening';
+        fetch('/.netlify/functions/gc-scene-checkout', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ order_id: j.order_id }),
+        }).then(function (r) { return r.json(); }).then(function (c) {
+          if (c && c.url) { location.href = c.url; return; }
+          pay.disabled = false; pay.textContent = 'Try again';
+          ok.textContent = 'Could not open the payment page: ' + ((c && c.error) || 'unknown') +
+            '. Nothing has been charged.';
+        }).catch(function (err) {
+          pay.disabled = false; pay.textContent = 'Try again';
+          ok.textContent = 'Could not reach the payment page. ' + err.message;
+        });
+      });
+      host.appendChild(pay);
+
+      var later = document.createElement('p');
+      later.className = 'gate-say';
+      later.style.marginTop = '.7rem';
+      later.textContent = 'Or leave it. Asking does not commit you to anything and the ' +
+        'request keeps.';
+      host.appendChild(later);
     }).catch(function (err) {
       send.disabled = false; send.textContent = 'Try again';
       note.textContent = 'Could not reach it. ' + err.message;
