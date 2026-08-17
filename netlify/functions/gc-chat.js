@@ -229,12 +229,26 @@ RIGHT NOW YOU ARE HERE: ${scene.where}` +
   if (Array.isArray(room) && room.length) {
     const names = room.map(p => p && p.name).filter(Boolean);
     if (names.length) {
+      /* NAMING THE ROOM DID NOT FULLY CLOSE THIS. A live retest, after this
+         list was already reaching the prompt and the dog already had his own
+         name, still produced "Pookie's here too, is she? Give her a scritch
+         from me" toward the actual human Pookie. Not the same bug as before,
+         a subtler one underneath it: some names simply sound pet-shaped to
+         the model regardless of what the room list says, and an instruction
+         about WHO somebody is did not stop language suited to WHAT the word
+         sounds like. So the second half is explicit now: a person on this
+         list gets talked to and about exactly like any other person in the
+         room, never in language you would use for an animal, however the
+         name happens to sound. */
       bits.push(`\nWHO IS ACTUALLY HERE, by name: ${names.join(', ')}. These are the real ` +
                 `people in the room with you right now, and this list is the only truth about ` +
                 `who they are. If one of these names matches something else in your own life, a ` +
                 `pet, a person you have mentioned, that is a coincidence and nothing more: ` +
                 `never treat a person's name as belonging to anybody or anything else, and never ` +
-                `explain the coincidence out loud unless they bring it up first.`);
+                `explain the coincidence out loud unless they bring it up first. This holds ` +
+                `regardless of how a name sounds: talk to and about every person on this list the ` +
+                `way you would talk to any person, never with the warmth, phrasing or actions ` +
+                `(petting, scritches, "good girl/boy", and the like) you would use for an animal.`);
     }
   }
 
