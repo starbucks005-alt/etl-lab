@@ -320,6 +320,10 @@ html,body{ height:100%; }
 
       <div class="row">
         <button class="btn" id="micBtn" title="Speak instead of typing">&#127908;</button>
+        <!-- Show them something. Hidden file input, because the styled button
+             next to it belongs with the others and a raw file input does not. -->
+        <button class="btn" id="showBtn" title="Show them a picture">&#128247;</button>
+        <input type="file" id="pickPic" accept="image/*" multiple style="display:none">
         <input type="text" id="say" placeholder="Say whatever's on your mind&hellip;" autocomplete="off">
         <button class="btn" id="stopBtn" type="button" style="display:none" title="Stop him talking">&#9209;</button>
         <button class="btn go" id="sendBtn">Send</button>
@@ -880,9 +884,23 @@ if (FRIEND.scenes.length) play(FRIEND.scenes[0]);
    SHELL ONLY. Nothing here talks to a model. Your line goes in the log so the
    layout can be judged with real content in it, and the reply says plainly
    that the backend is not wired rather than faking one. */
-function post(who, text, mine) {
+function post(who, text, mine, pictures) {
   var d = document.createElement('div');
   d.className = 'msg' + (mine ? ' mine' : '');
+  /* WHAT THEY WERE SHOWN STAYS IN THE CONVERSATION. A picture that vanishes
+     the moment it is sent leaves the friend reacting to something the person
+     can no longer see, which reads as them making it up. */
+  if (pictures && pictures.length) {
+    var strip = document.createElement('div');
+    strip.style.cssText = 'display:flex;gap:.35rem;flex-wrap:wrap;margin:.35rem 0 .1rem';
+    pictures.forEach(function (src) {
+      var im = document.createElement('img');
+      im.src = src; im.alt = 'A picture you showed ' + FRIEND.name;
+      im.style.cssText = 'max-width:180px;max-height:180px;border-radius:4px;display:block';
+      strip.appendChild(im);
+    });
+    d.appendChild(strip);
+  }
   var w = document.createElement('span');
   w.className = 'who';
   /* Your own lines carry your face, so a room with two humans in it shows at a
@@ -1019,11 +1037,110 @@ function ask(payload) {
   });
 }
 
+/* ── SHOWING THEM SOMETHING ──────────────────────────────────────────────────
+   Dr. O: the friend should be able to receive images and see webpages, the way
+   Claude can. This is the images half, and it is the half people actually
+   reach for: the dog, the garden, the grandchildren, what somebody has cooked.
+
+   SHRUNK BEFORE IT GOES. A modern phone photograph is four thousand pixels
+   across and several megabytes, and vision tokens scale with size, so a
+   friend being shown the garden should not cost more than a long conversation.
+   1024 across is plenty for somebody to talk about and a fraction of the bill.
+
+   IT LEAVES THE DEVICE, and that is said once, the first time, rather than
+   buried. Everything else in this room stays in the browser. */
+var pending = [];        // what is queued to show them, already shrunk
+var saidPicturesLeave = false;
+
+function shrink(file) {
+  return new Promise(function (resolve, reject) {
+    var img = new Image();
+    var url = URL.createObjectURL(file);
+    img.onload = function () {
+      URL.revokeObjectURL(url);
+      var max = 1024, w = img.width, h = img.height;
+      if (Math.max(w, h) > max) {
+        if (w > h) { h = Math.round(h * max / w); w = max; }
+        else { w = Math.round(w * max / h); h = max; }
+      }
+      var c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      c.getContext('2d').drawImage(img, 0, 0, w, h);
+      resolve(c.toDataURL('image/jpeg', 0.82));
+    };
+    img.onerror = function () { URL.revokeObjectURL(url); reject(new Error('that file is not a picture')); };
+    img.src = url;
+  });
+}
+
+function queuePictures(files) {
+  var list = Array.prototype.slice.call(files || []).filter(function (f) { return /^image\//.test(f.type); });
+  if (!list.length) return;
+  /* Four is what the friend is given; queueing more just wastes the person's
+     time shrinking pictures that will not be sent. */
+  list = list.slice(0, 4 - pending.length);
+
+  Promise.all(list.map(shrink)).then(function (shrunk) {
+    pending = pending.concat(shrunk);
+    if (!saidPicturesLeave) {
+      saidPicturesLeave = true;
+      post('Showing ' + FRIEND.name, 'A picture you show them is sent so they can see it. ' +
+           'It is the only thing here that leaves this device.');
+    }
+    showQueue();
+  }).catch(function (err) {
+    post('Showing ' + FRIEND.name, 'That could not be opened: ' + err.message);
+  });
+}
+
+/* What is about to be sent, with a way to change your mind. */
+function showQueue() {
+  var old = document.getElementById('queue');
+  if (old) old.remove();
+  if (!pending.length) return;
+
+  var box = document.createElement('div');
+  box.id = 'queue'; box.className = 'msg';
+  var row = document.createElement('div');
+  row.style.cssText = 'display:flex;gap:.4rem;flex-wrap:wrap;align-items:center';
+  pending.forEach(function (src, i) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'btn';
+    b.style.cssText = 'padding:0;overflow:hidden;width:64px;height:64px';
+    b.title = 'Take this one back';
+    var im = document.createElement('img');
+    im.src = src; im.alt = '';
+    im.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block';
+    b.appendChild(im);
+    b.addEventListener('click', function () { pending.splice(i, 1); showQueue(); });
+    row.appendChild(b);
+  });
+  var note = document.createElement('span');
+  note.className = 'hint';
+  note.textContent = 'Sends when you do. Tap one to take it back.';
+  row.appendChild(note);
+  box.appendChild(row);
+  $('log').appendChild(box);
+  $('log').scrollTop = $('log').scrollHeight;
+}
+
+$('showBtn').addEventListener('click', function () { $('pickPic').click(); });
+$('pickPic').addEventListener('change', function () { queuePictures(this.files); this.value = ''; });
+
+/* Pasting a screenshot is how most people will do this without being told. */
+$('say').addEventListener('paste', function (e) {
+  var items = (e.clipboardData && e.clipboardData.files) || [];
+  if (items.length) { queuePictures(items); e.preventDefault(); }
+});
+
 var lastSent = '', lastSentAt = 0;
 
 function send() {
   var v = $("say").value.trim();
-  if (!v || thinking) return;
+  /* A PICTURE ON ITS OWN IS A MESSAGE. Handing somebody your phone without
+     saying anything is a normal thing to do, so an empty box with something
+     queued still sends. */
+  if ((!v && !pending.length) || thinking) return;
 
   /* THE SAME WORDS TWICE IN A MOMENT ARE A BUG, NOT A PERSON.
 
@@ -1041,7 +1158,12 @@ function send() {
   if (v === lastSent && (Date.now() - lastSentAt) < window) { $("say").value = ""; return; }
   lastSent = v; lastSentAt = Date.now();
 
-  post(youLabel(), v, true);
+  /* On screen before it goes, so the friend is reacting to something the
+     person can still see. */
+  var shown = pending.slice();
+  var q = document.getElementById('queue'); if (q) q.remove();
+  pending = [];
+  post(youLabel(), v || '(showing you this)', true, shown);
   $("say").value = "";
   lastSpoke = Date.now();
   /* SPEAKING RESETS HOW SOON HE BREAKS A SILENCE. Only typing did, and typing
@@ -1052,8 +1174,8 @@ function send() {
   /* Once there is a room, everything goes through it: the line has to reach the
      other browsers, and whether the friend answers at all is decided server
      side by the room's size, not here. */
-  if (SEAT) { sayInRoom(v); return; }
-  ask({ message: v });
+  if (SEAT) { sayInRoom(v || '(showing you this)'); return; }
+  ask({ message: v || '', images: shown });
 }
 
 function sayInRoom(text) {

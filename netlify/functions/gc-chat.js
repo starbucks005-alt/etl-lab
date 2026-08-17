@@ -312,10 +312,46 @@ exports.handler = async function (event) {
     .filter(m => m && m.text)
     .map(m => ({ role: m.mine ? 'user' : 'assistant', content: String(m.text).slice(0, 4000) }));
 
-  const turns = history.concat(
-    idle ? [{ role: 'user', content: '(nobody has said anything for a while)' }]
-         : [{ role: 'user', content: said }]
-  );
+  /* ── THEY CAN BE SHOWN THINGS ────────────────────────────────────────────
+     Dr. O: the friend should be able to receive images and files and see
+     webpages, the way Claude can. Images first, because that is what people
+     actually want to do with a friend: the dog, the garden, the grandchildren,
+     a rash on a cat at two in the morning.
+
+     ONLY ON THE CURRENT TURN. The history is text, so a photograph sent ten
+     messages ago is not re-uploaded on every reply. It costs tokens each time
+     and a friend does not keep staring at a picture you showed them earlier;
+     they remember it and move on.
+
+     CAPPED, because vision tokens are the easiest way to make a cheap turn
+     expensive by accident, and because a phone camera roll is full of things
+     nobody meant to send four of. */
+  const MAX_IMAGES = 4;
+  const seen = (Array.isArray(body.images) ? body.images : [])
+    .slice(0, MAX_IMAGES)
+    .map(im => {
+      const raw = typeof im === 'string' ? im : (im && im.data) || '';
+      const b64 = String(raw).replace(/^data:[^;]+;base64,/i, '').trim();
+      /* The media type has to match the bytes or the API rejects the whole
+         request, so it is read from the header rather than trusted. */
+      const type = /^\/9j\//.test(b64) ? 'image/jpeg'
+                 : /^iVBORw0KGgo/.test(b64) ? 'image/png'
+                 : /^R0lGOD/.test(b64) ? 'image/gif'
+                 : /^UklGR/.test(b64) ? 'image/webp'
+                 : null;
+      return (b64 && type) ? { type: 'image', source: { type: 'base64', media_type: type, data: b64 } } : null;
+    })
+    .filter(Boolean);
+
+  const lastTurn = idle
+    ? { role: 'user', content: '(nobody has said anything for a while)' }
+    : seen.length
+      /* The picture comes first and the words after it, which is the order
+         somebody hands you a phone in. */
+      ? { role: 'user', content: seen.concat([{ type: 'text', text: said || 'Look at this.' }]) }
+      : { role: 'user', content: said };
+
+  const turns = history.concat([lastTurn]);
 
   /* ── THE FEELING SCALE IS THE POINT OF THE GAUGE ────────────────────────────
      Dr. O: the scale exists so the user can see they landed, and so they can
