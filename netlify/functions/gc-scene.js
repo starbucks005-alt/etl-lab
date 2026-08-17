@@ -71,13 +71,58 @@ const STORE = 'gc_scene_jobs';
    a drifting camera or a changing light is exactly where the seam shows.
 
    LOOKING AT THE CAMERA is hers too, in every prompt, and it is the thing she
-   rejected a finished clip over. */
-const HOW_IT_HAS_TO_LOOK =
-  ' A seamless infinite loop. They look over at the camera and stay with the person ' +
-  'watching, present, as though sitting with them, not absorbed in a task and not ' +
-  'looking away. Static camera, fixed framing, consistent soft lighting throughout. ' +
-  'Minimal body movement, fluid and natural: breathing, blinking, an occasional small ' +
-  'shift. They are not talking, and there is no speech.';
+   rejected a finished clip over.
+
+   HER TEMPLATE, WITH ONE SLOT. Given exactly:
+
+     "A seamless infinite loop of this man [sitting in front of a wood
+      fireplace in a log cabin]. Static camera, fixed framing, consistent soft
+      lighting throughout. Minimal body movement, fluid and natural repetition
+      where the ending seamlessly matches the starting frame, no jump cuts. Do
+      not change his looks, but change his clothes to a plaid shirt and jeans."
+
+   Everything outside the bracket is fixed and the caller fills the bracket.
+   Writing it any other way is how a proven prompt quietly becomes a different
+   one.
+
+   DO NOT CHANGE HIS LOOKS is the line I would not have thought to write and
+   the one that matters most. Somebody chose that face out of four. A scene
+   that drifts it is not their friend any more, and the drift would arrive
+   looking like a quality problem rather than the identity problem it is.
+
+   THE ENDING MATCHING THE STARTING FRAME is the loop said twice, from both
+   ends. The room plays these on loop and the seam is the whole risk. */
+
+function scenePrompt({ where, gender, clothes }) {
+  /* "this man" is hers because Arch is one. The friend carries a gender and
+     the prompt has to follow it, or every woman somebody builds is described
+     to the model as a man. */
+  const g = String(gender || '').toLowerCase();
+  const subject = /woman|female|she/.test(g) ? 'this woman'
+                : /man|male|\bhe\b/.test(g)  ? 'this man'
+                : 'this person';
+
+  const bits = [];
+  bits.push('A seamless infinite loop of ' + subject + ' ' + String(where).trim().replace(/\.$/, '') + '.');
+  bits.push('Static camera, fixed framing, consistent soft lighting throughout.');
+  bits.push('Minimal body movement, fluid and natural repetition where the ending seamlessly ' +
+            'matches the starting frame, no jump cuts.');
+
+  /* LOOKING AT THE CAMERA sits in every Flow prompt she wrote, worded into the
+     scene itself: "but have him look over at the camera". It is not optional
+     and it is not the caller's to forget, because she rejected a finished clip
+     over precisely this and a render only reveals it at the end. */
+  bits.push('They look over at the camera and stay with the person watching, present, ' +
+            'as though sitting with them. Not absorbed in a task, not looking away. ' +
+            'They are not talking and there is no speech.');
+
+  /* Her last clause, and optional the way she used it. */
+  bits.push(clothes
+    ? 'Do not change their looks, but change their clothes to ' + String(clothes).trim().replace(/\.$/, '') + '.'
+    : 'Do not change their looks.');
+
+  return bits.join(' ');
+}
 
 function newJobId() {
   /* Unguessable, because the GET side is not owner-gated: knowing a job id is
@@ -131,7 +176,7 @@ exports.handler = async (event) => {
     let started;
     try {
       started = await veo.start({
-        prompt: where + HOW_IT_HAS_TO_LOOK,
+        prompt: scenePrompt({ where, gender: body.gender, clothes: body.clothes }),
         firstFrameB64: portrait,
         seconds,
         models: ladder,
