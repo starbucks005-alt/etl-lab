@@ -399,6 +399,7 @@ exports.handler = async function (event) {
   const isOwner = !!ownerUser(String(body.owner_key || '').trim());
   const accessToken = safeToken(body.access_token);
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  console.log('gc-chat gate debug:', JSON.stringify({ isDemo, visitorId, isOwner, hasServiceKey: !!serviceKey, rawVisitorId: body.visitor_id })); // TEMP
 
   let creditsRow = null;
   if (!isOwner && accessToken && serviceKey) {
