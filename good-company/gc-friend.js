@@ -451,7 +451,7 @@ var GC_WHO = (function () {
    Keyed by id, so ?who=<id> reaches any of them and adding one is a line here
    rather than a change everywhere. GC_DEMO stays as the one currently in the
    room, because five places already say GC_DEMO and mean "the house friend". */
-/* ── FRANKIE ─────────────────────────────────────────────────────────────────
+/* ── ROSIE ─────────────────────────────────────────────────────────────────
    The second demo, for the crowd Arch cannot reach. Approved 2026-08-17.
 
    HER LONELINESS HAS A DIFFERENT CAUSE, which is the whole reason she exists.
@@ -477,13 +477,13 @@ var GC_WHO = (function () {
 
    STILL NEEDS: her portrait, a voice id, and a scene clip if she is to move.
    Until the portrait lands the room says so rather than inventing one, and she
-   is reachable only at ?who=frankie, so nothing on the front page shows her
+   is reachable only at ?who=rosie, so nothing on the front page shows her
    half finished. */
-var GC_FRANKIE = {
-  name: 'Frankie',
+var GC_ROSIE = {
+  name: 'Rosie',
   /* Changeable. The portrait leads on how she looks; this is only what is on
      her lanyard. */
-  full: 'Francesca Reyes',
+  full: 'Rosa Reyes',
   age: '20s',
   gender: 'A woman',
   work: 'Veterinary nurse. Nights, at an emergency animal hospital.',
@@ -501,7 +501,7 @@ var GC_FRANKIE = {
   voiceId: null,
 
   skin: 'seaside',
-  portrait: 'photos/frankie.png',
+  portrait: 'photos/rosie.png',
 
   scenes: [
     { key: 'kitchen', label: 'Her kitchen', src: null,
@@ -558,7 +558,7 @@ var GC_FRANKIE = {
   album: [],
 };
 
-var GC_DEMOS = { arch: GC_DEMO, frankie: GC_FRANKIE };
+var GC_DEMOS = { arch: GC_DEMO, rosie: GC_ROSIE };
 
 /* The id in ?who=, if it names a demo we actually have. */
 var GC_DEMO_ID = (function () {
