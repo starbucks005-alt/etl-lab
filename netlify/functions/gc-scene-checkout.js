@@ -14,10 +14,13 @@
    price nobody can find when it needs changing, and it is set in the one place
    that does not get reviewed.
 
-   THE AMOUNT BELOW IS MY GUESS AND SHOULD BE CHECKED. A four second clip costs
-   about twenty cents to make on the Lite tier, and $4.99 is what the Almost
-   Human add-on charges, so it is consistent rather than reasoned. Dr. O has not
-   set a price for this. One constant, one place to change it.
+   $4.99, CONFIRMED BY DR. O ON 2026-08-17. It started as a guess: it is what
+   the Almost Human add-on charges, so it was consistent rather than reasoned.
+   She looked at it against the cost and kept it.
+
+   A four second clip costs about twenty cents to make on the Lite tier, so the
+   floor is nowhere near the price and the margin absorbs a bad one being
+   refunded. One constant, one place to change it.
 
    NO WEBHOOK. Verifying the session on the way back needs no new secret and no
    new endpoint registered with Stripe, and this is a queue somebody works
