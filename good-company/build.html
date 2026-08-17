@@ -116,6 +116,104 @@ button.face.on{ border-color:var(--accent); box-shadow:0 0 0 2px var(--accent); 
 /* One row per built friend, now that there can be more than one. */
 .already-row{ padding:0 0 1rem; margin:0 0 1rem; border-bottom:1px solid var(--accent); }
 .already-row:last-child{ padding-bottom:0; margin-bottom:0; border-bottom:none; }
+
+/* ── ASTRA 9, GUIDE ───────────────────────────────────────────────────────
+   Dr. O: "we need Astra-9 on this page to help 'build a friend' and say
+   what to do." She already exists, already has a job ("Shopkeeper... help
+   customers... build your own agent and take it with you") and an
+   established look, on Build Your Own Agent's own page. Ported rather than
+   invented: same portraits, same blink, same amber that is hers everywhere
+   she appears, same voice, same free AI-chat backend (prep-room-ask.js
+   already serves both Prep Room and BYOA; nothing new to stand up). Only
+   the words change, to what is actually true about Good Company: what it
+   costs, how it works, and what she is not, here (a fabricator selling
+   line items), because on this page she is a guide, not a shopkeeper. */
+@keyframes astra-blink {
+  0%, 92%  { opacity: 0; }
+  92.5%    { opacity: 1; }
+  94.3%    { opacity: 1; }
+  94.4%    { opacity: 0; }
+  95.4%    { opacity: 0; }
+  95.5%    { opacity: 1; }
+  97.1%    { opacity: 1; }
+  97.2%    { opacity: 0; }
+  100%     { opacity: 0; }
+}
+#astra9-wrap {
+  position: fixed; bottom: 0; right: 24px; z-index: 200;
+  display: flex; align-items: flex-end; gap: 14px;
+  pointer-events: none;
+}
+#astra9-bubble {
+  background: rgba(10,8,4,0.95);
+  border: 1px solid rgba(200,151,58,0.4);
+  border-radius: 10px 10px 10px 0;
+  padding: .85rem 1rem;
+  min-width: 230px; max-width: 300px;
+  pointer-events: auto;
+  box-shadow: 0 4px 28px rgba(0,0,0,0.6);
+  transition: opacity .2s;
+}
+#astra9-bubble.hidden { opacity: 0; pointer-events: none; }
+.a9-head {
+  font-family: var(--mono); font-size: .58rem; letter-spacing: .14em; color: #c8973a;
+  text-transform: uppercase; margin-bottom: .55rem;
+  border-bottom: 1px solid rgba(200,151,58,0.22); padding-bottom: .4rem;
+}
+.a9-tabs { display: flex; gap: 5px; margin-bottom: .65rem; }
+.a9-tab {
+  flex: 1; font-family: var(--mono);
+  font-size: .57rem; letter-spacing: .1em; text-transform: uppercase;
+  background: rgba(200,151,58,0.07); border: 1px solid rgba(200,151,58,0.28);
+  border-radius: 4px; color: #9a8c6e; padding: .28rem 0;
+  cursor: pointer; transition: background .15s, color .15s;
+}
+.a9-tab:hover, .a9-tab.sel { background: rgba(200,151,58,0.2); color: #c8973a; border-color: rgba(200,151,58,0.5); }
+.a9-panel { display: none; }
+.a9-panel.active { display: block; }
+.a9-row {
+  display: flex; justify-content: space-between; gap: .6rem;
+  font-family: var(--mono);
+  font-size: .71rem; color: #b8a880; padding: .18rem 0;
+}
+.a9-row span:last-child { color: #c8973a; text-align: right; }
+.a9-outcome {
+  font-family: Georgia, serif;
+  font-size: .83rem; line-height: 1.55; color: #b8a880; margin: 0;
+}
+#a9-helpinput {
+  width: 100%; box-sizing: border-box;
+  background: rgba(200,151,58,0.06); border: 1px solid rgba(200,151,58,0.25);
+  border-radius: 5px; color: #d6cfc0;
+  font-family: var(--mono); font-size: .68rem;
+  padding: .45rem .55rem; resize: none; outline: none; display: block;
+}
+#a9-helpbtn {
+  font-family: var(--mono); font-size: .57rem;
+  letter-spacing: .1em; text-transform: uppercase;
+  background: rgba(200,151,58,0.15); border: 1px solid rgba(200,151,58,0.42);
+  border-radius: 4px; color: #c8973a; padding: .3rem .75rem;
+  cursor: pointer; display: block; margin: .4rem 0 0 auto;
+}
+#a9-helpbtn:disabled { opacity: .45; cursor: default; }
+#a9-helpreply {
+  font-family: var(--mono); font-size: .65rem;
+  color: #b8a880; margin-top: .5rem; line-height: 1.5; min-height: 0;
+}
+#astra9-fig {
+  position: relative; width: 110px; cursor: pointer;
+  pointer-events: auto; flex-shrink: 0;
+}
+#astra9-fig img:first-child { width: 100%; display: block; }
+#astra9-blink {
+  position: absolute; top: 0; left: 0; width: 100%; opacity: 0;
+  animation: astra-blink 6s linear infinite;
+}
+@media (max-width: 560px) {
+  #astra9-wrap { right: 10px; gap: 8px; }
+  #astra9-fig { width: 78px; }
+  #astra9-bubble { min-width: 200px; max-width: calc(100vw - 130px); }
+}
 footer{ padding:2rem 0 3rem; color:var(--ink-dim); font-size:.9rem; }
 </style>
 </head>
@@ -856,6 +954,122 @@ $('copyBtn').addEventListener('click', function () {
     setTimeout(function () { $('copyBtn').textContent = 'Copy as JSON'; }, 1600);
   }).catch(function () { console.log(t); $('copyBtn').textContent = 'In the console'; });
 });
+</script>
+
+<!-- ── ASTRA 9, FLOATING GUIDE ─────────────────────────────────────────── -->
+<div id="astra9-wrap">
+  <div id="astra9-bubble" class="hidden">
+    <div class="a9-head">Astra-9 &middot; Guide</div>
+    <div class="a9-tabs">
+      <button class="a9-tab" data-tab="cost">Cost</button>
+      <button class="a9-tab" data-tab="how">How</button>
+      <button class="a9-tab" data-tab="help">Ask</button>
+    </div>
+    <div id="a9-panel-cost" class="a9-panel">
+      <div class="a9-row"><span>Answering the questions</span><span>Free</span></div>
+      <div class="a9-row"><span>Meeting the faces</span><span>Free</span></div>
+      <div class="a9-row"><span>Opening their room, once</span><span>$9.99</span></div>
+      <div class="a9-row"><span>Coming back after that</span><span>Free</span></div>
+    </div>
+    <div id="a9-panel-how" class="a9-panel">
+      <p class="a9-outcome">Answer what you feel like answering, about them and about you. Pick the face that looks like them out of four. Open their room. That is the whole thing.</p>
+      <p class="a9-outcome" style="margin-top:.6rem">You can build more than one, each their own room, each its own nine ninety-nine to open. Arch and Sophia are the two you can already talk to, free: house demos, always there to try, but not something you keep. Building makes somebody new, shaped by your own answers, not theirs.</p>
+    </div>
+    <div id="a9-panel-help" class="a9-panel">
+      <textarea id="a9-helpinput" rows="3" placeholder="Ask me anything about how this works..."></textarea>
+      <button id="a9-helpbtn">Ask Astra-9</button>
+      <div id="a9-helpreply"></div>
+    </div>
+  </div>
+  <div id="astra9-fig" title="Click Astra-9">
+    <img src="/agents/Astra_9_eyes_open.png" alt="Astra-9">
+    <img id="astra9-blink" src="/agents/Astra_9_eyes_closed.png" alt="">
+  </div>
+</div>
+<audio id="astra9-audio"></audio>
+<script>
+(function () {
+  var fig       = document.getElementById('astra9-fig');
+  var bubble    = document.getElementById('astra9-bubble');
+  var audio     = document.getElementById('astra9-audio');
+  var helpbtn   = document.getElementById('a9-helpbtn');
+  var helpinput = document.getElementById('a9-helpinput');
+  var helpreply = document.getElementById('a9-helpreply');
+  var busy      = false;
+  var VOICE     = 'weA4Q36twV5kwSaTEL0Q';
+
+  var LINES = {
+    cost: 'Answering the questions and picking a face cost nothing. Opening a friend’s room for the first time is nine dollars and ninety nine cents, once, per friend. After that, coming back is free.',
+    how:  'Answer what you feel like answering, pick the face that looks like them, open their room. You can build more than one, each their own nine ninety nine. Arch and Sophia are free to try, but they are house demos, not something you keep.'
+  };
+
+  function speak(text) {
+    if (busy) return;
+    busy = true;
+    fetch('/.netlify/functions/voice-preview', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ voice_id: VOICE, text: text })
+    })
+      .then(function (r) { if (!r.ok) throw new Error('tts'); return r.blob(); })
+      .then(function (b) { audio.src = URL.createObjectURL(b); audio.play(); busy = false; })
+      .catch(function () { busy = false; });
+  }
+
+  function activateTab(tab) {
+    document.querySelectorAll('.a9-tab').forEach(function (t) { t.classList.remove('sel'); });
+    document.querySelectorAll('.a9-panel').forEach(function (p) { p.classList.remove('active'); });
+    tab.classList.add('sel');
+    document.getElementById('a9-panel-' + tab.dataset.tab).classList.add('active');
+    if (LINES[tab.dataset.tab]) speak(LINES[tab.dataset.tab]);
+  }
+
+  document.querySelectorAll('.a9-tab').forEach(function (tab) {
+    tab.addEventListener('click', function () { activateTab(tab); });
+  });
+
+  fig.onclick = function () {
+    var opening = bubble.classList.contains('hidden');
+    bubble.classList.toggle('hidden');
+    if (opening) {
+      var costTab = document.querySelector('.a9-tab[data-tab="cost"]');
+      if (costTab) activateTab(costTab);
+    }
+  };
+
+  helpbtn.onclick = function () {
+    var q = (helpinput.value || '').trim();
+    if (!q) return;
+    helpreply.textContent = 'Processing...';
+    helpbtn.disabled = true;
+    fetch('/.netlify/functions/prep-room-ask', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 150,
+        system: 'You are Astra-9, a guide at the Emerging Technologies Laboratory helping ' +
+          'someone build a friend on Good Company. Good Company: answer questions about who ' +
+          'the friend is and about yourself, pick their face from four options, open their ' +
+          'room. Answering and picking a face are free. Opening a friend’s room the first ' +
+          'time is $9.99, once per friend; coming back after that is free. Someone can build ' +
+          'more than one friend, each its own $9.99 to open. Arch and Sophia are the two house ' +
+          'demos, free to try, but not something you keep or convert into your own; building ' +
+          'makes somebody new. Answer in under 60 words. No em dashes. First person.',
+        messages: [{ role: 'user', content: q }]
+      })
+    })
+      .then(function (r) { if (!r.ok) throw new Error('ai'); return r.json(); })
+      .then(function (j) {
+        var text = (j && j.content && j.content[0] && j.content[0].text) || 'I cannot answer that right now.';
+        helpreply.textContent = text;
+        helpbtn.disabled = false;
+        speak(text);
+      })
+      .catch(function () {
+        helpreply.textContent = 'Unable to reach me right now. Try again.';
+        helpbtn.disabled = false;
+      });
+  };
+})();
 </script>
 
 </body>
