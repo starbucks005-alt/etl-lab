@@ -386,6 +386,13 @@ exports.handler = async function (event) {
     }
   }
 
+  /* TEMPORARY. Sofia and Arch have both flatly denied being able to open a
+     link even with example.com's own text sitting in the system prompt, and
+     the function never crashes, so the module is loading. This proves or
+     disproves the one remaining question, whether the note actually reaches
+     the call, from outside rather than by guessing. Remove once answered. */
+  const DEBUG_WEB = { urls_found: pages.map(p => p.url), pages_ok: pages.map(p => p.ok), note_chars: web.pageNote(pages).length };
+
   let out;
   try {
     out = await client.messages.create({
@@ -471,5 +478,5 @@ exports.handler = async function (event) {
   reply = reply.replace(/<\/?quiet>/gi, '').trim();
   if (!reply) return json(200, { reply: null, quiet: true, mood: feltMood || friend.mood || null, feelings: feelings });
 
-  return json(200, { reply, mood: feltMood || friend.mood || null, feelings: feelings });
+  return json(200, { reply, mood: feltMood || friend.mood || null, feelings: feelings, _debug_web: DEBUG_WEB });
 };
