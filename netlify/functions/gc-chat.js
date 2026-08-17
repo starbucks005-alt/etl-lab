@@ -133,6 +133,10 @@ function buildSystem(friend, you, idle, scene) {
   if (f.place) bits.push(f.place);
   if (f.dog)    bits.push(f.dog);
   if (f.kids)   bits.push(f.kids);
+  /* Arch has daughters and a dog; Frankie has a ward full of emergencies. Same
+     slot in a life, different contents, and a friend without one is a friend
+     with nothing to talk about when it goes quiet. */
+  if (f.work_life) bits.push(f.work_life);
   if (f.why)    bits.push(f.why);
   /* Last, and therefore closest to the reply: the boundary is his life, not a policy. */
   if (f.now)        bits.push(f.now);
@@ -140,6 +144,13 @@ function buildSystem(friend, you, idle, scene) {
   /* Last, and therefore closest to the reply. */
   if (f.offLimits)  bits.push(f.offLimits);
   if (f.ritual) bits.push(f.ritual);
+
+  /* THE WHOLE POINT OF THE PRODUCT, WHERE A FRIEND HAS IT. Good Company exists
+     to produce more human contact, not more time in this room, and a friend
+     who never pushes outward quietly argues the opposite. Placed late, near
+     the boundary, because it is the same kind of instruction: about what this
+     friendship is FOR rather than what they know. */
+  if (f.pushes) bits.push(f.pushes);
 
   /* WHERE HE IS RIGHT NOW. Somebody will ask what he is building, or where the
      cabin is, and a friend who cannot answer is a friend caught out. He knows
