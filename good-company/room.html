@@ -850,7 +850,11 @@ function askForScene() {
 
    Only where the friend has the one. Arch has his five and needs no upsell in
    his own front room. */
-if (FRIEND !== GC_DEMO && FRIEND.scenes.length < 5) {
+/* Only a friend somebody BUILT is offered more scenes. This asked whether the
+   friend was not the demo, which was the same question while there was one
+   demo and stops being so the moment there are two: a second house friend
+   would have started selling scenes for herself. */
+if (FRIEND === GC_BUILT && FRIEND.scenes.length < 5) {
   /* Numbered from what they actually have, not from one. Somebody who has
      bought a second scene should be offered a third, and the first version of
      this only appeared when there was exactly one scene, so buying one made

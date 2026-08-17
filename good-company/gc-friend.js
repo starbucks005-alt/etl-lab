@@ -437,6 +437,38 @@ var GC_WHO = (function () {
   return GC_BUILT ? 'mine' : 'arch';
 })();
 
+/* ── THE HOUSE CAST ──────────────────────────────────────────────────────────
+   MORE THAN ONE DEMO, because one cannot do the job. Arch demonstrates
+   companionship for an older person, and he does it well: divorce, grown
+   daughters, a dog, a cabin. Somebody in their twenties looking at him sees a
+   product for their dad.
+
+   Younger loneliness has a different shape and needs its own person. Not a
+   younger Arch: the reason is different. His is what was lost. Theirs is
+   usually what has not started yet, in a city they moved to for a job where
+   everybody they know is on a screen.
+
+   Keyed by id, so ?who=<id> reaches any of them and adding one is a line here
+   rather than a change everywhere. GC_DEMO stays as the one currently in the
+   room, because five places already say GC_DEMO and mean "the house friend". */
+var GC_DEMOS = { arch: GC_DEMO };
+
+/* The id in ?who=, if it names a demo we actually have. */
+var GC_DEMO_ID = (function () {
+  try {
+    var asked = new URLSearchParams(location.search).get('who');
+    if (asked && Object.prototype.hasOwnProperty.call(GC_DEMOS, asked)) {
+      try { sessionStorage.setItem('gc-demo', asked); } catch (e) {}
+      return asked;
+    }
+    var remembered = sessionStorage.getItem('gc-demo');
+    if (remembered && Object.prototype.hasOwnProperty.call(GC_DEMOS, remembered)) return remembered;
+  } catch (e) {}
+  return 'arch';
+})();
+
+GC_DEMO = GC_DEMOS[GC_DEMO_ID] || GC_DEMO;
+
 var GC_FRIEND = (GC_WHO === 'mine' && GC_BUILT) ? GC_BUILT : GC_DEMO;
 
 /* Which skin the page opens on. An explicit choice always wins and wins
