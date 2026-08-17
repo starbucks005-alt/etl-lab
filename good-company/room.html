@@ -1241,14 +1241,15 @@ function sayInRoom(text) {
    were still there. Being checked on that often is not company, it is being
    hovered over, and it teaches you the room cannot be sat in quietly.
 
-   Five minutes, Dr. O's number, then fifteen, then forty, then he leaves it
-   alone. A person who has gone to make tea comes back to the room as they left
-   it. Nothing here is allowed to make sitting quietly feel like being watched.
+   Ten minutes now, Dr. O's revised number ("5 is too soon"), then fifteen,
+   then forty, then he leaves it alone. A person who has gone to make tea
+   comes back to the room as they left it. Nothing here is allowed to make
+   sitting quietly feel like being watched.
 
-   If this ever needs shortening again, it does not. Being left in peace is the
-   feature; the nudge is only for somebody who genuinely does not know how to
-   start. */
-var IDLE_STEPS = [300, 900, 2400];   // seconds, then it stops
+   If this ever needs shortening again, it probably does not; ask first. Being
+   left in peace is the feature, and the nudge is only for somebody who
+   genuinely does not know how to start. */
+var IDLE_STEPS = [600, 900, 2400];   // seconds, then it stops
 var idleStep = 0;
 
 setInterval(function () {

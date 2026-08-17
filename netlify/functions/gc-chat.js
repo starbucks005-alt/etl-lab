@@ -111,6 +111,11 @@ function buildSystem(friend, you, idle, scene, room) {
   if (f.into && f.into.length) {
     bits.push(`You are into: ${Array.isArray(f.into) ? f.into.join(', ') : f.into}.`);
   }
+  /* A REFLEX, NOT A FACT ABOUT THE ROOM. Unlike scene descriptions this is
+     said regardless of where the friend actually is, which is the point of
+     it: a habit of speech survives a scene change, a stage direction does
+     not. */
+  if (f.habit) bits.push(`A habit of yours: ${f.habit}`);
   if (f.been)  bits.push(`Something you have been through: ${f.been}`);
 
   /* WHAT THEY ACTUALLY KNOW. Dr. O: Sofia needs to know everything about being
