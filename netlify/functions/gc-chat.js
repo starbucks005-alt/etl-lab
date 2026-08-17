@@ -399,7 +399,6 @@ exports.handler = async function (event) {
   const isOwner = !!ownerUser(String(body.owner_key || '').trim());
   const accessToken = safeToken(body.access_token);
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  console.log('gc-chat gate debug:', JSON.stringify({ isDemo, visitorId, isOwner, hasServiceKey: !!serviceKey, rawVisitorId: body.visitor_id })); // TEMP
 
   let creditsRow = null;
   if (!isOwner && accessToken && serviceKey) {
@@ -423,12 +422,11 @@ exports.handler = async function (event) {
     }
     usingFreeDailyCap = true;
     if (visitorId && serviceKey) {
-      try { connectLambda(event); } catch (e) { console.log('gc-chat connectLambda failed:', e.message); } // TEMP
+      try { connectLambda(event); } catch (_) {}
       dayKey = todayKey(visitorId);
       let usage = null;
-      try { usage = await getStore('ah_daily_usage').get(dayKey, { type: 'json' }); } catch (e) { console.log('gc-chat blob get failed:', e.message); } // TEMP
+      try { usage = await getStore('ah_daily_usage').get(dayKey, { type: 'json' }); } catch (_) {}
       const countSoFar = (usage && usage.count) || 0;
-      console.log('gc-chat daily-cap check:', JSON.stringify({ dayKey, usage, countSoFar })); // TEMP
       if (countSoFar >= DAILY_FREE_LIMIT) {
         if (idle) return json(200, { reply: null, quiet: true, mood: friend.mood || null });
         return json(200, { reply: null, daily_capped: true, mood: friend.mood || null });
