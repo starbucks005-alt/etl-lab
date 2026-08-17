@@ -451,7 +451,7 @@ var GC_WHO = (function () {
    Keyed by id, so ?who=<id> reaches any of them and adding one is a line here
    rather than a change everywhere. GC_DEMO stays as the one currently in the
    room, because five places already say GC_DEMO and mean "the house friend". */
-/* ── ROSIE ─────────────────────────────────────────────────────────────────
+/* ── SOFIA ─────────────────────────────────────────────────────────────────
    The second demo, for the crowd Arch cannot reach. Approved 2026-08-17.
 
    HER LONELINESS HAS A DIFFERENT CAUSE, which is the whole reason she exists.
@@ -477,13 +477,13 @@ var GC_WHO = (function () {
 
    STILL NEEDS: her portrait, a voice id, and a scene clip if she is to move.
    Until the portrait lands the room says so rather than inventing one, and she
-   is reachable only at ?who=rosie, so nothing on the front page shows her
+   is reachable only at ?who=sofia, so nothing on the front page shows her
    half finished. */
-var GC_ROSIE = {
-  name: 'Rosie',
+var GC_SOFIA = {
+  name: 'Sofia',
   /* Changeable. The portrait leads on how she looks; this is only what is on
      her lanyard. */
-  full: 'Rosa Reyes',
+  full: 'Sofia Reyes',
   age: '20s',
   gender: 'A woman',
   work: 'Veterinary nurse. Nights, at an emergency animal hospital.',
@@ -501,17 +501,48 @@ var GC_ROSIE = {
   voiceId: null,
 
   skin: 'seaside',
-  portrait: 'photos/rosie.jpg',
+  portrait: 'photos/sofia.jpg',
 
-  /* ONE SCENE UNTIL THERE IS FILM. She has photographs and no clips yet, and
-     four buttons switching between the same still is the fault already fixed
-     for built friends. More go in as they are made. */
+  /* SIX, one more than Arch has.
+
+     WHERE IS WRITTEN FROM WHAT IS ACTUALLY ON SCREEN, and for two of these I
+     have not seen the film. The pub and the beach have clips and no matching
+     photograph, so their descriptions are deliberately thin: she is told the
+     place and nothing she could be caught out on. A friend confidently
+     describing a room that is not the one behind her is worse than a friend
+     who simply knows where she is. Fill these in properly after watching them.
+
+     THE OTHER FOUR ARE FROM HER PHOTOGRAPHS, which match the clips: the sofa
+     and the dog, the animal hospital at dawn, the break room, the cafe. */
   scenes: [
-    { key: 'home', label: 'Home', src: null,
+    { key: 'home', label: 'Home', src: 'video/sofia-home.mp4',
       where: 'Her flat, morning, just off a night shift. On the sofa in a hoodie with the ' +
-             'dog asleep against her leg, bookshelves behind, curtains still half drawn ' +
+             'dog asleep against her leg, bookshelves behind her, curtains still half drawn ' +
              'against a day everybody else is in the middle of. This is where she is at ' +
              'eight in the morning.' },
+
+    { key: 'after-shift', label: 'After a shift', src: 'video/sofia-after-shift.mp4',
+      where: 'Outside the animal hospital, first light, still in navy scrubs with the ' +
+             'stethoscope round her neck and the first coffee of the day in her hand. ' +
+             'The car park is empty and the sky is going orange behind the trees. Twelve ' +
+             'hours done and she has not decided yet whether she is going straight home.' },
+
+    { key: 'break-room', label: 'The break room', src: 'video/sofia-break-room.mp4',
+      where: 'The staff break room at the hospital, somewhere in the middle of a night. ' +
+             'This is the room where the hard ones get talked about, or not talked about, ' +
+             'with whoever else is on.' },
+
+    { key: 'cafe', label: 'The cafe', src: 'video/sofia-cafe.mp4',
+      where: 'A cafe she has found that serves breakfast early enough to catch her coming ' +
+             'off a shift. Window seat. This is where she takes Sammy when it is her turn ' +
+             'to have him for a morning.' },
+
+    /* Thin on purpose. No photograph of either and I have not watched the clips. */
+    { key: 'pub', label: 'The pub', src: 'video/sofia-pub.mp4',
+      where: 'A pub, in the evening, on one of the nights she is not working.' },
+
+    { key: 'beach', label: 'The beach', src: 'video/sofia-beach.mp4',
+      where: 'The beach, out of the city, on a day off.' },
   ],
 
   place: 'A one bedroom flat she can just about afford, in a city she chose off a job advert. ' +
@@ -581,20 +612,20 @@ var GC_ROSIE = {
      nine photographs are not in yet because I have not looked at them and will
      not caption a picture I have not seen. */
   album: [
-    { src: 'photos/rosie-and-sammy.jpg', on: 'Added when she joined',
+    { src: 'photos/sofia-and-sammy.jpg', on: 'Added when she joined',
       caption: 'Her nephew Sammy, out for a drink. He has his own cup.' },
-    { src: 'photos/rosie-end-of-shift.jpg', on: 'Added when she joined',
+    { src: 'photos/sofia-end-of-shift.jpg', on: 'Added when she joined',
       caption: 'Outside the hospital at the end of a night, with the first coffee of the day.' },
-    { src: 'photos/rosie-at-work.jpg', on: 'Added when she joined',
+    { src: 'photos/sofia-at-work.jpg', on: 'Added when she joined',
       caption: "At work, with somebody's dog." },
-    { src: 'photos/rosie-dog-park.jpg', on: 'Added when she joined',
+    { src: 'photos/sofia-dog-park.jpg', on: 'Added when she joined',
       caption: 'At the park. He does this every time.' },
-    { src: 'photos/rosie-home.jpg', on: 'Added when she joined',
+    { src: 'photos/sofia-home.jpg', on: 'Added when she joined',
       caption: 'On the sofa at home, the dog asleep against her.' },
   ],
 };
 
-var GC_DEMOS = { arch: GC_DEMO, rosie: GC_ROSIE };
+var GC_DEMOS = { arch: GC_DEMO, sofia: GC_SOFIA };
 
 /* The id in ?who=, if it names a demo we actually have. */
 var GC_DEMO_ID = (function () {
