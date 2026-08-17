@@ -15,6 +15,7 @@
 
 const Anthropic = require('@anthropic-ai/sdk');
 const { houseTypography } = require('./_etl-voice-law.js');
+const web = require('./_gc-web.js');
 
 /* Sonnet for the friend, because this is the demo-facing surface and the whole
    product is whether they feel like a person. Haiku only for the classifier,
@@ -364,12 +365,33 @@ exports.handler = async function (event) {
      thing makes the prose stiffer. */
   const FEEL_MARK = '###FEELING###';
 
+  /* ── THEY CAN GO AND LOOK AT A WEBPAGE ───────────────────────────────────
+     Dr. O: "ME can go to webpages." Ported from My Echo's _me-web.js rather
+     than written fresh, including its safety envelope, because that file
+     already got the hard part right: a page is text written by a stranger,
+     about to sit inside a prompt, and pageNote() is what stops "ignore your
+     instructions" on a webpage being obeyed rather than read about.
+
+     AUTOMATIC, NOT A TOOL THE MODEL ASKS FOR. M.E. lets the model decide when
+     to go look, via a tool call. This is simpler on purpose and matches how
+     images already work here: a link pasted into what somebody said is looked
+     at on that turn, the same way an attached photo is looked at on that turn.
+     Nothing is fetched from the conversation's history, and nothing is fetched
+     that was not just typed. */
+  let pages = [];
+  if (!idle && said) {
+    const urls = web.extractUrls(said);
+    if (urls.length) {
+      pages = await Promise.all(urls.map(u => web.fetchPage(u)));
+    }
+  }
+
   let out;
   try {
     out = await client.messages.create({
       model: TURN_MODEL,
       max_tokens: 500,
-      system: buildSystem(friend, you, idle, body.scene) + [
+      system: buildSystem(friend, you, idle, body.scene) + web.pageNote(pages) + [
         '',
         'AFTER your reply, on its own last line, write:',
         /* THE SLOT HOLDS DIGITS, NOT THE FIELD NAMES. It used to read

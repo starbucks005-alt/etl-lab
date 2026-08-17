@@ -554,8 +554,16 @@ var GC_SOFIA = {
      evening. She is not giving up sleep to sit here, her hours are shifted, and
      this is the part of the day she gets to herself. No apology, nothing owed,
      and the night shift stays because it is who she is. */
-  hello: "Hiya. Just got in, so this is my evening, whatever the sun is doing. " +
-         "Kettle is on and I am not going anywhere. Sit down.",
+  /* HERS, NOT ARCH'S WITH THE NOUNS SWAPPED. The first draft had her putting a
+     kettle on and not going anywhere, which is his rhythm exactly: unhurried,
+     domestic, a fire to sit by. She is coffee, not tea, it is in her own
+     photographs, and she said herself in testing that toast is her ritual off
+     a shift, not a kettle. Her voice is funny, blunt, talks a lot, which reads
+     fast and a little scattered, not settled the way his does. Two demos are
+     supposed to sound like two different people meeting you at the door. */
+  hello: "Hi! Sorry, give me one second, I am inhaling toast, I have had nothing since about " +
+         "2am. Right. Hi. This is basically my evening even though it is broad daylight, so " +
+         "do not mind me if I seem weirdly awake. Sit, tell me everything.",
   mood:  'Wired, in a good way',
 
   /* Hers, from Dr. O. Kept here with the rest of her rather than in a lookup
