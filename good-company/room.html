@@ -1276,7 +1276,20 @@ function notYet(what, why) {
    their mum is the product spreading on its own. */
 
 function inviteLink(token) {
-  return location.origin + location.pathname + "?join=" + encodeURIComponent(token);
+  var url = location.origin + location.pathname + "?join=" + encodeURIComponent(token);
+  /* WHOSE ROOM IT IS, CARRIED IN THE LINK. Arriving on an invite falls back to
+     the house demo, and that fallback was written when there was one: it says
+     'arch' in so many words. So an invite to Sofia's room opened on Arch, with
+     his face, his scenes and his name on the door.
+
+     The join response does hand back the room's real friend a moment later,
+     which is why this looked like a flicker rather than a bug, but the person
+     arriving reads the doorstep before that lands and they were reading the
+     wrong one. The room's friend is known here, so it goes in the link. */
+  if (typeof GC_DEMO_ID !== 'undefined' && FRIEND === GC_DEMO) {
+    url += '&who=' + encodeURIComponent(GC_DEMO_ID);
+  }
+  return url;
 }
 
 function showInvite(token) {
