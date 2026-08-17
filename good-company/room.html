@@ -664,8 +664,12 @@ FRIEND.scenes.forEach(function (scene, i) {
    a queue can fill up without a penny being spent on it. */
 function askForScene() {
   if (!GC_BUILT || !FRIEND.portrait) {
-    notYet('More scenes', 'Scenes are made from the picture you chose, and there is not ' +
-           'one on this device yet.');
+    /* Also not notYet: ordering a scene IS built. What is missing is a friend
+       of theirs to make one of, which is a different sentence and a thing they
+       can go and do. */
+    post('More scenes', 'A scene is made from the picture you chose when you built ' +
+         'somebody, and there is not one on this device yet. Make a friend first and ' +
+         'this will be waiting.');
     return;
   }
 
@@ -1603,7 +1607,13 @@ function startListening() {
   rec.onerror = function (e) {
     if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
       listening = false; micLabel();
-      notYet('The microphone', 'The browser refused access. It can be allowed from the address bar.');
+      /* NOT notYet, BECAUSE THE MICROPHONE IS BUILT. This read "The microphone
+         is not built yet. The browser refused access", which is two
+         contradictory sentences and sends somebody looking for a feature that
+         is right there. A browser refusing permission is a thing they can fix
+         in about five seconds, and saying so is the entire job here. */
+      post('The microphone', 'Your browser blocked it. Allow the microphone from the ' +
+           'icon in the address bar and press it again.');
     }
     /* no-speech and aborted are ordinary. onend restarts. */
   };
