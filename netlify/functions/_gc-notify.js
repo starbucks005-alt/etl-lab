@@ -137,4 +137,49 @@ async function sceneReady(order, link) {
   }
 }
 
-module.exports = { orderPaid, sceneReady, notifyAddress, esc, FROM };
+/* ── TELLING THEM THEY HAVE BEEN REFUNDED ────────────────────────────────────
+   A refund nobody mentions reads like a mistake on the statement. This says it
+   plainly and does not ask them to do anything.
+
+   NO APOLOGY THEATRE AND NO EXCUSES. If a scene came out wrong, say that the
+   money is back and leave it there. The one thing worth adding is that their
+   friend is untouched, because the obvious fear on seeing a refund for a
+   companion app is that something has been taken away. */
+async function refunded(order, why) {
+  const key = process.env.RESEND_API_KEY;
+  const to = String((order && order.from) || '').trim();
+
+  if (!to) return { sent: false, to: null, reason: 'they left no address, so tell them by hand' };
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to)) {
+    return { sent: false, to, reason: 'what they left is not an email address: ' + to };
+  }
+  if (!key) return { sent: false, to, reason: 'no RESEND_API_KEY set on this site' };
+
+  const html = [
+    '<p>The scene you asked for was not right, so your money has gone back. It ' +
+    'takes a few days to show up, depending on the bank.</p>',
+    why ? '<p>' + esc(why) + '</p>' : '',
+    '<p>' + esc(order.friend_name) + ' is exactly as they were. Nothing has been ' +
+    'taken away from your room.</p>',
+    '<p style="color:#666">You asked for: ' + esc(order.where) + '</p>',
+  ].filter(Boolean).join('\n');
+
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + key, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from: FROM,
+        to: [to],
+        subject: 'Your money is on its way back',
+        html,
+      }),
+    });
+    if (!res.ok) return { sent: false, to, reason: 'Resend said ' + res.status + ': ' + (await res.text()).slice(0, 200) };
+    return { sent: true, to, reason: null };
+  } catch (e) {
+    return { sent: false, to, reason: String((e && e.message) || e) };
+  }
+}
+
+module.exports = { orderPaid, sceneReady, refunded, notifyAddress, esc, FROM };

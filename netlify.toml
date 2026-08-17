@@ -505,3 +505,7 @@
 # Two Stripe round trips, one to create a session and one to read it back.
 [functions."gc-scene-checkout"]
   timeout = 30
+
+# Two Stripe round trips (read the session, then refund the payment intent).
+[functions."gc-scene-refund"]
+  timeout = 30
