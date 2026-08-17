@@ -496,3 +496,8 @@
 # that finds the job finished also downloads the mp4 and writes it to Blobs.
 [functions."gc-scene"]
   timeout = 60
+
+# Takes a portrait (about a megabyte of base64) and writes it to Blobs. No
+# model call, so this is quick, but the upload itself wants room.
+[functions."gc-scene-order"]
+  timeout = 30

@@ -165,9 +165,28 @@ exports.handler = async (event) => {
        have to know that. */
     let portrait = String(body.portrait || '');
     portrait = portrait.replace(/^data:image\/[a-z+]+;base64,/i, '').trim();
-    if (!portrait) return json(400, { error: 'portrait_required' });
 
-    const where = String(body.where || '').trim();
+    let where = String(body.where || '').trim();
+    let gender = body.gender;
+    let order = null;
+
+    /* FULFILLING AN ORDER, WITHOUT MOVING THE PICTURE BY HAND. Somebody asked
+       for a scene through gc-scene-order and their portrait is already stored;
+       passing order_id here reads it back rather than making whoever is
+       fulfilling it download a megabyte and paste it into a request. What they
+       asked for comes with it, so the scene made is the scene ordered. */
+    if (body.order_id) {
+      const orders = getStore('gc_scene_orders');
+      order = await orders.get(String(body.order_id), { type: 'json' });
+      if (!order) return json(404, { error: 'order_not_found' });
+      if (!portrait) {
+        portrait = String(await orders.get(order.portrait_key, { type: 'text' }) || '').trim();
+      }
+      if (!where) where = order.where;
+      if (!gender) gender = order.gender;
+    }
+
+    if (!portrait) return json(400, { error: 'portrait_required' });
     if (!where) return json(400, { error: 'where_required' });
 
     /* Four seconds by default and eight at most. Duration is the only real
@@ -184,7 +203,7 @@ exports.handler = async (event) => {
        sending allow_standard rather than something discovered from a bill. */
     const ladder = body.allow_standard ? [veo.MODEL_LITE, veo.MODEL_FULL] : [veo.MODEL_LITE];
 
-    const prompt = scenePrompt({ where, gender: body.gender, clothes: body.clothes });
+    const prompt = scenePrompt({ where, gender, clothes: body.clothes });
 
     let started;
     try {
@@ -230,6 +249,7 @@ exports.handler = async (event) => {
          we actually asked for, and without this there is no way to answer it. */
       prompt,
       started_at: new Date().toISOString(),
+      order_id: (order && order.order_id) || null,
       video_key: null,
       bytes: 0,
       error: null,

@@ -622,6 +622,102 @@ FRIEND.scenes.forEach(function (scene, i) {
   bar.appendChild(chip);
 });
 
+/* ── ASKING FOR A SCENE ──────────────────────────────────────────────────────
+   The half that was missing. A scene is made from the picture they chose, that
+   picture lives in this browser and nowhere else, and nothing ever sent it
+   anywhere: a scene could be made and delivered, and the person who wanted one
+   had no way to hand over the only thing needed to make it.
+
+   THE PICTURE LEAVING THIS DEVICE IS SAID OUT LOUD. Everything else here keeps
+   a built friend in the browser, and somebody told that deserves to be told the
+   one moment it stops being true, before it happens rather than in a policy.
+
+   ASKING COSTS NOTHING AND STARTS NOTHING. This writes a request and a picture
+   into storage and stops. Making the scene is a separate, owner-only step, so
+   a queue can fill up without a penny being spent on it. */
+function askForScene() {
+  if (!GC_BUILT || !FRIEND.portrait) {
+    notYet('More scenes', 'Scenes are made from the picture you chose, and there is not ' +
+           'one on this device yet.');
+    return;
+  }
+
+  showGate('mem', 'Somewhere else to sit',
+    'Say where you would like ' + FRIEND.name + ' to be, and it gets made: moving, ' +
+    'rather than a still. Made to order, so it is an add-on and not on sale yet. ' +
+    'Asking costs nothing.');
+  $('startBtn').textContent = 'Back to ' + FRIEND.name;
+
+  var host = $('memPanel');
+  host.innerHTML = '';
+  host.className = 'you-panel';
+
+  function row(label, note) {
+    var d = document.createElement('div'); d.className = 'you-row';
+    var l = document.createElement('label'); l.className = 'you-label'; l.textContent = label;
+    d.appendChild(l);
+    if (note) { var p = document.createElement('div'); p.className = 'gate-say'; p.textContent = note; d.appendChild(p); }
+    host.appendChild(d);
+    return d;
+  }
+
+  var whereRow = row('Where should ' + FRIEND.name + ' be');
+  var where = document.createElement('textarea');
+  where.rows = 3;
+  where.placeholder = 'at the kitchen table with the morning light coming in';
+  where.style.cssText = 'width:100%;font:inherit;padding:.5rem;border:1px solid var(--line);' +
+                        'background:var(--paper);color:var(--ink);border-radius:3px;resize:vertical';
+  whereRow.appendChild(where);
+
+  var fromRow = row('How to reach you about it', 'Optional. Leave it blank if you would rather not say.');
+  var from = document.createElement('input');
+  from.type = 'text'; from.autocomplete = 'off';
+  from.placeholder = 'an email address, or nothing at all';
+  from.style.cssText = 'width:100%;font:inherit;padding:.5rem;border:1px solid var(--line);' +
+                       'background:var(--paper);color:var(--ink);border-radius:3px';
+  fromRow.appendChild(from);
+
+  var note = document.createElement('p');
+  note.className = 'gate-say';
+  note.textContent = 'Sending this is the one time ' + FRIEND.name + "'s picture leaves this " +
+    'device. It goes so the scene can be made from the face you picked, and nothing else.';
+  host.appendChild(note);
+
+  var send = document.createElement('button');
+  send.type = 'button'; send.className = 'btn go'; send.textContent = 'Ask for it';
+  send.addEventListener('click', function () {
+    var w = where.value.trim();
+    if (!w) { where.focus(); return; }
+    send.disabled = true; send.textContent = 'Sending';
+
+    fetch('/.netlify/functions/gc-scene-order', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        portrait: FRIEND.portrait,
+        friend: { name: FRIEND.name, gender: FRIEND.gender },
+        where: w,
+        from: from.value.trim(),
+      }),
+    }).then(function (r) { return r.json(); }).then(function (j) {
+      if (!j || !j.order_id) {
+        send.disabled = false; send.textContent = 'Try again';
+        note.textContent = 'That did not send: ' + ((j && j.error) || 'unknown') + '.';
+        return;
+      }
+      host.innerHTML = '';
+      var ok = document.createElement('p');
+      ok.className = 'gate-say';
+      ok.textContent = 'Asked. Nothing has been charged and nothing is being made yet. ' +
+        'When the scene exists you will get a link that puts it in this room.';
+      host.appendChild(ok);
+    }).catch(function (err) {
+      send.disabled = false; send.textContent = 'Try again';
+      note.textContent = 'Could not reach it. ' + err.message;
+    });
+  });
+  host.appendChild(send);
+}
+
 /* ── A SCENE ARRIVING ────────────────────────────────────────────────────────
    HOW A MADE SCENE GETS TO THE PERSON WHO BOUGHT IT.
 
@@ -708,18 +804,7 @@ if (FRIEND !== GC_DEMO && FRIEND.scenes.length < 5) {
     slot.className = 'scene-chip locked';
     slot.textContent = '+ Scene ' + ord;
     slot.title = 'Somewhere else to sit with ' + FRIEND.name + ', made to order';
-    slot.addEventListener('click', function () {
-      /* THE SAME NOTICE FOR EVERY SLOT, DELIBERATELY. Naming the ordinal made
-         four different messages, so pressing along the row wrote four
-         paragraphs into the conversation and pushed the friend off screen.
-         The offer is identical whichever one you press.
-
-         NO PRICE AND NO COUNT WRITTEN IN. Both change, and copy carrying a
-         number goes stale in the one place nobody re-reads. */
-      notYet('More scenes',
-        'You say where ' + FRIEND.name + ' is and it gets made for you, moving ' +
-        'rather than a still. Made to order, so it is an add-on. Not on sale yet.');
-    });
+    slot.addEventListener('click', askForScene);
     bar.appendChild(slot);
   });
 }
