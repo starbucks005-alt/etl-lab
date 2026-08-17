@@ -509,3 +509,7 @@
 # Two Stripe round trips (read the session, then refund the payment intent).
 [functions."gc-scene-refund"]
   timeout = 30
+
+# Five image generations in sequence, most of them refused instantly.
+[functions."gemini-aspect-probe"]
+  timeout = 120
