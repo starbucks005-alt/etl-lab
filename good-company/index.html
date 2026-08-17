@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Good Company</title>
-<meta name="description" content="Making friends is hard. So here, you make one.">
+<meta name="description" content="Finding real friends is hard. So here, you make one.">
 
 <!-- Skin resolution before the stylesheet, so nobody eats a flash of the wrong
      room. No friend on this page, so it falls to the system preference. -->
@@ -179,6 +179,17 @@ header{
   color:rgba(255,255,255,.90); text-shadow:0 1px 18px rgba(0,0,0,.45);
 }
 
+/* THE FRAMING LINE, A STEP QUIETER THAN THE LEDE ABOVE IT. It names the
+   technology, which is the part somebody scanning the page will not read
+   twice, and at the same size it would compete with the sentence that has to
+   land. Smaller and dimmer, still comfortably readable on the photograph. */
+.hero p.how{
+  margin-top:.8rem; max-width:44ch;
+  font-size:clamp(.98rem, 1.05vw, 1.08rem);
+  color:rgba(255,255,255,.78);
+}
+.hero.no-art p.how{ color:var(--ink-dim); }
+
 /* NO PICTURE, NO OVERLAY. With the art gone the words would be white on the
    page's own background, which on three of the four skins is white paper. So
    the hero falls back to being ordinary type in the page's own colours. */
@@ -352,9 +363,20 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
     </div>
 
     <div class="hero-words">
-      <h1 class="hero-say">Making friends is hard. So here, you make one.</h1>
+      <h1 class="hero-say">Finding real friends is hard. So here, you make one.</h1>
       <p>Answer a few questions and somebody turns up who remembers your week, asks
          about the people in your life, and is glad when you walk in.</p>
+      <!-- Dr. O's line, kept as she wrote it. The negatives she listed, no
+           time, backstabbing, not liking you as much as you like them, were
+           context for me rather than copy: they stay off the page and the
+           reader supplies their own, which lands harder than a list would.
+
+           "The rest" rather than "the negative ones" only because it is
+           shorter out loud. Nothing is named, nobody is put down, and anybody
+           who has been let down hears it without being told. -->
+      <p class="how">With ETL's memory implants and emotion engine, the Almost Human
+         technology behind everyone here, you get all the good of a real friendship
+         and leave the rest behind.</p>
       <a class="cta" href="build.html">Make a friend</a>
       <!-- The way in for somebody not ready to build one yet, which is most
            people on a first visit. Arch is the house friend; meeting him costs
