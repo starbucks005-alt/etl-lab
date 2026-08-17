@@ -184,10 +184,12 @@ exports.handler = async (event) => {
        sending allow_standard rather than something discovered from a bill. */
     const ladder = body.allow_standard ? [veo.MODEL_LITE, veo.MODEL_FULL] : [veo.MODEL_LITE];
 
+    const prompt = scenePrompt({ where, gender: body.gender, clothes: body.clothes });
+
     let started;
     try {
       started = await veo.start({
-        prompt: scenePrompt({ where, gender: body.gender, clothes: body.clothes }),
+        prompt,
         firstFrameB64: portrait,
         seconds,
         models: ladder,
@@ -217,14 +219,23 @@ exports.handler = async (event) => {
       operation,
       seconds,
       model: (started && started.model) || null,
-      shape: (started && started.shape) || null,
+      /* THE HELPER CALLS IT image_field, NOT shape. Reading the wrong name
+         reported "image field: null" on a run where the portrait was very much
+         attached, which read like the image had been dropped and sent me
+         looking in the wrong place when the face came back wrong. */
+      image_field: (started && started.image_field) || null,
+      cost_cents: (started && started.cost_cents) || null,
+      /* KEPT, so a bad result can be diagnosed rather than guessed at. When a
+         clip comes back and the face is not theirs, the first question is what
+         we actually asked for, and without this there is no way to answer it. */
+      prompt,
       started_at: new Date().toISOString(),
       video_key: null,
       bytes: 0,
       error: null,
     };
     await store.setJSON(jobId, job);
-    return json(200, { ok: true, job_id: jobId, seconds, model: job.model, shape: job.shape });
+    return json(200, { ok: true, job_id: jobId, seconds, model: job.model, image_field: job.image_field, cost_cents: job.cost_cents });
   }
 
   /* ── report on one, and finish it ──────────────────────────────────────── */
@@ -286,7 +297,9 @@ exports.handler = async (event) => {
     note: job.note,
     seconds: job.seconds,
     model: job.model,
-    shape: job.shape,
+    image_field: job.image_field,
+    cost_cents: job.cost_cents,
+    prompt: job.prompt || null,
     bytes: job.bytes,
     error: job.error,
     url: job.status === 'ready' ? ('/.netlify/functions/gc-scene?job_id=' + jobId + '&file=1') : null,
