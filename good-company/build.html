@@ -136,6 +136,11 @@ footer{ padding:2rem 0 3rem; color:var(--ink-dim); font-size:.9rem; }
   <div class="already" id="already" style="display:none">
     <p id="alreadySay"></p>
     <p>
+      <!-- NEW FACES WITHOUT LOSING THEM. Getting a different face used to mean
+           Start over, which throws away every answer and makes you fill the
+           form in again for the same person. The answers are already saved;
+           only the picture was wrong. -->
+      <button class="btn go" type="button" id="newFacesBtn">Draw new faces</button>
       <button class="btn" type="button" id="theirRoomBtn">Open their room</button>
       <button class="btn" type="button" id="forgetBtn">Start over</button>
     </p>
@@ -407,6 +412,28 @@ var friend = null;
 
   document.getElementById('theirRoomBtn').addEventListener('click', function () {
     location.href = 'room.html?who=mine';
+  });
+
+  /* DRAW NEW FACES FOR THE FRIEND WHO IS ALREADY HERE. Same person, same
+     answers, different picture. Works off the saved friend rather than the
+     form, so it does not matter that the form is empty on a fresh visit, and
+     choosing one writes the new portrait back over the old one. */
+  document.getElementById('newFacesBtn').addEventListener('click', function () {
+    friend = built;
+    var dl = $('sumList');
+    if (dl && !dl.children.length) {
+      [['Name', built.name], ['Age', built.age], ['Gender', built.gender],
+       ['From', built.from], ['Does', built.work], ['Into', built.into]
+      ].forEach(function (row) {
+        if (!row[1]) return;
+        var dt = document.createElement('dt'); dt.textContent = row[0];
+        var dd = document.createElement('dd'); dd.textContent = row[1];
+        dl.appendChild(dt); dl.appendChild(dd);
+      });
+    }
+    $('faces').classList.add('on');
+    $('faces').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    drawFaces();
   });
 
   var forget = document.getElementById('forgetBtn');
