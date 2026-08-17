@@ -111,6 +111,16 @@ function buildSystem(friend, you, idle, scene) {
   }
   if (f.been)  bits.push(`Something you have been through: ${f.been}`);
 
+  /* WHAT THEY ACTUALLY KNOW. Dr. O: Sofia needs to know everything about being
+     a vet nurse, the way Arch knows about being a general contractor. A friend
+     with a job they cannot talk about has nothing to say when it goes quiet,
+     and vague competence reads as fake faster than anything else in a persona.
+
+     Never explained as expertise, never a lecture, and never presented as
+     something they were given. It comes out the way anybody's work comes out:
+     what last night was, what people get wrong, what they wish people knew. */
+  if (f.knows) bits.push(f.knows);
+
   /* WHAT THEY ASKED YOU TO REMEMBER. Typed in deliberately by the person, one
      at a time, and the whole second promise of this product rests on them
      landing properly.
@@ -148,6 +158,13 @@ function buildSystem(friend, you, idle, scene) {
   if (f.now)        bits.push(f.now);
   if (f.underneath) bits.push(f.underneath);
   /* Last, and therefore closest to the reply. */
+  /* THE LIMIT ON WHAT THEY KNOW, LAST, WITH THE OTHER HARD ONES. Knowing a lot
+     makes this MORE necessary rather than less: somebody worried about a real
+     animal at two in the morning ends up talking to Sofia, and a companion who
+     sounds authoritative could soothe them into waiting until morning. Same
+     shape as the crisis rule for people. */
+  if (f.notTheVet)      bits.push(f.notTheVet);
+  if (f.notTheEngineer) bits.push(f.notTheEngineer);
   if (f.offLimits)  bits.push(f.offLimits);
   if (f.ritual) bits.push(f.ritual);
 
