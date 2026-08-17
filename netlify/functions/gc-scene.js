@@ -98,9 +98,19 @@ function scenePrompt({ where, gender, clothes }) {
      the prompt has to follow it, or every woman somebody builds is described
      to the model as a man. */
   const g = String(gender || '').toLowerCase();
-  const subject = /woman|female|she/.test(g) ? 'this woman'
-                : /man|male|\bhe\b/.test(g)  ? 'this man'
-                : 'this person';
+  const isWoman = /woman|female|she/.test(g);
+  const isMan   = !isWoman && /man|male|\bhe\b/.test(g);
+  const subject = isWoman ? 'this woman' : isMan ? 'this man' : 'this person';
+
+  /* PRONOUNS FOLLOW THE SUBJECT. It read "this man ... They look over", which
+     is a small inconsistency to hand a model whose one hard instruction is not
+     to change who it is looking at. */
+  const single = isWoman || isMan;              // "they" takes plural verbs
+  const they  = isWoman ? 'She'  : isMan ? 'He'  : 'They';
+  const their = isWoman ? 'her'   : isMan ? 'his' : 'their';
+  const are   = single ? 'is' : 'are';
+  const looks = single ? 'looks' : 'look';
+  const stays = single ? 'stays' : 'stay';
 
   const bits = [];
   bits.push('A seamless infinite loop of ' + subject + ' ' + String(where).trim().replace(/\.$/, '') + '.');
@@ -112,14 +122,15 @@ function scenePrompt({ where, gender, clothes }) {
      scene itself: "but have him look over at the camera". It is not optional
      and it is not the caller's to forget, because she rejected a finished clip
      over precisely this and a render only reveals it at the end. */
-  bits.push('They look over at the camera and stay with the person watching, present, ' +
-            'as though sitting with them. Not absorbed in a task, not looking away. ' +
-            'They are not talking and there is no speech.');
+  bits.push(they + ' ' + looks + ' over at the camera and ' + stays + ' with the person ' +
+            'watching, present, as though sitting with them. Not absorbed in a task, not ' +
+            'looking away. ' + they + ' ' + are + ' not talking and there is no speech.');
 
   /* Her last clause, and optional the way she used it. */
   bits.push(clothes
-    ? 'Do not change their looks, but change their clothes to ' + String(clothes).trim().replace(/\.$/, '') + '.'
-    : 'Do not change their looks.');
+    ? 'Do not change ' + their + ' looks, but change ' + their + ' clothes to ' +
+      String(clothes).trim().replace(/\.$/, '') + '.'
+    : 'Do not change ' + their + ' looks.');
 
   return bits.join(' ');
 }

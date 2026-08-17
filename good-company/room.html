@@ -622,6 +622,65 @@ FRIEND.scenes.forEach(function (scene, i) {
   bar.appendChild(chip);
 });
 
+/* ── A SCENE ARRIVING ────────────────────────────────────────────────────────
+   HOW A MADE SCENE GETS TO THE PERSON WHO BOUGHT IT.
+
+   Scenes are made to order and a friend lives in one browser, so there is no
+   account to deliver into: the buyer's friend exists only on their own device.
+   A link is the whole mechanism. They open it once and the scene is theirs,
+   saved with their friend, there every time after.
+
+     room.html?add-scene=video/cal-porch.mp4&label=The%20porch
+
+   Deliberately no owner key on this side. Making a scene costs money and is
+   owner only; receiving one is just a file already paid for, and putting a
+   secret in a link somebody will paste into a chat is worse than pointless.
+
+   Only ever ADDS. It never edits or replaces what is there, so a link that
+   gets opened twice is harmless and a stray link cannot take somebody's friend
+   away from them. */
+(function () {
+  var q;
+  try { q = new URLSearchParams(location.search); } catch (e) { return; }
+  var src = q.get('add-scene');
+  if (!src) return;
+
+  /* Same origin only. An arbitrary URL here would let any link play any video
+     inside somebody's room, under their friend's name. */
+  if (!/^video\/[A-Za-z0-9._-]+\.mp4$/.test(src) &&
+      !/^\/\.netlify\/functions\/gc-scene\?job_id=gcs-[0-9a-f]+&file=1$/.test(src)) {
+    post('Not wired yet', 'That scene link does not look right, so nothing was added.');
+    history.replaceState({}, '', location.pathname);
+    return;
+  }
+
+  if (!GC_BUILT) {
+    post('A scene arrived', 'This scene belongs to a friend you built, and there is not one ' +
+         'on this device yet. Make your friend first and open the link again.');
+    return;
+  }
+
+  var label = (q.get('label') || '').trim().slice(0, 40) || 'A new scene';
+  var key = 'added-' + src.replace(/[^a-z0-9]+/gi, '-').slice(-40);
+
+  var already = (GC_BUILT.scenes || []).some(function (s) { return s && s.src === src; });
+  if (!already) {
+    GC_BUILT.scenes = (GC_BUILT.scenes || []).concat([{ key: key, label: label, src: src }]);
+    try { localStorage.setItem('gc-friend', JSON.stringify(GC_BUILT)); }
+    catch (e) {
+      post('A scene arrived', 'It could not be saved: this device is out of storage.');
+      return;
+    }
+  }
+
+  /* The link is spent, so the address bar goes back to normal and a refresh
+     does not look like it is adding it again. */
+  history.replaceState({}, '', location.pathname + '?who=mine');
+  /* Reloading is the honest way to pick it up: the scene bar and the friend
+     were both built at load from the old list. */
+  location.reload();
+})();
+
 /* THE SCENES THEY DO NOT HAVE YET, SHOWN AS EMPTY SLOTS.
 
    A friend you build comes with one, the picture you chose, and the rest are
@@ -638,8 +697,13 @@ FRIEND.scenes.forEach(function (scene, i) {
 
    Only where the friend has the one. Arch has his five and needs no upsell in
    his own front room. */
-if (FRIEND.scenes.length === 1) {
-  ['two', 'three', 'four', 'five'].forEach(function (ord) {
+if (FRIEND !== GC_DEMO && FRIEND.scenes.length < 5) {
+  /* Numbered from what they actually have, not from one. Somebody who has
+     bought a second scene should be offered a third, and the first version of
+     this only appeared when there was exactly one scene, so buying one made
+     the offer vanish. */
+  var ORDS = ['one', 'two', 'three', 'four', 'five'];
+  ORDS.slice(FRIEND.scenes.length).forEach(function (ord) {
     var slot = document.createElement('button');
     slot.className = 'scene-chip locked';
     slot.textContent = '+ Scene ' + ord;
