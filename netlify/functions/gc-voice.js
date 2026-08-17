@@ -19,7 +19,15 @@
 */
 
 const MAX_CHARS = 900;   // a long turn, not a monologue
-const MODEL = 'eleven_multilingual_v2';
+
+/* eleven_turbo_v2_5, NOT eleven_multilingual_v2. Dr. O, after seeing the real
+   cost: this is a friend talking in a room, not a produced narration, and
+   multilingual_v2 was the pricier model for a quality gap most people would
+   never notice in that context. Turbo costs meaningfully less per character
+   at a small, real quality/latency tradeoff. English quality is close to
+   parity; multilingual coverage is narrower, worth revisiting if a
+   non-English friend's voice ever sounds worse for it. */
+const MODEL = 'eleven_turbo_v2_5';
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',

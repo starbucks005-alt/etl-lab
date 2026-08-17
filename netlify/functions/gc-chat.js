@@ -459,24 +459,51 @@ exports.handler = async function (event) {
     }
   }
 
+  /* ── PROMPT CACHING ───────────────────────────────────────────────────────
+     Dr. O, after seeing the real per-message cost: this system prompt was
+     being resent in full on every single turn, uncached, for as long as
+     anybody kept talking to their friend. That is the dominant cost of an
+     ongoing conversation, and it is also the part of the prompt that barely
+     changes turn to turn: the same friend, the same room, the same idle
+     state, over and over within one sitting.
+
+     SPLIT IN TWO, NOT REORDERED. buildSystem()'s own internal ordering is
+     deliberate throughout, several things are placed "last, near the
+     boundary" on purpose, and reshuffling it to make more of it cacheable
+     would risk the exact behavior that ordering was tuned for. So the
+     content and order are untouched; only the seam between what changes
+     every turn and what does not moves, from string concatenation to a
+     second content block. buildSystem's output is marked as a cache
+     breakpoint; the clock (nowNote changes with the literal time of day) and
+     any webpage just read stay outside it, fresh every turn as they must.
+
+     A cache write costs slightly more than a normal call. A cache hit, on
+     the next turn within the window, costs roughly a tenth of a normal read
+     on everything before the breakpoint. Most of a real conversation is hits. */
+  const staticSystem = buildSystem(friend, you, idle, body.scene, body.room);
+  const dynamicSystem = when.nowNote(friend, new Date()) + web.pageNote(pages) + [
+    '',
+    'AFTER your reply, on its own last line, write:',
+    /* THE SLOT HOLDS DIGITS, NOT THE FIELD NAMES. It used to read
+       "happy,sad,fear,..." and the model copied the line as given, so the
+       gauge label under his face said HAPPY SAD FEAR DISGUST ANGER. What
+       each number means belongs in the sentence below, not in the slot. */
+    FEEL_MARK + ' 00,00,00,00,00,00,00 | five words for how you feel',
+    'The numbers are 0 to 100 in this order: happy, sad, fear, disgust, anger, surprise, curious.',
+    'They are how YOU actually feel right now, not how they feel.',
+    'They move when something moves you and they sit still when nothing does. Do not swing them about for effect.',
+    'The five words are what somebody would see if they looked at you. Lower case, no full stop.',
+  ].join('\n');
+
   let out;
   try {
     out = await client.messages.create({
       model: TURN_MODEL,
       max_tokens: 500,
-      system: buildSystem(friend, you, idle, body.scene, body.room) + when.nowNote(friend, new Date()) + web.pageNote(pages) + [
-        '',
-        'AFTER your reply, on its own last line, write:',
-        /* THE SLOT HOLDS DIGITS, NOT THE FIELD NAMES. It used to read
-           "happy,sad,fear,..." and the model copied the line as given, so the
-           gauge label under his face said HAPPY SAD FEAR DISGUST ANGER. What
-           each number means belongs in the sentence below, not in the slot. */
-        FEEL_MARK + ' 00,00,00,00,00,00,00 | five words for how you feel',
-        'The numbers are 0 to 100 in this order: happy, sad, fear, disgust, anger, surprise, curious.',
-        'They are how YOU actually feel right now, not how they feel.',
-        'They move when something moves you and they sit still when nothing does. Do not swing them about for effect.',
-        'The five words are what somebody would see if they looked at you. Lower case, no full stop.',
-      ].join('\n'),
+      system: [
+        { type: 'text', text: staticSystem, cache_control: { type: 'ephemeral' } },
+        { type: 'text', text: dynamicSystem },
+      ],
       messages: turns,
     });
   } catch (err) {
