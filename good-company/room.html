@@ -1692,9 +1692,12 @@ $('replyBtn').addEventListener('click', function () {
    Pookie turned it on and talked to it. It says what it is now, until it is
    built. */
 $('earBtn').addEventListener('click', function () {
+  /* notYet already appends "is not built yet", and this said it again straight
+     after: "Saying Sofia from across the room is not built yet. Not built yet."
+     The second half only has to say what to do instead. */
   notYet('Saying "' + FRIEND.name + '" from across the room',
-         'Not built yet. To talk, press the microphone next to the box. ' +
-         'Nothing is listening until you do.');
+         'To talk, press the microphone next to the box. Nothing is listening until ' +
+         'you do.');
 });
 </script>
 
