@@ -113,7 +113,7 @@ function request(method, path, body) {
 
 /* Kick off a generation. Returns the long-running operation name, which is
    the only handle to the result; store it before doing anything else. */
-async function start({ prompt, firstFrameB64, lastFrameB64, seconds, fast, aspect, resolution }) {
+async function start({ prompt, firstFrameB64, lastFrameB64, seconds, fast, aspect, resolution, models }) {
   if (!apiKey()) throw new Error('no Gemini API key in the environment');
   if (!firstFrameB64) throw new Error('a first frame is required');
 
@@ -136,7 +136,15 @@ async function start({ prompt, firstFrameB64, lastFrameB64, seconds, fast, aspec
      refusal, which costs nothing: an unsupported model is rejected before any
      video is generated. Fast is skipped for image work, having already told
      us it will not do it. */
-  const ladder = (fast === false) ? [MODEL_FULL] : [MODEL_LITE, MODEL_FULL];
+  /* A CALLER MAY SET ITS OWN CEILING. Passing models: [MODEL_LITE] means Lite
+     or nothing, so a refusal comes back as a refusal instead of quietly
+     stepping up to the tier that costs eight times as much. Good Company uses
+     that: Dr. O on the worst case, "$12.80 per customer, no." Nobody should
+     discover the expensive tier from a bill. Every existing caller passes
+     nothing and keeps the old ladder exactly. */
+  const ladder = Array.isArray(models) && models.length
+    ? models
+    : ((fast === false) ? [MODEL_FULL] : [MODEL_LITE, MODEL_FULL]);
 
   /* THE IMAGE FIELD NAME, TRIED RATHER THAN ASSUMED.
      ─────────────────────────────────────────────────────────────────────
@@ -274,4 +282,6 @@ function estimateCents(seconds, fast, hasImage) {
   return Math.round(perSec * (Number(seconds) || 8));
 }
 
-module.exports = { start, check, download, estimateCents, apiKey, keyName, MODEL_FAST, MODEL_FULL };
+/* MODEL_LITE is exported so a caller can set it as its own ceiling, which is
+   the only way to be sure a render cannot silently cost eight times more. */
+module.exports = { start, check, download, estimateCents, apiKey, keyName, MODEL_FAST, MODEL_FULL, MODEL_LITE };

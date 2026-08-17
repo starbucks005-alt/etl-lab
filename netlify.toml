@@ -491,3 +491,8 @@
 # FONTCONFIG_PATH at this directory before sharp loads.
 [functions."etl-design-background"]
   included_files = ["netlify/functions/fonts/**"]
+
+# Starting a Veo render is a sub-second call and polling is quick, but the poll
+# that finds the job finished also downloads the mp4 and writes it to Blobs.
+[functions."gc-scene"]
+  timeout = 60
