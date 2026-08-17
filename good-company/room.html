@@ -709,12 +709,16 @@ if (FRIEND !== GC_DEMO && FRIEND.scenes.length < 5) {
     slot.textContent = '+ Scene ' + ord;
     slot.title = 'Somewhere else to sit with ' + FRIEND.name + ', made to order';
     slot.addEventListener('click', function () {
-      /* NO PRICE AND NO COUNT WRITTEN IN. Both change, and copy carrying a
+      /* THE SAME NOTICE FOR EVERY SLOT, DELIBERATELY. Naming the ordinal made
+         four different messages, so pressing along the row wrote four
+         paragraphs into the conversation and pushed the friend off screen.
+         The offer is identical whichever one you press.
+
+         NO PRICE AND NO COUNT WRITTEN IN. Both change, and copy carrying a
          number goes stale in the one place nobody re-reads. */
-      notYet('Scene ' + ord,
-        'You say where ' + FRIEND.name + ' is and it gets made for you: somewhere ' +
-        'else to sit, moving rather than a still. Each one is made to order, so it ' +
-        'is an add-on rather than something waiting behind a button. Not on sale yet.');
+      notYet('More scenes',
+        'You say where ' + FRIEND.name + ' is and it gets made for you, moving ' +
+        'rather than a still. Made to order, so it is an add-on. Not on sale yet.');
     });
     bar.appendChild(slot);
   });
@@ -977,8 +981,17 @@ $('albumBtn').addEventListener('click', function () { location.href = 'album.htm
    Bring someone needs the conference-room tables ported over (invite tokens,
    seat tokens, the arrival-forward read rule). Add a memory needs the memory
    store. The mic needs speech capture. Each says so until it is built. */
+/* SAID ONCE, NOT ONCE PER PRESS. Pressing the four scene slots in a row filled
+   the conversation with four near-identical paragraphs, and a person poking at
+   the buttons to see what they do should not have to scroll their friend back
+   into view afterwards. The same notice twice running is a repeat, and a
+   repeat is noise. */
+var lastNotYet = '';
 function notYet(what, why) {
-  post('Not wired yet', what + ' is not built yet. ' + why);
+  var msg = what + ' is not built yet. ' + why;
+  if (msg === lastNotYet) return;
+  lastNotYet = msg;
+  post('Not wired yet', msg);
 }
 /* ── BRINGING SOMEBODY IN ────────────────────────────────────────────────────
    PROMOTE ON INVITE. Up to this point the conversation has been a browser and
