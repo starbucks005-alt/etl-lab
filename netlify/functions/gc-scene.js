@@ -114,9 +114,13 @@ exports.handler = async (event) => {
         firstFrameB64: portrait,
         seconds,
         models: ladder,
-        /* Portrait shaped, to match the still it came from and the card it
-           sits in. */
-        aspect: body.aspect || '9:16',
+        /* SIXTEEN BY NINE, BECAUSE THAT IS THE SHAPE OF THE ROOM. The video
+           area is aspect-ratio 16/9 and every clip Arch already has is that
+           shape. I had this as 9:16 first, reasoning from the still, which is
+           vertical: the still is vertical and gets cropped by object-fit, but a
+           scene fills the frame and a vertical one would sit in the middle with
+           bars either side. */
+        aspect: body.aspect || '16:9',
       });
     } catch (e) {
       return json(502, { error: 'veo_refused', detail: String(e && e.message || e).slice(0, 500) });
