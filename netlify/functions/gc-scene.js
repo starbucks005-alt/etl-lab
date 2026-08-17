@@ -35,6 +35,7 @@
 
 const { getStore, connectLambda } = require('@netlify/blobs');
 const veo = require('./_veo-video.js');
+const notify = require('./_gc-notify.js');
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -285,12 +286,51 @@ exports.handler = async (event) => {
      never be given to a browser, so it is served from here. */
   if (qs.file) {
     if (!job.video_key) return json(409, { error: 'not_ready' });
-    const mp4 = await store.get(job.video_key, { type: 'arrayBuffer' });
-    if (!mp4) return json(404, { error: 'file_missing' });
+    const got = await store.get(job.video_key, { type: 'arrayBuffer' });
+    if (!got) return json(404, { error: 'file_missing' });
+    const mp4 = Buffer.from(got);
+
+    /* RANGE REQUESTS, SO THIS IS A REAL VIDEO SOURCE.
+       ─────────────────────────────────────────────────────────────────────
+       The first scene was delivered as a static file in the repo because a
+       function reply supports no range requests and some browsers will not
+       play a video without them. That is fine for one clip made by hand and
+       impossible for a made-to-order add-on: every scene would need a commit
+       and a deploy before the person who paid could see it.
+
+       Answering ranges here is what makes automatic delivery possible. Safari
+       in particular asks for bytes=0-1 first and gives up on a 200. */
+    const head = { ...CORS, 'Content-Type': 'video/mp4', 'Accept-Ranges': 'bytes',
+                   'Cache-Control': 'public, max-age=31536000, immutable' };
+
+    const range = (event.headers && (event.headers.range || event.headers.Range)) || '';
+    const m = /^bytes=(\d*)-(\d*)$/.exec(String(range).trim());
+    if (m) {
+      let start = m[1] === '' ? null : parseInt(m[1], 10);
+      let end   = m[2] === '' ? null : parseInt(m[2], 10);
+      /* "bytes=-500" means the LAST 500, not from zero to 500. */
+      if (start === null && end !== null) { start = Math.max(0, mp4.length - end); end = mp4.length - 1; }
+      if (start === null) start = 0;
+      if (end === null || end >= mp4.length) end = mp4.length - 1;
+
+      if (start >= mp4.length || start > end) {
+        return { statusCode: 416, headers: { ...head, 'Content-Range': 'bytes */' + mp4.length }, body: '' };
+      }
+      const slice = mp4.subarray(start, end + 1);
+      return {
+        statusCode: 206,
+        headers: { ...head,
+          'Content-Range': 'bytes ' + start + '-' + end + '/' + mp4.length,
+          'Content-Length': String(slice.length) },
+        body: slice.toString('base64'),
+        isBase64Encoded: true,
+      };
+    }
+
     return {
       statusCode: 200,
-      headers: { ...CORS, 'Content-Type': 'video/mp4', 'Cache-Control': 'public, max-age=31536000, immutable' },
-      body: Buffer.from(mp4).toString('base64'),
+      headers: { ...head, 'Content-Length': String(mp4.length) },
+      body: mp4.toString('base64'),
       isBase64Encoded: true,
     };
   }
@@ -316,6 +356,37 @@ exports.handler = async (event) => {
           job.bytes = mp4.length;
           job.note = 'Ready.';
           await store.setJSON(jobId, job);
+
+          /* DELIVERED, NOT JUST FINISHED. A scene that exists and has not
+             reached the person who paid for it is not done, and the only way
+             it used to reach them was somebody remembering to send a link.
+
+             The link is the delivery: a built friend lives in their browser
+             rather than an account, so this email IS the handover. If they
+             left no address it says so and stays waiting to be sent by hand,
+             which is a real outcome rather than a failure. Never fatal: the
+             clip is saved either way and can be sent again. */
+          if (job.order_id) {
+            try {
+              const orders = getStore('gc_scene_orders');
+              const order = await orders.get(job.order_id, { type: 'json' });
+              if (order && order.status !== 'made') {
+                const link = 'https://emerging-tech-lab.com/good-company/room.html' +
+                  '?add-scene=' + encodeURIComponent('/.netlify/functions/gc-scene?job_id=' + jobId + '&file=1') +
+                  '&label=' + encodeURIComponent('A new scene');
+                const told = await notify.sceneReady(order, link);
+                order.status = 'made';
+                order.job_id = jobId;
+                order.link = link;
+                order.told = told;
+                await orders.setJSON(order.order_id, order);
+                console.log('[gc-scene] order ' + order.order_id + ' delivered:',
+                            told.sent ? told.to : 'not sent (' + told.reason + ')');
+              }
+            } catch (e) {
+              console.warn('[gc-scene] could not close the order:', e && e.message);
+            }
+          }
         }
       }
     } catch (e) {

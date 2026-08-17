@@ -78,4 +78,63 @@ async function orderPaid(order, opts) {
   }
 }
 
-module.exports = { orderPaid, notifyAddress, esc, FROM };
+/* ── TELLING THE PERSON WHO PAID ─────────────────────────────────────────────
+   The other half, and the one that reaches a customer. Their scene got made
+   and the only way they found out was somebody remembering to send them a
+   link by hand.
+
+   THE LINK IS THE DELIVERY. There is no account to put a scene into: a built
+   friend lives in their browser, so add-scene is how it gets there and this
+   email is how the link reaches them. Which means an email that does not send
+   is an undelivered order, not a missed notification.
+
+   ONLY IF THEY LEFT AN ADDRESS. It is optional on purpose, so plenty of orders
+   will have nowhere to write to and that is not a failure. The caller is told
+   so it can say so rather than assuming it went. */
+async function sceneReady(order, link) {
+  const key = process.env.RESEND_API_KEY;
+  const to = String((order && order.from) || '').trim();
+
+  /* THE TWO ARE NOT THE SAME THING and were reported as one. Nobody left an
+     address is an ordinary outcome and means send the link by hand. Something
+     that is not an address means they tried and it will never arrive, which is
+     worth seeing rather than filing under "optional". */
+  if (!to) {
+    return { sent: false, to: null, reason: 'they left no address, so send it by hand' };
+  }
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to)) {
+    return { sent: false, to, reason: 'what they left is not an email address: ' + to };
+  }
+  if (!key) return { sent: false, to, reason: 'no RESEND_API_KEY set on this site' };
+
+  const html = [
+    '<p>' + esc(order.friend_name) + ' has somewhere new to sit.</p>',
+    '<p><a href="' + esc(link) + '">Open this once and the scene is theirs</a>, saved with ' +
+    'them and there every time after.</p>',
+    '<p style="color:#666">Open it on the device where you made them. They live in that ' +
+    'browser rather than in an account, which is why this is a link and not a login.</p>',
+    '<p style="color:#666">You asked for: ' + esc(order.where) + '</p>',
+  ].join('\n');
+
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + key, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from: FROM,
+        to: [to],
+        subject: esc(order.friend_name) + ' has a new scene',
+        html,
+      }),
+    });
+    if (!res.ok) {
+      const detail = (await res.text()).slice(0, 300);
+      return { sent: false, to, reason: 'Resend said ' + res.status + ': ' + detail };
+    }
+    return { sent: true, to, reason: null };
+  } catch (e) {
+    return { sent: false, to, reason: String((e && e.message) || e) };
+  }
+}
+
+module.exports = { orderPaid, sceneReady, notifyAddress, esc, FROM };
