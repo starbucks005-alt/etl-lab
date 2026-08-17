@@ -1040,9 +1040,11 @@
     },
     {
       "name": "Archibald Baxter",
-      "platform": "The Concourse",
+      "platform": "The Concourse / Almost Human / Good Company",
       "platforms": [
-        "The Concourse"
+        "The Concourse",
+        "Almost Human",
+        "Good Company"
       ],
       "hasMCP": 0
     },
