@@ -226,6 +226,19 @@ async function releaseTurn(key, roomId, patch) {
     Object.assign({ busy_until: null }, patch || {}), false);
 }
 
+/* THE SCENE WAS WRITTEN ONCE, AT THE MOMENT A ROOM WAS CREATED, AND NEVER
+   AGAIN. gc-room-poll's own comment already promised "the host moves and
+   everyone follows", and that was only ever half built: a scene chosen when
+   the room opened would broadcast fine, but nothing let anybody change it
+   afterward, chip clicks stayed local, and every poll kept re-asserting the
+   original frozen scene_key onto everybody in the room, including the person
+   who had just deliberately clicked somewhere else. Dr. O: Pookie was not on
+   the beach and joining sent both of them there anyway. This is that bug. */
+async function setSceneKey(key, roomId, sceneKey) {
+  return sbPatch(key, 'gc_rooms', `id=eq.${encodeURIComponent(roomId)}`,
+    { scene_key: String(sceneKey || '').slice(0, 60) || null }, false);
+}
+
 async function touchSeat(key, seatId) {
   try {
     await sbPatch(key, 'gc_people', `id=eq.${encodeURIComponent(seatId)}`,
@@ -289,6 +302,6 @@ module.exports = {
   sbSelect, sbInsert, sbPatch,
   newToken, safeToken,
   identify, loadRoom, loadPeople, loadTranscript, loadVisible, readClause,
-  insertMessage, claimTurn, releaseTurn, touchSeat,
+  insertMessage, claimTurn, releaseTurn, touchSeat, setSceneKey,
   roomIsUsable, roomIsBusy, friendShouldAnswer, safeName,
 };

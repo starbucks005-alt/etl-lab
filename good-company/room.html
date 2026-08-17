@@ -617,12 +617,35 @@ $('soundBtn').addEventListener('click', function () {
   this.innerHTML = wantSound ? '&#128263; Sound off' : '&#128264; Sound on';
 });
 
+/* MOVING THE ROOM, FOR EVERYONE IN IT, NOT JUST THIS BROWSER.
+   ─────────────────────────────────────────────────────────────────────────
+   This used to be play(scene) and nothing else: local, silent, forgotten by
+   the next poll. gc-room-poll has always carried the comment "the host moves
+   and everyone follows", and it was only ever half true, because nothing told
+   the server a room's scene had changed. Every poll kept re-asserting the
+   scene the room was BORN with, snapping everyone back to it, which is what
+   Dr. O hit: Pookie was on some other scene, Terry's join triggered a poll,
+   and it sent both of them to whichever scene happened to be frozen in from
+   whenever the room was first opened.
+
+   Played locally first for a responsive click, then told to the server if
+   there is a room to tell. Fire and forget: a failed write here is not worth
+   interrupting somebody over, and the next successful change corrects it. */
+function moveRoom(scene) {
+  play(scene);
+  if (!SEAT) return;
+  fetch('/.netlify/functions/gc-room-scene', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ seat_token: SEAT, scene_key: scene.key }),
+  }).catch(function () {});
+}
+
 FRIEND.scenes.forEach(function (scene, i) {
   var chip = document.createElement('button');
   chip.className = 'scene-chip' + (i === 0 ? ' on' : '');
   chip.dataset.key = scene.key;
   chip.textContent = scene.label;
-  chip.addEventListener('click', function () { play(scene); });
+  chip.addEventListener('click', function () { moveRoom(scene); });
   bar.appendChild(chip);
 });
 
@@ -1243,7 +1266,30 @@ $("stopBtn").addEventListener("click", hush);
 $('sendBtn').addEventListener('click', send);
 $('say').addEventListener('keydown', function (e) { if (e.key === 'Enter') send(); });
 
-$('albumBtn').addEventListener('click', function () { location.href = 'album.html'; });
+/* A NEW TAB, NEVER THIS ONE. Dr. O: Pookie opened the photo album mid
+   conversation, closed it, and the room had kicked her out.
+
+   Navigating room.html away entirely was worse than losing her place. SEAT
+   lives only as a JavaScript variable, nowhere in storage, and the polling
+   interval it drives is torn down the moment the page unloads. Coming back
+   was not "reload and resume", it was landing on this page as though for the
+   first time, with the one thing that could get her back in, the invite
+   link, already spent because invites are single use. There was no way back
+   in at all, which is the shape of "kicked out".
+
+   Fixed at the only point that matters: never leave. Opened in a new tab so
+   the room, its poll, and its live SEAT are simply never touched.
+
+   WHO= IS PASSED EXPLICITLY rather than left to sessionStorage to carry
+   across, because whether a new tab opened this way inherits the opener's
+   sessionStorage is genuinely inconsistent across browsers. GC_WHO is already
+   resolved here; handing the same answer to the new tab in the URL makes it
+   correct regardless. */
+$('albumBtn').addEventListener('click', function () {
+  var who = (typeof GC_WHO !== 'undefined' && GC_WHO === 'mine') ? 'mine' : currentDemoId();
+  var url = 'album.html' + (who ? '?who=' + encodeURIComponent(who) : '');
+  window.open(url, '_blank');
+});
 
 /* NOTHING IN THIS ROOM IS ALLOWED TO DO NOTHING. These three are real features
    with no backend yet, and a button that swallows a press is worse than one
@@ -1275,20 +1321,39 @@ function notYet(what, why) {
    Anyone in the room can do this, not only the host. A guest wanting to show
    their mum is the product spreading on its own. */
 
+/* WHICH DEMO THE CURRENT ROOM ACTUALLY IS, BY WHO FRIEND IS, NOT BY WHICH
+   OBJECT IT HAPPENS TO BE.
+
+   The first version of this checked FRIEND === GC_DEMO, an object identity
+   check, and it broke exactly the way object identity checks break: FRIEND is
+   REPLACED wholesale the moment somebody joins a room, with a fresh object
+   deserialised from the server's join response (see joinThenSit, "FRIEND =
+   j.friend"). So the very first person in a room passed the check and their
+   invite carried who=; anybody who joined THAT room and then invited a third
+   person themselves held a FRIEND that was contentwise Sofia but was no
+   longer literally GC_SOFIA, the check silently failed, and the link they
+   sent defaulted the next arrival to Arch. Dr. O: "the link sent her to Arch
+   again."
+
+   Compared by name instead, which survives the reassignment because Sofia's
+   name is always "Sofia" whichever copy of the object it lives on. The one
+   real cost: somebody who builds and names their own friend "Arch" or "Sofia"
+   would have their room mistaken for the demo. Accepted rather than solved,
+   because solving it properly means the server telling a joiner which KIND of
+   room they are in, not just which friend, and that is a larger change than
+   this bug warrants. */
+function currentDemoId() {
+  if (typeof GC_DEMOS === 'undefined' || !FRIEND) return null;
+  for (var id in GC_DEMOS) {
+    if (GC_DEMOS[id] && GC_DEMOS[id].name === FRIEND.name) return id;
+  }
+  return null;
+}
+
 function inviteLink(token) {
   var url = location.origin + location.pathname + "?join=" + encodeURIComponent(token);
-  /* WHOSE ROOM IT IS, CARRIED IN THE LINK. Arriving on an invite falls back to
-     the house demo, and that fallback was written when there was one: it says
-     'arch' in so many words. So an invite to Sofia's room opened on Arch, with
-     his face, his scenes and his name on the door.
-
-     The join response does hand back the room's real friend a moment later,
-     which is why this looked like a flicker rather than a bug, but the person
-     arriving reads the doorstep before that lands and they were reading the
-     wrong one. The room's friend is known here, so it goes in the link. */
-  if (typeof GC_DEMO_ID !== 'undefined' && FRIEND === GC_DEMO) {
-    url += '&who=' + encodeURIComponent(GC_DEMO_ID);
-  }
+  var demoId = currentDemoId();
+  if (demoId) url += '&who=' + encodeURIComponent(demoId);
   return url;
 }
 

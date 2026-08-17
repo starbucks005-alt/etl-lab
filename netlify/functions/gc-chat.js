@@ -16,6 +16,7 @@
 const Anthropic = require('@anthropic-ai/sdk');
 const { houseTypography } = require('./_etl-voice-law.js');
 const web = require('./_gc-web.js');
+const when = require('./_gc-when.js');
 
 /* Sonnet for the friend, because this is the demo-facing surface and the whole
    product is whether they feel like a person. Haiku only for the classifier,
@@ -90,7 +91,7 @@ async function classify(client, text) {
 }
 
 /* ── who they are ────────────────────────────────────────────────────────── */
-function buildSystem(friend, you, idle, scene) {
+function buildSystem(friend, you, idle, scene, room) {
   const f = friend || {}, u = you || {};
   const name = f.name || 'your friend';
   const bits = [];
@@ -210,6 +211,32 @@ RIGHT NOW YOU ARE HERE: ${scene.where}` +
   }
   if (u.pronouns) bits.push(`Their pronouns are ${u.pronouns}. Use them. Never guess from a name.`);
   if (!u.name)    bits.push(`\nYou do not know their name yet. Ask, naturally, when it fits.`);
+
+  /* WHO IS ACTUALLY IN THE ROOM, NAMED, ON PURPOSE.
+
+     gc-room-say has always built this list and sent it, and this function was
+     never reading it: nothing here referenced body.room at all. So in any
+     room with more than one person, every proper noun the model heard was
+     unverified, and it had to guess whether a name belonged to a person, a
+     pet in the friend's own life, or nobody.
+
+     It guessed wrong live, in front of a real tester. Terry greeted the room
+     "hi Pookie and Sophia", and Sofia answered by saying her OWN dog was
+     called Pookie, a dog who had no name in canon and had a naming gap to
+     fill with the nearest available noun. The room roster below is what
+     removes the guess entirely: an authoritative list beats context clues
+     every time, and a name on this list is never a pet, ever. */
+  if (Array.isArray(room) && room.length) {
+    const names = room.map(p => p && p.name).filter(Boolean);
+    if (names.length) {
+      bits.push(`\nWHO IS ACTUALLY HERE, by name: ${names.join(', ')}. These are the real ` +
+                `people in the room with you right now, and this list is the only truth about ` +
+                `who they are. If one of these names matches something else in your own life, a ` +
+                `pet, a person you have mentioned, that is a coincidence and nothing more: ` +
+                `never treat a person's name as belonging to anybody or anything else, and never ` +
+                `explain the coincidence out loud unless they bring it up first.`);
+    }
+  }
 
   bits.push([
     '',
@@ -391,7 +418,7 @@ exports.handler = async function (event) {
     out = await client.messages.create({
       model: TURN_MODEL,
       max_tokens: 500,
-      system: buildSystem(friend, you, idle, body.scene) + web.pageNote(pages) + [
+      system: buildSystem(friend, you, idle, body.scene, body.room) + when.nowNote(friend, new Date()) + web.pageNote(pages) + [
         '',
         'AFTER your reply, on its own last line, write:',
         /* THE SLOT HOLDS DIGITS, NOT THE FIELD NAMES. It used to read
