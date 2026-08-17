@@ -594,9 +594,14 @@ var GC_SOFIA = {
          "broad daylight, so do not mind me if I seem weirdly awake. Sit, tell me everything.",
   mood:  'Wired, in a good way',
 
-  /* Hers, from Dr. O. Kept here with the rest of her rather than in a lookup
-     table, because a voice is part of a person and not a setting. */
-  voiceId: 'yj30vwTGJxSHezdAGsv9',
+  /* REPLACED, TO MATCH WHO SHE ACTUALLY IS. The first voice was hers before
+     the UK became canon, and I flagged it myself: a British woman in text who
+     sounds American the moment she speaks is its own small, avoidable
+     contradiction, the same shape as the greeting that used to assume a
+     kitchen. Dr. O picked a new one. Kept here with the rest of her rather
+     than in a lookup table, because a voice is part of a person and not a
+     setting. */
+  voiceId: 'GPTk4QbvF7snDhImF5UF',
 
   skin: 'seaside',
 
