@@ -927,3 +927,27 @@ var GC_SKIN = (function () {
   if (ok[GC_FRIEND.skin]) return GC_FRIEND.skin;
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'fireside' : 'harvest';
 })();
+
+/* ── IDENTITY, FOR THE CREDIT CEILING ────────────────────────────────────────
+   Ported verbatim from almost-human.html's own visitorId()/accessToken()/
+   ownerKey(), same keys, on purpose: this is the SAME shared identity, not a
+   Good-Company-specific one. A person's $9.99/mo Almost Human membership
+   already works here without them doing anything, and a $9.99 friend
+   purchase here mints the same kind of token AH's own subscribe flow does
+   (see gc-friend-checkout.js), spendable on either product.
+
+   Good Company had none of this before 2026-08-17: no visitor id, no access
+   token, nothing metered past the model call itself. */
+function GC_visitorId() {
+  try {
+    var v = localStorage.getItem('etl_visitor_id');
+    if (!v) { v = 'v' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10); localStorage.setItem('etl_visitor_id', v); }
+    return v;
+  } catch (e) { return null; }
+}
+function GC_accessToken() {
+  try { return localStorage.getItem('ah_access_token') || ''; } catch (e) { return ''; }
+}
+function GC_ownerKey() {
+  try { return localStorage.getItem('etl_owner_key') || ''; } catch (e) { return ''; }
+}

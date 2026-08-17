@@ -17,6 +17,9 @@ const Anthropic = require('@anthropic-ai/sdk');
 const { houseTypography } = require('./_etl-voice-law.js');
 const web = require('./_gc-web.js');
 const when = require('./_gc-when.js');
+const { getStore, connectLambda } = require('@netlify/blobs');
+const { getCreditRow, deductCredits, safeToken } = require('./_ah-credits.js');
+const { ownerUser } = require('./_owner-auth.js');
 
 /* Sonnet for the friend, because this is the demo-facing surface and the whole
    product is whether they feel like a person. Haiku only for the classifier,
@@ -25,6 +28,33 @@ const TURN_MODEL     = 'claude-sonnet-4-6';
 const CLASSIFY_MODEL = 'claude-haiku-4-5-20251001';
 
 const MAX_TURNS = 24;   // how much conversation goes back to the model
+
+/* ── THE CREDIT CEILING ──────────────────────────────────────────────────────
+   Dr. O, 2026-08-17, after the real cost breakdown: the $9.99 one-time friend
+   purchase covers making a friend, not talking to them forever, and nothing
+   anywhere capped ongoing chat. Ported from Almost Human's own paywall
+   (eq-room-ask.js) rather than invented fresh: same shared ah_credits table,
+   same shared identity, so a person's existing AH membership already works
+   here without them doing anything.
+
+   TWO RUNGS, matching Good Company's own product spec (docs/PRODUCT_SPEC.md):
+   a house demo (Arch, Sophia) is free, capped at DAILY_FREE_LIMIT messages a
+   day per visitor — the same free tier AH gives everyone. A BUILT friend is
+   the paid rung, "the friend becomes yours" is paid-ongoing, so it draws from
+   credits with no free fallback at all. A funded access_token skips the free
+   cap entirely on either kind of friend and spends TEXT_MESSAGE_COST either
+   way, subscriber or one-time starter grant (see gc-friend-checkout.js),
+   spent down the same through the same helper. */
+const TEXT_MESSAGE_COST = 1;   // credits per reply, matching Almost Human's own 1:1 message cost
+const DAILY_FREE_LIMIT  = 15;  // free messages/day with a house demo, matching Almost Human's own cap
+
+function safeVisitorId(v) {
+  const s = String(v || '').trim();
+  return /^[A-Za-z0-9_-]{8,64}$/.test(s) ? s : null;
+}
+function todayKey(visitorId) {
+  return `${visitorId}:${new Date().toISOString().slice(0, 10)}`;
+}
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -360,6 +390,50 @@ exports.handler = async function (event) {
     }
   }
 
+  /* ORDER MATTERS, same as it does for Almost Human: crisis handling above is
+     unconditionally first and always free. Nothing below this line is allowed
+     to refuse somebody who has just said something serious — that check has
+     already happened and already returned if it fired. */
+  const isDemo = body.is_demo === true;
+  const visitorId = safeVisitorId(body.visitor_id);
+  const isOwner = !!ownerUser(String(body.owner_key || '').trim());
+  const accessToken = safeToken(body.access_token);
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  let creditsRow = null;
+  if (!isOwner && accessToken && serviceKey) {
+    creditsRow = await getCreditRow(accessToken, serviceKey);
+  }
+  const hasCredits = Boolean(!isOwner && creditsRow && creditsRow.balance >= TEXT_MESSAGE_COST);
+
+  let usingFreeDailyCap = false;
+  let dayKey = null;
+
+  if (!isOwner && !hasCredits) {
+    if (!isDemo) {
+      /* A built, owned friend with no funded credits: no free fallback, ever,
+         that rung is the paid one. An idle check (the friend deciding
+         whether to speak first) fails SILENTLY here rather than surfacing an
+         upsell nobody asked for right now; it just stays quiet, the same
+         outcome the model itself is allowed to choose. A real message from
+         the person gets the flag the client uses to show the upsell. */
+      if (idle) return json(200, { reply: null, quiet: true, mood: friend.mood || null });
+      return json(200, { reply: null, credits_exhausted: true, mood: friend.mood || null });
+    }
+    usingFreeDailyCap = true;
+    if (visitorId && serviceKey) {
+      try { connectLambda(event); } catch (_) {}
+      dayKey = todayKey(visitorId);
+      let usage = null;
+      try { usage = await getStore('ah_daily_usage').get(dayKey, { type: 'json' }); } catch (_) {}
+      const countSoFar = (usage && usage.count) || 0;
+      if (countSoFar >= DAILY_FREE_LIMIT) {
+        if (idle) return json(200, { reply: null, quiet: true, mood: friend.mood || null });
+        return json(200, { reply: null, daily_capped: true, mood: friend.mood || null });
+      }
+    }
+  }
+
   /* WHOSE TURN IT ACTUALLY IS, NAMED, THE SAME FIX AS THE ROOM ROSTER ABOVE.
 
      gc-room-say has always computed the real speaker's name per message
@@ -508,6 +582,25 @@ exports.handler = async function (event) {
     });
   } catch (err) {
     return json(502, { error: 'model_unreachable', detail: String(err && err.message || err).slice(0, 300) });
+  }
+
+  /* Only a call that actually reached and returned from the model costs
+     anything — never on a blocked/capped attempt, which returned before this
+     point, and never on a network/model error, which returned just above.
+     Billed once here regardless of which of the three return shapes below
+     this ends up taking (quiet, idle-declined, or a real reply): all three
+     spent the same real API call. */
+  if (!isOwner) {
+    if (hasCredits && accessToken && serviceKey) {
+      await deductCredits(accessToken, TEXT_MESSAGE_COST, serviceKey);
+    } else if (usingFreeDailyCap && dayKey) {
+      try {
+        const usage = await getStore('ah_daily_usage').get(dayKey, { type: 'json' });
+        await getStore('ah_daily_usage').setJSON(dayKey, { count: ((usage && usage.count) || 0) + 1 });
+      } catch (err) {
+        console.error('gc-chat: daily usage increment failed (non-fatal):', err.message);
+      }
+    }
   }
 
   let raw = (out.content?.[0]?.text || '').trim();

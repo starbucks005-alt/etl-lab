@@ -1113,7 +1113,16 @@ function ask(payload) {
       friend: FRIEND,
       you: { name: YOU.name, pronouns: YOU.pronouns },
       messages: transcript(),
-      scene: current ? { label: current.label, where: current.where } : null
+      scene: current ? { label: current.label, where: current.where } : null,
+      /* THE CREDIT CEILING, added 2026-08-17. is_demo tells gc-chat.js
+         whether this is a house friend (free, daily-capped) or a friend
+         somebody built (paid rung, credits only, no free fallback). The
+         other two are the same shared identity Almost Human already uses;
+         a person's existing membership just works here. */
+      is_demo: FRIEND === GC_DEMO,
+      visitor_id: GC_visitorId(),
+      access_token: GC_accessToken(),
+      owner_key: GC_ownerKey()
     }, payload))
   }).then(function (r) { return r.json(); }).then(function (j) {
     thinking = false; $("sendBtn").disabled = false;
@@ -1122,6 +1131,7 @@ function ask(payload) {
        bubble, no apology, no dots. If silence cannot be produced the room
        always feels like a demo. */
     if (j && j.reply) { post(FRIEND.name, j.reply); speak(j.reply); }
+    else if (j && (j.credits_exhausted || j.daily_capped)) { showCreditsUpsell(j.daily_capped); }
     else if (j && j.error) post("Not wired yet", "The chat function said: " + j.error);
     if (j && j.mood) $("gaugeLabel").textContent = j.mood;
     if (j && j.feelings) setFeelings(j.feelings);
@@ -1130,6 +1140,68 @@ function ask(payload) {
     thinking = false; $("sendBtn").disabled = false;
     post("Not wired yet", "Could not reach " + FRIEND.name + ". " + err.message);
   });
+}
+
+/* ── THE UPSELL, WHEN CREDITS OR THE FREE CAP RUN OUT ────────────────────────
+   Matches Almost Human's own showUpsell pattern: daily_capped (a house demo,
+   free tier exhausted for today) offers the $9.99/mo subscribe button;
+   credits_exhausted (a paid built friend, or a subscriber who ran dry)
+   offers subscribe AND, if there is already a token to top up, the $4.99
+   addon. return_to sends them straight back to this room afterward, since
+   it is the same membership either way. */
+var creditsUpsellShown = false;
+function showCreditsUpsell(isDailyCap) {
+  if (creditsUpsellShown) return;
+  creditsUpsellShown = true;
+
+  var box = document.createElement('div');
+  box.className = 'msg';
+  box.id = 'creditsUpsell';
+
+  var say = document.createElement('div');
+  say.textContent = isDailyCap
+    ? "That's today's free messages with " + FRIEND.name + ". Come back tomorrow, or go unlimited."
+    : "Out of credits for " + FRIEND.name + " right now.";
+  box.appendChild(say);
+
+  var actions = document.createElement('div');
+  actions.style.cssText = 'margin-top:.5rem; display:flex; gap:.5rem; flex-wrap:wrap;';
+
+  var subBtn = document.createElement('button');
+  subBtn.type = 'button'; subBtn.className = 'btn go';
+  subBtn.textContent = '$9.99/mo, unlimited';
+  subBtn.addEventListener('click', function () { startCreditsCheckout('/.netlify/functions/create-checkout-ah', {}); });
+  actions.appendChild(subBtn);
+
+  var existingToken = GC_accessToken();
+  if (existingToken) {
+    var addonBtn = document.createElement('button');
+    addonBtn.type = 'button'; addonBtn.className = 'btn';
+    addonBtn.textContent = '+30 credits, $4.99';
+    addonBtn.addEventListener('click', function () {
+      startCreditsCheckout('/.netlify/functions/create-checkout-ah-addon', { access_token: existingToken });
+    });
+    actions.appendChild(addonBtn);
+  }
+
+  box.appendChild(actions);
+  $('log').appendChild(box);
+  $('log').scrollTop = $('log').scrollHeight;
+}
+
+function startCreditsCheckout(url, extra) {
+  var returnTo = location.pathname + location.search;
+  fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(Object.assign({ return_to: returnTo }, extra))
+  })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (data && data.url) { location.href = data.url; }
+      else { post('Not wired yet', 'Could not start that just now. Try again in a moment.'); }
+    })
+    .catch(function () { post('Not wired yet', 'Could not start that just now. Try again in a moment.'); });
 }
 
 /* ── SHOWING THEM SOMETHING ──────────────────────────────────────────────────
@@ -1286,6 +1358,7 @@ function sayInRoom(text) {
     if (j && j.said && j.said.id) { seen[j.said.id] = true; MY_SEAT_ID = j.said.author_id || MY_SEAT_ID; }
     /* A null reply is correct and common in a room with several people in it.
        Nothing is rendered. The poll will bring anything he did say, and speak it. */
+    if (j && j.daily_capped) showCreditsUpsell(true);
     if (j && j.feelings) setFeelings(j.feelings);
     if (j && j.mood) $("gaugeLabel").textContent = j.mood;
   }).catch(function (err) {
@@ -1942,8 +2015,18 @@ function speak(text) {
   }
   fetch("/.netlify/functions/gc-voice", {
     method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text: spoken, voice_id: FRIEND.voiceId })
+    body: JSON.stringify({
+      text: spoken, voice_id: FRIEND.voiceId,
+      access_token: GC_accessToken(), owner_key: GC_ownerKey()
+    })
   }).then(function (r) { return r.json(); }).then(function (j) {
+    if (j && j.credits_exhausted) {
+      /* A real, named reason, not a generic wiring failure, and only once:
+         nobody needs this said again on every single line while audio stays
+         toggled on with nothing left to spend on it. */
+      if (!speak._creditsWarned) { speak._creditsWarned = true; showCreditsUpsell(false); }
+      return;
+    }
     if (!j || !j.audio) {
       /* Says which problem rather than failing silently, and only once: a
          missing voice key should not nag on every single line. */

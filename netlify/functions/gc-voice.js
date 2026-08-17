@@ -1,6 +1,6 @@
 /* gc-voice — the friend speaks.
 
-   POST { text, voice_id } -> { audio } (base64 mpeg)
+   POST { text, voice_id, access_token?, owner_key? } -> { audio } (base64 mpeg)
 
    ELEVENLABS_API_KEY comes from the campus environment, same as M.E.'s
    me-voice.js, which is the pattern this follows.
@@ -16,7 +16,17 @@
      * a hard character cap per turn, enforced here rather than trusted to the
        caller.
      * nothing is spoken twice: the browser keeps what it already fetched.
-*/
+
+   CREDITS, ALWAYS, NO FREE TIER, added 2026-08-17 after the real cost
+   breakdown: a spoken reply costs roughly five times what the text of the
+   same reply costs, even on the cheaper turbo model. gc-chat.js gives a
+   house demo DAILY_FREE_LIMIT free text messages a day; this does not give
+   voice the same allowance on ANY friend, demo included; voice always draws
+   from the shared credit pool (same ah_credits table gc-chat.js and Almost
+   Human both use). Checked BEFORE calling ElevenLabs, same "take the money
+   before the expensive part" reasoning as every paid generation on this
+   campus: no real request goes out for a message nobody can pay for. */
+const AUDIO_MESSAGE_COST = 5;
 
 const MAX_CHARS = 900;   // a long turn, not a monologue
 
@@ -38,6 +48,9 @@ const json = (code, body) => ({
   statusCode: code, headers: { ...CORS, 'Content-Type': 'application/json' }, body: JSON.stringify(body),
 });
 
+const { getCreditRow, deductCredits, safeToken } = require('./_ah-credits.js');
+const { ownerUser } = require('./_owner-auth.js');
+
 exports.handler = async function (event) {
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: CORS, body: '' };
   if (event.httpMethod !== 'POST') return json(405, { error: 'method_not_allowed' });
@@ -52,6 +65,17 @@ exports.handler = async function (event) {
   const voiceId = String(body.voice_id || '').trim();
   if (!text) return json(400, { error: 'nothing_to_say' });
   if (!/^[A-Za-z0-9]{12,40}$/.test(voiceId)) return json(400, { error: 'no_voice_id' });
+
+  const isOwner = !!ownerUser(String(body.owner_key || '').trim());
+  const accessToken = safeToken(body.access_token);
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!isOwner) {
+    const creditsRow = (accessToken && serviceKey) ? await getCreditRow(accessToken, serviceKey) : null;
+    if (!creditsRow || creditsRow.balance < AUDIO_MESSAGE_COST) {
+      return json(200, { error: 'credits_exhausted', credits_exhausted: true });
+    }
+  }
 
   let r;
   try {
@@ -76,5 +100,13 @@ exports.handler = async function (event) {
   }
 
   const buf = Buffer.from(await r.arrayBuffer());
+
+  /* Billed only now, after ElevenLabs actually returned audio — never on a
+     blocked check above, and never on a failed/unreachable call, which
+     returned before this point. */
+  if (!isOwner && accessToken && serviceKey) {
+    await deductCredits(accessToken, AUDIO_MESSAGE_COST, serviceKey);
+  }
+
   return json(200, { audio: buf.toString('base64'), chars: text.length });
 };

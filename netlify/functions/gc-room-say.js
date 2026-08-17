@@ -97,6 +97,19 @@ exports.handler = async function (event) {
     const friend = who.room.friend || {};
     const scene = (friend.scenes || []).find(s => s.key === who.room.scene_key) || null;
 
+    /* THE CREDIT CEILING DOES NOT FULLY REACH HERE YET, 2026-08-17, AND THAT
+       IS DELIBERATE, NOT MISSED. gc-chat.js now requires a funded
+       access_token for a built (non-demo) friend, with no free fallback.
+       This function has no such token to offer it: nobody's browser in a
+       shared room holds the host's live credential, on purpose, the same
+       privacy boundary Almost Human's "bring a friend" already draws with
+       host_credit_ref rather than a raw token. Building that same
+       reference-not-credential mechanism for Good Company's shared rooms is
+       real, separate work, not a two-line fix, so until it exists every
+       friend in a shared room rides the free daily cap, scoped per room
+       rather than per device (there is no per-guest device id to read
+       here). A friend already paid for is not blocked by this; it is,
+       for now, one more free thing about sharing a room. */
     const base = process.env.URL || process.env.DEPLOY_PRIME_URL || 'https://emerging-tech-lab.com';
     const res = await fetch(base + CHAT_FN, {
       method: 'POST',
@@ -111,6 +124,8 @@ exports.handler = async function (event) {
         messages,
         message: said,
         scene: scene ? { label: scene.label, where: scene.where } : null,
+        is_demo: true,
+        visitor_id: 'room-' + who.room.id,
       }),
     });
     out = await res.json();
@@ -135,5 +150,6 @@ exports.handler = async function (event) {
     quiet: !!(out && out.quiet),
     feelings: (out && out.feelings) || null,
     mood: (out && out.mood) || null,
+    daily_capped: !!(out && out.daily_capped),
   });
 };

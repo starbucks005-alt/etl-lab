@@ -578,7 +578,11 @@ function openFriendRoom(f) {
   fetch('/.netlify/functions/gc-friend-checkout', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ friend_id: f.id, friend_name: f.name }),
+    /* THE EXISTING TOKEN TRAVELS WITH THE PAYMENT, if there is one (already
+       an Almost Human subscriber, or a second friend bought here), so the
+       starter credits this purchase grants top up that same row instead of
+       minting an orphan one nothing else will ever read. */
+    body: JSON.stringify({ friend_id: f.id, friend_name: f.name, access_token: GC_accessToken() }),
   })
     .then(function (r) { return r.json(); })
     .then(function (data) {
@@ -607,6 +611,10 @@ function openFriendRoom(f) {
       f.paid = true;
       GC_saveFriend(f);
       GC_touchFriend(f.id);
+      /* The starter credits gc-friend-checkout.js just granted (or topped
+         up), same shared key Almost Human's own welcome page writes, so
+         either product already sees the same balance from here on. */
+      if (data.access_token) { try { localStorage.setItem('ah_access_token', data.access_token); } catch (e) {} }
       location.href = 'room.html?who=' + encodeURIComponent(f.id);
     })
     .catch(function () {});

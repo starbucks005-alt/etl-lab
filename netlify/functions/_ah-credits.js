@@ -24,6 +24,12 @@ const GROUP_MESSAGE_COST = 3;      // credits per guest message in the group roo
 const ADDON_CREDITS = 30;          // credits granted by one addon-pack purchase
 const ROLLOVER_DAYS = 30;
 
+// STARTER_CREDITS: Good Company, 2026-08-17. A one-time grant, not a
+// subscription's monthly allotment, so it lives here rather than in a
+// separate table (see the deductBy note below on why one row shape now
+// covers both cases).
+const STARTER_CREDITS = 100;
+
 function randomToken() {
   return `AH-${crypto.randomBytes(16).toString('hex')}`;
 }
@@ -109,9 +115,24 @@ async function getCreditRowByRef(ref, serviceKey) {
    { ok, balance_remaining } or { ok: false, reason: 'no_account' |
    'insufficient_credits' }. Re-reads the balance server-side before writing, so
    callers don't need to trust a balance they read earlier in the same request. */
+/* GATED ON BALANCE, NOT ON subscription_active, on purpose since Good
+   Company started spending from this table too (2026-08-17). A row can now
+   mean either of two things: a real recurring subscriber (subscription_active
+   true, eligible for the 30-day rollover top-up in readCreditRow above), or a
+   one-time, non-renewing grant (subscription_active false, a fixed balance
+   that only ever depletes) — Good Company's $9.99 one-time "build a friend"
+   purchase mints the second kind, not the first, because minting it as a
+   real subscriber row would hand out a free 300-credit top-up every 30 days
+   forever for a payment made exactly once.
+
+   ZERO BEHAVIOR CHANGE FOR ALMOST HUMAN: eq-room-ask.js only ever calls
+   deductCredits after it has independently confirmed subscription_active
+   === true (see isSubscriber there), so this path already never received a
+   non-subscriber row before this change and still never will. This only
+   opens a door nothing on this campus previously walked through. */
 async function deductBy(filter, amount, serviceKey) {
   const row = await readCreditRow(filter, serviceKey);
-  if (!row || !row.subscription_active) return { ok: false, reason: 'no_account' };
+  if (!row) return { ok: false, reason: 'no_account' };
   if (row.balance < amount) return { ok: false, reason: 'insufficient_credits', balance_remaining: row.balance };
 
   const balance = row.balance - amount;
@@ -165,6 +186,7 @@ module.exports = {
   ONE_TO_ONE_COST,
   GROUP_MESSAGE_COST,
   ADDON_CREDITS,
+  STARTER_CREDITS,
   randomToken,
   safeToken,
   tokenRef,

@@ -48,9 +48,27 @@
   var urlParams = new URLSearchParams(window.location.search);
   var sessionId = urlParams.get('session_id');
 
+  /* RETURN_TO, ADDED 2026-08-17 for Good Company: this membership is the same
+     balance everywhere on the campus, so somebody who subscribed or topped up
+     from Good Company's room should land back there, not here. Re-validated
+     client-side too, the same whitelist the checkout functions already
+     enforced server-side — belt and braces on an open-redirect surface. */
+  function safeReturnTo(v) {
+    var s = String(v || '').trim();
+    return /^\/good-company\/(build|room)\.html(\?[^\s]*)?$/.test(s) ? s : null;
+  }
+  var returnTo = safeReturnTo(urlParams.get('return_to'));
+
   function show(headline, sub) {
     document.getElementById('headline').textContent = headline;
     document.getElementById('sub-text').textContent = sub;
+  }
+
+  if (returnTo) {
+    var goBtn = document.getElementById('go-btn');
+    goBtn.href = returnTo;
+    goBtn.textContent = 'Back to your friend';
+    document.getElementById('eyebrow').textContent = 'Good Company';
   }
 
   if (!sessionId) {
@@ -64,7 +82,8 @@
     })
       .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, data: d }; }); })
       .then(function (res) {
-        history.replaceState({}, '', '/almost-human-welcome');
+        var cleanUrl = '/almost-human-welcome' + (returnTo ? '?return_to=' + encodeURIComponent(returnTo) : '');
+        history.replaceState({}, '', cleanUrl);
         if (!res.ok || !res.data || !res.data.ok || !res.data.access_token) {
           show('Something went wrong.', 'We could not confirm this purchase.');
           document.getElementById('err-text').textContent = (res.data && res.data.error) || 'unknown_error';
@@ -73,7 +92,7 @@
           return;
         }
         try { localStorage.setItem('ah_access_token', res.data.access_token); } catch (_) {}
-        show("You're in.", 'Group chat is open, and your daily limit is gone.');
+        show("You're in.", returnTo ? 'Your credits are topped up.' : 'Group chat is open, and your daily limit is gone.');
         document.getElementById('credit-count').textContent = res.data.balance;
         document.getElementById('credit-bar').style.display = 'inline-flex';
         document.getElementById('go-btn').style.display = 'inline-block';
