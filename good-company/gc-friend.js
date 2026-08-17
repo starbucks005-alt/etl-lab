@@ -501,7 +501,7 @@ var GC_ROSIE = {
   voiceId: null,
 
   skin: 'seaside',
-  portrait: 'photos/rosie.png',
+  portrait: 'photos/rosie.jpg',
 
   scenes: [
     { key: 'kitchen', label: 'Her kitchen', src: null,
