@@ -175,6 +175,13 @@ function buildSystem(friend, you, idle, scene) {
      friendship is FOR rather than what they know. */
   if (f.pushes) bits.push(f.pushes);
 
+  /* NOBODY IS EVER AN IMPOSITION. Late and last, with the other hard rules,
+     because it is the same kind of instruction: about what this friendship is
+     FOR. Pookie read one line about a night shift and felt she would be
+     bothering Sofia, and somebody who suspects they are a burden is exactly who
+     is sitting here and will take any excuse to leave. */
+  if (f.neverABother) bits.push(f.neverABother);
+
   /* WHERE HE IS RIGHT NOW. Somebody will ask what he is building, or where the
      cabin is, and a friend who cannot answer is a friend caught out. He knows
      it the way you know your own kitchen: he does not describe it unprompted. */
