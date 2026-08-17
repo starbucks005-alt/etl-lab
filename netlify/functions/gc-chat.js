@@ -510,6 +510,8 @@ exports.handler = async function (event) {
     return json(502, { error: 'model_unreachable', detail: String(err && err.message || err).slice(0, 300) });
   }
 
+  console.log('gc-chat cache usage:', JSON.stringify(out.usage)); // TEMP, verifying the cache is actually firing, removing after
+
   let raw = (out.content?.[0]?.text || '').trim();
   let feelings = null, feltMood = null;
 
