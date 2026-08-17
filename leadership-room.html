@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZDN4Y4887X"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-ZDN4Y4887X');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="/etl-logo-icon.png">
+<link rel="apple-touch-icon" href="/etl-logo-icon.png">
+<script>
+(function () {
+  try {
+    var saved = localStorage.getItem('etl_classrooms_theme');
+    var theme = saved || 'dark';
+    document.documentElement.setAttribute('data-theme', theme);
+  } catch (_) {}
+})();
+</script>
+<title>The Leadership Table &middot; Leadership, Theory and Application &middot; Emerging Technologies Laboratory</title>
+<meta name="description" content="Bring ten historical leaders to one table. They talk to each other and to you, not just one at a time.">
+<meta property="og:title" content="The Leadership Table &middot; Leadership, Theory and Application &middot; Emerging Technologies Laboratory">
+<meta property="og:description" content="Bring ten historical leaders to one table. They talk to each other and to you, not just one at a time.">
+<meta property="og:image" content="https://emerging-tech-lab.com/etl-logo-icon.png">
+<meta property="og:url" content="https://emerging-tech-lab.com/leadership-room">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The Leadership Table &middot; Leadership, Theory and Application &middot; Emerging Technologies Laboratory">
+<meta name="twitter:description" content="Bring ten historical leaders to one table. They talk to each other and to you, not just one at a time.">
+<meta name="twitter:image" content="https://emerging-tech-lab.com/etl-logo-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Public+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #111111;
+  --bg2:     #1a1a1a;
+  --panel:   #1a1a1a;
+  --panel2:  #242424;
+  --line:    #2c2c2c;
+  --blue:    #5c8ab5;
+  --blue-br: #5c8ab5;
+  --green:   #285C4D;
+  --cream:   #ffffff;
+  --text:    #d6d6d6;
+  --mute:    #8a8a8a;
+  --ribbon-bg: #0a0a0a;
+}
+[data-theme="light"] {
+  --bg:      #ffffff;
+  --bg2:     #f4f4f4;
+  --panel:   #ffffff;
+  --panel2:  #f4f4f4;
+  --line:    #111111;
+  --blue:    #5c8ab5;
+  --blue-br: #5c8ab5;
+  --green:   #285C4D;
+  --cream:   #111111;
+  --text:    #555555;
+  --mute:    #555555;
+  --ribbon-bg: #f4f4f4;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Public Sans', sans-serif; line-height: 1.65; transition: background .2s, color .2s; }
+a { color: var(--blue); text-decoration: none; }
+a:hover { color: var(--green); }
+
+.theme-toggle {
+  position: fixed; top: .9rem; right: 1.2rem; z-index: 50;
+  background: var(--panel); border: 1px solid var(--line); color: var(--mute);
+  font-family: 'IBM Plex Mono', monospace; font-size: .62rem; letter-spacing: .1em; text-transform: uppercase;
+  padding: .45rem .8rem; border-radius: 999px; cursor: pointer; transition: border-color .15s, color .15s;
+}
+.theme-toggle:hover { border-color: var(--green); color: var(--green); }
+
+.ribbon {
+  background: var(--ribbon-bg);
+  border-bottom: 1px solid var(--line);
+  text-align: center;
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  font-size: .62rem;
+  color: var(--mute);
+  padding: .5rem 1rem;
+}
+.ribbon b { color: var(--blue-br); }
+
+.wrap { max-width: 900px; margin: 0 auto; padding: 0 1.4rem 6rem; }
+.backlink {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .72rem;
+  color: var(--mute);
+  text-decoration: none;
+  display: inline-block;
+  margin: 1.6rem 0 .4rem;
+  letter-spacing: .04em;
+}
+.backlink:hover { color: var(--text); }
+
+.hero {
+  margin-top: .6rem;
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--blue);
+  background: var(--panel);
+  padding: 2rem 2rem 1.8rem;
+}
+.eyebrow {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .6rem;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  color: var(--blue-br);
+  margin-bottom: .7rem;
+}
+.hero h1 {
+  font-family: 'Spectral', serif;
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  font-weight: 700;
+  color: var(--cream);
+  margin: 0 0 .6rem;
+  line-height: 1.1;
+}
+.hero p { font-family: 'IBM Plex Mono', monospace; font-size: .88rem; color: var(--mute); max-width: 62ch; margin: 0; line-height: 1.7; }
+
+.picker { margin-top: 1.6rem; }
+.picker-hint { font-size: .88rem; color: var(--mute); margin: 0 0 1rem; }
+.picker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1px; border: 1px solid var(--line); }
+.picker-card {
+  background: var(--panel); padding: 0; cursor: pointer; border: none; text-align: left; display: block;
+  font-family: 'Public Sans', sans-serif; color: var(--text); transition: background .15s;
+}
+.picker-card:hover { background: var(--panel2); }
+.picker-card.is-selected { background: var(--panel2); box-shadow: inset 0 0 0 2px var(--blue-br); }
+.picker-portrait { aspect-ratio: 3 / 4; overflow: hidden; background: var(--bg2); line-height: 0; }
+.picker-portrait img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.picker-body { padding: .5rem .6rem .6rem; }
+.picker-name { font-family: 'Spectral', serif; font-size: .92rem; color: var(--cream); margin: 0 0 .1rem; }
+.picker-title { font-family: 'IBM Plex Mono', monospace; font-size: .6rem; color: var(--mute); letter-spacing: .02em; }
+.picker-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 1.2rem; }
+.picker-count { font-family: 'IBM Plex Mono', monospace; font-size: .74rem; color: var(--mute); }
+.start-btn {
+  background: var(--blue); color: #fff; border: none; border-radius: 4px; padding: .8rem 1.6rem;
+  font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: .78rem; letter-spacing: .08em;
+  text-transform: uppercase; cursor: pointer;
+}
+.start-btn:hover:not(:disabled) { background: var(--green); }
+.start-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+.chat { display: none; background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 1.4rem; max-width: 900px; margin-top: 1.6rem; }
+.chat.is-open { display: block; }
+.avatars-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: .5rem; }
+.avatars { display: flex; gap: 12px; flex-wrap: wrap; }
+.avatars span { font-family: 'IBM Plex Mono', monospace; font-size: .7rem; color: var(--mute); border: 1px solid var(--line); border-radius: 999px; padding: .3rem .7rem; cursor: pointer; transition: border-color .15s, color .15s; }
+.avatars span:hover { border-color: var(--blue-br); }
+.avatars span.is-pinned { border-color: var(--blue-br); color: var(--blue-br); }
+.avatars-hint { font-family: 'IBM Plex Mono', monospace; font-size: .62rem; color: var(--mute); margin: 0 0 .6rem; }
+
+.gauge-wrap { display: none; background: rgba(0,0,0,.6); border: 1px solid rgba(255,255,255,.25); border-radius: 12px; padding: .7rem .9rem; min-width: 150px; flex: 0 0 auto; }
+.gauge-wrap.is-visible { display: block; }
+.gauge-head { display: flex; align-items: center; gap: .5rem; margin-bottom: .55rem; }
+.gauge-emoji { font-size: 1.5rem; line-height: 1; }
+.gauge-row { display: flex; align-items: center; gap: .5rem; margin-top: .32rem; }
+.gauge-row-label { font-family: 'IBM Plex Mono', monospace; font-size: .58rem; letter-spacing: .04em; text-transform: uppercase; color: #ccc; width: 3.6rem; flex-shrink: 0; }
+.gauge-bar-track { flex: 1; height: 4px; background: rgba(255,255,255,.22); border-radius: 2px; overflow: hidden; }
+.gauge-bar-fill { height: 100%; background: #4c5fd6; transition: width .5s ease; }
+.gauge-bar-fill.happiness { background: #5bd6a0; }
+.gauge-bar-fill.sadness { background: #4c8fd6; }
+.gauge-bar-fill.fear { background: #9b6cf0; }
+.gauge-bar-fill.disgust { background: #7ac74f; }
+.gauge-bar-fill.anger { background: #e0575a; }
+.gauge-bar-fill.surprise { background: #e8b64c; }
+.gauge-bar-fill.curious { background: #46c6e6; }
+.gauge-label { font-family: 'IBM Plex Mono', monospace; font-size: .62rem; letter-spacing: .05em; text-transform: uppercase; color: #ddd; margin-top: .2rem; }
+.log { display: flex; flex-direction: column; gap: 12px; min-height: 160px; max-height: 520px; overflow-y: auto; padding: 6px 4px 10px; }
+.bubble { padding: 12px 16px; border-radius: 4px; max-width: 88%; font-family: 'Public Sans', sans-serif; font-size: .96rem; line-height: 1.6; }
+.bubble--agent { background: var(--panel2); color: var(--text); align-self: flex-start; border-left: 2px solid var(--blue-br); }
+.bubble--agent .who { display: block; font-family: 'IBM Plex Mono', monospace; font-size: .66rem; letter-spacing: .06em; text-transform: uppercase; color: var(--blue-br); margin-bottom: 4px; }
+.bubble--you { background: var(--blue); color: #fff; align-self: flex-end; border-right: 2px solid var(--blue-br); }
+.bubble--system { color: var(--mute); font-style: italic; align-self: center; font-size: .84rem; }
+.bubble-row { display: flex; align-items: flex-end; gap: 8px; max-width: 96%; align-self: flex-start; }
+.bubble-row .bubble--agent { max-width: none; flex: 0 1 auto; }
+.bubble-mood {
+  flex: 0 0 auto;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .62rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--mute);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 6px 10px;
+  white-space: nowrap;
+}
+.composer { display: flex; gap: 10px; align-items: flex-end; margin-top: 6px; }
+.composer textarea { flex: 1; resize: none; border: 1px solid var(--line); border-radius: 4px; padding: 11px 14px; font-family: 'Public Sans', sans-serif; font-size: 1rem; line-height: 1.4; color: var(--cream); min-height: 48px; max-height: 140px; outline: none; background: var(--bg2); }
+.composer textarea:focus { border-color: var(--blue-br); }
+.send-btn { background: var(--blue); color: #fff; border: none; border-radius: 4px; padding: 0 20px; height: 48px; font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
+.send-btn:hover { background: var(--green); }
+.send-btn:disabled { opacity: .5; cursor: not-allowed; }
+.disclosure { font-family: 'IBM Plex Mono', monospace; font-size: .72rem; color: var(--mute); max-width: 900px; margin-top: 1.4rem; line-height: 1.7; }
+</style>
+</head>
+<body>
+
+<button type="button" class="theme-toggle" id="themeToggle">Light</button>
+
+<div class="ribbon">
+  Emerging Technologies Laboratory &nbsp;&middot;&nbsp; <b>ETL Classrooms</b> &nbsp;&middot;&nbsp; Leadership, Theory and Application
+</div>
+
+<div class="wrap">
+  <a class="backlink" href="/leadership.html">&larr; Leadership, Theory and Application</a>
+
+  <div class="hero">
+    <div class="eyebrow">The Leadership Table</div>
+    <h1>Bring them to one table.</h1>
+    <p>Pick two or more leaders, any era, any style. They answer you, and they answer each other, the way entirely different leadership philosophies actually collide: agreement, real disagreement, and the occasional leader who has no patience for another's method at all.</p>
+  </div>
+
+  <div class="picker" id="picker">
+    <p class="picker-hint">Choose 2 to 6.</p>
+    <div class="picker-grid" id="pickerGrid"></div>
+    <div class="picker-foot">
+      <span class="picker-count" id="pickerCount">0 selected</span>
+      <button class="start-btn" id="startBtn" disabled>Start the conversation</button>
+    </div>
+  </div>
+
+  <div class="chat" id="chat">
+    <p class="avatars-hint">Click a name to track their mood scale.</p>
+    <div class="avatars-row">
+      <div class="avatars" id="avatars"></div>
+      <div class="gauge-wrap" id="gaugeWrap">
+        <div class="gauge-head"><div class="gauge-emoji" id="gaugeEmoji">🙂</div><div class="gauge-label" id="gaugeLabel">warm</div></div>
+        <div class="gauge-row"><div class="gauge-row-label">Happy</div><div class="gauge-bar-track"><div class="gauge-bar-fill happiness" id="gaugeHappiness" style="width:0%"></div></div></div>
+        <div class="gauge-row"><div class="gauge-row-label">Sad</div><div class="gauge-bar-track"><div class="gauge-bar-fill sadness" id="gaugeSadness" style="width:0%"></div></div></div>
+        <div class="gauge-row"><div class="gauge-row-label">Fear</div><div class="gauge-bar-track"><div class="gauge-bar-fill fear" id="gaugeFear" style="width:0%"></div></div></div>
+        <div class="gauge-row"><div class="gauge-row-label">Disgust</div><div class="gauge-bar-track"><div class="gauge-bar-fill disgust" id="gaugeDisgust" style="width:0%"></div></div></div>
+        <div class="gauge-row"><div class="gauge-row-label">Anger</div><div class="gauge-bar-track"><div class="gauge-bar-fill anger" id="gaugeAnger" style="width:0%"></div></div></div>
+        <div class="gauge-row"><div class="gauge-row-label">Surprise</div><div class="gauge-bar-track"><div class="gauge-bar-fill surprise" id="gaugeSurprise" style="width:0%"></div></div></div>
+        <div class="gauge-row"><div class="gauge-row-label">Curious</div><div class="gauge-bar-track"><div class="gauge-bar-fill curious" id="gaugeCurious" style="width:0%"></div></div></div>
+      </div>
+    </div>
+    <div class="log" id="log" aria-live="polite"></div>
+    <div class="composer">
+      <textarea id="input" rows="1" placeholder="Say something to the table..." aria-label="Your message to the table"></textarea>
+      <button class="send-btn" id="send">Send</button>
+    </div>
+  </div>
+
+  <p class="disclosure">Every leader here is a real historical figure represented for education, each carrying a real backpack of live sources. A cheap "director" model decides who speaks next each beat, favoring genuine back-and-forth over a fixed rotation. Free to use, built for Leadership, Theory and Application, PTX 7006, Wright State University.</p>
+</div>
+
+<script>
+var ROSTER = [
+  { key: 'roosevelt',  name: 'Eleanor Roosevelt',   title: 'Visionary Leadership' },
+  { key: 'curie',      name: 'Marie Curie',         title: 'Pacesetting Leadership' },
+  { key: 'wooden',     name: 'John Wooden',         title: 'Coaching Leadership' },
+  { key: 'perkins',    name: 'Frances Perkins',     title: 'Democratic & Coalition Leadership' },
+  { key: 'gandhi',     name: 'Mohandas Gandhi',     title: 'Affiliative & Nonviolent Leadership' },
+  { key: 'csking',     name: 'Coretta Scott King',  title: 'Affiliative & Nonviolent Leadership' },
+  { key: 'mlk',        name: 'Martin Luther King Jr.', title: 'Nonviolent & Persuasive Leadership' },
+  { key: 'tubman',     name: 'Harriet Tubman',      title: 'Crisis & Commanding Leadership' },
+  { key: 'shackleton', name: 'Ernest Shackleton',   title: 'Crisis & Commanding Leadership' },
+  { key: 'truth',      name: 'Sojourner Truth',     title: 'Persuasive Rhetoric' },
+];
+var PORTRAIT_EXT = { roosevelt: 'jpg', curie: 'jpg', wooden: 'jpg', perkins: 'jpg', gandhi: 'jpg', csking: 'jpg', mlk: 'jpg', tubman: 'jpg', shackleton: 'jpg', truth: 'jpg' };
+var MIN_AGENTS = 2;
+var MAX_AGENTS = 6;
+
+(function () {
+  var ROOM_URL = '/.netlify/functions/leadership-room';
+
+  function visitorId() {
+    try {
+      var v = localStorage.getItem('etl_visitor_id');
+      if (!v) { v = 'v' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10); localStorage.setItem('etl_visitor_id', v); }
+      return v;
+    } catch (_) { return null; }
+  }
+
+  var pickerEl = document.getElementById('picker');
+  var pickerGrid = document.getElementById('pickerGrid');
+  var pickerCount = document.getElementById('pickerCount');
+  var startBtn = document.getElementById('startBtn');
+  var chatEl = document.getElementById('chat');
+  var avatarsEl = document.getElementById('avatars');
+  var logEl = document.getElementById('log');
+  var inputEl = document.getElementById('input');
+  var sendEl = document.getElementById('send');
+
+  var selected = [];
+  var activeKeys = [];
+  var history = [];
+  var sending = false;
+
+  var GAUGE_BANDS = [
+    { max: 20, emoji: '😠', label: 'upset' },
+    { max: 40, emoji: '☹️', label: 'cool' },
+    { max: 60, emoji: '😐', label: 'neutral' },
+    { max: 80, emoji: '🙂', label: 'warm' },
+    { max: 100, emoji: '😊', label: 'delighted' },
+  ];
+  function gaugeFromScales(s) {
+    var negativeAvg = (s.sadness + s.fear + s.disgust + s.anger) / 4;
+    return s.happiness * 0.6 + (100 - negativeAvg) * 0.4;
+  }
+  function gaugeBand(value) {
+    for (var i = 0; i < GAUGE_BANDS.length; i++) if (value <= GAUGE_BANDS[i].max) return GAUGE_BANDS[i];
+    return GAUGE_BANDS[GAUGE_BANDS.length - 1];
+  }
+  var gaugeWrapEl = document.getElementById('gaugeWrap');
+  var gaugeEmojiEl = document.getElementById('gaugeEmoji');
+  var gaugeLabelEl = document.getElementById('gaugeLabel');
+  var GAUGE_BAR_IDS = { happiness: 'gaugeHappiness', sadness: 'gaugeSadness', fear: 'gaugeFear', disgust: 'gaugeDisgust', anger: 'gaugeAnger', surprise: 'gaugeSurprise', curious: 'gaugeCurious' };
+  function updateGauge(scales) {
+    if (!scales) { gaugeWrapEl.classList.remove('is-visible'); return; }
+    gaugeWrapEl.classList.add('is-visible');
+    var v = gaugeFromScales(scales);
+    var band = gaugeBand(v);
+    gaugeEmojiEl.textContent = band.emoji;
+    gaugeLabelEl.textContent = band.label;
+    Object.keys(GAUGE_BAR_IDS).forEach(function (key) {
+      var val = Math.max(0, Math.min(100, scales[key]));
+      document.getElementById(GAUGE_BAR_IDS[key]).style.width = val + '%';
+    });
+  }
+  // Each agent's real resting baseline, same values _leadership-engine.js
+  // (server-side) decays every conversation toward. Source of truth is
+  // _leadership-engine.js's AGENTS[key].baseline; keep these in sync if that
+  // file changes.
+  var BASELINES = {
+    roosevelt:  { happiness: 55, sadness: 20, fear: 15, disgust: 20, anger: 20, surprise: 25, curious: 65 },
+    curie:      { happiness: 35, sadness: 20, fear: 10, disgust: 45, anger: 40, surprise: 15, curious: 70 },
+    wooden:     { happiness: 60, sadness: 15, fear: 10, disgust: 15, anger: 15, surprise: 20, curious: 45 },
+    perkins:    { happiness: 45, sadness: 20, fear: 25, disgust: 20, anger: 15, surprise: 15, curious: 40 },
+    gandhi:     { happiness: 50, sadness: 20, fear: 10, disgust: 15, anger: 10, surprise: 15, curious: 55 },
+    csking:     { happiness: 40, sadness: 35, fear: 15, disgust: 20, anger: 20, surprise: 15, curious: 40 },
+    mlk:        { happiness: 50, sadness: 25, fear: 30, disgust: 25, anger: 35, surprise: 15, curious: 45 },
+    tubman:     { happiness: 30, sadness: 25, fear: 25, disgust: 20, anger: 25, surprise: 10, curious: 30 },
+    shackleton: { happiness: 55, sadness: 15, fear: 15, disgust: 10, anger: 15, surprise: 20, curious: 40 },
+    truth:      { happiness: 45, sadness: 25, fear: 15, disgust: 30, anger: 45, surprise: 20, curious: 35 },
+  };
+  var pinnedKey = null;
+  var lastAgentState = {};
+  function pinAgent(key, spanEl) {
+    var wasAlreadyPinned = pinnedKey === key;
+    Array.prototype.forEach.call(avatarsEl.querySelectorAll('span'), function (s) { s.classList.remove('is-pinned'); });
+    if (wasAlreadyPinned) {
+      pinnedKey = null;
+      updateGauge(null);
+      return;
+    }
+    pinnedKey = key;
+    spanEl.classList.add('is-pinned');
+    updateGauge(lastAgentState[key] || BASELINES[key] || null);
+  }
+
+  ROSTER.forEach(function (a) {
+    var card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'picker-card';
+    card.dataset.key = a.key;
+    card.innerHTML = '<div class="picker-portrait"><img src="/assets/leadership/ldr_' + a.key + '-eyes-open.' + PORTRAIT_EXT[a.key] + '" alt="' + a.name + '" onerror="this.parentElement.style.display=\'none\'"></div><div class="picker-body"><p class="picker-name">' + a.name + '</p><p class="picker-title">' + a.title + '</p></div>';
+    card.addEventListener('click', function () {
+      var i = selected.indexOf(a.key);
+      if (i >= 0) {
+        selected.splice(i, 1);
+        card.classList.remove('is-selected');
+      } else if (selected.length < MAX_AGENTS) {
+        selected.push(a.key);
+        card.classList.add('is-selected');
+      }
+      pickerCount.textContent = selected.length + ' selected';
+      startBtn.disabled = selected.length < MIN_AGENTS;
+    });
+    pickerGrid.appendChild(card);
+  });
+
+  startBtn.addEventListener('click', function () {
+    if (selected.length < MIN_AGENTS) return;
+    activeKeys = selected.slice();
+    pickerEl.style.display = 'none';
+    chatEl.classList.add('is-open');
+    activeKeys.forEach(function (key) {
+      var a = ROSTER.filter(function (r) { return r.key === key; })[0];
+      var span = document.createElement('span');
+      span.textContent = a.name;
+      span.addEventListener('click', function () { pinAgent(key, span); });
+      avatarsEl.appendChild(span);
+    });
+    bubble('system', 'The table is quiet. Say something to begin.');
+    inputEl.focus();
+  });
+
+  function agentByKey(k) {
+    for (var i = 0; i < ROSTER.length; i++) if (ROSTER[i].key === k) return ROSTER[i];
+    return null;
+  }
+
+  function clearSystemBubbles() {
+    var sys = logEl.querySelectorAll('.bubble--system');
+    if (logEl.children.length === sys.length) { sys.forEach(function (b) { b.remove(); }); }
+  }
+
+  function bubble(kind, text, agentName, mood) {
+    var d = document.createElement('div');
+    d.className = 'bubble bubble--' + kind;
+    if (kind === 'agent' && agentName) {
+      var who = document.createElement('span');
+      who.className = 'who';
+      who.textContent = agentName;
+      d.appendChild(who);
+      d.appendChild(document.createTextNode(text));
+    } else {
+      d.textContent = text;
+    }
+    if (kind === 'agent' && mood) {
+      var row = document.createElement('div');
+      row.className = 'bubble-row';
+      var m = document.createElement('div');
+      m.className = 'bubble-mood';
+      m.textContent = mood;
+      row.appendChild(d);
+      row.appendChild(m);
+      logEl.appendChild(row);
+      logEl.scrollTop = logEl.scrollHeight;
+      return d;
+    }
+    logEl.appendChild(d);
+    logEl.scrollTop = logEl.scrollHeight;
+    return d;
+  }
+
+  function autogrow() {
+    inputEl.style.height = 'auto';
+    inputEl.style.height = Math.min(inputEl.scrollHeight, 140) + 'px';
+  }
+  inputEl.addEventListener('input', autogrow);
+  inputEl.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+  });
+  sendEl.addEventListener('click', send);
+
+  function revealNext(replies, i, onDone) {
+    if (i >= replies.length) { onDone(); return; }
+    var r = replies[i];
+    var agent = agentByKey(r.agent_key);
+    var thinking = bubble('system', (agent ? agent.name : 'Someone') + ' is thinking...');
+    var typingDelay = Math.min((r.reply || '').length * 16, 3000);
+    var delay = 500 + Math.random() * 700 + typingDelay;
+    setTimeout(function () {
+      thinking.remove();
+      bubble('agent', r.reply, agent ? agent.name : r.agent_name, r.mood);
+      var pause = 500 + Math.random() * 900;
+      setTimeout(function () { revealNext(replies, i + 1, onDone); }, pause);
+    }, delay);
+  }
+
+  function send() {
+    if (sending) return;
+    var text = inputEl.value.trim();
+    if (!text) return;
+    sending = true; sendEl.disabled = true;
+    inputEl.value = ''; autogrow();
+
+    clearSystemBubbles();
+    bubble('you', text);
+    var waiting = bubble('system', 'The table is talking...');
+
+    fetch(ROOM_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ active_agents: activeKeys, transcript: history, message: text, visitor_id: visitorId() })
+    }).then(function (res) {
+      if (!res.ok) throw new Error('server returned ' + res.status);
+      return res.json();
+    }).then(function (data) {
+      if (!data.job_id) throw new Error('no job_id returned');
+      pollRoomJob(data.job_id, text, waiting);
+    }).catch(function () {
+      waiting.remove();
+      bubble('system', 'The table lost connection for a moment. Try again?');
+      sending = false; sendEl.disabled = false;
+    });
+  }
+
+  function pollRoomJob(jobId, text, waiting) {
+    fetch('/.netlify/functions/leadership-room-status?job_id=' + encodeURIComponent(jobId))
+      .then(function (res) {
+        if (!res.ok) throw new Error('status ' + res.status);
+        return res.json();
+      })
+      .then(function (job) {
+        if (job.status === 'pending' || job.status === 'running') {
+          setTimeout(function () { pollRoomJob(jobId, text, waiting); }, 2500);
+          return;
+        }
+        waiting.remove();
+        if (job.status === 'error') {
+          bubble('system', 'The table lost connection for a moment. Try again?');
+          sending = false; sendEl.disabled = false;
+          return;
+        }
+        history.push({ speaker: 'visitor', name: 'Visitor', content: text });
+        (job.transcript_append || []).forEach(function (entry) { history.push(entry); });
+        if (job.agent_state) {
+          Object.keys(job.agent_state).forEach(function (key) {
+            if (job.agent_state[key] && job.agent_state[key].scales) lastAgentState[key] = job.agent_state[key].scales;
+          });
+          if (pinnedKey && lastAgentState[pinnedKey]) updateGauge(lastAgentState[pinnedKey]);
+        }
+        var replies = job.replies || [];
+        if (!replies.length) {
+          bubble('system', 'No one at the table had anything to add just now. Try asking something more specific.');
+          sending = false; sendEl.disabled = false; inputEl.focus();
+          return;
+        }
+        revealNext(replies, 0, function () {
+          sending = false; sendEl.disabled = false; inputEl.focus();
+        });
+      })
+      .catch(function () {
+        setTimeout(function () { pollRoomJob(jobId, text, waiting); }, 4000);
+      });
+  }
+})();
+
+(function () {
+  var btn = document.getElementById('themeToggle');
+  function sync() {
+    var isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    btn.textContent = isLight ? 'Dark' : 'Light';
+  }
+  sync();
+  btn.addEventListener('click', function () {
+    var next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('etl_classrooms_theme', next); } catch (_) {}
+    sync();
+  });
+})();
+</script>
+
+</body>
+</html>

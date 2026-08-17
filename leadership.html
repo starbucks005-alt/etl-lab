@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZDN4Y4887X"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-ZDN4Y4887X');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+(function () {
+  try {
+    var saved = localStorage.getItem('etl_classrooms_theme');
+    var theme = saved || 'dark';
+    document.documentElement.setAttribute('data-theme', theme);
+  } catch (_) {}
+})();
+</script>
+<title>Leadership, Theory and Application &middot; Emerging Technologies Laboratory</title>
+<link rel="icon" type="image/png" href="/etl-logo-icon.png">
+<link rel="apple-touch-icon" href="/etl-logo-icon.png">
+<meta name="description" content="PTX 7006, Leadership Theory and Application: ten historical leaders, each teaching a real leadership style through real conversation. Step inside and speak to them yourself.">
+<meta property="og:title" content="Leadership, Theory and Application &middot; Emerging Technologies Laboratory">
+<meta property="og:description" content="PTX 7006, Leadership Theory and Application: ten historical leaders, each teaching a real leadership style through real conversation. Step inside and speak to them yourself.">
+<meta property="og:image" content="https://emerging-tech-lab.com/etl-logo-icon.png">
+<meta property="og:url" content="https://emerging-tech-lab.com/leadership">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Leadership, Theory and Application &middot; Emerging Technologies Laboratory">
+<meta name="twitter:description" content="PTX 7006, Leadership Theory and Application: ten historical leaders, each teaching a real leadership style through real conversation. Step inside and speak to them yourself.">
+<meta name="twitter:image" content="https://emerging-tech-lab.com/etl-logo-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Public+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #111111;
+  --bg2:     #1a1a1a;
+  --panel:   #1a1a1a;
+  --panel2:  #242424;
+  --line:    #2c2c2c;
+  --blue:    #5c8ab5;
+  --blue-br: #5c8ab5;
+  --green:   #285C4D;
+  --cream:   #ffffff;
+  --text:    #d6d6d6;
+  --mute:    #8a8a8a;
+  --ribbon-bg: #0a0a0a;
+}
+[data-theme="light"] {
+  --bg:      #ffffff;
+  --bg2:     #f4f4f4;
+  --panel:   #ffffff;
+  --panel2:  #f4f4f4;
+  --line:    #111111;
+  --blue:    #5c8ab5;
+  --blue-br: #5c8ab5;
+  --green:   #285C4D;
+  --cream:   #111111;
+  --text:    #555555;
+  --mute:    #555555;
+  --ribbon-bg: #f4f4f4;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Public Sans', sans-serif; line-height: 1.65; transition: background .2s, color .2s; }
+a { color: var(--blue); text-decoration: none; }
+a:hover { color: var(--green); }
+
+.theme-toggle {
+  position: fixed; top: .9rem; right: 1.2rem; z-index: 50;
+  background: var(--panel); border: 1px solid var(--line); color: var(--mute);
+  font-family: 'IBM Plex Mono', monospace; font-size: .62rem; letter-spacing: .1em; text-transform: uppercase;
+  padding: .45rem .8rem; border-radius: 999px; cursor: pointer; transition: border-color .15s, color .15s;
+}
+.theme-toggle:hover { border-color: var(--green); color: var(--green); }
+
+.ribbon {
+  background: var(--ribbon-bg);
+  border-bottom: 1px solid var(--line);
+  text-align: center;
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  font-size: .62rem;
+  color: var(--mute);
+  padding: .5rem 1rem;
+}
+.ribbon b { color: var(--blue-br); }
+
+.wrap { max-width: 1760px; margin: 0 auto; padding: 0 1.2rem 4rem; }
+.backlink {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .72rem;
+  color: var(--mute);
+  text-decoration: none;
+  display: inline-block;
+  margin: .9rem 0 .7rem;
+  letter-spacing: .04em;
+}
+.backlink:hover { color: var(--text); }
+
+.hero {
+  margin-top: .6rem;
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--blue);
+  background: var(--panel);
+  padding: 3rem 2.6rem 2.6rem;
+}
+.eyebrow {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .58rem;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: var(--blue-br);
+  margin-bottom: 1rem;
+}
+.hero h1 {
+  font-family: 'Spectral', serif;
+  font-size: clamp(2rem, 4.6vw, 3rem);
+  font-weight: 700;
+  color: var(--cream);
+  margin: 0 0 .9rem;
+  line-height: 1.12;
+  max-width: 26ch;
+}
+.hero p { font-size: 1rem; color: var(--text); max-width: 74ch; margin: 0 0 .5rem; line-height: 1.75; }
+.hero-meta { font-family: 'IBM Plex Mono', monospace; font-size: .74rem; color: var(--mute); margin-top: 1rem; }
+
+.sec-head { margin: 3rem 0 .2rem; display: flex; align-items: baseline; gap: 1rem; }
+.sec-head h2 { font-family: 'Spectral', serif; font-size: 1.4rem; font-weight: 600; color: var(--cream); margin: 0; }
+.sec-rule { flex: 1; height: 1px; background: var(--line); }
+.sec-sub { font-size: .88rem; color: var(--mute); margin: .4rem 0 1.6rem; max-width: 72ch; }
+
+.cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; border: 1px solid var(--line); }
+.card { background: var(--panel); display: block; transition: background .18s; }
+.card:hover { background: var(--panel2); }
+.card-portrait { aspect-ratio: 3 / 4; overflow: hidden; background: var(--bg2); line-height: 0; }
+.card-portrait img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.card-body { padding: 1.1rem 1.3rem 1.4rem; }
+.card-name { font-family: 'Spectral', serif; font-size: 1.1rem; font-weight: 600; color: var(--cream); margin: 0 0 .2rem; }
+.card-role { font-family: 'IBM Plex Mono', monospace; font-size: .64rem; color: var(--blue-br); letter-spacing: .04em; margin: 0 0 .5rem; text-transform: uppercase; }
+.card-desc { font-size: .82rem; color: var(--mute); line-height: 1.6; margin: 0; }
+@media (max-width: 900px) { .cards { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .cards { grid-template-columns: 1fr; } }
+
+.faculty-card { margin-top: 1px; }
+.faculty-card .cards { grid-template-columns: repeat(4, 1fr); max-width: 440px; }
+
+.table-card {
+  margin-top: 1px;
+  border: 2px solid var(--blue);
+  border-top: none;
+  background: var(--panel);
+  padding: 2.4rem;
+  display: flex;
+  gap: 1.2rem;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+.table-card .left { max-width: 56ch; }
+.table-card h3 { font-family: 'Spectral', serif; font-size: 1.6rem; color: var(--cream); margin: 0 0 .5rem; }
+.table-card p { font-size: 1rem; color: var(--mute); margin: 0; line-height: 1.65; }
+.btn-primary {
+  display: inline-block;
+  padding: 1.1rem 2.2rem;
+  background: var(--blue);
+  color: #fff;
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 700;
+  font-size: .92rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.btn-primary:hover { background: var(--green); color: #fff; }
+
+.about-block {
+  margin-top: 3rem;
+  border-left: 3px solid var(--blue);
+  padding: 1.4rem 1.8rem;
+  background: var(--panel);
+}
+.about-block p { font-size: .9rem; color: var(--text); line-height: 1.75; max-width: 72ch; margin: 0 0 .8rem; }
+.about-block p:last-child { margin-bottom: 0; }
+.about-block b { color: var(--cream); }
+
+.obj-blocks { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line); margin-top: 1.6rem; border: 1px solid var(--line); }
+.obj-block { background: var(--panel); padding: 1.4rem 1.6rem; }
+.obj-block h3 { font-family: 'IBM Plex Mono', monospace; font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; color: var(--blue-br); margin: 0 0 .9rem; }
+.obj-block ul { margin: 0; padding-left: 1.1rem; }
+.obj-block li { font-size: .86rem; color: var(--text); line-height: 1.65; margin-bottom: .6rem; }
+.obj-block li:last-child { margin-bottom: 0; }
+@media (max-width: 640px) { .obj-blocks { grid-template-columns: 1fr; } }
+
+.syllabus { margin-top: 1.6rem; border: 1px solid var(--line); background: var(--panel); }
+.syllabus-item { display: grid; grid-template-columns: 56px 1fr; gap: 1.4rem; padding: 1.3rem 1.7rem; border-top: 1px solid var(--line); }
+.syllabus-item:first-child { border-top: none; }
+.syllabus-num { font-family: 'IBM Plex Mono', monospace; font-size: 1.05rem; font-weight: 600; color: var(--blue-br); }
+.syllabus-body h3 { font-family: 'Spectral', serif; font-size: 1.02rem; font-weight: 600; color: var(--cream); margin: 0 0 .3rem; }
+.syllabus-agents { font-family: 'IBM Plex Mono', monospace; font-size: .62rem; letter-spacing: .1em; text-transform: uppercase; color: var(--mute); margin: 0 0 .5rem; }
+.syllabus-body p.syllabus-note { font-size: .86rem; color: var(--text); line-height: 1.65; margin: 0; max-width: 76ch; }
+@media (max-width: 640px) { .syllabus-item { grid-template-columns: 1fr; gap: .5rem; } }
+
+@media (max-width: 720px) { .hero { padding: 2.2rem 1.4rem 1.8rem; } }
+</style>
+</head>
+<body>
+
+<button type="button" class="theme-toggle" id="themeToggle">Light</button>
+
+<div class="ribbon">
+  Emerging Technologies Laboratory &nbsp;&middot;&nbsp; <b>ETL Classrooms</b> &nbsp;&middot;&nbsp; Leadership, Theory and Application
+</div>
+
+<div class="wrap">
+  <a class="backlink" href="/classrooms.html">&larr; ETL Classrooms</a>
+
+  <div class="hero">
+    <div class="eyebrow">PTX 7006 &middot; Leadership, Theory and Application</div>
+    <h1>Ten leaders, ten real leadership styles.</h1>
+    <p>Visionary, pacesetting, coaching, coalition, nonviolent, crisis, persuasive: real leadership theory taught by the people who actually lived it. Ask any of them how they led, why it worked, and what it cost. Bring several to one table and watch entirely different leadership philosophies argue it out.</p>
+    <div class="hero-meta">Wright State University &middot; Dr. Terry Oroszi</div>
+  </div>
+
+  <div class="sec-head">
+    <h2>Individual Leadership Styles</h2>
+    <div class="sec-rule"></div>
+  </div>
+  <div class="cards">
+    <a class="card" href="/leadership-agent.html?agent=roosevelt">
+      <div class="card-portrait"><img src="/assets/leadership/ldr_roosevelt-eyes-open.jpg" alt="Eleanor Roosevelt"></div>
+      <div class="card-body">
+        <p class="card-name">Eleanor Roosevelt</p>
+        <p class="card-role">Visionary Leadership</p>
+        <p class="card-desc">Refused to trust a single source, and helped the world agree on its first shared list of human rights.</p>
+      </div>
+    </a>
+    <a class="card" href="/leadership-agent.html?agent=curie">
+      <div class="card-portrait"><img src="/assets/leadership/ldr_curie-eyes-open.jpg" alt="Marie Curie"></div>
+      <div class="card-body">
+        <p class="card-name">Marie Curie</p>
+        <p class="card-role">Pacesetting Leadership</p>
+        <p class="card-desc">A personal standard so relentless it won two Nobel Prizes, and cost her, and her daughter, their health.</p>
+      </div>
+    </a>
+    <a class="card" href="/leadership-agent.html?agent=wooden">
+      <div class="card-portrait"><img src="/assets/leadership/ldr_wooden-eyes-open.jpg" alt="John Wooden"></div>
+      <div class="card-body">
+        <p class="card-name">John Wooden</p>
+        <p class="card-role">Coaching Leadership</p>
+        <p class="card-desc">Won ten national championships by refusing to mention winning at all.</p>
+      </div>
+    </a>
+    <a class="card" href="/leadership-agent.html?agent=perkins">
+      <div class="card-portrait"><img src="/assets/leadership/ldr_perkins-eyes-open.jpg" alt="Frances Perkins"></div>
+      <div class="card-body">
+        <p class="card-name">Frances Perkins</p>
+        <p class="card-role">Democratic &amp; Coalition Leadership</p>
+        <p class="card-desc">The first woman in a U.S. Cabinet, who spent twelve years building the coalition that created Social Security.</p>
+      </div>
+    </a>
+  </div>
+
+  <div class="sec-head">
+    <h2>Affiliative and Nonviolent Leadership</h2>
+    <div class="sec-rule"></div>
+  </div>
+  <p class="sec-sub">Gandhi never met Martin Luther King Jr., he died in 1948, before the American civil rights movement began. But King studied his writings closely and traveled to India in 1959 with Coretta to learn from his followers, a real, documented line of influence, not an invented meeting.</p>
+  <div class="cards">
+    <a class="card" href="/leadership-agent.html?agent=gandhi">
+      <div class="card-portrait"><img src="/assets/leadership/ldr_gandhi-eyes-open.jpg" alt="Mohandas Gandhi"></div>
+      <div class="card-body">
+        <p class="card-name">Mohandas Gandhi</p>
+        <p class="card-role">Affiliative &amp; Nonviolent Leadership</p>
+        <p class="card-desc">Turned truth and self-suffering into a weapon strong enough to move an empire.</p>
+      </div>
+    </a>
+    <a class="card" href="/leadership-agent.html?agent=csking">
+      <div class="card-portrait"><img src="/assets/leadership/ldr_csking-eyes-open.jpg" alt="Coretta Scott King"></div>
+      <div class="card-body">
+        <p class="card-name">Coretta Scott King</p>
+        <p class="card-role">Affiliative &amp; Nonviolent Leadership</p>
+        <p class="card-desc">A movement leader and institution builder in her own right, not only Martin's wife.</p>
+      </div>
+    </a>
+    <a class="card" href="/leadership-agent.html?agent=mlk">
+      <div class="card-portrait"><img src="/assets/leadership/ldr_mlk-eyes-open.jpg" alt="Martin Luther King Jr."></div>
+      <div class="card-body">
+        <p class="card-name">Martin Luther King Jr.</p>
+        <p class="card-role">Nonviolent &amp; Persuasive Leadership</p>
+        <p class="card-desc">Turned the discipline of nonviolence into a strategy that could win, and stayed in dialogue with people who wanted him silenced.</p>
+      </div>
+    </a>
+  </div>
+
+  <div class="sec-head">
+    <h2>Crisis and Commanding Leadership</h2>
+    <div class="sec-rule"></div>
+  </div>
+  <p class="sec-sub">Tubman and Shackleton never met, never corresponded, and lived a world and nearly a century apart. This pairing is thematic, both are studied as cases of decision-making under extreme, life-or-death stakes, not a claim they knew of each other.</p>
+  <div class="cards">
+    <a class="card" href="/leadership-agent.html?agent=tubman">
+      <div class="card-portrait"><img src="/assets/leadership/ldr_tubman-eyes-open.jpg" alt="Harriet Tubman"></div>
+      <div class="card-body">
+        <p class="card-name">Harriet Tubman</p>
+        <p class="card-role">Crisis &amp; Commanding Leadership</p>
+        <p class="card-desc">Never lost a passenger, and never let one turn back.</p>
+      </div>
+    </a>
+    <a class="card" href="/leadership-agent.html?agent=shackleton">
+      <div class="card-portrait"><img src="/assets/leadership/ldr_shackleton-eyes-open.jpg" alt="Ernest Shackleton"></div>
+      <div class="card-body">
+        <p class="card-name">Ernest Shackleton</p>
+        <p class="card-role">Crisis &amp; Commanding Leadership</p>
+        <p class="card-desc">The goal changed the moment the ice took the ship. Getting every man home became the only mission that mattered.</p>
+      </div>
+    </a>
+  </div>
+
+  <div class="sec-head">
+    <h2>Persuasive Rhetoric</h2>
+    <div class="sec-rule"></div>
+  </div>
+  <p class="sec-sub">Sojourner Truth is this course's first case in persuasive rhetoric; Martin Luther King Jr., above, is its second (Week 12: persuasive rhetoric under pressure, staying in dialogue with opposition).</p>
+  <div class="cards">
+    <a class="card" href="/leadership-agent.html?agent=truth">
+      <div class="card-portrait"><img src="/assets/leadership/ldr_truth-eyes-open.jpg" alt="Sojourner Truth"></div>
+      <div class="card-body">
+        <p class="card-name">Sojourner Truth</p>
+        <p class="card-role">Persuasive Rhetoric</p>
+        <p class="card-desc">Turned her own body and story into unanswerable argument.</p>
+      </div>
+    </a>
+  </div>
+
+  <div class="table-card">
+    <div class="left">
+      <h3>Or bring them to one table.</h3>
+      <p>The Leadership Table: pick 2 to 6 of these ten, any combination, and watch them answer you and each other. A director model decides who speaks next, so it plays out like a real seminar, not a scripted rotation.</p>
+    </div>
+    <a class="btn-primary" href="/leadership-room.html">Enter the table</a>
+  </div>
+
+  <div class="sec-head">
+    <h2>Ask Dr. O</h2>
+    <div class="sec-rule"></div>
+  </div>
+  <p class="sec-sub">A professionally-scoped faculty twin for course-material questions between sessions, grounded only in Dr. Oroszi's real, public professional record. Solo only, not part of the leader table above.</p>
+  <div class="faculty-card">
+    <div class="cards">
+      <a class="card" href="/leadership-agent.html?agent=drterry">
+        <div class="card-portrait"><img src="/assets/leadership/ldr_drterry-eyes-open.png" alt="Dr. Terry Oroszi"></div>
+        <div class="card-body">
+          <p class="card-name">Dr. Terry Oroszi</p>
+          <p class="card-role">Ask Dr. O &middot; Course Faculty</p>
+          <p class="card-desc">Ask your course question, get a straight answer.</p>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <div class="sec-head">
+    <h2>Course Schedule</h2>
+    <div class="sec-rule"></div>
+  </div>
+  <p class="sec-sub">PTX 7006, Leadership Theory and Application. Fifteen weeks, built around the ten leaders above plus assigned readings from Dr. Oroszi's Forbes Technology Council series on AI and human judgment.</p>
+
+  <div class="obj-blocks">
+    <div class="obj-block">
+      <h3>Learning Objectives</h3>
+      <ul>
+        <li>Gain insight on how to lead others, particularly individuals who function differently than themselves.</li>
+        <li>Learn how to give bad news with kindness.</li>
+        <li>Pay equal attention to verbal and nonverbal cues to lead more effectively.</li>
+        <li>Develop public speaking skills that leave students always prepared.</li>
+      </ul>
+    </div>
+    <div class="obj-block">
+      <h3>Learning Outcomes</h3>
+      <ul>
+        <li>Learn how to self-evaluate, the first step to becoming a successful leader.</li>
+        <li>Understand how AI agents and decision-support tools are entering leadership practice, and build sound judgment about when to rely on them and when not to.</li>
+        <li>Prepare for long-term professional success.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="syllabus">
+    <div class="syllabus-item">
+      <div class="syllabus-num">01</div>
+      <div class="syllabus-body">
+        <h3>Course Launch</h3>
+        <p class="syllabus-agents">Orientation</p>
+        <p class="syllabus-note">Syllabus, expectations, and ETL Leadership Classroom orientation. Meet the AI Teaching Assistant and Ask Dr. O.</p>
+      </div>
+    </div>
+    <div class="syllabus-item">
+      <div class="syllabus-num">02</div>
+      <div class="syllabus-body">
+        <h3>Eleanor Roosevelt</h3>
+        <p class="syllabus-agents">Visionary Leadership</p>
+        <p class="syllabus-note">ETL Module 4: Power Platform baseline assessment.</p>
+      </div>
+    </div>
+    <div class="syllabus-item">
+      <div class="syllabus-num">03</div>
+      <div class="syllabus-body">
+        <h3>Marie Curie</h3>
+        <p class="syllabus-agents">Pacesetting Leadership</p>
+        <p class="syllabus-note">Relentless standards, and where the style burns people out.</p>
+      </div>
+    </div>
+    <div class="syllabus-item">
+      <div class="syllabus-num">04</div>
+      <div class="syllabus-body">
+        <h3>John Wooden</h3>
+        <p class="syllabus-agents">Coaching Leadership</p>
+        <p class="syllabus-note">ETL Module 3: Body Language &amp; Nonverbal Intelligence begins.</p>
+      </div>
+    </div>
+    <div class="syllabus-item">
+      <div class="syllabus-num">05</div>
+      <div class="syllabus-body">
+        <h3>Frances Perkins</h3>
+        <p class="syllabus-agents">Democratic and Coalition Leadership</p>
+        <p class="syllabus-note">ETL Module 1: Elevator Speech, Part 1 (draft and workshop).</p>
+      </div>
+    </div>
+    <div class="syllabus-item">
+      <div class="syllabus-num">06</div>
+      <div class="syllabus-body">
+        <h3>Elevator Speech Delivery</h3>
+        <p class="syllabus-agents">Live in class, or an AI Twin</p>
+        <p class="syllabus-note">ETL Module 1, Part 2.</p>
+      </div>
+    </div>
+    <div class="syllabus-item">
+      <div class="syllabus-num">07</div>
+      <div class="syllabus-body">
+        <h3>Gandhi, Coretta Scott King, and Martin Luther King Jr.</h3>
+        <p class="syllabus-agents">Affiliative and Nonviolent Leadership roundtable</p>
+        <p class="syllabus-note">ETL Module 2: Egos at the Table.</p>
+      </div>
+    </div>
+    <div class="syllabus-item">
+      <div class="syllabus-num">08</div>
+      <div class="syllabus-body">
+        <h3>AI Agents and Leadership</h3>
+        <p class="syllabus-agents">Build Your Own Agent introduced</p>
+        <p class="syllabus-note">Judgment in AI-supported decision-making.</p>
+      </div>
+    </div>
+    <div class="syllabus-item">
+      <div class="syllabus-num">09</div>
+      <div class="syllabus-body">
+        <h3>Harriet Tubman and Ernest Shackleton</h3>
+        <p class="syllabus-agents">Crisis and Commanding Leadership roundtable</p>
+        <p class="syllabus-note">Decision-making under extreme stakes.</p>
+      </div>
+    </div>
+    <div class="syllabus-item">
+      <div class="syllabus-num">10</div>
+      <div class="syllabus-body">
+        <h3>Tubman and Shackleton, continued</h3>
+        <p class="syllabus-agents">Crisis and Commanding Leadership roundtable</p>
+        <p class="syllabus-note">Decision-making under extreme stakes, continued.</p>
+      </div>
+    </div>
+    <div class="syllabus-item">
+      <div class="syllabus-num">11</div>
+      <div class="syllabus-body">
+        <h3>Sojourner Truth</h3>
+        <p class="syllabus-agents">Persuasive Rhetoric</p>
+        <p class="syllabus-note">Difficult Conversations exercise: delivering bad news with kindness.</p>
+      </div>
+    </div>
+    <div class="syllabus-item">
+      <div class="syllabus-num">12</div>
+      <div class="syllabus-body">
+        <h3>Martin Luther King Jr.</h3>
+        <p class="syllabus-agents">Persuasive rhetoric under pressure</p>
+        <p class="syllabus-note">Staying in dialogue with opposition.</p>
+      </div>
+    </div>
+    <div class="syllabus-item">
+      <div class="syllabus-num">13</div>
+      <div class="syllabus-body">
+        <h3>Case Study Studio</h3>
+        <p class="syllabus-agents"></p>
+        <p class="syllabus-note">ETL Module 5: Academic Poster / Executive Briefing.</p>
+      </div>
+    </div>
+    <div class="syllabus-item">
+      <div class="syllabus-num">14</div>
+      <div class="syllabus-body">
+        <h3>CV Workshop</h3>
+        <p class="syllabus-agents"></p>
+        <p class="syllabus-note">ETL Module 6: Job Fair Mastery / Networking Mastery.</p>
+      </div>
+    </div>
+    <div class="syllabus-item">
+      <div class="syllabus-num">15</div>
+      <div class="syllabus-body">
+        <h3>Capstone: Service Leadership</h3>
+        <p class="syllabus-agents"></p>
+        <p class="syllabus-note">ETL Leadership Certificate issued; final elevator speech with guest; student agent presentations.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="about-block">
+    <p><b>About this classroom.</b> Ten real historical leaders, each teaching a distinct, real leadership style, and a professionally-scoped faculty twin for course-material questions. Every leader agent carries a real, live backpack of sources and never fabricates a fact or a quote; if a lookup fails, they say so plainly.</p>
+    <p>Some of these leaders knew each other in real life, Eleanor Roosevelt and Frances Perkins were real, longtime friends and allies; Coretta Scott King and Martin Luther King Jr. were married; Martin Luther King Jr. studied Gandhi's writings closely and traveled to India to learn from his followers. Others, like Harriet Tubman and Ernest Shackleton, never met and are paired here purely by theme, for comparing leadership method under extreme stakes. Every agent is built to be honest about exactly which connections are real.</p>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  var btn = document.getElementById('themeToggle');
+  function sync() {
+    var isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    btn.textContent = isLight ? 'Dark' : 'Light';
+  }
+  sync();
+  btn.addEventListener('click', function () {
+    var next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('etl_classrooms_theme', next); } catch (_) {}
+    sync();
+  });
+})();
+</script>
+
+</body>
+</html>

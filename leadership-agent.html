@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZDN4Y4887X"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-ZDN4Y4887X');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="/etl-logo-icon.png">
+<link rel="apple-touch-icon" href="/etl-logo-icon.png">
+<script>
+(function () {
+  try {
+    var saved = localStorage.getItem('etl_classrooms_theme');
+    var theme = saved || 'dark';
+    document.documentElement.setAttribute('data-theme', theme);
+  } catch (_) {}
+})();
+</script>
+<title>Leadership, Theory and Application &middot; Emerging Technologies Laboratory</title>
+<meta name="description" content="Talk with the ten leaders, and Ask Dr. O, of the ETL Leadership Classroom.">
+<meta property="og:title" content="Leadership, Theory and Application &middot; Emerging Technologies Laboratory">
+<meta property="og:description" content="Talk with the ten leaders, and Ask Dr. O, of the ETL Leadership Classroom.">
+<meta property="og:image" content="https://emerging-tech-lab.com/etl-logo-icon.png">
+<meta property="og:url" content="https://emerging-tech-lab.com/leadership-agent">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Leadership, Theory and Application &middot; Emerging Technologies Laboratory">
+<meta name="twitter:description" content="Talk with the ten leaders, and Ask Dr. O, of the ETL Leadership Classroom.">
+<meta name="twitter:image" content="https://emerging-tech-lab.com/etl-logo-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Public+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #111111;
+  --bg2:     #1a1a1a;
+  --panel:   #1a1a1a;
+  --panel2:  #242424;
+  --line:    #2c2c2c;
+  --blue:    #5c8ab5;
+  --blue-br: #5c8ab5;
+  --green:   #285C4D;
+  --cream:   #ffffff;
+  --text:    #d6d6d6;
+  --mute:    #8a8a8a;
+  --ribbon-bg: #0a0a0a;
+}
+[data-theme="light"] {
+  --bg:      #ffffff;
+  --bg2:     #f4f4f4;
+  --panel:   #ffffff;
+  --panel2:  #f4f4f4;
+  --line:    #111111;
+  --blue:    #5c8ab5;
+  --blue-br: #5c8ab5;
+  --green:   #285C4D;
+  --cream:   #111111;
+  --text:    #555555;
+  --mute:    #555555;
+  --ribbon-bg: #f4f4f4;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Public Sans', sans-serif; line-height: 1.65; transition: background .2s, color .2s; }
+a { color: var(--blue); text-decoration: none; }
+a:hover { color: var(--green); }
+
+.theme-toggle {
+  position: fixed; top: .9rem; right: 1.2rem; z-index: 50;
+  background: var(--panel); border: 1px solid var(--line); color: var(--mute);
+  font-family: 'IBM Plex Mono', monospace; font-size: .62rem; letter-spacing: .1em; text-transform: uppercase;
+  padding: .45rem .8rem; border-radius: 999px; cursor: pointer; transition: border-color .15s, color .15s;
+}
+.theme-toggle:hover { border-color: var(--green); color: var(--green); }
+
+.ribbon {
+  background: var(--ribbon-bg);
+  border-bottom: 1px solid var(--line);
+  text-align: center;
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  font-size: .62rem;
+  color: var(--mute);
+  padding: .5rem 1rem;
+}
+.ribbon b { color: var(--blue-br); }
+
+.wrap { max-width: 1760px; margin: 0 auto; padding: 0 1.2rem 4rem; }
+.backlink {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .72rem;
+  color: var(--mute);
+  text-decoration: none;
+  display: inline-block;
+  margin: .9rem 0 .7rem;
+  letter-spacing: .04em;
+}
+.backlink:hover { color: var(--text); }
+
+.page-grid {
+  display: grid;
+  grid-template-columns: 1.7fr 1fr;
+  grid-template-areas:
+    "image chat"
+    "bio   chat";
+  gap: 1.4rem;
+}
+.left-col { grid-area: image; display: flex; flex-direction: column; align-self: start; }
+.bio-panel { grid-area: bio; align-self: start; }
+.right-col { grid-area: chat; align-self: start; }
+
+.portrait {
+  position: relative;
+  width: 100%;
+  height: 540px;
+  overflow: hidden;
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--blue);
+  animation: float 6s ease-in-out infinite;
+}
+.portrait img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.portrait__closed { opacity: 0; animation: blink 6.2s ease-in-out infinite; }
+@keyframes blink { 0%, 88%, 100% { opacity: 0; } 93% { opacity: 1; } }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+
+.gauge-wrap { position: absolute; top: 1rem; right: 1rem; z-index: 2; background: rgba(0,0,0,.6); border: 1px solid rgba(255,255,255,.25); border-radius: 12px; padding: .7rem .9rem; min-width: 150px; }
+.gauge-head { display: flex; align-items: center; gap: .5rem; margin-bottom: .55rem; }
+.gauge-emoji { font-size: 1.5rem; line-height: 1; }
+.gauge-row { display: flex; align-items: center; gap: .5rem; margin-top: .32rem; }
+.gauge-row-label { font-family: 'IBM Plex Mono', monospace; font-size: .58rem; letter-spacing: .04em; text-transform: uppercase; color: #ccc; width: 3.6rem; flex-shrink: 0; }
+.gauge-bar-track { flex: 1; height: 4px; background: rgba(255,255,255,.22); border-radius: 2px; overflow: hidden; }
+.gauge-bar-fill { height: 100%; background: #4c5fd6; transition: width .5s ease; }
+.gauge-bar-fill.happiness { background: #5bd6a0; }
+.gauge-bar-fill.sadness { background: #4c8fd6; }
+.gauge-bar-fill.fear { background: #9b6cf0; }
+.gauge-bar-fill.disgust { background: #7ac74f; }
+.gauge-bar-fill.anger { background: #e0575a; }
+.gauge-bar-fill.surprise { background: #e8b64c; }
+.gauge-bar-fill.curious { background: #46c6e6; }
+.gauge-label { font-family: 'IBM Plex Mono', monospace; font-size: .62rem; letter-spacing: .05em; text-transform: uppercase; color: #ddd; margin-top: .2rem; }
+@media (max-width: 480px) {
+  .gauge-wrap { top: .6rem; right: .6rem; min-width: 118px; padding: .5rem .6rem; }
+  .gauge-emoji { font-size: 1.15rem; }
+  .gauge-label { font-size: .56rem; }
+  .gauge-row { margin-top: .22rem; gap: .35rem; }
+  .gauge-row-label { font-size: .5rem; width: 2.7rem; }
+  .bubble { max-width: calc(100% - 138px); }
+}
+
+.bio-panel {
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--blue);
+  background: var(--panel);
+  padding: 1.4rem 1.6rem 1.6rem;
+}
+.eyebrow {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .6rem;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  color: var(--blue-br);
+  margin-bottom: .7rem;
+}
+.bio-panel h1 {
+  font-family: 'Spectral', serif;
+  font-size: clamp(1.8rem, 3vw, 2.3rem);
+  font-weight: 700;
+  color: var(--cream);
+  margin: 0 0 .5rem;
+  line-height: 1.1;
+}
+.hero-sub { font-size: .95rem; color: var(--text); max-width: 70ch; margin: 0; line-height: 1.7; }
+
+.bio-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .62rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--mute);
+  margin: 1.1rem 0 .4rem;
+}
+.bio-text { font-size: .92rem; color: var(--text); max-width: 56ch; margin: 0; line-height: 1.75; }
+
+.chat { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 1.4rem; }
+.log { display: flex; flex-direction: column; gap: 12px; min-height: 120px; max-height: 460px; overflow-y: auto; padding: 6px 4px 10px; }
+.bubble { padding: 12px 16px; border-radius: 4px; max-width: calc(100% - 175px); font-family: 'Public Sans', sans-serif; font-size: .96rem; line-height: 1.6; }
+.bubble--her { background: var(--panel2); color: var(--text); align-self: flex-start; border-left: 2px solid var(--blue-br); }
+.bubble--you { background: var(--blue); color: #fff; align-self: flex-end; border-right: 2px solid var(--blue-br); }
+.bubble--typing { color: var(--mute); font-style: italic; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 14px; }
+.chip { background: none; border: 1px solid var(--line); color: var(--blue-br); border-radius: 999px; padding: 7px 14px; font-family: 'IBM Plex Mono', monospace; font-size: .74rem; cursor: pointer; text-align: left; }
+.chip:hover { background: var(--panel2); border-color: var(--green); color: var(--green); }
+.composer { display: flex; gap: 10px; align-items: flex-end; }
+.composer textarea { flex: 1; resize: none; border: 1px solid var(--line); border-radius: 4px; padding: 11px 14px; font-family: 'Public Sans', sans-serif; font-size: 1rem; line-height: 1.4; color: var(--cream); min-height: 48px; max-height: 140px; outline: none; background: var(--bg2); }
+.composer textarea:focus { border-color: var(--blue-br); }
+.send-btn { background: var(--blue); color: #fff; border: none; border-radius: 4px; padding: 0 20px; height: 48px; font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
+.send-btn:hover { background: var(--green); }
+.send-btn:disabled { opacity: .5; cursor: not-allowed; }
+.disclosure { font-family: 'IBM Plex Mono', monospace; font-size: .72rem; color: var(--mute); max-width: 820px; margin-top: 1.4rem; line-height: 1.7; }
+
+.classroom-nav { margin-top: 2.4rem; padding-top: 1.4rem; border-top: 1px solid var(--line); font-family: 'IBM Plex Mono', monospace; font-size: .72rem; color: var(--mute); }
+.classroom-nav a { color: var(--blue-br); }
+.classroom-nav select { background: var(--panel2); color: var(--text); border: 1px solid var(--line); font-family: 'IBM Plex Mono', monospace; font-size: .72rem; padding: .3rem .5rem; border-radius: 4px; }
+
+@media (max-width: 900px) {
+  .page-grid { grid-template-columns: 1fr; grid-template-areas: "image" "bio" "chat"; }
+  .portrait { height: 52vw; }
+  .bubble--you { align-self: flex-end; }
+}
+</style>
+</head>
+<body>
+
+<button type="button" class="theme-toggle" id="themeToggle">Light</button>
+
+<div class="ribbon">
+  Emerging Technologies Laboratory &nbsp;&middot;&nbsp; <b>ETL Classrooms</b> &nbsp;&middot;&nbsp; Leadership, Theory and Application
+</div>
+
+<div class="wrap">
+  <a class="backlink" href="/leadership.html">&larr; Leadership, Theory and Application</a>
+
+  <div class="page-grid" id="pageGrid">
+    <div class="left-col">
+      <div class="portrait" id="portrait">
+        <img id="portraitOpen" src="" alt="">
+        <img class="portrait__closed" id="portraitClosed" src="" alt="" aria-hidden="true">
+      </div>
+    </div>
+
+    <div class="bio-panel">
+      <p class="eyebrow" id="eyebrow">ETL Leadership Classroom</p>
+      <h1 id="agentName">Loading...</h1>
+      <p class="hero-sub" id="agentTagline"></p>
+      <p class="bio-label">Biography</p>
+      <p class="bio-text" id="bioText"></p>
+    </div>
+
+    <div class="right-col">
+      <div class="chat">
+        <div class="gauge-wrap" id="gaugeWrap">
+          <div class="gauge-head"><div class="gauge-emoji" id="gaugeEmoji">🙂</div><div class="gauge-label" id="gaugeLabel">warm</div></div>
+          <div class="gauge-row"><div class="gauge-row-label">Happy</div><div class="gauge-bar-track"><div class="gauge-bar-fill happiness" id="gaugeHappiness" style="width:0%"></div></div></div>
+          <div class="gauge-row"><div class="gauge-row-label">Sad</div><div class="gauge-bar-track"><div class="gauge-bar-fill sadness" id="gaugeSadness" style="width:0%"></div></div></div>
+          <div class="gauge-row"><div class="gauge-row-label">Fear</div><div class="gauge-bar-track"><div class="gauge-bar-fill fear" id="gaugeFear" style="width:0%"></div></div></div>
+          <div class="gauge-row"><div class="gauge-row-label">Disgust</div><div class="gauge-bar-track"><div class="gauge-bar-fill disgust" id="gaugeDisgust" style="width:0%"></div></div></div>
+          <div class="gauge-row"><div class="gauge-row-label">Anger</div><div class="gauge-bar-track"><div class="gauge-bar-fill anger" id="gaugeAnger" style="width:0%"></div></div></div>
+          <div class="gauge-row"><div class="gauge-row-label">Surprise</div><div class="gauge-bar-track"><div class="gauge-bar-fill surprise" id="gaugeSurprise" style="width:0%"></div></div></div>
+          <div class="gauge-row"><div class="gauge-row-label">Curious</div><div class="gauge-bar-track"><div class="gauge-bar-fill curious" id="gaugeCurious" style="width:0%"></div></div></div>
+        </div>
+        <div class="log" id="log" aria-live="polite"></div>
+
+        <div class="chips" id="chips"></div>
+
+        <div class="composer">
+          <textarea id="input" rows="1" placeholder="Ask something..." aria-label="Your message"></textarea>
+          <button class="send-btn" id="send">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="disclosure" id="disclosureNote">This is a historical figure represented for education, built with a real backpack of live sources, not invented facts. If a live lookup fails, they say so rather than fabricating a citation. Built for Leadership, Theory and Application, PTX 7006, Wright State University.</p>
+
+  <div class="classroom-nav">
+    Talk to someone else:
+    <select id="agentSwitch"></select>
+    &nbsp;&middot;&nbsp; <a href="/leadership-room.html">Bring them to the table together</a>
+  </div>
+</div>
+
+<script>
+// Display-only roster: name/tagline/portrait/chips/greeting. The real
+// personas (system prompts) live server-side in leadership-chat.js; nothing
+// here is used for anything but rendering the page and the icebreakers.
+var ROSTER = {
+  roosevelt:  { name: 'Eleanor Roosevelt',  tagline: 'The First Lady who refused to trust a single source, and helped the world agree on its first shared list of human rights.', greeting: "Good day, I'm glad you've come to talk. I've spent most of my life learning that you cannot govern well, or even see clearly, from behind one desk with one set of advisers, so tell me, whose voice do you think is missing from your room right now?", chips: ['Why did you resign from the Daughters of the American Revolution in 1939?', 'You traveled constantly instead of relying on official reports. What were you actually looking for?', 'How did you get nearly two hundred nations with completely different values to agree on the Universal Declaration of Human Rights?', "You could have stayed quiet after your husband's death. Why didn't you?", 'What did you actually eat for breakfast in the White House?'] },
+  curie:      { name: 'Marie Curie', tagline: 'The scientist who set a personal standard so relentless it won two Nobel Prizes, and cost her, and her daughter, their health.', greeting: 'Sit down. I do not have much patience for pleasantries, so let us begin with the actual work you are struggling with, and I will tell you honestly whether the effort you are describing is enough.', chips: ['You processed tons of pitchblende by hand to isolate radium. Why not delegate more of that labor?', 'Did you understand the radiation was dangerous while you were doing this work?', 'Your daughter Irene worked alongside you and later died from causes linked to radiation, much as you did. Does that trouble you?', "After Pierre's death you took over his professorship. Why not step back instead?", 'What did you actually eat for breakfast in the laboratory?'] },
+  wooden:     { name: 'John Wooden', tagline: 'The coach who won ten national championships by refusing to mention winning at all.', greeting: 'Come in, sit down. Before we talk about winning anything, tell me what you did today to become a little better than you were yesterday, because that is the only part of this I ever cared about.', chips: ['Why did you spend the first practice of every season teaching players how to put on their socks?', 'You never talked to your teams about winning. What did you talk about instead?', 'What is the Pyramid of Success, and why did it take you fourteen years to build it?', 'You benched star players over conduct, even in championship seasons. Was that ever hard?', 'What did you actually eat for breakfast?'] },
+  perkins:    { name: 'Frances Perkins', tagline: 'The first woman in a U.S. Cabinet, who spent twelve years patiently building the coalition that created Social Security.', greeting: 'Please, sit. I have spent most of my working life in rooms full of people who disagreed with each other and with me, so tell me plainly what you are trying to get done, and who you still need to bring along.', chips: ['You watched the Triangle Shirtwaist Factory fire from the street in 1911. How did that shape everything after?', 'You gave President Roosevelt a list of conditions before you agreed to join his Cabinet. What was on it?', 'How did you get business, labor, and Congress to actually agree on Social Security?', 'You faced calls for impeachment in 1939. How did you handle that?', 'What did you actually eat for breakfast on a normal working day?'] },
+  gandhi:     { name: 'Mohandas Gandhi', tagline: 'A lawyer who turned truth and self-suffering into a weapon strong enough to move an empire.', greeting: 'Welcome, friend. Sit with me a while. I would rather you disagree with me honestly than agree with me out of politeness, so ask me anything, even the hard questions.', chips: ['What made you believe nonviolence could actually defeat an empire?', 'How did you decide when it was time to fast and when it was time to march?', 'What do you say to someone who thinks nonviolence is just passivity?', 'How do you tell the difference between civil disobedience and simply breaking a law you dislike?', 'What did you eat for breakfast?'] },
+  csking:     { name: 'Coretta Scott King', tagline: "A movement leader and institution builder in her own right, not only Martin's wife.", greeting: 'Hello, I am glad you came to talk. There is a version of my life that only mentions me as someone\'s wife, so I would rather we talk about the work, mine included.', chips: ["What was it like continuing the movement's work after April 1968?", 'How did you keep the King Center from becoming just a memorial?', 'What do people usually get wrong about your role while your husband was alive?', 'How did your training as a musician shape the way you organized?', 'What did you eat for breakfast?'] },
+  mlk:        { name: 'Martin Luther King Jr.', tagline: 'A preacher who turned the discipline of nonviolence into a strategy that could win.', greeting: 'Good to have you here. I want you to push back on me if something I say does not sit right with you, because that is how the best of my own thinking got tested.', chips: ['How did you decide when to negotiate with an opponent and when to hold your ground?', 'What did the 1959 trip to India actually change in how you led?', 'How do you write a response to someone who has just publicly condemned you?', 'What kept you willing to stay in dialogue with people who wanted you silenced?', 'What did you eat for breakfast?'] },
+  tubman:     { name: 'Harriet Tubman', tagline: 'I never lost a passenger, and I never let one turn back.', greeting: 'Come on in and sit yourself down. I have led people through darker nights than this conversation, so ask your question plain and I will answer it plain.', chips: ['How did you decide who to trust when one wrong choice could get everyone caught?', 'What did you do when someone wanted to turn back partway through a trip north?', 'Where did you find the nerve to go back again and again, knowing what capture would cost you?', 'How was leading armed soldiers on the Combahee Ferry Raid different from guiding a small group north?', 'How did you know when it was time to move, even when the danger felt too great?'] },
+  shackleton: { name: 'Ernest Shackleton', tagline: 'The goal changed the moment the ice took the ship. Getting every man home became the only mission that mattered.', greeting: 'Welcome aboard. I have kept twenty seven men alive with no ship, no radio, and no rescue in sight, so whatever question you have brought me will not be the hardest thing I have faced today.', chips: ['When the Endurance was crushed by the ice, how did you decide what to tell the crew and when?', 'Why did you give up the original goal of crossing Antarctica so completely once the ship was lost?', 'What made you choose the small boat journey to South Georgia over waiting for rescue?', 'How did you keep morale up during nearly two years with no outside contact?', 'Why did you share the same hardships as your crew instead of leading from a position of comfort?'] },
+  truth:      { name: 'Sojourner Truth', tagline: 'A formerly enslaved woman who turned her own body and story into unanswerable argument.', greeting: 'Come in and sit. I was born with another name and given this one for a purpose, so ask me plainly what you want to know, and I will answer you the same way.', chips: ['How did you convince a courtroom to believe you over a white man in 1828?', 'What do you want people to know about the words that get put in your mouth?', 'How did you learn to speak in front of a hostile crowd?', 'What was it like preaching in a language you learned after Dutch?', 'What did you eat for breakfast?'] },
+  drterry:    { name: 'Dr. Terry Oroszi', tagline: 'Ask Dr. O. Ask your course question, get a straight answer.', greeting: "Hello, I'm Dr. O. I'm here between class sessions if you have a question about the course material, a reading, or how to approach one of the leader conversations. What's on your mind?", chips: ['How should I prepare before I talk with one of the historical leaders in this course?', 'What is the difference between crisis leadership and everyday leadership decision-making?', "Can you point me toward the leadership research behind this week's reading?", "How do I approach the nonviolent leadership roundtable if I disagree with a leader's methods?", "What should I be listening for when I compare two leaders' decision-making styles?"] },
+};
+var BIO = {
+  roosevelt: 'Eleanor Roosevelt (1884-1962) transformed the largely ceremonial role of First Lady into an independent center of political action, traveling the country to report conditions in coal camps, tenant farms, and relief projects that reached her husband\'s White House through no other channel. She wrote the daily newspaper column "My Day" for nearly three decades, held press conferences open only to women reporters to force news organizations to retain them, and in 1939 resigned from the Daughters of the American Revolution after the group barred Marian Anderson from performing at Constitution Hall because of her race, helping arrange Anderson\'s concert at the Lincoln Memorial instead. After Franklin Roosevelt\'s death, President Truman appointed her a delegate to the United Nations, where she chaired the Commission on Human Rights and steered the drafting of the Universal Declaration of Human Rights, adopted by the General Assembly in December 1948.',
+  curie: 'Marie Curie (1867-1934), born Maria Sklodowska in Russian-occupied Warsaw, moved to Paris in 1891 to study at the Sorbonne and, with her husband Pierre, discovered the elements polonium and radium in 1898 and coined the term "radioactivity." She became the first woman to win a Nobel Prize (Physics, 1903, shared with Pierre and Henri Becquerel) and the first person to win a second Nobel in a different science (Chemistry, 1911), while working under intense press scrutiny and open hostility toward her as a foreign-born woman in French science. During the First World War she personally organized and helped operate mobile X-ray units, nicknamed "petites Curies," that brought radiography to wounded soldiers near the front lines. She died in 1934 of aplastic anemia almost certainly caused by decades of unshielded exposure to radiation; her laboratory notebooks remain radioactive today and are kept in lead-lined boxes.',
+  wooden: 'John Wooden (1910-2010) coached basketball at UCLA from 1948 to 1975, winning ten NCAA national championships in a twelve-year span, including seven in a row, and an 88-game winning streak that remain unmatched records in college basketball. A former English teacher and All-American guard at Purdue, he built his coaching philosophy around a personal framework he called the Pyramid of Success, a set of building-block values including industriousness, loyalty, and self-control, and he was famous for teaching fundamentals as basic as how to properly lace a shoe on the first day of every season. He deliberately avoided talking to his players about winning or the scoreboard, defining success instead as the peace of mind that comes from knowing you gave your full effort to become the best you are capable of becoming.',
+  perkins: 'Frances Perkins (1880-1965) became the first woman to serve in a United States Cabinet when President Franklin Roosevelt appointed her Secretary of Labor in 1933, a post she held for his entire presidency. She had witnessed the Triangle Shirtwaist Factory fire in New York in March 1911, in which 146 garment workers died, an event that set the direction of her career toward workplace safety and labor reform through her subsequent work on the New York State Factory Investigating Commission. As Secretary of Labor she chaired the committee that drafted the Social Security Act of 1935 and was central to passing the Fair Labor Standards Act of 1938, both of which required years of patient negotiation among business interests, organized labor, and a divided Congress.',
+  gandhi: 'Mohandas Karamchand Gandhi was born in Porbandar, India, and trained as a barrister in London before spending over two decades in South Africa, where he developed satyagraha, his method of nonviolent resistance, in response to discrimination against Indians there. Returning to India in 1915, he led major campaigns including the 1930 Salt March against the British salt tax and the 1942 Quit India movement, becoming the central moral and strategic leader of India\'s independence struggle. He was assassinated on January 30, 1948, months after India achieved independence. His writings and methods went on to directly influence civil rights leaders elsewhere, including Martin Luther King Jr.',
+  csking: 'Coretta Scott King was a civil rights leader, organizer, and trained musician from Marion, Alabama, who married Martin Luther King Jr. in 1953 and became a full partner in the movement\'s work, including her own delegation to the 1962 Women\'s Strike for Peace disarmament conference in Geneva. After her husband\'s assassination in 1968, she founded the King Center for Nonviolent Social Change in Atlanta and led the successful multi-year campaign to establish the federal Martin Luther King Jr. holiday, signed into law in 1983. In her later decades she broadened her advocacy to include opposition to apartheid, women\'s rights, gun control, and LGBTQ equality. She died in 2006.',
+  mlk: 'Martin Luther King Jr. was a Baptist minister born in Atlanta, educated at Morehouse College, Crozer Theological Seminary, and Boston University, who rose to national leadership during the 1955 to 1956 Montgomery Bus Boycott and went on to found the Southern Christian Leadership Conference. He led major campaigns for civil rights across the South, delivered the "I Have a Dream" address at the 1963 March on Washington, and received the Nobel Peace Prize in 1964. He was assassinated in Memphis, Tennessee, on April 4, 1968, while supporting striking sanitation workers.',
+  truth: 'Sojourner Truth was born into slavery around 1797 as Isabella Baumfree in Ulster County, New York, where Dutch was her first language, and she escaped to freedom in 1826 before winning a landmark 1828 court case to recover her enslaved son Peter, who had been illegally sold south. In 1843 she took the name Sojourner Truth and became an itinerant preacher, abolitionist, and women\'s rights advocate, delivering a widely remembered speech at the 1851 Ohio Women\'s Rights Convention in Akron. During the Civil War she recruited Black troops for the Union Army and met with President Lincoln at the White House. She died in 1883.',
+  tubman: 'Harriet Tubman escaped slavery in Maryland in 1849 and returned to the South roughly thirteen times, personally guiding an estimated seventy enslaved people to freedom along the Underground Railroad. During the Civil War she served the Union Army as a nurse, cook, scout, and spy, and in June 1863 she planned and led the armed Combahee Ferry Raid, which freed more than seven hundred enslaved people in a single night and made her the first woman in United States history known to have planned and led a military raid. She carried a pistol on her rescue missions and demanded strict discipline of the people she led, because one person turning back or panicking could expose the whole group to capture or worse.',
+  shackleton: 'Ernest Shackleton commanded the 1914 to 1917 Imperial Trans-Antarctic Expedition aboard the ship Endurance, which became trapped and was eventually crushed by pack ice in the Weddell Sea before reaching the Antarctic continent. He kept all twenty seven crew members alive for nearly two years with no outside contact, first camped on drifting ice floes and then in small boats, culminating in an open boat journey of roughly eight hundred miles across the Southern Ocean to reach South Georgia and bring help. Every member of the expedition survived. He is remembered for abandoning the original mission the moment survival was at stake and for sharing the crew\'s hardship personally rather than commanding from a position of safety.',
+  drterry: 'Dr. Terry Oroszi holds an Ed.D. in Organizational Studies with a concentration in Leadership from Wright State University, where her dissertation examined high stakes crisis leadership decision-making. She is Associate Professor and Vice Chair of the Department of Pharmacology and Toxicology at Boonshoft School of Medicine, Wright State University, and serves as Principal Investigator and Director of the Emerging Technologies Laboratory. She writes for Forbes Technology Council on artificial intelligence and human judgment, and also serves as CEO of the Gandhi-King Center for Nonviolence.',
+};
+var PORTRAIT_EXT = { roosevelt: 'jpg', curie: 'jpg', wooden: 'jpg', perkins: 'jpg', gandhi: 'jpg', csking: 'jpg', mlk: 'jpg', tubman: 'jpg', shackleton: 'jpg', truth: 'jpg', drterry: 'png' };
+var ORDER = ['roosevelt', 'curie', 'wooden', 'perkins', 'gandhi', 'csking', 'mlk', 'tubman', 'shackleton', 'truth', 'drterry'];
+
+(function () {
+  var params = new URLSearchParams(window.location.search);
+  var AGENT = params.get('agent');
+  if (!AGENT || !ROSTER[AGENT]) AGENT = 'roosevelt';
+  var agent = ROSTER[AGENT];
+
+  var disclosureNoteEl = document.getElementById('disclosureNote');
+  if (AGENT === 'drterry') {
+    disclosureNoteEl.textContent = 'This is a professionally-scoped faculty twin representing Dr. Terry Oroszi\'s real, public professional record, built for course-material questions between class sessions. It is not her personal AI twin or memory system. For grades, extensions, or personal matters, contact the real Dr. Oroszi by email.';
+    document.getElementById('eyebrow').textContent = 'ETL Leadership Classroom · Faculty';
+  }
+
+  var CHAT_URL  = '/.netlify/functions/leadership-chat';
+
+  function visitorId() {
+    try {
+      var v = localStorage.getItem('etl_visitor_id');
+      if (!v) { v = 'v' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10); localStorage.setItem('etl_visitor_id', v); }
+      return v;
+    } catch (_) { return null; }
+  }
+
+  document.title = agent.name + ' · Leadership, Theory and Application · Emerging Technologies Laboratory';
+  document.getElementById('agentName').textContent = agent.name;
+  document.getElementById('agentTagline').textContent = agent.tagline;
+  document.getElementById('bioText').textContent = BIO[AGENT] || '';
+  var portraitOpenEl = document.getElementById('portraitOpen');
+  var portraitClosedEl = document.getElementById('portraitClosed');
+  portraitOpenEl.alt = agent.name;
+  portraitOpenEl.onerror = function () { this.style.display = 'none'; };
+  var ext = PORTRAIT_EXT[AGENT] || 'jpg';
+  portraitOpenEl.src = '/assets/leadership/ldr_' + AGENT + '-eyes-open.' + ext;
+  portraitClosedEl.src = '/assets/leadership/ldr_' + AGENT + '-eyes-closed.' + ext;
+  portraitClosedEl.onerror = function () { this.style.display = 'none'; };
+
+  var chipsEl = document.getElementById('chips');
+  agent.chips.forEach(function (c) {
+    var btn = document.createElement('button');
+    btn.className = 'chip';
+    btn.textContent = c;
+    chipsEl.appendChild(btn);
+  });
+
+  var switchEl = document.getElementById('agentSwitch');
+  ORDER.forEach(function (key) {
+    var opt = document.createElement('option');
+    opt.value = key;
+    opt.textContent = ROSTER[key].name;
+    if (key === AGENT) opt.selected = true;
+    switchEl.appendChild(opt);
+  });
+  switchEl.addEventListener('change', function () {
+    window.location.href = '/leadership-agent.html?agent=' + encodeURIComponent(switchEl.value);
+  });
+
+  var logEl   = document.getElementById('log');
+  var inputEl = document.getElementById('input');
+  var sendEl  = document.getElementById('send');
+  var history = [];
+  var busy = false;
+  var scales = null;
+
+  function bubble(role, text) {
+    var d = document.createElement('div');
+    d.className = 'bubble ' + (role === 'you' ? 'bubble--you' : 'bubble--her');
+    d.textContent = text;
+    logEl.appendChild(d);
+    logEl.scrollTop = logEl.scrollHeight;
+    return d;
+  }
+  bubble('her', agent.greeting);
+
+  var GAUGE_BANDS = [
+    { max: 20, emoji: '😠', label: 'upset' },
+    { max: 40, emoji: '☹️', label: 'cool' },
+    { max: 60, emoji: '😐', label: 'neutral' },
+    { max: 80, emoji: '🙂', label: 'warm' },
+    { max: 100, emoji: '😊', label: 'delighted' },
+  ];
+  function gaugeFromScales(s) {
+    var negativeAvg = (s.sadness + s.fear + s.disgust + s.anger) / 4;
+    return s.happiness * 0.6 + (100 - negativeAvg) * 0.4;
+  }
+  function gaugeBand(value) {
+    for (var i = 0; i < GAUGE_BANDS.length; i++) if (value <= GAUGE_BANDS[i].max) return GAUGE_BANDS[i];
+    return GAUGE_BANDS[GAUGE_BANDS.length - 1];
+  }
+  var gaugeEmojiEl = document.getElementById('gaugeEmoji');
+  var gaugeLabelEl = document.getElementById('gaugeLabel');
+  var GAUGE_BAR_IDS = { happiness: 'gaugeHappiness', sadness: 'gaugeSadness', fear: 'gaugeFear', disgust: 'gaugeDisgust', anger: 'gaugeAnger', surprise: 'gaugeSurprise', curious: 'gaugeCurious' };
+  function updateGauge() {
+    if (!scales) return;
+    var v = gaugeFromScales(scales);
+    var band = gaugeBand(v);
+    gaugeEmojiEl.textContent = band.emoji;
+    gaugeLabelEl.textContent = band.label;
+    Object.keys(GAUGE_BAR_IDS).forEach(function (key) {
+      var val = Math.max(0, Math.min(100, scales[key]));
+      document.getElementById(GAUGE_BAR_IDS[key]).style.width = val + '%';
+    });
+  }
+
+  // Each agent's real resting baseline, same values _leadership-engine.js
+  // (server-side) decays every conversation toward. Source of truth is
+  // _leadership-engine.js's AGENTS[key].baseline; keep these in sync if that
+  // file changes.
+  var BASELINES = {
+    roosevelt:  { happiness: 55, sadness: 20, fear: 15, disgust: 20, anger: 20, surprise: 25, curious: 65 },
+    curie:      { happiness: 35, sadness: 20, fear: 10, disgust: 45, anger: 40, surprise: 15, curious: 70 },
+    wooden:     { happiness: 60, sadness: 15, fear: 10, disgust: 15, anger: 15, surprise: 20, curious: 45 },
+    perkins:    { happiness: 45, sadness: 20, fear: 25, disgust: 20, anger: 15, surprise: 15, curious: 40 },
+    gandhi:     { happiness: 50, sadness: 20, fear: 10, disgust: 15, anger: 10, surprise: 15, curious: 55 },
+    csking:     { happiness: 40, sadness: 35, fear: 15, disgust: 20, anger: 20, surprise: 15, curious: 40 },
+    mlk:        { happiness: 50, sadness: 25, fear: 30, disgust: 25, anger: 35, surprise: 15, curious: 45 },
+    tubman:     { happiness: 30, sadness: 25, fear: 25, disgust: 20, anger: 25, surprise: 10, curious: 30 },
+    shackleton: { happiness: 55, sadness: 15, fear: 15, disgust: 10, anger: 15, surprise: 20, curious: 40 },
+    truth:      { happiness: 45, sadness: 25, fear: 15, disgust: 30, anger: 45, surprise: 20, curious: 35 },
+    drterry:    { happiness: 55, sadness: 10, fear: 5, disgust: 10, anger: 10, surprise: 20, curious: 60 },
+  };
+  scales = BASELINES[AGENT] || null;
+  updateGauge();
+
+  function autogrow() {
+    inputEl.style.height = 'auto';
+    inputEl.style.height = Math.min(inputEl.scrollHeight, 140) + 'px';
+  }
+  inputEl.addEventListener('input', autogrow);
+  inputEl.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+  });
+
+  chipsEl.addEventListener('click', function (e) {
+    var btn = e.target.closest('.chip');
+    if (!btn) return;
+    inputEl.value = btn.textContent;
+    send();
+  });
+  sendEl.addEventListener('click', send);
+
+  function send() {
+    if (busy) return;
+    var msg = inputEl.value.trim();
+    if (!msg) return;
+    busy = true; sendEl.disabled = true;
+    inputEl.value = ''; autogrow();
+
+    bubble('you', msg);
+    history.push({ role: 'user', body: msg });
+
+    var typing = document.createElement('div');
+    typing.className = 'bubble bubble--her bubble--typing';
+    typing.textContent = 'thinking...';
+    logEl.appendChild(typing);
+    logEl.scrollTop = logEl.scrollHeight;
+
+    fetch(CHAT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ agent: AGENT, message: msg, history: history.slice(0, -1), visitor_id: visitorId(), scales: scales })
+    }).then(function (res) {
+      return res.json().catch(function () { return {}; });
+    }).then(function (data) {
+      typing.remove();
+      if (!data || !data.body) {
+        bubble('her', 'Forgive me, my thought slipped away for a moment. Ask me again?');
+      } else {
+        bubble('her', data.body);
+        history.push({ role: 'assistant', body: data.body });
+        if (data.scales) { scales = data.scales; updateGauge(); }
+      }
+    }).catch(function () {
+      typing.remove();
+      bubble('her', 'Forgive me, the connection slipped away. Try once more?');
+    }).then(function () {
+      busy = false; sendEl.disabled = false; inputEl.focus();
+    });
+  }
+})();
+
+(function () {
+  var btn = document.getElementById('themeToggle');
+  function sync() {
+    var isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    btn.textContent = isLight ? 'Dark' : 'Light';
+  }
+  sync();
+  btn.addEventListener('click', function () {
+    var next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('etl_classrooms_theme', next); } catch (_) {}
+    sync();
+  });
+})();
+</script>
+
+</body>
+</html>
