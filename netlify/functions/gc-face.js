@@ -84,22 +84,37 @@ const HOW_MANY = 4;
 
    So this slot is steered too, away from the house default rather than into
    another fixed look. Our own demo friend came out of the same model, so
-   "unspecified" and "looks like Arch" are the same instruction. */
-const VARIATIONS = [
-  'Open, easy face. Slight smile, as if you just walked in and they looked up. ' +
-  'Give this one a distinctive, particular face of their own: not the generic ' +
-  'friendly middle-aged face a stock photo would use. Vary the build, the hair, ' +
-  'whether there is facial hair at all, and the ancestry. Specifically avoid the ' +
-  'default of a greying bearded white man in a plaid or checked shirt.',
+   "unspecified" and "looks like Arch" are the same instruction.
 
-  'A more weathered, quieter face. Not unhappy, just someone who listens first. ' +
+   ROTATED, NOT ASSIGNED TO SLOTS. This used to read "slot two is Black, slot
+   three is East Asian, slot four is Latino", which is the casting sheet the
+   paragraph above warns against, written by me two hours after warning about
+   it. It also left slot one as "the default", and the default has a face: Arch's.
+
+   So there are two lists now. The manner is fixed per slot, because four
+   different expressions is the point of showing four. The appearance rotates
+   with the nonce, so no slot is typecast, no slot is unspecified, and pressing
+   again genuinely reshuffles who turns up. */
+const MANNER = [
+  'Open, easy face. Slight smile, as if you just walked in and they looked up.',
+  'A more weathered, quieter face. Not unhappy, just someone who listens first.',
+  'Warmer and more animated, caught mid-sentence, laugh lines doing the work.',
+  'Calm and steady, looking straight at the camera, entirely unbothered by it.',
+];
+
+/* Every one of these is a direction, including the ones that would otherwise
+   be left to the default. Nothing here is a fixed slot and nothing here is
+   remarked on anywhere a person can see. [[etl-cast-diversity-theme]] */
+const LOOK = [
   'This one is Black.',
-
-  'Warmer and more animated, caught mid-sentence, laugh lines doing the work. ' +
-  'This one has East Asian or South Asian features.',
-
-  'Calm and steady, looking straight at the camera, entirely unbothered by it. ' +
-  'This one is Latino or Middle Eastern, or of mixed heritage.',
+  'This one has East Asian features.',
+  'This one has South Asian features.',
+  'This one is Latino or Hispanic.',
+  'This one is Middle Eastern or North African.',
+  'This one is white, and specifically not the stock greying bearded man in a ' +
+  'checked shirt: give them a particular face of their own.',
+  'This one is of mixed heritage.',
+  'This one is Indigenous or Native American.',
 ];
 
 /* WHY THESE EXIST AT ALL: "DRAW FOUR MORE" WAS DRAWING THE SAME FOUR.
@@ -143,7 +158,7 @@ const FRAME = [
 
 function pick(list, n) { return list[Math.abs(n) % list.length]; }
 
-function facePrompt(f, variation, nonce) {
+function facePrompt(f, idx, nonce) {
   const bits = [];
 
   bits.push('A photograph of a real person. Natural photography, not an illustration, ' +
@@ -166,7 +181,11 @@ function facePrompt(f, variation, nonce) {
   if (f.from) bits.push('They are from ' + f.from + '.');
   if (f.into) bits.push('Outside work they are into ' + (Array.isArray(f.into) ? f.into.join(', ') : f.into) + '.');
 
-  bits.push(variation);
+  /* How they hold themselves, fixed per slot: four different expressions is
+     the point of showing four. Then how they look, rotated by the nonce, so no
+     slot is typecast and no slot is left on the default. */
+  bits.push(MANNER[idx % MANNER.length]);
+  bits.push(LOOK[(idx + nonce) % LOOK.length]);
 
   /* AN ORDINARY PRIVATE PERSON, NOT A FACE ANYBODY RECOGNISES. Pookie's sets
      came back with two famous actors in them, and our own Arch. Left to itself
@@ -254,7 +273,7 @@ exports.handler = async (event) => {
      refuses: asking for a fifth face is a reasonable thing to want and there
      is no reason to make it an error. */
   const n = Number(body.variation);
-  const idx = (Number.isFinite(n) && n >= 0) ? Math.floor(n) % VARIATIONS.length : 0;
+  const idx = (Number.isFinite(n) && n >= 0) ? Math.floor(n) % MANNER.length : 0;
 
   /* Sent by the page, different on every press, so "draw four more" actually
      draws four more rather than the same four again. Falls back to something
@@ -264,7 +283,7 @@ exports.handler = async (event) => {
 
   let face;
   try {
-    face = await gemini.generate(facePrompt(f, VARIATIONS[idx], nonce));   // no aspect, see facePrompt
+    face = await gemini.generate(facePrompt(f, idx, nonce));   // no aspect, see facePrompt
   } catch (err) {
     /* Reported with the reason the model actually gave. One card fails, the
        other three still land, and the page says which. */
