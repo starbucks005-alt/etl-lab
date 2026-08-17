@@ -69,9 +69,28 @@ const HOW_MANY = 4;
    Said as a direction to one photographer about one person, never as a list of
    categories to work through, which produces a casting sheet. Nothing in the
    interface mentions any of this; the four faces just look like four people.
-   [[etl-cast-diversity-theme]] */
+   [[etl-cast-diversity-theme]]
+
+   AND THE FIRST ONE NEEDS A DIRECTION AS MUCH AS THE OTHER THREE. When I fixed
+   the four-white-women problem I gave slots two, three and four an ancestry and
+   left this one saying nothing, which does not mean "anything": it means the
+   model's default, every single time.
+
+   That default has a face, and it is Arch's. Cal came back as a greying bearded
+   man in a plaid collar on a porch, and Dr. O looked at a scene made from him
+   and said "that looks like Arch". It did. It was not the video drifting, the
+   portrait was already him. It is the same convergence Pookie hit when her four
+   options came back as Arch, Henry and a gym guy.
+
+   So this slot is steered too, away from the house default rather than into
+   another fixed look. Our own demo friend came out of the same model, so
+   "unspecified" and "looks like Arch" are the same instruction. */
 const VARIATIONS = [
-  'Open, easy face. Slight smile, as if you just walked in and they looked up.',
+  'Open, easy face. Slight smile, as if you just walked in and they looked up. ' +
+  'Give this one a distinctive, particular face of their own: not the generic ' +
+  'friendly middle-aged face a stock photo would use. Vary the build, the hair, ' +
+  'whether there is facial hair at all, and the ancestry. Specifically avoid the ' +
+  'default of a greying bearded white man in a plaid or checked shirt.',
 
   'A more weathered, quieter face. Not unhappy, just someone who listens first. ' +
   'This one is Black.',
