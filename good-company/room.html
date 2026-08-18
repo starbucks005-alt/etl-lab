@@ -1920,6 +1920,22 @@ function startListening() {
   var taken = 0;
 
   rec.onresult = function (e) {
+    /* THE FEEDBACK LOOP. Dr. O: "when Sophia talks on audio her voice is
+       displayed as text in my text space and sends." Nothing here was ever
+       telling the mic to stop listening while his own reply was coming out
+       of the speaker, so on a laptop without headphones the mic hears him,
+       recognition transcribes him, and the room sends his own words back to
+       him as though the person had said them. Same class of bug as My Echo's
+       occasional version of this.
+
+       Ignored, not paused: stopping and restarting the recognition engine
+       around every reply risks losing whatever the person is mid-saying when
+       he starts talking. Simpler and safer to let it keep listening and
+       throw away anything heard while he is actually making sound, plus a
+       short beat after, since the room and the speaker do not go silent in
+       perfect sync. */
+    if (speaking || (Date.now() - lastAudioEndedAt) < 700) return;
+
     var finalBit = '';
     /* Never behind what has already been consumed, whatever the index claims. */
     for (var i = Math.max(e.resultIndex, taken); i < e.results.length; i++) {
@@ -2007,9 +2023,15 @@ $('closeBtn').addEventListener('click', function () { location.href = 'index.htm
    have to wait for him to finish, so any new line stops the old audio, and
    there is a visible Stop while he is talking. */
 var speaking = null;
+/* THE ECHO GUARD. Stamped every time his audio stops, so the mic's own
+   recognition (below) can tell "he just finished" from "nobody has spoken in
+   a while" and stay deaf for a short beat after his voice actually stops
+   coming out of the speaker, not just from the instant playback ends. */
+var lastAudioEndedAt = 0;
 
 function hush() {
   if (speaking) { try { speaking.pause(); } catch (_) {} speaking = null; }
+  lastAudioEndedAt = Date.now();
   $("stopBtn").style.display = "none";
 }
 
