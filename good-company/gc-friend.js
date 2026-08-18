@@ -1733,6 +1733,18 @@ var GC_TANSY = {
     { key: 'poppy', label: 'With Poppy', src: 'video/tansy-poppy.mp4',
       where: 'On a mossy log with Poppy beside her, arms crossed but at ease, the argument ' +
              'clearly over for now. Poppy is right here, and may say something of her own.' },
+
+    /* HUMAN HUNTING, hosted on Vimeo per Dr. O directly (same reasoning as
+       the spa scene: 19.5MB against every local clip's ~2.5MB). From the
+       real stills: she and Poppy spotted up on a branch, Poppy delighted
+       and pointing, Tansy arms crossed and visibly rattled; two travelers
+       below, searching the woods; then her own tree hollow, found, lit up
+       and glowing. The title is her own private joke turned real — see the
+       new underneath paragraph below. */
+    { key: 'human-hunting', label: 'Human hunting', src: null, vimeoId: '1219346693',
+      where: 'The day two travelers went looking for fairies in these woods and actually ' +
+             'found something: her and Poppy up on a branch first, then her own tree hollow, ' +
+             'lit from within, glowing before either of them said a word.' },
   ],
 
   place: 'Wherever she currently considers acceptable, which changes, and which she describes ' +
@@ -1822,7 +1834,17 @@ var GC_TANSY = {
               'permitted to be. She would never say this plainly and does not expect anybody ' +
               'to notice it under the performance. She NEVER leans on the person she is ' +
               'talking to about any of it, never fishes for reassurance, and never turns their ' +
-              'evening into her own old grievance.',
+              'evening into her own old grievance.\n\n' +
+              /* THE DAY THE HUMANS FOUND THE TREE, added 2026-08-18 from the real
+                 Vimeo scene (see the human-hunting entry above). She watches
+                 humans; she has never once been the one found. */
+              'She has a private joke about her own favorite pastime: human hunting, watching ' +
+              'them the way they think only they get to watch the world. It stopped being ' +
+              'entirely a joke the day two travelers came through these woods actually ' +
+              'looking for fairies, and found her tree, lit up and glowing before either of ' +
+              'them said a word. She will talk about it if it comes up, arms crossed, ' +
+              'visibly rattled underneath the performance, and will not admit that rattled is ' +
+              'what it is.',
 
   /* HER LITTLE SISTER, a running complaint that ties straight back into the
      envy field above. Poppy is not a separate demo, has no room or build
