@@ -2185,10 +2185,19 @@ function speak(text, voiceId, onDone, bubble) {
       text: spoken, voice_id: voiceId,
       /* access_token covers a solo conversation or the host; credit_ref
          covers a guest, who never holds the host's real token. gc-voice.js
-         tries the token first and only falls back to the reference. */
-      access_token: GC_accessToken(), credit_ref: ROOM_CREDIT_REF, owner_key: GC_ownerKey()
+         tries the token first and only falls back to the reference.
+         is_demo/visitor_id, added 2026-08-18: lets a house demo draw free
+         audio from the same daily pool text already uses — "the free daily
+         has to have audio because the audio makes it." */
+      access_token: GC_accessToken(), credit_ref: ROOM_CREDIT_REF, owner_key: GC_ownerKey(),
+      is_demo: FRIEND === GC_DEMO, visitor_id: GC_visitorId()
     })
   }).then(function (r) { return r.json(); }).then(function (j) {
+    if (j && j.daily_capped) {
+      if (!speak._creditsWarned) { speak._creditsWarned = true; showCreditsUpsell(true); }
+      if (onDone) onDone();
+      return;
+    }
     if (j && j.credits_exhausted) {
       /* A real, named reason, not a generic wiring failure, and only once:
          nobody needs this said again on every single line while audio stays

@@ -1,6 +1,11 @@
 /* gc-voice — the friend speaks.
 
-   POST { text, voice_id, access_token?, credit_ref?, owner_key? } -> { audio } (base64 mpeg)
+   POST { text, voice_id, access_token?, credit_ref?, owner_key?, is_demo?, visitor_id? }
+     -> { audio } (base64 mpeg)
+
+   is_demo/visitor_id, ADDED 2026-08-18: lets a house demo draw free audio
+   from the same daily pool gc-chat.js already meters text against. See the
+   note below.
 
    credit_ref, ADDED 2026-08-17: the shared-room equivalent of access_token.
    A guest's browser never holds the host's live token, only a one-way
@@ -24,16 +29,28 @@
        caller.
      * nothing is spoken twice: the browser keeps what it already fetched.
 
-   CREDITS, ALWAYS, NO FREE TIER, added 2026-08-17 after the real cost
-   breakdown: a spoken reply costs roughly five times what the text of the
-   same reply costs, even on the cheaper turbo model. gc-chat.js gives a
-   house demo DAILY_FREE_LIMIT free text messages a day; this does not give
-   voice the same allowance on ANY friend, demo included; voice always draws
-   from the shared credit pool (same ah_credits table gc-chat.js and Almost
-   Human both use). Checked BEFORE calling ElevenLabs, same "take the money
-   before the expensive part" reasoning as every paid generation on this
-   campus: no real request goes out for a message nobody can pay for. */
+   CREDITS ON A BUILT FRIEND, ALWAYS, NO FREE TIER: a spoken reply costs
+   roughly five times what the text of the same reply costs, even on the
+   cheaper turbo model, so a friend somebody built and owns draws from the
+   shared credit pool (same ah_credits table gc-chat.js and Almost Human
+   both use) with no free fallback, exactly like gc-chat.js's own text gate.
+
+   A HOUSE DEMO IS DIFFERENT NOW, changed 2026-08-18. Dr. O: "the free daily
+   has to have audio because the audio makes it" — a demo experienced as
+   silent text does not show what this product actually is. So a demo
+   friend (Arch, Sophia, Reggie, Tansy) now gets real audio inside the SAME
+   shared daily pool gc-chat.js already meters text against
+   (DAILY_FREE_LIMIT units/day/visitor, the ah_daily_usage Blobs store),
+   weighted at AUDIO_MESSAGE_COST units per spoken reply, the identical 1:5
+   ratio the paid credit system already uses. This does not add a second,
+   separate free allowance: a visitor who spends the whole pool on audio
+   gets about 3 spoken replies a day; spent on text, still 15. Same total
+   cost ceiling either way, on purpose. Checked BEFORE calling ElevenLabs,
+   same "take the money before the expensive part" reasoning as every paid
+   generation on this campus: no real request goes out for a message
+   nobody can pay for, free tier included. */
 const AUDIO_MESSAGE_COST = 5;
+const DAILY_FREE_LIMIT = 15;   // MUST MATCH gc-chat.js's own constant — same shared pool
 
 const MAX_CHARS = 900;   // a long turn, not a monologue
 
@@ -57,8 +74,17 @@ const json = (code, body) => ({
 
 const { getCreditRow, deductCredits, getCreditRowByRef, deductCreditsByRef, safeToken } = require('./_ah-credits.js');
 const { ownerUser } = require('./_owner-auth.js');
+const { connectLambda, getStore } = require('@netlify/blobs');
 
 const CREDIT_REF = /^[a-f0-9]{64}$/;
+
+function safeVisitorId(v) {
+  const s = String(v || '').trim();
+  return /^[A-Za-z0-9_-]{8,64}$/.test(s) ? s : null;
+}
+function todayKey(visitorId) {
+  return `${visitorId}:${new Date().toISOString().slice(0, 10)}`;
+}
 
 exports.handler = async function (event) {
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: CORS, body: '' };
@@ -76,18 +102,42 @@ exports.handler = async function (event) {
   if (!/^[A-Za-z0-9]{12,40}$/.test(voiceId)) return json(400, { error: 'no_voice_id' });
 
   const isOwner = !!ownerUser(String(body.owner_key || '').trim());
+  const isDemo = body.is_demo === true;
+  const visitorId = safeVisitorId(body.visitor_id);
   const accessToken = safeToken(body.access_token);
   const rawRef = String(body.credit_ref || '').trim();
   const creditRef = (!accessToken && CREDIT_REF.test(rawRef)) ? rawRef : null;
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-  if (!isOwner) {
-    let creditsRow = null;
-    if (serviceKey) {
-      if (accessToken) creditsRow = await getCreditRow(accessToken, serviceKey);
-      else if (creditRef) creditsRow = await getCreditRowByRef(creditRef, serviceKey);
+  let creditsRow = null;
+  if (!isOwner && serviceKey) {
+    if (accessToken) creditsRow = await getCreditRow(accessToken, serviceKey);
+    else if (creditRef) creditsRow = await getCreditRowByRef(creditRef, serviceKey);
+  }
+  const hasCredits = Boolean(!isOwner && creditsRow && creditsRow.balance >= AUDIO_MESSAGE_COST);
+
+  let usingFreeDailyCap = false;
+  let dayKey = null;
+
+  if (!isOwner && !hasCredits) {
+    if (!isDemo) {
+      return json(200, { error: 'credits_exhausted', credits_exhausted: true });
     }
-    if (!creditsRow || creditsRow.balance < AUDIO_MESSAGE_COST) {
+    /* SAME POOL GC-CHAT.JS ALREADY METERS TEXT AGAINST, weighted 5x here.
+       See the file-level note above: this is not a second free allowance,
+       it is audio spending down the same daily units text already does. */
+    usingFreeDailyCap = true;
+    if (visitorId && serviceKey) {
+      try { connectLambda(event); } catch (_) {}
+      dayKey = todayKey(visitorId);
+      let usage = null;
+      try { usage = await getStore('ah_daily_usage').get(dayKey, { type: 'json' }); } catch (_) {}
+      const countSoFar = (usage && usage.count) || 0;
+      if (countSoFar + AUDIO_MESSAGE_COST > DAILY_FREE_LIMIT) {
+        return json(200, { error: 'daily_capped', daily_capped: true });
+      }
+    } else {
+      // No visitor id to meter against — cannot verify a free allowance exists, so no free audio.
       return json(200, { error: 'credits_exhausted', credits_exhausted: true });
     }
   }
@@ -119,9 +169,19 @@ exports.handler = async function (event) {
   /* Billed only now, after ElevenLabs actually returned audio — never on a
      blocked check above, and never on a failed/unreachable call, which
      returned before this point. */
-  if (!isOwner && serviceKey) {
-    if (accessToken) await deductCredits(accessToken, AUDIO_MESSAGE_COST, serviceKey);
-    else if (creditRef) await deductCreditsByRef(creditRef, AUDIO_MESSAGE_COST, serviceKey);
+  if (!isOwner) {
+    if (hasCredits && serviceKey && accessToken) {
+      await deductCredits(accessToken, AUDIO_MESSAGE_COST, serviceKey);
+    } else if (hasCredits && serviceKey && creditRef) {
+      await deductCreditsByRef(creditRef, AUDIO_MESSAGE_COST, serviceKey);
+    } else if (usingFreeDailyCap && dayKey) {
+      try {
+        const usage = await getStore('ah_daily_usage').get(dayKey, { type: 'json' });
+        await getStore('ah_daily_usage').setJSON(dayKey, { count: ((usage && usage.count) || 0) + AUDIO_MESSAGE_COST });
+      } catch (err) {
+        console.error('gc-voice: daily usage increment failed (non-fatal):', err.message);
+      }
+    }
   }
 
   return json(200, { audio: buf.toString('base64'), chars: text.length });
