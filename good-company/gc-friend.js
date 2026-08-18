@@ -1645,6 +1645,14 @@ var GC_TANSY = {
       where: 'Her own rooms: a hollow in a great tree, stained glass worked into living ' +
              'branches, a real fire going, crystals and dried flowers on every surface. Far ' +
              'grander than anything she would ever admit to having built herself.' },
+
+    /* WITH POPPY, NEW: the visual home for the cameo mechanism above. A
+       visitor is still nominally sitting with Tansy, but Poppy is right
+       there in the scene too, which is exactly when her rare interjection
+       actually makes sense to see as well as hear. */
+    { key: 'poppy', label: 'With Poppy', src: 'video/tansy-poppy.mp4',
+      where: 'On a mossy log with Poppy beside her, arms crossed but at ease, the argument ' +
+             'clearly over for now. Poppy is right here, and may say something of her own.' },
   ],
 
   place: 'Wherever she currently considers acceptable, which changes, and which she describes ' +
@@ -1813,6 +1821,8 @@ var GC_TANSY = {
     { src: 'photos/tansy-poppy-humans-2.jpg', on: 'Added when Tansy joined',
       caption: 'Up on the branch, Poppy pointing the two of them out like a discovery, Tansy ' +
                'watching with rather more reserve.' },
+    { src: 'photos/tansy-sisters.jpg', on: 'Added when Tansy joined',
+      caption: 'Both of them on the log, eyes closed, nobody performing anything for once.' },
   ],
 };
 
