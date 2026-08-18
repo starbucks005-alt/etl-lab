@@ -116,14 +116,31 @@ html,body{ height:100%; }
 }
 
 /* ── scenes ──────────────────────────────────────────────────────────────── */
-.scene-bar{ display:flex; flex-wrap:wrap; gap:.4rem; padding:.55rem .6rem .7rem; }
+.scene-bar{ display:flex; flex-wrap:wrap; gap:.55rem; padding:.65rem .6rem .8rem; }
+/* BIGGER, WITH A CLIP IN EACH, per Dr. O 2026-08-18: "there is room, can you
+   make the scene boxes bigger? easier to read, a scene clip in each one."
+   Grown from a plain text pill to a small card: fixed size so a row of them
+   stays tidy, position:relative so the video and label can layer inside it. */
 .scene-chip{
-  font-family:var(--mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase;
-  color:var(--ink-dim); background:transparent; border:1px solid var(--line);
-  border-radius:3px; padding:.32rem .6rem; cursor:pointer;
+  font-family:var(--mono); font-size:12px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--ink-dim); background:#000; border:1px solid var(--line);
+  border-radius:5px; cursor:pointer; padding:0; overflow:hidden;
+  position:relative; width:132px; height:82px; flex:0 0 auto;
 }
 .scene-chip:hover{ color:var(--accent); border-color:var(--accent); }
 .scene-chip.on{ color:var(--accent); border-color:var(--accent); }
+/* The clip itself, muted and looping, sized to fill the card. Scenes with no
+   film yet (src:null) get no <video> at all, just the plain dark card. */
+.scene-chip video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+/* The label sits over the clip rather than beside it, same layering as
+   .portrait .still-say, so the card stays a fixed size whether or not the
+   scene has film. */
+.scene-chip span{
+  position:absolute; left:0; right:0; bottom:0; padding:.3rem .45rem;
+  background:linear-gradient(transparent, rgba(0,0,0,.78) 65%);
+  color:#F0E7DA; text-align:left; line-height:1.25;
+}
+.scene-chip.on span{ color:var(--accent); }
 
 /* A SCENE THAT COULD EXIST AND DOES NOT YET. Dimmed and dashed, so it reads as
    an empty slot rather than a button that is broken, and it carries a plus so
@@ -131,6 +148,7 @@ html,body{ height:100%; }
    be, because pressing it is how you find out what it costs. */
 .scene-chip.locked{ border-style:dashed; opacity:.62; }
 .scene-chip.locked:hover{ opacity:1; color:var(--accent); border-color:var(--accent); }
+.scene-chip.locked span{ position:static; background:none; padding:.4rem .5rem; }
 
 /* ── the conversation ────────────────────────────────────────────────────── */
 /* THE COLUMN DOES NOT SCROLL. THE TRANSCRIPT DOES.
@@ -725,7 +743,19 @@ FRIEND.scenes.forEach(function (scene, i) {
   var chip = document.createElement('button');
   chip.className = 'scene-chip' + (i === 0 ? ' on' : '');
   chip.dataset.key = scene.key;
-  chip.textContent = scene.label;
+  /* THE CLIP ITSELF, when there is one. Muted so several can play at once
+     without turning the picker into noise; looped and small, a preview, not
+     the room's actual audio. A scene with src:null gets no <video> at all,
+     same "nothing pretending to be there" rule as the main stage. */
+  if (scene.src) {
+    var v = document.createElement('video');
+    v.src = scene.src; v.muted = true; v.loop = true; v.autoplay = true; v.playsInline = true;
+    v.setAttribute('aria-hidden', 'true');
+    chip.appendChild(v);
+  }
+  var label = document.createElement('span');
+  label.textContent = scene.label;
+  chip.appendChild(label);
   chip.addEventListener('click', function () { moveRoom(scene); });
   bar.appendChild(chip);
 });
