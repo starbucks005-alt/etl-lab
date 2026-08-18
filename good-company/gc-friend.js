@@ -1760,6 +1760,16 @@ var GC_TANSY = {
              'them moving together the way they only ever do when nobody human is around to ' +
              'perform for.' },
 
+    /* POPPY, ON HER OWN, added 2026-08-18: "since you added blue by
+       herself, now you can talk to Poppy by herself too." Reuses a file
+       already in the repo (video/poppy-2.mp4, "tansy little sister.mp4"),
+       previously only in the album as one of her two humming clips.
+       Distinct key from 'poppy' above, which is Tansy WITH Poppy — this
+       one is Poppy's own scene, the same shape as 'blue' below. */
+    { key: 'poppy-alone', label: 'Just Poppy', src: 'video/poppy-2.mp4',
+      where: 'With Poppy on her own, wings a blur, humming to herself and not for anybody ' +
+             'watching.' },
+
     /* BLUE, ON HER OWN, small enough (2.75MB) to stay a local file rather
        than go to Vimeo. I have not watched it, only the matching portrait
        (seated in a white flower, blue petal dress, flower crown), so the
