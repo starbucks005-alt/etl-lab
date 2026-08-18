@@ -39,6 +39,8 @@ exports.handler = async (event) => {
           'movement, just a real dog breathing and being alive in the room.',
         firstFrameB64,
         seconds: 4,
+        resolution: '720p', // Lite tier's actual supported resolution; 1080p (the file's own
+                             // default) errored live as "not supported for a duration of 4 seconds"
         models: [veo.MODEL_LITE],
       });
       return json(200, res);
