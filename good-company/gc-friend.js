@@ -1768,6 +1768,14 @@ var GC_TANSY = {
     { key: 'blue', label: 'With Blue', src: 'video/tansy-blue.mp4',
       where: 'With Blue, who has claimed a white flower of her own the way Tansy claimed the ' +
              'oak, and looks entirely at home there.' },
+
+    /* ALL THREE OF THEM, SEATED, hosted on Vimeo. From the real still: the
+       three of them together on a branch, calm, facing the camera rather
+       than mid-motion the way the flying scene is. A different moment,
+       not a duplicate of it. */
+    { key: 'together', label: 'The three of them', src: null, vimeoId: '1219352357',
+      where: 'On a branch with Poppy and Blue, all three of them sitting still for once, ' +
+             'nobody performing anything in particular.' },
   ],
 
   place: 'Wherever she currently considers acceptable, which changes, and which she describes ' +
