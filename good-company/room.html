@@ -1240,16 +1240,19 @@ function showCreditsUpsell(isDailyCap) {
   subBtn.addEventListener('click', function () { startCreditsCheckout('/.netlify/functions/create-checkout-ah', {}); });
   actions.appendChild(subBtn);
 
+  /* ALWAYS OFFERED NOW, not just to somebody who already has a token.
+     create-checkout-ah-addon.js mints a fresh one on success if this visitor
+     has none yet, added 2026-08-18: "we need to let them buy credits. the
+     demos may end up being the star of the app." A first sit-down with
+     Reggie or Tansy should not have to end at "subscribe monthly or stop." */
   var existingToken = GC_accessToken();
-  if (existingToken) {
-    var addonBtn = document.createElement('button');
-    addonBtn.type = 'button'; addonBtn.className = 'btn';
-    addonBtn.textContent = '+30 credits, $4.99';
-    addonBtn.addEventListener('click', function () {
-      startCreditsCheckout('/.netlify/functions/create-checkout-ah-addon', { access_token: existingToken });
-    });
-    actions.appendChild(addonBtn);
-  }
+  var addonBtn = document.createElement('button');
+  addonBtn.type = 'button'; addonBtn.className = 'btn';
+  addonBtn.textContent = '+30 credits, $4.99';
+  addonBtn.addEventListener('click', function () {
+    startCreditsCheckout('/.netlify/functions/create-checkout-ah-addon', { access_token: existingToken || '' });
+  });
+  actions.appendChild(addonBtn);
 
   box.appendChild(actions);
   $('log').appendChild(box);

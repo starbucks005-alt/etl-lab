@@ -1,8 +1,16 @@
-/* create-checkout-ah-addon — one-time Stripe purchase that tops up an
-   existing Almost Human subscriber's credit balance by ADDON_CREDITS. Not a
-   standalone way to get access: requires an existing access_token already
-   issued by create-checkout-ah's subscription flow, passed through as
-   Checkout metadata so verify-checkout-ah.js knows which row to credit.
+/* create-checkout-ah-addon — one-time Stripe purchase of ADDON_CREDITS.
+
+   ACCESS_TOKEN IS NOW OPTIONAL, changed 2026-08-18. Dr. O: "we need to let
+   them buy credits. the demos may end up being the star of the app." Before
+   this, only somebody who already had a token (from a prior $9.99/mo
+   subscription) could reach this button at all — a first-time visitor who
+   just hit Reggie or Tansy's free daily cap and only wants a one-time top-up,
+   not a monthly commitment, had no way to buy anything. If a token IS given
+   (an existing subscriber or demo-cap buyer topping up further), it still
+   tops up that same row. If none is given, verify-checkout-ah.js mints a
+   fresh one on success, same STARTER_CREDITS-style pattern
+   gc-friend-checkout.js already uses for a first-time buyer with no prior
+   identity: subscription_active false, a fixed balance that only depletes.
 
    Price is defined inline (price_data), not a pre-created Stripe Dashboard
    price behind an env var — same pattern as create-checkout-ah.js and
@@ -50,8 +58,7 @@ exports.handler = async (event) => {
   let body = {};
   try { body = JSON.parse(event.body || '{}'); } catch (_) {}
 
-  const token = safeToken(body.access_token);
-  if (!token) return json(400, { error: 'access_token_required' });
+  const token = safeToken(body.access_token); // may be '' now — see note above
   const returnTo = safeReturnTo(body.return_to);
 
   const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20' });

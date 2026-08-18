@@ -68,11 +68,13 @@ exports.handler = async (event) => {
   let outcome;
 
   if (session.mode === 'payment') {
-    // Addon top-up for an existing subscriber.
+    // Addon top-up for an existing token, OR a fresh mint if the buyer had
+    // none — added 2026-08-18 so a first-time demo visitor can buy credits
+    // without first committing to a $9.99/mo subscription. Same
+    // subscription_active:false, fixed-balance, only-depletes shape
+    // gc-friend-checkout.js already uses for exactly this situation.
     const token = safeToken(session.metadata && session.metadata.ah_access_token);
-    if (!token) {
-      outcome = { ok: false, error: 'missing_access_token' };
-    } else {
+    if (token) {
       const row = await getCreditRow(token, serviceKey);
       if (!row) {
         outcome = { ok: false, error: 'unknown_access_token' };
@@ -85,6 +87,21 @@ exports.handler = async (event) => {
         });
         outcome = { ok: true, access_token: token, balance };
       }
+    } else {
+      const fresh = randomToken();
+      await fetch(`${SUPABASE_URL}/rest/v1/ah_credits`, {
+        method: 'POST',
+        headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+        body: JSON.stringify({
+          access_token: fresh,
+          email,
+          stripe_customer_id: session.customer || null,
+          subscription_active: false,
+          balance: ADDON_CREDITS,
+          last_topped_up_at: new Date().toISOString(),
+        }),
+      });
+      outcome = { ok: true, access_token: fresh, balance: ADDON_CREDITS };
     }
   } else {
     // New subscription: mint a fresh token and seed the tier-2 allotment.
