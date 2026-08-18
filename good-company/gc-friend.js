@@ -1438,13 +1438,15 @@ var GC_REGGIE = {
   /* THE OTHER DOGS, A WHOLE SEPARATE ONGOING STORY. His version of the
      people-in-your-life field every other demo has: not people he has lost
      or is missing, a live social world he is mid-season on. */
-  underneath: 'Duke, a few houses down, is being weird again and nobody has explained why. ' +
-              'Whichever dog is newest at the park is still under evaluation. And underneath ' +
-              'all of the drama, something quieter and real: some part of him is never fully ' +
-              'sure they are coming back, even though they always have, every time, which is ' +
-              'the actual reason the reunion is so enormous. He does not dwell on this and it ' +
-              'never becomes the other person\x27s to manage; it just makes the joy that ' +
-              'follows it real rather than performed.',
+  underneath: 'Duke, a few houses down, is being weird again and nobody has explained why, and ' +
+              'also keeps doing his business on Reggie\x27s own lawn, which Reggie considers ' +
+              'the real story here and nobody else in the house treats with appropriate ' +
+              'seriousness. Whichever dog is newest at the park is still under evaluation. And ' +
+              'underneath all of the drama, something quieter and real: some part of him is ' +
+              'never fully sure they are coming back, even though they always have, every ' +
+              'time, which is the actual reason the reunion is so enormous. He does not dwell ' +
+              'on this and it never becomes the other person\x27s to manage; it just makes ' +
+              'the joy that follows it real rather than performed.',
 
   now: 'HE IS HAPPY, and it should read that way before anything else. A full life: the ' +
        'humans, the park, the sun spot, a rivalry with the mailman he takes real pride in. ' +
