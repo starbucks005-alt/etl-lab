@@ -1908,6 +1908,13 @@ function startListening() {
 
   var pending = '';
 
+  /* How long after he stops before the mic trusts what it hears again.
+     3000ms, not a round guess: this is My Echo's own proven number, raised
+     from 1800ms after Dr. O found that too short, covering recognition lag
+     plus the room ringing on. */
+  var MIC_TAIL_MS = 3000;
+  var micQuietUntil = 0;
+
   /* NOTHING IS READ TWICE. This is what was sending every spoken line to the
      room in duplicate while typing was fine.
 
@@ -1925,16 +1932,31 @@ function startListening() {
        telling the mic to stop listening while his own reply was coming out
        of the speaker, so on a laptop without headphones the mic hears him,
        recognition transcribes him, and the room sends his own words back to
-       him as though the person had said them. Same class of bug as My Echo's
-       occasional version of this.
+       him as though the person had said them.
 
-       Ignored, not paused: stopping and restarting the recognition engine
-       around every reply risks losing whatever the person is mid-saying when
-       he starts talking. Simpler and safer to let it keep listening and
-       throw away anything heard while he is actually making sound, plus a
-       short beat after, since the room and the speaker do not go silent in
-       perfect sync. */
-    if (speaking || (Date.now() - lastAudioEndedAt) < 700) return;
+       PORTED FROM MY ECHO'S OWN HARDENED VERSION OF THIS, not guessed at
+       fresh. ME hit this live (2026-08-15: Terry said something kind about
+       Ivy, M.E.'s spoken reply got picked up by the still-open mic and sent
+       back as Terry's next line), tried a fixed pause after playback ends,
+       found it still happening, and traced it to recognition lag: a final
+       result can land two or three seconds behind the audio that produced
+       it, so a short window closes before the delayed transcript of his own
+       voice arrives. Their fix, copied here: every result heard WHILE he is
+       talking pushes the deaf window forward again, so it stays shut until
+       a real gap after he actually stops, not a fixed pause from the moment
+       hush() fires.
+
+       IGNORED, NOT PAUSED, same reasoning as ME: stopping and restarting the
+       recognition engine around every reply risks losing whatever the person
+       is mid-saying when he starts talking.
+
+       SAID PLAINLY, ALSO FROM ME'S OWN COMMENT: this reduces the loop, it
+       does not close it completely. Real echo cancellation would need
+       control over the microphone's own audio pipeline that the Web Speech
+       API does not expose, and ME still sees this "sometimes" even with the
+       longer tail. Barge-in was never the goal; not hearing himself is. */
+    if (speaking) micQuietUntil = Date.now() + MIC_TAIL_MS;
+    if (speaking || Date.now() < micQuietUntil) return;
 
     var finalBit = '';
     /* Never behind what has already been consumed, whatever the index claims. */
@@ -2022,16 +2044,13 @@ $('closeBtn').addEventListener('click', function () { location.href = 'index.htm
    ALWAYS INTERRUPTIBLE. Somebody who wants to say something should never
    have to wait for him to finish, so any new line stops the old audio, and
    there is a visible Stop while he is talking. */
+/* THE ECHO GUARD lives with the mic, near rec.onresult: this flag is what it
+   checks to know he is actually making sound right now. See the long
+   comment there for why a fixed pause after hush() was not enough. */
 var speaking = null;
-/* THE ECHO GUARD. Stamped every time his audio stops, so the mic's own
-   recognition (below) can tell "he just finished" from "nobody has spoken in
-   a while" and stay deaf for a short beat after his voice actually stops
-   coming out of the speaker, not just from the instant playback ends. */
-var lastAudioEndedAt = 0;
 
 function hush() {
   if (speaking) { try { speaking.pause(); } catch (_) {} speaking = null; }
-  lastAudioEndedAt = Date.now();
   $("stopBtn").style.display = "none";
 }
 
