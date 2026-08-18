@@ -1526,6 +1526,11 @@ var GC_REGGIE = {
    very idea beneath her, at length, and that stance is the boundary itself,
    not a performance in front of it. [[etl-cast-diversity-theme]] */
 var GC_TANSY = {
+  /* SHOWN ON THE DOORSTEP, BEFORE HER FIRST LINE, plain prose for a visitor
+     rather than model instructions. Dr. O: her hello ("I suppose I can spare
+     a moment") reads as just standoffish without this. */
+  premise: 'Tansy acts like she is above humans entirely, and would never admit otherwise. ' +
+           'Her little sister Poppy adores humans, openly, which mortifies her.',
   name: 'Tansy',
   /* A PLAIN NAME, GIVEN A TITLE SHE INVENTED HERSELF. Nobody else uses it
      and she has never once let that stop her. */

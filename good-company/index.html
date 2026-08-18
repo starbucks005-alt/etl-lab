@@ -232,11 +232,14 @@ header{
 .cta-quiet{
   display:inline-block; margin-top:1.9rem; margin-left:1.1rem;
   color:rgba(255,255,255,.86); text-decoration:none;
-  font-size:1rem; padding-bottom:.15rem; text-shadow:0 1px 18px rgba(0,0,0,.5);
+  font-size:1.15rem; padding-bottom:.15rem; text-shadow:0 1px 18px rgba(0,0,0,.5);
 }
+/* David: he did not notice these were links at all. Bumped from 1rem and the
+   underline from 1px/.35 opacity to 2px/.6, so the names read as clickable
+   at a glance instead of blending into the sentence around them. */
 .cta-quiet a{
   color:inherit; text-decoration:none;
-  border-bottom:1px solid rgba(255,255,255,.35); padding-bottom:.15rem;
+  border-bottom:2px solid rgba(255,255,255,.6); padding-bottom:.15rem;
 }
 .cta-quiet a:hover{ color:#fff; border-bottom-color:#fff; }
 .hero.no-art .cta-quiet{ color:var(--ink-dim); text-shadow:none; }

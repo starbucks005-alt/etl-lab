@@ -204,6 +204,11 @@ html,body{ height:100%; }
 .gate{ padding:1rem 1rem 1.4rem; overflow-y:auto; }
 .gate h3{ font-family:Georgia,serif; font-weight:400; font-size:1.35rem; margin:0 0 .3rem; }
 .gate-say{ color:var(--ink-dim); font-size:14.5px; margin:0 0 .6rem; }
+/* THE PREMISE, added 2026-08-18. Dr. O: a stranger's first line from Tansy
+   ("I suppose I can spare a moment") reads as just standoffish without
+   knowing she is playing a part. Shown only when a friend has one written
+   (FRIEND.premise), so a built friend's doorstep is unaffected. */
+.gate-premise{ font-style:italic; color:var(--ink-dim); font-size:14px; margin:0 0 .8rem; line-height:1.45; }
 .gate .you-panel{ border-top:none; padding-left:0; padding-right:0; }
 .chat{ display:flex; flex-direction:column; min-height:0; flex:1; }
 /* The occasional controls, small and wrapping rather than stacked full-width. */
@@ -315,6 +320,7 @@ html,body{ height:100%; }
          in it is a line of talk you cannot see. -->
     <div class="gate" id="gate">
       <h3 id="gateTitle">Before you sit down</h3>
+      <p class="gate-premise" id="gatePremise" style="display:none"></p>
       <p class="gate-say" id="gateSay"></p>
       <div id="youPanel"></div>
       <!-- Shares the doorstep rather than adding a surface, the same way Who
@@ -457,6 +463,9 @@ var $ = function (id) { return document.getElementById(id); };
 function nameEverything() {
   $('gaugeTitle').textContent = 'How ' + FRIEND.name + ' is feeling right now';
   $('gaugeLabel').textContent = FRIEND.mood || 'Easy, glad you came by';
+  /* THE PREMISE, so a first-time visitor has it before her first line lands. */
+  if (FRIEND.premise) { $('gatePremise').textContent = FRIEND.premise; $('gatePremise').style.display = ''; }
+  else { $('gatePremise').style.display = 'none'; }
   /* The wake word hint used to be written here, describing a feature that does
      not exist and telling the reader their audio was being sent away while it
      did not exist. Removed rather than reworded: the button says what it is. */
