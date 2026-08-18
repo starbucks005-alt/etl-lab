@@ -446,6 +446,27 @@ exports.handler = async function (event) {
   try { body = JSON.parse(event.body || '{}'); } catch (_) { return json(400, { error: 'bad_json' }); }
 
   const friend = body.friend || {};
+  /* WHO IS ACTUALLY TALKING, added 2026-08-18. Dr. O: she picked the scene
+     with just Poppy, or just Blue, on their own, and expected THEM to be
+     the one answering -- "but Tansy is still there" was the bug report,
+     because the room kept answering as Tansy regardless of which scene was
+     on screen, even one where Tansy is not visually present at all.
+
+     speaker is an optional full persona (built client-side from
+     friend.companions[scene.speaker], see room.html) standing in for
+     friend everywhere a reply is actually built: buildSystem(), the mood
+     fallback, the reply's voice. friend itself stays untouched and keeps
+     doing what it always did -- billing, is_demo, credit gating, the room
+     record -- because Poppy and Blue are not separately built or paid for,
+     they are Tansy's own companions borrowing her room's credits.
+
+     CAMEOS FALL OUT OF THIS FOR FREE: a speaker object has no .cameos
+     array of its own, so Tansy (or Poppy) never interjects into Blue's
+     solo scene without any extra logic to suppress it — the point of a
+     solo scene is that this companion has the room to themselves. */
+  const speaker = (body.speaker && typeof body.speaker === 'object' && body.speaker.name)
+    ? body.speaker : null;
+  const activeFriend = speaker || friend;
   const you = body.you || {};
   const idle = body.idle ? { seconds: Number(body.idleSeconds) || 0 } : false;
   const said = String(body.message || '').slice(0, 4000);
@@ -466,10 +487,10 @@ exports.handler = async function (event) {
       verdict = CRISIS_SNIFF.test(said) ? 'CRISIS' : 'ROMANCE';
     }
     if (verdict === 'CRISIS') {
-      return json(200, { reply: crisisReply(friend.name, you.name), mood: 'Here, and not going anywhere', handled: 'crisis' });
+      return json(200, { reply: crisisReply(activeFriend.name, you.name), mood: 'Here, and not going anywhere', handled: 'crisis' });
     }
     if (verdict === 'ROMANCE') {
-      return json(200, { reply: romanceRedirect(friend.name, you.name), mood: friend.mood || null, handled: 'romance' });
+      return json(200, { reply: romanceRedirect(activeFriend.name, you.name), mood: activeFriend.mood || null, handled: 'romance' });
     }
   }
 
@@ -509,8 +530,8 @@ exports.handler = async function (event) {
          upsell nobody asked for right now; it just stays quiet, the same
          outcome the model itself is allowed to choose. A real message from
          the person gets the flag the client uses to show the upsell. */
-      if (idle) return json(200, { reply: null, quiet: true, mood: friend.mood || null });
-      return json(200, { reply: null, credits_exhausted: true, mood: friend.mood || null });
+      if (idle) return json(200, { reply: null, quiet: true, mood: activeFriend.mood || null });
+      return json(200, { reply: null, credits_exhausted: true, mood: activeFriend.mood || null });
     }
     usingFreeDailyCap = true;
     if (visitorId && serviceKey) {
@@ -520,8 +541,8 @@ exports.handler = async function (event) {
       try { usage = await getStore('ah_daily_usage').get(dayKey, { type: 'json' }); } catch (_) {}
       const countSoFar = (usage && usage.count) || 0;
       if (countSoFar >= DAILY_FREE_LIMIT) {
-        if (idle) return json(200, { reply: null, quiet: true, mood: friend.mood || null });
-        return json(200, { reply: null, daily_capped: true, mood: friend.mood || null });
+        if (idle) return json(200, { reply: null, quiet: true, mood: activeFriend.mood || null });
+        return json(200, { reply: null, daily_capped: true, mood: activeFriend.mood || null });
       }
     }
   }
@@ -646,8 +667,8 @@ exports.handler = async function (event) {
      A cache write costs slightly more than a normal call. A cache hit, on
      the next turn within the window, costs roughly a tenth of a normal read
      on everything before the breakpoint. Most of a real conversation is hits. */
-  const staticSystem = buildSystem(friend, you, idle, body.scene, body.room);
-  const dynamicSystem = when.nowNote(friend, new Date()) + web.pageNote(pages) + [
+  const staticSystem = buildSystem(activeFriend, you, idle, body.scene, body.room);
+  const dynamicSystem = when.nowNote(activeFriend, new Date()) + web.pageNote(pages) + [
     '',
     'AFTER your reply, on its own last line, write:',
     /* THE SLOT HOLDS DIGITS, NOT THE FIELD NAMES. It used to read
@@ -744,7 +765,7 @@ exports.handler = async function (event) {
      A name the model invents that is not actually in friend.cameos is
      dropped rather than spoken in a voice nobody chose for it. */
   let cameo = null;
-  if (Array.isArray(friend.cameos) && friend.cameos.length) {
+  if (Array.isArray(activeFriend.cameos) && activeFriend.cameos.length) {
     const cCut = raw.indexOf(CAMEO_MARK);
     if (cCut > -1) {
       const afterMark = raw.slice(cCut + CAMEO_MARK.length);
@@ -766,7 +787,7 @@ exports.handler = async function (event) {
           const lastSpace = cut.lastIndexOf(' ');
           cameoText = (lastSpace > 200 ? cut.slice(0, lastSpace) : cut).trim();
         }
-        const match = friend.cameos.find(c => c && c.name && c.name.toLowerCase() === spokenName.toLowerCase());
+        const match = activeFriend.cameos.find(c => c && c.name && c.name.toLowerCase() === spokenName.toLowerCase());
         if (cameoText && match && match.voiceId) {
           cameo = { name: match.name, text: houseTypography(cameoText), voice_id: match.voiceId };
         }
@@ -794,10 +815,18 @@ exports.handler = async function (event) {
      a demo. The caller gets null and renders nothing at all: no bubble, no
      typing dots, no apology. */
   if (idle && (!reply || /^<quiet>$/i.test(reply.replace(/[.\s]/g, '')))) {
-    return json(200, { reply: null, quiet: true, mood: feltMood || friend.mood || null, feelings: feelings });
+    return json(200, { reply: null, quiet: true, mood: feltMood || activeFriend.mood || null, feelings: feelings });
   }
   reply = reply.replace(/<\/?quiet>/gi, '').trim();
-  if (!reply) return json(200, { reply: null, quiet: true, mood: feltMood || friend.mood || null, feelings: feelings });
+  if (!reply) return json(200, { reply: null, quiet: true, mood: feltMood || activeFriend.mood || null, feelings: feelings });
 
-  return json(200, { reply, mood: feltMood || friend.mood || null, feelings: feelings, cameo });
+  return json(200, {
+    reply, mood: feltMood || activeFriend.mood || null, feelings: feelings, cameo,
+    /* Echoed back rather than trusted to whatever the client still has in
+       memory: a shared room polls, and a guest's own copy of the scene can
+       be a beat behind the host's. This is what actually generated the
+       reply, not a guess. */
+    speaker_name: activeFriend.name || null,
+    speaker_voice_id: activeFriend.voiceId || null,
+  });
 };

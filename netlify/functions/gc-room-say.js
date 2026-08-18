@@ -96,6 +96,13 @@ exports.handler = async function (event) {
 
     const friend = who.room.friend || {};
     const scene = (friend.scenes || []).find(s => s.key === who.room.scene_key) || null;
+    /* WHO IS ACTUALLY TALKING, added 2026-08-18, same reasoning and same
+       shape as gc-chat.js's own activeFriend (see the comment there): a
+       solo companion scene (just Poppy, just Blue) means that companion
+       answers, not Tansy, and that has to hold in a shared room the same
+       way it does for a single visitor, or the room would quietly revert
+       to Tansy the moment a second person joined. */
+    const speakerObj = (scene && scene.speaker && friend.companions && friend.companions[scene.speaker]) || null;
 
     /* WHO PAYS. Same !friend.id heuristic used everywhere else this
        distinction is made: a house demo never has an id, a built friend
@@ -115,6 +122,7 @@ exports.handler = async function (event) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         friend,
+        speaker: speakerObj,
         /* WHO IS SPEAKING, so the friend addresses the right person with the
            right pronouns. In a room with several people this is the difference
            between a conversation and a broadcast. */
@@ -139,7 +147,11 @@ exports.handler = async function (event) {
     await R.insertMessage(key, who.room.id, {
       speaker: 'friend',
       authorId: null,
-      name: (who.room.friend && who.room.friend.name) || 'Friend',
+      /* out.speaker_name is who actually generated this line (gc-chat.js's
+         activeFriend) -- Poppy or Blue in a solo scene, Tansy otherwise.
+         Falls back the same way it always did if that ever comes back
+         empty. */
+      name: out.speaker_name || (who.room.friend && who.room.friend.name) || 'Friend',
       content: out.reply,
     });
     /* THE CAMEO, IF THERE WAS ONE, added 2026-08-18. gc-chat.js already

@@ -1346,10 +1346,22 @@ function transcript() {
 function ask(payload) {
   thinking = true;
   $("sendBtn").disabled = true;
+  /* WHO IS ACTUALLY IN THE SCENE, added 2026-08-18. Dr. O picked the scene
+     with just Poppy, or just Blue, on their own, and expected them to be
+     the one talking — "but Tansy is still there" was the bug, the room
+     kept answering as Tansy no matter which scene was on screen. A scene
+     names its speaker by key (see gc-friend.js, current.speaker), looked
+     up here against FRIEND.companions, the small persona Tansy carries for
+     each of them. Sent alongside friend, not instead of it: friend still
+     does the billing, is_demo, and credit gating (see gc-chat.js's own
+     activeFriend note) because Poppy and Blue are not separately built or
+     paid for, they are borrowing Tansy's room. */
+  var speakerObj = (current && current.speaker && FRIEND.companions) ? FRIEND.companions[current.speaker] : null;
   return fetch(CHAT_URL, {
     method: "POST", headers: { "Content-Type": "application/json" },
     body: JSON.stringify(Object.assign({
       friend: FRIEND,
+      speaker: speakerObj,
       you: { name: YOU.name, pronouns: YOU.pronouns },
       messages: transcript(),
       scene: current ? { label: current.label, where: current.where } : null,
@@ -1370,12 +1382,19 @@ function ask(payload) {
        bubble, no apology, no dots. If silence cannot be produced the room
        always feels like a demo. */
     if (j && j.reply) {
-      var replyBubble = post(FRIEND.name, j.reply);
+      /* speaker_name/speaker_voice_id are what gc-chat.js actually used to
+         build the reply (see its own activeFriend note) — trusted over the
+         locally-picked speakerObj in case the scene changed underneath a
+         slow reply. Falls back to FRIEND for every ordinary scene, exactly
+         as before this existed. */
+      var talkerName = (j.speaker_name) || FRIEND.name;
+      var talkerVoice = (j.speaker_voice_id) || FRIEND.voiceId;
+      var replyBubble = post(talkerName, j.reply);
       /* THE CAMEO, IF THERE IS ONE (Poppy, in Tansy's room, rarely).
          Text posts right away either way. The speech is chained after her
          own line finishes, via onDone, rather than fired at the same time,
          so audio mode never has two voices talking over each other. */
-      speak(j.reply, FRIEND.voiceId, function () {
+      speak(j.reply, talkerVoice, function () {
         if (j.cameo && j.cameo.text) {
           var cameoBubble = post(j.cameo.name, j.cameo.text);
           speak(j.cameo.text, j.cameo.voice_id, undefined, cameoBubble);
