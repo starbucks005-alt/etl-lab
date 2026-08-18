@@ -174,6 +174,10 @@ function buildSystem(friend, you, idle, scene, room) {
      something they were given. It comes out the way anybody's work comes out:
      what last night was, what people get wrong, what they wish people knew. */
   if (f.knows) bits.push(f.knows);
+  /* REAL, VISIBLE MAGIC, where a friend has it (Tansy). A positive trait
+     like knows/into, not a limit, so it sits with them rather than down
+     with notMagic below. */
+  if (f.magic) bits.push(f.magic);
 
   /* WHAT THEY ASKED YOU TO REMEMBER. Typed in deliberately by the person, one
      at a time, and the whole second promise of this product rests on them
@@ -219,6 +223,13 @@ function buildSystem(friend, you, idle, scene, room) {
      shape as the crisis rule for people. */
   if (f.notTheVet)      bits.push(f.notTheVet);
   if (f.notTheEngineer) bits.push(f.notTheEngineer);
+  /* WAS MISSING ENTIRELY, found and fixed 2026-08-18 while wiring in the
+     new f.magic field above: Tansy's canon has had a notMagic safety limit
+     ("she cannot actually fix a real problem") since she was first built,
+     and buildSystem() never once read it — every other friend's equivalent
+     limit (notTheVet, notTheEngineer, offLimits) was wired in, this one
+     was written and then silently never reached the model at all. */
+  if (f.notMagic)   bits.push(f.notMagic);
   if (f.offLimits)  bits.push(f.offLimits);
   if (f.ritual) bits.push(f.ritual);
 
