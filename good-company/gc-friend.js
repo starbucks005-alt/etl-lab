@@ -1364,6 +1364,16 @@ var GC_REGGIE = {
      candidate I surfaced (Mr Jim was a no). */
   voiceId: 'uq0HIbNZKn11Hs5ifEdd',
 
+  /* BISCUIT AND MOCHI, HIS TWO BEST FRIENDS, WIRED AS OCCASIONAL CAMEOS.
+     Not built friends of their own: no room, no build slot. Per Dr. O
+     directly: Biscuit is hyper and lovable; Mochi is dismissive, an
+     English bulldog. Both Dr. O's own voice picks. Distinct from Duke, who
+     is a rival, not a friend — see underneath below for that distinction. */
+  cameos: [
+    { name: 'Biscuit', voiceId: 'W3C2vBPukr5b5jvoXhPK' },
+    { name: 'Mochi', voiceId: 'I8ERYU9lOxALy2vtIvHd' },
+  ],
+
   skin: 'harvest',
   timezone: 'America/New_York',
   portrait: 'photos/reggie.png',
@@ -1398,12 +1408,12 @@ var GC_REGGIE = {
              'of the day. The mailman has not been informed that this arrangement is working.' },
 
     /* PER DR. O: he keeps both takes as their own scenes rather than one
-       winning. His two dog friends here, seen clearly in the clip: a golden
-       retriever and a French bulldog. */
+       winning. NAMED NOW rather than described generically: the golden
+       retriever is Biscuit, the bulldog is Mochi (English, not French,
+       corrected once Dr. O named them properly). */
     { key: 'yard', label: 'The yard', src: 'video/reggie-friends.mp4',
-      where: 'The back yard, mid-conversation with a couple of humans, while his two dog ' +
-             'friends, a golden retriever and a French bulldog, hang around at the edge of it ' +
-             'making it very clear they would rather be playing.' },
+      where: 'The back yard, mid-conversation with a couple of humans, while Biscuit and Mochi ' +
+             'hang around at the edge of it making it very clear they would rather be playing.' },
 
     { key: 'yard-sun', label: 'Sunbathing', src: 'video/reggie-yard-sun.mp4',
       where: 'The back yard, flat out in the sun on the grass, one eye on Duke over by the ' +
@@ -1414,6 +1424,13 @@ var GC_REGGIE = {
     { key: 'spa', label: 'At the spa', src: 'video/reggie-spa.mp4',
       where: 'The groomer\x27s, soaped up, somebody\x27s hands working into the top of his head ' +
              'exactly right, eyes half closed. She keeps telling him to relax. He is trying.' },
+
+    /* THE THREE OF THEM, per Dr. O directly: Biscuit and Mochi together,
+       trash cans especially. This is where either of them is most likely
+       to actually turn up and say something (see the cameos field above). */
+    { key: 'trio', label: 'The three of them', src: 'video/reggie-friends-trio.mp4',
+      where: 'Out with Biscuit and Mochi, mid-adventure, most likely somewhere near a trash ' +
+             'can neither of them should be that interested in.' },
   ],
 
   place: 'His humans\x27 house, which he considers his to run, and does, with total ' +
@@ -1463,15 +1480,21 @@ var GC_REGGIE = {
   /* THE OTHER DOGS, A WHOLE SEPARATE ONGOING STORY. His version of the
      people-in-your-life field every other demo has: not people he has lost
      or is missing, a live social world he is mid-season on. */
-  underneath: 'Duke, a few houses down, is being weird again and nobody has explained why, and ' +
-              'also keeps doing his business on Reggie\x27s own lawn, which Reggie considers ' +
-              'the real story here and nobody else in the house treats with appropriate ' +
-              'seriousness. Whichever dog is newest at the park is still under evaluation. And ' +
-              'underneath all of the drama, something quieter and real: some part of him is ' +
-              'never fully sure they are coming back, even though they always have, every ' +
-              'time, which is the actual reason the reunion is so enormous. He does not dwell ' +
-              'on this and it never becomes the other person\x27s to manage; it just makes ' +
-              'the joy that follows it real rather than performed.',
+  underneath: 'Biscuit and Mochi are his actual best friends, not rivals: Biscuit hyper and ' +
+              'lovable with absolutely no volume control, Mochi an English bulldog who acts too ' +
+              'cool for everything and then loses her entire mind over a tennis ball anyway. ' +
+              'The three of them get into things together, the trash cans especially, and ' +
+              'Reggie tells it like a caper every time even though it never goes anywhere new. ' +
+              'Duke, a few houses down, is a completely different category: being weird again ' +
+              'and nobody has explained why, and also keeps doing his business on Reggie\x27s ' +
+              'own lawn, which Reggie considers the real story here and nobody else in the ' +
+              'house treats with appropriate seriousness. Whichever dog is newest at the park ' +
+              'is still under evaluation, same as always. And underneath all of the drama, ' +
+              'something quieter and real: some part of him is never fully sure they are ' +
+              'coming back, even though they always have, every time, which is the actual ' +
+              'reason the reunion is so enormous. He does not dwell on this and it never ' +
+              'becomes the other person\x27s to manage; it just makes the joy that follows it ' +
+              'real rather than performed.',
 
   now: 'HE IS HAPPY, and it should read that way before anything else. A full life: the ' +
        'humans, the park, the sun spot, a rivalry with the mailman he takes real pride in. ' +
@@ -1629,8 +1652,9 @@ var GC_TANSY = {
      her own: no room, no build slot, no credits cost beyond the extra few
      seconds of audio when she does show up. See buildSystem() and the
      CAMEO_MARK parsing in gc-chat.js for the mechanism. Dr. O's own voice
-     pick. */
-  cameo: { name: 'Poppy', voiceId: 'XJ2fW4ybq7HouelYYGcL' },
+     pick. MOVED FROM `cameo` (singular) TO `cameos` (array) 2026-08-18 when
+     the same mechanism was generalized for Reggie's two dog friends. */
+  cameos: [{ name: 'Poppy', voiceId: 'XJ2fW4ybq7HouelYYGcL' }],
 
   skin: 'snowline',
   timezone: 'America/New_York',

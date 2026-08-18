@@ -31,13 +31,16 @@ const CLASSIFY_MODEL = 'claude-haiku-4-5-20251001';
 
 const MAX_TURNS = 24;   // how much conversation goes back to the model
 
-/* ── AN OCCASIONAL CAMEO ──────────────────────────────────────────────────
+/* ── OCCASIONAL CAMEOS ─────────────────────────────────────────────────────
    Dr. O, 2026-08-17: "we can give her one so she can occasionally say
    something, why not, they are fairies" — Poppy, Tansy's little sister,
-   gets her own voice but not her own friend slot. Module-level because
+   gets her own voice but not her own friend slot. Generalized 2026-08-18 for
+   Reggie's Biscuit and Mochi: a friend can now have MORE than one possible
+   cameo, so the marker carries the speaker's name (###CAMEO:Name###) rather
+   than assuming there is only ever one candidate. Module-level because
    buildSystem() (the instruction) and the handler (the parsing) both need
-   the exact same marker string. */
-const CAMEO_MARK = '###CAMEO###';
+   the exact same marker prefix. */
+const CAMEO_MARK = '###CAMEO:';
 
 /* ── THE CREDIT CEILING ──────────────────────────────────────────────────────
    Dr. O, 2026-08-17, after the real cost breakdown: the $9.99 one-time friend
@@ -226,23 +229,42 @@ function buildSystem(friend, you, idle, scene, room) {
      friendship is FOR rather than what they know. */
   if (f.pushes) bits.push(f.pushes);
 
-  /* AN OCCASIONAL CAMEO, added for Tansy/Poppy 2026-08-17. A second, minor
-     character who is not a friend of their own: no room, no build slot,
-     just a rare aside inside THIS friend's own reply. Gated entirely on
-     f.cameo being present, so every other friend is byte-for-byte
-     unaffected. */
-  if (f.cameo && f.cameo.name) {
-    bits.push(`\n${f.cameo.name.toUpperCase()} IS SOMETIMES RIGHT THERE TOO. ${f.cameo.name} is ` +
-              `close to you and shows up in the room sometimes. VERY RARELY, roughly one reply ` +
-              `in every fifteen or twenty, only when it genuinely fits the moment and never on ` +
-              `two turns in a row, ${f.cameo.name} says one short thing of her own, unprompted, ` +
-              `unlike you: unguarded, no performance, no act. Most replies have nothing from her ` +
-              `at all, and that is correct; do not reach for it or force it.\n` +
-              `When it happens, write your own reply first, exactly as you always do, then on a ` +
-              `new line by itself write:\n` +
-              `${CAMEO_MARK} ` + `then whatever ${f.cameo.name} says, one short line, nothing ` +
-              `else on it. That line is HERS, in her own words, not you quoting her and not in ` +
-              `quotation marks.`);
+  /* OCCASIONAL CAMEOS, added for Tansy/Poppy 2026-08-17, generalized to a
+     list 2026-08-18 for Reggie/Biscuit+Mochi. Secondary characters who are
+     not a friend of their own: no room, no build slot, just a rare aside
+     inside THIS friend's own reply. Gated entirely on f.cameos being
+     present, so every other friend is byte-for-byte unaffected.
+
+     RATE ADJUSTED FROM "one in fifteen or twenty" AFTER A LIVE MISS, Dr. O,
+     2026-08-18: Poppy essentially never spoke across a real testing session,
+     even when Pookie was actively trying to get her to. One-in-fifteen
+     across a normal-length conversation is close to "never" in practice,
+     not "rare." Moved to roughly one-in-eight: enough to actually surface
+     within an ordinary sitting, not so often it becomes the reason to keep
+     talking. Deliberately NOT pushed higher than that: this same session
+     also surfaced Pookie feeling Good Company could be addictive, and a
+     variable, surprise-a-companion-shows-up mechanic is exactly the shape
+     of thing that makes something stickier on purpose. Fixing "broken" is
+     not the same job as "maximize how often this fires." */
+  if (Array.isArray(f.cameos) && f.cameos.length) {
+    const names = f.cameos.map(c => c && c.name).filter(Boolean);
+    if (names.length) {
+      const namesList = names.join(names.length > 1 ? ' or ' : '');
+      bits.push(`\n${names.join(' AND ').toUpperCase()} ${names.length > 1 ? 'ARE' : 'IS'} SOMETIMES RIGHT ` +
+                `THERE TOO. ${namesList} ${names.length > 1 ? 'are' : 'is'} close to you and turn up with ` +
+                `you sometimes. OCCASIONALLY, roughly one reply in every seven or eight, when it genuinely ` +
+                `fits the moment, ${names.length > 1 ? 'one of them (never both at once)' : namesList} says ` +
+                `one short thing of ${names.length > 1 ? 'their' : 'their'} own, unprompted, unlike you: ` +
+                `unguarded, in character for THEM specifically, not a copy of your own voice. Frequent enough ` +
+                `to actually happen in a normal conversation rather than almost never, still clearly the ` +
+                `exception rather than something to expect every few lines. Never two turns in a row.\n` +
+                `When it happens, write your own reply first, exactly as you always do, then on a new line ` +
+                `by itself write:\n` +
+                `${CAMEO_MARK}Name### ` + `— replace Name with exactly which one of them is speaking (` +
+                `${names.join(', ')}), then whatever they say right after the ###, one short line, ` +
+                `nothing else on it. That line is THEIRS, in their own words, not you quoting them and not ` +
+                `in quotation marks.`);
+    }
   }
 
   /* NOBODY IS EVER AN IMPOSITION. Late and last, with the other hard rules,
@@ -685,17 +707,30 @@ exports.handler = async function (event) {
 
   /* PULLED OUT BEFORE STAGE-DIRECTION STRIPPING, same reasoning as FEEL_MARK
      above: parsed by a fixed marker, not trusted to punctuation. Gated on
-     friend.cameo being present so a model imitating this shape for a friend
-     who was never told about it (should not happen, but costs nothing to
-     guard) never produces a cameo line nobody asked for. */
+     friend.cameos being a real list so a model imitating this shape for a
+     friend who was never told about it (should not happen, but costs
+     nothing to guard) never produces a cameo line nobody asked for.
+
+     THE NAME IS PARSED OUT AND MATCHED, not assumed, now that a friend can
+     have more than one possible cameo (Reggie has both Biscuit and Mochi).
+     A name the model invents that is not actually in friend.cameos is
+     dropped rather than spoken in a voice nobody chose for it. */
   let cameo = null;
-  if (friend.cameo && friend.cameo.name && friend.cameo.voiceId) {
+  if (Array.isArray(friend.cameos) && friend.cameos.length) {
     const cCut = raw.indexOf(CAMEO_MARK);
     if (cCut > -1) {
-      let cameoText = raw.slice(cCut + CAMEO_MARK.length).split('\n')[0].trim();
-      raw = raw.slice(0, cCut).trim();
-      cameoText = cameoText.replace(/^["“]|["”]$/g, '').trim().slice(0, 200);
-      if (cameoText) cameo = { name: friend.cameo.name, text: houseTypography(cameoText), voice_id: friend.cameo.voiceId };
+      const afterMark = raw.slice(cCut + CAMEO_MARK.length);
+      const closeAt = afterMark.indexOf('###');
+      if (closeAt > -1) {
+        const spokenName = afterMark.slice(0, closeAt).trim();
+        let cameoText = afterMark.slice(closeAt + 3).split('\n')[0].trim();
+        raw = raw.slice(0, cCut).trim();
+        cameoText = cameoText.replace(/^["“]|["”]$/g, '').trim().slice(0, 200);
+        const match = friend.cameos.find(c => c && c.name && c.name.toLowerCase() === spokenName.toLowerCase());
+        if (cameoText && match && match.voiceId) {
+          cameo = { name: match.name, text: houseTypography(cameoText), voice_id: match.voiceId };
+        }
+      }
     }
   }
 
