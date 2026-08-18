@@ -1551,11 +1551,13 @@ var GC_TANSY = {
   portrait: 'photos/tansy.jpg',
 
   /* OAK FIRST, ON PURPOSE. room.html opens on scenes[0], and it is the one
-     that matches her actual portrait: a mossy branch in the woods, which is
-     Dr. O's own image, not mine. Kept 'windowsill' as a second, unfilmed
-     option rather than deleting it. */
+     that matches her actual portrait: a mossy branch in the woods. Both the
+     photo and this clip are Dr. O's own generations, not mine; she hit and
+     solved the same child-coding problem independently and her results
+     were better. Kept 'windowsill' as a second, unfilmed option rather
+     than deleting it. */
   scenes: [
-    { key: 'oak', label: 'Up in the oak', src: null,
+    { key: 'oak', label: 'Up in the oak', src: 'video/tansy-oak.mp4',
       where: 'A mossy branch deep in the woods, misted morning light coming through the ' +
              'trees, which she considers the only reasonable vantage point from which to ' +
              'observe anybody.' },
