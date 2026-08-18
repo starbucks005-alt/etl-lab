@@ -277,25 +277,24 @@ html{ zoom:90%; }
 
 /* The doorstep. Scrolls on its own so a long panel never traps the button. */
 .gate{ padding:1rem 1rem 1.4rem; overflow-y:auto; }
-.gate h3{ font-family:Georgia,serif; font-weight:400; font-size:1.35rem; margin:0 0 .3rem; }
-.gate-say{ color:var(--ink-dim); font-size:14.5px; margin:0 0 .6rem; }
+.gate h3{ font-family:Georgia,serif; font-weight:400; font-size:1.6rem; margin:0 0 .4rem; }
+/* 14.5px -> 19px, 2026-08-18: Dr. O, looking at how much unused width the
+   doorstep has once it is the only thing on screen (fullscreen, or a wide
+   window): "let's make the font bigger to make sure people see it." Both
+   this and the premise line below share the same room to grow into. */
+.gate-say{ color:var(--ink-dim); font-size:19px; margin:0 0 .8rem; line-height:1.5; }
 /* THE PREMISE, added 2026-08-18. Dr. O: a stranger's first line from Tansy
    ("I suppose I can spare a moment") reads as just standoffish without
    knowing she is playing a part. Shown only when a friend has one written
    (FRIEND.premise), so a built friend's doorstep is unaffected. */
-.gate-premise{ font-style:italic; color:var(--ink-dim); font-size:14px; margin:0 0 .8rem; line-height:1.45; }
+.gate-premise{ font-style:italic; color:var(--ink-dim); font-size:19px; margin:0 0 1rem; line-height:1.55; }
 .gate .you-panel{ border-top:none; padding-left:0; padding-right:0; }
 .chat{ display:flex; flex-direction:column; min-height:0; flex:1; }
-/* The occasional controls, small and wrapping rather than stacked full-width. */
-.row.tools{ flex-wrap:wrap; padding-top:0; }
-.row.tools .btn{ flex:0 0 auto; font-size:10.5px; padding:.45rem .6rem; }
-
-/* The doorstep. Scrolls on its own so a long panel never traps the button. */
-.gate{ padding:1rem 1rem 1.4rem; overflow-y:auto; }
-.gate h3{ font-family:Georgia,serif; font-weight:400; font-size:1.35rem; margin:0 0 .3rem; }
-.gate-say{ color:var(--ink-dim); font-size:14.5px; margin:0 0 .6rem; }
-.gate .you-panel{ border-top:none; padding-left:0; padding-right:0; }
-.chat{ display:flex; flex-direction:column; min-height:0; flex:1; }
+/* DEAD DUPLICATE REMOVED 2026-08-18: an identical .gate/.gate h3/.gate-say/
+   .gate .you-panel/.chat block used to sit right here, verbatim, at the old
+   14.5px size. Being LAST in source order it silently won the cascade over
+   the real block above every time — the doorstep font-size bump right next
+   to this comment would have done nothing at all without removing it. */
 .row.tight{ padding-top:0; }
 .btn{
   font-family:var(--mono); font-size:11.5px; letter-spacing:.1em; text-transform:uppercase;
