@@ -28,6 +28,31 @@
   } catch (e) {}
 })();
 
+/* ── THE OWNER KEY, HANDED IN ON A LINK ──────────────────────────────────────
+   Added 2026-08-18. Dr. O hit her own free daily cap and pasted her owner
+   key expecting it to unlock Good Company — it took her to Founder Studio
+   instead, because studio.html was the ONLY page on this campus with a
+   ?key=... planter for it. She had a Studio link, not a Good Company one,
+   and there was no Good Company link that could have worked.
+
+   SAME localStorage KEY (etl_owner_key), SAME mechanic as studio.html
+   (see its own comment, "?key=<owner key> plants the key once; afterwards
+   it just lives here"). Not a second, competing key: any page on this
+   domain that has ever planted it this way already unlocks every other
+   page that reads it, GC_ownerKey() included, further down this file. This
+   just gives Good Company its own front door instead of forcing a detour
+   through Studio to reach the same localStorage value. */
+(function () {
+  try {
+    var q = new URLSearchParams(location.search);
+    var k = q.get('key');
+    if (k) {
+      localStorage.setItem('etl_owner_key', k);
+      history.replaceState(null, '', location.pathname + location.hash);
+    }
+  } catch (e) {}
+})();
+
 /* ── ARCH, THE DEMO ──────────────────────────────────────────────────────────
    Rung one of the ladder: a house friend whose clips ETL generates once and
    every visitor shares, so somebody can meet a real person here before the
@@ -1644,9 +1669,19 @@ var GC_REGGIE = {
 var GC_TANSY = {
   /* SHOWN ON THE DOORSTEP, BEFORE HER FIRST LINE, plain prose for a visitor
      rather than model instructions. Dr. O: her hello ("I suppose I can spare
-     a moment") reads as just standoffish without this. */
+     a moment") reads as just standoffish without this.
+
+     EXTENDED 2026-08-18 to also name real, talkable expertise, same reasoning
+     as Reggie's own premise: it gives a visitor something concrete to ask
+     about before they ever sit down. Poppy and Blue's are named too, since
+     both are reachable from inside her room (the poppy-alone and blue
+     scenes actually swap who answers — see FRIEND.companions in
+     room.html's ask()), not just Tansy's own. */
   premise: 'Tansy acts like she is above humans entirely, and would never admit otherwise. ' +
-           'Her little sister Poppy adores humans, openly, which mortifies her.',
+           'Her little sister Poppy adores humans, openly, which mortifies her. Ask Tansy ' +
+           'about gardening, or fairy lore (she is, technically, the source material). Visit ' +
+           'with Poppy alone and ask what she thinks love is; visit with cousin Blue and ask ' +
+           'about fairy-court fantasy novels.',
   name: 'Tansy',
   /* A PLAIN NAME, GIVEN A TITLE SHE INVENTED HERSELF. Nobody else uses it
      and she has never once let that stop her. */
