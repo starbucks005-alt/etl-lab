@@ -170,6 +170,7 @@ html{ zoom:90%; }
 .watch-bar-label{ font-family:var(--mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase;
   color:var(--ink-dim); flex:0 0 100%; margin:0 0 -.15rem; }
 .watch-chip{
+  display:block; text-decoration:none;
   font-family:var(--mono); font-size:12px; letter-spacing:.1em; text-transform:uppercase;
   color:var(--ink-dim); background:#000; border:1px solid var(--line);
   border-radius:5px; cursor:pointer; padding:0; overflow:hidden;
@@ -381,19 +382,6 @@ html{ zoom:90%; }
     <div class="watch-bar" id="watchBar" style="display:none"></div>
   </div>
 
-  <!-- FULL-SCREEN WATCH VIEWER, added 2026-08-18. Vimeo's OWN player chrome,
-       not the custom sound toggle the scene player uses — that postMessage
-       mute call is what Dr. O reported broken ("the volume cannot turn on").
-       These two clips are not scenes to sit and talk in front of, they are
-       "just videos for the users enjoyment," full laptop-screen size, so
-       this gives them their own overlay with real, working native controls. -->
-  <div id="watchViewer" style="display:none; position:fixed; inset:0; z-index:100; background:#000;">
-    <button class="btn" id="watchCloseBtn" style="position:absolute; top:16px; right:16px; z-index:2; background:rgba(0,0,0,.62);">&times; Close</button>
-    <iframe id="watchFrame" style="position:absolute; inset:0; width:100%; height:100%; border:0"
-      allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" allowfullscreen
-      referrerpolicy="strict-origin-when-cross-origin"></iframe>
-  </div>
-
   <div class="side">
 
     <!-- THE DOORSTEP. Who you are is asked once, here, not from six stacked
@@ -584,7 +572,7 @@ document.addEventListener('fullscreenchange', function () {
    A MISSING CLIP SAYS WHICH CLIP IS MISSING. No poster, no still, no stand-in.
    A placeholder that looks deliberate is how a broken asset reaches production. */
 var bar = $('sceneBar'), video = $('loop'), portrait = $('portrait'), current = null;
-var watchBar = $('watchBar'), watchViewer = $('watchViewer'), watchFrame = $('watchFrame');
+var watchBar = $('watchBar');
 
 /* Declared here, not down with the button: play() reads it, and relying on var
    hoisting to make that undefined-but-falsy is luck rather than intent. */
@@ -923,8 +911,19 @@ function renderWatch() {
   label.textContent = 'For watching';
   watchBar.appendChild(label);
   list.forEach(function (item) {
-    var chip = document.createElement('button');
+    /* A REAL <a target="_blank"> TO VIMEO'S OWN WATCH PAGE, changed
+       2026-08-18 per Dr. O: "have the two new ones... open in a new tab."
+       vimeo.com/<id> (not player.vimeo.com, the embed) is Vimeo's actual
+       site, full native chrome including a volume control that is a real
+       click on Vimeo's own page rather than anything this code controls —
+       simplest possible fix for the reported broken mute, since there is
+       no longer any player object on this page for it to be broken on. */
+    if (!item.vimeoId) return;
+    var chip = document.createElement('a');
     chip.className = 'watch-chip';
+    chip.href = 'https://vimeo.com/' + encodeURIComponent(item.vimeoId);
+    chip.target = '_blank';
+    chip.rel = 'noopener';
     if (item.thumb || item.vimeoId) {
       var thumb = document.createElement('img');
       thumb.src = item.thumb || ('https://vumbnail.com/' + encodeURIComponent(item.vimeoId) + '.jpg');
@@ -939,32 +938,9 @@ function renderWatch() {
     var cap = document.createElement('span');
     cap.textContent = item.label;
     chip.appendChild(cap);
-    chip.addEventListener('click', function () { openWatch(item); });
     watchBar.appendChild(chip);
   });
 }
-
-/* THE VIEWER ITSELF. Vimeo's real player chrome, not the scene player's
-   custom setMuted() postMessage toggle — that is the piece Dr. O reported
-   broken. No muted/autopause params here on purpose: the click that opens
-   this IS the user gesture, so autoplay-with-sound is allowed, and if the
-   browser still starts it muted, Vimeo's own volume icon actually works
-   because it is a native control talking to the native player, not a
-   command sent in from outside. */
-function openWatch(item) {
-  if (!item.vimeoId) return;
-  watchFrame.src = 'https://player.vimeo.com/video/' + encodeURIComponent(item.vimeoId) +
-    '?badge=0&autopause=0&player_id=0&app_id=58479&autoplay=1';
-  watchViewer.style.display = '';
-}
-function closeWatch() {
-  watchViewer.style.display = 'none';
-  watchFrame.src = '';   // stops playback and audio the instant it closes, not just visually
-}
-$('watchCloseBtn').addEventListener('click', closeWatch);
-document.addEventListener('keydown', function (e) {
-  if (e.key === 'Escape' && watchViewer.style.display !== 'none') closeWatch();
-});
 
 renderScenes();
 
