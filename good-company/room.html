@@ -381,7 +381,7 @@ html{ zoom:90%; }
 
     <div class="portrait" id="portrait">
       <video id="loop" muted loop playsinline autoplay preload="auto"></video>
-      <button class="sound-on" id="soundBtn" type="button">&#128264; Sound on</button>
+      <button class="sound-on" id="soundBtn" type="button">&#128264; Turn sound on</button>
     </div>
 
     <div class="scene-bar" id="sceneBar"></div>
@@ -817,7 +817,7 @@ $('soundBtn').addEventListener('click', function () {
   video.muted = !wantSound;
   if (wantSound) video.play().catch(function () {});
   if (vimeoPlayer) { try { vimeoPlayer.setMuted(!wantSound); } catch (e) {} }
-  this.innerHTML = wantSound ? '&#128263; Sound off' : '&#128264; Sound on';
+  this.innerHTML = wantSound ? '&#128263; Turn sound off' : '&#128264; Turn sound on';
 });
 
 /* MOVING THE ROOM, FOR EVERYONE IN IT, NOT JUST THIS BROWSER.
