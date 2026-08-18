@@ -1760,6 +1760,35 @@ var GC_TANSY = {
                'watching.' },
     { src: 'video/poppy-2.mp4', on: 'Added when Tansy joined',
       caption: 'Poppy again, a second take of the same afternoon, still humming.' },
+
+    /* THE REST OF THIS BATCH, all Dr. O's own, all viewed directly before
+       writing a caption, added 2026-08-18. */
+    { src: 'photos/tansy-windowsill.jpg', on: 'Added when Tansy joined',
+      caption: 'On a stone cottage windowsill among the geraniums, somebody visible through ' +
+               'the glass behind her, mid-thought.' },
+    { src: 'photos/tansy-poppy-scolding.jpg', on: 'Added when Tansy joined',
+      caption: 'Mid-lecture, both hands going, while Poppy looks at the ground and takes it.' },
+    { src: 'photos/tansy-poppy-warm.jpg', on: 'Added when Tansy joined',
+      caption: 'Hands on each other\x27s shoulders, both of them actually laughing. Whatever ' +
+               'the lecture was about, it was over by here.' },
+    /* THEIR MOTHER, unnamed on purpose: not enough is known yet to give her
+       a real canon presence, and a name invented just to fill this caption
+       would be exactly the kind of made-up shared history the house rule
+       here warns against. The trinkets in her own nook (buttons, keys, a
+       pocket watch, broken china) are the same kind of thing Tansy collects
+       and half-denies collecting; the habit clearly did not start with her. */
+    { src: 'photos/tansy-mother.jpg', on: 'Added when Tansy joined',
+      caption: 'Their mother, in a nook strung with buttons, keys and broken china, the same ' +
+               'kind of small human castoffs Tansy collects and pretends she does not.' },
+    { src: 'photos/tansy-court.jpg', on: 'Added when Tansy joined',
+      caption: 'On a branch with several others of her kind, plainly the one they are all ' +
+               'oriented toward, while a handful of humans approach on the ground below.' },
+    { src: 'photos/tansy-poppy-humans-1.jpg', on: 'Added when Tansy joined',
+      caption: 'Poppy already chatting to two travelers before Tansy has decided whether they ' +
+               'can be trusted, arms crossed, still deciding.' },
+    { src: 'photos/tansy-poppy-humans-2.jpg', on: 'Added when Tansy joined',
+      caption: 'Up on the branch, Poppy pointing the two of them out like a discovery, Tansy ' +
+               'watching with rather more reserve.' },
   ],
 };
 
