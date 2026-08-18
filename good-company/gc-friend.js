@@ -1539,8 +1539,19 @@ var GC_TANSY = {
          "like. I am not staying long.",
   mood: 'Magnificently put upon, and not going anywhere',
 
-  /* DR. O'S OWN PICK, high and dramatic, exactly as asked for. */
+  /* DR. O'S OWN PICK, high and dramatic, exactly as asked for. 2026-08-17:
+     Dr. O said Aurelia (sarcastic, playful, raspy, royal) is Tansy's voice
+     now, but did not give the actual voice ID, only the name, so this is
+     STILL THE OLD ID until she sends the real one. Do not confuse this with
+     Poppy's ID just below: they are not the same voice. */
   voiceId: 'thfYL0Elyru2qqTtNQsE',
+
+  /* POPPY, HER LITTLE SISTER, WIRED AS AN OCCASIONAL CAMEO, not a friend of
+     her own: no room, no build slot, no credits cost beyond the extra few
+     seconds of audio when she does show up. See buildSystem() and the
+     CAMEO_MARK parsing in gc-chat.js for the mechanism. Dr. O's own voice
+     pick. */
+  cameo: { name: 'Poppy', voiceId: 'XJ2fW4ybq7HouelYYGcL' },
 
   skin: 'snowline',
   timezone: 'America/New_York',
@@ -1624,8 +1635,10 @@ var GC_TANSY = {
               'evening into her own old grievance.',
 
   /* HER LITTLE SISTER, a running complaint that ties straight back into the
-     envy field above. Poppy is not a separate demo and has no voice of her
-     own yet; she only exists as a character Tansy talks about. */
+     envy field above. Poppy is not a separate demo, has no room or build
+     slot of her own, and does not cost anything extra to reach: she is
+     wired as a rare cameo (see the `cameo` field above) rather than a
+     built friend. */
   family: 'A little sister, Poppy, younger by what Tansy will only call \x27a wingspan or two\x27. ' +
           'Poppy hugs people she has known for an afternoon, cries openly at the sappy human ' +
           'things, and admits out loud to liking humans, no performance, no cover story. Tansy ' +

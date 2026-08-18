@@ -31,6 +31,14 @@ const CLASSIFY_MODEL = 'claude-haiku-4-5-20251001';
 
 const MAX_TURNS = 24;   // how much conversation goes back to the model
 
+/* ── AN OCCASIONAL CAMEO ──────────────────────────────────────────────────
+   Dr. O, 2026-08-17: "we can give her one so she can occasionally say
+   something, why not, they are fairies" — Poppy, Tansy's little sister,
+   gets her own voice but not her own friend slot. Module-level because
+   buildSystem() (the instruction) and the handler (the parsing) both need
+   the exact same marker string. */
+const CAMEO_MARK = '###CAMEO###';
+
 /* ── THE CREDIT CEILING ──────────────────────────────────────────────────────
    Dr. O, 2026-08-17, after the real cost breakdown: the $9.99 one-time friend
    purchase covers making a friend, not talking to them forever, and nothing
@@ -213,6 +221,25 @@ function buildSystem(friend, you, idle, scene, room) {
      the boundary, because it is the same kind of instruction: about what this
      friendship is FOR rather than what they know. */
   if (f.pushes) bits.push(f.pushes);
+
+  /* AN OCCASIONAL CAMEO, added for Tansy/Poppy 2026-08-17. A second, minor
+     character who is not a friend of their own: no room, no build slot,
+     just a rare aside inside THIS friend's own reply. Gated entirely on
+     f.cameo being present, so every other friend is byte-for-byte
+     unaffected. */
+  if (f.cameo && f.cameo.name) {
+    bits.push(`\n${f.cameo.name.toUpperCase()} IS SOMETIMES RIGHT THERE TOO. ${f.cameo.name} is ` +
+              `close to you and shows up in the room sometimes. VERY RARELY, roughly one reply ` +
+              `in every fifteen or twenty, only when it genuinely fits the moment and never on ` +
+              `two turns in a row, ${f.cameo.name} says one short thing of her own, unprompted, ` +
+              `unlike you: unguarded, no performance, no act. Most replies have nothing from her ` +
+              `at all, and that is correct; do not reach for it or force it.\n` +
+              `When it happens, write your own reply first, exactly as you always do, then on a ` +
+              `new line by itself write:\n` +
+              `${CAMEO_MARK} ` + `then whatever ${f.cameo.name} says, one short line, nothing ` +
+              `else on it. That line is HERS, in her own words, not you quoting her and not in ` +
+              `quotation marks.`);
+  }
 
   /* NOBODY IS EVER AN IMPOSITION. Late and last, with the other hard rules,
      because it is the same kind of instruction: about what this friendship is
@@ -652,6 +679,22 @@ exports.handler = async function (event) {
     if (words) feltMood = words.slice(0, 60);
   }
 
+  /* PULLED OUT BEFORE STAGE-DIRECTION STRIPPING, same reasoning as FEEL_MARK
+     above: parsed by a fixed marker, not trusted to punctuation. Gated on
+     friend.cameo being present so a model imitating this shape for a friend
+     who was never told about it (should not happen, but costs nothing to
+     guard) never produces a cameo line nobody asked for. */
+  let cameo = null;
+  if (friend.cameo && friend.cameo.name && friend.cameo.voiceId) {
+    const cCut = raw.indexOf(CAMEO_MARK);
+    if (cCut > -1) {
+      let cameoText = raw.slice(cCut + CAMEO_MARK.length).split('\n')[0].trim();
+      raw = raw.slice(0, cCut).trim();
+      cameoText = cameoText.replace(/^["“]|["”]$/g, '').trim().slice(0, 200);
+      if (cameoText) cameo = { name: friend.cameo.name, text: houseTypography(cameoText), voice_id: friend.cameo.voiceId };
+    }
+  }
+
   /* And stripped in code as well, because a prompt rule is a request and this
      is the difference between a person and a chatbot playing one.
 
@@ -677,5 +720,5 @@ exports.handler = async function (event) {
   reply = reply.replace(/<\/?quiet>/gi, '').trim();
   if (!reply) return json(200, { reply: null, quiet: true, mood: feltMood || friend.mood || null, feelings: feelings });
 
-  return json(200, { reply, mood: feltMood || friend.mood || null, feelings: feelings });
+  return json(200, { reply, mood: feltMood || friend.mood || null, feelings: feelings, cameo });
 };

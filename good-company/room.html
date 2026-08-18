@@ -1135,7 +1135,19 @@ function ask(payload) {
     /* A NULL REPLY IS A REAL ANSWER, not a failure. Nothing is rendered: no
        bubble, no apology, no dots. If silence cannot be produced the room
        always feels like a demo. */
-    if (j && j.reply) { post(FRIEND.name, j.reply); speak(j.reply); }
+    if (j && j.reply) {
+      post(FRIEND.name, j.reply);
+      /* THE CAMEO, IF THERE IS ONE (Poppy, in Tansy's room, rarely).
+         Text posts right away either way. The speech is chained after her
+         own line finishes, via onDone, rather than fired at the same time,
+         so audio mode never has two voices talking over each other. */
+      speak(j.reply, FRIEND.voiceId, function () {
+        if (j.cameo && j.cameo.text) {
+          post(j.cameo.name, j.cameo.text);
+          speak(j.cameo.text, j.cameo.voice_id);
+        }
+      });
+    }
     else if (j && (j.credits_exhausted || j.daily_capped)) { showCreditsUpsell(j.daily_capped); }
     else if (j && j.error) post("Not wired yet", "The chat function said: " + j.error);
     if (j && j.mood) $("gaugeLabel").textContent = j.mood;
@@ -2054,8 +2066,16 @@ function hush() {
   $("stopBtn").style.display = "none";
 }
 
-function speak(text) {
-  if (!asAudio || !FRIEND.voiceId || !text) return;
+function speak(text, voiceId, onDone) {
+  /* voiceId DEFAULTS TO THE FRIEND'S OWN, so every existing call site
+     (speak(text)) is untouched. The override exists for a cameo line
+     (Poppy, in Tansy's own room) which needs a different voice than the
+     friend she is chained after. onDone is ALWAYS called eventually, audio
+     on or off, success or failure, so a caller can chain a second line
+     (the cameo's text bubble and speech) without caring whether audio is
+     even enabled. */
+  voiceId = voiceId || FRIEND.voiceId;
+  if (!asAudio || !voiceId || !text) { if (onDone) onDone(); return; }
   hush();
 
   /* SAY THE NAME RIGHT. Only the audio is substituted: the transcript keeps
@@ -2069,7 +2089,7 @@ function speak(text) {
   fetch("/.netlify/functions/gc-voice", {
     method: "POST", headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      text: spoken, voice_id: FRIEND.voiceId,
+      text: spoken, voice_id: voiceId,
       /* access_token covers a solo conversation or the host; credit_ref
          covers a guest, who never holds the host's real token. gc-voice.js
          tries the token first and only falls back to the reference. */
@@ -2081,19 +2101,21 @@ function speak(text) {
          nobody needs this said again on every single line while audio stays
          toggled on with nothing left to spend on it. */
       if (!speak._creditsWarned) { speak._creditsWarned = true; showCreditsUpsell(false); }
+      if (onDone) onDone();
       return;
     }
     if (!j || !j.audio) {
       /* Says which problem rather than failing silently, and only once: a
          missing voice key should not nag on every single line. */
       if (!speak._warned) { speak._warned = true; post("Not wired yet", "Could not fetch his voice: " + ((j && j.error) || "unknown") + ". Text still works."); }
+      if (onDone) onDone();
       return;
     }
     speaking = new Audio("data:audio/mpeg;base64," + j.audio);
     $("stopBtn").style.display = "inline-block";
-    speaking.onended = hush;
-    speaking.play().catch(function () { hush(); });
-  }).catch(function () { hush(); });
+    speaking.onended = function () { hush(); if (onDone) onDone(); };
+    speaking.play().catch(function () { hush(); if (onDone) onDone(); });
+  }).catch(function () { hush(); if (onDone) onDone(); });
 }
 
 var asAudio = false;
