@@ -1929,13 +1929,6 @@ function startListening() {
 
   var pending = '';
 
-  /* How long after he stops before the mic trusts what it hears again.
-     3000ms, not a round guess: this is My Echo's own proven number, raised
-     from 1800ms after Dr. O found that too short, covering recognition lag
-     plus the room ringing on. */
-  var MIC_TAIL_MS = 3000;
-  var micQuietUntil = 0;
-
   /* NOTHING IS READ TWICE. This is what was sending every spoken line to the
      room in duplicate while typing was fine.
 
@@ -2067,11 +2060,29 @@ $('closeBtn').addEventListener('click', function () { location.href = 'index.htm
    there is a visible Stop while he is talking. */
 /* THE ECHO GUARD lives with the mic, near rec.onresult: this flag is what it
    checks to know he is actually making sound right now. See the long
-   comment there for why a fixed pause after hush() was not enough. */
+   comment there for why a fixed pause after hush() was not enough.
+
+   MIC_TAIL_MS/micQuietUntil PROMOTED OUT OF startListening(), 2026-08-18,
+   after Dr. O reported the leak "still there and bad" even with the 3s
+   tail. Reading the guard again found the real gap: it was ONLY extended
+   from inside rec.onresult, while speech was being heard. If recognition
+   produced no result near the true end of a reply (lag, a quiet trailing
+   word), the window's last extension could sit well behind the actual
+   moment playback stopped, so a late-arriving transcript of his own last
+   syllables could land after the window had already expired. Now hush()
+   itself extends the window at the moment audio actually stops, so the
+   full 3s always counts from real playback end, not from wherever
+   recognition last happened to fire. */
+var MIC_TAIL_MS = 3000;
+var micQuietUntil = 0;
 var speaking = null;
 
 function hush() {
-  if (speaking) { try { speaking.pause(); } catch (_) {} speaking = null; }
+  if (speaking) {
+    try { speaking.pause(); } catch (_) {}
+    speaking = null;
+    micQuietUntil = Date.now() + MIC_TAIL_MS;
+  }
   $("stopBtn").style.display = "none";
 }
 
