@@ -1847,6 +1847,9 @@ var GC_TANSY = {
                'watching with rather more reserve.' },
     { src: 'photos/tansy-sisters.jpg', on: 'Added when Tansy joined',
       caption: 'Both of them on the log, eyes closed, nobody performing anything for once.' },
+    { src: 'video/tansy-oak-original.mp4', on: 'Added when Tansy joined',
+      caption: 'Up in the oak, looking off at something else entirely rather than at whoever ' +
+               'was holding the camera.' },
   ],
 };
 
