@@ -1759,6 +1759,15 @@ var GC_TANSY = {
       where: 'Mid-flight through the trees with Poppy and Blue just behind her, the three of ' +
              'them moving together the way they only ever do when nobody human is around to ' +
              'perform for.' },
+
+    /* BLUE, ON HER OWN, small enough (2.75MB) to stay a local file rather
+       than go to Vimeo. I have not watched it, only the matching portrait
+       (seated in a white flower, blue petal dress, flower crown), so the
+       where-text stays close to what that actually shows rather than
+       guessing at motion I have not seen. */
+    { key: 'blue', label: 'With Blue', src: 'video/tansy-blue.mp4',
+      where: 'With Blue, who has claimed a white flower of her own the way Tansy claimed the ' +
+             'oak, and looks entirely at home there.' },
   ],
 
   place: 'Wherever she currently considers acceptable, which changes, and which she describes ' +
@@ -1977,6 +1986,8 @@ var GC_TANSY = {
     { src: 'photos/tansy-poppy-humans-4.jpg', on: 'Added when Tansy joined',
       caption: 'Another moment from the same meeting, the travelers looking properly startled ' +
                'to have found either of them.' },
+    { src: 'photos/tansy-blue.jpg', on: 'Added when Tansy joined',
+      caption: 'Cousin Blue, in a flower of her own, flower crown and all.' },
   ],
 };
 
