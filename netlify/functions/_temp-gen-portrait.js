@@ -34,7 +34,10 @@ exports.handler = async (event) => {
   const prompt = PROMPTS[who];
   if (!prompt) return json(400, { error: 'who must be cora, kioko, or reggie' });
   try {
-    const img = await gemini.generate(prompt, '3:4');
+    // No aspect param: gc-face.js's own working call omits it too, and
+    // image_config errored live here as "Unknown parameter" on this API
+    // version.
+    const img = await gemini.generate(prompt);
     return json(200, { image: img });
   } catch (err) {
     return json(502, { error: err.message });
