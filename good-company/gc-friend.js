@@ -1420,8 +1420,14 @@ var GC_REGGIE = {
              'fence, clearly waiting for him to try it on Reggie\x27s lawn again.' },
 
     /* THE SPA, per Dr. O directly (I cannot watch video): soapy, mid-head-rub,
-       eyes half shut, a woman telling him to relax. */
-    { key: 'spa', label: 'At the spa', src: 'video/reggie-spa.mp4',
+       eyes half shut, a woman telling him to relax.
+
+       HOSTED ON VIMEO, NOT COMMITTED AS A FILE, added 2026-08-18. The
+       replacement clip came in at 19.6MB against every other scene's
+       ~2.5MB, and Dr. O moved it off Netlify on her own: "let me upload it
+       to vimeo... because I know netlify has limits." vimeoId, not src —
+       see play()'s scene.vimeoId branch in room.html. */
+    { key: 'spa', label: 'At the spa', src: null, vimeoId: '1219302043',
       where: 'The groomer\x27s, soaped up, somebody\x27s hands working into the top of his head ' +
              'exactly right, eyes half closed. She keeps telling him to relax. He is trying.' },
 

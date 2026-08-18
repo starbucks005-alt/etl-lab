@@ -21,6 +21,11 @@
 <script src="gc-friend.js"></script>
 <script src="gc-skin.js"></script>
 <script src="gc-you.js"></script>
+<!-- Only needed by a Vimeo-hosted scene (see play()'s scene.vimeoId branch),
+     but loaded unconditionally rather than injected on demand: it is small,
+     it does nothing until a Vimeo.Player is actually constructed, and a
+     friend with no such scene never triggers that construction at all. -->
+<script src="https://player.vimeo.com/api/player.js"></script>
 <link rel="stylesheet" href="gc-skin.css">
 
 <style>
@@ -695,6 +700,42 @@ function showStill(scene) {
   portrait.appendChild(n);
 }
 
+/* A VIMEO-HOSTED SCENE, added 2026-08-18. Dr. O, after a spa clip came in
+   at 19.6MB against every other scene's ~2.5MB: "let me upload it to
+   vimeo... because I know netlify has limits." Right call — a repo full of
+   git-committed video is exactly what runs a static host's storage and
+   bandwidth up, and Vimeo is built to serve video cheaply where Netlify is
+   not. scene.vimeoId is the numeric id from the embed Dr. O pastes in
+   (player.vimeo.com/video/<id>); scene.src stays how every other scene
+   works and the two are mutually exclusive per scene, never both. */
+var vimeoFrame = null, vimeoPlayer = null;
+function playVimeo(id) {
+  if (!vimeoFrame) {
+    vimeoFrame = document.createElement('iframe');
+    vimeoFrame.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:0';
+    vimeoFrame.allow = 'autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share';
+    vimeoFrame.referrerPolicy = 'strict-origin-when-cross-origin';
+    portrait.insertBefore(vimeoFrame, portrait.firstChild);
+  }
+  vimeoFrame.style.display = '';
+  /* muted=1 always on the URL itself: browsers block autoplay-with-sound
+     regardless of what is asked for, so it always starts muted and the
+     Sound button (via vimeoPlayer.setMuted) is what can actually turn it
+     on afterward, a real user gesture having already happened by then. */
+  vimeoFrame.src = 'https://player.vimeo.com/video/' + encodeURIComponent(id) +
+    '?badge=0&autopause=0&player_id=0&app_id=58479&autoplay=1&muted=1&loop=1';
+  /* RECONSTRUCTED ON EVERY LOAD rather than reused across scene changes:
+     reassigning an iframe's src out from under an existing Vimeo.Player
+     does not reliably keep that player bound to the new video, and there
+     is currently exactly one Vimeo scene on the whole site, so the cost of
+     a fresh Player object per scene change is nothing to optimise yet. */
+  try {
+    vimeoPlayer = new Vimeo.Player(vimeoFrame);
+    vimeoPlayer.setMuted(!wantSound);
+  } catch (e) { vimeoPlayer = null; }
+}
+function hushVimeo() { if (vimeoFrame) vimeoFrame.style.display = 'none'; }
+
 function play(scene) {
   current = scene;
   var old = portrait.querySelector('.missing');
@@ -702,13 +743,20 @@ function play(scene) {
   var oldStill = portrait.querySelector('.still');
   if (oldStill) oldStill.remove();
 
-  if (!scene.src) {
+  if (scene.vimeoId) {
+    video.removeAttribute('src');
+    try { video.load(); } catch (e) {}
+    video.style.display = 'none';
+    playVimeo(scene.vimeoId);
+  } else if (!scene.src) {
     /* Emptied and hidden, so nothing is layered over anything. */
+    hushVimeo();
     video.removeAttribute('src');
     try { video.load(); } catch (e) {}
     video.style.display = 'none';
     showStill(scene);
   } else {
+    hushVimeo();
     video.style.display = '';
     video.src = scene.src;
     video.muted = !wantSound;      // the choice survives changing rooms
@@ -730,6 +778,7 @@ $('soundBtn').addEventListener('click', function () {
   wantSound = !wantSound;
   video.muted = !wantSound;
   if (wantSound) video.play().catch(function () {});
+  if (vimeoPlayer) { try { vimeoPlayer.setMuted(!wantSound); } catch (e) {} }
   this.innerHTML = wantSound ? '&#128263; Sound off' : '&#128264; Sound on';
 });
 
