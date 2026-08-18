@@ -1850,6 +1850,11 @@ var GC_TANSY = {
     { src: 'video/tansy-oak-original.mp4', on: 'Added when Tansy joined',
       caption: 'Up in the oak, looking off at something else entirely rather than at whoever ' +
                'was holding the camera.' },
+    { src: 'photos/tansy-poppy-humans-3.jpg', on: 'Added when Tansy joined',
+      caption: 'A closer take on the same meeting: Poppy already chatting, Tansy still deciding.' },
+    { src: 'photos/tansy-poppy-humans-4.jpg', on: 'Added when Tansy joined',
+      caption: 'Another moment from the same meeting, the travelers looking properly startled ' +
+               'to have found either of them.' },
   ],
 };
 
