@@ -1397,14 +1397,17 @@ var GC_REGGIE = {
       where: 'His own front porch, right by the door. This is where he keeps position for most ' +
              'of the day. The mailman has not been informed that this arrangement is working.' },
 
-    /* SWAPPED PER DR. O to the livelier clip: two of his dog friends clearly
-       waiting on him to quit talking and come play, per her own words. The
-       sunbathing take (the original src here) moved to the album instead,
-       rather than being discarded. */
+    /* PER DR. O: he keeps both takes as their own scenes rather than one
+       winning. His two dog friends here, seen clearly in the clip: a golden
+       retriever and a French bulldog. */
     { key: 'yard', label: 'The yard', src: 'video/reggie-friends.mp4',
-      where: 'The back yard, mid-conversation with a couple of humans, while two of his dog ' +
-             'friends hang around at the edge of it making it very clear they would rather ' +
-             'be playing.' },
+      where: 'The back yard, mid-conversation with a couple of humans, while his two dog ' +
+             'friends, a golden retriever and a French bulldog, hang around at the edge of it ' +
+             'making it very clear they would rather be playing.' },
+
+    { key: 'yard-sun', label: 'Sunbathing', src: 'video/reggie-yard-sun.mp4',
+      where: 'The back yard, flat out in the sun on the grass, one eye on Duke over by the ' +
+             'fence, clearly waiting for him to try it on Reggie\x27s lawn again.' },
   ],
 
   place: 'His humans\x27 house, which he considers his to run, and does, with total ' +
@@ -1507,8 +1510,6 @@ var GC_REGGIE = {
     { src: 'photos/reggie-duke.jpg', on: 'Added when he joined',
       caption: 'In the back yard, gone very still, watching Duke do something across the ' +
                'grass that clearly requires his full attention.' },
-    { src: 'video/reggie-yard-sun.mp4', on: 'Added when he joined',
-      caption: 'Flat out in the sun in the back yard, thoroughly unbothered.' },
   ],
 };
 
