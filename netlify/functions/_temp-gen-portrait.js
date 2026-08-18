@@ -26,19 +26,17 @@ const PROMPTS = {
     'in a happy pant, as though something enormously exciting just happened. Head and ' +
     'shoulders, close up. Warm afternoon light indoors, a home behind him, nothing posed or ' +
     'studio-lit. An ordinary real dog, not a show breed, not a recognizable famous animal.',
-  tansy: 'A photograph of a fairy who is a clearly ADULT woman, in her thirties in bearing ' +
-    'and face, mature sharp features, defined cheekbones and jawline, poised and severe, ' +
-    'not youthful, not childlike, not doll-like, no large anime-style eyes, no rounded baby ' +
-    'face. Tiny in scale but adult in every proportion and every feature. Elegant gossamer ' +
-    'insect-like wings, fully and modestly dressed in an elaborate, sophisticated gown-like ' +
-    'garment made of leaves and petals covering her from shoulders to well past the knee, ' +
-    'high-necked and formal, nothing childish about the styling. An imperious, haughty, ' +
-    'faintly amused adult expression, chin lifted, looking down her nose at the camera as ' +
-    'though it has been granted a rare audience with visible age and self-possession in her ' +
-    'face. Warm late-afternoon light, seated regally on a windowsill, wings slightly spread. ' +
-    'Photorealistic fantasy photography, not a cartoon, not an illustration, not any style ' +
-    'associated with children\'s media. An original adult fantastical character, not based ' +
-    'on or resembling any existing copyrighted character.',
+  tansy: 'A photograph of a real adult woman in her mid-thirties, striking and severe, ' +
+    'defined cheekbones and jawline, sharp intelligent eyes, an imperious and haughty ' +
+    'expression, chin lifted, looking down her nose at the camera as though it has been ' +
+    'granted a rare audience. Head and shoulders only, close up, filling the frame, the way ' +
+    'a portrait photograph is composed, not a full-body or wide shot and no other objects in ' +
+    'frame for scale. She has elegant gossamer dragonfly-like wings visible rising from her ' +
+    'shoulders behind her. She wears a high-necked, sophisticated garment styled from leaves ' +
+    'and petals, elegant rather than costume-like. Warm late-afternoon light. Photorealistic ' +
+    'portrait photography, not a cartoon, not an illustration, not any style associated with ' +
+    'children\'s media, not cute, not doll-like. An original adult fantastical character, ' +
+    'not based on or resembling any existing copyrighted character.',
 };
 
 exports.handler = async (event) => {
