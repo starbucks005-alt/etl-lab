@@ -212,6 +212,16 @@ html,body{ height:100%; }
 .msg .who{ display:block; font-family:var(--mono); font-size:10px; letter-spacing:.16em;
   text-transform:uppercase; color:var(--ink-dim); margin-bottom:.15rem; }
 .msg.mine{ margin-left:auto; border-color:var(--accent); }
+/* REPLAY, sits under the line rather than inline with it: text wraps to
+   several lines often enough that an inline button would land somewhere
+   mid-sentence depending on line length. */
+.replay-btn{
+  display:block; margin-top:.4rem; font-family:var(--mono); font-size:10px;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--ink-dim);
+  background:transparent; border:1px solid var(--line); border-radius:3px;
+  padding:.22rem .5rem; cursor:pointer;
+}
+.replay-btn:hover{ color:var(--accent); border-color:var(--accent); }
 
 .row{ display:flex; gap:.45rem; padding:.5rem 1rem; align-items:center; }
 /* The occasional controls, small and wrapping rather than stacked full-width. */
@@ -1050,6 +1060,7 @@ function post(who, text, mine, pictures) {
   d.appendChild(w); d.appendChild(document.createTextNode(text));
   $('log').appendChild(d);
   $('log').scrollTop = $('log').scrollHeight;
+  return d;
 }
 
 /* His own line if he has one, a neutral one if the user built somebody who
@@ -1175,17 +1186,17 @@ function ask(payload) {
        bubble, no apology, no dots. If silence cannot be produced the room
        always feels like a demo. */
     if (j && j.reply) {
-      post(FRIEND.name, j.reply);
+      var replyBubble = post(FRIEND.name, j.reply);
       /* THE CAMEO, IF THERE IS ONE (Poppy, in Tansy's room, rarely).
          Text posts right away either way. The speech is chained after her
          own line finishes, via onDone, rather than fired at the same time,
          so audio mode never has two voices talking over each other. */
       speak(j.reply, FRIEND.voiceId, function () {
         if (j.cameo && j.cameo.text) {
-          post(j.cameo.name, j.cameo.text);
-          speak(j.cameo.text, j.cameo.voice_id);
+          var cameoBubble = post(j.cameo.name, j.cameo.text);
+          speak(j.cameo.text, j.cameo.voice_id, undefined, cameoBubble);
         }
-      });
+      }, replyBubble);
     }
     else if (j && (j.credits_exhausted || j.daily_capped)) { showCreditsUpsell(j.daily_capped); }
     else if (j && j.error) post("Not wired yet", "The chat function said: " + j.error);
@@ -1744,7 +1755,7 @@ function startPolling() {
       body: JSON.stringify({ seat_token: SEAT, since: lastSeen })
     }).then(function (r) { return r.json(); }).then(function (j) {
       if (!j || !j.messages) return;
-      var lastHeard = null;
+      var lastHeard = null, lastHeardBubble = null;
       j.messages.forEach(function (m) {
         lastSeen = m.created_at;
 
@@ -1779,9 +1790,9 @@ function startPolling() {
           ? (FRIEND.name || "Friend")
           : (m.name || "Someone");
 
-        post(label, m.content, m.speaker === "person" && m.author_id && m.author_id === MY_SEAT_ID);
+        var bubble = post(label, m.content, m.speaker === "person" && m.author_id && m.author_id === MY_SEAT_ID);
 
-        if (m.speaker === "friend") lastHeard = m.content;
+        if (m.speaker === "friend") { lastHeard = m.content; lastHeardBubble = bubble; }
       });
 
       /* HE STAYS AUDIBLE IN A ROOM. Once a room exists his reply no longer
@@ -1791,7 +1802,7 @@ function startPolling() {
 
          Only the last line of a batch is spoken, because speak() interrupts
          whatever is playing and a queue of two would talk over itself. */
-      if (lastHeard) speak(lastHeard);
+      if (lastHeard) speak(lastHeard, FRIEND.voiceId, undefined, lastHeardBubble);
       /* THE SCENE IS SHARED. The host changes rooms and everybody follows,
          because if you are both sitting with him at the fireplace then you are
          both at the fireplace. */
@@ -2116,14 +2127,43 @@ function hush() {
   $("stopBtn").style.display = "none";
 }
 
-function speak(text, voiceId, onDone) {
+/* REPLAY, added 2026-08-18 per Dr. O, after Reggie's Duke-and-the-mailman
+   speech: "can you make it so we can replay his text - voice?" The audio
+   already exists in the browser by the time this button appears (it just
+   played once), so replaying it costs nothing extra: no second call to
+   gc-voice.js, no second credit spent. Only ever attached to a message that
+   actually played successfully; text-only or failed messages get no button,
+   since there is nothing cached to replay. */
+function playCachedAudio(b64) {
+  hush();
+  speaking = new Audio("data:audio/mpeg;base64," + b64);
+  $("stopBtn").style.display = "inline-block";
+  speaking.onended = hush;
+  speaking.play().catch(function () { hush(); });
+}
+function addReplayButton(bubble, b64) {
+  if (!bubble) return;
+  var btn = document.createElement('button');
+  btn.className = 'replay-btn';
+  btn.type = 'button';
+  btn.title = 'Play this again';
+  btn.innerHTML = '&#128266; Replay';
+  btn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    playCachedAudio(b64);
+  });
+  bubble.appendChild(btn);
+}
+
+function speak(text, voiceId, onDone, bubble) {
   /* voiceId DEFAULTS TO THE FRIEND'S OWN, so every existing call site
      (speak(text)) is untouched. The override exists for a cameo line
      (Poppy, in Tansy's own room) which needs a different voice than the
      friend she is chained after. onDone is ALWAYS called eventually, audio
      on or off, success or failure, so a caller can chain a second line
      (the cameo's text bubble and speech) without caring whether audio is
-     even enabled. */
+     even enabled. bubble, if given, gets a Replay button once the audio for
+     THIS line actually arrives. */
   voiceId = voiceId || FRIEND.voiceId;
   if (!asAudio || !voiceId || !text) { if (onDone) onDone(); return; }
   hush();
@@ -2165,6 +2205,7 @@ function speak(text, voiceId, onDone) {
     $("stopBtn").style.display = "inline-block";
     speaking.onended = function () { hush(); if (onDone) onDone(); };
     speaking.play().catch(function () { hush(); if (onDone) onDone(); });
+    addReplayButton(bubble, j.audio);
   }).catch(function () { hush(); if (onDone) onDone(); });
 }
 
