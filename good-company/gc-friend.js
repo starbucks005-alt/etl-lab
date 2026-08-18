@@ -1597,17 +1597,30 @@ var GC_TANSY = {
              'trees, which she considers the only reasonable vantage point from which to ' +
              'observe anybody.' },
 
-    { key: 'windowsill', label: 'The windowsill', src: null,
+    { key: 'windowsill', label: 'The windowsill', src: 'video/tansy-windowsill.mp4',
       where: 'A windowsill, late afternoon light, where she has decided the view is ' +
              'acceptable and has never once admitted to choosing it for the light.' },
 
-    { key: 'garden', label: 'The garden', src: null,
+    { key: 'garden', label: 'The garden', src: 'video/tansy-garden.mp4',
       where: 'A garden bed, among the flowers, which she insists is simply where she happens ' +
              'to be rather than anywhere she particularly likes.' },
 
-    { key: 'greenhouse', label: 'The greenhouse', src: null,
-      where: 'A greenhouse in winter, warm and green when everything outside is not, which ' +
-             'she visits far more often than the season would explain.' },
+    /* REWRITTEN AGAINST THE REAL STILL, not the earlier guess. The old
+       placeholder said winter; the actual image is lush, tropical, and full
+       of the same visiting humans she claims not to notice. */
+    { key: 'greenhouse', label: 'The greenhouse', src: 'video/tansy-greenhouse.mp4',
+      where: 'A glasshouse thick with tropical green, birds-of-paradise and palms, where she ' +
+             'kneels to inspect the leaves like she is the one doing the plants a favor. ' +
+             'Visitors pass by on the other side of the glass sometimes; she pretends not to ' +
+             'notice them noticing her.' },
+
+    /* HER ACTUAL HOME, NEW, from the real still: a tree-trunk room with
+       stained glass, a real fire, crystals, dried flowers, botanical prints
+       on the wall. Magnificent, on purpose, the same way she is. */
+    { key: 'home', label: 'Her home', src: 'video/tansy-home.mp4',
+      where: 'Her own rooms: a hollow in a great tree, stained glass worked into living ' +
+             'branches, a real fire going, crystals and dried flowers on every surface. Far ' +
+             'grander than anything she would ever admit to having built herself.' },
   ],
 
   place: 'Wherever she currently considers acceptable, which changes, and which she describes ' +
