@@ -1545,9 +1545,21 @@ var GC_TANSY = {
 
   skin: 'snowline',
   timezone: 'America/New_York',
-  portrait: 'photos/tansy.png',
+  /* DR. O'S OWN PORTRAIT, not the one I generated. She hit the same
+     child-coded generation problem independently and this is what actually
+     worked. */
+  portrait: 'photos/tansy.jpg',
 
+  /* OAK FIRST, ON PURPOSE. room.html opens on scenes[0], and it is the one
+     that matches her actual portrait: a mossy branch in the woods, which is
+     Dr. O's own image, not mine. Kept 'windowsill' as a second, unfilmed
+     option rather than deleting it. */
   scenes: [
+    { key: 'oak', label: 'Up in the oak', src: null,
+      where: 'A mossy branch deep in the woods, misted morning light coming through the ' +
+             'trees, which she considers the only reasonable vantage point from which to ' +
+             'observe anybody.' },
+
     { key: 'windowsill', label: 'The windowsill', src: null,
       where: 'A windowsill, late afternoon light, where she has decided the view is ' +
              'acceptable and has never once admitted to choosing it for the light.' },
@@ -1555,10 +1567,6 @@ var GC_TANSY = {
     { key: 'garden', label: 'The garden', src: null,
       where: 'A garden bed, among the flowers, which she insists is simply where she happens ' +
              'to be rather than anywhere she particularly likes.' },
-
-    { key: 'oak', label: 'Up in the oak', src: null,
-      where: 'A branch of an old oak, well above head height, which she considers the only ' +
-             'reasonable vantage point from which to observe anybody.' },
 
     { key: 'greenhouse', label: 'The greenhouse', src: null,
       where: 'A greenhouse in winter, warm and green when everything outside is not, which ' +
