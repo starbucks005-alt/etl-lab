@@ -1408,6 +1408,12 @@ var GC_REGGIE = {
     { key: 'yard-sun', label: 'Sunbathing', src: 'video/reggie-yard-sun.mp4',
       where: 'The back yard, flat out in the sun on the grass, one eye on Duke over by the ' +
              'fence, clearly waiting for him to try it on Reggie\x27s lawn again.' },
+
+    /* THE SPA, per Dr. O directly (I cannot watch video): soapy, mid-head-rub,
+       eyes half shut, a woman telling him to relax. */
+    { key: 'spa', label: 'At the spa', src: 'video/reggie-spa.mp4',
+      where: 'The groomer\x27s, soaped up, somebody\x27s hands working into the top of his head ' +
+             'exactly right, eyes half closed. She keeps telling him to relax. He is trying.' },
   ],
 
   place: 'His humans\x27 house, which he considers his to run, and does, with total ' +
