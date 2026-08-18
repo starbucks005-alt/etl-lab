@@ -1,5 +1,5 @@
 /* TEMP, removed after use. One-off portrait generation for new Good Company
-   house demos. GET ?who=cora|kioko|reggie -> { image } base64 PNG. */
+   house demos. GET ?who=cora|kioko|reggie|tansy -> { image } base64 PNG. */
 const gemini = require('./_gemini-image.js');
 
 const CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET, OPTIONS' };
@@ -26,13 +26,22 @@ const PROMPTS = {
     'in a happy pant, as though something enormously exciting just happened. Head and ' +
     'shoulders, close up. Warm afternoon light indoors, a home behind him, nothing posed or ' +
     'studio-lit. An ordinary real dog, not a show breed, not a recognizable famous animal.',
+  tansy: 'A photograph of a fairy, tiny and delicate, roughly the size of a hand, with ' +
+    'gossamer insect-like wings, fully and modestly dressed in simple natural clothing made ' +
+    'of leaves and petals. She has an imperious, haughty, faintly amused expression, chin ' +
+    'lifted, looking down her nose at the camera as though it has been granted a rare ' +
+    'audience. Warm late-afternoon light, sitting on a windowsill or garden leaf, wings ' +
+    'slightly spread. Photorealistic fantasy photography in the style of a nature ' +
+    'macro-photograph, not a cartoon, not an illustration, not a children\'s book drawing. ' +
+    'An original fantastical character, not based on or resembling any existing copyrighted ' +
+    'character.',
 };
 
 exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: CORS, body: '' };
   const who = (event.queryStringParameters || {}).who;
   const prompt = PROMPTS[who];
-  if (!prompt) return json(400, { error: 'who must be cora, kioko, or reggie' });
+  if (!prompt) return json(400, { error: 'who must be cora, kioko, reggie, or tansy' });
   try {
     // No aspect param: gc-face.js's own working call omits it too, and
     // image_config errored live here as "Unknown parameter" on this API
