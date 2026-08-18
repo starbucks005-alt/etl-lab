@@ -248,8 +248,14 @@ html{ zoom:90%; }
 /* PROTECTED. Chat text is --ink on --panel in every skin, and that pair is
    contrast-checked per skin rather than eyeballed. No skin may give this rule
    a softer color: a dimmed message is where a palette starts costing reading. */
+/* 52ch -> 94%, 2026-08-18: Dr. O in fullscreen, "remove all the padding on
+   the right so text can go further right." The 52ch cap was never padding,
+   it was a fixed reading-measure clamp that stopped mattering once the
+   column got wide (fullscreen, a big monitor) and just left dead space
+   instead. Percentage-based so it still leaves room for .msg.mine to sit
+   right-aligned rather than edge to edge. */
 .msg{ border:1px solid var(--line); background:var(--panel); color:var(--ink);
-  padding:.55rem .8rem .7rem; margin-bottom:.55rem; max-width:52ch; }
+  padding:.55rem .8rem .7rem; margin-bottom:.55rem; max-width:94%; }
 .msg .who{ display:block; font-family:var(--mono); font-size:10px; letter-spacing:.16em;
   text-transform:uppercase; color:var(--ink-dim); margin-bottom:.15rem; }
 .msg.mine{ margin-left:auto; border-color:var(--accent); }
