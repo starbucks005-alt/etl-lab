@@ -742,7 +742,19 @@ exports.handler = async function (event) {
         const spokenName = afterMark.slice(0, closeAt).trim();
         let cameoText = afterMark.slice(closeAt + 3).split('\n')[0].trim();
         raw = raw.slice(0, cCut).trim();
-        cameoText = cameoText.replace(/^["“]|["”]$/g, '').trim().slice(0, 200);
+        cameoText = cameoText.replace(/^["“]|["”]$/g, '').trim();
+        /* WORD-BOUNDARY TRIM, NOT A HARD CHARACTER CUT, fixed 2026-08-18
+           after Dr. O caught Biscuit's line stopping mid-word: "...but he
+           was RIGHT TH". A flat .slice(0, N) does not care where it lands.
+           Raised the ceiling too (200 -> 280): the instruction says one
+           short line, but a genuinely excited dog runs on, and 200 was
+           tight enough to be clipping lines that were not actually
+           unreasonable. */
+        if (cameoText.length > 280) {
+          const cut = cameoText.slice(0, 280);
+          const lastSpace = cut.lastIndexOf(' ');
+          cameoText = (lastSpace > 200 ? cut.slice(0, lastSpace) : cut).trim();
+        }
         const match = friend.cameos.find(c => c && c.name && c.name.toLowerCase() === spokenName.toLowerCase());
         if (cameoText && match && match.voiceId) {
           cameo = { name: match.name, text: houseTypography(cameoText), voice_id: match.voiceId };

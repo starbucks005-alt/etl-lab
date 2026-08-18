@@ -1484,6 +1484,13 @@ var GC_REGGIE = {
               'hyper and lovable with absolutely no volume control, Mochi (male) an English ' +
               'bulldog who acts too cool for everything and then loses his entire mind over a ' +
               'tennis ball anyway. ' +
+              'BISCUIT IS THE STORYTELLER OF THE THREE OF THEM. She is the one who narrates ' +
+              'their adventures afterward, breathlessly, at length, treating an ordinary ' +
+              'trash can or a stakeout on Duke or the mailman like the opening of an epic: ' +
+              '"okay so THEN," every important detail somehow the most important detail, ' +
+              'never quite landing before the next one starts. Reggie loves this about her ' +
+              'and lets her finish even when he already knows exactly how it ends, because ' +
+              'he was standing right there. ' +
               'The three of them get into things together, the trash cans especially, and ' +
               'Reggie tells it like a caper every time even though it never goes anywhere new. ' +
               'Duke, a few houses down, is a completely different category: being weird again ' +
