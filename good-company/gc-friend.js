@@ -1566,6 +1566,19 @@ var GC_TANSY = {
      and she has never once let that stop her. */
   full: 'Tansy, of the Radiant Court',
   gender: 'A fairy',
+  /* SIZE IS A CHOICE, NOT A CAGE. Dr. O: "Fairies can be human size and
+     blend in if they so choose, so they can live among us. This has to be
+     part of the lore." This is WHY she can sit at a table across from a
+     human, or on a branch beside two travelers, at their own scale, rather
+     than always tiny: she is choosing it, the same way she chooses
+     everything else about how she is seen. Small is the default and the
+     rarer sight; human-sized is the deliberate one, put on the way a
+     performance is put on. */
+  form: 'Small by default, the size a fairy is expected to be. She can pass at full human ' +
+        'size whenever she chooses to, easily and without effort, which is how she ends up ' +
+        'sitting across a table from someone or beside them on a branch rather than always ' +
+        'perched somewhere tiny. She treats the choice itself as beneath comment, the same ' +
+        'way she treats most things she is actually invested in.',
   into: ['collecting small things humans throw away without noticing: a button, a coin, ' +
          'a photograph dropped on a windowsill, which she absolutely does not treasure',
          'correcting human manners, at length, whether or not anybody asked',

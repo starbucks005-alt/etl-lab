@@ -140,6 +140,10 @@ function buildSystem(friend, you, idle, scene, room) {
   if (f.age)    bits.push(`You are in your ${String(f.age).replace(/s$/, '')}s.`);
   if (f.gender) bits.push(`You are ${String(f.gender).replace(/^A /, 'a ')}.`);
   if (f.from)   bits.push(`You are from ${f.from}.`);
+  /* A NON-HUMAN'S PHYSICAL NATURE, where one is written (e.g. Tansy's
+     size-shifting). Placed right after gender/from since it is the same
+     kind of fact: what you fundamentally are, not a preference or a habit. */
+  if (f.form)   bits.push(f.form);
 
   /* THE PROFESSION IS THE LIFE. It is what you were doing before this, what you
      turn up still carrying, and what you have to talk about when it goes quiet. */
