@@ -51,6 +51,12 @@
 /* html and body need a height here that gc-skin.css does not set, because
    this page is a full-viewport room rather than a scrolling document. */
 html,body{ height:100%; }
+/* Dr. O, 2026-08-18: "the screen 10% smaller, it fits perfectly at 90%."
+   zoom rather than transform:scale, so the layout itself recalculates at
+   the smaller size (no leftover blank space transform would leave behind)
+   and it still respects height:100% above. Chrome/Edge only, but that is
+   what this was tested in. */
+html{ zoom:90%; }
 /* ── the room ────────────────────────────────────────────────────────────── */
 .room{ height:100vh; display:grid; grid-template-columns:auto 1fr; grid-template-rows:1fr; }
 .stage{ display:flex; flex-direction:column; width:min(58vw, calc(52vh * 16 / 9)); min-width:0; }
