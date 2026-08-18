@@ -1090,6 +1090,12 @@ var ROOM_CREDIT_REF = null;
    comparing display names, which breaks two ways: two people called Jen, and
    worse, a guest who never typed a name at all. */
 var seen = {}, MY_SEAT_ID = null;
+/* WHO WE ALREADY KNOW IS HERE, for announcing arrivals. Starts null and is
+   seeded from the FIRST poll response rather than empty, so everybody
+   already in the room at the moment polling starts (including yourself)
+   never gets announced as though they just walked in — only a name that
+   was not there on a prior poll counts as an arrival. */
+var knownPeopleNames = null;
 function youLabel(){ return YOU.name || "You"; }
 
 gcMountYou($("youPanel"), function (saved) {
@@ -1797,6 +1803,28 @@ function startPolling() {
 
         if (m.speaker === "friend") { lastHeard = m.content; lastHeardBubble = bubble; }
       });
+
+      /* TELL US WHEN A GUEST ARRIVES, added 2026-08-18 per Dr. O: "It should
+         tell us when our guest is in the room." Somebody who tapped a
+         Bring Someone link used to just silently start appearing in the
+         transcript the moment they said something; there was no signal
+         that they had actually arrived. gc-room-poll.js already returns
+         the full current roster on every tick, this just watches it for a
+         name that was not there before. */
+      if (j.people) {
+        var currentNames = j.people.map(function (p) { return (p && p.name) || 'Someone'; });
+        if (knownPeopleNames === null) {
+          knownPeopleNames = {};
+          currentNames.forEach(function (n) { knownPeopleNames[n] = true; });
+        } else {
+          currentNames.forEach(function (n) {
+            if (!knownPeopleNames[n]) {
+              knownPeopleNames[n] = true;
+              post('Room', n + ' joined.');
+            }
+          });
+        }
+      }
 
       /* HE STAYS AUDIBLE IN A ROOM. Once a room exists his reply no longer
          comes back to the person who spoke; it arrives here, on everyone's

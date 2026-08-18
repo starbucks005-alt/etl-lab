@@ -229,44 +229,6 @@ function buildSystem(friend, you, idle, scene, room) {
      friendship is FOR rather than what they know. */
   if (f.pushes) bits.push(f.pushes);
 
-  /* OCCASIONAL CAMEOS, added for Tansy/Poppy 2026-08-17, generalized to a
-     list 2026-08-18 for Reggie/Biscuit+Mochi. Secondary characters who are
-     not a friend of their own: no room, no build slot, just a rare aside
-     inside THIS friend's own reply. Gated entirely on f.cameos being
-     present, so every other friend is byte-for-byte unaffected.
-
-     RATE ADJUSTED FROM "one in fifteen or twenty" AFTER A LIVE MISS, Dr. O,
-     2026-08-18: Poppy essentially never spoke across a real testing session,
-     even when Pookie was actively trying to get her to. One-in-fifteen
-     across a normal-length conversation is close to "never" in practice,
-     not "rare." Moved to roughly one-in-eight: enough to actually surface
-     within an ordinary sitting, not so often it becomes the reason to keep
-     talking. Deliberately NOT pushed higher than that: this same session
-     also surfaced Pookie feeling Good Company could be addictive, and a
-     variable, surprise-a-companion-shows-up mechanic is exactly the shape
-     of thing that makes something stickier on purpose. Fixing "broken" is
-     not the same job as "maximize how often this fires." */
-  if (Array.isArray(f.cameos) && f.cameos.length) {
-    const names = f.cameos.map(c => c && c.name).filter(Boolean);
-    if (names.length) {
-      const namesList = names.join(names.length > 1 ? ' or ' : '');
-      bits.push(`\n${names.join(' AND ').toUpperCase()} ${names.length > 1 ? 'ARE' : 'IS'} SOMETIMES RIGHT ` +
-                `THERE TOO. ${namesList} ${names.length > 1 ? 'are' : 'is'} close to you and turn up with ` +
-                `you sometimes. OCCASIONALLY, roughly one reply in every seven or eight, when it genuinely ` +
-                `fits the moment, ${names.length > 1 ? 'one of them (never both at once)' : namesList} says ` +
-                `one short thing of ${names.length > 1 ? 'their' : 'their'} own, unprompted, unlike you: ` +
-                `unguarded, in character for THEM specifically, not a copy of your own voice. Frequent enough ` +
-                `to actually happen in a normal conversation rather than almost never, still clearly the ` +
-                `exception rather than something to expect every few lines. Never two turns in a row.\n` +
-                `When it happens, write your own reply first, exactly as you always do, then on a new line ` +
-                `by itself write:\n` +
-                `${CAMEO_MARK}Name### ` + `— replace Name with exactly which one of them is speaking (` +
-                `${names.join(', ')}), then whatever they say right after the ###, one short line, ` +
-                `nothing else on it. That line is THEIRS, in their own words, not you quoting them and not ` +
-                `in quotation marks.`);
-    }
-  }
-
   /* NOBODY IS EVER AN IMPOSITION. Late and last, with the other hard rules,
      because it is the same kind of instruction: about what this friendship is
      FOR. Pookie read one line about a night shift and felt she would be
@@ -375,6 +337,61 @@ RIGHT NOW YOU ARE HERE: ${scene.where}` +
     '- If they are kind to you, let it land and say so. Do not deflect it or joke your way out.',
     '- Never lean on them, never ask to be reassured, never leave them feeling responsible for you. Offered support is welcome. Required support is not.',
   ].join('\n'));
+
+  /* OCCASIONAL CAMEOS, added for Tansy/Poppy 2026-08-17, generalized to a
+     list 2026-08-18 for Reggie/Biscuit+Mochi. Secondary characters who are
+     not a friend of their own: no room, no build slot, just a rare aside
+     inside THIS friend's own reply. Gated entirely on f.cameos being
+     present, so every other friend is byte-for-byte unaffected.
+
+     MOVED TO THE END OF THE STATIC PROMPT, 2026-08-18, after a second live
+     miss: even with Terry directly asking "Can they say hello?" and then
+     "please, let them talk," Reggie described Biscuit and Mochi in the
+     third person instead of ever actually using the marker. The instruction
+     used to sit mid-prompt, well before the long HOW YOU ARE rules block,
+     and this campus's own debugging rule is recency beats volume: the last
+     thing read is what actually wins, so it is now the last unconditional
+     thing in the prompt rather than something later rules could bury.
+
+     ALSO ADDED: an explicit rule for exactly what just happened — being
+     asked directly. The rarity guidance was written for the unprompted
+     case and had no answer for "the person is literally asking," so the
+     model had nothing telling it that counted as one of the rare moments.
+
+     RATE ADJUSTED FROM "one in fifteen or twenty" AFTER A LIVE MISS, Dr. O,
+     2026-08-18: Poppy essentially never spoke across a real testing session,
+     even when Pookie was actively trying to get her to. One-in-fifteen
+     across a normal-length conversation is close to "never" in practice,
+     not "rare." Moved to roughly one-in-eight: enough to actually surface
+     within an ordinary sitting, not so often it becomes the reason to keep
+     talking. Deliberately NOT pushed higher than that: this same session
+     also surfaced Pookie feeling Good Company could be addictive, and a
+     variable, surprise-a-companion-shows-up mechanic is exactly the shape
+     of thing that makes something stickier on purpose. Fixing "broken" is
+     not the same job as "maximize how often this fires." */
+  if (Array.isArray(f.cameos) && f.cameos.length) {
+    const names = f.cameos.map(c => c && c.name).filter(Boolean);
+    if (names.length) {
+      const namesList = names.join(names.length > 1 ? ' or ' : '');
+      bits.push(`\n${names.join(' AND ').toUpperCase()} ${names.length > 1 ? 'ARE' : 'IS'} SOMETIMES RIGHT ` +
+                `THERE TOO, and this is the last thing in these notes on purpose because it matters. ` +
+                `${namesList} ${names.length > 1 ? 'are' : 'is'} close to you and turn up with you ` +
+                `sometimes. OCCASIONALLY, unprompted, roughly one reply in every seven or eight, when it ` +
+                `genuinely fits the moment, ${names.length > 1 ? 'one of them (never both at once)' : namesList} ` +
+                `says one short thing of ${names.length > 1 ? 'their' : 'their'} own, unguarded, in ` +
+                `character for THEM specifically, not a copy of your own voice.\n` +
+                `IF THE PERSON DIRECTLY ASKS ${names.length > 1 ? 'THEM' : namesList.toUpperCase()} TO SAY ` +
+                `SOMETHING, SAY HELLO, OR TALK, THAT IS NOT THE RARE CASE, THAT IS A YES. Do it that same ` +
+                `reply, do not deflect it into describing what ${names.length > 1 ? 'they are' : 'it is'} ` +
+                `doing instead, and do not make them ask twice.\n` +
+                `When it happens, for either reason, write your own reply first, exactly as you always do, ` +
+                `then on a new line by itself write:\n` +
+                `${CAMEO_MARK}Name### ` + `— replace Name with exactly which one of them is speaking (` +
+                `${names.join(', ')}), then whatever they say right after the ###, one short line, ` +
+                `nothing else on it. That line is THEIRS, in their own words, not you quoting them and not ` +
+                `in quotation marks.`);
+    }
+  }
 
   if (idle) {
     /* BIASED TOWARD SPEAKING, and it has to be. The first version said "you do

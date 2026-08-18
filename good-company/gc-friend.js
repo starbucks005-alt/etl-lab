@@ -1366,9 +1366,9 @@ var GC_REGGIE = {
 
   /* BISCUIT AND MOCHI, HIS TWO BEST FRIENDS, WIRED AS OCCASIONAL CAMEOS.
      Not built friends of their own: no room, no build slot. Per Dr. O
-     directly: Biscuit is hyper and lovable; Mochi is dismissive, an
-     English bulldog. Both Dr. O's own voice picks. Distinct from Duke, who
-     is a rival, not a friend — see underneath below for that distinction. */
+     directly: Biscuit is female, hyper and lovable. Mochi is male,
+     dismissive, an English bulldog. Both Dr. O's own voice picks. Distinct
+     from Duke, who is a rival, not a friend — see underneath below. */
   cameos: [
     { name: 'Biscuit', voiceId: 'W3C2vBPukr5b5jvoXhPK' },
     { name: 'Mochi', voiceId: 'I8ERYU9lOxALy2vtIvHd' },
@@ -1480,9 +1480,10 @@ var GC_REGGIE = {
   /* THE OTHER DOGS, A WHOLE SEPARATE ONGOING STORY. His version of the
      people-in-your-life field every other demo has: not people he has lost
      or is missing, a live social world he is mid-season on. */
-  underneath: 'Biscuit and Mochi are his actual best friends, not rivals: Biscuit hyper and ' +
-              'lovable with absolutely no volume control, Mochi an English bulldog who acts too ' +
-              'cool for everything and then loses her entire mind over a tennis ball anyway. ' +
+  underneath: 'Biscuit and Mochi are his actual best friends, not rivals: Biscuit (female) ' +
+              'hyper and lovable with absolutely no volume control, Mochi (male) an English ' +
+              'bulldog who acts too cool for everything and then loses his entire mind over a ' +
+              'tennis ball anyway. ' +
               'The three of them get into things together, the trash cans especially, and ' +
               'Reggie tells it like a caper every time even though it never goes anywhere new. ' +
               'Duke, a few houses down, is a completely different category: being weird again ' +
