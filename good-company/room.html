@@ -749,26 +749,41 @@ function moveRoom(scene) {
   }).catch(function () {});
 }
 
-FRIEND.scenes.forEach(function (scene, i) {
-  var chip = document.createElement('button');
-  chip.className = 'scene-chip' + (i === 0 ? ' on' : '');
-  chip.dataset.key = scene.key;
-  /* THE CLIP ITSELF, when there is one. Muted so several can play at once
-     without turning the picker into noise; looped and small, a preview, not
-     the room's actual audio. A scene with src:null gets no <video> at all,
-     same "nothing pretending to be there" rule as the main stage. */
-  if (scene.src) {
-    var v = document.createElement('video');
-    v.src = scene.src; v.muted = true; v.loop = true; v.autoplay = true; v.playsInline = true;
-    v.setAttribute('aria-hidden', 'true');
-    chip.appendChild(v);
-  }
-  var label = document.createElement('span');
-  label.textContent = scene.label;
-  chip.appendChild(label);
-  chip.addEventListener('click', function () { moveRoom(scene); });
-  bar.appendChild(chip);
-});
+/* PULLED INTO A FUNCTION, 2026-08-18, so it can run again after a guest
+   joins via an invite link. Before this it only ever ran once, at the top
+   of the page, against whatever FRIEND happened to be at load time (the
+   default demo, Arch, for a cold arrival with no ?who= on the link — every
+   invite link is exactly that). joinThenSit() already correctly swapped
+   the FRIEND variable to the room's real friend on a successful join, but
+   nothing rebuilt the scene picker or replayed a first scene against the
+   new value, so the video, the portrait, and every scene chip stayed
+   frozen on Arch even once the underlying data was right. Dr. O: sent
+   Pookie a link to Reggie's room, it took them both to Arch — this is why. */
+function renderScenes() {
+  bar.innerHTML = '';
+  FRIEND.scenes.forEach(function (scene, i) {
+    var chip = document.createElement('button');
+    chip.className = 'scene-chip' + (i === 0 ? ' on' : '');
+    chip.dataset.key = scene.key;
+    /* THE CLIP ITSELF, when there is one. Muted so several can play at once
+       without turning the picker into noise; looped and small, a preview, not
+       the room's actual audio. A scene with src:null gets no <video> at all,
+       same "nothing pretending to be there" rule as the main stage. */
+    if (scene.src) {
+      var v = document.createElement('video');
+      v.src = scene.src; v.muted = true; v.loop = true; v.autoplay = true; v.playsInline = true;
+      v.setAttribute('aria-hidden', 'true');
+      chip.appendChild(v);
+    }
+    var label = document.createElement('span');
+    label.textContent = scene.label;
+    chip.appendChild(label);
+    chip.addEventListener('click', function () { moveRoom(scene); });
+    bar.appendChild(chip);
+  });
+  if (FRIEND.scenes.length) play(FRIEND.scenes[0]);
+}
+renderScenes();
 
 /* ── COMING BACK FROM PAYING ─────────────────────────────────────────────────
    Stripe sends them back here with a session id and nothing else. Whether it
@@ -1021,8 +1036,6 @@ if (FRIEND === GC_BUILT && FRIEND.scenes.length < 5) {
     bar.appendChild(slot);
   });
 }
-
-if (FRIEND.scenes.length) play(FRIEND.scenes[0]);
 
 /* ── conversation ────────────────────────────────────────────────────────────
    SHELL ONLY. Nothing here talks to a model. Your line goes in the log so the
@@ -1740,7 +1753,7 @@ function joinThenSit() {
     }
     SEAT = j.seat_token; ROOM = j.room_id; MY_SEAT_ID = j.seat_id || null;
     ROOM_CREDIT_REF = j.host_credit_ref || null;
-    if (j.friend) { FRIEND = j.friend; nameEverything(); }
+    if (j.friend) { FRIEND = j.friend; nameEverything(); renderScenes(); }
     if (j.scene_key) {
       var sc = (FRIEND.scenes || []).filter(function (x) { return x.key === j.scene_key; })[0];
       if (sc) play(sc);
@@ -1765,6 +1778,7 @@ function startPolling() {
     }).then(function (r) { return r.json(); }).then(function (j) {
       if (!j || !j.messages) return;
       var lastHeard = null, lastHeardBubble = null;
+      var lastCameo = null;   // { text, bubble, voiceId } — see below
       j.messages.forEach(function (m) {
         lastSeen = m.created_at;
 
@@ -1794,14 +1808,30 @@ function startPolling() {
            fallback was (m.name || FRIEND.name), so a guest who joined without
            typing a name had every word they said attributed to the friend.
            Pookie's line about her dog appeared over Arch's name. A person
-           without a name is "Someone"; only the friend is ever the friend. */
+           without a name is "Someone"; only the friend is ever the friend.
+
+           A CAMEO IS ALSO speaker:"friend", added 2026-08-18: gc-room-say.js
+           now persists Poppy/Biscuit/Mochi's line as its own message row
+           the same way it persists the friend's own, so this used to always
+           relabel it as Reggie or Tansy — every cameo line in a shared room
+           was silently wearing the wrong name. m.name is trusted for a
+           friend-speaker row now, and only falls back to FRIEND.name when
+           it is genuinely missing. */
         var label = (m.speaker === "friend")
-          ? (FRIEND.name || "Friend")
+          ? (m.name || FRIEND.name || "Friend")
           : (m.name || "Someone");
 
         var bubble = post(label, m.content, m.speaker === "person" && m.author_id && m.author_id === MY_SEAT_ID);
 
-        if (m.speaker === "friend") { lastHeard = m.content; lastHeardBubble = bubble; }
+        if (m.speaker === "friend") {
+          var isCameo = m.name && m.name !== FRIEND.name;
+          if (isCameo) {
+            var cEntry = (FRIEND.cameos || []).find(function (c) { return c && c.name === m.name; });
+            lastCameo = { text: m.content, bubble: bubble, voiceId: cEntry ? cEntry.voiceId : null };
+          } else {
+            lastHeard = m.content; lastHeardBubble = bubble;
+          }
+        }
       });
 
       /* TELL US WHEN A GUEST ARRIVES, added 2026-08-18 per Dr. O: "It should
@@ -1831,9 +1861,19 @@ function startPolling() {
          poll, and nothing here used to speak it. So he went quiet the moment
          anybody was invited, which is precisely when being heard matters most.
 
-         Only the last line of a batch is spoken, because speak() interrupts
-         whatever is playing and a queue of two would talk over itself. */
-      if (lastHeard) speak(lastHeard, FRIEND.voiceId, undefined, lastHeardBubble);
+         Only the last MAIN line of a batch is spoken, because speak()
+         interrupts whatever is playing and a queue of two would talk over
+         itself. A CAMEO, IF ONE ARRIVED IN THE SAME BATCH, chains after the
+         main line via onDone rather than firing at the same time — same
+         reasoning and same pattern as the solo-chat path in ask(), added
+         2026-08-18 once shared rooms could carry a cameo line at all. */
+      if (lastHeard) {
+        speak(lastHeard, FRIEND.voiceId, function () {
+          if (lastCameo && lastCameo.voiceId) speak(lastCameo.text, lastCameo.voiceId, undefined, lastCameo.bubble);
+        }, lastHeardBubble);
+      } else if (lastCameo && lastCameo.voiceId) {
+        speak(lastCameo.text, lastCameo.voiceId, undefined, lastCameo.bubble);
+      }
       /* THE SCENE IS SHARED. The host changes rooms and everybody follows,
          because if you are both sitting with him at the fireplace then you are
          both at the fireplace. */

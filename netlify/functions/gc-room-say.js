@@ -142,6 +142,24 @@ exports.handler = async function (event) {
       name: (who.room.friend && who.room.friend.name) || 'Friend',
       content: out.reply,
     });
+    /* THE CAMEO, IF THERE WAS ONE, added 2026-08-18. gc-chat.js already
+       returns it (Poppy/Biscuit/Mochi's rare interjection), and this used
+       to just drop it on the floor: only out.reply ever got persisted, so
+       a cameo line in a shared room was invisible to every browser
+       including the one that triggered it. Same speaker:"friend" as the
+       friend's own line, but with the cameo's own name, which is what lets
+       room.html (see its "A CAMEO IS ALSO speaker:friend" note) recognise
+       and re-attribute it on the way back out, and pick the right voice for
+       it by matching that name against FRIEND.cameos client-side rather
+       than needing the voice id to travel through the message row at all. */
+    if (out.cameo && out.cameo.name && out.cameo.text) {
+      await R.insertMessage(key, who.room.id, {
+        speaker: 'friend',
+        authorId: null,
+        name: out.cameo.name,
+        content: out.cameo.text,
+      });
+    }
   }
 
   return R.json(200, {
