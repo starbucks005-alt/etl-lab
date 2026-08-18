@@ -1400,7 +1400,7 @@ function ask(payload) {
         }
       }, replyBubble);
     }
-    else if (j && (j.credits_exhausted || j.daily_capped)) { showCreditsUpsell(j.daily_capped); }
+    else if (j && (j.credits_exhausted || j.daily_capped)) { showCreditsUpsell(j.daily_capped, j.owner_key_rejected); }
     else if (j && j.error) post("Not wired yet", "The chat function said: " + j.error);
     if (j && j.mood) $("gaugeLabel").textContent = j.mood;
     if (j && j.feelings) setFeelings(j.feelings);
@@ -1419,7 +1419,7 @@ function ask(payload) {
    addon. return_to sends them straight back to this room afterward, since
    it is the same membership either way. */
 var creditsUpsellShown = false;
-function showCreditsUpsell(isDailyCap) {
+function showCreditsUpsell(isDailyCap, ownerKeyRejected) {
   if (creditsUpsellShown) return;
   creditsUpsellShown = true;
 
@@ -1428,35 +1428,50 @@ function showCreditsUpsell(isDailyCap) {
   box.id = 'creditsUpsell';
 
   var say = document.createElement('div');
-  say.textContent = isDailyCap
+  /* ownerKeyRejected, added 2026-08-18: Dr. O hit this exact message twice
+     on real attempts and there was no way to tell, from the message alone,
+     whether her key never arrived or arrived and got rejected — two
+     different problems that looked identical. Named plainly rather than
+     silently falling through to the same visitor-facing copy a real
+     first-time visitor sees. */
+  say.textContent = ownerKeyRejected
+    ? "An owner key came through with that message but was not recognized. Check it against " +
+      "the OWNER_KEY value in Netlify."
+    : isDailyCap
     ? "That's today's free messages with " + FRIEND.name + ". Come back tomorrow, or go unlimited."
     : "Out of credits for " + FRIEND.name + " right now.";
   box.appendChild(say);
 
-  var actions = document.createElement('div');
-  actions.style.cssText = 'margin-top:.5rem; display:flex; gap:.5rem; flex-wrap:wrap;';
+  /* NO PURCHASE BUTTONS FOR A REJECTED OWNER KEY. Offering to buy credits or
+     subscribe to somebody who was trying to use the owner bypass is the
+     wrong answer to the actual problem, and it is exactly what real
+     visitors below this branch should still see. */
+  if (!ownerKeyRejected) {
+    var actions = document.createElement('div');
+    actions.style.cssText = 'margin-top:.5rem; display:flex; gap:.5rem; flex-wrap:wrap;';
 
-  var subBtn = document.createElement('button');
-  subBtn.type = 'button'; subBtn.className = 'btn go';
-  subBtn.textContent = '$9.99/mo, unlimited';
-  subBtn.addEventListener('click', function () { startCreditsCheckout('/.netlify/functions/create-checkout-ah', {}); });
-  actions.appendChild(subBtn);
+    var subBtn = document.createElement('button');
+    subBtn.type = 'button'; subBtn.className = 'btn go';
+    subBtn.textContent = '$9.99/mo, unlimited';
+    subBtn.addEventListener('click', function () { startCreditsCheckout('/.netlify/functions/create-checkout-ah', {}); });
+    actions.appendChild(subBtn);
 
-  /* ALWAYS OFFERED NOW, not just to somebody who already has a token.
-     create-checkout-ah-addon.js mints a fresh one on success if this visitor
-     has none yet, added 2026-08-18: "we need to let them buy credits. the
-     demos may end up being the star of the app." A first sit-down with
-     Reggie or Tansy should not have to end at "subscribe monthly or stop." */
-  var existingToken = GC_accessToken();
-  var addonBtn = document.createElement('button');
-  addonBtn.type = 'button'; addonBtn.className = 'btn';
-  addonBtn.textContent = '+30 credits, $4.99';
-  addonBtn.addEventListener('click', function () {
-    startCreditsCheckout('/.netlify/functions/create-checkout-ah-addon', { access_token: existingToken || '' });
-  });
-  actions.appendChild(addonBtn);
+    /* ALWAYS OFFERED NOW, not just to somebody who already has a token.
+       create-checkout-ah-addon.js mints a fresh one on success if this visitor
+       has none yet, added 2026-08-18: "we need to let them buy credits. the
+       demos may end up being the star of the app." A first sit-down with
+       Reggie or Tansy should not have to end at "subscribe monthly or stop." */
+    var existingToken = GC_accessToken();
+    var addonBtn = document.createElement('button');
+    addonBtn.type = 'button'; addonBtn.className = 'btn';
+    addonBtn.textContent = '+30 credits, $4.99';
+    addonBtn.addEventListener('click', function () {
+      startCreditsCheckout('/.netlify/functions/create-checkout-ah-addon', { access_token: existingToken || '' });
+    });
+    actions.appendChild(addonBtn);
 
-  box.appendChild(actions);
+    box.appendChild(actions);
+  }
   $('log').appendChild(box);
   $('log').scrollTop = $('log').scrollHeight;
 }
@@ -2526,7 +2541,7 @@ function speak(text, voiceId, onDone, bubble) {
     })
   }).then(function (r) { return r.json(); }).then(function (j) {
     if (j && j.daily_capped) {
-      if (!speak._creditsWarned) { speak._creditsWarned = true; showCreditsUpsell(true); }
+      if (!speak._creditsWarned) { speak._creditsWarned = true; showCreditsUpsell(true, j.owner_key_rejected); }
       if (onDone) onDone();
       return;
     }
@@ -2534,7 +2549,7 @@ function speak(text, voiceId, onDone, bubble) {
       /* A real, named reason, not a generic wiring failure, and only once:
          nobody needs this said again on every single line while audio stays
          toggled on with nothing left to spend on it. */
-      if (!speak._creditsWarned) { speak._creditsWarned = true; showCreditsUpsell(false); }
+      if (!speak._creditsWarned) { speak._creditsWarned = true; showCreditsUpsell(false, j.owner_key_rejected); }
       if (onDone) onDone();
       return;
     }

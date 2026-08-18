@@ -516,7 +516,16 @@ exports.handler = async function (event) {
      already happened and already returned if it fired. */
   const isDemo = body.is_demo === true;
   const visitorId = safeVisitorId(body.visitor_id);
-  const isOwner = !!ownerUser(String(body.owner_key || '').trim());
+  const rawOwnerKey = String(body.owner_key || '').trim();
+  const isOwner = !!ownerUser(rawOwnerKey);
+  /* WAS THE KEY EVEN SENT, added 2026-08-18. Dr. O hit the exact same cap
+     message on two separate real attempts and there was no way for either
+     of us to tell, from that message alone, whether her browser sent no
+     key at all or sent one that got rejected — two completely different
+     problems (a page that never planted it vs. a wrong value) that looked
+     identical from the outside. Never echoes the key itself back, only
+     whether one arrived and whether it was recognized. */
+  const ownerKeySentButRejected = !isOwner && !!rawOwnerKey;
   const accessToken = safeToken(body.access_token);
   /* THE SHARED-ROOM PATH, ADDED 2026-08-17. gc-room-say.js proxies here on
      behalf of whoever actually spoke, and no guest's browser holds the
@@ -547,7 +556,7 @@ exports.handler = async function (event) {
          outcome the model itself is allowed to choose. A real message from
          the person gets the flag the client uses to show the upsell. */
       if (idle) return json(200, { reply: null, quiet: true, mood: activeFriend.mood || null });
-      return json(200, { reply: null, credits_exhausted: true, mood: activeFriend.mood || null });
+      return json(200, { reply: null, credits_exhausted: true, owner_key_rejected: ownerKeySentButRejected, mood: activeFriend.mood || null });
     }
     usingFreeDailyCap = true;
     if (visitorId && serviceKey) {
@@ -558,7 +567,7 @@ exports.handler = async function (event) {
       const countSoFar = (usage && usage.count) || 0;
       if (countSoFar >= DAILY_FREE_LIMIT) {
         if (idle) return json(200, { reply: null, quiet: true, mood: activeFriend.mood || null });
-        return json(200, { reply: null, daily_capped: true, mood: activeFriend.mood || null });
+        return json(200, { reply: null, daily_capped: true, owner_key_rejected: ownerKeySentButRejected, mood: activeFriend.mood || null });
       }
     }
   }

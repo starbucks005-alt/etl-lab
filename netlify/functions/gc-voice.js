@@ -127,7 +127,12 @@ exports.handler = async function (event) {
   if (!text) return json(400, { error: 'nothing_to_say' });
   if (!/^[A-Za-z0-9]{12,40}$/.test(voiceId)) return json(400, { error: 'no_voice_id' });
 
-  const isOwner = !!ownerUser(String(body.owner_key || '').trim());
+  const rawOwnerKey = String(body.owner_key || '').trim();
+  const isOwner = !!ownerUser(rawOwnerKey);
+  /* SAME SIGNAL AS gc-chat.js, added 2026-08-18 — see its own comment. Tells
+     the client whether a key arrived and was rejected, versus never having
+     arrived at all, without ever echoing the key value itself back. */
+  const ownerKeySentButRejected = !isOwner && !!rawOwnerKey;
   const isDemo = body.is_demo === true;
   const visitorId = safeVisitorId(body.visitor_id);
   const accessToken = safeToken(body.access_token);
@@ -147,7 +152,7 @@ exports.handler = async function (event) {
 
   if (!isOwner && !hasCredits) {
     if (!isDemo) {
-      return json(200, { error: 'credits_exhausted', credits_exhausted: true });
+      return json(200, { error: 'credits_exhausted', credits_exhausted: true, owner_key_rejected: ownerKeySentButRejected });
     }
     /* SAME POOL GC-CHAT.JS ALREADY METERS TEXT AGAINST, weighted 5x here.
        See the file-level note above: this is not a second free allowance,
@@ -160,11 +165,11 @@ exports.handler = async function (event) {
       try { usage = await getStore('ah_daily_usage').get(dayKey, { type: 'json' }); } catch (_) {}
       const countSoFar = (usage && usage.count) || 0;
       if (countSoFar + AUDIO_MESSAGE_COST > DAILY_FREE_LIMIT) {
-        return json(200, { error: 'daily_capped', daily_capped: true });
+        return json(200, { error: 'daily_capped', daily_capped: true, owner_key_rejected: ownerKeySentButRejected });
       }
     } else {
       // No visitor id to meter against — cannot verify a free allowance exists, so no free audio.
-      return json(200, { error: 'credits_exhausted', credits_exhausted: true });
+      return json(200, { error: 'credits_exhausted', credits_exhausted: true, owner_key_rejected: ownerKeySentButRejected });
     }
   }
 
