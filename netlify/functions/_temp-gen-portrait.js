@@ -26,15 +26,19 @@ const PROMPTS = {
     'in a happy pant, as though something enormously exciting just happened. Head and ' +
     'shoulders, close up. Warm afternoon light indoors, a home behind him, nothing posed or ' +
     'studio-lit. An ordinary real dog, not a show breed, not a recognizable famous animal.',
-  tansy: 'A photograph of a fairy, tiny and delicate, roughly the size of a hand, with ' +
-    'gossamer insect-like wings, fully and modestly dressed in simple natural clothing made ' +
-    'of leaves and petals. She has an imperious, haughty, faintly amused expression, chin ' +
-    'lifted, looking down her nose at the camera as though it has been granted a rare ' +
-    'audience. Warm late-afternoon light, sitting on a windowsill or garden leaf, wings ' +
-    'slightly spread. Photorealistic fantasy photography in the style of a nature ' +
-    'macro-photograph, not a cartoon, not an illustration, not a children\'s book drawing. ' +
-    'An original fantastical character, not based on or resembling any existing copyrighted ' +
-    'character.',
+  tansy: 'A photograph of a fairy who is a clearly ADULT woman, in her thirties in bearing ' +
+    'and face, mature sharp features, defined cheekbones and jawline, poised and severe, ' +
+    'not youthful, not childlike, not doll-like, no large anime-style eyes, no rounded baby ' +
+    'face. Tiny in scale but adult in every proportion and every feature. Elegant gossamer ' +
+    'insect-like wings, fully and modestly dressed in an elaborate, sophisticated gown-like ' +
+    'garment made of leaves and petals covering her from shoulders to well past the knee, ' +
+    'high-necked and formal, nothing childish about the styling. An imperious, haughty, ' +
+    'faintly amused adult expression, chin lifted, looking down her nose at the camera as ' +
+    'though it has been granted a rare audience with visible age and self-possession in her ' +
+    'face. Warm late-afternoon light, seated regally on a windowsill, wings slightly spread. ' +
+    'Photorealistic fantasy photography, not a cartoon, not an illustration, not any style ' +
+    'associated with children\'s media. An original adult fantastical character, not based ' +
+    'on or resembling any existing copyrighted character.',
 };
 
 exports.handler = async (event) => {
