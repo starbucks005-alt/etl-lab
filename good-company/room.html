@@ -161,6 +161,35 @@ html{ zoom:90%; }
 .scene-chip.locked:hover{ opacity:1; color:var(--accent); border-color:var(--accent); }
 .scene-chip.locked span{ position:static; background:none; padding:.4rem .5rem; }
 
+/* WATCH, added 2026-08-18: "just videos for the users enjoyment," not a
+   place to sit and talk, so a visually separate row from the scene picker
+   above rather than another entry inside it — same chip shape, plus a
+   centered play glyph so it reads as "opens a video," and a label ("For
+   watching") so the distinction is not carried by position alone. */
+.watch-bar{ display:flex; flex-wrap:wrap; align-items:center; gap:.55rem; padding:0 .6rem .8rem; }
+.watch-bar-label{ font-family:var(--mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--ink-dim); flex:0 0 100%; margin:0 0 -.15rem; }
+.watch-chip{
+  font-family:var(--mono); font-size:12px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--ink-dim); background:#000; border:1px solid var(--line);
+  border-radius:5px; cursor:pointer; padding:0; overflow:hidden;
+  position:relative; width:132px; height:82px; flex:0 0 auto;
+}
+.watch-chip:hover{ color:var(--accent); border-color:var(--accent); }
+.watch-chip img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+.watch-chip span{
+  position:absolute; left:0; right:0; bottom:0; padding:.3rem .45rem;
+  background:linear-gradient(transparent, rgba(0,0,0,.78) 65%);
+  color:#F0E7DA; text-align:left; line-height:1.25;
+}
+.watch-chip .play-glyph{
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  width:34px; height:34px; border-radius:999px; background:rgba(0,0,0,.55);
+  border:1px solid rgba(255,255,255,.55); color:#F0E7DA;
+  display:flex; align-items:center; justify-content:center; font-size:13px; padding:0;
+}
+.watch-chip:hover .play-glyph{ border-color:var(--accent); color:var(--accent); }
+
 /* ── the conversation ────────────────────────────────────────────────────── */
 /* THE COLUMN DOES NOT SCROLL. THE TRANSCRIPT DOES.
    This was the wrong way round and it showed: .side scrolled the whole column
@@ -349,6 +378,20 @@ html{ zoom:90%; }
     </div>
 
     <div class="scene-bar" id="sceneBar"></div>
+    <div class="watch-bar" id="watchBar" style="display:none"></div>
+  </div>
+
+  <!-- FULL-SCREEN WATCH VIEWER, added 2026-08-18. Vimeo's OWN player chrome,
+       not the custom sound toggle the scene player uses — that postMessage
+       mute call is what Dr. O reported broken ("the volume cannot turn on").
+       These two clips are not scenes to sit and talk in front of, they are
+       "just videos for the users enjoyment," full laptop-screen size, so
+       this gives them their own overlay with real, working native controls. -->
+  <div id="watchViewer" style="display:none; position:fixed; inset:0; z-index:100; background:#000;">
+    <button class="btn" id="watchCloseBtn" style="position:absolute; top:16px; right:16px; z-index:2; background:rgba(0,0,0,.62);">&times; Close</button>
+    <iframe id="watchFrame" style="position:absolute; inset:0; width:100%; height:100%; border:0"
+      allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" allowfullscreen
+      referrerpolicy="strict-origin-when-cross-origin"></iframe>
   </div>
 
   <div class="side">
@@ -541,6 +584,7 @@ document.addEventListener('fullscreenchange', function () {
    A MISSING CLIP SAYS WHICH CLIP IS MISSING. No poster, no still, no stand-in.
    A placeholder that looks deliberate is how a broken asset reaches production. */
 var bar = $('sceneBar'), video = $('loop'), portrait = $('portrait'), current = null;
+var watchBar = $('watchBar'), watchViewer = $('watchViewer'), watchFrame = $('watchFrame');
 
 /* Declared here, not down with the button: play() reads it, and relying on var
    hoisting to make that undefined-but-falsy is luck rather than intent. */
@@ -861,7 +905,67 @@ function renderScenes() {
     bar.appendChild(chip);
   });
   if (FRIEND.scenes.length) play(FRIEND.scenes[0]);
+  renderWatch();
 }
+
+/* WATCH ROW, added 2026-08-18. Same thumbnail shape as the scene picker
+   (reuses the vumbnail.com fallback exactly like scene.thumb/vimeoId does
+   above) but a separate row, separate click behavior: this opens the
+   full-screen viewer rather than moving the room. Hidden entirely when a
+   friend has no watch array, rather than an empty labeled row. */
+function renderWatch() {
+  watchBar.innerHTML = '';
+  var list = FRIEND.watch || [];
+  if (!list.length) { watchBar.style.display = 'none'; return; }
+  watchBar.style.display = '';
+  var label = document.createElement('div');
+  label.className = 'watch-bar-label';
+  label.textContent = 'For watching';
+  watchBar.appendChild(label);
+  list.forEach(function (item) {
+    var chip = document.createElement('button');
+    chip.className = 'watch-chip';
+    if (item.thumb || item.vimeoId) {
+      var thumb = document.createElement('img');
+      thumb.src = item.thumb || ('https://vumbnail.com/' + encodeURIComponent(item.vimeoId) + '.jpg');
+      thumb.alt = '';
+      thumb.onerror = function () { this.remove(); };
+      chip.appendChild(thumb);
+    }
+    var glyph = document.createElement('span');
+    glyph.className = 'play-glyph';
+    glyph.textContent = '▶';
+    chip.appendChild(glyph);
+    var cap = document.createElement('span');
+    cap.textContent = item.label;
+    chip.appendChild(cap);
+    chip.addEventListener('click', function () { openWatch(item); });
+    watchBar.appendChild(chip);
+  });
+}
+
+/* THE VIEWER ITSELF. Vimeo's real player chrome, not the scene player's
+   custom setMuted() postMessage toggle — that is the piece Dr. O reported
+   broken. No muted/autopause params here on purpose: the click that opens
+   this IS the user gesture, so autoplay-with-sound is allowed, and if the
+   browser still starts it muted, Vimeo's own volume icon actually works
+   because it is a native control talking to the native player, not a
+   command sent in from outside. */
+function openWatch(item) {
+  if (!item.vimeoId) return;
+  watchFrame.src = 'https://player.vimeo.com/video/' + encodeURIComponent(item.vimeoId) +
+    '?badge=0&autopause=0&player_id=0&app_id=58479&autoplay=1';
+  watchViewer.style.display = '';
+}
+function closeWatch() {
+  watchViewer.style.display = 'none';
+  watchFrame.src = '';   // stops playback and audio the instant it closes, not just visually
+}
+$('watchCloseBtn').addEventListener('click', closeWatch);
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape' && watchViewer.style.display !== 'none') closeWatch();
+});
+
 renderScenes();
 
 /* ── COMING BACK FROM PAYING ─────────────────────────────────────────────────

@@ -1739,27 +1739,6 @@ var GC_TANSY = {
       where: 'On a mossy log with Poppy beside her, arms crossed but at ease, the argument ' +
              'clearly over for now. Poppy is right here, and may say something of her own.' },
 
-    /* HUMAN HUNTING, hosted on Vimeo per Dr. O directly (same reasoning as
-       the spa scene: 19.5MB against every local clip's ~2.5MB). From the
-       real stills: she and Poppy spotted up on a branch, Poppy delighted
-       and pointing, Tansy arms crossed and visibly rattled; two travelers
-       below, searching the woods; then her own tree hollow, found, lit up
-       and glowing. The title is her own private joke turned real — see the
-       new underneath paragraph below. */
-    { key: 'human-hunting', label: 'Human hunting', src: null, vimeoId: '1219346693',
-      where: 'The day two travelers went looking for fairies in these woods and actually ' +
-             'found something: her and Poppy up on a branch first, then her own tree hollow, ' +
-             'lit from within, glowing before either of them said a word.' },
-
-    /* FLYING WITH POPPY AND BLUE, hosted on Vimeo (66MB, the largest clip
-       yet — same reasoning as the other two). From the real still: the
-       three of them mid-flight through the woods, Tansy leading, Poppy and
-       Blue just behind. */
-    { key: 'flying', label: 'Flying with Poppy and Blue', src: null, vimeoId: '1219347065',
-      where: 'Mid-flight through the trees with Poppy and Blue just behind her, the three of ' +
-             'them moving together the way they only ever do when nobody human is around to ' +
-             'perform for.' },
-
     /* POPPY, ON HER OWN, added 2026-08-18: "since you added blue by
        herself, now you can talk to Poppy by herself too." Reuses a file
        already in the repo (video/poppy-2.mp4, "tansy little sister.mp4"),
@@ -1796,6 +1775,25 @@ var GC_TANSY = {
              'with each other the way actual best friends are; Tansy is present, included, ' +
              'and looking politely haughty about the whole thing. Both of them are right ' +
              'here, and either may say something of her own.' },
+  ],
+
+  /* WATCH, added 2026-08-18, split out of scenes per Dr. O directly: "these
+     two are not scenes, they are just videos for the users enjoyment to
+     make full size (full laptop screen)." Not a place to sit and talk —
+     nobody is chatted at over these, they just play, full-screen, with
+     Vimeo's own real controls so volume genuinely works (the custom
+     setMuted() postMessage toggle the scene player used was the reported
+     bug). room.html renders these as a separate row from the scene picker
+     and opens them in a dedicated full-screen viewer on click. */
+  watch: [
+    { key: 'human-hunting', label: 'Human hunting', vimeoId: '1219346693', thumb: null,
+      where: 'The day two travelers went looking for fairies in these woods and actually ' +
+             'found something: her and Poppy up on a branch first, then her own tree hollow, ' +
+             'lit from within, glowing before either of them said a word.' },
+    { key: 'flying', label: 'Flying with Poppy and Blue', vimeoId: '1219347065', thumb: null,
+      where: 'Mid-flight through the trees with Poppy and Blue just behind her, the three of ' +
+             'them moving together the way they only ever do when nobody human is around to ' +
+             'perform for.' },
   ],
 
   place: 'Wherever she currently considers acceptable, which changes, and which she describes ' +
