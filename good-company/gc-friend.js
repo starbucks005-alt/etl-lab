@@ -1370,7 +1370,7 @@ var GC_REGGIE = {
      dismissive, an English bulldog. Both Dr. O's own voice picks. Distinct
      from Duke, who is a rival, not a friend — see underneath below. */
   cameos: [
-    { name: 'Biscuit', voiceId: 'W3C2vBPukr5b5jvoXhPK' },
+    { name: 'Biscuit', voiceId: 'MgqVq3OCTPeVHCEDr4HU' },
     { name: 'Mochi', voiceId: 'I8ERYU9lOxALy2vtIvHd' },
   ],
 
