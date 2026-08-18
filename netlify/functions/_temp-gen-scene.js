@@ -1,5 +1,5 @@
-/* TEMP, removed after use. One-off scene video for Reggie.
-   POST { action: 'start' } -> { operation, model, cost_cents }
+/* TEMP, removed after use. One-off scene videos for new Good Company demos.
+   POST { action: 'start', who: 'reggie'|'tansy' } -> { operation, model, cost_cents }
    POST { action: 'check', operation } -> { done, uri?, error? }
    POST { action: 'download', uri } -> { video } base64 mp4
 
@@ -23,20 +23,38 @@ function fetchImageB64(url) {
   });
 }
 
+const SCENES = {
+  reggie: {
+    portrait: 'https://emerging-tech-lab.com/good-company/photos/reggie.png',
+    prompt: 'A scrappy terrier mix dog sitting in a warm, sunlit living room, looking ' +
+      'directly at the camera with alert, delighted energy, panting happily. Subtle ' +
+      'natural motion only: he blinks, his ears twitch slightly, his chest rises and ' +
+      'falls with breathing, maybe a small head tilt. Nothing dramatic, no camera ' +
+      'movement, just a real dog breathing and being alive in the room.',
+  },
+  tansy: {
+    portrait: 'https://emerging-tech-lab.com/good-company/photos/tansy.jpg',
+    prompt: 'An adult woman with delicate dragonfly-like fairy wings, sitting on a mossy ' +
+      'branch in a misty forest, looking at the camera with a haughty, faintly amused ' +
+      'expression. Subtle natural motion only: her wings flutter slightly, she blinks, a ' +
+      'small breeze moves loose strands of her hair and the leaves around her, maybe a ' +
+      'small proud tilt of her chin. Nothing dramatic, no camera movement, just a real ' +
+      'person breathing and being alive in the scene.',
+  },
+};
+
 exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: CORS, body: '' };
   let body = {};
   try { body = JSON.parse(event.body || '{}'); } catch (_) {}
 
   if (body.action === 'start') {
-    const firstFrameB64 = await fetchImageB64('https://emerging-tech-lab.com/good-company/photos/reggie.png');
+    const scene = SCENES[body.who];
+    if (!scene) return json(400, { error: 'who must be reggie or tansy' });
+    const firstFrameB64 = await fetchImageB64(scene.portrait);
     try {
       const res = await veo.start({
-        prompt: 'A scrappy terrier mix dog sitting in a warm, sunlit living room, looking ' +
-          'directly at the camera with alert, delighted energy, panting happily. Subtle ' +
-          'natural motion only: he blinks, his ears twitch slightly, his chest rises and ' +
-          'falls with breathing, maybe a small head tilt. Nothing dramatic, no camera ' +
-          'movement, just a real dog breathing and being alive in the room.',
+        prompt: scene.prompt,
         firstFrameB64,
         seconds: 4,
         resolution: '720p', // Lite tier's actual supported resolution; 1080p (the file's own
