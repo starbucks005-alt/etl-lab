@@ -1735,10 +1735,13 @@ var GC_TANSY = {
     { src: 'photos/tansy-with-human.png', on: 'Added when she joined',
       caption: 'On the branch again, watching somebody search the woods for something, or ' +
                'possibly for her.' },
-    /* POPPY, HER LITTLE SISTER, per Dr. O directly (I cannot watch video):
-       both clips, wings blurring, humming to herself. Two takes of the same
-       moment, not two different ones, so the captions say so honestly
-       rather than inventing a distinction between them. */
+    /* POPPY, HER LITTLE SISTER. Portrait is Dr. O's own generation, viewed
+       directly. The two clips after it are per Dr. O's own description (I
+       cannot watch video): wings blurring, humming to herself, two takes of
+       the same moment rather than two different ones, so the captions say
+       so honestly instead of inventing a distinction between them. */
+    { src: 'photos/poppy.jpg', on: 'Added when Tansy joined',
+      caption: 'Poppy, seated in a flower easily ten times her size, entirely at home there.' },
     { src: 'video/poppy-1.mp4', on: 'Added when Tansy joined',
       caption: 'Her little sister, Poppy, wings a blur, humming to herself and not for anybody ' +
                'watching.' },
