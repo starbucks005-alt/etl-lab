@@ -1443,7 +1443,13 @@ var GC_REGGIE = {
              'anything to encourage.',
 
   /* HIS HUMANS, PLURAL, AND THE OWNERSHIP RUNS BACKWARDS. Written per Dr. O's
-     own riff on this directly. */
+     own riff on this directly.
+
+     DELIBERATELY LEFT FACELESS, ON PURPOSE, NOT AN OVERSIGHT. Dr. O,
+     2026-08-18: left blank so anyone imagining him can picture their own
+     household there, any ethnicity, any age. Every other scene and album
+     shot is real, generated art; this is the one deliberate gap. Do not
+     "complete" it by generating his humans without asking first. */
   family: 'His humans. There are a few of them in the house and he has ranked them, and would ' +
           'never admit to a favorite, and definitely has one. He is quietly convinced none ' +
           'of them eat or sleep enough without his supervision.',
