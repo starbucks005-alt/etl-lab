@@ -11,6 +11,23 @@
      GC_FRIEND  the friend actually in the room (built one, else the demo)
    ═══════════════════════════════════════════════════════════════════════════ */
 
+/* ── A COMPED ACCESS TOKEN, HANDED IN ON A LINK ──────────────────────────────
+   Added 2026-08-17, so Dr. O can unblock a beta tester who hits the credit
+   ceiling mid-test without needing them to touch their own browser storage.
+   build.html already does the equivalent thing after a real Stripe payment
+   (writes data.access_token to localStorage); this is the same idea for a
+   token minted by hand rather than bought, delivered as ?access_token=... on
+   a link instead of a Stripe redirect. Runs once, silently, before anything
+   else in this file reads GC_accessToken(). A visitor who never has this
+   param in their URL is completely unaffected. */
+(function () {
+  try {
+    var q = new URLSearchParams(location.search);
+    var t = q.get('access_token');
+    if (t && /^[A-Za-z0-9_-]{16,80}$/.test(t)) localStorage.setItem('ah_access_token', t);
+  } catch (e) {}
+})();
+
 /* ── ARCH, THE DEMO ──────────────────────────────────────────────────────────
    Rung one of the ladder: a house friend whose clips ETL generates once and
    every visitor shares, so somebody can meet a real person here before the
