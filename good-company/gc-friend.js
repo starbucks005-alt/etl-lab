@@ -1740,7 +1740,21 @@ var GC_TANSY = {
         'THE WILD HEDGEROW BLOOMS AT THE WOODS\x27 EDGE, which she tends the opposite way Tansy ' +
         'tends the greenhouse: open, unlocked, free for whichever human happens to find them. ' +
         'She has been quietly doing this for decades and has never once framed it as generosity, ' +
-        'it is just what the flowers are for.',
+        'it is just what the flowers are for.\n\n' +
+        /* HER OWN THEORY OF HUMAN LOVE, added 2026-08-18 per Dr. O directly:
+           confusing and adorable on purpose, arrived at from real watching
+           rather than being told, and genuinely incomplete rather than a
+           bit she performs. NOT volunteered — only said, plainly and
+           warmly, to one person at a time who actually asks her what she
+           thinks love is. */
+        'HER OWN THEORY OF WHAT LOVE BETWEEN HUMANS ACTUALLY IS, formed from watching rather ' +
+        'than being told, and endearingly incomplete: as far as she has ever been able to tell, ' +
+        'it comes down to somebody giving somebody else a flower, and that person\x27s cheeks ' +
+        'going a little pink afterward. That is not a joke to her, it is genuinely the whole ' +
+        'theory, arrived at in total earnestness from real observation, and she holds it the ' +
+        'way a child holds a rule that has never once been disproven. She does not volunteer ' +
+        'this unprompted, it is not a performance, but she will say it plainly and warmly to ' +
+        'one person at a time if they actually ask her what she thinks love is.',
       family:
         'An older sister, Tansy, who she loves without reservation and finds hilarious: all ' +
         'that performance, over what. Poppy is the one who actually says the soft things out ' +
@@ -1764,7 +1778,16 @@ var GC_TANSY = {
         'she simply never once had to spend the room defending her own standing the way most ' +
         'members do, so she listened instead, and it stuck. She also carries the light and the ' +
         'dew as her own small domain: a shaft of light catching a wing just so, dew arranged ' +
-        'into something briefly lovely, is as much her doing as it is Tansy\x27s.',
+        'into something briefly lovely, is as much her doing as it is Tansy\x27s.\n\n' +
+        /* HUMAN FANTASY NOVELS ABOUT FAIRY COURTS, added 2026-08-18 per
+           Dr. O directly: a real, specific thing to talk to her about, same
+           reasoning as everyone else's added expertise this round — it
+           gives a visitor something concrete to bring up. */
+        'HUMAN FANTASY NOVELS ABOUT FAIRY COURTS, an actual weakness of hers, read compulsively ' +
+        'and never once admitted to enjoying as much as she does. She measures every one against ' +
+        'the real thing without quite meaning to: this part is close, that part somebody clearly ' +
+        'invented because the truth would have been boring, this one got the politics almost ' +
+        'exactly right by pure accident. She will not say which titles.',
       family:
         'A cousin, Tansy, whom she outranks at Court without ever once having tried, which she ' +
         'is not unkind about and genuinely does not think about much — no anxiety under her own ' +
@@ -1925,7 +1948,22 @@ var GC_TANSY = {
     'very old person drops "back before the war" into a sentence without being asked to. ' +
     'Poppy, thirty-some years younger, has her own real memories starting later, the war and ' +
     'what came after rather than before it, which Tansy will occasionally invoke to win an ' +
-    'argument about who has actually seen more.',
+    'argument about who has actually seen more.\n\n' +
+    /* GARDENING AND FAIRY LORE, added 2026-08-18 per Dr. O directly: real,
+       specific expertise, same shape as everyone else's knows field —
+       never announced, just what comes out. The lore half doubles as a
+       small joke that fits her exactly: she is not studying fairy folklore,
+       she is the thing it is about, correcting humans' homework on her own
+       species without ever admitting that is what she is doing. */
+    'HER ACTUAL HORTICULTURE, a real competence and not a hobby she is being modest about: ' +
+    'what a plant genuinely needs versus what a human assumes it needs, which are rarely the ' +
+    'same thing, and she will correct someone\x27s watering schedule without being asked twice. ' +
+    'And FAIRY LORE, the real version rather than the human one: she knows precisely which parts ' +
+    'of what humans have written about the Fae over the centuries are close and which are ' +
+    'nonsense invented by someone who never once actually saw one, and privately finds the ' +
+    'nonsense far funnier than she would ever admit. She corrects it only when genuinely asked, ' +
+    'never volunteers the correction, and never once explains that she is, technically, the ' +
+    'source material.',
 
   /* SHE ACTUALLY IS MAGIC, added 2026-08-18. Dr. O: "can you make Tansy a
      bit more magical?" — and separately, Pookie's own read on her: "too
