@@ -1636,7 +1636,16 @@ function sayInRoom(text) {
   thinking = true; $("sendBtn").disabled = true;
   fetch("/.netlify/functions/gc-room-say", {
     method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ seat_token: SEAT, message: text })
+    /* owner_key/access_token, ADDED 2026-08-18. Dr. O, capped in her own
+       shared room despite being the owner, and separately: Pookie capped
+       in the same room with 260 real credits sitting untouched. Root
+       cause, one and the same: this call never sent either credential, so
+       neither an owner bypass nor a guest's own funded balance could ever
+       apply inside a shared room -- only the room's shared free pool
+       could, for everyone, always. Sent as the SENDER's own identity, not
+       the friend's/room's, so gc-room-say.js can pass through whoever is
+       actually typing right now. */
+    body: JSON.stringify({ seat_token: SEAT, message: text, owner_key: GC_ownerKey(), access_token: GC_accessToken() })
   }).then(function (r) { return r.json(); }).then(function (j) {
     thinking = false; $("sendBtn").disabled = false;
     lastSpoke = Date.now();
@@ -1645,7 +1654,7 @@ function sayInRoom(text) {
     if (j && j.said && j.said.id) { seen[j.said.id] = true; MY_SEAT_ID = j.said.author_id || MY_SEAT_ID; }
     /* A null reply is correct and common in a room with several people in it.
        Nothing is rendered. The poll will bring anything he did say, and speak it. */
-    if (j && j.daily_capped) showCreditsUpsell(true);
+    if (j && j.daily_capped) showCreditsUpsell(true, j.owner_key_rejected);
     if (j && j.feelings) setFeelings(j.feelings);
     if (j && j.mood) $("gaugeLabel").textContent = j.mood;
   }).catch(function (err) {

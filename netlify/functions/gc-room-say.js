@@ -39,6 +39,18 @@ exports.handler = async function (event) {
   const said = String(body.message || '').trim().slice(0, 4000);
   if (!said) return R.json(400, { error: 'nothing_said' });
 
+  /* THE SENDER'S OWN CREDENTIALS, added 2026-08-18. Before this, nothing
+     sent to gc-chat.js from this function ever carried who was ACTUALLY
+     typing — only the room's own host_credit_ref/is_demo. That meant an
+     owner could never bypass anything inside a shared room (Dr. O hit
+     this herself), and a guest with a real funded balance of their own
+     (Pookie, 260 credits, capped anyway) had no way to spend it there
+     either — only the room's shared free pool could ever be drawn from,
+     for anyone, always. Raw here, validated downstream by gc-chat.js's own
+     safeToken()/ownerUser(), same as every other caller of it. */
+  const senderOwnerKey = String(body.owner_key || '').trim();
+  const senderAccessToken = String(body.access_token || '').trim();
+
   /* The line goes in immediately, before anybody waits on a model, so both
      browsers see it arrive at the pace it was actually typed. */
   const row = await R.insertMessage(key, who.room.id, {
@@ -134,6 +146,16 @@ exports.handler = async function (event) {
         is_demo: isDemo || !creditRef,
         visitor_id: 'room-' + who.room.id,
         credit_ref: (!isDemo && creditRef) ? creditRef : undefined,
+        /* WHOEVER IS ACTUALLY TYPING gets first crack at paying their own
+           way, same precedence gc-chat.js already gives a direct request:
+           a real access_token always wins over a credit_ref. An owner key
+           bypasses everything regardless of demo/credit_ref status. Either
+           left blank if the sender does not have one -- gc-chat.js's own
+           safeToken()/ownerUser() treat an empty string as absent, so this
+           never fights with is_demo/credit_ref above, it only ever adds a
+           way past them. */
+        owner_key: senderOwnerKey || undefined,
+        access_token: senderAccessToken || undefined,
       }),
     });
     out = await res.json();
