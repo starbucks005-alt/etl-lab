@@ -14,6 +14,27 @@
 <title>Good Company</title>
 <meta name="description" content="Finding real friends is hard. So here, you make one.">
 
+<!-- ── THE OWNER KEY, HANDED IN ON A LINK ──────────────────────────────────
+     Added 2026-08-18. This page never loaded gc-friend.js, which is the
+     only place this planter lived (see its own comment there) — so pasting
+     ?key=... onto the plain /good-company/ homepage, which is exactly what
+     Dr. O did, silently did nothing. Duplicated here rather than pulling in
+     all of gc-friend.js just for this: same localStorage key
+     (etl_owner_key), same mechanic as studio.html and gc-friend.js, so it
+     does not matter anymore which Good Company page a key link points at. -->
+<script>
+(function () {
+  try {
+    var q = new URLSearchParams(location.search);
+    var k = q.get('key');
+    if (k) {
+      localStorage.setItem('etl_owner_key', k);
+      history.replaceState(null, '', location.pathname + location.hash);
+    }
+  } catch (e) {}
+})();
+</script>
+
 <!-- Skin resolution before the stylesheet, so nobody eats a flash of the wrong
      room. No friend on this page, so it falls to the system preference. -->
 <script src="gc-skin.js"></script>
