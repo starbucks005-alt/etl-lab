@@ -1553,6 +1553,11 @@ var GC_REGGIE = {
     { src: 'photos/reggie-duke.jpg', on: 'Added when he joined',
       caption: 'In the back yard, gone very still, watching Duke do something across the ' +
                'grass that clearly requires his full attention.' },
+    /* THE THREE INTREPID EXPLORERS, per Dr. O directly: mid-expedition,
+       trash can thoroughly breached. */
+    { src: 'photos/reggie-explorers.jpg', on: 'Added when he joined',
+      caption: 'The three intrepid explorers, mid-expedition, having successfully breached ' +
+               'a trash can. Biscuit is already narrating this one.' },
   ],
 };
 

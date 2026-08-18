@@ -385,6 +385,7 @@ html{ zoom:90%; }
         <button class="btn" id="earBtn">&#128066; Listen</button>
         <button class="btn" id="albumBtn">&#128247; Photos</button>
         <button class="btn" id="memBtn">&#128206; Memory</button>
+        <button class="btn" id="creditsBtn">&#128176; Credits</button>
         <button class="btn" id="youBtn">&#128100; You</button>
         <!-- Only shown when there is somebody to swap to. Hidden by default so
              a person with one friend never sees a control about having two. -->
@@ -2011,6 +2012,23 @@ $('memBtn').addEventListener('click', function () {
   showGate('mem', 'What ' + FRIEND.name + ' remembers',
     'Things you have asked ' + FRIEND.name + ' to keep. Add or remove any of it.');
   $('startBtn').textContent = 'Back to ' + FRIEND.name;
+});
+
+/* CREDITS, added 2026-08-18 per Dr. O: "let them see how many credits they
+   have." No new panel, no new login: posted into the log the same way an
+   upsell or a wiring error already is, since a balance is a one-off fact
+   to glance at, not something that needs its own screen. */
+$('creditsBtn').addEventListener('click', function () {
+  var token = GC_accessToken();
+  if (!token) { post('Credits', 'No account on this browser yet — build a friend, subscribe, or buy credits to get one.'); return; }
+  fetch('/.netlify/functions/gc-my-credits', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ access_token: token })
+  }).then(function (r) { return r.json(); }).then(function (j) {
+    if (!j || j.balance === undefined) { post('Credits', 'Could not check your balance right now.'); return; }
+    post('Credits', j.balance + ' credit' + (j.balance === 1 ? '' : 's') + ' left' +
+      (j.subscription_active ? ', refills automatically each month.' : '.'));
+  }).catch(function () { post('Credits', 'Could not check your balance right now.'); });
 });
 /* ── SPEAKING INSTEAD OF TYPING ──────────────────────────────────────────────
    The browser's own speech recognition. No API, no key, no per-minute cost,
