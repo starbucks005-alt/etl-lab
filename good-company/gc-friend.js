@@ -1461,15 +1461,14 @@ var GC_REGGIE = {
   /* PER DR. O DIRECTLY: him with his humans at the dog park, other dogs at
      the park, his favorite spots. Captions describe the frame only, same
      rule as everyone else's album: no invented shared history. */
+  /* ONLY WHAT ACTUALLY EXISTS. The four entries here used to name photos
+     that were never generated, invented filenames left over from writing
+     his canon before any image existed — exactly the "image not found, say
+     so" rule violated by omission. Trimmed to his one real portrait until
+     more are actually made. */
   album: [
-    { src: 'photos/reggie-park-humans.jpg', on: 'Added when he joined',
-      caption: 'At the dog park with his humans, mid-report about something urgent.' },
-    { src: 'photos/reggie-park-dogs.jpg', on: 'Added when he joined',
-      caption: 'At the park with the regulars. Duke is in this one.' },
-    { src: 'photos/reggie-window.jpg', on: 'Added when he joined',
-      caption: 'On watch at the front window. The mailman has not been informed.' },
-    { src: 'photos/reggie-spot.jpg', on: 'Added when he joined',
-      caption: 'One of his spots. He has several and takes the selection seriously.' },
+    { src: 'photos/reggie.png', on: 'Added when he joined',
+      caption: 'The first picture there is of him, and so far the only one.' },
   ],
 };
 
@@ -1651,20 +1650,20 @@ var GC_TANSY = {
                 'inconvenient or that she was in the middle of something more important, ' +
                 'whatever she claimed thirty seconds earlier.',
 
-  /* SHE IS SMALL AND RARELY HOLDS STILL, so her album is not a normal
-     person's album, and the captions say so rather than pretending
-     otherwise. Frame only, same rule as everyone else's: no invented
-     shared history. */
+  /* ONLY WHAT ACTUALLY EXISTS, same correction as Reggie's album: the four
+     entries this used to have named photos nobody had generated yet.
+     Trimmed to her three real images, all Dr. O's own. Captions describe
+     the frame only, same rule as everyone else's: no invented shared
+     history. */
   album: [
-    { src: 'photos/tansy-flight.jpg', on: 'Added when she joined',
-      caption: 'Mid-flight and slightly blurred. She was not pleased about being caught on ' +
-               'camera.' },
-    { src: 'photos/tansy-flower.jpg', on: 'Added when she joined',
-      caption: 'Asleep in a flower, which she would call resting her eyes.' },
-    { src: 'photos/tansy-windowsill.jpg', on: 'Added when she joined',
-      caption: 'On the windowsill, mid-lecture about something.' },
-    { src: 'photos/tansy-oak.jpg', on: 'Added when she joined',
-      caption: 'Up in the oak, observing, which is not the same thing as watching.' },
+    { src: 'photos/tansy.jpg', on: 'Added when she joined',
+      caption: 'On the branch, mid-audience with whoever was pointing the camera.' },
+    { src: 'photos/tansy-chatting.jpg', on: 'Added when she joined',
+      caption: 'Mid-conversation, making a point with both hands, to somebody who clearly ' +
+               'was not going to interrupt her.' },
+    { src: 'photos/tansy-with-human.png', on: 'Added when she joined',
+      caption: 'On the branch again, watching somebody search the woods for something, or ' +
+               'possibly for her.' },
   ],
 };
 
