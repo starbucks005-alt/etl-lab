@@ -68,7 +68,14 @@ exports.handler = async (event) => {
         price_data: {
           currency: 'usd',
           recurring: { interval: 'month' },
-          product_data: { name: 'Almost Human — Monthly Access' },
+          /* NAMED FOR WHERE THE BUYER ACTUALLY CAME FROM, added 2026-08-18.
+             The membership is shared, but a Good Company visitor who has
+             never heard of Almost Human should not land on a checkout page
+             that appears to be selling them a different, unrelated product.
+             returnTo is only ever set when the checkout started from Good
+             Company (see safeReturnTo above), so this is a real signal, not
+             a guess. */
+          product_data: { name: returnTo ? 'Good Company — Unlimited Access' : 'Almost Human — Monthly Access' },
           unit_amount: 999,
         },
         quantity: 1,

@@ -70,7 +70,9 @@ exports.handler = async (event) => {
       line_items: [{
         price_data: {
           currency: 'usd',
-          product_data: { name: `Almost Human — +${ADDON_CREDITS} Credits` },
+          /* NAMED FOR WHERE THE BUYER CAME FROM, same reasoning as
+             create-checkout-ah.js's own note, added 2026-08-18. */
+          product_data: { name: returnTo ? `Good Company — +${ADDON_CREDITS} Credits` : `Almost Human — +${ADDON_CREDITS} Credits` },
           unit_amount: 499,
         },
         quantity: 1,
