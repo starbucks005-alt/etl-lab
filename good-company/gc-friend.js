@@ -1343,10 +1343,9 @@ var GC_REGGIE = {
          "it is genuinely competing with several other best things that happened today.",
   mood: 'Ecstatic. You showed up. That is the whole reason.',
 
-  /* SOURCED, NOT INVENTED, same note as Cora's and Kioko's: a placeholder id
-     would fail loudly rather than quietly, which is the correct failure for
-     a voice nobody actually chose. */
-  voiceId: null,
+  /* DR. O'S OWN PICK, listened to and chosen directly, not the search
+     candidate I surfaced (Mr Jim was a no). */
+  voiceId: 'uq0HIbNZKn11Hs5ifEdd',
 
   skin: 'harvest',
   timezone: 'America/New_York',
@@ -1355,8 +1354,19 @@ var GC_REGGIE = {
   /* HIS SPOTS, PER DR. O DIRECTLY: "his photos can be him with his humans at
      the dog park, other dogs at the park, his favorite spots to go." The
      scenes below are the places he can actually be visited; the album
-     further down is the photographs, on the same instruction. */
+     further down is the photographs, on the same instruction.
+
+     SUN SPOT FIRST, ON PURPOSE. room.html opens on scenes[0], and it is the
+     only one of the four with a real clip so far, generated from his actual
+     portrait. The other three stay real and thin rather than invented,
+     src:null exactly like a built friend's ungenerated scenes: a filename
+     that is not there is still a broken video and still reported as one,
+     never covered with a still. */
   scenes: [
+    { key: 'sunspot', label: 'The sun spot', src: 'video/reggie-sunspot.mp4',
+      where: 'The living room floor, in the one patch of sun that has moved across the room ' +
+             'over the course of the day and which he has followed accordingly.' },
+
     { key: 'park', label: 'The dog park', src: null,
       where: 'The dog park, midafternoon, his humans on a bench nearby and a handful of the ' +
              'regulars around. This is where most of the actual news of his week happens.' },
@@ -1368,10 +1378,6 @@ var GC_REGGIE = {
     { key: 'yard', label: 'The yard', src: null,
       where: 'The back yard, late afternoon, mid-patrol of a perimeter only he considers ' +
              'meaningfully at risk.' },
-
-    { key: 'sunspot', label: 'The sun spot', src: null,
-      where: 'The living room floor, in the one patch of sun that has moved across the room ' +
-             'over the course of the day and which he has followed accordingly.' },
   ],
 
   place: 'His humans\x27 house, which he considers his to run, and does, with total ' +
