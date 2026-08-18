@@ -1918,7 +1918,7 @@ function joinThenSit() {
     }
     SEAT = j.seat_token; ROOM = j.room_id; MY_SEAT_ID = j.seat_id || null;
     ROOM_CREDIT_REF = j.host_credit_ref || null;
-    if (j.friend) { FRIEND = j.friend; nameEverything(); renderScenes(); }
+    if (j.friend) { FRIEND = j.friend; nameEverything(); renderScenes(); earLabel(); }
     if (j.scene_key) {
       var sc = (FRIEND.scenes || []).filter(function (x) { return x.key === j.scene_key; })[0];
       if (sc) play(sc);
@@ -2203,12 +2203,35 @@ $('creditsBtn').addEventListener('click', function () {
 var Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
 var rec = null, listening = false;
 
+/* WAKE MODE, built 2026-08-18 to replace the dead "Listen" switch below.
+   Same recognizer as the microphone, same echo guard (speaking/micQuietUntil,
+   both already checked at the top of rec.onresult before any of this runs) --
+   NOT a second, parallel mic. Two SpeechRecognition instances fighting over
+   one physical microphone is unreliable across browsers; this reuses the one
+   that already works.
+
+   micManual: the mic button, pressed on purpose, everything typed or spoken
+   sends without needing the name first, exactly as it always has.
+   wakeMode: the Listen button, ambient, requires hearing FRIEND.name before
+   anything is treated as meant for the room.
+   awaitingWake: true whenever wakeMode is the only reason recognition is
+   running and the name has not been heard yet this cycle. */
+var micManual = false, wakeMode = false, awaitingWake = false;
+
 function micLabel() {
-  $('micBtn').innerHTML = listening ? '&#128308;' : '&#127908;';
-  $('micBtn').title = listening
+  $('micBtn').innerHTML = micManual ? '&#128308;' : '&#127908;';
+  $('micBtn').title = micManual
     ? 'Listening. Pause and it sends. Press to stop.'
     : 'Speak instead of typing. It stays on: pause and it sends, then keeps listening.';
 }
+function earLabel() {
+  $('earBtn').innerHTML = wakeMode ? '&#128308; Listening' : '&#128066; Listen';
+  $('earBtn').title = wakeMode
+    ? ('Say "' + FRIEND.name + '" out loud and whatever you say right after goes to them. Press to stop.')
+    : ('Say "' + FRIEND.name + '" out loud from across the room and they will hear you.');
+}
+function ensureRec() { if (!listening) startListening(); }
+function stopRecIfIdle() { if (listening && !micManual && !wakeMode) stopListening(); }
 
 function startListening() {
   if (!Rec) {
@@ -2266,13 +2289,44 @@ function startListening() {
     if (speaking) micQuietUntil = Date.now() + MIC_TAIL_MS;
     if (speaking || Date.now() < micQuietUntil) return;
 
+    /* THE WAKE GATE. Ambient mode only (mic not pressed): nothing gets shown
+       or sent until the friend's own name turns up in a finalized result.
+       Room chatter never touches the text box while this is waiting -- the
+       interim-preview branch below is only reached once awaitingWake is
+       false, so nobody's ordinary conversation gets displayed on screen
+       before they ever meant to talk to the room. */
+    if (awaitingWake) {
+      var heardName = false;
+      for (var k = Math.max(e.resultIndex, taken); k < e.results.length; k++) {
+        if (!e.results[k].isFinal) continue;
+        taken = k + 1;
+        var heard = e.results[k][0].transcript || '';
+        var idx = heard.toLowerCase().indexOf(FRIEND.name.toLowerCase());
+        if (idx === -1) continue;
+        heardName = true;
+        awaitingWake = false;
+        earLabel();
+        var after = heard.slice(idx + FRIEND.name.length).replace(/^[\s,.:!?-]+/, '');
+        if (after) pending = after;
+        /* Heard the name but nothing came with it: give them a few seconds to
+           keep talking before going back to requiring the name again, rather
+           than staying half-awake and silently capturing room chatter later. */
+        clearTimeout(rec._wakeTimeout);
+        rec._wakeTimeout = setTimeout(function () {
+          if (wakeMode && !micManual && !$('say').value.trim()) awaitingWake = true;
+        }, 6000);
+        break;
+      }
+      if (!heardName) return;
+    }
+
     var finalBit = '';
     /* Never behind what has already been consumed, whatever the index claims. */
     for (var i = Math.max(e.resultIndex, taken); i < e.results.length; i++) {
       if (e.results[i].isFinal) { finalBit += e.results[i][0].transcript; taken = i + 1; }
       else $('say').value = pending + e.results[i][0].transcript;   // show it forming
     }
-    if (finalBit) {
+    if (finalBit || pending) {
       pending = (pending + ' ' + finalBit).trim();
       $('say').value = pending;
       /* A PAUSE IS THE SEND, AND 1.4 SECONDS IS NOT A PAUSE. It is the gap in
@@ -2295,6 +2349,9 @@ function startListening() {
       clearTimeout(rec._pause);
       rec._pause = setTimeout(function () {
         if ($('say').value.trim()) { send(); pending = ''; }
+        /* Said their piece -- back to requiring the name again before the
+           room hears anything else, same reason the 6s timeout above exists. */
+        if (wakeMode && !micManual) awaitingWake = true;
       }, wait);
     }
   };
@@ -2310,7 +2367,11 @@ function startListening() {
 
   rec.onerror = function (e) {
     if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
-      listening = false; micLabel();
+      /* Blocks BOTH ways in, not just the one that happened to be asking:
+         a permission refusal means neither push-to-talk nor ambient wake
+         mode can work until the browser allows it. */
+      listening = false; micManual = false; wakeMode = false; awaitingWake = false;
+      micLabel(); earLabel();
       /* NOT notYet, BECAUSE THE MICROPHONE IS BUILT. This read "The microphone
          is not built yet. The browser refused access", which is two
          contradictory sentences and sends somebody looking for a feature that
@@ -2333,7 +2394,10 @@ function stopListening() {
 }
 
 $('micBtn').addEventListener('click', function () {
-  if (listening) stopListening(); else startListening();
+  micManual = !micManual;
+  if (micManual) { awaitingWake = false; ensureRec(); }
+  else { if (wakeMode) awaitingWake = true; stopRecIfIdle(); }
+  micLabel();
 });
 micLabel();
 
@@ -2477,25 +2541,31 @@ $('replyBtn').addEventListener('click', function () {
   this.innerHTML = asAudio ? '&#127911; Audio' : '&#127911; Text';
   if (!asAudio) hush();
 });
-/* THIS BUTTON WAS DOING NOTHING, AND SAYING SOMETHING UNTRUE WHILE IT DID IT.
-
-   It set a flag no code ever read. There is one speech recogniser in this file
-   and it belongs to the microphone; nothing anywhere listens for a wake word.
-   So "Listen: on" lit up, and the hint underneath told the person that audio
-   was leaving their browser, which was not happening. A dead switch is bad. A
-   dead switch making a false claim about a microphone is not something to
-   leave sitting on a live page.
-
-   Pookie turned it on and talked to it. It says what it is now, until it is
-   built. */
+/* BUILT FOR REAL, 2026-08-18. Used to set a flag no code ever read while
+   claiming a microphone was open that was not; Pookie turned it on and
+   talked to it, and nothing heard her. Reuses the mic's own recognizer and
+   its own echo guard (see the WAKE MODE comment near micLabel above) rather
+   than a second, independent listener -- this is the same one thing, gated
+   differently, not two microphones running at once. */
 $('earBtn').addEventListener('click', function () {
-  /* notYet already appends "is not built yet", and this said it again straight
-     after: "Saying Sophia from across the room is not built yet. Not built yet."
-     The second half only has to say what to do instead. */
-  notYet('Saying "' + FRIEND.name + '" from across the room',
-         'To talk, press the microphone next to the box. Nothing is listening until ' +
-         'you do.');
+  if (!Rec) {
+    notYet('Saying "' + FRIEND.name + '" from across the room',
+           'This browser will not do speech recognition. Chrome and Edge will.');
+    return;
+  }
+  wakeMode = !wakeMode;
+  if (wakeMode) {
+    awaitingWake = !micManual;
+    ensureRec();
+    post('The room', 'Listening for "' + FRIEND.name + '." Say their name out loud, then ' +
+         'say what you want them to hear. Press Listen again to stop.');
+  } else {
+    awaitingWake = false;
+    stopRecIfIdle();
+  }
+  earLabel();
 });
+earLabel();
 </script>
 
 </body>

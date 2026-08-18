@@ -1710,9 +1710,15 @@ var GC_TANSY = {
       where: 'A windowsill, late afternoon light, where she has decided the view is ' +
              'acceptable and has never once admitted to choosing it for the light.' },
 
-    { key: 'garden', label: 'The garden', src: 'video/tansy-garden.mp4',
-      where: 'A garden bed, among the flowers, which she insists is simply where she happens ' +
-             'to be rather than anywhere she particularly likes.' },
+    /* REPLACED 2026-08-18, "tansy in the garden-2": a real retake, hosted on
+       Vimeo like the other oversized clips. From the real still: seated on a
+       mossy branch over a wild meadow of poppies, daisies, and lupine,
+       wings catching real light, hand resting on the bark like she owns it.
+       Same rewritten-against-the-still discipline as everywhere else. */
+    { key: 'garden', label: 'The garden', src: null, vimeoId: '1219364810',
+      where: 'A mossy branch over a meadow gone wild with poppies, daisies, and lupine, one ' +
+             'hand resting on the bark like the tree answers to her, which she insists is ' +
+             'simply where she happens to be rather than anywhere she particularly likes.' },
 
     /* REWRITTEN AGAINST THE REAL STILL, not the earlier guess. The old
        placeholder said winter; the actual image is lush, tropical, and full
