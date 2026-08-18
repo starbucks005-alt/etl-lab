@@ -1426,8 +1426,15 @@ var GC_REGGIE = {
        replacement clip came in at 19.6MB against every other scene's
        ~2.5MB, and Dr. O moved it off Netlify on her own: "let me upload it
        to vimeo... because I know netlify has limits." vimeoId, not src —
-       see play()'s scene.vimeoId branch in room.html. */
+       see play()'s scene.vimeoId branch in room.html.
+
+       thumb, ADDED 2026-08-18: Dr. O's own chosen still for the picker
+       chip, replacing the vumbnail.com auto-fetch that filled the gap
+       right after the Vimeo move. Real and chosen beats a third-party
+       thumbnail proxy whenever there is one to use — see renderScenes()
+       in room.html, which now checks scene.thumb first. */
     { key: 'spa', label: 'At the spa', src: null, vimeoId: '1219302043',
+      thumb: 'photos/reggie-spa-thumb.jpg',
       where: 'The groomer\x27s, soaped up, somebody\x27s hands working into the top of his head ' +
              'exactly right, eyes half closed. She keeps telling him to relax. He is trying.' },
 

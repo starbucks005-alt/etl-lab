@@ -827,24 +827,29 @@ function renderScenes() {
        nothing at all, same "nothing pretending to be there" rule as the
        main stage.
 
-       A VIMEO SCENE gets a real still from Vimeo's own thumbnail, not
-       nothing, added 2026-08-18: Dr. O caught the spa chip sitting as a
-       flat black box next to five real previews, which reads as broken
-       even though the scene itself is fine (it just has no local file to
-       loop for a thumbnail, unlike every other scene). This is a picker
-       button, not the main stage, so a still here is not the same claim
-       the no-poster rule protects against on the actual video surface: it
-       is not standing in for a missing clip, the clip is one click away
-       and real. vumbnail.com is a longstanding public Vimeo-thumbnail
-       proxy, no API key, no server round trip. */
+       A VIMEO SCENE gets a real still, not nothing, added 2026-08-18: Dr. O
+       caught the spa chip sitting as a flat black box next to five real
+       previews, which reads as broken even though the scene itself is fine
+       (it just has no local file to loop for a thumbnail, unlike every
+       other scene). This is a picker button, not the main stage, so a
+       still here is not the same claim the no-poster rule protects against
+       on the actual video surface: it is not standing in for a missing
+       clip, the clip is one click away and real.
+
+       scene.thumb, A CHOSEN STILL, WINS WHEN THERE IS ONE (added minutes
+       later, same day): Dr. O sent a real photo for this exact purpose,
+       which beats guessing at a frame via a third-party proxy. Falls back
+       to vumbnail.com (a longstanding public Vimeo-thumbnail service, no
+       API key, no server round trip) only when a scene has neither a local
+       clip nor a chosen still. */
     if (scene.src) {
       var v = document.createElement('video');
       v.src = scene.src; v.muted = true; v.loop = true; v.autoplay = true; v.playsInline = true;
       v.setAttribute('aria-hidden', 'true');
       chip.appendChild(v);
-    } else if (scene.vimeoId) {
+    } else if (scene.thumb || scene.vimeoId) {
       var thumb = document.createElement('img');
-      thumb.src = 'https://vumbnail.com/' + encodeURIComponent(scene.vimeoId) + '.jpg';
+      thumb.src = scene.thumb || ('https://vumbnail.com/' + encodeURIComponent(scene.vimeoId) + '.jpg');
       thumb.alt = '';
       thumb.onerror = function () { this.remove(); };   // falls back to the plain label, not a broken-image icon
       chip.appendChild(thumb);
