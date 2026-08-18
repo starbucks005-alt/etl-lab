@@ -52,7 +52,17 @@
 const AUDIO_MESSAGE_COST = 5;
 const DAILY_FREE_LIMIT = 15;   // MUST MATCH gc-chat.js's own constant — same shared pool
 
-const MAX_CHARS = 900;   // a long turn, not a monologue
+/* 900 -> 1300, 2026-08-18: Dr. O caught Reggie's own sun-patch monologue
+   getting cut off mid-sentence in audio while the full text still showed —
+   he is written as "talks a lot" and was routinely running past the old
+   cap. Raised rather than left tight, since a demo friend's audio silently
+   falling short of his own displayed text is a worse experience than the
+   extra ElevenLabs cost of the longer replies this now allows through.
+   Real cost note, not hidden: AUDIO_MESSAGE_COST stays a flat 5 credits
+   regardless of length, so a friend who reliably talks this long is
+   modestly under-priced against real per-character TTS cost — worth
+   revisiting if that gap ever matters at real volume. */
+const MAX_CHARS = 1300;
 
 /* eleven_turbo_v2_5, NOT eleven_multilingual_v2. Dr. O, after seeing the real
    cost: this is a friend talking in a room, not a produced narration, and
@@ -96,7 +106,23 @@ exports.handler = async function (event) {
   let body;
   try { body = JSON.parse(event.body || '{}'); } catch (_) { return json(400, { error: 'bad_json' }); }
 
-  const text = String(body.text || '').trim().slice(0, MAX_CHARS);
+  let text = String(body.text || '').trim();
+  if (text.length > MAX_CHARS) {
+    /* SENTENCE-BOUNDARY TRIM, not an arbitrary character cut, fixed
+       2026-08-18 alongside raising the cap itself: if a reply still runs
+       past MAX_CHARS, the audio should stop on a finished thought, the
+       same reasoning as the cameo-line trim in gc-chat.js. Falls back to a
+       word boundary if no sentence end falls in a reasonable range, and to
+       a flat cut only if neither does. */
+    const cut = text.slice(0, MAX_CHARS);
+    const lastSentence = Math.max(cut.lastIndexOf('. '), cut.lastIndexOf('! '), cut.lastIndexOf('? '));
+    if (lastSentence > MAX_CHARS * 0.6) {
+      text = cut.slice(0, lastSentence + 1);
+    } else {
+      const lastSpace = cut.lastIndexOf(' ');
+      text = (lastSpace > MAX_CHARS * 0.8 ? cut.slice(0, lastSpace) : cut).trim();
+    }
+  }
   const voiceId = String(body.voice_id || '').trim();
   if (!text) return json(400, { error: 'nothing_to_say' });
   if (!/^[A-Za-z0-9]{12,40}$/.test(voiceId)) return json(400, { error: 'no_voice_id' });
