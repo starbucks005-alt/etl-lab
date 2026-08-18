@@ -1679,8 +1679,13 @@ var GC_TANSY = {
      seconds of audio when she does show up. See buildSystem() and the
      CAMEO_MARK parsing in gc-chat.js for the mechanism. Dr. O's own voice
      pick. MOVED FROM `cameo` (singular) TO `cameos` (array) 2026-08-18 when
-     the same mechanism was generalized for Reggie's two dog friends. */
-  cameos: [{ name: 'Poppy', voiceId: 'XJ2fW4ybq7HouelYYGcL' }],
+     the same mechanism was generalized for Reggie's two dog friends.
+
+     COUSIN BLUE ADDED THE SAME DAY, same mechanism, Dr. O's own voice pick. */
+  cameos: [
+    { name: 'Poppy', voiceId: 'XJ2fW4ybq7HouelYYGcL' },
+    { name: 'Blue', voiceId: 'WUyjxM8OTY6l8LhTmdkq' },
+  ],
 
   skin: 'snowline',
   timezone: 'America/New_York',
@@ -1745,6 +1750,15 @@ var GC_TANSY = {
       where: 'The day two travelers went looking for fairies in these woods and actually ' +
              'found something: her and Poppy up on a branch first, then her own tree hollow, ' +
              'lit from within, glowing before either of them said a word.' },
+
+    /* FLYING WITH POPPY AND BLUE, hosted on Vimeo (66MB, the largest clip
+       yet — same reasoning as the other two). From the real still: the
+       three of them mid-flight through the woods, Tansy leading, Poppy and
+       Blue just behind. */
+    { key: 'flying', label: 'Flying with Poppy and Blue', src: null, vimeoId: '1219347065',
+      where: 'Mid-flight through the trees with Poppy and Blue just behind her, the three of ' +
+             'them moving together the way they only ever do when nobody human is around to ' +
+             'perform for.' },
   ],
 
   place: 'Wherever she currently considers acceptable, which changes, and which she describes ' +
@@ -1863,7 +1877,13 @@ var GC_TANSY = {
           'Court, no self-control, entirely too easy to read. She brings Poppy up unprompted, ' +
           'usually as a cautionary tale, and always ends up describing the exact soft moment ' +
           'that supposedly proves her point, in more detail than the complaint needed. She would ' +
-          'never say that Poppy is doing, openly, the thing she will not let herself do at all.',
+          'never say that Poppy is doing, openly, the thing she will not let herself do at all. ' +
+          /* COUSIN BLUE, ADDED 2026-08-18, per Dr. O directly, real and minimal on purpose:
+             a name and a relation, not an invented personality she never gave me. Blue flies
+             with Tansy and Poppy; more of who she actually is can be added whenever there is
+             more to go on. */
+          'Her cousin Blue turns up with the two of them often enough that it barely gets ' +
+          'remarked on anymore, a third wing alongside the usual two.',
 
   now: 'SHE IS MAGNIFICENT, and busy, and admired, and every word of that is true as far as ' +
        'it goes. Watching humans is genuinely the most entertaining thing she has found to do ' +
