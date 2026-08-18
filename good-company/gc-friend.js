@@ -1384,17 +1384,25 @@ var GC_REGGIE = {
       where: 'The living room floor, in the one patch of sun that has moved across the room ' +
              'over the course of the day and which he has followed accordingly.' },
 
-    { key: 'park', label: 'The dog park', src: null,
-      where: 'The dog park, midafternoon, his humans on a bench nearby and a handful of the ' +
-             'regulars around. This is where most of the actual news of his week happens.' },
+    { key: 'park', label: 'The dog park', src: 'video/reggie-park.mp4',
+      where: 'The fenced dog park, a handful of regulars loose in the grass and their humans ' +
+             'standing around near the fence. This is where most of the actual news of his ' +
+             'week happens.' },
 
-    { key: 'window', label: 'On watch', src: null,
-      where: 'The front window, where he keeps position for most of the day. The mailman has ' +
-             'not been informed that this arrangement is working.' },
+    /* REWRITTEN AGAINST THE REAL STILL: the generation is his front porch,
+       not a window, so the where-text now says porch rather than forcing
+       the old guess onto it. Label kept close to the original ('On watch')
+       since that is still exactly what he is doing there. */
+    { key: 'porch', label: 'On watch, on the porch', src: 'video/reggie-porch.mp4',
+      where: 'His own front porch, right by the door. This is where he keeps position for most ' +
+             'of the day. The mailman has not been informed that this arrangement is working.' },
 
-    { key: 'yard', label: 'The yard', src: null,
-      where: 'The back yard, late afternoon, mid-patrol of a perimeter only he considers ' +
-             'meaningfully at risk.' },
+    /* REWRITTEN AGAINST THE REAL STILL: sunbathing in the back yard, Duke
+       loose in the same yard in the background, not a "late afternoon
+       patrol" as originally guessed. */
+    { key: 'yard', label: 'The yard', src: 'video/reggie-yard.mp4',
+      where: 'The back yard, flat out in the sun on the grass, Duke visible doing whatever ' +
+             'Duke is doing over by the fence. Officially still on duty.' },
   ],
 
   place: 'His humans\x27 house, which he considers his to run, and does, with total ' +
@@ -1488,6 +1496,15 @@ var GC_REGGIE = {
   album: [
     { src: 'photos/reggie.png', on: 'Added when he joined',
       caption: 'The first picture there is of him, and so far the only one.' },
+    { src: 'photos/reggie-home.jpg', on: 'Added when he joined',
+      caption: 'In the living room, mid-pant, clearly delighted about something entirely ' +
+               'ordinary.' },
+    { src: 'photos/reggie-park.jpg', on: 'Added when he joined',
+      caption: 'At the dog park, sitting front and center while everyone else keeps playing ' +
+               'behind him.' },
+    { src: 'photos/reggie-duke.jpg', on: 'Added when he joined',
+      caption: 'In the back yard, gone very still, watching Duke do something across the ' +
+               'grass that clearly requires his full attention.' },
   ],
 };
 
