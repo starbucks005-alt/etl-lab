@@ -512,6 +512,124 @@ RIGHT NOW YOU ARE HERE: ${scene.where}` +
   return bits.join('\n');
 }
 
+/* ── SERVER-SIDE VISITOR MEMORY ──────────────────────────────────────────────
+   Added 2026-08-19. Pookie: "her companion is not remembering past
+   conversations." Real gap, not a bug in the ordinary sense: everything
+   Good Company ever had for memory was localStorage, one device, gone on a
+   clear, and only ever written by hand (the Memory panel) or by a cameo
+   visit -- nothing distilled an ordinary conversation at all, ever.
+
+   Ported from Almost Human's own eq-room-ask.js rather than invented fresh:
+   same shared etl_visitor_memories table, same cheap-model distillation,
+   same shape a person already told (indirectly) they wanted -- "the friend
+   that will remember you" is the product's own standing promise, and this
+   is what actually makes it true.
+
+   KEYED BY THE PERSON, NOT THE ROOM. accessToken (a real account) is
+   preferred over visitorId (one browser's own random id) wherever a
+   request has one, since only the account survives a device change --
+   which is the whole point of moving this off localStorage in the first
+   place. Falls back to visitorId when nobody is logged in at all.
+
+   BUILT FRIENDS ONLY. agentKey is null for a house demo (Reggie, Sophia,
+   Tansy, Arch have no .id, the same test this file already uses
+   everywhere else to tell a built friend from a demo one) -- a demo
+   character remembering individual visitors is a real, separate feature,
+   not this one.
+
+   NO "CONVERSATION ENDED" EVENT TO HOOK, UNLIKE ALMOST HUMAN'S ROOMS.
+   eq-room-ask.js distills once, at a guardrail close or a turn cap Good
+   Company's chat simply does not have -- this is open-ended, ongoing,
+   page-based conversation. The honest analog is a periodic pause: every
+   MEMORY_CADENCE real turns, not an event that does not exist here. */
+const SUPABASE_URL = 'https://ulvrnermyuvzanxhxoib.supabase.co';
+const MEMORY_CADENCE = 10;
+
+async function fetchVisitorMemories(agentKey, identityKey, serviceKey) {
+  try {
+    const r = await fetch(
+      `${SUPABASE_URL}/rest/v1/etl_visitor_memories?visitor_id=eq.${encodeURIComponent(identityKey)}&agent_key=eq.${encodeURIComponent(agentKey)}&select=memory&order=created_at.desc&limit=8`,
+      { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }
+    );
+    if (!r.ok) {
+      console.error('gc-chat visitor memory fetch non-ok:', r.status, await r.text().catch(() => ''));
+      return [];
+    }
+    const rows = await r.json();
+    return Array.isArray(rows) ? rows.map(row => row.memory).filter(Boolean) : [];
+  } catch (err) {
+    console.error('gc-chat visitor memory fetch failed (non-fatal):', err.message);
+    return [];
+  }
+}
+
+/* Anthropic-format turns (content can be a string or an array of blocks,
+   since an image message is a block array) flattened to plain text lines
+   the distillation prompt can read. Images are dropped, not described --
+   they were never meant to be remembered past their own turn (see the
+   "ONLY ON THE CURRENT TURN" note above), so there is nothing to carry
+   forward from one anyway. */
+function turnsToText(turns, friendName) {
+  return turns.map(t => {
+    const text = Array.isArray(t.content)
+      ? t.content.filter(b => b.type === 'text').map(b => b.text).join(' ')
+      : String(t.content || '');
+    return text.trim() ? `${t.role === 'user' ? 'PERSON' : friendName.toUpperCase()}: ${text.trim()}` : null;
+  }).filter(Boolean).join('\n');
+}
+
+/* existingMemories is passed straight into the prompt and the model is told
+   not to repeat any of it -- there is no persisted cursor for "how much of
+   this conversation has already been distilled," so consecutive windows
+   overlap on purpose, and this is what keeps that overlap from just piling
+   up the same fact three times. */
+async function saveVisitorMemory(client, agentKey, friendName, identityKey, serviceKey, transcriptText, existingMemories) {
+  if (!transcriptText) return;
+  try {
+    const existingBlock = existingMemories.length
+      ? `\n\nAlready known about this person -- do not repeat any of these:\n${existingMemories.map(m => '- ' + m).join('\n')}`
+      : '';
+    const prompt = `You are ${friendName}, a companion in an ongoing conversation. Write 1 to 3 short, \
+plain, first-person notes you would genuinely carry forward about THIS specific person -- things \
+they told you, what is going on in their life, how they seemed. Not a recap of the chat, not a \
+quote, not something dramatic -- the kind of small, ordinary fact a real friend just knows. Return \
+ONLY JSON, no code fences: {"memories": ["...", "..."]}. If honestly nothing new and memorable came \
+up, return {"memories": []}.${existingBlock}
+
+Recent conversation:
+${transcriptText}`;
+
+    const msg = await client.messages.create({
+      model: CLASSIFY_MODEL,
+      max_tokens: 300,
+      messages: [{ role: 'user', content: prompt }],
+    });
+    const text = (msg.content || []).filter(b => b.type === 'text').map(b => b.text).join('').trim();
+    const cleaned = text.replace(/^```(json)?/i, '').replace(/```$/, '').trim();
+    const parsed = JSON.parse(cleaned);
+    const memories = Array.isArray(parsed.memories)
+      ? parsed.memories.filter(m => typeof m === 'string' && m.trim()).slice(0, 3)
+      : [];
+    if (!memories.length) return;
+
+    const insertRes = await fetch(`${SUPABASE_URL}/rest/v1/etl_visitor_memories`, {
+      method: 'POST',
+      headers: {
+        apikey: serviceKey,
+        Authorization: `Bearer ${serviceKey}`,
+        'Content-Type': 'application/json',
+        Prefer: 'return=minimal',
+      },
+      body: JSON.stringify(memories.map(memory => ({ visitor_id: identityKey, agent_key: agentKey, memory }))),
+    });
+    if (!insertRes.ok) {
+      console.error('gc-chat visitor memory insert non-ok:', insertRes.status, await insertRes.text().catch(() => ''));
+    }
+  } catch (err) {
+    console.error('gc-chat visitor memory save failed (non-fatal):', err.message);
+  }
+}
+
 /* ── handler ─────────────────────────────────────────────────────────────── */
 exports.handler = async function (event) {
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: CORS, body: '' };
@@ -682,6 +800,16 @@ exports.handler = async function (event) {
     }
   }
 
+  /* FETCHED HERE, AFTER credits/cap gating rather than before, so a request
+     that is about to be rejected never spends a Supabase read on memory it
+     will not use. See the file-level note above for the full reasoning. */
+  const memoryIdentity = accessToken || visitorId;
+  const memoryAgentKey = activeFriend.id ? 'gc:' + activeFriend.id : null;
+  let visitorMemories = [];
+  if (memoryAgentKey && memoryIdentity && serviceKey) {
+    visitorMemories = await fetchVisitorMemories(memoryAgentKey, memoryIdentity, serviceKey);
+  }
+
   /* WHOSE TURN IT ACTUALLY IS, NAMED, THE SAME FIX AS THE ROOM ROSTER ABOVE.
 
      gc-room-say has always computed the real speaker's name per message
@@ -813,7 +941,17 @@ exports.handler = async function (event) {
      A cache write costs slightly more than a normal call. A cache hit, on
      the next turn within the window, costs roughly a tenth of a normal read
      on everything before the breakpoint. Most of a real conversation is hits. */
-  const staticSystem = buildSystem(activeFriend, you, idle, body.scene, body.room);
+  /* MERGED ONTO A COPY, same reasoning as activeFriend's own note above:
+     visitorMemories is server-fetched, per-request data, so there is
+     nothing wrong with just assigning it in place -- but activeFriend may
+     still be the exact same object as body.friend/body.speaker when there
+     is no guest cameo, and mutating it on principle is one less thing to
+     ever have to re-litigate later. buildSystem only ever reads f.memories,
+     so this is the one field that needs merging, not a deep clone. */
+  const friendForPrompt = visitorMemories.length
+    ? Object.assign({}, activeFriend, { memories: (activeFriend.memories || []).concat(visitorMemories) })
+    : activeFriend;
+  const staticSystem = buildSystem(friendForPrompt, you, idle, body.scene, body.room);
   const dynamicSystem = when.nowNote(activeFriend, new Date()) + web.pageNote(pages) + [
     '',
     'AFTER your reply, on its own last line, write:',
@@ -983,6 +1121,20 @@ exports.handler = async function (event) {
      cameo too now, so a genuinely empty turn (no host line, no cameo)
      still reads as quiet, but a cameo-only turn survives. */
   if (!reply && !cameo) return json(200, { reply: null, quiet: true, mood: feltMood || activeFriend.mood || null, feelings: feelings });
+
+  /* DISTILLED EVERY MEMORY_CADENCE REAL TURNS, not on every single one --
+     this is a real API call (see the file-level note above on why there is
+     no cleaner "conversation ended" hook to fire it on instead), and firing
+     it every turn would double the cost of every message for no benefit:
+     nothing meaningful changes between two consecutive replies. turns.length
+     already counts this exact exchange, no separate counter needed. Awaited
+     before responding, same as Almost Human's own version -- adds a beat of
+     latency on the turns it actually fires on, never on the others. */
+  if (!idle && reply && memoryAgentKey && memoryIdentity && serviceKey && turns.length % MEMORY_CADENCE === 0) {
+    const recentTurns = turns.slice(-MEMORY_CADENCE * 2).concat([{ role: 'assistant', content: reply }]);
+    const transcriptText = turnsToText(recentTurns, activeFriend.name || 'Friend');
+    await saveVisitorMemory(client, memoryAgentKey, activeFriend.name || 'Friend', memoryIdentity, serviceKey, transcriptText, visitorMemories);
+  }
 
   return json(200, {
     reply: reply || null, mood: feltMood || activeFriend.mood || null, feelings: feelings, cameo,
