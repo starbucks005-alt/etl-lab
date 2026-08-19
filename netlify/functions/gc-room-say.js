@@ -110,20 +110,26 @@ exports.handler = async function (event) {
        herself the moment somebody joins. What a GUEST may see is loadVisible,
        which never passes through here.
 
-       DROP THE LAST ROW, added 2026-08-18. Dr. O: "Reggie said he got my
-       text twice." Real bug, not a model quirk: this line was just written
-       to gc_messages a few lines up (insertMessage, above), so it is
-       already the newest row in `full` by the time this reloads the whole
-       transcript — and it gets sent a SECOND time immediately below as
-       `message: said`. gc-chat.js concatenates history with that current
-       turn (turns = history.concat([lastTurn])), so the model genuinely
-       saw the same line twice in a row, every single time, in every shared
-       room. loadTranscript does not select id, so this can't match by id;
-       it does not need to, since nothing else writes to this room between
-       the insert above and this read. Solo chat never had this bug: its
-       history is built from the browser's own transcript BEFORE the new
-       line is appended to it. */
-    const messages = full.slice(0, -1).map(m => ({
+       WAS full.slice(0, -1), added 2026-08-18 for "Reggie said he got my
+       text twice": this line was just written to gc_messages a few lines
+       up (insertMessage, above), so it was already the newest row in
+       `full`, and it was about to get sent a SECOND time below as
+       `message: said`. True at the time. NO LONGER TRUE as of 2026-08-19:
+       gc-chat.js grew its OWN strip for the exact same problem on solo
+       chat's behalf (its "history = idle ? rawHistory : rawHistory.slice
+       (0,-1)"), applied unconditionally to whatever it is handed — and
+       since it cannot tell which caller it is talking to, stripping here
+       AND there dropped one real turn on every single shared-room message,
+       permanently: the friend's OWN last reply fell out of its context
+       before it ever got a chance to answer the NEXT thing said, so it
+       looked stuck re-answering the question before the one just asked.
+       Dr. O, live, in Reggie's room with Pookie: "repeating answering the
+       question before and the new question." Fixed by picking ONE place
+       to strip. gc-chat.js's is the right one — it already handles idle
+       correctly, and solo chat depends on it — so this file now sends the
+       FULL thread, current row included, exactly like solo chat's own
+       transcript() does. */
+    const messages = full.map(m => ({
       who: m.name || (m.speaker === 'friend' ? who.room.friend.name : 'Someone'),
       text: m.content,
       mine: m.speaker === 'person',
