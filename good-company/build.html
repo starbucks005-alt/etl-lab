@@ -28,8 +28,6 @@ header{ display:flex; align-items:center; justify-content:space-between;
 h1{ font-family:Georgia,serif; font-weight:400; letter-spacing:-.012em; line-height:1.12;
   font-size:clamp(2rem,5vw,3.1rem); margin:.4rem 0 .5rem; }
 .lede{ color:var(--ink-dim); max-width:52ch; margin:0 0 .5rem; }
-.mins{ font-family:var(--mono); font-size:11px; letter-spacing:.14em;
-  text-transform:uppercase; color:var(--accent); }
 
 /* ── hero ─────────────────────────────────────────────────────────────────
    Own copy of index.html's pattern -- see the markup comment above this
@@ -55,14 +53,12 @@ h1{ font-family:Georgia,serif; font-weight:400; letter-spacing:-.012em; line-hei
 .hero-words{ position:relative; z-index:2; max-width:640px; padding:1.4rem clamp(.9rem,2.2vw,1.75rem) 1.6rem; }
 /* Light on the photograph, deliberately not skin tokens -- a skin may repaint
    the page around this image but never the words sitting on top of it. */
-.hero-words .mins{ color:rgba(255,255,255,.8); text-shadow:0 1px 10px rgba(0,0,0,.55); }
 .hero-words h1{ color:#fff; text-shadow:0 1px 18px rgba(0,0,0,.55); }
 .hero-words .lede{ color:rgba(255,255,255,.9); text-shadow:0 1px 14px rgba(0,0,0,.5); margin:0; }
 /* No photo, no overlay: back to ordinary page-coloured type rather than white
    on whatever the skin's own background happens to be. */
 .hero.no-art{ min-height:0; align-items:flex-start; }
 .hero.no-art .hero-words{ padding:0; max-width:none; }
-.hero.no-art .mins{ color:var(--accent); text-shadow:none; }
 .hero.no-art h1{ color:var(--ink); text-shadow:none; }
 .hero.no-art .lede{ color:var(--ink-dim); text-shadow:none; }
 
@@ -295,7 +291,6 @@ footer{ padding:2rem 0 3rem; color:var(--ink-dim); font-size:.9rem; }
     <img src="images/build-hero.jpg" alt="">
   </div>
   <div class="hero-words">
-    <p class="mins">About two minutes</p>
     <h1 class="hero-say">Who would you like to meet?</h1>
     <p class="lede">Answer what you feel like answering. Anything you skip, they will fill in
        themselves, and you can change any of it later.</p>
