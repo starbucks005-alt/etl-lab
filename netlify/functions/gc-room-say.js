@@ -99,8 +99,22 @@ exports.handler = async function (event) {
     /* THE FRIEND GETS THE WHOLE THREAD. This is the one read that is not
        arrival-forward, and it has to be: otherwise the host re-explains
        herself the moment somebody joins. What a GUEST may see is loadVisible,
-       which never passes through here. */
-    const messages = full.map(m => ({
+       which never passes through here.
+
+       DROP THE LAST ROW, added 2026-08-18. Dr. O: "Reggie said he got my
+       text twice." Real bug, not a model quirk: this line was just written
+       to gc_messages a few lines up (insertMessage, above), so it is
+       already the newest row in `full` by the time this reloads the whole
+       transcript — and it gets sent a SECOND time immediately below as
+       `message: said`. gc-chat.js concatenates history with that current
+       turn (turns = history.concat([lastTurn])), so the model genuinely
+       saw the same line twice in a row, every single time, in every shared
+       room. loadTranscript does not select id, so this can't match by id;
+       it does not need to, since nothing else writes to this room between
+       the insert above and this read. Solo chat never had this bug: its
+       history is built from the browser's own transcript BEFORE the new
+       line is appended to it. */
+    const messages = full.slice(0, -1).map(m => ({
       who: m.name || (m.speaker === 'friend' ? who.room.friend.name : 'Someone'),
       text: m.content,
       mine: m.speaker === 'person',
