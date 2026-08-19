@@ -641,6 +641,13 @@ exports.handler = async function (event) {
          outcome the model itself is allowed to choose. A real message from
          the person gets the flag the client uses to show the upsell. */
       if (idle) return json(200, { reply: null, quiet: true, mood: activeFriend.mood || null });
+      /* LOGGED, added 2026-08-19. This exact branch ran silently for
+         Reggie/Sophia/Tansy for two full days (the is_demo object-identity
+         bug, fixed the same day) and there was no way afterward to tell
+         how many real visitors it turned away -- nothing here ever wrote
+         a line. One console.log, grep-able by "REJECTED", so a future gap
+         like that shows up instead of just disappearing. */
+      console.log(`[gc-chat] REJECTED credits_exhausted friend=${activeFriend.name || '?'} is_demo=${isDemo} owner_key_rejected=${ownerKeySentButRejected} visitor=${visitorId || 'none'}`);
       return json(200, { reply: null, credits_exhausted: true, owner_key_rejected: ownerKeySentButRejected, mood: activeFriend.mood || null });
     }
     usingFreeDailyCap = true;
@@ -652,6 +659,7 @@ exports.handler = async function (event) {
       const countSoFar = (usage && usage.count) || 0;
       if (countSoFar >= DAILY_FREE_LIMIT) {
         if (idle) return json(200, { reply: null, quiet: true, mood: activeFriend.mood || null });
+        console.log(`[gc-chat] REJECTED daily_capped friend=${activeFriend.name || '?'} count=${countSoFar} owner_key_rejected=${ownerKeySentButRejected} visitor=${visitorId || 'none'}`);
         return json(200, { reply: null, daily_capped: true, owner_key_rejected: ownerKeySentButRejected, mood: activeFriend.mood || null });
       }
     }

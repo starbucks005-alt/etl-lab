@@ -156,8 +156,13 @@ exports.handler = async function (event) {
   let usingFreeDailyCap = false;
   let dayKey = null;
 
+  /* LOGGED, added 2026-08-19, same reasoning as gc-chat.js's own fix from
+     the same day: a rejection here used to leave no trace at all, which is
+     exactly how Reggie/Sophia/Tansy's broken is_demo flag went unnoticed
+     for two days. Grep-able by "REJECTED". */
   if (!isOwner && !hasCredits) {
     if (!isDemo) {
+      console.log(`[gc-voice] REJECTED credits_exhausted voice=${voiceId || '?'} is_demo=${isDemo} owner_key_rejected=${ownerKeySentButRejected} visitor=${visitorId || 'none'}`);
       return json(200, { error: 'credits_exhausted', credits_exhausted: true, owner_key_rejected: ownerKeySentButRejected });
     }
     /* SAME POOL GC-CHAT.JS ALREADY METERS TEXT AGAINST, weighted 5x here.
@@ -171,10 +176,12 @@ exports.handler = async function (event) {
       try { usage = await getStore('ah_daily_usage').get(dayKey, { type: 'json' }); } catch (_) {}
       const countSoFar = (usage && usage.count) || 0;
       if (countSoFar + AUDIO_MESSAGE_COST > DAILY_FREE_LIMIT) {
+        console.log(`[gc-voice] REJECTED daily_capped voice=${voiceId || '?'} count=${countSoFar} owner_key_rejected=${ownerKeySentButRejected} visitor=${visitorId || 'none'}`);
         return json(200, { error: 'daily_capped', daily_capped: true, owner_key_rejected: ownerKeySentButRejected });
       }
     } else {
       // No visitor id to meter against — cannot verify a free allowance exists, so no free audio.
+      console.log(`[gc-voice] REJECTED credits_exhausted (no visitor id) voice=${voiceId || '?'} owner_key_rejected=${ownerKeySentButRejected}`);
       return json(200, { error: 'credits_exhausted', credits_exhausted: true, owner_key_rejected: ownerKeySentButRejected });
     }
   }
