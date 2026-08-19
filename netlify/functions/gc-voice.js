@@ -130,9 +130,11 @@ exports.handler = async function (event) {
   const rawOwnerKey = String(body.owner_key || '').trim();
   /* GC_OWNER_KEY, same reasoning as gc-chat.js's own comment: a second,
      independent door that only Good Company checks, additive to the
-     shared campus OWNER_KEY, never replacing it. */
+     shared campus OWNER_KEY, never replacing it. .trim() on both sides —
+     see gc-chat.js's own comment on why the env var side needs it too. */
+  const gcOwnerKey = String(process.env.GC_OWNER_KEY || '').trim();
   const isOwner = !!ownerUser(rawOwnerKey) ||
-    (!!process.env.GC_OWNER_KEY && rawOwnerKey === process.env.GC_OWNER_KEY);
+    (!!gcOwnerKey && rawOwnerKey === gcOwnerKey);
   /* SAME SIGNAL AS gc-chat.js, added 2026-08-18 — see its own comment. Tells
      the client whether a key arrived and was rejected, versus never having
      arrived at all, without ever echoing the key value itself back. */

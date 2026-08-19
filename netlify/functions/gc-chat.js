@@ -525,8 +525,14 @@ exports.handler = async function (event) {
      door: a dedicated key that ONLY Good Company checks, additive to the
      shared one, never replacing it. Either one works here; nothing else on
      this campus even knows this env var exists. */
+  /* .trim() ON BOTH SIDES, added 2026-08-18 after the key still failed
+     with two people confirming the value matched: a trailing space or
+     newline in the Netlify field is invisible to a visual check but
+     would break an exact === every time. rawOwnerKey was already
+     trimmed; the env var side was not. */
+  const gcOwnerKey = String(process.env.GC_OWNER_KEY || '').trim();
   const isOwner = !!ownerUser(rawOwnerKey) ||
-    (!!process.env.GC_OWNER_KEY && rawOwnerKey === process.env.GC_OWNER_KEY);
+    (!!gcOwnerKey && rawOwnerKey === gcOwnerKey);
   /* WAS THE KEY EVEN SENT, added 2026-08-18. Dr. O hit the exact same cap
      message on two separate real attempts and there was no way for either
      of us to tell, from that message alone, whether her browser sent no
