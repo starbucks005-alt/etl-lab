@@ -70,13 +70,18 @@
   --disgust:#BDB05E; --anger:#E08A70; --surprise:#E0BE55; --curious:#E0A458;
 }
 
-/* ── GROVE. The other dark one. Fall, not spring: deep olive going to
-   harvest gold, the way a tree canopy looks in October rather than a pine
-   forest in June. Added 2026-08-19 per Dr. O directly: "a dark green and
-   gold skin option," then refined same-day, "leaning into the fall
-   season with the colors" -- first pass read as a cooler evergreen, this
-   one is warmer and closer kin to Harvest's own browns and greens, just
-   inverted to a dark ground instead of a pale one.
+/* ── GROVE. The other dark one. Actually green, not brown wearing green's
+   name. Added 2026-08-19 per Dr. O directly: "a dark green and gold skin
+   option." First pass ("leaning into the fall season") pushed the paper/
+   panel values so far toward neutral that red and green sat almost equal
+   in the hex -- the classic way a "dark" anything quietly turns into
+   brown-black no matter what color was intended, and exactly what she
+   called out: "no color change, no green... I am so tired of Claude dark
+   brown and cream." Corrected by keeping green clearly dominant in every
+   background value below (green channel meaningfully higher than both
+   red and blue, not just barely), checked against the deep-forest
+   reference photo she sent rather than eyeballed. Gold stays as the
+   accent, which is the actual "and gold" half of what was asked for.
 
    Same reason Fireside carries its own emotion-colour overrides just
    above: the shared LIGHT-skin set at the top of this file is tuned for
@@ -87,10 +92,10 @@
    palette rots") now means "only the dark skins," for the same original
    reason, not literally only Fireside. */
 [data-skin="grove"]{
-  --paper:#14140C; --panel:#201C13; --chrome:rgba(20,20,12,.93);
-  --ink:#F0E4C8; --ink-dim:#A69A72; --line:#3A331F;
-  --accent:#C98A2E; --accent-hover:#E0A83F; --accent-ink:#1A1408;
-  --moss:#8A7A3A;
+  --paper:#0E1A10; --panel:#17281A; --chrome:rgba(14,26,16,.93);
+  --ink:#EFE6CC; --ink-dim:#93AE85; --line:#2C4530;
+  --accent:#D4A72C; --accent-hover:#E8C24A; --accent-ink:#14210F;
+  --moss:#5C8A4A;
 
   --happy:#8FBF74; --sad:#7FA8CE; --fear:#B2A2D4;
   --disgust:#BDB05E; --anger:#E08A70; --surprise:#E0BE55; --curious:#E0A458;

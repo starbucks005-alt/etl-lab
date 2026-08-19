@@ -23,7 +23,7 @@ var GC_SKINS = [
   { key:'seaside',  label:'Seaside',  swatch:['#2F6B62','#9A4630','#E1EFF1'] },
   { key:'snowline', label:'Snowline', swatch:['#3A6355','#8B97A6','#EAEEF3'] },
   { key:'fireside', label:'Fireside', swatch:['#E08A4E','#8FA86A','#221C17'] },
-  { key:'grove',    label:'Grove',    swatch:['#C98A2E','#8A7A3A','#201C13'] }
+  { key:'grove',    label:'Grove',    swatch:['#D4A72C','#5C8A4A','#17281A'] }
 ];
 
 /* Which skin the page opens on:
