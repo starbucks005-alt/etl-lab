@@ -246,27 +246,11 @@ header{
 
 /* The second way in, deliberately quieter: one primary button on this screen.
    Light on the photograph like everything else in the hero, never skin tokens. */
-/* THE UNDERLINE MOVED OFF THE WHOLE THING AND ONTO THE NAMES. This was one
-   link and is now a sentence containing two, so underlining the span would
-   underline the word "or" and leave the two things you can actually press
-   looking like plain text, in browser default blue on a dark photograph. */
-.cta-quiet{
-  display:inline-block; margin-top:1.9rem; margin-left:1.1rem;
-  color:rgba(255,255,255,.86); text-decoration:none;
-  font-size:1.15rem; padding-bottom:.15rem; text-shadow:0 1px 18px rgba(0,0,0,.5);
-}
-/* David: he did not notice these were links at all. Bumped from 1rem and the
-   underline from 1px/.35 opacity to 2px/.6, so the names read as clickable
-   at a glance instead of blending into the sentence around them. */
-.cta-quiet a{
-  color:inherit; text-decoration:none;
-  border-bottom:2px solid rgba(255,255,255,.6); padding-bottom:.15rem;
-}
-.cta-quiet a:hover{ color:#fff; border-bottom-color:#fff; }
-.hero.no-art .cta-quiet{ color:var(--ink-dim); text-shadow:none; }
-.hero.no-art .cta-quiet a{ border-bottom-color:var(--line); }
-.hero.no-art .cta-quiet a:hover{ color:var(--accent); border-bottom-color:var(--accent); }
-@media (max-width:600px){ .cta-quiet{ display:block; margin-left:0; margin-top:1.2rem; } }
+/* .cta-quiet REMOVED 2026-08-18: was the old text-link CTA ("or try one of
+   our demos: Arch, Sophia, Reggie, or Tansy"), replaced by the .demos
+   section below the hero — the picture is the CTA now, not underlined
+   names in a sentence. Dead rule swept out with it rather than left
+   orphaned. */
 
 /* ── figure captions ─────────────────────────────────────────────────────────
    WHAT FIXES THE BLUR. Every face on this page is either a friend somebody
@@ -307,6 +291,31 @@ figure{ margin:0; }
 .three .slot{ aspect-ratio:4/5; margin-bottom:1.15rem; }
 .three h3{ margin-bottom:.4rem; }
 .three p{ color:var(--ink-dim); }
+
+/* ── demos ──────────────────────────────────────────────────────────────── */
+/* REPLACES the old "or try one of our demos: Arch, Sophia, Reggie, or
+   Tansy" text link, added 2026-08-18 per Dr. O directly: a whole visual
+   section instead, one cell per demo, the picture itself as the CTA so a
+   visitor knows what they will find before they click. Same .slot/missing-
+   image pattern as every other picture on this page (see its own comment
+   above), so a demo whose photo has not landed yet reads as a quiet gap
+   locally and simply is not shown live, never a broken-image icon. */
+.demos{
+  display:grid; gap:clamp(1rem,2.4vw,1.6rem);
+  grid-template-columns:repeat(4,1fr);
+  padding-bottom:var(--rhythm);
+}
+@media (max-width:820px){ .demos{ grid-template-columns:repeat(2,1fr); } }
+.demo-card{
+  display:block; text-decoration:none; color:inherit;
+}
+.demo-card .slot{ aspect-ratio:3/4; margin-bottom:.6rem; transition:opacity .15s; }
+.demo-card:hover .slot{ opacity:.85; }
+.demo-card-label{
+  display:block; font-family:var(--mono); font-size:.78rem; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--ink);
+}
+.demo-card:hover .demo-card-label{ color:var(--accent); }
 
 /* ── the band ───────────────────────────────────────────────────────────── */
 .band{
@@ -416,22 +425,54 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
            people on a first visit. Arch is the house friend; meeting him costs
            nothing and asks for nothing. Without this link he was unreachable
            from the front door unless you knew the URL. -->
-      <!-- ALL OF THEM, because offering only Arch tells somebody in their
-           twenties this is a product for their dad, which is the entire
-           reason Sophia exists, and a front page listing only people quietly
-           tells anybody who wants Reggie's kind of uncomplicated company
-           that this is not for them either.
-
-           ?who= on each, because without it anybody who has built a friend gets
-           taken to theirs instead and the link is a lie. -->
-      <span class="cta-quiet">or try one of our demos:
-        <a href="room.html?who=arch">Arch</a>,
-        <a href="room.html?who=sofia">Sophia</a>,
-        <a href="room.html?who=reggie">Reggie</a>, or
-        <a href="room.html?who=tansy">Tansy</a></span>
     </div>
 
     <p class="hero-credit">&ldquo;The big sister I never had&rdquo; companion</p>
+  </section>
+
+  <!-- DEMOS ------------------------------------------------------------------
+       REPLACES the old quiet text link ("or try one of our demos: Arch,
+       Sophia, Reggie, or Tansy"), 2026-08-18 per Dr. O directly: a whole
+       section, the picture itself as the CTA so a visitor knows what they
+       will find before they ever click, not just a name.
+
+       ALL OF THEM, still, same reasoning as the link it replaces: offering
+       only Arch tells somebody in their twenties this is a product for
+       their dad, which is the entire reason Sophia exists, and a front page
+       listing only people quietly tells anybody who wants Reggie's kind of
+       uncomplicated company that this is not for them either.
+
+       ?who= on each, because without it anybody who has built a friend gets
+       taken to theirs instead and the link is a lie.
+
+       THE LABEL IS THE JOB/CAST, NOT JUST THE NAME, per Dr. O's own wording:
+       "general contractor Arch," "vet nurse Sophia," so a visitor knows what
+       each demo actually is before clicking, the same reason Reggie and
+       Tansy's own gate premises exist. Reggie and Tansy's images show them
+       WITH their own cast (Biscuit and Mochi; Poppy and Blue) rather than
+       solo, matching what the label promises. -->
+  <section class="demos wrap">
+    <a class="demo-card" href="room.html?who=arch">
+      <div class="slot" data-label="photos/arch-onsite.png"><img src="photos/arch-onsite.png" alt=""></div>
+      <span class="demo-card-label">General contractor Arch</span>
+    </a>
+    <a class="demo-card" href="room.html?who=sofia">
+      <div class="slot" data-label="photos/sofia.jpg"><img src="photos/sofia.jpg" alt=""></div>
+      <span class="demo-card-label">Vet nurse Sophia</span>
+    </a>
+    <a class="demo-card" href="room.html?who=reggie">
+      <div class="slot" data-label="photos/reggie-explorers.jpg"><img src="photos/reggie-explorers.jpg" alt=""></div>
+      <span class="demo-card-label">Reggie, with friends</span>
+    </a>
+    <!-- No chosen still exists for all three fairies together (the scene
+         picker in room.html hits this same gap and falls back the same
+         way), so this uses Vimeo's own public thumbnail proxy for the
+         "together" scene's video rather than a solo Tansy portrait that
+         would not match what the label promises. -->
+    <a class="demo-card" href="room.html?who=tansy">
+      <div class="slot" data-label="https://vumbnail.com/1219352357.jpg"><img src="https://vumbnail.com/1219352357.jpg" alt=""></div>
+      <span class="demo-card-label">Tansy, Poppy &amp; Blue</span>
+    </a>
   </section>
 
   <!-- THREE --------------------------------------------------------------- -->
