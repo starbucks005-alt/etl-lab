@@ -261,6 +261,18 @@ footer{ padding:2rem 0 3rem; color:var(--ink-dim); font-size:.9rem; }
     week, asks about the people in your life, and is glad when you walk in.
   </div>
 
+  <!-- THE PRICE, ON THE PAGE ITSELF, added 2026-08-19. Dr. O: it should be
+       in the text too, on the page -- not only inside the Astra-9 widget,
+       which somebody has to think to open. Same corrected facts as that
+       widget's own Cost tab and system prompt (see both further down):
+       the $9.99 is real and one-time, it includes a spendable 100-credit
+       balance rather than unlocking anything forever, and what happens
+       once those run out is said plainly here too, not left for someone
+       to discover mid-conversation. -->
+  <p class="lede price-note">Free to build. $9.99, once, to open their room, which includes
+    100 credits to start talking with them. $9.99/mo keeps a fresh 300 coming every month, or
+    top up any time.</p>
+
   <!-- ── WHO THEY ARE ────────────────────────────────────────────────────── -->
   <section>
     <div class="sec-head">Who they are</div>
@@ -982,10 +994,15 @@ $('copyBtn').addEventListener('click', function () {
       <button class="a9-tab" data-tab="help">Ask</button>
     </div>
     <div id="a9-panel-cost" class="a9-panel">
+      <!-- "Coming back after that: Free" REMOVED 2026-08-19. It was
+           false: the $9.99 grants STARTER_CREDITS (see _ah-credits.js),
+           a real, spendable balance that runs out, not a permanent
+           unlock. Fixed to say what actually happens once it does,
+           instead of implying nothing ever costs again. -->
       <div class="a9-row"><span>Answering the questions</span><span>Free</span></div>
       <div class="a9-row"><span>Meeting the faces</span><span>Free</span></div>
-      <div class="a9-row"><span>Opening their room, once</span><span>$9.99</span></div>
-      <div class="a9-row"><span>Coming back after that</span><span>Free</span></div>
+      <div class="a9-row"><span>Opening their room, once</span><span>$9.99 + 100 credits</span></div>
+      <div class="a9-row"><span>After those run out</span><span>$9.99/mo, or top up</span></div>
     </div>
     <div id="a9-panel-how" class="a9-panel">
       <p class="a9-outcome">Answer what you feel like answering, about them and about you. Pick the face that looks like them out of four. Open their room. That is the whole thing.</p>
@@ -1062,14 +1079,26 @@ $('copyBtn').addEventListener('click', function () {
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 150,
+        /* FIXED 2026-08-19: this used to tell a real visitor "coming back
+           after that is free," full stop, which is not true and was not
+           just static copy -- it was instructions a live model could act
+           on and repeat with confidence if asked directly. The $9.99
+           includes STARTER_CREDITS (100, see _ah-credits.js), a real
+           balance that is spent down by talking, same as every other
+           credit-gated conversation on this campus, not a one-time
+           unlock. */
         system: 'You are Astra-9, a guide at the Emerging Technologies Laboratory helping ' +
           'someone build a friend on Good Company. Good Company: answer questions about who ' +
           'the friend is and about yourself, pick their face from four options, open their ' +
           'room. Answering and picking a face are free. Opening a friend’s room the first ' +
-          'time is $9.99, once per friend; coming back after that is free. Someone can build ' +
-          'more than one friend, each its own $9.99 to open. Arch and Sophia are the two house ' +
-          'demos, free to try, but not something you keep or convert into your own; building ' +
-          'makes somebody new. Answer in under 60 words. No em dashes. First person.',
+          'time is $9.99, once per friend, and that includes 100 starter credits for talking ' +
+          'with them once the room is open. Credits are spent by talking, same as everywhere ' +
+          'else on this campus, so once the 100 run out, staying in touch costs something: ' +
+          '$9.99 a month for a fresh monthly allowance, or a smaller one-time top-up if a ' +
+          'subscription is not wanted. Someone can build more than one friend, each its own ' +
+          '$9.99 to open. Arch and Sophia are the two house demos, free to try, but not ' +
+          'something you keep or convert into your own; building makes somebody new. Answer ' +
+          'in under 60 words. No em dashes. First person.',
         messages: [{ role: 'user', content: q }]
       })
     })
