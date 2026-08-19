@@ -1744,6 +1744,10 @@ function send() {
 
 function sayInRoom(text) {
   thinking = true; $("sendBtn").disabled = true;
+  /* Same solo-scene guard ask() uses, computed fresh here rather than
+     shared, since sayInRoom() and ask() are different functions reached
+     from different branches of send(). */
+  var roomSpeakerObj = (current && current.speaker && FRIEND.companions) ? FRIEND.companions[current.speaker] : null;
   fetch("/.netlify/functions/gc-room-say", {
     method: "POST", headers: { "Content-Type": "application/json" },
     /* owner_key/access_token, ADDED 2026-08-18. Dr. O, capped in her own
@@ -1754,8 +1758,17 @@ function sayInRoom(text) {
        apply inside a shared room -- only the room's shared free pool
        could, for everyone, always. Sent as the SENDER's own identity, not
        the friend's/room's, so gc-room-say.js can pass through whoever is
-       actually typing right now. */
-    body: JSON.stringify({ seat_token: SEAT, message: text, owner_key: GC_ownerKey(), access_token: GC_accessToken() })
+       actually typing right now.
+
+       guest_cameo, ADDED 2026-08-19: "let's wire it into shared rooms
+       too." Whoever is actually typing offers THEIR OWN built friend,
+       same as solo chat -- a host and a guest could each have a
+       different one, and each turn only ever offers the current
+       speaker's. */
+    body: JSON.stringify({
+      seat_token: SEAT, message: text, owner_key: GC_ownerKey(), access_token: GC_accessToken(),
+      guest_cameo: roomSpeakerObj ? null : guestCameoCandidate(),
+    })
   }).then(function (r) { return r.json(); }).then(function (j) {
     thinking = false; $("sendBtn").disabled = false;
     lastSpoke = Date.now();
@@ -2143,7 +2156,21 @@ function startPolling() {
         if (m.speaker === "friend") {
           var isCameo = m.name && m.name !== FRIEND.name;
           if (isCameo) {
+            /* FRIEND.cameos ONLY EVER HAS THE HAND-AUTHORED ONES (Gus, Poppy,
+               Blue...) -- a dynamic guest cameo like Isabelle is added to
+               gc-chat.js's own copy of the friend for one request and never
+               sent back to update this browser's copy, so looking her up
+               here would always miss and wrongly read as narrated (no
+               voice). Falls back to this browser's OWN guestCameoCandidate()
+               when the name matches: the only guest cameo this browser
+               could possibly be seeing spoken is either the room's own
+               static list, or whichever built friend belongs to whoever is
+               reading this poll right now. */
             var cEntry = (FRIEND.cameos || []).find(function (c) { return c && c.name === m.name; });
+            if (!cEntry) {
+              var myGuest = guestCameoCandidate();
+              if (myGuest && myGuest.name === m.name) cEntry = myGuest;
+            }
             lastCameo = { text: m.content, bubble: bubble, voiceId: cEntry ? cEntry.voiceId : null };
             /* Same reasoning as the solo-chat path: a narrated cameo (no
                voiceId at all, Gus/Barley) reads like a quote otherwise. */

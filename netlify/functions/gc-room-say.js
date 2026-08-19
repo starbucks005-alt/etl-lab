@@ -51,6 +51,15 @@ exports.handler = async function (event) {
   const senderOwnerKey = String(body.owner_key || '').trim();
   const senderAccessToken = String(body.access_token || '').trim();
 
+  /* guest_cameo, ADDED 2026-08-19: "let's wire it into shared rooms too."
+     Passed through raw, same trust boundary as owner_key/access_token
+     above -- gc-chat.js already validates a guest_cameo's shape itself
+     (name and voiceId required, everything capped) and drops anything
+     that does not qualify, so there is nothing this file needs to check
+     twice. Whoever is actually typing this turn is who it is offered
+     for, not the room's host specifically. */
+  const senderGuestCameo = (body.guest_cameo && typeof body.guest_cameo === 'object') ? body.guest_cameo : null;
+
   /* The line goes in immediately, before anybody waits on a model, so both
      browsers see it arrive at the pace it was actually typed. */
   const row = await R.insertMessage(key, who.room.id, {
@@ -170,6 +179,7 @@ exports.handler = async function (event) {
            way past them. */
         owner_key: senderOwnerKey || undefined,
         access_token: senderAccessToken || undefined,
+        guest_cameo: senderGuestCameo || undefined,
       }),
     });
     out = await res.json();
