@@ -697,6 +697,33 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
    other page, so the front door and the room cannot drift apart. */
 gcMountSkinPicker(document.getElementById('picker'), document.getElementById('skinBtn'));
 
+/* A RETURNING VISITOR WHO ALREADY BUILT SOMEBODY LANDS ON THEM, not on
+   Arch. Dr. O: "I had to go to Arch's room, then switch to get to
+   Isabelle's (my friend) room" -- this page had no idea a built friend
+   existed at all, so every link, including the one for somebody who
+   already paid, pointed at the demo. build.html's own "already here" list
+   solved this there; the front door never got the same fix. Swaps the one
+   loud button for "Go to <name>'s room" and demotes "Make a friend" to a
+   quiet second link, same visual weight as "Questions?" below it, rather
+   than removing it -- building a second friend is still a real thing to
+   want. Prefers whoever was opened most recently, same resolution build.html
+   already uses for ?who=mine links. */
+(function () {
+  var mine = (typeof GC_mostRecentBuilt === 'function') ? GC_mostRecentBuilt() : null;
+  if (!mine) return;
+  var cta = document.querySelector('.hero-words .cta');
+  if (!cta) return;
+
+  var make = document.createElement('a');
+  make.className = 'faq-link';
+  make.href = 'build.html';
+  make.textContent = 'Make another friend';
+  cta.insertAdjacentElement('afterend', make);
+
+  cta.textContent = 'Go to ' + mine.name + '’s room →';
+  cta.href = 'room.html?who=' + encodeURIComponent(mine.id);
+})();
+
 /* MISSING IMAGES ANNOUNCE THEMSELVES.
 
    No silent fallback, no stand-in graphic, no initials. When a file is absent
