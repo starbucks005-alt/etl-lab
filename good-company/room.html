@@ -1242,7 +1242,18 @@ function post(who, text, mine, pictures) {
     w.appendChild(f);
   }
   w.appendChild(document.createTextNode(who));
-  d.appendChild(w); d.appendChild(document.createTextNode(text));
+  /* THE ACTUAL WORDS GET THEIR OWN ELEMENT, not a bare text node sitting
+     next to whatever else ends up in this bubble. Found 2026-08-19: the
+     Replay button (see addReplayButton below) is appended into this same
+     div, and transcript() was reading el.textContent for the whole thing --
+     which includes a button's own label. "Twice, even" was a duplicate
+     MESSAGE; this was a friend's own reply text quietly growing a literal
+     "Replay" on the end of it in her own history, which is exactly the kind
+     of thing a model keeps noticing and riffing on once it is there. */
+  var msgText = document.createElement('span');
+  msgText.className = 'msg-text';
+  msgText.appendChild(document.createTextNode(text));
+  d.appendChild(w); d.appendChild(msgText);
   $('log').appendChild(d);
   $('log').scrollTop = $('log').scrollHeight;
   return d;
@@ -1344,9 +1355,17 @@ function transcript() {
   return Array.prototype.map.call($("log").children, function (el) {
     var w = el.querySelector(".who");
     var who = w ? w.textContent.trim() : "";
-    return { who: who,
-             text: el.textContent.slice(who.length).trim(),
-             mine: el.classList.contains("mine") };
+    /* READ ONLY .msg-text, NEVER THE WHOLE BUBBLE. el.textContent used to
+       stand in for "what was actually said", which was true right up until
+       a message could grow a Replay button after the fact (see post() and
+       addReplayButton) -- at which point it silently included the button's
+       own label too, and a friend's history quietly filled with a literal
+       "Replay" she never said. Falls back to the old whole-element read
+       only for a bubble with no .msg-text span at all, which should not
+       exist going forward but costs nothing to guard against. */
+    var t = el.querySelector(".msg-text");
+    var text = t ? t.textContent.trim() : el.textContent.slice(who.length).trim();
+    return { who: who, text: text, mine: el.classList.contains("mine") };
   });
 }
 
