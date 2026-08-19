@@ -1463,7 +1463,21 @@ function ask(payload) {
       speak(j.reply, talkerVoice, function () {
         if (j.cameo && j.cameo.text) {
           var cameoBubble = post(j.cameo.name, j.cameo.text);
-          speak(j.cameo.text, j.cameo.voice_id, undefined, cameoBubble);
+          /* A NARRATED LINE READS LIKE A QUOTE OTHERWISE. "Gus noses at
+             Arch's hand" sits in the exact same bubble shape as anybody
+             else's actual words; italic is the whole difference between
+             description and dialogue at a glance. */
+          if (j.cameo.narrated) {
+            var cameoText = cameoBubble.querySelector('.msg-text');
+            if (cameoText) cameoText.style.fontStyle = 'italic';
+          }
+          /* NARRATED CAMEOS (Gus, Barley) CARRY voice_id: null, and speak()
+             falls back to FRIEND's OWN voice when given a falsy one -- fine
+             for every ordinary call, wrong here specifically: Gus would
+             speak in Arch's voice, which is exactly the thing "narrated,
+             non-speaking" rules out. Skipped outright rather than passed
+             through. */
+          if (j.cameo.voice_id) speak(j.cameo.text, j.cameo.voice_id, undefined, cameoBubble);
         }
       }, replyBubble);
     }
@@ -2102,6 +2116,12 @@ function startPolling() {
           if (isCameo) {
             var cEntry = (FRIEND.cameos || []).find(function (c) { return c && c.name === m.name; });
             lastCameo = { text: m.content, bubble: bubble, voiceId: cEntry ? cEntry.voiceId : null };
+            /* Same reasoning as the solo-chat path: a narrated cameo (no
+               voiceId at all, Gus/Barley) reads like a quote otherwise. */
+            if (cEntry && !cEntry.voiceId) {
+              var sharedCameoText = bubble.querySelector('.msg-text');
+              if (sharedCameoText) sharedCameoText.style.fontStyle = 'italic';
+            }
           } else {
             lastHeard = m.content; lastHeardBubble = bubble;
           }

@@ -428,6 +428,26 @@ var GC_DEMO = {
       caption:'At the desk, drawings everywhere, something going up outside the window.' },
     { src:'photos/arch-onsite.png', on:'Added when he joined',
       caption:'On site, between jobs. The first picture there was of him.' }
+  ],
+
+  /* CROSSOVER CAMEOS, added 2026-08-19. Dr. O, in order: "Reggie visited
+     Gus, Arch's dog." Then "wouldn't that be fun if one of the fairies
+     popped in on Arch." Then, confirming it: "the fairies can come in and
+     speak to the humans."
+
+     GUS IS NARRATED ONLY, voiceId: null on purpose. His world is grounded
+     and he was never established as talking -- an old yellow lab who is
+     "mostly asleep" does not start having lines just because the mechanic
+     that lets Reggie's friends talk now exists. gc-chat.js reads a missing
+     voiceId as exactly that instruction.
+
+     POPPY AND BLUE KEEP THEIR REAL VOICES FROM TANSY'S OWN ROOM, not
+     duplicated here: same ids, so the same person answers however they
+     turn up. */
+  cameos: [
+    { name: 'Gus', voiceId: null },
+    { name: 'Poppy', voiceId: 'XJ2fW4ybq7HouelYYGcL' },
+    { name: 'Blue', voiceId: 'WUyjxM8OTY6l8LhTmdkq' },
   ]
 };
 
@@ -927,6 +947,14 @@ var GC_SOFIA = {
       caption: 'At the park. He does this every time.' },
     { src: 'photos/sofia-home.jpg', on: 'Added when she joined',
       caption: 'On the sofa at home, the dog asleep against her.' },
+  ],
+
+  /* NARRATED ONLY, same reasoning as Gus in Arch's own canon: Barley is a
+     golden retriever "delighted about everything," never established as
+     talking, and does not start now. voiceId: null is what tells
+     gc-chat.js that. */
+  cameos: [
+    { name: 'Barley', voiceId: null },
   ],
 };
 

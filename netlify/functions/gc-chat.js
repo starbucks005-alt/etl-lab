@@ -396,27 +396,45 @@ RIGHT NOW YOU ARE HERE: ${scene.where}` +
      variable, surprise-a-companion-shows-up mechanic is exactly the shape
      of thing that makes something stickier on purpose. Fixing "broken" is
      not the same job as "maximize how often this fires." */
+  /* NARRATED (NON-SPEAKING) CAMEOS, added 2026-08-19 for Gus and Barley.
+     Dr. O, deciding the real question this raised -- do Arch's and Sophia's
+     dogs suddenly talk when a cameo mechanic built for a talking dog
+     (Reggie) and fairies (Poppy, Blue) gets extended to them: "Narrated,
+     non-speaking for Gus and Barley." Their world stays grounded; nothing
+     about them changes except that they can now have a brief, real moment
+     on the page. c.voiceId is what already tells the rest of this file a
+     cameo can be spoken to (gc-voice.js needs one); absent, that same
+     field now doubles honestly as "this one cannot talk," rather than
+     inventing a second flag for the same fact. */
   if (Array.isArray(f.cameos) && f.cameos.length) {
-    const names = f.cameos.map(c => c && c.name).filter(Boolean);
+    const all = f.cameos.filter(c => c && c.name);
+    const names = all.map(c => c.name);
+    const narratedNames = all.filter(c => !c.voiceId).map(c => c.name);
     if (names.length) {
       const namesList = names.join(names.length > 1 ? ' or ' : '');
+      const narratedList = narratedNames.join(' and ');
       bits.push(`\n${names.join(' AND ').toUpperCase()} ${names.length > 1 ? 'ARE' : 'IS'} SOMETIMES RIGHT ` +
                 `THERE TOO, and this is the last thing in these notes on purpose because it matters. ` +
                 `${namesList} ${names.length > 1 ? 'are' : 'is'} close to you and turn up with you ` +
                 `sometimes. OCCASIONALLY, unprompted, roughly one reply in every seven or eight, when it ` +
-                `genuinely fits the moment, ${names.length > 1 ? 'one of them (never both at once)' : namesList} ` +
-                `says one short thing of ${names.length > 1 ? 'their' : 'their'} own, unguarded, in ` +
-                `character for THEM specifically, not a copy of your own voice.\n` +
-                `IF THE PERSON DIRECTLY ASKS ${names.length > 1 ? 'THEM' : namesList.toUpperCase()} TO SAY ` +
-                `SOMETHING, SAY HELLO, OR TALK, THAT IS NOT THE RARE CASE, THAT IS A YES. Do it that same ` +
-                `reply, do not deflect it into describing what ${names.length > 1 ? 'they are' : 'it is'} ` +
-                `doing instead, and do not make them ask twice.\n` +
+                `genuinely fits the moment, ${names.length > 1 ? 'one of them (never more than one at once)' : namesList} ` +
+                `has one short moment of ${names.length > 1 ? 'their' : 'their'} own.\n` +
+                (narratedNames.length
+                  ? `${narratedList} ${narratedNames.length > 1 ? 'do' : 'does'} not talk. Never put words in ` +
+                    `quotation marks for ${narratedNames.length > 1 ? 'them' : narratedList}: only what ` +
+                    `${narratedNames.length > 1 ? 'they do' : 'it does'} — a look, a sound, a thing that happens.\n`
+                  : '') +
+                `IF THE PERSON DIRECTLY ASKS ${names.length > 1 ? 'ONE OF THEM' : namesList.toUpperCase()} TO SAY ` +
+                `SOMETHING, SAY HELLO, OR TALK, THAT IS NOT THE RARE CASE, THAT IS A YES for whichever of ` +
+                `them can actually talk. Do it that same reply, do not deflect it into describing what they ` +
+                `are doing instead unless they cannot talk at all, and do not make them ask twice.\n` +
                 `When it happens, for either reason, write your own reply first, exactly as you always do, ` +
                 `then on a new line by itself write:\n` +
-                `${CAMEO_MARK}Name### ` + `— replace Name with exactly which one of them is speaking (` +
-                `${names.join(', ')}), then whatever they say right after the ###, one short line, ` +
-                `nothing else on it. That line is THEIRS, in their own words, not you quoting them and not ` +
-                `in quotation marks.`);
+                `${CAMEO_MARK}Name### ` + `— replace Name with exactly which one of them it is (` +
+                `${names.join(', ')}), then right after the ###: their own short line in their own words if ` +
+                `they can talk, or one short line describing what they do, third person, if they cannot ` +
+                `(${narratedNames.length ? narratedList : 'all of these can talk'}). Nothing else on the ` +
+                `line, and if they are speaking, not in quotation marks.`);
     }
   }
 
@@ -839,8 +857,15 @@ exports.handler = async function (event) {
           cameoText = (lastSpace > 200 ? cut.slice(0, lastSpace) : cut).trim();
         }
         const match = activeFriend.cameos.find(c => c && c.name && c.name.toLowerCase() === spokenName.toLowerCase());
-        if (cameoText && match && match.voiceId) {
-          cameo = { name: match.name, text: houseTypography(cameoText), voice_id: match.voiceId };
+        /* USED TO REQUIRE match.voiceId, dropping the line entirely for
+           anybody who cannot be spoken to -- the right call before there
+           was such a thing as a cameo who does not talk. Gus and Barley
+           still need voice_id: null so room.html knows never to call
+           gc-voice.js for them; narrated is what tells it to show the line
+           as description instead of a quote. */
+        if (cameoText && match) {
+          cameo = { name: match.name, text: houseTypography(cameoText), voice_id: match.voiceId || null,
+                    narrated: !match.voiceId };
         }
       }
     }
