@@ -34,6 +34,7 @@
 */
 
 const { getStore, connectLambda } = require('@netlify/blobs');
+const Stripe = require('stripe');
 const veo = require('./_veo-video.js');
 const notify = require('./_gc-notify.js');
 
@@ -141,6 +142,61 @@ function newJobId() {
      how the browser that started it collects the result. */
   const r = require('crypto').randomBytes(9).toString('hex');
   return 'gcs-' + r;
+}
+
+/* ── THE REFUND GAP, CLOSED ───────────────────────────────────────────────
+   Added 2026-08-19. Isabelle's own order failed twice and nothing noticed
+   -- no refund, no email, an order sitting at 'paid' forever with no way
+   for the person who paid to know anything had gone wrong. Dr. O: "fix the
+   refund gap first," ahead of digging further into why that render kept
+   failing. That priority is the point: a customer left in limbo after
+   being charged is a worse problem than one failed video.
+
+   REFUNDS AUTOMATICALLY, ON THE FIRST FAILURE, ON PURPOSE. There is no
+   automatic retry (fulfillment here is a queue a person works through by
+   hand, not a live loop), so a failure that goes unrefunded stays
+   unrefunded until somebody happens to notice. Take the money, then make
+   the thing; if the thing cannot be made, the money goes back the same
+   way, without waiting on a person to catch it. Whoever fulfils an order
+   can always charge again for a deliberate retry with a different image --
+   that is a real, available path. Leaving someone charged for nothing
+   with no idea why is not. */
+async function refundOrder(order, reason) {
+  const stripeKey = process.env.STRIPE_SECRET_KEY;
+  if (!stripeKey) {
+    console.warn('[gc-scene] cannot refund, no STRIPE_SECRET_KEY:', order.order_id);
+    return { refunded: false, reason: 'no STRIPE_SECRET_KEY set on this site' };
+  }
+  if (!order.session_id) {
+    /* An order can reach here without ever having been marked paid by a
+       real session (unpaid_on_purpose renders, an apology, a fix) -- there
+       is no real charge behind it, so there is nothing to refund. Not an
+       error, just nothing to do. */
+    return { refunded: false, reason: 'no session_id on this order, nothing was charged' };
+  }
+
+  const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20' });
+  let refund;
+  try {
+    const session = await stripe.checkout.sessions.retrieve(order.session_id);
+    if (!session || !session.payment_intent) {
+      return { refunded: false, reason: 'session has no payment_intent' };
+    }
+    refund = await stripe.refunds.create({ payment_intent: session.payment_intent });
+  } catch (err) {
+    console.warn('[gc-scene] stripe refund failed:', err && err.message);
+    return { refunded: false, reason: String((err && err.message) || err) };
+  }
+
+  const orders = getStore('gc_scene_orders');
+  order.status = 'refunded';
+  order.refunded_at = new Date().toISOString();
+  order.refund_id = refund.id;
+  order.refund_reason = reason;
+  await orders.setJSON(order.order_id, order);
+
+  const told = await notify.refunded(order, reason);
+  return { refunded: true, refund_id: refund.id, told };
 }
 
 exports.handler = async (event) => {
@@ -343,6 +399,27 @@ exports.handler = async (event) => {
         job.error = String(res.error).slice(0, 1200);
         job.note = 'It could not be made.';
         await store.setJSON(jobId, job);
+
+        /* THE REFUND, ON THE SAME FAILURE THAT USED TO JUST SIT HERE. Only
+           for a job that actually came from a paid order, and only once --
+           this whole block is gated on job.status === 'running' at the top
+           of the function, and this is the line that moves it to 'error',
+           so no later poll of the same job can ever re-enter here. The
+           order.status === 'paid' check below is the second guard: an
+           order already 'refunded' or 'made' is left alone. */
+        if (job.order_id) {
+          try {
+            const orders = getStore('gc_scene_orders');
+            const order = await orders.get(job.order_id, { type: 'json' });
+            if (order && order.status === 'paid') {
+              const result = await refundOrder(order, 'The scene could not be made: ' + job.error);
+              console.log('[gc-scene] order ' + order.order_id + ' refund:',
+                          result.refunded ? result.refund_id : 'FAILED - ' + result.reason);
+            }
+          } catch (e) {
+            console.warn('[gc-scene] could not refund order for failed job:', e && e.message);
+          }
+        }
       } else if (res.done && res.uri) {
         /* Claimed first, so two overlapping polls cannot both download and
            pay for the same thing twice over. */
