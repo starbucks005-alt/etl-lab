@@ -423,13 +423,26 @@ RIGHT NOW YOU ARE HERE: ${scene.where}` +
       const blurbLines = withBlurbs.length
         ? '\n' + withBlurbs.map(c => `${c.name}: ${c.blurb}`).join('\n')
         : '';
+      /* SAID MORE THAN A WORD, WHERE THERE IS MORE TO SAY. Dr. O, live:
+         "Isabelle talked, but very very little." A hand-authored cameo
+         (Poppy, Biscuit) already has a whole other canon's worth of
+         personality behind their name, so "one short line" reads as
+         plenty; a guest with nothing but a blurb has that one sentence
+         and nothing else, and the same instruction left it saying almost
+         nothing. Only loosened where a blurb actually exists, so Poppy
+         and Blue and Biscuit and Mochi -- already tuned from a real live
+         miss the other direction -- are not touched by this at all. */
+      const anyBlurbs = withBlurbs.length > 0;
       bits.push(`\n${names.join(' AND ').toUpperCase()} ${names.length > 1 ? 'ARE' : 'IS'} SOMETIMES RIGHT ` +
                 `THERE TOO, and this is the last thing in these notes on purpose because it matters. ` +
                 `${namesList} ${names.length > 1 ? 'are' : 'is'} close to you and turn up with you ` +
                 `sometimes.${blurbLines}\n` +
                 `OCCASIONALLY, unprompted, roughly one reply in every seven or eight, when it ` +
                 `genuinely fits the moment, ${names.length > 1 ? 'one of them (never more than one at once)' : namesList} ` +
-                `has one short moment of ${names.length > 1 ? 'their' : 'their'} own.\n` +
+                (anyBlurbs
+                  ? `has a real moment of ${names.length > 1 ? 'their' : 'their'} own -- a full line or two, ` +
+                    `not just a word or a greeting, drawing on what is actually said about them above.\n`
+                  : `has one short moment of ${names.length > 1 ? 'their' : 'their'} own.\n`) +
                 (narratedNames.length
                   ? `${narratedList} ${narratedNames.length > 1 ? 'do' : 'does'} not talk. Never put words in ` +
                     `quotation marks for ${narratedNames.length > 1 ? 'them' : narratedList}: only what ` +

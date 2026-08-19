@@ -1425,11 +1425,19 @@ function guestCameoCandidate() {
   var mine = (typeof GC_mostRecentBuilt === 'function') ? GC_mostRecentBuilt() : null;
   if (!mine || !mine.name || !mine.voiceId) return null;
   if (FRIEND && FRIEND.name === mine.name) return null;
+  /* MORE TO WORK WITH, added 2026-08-19 after Dr. O: "Isabelle talked, but
+     very very little." Gender/work/into alone gave the model almost
+     nothing to sound like her with, next to how much a hand-authored
+     cameo's own host canon already carries about Biscuit or Mochi. voice
+     (the how-they-talk chips) and knows (what they are actually good at,
+     if anything was given) close most of that gap. */
   var bits = [];
   if (mine.gender) bits.push(mine.gender);
   if (mine.work) bits.push(mine.work);
   if (mine.into) bits.push('into ' + mine.into);
-  return { name: mine.name, voiceId: mine.voiceId, blurb: bits.join(', ') };
+  if (mine.voice && mine.voice.length) bits.push('talks ' + mine.voice.join(', ').toLowerCase());
+  if (mine.knows) bits.push(mine.knows);
+  return { name: mine.name, voiceId: mine.voiceId, blurb: bits.join('. ') };
 }
 
 function ask(payload) {
