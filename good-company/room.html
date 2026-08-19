@@ -401,6 +401,11 @@ html{ zoom:90%; }
       <!-- Shares the doorstep rather than adding a surface, the same way Who
            you are does: the chat column has to hold a conversation. -->
       <div id="memPanel" style="display:none"></div>
+      <!-- Same shared-doorstep reasoning as memPanel above, added 2026-08-19
+           per Dr. O directly after a real bug reached her only because she
+           happened to be the one it happened to. See renderHelp() and
+           gc-contact.js. -->
+      <div id="helpPanel" style="display:none"></div>
       <div class="row tight"><button class="btn go wide" id="startBtn">Sit down</button></div>
     </div>
 
@@ -428,6 +433,7 @@ html{ zoom:90%; }
         <button class="btn" id="memBtn">&#128206; Memory</button>
         <button class="btn" id="creditsBtn">&#128176; Credits</button>
         <button class="btn" id="youBtn">&#128100; You</button>
+        <button class="btn" id="helpBtn">&#128226; Help</button>
         <!-- Only shown when there is somebody to swap to. Hidden by default so
              a person with one friend never sees a control about having two. -->
         <button class="btn" id="swapBtn" style="display:none"></button>
@@ -2258,12 +2264,96 @@ function renderMemories() {
   host.appendChild(add);
 }
 
-/* Which of the two panels the doorstep is showing. */
+/* ── REACHING DR. O DIRECTLY ─────────────────────────────────────────────
+   Added 2026-08-19. Pookie's invite sent her to Arch instead of Isabelle,
+   and the only reason it got fixed is that it happened to Dr. O herself.
+   A stranger hitting the same wall had no way to say so. This is that way
+   -- a real message, no AI answering in its place, because the thing most
+   likely to send somebody here is exactly the kind of problem a chatbot
+   cannot actually fix. */
+function renderHelp() {
+  var host = $('helpPanel');
+  host.innerHTML = '';
+  host.className = 'you-panel';
+
+  var note = document.createElement('p');
+  note.className = 'gate-say';
+  note.textContent = 'Something wrong, or something you cannot figure out? Say what happened ' +
+    'and it goes straight to Dr. O, not a chatbot.';
+  host.appendChild(note);
+
+  var msgRow = document.createElement('div');
+  msgRow.className = 'you-row';
+  var box = document.createElement('textarea');
+  box.rows = 4;
+  box.placeholder = 'What happened, and what you expected instead.';
+  box.style.cssText = 'width:100%;font:inherit;padding:.5rem;border:1px solid var(--line);' +
+                      'background:var(--paper);color:var(--ink);border-radius:3px;resize:vertical';
+  msgRow.appendChild(box);
+  host.appendChild(msgRow);
+
+  var fromRow = document.createElement('div');
+  fromRow.className = 'you-row';
+  var fromLabel = document.createElement('label');
+  fromLabel.className = 'you-label';
+  fromLabel.textContent = 'How to reach you back, if you want a reply';
+  fromRow.appendChild(fromLabel);
+  var from = document.createElement('input');
+  from.type = 'text'; from.autocomplete = 'off';
+  from.placeholder = 'an email address, or nothing at all';
+  from.style.cssText = 'width:100%;font:inherit;padding:.5rem;border:1px solid var(--line);' +
+                       'background:var(--paper);color:var(--ink);border-radius:3px';
+  fromRow.appendChild(from);
+  host.appendChild(fromRow);
+
+  var send = document.createElement('button');
+  send.type = 'button'; send.className = 'btn go'; send.textContent = 'Send';
+  send.addEventListener('click', function () {
+    var v = box.value.trim();
+    if (!v) { box.focus(); return; }
+    send.disabled = true; send.textContent = 'Sending';
+
+    fetch('/.netlify/functions/gc-contact', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: v,
+        from: from.value.trim(),
+        page: location.pathname,
+        friend_name: FRIEND && FRIEND.name,
+      }),
+    }).then(function (r) { return r.json(); }).then(function (j) {
+      if (!j || !j.ok) {
+        send.disabled = false; send.textContent = 'Try again';
+        note.textContent = 'That did not send: ' + ((j && j.reason) || 'unknown') + '.';
+        return;
+      }
+      host.innerHTML = '';
+      var ok = document.createElement('p');
+      ok.className = 'gate-say';
+      ok.textContent = 'Sent. If you left a way to reach you, expect to hear back directly, ' +
+        'not from a bot.';
+      host.appendChild(ok);
+    }).catch(function (err) {
+      send.disabled = false; send.textContent = 'Try again';
+      note.textContent = 'Could not reach it. ' + err.message;
+    });
+  });
+  host.appendChild(send);
+}
+
+$('helpBtn').addEventListener('click', function () {
+  renderHelp();
+  showGate('help', 'Reach Dr. O', 'Not a chatbot. A real message, straight to her.');
+  $('startBtn').textContent = 'Back to ' + FRIEND.name;
+});
+
+/* Which of the three panels the doorstep is showing. */
 function showGate(panel, title, say) {
   $('chat').style.display = 'none';
   $('gate').style.display = 'block';
   $('youPanel').style.display = (panel === 'you') ? 'block' : 'none';
   $('memPanel').style.display = (panel === 'mem') ? 'block' : 'none';
+  $('helpPanel').style.display = (panel === 'help') ? 'block' : 'none';
   $('gateTitle').textContent = title;
   $('gateSay').textContent = say;
 }

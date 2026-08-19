@@ -182,4 +182,61 @@ async function refunded(order, why) {
   }
 }
 
-module.exports = { orderPaid, sceneReady, refunded, notifyAddress, esc, FROM };
+/* ── SOMEBODY ASKING FOR DR. O DIRECTLY ──────────────────────────────────────
+   Added 2026-08-19. Dr. O, right after Pookie's invite link sent her to
+   Arch instead of Isabelle: "this has to be fixed... give the website a
+   chatbot... or a way to get help, to reach out to me." A chatbot can
+   explain how a feature works; it cannot fix a wiring bug, and that is
+   what had actually gone wrong. This is the plainer, more honest half of
+   that ask: a real message, straight to her, with no AI in between
+   pretending it can solve what only a person actually can.
+
+   SAME "NEVER THROWS" DISCIPLINE AS THE OTHERS. A person reaching out
+   because something is already broken is the worst possible moment for
+   the "contact us" feature to also fail silently. */
+async function helpRequest(payload) {
+  const key = process.env.RESEND_API_KEY;
+  const to = notifyAddress();
+  const message = String((payload && payload.message) || '').trim();
+  if (!message) return { sent: false, to, reason: 'empty message' };
+
+  if (!key) {
+    console.warn('[gc-notify] help request, no RESEND_API_KEY');
+    return { sent: false, to, reason: 'no RESEND_API_KEY set on this site' };
+  }
+
+  const from = String((payload && payload.from) || '').trim();
+  const page = String((payload && payload.page) || '').trim();
+  const friendName = String((payload && payload.friend_name) || '').trim();
+
+  const lines = [
+    '<p>' + esc(message).replace(/\n/g, '<br>') + '</p>',
+    '<p style="color:#666">Reach them at: ' + (from ? esc(from) : 'they did not say') + '</p>',
+    page ? '<p style="color:#666">Page: ' + esc(page) + '</p>' : '',
+    friendName ? '<p style="color:#666">Their friend: ' + esc(friendName) + '</p>' : '',
+  ].filter(Boolean);
+
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + key, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from: FROM,
+        to: [to],
+        subject: 'Good Company — someone needs help' + (friendName ? ' (' + friendName + ')' : ''),
+        html: lines.join('\n'),
+      }),
+    });
+    if (!res.ok) {
+      const detail = (await res.text()).slice(0, 300);
+      console.warn('[gc-notify] resend refused:', res.status, detail);
+      return { sent: false, to, reason: 'Resend said ' + res.status + ': ' + detail };
+    }
+    return { sent: true, to, reason: null };
+  } catch (e) {
+    console.warn('[gc-notify] could not send:', e && e.message);
+    return { sent: false, to, reason: String((e && e.message) || e) };
+  }
+}
+
+module.exports = { orderPaid, sceneReady, refunded, helpRequest, notifyAddress, esc, FROM };
