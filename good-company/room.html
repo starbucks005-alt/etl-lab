@@ -446,6 +446,28 @@ html{ zoom:90%; }
    decided there too and answers to ?who=. */
 var FRIEND = GC_FRIEND;
 
+/* COMPUTED EARLY, ON PURPOSE. Dr. O: "I sent pookie an invite to Isabelle
+   and she is being sent to Arch." Real cause, found by tracing the render
+   order rather than guessing: gc-friend.js resolves ?join= to 'arch' as a
+   placeholder, with its own comment promising "the room's real friend
+   arrives with the join response and replaces this" -- true for the gate's
+   title, message, and button (see the PENDING_INVITE block far below),
+   false for everything else. nameEverything() and renderScenes() both run
+   unconditionally at the top of this script, minting Arch's mood-gauge
+   title, Arch's premise, and Arch's own first scene on the main stage,
+   ALL before that block even runs. A guest arriving on an invite saw
+   Arch's actual face and mood next to a sidebar saying "you have been
+   invited" -- which reads exactly like being sent to the wrong person,
+   because functionally it was.
+
+   ARRIVING_ON_INVITE has to exist this early, before either of those
+   functions run, so they can be skipped rather than patched after the
+   fact. The real friend's data still populates everything once
+   gc-room-join.js answers (see joinThenSit(), which already calls both
+   functions again) -- this only stops the placeholder from being shown
+   as though it were the answer. */
+var ARRIVING_ON_INVITE = !!(new URLSearchParams(location.search).get('join'));
+
 /* AN UNPAID FRIEND DOES NOT OPEN HERE, even reached directly by a bookmarked
    or shared link that skips build.html's own gate entirely. Same paid ===
    false check as build.html, for the same reason: undefined (everyone who
@@ -548,7 +570,13 @@ function nameEverything() {
   $('gateSay').textContent = 'Tell ' + FRIEND.name + ' who you are. You only do this once.';
   $('startBtn').textContent = 'Sit down with ' + FRIEND.name;
 }
-nameEverything();
+/* SKIPPED HERE ON PURPOSE when arriving on an invite -- see
+   ARRIVING_ON_INVITE's own comment. The PENDING_INVITE block further down
+   already writes its own honest, nobody-specific gate text; calling this
+   first would mint Arch's mood-gauge title and Arch's premise before that
+   block ever runs, and joinThenSit() calls this again with the real friend
+   once gc-room-join.js answers. */
+if (!ARRIVING_ON_INVITE) nameEverything();
 
 /* Skins: resolution and the picker both live in gc-skin.js, shared with every
    other page, so these four surfaces cannot drift apart. */
@@ -955,7 +983,13 @@ function renderWatch() {
   });
 }
 
-renderScenes();
+/* SKIPPED HERE ON PURPOSE when arriving on an invite -- see
+   ARRIVING_ON_INVITE's own comment above FRIEND. This is what actually put
+   Arch's own first scene on the main stage for a guest who had not joined
+   anything yet: play(FRIEND.scenes[0]) runs inside renderScenes(), using
+   whatever FRIEND was at that moment. joinThenSit() calls renderScenes()
+   again once the real friend is known. */
+if (!ARRIVING_ON_INVITE) renderScenes();
 
 /* ── COMING BACK FROM PAYING ─────────────────────────────────────────────────
    Stripe sends them back here with a session id and nothing else. Whether it
