@@ -24,11 +24,17 @@ const GROUP_MESSAGE_COST = 3;      // credits per guest message in the group roo
 const ADDON_CREDITS = 30;          // credits granted by one addon-pack purchase
 const ROLLOVER_DAYS = 30;
 
-// STARTER_CREDITS: Good Company, 2026-08-17. A one-time grant, not a
-// subscription's monthly allotment, so it lives here rather than in a
-// separate table (see the deductBy note below on why one row shape now
-// covers both cases).
-const STARTER_CREDITS = 100;
+// STARTER_CREDITS: Good Company, 2026-08-17, raised 100 -> 200 on 2026-08-19
+// after Dr. O asked for the real cost numbers behind Pookie's "17 credits for
+// 30-40 minutes of texting felt ridiculous." Worst case for the ORIGINAL 100
+// (one unbroken text-only sitting, history resent uncached the whole way) was
+// about $3 in real Sonnet spend against the $9.99 charged for the bundle --
+// real margin, not a rounding error. Doubling the grant roughly doubles that
+// worst case to ~$6, still comfortably under the $9.99 it is sold with. A
+// one-time grant, not a subscription's monthly allotment, so it lives here
+// rather than in a separate table (see the deductBy note below on why one
+// row shape now covers both cases).
+const STARTER_CREDITS = 200;
 
 function randomToken() {
   return `AH-${crypto.randomBytes(16).toString('hex')}`;

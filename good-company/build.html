@@ -411,12 +411,19 @@ footer{ padding:2rem 0 3rem; color:var(--ink-dim); font-size:.9rem; }
        in the text too, on the page -- not only inside the Astra-9 widget,
        which somebody has to think to open. Same corrected facts as that
        widget's own Cost tab and system prompt (see both further down):
-       the $9.99 is real and one-time, it includes a spendable 100-credit
+       the $9.99 is real and one-time, it includes a spendable credit
        balance rather than unlocking anything forever, and what happens
        once those run out is said plainly here too, not left for someone
-       to discover mid-conversation. -->
+       to discover mid-conversation.
+
+       100 -> 200, same day, after Dr. O asked for the real cost numbers
+       behind Pookie's "17 credits felt ridiculous" -- see STARTER_CREDITS's
+       own comment in _ah-credits.js for the worst-case math that justified
+       it. One number, one source of truth: STARTER_CREDITS itself, so this
+       stays the only place in the copy that has to be re-typed if it moves
+       again. -->
   <p class="lede price-note">Free to build. $9.99, once, to open their room, which includes
-    100 credits to start talking with them. $9.99/mo keeps a fresh 300 coming every month, or
+    200 credits to start talking with them. $9.99/mo keeps a fresh 300 coming every month, or
     top up any time.</p>
 
   <!-- ── WHO THEY ARE ────────────────────────────────────────────────────── -->
@@ -1297,7 +1304,7 @@ $('copyBtn').addEventListener('click', function () {
            instead of implying nothing ever costs again. -->
       <div class="a9-row"><span>Answering the questions</span><span>Free</span></div>
       <div class="a9-row"><span>Meeting the faces</span><span>Free</span></div>
-      <div class="a9-row"><span>Opening their room, once</span><span>$9.99 + 100 credits</span></div>
+      <div class="a9-row"><span>Opening their room, once</span><span>$9.99 + 200 credits</span></div>
       <div class="a9-row"><span>After those run out</span><span>$9.99/mo, or top up</span></div>
     </div>
     <div id="a9-panel-how" class="a9-panel">
@@ -1379,17 +1386,18 @@ $('copyBtn').addEventListener('click', function () {
            after that is free," full stop, which is not true and was not
            just static copy -- it was instructions a live model could act
            on and repeat with confidence if asked directly. The $9.99
-           includes STARTER_CREDITS (100, see _ah-credits.js), a real
-           balance that is spent down by talking, same as every other
+           includes STARTER_CREDITS (200, see _ah-credits.js, raised from
+           100 the same day once the real worst-case cost was known), a
+           real balance that is spent down by talking, same as every other
            credit-gated conversation on this campus, not a one-time
            unlock. */
         system: 'You are Astra-9, a guide at the Emerging Technologies Laboratory helping ' +
           'someone build a friend on Good Company. Good Company: answer questions about who ' +
           'the friend is and about yourself, pick their face from four options, open their ' +
           'room. Answering and picking a face are free. Opening a friend’s room the first ' +
-          'time is $9.99, once per friend, and that includes 100 starter credits for talking ' +
+          'time is $9.99, once per friend, and that includes 200 starter credits for talking ' +
           'with them once the room is open. Credits are spent by talking, same as everywhere ' +
-          'else on this campus, so once the 100 run out, staying in touch costs something: ' +
+          'else on this campus, so once the 200 run out, staying in touch costs something: ' +
           '$9.99 a month for a fresh monthly allowance, or a smaller one-time top-up if a ' +
           'subscription is not wanted. Someone can build more than one friend, each its own ' +
           '$9.99 to open. Arch and Sophia are the two house demos, free to try, but not ' +
