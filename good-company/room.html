@@ -1409,6 +1409,29 @@ function transcript() {
   });
 }
 
+/* A VISITOR'S OWN BUILT FRIEND, OFFERED TO WHOEVER'S ROOM THIS IS.
+   Added 2026-08-19. Dr. O, asking whether Isabelle could meet the house
+   cast: "she wants to meet them." Solo chat only for now, the same scope
+   as everything else built this round -- gc-room-say.js's shared-room
+   path does not send this yet.
+
+   NEVER OFFERED IN THEIR OWN ROOM. "Isabelle sometimes cameos in
+   Isabelle's room" is not a feature, it is a bug shaped like one.
+   NEVER OFFERED WITHOUT A VOICE. A cameo with nothing to speak with is
+   the exact gap the narrated mechanism exists for, and that is a
+   deliberate choice (Gus, Barley), not a fallback for a friend nobody
+   got around to giving a voice. */
+function guestCameoCandidate() {
+  var mine = (typeof GC_mostRecentBuilt === 'function') ? GC_mostRecentBuilt() : null;
+  if (!mine || !mine.name || !mine.voiceId) return null;
+  if (FRIEND && FRIEND.name === mine.name) return null;
+  var bits = [];
+  if (mine.gender) bits.push(mine.gender);
+  if (mine.work) bits.push(mine.work);
+  if (mine.into) bits.push('into ' + mine.into);
+  return { name: mine.name, voiceId: mine.voiceId, blurb: bits.join(', ') };
+}
+
 function ask(payload) {
   thinking = true;
   $("sendBtn").disabled = true;
@@ -1428,6 +1451,12 @@ function ask(payload) {
     body: JSON.stringify(Object.assign({
       friend: FRIEND,
       speaker: speakerObj,
+      /* NOT DURING A COMPANION'S SOLO SCENE. speakerObj means Poppy or Blue
+         is standing in for Tansy on their own -- "the point of a solo
+         scene is that this companion has the room to themselves" is this
+         same file's own existing rule for why speaker carries no .cameos,
+         and a guest cameo showing up anyway would quietly break it. */
+      guest_cameo: speakerObj ? null : guestCameoCandidate(),
       you: { name: YOU.name, pronouns: YOU.pronouns },
       messages: transcript(),
       scene: current ? { label: current.label, where: current.where } : null,

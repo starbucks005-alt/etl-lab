@@ -413,10 +413,21 @@ RIGHT NOW YOU ARE HERE: ${scene.where}` +
     if (names.length) {
       const namesList = names.join(names.length > 1 ? ' or ' : '');
       const narratedList = narratedNames.join(' and ');
+      /* BLURBS, FOR A GUEST YOUR OWN CANON KNOWS NOTHING ABOUT. Reggie's own
+         text already describes Biscuit and Mochi; Arch's says nothing about
+         a stranger's built friend visiting his room, so without this a
+         cameo like that has a name and nothing else to be. Only printed
+         where one exists, so every hand-authored cameo (Poppy, Blue, Gus,
+         Barley) reads exactly as it did before this existed. */
+      const withBlurbs = all.filter(c => c.blurb);
+      const blurbLines = withBlurbs.length
+        ? '\n' + withBlurbs.map(c => `${c.name}: ${c.blurb}`).join('\n')
+        : '';
       bits.push(`\n${names.join(' AND ').toUpperCase()} ${names.length > 1 ? 'ARE' : 'IS'} SOMETIMES RIGHT ` +
                 `THERE TOO, and this is the last thing in these notes on purpose because it matters. ` +
                 `${namesList} ${names.length > 1 ? 'are' : 'is'} close to you and turn up with you ` +
-                `sometimes. OCCASIONALLY, unprompted, roughly one reply in every seven or eight, when it ` +
+                `sometimes.${blurbLines}\n` +
+                `OCCASIONALLY, unprompted, roughly one reply in every seven or eight, when it ` +
                 `genuinely fits the moment, ${names.length > 1 ? 'one of them (never more than one at once)' : namesList} ` +
                 `has one short moment of ${names.length > 1 ? 'their' : 'their'} own.\n` +
                 (narratedNames.length
@@ -500,7 +511,35 @@ exports.handler = async function (event) {
      solo scene is that this companion has the room to themselves. */
   const speaker = (body.speaker && typeof body.speaker === 'object' && body.speaker.name)
     ? body.speaker : null;
-  const activeFriend = speaker || friend;
+
+  /* A VISITOR'S OWN BUILT FRIEND, OFFERED AS A CAMEO CANDIDATE, added
+     2026-08-19. Dr. O, on whether Isabelle could meet the house cast:
+     "she wants to meet them." Sent by room.html only when the visitor
+     actually has a built friend and is not already sitting in that
+     friend's own room. Validated here rather than trusted -- a name and
+     a voice id are the only two things this feature actually needs, so
+     they are the only two things accepted, both capped the same way
+     everything else arriving in body already is. */
+  const guestCameoRaw = body.guest_cameo;
+  const guestCameo = (guestCameoRaw && typeof guestCameoRaw === 'object' &&
+                       guestCameoRaw.name && guestCameoRaw.voiceId)
+    ? {
+        name: String(guestCameoRaw.name).slice(0, 60),
+        voiceId: String(guestCameoRaw.voiceId).slice(0, 60),
+        blurb: String(guestCameoRaw.blurb || '').slice(0, 300),
+      }
+    : null;
+
+  const baseFriend = speaker || friend;
+  /* MERGED ONTO A COPY, NEVER THE ORIGINAL. friend/speaker are not this
+     request's to mutate, and activeFriend already stands in for whichever
+     one of them is real everywhere a reply gets built (buildSystem, the
+     mood fallback, cameo parsing below), so this is the one place a guest
+     needs adding. Guarded against a friend somehow cameoing in their own
+     room -- should never happen client-side, costs nothing to guard. */
+  const activeFriend = (guestCameo && guestCameo.name !== baseFriend.name)
+    ? Object.assign({}, baseFriend, { cameos: (baseFriend.cameos || []).concat([guestCameo]) })
+    : baseFriend;
   const you = body.you || {};
   const idle = body.idle ? { seconds: Number(body.idleSeconds) || 0 } : false;
   const said = String(body.message || '').slice(0, 4000);
