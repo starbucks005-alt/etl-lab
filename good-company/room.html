@@ -2266,7 +2266,22 @@ function startPolling() {
 
    Kept per friend, because Arch and the friend you built are different people
    and should not share a head. */
-function memKey() { return 'gc-mem-' + (GC_WHO === 'mine' ? 'mine' : 'arch'); }
+/* FIXED 2026-08-19: this checked GC_WHO === 'mine' literally, which is
+   true only when the URL itself says ?who=mine. Every ordinary way of
+   reaching a built friend's own room -- the homepage's "Go to Isabelle's
+   room," build.html's "Open their room," a bookmark -- links by that
+   friend's actual id instead, so this fell through to 'arch' for exactly
+   the room it was supposed to recognise as "mine." rememberCameoElsewhere
+   writes to 'gc-mem-mine' unconditionally; the Memory panel here was
+   reading a different bucket entirely for anyone who did not literally
+   type "mine" into the address bar. Dr. O: "she did not remember meeting
+   them" -- this is why. Checked by actual identity now (id if the friend
+   has one, name otherwise), not by which literal string is in the URL. */
+function memKey() {
+  var mine = (typeof GC_mostRecentBuilt === 'function') ? GC_mostRecentBuilt() : null;
+  var isMine = !!(mine && FRIEND && (FRIEND.id ? FRIEND.id === mine.id : FRIEND.name === mine.name));
+  return 'gc-mem-' + (isMine ? 'mine' : 'arch');
+}
 
 /* BOTH TAKE AN OPTIONAL KEY OVERRIDE, added 2026-08-19 for cameos-remember-
    elsewhere (see rememberCameoElsewhere below). Every existing call keeps
