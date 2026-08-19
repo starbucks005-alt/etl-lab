@@ -2321,8 +2321,31 @@ function rememberCameoElsewhere(cameoName, cameoText) {
   var key = 'gc-mem-mine';
   var list = loadMemories(key);
   var here = (FRIEND && FRIEND.name) || 'somewhere else';
-  var note = 'Stopped by ' + here + '’s room and said: “' + String(cameoText).slice(0, 300) + '”';
-  list.push(note.slice(0, 600));
+  /* REWORDED 2026-08-19, same day this shipped: Dr. O caught it repeating
+     the meeting almost every reply, two rounds running. The instruction
+     these are read under already says "most turns will touch none of it" --
+     true for a flat typed fact like "my daughter is called Nell," not for
+     this: a fresh, quoted, narratively vivid line was simply more
+     interesting than an ordinary memory, and the model kept reaching for
+     the interesting one. No quotation marks now (nothing that reads as a
+     line worth repeating verbatim), past tense, and a plain de-emphasis
+     said outright rather than trusted to the shared instruction alone. */
+  var said = String(cameoText).replace(/[.!?]+$/, '').replace(/^["“]|["”]$/g, '');
+  var note = 'Once spent a little time in ' + here + '’s room -- ' + said.slice(0, 260) +
+    '. A small, ordinary thing from one afternoon, not worth bringing up often.';
+
+  /* ONE NOTE PER ROOM, NOT ONE PER OCCURRENCE. Dr. O, live: five of these
+     had piled up, all "Stopped by Tansy's room," each a different
+     fragment -- and with five entries all on the same topic, of course
+     the model kept reaching for it; that was most of what it knew about
+     anything. A cameo happening again in the same room now updates the
+     one existing note about that room instead of adding a sixth, so
+     memory grows with genuinely new things, not five copies of the same
+     relationship. */
+  var marker = 'in ' + here + '’s room';
+  var already = list.findIndex(function (m) { return typeof m === 'string' && m.indexOf(marker) > -1; });
+  if (already > -1) list[already] = note.slice(0, 600);
+  else list.push(note.slice(0, 600));
   saveMemories(list, key);
 }
 
