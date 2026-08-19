@@ -62,6 +62,22 @@ h1{ font-family:Georgia,serif; font-weight:400; letter-spacing:-.012em; line-hei
 .hero.no-art h1{ color:var(--ink); text-shadow:none; }
 .hero.no-art .lede{ color:var(--ink-dim); text-shadow:none; }
 
+/* ── the cast ─────────────────────────────────────────────────────────────
+   Reuses the same .slot missing-image handling the hero does above; the
+   script check near the closing body tag now covers every .slot img on
+   the page, not just the hero's one. */
+.cast-grid{
+  display:grid; grid-template-columns:repeat(4,1fr); gap:.7rem;
+  margin-top:1rem;
+}
+@media (max-width:700px){ .cast-grid{ grid-template-columns:repeat(2,1fr); } }
+.cast-grid figure{ margin:0; }
+.cast-grid .slot{ aspect-ratio:3/4; border-radius:4px; }
+.cast-grid figcaption{
+  margin-top:.4rem; font-family:var(--mono); font-size:.72rem; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--ink-dim); text-align:center;
+}
+
 /* ── the pitch, said at build time ───────────────────────────────────────────
    THE BOUNDARY IS CARRIED BY THE WORD "FRIEND", NOT BY A DISCLAIMER. An
    earlier draft here listed what this is not (not partners, not dates) and it
@@ -329,6 +345,51 @@ footer{ padding:2rem 0 3rem; color:var(--ink-dim); font-size:.9rem; }
   <p class="lede price-note">Free to build. $9.99, once, to open their room, which includes
     100 credits to start talking with them. $9.99/mo keeps a fresh 300 coming every month, or
     top up any time.</p>
+
+  <!-- ── EVERYONE ALREADY HERE, ADDED 2026-08-19 ─────────────────────────────
+       Dr. O sent real photos of the cast (Arch, Sophia, Reggie, Biscuit,
+       Mochi, Tansy, Poppy, Blue), shot in the same atelier as the hero
+       above, "for the build page, to make it not just text and a hero."
+       Same job the homepage's own .demos section does -- proof before the
+       promise -- just a bigger cast, since Tansy's and Reggie's own
+       companions are included, not only the two you can build. -->
+  <section class="cast">
+    <div class="sec-head">Some of who is already here</div>
+    <div class="cast-grid">
+      <figure>
+        <div class="slot" data-label="photos/arch-atelier.jpg"><img src="photos/arch-atelier.jpg" alt=""></div>
+        <figcaption>Arch</figcaption>
+      </figure>
+      <figure>
+        <div class="slot" data-label="photos/sophia-atelier.jpg"><img src="photos/sophia-atelier.jpg" alt=""></div>
+        <figcaption>Sophia</figcaption>
+      </figure>
+      <figure>
+        <div class="slot" data-label="photos/reggie-atelier.jpg"><img src="photos/reggie-atelier.jpg" alt=""></div>
+        <figcaption>Reggie</figcaption>
+      </figure>
+      <figure>
+        <div class="slot" data-label="photos/biscuit-atelier.jpg"><img src="photos/biscuit-atelier.jpg" alt=""></div>
+        <figcaption>Biscuit</figcaption>
+      </figure>
+      <figure>
+        <div class="slot" data-label="photos/mochi-atelier.jpg"><img src="photos/mochi-atelier.jpg" alt=""></div>
+        <figcaption>Mochi</figcaption>
+      </figure>
+      <figure>
+        <div class="slot" data-label="photos/tansy-atelier.jpg"><img src="photos/tansy-atelier.jpg" alt=""></div>
+        <figcaption>Tansy</figcaption>
+      </figure>
+      <figure>
+        <div class="slot" data-label="photos/poppy-atelier.jpg"><img src="photos/poppy-atelier.jpg" alt=""></div>
+        <figcaption>Poppy</figcaption>
+      </figure>
+      <figure>
+        <div class="slot" data-label="photos/blue-atelier.jpg"><img src="photos/blue-atelier.jpg" alt=""></div>
+        <figcaption>Blue</figcaption>
+      </figure>
+    </div>
+  </section>
 
   <!-- ── WHO THEY ARE ────────────────────────────────────────────────────── -->
   <section>
@@ -1173,19 +1234,21 @@ $('copyBtn').addEventListener('click', function () {
   };
 })();
 
-/* THE HERO PHOTO, LOUD IF MISSING, never a silent gap or a broken-image
+/* EVERY .slot img, LOUD IF MISSING, never a silent gap or a broken-image
    icon. Own small copy of index.html's rule, since .slot turned out to be
    that page's private styling rather than something gc-skin.css actually
-   shares (see the markup comment above the hero section). Only one image
-   on this page needs it, so this is the one-image version of that check. */
+   shares (see the markup comment above the hero section). Generalized
+   2026-08-19 from a hero-only check to cover the cast grid's eight photos
+   too, same reasoning, same rule, just more images to watch. */
 (function () {
-  var img = document.querySelector('#hero .hero-art img');
-  if (!img) return;
-  img.addEventListener('error', function () {
-    img.classList.add('missing');
-    img.alt = '';
-    document.getElementById('hero').classList.add('no-art');
-    console.warn('[good-company] image not found: ' + img.getAttribute('src'));
+  Array.prototype.forEach.call(document.querySelectorAll('.slot img'), function (img) {
+    img.addEventListener('error', function () {
+      img.classList.add('missing');
+      img.alt = '';
+      var hero = img.closest('#hero');
+      if (hero) hero.classList.add('no-art');
+      console.warn('[good-company] image not found: ' + img.getAttribute('src'));
+    });
   });
 })();
 </script>
