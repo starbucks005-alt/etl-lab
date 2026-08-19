@@ -22,7 +22,8 @@ var GC_SKINS = [
   { key:'harvest',  label:'Harvest',  swatch:['#9E4E27','#5C6B3F','#EFE5D3'] },
   { key:'seaside',  label:'Seaside',  swatch:['#2F6B62','#9A4630','#E1EFF1'] },
   { key:'snowline', label:'Snowline', swatch:['#3A6355','#8B97A6','#EAEEF3'] },
-  { key:'fireside', label:'Fireside', swatch:['#E08A4E','#8FA86A','#221C17'] }
+  { key:'fireside', label:'Fireside', swatch:['#E08A4E','#8FA86A','#221C17'] },
+  { key:'grove',    label:'Grove',    swatch:['#D1A438','#6B8F52','#1B2417'] }
 ];
 
 /* Which skin the page opens on:

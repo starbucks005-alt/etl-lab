@@ -70,6 +70,26 @@
   --disgust:#BDB05E; --anger:#E08A70; --surprise:#E0BE55; --curious:#E0A458;
 }
 
+/* ── GROVE. The other dark one. Deep forest, gold light through leaves. ───
+   Added 2026-08-19 per Dr. O directly: "a dark green and gold skin option."
+   Same reason Fireside carries its own emotion-colour overrides just above:
+   the shared LIGHT-skin set at the top of this file is tuned for a pale
+   background and reads too dim on a dark one. Reused Fireside's own values
+   rather than inventing a third set — they were already contrast-checked
+   against a dark panel, and the comment on the shared set ("only Fireside
+   overrides... seven more values per skin is how a palette rots") now
+   means "only the dark skins," for the same original reason, not literally
+   only Fireside. */
+[data-skin="grove"]{
+  --paper:#12180F; --panel:#1B2417; --chrome:rgba(18,24,15,.93);
+  --ink:#EDE6CE; --ink-dim:#9BA687; --line:#2E3B26;
+  --accent:#D1A438; --accent-hover:#E6C468; --accent-ink:#1A1708;
+  --moss:#6B8F52;
+
+  --happy:#8FBF74; --sad:#7FA8CE; --fear:#B2A2D4;
+  --disgust:#BDB05E; --anger:#E08A70; --surprise:#E0BE55; --curious:#E0A458;
+}
+
 /* ── shared primitives ───────────────────────────────────────────────────── */
 *{ box-sizing:border-box; }
 html,body{ margin:0; padding:0; }
@@ -92,16 +112,21 @@ body{
 /* ── the mark ────────────────────────────────────────────────────────────────
    TWO FILES, ONE PER INK, AND EXACTLY ONE IS EVER SHOWN. Both were rendering
    stacked because the markup carried the pair and nothing decided between
-   them. Navy ink on the three pale skins, cream ink on Fireside.
+   them. Navy ink on the pale skins, cream ink on the dark ones.
 
    Not a colour swap on one file: the mark is a photograph-quality PNG with
    antialiased serifs, and recolouring it with a filter muddies the edges. Two
-   files is the honest way, and it is what the brand sheet draws. */
+   files is the honest way, and it is what the brand sheet draws.
+
+   GROVE ADDED HERE TOO, 2026-08-19: this used to name only "fireside," and
+   a second dark skin left out of this selector would show the dark-ink mark
+   on its own dark background -- illegible, not just mismatched. Anywhere a
+   skin is dark, both rules below need it. */
 .mark{ display:inline-flex; align-items:center; text-decoration:none; }
 .mark .logo{ height:34px; width:auto; display:block; }
 .mark .logo-light-ink{ display:none; }
-[data-skin="fireside"] .mark .logo-dark-ink{ display:none; }
-[data-skin="fireside"] .mark .logo-light-ink{ display:block; }
+[data-skin="fireside"] .mark .logo-dark-ink, [data-skin="grove"] .mark .logo-dark-ink{ display:none; }
+[data-skin="fireside"] .mark .logo-light-ink, [data-skin="grove"] .mark .logo-light-ink{ display:block; }
 
 .sec-head{
   font-family:var(--mono); font-size:11px; letter-spacing:.16em;
