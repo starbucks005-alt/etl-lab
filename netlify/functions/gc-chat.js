@@ -517,7 +517,16 @@ exports.handler = async function (event) {
   const isDemo = body.is_demo === true;
   const visitorId = safeVisitorId(body.visitor_id);
   const rawOwnerKey = String(body.owner_key || '').trim();
-  const isOwner = !!ownerUser(rawOwnerKey);
+  /* GC_OWNER_KEY, ADDED 2026-08-18, Dr. O's own call: rotating the shared
+     campus OWNER_KEY (_owner-auth.js's ownerUser(), used by Studio, Almost
+     Human, The Dose, admin tools, and more) would have logged her out of
+     owner status everywhere at once, on every device, to fix a problem
+     that was only ever hers on Good Company. This is a second, independent
+     door: a dedicated key that ONLY Good Company checks, additive to the
+     shared one, never replacing it. Either one works here; nothing else on
+     this campus even knows this env var exists. */
+  const isOwner = !!ownerUser(rawOwnerKey) ||
+    (!!process.env.GC_OWNER_KEY && rawOwnerKey === process.env.GC_OWNER_KEY);
   /* WAS THE KEY EVEN SENT, added 2026-08-18. Dr. O hit the exact same cap
      message on two separate real attempts and there was no way for either
      of us to tell, from that message alone, whether her browser sent no

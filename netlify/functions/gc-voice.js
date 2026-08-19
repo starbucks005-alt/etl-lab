@@ -128,7 +128,11 @@ exports.handler = async function (event) {
   if (!/^[A-Za-z0-9]{12,40}$/.test(voiceId)) return json(400, { error: 'no_voice_id' });
 
   const rawOwnerKey = String(body.owner_key || '').trim();
-  const isOwner = !!ownerUser(rawOwnerKey);
+  /* GC_OWNER_KEY, same reasoning as gc-chat.js's own comment: a second,
+     independent door that only Good Company checks, additive to the
+     shared campus OWNER_KEY, never replacing it. */
+  const isOwner = !!ownerUser(rawOwnerKey) ||
+    (!!process.env.GC_OWNER_KEY && rawOwnerKey === process.env.GC_OWNER_KEY);
   /* SAME SIGNAL AS gc-chat.js, added 2026-08-18 — see its own comment. Tells
      the client whether a key arrived and was rejected, versus never having
      arrived at all, without ever echoing the key value itself back. */
