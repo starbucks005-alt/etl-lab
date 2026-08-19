@@ -797,6 +797,13 @@ function play(scene) {
     video.style.display = '';
     video.src = scene.src;
     video.muted = !wantSound;      // the choice survives changing rooms
+    /* scene.speed, added 2026-08-19: Poppy's and Blue's real clips slowed
+       to half rate per Dr. O directly. Set via the video element's own
+       playbackRate rather than a re-encoded file -- no ffmpeg on this
+       machine, and this gets the identical slow-motion result with no
+       quality loss. Reset to 1 for every scene without one, so a slowed
+       clip never leaks its rate into the next scene played after it. */
+    video.playbackRate = scene.speed || 1;
     video.play().catch(function () {});
   }
 
@@ -882,6 +889,7 @@ function renderScenes() {
     if (scene.src) {
       var v = document.createElement('video');
       v.src = scene.src; v.muted = true; v.loop = true; v.autoplay = true; v.playsInline = true;
+      v.playbackRate = scene.speed || 1;   // matches the main stage, so the picker preview isn't a different speed than the real thing
       v.setAttribute('aria-hidden', 'true');
       chip.appendChild(v);
     } else if (scene.thumb || scene.vimeoId) {
