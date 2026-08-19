@@ -443,9 +443,15 @@ var GC_DEMO = {
 
      POPPY AND BLUE KEEP THEIR REAL VOICES FROM TANSY'S OWN ROOM, not
      duplicated here: same ids, so the same person answers however they
-     turn up. */
+     turn up.
+
+     TANSY HERSELF ADDED 2026-08-19: the same gap found and fixed in
+     Reggie's and Sophia's cameos lists the same day -- Dr. O kept asking
+     for Tansy specifically, not just her companions, and every room
+     needs the same fix or the next test just rediscovers it here. */
   cameos: [
     { name: 'Gus', voiceId: null },
+    { name: 'Tansy', voiceId: 'thfYL0Elyru2qqTtNQsE' },
     { name: 'Poppy', voiceId: 'XJ2fW4ybq7HouelYYGcL' },
     { name: 'Blue', voiceId: 'WUyjxM8OTY6l8LhTmdkq' },
   ]
@@ -957,9 +963,15 @@ var GC_SOFIA = {
      POPPY AND BLUE ADDED 2026-08-19, same crossover given to Arch and
      Reggie: "the fairies can come in and speak to the humans" was never
      meant to mean Arch specifically. Same real voice ids as Tansy's own
-     room. */
+     room.
+
+     TANSY HERSELF ADDED 2026-08-19, same day and same fix as Reggie's own
+     cameos list: Dr. O was always asking for Tansy by name, not her
+     companions, and Tansy's own name had never actually been added
+     anywhere outside her own room. */
   cameos: [
     { name: 'Barley', voiceId: null },
+    { name: 'Tansy', voiceId: 'thfYL0Elyru2qqTtNQsE' },
     { name: 'Poppy', voiceId: 'XJ2fW4ybq7HouelYYGcL' },
     { name: 'Blue', voiceId: 'WUyjxM8OTY6l8LhTmdkq' },
   ],
@@ -1441,10 +1453,19 @@ var GC_REGGIE = {
      tried "Tansy, are you here?" directly in Reggie's room and got nothing,
      since the fairies had only ever been wired into Arch's cameos list, not
      the campus generally. Same real voice ids as Tansy's own room, not
-     duplicated. */
+     duplicated.
+
+     TANSY HERSELF ADDED 2026-08-19, same day: adding Poppy and Blue was
+     answering the wrong question. Dr. O kept asking for Tansy by name --
+     "Tansy, are you here?", five separate times across two rooms -- and
+     Reggie kept correctly saying he didn't know a Tansy, because her own
+     name was never on this list, only her companions'. What she actually
+     wants: "for Tansy to say she is here and Reggie to get super
+     excited." Same real voice id as her own room. */
   cameos: [
     { name: 'Biscuit', voiceId: 'MgqVq3OCTPeVHCEDr4HU' },
     { name: 'Mochi', voiceId: 'I8ERYU9lOxALy2vtIvHd' },
+    { name: 'Tansy', voiceId: 'thfYL0Elyru2qqTtNQsE' },
     { name: 'Poppy', voiceId: 'XJ2fW4ybq7HouelYYGcL' },
     { name: 'Blue', voiceId: 'WUyjxM8OTY6l8LhTmdkq' },
   ],
