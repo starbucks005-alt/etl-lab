@@ -33,6 +33,29 @@ const SCRIPTS = {
           "strangers, but I suppose I can make an exception, since you are here now " +
           "and it would be rude not to.",
   },
+  poppy: {
+    voiceId: 'XJ2fW4ybq7HouelYYGcL',
+    text: "I'm Poppy. Tansy's little sister, though she'd rather I not put it that way. " +
+          "I like humans, genuinely, no performance about it, and I will absolutely cry " +
+          "if you say something nice to me.",
+  },
+  blue: {
+    voiceId: 'WUyjxM8OTY6l8LhTmdkq',
+    text: "I'm Blue. Tansy's cousin, for my sins. I outrank her at Court and I've never " +
+          "once had to try, which she finds unbearably annoying. I don't think about it " +
+          "much myself.",
+  },
+  biscuit: {
+    voiceId: 'MgqVq3OCTPeVHCEDr4HU',
+    text: "I'm Biscuit! I'm one of Reggie's best friends, and I have so many stories, " +
+          "and they're all true, mostly, and I will tell you every single one of them " +
+          "if you let me.",
+  },
+  mochi: {
+    voiceId: 'I8ERYU9lOxALy2vtIvHd',
+    text: "I'm Mochi. Reggie's friend, technically. I have opinions about most things, " +
+          "and I do not keep them to myself.",
+  },
 };
 
 exports.handler = async function (event) {
