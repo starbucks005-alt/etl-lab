@@ -523,6 +523,23 @@ footer{ padding:2rem 0 3rem; color:var(--ink-dim); font-size:.9rem; }
       <div class="chips" id="voiceChips"></div>
     </div>
 
+    <!-- WAS NEVER WIRED AT ALL, found 2026-08-19 while answering Dr. O's own
+         "how does Isabelle get a voice" -- room.html's speak() has always
+         needed FRIEND.voiceId to do anything, quietly does nothing without
+         one, and assemble() never had a field for it. Every pre-made
+         cast member (Arch, Sophia, Reggie, Tansy...) has a real voice
+         because it was hand-typed into gc-friend.js; nobody building their
+         own friend through this page had any way in at all. Optional, and
+         plainly an ID from wherever the voice was made, not a name of that
+         place -- this page does not need to say which service that is any
+         more than the price note needs to say which model answers. -->
+    <div class="q">
+      <label class="q-label" for="fVoiceId">Their voice, if you already made one</label>
+      <p class="q-note">Optional. An ID from wherever you cloned or picked their voice. Leave
+        it blank and they will not have a spoken voice yet.</p>
+      <input type="text" id="fVoiceId" placeholder="Their voice ID, if you have one" autocomplete="off">
+    </div>
+
     <div class="q">
       <label class="q-label" for="fBeen">One thing they have been through</label>
       <p class="q-note">This is the question that makes them feel like a person instead of a personality. It can be small.</p>
@@ -726,6 +743,7 @@ function loadIntoForm(built) {
   $('fWork').value = built.work || '';
   $('fInto').value = built.into || '';
   $('fKnows').value = built.knows || '';
+  $('fVoiceId').value = built.voiceId || '';
   setChipMulti($('voiceChips'), 'voice', built.voice);
   $('fBeen').value = built.been || '';
   $('uName').value = (built.user && built.user.call) || '';
@@ -770,6 +788,18 @@ gcMountSkinPicker(document.getElementById("picker"), document.getElementById("sk
    answers are the input the face and scene calls will take later. */
 function val(id) { return $(id).value.trim(); }
 
+/* A pasted voice-profile URL (elevenlabs.io/voices/<id> or similar) yields
+   the same result as pasting the bare ID -- the trailing alphanumeric
+   segment either way. Falls back to the raw trimmed value on anything that
+   does not match, so a genuinely different ID shape is never silently
+   discarded. */
+function voiceIdFromInput(v) {
+  var s = String(v || '').trim();
+  if (!s) return '';
+  var m = s.match(/([A-Za-z0-9]{12,40})\/?$/);
+  return m ? m[1] : s;
+}
+
 function assemble() {
   return {
     /* THE NAME IS WHATEVER IS IN THE BOX, and the box is filled in before we
@@ -797,6 +827,11 @@ function assemble() {
     work:   val('fWork'),
     into:   val('fInto'),
     knows:  val('fKnows'),
+    /* Takes the ID on its own, or a whole profile URL someone pastes in
+       instead -- voiceIdFromInput() below keeps only the trailing ID either
+       way, so "73fZMjboCm1aBVyxTbBp" and the full URL Dr. O actually pasted
+       both land the same. */
+    voiceId: voiceIdFromInput(val('fVoiceId')),
     voice:  picked.voice.slice(),
     been:   val('fBeen'),
     user:   { call: val('uName'), want: picked.want, about: val('uAbout') }
