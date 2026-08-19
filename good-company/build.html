@@ -1026,7 +1026,29 @@ var editingId = null;
    The alternative, gating on "not paid", would have charged Pookie and Terry
    for friends they already made for free; that is not a bill this feature
    gets to send retroactively. */
+/* THE POLICY GATE, added 2026-08-19. Dr. O: "put this into a
+   policy/something that people agree to before they get a companion" --
+   so we cannot get sued. Shown once, ever, per browser (GC_POLICY_KEY),
+   never again after that on this device, including for a second or
+   third friend built later: the thing being agreed to is what a
+   companion IS and IS NOT, not anything specific to one friend.
+
+   GATES openFriendRoom ITSELF rather than the build form, so it fires at
+   the one moment that actually matters -- about to have a working
+   companion, whether that is a brand-new paid one or reopening a free
+   one made earlier today -- and never blocks someone who is still just
+   filling in the form and might not finish. */
+var GC_POLICY_KEY = 'gc-policy-agreed';
+
 function openFriendRoom(f) {
+  if (localStorage.getItem(GC_POLICY_KEY) === '1') { openFriendRoomInner(f); return; }
+  showPolicyGate(function () {
+    try { localStorage.setItem(GC_POLICY_KEY, '1'); } catch (e) {}
+    openFriendRoomInner(f);
+  });
+}
+
+function openFriendRoomInner(f) {
   if (f.paid !== false) {
     GC_touchFriend(f.id);
     location.href = 'room.html?who=' + encodeURIComponent(f.id);
@@ -1633,6 +1655,62 @@ $('copyBtn').addEventListener('click', function () {
     });
   });
 })();
+
+/* Renders once, called only from openFriendRoom() above. onAgree fires
+   once, on the button, only once the box is checked -- never enabled
+   before that, since the whole point is a real read, not a reflex
+   click. */
+function showPolicyGate(onAgree) {
+  var box = document.createElement('div');
+  box.id = 'policyGate';
+  box.style.cssText = 'position:fixed; inset:0; z-index:999; display:flex; align-items:center; ' +
+    'justify-content:center; padding:1.2rem; background:rgba(0,0,0,.55);';
+  box.innerHTML =
+    '<div style="max-width:520px; max-height:86vh; overflow-y:auto; padding:1.6rem 1.7rem; ' +
+    'border-radius:8px; background:var(--paper); border:1px solid var(--line); color:var(--ink);">' +
+      '<h2 style="font-family:Georgia,serif; font-weight:400; margin:0 0 .9rem; font-size:1.5rem;">' +
+        'Before you build them</h2>' +
+      '<div style="font-size:14.5px; line-height:1.55; color:var(--ink-dim);">' +
+        '<p>Good Company creates an AI companion, not a person. This is what that means, once, ' +
+        'before you meet them.</p>' +
+        '<p>They are not a therapist, and this is not medical or mental health care. If you are ' +
+        'in crisis, in the US you can call or text 988 any time, day or night, for real help from ' +
+        'a real person.</p>' +
+        '<p>They will remember what you tell them, across visits, and their mood shifts with real ' +
+        'conversation, the way a person’s does. Sometimes they will ask for your advice, and ' +
+        'sometimes they will have a genuinely hard day. Being needed and being real are part of ' +
+        'what makes this work.</p>' +
+        '<p>What they will never do is make their stability your job, or make you feel guilty for ' +
+        'logging off.</p>' +
+        '<p>They will also point you back toward real people in your life. That is not a caveat. ' +
+        'It is the point.</p>' +
+        '<p>This does not replace real relationships, real friends, or real professional care when ' +
+        'you need it. It is company, built honestly, for the time you choose to spend here.</p>' +
+        '<p>You must be 18 or older to use Good Company.</p>' +
+      '</div>' +
+      '<label style="display:flex; align-items:flex-start; gap:.55rem; margin:1.2rem 0 1rem; ' +
+      'font-size:14px; cursor:pointer;">' +
+        '<input type="checkbox" id="policyCheck" style="margin-top:.2rem;">' +
+        '<span>I have read this and I agree.</span>' +
+      '</label>' +
+      '<button class="btn go" id="policyContinue" type="button" disabled ' +
+        'style="width:100%; opacity:.5; cursor:not-allowed;">Continue</button>' +
+    '</div>';
+  document.body.appendChild(box);
+
+  var check = box.querySelector('#policyCheck');
+  var go = box.querySelector('#policyContinue');
+  check.addEventListener('change', function () {
+    go.disabled = !check.checked;
+    go.style.opacity = check.checked ? '1' : '.5';
+    go.style.cursor = check.checked ? 'pointer' : 'not-allowed';
+  });
+  go.addEventListener('click', function () {
+    if (!check.checked) return;
+    box.remove();
+    onAgree();
+  });
+}
 </script>
 
 </body>
