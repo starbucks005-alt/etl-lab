@@ -62,20 +62,45 @@ h1{ font-family:Georgia,serif; font-weight:400; letter-spacing:-.012em; line-hei
 .hero.no-art h1{ color:var(--ink); text-shadow:none; }
 .hero.no-art .lede{ color:var(--ink-dim); text-shadow:none; }
 
-/* ── the cast ─────────────────────────────────────────────────────────────
-   Reuses the same .slot missing-image handling the hero does above; the
-   script check near the closing body tag now covers every .slot img on
-   the page, not just the hero's one. */
-.cast-grid{
-  display:grid; grid-template-columns:repeat(4,1fr); gap:.7rem;
-  margin-top:1rem;
+/* ── the cast, now flanking the form instead of stacked in the scroll ──────
+   Dr. O, on the horizontal 8-up strip this replaced: "the images were
+   supposed to be on the sides, to replace all the padding and make the
+   page not look so text heavy." So the cast IS the padding now, not an
+   extra block sitting in it. Hidden below 1180px rather than squeezed,
+   since a cramped sidebar photo strip on a narrow screen is worse than no
+   sidebar at all -- the built-in .wrap margins do that job there instead.
+   Reuses the same .slot missing-image handling the hero does above. */
+main.build-shell{
+  display:grid;
+  grid-template-columns: minmax(0,1fr) minmax(0,840px) minmax(0,1fr);
+  column-gap:1.5rem;
+  max-width:1600px;
+  margin:0 auto;
+  align-items:start;
 }
-@media (max-width:700px){ .cast-grid{ grid-template-columns:repeat(2,1fr); } }
-.cast-grid figure{ margin:0; }
-.cast-grid .slot{ aspect-ratio:3/4; border-radius:4px; }
-.cast-grid figcaption{
-  margin-top:.4rem; font-family:var(--mono); font-size:.72rem; letter-spacing:.1em;
-  text-transform:uppercase; color:var(--ink-dim); text-align:center;
+main.build-shell > .wrap{
+  grid-column:2;
+  max-width:840px;
+  padding-inline:clamp(.9rem,2.2vw,1.75rem);
+  margin:0;
+}
+.side-cast{
+  display:none;
+  grid-column:1;
+  flex-direction:column;
+  gap:.9rem;
+  position:sticky; top:1.2rem;
+  padding-top:1.4rem;
+}
+.side-cast.side-right{ grid-column:3; }
+@media (min-width:1180px){
+  .side-cast{ display:flex; }
+}
+.side-cast figure{ margin:0; text-align:center; }
+.side-cast .slot{ aspect-ratio:3/4; border-radius:4px; max-width:150px; margin-inline:auto; }
+.side-cast figcaption{
+  margin-top:.35rem; font-family:var(--mono); font-size:.65rem; letter-spacing:.09em;
+  text-transform:uppercase; color:var(--ink-dim);
 }
 
 /* ── the pitch, said at build time ───────────────────────────────────────────
@@ -313,7 +338,44 @@ footer{ padding:2rem 0 3rem; color:var(--ink-dim); font-size:.9rem; }
   </div>
 </section>
 
-<main class="wrap">
+<!-- ── THE CAST, MOVED TO THE MARGINS, 2026-08-19 ────────────────────────────
+     Dr. O, after the cast landed as another block in the scroll: "the
+     images were supposed to be on the sides, to replace all the padding
+     and make the page not look so text heavy." Real layout change, not a
+     style tweak -- main becomes a three-column grid (photos / form /
+     photos) instead of a single centered column, so the wide empty
+     margins a centered 840px form leaves on any real desktop screen are
+     doing something instead of just being padding. Sticky, so they
+     travel with the form as it scrolls rather than ending after one
+     screen's worth of height, and hidden below 1180px: eight extra
+     photos crammed beside a form that already does not fit a narrow
+     screen would fight the form for room instead of just decorating the
+     margins that only exist on a wide one. aria-hidden because they are
+     decoration here, not information the page depends on -- the same
+     cast with real captions already exists on the homepage's own demos
+     section. -->
+<main class="build-shell">
+
+  <aside class="side-cast side-left" aria-hidden="true">
+    <figure>
+      <div class="slot"><img src="photos/arch-atelier.jpg" alt=""></div>
+      <figcaption>Arch</figcaption>
+    </figure>
+    <figure>
+      <div class="slot"><img src="photos/sophia-atelier.jpg" alt=""></div>
+      <figcaption>Sophia</figcaption>
+    </figure>
+    <figure>
+      <div class="slot"><img src="photos/reggie-atelier.jpg" alt=""></div>
+      <figcaption>Reggie</figcaption>
+    </figure>
+    <figure>
+      <div class="slot"><img src="photos/biscuit-atelier.jpg" alt=""></div>
+      <figcaption>Biscuit</figcaption>
+    </figure>
+  </aside>
+
+  <div class="wrap">
 
   <!-- SOMEBODY IS ALREADY HERE. This page used to behave as though every visit
        were the first, so a friend you had already made was invisible from the
@@ -345,51 +407,6 @@ footer{ padding:2rem 0 3rem; color:var(--ink-dim); font-size:.9rem; }
   <p class="lede price-note">Free to build. $9.99, once, to open their room, which includes
     100 credits to start talking with them. $9.99/mo keeps a fresh 300 coming every month, or
     top up any time.</p>
-
-  <!-- ── EVERYONE ALREADY HERE, ADDED 2026-08-19 ─────────────────────────────
-       Dr. O sent real photos of the cast (Arch, Sophia, Reggie, Biscuit,
-       Mochi, Tansy, Poppy, Blue), shot in the same atelier as the hero
-       above, "for the build page, to make it not just text and a hero."
-       Same job the homepage's own .demos section does -- proof before the
-       promise -- just a bigger cast, since Tansy's and Reggie's own
-       companions are included, not only the two you can build. -->
-  <section class="cast">
-    <div class="sec-head">Some of who is already here</div>
-    <div class="cast-grid">
-      <figure>
-        <div class="slot" data-label="photos/arch-atelier.jpg"><img src="photos/arch-atelier.jpg" alt=""></div>
-        <figcaption>Arch</figcaption>
-      </figure>
-      <figure>
-        <div class="slot" data-label="photos/sophia-atelier.jpg"><img src="photos/sophia-atelier.jpg" alt=""></div>
-        <figcaption>Sophia</figcaption>
-      </figure>
-      <figure>
-        <div class="slot" data-label="photos/reggie-atelier.jpg"><img src="photos/reggie-atelier.jpg" alt=""></div>
-        <figcaption>Reggie</figcaption>
-      </figure>
-      <figure>
-        <div class="slot" data-label="photos/biscuit-atelier.jpg"><img src="photos/biscuit-atelier.jpg" alt=""></div>
-        <figcaption>Biscuit</figcaption>
-      </figure>
-      <figure>
-        <div class="slot" data-label="photos/mochi-atelier.jpg"><img src="photos/mochi-atelier.jpg" alt=""></div>
-        <figcaption>Mochi</figcaption>
-      </figure>
-      <figure>
-        <div class="slot" data-label="photos/tansy-atelier.jpg"><img src="photos/tansy-atelier.jpg" alt=""></div>
-        <figcaption>Tansy</figcaption>
-      </figure>
-      <figure>
-        <div class="slot" data-label="photos/poppy-atelier.jpg"><img src="photos/poppy-atelier.jpg" alt=""></div>
-        <figcaption>Poppy</figcaption>
-      </figure>
-      <figure>
-        <div class="slot" data-label="photos/blue-atelier.jpg"><img src="photos/blue-atelier.jpg" alt=""></div>
-        <figcaption>Blue</figcaption>
-      </figure>
-    </div>
-  </section>
 
   <!-- ── WHO THEY ARE ────────────────────────────────────────────────────── -->
   <section>
@@ -525,6 +542,28 @@ footer{ padding:2rem 0 3rem; color:var(--ink-dim); font-size:.9rem; }
   <footer>If you like Good Company, there is more of it.
     <a href="/almost-human">Almost Human</a> is a whole building of people to talk to.
     <a href="https://my-echo.me">My Echo</a> is the one you build of yourself.</footer>
+
+  </div>
+
+  <aside class="side-cast side-right" aria-hidden="true">
+    <figure>
+      <div class="slot"><img src="photos/mochi-atelier.jpg" alt=""></div>
+      <figcaption>Mochi</figcaption>
+    </figure>
+    <figure>
+      <div class="slot"><img src="photos/tansy-atelier.jpg" alt=""></div>
+      <figcaption>Tansy</figcaption>
+    </figure>
+    <figure>
+      <div class="slot"><img src="photos/poppy-atelier.jpg" alt=""></div>
+      <figcaption>Poppy</figcaption>
+    </figure>
+    <figure>
+      <div class="slot"><img src="photos/blue-atelier.jpg" alt=""></div>
+      <figcaption>Blue</figcaption>
+    </figure>
+  </aside>
+
 </main>
 
 <script>
