@@ -21,7 +21,15 @@ const SUPABASE_URL = 'https://ulvrnermyuvzanxhxoib.supabase.co';
 const TIER2_MONTHLY_CREDITS = 300; // paid tier's monthly allotment, covers both rooms
 const ONE_TO_ONE_COST = 1;         // credits per 1:1 message
 const GROUP_MESSAGE_COST = 3;      // credits per guest message in the group room (cascade costs ~3-4x to run)
-const ADDON_CREDITS = 30;          // credits granted by one addon-pack purchase
+// ADDON_CREDITS: raised 30 -> 60 on 2026-08-19, same day and same reasoning
+// as STARTER_CREDITS above -- Dr. O: "change it for AH too, so we are
+// consistent," this being the one number shared by both products that
+// hadn't gotten the same look. Worst case for the original 30 (one unbroken
+// text-only sitting) was roughly $0.90 in real Sonnet spend against the
+// $4.99 charged; doubling the grant roughly doubles that worst case to
+// ~$1.80, still comfortable margin. Shared by Almost Human and Good
+// Company's top-up flow, so this one change covers both at once.
+const ADDON_CREDITS = 60;          // credits granted by one addon-pack purchase
 const ROLLOVER_DAYS = 30;
 
 // STARTER_CREDITS: Good Company, 2026-08-17, raised 100 -> 200 on 2026-08-19

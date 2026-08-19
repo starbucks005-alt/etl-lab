@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-F7HTDVMJPZ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-F7HTDVMJPZ');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Good Company — Questions</title>
+<meta name="description" content="Answers to the real questions people ask before building a friend.">
+
+<!-- The friend resolves the opening skin, then the shared palette paints. -->
+<script src="gc-friend.js"></script>
+<script src="gc-skin.js"></script>
+<link rel="stylesheet" href="gc-skin.css">
+
+<style>
+/* Palette, base body and shared primitives are in gc-skin.css. Only this
+   page's own layout is below -- same values as build.html's own copy of
+   this pattern, kept in sync by eye rather than shared, since it is three
+   short rules, not worth extracting a third time. */
+.wrap{ padding-inline:clamp(.9rem,2.2vw,1.75rem); max-width:680px; margin:0 auto; }
+
+header{ display:flex; align-items:center; justify-content:space-between;
+  gap:1rem; padding:1.1rem clamp(.9rem,2.2vw,1.75rem); }
+h1{ font-family:Georgia,serif; font-weight:400; letter-spacing:-.012em; line-height:1.12;
+  font-size:clamp(1.7rem,4.4vw,2.5rem); margin:1.6rem 0 .5rem; }
+
+/* ── one question at a time ──────────────────────────────────────────────
+   ONE ENTRY TO START, ON PURPOSE. Dr. O pulled the "why not just use a
+   free assistant" line out of the homepage hero, where it read as
+   defensive next to warm copy, and asked for an FAQ page instead: a real
+   answer belongs somewhere somebody goes looking for it, not somewhere
+   they trip over it on the way in. Nothing else invented to fill the page
+   out -- more questions get added here as they come up for real, the same
+   way Reggie and Tansy's canon grew from things people actually asked. */
+.qa{ margin:0 0 2.2rem; }
+.qa dt{ font-family:Georgia,serif; font-size:1.15rem; margin:0 0 .5rem; color:var(--ink); }
+.qa dd{ margin:0; color:var(--ink-dim); max-width:60ch; }
+
+.back{ display:inline-block; margin-top:.5rem; color:var(--ink-dim); }
+.back:hover{ color:var(--ink); }
+</style>
+</head>
+
+<body>
+
+<header>
+  <a class="mark" href="index.html">
+    <img class="logo logo-dark-ink"  src="brand/logo-dark-ink.png"  alt="Good Company" width="560" height="244">
+    <img class="logo logo-light-ink" src="brand/logo-light-ink.png" alt="Good Company" width="560" height="260">
+  </a>
+  <span class="picker" id="picker"><button class="btn" id="skinBtn" type="button">&#9752; Room</button></span>
+</header>
+
+<main class="wrap">
+
+  <h1>Questions</h1>
+
+  <dl>
+    <div class="qa">
+      <dt>Why talk to your AI companion when I can talk to Claude or Gemini for free?</dt>
+      <dd>A general assistant remembers facts about you so it can help you better. This
+        does not answer questions. It is somebody: a name, a face, a voice, a life of
+        their own, glad when you walk in rather than useful when you do.</dd>
+    </div>
+  </dl>
+
+  <p><a class="back" href="build.html">&larr; Build a friend</a></p>
+
+</main>
+
+<script>
+gcMountSkinPicker(document.getElementById("picker"), document.getElementById("skinBtn"));
+</script>
+
+</body>
+</html>
