@@ -481,6 +481,20 @@ footer{ padding:2rem 0 3rem; color:var(--ink-dim); font-size:.9rem; }
       <label class="q-label" for="fInto">Something they are into</label>
       <input type="text" id="fInto" placeholder="Gardening, old films, football, birds" autocomplete="off">
     </div>
+
+    <div class="q">
+      <!-- OPTIONAL, AND DELIBERATELY PAST THE HOBBY LEVEL. "Into" is what
+           they enjoy; this is what they are actually good at, the thing that
+           holds up in a real conversation about it. buildSystem() already
+           reads f.knows for every friend, built-in or made here -- Sophia's
+           vet-nursing knowledge and Reggie's read on people use the exact
+           same field, they just had it hand-written. This is that same field,
+           opened up to anyone building a friend, not only the pre-made cast. -->
+      <label class="q-label" for="fKnows">What they really know</label>
+      <p class="q-note">Optional, and past the hobby: something they are genuinely good at,
+        that comes up the way anybody's know-how comes up, not as a resume line.</p>
+      <textarea id="fKnows" placeholder="Runs a nonprofit's whole media strategy. Reads a room before it opens its mouth. Whatever it actually is."></textarea>
+    </div>
   </section>
 
   <!-- ── HOW THEY TALK ───────────────────────────────────────────────────── -->
@@ -655,6 +669,64 @@ chips($('genderChips'), GENDERS, 'gender', false);
 chips($('voiceChips'), VOICES, 'voice', true);
 chips($('wantChips'), WANTS, 'want', false);
 
+/* ── loading an already-built friend back into the form ─────────────────────
+   The reverse of assemble(): given a saved friend, puts every answer back
+   into the inputs and chips so editing starts from what is actually true of
+   them, not a blank form. Chip state lives in two places at once (the DOM's
+   .on class and the picked object collect() reads from), so restoring one
+   without the other would look right and then save wrong. */
+function setChipSingle(host, key, value) {
+  picked[key] = value || null;
+  Array.prototype.forEach.call(host.children, function (c) {
+    c.classList.toggle('on', c.textContent === value);
+  });
+}
+function setChipMulti(host, key, values) {
+  picked[key] = (values || []).slice();
+  Array.prototype.forEach.call(host.children, function (c) {
+    c.classList.toggle('on', picked[key].indexOf(c.textContent) > -1);
+  });
+}
+/* from and country were joined into one string on the way out
+   (assemble()'s own "Dayton, Ohio, United States" comment); this is that
+   join undone, recognising a real country name at the end rather than
+   guessing at a comma. */
+function splitFrom(from) {
+  if (!from) return { town: '', country: '' };
+  var parts = String(from).split(', ');
+  var last = parts[parts.length - 1];
+  var isCountry = COUNTRIES.some(function (r) { return r[0] === last; });
+  return isCountry ? { town: parts.slice(0, -1).join(', '), country: last }
+                    : { town: from, country: '' };
+}
+function loadIntoForm(built) {
+  $('fName').value = built.name || '';
+  setChipSingle($('ageChips'), 'age', built.age);
+  setChipSingle($('genderChips'), 'gender', built.gender);
+  var loc = splitFrom(built.from);
+  $('fFrom').value = loc.town;
+  $('fCountry').value = loc.country;
+  $('fWork').value = built.work || '';
+  $('fInto').value = built.into || '';
+  $('fKnows').value = built.knows || '';
+  setChipMulti($('voiceChips'), 'voice', built.voice);
+  $('fBeen').value = built.been || '';
+  $('uName').value = (built.user && built.user.call) || '';
+  setChipSingle($('wantChips'), 'want', built.user && built.user.want);
+  $('uAbout').value = (built.user && built.user.about) || '';
+}
+/* Called by the "Edit answers" button in the already-here list, further
+   down. Sets editingId so the makeBtn handler knows to write back over this
+   friend instead of minting a new one -- see that handler's own comment. */
+function startEdit(built) {
+  editingId = built.id;
+  loadIntoForm(built);
+  $('makeBtn').textContent = 'Save changes';
+  $('endNote').textContent = 'Editing ' + built.name + '. Their face and room stay exactly as ' +
+    'they are; this only updates what you change below.';
+  $('fName').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
 COUNTRIES.forEach(function (row) {
   var o = document.createElement('option');
   o.value = row[0]; o.textContent = row[0];
@@ -707,35 +779,27 @@ function assemble() {
     timezone: countryTimezone($('fCountry').value) || null,
     work:   val('fWork'),
     into:   val('fInto'),
+    knows:  val('fKnows'),
     voice:  picked.voice.slice(),
     been:   val('fBeen'),
-    user:   { call: val('uName'), want: picked.want, about: val('uAbout') },
-    /* ONE SCENE, AND IT IS CALLED THE ORIGINAL.
-
-       There were five: a kitchen table, a porch, a cabin, game night, a walk.
-       Two things were wrong with that. They all showed the same single picture,
-       because there is one portrait and no film, so five buttons switched
-       between identical images. And the places do not fit everybody. Dr. O:
-       "me in a cabin or at a kitchen table or on a porch may not fit". A porch
-       belongs to Arch. It is not a shape every person's friend comes in, and
-       offering it as though it were makes the friend generic in the one place
-       they are supposed to be specific.
-
-       So one scene, the picture they chose, named for what it is. More scenes
-       are worth having and cost real money to make, so they are an add-on
-       rather than five empty promises in a row.
-
-       No src because there is no film. That is the truth, and the room can show
-       it properly; when scene generation is built it fills the src in and the
-       video path takes over untouched. A filename that is present but broken
-       still means a broken video and is still reported as one. */
-    scenes: [
-      { key:'original', label:'The original', src:null }
-    ]
+    user:   { call: val('uName'), want: picked.want, about: val('uAbout') }
+    /* SCENES ARE NOT PART OF THIS OBJECT ANYMORE. They used to be, hard-coded
+       to a fresh "the original, no film yet" every time this function ran --
+       harmless for a brand-new friend, destructive for an existing one: the
+       edit flow below reuses this same function to save changes to somebody
+       already made, and calling assemble() on somebody who already has a real
+       scene and a chosen face would have quietly reset both back to nothing.
+       The one place that actually needs a starting scenes array (making a
+       genuinely new friend, further down) sets it there instead, once. */
   };
 }
 
 var friend = null;
+
+/* Set only while the "already here" list's Edit button is being used; every
+   other path through this page leaves it null. See the makeBtn handler and
+   startEdit() below. */
+var editingId = null;
 
 /* ── PAYING FOR A FRIEND ──────────────────────────────────────────────────────
    Dr. O: "we need to set the price per 'friend'." One gate, used everywhere a
@@ -809,11 +873,20 @@ function openFriendRoom(f) {
    there taking over the room with no way out but clearing site data.
 
    HOW EMPTY THEY ARE IS SAID OUT LOUD. "This one is blank" is the difference
-   between a friend you meant to make and one that happened to you. */
-(function () {
-  if (!GC_ALL_BUILT.length) return;
-  document.getElementById('already').style.display = 'block';
+   between a friend you meant to make and one that happened to you.
+
+   A NAMED FUNCTION, NOT A ONE-SHOT IIFE, so the Edit answers button below can
+   repaint this list right after a save -- otherwise "You already made
+   Isabelle" would go on describing whoever she was before the edit until the
+   page was reloaded. */
+function renderAlready() {
   var list = document.getElementById('alreadyList');
+  list.innerHTML = '';
+  if (!GC_ALL_BUILT.length) {
+    document.getElementById('already').style.display = 'none';
+    return;
+  }
+  document.getElementById('already').style.display = 'block';
 
   GC_ALL_BUILT.forEach(function (built) {
     /* Answered, out of everything the questions actually ask. */
@@ -865,6 +938,17 @@ function openFriendRoom(f) {
     });
     actions.appendChild(facesBtn);
 
+    /* EDIT ANSWERS. Dr. O built Isabelle "just to try her," then asked to
+       give her real PR and marketing depth after the fact -- there was no
+       way to revise a friend already made, only redraw their face or forget
+       them outright. Loads their saved answers back into the form above
+       (loadIntoForm(), further up this file) and lets the Save changes
+       button write over the same friend rather than minting a new one. */
+    var editBtn = document.createElement('button');
+    editBtn.type = 'button'; editBtn.className = 'btn'; editBtn.textContent = 'Edit answers';
+    editBtn.addEventListener('click', function () { startEdit(built); });
+    actions.appendChild(editBtn);
+
     var forgetBtn = document.createElement('button');
     forgetBtn.type = 'button'; forgetBtn.className = 'btn'; forgetBtn.textContent = 'Forget';
     forgetBtn.addEventListener('click', function () {
@@ -881,7 +965,8 @@ function openFriendRoom(f) {
     row.appendChild(actions);
     list.appendChild(row);
   });
-})();
+}
+renderAlready();
 
 /* Asked once, then it stops nagging. */
 var nameOffered = false;
@@ -906,13 +991,45 @@ $('makeBtn').addEventListener('click', function () {
     $('fName').value = NAMES[Math.floor(Math.random() * NAMES.length)];
   }
 
-  friend = assemble();
+  var answers = assemble();
+
+  /* EDITING WRITES OVER THE SAME FRIEND, NOT A NEW ONE. Dr. O: "give her a
+     PR and marketing backpack" -- about Isabelle, a friend already made and
+     already paid for. There was no way to revise anybody once built, only
+     to redraw their face or forget them outright, so the one field that
+     could actually carry this (f.knows, which buildSystem() already reads
+     for every friend, built-in or made here) had no door in for somebody
+     who was not brand new. This is that door: every other saved field --
+     portrait, scenes, paid, id, createdAt -- is left exactly as it was,
+     only what the form itself asks about is replaced. No face redraw, no
+     new charge, no lost room history. */
+  if (editingId) {
+    var existing = GC_findBuilt(editingId);
+    if (existing) {
+      Object.keys(answers).forEach(function (k) { existing[k] = answers[k]; });
+      try { GC_saveFriend(existing); } catch (e) {}
+      editingId = null;
+      $('makeBtn').textContent = 'Meet the faces';
+      $('endNote').textContent = 'Saved. ' + existing.name + ' knows this the next time you talk.';
+      renderAlready();
+      return;
+    }
+    editingId = null; // fell out of storage somehow -- fall through and build fresh
+  }
+
+  friend = answers;
   /* A STABLE ID, MINTED ONCE, HERE. Every write from here on saves this friend
      into the array by id rather than overwriting a single slot, which is what
      makes more than one friend on a device possible at all. */
   friend.id = GC_newFriendId();
   friend.createdAt = new Date().toISOString();
   friend.paid = false;
+  /* ONE SCENE, AND IT IS CALLED THE ORIGINAL. See assemble()'s own comment:
+     this used to live inside that function and reset itself on every edit.
+     A genuinely new friend has no scene yet, which is the truth, and the
+     room shows that properly; when scene generation runs it fills the src
+     in and the video path takes over untouched. */
+  friend.scenes = [{ key:'original', label:'The original', src:null }];
   try { GC_saveFriend(friend); } catch (e) {}
   if (typeof paintRoomPrice === 'function') paintRoomPrice();
 
@@ -922,6 +1039,7 @@ $('makeBtn').addEventListener('click', function () {
    ['Gender', friend.gender],
    ['From', friend.from],
    ['Does', friend.work],
+   ['Knows', friend.knows],
    ['Into', friend.into],
    ['Talks', friend.voice.join(', ')],
    ['Been through', friend.been],
