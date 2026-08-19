@@ -952,9 +952,16 @@ var GC_SOFIA = {
   /* NARRATED ONLY, same reasoning as Gus in Arch's own canon: Barley is a
      golden retriever "delighted about everything," never established as
      talking, and does not start now. voiceId: null is what tells
-     gc-chat.js that. */
+     gc-chat.js that.
+
+     POPPY AND BLUE ADDED 2026-08-19, same crossover given to Arch and
+     Reggie: "the fairies can come in and speak to the humans" was never
+     meant to mean Arch specifically. Same real voice ids as Tansy's own
+     room. */
   cameos: [
     { name: 'Barley', voiceId: null },
+    { name: 'Poppy', voiceId: 'XJ2fW4ybq7HouelYYGcL' },
+    { name: 'Blue', voiceId: 'WUyjxM8OTY6l8LhTmdkq' },
   ],
 };
 
@@ -1428,10 +1435,18 @@ var GC_REGGIE = {
      Not built friends of their own: no room, no build slot. Per Dr. O
      directly: Biscuit is female, hyper and lovable. Mochi is male,
      dismissive, an English bulldog. Both Dr. O's own voice picks. Distinct
-     from Duke, who is a rival, not a friend — see underneath below. */
+     from Duke, who is a rival, not a friend — see underneath below.
+
+     POPPY AND BLUE ADDED 2026-08-19, same crossover as Arch's room: Dr. O
+     tried "Tansy, are you here?" directly in Reggie's room and got nothing,
+     since the fairies had only ever been wired into Arch's cameos list, not
+     the campus generally. Same real voice ids as Tansy's own room, not
+     duplicated. */
   cameos: [
     { name: 'Biscuit', voiceId: 'MgqVq3OCTPeVHCEDr4HU' },
     { name: 'Mochi', voiceId: 'I8ERYU9lOxALy2vtIvHd' },
+    { name: 'Poppy', voiceId: 'XJ2fW4ybq7HouelYYGcL' },
+    { name: 'Blue', voiceId: 'WUyjxM8OTY6l8LhTmdkq' },
   ],
 
   skin: 'harvest',
