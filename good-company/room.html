@@ -1472,8 +1472,17 @@ function ask(payload) {
          whether this is a house friend (free, daily-capped) or a friend
          somebody built (paid rung, credits only, no free fallback). The
          other two are the same shared identity Almost Human already uses;
-         a person's existing membership just works here. */
-      is_demo: FRIEND === GC_DEMO,
+         a person's existing membership just works here.
+
+         WAS FRIEND === GC_DEMO, fixed 2026-08-19: an object identity
+         check against Arch specifically, so Reggie, Sophia, and Tansy
+         all read as NOT a demo — the same object-identity mistake
+         currentDemoId() (below) was already fixed for once, for a
+         different symptom. A real visitor with no credits talking to
+         Reggie would hit the paid-friend wall instead of the free daily
+         allowance. Never bit Dr. O herself, since her owner key bypasses
+         credit checks entirely regardless of is_demo. */
+      is_demo: !!currentDemoId(),
       visitor_id: GC_visitorId(),
       access_token: GC_accessToken(),
       owner_key: GC_ownerKey()
@@ -2862,7 +2871,9 @@ function speak(text, voiceId, onDone, bubble) {
          audio from the same daily pool text already uses — "the free daily
          has to have audio because the audio makes it." */
       access_token: GC_accessToken(), credit_ref: ROOM_CREDIT_REF, owner_key: GC_ownerKey(),
-      is_demo: FRIEND === GC_DEMO, visitor_id: GC_visitorId()
+      /* Same currentDemoId() fix as the ask() call above, same date, same
+         reason: this used to be FRIEND === GC_DEMO, true only for Arch. */
+      is_demo: !!currentDemoId(), visitor_id: GC_visitorId()
     })
   }).then(function (r) { return r.json(); }).then(function (j) {
     if (j && j.daily_capped) {
