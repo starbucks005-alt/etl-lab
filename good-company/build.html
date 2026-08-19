@@ -545,6 +545,27 @@ footer{ padding:2rem 0 3rem; color:var(--ink-dim); font-size:.9rem; }
         rel="noopener">elevenlabs.io</a>, pick or design a voice there, and paste its ID here.
         Leave it blank and they will not have a spoken voice yet.</p>
       <input type="text" id="fVoiceId" placeholder="Their voice ID, if you have one" autocomplete="off">
+
+      <!-- THE OTHER HALF, ADDED 2026-08-19. Dr. O: "for elevenlabs voice to
+           MAKE one." Describe it, hear real options, keep one -- same shape
+           as the face step below: generate, listen, choose, never a
+           paragraph of technical setup. gc-voice-design.js does the actual
+           work; this is just the asking and the listening. -->
+      <p style="margin:.5rem 0 0">
+        <button type="button" class="btn" id="voiceDesignToggle">Or describe it, and we will design one</button>
+      </p>
+      <div id="voiceDesignPanel" style="display:none; margin-top:.6rem; padding:.8rem;
+           border:1px solid var(--line); border-radius:4px; background:var(--panel);">
+        <label class="q-label" for="fVoiceDesc">What does their voice sound like</label>
+        <p class="q-note" style="margin-top:0">Started from what you have already answered.
+          Change anything: an accent, a rasp, how fast they talk.</p>
+        <textarea id="fVoiceDesc" rows="2"></textarea>
+        <p style="margin:.5rem 0 0">
+          <button type="button" class="btn go" id="voiceDesignGo">Hear some options</button>
+          <span id="voiceDesignNote" class="q-note" style="margin:0 0 0 .5rem"></span>
+        </p>
+        <div id="voiceDesignResults" style="margin-top:.6rem"></div>
+      </div>
     </div>
 
     <div class="q">
@@ -768,6 +789,139 @@ function startEdit(built) {
     'they are; this only updates what you change below.';
   $('fName').scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
+
+/* ── VOICE DESIGN, ADDED 2026-08-19 ──────────────────────────────────────
+   Dr. O: "for elevenlabs voice to MAKE one." Describe it, hear real
+   options, keep one -- the voice version of the face step further down.
+   gc-voice-design.js does the two real ElevenLabs calls (design, then
+   promote one preview to a permanent voice); everything here is asking,
+   listening, and choosing.
+
+   A DRAW LIMIT, SAME SHAPE AS FACE_SETS. Confirmed cheap against our real
+   ElevenLabs billing (roughly two cents a design call, 2026-08-19), but
+   cheap is not free, and an unlimited button in a public form is an
+   unlimited bill. Three attempts, same number faces already use, tracked
+   the same way: in storage, so a reload is not a way around it. */
+var VOICE_DESIGN_SETS = 3;
+function voiceSetsDrawn() {
+  try { return parseInt(localStorage.getItem('gc-voice-design-sets') || '0', 10) || 0; }
+  catch (e) { return 0; }
+}
+function noteVoiceSetDrawn() {
+  try { localStorage.setItem('gc-voice-design-sets', String(voiceSetsDrawn() + 1)); } catch (e) {}
+}
+
+function autoVoiceDescription() {
+  var bits = [];
+  if (picked.gender && picked.gender !== 'Let them decide') bits.push(picked.gender);
+  if (picked.age && picked.age !== 'About my age') bits.push('in their ' + picked.age);
+  var lede = bits.length ? bits.join(', ') + '.' : 'A person.';
+  var style = (picked.voice && picked.voice.length) ? ' Sounds ' + picked.voice.join(', ').toLowerCase() + '.' : '';
+  return (lede + style).trim();
+}
+
+var voiceDesignOpen = false;
+$('voiceDesignToggle').addEventListener('click', function () {
+  voiceDesignOpen = !voiceDesignOpen;
+  $('voiceDesignPanel').style.display = voiceDesignOpen ? 'block' : 'none';
+  /* Filled once, on first open, from whatever is already answered -- not
+     refilled on every open, so editing it and reopening does not throw the
+     edit away. */
+  if (voiceDesignOpen && !$('fVoiceDesc').value) {
+    $('fVoiceDesc').value = autoVoiceDescription();
+  }
+});
+
+function voiceDesignPlayButton(b64) {
+  var b = document.createElement('button');
+  b.type = 'button'; b.className = 'btn';
+  b.textContent = '▶ Play';
+  b.addEventListener('click', function () {
+    new Audio('data:audio/mpeg;base64,' + b64).play().catch(function () {});
+  });
+  return b;
+}
+
+$('voiceDesignGo').addEventListener('click', function () {
+  var left = Math.max(0, VOICE_DESIGN_SETS - voiceSetsDrawn());
+  if (left <= 0) {
+    $('voiceDesignNote').textContent = 'That is the last of the free listens for this device.';
+    return;
+  }
+  var description = $('fVoiceDesc').value.trim();
+  if (!description) { $('fVoiceDesc').focus(); return; }
+
+  $('voiceDesignGo').disabled = true; $('voiceDesignGo').textContent = 'Designing';
+  $('voiceDesignNote').textContent = '';
+  $('voiceDesignResults').innerHTML = '';
+
+  fetch('/.netlify/functions/gc-voice-design', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'design', description: description }),
+  }).then(function (r) { return r.json().then(function (j) { return { s: r.status, j: j }; }); })
+    .then(function (res) {
+      $('voiceDesignGo').disabled = false; $('voiceDesignGo').textContent = 'Hear some options';
+      noteVoiceSetDrawn();
+      var j = res.j || {};
+      if (res.s !== 200 || !j.previews || !j.previews.length) {
+        $('voiceDesignNote').textContent = 'That did not come back with anything to hear: ' +
+          ((j && j.error) || 'unknown') + '.';
+        return;
+      }
+      var remaining = Math.max(0, VOICE_DESIGN_SETS - voiceSetsDrawn());
+      $('voiceDesignNote').textContent = remaining
+        ? (remaining + ' more listen' + (remaining === 1 ? '' : 's') + ' left on this device.')
+        : 'That was the last free listen on this device.';
+
+      j.previews.forEach(function (p, i) {
+        var row = document.createElement('div');
+        row.style.cssText = 'display:flex; align-items:center; gap:.5rem; margin-top:.4rem;';
+
+        var label = document.createElement('span');
+        label.className = 'q-note'; label.style.margin = '0';
+        label.textContent = 'Option ' + (i + 1);
+        row.appendChild(label);
+        row.appendChild(voiceDesignPlayButton(p.audio_b64));
+
+        var use = document.createElement('button');
+        use.type = 'button'; use.className = 'btn go';
+        use.textContent = 'Use this voice';
+        use.addEventListener('click', function () {
+          use.disabled = true; use.textContent = 'Saving';
+          fetch('/.netlify/functions/gc-voice-design', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'create',
+              generated_voice_id: p.id,
+              name: val('fName') || 'A voice',
+              description: description,
+            }),
+          }).then(function (r) { return r.json().then(function (j2) { return { s: r.status, j: j2 }; }); })
+            .then(function (res2) {
+              var j2 = res2.j || {};
+              if (res2.s !== 200 || !j2.voice_id) {
+                use.disabled = false; use.textContent = 'Try again';
+                $('voiceDesignNote').textContent = 'That did not save: ' + ((j2 && j2.error) || 'unknown') + '.';
+                return;
+              }
+              $('fVoiceId').value = j2.voice_id;
+              $('voiceDesignPanel').style.display = 'none';
+              voiceDesignOpen = false;
+              $('voiceDesignNote').textContent = '';
+              $('fVoiceId').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }).catch(function (err) {
+              use.disabled = false; use.textContent = 'Try again';
+              $('voiceDesignNote').textContent = 'Could not reach it. ' + err.message;
+            });
+        });
+        row.appendChild(use);
+        $('voiceDesignResults').appendChild(row);
+      });
+    }).catch(function (err) {
+      $('voiceDesignGo').disabled = false; $('voiceDesignGo').textContent = 'Hear some options';
+      $('voiceDesignNote').textContent = 'Could not reach it. ' + err.message;
+    });
+});
 
 COUNTRIES.forEach(function (row) {
   var o = document.createElement('option');
