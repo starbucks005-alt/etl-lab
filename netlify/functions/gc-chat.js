@@ -605,13 +605,24 @@ exports.handler = async function (event) {
   const namedRoom = Array.isArray(body.room) && body.room.filter(p => p && p.name).length > 1;
   function label(name, text) { return (namedRoom && name) ? `${name}: ${text}` : text; }
 
-  const history = (Array.isArray(body.messages) ? body.messages : [])
+  const rawHistory = (Array.isArray(body.messages) ? body.messages : [])
     .slice(-MAX_TURNS)
     .filter(m => m && m.text)
     .map(m => ({
       role: m.mine ? 'user' : 'assistant',
       content: m.mine ? label(m.who, String(m.text).slice(0, 4000)) : String(m.text).slice(0, 4000),
     }));
+
+  /* THE SAME DUPLICATE-MESSAGE BUG gc-room-say.js already had fixed, never
+     caught here because this is the OTHER path: room.html's send() posts to
+     the visible log, which is what transcript() reads into body.messages,
+     BEFORE calling ask() -- so by the time this request arrives, the thing
+     someone just said is already the last entry in history, and lastTurn
+     below says it again. Isabelle: "Good afternoon, Terry. Twice, even."
+     Dropped only on a real, non-idle turn: idle's own synthetic lastTurn
+     duplicates nothing in history, and trimming there would just lose a
+     real message for no reason. */
+  const history = idle ? rawHistory : rawHistory.slice(0, -1);
 
   /* ── THEY CAN BE SHOWN THINGS ────────────────────────────────────────────
      Dr. O: the friend should be able to receive images and files and see
