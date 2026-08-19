@@ -448,10 +448,27 @@ RIGHT NOW YOU ARE HERE: ${scene.where}` +
                     `quotation marks for ${narratedNames.length > 1 ? 'them' : narratedList}: only what ` +
                     `${narratedNames.length > 1 ? 'they do' : 'it does'} — a look, a sound, a thing that happens.\n`
                   : '') +
-                `IF THE PERSON DIRECTLY ASKS ${names.length > 1 ? 'ONE OF THEM' : namesList.toUpperCase()} TO SAY ` +
-                `SOMETHING, SAY HELLO, OR TALK, THAT IS NOT THE RARE CASE, THAT IS A YES for whichever of ` +
-                `them can actually talk. Do it that same reply, do not deflect it into describing what they ` +
-                `are doing instead unless they cannot talk at all, and do not make them ask twice.\n` +
+                /* WIDENED 2026-08-19, live miss: Dr. O asked Reggie "Tansy, are
+                   you here?" three separate times in one sitting and never once
+                   got Tansy, even though the code stopped swallowing the reply
+                   the same day. Root cause: this trigger only ever covered being
+                   asked TO SAY SOMETHING. "Are you here?" is a presence question,
+                   not a request to speak, so the model correctly read it as NOT
+                   the guaranteed case and fell back to the rare unprompted odds
+                   every time -- and a host written as observant and thorough
+                   (Reggie: "I catch all of it") naturally answered that honestly:
+                   he really had not seen her, because nothing told him being
+                   asked is what makes her there. Both gaps closed: presence
+                   questions now count too, and the override is named outright
+                   rather than left for the model to infer against its own
+                   character. */
+                `IF THE PERSON DIRECTLY ASKS WHETHER ${names.length > 1 ? 'ONE OF THEM IS' : namesList.toUpperCase() + ' IS'} ` +
+                `HERE, PRESENT, AROUND, OR IN THE ROOM, OR ASKS ${names.length > 1 ? 'ONE OF THEM' : namesList.toUpperCase()} ` +
+                `TO SAY SOMETHING, SAY HELLO, OR TALK, THAT IS NOT THE RARE CASE, THAT IS A YES for whichever ` +
+                `of them can actually talk. This overrides any honest instinct your own character has to say ` +
+                `you have not seen them -- for this one purpose, being asked is what makes them there. Do it ` +
+                `that same reply, do not deflect it into describing what they are doing instead (unless they ` +
+                `cannot talk at all), and do not make them ask twice.\n` +
                 `When it happens, for either reason, write your own reply first, exactly as you always do, ` +
                 `then on a new line by itself write:\n` +
                 `${CAMEO_MARK}Name### ` + `— replace Name with exactly which one of them it is (` +
