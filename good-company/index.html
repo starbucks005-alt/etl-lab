@@ -309,16 +309,15 @@ figure{ margin:0; }
    the first column instead of sitting over the whole row. */
 .demos h2{ grid-column:1 / -1; margin-bottom:.4rem; }
 @media (max-width:820px){ .demos{ grid-template-columns:repeat(2,1fr); } }
-/* THE MEDIA WRAPPER, added after a real bug: the play button was first
-   positioned against .demo-card itself, which includes the label's own
-   height below the image, so it sat too low and overlapped the text
-   ("BLUE" ended up hidden behind the button). position:relative here
-   instead, scoped to JUST the image, is what the button's bottom:0
-   below actually needs to mean "bottom of the picture." */
-.demo-card-media{ position:relative; }
-.demo-card-media a{ display:block; text-decoration:none; color:inherit; }
+.demo-card > a{ display:block; text-decoration:none; color:inherit; }
 .demo-card .slot{ aspect-ratio:3/4; margin-bottom:.6rem; transition:opacity .15s; }
-.demo-card-media a:hover .slot{ opacity:.85; }
+.demo-card > a:hover .slot{ opacity:.85; }
+
+/* PLAY BUTTON MOVED NEXT TO THE NAME, 2026-08-18: Dr. O, after it shipped
+   sitting in the corner of the photograph -- "the demo voices are not
+   obvious." A small icon over a busy photo reads as decoration, not a
+   control; next to the text it reads as a second, distinct action. */
+.demo-card-row{ display:flex; align-items:center; justify-content:space-between; gap:.6rem; }
 .demo-card-label{
   display:block; text-decoration:none; color:inherit;
   font-family:var(--mono); font-size:.78rem; letter-spacing:.08em;
@@ -326,21 +325,18 @@ figure{ margin:0; }
 }
 .demo-card-label:hover{ color:var(--accent); }
 
-/* THE PLAY BUTTON, same small pill shape as room.html's own sound-on
-   button over the video, deliberately reused rather than invented fresh:
-   one visual language for "there is sound here" everywhere on this
-   product. Bottom-right rather than centered, so it never sits over a
-   face. Positioned against .demo-card-media, NOT .demo-card -- see that
-   comment above. */
+/* Same small pill shape as room.html's own sound-on button over the
+   video, deliberately reused rather than invented fresh: one visual
+   language for "there is sound here" everywhere on this product. */
 .demo-card-play{
-  position:absolute; right:.5rem; bottom:.5rem;
-  width:2.1rem; height:2.1rem; border-radius:999px;
+  flex:0 0 auto;
+  width:1.9rem; height:1.9rem; border-radius:999px;
   display:flex; align-items:center; justify-content:center;
-  background:rgba(0,0,0,.55); border:1px solid rgba(255,255,255,.35);
-  color:#F0E7DA; font-size:1rem; cursor:pointer; backdrop-filter:blur(2px);
-  transition:background .15s, border-color .15s;
+  background:transparent; border:1px solid var(--line);
+  color:var(--ink-dim); font-size:.85rem; cursor:pointer;
+  transition:background .15s, border-color .15s, color .15s;
 }
-.demo-card-play:hover{ background:rgba(0,0,0,.72); border-color:rgba(255,255,255,.6); }
+.demo-card-play:hover{ color:var(--accent); border-color:var(--accent); }
 .demo-card-play.playing{ background:var(--accent); border-color:var(--accent); color:var(--accent-ink); }
 
 /* ── the band ───────────────────────────────────────────────────────────── */
@@ -485,45 +481,51 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
        framing along with the old markup instead of carrying it over. -->
   <section class="demos wrap">
     <h2>Our demos, free to try, texting or talking.</h2>
-    <!-- EACH CARD HOLDS TWO SEPARATE INTERACTIVE THINGS, added 2026-08-18:
-         the picture (goes to the room) and a play button (hears their
-         voice, right here, no click-through). A <button> nested inside an
-         <a> is invalid HTML even though browsers tolerate it, so the card
-         is a plain <div> with the link and the button as siblings rather
-         than one nested in the other.
+    <!-- EACH CARD HOLDS TWO SEPARATE INTERACTIVE THINGS: the picture (goes
+         to the room) and a play button (hears their voice, right here, no
+         click-through). A <button> nested inside an <a> is invalid HTML
+         even though browsers tolerate it, so the card is a plain <div>
+         with the link and the button as siblings rather than one nested
+         in the other.
+
+         PLAY BUTTON MOVED NEXT TO THE NAME, 2026-08-18: Dr. O, after it
+         shipped sitting in the corner of the photograph -- "the demo
+         voices are not obvious." A small icon over a busy photo reads as
+         decoration, not a control; next to the text it is legible as a
+         second, distinct action the way a name and a button never get
+         confused for each other.
 
          THE CLIPS ARE RECORDED, NOT LIVE. Cached mp3s (audio/*-bio.mp3),
          generated once with each demo's real ElevenLabs voice reading a
          short line in their own voice. Free to play any number of times:
          no function call, no per-play cost, same "recorded once, replayed
-         forever" rule as everything else cached on this campus. See
-         playBio() below. -->
+         forever" rule as everything else cached on this campus. -->
     <div class="demo-card">
-      <div class="demo-card-media">
-        <a href="room.html?who=arch">
-          <div class="slot" data-label="photos/arch-onsite.png"><img src="photos/arch-onsite.png" alt=""></div>
-        </a>
+      <a href="room.html?who=arch">
+        <div class="slot" data-label="photos/arch-onsite.png"><img src="photos/arch-onsite.png" alt=""></div>
+      </a>
+      <div class="demo-card-row">
+        <a class="demo-card-label" href="room.html?who=arch">General contractor Arch</a>
         <button class="demo-card-play" type="button" data-audio="audio/arch-bio.mp3" aria-label="Hear Arch">&#128264;</button>
       </div>
-      <a class="demo-card-label" href="room.html?who=arch">General contractor Arch</a>
     </div>
     <div class="demo-card">
-      <div class="demo-card-media">
-        <a href="room.html?who=sofia">
-          <div class="slot" data-label="photos/sofia.jpg"><img src="photos/sofia.jpg" alt=""></div>
-        </a>
+      <a href="room.html?who=sofia">
+        <div class="slot" data-label="photos/sofia.jpg"><img src="photos/sofia.jpg" alt=""></div>
+      </a>
+      <div class="demo-card-row">
+        <a class="demo-card-label" href="room.html?who=sofia">Vet nurse Sophia</a>
         <button class="demo-card-play" type="button" data-audio="audio/sofia-bio.mp3" aria-label="Hear Sophia">&#128264;</button>
       </div>
-      <a class="demo-card-label" href="room.html?who=sofia">Vet nurse Sophia</a>
     </div>
     <div class="demo-card">
-      <div class="demo-card-media">
-        <a href="room.html?who=reggie">
-          <div class="slot" data-label="photos/reggie-explorers.jpg"><img src="photos/reggie-explorers.jpg" alt=""></div>
-        </a>
+      <a href="room.html?who=reggie">
+        <div class="slot" data-label="photos/reggie-explorers.jpg"><img src="photos/reggie-explorers.jpg" alt=""></div>
+      </a>
+      <div class="demo-card-row">
+        <a class="demo-card-label" href="room.html?who=reggie">Reggie, with friends</a>
         <button class="demo-card-play" type="button" data-audio="audio/reggie-bio.mp3" aria-label="Hear Reggie">&#128264;</button>
       </div>
-      <a class="demo-card-label" href="room.html?who=reggie">Reggie, with friends</a>
     </div>
     <!-- No chosen still exists for all three fairies together (the scene
          picker in room.html hits this same gap and falls back the same
@@ -535,13 +537,13 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
          own solo scenes get a place to surface a play button of their
          own. -->
     <div class="demo-card">
-      <div class="demo-card-media">
-        <a href="room.html?who=tansy">
-          <div class="slot" data-label="https://vumbnail.com/1219352357.jpg"><img src="https://vumbnail.com/1219352357.jpg" alt=""></div>
-        </a>
+      <a href="room.html?who=tansy">
+        <div class="slot" data-label="https://vumbnail.com/1219352357.jpg"><img src="https://vumbnail.com/1219352357.jpg" alt=""></div>
+      </a>
+      <div class="demo-card-row">
+        <a class="demo-card-label" href="room.html?who=tansy">Tansy, Poppy &amp; Blue</a>
         <button class="demo-card-play" type="button" data-audio="audio/tansy-bio.mp3" aria-label="Hear Tansy">&#128264;</button>
       </div>
-      <a class="demo-card-label" href="room.html?who=tansy">Tansy, Poppy &amp; Blue</a>
     </div>
   </section>
 
