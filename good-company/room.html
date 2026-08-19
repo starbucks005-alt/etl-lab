@@ -1483,8 +1483,16 @@ function ask(payload) {
     lastSpoke = Date.now();
     /* A NULL REPLY IS A REAL ANSWER, not a failure. Nothing is rendered: no
        bubble, no apology, no dots. If silence cannot be produced the room
-       always feels like a demo. */
-    if (j && j.reply) {
+       always feels like a demo.
+
+       WIDENED FROM if (j && j.reply) TO ALSO COVER j.cameo ALONE, found
+       2026-08-19: Dr. O asked Tansy directly into Reggie's room, nothing
+       showed up, asked again, got a real Reggie line. gc-chat.js now
+       preserves a cameo even when the host has no line of his own that
+       turn (see its own fix, same date) -- this side still needed to stop
+       requiring j.reply to render anything at all, or that preserved
+       cameo would arrive here and still never post. */
+    if (j && (j.reply || (j.cameo && j.cameo.text))) {
       /* speaker_name/speaker_voice_id are what gc-chat.js actually used to
          build the reply (see its own activeFriend note) — trusted over the
          locally-picked speakerObj in case the scene changed underneath a
@@ -1492,12 +1500,12 @@ function ask(payload) {
          as before this existed. */
       var talkerName = (j.speaker_name) || FRIEND.name;
       var talkerVoice = (j.speaker_voice_id) || FRIEND.voiceId;
-      var replyBubble = post(talkerName, j.reply);
+      var replyBubble = j.reply ? post(talkerName, j.reply) : null;
       /* THE CAMEO, IF THERE IS ONE (Poppy, in Tansy's room, rarely).
          Text posts right away either way. The speech is chained after her
          own line finishes, via onDone, rather than fired at the same time,
          so audio mode never has two voices talking over each other. */
-      speak(j.reply, talkerVoice, function () {
+      function showCameo() {
         if (j.cameo && j.cameo.text) {
           var cameoBubble = post(j.cameo.name, j.cameo.text);
           /* A NARRATED LINE READS LIKE A QUOTE OTHERWISE. "Gus noses at
@@ -1517,7 +1525,9 @@ function ask(payload) {
           if (j.cameo.voice_id) speak(j.cameo.text, j.cameo.voice_id, undefined, cameoBubble);
           rememberCameoElsewhere(j.cameo.name, j.cameo.text);
         }
-      }, replyBubble);
+      }
+      if (j.reply) speak(j.reply, talkerVoice, showCameo, replyBubble);
+      else showCameo();
     }
     else if (j && (j.credits_exhausted || j.daily_capped)) { showCreditsUpsell(j.daily_capped, j.owner_key_rejected); }
     else if (j && j.error) post("Not wired yet", "The chat function said: " + j.error);

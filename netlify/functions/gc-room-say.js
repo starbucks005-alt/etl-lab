@@ -189,17 +189,27 @@ exports.handler = async function (event) {
     await R.releaseTurn(key, who.room.id);
   }
 
-  if (out && out.reply) {
-    await R.insertMessage(key, who.room.id, {
-      speaker: 'friend',
-      authorId: null,
-      /* out.speaker_name is who actually generated this line (gc-chat.js's
-         activeFriend) -- Poppy or Blue in a solo scene, Tansy otherwise.
-         Falls back the same way it always did if that ever comes back
-         empty. */
-      name: out.speaker_name || (who.room.friend && who.room.friend.name) || 'Friend',
-      content: out.reply,
-    });
+  /* WAS if (out && out.reply) -- widened 2026-08-19 to out.reply OR
+     out.cameo, same root cause as gc-chat.js's own fix from the same
+     report: asked to summon someone directly, the model sometimes writes
+     nothing of its own and the whole turn is the cameo. gc-chat.js now
+     preserves that cameo instead of discarding it, but this file was
+     still gating BOTH inserts on out.reply alone -- a real cameo would
+     come back from gc-chat.js and still never reach gc_messages, so
+     nobody's browser (host included) would ever see it. */
+  if (out && (out.reply || out.cameo)) {
+    if (out.reply) {
+      await R.insertMessage(key, who.room.id, {
+        speaker: 'friend',
+        authorId: null,
+        /* out.speaker_name is who actually generated this line (gc-chat.js's
+           activeFriend) -- Poppy or Blue in a solo scene, Tansy otherwise.
+           Falls back the same way it always did if that ever comes back
+           empty. */
+        name: out.speaker_name || (who.room.friend && who.room.friend.name) || 'Friend',
+        content: out.reply,
+      });
+    }
     /* THE CAMEO, IF THERE WAS ONE, added 2026-08-18. gc-chat.js already
        returns it (Poppy/Biscuit/Mochi's rare interjection), and this used
        to just drop it on the floor: only out.reply ever got persisted, so

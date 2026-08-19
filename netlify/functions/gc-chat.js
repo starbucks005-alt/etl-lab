@@ -946,10 +946,21 @@ exports.handler = async function (event) {
     return json(200, { reply: null, quiet: true, mood: feltMood || activeFriend.mood || null, feelings: feelings });
   }
   reply = reply.replace(/<\/?quiet>/gi, '').trim();
-  if (!reply) return json(200, { reply: null, quiet: true, mood: feltMood || activeFriend.mood || null, feelings: feelings });
+  /* NEVER DROP A CAMEO JUST BECAUSE THE HOST HAS NOTHING TO ADD, found
+     2026-08-19: Dr. O asked Tansy directly into Reggie's room, got
+     silence, asked again, got a real answer. Root cause was here — asked
+     to summon someone else, the model sometimes writes nothing of its
+     own and puts everything into the ###CAMEO### line, which is stripped
+     out of raw above (line ~897) before this check ever runs. reply came
+     back empty, this used to return early with reply:null and no cameo
+     field at all, which throws the parsed cameo away with it: Tansy
+     never even reached the response, let alone the screen. Gated on
+     cameo too now, so a genuinely empty turn (no host line, no cameo)
+     still reads as quiet, but a cameo-only turn survives. */
+  if (!reply && !cameo) return json(200, { reply: null, quiet: true, mood: feltMood || activeFriend.mood || null, feelings: feelings });
 
   return json(200, {
-    reply, mood: feltMood || activeFriend.mood || null, feelings: feelings, cameo,
+    reply: reply || null, mood: feltMood || activeFriend.mood || null, feelings: feelings, cameo,
     /* Echoed back rather than trusted to whatever the client still has in
        memory: a shared room polls, and a guest's own copy of the scene can
        be a beat behind the host's. This is what actually generated the
