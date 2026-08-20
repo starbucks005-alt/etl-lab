@@ -68,7 +68,7 @@ try {
    even when the renderer failed to load. */
 const CANVAS_FALLBACK = { instagram: { w: 1080, h: 1080, kind: 'social', label: 'Instagram square' } };
 
-const MODEL = 'claude-sonnet-4-6';
+const MODEL = 'claude-sonnet-5';
 
 const PLATFORMS = {
   linkedin:  { name: 'LinkedIn',  charLimit: 3000, ideal: 1300, dims: '4x5',
