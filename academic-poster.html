@@ -12,20 +12,46 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Academic Poster Presentation | ETL Leadership Certificate Module 5</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Public+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script>
+(function () {
+  try {
+    var saved = localStorage.getItem('etl_classrooms_theme');
+    var theme = saved || 'dark';
+    document.documentElement.setAttribute('data-theme', theme);
+  } catch (_) {}
+})();
+</script>
 <style>
   :root {
-    --bg-ink: #13100c;
-    --bg-ink-soft: #1a1612;
-    --bg-card: #1e1a14;
-    --gold: #b8922a;
-    --gold-light: #d4aa4a;
-    --gold-rule: rgba(184,146,42,0.3);
-    --gold-glow: rgba(184,146,42,0.06);
-    --text-cream: #f4ede0;
-    --text-body: #e8dece;
-    --text-dim: #9a8e7e;
-    --teal: #4A9B8E;
+    --bg-ink: #111111;
+    --bg-ink-soft: #1a1a1a;
+    --bg-card: #1a1a1a;
+    --gold: #5c8ab5;
+    --gold-light: #285C4D;
+    --gold-rule: rgba(92,138,181,0.3);
+    --gold-glow: rgba(92,138,181,0.06);
+    --text-cream: #ffffff;
+    --text-body: #d6d6d6;
+    --text-dim: #8a8a8a;
+    --teal: #285C4D;
+    --nav-bg: rgba(17,17,17,0.94);
+  }
+  [data-theme="light"] {
+    --bg-ink: #ffffff;
+    --bg-ink-soft: #f4f4f4;
+    --bg-card: #ffffff;
+    --gold: #5c8ab5;
+    --gold-light: #285C4D;
+    --gold-rule: rgba(92,138,181,0.3);
+    --gold-glow: rgba(92,138,181,0.06);
+    --text-cream: #111111;
+    --text-body: #333333;
+    --text-dim: #555555;
+    --teal: #285C4D;
+    --nav-bg: rgba(255,255,255,0.94);
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -34,7 +60,7 @@
   body {
     background: var(--bg-ink);
     color: var(--text-body);
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Public Sans', sans-serif;
     font-size: 17px;
     line-height: 1.6;
     min-height: 100vh;
@@ -50,13 +76,13 @@
     align-items: center;
     justify-content: space-between;
     padding: 1.1rem 2.5rem;
-    background: rgba(19,16,12,0.94);
+    background: var(--nav-bg);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--gold-rule);
   }
   .nav-logo {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.58rem;
     letter-spacing: 0.2em;
     text-transform: uppercase;
@@ -67,7 +93,7 @@
   .nav-logo .nav-accent { color: var(--gold); }
   .nav-logo:hover { color: var(--gold-light); }
   .nav-back {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.55rem;
     letter-spacing: 0.15em;
     text-transform: uppercase;
@@ -90,7 +116,7 @@
 
   /* TYPOGRAPHY */
   .section-label {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.55rem;
     letter-spacing: 0.3em;
     text-transform: uppercase;
@@ -98,7 +124,7 @@
     margin-bottom: 1.75rem;
   }
   .phase-headline {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Spectral', serif;
     font-size: clamp(1.6rem, 4vw, 2.4rem);
     font-weight: 700;
     color: var(--text-cream);
@@ -106,7 +132,7 @@
     margin-bottom: 0.75rem;
   }
   .phase-sub {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Spectral', serif;
     font-style: italic;
     font-size: 1.05rem;
     color: var(--text-dim);
@@ -114,7 +140,7 @@
     margin-bottom: 2.5rem;
   }
   .col-label {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.55rem;
     letter-spacing: 0.25em;
     text-transform: uppercase;
@@ -122,7 +148,7 @@
     margin-bottom: 1rem;
   }
   .col-body {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Public Sans', sans-serif;
     font-size: 1.05rem;
     font-weight: 300;
     color: var(--text-body);
@@ -137,7 +163,7 @@
 
   /* BUTTONS */
   .btn-primary, .btn-ghost {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.58rem;
     letter-spacing: 0.2em;
     text-transform: uppercase;
@@ -192,7 +218,7 @@
     margin-bottom: 2.5rem;
   }
   .insight-box p {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Spectral', serif;
     font-size: 1.05rem;
     font-style: italic;
     color: var(--text-body);
@@ -212,7 +238,7 @@
     padding: 1.5rem 1.25rem;
   }
   .card-label {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.52rem;
     letter-spacing: 0.2em;
     text-transform: uppercase;
@@ -220,7 +246,7 @@
     margin-bottom: 0.75rem;
   }
   .card-body {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Public Sans', sans-serif;
     font-size: 0.95rem;
     color: var(--text-body);
     line-height: 1.75;
@@ -243,7 +269,7 @@
   .visitor-card--gold { border-top-color: var(--gold); }
   .visitor-card--dim { border-top-color: var(--text-dim); }
   .visitor-card-type {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.52rem;
     letter-spacing: 0.22em;
     text-transform: uppercase;
@@ -253,7 +279,7 @@
   .visitor-card--gold .visitor-card-type { color: var(--gold); }
   .visitor-card--dim .visitor-card-type { color: var(--text-dim); }
   .visitor-card-signal {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Spectral', serif;
     font-size: 0.92rem;
     font-style: italic;
     color: var(--text-dim);
@@ -261,7 +287,7 @@
     line-height: 1.5;
   }
   .visitor-card-body {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Public Sans', sans-serif;
     font-size: 0.95rem;
     color: var(--text-body);
     line-height: 1.75;
@@ -275,7 +301,7 @@
     margin-bottom: 2rem;
   }
   .practice-prompt-label {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.52rem;
     letter-spacing: 0.2em;
     text-transform: uppercase;
@@ -283,7 +309,7 @@
     margin-bottom: 1rem;
   }
   .practice-prompt p {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Public Sans', sans-serif;
     font-size: 1rem;
     color: var(--text-body);
     line-height: 1.8;
@@ -295,7 +321,7 @@
     background: var(--bg-ink-soft);
     border: 1px solid var(--gold-rule);
     color: var(--text-cream);
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Public Sans', sans-serif;
     font-size: 1.05rem;
     line-height: 1.8;
     padding: 1rem 1.25rem;
@@ -308,7 +334,7 @@
 
   /* EXIT SIGNALS CHECKLIST */
   .signals-instruction {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.52rem;
     letter-spacing: 0.2em;
     text-transform: uppercase;
@@ -334,7 +360,7 @@
   .signal-item:hover { border-color: var(--gold); background: var(--gold-glow); }
   .signal-item.learned { border-color: var(--gold); background: var(--gold-glow); }
   .signal-check {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.75rem;
     color: var(--text-dim);
     flex-shrink: 0;
@@ -343,7 +369,7 @@
   }
   .signal-item.learned .signal-check { color: var(--gold); }
   .signal-text {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Public Sans', sans-serif;
     font-size: 1rem;
     color: var(--text-body);
     line-height: 1.5;
@@ -362,7 +388,7 @@
     padding: 1.75rem 1.5rem;
   }
   .close-step-num {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 2rem;
     font-weight: 300;
     color: var(--gold-rule);
@@ -370,7 +396,7 @@
     margin-bottom: 0.75rem;
   }
   .close-step-label {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.52rem;
     letter-spacing: 0.2em;
     text-transform: uppercase;
@@ -378,7 +404,7 @@
     margin-bottom: 0.75rem;
   }
   .close-step-body {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Public Sans', sans-serif;
     font-size: 0.95rem;
     color: var(--text-body);
     line-height: 1.75;
@@ -392,7 +418,7 @@
     margin-bottom: 2rem;
   }
   .assessment-label {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.55rem;
     letter-spacing: 0.3em;
     text-transform: uppercase;
@@ -414,7 +440,7 @@
   }
   .assessment-item:last-child { border-bottom: none; }
   .assessment-check {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.75rem;
     color: var(--text-dim);
     flex-shrink: 0;
@@ -423,7 +449,7 @@
   }
   .assessment-item.checked .assessment-check { color: var(--gold); }
   .assessment-text {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Public Sans', sans-serif;
     font-size: 1rem;
     color: var(--text-body);
     line-height: 1.5;
@@ -441,7 +467,7 @@
   }
   .success-screen.visible { display: block; }
   .success-label {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 1rem;
     letter-spacing: 0.3em;
     text-transform: uppercase;
@@ -449,7 +475,7 @@
     margin-bottom: 1rem;
   }
   .success-sub {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Spectral', serif;
     font-style: italic;
     font-size: 1.1rem;
     color: var(--text-dim);
@@ -474,7 +500,7 @@
   .audience-tabs { display: none !important; }
   .aud-tab {
     flex: 1;
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.62rem;
     letter-spacing: 0.2em;
     text-transform: uppercase;
@@ -501,7 +527,10 @@
 
 <nav>
   <a href="index.html" class="nav-logo"><span class="nav-accent">ETL</span> &nbsp;·&nbsp; Leadership Certificate</a>
-  <a href="index.html" class="nav-back">&larr; Home</a>
+  <div style="display:flex; align-items:center; gap:.6rem;">
+    <a href="index.html" class="nav-back">&larr; Home</a>
+    <button type="button" class="nav-back" id="themeToggle" style="cursor:pointer;">Light</button>
+  </div>
 </nav>
 
 <!-- AUDIENCE TABS — Student Track (Academic Poster) vs Professional Track (Executive Briefing). -->
@@ -1003,6 +1032,23 @@ window.addEventListener('DOMContentLoaded', function() {
 window.addEventListener('hashchange', function(){
   try { setAudience(parseAudience()); } catch (_) {}
 });
+
+// Page-wide light/dark toggle
+(function () {
+  var btn = document.getElementById('themeToggle');
+  if (!btn) return;
+  function sync() {
+    var isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    btn.textContent = isLight ? 'Dark' : 'Light';
+  }
+  sync();
+  btn.addEventListener('click', function () {
+    var next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('etl_classrooms_theme', next); } catch (_) {}
+    sync();
+  });
+})();
 </script>
 </body>
 </html>

@@ -12,18 +12,36 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Body Language Certification | ETL Lab</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Public+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script>
+(function () {
+  try {
+    var saved = localStorage.getItem('etl_classrooms_theme');
+    var theme = saved || 'dark';
+    document.documentElement.setAttribute('data-theme', theme);
+  } catch (_) {}
+})();
+</script>
 <style>
   :root {
-    --gold: #b8922a;
-    --gold-light: #d4a843;
-    --gold-dim: rgba(184,146,42,0.15);
-    --black: #0a0a0a;
-    --surface: #111111;
+    --gold: #5c8ab5;
+    --gold-light: #285C4D;
+    --gold-dim: rgba(92,138,181,0.15);
+    --black: #111111;
+    --surface: #1a1a1a;
     --surface2: #1a1a1a;
-    --text: #e8e0d0;
-    --text-dim: #8a8070;
-    --border: rgba(184,146,42,0.2);
+    --text: #ffffff;
+    --text-dim: #8a8a8a;
+    --border: rgba(92,138,181,0.2);
+  }
+  [data-theme="light"] {
+    --black: #ffffff;
+    --surface: #ffffff;
+    --surface2: #f4f4f4;
+    --text: #111111;
+    --text-dim: #555555;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -31,11 +49,26 @@
   body {
     background: var(--black);
     color: var(--text);
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Public Sans', sans-serif;
     font-size: 17px;
     line-height: 1.6;
     min-height: 100vh;
   }
+
+  .theme-toggle {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    padding: 8px 18px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    border-radius: 999px;
+  }
+  .theme-toggle:hover { border-color: #285C4D; color: #285C4D; }
 
   /* ── NAV ── */
   nav {
@@ -50,7 +83,7 @@
     z-index: 100;
   }
   .nav-brand {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Spectral', serif;
     font-size: 13px;
     letter-spacing: 0.14em;
     color: var(--gold);
@@ -64,7 +97,7 @@
     background: none;
     border: 1px solid var(--border);
     color: var(--text-dim);
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 11px;
     letter-spacing: 0.08em;
     padding: 8px 18px;
@@ -89,7 +122,7 @@
     text-align: center;
   }
   .hero-label {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 11px;
     letter-spacing: 0.2em;
     color: var(--gold);
@@ -97,7 +130,7 @@
     margin-bottom: 28px;
   }
   .hero h1 {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Spectral', serif;
     font-size: clamp(36px, 5vw, 58px);
     font-weight: 400;
     line-height: 1.15;
@@ -126,7 +159,7 @@
     background: var(--gold);
     color: var(--black);
     border: none;
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 11px;
     letter-spacing: 0.14em;
     text-transform: uppercase;
@@ -140,7 +173,7 @@
     background: none;
     color: var(--gold);
     border: 1px solid var(--gold);
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 11px;
     letter-spacing: 0.14em;
     text-transform: uppercase;
@@ -160,14 +193,14 @@
   }
   .stat { text-align: center; }
   .stat-num {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Spectral', serif;
     font-size: 38px;
     color: var(--gold);
     display: block;
     font-weight: 600;
   }
   .stat-label {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 10px;
     letter-spacing: 0.15em;
     color: var(--text-dim);
@@ -189,7 +222,7 @@
     margin-bottom: 48px;
   }
   .study-header h2 {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Spectral', serif;
     font-size: 28px;
     font-weight: 400;
   }
@@ -203,7 +236,7 @@
     background: none;
     border: 1px solid var(--border);
     color: var(--text-dim);
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 10px;
     letter-spacing: 0.1em;
     padding: 8px 18px;
@@ -241,14 +274,14 @@
   .flash-card.flipped .card-front { display: none; }
   .flash-card:not(.flipped) .card-back { display: none; }
   .card-front-name {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Spectral', serif;
     font-size: 15px;
     color: var(--text);
     margin-bottom: 12px;
   }
   .card-signal-badge {
     display: inline-block;
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 9px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
@@ -256,13 +289,13 @@
     border-radius: 0;
     margin-top: auto;
   }
-  .badge-confident { background: rgba(184,146,42,0.15); color: var(--gold); border: 1px solid rgba(184,146,42,0.3); }
+  .badge-confident { background: rgba(92,138,181,0.15); color: var(--gold); border: 1px solid rgba(92,138,181,0.3); }
   .badge-uncomfortable { background: rgba(100,100,120,0.2); color: #9090b0; border: 1px solid rgba(100,100,120,0.3); }
   .badge-aggressive { background: rgba(160,60,60,0.2); color: #c07070; border: 1px solid rgba(160,60,60,0.3); }
   .badge-deception { background: rgba(80,120,160,0.2); color: #7090c0; border: 1px solid rgba(80,120,160,0.3); }
   .badge-other { background: rgba(80,160,100,0.15); color: #70c090; border: 1px solid rgba(80,160,100,0.25); }
   .card-flip-hint {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 9px;
     letter-spacing: 0.08em;
     color: var(--text-dim);
@@ -277,7 +310,7 @@
     margin-bottom: 12px;
   }
   .card-back-label {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 9px;
     color: var(--gold);
     letter-spacing: 0.1em;
@@ -308,13 +341,13 @@
     margin-bottom: 48px;
   }
   .q-counter {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 12px;
     color: var(--text-dim);
     letter-spacing: 0.1em;
   }
   .q-score-live {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 12px;
     color: var(--gold);
   }
@@ -325,7 +358,7 @@
     margin-bottom: 28px;
   }
   .question-category-tag {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 10px;
     letter-spacing: 0.14em;
     color: var(--gold);
@@ -334,7 +367,7 @@
     display: block;
   }
   .question-text {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Spectral', serif;
     font-size: 21px;
     font-weight: 400;
     line-height: 1.45;
@@ -357,7 +390,7 @@
     background: none;
     border: 1px solid var(--border);
     color: var(--text);
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Public Sans', sans-serif;
     font-size: 16px;
     text-align: left;
     padding: 16px 22px;
@@ -384,7 +417,7 @@
     color: #c07070;
   }
   .choice-letter {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 11px;
     color: var(--text-dim);
     min-width: 20px;
@@ -406,7 +439,7 @@
     background: var(--gold);
     color: var(--black);
     border: none;
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 11px;
     letter-spacing: 0.14em;
     text-transform: uppercase;
@@ -426,7 +459,7 @@
     text-align: center;
   }
   .cert-name-screen h2 {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Spectral', serif;
     font-size: 36px;
     font-weight: 400;
     margin-bottom: 16px;
@@ -440,7 +473,7 @@
     background: var(--surface);
     border: 1px solid var(--border);
     color: var(--text);
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Public Sans', sans-serif;
     font-size: 20px;
     padding: 18px 24px;
     width: 100%;
@@ -459,7 +492,7 @@
     text-align: center;
   }
   .result-score-big {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Spectral', serif;
     font-size: 80px;
     font-weight: 600;
     line-height: 1;
@@ -468,7 +501,7 @@
   .result-score-big.pass { color: var(--gold); }
   .result-score-big.fail { color: #904040; }
   .result-label {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 12px;
     letter-spacing: 0.2em;
     text-transform: uppercase;
@@ -529,7 +562,7 @@
 
   /* ── SECTION HEADERS ── */
   .section-label {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 10px;
     letter-spacing: 0.2em;
     color: var(--gold);
@@ -561,6 +594,7 @@
     <button class="nav-btn" onclick="showScreen('study')">Study Cards</button>
     <button class="nav-btn" onclick="showScreen('practice')">Practice</button>
     <button class="nav-btn active" onclick="showScreen('cert-name')">Get Certified</button>
+    <button type="button" class="theme-toggle" id="themeToggle">Light</button>
   </div>
 </nav>
 
@@ -617,7 +651,7 @@
     <div class="practice-header">
       <div>
         <span class="section-label">Practice Mode</span>
-        <h2 style="font-family:'Playfair Display',serif;font-size:26px;font-weight:400;">Signal Identification</h2>
+        <h2 style="font-family:'Spectral',serif;font-size:26px;font-weight:400;">Signal Identification</h2>
       </div>
       <div>
         <span class="q-counter" id="prac-counter">Question 1 / 20</span>
@@ -645,7 +679,7 @@
     <span class="section-label">Certification Assessment</span>
     <h2>Body Language Fundamentals</h2>
     <p>Complete the 10-question assessment to earn your Certificate of Completion in Nonverbal Communication, issued by the Emerging Technologies Core Laboratory, Dr. Terry L. Oroszi.</p>
-    <p style="color:var(--gold);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.1em;margin-bottom:28px;">PASSING SCORE: 80% (8 of 10 correct)</p>
+    <p style="color:var(--gold);font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.1em;margin-bottom:28px;">PASSING SCORE: 80% (8 of 10 correct)</p>
     <input type="text" id="cert-name-input" class="name-input" placeholder="Your full name (as it will appear on the certificate)" />
     <button class="btn-primary" style="width:100%;" onclick="startAssessment()">Begin Assessment &rarr;</button>
   </div>
@@ -657,7 +691,7 @@
     <div class="practice-header">
       <div>
         <span class="section-label">Certification Assessment</span>
-        <h2 style="font-family:'Playfair Display',serif;font-size:26px;font-weight:400;">Body Language Fundamentals</h2>
+        <h2 style="font-family:'Spectral',serif;font-size:26px;font-weight:400;">Body Language Fundamentals</h2>
       </div>
       <div>
         <span class="q-counter" id="assess-counter">Question 1 / 10</span>
@@ -979,13 +1013,13 @@ function buildStudyMode() {
     const badgeClass = getBadgeClass(card.signal);
     div.innerHTML = `
       <div class="card-front">
-        <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">${card.cat}</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">${card.cat}</div>
         <div class="card-front-name">${card.name}</div>
         <span class="card-signal-badge ${badgeClass}">${card.signal}</span>
         <div class="card-flip-hint" style="margin-top:14px;">Click to read &rarr;</div>
       </div>
       <div class="card-back">
-        <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">${card.cat} &middot; ${card.id}</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">${card.cat} &middot; ${card.id}</div>
         <div class="card-back-text">"${card.desc}"</div>
         <span class="card-signal-badge ${badgeClass}">${card.signal}</span>
       </div>
@@ -1198,16 +1232,16 @@ function generateCert() {
   const W = canvas.width, H = canvas.height;
 
   // Background
-  ctx.fillStyle = '#0a0a0a';
+  ctx.fillStyle = '#111111';
   ctx.fillRect(0, 0, W, H);
 
   // Outer gold border
-  ctx.strokeStyle = '#b8922a';
+  ctx.strokeStyle = '#5c8ab5';
   ctx.lineWidth = 2;
   ctx.strokeRect(30, 30, W - 60, H - 60);
 
   // Inner border (thin)
-  ctx.strokeStyle = 'rgba(184,146,42,0.3)';
+  ctx.strokeStyle = 'rgba(92,138,181,0.3)';
   ctx.lineWidth = 1;
   ctx.strokeRect(44, 44, W - 88, H - 88);
 
@@ -1218,50 +1252,50 @@ function generateCert() {
   drawCornerOrnament(ctx, W - 30, H - 30, -1, -1);
 
   // Institution name
-  ctx.fillStyle = 'rgba(184,146,42,0.6)';
-  ctx.font = '500 13px "DM Mono", monospace';
+  ctx.fillStyle = 'rgba(92,138,181,0.6)';
+  ctx.font = '500 13px "IBM Plex Mono", monospace';
   ctx.textAlign = 'center';
   ctx.letterSpacing = '0.2em';
   ctx.fillText('EMERGING TECHNOLOGIES LABORATORY', W / 2, 100);
 
   // Divider line
-  ctx.strokeStyle = 'rgba(184,146,42,0.4)';
+  ctx.strokeStyle = 'rgba(92,138,181,0.4)';
   ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(120, 145); ctx.lineTo(W - 120, 145); ctx.stroke();
 
   // "Certificate of Completion"
-  ctx.fillStyle = '#b8922a';
-  ctx.font = 'italic 22px "Cormorant Garamond", serif';
+  ctx.fillStyle = '#5c8ab5';
+  ctx.font = 'italic 22px "Spectral", serif';
   ctx.fillText('Certificate of Completion', W / 2, 195);
 
   // Main title
-  ctx.fillStyle = '#e8e0d0';
-  ctx.font = '400 52px "Playfair Display", serif';
+  ctx.fillStyle = '#ffffff';
+  ctx.font = '400 52px "Spectral", serif';
   ctx.fillText('Body Language', W / 2, 270);
-  ctx.font = 'italic 400 52px "Playfair Display", serif';
-  ctx.fillStyle = '#b8922a';
+  ctx.font = 'italic 400 52px "Spectral", serif';
+  ctx.fillStyle = '#5c8ab5';
   ctx.fillText('Fundamentals', W / 2, 330);
 
   // "awarded to"
-  ctx.fillStyle = 'rgba(184,146,42,0.55)';
-  ctx.font = '300 14px "Cormorant Garamond", serif';
+  ctx.fillStyle = 'rgba(92,138,181,0.55)';
+  ctx.font = '300 14px "Public Sans", sans-serif';
   ctx.letterSpacing = '0.15em';
   ctx.fillText('A W A R D E D   T O', W / 2, 385);
 
   // Recipient name
-  ctx.fillStyle = '#e8e0d0';
-  ctx.font = '400 40px "Playfair Display", serif';
+  ctx.fillStyle = '#ffffff';
+  ctx.font = '400 40px "Spectral", serif';
   ctx.fillText(certName, W / 2, 445);
 
   // Name underline
   const nameW = ctx.measureText(certName).width;
-  ctx.strokeStyle = 'rgba(184,146,42,0.5)';
+  ctx.strokeStyle = 'rgba(92,138,181,0.5)';
   ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(W/2 - nameW/2, 460); ctx.lineTo(W/2 + nameW/2, 460); ctx.stroke();
 
   // Description
-  ctx.fillStyle = '#8a8070';
-  ctx.font = '300 16px "Cormorant Garamond", serif';
+  ctx.fillStyle = '#8a8a8a';
+  ctx.font = '300 16px "Public Sans", sans-serif';
   ctx.letterSpacing = '0em';
   ctx.fillText('has successfully completed the assessment in Nonverbal Communication,', W / 2, 510);
   ctx.fillText('demonstrating proficiency in the 105-card Body Language framework.', W / 2, 534);
@@ -1270,47 +1304,47 @@ function generateCert() {
   const today = new Date();
   const dateStr = today.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
-  ctx.strokeStyle = 'rgba(184,146,42,0.25)';
+  ctx.strokeStyle = 'rgba(92,138,181,0.25)';
   ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(120, 580); ctx.lineTo(W - 120, 580); ctx.stroke();
 
   // Three columns: date / seal / authority
-  ctx.fillStyle = '#b8922a';
-  ctx.font = '500 11px "DM Mono", monospace';
+  ctx.fillStyle = '#5c8ab5';
+  ctx.font = '500 11px "IBM Plex Mono", monospace';
   ctx.textAlign = 'left';
   ctx.fillText(dateStr.toUpperCase(), 140, 628);
-  ctx.fillStyle = '#8a8070';
-  ctx.font = '300 12px "Cormorant Garamond", serif';
+  ctx.fillStyle = '#8a8a8a';
+  ctx.font = '300 12px "Public Sans", sans-serif';
   ctx.fillText('Date of Completion', 140, 648);
 
   ctx.textAlign = 'right';
-  ctx.fillStyle = '#b8922a';
-  ctx.font = '500 11px "DM Mono", monospace';
+  ctx.fillStyle = '#5c8ab5';
+  ctx.font = '500 11px "IBM Plex Mono", monospace';
   ctx.fillText('DR. TERRY L. OROSZI', W - 140, 628);
-  ctx.fillStyle = '#8a8070';
-  ctx.font = '300 12px "Cormorant Garamond", serif';
+  ctx.fillStyle = '#8a8a8a';
+  ctx.font = '300 12px "Public Sans", sans-serif';
   ctx.fillText('Program Director, ETL Lab', W - 140, 648);
 
   // Center emblem
   ctx.textAlign = 'center';
-  ctx.strokeStyle = '#b8922a';
+  ctx.strokeStyle = '#5c8ab5';
   ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.arc(W / 2, 622, 28, 0, Math.PI * 2); ctx.stroke();
   ctx.beginPath(); ctx.arc(W / 2, 622, 22, 0, Math.PI * 2); ctx.stroke();
-  ctx.fillStyle = '#b8922a';
-  ctx.font = '700 18px "Playfair Display", serif';
+  ctx.fillStyle = '#5c8ab5';
+  ctx.font = '700 18px "Spectral", serif';
   ctx.fillText('ETL', W / 2, 628);
 
   // Footer
-  ctx.fillStyle = 'rgba(138,128,112,0.4)';
-  ctx.font = '300 11px "DM Mono", monospace';
+  ctx.fillStyle = 'rgba(138,138,138,0.4)';
+  ctx.font = '300 11px "IBM Plex Mono", monospace';
   ctx.fillText('Nonverbal Communication · Dr. Terry L. Oroszi · ETL · Dayton, Ohio', W / 2, 730);
 }
 
 function drawCornerOrnament(ctx, x, y, sx, sy) {
   ctx.save();
   ctx.translate(x, y);
-  ctx.strokeStyle = '#b8922a';
+  ctx.strokeStyle = '#5c8ab5';
   ctx.lineWidth = 1.5;
   ctx.beginPath();
   ctx.moveTo(sx * 14, 0);
@@ -1332,6 +1366,25 @@ function downloadCert() {
 // INIT
 // ═══════════════════════════════════════════════
 buildStudyMode();
+
+// ═══════════════════════════════════════════════
+// THEME TOGGLE
+// ═══════════════════════════════════════════════
+(function () {
+  var btn = document.getElementById('themeToggle');
+  if (!btn) return;
+  function sync() {
+    var isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    btn.textContent = isLight ? 'Dark' : 'Light';
+  }
+  sync();
+  btn.addEventListener('click', function () {
+    var next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('etl_classrooms_theme', next); } catch (_) {}
+    sync();
+  });
+})();
 </script>
 </body>
 </html>

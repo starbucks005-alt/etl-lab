@@ -12,20 +12,46 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Elevator Speech | ETL Leadership Certificate Module 1</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Public+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script>
+(function () {
+  try {
+    var saved = localStorage.getItem('etl_classrooms_theme');
+    var theme = saved || 'dark';
+    document.documentElement.setAttribute('data-theme', theme);
+  } catch (_) {}
+})();
+</script>
 <style>
   :root {
-    --bg-ink: #13100c;
-    --bg-ink-soft: #1a1612;
-    --bg-card: #1e1a14;
-    --gold: #b8922a;
-    --gold-light: #d4aa4a;
-    --gold-rule: rgba(184,146,42,0.3);
-    --gold-glow: rgba(184,146,42,0.06);
-    --text-cream: #f4ede0;
-    --text-body: #e8dece;
-    --text-dim: #9a8e7e;
-    --teal: #4A9B8E;
+    --bg-ink: #111111;
+    --bg-ink-soft: #1a1a1a;
+    --bg-card: #1a1a1a;
+    --gold: #5c8ab5;
+    --gold-light: #285C4D;
+    --gold-rule: rgba(92,138,181,0.3);
+    --gold-glow: rgba(92,138,181,0.06);
+    --text-cream: #ffffff;
+    --text-body: #d6d6d6;
+    --text-dim: #8a8a8a;
+    --teal: #285C4D;
+    --nav-bg: rgba(17,17,17,0.94);
+  }
+  [data-theme="light"] {
+    --bg-ink: #ffffff;
+    --bg-ink-soft: #f4f4f4;
+    --bg-card: #ffffff;
+    --gold: #5c8ab5;
+    --gold-light: #285C4D;
+    --gold-rule: rgba(92,138,181,0.3);
+    --gold-glow: rgba(92,138,181,0.06);
+    --text-cream: #111111;
+    --text-body: #333333;
+    --text-dim: #555555;
+    --teal: #285C4D;
+    --nav-bg: rgba(255,255,255,0.94);
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -34,7 +60,7 @@
   body {
     background: var(--bg-ink);
     color: var(--text-body);
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Public Sans', sans-serif;
     font-size: 17px;
     line-height: 1.6;
     min-height: 100vh;
@@ -52,13 +78,13 @@
     align-items: center;
     justify-content: space-between;
     padding: 1.1rem 2.5rem;
-    background: rgba(19,16,12,0.94);
+    background: var(--nav-bg);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--gold-rule);
   }
   .nav-logo {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.58rem;
     letter-spacing: 0.2em;
     text-transform: uppercase;
@@ -69,7 +95,7 @@
   .nav-logo .nav-accent { color: var(--gold); }
   .nav-logo:hover { color: var(--gold-light); }
   .nav-back {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.55rem;
     letter-spacing: 0.15em;
     text-transform: uppercase;
@@ -100,7 +126,7 @@
      SHARED TYPOGRAPHY
   ============================================================ */
   .section-label {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.55rem;
     letter-spacing: 0.3em;
     text-transform: uppercase;
@@ -109,7 +135,7 @@
   }
 
   .phase-headline {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Spectral', serif;
     font-size: clamp(1.6rem, 4vw, 2.4rem);
     font-weight: 700;
     color: var(--text-cream);
@@ -118,7 +144,7 @@
   }
 
   .phase-sub {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Spectral', serif;
     font-style: italic;
     font-size: 1.05rem;
     color: var(--text-dim);
@@ -127,7 +153,7 @@
   }
 
   .col-label {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.55rem;
     letter-spacing: 0.25em;
     text-transform: uppercase;
@@ -136,7 +162,7 @@
   }
 
   .col-body {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Public Sans', sans-serif;
     font-size: 1.05rem;
     font-weight: 300;
     color: var(--text-body);
@@ -154,7 +180,7 @@
      BUTTONS
   ============================================================ */
   .btn-primary, .btn-ghost {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.58rem;
     letter-spacing: 0.2em;
     text-transform: uppercase;
@@ -201,11 +227,11 @@
   ============================================================ */
   .retake-banner {
     display: none;
-    background: rgba(184,146,42,0.07);
+    background: rgba(92,138,181,0.07);
     border: 1px solid var(--gold-rule);
     padding: 0.75rem 1.25rem;
     margin-bottom: 2rem;
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.52rem;
     letter-spacing: 0.18em;
     text-transform: uppercase;
@@ -217,7 +243,7 @@
      PHASE 0 -- WHAT & WHY
   ============================================================ */
   .hero-headline {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Spectral', serif;
     font-size: clamp(3rem, 8vw, 6rem);
     font-weight: 900;
     color: var(--text-cream);
@@ -251,14 +277,14 @@
     gap: 1.25rem;
     align-items: flex-start;
     margin-bottom: 1.1rem;
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Public Sans', sans-serif;
     font-size: 1.05rem;
     color: var(--text-cream);
     line-height: 1.6;
   }
   .rules-list li:last-child { margin-bottom: 0; }
   .rule-num {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.58rem;
     color: var(--gold);
     letter-spacing: 0.1em;
@@ -297,7 +323,7 @@
     position: absolute;
     top: 0.7rem;
     right: 0.8rem;
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.6rem;
     color: var(--gold);
   }
@@ -308,7 +334,7 @@
     margin-bottom: 0.6rem;
   }
   .context-name {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.55rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -316,7 +342,7 @@
     margin-bottom: 0.4rem;
   }
   .context-desc {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Public Sans', sans-serif;
     font-size: 0.88rem;
     color: var(--text-dim);
     line-height: 1.5;
@@ -331,7 +357,7 @@
     background: var(--bg-card);
     border: 1px solid var(--gold-rule);
     color: var(--text-cream);
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Public Sans', sans-serif;
     font-size: 1rem;
     padding: 0.8rem 1.1rem;
     outline: none;
@@ -355,13 +381,13 @@
   }
   .context-badge {
     display: inline-block;
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.52rem;
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--teal);
-    background: rgba(74,155,142,0.1);
-    border: 1px solid rgba(74,155,142,0.35);
+    background: rgba(40,92,77,0.1);
+    border: 1px solid rgba(40,92,77,0.35);
     padding: 0.4rem 0.8rem;
     margin-bottom: 1.75rem;
   }
@@ -378,7 +404,7 @@
     transition: color 0.15s;
   }
   .check-box {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.7rem;
     color: var(--text-dim);
     flex-shrink: 0;
@@ -387,7 +413,7 @@
     line-height: 1.3;
   }
   .check-num {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.52rem;
     letter-spacing: 0.08em;
     color: var(--text-dim);
@@ -396,7 +422,7 @@
     transition: color 0.15s;
   }
   .check-text {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Public Sans', sans-serif;
     font-size: 0.92rem;
     color: var(--text-dim);
     line-height: 1.5;
@@ -412,7 +438,7 @@
     padding-top: 1.25rem;
   }
   .hook-text {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Spectral', serif;
     font-size: 0.92rem;
     font-style: italic;
     color: var(--text-dim);
@@ -426,7 +452,7 @@
     background: var(--bg-card);
     border: 1px solid var(--gold-rule);
     color: var(--text-cream);
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Public Sans', sans-serif;
     font-size: 1.1rem;
     line-height: 1.8;
     padding: 1.5rem;
@@ -443,7 +469,7 @@
     font-style: italic;
   }
   .pace-indicator {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.52rem;
     letter-spacing: 0.1em;
     color: var(--text-dim);
@@ -482,7 +508,7 @@
     pointer-events: none;
   }
   .timer-digits {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Spectral', serif;
     font-size: 3rem;
     font-weight: 900;
     color: var(--text-cream);
@@ -491,7 +517,7 @@
     transition: color 0.3s;
   }
   .timer-unit {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.45rem;
     letter-spacing: 0.3em;
     text-transform: uppercase;
@@ -511,7 +537,7 @@
   }
   .timer-done.visible { display: block; }
   .timer-done-label {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.52rem;
     letter-spacing: 0.25em;
     color: var(--gold);
@@ -529,7 +555,7 @@
     border: 1px solid var(--gold-rule);
     background: var(--bg-card);
     padding: 1.75rem 2rem;
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Public Sans', sans-serif;
     font-size: 1.15rem;
     line-height: 2;
     color: var(--text-cream);
@@ -539,7 +565,7 @@
     margin-bottom: 1rem;
   }
   .speech-note {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Spectral', serif;
     font-style: italic;
     font-size: 0.92rem;
     color: var(--text-dim);
@@ -558,7 +584,7 @@
   }
   #success-screen.active { display: block; }
   .success-headline {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Spectral', serif;
     font-size: clamp(2.5rem, 7vw, 4.5rem);
     font-weight: 900;
     color: var(--gold);
@@ -566,7 +592,7 @@
     margin-bottom: 1.5rem;
   }
   .success-body {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Public Sans', sans-serif;
     font-weight: 300;
     font-size: 1.1rem;
     color: var(--text-body);
@@ -592,7 +618,7 @@
     gap: 1rem;
     padding: 0.9rem 0;
     border-bottom: 1px solid var(--gold-rule);
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.55rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
@@ -637,7 +663,7 @@
   }
   @keyframes gold-flash {
     0%   { background: transparent; }
-    25%  { background: rgba(184,146,42,0.18); }
+    25%  { background: rgba(92,138,181,0.18); }
     100% { background: transparent; }
   }
   .timer-center-text.pulse      { animation: pulse-mild 1s ease infinite; }
@@ -671,7 +697,10 @@
   <a href="index.html" class="nav-logo">
     ETL Lab <span class="nav-accent">&mdash;</span> Dr. Terry L. Oroszi
   </a>
-  <a href="index.html" class="nav-back">&larr; Back to ETL Lab</a>
+  <div style="display:flex; align-items:center; gap:.6rem;">
+    <a href="index.html" class="nav-back">&larr; Back to ETL Lab</a>
+    <button type="button" class="nav-back" id="themeToggle" style="cursor:pointer;">Light</button>
+  </div>
 </nav>
 
 <!-- ============================================================
@@ -891,14 +920,14 @@
           <circle
             cx="100" cy="100" r="80"
             fill="none"
-            stroke="rgba(184,146,42,0.25)"
+            stroke="rgba(92,138,181,0.25)"
             stroke-width="6"
           />
           <circle
             id="timer-arc"
             cx="100" cy="100" r="80"
             fill="none"
-            stroke="#b8922a"
+            stroke="#5c8ab5"
             stroke-width="6"
             stroke-linecap="round"
             stroke-dasharray="502.655"
@@ -1068,7 +1097,7 @@
       el.style.color = 'var(--gold)';
     } else if (secs <= 35) {
       el.textContent = msg;
-      el.style.color = '#4A9B8E';
+      el.style.color = '#285C4D';
     } else {
       el.textContent = msg + ' \u2014 Consider tightening';
       el.style.color = '#9B4A4A';
@@ -1149,7 +1178,7 @@
     digits.style.color = 'var(--text-cream)';
 
     var arc = document.getElementById('timer-arc');
-    arc.setAttribute('stroke', '#b8922a');
+    arc.setAttribute('stroke', '#5c8ab5');
     arc.setAttribute('stroke-dashoffset', '0');
 
     var ct = document.getElementById('timer-ct');
@@ -1170,12 +1199,12 @@
     arc.setAttribute('stroke-dashoffset', offset.toFixed(2));
 
     if (secCeil > 10) {
-      arc.setAttribute('stroke', '#b8922a');
+      arc.setAttribute('stroke', '#5c8ab5');
       digits.style.color = 'var(--text-cream)';
       ct.classList.remove('pulse', 'pulse-fast');
     } else if (secCeil > 3) {
-      arc.setAttribute('stroke', '#d4aa4a');
-      digits.style.color = '#d4aa4a';
+      arc.setAttribute('stroke', '#8db3d9');
+      digits.style.color = '#8db3d9';
       ct.classList.remove('pulse-fast');
       if (!ct.classList.contains('pulse')) ct.classList.add('pulse');
     } else {
@@ -1239,6 +1268,22 @@
   }());
 
 }());
+
+(function () {
+  var btn = document.getElementById('themeToggle');
+  if (!btn) return;
+  function sync() {
+    var isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    btn.textContent = isLight ? 'Dark' : 'Light';
+  }
+  sync();
+  btn.addEventListener('click', function () {
+    var next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('etl_classrooms_theme', next); } catch (_) {}
+    sync();
+  });
+})();
 </script>
 </body>
 </html>
