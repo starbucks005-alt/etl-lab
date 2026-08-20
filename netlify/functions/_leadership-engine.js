@@ -70,6 +70,10 @@ const AGENTS = {
     baseline: { happiness: 55, sadness: 10, fear: 5, disgust: 10, anger: 10, surprise: 20, curious: 60 },
     volatility: 'low-medium', // warm, direct, professional; genuinely engaged by a good question
   },
+  iris: {
+    baseline: { happiness: 60, sadness: 10, fear: 5, disgust: 10, anger: 5, surprise: 20, curious: 55 },
+    volatility: 'low', // steady front-desk warmth; not easily rattled by a repeat question
+  },
 };
 
 const SMOOTHING = 0.6; // how much of the way from current to target one turn moves

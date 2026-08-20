@@ -130,6 +130,8 @@ a:hover { color: var(--green); }
 }
 .hero p { font-size: 1rem; color: var(--text); max-width: 74ch; margin: 0 0 .5rem; line-height: 1.75; }
 .hero-meta { font-family: 'IBM Plex Mono', monospace; font-size: .74rem; color: var(--mute); margin-top: 1rem; }
+.hero-photo { margin: -3rem -2.6rem 2rem; line-height: 0; overflow: hidden; border-bottom: 1px solid var(--line); background: var(--bg2); }
+.hero-photo img { width: 100%; height: auto; display: block; }
 
 .sec-head { margin: 3rem 0 .2rem; display: flex; align-items: baseline; gap: 1rem; }
 .sec-head h2 { font-family: 'Spectral', serif; font-size: 1.4rem; font-weight: 600; color: var(--cream); margin: 0; }
@@ -150,6 +152,9 @@ a:hover { color: var(--green); }
 
 .faculty-card { margin-top: 1px; }
 .faculty-card .cards { grid-template-columns: 1fr; max-width: 280px; }
+
+.ta-intro { max-width: 480px; margin: 0 0 1.2rem; border: 1px solid var(--line); overflow: hidden; line-height: 0; background: var(--bg2); }
+.ta-intro img { width: 100%; height: auto; display: block; }
 
 .table-card {
   margin-top: 1px;
@@ -210,7 +215,7 @@ a:hover { color: var(--green); }
 .syllabus-body p.syllabus-note { font-size: .86rem; color: var(--text); line-height: 1.65; margin: 0; max-width: 76ch; }
 @media (max-width: 640px) { .syllabus-item { grid-template-columns: 1fr; gap: .5rem; } }
 
-@media (max-width: 720px) { .hero { padding: 2.2rem 1.4rem 1.8rem; } }
+@media (max-width: 720px) { .hero { padding: 2.2rem 1.4rem 1.8rem; } .hero-photo { margin: -2.2rem -1.4rem 1.6rem; } }
 </style>
 </head>
 <body>
@@ -225,6 +230,7 @@ a:hover { color: var(--green); }
   <a class="backlink" href="/classrooms.html">&larr; ETL Classrooms</a>
 
   <div class="hero">
+    <div class="hero-photo"><img src="/assets/leadership/leadership-classroom-hero.png" alt="Dr. Terry Oroszi with the ten Leadership, Theory and Application agents"></div>
     <div class="eyebrow">PTX 7006 &middot; Leadership, Theory and Application</div>
     <h1>Ten leaders, ten real leadership styles.</h1>
     <p>Visionary, pacesetting, coaching, coalition, nonviolent, crisis, persuasive: real leadership theory taught by the people who actually lived it. Ask any of them how they led, why it worked, and what it cost. Bring several to one table and watch entirely different leadership philosophies argue it out.</p>
@@ -232,9 +238,10 @@ a:hover { color: var(--green); }
   </div>
 
   <div class="sec-head">
-    <h2>Individual Leadership Styles</h2>
+    <h2>The Ten Leaders</h2>
     <div class="sec-rule"></div>
   </div>
+  <p class="sec-sub">Visionary, pacesetting, coaching, coalition, nonviolent, crisis, persuasive: real leadership theory taught by the people who actually lived it. Each portrait below is tagged with the style that leader teaches.</p>
   <div class="cards">
     <a class="card" href="/leadership-agent.html?agent=roosevelt">
       <div class="card-portrait"><img src="/assets/leadership/ldr_roosevelt-eyes-open.jpg" alt="Eleanor Roosevelt"></div>
@@ -268,14 +275,6 @@ a:hover { color: var(--green); }
         <p class="card-desc">The first woman in a U.S. Cabinet, who spent twelve years building the coalition that created Social Security.</p>
       </div>
     </a>
-  </div>
-
-  <div class="sec-head">
-    <h2>Affiliative and Nonviolent Leadership</h2>
-    <div class="sec-rule"></div>
-  </div>
-  <p class="sec-sub">Gandhi never met Martin Luther King Jr., he died in 1948, before the American civil rights movement began. But King studied his writings closely and traveled to India in 1959 with Coretta to learn from his followers, a real, documented line of influence, not an invented meeting.</p>
-  <div class="cards">
     <a class="card" href="/leadership-agent.html?agent=gandhi">
       <div class="card-portrait"><img src="/assets/leadership/ldr_gandhi-eyes-open.jpg" alt="Mohandas Gandhi"></div>
       <div class="card-body">
@@ -300,14 +299,6 @@ a:hover { color: var(--green); }
         <p class="card-desc">Turned the discipline of nonviolence into a strategy that could win, and stayed in dialogue with people who wanted him silenced.</p>
       </div>
     </a>
-  </div>
-
-  <div class="sec-head">
-    <h2>Crisis and Commanding Leadership</h2>
-    <div class="sec-rule"></div>
-  </div>
-  <p class="sec-sub">Tubman and Shackleton never met, never corresponded, and lived a world and nearly a century apart. This pairing is thematic, both are studied as cases of decision-making under extreme, life-or-death stakes, not a claim they knew of each other.</p>
-  <div class="cards">
     <a class="card" href="/leadership-agent.html?agent=tubman">
       <div class="card-portrait"><img src="/assets/leadership/ldr_tubman-eyes-open.jpg" alt="Harriet Tubman"></div>
       <div class="card-body">
@@ -324,14 +315,6 @@ a:hover { color: var(--green); }
         <p class="card-desc">The goal changed the moment the ice took the ship. Getting every man home became the only mission that mattered.</p>
       </div>
     </a>
-  </div>
-
-  <div class="sec-head">
-    <h2>Persuasive Rhetoric</h2>
-    <div class="sec-rule"></div>
-  </div>
-  <p class="sec-sub">Sojourner Truth is this course's first case in persuasive rhetoric; Martin Luther King Jr., above, is its second (Week 12: persuasive rhetoric under pressure, staying in dialogue with opposition).</p>
-  <div class="cards">
     <a class="card" href="/leadership-agent.html?agent=truth">
       <div class="card-portrait"><img src="/assets/leadership/ldr_truth-eyes-open.jpg" alt="Sojourner Truth"></div>
       <div class="card-body">
@@ -348,6 +331,25 @@ a:hover { color: var(--green); }
       <p>The Leadership Table: pick 2 to 6 of these ten, any combination, and watch them answer you and each other. A director model decides who speaks next, so it plays out like a real seminar, not a scripted rotation.</p>
     </div>
     <a class="btn-primary" href="/leadership-room.html">Enter the table</a>
+  </div>
+
+  <div class="sec-head">
+    <h2>Meet Your TA</h2>
+    <div class="sec-rule"></div>
+  </div>
+  <p class="sec-sub">Iris usually runs the front desk for the whole lab. For this course, she's on loan as teaching assistant, the person to ask when you're not sure how something in this classroom works. She doesn't teach leadership theory, that's Ask Dr. O and the ten leaders above.</p>
+  <div class="ta-intro"><img src="/assets/leadership/leadership-iris-and-terry.png" alt="Iris S. King with Dr. Terry Oroszi"></div>
+  <div class="faculty-card">
+    <div class="cards">
+      <a class="card" href="/leadership-agent.html?agent=iris">
+        <div class="card-portrait"><img src="/assets/leadership/ldr_iris-eyes-open.jpg" alt="Iris S. King"></div>
+        <div class="card-body">
+          <p class="card-name">Iris S. King</p>
+          <p class="card-role">Teaching Assistant &middot; On Loan from the Front Desk</p>
+          <p class="card-desc">Not sure how something in this classroom works? Ask Iris.</p>
+        </div>
+      </a>
+    </div>
   </div>
 
   <div class="sec-head">
@@ -518,7 +520,7 @@ a:hover { color: var(--green); }
   </div>
 
   <div class="about-block">
-    <p><b>About this classroom.</b> Ten real historical leaders, each teaching a distinct, real leadership style, and a professionally-scoped faculty twin for course-material questions. Every leader agent carries a real, live backpack of sources and never fabricates a fact or a quote; if a lookup fails, they say so plainly.</p>
+    <p><b>About this classroom.</b> Ten real historical leaders, each teaching a distinct, real leadership style, and a professionally-scoped faculty twin for course-material questions. Every leader agent has genuine, real-time access to sources and never fabricates a fact or a quote; if a lookup fails, they say so plainly.</p>
     <p>Some of these leaders knew each other in real life, Eleanor Roosevelt and Frances Perkins were real, longtime friends and allies; Coretta Scott King and Martin Luther King Jr. were married; Martin Luther King Jr. studied Gandhi's writings closely and traveled to India to learn from his followers. Others, like Harriet Tubman and Ernest Shackleton, never met and are paired here purely by theme, for comparing leadership method under extreme stakes. Every agent is built to be honest about exactly which connections are real.</p>
   </div>
 
