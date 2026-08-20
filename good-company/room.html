@@ -1190,18 +1190,39 @@ function askForScene() {
 
    Only ever ADDS. It never edits or replaces what is there, so a link that
    gets opened twice is harmless and a stray link cannot take somebody's friend
-   away from them. */
+   away from them.
+
+   VIMEO SCENES, added 2026-08-20. Dr. O: "Add this scene and use this
+   thumbnail" -- her own video, made outside the Veo pipeline entirely and
+   uploaded to Vimeo, same as Arch's own spa scene already does it
+   (renderScenes() has read scene.vimeoId/scene.thumb since 2026-08-18).
+   The rendering side already understood a Vimeo scene; this delivery link
+   never did, because every built friend's scene up to now came from this
+   file's own Veo pipeline. src carries "vimeo:<numeric id>" instead of a
+   path, and thumb carries a real chosen still (same origin rule as
+   everything else here) rather than falling back to vumbnail.com's guess
+   at a frame. */
 (function () {
   var q;
   try { q = new URLSearchParams(location.search); } catch (e) { return; }
   var src = q.get('add-scene');
   if (!src) return;
 
+  var vimeoMatch = /^vimeo:(\d+)$/.exec(src);
+  var thumb = (q.get('thumb') || '').trim();
+  var thumbOk = !thumb || /^photos\/[A-Za-z0-9._-]+\.(jpg|jpeg|png|webp)$/.test(thumb);
+
   /* Same origin only. An arbitrary URL here would let any link play any video
-     inside somebody's room, under their friend's name. */
-  if (!/^video\/[A-Za-z0-9._-]+\.mp4$/.test(src) &&
+     (or show any image) inside somebody's room, under their friend's name. */
+  if (!vimeoMatch &&
+      !/^video\/[A-Za-z0-9._-]+\.mp4$/.test(src) &&
       !/^\/\.netlify\/functions\/gc-scene\?job_id=gcs-[0-9a-f]+&file=1$/.test(src)) {
     post('Not wired yet', 'That scene link does not look right, so nothing was added.');
+    history.replaceState({}, '', location.pathname);
+    return;
+  }
+  if (!thumbOk) {
+    post('Not wired yet', 'That thumbnail link does not look right, so nothing was added.');
     history.replaceState({}, '', location.pathname);
     return;
   }
@@ -1214,10 +1235,15 @@ function askForScene() {
 
   var label = (q.get('label') || '').trim().slice(0, 40) || 'A new scene';
   var key = 'added-' + src.replace(/[^a-z0-9]+/gi, '-').slice(-40);
+  var newScene = vimeoMatch
+    ? { key: key, label: label, vimeoId: vimeoMatch[1], thumb: thumb || undefined }
+    : { key: key, label: label, src: src };
 
-  var already = (GC_BUILT.scenes || []).some(function (s) { return s && s.src === src; });
+  var already = (GC_BUILT.scenes || []).some(function (s) {
+    return s && (vimeoMatch ? s.vimeoId === vimeoMatch[1] : s.src === src);
+  });
   if (!already) {
-    GC_BUILT.scenes = (GC_BUILT.scenes || []).concat([{ key: key, label: label, src: src }]);
+    GC_BUILT.scenes = (GC_BUILT.scenes || []).concat([newScene]);
     try { GC_saveFriend(GC_BUILT); }
     catch (e) {
       post('A scene arrived', 'It could not be saved: this device is out of storage.');
