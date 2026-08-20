@@ -36,7 +36,7 @@
 const Anthropic = require('@anthropic-ai/sdk').default;
 const { getStore, connectLambda } = require('@netlify/blobs');
 
-const MODEL = 'claude-sonnet-4-6';
+const MODEL = 'claude-sonnet-5';
 
 /* ── Jax's voice for the summary line at the bottom of the report ─────────
    Kept tight here so it does not bloat the prompt. The summary is what
