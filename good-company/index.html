@@ -245,6 +245,10 @@ header{
   box-shadow:var(--shadow);
 }
 .cta:hover{ background:var(--accent-hover); }
+/* SPACE BETWEEN TWO, added 2026-08-20 for "Enter <name>'s room" sitting
+   right beside "Make a friend" -- inline-block collapses adjacent elements
+   onto the same baseline with no gap of its own between them. */
+.cta + .cta{ margin-left:.85rem; }
 
 /* Deliberately quiet, the same instinct as the removed .cta-quiet above: one
    loud button on this screen, everything else a step down from it. Light on
@@ -754,11 +758,14 @@ gcMountSkinPicker(document.getElementById('picker'), document.getElementById('sk
   var make = document.querySelector('.hero-words .cta');
   if (!make) return;
 
+  /* AFTER "Make a friend", not before -- Dr. O: "too close and should be on
+     the other side of Make a Friend." Left as the one thing that never
+     moves, a returning visitor's own room as the second, added thing. */
   var enter = document.createElement('a');
   enter.className = 'cta';
   enter.href = 'room.html?who=' + encodeURIComponent(mine.id);
   enter.textContent = 'Enter ' + mine.name + '’s room';
-  make.insertAdjacentElement('beforebegin', enter);
+  make.insertAdjacentElement('afterend', enter);
 })();
 
 /* MISSING IMAGES ANNOUNCE THEMSELVES.

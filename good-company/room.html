@@ -932,6 +932,20 @@ function renderScenes() {
       thumb.alt = '';
       thumb.onerror = function () { this.remove(); };   // falls back to the plain label, not a broken-image icon
       chip.appendChild(thumb);
+    } else if (FRIEND.portrait) {
+      /* THE SAME GAP AS THE SPA CHIP, found 2026-08-20 on "The Original"
+         itself: no src, no thumb, no vimeoId, so it fell all the way
+         through to a flat black box next to three real previews, next to
+         the exact label ("THE ORIGINAL") that most needs a face on it. The
+         Vimeo fix's own reasoning applies unchanged -- reads as broken even
+         though it is fine, it is just a still, not a missing clip. The
+         portrait IS what this scene is, so it is the obvious fallback: no
+         guessing at a frame, no third-party proxy, the same photograph the
+         main stage already shows for this exact scene (see showStill()). */
+      var still = document.createElement('img');
+      still.src = FRIEND.portrait;
+      still.alt = '';
+      chip.appendChild(still);
     }
     var label = document.createElement('span');
     label.textContent = scene.label;
