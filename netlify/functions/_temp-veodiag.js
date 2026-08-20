@@ -70,5 +70,26 @@ exports.handler = async function (event) {
     return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(res, null, 2) };
   }
 
+  // RAW, no parsing at all -- the actual operation object Google returns,
+  // to see the real shape of a completed response check() cannot find a uri in.
+  if (q.action === 'checkraw') {
+    const op = q.op;
+    if (!op) return { statusCode: 400, body: 'op required' };
+    const https = require('https');
+    const apiKey = veo.apiKey();
+    const raw = await new Promise((resolve, reject) => {
+      https.get({
+        hostname: 'generativelanguage.googleapis.com',
+        path: '/v1beta/' + decodeURIComponent(op).replace(/^\/+/, ''),
+        headers: { 'x-goog-api-key': apiKey },
+      }, r => {
+        let data = '';
+        r.on('data', c => data += c);
+        r.on('end', () => resolve(data));
+      }).on('error', reject);
+    });
+    return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: raw };
+  }
+
   return { statusCode: 400, body: 'action required: find | start | check' };
 };
