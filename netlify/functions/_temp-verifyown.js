@@ -39,7 +39,7 @@ exports.handler = async function (event) {
     const r = await fetch(SCENE_BASE, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ owner_key: ownerKey, order_id: q.order_id }),
+      body: JSON.stringify({ owner_key: ownerKey, order_id: q.order_id, unpaid_on_purpose: true }),
     });
     const text = await r.text();
     return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: text };
