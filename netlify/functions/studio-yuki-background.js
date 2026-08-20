@@ -17,10 +17,12 @@
 
 const Anthropic = require('@anthropic-ai/sdk').default;
 const { VOICE_LAW_PROSE } = require('./_etl-voice-law.js');
+const { loadProductFacts } = require('./_etl-product-facts.js');
 const { getStore, connectLambda } = require('@netlify/blobs');
 
-const MODEL = 'claude-sonnet-4-6';
-const MAX_TOKENS = 2500;
+const MODEL = 'claude-sonnet-5';
+const MAX_TOKENS = 4096;
+const MEMORY_MAX_TURNS = 16;
 
 const SUPABASE_URL = 'https://ulvrnermyuvzanxhxoib.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsdnJuZXJteXV2emFueGh4b2liIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3MzYyMDEsImV4cCI6MjA5NjMxMjIwMX0.tAaXhm_pb-DxrYsXYw1DvvYENDJ_y3jlt2nGWSp2lbA';
@@ -165,12 +167,23 @@ exports.handler = async function(event) {
 
     const userMsg = parts.join('\n');
 
+    const memory = getStore('studio_staff_memory');
+    const memKey = 'yuki-mendel__' + userId;
+    let history = [];
+    try {
+      const stored = await memory.get(memKey, { type: 'json' });
+      if (Array.isArray(stored)) history = stored;
+    } catch (_) {}
+
+    const messages = history.slice(-MEMORY_MAX_TURNS * 2).concat([{ role: 'user', content: userMsg }]);
+    const productFacts = loadProductFacts();
+
     const client = new Anthropic({ apiKey });
     const response = await client.messages.create({
       model: MODEL,
       max_tokens: MAX_TOKENS,
-      system: YUKI_SYSTEM + '\n\n' + VOICE_LAW_PROSE,
-      messages: [{ role: 'user', content: userMsg }],
+      system: [YUKI_SYSTEM, productFacts, VOICE_LAW_PROSE].filter(Boolean).join('\n\n'),
+      messages,
     });
 
     const text = (response.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n').trim();
@@ -180,6 +193,16 @@ exports.handler = async function(event) {
         user_id: userId, finished_at: new Date().toISOString(),
       });
       return { statusCode: 200, body: JSON.stringify({ ok: false, error: 'empty_response' }) };
+    }
+
+    try {
+      const updatedHistory = history.concat([
+        { role: 'user', content: userMsg },
+        { role: 'assistant', content: text },
+      ]).slice(-MEMORY_MAX_TURNS * 2);
+      await memory.setJSON(memKey, updatedHistory);
+    } catch (memErr) {
+      console.error('[studio-yuki-background] memory save failed:', memErr && memErr.message);
     }
 
     await jobs.setJSON(jobKey, {

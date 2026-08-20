@@ -22,12 +22,14 @@
 
 const Anthropic = require('@anthropic-ai/sdk').default;
 const { VOICE_LAW_PROSE, houseTypography } = require('./_etl-voice-law.js');
+const { loadProductFacts } = require('./_etl-product-facts.js');
 const { getStore, connectLambda } = require('@netlify/blobs');
 const fs = require('fs');
 const path = require('path');
 
-const MODEL = 'claude-sonnet-4-6';
+const MODEL = 'claude-sonnet-5';
 const MAX_TOKENS = 4000;
+const MEMORY_MAX_TURNS = 16;
 const MAX_WEB_SEARCHES = 6;
 
 const SUPABASE_URL = 'https://ulvrnermyuvzanxhxoib.supabase.co';
@@ -287,9 +289,23 @@ exports.handler = async function(event) {
     });
     return { statusCode: 500, body: JSON.stringify({ error: 'backpack_config_not_found' }) };
   }
-  const systemPrompt = basePrompt + '\n' + LIVE_TOOLS_NOTE + VOICE_LAW_PROSE;
+  const productFacts = loadProductFacts();
+  const systemPrompt = [basePrompt, productFacts].filter(Boolean).join('\n\n') + '\n' + LIVE_TOOLS_NOTE + VOICE_LAW_PROSE;
 
   const client = new Anthropic({ apiKey });
+
+  // Cross-session memory: prior (owner, Reid) exchanges are persisted as clean
+  // {question, final answer} pairs, never the raw tool_use/tool_result turns
+  // from the loop below, replaying those across a fresh request would break
+  // the API's tool_use/tool_result pairing. This is the fix for staff that
+  // never remembered what was asked last time.
+  const memoryStore = getStore('studio_staff_memory');
+  const memKey = 'reid-callum__' + auth.user.id;
+  let history = [];
+  try {
+    const stored = await memoryStore.get(memKey, { type: 'json' });
+    if (Array.isArray(stored)) history = stored;
+  } catch (_) {}
 
   // Tools: web_search is server-side (Anthropic runs it inline, no loop needed).
   // gdelt_news is a custom client tool, so we run an agentic loop: when the
@@ -302,7 +318,8 @@ exports.handler = async function(event) {
     REDDIT_TOOL,
   ];
   const MAX_TURNS = 6;
-  const messages = [{ role: 'user', content: question + (body.context ? '\n\nOwner context: ' + String(body.context).slice(0, 1500) : '') }];
+  const userMsg = question + (body.context ? '\n\nOwner context: ' + String(body.context).slice(0, 1500) : '');
+  const messages = history.slice(-MEMORY_MAX_TURNS * 2).concat([{ role: 'user', content: userMsg }]);
 
   const citations = [];
   const seenUrls = new Set();
@@ -381,6 +398,16 @@ exports.handler = async function(event) {
     }
 
     const scrubbed = houseTypography(finalText);
+
+    try {
+      const updatedHistory = history.concat([
+        { role: 'user', content: userMsg },
+        { role: 'assistant', content: scrubbed },
+      ]).slice(-MEMORY_MAX_TURNS * 2);
+      await memoryStore.setJSON(memKey, updatedHistory);
+    } catch (memErr) {
+      console.error('[studio-reid-background] memory save failed:', memErr && memErr.message);
+    }
 
     await store.setJSON(jobKey, {
       job_id: jobId,
