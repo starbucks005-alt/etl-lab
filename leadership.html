@@ -130,8 +130,10 @@ a:hover { color: var(--green); }
 }
 .hero p { font-size: 1rem; color: var(--text); max-width: 74ch; margin: 0 0 .5rem; line-height: 1.75; }
 .hero-meta { font-family: 'IBM Plex Mono', monospace; font-size: .74rem; color: var(--mute); margin-top: 1rem; }
-.hero-photo { max-width: 300px; margin: 0 0 1.6rem; border: 1px solid var(--line); overflow: hidden; line-height: 0; background: #000; }
-.hero-photo video { width: 100%; height: auto; display: block; }
+.hero-photo { max-width: 300px; margin: 0 0 .8rem; border: 1px solid var(--line); overflow: hidden; line-height: 0; background: #000; }
+.hero-photo video { width: 100%; aspect-ratio: 1.45; object-fit: cover; object-position: 100% center; display: block; }
+.hero-photo:last-of-type { margin-bottom: 1.6rem; }
+.hero-photo img { width: 100%; height: auto; display: block; }
 
 .sec-head { margin: 3rem 0 .2rem; display: flex; align-items: baseline; gap: 1rem; }
 .sec-head h2 { font-family: 'Spectral', serif; font-size: 1.4rem; font-weight: 600; color: var(--cream); margin: 0; }
@@ -153,9 +155,6 @@ a:hover { color: var(--green); }
 
 .faculty-card { margin-top: 1px; }
 .faculty-card .cards { grid-template-columns: 1fr; max-width: 280px; }
-
-.ta-intro { max-width: 480px; margin: 0 0 1.2rem; border: 1px solid var(--line); overflow: hidden; line-height: 0; background: var(--bg2); }
-.ta-intro img { width: 100%; height: auto; display: block; }
 
 .table-card {
   margin-top: 1px;
@@ -231,7 +230,8 @@ a:hover { color: var(--green); }
   <a class="backlink" href="/classrooms.html">&larr; ETL Classrooms</a>
 
   <div class="hero">
-    <div class="hero-photo"><video src="/assets/leadership/leadership-classroom-hero.mp4" aria-label="Dr. Terry Oroszi with the ten Leadership, Theory and Application agents" autoplay muted loop playsinline></video></div>
+    <div class="hero-photo"><video src="/assets/leadership/leadership-classroom-hero.mp4" aria-label="The ten Leadership, Theory and Application agents" autoplay muted loop playsinline></video></div>
+    <div class="hero-photo"><img src="/assets/leadership/leadership-iris-and-terry.png" alt="Iris S. King with Dr. Terry Oroszi"></div>
     <div class="eyebrow">PTX 7006 &middot; Leadership, Theory and Application</div>
     <h1>Ten leaders, ten real leadership styles.</h1>
     <p>Visionary, pacesetting, coaching, coalition, nonviolent, crisis, persuasive: real leadership theory taught by the people who actually lived it. Ask any of them how they led, why it worked, and what it cost. Bring several to one table and watch entirely different leadership philosophies argue it out.</p>
@@ -339,7 +339,6 @@ a:hover { color: var(--green); }
     <div class="sec-rule"></div>
   </div>
   <p class="sec-sub">Iris usually runs the front desk for the whole lab. For this course, she's on loan as teaching assistant, the person to ask when you're not sure how something in this classroom works. She doesn't teach leadership theory, that's Ask Dr. O and the ten leaders above.</p>
-  <div class="ta-intro"><img src="/assets/leadership/leadership-iris-and-terry.png" alt="Iris S. King with Dr. Terry Oroszi"></div>
   <div class="faculty-card">
     <div class="cards">
       <a class="card" href="/leadership-agent.html?agent=iris">
@@ -411,7 +410,7 @@ a:hover { color: var(--green); }
       <div class="syllabus-body">
         <h3>Eleanor Roosevelt</h3>
         <p class="syllabus-agents">Visionary Leadership</p>
-        <p class="syllabus-note">ETL Module 4: Power Platform baseline assessment.</p>
+        <p class="syllabus-note">ETL Module 4: <a href="/power-platform.html">Power Platform</a> baseline assessment.</p>
       </div>
     </div>
     <div class="syllabus-item">
@@ -427,7 +426,7 @@ a:hover { color: var(--green); }
       <div class="syllabus-body">
         <h3>John Wooden</h3>
         <p class="syllabus-agents">Coaching Leadership</p>
-        <p class="syllabus-note">ETL Module 3: Body Language &amp; Nonverbal Intelligence begins.</p>
+        <p class="syllabus-note">ETL Module 3: <a href="/body-language-cert.html">Body Language &amp; Nonverbal Intelligence</a> begins.</p>
       </div>
     </div>
     <div class="syllabus-item">
@@ -435,7 +434,7 @@ a:hover { color: var(--green); }
       <div class="syllabus-body">
         <h3>Frances Perkins</h3>
         <p class="syllabus-agents">Democratic and Coalition Leadership</p>
-        <p class="syllabus-note">ETL Module 1: Elevator Speech, Part 1 (draft and workshop).</p>
+        <p class="syllabus-note">ETL Module 1: <a href="/elevator-speech.html">Elevator Speech</a>, Part 1 (draft and workshop).</p>
       </div>
     </div>
     <div class="syllabus-item">
@@ -443,7 +442,7 @@ a:hover { color: var(--green); }
       <div class="syllabus-body">
         <h3>Elevator Speech Delivery</h3>
         <p class="syllabus-agents">Live in class, or an AI Twin</p>
-        <p class="syllabus-note">ETL Module 1, Part 2.</p>
+        <p class="syllabus-note"><a href="/elevator-speech.html">ETL Module 1</a>, Part 2.</p>
       </div>
     </div>
     <div class="syllabus-item">
@@ -451,7 +450,7 @@ a:hover { color: var(--green); }
       <div class="syllabus-body">
         <h3>Gandhi, Coretta Scott King, and Martin Luther King Jr.</h3>
         <p class="syllabus-agents">Affiliative and Nonviolent Leadership roundtable</p>
-        <p class="syllabus-note">ETL Module 2: Egos at the Table.</p>
+        <p class="syllabus-note">ETL Module 2: <a href="/egos-at-the-table.html">Egos at the Table</a>.</p>
       </div>
     </div>
     <div class="syllabus-item">
@@ -499,7 +498,7 @@ a:hover { color: var(--green); }
       <div class="syllabus-body">
         <h3>Case Study Studio</h3>
         <p class="syllabus-agents"></p>
-        <p class="syllabus-note">ETL Module 5: Academic Poster / Executive Briefing.</p>
+        <p class="syllabus-note">ETL Module 5: <a href="/academic-poster.html">Academic Poster / Executive Briefing</a>.</p>
       </div>
     </div>
     <div class="syllabus-item">
@@ -507,7 +506,7 @@ a:hover { color: var(--green); }
       <div class="syllabus-body">
         <h3>CV Workshop</h3>
         <p class="syllabus-agents"></p>
-        <p class="syllabus-note">ETL Module 6: Job Fair Mastery / Networking Mastery.</p>
+        <p class="syllabus-note">ETL Module 6: <a href="/job-fair.html">Job Fair Mastery / Networking Mastery</a>.</p>
       </div>
     </div>
     <div class="syllabus-item">
@@ -515,7 +514,7 @@ a:hover { color: var(--green); }
       <div class="syllabus-body">
         <h3>Capstone: Service Leadership</h3>
         <p class="syllabus-agents"></p>
-        <p class="syllabus-note">ETL Leadership Certificate issued; final elevator speech with guest; student agent presentations.</p>
+        <p class="syllabus-note"><a href="/leadership-cert.html">ETL Leadership Certificate</a> issued; final elevator speech with guest; student agent presentations.</p>
       </div>
     </div>
   </div>

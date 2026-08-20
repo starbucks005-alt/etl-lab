@@ -12,27 +12,27 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ETL Leadership Certificate | Emerging Technologies Core Laboratory</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Public+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg-ink: #13100c;
-    --bg-ink-soft: #1a1612;
-    --bg-card: #1e1a14;
-    --gold: #b8922a;
-    --gold-light: #d4aa4a;
-    --gold-rule: rgba(184,146,42,0.3);
-    --gold-glow: rgba(184,146,42,0.06);
-    --text-cream: #f4ede0;
-    --text-body: #e8dece;
-    --text-dim: #9a8e7e;
-    --teal: #4A9B8E;
+    --bg-ink: #111111;
+    --bg-ink-soft: #1a1a1a;
+    --bg-card: #1a1a1a;
+    --gold: #5c8ab5;
+    --gold-light: #285C4D;
+    --gold-rule: rgba(92,138,181,0.3);
+    --gold-glow: rgba(92,138,181,0.06);
+    --text-cream: #ffffff;
+    --text-body: #d6d6d6;
+    --text-dim: #8a8a8a;
+    --teal: #285C4D;
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-behavior: smooth; }
   body {
     background: var(--bg-ink);
     color: var(--text-body);
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Public Sans', sans-serif;
     font-size: 17px;
     line-height: 1.6;
     min-height: 100vh;
@@ -46,13 +46,13 @@
     align-items: center;
     justify-content: space-between;
     padding: 1.1rem 2.5rem;
-    background: rgba(19,16,12,0.94);
+    background: rgba(17,17,17,0.94);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--gold-rule);
   }
   .nav-logo {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.58rem;
     letter-spacing: 0.2em;
     text-transform: uppercase;
@@ -63,7 +63,7 @@
   .nav-logo .nav-accent { color: var(--gold); }
   .nav-logo:hover { color: var(--gold-light); }
   .nav-back {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.55rem;
     letter-spacing: 0.15em;
     text-transform: uppercase;
@@ -81,7 +81,7 @@
     min-height: 100vh;
   }
   .section-label {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.55rem;
     letter-spacing: 0.3em;
     text-transform: uppercase;
@@ -89,7 +89,7 @@
     margin-bottom: 1.75rem;
   }
   .page-headline {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Spectral', serif;
     font-size: clamp(1.8rem, 4vw, 2.8rem);
     font-weight: 700;
     color: var(--text-cream);
@@ -97,7 +97,7 @@
     margin-bottom: 0.75rem;
   }
   .page-sub {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Spectral', serif;
     font-style: italic;
     font-size: 1.05rem;
     color: var(--text-dim);
@@ -105,7 +105,7 @@
     margin-bottom: 2.5rem;
   }
   .btn-primary, .btn-ghost {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.58rem;
     letter-spacing: 0.2em;
     text-transform: uppercase;
@@ -134,13 +134,13 @@
     gap: 1rem;
     padding: 0.7rem 0;
     border-bottom: 1px solid var(--gold-rule);
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Public Sans', sans-serif;
     font-size: 1rem;
     color: var(--text-body);
   }
   .progress-item:last-child { border-bottom: none; }
   .progress-check {
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.75rem;
     color: var(--text-dim);
     flex-shrink: 0;
@@ -158,7 +158,7 @@
     background: var(--bg-card);
     border: 1px solid var(--gold-rule);
     color: var(--text-cream);
-    font-family: 'Playfair Display', serif;
+    font-family: 'Spectral', serif;
     font-size: 1.1rem;
     padding: 0.7rem 1.2rem;
     outline: none;
@@ -194,7 +194,7 @@
   .audience-tabs { display: none !important; }
   .aud-tab {
     flex: 1;
-    font-family: 'DM Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.62rem;
     letter-spacing: 0.2em;
     text-transform: uppercase;
@@ -284,7 +284,7 @@
     <button class="btn-ghost" id="theme-toggle" onclick="toggleTheme()" style="border-color:var(--gold);color:var(--gold);">LIGHT VERSION &#9728;</button>
   </div>
 
-  <canvas id="cert-canvas" width="1100" height="780" style="max-width:100%; border: 1px solid rgba(184,146,42,0.3); display:block; margin: 0 auto 2rem;"></canvas>
+  <canvas id="cert-canvas" width="1100" height="780" style="max-width:100%; border: 1px solid rgba(92,138,181,0.3); display:block; margin: 0 auto 2rem;"></canvas>
 
   <div class="cert-controls">
     <input type="text" id="cert-name" class="cert-name-input" placeholder="Enter your full name">
@@ -301,11 +301,11 @@ const SIG_B64 = "iVBORw0KGgoAAAANSUhEUgAADPEAAAPGCAYAAAA4Ru5GAAEAAElEQVR4nOzd/1E
 
 function drawCertBackground(ctx, W, H, name, theme) {
   var P = (theme === 'light') ? {
-    bg0: '#faf9f6', bg1: '#f0ebe0',
-    text: '#1a1a1a', sub: '#444444', muted: '#666666'
+    bg0: '#ffffff', bg1: '#f4f4f4',
+    text: '#111111', sub: '#555555', muted: '#555555'
   } : {
-    bg0: '#13100c', bg1: '#1a1612',
-    text: '#f4ede0', sub: '#e8dece', muted: '#9a8e7e'
+    bg0: '#111111', bg1: '#1a1a1a',
+    text: '#ffffff', sub: '#d6d6d6', muted: '#8a8a8a'
   };
   var grad = ctx.createRadialGradient(W/2, H/2, 80, W/2, H/2, W*0.75);
   grad.addColorStop(0, P.bg0);
@@ -313,19 +313,19 @@ function drawCertBackground(ctx, W, H, name, theme) {
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, W, H);
 
-  ctx.strokeStyle = '#b8922a';
+  ctx.strokeStyle = '#5c8ab5';
   ctx.lineWidth = 2;
   ctx.strokeRect(20, 20, W-40, H-40);
 
   ctx.lineWidth = 1;
   ctx.strokeRect(30, 30, W-60, H-60);
 
-  ctx.fillStyle = '#b8922a';
-  ctx.font = '300 12px "DM Mono"';
+  ctx.fillStyle = '#5c8ab5';
+  ctx.font = '300 12px "IBM Plex Mono"';
   ctx.textAlign = 'center';
   ctx.fillText('EMERGING TECHNOLOGIES LABORATORY \u00B7 DAYTON, OH 45402', W/2, 80);
 
-  ctx.strokeStyle = 'rgba(184,146,42,0.5)';
+  ctx.strokeStyle = 'rgba(92,138,181,0.5)';
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(80, 100);
@@ -333,16 +333,16 @@ function drawCertBackground(ctx, W, H, name, theme) {
   ctx.stroke();
 
   ctx.fillStyle = P.text;
-  ctx.font = 'italic 16px "Cormorant Garamond"';
+  ctx.font = 'italic 16px "Spectral"';
   ctx.textAlign = 'center';
   ctx.fillText('This certifies that', W/2, 150);
 
   ctx.fillStyle = P.text;
-  ctx.font = 'bold 48px "Playfair Display"';
+  ctx.font = 'bold 48px "Spectral"';
   ctx.textAlign = 'center';
   ctx.fillText(name, W/2, 220);
 
-  ctx.strokeStyle = '#b8922a';
+  ctx.strokeStyle = '#5c8ab5';
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(W/2 - 100, 250);
@@ -350,12 +350,12 @@ function drawCertBackground(ctx, W, H, name, theme) {
   ctx.stroke();
 
   ctx.fillStyle = P.sub;
-  ctx.font = '18px "Cormorant Garamond"';
+  ctx.font = '18px "Public Sans"';
   ctx.textAlign = 'center';
   ctx.fillText('has successfully completed all six modules of the', W/2, 295);
 
-  ctx.fillStyle = '#b8922a';
-  ctx.font = 'bold 26px "Playfair Display"';
+  ctx.fillStyle = '#5c8ab5';
+  ctx.font = 'bold 26px "Spectral"';
   ctx.textAlign = 'center';
   ctx.fillText('ETL LEADERSHIP CERTIFICATE PROGRAM', W/2, 340);
 
@@ -366,12 +366,12 @@ function drawCertBackground(ctx, W, H, name, theme) {
     ? 'PROFESSIONAL TRACK'
     : 'STUDENT TRACK';
   ctx.fillStyle = P.muted;
-  ctx.font = '300 11px "DM Mono"';
+  ctx.font = '300 11px "IBM Plex Mono"';
   ctx.textAlign = 'center';
   ctx.fillText(trackLabel, W/2, 362);
 
   ctx.fillStyle = P.muted;
-  ctx.font = 'italic 15px "Cormorant Garamond"';
+  ctx.font = 'italic 15px "Spectral"';
   ctx.textAlign = 'center';
   ctx.fillText('Developed by Dr. Terry L. Oroszi \u00B7 Emerging Technologies Core Laboratory', W/2, 388);
 
@@ -379,8 +379,8 @@ function drawCertBackground(ctx, W, H, name, theme) {
   var mod5Name = (trackLabel === 'PROFESSIONAL TRACK') ? 'EXECUTIVE BRIEFING'  : 'ACADEMIC POSTER';
   var mod6Name = (trackLabel === 'PROFESSIONAL TRACK') ? 'NETWORKING MASTERY'  : 'JOB FAIR MASTERY';
 
-  ctx.fillStyle = '#b8922a';
-  ctx.font = '300 10px "DM Mono"';
+  ctx.fillStyle = '#5c8ab5';
+  ctx.font = '300 10px "IBM Plex Mono"';
   ctx.textAlign = 'left';
   ctx.fillText('\u2713  MODULE 1 \u2014 ELEVATOR SPEECH', 200, 420);
   ctx.fillText('\u2713  MODULE 2 \u2014 EGOS AT THE TABLE', 200, 445);
@@ -389,7 +389,7 @@ function drawCertBackground(ctx, W, H, name, theme) {
   ctx.fillText('\u2713  MODULE 5 \u2014 ' + mod5Name, 600, 445);
   ctx.fillText('\u2713  MODULE 6 \u2014 ' + mod6Name, 600, 470);
 
-  ctx.strokeStyle = 'rgba(184,146,42,0.5)';
+  ctx.strokeStyle = 'rgba(92,138,181,0.5)';
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(80, 510);
@@ -397,36 +397,36 @@ function drawCertBackground(ctx, W, H, name, theme) {
   ctx.stroke();
 
   ctx.fillStyle = P.muted;
-  ctx.font = '300 10px "DM Mono"';
+  ctx.font = '300 10px "IBM Plex Mono"';
   ctx.textAlign = 'left';
   ctx.fillText('DATE OF COMPLETION', 140, 620);
   ctx.fillStyle = P.text;
-  ctx.font = '400 12px "DM Mono"';
+  ctx.font = '400 12px "IBM Plex Mono"';
   ctx.fillText('April 14, 2026', 140, 640);
 
   ctx.fillStyle = P.muted;
-  ctx.font = '300 9px "DM Mono"';
+  ctx.font = '300 9px "IBM Plex Mono"';
   ctx.textAlign = 'center';
   ctx.fillText('EMERGING TECHNOLOGIES LABORATORY \u00B7 DIRECTIVE // 09 \u00B7 DAYTON, OH 45402', W/2, 745);
 }
 
 function drawSignatureSection(ctx, W, H, sigImg, theme) {
-  var textCol  = (theme === 'light') ? '#1a1a1a' : '#f4ede0';
-  var mutedCol = (theme === 'light') ? '#666666' : '#9a8e7e';
+  var textCol  = (theme === 'light') ? '#111111' : '#ffffff';
+  var mutedCol = (theme === 'light') ? '#555555' : '#8a8a8a';
   if (sigImg) {
     var sigH = 44;
     var sigW = Math.round(sigImg.naturalWidth * sigH / sigImg.naturalHeight);
     ctx.drawImage(sigImg, W - 140 - sigW, 582, sigW, sigH);
   }
   ctx.fillStyle = textCol;
-  ctx.font = 'italic 14px "Cormorant Garamond"';
+  ctx.font = 'italic 14px "Spectral"';
   ctx.textAlign = 'right';
   ctx.fillText('Dr. Terry L. Oroszi', W - 140, 640);
-  ctx.font = '300 11px "DM Mono"';
+  ctx.font = '300 11px "IBM Plex Mono"';
   ctx.fillStyle = mutedCol;
   ctx.fillText('Program Director, ETL Leadership Certificate', W - 140, 658);
   ctx.fillStyle = mutedCol;
-  ctx.font = '300 10px "DM Mono"';
+  ctx.font = '300 10px "IBM Plex Mono"';
   ctx.fillText('Emerging Technologies Core Laboratory \u00B7 Dayton, OH 45402', W - 140, 673);
 }
 
