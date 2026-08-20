@@ -476,6 +476,10 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
            a visitor to infer it from the cast. -->
       <p class="how">Build as many as you want, each their own person, or their own
          dog, or something else entirely. Nothing here says you get one.</p>
+      <!-- ENTER YOUR ROOM, inserted here by script when one exists (see the
+           script block near the closing body tag) -- ALWAYS RIGHT BEFORE
+           THIS BUTTON, so the two sit side by side in source order too, not
+           just visually. -->
       <a class="cta" href="build.html">Make a friend</a>
       <!-- The way in for somebody not ready to build one yet, which is most
            people on a first visit. Arch is the house friend; meeting him costs
@@ -712,26 +716,28 @@ gcMountSkinPicker(document.getElementById('picker'), document.getElementById('sk
    Isabelle's (my friend) room" -- this page had no idea a built friend
    existed at all, so every link, including the one for somebody who
    already paid, pointed at the demo. build.html's own "already here" list
-   solved this there; the front door never got the same fix. Swaps the one
-   loud button for "Go to <name>'s room" and demotes "Make a friend" to a
-   quiet second link, same visual weight as "Questions?" below it, rather
-   than removing it -- building a second friend is still a real thing to
-   want. Prefers whoever was opened most recently, same resolution build.html
+   solved this there; the front door never got the same fix.
+
+   WAS A SWAP (replacing "Make a friend" with "Go to <name>'s room"),
+   changed 2026-08-20: Dr. O, direct, after that version apparently did not
+   fire for her on a real visit -- "the enter your room has to go on the
+   home page next to build a friend." Alongside is also just sturdier than
+   a swap: nothing about "Make a friend" ever depends on this script
+   running at all now, so a slow load, a timing edge case, or storage this
+   script cannot read still leaves a working, visible button either way.
+   Prefers whoever was opened most recently, same resolution build.html
    already uses for ?who=mine links. */
 (function () {
   var mine = (typeof GC_mostRecentBuilt === 'function') ? GC_mostRecentBuilt() : null;
   if (!mine) return;
-  var cta = document.querySelector('.hero-words .cta');
-  if (!cta) return;
+  var make = document.querySelector('.hero-words .cta');
+  if (!make) return;
 
-  var make = document.createElement('a');
-  make.className = 'faq-link';
-  make.href = 'build.html';
-  make.textContent = 'Make another friend';
-  cta.insertAdjacentElement('afterend', make);
-
-  cta.textContent = 'Go to ' + mine.name + '’s room →';
-  cta.href = 'room.html?who=' + encodeURIComponent(mine.id);
+  var enter = document.createElement('a');
+  enter.className = 'cta';
+  enter.href = 'room.html?who=' + encodeURIComponent(mine.id);
+  enter.textContent = 'Enter ' + mine.name + '’s room';
+  make.insertAdjacentElement('beforebegin', enter);
 })();
 
 /* MISSING IMAGES ANNOUNCE THEMSELVES.
