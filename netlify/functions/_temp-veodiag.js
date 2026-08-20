@@ -55,7 +55,7 @@ exports.handler = async function (event) {
     try {
       started = await veo.start({
         prompt, firstFrameB64: portrait, seconds: 4, models: [veo.MODEL_LITE],
-        aspect: '16:9', resolution: '1080p',
+        aspect: '16:9', resolution: '720p',
       });
     } catch (e) {
       return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ start_failed: true, error: String(e && e.message || e), prompt }) };
