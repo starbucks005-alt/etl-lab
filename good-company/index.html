@@ -719,17 +719,38 @@ gcMountSkinPicker(document.getElementById('picker'), document.getElementById('sk
    solved this there; the front door never got the same fix.
 
    WAS A SWAP (replacing "Make a friend" with "Go to <name>'s room"),
-   changed 2026-08-20: Dr. O, direct, after that version apparently did not
-   fire for her on a real visit -- "the enter your room has to go on the
-   home page next to build a friend." Alongside is also just sturdier than
-   a swap: nothing about "Make a friend" ever depends on this script
-   running at all now, so a slow load, a timing edge case, or storage this
-   script cannot read still leaves a working, visible button either way.
-   Prefers whoever was opened most recently, same resolution build.html
-   already uses for ?who=mine links. */
+   changed 2026-08-20 to run alongside it instead: Dr. O, direct, after that
+   version did not show up on a real visit -- "the enter your room has to
+   go on the home page next to build a friend." Alongside is sturdier on
+   its own merits too: "Make a friend" no longer depends on this script at
+   all, so a timing edge case still leaves a working button either way.
+
+   THE REAL REASON IT NEVER FIRED, found the same day once "next to"
+   still did not show up either: this page has never once loaded
+   gc-friend.js (see the owner-key script at the top of <head>, which
+   says as much and duplicates that one planter for the same reason)
+   -- so GC_mostRecentBuilt has never existed here, on any visit, for
+   anybody, since the very first version of this feature. Not a swap
+   problem, not a timing problem: the function this whole block called
+   was simply undefined the entire time.
+
+   FIXED BY DUPLICATING THE SMALL PART NEEDED, same choice the owner-key
+   planter already made, rather than pulling in all of gc-friend.js (the
+   full cast's canon, scenes, everything) just to read one localStorage
+   key on the homepage. Skips that file's old-singular-key migration on
+   purpose: anyone who has ever opened build.html or room.html even once
+   already migrated, and this page only ever reads, never writes. */
 (function () {
-  var mine = (typeof GC_mostRecentBuilt === 'function') ? GC_mostRecentBuilt() : null;
-  if (!mine) return;
+  var list = [];
+  try { list = JSON.parse(localStorage.getItem('gc-friends') || 'null') || []; } catch (e) { list = []; }
+  if (!Array.isArray(list)) list = [];
+  list = list.filter(function (f) { return f && f.id && f.name; });
+  if (!list.length) return;
+  list.sort(function (a, b) {
+    return String(b.lastOpenedAt || b.createdAt || '').localeCompare(String(a.lastOpenedAt || a.createdAt || ''));
+  });
+  var mine = list[0];
+
   var make = document.querySelector('.hero-words .cta');
   if (!make) return;
 
