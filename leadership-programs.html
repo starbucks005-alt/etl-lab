@@ -9,6 +9,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Public+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script>
+(function () {
+  try {
+    var saved = localStorage.getItem('etl_classrooms_theme');
+    var theme = saved || 'dark';
+    document.documentElement.setAttribute('data-theme', theme);
+  } catch (_) {}
+})();
+</script>
 <style>
 :root {
   --bg:      #111111;
@@ -23,10 +32,31 @@
   --mute:    #8a8a8a;
   --ribbon-bg: #0a0a0a;
 }
+[data-theme="light"] {
+  --bg:      #ffffff;
+  --bg2:     #f4f4f4;
+  --panel:   #ffffff;
+  --panel2:  #f4f4f4;
+  --line:    #111111;
+  --blue:    #5c8ab5;
+  --green:   #285C4D;
+  --cream:   #111111;
+  --text:    #555555;
+  --mute:    #555555;
+  --ribbon-bg: #f4f4f4;
+}
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Public Sans', sans-serif; line-height: 1.65; }
 a { color: var(--blue); text-decoration: none; }
 a:hover { color: var(--green); }
+
+.theme-toggle {
+  position: fixed; top: .9rem; right: 1.2rem; z-index: 50;
+  background: var(--panel); border: 1px solid var(--line); color: var(--mute);
+  font-family: 'IBM Plex Mono', monospace; font-size: .62rem; letter-spacing: .1em; text-transform: uppercase;
+  padding: .45rem .8rem; border-radius: 999px; cursor: pointer; transition: border-color .15s, color .15s;
+}
+.theme-toggle:hover { border-color: var(--green); color: var(--green); }
 
 .ribbon {
   background: var(--ribbon-bg);
@@ -114,6 +144,8 @@ a:hover { color: var(--green); }
 </style>
 </head>
 <body>
+
+<button type="button" class="theme-toggle" id="themeToggle">Light</button>
 
 <div class="ribbon">
   Emerging Technologies Laboratory &nbsp;&middot;&nbsp; <b>Leadership Programs</b>
@@ -209,6 +241,23 @@ a:hover { color: var(--green); }
       a.href = href + sep + 'audience=' + aud;
     });
   })();
+</script>
+
+<script>
+(function () {
+  var btn = document.getElementById('themeToggle');
+  function sync() {
+    var isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    btn.textContent = isLight ? 'Dark' : 'Light';
+  }
+  sync();
+  btn.addEventListener('click', function () {
+    var next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('etl_classrooms_theme', next); } catch (_) {}
+    sync();
+  });
+})();
 </script>
 
 </body>

@@ -13,6 +13,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ETL Leadership Certificate | Emerging Technologies Core Laboratory</title>
 <link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Public+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script>
+(function () {
+  try {
+    var saved = localStorage.getItem('etl_classrooms_theme');
+    var theme = saved || 'dark';
+    document.documentElement.setAttribute('data-theme', theme);
+  } catch (_) {}
+})();
+</script>
 <style>
   :root {
     --bg-ink: #111111;
@@ -26,6 +35,21 @@
     --text-body: #d6d6d6;
     --text-dim: #8a8a8a;
     --teal: #285C4D;
+    --nav-bg: rgba(17,17,17,0.94);
+  }
+  [data-theme="light"] {
+    --bg-ink: #ffffff;
+    --bg-ink-soft: #f4f4f4;
+    --bg-card: #ffffff;
+    --gold: #5c8ab5;
+    --gold-light: #285C4D;
+    --gold-rule: rgba(92,138,181,0.3);
+    --gold-glow: rgba(92,138,181,0.06);
+    --text-cream: #111111;
+    --text-body: #333333;
+    --text-dim: #555555;
+    --teal: #285C4D;
+    --nav-bg: rgba(255,255,255,0.94);
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-behavior: smooth; }
@@ -46,7 +70,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 1.1rem 2.5rem;
-    background: rgba(17,17,17,0.94);
+    background: var(--nav-bg);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--gold-rule);
@@ -222,7 +246,10 @@
 <body>
 <nav>
   <a href="index.html" class="nav-logo"><span class="nav-accent">ETL</span> &nbsp;&middot;&nbsp; Leadership Certificate</a>
-  <a href="index.html" class="nav-back">&larr; Home</a>
+  <div style="display:flex; align-items:center; gap:.6rem;">
+    <a href="index.html" class="nav-back">&larr; Home</a>
+    <button type="button" class="nav-back" id="themeToggle" style="cursor:pointer;">Light</button>
+  </div>
 </nav>
 
 <!-- AUDIENCE TABS — Student Track vs Professional Track. Default students. -->
@@ -579,6 +606,24 @@ window.addEventListener('DOMContentLoaded', function() {
 window.addEventListener('hashchange', function(){
   try { setAudience(parseAudience()); } catch (_) {}
 });
+
+// Page-wide light/dark toggle -- separate from toggleTheme() above, which
+// only flips the downloadable certificate canvas's own color scheme.
+(function () {
+  var btn = document.getElementById('themeToggle');
+  if (!btn) return;
+  function sync() {
+    var isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    btn.textContent = isLight ? 'Dark' : 'Light';
+  }
+  sync();
+  btn.addEventListener('click', function () {
+    var next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('etl_classrooms_theme', next); } catch (_) {}
+    sync();
+  });
+})();
 
 </script>
 </body>
