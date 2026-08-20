@@ -8,3 +8,8 @@ almost-human-android/
 # the site is a 60px chip.
 assets/_originals/
 sherlock-android/
+
+# Raw full-page PNG captures behind the campus hover thumbnails. Kept on disk
+# so a card's screenshot can be re-cropped without re-capturing: 12MB of
+# 1280x800 originals whose only live use is a 640x400 compressed WebP.
+images/campus-hover/_raw/*.png

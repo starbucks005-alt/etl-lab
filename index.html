@@ -2935,6 +2935,11 @@ document.addEventListener('DOMContentLoaded', function(){
 #etl-cc .domain-label .cnt{font-family:var(--mono);font-size:11px;color:var(--mute);letter-spacing:.1em}
 #etl-cc .card{position:relative;border:1px solid var(--line);border-radius:4px;background:linear-gradient(180deg,var(--panel),var(--bg2));padding:16px 18px;overflow:hidden;transition:.18s;cursor:default;display:flex;flex-direction:column;min-height:150px;border-left:3px solid var(--line2)}
 #etl-cc .card:hover{transform:translateY(-2px);background:linear-gradient(180deg,var(--panel2),var(--bg2))}
+#etl-cc .card .hovershot{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:0;transform:scale(1.045);transition:opacity .4s ease,transform .6s ease;pointer-events:none;filter:saturate(.85) brightness(.8)}
+#etl-cc .card:hover .hovershot{opacity:1;transform:scale(1)}
+#etl-cc .card::after{content:'';position:absolute;inset:0;z-index:0;background:linear-gradient(180deg,rgba(4,10,18,.2) 0%,rgba(4,10,18,.82) 68%,rgba(4,10,18,.94) 100%);opacity:0;transition:opacity .4s ease;pointer-events:none}
+#etl-cc .card:hover::after{opacity:1}
+#etl-cc .card>*:not(.hovershot){position:relative;z-index:1}
 #etl-cc .domtag{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:9px}
 #etl-cc .domtag .sw{width:8px;height:8px;border-radius:2px;flex:none}
 #etl-cc .card .top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
@@ -3114,6 +3119,11 @@ document.addEventListener('DOMContentLoaded', function(){
     paid:    `<span class="pill paid">${price || 'Paid'}</span>`,
   }[a]);
 
+  // Card hover shows a real screenshot of that platform's live site, not a mockup.
+  // Filenames are hand-captured (see images/campus-hover/_raw/capture.sh) so this
+  // slug must keep matching how those files were named when a platform is renamed.
+  const slug = s => s.toLowerCase().replace(/&/g,'and').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+
   function cardHTML(p, showDom){
     const pend   = p.access==='pending' ? ' pending-card' : '';
     const tag    = showDom ? `<span class="domtag" style="color:${C[p.dom]}"><span class="sw" style="background:${C[p.dom]}"></span>${DOM[p.dom]}</span>` : '';
@@ -3122,7 +3132,10 @@ document.addEventListener('DOMContentLoaded', function(){
       : `<div class="count">${p.n}<span class="lbl">Agents</span></div>`;
     const foot   = (p.type==='engine' ? '<span class="pill engine">Tool-led</span>' : '') + accPill(p.access, p.price);
     const travel = p.travel ? `<span class="travel">&#8596; ${p.travel}</span>` : '';
-    const inner  = `${tag}<div class="top"><div><div class="name">${p.name}</div><div class="role">${p.role}</div></div>${head}</div><div class="foot">${foot}${travel}</div>`;
+    const shot   = (p.url && p.access !== 'pending')
+      ? `<img class="hovershot" src="/images/campus-hover/${slug(p.name)}.webp" alt="" loading="lazy" decoding="async">`
+      : '';
+    const inner  = `${shot}${tag}<div class="top"><div><div class="name">${p.name}</div><div class="role">${p.role}</div></div>${head}</div><div class="foot">${foot}${travel}</div>`;
     if (p.url && p.access !== 'pending') {
       const ext = p.url.startsWith('http') ? ' target="_blank" rel="noopener"' : '';
       return `<a href="${p.url}"${ext} class="card${pend}" style="border-left-color:${C[p.dom]}">${inner}</a>`;
