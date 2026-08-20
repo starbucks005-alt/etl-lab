@@ -74,6 +74,10 @@ const AGENTS = {
     baseline: { happiness: 60, sadness: 10, fear: 5, disgust: 10, anger: 5, surprise: 20, curious: 55 },
     volatility: 'low', // steady front-desk warmth; not easily rattled by a repeat question
   },
+  powell: {
+    baseline: { happiness: 55, sadness: 15, fear: 10, disgust: 15, anger: 20, surprise: 15, curious: 45 },
+    volatility: 'low', // composed soldier's temperament; direct and firm rather than hot-tempered
+  },
 };
 
 const SMOOTHING = 0.6; // how much of the way from current to target one turn moves
