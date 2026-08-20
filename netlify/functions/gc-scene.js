@@ -52,6 +52,14 @@ const json = (status, obj) => ({
 
 const STORE = 'gc_scene_jobs';
 
+/* THREE, not unlimited: added 2026-08-20 alongside the retry-on-filter fix
+   below. A real repro succeeded on attempt two, so three is a real margin,
+   not a guess -- and a ceiling still matters even though a filtered attempt
+   is free, since this is a poll loop and a job that retries forever is a
+   job that never reaches an order sitting in 'paid' waiting to be refunded
+   if it truly cannot be made. */
+const MAX_VEO_ATTEMPTS = 3;
+
 /* ── THE PROMPT THAT ALREADY WORKS ───────────────────────────────────────────
    Not invented here. This is Dr. O's own wording from the Flow sessions that
    produced Arch's five clips, which she made by hand with no editing after and
@@ -277,22 +285,18 @@ exports.handler = async (event) => {
 
     const prompt = scenePrompt({ where, gender, clothes: body.clothes });
 
+    /* SIXTEEN BY NINE, BECAUSE THAT IS THE SHAPE OF THE ROOM. The video area
+       is aspect-ratio 16/9 and every clip Arch already has is that shape. I
+       had this as 9:16 first, reasoning from the still, which is vertical:
+       the still is vertical and gets cropped by object-fit, but a scene
+       fills the frame and a vertical one would sit in the middle with bars
+       either side. */
+    const aspect = body.aspect || '16:9';
+    const resolution = body.resolution || '720p';
+
     let started;
     try {
-      started = await veo.start({
-        prompt,
-        firstFrameB64: portrait,
-        seconds,
-        models: ladder,
-        /* SIXTEEN BY NINE, BECAUSE THAT IS THE SHAPE OF THE ROOM. The video
-           area is aspect-ratio 16/9 and every clip Arch already has is that
-           shape. I had this as 9:16 first, reasoning from the still, which is
-           vertical: the still is vertical and gets cropped by object-fit, but a
-           scene fills the frame and a vertical one would sit in the middle with
-           bars either side. */
-        aspect: body.aspect || '16:9',
-        resolution: body.resolution || '720p',
-      });
+      started = await veo.start({ prompt, firstFrameB64: portrait, seconds, models: ladder, aspect, resolution });
     } catch (e) {
       return json(502, { error: 'veo_refused', detail: String(e && e.message || e).slice(0, 500) });
     }
@@ -303,6 +307,14 @@ exports.handler = async (event) => {
     }
 
     const jobId = newJobId();
+    /* THE PORTRAIT, KEPT AS ITS OWN BLOB, added 2026-08-20 for automatic
+       retry (see the poll handler below). It was never stored before --
+       only the order it came from was, and an ad-hoc job with no order_id
+       had no portrait anywhere once this request returned. A retry needs
+       the exact same first frame, so it has to live somewhere; its own key
+       keeps it out of the job's own JSON, which gets read and rewritten on
+       every single poll. */
+    await store.set(jobId + '.portrait', portrait);
     const job = {
       job_id: jobId,
       status: 'running',
@@ -320,6 +332,15 @@ exports.handler = async (event) => {
          clip comes back and the face is not theirs, the first question is what
          we actually asked for, and without this there is no way to answer it. */
       prompt,
+      aspect,
+      resolution,
+      models: ladder,
+      /* RETRY BOOKKEEPING, added 2026-08-20. See the poll handler: a filtered
+         result (Google's raiMediaFilteredReasons, confirmed stochastic by a
+         real repro -- same prompt, same portrait, filtered once and then
+         succeeded on a second try) restarts the render automatically rather
+         than refunding on the first miss. */
+      attempts: 1,
       started_at: new Date().toISOString(),
       order_id: (order && order.order_id) || null,
       video_key: null,
@@ -394,7 +415,37 @@ exports.handler = async (event) => {
   if (job.status === 'running' && job.operation) {
     try {
       const res = await veo.check(job.operation);
-      if (res.done && res.error) {
+      if (res.done && res.filtered && (job.attempts || 1) < MAX_VEO_ATTEMPTS) {
+        /* RETRIED, NOT REFUNDED, added 2026-08-20. Confirmed by a real repro
+           against Isabelle's own stuck order (see _veo-video.js's own note on
+           raiMediaFilteredReasons): the exact same prompt and the exact same
+           portrait filtered once and then succeeded on the very next try, and
+           Google's own message says "you have not been charged for this
+           attempt" -- so a retry costs nothing and is worth doing before ever
+           telling a paying customer their scene failed. job.status stays
+           'running' throughout; only job.operation and job.attempts change,
+           so the very next poll just picks up the new operation like any
+           other in-progress job. */
+        console.log('[gc-scene] job ' + jobId + ' filtered on attempt ' + (job.attempts || 1) + ', retrying: ' + res.error);
+        try {
+          const portraitB64 = String(await store.get(jobId + '.portrait', { type: 'text' }) || '');
+          if (!portraitB64) throw new Error('no stored portrait to retry with');
+          const retryStarted = await veo.start({
+            prompt: job.prompt, firstFrameB64: portraitB64, seconds: job.seconds,
+            models: (job.models && job.models.length) ? job.models : [veo.MODEL_LITE],
+            aspect: job.aspect || '16:9', resolution: job.resolution || '720p',
+          });
+          job.operation = retryStarted && (retryStarted.operation || retryStarted.name);
+          job.attempts = (job.attempts || 1) + 1;
+          await store.setJSON(jobId, job);
+        } catch (e) {
+          /* job.operation is left pointing at the already-filtered result, so
+             the next poll just sees the same filtered response and tries this
+             same retry again -- attempts was never incremented here, so this
+             cannot loop past MAX_VEO_ATTEMPTS. */
+          console.warn('[gc-scene] retry-start failed for job ' + jobId + ':', e && e.message);
+        }
+      } else if (res.done && res.error) {
         job.status = 'error';
         job.error = String(res.error).slice(0, 1200);
         job.note = 'It could not be made.';

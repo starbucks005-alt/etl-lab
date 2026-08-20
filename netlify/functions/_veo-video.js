@@ -251,7 +251,27 @@ async function check(operation) {
      not a guess about what it might contain. */
   if (res.error) return { done: true, error: res.error.message || 'generation failed', error_detail: res.error };
   const r = res.response || {};
-  const vids = r.generatedVideos || r.generateVideoResponse && r.generateVideoResponse.generatedSamples || [];
+  const genResp = r.generateVideoResponse || null;
+  /* THE ACTUAL SHAPE OF A FILTERED RESULT, found 2026-08-20 via a real repro
+     against Isabelle's own stuck order. This was never an operation-level
+     error at all -- res.error is empty, res.done is true, and Google's own
+     safety classifier result sits at generateVideoResponse.raiMediaFilteredReasons
+     instead of generatedSamples. Every check() before this fell straight
+     through to "finished with no video uri", which is technically true and
+     told nobody anything: the real message ("issue with the audio for your
+     prompt... you have not been charged for this attempt") was sitting right
+     there in the response the whole time, just never read.
+
+     CONFIRMED RETRYABLE, same repro: the exact same prompt and the exact
+     same portrait, tried twice in a row, filtered once and then succeeded --
+     so this is genuinely stochastic, not a real rejection of the request,
+     and Google's own text says as much ("you have not been charged"). That is
+     what makes an automatic retry (see gc-scene.js) the right response
+     instead of an immediate refund. */
+  if (genResp && Array.isArray(genResp.raiMediaFilteredReasons) && genResp.raiMediaFilteredReasons.length) {
+    return { done: true, filtered: true, error: genResp.raiMediaFilteredReasons[0], error_detail: genResp };
+  }
+  const vids = r.generatedVideos || (genResp && genResp.generatedSamples) || [];
   const first = Array.isArray(vids) ? vids[0] : null;
   const uri = first && (first.video && first.video.uri || first.uri || first.video);
   if (!uri) return { done: true, error: 'finished with no video uri' };
