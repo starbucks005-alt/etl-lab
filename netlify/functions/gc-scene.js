@@ -157,7 +157,6 @@ function scenePrompt({ where, gender, clothes }) {
   const their = isWoman ? 'her'   : isMan ? 'his' : 'their';
   const are   = single ? 'is' : 'are';
   const looks = single ? 'looks' : 'look';
-  const stays = single ? 'stays' : 'stay';
 
   const bits = [];
   bits.push('A seamless infinite loop of ' + subject + ' ' + String(where).trim().replace(/\.$/, '') + '.');
@@ -168,10 +167,24 @@ function scenePrompt({ where, gender, clothes }) {
   /* LOOKING AT THE CAMERA sits in every Flow prompt she wrote, worded into the
      scene itself: "but have him look over at the camera". It is not optional
      and it is not the caller's to forget, because she rejected a finished clip
-     over precisely this and a render only reveals it at the end. */
-  bits.push(they + ' ' + looks + ' over at the camera and ' + stays + ' with the person ' +
-            'watching, present, as though sitting with them. Not absorbed in a task, not ' +
-            'looking away. ' + they + ' ' + are + ' not talking and there is no speech.');
+     over precisely this and a render only reveals it at the end.
+
+     REPLACED 2026-08-20. The line this replaced ("present, as though sitting
+     with them... not absorbed in a task... not talking and there is no
+     speech") was never actually hers -- her own real template above has no
+     anti-talking clause at all, because Arch's own prompts never described
+     him as present/watching/listening in the first place. That extra
+     framing was added later for built friends, and it is exactly what kept
+     producing a talking clip: three different real renders, two different
+     wordings of "do not talk," on two different tiers, all still talked --
+     one of them a full spoken sentence. What actually worked, tested the
+     same day directly against Isabelle's own portrait: her own short,
+     original phrasing, unelaborated. "Active listening" reads as a quieter,
+     more ambient state to the model than "present, watching, sitting with
+     them," and a short "no talking" outperformed a longer, more insistent
+     version of the same instruction -- over-explaining what NOT to do drew
+     more attention to talking, not less. */
+  bits.push(they + ' ' + are + ' active listening, ' + looks + ' over at the camera. No talking.');
 
   /* Her last clause, and optional the way she used it. */
   bits.push(clothes
