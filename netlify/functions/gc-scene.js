@@ -55,12 +55,24 @@ const notify = require('./_gc-notify.js');
    (faces, edges, high-detail areas) and crops toward that instead of
    assuming the subject is centered.
 
-   THE TRADEOFF, SAID PLAINLY (Dr. O signed off on this direction over the
-   alternative, a padded/blurred-backdrop version that keeps the whole
-   portrait but reads smaller): this crops in tighter and loses whatever
-   was below the shoulders and most of the background. For "present, as
-   though sitting with them," a closer crop reads as company, not as a
-   figure shrunk into a wide empty frame. */
+   WAS A PLAIN "COVER" CROP, replaced 2026-08-20, same day: Dr. O approved
+   this direction over padding at the time, but a full "cover" crop from a
+   portrait this narrow is not a strategy choice, it is forced geometry --
+   768x1376 into 1280x720 only ever keeps about 31% of the original height
+   no matter which sharp position strategy picks it, because "cover" scales
+   until the width matches and crops away whatever height that leaves.
+   "attention" cannot zoom out further than that; there is no more image to
+   give it. Confirmed on a real production render: "no talking, but I lost
+   her face" -- forehead to chin, no hair, no neck, no room.
+
+   HYBRID CROP NOW, tested and shown to her as a still image before this
+   ever touched production (she did not object to the framing, only never
+   got wired in): keep a real, moderate zoom -- about 65% of the original
+   height, biased toward the top so there is headroom rather than a
+   dead-center crop through the eyes -- then fill the remaining width with
+   a heavily blurred, scaled-up copy of the SAME crop as a backdrop, not
+   flat black bars. Shows hair, neck, shoulders, a hint of the room; still
+   reads as close and present, not shrunk into a wide empty frame. */
 async function cropTo169(base64) {
   const buf = Buffer.from(base64, 'base64');
   const meta = await sharp(buf).metadata();
@@ -68,11 +80,35 @@ async function cropTo169(base64) {
   const targetRatio = 16 / 9;
   const currentRatio = meta.width / meta.height;
   if (Math.abs(currentRatio - targetRatio) < 0.02) return base64;   // already close enough, no point re-encoding
+
+  const targetW = 1280, targetH = 720;
+  const cropH = Math.min(meta.height, Math.round(meta.height * 0.65));
   const cropped = await sharp(buf)
-    .resize(1280, 720, { fit: 'cover', position: sharp.strategy.attention })
+    .extract({
+      left: 0,
+      // Biased up (0.35 rather than 0.5/centered), so what survives is
+      // headroom-down-to-chest, not a band centered through the eyes.
+      top: Math.max(0, Math.round((meta.height - cropH) * 0.35)),
+      width: meta.width,
+      height: cropH,
+    })
+    .toBuffer();
+  const croppedMeta = await sharp(cropped).metadata();
+
+  const scale = targetH / croppedMeta.height;
+  const fgWidth = Math.min(targetW, Math.round(croppedMeta.width * scale));
+  const fg = await sharp(cropped).resize(fgWidth, targetH).toBuffer();
+
+  const bg = await sharp(cropped)
+    .resize(targetW, targetH, { fit: 'cover' })
+    .blur(50)
+    .toBuffer();
+
+  const composed = await sharp(bg)
+    .composite([{ input: fg, left: Math.round((targetW - fgWidth) / 2), top: 0 }])
     .jpeg({ quality: 92 })
     .toBuffer();
-  return cropped.toString('base64');
+  return composed.toString('base64');
 }
 
 const CORS = {
