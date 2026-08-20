@@ -1026,6 +1026,12 @@ if (!ARRIVING_ON_INVITE) renderScenes();
   fetch('/.netlify/functions/gc-scene-checkout?session_id=' + encodeURIComponent(sid))
     .then(function (r) { return r.json(); }).then(function (j) {
       if (j && j.paid) {
+        /* KEY EVENT, added 2026-08-20, same reasoning as build.html's
+           friend_built/friend_paid: no conversion was tracked anywhere on
+           Good Company before this, only page views. $4.99 matches
+           gc-scene-checkout.js's own SCENE_CENTS, not a guess kept in sync
+           by hand elsewhere. */
+        if (typeof gtag === 'function') gtag('event', 'scene_ordered', { value: 4.99, currency: 'USD' });
         post('Your scene', 'Paid, thank you. It gets made by hand rather than by a machine ' +
              'the moment you press a button, so it will not be instant. When it is ready you ' +
              'will get a link that puts it straight into this room.');

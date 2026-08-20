@@ -1090,6 +1090,12 @@ function openFriendRoomInner(f) {
       f.paid = true;
       GC_saveFriend(f);
       GC_touchFriend(f.id);
+      /* The one real revenue event this page has. Value/currency included
+         so GA's own revenue reporting works without a second lookup --
+         same $9.99 gc-friend-checkout.js actually charges, not a guess
+         duplicated here to rot later; if that price ever changes, this
+         line has to change with it, same as the checkout function itself. */
+      if (typeof gtag === 'function') gtag('event', 'friend_paid', { value: 9.99, currency: 'USD' });
       /* The starter credits gc-friend-checkout.js just granted (or topped
          up), same shared key Almost Human's own welcome page writes, so
          either product already sees the same balance from here on. */
@@ -1266,6 +1272,14 @@ $('makeBtn').addEventListener('click', function () {
      in and the video path takes over untouched. */
   friend.scenes = [{ key:'original', label:'The original', src:null }];
   try { GC_saveFriend(friend); } catch (e) {}
+  /* KEY EVENTS, added 2026-08-20. Dr. O, after the last GA screenshot: no
+     conversion was tracked anywhere, only page views, so there was no way
+     to see the actual funnel from this dashboard. friend_built is the free
+     step (a real completed build, not just a page view); friend_paid and
+     scene_ordered (below, and in room.html) are the two real money events.
+     No PII in any of them -- never the friend's name, never anything
+     typed into the form itself. */
+  if (typeof gtag === 'function') gtag('event', 'friend_built');
   if (typeof paintRoomPrice === 'function') paintRoomPrice();
 
   var dl = $('sumList'); dl.innerHTML = '';
