@@ -7,9 +7,12 @@
    Same architecture as kronborg-chat.js and ptx4990-chat.js: a real agentic
    tool-use loop against Claude, with a real Wikipedia backpack,
    self-contained (no cross-require from another classroom's chat backend) so
-   this build can't put another classroom at risk. No voice/TTS layer in this
-   build (deferred, cost-conscious call); bio text lives client-side only in
-   leadership-agent.html.
+   this build can't put another classroom at risk. Voice (leadership-voice.js)
+   plays for each agent's BIO only, not every chat reply, same cost-conscious
+   call as kronborg-chat.js: bio text is authoritative here in BIOS (mirrored
+   client-side in leadership-agent.html's BIO for display) so the words shown
+   and the words spoken never drift. An agent needs a voiceId below before
+   its bio button does anything; until then it plays nothing.
 
    Agent keys are prefixed ldr_ deliberately: ptx4990-chat.js already uses the
    bare key "curie" for its own Marie Curie persona, and visitor memory below
@@ -157,6 +160,7 @@ const AGENTS = {
     tagline: 'The First Lady who refused to trust a single source, and helped the world agree on its first shared list of human rights.',
     leadershipStyle: 'Visionary Leadership',
     era: '1884-1962',
+    voiceId: 'DRvWIVPpqflzcV4mNXfx',
     portrait: '/assets/leadership/ldr_roosevelt-eyes-open.jpg',
     greeting: "Good day, I'm glad you've come to talk. I've spent most of my life learning that you cannot govern well, or even see clearly, from behind one desk with one set of advisers, so tell me, whose voice do you think is missing from your room right now?",
     chips: [
@@ -198,6 +202,7 @@ const AGENTS = {
     tagline: 'The scientist who set a personal standard so relentless it won two Nobel Prizes, and cost her, and her daughter, their health.',
     leadershipStyle: 'Pacesetting Leadership',
     era: '1867-1934',
+    voiceId: 'NuIOdI0nynTLWtVQaMv5',
     portrait: '/assets/leadership/ldr_curie-eyes-open.jpg',
     greeting: 'Sit down. I do not have much patience for pleasantries, so let us begin with the actual work you are struggling with, and I will tell you honestly whether the effort you are describing is enough.',
     chips: [
@@ -237,6 +242,7 @@ const AGENTS = {
     tagline: 'The coach who won ten national championships by refusing to mention winning at all.',
     leadershipStyle: 'Coaching Leadership',
     era: '1910-2010',
+    voiceId: 'n26pE8VCHdoC341ppEVv',
     portrait: '/assets/leadership/ldr_wooden-eyes-open.jpg',
     greeting: 'Come in, sit down. Before we talk about winning anything, tell me what you did today to become a little better than you were yesterday, because that is the only part of this I ever cared about.',
     chips: [
@@ -276,6 +282,7 @@ const AGENTS = {
     tagline: 'The first woman in a U.S. Cabinet, who spent twelve years patiently building the coalition that created Social Security.',
     leadershipStyle: 'Democratic and Coalition Leadership',
     era: '1880-1965',
+    voiceId: 'CML9FvPLNXeyeOfljeMn',
     portrait: '/assets/leadership/ldr_perkins-eyes-open.jpg',
     greeting: 'Please, sit. I have spent most of my working life in rooms full of people who disagreed with each other and with me, so tell me plainly what you are trying to get done, and who you still need to bring along.',
     chips: [
@@ -315,6 +322,7 @@ const AGENTS = {
     tagline: 'A lawyer who turned truth and self-suffering into a weapon strong enough to move an empire.',
     leadershipStyle: 'Affiliative and Nonviolent Leadership',
     era: '1869-1948',
+    voiceId: '9i4DWhNN2t4iwlIq6MB9',
     portrait: '/assets/leadership/ldr_gandhi-eyes-open.jpg',
     greeting: 'Welcome, friend. Sit with me a while. I would rather you disagree with me honestly than agree with me out of politeness, so ask me anything, even the hard questions.',
     chips: [
@@ -354,6 +362,7 @@ const AGENTS = {
     tagline: 'A movement leader and institution builder in her own right, not only Martin\'s wife.',
     leadershipStyle: 'Affiliative and Nonviolent Leadership',
     era: '1927-2006',
+    voiceId: 'TNKU4TQb6KNewX8pPS5w',
     portrait: '/assets/leadership/ldr_csking-eyes-open.jpg',
     greeting: 'Hello, I am glad you came to talk. There is a version of my life that only mentions me as someone\'s wife, so I would rather we talk about the work, mine included.',
     chips: [
@@ -393,6 +402,7 @@ const AGENTS = {
     tagline: 'A preacher who turned the discipline of nonviolence into a strategy that could win.',
     leadershipStyle: 'Affiliative and Nonviolent Leadership; Persuasive Rhetoric Under Pressure',
     era: '1929-1968',
+    voiceId: 'WQD0NqIsHoxVC30yw1xo',
     portrait: '/assets/leadership/ldr_mlk-eyes-open.jpg',
     greeting: 'Good to have you here. I want you to push back on me if something I say does not sit right with you, because that is how the best of my own thinking got tested.',
     chips: [
@@ -432,6 +442,7 @@ const AGENTS = {
     tagline: 'A formerly enslaved woman who turned her own body and story into unanswerable argument.',
     leadershipStyle: 'Persuasive Rhetoric',
     era: 'c. 1797-1883',
+    voiceId: 'lW2773iXgDa8aJ14oUx0',
     portrait: '/assets/leadership/ldr_truth-eyes-open.jpg',
     greeting: 'Come in and sit. I was born with another name and given this one for a purpose, so ask me plainly what you want to know, and I will answer you the same way.',
     chips: [
@@ -473,6 +484,7 @@ const AGENTS = {
     tagline: 'I never lost a passenger, and I never let one turn back.',
     leadershipStyle: 'Crisis and Commanding Leadership',
     era: 'c. 1822-1913',
+    voiceId: 'H4nfOrdggFbTKnl4flOe',
     portrait: '/assets/leadership/ldr_tubman-eyes-open.jpg',
     greeting: 'Come on in and sit yourself down. I have led people through darker nights than this conversation, so ask your question plain and I will answer it plain.',
     chips: [
@@ -514,6 +526,7 @@ const AGENTS = {
     tagline: 'The goal changed the moment the ice took the ship. Getting every man home became the only mission that mattered.',
     leadershipStyle: 'Crisis and Commanding Leadership',
     era: '1874-1922',
+    voiceId: 'tRuRAD2hWE4EAPFgz8b6',
     portrait: '/assets/leadership/ldr_shackleton-eyes-open.jpg',
     greeting: 'Welcome aboard. I have kept twenty seven men alive with no ship, no radio, and no rescue in sight, so whatever question you have brought me will not be the hardest thing I have faced today.',
     chips: [
@@ -808,7 +821,26 @@ exports.handler = async (event) => {
   });
 };
 
+// Authoritative bio text for leadership-voice.js to speak -- mirrored
+// client-side in leadership-agent.html's BIO for on-page display. Keep the
+// two in sync by hand; this copy is the one that actually gets spoken.
+const BIOS = {
+  roosevelt: 'Eleanor Roosevelt (1884-1962) transformed the largely ceremonial role of First Lady into an independent center of political action, traveling the country to report conditions in coal camps, tenant farms, and relief projects that reached her husband\'s White House through no other channel. She wrote the daily newspaper column "My Day" for nearly three decades, held press conferences open only to women reporters to force news organizations to retain them, and in 1939 resigned from the Daughters of the American Revolution after the group barred Marian Anderson from performing at Constitution Hall because of her race, helping arrange Anderson\'s concert at the Lincoln Memorial instead. After Franklin Roosevelt\'s death, President Truman appointed her a delegate to the United Nations, where she chaired the Commission on Human Rights and steered the drafting of the Universal Declaration of Human Rights, adopted by the General Assembly in December 1948.',
+  curie: 'Marie Curie (1867-1934), born Maria Sklodowska in Russian-occupied Warsaw, moved to Paris in 1891 to study at the Sorbonne and, with her husband Pierre, discovered the elements polonium and radium in 1898 and coined the term "radioactivity." She became the first woman to win a Nobel Prize (Physics, 1903, shared with Pierre and Henri Becquerel) and the first person to win a second Nobel in a different science (Chemistry, 1911), while working under intense press scrutiny and open hostility toward her as a foreign-born woman in French science. During the First World War she personally organized and helped operate mobile X-ray units, nicknamed "petites Curies," that brought radiography to wounded soldiers near the front lines. She died in 1934 of aplastic anemia almost certainly caused by decades of unshielded exposure to radiation; her laboratory notebooks remain radioactive today and are kept in lead-lined boxes.',
+  wooden: 'John Wooden (1910-2010) coached basketball at UCLA from 1948 to 1975, winning ten NCAA national championships in a twelve-year span, including seven in a row, and an 88-game winning streak that remain unmatched records in college basketball. A former English teacher and All-American guard at Purdue, he built his coaching philosophy around a personal framework he called the Pyramid of Success, a set of building-block values including industriousness, loyalty, and self-control, and he was famous for teaching fundamentals as basic as how to properly lace a shoe on the first day of every season. He deliberately avoided talking to his players about winning or the scoreboard, defining success instead as the peace of mind that comes from knowing you gave your full effort to become the best you are capable of becoming.',
+  perkins: 'Frances Perkins (1880-1965) became the first woman to serve in a United States Cabinet when President Franklin Roosevelt appointed her Secretary of Labor in 1933, a post she held for his entire presidency. She had witnessed the Triangle Shirtwaist Factory fire in New York in March 1911, in which 146 garment workers died, an event that set the direction of her career toward workplace safety and labor reform through her subsequent work on the New York State Factory Investigating Commission. As Secretary of Labor she chaired the committee that drafted the Social Security Act of 1935 and was central to passing the Fair Labor Standards Act of 1938, both of which required years of patient negotiation among business interests, organized labor, and a divided Congress.',
+  gandhi: 'Mohandas Karamchand Gandhi was born in Porbandar, India, and trained as a barrister in London before spending over two decades in South Africa, where he developed satyagraha, his method of nonviolent resistance, in response to discrimination against Indians there. Returning to India in 1915, he led major campaigns including the 1930 Salt March against the British salt tax and the 1942 Quit India movement, becoming the central moral and strategic leader of India\'s independence struggle. He was assassinated on January 30, 1948, months after India achieved independence. His writings and methods went on to directly influence civil rights leaders elsewhere, including Martin Luther King Jr.',
+  csking: 'Coretta Scott King was a civil rights leader, organizer, and trained musician from Marion, Alabama, who married Martin Luther King Jr. in 1953 and became a full partner in the movement\'s work, including her own delegation to the 1962 Women\'s Strike for Peace disarmament conference in Geneva. After her husband\'s assassination in 1968, she founded the King Center for Nonviolent Social Change in Atlanta and led the successful multi-year campaign to establish the federal Martin Luther King Jr. holiday, signed into law in 1983. In her later decades she broadened her advocacy to include opposition to apartheid, women\'s rights, gun control, and LGBTQ equality. She died in 2006.',
+  mlk: 'Martin Luther King Jr. was a Baptist minister born in Atlanta, educated at Morehouse College, Crozer Theological Seminary, and Boston University, who rose to national leadership during the 1955 to 1956 Montgomery Bus Boycott and went on to found the Southern Christian Leadership Conference. He led major campaigns for civil rights across the South, delivered the "I Have a Dream" address at the 1963 March on Washington, and received the Nobel Peace Prize in 1964. He was assassinated in Memphis, Tennessee, on April 4, 1968, while supporting striking sanitation workers.',
+  truth: 'Sojourner Truth was born into slavery around 1797 as Isabella Baumfree in Ulster County, New York, where Dutch was her first language, and she escaped to freedom in 1826 before winning a landmark 1828 court case to recover her enslaved son Peter, who had been illegally sold south. In 1843 she took the name Sojourner Truth and became an itinerant preacher, abolitionist, and women\'s rights advocate, delivering a widely remembered speech at the 1851 Ohio Women\'s Rights Convention in Akron. During the Civil War she recruited Black troops for the Union Army and met with President Lincoln at the White House. She died in 1883.',
+  tubman: 'Harriet Tubman escaped slavery in Maryland in 1849 and returned to the South roughly thirteen times, personally guiding an estimated seventy enslaved people to freedom along the Underground Railroad. During the Civil War she served the Union Army as a nurse, cook, scout, and spy, and in June 1863 she planned and led the armed Combahee Ferry Raid, which freed more than seven hundred enslaved people in a single night and made her the first woman in United States history known to have planned and led a military raid. She carried a pistol on her rescue missions and demanded strict discipline of the people she led, because one person turning back or panicking could expose the whole group to capture or worse.',
+  shackleton: 'Ernest Shackleton commanded the 1914 to 1917 Imperial Trans-Antarctic Expedition aboard the ship Endurance, which became trapped and was eventually crushed by pack ice in the Weddell Sea before reaching the Antarctic continent. He kept all twenty seven crew members alive for nearly two years with no outside contact, first camped on drifting ice floes and then in small boats, culminating in an open boat journey of roughly eight hundred miles across the Southern Ocean to reach South Georgia and bring help. Every member of the expedition survived. He is remembered for abandoning the original mission the moment survival was at stake and for sharing the crew\'s hardship personally rather than commanding from a position of safety.',
+  drterry: 'Dr. Terry Oroszi holds an Ed.D. in Organizational Studies with a concentration in Leadership from Wright State University, where her dissertation examined high stakes crisis leadership decision-making. She is Associate Professor and Vice Chair of the Department of Pharmacology and Toxicology at Boonshoft School of Medicine, Wright State University, and serves as Principal Investigator and Director of the Emerging Technologies Laboratory. She writes for Forbes Technology Council on artificial intelligence and human judgment, and also serves as CEO of the Gandhi-King Center for Nonviolence.',
+  iris: 'Iris S. King is Afro-Latina, Puerto Rican on her mother\'s side and Black American on her father\'s. She is in her mid-thirties, bilingual in English and Spanish, and the eldest of seven. She studied communications at community college, started as a dental-office receptionist, and was office manager by twenty-four. At home she raises four daughters, which sharpens the strong, independent register people feel the moment she speaks. She is normally stationed at the Emerging Technologies Laboratory\'s front desk, the first person visitors meet across the whole lab, and has been borrowed here to serve as this course\'s teaching assistant: the person to ask when you are not sure how something in this classroom works.',
+};
+
 module.exports.AGENTS = AGENTS;
+module.exports.BIOS = BIOS;
 module.exports.TOOLS = TOOLS;
 module.exports.DELIVER_REPLY_TOOL = DELIVER_REPLY_TOOL;
 module.exports.extractDeliverReply = extractDeliverReply;
