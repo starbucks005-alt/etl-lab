@@ -398,6 +398,13 @@ exports.handler = async (event) => {
         job.status = 'error';
         job.error = String(res.error).slice(0, 1200);
         job.note = 'It could not be made.';
+        /* LOGGED IN FULL, added 2026-08-20: the same invisible-failure shape
+           as gc-chat.js's credit rejections yesterday. job.error was already
+           trimmed to a short message for the customer-facing side; this is
+           the complete raw thing Google actually sent, console-only, so a
+           real diagnosis is possible next time instead of staring at one
+           sentence again. */
+        console.error('[gc-scene] job ' + jobId + ' failed, full detail:', JSON.stringify(res.error_detail || res.error));
         await store.setJSON(jobId, job);
 
         /* THE REFUND, ON THE SAME FAILURE THAT USED TO JUST SIT HERE. Only

@@ -242,7 +242,14 @@ async function check(operation) {
   if (!apiKey()) throw new Error('no Gemini API key in the environment');
   const res = await request('GET', '/v1beta/' + String(operation).replace(/^\/+/, ''), null);
   if (!res.done) return { done: false };
-  if (res.error) return { done: true, error: res.error.message || 'generation failed' };
+  /* error_detail ADDED 2026-08-20. Every failed render before this only ever
+     kept res.error.message ("issue with the audio for your prompt" and
+     nothing else) -- the operation's error object can carry a code and a
+     details array (Google's safety classifiers use this for WHICH filter
+     fired and on what), and all of it was being thrown away at this line
+     before anyone downstream ever saw it. This is the actual raw artifact,
+     not a guess about what it might contain. */
+  if (res.error) return { done: true, error: res.error.message || 'generation failed', error_detail: res.error };
   const r = res.response || {};
   const vids = r.generatedVideos || r.generateVideoResponse && r.generateVideoResponse.generatedSamples || [];
   const first = Array.isArray(vids) ? vids[0] : null;
