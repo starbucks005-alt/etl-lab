@@ -161,6 +161,23 @@ html{ zoom:90%; }
 .scene-chip.locked:hover{ opacity:1; color:var(--accent); border-color:var(--accent); }
 .scene-chip.locked span{ position:static; background:none; padding:.4rem .5rem; }
 
+/* REMOVE, added 2026-08-20. Dr. O had to be handed a console snippet to
+   get rid of a scene that arrived wrong -- real friction, and the second
+   time she needed exactly the same thing done. Only ever on a DELIVERED
+   scene (key starts "added-", see the add-scene link handler that mints
+   that prefix), never on the original or any house-authored scene: those
+   are not this friend's to lose by an accidental tap. Faint until
+   hovered, same instinct as .scene-chip.locked's own opacity, so the grid
+   is not covered in little ×s at a glance. */
+.scene-remove{
+  position:absolute; top:3px; right:3px; z-index:1; width:18px; height:18px;
+  border-radius:50%; border:none; background:rgba(0,0,0,.55); color:#F0E7DA;
+  font-size:12px; line-height:18px; text-align:center; padding:0; cursor:pointer;
+  opacity:.45;
+}
+.scene-chip:hover .scene-remove{ opacity:1; }
+.scene-remove:hover{ background:#B3261E; color:#fff; }
+
 /* WATCH, added 2026-08-18: "just videos for the users enjoyment," not a
    place to sit and talk, so a visually separate row from the scene picker
    above rather than another entry inside it — same chip shape, plus a
@@ -951,6 +968,27 @@ function renderScenes() {
     label.textContent = scene.label;
     chip.appendChild(label);
     chip.addEventListener('click', function () { moveRoom(scene); });
+
+    /* ONLY A DELIVERED SCENE, ONLY ON YOUR OWN BUILT FRIEND. "added-" is the
+       exact prefix the add-scene link handler mints (see its own note),
+       so this can never appear on The Original, a house-authored scene, or
+       anybody's demo room. */
+    if (FRIEND === GC_BUILT && /^added-/.test(scene.key)) {
+      var remove = document.createElement('button');
+      remove.type = 'button';
+      remove.className = 'scene-remove';
+      remove.textContent = '×';
+      remove.title = 'Remove this scene';
+      remove.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (!confirm('Remove "' + scene.label + '"? This cannot be undone from here.')) return;
+        FRIEND.scenes = FRIEND.scenes.filter(function (s) { return s.key !== scene.key; });
+        GC_saveFriend(FRIEND);
+        renderScenes();
+      });
+      chip.appendChild(remove);
+    }
+
     bar.appendChild(chip);
   });
   if (FRIEND.scenes.length) play(FRIEND.scenes[0]);
@@ -1274,25 +1312,28 @@ function askForScene() {
    guessing at it here is the mistake this whole change came from.
 
    Only where the friend has the one. Arch has his five and needs no upsell in
-   his own front room. */
+   his own front room.
+
+   WAS CAPPED AT FIVE, removed 2026-08-20. Dr. O, once removing a scene
+   became possible: "delete and make more, because some people may want
+   more... 5,10,15." Right call -- five was Arch's own count, carried over
+   as a ceiling with no actual reason behind it for a friend somebody paid
+   for one scene at a time. Every scene is $4.99; there was never a
+   business reason to stop somebody buying a sixth. ONE slot shown at a
+   time now instead of every remaining slot up to a ceiling, since there
+   is no longer a ceiling to count down to -- ordinal words ("Scene one")
+   do not scale past a handful anyway. */
 /* Only a friend somebody BUILT is offered more scenes. This asked whether the
    friend was not the demo, which was the same question while there was one
    demo and stops being so the moment there are two: a second house friend
    would have started selling scenes for herself. */
-if (FRIEND === GC_BUILT && FRIEND.scenes.length < 5) {
-  /* Numbered from what they actually have, not from one. Somebody who has
-     bought a second scene should be offered a third, and the first version of
-     this only appeared when there was exactly one scene, so buying one made
-     the offer vanish. */
-  var ORDS = ['one', 'two', 'three', 'four', 'five'];
-  ORDS.slice(FRIEND.scenes.length).forEach(function (ord) {
-    var slot = document.createElement('button');
-    slot.className = 'scene-chip locked';
-    slot.textContent = '+ Scene ' + ord;
-    slot.title = 'Somewhere else to sit with ' + FRIEND.name + ', made to order';
-    slot.addEventListener('click', askForScene);
-    bar.appendChild(slot);
-  });
+if (FRIEND === GC_BUILT) {
+  var slot = document.createElement('button');
+  slot.className = 'scene-chip locked';
+  slot.textContent = '+ Add a scene';
+  slot.title = 'Somewhere else to sit with ' + FRIEND.name + ', made to order';
+  slot.addEventListener('click', askForScene);
+  bar.appendChild(slot);
 }
 
 /* ── conversation ────────────────────────────────────────────────────────────
