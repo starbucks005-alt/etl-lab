@@ -1,9 +1,13 @@
 /* gc-scene-order — somebody asks for a scene, and their friend's picture
    arrives with the request.
    ─────────────────────────────────────────────────────────────────────────
-   POST { portrait, friend, where, from }        -> { order_id }
+   POST { portrait, friend, where, from }                    -> { order_id }
+   POST { portrait, friend, mode:'own', own_vimeo_id, own_thumb?, from }
+   POST { portrait, friend, mode:'own', own_photo, where?, from }
    GET  ?owner_key=...                           -> { orders }        owner only
    GET  ?order_id=...&owner_key=...&file=1       -> the portrait      owner only
+   GET  ?order_id=...&owner_key=...&file=ownphoto -> their own photo  owner only
+   GET  ?order_id=...&thumb=1                    -> their own thumb   PUBLIC
 
    THE MISSING HALF OF THE ADD-ON. Scenes are made from the picture somebody
    chose, that picture lives in their browser and nowhere else, and nothing in
@@ -22,7 +26,19 @@
    Company keeps a built friend in the browser. The room says so plainly before
    this is sent, because somebody who was told their friend lives on their own
    device deserves to be told the one moment that stops being true.
-*/
+
+   "I ALREADY HAVE MY OWN," added 2026-08-20. Dr. O, after a real Veo scene
+   came out good but with an action ("holding a small bottle up") that read
+   as repetitive on a loop, and after uploading her own already-made video by
+   hand for Isabelle three separate times this same day, each requiring me to
+   do it for her: "did you make the change where they can add an image or a
+   video?" Real, correct gap -- the only path was ever "describe it, Veo
+   makes it." mode:'own' is the second path: either a Vimeo id (their own
+   video, hosted already, no Veo involved at all) or their own photo (used as
+   the Veo source in place of their friend's stored portrait, the same thing
+   the crafting-photo test proved works). where stays required for the
+   generate path and becomes optional context for the own path -- there is
+   nothing to describe when the thing already exists. */
 
 const { getStore, connectLambda } = require('@netlify/blobs');
 
@@ -45,6 +61,11 @@ const INDEX = 'index';
    real thing and small enough that nobody is posting video through here. */
 const MAX_PORTRAIT = 3 * 1024 * 1024;
 
+/* A numeric Vimeo id only -- same shape room.html's own add-scene handler
+   already requires (vimeo:<digits>), checked again here so a malformed id
+   never even reaches an order record. */
+const VIMEO_ID = /^\d{4,12}$/;
+
 exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: CORS, body: '' };
 
@@ -65,8 +86,27 @@ exports.handler = async (event) => {
     if (!portrait) return json(400, { error: 'portrait_required' });
     if (portrait.length > MAX_PORTRAIT) return json(413, { error: 'portrait_too_big' });
 
+    /* mode:'own' means they already have the thing -- a Vimeo video, their
+       own photo, or both. where is what they are actually asking for in
+       every other mode, and stays required there; it is just context here,
+       since there is nothing left to describe. */
+    const mode = body.mode === 'own' ? 'own' : 'generate';
     const where = String(body.where || '').trim().slice(0, 400);
-    if (!where) return json(400, { error: 'where_required' });
+    if (mode === 'generate' && !where) return json(400, { error: 'where_required' });
+
+    let ownVimeoId = null, ownPhoto = null, ownThumb = null;
+    if (mode === 'own') {
+      const rawVimeo = String(body.own_vimeo_id || '').trim();
+      if (rawVimeo) {
+        if (!VIMEO_ID.test(rawVimeo)) return json(400, { error: 'own_vimeo_id_invalid' });
+        ownVimeoId = rawVimeo;
+      }
+      ownPhoto = String(body.own_photo || '').replace(/^data:image\/[a-z+]+;base64,/i, '').trim() || null;
+      if (ownPhoto && ownPhoto.length > MAX_PORTRAIT) return json(413, { error: 'own_photo_too_big' });
+      ownThumb = String(body.own_thumb || '').replace(/^data:image\/[a-z+]+;base64,/i, '').trim() || null;
+      if (ownThumb && ownThumb.length > MAX_PORTRAIT) return json(413, { error: 'own_thumb_too_big' });
+      if (!ownVimeoId && !ownPhoto) return json(400, { error: 'own_vimeo_id_or_own_photo_required' });
+    }
 
     const friend = body.friend || {};
     const orderId = 'gco-' + require('crypto').randomBytes(8).toString('hex');
@@ -75,6 +115,8 @@ exports.handler = async (event) => {
        listing stays small enough to read in one go however many orders build
        up. */
     await store.set(orderId + '.b64', portrait, { metadata: { contentType: 'text/plain' } });
+    if (ownPhoto) await store.set(orderId + '.ownphoto', ownPhoto, { metadata: { contentType: 'text/plain' } });
+    if (ownThumb) await store.set(orderId + '.ownthumb', ownThumb, { metadata: { contentType: 'text/plain' } });
 
     const order = {
       order_id: orderId,
@@ -82,6 +124,10 @@ exports.handler = async (event) => {
       friend_name: String(friend.name || '').slice(0, 60) || 'their friend',
       gender: String(friend.gender || '').slice(0, 40),
       where,
+      mode,
+      own_vimeo_id: ownVimeoId,
+      own_photo_key: ownPhoto ? orderId + '.ownphoto' : null,
+      own_thumb_key: ownThumb ? orderId + '.ownthumb' : null,
       /* However they want to be reached about it. Optional on purpose: a person
          should be able to ask for something without handing over an address. */
       from: String(body.from || '').slice(0, 120),
@@ -102,12 +148,44 @@ exports.handler = async (event) => {
     return json(200, { ok: true, order_id: orderId });
   }
 
+  /* ── THE THUMBNAIL, PUBLIC ─────────────────────────────────────────────────
+     Deliberately outside the owner gate below, same reasoning gc-scene.js's
+     own file-serving already uses for a finished video: this is a picture
+     already paid for, on its way into somebody's room, and every visitor to
+     that room needs to load it, not just the owner. No secret in this link
+     for the same reason -- an order id is not a credential, it is a lookup
+     key for a public image. */
+  if (qs.order_id && qs.thumb) {
+    const order = await store.get(String(qs.order_id), { type: 'json' });
+    if (!order || !order.own_thumb_key) return json(404, { error: 'not_found' });
+    const b64 = await store.get(order.own_thumb_key, { type: 'text' });
+    if (!b64) return json(404, { error: 'thumb_missing' });
+    return {
+      statusCode: 200,
+      headers: { ...CORS, 'Content-Type': 'image/jpeg', 'Cache-Control': 'public, max-age=31536000, immutable' },
+      body: b64,
+      isBase64Encoded: true,
+    };
+  }
+
   /* ── everything below is owner only ────────────────────────────────────── */
   if (!isOwner) return json(403, { error: 'owner_only' });
 
   if (qs.order_id) {
     const order = await store.get(String(qs.order_id), { type: 'json' });
     if (!order) return json(404, { error: 'not_found' });
+
+    if (qs.file === 'ownphoto') {
+      if (!order.own_photo_key) return json(404, { error: 'no_own_photo_on_this_order' });
+      const b64 = await store.get(order.own_photo_key, { type: 'text' });
+      if (!b64) return json(404, { error: 'own_photo_missing' });
+      return {
+        statusCode: 200,
+        headers: { ...CORS, 'Content-Type': 'image/jpeg' },
+        body: b64,
+        isBase64Encoded: true,
+      };
+    }
 
     if (qs.file) {
       const b64 = await store.get(order.portrait_key, { type: 'text' });

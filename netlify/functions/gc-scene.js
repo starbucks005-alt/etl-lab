@@ -345,10 +345,40 @@ exports.handler = async (event) => {
           detail: 'That order has not been paid for. Send unpaid_on_purpose to make it anyway.',
         });
       }
-      if (!portrait) {
-        portrait = String(await orders.get(order.portrait_key, { type: 'text' }) || '').trim();
+      /* "I ALREADY HAVE MY OWN," added 2026-08-20. Two shapes, both skip the
+         Veo source entirely when they can:
+
+         own_vimeo_id needs no render at all -- their own video is already
+         made and already hosted, so this delivers it directly (below) and
+         returns before Veo is ever touched, exactly the same shape as the
+         normal delivery block further down in this file, just without a
+         job in between.
+
+         own_photo_key is the other real case the crafting-photo test
+         proved out: their own photo stands in for the friend's stored
+         portrait as Veo's source, same pipeline (crop, prompt, retry-on-
+         filter) as any other render from here down. */
+      if (order.own_vimeo_id) {
+        const link = 'https://emerging-tech-lab.com/good-company/room.html' +
+          '?add-scene=' + encodeURIComponent('vimeo:' + order.own_vimeo_id) +
+          (order.own_thumb_key
+            ? '&thumb=' + encodeURIComponent('/.netlify/functions/gc-scene-order?order_id=' + order.order_id + '&thumb=1')
+            : '') +
+          '&label=' + encodeURIComponent('A new scene');
+        const told = await notify.sceneReady(order, link);
+        order.status = 'made';
+        order.link = link;
+        order.told = told;
+        await orders.setJSON(order.order_id, order);
+        console.log('[gc-scene] order ' + order.order_id + ' delivered (own vimeo):',
+                    told.sent ? told.to : 'not sent (' + told.reason + ')');
+        return json(200, { ok: true, delivered: true, own_vimeo_id: order.own_vimeo_id, link });
       }
-      if (!where) where = order.where;
+
+      if (!portrait) {
+        portrait = String(await orders.get(order.own_photo_key || order.portrait_key, { type: 'text' }) || '').trim();
+      }
+      if (!where) where = order.where || 'sitting quietly, present';
       if (!gender) gender = order.gender;
     }
 

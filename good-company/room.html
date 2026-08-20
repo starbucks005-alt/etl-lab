@@ -1108,8 +1108,8 @@ function askForScene() {
 
   showGate('mem', 'Somewhere else to sit',
     'Say where you would like ' + FRIEND.name + ' to be, and it gets made: moving, ' +
-    'rather than a still. Made to order, so it is an add-on and not on sale yet. ' +
-    'Asking costs nothing.');
+    'rather than a still. Or bring your own, already made. Made to order either way, so ' +
+    'it is an add-on and not on sale yet. Asking costs nothing.');
   $('startBtn').textContent = 'Back to ' + FRIEND.name;
 
   var host = $('memPanel');
@@ -1125,13 +1125,87 @@ function askForScene() {
     return d;
   }
 
-  var whereRow = row('Where should ' + FRIEND.name + ' be');
+  /* TWO WAYS IN, added 2026-08-20. Dr. O, after uploading her own
+     already-made video by hand for Isabelle three times in one day, each
+     time requiring me to do it for her: "did you make the change where
+     they can add an image or a video?" Real gap -- "describe it, Veo
+     makes it" was the only path that ever existed. This is the second
+     one: already have a video hosted on Vimeo, or a photo you would
+     rather Veo worked from instead of the picture you built them with. */
+  var modeRow = document.createElement('div');
+  modeRow.style.cssText = 'display:flex; gap:.5rem; margin-bottom:1rem;';
+  var modeGenerate = document.createElement('button');
+  modeGenerate.type = 'button'; modeGenerate.className = 'btn go'; modeGenerate.textContent = 'Describe it';
+  var modeOwn = document.createElement('button');
+  modeOwn.type = 'button'; modeOwn.className = 'btn'; modeOwn.textContent = 'I already have one';
+  modeRow.appendChild(modeGenerate); modeRow.appendChild(modeOwn);
+  host.appendChild(modeRow);
+
+  var mode = 'generate';
+  function setMode(m) {
+    mode = m;
+    modeGenerate.className = 'btn' + (m === 'generate' ? ' go' : '');
+    modeOwn.className = 'btn' + (m === 'own' ? ' go' : '');
+    generateFields.style.display = m === 'generate' ? '' : 'none';
+    ownFields.style.display = m === 'own' ? '' : 'none';
+  }
+  modeGenerate.addEventListener('click', function () { setMode('generate'); });
+  modeOwn.addEventListener('click', function () { setMode('own'); });
+
+  var generateFields = document.createElement('div');
+  host.appendChild(generateFields);
+  function rowIn(host2, label, note) {
+    var d = document.createElement('div'); d.className = 'you-row';
+    var l = document.createElement('label'); l.className = 'you-label'; l.textContent = label;
+    d.appendChild(l);
+    if (note) { var p = document.createElement('div'); p.className = 'gate-say'; p.textContent = note; d.appendChild(p); }
+    host2.appendChild(d);
+    return d;
+  }
+
+  var whereRow = rowIn(generateFields, 'Where should ' + FRIEND.name + ' be');
   var where = document.createElement('textarea');
   where.rows = 3;
   where.placeholder = 'at the kitchen table with the morning light coming in';
   where.style.cssText = 'width:100%;font:inherit;padding:.5rem;border:1px solid var(--line);' +
                         'background:var(--paper);color:var(--ink);border-radius:3px;resize:vertical';
   whereRow.appendChild(where);
+
+  var ownFields = document.createElement('div');
+  ownFields.style.display = 'none';
+  host.appendChild(ownFields);
+
+  var vimeoRow = rowIn(ownFields, 'A Vimeo link or id',
+    'Already uploaded somewhere? Paste the link (or just the id) and skip the render entirely.');
+  var vimeoInput = document.createElement('input');
+  vimeoInput.type = 'text'; vimeoInput.autocomplete = 'off';
+  vimeoInput.placeholder = 'vimeo.com/1219868589, or just 1219868589';
+  vimeoInput.style.cssText = 'width:100%;font:inherit;padding:.5rem;border:1px solid var(--line);' +
+                             'background:var(--paper);color:var(--ink);border-radius:3px';
+  vimeoRow.appendChild(vimeoInput);
+
+  var thumbRow = rowIn(ownFields, 'A thumbnail for it', 'Optional. Only used alongside a Vimeo link.');
+  var thumbInput = document.createElement('input');
+  thumbInput.type = 'file'; thumbInput.accept = 'image/*';
+  thumbRow.appendChild(thumbInput);
+
+  var photoRow = rowIn(ownFields, 'Or a photo to work from instead',
+    'Optional. Veo will animate THIS photo instead of the one ' + FRIEND.name + ' was built with -- ' +
+    'a different pose, a different room, whatever you would rather it started from.');
+  var photoInput = document.createElement('input');
+  photoInput.type = 'file'; photoInput.accept = 'image/*';
+  photoRow.appendChild(photoInput);
+
+  function readAsBase64(input) {
+    return new Promise(function (resolve) {
+      var f = input.files && input.files[0];
+      if (!f) return resolve(null);
+      var r = new FileReader();
+      r.onload = function () { resolve(String(r.result || '')); };
+      r.onerror = function () { resolve(null); };
+      r.readAsDataURL(f);
+    });
+  }
 
   var fromRow = row('How to reach you about it', 'Optional. Leave it blank if you would rather not say.');
   var from = document.createElement('input');
@@ -1151,17 +1225,38 @@ function askForScene() {
   send.type = 'button'; send.className = 'btn go'; send.textContent = 'Ask for it';
   send.addEventListener('click', function () {
     var w = where.value.trim();
-    if (!w) { where.focus(); return; }
+    var vimeoRaw = vimeoInput.value.trim();
+    var vimeoMatch = /(\d{4,12})/.exec(vimeoRaw);
+
+    if (mode === 'generate') {
+      if (!w) { where.focus(); return; }
+    } else {
+      if (!vimeoMatch && !photoInput.files.length) {
+        note.textContent = 'Paste a Vimeo link, or choose a photo -- at least one.';
+        return;
+      }
+    }
     send.disabled = true; send.textContent = 'Sending';
+
+    Promise.all([readAsBase64(photoInput), readAsBase64(thumbInput)]).then(function (files) {
+    var body = {
+      portrait: FRIEND.portrait,
+      friend: { name: FRIEND.name, gender: FRIEND.gender },
+      from: from.value.trim(),
+    };
+    if (mode === 'generate') {
+      body.where = w;
+    } else {
+      body.mode = 'own';
+      body.where = w;
+      if (vimeoMatch) body.own_vimeo_id = vimeoMatch[1];
+      if (files[0]) body.own_photo = files[0];
+      if (files[1]) body.own_thumb = files[1];
+    }
 
     fetch('/.netlify/functions/gc-scene-order', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        portrait: FRIEND.portrait,
-        friend: { name: FRIEND.name, gender: FRIEND.gender },
-        where: w,
-        from: from.value.trim(),
-      }),
+      body: JSON.stringify(body),
     }).then(function (r) { return r.json(); }).then(function (j) {
       if (!j || !j.order_id) {
         send.disabled = false; send.textContent = 'Try again';
@@ -1208,6 +1303,7 @@ function askForScene() {
       send.disabled = false; send.textContent = 'Try again';
       note.textContent = 'Could not reach it. ' + err.message;
     });
+    });
   });
   host.appendChild(send);
 }
@@ -1248,7 +1344,14 @@ function askForScene() {
 
   var vimeoMatch = /^vimeo:(\d+)$/.exec(src);
   var thumb = (q.get('thumb') || '').trim();
-  var thumbOk = !thumb || /^photos\/[A-Za-z0-9._-]+\.(jpg|jpeg|png|webp)$/.test(thumb);
+  /* SECOND ACCEPTED SHAPE, added 2026-08-20 for "I already have my own":
+     a customer-uploaded thumbnail lives in gc_scene_orders, not the repo,
+     so it is served by order id through gc-scene-order.js's own public
+     ?order_id=...&thumb=1 route rather than committed as a photos/ file
+     the way every hand-placed thumbnail before it was. */
+  var thumbOk = !thumb ||
+    /^photos\/[A-Za-z0-9._-]+\.(jpg|jpeg|png|webp)$/.test(thumb) ||
+    /^\/\.netlify\/functions\/gc-scene-order\?order_id=gco-[0-9a-f]+&thumb=1$/.test(thumb);
 
   /* Same origin only. An arbitrary URL here would let any link play any video
      (or show any image) inside somebody's room, under their friend's name. */
