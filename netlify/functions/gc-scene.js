@@ -35,8 +35,45 @@
 
 const { getStore, connectLambda } = require('@netlify/blobs');
 const Stripe = require('stripe');
+const sharp = require('sharp');
 const veo = require('./_veo-video.js');
 const notify = require('./_gc-notify.js');
+
+/* CROPPED TO 16:9 BEFORE IT EVER REACHES VEO, added 2026-08-20. Real bug,
+   found from a real delivered clip: Dr. O, "not the right size" -- a
+   pillarboxed, roughly-9:16 video sitting in a stage that is 16:9 by CSS
+   (see room.html's own note on that). Checked the actual stored portrait
+   rather than guessing: 768x1376, ratio 0.558. Veo inherits the INPUT
+   frame's own aspect ratio for image-driven generation and ignores the
+   aspectRatio parameter entirely when a first frame is supplied -- the
+   parameter still gets sent (harmless) but the shape of the source image
+   is what actually decides the output shape.
+
+   FACE-AWARE CROP, not a plain center crop: a portrait this tall cropped
+   to 16:9 around dead center would very likely cut through the face.
+   sharp's 'attention' strategy finds the most visually salient region
+   (faces, edges, high-detail areas) and crops toward that instead of
+   assuming the subject is centered.
+
+   THE TRADEOFF, SAID PLAINLY (Dr. O signed off on this direction over the
+   alternative, a padded/blurred-backdrop version that keeps the whole
+   portrait but reads smaller): this crops in tighter and loses whatever
+   was below the shoulders and most of the background. For "present, as
+   though sitting with them," a closer crop reads as company, not as a
+   figure shrunk into a wide empty frame. */
+async function cropTo169(base64) {
+  const buf = Buffer.from(base64, 'base64');
+  const meta = await sharp(buf).metadata();
+  if (!meta.width || !meta.height) return base64;   // unreadable, send it through unchanged rather than fail the whole render
+  const targetRatio = 16 / 9;
+  const currentRatio = meta.width / meta.height;
+  if (Math.abs(currentRatio - targetRatio) < 0.02) return base64;   // already close enough, no point re-encoding
+  const cropped = await sharp(buf)
+    .resize(1280, 720, { fit: 'cover', position: sharp.strategy.attention })
+    .jpeg({ quality: 92 })
+    .toBuffer();
+  return cropped.toString('base64');
+}
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -294,9 +331,29 @@ exports.handler = async (event) => {
     const aspect = body.aspect || '16:9';
     const resolution = body.resolution || '720p';
 
+    /* CROPPED HERE, ONCE, BEFORE ANYTHING ELSE TOUCHES IT -- see cropTo169's
+       own note above for why. portrait is reassigned rather than kept
+       alongside the original so everything downstream (the stored
+       '.portrait' blob a retry reads back, the lastFrame below) uses the
+       same already-correct image, with nothing left that could
+       accidentally send the uncropped one instead. */
+    portrait = await cropTo169(portrait);
+
     let started;
     try {
-      started = await veo.start({ prompt, firstFrameB64: portrait, seconds, models: ladder, aspect, resolution });
+      /* SAME IMAGE, BOTH ENDS, added 2026-08-20 for "not a loop so it
+         fails." Only ever sent as firstFrameB64 before -- Veo had no target
+         to return to and nothing telling it what "seamless" actually meant
+         beyond the prompt's own words. Asking it to end on the exact frame
+         it started from is a real instruction, not just a description.
+         Safe to send unconditionally: _veo-video.js's own ladder already
+         tries 'both' first and falls back to first-frame-only automatically
+         if a shape/model combination refuses two frames, so this cannot
+         make a working render fail. */
+      started = await veo.start({
+        prompt, firstFrameB64: portrait, lastFrameB64: portrait,
+        seconds, models: ladder, aspect, resolution,
+      });
     } catch (e) {
       return json(502, { error: 'veo_refused', detail: String(e && e.message || e).slice(0, 500) });
     }
@@ -428,10 +485,14 @@ exports.handler = async (event) => {
            other in-progress job. */
         console.log('[gc-scene] job ' + jobId + ' filtered on attempt ' + (job.attempts || 1) + ', retrying: ' + res.error);
         try {
+          /* Already cropped to 16:9 (see cropTo169 at the top of this file):
+             this blob was written AFTER that crop ran on the original POST,
+             never before it. Same image on both ends here too, matching the
+             very first attempt exactly. */
           const portraitB64 = String(await store.get(jobId + '.portrait', { type: 'text' }) || '');
           if (!portraitB64) throw new Error('no stored portrait to retry with');
           const retryStarted = await veo.start({
-            prompt: job.prompt, firstFrameB64: portraitB64, seconds: job.seconds,
+            prompt: job.prompt, firstFrameB64: portraitB64, lastFrameB64: portraitB64, seconds: job.seconds,
             models: (job.models && job.models.length) ? job.models : [veo.MODEL_LITE],
             aspect: job.aspect || '16:9', resolution: job.resolution || '720p',
           });
