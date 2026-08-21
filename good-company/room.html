@@ -1120,8 +1120,8 @@ function askForScene() {
 
   showGate('mem', 'Somewhere else to sit',
     'Say where you would like ' + FRIEND.name + ' to be, and it gets made: moving, ' +
-    'rather than a still. Or bring your own, already made. Made to order either way, so ' +
-    'it is an add-on and not on sale yet. Asking costs nothing.');
+    'rather than a still. Or bring your own, already made. Made to order either way, ' +
+    'for $4.99. Asking costs nothing -- you only pay once you say to make it.');
   $('startBtn').textContent = 'Back to ' + FRIEND.name;
 
   var host = $('memPanel');
@@ -1287,7 +1287,7 @@ function askForScene() {
       host.appendChild(ok);
 
       var pay = document.createElement('button');
-      pay.type = 'button'; pay.className = 'btn go'; pay.textContent = 'Pay for it';
+      pay.type = 'button'; pay.className = 'btn go'; pay.textContent = 'Pay $4.99 for it';
       pay.addEventListener('click', function () {
         pay.disabled = true; pay.textContent = 'Opening';
         fetch('/.netlify/functions/gc-scene-checkout', {
