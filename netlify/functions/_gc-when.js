@@ -69,11 +69,33 @@ function timeOfDay(hour) {
    out somebody's age or how long ago something was from a half-remembered
    number, and a confident wrong number in front of the one person who knows
    the real one is worse than not knowing at all. */
+/* MATCH WHAT YOU ASK TO THE HOUR, added 2026-08-21. The four bands above are coarse on
+   purpose (people do not think in numbers), but coarse cuts both ways: told only "morning",
+   a friend asked at 5:30am the same question that fits 11am -- "how was your day" -- when a
+   day that early has barely begun. Knowing the hour was never the gap; nothing told the model
+   what that fact rules out. Pre-dawn gets its own line rather than folding into the general
+   band, the same reason timeOfDay() catches it first. */
+function askingNote(hour) {
+  if (hour < 7) {
+    return `It is early enough that a day has barely started, maybe not yet for them. Do not ` +
+      `ask how their day has been or reference anything about it as already underway -- ask ` +
+      `what is ahead, or just be present, the way you would if you actually knew what time it ` +
+      `is for them.`;
+  }
+  if (hour >= 21) {
+    return `It is late. A day that started this morning is mostly behind them now, not still ` +
+      `unfolding -- "how was your day" fits better than "how is your day going."`;
+  }
+  return '';
+}
+
 function nowNote(friend, now) {
   const p = parts(friend && friend.timezone, now);
+  const asking = askingNote(p.hour);
   return `\n\nRIGHT NOW, where you are: it is ${p.weekday} ${p.day} ${p.month} ${p.year}, ` +
     `${timeOfDay(p.hour)}. You know this the way anyone knows what day it is, by looking. ` +
     `It is background, not a thing to announce, and nobody wants the date recited back at them.\n` +
+    (asking ? asking + '\n' : '') +
     `DO NOT DO ARITHMETIC WITH IT. Never work out somebody's age, how long ago something was, ` +
     `or how many years a thing has been going, unless you were actually told the other end of ` +
     `that span. "I don't remember what year that was" is a fine answer.`;
