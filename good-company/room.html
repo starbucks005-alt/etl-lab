@@ -129,19 +129,13 @@ html{ zoom:90%; }
 }
 
 /* ── scenes ──────────────────────────────────────────────────────────────── */
-/* WAS flex-wrap, changed 2026-08-20. Dr. O, real screenshots from her own
-   device: Reggie (7 scenes) and Tansy (11) both showed as "only one or
-   two." Nothing was actually missing -- wrapping turns a wide cast into
-   many short rows, and on a narrow screen most of those rows sit below
-   the fold with nothing telling you to keep scrolling. A horizontal
-   scroll is the same content in one row instead: the next chip peeking
-   in at the edge IS the cue that there is more, the way every swipeable
-   carousel already works. */
-.scene-bar{
-  display:flex; flex-wrap:nowrap; gap:.55rem; padding:.65rem .6rem .8rem;
-  overflow-x:auto; -webkit-overflow-scrolling:touch; scroll-snap-type:x proximity;
-}
-.scene-bar .scene-chip{ scroll-snap-align:start; }
+/* REVERTED TO flex-wrap, 2026-08-21. The horizontal-scroll version (2026-08-20)
+   was solving a problem that turned out not to exist: Reggie and Tansy looked
+   like "only one or two scenes" on Dr. O's phone because her device was
+   showing a stale cached page, not because rows were wrapping below the
+   fold -- she confirmed the real cause and fixed it herself the next morning.
+   The scrollbar this introduced was never wanted on its own merits. */
+.scene-bar{ display:flex; flex-wrap:wrap; gap:.55rem; padding:.65rem .6rem .8rem; }
 /* BIGGER, WITH A CLIP IN EACH, per Dr. O 2026-08-18: "there is room, can you
    make the scene boxes bigger? easier to read, a scene clip in each one."
    Grown from a plain text pill to a small card: fixed size so a row of them
