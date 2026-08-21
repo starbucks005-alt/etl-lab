@@ -91,6 +91,8 @@ html{ zoom:90%; }
 .gauge-label{ font-family:var(--mono); font-size:12px; letter-spacing:.1em;
   text-transform:uppercase; color:var(--accent); }
 .gauge-sub{ font-size:12px; color:var(--ink-dim); margin:.2rem 0 .5rem; }
+.gauge-clock{ font-family:var(--mono); font-size:11px; letter-spacing:.04em;
+  color:var(--ink-dim); margin:-.2rem 0 .5rem; }
 .gauge-row{ display:flex; align-items:center; gap:.6rem; margin-bottom:3px; }
 .gauge-row-label{ font-family:var(--mono); font-size:10.5px; letter-spacing:.1em;
   text-transform:uppercase; color:var(--ink-dim); width:66px; flex:none; }
@@ -396,6 +398,7 @@ html{ zoom:90%; }
           <div class="gauge-label" id="gaugeLabel">&nbsp;</div>
         </div>
         <div class="gauge-sub">Shifts with what you say, and with the time of day</div>
+        <div class="gauge-clock" id="gaugeClock"></div>
 
         <div class="gauge-row"><div class="gauge-row-label">Happy</div><div class="gauge-bar-track"><div class="gauge-bar-fill f-happy" style="width:62%"></div></div></div>
         <div class="gauge-row"><div class="gauge-row-label">Sad</div><div class="gauge-bar-track"><div class="gauge-bar-fill f-sad" style="width:14%"></div></div></div>
@@ -593,9 +596,40 @@ var $ = function (id) { return document.getElementById(id); };
    different person for everybody. */
 /* Called again when a guest arrives, because they are handed the host's friend
    and everything named after them has to catch up. */
+/* THE FRIEND'S OWN CLOCK, VISIBLE, added 2026-08-21. Pookie: the companion needs a clock
+   "so we know what time it is where they are" -- a real, different ask from the one just
+   fixed in _gc-when.js. That fix was about the MODEL knowing the hour and phrasing around
+   it; this is about the PERSON seeing it. A friend's timezone was already a real field
+   (gc-friend.js, one per demo, same DEFAULT_TIMEZONE server-side default for a built friend
+   with none set) and was never shown anywhere. Same bucketing as _gc-when.js's timeOfDay()
+   on purpose, so what somebody reads here never contradicts what the friend just said. */
+var GC_DEFAULT_TZ = 'America/New_York';
+function gcTimeOfDay(hour) {
+  if (hour < 5) return 'night';
+  if (hour < 12) return 'morning';
+  if (hour < 17) return 'afternoon';
+  if (hour < 21) return 'evening';
+  return 'night';
+}
+function updateFriendClock() {
+  var el = $('gaugeClock');
+  if (!el || !FRIEND) return;
+  var tz = FRIEND.timezone || GC_DEFAULT_TZ;
+  try {
+    var now = new Date();
+    var clock = new Intl.DateTimeFormat('en-US', { timeZone: tz, hour: 'numeric', minute: '2-digit' }).format(now);
+    var hour = Number(new Intl.DateTimeFormat('en-US', { timeZone: tz, hour: 'numeric', hour12: false }).format(now)) % 24;
+    el.textContent = clock + ', ' + gcTimeOfDay(hour) + ' where ' + FRIEND.name + ' is';
+  } catch (e) {
+    el.textContent = '';
+  }
+}
+setInterval(updateFriendClock, 60000);
+
 function nameEverything() {
   $('gaugeTitle').textContent = 'How ' + FRIEND.name + ' is feeling right now';
   $('gaugeLabel').textContent = FRIEND.mood || 'Easy, glad you came by';
+  updateFriendClock();
   /* THE PREMISE, so a first-time visitor has it before her first line lands. */
   if (FRIEND.premise) { $('gatePremise').textContent = FRIEND.premise; $('gatePremise').style.display = ''; }
   else { $('gatePremise').style.display = 'none'; }
