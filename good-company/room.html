@@ -1691,7 +1691,7 @@ function sitDown() {
      already has a conversation coming down the poll, and greeting them over
      the top of it would be him talking to himself. */
   if (!$("log").children.length && !SEAT) {
-    post(FRIEND.name, FRIEND.hello || "You came. Sit down, I want to hear about your day.");
+    post(FRIEND.name, FRIEND.hello || "You came. Sit down, I want to hear how you have been.");
   }
 }
 $("startBtn").addEventListener("click", function () {
