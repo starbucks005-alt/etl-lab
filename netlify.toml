@@ -475,6 +475,21 @@
     Cache-Control = "no-store"
 
 [[headers]]
+  for = "/leadership.html"
+  [headers.values]
+    Cache-Control = "no-store"
+
+[[headers]]
+  for = "/leadership-agent.html"
+  [headers.values]
+    Cache-Control = "no-store"
+
+[[headers]]
+  for = "/leadership-room.html"
+  [headers.values]
+    Cache-Control = "no-store"
+
+[[headers]]
   for = "/bespoke-quote.html"
   [headers.values]
     Cache-Control = "no-store"
