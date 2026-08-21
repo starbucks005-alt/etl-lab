@@ -459,6 +459,11 @@ html{ zoom:90%; }
            conversation is what the column is for. -->
       <div class="row tools">
         <button class="btn" id="bringBtn">&#128100; Bring someone</button>
+        <!-- ONLY YOUR OWN BUILT FRIEND, hidden by default (see the display:none
+             toggle near nameEverything()) since a house demo has nothing to
+             carry and a guest sitting with someone else's friend should not be
+             offered a copy of it. -->
+        <button class="btn" id="syncBtn" style="display:none">&#128241; Other device</button>
         <button class="btn" id="replyBtn">&#127911; Text</button>
         <button class="btn" id="earBtn">&#128066; Listen</button>
         <button class="btn" id="albumBtn">&#128247; Photos</button>
@@ -630,6 +635,8 @@ function nameEverything() {
   $('gaugeTitle').textContent = 'How ' + FRIEND.name + ' is feeling right now';
   $('gaugeLabel').textContent = FRIEND.mood || 'Easy, glad you came by';
   updateFriendClock();
+  $('syncBtn').style.display =
+    (typeof GC_BUILT !== 'undefined' && GC_BUILT && FRIEND === GC_BUILT) ? '' : 'none';
   /* THE PREMISE, so a first-time visitor has it before her first line lands. */
   if (FRIEND.premise) { $('gatePremise').textContent = FRIEND.premise; $('gatePremise').style.display = ''; }
   else { $('gatePremise').style.display = 'none'; }
@@ -2255,6 +2262,83 @@ $("bringBtn").addEventListener("click", function () {
     post("Not wired yet", "Could not open the room. " + err.message);
   });
 });
+
+/* ── THE SAME COMPANION, ON A SECOND DEVICE ──────────────────────────────────
+   Added 2026-08-21. Dr. O, after the owner-key rotation did not solve what she
+   actually meant: "she thinks the companion needs..." was never about being
+   recognised as owner, it was that a companion built on one browser is
+   nowhere at all on another. GENERIC, not owner-specific, on purpose -- any
+   user with a phone and a laptop has the identical problem, and the fix is
+   the same shape as everything else here that moves data between devices
+   with no account: a short-lived code standing in for the thing, redeemed
+   once. See gc-friend-sync.js.
+
+   SINGLE USE, same reasoning as an invite token: a code that still worked
+   after being read once would sit in a text thread or a screenshot forever,
+   quietly able to plant somebody's companion on a device that was never
+   meant to have it. Making a fresh one costs one click. */
+$("syncBtn").addEventListener("click", function () {
+  var btn = this;
+  btn.disabled = true;
+  fetch("/.netlify/functions/gc-friend-sync", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ friend: FRIEND }),
+  }).then(function (r) { return r.json(); }).then(function (j) {
+    btn.disabled = false;
+    if (!j || !j.code) { post("Not wired yet", "Could not make that link: " + ((j && j.error) || "unknown")); return; }
+    var url = location.origin + location.pathname + "?sync=" + encodeURIComponent(j.code);
+    post("On your other device", "Open this on your phone or your other computer and " +
+         FRIEND.name + " will be there too, exactly as they are here. Nothing moves -- " +
+         FRIEND.name + " stays on this device as well. One link, one device: make a fresh " +
+         "one if you want to add another later.");
+    var box = document.createElement("div");
+    box.className = "msg";
+    var a = document.createElement("input");
+    a.type = "text"; a.readOnly = true; a.value = url;
+    a.style.cssText = "width:100%;font:inherit;font-size:13px;padding:.4rem;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:3px";
+    a.addEventListener("focus", function () { this.select(); });
+    box.appendChild(a);
+    var copy = document.createElement("button");
+    copy.className = "btn"; copy.style.marginTop = ".45rem"; copy.textContent = "Copy the link";
+    copy.addEventListener("click", function () {
+      navigator.clipboard.writeText(url).then(function () { copy.textContent = "Copied"; })
+        .catch(function () { a.focus(); });
+    });
+    box.appendChild(copy);
+    $("log").appendChild(box);
+    $("log").scrollTop = $("log").scrollHeight;
+  }).catch(function (err) {
+    btn.disabled = false;
+    post("Not wired yet", "Could not reach it. " + err.message);
+  });
+});
+
+/* THE OTHER END OF THE LINK ABOVE. Redeems the code and writes the exact same
+   friend into THIS device's own gc-friends via the one function every save
+   already goes through (GC_saveFriend, gc-friend.js), then reloads onto the
+   normal ?who=<id> path so every existing resolution rule (GC_WHO, the swap
+   menu, GC_touchFriend) picks it up with no separate code path to keep in
+   sync with those. */
+var SYNC_CODE = new URLSearchParams(location.search).get("sync");
+if (SYNC_CODE) {
+  history.replaceState({}, "", location.pathname);   // the code is spent either way
+  $("gateTitle").textContent = "Getting your companion";
+  $("gateSay").textContent = "One moment.";
+  fetch("/.netlify/functions/gc-friend-sync?code=" + encodeURIComponent(SYNC_CODE))
+    .then(function (r) { return r.json(); })
+    .then(function (j) {
+      if (!j || !j.friend) {
+        $("gateSay").textContent = "That link did not work: " + ((j && j.error) || "unknown") +
+          ". Ask for a fresh one from the other device.";
+        return;
+      }
+      GC_saveFriend(j.friend);
+      location.href = "room.html?who=" + encodeURIComponent(j.friend.id);
+    })
+    .catch(function (err) {
+      $("gateSay").textContent = "Could not reach it. " + err.message;
+    });
+}
 
 /* ── ARRIVING ON A LINK ──────────────────────────────────────────────────────
    THE DOORSTEP COMES FIRST, AND THIS WAS WRONG THE FIRST TIME.
