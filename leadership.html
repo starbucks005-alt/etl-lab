@@ -130,8 +130,8 @@ a:hover { color: var(--green); }
 }
 .hero p { font-size: 1rem; color: var(--text); max-width: 74ch; margin: 0 0 .5rem; line-height: 1.75; }
 .hero-meta { font-family: 'IBM Plex Mono', monospace; font-size: .74rem; color: var(--mute); margin-top: 1rem; }
-.hero-photo-wrap { max-width: 300px; margin: 0 auto .8rem; }
-.hero-photo-wrap:last-of-type { margin-bottom: 1.6rem; }
+.hero-photos { display: flex; flex-wrap: wrap; justify-content: center; gap: 1.4rem; margin-bottom: 1.6rem; }
+.hero-photo-wrap { width: 260px; max-width: 100%; margin: 0; }
 .hero-photo { border: 1px solid var(--line); overflow: hidden; line-height: 0; background: #000; }
 .hero-photo img { width: 100%; aspect-ratio: 1.45; object-fit: cover; display: block; object-position: center 22%; }
 .hero-photo-caption {
@@ -239,13 +239,19 @@ a:hover { color: var(--green); }
   <a class="backlink" href="/classrooms.html">&larr; ETL Classrooms</a>
 
   <div class="hero">
-    <div class="hero-photo-wrap">
-      <div class="hero-photo"><img src="/assets/leadership/leadership-classroom-hero-v2.png" alt="The eleven historical leaders of the ETL Leadership Classroom, including Colin Powell"></div>
-      <p class="hero-photo-caption">The Leadership Classroom</p>
-    </div>
-    <div class="hero-photo-wrap">
-      <div class="hero-photo"><img src="/assets/leadership/leadership-iris-and-terry.png" alt="Iris S. King with Dr. Terry Oroszi"></div>
-      <p class="hero-photo-caption">Iris S. King &amp; Dr. Terry Oroszi</p>
+    <div class="hero-photos">
+      <div class="hero-photo-wrap">
+        <div class="hero-photo"><img src="/assets/leadership/leadership-classroom-hero-v2.png" alt="The eleven historical leaders of the ETL Leadership Classroom, including Colin Powell"></div>
+        <p class="hero-photo-caption">The Leadership Classroom</p>
+      </div>
+      <div class="hero-photo-wrap">
+        <div class="hero-photo"><img src="/assets/leadership/leadership-iris-and-terry.png" alt="Iris S. King with Dr. Terry Oroszi"></div>
+        <p class="hero-photo-caption">Iris S. King &amp; Dr. Terry Oroszi</p>
+      </div>
+      <div class="hero-photo-wrap">
+        <div class="hero-photo"><img src="/assets/leadership/ldr_powell-eyes-open.jpg" alt="Colin Powell, the ETL Leadership Classroom's capstone leader"></div>
+        <p class="hero-photo-caption">Colin Powell &middot; The Capstone</p>
+      </div>
     </div>
     <div class="eyebrow">PTX 7006 &middot; Leadership, Theory and Application</div>
     <h1>Ten leaders, ten real leadership styles.</h1>
