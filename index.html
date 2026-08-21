@@ -2940,6 +2940,16 @@ document.addEventListener('DOMContentLoaded', function(){
 #etl-cc .card::after{content:'';position:absolute;inset:0;z-index:0;background:linear-gradient(180deg,rgba(4,10,18,.2) 0%,rgba(4,10,18,.82) 68%,rgba(4,10,18,.94) 100%);opacity:0;transition:opacity .4s ease;pointer-events:none}
 #etl-cc .card:hover::after{opacity:1}
 #etl-cc .card>*:not(.hovershot){position:relative;z-index:1}
+#etl-cc .engines{margin-top:52px;padding-top:36px;border-top:1px solid var(--line)}
+#etl-cc .engine-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:20px}
+@media(max-width:900px){#etl-cc .engine-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){#etl-cc .engine-grid{grid-template-columns:1fr}}
+#etl-cc .engine-card{border:1px solid var(--line);border-radius:4px;background:linear-gradient(180deg,var(--panel),var(--bg2));padding:18px 18px 16px;border-top:3px solid var(--cyan)}
+#etl-cc .engine-card .en{font-family:var(--mono);font-size:9px;letter-spacing:.2em;color:var(--cyan-dim);text-transform:uppercase;margin-bottom:8px}
+#etl-cc .engine-card h3{font-family:'Spectral',serif;font-weight:600;font-size:18px;color:var(--ice);margin:0 0 8px;line-height:1.2}
+#etl-cc .engine-card p{font-size:12.5px;color:var(--mute);line-height:1.6;margin-bottom:12px}
+#etl-cc .engine-card .prods{display:flex;flex-wrap:wrap;gap:5px}
+#etl-cc .engine-card .prods span{font-family:var(--mono);font-size:9.5px;letter-spacing:.04em;color:var(--text);border:1px solid var(--line2);border-radius:2px;padding:3px 7px}
 #etl-cc .domtag{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:9px}
 #etl-cc .domtag .sw{width:8px;height:8px;border-radius:2px;flex:none}
 #etl-cc .card .top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
@@ -3001,9 +3011,42 @@ document.addEventListener('DOMContentLoaded', function(){
          undercounts on its own. Re-audit before bumping this if new agents or buildings ship. -->
     <div class="readout">
       <div class="cell"><div class="n" id="etlAgentsN">157</div><div class="k"><span class="pulse"></span>Agents on staff</div></div>
-      <div class="cell"><div class="n">67</div><div class="k">Travel between buildings</div></div>
+      <div class="cell"><div class="n">67</div><div class="k">Travel between buildings (11 websites)</div></div>
       <div class="cell"><div class="n small">21</div><div class="k">Live buildings</div></div>
     </div>
+
+    <div class="engines">
+      <div class="eyebrow"><span class="dot">&#9670;</span> 11 WEBSITES &nbsp;&middot;&nbsp; 4 ENGINES</div>
+      <h2 style="font-family:'Spectral',serif;font-weight:300;font-size:clamp(26px,3.2vw,38px);color:#fff;margin:0 0 12px;line-height:1.15;">Eleven separate websites. Four engines underneath all of them.</h2>
+      <p style="color:var(--mute);font-size:15px;max-width:700px;margin-bottom:8px;">Every one of the 157 agents runs on one of four engines, reused and stacked across sites that share nothing else on the surface. The Dose alone runs all four at once.</p>
+      <div class="engine-grid">
+        <div class="engine-card">
+          <div class="en">Engine 01</div>
+          <h3>Memory &amp; Emotion</h3>
+          <p>Persistent memory and a real emotional state. The reason an agent is worth coming back to, not just useful once.</p>
+          <div class="prods"><span>Almost Human</span><span>Good Company</span><span>Everly Castle</span><span>M.E.</span><span>ETL Classrooms</span><span>The Dose</span><span>ETL Messenger</span><span>Greylander Press</span></div>
+        </div>
+        <div class="engine-card">
+          <div class="en">Engine 02</div>
+          <h3>Gap-Finding</h3>
+          <p>Dr. Oroszi's Systematic Literature Review method: structured analysis that finds the gap instead of guessing at one.</p>
+          <div class="prods"><span>SLR Studio</span><span>The Dose</span><span>The Gauntlet</span><span>OPSEC Gauntlet</span><span>Intel Dashboard</span></div>
+        </div>
+        <div class="engine-card">
+          <div class="en">Engine 03</div>
+          <h3>The Table Engine</h3>
+          <p>Seat more than one agent at the same table and let them actually work the problem together, not in turns.</p>
+          <div class="prods"><span>The Dose</span><span>The Gauntlet</span><span>OPSEC Gauntlet</span><span>Almost Human</span><span>Greylander Press</span><span>The Gym</span><span>ETL Deskworks</span><span>The Prep Room</span><span>Office Hours</span><span>The Boardroom</span></div>
+        </div>
+        <div class="engine-card">
+          <div class="en">Engine 04</div>
+          <h3>The Receipts Engine</h3>
+          <p>Nothing an agent tells you here is unsourced. Every claim carries a real citation underneath it.</p>
+          <div class="prods"><span>SLR Studio</span><span>The Dose</span><span>ETL Classrooms</span><span>The Gym</span><span>Court of Judge Roz</span></div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 <script>
