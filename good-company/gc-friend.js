@@ -2005,17 +2005,26 @@ var GC_TANSY = {
   /* WATCH, added 2026-08-18, split out of scenes per Dr. O directly: "these
      two are not scenes, they are just videos for the users enjoyment to
      make full size (full laptop screen)." Not a place to sit and talk —
-     nobody is chatted at over these, they just play, full-screen, with
-     Vimeo's own real controls so volume genuinely works (the custom
-     setMuted() postMessage toggle the scene player used was the reported
-     bug). room.html renders these as a separate row from the scene picker
-     and opens them in a dedicated full-screen viewer on click. */
+     nobody is chatted at over these, they just play, full-screen.
+
+     src, NOT vimeoId, changed 2026-08-21. These went through three homes:
+     the small scene window first (read as just another scene, wrong), then
+     a full-screen overlay still built on a player.vimeo.com iframe (volume
+     was STILL broken there -- the bug was the embed itself, not the size of
+     the window), then an actual vimeo.com tab, which worked but meant
+     leaving the app entirely. A real Cast button now exists, and it can
+     only ever attach to a genuine <video> element, never a cross-origin
+     Vimeo iframe -- so real files, hosted the same way every other scene
+     already is, are what makes full-screen, working volume, staying in the
+     app, AND casting to a TV all true together. Real cost note, not hidden:
+     these run 18.6MB and 63.1MB, well past a typical scene's ~2.5MB, because
+     an extra "treat" earns more room than a chat backdrop does. */
   watch: [
-    { key: 'human-hunting', label: 'Human hunting', vimeoId: '1219346693', thumb: null,
+    { key: 'human-hunting', label: 'Human hunting', src: 'video/tansy-human-hunting.mp4', thumb: null,
       where: 'The day two travelers went looking for fairies in these woods and actually ' +
              'found something: her and Poppy up on a branch first, then her own tree hollow, ' +
              'lit from within, glowing before either of them said a word.' },
-    { key: 'flying', label: 'Flying with Poppy and Blue', vimeoId: '1219347065', thumb: null,
+    { key: 'flying', label: 'Flying with Poppy and Blue', src: 'video/tansy-flying-loop.mp4', thumb: null,
       where: 'Mid-flight through the trees with Poppy and Blue just behind her, the three of ' +
              'them moving together the way they only ever do when nobody human is around to ' +
              'perform for.' },

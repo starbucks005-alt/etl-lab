@@ -270,6 +270,22 @@ html{ zoom:90%; }
   border-radius:999px; padding:.5rem 1rem; cursor:pointer; backdrop-filter:blur(2px);
 }
 .sound-on:hover{ background:rgba(0,0,0,.72); border-color:rgba(255,255,255,.5); }
+/* ── casting to a TV ─────────────────────────────────────────────────────────
+   Standards-based Remote Playback API (video.remote), not a Cast SDK or a
+   receiver app -- works with Chromecast and most smart TVs' built-in cast
+   support already, at no cost to build. Only ever shown for a real <video>
+   scene: a Vimeo scene is a cross-origin iframe this code cannot drive, and
+   AirPlay already works there for free on Safari/iOS with no button at all.
+   Bottom-right so it never collides with the sound button, which stays
+   bottom-centre. */
+.cast-btn{
+  position:absolute; right:14px; bottom:14px; z-index:3;
+  font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase;
+  color:#F4ECE0; background:rgba(0,0,0,.55); border:1px solid rgba(255,255,255,.28);
+  border-radius:999px; padding:.5rem .9rem; cursor:pointer; backdrop-filter:blur(2px);
+  display:none;
+}
+.cast-btn:hover{ background:rgba(0,0,0,.72); border-color:rgba(255,255,255,.5); }
 /* PROTECTED. Chat text is --ink on --panel in every skin, and that pair is
    contrast-checked per skin rather than eyeballed. No skin may give this rule
    a softer color: a dimmed message is where a palette starts costing reading. */
@@ -407,10 +423,24 @@ html{ zoom:90%; }
     <div class="portrait" id="portrait">
       <video id="loop" muted loop playsinline autoplay preload="auto"></video>
       <button class="sound-on" id="soundBtn" type="button">&#128264; Turn sound on</button>
+      <button class="cast-btn" id="castBtn" type="button">&#128250; Cast to TV</button>
     </div>
 
     <div class="scene-bar" id="sceneBar"></div>
     <div class="watch-bar" id="watchBar" style="display:none"></div>
+  </div>
+
+  <!-- FULL-SCREEN WATCH VIEWER, restored 2026-08-21. A real <video>, not the
+       player.vimeo.com iframe the 2026-08-18 version of this used -- that
+       embed's volume was broken regardless of window size, which is the
+       whole reason these left the app in the first place. A native <video>
+       element has no such bridge to break, and it is the only thing the
+       Cast button below can actually attach to. -->
+  <div id="watchViewer" style="display:none; position:fixed; inset:0; z-index:100; background:#000;">
+    <button class="btn" id="watchCloseBtn" style="position:absolute; top:16px; right:16px; z-index:2; background:rgba(0,0,0,.62);">&times; Close</button>
+    <button class="btn" id="watchCastBtn" style="position:absolute; top:16px; right:110px; z-index:2; background:rgba(0,0,0,.62); display:none;">&#128250; Cast to TV</button>
+    <video id="watchVideo" style="position:absolute; inset:0; width:100%; height:100%; object-fit:contain;"
+      controls playsinline></video>
   </div>
 
   <div class="side">
@@ -675,7 +705,7 @@ document.addEventListener('fullscreenchange', function () {
    A MISSING CLIP SAYS WHICH CLIP IS MISSING. No poster, no still, no stand-in.
    A placeholder that looks deliberate is how a broken asset reaches production. */
 var bar = $('sceneBar'), video = $('loop'), portrait = $('portrait'), current = null;
-var watchBar = $('watchBar');
+var watchBar = $('watchBar'), watchViewer = $('watchViewer'), watchVideo = $('watchVideo');
 
 /* Declared here, not down with the button: play() reads it, and relying on var
    hoisting to make that undefined-but-falsy is luck rather than intent. */
@@ -908,6 +938,7 @@ function play(scene) {
   Array.prototype.forEach.call(bar.children, function (chip) {
     chip.classList.toggle('on', chip.dataset.key === scene.key);
   });
+  updateCastVisibility();
 }
 /* Only where a source was actually asked for. Emptying the element to get it
    out of the way fires this too, and a scene with no film is not a failure. */
@@ -922,6 +953,36 @@ $('soundBtn').addEventListener('click', function () {
   if (wantSound) video.play().catch(function () {});
   if (vimeoPlayer) { try { vimeoPlayer.setMuted(!wantSound); } catch (e) {} }
   this.innerHTML = wantSound ? '&#128263; Turn sound off' : '&#128264; Turn sound on';
+});
+
+/* CAST TO A TV, added 2026-08-21 (the ask from earlier in this same session
+   that got set aside mid-build). video.remote is the standards-based Remote
+   Playback API: no SDK, no receiver app, and it already works with
+   Chromecast and most smart TVs. Only shown for a real <video> scene --
+   current.vimeoId means the visible surface is a cross-origin iframe this
+   code has no way to drive, and a still has nothing playing to cast at all. */
+var castBtn = $('castBtn');
+var castSupported = !!(video.remote && typeof video.remote.prompt === 'function');
+var castAvailable = false;
+function updateCastVisibility() {
+  castBtn.style.display = (castSupported && castAvailable && current && current.src && !current.vimeoId) ? '' : 'none';
+}
+if (castSupported) {
+  /* watchAvailability itself can reject on a browser that only partially
+     implements the API; treated as "assume available" rather than hiding a
+     button that would otherwise have worked, since prompt() still fails
+     safely on its own if there is truly nothing to cast to. */
+  video.remote.watchAvailability(function (available) {
+    castAvailable = available;
+    updateCastVisibility();
+  }).catch(function () {
+    castAvailable = true;
+    updateCastVisibility();
+  });
+}
+castBtn.addEventListener('click', function () {
+  if (!castSupported) return;
+  video.remote.prompt().catch(function () {});
 });
 
 /* MOVING THE ROOM, FOR EVERYONE IN IT, NOT JUST THIS BROWSER.
@@ -1042,11 +1103,16 @@ function renderScenes() {
   renderWatch();
 }
 
-/* WATCH ROW, added 2026-08-18. Same thumbnail shape as the scene picker
-   (reuses the vumbnail.com fallback exactly like scene.thumb/vimeoId does
-   above) but a separate row, separate click behavior: this opens the
-   full-screen viewer rather than moving the room. Hidden entirely when a
-   friend has no watch array, rather than an empty labeled row. */
+/* WATCH ROW, added 2026-08-18. Same thumbnail shape as the scene picker but
+   a separate row, separate click behavior: this opens the full-screen
+   viewer rather than moving the room. Hidden entirely when a friend has no
+   watch array, rather than an empty labeled row.
+
+   REAL <video> FILES, NOT vimeoId, changed 2026-08-21 -- see the long note
+   on Tansy's watch array in gc-friend.js for the full history of why these
+   left the app and what brought them back. A plain <button> again rather
+   than the <a target="_blank"> the 2026-08-18 version used: there is
+   nowhere else to send this click now that the viewer is a real player. */
 function renderWatch() {
   watchBar.innerHTML = '';
   var list = FRIEND.watch || [];
@@ -1057,22 +1123,13 @@ function renderWatch() {
   label.textContent = 'For watching';
   watchBar.appendChild(label);
   list.forEach(function (item) {
-    /* A REAL <a target="_blank"> TO VIMEO'S OWN WATCH PAGE, changed
-       2026-08-18 per Dr. O: "have the two new ones... open in a new tab."
-       vimeo.com/<id> (not player.vimeo.com, the embed) is Vimeo's actual
-       site, full native chrome including a volume control that is a real
-       click on Vimeo's own page rather than anything this code controls —
-       simplest possible fix for the reported broken mute, since there is
-       no longer any player object on this page for it to be broken on. */
-    if (!item.vimeoId) return;
-    var chip = document.createElement('a');
+    if (!item.src) return;
+    var chip = document.createElement('button');
+    chip.type = 'button';
     chip.className = 'watch-chip';
-    chip.href = 'https://vimeo.com/' + encodeURIComponent(item.vimeoId);
-    chip.target = '_blank';
-    chip.rel = 'noopener';
-    if (item.thumb || item.vimeoId) {
+    if (item.thumb) {
       var thumb = document.createElement('img');
-      thumb.src = item.thumb || ('https://vumbnail.com/' + encodeURIComponent(item.vimeoId) + '.jpg');
+      thumb.src = item.thumb;
       thumb.alt = '';
       thumb.onerror = function () { this.remove(); };
       chip.appendChild(thumb);
@@ -1084,9 +1141,57 @@ function renderWatch() {
     var cap = document.createElement('span');
     cap.textContent = item.label;
     chip.appendChild(cap);
+    chip.addEventListener('click', function () { openWatch(item); });
     watchBar.appendChild(chip);
   });
 }
+
+/* THE VIEWER ITSELF. A real <video>, so its volume is the browser's own
+   native control -- nothing here calls a Player SDK or a postMessage mute,
+   because that bridge is exactly what broke twice before. Autoplay WITH
+   sound is fine here specifically because the click that opens this IS the
+   user gesture browsers require for it. */
+function openWatch(item) {
+  if (!item.src) return;
+  watchVideo.src = item.src;
+  watchVideo.muted = false;
+  watchViewer.style.display = '';
+  watchVideo.play().catch(function () {});
+  updateWatchCastVisibility();
+}
+function closeWatch() {
+  watchViewer.style.display = 'none';
+  watchVideo.pause();
+  watchVideo.removeAttribute('src');
+  try { watchVideo.load(); } catch (e) {}   // stops playback and audio the instant it closes
+}
+$('watchCloseBtn').addEventListener('click', closeWatch);
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape' && watchViewer.style.display !== 'none') closeWatch();
+});
+
+/* CAST, for the watch viewer specifically -- a separate <video> element from
+   the scene player's #loop, so it needs its own Remote Playback API wiring
+   rather than sharing castBtn/updateCastVisibility above. */
+var watchCastBtn = $('watchCastBtn');
+var watchCastSupported = !!(watchVideo.remote && typeof watchVideo.remote.prompt === 'function');
+var watchCastAvailable = false;
+function updateWatchCastVisibility() {
+  watchCastBtn.style.display = (watchCastSupported && watchCastAvailable && watchVideo.src) ? '' : 'none';
+}
+if (watchCastSupported) {
+  watchVideo.remote.watchAvailability(function (available) {
+    watchCastAvailable = available;
+    updateWatchCastVisibility();
+  }).catch(function () {
+    watchCastAvailable = true;
+    updateWatchCastVisibility();
+  });
+}
+watchCastBtn.addEventListener('click', function () {
+  if (!watchCastSupported) return;
+  watchVideo.remote.prompt().catch(function () {});
+});
 
 /* SKIPPED HERE ON PURPOSE when arriving on an invite -- see
    ARRIVING_ON_INVITE's own comment above FRIEND. This is what actually put
