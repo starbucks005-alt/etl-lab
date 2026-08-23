@@ -722,7 +722,7 @@ exports.handler = async function (event) {
   const said = String(body.message || '').slice(0, 4000);
   if (!idle && !said.trim()) return json(400, { error: 'nothing_said' });
 
-  const key = process.env.ANTHROPIC_API_KEY;
+  const key = process.env.GOOD_COMPANY_API_KEY;
   if (!key) return json(500, { error: 'no_api_key' });
   const client = new Anthropic({ apiKey: key });
 

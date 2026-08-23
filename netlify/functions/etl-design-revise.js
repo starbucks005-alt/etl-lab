@@ -97,7 +97,7 @@ exports.handler = async (event) => {
   // Jobs rendered before the SVG was kept cannot be revised, only re-run.
   if (!prevSvg) return json(409, { error: 'no_source_to_revise' });
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.ETL_DESIGN_API_KEY;
   if (!apiKey) return json(500, { error: 'config', missing: 'ANTHROPIC_API_KEY' });
 
   const r = job.result || {};

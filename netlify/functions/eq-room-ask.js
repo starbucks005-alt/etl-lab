@@ -440,7 +440,7 @@ exports.handler = async function (event) {
   //
   // A crisis turn is never billed, never counted against the free cap, and
   // never blocked by a strike. It costs one Haiku call and it is worth it.
-  const safetyClient = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  const safetyClient = new Anthropic({ apiKey: process.env.ALMOST_HUMAN_API_KEY });
   if (await isCrisis(safetyClient, message)) {
     return json(200, {
       reply: crisisReply(visitorName),
@@ -517,7 +517,7 @@ exports.handler = async function (event) {
   }
   const messages = [...history, { role: 'user', content: message }];
 
-  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  const client = new Anthropic({ apiKey: process.env.ALMOST_HUMAN_API_KEY });
   let turnPrompt = systemPrompt;
   if (capped) {
     turnPrompt += '\n\nThis is your last exchange for this conversation, the turn budget is spent. Close out warmly and in character, and set "close": true.';

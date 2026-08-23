@@ -297,7 +297,7 @@ exports.handler = async (event) => {
     await save({});
   }
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.ETL_DESIGN_API_KEY;
   if (!apiKey) { await save({ status: 'error', error: 'ANTHROPIC_API_KEY not set' }); return { statusCode: 500, body: 'no key' }; }
   const client = new Anthropic({ apiKey });
 

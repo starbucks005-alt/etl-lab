@@ -454,7 +454,7 @@ exports.handler = async function (event) {
   // is the one most likely to actually do something about it, and hiding it
   // from her would be the room keeping a secret it has no business keeping.
   if (!isAmbient) {
-    const safetyClient = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    const safetyClient = new Anthropic({ apiKey: process.env.ALMOST_HUMAN_API_KEY });
     if (await isCrisis(safetyClient, message)) {
       const roster = (shared ? (shared.room.active_agents || []) : (Array.isArray(body.active_agents) ? body.active_agents : []))
         .map((a) => String(a || '').trim().toLowerCase())
@@ -637,7 +637,7 @@ exports.handler = async function (event) {
   const agentStateIn = shared
     ? ((shared.room.agent_state && typeof shared.room.agent_state === 'object') ? shared.room.agent_state : {})
     : ((body.agent_state && typeof body.agent_state === 'object') ? body.agent_state : {});
-  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  const client = new Anthropic({ apiKey: process.env.ALMOST_HUMAN_API_KEY });
 
   let stillActive = [...activeAgents];
   const replies = [];
