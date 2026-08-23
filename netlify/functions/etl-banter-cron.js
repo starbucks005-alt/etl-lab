@@ -675,7 +675,13 @@ exports.handler = async (event) => {
     const sonnetCall = client.messages.create({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 400,
-      system: SYSTEM.replace('{{CURRENT_CAMPUS_NEWS}}', activeCampusEventsBlock()),
+      system: [
+        {
+          type: 'text',
+          text: SYSTEM.replace('{{CURRENT_CAMPUS_NEWS}}', activeCampusEventsBlock()),
+          cache_control: { type: 'ephemeral' },
+        },
+      ],
       messages: [{ role: 'user', content: promptParts }],
     });
     const sonnetTimeout = new Promise(function(_, reject){
