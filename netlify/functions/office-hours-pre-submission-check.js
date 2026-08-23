@@ -211,7 +211,7 @@ exports.handler = async (event) => {
   if (!user) return json(401, { error: 'invalid_token', message: 'Your session has expired. Sign in again at /member-login.' });
 
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.OFFICE_HOURS_API_KEY;
   if (!apiKey) return json(500, { error: 'ANTHROPIC_API_KEY not configured' });
 
   let body;

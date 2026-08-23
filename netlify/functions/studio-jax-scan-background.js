@@ -701,7 +701,7 @@ exports.handler = async (event) => {
 
   await updateIndex(jobId, targetUrl, 'running');
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.FOUNDER_STUDIO_API_KEY;
   if (!apiKey) {
     console.error('[jax-scan-bg] ANTHROPIC_API_KEY not set');
     return { statusCode: 500 };

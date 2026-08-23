@@ -272,7 +272,7 @@ exports.handler = async function(event) {
     }
   }
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.FOUNDER_STUDIO_API_KEY;
   if (!apiKey) {
     return { statusCode: 500, body: JSON.stringify({ error: 'no_api_key' }) };
   }

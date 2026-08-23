@@ -89,7 +89,7 @@ const RESTYLE_CLOSED_PROMPT =
    evening look, with a dress code steering the work register. Returns
    [{category, outfit}, ...]. */
 async function chrisWritesOutfits(agent, mix, code, note) {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.FOUNDER_STUDIO_API_KEY;
   if (!apiKey) throw new Error('anthropic key missing for outfit writing');
   const client = new Anthropic({ apiKey });
   const persona = [

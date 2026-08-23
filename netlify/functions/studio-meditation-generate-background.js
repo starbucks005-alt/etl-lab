@@ -77,7 +77,7 @@ exports.handler = async (event) => {
     return ok();
   }
 
-  const anthKey = process.env.ANTHROPIC_API_KEY;
+  const anthKey = process.env.FOUNDER_STUDIO_API_KEY;
   const elevenKey = process.env.ELEVENLABS_API_KEY;
   if (!anthKey || !elevenKey) {
     await fail('Meditation generation not configured');

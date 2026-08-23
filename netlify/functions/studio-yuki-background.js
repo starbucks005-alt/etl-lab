@@ -132,7 +132,7 @@ exports.handler = async function(event) {
     return { statusCode: 400, body: JSON.stringify({ error: 'job_id_and_brief_required' }) };
   }
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.FOUNDER_STUDIO_API_KEY;
   if (!apiKey) return { statusCode: 500, body: JSON.stringify({ error: 'no_api_key' }) };
 
   const jobs = getStore('studio_jobs');

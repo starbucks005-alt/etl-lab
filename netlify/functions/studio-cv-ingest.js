@@ -73,7 +73,7 @@ exports.handler = async function (event) {
   if (doc && doc.mediaType !== 'application/pdf') return json(415, { error: 'unsupported_type', message: 'PDF or text only for now.' });
   if (doc && doc.base64 && doc.base64.length > 11 * 1024 * 1024) return json(413, { error: 'too_big', message: 'CV is too large (max ~8MB).' });
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.FOUNDER_STUDIO_API_KEY;
   if (!apiKey) return json(500, { error: 'anthropic_key_missing' });
   const client = new Anthropic({ apiKey });
 

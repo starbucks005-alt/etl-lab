@@ -380,7 +380,7 @@ exports.handler = async (event) => {
   const ownerStaffNames = Array.isArray(body.staff_names)
     ? body.staff_names.filter(n => n && typeof n === 'string') : [];
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.FOUNDER_STUDIO_API_KEY;
   if (!apiKey) {
     return {
       statusCode: 500,

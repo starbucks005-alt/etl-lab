@@ -265,10 +265,10 @@ exports.handler = async (event) => {
   // Which external dependencies are configured, so a missing key is visible in
   // the log on the very first line instead of being inferred from a 502 later.
   console.log('[auggie-brief-bg] deps configured:'
-    + ' anthropic=' + !!process.env.ANTHROPIC_API_KEY
+    + ' anthropic=' + !!process.env.FOUNDER_STUDIO_API_KEY
     + ' elevenlabs=' + !!process.env.ELEVENLABS_API_KEY);
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.FOUNDER_STUDIO_API_KEY;
   if (!apiKey) {
     console.error('[auggie-brief-bg] ANTHROPIC_API_KEY not set');
     return { statusCode: 500, body: 'anthropic key missing' };
