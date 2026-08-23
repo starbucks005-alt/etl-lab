@@ -581,12 +581,22 @@ exports.handler = async (event) => {
   const { h } = etNow();
 
   let msgs = [];
+  let storeReadFailed = false;
   try {
     const cached = await store.get('messages', { type: 'json' });
     if (Array.isArray(cached)) msgs = cached;
     console.log('[etl-banter-cron] DIAG store.get ok, msgs.length=' + msgs.length + ' tokenPresent=' + Boolean(process.env.NETLIFY_BLOBS_TOKEN));
   } catch (getErr) {
+    storeReadFailed = true;
     console.error('[etl-banter-cron] DIAG store.get FAILED:', getErr && getErr.name, getErr && getErr.message);
+  }
+
+  // Blob state unknown -- skip this tick rather than assume the queue is
+  // empty and generate anyway. Assuming empty is what turned two earlier
+  // blob outages (2026-07-29, and the scheduled-invocation wiring bug) into
+  // a call on every single cron minute instead of a quiet no-op.
+  if (storeReadFailed && !manual) {
+    return { statusCode: 200, body: 'blob read failed, skipping this tick to avoid runaway cost' };
   }
 
   // Only generate a new scene when the future queue is running low
