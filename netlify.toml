@@ -494,6 +494,16 @@
   [headers.values]
     Cache-Control = "no-store"
 
+# Good Company. friend_built/friend_paid/scene_ordered key-event tracking
+# landed in build.html and room.html on 2026-08-20; without no-store here,
+# a visitor whose browser cached these pages before that date can complete
+# a real, paid build while running the pre-tracking copy of the page, same
+# failure shape as the Everly Castle "owl and sprout" incident above.
+[[headers]]
+  for = "/good-company/*"
+  [headers.values]
+    Cache-Control = "no-store"
+
 # Social post engine. Voice profiles (voice corpus, required hashtags,
 # site presets, closers) live in data/voice-profiles/ so the engine itself
 # carries no owner. Bundle them or every caller silently falls back to the
