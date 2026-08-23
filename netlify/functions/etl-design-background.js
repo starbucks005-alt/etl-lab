@@ -193,6 +193,16 @@ exports.handler = async (event) => {
        guess; being told them is a fact (2026-08-02). */
     brandColours:  String(body.brand_colours || '').trim().slice(0, 200),
   };
+  /* Set only when this brief was built out of a live Table Engine room
+     (design-table.js / design-table-draft.js), never by the plain form. A
+     readout of what the client and the four actually pitched and agreed on,
+     so the relay does not quietly contradict a direction she already heard
+     and signed off on at the table. Empty string is the plain-form path and
+     changes nothing below. */
+  const roomContext = String(body.room_context || '').trim().slice(0, 4000);
+  const roomContextBlock = roomContext
+    ? ('\n\nTHE CLIENT ALREADY TALKED THIS THROUGH WITH THE TABLE BEFORE THIS BRIEF WAS BUILT. Follow the direction that came out of that conversation; do not quietly contradict it:\n' + roomContext)
+    : '';
   const P = PLATFORMS[brief.platform];
   const co = brief.businessName || 'this business';
   /* The upload arrives as a STORE KEY, not inline. An async Lambda invoke
@@ -300,6 +310,7 @@ exports.handler = async (event) => {
       (concept
         ? '\n\nThe attached image is the client\'s own concept reference. Pull the palette and the mood FROM IT. Name colours you can actually see in it, with hex values you have judged from the image, and choose type that suits it. If the image is a photo of their space, product or work, treat it as the truth about who they are.'
         : '') +
+      roomContextBlock +
       '\n\nSet the brand direction.';
     const yuki = extractJson(await ask(client,
       'You are Yuki Mendel, a type-first graphic designer. You make wordmarks, not mascots. You build a small brand system a one-person shop can hold together: a typeface pairing, a tight palette, and the spacing logic that makes it look deliberate. ' + NO_EM_DASH +
@@ -438,6 +449,7 @@ exports.handler = async (event) => {
         ? ('\n\nTHE CLIENT HAS ALREADY FIXED THE LOOK OF THIS PIECE, AND YOU CANNOT CHANGE IT:\n' + LOOKS[brief.look] +
            '\nWrite a promise that belongs in that world. The words and the picture have to want the same thing, so do not offer warmth, comfort or reassurance inside a cold register, and do not write something clipped and clinical inside a warm one. If the strongest angle genuinely fights the look, find the second strongest that does not.')
         : '') +
+      roomContextBlock +
       '\n\nFind the angle and write the graphic.', 1400));
     await save({ step: 2, note: 'Zara is writing the caption.', result: Object.assign(state.result, { angle: reid }) });
 
@@ -490,7 +502,7 @@ exports.handler = async (event) => {
       'Never invent statistics, testimonials, prices, or customer counts. ' + NO_EM_DASH + '\n\n' +
       'Return ONLY JSON: {"post":"the caption without hashtags","hashtags":"space separated, or empty","notes":"one sentence on why this lands for this platform"}';
     const zara = extractJson(await ask(client, zaraSys,
-      'SUBJECT: ' + brief.promoting + '\n\nWrite the caption for ' + P.name + '.', 1500));
+      'SUBJECT: ' + brief.promoting + roomContextBlock + '\n\nWrite the caption for ' + P.name + '.', 1500));
     await save({ step: 3, note: 'Chris is building the graphic.', result: Object.assign(state.result, { copy: zara, platform: P.name }) });
 
     /* ── 4. Chris: real artwork, then the piece composed around it ─────── */
@@ -734,6 +746,11 @@ exports.handler = async (event) => {
         'This image OWNS A BAND of the finished piece, not the whole canvas. Make it a real photograph or illustration with a clear subject, well lit, worth looking at on its own. Do not flatten it into a texture and do not leave it empty for text.',
         'Photographic or richly illustrated, confident composition, not a flat icon and not clip art.',
         concept ? 'Match the look, setting and colouring of the reference the client supplied.' : '',
+        // Chris was never handed the headline (see the note above on why),
+        // but a scene idea the client actually approved out loud at the table
+        // is a fact about what to draw, not display copy, so it is safe to
+        // pass through here the same way the mood line is.
+        roomContext ? ('THE CLIENT ALREADY DISCUSSED A VISUAL DIRECTION WITH THE TABLE. Stay consistent with it rather than starting over: ' + deDash(roomContext)) : '',
       ].filter(Boolean).join(' ');
       /* GEMINI FIRST, gpt-image-1 AS THE FALLBACK.
          ───────────────────────────────────────────────────────────────────

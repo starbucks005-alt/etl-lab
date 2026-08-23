@@ -45,6 +45,12 @@ exports.handler = async (event) => {
   if (!promoting) return json(400, { error: 'promoting_required' });
   if (promoting.length > 1200) return json(400, { error: 'promoting_too_long' });
 
+  // Set only by design-table-draft.js, when this brief was built out of a live
+  // Table Engine room rather than the plain form. A serialized readout of what
+  // the client and the four actually agreed on, so the relay's own generation
+  // does not contradict a direction the client already heard and approved.
+  const roomContext = String(body.room_context || '').trim().slice(0, 4000);
+
   // Optional concept image the client uploads for Yuki to work from. The page
   // downscales before sending; this is the backstop. An oversized or
   // malformed one is DROPPED rather than failing the brief, since the relay
@@ -150,6 +156,7 @@ exports.handler = async (event) => {
         look:          String(body.look || '').trim().slice(0, 60),
         caption_note:  String(body.caption_note || '').trim().slice(0, 400),
         brand_colours: String(body.brand_colours || '').trim().slice(0, 200),
+        room_context:  roomContext,
         // 'Use my image, draw nothing.' Explicit, so it does not depend on a
         // heuristic deciding the upload looks photographic (2026-08-02).
         use_upload_as_art: !!body.use_upload_as_art,

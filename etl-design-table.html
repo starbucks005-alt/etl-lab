@@ -1,0 +1,1046 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ETL Design — bring them to the table</title>
+<meta name="description" content="Give the brief to all four at once. Yuki, Reid, Zara and Chris pitch it live, you push back, and the draft gets built once you like where it's going.">
+<link rel="icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  /* Same room, same palette as etl-design.html: ink + signal red, the studio
+     wall. This page is a second door into the same studio, not a new one. */
+  :root{--bg:#0e0e10;--bg2:#151517;--panel:#1b1b1f;--line:#2e2e34;
+        --sig:#ff5a3c;--sig-br:#ff7a5f;--ice:#7fd4e8;--cream:#f4f1ea;--text:#e6e3dc;--mute:#9a958c;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6;}
+  a{color:var(--ice);}
+  .wrap{max-width:980px;margin:0 auto;padding:0 1.2rem 1.2rem;}
+  .ribbon{background:#08080a;border-bottom:1px solid var(--line);text-align:center;font-family:'IBM Plex Mono',monospace;letter-spacing:.18em;text-transform:uppercase;font-size:.66rem;color:var(--mute);padding:.5rem;}
+  .ribbon b{color:var(--sig);}
+  .backlink{font-family:'IBM Plex Mono',monospace;font-size:.74rem;color:var(--mute);text-decoration:none;display:inline-block;margin:.8rem 0 .1rem;}
+  .eyebrow{font-family:'IBM Plex Mono',monospace;letter-spacing:.22em;text-transform:uppercase;font-size:.68rem;color:var(--sig);}
+  h1{font-family:'Spectral',serif;font-weight:700;font-size:clamp(2rem,5vw,3.1rem);line-height:1.08;margin:.4rem 0 .6rem;color:var(--cream);}
+  h2{font-family:'Spectral',serif;font-weight:600;font-size:1.4rem;color:var(--cream);margin:0 0 .5rem;}
+  .lede{font-size:1.08rem;color:var(--mute);max-width:60ch;}
+  .hero{border:1px solid var(--line);border-radius:16px;background:linear-gradient(180deg,#17171a,#0e0e10);padding:1.4rem 1.4rem;margin-top:.7rem;}
+
+  .crew{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:1.1rem 0 0;}
+  .crew-note{margin:.85rem 0 0;font-size:.95rem;color:var(--mute);max-width:60ch;}
+  .who{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;}
+  .who img{width:100%;aspect-ratio:1;object-fit:cover;display:block;}
+  .who .n{font-weight:600;font-size:.9rem;color:var(--cream);padding:.6rem .7rem 0;}
+  .who .r{font-family:'IBM Plex Mono',monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);padding:0 .7rem .7rem;}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:1.2rem 1.2rem;margin-top:.7rem;}
+  label{display:block;font-family:'IBM Plex Mono',monospace;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin:1.1rem 0 .4rem;}
+  label:first-of-type{margin-top:0;}
+  input,textarea,select{width:100%;background:#101013;border:1px solid var(--line);color:var(--text);border-radius:9px;padding:.7rem .8rem;font-family:'Inter',sans-serif;font-size:.95rem;}
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--sig);}
+  textarea{min-height:88px;resize:vertical;}
+  .hint{font-size:.78rem;color:var(--mute);margin-top:.3rem;}
+  .look-chip{font:inherit;font-size:.84rem;padding:.42rem .9rem;border-radius:999px;
+             background:var(--panel);color:var(--text);border:1px solid var(--line);
+             cursor:pointer;transition:border-color .15s,background .15s;}
+  .look-chip:hover{border-color:var(--sig-br);}
+  .look-chip.is-on{background:var(--sig);border-color:var(--sig);color:#17110f;font-weight:600;}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .cta{margin-top:1.4rem;background:var(--sig);color:#12100f;border:0;border-radius:10px;padding:.85rem 1.6rem;font-weight:700;font-size:1rem;cursor:pointer;font-family:'Inter',sans-serif;}
+  .cta:hover{background:var(--sig-br);}
+  .cta[disabled]{opacity:.5;cursor:not-allowed;}
+  .ghost{background:transparent;color:var(--ice);border:1px solid var(--line);}
+
+  .err{background:#3a1512;border:1px solid #7a2a20;color:#ffb4a6;border-radius:9px;padding:.7rem .9rem;margin-top:1rem;font-size:.9rem;}
+  .note{font-family:'IBM Plex Mono',monospace;font-size:.75rem;color:var(--mute);margin-top:1rem;}
+
+  .swatches{display:flex;gap:10px;flex-wrap:wrap;margin:.6rem 0 0;}
+  .sw{border:1px solid var(--line);border-radius:8px;overflow:hidden;width:104px;}
+  .sw .chip{height:44px;display:block;}
+  .sw .lab{font-family:'IBM Plex Mono',monospace;font-size:.6rem;padding:.35rem .4rem;color:var(--mute);line-height:1.35;}
+  .post{background:#101013;border:1px solid var(--line);border-radius:10px;padding:1rem 1.1rem;white-space:pre-wrap;font-size:.98rem;}
+  .tags{color:var(--ice);font-size:.9rem;margin-top:.6rem;word-break:break-word;}
+  .shot{position:relative;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#101013;}
+  .shot img{width:100%;height:auto;display:block;}
+  .shot.locked img{filter:blur(7px) saturate(.7);transform:scale(1.04);}
+  .shot .stamp{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-family:'IBM Plex Mono',monospace;letter-spacing:.3em;text-transform:uppercase;font-size:.8rem;color:#fff;
+    background:repeating-linear-gradient(45deg,rgba(0,0,0,.34) 0 14px,rgba(0,0,0,.18) 14px 28px);}
+  .paybar{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-top:1.2rem;}
+  .price{font-family:'Spectral',serif;font-size:1.5rem;color:var(--cream);}
+  .credits{font-size:.8rem;color:var(--mute);margin-top:1.2rem;line-height:1.5;}
+  .hide{display:none;}
+  .modes a{font-family:'IBM Plex Mono',monospace;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;
+           text-decoration:none;color:var(--mute);border:1px solid var(--line);border-radius:999px;padding:.4rem .9rem;}
+  .modes a.on{color:#17110f;background:var(--sig);border-color:var(--sig);font-weight:600;}
+
+  /* ── the table itself ─────────────────────────────────────────────── */
+  .seat-strip{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:1rem;}
+  .seat-chip{display:flex;align-items:center;gap:.5rem;background:#101013;border:1px solid var(--line);
+             border-radius:999px;padding:.35rem .8rem .35rem .35rem;cursor:pointer;font-size:.84rem;
+             transition:border-color .15s;}
+  .seat-chip img{width:26px;height:26px;border-radius:50%;object-fit:cover;display:block;}
+  .seat-chip:hover{border-color:var(--seat-color,var(--sig));}
+  .seat-chip.is-on{border-color:var(--seat-color,var(--sig));background:#17171a;}
+  .seat-chip .sc-name{color:var(--cream);font-weight:600;}
+  .seat-chip .sc-role{color:var(--mute);font-size:.74rem;}
+
+  .rl-log{max-height:520px;overflow-y:auto;padding-right:.3rem;}
+  .rl-line{margin:0 0 1rem;}
+  .rl-you-wrap{display:flex;justify-content:flex-end;gap:.5rem;align-items:flex-end;}
+  .rl-bubble-you{background:var(--sig);color:#17110f;border-radius:12px 12px 3px 12px;
+                 padding:.6rem .85rem;max-width:80%;font-size:.94rem;white-space:pre-wrap;}
+  .rl-answer{border-left:3px solid var(--seat-color,var(--sig));background:#101013;border-radius:0 10px 10px 0;
+             padding:.7rem .9rem;max-width:88%;}
+  .rl-answer-who{display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem;}
+  .rl-answer-who img{width:24px;height:24px;border-radius:50%;object-fit:cover;}
+  .rl-answer-name{font-weight:700;font-size:.86rem;color:var(--cream);}
+  .rl-answer-role{font-family:'IBM Plex Mono',monospace;font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);}
+  .rl-answer-text{font-size:.94rem;white-space:pre-wrap;}
+  .rl-answer-tools{margin-top:.4rem;}
+  .rl-ask-more{font-family:'IBM Plex Mono',monospace;font-size:.66rem;letter-spacing:.06em;text-transform:uppercase;
+              color:var(--mute);background:none;border:1px solid var(--line);border-radius:999px;
+              padding:.25rem .7rem;cursor:pointer;}
+  .rl-ask-more:hover{border-color:var(--seat-color,var(--sig));color:var(--cream);}
+  .rl-note{font-family:'IBM Plex Mono',monospace;font-size:.75rem;color:var(--mute);text-align:center;margin:.6rem 0;}
+  .rl-target{display:none;align-items:center;gap:.6rem;font-size:.82rem;color:var(--mute);
+             border:1px solid var(--seat-color,var(--sig));border-radius:999px;padding:.4rem .9rem;margin-bottom:.7rem;}
+  .rl-target button{font-family:'IBM Plex Mono',monospace;font-size:.68rem;background:none;border:0;color:var(--ice);cursor:pointer;}
+  .rl-form{display:flex;gap:.6rem;margin-top:.8rem;}
+  .rl-form input{flex:1;}
+  .rl-form button{margin-top:0;white-space:nowrap;}
+  .room-actions{display:flex;gap:.7rem;flex-wrap:wrap;align-items:center;margin-top:1rem;
+                border-top:1px solid var(--line);padding-top:1rem;}
+
+  @media(max-width:760px){.crew{grid-template-columns:repeat(2,minmax(0,1fr));}.row{grid-template-columns:1fr;}}
+
+  /* ── the wider campus, scrolling ─────────────────────────────────── */
+  .campus-strip h2{font-size:1.15rem;}
+  .campus-strip .lede{font-size:.95rem;margin-bottom:1rem;}
+  .logo-ticker{overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);
+               mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);}
+  .logo-ticker-track{display:flex;width:max-content;gap:16px;animation:logo-ticker-scroll 50s linear infinite;}
+  .logo-ticker:hover .logo-ticker-track{animation-play-state:paused;}
+  .logo-chip{display:flex;flex-direction:column;align-items:center;gap:.45rem;width:92px;flex:0 0 auto;
+             text-decoration:none;padding:.3rem 0;}
+  .logo-chip img{width:66px;height:66px;border-radius:14px;object-fit:cover;border:1px solid var(--line);
+                 background:#101013;display:block;transition:border-color .15s,transform .15s;}
+  .logo-chip:hover img{border-color:var(--sig-br);transform:translateY(-2px);}
+  .logo-chip span{font-family:'IBM Plex Mono',monospace;font-size:.6rem;letter-spacing:.02em;color:var(--mute);
+                  text-align:center;line-height:1.3;}
+  .logo-chip .lc-name{color:var(--text);font-weight:600;}
+  @keyframes logo-ticker-scroll{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+  @media(prefers-reduced-motion:reduce){.logo-ticker-track{animation:none;overflow-x:auto;}}
+</style></head>
+<body>
+
+<div class="ribbon">Emerging Technologies Laboratory &middot; <b>ETL Design</b></div>
+
+<div class="wrap">
+  <a class="backlink" href="/">&larr; back to the lab</a>
+
+  <div class="hero">
+    <div class="modes" style="display:flex;gap:.5rem;flex-wrap:wrap;margin:0 0 1rem;">
+      <a href="/etl-design">A finished piece</a>
+      <a href="/etl-design-table" class="on">Bring them to the table</a>
+      <a href="/etl-image">Just an image</a>
+      <a href="/etl-animate">Put it in motion</a>
+      <a href="/etl-motion">Stills into a clip</a>
+    </div>
+    <div class="eyebrow">Four people, one table</div>
+    <h1>Give them the brief.<br>Watch all four work it, live.</h1>
+    <p class="lede">
+      Same studio, a different way in. Instead of handing over a brief and waiting on a background
+      job, you sit down with Yuki, Reid, Zara and Chris and hear all four pitch their read on it at
+      once. Push back, steer it, ask one of them more. When it sounds right, they build the draft
+      right there. You stay at the table, or come back to it later and pick the thread back up.
+    </p>
+
+    <div class="crew" id="crew">
+      <div class="who"><img src="/agents/Yuki_Mendel_eyes_open.png" alt="Yuki Mendel" loading="lazy"><div class="n">Yuki Mendel</div><div class="r">The look</div></div>
+      <div class="who"><img src="/agents/Reid_eyes_open.jpg" alt="Reid Callum" loading="lazy"><div class="n">Reid Callum</div><div class="r">The angle</div></div>
+      <div class="who"><img src="/agents/Zara_eyes_open.jpg" alt="Zara Cole" loading="lazy"><div class="n">Zara Cole</div><div class="r">The caption</div></div>
+      <div class="who"><img src="/agents/Chris_DIGArtist_Eyes3_Open.png" alt="Chris Avila" loading="lazy"><div class="n">Chris Avila</div><div class="r">The graphic</div></div>
+    </div>
+
+    <p class="crew-note">
+      These four are AI agents, not people. They work the way a studio team works, each one taking
+      the piece further before handing it on, and what comes back is built for your brief rather
+      than pulled off a shelf.
+    </p>
+  </div>
+
+  <!-- ── THE WIDER CAMPUS ───────────────────────────────────────────────
+       These four are one build on a bigger campus. Real logos, real links,
+       not a decorative wall: every chip below opens that product's own live
+       site. Only the products with an actual logo file on hand are here;
+       several more exist on the campus without one yet, so this row is
+       honest about being partial, not "all of them." -->
+  <div class="card campus-strip">
+    <div class="eyebrow">Emerging Technologies Laboratory</div>
+    <h2>One studio on a bigger campus</h2>
+    <p class="lede">Yuki, Reid, Zara and Chris are ETL Design. Here is some of what else the lab runs.</p>
+    <div class="logo-ticker">
+      <div class="logo-ticker-track">
+        <a class="logo-chip" href="https://thedose.net/" target="_blank" rel="noopener">
+          <img src="/images/product-logos/the-dose.jpg" alt="The Dose" loading="lazy">
+          <span class="lc-name">The Dose</span><span>Health literacy</span>
+        </a>
+        <a class="logo-chip" href="/gym" target="_blank" rel="noopener">
+          <img src="/images/product-logos/the-gym.jpg" alt="The Gym" loading="lazy">
+          <span class="lc-name">The Gym</span><span>Evidence-based recovery</span>
+        </a>
+        <a class="logo-chip" href="https://my-echo.me/" target="_blank" rel="noopener">
+          <img src="/images/product-logos/my-echo.png" alt="My Echo" loading="lazy">
+          <span class="lc-name">My Echo</span><span>Digital twins</span>
+        </a>
+        <a class="logo-chip" href="/good-company/" target="_blank" rel="noopener">
+          <img src="/images/product-logos/good-company.png" alt="Good Company" loading="lazy">
+          <span class="lc-name">Good Company</span><span>AI companionship</span>
+        </a>
+        <a class="logo-chip" href="https://thegauntlet.studio/" target="_blank" rel="noopener">
+          <img src="/images/product-logos/the-gauntlet.png" alt="The Gauntlet" loading="lazy">
+          <span class="lc-name">The Gauntlet</span><span>Radical honesty</span>
+        </a>
+        <a class="logo-chip" href="https://greylanderpress.com/" target="_blank" rel="noopener">
+          <img src="/images/product-logos/greylander-press.png" alt="Greylander Press" loading="lazy">
+          <span class="lc-name">Greylander Press</span><span>Book publishing</span>
+        </a>
+        <a class="logo-chip" href="/court" target="_blank" rel="noopener">
+          <img src="/images/product-logos/court-of-judge-roz.png" alt="The Court of Judge Roz" loading="lazy">
+          <span class="lc-name">Court of Judge Roz</span><span>Data-driven resolutions</span>
+        </a>
+        <a class="logo-chip" href="/restaurant" target="_blank" rel="noopener">
+          <img src="/images/product-logos/the-harvest-circuit.png" alt="The Harvest Circuit" loading="lazy">
+          <span class="lc-name">The Harvest Circuit</span><span>Farm to table</span>
+        </a>
+        <a class="logo-chip" href="/almost-human" target="_blank" rel="noopener">
+          <img src="/images/product-logos/almost-human.png" alt="Almost Human" loading="lazy">
+          <span class="lc-name">Almost Human</span><span>AI companions</span>
+        </a>
+        <a class="logo-chip" href="/build-your-own-agent" target="_blank" rel="noopener">
+          <img src="/images/product-logos/build-your-own-agent.png" alt="Build Your Own Agent" loading="lazy">
+          <span class="lc-name">Build Your Own Agent</span><span>Hire your own agent</span>
+        </a>
+        <a class="logo-chip" href="/deskworks" target="_blank" rel="noopener">
+          <img src="/images/product-logos/etl-deskworks.png" alt="ETL DeskWorks" loading="lazy">
+          <span class="lc-name">ETL DeskWorks</span><span>One hire, one desk</span>
+        </a>
+        <a class="logo-chip" href="/founder-studio.html" target="_blank" rel="noopener">
+          <img src="/images/product-logos/founder-studio.png" alt="Founder Studio" loading="lazy">
+          <span class="lc-name">Founder Studio</span><span>Staff your company</span>
+        </a>
+        <a class="logo-chip" href="/classrooms" target="_blank" rel="noopener">
+          <img src="/images/product-logos/etl-classrooms.png" alt="ETL Classrooms" loading="lazy">
+          <span class="lc-name">ETL Classrooms</span><span>Living history</span>
+        </a>
+        <a class="logo-chip" href="/press" target="_blank" rel="noopener">
+          <img src="/images/product-logos/etl-newswire.png" alt="ETL Newswire" loading="lazy">
+          <span class="lc-name">ETL Newswire</span><span>Daily wire briefing</span>
+        </a>
+        <!-- duplicate set, exact copy, so the loop has no seam. Hidden from
+             assistive tech and keyboard focus so nobody tabs through the
+             campus twice. -->
+        <a class="logo-chip" href="https://thedose.net/" target="_blank" rel="noopener" aria-hidden="true" tabindex="-1">
+          <img src="/images/product-logos/the-dose.jpg" alt="" loading="lazy">
+          <span class="lc-name">The Dose</span><span>Health literacy</span>
+        </a>
+        <a class="logo-chip" href="/gym" target="_blank" rel="noopener" aria-hidden="true" tabindex="-1">
+          <img src="/images/product-logos/the-gym.jpg" alt="" loading="lazy">
+          <span class="lc-name">The Gym</span><span>Evidence-based recovery</span>
+        </a>
+        <a class="logo-chip" href="https://my-echo.me/" target="_blank" rel="noopener" aria-hidden="true" tabindex="-1">
+          <img src="/images/product-logos/my-echo.png" alt="" loading="lazy">
+          <span class="lc-name">My Echo</span><span>Digital twins</span>
+        </a>
+        <a class="logo-chip" href="/good-company/" target="_blank" rel="noopener" aria-hidden="true" tabindex="-1">
+          <img src="/images/product-logos/good-company.png" alt="" loading="lazy">
+          <span class="lc-name">Good Company</span><span>AI companionship</span>
+        </a>
+        <a class="logo-chip" href="https://thegauntlet.studio/" target="_blank" rel="noopener" aria-hidden="true" tabindex="-1">
+          <img src="/images/product-logos/the-gauntlet.png" alt="" loading="lazy">
+          <span class="lc-name">The Gauntlet</span><span>Radical honesty</span>
+        </a>
+        <a class="logo-chip" href="https://greylanderpress.com/" target="_blank" rel="noopener" aria-hidden="true" tabindex="-1">
+          <img src="/images/product-logos/greylander-press.png" alt="" loading="lazy">
+          <span class="lc-name">Greylander Press</span><span>Book publishing</span>
+        </a>
+        <a class="logo-chip" href="/court" target="_blank" rel="noopener" aria-hidden="true" tabindex="-1">
+          <img src="/images/product-logos/court-of-judge-roz.png" alt="" loading="lazy">
+          <span class="lc-name">Court of Judge Roz</span><span>Data-driven resolutions</span>
+        </a>
+        <a class="logo-chip" href="/restaurant" target="_blank" rel="noopener" aria-hidden="true" tabindex="-1">
+          <img src="/images/product-logos/the-harvest-circuit.png" alt="" loading="lazy">
+          <span class="lc-name">The Harvest Circuit</span><span>Farm to table</span>
+        </a>
+        <a class="logo-chip" href="/almost-human" target="_blank" rel="noopener" aria-hidden="true" tabindex="-1">
+          <img src="/images/product-logos/almost-human.png" alt="" loading="lazy">
+          <span class="lc-name">Almost Human</span><span>AI companions</span>
+        </a>
+        <a class="logo-chip" href="/build-your-own-agent" target="_blank" rel="noopener" aria-hidden="true" tabindex="-1">
+          <img src="/images/product-logos/build-your-own-agent.png" alt="" loading="lazy">
+          <span class="lc-name">Build Your Own Agent</span><span>Hire your own agent</span>
+        </a>
+        <a class="logo-chip" href="/deskworks" target="_blank" rel="noopener" aria-hidden="true" tabindex="-1">
+          <img src="/images/product-logos/etl-deskworks.png" alt="" loading="lazy">
+          <span class="lc-name">ETL DeskWorks</span><span>One hire, one desk</span>
+        </a>
+        <a class="logo-chip" href="/founder-studio.html" target="_blank" rel="noopener" aria-hidden="true" tabindex="-1">
+          <img src="/images/product-logos/founder-studio.png" alt="" loading="lazy">
+          <span class="lc-name">Founder Studio</span><span>Staff your company</span>
+        </a>
+        <a class="logo-chip" href="/classrooms" target="_blank" rel="noopener" aria-hidden="true" tabindex="-1">
+          <img src="/images/product-logos/etl-classrooms.png" alt="" loading="lazy">
+          <span class="lc-name">ETL Classrooms</span><span>Living history</span>
+        </a>
+        <a class="logo-chip" href="/press" target="_blank" rel="noopener" aria-hidden="true" tabindex="-1">
+          <img src="/images/product-logos/etl-newswire.png" alt="" loading="lazy">
+          <span class="lc-name">ETL Newswire</span><span>Daily wire briefing</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── THE BRIEF ──────────────────────────────────────────────────── -->
+  <div class="card" id="form-card">
+    <h2>The brief</h2>
+
+    <div style="border:1px solid var(--line);border-left:3px solid var(--sig);border-radius:10px;padding:.9rem 1rem;margin-bottom:1.1rem;background:#141417;">
+      <label for="f-site" style="margin-top:0;">Your website, so we match your brand</label>
+      <input id="f-site" placeholder="yourbusiness.com">
+      <div class="hint">We read your logo, your colours and your type off your own site. This is also the only link that will appear on the piece; nothing gets invented.</div>
+
+      <label for="f-concept">Or upload concept art</label>
+      <input id="f-concept" type="file" accept="image/png,image/jpeg,image/webp">
+      <div class="hint"><strong>Send a photograph if you have one.</strong> A real photo of your product, your room or your people becomes the artwork itself. An upload always wins over the website. <em>Not your logo, that goes below.</em></div>
+      <label style="display:flex;gap:.55rem;align-items:flex-start;margin-top:.8rem;font-weight:600;font-size:.88rem;cursor:pointer;">
+        <input type="checkbox" id="f-own-art" style="margin-top:.25rem;">
+        <span>Use this as the artwork. Do not draw anything.</span>
+      </label>
+      <div class="hint" style="margin-top:.2rem;">Your image goes straight into the piece and Chris draws nothing. Yuki still sets the type and the layout around it.</div>
+      <div id="concept-preview" class="hide" style="margin-top:.7rem;display:flex;gap:.8rem;align-items:center;">
+        <img id="concept-thumb" alt="Your concept image" style="width:76px;height:76px;object-fit:cover;border-radius:9px;border:1px solid var(--line);">
+        <button type="button" class="cta ghost" id="concept-clear" style="margin-top:0;padding:.45rem 1rem;font-size:.85rem;">Remove</button>
+      </div>
+
+      <label for="f-logo">Your logo</label>
+      <input id="f-logo" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml">
+      <div class="hint">Goes bottom right on every piece, at the same size, every time.</div>
+      <div id="logo-preview" class="hide" style="margin-top:.7rem;display:flex;gap:.8rem;align-items:center;">
+        <img id="logo-thumb" alt="Your logo" style="width:76px;height:76px;object-fit:contain;border-radius:9px;border:1px solid var(--line);background:#101013;">
+        <button type="button" class="cta ghost" id="logo-clear" style="margin-top:0;padding:.45rem 1rem;font-size:.85rem;">Remove</button>
+      </div>
+
+      <label for="f-colours">Your brand colours</label>
+      <input id="f-colours" placeholder="#0d0d0d, #b07030, #5c8ab5">
+      <div class="hint">Hex values, separated by commas. Given these, Yuki builds the palette from them.</div>
+
+      <div class="hint" style="margin-top:.7rem;color:var(--sig);">Give us neither and Yuki will invent a look from scratch, and pitch you on it at the table.</div>
+    </div>
+
+    <label for="f-promoting">What are you promoting?</label>
+    <textarea id="f-promoting" placeholder="A small-batch hot sauce. Six peppers, no sugar, fermented ninety days. Sold at our local market and shipped anywhere."></textarea>
+    <div class="hint">The more specific you are, the less generic it comes back.</div>
+
+    <label for="f-audience">Who is it for?</label>
+    <input id="f-audience" placeholder="People who already buy hot sauce and are bored of the supermarket shelf">
+
+    <div class="row">
+      <div>
+        <label for="f-name">Your business name</label>
+        <input id="f-name" placeholder="Your business name">
+      </div>
+      <div>
+        <label for="f-platform">Where is it going?</label>
+        <select id="f-platform">
+          <option value="linkedin">LinkedIn</option>
+          <option value="instagram">Instagram</option>
+          <option value="x">X</option>
+          <option value="facebook">Facebook</option>
+        </select>
+      </div>
+    </div>
+
+    <label>The look</label>
+    <div class="hint" style="margin-bottom:.5rem;">Optional. Pick one and the team builds it. Leave it and Yuki pitches you one.</div>
+    <div id="look-chips" style="display:flex;flex-wrap:wrap;gap:.45rem;margin-bottom:1rem;">
+      <button type="button" class="look-chip is-on" data-look="">Yuki decides</button>
+      <button type="button" class="look-chip" data-look="black mirror">Black Mirror</button>
+      <button type="button" class="look-chip" data-look="blade runner">Blade Runner</button>
+      <button type="button" class="look-chip" data-look="modern editorial">Editorial</button>
+      <button type="button" class="look-chip" data-look="technical">Technical</button>
+      <button type="button" class="look-chip" data-look="luxe">Luxe</button>
+      <button type="button" class="look-chip" data-look="warm">Warm</button>
+    </div>
+
+    <button class="cta" id="sit-down">Bring them to the table</button>
+    <div class="note" id="running-note"></div>
+    <div class="err hide" id="err"></div>
+  </div>
+
+  <!-- ── THE TABLE ──────────────────────────────────────────────────── -->
+  <div class="card hide" id="room-card">
+    <h2>At the table</h2>
+    <div class="seat-strip" id="seat-strip"></div>
+
+    <div class="rl-target" id="rl-target"></div>
+    <div class="rl-log" id="rl-log"></div>
+
+    <form class="rl-form" id="rl-form">
+      <input id="rl-input" placeholder="Say something to the table..." autocomplete="off">
+      <button type="submit" class="cta" id="rl-send">Send</button>
+    </form>
+
+    <div class="room-actions">
+      <button type="button" class="cta" id="rl-draft">Make the draft</button>
+      <span class="note" id="rl-draft-note" style="margin-top:0;"></span>
+      <a class="note" id="rl-link" href="#" style="margin-top:0;margin-left:auto;">Copy the link back to this table</a>
+    </div>
+  </div>
+
+  <!-- ── THE DRAFT ──────────────────────────────────────────────────── -->
+  <div id="out" class="hide">
+
+    <div class="card">
+      <div class="eyebrow">Yuki Mendel &middot; the look</div>
+      <h2 id="r-wordmark"></h2>
+      <div class="swatches" id="r-palette"></div>
+      <p class="hint" id="r-fonts"></p>
+      <p id="r-look" style="margin-top:.8rem;"></p>
+      <button type="button" class="cta ghost" id="copy-brand" style="margin-top:1rem;padding:.5rem 1.1rem;font-size:.85rem;">Copy the brand sheet</button>
+      <span class="hint" id="copy-brand-note" style="margin-left:.6rem;"></span>
+    </div>
+
+    <div class="card">
+      <div class="eyebrow">Reid Callum &middot; the angle</div>
+      <h2 id="r-hook"></h2>
+      <p id="r-positioning"></p>
+      <ul id="r-proof" style="color:var(--mute);font-size:.92rem;"></ul>
+    </div>
+
+    <div class="card">
+      <div class="eyebrow">Zara Cole &middot; the caption <span id="r-platform" style="color:var(--mute)"></span></div>
+      <div class="post" id="r-post"></div>
+      <div class="tags" id="r-tags"></div>
+      <div class="hint" id="r-why" style="margin-top:.7rem;"></div>
+    </div>
+
+    <div class="card">
+      <div class="eyebrow">Chris Avila &middot; the graphic</div>
+      <div class="shot locked" id="r-shot">
+        <img id="r-img" alt="Your finished graphic">
+        <div class="stamp" id="r-stamp">Preview</div>
+      </div>
+      <div class="hint" id="r-imgnote" style="margin-top:.7rem;"></div>
+
+      <div style="margin-top:1.4rem;border-top:1px solid var(--line);padding-top:1.2rem;">
+        <label for="r-note">Tell the team what to change</label>
+        <textarea id="r-note" placeholder="Make the product the hero. Warmer. Lose the middle block and give the offer more room."></textarea>
+        <div class="hint">Yuki keeps everything else as it is and changes only what you ask for. Three rounds on a piece, and you still only pay when you are happy with it. You can also keep talking to the table above and make another draft from where that lands.</div>
+        <button class="cta ghost" id="revise">Send it back for changes</button>
+        <span class="note" id="revise-note" style="margin-left:.8rem;"></span>
+      </div>
+    </div>
+
+    <div class="card" id="pay-card">
+      <h2>Take it with you</h2>
+      <p class="lede">The full-size graphic with the watermark removed, the caption, and Yuki's brand sheet.</p>
+      <div class="paybar">
+        <span class="price" id="price">&nbsp;</span>
+        <button class="cta" id="buy">Buy this piece</button>
+      </div>
+      <div class="hint" style="margin-top:.6rem;">Checkout hands you back to the plain ETL Design page with this piece unlocked. This table stays open, come back to it with the link above whenever you like.</div>
+      <div class="err hide" id="payerr"></div>
+    </div>
+
+    <div class="card hide" id="done-card">
+      <div class="eyebrow">Paid &middot; yours</div>
+      <h2>Here it is.</h2>
+      <p class="lede">Right click the graphic to save it, and copy the caption below.</p>
+      <div class="paybar">
+        <button class="cta" id="dl">Download the graphic</button>
+        <button class="cta ghost" id="copy">Copy the caption</button>
+        <a class="cta ghost" id="animate" href="#" target="_blank" rel="noopener">Put it in motion</a>
+      </div>
+      <div class="credits" id="credits"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+
+  /* ── the four, client side ────────────────────────────────────────── */
+  var SEAT_ORDER = ['yuki','reid','zara','chris'];
+  var CAST = {
+    yuki: { name:'Yuki',  role:'the Art Director', img:'/agents/Yuki_Mendel_eyes_open.png',        color:'#ff5a3c' },
+    reid: { name:'Reid',  role:'the Strategist',    img:'/agents/Reid_eyes_open.jpg',               color:'#7fd4e8' },
+    zara: { name:'Zara',  role:'the Copywriter',    img:'/agents/Zara_eyes_open.jpg',               color:'#f4c86a' },
+    chris:{ name:'Chris', role:'the Artist',        img:'/agents/Chris_DIGArtist_Eyes3_Open.png',   color:'#c98bd6' },
+  };
+
+  var jobId = null, poll = null, priceLabelText = '', conceptData = '', logoData = '', chosenLook = '';
+  var roomId = null, target = null, roomClosed = false, roomBusy = false, lastStatus = null;
+  var ROOM_KEY = 'etl_design_table_room';
+
+  function show(el, on){ el.classList[on ? 'remove' : 'add']('hide'); }
+  function fail(msg){ var e=$('err'); e.textContent = msg; show(e,true); }
+
+  /* ── guest / member identity, same as etl-design.html ─────────────── */
+  var GUEST_KEY = 'etl_design_guest';
+  function guestId(){ try { return localStorage.getItem(GUEST_KEY) || ''; } catch(e){ return ''; } }
+  function rememberGuest(id){ if (!id) return; try { localStorage.setItem(GUEST_KEY, id); } catch(e){} }
+  function memberToken(){
+    try {
+      var keys = ['etl_owner_key','etl_access_token','sb-access-token'];
+      for (var i=0;i<keys.length;i++){ var v = localStorage.getItem(keys[i]); if (v) return v; }
+    } catch(e){}
+    return '';
+  }
+
+  function loadConcept(file, cb){
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev){
+      var img = new Image();
+      img.onload = function(){
+        var max = 1024;
+        var scale = Math.min(1, max / Math.max(img.width, img.height));
+        var w = Math.round(img.width * scale), h = Math.round(img.height * scale);
+        var c = document.createElement('canvas'); c.width = w; c.height = h;
+        c.getContext('2d').drawImage(img, 0, 0, w, h);
+        cb(c.toDataURL('image/jpeg', 0.82));
+      };
+      img.onerror = function(){ fail('That file could not be read as an image.'); };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function saveFrom(url, base, onErr){
+    return fetch(url).then(function(r){
+      var ct = r.headers.get("content-type") || "";
+      if (!r.ok || ct.indexOf("image/") !== 0) {
+        return r.text().then(function(t){ throw new Error((t || ("the server returned " + r.status)).slice(0, 160)); });
+      }
+      return r.blob().then(function(b){
+        var ext = ct.indexOf("jpeg") > -1 ? "jpg" : ct.indexOf("png") > -1 ? "png" : "img";
+        var a = document.createElement("a");
+        a.href = URL.createObjectURL(b); a.download = base + "." + ext; a.click();
+        setTimeout(function(){ URL.revokeObjectURL(a.href); }, 4000);
+      });
+    }).catch(function(e){ if (onErr) onErr(e.message || String(e)); });
+  }
+
+  fetch('/.netlify/functions/etl-design-checkout')
+    .then(function(r){ return r.json(); })
+    .then(function(d){ priceLabelText = d.price_label || ''; $('price').textContent = priceLabelText; })
+    .catch(function(){ $('price').textContent = ''; });
+
+  $('f-concept').addEventListener('change', function(e){
+    loadConcept(e.target.files && e.target.files[0], function(data){
+      conceptData = data; $('concept-thumb').src = data; show($('concept-preview'), true);
+    });
+  });
+  $('f-logo').addEventListener('change', function(e){
+    var file = e.target.files && e.target.files[0];
+    if (!file) return;
+    var rd = new FileReader();
+    rd.onload = function(){ logoData = rd.result; $('logo-thumb').src = logoData; show($('logo-preview'), true); };
+    rd.readAsDataURL(file);
+  });
+  $('logo-clear').addEventListener('click', function(){ logoData = ''; $('f-logo').value = ''; show($('logo-preview'), false); });
+  $('concept-clear').addEventListener('click', function(){ conceptData = ''; $('f-concept').value = ''; show($('concept-preview'), false); });
+  $('look-chips').addEventListener('click', function(e){
+    var chip = e.target.closest ? e.target.closest('.look-chip') : null;
+    if (!chip) return;
+    var all = this.querySelectorAll('.look-chip');
+    Array.prototype.forEach.call(all, function(c){ c.classList.remove('is-on'); });
+    chip.classList.add('is-on');
+    chosenLook = chip.getAttribute('data-look') || '';
+  });
+
+  /* ── the seat strip ────────────────────────────────────────────────── */
+  function renderSeatStrip(){
+    var strip = $('seat-strip');
+    strip.innerHTML = '';
+    SEAT_ORDER.forEach(function(id){
+      var c = CAST[id];
+      var chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'seat-chip' + (target === id ? ' is-on' : '');
+      chip.style.setProperty('--seat-color', c.color);
+      chip.dataset.seat = id;
+      var img = document.createElement('img'); img.src = c.img; img.alt = '';
+      var txt = document.createElement('span');
+      var nm = document.createElement('span'); nm.className = 'sc-name'; nm.textContent = c.name;
+      var rl = document.createElement('span'); rl.className = 'sc-role'; rl.textContent = ' · ' + c.role;
+      txt.appendChild(nm); txt.appendChild(rl);
+      chip.appendChild(img); chip.appendChild(txt);
+      chip.addEventListener('click', function(){ setTarget(target === id ? null : id); });
+      strip.appendChild(chip);
+    });
+  }
+
+  function setTarget(id){
+    target = id;
+    renderSeatStrip();
+    var bar = $('rl-target');
+    if (!target) {
+      bar.style.display = 'none'; bar.innerHTML = '';
+      $('rl-input').placeholder = 'Say something to the table...';
+    } else {
+      var c = CAST[target];
+      bar.style.display = 'flex';
+      bar.style.setProperty('--seat-color', c.color);
+      bar.innerHTML = '';
+      var span = document.createElement('span');
+      var b = document.createElement('strong'); b.textContent = c.name;
+      span.appendChild(document.createTextNode('Asking '));
+      span.appendChild(b);
+      span.appendChild(document.createTextNode(' only'));
+      var clear = document.createElement('button');
+      clear.type = 'button'; clear.textContent = 'back to the table';
+      clear.addEventListener('click', function(){ setTarget(null); });
+      bar.appendChild(span); bar.appendChild(clear);
+      $('rl-input').placeholder = 'Ask ' + c.name + ' a follow-up...';
+    }
+  }
+
+  /* ── the room log ─────────────────────────────────────────────────── */
+  function addLine(node){
+    var wrap = document.createElement('div');
+    wrap.className = 'rl-line';
+    wrap.appendChild(node);
+    $('rl-log').appendChild(wrap);
+    wrap.scrollIntoView({ behavior:'smooth', block:'end' });
+    return wrap;
+  }
+  function addVisitorLine(text){
+    var outer = document.createElement('div'); outer.className = 'rl-you-wrap';
+    var b = document.createElement('div'); b.className = 'rl-bubble-you'; b.textContent = text;
+    outer.appendChild(b);
+    return addLine(outer);
+  }
+  function addNoteLine(text){
+    var n = document.createElement('div'); n.className = 'rl-note'; n.textContent = text;
+    return addLine(n);
+  }
+  function addAnswerLine(seat, replyText){
+    var c = CAST[seat];
+    var box = document.createElement('div'); box.className = 'rl-answer'; box.style.setProperty('--seat-color', c.color);
+    var who = document.createElement('div'); who.className = 'rl-answer-who';
+    var img = document.createElement('img'); img.src = c.img; img.alt = '';
+    var nm = document.createElement('span'); nm.className = 'rl-answer-name'; nm.textContent = c.name;
+    var rl = document.createElement('span'); rl.className = 'rl-answer-role'; rl.textContent = c.role;
+    who.appendChild(img); who.appendChild(nm); who.appendChild(rl);
+    var txt = document.createElement('div'); txt.className = 'rl-answer-text'; txt.textContent = replyText;
+    var tools = document.createElement('div'); tools.className = 'rl-answer-tools';
+    var more = document.createElement('button'); more.type = 'button'; more.className = 'rl-ask-more';
+    more.style.setProperty('--seat-color', c.color);
+    more.textContent = 'Ask ' + c.name + ' more';
+    more.addEventListener('click', function(){ setTarget(seat); $('rl-input').focus(); });
+    tools.appendChild(more);
+    box.appendChild(who); box.appendChild(txt); box.appendChild(tools);
+    return addLine(box);
+  }
+
+  function revealAnswers(replies, done){
+    var i = 0;
+    (function next(){
+      if (i >= (replies || []).length) { done(); return; }
+      var r = replies[i++];
+      if (r.error) { addNoteLine(r.name + ' could not be reached just now.'); setTimeout(next, 120); return; }
+      if (!r.reply) { next(); return; }   // a pass. not announced, same as The Dose's room.
+      var typing = addNoteLine(r.name + ' is answering...');
+      setTimeout(function(){
+        typing.remove();
+        addAnswerLine(r.seat, r.reply);
+        setTimeout(next, 220);
+      }, 380);
+    })();
+  }
+
+  /* ── opening the table ───────────────────────────────────────────── */
+  $('sit-down').addEventListener('click', function(){
+    var promoting = $('f-promoting').value.trim();
+    if (!promoting) { fail('Tell us what you are promoting first.'); return; }
+    show($('err'), false);
+    $('sit-down').disabled = true;
+    $('running-note').textContent = 'Pulling up chairs...';
+
+    var openHeaders = {'Content-Type':'application/json'};
+    var openTok = memberToken();
+    if (openTok) openHeaders['Authorization'] = 'Bearer ' + openTok;
+
+    fetch('/.netlify/functions/design-table', {
+      method:'POST', headers: openHeaders,
+      body: JSON.stringify({
+        guest_id: guestId(),
+        brief: {
+          promoting: promoting,
+          audience: $('f-audience').value.trim(),
+          business_name: $('f-name').value.trim(),
+          business_site: $('f-site').value.trim(),
+          platform: $('f-platform').value,
+          look: chosenLook,
+          brand_colours: $('f-colours').value.trim(),
+          use_upload_as_art: $('f-own-art').checked,
+          logo_image: logoData,
+          concept_image: conceptData,
+        }
+      })
+    })
+    .then(function(r){ return r.json().then(function(d){ d.__status = r.status; return d; }); })
+    .then(function(d){
+      $('sit-down').disabled = false; $('running-note').textContent = '';
+      rememberGuest(d.guest_id);
+      if (d.__status === 402) {
+        fail(d.error === 'guest_allowance_used'
+          ? 'You have used your free piece, so a fresh table needs an ETL membership or a purchase first. Already have a table open? Its link still works.'
+          : (d.error === 'no_credits'
+            ? 'That is your ETL credits used up for now. Topping up puts the team straight back to work.'
+            : 'Could not open a new table right now.'));
+        return;
+      }
+      if (!d.room_id) throw new Error(d.error || 'could not open the table');
+      openRoomUI(d.room_id);
+      addNoteLine('You sit down with Yuki, Reid, Zara and Chris.');
+      revealAnswers(d.replies, function(){ /* ready for follow-up */ });
+    })
+    .catch(function(e){
+      $('sit-down').disabled = false; $('running-note').textContent = '';
+      fail('Could not open the table: ' + e.message);
+    });
+  });
+
+  function openRoomUI(id){
+    roomId = id;
+    try { localStorage.setItem(ROOM_KEY, id); } catch(e){}
+    history.replaceState(null, '', '/etl-design-table?room=' + encodeURIComponent(id));
+    show($('form-card'), false);
+    show($('room-card'), true);
+    renderSeatStrip();
+    var link = $('rl-link');
+    link.href = location.href;
+    link.addEventListener('click', function(ev){
+      ev.preventDefault();
+      var url = location.origin + '/etl-design-table?room=' + encodeURIComponent(roomId);
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(function(){ link.textContent = 'Copied. Bookmark it, or send it to yourself.'; });
+      }
+    });
+    window.scrollTo({ top: $('room-card').offsetTop - 20, behavior: 'smooth' });
+  }
+
+  function closeRoom(msg){
+    roomClosed = true;
+    $('rl-input').disabled = true;
+    $('rl-send').disabled = true;
+    $('rl-input').placeholder = msg || 'This table has closed for now.';
+  }
+
+  $('rl-form').addEventListener('submit', function(e){
+    e.preventDefault();
+    var text = $('rl-input').value.trim();
+    if (!text || roomBusy || roomClosed || !roomId) return;
+    $('rl-input').value = '';
+    roomBusy = true; $('rl-send').disabled = true;
+    addVisitorLine(text);
+    var pending = addNoteLine(target ? (CAST[target].name + ' is reading...') : 'The table is reading...');
+
+    fetch('/.netlify/functions/design-table', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ room_id: roomId, message: text, target: target })
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      pending.remove();
+      if (d.error) throw new Error(d.error);
+      revealAnswers(d.replies, function(){
+        roomBusy = false;
+        if (d.closed) {
+          addNoteLine('That is everything this table can take in one sitting. Make the draft below, or come back to this link later.');
+          closeRoom();
+        } else {
+          $('rl-send').disabled = false;
+          setTarget(null);
+          $('rl-input').focus();
+        }
+      });
+    })
+    .catch(function(e){
+      pending.remove();
+      addNoteLine('Could not reach the table. ' + e.message);
+      roomBusy = false; $('rl-send').disabled = false;
+    });
+  });
+
+  /* ── making the draft ────────────────────────────────────────────── */
+  $('rl-draft').addEventListener('click', function(){
+    if (!roomId) return;
+    $('rl-draft').disabled = true;
+    $('rl-draft-note').textContent = 'Building the draft from where you left it...';
+    show($('err'), false);
+
+    var draftHeaders = {'Content-Type':'application/json'};
+    var draftTok = memberToken();
+    if (draftTok) draftHeaders['Authorization'] = 'Bearer ' + draftTok;
+
+    fetch('/.netlify/functions/design-table-draft', {
+      method:'POST', headers: draftHeaders,
+      body: JSON.stringify({ room_id: roomId, guest_id: guestId() })
+    })
+    .then(function(r){ return r.json().then(function(d){ d.__status = r.status; return d; }); })
+    .then(function(d){
+      $('rl-draft').disabled = false;
+      rememberGuest(d.guest_id);
+      if (d.__status === 402) {
+        $('rl-draft-note').textContent = '';
+        fail(d.error === 'no_credits'
+          ? 'That is your ETL credits used up for now. Topping up puts the team straight back to work.'
+          : 'You have used your free piece. An ETL membership comes with credits for more, or buy this one and start another brief.');
+        return;
+      }
+      if (!d.ok || !d.job_id) throw new Error(d.error || 'could not build the draft');
+      jobId = d.job_id;
+      $('rl-draft').textContent = 'Make another draft';
+      $('rl-draft-note').textContent = 'The draft is up below.';
+      addNoteLine('The table is building the draft. It will land below in a moment.');
+      startPolling();
+    })
+    .catch(function(e){
+      $('rl-draft').disabled = false;
+      $('rl-draft-note').textContent = '';
+      fail('Could not build the draft: ' + e.message);
+    });
+  });
+
+  /* ── polling, rendering, buying, revising: same contract as etl-design.html ── */
+  var ownerTried = false;
+  function tryOwnerUnlock(){
+    if (ownerTried || !jobId) return;
+    var tok = memberToken();
+    if (!tok) return;
+    ownerTried = true;
+    fetch('/.netlify/functions/etl-design-deliver', {
+      method: 'POST', headers: { 'Content-Type':'application/json', 'Authorization': 'Bearer ' + tok },
+      body: JSON.stringify({ job_id: jobId })
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(d){ if (d && d.ok && d.paid) unlock(d.pack); })
+    .catch(function(){});
+  }
+
+  function startPolling(){
+    if (poll) clearInterval(poll);
+    poll = setInterval(tick, 2500);
+    tick();
+  }
+
+  function tick(){
+    if (!jobId) return;
+    fetch('/.netlify/functions/etl-design-status?job_id=' + encodeURIComponent(jobId))
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if (d.error && d.error !== null && !d.status) return;
+        lastStatus = d;
+        var finished = d.status === 'done';
+        if (d.status === 'error') {
+          clearInterval(poll);
+          fail(d.error || 'Something went wrong building the draft. Nothing was charged.');
+          return;
+        }
+        render(d);
+        if (finished && d.image_state !== 'working') clearInterval(poll);
+      })
+      .catch(function(){});
+  }
+
+  function render(d){
+    var r = d.result || {};
+    if (!r.brand && !r.copy) return;
+    show($('out'), true);
+
+    if (r.brand) {
+      $('r-wordmark').textContent = r.brand.wordmark || '';
+      $('r-look').textContent = r.brand.look || '';
+      var f = r.brand.fonts || {};
+      $('r-fonts').textContent = (f.display || f.body) ? ('Type: ' + (f.display||'') + ' for display, ' + (f.body||'') + ' for body.') : '';
+      var pal = $('r-palette'); pal.innerHTML = '';
+      (r.brand.palette || []).forEach(function(p){
+        var d1 = document.createElement('div'); d1.className = 'sw';
+        var c = document.createElement('span'); c.className='chip'; c.style.background = p.hex || '#000';
+        var l = document.createElement('div'); l.className='lab';
+        l.textContent = (p.name||'') + ' ' + (p.hex||'') + (p.use ? ('\n' + p.use) : '');
+        l.style.whiteSpace = 'pre-line';
+        d1.appendChild(c); d1.appendChild(l); pal.appendChild(d1);
+      });
+    }
+    if (r.angle) {
+      $('r-hook').textContent = r.angle.hook || '';
+      $('r-positioning').textContent = r.angle.positioning || '';
+      var ul = $('r-proof'); ul.innerHTML = '';
+      (r.angle.proof_points || []).forEach(function(p){ var li=document.createElement('li'); li.textContent=p; ul.appendChild(li); });
+    }
+    if (r.copy) {
+      $('r-post').textContent = r.copy.post || '';
+      $('r-tags').textContent = r.copy.hashtags || '';
+      $('r-why').textContent = r.copy.notes || '';
+      $('r-platform').textContent = r.platform ? ('· ' + r.platform) : '';
+    }
+    if (r.image_url) { $('r-img').src = r.image_url; $('r-imgnote').textContent = ''; }
+    else if (r.image_error) { $('r-imgnote').textContent = 'The graphic did not come back this time, so the caption above is yours to use as is. Nothing was charged.'; }
+    else if (d.image_state === 'working') { $('r-imgnote').textContent = 'Chris is drawing and Yuki is composing. The caption above is already final.'; }
+
+    if (d.paid) unlock(null);
+    else if (d.status === 'done') tryOwnerUnlock();
+
+    if (r.image_url || r.copy) $('out').scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+
+  $('buy').addEventListener('click', function(){
+    if (!jobId) return;
+    $('buy').disabled = true;
+    fetch('/.netlify/functions/etl-design-checkout', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ job_id: jobId })
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (!d.url) throw new Error(d.error || 'checkout unavailable');
+      window.location.href = d.url;
+    })
+    .catch(function(e){
+      $('buy').disabled = false;
+      var pe = $('payerr'); pe.textContent = 'Could not open checkout: ' + e.message; show(pe, true);
+    });
+  });
+
+  function brandSheetText(){
+    var r = (lastStatus && lastStatus.result) || {};
+    var b = r.brand || {}, f = b.fonts || {};
+    var name = ($('f-name').value || '').trim() || 'This business';
+    var out = ['BRAND DIRECTION — ' + name, 'by Yuki Mendel, ETL Design', ''];
+    if (b.wordmark) out.push('WORDMARK', b.wordmark, '');
+    if (f.display || f.body) out.push('TYPE', (f.display||'') + ' for display', (f.body||'') + ' for body', '');
+    var pal = b.palette || [];
+    if (pal.length) {
+      out.push('PALETTE');
+      pal.forEach(function(p){
+        var n = (p.name||'').padEnd(16, ' ');
+        var h = (p.hex||'').padEnd(10, ' ');
+        out.push('  ' + n + h + (p.use||''));
+      });
+      out.push('');
+    }
+    if (b.look) out.push('THE LOOK', b.look, '');
+    return out.join('\n').trim();
+  }
+
+  $('copy-brand').addEventListener('click', function(){
+    var txt = brandSheetText(), note = $('copy-brand-note');
+    function ok(){ note.textContent = 'Copied.'; setTimeout(function(){ note.textContent = ''; }, 2500); }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt).then(ok, function(){ note.textContent = 'Could not copy, select it by hand.'; });
+    } else {
+      var ta = document.createElement('textarea');
+      ta.value = txt; document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); ok(); } catch(e){ note.textContent = 'Could not copy.'; }
+      document.body.removeChild(ta);
+    }
+  });
+
+  $('copy').addEventListener('click', function(){
+    var t = $('r-post').textContent + '\n\n' + $('r-tags').textContent;
+    navigator.clipboard.writeText(t).then(function(){ $('copy').textContent = 'Copied'; });
+  });
+
+  function unlock(pack){
+    $('r-shot').classList.remove('locked');
+    show($('r-stamp'), false);
+    show($('pay-card'), false);
+    show($('done-card'), true);
+    var img = (pack && pack.image_url) || $('r-img').src;
+    if (img) { $('dl').onclick = function(){ saveFrom(img, 'etl-design', fail); }; }
+    if (jobId) { $('animate').href = '/etl-animate?job=' + encodeURIComponent(jobId); }
+    if (pack) {
+      if (pack.post) $('r-post').textContent = pack.post;
+      if (pack.hashtags) $('r-tags').textContent = pack.hashtags;
+      $('credits').textContent = pack.credits || '';
+    }
+  }
+
+  $('revise').addEventListener('click', function(){
+    var note = $('r-note').value.trim();
+    if (!jobId) return;
+    if (!note) { $('revise-note').textContent = 'Tell them what to change first.'; return; }
+    $('revise').disabled = true;
+    $('revise-note').textContent = 'Yuki is making the changes...';
+    var rvHeaders = {'Content-Type':'application/json'};
+    var rvTok = memberToken();
+    if (rvTok) rvHeaders['Authorization'] = 'Bearer ' + rvTok;
+
+    fetch('/.netlify/functions/etl-design-revise', {
+      method:'POST', headers: rvHeaders,
+      body: JSON.stringify({ job_id: jobId, note: note })
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      $('revise').disabled = false;
+      if (!d.ok) throw new Error(d.error || 'revision failed');
+      $('revise-note').textContent = 'Round ' + (d.revision + 1) + ' is up.';
+      $('r-note').value = '';
+      tick();
+    })
+    .catch(function(e){
+      $('revise').disabled = false;
+      $('revise-note').textContent = 'Could not make that change: ' + e.message;
+    });
+  });
+
+  /* ── resuming a table: ?room= in the URL, or the last one this browser opened ── */
+  function replayTranscript(brief, transcript){
+    (transcript || []).forEach(function(e, i){
+      if (i === 0 && e.speaker === 'visitor') {
+        addNoteLine('Your brief: ' + (brief.promoting || '').slice(0, 140) + ((brief.promoting||'').length > 140 ? '…' : ''));
+        return;
+      }
+      if (e.speaker === 'visitor') addVisitorLine(e.content);
+      else if (CAST[e.speaker]) addAnswerLine(e.speaker, e.content);
+    });
+    addNoteLine('Back at the table.');
+  }
+
+  function resumeRoom(id){
+    fetch('/.netlify/functions/design-table', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ room_id: id, action: 'load' })
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (!d.room_id) { try { localStorage.removeItem(ROOM_KEY); } catch(e){} return; }
+      openRoomUI(d.room_id);
+      replayTranscript(d.brief || {}, d.transcript || []);
+      if (d.closed) closeRoom();
+      if (d.draft_job_id) {
+        jobId = d.draft_job_id;
+        $('rl-draft').textContent = 'Make another draft';
+        startPolling();
+      }
+    })
+    .catch(function(){});
+  }
+
+  var qs = new URLSearchParams(location.search);
+  var qRoom = qs.get('room');
+  if (qRoom) {
+    resumeRoom(qRoom);
+  } else {
+    var saved = null;
+    try { saved = localStorage.getItem(ROOM_KEY); } catch(e){}
+    if (saved) resumeRoom(saved);
+  }
+})();
+</script>
+</body></html>

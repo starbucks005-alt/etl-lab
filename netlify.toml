@@ -517,6 +517,13 @@
 [functions."etl-design-background"]
   included_files = ["netlify/functions/fonts/**"]
 
+# The Table Engine room for ETL Design. Opening a table runs all four seats
+# sequentially in one request (see design-table.js), which is the one round
+# with no cap on how many speak, so it is the slowest call this function ever
+# makes. Matches the timeout gc-scene already uses for its own multi-step call.
+[functions."design-table"]
+  timeout = 60
+
 # Starting a Veo render is a sub-second call and polling is quick, but the poll
 # that finds the job finished also downloads the mp4 and writes it to Blobs.
 [functions."gc-scene"]
