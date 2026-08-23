@@ -630,7 +630,12 @@ exports.handler = async (event) => {
   var inner = { moods: '', memories: '', diary: '' };
   try { inner = await loadInnerLives(); } catch (_) {}
 
-  var lineCount = 12 + Math.floor(Math.random() * 7); // 12-18 lines per scene (Sonnet speed)
+  // 20-32 lines per scene. Was 12-18: at 2-3s/line during active hours that batch only
+  // covered ~25-55s of playback, so the cron was regenerating on nearly every 1-minute
+  // tick (confirmed in logs: futureCount=0 on ~every call during peak hours). Bigger
+  // batches cover more playback time per call at the same reveal speed -- no visible
+  // change to the feed, just fewer regenerations. max_tokens raised to match below.
+  var lineCount = 20 + Math.floor(Math.random() * 13);
 
   var promptParts = 'Write ' + lineCount + ' lines of #agency-floor chat for right now.\n\n'
     + 'Time: ' + etTimeStr + ' (' + daypart + ').\n'
@@ -684,7 +689,7 @@ exports.handler = async (event) => {
   try {
     const sonnetCall = client.messages.create({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 400,
+      max_tokens: 650, // raised with lineCount (was 400 for 12-18 lines, now up to 32)
       system: [
         {
           type: 'text',
