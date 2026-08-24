@@ -407,19 +407,16 @@ body {
   font-size: 0.7rem;
   color: var(--text-dim);
 }
-/* ── Service-card chat panels ── */
-.svc-chat { margin-top: 1.1rem; }
+/* ── Chat panels, embedded directly in each operator's wing card ── */
+.wing-body .svc-chat { margin-top: 1.3rem; text-align: left; max-width: 420px; }
+.corridor-wing.wing-right .wing-body .svc-chat { margin-left: auto; }
 .svc-chat-btn {
   font-family: 'Public Sans', sans-serif; font-size: 0.7rem; font-weight: 700;
   letter-spacing: 0.12em; text-transform: uppercase; color: #fff;
   background: var(--stamp-blue); border: none; padding: 0.65rem 1rem; cursor: pointer; width: 100%;
 }
 .svc-chat-btn:hover { background: var(--etl-blue); }
-.svc-chat-panel { margin-top: 0.8rem; border: 1px solid var(--rule); padding: 0.85rem; background: #fbfaf6; }
-.svc-chat-body { display: flex; gap: 0.9rem; align-items: flex-start; }
-.svc-chat-avatar.wing-portrait { width: 64px; height: 64px; border-radius: 8px; box-shadow: none; margin-top: 0.1rem; }
-.svc-chat-avatar .wing-division { display: none; }
-.svc-chat-convo { flex: 1; min-width: 0; }
+.svc-chat-panel { margin-top: 0.8rem; border: 1px solid var(--rule); padding: 0.85rem; background: #fbfaf6; text-align: left; }
 .svc-chat-log { font-family: 'Public Sans', sans-serif; font-size: 0.82rem; line-height: 1.6; color: var(--stamp-blue); max-height: 280px; overflow-y: auto; }
 .svc-chat-log .q { font-weight: 700; margin: 0.5rem 0 0.15rem; }
 .svc-chat-log .a { color: var(--text-dim); white-space: pre-wrap; margin-bottom: 0.3rem; }
@@ -848,216 +845,20 @@ body {
 
 <div class="footlight"></div>
 
-<!-- ── City Services ── -->
-<section class="service-section">
-  <div class="service-section-inner">
+<!-- ── Meet Your Operators (identity, bio, and the actual chat, together) ── -->
+<section id="operators">
+  <div style="padding:4rem 2rem 1rem;max-width:1180px;margin:0 auto;text-align:center;">
     <p class="section-eyebrow">City Services</p>
-    <h2 class="section-title">Tell us what you need.</h2>
-    <p class="section-sub">Five requests the Gateway handles from day one. No office visit required. No hold music.</p>
+    <h2 class="section-title" style="margin-bottom:0.5rem;">Six operators. Six city functions.</h2>
+    <p style="font-family:'Spectral',serif;font-style:italic;font-size:0.98rem;color:var(--text-dim);max-width:640px;margin:0 auto 1rem;">Each operator is domain-scoped, role-anchored, and equipped before deployment. No office visit required, no hold music: talk to them right here.</p>
+  </div>
+
+  <div style="max-width:840px;margin:0 auto;padding:0 2rem 1rem;">
     <div class="svc-zip-row">
       <label class="svc-zip-label" for="svc-zip">Your ZIP code</label>
       <input class="svc-zip-input" id="svc-zip" type="text" inputmode="numeric" placeholder="e.g. 45402" maxlength="10" autocomplete="postal-code">
       <span class="svc-zip-hint">Helps agents find real local permit offices, records portals, and licensing boards.</span>
     </div>
-    <div class="service-grid">
-
-      <div class="service-card">
-        <div class="service-card-label">Permits &amp; Compliance</div>
-        <h3>What permits do I need?</h3>
-        <p>Tell us your project. We identify every permit required, from which office, and in what order. Residential addition, commercial renovation, right-of-way work, or new construction. We map the sequence before you submit a single form.</p>
-        <div class="service-card-operator">
-          <div class="service-card-op-name">Yolanda Ferreira</div>
-          <div class="service-card-op-role">Municipal Workflow Architect &middot; City Solutions Lab</div>
-        </div>
-        <div class="svc-chat" data-slug="yolanda" data-name="Yolanda" data-voice="ThTe2YIvvz7qItaTz7rD">
-          <button type="button" class="svc-chat-btn">Talk to Yolanda</button>
-          <div class="svc-chat-panel" hidden>
-            <div class="svc-chat-body">
-              <div class="svc-chat-avatar wing-portrait">
-                <img class="blink-open" src="/agents/Yolanda_eyes_open.png" alt="Yolanda Ferreira">
-                <img class="blink-closed" src="/agents/Yolanda_eyes_closed.png" alt="" aria-hidden="true">
-              </div>
-              <div class="svc-chat-convo">
-                <div class="svc-chat-log" aria-live="polite"></div>
-                <form class="svc-chat-form">
-                  <input class="svc-chat-input" type="text" autocomplete="off" placeholder="Describe your project..." maxlength="4000">
-                  <button class="svc-chat-send" type="submit">Send</button>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="service-card">
-        <div class="service-card-label">Documentation &amp; Zoning</div>
-        <h3>Building plans and city records.</h3>
-        <p>Access approved building plans, zoning records, county documentation, and permit history for any address in your jurisdiction. Priscilla pulls what you need, reads what matters, and hands you a clean summary instead of a document stack.</p>
-        <div class="service-card-operator">
-          <div class="service-card-op-name">Priscilla Okeke</div>
-          <div class="service-card-op-role">Municipal Budget Analyst &middot; City Solutions Lab</div>
-        </div>
-        <div class="svc-chat" data-slug="priscilla" data-name="Priscilla" data-voice="NQMJRVvPew6HsaebYnZj">
-          <button type="button" class="svc-chat-btn">Talk to Priscilla</button>
-          <div class="svc-chat-panel" hidden>
-            <div class="svc-chat-body">
-              <div class="svc-chat-avatar wing-portrait">
-                <img class="blink-open" src="/agents/Priscilla_eyes_open.png" alt="Priscilla Okeke">
-                <img class="blink-closed" src="/agents/Priscilla_eyes_closed.png" alt="" aria-hidden="true">
-              </div>
-              <div class="svc-chat-convo">
-                <div class="svc-chat-log" aria-live="polite"></div>
-                <form class="svc-chat-form">
-                  <input class="svc-chat-input" type="text" autocomplete="off" placeholder="Enter an address or what you need..." maxlength="4000">
-                  <button class="svc-chat-send" type="submit">Send</button>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="service-card">
-        <div class="service-card-label">Field Operations</div>
-        <h3>Contractor recommendations.</h3>
-        <p>Local contractor sourcing with verified reviews, license checks, and ratings from residents in your area. Dez cross-references what the field already knows with what the public record shows. No guesswork. No unvetted referrals.</p>
-        <div class="service-card-operator">
-          <div class="service-card-op-name">Desmond &ldquo;Dez&rdquo; Quigley</div>
-          <div class="service-card-op-role">Infrastructure Field Coordinator &middot; City Project Oversight Hub</div>
-        </div>
-        <div class="svc-chat" data-slug="dez" data-name="Dez" data-voice="CXAc4DNZL6wonQQNlNgZ">
-          <button type="button" class="svc-chat-btn">Talk to Dez</button>
-          <div class="svc-chat-panel" hidden>
-            <div class="svc-chat-body">
-              <div class="svc-chat-avatar wing-portrait">
-                <img class="blink-open" src="/agents/Dez_eyes_open.png" alt="Desmond Quigley">
-                <img class="blink-closed" src="/agents/Dez_eyes_closed.png" alt="" aria-hidden="true">
-              </div>
-              <div class="svc-chat-convo">
-                <div class="svc-chat-log" aria-live="polite"></div>
-                <form class="svc-chat-form">
-                  <input class="svc-chat-input" type="text" autocomplete="off" placeholder="Describe the job and your area..." maxlength="4000">
-                  <button class="svc-chat-send" type="submit">Send</button>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="service-card">
-        <div class="service-card-label">Public Inquiries</div>
-        <h3>Where do I even start?</h3>
-        <p>Tell us what you're trying to do, in plain terms. Tessa routes you to the right office, tells you what to expect, and cuts down the back-and-forth before you ever pick up the phone.</p>
-        <div class="service-card-operator">
-          <div class="service-card-op-name">Tessa Whitfield</div>
-          <div class="service-card-op-role">Public Interface Specialist &middot; City Talent Reserve</div>
-        </div>
-        <div class="svc-chat" data-slug="tessa" data-name="Tessa" data-voice="VfdLuBKQajtI8RHxLhnk">
-          <button type="button" class="svc-chat-btn">Talk to Tessa</button>
-          <div class="svc-chat-panel" hidden>
-            <div class="svc-chat-body">
-              <div class="svc-chat-avatar wing-portrait">
-                <img class="blink-open" src="/agents/Tessa_eyes_open.png" alt="Tessa Whitfield">
-                <img class="blink-closed" src="/agents/Tessa_eyes_closed.png" alt="" aria-hidden="true">
-              </div>
-              <div class="svc-chat-convo">
-                <div class="svc-chat-log" aria-live="polite"></div>
-                <form class="svc-chat-form">
-                  <input class="svc-chat-input" type="text" autocomplete="off" placeholder="Tell us what you're trying to do..." maxlength="4000">
-                  <button class="svc-chat-send" type="submit">Send</button>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="service-card">
-        <div class="service-card-label">Emergency Readiness</div>
-        <h3>Is my city ready?</h3>
-        <p>Storm season, evacuation zones, what to have on hand. Ramon checks readiness before the pressure hits and points you to the real local emergency management office for your area.</p>
-        <div class="service-card-operator">
-          <div class="service-card-op-name">Ramon Delgado</div>
-          <div class="service-card-op-role">Emergency Readiness Coordinator &middot; City Talent Reserve</div>
-        </div>
-        <div class="svc-chat" data-slug="ramon" data-name="Ramon" data-voice="IP2syKL31S2JthzSSfZH">
-          <button type="button" class="svc-chat-btn">Talk to Ramon</button>
-          <div class="svc-chat-panel" hidden>
-            <div class="svc-chat-body">
-              <div class="svc-chat-avatar wing-portrait">
-                <img class="blink-open" src="/agents/Ramon_eyes_open.png" alt="Ramon Delgado">
-                <img class="blink-closed" src="/agents/Ramon_eyes_closed.png" alt="" aria-hidden="true">
-              </div>
-              <div class="svc-chat-convo">
-                <div class="svc-chat-log" aria-live="polite"></div>
-                <form class="svc-chat-form">
-                  <input class="svc-chat-input" type="text" autocomplete="off" placeholder="Describe the hazard or situation..." maxlength="4000">
-                  <button class="svc-chat-send" type="submit">Send</button>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<div class="footlight"></div>
-
-<!-- ── Land Development Regulations Assistant (live example) ── -->
-<section class="service-section" id="ldr-assistant">
-  <div class="service-section-inner">
-    <p class="section-eyebrow">Live Example &middot; City of Delray Beach, FL</p>
-    <h2 class="section-title">Ask the actual code. Get the actual section.</h2>
-    <p class="section-sub">Every operator above is a general-purpose specialist. Cora is what happens when one is loaded with a single city's real regulations. Ask a land-use question and she answers from the current Delray Beach Land Development Regulations, with the section and page that backs it up, not a guess.</p>
-    <div class="service-card" style="max-width:640px;margin:0 auto;">
-      <div class="service-card-label">Land Development Regulations</div>
-      <h3>Ask about setbacks, parking, site plans, historic districts, and more.</h3>
-      <p>Cora searches the full, current Land Development Regulations of Delray Beach, Florida (Supplement 35, through Ordinance No. 26-26) and answers only from what she finds there. If the regulations do not cover it, she says so instead of guessing.</p>
-      <div class="service-card-operator">
-        <div class="service-card-op-name">Cora Reyes</div>
-        <div class="service-card-op-role">Land Development Code Analyst &middot; City Solutions Lab</div>
-      </div>
-      <div class="svc-chat-suggest" id="ldr-suggest">
-        <button type="button" data-q="What is the minimum setback for residential zones?">Minimum residential setbacks</button>
-        <button type="button" data-q="What are the parking requirements for commercial properties?">Commercial parking requirements</button>
-        <button type="button" data-q="What is required for submitting a site plan?">Site plan submission requirements</button>
-        <button type="button" data-q="What restrictions apply in historic districts?">Historic district restrictions</button>
-      </div>
-      <div class="svc-chat" data-slug="cora" data-name="Cora" data-no-zip="true" data-voice="WLjZnm4PkNmYtNCyiCq8">
-        <button type="button" class="svc-chat-btn">Talk to Cora</button>
-        <div class="svc-chat-panel" hidden>
-          <div class="svc-chat-body">
-            <div class="svc-chat-avatar wing-portrait">
-              <img class="blink-open" src="/agents/Cora_Reyes_eyes_open.jpg" alt="Cora Reyes">
-              <img class="blink-closed" src="/agents/Cora_Reyes_eyes_closed.jpg" alt="" aria-hidden="true">
-            </div>
-            <div class="svc-chat-convo">
-              <div class="svc-chat-log" aria-live="polite"></div>
-              <form class="svc-chat-form">
-                <input class="svc-chat-input" type="text" autocomplete="off" placeholder="Ask about the Delray Beach Land Development Regulations..." maxlength="2000">
-                <button class="svc-chat-send" type="submit">Send</button>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
-      <p style="font-family:'Public Sans',sans-serif;font-size:0.68rem;color:var(--text-dim);margin-top:0.9rem;">Source: <a href="/assets/ldr/delray-beach-ldr.pdf" target="_blank" rel="noopener" style="color:var(--stamp-blue);">Delray Beach Land Development Regulations, full PDF</a> (Municode, Supp. No. 35). Research assistance, not a legal determination; confirm specifics with Delray Beach Development Services.</p>
-    </div>
-  </div>
-</section>
-
-<div class="footlight"></div>
-
-<!-- ── Operator Roster ── -->
-<section id="operators">
-  <div style="padding:4rem 2rem 1rem;max-width:1180px;margin:0 auto;text-align:center;">
-    <p class="section-eyebrow">Municipal Operator Roster</p>
-    <h2 class="section-title" style="margin-bottom:0.5rem;">Six operators. Six city functions.</h2>
-    <p style="font-family:'Spectral',serif;font-style:italic;font-size:0.98rem;color:var(--text-dim);max-width:640px;margin:0 auto 1rem;">Each operator is domain-scoped, role-anchored, and equipped before deployment. The toolkit is the engine inside them that lets them do the job.</p>
   </div>
 
   <div class="corridor-wings">
@@ -1073,8 +874,18 @@ body {
         <div class="wing-role">Municipal Workflow Architect</div>
         <div class="wing-name">Yolanda Ferreira</div>
         <div class="wing-tagline">The architect who makes city processes run straight.</div>
-        <div class="wing-bio">Yolanda designs the workflows that keep a city office from stalling. She standardizes permit intake, rewrites broken processes, and builds the templates that let a municipal team move work without confusion. She turns a backlog into a clean, predictable pipeline.</div>
+        <div class="wing-bio">Yolanda designs the workflows that keep a city office from stalling. She standardizes permit intake, rewrites broken processes, and builds the templates that let a municipal team move work without confusion. Tell her about your project and she maps every permit you need, from which office, in what order.</div>
         <div class="wing-backpack"><strong>Capabilities</strong>Permit intake workflows, zoning review templates, cross-department handoff frameworks, repeat-task automation playbooks.</div>
+        <div class="svc-chat" data-slug="yolanda" data-name="Yolanda" data-voice="ThTe2YIvvz7qItaTz7rD">
+          <button type="button" class="svc-chat-btn">Talk to Yolanda</button>
+          <div class="svc-chat-panel" hidden>
+            <div class="svc-chat-log" aria-live="polite"></div>
+            <form class="svc-chat-form">
+              <input class="svc-chat-input" type="text" autocomplete="off" placeholder="Describe your project..." maxlength="4000">
+              <button class="svc-chat-send" type="submit">Send</button>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -1089,8 +900,18 @@ body {
         <div class="wing-role">Municipal Budget Analyst</div>
         <div class="wing-name">Priscilla Okeke</div>
         <div class="wing-tagline">The analyst who makes every dollar show its work.</div>
-        <div class="wing-bio">Priscilla builds the financial clarity cities rarely have. She tracks spending, flags variances, prepares audit-ready summaries, and gives leadership a clean view of where money is going. She turns scattered spreadsheets into a single, readable financial picture.</div>
+        <div class="wing-bio">Priscilla builds the financial clarity cities rarely have. She tracks spending, flags variances, prepares audit-ready summaries, and gives leadership a clean view of where money is going. Give her an address and what you're trying to find, and she pulls it together for you.</div>
         <div class="wing-backpack"><strong>Capabilities</strong>Budget dashboards, expenditure tracking, variance alerts, audit-ready summary templates, seasonal and emergency forecasting.</div>
+        <div class="svc-chat" data-slug="priscilla" data-name="Priscilla" data-voice="NQMJRVvPew6HsaebYnZj">
+          <button type="button" class="svc-chat-btn">Talk to Priscilla</button>
+          <div class="svc-chat-panel" hidden>
+            <div class="svc-chat-log" aria-live="polite"></div>
+            <form class="svc-chat-form">
+              <input class="svc-chat-input" type="text" autocomplete="off" placeholder="Enter an address or what you need..." maxlength="4000">
+              <button class="svc-chat-send" type="submit">Send</button>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -1105,8 +926,18 @@ body {
         <div class="wing-role">Public Interface Specialist</div>
         <div class="wing-name">Tessa Whitfield</div>
         <div class="wing-tagline">The steady voice that keeps the front desk from collapsing.</div>
-        <div class="wing-bio">Tessa handles the public-facing side of city operations. She answers inquiries, routes requests, manages intake questions, and keeps the office from drowning in calls and emails. She makes government feel navigable to the people it serves.</div>
+        <div class="wing-bio">Tessa handles the public-facing side of city operations. She answers inquiries, routes requests, manages intake questions, and keeps the office from drowning in calls and emails. Tell her what you're trying to do and she points you to the right place.</div>
         <div class="wing-backpack"><strong>Capabilities</strong>Communication templates, inquiry routing logic, ticket trackers, seasonal surge protocols, public satisfaction frameworks.</div>
+        <div class="svc-chat" data-slug="tessa" data-name="Tessa" data-voice="VfdLuBKQajtI8RHxLhnk">
+          <button type="button" class="svc-chat-btn">Talk to Tessa</button>
+          <div class="svc-chat-panel" hidden>
+            <div class="svc-chat-log" aria-live="polite"></div>
+            <form class="svc-chat-form">
+              <input class="svc-chat-input" type="text" autocomplete="off" placeholder="Tell us what you're trying to do..." maxlength="4000">
+              <button class="svc-chat-send" type="submit">Send</button>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -1123,6 +954,16 @@ body {
         <div class="wing-tagline">The coordinator who keeps the city ready before it needs to be.</div>
         <div class="wing-bio">Ramon prepares cities for emergencies before they happen. He builds readiness checklists, updates emergency protocols, coordinates cross-department communication, and ensures public safety teams have what they need when the pressure hits.</div>
         <div class="wing-backpack"><strong>Capabilities</strong>Emergency protocol library, cross-department readiness checklists, public communication templates, seasonal hazard preparation, after-action review frameworks.</div>
+        <div class="svc-chat" data-slug="ramon" data-name="Ramon" data-voice="IP2syKL31S2JthzSSfZH">
+          <button type="button" class="svc-chat-btn">Talk to Ramon</button>
+          <div class="svc-chat-panel" hidden>
+            <div class="svc-chat-log" aria-live="polite"></div>
+            <form class="svc-chat-form">
+              <input class="svc-chat-input" type="text" autocomplete="off" placeholder="Describe the hazard or situation..." maxlength="4000">
+              <button class="svc-chat-send" type="submit">Send</button>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -1137,8 +978,18 @@ body {
         <div class="wing-role">Infrastructure Field Coordinator</div>
         <div class="wing-name">Desmond &ldquo;Dez&rdquo; Quigley</div>
         <div class="wing-tagline">The coordinator who keeps the field moving.</div>
-        <div class="wing-bio">Dez oversees the moving parts of public works. He tracks work orders, dispatches subcontractors, monitors field progress, and keeps leadership updated with clean, real-time reports. He is the bridge between the office and the street.</div>
+        <div class="wing-bio">Dez oversees the moving parts of public works. He tracks work orders, dispatches subcontractors, monitors field progress, and keeps leadership updated with clean, real-time reports. He cross-references what the field already knows with what the public record shows.</div>
         <div class="wing-backpack"><strong>Capabilities</strong>GIS layers, utility maps, contractor dispatch system, work order tracking, multi-vendor project coordination.</div>
+        <div class="svc-chat" data-slug="dez" data-name="Dez" data-voice="CXAc4DNZL6wonQQNlNgZ">
+          <button type="button" class="svc-chat-btn">Talk to Dez</button>
+          <div class="svc-chat-panel" hidden>
+            <div class="svc-chat-log" aria-live="polite"></div>
+            <form class="svc-chat-form">
+              <input class="svc-chat-input" type="text" autocomplete="off" placeholder="Describe the job and your area..." maxlength="4000">
+              <button class="svc-chat-send" type="submit">Send</button>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -1150,11 +1001,29 @@ body {
         <div class="wing-division">City Solutions Lab</div>
       </div>
       <div class="wing-body">
+        <p class="section-eyebrow" style="margin-bottom:0.3rem;">Live Example &middot; City of Delray Beach, FL</p>
         <div class="wing-role">Land Development Code Analyst</div>
         <div class="wing-name">Cora Reyes</div>
         <div class="wing-tagline">The analyst who turns a thousand pages of code into one cited answer.</div>
-        <div class="wing-bio">Cora reads the actual Land Development Regulations text, section by section, and answers what a resident, developer, or staffer is asking with the section number and page that backs it up. She does not stretch a citation to cover a question the text does not answer.</div>
+        <div class="wing-bio">Cora reads the actual Land Development Regulations text, section by section, and answers what a resident, developer, or staffer is asking with the section number and page that backs it up. She searches the full, current Land Development Regulations of Delray Beach, Florida (Supplement 35, through Ordinance No. 26-26); if the regulations do not cover something, she says so instead of guessing.</div>
         <div class="wing-backpack"><strong>Capabilities</strong>Full-text search of a city's land development code, section and page citation on every answer, suggested-question starters.</div>
+        <div class="svc-chat-suggest" id="ldr-suggest">
+          <button type="button" data-q="What is the minimum setback for residential zones?">Minimum residential setbacks</button>
+          <button type="button" data-q="What are the parking requirements for commercial properties?">Commercial parking requirements</button>
+          <button type="button" data-q="What is required for submitting a site plan?">Site plan submission requirements</button>
+          <button type="button" data-q="What restrictions apply in historic districts?">Historic district restrictions</button>
+        </div>
+        <div class="svc-chat" data-slug="cora" data-name="Cora" data-no-zip="true" data-voice="WLjZnm4PkNmYtNCyiCq8">
+          <button type="button" class="svc-chat-btn">Talk to Cora</button>
+          <div class="svc-chat-panel" hidden>
+            <div class="svc-chat-log" aria-live="polite"></div>
+            <form class="svc-chat-form">
+              <input class="svc-chat-input" type="text" autocomplete="off" placeholder="Ask about the Delray Beach Land Development Regulations..." maxlength="2000">
+              <button class="svc-chat-send" type="submit">Send</button>
+            </form>
+          </div>
+        </div>
+        <p style="font-family:'Public Sans',sans-serif;font-size:0.68rem;color:var(--text-dim);margin-top:0.9rem;">Source: <a href="/assets/ldr/delray-beach-ldr.pdf" target="_blank" rel="noopener" style="color:var(--stamp-blue);">Delray Beach Land Development Regulations, full PDF</a> (Municode, Supp. No. 35). Research assistance, not a legal determination; confirm specifics with Delray Beach Development Services.</p>
       </div>
     </div>
 
@@ -1235,10 +1104,21 @@ body {
     dez: "Hey, I'm Dez Quigley. Cleveland born, former Army engineer, fifteen years in municipal public works before this. Tell me the job and your area, and I'll help you find someone worth hiring.",
     tessa: "Hi, I'm Tessa Whitfield. I'm from Iowa, and before this I was a city clerk assistant and then a community liaison, so I've sat on both sides of the 'who do I even call' problem. Tell me what you're trying to do and I'll point you to the right place.",
     ramon: "Hey, I'm Ramon Delgado. I'm from Tacoma, and I watched my hometown get caught unprepared by a major storm when I was twelve, which is basically why I do this now. Tell me what you're worried about, or where you live, and I'll help you get ready before it matters.",
-    cora: "Hello, and welcome to Delray Beach. I'm Cora, your Land Code Specialist, here to help. I work out of ETL's Dayton office, but I have family here and get down as often as I can, especially once a Dayton winter sets in. I studied library science at Florida State and spent years as a municipal code librarian before this. Land development codes can be tricky, and honestly, a good way to put you to sleep if you're even the slightest bit tired, so I'll try to keep this brief. Ask me anything about the Land Development Regulations and I'll answer from the actual text, with the section and page behind it."
+    cora: "Hello, and welcome to Delray Beach. I'm Cora, your Land Code Specialist, here to help. I work out of ETL's Dayton office, but I have family in Delray, and get down there as often as I can, especially once a Dayton winter sets in. I studied library science at Florida State and spent years as a municipal code librarian before this. Land development codes can be tricky, and honestly, a good way to put you to sleep if you're even the slightest bit tired, so I'll try to keep this brief. Ask me anything about the Land Development Regulations and I'll answer from the actual text, with the section and page behind it."
   };
 
   function mk(cls, txt){ var d=document.createElement('div'); d.className=cls; if(txt!=null) d.textContent=txt; return d; }
+
+  /* Same visitor-identity convention as the rest of the campus (ported verbatim from
+     gc-friend.js's GC_visitorId), so the free-message cap counts the same person the
+     same way everywhere, even though this page's daily budget is its own. */
+  function getVisitorId(){
+    try {
+      var v = localStorage.getItem('etl_visitor_id');
+      if (!v) { v = 'v' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10); localStorage.setItem('etl_visitor_id', v); }
+      return v;
+    } catch(_) { return ''; }
+  }
 
   document.querySelectorAll('.svc-chat').forEach(function(wrap){
     var slug = wrap.getAttribute('data-slug');
@@ -1273,9 +1153,9 @@ body {
         playBtn.disabled = true; playBtn.textContent = 'Loading audio...';
         fetch('/.netlify/functions/city-agent-voice', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text: text, voice_id: voiceId })
+          body: JSON.stringify({ text: text, voice_id: voiceId, visitor_id: getVisitorId() })
         })
-        .then(function(r){ if (!r.ok) throw new Error('voice_failed'); return r.blob(); })
+        .then(function(r){ if (r.status === 429) { playBtn.textContent = "Today's free limit reached"; throw new Error('capped'); } if (!r.ok) throw new Error('voice_failed'); return r.blob(); })
         .then(function(blob){
           var url = URL.createObjectURL(blob);
           var audio = new Audio(url);
@@ -1283,7 +1163,7 @@ body {
           audio.addEventListener('ended', function(){ playBtn.textContent = '🔊 Hear this'; playBtn.disabled = false; });
           audio.play();
         })
-        .catch(function(){ playBtn.textContent = 'Audio unavailable'; });
+        .catch(function(){ if (playBtn.textContent !== "Today's free limit reached") playBtn.textContent = 'Audio unavailable'; });
       });
     }
 
@@ -1298,10 +1178,18 @@ body {
       log.scrollTop = log.scrollHeight;
       fetch('/.netlify/functions/city-' + slug + '-ask', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: q, zip: zip })
+        body: JSON.stringify({ question: q, zip: zip, visitor_id: getVisitorId() })
       })
-      .then(function(r){ return r.json(); })
-      .then(function(d){ if (!d || !d.job_id) throw new Error('no_job'); poll(d.job_id, 0, ad); })
+      .then(function(r){ return r.json().then(function(d){ return { status: r.status, d: d }; }); })
+      .then(function(res){
+        var d = res.d;
+        if (res.status === 429 && d && d.error === 'daily_capped') {
+          ad.className='a'; ad.textContent = d.message || "You've reached today's free question limit. It resets tomorrow.";
+          send.disabled = false; return;
+        }
+        if (!d || !d.job_id) throw new Error('no_job');
+        poll(d.job_id, 0, ad);
+      })
       .catch(function(){ ad.className='a'; ad.textContent='Sorry, something went wrong. Please try again.'; send.disabled=false; });
     }
 
@@ -1330,7 +1218,7 @@ body {
           ad.className='a'; ad.textContent = 'Sorry, ' + name + ' hit a snag. Please try again.';
           send.disabled = false; return;
         }
-        if (n === 40) { ad.textContent = name + ' is still working on it. Regulatory questions can take a little longer.'; }
+        if (n === 40) { ad.textContent = "I'm still looking into it, why don't you grab a cup of coffee or something and come back in a few. I should be done by then."; }
         setTimeout(function(){ poll(jobId, n+1, ad); }, 1500);
       })
       .catch(function(){ setTimeout(function(){ poll(jobId, n+1, ad); }, 2000); });

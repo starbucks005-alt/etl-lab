@@ -12,7 +12,13 @@ try { ({ houseTypography } = require('./_etl-voice-law.js')); } catch (_) { hous
 const MODEL = 'claude-sonnet-4-6';
 const MAX_TOKENS = 700;
 const MAX_RECORDS = 8;
-const MAX_CONTEXT_CHARS = 45000;
+/* Raised from 45000: some sections (e.g. § 4.3.4, the base district development
+   standards, at ~33K chars) are legitimately large, and a greedy fill that skips
+   whatever doesn't fit was dropping exactly the section most likely to answer a
+   dimensional-standards question in favor of smaller, less relevant ones ranked
+   higher only by keyword density. Sonnet's context window has plenty of headroom
+   for this; the constraint was arbitrary, not a real limit. */
+const MAX_CONTEXT_CHARS = 150000;
 
 const STOPWORDS = new Set(['the','a','an','of','for','in','on','to','and','or','is','are','was','were',
   'what','whats','how','do','does','did','i','my','me','need','needs','can','you','your','please',
@@ -59,8 +65,17 @@ async function loadIndex(event) {
         ? 'https://' + (event.headers.host || event.headers.Host) : '');
   if (!base) return null;
   try {
-    const r = await fetch(base + '/data/ldr-sections.json', { cache: 'no-store' });
-    if (r.ok) return await r.json();
+    /* A hung self-fetch with no timeout was leaving jobs stuck at "running" forever —
+       the client would poll until it gave up, but the job itself never resolved to
+       done or error. 10s is generous for a same-origin ~2MB JSON fetch. */
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 10000);
+    try {
+      const r = await fetch(base + '/data/ldr-sections.json', { cache: 'no-store', signal: controller.signal });
+      if (r.ok) return await r.json();
+    } finally {
+      clearTimeout(timer);
+    }
   } catch (_) {}
   return null;
 }
@@ -124,7 +139,7 @@ exports.handler = async function(event) {
       citations = matches.map(r => ({ citation: r.citation, chapter: r.chapter, article: r.article, ldrPage: r.ldrPage }));
     }
 
-    const client = new Anthropic({ apiKey });
+    const client = new Anthropic({ apiKey, timeout: 45000 });
     const resp = await client.messages.create({
       model: MODEL, max_tokens: MAX_TOKENS, system: SYSTEM_PROMPT,
       messages: [{ role: 'user', content: userContent }],

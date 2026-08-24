@@ -1,13 +1,21 @@
-/* city-agent-voice - public, no auth, no billing (this page has no credit system at all).
-   POST { text, voice_id } -> audio/mpeg, base64. Uses ELEVENLABS_API_KEY.
-   Same call shape as voice-preview.js's synthExisting path, turbo model for cost
-   (this is a resident asking a question, not a produced narration), sentence-boundary
-   trim so a long answer never gets read into a cut-off word mid-sentence. */
+/* city-agent-voice - public, no auth. POST { text, voice_id, visitor_id } -> audio/mpeg, base64.
+   Uses ELEVENLABS_API_KEY. Same call shape as voice-preview.js's synthExisting path, turbo model
+   for cost (this is a resident asking a question, not a produced narration), sentence-boundary
+   trim so a long answer never gets read into a cut-off word mid-sentence.
+
+   Draws on the same city_daily_usage free-message cap as the -ask.js triplets, weighted 5x
+   text (AUDIO_COST), the same ratio gc-voice.js already uses for the same reason: speech costs
+   roughly five times what text costs per turn. Checked before calling ElevenLabs. */
+
+const { connectLambda } = require('@netlify/blobs');
+const { AUDIO_COST, chargeDailyCap } = require('./_city-daily-cap');
 
 const MODEL = 'eleven_turbo_v2_5';
 const MAX_CHARS = 1200;
 
 exports.handler = async function (event) {
+  try { connectLambda(event); } catch (_) {}
+
   if (event.httpMethod !== 'POST') return { statusCode: 405, body: JSON.stringify({ error: 'method_not_allowed' }) };
   let body;
   try { body = JSON.parse(event.body || '{}'); } catch (_) { return { statusCode: 400, body: JSON.stringify({ error: 'bad_json' }) }; }
@@ -17,6 +25,16 @@ exports.handler = async function (event) {
 
   const voiceId = String(body.voice_id || '').trim();
   if (!/^[A-Za-z0-9]{12,40}$/.test(voiceId)) return { statusCode: 400, body: JSON.stringify({ error: 'no_voice_id' }) };
+
+  const cap = await chargeDailyCap(body.visitor_id, AUDIO_COST);
+  if (!cap.ok) {
+    return { statusCode: 429, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
+      error: cap.reason, used: cap.used, limit: cap.limit,
+      message: cap.reason === 'daily_capped'
+        ? "You've reached today's free message limit, which audio draws on too."
+        : 'Could not verify your session; refresh the page and try again.',
+    }) };
+  }
 
   let text = String(body.text || '').trim();
   if (!text) return { statusCode: 400, body: JSON.stringify({ error: 'nothing_to_say' }) };

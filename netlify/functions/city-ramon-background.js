@@ -44,7 +44,7 @@ exports.handler = async function(event) {
   });
 
   try {
-    const client = new Anthropic({ apiKey });
+    const client = new Anthropic({ apiKey, timeout: 60000 });
     const userContent = zip ? 'User ZIP code: ' + zip + '\n\n' + question : question;
     const resp = await client.beta.messages.create({
       model: MODEL, max_tokens: MAX_TOKENS, system: SYSTEM_PROMPT,
