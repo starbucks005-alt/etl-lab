@@ -119,7 +119,7 @@ async function runTurn(client, system, messages, tools) {
 }
 
 async function runCascade(caseId, activeAgents, transcript, visitorName, visitorId, serviceKey, rawAgentState) {
-  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  const client = new Anthropic({ apiKey: process.env.ETL_CLASSROOMS_API_KEY });
   const agentFor = (key) => resolveAgent(key, caseId);
   const replies = [];
   const transcriptAppend = [];
@@ -255,7 +255,7 @@ const VERDICT_TOOL = {
 
 async function runVerdict(caseId, suspect, chain, inadmissible) {
   const c = CASES[caseId];
-  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  const client = new Anthropic({ apiKey: process.env.ETL_CLASSROOMS_API_KEY });
 
   const system = [
     'You are the case review for a university criminal justice course. You are not in character and you are not a detective; you are an exacting, fair grader who happens to be able to write two short lines in the voices of Holmes and Lestrade at the end.',
@@ -351,7 +351,7 @@ exports.handler = async (event) => {
     return { statusCode: 500, body: JSON.stringify({ error: message }) };
   };
 
-  if (!process.env.ANTHROPIC_API_KEY) return fail('ANTHROPIC_API_KEY not configured');
+  if (!process.env.ETL_CLASSROOMS_API_KEY) return fail('ANTHROPIC_API_KEY not configured');
 
   const caseId = String(body.case_id || '').trim().toLowerCase() || null;
   if (caseId && !CASES[caseId]) return fail('unknown_case');

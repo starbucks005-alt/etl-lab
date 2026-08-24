@@ -49,7 +49,7 @@ exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: CORS, body: '' };
   if (event.httpMethod !== 'POST') return json(405, { error: 'method not allowed' });
 
-  if (!process.env.ANTHROPIC_API_KEY) return json(500, { error: 'ANTHROPIC_API_KEY not configured' });
+  if (!process.env.ETL_CLASSROOMS_API_KEY) return json(500, { error: 'ANTHROPIC_API_KEY not configured' });
 
   let body;
   try { body = JSON.parse(event.body || '{}'); } catch { return json(400, { error: 'invalid json' }); }

@@ -97,7 +97,7 @@ exports.handler = async (event) => {
   // A judge, C-suite exec, or Dr. O greets very differently from a PA or intern.
   const isGreet = message === '__greet__';
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.ETL_API_KEY;
   if (!apiKey) return json(500, { error: 'no key' });
 
   const client = new Anthropic({ apiKey });

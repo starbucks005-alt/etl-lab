@@ -185,7 +185,7 @@ exports.handler = async (event) => {
     }
   } catch (_) {}
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.FOUNDER_STUDIO_API_KEY;
   if (!apiKey) return json(500, { error: 'ANTHROPIC_API_KEY not set' });
 
   const client = new Anthropic({ apiKey });

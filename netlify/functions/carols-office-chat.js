@@ -83,7 +83,7 @@ exports.handler = async function (event) {
     return { statusCode: 401, headers: CORS, body: JSON.stringify({ error: 'invalid_access_code' }) };
   }
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.FOUNDER_STUDIO_API_KEY;
   if (!apiKey) return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: 'ANTHROPIC_API_KEY not set' }) };
 
   const client = new Anthropic({ apiKey });

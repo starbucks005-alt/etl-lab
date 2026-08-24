@@ -106,7 +106,7 @@ async function runTurn(client, system, messages) {
 }
 
 async function runCascade(activeAgents, transcript, visitorName, visitorId, serviceKey, rawAgentState) {
-  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  const client = new Anthropic({ apiKey: process.env.ETL_CLASSROOMS_API_KEY });
   const replies = [];
   const transcriptAppend = [];
   const nextAgentState = {};
@@ -194,7 +194,7 @@ exports.handler = async (event) => {
   const store = getStore(JOB_STORE);
   await store.setJSON(jobId, { job_id: jobId, status: 'running', created_at: new Date().toISOString() });
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.ETL_CLASSROOMS_API_KEY;
   if (!apiKey) {
     await store.setJSON(jobId, { job_id: jobId, status: 'error', error: 'ANTHROPIC_API_KEY not configured', finished_at: new Date().toISOString() });
     return { statusCode: 500, body: JSON.stringify({ error: 'no_api_key' }) };

@@ -188,7 +188,7 @@ exports.handler = async function (event) {
   }
 
   const messages = Array.isArray(body.messages) ? body.messages : [];
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.ALMOST_HUMAN_API_KEY;
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const rosterName = (engine.AGENTS[agentKey] && engine.AGENTS[agentKey].name) || agentName;
   const client = apiKey ? new Anthropic({ apiKey }) : null;

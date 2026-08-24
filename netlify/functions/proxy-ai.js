@@ -30,7 +30,7 @@ exports.handler = async (event) => {
     }
   }
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.ETL_API_KEY;
   if (!apiKey) {
     return { statusCode: 500, headers: CORS_HEADERS, body: JSON.stringify({ error: 'ANTHROPIC_API_KEY not configured' }) };
   }

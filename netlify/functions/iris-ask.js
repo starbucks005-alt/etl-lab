@@ -230,7 +230,7 @@ exports.handler = async (event) => {
         .map(function(t) { return { role: t.role, content: t.content }; })
     : [];
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.ETL_API_KEY;
   if (!apiKey) return json(500, { error: 'config' });
 
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;

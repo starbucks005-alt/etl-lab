@@ -99,7 +99,7 @@ exports.handler = async (event) => {
   const auth = requireBasicAuth(event);
   if (!auth.ok) return auth.response;
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.ETL_NEWSWIRE_API_KEY;
   if (!apiKey) return json(500, { error: 'ANTHROPIC_API_KEY not configured' });
 
   try { connectLambda(event); } catch (err) {

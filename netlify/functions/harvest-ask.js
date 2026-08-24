@@ -306,7 +306,7 @@ exports.handler = async function(event) {
   }
 
   let text;
-  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  const client = new Anthropic({ apiKey: process.env.THE_HARVEST_CIRCUIT_API_KEY });
   try {
     // Text turns stay on Haiku. Photo turns go to Sonnet 5 for the high-resolution
     // vision, and turn thinking off (it is on by default there) so the whole token

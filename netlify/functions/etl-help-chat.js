@@ -372,7 +372,7 @@ exports.handler = async (event) => {
   const history = Array.isArray(body.history) ? body.history.slice(-12) : [];
   const sid = (typeof body.sid === 'string' && /^[a-z0-9-]{8,64}$/i.test(body.sid)) ? body.sid : null;
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.ETL_API_KEY;
   if (!apiKey) return json(500, { error: 'ANTHROPIC_API_KEY not set' });
 
   // ── Blobs (best-effort; the chat must work even if storage hiccups) ──

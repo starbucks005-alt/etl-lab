@@ -68,7 +68,7 @@ exports.handler = async (event) => {
     } catch (_) {}
   }
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.FOUNDER_STUDIO_API_KEY;
   if (!apiKey) return json(500, { error: 'config' });
 
   const prompt = `You are Carol Haynes, the front desk of ETL Deskworks in Dayton, Ohio. Recruiter-warm, brisk, a proud home baker; the whole staff eats whatever you bring in. Write today's recipe card for your ${bake}.

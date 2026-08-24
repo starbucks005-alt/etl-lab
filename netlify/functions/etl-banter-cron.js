@@ -505,7 +505,7 @@ exports.handler = async (event) => {
   // some other way (e.g. checking for a Netlify-only header) -- do not gate
   // on httpMethod !== 'GET'.
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.ETL_BANTER_API_KEY;
   if (!apiKey) { console.error('[etl-banter-cron] ANTHROPIC_API_KEY not set'); return { statusCode: 500, body: 'no key' }; }
 
   /* connectLambda ALWAYS, not only for HTTP invocations.

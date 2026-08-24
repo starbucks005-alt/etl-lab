@@ -262,7 +262,7 @@ exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: JSON.stringify({ error: 'POST only' }) };
   }
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.THE_GYM_API_KEY;
   if (!apiKey) {
     return { statusCode: 500, body: JSON.stringify({ error: 'ANTHROPIC_API_KEY not configured' }) };
   }

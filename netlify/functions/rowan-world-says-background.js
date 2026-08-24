@@ -94,7 +94,7 @@ exports.handler = async function (event) {
   if (!checkAdminAuth(event)) return { statusCode: 401, body: 'unauthorized' };
   try { connectLambda(event); } catch (_) {}
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.ETL_NEWSWIRE_API_KEY;
   if (!apiKey) return { statusCode: 500, body: 'anthropic key missing' };
 
   const params = event.queryStringParameters || {};

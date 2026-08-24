@@ -185,7 +185,7 @@ exports.handler = async (event) => {
   if (!ownerOk(event, body)) return json(401, { error: 'owner_key_required' });
 
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.ALMOST_HUMAN_API_KEY;
   if (!serviceKey || !apiKey) return json(500, { error: 'config' });
 
   const agentName = String(body.agent_name || '').trim();
