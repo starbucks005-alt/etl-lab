@@ -325,7 +325,7 @@ exports.handler = async function (event) {
   if (!question) return json(400, { error: 'question_required' });
   if (question.length > 4000) return json(400, { error: 'question_too_long' });
 
-  const apiKey = process.env.PREPROOM_BOARDROOM_API_KEY;
+  const apiKey = process.env.ETL_API_KEY;
   if (!apiKey) return json(500, { error: 'config' });
 
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;

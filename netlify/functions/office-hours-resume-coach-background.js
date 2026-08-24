@@ -208,7 +208,7 @@ exports.handler = async (event) => {
   } catch (_) { /* non-fatal */ }
 
   try {
-    const apiKey = process.env.OFFICE_HOURS_API_KEY;
+    const apiKey = process.env.ETL_API_KEY;
     if (!apiKey) throw new Error('ANTHROPIC_API_KEY not set');
     const client = new Anthropic({ apiKey });
 

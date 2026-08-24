@@ -279,7 +279,7 @@ exports.handler = async (event) => {
   }
   await writeStatus(job_id, { status: 'running', step: 'starting' });
 
-  const apiKey = process.env.OFFICE_HOURS_API_KEY;
+  const apiKey = process.env.ETL_API_KEY;
   if (!apiKey) {
     await writeStatus(job_id, { status: 'failed', error: 'ANTHROPIC_API_KEY not configured' });
     return json(500, { error: 'ANTHROPIC_API_KEY not configured' });

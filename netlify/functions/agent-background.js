@@ -45,7 +45,7 @@ exports.handler = async function(event) {
     created_at: new Date().toISOString(),
   });
 
-  const apiKey = process.env.BYOA_TIWY_API_KEY;
+  const apiKey = process.env.ETL_API_KEY;
   if (!apiKey) {
     await store.setJSON(jobKey, { job_id: jobId, status: 'error', error: 'no_api_key', finished_at: new Date().toISOString() });
     return { statusCode: 500, body: JSON.stringify({ error: 'no_api_key' }) };

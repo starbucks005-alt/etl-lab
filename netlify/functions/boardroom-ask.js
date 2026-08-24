@@ -43,7 +43,7 @@ exports.handler = async (event) => {
   const messages = Array.isArray(body.messages) ? body.messages : [];
   if (!messages.length) return json(400, { error: 'messages required' });
 
-  const apiKey = process.env.PREPROOM_BOARDROOM_API_KEY;
+  const apiKey = process.env.ETL_API_KEY;
   if (!apiKey) return json(500, { error: 'config' });
 
   const client = new Anthropic({ apiKey });

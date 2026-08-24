@@ -76,7 +76,7 @@ exports.handler = async (event) => {
   if (!checkAdminAuth(event)) return { statusCode: 401, body: 'unauthorized' };
   try { connectLambda(event); } catch (_) {}
 
-  const anthropicKey = process.env.BYOA_TIWY_API_KEY;
+  const anthropicKey = process.env.ETL_API_KEY;
   const openaiKey = process.env.OPENAI_GP_ImageGen_Key || process.env.OPENAI_API_KEY;
   if (!anthropicKey) return { statusCode: 500, body: 'anthropic key missing' };
   if (!openaiKey) return { statusCode: 500, body: 'openai key missing' };

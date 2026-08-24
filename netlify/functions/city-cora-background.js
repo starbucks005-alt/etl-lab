@@ -91,7 +91,7 @@ exports.handler = async function(event) {
   if (!jobId)    return { statusCode: 400, body: JSON.stringify({ error: 'job_id_required' }) };
   if (!question) return { statusCode: 400, body: JSON.stringify({ error: 'question_required' }) };
 
-  const apiKey = process.env.CITY_GOVERNMENT_API_KEY;
+  const apiKey = process.env.ETL_API_KEY;
   if (!apiKey) return { statusCode: 500, body: JSON.stringify({ error: 'no_api_key' }) };
 
   const store = getStore('csuite_jobs');
