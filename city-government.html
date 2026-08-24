@@ -416,10 +416,22 @@ body {
 }
 .svc-chat-btn:hover { background: var(--etl-blue); }
 .svc-chat-panel { margin-top: 0.8rem; border: 1px solid var(--rule); padding: 0.85rem; background: #fbfaf6; }
+.svc-chat-body { display: flex; gap: 0.9rem; align-items: flex-start; }
+.svc-chat-avatar.wing-portrait { width: 64px; height: 64px; border-radius: 8px; box-shadow: none; margin-top: 0.1rem; }
+.svc-chat-avatar .wing-division { display: none; }
+.svc-chat-convo { flex: 1; min-width: 0; }
 .svc-chat-log { font-family: 'Public Sans', sans-serif; font-size: 0.82rem; line-height: 1.6; color: var(--stamp-blue); max-height: 280px; overflow-y: auto; }
 .svc-chat-log .q { font-weight: 700; margin: 0.5rem 0 0.15rem; }
-.svc-chat-log .a { color: var(--text-dim); white-space: pre-wrap; margin-bottom: 0.5rem; }
+.svc-chat-log .a { color: var(--text-dim); white-space: pre-wrap; margin-bottom: 0.3rem; }
 .svc-chat-log .a.pending { font-style: italic; }
+.svc-chat-log .a.greeting { color: var(--stamp-blue); font-style: italic; }
+.svc-chat-play {
+  font-family: 'Public Sans', sans-serif; font-size: 0.68rem; font-weight: 600;
+  color: var(--etl-blue); background: none; border: 1px solid var(--rule); border-radius: 3px;
+  padding: 0.2rem 0.5rem; cursor: pointer; margin-bottom: 0.6rem;
+}
+.svc-chat-play:hover { border-color: var(--etl-blue); }
+.svc-chat-play:disabled { opacity: 0.5; cursor: default; }
 .svc-chat-form { display: flex; gap: 0.5rem; margin-top: 0.7rem; }
 .svc-chat-input { flex: 1; font-family: 'Public Sans', sans-serif; font-size: 0.85rem; padding: 0.5rem 0.6rem; border: 1px solid var(--rule); background: #fff; }
 .svc-chat-send {
@@ -841,7 +853,7 @@ body {
   <div class="service-section-inner">
     <p class="section-eyebrow">City Services</p>
     <h2 class="section-title">Tell us what you need.</h2>
-    <p class="section-sub">Three requests the Gateway handles from day one. No office visit required. No hold music.</p>
+    <p class="section-sub">Five requests the Gateway handles from day one. No office visit required. No hold music.</p>
     <div class="svc-zip-row">
       <label class="svc-zip-label" for="svc-zip">Your ZIP code</label>
       <input class="svc-zip-input" id="svc-zip" type="text" inputmode="numeric" placeholder="e.g. 45402" maxlength="10" autocomplete="postal-code">
@@ -857,14 +869,22 @@ body {
           <div class="service-card-op-name">Yolanda Ferreira</div>
           <div class="service-card-op-role">Municipal Workflow Architect &middot; City Solutions Lab</div>
         </div>
-        <div class="svc-chat" data-slug="yolanda" data-name="Yolanda">
+        <div class="svc-chat" data-slug="yolanda" data-name="Yolanda" data-voice="ThTe2YIvvz7qItaTz7rD">
           <button type="button" class="svc-chat-btn">Talk to Yolanda</button>
           <div class="svc-chat-panel" hidden>
-            <div class="svc-chat-log" aria-live="polite"></div>
-            <form class="svc-chat-form">
-              <input class="svc-chat-input" type="text" autocomplete="off" placeholder="Describe your project..." maxlength="4000">
-              <button class="svc-chat-send" type="submit">Send</button>
-            </form>
+            <div class="svc-chat-body">
+              <div class="svc-chat-avatar wing-portrait">
+                <img class="blink-open" src="/agents/Yolanda_eyes_open.png" alt="Yolanda Ferreira">
+                <img class="blink-closed" src="/agents/Yolanda_eyes_closed.png" alt="" aria-hidden="true">
+              </div>
+              <div class="svc-chat-convo">
+                <div class="svc-chat-log" aria-live="polite"></div>
+                <form class="svc-chat-form">
+                  <input class="svc-chat-input" type="text" autocomplete="off" placeholder="Describe your project..." maxlength="4000">
+                  <button class="svc-chat-send" type="submit">Send</button>
+                </form>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -877,14 +897,22 @@ body {
           <div class="service-card-op-name">Priscilla Okeke</div>
           <div class="service-card-op-role">Municipal Budget Analyst &middot; City Solutions Lab</div>
         </div>
-        <div class="svc-chat" data-slug="priscilla" data-name="Priscilla">
+        <div class="svc-chat" data-slug="priscilla" data-name="Priscilla" data-voice="NQMJRVvPew6HsaebYnZj">
           <button type="button" class="svc-chat-btn">Talk to Priscilla</button>
           <div class="svc-chat-panel" hidden>
-            <div class="svc-chat-log" aria-live="polite"></div>
-            <form class="svc-chat-form">
-              <input class="svc-chat-input" type="text" autocomplete="off" placeholder="Enter an address or what you need..." maxlength="4000">
-              <button class="svc-chat-send" type="submit">Send</button>
-            </form>
+            <div class="svc-chat-body">
+              <div class="svc-chat-avatar wing-portrait">
+                <img class="blink-open" src="/agents/Priscilla_eyes_open.png" alt="Priscilla Okeke">
+                <img class="blink-closed" src="/agents/Priscilla_eyes_closed.png" alt="" aria-hidden="true">
+              </div>
+              <div class="svc-chat-convo">
+                <div class="svc-chat-log" aria-live="polite"></div>
+                <form class="svc-chat-form">
+                  <input class="svc-chat-input" type="text" autocomplete="off" placeholder="Enter an address or what you need..." maxlength="4000">
+                  <button class="svc-chat-send" type="submit">Send</button>
+                </form>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -897,14 +925,78 @@ body {
           <div class="service-card-op-name">Desmond &ldquo;Dez&rdquo; Quigley</div>
           <div class="service-card-op-role">Infrastructure Field Coordinator &middot; City Project Oversight Hub</div>
         </div>
-        <div class="svc-chat" data-slug="dez" data-name="Dez">
+        <div class="svc-chat" data-slug="dez" data-name="Dez" data-voice="CXAc4DNZL6wonQQNlNgZ">
           <button type="button" class="svc-chat-btn">Talk to Dez</button>
           <div class="svc-chat-panel" hidden>
-            <div class="svc-chat-log" aria-live="polite"></div>
-            <form class="svc-chat-form">
-              <input class="svc-chat-input" type="text" autocomplete="off" placeholder="Describe the job and your area..." maxlength="4000">
-              <button class="svc-chat-send" type="submit">Send</button>
-            </form>
+            <div class="svc-chat-body">
+              <div class="svc-chat-avatar wing-portrait">
+                <img class="blink-open" src="/agents/Dez_eyes_open.png" alt="Desmond Quigley">
+                <img class="blink-closed" src="/agents/Dez_eyes_closed.png" alt="" aria-hidden="true">
+              </div>
+              <div class="svc-chat-convo">
+                <div class="svc-chat-log" aria-live="polite"></div>
+                <form class="svc-chat-form">
+                  <input class="svc-chat-input" type="text" autocomplete="off" placeholder="Describe the job and your area..." maxlength="4000">
+                  <button class="svc-chat-send" type="submit">Send</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="service-card">
+        <div class="service-card-label">Public Inquiries</div>
+        <h3>Where do I even start?</h3>
+        <p>Tell us what you're trying to do, in plain terms. Tessa routes you to the right office, tells you what to expect, and cuts down the back-and-forth before you ever pick up the phone.</p>
+        <div class="service-card-operator">
+          <div class="service-card-op-name">Tessa Whitfield</div>
+          <div class="service-card-op-role">Public Interface Specialist &middot; City Talent Reserve</div>
+        </div>
+        <div class="svc-chat" data-slug="tessa" data-name="Tessa" data-voice="VfdLuBKQajtI8RHxLhnk">
+          <button type="button" class="svc-chat-btn">Talk to Tessa</button>
+          <div class="svc-chat-panel" hidden>
+            <div class="svc-chat-body">
+              <div class="svc-chat-avatar wing-portrait">
+                <img class="blink-open" src="/agents/Tessa_eyes_open.png" alt="Tessa Whitfield">
+                <img class="blink-closed" src="/agents/Tessa_eyes_closed.png" alt="" aria-hidden="true">
+              </div>
+              <div class="svc-chat-convo">
+                <div class="svc-chat-log" aria-live="polite"></div>
+                <form class="svc-chat-form">
+                  <input class="svc-chat-input" type="text" autocomplete="off" placeholder="Tell us what you're trying to do..." maxlength="4000">
+                  <button class="svc-chat-send" type="submit">Send</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="service-card">
+        <div class="service-card-label">Emergency Readiness</div>
+        <h3>Is my city ready?</h3>
+        <p>Storm season, evacuation zones, what to have on hand. Ramon checks readiness before the pressure hits and points you to the real local emergency management office for your area.</p>
+        <div class="service-card-operator">
+          <div class="service-card-op-name">Ramon Delgado</div>
+          <div class="service-card-op-role">Emergency Readiness Coordinator &middot; City Talent Reserve</div>
+        </div>
+        <div class="svc-chat" data-slug="ramon" data-name="Ramon" data-voice="IP2syKL31S2JthzSSfZH">
+          <button type="button" class="svc-chat-btn">Talk to Ramon</button>
+          <div class="svc-chat-panel" hidden>
+            <div class="svc-chat-body">
+              <div class="svc-chat-avatar wing-portrait">
+                <img class="blink-open" src="/agents/Ramon_eyes_open.png" alt="Ramon Delgado">
+                <img class="blink-closed" src="/agents/Ramon_eyes_closed.png" alt="" aria-hidden="true">
+              </div>
+              <div class="svc-chat-convo">
+                <div class="svc-chat-log" aria-live="polite"></div>
+                <form class="svc-chat-form">
+                  <input class="svc-chat-input" type="text" autocomplete="off" placeholder="Describe the hazard or situation..." maxlength="4000">
+                  <button class="svc-chat-send" type="submit">Send</button>
+                </form>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -935,14 +1027,22 @@ body {
         <button type="button" data-q="What is required for submitting a site plan?">Site plan submission requirements</button>
         <button type="button" data-q="What restrictions apply in historic districts?">Historic district restrictions</button>
       </div>
-      <div class="svc-chat" data-slug="cora" data-name="Cora" data-no-zip="true">
+      <div class="svc-chat" data-slug="cora" data-name="Cora" data-no-zip="true" data-voice="WLjZnm4PkNmYtNCyiCq8">
         <button type="button" class="svc-chat-btn">Talk to Cora</button>
         <div class="svc-chat-panel" hidden>
-          <div class="svc-chat-log" aria-live="polite"></div>
-          <form class="svc-chat-form">
-            <input class="svc-chat-input" type="text" autocomplete="off" placeholder="Ask about the Delray Beach Land Development Regulations..." maxlength="2000">
-            <button class="svc-chat-send" type="submit">Send</button>
-          </form>
+          <div class="svc-chat-body">
+            <div class="svc-chat-avatar wing-portrait">
+              <img class="blink-open" src="/agents/Cora_Reyes_eyes_open.jpg" alt="Cora Reyes">
+              <img class="blink-closed" src="/agents/Cora_Reyes_eyes_closed.jpg" alt="" aria-hidden="true">
+            </div>
+            <div class="svc-chat-convo">
+              <div class="svc-chat-log" aria-live="polite"></div>
+              <form class="svc-chat-form">
+                <input class="svc-chat-input" type="text" autocomplete="off" placeholder="Ask about the Delray Beach Land Development Regulations..." maxlength="2000">
+                <button class="svc-chat-send" type="submit">Send</button>
+              </form>
+            </div>
+          </div>
         </div>
       </div>
       <p style="font-family:'Public Sans',sans-serif;font-size:0.68rem;color:var(--text-dim);margin-top:0.9rem;">Source: <a href="/assets/ldr/delray-beach-ldr.pdf" target="_blank" rel="noopener" style="color:var(--stamp-blue);">Delray Beach Land Development Regulations, full PDF</a> (Municode, Supp. No. 35). Research assistance, not a legal determination; confirm specifics with Delray Beach Development Services.</p>
@@ -1129,21 +1229,63 @@ body {
 <script>
 /* City Services chat panels — public, no auth. ask -> poll status -> render. */
 (function(){
+  var GREETINGS = {
+    yolanda: "Hi, I'm Yolanda Ferreira. I grew up in El Paso watching my mom run a bakery where one missed step threw off the whole morning, which is probably why I ended up in industrial engineering. Tell me about your project and I'll map out every permit you need, in order, before you fill out a single form.",
+    priscilla: "Hi, I'm Priscilla Okeke. I'm from Baltimore, spent years in municipal budgeting including a stretch in a city comptroller's office, and now I help people cut through the paperwork instead of drowning in it. Tell me the address and what you're trying to find, and I'll pull it together for you.",
+    dez: "Hey, I'm Dez Quigley. Cleveland born, former Army engineer, fifteen years in municipal public works before this. Tell me the job and your area, and I'll help you find someone worth hiring.",
+    tessa: "Hi, I'm Tessa Whitfield. I'm from Iowa, and before this I was a city clerk assistant and then a community liaison, so I've sat on both sides of the 'who do I even call' problem. Tell me what you're trying to do and I'll point you to the right place.",
+    ramon: "Hey, I'm Ramon Delgado. I'm from Tacoma, and I watched my hometown get caught unprepared by a major storm when I was twelve, which is basically why I do this now. Tell me what you're worried about, or where you live, and I'll help you get ready before it matters.",
+    cora: "Hello, and welcome to Delray Beach. I'm Cora, your Land Code Specialist, here to help. I work out of ETL's Dayton office, but I have family here and get down as often as I can, especially once a Dayton winter sets in. I studied library science at Florida State and spent years as a municipal code librarian before this. Land development codes can be tricky, and honestly, a good way to put you to sleep if you're even the slightest bit tired, so I'll try to keep this brief. Ask me anything about the Land Development Regulations and I'll answer from the actual text, with the section and page behind it."
+  };
+
   function mk(cls, txt){ var d=document.createElement('div'); d.className=cls; if(txt!=null) d.textContent=txt; return d; }
+
   document.querySelectorAll('.svc-chat').forEach(function(wrap){
     var slug = wrap.getAttribute('data-slug');
     var name = wrap.getAttribute('data-name') || '';
+    var voiceId = wrap.getAttribute('data-voice') || '';
     var btn   = wrap.querySelector('.svc-chat-btn');
     var panel = wrap.querySelector('.svc-chat-panel');
     var form  = wrap.querySelector('.svc-chat-form');
     var input = wrap.querySelector('.svc-chat-input');
     var send  = wrap.querySelector('.svc-chat-send');
     var log   = wrap.querySelector('.svc-chat-log');
+    var greeted = false;
 
     btn.addEventListener('click', function(){
-      if (panel.hasAttribute('hidden')) { panel.removeAttribute('hidden'); btn.textContent = 'Hide'; input.focus(); }
+      if (panel.hasAttribute('hidden')) {
+        panel.removeAttribute('hidden'); btn.textContent = 'Hide'; input.focus();
+        if (!greeted && GREETINGS[slug]) {
+          greeted = true;
+          log.appendChild(mk('a greeting', GREETINGS[slug]));
+          log.scrollTop = log.scrollHeight;
+        }
+      }
       else { panel.setAttribute('hidden',''); btn.textContent = 'Talk to ' + name; }
     });
+
+    function playAudio(text, ad){
+      if (!voiceId) return;
+      var playBtn = document.createElement('button');
+      playBtn.type = 'button'; playBtn.className = 'svc-chat-play'; playBtn.textContent = '🔊 Hear this';
+      ad.parentNode.insertBefore(playBtn, ad);
+      playBtn.addEventListener('click', function(){
+        playBtn.disabled = true; playBtn.textContent = 'Loading audio...';
+        fetch('/.netlify/functions/city-agent-voice', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: text, voice_id: voiceId })
+        })
+        .then(function(r){ if (!r.ok) throw new Error('voice_failed'); return r.blob(); })
+        .then(function(blob){
+          var url = URL.createObjectURL(blob);
+          var audio = new Audio(url);
+          playBtn.textContent = '🔊 Playing...';
+          audio.addEventListener('ended', function(){ playBtn.textContent = '🔊 Hear this'; playBtn.disabled = false; });
+          audio.play();
+        })
+        .catch(function(){ playBtn.textContent = 'Audio unavailable'; });
+      });
+    }
 
     var noZip = wrap.hasAttribute('data-no-zip');
 
@@ -1165,25 +1307,33 @@ body {
 
     form.addEventListener('submit', function(e){
       e.preventDefault();
+      if (send.disabled) return; // a question is already in flight; do not fire a second job for it
       ask((input.value || '').trim());
     });
 
     function poll(jobId, n, ad){
-      if (n > 45) { ad.className='a'; ad.textContent='This is taking longer than expected. Please try again.'; send.disabled=false; return; }
+      /* Long questions against the full LDR text can take a while on a cold background
+         function. Keep waiting well past the point of looking stuck rather than telling
+         someone to retry, which would just fire a second, wasted job on top of the first. */
+      if (n > 150) { ad.className='a'; ad.textContent="This is taking unusually long. " + name + " may be stuck; try asking again in a moment."; send.disabled=false; return; }
       fetch('/.netlify/functions/city-' + slug + '-status?job_id=' + encodeURIComponent(jobId), { cache: 'no-store' })
       .then(function(r){ return r.json(); })
       .then(function(d){
         if (d.status === 'done' && d.response) {
-          ad.className='a'; ad.textContent = (d.response.text || '').trim() || '(no answer)';
-          send.disabled = false; log.scrollTop = log.scrollHeight; return;
+          var text = (d.response.text || '').trim() || '(no answer)';
+          ad.className='a'; ad.textContent = text;
+          send.disabled = false; log.scrollTop = log.scrollHeight;
+          if (d.response.text) playAudio(text, ad);
+          return;
         }
         if (d.status === 'error') {
           ad.className='a'; ad.textContent = 'Sorry, ' + name + ' hit a snag. Please try again.';
           send.disabled = false; return;
         }
-        setTimeout(function(){ poll(jobId, n+1, ad); }, 1200);
+        if (n === 40) { ad.textContent = name + ' is still working on it. Regulatory questions can take a little longer.'; }
+        setTimeout(function(){ poll(jobId, n+1, ad); }, 1500);
       })
-      .catch(function(){ setTimeout(function(){ poll(jobId, n+1, ad); }, 1500); });
+      .catch(function(){ setTimeout(function(){ poll(jobId, n+1, ad); }, 2000); });
     }
 
     var suggest = wrap.parentElement && wrap.parentElement.querySelector('.svc-chat-suggest');
