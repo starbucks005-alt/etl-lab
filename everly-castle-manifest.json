@@ -1,0 +1,25 @@
+{
+  "name": "Everly Castle",
+  "short_name": "Everly Castle",
+  "description": "Ten princesses. Ten real subjects. Learned by playing.",
+  "start_url": "/everly-castle.html",
+  "scope": "/everly-castle.html",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#16202b",
+  "theme_color": "#16202b",
+  "icons": [
+    {
+      "src": "/everly-castle-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/everly-castle-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

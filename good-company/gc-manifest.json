@@ -1,0 +1,25 @@
+{
+  "name": "Good Company",
+  "short_name": "Good Company",
+  "description": "Finding real friends is hard. So here, you make one.",
+  "start_url": "/good-company/index.html",
+  "scope": "/good-company/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#F7F1E6",
+  "theme_color": "#9E4E27",
+  "icons": [
+    {
+      "src": "/good-company/gc-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/good-company/gc-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
