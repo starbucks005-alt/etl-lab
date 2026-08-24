@@ -4521,7 +4521,8 @@
                              ],
         "platforms":  [
                           "City Solutions Lab"
-                      ]
+                      ],
+        "voice_id":  "ThTe2YIvvz7qItaTz7rD"
     },
     {
         "name":  "Desmond \"Dez\" Quigley",
@@ -4556,7 +4557,8 @@
                              ],
         "platforms":  [
                           "City Project Oversight Hub"
-                      ]
+                      ],
+        "voice_id":  "CXAc4DNZL6wonQQNlNgZ"
     },
     {
         "name":  "Tessa Whitfield",
@@ -4591,7 +4593,8 @@
                              ],
         "platforms":  [
                           "City Talent Reserve"
-                      ]
+                      ],
+        "voice_id":  "VfdLuBKQajtI8RHxLhnk"
     },
     {
         "name":  "Priscilla Okeke",
@@ -4626,7 +4629,8 @@
                              ],
         "platforms":  [
                           "City Solutions Lab"
-                      ]
+                      ],
+        "voice_id":  "NQMJRVvPew6HsaebYnZj"
     },
     {
         "name":  "Cora Reyes",
@@ -4643,7 +4647,7 @@
         "backstory":  "Cora spent years watching residents get bad advice from forum threads and outdated flyers because nobody had time to read the actual code. She joined ETL to put the primary source in front of people instead of a guess.",
         "value":  "She cuts research time on regulatory questions, reduces staff time spent on routine code lookups, and gives residents and developers a real citation they can bring to the actual office.",
         "use_cases":  "• Setback and zoning-district lookups\n• Parking requirement checks\n• Site plan submission requirements\n• Historic district restrictions\n• Permitted-use questions by zoning category",
-        "image_url":  "",
+        "image_url":  "https://emerging-tech-lab.com/agents/Cora_Reyes_eyes_open.jpg",
         "cat":  "staff",
         "tier_label":  "Not for hire",
         "pill":  "Not for hire",
@@ -4661,7 +4665,8 @@
                              ],
         "platforms":  [
                           "City Solutions Lab"
-                      ]
+                      ],
+        "voice_id":  "WLjZnm4PkNmYtNCyiCq8"
     },
     {
         "name":  "Ramon Delgado",
@@ -4696,7 +4701,8 @@
                              ],
         "platforms":  [
                           "City Talent Reserve"
-                      ]
+                      ],
+        "voice_id":  "IP2syKL31S2JthzSSfZH"
     },
     {
         "name":  "Heidi Kingstone",
