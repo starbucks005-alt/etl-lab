@@ -90,7 +90,7 @@
     <h3>Platform Key</h3>
     <div id="lm-rows"></div>
     <div class="lm-sep"></div>
-    <div class="lm-row"><span class="lm-ring"></span><span>Backpack Agent (MCP)</span></div>
+    <div class="lm-row"><span class="lm-ring"></span><span>Live-Source Agent</span></div>
   </div>
   <div id="tooltip">
     <div class="tt-name" id="tt-name"></div>
@@ -1093,7 +1093,7 @@ function drawHUD(){
     ctx.fillText('DATA', px+10, py+17);
     ctx.strokeStyle='#1a3a5c'; ctx.lineWidth=.5;
     ctx.beginPath(); ctx.moveTo(px+10,py+22); ctx.lineTo(px+pw-10,py+22); ctx.stroke();
-    const rows=[['AGENTS',AGENT_TOTAL],['BACKPACKS',BACKPACK_TOTAL+'  ('+BACKPACK_PCT+'%)'],['ACTIVE',active],['EN ROUTE',enRoute],['CHATTING',chatting],['AT HUB',atHub],['PAIRS',pairs]];
+    const rows=[['AGENTS',AGENT_TOTAL],['LIVE SOURCES',BACKPACK_TOTAL+'  ('+BACKPACK_PCT+'%)'],['ACTIVE',active],['EN ROUTE',enRoute],['CHATTING',chatting],['AT HUB',atHub],['PAIRS',pairs]];
     ctx.font='11px "Courier New",monospace';
     rows.forEach(([lbl,val],i)=>{
       ctx.fillStyle='#4080a0'; ctx.textAlign='left';  ctx.fillText(lbl, px+10, py+36+i*rowH);
@@ -1230,7 +1230,7 @@ canvasFG.addEventListener('mousemove',e=>{
   for(const a of agents){ if(Math.hypot(a.x-mx,a.y-my)<DOT_R+7){found=a;break;} }
   if(found){
     document.getElementById('tt-name').textContent=found.name;
-    document.getElementById('tt-sub').textContent=PL[found.plat]+(found.mcp?' · Backpack Agent':'');
+    document.getElementById('tt-sub').textContent=PL[found.plat]+(found.mcp?' · Live-Source Agent':'');
     document.getElementById('tt-state').textContent='◉ '+(stMap[found.state]||found.state);
     tip.style.display='block';
     tip.style.left=(e.clientX-r.left+16)+'px';

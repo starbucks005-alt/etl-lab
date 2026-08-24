@@ -102,7 +102,7 @@ h1 em,h2 em{font-weight:300;color:#28527a}
 
 <section class="tour">
   <div class="t-head"><div class="t-h">2 &middot; Your <em>staff</em></div><div class="t-tag">Hire, swap, fire, anytime</div></div>
-  <p class="t-sub">Real seats, real specialties. The essential six cover legal research, bookkeeping, HR, brand, marketing, and business formation. Specialists join by the seat. Staff marked &#127890; carry a backpack: their own live tools, so they do the job, not just talk about it.</p>
+  <p class="t-sub">Real seats, real specialties. The essential six cover legal research, bookkeeping, HR, brand, marketing, and business formation. Specialists join by the seat. Staff marked &#127890; carry their own live tools, so they do the job, not just talk about it.</p>
   <div class="staff-grid" id="tour-staff"><!-- filled from the live roster --></div>
   <p class="note">These cards are pulled from the live catalog right now; this is the actual bench.</p>
 </section>
@@ -125,7 +125,7 @@ h1 em,h2 em{font-weight:300;color:#28527a}
   <div class="feature-grid">
     <div class="fcard"><div class="fh">Your calendar, their hands</div><p>Paste your Outlook or Google calendar link once and your PA reads your real week: the morning brief flags collisions, countdowns, and the day you forgot you double-booked.</p></div>
     <div class="fcard"><div class="fh">A desktop app</div><p>Install the Studio from your browser and it lives on your desktop with its own icon, like any app. No URL to remember.</p></div>
-    <div class="fcard"><div class="fh">Backpacks</div><p>Staff with backpacks carry live tools: web research, SEO scans, evidence lookups. Same skills as a chat bot, different reach.</p></div>
+    <div class="fcard"><div class="fh">Live Tools</div><p>Some staff carry live tools of their own: web research, SEO scans, evidence lookups. Same skills as a chat bot, different reach.</p></div>
     <div class="fcard"><div class="fh">Swap anybody</div><p>Your PA persona, your six-pack seats, your specialists: all swappable in the catalog. Firing is allowed. They do not take it personally.</p></div>
   </div>
 </section>
@@ -145,7 +145,7 @@ h1 em,h2 em{font-weight:300;color:#28527a}
     </div>
     <div class="pcard">
       <div class="amt">+$25<small>+/mo</small></div>
-      <div class="what"><b>Specialists.</b> Add seats from the catalog: $25 standard, $35 with a backpack, C-suite from $45. Hire as you grow.</div>
+      <div class="what"><b>Specialists.</b> Add seats from the catalog: $25 standard, $35 with live tools, C-suite from $45. Hire as you grow.</div>
       <a class="cta ghost" href="/hiring-pool.html">Browse the catalog &rarr;</a>
     </div>
   </div>
@@ -176,7 +176,7 @@ h1 em,h2 em{font-weight:300;color:#28527a}
       var seat = (['Alicia James','Leo Vance','Kimberly Pass','Sasha Moreno','Yuki Mendel','Reid Callum'].indexOf(n) >= 0)
         ? '<span class="chip gold">six-pack</span>'
         : '<span class="chip gold">specialist</span>';
-      return '<div class="scard">'+img+'<div class="b"><div class="nm">'+n+'</div><div class="rl">'+(a.role||'')+'</div><div class="chiprow">'+seat+(hasBp?'<span class="chip">&#127890; backpack</span>':'')+'<span class="chip">swap</span></div></div></div>';
+      return '<div class="scard">'+img+'<div class="b"><div class="nm">'+n+'</div><div class="rl">'+(a.role||'')+'</div><div class="chiprow">'+seat+(hasBp?'<span class="chip">&#127890; live tools</span>':'')+'<span class="chip">swap</span></div></div></div>';
     }).join('');
   }catch(e){
     grid.innerHTML = '<p class="note">The live bench is at <a href="/hiring-pool.html" style="color:var(--brass)">the catalog</a>.</p>';

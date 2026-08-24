@@ -411,7 +411,7 @@ function run(){
     });
     return bestScore>0?best:null;
   };
-  const card=(a,role,why,price)=>{const bp=/^\s*yes/i.test(a.mcp||'')?`<div class="why" style="margin-top:4px;color:var(--good)">🎒 <b>Backpack:</b> ${(''+a.mcp).replace(/^\s*yes:?\s*/i,'')}</div>`:'';
+  const card=(a,role,why,price)=>{const bp=/^\s*yes/i.test(a.mcp||'')?`<div class="why" style="margin-top:4px;color:var(--good)">🎒 <b>Live Tools:</b> ${(''+a.mcp).replace(/^\s*yes:?\s*/i,'')}</div>`:'';
     return `<div class="member">${avatar(a,'','mi')}<div><div class="nm">${a.name}</div><div class="rl">${role||a.role||a.tier_label||''}</div><div class="why">${why}</div>${bp}${price!==undefined?`<div class="pr">${price}</div>`:''}</div></div>`;};
   const seatCounts={};team.forEach(t=>{const c=(t.a&&t.a.cat)||'addon';seatCounts[c]=(seatCounts[c]||0)+1;});
   window.__place={full,head,counts:seatCounts};window.__placeTier='full';
@@ -420,7 +420,7 @@ function run(){
      <div>Grab a ${treat} while we talk. So, <b>${echo||'that'}</b>. We can staff that. Here is how every company we place is built, so you can see exactly where the ${head} people come from.</div></div>
 
    <div class="sec">1 &middot; Your company shell <span style="font-weight:400;color:var(--muted);font-size:13px">&mdash; the $198 foundation, always placed</span></div>
-   <div class="sub">Every founder gets this. On its own it is a real, runnable company. Staff marked 🎒 carry a <b>backpack</b> &mdash; their tools are part of them, so they do the job anywhere, not just talk about it.</div>
+   <div class="sub">Every founder gets this. On its own it is a real, runnable company. Staff marked 🎒 carry their own live tools &mdash; wired in as part of them, so they do the job anywhere, not just talk about it.</div>
    <div class="team">
      <div class="member"><div class="mi" style="background:linear-gradient(135deg,#28527a,#5c8ab5);font-size:13px">You</div><div><div class="nm">You</div><div class="rl">Founder &amp; CEO</div><div class="why">You run it. Everyone reports up to you through your PA &mdash; one person to talk to, like a real company.</div></div></div>
      ${pa?card(pa,'Your Personal Assistant (PA)','Your single point of contact &mdash; you tell them what you need, they make it happen. <b>What they actually do:</b> run your 6 AM daily brief (scans the web for you and your field overnight), dispatch work to any staff member and report back in one thread, hold your calendar and schedule, set the routines that run your company on autopilot, and onboard every new hire for you. The $99/mo includes <b>Founder Studio</b>, the workspace your whole company runs in.','included'):''}

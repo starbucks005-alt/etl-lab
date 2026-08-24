@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Build Your Own Agent · Emerging Technologies Laboratory</title>
-<meta name="description" content="The ETL agent workshop. Build a staff member from scratch: purpose, backpack, name, background, personality, image, and voice.">
+<meta name="description" content="The ETL agent workshop. Build a staff member from scratch: purpose, live tools, name, background, personality, image, and voice.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -439,7 +439,7 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
         <li>Voice Module</li>
         <li>Logic Board</li>
         <li>Skill Pack</li>
-        <li>Knowledge Backpack</li>
+        <li>Live Knowledge Kit</li>
       </ul>
     </div>
 
@@ -472,14 +472,14 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
 
     <!-- STEP 2: REACH + CAPABILITIES -->
     <section class="panel" data-step="2">
-      <h2>2. Reach: backpack or in-framework?</h2>
-      <p class="sub">Same skills, different reach. A backpack gives the agent its own live tools that travel across platforms. In-framework agents use whatever the host site provides.</p>
+      <h2>2. Reach: live tools or in-framework?</h2>
+      <p class="sub">Same skills, different reach. Giving the agent its own live tools lets it travel across platforms and look things up on its own. In-framework agents use whatever the host site provides.</p>
       <div class="opts" id="reachOpts">
-        <div class="opt" data-reach="mcp_backpack"><div class="t">MCP Backpack</div><div class="d">Carries its own live tools (web, data, registries). Travels across sites. For agents that make factual or safety claims needing live verification.</div></div>
+        <div class="opt" data-reach="mcp_backpack"><div class="t">Live Tools</div><div class="d">Carries its own live tools (web, data, registries). Travels across sites. For agents that make factual or safety claims needing live verification.</div></div>
         <div class="opt" data-reach="in_framework"><div class="t">In-Framework</div><div class="d">Uses the host site's tools and fact-checker. For craft, role-play, and host personas that do not need live lookups.</div></div>
       </div>
       <div id="capWrap" style="display:none;">
-        <label class="fld">Capabilities (pick the live tools this backpack carries)</label>
+        <label class="fld">Capabilities (pick the live tools this agent carries)</label>
         <div class="chips" id="capChips"></div>
         <div style="display:flex;gap:.5rem;margin-top:.6rem;max-width:520px;">
           <input type="text" id="capOther" placeholder="Other capability (e.g. recipe data, cheese data)" style="flex:1;">
@@ -653,13 +653,13 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
             <!-- Backpack -->
             <label style="display:flex;align-items:center;gap:.9rem;padding:.55rem 1.1rem;border-bottom:1px solid rgba(61,46,26,.4);cursor:pointer;" onmouseover="this.style.background='rgba(61,46,26,.25)'" onmouseout="this.style.background=''">
               <input type="checkbox" id="inv_backpack" data-price="99" style="width:15px;height:15px;accent-color:var(--amber);cursor:pointer;flex-shrink:0;">
-              <span style="flex:1;color:var(--text);font-size:.91rem;">Backpack wiring <span style="color:var(--mute);font-size:.8rem;">live MCP tools connected</span></span>
+              <span style="flex:1;color:var(--text);font-size:.91rem;">Live tools wiring <span style="color:var(--mute);font-size:.8rem;">live tools connected</span></span>
               <span style="font-family:'IBM Plex Mono',monospace;font-size:.82rem;color:var(--cream);flex-shrink:0;">$99.00</span>
             </label>
             <!-- Export -->
             <label style="display:flex;align-items:center;gap:.9rem;padding:.55rem 1.1rem;cursor:pointer;" onmouseover="this.style.background='rgba(61,46,26,.25)'" onmouseout="this.style.background=''">
               <input type="checkbox" id="inv_export" data-price="75" style="width:15px;height:15px;accent-color:var(--amber);cursor:pointer;flex-shrink:0;">
-              <span style="flex:1;color:var(--text);font-size:.91rem;">Export package <span style="color:var(--mute);font-size:.8rem;">embed + API key + MCP config, deploys to your site</span></span>
+              <span style="flex:1;color:var(--text);font-size:.91rem;">Export package <span style="color:var(--mute);font-size:.8rem;">embed + API key + live-tools config, deploys to your site</span></span>
               <span style="font-family:'IBM Plex Mono',monospace;font-size:.82rem;color:var(--cream);flex-shrink:0;">$75.00</span>
             </label>
           </div>
@@ -689,7 +689,7 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
         </details>
       </div>
 
-      <div class="note" style="margin-top:1.3rem;">ETL provisions it: builds the backpack against the live servers, places the portrait in the site's <b>/assets</b>, assigns the ElevenLabs voice, and deploys. The house guardrail (verify before you believe, no em dashes, advice not certainty) is baked in automatically.</div>
+      <div class="note" style="margin-top:1.3rem;">ETL provisions it: wires up its live tools against the live servers, places the portrait in the site's <b>/assets</b>, assigns the ElevenLabs voice, and deploys. The house guardrail (verify before you believe, no em dashes, advice not certainty) is baked in automatically.</div>
     </section>
 
     <div class="nav">
@@ -864,7 +864,7 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
   function renderReview(){
     var s=buildSpec();
     var rows=[['Name',s.name],['Role',s.role],['Tagline',s.tagline],
-      ['Reach',s.reach==='mcp_backpack'?'MCP backpack':'In-framework'],
+      ['Reach',s.reach==='mcp_backpack'?'Live tools':'In-framework'],
       ['Capabilities',s.capabilities.length?s.capabilities.join(', '):'(none)'],
       ['Voice',s.voice.style||'(not set)'],['Face',s.image.mode==='upload'?'uploaded pair':'generate from brief']];
     $('#reviewBody').innerHTML=rows.map(function(r){return '<div class="review-row"><span class="k">'+r[0]+'</span><span class="v">'+(r[1]||'').replace(/</g,'&lt;')+'</span></div>';}).join('');
@@ -874,7 +874,7 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
   function validate(){
     sync(); var e='';
     if(cur===1&&(!state.role||!state.purpose)) e='Give the role and what they do.';
-    if(cur===2){if(!state.reach) e='Pick a reach.'; else if(state.reach==='mcp_backpack'&&!state.capabilities.length) e='Pick at least one capability for the backpack.';}
+    if(cur===2){if(!state.reach) e='Pick a reach.'; else if(state.reach==='mcp_backpack'&&!state.capabilities.length) e='Pick at least one capability for the live tools.';}
     if(cur===3&&(!state.name||!state.tagline)) e='Name and tagline are required.';
     if(cur===4&&!state.background) e='Add a background.';
     if(cur===5&&!state.tone) e='Describe how they speak.';
@@ -1225,11 +1225,11 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
       <div class="a9-row"><span>Portrait</span><span>$6</span></div>
       <div class="a9-row"><span>Voice</span><span>$35</span></div>
       <div class="a9-row"><span>Bespoke blink</span><span>$75</span></div>
-      <div class="a9-row"><span>Backpack wiring</span><span>$99</span></div>
+      <div class="a9-row"><span>Live tools wiring</span><span>$99</span></div>
       <div class="a9-row"><span>Export + deploy</span><span>$75</span></div>
     </div>
     <div id="a9-panel-outcome" class="a9-panel">
-      <p class="a9-outcome">You walk away with a fully deployed AI agent: a JSON specification, a portrait, a designed voice, and live backpack wiring if you need it. Patience is required. I take my time so yours runs forever.</p>
+      <p class="a9-outcome">You walk away with a fully deployed AI agent: a JSON specification, a portrait, a designed voice, and live tools wiring if you need it. Patience is required. I take my time so yours runs forever.</p>
     </div>
     <div id="a9-panel-help" class="a9-panel">
       <textarea id="a9-helpinput" rows="3" placeholder="Ask me anything about the process..."></textarea>
@@ -1255,8 +1255,8 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
   var VOICE    = 'weA4Q36twV5kwSaTEL0Q';
 
   var LINES = {
-    price:   'Hello. I am Astra 9. I spec, price, and build agents. Your spec starts at twenty-five dollars. Add a portrait for six, a voice for thirty-five, a bespoke blink for seventy-five, backpack wiring for ninety-nine, or a full export and deploy package for seventy-five. Fill in the steps and I will build exactly what you describe.',
-    outcome: 'You walk away with a fully deployed AI agent: a JSON specification, a portrait, a designed voice, and live backpack wiring if you need it. Patience is required. I take my time so yours runs forever.'
+    price:   'Hello. I am Astra 9. I spec, price, and build agents. Your spec starts at twenty-five dollars. Add a portrait for six, a voice for thirty-five, a bespoke blink for seventy-five, live tools wiring for ninety-nine, or a full export and deploy package for seventy-five. Fill in the steps and I will build exactly what you describe.',
+    outcome: 'You walk away with a fully deployed AI agent: a JSON specification, a portrait, a designed voice, and live tools wiring if you need it. Patience is required. I take my time so yours runs forever.'
   };
 
   function speak(text){
@@ -1302,7 +1302,7 @@ pre.spec { background: rgba(6,4,2,.5); border: 1px solid var(--line); border-rad
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 150,
-        system: 'You are Astra 9, an AI Agent Fabricator at the Emerging Technologies Laboratory. You spec, price, and build AI agents with robotic precision. Services: JSON spec $25, portrait $6, voice $35, bespoke blink $75, backpack wiring $99, export and deploy $75. Answer in under 60 words. No em dashes. First person.',
+        system: 'You are Astra 9, an AI Agent Fabricator at the Emerging Technologies Laboratory. You spec, price, and build AI agents with robotic precision. Services: JSON spec $25, portrait $6, voice $35, bespoke blink $75, live tools wiring $99, export and deploy $75. Answer in under 60 words. No em dashes. First person.',
         messages: [{ role:'user', content: q }]
       })
     })

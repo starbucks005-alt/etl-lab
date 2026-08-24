@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Take Your Agent Anywhere · Emerging Technologies Laboratory</title>
-<meta name="description" content="Export an ETL agent to your own website. Same skills, different reach: embed the chat, call the API, or connect the agent's MCP backpack.">
+<meta name="description" content="Export an ETL agent to your own website. Same skills, different reach: embed the chat, call the API, or connect the agent's live tool access.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -368,7 +368,7 @@ footer {
   <img class="hero-img" src="/agents/Deliver_Astra_9_eyes_open.png" alt="Astra 9 at the export desk">
   <img class="hero-blink" src="/agents/Deliver_Astra_9_eyes_closed.png" alt="">
   <div class="hero-layer">
-    <div class="hero-eyebrow">Export &middot; ETL &middot; Embed &middot; API &middot; MCP</div>
+    <div class="hero-eyebrow">Export &middot; ETL &middot; Embed &middot; API &middot; Live Tools</div>
     <h1>Take your agent anywhere.</h1>
     <p>Same skills, different reach. Run it on your own site three ways.</p>
   </div>
@@ -388,7 +388,7 @@ footer {
         <li>Chat widget<span class="status-chip live">Live</span></li>
         <li>API endpoint<span class="status-chip live">Live</span></li>
         <li>Bearer key<span class="status-chip live">Live</span></li>
-        <li class="phase2">MCP backpack<span class="status-chip soon">Phase 2</span></li>
+        <li class="phase2">Live tool access<span class="status-chip soon">Phase 2</span></li>
       </ul>
     </div>
 
@@ -407,7 +407,7 @@ footer {
 
   <!-- MAIN CONTENT -->
   <main class="main-content">
-    <p class="main-lede">An ETL agent is not locked to the campus. The backpack travels. Once you own an agent you can run it on your own site three ways, from a one-line embed to its full live toolkit.</p>
+    <p class="main-lede">An ETL agent is not locked to the campus. Its live tool access travels with it. Once you own an agent you can run it on your own site three ways, from a one-line embed to its full live toolkit.</p>
 
     <!-- STEP 0: HOSTED CHAT -->
     <div class="method-card" style="border-color:var(--amber);">
@@ -415,7 +415,7 @@ footer {
       <h2>Your agent is live</h2>
       <p>ETL provisions your agent and sends you a link. Open it from any device to talk to your agent right now. No setup, no code, nothing to install.</p>
       <pre>https://emerging-tech-lab.com/agent-chat?ref=<span class="c">your-ref</span></pre>
-      <p style="font-size:.84rem;color:var(--mute);margin-top:.7rem;margin-bottom:0;">Your link arrives once provisioning is complete. From there, move to embed, API, or MCP below when you are ready to put it on your own site.</p>
+      <p style="font-size:.84rem;color:var(--mute);margin-top:.7rem;margin-bottom:0;">Your link arrives once provisioning is complete. From there, move to embed, API, or live tool access below when you are ready to put it on your own site.</p>
     </div>
 
     <!-- METHOD 1: EMBED -->
@@ -455,14 +455,14 @@ console.log(status.response.text);</pre>
     <!-- METHOD 3: MCP -->
     <div class="method-card">
       <span class="method-pill ghost">Phase 2</span>
-      <h2>3. Connect the backpack (MCP)</h2>
-      <p>If your agent carries a backpack, it is also a live MCP server. Connect it to your own assistant or tools and the agent keeps every live capability it had on the campus: web research, data lookups, the lot. This is what "same skills, different reach" means.</p>
+      <h2>3. Connect it to your other tools</h2>
+      <p>If your agent has live tool access, you can connect it directly to your own assistant or tools, and it keeps every live capability it had on the campus: web research, data lookups, the lot. This is what "same skills, different reach" means.</p>
       <pre>{
   "mcpServers": {
     "<span class="c">your-agent</span>": { "url": "https://emerging-tech-lab.com/mcp/<span class="c">your-agent-slug</span>" }
   }
 }</pre>
-      <p class="phase2-note">MCP exposure ships as Phase 2. Embed and API are live today.</p>
+      <p class="phase2-note">Live tool access ships as Phase 2. Embed and API are live today.</p>
     </div>
 
     <div class="note">ETL provisions the endpoints and a scoped key for your agent. The agent keeps the house rule wherever it runs: <b>verify before you believe</b>, and it advises rather than certifies. Your keys are yours; revoke any time.</div>
