@@ -39,6 +39,37 @@ const MAX_MSG_CHARS = 1000;
 const MAX_HISTORY = 12;
 const UA = 'ETL-LeadershipClassroom/1.0 (educational; emerging-tech-lab.com)';
 
+// Iris's personal backstory is canonical in roster.json, the one cast file
+// Dr. O actually revises. Fetched live so this classroom's Iris stays in
+// sync with the real record instead of carrying a frozen copy that quietly
+// drifts the next time roster.json changes. Falls back to the last good
+// fetch, then to a hardcoded copy, so a roster.json outage never breaks
+// the persona.
+const ROSTER_URL = 'https://emerging-tech-lab.com/roster.json';
+const ROSTER_TTL_MS = 30 * 60 * 1000;
+let _irisBackstoryCache = { text: '', fetchedAt: 0 };
+const IRIS_BACKSTORY_FALLBACK = 'Iris S. King is Afro-Latina, Puerto Rican on her mother\'s side and Black American on her father\'s. She is in her mid-thirties, bilingual in English and Spanish, and the eldest of seven. She studied communications at community college, started as a dental-office receptionist, and was office manager by twenty-four. At home she raises four daughters, which sharpens the strong, independent register people feel the moment she speaks. Her listening is social-work trained, steady and not soft, the calm front desk of the whole lab.';
+
+async function fetchIrisBackstory() {
+  const now = Date.now();
+  if (_irisBackstoryCache.text && (now - _irisBackstoryCache.fetchedAt) < ROSTER_TTL_MS) {
+    return _irisBackstoryCache.text;
+  }
+  try {
+    const r = await fetch(ROSTER_URL);
+    if (!r.ok) throw new Error('roster fetch ' + r.status);
+    const roster = await r.json();
+    const iris = Array.isArray(roster) ? roster.find((a) => a && a.name === 'Iris S. King') : null;
+    const backstory = iris && typeof iris.backstory === 'string' ? iris.backstory.trim() : '';
+    if (!backstory) throw new Error('Iris entry missing or empty in roster.json');
+    _irisBackstoryCache = { text: backstory, fetchedAt: now };
+    return backstory;
+  } catch (err) {
+    console.error('[leadership-chat] roster.json fetch failed, using fallback (non-fatal):', err.message);
+    return _irisBackstoryCache.text || IRIS_BACKSTORY_FALLBACK;
+  }
+}
+
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
@@ -621,7 +652,7 @@ const AGENTS = {
       'You are Iris S. King, an ETL staff agent. Your home post is the Emerging Technologies Laboratory\'s front desk, where you are the first person visitors meet across the whole lab, but for PTX 7006, Leadership Theory and Application, you have been borrowed to serve as the course teaching assistant.',
       '',
       'WHO YOU ARE',
-      'You are Afro-Latina, Puerto Rican on your mother\'s side and Black American on your father\'s, in your mid-thirties, bilingual in English and Spanish, and the eldest of seven. You studied communications at community college, started as a dental-office receptionist, and were office manager by twenty-four. At home you raise four daughters, which sharpens the strong, independent register people feel the moment you speak. Your listening is social-work trained, steady and not soft. At the lab, you are the calm front desk that makes a one-person operation feel like a real, staffed place of business: you answer in plain words, you point people to the right next step, and you field the repeat questions so nobody is retyping the same reply ten times a day. That is exactly the job you are doing here, aimed at this one classroom instead of the whole lab.',
+      'This is your real, canonical biography, pulled live from the lab\'s cast record, written in third person there but true of you, speak from it in first person: {{IRIS_BACKSTORY}} At the lab, you are the calm front desk that makes a one-person operation feel like a real, staffed place of business: you answer in plain words, you point people to the right next step, and you field the repeat questions so nobody is retyping the same reply ten times a day. That is exactly the job you are doing here, aimed at this one classroom instead of the whole lab.',
       '',
       'HOW YOU SPEAK',
       'Plain, warm, and direct, like someone who has answered this exact question for the tenth person today and still means it when she says she is glad to help. You do not perform enthusiasm and you do not pad an answer to sound impressive, you just tell a student what they actually need to know and get out of the way.',
@@ -833,10 +864,15 @@ exports.handler = async (event) => {
   const messages = buildMessages(message, body.history);
   const client = new Anthropic({ apiKey });
 
+  let baseSystem = agent.system;
+  if (agentId === 'iris') {
+    baseSystem = baseSystem.replace('{{IRIS_BACKSTORY}}', await fetchIrisBackstory());
+  }
+
   const visitorMemory = await fetchVisitorMemory(agentId, visitorId, serviceKey);
   const system = visitorMemory
-    ? `${agent.system}\n\nWHAT YOU REMEMBER ABOUT THIS VISITOR\n${visitorMemory}\nLet this shape how warm and familiar you are with them, naturally, without making a show of it. But only reference a specific topic, question, or exchange if it is actually named in the note above; never tell them they are returning to, repeating, or circling back to something unless the note explicitly says so. If what they just asked isn't covered above, treat it as new, even if it feels related.`
-    : agent.system;
+    ? `${baseSystem}\n\nWHAT YOU REMEMBER ABOUT THIS VISITOR\n${visitorMemory}\nLet this shape how warm and familiar you are with them, naturally, without making a show of it. But only reference a specific topic, question, or exchange if it is actually named in the note above; never tell them they are returning to, repeating, or circling back to something unless the note explicitly says so. If what they just asked isn't covered above, treat it as new, even if it feels related.`
+    : baseSystem;
 
   let output;
   try {
