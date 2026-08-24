@@ -427,6 +427,13 @@ body {
   color: var(--stamp-blue); background: var(--uswds-gold); border: none; padding: 0 1rem; cursor: pointer;
 }
 .svc-chat-send:disabled { opacity: 0.5; cursor: default; }
+.svc-chat-suggest { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.1rem; }
+.svc-chat-suggest button {
+  font-family: 'Public Sans', sans-serif; font-size: 0.72rem; font-weight: 600;
+  color: var(--stamp-blue); background: var(--band-alt); border: 1px solid var(--rule);
+  padding: 0.45rem 0.75rem; cursor: pointer; text-align: left;
+}
+.svc-chat-suggest button:hover { border-color: var(--etl-blue); color: var(--etl-blue); }
 
 /* ── Zip code row ── */
 .svc-zip-row {
@@ -768,7 +775,7 @@ body {
       <div class="hero-path">
         <div class="hero-path-num">Division 01</div>
         <div class="hero-path-body">City Solutions Lab &mdash; process architecture and financial clarity.</div>
-        <div class="hero-path-outcome">Yolanda Ferreira &middot; Priscilla Okeke</div>
+        <div class="hero-path-outcome">Yolanda Ferreira &middot; Priscilla Okeke &middot; Cora Reyes</div>
       </div>
       <div class="hero-path">
         <div class="hero-path-num">Division 02</div>
@@ -790,7 +797,7 @@ body {
     <div class="opsec-mission-eyebrow">City Operations Gateway &middot; Architecture Overview</div>
     <div class="opsec-mission-lead">Built for any city. Ready to deploy.</div>
     <div class="opsec-mission-body">
-      <p>The City Operations Gateway applies the Emerging Technologies Laboratory's AI staffing methodology to municipal work. Five domain-specific operators arrive with their tools already loaded. The <strong>City Solutions Lab</strong> standardizes processes and tracks the budget. The <strong>City Project Oversight Hub</strong> coordinates field operations. The <strong>City Talent Reserve</strong> handles the public-facing work and keeps emergency readiness current.</p>
+      <p>The City Operations Gateway applies the Emerging Technologies Laboratory's AI staffing methodology to municipal work. Six domain-specific operators arrive with their tools already loaded. The <strong>City Solutions Lab</strong> standardizes processes, tracks the budget, and can be loaded with a city's own code for cited, primary-source answers. The <strong>City Project Oversight Hub</strong> coordinates field operations. The <strong>City Talent Reserve</strong> handles the public-facing work and keeps emergency readiness current.</p>
       <p>The city government functions as the operational hub, identifying bottlenecks and pushing requirements into the system. Specialists activate. Work clears. Office velocity holds without the administrative burden of permanent headcount expansion.</p>
     </div>
     <div class="opsec-mission-verdict">
@@ -908,11 +915,48 @@ body {
 
 <div class="footlight"></div>
 
+<!-- ── Land Development Regulations Assistant (live example) ── -->
+<section class="service-section" id="ldr-assistant">
+  <div class="service-section-inner">
+    <p class="section-eyebrow">Live Example &middot; City of Delray Beach, FL</p>
+    <h2 class="section-title">Ask the actual code. Get the actual section.</h2>
+    <p class="section-sub">Every operator above is a general-purpose specialist. Cora is what happens when one is loaded with a single city's real regulations. Ask a land-use question and she answers from the current Delray Beach Land Development Regulations, with the section and page that backs it up, not a guess.</p>
+    <div class="service-card" style="max-width:640px;margin:0 auto;">
+      <div class="service-card-label">Land Development Regulations</div>
+      <h3>Ask about setbacks, parking, site plans, historic districts, and more.</h3>
+      <p>Cora searches the full, current Land Development Regulations of Delray Beach, Florida (Supplement 35, through Ordinance No. 26-26) and answers only from what she finds there. If the regulations do not cover it, she says so instead of guessing.</p>
+      <div class="service-card-operator">
+        <div class="service-card-op-name">Cora Reyes</div>
+        <div class="service-card-op-role">Land Development Code Analyst &middot; City Solutions Lab</div>
+      </div>
+      <div class="svc-chat-suggest" id="ldr-suggest">
+        <button type="button" data-q="What is the minimum setback for residential zones?">Minimum residential setbacks</button>
+        <button type="button" data-q="What are the parking requirements for commercial properties?">Commercial parking requirements</button>
+        <button type="button" data-q="What is required for submitting a site plan?">Site plan submission requirements</button>
+        <button type="button" data-q="What restrictions apply in historic districts?">Historic district restrictions</button>
+      </div>
+      <div class="svc-chat" data-slug="cora" data-name="Cora" data-no-zip="true">
+        <button type="button" class="svc-chat-btn">Talk to Cora</button>
+        <div class="svc-chat-panel" hidden>
+          <div class="svc-chat-log" aria-live="polite"></div>
+          <form class="svc-chat-form">
+            <input class="svc-chat-input" type="text" autocomplete="off" placeholder="Ask about the Delray Beach Land Development Regulations..." maxlength="2000">
+            <button class="svc-chat-send" type="submit">Send</button>
+          </form>
+        </div>
+      </div>
+      <p style="font-family:'Public Sans',sans-serif;font-size:0.68rem;color:var(--text-dim);margin-top:0.9rem;">Source: <a href="/assets/ldr/delray-beach-ldr.pdf" target="_blank" rel="noopener" style="color:var(--stamp-blue);">Delray Beach Land Development Regulations, full PDF</a> (Municode, Supp. No. 35). Research assistance, not a legal determination; confirm specifics with Delray Beach Development Services.</p>
+    </div>
+  </div>
+</section>
+
+<div class="footlight"></div>
+
 <!-- ── Operator Roster ── -->
 <section id="operators">
   <div style="padding:4rem 2rem 1rem;max-width:1180px;margin:0 auto;text-align:center;">
     <p class="section-eyebrow">Municipal Operator Roster</p>
-    <h2 class="section-title" style="margin-bottom:0.5rem;">Five operators. Five city functions.</h2>
+    <h2 class="section-title" style="margin-bottom:0.5rem;">Six operators. Six city functions.</h2>
     <p style="font-family:'Spectral',serif;font-style:italic;font-size:0.98rem;color:var(--text-dim);max-width:640px;margin:0 auto 1rem;">Each operator is domain-scoped, role-anchored, and equipped before deployment. The toolkit is the engine inside them that lets them do the job.</p>
   </div>
 
@@ -998,6 +1042,21 @@ body {
       </div>
     </div>
 
+    <!-- Cora Reyes — no portrait yet -->
+    <div class="corridor-wing wing-right">
+      <div class="wing-portrait" style="display:flex;align-items:center;justify-content:center;text-align:center;border-style:dashed;background:var(--band-alt);">
+        <span style="font-family:'Public Sans',sans-serif;font-size:0.68rem;letter-spacing:0.08em;color:var(--text-dim);padding:0 1rem;">Portrait pending</span>
+        <div class="wing-division">City Solutions Lab</div>
+      </div>
+      <div class="wing-body">
+        <div class="wing-role">Land Development Code Analyst</div>
+        <div class="wing-name">Cora Reyes</div>
+        <div class="wing-tagline">The analyst who turns a thousand pages of code into one cited answer.</div>
+        <div class="wing-bio">Cora reads the actual Land Development Regulations text, section by section, and answers what a resident, developer, or staffer is asking with the section number and page that backs it up. She does not stretch a citation to cover a question the text does not answer.</div>
+        <div class="wing-backpack"><strong>Capabilities</strong>Full-text search of a city's land development code, section and page citation on every answer, suggested-question starters.</div>
+      </div>
+    </div>
+
   </div>
 </section>
 
@@ -1014,10 +1073,11 @@ body {
       <div class="division-card">
         <div class="division-tag">Division 01</div>
         <h3>City Solutions Lab</h3>
-        <p>The strategy and process layer. Where broken workflows get rebuilt and financial clarity gets built from scratch. The Solutions Lab provides the frameworks that make the other two divisions possible.</p>
+        <p>The strategy and process layer. Where broken workflows get rebuilt, financial clarity gets built from scratch, and a city's own code becomes a cited answer instead of a document stack. The Solutions Lab provides the frameworks that make the other two divisions possible.</p>
         <div class="division-staff">
           Yolanda Ferreira &middot; Municipal Workflow Architect<br>
-          Priscilla Okeke &middot; Municipal Budget Analyst
+          Priscilla Okeke &middot; Municipal Budget Analyst<br>
+          Cora Reyes &middot; Land Development Code Analyst
         </div>
       </div>
       <div class="division-card">
@@ -1084,11 +1144,11 @@ body {
       else { panel.setAttribute('hidden',''); btn.textContent = 'Talk to ' + name; }
     });
 
-    form.addEventListener('submit', function(e){
-      e.preventDefault();
-      var q = (input.value || '').trim();
+    var noZip = wrap.hasAttribute('data-no-zip');
+
+    function ask(q){
       if (!q) return;
-      var zip = (document.getElementById('svc-zip').value || '').trim().slice(0, 10);
+      var zip = noZip ? '' : (document.getElementById('svc-zip').value || '').trim().slice(0, 10);
       input.value = ''; send.disabled = true;
       var qd = mk('q', 'You: ' + q); log.appendChild(qd);
       var ad = mk('a pending', name + ' is looking into it...'); log.appendChild(ad);
@@ -1100,6 +1160,11 @@ body {
       .then(function(r){ return r.json(); })
       .then(function(d){ if (!d || !d.job_id) throw new Error('no_job'); poll(d.job_id, 0, ad); })
       .catch(function(){ ad.className='a'; ad.textContent='Sorry, something went wrong. Please try again.'; send.disabled=false; });
+    }
+
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      ask((input.value || '').trim());
     });
 
     function poll(jobId, n, ad){
@@ -1118,6 +1183,16 @@ body {
         setTimeout(function(){ poll(jobId, n+1, ad); }, 1200);
       })
       .catch(function(){ setTimeout(function(){ poll(jobId, n+1, ad); }, 1500); });
+    }
+
+    var suggest = wrap.parentElement && wrap.parentElement.querySelector('.svc-chat-suggest');
+    if (suggest) {
+      suggest.querySelectorAll('button').forEach(function(chip){
+        chip.addEventListener('click', function(){
+          if (panel.hasAttribute('hidden')) { panel.removeAttribute('hidden'); btn.textContent = 'Hide'; }
+          ask(chip.getAttribute('data-q') || chip.textContent);
+        });
+      });
     }
   });
 })();

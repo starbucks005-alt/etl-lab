@@ -1,9 +1,10 @@
-/* city-priscilla-ask - public, no auth. Sync trigger for Priscilla Okeke (city services). */
+/* city-cora-ask - public, no auth. Cora Reyes, Land Development Code Analyst (City Solutions Lab).
+   Triggers the background retrieval + answer job, same async pattern as the other city triplets. */
 
 function newJobId() {
   const d = new Date();
   const stamp = d.toISOString().replace(/[-:.TZ]/g, '').slice(0, 14);
-  return 'po-' + stamp + '-' + Math.random().toString(36).slice(2, 6);
+  return 'cr-' + stamp + '-' + Math.random().toString(36).slice(2, 6);
 }
 
 exports.handler = async function(event) {
@@ -16,9 +17,8 @@ exports.handler = async function(event) {
   catch (e) { return { statusCode: 400, body: JSON.stringify({ error: 'bad_json' }) }; }
 
   const question = String(body.question || '').trim();
-  const zip = String(body.zip || '').trim().slice(0, 10);
   if (!question)              return { statusCode: 400, body: JSON.stringify({ error: 'question_required' }) };
-  if (question.length > 4000) return { statusCode: 400, body: JSON.stringify({ error: 'question_too_long' }) };
+  if (question.length > 2000) return { statusCode: 400, body: JSON.stringify({ error: 'question_too_long' }) };
 
   const jobId = newJobId();
 
@@ -26,13 +26,13 @@ exports.handler = async function(event) {
   const proto = (event.headers && (event.headers['x-forwarded-proto'] || event.headers['X-Forwarded-Proto'])) || 'https';
   const base = process.env.URL || (host ? proto + '://' + host : '');
   if (!base) return { statusCode: 500, body: JSON.stringify({ error: 'no_base_url' }) };
-  const bgUrl = base + '/.netlify/functions/city-priscilla-background';
+  const bgUrl = base + '/.netlify/functions/city-cora-background';
 
   try {
     fetch(bgUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ job_id: jobId, question, zip }),
+      body: JSON.stringify({ job_id: jobId, question }),
       keepalive: true,
     }).catch(() => {});
   } catch (_) {}
@@ -40,6 +40,6 @@ exports.handler = async function(event) {
   return {
     statusCode: 200,
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ok: true, job_id: jobId, polling_endpoint: '/.netlify/functions/city-priscilla-status?job_id=' + jobId }),
+    body: JSON.stringify({ ok: true, job_id: jobId, polling_endpoint: '/.netlify/functions/city-cora-status?job_id=' + jobId }),
   };
 };
