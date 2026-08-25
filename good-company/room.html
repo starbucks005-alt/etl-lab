@@ -1782,6 +1782,18 @@ function guestCameoCandidate() {
   return { name: mine.name, voiceId: mine.voiceId, blurb: bits.join('. ') };
 }
 
+/* THE INVITE GATE, added 2026-08-25. Dr. O, after Isabelle turned up
+   uninvited in Pookie's room: "the invite gate was supposed to be,
+   'Isabelle, are you here? If so, say hi.'" A built friend being
+   candidate-eligible (guestCameoCandidate above) was never meant to be
+   the whole gate -- being addressed by name in the message actually
+   being sent is. Plain word-boundary text match on purpose: this is a
+   yes/no gate, not worth a model call to decide. */
+function invitesCameo(text, name) {
+  if (!text || !name) return false;
+  return new RegExp('\\b' + name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i').test(text);
+}
+
 function ask(payload) {
   thinking = true;
   $("sendBtn").disabled = true;
@@ -1806,7 +1818,11 @@ function ask(payload) {
          scene is that this companion has the room to themselves" is this
          same file's own existing rule for why speaker carries no .cameos,
          and a guest cameo showing up anyway would quietly break it. */
-      guest_cameo: speakerObj ? null : guestCameoCandidate(),
+      guest_cameo: (function () {
+        if (speakerObj) return null;
+        var c = guestCameoCandidate();
+        return (c && invitesCameo(payload.message || '', c.name)) ? c : null;
+      })(),
       you: { name: YOU.name, pronouns: YOU.pronouns },
       messages: transcript(),
       scene: current ? { label: current.label, where: current.where } : null,
@@ -2137,7 +2153,11 @@ function sayInRoom(text) {
        speaker's. */
     body: JSON.stringify({
       seat_token: SEAT, message: text, owner_key: GC_ownerKey(), access_token: GC_accessToken(),
-      guest_cameo: roomSpeakerObj ? null : guestCameoCandidate(),
+      guest_cameo: (function () {
+        if (roomSpeakerObj) return null;
+        var c = guestCameoCandidate();
+        return (c && invitesCameo(text || '', c.name)) ? c : null;
+      })(),
     })
   }).then(function (r) { return r.json(); }).then(function (j) {
     thinking = false; $("sendBtn").disabled = false;
