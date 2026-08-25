@@ -1588,6 +1588,42 @@ function askForScene() {
   location.reload();
 })();
 
+/* ?set-voice=<elevenlabs id>, added 2026-08-25. Dr. O, after a night of
+   copy/paste failing through a remote-controlled machine and a Word
+   document mangling straight quotes into curly ones: "give this voice
+   to Cal." Same delivery pattern as ?add-scene= above, on purpose --
+   that channel worked every single time tonight, it just never had the
+   right id to write. A voiceId is not a secret and costs nothing to
+   set, so this needs nothing more than GC_BUILT existing on the device
+   the link is opened on. */
+(function () {
+  var q;
+  try { q = new URLSearchParams(location.search); } catch (e) { return; }
+  var voiceId = (q.get('set-voice') || '').trim();
+  if (!voiceId) return;
+
+  if (!/^[A-Za-z0-9]{10,40}$/.test(voiceId)) {
+    post('Not wired yet', 'That voice id does not look right, so nothing changed.');
+    history.replaceState({}, '', location.pathname);
+    return;
+  }
+  if (!GC_BUILT) {
+    post('A voice arrived', 'This belongs to a friend you built, and there is not one on ' +
+         'this device yet. Make your friend first and open the link again.');
+    return;
+  }
+
+  GC_BUILT.voiceId = voiceId;
+  try { GC_saveFriend(GC_BUILT); }
+  catch (e) {
+    post('A voice arrived', 'It could not be saved: this device is out of storage.');
+    return;
+  }
+
+  history.replaceState({}, '', location.pathname + '?who=mine');
+  location.reload();
+})();
+
 /* THE SCENES THEY DO NOT HAVE YET, SHOWN AS EMPTY SLOTS.
 
    A friend you build comes with one, the picture you chose, and the rest are
