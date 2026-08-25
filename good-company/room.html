@@ -1390,6 +1390,42 @@ function askForScene() {
     }
     send.disabled = true; send.textContent = 'Sending';
 
+    /* FREE AND INSTANT WHEN IT IS ALREADY MADE, added 2026-08-25. Dr. O:
+       "make it so users can upload images or videos they own to use on
+       the site for free." A Vimeo link costs nothing to attach -- no Veo
+       render, no order queue, no $4.99 -- so it writes straight onto this
+       browser's own copy of the friend, the same scene shape the
+       add-scene link already produces, and shows up immediately via
+       renderScenes() rather than a reload. Only an actual request to
+       GENERATE something (a photo for Veo to animate, or a written
+       description) still costs real compute and stays behind the paid
+       order queue below -- that branch is untouched. */
+    if (mode === 'own' && vimeoMatch && !photoInput.files.length) {
+      readAsBase64(thumbInput).then(function (thumbDataUrl) {
+        var label = w || 'A new scene';
+        var key = 'added-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+        var newScene = { key: key, label: label, vimeoId: vimeoMatch[1] };
+        if (thumbDataUrl) newScene.thumb = thumbDataUrl;
+        var already = (GC_BUILT.scenes || []).some(function (s) { return s && s.vimeoId === vimeoMatch[1]; });
+        if (!already) {
+          GC_BUILT.scenes = (GC_BUILT.scenes || []).concat([newScene]);
+          try { GC_saveFriend(GC_BUILT); }
+          catch (e) {
+            send.disabled = false; send.textContent = 'Try again';
+            note.textContent = 'That could not be saved: this device is out of storage.';
+            return;
+          }
+        }
+        host.innerHTML = '';
+        var ok = document.createElement('p');
+        ok.className = 'gate-say';
+        ok.textContent = FRIEND.name + ' has it now -- no charge, nothing to wait on.';
+        host.appendChild(ok);
+        renderScenes();
+      });
+      return;
+    }
+
     Promise.all([readAsBase64(photoInput), readAsBase64(thumbInput)]).then(function (files) {
     var body = {
       portrait: FRIEND.portrait,
