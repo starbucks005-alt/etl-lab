@@ -1753,26 +1753,38 @@ function transcript() {
 
 /* A VISITOR'S OWN BUILT FRIEND, OFFERED TO WHOEVER'S ROOM THIS IS.
    Added 2026-08-19. Dr. O, asking whether Isabelle could meet the house
-   cast: "she wants to meet them." Solo chat only for now, the same scope
-   as everything else built this round -- gc-room-say.js's shared-room
-   path does not send this yet.
+   cast: "she wants to meet them."
 
    NEVER OFFERED IN THEIR OWN ROOM. "Isabelle sometimes cameos in
    Isabelle's room" is not a feature, it is a bug shaped like one.
    NEVER OFFERED WITHOUT A VOICE. A cameo with nothing to speak with is
    the exact gap the narrated mechanism exists for, and that is a
    deliberate choice (Gus, Barley), not a fallback for a friend nobody
-   got around to giving a voice. */
-function guestCameoCandidate() {
-  var mine = (typeof GC_mostRecentBuilt === 'function') ? GC_mostRecentBuilt() : null;
-  if (!mine || !mine.name || !mine.voiceId) return null;
-  if (FRIEND && FRIEND.name === mine.name) return null;
-  /* MORE TO WORK WITH, added 2026-08-19 after Dr. O: "Isabelle talked, but
-     very very little." Gender/work/into alone gave the model almost
-     nothing to sound like her with, next to how much a hand-authored
-     cameo's own host canon already carries about Biscuit or Mochi. voice
-     (the how-they-talk chips) and knows (what they are actually good at,
-     if anything was given) close most of that gap. */
+   got around to giving a voice.
+
+   MORE TO WORK WITH, added 2026-08-19 after Dr. O: "Isabelle talked, but
+   very very little." Gender/work/into alone gave the model almost
+   nothing to sound like her with, next to how much a hand-authored
+   cameo's own host canon already carries about Biscuit or Mochi. voice
+   (the how-they-talk chips) and knows (what they are actually good at,
+   if anything was given) close most of that gap -- see buildCameoObj. */
+
+/* THE INVITE GATE, added 2026-08-25, WIDENED same day. Dr. O, after Isabelle
+   turned up uninvited in Pookie's room: "the invite gate was supposed to be,
+   'Isabelle, are you here? If so, say hi.'" First pass only ever checked
+   the single most-recently-built friend (GC_mostRecentBuilt) by name --
+   tested with Isabelle built last, "Tansy, are you here" came back empty.
+   Dr. O: "it should not matter... as long as I say 'x, are you here'."
+   guestCameoCandidateFor searches everything in GC_ALL_BUILT, not just the
+   most recent one. Arch and the rest of the house cast are demos, not
+   built friends -- not in GC_ALL_BUILT, not reachable through this gate,
+   since there is nothing of the visitor's to bring in for them. */
+function invitesCameo(text, name) {
+  if (!text || !name) return false;
+  return new RegExp('\\b' + name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i').test(text);
+}
+
+function buildCameoObj(mine) {
   var bits = [];
   if (mine.gender) bits.push(mine.gender);
   if (mine.work) bits.push(mine.work);
@@ -1782,16 +1794,30 @@ function guestCameoCandidate() {
   return { name: mine.name, voiceId: mine.voiceId, blurb: bits.join('. ') };
 }
 
-/* THE INVITE GATE, added 2026-08-25. Dr. O, after Isabelle turned up
-   uninvited in Pookie's room: "the invite gate was supposed to be,
-   'Isabelle, are you here? If so, say hi.'" A built friend being
-   candidate-eligible (guestCameoCandidate above) was never meant to be
-   the whole gate -- being addressed by name in the message actually
-   being sent is. Plain word-boundary text match on purpose: this is a
-   yes/no gate, not worth a model call to decide. */
-function invitesCameo(text, name) {
-  if (!text || !name) return false;
-  return new RegExp('\\b' + name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i').test(text);
+function guestCameoCandidateFor(messageText) {
+  if (!messageText) return null;
+  for (var i = 0; i < GC_ALL_BUILT.length; i++) {
+    var mine = GC_ALL_BUILT[i];
+    if (!mine || !mine.name || !mine.voiceId) continue;
+    if (FRIEND && FRIEND.name === mine.name) continue;
+    if (invitesCameo(messageText, mine.name)) return buildCameoObj(mine);
+  }
+  return null;
+}
+
+/* NAME LOOKUP, NOT AN INVITE CHECK. Used only to find a voiceId for a cameo
+   the server already decided to include (see the render path below) -- by
+   the time a cameo line exists to render, it already happened, so this
+   searches the same full GC_ALL_BUILT list guestCameoCandidateFor does,
+   not just GC_mostRecentBuilt(), or a cameo from anyone but your latest
+   build would post text with no voice. */
+function guestCameoLookup(name) {
+  if (!name) return null;
+  for (var i = 0; i < GC_ALL_BUILT.length; i++) {
+    var mine = GC_ALL_BUILT[i];
+    if (mine && mine.name === name && mine.voiceId) return buildCameoObj(mine);
+  }
+  return null;
 }
 
 function ask(payload) {
@@ -1818,11 +1844,7 @@ function ask(payload) {
          scene is that this companion has the room to themselves" is this
          same file's own existing rule for why speaker carries no .cameos,
          and a guest cameo showing up anyway would quietly break it. */
-      guest_cameo: (function () {
-        if (speakerObj) return null;
-        var c = guestCameoCandidate();
-        return (c && invitesCameo(payload.message || '', c.name)) ? c : null;
-      })(),
+      guest_cameo: speakerObj ? null : guestCameoCandidateFor(payload.message || ''),
       you: { name: YOU.name, pronouns: YOU.pronouns },
       messages: transcript(),
       scene: current ? { label: current.label, where: current.where } : null,
@@ -2153,11 +2175,7 @@ function sayInRoom(text) {
        speaker's. */
     body: JSON.stringify({
       seat_token: SEAT, message: text, owner_key: GC_ownerKey(), access_token: GC_accessToken(),
-      guest_cameo: (function () {
-        if (roomSpeakerObj) return null;
-        var c = guestCameoCandidate();
-        return (c && invitesCameo(text || '', c.name)) ? c : null;
-      })(),
+      guest_cameo: roomSpeakerObj ? null : guestCameoCandidateFor(text || ''),
     })
   }).then(function (r) { return r.json(); }).then(function (j) {
     thinking = false; $("sendBtn").disabled = false;
@@ -2628,16 +2646,12 @@ function startPolling() {
                gc-chat.js's own copy of the friend for one request and never
                sent back to update this browser's copy, so looking her up
                here would always miss and wrongly read as narrated (no
-               voice). Falls back to this browser's OWN guestCameoCandidate()
-               when the name matches: the only guest cameo this browser
-               could possibly be seeing spoken is either the room's own
-               static list, or whichever built friend belongs to whoever is
-               reading this poll right now. */
+               voice). Falls back to guestCameoLookup(), which searches this
+               browser's full GC_ALL_BUILT by name -- not just whichever
+               friend was built most recently -- since the cameo could be
+               any built friend this visitor invited in by name. */
             var cEntry = (FRIEND.cameos || []).find(function (c) { return c && c.name === m.name; });
-            if (!cEntry) {
-              var myGuest = guestCameoCandidate();
-              if (myGuest && myGuest.name === m.name) cEntry = myGuest;
-            }
+            if (!cEntry) cEntry = guestCameoLookup(m.name);
             lastCameo = { text: m.content, bubble: bubble, voiceId: cEntry ? cEntry.voiceId : null };
             /* Same reasoning as the solo-chat path: a narrated cameo (no
                voiceId at all, Gus/Barley) reads like a quote otherwise. */
