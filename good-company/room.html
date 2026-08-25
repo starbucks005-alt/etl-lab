@@ -2176,6 +2176,18 @@ function sayInRoom(text) {
     body: JSON.stringify({
       seat_token: SEAT, message: text, owner_key: GC_ownerKey(), access_token: GC_accessToken(),
       guest_cameo: roomSpeakerObj ? null : guestCameoCandidateFor(text || ''),
+      /* friend_refresh, added 2026-08-25. Dr. O: Cal had a voice in Pookie's
+         own solo chat with him but never spoke in this shared room. Root
+         cause -- gc-room-open.js snapshots the friend into the room ONCE,
+         at creation, and nothing ever refreshes it, so a voice (or any
+         other edit) added afterward stays invisible to every room already
+         open. The host's own browser always holds the current copy (a
+         built friend lives in that browser's localStorage, nowhere else),
+         so she piggybacks it on every message and gc-room-say.js patches
+         the room's stale copy back into sync. Host only, checked server
+         side too -- a guest sending this could not swap the room onto a
+         different friend. */
+      friend_refresh: (typeof GC_BUILT !== 'undefined' && GC_BUILT && FRIEND === GC_BUILT) ? FRIEND : null,
     })
   }).then(function (r) { return r.json(); }).then(function (j) {
     thinking = false; $("sendBtn").disabled = false;

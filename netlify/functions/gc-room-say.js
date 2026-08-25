@@ -33,6 +33,22 @@ exports.handler = async function (event) {
   const who = await R.identify(key, body.seat_token);
   if (!who) return R.json(403, { error: 'no_seat' });
 
+  /* SELF-HEALING FRIEND SNAPSHOT, added 2026-08-25. Dr. O: Cal had a voice
+     in Pookie's own solo chat with him but never spoke in this shared room.
+     gc-room-open.js snapshots the friend into the room ONCE, at creation --
+     a voice (or any other edit) added afterward stays invisible to every
+     room already open, forever, with nothing to ever refresh it. The host's
+     browser sends its current copy on every message (see room.html's
+     sayInRoom); patched in here so the room stops serving a stale one.
+     Host only, and only onto the SAME friend (matched by id) -- a guest
+     sending this could not swap the room onto somebody else's friend. */
+  const refresh = body.friend_refresh;
+  if (who.seat.is_host && refresh && typeof refresh === 'object' && refresh.name &&
+      who.room.friend && refresh.id && refresh.id === who.room.friend.id) {
+    const patched = await R.sbPatch(key, 'gc_rooms', `id=eq.${who.room.id}`, { friend: refresh });
+    if (patched) who.room.friend = refresh;
+  }
+
   const usable = R.roomIsUsable(who.room);
   if (!usable.ok) return R.json(410, { error: usable.reason });
 
