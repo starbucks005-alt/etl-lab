@@ -1624,6 +1624,25 @@ function askForScene() {
   location.reload();
 })();
 
+/* ?debug-friends=1, added 2026-08-25, TEMPORARY. Console paste kept failing
+   through a remote-controlled machine tonight (autocorrected quotes, a tiny
+   input box). Real question on the table: is there more than one saved
+   "Cal" on this device, with which one is "mine" flipping between loads --
+   the scene that was just added and then vanished on the next reload is
+   exactly that shape of bug. Posts the answer straight into the transcript
+   using the one delivery channel that worked all night. Remove once this is
+   settled; it has no place in the shipped product. */
+(function () {
+  var q;
+  try { q = new URLSearchParams(location.search); } catch (e) { return; }
+  if (!q.get('debug-friends')) return;
+  var report = (typeof GC_ALL_BUILT !== 'undefined' ? GC_ALL_BUILT : []).map(function (f) {
+    return (f.name || '?') + ' [id=' + (f.id || '?') + ', scenes=' + ((f.scenes || []).map(function (s) { return s.key; }).join('|') || 'none') + ']';
+  }).join('  //  ');
+  post('Debug', (report || 'GC_ALL_BUILT is empty') +
+    '  ||  GC_BUILT is currently: ' + (GC_BUILT ? GC_BUILT.id : 'null'));
+})();
+
 /* THE SCENES THEY DO NOT HAVE YET, SHOWN AS EMPTY SLOTS.
 
    A friend you build comes with one, the picture you chose, and the rest are
