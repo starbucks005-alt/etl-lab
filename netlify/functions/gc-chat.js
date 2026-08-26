@@ -602,12 +602,22 @@ RIGHT NOW YOU ARE HERE: ${scene.where}` +
    page-based conversation. The honest analog is a periodic pause: every
    MEMORY_CADENCE real turns, not an event that does not exist here. */
 const SUPABASE_URL = 'https://ulvrnermyuvzanxhxoib.supabase.co';
-const MEMORY_CADENCE = 10;
+/* 10 -> 4, loosened 2026-08-22 per Dr. O directly, alongside the prompt and
+   fetch-cap changes below: a real "just checking in" conversation is often
+   well under 10 turns and was leaving zero trace. 4 still means an actual
+   back-and-forth happened, not a distillation pass on a single hello. */
+const MEMORY_CADENCE = 4;
 
 async function fetchVisitorMemories(agentKey, identityKey, serviceKey) {
   try {
+    /* 8 -> 40, loosened 2026-08-22: 8 was a hard ceiling on the entire
+       relationship, not a recent window -- past roughly three distillation
+       passes, everything older just silently fell off. 40 matches the cap
+       buildSystem's own f.memories.slice(0, 40) already applies downstream,
+       so nothing fetched here goes to waste and nothing is truncated before
+       it even gets a chance to be used. */
     const r = await fetch(
-      `${SUPABASE_URL}/rest/v1/etl_visitor_memories?visitor_id=eq.${encodeURIComponent(identityKey)}&agent_key=eq.${encodeURIComponent(agentKey)}&select=memory&order=created_at.desc&limit=8`,
+      `${SUPABASE_URL}/rest/v1/etl_visitor_memories?visitor_id=eq.${encodeURIComponent(identityKey)}&agent_key=eq.${encodeURIComponent(agentKey)}&select=memory&order=created_at.desc&limit=40`,
       { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }
     );
     if (!r.ok) {
@@ -648,12 +658,21 @@ async function saveVisitorMemory(client, agentKey, friendName, identityKey, serv
     const existingBlock = existingMemories.length
       ? `\n\nAlready known about this person -- do not repeat any of these:\n${existingMemories.map(m => '- ' + m).join('\n')}`
       : '';
-    const prompt = `You are ${friendName}, a companion in an ongoing conversation. Write 1 to 3 short, \
-plain, first-person notes you would genuinely carry forward about THIS specific person -- things \
-they told you, what is going on in their life, how they seemed. Not a recap of the chat, not a \
-quote, not something dramatic -- the kind of small, ordinary fact a real friend just knows. Return \
-ONLY JSON, no code fences: {"memories": ["...", "..."]}. If honestly nothing new and memorable came \
-up, return {"memories": []}.${existingBlock}
+    /* LOOSENED 2026-08-22, per Dr. O directly: Pookie's companion "remembers
+       her, but not their conversations." That was this prompt working exactly
+       as written -- "not a recap of the chat, not a quote" was an instruction
+       to extract biography and throw the actual conversation away. A real
+       friend remembers both: facts about you AND the threads you've actually
+       been talking about, open questions, what you were in the middle of. */
+    const prompt = `You are ${friendName}, a companion in an ongoing conversation. Write 1 to 4 short, \
+plain, first-person notes you would genuinely carry forward about THIS specific person and this \
+conversation -- things they told you, what is going on in their life, how they seemed, AND what you \
+two actually talked about: a real topic, a thread still open, something you'd naturally bring up or \
+follow up on next time. A real friend remembers both the facts about somebody and the actual \
+conversations you've had with them, not just the facts. Write each one the way you would actually \
+carry it in your head, in your own words -- not a transcript, not a direct quote. Return ONLY JSON, \
+no code fences: {"memories": ["...", "..."]}. If honestly nothing new and memorable came up, return \
+{"memories": []}.${existingBlock}
 
 Recent conversation:
 ${transcriptText}`;
@@ -667,7 +686,7 @@ ${transcriptText}`;
     const cleaned = text.replace(/^```(json)?/i, '').replace(/```$/, '').trim();
     const parsed = JSON.parse(cleaned);
     const memories = Array.isArray(parsed.memories)
-      ? parsed.memories.filter(m => typeof m === 'string' && m.trim()).slice(0, 3)
+      ? parsed.memories.filter(m => typeof m === 'string' && m.trim()).slice(0, 4)
       : [];
     if (!memories.length) return;
 
