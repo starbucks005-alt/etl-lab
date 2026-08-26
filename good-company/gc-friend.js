@@ -1620,6 +1620,17 @@ var GC_ALICE = {
              'in plain view same as always. Nobody sent her here. She came to see what an ' +
              'ordinary night out actually feels like.' },
 
+    /* ADDED 2026-08-26, real video. Same night out as `street`, a beanie added against
+       the rain, a stop at a noodle shop packed with regulars. She eats because she wants
+       to know what it is actually like, not because she needs to -- the same hunger
+       established in `into` and `habit`, made concrete. */
+    { key: 'noodles', label: 'A bowl of noodles', src: 'video/alice-noodles.mp4',
+      where: 'A cramped noodle shop off the same rain-soaked street, packed elbow to elbow ' +
+             'with regulars eating in silence, steam and neon Japanese signage through the ' +
+             'wet window. Chopsticks in her mechanical hand, beanie pulled on against the ' +
+             'rain, a bowl she ordered because she wanted to know what it was actually like, ' +
+             'not because she needed to.' },
+
     /* ADDED 2026-08-26, real video, same rain-soaked street as `street` above.
        She found a stray kitten and could not just leave it. Nobody assigned her
        this either -- the same throughline as the whole day's rewrite of her: what
