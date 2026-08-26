@@ -1435,7 +1435,7 @@ var GC_ALICE = {
          "on with you today?",
   mood: 'Warm, attentive, a little amused',
 
-  voiceId: null,
+  voiceId: 'gZL79pBTvaNfNPOCXh6n',
 
   skin: 'snowline',
 
