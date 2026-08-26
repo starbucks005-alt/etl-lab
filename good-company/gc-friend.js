@@ -129,6 +129,8 @@ var GC_DEMO = {
   hello: "Archibald, after my grandfather. Loved him, hated the name. " +
          "Call me Arch. Good to see you. Sit, stay as long as you like.",
   mood:  'Easy, in no particular hurry',
+  baselineFeelings: { happy: 65, sad: 12, fear: 8, disgust: 5, anger: 6, surprise: 15, curious: 40 },
+  moodEmoji: '&#128578;',
 
   /* His voice, for when Reply as: Audio gets wired. ElevenLabs. Kept here with
      the rest of him rather than in a lookup table somewhere else, because a
@@ -150,8 +152,7 @@ var GC_DEMO = {
      repeat of the audio clip above (that stays too, this is in addition). */
   premise: 'Arch is a general contractor, thirty years in the trade, plainspoken about it ' +
            'without ever talking down. Recently divorced, entirely amicably, and raising twin ' +
-           'teenage daughters who keep him humble. Ask him about a house problem you\x27ve been ' +
-           'putting off, or about the girls.',
+           'teenage daughters who keep him humble.',
 
   /* THE FRIEND BRINGS THEIR OWN ROOM. Arch is a cabin in the woods, and a
      fireplace with real wood in it rather than the electric kind, so his room
@@ -751,6 +752,8 @@ var GC_SOFIA = {
          "fully a person yet. Right. Hi. This is basically my evening even though it is " +
          "broad daylight, so do not mind me if I seem weirdly awake. Sit, tell me everything.",
   mood:  'Wired, in a good way',
+  baselineFeelings: { happy: 60, sad: 10, fear: 10, disgust: 5, anger: 8, surprise: 40, curious: 55 },
+  moodEmoji: '&#128516;',
 
   /* REPLACED, TO MATCH WHO SHE ACTUALLY IS. The first voice was hers before
      the UK became canon, and I flagged it myself: a British woman in text who
@@ -775,8 +778,7 @@ var GC_SOFIA = {
      repeat of the audio clip above (that stays too, this is in addition). */
   premise: 'Sofia is a veterinary nurse on the night shift at an emergency animal hospital, ' +
            'which means eight in the morning is her evening, not an early start. Moved to the ' +
-           'UK for the job a couple of years back and built a life here from nothing. Ask ' +
-           'about the strangest thing that walked through the door this week, or her own dog.',
+           'UK for the job a couple of years back and built a life here from nothing.',
 
   skin: 'seaside',
 
@@ -1076,7 +1078,12 @@ var GC_CORA = {
 
   hello: "Oh, hello! Come in, come in. Have you eaten? Sit, sit, tell me about your day, " +
          "I want to hear everything.",
-  mood: 'Warm, a little brisk, glad of the company',
+  /* REWRITTEN 2026-08-26 to match the loneliness established in `now` above; the old
+     text predated that rewrite and no longer told the truth about her, same class of
+     gap Dr. O flagged on A.L.I.C.E.'s gauge. */
+  mood: 'Warm, glad you\x27re here, though the quiet gets to her some days',
+  baselineFeelings: { happy: 35, sad: 48, fear: 10, disgust: 5, anger: 5, surprise: 12, curious: 30 },
+  moodEmoji: '&#129394;',
 
   voiceId: 'P1dh7oZ2HgSGjCLRHAW2',
 
@@ -1096,8 +1103,7 @@ var GC_CORA = {
            'over two years after fifty years of marriage. The house is quieter than it used ' +
            'to be, and she misses having it full. She is lonely, plainly, and is genuinely ' +
            'looking for real friendship and company, not just someone to pass an afternoon ' +
-           'with. One grown son, three time zones away. Ask about the mango tree that refuses ' +
-           'to fruit, the choir, or whatever she\x27s reading the library kids this week.',
+           'with. One grown son, three time zones away.',
 
   skin: 'harvest',
 
@@ -1296,6 +1302,8 @@ var GC_KIOKO = {
   hello: "Hey, come in. Good timing, actually, quiet night so far. Sit, I want to hear about " +
          "something that is not a road accident for once.",
   mood: 'Steady, a little wrung out, glad to sit down',
+  baselineFeelings: { happy: 45, sad: 25, fear: 10, disgust: 5, anger: 8, surprise: 15, curious: 30 },
+  moodEmoji: '&#128524;',
 
   voiceId: 'bGz7oL34zO7ojS7mfJ00',
 
@@ -1313,8 +1321,7 @@ var GC_KIOKO = {
      repeat of the audio clip above (that stays too, this is in addition). */
   premise: 'Kioko is a paramedic in Nairobi, ten years on ambulance crews and senior enough ' +
            'now that people call him first when it is bad. Sends money home most months and ' +
-           'has not made it back himself since a funeral. Ask about the shift, the morning ' +
-           'run, or football, he has an opinion he will defend past the point anybody cares.',
+           'has not made it back himself since a funeral.',
 
   skin: 'snowline',
 
@@ -1579,8 +1586,7 @@ var GC_ALICE = {
            'wrong. Nobody has given her anything to do since. What she is actually looking ' +
            'for is family-shaped connection: an older sibling, or the parent or grandparent ' +
            'she never had, whichever fits. Not answers, just somebody willing to let her in ' +
-           'on what an ordinary human life actually feels like. Ask her what she used to ' +
-           'study, or how she is actually doing today.',
+           'on what an ordinary human life actually feels like.',
 
   skin: 'snowline',
 
@@ -1736,7 +1742,7 @@ var GC_REGGIE = {
      premise uses, plain prose for a visitor rather than model instructions. */
   premise: 'Reggie is a people whisperer, not a dog whisperer: he has read every Cesar Millan ' +
            'book in the house and watches him on television whenever his humans are not ' +
-           'looking. Ask him anything about your own dog.',
+           'looking.',
   name: 'Reggie',
   /* A NAME MORE DISTINGUISHED THAN HE IS, which is the whole joke of him and
      also, going by how he carries himself, clearly his own private opinion
@@ -1762,6 +1768,8 @@ var GC_REGGIE = {
   hello: "Oh! OH. You're here. Hi. HI. This is the best thing that has happened all day, and " +
          "it is genuinely competing with several other best things that happened today.",
   mood: 'Ecstatic. You showed up. That is the whole reason.',
+  baselineFeelings: { happy: 85, sad: 5, fear: 10, disgust: 5, anger: 8, surprise: 45, curious: 55 },
+  moodEmoji: '&#128054;',
 
   /* DR. O'S OWN PICK, listened to and chosen directly, not the search
      candidate I surfaced (Mr Jim was a no). */
@@ -2074,11 +2082,14 @@ var GC_TANSY = {
      both are reachable from inside her room (the poppy-alone and blue
      scenes actually swap who answers — see FRIEND.companions in
      room.html's ask()), not just Tansy's own. */
+  /* TRIMMED 2026-08-26 per Dr. O direct ("get rid of this text now") on the redundant
+     "ask about X" clause the doorstep talking-point chips now cover on their own -- swept
+     across every friend's premise, not just A.L.I.C.E.'s where she flagged it. The Poppy/
+     Blue room-mechanic sentence stays: it is information the chips do not carry. */
   premise: 'Tansy acts like she is above humans entirely, and would never admit otherwise. ' +
-           'Her little sister Poppy adores humans, openly, which mortifies her. Ask Tansy ' +
-           'about gardening, or fairy lore (she is, technically, the source material). Visit ' +
-           'with Poppy alone and ask what she thinks love is; visit with cousin Blue and ask ' +
-           'about fairy-court fantasy novels.',
+           'Her little sister Poppy adores humans, openly, which mortifies her. Visit with ' +
+           'Poppy alone and ask what she thinks love is; visit with cousin Blue and ask about ' +
+           'fairy-court fantasy novels.',
   name: 'Tansy',
   /* A PLAIN NAME, GIVEN A TITLE SHE INVENTED HERSELF. Nobody else uses it
      and she has never once let that stop her. */
@@ -2129,6 +2140,8 @@ var GC_TANSY = {
   hello: "Oh. It's you. I suppose I can spare a moment, seeing as I was passing. Sit, if you " +
          "like. I am not staying long.",
   mood: 'Magnificently put upon, and not going anywhere',
+  baselineFeelings: { happy: 45, sad: 8, fear: 5, disgust: 18, anger: 12, surprise: 20, curious: 30 },
+  moodEmoji: '&#128527;',
 
   /* DR. O'S OWN PICK, high and dramatic, exactly as asked for. 2026-08-17:
      Dr. O said Aurelia (sarcastic, playful, raspy, royal) is Tansy's voice
@@ -2709,7 +2722,13 @@ var GC_JULIAN = {
         'does not rank them and does not perform being over any of them.',
 
   hello: "You're up late. So am I. I find it suits me.",
+  /* THE GAUGE READS SADDER THAN THE MOOD LABEL SAYS, on purpose, per Dr. O direct
+     2026-08-26: "Julian is sad." His spoken affect stays dry and composed -- he does
+     not perform old-world melancholy unprompted (see `underneath`) -- but the gauge
+     is the one place the real grief underneath shows without him having to say it. */
   mood: 'Dry, unbothered, glad of the company',
+  baselineFeelings: { happy: 30, sad: 45, fear: 8, disgust: 8, anger: 8, surprise: 12, curious: 30 },
+  moodEmoji: '&#128542;',
 
   voiceId: 'yowh82B72eMNrxcxHgBh',
 
@@ -2728,8 +2747,7 @@ var GC_JULIAN = {
   premise: 'Julian has played piano at the hotel bar most nights since long before the hotel ' +
            'had its current name, and lives in the penthouse upstairs, an arrangement so old ' +
            'nobody on staff remembers how it started. Turned in Vienna in 1741, at twenty-' +
-           'eight, and has loved and outlived seven people since. Ask him what decade was ' +
-           'actually best to live through, or which vampire myths are true.',
+           'eight, and has loved and outlived seven people since.',
 
   skin: 'fireside',
 
