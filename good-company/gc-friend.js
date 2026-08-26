@@ -1043,10 +1043,7 @@ var GC_CORA = {
          "I want to hear everything.",
   mood: 'Warm, a little brisk, glad of the company',
 
-  /* SOURCED, NOT INVENTED. See gc-friend-voices.md if a real ElevenLabs id
-     has not landed here yet: a placeholder id would fail loudly rather than
-     quietly, which is the correct failure for a voice nobody chose. */
-  voiceId: null,
+  voiceId: 'P1dh7oZ2HgSGjCLRHAW2',
 
   skin: 'harvest',
 
