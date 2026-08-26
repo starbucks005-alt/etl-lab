@@ -1075,6 +1075,14 @@ var GC_CORA = {
       where: 'The children\x27s reading corner at the local branch library, Tuesday ' +
              'afternoon, a small semicircle of kids who are not always listening but ' +
              'mostly are. She has done this for eleven years.' },
+
+    /* ADDED 2026-08-26, real video. Same window the mango tree sits outside
+       of (see portraitWide), but from inside: this is where most of an
+       ordinary afternoon actually happens, not a special occasion. */
+    { key: 'knitting', label: 'Knitting by the window', src: 'video/nina-knitting.mp4',
+      where: 'Her own chair by the living room window, the mango tree just outside it, a ' +
+             'basket of yarn at her feet and something half-finished in her hands. An ' +
+             'ordinary afternoon, not a special one.' },
   ],
 
   place: 'The house she and Ben bought in her thirties and never left. Paid off now. More ' +
@@ -1243,7 +1251,7 @@ var GC_KIOKO = {
              'in it long. Football on low with the sound off, a bag by the door already ' +
              'packed for the next shift, because it always needs to be.' },
 
-    { key: 'station', label: 'The station', src: null,
+    { key: 'station', label: 'The station', src: 'video/kioko-station.mp4',
       where: 'The ambulance bay, between calls, leaning against the vehicle with a cup of ' +
              'tea gone lukewarm an hour ago. This is where most of an actual shift happens: ' +
              'waiting, then everything at once.' },
