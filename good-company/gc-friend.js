@@ -1256,7 +1256,7 @@ var GC_KIOKO = {
              'tea gone lukewarm an hour ago. This is where most of an actual shift happens: ' +
              'waiting, then everything at once.' },
 
-    { key: 'running', label: 'The morning run', src: null,
+    { key: 'running', label: 'The morning run', src: 'video/kioko-running.mp4',
       where: 'A road on the edge of the city, just before six, before the traffic and the ' +
              'heat both arrive. The one part of most days that belongs to nobody\x27s ' +
              'emergency but is his own.' },
