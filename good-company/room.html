@@ -708,9 +708,17 @@ function nameEverything() {
     bioBtn.style.display = 'none';
   }
   /* TALKING POINTS, a way in for somebody staring at a blank message box
-     with no idea what to say first. Clicking one fills the box rather than
-     sending it straight away, so it is a suggestion, not a scripted line
-     spoken on the visitor's behalf. */
+     with no idea what to say first.
+
+     FIXED 2026-08-26 per Dr. O direct: "the ask me abouts are not wired
+     up, you cannot click on them to actually ask." They used to fill
+     $('say'), which lives inside #chat -- still display:none at this
+     point, since the gate is still showing. Filling a hidden box did
+     nothing a visitor could see, which reads as broken because it is.
+     Now a click sits the visitor down (same commit-then-sitDown/
+     joinThenSit path the Sit down button itself uses) and asks it for
+     them, GATE_PENDING_ASK carrying the line across that transition and
+     picked up once inside sitDown(). */
   var tpWrap = $('gateTalkingPoints');
   var tpChips = tpWrap.querySelector('.chips');
   tpChips.innerHTML = '';
@@ -721,9 +729,10 @@ function nameEverything() {
       chip.className = 'chip';
       chip.textContent = tp;
       chip.addEventListener('click', function () {
-        var box = $('say');
-        box.value = tp;
-        box.focus();
+        GATE_PENDING_ASK = tp;
+        var p = $('youPanel');
+        if (p.gcCommit) YOU = p.gcCommit();
+        if (PENDING_INVITE) joinThenSit(); else sitDown();
       });
       tpChips.appendChild(chip);
     });
@@ -1854,6 +1863,10 @@ var YOU = gcLoadYou();
 /* Room state, declared here because sitDown() reads SEAT and relying on var
    hoisting to make that undefined-but-falsy is luck rather than intent. */
 var SEAT = null, ROOM = null, lastSeen = null, polling = null;
+/* A TALKING-POINT CHIP'S LINE, CARRIED ACROSS THE SIT-DOWN TRANSITION.
+   Set by a chip click in nameEverything(), consumed and cleared inside
+   sitDown() once #chat is actually visible -- see the note there. */
+var GATE_PENDING_ASK = null;
 /* WHO PAYS FOR THIS ROOM, added 2026-08-17. A one-way reference, never the
    host's real access_token, handed to every browser in the room (host and
    guests alike) by gc-room-open.js or gc-room-join.js so voice can bill the
@@ -1896,12 +1909,26 @@ function sitDown() {
   if (!$("log").children.length && !SEAT) {
     post(FRIEND.name, FRIEND.hello || "You came. Sit down, I want to hear how you have been.");
   }
+  /* THE CHIP'S QUESTION, ASKED FOR THEM, now that #chat and $('say') are
+     actually visible. Covers both sitDown()'s own callers and
+     joinThenSit(), which calls this same function on a successful join. */
+  if (GATE_PENDING_ASK) {
+    var askText = GATE_PENDING_ASK;
+    GATE_PENDING_ASK = null;
+    $("say").value = askText;
+    send();
+  }
 }
 $("startBtn").addEventListener("click", function () {
   /* Take whatever is in the boxes first. Pressing this instead of Save is not
      a mistake anybody should be punished for. */
   var p = $("youPanel");
   if (p.gcCommit) YOU = p.gcCommit();
+  /* A plain Sit down press never carries a stale chip question in from an
+     earlier, uncompleted attempt (e.g. an invite join that stopped to ask
+     for a name first -- see joinThenSit()). Only an actual chip click sets
+     this, immediately before triggering the same sit-down path. */
+  GATE_PENDING_ASK = null;
   if (PENDING_INVITE) joinThenSit(); else sitDown();
 });
 $("youBtn").addEventListener("click", function () {
