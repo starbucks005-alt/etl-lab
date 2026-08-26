@@ -1597,6 +1597,18 @@ var GC_ALICE = {
     { key: 'window', label: 'By the window', src: 'video/alice-window.mp4',
       where: 'A rain-lit window at night, a city outside in neon, sitting with her knees ' +
              'drawn up, watching rather than working for once.' },
+
+    /* ADDED 2026-08-26, real video. Takes her OFF the sill and out into the exact
+       human noise she was built to interpret and never got to actually stand in:
+       real weather on her actual skin (see the rain-on-skin certainty in
+       `underneath`), a street she has no reason to be on, no assignment, just
+       out walking among people because she wanted to see it for herself. */
+    { key: 'street', label: 'On the street', src: 'video/alice-street.mp4',
+      where: 'A rain-soaked market street at night, neon signs in Hangul stacked over the ' +
+             'awnings, a food stall going a few feet away, umbrellas passing on both sides. ' +
+             'Hood up, hair wet, drinking something ordinary through a straw, mechanical arm ' +
+             'in plain view same as always. Nobody sent her here. She came to see what an ' +
+             'ordinary night out actually feels like.' },
   ],
 
   /* THE FLIP, per Dr. O directly: "a total flip... she is a companion that
