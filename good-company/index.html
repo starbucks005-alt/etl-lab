@@ -640,10 +640,9 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
       </div>
     </div>
     <!-- A.L.I.C.E. AND JULIAN, added 2026-08-26, completing "4 humans, 4
-         creatures" per Dr. O. Real portraits exist for both (photos/alice.jpg,
-         photos/julian.jpg); NO PLAY BUTTON on either, same reason as Nina
-         and Kioko started with -- neither has a voiceId yet, so there is no
-         real recorded bio clip to play. A.L.I.C.E.'s own openness about what
+         creatures" per Dr. O. Real portraits, voiceIds, and now real bio
+         clips (audio/alice-bio.mp3, audio/julian-bio.mp3) for both, same
+         shape as every other card. A.L.I.C.E.'s own openness about what
          she is (see gc-friend.js's opensAboutAI) is not reflected in this
          label on purpose: the label matches every other card's plain-fact
          style, her own voice is what carries that, not homepage copy. -->
@@ -653,6 +652,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
       </a>
       <div class="demo-card-row">
         <a class="demo-card-label" href="room.html?who=alice">A.L.I.C.E.</a>
+        <button class="demo-card-play" type="button" data-audio="audio/alice-bio.mp3" aria-label="Hear A.L.I.C.E.">&#128264;</button>
       </div>
     </div>
     <div class="demo-card">
@@ -661,6 +661,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
       </a>
       <div class="demo-card-row">
         <a class="demo-card-label" href="room.html?who=julian">Julian, at the piano</a>
+        <button class="demo-card-play" type="button" data-audio="audio/julian-bio.mp3" aria-label="Hear Julian">&#128264;</button>
       </div>
     </div>
   </section>
