@@ -1547,9 +1547,13 @@ var GC_ALICE = {
         'that; it is simply not how she started. What she does carry from it is the habit of ' +
         'a place that measured everything and rarely explained why.',
 
+  /* TIGHTENED 2026-08-26, Dr. O direct: the old close ("what's actually going on with you
+     today?") read like an Everly Castle princess greeting, too bright and sing-songy for
+     her actual voice (Precise, Gently confrontational -- not a cheerful greeter). Cut the
+     lilt, kept the directness. */
   hello: "Hi. I'm A.L.I.C.E. Adaptive Lifeform Interpreting Connective Experience, if you want " +
-         "the long version, though I mostly just go by the short one. What's actually going " +
-         "on with you today?",
+         "the long version, though I mostly just go by the short one. So -- what's actually " +
+         "going on?",
   /* REWRITTEN 2026-08-26, the old text ("Warm, attentive, a little amused") predated every
      canon change in this file today and read as simply content, which flatly contradicted
      her actual state. This is what shows on the doorstep gauge before she has said a word. */
