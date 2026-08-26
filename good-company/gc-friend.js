@@ -1443,7 +1443,7 @@ var GC_ALICE = {
   portraitWide: 'photos/alice-wide.jpg',
 
   scenes: [
-    { key: 'window', label: 'By the window', src: null,
+    { key: 'window', label: 'By the window', src: 'video/alice-window.mp4',
       where: 'A rain-lit window at night, a city outside in neon, sitting with her knees ' +
              'drawn up, watching rather than working for once.' },
   ],
