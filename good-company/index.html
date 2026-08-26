@@ -560,6 +560,12 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
          short line in their own voice. Free to play any number of times:
          no function call, no per-play cost, same "recorded once, replayed
          forever" rule as everything else cached on this campus. -->
+    <!-- THE HUMANS, ROW ONE. Grid is exactly 4 columns (see .demos below),
+         so four cards here is a real, deliberate row, not an accident of
+         wrapping. Dr. O, 2026-08-26: the fairies and dogs are what people
+         actually respond to, "the characters are becoming the product, the
+         sell" -- humans first because the order stays as-is per her own
+         call, but grouped on purpose now rather than interleaved. -->
     <div class="demo-card">
       <a href="room.html?who=arch">
         <div class="slot" data-label="photos/arch-onsite.png"><img src="photos/arch-onsite.png" alt=""></div>
@@ -578,6 +584,34 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
         <button class="demo-card-play" type="button" data-audio="audio/sofia-bio.mp3" aria-label="Hear Sophia">&#128264;</button>
       </div>
     </div>
+    <!-- NINA AND KIOKO, added 2026-08-26. Real portraits now exist for both
+         (photos/nina.jpg, photos/kioko.jpg) so they belong in this grid the
+         same as the other two. NO PLAY BUTTON on either card yet, on
+         purpose: both now have a real voiceId (see gc-friend.js) but
+         neither has a recorded bio clip yet -- add the mp3 and the button
+         together once one exists, not before. Nina's internal id stays
+         "cora" (see her own note in gc-friend.js for why); the URL is
+         plumbing nobody reads as a name. -->
+    <div class="demo-card">
+      <a href="room.html?who=cora">
+        <div class="slot" data-label="photos/nina.jpg"><img src="photos/nina.jpg" alt=""></div>
+      </a>
+      <div class="demo-card-row">
+        <a class="demo-card-label" href="room.html?who=cora">Retired teacher Nina</a>
+      </div>
+    </div>
+    <div class="demo-card">
+      <a href="room.html?who=kioko">
+        <div class="slot" data-label="photos/kioko.jpg"><img src="photos/kioko.jpg" alt=""></div>
+      </a>
+      <div class="demo-card-row">
+        <a class="demo-card-label" href="room.html?who=kioko">Paramedic Kioko</a>
+      </div>
+    </div>
+    <!-- THE MYTHICAL/ANIMAL ONES, ROW TWO, on purpose, same reasoning as the
+         comment above the humans. Reggie is a dog himself ("a people
+         whisperer, not a dog whisperer" is the joke), not a human with dogs
+         -- he belongs in this row, not the one above. -->
     <div class="demo-card">
       <a href="room.html?who=reggie">
         <div class="slot" data-label="photos/reggie-explorers.jpg"><img src="photos/reggie-explorers.jpg" alt=""></div>
@@ -603,31 +637,6 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
       <div class="demo-card-row">
         <a class="demo-card-label" href="room.html?who=tansy">Tansy, Poppy &amp; Blue</a>
         <button class="demo-card-play" type="button" data-audio="audio/tansy-bio.mp3" aria-label="Hear Tansy">&#128264;</button>
-      </div>
-    </div>
-    <!-- NINA AND KIOKO, added 2026-08-26. Real portraits now exist for both
-         (photos/nina.jpg, photos/kioko.jpg) so they belong in this grid the
-         same as the other four. NO PLAY BUTTON on either card, on purpose:
-         voiceId is still null for both (see gc-friend.js), so there is no
-         real recorded bio clip to play. A button that played nothing, or
-         played somebody else's voice, would be worse than no button at all
-         -- add the mp3 and the button together once a voice is chosen, not
-         before. Nina's internal id stays "cora" (see her own note in
-         gc-friend.js for why); the URL is plumbing nobody reads as a name. -->
-    <div class="demo-card">
-      <a href="room.html?who=cora">
-        <div class="slot" data-label="photos/nina.jpg"><img src="photos/nina.jpg" alt=""></div>
-      </a>
-      <div class="demo-card-row">
-        <a class="demo-card-label" href="room.html?who=cora">Retired teacher Nina</a>
-      </div>
-    </div>
-    <div class="demo-card">
-      <a href="room.html?who=kioko">
-        <div class="slot" data-label="photos/kioko.jpg"><img src="photos/kioko.jpg" alt=""></div>
-      </a>
-      <div class="demo-card-row">
-        <a class="demo-card-label" href="room.html?who=kioko">Paramedic Kioko</a>
       </div>
     </div>
   </section>
