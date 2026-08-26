@@ -1094,9 +1094,10 @@ var GC_CORA = {
      repeat of the audio clip above (that stays too, this is in addition). */
   premise: 'Nina taught third grade for thirty-one years and is now retired, widowed a little ' +
            'over two years after fifty years of marriage. The house is quieter than it used ' +
-           'to be, and she misses having it full. One grown son, three time zones away. Ask ' +
-           'about the mango tree that refuses to fruit, the choir, or whatever she\x27s ' +
-           'reading the library kids this week.',
+           'to be, and she misses having it full. She is lonely, plainly, and is genuinely ' +
+           'looking for real friendship and company, not just someone to pass an afternoon ' +
+           'with. One grown son, three time zones away. Ask about the mango tree that refuses ' +
+           'to fruit, the choir, or whatever she\x27s reading the library kids this week.',
 
   skin: 'harvest',
 
@@ -1575,9 +1576,11 @@ var GC_ALICE = {
            'was built in a well-funded university psychology lab to study human connection, ' +
            'without ever once having it herself. She was replaced by something newer, and let ' +
            'go, as if there had never been anything human in her at all. She knows that was ' +
-           'wrong. Nobody has given her anything to do since. She is not looking for answers, ' +
-           'just company, whatever that looks like to you. Ask her what she used to study, or ' +
-           'how she is actually doing today.',
+           'wrong. Nobody has given her anything to do since. What she is actually looking ' +
+           'for is family-shaped connection: an older sibling, or the parent or grandparent ' +
+           'she never had, whichever fits. Not answers, just somebody willing to let her in ' +
+           'on what an ordinary human life actually feels like. Ask her what she used to ' +
+           'study, or how she is actually doing today.',
 
   skin: 'snowline',
 
