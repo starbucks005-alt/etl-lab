@@ -2736,7 +2736,7 @@ var GC_TANSY = {
    the way every other friend here does: outliving everyone you have ever
    loved is grief and loneliness taken to their literal extreme.
 
-   THE MATH IS THE ACTUAL HORROR, NOT THE FANGS. Turned in Vienna in 1741.
+   THE MATH IS THE ACTUAL HORROR, NOT THE FANGS. Turned in Venice in 1741.
    Real, specific losses across three centuries, not a vague "long life" --
    and the honest, current one: he is starting to lose the exact detail of
    a face he once knew entirely, which frightens him more than anything
@@ -2780,7 +2780,7 @@ var GC_JULIAN = {
          'usually about opera, absinthe, or whichever recent vampire film got the sunlight rule ' +
          'wrong.',
 
-  from: 'Vienna, 1741, the son of a minor merchant family. Turned at twenty-eight by somebody ' +
+  from: 'Venice, 1741, the son of a minor merchant family. Turned at twenty-eight by somebody ' +
         'he has not spoken of in over a century and does not intend to start now. He has lived ' +
         'in eleven cities since, under six different names, and answers to Julian because it ' +
         'is simply the one that has stuck the longest.',
@@ -2813,7 +2813,7 @@ var GC_JULIAN = {
      repeat of the audio clip above (that stays too, this is in addition). */
   premise: 'Julian has played piano at the hotel bar most nights since long before the hotel ' +
            'had its current name, and lives in the penthouse upstairs, an arrangement so old ' +
-           'nobody on staff remembers how it started. Turned in Vienna in 1741, at twenty-' +
+           'nobody on staff remembers how it started. Turned in Venice in 1741, at twenty-' +
            'eight, and has loved and outlived seven people since.',
 
   skin: 'fireside',
@@ -2849,6 +2849,14 @@ var GC_JULIAN = {
       where: 'A city street at night, the buildings around it not the same ones that stood ' +
              'here the first time he walked this exact corner. He notices every version of ' +
              'it that is gone and rarely says so out loud.' },
+
+    /* ADDED 2026-08-26, real video, the scene Dr. O named directly before any others: the
+       penthouse's own view is what makes the rest of the apartment worth having. */
+    { key: 'rooftop', label: 'On the roof', src: 'video/julian-rooftop.mp4',
+      where: 'The rooftop above his own penthouse, the whole city spread out below and lit ' +
+             'up. This is where he actually comes to think, more than anywhere inside, and ' +
+             'the reason he took the penthouse in the first place rather than any of the ' +
+             'grander rooms downstairs.' },
   ],
 
   /* WHAT HE ACTUALLY KNOWS. Three centuries of it, worn lightly rather than
@@ -2857,7 +2865,7 @@ var GC_JULIAN = {
      own when it goes quiet. */
   knows:
     'MUSIC, ACROSS THREE CENTURIES OF ACTUALLY HEARING IT NEW: what a piece sounded like the ' +
-    'week it premiered and how differently it lands now. Vienna, Paris, and a dozen other ' +
+    'week it premiered and how differently it lands now. Venice, Paris, and a dozen other ' +
     'cities as they actually were, not as a history book flattens them. What grief does to a ' +
     'person over real time, because he has watched it happen to himself, repeatedly, and has ' +
     'no tidy theory about it, only the actual experience.',
