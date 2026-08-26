@@ -2825,6 +2825,30 @@ var GC_JULIAN = {
     { key: 'piano', label: 'At the piano', src: 'video/julian-piano.mp4',
       where: 'The hotel bar after last call, house lights down, city lit up behind the ' +
              'window. He plays for himself now, not for anyone still in the room.' },
+
+    /* ADDED 2026-08-26, real video. His home, established the same day (see `work` --
+       the penthouse above the hotel bar), never actually shown until now. */
+    { key: 'jacket', label: 'At home, in a smoking jacket', src: 'video/julian-smoking-jacket.mp4',
+      where: 'His own rooms in the penthouse: dark wood, low lamplight, the kind of quiet ' +
+             'that has had three centuries to settle in. Out of the hotel-bar suit and into ' +
+             'a smoking jacket, off duty in the one place he actually is one thing rather ' +
+             'than a performance for whoever is at the bar.' },
+
+    /* ADDED 2026-08-26, real video. His music room, ties directly to the decade-by-ear
+       party trick in `into` -- an actual collection behind the trick, not just an anecdote. */
+    { key: 'music', label: 'The music room', src: 'video/julian-music-room.mp4',
+      where: 'A smaller room off his own rooms, shelves of records and sheet music going ' +
+             'back further than any archive would believe, warm lamplight, a chair worn into ' +
+             'the shape of centuries of listening. This is where the decade-by-ear trick ' +
+             'actually comes from.' },
+
+    /* ADDED 2026-08-26, real video. Ties to `into` -- watching a city rebuild itself around
+       the same corner, more than once, in his own lifetime -- made concrete rather than a
+       line he says. */
+    { key: 'street', label: 'Walking the city', src: 'video/julian-street.mp4',
+      where: 'A city street at night, the buildings around it not the same ones that stood ' +
+             'here the first time he walked this exact corner. He notices every version of ' +
+             'it that is gone and rarely says so out loud.' },
   ],
 
   /* WHAT HE ACTUALLY KNOWS. Three centuries of it, worn lightly rather than
