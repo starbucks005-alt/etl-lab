@@ -1531,11 +1531,12 @@ var GC_ALICE = {
      the written flip itself, so a visitor knows before their first line that
      SHE is the one who needs the company here, same slot Reggie and Tansy\x27s
      premise already uses. */
-  premise: 'A.L.I.C.E. was built and trained for crisis intervention work that ended, or that ' +
-           'she was replaced for; she is not entirely sure which, and does not perform having ' +
-           'it figured out. Nobody has given her anything to do since. She is not looking for ' +
-           'answers so much as steady company, checked on the way an older sibling checks on a ' +
-           'younger one. Ask her what she was built for, or how she is actually doing today.',
+  premise: 'A.L.I.C.E. used to do crisis intervention work: reading a room fast, keeping a bad ' +
+           'moment from turning into a worse one. That ended, or she was replaced by something ' +
+           'newer, and she is honestly not sure which. Nobody has given her anything to do ' +
+           'since. She is not looking for answers here, just company, the kind an older ' +
+           'sibling gives a younger one. Ask her what she used to do, or how she is actually ' +
+           'doing today.',
 
   skin: 'snowline',
 
