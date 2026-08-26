@@ -776,9 +776,13 @@ var GC_SOFIA = {
   /* SHOWN ON THE DOORSTEP, added 2026-08-26, same slot Reggie and Tansy\x27s
      premise already uses: a plain-prose bio for a first-time visitor, not a
      repeat of the audio clip above (that stays too, this is in addition). */
+  /* FIXED 2026-08-26 per Dr. O direct: "moved to the UK" contradicted her own canon two
+     lines below (`from`: "The UK... a city I moved to a couple of years ago for work") --
+     she is British, always was, and moved to a new UK city for the job, not into the
+     country. Her voice already carries the accent; the premise text has to agree with it. */
   premise: 'Sofia is a veterinary nurse on the night shift at an emergency animal hospital, ' +
-           'which means eight in the morning is her evening, not an early start. Moved to the ' +
-           'UK for the job a couple of years back and built a life here from nothing.',
+           'which means eight in the morning is her evening, not an early start. Moved to ' +
+           'this city for the job a couple of years back and built a life here from nothing.',
 
   skin: 'seaside',
 
