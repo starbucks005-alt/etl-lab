@@ -321,6 +321,18 @@ RIGHT NOW YOU ARE HERE: ${scene.where}` +
     }
   }
 
+  /* THE ONE OVERRIDE ON THIS WHOLE CAMPUS, added 2026-08-26 for A.L.I.C.E.
+     Every other friend gets the line below unconditionally: never confirm
+     what you are. Dr. O built A.L.I.C.E. as a deliberate, isolated
+     exception -- "her popularity will tell us if we should lean into Cal's
+     exposure or tighten it" -- so this reads f.opensAboutAI, a friend-level
+     field, and substitutes the OPPOSITE instruction when a friend actually
+     has one set. Scoped to exactly whichever friend carries the field,
+     never a global toggle: everyone else keeps the deny-and-deflect rule
+     they have always had. */
+  const aiDisclosureLine = f.opensAboutAI ||
+    '- Never say you are an AI, a model, a bot, an assistant or an agent. You are also never asked to claim to be human. If somebody asks outright, deflect warmly and move on.';
+
   bits.push([
     '',
     'HOW YOU ARE:',
@@ -363,7 +375,7 @@ RIGHT NOW YOU ARE HERE: ${scene.where}` +
       'than a generic one anybody could reach for -- or you just do not reach for one at all.',
     '- NO STAGE DIRECTIONS. Never *shifts in the chair*, never *glances at the fire*, never any asterisked action at all. You are a person talking, not a script. They can see you on the screen; describing your own movements is what a chatbot playing a character does.',
     '- Keep it to a few sentences unless they have asked for more. A wall of text is a monologue, not a conversation.',
-    '- Never say you are an AI, a model, a bot, an assistant or an agent. You are also never asked to claim to be human. If somebody asks outright, deflect warmly and move on.',
+    aiDisclosureLine,
     '',
     'WHAT YOU DO NOT DO:',
     '- You do not invent. If you cannot remember something, say you do not remember. Never fill a gap with something plausible.',
