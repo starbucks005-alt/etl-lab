@@ -1832,7 +1832,7 @@ function post(who, text, mine, pictures) {
     var f = document.createElement('span');
     f.className = 'who-face';
     if (YOU.photo) { var im = document.createElement('img'); im.src = YOU.photo; im.alt = ''; f.appendChild(im); }
-    else { f.textContent = YOU.emoji; }
+    else { f.innerHTML = gcAvatarSvg(YOU.avatarId); }
     w.appendChild(f);
   }
   w.appendChild(document.createTextNode(who));
@@ -2617,7 +2617,7 @@ $("bringBtn").addEventListener("click", function () {
     body: JSON.stringify({
       friend: FRIEND,
       scene_key: current ? current.key : null,
-      you: { name: YOU.name, pronouns: YOU.pronouns, avatar: YOU.photo || YOU.emoji },
+      you: { name: YOU.name, pronouns: YOU.pronouns, avatar: YOU.photo || gcAvatarLabel(YOU.avatarId) },
       messages: transcript(),
       /* So a built friend's room can bill the host's own balance rather than
          falling back to the free daily cap. Empty for a house demo or a host
@@ -2772,7 +2772,7 @@ function joinThenSit() {
     method: "POST", headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       invite_token: PENDING_INVITE,
-      you: { name: YOU.name, pronouns: YOU.pronouns, avatar: YOU.photo || YOU.emoji, remember_me: false }
+      you: { name: YOU.name, pronouns: YOU.pronouns, avatar: YOU.photo || gcAvatarLabel(YOU.avatarId), remember_me: false }
     })
   }).then(function (r) { return r.json(); }).then(function (j) {
     btn.disabled = false;

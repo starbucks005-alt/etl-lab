@@ -186,12 +186,19 @@ body{
   border:1px solid var(--line); background:var(--panel);
   display:grid; place-content:center; font-size:24px;
 }
-.you-preview img{ width:100%; height:100%; object-fit:cover; display:block; }
-.you-emoji{ display:flex; flex-wrap:wrap; gap:.25rem; flex:1; min-width:0; }
+.you-preview img, .you-preview svg{ width:100%; height:100%; object-fit:cover; display:block; }
+/* SIZED UP 2026-08-26, Dr. O direct ("human avatars"), after "the size/number
+   makes them feel less like an image substitute and more like an emoji" on
+   the old row. Bigger, fewer per row, and genuinely circular (was a 4px
+   square radius) so each one reads as a small portrait rather than a strip
+   of tiny glyphs. */
+.you-emoji{ display:flex; flex-wrap:wrap; gap:.5rem; flex:1; min-width:0; }
 .you-e{
-  width:30px; height:30px; font-size:16px; line-height:1; cursor:pointer;
-  background:transparent; border:1px solid transparent; border-radius:4px;
+  width:44px; height:44px; line-height:1; cursor:pointer; padding:0;
+  background:var(--panel); border:2px solid transparent; border-radius:50%;
+  overflow:hidden;
 }
+.you-e svg{ width:100%; height:100%; display:block; }
 .you-e:hover{ border-color:var(--line); }
 .you-e.on{ border-color:var(--accent); }
 .you-upload{ flex:none; cursor:pointer; }
@@ -211,7 +218,7 @@ body{
   width:18px; height:18px; margin-right:.4rem; border-radius:50%;
   overflow:hidden; font-size:11px; background:var(--panel);
 }
-.who-face img{ width:100%; height:100%; object-fit:cover; display:block; }
+.who-face img, .who-face svg{ width:100%; height:100%; object-fit:cover; display:block; }
 
 /* ── the skin picker ─────────────────────────────────────────────────────────
    Built by gcMountSkinPicker() in gc-skin.js. The host needs position:relative
