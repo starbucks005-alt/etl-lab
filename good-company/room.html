@@ -840,9 +840,16 @@ function showStill(scene) {
   var n = document.createElement('div');
   n.className = 'still';
 
-  if (FRIEND.portrait) {
+  /* portraitWide, added 2026-08-26. This box is 16/9 (see .portrait above)
+     and object-fit:cover on a tall portrait crops in tight, throwing away
+     whatever else was in the shot -- fine for a plain headshot, a real loss
+     for a scene-rich image (a window, a skyline, a piano). Optional and
+     read first on purpose: most friends only have the one portrait and
+     that stays exactly as it worked before. */
+  var stillImg = FRIEND.portraitWide || FRIEND.portrait;
+  if (stillImg) {
     var im = document.createElement('img');
-    im.src = FRIEND.portrait;
+    im.src = stillImg;
     im.alt = FRIEND.name;
     n.appendChild(im);
   }
