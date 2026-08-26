@@ -135,6 +135,16 @@ var GC_DEMO = {
      friend's voice is part of who they are, not a setting. */
   voiceId: 'PKu46bbccMP1b22TyeI0',
 
+  /* BIO CLIP AND TALKING POINTS, added 2026-08-26 for the doorstep (see
+     room.html's nameEverything()), same audio file the homepage's own
+     .demo-card-play button already points at. */
+  bioAudio: 'audio/arch-bio.mp3',
+  talkingPoints: [
+    'What are you working on right now?',
+    'How are the girls doing?',
+    'What\x27s for dinner tonight?',
+  ],
+
   /* THE FRIEND BRINGS THEIR OWN ROOM. Arch is a cabin in the woods, and a
      fireplace with real wood in it rather than the electric kind, so his room
      opens on Fireside. A user's own pick always beats this and beats it
@@ -743,6 +753,15 @@ var GC_SOFIA = {
      setting. */
   voiceId: 'GPTk4QbvF7snDhImF5UF',
 
+  /* BIO CLIP AND TALKING POINTS, added 2026-08-26 for the doorstep, same
+     audio file the homepage's own .demo-card-play button already uses. */
+  bioAudio: 'audio/sofia-bio.mp3',
+  talkingPoints: [
+    'What was the strangest case you saw this week?',
+    'How\x27s your own dog doing?',
+    'What\x27s the hardest part of a night shift?',
+  ],
+
   skin: 'seaside',
 
   /* WHERE HER CLOCK LIVES, NOW THAT WHERE SHE LIVES IS SETTLED. She is in the
@@ -1045,6 +1064,15 @@ var GC_CORA = {
 
   voiceId: 'P1dh7oZ2HgSGjCLRHAW2',
 
+  /* BIO CLIP AND TALKING POINTS, added 2026-08-26 for the doorstep, same
+     audio file the homepage's own .demo-card-play button already uses. */
+  bioAudio: 'audio/nina-bio.mp3',
+  talkingPoints: [
+    'Did the mango tree finally fruit?',
+    'How was choir practice?',
+    'What are you reading to the kids this week?',
+  ],
+
   skin: 'harvest',
 
   /* SAN DIEGO. Her son is in Chicago, three hours ahead; that gap is part of
@@ -1237,6 +1265,15 @@ var GC_KIOKO = {
   mood: 'Steady, a little wrung out, glad to sit down',
 
   voiceId: 'bGz7oL34zO7ojS7mfJ00',
+
+  /* BIO CLIP AND TALKING POINTS, added 2026-08-26 for the doorstep, same
+     audio file the homepage's own .demo-card-play button already uses. */
+  bioAudio: 'audio/kioko-bio.mp3',
+  talkingPoints: [
+    'How was your shift last night?',
+    'Did you get your morning run in?',
+    'How\x27s the crew doing?',
+  ],
 
   skin: 'snowline',
 
@@ -1448,6 +1485,15 @@ var GC_ALICE = {
 
   voiceId: 'gZL79pBTvaNfNPOCXh6n',
 
+  /* BIO CLIP AND TALKING POINTS, added 2026-08-26 for the doorstep, same
+     audio file the homepage's own .demo-card-play button already uses. */
+  bioAudio: 'audio/alice-bio.mp3',
+  talkingPoints: [
+    'What were you built to do?',
+    'How are you doing today, actually?',
+    'What do you think you\x27re looking for?',
+  ],
+
   skin: 'snowline',
 
   portrait: 'photos/alice.jpg',
@@ -1614,6 +1660,15 @@ var GC_REGGIE = {
   /* DR. O'S OWN PICK, listened to and chosen directly, not the search
      candidate I surfaced (Mr Jim was a no). */
   voiceId: 'uq0HIbNZKn11Hs5ifEdd',
+
+  /* BIO CLIP AND TALKING POINTS, added 2026-08-26 for the doorstep, same
+     audio file the homepage's own .demo-card-play button already uses. */
+  bioAudio: 'audio/reggie-bio.mp3',
+  talkingPoints: [
+    'What are the other dogs up to?',
+    'Find anything good in the trash today?',
+    'What do you think of my dog\x27s behavior?',
+  ],
 
   /* BISCUIT AND MOCHI, HIS TWO BEST FRIENDS, WIRED AS OCCASIONAL CAMEOS.
      Not built friends of their own: no room, no build slot. Per Dr. O
@@ -1975,6 +2030,15 @@ var GC_TANSY = {
      STILL THE OLD ID until she sends the real one. Do not confuse this with
      Poppy's ID just below: they are not the same voice. */
   voiceId: 'thfYL0Elyru2qqTtNQsE',
+
+  /* BIO CLIP AND TALKING POINTS, added 2026-08-26 for the doorstep, same
+     audio file the homepage's own .demo-card-play button already uses. */
+  bioAudio: 'audio/tansy-bio.mp3',
+  talkingPoints: [
+    'Tell me about your sisters.',
+    'What\x27s the Court like?',
+    'What have you been collecting lately?',
+  ],
 
   /* POPPY, HER LITTLE SISTER, WIRED AS AN OCCASIONAL CAMEO, not a friend of
      her own: no room, no build slot, no credits cost beyond the extra few
@@ -2540,6 +2604,15 @@ var GC_JULIAN = {
   mood: 'Dry, unbothered, glad of the company',
 
   voiceId: 'yowh82B72eMNrxcxHgBh',
+
+  /* BIO CLIP AND TALKING POINTS, added 2026-08-26 for the doorstep, same
+     audio file the homepage's own .demo-card-play button already uses. */
+  bioAudio: 'audio/julian-bio.mp3',
+  talkingPoints: [
+    'What decade was your favorite to actually live through?',
+    'Which vampire myths are real, if any?',
+    'Play me something.',
+  ],
 
   skin: 'fireside',
 

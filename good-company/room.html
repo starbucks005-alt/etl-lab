@@ -329,6 +329,16 @@ html{ zoom:90%; }
    knowing she is playing a part. Shown only when a friend has one written
    (FRIEND.premise), so a built friend's doorstep is unaffected. */
 .gate-premise{ font-style:italic; color:var(--ink-dim); font-size:19px; margin:0 0 1rem; line-height:1.55; }
+/* BIO CLIP AND TALKING POINTS, added 2026-08-26. Small and quiet on
+   purpose: the premise above already does the main introducing, these are
+   an optional assist for somebody who wants to hear a voice first or
+   does not know what to open with. */
+#gateBioPlay{ margin-bottom:1rem; }
+#gateTalkingPoints{ margin-bottom:1rem; }
+.gate-talking-label{
+  font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--ink-dim); margin:0 0 .5rem;
+}
 .gate .you-panel{ border-top:none; padding-left:0; padding-right:0; }
 .chat{ display:flex; flex-direction:column; min-height:0; flex:1; }
 /* DEAD DUPLICATE REMOVED 2026-08-18: an identical .gate/.gate h3/.gate-say/
@@ -452,6 +462,17 @@ html{ zoom:90%; }
     <div class="gate" id="gate">
       <h3 id="gateTitle">Before you sit down</h3>
       <p class="gate-premise" id="gatePremise" style="display:none"></p>
+      <!-- BIO CLIP AND TALKING POINTS ON THE DOORSTEP, added 2026-08-26 per
+           Dr. O direct: the bio clip only lived on the homepage card before
+           this, so anyone arriving straight at a room (a shared link, a
+           bookmark) never heard it and had nothing to open with. Same
+           reasoning as the premise right above: give a first-time visitor
+           what they need before their first line, not mid-conversation. -->
+      <button type="button" id="gateBioPlay" class="btn" style="display:none"></button>
+      <div id="gateTalkingPoints" style="display:none">
+        <p class="gate-talking-label">Ask about:</p>
+        <div class="chips"></div>
+      </div>
       <p class="gate-say" id="gateSay"></p>
       <div id="youPanel"></div>
       <!-- Shares the doorstep rather than adding a surface, the same way Who
@@ -664,12 +685,77 @@ function nameEverything() {
   /* THE PREMISE, so a first-time visitor has it before her first line lands. */
   if (FRIEND.premise) { $('gatePremise').textContent = FRIEND.premise; $('gatePremise').style.display = ''; }
   else { $('gatePremise').style.display = 'none'; }
+  /* THE BIO CLIP, same file every homepage card already points at (see
+     index.html's own .demo-card-play buttons) -- one field, two places it
+     gets played from, never two different clips to keep in sync. */
+  var bioBtn = $('gateBioPlay');
+  if (FRIEND.bioAudio) {
+    bioBtn.setAttribute('data-audio', FRIEND.bioAudio);
+    bioBtn.innerHTML = '&#128264; Hear ' + FRIEND.name;
+    bioBtn.style.display = '';
+  } else {
+    bioBtn.removeAttribute('data-audio');
+    bioBtn.style.display = 'none';
+  }
+  /* TALKING POINTS, a way in for somebody staring at a blank message box
+     with no idea what to say first. Clicking one fills the box rather than
+     sending it straight away, so it is a suggestion, not a scripted line
+     spoken on the visitor's behalf. */
+  var tpWrap = $('gateTalkingPoints');
+  var tpChips = tpWrap.querySelector('.chips');
+  tpChips.innerHTML = '';
+  if (FRIEND.talkingPoints && FRIEND.talkingPoints.length) {
+    FRIEND.talkingPoints.forEach(function (tp) {
+      var chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'chip';
+      chip.textContent = tp;
+      chip.addEventListener('click', function () {
+        var box = $('say');
+        box.value = tp;
+        box.focus();
+      });
+      tpChips.appendChild(chip);
+    });
+    tpWrap.style.display = '';
+  } else {
+    tpWrap.style.display = 'none';
+  }
   /* The wake word hint used to be written here, describing a feature that does
      not exist and telling the reader their audio was being sent away while it
      did not exist. Removed rather than reworded: the button says what it is. */
   $('gateSay').textContent = 'Tell ' + FRIEND.name + ' who you are. You only do this once.';
   $('startBtn').textContent = 'Sit down with ' + FRIEND.name;
 }
+
+/* THE BIO CLIP'S PLAY BUTTON, wired once, not inside nameEverything() which
+   runs on every friend swap. Same stop/swap shape as the homepage's own
+   .demo-card-play buttons (see index.html) -- one clip playing at a time,
+   clicking the same one again just stops it. */
+(function () {
+  var current = null;
+  var btn = $('gateBioPlay');
+  /* Label swap rather than a CSS .playing state: this button is a full .btn,
+     not the homepage's small round icon, so text is the reliable signal
+     regardless of which skin is active. */
+  function stopCurrent() {
+    if (current) { current.pause(); current.currentTime = 0; }
+    if (FRIEND) btn.innerHTML = '&#128264; Hear ' + FRIEND.name;
+    current = null;
+  }
+  btn.addEventListener('click', function () {
+    var src = btn.getAttribute('data-audio');
+    if (!src) return;
+    var wasPlaying = !!current;
+    stopCurrent();
+    if (wasPlaying) return;
+    var audio = new Audio(src);
+    audio.addEventListener('ended', stopCurrent);
+    audio.play().catch(function () {});
+    btn.innerHTML = '&#9209; Stop';
+    current = audio;
+  });
+})();
 /* SKIPPED HERE ON PURPOSE when arriving on an invite -- see
    ARRIVING_ON_INVITE's own comment. The PENDING_INVITE block further down
    already writes its own honest, nobody-specific gate text; calling this
