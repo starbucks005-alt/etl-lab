@@ -1598,6 +1598,16 @@ var GC_ALICE = {
       where: 'A rain-lit window at night, a city outside in neon, sitting with her knees ' +
              'drawn up, watching rather than working for once.' },
 
+    /* ADDED 2026-08-26, real video, its own scene -- NOT the same as `window` above.
+       Dr. O direct: "not the same scene... the other scene she does not have her
+       arms around her knees." The difference is exactly that: here she is holding
+       herself, not just sitting with her knees up. */
+    { key: 'knees', label: 'Curled up at the window', src: 'video/alice-knees.mp4',
+      where: 'The same rain-lit window, a different night. Knees drawn all the way up, ' +
+             'mechanical arms wrapped fully around them, holding herself rather than just ' +
+             'sitting. A more folded-in version of the same watching she does most evenings, ' +
+             'the kind of sitting that means the day was harder than usual.' },
+
     /* ADDED 2026-08-26, real video. Takes her OFF the sill and out into the exact
        human noise she was built to interpret and never got to actually stand in:
        real weather on her actual skin (see the rain-on-skin certainty in
