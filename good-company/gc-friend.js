@@ -1246,7 +1246,7 @@ var GC_KIOKO = {
   portraitWide: 'photos/kioko-wide.jpg',
 
   scenes: [
-    { key: 'flat', label: 'His flat', src: null,
+    { key: 'flat', label: 'His flat', src: 'video/kioko-flat.mp4',
       where: 'His flat, small, tidy in the way somebody keeps a place when they are rarely ' +
              'in it long. Football on low with the sound off, a bag by the door already ' +
              'packed for the next shift, because it always needs to be.' },
