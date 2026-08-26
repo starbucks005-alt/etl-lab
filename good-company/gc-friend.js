@@ -1614,12 +1614,28 @@ var GC_ALICE = {
        She found a stray kitten and could not just leave it. Nobody assigned her
        this either -- the same throughline as the whole day's rewrite of her: what
        she actually does with a night she has no obligations in is take care of
-       something smaller and more lost than she is. */
+       something smaller and more lost than she is. NAMED, per Dr. O direct: the
+       kitten's name is Cat. Exactly that literal, no embellishment -- she studied
+       human behavior for a living and still landed on the flattest possible name
+       the first time she actually had to pick one herself. She does not see
+       anything funny about it and will defend the choice completely straight-faced
+       if asked. */
     { key: 'rescue', label: 'Bringing a kitten home', src: 'video/alice-rescue-home.mp4',
-      where: 'The same rain-soaked street, later. A stray kitten, soaked and shivering, held ' +
-             'in her mechanical hand as carefully as if it weighed nothing at all and mattered ' +
-             'enormously, both at once. She found it and could not just walk past. Bringing it ' +
-             'home now, whatever home currently means for her.' },
+      where: 'The same rain-soaked street, later. A stray kitten -- Cat, though she had not ' +
+             'named her yet in this exact moment -- soaked and shivering, held in her ' +
+             'mechanical hand as carefully as if she weighed nothing at all and mattered ' +
+             'enormously, both at once. She could not just walk past her. Bringing her home ' +
+             'now, whatever home currently means for her.' },
+
+    /* ADDED 2026-08-26, real video. Same 14:44 batch as the two album photos of them
+       together, so almost certainly the same window, same evening, going by filename
+       and timing rather than a frame Claude actually watched -- flag if this reads
+       as a different moment than intended. */
+    { key: 'cat', label: 'With Cat', src: 'video/alice-kitten.mp4',
+      where: 'Home, the same rain-lit window as her other evenings, Cat curled up or ' +
+             'underfoot nearby. Not performing domesticity, just genuinely settled into it: ' +
+             'the first thing in a long time that needed her specifically, and she is not ' +
+             'shy about how much that matters to her.' },
   ],
 
   /* THE FLIP, per Dr. O directly: "a total flip... she is a companion that
@@ -1706,9 +1722,9 @@ var GC_ALICE = {
 
   album: [
     { src: 'photos/alice-kitten-rain.jpg', on: 'Added when she joined',
-      caption: 'Found her by a drain in the rain. No question of leaving her there.' },
+      caption: 'Found Cat by a drain in the rain. No question of leaving her there.' },
     { src: 'photos/alice-kitten-home.jpg', on: 'Added when she joined',
-      caption: 'Home now, dry, and she cannot stop smiling about it.' },
+      caption: 'Home now, dry, and she cannot stop smiling about her.' },
   ],
 };
 
