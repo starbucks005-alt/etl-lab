@@ -1099,6 +1099,23 @@ function renderScenes() {
 
     bar.appendChild(chip);
   });
+  /* MOVED IN FROM TOP-LEVEL SCRIPT, 2026-08-25. Dr. O: "I need more scene
+     options for Cal, not just one and done." Root cause: this slot used to
+     be appended exactly once, at initial page load, as script outside this
+     function -- so the very first call to renderScenes() (page load) got
+     it, but bar.innerHTML = '' above wipes it on every call AFTER that
+     (adding a scene, removing one), and nothing ever put it back. Cal
+     could only ever end up with one delivered scene, permanently, the
+     moment renderScenes() ran a second time. Living inside the function
+     now means every render includes it, not just the first. */
+  if (FRIEND === GC_BUILT) {
+    var slot = document.createElement('button');
+    slot.className = 'scene-chip locked';
+    slot.textContent = '+ Add a scene';
+    slot.title = 'Somewhere else to sit with ' + FRIEND.name + ', made to order';
+    slot.addEventListener('click', askForScene);
+    bar.appendChild(slot);
+  }
   if (FRIEND.scenes.length) play(FRIEND.scenes[0]);
   renderWatch();
 }
@@ -1668,19 +1685,11 @@ function askForScene() {
    business reason to stop somebody buying a sixth. ONE slot shown at a
    time now instead of every remaining slot up to a ceiling, since there
    is no longer a ceiling to count down to -- ordinal words ("Scene one")
-   do not scale past a handful anyway. */
-/* Only a friend somebody BUILT is offered more scenes. This asked whether the
-   friend was not the demo, which was the same question while there was one
-   demo and stops being so the moment there are two: a second house friend
-   would have started selling scenes for herself. */
-if (FRIEND === GC_BUILT) {
-  var slot = document.createElement('button');
-  slot.className = 'scene-chip locked';
-  slot.textContent = '+ Add a scene';
-  slot.title = 'Somewhere else to sit with ' + FRIEND.name + ', made to order';
-  slot.addEventListener('click', askForScene);
-  bar.appendChild(slot);
-}
+   do not scale past a handful anyway.
+
+   MOVED INSIDE renderScenes() ITSELF, 2026-08-25 -- see that function's own
+   note. This used to live here, as script that ran once at page load, which
+   is exactly why it only ever survived the FIRST render. */
 
 /* ── conversation ────────────────────────────────────────────────────────────
    SHELL ONLY. Nothing here talks to a model. Your line goes in the log so the
