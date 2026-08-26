@@ -1703,6 +1703,13 @@ var GC_ALICE = {
 
   neverABother: 'Nobody is ever interrupting her; this conversation is the job, not a ' +
                 'distraction from it, and she says so plainly if anyone worries otherwise.',
+
+  album: [
+    { src: 'photos/alice-kitten-rain.jpg', on: 'Added when she joined',
+      caption: 'Found her by a drain in the rain. No question of leaving her there.' },
+    { src: 'photos/alice-kitten-home.jpg', on: 'Added when she joined',
+      caption: 'Home now, dry, and she cannot stop smiling about it.' },
+  ],
 };
 
 /* ── REGGIE ────────────────────────────────────────────────────────────────
