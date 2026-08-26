@@ -2512,7 +2512,7 @@ var GC_JULIAN = {
   portraitWide: 'photos/julian-wide.jpg',
 
   scenes: [
-    { key: 'piano', label: 'At the piano', src: null,
+    { key: 'piano', label: 'At the piano', src: 'video/julian-piano.mp4',
       where: 'The hotel bar after last call, house lights down, city lit up behind the ' +
              'window. He plays for himself now, not for anyone still in the room.' },
   ],
