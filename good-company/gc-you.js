@@ -8,8 +8,10 @@
 
    PRONOUNS ARE ASKED, NEVER GUESSED. A name does not tell you anybody's
    pronouns, and inferring them from one misgenders a real person in a way the
-   neutral default never does. So they/them is the default here, the chips are
-   not ordered to lead anywhere, and nothing is derived from the name.
+   neutral default never does. So they/them is the default here, and nothing
+   is derived from the name. Chip order (see GC_PRONOUNS below) is a separate
+   choice from the default value -- moving they/them to the last chip does
+   not change what somebody gets if they never touch the chips at all.
 
    THE AVATAR NEVER LEAVES THE BROWSER AS A FILE. It is resized to a small
    square on the canvas and kept as a data URL, a few KB, which means:
@@ -23,11 +25,16 @@
 var GC_AVATAR_PX = 96;          // plenty for a 32px circle on a retina screen
 var GC_AVATAR_MAX = 60 * 1024;  // refuse anything that will not shrink under this
 
-/* Deliberately unordered as a set of "normal" and "other". They/them sits
-   first because it is the default, not because it is preferred. */
-var GC_PRONOUNS = ['they / them', 'she / her', 'he / him'];
+/* ORDER CHANGED 2026-08-26, Dr. O direct: they/them moved LAST. It is still
+   the default value (see gcLoadYou() below), unrelated to this display
+   order -- a person who never touches the chips still gets they/them either
+   way. This only changes which chip a reader's eye lands on first. */
+var GC_PRONOUNS = ['she / her', 'he / him', 'they / them'];
 
-var GC_EMOJI = ['🙂','🌿','🌙','☕','🐦','🎣','🧶','📚','🎸','🌻','🐈','🍞','⚓','🎬','🧭','🌵'];
+/* REVISED 2026-08-26, Dr. O: the old set read as a random pile of objects
+   (bread, an anchor, a fishing rod) rather than a set of moods. More
+   variety in texture and feeling, fewer single-purpose hobby objects. */
+var GC_EMOJI = ['🙂','🌊','🌙','☕','🎸','🌻','🐈','🧭','🦋','🎨','🕯️','📖','🍂','🔥','🌾','🎭'];
 
 function gcLoadYou() {
   var you = null;
