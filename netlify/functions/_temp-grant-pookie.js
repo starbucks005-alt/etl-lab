@@ -15,6 +15,14 @@ exports.handler = async function (event) {
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!serviceKey) return { statusCode: 500, body: 'no_service_key' };
 
+  if (q.check) {
+    const rr = await fetch(`${SUPABASE_URL}/rest/v1/ah_credits?access_token=eq.${encodeURIComponent(q.check)}&select=access_token,balance,subscription_active,email`, {
+      headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
+    });
+    const rows = await rr.json();
+    return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(rows) };
+  }
+
   const token = `AH-${crypto.randomBytes(16).toString('hex')}`;
 
   const r = await fetch(`${SUPABASE_URL}/rest/v1/ah_credits`, {
