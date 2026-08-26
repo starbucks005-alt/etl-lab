@@ -977,14 +977,15 @@ var GC_SOFIA = {
   ],
 };
 
-/* ── CORA ──────────────────────────────────────────────────────────────────
+/* ── NINA (originally built and named "Cora"; renamed 2026-08-26, see the
+     note on GC_CORA itself for why) ──────────────────────────────────────
    The third demo. Dr. O: "two more demo, nonwhite 2 different ages."
 
    THE AGE ARCH AND SOPHIA BOTH MISS. The product's own spec names its
    sharpest audience outright: a lonely seventy-eight-year-old. Neither
    existing demo is her. Arch is fifty-something and mid-story: the divorce
    is recent, the daughters are still teenagers, there is a whole second act
-   ahead of him. Cora is not mid-story. She built the life, most of it
+   ahead of him. Nina is not mid-story. She built the life, most of it
    already happened, and what she is sitting with now is what is left after
    the biggest part of it ended.
 
@@ -1005,9 +1006,18 @@ var GC_SOFIA = {
    traveled whole. "Have you eaten" is a real question in that house, asked
    before anything else, the way another family might ask how somebody
    slept. [[etl-cast-diversity-theme]] */
+/* RENAMED FROM "CORA REYES", 2026-08-26. Dr. O: an older Claude Code session
+   built this character before either of us knew City Government would later
+   ship a real, live staff agent also named Cora Reyes (Land Development Code
+   Analyst, City Solutions Lab). That one launched first and has a portrait;
+   this one has neither yet, so this is the one that moves. Internal id
+   ('cora' in GC_DEMO_IDS/GC_DEMOS below, GC_CORA here, the 'cora.jpg'-style
+   photo paths) is left as-is on purpose -- it is plumbing nobody sees, and
+   changing it risks breaking a remembered ?who=cora somewhere for no benefit,
+   where the actual collision is the NAME a person says and reads. */
 var GC_CORA = {
-  name: 'Cora',
-  full: 'Corazon Reyes',
+  name: 'Nina',
+  full: 'Nina Villaruz',
   age: '70s',
   gender: 'A woman',
   work: 'Retired. Taught third grade for thirty-one years.',
@@ -1045,7 +1055,7 @@ var GC_CORA = {
      she could make any old time. */
   timezone: 'America/Los_Angeles',
 
-  portrait: 'photos/cora.jpg',
+  portrait: 'photos/nina.jpg',
 
   scenes: [
     { key: 'kitchen', label: 'The kitchen', src: null,
@@ -1175,7 +1185,8 @@ var GC_CORA = {
 
 /* ── KIOKO ─────────────────────────────────────────────────────────────────
    The fourth demo. Dr. O: "two more demo, nonwhite 2 different ages," and
-   Cora covers one end nobody here reached yet; Kioko covers a different one.
+   Nina (GC_CORA, renamed 2026-08-26, see her own note) covers one end
+   nobody here reached yet; Kioko covers a different one.
 
    THE STRONG ONE HAS NOBODY CHECKING ON HIM, which is a real, common, and
    almost never depicted shape of loneliness: not a life that is empty, a
@@ -1219,7 +1230,7 @@ var GC_KIOKO = {
          "something that is not a road accident for once.",
   mood: 'Steady, a little wrung out, glad to sit down',
 
-  voiceId: null,
+  voiceId: 'bGz7oL34zO7ojS7mfJ00',
 
   skin: 'snowline',
 

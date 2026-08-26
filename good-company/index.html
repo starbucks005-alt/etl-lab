@@ -605,6 +605,31 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
         <button class="demo-card-play" type="button" data-audio="audio/tansy-bio.mp3" aria-label="Hear Tansy">&#128264;</button>
       </div>
     </div>
+    <!-- NINA AND KIOKO, added 2026-08-26. Real portraits now exist for both
+         (photos/nina.jpg, photos/kioko.jpg) so they belong in this grid the
+         same as the other four. NO PLAY BUTTON on either card, on purpose:
+         voiceId is still null for both (see gc-friend.js), so there is no
+         real recorded bio clip to play. A button that played nothing, or
+         played somebody else's voice, would be worse than no button at all
+         -- add the mp3 and the button together once a voice is chosen, not
+         before. Nina's internal id stays "cora" (see her own note in
+         gc-friend.js for why); the URL is plumbing nobody reads as a name. -->
+    <div class="demo-card">
+      <a href="room.html?who=cora">
+        <div class="slot" data-label="photos/nina.jpg"><img src="photos/nina.jpg" alt=""></div>
+      </a>
+      <div class="demo-card-row">
+        <a class="demo-card-label" href="room.html?who=cora">Retired teacher Nina</a>
+      </div>
+    </div>
+    <div class="demo-card">
+      <a href="room.html?who=kioko">
+        <div class="slot" data-label="photos/kioko.jpg"><img src="photos/kioko.jpg" alt=""></div>
+      </a>
+      <div class="demo-card-row">
+        <a class="demo-card-label" href="room.html?who=kioko">Paramedic Kioko</a>
+      </div>
+    </div>
   </section>
 
   <!-- THREE --------------------------------------------------------------- -->
