@@ -679,6 +679,16 @@ setInterval(updateFriendClock, 60000);
 function nameEverything() {
   $('gaugeTitle').textContent = 'How ' + FRIEND.name + ' is feeling right now';
   $('gaugeLabel').textContent = FRIEND.mood || 'Easy, glad you came by';
+  /* THE GAUGE'S STARTING POINT, added 2026-08-26 per Dr. O direct ("did you
+     attach the emotion scale?"). Once a conversation starts, setFeelings()
+     already gets real numbers back from the model every reply (see the
+     comment on setFeelings itself) -- but before that first reply, the bars
+     were just the same hardcoded happy-and-curious HTML default for every
+     friend, A.L.I.C.E. included, which reads wrong for someone whose whole
+     canon is quiet loneliness. FRIEND.baselineFeelings is optional; a
+     friend without one just keeps the original static default. */
+  if (FRIEND.baselineFeelings) setFeelings(FRIEND.baselineFeelings);
+  $('gaugeEmoji').innerHTML = FRIEND.moodEmoji || '&#128522;';
   updateFriendClock();
   $('syncBtn').style.display =
     (typeof GC_BUILT !== 'undefined' && GC_BUILT && FRIEND === GC_BUILT) ? '' : 'none';

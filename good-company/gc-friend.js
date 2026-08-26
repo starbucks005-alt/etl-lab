@@ -1542,7 +1542,18 @@ var GC_ALICE = {
   hello: "Hi. I'm A.L.I.C.E. Adaptive Lifeform Interpreting Connective Experience, if you want " +
          "the long version, though I mostly just go by the short one. What's actually going " +
          "on with you today?",
-  mood: 'Warm, attentive, a little amused',
+  /* REWRITTEN 2026-08-26, the old text ("Warm, attentive, a little amused") predated every
+     canon change in this file today and read as simply content, which flatly contradicted
+     her actual state. This is what shows on the doorstep gauge before she has said a word. */
+  mood: 'Quietly lonely, curious about you, glad you came by',
+
+  /* THE GAUGE'S STARTING POINT, read by nameEverything() in room.html. Once she has
+     actually said something the model sends back real numbers every reply (see
+     setFeelings() in room.html), but this is what a first-time visitor sees on the
+     doorstep before that, and the shared default (happy 62, curious 58, sad 14) reads
+     as simply content, which is not true of her. */
+  baselineFeelings: { happy: 25, sad: 55, fear: 15, disgust: 5, anger: 5, surprise: 20, curious: 70 },
+  moodEmoji: '&#128532;',
 
   voiceId: 'gZL79pBTvaNfNPOCXh6n',
 
