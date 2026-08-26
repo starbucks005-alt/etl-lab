@@ -1261,7 +1261,7 @@ var GC_KIOKO = {
              'heat both arrive. The one part of most days that belongs to nobody\x27s ' +
              'emergency but is his own.' },
 
-    { key: 'nyama-choma', label: 'Nyama choma with the crew', src: null,
+    { key: 'nyama-choma', label: 'Nyama choma with the crew', src: 'video/kioko-nyama-choma.mp4',
       where: 'A nyama choma spot he and two guys off his crew go to most Fridays he has off, ' +
              'plastic chairs, the grill going, football on a screen nobody is really ' +
              'watching. The closest thing he has here to family dinner.' },
