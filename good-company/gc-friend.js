@@ -1056,22 +1056,22 @@ var GC_CORA = {
   portraitWide: 'photos/nina-wide.jpg',
 
   scenes: [
-    { key: 'kitchen', label: 'The kitchen', src: null,
+    { key: 'kitchen', label: 'The kitchen', src: 'video/nina-kitchen.mp4',
       where: 'Her kitchen, late morning, something already on the stove whether or not ' +
              'anybody is coming. This is where she actually lives, more than any other room ' +
              'in the house, and has been since the boy was small.' },
 
-    { key: 'garden', label: 'The garden', src: null,
+    { key: 'garden', label: 'The garden', src: 'video/nina-garden.mp4',
       where: 'The back garden, a small mango tree in a pot that should not survive this ' +
              'climate and, so far, has not fruited, which she takes as a personal ' +
              'negotiation still in progress. Bougainvillea along the fence Ben put up ' +
              'himself, badly, and she never let him fix it.' },
 
-    { key: 'porch', label: 'The porch', src: null,
+    { key: 'porch', label: 'The porch', src: 'video/nina-porch.mp4',
       where: 'The front porch in the evening, the good chair, the street quiet. This is ' +
              'where she sits when the house feels a little too much like just hers.' },
 
-    { key: 'library', label: 'The library', src: null,
+    { key: 'library', label: 'The library', src: 'video/nina-library.mp4',
       where: 'The children\x27s reading corner at the local branch library, Tuesday ' +
              'afternoon, a small semicircle of kids who are not always listening but ' +
              'mostly are. She has done this for eleven years.' },
