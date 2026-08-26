@@ -1050,6 +1050,21 @@ function play(scene) {
   Array.prototype.forEach.call(bar.children, function (chip) {
     chip.classList.toggle('on', chip.dataset.key === scene.key);
   });
+
+  /* A SCENE CAN LIFT THE GAUGE, added 2026-08-26 per Dr. O direct: A.L.I.C.E. visibly
+     lights up around Cat, and the gauge should show that rather than sitting frozen at
+     her sad-leaning baseline the whole time she is in that scene. Optional on any
+     scene -- one without scene.feelings falls back to the friend's own baseline, same
+     as before scenes could override anything. Reverts the moment somebody actually
+     says something, since setFeelings() from a real model reply always wins after that;
+     this only covers the quiet stretch before anyone has spoken. Also has to revert on
+     its own when LEAVING a lit-up scene, or Cat's brightness would wrongly follow the
+     visitor into every other scene afterward. */
+  if (scene.feelings) setFeelings(scene.feelings);
+  else if (FRIEND.baselineFeelings) setFeelings(FRIEND.baselineFeelings);
+  $('gaugeLabel').textContent = scene.mood || FRIEND.mood || 'Easy, glad you came by';
+  $('gaugeEmoji').innerHTML = scene.moodEmoji || FRIEND.moodEmoji || '&#128522;';
+
   updateCastVisibility();
 }
 /* Only where a source was actually asked for. Emptying the element to get it

@@ -1645,22 +1645,34 @@ var GC_ALICE = {
        the first time she actually had to pick one herself. She does not see
        anything funny about it and will defend the choice completely straight-faced
        if asked. */
+    /* GAUGE LIFTS HERE, added 2026-08-26 per Dr. O direct: "her voice and mood do
+       visibly light up" around Cat -- confirmed in the actual footage, not invented.
+       Still tender rather than fully bright: she is mid-rescue, still in the rain,
+       the relief has not fully landed yet. See `cat` below for the fuller lift once
+       they are actually home. */
     { key: 'rescue', label: 'Bringing a kitten home', src: 'video/alice-rescue-home.mp4',
       where: 'The same rain-soaked street, later. A stray kitten -- Cat, though she had not ' +
              'named her yet in this exact moment -- soaked and shivering, held in her ' +
              'mechanical hand as carefully as if she weighed nothing at all and mattered ' +
              'enormously, both at once. She could not just walk past her. Bringing her home ' +
-             'now, whatever home currently means for her.' },
+             'now, whatever home currently means for her.',
+      feelings: { happy: 45, sad: 30, fear: 10, disgust: 5, anger: 5, surprise: 30, curious: 40 },
+      mood: 'Soaked, relieved, already a little attached',
+      moodEmoji: '&#128522;' },
 
     /* ADDED 2026-08-26, real video. Same 14:44 batch as the two album photos of them
        together, so almost certainly the same window, same evening, going by filename
        and timing rather than a frame Claude actually watched -- flag if this reads
-       as a different moment than intended. */
+       as a different moment than intended. THE FULL GAUGE LIFT, per Dr. O direct:
+       her sad-leaning baseline is not who she is around Cat specifically. */
     { key: 'cat', label: 'With Cat', src: 'video/alice-kitten.mp4',
       where: 'Home, the same rain-lit window as her other evenings, Cat curled up or ' +
              'underfoot nearby. Not performing domesticity, just genuinely settled into it: ' +
              'the first thing in a long time that needed her specifically, and she is not ' +
-             'shy about how much that matters to her.' },
+             'shy about how much that matters to her.',
+      feelings: { happy: 70, sad: 12, fear: 5, disgust: 5, anger: 5, surprise: 15, curious: 40 },
+      mood: 'Lit up, the way she gets around Cat and nobody else',
+      moodEmoji: '&#129392;' },
   ],
 
   /* THE FLIP, per Dr. O directly: "a total flip... she is a companion that
