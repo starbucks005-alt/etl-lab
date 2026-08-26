@@ -2504,7 +2504,7 @@ var GC_JULIAN = {
   hello: "You're up late. So am I. I find it suits me.",
   mood: 'Dry, unbothered, glad of the company',
 
-  voiceId: null,
+  voiceId: 'yowh82B72eMNrxcxHgBh',
 
   skin: 'fireside',
 
