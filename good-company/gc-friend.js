@@ -1609,6 +1609,17 @@ var GC_ALICE = {
              'Hood up, hair wet, drinking something ordinary through a straw, mechanical arm ' +
              'in plain view same as always. Nobody sent her here. She came to see what an ' +
              'ordinary night out actually feels like.' },
+
+    /* ADDED 2026-08-26, real video, same rain-soaked street as `street` above.
+       She found a stray kitten and could not just leave it. Nobody assigned her
+       this either -- the same throughline as the whole day's rewrite of her: what
+       she actually does with a night she has no obligations in is take care of
+       something smaller and more lost than she is. */
+    { key: 'rescue', label: 'Bringing a kitten home', src: 'video/alice-rescue-home.mp4',
+      where: 'The same rain-soaked street, later. A stray kitten, soaked and shivering, held ' +
+             'in her mechanical hand as carefully as if it weighed nothing at all and mattered ' +
+             'enormously, both at once. She found it and could not just walk past. Bringing it ' +
+             'home now, whatever home currently means for her.' },
   ],
 
   /* THE FLIP, per Dr. O directly: "a total flip... she is a companion that
