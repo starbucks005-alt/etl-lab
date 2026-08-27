@@ -11,7 +11,7 @@
    Returns: { ok, items: [...] }
 */
 
-const { getStore } = require('@netlify/blobs');
+const { getStore, connectLambda } = require('@netlify/blobs');
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -25,6 +25,12 @@ function json(status, obj) {
 exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: CORS, body: '' };
   if (event.httpMethod !== 'GET') return json(405, { error: 'GET only' });
+
+  /* NEEDED FOR getStore() TO WORK AT ALL, found the hard way: without this,
+     getStore() throws MissingBlobsEnvironmentError even though the site's
+     Blobs setup is fine -- see newswire-latest.js's own identical call,
+     the working reference this was compared against to find the gap. */
+  try { connectLambda(event); } catch (_) {}
 
   const catalogStore = getStore('gc_catalog');
 

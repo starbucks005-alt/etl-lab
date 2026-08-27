@@ -30,7 +30,7 @@
             { ok: false, error }
 */
 
-const { getStore } = require('@netlify/blobs');
+const { getStore, connectLambda } = require('@netlify/blobs');
 const {
   SUPABASE_URL, randomToken, safeToken, getCreditRow, CATALOG_BONUS_CREDITS,
 } = require('./_ah-credits.js');
@@ -74,6 +74,15 @@ exports.handler = async (event) => {
   if (!friend || !friend.name || !friend.portrait || !Array.isArray(friend.scenes) || !friend.scenes.length) {
     return json(400, { error: 'incomplete_friend' });
   }
+
+  /* NEEDED FOR getStore() TO WORK AT ALL, found 2026-08-27 debugging why
+     catalog.html showed empty: without this, getStore() throws
+     MissingBlobsEnvironmentError even though the site's Blobs setup is
+     fine -- see newswire-latest.js's own identical call. This means every
+     "Add to catalog" click before this fix, including the one meant to
+     seed Isabelle as a real example, silently failed with a 502. Nothing
+     was ever actually written. */
+  try { connectLambda(event); } catch (_) {}
 
   const catalogStore = getStore('gc_catalog');
   const claimedStore = getStore('gc_catalog_bonus_claimed');
