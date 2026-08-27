@@ -1,7 +1,7 @@
 {
   "name": "Good Company",
   "short_name": "Good Company",
-  "description": "Finding real companions is hard. So here, you make one.",
+  "description": "Finding real friends is hard. So here, you make one.",
   "start_url": "/good-company/index.html",
   "scope": "/good-company/",
   "display": "standalone",
