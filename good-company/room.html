@@ -2212,7 +2212,7 @@ function showCreditsUpsell(isDailyCap, ownerKeyRejected) {
     ? "An owner key came through with that message but was not recognized. Check it against " +
       "the OWNER_KEY value in Netlify."
     : isDailyCap
-    ? "That's today's free messages with " + FRIEND.name + ". Come back tomorrow, or go unlimited."
+    ? "That's today's free messages with " + FRIEND.name + ". Come back tomorrow, or get monthly credits."
     : "Out of credits for " + FRIEND.name + " right now.";
   box.appendChild(say);
 
@@ -2239,7 +2239,7 @@ function showCreditsUpsell(isDailyCap, ownerKeyRejected) {
 
     var subBtn = document.createElement('button');
     subBtn.type = 'button'; subBtn.className = 'btn go';
-    subBtn.textContent = '$9.99/mo, unlimited';
+    subBtn.textContent = '$9.99/mo, 300 credits';
     subBtn.addEventListener('click', function () { startCreditsCheckout('/.netlify/functions/create-checkout-ah', {}); });
     actions.appendChild(subBtn);
 

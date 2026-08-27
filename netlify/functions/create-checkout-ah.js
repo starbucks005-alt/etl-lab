@@ -75,7 +75,11 @@ exports.handler = async (event) => {
              returnTo is only ever set when the checkout started from Good
              Company (see safeReturnTo above), so this is a real signal, not
              a guess. */
-          product_data: { name: returnTo ? 'Good Company — Unlimited Access' : 'Almost Human — Monthly Access' },
+          /* FIXED 2026-08-26 per Dr. O direct: "Unlimited Access" was never
+             true -- a subscriber is still gated on balance the moment it drops
+             below ONE_TO_ONE_COST (see eq-room-ask.js), same wall a free-tier
+             visitor hits. Now matches Almost Human's own, already-accurate name. */
+          product_data: { name: returnTo ? 'Good Company — Monthly Access' : 'Almost Human — Monthly Access' },
           unit_amount: 999,
         },
         quantity: 1,

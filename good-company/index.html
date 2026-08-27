@@ -870,10 +870,16 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
         <p class="price">$0</p>
         <p>Try any demo above, once a day, texting or talking.</p>
       </div>
+      <!-- FIXED 2026-08-26 per Dr. O direct: this card said Unlimited, which was
+           never true -- eq-room-ask.js still gates a subscriber on balance
+           (isSubscriber && balance < ONE_TO_ONE_COST), same wall a free-tier
+           visitor hits. Swept everywhere else the word appeared for this same
+           claim: room.html's own subscribe button and daily-cap message, and
+           the Stripe product name itself in create-checkout-ah.js. -->
       <div class="pricing-card">
-        <h3>Unlimited</h3>
+        <h3>Monthly</h3>
         <p class="price">$9.99<span>/mo</span></p>
-        <p>Talk as much as you want, any friend you have built or any demo.</p>
+        <p>300 credits every month, refreshed automatically, for any friend you have built or any demo.</p>
         <button class="btn go" type="button" data-checkout="/.netlify/functions/create-checkout-ah">Subscribe</button>
       </div>
       <div class="pricing-card">
