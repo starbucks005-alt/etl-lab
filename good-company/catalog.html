@@ -32,6 +32,17 @@ h1{ font-family:Georgia,serif; font-weight:400; letter-spacing:-.012em; line-hei
   font-size:clamp(1.7rem,4.4vw,2.5rem); margin:1.6rem 0 .4rem; }
 .lede{ color:var(--ink-dim); margin:0 0 1.8rem; max-width:52ch; }
 
+/* Full-bleed, unlike the rest of this page's own .wrap column, since the
+   image already carries the wordmark and cast -- the same job the plain
+   H1 used to do in text. H1 stays in the markup, visually hidden, so a
+   screen reader and search engines still get a real page title. */
+.hero-band{ width:100%; overflow:hidden; }
+.hero-band img{ display:block; width:100%; height:auto; }
+.sr-only{
+  position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+  overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+}
+
 /* ── the book itself ─────────────────────────────────────────────────────
    ONE COMPANION SHOWING AT A TIME, on purpose: a grid of thumbnails is a
    catalog you scan, a page you turn is a catalog you meet somebody from.
@@ -103,9 +114,13 @@ h1{ font-family:Georgia,serif; font-weight:400; letter-spacing:-.012em; line-hei
   <span class="picker" id="picker"><button class="btn" id="skinBtn" type="button">&#127912; Palette</button></span>
 </header>
 
+<div class="hero-band">
+  <img src="photos/catalog-hero.jpg" alt="Good Company Catalog">
+</div>
+
 <main class="wrap">
 
-  <h1>The catalog</h1>
+  <h1 class="sr-only">The catalog</h1>
   <p class="lede">Companions other people built and chose to share here. Pick one and you get your
     own copy: same face, same scenes, same personality. Nothing that happened between the two of
     them comes with it — <a href="faq.html#catalog">what does that mean?</a></p>
