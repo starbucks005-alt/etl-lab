@@ -509,6 +509,14 @@ html{ zoom:90%; }
            conversation is what the column is for. -->
       <div class="row tools">
         <button class="btn" id="bringBtn">&#128100; Bring someone</button>
+        <!-- ONLY A HOUSE DEMO, hidden by default (see the display:none toggle
+             near nameEverything()), added 2026-08-27 per Dr. O direct: a
+             way to actually own one of the demo cast rather than only ever
+             sampling them free-then-credits. Makes a full copy, same $9.99
+             paid gate every other built or catalog-started friend goes
+             through -- see the click handler below and currentDemoId()'s
+             own comment on why that gate resolves correctly now. -->
+        <button class="btn" id="claimBtn" style="display:none"></button>
         <!-- ONLY YOUR OWN BUILT FRIEND, hidden by default (see the display:none
              toggle near nameEverything()) since a house demo has nothing to
              carry and a guest sitting with someone else's friend should not be
@@ -697,6 +705,9 @@ function nameEverything() {
   updateFriendClock();
   $('syncBtn').style.display =
     (typeof GC_BUILT !== 'undefined' && GC_BUILT && FRIEND === GC_BUILT) ? '' : 'none';
+  var claimDemoId = currentDemoId();
+  $('claimBtn').style.display = claimDemoId ? '' : 'none';
+  if (claimDemoId) $('claimBtn').innerHTML = '&#10084; Make ' + FRIEND.name + ' yours';
   /* THE PREMISE, so a first-time visitor has it before her first line lands. */
   if (FRIEND.premise) { $('gatePremise').textContent = FRIEND.premise; $('gatePremise').style.display = ''; }
   else { $('gatePremise').style.display = 'none'; }
@@ -2611,6 +2622,17 @@ function notYet(what, why) {
    this bug warrants. */
 function currentDemoId() {
   if (typeof GC_DEMOS === 'undefined' || !FRIEND) return null;
+  /* NEVER YOUR OWN BUILT FRIEND, checked by reference before any name
+     match, added 2026-08-27 alongside "make a demo yours" (claimBtn below).
+     That feature deliberately makes a friend named identically to a demo --
+     Arch stays "Arch" once bought -- which the name-only match below could
+     not tell apart from the free demo itself. Without this, a paid, owned
+     copy would be treated as the free demo forever: wrong credit pool,
+     wrong paid gate, wrong everything downstream of is_demo. This is also
+     the general fix for the coincidental case this function's own old
+     comment already flagged and accepted (a user naming their OWN built
+     friend "Arch" by chance) -- reference equality settles both at once. */
+  if (typeof GC_BUILT !== 'undefined' && GC_BUILT && FRIEND === GC_BUILT) return null;
   for (var id in GC_DEMOS) {
     if (GC_DEMOS[id] && GC_DEMOS[id].name === FRIEND.name) return id;
   }
@@ -2692,6 +2714,37 @@ $("bringBtn").addEventListener("click", function () {
     $("bringBtn").disabled = false;
     post("Not wired yet", "Could not open the room. " + err.message);
   });
+});
+
+/* ── MAKE A DEMO YOURS ────────────────────────────────────────────────────
+   Added 2026-08-27 per Dr. O direct: a house demo was free-to-sample and
+   then credits-metered forever, never actually ownable the way a built or
+   catalog-started companion is. This makes a full copy of the demo's whole
+   canon, deep-cloned so the shared GC_DEMOS object itself is never mutated,
+   and sends it through the identical id/createdAt/paid/user setup build.html's
+   own makeBtn handler uses for a brand-new friend -- paid:false is what
+   sends it through the same $9.99-to-open-the-room gate every other built
+   friend goes through, no free bypass for a demo-turned-owned copy. user is
+   cleared, same reasoning as catalog.html's startWith(): it describes the
+   person who built the ORIGINAL, never the person claiming a copy now, and
+   a demo has no user field in the first place. */
+$('claimBtn').addEventListener('click', function () {
+  var demoId = currentDemoId();
+  if (!demoId || typeof GC_DEMOS === 'undefined' || !GC_DEMOS[demoId]) return;
+  var demo = GC_DEMOS[demoId];
+  var ok = confirm('Make your own copy of ' + demo.name + '? Same face, same scenes, same ' +
+    'personality, yours to keep, edit, and talk with any time. $9.99 to open their room, same ' +
+    'as building one from scratch.');
+  if (!ok) return;
+  var mine;
+  try { mine = JSON.parse(JSON.stringify(demo)); } catch (e) { mine = null; }
+  if (!mine) return;
+  mine.id = GC_newFriendId();
+  mine.createdAt = new Date().toISOString();
+  mine.paid = false;
+  mine.user = { call: '', want: [], about: '' };
+  try { GC_saveFriend(mine); } catch (e) {}
+  location.href = 'build.html';
 });
 
 /* ── THE SAME COMPANION, ON A SECOND DEVICE ──────────────────────────────────
