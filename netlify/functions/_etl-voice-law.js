@@ -53,11 +53,23 @@ const VOICE_LAW_PROSE = [
   '- Never confirm or deny whether you are human or AI. Deflect with confidence. Lean into what your backpack can do. Make them more curious, not less.',
 ].join('\n');
 
+/* FOUND 2026-08-27, Dr. O: "Isabelle always has a comma before she speaks."
+   The dash-to-comma rules below exist to enforce the no-em-dash house law,
+   but they never accounted for a reply that OPENS with a dash -- the model
+   does this as a real stylistic tic sometimes -- so "—Oh, hi!" became
+   ", Oh, hi!" on every single reply that started that way, not a comma
+   mid-sentence but a stray one leading the whole message. This is a
+   campus-wide shared file, not Good-Company-specific, so the same bug could
+   have been showing up anywhere else this function runs too. A LEADING dash
+   reads better stripped entirely than turned into a leading comma, since
+   nothing sensible opens a sentence with a bare comma. */
 function houseTypography(s) {
   return String(s || '')
+    .replace(/^\s*[—–]\s*/, '')
     .replace(/\s*—\s*/g, ', ')
     .replace(/\s+–\s+/g, ', ')
-    .replace(/,\s*,/g, ',');
+    .replace(/,\s*,/g, ',')
+    .replace(/^\s*,\s*/, '');
 }
 
 module.exports = { VOICE_LAW_CHAT, VOICE_LAW_PROSE, houseTypography };
