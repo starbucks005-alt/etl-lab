@@ -2251,7 +2251,7 @@ function showCreditsUpsell(isDailyCap, ownerKeyRejected) {
     var existingToken = GC_accessToken();
     var addonBtn = document.createElement('button');
     addonBtn.type = 'button'; addonBtn.className = 'btn';
-    addonBtn.textContent = '+60 credits, $4.99';
+    addonBtn.textContent = '+150 credits, $4.99';
     addonBtn.addEventListener('click', function () {
       startCreditsCheckout('/.netlify/functions/create-checkout-ah-addon', { access_token: existingToken || '' });
     });
