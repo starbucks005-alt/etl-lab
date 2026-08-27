@@ -253,3 +253,19 @@ body{
    audience skews older. */
 footer a{ color:var(--accent); text-decoration:underline; text-underline-offset:2px; }
 footer a:hover{ color:var(--accent-hover); }
+
+/* ── header nav ───────────────────────────────────────────────────────────
+   Added 2026-08-26 on index.html only, MOVED here 2026-08-27 per Dr. O
+   direct ("have the nav bar on the build and questions page too") so all
+   three pages that share a <header> can share this one rule instead of each
+   carrying its own copy. build.html and faq.html point their four links back
+   at index.html's own sections (index.html#demos etc.) since neither page
+   has those sections itself; index.html's own copy uses the bare #demos
+   anchors, already in place before this file existed. */
+.topnav{ display:flex; gap:1.6rem; }
+.topnav a{
+  font-family:var(--mono); font-size:.78rem; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--ink-dim); text-decoration:none;
+}
+.topnav a:hover{ color:var(--ink); }
+@media (max-width:680px){ .topnav{ display:none; } }

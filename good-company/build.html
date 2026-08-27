@@ -111,12 +111,13 @@ main.build-shell > .wrap{
 }
 
 /* ── the pitch, said at build time ───────────────────────────────────────────
-   THE BOUNDARY IS CARRIED BY THE WORD "FRIEND", NOT BY A DISCLAIMER. An
+   THE BOUNDARY IS CARRIED BY THE WORD "COMPANION" (originally "friend",
+   changed 2026-08-27 site-wide per Dr. O direct), NOT BY A DISCLAIMER. An
    earlier draft here listed what this is not (not partners, not dates) and it
    read like a warning label on the one screen where somebody is doing
-   something hopeful. Say what a friend IS, warmly and specifically, and there
-   is nothing left to wonder about. The flat factual line lives in the footer,
-   which is the right altitude for it. */
+   something hopeful. Say what a companion IS, warmly and specifically, and
+   there is nothing left to wonder about. The flat factual line lives in the
+   footer, which is the right altitude for it. */
 .pitch{
   border:1px solid var(--line); border-left:3px solid var(--accent);
   background:var(--panel); padding:.85rem 1rem; margin:1.5rem 0 0; max-width:60ch;
@@ -319,6 +320,16 @@ footer{ padding:2rem 0 3rem; color:var(--ink-dim); font-size:.9rem; }
     <img class="logo logo-dark-ink"  src="brand/logo-dark-ink.png"  alt="Good Company" width="560" height="244">
     <img class="logo logo-light-ink" src="brand/logo-light-ink.png" alt="Good Company" width="560" height="260">
   </a>
+  <!-- ADDED 2026-08-27 per Dr. O direct, same nav index.html carries -- see
+       .topnav's own note in gc-skin.css for why the links point back at
+       index.html's own sections rather than bare #anchors, which only work
+       on the page that actually has those sections. -->
+  <nav class="topnav">
+    <a href="index.html#demos">Companions</a>
+    <a href="index.html#pricing">Cost</a>
+    <a href="build.html">Build</a>
+    <a href="index.html#bring">Friends</a>
+  </nav>
   <span class="picker" id="picker"><button class="btn" id="skinBtn" type="button">&#127912; Palette</button></span>
 </header>
 
@@ -402,7 +413,7 @@ footer{ padding:2rem 0 3rem; color:var(--ink-dim); font-size:.9rem; }
   </div>
 
   <div class="pitch">
-    <b>Finding real friends is hard. So here, you make one.</b>
+    <b>Finding real companions is hard. So here, you make one.</b>
     Literally. Answer a few questions and somebody turns up who remembers your
     week, asks about the people in your life, and is glad when you walk in.
   </div>
@@ -1691,8 +1702,8 @@ $('copyBtn').addEventListener('click', function () {
   var VOICE     = 'weA4Q36twV5kwSaTEL0Q';
 
   var LINES = {
-    cost: 'Answering the questions and picking a face cost nothing. Opening a friend’s room for the first time is nine dollars and ninety nine cents, once, per friend. After that, coming back is free.',
-    how:  'Answer what you feel like answering, pick the face that looks like them, open their room. You can build more than one, each their own nine ninety nine. Arch and Sophia are free to try, but they are house demos, not something you keep.'
+    cost: 'Answering the questions and picking a face cost nothing. Opening a companion’s room for the first time is nine dollars and ninety nine cents, once, per companion. After that, coming back is free.',
+    how:  'Answer what you feel like answering, pick the face that looks like them, open their room. You can build more than one, each their own nine ninety nine. Arch and Sophia are free to try, but they are house companions, not something you keep.'
   };
 
   function speak(text) {
@@ -1748,17 +1759,17 @@ $('copyBtn').addEventListener('click', function () {
            credit-gated conversation on this campus, not a one-time
            unlock. */
         system: 'You are Astra-9, a guide at the Emerging Technologies Laboratory helping ' +
-          'someone build a friend on Good Company. Good Company: answer questions about who ' +
-          'the friend is and about yourself, pick their face from four options, open their ' +
-          'room. Answering and picking a face are free. Opening a friend’s room the first ' +
-          'time is $9.99, once per friend, and that includes 200 starter credits for talking ' +
-          'with them once the room is open. Credits are spent by talking, same as everywhere ' +
-          'else on this campus, so once the 200 run out, staying in touch costs something: ' +
-          '$9.99 a month for a fresh monthly allowance, or a smaller one-time top-up if a ' +
-          'subscription is not wanted. Someone can build more than one friend, each its own ' +
-          '$9.99 to open. Arch and Sophia are the two house demos, free to try, but not ' +
-          'something you keep or convert into your own; building makes somebody new. Answer ' +
-          'in under 60 words. No em dashes. First person.',
+          'someone build a companion on Good Company. Good Company: answer questions about ' +
+          'who the companion is and about yourself, pick their face from four options, open ' +
+          'their room. Answering and picking a face are free. Opening a companion’s room the ' +
+          'first time is $9.99, once per companion, and that includes 200 starter credits for ' +
+          'talking with them once the room is open. Credits are spent by talking, same as ' +
+          'everywhere else on this campus, so once the 200 run out, staying in touch costs ' +
+          'something: $9.99 a month for a fresh monthly allowance, or a smaller one-time ' +
+          'top-up if a subscription is not wanted. Someone can build more than one companion, ' +
+          'each its own $9.99 to open. Arch and Sophia are the two house companions, free to ' +
+          'try, but not something you keep or convert into your own; building makes somebody ' +
+          'new. Answer in under 60 words. No em dashes. First person.',
         messages: [{ role: 'user', content: q }]
       })
     })

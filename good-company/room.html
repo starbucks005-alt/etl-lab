@@ -1402,7 +1402,7 @@ function askForScene() {
        of theirs to make one of, which is a different sentence and a thing they
        can go and do. */
     post('More scenes', 'A scene is made from the picture you chose when you built ' +
-         'somebody, and there is not one on this device yet. Make a friend first and ' +
+         'somebody, and there is not one on this device yet. Make a companion first and ' +
          'this will be waiting.');
     return;
   }
@@ -1712,8 +1712,8 @@ function askForScene() {
   }
 
   if (!GC_BUILT) {
-    post('A scene arrived', 'This scene belongs to a friend you built, and there is not one ' +
-         'on this device yet. Make your friend first and open the link again.');
+    post('A scene arrived', 'This scene belongs to a companion you built, and there is not one ' +
+         'on this device yet. Make your companion first and open the link again.');
     return;
   }
 
@@ -1763,8 +1763,8 @@ function askForScene() {
     return;
   }
   if (!GC_BUILT) {
-    post('A voice arrived', 'This belongs to a friend you built, and there is not one on ' +
-         'this device yet. Make your friend first and open the link again.');
+    post('A voice arrived', 'This belongs to a companion you built, and there is not one on ' +
+         'this device yet. Make your companion first and open the link again.');
     return;
   }
 
@@ -2927,7 +2927,7 @@ function startPolling() {
            friend-speaker row now, and only falls back to FRIEND.name when
            it is genuinely missing. */
         var label = (m.speaker === "friend")
-          ? (m.name || FRIEND.name || "Friend")
+          ? (m.name || FRIEND.name || "Companion")
           : (m.name || "Someone");
 
         var bubble = post(label, m.content, m.speaker === "person" && m.author_id && m.author_id === MY_SEAT_ID);
@@ -3292,7 +3292,7 @@ $('memBtn').addEventListener('click', function () {
    to glance at, not something that needs its own screen. */
 $('creditsBtn').addEventListener('click', function () {
   var token = GC_accessToken();
-  if (!token) { post('Credits', 'No account on this browser yet — build a friend, subscribe, or buy credits to get one.'); return; }
+  if (!token) { post('Credits', 'No account on this browser yet — build a companion, subscribe, or buy credits to get one.'); return; }
   fetch('/.netlify/functions/gc-my-credits', {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ access_token: token })

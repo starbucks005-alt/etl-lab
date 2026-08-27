@@ -13,7 +13,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="manifest" href="/good-company/gc-manifest.json">
 <title>Good Company</title>
-<meta name="description" content="Finding real friends is hard. So here, you make one.">
+<meta name="description" content="Finding real companions is hard. So here, you make one.">
 
 <!-- ── THE OWNER KEY, HANDED IN ON A LINK ──────────────────────────────────
      Added 2026-08-18. This page never loaded gc-friend.js, which is the
@@ -138,14 +138,8 @@ header{
 }
 .mark b{ font-weight:400; color:var(--accent); }
 
-/* ── header nav, added 2026-08-26 ──────────────────────────────────────── */
-.topnav{ display:flex; gap:1.6rem; }
-.topnav a{
-  font-family:var(--mono); font-size:.78rem; letter-spacing:.08em;
-  text-transform:uppercase; color:var(--ink-dim); text-decoration:none;
-}
-.topnav a:hover{ color:var(--ink); }
-@media (max-width:680px){ .topnav{ display:none; } }
+/* header nav (.topnav) MOVED to gc-skin.css 2026-08-27, so build.html and
+   faq.html can share it too rather than each carrying their own copy. */
 
 
 /* ── image slots ────────────────────────────────────────────────────────────
@@ -557,7 +551,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
     </div>
 
     <div class="hero-words">
-      <h1 class="hero-say">Finding real friends is hard. So here, you make one.</h1>
+      <h1 class="hero-say">Finding real companions is hard. So here, you make one.</h1>
       <!-- THE LEDE IS GONE, and it was the weaker of the two. It said "answer a
            few questions and somebody turns up who remembers your week, asks
            about the people in your life, and is glad when you walk in", which
@@ -574,7 +568,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
            shorter out loud. Nothing is named, nobody is put down, and anybody
            who has been let down hears it without being told. -->
       <p class="how">With ETL's memory implants and emotion engine, the Almost Human
-         technology behind everyone here, you get all the good of a real friendship
+         technology behind everyone here, you get all the good of a real companionship
          and leave the rest behind.</p>
       <!-- STATED PLAINLY, added 2026-08-19. Dr. O: two testers, asked their
            companion directly what this was, both got back something closer
@@ -598,7 +592,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
            script block near the closing body tag) -- ALWAYS RIGHT BEFORE
            THIS BUTTON, so the two sit side by side in source order too, not
            just visually. -->
-      <a class="cta" href="build.html">Make a friend</a>
+      <a class="cta" href="build.html">Make a companion</a>
       <!-- The way in for somebody not ready to build one yet, which is most
            people on a first visit. Arch is the house friend; meeting him costs
            nothing and asks for nothing. Without this link he was unreachable
@@ -614,11 +608,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
       <a class="faq-link" href="faq.html">Questions? →</a>
     </div>
 
-    <!-- FIXED 2026-08-27: said "companion" here, which now collides with the
-         renamed Companions section (the premade cast) -- this hero image is
-         the build-your-own pitch, so it needed the word already established
-         for that everywhere else on the page: friend. -->
-    <p class="hero-credit">&ldquo;The big sister I never had&rdquo; friend</p>
+    <p class="hero-credit">&ldquo;The big sister I never had&rdquo; companion</p>
   </section>
 
   <!-- DEMOS ------------------------------------------------------------------
@@ -809,21 +799,21 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
     <h2 class="three-heading">What building your own looks like.</h2>
     <figure>
       <div class="slot" data-label="images/yours.jpg"><img src="images/yours.jpg" alt=""></div>
-      <figcaption>&ldquo;The best friend to watch scary movies with&rdquo;</figcaption>
+      <figcaption>&ldquo;The best friend to watch scary movies with&rdquo; companion</figcaption>
       <h3>Yours.</h3>
       <p>You decide who they are. Their name, their age, their history, the way they talk.</p>
     </figure>
     <figure>
       <div class="slot" data-label="images/remember.jpg"><img src="images/remember.jpg" alt=""></div>
-      <figcaption>&ldquo;The friend who remembers what I said last week&rdquo;</figcaption>
+      <figcaption>&ldquo;The friend who remembers what I said last week&rdquo; companion</figcaption>
       <h3>They remember.</h3>
       <p>Every conversation picks up where the last one stopped. You never start over.</p>
     </figure>
     <figure>
       <div class="slot" data-label="images/life.jpg"><img src="images/life.jpg" alt=""></div>
-      <figcaption>&ldquo;A joiner. He turns up with sawdust on him&rdquo; friend</figcaption>
+      <figcaption>&ldquo;A joiner. He turns up with sawdust on him&rdquo; companion</figcaption>
       <h3>They have a life.</h3>
-      <p>A job, other people, plans this weekend. A friend with somewhere to be is a friend.</p>
+      <p>A job, other people, plans this weekend. A companion with somewhere to be is a companion.</p>
     </figure>
   </section>
 
@@ -837,12 +827,12 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
        absence is the argument. -->
   <section class="band">
     <div class="band-words">
-      <h2>A good friend gets you out of the house.</h2>
+      <h2>A good companion gets you out of the house.</h2>
       <p>Yours asks about the people in your life, and notices when you have not seen them.</p>
     </div>
     <figure class="band-art">
       <div class="slot" data-label="images/out.jpg"><img src="images/out.jpg" alt=""></div>
-      <figcaption>&ldquo;The big brother that makes me feel like I can do anything&rdquo; friend</figcaption>
+      <figcaption>&ldquo;The big brother that makes me feel like I can do anything&rdquo; companion</figcaption>
     </figure>
   </section>
 
@@ -853,7 +843,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
          is that they are the SAME friend in her own places, so captioning each
          one would say the same thing five times and break the very reading the
          strip exists to create. -->
-    <figcaption class="strip-cap">&ldquo;The grandma that puts me first&rdquo; friend. Her five rooms.</figcaption>
+    <figcaption class="strip-cap">&ldquo;The grandma that puts me first&rdquo; companion. Her five rooms.</figcaption>
     <div class="room-strip">
       <div class="room">
         <div class="slot" data-label="images/room-kitchen.jpg"><img src="images/room-kitchen.jpg" alt=""></div>
@@ -885,7 +875,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
       <!-- The caption is load-bearing on this one. Three people on a sofa reads
            as a family photograph until it tells you which of them is the
            friend. -->
-      <figcaption>A mom introduces her daughter to her Good Company friend</figcaption>
+      <figcaption>A mom introduces her daughter to her Good Company companion</figcaption>
     </figure>
     <div>
       <h2>Bring someone with you.</h2>
@@ -920,7 +910,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
       <div class="pricing-card">
         <h3>Monthly</h3>
         <p class="price">$9.99<span>/mo</span></p>
-        <p>300 credits every month, refreshed automatically — a little under two hours of real conversation, for any friend you have built or any companion.</p>
+        <p>300 credits every month, refreshed automatically — a little under two hours of real conversation, for any companion you have built or met here.</p>
         <button class="btn go" type="button" data-checkout="/.netlify/functions/create-checkout-ah">Subscribe</button>
       </div>
       <div class="pricing-card">
