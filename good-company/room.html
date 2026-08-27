@@ -1407,10 +1407,15 @@ function askForScene() {
     return;
   }
 
+  /* FIXED 2026-08-26 per Dr. O direct: this said "made to order either way, for
+     $4.99," which was never true of the bring-your-own path -- see mode 'own'
+     in the send handler below, which writes straight to GC_BUILT.scenes with
+     no server round-trip and no charge at all. The old text told every
+     visitor both options cost money right before showing them a free one. */
   showGate('mem', 'Somewhere else to sit',
-    'Say where you would like ' + FRIEND.name + ' to be, and it gets made: moving, ' +
-    'rather than a still. Or bring your own, already made. Made to order either way, ' +
-    'for $4.99. Asking costs nothing -- you only pay once you say to make it.');
+    'Say where you would like ' + FRIEND.name + ' to be, and it gets made for you: moving, ' +
+    'rather than a still, for $4.99. Or bring your own, already made -- that one is free, ' +
+    'wired in right away, no charge at all.');
   $('startBtn').textContent = 'Back to ' + FRIEND.name;
 
   var host = $('memPanel');
@@ -1477,7 +1482,8 @@ function askForScene() {
   host.appendChild(ownFields);
 
   var vimeoRow = rowIn(ownFields, 'A Vimeo link or id',
-    'Already uploaded somewhere? Paste the link (or just the id) and skip the render entirely.');
+    'Already uploaded somewhere? Paste the link (or just the id) and it is wired in right ' +
+    'away -- free, no $4.99, no render to wait on.');
   var vimeoInput = document.createElement('input');
   vimeoInput.type = 'text'; vimeoInput.autocomplete = 'off';
   vimeoInput.placeholder = 'vimeo.com/1219868589, or just 1219868589';
