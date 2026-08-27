@@ -325,24 +325,20 @@ figcaption{
 }
 figure{ margin:0; }
 
-/* NO LONGER PINNED TO A FIXED SPOT ON THE PHOTOGRAPH, 2026-08-27. The
-   original version used position:absolute, right/bottom offsets calibrated
-   for exactly one button's worth of height below it. A returning visitor
-   gets a second button ("Enter <name>'s room" -- see the script near the
-   closing body tag), which makes the buttons taller, and that fixed spot
-   does not move to get out of the way -- it collided with the buttons
-   themselves at some widths (two side by side) and with the Questions link
-   at others (stacked, narrow phones). Tried a mobile-only fix first; it
-   turned out not to be mobile-only (Dr. O, screenshot, buttons side by
-   side, not a phone width). Flowing it in normal document order after the
-   buttons is the version that cannot collide at ANY width or button count,
-   because it is never pinned to a fixed spot in the first place. */
+/* UNDER THE PHOTOGRAPH NOW, NOT ON IT, 2026-08-27, Dr. O direct. Two earlier
+   passes today (a fixed absolute spot, then flowing inside .hero-words)
+   both still overlaid it on the picture and both still risked colliding
+   with the buttons above it as their count or width changed. Living outside
+   .hero entirely sidesteps that for good -- there is no photo underneath it
+   to collide with. Styled like the page's other figcaptions (ink-dim, no
+   shadow) rather than the old white-on-photo treatment, which only made
+   sense while this sat on top of the picture. */
 .hero-credit{
-  margin:.7rem 0 0; text-align:right;
-  font-family:var(--mono); font-size:.7rem; letter-spacing:.08em;
-  color:rgba(255,255,255,.72); text-shadow:0 1px 12px rgba(0,0,0,.6);
+  margin:.7rem 0 0; padding-top:.9rem;
+  text-align:right;
+  font-family:var(--mono); font-size:.72rem; letter-spacing:.06em;
+  color:var(--ink-dim);
 }
-.hero.no-art .hero-credit{ display:none; }
 
 /* ── three ──────────────────────────────────────────────────────────────── */
 .three{
@@ -615,18 +611,18 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
            linked below, where somebody who actually has that question can
            go looking for it rather than tripping over it on the way in. -->
       <a class="faq-link" href="faq.html">Questions? →</a>
-      <!-- MOVED INSIDE .hero-words 2026-08-27: was a sibling of it, absolutely
-           pinned to a fixed spot at the bottom of the photo. That works for
-           one button, but a returning visitor gets a second one ("Enter
-           <name>'s room" -- see the script near the closing body tag) that
-           makes this block taller, and on a narrow phone the fixed-position
-           caption landed right on top of it (Dr. O, screenshot, Pixel 7).
-           Living inside .hero-words now, it stays absolute (unchanged look)
-           on desktop, and flows below the buttons on mobile instead, so it
-           can never collide no matter how many buttons stack. -->
-      <p class="hero-credit">&ldquo;The big sister I never had&rdquo; companion</p>
     </div>
   </section>
+
+  <!-- MOVED OUT FROM OVER THE PHOTOGRAPH, 2026-08-27, Dr. O direct: "it
+       should sit under the image of the woman." Two earlier fixes today kept
+       it overlaid on the photo (first pinned to a fixed spot, then flowing
+       inside .hero-words), and both still put it somewhere ON the picture
+       rather than under it. This is the real ask: off the photo entirely,
+       styled like every other caption on this page (figcaption, ink-dim, no
+       photo-shadow treatment) instead of the hero's white-on-photo look,
+       which only ever made sense while it sat on top of the picture. -->
+  <p class="hero-credit wrap">&ldquo;The big sister I never had&rdquo; companion</p>
 
   <!-- DEMOS ------------------------------------------------------------------
        REPLACES the old quiet text link ("or try one of our demos: Arch,
