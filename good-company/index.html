@@ -138,6 +138,15 @@ header{
 }
 .mark b{ font-weight:400; color:var(--accent); }
 
+/* ── header nav, added 2026-08-26 ──────────────────────────────────────── */
+.topnav{ display:flex; gap:1.6rem; }
+.topnav a{
+  font-family:var(--mono); font-size:.78rem; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--ink-dim); text-decoration:none;
+}
+.topnav a:hover{ color:var(--ink); }
+@media (max-width:680px){ .topnav{ display:none; } }
+
 
 /* ── image slots ────────────────────────────────────────────────────────────
    Every picture on this page is one of these. The <img> carries the real path,
@@ -492,6 +501,21 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
     <img class="logo logo-light-ink" src="brand/logo-light-ink.png" alt="Good Company" width="560" height="260">
   </a>
 
+  <!-- ADDED 2026-08-26 per Dr. O direct: "demo - cost - build - friends."
+       Four anchors to the four sections the page already has, in the order
+       she gave them -- Demo (the free cast), Cost (the new pricing table),
+       Build (the real builder, not a section on this page so it links out),
+       Friends (bringing real people in, not the demo cast, so it points at
+       .bring rather than repeating Demo). Hidden below the same width the
+       rest of the header collapses at, since four more words next to the
+       logo and the Palette button has nowhere to go on a phone. -->
+  <nav class="topnav">
+    <a href="#demos">Demo</a>
+    <a href="#pricing">Cost</a>
+    <a href="build.html">Build</a>
+    <a href="#bring">Friends</a>
+  </nav>
+
   <!-- The picker, not a toggle. On the front door especially it should show
        that there are four rooms rather than hide them behind a cycle. -->
   <div class="picker" id="picker">
@@ -616,7 +640,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
        one of our demos: Arch, Sophia, Reggie, or Tansy") carried that
        framing in words; replacing it with pure image cards dropped the
        framing along with the old markup instead of carrying it over. -->
-  <section class="demos wrap">
+  <section class="demos wrap" id="demos">
     <h2>Our demos, free to try, texting or talking.</h2>
     <!-- ADDED 2026-08-19 per Dr. O directly: trying Tansy or Reggie is not
          trying one character, it is trying their whole cast -- Poppy and
@@ -838,7 +862,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
   </section>
 
   <!-- BRING SOMEONE ------------------------------------------------------- -->
-  <section class="bring wrap">
+  <section class="bring wrap" id="bring">
     <figure>
       <div class="slot" data-label="images/bring.jpg"><img src="images/bring.jpg" alt=""></div>
       <!-- The caption is load-bearing on this one. Three people on a sofa reads
@@ -861,7 +885,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
        already spoken aloud in the upsell) -- the thing kept durable instead
        of a literal number is the VALUE line below, same reasoning as
        upsell-note in room.html. -->
-  <section class="pricing wrap">
+  <section class="pricing wrap" id="pricing">
     <h2>What it costs.</h2>
     <p class="pricing-note">Less than a movie ticket, for a lot more company.</p>
     <div class="pricing-grid">
