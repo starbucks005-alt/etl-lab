@@ -638,7 +638,7 @@ footer{ padding:2rem 0 3rem; color:var(--ink-dim); font-size:.9rem; }
 
   <div class="end">
     <button class="btn go" id="makeBtn" type="button">Meet the faces</button>
-    <p id="endNote">Four faces, built from your answers. You pick the one that looks like them.</p>
+    <p id="endNote">Bring them to life by creating four portraits and choose the one that best represents your companion.</p>
   </div>
 
   <!-- ── FACES ───────────────────────────────────────────────────────────── -->
@@ -649,10 +649,10 @@ footer{ padding:2rem 0 3rem; color:var(--ink-dim); font-size:.9rem; }
          than four stock photographs: a convincing mock here is how a layout
          gets signed off on behaviour that does not exist. -->
     <div class="face-grid" id="faceGrid"></div>
-    <p class="lede" id="faceNote">Pick the one that looks like them. You can draw another four
-      if none of them do.</p>
+    <p class="lede" id="faceNote">Choose the one that best represents your companion. Don't like
+      any of them, make four more.</p>
     <p style="margin:0 0 .4rem">
-      <button class="btn" type="button" id="redrawBtn">Draw four more</button>
+      <button class="btn" type="button" id="redrawBtn">Generate four more</button>
     </p>
 
     <div class="summary">
@@ -1247,7 +1247,7 @@ function renderAlready() {
        repaints the summary each time rather than only once, because with a
        list there can be several friends to choose faces for in one visit. */
     var facesBtn = document.createElement('button');
-    facesBtn.type = 'button'; facesBtn.className = 'btn go'; facesBtn.textContent = 'Draw new faces';
+    facesBtn.type = 'button'; facesBtn.className = 'btn go'; facesBtn.textContent = 'Generate new faces';
     facesBtn.addEventListener('click', function () {
       friend = built;
       var dl = $('sumList'); dl.innerHTML = '';
@@ -1490,7 +1490,7 @@ function paintRedraw() {
   var b = $('redrawBtn');
   if (left > 0) {
     b.disabled = false;
-    b.textContent = 'Draw four more';
+    b.textContent = 'Generate four more';
     b.title = left + (left === 1 ? ' set left' : ' sets left');
   } else {
     b.disabled = true;
@@ -1575,11 +1575,11 @@ function drawFaces() {
             ? 'Faces are not connected to a drawing key yet. Everything else you built is saved.'
             : 'Could not draw the faces: ' + firstProblem + '. Your answers are saved.';
         } else if (drawn < FACE_COUNT) {
-          $('faceNote').textContent = 'Pick the one that looks like them. ' +
-            (FACE_COUNT - drawn) + ' did not draw; you can draw four more.';
+          $('faceNote').textContent = 'Choose the one that best represents your companion. ' +
+            (FACE_COUNT - drawn) + ' did not draw; make four more.';
         } else {
-          $('faceNote').textContent = 'Pick the one that looks like them. ' +
-            'You can draw another four if none of them do.';
+          $('faceNote').textContent = 'Choose the one that best represents your companion. ' +
+            "Don't like any of them, make four more.";
         }
       });
   });
