@@ -325,31 +325,24 @@ figcaption{
 }
 figure{ margin:0; }
 
-/* The hero's caption sits on the photograph rather than under it, bottom right,
-   away from the headline. Fixed light, like the rest of the type over the
-   picture: a skin may repaint the page but never the words on the image. */
+/* NO LONGER PINNED TO A FIXED SPOT ON THE PHOTOGRAPH, 2026-08-27. The
+   original version used position:absolute, right/bottom offsets calibrated
+   for exactly one button's worth of height below it. A returning visitor
+   gets a second button ("Enter <name>'s room" -- see the script near the
+   closing body tag), which makes the buttons taller, and that fixed spot
+   does not move to get out of the way -- it collided with the buttons
+   themselves at some widths (two side by side) and with the Questions link
+   at others (stacked, narrow phones). Tried a mobile-only fix first; it
+   turned out not to be mobile-only (Dr. O, screenshot, buttons side by
+   side, not a phone width). Flowing it in normal document order after the
+   buttons is the version that cannot collide at ANY width or button count,
+   because it is never pinned to a fixed spot in the first place. */
 .hero-credit{
-  position:absolute; right:clamp(1rem,3vw,2.25rem); bottom:clamp(.9rem,2.5vw,1.6rem);
-  z-index:2; margin:0;
+  margin:.7rem 0 0; text-align:right;
   font-family:var(--mono); font-size:.7rem; letter-spacing:.08em;
   color:rgba(255,255,255,.72); text-shadow:0 1px 12px rgba(0,0,0,.6);
 }
 .hero.no-art .hero-credit{ display:none; }
-
-/* NO LONGER PINNED ON A PHONE, 2026-08-27: the rule above sits it absolutely
-   at a fixed spot in the corner of the photo, which only ever had to clear
-   one button's worth of height. A returning visitor gets a second button
-   ("Enter <name>'s room") that this fixed position never accounted for, and
-   on a narrow phone the two collided (Dr. O, screenshot, every phone size,
-   not just one). Flowing it here means it always lands below whatever
-   buttons are actually there, one or two. PLACED AFTER .hero-credit ABOVE
-   ON PURPOSE: an earlier version of this override lived inside the
-   @media block near the top of the file and silently lost the cascade tie
-   to this later, equal-specificity rule -- source order decides ties, not
-   which one sounds more specific. */
-@media (max-width:760px){
-  .hero-credit{ position:static; margin-top:.7rem; text-align:right; }
-}
 
 /* ── three ──────────────────────────────────────────────────────────────── */
 .three{
