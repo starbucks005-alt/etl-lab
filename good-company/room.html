@@ -329,6 +329,11 @@ html{ zoom:90%; }
    knowing she is playing a part. Shown only when a friend has one written
    (FRIEND.premise), so a built friend's doorstep is unaffected. */
 .gate-premise{ font-style:italic; color:var(--ink-dim); font-size:19px; margin:0 0 1rem; line-height:1.55; }
+/* THE VALUE LINE inside the credits upsell bubble in the chat log (see
+   showCreditsUpsell() in the script below) -- not part of the gate itself,
+   just placed near it in the stylesheet since both are small supporting
+   lines of copy. */
+.upsell-note{ color:var(--ink-dim); font-size:13.5px; margin:.35rem 0 0; }
 /* BIO CLIP AND TALKING POINTS, added 2026-08-26. Small and quiet on
    purpose: the premise above already does the main introducing, these are
    an optional assist for somebody who wants to hear a voice first or
@@ -2205,6 +2210,19 @@ function showCreditsUpsell(isDailyCap, ownerKeyRejected) {
     : "Out of credits for " + FRIEND.name + " right now.";
   box.appendChild(say);
 
+  /* THE VALUE LINE, added 2026-08-26 per Dr. O direct: "make everything very
+     visible and clear." Deliberately no dollar figure -- see the same
+     decision written out in create-checkout-ah-addon-xl.js and
+     _ah-credits.js's XL_ADDON_CREDITS comment. A real number here would go
+     stale the day token pricing, the ElevenLabs plan, or the model itself
+     changes; a durable comparison says the same thing and stays true. */
+  if (!ownerKeyRejected) {
+    var value = document.createElement('p');
+    value.className = 'upsell-note';
+    value.textContent = 'Less than a movie ticket, for a lot more company.';
+    box.appendChild(value);
+  }
+
   /* NO PURCHASE BUTTONS FOR A REJECTED OWNER KEY. Offering to buy credits or
      subscribe to somebody who was trying to use the owner bypass is the
      wrong answer to the actual problem, and it is exactly what real
@@ -2232,6 +2250,19 @@ function showCreditsUpsell(isDailyCap, ownerKeyRejected) {
       startCreditsCheckout('/.netlify/functions/create-checkout-ah-addon', { access_token: existingToken || '' });
     });
     actions.appendChild(addonBtn);
+
+    /* THE XL PACK, added 2026-08-26 for someone using this at Pookie's actual
+       volume (real GA data: ~10 hours/week) rather than an occasional top-up
+       -- see create-checkout-ah-addon-xl.js and XL_ADDON_CREDITS's own
+       comment in _ah-credits.js for the reasoning behind 2,000 credits at
+       $60. */
+    var xlBtn = document.createElement('button');
+    xlBtn.type = 'button'; xlBtn.className = 'btn';
+    xlBtn.textContent = '+2,000 credits, $60';
+    xlBtn.addEventListener('click', function () {
+      startCreditsCheckout('/.netlify/functions/create-checkout-ah-addon-xl', { access_token: existingToken || '' });
+    });
+    actions.appendChild(xlBtn);
 
     box.appendChild(actions);
   }

@@ -30,6 +30,18 @@ const GROUP_MESSAGE_COST = 3;      // credits per guest message in the group roo
 // ~$1.80, still comfortable margin. Shared by Almost Human and Good
 // Company's top-up flow, so this one change covers both at once.
 const ADDON_CREDITS = 60;          // credits granted by one addon-pack purchase
+// XL_ADDON_CREDITS, added 2026-08-26 per Dr. O direct, for a user using this
+// at Pookie's actual volume (real GA data: ~10 hours/week, ~190-200 credits
+// per hour -- roughly a week's worth in one pack). Priced at $60, Dr. O's
+// own math: $6/hour times 10 hours, so the price is directly, visibly tied
+// to the same per-hour figure used to talk about value elsewhere, not a
+// separately invented number. That $6/hour is itself a deliberately
+// conservative round number -- real Claude Console cost data the same day
+// showed Good Company's entire org-wide daily spend at close to $1, well
+// under the worst-case ceiling TIER2_MONTHLY_CREDITS and ADDON_CREDITS
+// above were sized against, so there was real room underneath this price,
+// not just enough to cover cost.
+const XL_ADDON_CREDITS = 2000;     // credits granted by the large addon pack
 const ROLLOVER_DAYS = 30;
 
 // STARTER_CREDITS: Good Company, 2026-08-17, raised 100 -> 200 on 2026-08-19
@@ -200,6 +212,7 @@ module.exports = {
   ONE_TO_ONE_COST,
   GROUP_MESSAGE_COST,
   ADDON_CREDITS,
+  XL_ADDON_CREDITS,
   STARTER_CREDITS,
   randomToken,
   safeToken,

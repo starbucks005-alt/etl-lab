@@ -20,7 +20,7 @@
 */
 
 const { connectLambda, getStore } = require('@netlify/blobs');
-const { randomToken, safeToken, getCreditRow, TIER2_MONTHLY_CREDITS, ADDON_CREDITS, SUPABASE_URL } = require('./_ah-credits.js');
+const { randomToken, safeToken, getCreditRow, TIER2_MONTHLY_CREDITS, ADDON_CREDITS, XL_ADDON_CREDITS, SUPABASE_URL } = require('./_ah-credits.js');
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -73,13 +73,22 @@ exports.handler = async (event) => {
     // without first committing to a $9.99/mo subscription. Same
     // subscription_active:false, fixed-balance, only-depletes shape
     // gc-friend-checkout.js already uses for exactly this situation.
+    //
+    // GRANT SIZE READ FROM metadata.source, added 2026-08-26 alongside the
+    // XL addon (create-checkout-ah-addon-xl.js). Before this, EVERY one-time
+    // payment session granted a flat ADDON_CREDITS regardless of what was
+    // actually charged -- harmless while only one price existed, but a real
+    // bug the moment a second, larger price did: a $79 buyer would have paid
+    // full price and received the same 60 credits as the $4.99 button.
+    const source = session.metadata && session.metadata.source;
+    const grantAmount = source === 'almost_human_addon_xl' ? XL_ADDON_CREDITS : ADDON_CREDITS;
     const token = safeToken(session.metadata && session.metadata.ah_access_token);
     if (token) {
       const row = await getCreditRow(token, serviceKey);
       if (!row) {
         outcome = { ok: false, error: 'unknown_access_token' };
       } else {
-        const balance = row.balance + ADDON_CREDITS;
+        const balance = row.balance + grantAmount;
         await fetch(`${SUPABASE_URL}/rest/v1/ah_credits?access_token=eq.${encodeURIComponent(token)}`, {
           method: 'PATCH',
           headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
@@ -97,11 +106,11 @@ exports.handler = async (event) => {
           email,
           stripe_customer_id: session.customer || null,
           subscription_active: false,
-          balance: ADDON_CREDITS,
+          balance: grantAmount,
           last_topped_up_at: new Date().toISOString(),
         }),
       });
-      outcome = { ok: true, access_token: fresh, balance: ADDON_CREDITS };
+      outcome = { ok: true, access_token: fresh, balance: grantAmount };
     }
   } else {
     // New subscription: mint a fresh token and seed the tier-2 allotment.
