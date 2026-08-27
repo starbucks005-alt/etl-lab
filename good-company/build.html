@@ -1325,6 +1325,14 @@ function renderAlready() {
       catalogFaq.textContent = 'What does that mean?';
       actions.appendChild(catalogFaq);
     }
+    /* BROWSE LINK, added 2026-08-27 alongside catalog.html itself -- the
+       add side lived here with no way to see what it produced until Dr. O
+       caught it directly. Shown regardless of built.inCatalog: browsing is
+       useful whether or not THIS particular friend has been added. */
+    var catalogBrowse = document.createElement('a');
+    catalogBrowse.href = 'catalog.html'; catalogBrowse.className = 'faq-note';
+    catalogBrowse.textContent = 'Browse the catalog';
+    actions.appendChild(catalogBrowse);
 
     var forgetBtn = document.createElement('button');
     forgetBtn.type = 'button'; forgetBtn.className = 'btn'; forgetBtn.textContent = 'Forget';

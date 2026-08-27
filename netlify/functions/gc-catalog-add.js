@@ -50,7 +50,7 @@ function json(status, obj) {
    the friend shape later stays private by default instead of leaking into
    the catalog the day someone adds it. */
 const CATALOG_FIELDS = [
-  'name', 'age', 'gender', 'from', 'work', 'into', 'knows', 'been',
+  'name', 'kind', 'age', 'gender', 'from', 'work', 'into', 'knows', 'been',
   'voice', 'voiceId', 'portrait', 'portraitWide', 'scenes',
 ];
 

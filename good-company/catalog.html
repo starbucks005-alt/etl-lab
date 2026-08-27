@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-F7HTDVMJPZ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-F7HTDVMJPZ');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Good Company — The Catalog</title>
+<meta name="description" content="Companions other people built and chose to share. Pick one to start your own copy.">
+
+<!-- The friend resolves the opening skin, then the shared palette paints,
+     same pattern as every other page here. No friend on this page, so it
+     falls to the system preference, same as index.html and faq.html. -->
+<script src="gc-friend.js"></script>
+<script src="gc-skin.js"></script>
+<link rel="stylesheet" href="gc-skin.css">
+
+<style>
+/* Palette, base body and shared primitives (including .topnav) are in
+   gc-skin.css. Only this page's own layout is below. */
+.wrap{ padding-inline:clamp(.9rem,2.2vw,1.75rem); max-width:720px; margin:0 auto; }
+
+header{ display:flex; align-items:center; justify-content:space-between;
+  gap:1rem; padding:1.1rem clamp(.9rem,2.2vw,1.75rem); }
+h1{ font-family:Georgia,serif; font-weight:400; letter-spacing:-.012em; line-height:1.12;
+  font-size:clamp(1.7rem,4.4vw,2.5rem); margin:1.6rem 0 .4rem; }
+.lede{ color:var(--ink-dim); margin:0 0 1.8rem; max-width:52ch; }
+
+/* ── the book itself ─────────────────────────────────────────────────────
+   ONE COMPANION SHOWING AT A TIME, on purpose: a grid of thumbnails is a
+   catalog you scan, a page you turn is a catalog you meet somebody from.
+   The whole point of this feature is that each entry is a real person
+   somebody built, not a SKU -- one at a time treats it that way. */
+.flipbook{ position:relative; }
+.flip-card{
+  border:1px solid var(--line); border-radius:10px; overflow:hidden;
+  background:var(--panel); box-shadow:var(--shadow, 0 1px 2px rgba(0,0,0,.06));
+}
+.flip-photo{
+  position:relative; width:100%; aspect-ratio:16/10; overflow:hidden;
+  background:var(--panel-2, var(--panel));
+}
+.flip-photo img{ display:block; width:100%; height:100%; object-fit:cover; }
+.flip-body{ padding:1.1rem 1.3rem 1.3rem; }
+.flip-body h2{ font-family:Georgia,serif; font-weight:400; font-size:1.4rem; margin:0 0 .25rem; }
+.flip-tagline{ color:var(--ink-dim); font-size:.92rem; margin:0 0 .9rem; }
+.flip-facts{
+  display:flex; flex-wrap:wrap; gap:.4rem .5rem; margin:0 0 1rem;
+  font-family:var(--mono); font-size:.72rem; letter-spacing:.05em; text-transform:uppercase;
+  color:var(--ink-dim);
+}
+.flip-facts span{ border:1px solid var(--line); border-radius:999px; padding:.25rem .7rem; }
+
+/* TURNING, NOT SWAPPING. A plain content swap reads as a reload; a short
+   fade-and-lift on the incoming card is the smallest amount of motion that
+   still reads as one page settling in after the last one left, which is
+   the entire ask ("flip book style"). Respects reduced-motion like every
+   other transition on this campus. */
+.flip-card{ opacity:1; transform:translateY(0); }
+@media (prefers-reduced-motion:no-preference){
+  .flip-card{ transition:opacity .22s ease, transform .22s ease; }
+  .flip-card.flip-out{ opacity:0; transform:translateY(6px); }
+}
+
+.flip-nav{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:1rem; margin-top:1rem;
+}
+.flip-count{ font-family:var(--mono); font-size:.78rem; letter-spacing:.06em; color:var(--ink-dim); }
+.flip-arrows{ display:flex; gap:.6rem; }
+
+.flip-empty, .flip-loading{
+  border:1px dashed var(--line); border-radius:10px;
+  padding:2.5rem 1.5rem; text-align:center; color:var(--ink-dim);
+}
+
+.back{ display:inline-block; margin:2rem 0 0; color:var(--ink-dim); }
+.back:hover{ color:var(--ink); }
+</style>
+</head>
+
+<body>
+
+<header>
+  <a class="mark" href="index.html">
+    <img class="logo logo-dark-ink"  src="brand/logo-dark-ink.png"  alt="Good Company" width="560" height="244">
+    <img class="logo logo-light-ink" src="brand/logo-light-ink.png" alt="Good Company" width="560" height="260">
+  </a>
+  <nav class="topnav">
+    <a href="index.html#demos">Companions</a>
+    <a href="index.html#pricing">Cost</a>
+    <a href="build.html">Build</a>
+    <a href="index.html#bring">Friends</a>
+    <a href="faq.html">Questions</a>
+  </nav>
+  <span class="picker" id="picker"><button class="btn" id="skinBtn" type="button">&#127912; Palette</button></span>
+</header>
+
+<main class="wrap">
+
+  <h1>The catalog</h1>
+  <p class="lede">Companions other people built and chose to share here. Pick one and you get your
+    own copy: same face, same scenes, same personality. Nothing that happened between the two of
+    them comes with it — <a href="faq.html#catalog">what does that mean?</a></p>
+
+  <div class="flipbook" id="flipbook">
+    <div class="flip-loading">Finding who's here&hellip;</div>
+  </div>
+
+  <p><a class="back" href="build.html">&larr; Build your own instead</a></p>
+
+</main>
+
+<script>
+gcMountSkinPicker(document.getElementById("picker"), document.getElementById("skinBtn"));
+
+/* ── load the list ──────────────────────────────────────────────────────── */
+var ITEMS = [];
+var idx = 0;
+var book = document.getElementById('flipbook');
+
+fetch('/.netlify/functions/gc-catalog-list')
+  .then(function (r) { return r.json(); })
+  .then(function (data) {
+    ITEMS = (data && data.ok && Array.isArray(data.items)) ? data.items : [];
+    if (!ITEMS.length) {
+      book.innerHTML = '<div class="flip-empty">Nobody has added a companion to the catalog yet. ' +
+        '<a href="build.html">Build one</a> and be the first.</div>';
+      return;
+    }
+    render();
+  })
+  .catch(function () {
+    book.innerHTML = '<div class="flip-empty">Could not reach the catalog. Try again in a moment.</div>';
+  });
+
+/* ── one page of the book ───────────────────────────────────────────────── */
+function factList(item) {
+  var facts = [];
+  if (item.work) facts.push(item.work);
+  if (item.from) facts.push(item.from);
+  if (item.into) facts.push(item.into);
+  return facts;
+}
+
+function cardHtml(item) {
+  var img = item.portraitWide || item.portrait || '';
+  var facts = factList(item);
+  return (
+    '<div class="flip-photo"><img src="' + escapeAttr(img) + '" alt=""></div>' +
+    '<div class="flip-body">' +
+      '<h2>' + escapeHtml(item.name || 'Somebody') + '</h2>' +
+      (item.been ? '<p class="flip-tagline">' + escapeHtml(item.been) + '</p>' : '') +
+      (facts.length ? '<div class="flip-facts">' + facts.map(function (f) {
+        return '<span>' + escapeHtml(f) + '</span>';
+      }).join('') + '</div>' : '') +
+      '<button class="btn go" type="button" id="startBtn">Start with ' + escapeHtml(item.name || 'them') + '</button>' +
+    '</div>'
+  );
+}
+
+function render() {
+  var item = ITEMS[idx];
+  var card = document.createElement('div');
+  card.className = 'flip-card';
+  card.innerHTML = cardHtml(item);
+
+  var nav = document.createElement('div');
+  nav.className = 'flip-nav';
+  nav.innerHTML =
+    '<div class="flip-arrows">' +
+      '<button class="btn" type="button" id="prevBtn"' + (ITEMS.length < 2 ? ' disabled' : '') + '>&larr; Back</button>' +
+      '<button class="btn" type="button" id="nextBtn"' + (ITEMS.length < 2 ? ' disabled' : '') + '>Next &rarr;</button>' +
+    '</div>' +
+    '<span class="flip-count">' + (idx + 1) + ' of ' + ITEMS.length + '</span>';
+
+  book.innerHTML = '';
+  book.appendChild(card);
+  book.appendChild(nav);
+
+  document.getElementById('startBtn').addEventListener('click', function () { startWith(item); });
+  if (ITEMS.length > 1) {
+    document.getElementById('prevBtn').addEventListener('click', function () { turn(-1); });
+    document.getElementById('nextBtn').addEventListener('click', function () { turn(1); });
+  }
+}
+
+function turn(dir) {
+  var card = book.querySelector('.flip-card');
+  idx = (idx + dir + ITEMS.length) % ITEMS.length;
+  if (!card) { render(); return; }
+  card.classList.add('flip-out');
+  setTimeout(render, 160);
+}
+
+/* ── picking one starts a real copy, same shape build.html itself makes ───
+   SAME THREE LINES build.html's own makeBtn handler uses for a brand-new
+   friend (id, createdAt, paid:false) -- see its own comment there. Getting
+   this right matters: paid:false is what sends them through the SAME
+   $9.99-to-open-the-room gate every other built friend goes through
+   (room.html checks paid === false specifically), so a catalog copy is
+   not a free room by accident. user is left blank on purpose -- it
+   describes the ORIGINAL builder (their own name/pronouns/about), never
+   the person picking a copy now. */
+function startWith(item) {
+  var friend = {};
+  ['name','kind','age','gender','from','work','into','knows','been','voice','voiceId','portrait','portraitWide','scenes']
+    .forEach(function (k) { if (item[k] !== undefined) friend[k] = item[k]; });
+  friend.id = GC_newFriendId();
+  friend.createdAt = new Date().toISOString();
+  friend.paid = false;
+  friend.user = { call: '', want: [], about: '' };
+  try { GC_saveFriend(friend); } catch (e) {}
+  location.href = 'build.html';
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, function (c) {
+    return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+  });
+}
+function escapeAttr(s) { return escapeHtml(s); }
+</script>
+
+</body>
+</html>
