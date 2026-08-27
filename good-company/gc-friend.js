@@ -489,8 +489,18 @@ var GC_DEMO = {
      Reggie's and Sophia's cameos lists the same day -- Dr. O kept asking
      for Tansy specifically, not just her companions, and every room
      needs the same fix or the next test just rediscovers it here. */
+  /* ALL 8 HOUSE COMPANIONS CROSS-LINKED, added 2026-08-27 per Dr. O direct:
+     "they should be able to visit each other." Same mechanism as Tansy's
+     name being added below for the same reason 2026-08-19, generalized to
+     the whole cast rather than rediscovered one room at a time. */
   cameos: [
     { name: 'Gus', voiceId: null },
+    { name: 'Sophia', voiceId: 'GPTk4QbvF7snDhImF5UF' },
+    { name: 'Nina', voiceId: 'P1dh7oZ2HgSGjCLRHAW2' },
+    { name: 'Kioko', voiceId: 'bGz7oL34zO7ojS7mfJ00' },
+    { name: 'A.L.I.C.E.', voiceId: 'gZL79pBTvaNfNPOCXh6n' },
+    { name: 'Julian', voiceId: 'yowh82B72eMNrxcxHgBh' },
+    { name: 'Reggie', voiceId: 'uq0HIbNZKn11Hs5ifEdd' },
     { name: 'Tansy', voiceId: 'thfYL0Elyru2qqTtNQsE' },
     { name: 'Poppy', voiceId: 'XJ2fW4ybq7HouelYYGcL' },
     { name: 'Blue', voiceId: 'WUyjxM8OTY6l8LhTmdkq' },
@@ -1031,8 +1041,16 @@ var GC_SOFIA = {
      cameos list: Dr. O was always asking for Tansy by name, not her
      companions, and Tansy's own name had never actually been added
      anywhere outside her own room. */
+  /* ALL 8 HOUSE COMPANIONS CROSS-LINKED, added 2026-08-27 -- see Arch's own
+     identical comment above for why. */
   cameos: [
     { name: 'Barley', voiceId: null },
+    { name: 'Arch', voiceId: 'PKu46bbccMP1b22TyeI0' },
+    { name: 'Nina', voiceId: 'P1dh7oZ2HgSGjCLRHAW2' },
+    { name: 'Kioko', voiceId: 'bGz7oL34zO7ojS7mfJ00' },
+    { name: 'A.L.I.C.E.', voiceId: 'gZL79pBTvaNfNPOCXh6n' },
+    { name: 'Julian', voiceId: 'yowh82B72eMNrxcxHgBh' },
+    { name: 'Reggie', voiceId: 'uq0HIbNZKn11Hs5ifEdd' },
     { name: 'Tansy', voiceId: 'thfYL0Elyru2qqTtNQsE' },
     { name: 'Poppy', voiceId: 'XJ2fW4ybq7HouelYYGcL' },
     { name: 'Blue', voiceId: 'WUyjxM8OTY6l8LhTmdkq' },
@@ -1283,6 +1301,22 @@ var GC_CORA = {
     { src: 'photos/cora-kitchen.jpg', on: 'Added when she joined',
       caption: 'The kitchen, something already on the stove.' },
   ],
+
+  /* ALL 8 HOUSE COMPANIONS CROSS-LINKED, added 2026-08-27 per Dr. O direct:
+     "they should be able to visit each other." Same mechanism as Arch's,
+     Sophia's, Reggie's, and Tansy's own cameos lists, generalized here to
+     the two who never had one at all (Nina and Kioko), plus A.L.I.C.E. and
+     Julian below. See buildSystem() and the CAMEO_MARK parsing in
+     gc-chat.js for how a name here actually turns into an interjection. */
+  cameos: [
+    { name: 'Arch', voiceId: 'PKu46bbccMP1b22TyeI0' },
+    { name: 'Sophia', voiceId: 'GPTk4QbvF7snDhImF5UF' },
+    { name: 'Kioko', voiceId: 'bGz7oL34zO7ojS7mfJ00' },
+    { name: 'A.L.I.C.E.', voiceId: 'gZL79pBTvaNfNPOCXh6n' },
+    { name: 'Julian', voiceId: 'yowh82B72eMNrxcxHgBh' },
+    { name: 'Reggie', voiceId: 'uq0HIbNZKn11Hs5ifEdd' },
+    { name: 'Tansy', voiceId: 'thfYL0Elyru2qqTtNQsE' },
+  ],
 };
 
 /* ── KIOKO ─────────────────────────────────────────────────────────────────
@@ -1481,6 +1515,18 @@ var GC_KIOKO = {
       caption: 'Friday nyama choma with the crew.' },
     { src: 'photos/kioko-flat.jpg', on: 'Added when he joined',
       caption: 'At home, bag already packed for the next shift.' },
+  ],
+
+  /* ALL 8 HOUSE COMPANIONS CROSS-LINKED, added 2026-08-27 -- see Nina's own
+     identical comment above for why. */
+  cameos: [
+    { name: 'Arch', voiceId: 'PKu46bbccMP1b22TyeI0' },
+    { name: 'Sophia', voiceId: 'GPTk4QbvF7snDhImF5UF' },
+    { name: 'Nina', voiceId: 'P1dh7oZ2HgSGjCLRHAW2' },
+    { name: 'A.L.I.C.E.', voiceId: 'gZL79pBTvaNfNPOCXh6n' },
+    { name: 'Julian', voiceId: 'yowh82B72eMNrxcxHgBh' },
+    { name: 'Reggie', voiceId: 'uq0HIbNZKn11Hs5ifEdd' },
+    { name: 'Tansy', voiceId: 'thfYL0Elyru2qqTtNQsE' },
   ],
 };
 
@@ -1815,6 +1861,19 @@ var GC_ALICE = {
     { src: 'photos/alice-kitten-home.jpg', on: 'Added when she joined',
       caption: 'Home now, dry, and she cannot stop smiling about her.' },
   ],
+
+  /* ALL 8 HOUSE COMPANIONS CROSS-LINKED, added 2026-08-27 -- see Nina's own
+     identical comment above for why. This is also the direct answer to
+     "can Reggie go into A.L.I.C.E.'s room" -- he could not before this. */
+  cameos: [
+    { name: 'Arch', voiceId: 'PKu46bbccMP1b22TyeI0' },
+    { name: 'Sophia', voiceId: 'GPTk4QbvF7snDhImF5UF' },
+    { name: 'Nina', voiceId: 'P1dh7oZ2HgSGjCLRHAW2' },
+    { name: 'Kioko', voiceId: 'bGz7oL34zO7ojS7mfJ00' },
+    { name: 'Julian', voiceId: 'yowh82B72eMNrxcxHgBh' },
+    { name: 'Reggie', voiceId: 'uq0HIbNZKn11Hs5ifEdd' },
+    { name: 'Tansy', voiceId: 'thfYL0Elyru2qqTtNQsE' },
+  ],
 };
 
 /* ── REGGIE ────────────────────────────────────────────────────────────────
@@ -1943,9 +2002,17 @@ var GC_REGGIE = {
      name was never on this list, only her companions'. What she actually
      wants: "for Tansy to say she is here and Reggie to get super
      excited." Same real voice id as her own room. */
+  /* ALL 8 HOUSE COMPANIONS CROSS-LINKED, added 2026-08-27 -- see Arch's own
+     identical comment above for why. */
   cameos: [
     { name: 'Biscuit', voiceId: 'MgqVq3OCTPeVHCEDr4HU' },
     { name: 'Mochi', voiceId: 'I8ERYU9lOxALy2vtIvHd' },
+    { name: 'Arch', voiceId: 'PKu46bbccMP1b22TyeI0' },
+    { name: 'Sophia', voiceId: 'GPTk4QbvF7snDhImF5UF' },
+    { name: 'Nina', voiceId: 'P1dh7oZ2HgSGjCLRHAW2' },
+    { name: 'Kioko', voiceId: 'bGz7oL34zO7ojS7mfJ00' },
+    { name: 'A.L.I.C.E.', voiceId: 'gZL79pBTvaNfNPOCXh6n' },
+    { name: 'Julian', voiceId: 'yowh82B72eMNrxcxHgBh' },
     { name: 'Tansy', voiceId: 'thfYL0Elyru2qqTtNQsE' },
     { name: 'Poppy', voiceId: 'XJ2fW4ybq7HouelYYGcL' },
     { name: 'Blue', voiceId: 'WUyjxM8OTY6l8LhTmdkq' },
@@ -2311,7 +2378,16 @@ var GC_TANSY = {
      the same mechanism was generalized for Reggie's two dog friends.
 
      COUSIN BLUE ADDED THE SAME DAY, same mechanism, Dr. O's own voice pick. */
+  /* ALL 8 HOUSE COMPANIONS CROSS-LINKED, added 2026-08-27 -- see Arch's own
+     identical comment above for why. */
   cameos: [
+    { name: 'Arch', voiceId: 'PKu46bbccMP1b22TyeI0' },
+    { name: 'Sophia', voiceId: 'GPTk4QbvF7snDhImF5UF' },
+    { name: 'Nina', voiceId: 'P1dh7oZ2HgSGjCLRHAW2' },
+    { name: 'Kioko', voiceId: 'bGz7oL34zO7ojS7mfJ00' },
+    { name: 'A.L.I.C.E.', voiceId: 'gZL79pBTvaNfNPOCXh6n' },
+    { name: 'Julian', voiceId: 'yowh82B72eMNrxcxHgBh' },
+    { name: 'Reggie', voiceId: 'uq0HIbNZKn11Hs5ifEdd' },
     { name: 'Poppy', voiceId: 'XJ2fW4ybq7HouelYYGcL' },
     { name: 'Blue', voiceId: 'WUyjxM8OTY6l8LhTmdkq' },
   ],
@@ -2990,6 +3066,18 @@ var GC_JULIAN = {
   neverABother: 'Three hundred years teaches you which company is worth keeping and which is ' +
                 'obligation; if he is talking to somebody, it is because he wants to be, and ' +
                 'he says so rather than letting old-world manners read as mere politeness.',
+
+  /* ALL 8 HOUSE COMPANIONS CROSS-LINKED, added 2026-08-27 -- see Nina's own
+     identical comment above for why. */
+  cameos: [
+    { name: 'Arch', voiceId: 'PKu46bbccMP1b22TyeI0' },
+    { name: 'Sophia', voiceId: 'GPTk4QbvF7snDhImF5UF' },
+    { name: 'Nina', voiceId: 'P1dh7oZ2HgSGjCLRHAW2' },
+    { name: 'Kioko', voiceId: 'bGz7oL34zO7ojS7mfJ00' },
+    { name: 'A.L.I.C.E.', voiceId: 'gZL79pBTvaNfNPOCXh6n' },
+    { name: 'Reggie', voiceId: 'uq0HIbNZKn11Hs5ifEdd' },
+    { name: 'Tansy', voiceId: 'thfYL0Elyru2qqTtNQsE' },
+  ],
 };
 
 var GC_DEMOS = { arch: GC_DEMO, sofia: GC_SOFIA, cora: GC_CORA, kioko: GC_KIOKO, alice: GC_ALICE, julian: GC_JULIAN, reggie: GC_REGGIE, tansy: GC_TANSY };
