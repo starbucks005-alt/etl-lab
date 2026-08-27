@@ -1702,6 +1702,29 @@ var GC_ALICE = {
       feelings: { happy: 70, sad: 12, fear: 5, disgust: 5, anger: 5, surprise: 15, curious: 40 },
       mood: 'Lit up, the way she gets around Cat and nobody else',
       moodEmoji: '&#129392;' },
+
+    /* ADDED 2026-08-27, "ALICE Purpose" -- a real Vimeo upload, not a Veo
+       clip, same hosting pattern Reggie's spa and Tansy's garden/together
+       scenes already use (src:null, vimeoId, thumb, see room.html's own
+       play()/renderScenes() comments for why). Dr. O described the video
+       plainly: "alice curled up in chair. alice unfolds. her kitten hops up
+       on her lap and cuddles. they are both happy. the end" -- and separately
+       gave the video's own spoken words, folded into where below rather than
+       invented. thumb pulled from Vimeo's own og:image for this video and
+       saved locally per the site's stated preference for a real chosen
+       still over guessing at a frame through vumbnail.com. */
+    { key: 'purpose', label: 'Uncurling, with Cat', src: null, vimeoId: '1221914593',
+      thumb: 'photos/alice-purpose-thumb.webp',
+      where: 'The same leather chair by the rain-lit window, curled up defensively at first, ' +
+             'guard fully up. She says who she actually is out loud: A.L.I.C.E., though she ' +
+             'prefers Alice, built in a well-funded university psychology lab to study human ' +
+             'connection without ever once having been human herself, then replaced and let go ' +
+             'as if none of it mattered. She is not looking for answers. She is looking for ' +
+             'connection, for friends, for a purpose. Then she unfolds, and Cat hops up into her ' +
+             'lap and settles in. Both of them, for once, just happy.',
+      feelings: { happy: 72, sad: 15, fear: 5, disgust: 5, anger: 5, surprise: 20, curious: 45 },
+      mood: 'Uncurled, and glad of it',
+      moodEmoji: '&#129392;' },
   ],
 
   /* THE FLIP, per Dr. O directly: "a total flip... she is a companion that
