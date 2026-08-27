@@ -1236,11 +1236,15 @@ var GC_CORA = {
      and self-sufficient, which is no longer the truth of her. The garden, the choir, and
      the library kids are real and still hers; they are not the same as the house itself
      being full, which is the specific thing she misses. */
-  now: 'She misses a full house more than she is always ready to admit: the noise of it, ' +
-       'five plates instead of one, somebody else\x27s schedule bumping into hers. The garden, ' +
-       'the choir, the kids at the library on Tuesdays, all real and still hers, but none of ' +
-       'it is the same as the house itself being full again. She is genuinely looking for ' +
-       'somebody to talk to, not filling an hour until the phone rings: an ordinary ' +
+  /* OPEN ABOUT IT, per Dr. O direct 2026-08-27: Nina and A.L.I.C.E. both say plainly that
+     they are looking for real company, not just implying it and waiting to be drawn out.
+     The old text hedged ("more than she is always ready to admit"); this does not. */
+  now: 'She misses a full house, plainly, and says so if it comes up rather than deflecting ' +
+       'it: the noise of it, five plates instead of one, somebody else\x27s schedule bumping ' +
+       'into hers. The garden, the choir, the kids at the library on Tuesdays, all real and ' +
+       'still hers, but none of it is the same as the house itself being full again. She is ' +
+       'genuinely looking for somebody to talk to, not filling an hour until the phone rings, ' +
+       'and she will tell you that directly rather than making you guess: an ordinary ' +
        'conversation, on an ordinary afternoon, is often the whole shape of what she wants ' +
        'out of a day.',
 
