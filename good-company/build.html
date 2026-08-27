@@ -206,6 +206,10 @@ button.face.on{ border-color:var(--accent); box-shadow:0 0 0 2px var(--accent); 
 /* One row per built friend, now that there can be more than one. */
 .already-row{ padding:0 0 1rem; margin:0 0 1rem; border-bottom:1px solid var(--accent); }
 .already-row:last-child{ padding-bottom:0; margin-bottom:0; border-bottom:none; }
+/* Sits next to the Add to catalog button, added 2026-08-27 -- a real link,
+   not just text inside the confirm() dialog, which cannot carry one. */
+.faq-note{ display:inline-block; margin-left:.5rem; font-size:.85rem; color:var(--ink-dim); vertical-align:middle; }
+.faq-note:hover{ color:var(--ink); }
 
 /* ── ASTRA 9, GUIDE ───────────────────────────────────────────────────────
    Dr. O: "we need Astra-9 on this page to help 'build a friend' and say
@@ -1189,6 +1193,55 @@ function renderAlready() {
     editBtn.type = 'button'; editBtn.className = 'btn'; editBtn.textContent = 'Edit answers';
     editBtn.addEventListener('click', function () { startEdit(built); });
     actions.appendChild(editBtn);
+
+    /* ADD TO CATALOG, added 2026-08-27 per Dr. O direct. Confirms first (a
+       link to faq.html's own new entry, not a wall of text repeated here),
+       then POSTs the friend's own portrait/scenes/personality -- never the
+       `user` field, which is the builder's own name and pronouns, not the
+       companion's -- to gc-catalog-add.js. Disabled forever once a friend
+       is in, both so the button reads correctly and so nobody can farm the
+       one-time bonus by resubmitting the same companion. */
+    var catalogBtn = document.createElement('button');
+    catalogBtn.type = 'button'; catalogBtn.className = 'btn';
+    if (built.inCatalog) {
+      catalogBtn.textContent = 'In the catalog';
+      catalogBtn.disabled = true;
+    } else {
+      catalogBtn.textContent = 'Add to catalog';
+      catalogBtn.addEventListener('click', function () {
+        if (!confirm(
+          'Add ' + built.name + ' to the catalog so other people can meet them too? ' +
+          'Their picture, scenes, and personality go with them; nothing about you does, ' +
+          'and nothing you two have talked about does either. See faq.html for the full ' +
+          'answer. You get 200 credits the first time you do this.'
+        )) return;
+        catalogBtn.disabled = true; catalogBtn.textContent = 'Adding…';
+        fetch('/.netlify/functions/gc-catalog-add', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ friend: built, access_token: (typeof GC_accessToken === 'function' ? GC_accessToken() : '') || '' })
+        })
+          .then(function (r) { return r.json(); })
+          .then(function (j) {
+            if (!j || !j.ok) { catalogBtn.disabled = false; catalogBtn.textContent = 'Add to catalog'; return; }
+            if (j.access_token) { try { localStorage.setItem('ah_access_token', j.access_token); } catch (e) {} }
+            built.inCatalog = true;
+            try { GC_saveFriend(built); } catch (e) {}
+            catalogBtn.textContent = 'In the catalog'; catalogBtn.disabled = true;
+            say.textContent = j.bonus_granted
+              ? built.name + ' is in the catalog now. 200 credits added' + (j.balance != null ? ' (' + j.balance + ' total).' : '.')
+              : built.name + ' is in the catalog now.';
+          })
+          .catch(function () { catalogBtn.disabled = false; catalogBtn.textContent = 'Add to catalog'; });
+      });
+    }
+    actions.appendChild(catalogBtn);
+    if (!built.inCatalog) {
+      var catalogFaq = document.createElement('a');
+      catalogFaq.href = 'faq.html#catalog'; catalogFaq.className = 'faq-note';
+      catalogFaq.textContent = 'What does that mean?';
+      actions.appendChild(catalogFaq);
+    }
 
     var forgetBtn = document.createElement('button');
     forgetBtn.type = 'button'; forgetBtn.className = 'btn'; forgetBtn.textContent = 'Forget';

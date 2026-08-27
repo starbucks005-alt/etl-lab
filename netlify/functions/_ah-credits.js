@@ -42,6 +42,12 @@ const ADDON_CREDITS = 150;         // credits granted by one addon-pack purchase
 // above were sized against, so there was real room underneath this price,
 // not just enough to cover cost.
 const XL_ADDON_CREDITS = 2000;     // credits granted by the large addon pack
+// CATALOG_BONUS_CREDITS, added 2026-08-27 per Dr. O direct: a one-time reward
+// for adding a built companion to the public catalog, granted once ever per
+// access_token regardless of how many companions that visitor later adds --
+// see gc-catalog-add.js, which tracks the claim in its own Blobs store rather
+// than a new Supabase column.
+const CATALOG_BONUS_CREDITS = 200;
 const ROLLOVER_DAYS = 30;
 
 // STARTER_CREDITS: Good Company, 2026-08-17, raised 100 -> 200 on 2026-08-19
@@ -213,6 +219,7 @@ module.exports = {
   GROUP_MESSAGE_COST,
   ADDON_CREDITS,
   XL_ADDON_CREDITS,
+  CATALOG_BONUS_CREDITS,
   STARTER_CREDITS,
   randomToken,
   safeToken,
