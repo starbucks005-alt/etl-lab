@@ -325,20 +325,25 @@ figcaption{
 }
 figure{ margin:0; }
 
-/* UNDER THE PHOTOGRAPH NOW, NOT ON IT, 2026-08-27, Dr. O direct. Two earlier
-   passes today (a fixed absolute spot, then flowing inside .hero-words)
-   both still overlaid it on the picture and both still risked colliding
-   with the buttons above it as their count or width changed. Living outside
-   .hero entirely sidesteps that for good -- there is no photo underneath it
-   to collide with. Styled like the page's other figcaptions (ink-dim, no
-   shadow) rather than the old white-on-photo treatment, which only made
-   sense while this sat on top of the picture. */
+/* BACK ON THE PHOTOGRAPH, 2026-08-27, Dr. O direct (a Photoshop mock of
+   placement, not exact type): moving it below the photo read right in code
+   but not to her eye -- she wants it sitting on the picture, bottom, same
+   as it always did. Restored to the original position:absolute treatment.
+
+   STILL A KNOWN RISK, UNRESOLVED: this fixed bottom offset was calibrated
+   for one button's height. A returning visitor's second button ("Enter
+   <name>'s room") can still collide with it, the same bug fixed and then
+   un-fixed today -- reverting the position brings the risk back too. Low
+   visibility so far (mainly shows on a browser that already has a built
+   companion), but real. Revisit with a fix that keeps this exact look but
+   adds clearance only when a second button exists, if it recurs. */
 .hero-credit{
-  margin:.7rem 0 0; padding-top:.9rem;
-  text-align:right;
-  font-family:var(--mono); font-size:.72rem; letter-spacing:.06em;
-  color:var(--ink-dim);
+  position:absolute; right:clamp(1rem,3vw,2.25rem); bottom:clamp(.9rem,2.5vw,1.6rem);
+  z-index:2; margin:0;
+  font-family:var(--mono); font-size:.7rem; letter-spacing:.08em;
+  color:rgba(255,255,255,.72); text-shadow:0 1px 12px rgba(0,0,0,.6);
 }
+.hero.no-art .hero-credit{ display:none; }
 
 /* ── three ──────────────────────────────────────────────────────────────── */
 .three{
@@ -612,17 +617,9 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
            go looking for it rather than tripping over it on the way in. -->
       <a class="faq-link" href="faq.html">Questions? →</a>
     </div>
-  </section>
 
-  <!-- MOVED OUT FROM OVER THE PHOTOGRAPH, 2026-08-27, Dr. O direct: "it
-       should sit under the image of the woman." Two earlier fixes today kept
-       it overlaid on the photo (first pinned to a fixed spot, then flowing
-       inside .hero-words), and both still put it somewhere ON the picture
-       rather than under it. This is the real ask: off the photo entirely,
-       styled like every other caption on this page (figcaption, ink-dim, no
-       photo-shadow treatment) instead of the hero's white-on-photo look,
-       which only ever made sense while it sat on top of the picture. -->
-  <p class="hero-credit wrap">&ldquo;The big sister I never had&rdquo; companion</p>
+    <p class="hero-credit">&ldquo;The big sister I never had&rdquo; companion</p>
+  </section>
 
   <!-- DEMOS ------------------------------------------------------------------
        REPLACES the old quiet text link ("or try one of our demos: Arch,
