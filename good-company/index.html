@@ -36,6 +36,38 @@
 })();
 </script>
 
+<!-- ── A CREDIT GRANT, HANDED IN ON A LINK ─────────────────────────────────
+     Added 2026-08-22. Same exact gap as the owner key above and the same
+     fix: gc-friend.js already reads ?access_token= (see its own comment,
+     "so Dr. O can unblock a beta tester... without needing them to touch
+     their own browser storage"), but this page never loads gc-friend.js, so
+     a grant link pointed at the plain /good-company/ homepage -- which is
+     the natural link to hand someone -- silently planted nothing. Pookie:
+     "the link did not work." It was not a UX complaint, the link genuinely
+     did nothing on this page.
+
+     SILENT WAS ALSO PART OF THE PROBLEM even on a page that DOES load it:
+     nothing anywhere ever told the person the link did anything, so
+     somebody with no reason to trust an invisible mechanism has no way to
+     tell "it worked silently" apart from "it did nothing." The banner below
+     is the fix for that half. No credit number in the copy on purpose (see
+     the campus rule against writing a number that can change) -- this
+     confirms an action happened, not a balance that could drift from the
+     word painted on it. -->
+<script>
+(function () {
+  try {
+    var q = new URLSearchParams(location.search);
+    var t = q.get('access_token');
+    if (t && /^[A-Za-z0-9_-]{16,80}$/.test(t)) {
+      localStorage.setItem('ah_access_token', t);
+      sessionStorage.setItem('gc_just_granted_credits', '1');
+      history.replaceState(null, '', location.pathname + location.hash);
+    }
+  } catch (e) {}
+})();
+</script>
+
 <!-- Skin resolution before the stylesheet, so nobody eats a flash of the wrong
      room. No friend on this page, so it falls to the system preference. -->
 <script src="gc-skin.js"></script>
@@ -442,6 +474,25 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
     <button class="btn" id="skinBtn" type="button">&#127912; Palette</button>
   </div>
 </header>
+
+<!-- Empty and out of the way until the script below decides it has
+     something real to say -- never a layout reservation for a message that
+     might not come. -->
+<div id="grantBanner" style="display:none; margin:0 clamp(.9rem,2.2vw,1.75rem); padding:.85rem 1.1rem;
+  background:var(--panel); border:1px solid var(--accent); border-radius:10px;
+  color:var(--ink); font-size:.92rem;"></div>
+<script>
+(function () {
+  try {
+    if (!sessionStorage.getItem('gc_just_granted_credits')) return;
+    sessionStorage.removeItem('gc_just_granted_credits');
+    var el = document.getElementById('grantBanner');
+    if (!el) return;
+    el.textContent = "Credits have been added to your account. You're ready to talk.";
+    el.style.display = '';
+  } catch (e) {}
+})();
+</script>
 
 <main id="top">
 

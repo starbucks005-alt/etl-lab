@@ -17,14 +17,35 @@
    build.html already does the equivalent thing after a real Stripe payment
    (writes data.access_token to localStorage); this is the same idea for a
    token minted by hand rather than bought, delivered as ?access_token=... on
-   a link instead of a Stripe redirect. Runs once, silently, before anything
-   else in this file reads GC_accessToken(). A visitor who never has this
-   param in their URL is completely unaffected. */
+   a link instead of a Stripe redirect. Runs once, before anything else in
+   this file reads GC_accessToken(). A visitor who never has this param in
+   their URL is completely unaffected.
+
+   NO LONGER SILENT, changed 2026-08-22. Pookie: "the link did not work." It
+   had actually planted the token correctly here (the real gap was index.html
+   never loading this file at all, fixed separately there) -- but nothing
+   ever told her it did anything, and an invisible success looks identical to
+   a failure to somebody with no reason to trust the mechanism. Floating
+   banner, self-contained, waits for the DOM rather than assuming a <body>
+   exists yet: this file loads before anything paints, per the note at the
+   top of the file. No credit number in the copy on purpose -- see the
+   campus rule against writing a number in copy that could change. */
 (function () {
   try {
     var q = new URLSearchParams(location.search);
     var t = q.get('access_token');
-    if (t && /^[A-Za-z0-9_-]{16,80}$/.test(t)) localStorage.setItem('ah_access_token', t);
+    if (!t || !/^[A-Za-z0-9_-]{16,80}$/.test(t)) return;
+    localStorage.setItem('ah_access_token', t);
+    var show = function () {
+      var el = document.createElement('div');
+      el.textContent = "Credits have been added to your account. You're ready to talk.";
+      el.style.cssText = 'position:fixed; top:14px; left:50%; transform:translateX(-50%); z-index:999;' +
+        'max-width:90vw; padding:.75rem 1.1rem; border-radius:10px; font:14px/1.4 system-ui,sans-serif;' +
+        'background:#1a1a1a; color:#F4ECE0; border:1px solid rgba(255,255,255,.28); box-shadow:0 4px 18px rgba(0,0,0,.35);';
+      document.body.appendChild(el);
+    };
+    if (document.body) show();
+    else document.addEventListener('DOMContentLoaded', show);
   } catch (e) {}
 })();
 
