@@ -503,14 +503,18 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
 
   <!-- ADDED 2026-08-26 per Dr. O direct: "demo - cost - build - friends."
        Four anchors to the four sections the page already has, in the order
-       she gave them -- Demo (the free cast), Cost (the new pricing table),
-       Build (the real builder, not a section on this page so it links out),
-       Friends (bringing real people in, not the demo cast, so it points at
-       .bring rather than repeating Demo). Hidden below the same width the
-       rest of the header collapses at, since four more words next to the
-       logo and the Palette button has nowhere to go on a phone. -->
+       she gave them -- Companions (the free cast, RENAMED 2026-08-27: "demo"
+       undersold it once the engagement data showed people choosing to spend
+       real time with the cast rather than just sampling it before building
+       their own -- see .demos below for the full note), Cost (the new
+       pricing table), Build (the real builder, not a section on this page
+       so it links out), Friends (bringing real people in, not the cast, so
+       it points at .bring rather than repeating Companions). Hidden below
+       the same width the rest of the header collapses at, since four more
+       words next to the logo and the Palette button has nowhere to go on a
+       phone. -->
   <nav class="topnav">
-    <a href="#demos">Demo</a>
+    <a href="#demos">Companions</a>
     <a href="#pricing">Cost</a>
     <a href="build.html">Build</a>
     <a href="#bring">Friends</a>
@@ -639,9 +643,18 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
        longer says these are demos at all. The old .cta-quiet text ("or try
        one of our demos: Arch, Sophia, Reggie, or Tansy") carried that
        framing in words; replacing it with pure image cards dropped the
-       framing along with the old markup instead of carrying it over. -->
+       framing along with the old markup instead of carrying it over.
+
+       RENAMED "COMPANIONS" 2026-08-27, Dr. O direct: "we talked about the
+       demos being more popular than making their own, so maybe calling
+       them demos is the wrong word, wrong message." "Demo" frames the cast
+       as a preview of the real product; the whole point of that
+       conversation was that for a lot of visitors THIS is the real
+       product. Visible copy only -- the CSS classes (.demos, .demo-card)
+       and gc-friend.js's GC_DEMOS/GC_DEMO_IDS stay as they are, internal
+       plumbing nobody visiting the page ever sees. -->
   <section class="demos wrap" id="demos">
-    <h2>Our demos, free to try, texting or talking.</h2>
+    <h2>Meet Good Company's Companions</h2>
     <!-- ADDED 2026-08-19 per Dr. O directly: trying Tansy or Reggie is not
          trying one character, it is trying their whole cast -- Poppy and
          Blue answer too (see FRIEND.companions and the poppy-alone/blue
@@ -892,7 +905,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
       <div class="pricing-card">
         <h3>Free</h3>
         <p class="price">$0</p>
-        <p>Try any demo above, once a day, texting or talking.</p>
+        <p>Try any companion above, once a day, texting or talking.</p>
       </div>
       <!-- FIXED 2026-08-26 per Dr. O direct: this card said Unlimited, which was
            never true -- eq-room-ask.js still gates a subscriber on balance
@@ -903,7 +916,7 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
       <div class="pricing-card">
         <h3>Monthly</h3>
         <p class="price">$9.99<span>/mo</span></p>
-        <p>300 credits every month, refreshed automatically — a little under two hours of real conversation, for any friend you have built or any demo.</p>
+        <p>300 credits every month, refreshed automatically — a little under two hours of real conversation, for any friend you have built or any companion.</p>
         <button class="btn go" type="button" data-checkout="/.netlify/functions/create-checkout-ah">Subscribe</button>
       </div>
       <div class="pricing-card">
