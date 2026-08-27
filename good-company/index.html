@@ -325,21 +325,11 @@ figcaption{
 }
 figure{ margin:0; }
 
-/* BACK ON THE PHOTOGRAPH, 2026-08-27, Dr. O direct (a Photoshop mock of
-   placement, not exact type): moving it below the photo read right in code
-   but not to her eye -- she wants it sitting on the picture, bottom, same
-   as it always did. Restored to the original position:absolute treatment.
-
-   STILL A KNOWN RISK, UNRESOLVED: this fixed bottom offset was calibrated
-   for one button's height. A returning visitor's second button ("Enter
-   <name>'s room") can still collide with it, the same bug fixed and then
-   un-fixed today -- reverting the position brings the risk back too. Low
-   visibility so far (mainly shows on a browser that already has a built
-   companion), but real. Revisit with a fix that keeps this exact look but
-   adds clearance only when a second button exists, if it recurs. */
+/* ON THE PHOTOGRAPH, FLOWING RATHER THAN PINNED, 2026-08-27, Dr. O direct:
+   the look stays (light, small, over the picture), but no fixed bottom
+   offset -- see the HTML comment where this element lives now for why. */
 .hero-credit{
-  position:absolute; right:clamp(1rem,3vw,2.25rem); bottom:clamp(.9rem,2.5vw,1.6rem);
-  z-index:2; margin:0;
+  margin:.7rem 0 0; text-align:right;
   font-family:var(--mono); font-size:.7rem; letter-spacing:.08em;
   color:rgba(255,255,255,.72); text-shadow:0 1px 12px rgba(0,0,0,.6);
 }
@@ -616,9 +606,16 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
            linked below, where somebody who actually has that question can
            go looking for it rather than tripping over it on the way in. -->
       <a class="faq-link" href="faq.html">Questions? →</a>
+      <!-- LIVES INSIDE .hero-words, NOT AS A SIBLING OF IT, 2026-08-27, Dr. O
+           direct ("without it fighting for space with the three CTAs"). It
+           still sits over the photo -- .hero-art covers the whole .hero
+           section regardless of how tall .hero-words gets -- but flowing
+           here, after both buttons and the Questions link, means it can
+           never land on top of any of the three. A fixed absolute position
+           (tried earlier today) could not make that same guarantee, because
+           it does not know how many buttons ended up above it. -->
+      <p class="hero-credit">&ldquo;The big sister I never had&rdquo; companion</p>
     </div>
-
-    <p class="hero-credit">&ldquo;The big sister I never had&rdquo; companion</p>
   </section>
 
   <!-- DEMOS ------------------------------------------------------------------
