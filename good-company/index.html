@@ -336,6 +336,21 @@ figure{ margin:0; }
 }
 .hero.no-art .hero-credit{ display:none; }
 
+/* NO LONGER PINNED ON A PHONE, 2026-08-27: the rule above sits it absolutely
+   at a fixed spot in the corner of the photo, which only ever had to clear
+   one button's worth of height. A returning visitor gets a second button
+   ("Enter <name>'s room") that this fixed position never accounted for, and
+   on a narrow phone the two collided (Dr. O, screenshot, every phone size,
+   not just one). Flowing it here means it always lands below whatever
+   buttons are actually there, one or two. PLACED AFTER .hero-credit ABOVE
+   ON PURPOSE: an earlier version of this override lived inside the
+   @media block near the top of the file and silently lost the cascade tie
+   to this later, equal-specificity rule -- source order decides ties, not
+   which one sounds more specific. */
+@media (max-width:760px){
+  .hero-credit{ position:static; margin-top:.7rem; text-align:right; }
+}
+
 /* ── three ──────────────────────────────────────────────────────────────── */
 .three{
   display:grid; gap:clamp(1.5rem,3vw,2.5rem);
@@ -607,9 +622,17 @@ footer .etl{ margin-top:1rem; font-size:.8rem; letter-spacing:.1em; text-transfo
            linked below, where somebody who actually has that question can
            go looking for it rather than tripping over it on the way in. -->
       <a class="faq-link" href="faq.html">Questions? →</a>
+      <!-- MOVED INSIDE .hero-words 2026-08-27: was a sibling of it, absolutely
+           pinned to a fixed spot at the bottom of the photo. That works for
+           one button, but a returning visitor gets a second one ("Enter
+           <name>'s room" -- see the script near the closing body tag) that
+           makes this block taller, and on a narrow phone the fixed-position
+           caption landed right on top of it (Dr. O, screenshot, Pixel 7).
+           Living inside .hero-words now, it stays absolute (unchanged look)
+           on desktop, and flows below the buttons on mobile instead, so it
+           can never collide no matter how many buttons stack. -->
+      <p class="hero-credit">&ldquo;The big sister I never had&rdquo; companion</p>
     </div>
-
-    <p class="hero-credit">&ldquo;The big sister I never had&rdquo; companion</p>
   </section>
 
   <!-- DEMOS ------------------------------------------------------------------
