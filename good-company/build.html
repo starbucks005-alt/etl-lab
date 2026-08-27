@@ -434,6 +434,23 @@ footer{ padding:2rem 0 3rem; color:var(--ink-dim); font-size:.9rem; }
   <section>
     <div class="sec-head">Who they are</div>
 
+    <!-- KIND, added 2026-08-27 per Dr. O direct: "build a path for users to make
+         a nonhuman companion." Before this the builder only ever produced a
+         person -- every creature in the house cast (Reggie, Tansy, A.L.I.C.E.,
+         Julian) was hand-authored as a one-off exception to this exact form,
+         never something a visitor could reach themselves. Two chips, first
+         question on the page, because it changes what the rest of the form
+         even asks: a creature has no age worth asking about and "gender" is
+         really "what are they" (see genderQ below, same field either way --
+         Reggie's own canon already reads `gender: 'A dog'` through the same
+         sentence Arch's `gender: 'A man'` does, so no new field was needed on
+         the data side, only a different question and a different face
+         prompt -- see gc-face.js's creaturePrompt()). -->
+    <div class="q">
+      <label class="q-label">What kind of companion</label>
+      <div class="chips" id="kindChips"></div>
+    </div>
+
     <div class="q">
       <label class="q-label" for="fName">Their name</label>
       <div class="with-btn">
@@ -442,14 +459,22 @@ footer{ padding:2rem 0 3rem; color:var(--ink-dim); font-size:.9rem; }
       </div>
     </div>
 
-    <div class="q">
+    <div class="q" id="ageQ">
       <label class="q-label">Roughly how old</label>
       <div class="chips" id="ageChips"></div>
     </div>
 
     <div class="q">
-      <label class="q-label">Gender</label>
+      <label class="q-label" id="genderLabel">Gender</label>
       <div class="chips" id="genderChips"></div>
+      <!-- CREATURE MODE ONLY. Same underlying field as genderChips above --
+           "A dog", "A fairy", "A vampire", "An AI" all read through the exact
+           same sentence a human's "A woman" does everywhere this gets used
+           (buildSystem() in gc-chat.js, gc-face.js's prompt), so the two
+           inputs write to the same `gender` value rather than needing a
+           second field threaded through the whole rest of the app. -->
+      <input type="text" id="genderFreeText" style="display:none" autocomplete="off"
+             placeholder="A dog, a fairy, a vampire, an AI...">
     </div>
 
     <div class="q">
@@ -665,6 +690,7 @@ footer{ padding:2rem 0 3rem; color:var(--ink-dim); font-size:.9rem; }
    left blank is filled in by the friend, not by a default I chose. */
 var AGES    = ['20s','30s','40s','50s','60s','70s','80s or so','About my age'];
 var GENDERS = ['A woman','A man','Nonbinary','Let them decide'];
+var KINDS   = ['A person','Something else'];
 
 /* ── COUNTRIES ────────────────────────────────────────────────────────────────
    Genuinely global, not the handful of English-speaking countries a timezone
@@ -709,7 +735,7 @@ var NAMES = ['Ruth','Amara','Yusuf','Iris','Dev','Marisol','Tomas','Nadia','Fran
              'Bea','Emeka','Astrid','Rafael','June','Hana','Walter','Leila','Osman','Pearl'];
 
 var $ = function (id) { return document.getElementById(id); };
-var picked = { age:null, gender:null, voice:[], want:null };
+var picked = { kind:'A person', age:null, gender:null, voice:[], want:null };
 
 function chips(host, list, key, multi) {
   list.forEach(function (v) {
@@ -730,6 +756,38 @@ function chips(host, list, key, multi) {
     host.appendChild(b);
   });
 }
+/* KIND controls its own visibility toggle rather than going through the
+   shared chips() helper untouched, so picking "Something else" can also
+   swap the age/gender questions the moment it is pressed, not just record
+   the choice. Defaults to "A person" -- see setKind()'s own note on why
+   that default's chip is marked .on before anybody clicks anything. */
+function setKind(v) {
+  picked.kind = v;
+  Array.prototype.forEach.call($('kindChips').children, function (c) {
+    c.classList.toggle('on', c.textContent === v);
+  });
+  var isCreature = (v === 'Something else');
+  $('ageQ').style.display = isCreature ? 'none' : '';
+  $('genderChips').style.display = isCreature ? 'none' : '';
+  $('genderFreeText').style.display = isCreature ? '' : 'none';
+  $('genderLabel').textContent = isCreature ? 'What are they' : 'Gender';
+  if (isCreature) {
+    /* A creature has no age worth asking about -- see Reggie's own canon
+       comment in gc-friend.js: "age and work are left unset on purpose."
+       Clearing rather than just hiding, so an age picked before switching
+       kind cannot silently survive into a creature's data. */
+    picked.age = null;
+    Array.prototype.forEach.call($('ageChips').children, function (c) { c.classList.remove('on'); });
+  }
+}
+KINDS.forEach(function (v) {
+  var b = document.createElement('button');
+  b.type = 'button'; b.className = 'chip' + (v === picked.kind ? ' on' : '');
+  b.textContent = v;
+  b.addEventListener('click', function () { setKind(v); });
+  $('kindChips').appendChild(b);
+});
+
 chips($('ageChips'), AGES, 'age', false);
 chips($('genderChips'), GENDERS, 'gender', false);
 chips($('voiceChips'), VOICES, 'voice', true);
@@ -767,8 +825,13 @@ function splitFrom(from) {
 }
 function loadIntoForm(built) {
   $('fName').value = built.name || '';
-  setChipSingle($('ageChips'), 'age', built.age);
-  setChipSingle($('genderChips'), 'gender', built.gender);
+  setKind(built.kind === 'creature' ? 'Something else' : 'A person');
+  if (built.kind === 'creature') {
+    $('genderFreeText').value = built.gender || '';
+  } else {
+    setChipSingle($('ageChips'), 'age', built.age);
+    setChipSingle($('genderChips'), 'gender', built.gender);
+  }
   var loc = splitFrom(built.from);
   $('fFrom').value = loc.town;
   $('fCountry').value = loc.country;
@@ -975,8 +1038,16 @@ function assemble() {
        a suggestion. Taking the choice from people who did not ask is not the
        same feature. */
     name:   val('fName'),
+    /* KIND, added 2026-08-27, read alongside gc-face.js: 'human' picks
+       facePrompt(), anything else picks creaturePrompt(). Stored on the
+       friend itself (not just a form-only choice) so editing an existing
+       creature reopens the right question shape -- see loadIntoForm(). */
+    kind:   (picked.kind === 'Something else') ? 'creature' : 'human',
     age:    picked.age,
-    gender: picked.gender,
+    /* GENDER READS FROM WHICHEVER INPUT IS ACTUALLY SHOWING. Same field
+       either way -- see the note on genderFreeText's own markup -- so
+       buildSystem() and gc-face.js need no branch of their own to use it. */
+    gender: (picked.kind === 'Something else') ? val('genderFreeText') : picked.gender,
     /* COUNTRY AND TOWN COMBINE INTO ONE from STRING, so buildSystem's existing
        "You are from ${f.from}" needs no change to use either or both: a
        country alone reads as "United Kingdom", a town alone as whatever was
@@ -1168,7 +1239,7 @@ function renderAlready() {
     facesBtn.addEventListener('click', function () {
       friend = built;
       var dl = $('sumList'); dl.innerHTML = '';
-      [['Name', built.name], ['Age', built.age], ['Gender', built.gender],
+      [['Name', built.name], ['Age', built.age], [built.kind === 'creature' ? 'What they are' : 'Gender', built.gender],
        ['From', built.from], ['Does', built.work], ['Into', built.into]
       ].forEach(function (r) {
         if (!r[1]) return;
@@ -1338,7 +1409,7 @@ $('makeBtn').addEventListener('click', function () {
   var dl = $('sumList'); dl.innerHTML = '';
   [['Name', friend.name],
    ['Age', friend.age],
-   ['Gender', friend.gender],
+   [friend.kind === 'creature' ? 'What they are' : 'Gender', friend.gender],
    ['From', friend.from],
    ['Does', friend.work],
    ['Knows', friend.knows],

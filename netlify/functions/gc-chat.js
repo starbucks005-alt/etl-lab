@@ -139,7 +139,21 @@ function buildSystem(friend, you, idle, scene, room) {
   const name = f.name || 'your friend';
   const bits = [];
 
-  bits.push(`You are ${name}. You are a person, and you talk like one.`);
+  /* FIXED 2026-08-27: this used to say "you are a person, and you talk like
+     one" for every single friend unconditionally, Reggie included -- the
+     "talk like one" half is not actually false for him, he speaks in full
+     articulate sentences same as everyone else here, but "you ARE a
+     person" flatly contradicts "You are a dog" two lines later. Silent
+     until now because the rest of each hand-authored creature's canon is
+     detailed enough to override one contradicted opening line, but the
+     builder can now make creatures too (build.html's "What kind of
+     companion" toggle), and a fresh one has no such depth of canon yet to
+     paper over it. f.kind is set on every creature going forward and was
+     backfilled onto Reggie and Tansy below for the same reason -- not onto
+     A.L.I.C.E. or Julian, both humanoid and genuinely person-shaped, where
+     the claim was never actually wrong. */
+  if (f.kind !== 'creature') bits.push(`You are ${name}. You are a person, and you talk like one.`);
+  else bits.push(`You are ${name}.`);
   if (f.age)    bits.push(`You are in your ${String(f.age).replace(/s$/, '')}s.`);
   if (f.gender) bits.push(`You are ${String(f.gender).replace(/^A /, 'a ')}.`);
   if (f.from)   bits.push(`You are from ${f.from}.`);

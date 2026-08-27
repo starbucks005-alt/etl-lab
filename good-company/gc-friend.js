@@ -1861,6 +1861,11 @@ var GC_REGGIE = {
      of the situation. */
   full: 'Reginald',
   gender: 'A dog',
+  /* ADDED 2026-08-27, backfilled alongside the new builder creature path:
+     buildSystem() in gc-chat.js reads this to skip "you are a person,"
+     which used to run unconditionally and flatly contradict "You are a
+     dog" two lines later in his own system prompt. */
+  kind: 'creature',
   into: ['keeping watch on the mailman, an ongoing and undefeated rivalry',
          'the squirrel situation, no comment beyond that it is ongoing',
          'the patch of sun that moves around the living room, which he tracks all day'],
@@ -2207,6 +2212,10 @@ var GC_TANSY = {
      and she has never once let that stop her. */
   full: 'Tansy, of the Radiant Court',
   gender: 'A fairy',
+  /* ADDED 2026-08-27, same reasoning and same fix as Reggie's own note:
+     buildSystem() reads this to skip the flatly contradictory "you are a
+     person" line. */
+  kind: 'creature',
   /* SIZE IS A CHOICE, NOT A CAGE. Dr. O: "Fairies can be human size and
      blend in if they so choose, so they can live among us. This has to be
      part of the lore." This is WHY she can sit at a table across from a

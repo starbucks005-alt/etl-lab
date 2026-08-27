@@ -251,6 +251,56 @@ function facePrompt(f, idx, nonce) {
   return bits.join(' ');
 }
 
+/* creaturePrompt — ADDED 2026-08-27 for the new nonhuman builder path
+   (build.html's "What kind of companion" toggle). facePrompt() above is
+   built entirely around a human subject -- ancestry rotation, "not a
+   celebrity," "hair done," work clothes -- none of which makes sense
+   pointed at a dog or a fairy, so this is a genuinely separate prompt
+   rather than a branch bolted onto the human one.
+
+   f.gender CARRIES THE SPECIES HERE. Not a new field: the creature-mode
+   question in build.html is "What are they" writing into the same `gender`
+   value Reggie's own canon already uses this way (`gender: 'A dog'`), so
+   this reads it exactly like facePrompt() does, just without treating it
+   as one clause among several -- it is the actual subject of the sentence.
+
+   KEPT FROM THE HUMAN PROMPT: warm setting/light/framing, no writing in
+   the frame, appealing rather than plain. DROPPED: ancestry (a species has
+   no ancestry to rotate), celebrity/likeness language (does not apply),
+   "made an effort" clothing language (most creatures do not wear
+   clothes, and insisting on it is how a dog ends up in a cardigan). */
+function creaturePrompt(f, idx, nonce) {
+  const bits = [];
+  const subject = f.gender ? String(f.gender).replace(/^An? /i, '').trim() : 'creature';
+
+  bits.push('A photograph of a real ' + subject + '. Natural photography, not an ' +
+            'illustration, not a render, not a cartoon, not a mascot costume.');
+
+  if (f.into) bits.push('They are into ' + (Array.isArray(f.into) ? f.into.join(', ') : f.into) + '.');
+  if (f.work) bits.push('What they do: ' + f.work + '.');
+
+  /* Manner and rotation reused from the human set -- an expression and a
+     angle are species-neutral, and reusing them keeps four genuinely
+     different photographs instead of four copies of one description. */
+  bits.push(MANNER[idx % MANNER.length]);
+
+  bits.push('A particular, individual ' + subject + ' with its own real features and its ' +
+            'own particular look, not a generic or idealised example of the type. Full of ' +
+            'life and personality, an expression that makes you want to know them.');
+
+  bits.push(pick(SETTING, nonce + 1));
+  bits.push(pick(LIGHT, nonce + 2));
+  bits.push(pick(FRAME, nonce + 3));
+
+  bits.push('Vertical portrait orientation, taller than it is wide. Shallow depth of ' +
+            'field. Real texture, real detail, nothing smoothed or stylised.');
+
+  bits.push('Absolutely no writing anywhere in the frame. No text, no lettering, no ' +
+            'numbers, no logos, no signage, no watermark, no caption, no border.');
+
+  return bits.join(' ');
+}
+
 exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: CORS, body: '' };
   if (event.httpMethod !== 'POST') return json(405, { error: 'post_only' });
@@ -281,9 +331,11 @@ exports.handler = async (event) => {
   const nn = Number(body.nonce);
   const nonce = Number.isFinite(nn) ? Math.floor(Math.abs(nn)) + idx : idx;
 
+  const prompt = (f.kind === 'creature') ? creaturePrompt(f, idx, nonce) : facePrompt(f, idx, nonce);
+
   let face;
   try {
-    face = await gemini.generate(facePrompt(f, idx, nonce));   // no aspect, see facePrompt
+    face = await gemini.generate(prompt);   // no aspect, see facePrompt/creaturePrompt
   } catch (err) {
     /* Reported with the reason the model actually gave. One card fails, the
        other three still land, and the page says which. */
